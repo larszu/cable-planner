@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useProjectStore } from '../../store/projectStore'
 import type { ConnectorType, EquipmentTemplate, Port } from '../../types/equipment'
@@ -66,6 +66,13 @@ export const LibraryPanel = () => {
     defaultGroup('out'),
   ])
   const [tab, setTab] = useState<'equipment' | 'cables'>('equipment')
+  // Category management state
+  const [newGroupName, setNewGroupName] = useState('')
+  const [showNewGroup, setShowNewGroup] = useState(false)
+  const [collapsedCats, setCollapsedCats] = useState<Set<string>>(new Set())
+  const [showEmpty, setShowEmpty] = useState(false)
+  const [movingItem, setMovingItem] = useState<string | null>(null)
+  const newGroupInputRef = useRef<HTMLInputElement>(null)
 
   const nextPosition = useMemo(
     () => ({
@@ -150,34 +157,78 @@ export const LibraryPanel = () => {
 
       {tab === 'equipment' && (
         <>
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-2 flex items-center justify-between">
             <h2 className="text-sm font-semibold">Equipment Library</h2>
             <div className="flex gap-1">
               <button
                 type="button"
                 onClick={() => {
-                  const cat = window.prompt('Name of new category/group:')?.trim()
-                  if (cat) addKnownCategories([cat])
+                  setShowNewGroup((v) => !v)
+                  setTimeout(() => newGroupInputRef.current?.focus(), 50)
                 }}
                 className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
-                title="Create a new empty category"
+                title="Add new category"
               >
-                + Group
+                + Gruppe
               </button>
               <button
                 type="button"
                 onClick={() => setShowCreateDialog(true)}
                 className="rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
               >
-                + Custom
+                + Gerät
               </button>
             </div>
           </div>
-          <p className="mb-2 text-[11px] text-slate-400">
-            Drag items onto the canvas or onto a group header to move them.
-          </p>
 
-          <div className="flex-1 space-y-3 overflow-auto">
+          {showNewGroup && (
+            <form
+              className="mb-2 flex gap-1"
+              onSubmit={(e) => {
+                e.preventDefault()
+                const cat = newGroupName.trim()
+                if (cat) {
+                  addKnownCategories([cat])
+                  setNewGroupName('')
+                  setShowNewGroup(false)
+                }
+              }}
+            >
+              <input
+                ref={newGroupInputRef}
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                placeholder="Kategoriename…"
+                className="flex-1 rounded border border-slate-600 bg-slate-900 p-1.5 text-xs"
+              />
+              <button
+                type="submit"
+                className="rounded bg-emerald-700 px-2 text-xs hover:bg-emerald-600"
+              >
+                OK
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowNewGroup(false)}
+                className="rounded bg-slate-700 px-2 text-xs hover:bg-slate-600"
+              >
+                ✕
+              </button>
+            </form>
+          )}
+
+          <div className="mb-1 flex items-center justify-between text-[10px] text-slate-500">
+            <span className="italic">Auf Canvas ziehen oder klicken zum Hinzufügen</span>
+            <button
+              type="button"
+              onClick={() => setShowEmpty((v) => !v)}
+              className="underline hover:text-slate-300"
+            >
+              {showEmpty ? 'Leere ausblenden' : 'Leere zeigen'}
+            </button>
+          </div>
+
+          <div className="flex-1 space-y-1 overflow-auto">
             {(() => {
               const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
               const allCats = Array.from(new Set([...knownCategories, ...usedCats]))
@@ -188,70 +239,100 @@ export const LibraryPanel = () => {
                 const items = customLibrary.filter(
                   (t) => (t.category || 'Sonstiges') === cat,
                 )
+                if (!showEmpty && items.length === 0) return null
+                const collapsed = collapsedCats.has(cat)
                 return (
                   <section
                     key={cat}
                     onDragOver={(event) => {
-                      if (
-                        event.dataTransfer.types.includes(
-                          'application/cable-planner-equipment',
-                        )
-                      ) {
+                      if (event.dataTransfer.types.includes('application/cable-planner-equipment')) {
                         event.preventDefault()
                         event.dataTransfer.dropEffect = 'move'
                       }
                     }}
                     onDrop={(event) => {
-                      const raw = event.dataTransfer.getData(
-                        'application/cable-planner-equipment',
-                      )
+                      const raw = event.dataTransfer.getData('application/cable-planner-equipment')
                       if (!raw) return
                       try {
                         const tpl = JSON.parse(raw) as EquipmentTemplate
-                        if (tpl.name) {
-                          event.preventDefault()
-                          setCustomTemplateCategory(tpl.name, cat)
-                        }
-                      } catch {
-                        /* ignore */
-                      }
+                        if (tpl.name) { event.preventDefault(); setCustomTemplateCategory(tpl.name, cat) }
+                      } catch { /* ignore */ }
                     }}
-                    className="rounded border border-slate-800 p-1"
+                    className="rounded border border-slate-800"
                   >
-                    <div className="mb-1 flex items-center justify-between px-1 text-[11px] uppercase tracking-wide text-slate-400">
-                      <span>
-                        {cat} <span className="text-slate-600">({items.length})</span>
-                      </span>
+                    {/* Category header */}
+                    <div className="flex items-center justify-between px-2 py-1">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCollapsedCats((prev) => {
+                            const next = new Set(prev)
+                            collapsed ? next.delete(cat) : next.add(cat)
+                            return next
+                          })
+                        }
+                        className="flex flex-1 items-center gap-1 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-400 hover:text-slate-200"
+                      >
+                        <span>{collapsed ? '▶' : '▼'}</span>
+                        <span>{cat}</span>
+                        <span className="font-normal text-slate-600">({items.length})</span>
+                      </button>
                     </div>
-                    {items.length === 0 ? (
-                      <div className="px-1 py-2 text-[11px] italic text-slate-600">
-                        Drop items here or add from "+ Custom".
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {items.map((item) => (
-                          <div key={item.name} className="space-y-1">
-                            <LibraryItem
-                              item={item}
-                              onAdd={() => addEquipment({ ...item, ...nextPosition })}
-                              onRemove={() => removeCustomTemplate(item.name)}
-                            />
-                            <select
-                              aria-label={`Move ${item.name} to another category`}
-                              value={cat}
-                              onChange={(event) =>
-                                setCustomTemplateCategory(item.name, event.target.value)
-                              }
-                              className="w-full rounded border border-slate-800 bg-slate-950 p-1 text-[10px] text-slate-400"
-                            >
-                              {allCats.map((c) => (
-                                <option key={c} value={c}>
-                                  Move to: {c}
-                                </option>
-                              ))}
-                            </select>
+
+                    {/* Items */}
+                    {!collapsed && (
+                      <div className="space-y-1 px-1 pb-1">
+                        {items.length === 0 ? (
+                          <div className="px-1 py-1 text-[11px] italic text-slate-600">
+                            Gerät hierher ziehen zum Verschieben
                           </div>
-                        ))}
+                        ) : (
+                          items.map((item) => (
+                            <div key={item.name} className="group/item relative">
+                              <LibraryItem
+                                item={item}
+                                onAdd={() => addEquipment({ ...item, ...nextPosition })}
+                                onRemove={() => removeCustomTemplate(item.name)}
+                              />
+                              {/* Move-to control — shown when this item is the "active" one */}
+                              {movingItem === item.name ? (
+                                <div className="mt-0.5 flex items-center gap-1">
+                                  <select
+                                    autoFocus
+                                    defaultValue=""
+                                    onChange={(e) => {
+                                      if (e.target.value) {
+                                        setCustomTemplateCategory(item.name, e.target.value)
+                                      }
+                                      setMovingItem(null)
+                                    }}
+                                    onBlur={() => setMovingItem(null)}
+                                    className="flex-1 rounded border border-slate-600 bg-slate-900 p-1 text-[11px]"
+                                  >
+                                    <option value="" disabled>Verschieben nach…</option>
+                                    {allCats.filter((c) => c !== cat).map((c) => (
+                                      <option key={c} value={c}>{c}</option>
+                                    ))}
+                                  </select>
+                                  <button
+                                    type="button"
+                                    onClick={() => setMovingItem(null)}
+                                    className="text-slate-500 hover:text-slate-200 text-xs"
+                                  >✕</button>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setMovingItem(item.name)}
+                                  className="absolute right-7 top-1 hidden rounded bg-slate-700 px-1 py-0.5 text-[10px] hover:bg-slate-600 group-hover/item:block"
+                                  title="In andere Kategorie verschieben"
+                                >
+                                  ↗
+                                </button>
+                              )}
+                            </div>
+                          ))
+                        )}
                       </div>
                     )}
                   </section>
