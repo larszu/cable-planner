@@ -127,7 +127,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
   closeCableDialog: () => set({ pendingConnection: undefined, showCableDialog: false }),
   createCableFromPending: (draft) =>
     set((state) => {
-      if (!state.pendingConnection.source || !state.pendingConnection.target) {
+      if (!state.pendingConnection || !state.pendingConnection.source || !state.pendingConnection.target) {
         return { pendingConnection: undefined, showCableDialog: false }
       }
 
