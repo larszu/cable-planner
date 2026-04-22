@@ -2,7 +2,7 @@
 
 declare global {
   interface Window {
-    cablePlanner: {
+    cablePlanner?: {
       credentials: {
         getToken: () => Promise<string | null>
         saveToken: (token: string) => Promise<boolean>

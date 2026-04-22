@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { cablePlannerApi } from '../lib/bridge'
 import { useProjectStore } from '../store/projectStore'
 import type { CablePlannerProject } from '../types/project'
 
@@ -15,18 +16,18 @@ export const useProject = () => {
   const filePath = useProjectStore((state) => state.filePath)
 
   const refreshRecent = useCallback(async () => {
-    const recents = await window.cablePlanner.project.getRecentProjects()
+    const recents = await cablePlannerApi.project.getRecentProjects()
     setRecentProjects(recents)
   }, [setRecentProjects])
 
   const newProject = useCallback(async () => {
-    await window.cablePlanner.project.newProject()
+    await cablePlannerApi.project.newProject()
     clear()
     await refreshRecent()
   }, [clear, refreshRecent])
 
   const openProject = useCallback(async () => {
-    const result = (await window.cablePlanner.project.openProject()) as OpenProjectResponse | null
+    const result = (await cablePlannerApi.project.openProject()) as OpenProjectResponse | null
     if (result) {
       loadProject(result.data, result.filePath)
       await refreshRecent()
@@ -34,7 +35,7 @@ export const useProject = () => {
   }, [loadProject, refreshRecent])
 
   const saveProject = useCallback(async () => {
-    const path = await window.cablePlanner.project.saveProject(project, filePath)
+    const path = await cablePlannerApi.project.saveProject(project, filePath)
     if (path) {
       useProjectStore.getState().setFilePath(path)
       await refreshRecent()
@@ -42,7 +43,7 @@ export const useProject = () => {
   }, [filePath, project, refreshRecent])
 
   const saveProjectAs = useCallback(async () => {
-    const path = await window.cablePlanner.project.saveProjectAs(project)
+    const path = await cablePlannerApi.project.saveProjectAs(project)
     if (path) {
       useProjectStore.getState().setFilePath(path)
       await refreshRecent()

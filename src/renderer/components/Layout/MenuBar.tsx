@@ -5,6 +5,8 @@ interface MenuBarProps {
   onSaveProjectAs: () => void
   onOpenSettings: () => void
   onOpenRentmanImport: () => void
+  onExportPdf: () => void
+  webMode?: boolean
 }
 
 const menuButtonClass = 'rounded bg-slate-800 px-2 py-1 text-xs text-slate-100 hover:bg-slate-700'
@@ -16,6 +18,8 @@ export const MenuBar = ({
   onSaveProjectAs,
   onOpenSettings,
   onOpenRentmanImport,
+  onExportPdf,
+  webMode,
 }: MenuBarProps) => {
   return (
     <header className="flex items-center justify-between border-b border-slate-700 bg-slate-950 px-3 py-2">
@@ -33,6 +37,18 @@ export const MenuBar = ({
         <button type="button" onClick={onSaveProjectAs} className={menuButtonClass}>
           Save As
         </button>
+        <button
+          type="button"
+          onClick={onExportPdf}
+          className="rounded bg-amber-700 px-2 py-1 text-xs text-slate-100 hover:bg-amber-600"
+        >
+          Export PDF
+        </button>
+        {webMode && (
+          <span className="ml-2 rounded bg-sky-900 px-2 py-1 text-[10px] uppercase tracking-wide text-sky-200">
+            Web Mode
+          </span>
+        )}
       </div>
       <div className="flex items-center gap-2 text-xs">
         <button type="button" onClick={onOpenRentmanImport} className={menuButtonClass}>
