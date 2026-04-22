@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "CommonJS",
+    "moduleResolution": "Node10",
+    "ignoreDeprecations": "6.0",
     "lib": ["ES2022"],
     "strict": true,
     "esModuleInterop": true,
@@ -14,6 +15,5 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["src/main/**/*.ts", "src/main/**/*.cts"],
-  "exclude": ["src/main/preload.cts"]
+  "include": ["src/main/preload.cts"]
 }
