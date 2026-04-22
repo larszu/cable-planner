@@ -57,10 +57,28 @@ const CanvasContent = () => {
   )
 
   // Local state keeps React Flow's controlled node positions in sync during drag.
-  // Without applyNodeChanges the node would snap back on drag-end.
+  // We initialise once from the store and then apply changes incrementally.
+  // A wholesale replace on every store update is avoided because it causes nodes
+  // to jump when other items in the array are deleted/added.
   const [rfNodes, setRfNodes] = useState<Node[]>(nodes)
+
+  // Sync store → RF only for structural changes (adds/removes), identified by
+  // comparing the id-set. Position updates flow the other way (RF → store via
+  // onNodesChange), so we must NOT overwrite positions from the store during drag.
+  const prevIdsRef = useRef<string>(nodes.map((n) => n.id).join(','))
   useEffect(() => {
-    setRfNodes(nodes)
+    const nextIds = nodes.map((n) => n.id).join(',')
+    if (nextIds === prevIdsRef.current) return
+    prevIdsRef.current = nextIds
+
+    setRfNodes((current) => {
+      const currentById = new Map(current.map((n) => [n.id, n]))
+      return nodes.map((n) => {
+        const existing = currentById.get(n.id)
+        // Keep the current RF position if the node already exists (don't reset dragged pos).
+        return existing ? { ...n, position: existing.position } : n
+      })
+    })
   }, [nodes])
 
   const edges = useMemo<Edge[]>(
