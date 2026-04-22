@@ -5,6 +5,8 @@ import { resolve } from 'node:path'
 export default defineConfig({
   plugins: [react()],
   root: '.',
+  // Use relative asset paths so file:// loading from Electron works.
+  base: './',
   server: {
     proxy: {
       '/api/rentman': {
