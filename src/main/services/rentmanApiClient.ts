@@ -7,8 +7,27 @@ const normalize = <T>(value: unknown): T => {
     return value as T
   }
 
-  if (value && typeof value === 'object' && 'data' in value) {
-    return (value as { data: T }).data
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>
+
+    if (Array.isArray(record.data)) {
+      return record.data as T
+    }
+
+    if (Array.isArray(record.results)) {
+      return record.results as T
+    }
+
+    if (Array.isArray(record.items)) {
+      return record.items as T
+    }
+
+    if (record.response && typeof record.response === 'object') {
+      const nested = record.response as Record<string, unknown>
+      if (Array.isArray(nested.data)) {
+        return nested.data as T
+      }
+    }
   }
 
   return value as T
@@ -29,11 +48,7 @@ export const createRentmanApiClient = (token: string) => {
       return normalize<unknown[]>(response.data)
     },
     async getProjectEquipment(projectId: string) {
-      const response = await client.get('/projectequipment', {
-        params: {
-          project: `/projects/${projectId}`,
-        },
-      })
+      const response = await client.get(`/projects/${encodeURIComponent(projectId)}/projectequipment`)
       return normalize<unknown[]>(response.data)
     },
     async getEquipment() {
@@ -41,8 +56,16 @@ export const createRentmanApiClient = (token: string) => {
       return normalize<unknown[]>(response.data)
     },
     async getEquipmentFolders() {
-      const response = await client.get('/equipmentfolders')
-      return normalize<unknown[]>(response.data)
+      try {
+        const response = await client.get('/equipmentfolders')
+        return normalize<unknown[]>(response.data)
+      } catch (error) {
+        // Token may lack permission for equipmentfolders; degrade gracefully.
+        if (axios.isAxiosError(error) && error.response?.status === 403) {
+          return [] as unknown[]
+        }
+        throw error
+      }
     },
   }
 }

@@ -9,6 +9,12 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const isDev = Boolean(process.env.VITE_DEV_SERVER_URL)
+const shouldOpenDevTools = process.env.ELECTRON_OPEN_DEVTOOLS === '1'
+
+// Prevents black-screen rendering issues seen on some Windows GPU drivers.
+if (process.platform === 'win32') {
+  app.disableHardwareAcceleration()
+}
 
 const createWindow = async () => {
   const mainWindow = new BrowserWindow({
@@ -16,6 +22,8 @@ const createWindow = async () => {
     height: 900,
     minWidth: 1100,
     minHeight: 700,
+    show: false,
+    backgroundColor: '#0f172a',
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -23,12 +31,22 @@ const createWindow = async () => {
     },
   })
 
+  mainWindow.webContents.on('did-fail-load', (_event, code, description, url) => {
+    console.error(`Renderer load failed (${code}) ${description}: ${url}`)
+  })
+
   if (isDev && process.env.VITE_DEV_SERVER_URL) {
     await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
-    mainWindow.webContents.openDevTools({ mode: 'detach' })
+    if (shouldOpenDevTools) {
+      mainWindow.webContents.openDevTools({ mode: 'detach' })
+    }
   } else {
     await mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
 }
 
 app.whenReady().then(async () => {

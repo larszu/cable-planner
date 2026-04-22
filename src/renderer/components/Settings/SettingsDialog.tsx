@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { cablePlannerApi } from '../../lib/bridge'
 import { useSettingsStore } from '../../store/settingsStore'
 
 interface SettingsDialogProps {
@@ -20,7 +21,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
       return
     }
 
-    window.cablePlanner.credentials.getToken().then((stored) => {
+    cablePlannerApi.credentials.getToken().then((stored) => {
       setHasToken(Boolean(stored))
       setToken(stored ?? '')
       setTokenStatus(stored ? 'Token loaded from secure storage.' : 'No token configured')
@@ -34,7 +35,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const save = async () => {
     setBusy(true)
     try {
-      await window.cablePlanner.credentials.saveToken(token)
+      await cablePlannerApi.credentials.saveToken(token)
       setHasToken(true)
       setTokenStatus('Token saved securely.')
     } catch (error) {
@@ -47,7 +48,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const test = async () => {
     setBusy(true)
     try {
-      const result = await window.cablePlanner.credentials.testToken()
+      const result = await cablePlannerApi.credentials.testToken()
       setTokenStatus(result.message)
     } finally {
       setBusy(false)
@@ -57,7 +58,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const remove = async () => {
     setBusy(true)
     try {
-      await window.cablePlanner.credentials.deleteToken()
+      await cablePlannerApi.credentials.deleteToken()
       setToken('')
       setHasToken(false)
       setTokenStatus('Token deleted.')
