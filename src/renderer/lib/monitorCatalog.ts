@@ -349,6 +349,24 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
       width: 200, height: 140,
     },
   },
+  // XVM-245W (24.5", 4K UHD — 2x 12G-SDI in, 12G-SDI out loop, 2x HDMI 2.0 in, DisplayPort in, Ref In)
+  {
+    match: ['tvlogic', 'xvm-245'],
+    template: {
+      name: 'TVLogic XVM-245W',
+      category: MON,
+      inputs: [
+        sdiIn('12G-SDI In 1'),
+        sdiIn('12G-SDI In 2'),
+        hdmiIn('HDMI In 1'),
+        hdmiIn('HDMI In 2'),
+        port('DisplayPort In', 'DisplayPort'),
+        sdiIn('Ref In'),
+      ],
+      outputs: [sdiOut('12G-SDI Out (Loop)')],
+      width: 240, height: 220,
+    },
+  },
 
   // ── Marshall Electronics ─────────────────────────────────────────────────
 
@@ -528,6 +546,7 @@ export const matchMonitorTemplate = (name: string): EquipmentTemplate | null => 
     lower.includes('tv logic') ||
     lower.includes('lvm-') ||
     lower.includes('lum-') ||
+    lower.includes('xvm-') ||
     (lower.includes('marshall') && (lower.includes('v-lcd') || lower.includes('monitor'))) ||
     (lower.includes('jvc') && (lower.includes('dt-v') || lower.includes('monitor'))) ||
     lower.includes('nec multisync')
