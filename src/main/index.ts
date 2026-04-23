@@ -5,6 +5,7 @@ import { registerCredentialsIpc } from './ipc/credentialsIpc.js'
 import { registerRentmanIpc } from './ipc/rentmanIpc.js'
 import { registerProjectIpc } from './ipc/projectIpc.js'
 import { registerAtemIpc } from './ipc/atemIpc.js'
+import { registerVideohubIpc } from './ipc/videohubIpc.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -57,6 +58,7 @@ app.whenReady().then(async () => {
   registerRentmanIpc()
   registerProjectIpc()
   registerAtemIpc()
+  registerVideohubIpc()
 
   await createWindow()
 

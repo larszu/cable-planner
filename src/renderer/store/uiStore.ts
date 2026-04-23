@@ -61,8 +61,8 @@ interface UiState extends PersistedUiState {
   cableEdit: { open: boolean; cableId?: string }
   openCableEdit: (cableId: string) => void
   closeCableEdit: () => void
-  videohubExport: { open: boolean; deviceId?: string }
-  openVideohubExport: (deviceId?: string) => void
+  videohubExport: { open: boolean; deviceId?: string; initialShowMatrix?: boolean }
+  openVideohubExport: (deviceId?: string, initialShowMatrix?: boolean) => void
   closeVideohubExport: () => void
   atemDialog: { open: boolean; deviceId?: string }
   openAtemDialog: (deviceId?: string) => void
@@ -127,7 +127,7 @@ export const useUiStore = create<UiState>((set) => ({
   openCableEdit: (cableId) => set({ cableEdit: { open: true, cableId } }),
   closeCableEdit: () => set({ cableEdit: { open: false } }),
   videohubExport: { open: false },
-  openVideohubExport: (deviceId) => set({ videohubExport: { open: true, deviceId } }),
+  openVideohubExport: (deviceId, initialShowMatrix) => set({ videohubExport: { open: true, deviceId, initialShowMatrix } }),
   closeVideohubExport: () => set({ videohubExport: { open: false } }),
   atemDialog: { open: false },
   openAtemDialog: (deviceId) => set({ atemDialog: { open: true, deviceId } }),

@@ -104,6 +104,28 @@ export const buildVideohubRoutingDump = (
 }
 
 /**
+ * Build just the VIDEO OUTPUT ROUTING command block to send to a real Videohub
+ * via TCP. The hub expects this exact format — one block terminated by \n\n.
+ *
+ * Example output:
+ *   VIDEO OUTPUT ROUTING:\n
+ *   0 3\n
+ *   1 0\n
+ *   \n
+ */
+export const buildVideohubRoutingCommand = (
+  routing: Record<number, number>,
+  totalOutputs: number,
+): string => {
+  const lines = ['VIDEO OUTPUT ROUTING:']
+  for (let i = 0; i < totalOutputs; i++) {
+    lines.push(`${i} ${routing[i] ?? 0}`)
+  }
+  lines.push('')
+  return lines.join('\n') + '\n'
+}
+
+/**
  * Known Videohub model presets. Used by the export dialog to pre-fill the
  * model name field — user can still override.
  */

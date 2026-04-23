@@ -170,6 +170,7 @@ export default function App() {
         <VideohubExportDialog
           onClose={closeVideohubExport}
           preselectedDeviceId={videohubExport.deviceId}
+          initialShowMatrix={videohubExport.initialShowMatrix}
         />
       )}
       {atemDialog.open && (
