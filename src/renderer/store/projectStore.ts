@@ -11,6 +11,8 @@ import { ubiquitiTemplates } from '../lib/ubiquitiCatalog'
 import { monitorTemplates } from '../lib/monitorCatalog'
 import { cameraTemplates } from '../lib/cameraCatalog'
 import { miscTemplates } from '../lib/miscCatalog'
+import { greengoTemplates } from '../lib/greengoCatalog'
+import type { GreenGoConfig } from '../types/greengo'
 
 type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
   Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>
@@ -20,7 +22,7 @@ const PROJECT_AUTOSAVE_KEY = 'cable-planner:projectAutosave'
 const KNOWN_CATEGORIES_KEY = 'cable-planner:knownCategories'
 const GROUP_PRESETS_KEY = 'cable-planner:groupPresets'
 const LIB_MIGRATION_KEY = 'cable-planner:libMigration'
-const LIB_MIGRATION_VERSION = '2026-04-misc-catalog-seed'
+const LIB_MIGRATION_VERSION = '2026-04-greengo-catalog-seed'
 
 const DEFAULT_CATEGORIES = [
   'Kameras',
@@ -43,7 +45,7 @@ const runLibraryMigration = () => {
     // Step 1 (earlier migration): the previous build auto-generated bogus
     // 1-in/1-out templates for every Rentman device. Ensure those are cleared
     // ONCE, but don't wipe libraries created by any later good migration.
-    const preservedVersions = new Set(['2026-04-reset', '2026-04-blackmagic-seed', '2026-04-monitor-camera-seed', LIB_MIGRATION_VERSION])
+    const preservedVersions = new Set(['2026-04-reset', '2026-04-blackmagic-seed', '2026-04-monitor-camera-seed', '2026-04-misc-catalog-seed', LIB_MIGRATION_VERSION])
     if (current && !preservedVersions.has(current)) {
       localStorage.removeItem(CUSTOM_LIB_KEY)
     }
@@ -54,7 +56,7 @@ const runLibraryMigration = () => {
     const existing: EquipmentTemplate[] = raw ? JSON.parse(raw) : []
     const byName = new Map(existing.map((t) => [t.name, t]))
     let added = false
-    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates]) {
+    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates]) {
       if (!byName.has(t.name)) {
         byName.set(t.name, t)
         added = true
@@ -243,6 +245,8 @@ interface ProjectState {
   saveGroupPreset: (name: string, equipmentIds: string[]) => void
   deleteGroupPreset: (id: string) => void
   placeGroupPreset: (presetId: string, x: number, y: number) => void
+  /** Save or replace the GreenGo intercom planning config in the project. */
+  updateGreenGoConfig: (config: GreenGoConfig) => void
 }
 
 const now = () => new Date().toISOString()
@@ -999,6 +1003,12 @@ export const useProjectStore = create<ProjectState>((set) => ({
         equipment: [...state.project.equipment, ...newEquipment],
         cables: [...state.project.cables, ...newCables],
       })
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  updateGreenGoConfig: (config) =>
+    set((state) => {
+      const updated = { ...state.project, greengoConfig: config }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

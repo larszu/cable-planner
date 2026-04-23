@@ -522,6 +522,7 @@ export const EquipmentProperties = () => {
   const customLibrary = useProjectStore((state) => state.customLibrary)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
   const openVideohubExport = useUiStore((state) => state.openVideohubExport)
+  const openGreenGoExport = useUiStore((state) => state.openGreenGoExport)
   const openAtemDialog = useUiStore((state) => state.openAtemDialog)
   const openAtemMvConfig = useUiStore((state) => state.openAtemMvConfig)
   const saveEquipmentAsTemplate = useProjectStore((state) => state.saveEquipmentAsTemplate)
@@ -536,6 +537,20 @@ export const EquipmentProperties = () => {
 
   return (
     <div className="space-y-3 text-xs">
+      {deviceKind === 'greengo' && (
+        <div className="rounded border border-emerald-700 bg-emerald-900/30 p-2">
+          <div className="mb-1 text-[10px] uppercase tracking-wide text-emerald-300">
+            GreenGo Intercom erkannt
+          </div>
+          <button
+            type="button"
+            onClick={() => openGreenGoExport()}
+            className="w-full rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
+          >
+            Intercom-Planung / .gg5 exportieren →
+          </button>
+        </div>
+      )}
       {deviceKind === 'videohub' && (
         <div className="rounded border border-purple-700 bg-purple-900/30 p-2">
           <div className="mb-1 text-[10px] uppercase tracking-wide text-purple-300">

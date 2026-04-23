@@ -7,6 +7,7 @@ import { PropertiesPanel } from './components/Properties/PropertiesPanel'
 import { RentmanImportDialog } from './components/Rentman/RentmanImportDialog'
 import { SettingsDialog } from './components/Settings/SettingsDialog'
 import { VideohubExportDialog } from './components/Export/VideohubExportDialog'
+import { GreenGoExportDialog } from './components/Export/GreenGoExportDialog'
 import { AtemDialog } from './components/Atem/AtemDialog'
 import { MultiviewerLayoutView } from './components/Atem/MultiviewerLayoutView'
 import { AtemMvConfigDialog } from './components/Atem/AtemMvConfigDialog'
@@ -54,6 +55,8 @@ export default function App() {
   const setPropertiesWidth = useUiStore((state) => state.setPropertiesWidth)
   const videohubExport = useUiStore((state) => state.videohubExport)
   const closeVideohubExport = useUiStore((state) => state.closeVideohubExport)
+  const greengoExport = useUiStore((state) => state.greengoExport)
+  const closeGreenGoExport = useUiStore((state) => state.closeGreenGoExport)
   const cableEdit = useUiStore((state) => state.cableEdit)
   const closeCableEdit = useUiStore((state) => state.closeCableEdit)
   const updateCable = useProjectStore((state) => state.updateCable)
@@ -172,6 +175,9 @@ export default function App() {
           preselectedDeviceId={videohubExport.deviceId}
           initialShowMatrix={videohubExport.initialShowMatrix}
         />
+      )}
+      {greengoExport.open && (
+        <GreenGoExportDialog onClose={closeGreenGoExport} />
       )}
       {atemDialog.open && (
         <AtemDialog onClose={closeAtemDialog} preselectedDeviceId={atemDialog.deviceId} />
