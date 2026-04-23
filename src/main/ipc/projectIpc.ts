@@ -20,6 +20,27 @@ const writeRecent = async (filePath: string) => {
   await writeFile(RECENT_PATH, JSON.stringify(dedupe, null, 2), 'utf-8')
 }
 
+/** Strip characters Windows / POSIX forbid in file names. */
+const sanitizeFileName = (raw: string): string => {
+  const trimmed = raw.trim()
+  if (!trimmed) return 'cable-project'
+  // Windows: < > : " / \ | ? *  +  control chars
+  // eslint-disable-next-line no-control-regex
+  const cleaned = trimmed.replace(/[<>:"/\\|?*\u0000-\u001f]/g, '_').replace(/\.+$/, '')
+  return cleaned || 'cable-project'
+}
+
+const defaultSavePath = (project: unknown): string => {
+  const name =
+    project && typeof project === 'object' && 'metadata' in project
+      ? String(((project as { metadata?: { name?: unknown } }).metadata?.name ?? '')).trim()
+      : ''
+  return `${sanitizeFileName(name || 'cable-project')}.json`
+}
+
+const ensureJsonExtension = (filePath: string): string =>
+  filePath.toLowerCase().endsWith('.json') ? filePath : `${filePath}.json`
+
 export const registerProjectIpc = () => {
   ipcMain.handle('project:new', async () => null)
 
@@ -50,7 +71,7 @@ export const registerProjectIpc = () => {
     if (!targetPath) {
       const { canceled, filePath } = await dialog.showSaveDialog({
         title: 'Save Cable Planner Project',
-        defaultPath: 'cable-project.json',
+        defaultPath: defaultSavePath(project),
         filters: [{ name: 'Cable Planner Project', extensions: ['json'] }],
       })
 
@@ -58,7 +79,9 @@ export const registerProjectIpc = () => {
         return null
       }
 
-      targetPath = filePath
+      targetPath = ensureJsonExtension(filePath)
+    } else {
+      targetPath = ensureJsonExtension(targetPath)
     }
 
     await writeFile(targetPath, JSON.stringify(project, null, 2), 'utf-8')
@@ -69,7 +92,7 @@ export const registerProjectIpc = () => {
   ipcMain.handle('project:save-as', async (_event, project: unknown) => {
     const { canceled, filePath } = await dialog.showSaveDialog({
       title: 'Save Cable Planner Project As',
-      defaultPath: 'cable-project.json',
+      defaultPath: defaultSavePath(project),
       filters: [{ name: 'Cable Planner Project', extensions: ['json'] }],
     })
 
@@ -77,9 +100,10 @@ export const registerProjectIpc = () => {
       return null
     }
 
-    await writeFile(filePath, JSON.stringify(project, null, 2), 'utf-8')
-    await writeRecent(filePath)
-    return filePath
+    const target = ensureJsonExtension(filePath)
+    await writeFile(target, JSON.stringify(project, null, 2), 'utf-8')
+    await writeRecent(target)
+    return target
   })
 
   ipcMain.handle('project:get-recent', () => readRecent())

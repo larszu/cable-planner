@@ -8,9 +8,31 @@ import {
 } from 'reactflow'
 import type { Cable } from '../../types/cable'
 import { useProjectStore } from '../../store/projectStore'
+import { CableWaypoints } from './CableWaypoints'
+import { computeObstacleAwareWaypoints, type Rect } from '../../lib/cableRouting'
 
 interface CableEdgeData {
   cable: Cable
+}
+
+/** Normalize waypoints so every segment is strictly horizontal or vertical.
+ *  Any diagonal is replaced by an L-corner (horizontal-first). */
+function normalizeOrthogonal(
+  src: { x: number; y: number },
+  wps: { x: number; y: number }[],
+  tgt: { x: number; y: number },
+  tol = 2,
+): { x: number; y: number }[] {
+  const pts = [src, ...wps, tgt]
+  const result: { x: number; y: number }[] = []
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p = pts[i]
+    const q = pts[i + 1]
+    const isDiag = Math.abs(q.x - p.x) > tol && Math.abs(q.y - p.y) > tol
+    if (i > 0) result.push({ x: p.x, y: p.y })
+    if (isDiag) result.push({ x: q.x, y: p.y }) // insert H-first corner
+  }
+  return result
 }
 
 const buildPath = (
@@ -23,6 +45,8 @@ const buildPath = (
     sourcePosition: EdgeProps['sourcePosition']
     targetPosition: EdgeProps['targetPosition']
   },
+  obstacles: Rect[],
+  obstacleIds: string[],
 ): [string, number, number] => {
   const routing = cable.routing ?? 'orthogonal'
 
@@ -39,7 +63,28 @@ const buildPath = (
     const [path, labelX, labelY] = getBezierPath(args)
     return [path, labelX, labelY]
   }
-  const waypoints = cable.waypoints ?? []
+  const manualWaypoints = cable.waypoints ?? []
+  // When the user has not placed any waypoints, compute an obstacle-aware
+  // detour so cables don't cross through equipment rectangles.
+  const autoWaypoints =
+    manualWaypoints.length === 0
+      ? computeObstacleAwareWaypoints(
+          { x: args.sourceX, y: args.sourceY },
+          { x: args.targetX, y: args.targetY },
+          obstacles,
+          new Set([cable.fromEquipmentId, cable.toEquipmentId]),
+          obstacleIds,
+        )
+      : []
+  const rawWaypoints = manualWaypoints.length > 0 ? manualWaypoints : autoWaypoints
+  const waypoints = rawWaypoints.length > 0
+    ? normalizeOrthogonal(
+        { x: args.sourceX, y: args.sourceY },
+        rawWaypoints,
+        { x: args.targetX, y: args.targetY },
+      )
+    : rawWaypoints
+
   if (waypoints.length === 0) {
     const [path, labelX, labelY] = getSmoothStepPath(args)
     return [path, labelX, labelY]
@@ -71,6 +116,23 @@ export const CableEdge = ({
 }: EdgeProps<CableEdgeData>) => {
   const cable = data?.cable
   const deleteCable = useProjectStore((state) => state.deleteCable)
+  const equipment = useProjectStore((state) => state.project.equipment)
+
+  const { obstacles, obstacleIds } = (() => {
+    const rects: Rect[] = []
+    const ids: string[] = []
+    for (const item of equipment) {
+      const HEADER = item.ipAddress ? 62 : 48
+      const ROW = 22
+      const PADDING = 8
+      const width = Math.max(item.width ?? 220, 200)
+      const portRows = Math.max(item.inputs.length, item.outputs.length, 1)
+      const height = Math.max(item.height ?? HEADER + portRows * ROW + PADDING, HEADER + portRows * ROW + PADDING)
+      rects.push({ x: item.x, y: item.y, width, height })
+      ids.push(item.id)
+    }
+    return { obstacles: rects, obstacleIds: ids }
+  })()
 
   const routingArgs = {
     sourceX,
@@ -81,7 +143,7 @@ export const CableEdge = ({
     targetPosition,
   }
   const [path, labelX, labelY] = cable
-    ? buildPath(cable, routingArgs)
+    ? buildPath(cable, routingArgs, obstacles, obstacleIds)
     : getSmoothStepPath(routingArgs)
 
   const strokeWidth = cable?.strokeWidth ?? 2.5
@@ -106,6 +168,15 @@ export const CableEdge = ({
         markerEnd={markerEnd}
         markerStart={markerStart}
       />
+      {cable && (
+        <CableWaypoints
+          cable={cable}
+          edgeId={id}
+          selected={!!selected}
+          source={{ x: sourceX, y: sourceY }}
+          target={{ x: targetX, y: targetY }}
+        />
+      )}
       {label && (
         <EdgeLabelRenderer>
           <div

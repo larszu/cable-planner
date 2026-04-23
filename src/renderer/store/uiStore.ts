@@ -11,6 +11,11 @@ interface PersistedUiState {
   gridSize: number
   defaultRouting: EdgeRouting
   defaultArrow: boolean
+  libraryWidth: number
+  propertiesWidth: number
+  /** Whether cable color on the canvas is derived from the manually set color
+   * or from the standard length-color coding. */
+  cableColorMode: 'manual' | 'byLength'
 }
 
 const defaults: PersistedUiState = {
@@ -20,6 +25,9 @@ const defaults: PersistedUiState = {
   gridSize: 10,
   defaultRouting: 'orthogonal',
   defaultArrow: true,
+  libraryWidth: 260,
+  propertiesWidth: 280,
+  cableColorMode: 'manual',
 }
 
 const load = (): PersistedUiState => {
@@ -47,6 +55,38 @@ interface UiState extends PersistedUiState {
   setGridSize: (value: number) => void
   setDefaultRouting: (value: EdgeRouting) => void
   setDefaultArrow: (value: boolean) => void
+  setLibraryWidth: (value: number) => void
+  setPropertiesWidth: (value: number) => void
+  setCableColorMode: (value: 'manual' | 'byLength') => void
+  cableEdit: { open: boolean; cableId?: string }
+  openCableEdit: (cableId: string) => void
+  closeCableEdit: () => void
+  videohubExport: { open: boolean; deviceId?: string }
+  openVideohubExport: (deviceId?: string) => void
+  closeVideohubExport: () => void
+  atemDialog: { open: boolean; deviceId?: string }
+  openAtemDialog: (deviceId?: string) => void
+  closeAtemDialog: () => void
+  atemMvLayout: { open: boolean }
+  openAtemMvLayout: () => void
+  closeAtemMvLayout: () => void
+  atemMvConfig: { open: boolean; deviceId?: string }
+  openAtemMvConfig: (deviceId?: string) => void
+  closeAtemMvConfig: () => void
+  /**
+   * When the user is drawing a cable by clicking (draw.io-style), this holds
+   * the start handle and the list of waypoints the user has placed on the
+   * pane so far. `null` while no cable is being drawn.
+   */
+  pendingCable: {
+    nodeId: string
+    handleId: string
+    handleType: 'source' | 'target'
+    waypoints: { x: number; y: number }[]
+  } | null
+  startPendingCable: (start: { nodeId: string; handleId: string; handleType: 'source' | 'target' }) => void
+  addPendingWaypoint: (pt: { x: number; y: number }) => void
+  clearPendingCable: () => void
 }
 
 const applyPatch =
@@ -59,6 +99,9 @@ const applyPatch =
       gridSize: state.gridSize,
       defaultRouting: state.defaultRouting,
       defaultArrow: state.defaultArrow,
+      libraryWidth: state.libraryWidth,
+      propertiesWidth: state.propertiesWidth,
+      cableColorMode: state.cableColorMode,
       ...patch,
     }
     persist(next)
@@ -75,4 +118,34 @@ export const useUiStore = create<UiState>((set) => ({
   setGridSize: (value) => set(applyPatch({ gridSize: Math.max(2, Math.min(100, value)) })),
   setDefaultRouting: (value) => set(applyPatch({ defaultRouting: value })),
   setDefaultArrow: (value) => set(applyPatch({ defaultArrow: value })),
+  setLibraryWidth: (value) =>
+    set(applyPatch({ libraryWidth: Math.max(180, Math.min(600, Math.round(value))) })),
+  setPropertiesWidth: (value) =>
+    set(applyPatch({ propertiesWidth: Math.max(220, Math.min(600, Math.round(value))) })),
+  setCableColorMode: (value) => set(applyPatch({ cableColorMode: value })),
+  cableEdit: { open: false },
+  openCableEdit: (cableId) => set({ cableEdit: { open: true, cableId } }),
+  closeCableEdit: () => set({ cableEdit: { open: false } }),
+  videohubExport: { open: false },
+  openVideohubExport: (deviceId) => set({ videohubExport: { open: true, deviceId } }),
+  closeVideohubExport: () => set({ videohubExport: { open: false } }),
+  atemDialog: { open: false },
+  openAtemDialog: (deviceId) => set({ atemDialog: { open: true, deviceId } }),
+  closeAtemDialog: () => set({ atemDialog: { open: false } }),
+  atemMvLayout: { open: false },
+  openAtemMvLayout: () => set({ atemMvLayout: { open: true } }),
+  closeAtemMvLayout: () => set({ atemMvLayout: { open: false } }),
+  atemMvConfig: { open: false },
+  openAtemMvConfig: (deviceId) => set({ atemMvConfig: { open: true, deviceId } }),
+  closeAtemMvConfig: () => set({ atemMvConfig: { open: false } }),
+  pendingCable: null,
+  startPendingCable: (start) =>
+    set({ pendingCable: { ...start, waypoints: [] } }),
+  addPendingWaypoint: (pt) =>
+    set((state) =>
+      state.pendingCable
+        ? { pendingCable: { ...state.pendingCable, waypoints: [...state.pendingCable.waypoints, pt] } }
+        : state,
+    ),
+  clearPendingCable: () => set({ pendingCable: null }),
 }))

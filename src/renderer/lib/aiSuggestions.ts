@@ -1,4 +1,6 @@
+import { ALL_CONNECTOR_TYPES } from '../types/equipment'
 import type { ConnectorType } from '../types/equipment'
+import { ALL_SIGNAL_STANDARDS } from '../types/cableSpec'
 import type { SignalStandard } from '../types/cableSpec'
 import type { PortGroupHint } from './portSuggestions'
 
@@ -21,19 +23,8 @@ export const setGeminiApiKey = (key: string): void => {
   }
 }
 
-const CONNECTOR_VALUES: ConnectorType[] = [
-  'XLR', 'BNC', 'HDMI', 'SDI', 'Ethernet/RJ45', 'Fiber', 'DIN',
-  'DisplayPort', 'USB', 'IEC 230V', 'PowerCON', 'Schuko 230V', 'Custom',
-]
-
-const STANDARD_VALUES: SignalStandard[] = [
-  'SDI-SD', 'SDI-HD', 'SDI-3G', 'SDI-6G', 'SDI-12G',
-  'HDMI-1.4', 'HDMI-2.0', 'HDMI-2.1',
-  'DP-1.2', 'DP-1.4', 'DP-2.0',
-  'Eth-100', 'Eth-1G', 'Eth-10G',
-  'Analog-Audio', 'AES3', 'USB-2.0', 'USB-3.x',
-  'Power-230V', 'Fiber-SM', 'Fiber-MM', 'Generic',
-]
+const CONNECTOR_VALUES = ALL_CONNECTOR_TYPES
+const STANDARD_VALUES = ALL_SIGNAL_STANDARDS
 
 interface RawSuggestion {
   direction?: string

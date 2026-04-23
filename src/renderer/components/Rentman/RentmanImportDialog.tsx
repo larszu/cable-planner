@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useRentman } from '../../hooks/useRentman'
 import { useProjectStore } from '../../store/projectStore'
-import type { EquipmentItem, EquipmentTemplate, Port } from '../../types/equipment'
+import { matchBlackmagicTemplate } from '../../lib/blackmagicCatalog'
+import { matchUbiquitiTemplate } from '../../lib/ubiquitiCatalog'
+import type { EquipmentTemplate, Port } from '../../types/equipment'
 import { EquipmentChecklist } from './EquipmentChecklist'
 import { NewRentmanDeviceWizard, type UnknownCandidate } from './NewRentmanDeviceWizard'
 import { ProjectSelector } from './ProjectSelector'
@@ -104,7 +106,7 @@ const mapEquipment = (
       equipmentId,
       name: directName || equipmentNamesById[equipmentId] || 'Unnamed equipment',
       category,
-      checked: !hasParent,
+      checked: false,
       qty,
       isSetChild: hasParent,
       parentId: hasParent ? parentId : null,
@@ -117,7 +119,7 @@ const mapEquipment = (
   const knownIds = new Set(rows.map((r) => r.id))
   return rows.map((r) =>
     r.parentId && !knownIds.has(r.parentId)
-      ? { ...r, parentId: null, isSetChild: false, checked: true }
+      ? { ...r, parentId: null, isSetChild: false }
       : r,
   )
 }
@@ -129,12 +131,17 @@ interface RentmanImportDialogProps {
 
 export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps) => {
   const { loadProjects, loadProjectEquipment, loadFolders, loadEquipment } = useRentman()
-  const importEquipment = useProjectStore((state) => state.importEquipment)
   const customLibrary = useProjectStore((state) => state.customLibrary)
+  const projectEquipment = useProjectStore((state) => state.project.equipment)
+  const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const addCustomTemplate = useProjectStore((state) => state.addCustomTemplate)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
+  const updateProjectMetadata = useProjectStore((state) => state.updateProjectMetadata)
+  const linkedProjectId = useProjectStore((state) => state.project.metadata.rentmanProjectId)
+  const linkedProjectName = useProjectStore((state) => state.project.metadata.rentmanProjectName)
   const [projects, setProjects] = useState<RentmanProject[]>([])
-  const [projectSort, setProjectSort] = useState<'asc' | 'desc'>('asc')
+  const [projectSort, setProjectSort] = useState<'number-asc' | 'number-desc' | 'date-asc' | 'date-desc'>('number-desc')
+  const [projectQuery, setProjectQuery] = useState('')
   const [selectedProjectId, setSelectedProjectId] = useState('')
   const [items, setItems] = useState<RentmanEquipment[]>([])
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set())
@@ -144,6 +151,8 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const [wizardQueue, setWizardQueue] = useState<UnknownCandidate[] | null>(null)
   const [wizardTemplates, setWizardTemplates] = useState<Record<string, EquipmentTemplate>>({})
   const [wizardSkipped, setWizardSkipped] = useState<Set<string>>(new Set())
+  const [importResult, setImportResult] = useState<number | null>(null)
+  const [pendingProjectSwitch, setPendingProjectSwitch] = useState<{ id: string; name: string } | null>(null)
 
   const allCategories = useMemo(() => {
     const set = new Set<string>()
@@ -172,14 +181,36 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       const n = Number(p.number)
       return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY
     }
-    const copy = [...projects]
+    const dateValue = (p: RentmanProject): number => {
+      const iso = p.periodStart ?? p.periodEnd
+      if (!iso) return Number.NEGATIVE_INFINITY
+      const t = new Date(iso).getTime()
+      return Number.isFinite(t) ? t : Number.NEGATIVE_INFINITY
+    }
+    const q = projectQuery.trim().toLowerCase()
+    const filtered = q
+      ? projects.filter((p) => {
+          if (p.name.toLowerCase().includes(q)) return true
+          if (p.number !== undefined && String(p.number).toLowerCase().includes(q)) return true
+          if (p.status && p.status.toLowerCase().includes(q)) return true
+          return false
+        })
+      : projects
+    const copy = [...filtered]
     copy.sort((a, b) => {
-      const diff = numeric(a) - numeric(b)
-      if (diff !== 0) return projectSort === 'asc' ? diff : -diff
-      return projectSort === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+      switch (projectSort) {
+        case 'number-asc':
+          return numeric(a) - numeric(b) || a.name.localeCompare(b.name)
+        case 'number-desc':
+          return numeric(b) - numeric(a) || a.name.localeCompare(b.name)
+        case 'date-asc':
+          return dateValue(a) - dateValue(b) || a.name.localeCompare(b.name)
+        case 'date-desc':
+          return dateValue(b) - dateValue(a) || a.name.localeCompare(b.name)
+      }
     })
     return copy
-  }, [projects, projectSort])
+  }, [projects, projectSort, projectQuery])
   const checkedCount = useMemo(
     () => visibleItems.filter((item) => item.checked).length,
     [visibleItems],
@@ -207,7 +238,20 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     }
   }
 
-  const fetchEquipment = async (projectId: string) => {
+  const fetchEquipment = async (projectId: string, projectName?: string) => {
+    // If a different Rentman project is already linked and there are rentman items on canvas,
+    // ask for confirmation before switching.
+    const hasLinkedItems = projectEquipment.some((e) => e.rentmanId)
+    if (
+      linkedProjectId &&
+      linkedProjectId !== projectId &&
+      hasLinkedItems &&
+      !pendingProjectSwitch
+    ) {
+      const name = projectName ?? projects.find((p) => p.id === projectId)?.name ?? projectId
+      setPendingProjectSwitch({ id: projectId, name })
+      return
+    }
     setSelectedProjectId(projectId)
     setError('')
     setWarning('')
@@ -241,6 +285,14 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
 
       const mapped = mapEquipment(equipmentData, folders, equipmentNamesById)
       setItems(mapped)
+
+      // Compare against canvas equipment: flag items no longer in the project.
+      const fetchedEquipmentIds = new Set(mapped.map((i) => i.equipmentId).filter(Boolean))
+      for (const item of projectEquipment) {
+        if (!item.rentmanId) continue
+        const stillPresent = fetchedEquipmentIds.has(item.rentmanId)
+        updateEquipment(item.id, { rentmanRemoved: !stillPresent })
+      }
 
       // Publish Rentman folder names as known categories for dropdowns everywhere.
       const folderNames = Object.values(folders).filter(Boolean)
@@ -284,17 +336,21 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     )
   }
 
-  const placeItems = (selected: RentmanEquipment[], templatesByEquipmentId: Record<string, EquipmentTemplate>) => {
-    // Expand each selected row by its quantity into individual nodes on canvas.
-    const expanded: RentmanEquipment[] = []
+  const saveToLibrary = (
+    selected: RentmanEquipment[],
+    templatesByEquipmentId: Record<string, EquipmentTemplate>,
+  ): number => {
+    // One library template per unique device name — quantity is irrelevant for the template.
+    const seen = new Set<string>()
+    let addedCount = 0
     selected.forEach((item) => {
-      const n = Math.max(1, item.qty || 1)
-      for (let i = 0; i < n; i += 1) expanded.push(item)
-    })
-    const toImport: EquipmentItem[] = expanded.map((item, index) => {
-      const template =
+      if (seen.has(item.name)) return
+      seen.add(item.name)
+      const base =
         templatesByEquipmentId[item.equipmentId] ||
-        customLibrary.find((t) => t.name === item.name) || {
+        customLibrary.find((t) => t.name === item.name) ||
+        matchBlackmagicTemplate(item.name) ||
+        matchUbiquitiTemplate(item.name) || {
           name: item.name,
           category: item.category,
           inputs: [mapPort('Input 1')],
@@ -302,20 +358,22 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
           width: 220,
           height: 140,
         }
-      return {
-        id: uuidv4(),
-        name: template.name,
-        category: template.category || item.category,
+      addCustomTemplate({
+        ...base,
+        name: base.name || item.name,
+        category: base.category || item.category,
         rentmanId: item.equipmentId,
-        inputs: template.inputs.map((p) => ({ ...p, id: uuidv4() })),
-        outputs: template.outputs.map((p) => ({ ...p, id: uuidv4() })),
-        x: 120 + (index % 5) * 260,
-        y: 120 + Math.floor(index / 5) * 180,
-        width: template.width ?? 220,
-        height: template.height ?? 140,
-      }
+        rentmanSource: selectedProjectId,
+      })
+      addedCount++
     })
-    importEquipment(toImport)
+    // Link this Rentman project to the cable planner project.
+    const linkedProject = projects.find((p) => p.id === selectedProjectId)
+    updateProjectMetadata({
+      rentmanProjectId: selectedProjectId,
+      rentmanProjectName: linkedProject?.name,
+    })
+    return addedCount
   }
 
   const handleImport = () => {
@@ -326,6 +384,8 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     const unknownMap = new Map<string, UnknownCandidate>()
     selected.forEach((item) => {
       if (knownNames.has(item.name)) return
+      if (matchBlackmagicTemplate(item.name)) return
+      if (matchUbiquitiTemplate(item.name)) return
       if (unknownMap.has(item.equipmentId)) return
       unknownMap.set(item.equipmentId, {
         rentmanId: item.equipmentId,
@@ -335,8 +395,9 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     })
 
     if (unknownMap.size === 0) {
-      placeItems(selected, {})
-      onClose()
+      const count = saveToLibrary(selected, {})
+      setImportResult(count)
+      setTimeout(() => { setImportResult(null); onClose() }, 2000)
       return
     }
 
@@ -350,19 +411,19 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     skipped: Set<string>,
   ) => {
     const selected = visibleItems.filter((item) => item.checked)
-    // Use saved templates by rentmanId. For skipped items or ones not in wizard,
-    // the placeItems fallback already handles the name-match or generic case.
     void skipped
-    placeItems(selected, templates)
+    const count = saveToLibrary(selected, templates)
     setWizardQueue(null)
     setWizardTemplates({})
     setWizardSkipped(new Set())
-    onClose()
+    setImportResult(count)
+    setTimeout(() => { setImportResult(null); onClose() }, 2000)
   }
 
   const handleWizardSave = (candidate: UnknownCandidate, template: EquipmentTemplate) => {
-    addCustomTemplate(template)
-    const nextTemplates = { ...wizardTemplates, [candidate.rentmanId]: template }
+    const withSource: EquipmentTemplate = { ...template, rentmanSource: selectedProjectId }
+    addCustomTemplate(withSource)
+    const nextTemplates = { ...wizardTemplates, [candidate.rentmanId]: withSource }
     setWizardTemplates(nextTemplates)
     if (wizardQueue && candidate === wizardQueue[wizardQueue.length - 1]) {
       completeImportAfterWizard(nextTemplates, wizardSkipped)
@@ -386,6 +447,47 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
+      {/* ── Confirmation: switch linked Rentman project ── */}
+      {pendingProjectSwitch && (
+        <div className="w-full max-w-md rounded border border-amber-600 bg-slate-900 p-5 text-slate-100 shadow-xl">
+          <h3 className="mb-2 text-base font-semibold text-amber-400">Rentman-Projekt wechseln?</h3>
+          <p className="mb-1 text-sm text-slate-300">
+            Dieses Projekt ist bereits mit dem Rentman-Projekt
+            {linkedProjectName ? (
+              <> <span className="font-medium text-white">„{linkedProjectName}"</span></>
+            ) : (
+              <> <span className="font-mono text-xs text-slate-400">{linkedProjectId}</span></>
+            )} verknüpft.
+          </p>
+          <p className="mb-4 text-sm text-slate-300">
+            Soll stattdessen <span className="font-medium text-white">„{pendingProjectSwitch.name}"</span> geladen werden?
+            Bereits importierte Geräte auf der Canvas behalten ihre Verknüpfung.
+          </p>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setPendingProjectSwitch(null)}
+              className="rounded bg-slate-700 px-3 py-1.5 text-sm hover:bg-slate-600"
+            >
+              Abbrechen
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const { id, name } = pendingProjectSwitch
+                setPendingProjectSwitch(null)
+                void fetchEquipment(id, name)
+              }}
+              className="rounded bg-amber-600 px-3 py-1.5 text-sm font-medium hover:bg-amber-500"
+            >
+              Ja, Projekt wechseln
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!pendingProjectSwitch && (
+        <>
       <div className="w-full max-w-3xl rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-lg font-semibold">Import from Rentman</h3>
@@ -394,19 +496,78 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
           </button>
         </div>
 
-        <div className="mb-3 flex gap-2">
-          <button type="button" onClick={fetchProjects} className="rounded bg-sky-600 px-3 py-1 text-sm hover:bg-sky-500">
-            Load Projects
-          </button>
-          <button
-            type="button"
-            onClick={() => setProjectSort((s) => (s === 'asc' ? 'desc' : 'asc'))}
-            className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
-            title="Toggle project number sort order"
-          >
-            Sort # {projectSort === 'asc' ? '↑' : '↓'}
-          </button>
-          <ProjectSelector projects={sortedProjects} selectedProjectId={selectedProjectId} onSelect={fetchEquipment} />
+        <div className="mb-3 space-y-2 rounded border border-slate-800 bg-slate-950/40 p-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={fetchProjects}
+              className="rounded bg-sky-600 px-3 py-1 text-sm font-medium hover:bg-sky-500"
+            >
+              Projekte laden
+            </button>
+            <span className="text-xs text-slate-500">
+              {projects.length > 0
+                ? `${sortedProjects.length} / ${projects.length} Projekte`
+                : 'Noch keine Projekte geladen'}
+            </span>
+            <div className="ml-auto flex items-center gap-1 text-xs">
+              <span className="text-slate-400">Sortierung:</span>
+              {(
+                [
+                  ['number-desc', '# ↓'],
+                  ['number-asc', '# ↑'],
+                  ['date-desc', 'Datum ↓'],
+                  ['date-asc', 'Datum ↑'],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setProjectSort(value)}
+                  className={`rounded px-2 py-0.5 ${
+                    projectSort === value
+                      ? 'bg-sky-600 text-white'
+                      : 'bg-slate-700 hover:bg-slate-600'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={projectQuery}
+              onChange={(e) => setProjectQuery(e.target.value)}
+              placeholder="Suche nach Name, Nummer oder Status…"
+              className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-sm"
+            />
+            {projectQuery && (
+              <button
+                type="button"
+                onClick={() => setProjectQuery('')}
+                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+              >
+                Leeren
+              </button>
+            )}
+          </div>
+          <ProjectSelector
+            projects={sortedProjects}
+            selectedProjectId={selectedProjectId}
+            onSelect={fetchEquipment}
+          />
+          {items.length > 0 && selectedProjectId && (
+            <button
+              type="button"
+              onClick={() => void fetchEquipment(selectedProjectId)}
+              disabled={loading}
+              className="mt-1 w-full rounded bg-slate-700 px-2 py-1 text-xs text-slate-200 hover:bg-slate-600 disabled:opacity-50"
+            >
+              {loading ? 'Lädt…' : '↻ Neu laden & Abgleichen'}
+            </button>
+          )}
         </div>
 
         {loading && <div className="mb-2 text-sm text-slate-300">Loading…</div>}
@@ -454,18 +615,36 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               <span>{checkedCount} selected</span>
             </div>
             <EquipmentChecklist
-              items={visibleItems}
+              items={visibleItems.map((item) => {
+                const match =
+                  customLibrary.find((t) => t.name === item.name) ||
+                  matchBlackmagicTemplate(item.name) ||
+                  matchUbiquitiTemplate(item.name)
+                return match
+                  ? { ...item, templateMatch: match.name }
+                  : item
+              })}
               onToggle={toggleItem}
               onSetAll={setAllVisible}
               onQtyChange={setQty}
             />
-            <div className="mt-3 flex items-center justify-end text-sm">
+            <div className="mt-3 flex items-center justify-between text-sm">
+              {importResult !== null ? (
+                <span className="font-semibold text-emerald-400">
+                  ✓ {importResult} {importResult === 1 ? 'Gerät' : 'Geräte'} zur Library hinzugefügt
+                </span>
+              ) : (
+                <span className="text-xs text-slate-400">
+                  Geräte werden zur Equipment Library hinzugefügt, nicht direkt auf die Canvas platziert.
+                </span>
+              )}
               <button
                 type="button"
                 onClick={handleImport}
-                className="rounded bg-emerald-600 px-3 py-1 hover:bg-emerald-500"
+                disabled={importResult !== null}
+                className="rounded bg-emerald-600 px-3 py-1 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Import Selected
+                Zur Library hinzufügen
               </button>
             </div>
           </>
@@ -478,6 +657,8 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         onSkip={handleWizardSkip}
         onCancel={handleWizardCancel}
       />
+        </>
+      )}
     </div>
   )
 }

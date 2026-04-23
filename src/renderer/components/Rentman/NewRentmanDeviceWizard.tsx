@@ -8,15 +8,17 @@ const connectorOptions: ConnectorType[] = [
   'XLR',
   'BNC',
   'HDMI',
-  'SDI',
   'Ethernet/RJ45',
   'Fiber',
+  'SFP',
+  'SFP+',
   'DIN',
   'DisplayPort',
   'USB',
   'IEC 230V',
   'PowerCON',
   'Schuko 230V',
+  'C7 Eurostecker',
   'Custom',
 ]
 
