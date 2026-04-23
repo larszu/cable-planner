@@ -4,6 +4,8 @@ import { useRentman } from '../../hooks/useRentman'
 import { useProjectStore } from '../../store/projectStore'
 import { matchBlackmagicTemplate } from '../../lib/blackmagicCatalog'
 import { matchUbiquitiTemplate } from '../../lib/ubiquitiCatalog'
+import { matchMonitorTemplate } from '../../lib/monitorCatalog'
+import { matchCameraTemplate } from '../../lib/cameraCatalog'
 import type { EquipmentTemplate, Port } from '../../types/equipment'
 import { EquipmentChecklist } from './EquipmentChecklist'
 import { NewRentmanDeviceWizard, type UnknownCandidate } from './NewRentmanDeviceWizard'
@@ -350,7 +352,9 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         templatesByEquipmentId[item.equipmentId] ||
         customLibrary.find((t) => t.name === item.name) ||
         matchBlackmagicTemplate(item.name) ||
-        matchUbiquitiTemplate(item.name) || {
+        matchUbiquitiTemplate(item.name) ||
+        matchMonitorTemplate(item.name) ||
+        matchCameraTemplate(item.name) || {
           name: item.name,
           category: item.category,
           inputs: [mapPort('Input 1')],
@@ -386,6 +390,8 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       if (knownNames.has(item.name)) return
       if (matchBlackmagicTemplate(item.name)) return
       if (matchUbiquitiTemplate(item.name)) return
+      if (matchMonitorTemplate(item.name)) return
+      if (matchCameraTemplate(item.name)) return
       if (unknownMap.has(item.equipmentId)) return
       unknownMap.set(item.equipmentId, {
         rentmanId: item.equipmentId,
@@ -619,7 +625,9 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 const match =
                   customLibrary.find((t) => t.name === item.name) ||
                   matchBlackmagicTemplate(item.name) ||
-                  matchUbiquitiTemplate(item.name)
+                  matchUbiquitiTemplate(item.name) ||
+                  matchMonitorTemplate(item.name) ||
+                  matchCameraTemplate(item.name)
                 return match
                   ? { ...item, templateMatch: match.name }
                   : item

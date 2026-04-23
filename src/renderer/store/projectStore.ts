@@ -8,6 +8,8 @@ import type { CablePlannerProject } from '../types/project'
 import { useUiStore } from './uiStore'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
 import { ubiquitiTemplates } from '../lib/ubiquitiCatalog'
+import { monitorTemplates } from '../lib/monitorCatalog'
+import { cameraTemplates } from '../lib/cameraCatalog'
 
 type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
   Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>
@@ -17,7 +19,7 @@ const PROJECT_AUTOSAVE_KEY = 'cable-planner:projectAutosave'
 const KNOWN_CATEGORIES_KEY = 'cable-planner:knownCategories'
 const GROUP_PRESETS_KEY = 'cable-planner:groupPresets'
 const LIB_MIGRATION_KEY = 'cable-planner:libMigration'
-const LIB_MIGRATION_VERSION = '2026-04-ubiquiti-seed'
+const LIB_MIGRATION_VERSION = '2026-04-monitor-camera-seed'
 
 const DEFAULT_CATEGORIES = [
   'Kameras',
@@ -51,7 +53,7 @@ const runLibraryMigration = () => {
     const existing: EquipmentTemplate[] = raw ? JSON.parse(raw) : []
     const byName = new Map(existing.map((t) => [t.name, t]))
     let added = false
-    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates]) {
+    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates]) {
       if (!byName.has(t.name)) {
         byName.set(t.name, t)
         added = true
