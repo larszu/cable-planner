@@ -39,10 +39,16 @@ export const ProjectMetaDialog = ({
   const [clientLogo, setClientLogo] = useState<string | undefined>(undefined)
   const companyInputRef = useRef<HTMLInputElement>(null)
   const clientInputRef = useRef<HTMLInputElement>(null)
+  // Stash the latest `initial` in a ref so we can read it inside the open-effect
+  // without depending on its identity. Otherwise the effect would re-run and
+  // wipe user input every time the parent re-renders with a new metadata
+  // reference (e.g. after an autosave tick), making the dialog feel "dead".
+  const initialRef = useRef(initial)
+  initialRef.current = initial
 
   useEffect(() => {
     if (!open) return
-    const src = mode === 'new' ? ({} as ProjectMetadata) : initial
+    const src = mode === 'new' ? ({} as ProjectMetadata) : initialRef.current
     setName(mode === 'new' ? '' : src.name ?? '')
     setDescription(src.description ?? '')
     setAuthor(src.author ?? '')
@@ -51,7 +57,7 @@ export const ProjectMetaDialog = ({
     setProjectNumber(src.projectNumber ?? '')
     setCompanyLogo(src.companyLogo)
     setClientLogo(src.clientLogo)
-  }, [open, mode, initial])
+  }, [open, mode])
 
   if (!open) return null
 

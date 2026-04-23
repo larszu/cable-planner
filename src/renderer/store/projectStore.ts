@@ -720,13 +720,22 @@ export const useProjectStore = create<ProjectState>((set) => ({
     // Actually caller needs the portId — we encode as `${id}|${portId}` for simplicity.
     return `${id}|${portId}`
   },
-  clear: () =>
+  clear: () => {
+    // Also drop the persisted autosave copy — otherwise the old project
+    // would come back on the next app launch, which is surprising when the
+    // user explicitly started a fresh project.
+    try {
+      localStorage.removeItem(PROJECT_AUTOSAVE_KEY)
+    } catch {
+      /* ignore */
+    }
     set({
       project: defaultProject(),
       filePath: undefined,
       selectedEquipmentId: undefined,
       selectedCableId: undefined,
-    }),
+    })
+  },
   addCustomTemplate: (template) =>
     set((state) => {
       const next = [...state.customLibrary.filter((t) => t.name !== template.name), template]
