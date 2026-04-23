@@ -5,9 +5,9 @@ import { useProjectStore } from '../../store/projectStore'
 import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 
 const routingOptions: { value: EdgeRouting; label: string; hint: string }[] = [
-  { value: 'orthogonal', label: 'Ortho', hint: 'Right-angle routing (draw.io default)' },
-  { value: 'straight', label: 'Line', hint: 'Straight line' },
-  { value: 'curved', label: 'Curve', hint: 'Bezier curve' },
+  { value: 'orthogonal', label: 'Ortho', hint: 'Rechtwinkliges Routing (draw.io Standard)' },
+  { value: 'straight', label: 'Linie', hint: 'Gerade Linie' },
+  { value: 'curved', label: 'Kurve', hint: 'Bézier-Kurve' },
 ]
 
 export const CanvasToolbar = () => {
@@ -57,7 +57,7 @@ export const CanvasToolbar = () => {
           checked={snapToGrid}
           onChange={(event) => setSnapToGrid(event.target.checked)}
         />
-        Snap
+        Einrasten
       </label>
       <input
         type="number"
@@ -73,10 +73,10 @@ export const CanvasToolbar = () => {
           padding: '1px 4px',
           borderRadius: 3,
         }}
-        title="Grid size in pixels"
+        title="Rastergröße in Pixeln"
       />
       <span style={{ width: 1, height: 18, background: '#334155', margin: '0 4px' }} />
-      <span style={{ color: '#94a3b8' }}>Default:</span>
+      <span style={{ color: '#94a3b8' }}>Standard:</span>
       {routingOptions.map((opt) => (
         <button
           key={opt.value}
@@ -101,7 +101,7 @@ export const CanvasToolbar = () => {
           checked={defaultArrow}
           onChange={(event) => setDefaultArrow(event.target.checked)}
         />
-        Arrow
+        Pfeil
       </label>
       <span style={{ width: 1, height: 18, background: '#334155', margin: '0 4px' }} />
       {/* Cable color mode toggle */}

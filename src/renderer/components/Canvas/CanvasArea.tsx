@@ -165,6 +165,17 @@ const CanvasContent = () => {
     [project.cables, cableColorMode],
   )
 
+  // Helper: check if equipment position overlaps with others
+  const hasOverlap = (id: string, x: number, y: number, width: number, height: number): boolean => {
+    return project.equipment.some((eq) => {
+      if (eq.id === id) return false
+      const eqW = eq.width ?? 0
+      const eqH = eq.height ?? 0
+      // AABB intersection test
+      return !(x + width <= eq.x || x >= eq.x + eqW || y + height <= eq.y || y >= eq.y + eqH)
+    })
+  }
+
   const onNodesChange = (changes: NodeChange[]) => {
     // Track drag start/end per node so our store→RF sync knows which nodes
     // are currently being dragged (and therefore must keep their local pos).
@@ -177,10 +188,11 @@ const CanvasContent = () => {
         }
       }
     }
+    
+    // Update rfNodes during drag for visual feedback only
     setRfNodes((current) => {
       const next = applyNodeChanges(changes, current)
-      // Live group-drag: if a location is being dragged, shift contained
-      // equipment by the same delta in the local state so they visually track.
+      // Live group-drag: if a location is being dragged, shift contained equipment
       const drag = locationDragRef.current
       if (drag) {
         const posChange = changes.find(
@@ -204,18 +216,14 @@ const CanvasContent = () => {
       return next
     })
 
+    // Persist to store ONLY on drag-end to avoid infinite loop
     changes.forEach((change) => {
       if (change.type === 'position' && change.position && change.dragging === false) {
-        // Persist final position only on explicit drag-end (dragging: false).
-        // Spurious position events with dragging===undefined (e.g. React Flow
-        // internal re-layouts) are intentionally ignored here so they cannot
-        // overwrite positions in the store.
         const isLocation = locations.some((l) => l.id === change.id)
         if (isLocation) {
           const drag = locationDragRef.current
           const loc = locations.find((l) => l.id === change.id)
           if (drag && drag.locationId === change.id && loc) {
-            // Commit full delta (frame move + contained equipment) to store.
             const dx = change.position.x - loc.x
             const dy = change.position.y - loc.y
             moveLocationWithContents(change.id, dx, dy, drag.containedEquipmentIds)
@@ -224,20 +232,29 @@ const CanvasContent = () => {
           }
           locationDragRef.current = null
         } else {
-          updateEquipment(change.id, { x: change.position.x, y: change.position.y })
+          // Check overlap before persisting
+          const eq = project.equipment.find((e) => e.id === change.id)
+          if (eq && hasOverlap(eq.id, change.position.x, change.position.y, eq.width ?? 0, eq.height ?? 0)) {
+            // Revert to last position
+            const lastRfNode = rfNodes.find((n) => n.id === change.id)
+            if (lastRfNode) {
+              setRfNodes((current) =>
+                current.map((n) =>
+                  n.id === change.id ? { ...n, position: lastRfNode.position } : n,
+                ),
+              )
+            }
+          } else {
+            updateEquipment(change.id, { x: change.position.x, y: change.position.y })
+          }
         }
       }
-      // NodeResizer dispatches 'dimensions' changes for width/height updates.
-      // Save on every frame (not just resizing===false) so the store always has
-      // the current size — this prevents the frame from snap-back when the user
-      // edits unrelated fields (like the name) between resize and mouse-release.
       if (change.type === 'dimensions' && change.dimensions) {
         const isLocation = locations.some((l) => l.id === change.id)
         if (isLocation) {
           const loc = locations.find((l) => l.id === change.id)
           const newW = Math.max(40, change.dimensions.width)
           const newH = Math.max(40, change.dimensions.height)
-          // Only call store update when dimensions actually changed to reduce churn.
           if (!loc || loc.width !== newW || loc.height !== newH) {
             updateLocation(change.id, { width: newW, height: newH })
           }
