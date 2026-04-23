@@ -66,7 +66,11 @@ const CanvasContent = () => {
     containedEquipmentIds: string[]
   } | null>(null)
 
-  const locations = project.locations ?? []
+  // Memoise to ensure a stable reference when `project.locations` is undefined.
+  // Otherwise `[]` would be a new array every render, causing `nodes` below to
+  // be a new memo every render, which cascades into the `useEffect([nodes])`
+  // calling `setRfNodes` on every render → infinite loop (React #185).
+  const locations = useMemo(() => project.locations ?? [], [project.locations])
 
   const nodes = useMemo<Node[]>(() => {
     // Location frames first so they render behind equipment.

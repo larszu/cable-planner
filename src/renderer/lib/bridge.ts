@@ -92,6 +92,9 @@ type CablePlannerApi = {
   videohub: {
     sendRouting: (params: { host: string; port: number; block: string }) => Promise<{ ok: boolean; message: string }>
   }
+  logs: {
+    rendererError: (payload: { message: string; stack?: string; source?: string }) => void
+  }
 }
 
 const TOKEN_KEY = 'cable-planner:web:token'
@@ -362,6 +365,9 @@ const webFallbackApi: CablePlannerApi = {
       ok: false,
       message: 'TCP-Übertragung erfordert die Desktop-App.',
     }),
+  },
+  logs: {
+    rendererError: () => {},
   },
 }
 
