@@ -6,6 +6,7 @@ import {
   buildVideohubRoutingDump,
   videohubPresets,
 } from '../../lib/exportVideohub'
+import { VideohubRoutingMatrix } from './VideohubRoutingMatrix'
 
 interface Props {
   onClose: () => void
@@ -13,6 +14,12 @@ interface Props {
 }
 
 type Format = 'labels' | 'routing'
+
+const buildDefaultRouting = (totalIn: number, totalOut: number): Record<number, number> => {
+  const r: Record<number, number> = {}
+  for (let i = 0; i < totalOut; i++) r[i] = i < totalIn ? i : 0
+  return r
+}
 
 const downloadTextFile = (filename: string, content: string) => {
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
@@ -42,6 +49,12 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId }: Props) =>
     initialDevice ? guessVideohubPresetKey(initialDevice) : 'smart-40x40-12g',
   )
   const [friendlyName, setFriendlyName] = useState<string>('')
+  const [showMatrix, setShowMatrix] = useState(false)
+  const [routing, setRouting] = useState<Record<number, number>>(() => {
+    const key = initialDevice ? guessVideohubPresetKey(initialDevice) : 'smart-40x40-12g'
+    const p = videohubPresets.find((x) => x.key === key) ?? videohubPresets[0]
+    return buildDefaultRouting(p.inputs, p.outputs)
+  })
 
   const device = equipment.find((e) => e.id === deviceId)
   const preset = videohubPresets.find((p) => p.key === presetKey) ?? videohubPresets[0]
@@ -59,8 +72,9 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId }: Props) =>
       friendlyName: friendlyName.trim() || device.name,
       totalInputs: preset.inputs,
       totalOutputs: preset.outputs,
+      routing,
     })
-  }, [device, format, preset, friendlyName])
+  }, [device, format, preset, friendlyName, routing])
 
   const handleExport = () => {
     if (!device) return
@@ -111,7 +125,12 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId }: Props) =>
             Videohub-Modell
             <select
               value={presetKey}
-              onChange={(e) => setPresetKey(e.target.value)}
+              onChange={(e) => {
+                const key = e.target.value
+                setPresetKey(key)
+                const p = videohubPresets.find((x) => x.key === key) ?? videohubPresets[0]
+                setRouting(buildDefaultRouting(p.inputs, p.outputs))
+              }}
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
             >
               {videohubPresets.map((p) => (
@@ -150,6 +169,47 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId }: Props) =>
             Warnung: Das Gerät hat mehr Ports ({device.inputs.length} IN / {device.outputs.length} OUT)
             als das gewählte Modell ({preset.inputs}×{preset.outputs}). Überschüssige Ports werden
             abgeschnitten.
+          </div>
+        )}
+
+        {format === 'routing' && (
+          <div className="mb-3">
+            <div className="mb-1 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowMatrix((m) => !m)}
+                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+              >
+                {showMatrix ? '▼' : '▶'} Routing-Matrix
+              </button>
+              <span className="text-xs text-slate-500">
+                {preset.inputs} Eing. × {preset.outputs} Ausg.
+              </span>
+              <button
+                type="button"
+                onClick={() => setRouting(buildDefaultRouting(preset.inputs, preset.outputs))}
+                className="ml-auto rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
+                title="Diagonal-Routing zurücksetzen (Ausgang N → Eingang N)"
+              >
+                ↺ Reset
+              </button>
+            </div>
+            {showMatrix && (
+              <VideohubRoutingMatrix
+                totalInputs={preset.inputs}
+                totalOutputs={preset.outputs}
+                inputLabels={Array.from(
+                  { length: preset.inputs },
+                  (_, i) => device?.inputs[i]?.name ?? `In ${i + 1}`,
+                )}
+                outputLabels={Array.from(
+                  { length: preset.outputs },
+                  (_, i) => device?.outputs[i]?.name ?? `Out ${i + 1}`,
+                )}
+                routing={routing}
+                onRoute={(output, input) => setRouting((r) => ({ ...r, [output]: input }))}
+              />
+            )}
           </div>
         )}
 
