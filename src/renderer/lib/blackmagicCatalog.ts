@@ -290,6 +290,74 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
       height: 200,
     },
   },
+
+  // --- HyperDeck -----------------------------------------------------------
+  {
+    match: ['hyperdeck', 'hd plus'],
+    template: {
+      name: 'Blackmagic Hyperdeck Studio HD Plus',
+      category: 'Video',
+      inputs: [
+        ...sdiIn(1),
+        port('HDMI In', 'HDMI'),
+        port('XLR L In', 'XLR'),
+        port('XLR R In', 'XLR'),
+      ],
+      outputs: [
+        ...sdiOut(1),
+        port('HDMI Out', 'HDMI'),
+        port('XLR L Out', 'XLR'),
+        port('XLR R Out', 'XLR'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+
+  // --- Teranex Mini --------------------------------------------------------
+  {
+    match: ['teranex mini', 'sdi', 'audio', '12g'],
+    template: {
+      name: 'Blackmagic Teranex Mini SDI to Audio 12G',
+      category: 'Video Converter',
+      inputs: [...sdiIn(1)],
+      outputs: [
+        port('XLR Out 1', 'XLR'),
+        port('XLR Out 2', 'XLR'),
+        port('XLR Out 3', 'XLR'),
+        port('XLR Out 4', 'XLR'),
+      ],
+      width: 200, height: 160,
+    },
+  },
+
+  // --- Mini Converter / Sync Generator ------------------------------------
+  {
+    match: ['mini converter', 'sync'],
+    template: {
+      name: 'Blackmagic Mini Converter Sync Generator',
+      category: 'Sync/Referenz',
+      inputs: [],
+      outputs: [
+        port('HD Tri-Level Out 1', 'BNC'),
+        port('HD Tri-Level Out 2', 'BNC'),
+        port('Blackburst Out 1', 'BNC'),
+        port('Blackburst Out 2', 'BNC'),
+      ],
+      width: 180, height: 120,
+    },
+  },
+
+  // --- SmartScope ---------------------------------------------------------
+  {
+    match: ['smartscope'],
+    template: {
+      name: 'Blackmagic Smartscope Duo 4K2',
+      category: 'Monitore',
+      inputs: [...sdiIn(2)],
+      outputs: [],
+      width: 220, height: 120,
+    },
+  },
 ]
 
 /** Flat list of all built-in Blackmagic templates (seeded into the library). */

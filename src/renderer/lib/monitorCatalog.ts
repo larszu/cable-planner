@@ -396,6 +396,113 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
       width: 180, height: 120,
     },
   },
+
+  // ── JVC Broadcast Monitors ───────────────────────────────────────────────
+
+  // DT-V24G1 (24", 3G-SDI, 2013)
+  // Inputs: 2× SDI (3G/HD/SD), 1× HDMI, Ref In (BNC), XLR L/R
+  // Outputs: SDI Loop Out
+  // Rentman: "JVC DT-V24G1 3G-SDI"
+  {
+    match: ['jvc', 'dt-v24g'],
+    template: {
+      name: 'JVC DT-V24G1',
+      category: MON,
+      inputs: [
+        sdiIn('SDI In 1'), sdiIn('SDI In 2'),
+        hdmiIn('HDMI In'),
+        sdiIn('Ref In (BNC)'),
+        xlrIn('XLR L In'), xlrIn('XLR R In'),
+      ],
+      outputs: [sdiOut('SDI Loop Out')],
+      width: 230, height: 200,
+    },
+  },
+
+  // DT-V24L3D (24", HD-SDI 3D monitor, 2011)
+  // Inputs: 2× HD/SD-SDI, 2× HDMI, XLR L/R
+  // Outputs: 2× SDI Loop Out
+  // Rentman: "JVC DT-V24L3D"
+  {
+    match: ['jvc', 'dt-v24l'],
+    template: {
+      name: 'JVC DT-V24L3D',
+      category: MON,
+      inputs: [
+        sdiIn('SDI In 1'), sdiIn('SDI In 2'),
+        hdmiIn('HDMI In 1'), hdmiIn('HDMI In 2'),
+        xlrIn('XLR L In'), xlrIn('XLR R In'),
+      ],
+      outputs: [sdiOut('SDI Loop Out 1'), sdiOut('SDI Loop Out 2')],
+      width: 230, height: 200,
+    },
+  },
+
+  // ── NEC MultiSync Large Format Displays ──────────────────────────────────
+
+  // MultiSync P402 (40") / P461 (46") — HDMI, DisplayPort, DVI-D
+  // Rentman: "NEC MultiSync P402", "NEC MultiSync P461"
+  {
+    match: ['nec', 'p402'],
+    template: {
+      name: 'NEC MultiSync P402',
+      category: MON,
+      inputs: [
+        hdmiIn('HDMI In'),
+        port('DisplayPort In', 'DisplayPort'),
+        port('DVI-D In', 'Custom'),
+      ],
+      outputs: [port('DisplayPort Out', 'DisplayPort')],
+      width: 240, height: 160,
+    },
+  },
+  {
+    match: ['nec', 'p461'],
+    template: {
+      name: 'NEC MultiSync P461',
+      category: MON,
+      inputs: [
+        hdmiIn('HDMI In'),
+        port('DisplayPort In', 'DisplayPort'),
+        port('DVI-D In', 'Custom'),
+      ],
+      outputs: [port('DisplayPort Out', 'DisplayPort')],
+      width: 240, height: 160,
+    },
+  },
+
+  // MultiSync X401S (40") / X461S (46") — HDMI, DVI-D (×2), Component In
+  // Rentman: "NEC MultiSync X401S", "NEC MultiSync X461S"
+  {
+    match: ['nec', 'x401'],
+    template: {
+      name: 'NEC MultiSync X401S',
+      category: MON,
+      inputs: [
+        hdmiIn('HDMI In'),
+        port('DVI-D In 1', 'Custom'),
+        port('DVI-D In 2', 'Custom'),
+        sdiIn('Component In (BNC)'),
+      ],
+      outputs: [],
+      width: 240, height: 160,
+    },
+  },
+  {
+    match: ['nec', 'x461'],
+    template: {
+      name: 'NEC MultiSync X461S',
+      category: MON,
+      inputs: [
+        hdmiIn('HDMI In'),
+        port('DVI-D In 1', 'Custom'),
+        port('DVI-D In 2', 'Custom'),
+        sdiIn('Component In (BNC)'),
+      ],
+      outputs: [],
+      width: 240, height: 160,
+    },
+  },
 ]
 
 /** Flat list of all built-in monitor templates (seeded into the library). */
@@ -421,7 +528,9 @@ export const matchMonitorTemplate = (name: string): EquipmentTemplate | null => 
     lower.includes('tv logic') ||
     lower.includes('lvm-') ||
     lower.includes('lum-') ||
-    lower.includes('marshall') && (lower.includes('v-lcd') || lower.includes('monitor'))
+    (lower.includes('marshall') && (lower.includes('v-lcd') || lower.includes('monitor'))) ||
+    (lower.includes('jvc') && (lower.includes('dt-v') || lower.includes('monitor'))) ||
+    lower.includes('nec multisync')
   if (!isBrandKnown) return null
   for (const entry of MONITOR_CATALOG) {
     if (entry.match.every((needle) => lower.includes(needle))) {
