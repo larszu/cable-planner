@@ -30,18 +30,18 @@ export const MenuBar = ({
   return (
     <header className="flex shrink-0 items-center justify-between border-b border-slate-700 bg-slate-950 px-3 py-2">
       <div className="flex items-center gap-2 text-xs">
-        <span className="font-semibold text-slate-200">File</span>
+        <span className="font-semibold text-slate-200">Datei</span>
         <button type="button" onClick={onNewProject} className={menuButtonClass}>
-          New
+          Neu
         </button>
         <button type="button" onClick={onOpenProject} className={menuButtonClass}>
-          Open
+          Öffnen
         </button>
         <button type="button" onClick={onSaveProject} className={menuButtonClass}>
-          Save
+          Speichern
         </button>
         <button type="button" onClick={onSaveProjectAs} className={menuButtonClass}>
-          Save As
+          Speichern unter
         </button>
         {onEditProjectMeta && (
           <button
@@ -97,7 +97,7 @@ export const MenuBar = ({
           Rentman Import
         </button>
         <button type="button" onClick={onOpenSettings} className={menuButtonClass}>
-          Settings
+          Einstellungen
         </button>
       </div>
     </header>

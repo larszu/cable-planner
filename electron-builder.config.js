@@ -6,6 +6,7 @@ export default {
     buildResources: 'build',
     output: 'release',
   },
+  npmRebuild: false,
   mac: {
     target: ['dmg'],
   },
