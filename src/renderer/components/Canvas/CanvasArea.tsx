@@ -8,6 +8,7 @@ import ReactFlow, {
   applyNodeChanges,
   updateEdge,
   useReactFlow,
+  ConnectionMode,
   type Connection,
   type Edge,
   type Node,
@@ -21,6 +22,12 @@ import type { EquipmentTemplate } from '../../types/equipment'
 import { EquipmentNode } from './EquipmentNode'
 import { CableEdge } from './CableEdge'
 import { CanvasToolbar } from './CanvasToolbar'
+import { LocationFrameNode } from './LocationFrameNode'
+import { PendingCableOverlay } from './PendingCableOverlay'
+import { colorByLength } from '../../lib/cableColors'
+
+const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
+const edgeTypes = { cable: CableEdge }
 
 const CanvasContent = () => {
   const project = useProjectStore((state) => state.project)
@@ -32,10 +39,15 @@ const CanvasContent = () => {
   const deleteSelected = useProjectStore((state) => state.deleteSelected)
   const reconnectCable = useProjectStore((state) => state.reconnectCable)
   const addOpenEndStub = useProjectStore((state) => state.addOpenEndStub)
+  const updateLocation = useProjectStore((state) => state.updateLocation)
+  const moveLocationWithContents = useProjectStore((state) => state.moveLocationWithContents)
   const snapToGrid = useUiStore((state) => state.snapToGrid)
   const gridSize = useUiStore((state) => state.gridSize)
-  const nodeTypes = useMemo(() => ({ equipment: EquipmentNode }), [])
-  const edgeTypes = useMemo(() => ({ cable: CableEdge }), [])
+  const cableColorMode = useUiStore((state) => state.cableColorMode)
+  const pendingCable = useUiStore((state) => state.pendingCable)
+  const addPendingWaypoint = useUiStore((state) => state.addPendingWaypoint)
+  const clearPendingCable = useUiStore((state) => state.clearPendingCable)
+  const openCableEdit = useUiStore((state) => state.openCableEdit)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition } = useReactFlow()
   const edgeUpdateSuccessful = useRef(true)
@@ -44,17 +56,38 @@ const CanvasContent = () => {
     handleId: string | null
     handleType: 'source' | 'target' | null
   } | null>(null)
+  // Group-drag support: when a location frame is being dragged, we remember
+  // which equipment was inside at drag-start and the previous frame position,
+  // so we can apply the delta to contained equipment live.
+  const locationDragRef = useRef<{
+    locationId: string
+    lastX: number
+    lastY: number
+    containedEquipmentIds: string[]
+  } | null>(null)
 
-  const nodes = useMemo<Node[]>(
-    () =>
-      project.equipment.map((item) => ({
-        id: item.id,
-        type: 'equipment',
-        position: { x: item.x, y: item.y },
-        data: item,
-      })),
-    [project.equipment],
-  )
+  const locations = project.locations ?? []
+
+  const nodes = useMemo<Node[]>(() => {
+    // Location frames first so they render behind equipment.
+    const locationNodes: Node[] = locations.map((loc) => ({
+      id: loc.id,
+      type: 'location',
+      position: { x: loc.x, y: loc.y },
+      data: loc,
+      zIndex: -1,
+      style: { width: loc.width, height: loc.height },
+      draggable: true,
+      selectable: true,
+    }))
+    const equipmentNodes: Node[] = project.equipment.map((item) => ({
+      id: item.id,
+      type: 'equipment',
+      position: { x: item.x, y: item.y },
+      data: item,
+    }))
+    return [...locationNodes, ...equipmentNodes]
+  }, [project.equipment, locations])
 
   // Local state keeps React Flow's controlled node positions in sync during drag.
   // We initialise once from the store and then apply changes incrementally.
@@ -62,52 +95,185 @@ const CanvasContent = () => {
   // to jump when other items in the array are deleted/added.
   const [rfNodes, setRfNodes] = useState<Node[]>(nodes)
 
-  // Sync store → RF only for structural changes (adds/removes), identified by
-  // comparing the id-set. Position updates flow the other way (RF → store via
-  // onNodesChange), so we must NOT overwrite positions from the store during drag.
+  // Ids currently being dragged. While a node is in this set we preserve its
+  // local React Flow position (so active drags don't snap back). Anything not
+  // in the set takes its position from the store - that allows Undo/Redo to
+  // move nodes back visually when the store reverts.
+  const draggingIdsRef = useRef<Set<string>>(new Set())
+
+  // Sync store → RF for structural changes (adds/removes) AND data changes
+  // (name, ports, IP, etc. edited in the Properties panel). Position is kept
+  // from the RF state during drags, but everything else flows store → RF so
+  // edits are visible on the canvas immediately.
   const prevIdsRef = useRef<string>(nodes.map((n) => n.id).join(','))
   useEffect(() => {
-    const nextIds = nodes.map((n) => n.id).join(',')
-    if (nextIds === prevIdsRef.current) return
-    prevIdsRef.current = nextIds
-
     setRfNodes((current) => {
       const currentById = new Map(current.map((n) => [n.id, n]))
+      const dragging = draggingIdsRef.current
       return nodes.map((n) => {
         const existing = currentById.get(n.id)
-        // Keep the current RF position if the node already exists (don't reset dragged pos).
-        return existing ? { ...n, position: existing.position } : n
+        if (!existing) return n
+        // During an active drag on this node we must keep the local RF
+        // position (otherwise the drag would jitter against store updates).
+        // Outside of that we adopt the store position, which is what makes
+        // Undo/Redo move the node back visually.
+        if (dragging.has(n.id)) {
+          return { ...n, position: existing.position }
+        }
+        // For location frames, preserve React Flow's internally-tracked style
+        // (which includes dimensions set by NodeResizer) to prevent the frame
+        // from snapping back to its pre-resize size when only data changes.
+        if (n.type === 'location' && existing.style) {
+          return { ...n, style: existing.style }
+        }
+        return n
       })
     })
+    prevIdsRef.current = nodes.map((n) => n.id).join(',')
   }, [nodes])
 
   const edges = useMemo<Edge[]>(
     () =>
-      project.cables.map((item) => ({
-        id: item.id,
-        source: item.fromEquipmentId,
-        sourceHandle: item.fromPortId,
-        target: item.toEquipmentId,
-        targetHandle: item.toPortId,
-        type: 'cable',
-        updatable: true,
-        style: { stroke: item.color, strokeWidth: item.strokeWidth ?? 2.5 },
-        data: { cable: item },
-        label: item.needsConverter
-          ? `${item.name} (${item.length}m) ⚠ converter`
-          : `${item.name} (${item.length}m)`,
-      })),
-    [project.cables],
+      project.cables.map((item) => {
+        const lengthColor = cableColorMode === 'byLength' ? colorByLength(item.length) : null
+        // In byLength mode, cables with no matching length rule get a neutral grey so they're
+        // visually distinct from manually-colored cables and easy to spot.
+        const strokeColor =
+          cableColorMode === 'byLength'
+            ? (lengthColor ? lengthColor.color : '#64748b')
+            : item.color
+        const dashArray = item.dashed
+          ? '6 4'
+          : cableColorMode === 'byLength' && lengthColor?.dashArray
+            ? lengthColor.dashArray
+            : undefined
+        return {
+          id: item.id,
+          source: item.fromEquipmentId,
+          sourceHandle: item.fromPortId,
+          target: item.toEquipmentId,
+          targetHandle: item.toPortId,
+          type: 'cable',
+          updatable: true,
+          style: { stroke: strokeColor, strokeWidth: item.strokeWidth ?? 2.5, strokeDasharray: dashArray },
+          data: { cable: item },
+          label: item.needsConverter
+            ? `${item.name} (${item.length}m) ⚠ converter`
+            : `${item.name} (${item.length}m)`,
+        }
+      }),
+    [project.cables, cableColorMode],
   )
 
   const onNodesChange = (changes: NodeChange[]) => {
-    setRfNodes((current) => applyNodeChanges(changes, current))
+    // Track drag start/end per node so our store→RF sync knows which nodes
+    // are currently being dragged (and therefore must keep their local pos).
+    for (const change of changes) {
+      if (change.type === 'position' && change.id) {
+        if (change.dragging) {
+          draggingIdsRef.current.add(change.id)
+        } else {
+          draggingIdsRef.current.delete(change.id)
+        }
+      }
+    }
+    setRfNodes((current) => {
+      const next = applyNodeChanges(changes, current)
+      // Live group-drag: if a location is being dragged, shift contained
+      // equipment by the same delta in the local state so they visually track.
+      const drag = locationDragRef.current
+      if (drag) {
+        const posChange = changes.find(
+          (c) => c.type === 'position' && c.id === drag.locationId && c.position,
+        ) as Extract<NodeChange, { type: 'position' }> | undefined
+        if (posChange && posChange.position) {
+          const dx = posChange.position.x - drag.lastX
+          const dy = posChange.position.y - drag.lastY
+          if (dx || dy) {
+            const shifted = new Set(drag.containedEquipmentIds)
+            drag.lastX = posChange.position.x
+            drag.lastY = posChange.position.y
+            return next.map((n) =>
+              shifted.has(n.id)
+                ? { ...n, position: { x: n.position.x + dx, y: n.position.y + dy } }
+                : n,
+            )
+          }
+        }
+      }
+      return next
+    })
+
     changes.forEach((change) => {
-      if (change.type === 'position' && change.position && !change.dragging) {
-        updateEquipment(change.id, { x: change.position.x, y: change.position.y })
+      if (change.type === 'position' && change.position && change.dragging === false) {
+        // Persist final position only on explicit drag-end (dragging: false).
+        // Spurious position events with dragging===undefined (e.g. React Flow
+        // internal re-layouts) are intentionally ignored here so they cannot
+        // overwrite positions in the store.
+        const isLocation = locations.some((l) => l.id === change.id)
+        if (isLocation) {
+          const drag = locationDragRef.current
+          const loc = locations.find((l) => l.id === change.id)
+          if (drag && drag.locationId === change.id && loc) {
+            // Commit full delta (frame move + contained equipment) to store.
+            const dx = change.position.x - loc.x
+            const dy = change.position.y - loc.y
+            moveLocationWithContents(change.id, dx, dy, drag.containedEquipmentIds)
+          } else {
+            updateLocation(change.id, { x: change.position.x, y: change.position.y })
+          }
+          locationDragRef.current = null
+        } else {
+          updateEquipment(change.id, { x: change.position.x, y: change.position.y })
+        }
+      }
+      // NodeResizer dispatches 'dimensions' changes for width/height updates.
+      // Save on every frame (not just resizing===false) so the store always has
+      // the current size — this prevents the frame from snap-back when the user
+      // edits unrelated fields (like the name) between resize and mouse-release.
+      if (change.type === 'dimensions' && change.dimensions) {
+        const isLocation = locations.some((l) => l.id === change.id)
+        if (isLocation) {
+          const loc = locations.find((l) => l.id === change.id)
+          const newW = Math.max(40, change.dimensions.width)
+          const newH = Math.max(40, change.dimensions.height)
+          // Only call store update when dimensions actually changed to reduce churn.
+          if (!loc || loc.width !== newW || loc.height !== newH) {
+            updateLocation(change.id, { width: newW, height: newH })
+          }
+        }
       }
     })
   }
+
+  const onNodeDragStart = useCallback(
+    (_event: React.MouseEvent, node: Node) => {
+      if (node.type !== 'location') return
+      const loc = locations.find((l) => l.id === node.id)
+      if (!loc) return
+      // By default a location frame moves independently; contained equipment
+      // only follows when the user explicitly enables `moveContents` in the
+      // location properties (opt-in).
+      if (!loc.moveContents) {
+        locationDragRef.current = null
+        return
+      }
+      const contained = project.equipment
+        .filter((e) => {
+          const cx = e.x + (e.width ?? 0) / 2
+          const cy = e.y + (e.height ?? 0) / 2
+          return cx >= loc.x && cx <= loc.x + loc.width && cy >= loc.y && cy <= loc.y + loc.height
+        })
+        .map((e) => e.id)
+      locationDragRef.current = {
+        locationId: loc.id,
+        lastX: loc.x,
+        lastY: loc.y,
+        containedEquipmentIds: contained,
+      }
+    },
+    [locations, project.equipment],
+  )
 
   const onEdgesChange = (_changes: EdgeChange[]) => {
     applyEdgeChanges(_changes, edges)
@@ -253,6 +419,10 @@ const CanvasContent = () => {
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && pendingCable) {
+        clearPendingCable()
+        return
+      }
       if (event.key !== 'Delete' && event.key !== 'Backspace') return
       const target = event.target as HTMLElement | null
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
@@ -262,7 +432,7 @@ const CanvasContent = () => {
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [deleteSelected])
+  }, [deleteSelected, pendingCable, clearPendingCable])
 
   return (
     <div
@@ -304,6 +474,7 @@ const CanvasContent = () => {
         edges={edges}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
+        connectionMode={ConnectionMode.Loose}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
@@ -319,15 +490,31 @@ const CanvasContent = () => {
         snapToGrid={snapToGrid}
         snapGrid={[gridSize, gridSize]}
         deleteKeyCode={null}
-        onPaneClick={() => setSelection(undefined, undefined)}
-        onNodeClick={(_event, node) => setSelection(node.id, undefined)}
-        onEdgeClick={(_event, edge) => setSelection(undefined, edge.id)}
+        onPaneClick={(event) => {
+          // While drawing a cable by clicking, each pane click appends a
+          // waypoint. Otherwise treat the pane click as a selection clear.
+          if (pendingCable) {
+            const flow = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+            addPendingWaypoint(flow)
+            return
+          }
+          setSelection(undefined, undefined, undefined)
+        }}
+        onNodeClick={(_event, node) =>
+          node.type === 'location'
+            ? setSelection(undefined, undefined, node.id)
+            : setSelection(node.id, undefined, undefined)
+        }
+        onNodeDragStart={onNodeDragStart}
+        onEdgeClick={(_event, edge) => setSelection(undefined, edge.id, undefined)}
+        onEdgeDoubleClick={(_event, edge) => openCableEdit(edge.id)}
         onMoveEnd={(_event, viewport) => setCanvasState(viewport.x, viewport.y, viewport.zoom)}
       >
         <MiniMap pannable zoomable className="!bg-slate-800" maskColor="rgba(15,23,42,0.7)" />
         <Controls />
         <Background />
       </ReactFlow>
+      <PendingCableOverlay />
     </div>
   )
 }

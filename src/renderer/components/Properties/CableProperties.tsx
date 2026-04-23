@@ -1,4 +1,6 @@
 import { useProjectStore } from '../../store/projectStore'
+import { cableCatalog } from '../../types/cableSpec'
+import { useUiStore } from '../../store/uiStore'
 import type { CableRouting } from '../../types/cable'
 
 const routings: { value: CableRouting; label: string }[] = [
@@ -12,15 +14,49 @@ export const CableProperties = () => {
   const cable = useProjectStore((state) => state.project.cables.find((item) => item.id === selectedCableId))
   const updateCable = useProjectStore((state) => state.updateCable)
   const deleteCable = useProjectStore((state) => state.deleteCable)
+  const openCableEdit = useUiStore((state) => state.openCableEdit)
 
   if (!cable) {
-    return <div className="text-xs text-slate-400">Select a cable edge.</div>
+    return <div className="text-xs text-slate-400">Kabel anklicken um Eigenschaften zu sehen.</div>
   }
 
   const routing = cable.routing ?? 'orthogonal'
+  const spec = cable.cableSpecId ? cableCatalog.find((c) => c.id === cable.cableSpecId) : undefined
 
   return (
     <div className="space-y-2 text-xs">
+      {/* Spec info bar */}
+      {spec && (
+        <div className="flex items-center gap-1.5 rounded border border-slate-700 bg-slate-900 px-2 py-1.5">
+          <span
+            className="inline-block h-3 w-3 shrink-0 rounded-full"
+            style={{ backgroundColor: spec.color }}
+          />
+          <div className="min-w-0 flex-1">
+            <div className="font-medium text-slate-200 truncate">{spec.name}</div>
+            {cable.standard && (
+              <div className="text-[10px] text-slate-400">{cable.standard}</div>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => openCableEdit(cable.id)}
+            className="shrink-0 rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
+            title="Kabeltyp / Standard bearbeiten"
+          >
+            ✎
+          </button>
+        </div>
+      )}
+      {!spec && (
+        <button
+          type="button"
+          onClick={() => openCableEdit(cable.id)}
+          className="w-full rounded border border-dashed border-slate-600 px-2 py-1 text-slate-400 hover:border-slate-400 hover:text-slate-200"
+        >
+          ✎ Kabeltyp / Standard festlegen
+        </button>
+      )}
       <label className="block">
         <span className="mb-1 block text-slate-300">Name</span>
         <input

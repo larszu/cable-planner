@@ -28,6 +28,26 @@ export type SignalStandard =
   | 'Fiber-MM'
   | 'Generic'
 
+/** All valid signal standard values in display order. */
+export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
+  'SDI-SD', 'SDI-HD', 'SDI-3G', 'SDI-6G', 'SDI-12G',
+  'HDMI-1.4', 'HDMI-2.0', 'HDMI-2.1',
+  'DP-1.2', 'DP-1.4', 'DP-2.0',
+  'Eth-100', 'Eth-1G', 'Eth-10G',
+  'Analog-Audio', 'AES3', 'USB-2.0', 'USB-3.x',
+  'Power-230V', 'Fiber-SM', 'Fiber-MM', 'Generic',
+]
+
+/** SDI standards ordered from lowest to highest bandwidth. */
+export const SDI_STANDARDS: SignalStandard[] = ['SDI-SD', 'SDI-HD', 'SDI-3G', 'SDI-6G', 'SDI-12G']
+
+/**
+ * Returns the highest applicable SDI standard from the given list,
+ * or the last element if no SDI standard is found.
+ */
+export const pickHighestSdiStandard = (standards: SignalStandard[]): SignalStandard | undefined =>
+  [...SDI_STANDARDS].reverse().find((s) => standards.includes(s)) ?? standards[standards.length - 1]
+
 export interface CableSpec {
   id: string
   name: string
@@ -58,9 +78,8 @@ export const cableCatalog: CableSpec[] = [
   },
   {
     id: 'sdi-3g',
-    name: 'SDI 3G (1080p60)',
+    name: 'SDI 3G (1080p50/60)',
     connectorType: 'BNC',
-    compatibleConnectors: ['SDI'],
     standards: ['SDI-SD', 'SDI-HD', 'SDI-3G'],
     maxLengthMeters: 100,
     color: '#f59e0b',
@@ -70,7 +89,6 @@ export const cableCatalog: CableSpec[] = [
     id: 'sdi-6g',
     name: 'SDI 6G (4K30 4:2:0)',
     connectorType: 'BNC',
-    compatibleConnectors: ['SDI'],
     standards: ['SDI-SD', 'SDI-HD', 'SDI-3G', 'SDI-6G'],
     maxLengthMeters: 70,
     color: '#f97316',
@@ -80,7 +98,6 @@ export const cableCatalog: CableSpec[] = [
     id: 'sdi-12g',
     name: 'SDI 12G (4K60)',
     connectorType: 'BNC',
-    compatibleConnectors: ['SDI'],
     standards: ['SDI-SD', 'SDI-HD', 'SDI-3G', 'SDI-6G', 'SDI-12G'],
     maxLengthMeters: 50,
     color: '#ef4444',
@@ -185,13 +202,12 @@ export const cableCatalog: CableSpec[] = [
 
 /** Same physical connector families that can be connected directly without an adapter. */
 const CONNECTOR_FAMILIES: ConnectorType[][] = [
-  ['BNC', 'SDI'],
-  ['IEC 230V', 'PowerCON', 'Schuko 230V'], // all 230V, but NOT directly compatible without adapter
+  ['IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker'], // all 230V, but NOT directly compatible without adapter
 ]
 
 /** Connectors that are physically identical and plug into each other directly. */
 const DIRECTLY_MATING: ConnectorType[][] = [
-  ['BNC', 'SDI'], // SDI signals run over BNC 75Ω connectors
+  // BNC and historic 'SDI' were separate entries; they are now unified under 'BNC'.
 ]
 
 export const connectorsAreDirectlyMating = (a: ConnectorType, b: ConnectorType): boolean => {

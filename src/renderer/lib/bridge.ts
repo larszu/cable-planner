@@ -5,6 +5,46 @@ type OpenProjectResponse = {
   data: CablePlannerProject
 }
 
+export interface AtemInputSummary {
+  inputId: number
+  longName: string
+  shortName: string
+  portType?: number
+  sourceAvailability?: number
+}
+
+export interface AtemMultiviewerWindow {
+  windowIndex: number
+  sourceId: number
+  longName: string
+  shortName: string
+  portType?: number
+  safeTitle?: boolean
+  audioMeter?: boolean
+}
+
+export interface AtemMultiviewer {
+  index: number
+  layout: number
+  programPreviewSwapped: boolean
+  windows: AtemMultiviewerWindow[]
+}
+
+export interface AtemStateSummary {
+  productIdentifier: string
+  model?: number
+  apiVersion?: { major: number; minor: number }
+  mixEffects?: number
+  auxiliaries?: number
+  inputs: AtemInputSummary[]
+  multiViewers?: (AtemMultiviewer | null)[]
+}
+
+export interface AtemConnectResult {
+  ip: string
+  summary: AtemStateSummary | null
+}
+
 type CablePlannerApi = {
   credentials: {
     getToken: () => Promise<string | null>
@@ -24,6 +64,30 @@ type CablePlannerApi = {
     saveProject: (project: CablePlannerProject, currentPath?: string) => Promise<string | null>
     saveProjectAs: (project: CablePlannerProject) => Promise<string | null>
     getRecentProjects: () => Promise<string[]>
+  }
+  atem: {
+    connect: (ip: string) => Promise<AtemConnectResult>
+    disconnect: () => Promise<{ ok: boolean }>
+    getState: () => Promise<AtemStateSummary | null>
+    setInputName: (payload: {
+      inputId: number
+      longName: string
+      shortName: string
+    }) => Promise<{ ok: boolean }>
+    bulkSetInputNames: (payload: {
+      entries: { inputId: number; longName: string; shortName: string }[]
+    }) => Promise<{ count: number }>
+    getEvents: () => Promise<string[]>
+    getStatus: () => Promise<{ connected: boolean; ip: string | null }>
+    applyMvConfig: (config: {
+      multiViewers: {
+        index: number
+        layout: number
+        programPreviewSwapped?: boolean
+        windows: { windowIndex: number; sourceId: number }[]
+      }[]
+    }) => Promise<{ applied: number }>
+    onEvent: (cb: (line: string) => void) => () => void
   }
 }
 
@@ -270,6 +334,25 @@ const webFallbackApi: CablePlannerApi = {
       return fileName
     },
     getRecentProjects: async () => loadRecents(),
+  },
+  atem: {
+    connect: async () => {
+      throw new Error('ATEM control requires the desktop app (UDP socket needed).')
+    },
+    disconnect: async () => ({ ok: true }),
+    getState: async () => null,
+    setInputName: async () => {
+      throw new Error('ATEM control requires the desktop app.')
+    },
+    bulkSetInputNames: async () => {
+      throw new Error('ATEM control requires the desktop app.')
+    },
+    getEvents: async () => [],
+    getStatus: async () => ({ connected: false, ip: null }),
+    applyMvConfig: async () => {
+      throw new Error('ATEM control requires the desktop app.')
+    },
+    onEvent: () => () => {},
   },
 }
 

@@ -1,19 +1,109 @@
 import { Handle, Position, type NodeProps } from 'reactflow'
+import { Fragment } from 'react'
 import type { EquipmentItem } from '../../types/equipment'
+import { useUiStore } from '../../store/uiStore'
+import { useProjectStore } from '../../store/projectStore'
 
 const HEADER_HEIGHT = 48
+const HEADER_HEIGHT_WITH_IP = 62
 const PORT_ROW = 22
 const HANDLE_SIZE = 10
 const PADDING = 8
 
-export const EquipmentNode = ({ data, selected }: NodeProps<EquipmentItem>) => {
+export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) => {
+  const pendingCable = useUiStore((s) => s.pendingCable)
+  const startPendingCable = useUiStore((s) => s.startPendingCable)
+  const clearPendingCable = useUiStore((s) => s.clearPendingCable)
+  const queueConnection = useProjectStore((s) => s.queueConnection)
+
+  /**
+   * Port click handler: enables draw.io-style click-to-connect.
+   * - First click on a port starts a pending cable.
+   * - Next click on any other port finishes the cable (queues the cable
+   *   dialog with the collected waypoints).
+   * - Click on the same port cancels the pending draw.
+   * Waypoints between the two clicks are added from pane clicks in
+   * CanvasArea.
+   */
+  const handlePortClick = (
+    portId: string,
+    side: 'input' | 'output',
+  ) => (event: React.MouseEvent) => {
+    event.stopPropagation()
+    const handleType: 'source' | 'target' = side === 'output' ? 'source' : 'target'
+    if (!pendingCable) {
+      startPendingCable({ nodeId: id, handleId: portId, handleType })
+      return
+    }
+    // Cancel if clicked the same port again.
+    if (
+      pendingCable.nodeId === id &&
+      pendingCable.handleId === portId &&
+      pendingCable.handleType === handleType
+    ) {
+      clearPendingCable()
+      return
+    }
+    // Build the Connection payload. We orient it so that source is an output
+    // and target is an input, regardless of which end the user started from.
+    const startIsSource = pendingCable.handleType === 'source'
+    const endIsSource = handleType === 'source'
+    let connection: {
+      source: string
+      sourceHandle: string
+      target: string
+      targetHandle: string
+    }
+    let waypoints = pendingCable.waypoints
+    if (startIsSource && !endIsSource) {
+      connection = {
+        source: pendingCable.nodeId,
+        sourceHandle: pendingCable.handleId,
+        target: id,
+        targetHandle: portId,
+      }
+    } else if (!startIsSource && endIsSource) {
+      connection = {
+        source: id,
+        sourceHandle: portId,
+        target: pendingCable.nodeId,
+        targetHandle: pendingCable.handleId,
+      }
+      // Waypoints were recorded in the direction start -> end; reverse so they
+      // run source -> target.
+      waypoints = [...waypoints].reverse()
+    } else {
+      // Two outputs or two inputs clicked. With ConnectionMode.Loose we still
+      // allow it; pick the first as source.
+      connection = {
+        source: pendingCable.nodeId,
+        sourceHandle: pendingCable.handleId,
+        target: id,
+        targetHandle: portId,
+      }
+    }
+    clearPendingCable()
+    queueConnection(connection, waypoints)
+  }
+
+  const isPendingStart = (portId: string, side: 'input' | 'output'): boolean => {
+    if (!pendingCable) return false
+    const handleType: 'source' | 'target' = side === 'output' ? 'source' : 'target'
+    return (
+      pendingCable.nodeId === id &&
+      pendingCable.handleId === portId &&
+      pendingCable.handleType === handleType
+    )
+  }
+
+  const headerHeight = data.ipAddress ? HEADER_HEIGHT_WITH_IP : HEADER_HEIGHT
   const portRows = Math.max(data.inputs.length, data.outputs.length, 1)
   const width = Math.max(data.width ?? 220, 200)
-  const computedHeight = HEADER_HEIGHT + portRows * PORT_ROW + PADDING
+  const computedHeight = headerHeight + portRows * PORT_ROW + PADDING
   const height = Math.max(data.height ?? computedHeight, computedHeight)
 
   // Y offset for the handle dot: aligns to vertical center of the row.
-  const rowCenter = (index: number) => HEADER_HEIGHT + index * PORT_ROW + PORT_ROW / 2
+  const rowCenter = (index: number) => headerHeight + index * PORT_ROW + PORT_ROW / 2
 
   return (
     <div
@@ -31,13 +121,82 @@ export const EquipmentNode = ({ data, selected }: NodeProps<EquipmentItem>) => {
     >
       {/* Header */}
       <div style={{ padding: `${PADDING}px ${PADDING}px 0 ${PADDING}px` }}>
-        <div style={{ fontWeight: 600, lineHeight: '16px' }}>{data.name}</div>
+        <div style={{ fontWeight: 600, lineHeight: '16px', display: 'flex', alignItems: 'center', gap: 4 }}>
+          {data.rentmanId && !data.rentmanRemoved ? (
+            // R badge: device is tracked in Rentman
+            <span
+              style={{
+                background: '#c2410c',
+                color: '#fff',
+                fontSize: 9,
+                fontWeight: 700,
+                borderRadius: 3,
+                padding: '0 3px',
+                lineHeight: '13px',
+                flexShrink: 0,
+              }}
+              title={`Rentman-ID: ${data.rentmanId}`}
+            >
+              R
+            </span>
+          ) : data.rentmanRemoved ? (
+            // ⚠ badge: was in Rentman but no longer found in last re-fetch
+            <span
+              style={{
+                background: '#92400e',
+                color: '#fef3c7',
+                fontSize: 9,
+                fontWeight: 700,
+                borderRadius: 3,
+                padding: '0 3px',
+                lineHeight: '13px',
+                flexShrink: 0,
+              }}
+              title="In Rentman nicht mehr vorhanden!"
+            >
+              ⚠
+            </span>
+          ) : (
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: '#92400e',
+                flexShrink: 0,
+                opacity: 0.7,
+              }}
+              title="Kein Rentman-Eintrag"
+            />
+          )}
+          <span>{data.name}</span>
+        </div>
         <div style={{ fontSize: 11, color: '#94a3b8', lineHeight: '14px' }}>{data.category}</div>
+        {data.ipAddress && (
+          <div
+            style={{
+              fontFamily:
+                'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+              fontSize: 10,
+              color: '#38bdf8',
+              lineHeight: '12px',
+              marginTop: 2,
+            }}
+            title={
+              data.subnetMask
+                ? `IP: ${data.ipAddress} / ${data.subnetMask}`
+                : `IP: ${data.ipAddress}`
+            }
+          >
+            {data.ipAddress}
+            {data.subnetMask ? ` /${data.subnetMask}` : ''}
+          </div>
+        )}
       </div>
 
       {/* Inputs (left column) */}
       {data.inputs.map((port, index) => {
-        const top = HEADER_HEIGHT + index * PORT_ROW
+        const top = headerHeight + index * PORT_ROW
         return (
           <div
             key={port.id}
@@ -62,25 +221,48 @@ export const EquipmentNode = ({ data, selected }: NodeProps<EquipmentItem>) => {
           </div>
         )
       })}
-      {data.inputs.map((port, index) => (
-        <Handle
-          key={`h-in-${port.id}`}
-          type="target"
-          id={port.id}
-          position={Position.Left}
-          style={{
-            top: rowCenter(index),
-            width: HANDLE_SIZE,
-            height: HANDLE_SIZE,
-            background: '#0ea5e9',
-            border: '2px solid #0f172a',
-          }}
-        />
-      ))}
+      {data.inputs.map((port, index) => {
+        const bi = port.direction === 'bidirectional'
+        const isStart = isPendingStart(port.id, 'input')
+        return (
+          <Fragment key={`h-in-${port.id}`}>
+            <Handle
+              type="target"
+              id={port.id}
+              position={Position.Left}
+              onClick={handlePortClick(port.id, 'input')}
+              style={{
+                top: rowCenter(index),
+                width: HANDLE_SIZE,
+                height: HANDLE_SIZE,
+                background: bi ? '#a855f7' : '#0ea5e9',
+                border: isStart ? '2px solid #fbbf24' : '2px solid #0f172a',
+                boxShadow: isStart ? '0 0 0 3px rgba(251,191,36,0.45)' : undefined,
+                cursor: 'crosshair',
+              }}
+            />
+            {bi && (
+              <Handle
+                type="source"
+                id={port.id}
+                position={Position.Left}
+                onClick={handlePortClick(port.id, 'input')}
+                style={{
+                  top: rowCenter(index),
+                  width: HANDLE_SIZE,
+                  height: HANDLE_SIZE,
+                  background: 'transparent',
+                  border: 'none',
+                }}
+              />
+            )}
+          </Fragment>
+        )
+      })}
 
       {/* Outputs (right column) */}
       {data.outputs.map((port, index) => {
-        const top = HEADER_HEIGHT + index * PORT_ROW
+        const top = headerHeight + index * PORT_ROW
         return (
           <div
             key={port.id}
@@ -107,21 +289,44 @@ export const EquipmentNode = ({ data, selected }: NodeProps<EquipmentItem>) => {
           </div>
         )
       })}
-      {data.outputs.map((port, index) => (
-        <Handle
-          key={`h-out-${port.id}`}
-          type="source"
-          id={port.id}
-          position={Position.Right}
-          style={{
-            top: rowCenter(index),
-            width: HANDLE_SIZE,
-            height: HANDLE_SIZE,
-            background: '#22c55e',
-            border: '2px solid #0f172a',
-          }}
-        />
-      ))}
+      {data.outputs.map((port, index) => {
+        const bi = port.direction === 'bidirectional'
+        const isStart = isPendingStart(port.id, 'output')
+        return (
+          <Fragment key={`h-out-${port.id}`}>
+            <Handle
+              type="source"
+              id={port.id}
+              position={Position.Right}
+              onClick={handlePortClick(port.id, 'output')}
+              style={{
+                top: rowCenter(index),
+                width: HANDLE_SIZE,
+                height: HANDLE_SIZE,
+                background: bi ? '#a855f7' : '#22c55e',
+                border: isStart ? '2px solid #fbbf24' : '2px solid #0f172a',
+                boxShadow: isStart ? '0 0 0 3px rgba(251,191,36,0.45)' : undefined,
+                cursor: 'crosshair',
+              }}
+            />
+            {bi && (
+              <Handle
+                type="target"
+                id={port.id}
+                position={Position.Right}
+                onClick={handlePortClick(port.id, 'output')}
+                style={{
+                  top: rowCenter(index),
+                  width: HANDLE_SIZE,
+                  height: HANDLE_SIZE,
+                  background: 'transparent',
+                  border: 'none',
+                }}
+              />
+            )}
+          </Fragment>
+        )
+      })}
     </div>
   )
 }

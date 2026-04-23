@@ -7,6 +7,8 @@ interface ChecklistItem {
   checked: boolean
   qty?: number
   parentId?: string | null
+  /** When set, shown as a "Template erkannt" badge next to the item. */
+  templateMatch?: string
 }
 
 interface EquipmentChecklistProps {
@@ -131,6 +133,14 @@ export const EquipmentChecklist = ({ items, onToggle, onSetAll, onQtyChange }: E
                         {item.name}
                         {isSet && (
                           <span className="ml-1 text-[10px] text-slate-400">[set · {children!.length}]</span>
+                        )}
+                        {item.templateMatch && (
+                          <span
+                            className="ml-2 rounded bg-emerald-800/60 px-1.5 py-0.5 text-[10px] font-medium text-emerald-200"
+                            title={`Wird automatisch mit Vorlage "${item.templateMatch}" befüllt`}
+                          >
+                            ✓ {item.templateMatch}
+                          </span>
                         )}
                       </span>
                     </label>
