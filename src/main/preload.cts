@@ -50,4 +50,8 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     sendRouting: (params: { host: string; port: number; block: string }) =>
       ipcRenderer.invoke('videohub:send', params) as Promise<{ ok: boolean; message: string }>,
   },
+  logs: {
+    rendererError: (payload: { message: string; stack?: string; source?: string }) =>
+      ipcRenderer.send('logs:renderer-error', payload),
+  },
 })
