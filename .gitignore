@@ -23,3 +23,7 @@ release
 *.njsproj
 *.sln
 *.sw?
+
+scripts/rentman-token.txt
+scripts/rentman-all.txt
+scripts/*.txt
