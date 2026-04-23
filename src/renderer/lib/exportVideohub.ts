@@ -48,6 +48,8 @@ export const buildVideohubRoutingDump = (
     uniqueId?: string
     totalInputs?: number
     totalOutputs?: number
+    /** output-index → input-index mapping; missing entries default to 0 */
+    routing?: Record<number, number>
   } = {},
 ): string => {
   const totalIn = opts.totalInputs ?? device.inputs.length
@@ -96,7 +98,7 @@ export const buildVideohubRoutingDump = (
   for (let i = 0; i < totalOut; i++) out.push(`${i} U`)
   out.push('')
   out.push('VIDEO OUTPUT ROUTING:')
-  for (let i = 0; i < totalOut; i++) out.push(`${i} 0`)
+  for (let i = 0; i < totalOut; i++) out.push(`${i} ${opts.routing?.[i] ?? 0}`)
   out.push('')
   return out.join('\r\n')
 }
