@@ -27,6 +27,58 @@ interface CameraEntry {
 
 export const CAMERA_CATALOG: CameraEntry[] = [
 
+  // ── Sony CineAlta F-Series ────────────────────────────────────────────────
+
+  // PMW-F55 (Super35 4K Global Shutter CineAlta, 2013)
+  // I/O: 2x 3G-SDI Out, HDMI Out, 2x XLR In, TC In/Out (BNC), Ref In, Ethernet
+  // Match: exact Rentman name "Sony PMW-F55"
+  {
+    match: ['pmw-f55'],
+    template: {
+      name: 'Sony PMW-F55',
+      category: CAM,
+      inputs: [
+        sdiIn('Ref In (BNC)'),
+        sdiIn('TC In (BNC)'),
+        xlr('XLR Ch1 In'),
+        xlr('XLR Ch2 In'),
+        eth('Ethernet'),
+      ],
+      outputs: [
+        sdiOut('SDI Out 1 (3G)'),
+        sdiOut('SDI Out 2 (3G)'),
+        hdmiOut('HDMI Out'),
+        sdiOut('TC Out (BNC)'),
+      ],
+      width: 240, height: 220,
+    },
+  },
+
+  // PMW-F5 (Super35 4K Rolling Shutter CineAlta, 2013)
+  // Identical I/O panel to F55, difference is internal (global vs rolling shutter)
+  // Match: exact Rentman name "Sony PMW-F5"
+  {
+    match: ['pmw-f5'],
+    template: {
+      name: 'Sony PMW-F5',
+      category: CAM,
+      inputs: [
+        sdiIn('Ref In (BNC)'),
+        sdiIn('TC In (BNC)'),
+        xlr('XLR Ch1 In'),
+        xlr('XLR Ch2 In'),
+        eth('Ethernet'),
+      ],
+      outputs: [
+        sdiOut('SDI Out 1 (3G)'),
+        sdiOut('SDI Out 2 (3G)'),
+        hdmiOut('HDMI Out'),
+        sdiOut('TC Out (BNC)'),
+      ],
+      width: 240, height: 220,
+    },
+  },
+
   // ── Sony Cinema Line / XDCAM ─────────────────────────────────────────────
 
   // PXW-FX9 (Full Frame, 6K sensor, 2019)
