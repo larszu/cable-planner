@@ -79,9 +79,12 @@ export default function App() {
 
   useUndoRedoShortcuts()
 
-  const handleNewProject = () => {
+  const handleNewProject = async () => {
     // Soft-protect the current canvas: warn when there's actual content, then
-    // prompt for the new project's metadata before clearing.
+    // clear immediately so the meta dialog opens against an empty project.
+    // Keeping the old project alive while the dialog is open made the dialog
+    // re-render with a fresh `project.metadata` reference on every autosave
+    // tick, which wiped whatever the user was typing.
     const hasContent =
       project.equipment.length > 0 ||
       project.cables.length > 0 ||
@@ -92,17 +95,13 @@ export default function App() {
       )
       if (!ok) return
     }
+    await newProject()
     setMetaDialog({ mode: 'new' })
   }
 
   const handleMetaConfirm = async (patch: Partial<ProjectMetadata>) => {
     if (!metaDialog) return
-    if (metaDialog.mode === 'new') {
-      await newProject()
-      useProjectStore.getState().updateProjectMetadata(patch)
-    } else {
-      useProjectStore.getState().updateProjectMetadata(patch)
-    }
+    useProjectStore.getState().updateProjectMetadata(patch)
     setMetaDialog(null)
   }
 
