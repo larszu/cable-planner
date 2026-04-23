@@ -32,7 +32,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
     () => savedConfig ?? defaultGreenGoConfig(),
   )
 
-  const [activeTab, setActiveTab] = useState<'system' | 'users' | 'groups'>('users')
+  const [activeTab, setActiveTab] = useState<'matrix' | 'users' | 'groups' | 'system'>('matrix')
 
   // ── system helpers ────────────────────────────────────────────────────────
 
@@ -106,8 +106,22 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
   // ── GreenGo device filter (equipment with 'greengo' or 'intercom' in category/name) ──
 
   const intercomEquipment = equipment.filter((e) =>
-    /greengo|intercom|beltpack|mcx|xtbb|xtbd|bpxsp|wbpx/i.test(e.name + ' ' + e.category),
+    /greengo|intercom|beltpack|mcxd?|xtbb|xtbd|bpxsp|\bbpx\b|wbpx/i.test(e.name + ' ' + e.category),
   )
+
+  const getDeviceType = (equipmentId?: string): string => {
+    if (!equipmentId) return ''
+    const n = equipment.find((e) => e.id === equipmentId)?.name?.toLowerCase() ?? ''
+    if (n.includes('mcxd')) return 'MCXD'
+    if (n.includes('mcx')) return 'MCX'
+    if (n.includes('wbpx')) return 'WBPX'
+    if (n.includes('bpxsp')) return 'BPXSP'
+    if (n.includes('bpx')) return 'BPX'
+    if (n.includes('xtbd')) return 'XTBD'
+    if (n.includes('xtbb')) return 'XTBB'
+    if (n.includes('antenna')) return 'ANT'
+    return ''
+  }
 
   // ── render ────────────────────────────────────────────────────────────────
 
@@ -117,9 +131,10 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
-          <h3 className="text-base font-semibold text-emerald-300">
-            🎙 GreenGo Intercom-Planung / .gg5 Export
-          </h3>
+          <div>
+            <h3 className="text-base font-semibold text-emerald-300">GreenGo Intercom-Planung</h3>
+            <p className="text-[11px] text-slate-500">{config.systemName}</p>
+          </div>
           <button
             type="button"
             onClick={onClose}
@@ -131,18 +146,23 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
         {/* Tabs */}
         <div className="flex border-b border-slate-700 text-xs">
-          {(['users', 'groups', 'system'] as const).map((tab) => (
+          {([
+            ['matrix',  'Übersicht'],
+            ['users',   `Stationen (${config.users.length})`],
+            ['groups',  `Gruppen (${config.groups.length})`],
+            ['system',  'System'],
+          ] as [string, string][]).map(([tab, label]) => (
             <button
               key={tab}
               type="button"
-              onClick={() => setActiveTab(tab)}
+              onClick={() => setActiveTab(tab as 'matrix' | 'users' | 'groups' | 'system')}
               className={`px-4 py-2 font-medium transition-colors ${
                 activeTab === tab
                   ? 'border-b-2 border-emerald-400 text-emerald-300'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              {tab === 'users' ? `Benutzer (${config.users.length})` : tab === 'groups' ? `Gruppen (${config.groups.length})` : 'System'}
+              {label}
             </button>
           ))}
         </div>
@@ -150,12 +170,152 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
         {/* Tab content */}
         <div className="flex-1 overflow-y-auto p-4">
 
+          {/* ══════ MATRIX OVERVIEW ══════ */}
+          {activeTab === 'matrix' && (
+            <div>
+              {(config.users.length === 0 || config.groups.length === 0) && (
+                <div className="mb-3 rounded border border-amber-800 bg-amber-950/40 px-3 py-2 text-xs text-amber-300">
+                  {config.users.length === 0 && config.groups.length === 0
+                    ? 'Noch keine Stationen und Gruppen — wechsle zu den Tabs „Stationen" und „Gruppen".'
+                    : config.users.length === 0
+                      ? 'Noch keine Stationen — wechsle zum Tab „Stationen".'
+                      : 'Noch keine Gruppen — wechsle zum Tab „Gruppen".'}
+                </div>
+              )}
+
+              {config.users.length > 0 && config.groups.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-slate-800">
+                        <th className="w-8 px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-500">#</th>
+                        <th className="min-w-[130px] px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">Station</th>
+                        <th className="min-w-[70px] px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">Typ</th>
+                        <th className="min-w-[160px] px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">Gerät (Canvas)</th>
+                        {config.groups.map((group) => (
+                          <th key={group.id} className="px-2 py-2 text-center text-[10px] font-semibold uppercase tracking-wide text-emerald-400 whitespace-nowrap">
+                            {group.name}
+                          </th>
+                        ))}
+                        <th className="w-6" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {config.users.map((user, idx) => {
+                        const deviceType = getDeviceType(user.equipmentId)
+                        return (
+                          <tr key={user.id}
+                            className={`border-t border-slate-800 ${idx % 2 === 0 ? 'bg-slate-900' : 'bg-slate-800/30'} hover:bg-slate-800/70`}>
+                            <td className="px-2 py-1.5 text-center text-[10px] text-slate-500 font-mono">{user.id}</td>
+                            <td className="px-2 py-1">
+                              <input
+                                value={user.name}
+                                onChange={(e) => updateUser(user.id, { name: e.target.value })}
+                                className="w-full rounded border border-transparent bg-transparent px-1 py-0.5 text-xs text-slate-100 hover:border-slate-700 focus:border-slate-600 focus:bg-slate-950 focus:outline-none"
+                              />
+                            </td>
+                            <td className="px-3 py-1.5 whitespace-nowrap">
+                              {deviceType
+                                ? <span className="rounded bg-emerald-900/60 px-1.5 py-0.5 text-[10px] font-mono text-emerald-300">{deviceType}</span>
+                                : <span className="text-[10px] text-slate-600">—</span>}
+                            </td>
+                            <td className="px-2 py-1">
+                              {intercomEquipment.length > 0 ? (
+                                <select
+                                  value={user.equipmentId ?? ''}
+                                  onChange={(e) => updateUser(user.id, { equipmentId: e.target.value || undefined })}
+                                  className="w-full rounded border border-slate-800 bg-slate-950 px-1 py-0.5 text-[11px] text-slate-300 hover:border-slate-600 focus:outline-none">
+                                  <option value="">— nicht zugewiesen —</option>
+                                  {intercomEquipment.map((eq) => (
+                                    <option key={eq.id} value={eq.id}>{eq.name}</option>
+                                  ))}
+                                </select>
+                              ) : (
+                                <span className="text-[10px] text-slate-600">kein Intercom auf Canvas</span>
+                              )}
+                            </td>
+                            {config.groups.map((group) => {
+                              const active = user.groupIds.includes(group.id)
+                              return (
+                                <td key={group.id} className="px-2 py-1 text-center">
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleUserGroup(user.id, group.id)}
+                                    title={active ? `${user.name} aus „${group.name}" entfernen` : `${user.name} zu „${group.name}" hinzufügen`}
+                                    className={`h-7 w-7 rounded text-sm transition-colors ${
+                                      active
+                                        ? 'bg-emerald-600 text-white hover:bg-emerald-500'
+                                        : 'bg-slate-800 text-slate-600 hover:bg-slate-700 hover:text-slate-300'
+                                    }`}>
+                                    {active ? '●' : '○'}
+                                  </button>
+                                </td>
+                              )
+                            })}
+                            <td className="px-1 py-1 text-center">
+                              <button type="button" onClick={() => removeUser(user.id)}
+                                className="rounded px-1 py-0.5 text-[10px] text-slate-600 hover:bg-red-900/60 hover:text-red-300">×</button>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                    <tfoot>
+                      <tr className="border-t border-slate-700 bg-slate-800/80">
+                        <td colSpan={4} className="px-3 py-1.5 text-[10px] text-slate-500">Mitglieder</td>
+                        {config.groups.map((group) => (
+                          <td key={group.id} className="px-2 py-1.5 text-center text-[10px] font-bold text-emerald-400">
+                            {config.users.filter((u) => u.groupIds.includes(group.id)).length}
+                          </td>
+                        ))}
+                        <td />
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              )}
+
+              {config.users.length > 0 && config.users.length < MAX_USERS && (
+                <div className="mt-2">
+                  <button type="button" onClick={addUser}
+                    className="rounded border border-dashed border-slate-700 px-3 py-1.5 text-xs text-slate-500 hover:border-emerald-700 hover:text-emerald-400">
+                    + Station hinzufügen
+                  </button>
+                </div>
+              )}
+
+              {intercomEquipment.length > 0 && (
+                <div className="mt-5">
+                  <div className="mb-1.5 text-[10px] uppercase tracking-wide text-slate-500">GreenGo-Geräte auf dem Canvas</div>
+                  <div className="flex flex-wrap gap-2">
+                    {intercomEquipment.map((eq) => {
+                      const assignedTo = config.users.find((u) => u.equipmentId === eq.id)
+                      return (
+                        <div key={eq.id}
+                          className={`rounded border px-2 py-1 text-[11px] ${
+                            assignedTo
+                              ? 'border-emerald-800 bg-emerald-950/40 text-emerald-300'
+                              : 'border-slate-700 bg-slate-800/60 text-slate-400'
+                          }`}>
+                          <span className="font-medium">{eq.name}</span>
+                          {assignedTo
+                            ? <span className="ml-1.5 text-[10px] text-slate-400">→ {assignedTo.name}</span>
+                            : <span className="ml-1.5 text-[10px] text-slate-600">nicht zugewiesen</span>}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* ── USERS ── */}
           {activeTab === 'users' && (
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <span className="text-xs text-slate-400">
-                  Bis zu {MAX_USERS} Benutzer (Stationen / Rollen). Weise jeder Station eine oder mehrere Gruppen zu.
+                  Bis zu {MAX_USERS} Stationen. Gruppen im Tab „Übersicht" per Klick zuweisen.
                 </span>
                 <button
                   type="button"
@@ -163,13 +323,13 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   disabled={config.users.length >= MAX_USERS}
                   className="rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
                 >
-                  + Benutzer
+                  + Station
                 </button>
               </div>
 
               {config.users.length === 0 && (
                 <div className="rounded border border-dashed border-slate-700 p-6 text-center text-xs text-slate-500">
-                  Noch keine Benutzer. Klicke „+ Benutzer" um zu beginnen.
+                  Noch keine Stationen. Klicke „+ Station" um zu beginnen.
                 </div>
               )}
 
@@ -195,7 +355,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                           onChange={(e) =>
                             updateUser(user.id, { equipmentId: e.target.value || undefined })
                           }
-                          className="w-40 rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                          className="w-44 rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
                           title="Gerät auf dem Canvas zuweisen"
                         >
                           <option value="">— Gerät —</option>
@@ -214,33 +374,17 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                         ×
                       </button>
                     </div>
-
-                    {config.groups.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 pl-8">
-                        <span className="self-center text-[10px] text-slate-500">Gruppen:</span>
-                        {config.groups.map((group) => {
-                          const active = user.groupIds.includes(group.id)
-                          return (
-                            <button
-                              key={group.id}
-                              type="button"
-                              onClick={() => toggleUserGroup(user.id, group.id)}
-                              className={`rounded px-2 py-0.5 text-[11px] transition-colors ${
-                                active
-                                  ? 'bg-emerald-700 text-white hover:bg-emerald-600'
-                                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
-                              }`}
-                            >
-                              {group.name}
-                            </button>
-                          )
+                    {user.groupIds.length > 0 && (
+                      <div className="flex flex-wrap gap-1 pl-8">
+                        {user.groupIds.map((gid) => {
+                          const g = config.groups.find((x) => x.id === gid)
+                          return g ? (
+                            <span key={gid} className="rounded bg-emerald-900/60 px-1.5 py-0.5 text-[10px] text-emerald-300">
+                              {g.name}
+                            </span>
+                          ) : null
                         })}
                       </div>
-                    )}
-                    {config.groups.length === 0 && (
-                      <p className="pl-8 text-[10px] text-slate-600">
-                        Erst Gruppen anlegen, dann hier zuweisen.
-                      </p>
                     )}
                   </div>
                 ))}
@@ -374,7 +518,10 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-slate-700 px-4 py-3">
           <span className="text-[11px] text-slate-500">
-            {config.users.length} Benutzer · {config.groups.length} Gruppen
+            {config.users.length} Stationen · {config.groups.length} Gruppen
+            {intercomEquipment.length > 0 && (
+              <span className="ml-2 text-emerald-700">· {intercomEquipment.length} Geräte auf Canvas</span>
+            )}
           </span>
           <div className="flex gap-2">
             <button
