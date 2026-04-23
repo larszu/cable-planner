@@ -1,6 +1,7 @@
 import { app, BrowserWindow, Menu } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import fs from 'node:fs'
 import { registerCredentialsIpc } from './ipc/credentialsIpc.js'
 import { registerRentmanIpc } from './ipc/rentmanIpc.js'
 import { registerProjectIpc } from './ipc/projectIpc.js'
@@ -34,7 +35,20 @@ const createWindow = async () => {
   })
 
   mainWindow.webContents.on('did-fail-load', (_event, code, description, url) => {
-    console.error(`Renderer load failed (${code}) ${description}: ${url}`)
+    const msg = `[did-fail-load] code=${code} desc=${description} url=${url}\n`
+    console.error(msg)
+    try {
+      fs.appendFileSync(path.join(app.getPath('userData'), 'renderer-error.log'), msg)
+    } catch { /* ignore */ }
+  })
+
+  mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
+    if (level >= 2) { // warning/error only
+      const msg = `[renderer][${level}] ${message} (${sourceId}:${line})\n`
+      try {
+        fs.appendFileSync(path.join(app.getPath('userData'), 'renderer-error.log'), msg)
+      } catch { /* ignore */ }
+    }
   })
 
   if (isDev && process.env.VITE_DEV_SERVER_URL) {
@@ -48,6 +62,17 @@ const createWindow = async () => {
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
+  })
+
+  // F12 opens DevTools for debugging in production
+  mainWindow.webContents.on('before-input-event', (_event, input) => {
+    if (input.key === 'F12' && input.type === 'keyDown') {
+      if (mainWindow.webContents.isDevToolsOpened()) {
+        mainWindow.webContents.closeDevTools()
+      } else {
+        mainWindow.webContents.openDevTools({ mode: 'detach' })
+      }
+    }
   })
 }
 
