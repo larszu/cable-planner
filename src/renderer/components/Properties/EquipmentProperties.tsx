@@ -541,13 +541,22 @@ export const EquipmentProperties = () => {
           <div className="mb-1 text-[10px] uppercase tracking-wide text-purple-300">
             Blackmagic Videohub erkannt
           </div>
-          <button
-            type="button"
-            onClick={() => openVideohubExport(equipment.id)}
-            className="w-full rounded bg-purple-700 px-2 py-1 text-xs hover:bg-purple-600"
-          >
-            Labels / Routing exportieren →
-          </button>
+          <div className="flex flex-col gap-1">
+            <button
+              type="button"
+              onClick={() => openVideohubExport(equipment.id)}
+              className="w-full rounded bg-purple-700 px-2 py-1 text-xs hover:bg-purple-600"
+            >
+              Labels / Routing exportieren →
+            </button>
+            <button
+              type="button"
+              onClick={() => openVideohubExport(equipment.id, true)}
+              className="w-full rounded bg-purple-800 px-2 py-1 text-xs hover:bg-purple-700"
+            >
+              Routing-Matrix / An Videohub senden →
+            </button>
+          </div>
         </div>
       )}
       {deviceKind === 'atem' && (

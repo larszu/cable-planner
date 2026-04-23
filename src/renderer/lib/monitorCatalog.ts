@@ -349,21 +349,21 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
       width: 200, height: 140,
     },
   },
-  // XVM-245W (24.5", 4K UHD — 2x 12G-SDI in, 12G-SDI out loop, 2x HDMI 2.0 in, DisplayPort in, Ref In)
+  // XVM-245W (24.5", 4K UHD — 2x 3G-SDI in, 3G-SDI out loop, 2x HDMI 2.0 in, DisplayPort in, Ref In)
   {
     match: ['tvlogic', 'xvm-245'],
     template: {
       name: 'TVLogic XVM-245W',
       category: MON,
       inputs: [
-        sdiIn('12G-SDI In 1'),
-        sdiIn('12G-SDI In 2'),
+        sdiIn('3G-SDI In 1'),
+        sdiIn('3G-SDI In 2'),
         hdmiIn('HDMI In 1'),
         hdmiIn('HDMI In 2'),
         port('DisplayPort In', 'DisplayPort'),
         sdiIn('Ref In'),
       ],
-      outputs: [sdiOut('12G-SDI Out (Loop)')],
+      outputs: [sdiOut('3G-SDI Out (Loop)')],
       width: 240, height: 220,
     },
   },

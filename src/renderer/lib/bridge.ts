@@ -89,6 +89,9 @@ type CablePlannerApi = {
     }) => Promise<{ applied: number }>
     onEvent: (cb: (line: string) => void) => () => void
   }
+  videohub: {
+    sendRouting: (params: { host: string; port: number; block: string }) => Promise<{ ok: boolean; message: string }>
+  }
 }
 
 const TOKEN_KEY = 'cable-planner:web:token'
@@ -353,6 +356,12 @@ const webFallbackApi: CablePlannerApi = {
       throw new Error('ATEM control requires the desktop app.')
     },
     onEvent: () => () => {},
+  },
+  videohub: {
+    sendRouting: async () => ({
+      ok: false,
+      message: 'TCP-Übertragung erfordert die Desktop-App.',
+    }),
   },
 }
 

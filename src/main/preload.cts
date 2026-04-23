@@ -46,4 +46,8 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       return () => ipcRenderer.removeListener('atem:event', listener)
     },
   },
+  videohub: {
+    sendRouting: (params: { host: string; port: number; block: string }) =>
+      ipcRenderer.invoke('videohub:send', params) as Promise<{ ok: boolean; message: string }>,
+  },
 })

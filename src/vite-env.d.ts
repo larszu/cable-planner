@@ -22,6 +22,9 @@ declare global {
         saveProjectAs: (project: unknown) => Promise<string | null>
         getRecentProjects: () => Promise<string[]>
       }
+      videohub: {
+        sendRouting: (params: { host: string; port: number; block: string }) => Promise<{ ok: boolean; message: string }>
+      }
     }
   }
 }
