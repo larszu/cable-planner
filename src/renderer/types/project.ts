@@ -1,5 +1,6 @@
 import type { Cable } from './cable'
 import type { EquipmentItem } from './equipment'
+import type { GreenGoConfig } from './greengo'
 import type { LocationFrame } from './location'
 import type { VideoFormatId } from './videoFormat'
 
@@ -45,4 +46,6 @@ export interface CablePlannerProject {
   cables: Cable[]
   canvasState: CanvasState
   locations?: LocationFrame[]
+  /** GreenGo intercom planning configuration (users, groups, system settings). */
+  greengoConfig?: GreenGoConfig
 }

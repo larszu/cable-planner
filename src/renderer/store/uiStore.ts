@@ -64,6 +64,9 @@ interface UiState extends PersistedUiState {
   videohubExport: { open: boolean; deviceId?: string; initialShowMatrix?: boolean }
   openVideohubExport: (deviceId?: string, initialShowMatrix?: boolean) => void
   closeVideohubExport: () => void
+  greengoExport: { open: boolean }
+  openGreenGoExport: () => void
+  closeGreenGoExport: () => void
   atemDialog: { open: boolean; deviceId?: string }
   openAtemDialog: (deviceId?: string) => void
   closeAtemDialog: () => void
@@ -129,6 +132,9 @@ export const useUiStore = create<UiState>((set) => ({
   videohubExport: { open: false },
   openVideohubExport: (deviceId, initialShowMatrix) => set({ videohubExport: { open: true, deviceId, initialShowMatrix } }),
   closeVideohubExport: () => set({ videohubExport: { open: false } }),
+  greengoExport: { open: false },
+  openGreenGoExport: () => set({ greengoExport: { open: true } }),
+  closeGreenGoExport: () => set({ greengoExport: { open: false } }),
   atemDialog: { open: false },
   openAtemDialog: (deviceId) => set({ atemDialog: { open: true, deviceId } }),
   closeAtemDialog: () => set({ atemDialog: { open: false } }),

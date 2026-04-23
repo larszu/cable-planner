@@ -1,6 +1,6 @@
 import type { EquipmentItem } from '../types/equipment'
 
-export type DeviceKind = 'videohub' | 'atem' | 'multiviewer' | null
+export type DeviceKind = 'videohub' | 'atem' | 'multiviewer' | 'greengo' | null
 
 export type NetworkDeviceKind = 'switch' | 'router' | null
 
@@ -37,6 +37,10 @@ export const detectDeviceKind = (device: EquipmentItem): DeviceKind => {
 
   // Don't mis-detect IP routers / switches as video routers.
   if (detectNetworkDevice(device) !== null) return null
+
+  if (/greengo|green-go|gg5|\bxtbb\b|\bxtbd\b|\bbpxsp\b|\bwbpx\b|\bmcx\b.*intercom|intercom.*\bmcx\b/.test(name)) {
+    return 'greengo'
+  }
 
   if (/videohub|crosspoint|crossbar|video router|smart videohub|universal videohub/.test(name)) {
     return 'videohub'

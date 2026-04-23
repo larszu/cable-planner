@@ -7,6 +7,7 @@ import { matchUbiquitiTemplate } from '../../lib/ubiquitiCatalog'
 import { matchMonitorTemplate } from '../../lib/monitorCatalog'
 import { matchCameraTemplate } from '../../lib/cameraCatalog'
 import { matchMiscTemplate } from '../../lib/miscCatalog'
+import { matchGreenGoTemplate } from '../../lib/greengoCatalog'
 import type { EquipmentTemplate, Port } from '../../types/equipment'
 import { EquipmentChecklist } from './EquipmentChecklist'
 import { NewRentmanDeviceWizard, type UnknownCandidate } from './NewRentmanDeviceWizard'
@@ -356,7 +357,8 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         matchUbiquitiTemplate(item.name) ||
         matchMonitorTemplate(item.name) ||
         matchCameraTemplate(item.name) ||
-        matchMiscTemplate(item.name) || {
+        matchMiscTemplate(item.name) ||
+        matchGreenGoTemplate(item.name) || {
           name: item.name,
           category: item.category,
           inputs: [mapPort('Input 1')],
@@ -395,6 +397,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       if (matchMonitorTemplate(item.name)) return
       if (matchCameraTemplate(item.name)) return
       if (matchMiscTemplate(item.name)) return
+      if (matchGreenGoTemplate(item.name)) return
       if (unknownMap.has(item.equipmentId)) return
       unknownMap.set(item.equipmentId, {
         rentmanId: item.equipmentId,
@@ -631,7 +634,8 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                   matchUbiquitiTemplate(item.name) ||
                   matchMonitorTemplate(item.name) ||
                   matchCameraTemplate(item.name) ||
-                  matchMiscTemplate(item.name)
+                  matchMiscTemplate(item.name) ||
+                  matchGreenGoTemplate(item.name)
                 return match
                   ? { ...item, templateMatch: match.name }
                   : item
