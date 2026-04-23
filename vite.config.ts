@@ -3,7 +3,16 @@ import react from '@vitejs/plugin-react'
 import { resolve } from 'node:path'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Remove crossorigin attribute so file:// loading works in packaged Electron
+    {
+      name: 'remove-crossorigin',
+      transformIndexHtml(html: string) {
+        return html.replace(/ crossorigin/g, '')
+      },
+    },
+  ],
   root: '.',
   // Use relative asset paths so file:// loading from Electron works.
   base: './',
