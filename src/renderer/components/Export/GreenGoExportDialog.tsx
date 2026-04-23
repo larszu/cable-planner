@@ -1,8 +1,15 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useProjectStore } from '../../store/projectStore'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../../types/greengo'
 import { defaultGreenGoConfig } from '../../types/greengo'
 import { buildGg5File } from '../../lib/exportGreengo'
+import {
+  autoMatchEquipment,
+  detectDeviceType,
+  isParseError,
+  parseGg5File,
+  type Gg5ImportResult,
+} from '../../lib/importGreengo'
 
 interface Props {
   onClose: () => void
@@ -33,6 +40,55 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
   )
 
   const [activeTab, setActiveTab] = useState<'matrix' | 'users' | 'groups' | 'system'>('matrix')
+
+  // ── import state ──────────────────────────────────────────────────────────
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [importResult, setImportResult] = useState<Gg5ImportResult | null>(null)
+  const [importError, setImportError] = useState<string | null>(null)
+  /** userId → canvas equipmentId mapping chosen by the user in the import overlay */
+  const [importMappings, setImportMappings] = useState<Map<number, string>>(new Map())
+
+  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string
+      const result = parseGg5File(text)
+      if (isParseError(result)) {
+        setImportError(result.error)
+        setImportResult(null)
+      } else {
+        // Auto-match imported users to canvas equipment
+        const autoMap = autoMatchEquipment(result.config.users, intercomEquipment)
+        setImportMappings(autoMap)
+        setImportResult(result)
+        setImportError(null)
+      }
+    }
+    reader.readAsText(file, 'utf-8')
+    // reset so the same file can be re-selected
+    e.target.value = ''
+  }
+
+  const applyImport = () => {
+    if (!importResult) return
+    // Merge equipment IDs from the mapping into the imported users
+    const users = importResult.config.users.map((u) => ({
+      ...u,
+      equipmentId: importMappings.get(u.id) || undefined,
+    }))
+    setConfig({ ...importResult.config, users })
+    setActiveTab('matrix')
+    setImportResult(null)
+    setImportError(null)
+  }
+
+  const cancelImport = () => {
+    setImportResult(null)
+    setImportError(null)
+  }
 
   // ── system helpers ────────────────────────────────────────────────────────
 
@@ -524,6 +580,22 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
             )}
           </span>
           <div className="flex gap-2">
+            {/* Hidden file input for .gg5 import */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".gg5,.json"
+              className="hidden"
+              onChange={handleFileSelected}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="rounded border border-slate-600 px-3 py-1.5 text-xs text-slate-400 hover:border-emerald-700 hover:text-emerald-300"
+              title=".gg5 Datei importieren und mit Canvas-Geräten verknüpfen"
+            >
+              ⬆ .gg5 importieren
+            </button>
             <button
               type="button"
               onClick={handleSave}
@@ -541,6 +613,146 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
           </div>
         </div>
       </div>
+
+      {/* ══════ IMPORT ERROR TOAST ══════ */}
+      {importError && (
+        <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded border border-red-700 bg-red-950 px-4 py-2 text-xs text-red-300 shadow-lg">
+          {importError}
+          <button type="button" onClick={() => setImportError(null)} className="ml-3 text-red-500 hover:text-red-300">×</button>
+        </div>
+      )}
+
+      {/* ══════ IMPORT MAPPING OVERLAY ══════ */}
+      {importResult && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4">
+          <div className="flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden rounded border border-emerald-700 bg-slate-900 text-slate-100 shadow-2xl">
+
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
+              <div>
+                <h3 className="text-sm font-semibold text-emerald-300">
+                  .gg5 importieren — Geräte verknüpfen
+                </h3>
+                <p className="text-[11px] text-slate-400">
+                  System: <span className="text-slate-200">{importResult.config.systemName}</span>
+                  {importResult.config.multicastAddress && (
+                    <span className="ml-2 font-mono text-slate-500">{importResult.config.multicastAddress}</span>
+                  )}
+                </p>
+              </div>
+              <button type="button" onClick={cancelImport}
+                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600">✕</button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+
+              {/* Groups summary */}
+              {importResult.config.groups.length > 0 && (
+                <div>
+                  <div className="mb-1.5 text-[10px] uppercase tracking-wide text-slate-500">
+                    Importierte Gruppen ({importResult.config.groups.length})
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {importResult.config.groups.map((g) => (
+                      <span key={g.id} className="rounded bg-emerald-900/50 px-2 py-0.5 text-[11px] text-emerald-300">
+                        {g.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* User → Equipment mapping table */}
+              <div>
+                <div className="mb-1.5 text-[10px] uppercase tracking-wide text-slate-500">
+                  Stationen → Canvas-Geräte verknüpfen ({importResult.config.users.length})
+                </div>
+                <p className="mb-2 text-[11px] text-slate-500">
+                  Wähle für jede importierte Station das entsprechende Gerät auf dem Canvas.
+                  Automatisch erkannte Zuordnungen sind vorausgefüllt.
+                </p>
+                <table className="w-full border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-800">
+                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">Name (aus .gg5)</th>
+                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">Typ</th>
+                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">Gruppen</th>
+                      <th className="min-w-[180px] px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-emerald-400">Gerät auf Canvas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {importResult.config.users.map((user, idx) => {
+                      const typeHint = importResult.userTypeHints.get(user.id) || detectDeviceType(user.name)
+                      const assignedId = importMappings.get(user.id) ?? ''
+                      const userGroups = user.groupIds
+                        .map((gid) => importResult.config.groups.find((g) => g.id === gid)?.name)
+                        .filter(Boolean)
+                      return (
+                        <tr key={user.id}
+                          className={`border-t border-slate-800 ${idx % 2 === 0 ? 'bg-slate-900' : 'bg-slate-800/30'}`}>
+                          <td className="px-3 py-2 font-medium text-slate-200">{user.name}</td>
+                          <td className="px-3 py-2">
+                            {typeHint
+                              ? <span className="rounded bg-emerald-900/60 px-1.5 py-0.5 text-[10px] font-mono text-emerald-300">{typeHint}</span>
+                              : <span className="text-slate-600">—</span>}
+                          </td>
+                          <td className="px-3 py-2">
+                            {userGroups.length > 0
+                              ? <span className="text-[10px] text-slate-400">{userGroups.join(', ')}</span>
+                              : <span className="text-[10px] text-slate-600">keine</span>}
+                          </td>
+                          <td className="px-3 py-2">
+                            {intercomEquipment.length > 0 ? (
+                              <select
+                                value={assignedId}
+                                onChange={(e) => {
+                                  const next = new Map(importMappings)
+                                  if (e.target.value) next.set(user.id, e.target.value)
+                                  else next.delete(user.id)
+                                  setImportMappings(next)
+                                }}
+                                className={`w-full rounded border px-1.5 py-1 text-[11px] focus:outline-none ${
+                                  assignedId
+                                    ? 'border-emerald-800 bg-emerald-950/40 text-emerald-200'
+                                    : 'border-slate-700 bg-slate-950 text-slate-400'
+                                }`}>
+                                <option value="">— nicht verknüpfen —</option>
+                                {intercomEquipment.map((eq) => (
+                                  <option key={eq.id} value={eq.id}>{eq.name}</option>
+                                ))}
+                              </select>
+                            ) : (
+                              <span className="text-[10px] text-slate-600">Kein Intercom auf Canvas</span>
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-between border-t border-slate-700 px-4 py-3">
+              <span className="text-[11px] text-slate-500">
+                {importMappings.size} von {importResult.config.users.length} Stationen verknüpft
+              </span>
+              <div className="flex gap-2">
+                <button type="button" onClick={cancelImport}
+                  className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600">
+                  Abbrechen
+                </button>
+                <button type="button" onClick={applyImport}
+                  className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium hover:bg-emerald-500">
+                  Übernehmen →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
