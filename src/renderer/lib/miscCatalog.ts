@@ -323,6 +323,77 @@ export const MISC_CATALOG: MiscEntry[] = [
       width: 160, height: 100,
     },
   },
+
+  // ── Jünger Audio ──────────────────────────────────────────────────────────
+
+  // DAP8 — 8-channel digital audio processor (loudness, dynamics, EQ)
+  // Not in Rentman — added as library template for manual use.
+  // I/O: 8× AES/EBU XLR In, 8× AES/EBU XLR Out, Word Clock In/Out (BNC),
+  //      LTC In (BNC), Ethernet (remote control), optional SDI embedding.
+  {
+    match: ['dap8'],
+    template: {
+      name: 'Jünger Audio DAP8',
+      category: AUDIO,
+      inputs: [
+        xlrIn('AES/EBU In 1'),
+        xlrIn('AES/EBU In 2'),
+        xlrIn('AES/EBU In 3'),
+        xlrIn('AES/EBU In 4'),
+        xlrIn('AES/EBU In 5'),
+        xlrIn('AES/EBU In 6'),
+        xlrIn('AES/EBU In 7'),
+        xlrIn('AES/EBU In 8'),
+        sdiIn('Word Clock In (BNC)'),
+        sdiIn('LTC In (BNC)'),
+      ],
+      outputs: [
+        xlrOut('AES/EBU Out 1'),
+        xlrOut('AES/EBU Out 2'),
+        xlrOut('AES/EBU Out 3'),
+        xlrOut('AES/EBU Out 4'),
+        xlrOut('AES/EBU Out 5'),
+        xlrOut('AES/EBU Out 6'),
+        xlrOut('AES/EBU Out 7'),
+        xlrOut('AES/EBU Out 8'),
+        sdiOut('Word Clock Out (BNC)'),
+      ],
+      width: 240, height: 360,
+    },
+  },
+
+  // d*ap8 variant name (Jünger uses asterisk in product line branding)
+  {
+    match: ['d*ap'],
+    template: {
+      name: 'Jünger Audio DAP8',
+      category: AUDIO,
+      inputs: [
+        xlrIn('AES/EBU In 1'),
+        xlrIn('AES/EBU In 2'),
+        xlrIn('AES/EBU In 3'),
+        xlrIn('AES/EBU In 4'),
+        xlrIn('AES/EBU In 5'),
+        xlrIn('AES/EBU In 6'),
+        xlrIn('AES/EBU In 7'),
+        xlrIn('AES/EBU In 8'),
+        sdiIn('Word Clock In (BNC)'),
+        sdiIn('LTC In (BNC)'),
+      ],
+      outputs: [
+        xlrOut('AES/EBU Out 1'),
+        xlrOut('AES/EBU Out 2'),
+        xlrOut('AES/EBU Out 3'),
+        xlrOut('AES/EBU Out 4'),
+        xlrOut('AES/EBU Out 5'),
+        xlrOut('AES/EBU Out 6'),
+        xlrOut('AES/EBU Out 7'),
+        xlrOut('AES/EBU Out 8'),
+        sdiOut('Word Clock Out (BNC)'),
+      ],
+      width: 240, height: 360,
+    },
+  },
 ]
 
 /** Flat list of all built-in misc templates (seeded into the library). */
@@ -341,7 +412,10 @@ export const matchMiscTemplate = (name: string): EquipmentTemplate | null => {
     lower.includes('aja') ||
     lower.includes('miranda') ||
     (lower.includes('tc electronic') && lower.includes('clarity')) ||
-    (lower.includes('yamaha') && lower.includes('msp'))
+    (lower.includes('yamaha') && lower.includes('msp')) ||
+    lower.includes('dap8') ||
+    lower.includes('d*ap') ||
+    (lower.includes('j') && lower.includes('nger') && lower.includes('audio'))
   if (!isBrandKnown) return null
   // Exact name match first
   for (const t of miscTemplates) {
