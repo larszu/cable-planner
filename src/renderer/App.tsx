@@ -80,11 +80,12 @@ export default function App() {
   useUndoRedoShortcuts()
 
   const handleNewProject = async () => {
-    // Soft-protect the current canvas: warn when there's actual content, then
-    // clear immediately so the meta dialog opens against an empty project.
-    // Keeping the old project alive while the dialog is open made the dialog
-    // re-render with a fresh `project.metadata` reference on every autosave
-    // tick, which wiped whatever the user was typing.
+    // Only *open* the dialog here. The actual project reset happens when the
+    // user confirms the dialog (see `handleMetaConfirm`). Clearing the project
+    // up-front made the canvas look blank the moment "Neues Projekt" was
+    // clicked, and if the user then hit Abbrechen (or the dialog closed for any
+    // other reason) they were left with an empty project and no way to get back
+    // to their work — it felt like "Neues Projekt" was broken until restart.
     const hasContent =
       project.equipment.length > 0 ||
       project.cables.length > 0 ||
@@ -95,12 +96,16 @@ export default function App() {
       )
       if (!ok) return
     }
-    await newProject()
     setMetaDialog({ mode: 'new' })
   }
 
   const handleMetaConfirm = async (patch: Partial<ProjectMetadata>) => {
     if (!metaDialog) return
+    if (metaDialog.mode === 'new') {
+      // Do the actual reset now, on confirm, so an aborted dialog never
+      // destroys the user's current work.
+      await newProject()
+    }
     useProjectStore.getState().updateProjectMetadata(patch)
     setMetaDialog(null)
   }
