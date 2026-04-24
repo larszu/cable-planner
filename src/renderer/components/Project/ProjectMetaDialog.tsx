@@ -80,11 +80,18 @@ export const ProjectMetaDialog = ({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={onCancel}
+      // Use mousedown + target check instead of onClick. onClick fires on the
+      // common ancestor when mousedown and mouseup happen on different elements
+      // (e.g. user presses inside an input, drags a tiny bit, releases on the
+      // backdrop). That would close the dialog as soon as the user clicked into
+      // a field — very frustrating.
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onCancel()
+      }}
     >
       <div
         className="w-[560px] max-w-[95vw] rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
           <h2 className="text-sm font-semibold">
