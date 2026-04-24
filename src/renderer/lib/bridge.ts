@@ -222,16 +222,15 @@ const fetchRentmanJson = async (path: string): Promise<unknown> => {
 
 /**
  * Rentman defaults to a small page size (usually 25). We paginate using
- * `limit` + `offset` until fewer than `limit` rows come back or the hard cap hits.
+ * `limit` + `offset` until fewer than `limit` rows come back.
  */
 const fetchRentmanPaginated = async (basePath: string): Promise<unknown[]> => {
   const limit = 300
-  const maxTotal = 10_000
   const joiner = basePath.includes('?') ? '&' : '?'
   const all: unknown[] = []
   let offset = 0
 
-  while (all.length < maxTotal) {
+  while (true) {
     const body = await fetchRentmanJson(`${basePath}${joiner}limit=${limit}&offset=${offset}`)
     const page = extractArray(body)
     all.push(...page)

@@ -200,7 +200,11 @@ const CanvasContent = () => {
       const drag = locationDragRef.current
       if (drag) {
         const posChange = changes.find(
-          (c) => c.type === 'position' && c.id === drag.locationId && c.position,
+          (c) =>
+            c.type === 'position' &&
+            c.id === drag.locationId &&
+            c.position &&
+            c.dragging === true,
         ) as Extract<NodeChange, { type: 'position' }> | undefined
         if (posChange && posChange.position) {
           const dx = posChange.position.x - drag.lastX
@@ -295,6 +299,14 @@ const CanvasContent = () => {
     },
     [locations, project.equipment],
   )
+
+  const onNodeDragStop = useCallback((_event: React.MouseEvent, node: Node) => {
+    if (node.type === 'location') {
+      // Clear any stale location drag snapshot so unrelated future node
+      // changes (like adding equipment by click) cannot shift other nodes.
+      locationDragRef.current = null
+    }
+  }, [])
 
   const onEdgesChange = (_changes: EdgeChange[]) => {
     applyEdgeChanges(_changes, edges)
@@ -527,6 +539,7 @@ const CanvasContent = () => {
             : setSelection(node.id, undefined, undefined)
         }
         onNodeDragStart={onNodeDragStart}
+        onNodeDragStop={onNodeDragStop}
         onEdgeClick={(_event, edge) => setSelection(undefined, edge.id, undefined)}
         onEdgeDoubleClick={(_event, edge) => openCableEdit(edge.id)}
         onMoveEnd={(_event, viewport) => setCanvasState(viewport.x, viewport.y, viewport.zoom)}
