@@ -47,10 +47,7 @@ export const createRentmanApiClient = (token: string) => {
     const PAGE_SIZE = 300
     const all: unknown[] = []
     let offset = 0
-    // Safety cap to avoid runaway loops (10 000 items is far more than any
-    // real Rentman account will have).
-    const MAX = 10_000
-    while (all.length < MAX) {
+    while (true) {
       const sep = path.includes('?') ? '&' : '?'
       const response = await client.get(`${path}${sep}limit=${PAGE_SIZE}&offset=${offset}`)
       const page = normalize<unknown[]>(response.data)
