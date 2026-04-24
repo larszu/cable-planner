@@ -302,8 +302,15 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       const folderNames = Object.values(folders).filter(Boolean)
       if (folderNames.length) addKnownCategories(folderNames)
 
+      // Some Rentman API keys lack permission to read /equipmentfolders.
+      // That's fine — mapEquipment falls back to names embedded in the
+      // equipment records, so the import still works. We just log it to
+      // avoid confusing the user with a scary "No access" warning while
+      // everything actually loaded successfully.
       if (!folderData.length) {
-        setWarning('No access to equipment folders. Categories use fallback values.')
+        console.info(
+          '[rentman] /equipmentfolders returned no data (token lacks permission or no folders); using fallback category names.',
+        )
       }
       if (!mapped.length) {
         setError('No equipment found in this project.')
