@@ -102,9 +102,17 @@ export default function App() {
   const handleMetaConfirm = async (patch: Partial<ProjectMetadata>) => {
     if (!metaDialog) return
     if (metaDialog.mode === 'new') {
-      // Do the actual reset now, on confirm, so an aborted dialog never
-      // destroys the user's current work.
-      await newProject()
+      // Reset the canvas synchronously via the store's `clear()`. We avoid
+      // `await newProject()` here because that also awaits IPC + recent-list
+      // refresh; if any of those hang or throw on a fresh install, the dialog
+      // would never close and the user couldn't create a new project at all.
+      // `clear()` is purely local state and always succeeds.
+      useProjectStore.getState().clear()
+      // Best-effort: also notify the main process and refresh recents, but
+      // don't block the dialog on it.
+      void newProject().catch(() => {
+        /* ignore — clear() already did the local reset */
+      })
     }
     useProjectStore.getState().updateProjectMetadata(patch)
     setMetaDialog(null)
