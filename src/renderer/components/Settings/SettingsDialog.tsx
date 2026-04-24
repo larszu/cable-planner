@@ -8,16 +8,19 @@ interface SettingsDialogProps {
 }
 
 export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
-  const token = useSettingsStore((state) => state.token)
+  // Token lives only in local component state — never in global store — to
+  // minimise how long the plaintext credential is reachable in memory.
+  const [token, setToken] = useState('')
   const hasToken = useSettingsStore((state) => state.hasToken)
   const tokenStatus = useSettingsStore((state) => state.tokenStatus)
-  const setToken = useSettingsStore((state) => state.setToken)
   const setHasToken = useSettingsStore((state) => state.setHasToken)
   const setTokenStatus = useSettingsStore((state) => state.setTokenStatus)
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     if (!open) {
+      // Wipe the token from memory when the dialog closes.
+      setToken('')
       return
     }
 
@@ -26,7 +29,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
       setToken(stored ?? '')
       setTokenStatus(stored ? 'Token loaded from secure storage.' : 'No token configured')
     })
-  }, [open, setHasToken, setToken, setTokenStatus])
+  }, [open, setHasToken, setTokenStatus])
 
   if (!open) {
     return null
@@ -80,10 +83,12 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
         <label className="mb-2 block text-sm">
           Rentman API Token
           <input
+            type="password"
             value={token}
             onChange={(event) => setToken(event.target.value)}
             className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
             placeholder="Paste bearer token"
+            autoComplete="off"
           />
         </label>
 

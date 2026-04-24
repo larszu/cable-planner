@@ -373,3 +373,17 @@ const webFallbackApi: CablePlannerApi = {
 
 export const cablePlannerApi: CablePlannerApi =
   (window.cablePlanner as CablePlannerApi | undefined) ?? webFallbackApi
+
+// Migration: if the app previously ran without a working desktop bridge and
+// stored the token in localStorage (the webFallbackApi path), move it to the
+// secure keytar store and delete the localStorage copy immediately.
+;(async () => {
+  if (!hasDesktopBridge) return
+  const legacy = localStorage.getItem(TOKEN_KEY)
+  if (!legacy) return
+  try {
+    await cablePlannerApi.credentials.saveToken(legacy)
+  } finally {
+    localStorage.removeItem(TOKEN_KEY)
+  }
+})()
