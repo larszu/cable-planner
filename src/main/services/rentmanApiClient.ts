@@ -39,26 +39,41 @@ export const createRentmanApiClient = (token: string) => {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    timeout: 15000,
+    timeout: 30000,
   })
+
+  /** Fetch all pages of a paginated Rentman endpoint. */
+  const fetchAll = async (path: string): Promise<unknown[]> => {
+    const PAGE_SIZE = 300
+    const all: unknown[] = []
+    let offset = 0
+    // Safety cap to avoid runaway loops (10 000 items is far more than any
+    // real Rentman account will have).
+    const MAX = 10_000
+    while (all.length < MAX) {
+      const sep = path.includes('?') ? '&' : '?'
+      const response = await client.get(`${path}${sep}limit=${PAGE_SIZE}&offset=${offset}`)
+      const page = normalize<unknown[]>(response.data)
+      all.push(...page)
+      if (page.length < PAGE_SIZE) break
+      offset += PAGE_SIZE
+    }
+    return all
+  }
 
   return {
     async getProjects() {
-      const response = await client.get('/projects')
-      return normalize<unknown[]>(response.data)
+      return fetchAll('/projects')
     },
     async getProjectEquipment(projectId: string) {
-      const response = await client.get(`/projects/${encodeURIComponent(projectId)}/projectequipment`)
-      return normalize<unknown[]>(response.data)
+      return fetchAll(`/projects/${encodeURIComponent(projectId)}/projectequipment`)
     },
     async getEquipment() {
-      const response = await client.get('/equipment')
-      return normalize<unknown[]>(response.data)
+      return fetchAll('/equipment')
     },
     async getEquipmentFolders() {
       try {
-        const response = await client.get('/equipmentfolders')
-        return normalize<unknown[]>(response.data)
+        return await fetchAll('/equipmentfolders')
       } catch (error) {
         // Token may lack permission for equipmentfolders; degrade gracefully.
         if (axios.isAxiosError(error) && error.response?.status === 403) {
