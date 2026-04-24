@@ -183,11 +183,17 @@ const CanvasContent = () => {
   const onNodesChange = (changes: NodeChange[]) => {
     // Track drag start/end per node so our store→RF sync knows which nodes
     // are currently being dragged (and therefore must keep their local pos).
+    // Also record which ids were *just* dragging so we can distinguish a real
+    // drag-end (persist position) from a spurious React Flow sync event (skip).
+    // Without this guard, adding a new node emits `dragging: false` position
+    // changes for *existing* nodes, which then slightly nudged them in the store.
+    const endedDragIds = new Set<string>()
     for (const change of changes) {
       if (change.type === 'position' && change.id) {
         if (change.dragging) {
           draggingIdsRef.current.add(change.id)
-        } else {
+        } else if (draggingIdsRef.current.has(change.id)) {
+          endedDragIds.add(change.id)
           draggingIdsRef.current.delete(change.id)
         }
       }
@@ -224,9 +230,16 @@ const CanvasContent = () => {
       return next
     })
 
-    // Persist to store ONLY on drag-end to avoid infinite loop
+    // Persist to store ONLY on a real drag-end. `change.dragging === false`
+    // alone is not enough — React Flow emits those during internal syncs too,
+    // which would nudge unrelated nodes whenever a new one is added.
     changes.forEach((change) => {
-      if (change.type === 'position' && change.position && change.dragging === false) {
+      if (
+        change.type === 'position' &&
+        change.position &&
+        change.dragging === false &&
+        endedDragIds.has(change.id)
+      ) {
         const isLocation = locations.some((l) => l.id === change.id)
         if (isLocation) {
           const drag = locationDragRef.current
