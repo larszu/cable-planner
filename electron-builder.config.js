@@ -8,7 +8,11 @@ export default {
   },
   npmRebuild: false,
   mac: {
-    target: ['dmg'],
+    target: [
+      { target: 'dmg', arch: 'x64' },
+      { target: 'dmg', arch: 'arm64' },
+    ],
+    artifactName: '${productName}-${version}-${arch}.${ext}',
   },
   win: {
     target: ['nsis', 'portable'],

@@ -184,16 +184,6 @@ export const MenuBar = ({
         >
           ⚙ Einstellungen
         </button>
-        {onOpenTour && (
-          <button
-            type="button"
-            onClick={onOpenTour}
-            className="rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
-            title="Erste-Schritte-Tour wieder öffnen"
-          >
-            ?
-          </button>
-        )}
       </div>
     </header>
   )
