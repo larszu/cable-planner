@@ -800,6 +800,10 @@ const CanvasContent = () => {
         onEdgeUpdateStart={onEdgeUpdateStart}
         onEdgeUpdateEnd={onEdgeUpdateEnd}
         edgeUpdaterRadius={16}
+        // Snap a dragged connection to the nearest port handle within this
+        // pixel radius. Without this, users have to hit the 10×10 handle
+        // exactly; with it, the cable "rastet ein" when the cursor is close.
+        connectionRadius={28}
         defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         minZoom={0.1}
         maxZoom={4}

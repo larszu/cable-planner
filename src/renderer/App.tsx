@@ -623,6 +623,9 @@ interface CableEditDialogProps {
 }
 
 const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
+  const equipment = useProjectStore((state) => state.project.equipment)
+  const cables = useProjectStore((state) => state.project.cables)
+
   const [specId, setSpecId] = useState<string>(cable.cableSpecId ?? cableCatalog[0].id)
   const selected: CableSpec = cableCatalog.find((c) => c.id === specId) ?? cableCatalog[0]
   const [standard, setStandard] = useState<SignalStandard | undefined>(
@@ -633,11 +636,70 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
   const [color, setColor] = useState(cable.color)
   const [notes, setNotes] = useState(cable.notes ?? '')
 
+  // Endpoint editing state — initialized from the cable, mutable via dropdowns.
+  const [fromEquipmentId, setFromEquipmentId] = useState<string>(cable.fromEquipmentId)
+  const [fromPortId, setFromPortId] = useState<string>(cable.fromPortId)
+  const [toEquipmentId, setToEquipmentId] = useState<string>(cable.toEquipmentId)
+  const [toPortId, setToPortId] = useState<string>(cable.toPortId)
+
+  // Look up devices + ports. We search inputs+outputs because connectionMode
+  // is Loose and a cable can attach to either side regardless of direction.
+  const portsOf = (eq?: EquipmentItem): (Port & { _side: 'in' | 'out' })[] => {
+    if (!eq) return []
+    const ins = (eq.inputs ?? []).map((p) => ({ ...p, _side: 'in' as const }))
+    const outs = (eq.outputs ?? []).map((p) => ({ ...p, _side: 'out' as const }))
+    return [...outs, ...ins]
+  }
+  const findPort = (eqId: string, portId: string): Port | undefined => {
+    const eq = equipment.find((e) => e.id === eqId)
+    return eq?.outputs.find((p) => p.id === portId) ?? eq?.inputs.find((p) => p.id === portId)
+  }
+
+  const fromDev = equipment.find((e) => e.id === fromEquipmentId)
+  const toDev = equipment.find((e) => e.id === toEquipmentId)
+  const fromPort = findPort(fromEquipmentId, fromPortId)
+  const toPort = findPort(toEquipmentId, toPortId)
+
+  // Detect whether the chosen ports are already in use by *another* cable.
+  // Each port should only be used by one cable; a cable can legitimately keep
+  // its own existing endpoint, so we exclude this cable's id.
+  const portConflict = (eqId: string, portId: string): Cable | undefined => {
+    if (!eqId || !portId) return undefined
+    return cables.find(
+      (c) =>
+        c.id !== cable.id &&
+        ((c.fromEquipmentId === eqId && c.fromPortId === portId) ||
+          (c.toEquipmentId === eqId && c.toPortId === portId)),
+    )
+  }
+  const fromConflict = portConflict(fromEquipmentId, fromPortId)
+  const toConflict = portConflict(toEquipmentId, toPortId)
+  const sameEndpoints =
+    fromEquipmentId &&
+    toEquipmentId &&
+    fromEquipmentId === toEquipmentId &&
+    fromPortId === toPortId
+
   const onSelectSpec = (id: string) => {
     setSpecId(id)
     const spec = cableCatalog.find((c) => c.id === id)
     if (!spec) return
     setStandard(pickHighestSdiStandard(spec.standards))
+  }
+
+  // When the user picks a different device, default the port to the first
+  // available one so the dialog never shows an inconsistent state.
+  const onSelectFromEquipment = (id: string) => {
+    setFromEquipmentId(id)
+    const eq = equipment.find((e) => e.id === id)
+    const first = eq?.outputs[0]?.id ?? eq?.inputs[0]?.id ?? ''
+    setFromPortId(first)
+  }
+  const onSelectToEquipment = (id: string) => {
+    setToEquipmentId(id)
+    const eq = equipment.find((e) => e.id === id)
+    const first = eq?.inputs[0]?.id ?? eq?.outputs[0]?.id ?? ''
+    setToPortId(first)
   }
 
   const lengthWarning =
@@ -646,9 +708,25 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
       : null
 
   const submit = () => {
-    onSave({ name, length, color, notes, cableSpecId: selected.id, standard })
+    onSave({
+      name,
+      length,
+      color,
+      notes,
+      cableSpecId: selected.id,
+      standard,
+      fromEquipmentId,
+      fromPortId,
+      toEquipmentId,
+      toPortId,
+    })
     onClose()
   }
+
+  const sortedEquipment = useMemo(
+    () => [...equipment].sort((a, b) => a.name.localeCompare(b.name)),
+    [equipment],
+  )
 
   return (
     <div
@@ -659,6 +737,107 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
         <h3 className="mb-2 text-lg font-semibold">Kabel bearbeiten</h3>
 
         <div className="space-y-2 text-sm">
+          {/* Endpoint editor: shows current routing and allows changing
+              device + port on either side. */}
+          <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
+            <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              Verbindung
+            </div>
+            <div className="mb-2 text-[11px] text-slate-300">
+              <span className="text-slate-500">Aktuell: </span>
+              <span className="font-medium">{fromDev?.name ?? '?'}</span>
+              <span className="text-slate-500"> · </span>
+              <span>{fromPort?.name ?? cable.fromPortId}</span>
+              <span className="mx-1 text-slate-500">→</span>
+              <span className="font-medium">{toDev?.name ?? '?'}</span>
+              <span className="text-slate-500"> · </span>
+              <span>{toPort?.name ?? cable.toPortId}</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <div className="mb-0.5 text-[10px] text-slate-500">Von Gerät</div>
+                <select
+                  aria-label="Quell-Gerät"
+                  value={fromEquipmentId}
+                  onChange={(e) => onSelectFromEquipment(e.target.value)}
+                  className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                >
+                  {sortedEquipment.map((eq) => (
+                    <option key={eq.id} value={eq.id}>
+                      {eq.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-1 text-[10px] text-slate-500">Port</div>
+                <select
+                  aria-label="Quell-Port"
+                  value={fromPortId}
+                  onChange={(e) => setFromPortId(e.target.value)}
+                  className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                >
+                  {portsOf(fromDev).map((p) => {
+                    const inUse = !!portConflict(fromEquipmentId, p.id)
+                    return (
+                      <option key={p.id} value={p.id}>
+                        {p._side === 'out' ? '⇢ ' : '⇠ '}
+                        {p.name} ({p.connectorType}){inUse ? ' • belegt' : ''}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+              <div>
+                <div className="mb-0.5 text-[10px] text-slate-500">Nach Gerät</div>
+                <select
+                  aria-label="Ziel-Gerät"
+                  value={toEquipmentId}
+                  onChange={(e) => onSelectToEquipment(e.target.value)}
+                  className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                >
+                  {sortedEquipment.map((eq) => (
+                    <option key={eq.id} value={eq.id}>
+                      {eq.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-1 text-[10px] text-slate-500">Port</div>
+                <select
+                  aria-label="Ziel-Port"
+                  value={toPortId}
+                  onChange={(e) => setToPortId(e.target.value)}
+                  className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                >
+                  {portsOf(toDev).map((p) => {
+                    const inUse = !!portConflict(toEquipmentId, p.id)
+                    return (
+                      <option key={p.id} value={p.id}>
+                        {p._side === 'out' ? '⇢ ' : '⇠ '}
+                        {p.name} ({p.connectorType}){inUse ? ' • belegt' : ''}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+            </div>
+
+            {fromConflict && (
+              <div className="mt-2 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+                ⚠ Quell-Port ist bereits durch Kabel „{fromConflict.name}" belegt.
+              </div>
+            )}
+            {toConflict && (
+              <div className="mt-1 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+                ⚠ Ziel-Port ist bereits durch Kabel „{toConflict.name}" belegt.
+              </div>
+            )}
+            {sameEndpoints && (
+              <div className="mt-1 rounded bg-red-900/50 px-2 py-1 text-[11px] text-red-100">
+                ⚠ Quelle und Ziel zeigen auf denselben Port.
+              </div>
+            )}
+          </div>
+
           <label className="block">
             Kabeltyp
             <select
@@ -748,7 +927,8 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
           <button
             type="button"
             onClick={submit}
-            className="rounded bg-emerald-600 px-3 py-1 hover:bg-emerald-500"
+            disabled={!!sameEndpoints}
+            className="rounded bg-emerald-600 px-3 py-1 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Speichern
           </button>
