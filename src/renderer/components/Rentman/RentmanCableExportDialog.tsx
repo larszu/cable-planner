@@ -65,7 +65,13 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
       setStatusByKey({})
       setPickerKey(null)
       setPickerQuery('')
+      return
     }
+    // Auto-load the Rentman catalogue the first time the dialog opens so the
+    // user can immediately see equipment names instead of bare IDs and the
+    // "Send all" button works without an extra click.
+    if (!catalogLoaded && !catalogLoading) void fetchCatalog()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
   const fetchCatalog = async () => {
@@ -204,6 +210,25 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
     }
   }
 
+  /**
+   * Push every mapped bucket whose delta is positive in one go. Buckets that
+   * still need a Rentman mapping are skipped (and reported in their row).
+   * Used by the "Alle senden" header button so the user doesn't have to
+   * click `Senden` on each row individually.
+   */
+  const sendAll = async () => {
+    if (!linkedProjectId) return
+    const sendable = buckets.filter((b) => b.mappedId && b.delta > 0)
+    if (sendable.length === 0) return
+    for (const bucket of sendable) {
+      // sendBucket guards on busyKey === bucket.key inside its own state,
+      // and updates project metadata after each push so the next iteration
+      // sees the fresh syncedQty value.
+      // eslint-disable-next-line no-await-in-loop
+      await sendBucket(bucket)
+    }
+  }
+
   if (!open) return null
 
   const filteredCatalog = catalog
@@ -242,18 +267,60 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
         </header>
 
         <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 px-4 py-2 text-[11px] text-slate-400">
-          <button
-            type="button"
-            onClick={() => void fetchCatalog()}
-            disabled={catalogLoading}
-            className="ml-auto rounded bg-orange-700 px-2 py-1 text-[11px] font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
-          >
-            {catalogLoading
-              ? 'Lädt…'
-              : catalogLoaded
-                ? 'Katalog aktualisieren'
-                : 'Rentman-Katalog laden'}
-          </button>
+          {(() => {
+            const totalBuilt = buckets.reduce((sum, b) => sum + b.built, 0)
+            const totalSynced = buckets.reduce((sum, b) => sum + b.syncedQty, 0)
+            const positiveDeltas = buckets.filter((b) => b.delta > 0)
+            const sendableCount = positiveDeltas
+              .filter((b) => b.mappedId)
+              .reduce((sum, b) => sum + b.delta, 0)
+            const unmappedWithDelta = positiveDeltas.filter((b) => !b.mappedId).length
+            return (
+              <>
+                <span>
+                  <span className="font-mono text-slate-200">{totalBuilt}</span> Kabel verbaut ·{' '}
+                  <span className="font-mono text-slate-200">{totalSynced}</span> bereits gesendet
+                </span>
+                {sendableCount > 0 && (
+                  <span className="text-amber-300">
+                    · <span className="font-mono">+{sendableCount}</span> bereit
+                  </span>
+                )}
+                {unmappedWithDelta > 0 && (
+                  <span className="text-red-400">
+                    · {unmappedWithDelta} ohne Zuordnung
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => void sendAll()}
+                  disabled={!linkedProjectId || sendableCount === 0 || busyKey !== null}
+                  className="ml-auto rounded bg-emerald-700 px-3 py-1 text-[11px] font-semibold text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  title={
+                    !linkedProjectId
+                      ? 'Kein Rentman-Projekt verknüpft.'
+                      : sendableCount === 0
+                        ? 'Nichts zu senden — alle Deltas null oder ohne Zuordnung.'
+                        : `${sendableCount} Kabel an Rentman senden`
+                  }
+                >
+                  {busyKey ? 'Sende…' : `Alle senden (+${sendableCount})`}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void fetchCatalog()}
+                  disabled={catalogLoading}
+                  className="rounded bg-orange-700 px-2 py-1 text-[11px] font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+                >
+                  {catalogLoading
+                    ? 'Lädt…'
+                    : catalogLoaded
+                      ? 'Katalog aktualisieren'
+                      : 'Rentman-Katalog laden'}
+                </button>
+              </>
+            )
+          })()}
         </div>
 
         {catalogError && (

@@ -556,10 +556,36 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       seen.add(item.name)
 
       const decision = decisionsByName[item.name]
-      const existing = customLibrary.find((t) => t.name === item.name)
+      // Match strategy: prefer rentmanId (re-import of the *same* Rentman
+      // master equipment) over name (might be a manually-renamed local
+      // template). This makes re-imports idempotent — they refresh metadata
+      // on the existing template instead of creating duplicates.
+      const byRentmanId = item.equipmentId
+        ? customLibrary.find((t) => t.rentmanId === item.equipmentId)
+        : undefined
+      const existing = byRentmanId ?? customLibrary.find((t) => t.name === item.name)
 
       // Skip: user chose not to import this device at all.
       if (decision === 'skip') return
+
+      // Silent re-import: same rentmanId already in library. Refresh
+      // project link metadata, keep ports/dimensions intact.
+      if (byRentmanId && !decision) {
+        const projectName = projects.find((p) => p.id === selectedProjectId)?.name
+        const needsRefresh =
+          byRentmanId.rentmanSource !== selectedProjectId ||
+          byRentmanId.rentmanProjectName !== projectName
+        if (needsRefresh) {
+          addCustomTemplate({
+            ...byRentmanId,
+            rentmanId: item.equipmentId,
+            rentmanSource: selectedProjectId,
+            rentmanProjectName: projectName,
+          })
+        }
+        addedCount++
+        return
+      }
 
       // Keep local: don't replace the user's template, just attach the
       // Rentman id/source if they're missing so future imports recognize it.
@@ -619,15 +645,22 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     const selected = visibleItems.filter((item) => item.checked)
     if (selected.length === 0) return
 
-    // Step 1 — detect conflicts with the local custom library by name. We use
-    // name (not rentmanId) because the user typically renames or pre-builds
-    // devices in the library. Each unique conflicting name is offered to the
-    // user with a default decision of 'keep' (don't clobber local edits).
+    // Step 1 — detect conflicts with the local custom library.
+    // Re-imports (same Rentman master-equipment id is already in the local
+    // library) are matched by `rentmanId` and silently merged: metadata like
+    // `rentmanProjectName` and `rentmanSource` is refreshed but the user's
+    // hand-edited port layout is preserved. Only items whose *name* collides
+    // with an unrelated local template (no rentmanId match) trigger the
+    // keep/overwrite/skip prompt.
     const seenNames = new Set<string>()
     const conflicts: ConflictItem[] = []
     selected.forEach((item) => {
       if (seenNames.has(item.name)) return
       seenNames.add(item.name)
+      const byRentmanId = item.equipmentId
+        ? customLibrary.find((t) => t.rentmanId === item.equipmentId)
+        : undefined
+      if (byRentmanId) return // re-import: not a conflict, update silently
       const existing = customLibrary.find((t) => t.name === item.name)
       if (existing) {
         conflicts.push({

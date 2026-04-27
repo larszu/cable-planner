@@ -25,6 +25,7 @@ import { CableEdge } from './CableEdge'
 import { CanvasToolbar } from './CanvasToolbar'
 import { LocationFrameNode } from './LocationFrameNode'
 import { PendingCableOverlay } from './PendingCableOverlay'
+import { TitleBlock } from './TitleBlock'
 import { colorByLength } from '../../lib/cableColors'
 import {
   setViewportCenterGetter,
@@ -831,6 +832,7 @@ const CanvasContent = () => {
         <Background />
       </ReactFlow>
       <PendingCableOverlay />
+      <TitleBlock />
     </div>
   )
 }

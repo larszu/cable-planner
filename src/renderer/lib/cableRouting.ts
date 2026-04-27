@@ -59,14 +59,15 @@ const orthogonalVariants = (source: Point, target: Point): Point[][] => {
   const midX = (source.x + target.x) / 2
   const midY = (source.y + target.y) / 2
   return [
-    // HVH variants
-    [source, { x: midX, y: source.y }, { x: midX, y: target.y }, target],
-    // VHV variants
-    [source, { x: source.x, y: midY }, { x: target.x, y: midY }, target],
-    // L: horizontal first
+    // L: horizontal first — single bend, stays attached when target moves
+    // vertically. Preferred so cables don't "spin" while dragging endpoints.
     [source, { x: target.x, y: source.y }, target],
     // L: vertical first
     [source, { x: source.x, y: target.y }, target],
+    // HVH (two bends at horizontal mid-point) — fallback when L collides.
+    [source, { x: midX, y: source.y }, { x: midX, y: target.y }, target],
+    // VHV (two bends at vertical mid-point)
+    [source, { x: source.x, y: midY }, { x: target.x, y: midY }, target],
   ]
 }
 
@@ -116,16 +117,15 @@ export const computeObstacleAwareWaypoints = (
   if (relevantObstacles.length === 0) return []
 
   const variants = orthogonalVariants(source, target)
-  // Pick the FIRST clear variant in the predefined order (HVH > VHV > L). All
-  // four variants have the same Manhattan length, so sorting by length is
-  // unstable and caused the route to flicker between shapes when the source
-  // or target moved by even a single pixel — the user-visible "spinning" of
-  // orthogonal cables. A deterministic priority keeps the path stable.
+  // Pick the FIRST clear variant in the predefined order (L-h > L-v > HVH >
+  // VHV). Single-bend L-shapes are preferred because they stay attached to
+  // both endpoints when nodes are dragged, eliminating the user-visible
+  // "spinning" / flickering of orthogonal cables on every pixel-level move.
   const firstClear = variants.find((v) => pathClearsAll(v, relevantObstacles))
   if (firstClear) return firstClear.slice(1, -1)
 
-  // Find the first obstacle the straight HV path crosses and detour around it.
-  const naive = variants[0]
+  // Find the first obstacle the naive HVH path crosses and detour around it.
+  const naive = variants[2]
   const offender = relevantObstacles.find((rect) =>
     naive.some((_, i) => i < naive.length - 1 && segmentIntersectsRect(naive[i], naive[i + 1], rect)),
   )
