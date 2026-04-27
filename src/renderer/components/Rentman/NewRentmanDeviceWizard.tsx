@@ -207,12 +207,37 @@ export const NewRentmanDeviceWizard = ({
           <label className="block">
             Category
             <div className="mt-1 flex gap-1">
-              <input
-                list="wizard-category-options"
+              <select
                 value={category}
-                onChange={(event) => setCategory(event.target.value)}
+                onChange={(event) => {
+                  const value = event.target.value
+                  if (value === '__new__') {
+                    const entered = window.prompt('Neue Kategorie')?.trim()
+                    if (entered) {
+                      setCategory(entered)
+                      addKnownCategories([entered])
+                    }
+                    return
+                  }
+                  setCategory(value)
+                }}
                 className="w-full rounded border border-slate-700 bg-slate-950 p-2"
-              />
+              >
+                {Array.from(
+                  new Set([
+                    ...knownCategories,
+                    ...customLibrary.map((t) => t.category).filter(Boolean),
+                    category,
+                  ].filter(Boolean)),
+                )
+                  .sort((a, b) => a.localeCompare(b))
+                  .map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                <option value="__new__">+ Neue Kategorie…</option>
+              </select>
               <button
                 type="button"
                 onClick={() => {
@@ -225,18 +250,6 @@ export const NewRentmanDeviceWizard = ({
                 + Add
               </button>
             </div>
-            <datalist id="wizard-category-options">
-              {Array.from(
-                new Set([
-                  ...knownCategories,
-                  ...customLibrary.map((t) => t.category).filter(Boolean),
-                ]),
-              )
-                .sort((a, b) => a.localeCompare(b))
-                .map((cat) => (
-                  <option key={cat} value={cat} />
-                ))}
-            </datalist>
           </label>
         </div>
 

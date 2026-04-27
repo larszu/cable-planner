@@ -249,6 +249,8 @@ const RackFacePreview = ({
   if (!equipment.isRackDevice || !equipment.rackUnits || equipment.rackUnits <= 0) return null
 
   const rows = Math.max(equipment.inputs.length, equipment.outputs.length, 1)
+  const unitHeight = 22
+  const panelWidth = Math.round(unitHeight * 10.86)
 
   return (
     <fieldset className="rounded border border-slate-700 p-2">
@@ -268,7 +270,12 @@ const RackFacePreview = ({
                 </div>
                 <div className="relative mb-3 rounded border border-slate-700 bg-slate-950/70 px-3 py-2 text-center">
                   {imageUrl ? (
-                    <img src={imageUrl} alt={`${equipment.name} ${side}`} className="mx-auto h-24 w-full rounded object-cover" />
+                    <img
+                      src={imageUrl}
+                      alt={`${equipment.name} ${side}`}
+                      className="mx-auto rounded object-contain"
+                      style={{ width: panelWidth, height: Math.max(1, equipment.rackUnits) * unitHeight }}
+                    />
                   ) : (
                     <>
                       <div className="truncate text-sm font-semibold text-slate-100">{equipment.name}</div>

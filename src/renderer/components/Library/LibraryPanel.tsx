@@ -231,6 +231,25 @@ export const LibraryPanel = () => {
     [equipmentCount, equipmentItems],
   )
 
+  const rackBuilderTemplates = useMemo<EquipmentTemplate[]>(() => {
+    const byName = new Map<string, EquipmentTemplate>()
+    for (const template of customLibrary) {
+      byName.set(template.name, template)
+    }
+    // Include current canvas devices as ad-hoc templates so enabling
+    // "Ist ein 19\" Rack-Gerat" in properties makes them immediately
+    // available in the rack builder without a separate library save step.
+    for (const item of equipmentItems) {
+      if (!item.isRackDevice && !item.rackUnits) continue
+      const { id, x, y, ...template } = item
+      void id
+      void x
+      void y
+      byName.set(template.name, template)
+    }
+    return Array.from(byName.values())
+  }, [customLibrary, equipmentItems])
+
   const updateGroup = (id: string, patch: Partial<PortGroupDraft>) => {
     setGroups((current) => current.map((group) => (group.id === id ? { ...group, ...patch } : group)))
   }
@@ -1415,37 +1434,37 @@ export const LibraryPanel = () => {
               </label>
               <label className="block">
                 Category
-                <div className="mt-1 flex gap-1">
-                  <input
-                    list="library-category-options"
-                    value={category}
-                    onChange={(event) => setCategory(event.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-2"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const cat = category.trim()
-                      if (cat) addKnownCategories([cat])
-                    }}
-                    title="Save as new category"
-                    className="rounded bg-slate-700 px-2 text-xs hover:bg-slate-600"
-                  >
-                    + Add
-                  </button>
-                </div>
-                <datalist id="library-category-options">
+                <select
+                  value={category}
+                  onChange={(event) => {
+                    const value = event.target.value
+                    if (value === '__new__') {
+                      const entered = window.prompt('Neue Kategorie')?.trim()
+                      if (entered) {
+                        setCategory(entered)
+                        addKnownCategories([entered])
+                      }
+                      return
+                    }
+                    setCategory(value)
+                  }}
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                >
                   {Array.from(
                     new Set([
                       ...knownCategories,
                       ...customLibrary.map((t) => t.category).filter(Boolean),
-                    ]),
+                      category,
+                    ].filter(Boolean)),
                   )
                     .sort((a, b) => a.localeCompare(b))
                     .map((cat) => (
-                      <option key={cat} value={cat} />
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
                     ))}
-                </datalist>
+                  <option value="__new__">+ Neue Kategorie…</option>
+                </select>
               </label>
               <label className="block">
                 19" Rack-Gerät
@@ -1586,7 +1605,7 @@ export const LibraryPanel = () => {
 
       <RackBuilderDialog
         open={showRackBuilderDialog}
-        templates={customLibrary}
+        templates={rackBuilderTemplates}
         onClose={() => setShowRackBuilderDialog(false)}
         onSave={(preset) => {
           addGroupPreset(preset)
