@@ -18,7 +18,8 @@ import ReactFlow, {
 } from 'reactflow'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
-import type { EquipmentTemplate } from '../../types/equipment'
+import type { EquipmentItem, EquipmentTemplate } from '../../types/equipment'
+import type { Cable } from '../../types/cable'
 import { EquipmentNode } from './EquipmentNode'
 import { CableEdge } from './CableEdge'
 import { CanvasToolbar } from './CanvasToolbar'
@@ -38,6 +39,8 @@ const CanvasContent = () => {
   const project = useProjectStore((state) => state.project)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const addEquipment = useProjectStore((state) => state.addEquipment)
+  const pasteEquipment = useProjectStore((state) => state.pasteEquipment)
+  const deleteEquipment = useProjectStore((state) => state.deleteEquipment)
   const queueConnection = useProjectStore((state) => state.queueConnection)
   const setSelection = useProjectStore((state) => state.setSelection)
   const setCanvasState = useProjectStore((state) => state.setCanvasState)
@@ -624,22 +627,116 @@ const CanvasContent = () => {
     [addEquipment, screenToFlowPosition],
   )
 
+  // In-app clipboard for Ctrl+C / Ctrl+V. Snapshots the selected equipment
+  // and any cables that connect them at copy time, so paste keeps working
+  // even if the source items are later edited or deleted.
+  const clipboardRef = useRef<{ items: EquipmentItem[]; cables: Cable[] } | null>(null)
+  // Number of consecutive pastes from the same clipboard, used to spread
+  // copies diagonally instead of stacking them on the same spot.
+  const pasteCountRef = useRef(0)
+
+  const getSelectedEquipmentIds = useCallback((): string[] => {
+    return rfNodes
+      .filter((n) => n.type === 'equipment' && n.selected)
+      .map((n) => n.id)
+  }, [rfNodes])
+
+  const copySelectionToClipboard = useCallback(() => {
+    const ids = getSelectedEquipmentIds()
+    if (ids.length === 0) return false
+    const idSet = new Set(ids)
+    const items = project.equipment.filter((e) => idSet.has(e.id))
+    if (items.length === 0) return false
+    const cables = project.cables.filter(
+      (c) => idSet.has(c.fromEquipmentId) && idSet.has(c.toEquipmentId),
+    )
+    // Deep-clone via JSON so subsequent edits don't mutate the snapshot.
+    clipboardRef.current = JSON.parse(JSON.stringify({ items, cables })) as {
+      items: EquipmentItem[]
+      cables: Cable[]
+    }
+    pasteCountRef.current = 0
+    return true
+  }, [getSelectedEquipmentIds, project.equipment, project.cables])
+
+  const pasteFromClipboard = useCallback(() => {
+    const snap = clipboardRef.current
+    if (!snap || snap.items.length === 0) return
+    pasteCountRef.current += 1
+    const step = 30 * pasteCountRef.current
+    const newIds = pasteEquipment(snap.items, snap.cables, { dx: step, dy: step })
+    if (newIds.length === 0) return
+    const newIdSet = new Set(newIds)
+    // Reflect the new selection visually in React Flow.
+    setRfNodes((current) =>
+      current.map((n) => {
+        if (n.type === 'equipment' && newIdSet.has(n.id)) return { ...n, selected: true }
+        if (n.selected) return { ...n, selected: false }
+        return n
+      }),
+    )
+    setSelection(newIds[0], undefined, undefined)
+  }, [pasteEquipment, setSelection])
+
+  const duplicateSelection = useCallback(() => {
+    if (!copySelectionToClipboard()) return
+    pasteFromClipboard()
+  }, [copySelectionToClipboard, pasteFromClipboard])
+
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && pendingCable) {
         clearPendingCable()
         return
       }
-      if (event.key !== 'Delete' && event.key !== 'Backspace') return
       const target = event.target as HTMLElement | null
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+      const isTextField =
+        !!target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      if (isTextField) return
+      const ctrl = event.ctrlKey || event.metaKey
+      if (ctrl && !event.shiftKey && !event.altKey) {
+        const key = event.key.toLowerCase()
+        if (key === 'c') {
+          if (copySelectionToClipboard()) event.preventDefault()
+          return
+        }
+        if (key === 'v') {
+          if (clipboardRef.current) {
+            event.preventDefault()
+            pasteFromClipboard()
+          }
+          return
+        }
+        if (key === 'd') {
+          event.preventDefault()
+          duplicateSelection()
+          return
+        }
+      }
+      if (event.key !== 'Delete' && event.key !== 'Backspace') return
+      const ids = getSelectedEquipmentIds()
+      if (ids.length > 1) {
+        event.preventDefault()
+        for (const id of ids) deleteEquipment(id)
         return
       }
       deleteSelected()
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [deleteSelected, pendingCable, clearPendingCable])
+  }, [
+    deleteSelected,
+    deleteEquipment,
+    pendingCable,
+    clearPendingCable,
+    copySelectionToClipboard,
+    pasteFromClipboard,
+    duplicateSelection,
+    getSelectedEquipmentIds,
+  ])
 
   return (
     <div
@@ -688,7 +785,7 @@ const CanvasContent = () => {
         zoomOnPinch={!interactionLocked}
         zoomOnDoubleClick={!interactionLocked}
         selectNodesOnDrag={false}
-        multiSelectionKeyCode={null}
+        multiSelectionKeyCode={['Control', 'Meta']}
         selectionKeyCode={null}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}

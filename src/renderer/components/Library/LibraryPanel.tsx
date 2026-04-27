@@ -49,6 +49,7 @@ export const LibraryPanel = () => {
   const toggleTemplateFavorite = useProjectStore((state) => state.toggleTemplateFavorite)
   const collapsed = useUiStore((state) => state.libraryCollapsed)
   const toggleCollapsed = useUiStore((state) => state.toggleLibraryCollapsed)
+  const openRentmanImport = useUiStore((state) => state.openRentmanImport)
   const toggleTemplateHidden = useProjectStore((state) => state.toggleTemplateHidden)
   const setCustomTemplateCategory = useProjectStore((state) => state.setCustomTemplateCategory)
   const updateCustomTemplate = useProjectStore((state) => state.updateCustomTemplate)
@@ -632,7 +633,15 @@ export const LibraryPanel = () => {
               </div>
             ) : (
               <div className="rounded border border-slate-700 bg-slate-900/50 p-2 text-xs text-slate-400">
-                Kein Rentman-Projekt verknüpft.
+                <div className="mb-2">Kein Rentman-Projekt verknüpft.</div>
+                <button
+                  type="button"
+                  onClick={openRentmanImport}
+                  className="w-full rounded bg-orange-700 px-2 py-1.5 text-xs font-semibold text-white hover:bg-orange-600"
+                  title="Rentman-Projekt auswählen und mit dieser Plan-Datei verknüpfen"
+                >
+                  Rentman-Projekt verknüpfen…
+                </button>
               </div>
             )}
 

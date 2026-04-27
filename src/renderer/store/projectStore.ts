@@ -196,6 +196,18 @@ interface ProjectState {
   setCanvasState: (x: number, y: number, zoom: number) => void
   addEquipment: (equipment: Omit<EquipmentItem, 'id'>) => void
   importEquipment: (equipment: EquipmentItem[]) => void
+  /**
+   * Paste a snapshot of equipment items + connecting cables (Ctrl+V / duplicate).
+   * All ids (equipment, ports, cable) are remapped to fresh uuids; cable refs
+   * to ports/equipment outside the snapshot are dropped. The new equipment is
+   * placed at `(item.x + offset.dx, item.y + offset.dy)`. Returns the list of
+   * new equipment ids so the caller can select them on the canvas.
+   */
+  pasteEquipment: (
+    items: EquipmentItem[],
+    cables: Cable[],
+    offset: { dx: number; dy: number },
+  ) => string[]
   updateEquipment: (id: string, patch: Partial<EquipmentItem>) => void
   setSelection: (equipmentId?: string, cableId?: string, locationId?: string) => void
   setSelectedTemplateName: (name?: string) => void
@@ -382,6 +394,67 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         ],
       }),
     })),
+  pasteEquipment: (items, cables, offset) => {
+    if (items.length === 0) return []
+    // Build remap tables so port refs in copied cables stay valid.
+    const equipmentIdMap = new Map<string, string>()
+    const portIdMap = new Map<string, string>()
+    const newItems: EquipmentItem[] = items.map((item) => {
+      const newId = uuidv4()
+      equipmentIdMap.set(item.id, newId)
+      const remapPorts = (ports: Port[], fallback: string): Port[] =>
+        ports.map((p, index) => {
+          const newPortId = uuidv4()
+          if (p.id) portIdMap.set(p.id, newPortId)
+          return {
+            ...sanitizePort(p, p.name ?? `${fallback} ${index + 1}`),
+            id: newPortId,
+          }
+        })
+      return {
+        ...item,
+        id: newId,
+        x: item.x + offset.dx,
+        y: item.y + offset.dy,
+        inputs: remapPorts(item.inputs, 'In'),
+        outputs: remapPorts(item.outputs, 'Out'),
+        // Drop port-keyed VLAN map; ids are different now.
+        portVlans: undefined,
+        favorite: undefined,
+        hidden: undefined,
+      }
+    })
+    const newCables: Cable[] = []
+    for (const cable of cables) {
+      const fromEq = equipmentIdMap.get(cable.fromEquipmentId)
+      const toEq = equipmentIdMap.get(cable.toEquipmentId)
+      // Only clone cables whose both endpoints are in the pasted snapshot.
+      if (!fromEq || !toEq) continue
+      const fromPort = portIdMap.get(cable.fromPortId)
+      const toPort = portIdMap.get(cable.toPortId)
+      if (!fromPort || !toPort) continue
+      newCables.push({
+        ...cable,
+        id: uuidv4(),
+        fromEquipmentId: fromEq,
+        toEquipmentId: toEq,
+        fromPortId: fromPort,
+        toPortId: toPort,
+        waypoints: cable.waypoints?.map((wp) => ({
+          x: wp.x + offset.dx,
+          y: wp.y + offset.dy,
+        })),
+      })
+    }
+    set((state) => ({
+      project: touchProject({
+        ...state.project,
+        equipment: [...state.project.equipment, ...newItems],
+        cables: [...state.project.cables, ...newCables],
+      }),
+    }))
+    return newItems.map((item) => item.id)
+  },
   updateEquipment: (id, patch) =>
     set((state) => {
       const prev = state.project.equipment.find((e) => e.id === id)
