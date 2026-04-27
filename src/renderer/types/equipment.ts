@@ -63,6 +63,8 @@ export interface EquipmentItem {
   category: string
   inputs: Port[]
   outputs: Port[]
+  /** Explicit flag: true when this is a 19" rack device. */
+  isRackDevice?: boolean
   /** Optional rack height in HE/U for future 2D rack layouts. */
   rackUnits?: number
   /** Optional source path from NetBox device-type-library. */
@@ -71,6 +73,10 @@ export interface EquipmentItem {
   frontPanelImageUrl?: string
   /** Optional raw image URL for the rear panel asset. */
   rearPanelImageUrl?: string
+  /** Optional crop meta for front panel images (normalized 0..1 values). */
+  frontPanelCrop?: { x: number; y: number; width: number; height: number }
+  /** Optional crop meta for rear panel images (normalized 0..1 values). */
+  rearPanelCrop?: { x: number; y: number; width: number; height: number }
   rentmanId?: string
   /** Set to true when a Rentman re-fetch no longer finds this item in the project. */
   rentmanRemoved?: boolean

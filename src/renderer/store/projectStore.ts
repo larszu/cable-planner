@@ -13,6 +13,7 @@ import { cameraTemplates } from '../lib/cameraCatalog'
 import { miscTemplates } from '../lib/miscCatalog'
 import { greengoTemplates } from '../lib/greengoCatalog'
 import type { GreenGoConfig } from '../types/greengo'
+import { useSettingsStore } from './settingsStore'
 
 type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
   Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>
@@ -147,13 +148,14 @@ const loadAutosavedProject = (): CablePlannerProject | null => {
 let autosaveTimer: ReturnType<typeof setTimeout> | null = null
 const scheduleProjectAutosave = (project: CablePlannerProject) => {
   if (autosaveTimer) clearTimeout(autosaveTimer)
+  const delay = useSettingsStore.getState().autosaveIntervalMs || 400
   autosaveTimer = setTimeout(() => {
     try {
       localStorage.setItem(PROJECT_AUTOSAVE_KEY, JSON.stringify(project))
     } catch {
       /* quota errors are non-fatal */
     }
-  }, 400)
+  }, delay)
 }
 
 const loadGroupPresets = (): GroupPreset[] => {

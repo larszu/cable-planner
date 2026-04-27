@@ -13,6 +13,7 @@ import type { CableType } from '../../types/cable'
 import { EquipmentChecklist } from './EquipmentChecklist'
 import { NewRentmanDeviceWizard, type UnknownCandidate } from './NewRentmanDeviceWizard'
 import { ProjectSelector } from './ProjectSelector'
+import { TemplateMergeDialog } from '../Library/TemplateMergeDialog'
 
 interface RentmanProject {
   id: string
@@ -207,6 +208,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const addCustomTemplate = useProjectStore((state) => state.addCustomTemplate)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
+  const knownCategories = useProjectStore((state) => state.knownCategories)
   const updateProjectMetadata = useProjectStore((state) => state.updateProjectMetadata)
   const linkedProjectId = useProjectStore((state) => state.project.metadata.rentmanProjectId)
   const linkedProjectName = useProjectStore((state) => state.project.metadata.rentmanProjectName)
@@ -230,15 +232,31 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   // (default), overwrite it with the Rentman version, or skip the import
   // entirely. Without this prompt, every Rentman import would silently
   // overwrite hand-edited templates, which is what the user complained about.
-  type ConflictDecision = 'keep' | 'overwrite' | 'skip'
+  type ConflictDecision = 'keep' | 'overwrite' | 'merge' | 'skip'
+  interface CategoryAssignment {
+    name: string
+    sourceCategory: string
+    targetCategory: string
+  }
   interface ConflictItem {
     name: string
     category: string
     rentmanId: string
     decision: ConflictDecision
   }
+  interface MergeQueueItem {
+    equipmentId: string
+    name: string
+    localTemplate: EquipmentTemplate
+    incomingTemplate: EquipmentTemplate
+  }
+  const [categoryAssignments, setCategoryAssignments] = useState<CategoryAssignment[] | null>(null)
+  const [pendingCategoryByName, setPendingCategoryByName] = useState<Record<string, string>>({})
   const [conflictItems, setConflictItems] = useState<ConflictItem[] | null>(null)
   const [pendingDecisions, setPendingDecisions] = useState<Record<string, ConflictDecision>>({})
+  const [pendingMergeTemplates, setPendingMergeTemplates] = useState<Record<string, EquipmentTemplate>>({})
+  const [mergeQueue, setMergeQueue] = useState<MergeQueueItem[]>([])
+  const [mergeIndex, setMergeIndex] = useState(0)
   // Cable-plan import: detected cables grouped by `${type}|${length}`. The
   // user can review/adjust quantities before pushing them into
   // `metadata.rentmanCablePlan` (used by the canvas overage warning) and
@@ -252,6 +270,19 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     items.forEach((item) => set.add(item.category || 'Uncategorized'))
     return Array.from(set).sort((a, b) => a.localeCompare(b))
   }, [items])
+
+  const importCategoryOptions = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...knownCategories,
+          ...customLibrary.map((template) => template.category).filter(Boolean),
+        ]),
+      )
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b)),
+    [knownCategories, customLibrary],
+  )
 
   const visibleItems = useMemo(() => {
     if (selectedCategories.size === 0) return items
@@ -544,10 +575,41 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     )
   }
 
+  const buildImportedBaseTemplate = (
+    item: RentmanEquipment,
+    templatesByEquipmentId: Record<string, EquipmentTemplate>,
+    categoryByName: Record<string, string>,
+  ): EquipmentTemplate => {
+    const existingByName = customLibrary.find((t) => t.name === item.name)
+    const assignedCategory = categoryByName[item.name] || item.category || 'Sonstiges'
+    const base =
+      templatesByEquipmentId[item.equipmentId] ||
+      existingByName ||
+      matchBlackmagicTemplate(item.name) ||
+      matchUbiquitiTemplate(item.name) ||
+      matchMonitorTemplate(item.name) ||
+      matchCameraTemplate(item.name) ||
+      matchMiscTemplate(item.name) ||
+      matchGreenGoTemplate(item.name) || {
+        name: item.name,
+        category: assignedCategory,
+        inputs: [mapPort('Input 1')],
+        outputs: [mapPort('Output 1')],
+        width: 220,
+        height: 140,
+      }
+    return {
+      ...base,
+      name: base.name || item.name,
+      category: assignedCategory,
+    }
+  }
+
   const saveToLibrary = (
     selected: RentmanEquipment[],
     templatesByEquipmentId: Record<string, EquipmentTemplate>,
     decisionsByName: Record<string, ConflictDecision> = {},
+    categoryByName: Record<string, string> = {},
   ): number => {
     // One library template per unique device name — quantity is irrelevant for the template.
     const seen = new Set<string>()
@@ -565,6 +627,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         ? customLibrary.find((t) => t.rentmanId === item.equipmentId)
         : undefined
       const existing = byRentmanId ?? customLibrary.find((t) => t.name === item.name)
+      const assignedCategory = categoryByName[item.name] || item.category || existing?.category || 'Sonstiges'
 
       // Skip: user chose not to import this device at all.
       if (decision === 'skip') return
@@ -575,10 +638,12 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         const projectName = projects.find((p) => p.id === selectedProjectId)?.name
         const needsRefresh =
           byRentmanId.rentmanSource !== selectedProjectId ||
-          byRentmanId.rentmanProjectName !== projectName
+          byRentmanId.rentmanProjectName !== projectName ||
+          byRentmanId.category !== assignedCategory
         if (needsRefresh) {
           addCustomTemplate({
             ...byRentmanId,
+            category: assignedCategory,
             rentmanId: item.equipmentId,
             rentmanSource: selectedProjectId,
             rentmanProjectName: projectName,
@@ -592,10 +657,11 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       // Rentman id/source if they're missing so future imports recognize it.
       if (decision === 'keep' && existing) {
         const needsLink =
-          !existing.rentmanId || existing.rentmanSource !== selectedProjectId
+          !existing.rentmanId || existing.rentmanSource !== selectedProjectId || existing.category !== assignedCategory
         if (needsLink) {
           addCustomTemplate({
             ...existing,
+            category: assignedCategory,
             rentmanId: existing.rentmanId || item.equipmentId,
             rentmanSource: selectedProjectId,
             rentmanProjectName: projects.find((p) => p.id === selectedProjectId)?.name,
@@ -605,28 +671,26 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         return
       }
 
+      if (decision === 'merge' && templatesByEquipmentId[item.equipmentId]) {
+        const merged = templatesByEquipmentId[item.equipmentId]
+        addCustomTemplate({
+          ...merged,
+          category: assignedCategory,
+          rentmanId: item.equipmentId,
+          rentmanSource: selectedProjectId,
+          rentmanProjectName: projects.find((p) => p.id === selectedProjectId)?.name,
+        })
+        addedCount++
+        return
+      }
+
       // Default / overwrite path — either no conflict, or user explicitly
       // chose to replace the local template with the Rentman version.
-      const base =
-        templatesByEquipmentId[item.equipmentId] ||
-        existing ||
-        matchBlackmagicTemplate(item.name) ||
-        matchUbiquitiTemplate(item.name) ||
-        matchMonitorTemplate(item.name) ||
-        matchCameraTemplate(item.name) ||
-        matchMiscTemplate(item.name) ||
-        matchGreenGoTemplate(item.name) || {
-          name: item.name,
-          category: item.category,
-          inputs: [mapPort('Input 1')],
-          outputs: [mapPort('Output 1')],
-          width: 220,
-          height: 140,
-        }
+      const base = buildImportedBaseTemplate(item, templatesByEquipmentId, categoryByName)
       addCustomTemplate({
         ...base,
         name: base.name || item.name,
-        category: base.category || item.category,
+        category: assignedCategory,
         rentmanId: item.equipmentId,
         rentmanSource: selectedProjectId,
         rentmanProjectName: projects.find((p) => p.id === selectedProjectId)?.name,
@@ -645,6 +709,28 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const handleImport = () => {
     const selected = visibleItems.filter((item) => item.checked)
     if (selected.length === 0) return
+
+    if (importCategoryOptions.length === 0) {
+      setError('Keine Kategorien verfugbar. Bitte zuerst lokale Kategorien anlegen.')
+      return
+    }
+
+    const uniqueByName = new Map<string, RentmanEquipment>()
+    for (const item of selected) {
+      if (!uniqueByName.has(item.name)) uniqueByName.set(item.name, item)
+    }
+    const assignments = Array.from(uniqueByName.values()).map((item) => ({
+      name: item.name,
+      sourceCategory: item.category,
+      targetCategory: importCategoryOptions.includes(item.category) ? item.category : '',
+    }))
+    setCategoryAssignments(assignments)
+  }
+
+  const startConflictResolution = (categoryByName: Record<string, string>) => {
+    const selected = visibleItems.filter((item) => item.checked)
+    if (selected.length === 0) return
+    setPendingCategoryByName(categoryByName)
 
     // Step 1 — detect conflicts with the local custom library.
     // Re-imports (same Rentman master-equipment id is already in the local
@@ -678,10 +764,14 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       return
     }
 
-    proceedAfterConflicts({})
+    proceedAfterConflicts({}, categoryByName, {})
   }
 
-  const proceedAfterConflicts = (decisionsByName: Record<string, ConflictDecision>) => {
+  const proceedAfterConflicts = (
+    decisionsByName: Record<string, ConflictDecision>,
+    categoryByName: Record<string, string> = pendingCategoryByName,
+    mergeTemplatesByEquipmentId: Record<string, EquipmentTemplate> = pendingMergeTemplates,
+  ) => {
     const selected = visibleItems.filter((item) => item.checked)
     if (selected.length === 0) return
 
@@ -702,12 +792,12 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       unknownMap.set(item.equipmentId, {
         rentmanId: item.equipmentId,
         name: item.name,
-        category: item.category,
+        category: categoryByName[item.name] || item.category,
       })
     })
 
     if (unknownMap.size === 0) {
-      const count = saveToLibrary(selected, {}, decisionsByName)
+      const count = saveToLibrary(selected, mergeTemplatesByEquipmentId, decisionsByName, categoryByName)
       setImportResult(count)
       setTimeout(() => { setImportResult(null); onClose() }, 2000)
       return
@@ -715,6 +805,8 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
 
     // Stash decisions on the wizard state so completeImportAfterWizard can use them.
     setPendingDecisions(decisionsByName)
+    setPendingCategoryByName(categoryByName)
+    setPendingMergeTemplates(mergeTemplatesByEquipmentId)
     setWizardQueue(Array.from(unknownMap.values()))
     setWizardTemplates({})
     setWizardSkipped(new Set())
@@ -728,12 +820,19 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   ) => {
     const selected = visibleItems.filter((item) => item.checked && !excluded.has(item.equipmentId))
     void skipped
-    const count = saveToLibrary(selected, templates, pendingDecisions)
+    const count = saveToLibrary(
+      selected,
+      { ...templates, ...pendingMergeTemplates },
+      pendingDecisions,
+      pendingCategoryByName,
+    )
     setWizardQueue(null)
     setWizardTemplates({})
     setWizardSkipped(new Set())
     setWizardExcluded(new Set())
     setPendingDecisions({})
+    setPendingCategoryByName({})
+    setPendingMergeTemplates({})
     setImportResult(count)
     setTimeout(() => { setImportResult(null); onClose() }, 2000)
   }
@@ -771,11 +870,16 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     setWizardTemplates({})
     setWizardSkipped(new Set())
     setWizardExcluded(new Set())
+    setPendingMergeTemplates({})
+    setPendingCategoryByName({})
   }
+
+  const activeMergeItem = mergeQueue[mergeIndex] ?? null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
       {/* ── Confirmation: switch linked Rentman project ── */}
+                            ['merge', 'Ports mergen (Inputs/Outputs auswahlen)'],
       {pendingProjectSwitch && (
         <div className="w-full max-w-md rounded border border-amber-600 bg-slate-900 p-5 text-slate-100 shadow-xl">
           <h3 className="mb-2 text-base font-semibold text-amber-400">Rentman-Projekt wechseln?</h3>
@@ -915,7 +1019,42 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                   decisions[c.name] = c.decision
                 })
                 setConflictItems(null)
-                proceedAfterConflicts(decisions)
+
+                const selectedByName = new Map(
+                  visibleItems
+                    .filter((item) => item.checked)
+                    .map((item) => [item.name, item] as const),
+                )
+                const mergeItems = conflictItems
+                  .filter((entry) => entry.decision === 'merge')
+                  .map((entry) => {
+                    const selected = selectedByName.get(entry.name)
+                    const localTemplate =
+                      customLibrary.find((template) => template.name === entry.name) ?? null
+                    if (!selected || !localTemplate) return null
+                    const incomingTemplate = buildImportedBaseTemplate(
+                      selected,
+                      {},
+                      pendingCategoryByName,
+                    )
+                    return {
+                      equipmentId: selected.equipmentId,
+                      name: entry.name,
+                      localTemplate,
+                      incomingTemplate,
+                    }
+                  })
+                  .filter((item): item is MergeQueueItem => item !== null)
+
+                if (mergeItems.length > 0) {
+                  setPendingDecisions(decisions)
+                  setPendingMergeTemplates({})
+                  setMergeQueue(mergeItems)
+                  setMergeIndex(0)
+                  return
+                }
+
+                proceedAfterConflicts(decisions, pendingCategoryByName, {})
               }}
               className="rounded bg-emerald-600 px-3 py-1.5 text-sm font-medium hover:bg-emerald-500"
             >
@@ -925,7 +1064,85 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         </div>
       )}
 
-      {!pendingProjectSwitch && !conflictItems && (
+      {!pendingProjectSwitch && !conflictItems && categoryAssignments && (
+        <div className="w-full max-w-2xl rounded border border-cyan-700 bg-slate-900 p-5 text-slate-100 shadow-xl">
+          <h3 className="mb-2 text-base font-semibold text-cyan-300">Kategorie-Zuordnung vor Import</h3>
+          <p className="mb-3 text-sm text-slate-300">
+            Jeder Import muss einer bestehenden Kategorie zugeordnet werden.
+          </p>
+          <div className="mb-3 max-h-[55vh] overflow-auto rounded border border-slate-800">
+            <table className="w-full text-xs">
+              <thead className="sticky top-0 bg-slate-950 text-left text-[11px] uppercase tracking-wide text-slate-400">
+                <tr>
+                  <th className="px-2 py-1">Gerat</th>
+                  <th className="px-2 py-1">Rentman</th>
+                  <th className="px-2 py-1">Zielkategorie</th>
+                </tr>
+              </thead>
+              <tbody>
+                {categoryAssignments.map((row, index) => (
+                  <tr key={`${row.name}-${index}`} className="border-t border-slate-800">
+                    <td className="px-2 py-1.5 font-medium text-slate-100">{row.name}</td>
+                    <td className="px-2 py-1.5 text-slate-500">{row.sourceCategory}</td>
+                    <td className="px-2 py-1.5">
+                      <select
+                        value={row.targetCategory}
+                        onChange={(event) =>
+                          setCategoryAssignments((prev) =>
+                            prev
+                              ? prev.map((item, i) =>
+                                  i === index ? { ...item, targetCategory: event.target.value } : item,
+                                )
+                              : prev,
+                          )
+                        }
+                        className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
+                      >
+                        <option value="">Bitte auswahlen...</option>
+                        {importCategoryOptions.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setCategoryAssignments(null)}
+              className="rounded bg-slate-700 px-3 py-1.5 text-sm hover:bg-slate-600"
+            >
+              Abbrechen
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const hasMissing = categoryAssignments.some((row) => !row.targetCategory.trim())
+                if (hasMissing) {
+                  window.alert('Bitte fur jedes Gerat eine bestehende Kategorie wahlen.')
+                  return
+                }
+                const categoryByName: Record<string, string> = {}
+                for (const row of categoryAssignments) {
+                  categoryByName[row.name] = row.targetCategory
+                }
+                setCategoryAssignments(null)
+                startConflictResolution(categoryByName)
+              }}
+              className="rounded bg-cyan-700 px-3 py-1.5 text-sm font-medium hover:bg-cyan-600"
+            >
+              Weiter
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!pendingProjectSwitch && !conflictItems && !categoryAssignments && (
         <>
       <div className="w-full max-w-3xl rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
         <div className="mb-3 flex items-center justify-between">
@@ -1081,22 +1298,23 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                     </div>
                   </div>
                   <div className="flex gap-1 text-[11px]">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setCablePlanSelected(new Set(cableBuckets.map((b) => b.key)))
-                      }
-                      className="rounded bg-slate-700 px-2 py-0.5 hover:bg-slate-600"
-                    >
-                      Alle
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setCablePlanSelected(new Set())}
-                      className="rounded bg-slate-700 px-2 py-0.5 hover:bg-slate-600"
-                    >
-                      Keine
-                    </button>
+                    {(() => {
+                      const allSelected =
+                        cableBuckets.length > 0 &&
+                        cableBuckets.every((bucket) => cablePlanSelected.has(bucket.key))
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (allSelected) setCablePlanSelected(new Set())
+                            else setCablePlanSelected(new Set(cableBuckets.map((b) => b.key)))
+                          }}
+                          className="rounded bg-slate-700 px-2 py-0.5 hover:bg-slate-600"
+                        >
+                          {allSelected ? 'Alle abwahlen' : 'Alle auswahlen'}
+                        </button>
+                      )
+                    })()}
                   </div>
                 </div>
                 <div className="max-h-48 space-y-0.5 overflow-auto rounded border border-orange-900/40 bg-slate-950/40 p-1">
@@ -1188,6 +1406,38 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         onSkip={handleWizardSkip}
         onExclude={handleWizardExclude}
         onCancel={handleWizardCancel}
+      />
+
+      <TemplateMergeDialog
+        open={!!activeMergeItem}
+        localTemplate={activeMergeItem?.localTemplate ?? null}
+        incomingTemplate={activeMergeItem?.incomingTemplate ?? null}
+        incomingLabel="Rentman"
+        categoryOptions={importCategoryOptions}
+        initialCategory={pendingCategoryByName[activeMergeItem?.name ?? '']}
+        onCancel={() => {
+          setMergeQueue([])
+          setMergeIndex(0)
+          setPendingMergeTemplates({})
+          setPendingDecisions({})
+          setPendingCategoryByName({})
+        }}
+        onConfirm={(merged) => {
+          if (!activeMergeItem) return
+          const nextTemplates = {
+            ...pendingMergeTemplates,
+            [activeMergeItem.equipmentId]: merged,
+          }
+          setPendingMergeTemplates(nextTemplates)
+          if (mergeIndex + 1 >= mergeQueue.length) {
+            const decisions = pendingDecisions
+            setMergeQueue([])
+            setMergeIndex(0)
+            proceedAfterConflicts(decisions, pendingCategoryByName, nextTemplates)
+            return
+          }
+          setMergeIndex((value) => value + 1)
+        }}
       />
         </>
       )}

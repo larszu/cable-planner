@@ -21,6 +21,8 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const tokenStatus = useSettingsStore((state) => state.tokenStatus)
   const setHasToken = useSettingsStore((state) => state.setHasToken)
   const setTokenStatus = useSettingsStore((state) => state.setTokenStatus)
+  const autosaveIntervalMs = useSettingsStore((state) => state.autosaveIntervalMs)
+  const setAutosaveIntervalMs = useSettingsStore((state) => state.setAutosaveIntervalMs)
   const [busy, setBusy] = useState(false)
 
   // Project metadata (kept in sync with store via local mirror so we can
@@ -429,8 +431,23 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
 
             {section === 'general' && (
               <div className="space-y-3 text-sm text-slate-300">
-                <div className="rounded border border-slate-800 bg-slate-950/40 p-3 text-xs text-slate-500">
-                  Noch keine globalen Optionen konfigurierbar.
+                <div className="rounded border border-slate-800 bg-slate-950/40 p-3 text-xs text-slate-400">
+                  <div className="mb-2 font-semibold text-slate-300">Autosave</div>
+                  <label className="block text-sm text-slate-300">
+                    Autosave-Intervall (ms)
+                    <input
+                      type="number"
+                      min={100}
+                      max={30000}
+                      step={100}
+                      value={autosaveIntervalMs}
+                      onChange={(event) => setAutosaveIntervalMs(Number(event.target.value) || 400)}
+                      className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                    />
+                  </label>
+                  <div className="mt-2 text-[11px] text-slate-500">
+                    100 ms bis 30.000 ms. Standard ist 400 ms.
+                  </div>
                 </div>
               </div>
             )}

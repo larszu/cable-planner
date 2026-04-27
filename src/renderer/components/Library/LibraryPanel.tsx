@@ -13,6 +13,7 @@ import {
   type NetBoxDeviceTypeSearchResult,
 } from '../../lib/netboxImport'
 import { RackBuilderDialog } from '../Rack/RackBuilderDialog'
+import { TemplateMergeDialog } from './TemplateMergeDialog'
 import { LibraryItem } from './LibraryItem'
 import { CableLibraryPanel } from './CableLibraryPanel'
 
@@ -73,6 +74,7 @@ export const LibraryPanel = () => {
   const [showRackBuilderDialog, setShowRackBuilderDialog] = useState(false)
   const [name, setName] = useState('Custom Device')
   const [category, setCategory] = useState('Kameras')
+  const [isRackDeviceDraft, setIsRackDeviceDraft] = useState(false)
   const [rackUnitsDraft, setRackUnitsDraft] = useState<number | ''>('')
   const [groups, setGroups] = useState<PortGroupDraft[]>([
     defaultGroup('in'),
@@ -124,6 +126,26 @@ export const LibraryPanel = () => {
   const [netBoxBusy, setNetBoxBusy] = useState(false)
   const [netBoxError, setNetBoxError] = useState<string | null>(null)
   const [netBoxImportBusy, setNetBoxImportBusy] = useState<string | null>(null)
+  const [netBoxCategoryByPath, setNetBoxCategoryByPath] = useState<Record<string, string>>({})
+  const [netBoxConflict, setNetBoxConflict] = useState<
+    { existing: EquipmentTemplate; incoming: EquipmentTemplate } | null
+  >(null)
+  const [netBoxMergePair, setNetBoxMergePair] = useState<
+    { existing: EquipmentTemplate; incoming: EquipmentTemplate } | null
+  >(null)
+
+  const existingCategoryOptions = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...knownCategories,
+          ...customLibrary.map((template) => template.category).filter(Boolean),
+        ]),
+      )
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b)),
+    [knownCategories, customLibrary],
+  )
 
   const fetchRentmanCatalog = async () => {
     setRentmanCatalogLoading(true)
@@ -224,6 +246,7 @@ export const LibraryPanel = () => {
   const resetDialog = () => {
     setName('Custom Device')
     setCategory('Kameras')
+    setIsRackDeviceDraft(false)
     setRackUnitsDraft('')
     setGroups([defaultGroup('in'), defaultGroup('out')])
   }
@@ -237,7 +260,8 @@ export const LibraryPanel = () => {
       category: category.trim() || 'Sonstiges',
       inputs,
       outputs,
-      rackUnits: rackUnitsDraft === '' ? undefined : rackUnitsDraft,
+      isRackDevice: isRackDeviceDraft,
+      rackUnits: isRackDeviceDraft ? (rackUnitsDraft === '' ? 1 : rackUnitsDraft) : undefined,
       width: 240,
       height: 80 + maxPorts * 22,
     }
@@ -271,6 +295,13 @@ export const LibraryPanel = () => {
     try {
       const results = await searchNetBoxDeviceTypes(netBoxQuery)
       setNetBoxResults(results)
+      setNetBoxCategoryByPath((current) => {
+        const next = { ...current }
+        for (const item of results) {
+          if (!next[item.path]) next[item.path] = ''
+        }
+        return next
+      })
     } catch (error) {
       setNetBoxError(error instanceof Error ? error.message : String(error))
     } finally {
@@ -279,15 +310,18 @@ export const LibraryPanel = () => {
   }
 
   const handleImportNetBox = async (item: NetBoxDeviceTypeSearchResult) => {
+    const selectedCategory = (netBoxCategoryByPath[item.path] ?? '').trim()
+    if (!selectedCategory) {
+      setNetBoxError('Bitte eine bestehende Kategorie fur diesen Import auswahlen.')
+      return
+    }
     setNetBoxImportBusy(item.path)
     setNetBoxError(null)
     try {
-      const template = await importNetBoxDeviceType(item)
+      const template = { ...(await importNetBoxDeviceType(item)), category: selectedCategory }
       const existing = customLibrary.find((entry) => entry.name === template.name)
-      if (
-        existing &&
-        !window.confirm(`"${template.name}" existiert bereits in der lokalen Library. Vorlage mit NetBox-Daten überschreiben?`)
-      ) {
+      if (existing) {
+        setNetBoxConflict({ existing, incoming: template })
         return
       }
       persistCategory(template)
@@ -498,27 +532,24 @@ export const LibraryPanel = () => {
           <div className="mb-1 flex items-center justify-between text-[10px] text-slate-500">
             <span className="italic">Auf Canvas ziehen oder klicken zum Hinzufügen</span>
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  // Collapse every category currently used in the local library.
-                  const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
-                  const allCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
-                  setCollapsedCats(new Set(allCats))
-                }}
-                className="underline hover:text-slate-300"
-                title="Alle Kategorien einklappen"
-              >
-                Alle einklappen
-              </button>
-              <button
-                type="button"
-                onClick={() => setCollapsedCats(new Set())}
-                className="underline hover:text-slate-300"
-                title="Alle Kategorien ausklappen"
-              >
-                Alle ausklappen
-              </button>
+              {(() => {
+                const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
+                const allCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
+                const allCollapsed = allCats.length > 0 && allCats.every((cat) => collapsedCats.has(cat))
+                return (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (allCollapsed) setCollapsedCats(new Set())
+                      else setCollapsedCats(new Set(allCats))
+                    }}
+                    className="underline hover:text-slate-300"
+                    title={allCollapsed ? 'Alle Kategorien ausklappen' : 'Alle Kategorien einklappen'}
+                  >
+                    {allCollapsed ? 'Alle ausklappen' : 'Alle einklappen'}
+                  </button>
+                )
+              })()}
               <button
                 type="button"
                 onClick={() => setShowHidden((v) => !v)}
@@ -744,32 +775,34 @@ export const LibraryPanel = () => {
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-1">
                   <h2 className="text-sm font-semibold">Importierte Rentman-Geräte</h2>
                   <div className="flex items-center gap-2 text-[10px] text-slate-500">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const projectIds = new Set(projectGroups.map((group) => group.id))
-                        const categoryKeys = new Set<string>()
-                        for (const group of projectGroups) {
-                          const categories = new Set(group.items.map((template) => template.category || 'Sonstiges'))
-                          for (const category of categories) categoryKeys.add(`${group.id}::${category}`)
-                        }
-                        setCollapsedRentmanProjects(projectIds)
-                        setCollapsedRentmanCats(categoryKeys)
-                      }}
-                      className="underline hover:text-slate-300"
-                    >
-                      Alle einklappen
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCollapsedRentmanProjects(new Set())
-                        setCollapsedRentmanCats(new Set())
-                      }}
-                      className="underline hover:text-slate-300"
-                    >
-                      Alle ausklappen
-                    </button>
+                    {(() => {
+                      const projectIds = new Set(projectGroups.map((group) => group.id))
+                      const categoryKeys = new Set<string>()
+                      for (const group of projectGroups) {
+                        const categories = new Set(group.items.map((template) => template.category || 'Sonstiges'))
+                        for (const category of categories) categoryKeys.add(`${group.id}::${category}`)
+                      }
+                      const allCollapsed =
+                        Array.from(projectIds).every((id) => collapsedRentmanProjects.has(id)) &&
+                        Array.from(categoryKeys).every((key) => collapsedRentmanCats.has(key))
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (allCollapsed) {
+                              setCollapsedRentmanProjects(new Set())
+                              setCollapsedRentmanCats(new Set())
+                            } else {
+                              setCollapsedRentmanProjects(projectIds)
+                              setCollapsedRentmanCats(categoryKeys)
+                            }
+                          }}
+                          className="underline hover:text-slate-300"
+                        >
+                          {allCollapsed ? 'Alle ausklappen' : 'Alle einklappen'}
+                        </button>
+                      )
+                    })()}
                     <span>{rentmanItems.length} Geräte</span>
                   </div>
                 </div>
@@ -1329,11 +1362,31 @@ export const LibraryPanel = () => {
                           {item.manufacturer} {item.model}
                         </div>
                         <div className="truncate text-[11px] text-slate-500">{item.path}</div>
+                        <div className="mt-2 flex max-w-[340px] items-center gap-2">
+                          <span className="text-[11px] text-slate-400">Kategorie:</span>
+                          <select
+                            value={netBoxCategoryByPath[item.path] ?? ''}
+                            onChange={(event) =>
+                              setNetBoxCategoryByPath((current) => ({
+                                ...current,
+                                [item.path]: event.target.value,
+                              }))
+                            }
+                            className="min-w-0 flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs"
+                          >
+                            <option value="">Bitte auswahlen...</option>
+                            {existingCategoryOptions.map((cat) => (
+                              <option key={cat} value={cat}>
+                                {cat}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
                       <button
                         type="button"
                         onClick={() => void handleImportNetBox(item)}
-                        disabled={busy}
+                        disabled={busy || !(netBoxCategoryByPath[item.path] ?? '').trim()}
                         className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold hover:bg-emerald-600 disabled:opacity-50"
                       >
                         {busy ? 'Import…' : 'Importieren'}
@@ -1395,16 +1448,26 @@ export const LibraryPanel = () => {
                 </datalist>
               </label>
               <label className="block">
-                Rack-Höhe (HE)
-                <input
-                  type="number"
-                  min={0}
-                  step={0.5}
-                  value={rackUnitsDraft}
-                  onChange={(event) => setRackUnitsDraft(event.target.value ? Number(event.target.value) : '')}
-                  placeholder="optional"
-                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
-                />
+                19" Rack-Gerät
+                <label className="mt-2 flex items-center gap-2 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={isRackDeviceDraft}
+                    onChange={(event) => setIsRackDeviceDraft(event.target.checked)}
+                  />
+                  <span>Ist Rack-Gerät</span>
+                </label>
+                {isRackDeviceDraft && (
+                  <input
+                    type="number"
+                    min={1}
+                    step={1}
+                    value={rackUnitsDraft}
+                    onChange={(event) => setRackUnitsDraft(event.target.value ? Number(event.target.value) : '')}
+                    placeholder="HE"
+                    className="mt-2 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  />
+                )}
               </label>
             </div>
 
@@ -1529,6 +1592,77 @@ export const LibraryPanel = () => {
           addGroupPreset(preset)
           setShowRackBuilderDialog(false)
           setTab('racks')
+        }}
+      />
+
+      {netBoxConflict && (
+        <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/70 p-6">
+          <div className="w-full max-w-xl rounded border border-amber-600 bg-slate-900 p-4 text-slate-100">
+            <h3 className="mb-2 text-base font-semibold text-amber-300">Gerat existiert bereits</h3>
+            <p className="mb-3 text-sm text-slate-300">
+              {netBoxConflict.incoming.name} ist bereits in der lokalen Library. Wahlen, wie importiert werden soll.
+            </p>
+            <div className="mb-3 rounded border border-slate-700 bg-slate-950/40 p-2 text-xs text-slate-400">
+              Lokal: {netBoxConflict.existing.inputs.length} In / {netBoxConflict.existing.outputs.length} Out
+              <br />
+              NetBox: {netBoxConflict.incoming.inputs.length} In / {netBoxConflict.incoming.outputs.length} Out
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setNetBoxConflict(null)}
+                className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
+              >
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setNetBoxConflict(null)
+                  window.alert('Lokale Version bleibt unverandert.')
+                }}
+                className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
+              >
+                Lokal behalten
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  addCustomTemplate(netBoxConflict.incoming)
+                  setNetBoxConflict(null)
+                  window.alert('NetBox-Version wurde ubernommen.')
+                }}
+                className="rounded bg-amber-700 px-3 py-1 text-sm hover:bg-amber-600"
+              >
+                Uberschreiben
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setNetBoxMergePair(netBoxConflict)
+                  setNetBoxConflict(null)
+                }}
+                className="rounded bg-emerald-700 px-3 py-1 text-sm hover:bg-emerald-600"
+              >
+                Merge Ports
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <TemplateMergeDialog
+        open={!!netBoxMergePair}
+        localTemplate={netBoxMergePair?.existing ?? null}
+        incomingTemplate={netBoxMergePair?.incoming ?? null}
+        incomingLabel="NetBox"
+        categoryOptions={existingCategoryOptions}
+        initialCategory={netBoxMergePair?.incoming.category}
+        onCancel={() => setNetBoxMergePair(null)}
+        onConfirm={(merged) => {
+          addCustomTemplate(merged)
+          setNetBoxMergePair(null)
+          window.alert('Merge gespeichert.')
         }}
       />
       </>
