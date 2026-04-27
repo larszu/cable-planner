@@ -1,4 +1,21 @@
 import { v4 as uuidv4 } from 'uuid'
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  type DragEndEvent,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { detectDeviceKind, detectNetworkDevice } from '../../lib/deviceKind'
@@ -21,12 +38,67 @@ interface PortListProps {
   onChange: (ports: Port[]) => void
 }
 
+interface SortablePortItemProps {
+  port: Port
+  children: React.ReactNode
+}
+
+const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: port.id })
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+      className={`rounded border border-slate-800 bg-slate-900 p-2 ${isDragging ? 'opacity-60 shadow-lg shadow-slate-950/50' : ''}`}
+    >
+      <div className="flex items-start gap-2">
+        <button
+          type="button"
+          className="mt-1 cursor-grab rounded border border-slate-700 bg-slate-950 px-1.5 py-1 text-[11px] text-slate-400 hover:bg-slate-900 active:cursor-grabbing"
+          title="Port-Reihenfolge ändern"
+          aria-label={`Reorder ${port.name}`}
+          {...attributes}
+          {...listeners}
+        >
+          ≡
+        </button>
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
+    </li>
+  )
+}
+
 const PortList = ({ title, ports, onChange }: PortListProps) => {
-  const updatePort = (index: number, patch: Partial<Port>) => {
-    onChange(ports.map((port, i) => (i === index ? { ...port, ...patch } : port)))
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+
+  const updatePort = (portId: string, patch: Partial<Port>) => {
+    onChange(ports.map((port) => (port.id === portId ? { ...port, ...patch } : port)))
   }
   const addPort = () => onChange([...ports, makePort(`${title.slice(0, -1)} ${ports.length + 1}`)])
-  const removePort = (index: number) => onChange(ports.filter((_, i) => i !== index))
+  const removePort = (portId: string) => onChange(ports.filter((port) => port.id !== portId))
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = ports.findIndex((port) => port.id === active.id)
+    const newIndex = ports.findIndex((port) => port.id === over.id)
+    if (oldIndex < 0 || newIndex < 0) return
+    onChange(arrayMove(ports, oldIndex, newIndex))
+  }
 
   return (
     <div className="rounded border border-slate-700 p-2">
@@ -41,19 +113,21 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
         </button>
       </div>
       {ports.length === 0 && <div className="text-[11px] text-slate-500">None</div>}
-      <ul className="space-y-2">
-        {ports.map((port, index) => (
-          <li key={port.id} className="rounded border border-slate-800 bg-slate-900 p-2">
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={ports.map((port) => port.id)} strategy={verticalListSortingStrategy}>
+          <ul className="space-y-2">
+        {ports.map((port) => (
+          <SortablePortItem key={port.id} port={port}>
             <div className="flex items-center gap-1">
               <input
                 value={port.name}
-                onChange={(event) => updatePort(index, { name: event.target.value })}
+                onChange={(event) => updatePort(port.id, { name: event.target.value })}
                 placeholder="Port name"
                 className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-xs"
               />
               <button
                 type="button"
-                onClick={() => removePort(index)}
+                onClick={() => removePort(port.id)}
                 title="Remove port"
                 className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
               >
@@ -65,7 +139,7 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
                 aria-label="Connector type"
                 value={port.connectorType}
                 onChange={(event) =>
-                  updatePort(index, {
+                  updatePort(port.id, {
                     connectorType: event.target.value as ConnectorType,
                     type: event.target.value,
                   })
@@ -82,7 +156,7 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
                 aria-label="Signal standard"
                 value={port.standard ?? ''}
                 onChange={(event) =>
-                  updatePort(index, {
+                  updatePort(port.id, {
                     standard: event.target.value ? (event.target.value as SignalStandard) : undefined,
                   })
                 }
@@ -101,7 +175,7 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
                 aria-label="Port direction"
                 value={port.direction ?? ''}
                 onChange={(event) =>
-                  updatePort(index, {
+                  updatePort(port.id, {
                     direction: event.target.value
                       ? (event.target.value as 'in' | 'out' | 'bidirectional')
                       : undefined,
@@ -122,28 +196,28 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
                 <div className="grid grid-cols-2 gap-1">
                   <input
                     value={port.sfpType ?? ''}
-                    onChange={(event) => updatePort(index, { sfpType: event.target.value || undefined })}
+                    onChange={(event) => updatePort(port.id, { sfpType: event.target.value || undefined })}
                     placeholder="Formfaktor (SFP+)"
                     className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
                     title="SFP-Formfaktor: SFP, SFP+, SFP28, QSFP+"
                   />
                   <input
                     value={port.sfpStandard ?? ''}
-                    onChange={(event) => updatePort(index, { sfpStandard: event.target.value || undefined })}
+                    onChange={(event) => updatePort(port.id, { sfpStandard: event.target.value || undefined })}
                     placeholder="Standard (10G-LR)"
                     className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
                     title="Transceiver-Standard: 1G-SX, 1G-LX, 10G-SR, 10G-LR, 25G-SR …"
                   />
                   <input
                     value={port.sfpWavelength ?? ''}
-                    onChange={(event) => updatePort(index, { sfpWavelength: event.target.value || undefined })}
+                    onChange={(event) => updatePort(port.id, { sfpWavelength: event.target.value || undefined })}
                     placeholder="Wellenlänge nm (1310)"
                     className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
                     title="Wellenlänge in nm: 850, 1310, 1550"
                   />
                   <input
                     value={port.sfpVendor ?? ''}
-                    onChange={(event) => updatePort(index, { sfpVendor: event.target.value || undefined })}
+                    onChange={(event) => updatePort(port.id, { sfpVendor: event.target.value || undefined })}
                     placeholder="Hersteller (Cisco)"
                     className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
                     title="Modulhersteller: Cisco, Aruba, Ubiquiti, FS.com …"
@@ -151,15 +225,82 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
                 </div>
               </div>
             )}
-          </li>
+          </SortablePortItem>
         ))}
-      </ul>
+          </ul>
+        </SortableContext>
+      </DndContext>
     </div>
   )
 }
 
 const hasSdiPorts = (device: { inputs: Port[]; outputs: Port[] }): boolean =>
   [...device.inputs, ...device.outputs].some((p) => p.connectorType === 'BNC')
+
+const RackFacePreview = ({ equipment }: { equipment: EquipmentItem }) => {
+  if (!equipment.rackUnits || equipment.rackUnits <= 0) return null
+
+  const rows = Math.max(equipment.inputs.length, equipment.outputs.length, 1)
+
+  return (
+    <fieldset className="rounded border border-slate-700 p-2">
+      <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
+        2D Rack-Vorschau
+      </legend>
+      <div className="mb-2 text-[11px] text-slate-400">
+        19" Frontplatte · {equipment.rackUnits} HE · basiert direkt auf den aktuellen Inputs/Outputs
+      </div>
+      <div className="rounded border border-slate-700 bg-slate-950 p-3">
+        <div className="mx-auto w-full max-w-[560px] rounded border border-slate-600 bg-gradient-to-b from-slate-800 to-slate-900 px-4 py-3 shadow-inner">
+          <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-slate-500">
+            <span>19" Rack</span>
+            <span>{equipment.rackUnits} HE</span>
+          </div>
+          <div className="mb-3 rounded border border-slate-700 bg-slate-950/70 px-3 py-2 text-center">
+            <div className="truncate text-sm font-semibold text-slate-100">{equipment.name}</div>
+            <div className="truncate text-[11px] text-slate-500">{equipment.category}</div>
+          </div>
+          <div className="space-y-2">
+            {Array.from({ length: rows }).map((_, index) => {
+              const input = equipment.inputs[index]
+              const output = equipment.outputs[index]
+              return (
+                <div key={`${equipment.id}-rack-row-${index}`} className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-[11px]">
+                  <div className="min-w-0 rounded border border-slate-700 bg-slate-900/70 px-2 py-1 text-right text-slate-200">
+                    {input ? (
+                      <span className="block truncate">
+                        {input.name}
+                        <span className="text-slate-500"> · {input.connectorType}</span>
+                      </span>
+                    ) : (
+                      <span className="text-slate-600">—</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-sky-400" />
+                    <span className="h-px w-8 bg-slate-700" />
+                    <span className="h-px w-8 bg-slate-700" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                  </div>
+                  <div className="min-w-0 rounded border border-slate-700 bg-slate-900/70 px-2 py-1 text-slate-200">
+                    {output ? (
+                      <span className="block truncate">
+                        {output.name}
+                        <span className="text-slate-500"> · {output.connectorType}</span>
+                      </span>
+                    ) : (
+                      <span className="text-slate-600">—</span>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  )
+}
 
 interface SdiCapabilitiesBlockProps {
   equipmentId: string
@@ -679,7 +820,41 @@ export const EquipmentProperties = () => {
         })()}
       </label>
 
+      <fieldset className="rounded border border-slate-700 p-2">
+        <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
+          Rack / 19"
+        </legend>
+        <div className="grid grid-cols-2 gap-2">
+          <label className="block">
+            <span className="mb-1 block text-slate-300">Höhe (HE)</span>
+            <input
+              type="number"
+              min={0}
+              step={0.5}
+              value={equipment.rackUnits ?? ''}
+              onChange={(event) =>
+                updateEquipment(equipment.id, {
+                  rackUnits: event.target.value ? Number(event.target.value) : undefined,
+                })
+              }
+              placeholder="z.B. 1"
+              className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+            />
+          </label>
+          <div className="rounded border border-slate-800 bg-slate-900/50 p-2 text-[11px] text-slate-400">
+            Für spätere 2D-Rack-Ansichten. Leer = kein Rackmaß hinterlegt.
+          </div>
+        </div>
+        {equipment.netboxPath && (
+          <div className="mt-2 text-[10px] text-slate-500">
+            Quelle: NetBox device-type-library · {equipment.netboxPath}
+          </div>
+        )}
+      </fieldset>
+
       <DisplayPropertiesBlock equipment={equipment} />
+
+      <RackFacePreview equipment={equipment} />
 
       <fieldset className="rounded border border-slate-700 p-2">
         <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">

@@ -26,9 +26,11 @@ import { useUndoRedoShortcuts } from './store/projectHistory'
 import { useSettingsStore } from './store/settingsStore'
 import { useUiStore } from './store/uiStore'
 import type { Cable, CableType } from './types/cable'
+import { ALL_CONNECTOR_TYPES } from './types/equipment'
 import type { ConnectorType, EquipmentItem, Port } from './types/equipment'
 import type { ProjectMetadata } from './types/project'
 import {
+  ALL_SIGNAL_STANDARDS,
   cableCatalog,
   checkCableCompatibility,
   checkSdiStandardMismatch,
@@ -382,6 +384,17 @@ const cableTypeFromConnector = (c: ConnectorType | undefined): CableType => {
   return c as CableType
 }
 
+const CUSTOM_CABLE_SPEC_ID = '__custom__'
+
+const makeCustomCableSpec = (connectorType: ConnectorType, color: string): CableSpec => ({
+  id: CUSTOM_CABLE_SPEC_ID,
+  name: 'Custom Cable',
+  connectorType,
+  standards: ['Generic'],
+  color,
+  notes: 'Benutzerdefiniertes Kabel ohne Katalog-Preset.',
+})
+
 const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onCancel, onCreate }: CableDialogProps) => {
   // Build list of cables ranked by compatibility with the two ports.
   const ranked = useMemo(() => {
@@ -417,11 +430,23 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
     return match?.cable.id ?? firstUsable?.cable.id ?? cableCatalog[0].id
   }, [ranked, fromPort, toPort, fromDev, toDev, defaultVideoFormat])
 
+  const inferredConnector: ConnectorType =
+    fromPort?.connectorType === toPort?.connectorType
+      ? (fromPort?.connectorType ?? 'Custom')
+      : (fromPort?.connectorType ?? toPort?.connectorType ?? 'Custom')
+
   const [specId, setSpecId] = useState<string>(initialSpecId)
-  const selectedEntry = ranked.find((item) => item.cable.id === specId) ?? ranked[0]
+  const [customConnectorType, setCustomConnectorType] = useState<ConnectorType>(inferredConnector)
+  const [customStandard, setCustomStandard] = useState<SignalStandard>('Generic')
+  const [customMaxLength, setCustomMaxLength] = useState<number | ''>('')
+  const selectedEntry = specId === CUSTOM_CABLE_SPEC_ID
+    ? { cable: makeCustomCableSpec(customConnectorType, '#64748b'), level: 'ok' as const, message: '' }
+    : (ranked.find((item) => item.cable.id === specId) ?? ranked[0])
   const selected: CableSpec = selectedEntry.cable
 
-  const defaultStandard = pickHighestSdiStandard(selected.standards)
+  const defaultStandard = specId === CUSTOM_CABLE_SPEC_ID
+    ? customStandard
+    : pickHighestSdiStandard(selected.standards)
   const [standard, setStandard] = useState<SignalStandard | undefined>(defaultStandard)
   const [length, setLength] = useState(1)
   const [name, setName] = useState(selected.name)
@@ -431,6 +456,13 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
   // Keep derived fields aligned when the user changes the spec.
   const onSelectSpec = (id: string) => {
     setSpecId(id)
+    if (id === CUSTOM_CABLE_SPEC_ID) {
+      setName('Custom Cable')
+      setColor('#64748b')
+      setNotes('')
+      setStandard(customStandard)
+      return
+    }
     const spec = cableCatalog.find((c) => c.id === id)
     if (!spec) return
     setName(spec.name)
@@ -447,15 +479,17 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
     return checkSdiStandardMismatch(fromPort.standard ?? standard, toPort.standard ?? standard)
   }, [fromPort, toPort, standard])
 
-  const connectorMismatch = selectedEntry.level
-  const connectorMessage = selectedEntry.message
+  const connectorMismatch = specId === CUSTOM_CABLE_SPEC_ID ? 'ok' : selectedEntry.level
+  const connectorMessage = specId === CUSTOM_CABLE_SPEC_ID ? '' : selectedEntry.message
 
   const needsConverter =
     connectorMismatch === 'warn' || sdiMismatch?.level === 'warn' || connectorMismatch === 'error'
 
+  const effectiveMaxLength = specId === CUSTOM_CABLE_SPEC_ID ? customMaxLength : selected.maxLengthMeters
+
   const lengthWarning =
-    selected.maxLengthMeters && length > selected.maxLengthMeters
-      ? `Length exceeds recommended maximum of ${selected.maxLengthMeters} m for ${selected.name}.`
+    effectiveMaxLength && length > effectiveMaxLength
+      ? `Length exceeds recommended maximum of ${effectiveMaxLength} m for ${selected.name}.`
       : null
 
   const submit = () => {
@@ -470,12 +504,12 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
     }
     onCreate({
       name,
-      type: cableTypeFromConnector(selected.connectorType),
+      type: cableTypeFromConnector(specId === CUSTOM_CABLE_SPEC_ID ? customConnectorType : selected.connectorType),
       length,
       color,
       notes,
-      cableSpecId: selected.id,
-      standard,
+      cableSpecId: specId === CUSTOM_CABLE_SPEC_ID ? undefined : selected.id,
+      standard: specId === CUSTOM_CABLE_SPEC_ID ? customStandard : standard,
       needsConverter: needsConverter || connectorMismatch === 'error',
     })
   }
@@ -506,6 +540,7 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
               onChange={(e) => onSelectSpec(e.target.value)}
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
             >
+              <option value={CUSTOM_CABLE_SPEC_ID}>★ Custom Cable…</option>
               {ranked.map(({ cable, level }) => {
                 const icon = level === 'ok' ? '✓' : level === 'warn' ? '⚠' : '✕'
                 return (
@@ -516,6 +551,55 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
               })}
             </select>
           </label>
+
+          {specId === CUSTOM_CABLE_SPEC_ID && (
+            <div className="rounded border border-slate-700 bg-slate-950/60 p-2">
+              <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                Custom Cable Definition
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <label className="block">
+                  Connector Type
+                  <select
+                    value={customConnectorType}
+                    onChange={(e) => setCustomConnectorType(e.target.value as ConnectorType)}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  >
+                    {ALL_CONNECTOR_TYPES.map((type) => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  Signal Standard
+                  <select
+                    value={customStandard}
+                    onChange={(e) => {
+                      const next = e.target.value as SignalStandard
+                      setCustomStandard(next)
+                      setStandard(next)
+                    }}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  >
+                    {ALL_SIGNAL_STANDARDS.map((item) => (
+                      <option key={item} value={item}>{item}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <label className="mt-2 block">
+                Recommended Max Length (m)
+                <input
+                  type="number"
+                  min={0}
+                  value={customMaxLength}
+                  onChange={(e) => setCustomMaxLength(e.target.value ? Number(e.target.value) : '')}
+                  placeholder="Optional"
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                />
+              </label>
+            </div>
+          )}
 
           {selected.standards.length > 1 && (
             <label className="block">
@@ -626,10 +710,16 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
   const equipment = useProjectStore((state) => state.project.equipment)
   const cables = useProjectStore((state) => state.project.cables)
 
-  const [specId, setSpecId] = useState<string>(cable.cableSpecId ?? cableCatalog[0].id)
-  const selected: CableSpec = cableCatalog.find((c) => c.id === specId) ?? cableCatalog[0]
+  const initialCustomConnectorType: ConnectorType =
+    cable.type === 'Custom' ? 'Custom' : (cable.type as ConnectorType)
+  const [specId, setSpecId] = useState<string>(cable.cableSpecId ?? CUSTOM_CABLE_SPEC_ID)
+  const [customConnectorType, setCustomConnectorType] = useState<ConnectorType>(initialCustomConnectorType)
+  const [customStandard, setCustomStandard] = useState<SignalStandard>(cable.standard ?? 'Generic')
+  const selected: CableSpec = specId === CUSTOM_CABLE_SPEC_ID
+    ? makeCustomCableSpec(customConnectorType, cable.color)
+    : (cableCatalog.find((c) => c.id === specId) ?? cableCatalog[0])
   const [standard, setStandard] = useState<SignalStandard | undefined>(
-    cable.standard ?? pickHighestSdiStandard(selected.standards),
+    cable.standard ?? (specId === CUSTOM_CABLE_SPEC_ID ? customStandard : pickHighestSdiStandard(selected.standards)),
   )
   const [length, setLength] = useState(cable.length)
   const [name, setName] = useState(cable.name)
@@ -682,6 +772,10 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
 
   const onSelectSpec = (id: string) => {
     setSpecId(id)
+    if (id === CUSTOM_CABLE_SPEC_ID) {
+      setStandard(customStandard)
+      return
+    }
     const spec = cableCatalog.find((c) => c.id === id)
     if (!spec) return
     setStandard(pickHighestSdiStandard(spec.standards))
@@ -713,8 +807,9 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
       length,
       color,
       notes,
-      cableSpecId: selected.id,
-      standard,
+      cableSpecId: specId === CUSTOM_CABLE_SPEC_ID ? undefined : selected.id,
+      type: cableTypeFromConnector(specId === CUSTOM_CABLE_SPEC_ID ? customConnectorType : selected.connectorType),
+      standard: specId === CUSTOM_CABLE_SPEC_ID ? customStandard : standard,
       fromEquipmentId,
       fromPortId,
       toEquipmentId,
@@ -744,6 +839,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               onChange={(e) => onSelectSpec(e.target.value)}
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
             >
+              <option value={CUSTOM_CABLE_SPEC_ID}>★ Custom Cable…</option>
               {cableCatalog.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name} ({c.connectorType})
@@ -751,6 +847,39 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               ))}
             </select>
           </label>
+
+          {specId === CUSTOM_CABLE_SPEC_ID && (
+            <div className="grid grid-cols-2 gap-2 rounded border border-slate-700 bg-slate-950/60 p-2">
+              <label className="block">
+                Connector Type
+                <select
+                  value={customConnectorType}
+                  onChange={(e) => setCustomConnectorType(e.target.value as ConnectorType)}
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                >
+                  {ALL_CONNECTOR_TYPES.map((type) => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                Signalstandard
+                <select
+                  value={customStandard}
+                  onChange={(e) => {
+                    const next = e.target.value as SignalStandard
+                    setCustomStandard(next)
+                    setStandard(next)
+                  }}
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                >
+                  {ALL_SIGNAL_STANDARDS.map((item) => (
+                    <option key={item} value={item}>{item}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          )}
 
           {selected.standards.length > 1 && (
             <label className="block">

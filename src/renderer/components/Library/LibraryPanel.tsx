@@ -6,6 +6,13 @@ import { useRentman } from '../../hooks/useRentman'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, EquipmentTemplate, Port } from '../../types/equipment'
 import { nextPlacementPosition } from '../../lib/library'
+import {
+  clearNetBoxIndexCache,
+  importNetBoxDeviceType,
+  searchNetBoxDeviceTypes,
+  type NetBoxDeviceTypeSearchResult,
+} from '../../lib/netboxImport'
+import { RackBuilderDialog } from '../Rack/RackBuilderDialog'
 import { LibraryItem } from './LibraryItem'
 import { CableLibraryPanel } from './CableLibraryPanel'
 
@@ -57,17 +64,21 @@ export const LibraryPanel = () => {
   const knownCategories = useProjectStore((state) => state.knownCategories)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
   const groupPresets = useProjectStore((state) => state.groupPresets)
+  const addGroupPreset = useProjectStore((state) => state.addGroupPreset)
   const deleteGroupPreset = useProjectStore((state) => state.deleteGroupPreset)
   const placeGroupPreset = useProjectStore((state) => state.placeGroupPreset)
   const canvasState = useProjectStore((state) => state.project.canvasState)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const [showNetBoxDialog, setShowNetBoxDialog] = useState(false)
+  const [showRackBuilderDialog, setShowRackBuilderDialog] = useState(false)
   const [name, setName] = useState('Custom Device')
   const [category, setCategory] = useState('Kameras')
+  const [rackUnitsDraft, setRackUnitsDraft] = useState<number | ''>('')
   const [groups, setGroups] = useState<PortGroupDraft[]>([
     defaultGroup('in'),
     defaultGroup('out'),
   ])
-  const [tab, setTab] = useState<'equipment' | 'cables' | 'groups'>('equipment')
+  const [tab, setTab] = useState<'equipment' | 'cables' | 'groups' | 'racks'>('equipment')
   // Equipment sub-section: separates local templates from Rentman-imported ones
   // inside one shared tab, so the user always lives in "Equipment" and just
   // toggles the source.
@@ -108,6 +119,11 @@ export const LibraryPanel = () => {
   const [rentmanCatalogQuery, setRentmanCatalogQuery] = useState('')
   const [rentmanCatalogCollapsed, setRentmanCatalogCollapsed] = useState(true)
   const [rentmanCatalogAddBusy, setRentmanCatalogAddBusy] = useState<string | null>(null)
+  const [netBoxQuery, setNetBoxQuery] = useState('')
+  const [netBoxResults, setNetBoxResults] = useState<NetBoxDeviceTypeSearchResult[]>([])
+  const [netBoxBusy, setNetBoxBusy] = useState(false)
+  const [netBoxError, setNetBoxError] = useState<string | null>(null)
+  const [netBoxImportBusy, setNetBoxImportBusy] = useState<string | null>(null)
 
   const fetchRentmanCatalog = async () => {
     setRentmanCatalogLoading(true)
@@ -208,6 +224,7 @@ export const LibraryPanel = () => {
   const resetDialog = () => {
     setName('Custom Device')
     setCategory('Kameras')
+    setRackUnitsDraft('')
     setGroups([defaultGroup('in'), defaultGroup('out')])
   }
 
@@ -220,6 +237,7 @@ export const LibraryPanel = () => {
       category: category.trim() || 'Sonstiges',
       inputs,
       outputs,
+      rackUnits: rackUnitsDraft === '' ? undefined : rackUnitsDraft,
       width: 240,
       height: 80 + maxPorts * 22,
     }
@@ -245,6 +263,42 @@ export const LibraryPanel = () => {
     addEquipment({ ...template, ...nextPosition })
     setShowCreateDialog(false)
     resetDialog()
+  }
+
+  const handleSearchNetBox = async () => {
+    setNetBoxBusy(true)
+    setNetBoxError(null)
+    try {
+      const results = await searchNetBoxDeviceTypes(netBoxQuery)
+      setNetBoxResults(results)
+    } catch (error) {
+      setNetBoxError(error instanceof Error ? error.message : String(error))
+    } finally {
+      setNetBoxBusy(false)
+    }
+  }
+
+  const handleImportNetBox = async (item: NetBoxDeviceTypeSearchResult) => {
+    setNetBoxImportBusy(item.path)
+    setNetBoxError(null)
+    try {
+      const template = await importNetBoxDeviceType(item)
+      const existing = customLibrary.find((entry) => entry.name === template.name)
+      if (
+        existing &&
+        !window.confirm(`"${template.name}" existiert bereits in der lokalen Library. Vorlage mit NetBox-Daten überschreiben?`)
+      ) {
+        return
+      }
+      persistCategory(template)
+      addCustomTemplate(template)
+      setNetBoxResults((current) => current.filter((entry) => entry.path !== item.path))
+      window.alert(`✓ ${template.name} aus NetBox importiert.`)
+    } catch (error) {
+      setNetBoxError(error instanceof Error ? error.message : String(error))
+    } finally {
+      setNetBoxImportBusy(null)
+    }
   }
 
   return (
@@ -311,6 +365,17 @@ export const LibraryPanel = () => {
             <span className="ml-1 rounded-full bg-sky-900 px-1 text-[10px]">{groupPresets.length}</span>
           )}
         </button>
+        <button
+          type="button"
+          onClick={() => setTab('racks')}
+          className={`rounded px-2 py-1 ${tab === 'racks' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+          title="2D Rack Builder und gespeicherte Rack-Layouts"
+        >
+          Racks
+          {groupPresets.filter((preset) => !!preset.rack).length > 0 && (
+            <span className="ml-1 rounded-full bg-sky-900 px-1 text-[10px]">{groupPresets.filter((preset) => !!preset.rack).length}</span>
+          )}
+        </button>
       </div>
 
       {tab === 'equipment' && (
@@ -365,6 +430,14 @@ export const LibraryPanel = () => {
               </span>
             </div>
             <div className="flex gap-1">
+              <button
+                type="button"
+                onClick={() => setShowNetBoxDialog(true)}
+                className="rounded bg-cyan-700 px-2 py-1 text-xs hover:bg-cyan-600"
+                title="Geräte aus der NetBox device-type-library importieren"
+              >
+                + NetBox
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -1054,6 +1127,7 @@ export const LibraryPanel = () => {
                 const zoom = canvasState.zoom || 1
                 const cx = (-canvasState.x + 400) / zoom
                 const cy = (-canvasState.y + 250) / zoom
+                const totalRackUnits = preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 0), 0)
                 return (
                   <div
                     key={preset.id}
@@ -1064,6 +1138,7 @@ export const LibraryPanel = () => {
                         <div className="font-medium text-slate-100">{preset.name}</div>
                         <div className="text-[10px] text-slate-500 mt-0.5">
                           {preset.items.length} Geräte · {preset.cables.length} Kabel
+                          {totalRackUnits > 0 ? ` · ${totalRackUnits} HE` : ''}
                         </div>
                         <div className="text-[10px] text-slate-600 mt-0.5 truncate max-w-[160px]">
                           {preset.items.map((i) => i.name).join(', ')}
@@ -1100,11 +1175,183 @@ export const LibraryPanel = () => {
         </div>
       )}
 
+      {tab === 'racks' && (
+        <div className="flex flex-1 min-h-0 flex-col">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div>
+              <h2 className="text-sm font-semibold">2D Rack Builder</h2>
+              <div className="text-[10px] text-slate-500">Rack-Slots in HE, als platzierbare Gruppe gespeichert</div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowRackBuilderDialog(true)}
+              className="rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
+            >
+              + Neues Rack
+            </button>
+          </div>
+
+          {groupPresets.filter((preset) => !!preset.rack).length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center gap-2 text-xs text-slate-500 text-center p-4">
+              <span className="text-2xl">▥</span>
+              <span>Noch kein Rack-Layout gespeichert.</span>
+            </div>
+          ) : (
+            <div className="flex-1 min-h-0 space-y-2 overflow-auto">
+              {groupPresets
+                .filter((preset) => !!preset.rack)
+                .map((preset) => {
+                  const zoom = canvasState.zoom || 1
+                  const cx = (-canvasState.x + 400) / zoom
+                  const cy = (-canvasState.y + 250) / zoom
+                  const totalUnits = preset.rack?.totalUnits ?? preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 1), 0)
+                  return (
+                    <div
+                      key={preset.id}
+                      className="rounded border border-slate-700 bg-slate-900 p-2 text-xs"
+                    >
+                      <div className="flex items-start justify-between gap-1">
+                        <div>
+                          <div className="font-medium text-slate-100">{preset.name}</div>
+                          <div className="text-[10px] text-slate-500 mt-0.5">
+                            {preset.items.length} Geräte · {totalUnits} HE · {preset.cables.length} Kabel
+                          </div>
+                          <div className="text-[10px] text-slate-600 mt-0.5 truncate max-w-[180px]">
+                            {preset.items.map((i) => i.name).join(', ')}
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => placeGroupPreset(preset.id, cx, cy)}
+                            className="rounded bg-emerald-700 px-2 py-1 text-[11px] hover:bg-emerald-600"
+                          >
+                            Platzieren
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm(`Rack \"${preset.name}\" löschen?`)) {
+                                deleteGroupPreset(preset.id)
+                              }
+                            }}
+                            className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
+                          >
+                            Löschen
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {showNetBoxDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
+          <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4">
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-base font-semibold">NetBox Import</h3>
+                <p className="mt-1 text-xs text-slate-400">
+                  Importiert Geräte aus der NetBox device-type-library in die lokale Library. Nicht-destruktiv: bestehende Geräte auf dem Canvas bleiben unverändert.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowNetBoxDialog(false)}
+                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+              >
+                Schließen
+              </button>
+            </div>
+
+            <div className="mb-3 flex gap-2">
+              <input
+                value={netBoxQuery}
+                onChange={(event) => setNetBoxQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault()
+                    void handleSearchNetBox()
+                  }
+                }}
+                placeholder="z.B. blackmagic atem, cisco catalyst, yamaha ql5"
+                className="flex-1 rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => void handleSearchNetBox()}
+                disabled={netBoxBusy || netBoxQuery.trim().length < 2}
+                className="rounded bg-cyan-700 px-3 py-2 text-sm font-semibold hover:bg-cyan-600 disabled:opacity-50"
+              >
+                {netBoxBusy ? 'Suche…' : 'Suchen'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  clearNetBoxIndexCache()
+                  setNetBoxResults([])
+                }}
+                className="rounded bg-slate-700 px-3 py-2 text-sm hover:bg-slate-600"
+                title="GitHub-Index neu laden"
+              >
+                Cache leeren
+              </button>
+            </div>
+
+            {netBoxError && (
+              <div className="mb-3 rounded border border-red-700/60 bg-red-900/30 px-3 py-2 text-xs text-red-100">
+                {netBoxError}
+              </div>
+            )}
+
+            <div className="mb-2 text-[11px] uppercase tracking-wide text-slate-500">
+              Treffer {netBoxResults.length > 0 ? `(${netBoxResults.length})` : ''}
+            </div>
+            <div className="space-y-2">
+              {netBoxResults.length === 0 ? (
+                <div className="rounded border border-slate-700 bg-slate-950/50 p-3 text-xs text-slate-400">
+                  Hersteller + Modell suchen. Beispiel: „blackmagic atem", „yamaha ql5", „cisco catalyst 9300".
+                </div>
+              ) : (
+                netBoxResults.map((item) => {
+                  const busy = netBoxImportBusy === item.path
+                  return (
+                    <div
+                      key={item.path}
+                      className="flex items-center justify-between gap-3 rounded border border-slate-700 bg-slate-950/50 p-3 text-sm"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate font-medium text-slate-100">
+                          {item.manufacturer} {item.model}
+                        </div>
+                        <div className="truncate text-[11px] text-slate-500">{item.path}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void handleImportNetBox(item)}
+                        disabled={busy}
+                        className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold hover:bg-emerald-600 disabled:opacity-50"
+                      >
+                        {busy ? 'Import…' : 'Importieren'}
+                      </button>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showCreateDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
           <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4">
             <h3 className="mb-3 text-base font-semibold">Create Custom Device</h3>
-            <div className="mb-3 grid grid-cols-2 gap-2 text-sm">
+            <div className="mb-3 grid grid-cols-3 gap-2 text-sm">
               <label className="block">
                 Name
                 <input
@@ -1146,6 +1393,18 @@ export const LibraryPanel = () => {
                       <option key={cat} value={cat} />
                     ))}
                 </datalist>
+              </label>
+              <label className="block">
+                Rack-Höhe (HE)
+                <input
+                  type="number"
+                  min={0}
+                  step={0.5}
+                  value={rackUnitsDraft}
+                  onChange={(event) => setRackUnitsDraft(event.target.value ? Number(event.target.value) : '')}
+                  placeholder="optional"
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                />
               </label>
             </div>
 
@@ -1261,6 +1520,17 @@ export const LibraryPanel = () => {
           </div>
         </div>
       )}
+
+      <RackBuilderDialog
+        open={showRackBuilderDialog}
+        templates={customLibrary}
+        onClose={() => setShowRackBuilderDialog(false)}
+        onSave={(preset) => {
+          addGroupPreset(preset)
+          setShowRackBuilderDialog(false)
+          setTab('racks')
+        }}
+      />
       </>
       )}
     </aside>

@@ -254,6 +254,7 @@ interface ProjectState {
   knownCategories: string[]
   addKnownCategories: (categories: string[]) => void
   groupPresets: GroupPreset[]
+  addGroupPreset: (preset: GroupPreset) => void
   saveGroupPreset: (name: string, equipmentIds: string[]) => void
   deleteGroupPreset: (id: string) => void
   placeGroupPreset: (presetId: string, x: number, y: number) => void
@@ -1000,6 +1001,12 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       return { customLibrary: next }
     }),
   groupPresets: loadGroupPresets(),
+  addGroupPreset: (preset) =>
+    set((state) => {
+      const next = [...state.groupPresets.filter((p) => p.id !== preset.id), preset]
+      persistGroupPresets(next)
+      return { groupPresets: next }
+    }),
   saveGroupPreset: (name, equipmentIds) =>
     set((state) => {
       const items = state.project.equipment.filter((e) => equipmentIds.includes(e.id))
