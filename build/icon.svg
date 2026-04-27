@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Background: deep slate disc with subtle gradient -->
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="75%">
+      <stop offset="0%" stop-color="#1f2a44"/>
+      <stop offset="100%" stop-color="#0b1220"/>
+    </radialGradient>
+    <linearGradient id="cable1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+    <linearGradient id="cable2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+    <linearGradient id="cable3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <linearGradient id="device" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Rounded square background (Windows app icon style) -->
+  <rect x="32" y="32" width="960" height="960" rx="180" ry="180" fill="url(#bg)"/>
+  <rect x="32" y="32" width="960" height="960" rx="180" ry="180" fill="none" stroke="#1e293b" stroke-width="4"/>
+
+  <!-- Left device (rack unit with 3 ports) -->
+  <g transform="translate(120,330)">
+    <rect x="0" y="0" width="170" height="360" rx="22" fill="url(#device)" stroke="#0f172a" stroke-width="6"/>
+    <rect x="14" y="20" width="142" height="36" rx="6" fill="#0b1220"/>
+    <circle cx="40" cy="38" r="6" fill="#34d399"/>
+    <circle cx="64" cy="38" r="6" fill="#fbbf24"/>
+    <!-- ports -->
+    <circle cx="170" cy="115" r="22" fill="#0b1220" stroke="#475569" stroke-width="4"/>
+    <circle cx="170" cy="115" r="10" fill="#fb923c"/>
+    <circle cx="170" cy="195" r="22" fill="#0b1220" stroke="#475569" stroke-width="4"/>
+    <circle cx="170" cy="195" r="10" fill="#38bdf8"/>
+    <circle cx="170" cy="275" r="22" fill="#0b1220" stroke="#475569" stroke-width="4"/>
+    <circle cx="170" cy="275" r="10" fill="#34d399"/>
+  </g>
+
+  <!-- Right device -->
+  <g transform="translate(734,330)">
+    <rect x="0" y="0" width="170" height="360" rx="22" fill="url(#device)" stroke="#0f172a" stroke-width="6"/>
+    <rect x="14" y="20" width="142" height="36" rx="6" fill="#0b1220"/>
+    <circle cx="106" cy="38" r="6" fill="#38bdf8"/>
+    <circle cx="130" cy="38" r="6" fill="#a78bfa"/>
+    <!-- ports on left side facing the cables -->
+    <circle cx="0" cy="115" r="22" fill="#0b1220" stroke="#475569" stroke-width="4"/>
+    <circle cx="0" cy="115" r="10" fill="#fb923c"/>
+    <circle cx="0" cy="195" r="22" fill="#0b1220" stroke="#475569" stroke-width="4"/>
+    <circle cx="0" cy="195" r="10" fill="#38bdf8"/>
+    <circle cx="0" cy="275" r="22" fill="#0b1220" stroke="#475569" stroke-width="4"/>
+    <circle cx="0" cy="275" r="10" fill="#34d399"/>
+  </g>
+
+  <!-- Cables (orthogonal-curve hybrid) -->
+  <g fill="none" stroke-width="22" stroke-linecap="round" filter="url(#glow)">
+    <path d="M 290 445 C 430 445, 430 540, 512 540 S 594 635, 734 635" stroke="url(#cable1)"/>
+    <path d="M 290 525 C 470 525, 470 525, 734 525" stroke="url(#cable2)"/>
+    <path d="M 290 605 C 430 605, 430 510, 512 510 S 594 415, 734 415" stroke="url(#cable3)"/>
+  </g>
+
+  <!-- Subtle highlight bar bottom -->
+  <rect x="120" y="780" width="784" height="6" rx="3" fill="#1e293b"/>
+  <rect x="120" y="800" width="500" height="3" rx="1.5" fill="#0f172a"/>
+</svg>
