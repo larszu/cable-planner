@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { ConnectorType, EquipmentTemplate } from '../../types/equipment'
 import { buildTemplateFromHints, suggestPortGroups, type PortGroupHint } from '../../lib/portSuggestions'
 import { getGeminiApiKey, setGeminiApiKey, suggestFromAI } from '../../lib/aiSuggestions'
+import { suggestFromWeb } from '../../lib/webPortSuggestions'
 import { useProjectStore } from '../../store/projectStore'
 
 const connectorOptions: ConnectorType[] = [
@@ -62,6 +63,10 @@ export const NewRentmanDeviceWizard = ({
   const [groups, setGroups] = useState<GroupDraft[]>([])
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState('')
+  const [webLoading, setWebLoading] = useState(false)
+  const [webInfo, setWebInfo] = useState<string>('')
+  const [aiSettingsOpen, setAiSettingsOpen] = useState(false)
+  const [apiKeyDraft, setApiKeyDraft] = useState('')
 
   useEffect(() => {
     if (!current) return
@@ -92,6 +97,14 @@ export const NewRentmanDeviceWizard = ({
 
   const handleAiSuggest = async () => {
     setAiError('')
+    setWebInfo('')
+    if (!getGeminiApiKey()) {
+      // No key — open the settings panel inline instead of throwing.
+      setApiKeyDraft('')
+      setAiSettingsOpen(true)
+      setAiError('Kein Gemini-API-Key hinterlegt. Trage einen ein oder nutze "Web-Suche (frei)".')
+      return
+    }
     setAiLoading(true)
     try {
       const hints = await suggestFromAI(name, category)
@@ -107,14 +120,37 @@ export const NewRentmanDeviceWizard = ({
     }
   }
 
-  const handleSetApiKey = () => {
-    const current_ = getGeminiApiKey()
-    const next = window.prompt(
-      'Enter Gemini API key (leave empty to clear). Get one at https://aistudio.google.com/apikey',
-      current_,
-    )
-    if (next === null) return
-    setGeminiApiKey(next.trim())
+  const handleWebSuggest = async () => {
+    setAiError('')
+    setWebInfo('')
+    setWebLoading(true)
+    try {
+      const { hints, source, snippet } = await suggestFromWeb(name, category)
+      if (hints.length === 0) {
+        setWebInfo(
+          snippet
+            ? `Keine Stecker im ${source}-Snippet erkannt. Manuell ergänzen oder anderen Namen versuchen.`
+            : 'Kein Treffer im Web. Geräte-Name präzisieren (Hersteller + Modell).',
+        )
+        return
+      }
+      setGroups(hintsToDrafts(hints))
+      setWebInfo(`${hints.length} Port-Gruppe(n) aus ${source} übernommen.`)
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : 'Web search failed')
+    } finally {
+      setWebLoading(false)
+    }
+  }
+
+  const handleOpenAiSettings = () => {
+    setApiKeyDraft(getGeminiApiKey())
+    setAiSettingsOpen(true)
+  }
+  const handleSaveAiSettings = () => {
+    setGeminiApiKey(apiKeyDraft.trim())
+    setAiSettingsOpen(false)
+    setAiError('')
   }
 
   const handleSave = () => {
@@ -202,18 +238,27 @@ export const NewRentmanDeviceWizard = ({
           <div className="flex flex-wrap gap-2 text-xs">
             <button
               type="button"
-              onClick={handleAiSuggest}
-              disabled={aiLoading}
-              className="rounded bg-purple-700 px-2 py-1 hover:bg-purple-600 disabled:opacity-50"
-              title="Use Gemini AI to suggest ports based on datasheets"
+              onClick={handleWebSuggest}
+              disabled={webLoading}
+              className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
+              title="Wikipedia + DuckDuckGo durchsuchen (kein Key nötig)"
             >
-              {aiLoading ? 'Asking AI…' : '✨ Suggest from AI'}
+              {webLoading ? 'Suche…' : '🌐 Web-Suche (frei)'}
             </button>
             <button
               type="button"
-              onClick={handleSetApiKey}
+              onClick={handleAiSuggest}
+              disabled={aiLoading}
+              className="rounded bg-purple-700 px-2 py-1 hover:bg-purple-600 disabled:opacity-50"
+              title="Gemini AI (benötigt API-Key)"
+            >
+              {aiLoading ? 'Asking AI…' : '✨ AI (Gemini)'}
+            </button>
+            <button
+              type="button"
+              onClick={handleOpenAiSettings}
               className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
-              title="Configure Gemini API key"
+              title="Gemini API-Key konfigurieren"
             >
               AI settings
             </button>
@@ -235,6 +280,55 @@ export const NewRentmanDeviceWizard = ({
         </div>
         {aiError && (
           <div className="mb-2 rounded bg-red-900/50 p-2 text-xs text-red-100">{aiError}</div>
+        )}
+        {webInfo && !aiError && (
+          <div className="mb-2 rounded bg-emerald-900/30 p-2 text-xs text-emerald-100">{webInfo}</div>
+        )}
+
+        {aiSettingsOpen && (
+          <div className="mb-3 rounded border border-purple-700 bg-purple-950/40 p-3">
+            <div className="mb-2 text-xs font-semibold text-purple-200">Gemini API-Key</div>
+            <p className="mb-2 text-[11px] text-slate-300">
+              Kostenlos unter{' '}
+              <span className="font-mono text-slate-200">aistudio.google.com/apikey</span>{' '}
+              (15 Anfragen/Min). Wird lokal im Browser-Storage gespeichert.
+            </p>
+            <input
+              type="password"
+              value={apiKeyDraft}
+              onChange={(event) => setApiKeyDraft(event.target.value)}
+              placeholder="AIzaSy..."
+              className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-xs"
+              autoFocus
+            />
+            <div className="mt-2 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setAiSettingsOpen(false)}
+                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+              >
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setGeminiApiKey('')
+                  setApiKeyDraft('')
+                  setAiSettingsOpen(false)
+                }}
+                className="rounded bg-red-700 px-2 py-1 text-xs hover:bg-red-600"
+              >
+                Löschen
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveAiSettings}
+                className="rounded bg-emerald-600 px-2 py-1 text-xs hover:bg-emerald-500"
+              >
+                Speichern
+              </button>
+            </div>
+          </div>
         )}
 
         <div className="mb-3 space-y-2">
