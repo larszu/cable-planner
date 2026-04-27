@@ -292,9 +292,10 @@ export const importNetBoxDeviceType = async (
 
   return {
     name: `${manufacturer} ${model}`.trim(),
-    category: rackUnits > 0 ? 'Rack / NetBox' : 'NetBox',
+    category: 'Sonstiges',
     inputs,
     outputs,
+    isRackDevice: rackUnits > 0,
     rackUnits,
     netboxPath: item.path,
     frontPanelImageUrl,

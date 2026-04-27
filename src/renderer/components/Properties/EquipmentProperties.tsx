@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import {
   DndContext,
@@ -24,6 +25,7 @@ import type { ConnectorType, Port, VlanDef, PortVlanAssignment } from '../../typ
 import { ALL_SIGNAL_STANDARDS } from '../../types/cableSpec'
 import type { SignalStandard } from '../../types/cableSpec'
 import { QUAD_LINK_LABEL, type QuadLinkMode } from '../../types/videoFormat'
+import { RackImageCropDialog } from '../Rack/RackImageCropDialog'
 
 const makePort = (name: string): Port => ({
   id: uuidv4(),
@@ -237,8 +239,14 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
 const hasSdiPorts = (device: { inputs: Port[]; outputs: Port[] }): boolean =>
   [...device.inputs, ...device.outputs].some((p) => p.connectorType === 'BNC')
 
-const RackFacePreview = ({ equipment }: { equipment: EquipmentItem }) => {
-  if (!equipment.rackUnits || equipment.rackUnits <= 0) return null
+const RackFacePreview = ({
+  equipment,
+  viewMode,
+}: {
+  equipment: EquipmentItem
+  viewMode: 'front' | 'rear' | 'both'
+}) => {
+  if (!equipment.isRackDevice || !equipment.rackUnits || equipment.rackUnits <= 0) return null
 
   const rows = Math.max(equipment.inputs.length, equipment.outputs.length, 1)
 
@@ -247,55 +255,66 @@ const RackFacePreview = ({ equipment }: { equipment: EquipmentItem }) => {
       <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
         2D Rack-Vorschau
       </legend>
-      <div className="mb-2 text-[11px] text-slate-400">
-        19" Frontplatte · {equipment.rackUnits} HE · basiert direkt auf den aktuellen Inputs/Outputs
-      </div>
+      <div className="mb-2 text-[11px] text-slate-400">19" Rack · {equipment.rackUnits} HE · Front/Rear mit Port-Marker</div>
       <div className="rounded border border-slate-700 bg-slate-950 p-3">
-        <div className="mx-auto w-full max-w-[560px] rounded border border-slate-600 bg-gradient-to-b from-slate-800 to-slate-900 px-4 py-3 shadow-inner">
-          <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-slate-500">
-            <span>19" Rack</span>
-            <span>{equipment.rackUnits} HE</span>
-          </div>
-          <div className="mb-3 rounded border border-slate-700 bg-slate-950/70 px-3 py-2 text-center">
-            <div className="truncate text-sm font-semibold text-slate-100">{equipment.name}</div>
-            <div className="truncate text-[11px] text-slate-500">{equipment.category}</div>
-          </div>
-          <div className="space-y-2">
-            {Array.from({ length: rows }).map((_, index) => {
-              const input = equipment.inputs[index]
-              const output = equipment.outputs[index]
-              return (
-                <div key={`${equipment.id}-rack-row-${index}`} className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-[11px]">
-                  <div className="min-w-0 rounded border border-slate-700 bg-slate-900/70 px-2 py-1 text-right text-slate-200">
-                    {input ? (
-                      <span className="block truncate">
-                        {input.name}
-                        <span className="text-slate-500"> · {input.connectorType}</span>
-                      </span>
-                    ) : (
-                      <span className="text-slate-600">—</span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-sky-400" />
-                    <span className="h-px w-8 bg-slate-700" />
-                    <span className="h-px w-8 bg-slate-700" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-                  </div>
-                  <div className="min-w-0 rounded border border-slate-700 bg-slate-900/70 px-2 py-1 text-slate-200">
-                    {output ? (
-                      <span className="block truncate">
-                        {output.name}
-                        <span className="text-slate-500"> · {output.connectorType}</span>
-                      </span>
-                    ) : (
-                      <span className="text-slate-600">—</span>
-                    )}
-                  </div>
+        <div className={`mx-auto grid w-full max-w-[760px] gap-2 ${viewMode === 'both' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          {(viewMode === 'both' ? ['front', 'rear'] : [viewMode]).map((side) => {
+            const imageUrl = side === 'front' ? equipment.frontPanelImageUrl : equipment.rearPanelImageUrl
+            return (
+              <div key={side} className="rounded border border-slate-600 bg-gradient-to-b from-slate-800 to-slate-900 px-4 py-3 shadow-inner">
+                <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  <span>{side === 'front' ? 'Front' : 'Rear'}</span>
+                  <span>{equipment.rackUnits} HE</span>
                 </div>
-              )
-            })}
-          </div>
+                <div className="relative mb-3 rounded border border-slate-700 bg-slate-950/70 px-3 py-2 text-center">
+                  {imageUrl ? (
+                    <img src={imageUrl} alt={`${equipment.name} ${side}`} className="mx-auto h-24 w-full rounded object-cover" />
+                  ) : (
+                    <>
+                      <div className="truncate text-sm font-semibold text-slate-100">{equipment.name}</div>
+                      <div className="truncate text-[11px] text-slate-500">{equipment.category}</div>
+                    </>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  {Array.from({ length: rows }).map((_, index) => {
+                    const input = equipment.inputs[index]
+                    const output = equipment.outputs[index]
+                    return (
+                      <div key={`${equipment.id}-${side}-rack-row-${index}`} className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-[11px]">
+                        <div className="min-w-0 rounded border border-slate-700 bg-slate-900/70 px-2 py-1 text-right text-slate-200">
+                          {input ? (
+                            <span className="block truncate">
+                              {input.name}
+                              <span className="text-slate-500"> · {input.connectorType}</span>
+                            </span>
+                          ) : (
+                            <span className="text-slate-600">—</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="h-2.5 w-2.5 rounded-full bg-sky-400" />
+                          <span className="h-px w-8 bg-slate-700" />
+                          <span className="h-px w-8 bg-slate-700" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                        </div>
+                        <div className="min-w-0 rounded border border-slate-700 bg-slate-900/70 px-2 py-1 text-slate-200">
+                          {output ? (
+                            <span className="block truncate">
+                              {output.name}
+                              <span className="text-slate-500"> · {output.connectorType}</span>
+                            </span>
+                          ) : (
+                            <span className="text-slate-600">—</span>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
     </fieldset>
@@ -668,6 +687,10 @@ export const EquipmentProperties = () => {
   const openAtemMvConfig = useUiStore((state) => state.openAtemMvConfig)
   const saveEquipmentAsTemplate = useProjectStore((state) => state.saveEquipmentAsTemplate)
   const saveEquipmentAsNewTemplate = useProjectStore((state) => state.saveEquipmentAsNewTemplate)
+  const [rackViewMode, setRackViewMode] = useState<'front' | 'rear' | 'both'>('front')
+  const [cropDialog, setCropDialog] = useState<
+    { side: 'front' | 'rear'; src: string } | null
+  >(null)
 
   if (!equipment) {
     return <div className="text-xs text-slate-400">Select an equipment node.</div>
@@ -820,41 +843,7 @@ export const EquipmentProperties = () => {
         })()}
       </label>
 
-      <fieldset className="rounded border border-slate-700 p-2">
-        <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-          Rack / 19"
-        </legend>
-        <div className="grid grid-cols-2 gap-2">
-          <label className="block">
-            <span className="mb-1 block text-slate-300">Höhe (HE)</span>
-            <input
-              type="number"
-              min={0}
-              step={0.5}
-              value={equipment.rackUnits ?? ''}
-              onChange={(event) =>
-                updateEquipment(equipment.id, {
-                  rackUnits: event.target.value ? Number(event.target.value) : undefined,
-                })
-              }
-              placeholder="z.B. 1"
-              className="w-full rounded border border-slate-700 bg-slate-900 p-2"
-            />
-          </label>
-          <div className="rounded border border-slate-800 bg-slate-900/50 p-2 text-[11px] text-slate-400">
-            Für spätere 2D-Rack-Ansichten. Leer = kein Rackmaß hinterlegt.
-          </div>
-        </div>
-        {equipment.netboxPath && (
-          <div className="mt-2 text-[10px] text-slate-500">
-            Quelle: NetBox device-type-library · {equipment.netboxPath}
-          </div>
-        )}
-      </fieldset>
-
       <DisplayPropertiesBlock equipment={equipment} />
-
-      <RackFacePreview equipment={equipment} />
 
       <fieldset className="rounded border border-slate-700 p-2">
         <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
@@ -938,6 +927,120 @@ export const EquipmentProperties = () => {
         onChange={(outputs) => updateEquipment(equipment.id, { outputs })}
       />
 
+      <fieldset className="rounded border border-slate-700 p-2">
+        <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">Rack / 19" Einstellungen</legend>
+        <label className="mb-2 flex items-center gap-2 text-xs">
+          <input
+            type="checkbox"
+            checked={!!equipment.isRackDevice}
+            onChange={(event) =>
+              updateEquipment(equipment.id, {
+                isRackDevice: event.target.checked,
+                rackUnits: event.target.checked ? equipment.rackUnits ?? 1 : undefined,
+              })
+            }
+          />
+          <span>Ist ein 19" Rack-Gerat</span>
+        </label>
+
+        {!equipment.isRackDevice && (
+          <div className="rounded border border-slate-800 bg-slate-900/50 p-2 text-[11px] text-slate-400">
+            Rack-Felder erscheinen nur, wenn das Gerat als 19" Rack-Gerat markiert ist.
+          </div>
+        )}
+
+        {equipment.isRackDevice && (
+          <>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="block">
+                <span className="mb-1 block text-slate-300">Hohe (HE)</span>
+                <input
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={equipment.rackUnits ?? 1}
+                  onChange={(event) =>
+                    updateEquipment(equipment.id, {
+                      rackUnits: Math.max(1, Number(event.target.value) || 1),
+                    })
+                  }
+                  className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-slate-300">Ansicht</span>
+                <select
+                  value={rackViewMode}
+                  onChange={(event) => setRackViewMode(event.target.value as 'front' | 'rear' | 'both')}
+                  className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+                >
+                  <option value="front">Nur vorne</option>
+                  <option value="rear">Nur hinten</option>
+                  <option value="both">Vorne + hinten</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const input = document.createElement('input')
+                  input.type = 'file'
+                  input.accept = 'image/png,image/jpeg,image/webp'
+                  input.onchange = () => {
+                    const file = input.files?.[0]
+                    if (!file) return
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                      if (typeof reader.result === 'string') {
+                        setCropDialog({ side: 'front', src: reader.result })
+                      }
+                    }
+                    reader.readAsDataURL(file)
+                  }
+                  input.click()
+                }}
+                className="rounded bg-sky-700 px-2 py-1 text-xs hover:bg-sky-600"
+              >
+                Frontgrafik importieren + zuschneiden
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const input = document.createElement('input')
+                  input.type = 'file'
+                  input.accept = 'image/png,image/jpeg,image/webp'
+                  input.onchange = () => {
+                    const file = input.files?.[0]
+                    if (!file) return
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                      if (typeof reader.result === 'string') {
+                        setCropDialog({ side: 'rear', src: reader.result })
+                      }
+                    }
+                    reader.readAsDataURL(file)
+                  }
+                  input.click()
+                }}
+                className="rounded bg-purple-700 px-2 py-1 text-xs hover:bg-purple-600"
+              >
+                Reargrafik importieren + zuschneiden
+              </button>
+            </div>
+
+            {equipment.netboxPath && (
+              <div className="mt-2 text-[10px] text-slate-500">
+                Quelle: NetBox device-type-library · {equipment.netboxPath}
+              </div>
+            )}
+
+            <RackFacePreview equipment={equipment} viewMode={rackViewMode} />
+          </>
+        )}
+      </fieldset>
+
       <div className="rounded border border-slate-700 bg-slate-900/40 p-2">
         <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
           Bibliothek
@@ -987,6 +1090,23 @@ export const EquipmentProperties = () => {
           </button>
         </div>
       </div>
+
+      <RackImageCropDialog
+        open={!!cropDialog}
+        imageSrc={cropDialog?.src ?? null}
+        rackUnits={equipment.rackUnits ?? 1}
+        side={cropDialog?.side ?? 'front'}
+        onCancel={() => setCropDialog(null)}
+        onConfirm={({ dataUrl, crop }) => {
+          if (!cropDialog) return
+          if (cropDialog.side === 'front') {
+            updateEquipment(equipment.id, { frontPanelImageUrl: dataUrl, frontPanelCrop: crop })
+          } else {
+            updateEquipment(equipment.id, { rearPanelImageUrl: dataUrl, rearPanelCrop: crop })
+          }
+          setCropDialog(null)
+        }}
+      />
     </div>
   )
 }
