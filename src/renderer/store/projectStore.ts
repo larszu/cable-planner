@@ -12,6 +12,10 @@ import { monitorTemplates } from '../lib/monitorCatalog'
 import { cameraTemplates } from '../lib/cameraCatalog'
 import { miscTemplates } from '../lib/miscCatalog'
 import { greengoTemplates } from '../lib/greengoCatalog'
+import {
+  upsertCachedRentmanTemplate,
+  upsertCachedRentmanTemplateFromEquipment,
+} from '../lib/rentmanTemplateCache'
 import type { GreenGoConfig } from '../types/greengo'
 import { useSettingsStore } from './settingsStore'
 
@@ -296,6 +300,12 @@ const sanitizePort = (port: Partial<Port>, fallbackName: string): Port => ({
   standard: port.standard,
 })
 
+const shouldSyncRentmanTemplateCache = (patch: Partial<EquipmentItem>): boolean => {
+  const keys = Object.keys(patch) as Array<keyof EquipmentItem>
+  // Ignore pure position updates to avoid excessive localStorage writes while dragging.
+  return keys.some((key) => key !== 'x' && key !== 'y')
+}
+
 export const useProjectStore = create<ProjectState>((set, get) => ({
   project: loadAutosavedProject() ?? defaultProject(),
   showCableDialog: false,
@@ -461,8 +471,9 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   updateEquipment: (id, patch) =>
     set((state) => {
       const prev = state.project.equipment.find((e) => e.id === id)
+      let updatedItem: EquipmentItem | undefined
       const nextEquipment = state.project.equipment.map((item) =>
-        item.id === id ? { ...item, ...patch } : item,
+        item.id === id ? ((updatedItem = { ...item, ...patch }), updatedItem) : item,
       )
       // If the equipment moved, also shift waypoints of cables attached to it
       // so the cable visually travels with the device (draw.io-style). When
@@ -504,6 +515,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
           return { ...c, waypoints: next }
         })
       }
+      if (updatedItem?.rentmanId && shouldSyncRentmanTemplateCache(patch)) {
+        upsertCachedRentmanTemplateFromEquipment(updatedItem)
+      }
+
       return {
         project: touchProject({
           ...state.project,
@@ -838,6 +853,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     set((state) => {
       const next = [...state.customLibrary.filter((t) => t.name !== template.name), template]
       persistCustomLibrary(next)
+      if (template.rentmanId) upsertCachedRentmanTemplate(template)
       return { customLibrary: next }
     }),
   addCustomTemplates: (templates) =>
@@ -849,6 +865,9 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       })
       const next = Array.from(byName.values())
       persistCustomLibrary(next)
+      templates.forEach((template) => {
+        if (template.rentmanId) upsertCachedRentmanTemplate(template)
+      })
       return { customLibrary: next }
     }),
   removeCustomTemplate: (name) =>
@@ -947,6 +966,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         template,
       ]
       persistCustomLibrary(next)
+      if (template.rentmanId) upsertCachedRentmanTemplate(template)
       return { customLibrary: next }
     }),
   saveEquipmentAsNewTemplate: (equipmentId, newName, category) =>
@@ -984,6 +1004,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       }
       const next = [...state.customLibrary, template]
       persistCustomLibrary(next)
+      if (template.rentmanId) upsertCachedRentmanTemplate(template)
       return { customLibrary: next }
     }),
   toggleTemplateFavorite: (name) =>

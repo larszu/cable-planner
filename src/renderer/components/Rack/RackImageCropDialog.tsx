@@ -42,10 +42,14 @@ export const RackImageCropDialog = ({
   const [crop, setCrop] = useState<CropRect>(defaultCrop(rackUnits))
   const [dragging, setDragging] = useState(false)
   const [pointerOffset, setPointerOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
   const imgRef = useRef<HTMLImageElement | null>(null)
 
   useEffect(() => {
-    if (open) setCrop(defaultCrop(rackUnits))
+    if (open) {
+      setCrop(defaultCrop(rackUnits))
+      setZoom(1)
+    }
   }, [open, rackUnits, imageSrc])
 
   const hePresets = useMemo(() => [1, 2, 3, 4, 6, 8, 12], [])
@@ -73,12 +77,20 @@ export const RackImageCropDialog = ({
     const sw = Math.max(1, Math.round(crop.width * sourceW))
     const sh = Math.max(1, Math.round(crop.height * sourceH))
 
+    // Scale export by a 1HE reference derived from current screen height,
+    // so front/rear/rack panels stay visually consistent across views.
+    const oneHePx = Math.max(48, Math.round(window.innerHeight * 0.045))
+    const targetHeight = Math.max(1, Math.round(oneHePx * Math.max(1, rackUnits)))
+    const targetWidth = Math.max(1, Math.round(targetHeight * (10.86 / Math.max(1, rackUnits))))
+
     const canvas = document.createElement('canvas')
-    canvas.width = sw
-    canvas.height = sh
+    canvas.width = targetWidth
+    canvas.height = targetHeight
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh)
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetWidth, targetHeight)
 
     onConfirm({ dataUrl: canvas.toDataURL('image/png'), crop })
   }
@@ -102,8 +114,28 @@ export const RackImageCropDialog = ({
 
         <div className="mb-3 grid grid-cols-[1fr_auto] gap-3">
           <div className="rounded border border-slate-700 bg-slate-950/40 p-2">
-            <div className="relative mx-auto max-h-[70vh] w-full overflow-hidden rounded border border-slate-700">
-              <img ref={imgRef} src={imageSrc} alt="Rack crop source" className="h-auto max-h-[70vh] w-full object-contain" />
+            <div className="mb-2 flex items-center gap-2 text-xs text-slate-400">
+              <span>Quellbild-Skalierung</span>
+              <input
+                type="range"
+                min={0.5}
+                max={4}
+                step={0.05}
+                value={zoom}
+                onChange={(event) => setZoom(Number(event.target.value) || 1)}
+                title="Quellbild-Skalierung"
+                className="flex-1"
+              />
+              <span className="w-12 text-right">{zoom.toFixed(2)}x</span>
+            </div>
+            <div className="max-h-[70vh] overflow-auto rounded border border-slate-700">
+              <div
+                className="relative mx-auto"
+                style={{
+                  width: `${Math.max(480, 860 * zoom)}px`,
+                }}
+              >
+                <img ref={imgRef} src={imageSrc} alt="Rack crop source" className="h-auto w-full object-contain" />
               <div
                 className="absolute inset-0"
                 onMouseMove={(event) => {
@@ -135,6 +167,7 @@ export const RackImageCropDialog = ({
                   }}
                 />
               </div>
+            </div>
             </div>
           </div>
 

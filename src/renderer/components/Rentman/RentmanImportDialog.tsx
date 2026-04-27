@@ -8,6 +8,7 @@ import { matchMonitorTemplate } from '../../lib/monitorCatalog'
 import { matchCameraTemplate } from '../../lib/cameraCatalog'
 import { matchMiscTemplate } from '../../lib/miscCatalog'
 import { matchGreenGoTemplate } from '../../lib/greengoCatalog'
+import { getCachedRentmanTemplate } from '../../lib/rentmanTemplateCache'
 import type { EquipmentTemplate, Port } from '../../types/equipment'
 import type { CableType } from '../../types/cable'
 import { EquipmentChecklist } from './EquipmentChecklist'
@@ -581,9 +582,11 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     categoryByName: Record<string, string>,
   ): EquipmentTemplate => {
     const existingByName = customLibrary.find((t) => t.name === item.name)
+    const cachedByRentmanId = item.equipmentId ? getCachedRentmanTemplate(item.equipmentId) : undefined
     const assignedCategory = categoryByName[item.name] || item.category || 'Sonstiges'
     const base =
       templatesByEquipmentId[item.equipmentId] ||
+      cachedByRentmanId ||
       existingByName ||
       matchBlackmagicTemplate(item.name) ||
       matchUbiquitiTemplate(item.name) ||

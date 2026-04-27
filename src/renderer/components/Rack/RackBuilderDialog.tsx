@@ -22,6 +22,8 @@ interface RackPlacementDraft {
   isRackDevice: boolean
   frontPanelImageUrl?: string
   rearPanelImageUrl?: string
+  frontPanelCrop?: EquipmentTemplate['frontPanelCrop']
+  rearPanelCrop?: EquipmentTemplate['rearPanelCrop']
 }
 
 interface RackDraft {
@@ -32,6 +34,8 @@ interface RackDraft {
 }
 
 const ROW_HEIGHT = 22
+const RACK_PANEL_ASPECT_PER_1HE = 10.86
+const RACK_PANEL_WIDTH = Math.round(ROW_HEIGHT * RACK_PANEL_ASPECT_PER_1HE)
 const DRAFT_KEY = 'cable-planner:rack-builder:draft:v2'
 
 const parseUnits = (template?: EquipmentTemplate): number => {
@@ -52,6 +56,8 @@ const toPlacement = (template: EquipmentTemplate, startUnit: number): RackPlacem
   isRackDevice: template.isRackDevice ?? !!template.rackUnits,
   frontPanelImageUrl: template.frontPanelImageUrl,
   rearPanelImageUrl: template.rearPanelImageUrl,
+  frontPanelCrop: template.frontPanelCrop,
+  rearPanelCrop: template.rearPanelCrop,
 })
 
 const normalizeDraft = (draft: RackDraft): RackDraft => ({
@@ -96,6 +102,17 @@ export const RackBuilderDialog = ({ open, templates, onClose, onSave }: RackBuil
   const selectedPlacement = useMemo(
     () => draft.placements.find((placement) => placement.id === selectedPlacementId) ?? null,
     [draft.placements, selectedPlacementId],
+  )
+
+  const categoryOptions = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...templates.map((template) => template.category).filter(Boolean),
+          ...draft.placements.map((placement) => placement.category).filter(Boolean),
+        ]),
+      ).sort((a, b) => a.localeCompare(b)),
+    [draft.placements, templates],
   )
 
   const draftSnapshot = useMemo(() => JSON.stringify(normalizeDraft(draft)), [draft])
@@ -232,6 +249,8 @@ export const RackBuilderDialog = ({ open, templates, onClose, onSave }: RackBuil
       rackUnits: placement.rackUnits,
       frontPanelImageUrl: placement.frontPanelImageUrl,
       rearPanelImageUrl: placement.rearPanelImageUrl,
+      frontPanelCrop: placement.frontPanelCrop,
+      rearPanelCrop: placement.rearPanelCrop,
       width: 240,
       height: 80 + Math.max(placement.inputs.length, placement.outputs.length, 3) * 22,
       offsetX: 0,
@@ -409,8 +428,8 @@ export const RackBuilderDialog = ({ open, templates, onClose, onSave }: RackBuil
                       return (
                         <div
                           key={`${side}-block-${item.id}`}
-                          className={`absolute left-8 right-2 overflow-hidden rounded border ${selectedPlacementId === item.id ? 'border-amber-400 bg-amber-900/30' : 'border-sky-600/70 bg-sky-900/40'}`}
-                          style={{ top, height }}
+                          className={`absolute overflow-hidden rounded border ${selectedPlacementId === item.id ? 'border-amber-400 bg-amber-900/30' : 'border-sky-600/70 bg-sky-900/40'}`}
+                          style={{ top, height, left: '50%', width: RACK_PANEL_WIDTH, transform: 'translateX(-50%)' }}
                           title={`${item.name} (${item.rackUnits} HE)`}
                           onPointerDown={(event) => {
                             event.preventDefault()
@@ -423,7 +442,7 @@ export const RackBuilderDialog = ({ open, templates, onClose, onSave }: RackBuil
                           onClick={() => setSelectedPlacementId(item.id)}
                         >
                           {image ? (
-                            <img src={image} alt={`${item.name} ${side}`} className="h-full w-full object-cover" />
+                            <img src={image} alt={`${item.name} ${side}`} className="h-full w-full object-contain" />
                           ) : (
                             <div className="flex h-full items-center justify-center px-2 text-center text-[10px] font-semibold text-sky-100">{item.name}</div>
                           )}
@@ -455,11 +474,29 @@ export const RackBuilderDialog = ({ open, templates, onClose, onSave }: RackBuil
                 </label>
                 <label className="block">
                   Kategorie
-                  <input
+                  <select
                     value={selectedPlacement.category}
-                    onChange={(event) => updatePlacement(selectedPlacement.id, { category: event.target.value })}
+                    onChange={(event) => {
+                      const value = event.target.value
+                      if (value === '__new__') {
+                        const entered = window.prompt('Neue Kategorie')?.trim()
+                        if (entered) updatePlacement(selectedPlacement.id, { category: entered })
+                        return
+                      }
+                      updatePlacement(selectedPlacement.id, { category: value })
+                    }}
                     className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
-                  />
+                  >
+                    {categoryOptions.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                    {!categoryOptions.includes(selectedPlacement.category) && selectedPlacement.category && (
+                      <option value={selectedPlacement.category}>{selectedPlacement.category}</option>
+                    )}
+                    <option value="__new__">+ Neue Kategorie…</option>
+                  </select>
                 </label>
                 <label className="flex items-center gap-2">
                   <input

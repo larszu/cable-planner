@@ -24,6 +24,15 @@ export const TemplateProperties = () => {
     setCategory(template?.category ?? '')
   }, [template?.name, template?.category])
 
+  const allCategoryOptions = Array.from(
+    new Set([
+      ...knownCategories,
+      ...customLibrary.map((t) => t.category).filter(Boolean),
+      category,
+      template?.category,
+    ].filter(Boolean) as string[]),
+  ).sort((a, b) => a.localeCompare(b))
+
   if (!template) {
     return <div className="text-xs text-slate-400">Keine Vorlage ausgewählt.</div>
   }
@@ -77,17 +86,28 @@ export const TemplateProperties = () => {
 
       <label className="block">
         <span className="mb-1 block text-slate-300">Kategorie</span>
-        <input
-          list="template-properties-categories"
+        <select
           value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value
+            if (value === '__new__') {
+              const entered = window.prompt('Neue Kategorie')?.trim()
+              if (entered) {
+                setCategory(entered)
+              }
+              return
+            }
+            setCategory(value)
+          }}
           className="w-full rounded border border-slate-700 bg-slate-900 p-2"
-        />
-        <datalist id="template-properties-categories">
-          {knownCategories.map((c) => (
-            <option key={c} value={c} />
+        >
+          {allCategoryOptions.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
           ))}
-        </datalist>
+          <option value="__new__">+ Neue Kategorie…</option>
+        </select>
       </label>
 
       <div className="rounded bg-slate-900 p-2 space-y-1">
