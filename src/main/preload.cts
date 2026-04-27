@@ -17,6 +17,21 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.invoke('rentman:get-project-equipment', projectId) as Promise<unknown[]>,
     getEquipment: () => ipcRenderer.invoke('rentman:get-equipment') as Promise<unknown[]>,
     getEquipmentFolders: () => ipcRenderer.invoke('rentman:get-equipment-folders') as Promise<unknown[]>,
+    addProjectEquipment: (projectId: string, equipmentId: string, quantity?: number) =>
+      ipcRenderer.invoke('rentman:add-project-equipment', projectId, equipmentId, quantity) as Promise<unknown>,
+    addProjectFile: (
+      projectId: string,
+      fileName: string,
+      fileBytes: Uint8Array,
+      mimeType?: string,
+    ) =>
+      ipcRenderer.invoke(
+        'rentman:add-project-file',
+        projectId,
+        fileName,
+        fileBytes,
+        mimeType,
+      ) as Promise<unknown>,
   },
   project: {
     newProject: () => ipcRenderer.invoke('project:new') as Promise<void>,

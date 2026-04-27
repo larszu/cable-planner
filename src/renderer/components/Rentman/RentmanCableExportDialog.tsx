@@ -1,0 +1,454 @@
+import { useEffect, useMemo, useState } from 'react'
+import { useProjectStore } from '../../store/projectStore'
+import { useRentman } from '../../hooks/useRentman'
+import type { Cable } from '../../types/cable'
+
+interface RentmanCableExportDialogProps {
+  open: boolean
+  onClose: () => void
+}
+
+interface CableBucket {
+  key: string
+  type: string
+  length: number
+  built: number
+  planned: number
+  /** Rentman equipment id this bucket is mapped to (if any). */
+  mappedId?: string
+  mappedName?: string
+  /** Quantity that has already been pushed to Rentman (lastSyncedQty). */
+  syncedQty: number
+  delta: number
+  /** Sample cable name for display. */
+  sample?: Cable
+}
+
+interface CatalogItem {
+  id: string
+  name: string
+  category: string
+}
+
+const keyOf = (c: Pick<Cable, 'type' | 'length'>): string => `${c.type}|${c.length}`
+
+/**
+ * Push canvas cable quantities to the linked Rentman project.
+ *
+ * For every (cable-type, length) bucket the user maps the bucket to a Rentman
+ * master-catalogue equipment id once. The dialog then computes the delta
+ * between the current built quantity and the last synced quantity, and POSTs
+ * `addProjectEquipment(projectId, equipmentId, delta)` to extend the Rentman
+ * project plan. Negative deltas are surfaced as warnings rather than silently
+ * removing equipment, because the Rentman REST API has no project-equipment
+ * delete endpoint exposed via our IPC bridge.
+ */
+export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDialogProps) => {
+  const project = useProjectStore((state) => state.project)
+  const updateMeta = useProjectStore((state) => state.updateProjectMetadata)
+  const { loadEquipment, loadFolders, addProjectEquipment } = useRentman()
+
+  const [catalog, setCatalog] = useState<CatalogItem[]>([])
+  const [catalogLoaded, setCatalogLoaded] = useState(false)
+  const [catalogLoading, setCatalogLoading] = useState(false)
+  const [catalogError, setCatalogError] = useState<string | null>(null)
+  const [busyKey, setBusyKey] = useState<string | null>(null)
+  const [statusByKey, setStatusByKey] = useState<Record<string, string>>({})
+  const [pickerKey, setPickerKey] = useState<string | null>(null)
+  const [pickerQuery, setPickerQuery] = useState('')
+
+  const linkedProjectId = project.metadata.rentmanProjectId
+  const linkedProjectName = project.metadata.rentmanProjectName
+
+  useEffect(() => {
+    if (!open) {
+      setStatusByKey({})
+      setPickerKey(null)
+      setPickerQuery('')
+    }
+  }, [open])
+
+  const fetchCatalog = async () => {
+    setCatalogLoading(true)
+    setCatalogError(null)
+    try {
+      const [equipmentData, folderData] = await Promise.all([loadEquipment(), loadFolders()])
+      const folders = (folderData as Record<string, unknown>[]).reduce<Record<string, string>>(
+        (acc, folder) => {
+          const key = String(folder.id ?? folder._id ?? '')
+          if (key) acc[key] = String(folder.name ?? folder.displayname ?? key)
+          return acc
+        },
+        {},
+      )
+      const items = (equipmentData as Record<string, unknown>[])
+        .map((rec) => {
+          const id = String(rec.id ?? rec._id ?? '')
+          if (!id) return null
+          const name = String(rec.name ?? rec.displayname ?? `Equipment ${id}`)
+          const folderKey = String(rec.equipmentfolder ?? rec.folder ?? rec.category ?? '')
+          const category = folderKey ? folders[folderKey] ?? folderKey : 'Uncategorized'
+          return { id, name, category }
+        })
+        .filter((row): row is CatalogItem => row !== null)
+      items.sort((a, b) => a.name.localeCompare(b.name))
+      setCatalog(items)
+      setCatalogLoaded(true)
+    } catch (err) {
+      setCatalogError(err instanceof Error ? err.message : 'Konnte Rentman-Katalog nicht laden')
+    } finally {
+      setCatalogLoading(false)
+    }
+  }
+
+  const buckets: CableBucket[] = useMemo(() => {
+    if (!open) return []
+    const built = new Map<string, { count: number; sample: Cable }>()
+    for (const cable of project.cables) {
+      const key = keyOf(cable)
+      const entry = built.get(key)
+      if (entry) entry.count += 1
+      else built.set(key, { count: 1, sample: cable })
+    }
+    const planned = project.metadata.rentmanCablePlan ?? {}
+    const mapping = project.metadata.rentmanCableMap ?? {}
+    const keys = new Set<string>([
+      ...built.keys(),
+      ...Object.keys(planned),
+      ...Object.keys(mapping),
+    ])
+    const list: CableBucket[] = []
+    for (const key of keys) {
+      const [type, lenStr] = key.split('|')
+      const length = Number(lenStr) || 0
+      const builtCount = built.get(key)?.count ?? 0
+      const plannedCount = planned[key] ?? 0
+      const map = mapping[key]
+      const mappedId = map?.rentmanEquipmentId
+      const mappedName = mappedId
+        ? catalog.find((item) => item.id === mappedId)?.name
+        : undefined
+      const synced = map?.lastSyncedQty ?? 0
+      list.push({
+        key,
+        type,
+        length,
+        built: builtCount,
+        planned: plannedCount,
+        mappedId,
+        mappedName,
+        syncedQty: synced,
+        delta: builtCount - synced,
+        sample: built.get(key)?.sample,
+      })
+    }
+    list.sort((a, b) =>
+      a.type === b.type ? a.length - b.length : a.type.localeCompare(b.type),
+    )
+    return list
+  }, [open, project.cables, project.metadata.rentmanCablePlan, project.metadata.rentmanCableMap, catalog])
+
+  const setMapping = (
+    key: string,
+    rentmanEquipmentId: string,
+    options: { resetSync?: boolean } = {},
+  ) => {
+    const current = project.metadata.rentmanCableMap ?? {}
+    const next = {
+      ...current,
+      [key]: {
+        rentmanEquipmentId,
+        lastSyncedQty: options.resetSync
+          ? 0
+          : current[key]?.lastSyncedQty ?? 0,
+      },
+    }
+    updateMeta({ rentmanCableMap: next })
+  }
+
+  const clearMapping = (key: string) => {
+    const current = project.metadata.rentmanCableMap ?? {}
+    if (!current[key]) return
+    const next = { ...current }
+    delete next[key]
+    updateMeta({ rentmanCableMap: next })
+  }
+
+  const sendBucket = async (bucket: CableBucket) => {
+    if (!linkedProjectId) return
+    if (!bucket.mappedId) return
+    if (bucket.delta <= 0) return
+    setBusyKey(bucket.key)
+    setStatusByKey((prev) => ({ ...prev, [bucket.key]: 'Sende an Rentman…' }))
+    try {
+      await addProjectEquipment(linkedProjectId, bucket.mappedId, bucket.delta)
+      const current = project.metadata.rentmanCableMap ?? {}
+      updateMeta({
+        rentmanCableMap: {
+          ...current,
+          [bucket.key]: {
+            rentmanEquipmentId: bucket.mappedId,
+            lastSyncedQty: bucket.built,
+          },
+        },
+      })
+      setStatusByKey((prev) => ({
+        ...prev,
+        [bucket.key]: `✓ ${bucket.delta} an Rentman gesendet.`,
+      }))
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      setStatusByKey((prev) => ({ ...prev, [bucket.key]: `Fehler: ${msg}` }))
+    } finally {
+      setBusyKey(null)
+    }
+  }
+
+  if (!open) return null
+
+  const filteredCatalog = catalog
+    .filter((item) => {
+      const q = pickerQuery.trim().toLowerCase()
+      if (!q) return true
+      return (
+        item.name.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q)
+      )
+    })
+    .slice(0, 200)
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    >
+      <div className="flex max-h-[90vh] w-[920px] max-w-[95vw] flex-col rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
+        <header className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
+          <div>
+            <h2 className="text-sm font-semibold">Kabel an Rentman senden</h2>
+            <div className="text-[10px] text-slate-500">
+              {linkedProjectName
+                ? `Ziel: ${linkedProjectName}`
+                : 'Kein Rentman-Projekt verknüpft.'}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
+          >
+            Schließen
+          </button>
+        </header>
+
+        <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 px-4 py-2 text-[11px] text-slate-400">
+          <button
+            type="button"
+            onClick={() => void fetchCatalog()}
+            disabled={catalogLoading}
+            className="ml-auto rounded bg-orange-700 px-2 py-1 text-[11px] font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+          >
+            {catalogLoading
+              ? 'Lädt…'
+              : catalogLoaded
+                ? 'Katalog aktualisieren'
+                : 'Rentman-Katalog laden'}
+          </button>
+        </div>
+
+        {catalogError && (
+          <div className="border-b border-red-700/60 bg-red-900/30 px-4 py-1.5 text-[11px] text-red-200">
+            {catalogError}
+          </div>
+        )}
+
+        <div className="flex-1 overflow-auto">
+          <table className="w-full text-xs">
+            <thead className="sticky top-0 bg-slate-950 text-slate-300">
+              <tr>
+                <th className="px-3 py-2 text-left">Typ / Länge</th>
+                <th className="px-3 py-2 text-right">Verbaut</th>
+                <th className="px-3 py-2 text-right">Geplant</th>
+                <th className="px-3 py-2 text-right">Bereits gesendet</th>
+                <th className="px-3 py-2 text-right">Δ</th>
+                <th className="px-3 py-2 text-left">Rentman-Zuordnung</th>
+                <th className="px-3 py-2 text-right">Aktion</th>
+              </tr>
+            </thead>
+            <tbody>
+              {buckets.length === 0 && (
+                <tr>
+                  <td className="px-3 py-4 text-center text-slate-500" colSpan={7}>
+                    Keine Kabel im Projekt.
+                  </td>
+                </tr>
+              )}
+              {buckets.map((bucket) => {
+                const status = statusByKey[bucket.key]
+                const canSend =
+                  !!linkedProjectId &&
+                  !!bucket.mappedId &&
+                  bucket.delta > 0 &&
+                  busyKey !== bucket.key
+                return (
+                  <tr key={bucket.key} className="border-t border-slate-800 align-top">
+                    <td className="px-3 py-1.5">
+                      <div className="font-medium text-slate-100">{bucket.type}</div>
+                      <div className="text-[10px] text-slate-500">
+                        {bucket.length} m
+                        {bucket.sample ? ` · ${bucket.sample.name}` : ''}
+                      </div>
+                    </td>
+                    <td className="px-3 py-1.5 text-right font-mono">{bucket.built}</td>
+                    <td className="px-3 py-1.5 text-right font-mono">{bucket.planned}</td>
+                    <td className="px-3 py-1.5 text-right font-mono">{bucket.syncedQty}</td>
+                    <td
+                      className={`px-3 py-1.5 text-right font-mono ${
+                        bucket.delta > 0
+                          ? 'text-amber-300'
+                          : bucket.delta < 0
+                            ? 'text-red-400'
+                            : 'text-emerald-400'
+                      }`}
+                      title={
+                        bucket.delta > 0
+                          ? 'So viele Kabel werden zusätzlich an Rentman gesendet.'
+                          : bucket.delta < 0
+                            ? 'Es sind weniger Kabel verbaut als zuletzt gesendet — manuell in Rentman korrigieren.'
+                            : 'Verbaut = bereits an Rentman gesendet.'
+                      }
+                    >
+                      {bucket.delta > 0 ? `+${bucket.delta}` : bucket.delta}
+                    </td>
+                    <td className="px-3 py-1.5">
+                      {bucket.mappedId ? (
+                        <div className="flex items-center gap-2">
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-slate-200">
+                              {bucket.mappedName ?? `Rentman-ID ${bucket.mappedId}`}
+                            </div>
+                            <div className="text-[10px] text-slate-500">
+                              ID {bucket.mappedId}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => clearMapping(bucket.key)}
+                            className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
+                            title="Zuordnung entfernen"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!catalogLoaded && !catalogLoading) void fetchCatalog()
+                            setPickerKey(bucket.key)
+                            setPickerQuery(`${bucket.type}`)
+                          }}
+                          className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
+                        >
+                          Rentman-Equipment wählen…
+                        </button>
+                      )}
+                      {pickerKey === bucket.key && (
+                        <div className="mt-1 rounded border border-slate-700 bg-slate-950 p-1.5">
+                          <input
+                            type="text"
+                            value={pickerQuery}
+                            onChange={(event) => setPickerQuery(event.target.value)}
+                            placeholder="Suchen…"
+                            className="mb-1 w-full rounded border border-slate-700 bg-slate-900 px-2 py-0.5 text-[11px]"
+                          />
+                          <div className="max-h-40 space-y-0.5 overflow-auto">
+                            {!catalogLoaded && !catalogLoading && (
+                              <div className="px-1 py-0.5 text-[10px] italic text-slate-500">
+                                Bitte zuerst Katalog laden.
+                              </div>
+                            )}
+                            {catalogLoading && (
+                              <div className="px-1 py-0.5 text-[10px] italic text-slate-500">
+                                Lädt…
+                              </div>
+                            )}
+                            {filteredCatalog.map((item) => (
+                              <button
+                                key={item.id}
+                                type="button"
+                                onClick={() => {
+                                  setMapping(bucket.key, item.id, { resetSync: true })
+                                  setPickerKey(null)
+                                }}
+                                className="flex w-full items-start justify-between gap-2 rounded px-1 py-0.5 text-left text-[11px] hover:bg-slate-800"
+                              >
+                                <span className="min-w-0 flex-1 truncate text-slate-200">
+                                  {item.name}
+                                </span>
+                                <span className="shrink-0 text-[10px] text-slate-500">
+                                  {item.category}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                          <div className="mt-1 flex justify-end">
+                            <button
+                              type="button"
+                              onClick={() => setPickerKey(null)}
+                              className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
+                            >
+                              Abbrechen
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      {status && (
+                        <div
+                          className={`mt-1 text-[10px] ${
+                            status.startsWith('Fehler') ? 'text-red-400' : 'text-slate-400'
+                          }`}
+                        >
+                          {status}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-3 py-1.5 text-right">
+                      <button
+                        type="button"
+                        onClick={() => void sendBucket(bucket)}
+                        disabled={!canSend}
+                        className="rounded bg-orange-700 px-2 py-1 text-[11px] font-semibold text-white hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        title={
+                          !linkedProjectId
+                            ? 'Kein Rentman-Projekt verknüpft.'
+                            : !bucket.mappedId
+                              ? 'Bitte erst Rentman-Equipment zuordnen.'
+                              : bucket.delta <= 0
+                                ? 'Nichts zu senden.'
+                                : `${bucket.delta} an Rentman senden.`
+                        }
+                      >
+                        {busyKey === bucket.key ? '…' : 'Senden'}
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <footer className="flex items-center justify-end border-t border-slate-700 px-4 py-2 text-[11px] text-slate-400">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+          >
+            Schließen
+          </button>
+        </footer>
+      </div>
+    </div>
+  )
+}

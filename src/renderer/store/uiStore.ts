@@ -76,6 +76,14 @@ interface UiState extends PersistedUiState {
   atemMvConfig: { open: boolean; deviceId?: string }
   openAtemMvConfig: (deviceId?: string) => void
   closeAtemMvConfig: () => void
+  /** Rentman equipment import dialog (cross-component trigger). */
+  rentmanImport: { open: boolean }
+  openRentmanImport: () => void
+  closeRentmanImport: () => void
+  /** Rentman cable export dialog (push canvas cable BOM to Rentman). */
+  rentmanCableExport: { open: boolean }
+  openRentmanCableExport: () => void
+  closeRentmanCableExport: () => void
   /**
    * When the user is drawing a cable by clicking (draw.io-style), this holds
    * the start handle and the list of waypoints the user has placed on the
@@ -144,6 +152,12 @@ export const useUiStore = create<UiState>((set) => ({
   atemMvConfig: { open: false },
   openAtemMvConfig: (deviceId) => set({ atemMvConfig: { open: true, deviceId } }),
   closeAtemMvConfig: () => set({ atemMvConfig: { open: false } }),
+  rentmanImport: { open: false },
+  openRentmanImport: () => set({ rentmanImport: { open: true } }),
+  closeRentmanImport: () => set({ rentmanImport: { open: false } }),
+  rentmanCableExport: { open: false },
+  openRentmanCableExport: () => set({ rentmanCableExport: { open: true } }),
+  closeRentmanCableExport: () => set({ rentmanCableExport: { open: false } }),
   pendingCable: null,
   startPendingCable: (start) =>
     set({ pendingCable: { ...start, waypoints: [] } }),

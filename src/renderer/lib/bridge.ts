@@ -57,6 +57,17 @@ type CablePlannerApi = {
     getProjectEquipment: (projectId: string) => Promise<unknown[]>
     getEquipment: () => Promise<unknown[]>
     getEquipmentFolders: () => Promise<unknown[]>
+    addProjectEquipment: (
+      projectId: string,
+      equipmentId: string,
+      quantity?: number,
+    ) => Promise<unknown>
+    addProjectFile: (
+      projectId: string,
+      fileName: string,
+      fileBytes: Uint8Array,
+      mimeType?: string,
+    ) => Promise<unknown>
   }
   project: {
     newProject: () => Promise<void>
@@ -296,6 +307,76 @@ const webFallbackApi: CablePlannerApi = {
           return []
         }
         throw error
+      }
+    },
+    addProjectEquipment: async (
+      projectId: string,
+      equipmentId: string,
+      quantity: number = 1,
+    ) => {
+      const token = await getWebToken()
+      if (!isLikelyJwt(token)) {
+        throw new Error('Rentman token missing or malformed.')
+      }
+      const response = await fetch('/api/rentman/projectequipment', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          equipment: equipmentId,
+          project: projectId,
+          quantity,
+        }),
+      })
+      const text = await response.text()
+      if (!response.ok) {
+        throw new Error(
+          `Rentman POST /projectequipment failed (${response.status}): ${text.slice(0, 500)}`,
+        )
+      }
+      try {
+        return text ? (JSON.parse(text) as unknown) : null
+      } catch {
+        return text
+      }
+    },
+    addProjectFile: async (
+      projectId: string,
+      fileName: string,
+      fileBytes: Uint8Array,
+      mimeType: string = 'application/pdf',
+    ) => {
+      const token = await getWebToken()
+      if (!isLikelyJwt(token)) {
+        throw new Error('Rentman token missing or malformed.')
+      }
+      const form = new FormData()
+      const blob = new Blob([fileBytes], { type: mimeType })
+      form.append('file', blob, fileName)
+      form.append('name', fileName)
+      form.append('item', projectId)
+      form.append('itemtype', 'project')
+      const response = await fetch('/api/rentman/files', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+        body: form,
+      })
+      const text = await response.text()
+      if (!response.ok) {
+        throw new Error(
+          `Rentman POST /files failed (${response.status}): ${text.slice(0, 500)}`,
+        )
+      }
+      try {
+        return text ? (JSON.parse(text) as unknown) : null
+      } catch {
+        return text
       }
     },
   },

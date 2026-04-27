@@ -79,5 +79,56 @@ export const createRentmanApiClient = (token: string) => {
         throw error
       }
     },
+    /**
+     * Add a master-catalog equipment item to a Rentman project.
+     * The Rentman v2 schema for /projectequipment expects `equipment`,
+     * `project` and `quantity` fields. Returns the API response so the UI
+     * can surface the new project-equipment id and any server-side defaults.
+     */
+    async addProjectEquipment(
+      projectId: string,
+      equipmentId: string,
+      quantity: number = 1,
+    ) {
+      const response = await client.post('/projectequipment', {
+        equipment: equipmentId,
+        project: projectId,
+        quantity,
+      })
+      return response.data
+    },
+    /**
+     * Upload a file (e.g. an exported PDF plan) and attach it to a Rentman
+     * project. Per the Rentman OpenAPI spec, files live under `/files` and
+     * the link to the parent item (in our case the project) is expressed via
+     * the `item` (id) and `itemtype` ("project") fields.
+     *
+     * `fileBytes` must be the raw bytes of the file. We send it as
+     * multipart/form-data with the conventional `file` field name plus the
+     * required `name`, `item` and `itemtype` metadata.
+     */
+    async addProjectFile(
+      projectId: string,
+      fileName: string,
+      fileBytes: Uint8Array,
+      mimeType: string = 'application/pdf',
+    ) {
+      // FormData is available in Node 18+ which Electron 41 ships with.
+      const form = new FormData()
+      const blob = new Blob([fileBytes], { type: mimeType })
+      form.append('file', blob, fileName)
+      form.append('name', fileName)
+      form.append('item', projectId)
+      form.append('itemtype', 'project')
+      // IMPORTANT: do NOT set Content-Type manually — axios 1.x autogenerates
+      // `multipart/form-data; boundary=...` from the FormData instance.
+      // Forcing the header strips the boundary and Rentman replies with
+      // "invalid key value pair missing equal sign".
+      const response = await client.post('/files', form, {
+        maxContentLength: 50 * 1024 * 1024,
+        maxBodyLength: 50 * 1024 * 1024,
+      })
+      return response.data
+    },
   }
 }

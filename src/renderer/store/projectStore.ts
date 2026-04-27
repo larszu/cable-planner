@@ -281,7 +281,7 @@ const sanitizePort = (port: Partial<Port>, fallbackName: string): Port => ({
   standard: port.standard,
 })
 
-export const useProjectStore = create<ProjectState>((set) => ({
+export const useProjectStore = create<ProjectState>((set, get) => ({
   project: loadAutosavedProject() ?? defaultProject(),
   showCableDialog: false,
   recentProjects: [],
@@ -338,6 +338,13 @@ export const useProjectStore = create<ProjectState>((set) => ({
     })),
   addEquipment: (equipment) =>
     set((state) => ({
+      // Adding from the Library (click / drag-drop) must NOT keep any prior
+      // selection live, because React Flow's internal multi-select would
+      // otherwise cause the next pointer-down on the canvas to start a
+      // group-drag that visibly moves the previously selected device(s).
+      selectedEquipmentId: undefined,
+      selectedCableId: undefined,
+      selectedLocationId: undefined,
       project: touchProject({
         ...state.project,
         equipment: [
@@ -382,7 +389,13 @@ export const useProjectStore = create<ProjectState>((set) => ({
         item.id === id ? { ...item, ...patch } : item,
       )
       // If the equipment moved, also shift waypoints of cables attached to it
-      // so the cable visually travels with the device (draw.io-style).
+      // so the cable visually travels with the device (draw.io-style). When
+      // only ONE endpoint moves, shifting *all* waypoints by the full delta
+      // would break the path on the *other* (still-anchored) side and produce
+      // an erratic, "spinning" orthogonal route. So we only shift the single
+      // waypoint adjacent to the moving port (first for source, last for
+      // target). When both endpoints sit on the same device we translate the
+      // whole path.
       let nextCables = state.project.cables
       if (
         prev &&
@@ -397,13 +410,22 @@ export const useProjectStore = create<ProjectState>((set) => ({
           const touchesSource = c.fromEquipmentId === id
           const touchesTarget = c.toEquipmentId === id
           if (!touchesSource && !touchesTarget) return c
-          // Both endpoints on same device (rare): translate all waypoints by full delta.
-          // Only one endpoint on this device: translate waypoints by the same delta so
-          // the cable's bend pattern stays intact relative to the moving port.
-          return {
-            ...c,
-            waypoints: c.waypoints.map((w) => ({ x: w.x + dx, y: w.y + dy })),
+          if (touchesSource && touchesTarget) {
+            return {
+              ...c,
+              waypoints: c.waypoints.map((w) => ({ x: w.x + dx, y: w.y + dy })),
+            }
           }
+          const next = c.waypoints.slice()
+          if (touchesSource) {
+            const w = next[0]
+            next[0] = { x: w.x + dx, y: w.y + dy }
+          } else {
+            const lastIdx = next.length - 1
+            const w = next[lastIdx]
+            next[lastIdx] = { x: w.x + dx, y: w.y + dy }
+          }
+          return { ...c, waypoints: next }
         })
       }
       return {

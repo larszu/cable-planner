@@ -1,78 +1,161 @@
+import { useEffect, useRef, useState } from 'react'
+
 interface MenuBarProps {
   onNewProject: () => void
   onOpenProject: () => void
   onSaveProject: () => void
   onSaveProjectAs: () => void
   onOpenSettings: () => void
-  onOpenRentmanImport: () => void
   onExportPdf: () => void
   onEditProjectMeta?: () => void
   onOpenCableBom?: () => void
+  /** Attach the current plan as a PDF to the linked Rentman project. */
+  onAttachPdfToRentman?: () => void
+  /** Open the Rentman cable export dialog. */
+  onOpenRentmanCableExport?: () => void
+  /** Whether a Rentman project is currently linked (controls Rentman menu items). */
+  hasRentmanLink?: boolean
+  /** Open the onboarding tour (also reachable from a help icon). */
+  onOpenTour?: () => void
   videoFormat?: string
   onChangeVideoFormat?: (id: string) => void
+  projectName?: string
+  rentmanProjectName?: string
+  hasToken?: boolean
+  equipmentCount?: number
+  cableCount?: number
 }
 
-const menuButtonClass = 'rounded bg-slate-800 px-2 py-1 text-xs text-slate-100 hover:bg-slate-700'
-
+/**
+ * Top application menu bar.
+ *
+ * Replaces the previous flat row of mini-buttons (Neu / Öffnen / Speichern /
+ * Speichern unter / Projektdaten / PDF / Kabel-BOM / …) with two compact
+ * dropdown menus ("Datei ▾", "Export ▾") plus inline project name + format
+ * + a settings icon. This matches how desktop apps usually expose these
+ * actions and gives plenty of room for new entries without crowding the bar.
+ */
 export const MenuBar = ({
   onNewProject,
   onOpenProject,
   onSaveProject,
   onSaveProjectAs,
   onOpenSettings,
-  onOpenRentmanImport,
   onExportPdf,
   onEditProjectMeta,
   onOpenCableBom,
+  onAttachPdfToRentman,
+  onOpenRentmanCableExport,
+  hasRentmanLink = false,
+  onOpenTour,
   videoFormat,
   onChangeVideoFormat,
+  projectName,
+  rentmanProjectName,
+  hasToken = false,
+  equipmentCount = 0,
+  cableCount = 0,
 }: MenuBarProps) => {
   return (
-    <header className="flex shrink-0 items-center justify-between border-b border-slate-700 bg-slate-950 px-3 py-2">
-      <div className="flex items-center gap-2 text-xs">
-        <span className="font-semibold text-slate-200">Datei</span>
-        <button type="button" onClick={onNewProject} className={menuButtonClass}>
-          Neu
-        </button>
-        <button type="button" onClick={onOpenProject} className={menuButtonClass}>
-          Öffnen
-        </button>
-        <button type="button" onClick={onSaveProject} className={menuButtonClass}>
-          Speichern
-        </button>
-        <button type="button" onClick={onSaveProjectAs} className={menuButtonClass}>
-          Speichern unter
-        </button>
-        {onEditProjectMeta && (
+    <header className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-700 bg-slate-950 px-3 py-1.5 text-xs shadow-sm">
+      <div className="flex items-center gap-2">
+        <span className="select-none font-semibold tracking-wide text-slate-300">
+          Cable Planner
+        </span>
+        <span className="text-slate-700">│</span>
+
+        <Menu label="Datei">
+          <MenuItem onClick={onNewProject} icon="📄" shortcut="Strg+N">
+            Neues Projekt
+          </MenuItem>
+          <MenuItem onClick={onOpenProject} icon="📂" shortcut="Strg+O">
+            Öffnen…
+          </MenuItem>
+          <MenuSep />
+          <MenuItem onClick={onSaveProject} icon="💾" shortcut="Strg+S">
+            Speichern
+          </MenuItem>
+          <MenuItem onClick={onSaveProjectAs} icon="💾" shortcut="Strg+Umsch+S">
+            Speichern unter…
+          </MenuItem>
+        </Menu>
+
+        <Menu label="Export">
+          <MenuItem onClick={onExportPdf} icon="📑">
+            Plan als PDF…
+          </MenuItem>
+          {onOpenCableBom && (
+            <MenuItem onClick={onOpenCableBom} icon="🧮">
+              Kabel-Stückliste (BOM)…
+            </MenuItem>
+          )}
+          {(onAttachPdfToRentman || onOpenRentmanCableExport) && <MenuSep />}
+          {onAttachPdfToRentman && (
+            <MenuItem
+              onClick={hasRentmanLink ? onAttachPdfToRentman : undefined}
+              icon="📎"
+            >
+              {hasRentmanLink
+                ? 'Plan an Rentman anhängen…'
+                : 'Plan an Rentman anhängen (kein Projekt verknüpft)'}
+            </MenuItem>
+          )}
+          {onOpenRentmanCableExport && (
+            <MenuItem
+              onClick={hasRentmanLink ? onOpenRentmanCableExport : undefined}
+              icon="🔌"
+            >
+              {hasRentmanLink
+                ? 'Kabel an Rentman senden…'
+                : 'Kabel an Rentman senden (kein Projekt verknüpft)'}
+            </MenuItem>
+          )}
+        </Menu>
+
+        {onOpenTour && (
+          <Menu label="Hilfe">
+            <MenuItem onClick={onOpenTour} icon="💡">
+              Erste-Schritte-Tour…
+            </MenuItem>
+          </Menu>
+        )}
+      </div>
+
+      <div className="flex min-w-0 flex-1 items-center justify-center gap-2">
+        {projectName && (
           <button
             type="button"
             onClick={onEditProjectMeta}
-            className={menuButtonClass}
-            title="Projektdaten bearbeiten (Autor, Kunde, Logos...)"
+            disabled={!onEditProjectMeta}
+            className="group flex max-w-[42ch] items-center gap-1 truncate rounded px-2 py-0.5 text-slate-200 hover:bg-slate-800 hover:text-white disabled:cursor-default disabled:hover:bg-transparent"
+            title={onEditProjectMeta ? 'Projektdaten bearbeiten' : projectName}
           >
-            Projektdaten
+            <span className="truncate font-medium">{projectName}</span>
+            {onEditProjectMeta && (
+              <span className="text-[10px] text-slate-500 opacity-0 transition-opacity group-hover:opacity-100">
+                ✎
+              </span>
+            )}
           </button>
         )}
-        <span className="ml-2 font-semibold text-slate-400">Export</span>
-        <button
-          type="button"
-          onClick={onExportPdf}
-          className="rounded bg-amber-700 px-2 py-1 text-xs text-slate-100 hover:bg-amber-600"
+        <span className="hidden rounded border border-slate-700 bg-slate-900 px-2 py-0.5 text-[10px] text-slate-400 lg:inline-flex">
+          {equipmentCount} Geräte · {cableCount} Kabel
+        </span>
+        <span
+          className={`hidden max-w-[24ch] truncate rounded border px-2 py-0.5 text-[10px] lg:inline-flex ${
+            rentmanProjectName
+              ? 'border-orange-700/60 bg-orange-950/40 text-orange-200'
+              : hasToken
+                ? 'border-slate-700 bg-slate-900 text-slate-400'
+                : 'border-slate-800 bg-slate-900/70 text-slate-500'
+          }`}
+          title={rentmanProjectName ? `Rentman: ${rentmanProjectName}` : 'Kein Rentman-Projekt verknüpft'}
         >
-          PDF
-        </button>
-        {onOpenCableBom && (
-          <button
-            type="button"
-            onClick={onOpenCableBom}
-            className="rounded bg-teal-700 px-2 py-1 text-xs text-slate-100 hover:bg-teal-600"
-            title="Kabelstückliste anzeigen und exportieren"
-          >
-            Kabel-BOM
-          </button>
-        )}
+          Rentman: {rentmanProjectName ?? (hasToken ? 'bereit' : 'offline')}
+        </span>
       </div>
-      <div className="flex items-center gap-2 text-xs">
+
+      <div className="flex items-center gap-2">
         {onChangeVideoFormat && (
           <label className="flex items-center gap-1 text-[11px] text-slate-400">
             <span>Format:</span>
@@ -93,13 +176,107 @@ export const MenuBar = ({
             </select>
           </label>
         )}
-        <button type="button" onClick={onOpenRentmanImport} className={menuButtonClass}>
-          Rentman Import
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          className="rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
+          title="Einstellungen"
+        >
+          ⚙ Einstellungen
         </button>
-        <button type="button" onClick={onOpenSettings} className={menuButtonClass}>
-          Einstellungen
-        </button>
+        {onOpenTour && (
+          <button
+            type="button"
+            onClick={onOpenTour}
+            className="rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
+            title="Erste-Schritte-Tour wieder öffnen"
+          >
+            ?
+          </button>
+        )}
       </div>
     </header>
   )
 }
+
+/* -------------------------------------------------------------------------- */
+/*                            Tiny dropdown menu                              */
+/* -------------------------------------------------------------------------- */
+
+interface MenuProps {
+  label: string
+  children: React.ReactNode
+}
+
+const Menu = ({ label, children }: MenuProps) => {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onDocClick = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('mousedown', onDocClick)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDocClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={`rounded px-2 py-1 text-slate-200 hover:bg-slate-800 ${open ? 'bg-slate-800' : ''}`}
+      >
+        {label}
+        <span className="ml-1 text-[9px] text-slate-500">▾</span>
+      </button>
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="absolute left-0 top-full z-50 mt-1 min-w-[14rem] rounded border border-slate-700 bg-slate-900 py-1 shadow-2xl"
+          role="menu"
+        >
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
+interface MenuItemProps {
+  onClick?: () => void
+  icon?: string
+  shortcut?: string
+  children: React.ReactNode
+}
+
+const MenuItem = ({ onClick, icon, shortcut, children }: MenuItemProps) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-700/70"
+      role="menuitem"
+    >
+      <span className="w-4 shrink-0 text-center text-[12px]">{icon ?? ''}</span>
+      <span className="flex-1 truncate">{children}</span>
+      {shortcut && (
+        <span className="ml-3 shrink-0 text-[10px] tracking-wide text-slate-500">
+          {shortcut}
+        </span>
+      )}
+    </button>
+  )
+}
+
+const MenuSep = () => <div className="my-1 border-t border-slate-700" />

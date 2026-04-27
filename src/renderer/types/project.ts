@@ -28,6 +28,15 @@ export interface ProjectMetadata {
    * Key format: `${type}|${length}` (e.g. "BNC|1" for SDI 1m cables).
    */
   rentmanCablePlan?: Record<string, number>
+  /**
+   * Mapping from cable bucket (`${type}|${length}`) to the Rentman equipment
+   * id that represents this cable in the Rentman master catalogue. Filled
+   * automatically when cable quantities are imported from a Rentman project,
+   * and manually when a bucket is mapped via the Rentman cable export dialog.
+   * Also remembers the last quantity that was pushed to Rentman so the export
+   * can compute deltas.
+   */
+  rentmanCableMap?: Record<string, { rentmanEquipmentId: string; lastSyncedQty?: number }>
   /** Rentman project ID currently linked to this cable planner project. */
   rentmanProjectId?: string
   /** Human-readable name of the linked Rentman project. */
