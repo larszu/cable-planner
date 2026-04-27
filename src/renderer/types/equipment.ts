@@ -63,6 +63,14 @@ export interface EquipmentItem {
   category: string
   inputs: Port[]
   outputs: Port[]
+  /** Optional rack height in HE/U for future 2D rack layouts. */
+  rackUnits?: number
+  /** Optional source path from NetBox device-type-library. */
+  netboxPath?: string
+  /** Optional raw image URL for the front panel asset. */
+  frontPanelImageUrl?: string
+  /** Optional raw image URL for the rear panel asset. */
+  rearPanelImageUrl?: string
   rentmanId?: string
   /** Set to true when a Rentman re-fetch no longer finds this item in the project. */
   rentmanRemoved?: boolean
@@ -165,6 +173,15 @@ export type EquipmentTemplate = Omit<EquipmentItem, 'id' | 'x' | 'y'> & {
 export interface GroupPreset {
   id: string
   name: string
+  /** Optional rack metadata when this group was authored in the 2D rack builder. */
+  rack?: {
+    totalUnits: number
+    placements: Array<{
+      itemIndex: number
+      startUnit: number
+      heightUnits: number
+    }>
+  }
   items: Array<
     EquipmentTemplate & {
       offsetX: number
