@@ -33,6 +33,7 @@ interface NewRentmanDeviceWizardProps {
   open: boolean
   items: UnknownCandidate[]
   onSkip: (candidate: UnknownCandidate) => void
+  onExclude: (candidate: UnknownCandidate) => void
   onSave: (candidate: UnknownCandidate, template: EquipmentTemplate) => void
   onCancel: () => void
 }
@@ -48,6 +49,7 @@ export const NewRentmanDeviceWizard = ({
   open,
   items,
   onSkip,
+  onExclude,
   onSave,
   onCancel,
 }: NewRentmanDeviceWizardProps) => {
@@ -163,6 +165,11 @@ export const NewRentmanDeviceWizard = ({
 
   const handleSkip = () => {
     onSkip(current)
+    advance()
+  }
+
+  const handleExclude = () => {
+    onExclude(current)
     advance()
   }
 
@@ -388,6 +395,14 @@ export const NewRentmanDeviceWizard = ({
         </div>
 
         <div className="flex justify-end gap-2 text-sm">
+          <button
+            type="button"
+            onClick={handleExclude}
+            className="rounded bg-red-700 px-3 py-1 hover:bg-red-600"
+            title="Dieses Gerät überspringen und NICHT importieren"
+          >
+            Nicht importieren
+          </button>
           <button
             type="button"
             onClick={handleSkip}
