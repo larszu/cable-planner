@@ -1,7 +1,8 @@
 import { useProjectStore } from '../../store/projectStore'
 import { cableCatalog } from '../../types/cableSpec'
 import { useUiStore } from '../../store/uiStore'
-import type { CableRouting } from '../../types/cable'
+import type { Cable, CableRouting } from '../../types/cable'
+import type { EquipmentItem, Port } from '../../types/equipment'
 
 const routings: { value: CableRouting; label: string }[] = [
   { value: 'orthogonal', label: 'Ortho' },
@@ -12,6 +13,8 @@ const routings: { value: CableRouting; label: string }[] = [
 export const CableProperties = () => {
   const selectedCableId = useProjectStore((state) => state.selectedCableId)
   const cable = useProjectStore((state) => state.project.cables.find((item) => item.id === selectedCableId))
+  const equipment = useProjectStore((state) => state.project.equipment)
+  const cables = useProjectStore((state) => state.project.cables)
   const updateCable = useProjectStore((state) => state.updateCable)
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const openCableEdit = useUiStore((state) => state.openCableEdit)
@@ -22,6 +25,45 @@ export const CableProperties = () => {
 
   const routing = cable.routing ?? 'orthogonal'
   const spec = cable.cableSpecId ? cableCatalog.find((c) => c.id === cable.cableSpecId) : undefined
+
+  // Inline endpoint editor: like in the dialog, but writes through directly.
+  const portsOf = (eq?: EquipmentItem): (Port & { _side: 'in' | 'out' })[] => {
+    if (!eq) return []
+    const ins = (eq.inputs ?? []).map((p) => ({ ...p, _side: 'in' as const }))
+    const outs = (eq.outputs ?? []).map((p) => ({ ...p, _side: 'out' as const }))
+    return [...outs, ...ins]
+  }
+  const findPort = (eqId: string, portId: string): Port | undefined => {
+    const eq = equipment.find((e) => e.id === eqId)
+    return eq?.outputs.find((p) => p.id === portId) ?? eq?.inputs.find((p) => p.id === portId)
+  }
+  const portConflict = (eqId: string, portId: string): Cable | undefined => {
+    if (!eqId || !portId) return undefined
+    return cables.find(
+      (c) =>
+        c.id !== cable.id &&
+        ((c.fromEquipmentId === eqId && c.fromPortId === portId) ||
+          (c.toEquipmentId === eqId && c.toPortId === portId)),
+    )
+  }
+  const fromDev = equipment.find((e) => e.id === cable.fromEquipmentId)
+  const toDev = equipment.find((e) => e.id === cable.toEquipmentId)
+  const fromPort = findPort(cable.fromEquipmentId, cable.fromPortId)
+  const toPort = findPort(cable.toEquipmentId, cable.toPortId)
+  const fromConflict = portConflict(cable.fromEquipmentId, cable.fromPortId)
+  const toConflict = portConflict(cable.toEquipmentId, cable.toPortId)
+  const sortedEquipment = [...equipment].sort((a, b) => a.name.localeCompare(b.name))
+
+  const onSelectFromEquipment = (id: string) => {
+    const eq = equipment.find((e) => e.id === id)
+    const first = eq?.outputs[0]?.id ?? eq?.inputs[0]?.id ?? ''
+    updateCable(cable.id, { fromEquipmentId: id, fromPortId: first })
+  }
+  const onSelectToEquipment = (id: string) => {
+    const eq = equipment.find((e) => e.id === id)
+    const first = eq?.inputs[0]?.id ?? eq?.outputs[0]?.id ?? ''
+    updateCable(cable.id, { toEquipmentId: id, toPortId: first })
+  }
 
   return (
     <div className="space-y-2 text-xs">
@@ -84,6 +126,97 @@ export const CableProperties = () => {
           className="h-9 w-full rounded border border-slate-700 bg-slate-900 p-1"
         />
       </label>
+
+      {/* Endpoint editor — inline accordion (open by default) so users can
+          re-route a cable from the properties panel without opening a dialog. */}
+      <details open className="rounded border border-slate-700 bg-slate-950/50">
+        <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] text-slate-300 hover:bg-slate-800/40">
+          <span className="font-semibold uppercase tracking-wide text-slate-400">Verbindung</span>
+          <span className="ml-2 text-slate-300">
+            {fromDev?.name ?? '?'} · {fromPort?.name ?? cable.fromPortId}
+            <span className="mx-1 text-slate-500">→</span>
+            {toDev?.name ?? '?'} · {toPort?.name ?? cable.toPortId}
+          </span>
+        </summary>
+        <div className="border-t border-slate-700 p-2">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <div className="mb-0.5 text-[10px] text-slate-500">Von Gerät</div>
+              <select
+                aria-label="Quell-Gerät"
+                value={cable.fromEquipmentId}
+                onChange={(e) => onSelectFromEquipment(e.target.value)}
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+              >
+                {sortedEquipment.map((eq) => (
+                  <option key={eq.id} value={eq.id}>
+                    {eq.name}
+                  </option>
+                ))}
+              </select>
+              <div className="mt-1 text-[10px] text-slate-500">Port</div>
+              <select
+                aria-label="Quell-Port"
+                value={cable.fromPortId}
+                onChange={(e) => updateCable(cable.id, { fromPortId: e.target.value })}
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+              >
+                {portsOf(fromDev).map((p) => {
+                  const inUse = !!portConflict(cable.fromEquipmentId, p.id)
+                  return (
+                    <option key={p.id} value={p.id}>
+                      {p._side === 'out' ? '⇢ ' : '⇠ '}
+                      {p.name} ({p.connectorType}){inUse ? ' • belegt' : ''}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+            <div>
+              <div className="mb-0.5 text-[10px] text-slate-500">Nach Gerät</div>
+              <select
+                aria-label="Ziel-Gerät"
+                value={cable.toEquipmentId}
+                onChange={(e) => onSelectToEquipment(e.target.value)}
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+              >
+                {sortedEquipment.map((eq) => (
+                  <option key={eq.id} value={eq.id}>
+                    {eq.name}
+                  </option>
+                ))}
+              </select>
+              <div className="mt-1 text-[10px] text-slate-500">Port</div>
+              <select
+                aria-label="Ziel-Port"
+                value={cable.toPortId}
+                onChange={(e) => updateCable(cable.id, { toPortId: e.target.value })}
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+              >
+                {portsOf(toDev).map((p) => {
+                  const inUse = !!portConflict(cable.toEquipmentId, p.id)
+                  return (
+                    <option key={p.id} value={p.id}>
+                      {p._side === 'out' ? '⇢ ' : '⇠ '}
+                      {p.name} ({p.connectorType}){inUse ? ' • belegt' : ''}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+          </div>
+          {fromConflict && (
+            <div className="mt-2 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+              ⚠ Quell-Port bereits durch „{fromConflict.name}" belegt.
+            </div>
+          )}
+          {toConflict && (
+            <div className="mt-1 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+              ⚠ Ziel-Port bereits durch „{toConflict.name}" belegt.
+            </div>
+          )}
+        </div>
+      </details>
 
       <div>
         <span className="mb-1 block text-slate-300">Routing</span>
