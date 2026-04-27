@@ -14,6 +14,17 @@ declare global {
         getProjectEquipment: (projectId: string) => Promise<unknown[]>
         getEquipment: () => Promise<unknown[]>
         getEquipmentFolders: () => Promise<unknown[]>
+        addProjectEquipment: (
+          projectId: string,
+          equipmentId: string,
+          quantity?: number,
+        ) => Promise<unknown>
+        addProjectFile: (
+          projectId: string,
+          fileName: string,
+          fileBytes: Uint8Array,
+          mimeType?: string,
+        ) => Promise<unknown>
       }
       project: {
         newProject: () => Promise<void>

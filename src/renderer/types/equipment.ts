@@ -148,6 +148,12 @@ export type EquipmentTemplate = Omit<EquipmentItem, 'id' | 'x' | 'y'> & {
    * Rentman. Used to filter the library to "Rentman" items only.
    */
   rentmanSource?: string
+  /**
+   * Human-readable name of the Rentman project this template was imported
+   * from. Used by the library UI to group templates by project even when
+   * multiple Rentman projects have been imported.
+   */
+  rentmanProjectName?: string
 }
 
 /**

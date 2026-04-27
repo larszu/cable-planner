@@ -9,6 +9,7 @@ export const TemplateProperties = () => {
   const removeCustomTemplate = useProjectStore((state) => state.removeCustomTemplate)
   const addEquipment = useProjectStore((state) => state.addEquipment)
   const equipmentCount = useProjectStore((state) => state.project.equipment.length)
+  const equipmentItems = useProjectStore((state) => state.project.equipment)
   const setSelectedTemplateName = useProjectStore((state) => state.setSelectedTemplateName)
   const knownCategories = useProjectStore((state) => state.knownCategories)
 
@@ -41,7 +42,7 @@ export const TemplateProperties = () => {
   }
 
   const handlePlace = () => {
-    const pos = nextPlacementPosition(equipmentCount)
+    const pos = nextPlacementPosition(equipmentCount, equipmentItems)
     addEquipment({ ...template, ...pos })
   }
 

@@ -95,6 +95,25 @@ export const exportCanvasToPdf = async (
   projectName: string,
   metadata?: ProjectMetadata,
 ) => {
+  const pdf = await buildCanvasPdf(metadata)
+  pdf.save(`${(projectName || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')}.pdf`)
+}
+
+/**
+ * Same as `exportCanvasToPdf` but returns the generated PDF as a `Uint8Array`
+ * instead of triggering a download. Used to upload the PDF to external systems
+ * (e.g. attach it to a Rentman project).
+ */
+export const exportCanvasToPdfBytes = async (
+  metadata?: ProjectMetadata,
+): Promise<Uint8Array> => {
+  const pdf = await buildCanvasPdf(metadata)
+  // jsPDF returns an ArrayBuffer when format is 'arraybuffer'.
+  const buffer = pdf.output('arraybuffer') as ArrayBuffer
+  return new Uint8Array(buffer)
+}
+
+const buildCanvasPdf = async (metadata?: ProjectMetadata): Promise<jsPDF> => {
   const canvasEl = document.getElementById('cable-planner-canvas')
   if (!canvasEl) {
     throw new Error('Canvas not found')
@@ -108,15 +127,9 @@ export const exportCanvasToPdf = async (
     pixelRatio: 2,
     cacheBust: true,
     filter: (node) => {
-      if (!(node instanceof HTMLElement)) {
-        return true
-      }
-      if (node.classList.contains('react-flow__minimap')) {
-        return false
-      }
-      if (node.classList.contains('react-flow__controls')) {
-        return false
-      }
+      if (!(node instanceof HTMLElement)) return true
+      if (node.classList.contains('react-flow__minimap')) return false
+      if (node.classList.contains('react-flow__controls')) return false
       return true
     },
   })
@@ -134,7 +147,6 @@ export const exportCanvasToPdf = async (
   const pageHeight = pdf.internal.pageSize.getHeight()
 
   const margin = 24
-  // Reserve space for the title block at the bottom right.
   const titleBlockHeight = metadata ? 160 : 0
 
   const availW = pageWidth - margin * 2
@@ -147,7 +159,7 @@ export const exportCanvasToPdf = async (
 
   pdf.setFontSize(14)
   pdf.setTextColor(15)
-  pdf.text(projectName || 'Cable Planner Project', margin, margin + 4)
+  pdf.text(metadata?.name || 'Cable Planner Project', margin, margin + 4)
   pdf.setFontSize(9)
   pdf.setTextColor(80)
   pdf.text(new Date().toLocaleString(), pageWidth - margin, margin + 4, { align: 'right' })
@@ -158,5 +170,5 @@ export const exportCanvasToPdf = async (
     drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin)
   }
 
-  pdf.save(`${(projectName || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')}.pdf`)
+  return pdf
 }

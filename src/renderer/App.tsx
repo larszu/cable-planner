@@ -5,6 +5,8 @@ import { MenuBar } from './components/Layout/MenuBar'
 import { StatusBar } from './components/Layout/StatusBar'
 import { PropertiesPanel } from './components/Properties/PropertiesPanel'
 import { RentmanImportDialog } from './components/Rentman/RentmanImportDialog'
+import { RentmanCableExportDialog } from './components/Rentman/RentmanCableExportDialog'
+import { OnboardingTour, hasSeenTour } from './components/Onboarding/OnboardingTour'
 import { SettingsDialog } from './components/Settings/SettingsDialog'
 import { VideohubExportDialog } from './components/Export/VideohubExportDialog'
 import { GreenGoExportDialog } from './components/Export/GreenGoExportDialog'
@@ -15,8 +17,9 @@ import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
 import { Splitter } from './components/Layout/Splitter'
 import { useProject } from './hooks/useProject'
+import { useRentman } from './hooks/useRentman'
 import { cablePlannerApi } from './lib/bridge'
-import { exportCanvasToPdf } from './lib/exportPdf'
+import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
 import { useProjectStore } from './store/projectStore'
 import { useUndoRedoShortcuts } from './store/projectHistory'
 import { useSettingsStore } from './store/settingsStore'
@@ -66,9 +69,24 @@ export default function App() {
   const closeAtemMvLayout = useUiStore((state) => state.closeAtemMvLayout)
   const { newProject, openProject, saveProject, saveProjectAs, refreshRecent } = useProject()
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [rentmanImportOpen, setRentmanImportOpen] = useState(false)
+  const rentmanImport = useUiStore((state) => state.rentmanImport)
+  const closeRentmanImport = useUiStore((state) => state.closeRentmanImport)
+  const rentmanCableExport = useUiStore((state) => state.rentmanCableExport)
+  const openRentmanCableExport = useUiStore((state) => state.openRentmanCableExport)
+  const closeRentmanCableExport = useUiStore((state) => state.closeRentmanCableExport)
+  const { addProjectFile } = useRentman()
   const [metaDialog, setMetaDialog] = useState<{ mode: 'new' | 'edit' } | null>(null)
   const [cableBomOpen, setCableBomOpen] = useState(false)
+  const [tourOpen, setTourOpen] = useState(false)
+
+  useEffect(() => {
+    // Auto-open onboarding tour on first launch only. Subsequent runs leave
+    // the tour closed; the user can re-open it from the Help menu.
+    if (!hasSeenTour()) {
+      const timer = window.setTimeout(() => setTourOpen(true), 400)
+      return () => window.clearTimeout(timer)
+    }
+  }, [])
 
   useEffect(() => {
     void refreshRecent()
@@ -127,6 +145,62 @@ export default function App() {
     }
   }
 
+  /**
+   * Render the canvas as a PDF and attach it to the linked Rentman project.
+   *
+   * Lives here (not in `LibraryPanel`) so the same action is available from the
+   * top-bar Export menu regardless of which left-panel tab is open. The user
+   * is shown a confirmation prompt because the upload mutates the Rentman
+   * project and is hard to roll back through our IPC bridge.
+   */
+  const handleUploadPdfToRentman = async () => {
+    const meta = project.metadata
+    const linkedId = meta.rentmanProjectId
+    if (!linkedId) {
+      window.alert('Kein Rentman-Projekt verknüpft. Bitte zuerst in den Einstellungen verknüpfen.')
+      return
+    }
+    const targetName = meta.rentmanProjectName ?? `Projekt #${linkedId}`
+    if (!window.confirm(`Aktuellen Plan als PDF an Rentman-Projekt "${targetName}" anhängen?`)) {
+      return
+    }
+    try {
+      const bytes = await exportCanvasToPdfBytes(meta)
+      const baseName = (meta.name || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
+      const fileName = `${baseName}_${stamp}.pdf`
+      await addProjectFile(linkedId, fileName, bytes, 'application/pdf')
+      window.alert(`✓ ${fileName} an Rentman angehängt.`)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('PDF upload to Rentman failed:', err)
+      window.alert(`Fehler beim PDF-Upload:\n\n${msg}`)
+    }
+  }
+
+  /**
+   * Wraps `createCableFromPending` so we can warn the user when a freshly
+   * built cable causes the bucket (`type|length`) to exceed the planned
+   * Rentman quantity. The plan comes from `metadata.rentmanCablePlan`, which
+   * is populated by the Rentman import dialog.
+   */
+  const createCableWithPlanCheck: typeof createCableFromPending = (draft) => {
+    createCableFromPending(draft)
+    const plan = useProjectStore.getState().project.metadata.rentmanCablePlan
+    if (!plan) return
+    const key = `${draft.type}|${draft.length}`
+    const planned = plan[key] ?? 0
+    if (planned <= 0) return
+    const built = useProjectStore
+      .getState()
+      .project.cables.filter((c) => c.type === draft.type && c.length === draft.length).length
+    if (built > planned) {
+      window.alert(
+        `Warnung: Es sind jetzt ${built} × ${draft.type} ${draft.length} m verbaut, aber nur ${planned} laut Rentman-Plan vorhanden. Bitte zusätzliche Kabel in Rentman buchen oder die Verkabelung anpassen.`,
+      )
+    }
+  }
+
   const editCable = useMemo(
     () => (cableEdit.cableId ? project.cables.find((c) => c.id === cableEdit.cableId) : undefined),
     [cableEdit.cableId, project.cables],
@@ -150,12 +224,20 @@ export default function App() {
         onSaveProject={() => void saveProject()}
         onSaveProjectAs={() => void saveProjectAs()}
         onOpenSettings={() => setSettingsOpen(true)}
-        onOpenRentmanImport={() => setRentmanImportOpen(true)}
         onExportPdf={() => void handleExportPdf()}
+        onAttachPdfToRentman={() => void handleUploadPdfToRentman()}
+        onOpenRentmanCableExport={openRentmanCableExport}
+        hasRentmanLink={Boolean(project.metadata.rentmanProjectId)}
         onEditProjectMeta={() => setMetaDialog({ mode: 'edit' })}
         onOpenCableBom={() => setCableBomOpen(true)}
+        onOpenTour={() => setTourOpen(true)}
         videoFormat={project.metadata.defaultVideoFormat ?? DEFAULT_VIDEO_FORMAT}
         onChangeVideoFormat={(id) => useProjectStore.getState().setDefaultVideoFormat(id)}
+        projectName={project.metadata.name}
+        rentmanProjectName={project.metadata.rentmanProjectName}
+        hasToken={hasToken}
+        equipmentCount={project.equipment.length}
+        cableCount={project.cables.length}
       />
 
       <main
@@ -177,10 +259,19 @@ export default function App() {
         projectName={project.metadata.name}
         zoom={project.canvasState.zoom}
         hasToken={hasToken}
+        equipmentCount={project.equipment.length}
+        cableCount={project.cables.length}
+        locationCount={project.locations?.length ?? 0}
+        rentmanProjectName={project.metadata.rentmanProjectName}
       />
 
       <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
-      <RentmanImportDialog open={rentmanImportOpen} onClose={() => setRentmanImportOpen(false)} />
+      <RentmanImportDialog open={rentmanImport.open} onClose={closeRentmanImport} />
+      <RentmanCableExportDialog
+        open={rentmanCableExport.open}
+        onClose={closeRentmanCableExport}
+      />
+      <OnboardingTour open={tourOpen} onClose={() => setTourOpen(false)} />
       {videohubExport.open && (
         <VideohubExportDialog
           onClose={closeVideohubExport}
@@ -223,7 +314,7 @@ export default function App() {
           toDev={toDev}
           defaultVideoFormat={project.metadata.defaultVideoFormat}
           onCancel={closeCableDialog}
-          onCreate={createCableFromPending}
+          onCreate={createCableWithPlanCheck}
         />
       )}
     </div>

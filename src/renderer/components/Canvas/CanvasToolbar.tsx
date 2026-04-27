@@ -41,16 +41,22 @@ export const CanvasToolbar = () => {
         left: 8,
         zIndex: 10,
         display: 'flex',
-        gap: 4,
-        padding: 4,
-        background: 'rgba(15,23,42,0.9)',
+        flexWrap: 'wrap',
+        gap: 6,
+        maxWidth: 'min(860px, calc(100vw - 420px))',
+        padding: 6,
+        background: 'rgba(15,23,42,0.94)',
         border: '1px solid #334155',
-        borderRadius: 6,
+        borderRadius: 8,
+        boxShadow: '0 18px 40px rgba(0,0,0,0.28)',
         fontSize: 11,
         color: '#e2e8f0',
         alignItems: 'center',
       }}
     >
+      <span style={{ color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
+        Canvas
+      </span>
       <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
         <input
           type="checkbox"
@@ -76,7 +82,9 @@ export const CanvasToolbar = () => {
         title="Rastergröße in Pixeln"
       />
       <span style={{ width: 1, height: 18, background: '#334155', margin: '0 4px' }} />
-      <span style={{ color: '#94a3b8' }}>Standard:</span>
+      <span style={{ color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
+        Routing
+      </span>
       {routingOptions.map((opt) => (
         <button
           key={opt.value}
@@ -106,6 +114,9 @@ export const CanvasToolbar = () => {
       <span style={{ width: 1, height: 18, background: '#334155', margin: '0 4px' }} />
       {/* Cable color mode toggle */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+        <span style={{ color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10, marginRight: 2 }}>
+          Kabel
+        </span>
         <button
           type="button"
           onClick={() => setCableColorMode('manual')}
@@ -198,6 +209,9 @@ export const CanvasToolbar = () => {
         </div>
       )}
       <span style={{ width: 1, height: 18, background: '#334155', margin: '0 4px' }} />
+      <span style={{ color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
+        Layout
+      </span>
       <button
         type="button"
         onClick={() => {
@@ -232,7 +246,7 @@ export const CanvasToolbar = () => {
         }}
         title="Neue Location: wenn Geräte markiert sind, Rahmen um die Auswahl; sonst leerer Rahmen in der Bildschirmmitte"
       >
-        + Location
+        ▣ Rahmen
       </button>
       {(() => {
         const selectedEquipmentIds = getNodes()
@@ -310,7 +324,7 @@ export const CanvasToolbar = () => {
               cursor: 'pointer',
             }}
           >
-            Als Gruppe ({selectedEquipmentIds.length})
+            Gruppe speichern ({selectedEquipmentIds.length})
           </button>
         )
       })()}

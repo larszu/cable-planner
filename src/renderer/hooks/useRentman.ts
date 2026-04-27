@@ -9,11 +9,23 @@ export const useRentman = () => {
   )
   const loadFolders = useCallback(() => cablePlannerApi.rentman.getEquipmentFolders(), [])
   const loadEquipment = useCallback(() => cablePlannerApi.rentman.getEquipment(), [])
+  const addProjectEquipment = useCallback(
+    (projectId: string, equipmentId: string, quantity: number = 1) =>
+      cablePlannerApi.rentman.addProjectEquipment(projectId, equipmentId, quantity),
+    [],
+  )
+  const addProjectFile = useCallback(
+    (projectId: string, fileName: string, fileBytes: Uint8Array, mimeType?: string) =>
+      cablePlannerApi.rentman.addProjectFile(projectId, fileName, fileBytes, mimeType),
+    [],
+  )
 
   return {
     loadProjects,
     loadProjectEquipment,
     loadFolders,
     loadEquipment,
+    addProjectEquipment,
+    addProjectFile,
   }
 }

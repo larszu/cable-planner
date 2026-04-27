@@ -116,11 +116,13 @@ export const computeObstacleAwareWaypoints = (
   if (relevantObstacles.length === 0) return []
 
   const variants = orthogonalVariants(source, target)
-  const clearVariants = variants.filter((v) => pathClearsAll(v, relevantObstacles))
-  if (clearVariants.length > 0) {
-    clearVariants.sort((a, b) => pathLength(a) - pathLength(b))
-    return clearVariants[0].slice(1, -1)
-  }
+  // Pick the FIRST clear variant in the predefined order (HVH > VHV > L). All
+  // four variants have the same Manhattan length, so sorting by length is
+  // unstable and caused the route to flicker between shapes when the source
+  // or target moved by even a single pixel — the user-visible "spinning" of
+  // orthogonal cables. A deterministic priority keeps the path stable.
+  const firstClear = variants.find((v) => pathClearsAll(v, relevantObstacles))
+  if (firstClear) return firstClear.slice(1, -1)
 
   // Find the first obstacle the straight HV path crosses and detour around it.
   const naive = variants[0]
@@ -130,12 +132,9 @@ export const computeObstacleAwareWaypoints = (
   if (!offender) return []
 
   const detours = detourAround(source, target, offender)
-  const clearDetours = detours.filter((v) => pathClearsAll(v, relevantObstacles))
-  if (clearDetours.length === 0) {
-    // Fall back to the shortest detour even if it still grazes something.
-    detours.sort((a, b) => pathLength(a) - pathLength(b))
-    return detours[0].slice(1, -1)
-  }
-  clearDetours.sort((a, b) => pathLength(a) - pathLength(b))
-  return clearDetours[0].slice(1, -1)
+  const firstClearDetour = detours.find((v) => pathClearsAll(v, relevantObstacles))
+  if (firstClearDetour) return firstClearDetour.slice(1, -1)
+  // Fall back to the shortest detour even if it still grazes something.
+  detours.sort((a, b) => pathLength(a) - pathLength(b))
+  return detours[0].slice(1, -1)
 }

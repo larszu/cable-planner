@@ -25,6 +25,11 @@ import { CanvasToolbar } from './CanvasToolbar'
 import { LocationFrameNode } from './LocationFrameNode'
 import { PendingCableOverlay } from './PendingCableOverlay'
 import { colorByLength } from '../../lib/cableColors'
+import {
+  setViewportCenterGetter,
+  setCanvasSelectionClearer,
+  setCanvasInteractionLockHandlers,
+} from '../../lib/canvasViewport'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
 const edgeTypes = { cable: CableEdge }
@@ -50,6 +55,81 @@ const CanvasContent = () => {
   const openCableEdit = useUiStore((state) => state.openCableEdit)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition } = useReactFlow()
+  const [interactionLocked, setInteractionLocked] = useState(false)
+  const interactionLockedRef = useRef(false)
+  const lockTokensRef = useRef(0)
+  const lockTimersRef = useRef<number[]>([])
+
+  const requestInteractionLock = useCallback((durationMs = 450) => {
+    lockTokensRef.current += 1
+    interactionLockedRef.current = true
+    setInteractionLocked(true)
+    const id = window.setTimeout(() => {
+      lockTokensRef.current = Math.max(0, lockTokensRef.current - 1)
+      if (lockTokensRef.current === 0) {
+        interactionLockedRef.current = false
+        setInteractionLocked(false)
+      }
+      lockTimersRef.current = lockTimersRef.current.filter((timer) => timer !== id)
+    }, durationMs)
+    lockTimersRef.current.push(id)
+  }, [])
+
+  const unlockInteractionNow = useCallback(() => {
+    lockTokensRef.current = 0
+    for (const id of lockTimersRef.current) {
+      window.clearTimeout(id)
+    }
+    lockTimersRef.current = []
+    interactionLockedRef.current = false
+    setInteractionLocked(false)
+  }, [])
+
+  // Expose canvas viewport centre to non-canvas components (LibraryPanel)
+  // so click-added equipment lands where the user is currently looking.
+  useEffect(() => {
+    setViewportCenterGetter(() => {
+      const el = wrapperRef.current
+      if (!el) return null
+      const r = el.getBoundingClientRect()
+      return screenToFlowPosition({ x: r.left + r.width / 2, y: r.top + r.height / 2 })
+    })
+    return () => setViewportCenterGetter(null)
+  }, [screenToFlowPosition])
+
+  // Allow non-canvas components (LibraryPanel) to clear any active canvas
+  // selection. Used when the cursor enters the library so a previously
+  // moved-and-still-selected node can't participate in React Flow's
+  // multi-select group drag on the next pointer event.
+  useEffect(() => {
+    setCanvasSelectionClearer(() => {
+      setRfNodes((current) => {
+        let changed = false
+        const next = current.map((n) => {
+          if (n.selected) {
+            changed = true
+            return { ...n, selected: false }
+          }
+          return n
+        })
+        return changed ? next : current
+      })
+      setSelection(undefined, undefined, undefined)
+    })
+    return () => setCanvasSelectionClearer(null)
+  }, [setSelection])
+
+  useEffect(() => {
+    setCanvasInteractionLockHandlers({
+      requestLock: requestInteractionLock,
+      unlock: unlockInteractionNow,
+    })
+    return () => {
+      setCanvasInteractionLockHandlers(null)
+      unlockInteractionNow()
+    }
+  }, [requestInteractionLock, unlockInteractionNow])
+
   const edgeUpdateSuccessful = useRef(true)
   const connectStartRef = useRef<{
     nodeId: string | null
@@ -99,6 +179,7 @@ const CanvasContent = () => {
   // to jump when other items in the array are deleted/added.
   const [rfNodes, setRfNodes] = useState<Node[]>(nodes)
 
+
   // Ids currently being dragged. While a node is in this set we preserve its
   // local React Flow position (so active drags don't snap back). Anything not
   // in the set takes its position from the store - that allows Undo/Redo to
@@ -113,24 +194,19 @@ const CanvasContent = () => {
   useEffect(() => {
     setRfNodes((current) => {
       const currentById = new Map(current.map((n) => [n.id, n]))
-      const dragging = draggingIdsRef.current
+      // For every node that already exists in rfNodes we keep the existing
+      // RF node object (position, selection flags, measured dimensions, etc.)
+      // and only refresh `data` from the store. Existing-node positions are
+      // owned by ReactFlow's drag events — never overwritten from the store
+      // sync, regardless of how far apart they are. This is the only way to
+      // guarantee that adding/editing other devices, port changes, or any
+      // unrelated state update can NEVER visibly shift an existing device.
+      // The previous threshold-based logic was the root cause of the
+      // "existing nodes jump when adding from library" bug.
       return nodes.map((n) => {
         const existing = currentById.get(n.id)
         if (!existing) return n
-        // During an active drag on this node we must keep the local RF
-        // position (otherwise the drag would jitter against store updates).
-        // Outside of that we adopt the store position, which is what makes
-        // Undo/Redo move the node back visually.
-        if (dragging.has(n.id)) {
-          return { ...n, position: existing.position }
-        }
-        // For location frames, preserve React Flow's internally-tracked style
-        // (which includes dimensions set by NodeResizer) to prevent the frame
-        // from snapping back to its pre-resize size when only data changes.
-        if (n.type === 'location' && existing.style) {
-          return { ...n, style: existing.style }
-        }
-        return n
+        return { ...existing, data: n.data }
       })
     })
     prevIdsRef.current = nodes.map((n) => n.id).join(',')
@@ -181,6 +257,64 @@ const CanvasContent = () => {
   }
 
   const onNodesChange = (changes: NodeChange[]) => {
+    // snap helper used both in the locked and normal paths
+    const snap = (v: number) =>
+      snapToGrid && gridSize > 0 ? Math.round(v / gridSize) * gridSize : v
+
+    // While a library item is being clicked/dragged onto the canvas, React Flow
+    // may emit position changes for previously selected nodes as it reconciles
+    // selection/drag state. Spurious changes must be ignored so adding a new
+    // device cannot move existing devices.
+    //
+    // IMPORTANT: if the user released a canvas drag while the pointer happened
+    // to be over the library (e.g. fast click: drag node → release on library
+    // item), the drag-end `onNodesChange` fires here while the lock is active.
+    // We MUST still persist that drag-end so the node stays at the drop
+    // position. Without this, the store keeps the old pre-drag position, and
+    // the next useEffect([nodes]) sync snaps the node back → visible jump.
+    if (interactionLockedRef.current) {
+      // Identify real drag-ends under lock (ids that were tracked in draggingIdsRef)
+      const lockedEndedDragIds = new Set<string>()
+      for (const change of changes) {
+        if (change.type === 'position' && change.id) {
+          if (change.dragging) {
+            draggingIdsRef.current.add(change.id)
+          } else if (draggingIdsRef.current.has(change.id)) {
+            lockedEndedDragIds.add(change.id)
+            draggingIdsRef.current.delete(change.id)
+          }
+        }
+      }
+      // Apply non-position changes + real drag-ends; skip all other position events
+      const allowedChanges = changes.filter((c) => {
+        if (c.type !== 'position') return true
+        if (c.dragging) return false
+        return lockedEndedDragIds.has(c.id)
+      })
+      if (allowedChanges.length > 0) {
+        setRfNodes((current) => applyNodeChanges(allowedChanges, current))
+      }
+      // Persist drag-end positions to the store even though we're locked
+      changes.forEach((change) => {
+        if (
+          change.type === 'position' &&
+          change.position &&
+          change.dragging === false &&
+          lockedEndedDragIds.has(change.id)
+        ) {
+          const px = snap(change.position.x)
+          const py = snap(change.position.y)
+          const isLocation = locations.some((l) => l.id === change.id)
+          if (isLocation) {
+            updateLocation(change.id, { x: px, y: py })
+          } else {
+            updateEquipment(change.id, { x: px, y: py })
+          }
+        }
+      })
+      return
+    }
+
     // Track drag start/end per node so our store→RF sync knows which nodes
     // are currently being dragged (and therefore must keep their local pos).
     // Also record which ids were *just* dragging so we can distinguish a real
@@ -199,9 +333,23 @@ const CanvasContent = () => {
       }
     }
     
+    // Filter out spurious `position` changes that React Flow emits during
+    // internal syncs (e.g. after a node is added or its dimensions change).
+    // These have `dragging === false` but the id is *not* in `endedDragIds`
+    // because no real drag took place. If we let `applyNodeChanges` apply
+    // them, unrelated nodes visibly nudge in `rfNodes` every time a device is
+    // added or its port count changes — until the next store→RF sync resets
+    // them. The persist branch below is already guarded; this guards the
+    // visual side too.
+    const filteredChanges = changes.filter((change) => {
+      if (change.type !== 'position') return true
+      if (change.dragging) return true
+      return endedDragIds.has(change.id)
+    })
+
     // Update rfNodes during drag for visual feedback only
     setRfNodes((current) => {
-      const next = applyNodeChanges(changes, current)
+      const next = applyNodeChanges(filteredChanges, current)
       // Live group-drag: if a location is being dragged, shift contained equipment
       const drag = locationDragRef.current
       if (drag) {
@@ -233,6 +381,12 @@ const CanvasContent = () => {
     // Persist to store ONLY on a real drag-end. `change.dragging === false`
     // alone is not enough — React Flow emits those during internal syncs too,
     // which would nudge unrelated nodes whenever a new one is added.
+    //
+    // We also snap the persisted position when snapToGrid is enabled, so the
+    // store stays in sync with the snapped position React Flow shows in
+    // `rfNodes`. Without this, store and rfNodes drift by sub-grid amounts,
+    // and any subsequent re-sync (e.g. after adding a new equipment item)
+    // would cause existing nodes to visibly jump to their raw positions.
     changes.forEach((change) => {
       if (
         change.type === 'position' &&
@@ -240,22 +394,24 @@ const CanvasContent = () => {
         change.dragging === false &&
         endedDragIds.has(change.id)
       ) {
+        const px = snap(change.position.x)
+        const py = snap(change.position.y)
         const isLocation = locations.some((l) => l.id === change.id)
         if (isLocation) {
           const drag = locationDragRef.current
           const loc = locations.find((l) => l.id === change.id)
           if (drag && drag.locationId === change.id && loc) {
-            const dx = change.position.x - loc.x
-            const dy = change.position.y - loc.y
+            const dx = px - loc.x
+            const dy = py - loc.y
             moveLocationWithContents(change.id, dx, dy, drag.containedEquipmentIds)
           } else {
-            updateLocation(change.id, { x: change.position.x, y: change.position.y })
+            updateLocation(change.id, { x: px, y: py })
           }
           locationDragRef.current = null
         } else {
           // Check overlap before persisting
           const eq = project.equipment.find((e) => e.id === change.id)
-          if (eq && hasOverlap(eq.id, change.position.x, change.position.y, eq.width ?? 0, eq.height ?? 0)) {
+          if (eq && hasOverlap(eq.id, px, py, eq.width ?? 0, eq.height ?? 0)) {
             // Revert to last position
             const lastRfNode = rfNodes.find((n) => n.id === change.id)
             if (lastRfNode) {
@@ -266,7 +422,7 @@ const CanvasContent = () => {
               )
             }
           } else {
-            updateEquipment(change.id, { x: change.position.x, y: change.position.y })
+            updateEquipment(change.id, { x: px, y: py })
           }
         }
       }
@@ -314,6 +470,11 @@ const CanvasContent = () => {
   )
 
   const onNodeDragStop = useCallback((_event: React.MouseEvent, node: Node) => {
+    // A completed drag must not leave any ids behind. If stale ids remain here,
+    // a later library add can make React Flow emit `dragging:false` position
+    // syncs for those ids, which our persistence logic would otherwise treat as
+    // another real drag-end and move unrelated devices.
+    draggingIdsRef.current.clear()
     if (node.type === 'location') {
       // Clear any stale location drag snapshot so unrelated future node
       // changes (like adding equipment by click) cannot shift other nodes.
@@ -518,6 +679,17 @@ const CanvasContent = () => {
       <ReactFlow
         nodes={rfNodes}
         edges={edges}
+        nodesDraggable={!interactionLocked}
+        elementsSelectable={!interactionLocked}
+        edgesReconnectable={!interactionLocked}
+        panOnDrag={interactionLocked ? false : true}
+        panOnScroll={!interactionLocked}
+        zoomOnScroll={!interactionLocked}
+        zoomOnPinch={!interactionLocked}
+        zoomOnDoubleClick={!interactionLocked}
+        selectNodesOnDrag={false}
+        multiSelectionKeyCode={null}
+        selectionKeyCode={null}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         connectionMode={ConnectionMode.Loose}

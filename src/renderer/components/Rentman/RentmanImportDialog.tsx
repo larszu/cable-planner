@@ -9,6 +9,7 @@ import { matchCameraTemplate } from '../../lib/cameraCatalog'
 import { matchMiscTemplate } from '../../lib/miscCatalog'
 import { matchGreenGoTemplate } from '../../lib/greengoCatalog'
 import type { EquipmentTemplate, Port } from '../../types/equipment'
+import type { CableType } from '../../types/cable'
 import { EquipmentChecklist } from './EquipmentChecklist'
 import { NewRentmanDeviceWizard, type UnknownCandidate } from './NewRentmanDeviceWizard'
 import { ProjectSelector } from './ProjectSelector'
@@ -128,6 +129,72 @@ const mapEquipment = (
   )
 }
 
+/**
+ * Best-effort detection of a cable bucket (`{ type, length }`) from a Rentman
+ * equipment item. Returns `null` for items that don't look like cables so they
+ * can be ignored when building the cable-plan summary.
+ *
+ * The heuristic is intentionally conservative: we only consider items whose
+ * folder/category contains "kabel" or "cable", parse the length out of the
+ * name (e.g. "BNC HD-SDI 5m"), and map common connector keywords to one of
+ * the supported `CableType` values. Unknown connector keywords fall back to
+ * `'Custom'` so the user can still adjust them in the cable-plan UI.
+ */
+
+const LENGTH_REGEX = /(\d+(?:[.,]\d+)?)\s*m\b/i
+
+const detectCableType = (name: string): CableType => {
+  const n = name.toLowerCase()
+  if (/\bschuko\b/.test(n)) return 'Schuko 230V'
+  if (/\bpower\s*con\b|\btrue ?1\b/.test(n)) return 'PowerCON'
+  if (/\biec\b|\bc13\b|\bc14\b|\bc19\b|\bkaltgeräte?\b/.test(n)) return 'IEC 230V'
+  if (/\beurostecker\b|\bc7\b/.test(n)) return 'C7 Eurostecker'
+  if (/\bsfp\+|\b10g\b/.test(n)) return 'SFP+'
+  if (/\bsfp\b/.test(n)) return 'SFP'
+  if (/\bfiber|\blwl|\blc[-\s]|\bsc[-\s]/.test(n)) return 'Fiber'
+  if (/\brj ?45|\bcat ?5|\bcat ?6|\bcat ?7|\bethernet|\bethercon\b/.test(n))
+    return 'Ethernet/RJ45'
+  if (/\bhdmi\b/.test(n)) return 'HDMI'
+  if (/\bxlr\b/.test(n)) return 'XLR'
+  if (/\bbnc\b|\bsdi\b/.test(n)) return 'BNC'
+  return 'Custom'
+}
+
+export interface DetectedCableRow {
+  rowId: string
+  /** Underlying Rentman master-equipment id (for the cable-export mapping). */
+  rentmanEquipmentId: string
+  type: CableType
+  length: number
+  qty: number
+  name: string
+  category: string
+}
+
+const isCableCategory = (category: string): boolean =>
+  /(kabel|cable)/i.test(category)
+
+const detectCableRows = (items: RentmanEquipment[]): DetectedCableRow[] => {
+  const rows: DetectedCableRow[] = []
+  for (const item of items) {
+    if (!isCableCategory(item.category) && !/(kabel|cable)/i.test(item.name)) continue
+    const match = LENGTH_REGEX.exec(item.name)
+    if (!match) continue
+    const length = Number(match[1].replace(',', '.'))
+    if (!Number.isFinite(length) || length <= 0) continue
+    rows.push({
+      rowId: item.id,
+      rentmanEquipmentId: item.equipmentId,
+      type: detectCableType(item.name),
+      length,
+      qty: item.qty,
+      name: item.name,
+      category: item.category,
+    })
+  }
+  return rows
+}
+
 interface RentmanImportDialogProps {
   open: boolean
   onClose: () => void
@@ -171,6 +238,13 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   }
   const [conflictItems, setConflictItems] = useState<ConflictItem[] | null>(null)
   const [pendingDecisions, setPendingDecisions] = useState<Record<string, ConflictDecision>>({})
+  // Cable-plan import: detected cables grouped by `${type}|${length}`. The
+  // user can review/adjust quantities before pushing them into
+  // `metadata.rentmanCablePlan` (used by the canvas overage warning) and
+  // `metadata.rentmanCableMap` (used by the export-to-Rentman dialog).
+  const [cablePlanSelected, setCablePlanSelected] = useState<Set<string>>(new Set())
+  const [cablePlanQty, setCablePlanQty] = useState<Record<string, number>>({})
+  const [cablePlanResult, setCablePlanResult] = useState<string | null>(null)
 
   const allCategories = useMemo(() => {
     const set = new Set<string>()
@@ -234,6 +308,49 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     [visibleItems],
   )
   const setChildCount = useMemo(() => items.filter((item) => item.isSetChild).length, [items])
+
+  /**
+   * Detected cable rows derived from the currently loaded project equipment.
+   * Always uses the *project* item quantity as the suggested plan quantity.
+   */
+  const detectedCableRows = useMemo(() => detectCableRows(items), [items])
+
+  /**
+   * Cable rows aggregated by `${type}|${length}`. Multiple Rentman line items
+   * with the same connector type and length are merged into one bucket so the
+   * canvas overage warning compares against the total available count.
+   */
+  const cableBuckets = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        key: string
+        type: CableType
+        length: number
+        totalQty: number
+        rows: DetectedCableRow[]
+      }
+    >()
+    for (const row of detectedCableRows) {
+      const key = `${row.type}|${row.length}`
+      const entry = map.get(key)
+      if (entry) {
+        entry.totalQty += row.qty
+        entry.rows.push(row)
+      } else {
+        map.set(key, {
+          key,
+          type: row.type,
+          length: row.length,
+          totalQty: row.qty,
+          rows: [row],
+        })
+      }
+    }
+    return Array.from(map.values()).sort((a, b) =>
+      a.type === b.type ? a.length - b.length : a.type.localeCompare(b.type),
+    )
+  }, [detectedCableRows])
 
   if (!open) {
     return null
@@ -361,6 +478,71 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     )
   }
 
+
+
+  const toggleCableBucket = (key: string) => {
+    setCablePlanSelected((current) => {
+      const next = new Set(current)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
+  const setCableBucketQty = (key: string, qty: number) => {
+    const clean = Math.max(0, Math.min(9999, Math.round(qty) || 0))
+    setCablePlanQty((current) => ({ ...current, [key]: clean }))
+  }
+
+  /**
+   * Persist the selected cable buckets into project metadata. Writes both the
+   * planned quantity (`rentmanCablePlan`) and the Rentman master-equipment id
+   * mapping (`rentmanCableMap`) so the cable-export dialog can later push
+   * deltas back to Rentman without asking the user to re-pick equipment.
+   *
+   * Also ensures the project link itself is saved — the user is allowed to
+   * use this dialog purely for linking + cable plan, without importing any
+   * equipment.
+   */
+  const handleImportCablePlan = () => {
+    if (cableBuckets.length === 0) return
+    const selectedRows = cableBuckets.filter((bucket) => cablePlanSelected.has(bucket.key))
+    if (selectedRows.length === 0) {
+      setCablePlanResult('Bitte mindestens einen Kabeltyp auswählen.')
+      return
+    }
+    const project = useProjectStore.getState().project
+    const planPatch: Record<string, number> = { ...(project.metadata.rentmanCablePlan ?? {}) }
+    const mapPatch = { ...(project.metadata.rentmanCableMap ?? {}) }
+    for (const bucket of selectedRows) {
+      const qty = cablePlanQty[bucket.key] ?? bucket.totalQty
+      planPatch[bucket.key] = qty
+      // Map to the Rentman master-equipment id of the first row in this
+      // bucket. If the user has multiple Rentman line items for the same
+      // bucket they'll all be aggregated under one mapping; the export dialog
+      // lets them re-pick if needed.
+      const firstRow = bucket.rows[0]
+      const existingMap = mapPatch[bucket.key]
+      mapPatch[bucket.key] = {
+        rentmanEquipmentId:
+          existingMap?.rentmanEquipmentId ?? firstRow.rentmanEquipmentId,
+        lastSyncedQty: existingMap?.lastSyncedQty ?? qty,
+      }
+    }
+    const projectName =
+      projects.find((p) => p.id === selectedProjectId)?.name ??
+      project.metadata.rentmanProjectName
+    updateProjectMetadata({
+      rentmanProjectId: selectedProjectId,
+      rentmanProjectName: projectName,
+      rentmanCablePlan: planPatch,
+      rentmanCableMap: mapPatch,
+    })
+    setCablePlanResult(
+      `✓ ${selectedRows.length} Kabeltyp(en) als Plan übernommen.`,
+    )
+  }
+
   const saveToLibrary = (
     selected: RentmanEquipment[],
     templatesByEquipmentId: Record<string, EquipmentTemplate>,
@@ -389,6 +571,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
             ...existing,
             rentmanId: existing.rentmanId || item.equipmentId,
             rentmanSource: selectedProjectId,
+            rentmanProjectName: projects.find((p) => p.id === selectedProjectId)?.name,
           })
         }
         addedCount++
@@ -419,6 +602,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         category: base.category || item.category,
         rentmanId: item.equipmentId,
         rentmanSource: selectedProjectId,
+        rentmanProjectName: projects.find((p) => p.id === selectedProjectId)?.name,
       })
       addedCount++
     })
@@ -840,6 +1024,94 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               onSetAll={setAllVisible}
               onQtyChange={setQty}
             />
+
+            {cableBuckets.length > 0 && (
+              <div className="mt-4 rounded border border-orange-800/60 bg-orange-950/20 p-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-orange-200">
+                      Kabelmengen aus Rentman übernehmen
+                    </div>
+                  </div>
+                  <div className="flex gap-1 text-[11px]">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCablePlanSelected(new Set(cableBuckets.map((b) => b.key)))
+                      }
+                      className="rounded bg-slate-700 px-2 py-0.5 hover:bg-slate-600"
+                    >
+                      Alle
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCablePlanSelected(new Set())}
+                      className="rounded bg-slate-700 px-2 py-0.5 hover:bg-slate-600"
+                    >
+                      Keine
+                    </button>
+                  </div>
+                </div>
+                <div className="max-h-48 space-y-0.5 overflow-auto rounded border border-orange-900/40 bg-slate-950/40 p-1">
+                  {cableBuckets.map((bucket) => {
+                    const checked = cablePlanSelected.has(bucket.key)
+                    const qty = cablePlanQty[bucket.key] ?? bucket.totalQty
+                    return (
+                      <label
+                        key={bucket.key}
+                        className="flex items-center gap-2 rounded px-1.5 py-0.5 text-xs hover:bg-slate-900"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleCableBucket(bucket.key)}
+                        />
+                        <span className="w-32 truncate font-medium text-slate-100">
+                          {bucket.type}
+                        </span>
+                        <span className="w-16 text-slate-300">{bucket.length} m</span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={qty}
+                          onChange={(event) =>
+                            setCableBucketQty(bucket.key, Number(event.target.value))
+                          }
+                          className="w-16 rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-right"
+                        />
+                        <span className="text-[10px] text-slate-500">
+                          {bucket.rows.length === 1
+                            ? bucket.rows[0].name
+                            : `${bucket.rows.length} Einträge`}
+                        </span>
+                      </label>
+                    )
+                  })}
+                </div>
+                <div className="mt-2 flex items-center justify-between text-[11px]">
+                  <span
+                    className={
+                      cablePlanResult?.startsWith('✓')
+                        ? 'text-emerald-400'
+                        : cablePlanResult
+                          ? 'text-amber-300'
+                          : 'text-slate-500'
+                    }
+                  >
+                    {cablePlanResult ?? `${cableBuckets.length} Kabeltyp(en) erkannt`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleImportCablePlan}
+                    disabled={cablePlanSelected.size === 0}
+                    className="rounded bg-orange-600 px-3 py-1 text-xs font-semibold text-white hover:bg-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Kabelmengen übernehmen
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="mt-3 flex items-center justify-between text-sm">
               {importResult !== null ? (
                 <span className="font-semibold text-emerald-400">

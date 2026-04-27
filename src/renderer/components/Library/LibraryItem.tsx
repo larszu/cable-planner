@@ -1,4 +1,6 @@
 import type { EquipmentTemplate } from '../../types/equipment'
+import { useProjectStore } from '../../store/projectStore'
+import { clearCanvasSelection } from '../../lib/canvasViewport'
 
 interface LibraryItemProps {
   item: EquipmentTemplate
@@ -15,42 +17,102 @@ export const LibraryItem = ({
   onToggleFavorite,
   onToggleHidden,
 }: LibraryItemProps) => {
+  // Currently linked Rentman project — used to colour-code rentman badges
+  // so users can distinguish "from active Rentman project" vs "from another
+  // Rentman project" vs "purely local" at a glance.
+  const linkedRentmanProjectId = useProjectStore(
+    (state) => state.project.metadata.rentmanProjectId,
+  )
+
   const onDragStart = (event: React.DragEvent<HTMLDivElement>) => {
+    clearCanvasSelection()
     const payload = JSON.stringify(item)
     event.dataTransfer.setData('application/cable-planner-equipment', payload)
     event.dataTransfer.effectAllowed = 'copy'
   }
 
+  const addFromClick = () => {
+    clearCanvasSelection()
+    onAdd()
+  }
+
+  const isFromActiveRentman =
+    !!item.rentmanSource &&
+    !!linkedRentmanProjectId &&
+    item.rentmanSource === linkedRentmanProjectId
+  const isFromOtherRentman = !!item.rentmanSource && !isFromActiveRentman
+
+  // Left-edge accent strip lets the user see the source at a glance even
+  // when the item is in a deep accordion.
+  const accentClass = isFromActiveRentman
+    ? 'border-l-2 border-l-orange-500'
+    : isFromOtherRentman
+      ? 'border-l-2 border-l-slate-500'
+      : 'border-l-2 border-l-sky-700/60'
+
   return (
     <div
       draggable
       onDragStart={onDragStart}
-      onClick={onAdd}
+      onClick={(event) => {
+        event.stopPropagation()
+        addFromClick()
+      }}
       role="button"
       tabIndex={0}
       onKeyDown={(event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault()
-          onAdd()
+          addFromClick()
         }
       }}
-      className={`group flex w-full cursor-grab items-start justify-between gap-2 rounded border px-2 py-2 text-left text-sm active:cursor-grabbing ${
+      className={`group flex w-full cursor-grab items-start justify-between gap-2 rounded border ${accentClass} px-2 py-2 text-left text-sm active:cursor-grabbing ${
         item.hidden
           ? 'border-slate-800 bg-slate-950 opacity-60 hover:opacity-100'
           : 'border-slate-700 bg-slate-900 hover:bg-slate-800'
       }`}
-      title="Drag onto canvas or click to add"
+      title={
+        isFromActiveRentman
+          ? `Aus aktivem Rentman-Projekt${item.rentmanProjectName ? ` "${item.rentmanProjectName}"` : ''} — Klick oder Drag & Drop auf den Canvas`
+          : isFromOtherRentman
+            ? `Aus Rentman-Projekt${item.rentmanProjectName ? ` "${item.rentmanProjectName}"` : ''} — Klick oder Drag & Drop auf den Canvas`
+            : 'Lokales Gerät — Klick oder Drag & Drop auf den Canvas'
+      }
     >
       <div className="min-w-0 flex-1">
         <div className="truncate font-medium">
           {item.favorite && <span className="mr-1 text-amber-300">★</span>}
-          {item.rentmanSource && (
-            <span className="mr-1 rounded bg-orange-700 px-1 text-[9px] font-bold text-white" title="Aus Rentman importiert">R</span>
+          {isFromActiveRentman && (
+            <span
+              className="mr-1 rounded bg-orange-600 px-1 text-[9px] font-bold text-white"
+              title={`Aus aktivem Rentman-Projekt${item.rentmanProjectName ? `: ${item.rentmanProjectName}` : ''}`}
+            >
+              R
+            </span>
+          )}
+          {isFromOtherRentman && (
+            <span
+              className="mr-1 rounded bg-slate-600 px-1 text-[9px] font-bold text-slate-200"
+              title={`Aus Rentman-Projekt${item.rentmanProjectName ? `: ${item.rentmanProjectName}` : ''}`}
+            >
+              R
+            </span>
+          )}
+          {!item.rentmanSource && (
+            <span
+              className="mr-1 rounded bg-sky-800/80 px-1 text-[9px] font-bold text-sky-100"
+              title="Lokales Gerät (nicht aus Rentman)"
+            >
+              L
+            </span>
           )}
           {item.name}
         </div>
         <div className="truncate text-xs text-slate-400">
           {item.category} · {item.inputs.length} in / {item.outputs.length} out
+          {isFromOtherRentman && item.rentmanProjectName && (
+            <span className="ml-1 text-slate-500">· {item.rentmanProjectName}</span>
+          )}
         </div>
       </div>
       <div className="flex gap-0.5 opacity-0 transition group-hover:opacity-100">
