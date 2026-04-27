@@ -15,6 +15,7 @@ import { MultiviewerLayoutView } from './components/Atem/MultiviewerLayoutView'
 import { AtemMvConfigDialog } from './components/Atem/AtemMvConfigDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
+import { WelcomeDialog } from './components/Project/WelcomeDialog'
 import { Splitter } from './components/Layout/Splitter'
 import { useProject } from './hooks/useProject'
 import { useRentman } from './hooks/useRentman'
@@ -78,6 +79,41 @@ export default function App() {
   const [metaDialog, setMetaDialog] = useState<{ mode: 'new' | 'edit' } | null>(null)
   const [cableBomOpen, setCableBomOpen] = useState(false)
   const [tourOpen, setTourOpen] = useState(false)
+  const [welcomeOpen, setWelcomeOpen] = useState(false)
+
+  useEffect(() => {
+    // First-launch project chooser. Show only when:
+    //   - the user hasn't dismissed it before (localStorage flag), AND
+    //   - the working project is genuinely empty (no autosaved canvas to
+    //     restore — otherwise the welcome dialog would obstruct an
+    //     existing-project session every time the user clears the canvas).
+    const FLAG = 'cable-planner:welcomed'
+    try {
+      if (localStorage.getItem(FLAG)) return
+    } catch {
+      // localStorage unavailable — skip the prompt rather than blocking app start.
+      return
+    }
+    const isEmpty =
+      project.equipment.length === 0 &&
+      project.cables.length === 0 &&
+      (project.locations?.length ?? 0) === 0
+    if (!isEmpty) {
+      // Existing autosave restored — user already has a project.
+      try { localStorage.setItem(FLAG, '1') } catch { /* ignore */ }
+      return
+    }
+    const timer = window.setTimeout(() => setWelcomeOpen(true), 250)
+    return () => window.clearTimeout(timer)
+    // We deliberately depend only on mount; re-running on every project change
+    // would re-open the dialog whenever the user clears the canvas.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const dismissWelcome = () => {
+    try { localStorage.setItem('cable-planner:welcomed', '1') } catch { /* ignore */ }
+    setWelcomeOpen(false)
+  }
 
   useEffect(() => {
     // Auto-open onboarding tour on first launch only. Subsequent runs leave
@@ -272,6 +308,12 @@ export default function App() {
         onClose={closeRentmanCableExport}
       />
       <OnboardingTour open={tourOpen} onClose={() => setTourOpen(false)} />
+      <WelcomeDialog
+        open={welcomeOpen}
+        onNew={() => setMetaDialog({ mode: 'new' })}
+        onOpen={() => void openProject()}
+        onClose={dismissWelcome}
+      />
       {videohubExport.open && (
         <VideohubExportDialog
           onClose={closeVideohubExport}
