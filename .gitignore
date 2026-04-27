@@ -30,3 +30,9 @@ scripts/*.txt
 
 scripts/rentman-token.txt
 scripts/rentman-all.txt
+
+# Code-signing secrets — never commit
+build/code-sign.pfx
+build/code-sign.cer
+build/*.pfx
+build/*.p12

@@ -25,10 +25,15 @@ param(
 
   [string]$Subject = 'CN=Lars Zumpe, O=Lars Zumpe, C=DE',
 
-  [string]$OutPath = (Join-Path $PSScriptRoot '..\build\code-sign.pfx')
+  [string]$OutPath
 )
 
 $ErrorActionPreference = 'Stop'
+
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+if ([string]::IsNullOrEmpty($OutPath)) {
+  $OutPath = Join-Path $scriptDir '..\build\code-sign.pfx'
+}
 
 Write-Host "Erstelle selbst-signiertes Code-Signing-Zertifikat ..." -ForegroundColor Cyan
 $cert = New-SelfSignedCertificate `
