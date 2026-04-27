@@ -89,7 +89,40 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
       author: draftMeta.author,
       client: draftMeta.client,
       contractor: draftMeta.contractor,
+      projectNumber: draftMeta.projectNumber,
+      companyLogo: draftMeta.companyLogo,
+      clientLogo: draftMeta.clientLogo,
     })
+  }
+
+  /**
+   * Read a user-picked image as a data URI so it can travel with the project
+   * file (no separate filesystem path to keep in sync). Resolves with `''`
+   * if the user cancels — caller treats empty string as "remove logo".
+   */
+  const readImageAsDataUri = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '')
+      reader.onerror = () => reject(new Error('Konnte Bild nicht lesen'))
+      reader.readAsDataURL(file)
+    })
+
+  const pickLogo = async (which: 'companyLogo' | 'clientLogo') => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/png,image/jpeg,image/svg+xml,image/webp'
+    input.onchange = async () => {
+      const file = input.files?.[0]
+      if (!file) return
+      try {
+        const dataUri = await readImageAsDataUri(file)
+        setDraftMeta((prev) => ({ ...prev, [which]: dataUri }))
+      } catch {
+        // ignore — file picker already closed
+      }
+    }
+    input.click()
   }
 
   const navItem = (id: SettingsSection, label: string, icon: string) => (
@@ -196,6 +229,65 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                     placeholder="Dein Name"
                   />
                 </label>
+
+                <label className="block text-sm">
+                  Projekt-Nr.
+                  <input
+                    type="text"
+                    value={draftMeta.projectNumber ?? ''}
+                    onChange={(e) => setDraftMeta({ ...draftMeta, projectNumber: e.target.value })}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+                    placeholder="z. B. 2026-042"
+                  />
+                </label>
+
+                <div className="rounded border border-slate-800 bg-slate-950/40 p-3">
+                  <div className="mb-2 text-xs font-semibold text-slate-300">
+                    Bauplan-Signatur (Logos)
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {(['companyLogo', 'clientLogo'] as const).map((field) => {
+                      const label = field === 'companyLogo' ? 'Auftragnehmer' : 'Kunde'
+                      const current = draftMeta[field]
+                      return (
+                        <div key={field} className="flex flex-col items-center gap-2">
+                          <div className="flex h-16 w-full items-center justify-center overflow-hidden rounded border border-slate-700 bg-white/5">
+                            {current ? (
+                              <img src={current} alt={label} className="max-h-16 max-w-full object-contain" />
+                            ) : (
+                              <span className="text-[10px] text-slate-500">{label}</span>
+                            )}
+                          </div>
+                          <div className="flex w-full gap-1">
+                            <button
+                              type="button"
+                              onClick={() => pickLogo(field)}
+                              className="flex-1 rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+                            >
+                              Wählen…
+                            </button>
+                            {current && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setDraftMeta((prev) => ({ ...prev, [field]: undefined }))
+                                }
+                                title="Logo entfernen"
+                                className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <p className="mt-2 text-[10px] text-slate-500">
+                    Logos werden als Daten-URI in der Projektdatei gespeichert (PDF-Export &amp;
+                    Canvas-Signatur).
+                  </p>
+                </div>
 
                 <div className="rounded border border-slate-800 bg-slate-950/40 p-3 text-xs">
                   <div className="mb-1 font-semibold text-slate-300">Verknüpftes Rentman-Projekt</div>

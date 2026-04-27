@@ -16,7 +16,9 @@ interface CableEdgeData {
 }
 
 /** Normalize waypoints so every segment is strictly horizontal or vertical.
- *  Any diagonal is replaced by an L-corner (horizontal-first). */
+ *  Any diagonal is replaced by an L-corner (horizontal-first). Already
+ *  orthogonal segments are passed through unchanged so we don't introduce
+ *  spurious bends that make the cable visually "jump". */
 function normalizeOrthogonal(
   src: { x: number; y: number },
   wps: { x: number; y: number }[],
@@ -29,8 +31,10 @@ function normalizeOrthogonal(
     const p = pts[i]
     const q = pts[i + 1]
     const isDiag = Math.abs(q.x - p.x) > tol && Math.abs(q.y - p.y) > tol
+    // Push every intermediate waypoint (not source, not target).
     if (i > 0) result.push({ x: p.x, y: p.y })
-    if (isDiag) result.push({ x: q.x, y: p.y }) // insert H-first corner
+    // Only insert an L-corner if this segment is actually diagonal.
+    if (isDiag) result.push({ x: q.x, y: p.y })
   }
   return result
 }
