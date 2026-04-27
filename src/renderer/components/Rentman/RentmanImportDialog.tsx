@@ -157,6 +157,20 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const [wizardSkipped, setWizardSkipped] = useState<Set<string>>(new Set())
   const [importResult, setImportResult] = useState<number | null>(null)
   const [pendingProjectSwitch, setPendingProjectSwitch] = useState<{ id: string; name: string } | null>(null)
+  // Conflict resolution: when an imported device name already exists in the
+  // local custom library we ask the user whether to keep the local entry
+  // (default), overwrite it with the Rentman version, or skip the import
+  // entirely. Without this prompt, every Rentman import would silently
+  // overwrite hand-edited templates, which is what the user complained about.
+  type ConflictDecision = 'keep' | 'overwrite' | 'skip'
+  interface ConflictItem {
+    name: string
+    category: string
+    rentmanId: string
+    decision: ConflictDecision
+  }
+  const [conflictItems, setConflictItems] = useState<ConflictItem[] | null>(null)
+  const [pendingDecisions, setPendingDecisions] = useState<Record<string, ConflictDecision>>({})
 
   const allCategories = useMemo(() => {
     const set = new Set<string>()
@@ -350,6 +364,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const saveToLibrary = (
     selected: RentmanEquipment[],
     templatesByEquipmentId: Record<string, EquipmentTemplate>,
+    decisionsByName: Record<string, ConflictDecision> = {},
   ): number => {
     // One library template per unique device name — quantity is irrelevant for the template.
     const seen = new Set<string>()
@@ -357,9 +372,34 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     selected.forEach((item) => {
       if (seen.has(item.name)) return
       seen.add(item.name)
+
+      const decision = decisionsByName[item.name]
+      const existing = customLibrary.find((t) => t.name === item.name)
+
+      // Skip: user chose not to import this device at all.
+      if (decision === 'skip') return
+
+      // Keep local: don't replace the user's template, just attach the
+      // Rentman id/source if they're missing so future imports recognize it.
+      if (decision === 'keep' && existing) {
+        const needsLink =
+          !existing.rentmanId || existing.rentmanSource !== selectedProjectId
+        if (needsLink) {
+          addCustomTemplate({
+            ...existing,
+            rentmanId: existing.rentmanId || item.equipmentId,
+            rentmanSource: selectedProjectId,
+          })
+        }
+        addedCount++
+        return
+      }
+
+      // Default / overwrite path — either no conflict, or user explicitly
+      // chose to replace the local template with the Rentman version.
       const base =
         templatesByEquipmentId[item.equipmentId] ||
-        customLibrary.find((t) => t.name === item.name) ||
+        existing ||
         matchBlackmagicTemplate(item.name) ||
         matchUbiquitiTemplate(item.name) ||
         matchMonitorTemplate(item.name) ||
@@ -395,10 +435,45 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     const selected = visibleItems.filter((item) => item.checked)
     if (selected.length === 0) return
 
+    // Step 1 — detect conflicts with the local custom library by name. We use
+    // name (not rentmanId) because the user typically renames or pre-builds
+    // devices in the library. Each unique conflicting name is offered to the
+    // user with a default decision of 'keep' (don't clobber local edits).
+    const seenNames = new Set<string>()
+    const conflicts: ConflictItem[] = []
+    selected.forEach((item) => {
+      if (seenNames.has(item.name)) return
+      seenNames.add(item.name)
+      const existing = customLibrary.find((t) => t.name === item.name)
+      if (existing) {
+        conflicts.push({
+          name: item.name,
+          category: item.category,
+          rentmanId: item.equipmentId,
+          decision: 'keep',
+        })
+      }
+    })
+
+    if (conflicts.length > 0) {
+      setConflictItems(conflicts)
+      return
+    }
+
+    proceedAfterConflicts({})
+  }
+
+  const proceedAfterConflicts = (decisionsByName: Record<string, ConflictDecision>) => {
+    const selected = visibleItems.filter((item) => item.checked)
+    if (selected.length === 0) return
+
+    // Items the user chose to keep / skip locally don't need wizard prompts:
+    // we already know what to do with them.
     const knownNames = new Set(customLibrary.map((t) => t.name))
     const unknownMap = new Map<string, UnknownCandidate>()
     selected.forEach((item) => {
       if (knownNames.has(item.name)) return
+      if (decisionsByName[item.name] === 'skip') return
       if (matchBlackmagicTemplate(item.name)) return
       if (matchUbiquitiTemplate(item.name)) return
       if (matchMonitorTemplate(item.name)) return
@@ -414,12 +489,14 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     })
 
     if (unknownMap.size === 0) {
-      const count = saveToLibrary(selected, {})
+      const count = saveToLibrary(selected, {}, decisionsByName)
       setImportResult(count)
       setTimeout(() => { setImportResult(null); onClose() }, 2000)
       return
     }
 
+    // Stash decisions on the wizard state so completeImportAfterWizard can use them.
+    setPendingDecisions(decisionsByName)
     setWizardQueue(Array.from(unknownMap.values()))
     setWizardTemplates({})
     setWizardSkipped(new Set())
@@ -431,10 +508,11 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   ) => {
     const selected = visibleItems.filter((item) => item.checked)
     void skipped
-    const count = saveToLibrary(selected, templates)
+    const count = saveToLibrary(selected, templates, pendingDecisions)
     setWizardQueue(null)
     setWizardTemplates({})
     setWizardSkipped(new Set())
+    setPendingDecisions({})
     setImportResult(count)
     setTimeout(() => { setImportResult(null); onClose() }, 2000)
   }
@@ -505,7 +583,118 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         </div>
       )}
 
-      {!pendingProjectSwitch && (
+      {!pendingProjectSwitch && conflictItems && (
+        <div className="w-full max-w-2xl rounded border border-amber-600 bg-slate-900 p-5 text-slate-100 shadow-xl">
+          <h3 className="mb-2 text-base font-semibold text-amber-400">
+            {conflictItems.length === 1
+              ? 'Gerät bereits in lokaler Bibliothek'
+              : `${conflictItems.length} Geräte bereits in lokaler Bibliothek`}
+          </h3>
+          <p className="mb-3 text-sm text-slate-300">
+            Folgende aus Rentman ausgewählte Geräte gibt es schon in deiner
+            lokalen Bibliothek. Standardmäßig wird die lokale Definition
+            beibehalten – damit gehen deine eigenen Port-Konfigurationen nicht
+            verloren. Du kannst pro Gerät entscheiden:
+          </p>
+          <div className="mb-3 max-h-[55vh] overflow-auto rounded border border-slate-800">
+            <table className="w-full text-xs">
+              <thead className="sticky top-0 bg-slate-950 text-left text-[11px] uppercase tracking-wide text-slate-400">
+                <tr>
+                  <th className="px-2 py-1">Gerät</th>
+                  <th className="px-2 py-1">Aktion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {conflictItems.map((c, idx) => (
+                  <tr key={c.name} className="border-t border-slate-800 align-top">
+                    <td className="px-2 py-1.5">
+                      <div className="font-medium">{c.name}</div>
+                      <div className="text-[11px] text-slate-500">{c.category}</div>
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <div className="flex flex-col gap-0.5">
+                        {(
+                          [
+                            ['keep', 'Lokale Version beibehalten (empfohlen)'],
+                            ['overwrite', 'Mit Rentman-Version überschreiben'],
+                            ['skip', 'Überspringen (nicht importieren)'],
+                          ] as const
+                        ).map(([value, label]) => (
+                          <label key={value} className="flex items-center gap-1.5">
+                            <input
+                              type="radio"
+                              name={`conflict-${idx}`}
+                              checked={c.decision === value}
+                              onChange={() => {
+                                setConflictItems((prev) =>
+                                  prev
+                                    ? prev.map((item, i) =>
+                                        i === idx ? { ...item, decision: value } : item,
+                                      )
+                                    : prev,
+                                )
+                              }}
+                            />
+                            <span>{label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mb-3 flex items-center gap-2 text-[11px] text-slate-500">
+            <span>Alle setzen:</span>
+            {(
+              [
+                ['keep', 'Lokal beibehalten'],
+                ['overwrite', 'Rentman übernehmen'],
+                ['skip', 'Überspringen'],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() =>
+                  setConflictItems((prev) =>
+                    prev ? prev.map((item) => ({ ...item, decision: value })) : prev,
+                  )
+                }
+                className="rounded bg-slate-700 px-2 py-0.5 hover:bg-slate-600"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setConflictItems(null)}
+              className="rounded bg-slate-700 px-3 py-1.5 text-sm hover:bg-slate-600"
+            >
+              Abbrechen
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const decisions: Record<string, ConflictDecision> = {}
+                conflictItems.forEach((c) => {
+                  decisions[c.name] = c.decision
+                })
+                setConflictItems(null)
+                proceedAfterConflicts(decisions)
+              }}
+              className="rounded bg-emerald-600 px-3 py-1.5 text-sm font-medium hover:bg-emerald-500"
+            >
+              Weiter
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!pendingProjectSwitch && !conflictItems && (
         <>
       <div className="w-full max-w-3xl rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
         <div className="mb-3 flex items-center justify-between">
