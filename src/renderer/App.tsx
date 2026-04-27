@@ -803,7 +803,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
           {/* Endpoint editor as collapsible accordion below color. Compact
               summary always visible (current routing); expand to change
               device/port on either side. */}
-          <details className="rounded border border-slate-700 bg-slate-950/50">
+          <details open className="rounded border border-slate-700 bg-slate-950/50">
             <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] text-slate-300 hover:bg-slate-800/40">
               <span className="font-semibold uppercase tracking-wide text-slate-400">Verbindung</span>
               <span className="ml-2 text-slate-300">
