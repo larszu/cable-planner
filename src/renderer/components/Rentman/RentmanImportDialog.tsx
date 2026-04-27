@@ -222,6 +222,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const [wizardQueue, setWizardQueue] = useState<UnknownCandidate[] | null>(null)
   const [wizardTemplates, setWizardTemplates] = useState<Record<string, EquipmentTemplate>>({})
   const [wizardSkipped, setWizardSkipped] = useState<Set<string>>(new Set())
+  const [wizardExcluded, setWizardExcluded] = useState<Set<string>>(new Set())
   const [importResult, setImportResult] = useState<number | null>(null)
   const [pendingProjectSwitch, setPendingProjectSwitch] = useState<{ id: string; name: string } | null>(null)
   // Conflict resolution: when an imported device name already exists in the
@@ -717,18 +718,21 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     setWizardQueue(Array.from(unknownMap.values()))
     setWizardTemplates({})
     setWizardSkipped(new Set())
+    setWizardExcluded(new Set())
   }
 
   const completeImportAfterWizard = (
     templates: Record<string, EquipmentTemplate>,
     skipped: Set<string>,
+    excluded: Set<string>,
   ) => {
-    const selected = visibleItems.filter((item) => item.checked)
+    const selected = visibleItems.filter((item) => item.checked && !excluded.has(item.equipmentId))
     void skipped
     const count = saveToLibrary(selected, templates, pendingDecisions)
     setWizardQueue(null)
     setWizardTemplates({})
     setWizardSkipped(new Set())
+    setWizardExcluded(new Set())
     setPendingDecisions({})
     setImportResult(count)
     setTimeout(() => { setImportResult(null); onClose() }, 2000)
@@ -740,7 +744,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     const nextTemplates = { ...wizardTemplates, [candidate.rentmanId]: withSource }
     setWizardTemplates(nextTemplates)
     if (wizardQueue && candidate === wizardQueue[wizardQueue.length - 1]) {
-      completeImportAfterWizard(nextTemplates, wizardSkipped)
+      completeImportAfterWizard(nextTemplates, wizardSkipped, wizardExcluded)
     }
   }
 
@@ -749,7 +753,16 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     nextSkipped.add(candidate.rentmanId)
     setWizardSkipped(nextSkipped)
     if (wizardQueue && candidate === wizardQueue[wizardQueue.length - 1]) {
-      completeImportAfterWizard(wizardTemplates, nextSkipped)
+      completeImportAfterWizard(wizardTemplates, nextSkipped, wizardExcluded)
+    }
+  }
+
+  const handleWizardExclude = (candidate: UnknownCandidate) => {
+    const nextExcluded = new Set(wizardExcluded)
+    nextExcluded.add(candidate.rentmanId)
+    setWizardExcluded(nextExcluded)
+    if (wizardQueue && candidate === wizardQueue[wizardQueue.length - 1]) {
+      completeImportAfterWizard(wizardTemplates, wizardSkipped, nextExcluded)
     }
   }
 
@@ -757,6 +770,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     setWizardQueue(null)
     setWizardTemplates({})
     setWizardSkipped(new Set())
+    setWizardExcluded(new Set())
   }
 
   return (
@@ -1172,6 +1186,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         items={wizardQueue ?? []}
         onSave={handleWizardSave}
         onSkip={handleWizardSkip}
+        onExclude={handleWizardExclude}
         onCancel={handleWizardCancel}
       />
         </>
