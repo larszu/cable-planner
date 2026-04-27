@@ -120,12 +120,78 @@ const buildCanvasPdf = async (metadata?: ProjectMetadata): Promise<jsPDF> => {
   }
 
   const viewportEl = canvasEl.querySelector('.react-flow__viewport') as HTMLElement | null
-  const target = viewportEl ?? canvasEl
+  if (!viewportEl) {
+    throw new Error('ReactFlow viewport not found')
+  }
 
-  const dataUrl = await toPng(target, {
+  // Compute the bounding box of ALL nodes in flow-coordinates (not the current
+  // visible viewport). Each `.react-flow__node` is absolutely positioned via
+  // `transform: translate(x, y)` relative to the viewport at scale 1; the
+  // node's own `offsetWidth`/`offsetHeight` is unaffected by the viewport
+  // zoom. We parse each node's translation directly so we don't depend on the
+  // current zoom level.
+  const nodeEls = Array.from(
+    viewportEl.querySelectorAll<HTMLElement>('.react-flow__node'),
+  )
+  if (nodeEls.length === 0) {
+    throw new Error('Keine Geräte zum Exportieren vorhanden')
+  }
+
+  const parseTranslate = (el: HTMLElement): { x: number; y: number } => {
+    // Prefer the matrix from getComputedStyle so we cover translate / translate3d / matrix.
+    const transform = getComputedStyle(el).transform
+    if (transform && transform !== 'none') {
+      const match = /matrix.*\((.+)\)/.exec(transform)
+      if (match) {
+        const parts = match[1].split(',').map((value) => parseFloat(value.trim()))
+        if (parts.length === 6) return { x: parts[4], y: parts[5] }
+        if (parts.length === 16) return { x: parts[12], y: parts[13] }
+      }
+    }
+    return { x: 0, y: 0 }
+  }
+
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+  for (const node of nodeEls) {
+    const { x, y } = parseTranslate(node)
+    const w = node.offsetWidth
+    const h = node.offsetHeight
+    if (x < minX) minX = x
+    if (y < minY) minY = y
+    if (x + w > maxX) maxX = x + w
+    if (y + h > maxY) maxY = y + h
+  }
+  if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
+    throw new Error('Konnte den Inhalt des Canvas nicht vermessen')
+  }
+
+  // Padding around the content (in flow pixels) so cable bends and labels
+  // near the edge aren't clipped.
+  const padding = 80
+  const contentX = minX - padding
+  const contentY = minY - padding
+  const contentW = Math.ceil(maxX - minX + padding * 2)
+  const contentH = Math.ceil(maxY - minY + padding * 2)
+
+  // Capture the viewport at scale 1, translated so the content's top-left
+  // sits at (0, 0). html-to-image's `width`/`height` clip the output to the
+  // requested rectangle and `style` overrides the captured element's style
+  // during capture (does not mutate the live DOM).
+  const dataUrl = await toPng(viewportEl, {
     backgroundColor: '#0f172a',
     pixelRatio: 2,
     cacheBust: true,
+    width: contentW,
+    height: contentH,
+    style: {
+      width: `${contentW}px`,
+      height: `${contentH}px`,
+      transform: `translate(${-contentX}px, ${-contentY}px)`,
+      transformOrigin: '0 0',
+    },
     filter: (node) => {
       if (!(node instanceof HTMLElement)) return true
       if (node.classList.contains('react-flow__minimap')) return false
@@ -141,21 +207,28 @@ const buildCanvasPdf = async (metadata?: ProjectMetadata): Promise<jsPDF> => {
     img.onerror = () => reject(new Error('Could not load captured image'))
   })
 
-  const orientation = img.width >= img.height ? 'landscape' : 'portrait'
-  const pdf = new jsPDF({ orientation, unit: 'pt', format: 'a4' })
-  const pageWidth = pdf.internal.pageSize.getWidth()
-  const pageHeight = pdf.internal.pageSize.getHeight()
-
+  // Build a PDF page sized to the captured image. Content was captured at
+  // pixelRatio=2 so the natural pixel dimensions are doubled; we want the PDF
+  // page to match the logical (CSS-pixel) size of the canvas content. 1 CSS
+  // pixel ≈ 0.75 pt at 96 DPI.
+  const PX_TO_PT = 0.75
   const margin = 24
+  const headerHeight = 28 // reserved for title + timestamp at the top
   const titleBlockHeight = metadata ? 160 : 0
+  const titleBlockGap = metadata ? 12 : 0
 
-  const availW = pageWidth - margin * 2
-  const availH = pageHeight - margin * 2 - 24 - titleBlockHeight
-  const scale = Math.min(availW / img.width, availH / img.height)
-  const renderW = img.width * scale
-  const renderH = img.height * scale
-  const offsetX = (pageWidth - renderW) / 2
-  const offsetY = margin + 24
+  const drawingW = contentW * PX_TO_PT
+  const drawingH = contentH * PX_TO_PT
+
+  const pageWidth = drawingW + margin * 2
+  const pageHeight = drawingH + margin * 2 + headerHeight + titleBlockHeight + titleBlockGap
+
+  const orientation = pageWidth >= pageHeight ? 'landscape' : 'portrait'
+  const pdf = new jsPDF({
+    orientation,
+    unit: 'pt',
+    format: [pageWidth, pageHeight],
+  })
 
   pdf.setFontSize(14)
   pdf.setTextColor(15)
@@ -164,7 +237,9 @@ const buildCanvasPdf = async (metadata?: ProjectMetadata): Promise<jsPDF> => {
   pdf.setTextColor(80)
   pdf.text(new Date().toLocaleString(), pageWidth - margin, margin + 4, { align: 'right' })
 
-  pdf.addImage(dataUrl, 'PNG', offsetX, offsetY, renderW, renderH)
+  const offsetX = margin
+  const offsetY = margin + headerHeight
+  pdf.addImage(dataUrl, 'PNG', offsetX, offsetY, drawingW, drawingH)
 
   if (metadata) {
     drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin)
