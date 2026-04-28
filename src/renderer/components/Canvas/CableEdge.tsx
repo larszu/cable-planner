@@ -90,8 +90,30 @@ const buildPath = (
     : rawWaypoints
 
   if (waypoints.length === 0) {
-    const [path, labelX, labelY] = getSmoothStepPath(args)
-    return [path, labelX, labelY]
+    // No manual waypoints and no obstacle detour: build a simple orthogonal
+    // L-shape. Using getSmoothStepPath here produces unexpected smooth curves
+    // that don't look "orthogonal". An explicit L-shape is more predictable:
+    // horizontal first (to the target X), then vertical to the target Y.
+    // This matches user expectation for orthogonal cable routing.
+    const sx = args.sourceX
+    const sy = args.sourceY
+    const tx = args.targetX
+    const ty = args.targetY
+    // Skip L-shape if source and target are already collinear (same x or y).
+    if (Math.abs(sx - tx) < 2) {
+      // Same column — draw a straight vertical line.
+      const midY = (sy + ty) / 2
+      return [`M ${sx} ${sy} L ${tx} ${ty}`, (sx + tx) / 2, midY]
+    }
+    if (Math.abs(sy - ty) < 2) {
+      // Same row — draw a straight horizontal line.
+      const midX = (sx + tx) / 2
+      return [`M ${sx} ${sy} L ${tx} ${ty}`, midX, (sy + ty) / 2]
+    }
+    // L-shape: horizontal first then vertical.
+    const bend = { x: tx, y: sy }
+    const d = `M ${sx} ${sy} L ${bend.x} ${bend.y} L ${tx} ${ty}`
+    return [d, (sx + tx) / 2, (sy + ty) / 2]
   }
   const points = [
     { x: args.sourceX, y: args.sourceY },
