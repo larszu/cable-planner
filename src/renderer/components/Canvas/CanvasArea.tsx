@@ -8,6 +8,7 @@ import ReactFlow, {
   applyNodeChanges,
   updateEdge,
   useReactFlow,
+  useUpdateNodeInternals,
   ConnectionMode,
   type Connection,
   type Edge,
@@ -38,6 +39,7 @@ const edgeTypes = { cable: CableEdge }
 
 const CanvasContent = () => {
   const project = useProjectStore((state) => state.project)
+  const projectVersion = useProjectStore((state) => state.projectVersion)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const addEquipment = useProjectStore((state) => state.addEquipment)
   const pasteEquipment = useProjectStore((state) => state.pasteEquipment)
@@ -58,7 +60,8 @@ const CanvasContent = () => {
   const clearPendingCable = useUiStore((state) => state.clearPendingCable)
   const openCableEdit = useUiStore((state) => state.openCableEdit)
   const wrapperRef = useRef<HTMLDivElement>(null)
-  const { screenToFlowPosition } = useReactFlow()
+  const { screenToFlowPosition, setViewport } = useReactFlow()
+  const updateNodeInternals = useUpdateNodeInternals()
   const [interactionLocked, setInteractionLocked] = useState(false)
   const interactionLockedRef = useRef(false)
   const lockTokensRef = useRef(0)
@@ -134,6 +137,20 @@ const CanvasContent = () => {
     }
   }, [requestInteractionLock, unlockInteractionNow])
 
+  // Restore saved viewport whenever a new project is loaded (projectVersion changes).
+  // The initial render uses defaultViewport below; this effect handles
+  // subsequent in-session project loads (open file, new project, sync pull).
+  const isFirstRender = useRef(true)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    const cs = project.canvasState
+    setViewport({ x: cs.x, y: cs.y, zoom: cs.zoom })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectVersion])
+
   const edgeUpdateSuccessful = useRef(true)
   const connectStartRef = useRef<{
     nodeId: string | null
@@ -196,6 +213,7 @@ const CanvasContent = () => {
   // edits are visible on the canvas immediately.
   const prevIdsRef = useRef<string>(nodes.map((n) => n.id).join(','))
   useEffect(() => {
+    const changedIds: string[] = []
     setRfNodes((current) => {
       const currentById = new Map(current.map((n) => [n.id, n]))
       // For every node that already exists in rfNodes we keep the existing
@@ -210,11 +228,19 @@ const CanvasContent = () => {
       return nodes.map((n) => {
         const existing = currentById.get(n.id)
         if (!existing) return n
+        // Track nodes whose data changed so we can call updateNodeInternals
+        // below. This tells ReactFlow to re-register handle positions so
+        // cable edges re-route to the correct port after port edits (#20).
+        if (existing.data !== n.data) changedIds.push(n.id)
         return { ...existing, data: n.data }
       })
     })
     prevIdsRef.current = nodes.map((n) => n.id).join(',')
-  }, [nodes])
+    // Re-register handles for nodes whose data changed (port additions,
+    // removals, reorders). Without this ReactFlow keeps stale handle
+    // positions and edges visually stay connected to the old handle.
+    if (changedIds.length > 0) updateNodeInternals(changedIds)
+  }, [nodes, updateNodeInternals])
 
   const edges = useMemo<Edge[]>(
     () =>
@@ -801,10 +827,11 @@ const CanvasContent = () => {
         onEdgeUpdateEnd={onEdgeUpdateEnd}
         edgeUpdaterRadius={16}
         // Snap a dragged connection to the nearest port handle within this
-        // pixel radius. Without this, users have to hit the 10×10 handle
-        // exactly; with it, the cable "rastet ein" when the cursor is close.
-        connectionRadius={28}
-        defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+        // pixel radius. Keep it below PORT_ROW/2 (=11) so adjacent ports
+        // don't get confused: 28px was larger than the 22px row spacing and
+        // caused cables to snap to the wrong port (Bug #21).
+        connectionRadius={10}
+        defaultViewport={{ x: project.canvasState.x, y: project.canvasState.y, zoom: project.canvasState.zoom }}
         minZoom={0.1}
         maxZoom={4}
         snapToGrid={snapToGrid}
@@ -825,6 +852,15 @@ const CanvasContent = () => {
             ? setSelection(undefined, undefined, node.id)
             : setSelection(node.id, undefined, undefined)
         }
+        onNodeDoubleClick={(_event, node) => {
+          if (node.type === 'location') {
+            const current = (node.data as { name?: string }).name ?? ''
+            const newName = window.prompt('Location umbenennen:', current)
+            if (newName !== null && newName.trim()) {
+              updateLocation(node.id, { name: newName.trim() })
+            }
+          }
+        }}
         onNodeDragStart={onNodeDragStart}
         onNodeDragStop={onNodeDragStop}
         onEdgeClick={(_event, edge) => setSelection(undefined, edge.id, undefined)}

@@ -794,6 +794,39 @@ export const EquipmentProperties = () => {
         />
       </label>
 
+      <label className="block">
+        <span className="mb-1 block text-slate-300">Untertitel <span className="text-slate-500">(optional, z.B. "PGM Monitor")</span></span>
+        <input
+          value={equipment.subtitle ?? ''}
+          placeholder="Untertitel…"
+          onChange={(event) => updateEquipment(equipment.id, { subtitle: event.target.value || undefined })}
+          className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+        />
+      </label>
+
+      <label className="flex items-center justify-between gap-2">
+        <span className="text-slate-300">Gerätefarbe</span>
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            value={equipment.nodeColor ?? '#475569'}
+            onChange={(event) => updateEquipment(equipment.id, { nodeColor: event.target.value })}
+            className="h-7 w-12 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
+            title="Farbe des Geräte-Knotens"
+          />
+          {equipment.nodeColor && (
+            <button
+              type="button"
+              onClick={() => updateEquipment(equipment.id, { nodeColor: undefined })}
+              className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
+              title="Farbe zurücksetzen"
+            >
+              ✕ Reset
+            </button>
+          )}
+        </div>
+      </label>
+
       {/* Rentman sync status */}
       {equipment.rentmanRemoved ? (
         <div className="flex items-center gap-1.5 rounded border border-red-700/50 bg-red-900/20 px-2 py-1 text-[11px] text-red-300">

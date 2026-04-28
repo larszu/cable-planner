@@ -60,6 +60,10 @@ export interface Port {
 export interface EquipmentItem {
   id: string
   name: string
+  /** Optional subtitle shown below the device name (e.g. "PGM Monitor", "Cam 1"). */
+  subtitle?: string
+  /** Optional background/accent color for the node header (CSS hex, e.g. "#0f4c81"). */
+  nodeColor?: string
   category: string
   inputs: Port[]
   outputs: Port[]

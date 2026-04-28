@@ -457,10 +457,12 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
   const onSelectSpec = (id: string) => {
     setSpecId(id)
     if (id === CUSTOM_CABLE_SPEC_ID) {
-      setName('Custom Cable')
       setColor('#64748b')
       setNotes('')
       setStandard(customStandard)
+      // Do NOT reset `name` here — keep whatever the user typed (or the
+      // previous spec name) so a mid-dialog spec switch doesn't wipe out
+      // the user's custom name. (Bug #13)
       return
     }
     const spec = cableCatalog.find((c) => c.id === id)
