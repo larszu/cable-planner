@@ -55,6 +55,7 @@ const CanvasContent = () => {
   const snapToGrid = useUiStore((state) => state.snapToGrid)
   const gridSize = useUiStore((state) => state.gridSize)
   const cableColorMode = useUiStore((state) => state.cableColorMode)
+  const canvasTheme = useUiStore((state) => state.canvasTheme)
   const pendingCable = useUiStore((state) => state.pendingCable)
   const addPendingWaypoint = useUiStore((state) => state.addPendingWaypoint)
   const clearPendingCable = useUiStore((state) => state.clearPendingCable)
@@ -770,6 +771,7 @@ const CanvasContent = () => {
       ref={wrapperRef}
       style={{ width: '100%', height: '100%', minHeight: 400, position: 'relative' }}
       id="cable-planner-canvas"
+      className={canvasTheme === 'light' ? 'canvas-theme-light' : ''}
       onDrop={onDrop}
       onDragOver={onDragOver}
     >
@@ -867,9 +869,12 @@ const CanvasContent = () => {
         onEdgeDoubleClick={(_event, edge) => openCableEdit(edge.id)}
         onMoveEnd={(_event, viewport) => setCanvasState(viewport.x, viewport.y, viewport.zoom)}
       >
-        <MiniMap pannable zoomable className="!bg-slate-800" maskColor="rgba(15,23,42,0.7)" />
+        <MiniMap pannable zoomable
+          className={canvasTheme === 'light' ? '!bg-slate-100' : '!bg-slate-800'}
+          maskColor={canvasTheme === 'light' ? 'rgba(226,232,240,0.7)' : 'rgba(15,23,42,0.7)'}
+        />
         <Controls />
-        <Background />
+        <Background color={canvasTheme === 'light' ? '#cbd5e1' : '#334155'} />
       </ReactFlow>
       <PendingCableOverlay />
       <TitleBlock />

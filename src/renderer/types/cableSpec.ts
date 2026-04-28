@@ -26,6 +26,15 @@ export type SignalStandard =
   | 'Power-230V'
   | 'Fiber-SM'
   | 'Fiber-MM'
+  | 'Thunderbolt-3'
+  | 'Thunderbolt-4'
+  | 'MADI'
+  | 'SMPTE-297'
+  | 'SMPTE-304M'
+  | 'RF-UHF'
+  | 'RF-VHF'
+  | 'RF-2.4G'
+  | 'RF-5G'
   | 'Generic'
 
 /** All valid signal standard values in display order. */
@@ -35,6 +44,9 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
   'DP-1.2', 'DP-1.4', 'DP-2.0',
   'Eth-100', 'Eth-1G', 'Eth-10G',
   'Analog-Audio', 'AES3', 'USB-2.0', 'USB-3.x',
+  'Thunderbolt-3', 'Thunderbolt-4',
+  'MADI', 'SMPTE-297', 'SMPTE-304M',
+  'RF-UHF', 'RF-VHF', 'RF-2.4G', 'RF-5G',
   'Power-230V', 'Fiber-SM', 'Fiber-MM', 'Generic',
 ]
 
@@ -197,6 +209,60 @@ export const cableCatalog: CableSpec[] = [
     standards: ['Power-230V'],
     maxLengthMeters: 25,
     color: '#334155',
+  },
+  {
+    id: 'thunderbolt-3',
+    name: 'Thunderbolt 3 (40Gbps)',
+    connectorType: 'USB-C',
+    standards: ['Thunderbolt-3', 'USB-2.0', 'USB-3.x'],
+    maxLengthMeters: 2,
+    color: '#7c3aed',
+    notes: 'USB-C Stecker, passiv bis 2 m. Aktives TB3-Kabel bis ~50 cm. Vorwärtskompatibel mit Thunderbolt 4.',
+  },
+  {
+    id: 'thunderbolt-4',
+    name: 'Thunderbolt 4 (40Gbps, zertifiziert)',
+    connectorType: 'USB-C',
+    standards: ['Thunderbolt-4', 'Thunderbolt-3', 'USB-2.0', 'USB-3.x'],
+    maxLengthMeters: 2,
+    color: '#6d28d9',
+    notes: 'Gleiche Bandbreite wie TB3, aber striktere Zertifizierung (2× DP 1.4, 40Gbps, 100W PD).',
+  },
+  {
+    id: 'madi-bnc',
+    name: 'MADI Koax (BNC, 75Ω)',
+    connectorType: 'BNC',
+    standards: ['MADI', 'AES3'],
+    maxLengthMeters: 200,
+    color: '#0891b2',
+    notes: 'MADI AES10 über 75Ω-Koax. Bis 64 ch bei 48 kHz oder 56 ch bei 96 kHz.',
+  },
+  {
+    id: 'madi-optical',
+    name: 'MADI Optisch (ST/SC Fiber)',
+    connectorType: 'Fiber',
+    standards: ['MADI', 'Fiber-MM'],
+    maxLengthMeters: 2000,
+    color: '#06b6d4',
+    notes: 'MADI AES10 über optische Faser. Lange Reichweite, galvanisch getrennt.',
+  },
+  {
+    id: 'smpte-297',
+    name: 'SMPTE 297M Hybrid Fiber (SDI+Power)',
+    connectorType: 'Fiber',
+    standards: ['SMPTE-297', 'SDI-3G', 'SDI-HD', 'Fiber-SM'],
+    maxLengthMeters: 1000,
+    color: '#f59e0b',
+    notes: 'Hybridkabel mit optischer SDI-Strecke + Kupfer für Talkback und Stromversorgung. Kameraanschluss bei ENG/Studio.',
+  },
+  {
+    id: 'smpte-304m',
+    name: 'SMPTE 304M Triax (Kamerakabel)',
+    connectorType: 'Triax',
+    standards: ['SMPTE-304M', 'SDI-HD'],
+    maxLengthMeters: 300,
+    color: '#d97706',
+    notes: 'Triaxialkabel für Studio-Kameras (HDTV). Überträgt Video, Interkom, Talkback und Strom in einem Kabel.',
   },
 ]
 
