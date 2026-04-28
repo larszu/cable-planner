@@ -206,6 +206,16 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const { loadProjects, loadProjectEquipment, loadFolders, loadEquipment } = useRentman()
   const customLibrary = useProjectStore((state) => state.customLibrary)
   const projectEquipment = useProjectStore((state) => state.project.equipment)
+  
+  // Safe close handler that prevents closing during active import operations
+  // (fixes race condition when user clicks back/close before import completes)
+  const safeClose = () => {
+    if (loading || wizardQueue !== null || mergeQueue.length > 0 || categoryAssignments !== null || conflictItems !== null) {
+      window.alert('Importvorgänge laufen noch. Bitte warten Sie auf den Abschluss.')
+      return
+    }
+    onClose()
+  }
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const addCustomTemplate = useProjectStore((state) => state.addCustomTemplate)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
@@ -802,7 +812,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     if (unknownMap.size === 0) {
       const count = saveToLibrary(selected, mergeTemplatesByEquipmentId, decisionsByName, categoryByName)
       setImportResult(count)
-      setTimeout(() => { setImportResult(null); onClose() }, 2000)
+      setTimeout(() => { setImportResult(null); safeClose() }, 2000)
       return
     }
 
@@ -837,7 +847,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     setPendingCategoryByName({})
     setPendingMergeTemplates({})
     setImportResult(count)
-    setTimeout(() => { setImportResult(null); onClose() }, 2000)
+    setTimeout(() => { setImportResult(null); safeClose() }, 2000)
   }
 
   const handleWizardSave = (candidate: UnknownCandidate, template: EquipmentTemplate) => {
@@ -875,6 +885,8 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     setWizardExcluded(new Set())
     setPendingMergeTemplates({})
     setPendingCategoryByName({})
+    // Safe to close after cancelling wizard
+    safeClose()
   }
 
   const activeMergeItem = mergeQueue[mergeIndex] ?? null
