@@ -427,6 +427,12 @@ const CanvasContent = () => {
       ) {
         const px = snap(change.position.x)
         const py = snap(change.position.y)
+        // CRITICAL: Ensure snapped positions are valid numbers. Prevent NaN
+        // from being persisted if snap() or any calculation somehow produces NaN.
+        if (!Number.isFinite(px) || !Number.isFinite(py)) {
+          console.warn(`[CanvasArea] Drag-end produced invalid position: (${px}, ${py}) for node ${change.id}`)
+          return
+        }
         const isLocation = locations.some((l) => l.id === change.id)
         if (isLocation) {
           const drag = locationDragRef.current
