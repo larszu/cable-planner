@@ -827,6 +827,15 @@ export const EquipmentProperties = () => {
         </div>
       </label>
 
+      <label className="flex items-center gap-2 text-[11px] text-slate-300">
+        <input
+          type="checkbox"
+          checked={!!equipment.portsFlipped}
+          onChange={(event) => updateEquipment(equipment.id, { portsFlipped: event.target.checked || undefined })}
+        />
+        Ports spiegeln (Inputs rechts, Outputs links)
+      </label>
+
       {/* Rentman sync status */}
       {equipment.rentmanRemoved ? (
         <div className="flex items-center gap-1.5 rounded border border-red-700/50 bg-red-900/20 px-2 py-1 text-[11px] text-red-300">

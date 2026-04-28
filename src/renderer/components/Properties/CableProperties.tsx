@@ -251,6 +251,26 @@ export const CableProperties = () => {
         />
       </label>
 
+      <div>
+        <span className="mb-1 block text-slate-300">Label Position</span>
+        <div className="flex gap-1">
+          {(['source', 'center', 'target'] as const).map((pos) => (
+            <button
+              key={pos}
+              type="button"
+              onClick={() => updateCable(cable.id, { labelPosition: pos })}
+              className={`flex-1 rounded border px-2 py-1 capitalize ${
+                (cable.labelPosition ?? 'center') === pos
+                  ? 'border-sky-500 bg-sky-800 text-white'
+                  : 'border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              {pos === 'source' ? '← Start' : pos === 'target' ? 'End →' : 'Mitte'}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-3 gap-1">
         <label className="flex items-center gap-1">
           <input

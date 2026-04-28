@@ -204,29 +204,35 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
         )}
       </div>
 
-      {/* Inputs (left column) */}
+      {/* Inputs */}
       {data.inputs.map((port, index) => {
         const top = headerHeight + index * PORT_ROW
+        const flipped = !!data.portsFlipped
         return (
           <div
             key={port.id}
             style={{
               position: 'absolute',
               top,
-              left: 0,
+              [flipped ? 'right' : 'left']: 0,
               width: '50%',
               height: PORT_ROW,
-              paddingLeft: 14,
-              paddingRight: 4,
+              [flipped ? 'paddingRight' : 'paddingLeft']: 14,
+              [flipped ? 'paddingLeft' : 'paddingRight']: 4,
               display: 'flex',
               alignItems: 'center',
+              justifyContent: flipped ? 'flex-end' : 'flex-start',
+              textAlign: flipped ? 'right' : 'left',
               fontSize: 11,
               pointerEvents: 'none',
             }}
           >
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {port.name}
-              <span style={{ color: '#64748b' }}> · {port.connectorType}</span>
+              {flipped ? (
+                <><span style={{ color: '#64748b' }}>{port.connectorType} · </span>{port.name}</>
+              ) : (
+                <>{port.name}<span style={{ color: '#64748b' }}> · {port.connectorType}</span></>
+              )}
             </span>
           </div>
         )
@@ -234,12 +240,14 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
       {data.inputs.map((port, index) => {
         const bi = port.direction === 'bidirectional'
         const isStart = isPendingStart(port.id, 'input')
+        const flipped = !!data.portsFlipped
+        const pos = flipped ? Position.Right : Position.Left
         return (
           <Fragment key={`h-in-${port.id}`}>
             <Handle
               type="target"
               id={port.id}
-              position={Position.Left}
+              position={pos}
               onClick={handlePortClick(port.id, 'input')}
               style={{
                 top: rowCenter(index),
@@ -255,7 +263,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
               <Handle
                 type="source"
                 id={port.id}
-                position={Position.Left}
+                position={pos}
                 onClick={handlePortClick(port.id, 'input')}
                 style={{
                   top: rowCenter(index),
@@ -270,31 +278,35 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
         )
       })}
 
-      {/* Outputs (right column) */}
+      {/* Outputs */}
       {data.outputs.map((port, index) => {
         const top = headerHeight + index * PORT_ROW
+        const flipped = !!data.portsFlipped
         return (
           <div
             key={port.id}
             style={{
               position: 'absolute',
               top,
-              right: 0,
+              [flipped ? 'left' : 'right']: 0,
               width: '50%',
               height: PORT_ROW,
-              paddingRight: 14,
-              paddingLeft: 4,
+              [flipped ? 'paddingLeft' : 'paddingRight']: 14,
+              [flipped ? 'paddingRight' : 'paddingLeft']: 4,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'flex-end',
-              textAlign: 'right',
+              justifyContent: flipped ? 'flex-start' : 'flex-end',
+              textAlign: flipped ? 'left' : 'right',
               fontSize: 11,
               pointerEvents: 'none',
             }}
           >
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              <span style={{ color: '#64748b' }}>{port.connectorType} · </span>
-              {port.name}
+              {flipped ? (
+                <>{port.name}<span style={{ color: '#64748b' }}> · {port.connectorType}</span></>
+              ) : (
+                <><span style={{ color: '#64748b' }}>{port.connectorType} · </span>{port.name}</>
+              )}
             </span>
           </div>
         )
@@ -302,12 +314,14 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
       {data.outputs.map((port, index) => {
         const bi = port.direction === 'bidirectional'
         const isStart = isPendingStart(port.id, 'output')
+        const flipped = !!data.portsFlipped
+        const pos = flipped ? Position.Left : Position.Right
         return (
           <Fragment key={`h-out-${port.id}`}>
             <Handle
               type="source"
               id={port.id}
-              position={Position.Right}
+              position={pos}
               onClick={handlePortClick(port.id, 'output')}
               style={{
                 top: rowCenter(index),
@@ -323,7 +337,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
               <Handle
                 type="target"
                 id={port.id}
-                position={Position.Right}
+                position={pos}
                 onClick={handlePortClick(port.id, 'output')}
                 style={{
                   top: rowCenter(index),
