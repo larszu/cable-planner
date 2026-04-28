@@ -386,6 +386,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
           {
             ...equipment,
             id: uuidv4(),
+            // CRITICAL: Ensure x/y are valid numbers. If somehow they're undefined/NaN,
+            // default to (0, 0) so equipment doesn't disappear.
+            x: equipment.x !== undefined && !Number.isNaN(equipment.x) ? equipment.x : 0,
+            y: equipment.y !== undefined && !Number.isNaN(equipment.y) ? equipment.y : 0,
             // Ensure every port gets a unique id. Some library helpers seed
             // templates with `id: ''` and rely on the store to assign ids on
             // placement — without this, all handles on the node would share
@@ -410,6 +414,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
           ...equipment.map((item) => ({
             ...item,
             id: item.id || uuidv4(),
+            // CRITICAL: Ensure x/y are valid numbers. Equipment being imported
+            // should have positions, but if somehow they don't, default to (0, 0)
+            // to prevent disappearing equipment.
+            x: item.x !== undefined && !Number.isNaN(item.x) ? item.x : 0,
+            y: item.y !== undefined && !Number.isNaN(item.y) ? item.y : 0,
             inputs: item.inputs.map((p, index) => sanitizePort(p, `In ${index + 1}`)),
             outputs: item.outputs.map((p, index) => sanitizePort(p, `Out ${index + 1}`)),
           })),
@@ -436,8 +445,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       return {
         ...item,
         id: newId,
-        x: item.x + offset.dx,
-        y: item.y + offset.dy,
+        // CRITICAL: Ensure x/y remain valid after offset application.
+        // Prevent equipment from disappearing if somehow x/y become NaN.
+        x: !Number.isNaN(item.x + offset.dx) ? item.x + offset.dx : item.x,
+        y: !Number.isNaN(item.y + offset.dy) ? item.y + offset.dy : item.y,
         inputs: remapPorts(item.inputs, 'In'),
         outputs: remapPorts(item.outputs, 'Out'),
         // Drop port-keyed VLAN map; ids are different now.
@@ -482,7 +493,17 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       const prev = state.project.equipment.find((e) => e.id === id)
       let updatedItem: EquipmentItem | undefined
       const nextEquipment = state.project.equipment.map((item) =>
-        item.id === id ? ((updatedItem = { ...item, ...patch }), updatedItem) : item,
+        item.id === id
+          ? ((updatedItem = { 
+              ...item, 
+              ...patch,
+              // CRITICAL: Never allow position to become undefined or NaN. 
+              // If patch accidentally omits x/y or sets them to undefined,
+              // preserve the previous values to prevent equipment from disappearing.
+              x: patch.x !== undefined && !Number.isNaN(patch.x) ? patch.x : item.x,
+              y: patch.y !== undefined && !Number.isNaN(patch.y) ? patch.y : item.y,
+            }), updatedItem)
+          : item,
       )
       // If the equipment moved, also shift waypoints of cables attached to it
       // so the cable visually travels with the device (draw.io-style). When
