@@ -1,99 +1,99 @@
 {
-  "name": "cable-planner",
-  "private": true,
-  "version": "0.2.29",
-  "description": "Electron desktop app for planning and visualizing broadcast equipment cabling",
-  "author": {
-    "name": "Lars Zumpe",
-    "email": "lars@zumpe.dev"
-  },
-  "type": "module",
-  "main": "dist/main/index.js",
-  "scripts": {
-    "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:main\" \"npm:dev:preload\" \"npm:dev:electron\"",
-    "dev:renderer": "vite",
-    "dev:main": "tsc -p tsconfig.main.json --watch",
-    "dev:preload": "tsc -p tsconfig.preload.json --watch",
-    "dev:electron": "wait-on tcp:5173 dist/main/index.js dist/main/preload.cjs && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .",
-    "build": "npm run build:main && npm run build:preload && npm run build:renderer",
-    "build:main": "tsc -p tsconfig.main.json",
-    "build:preload": "tsc -p tsconfig.preload.json",
-    "build:renderer": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "dist": "npm run build && electron-builder --config electron-builder.config.js"
-  },
-  "dependencies": {
-    "@dnd-kit/core": "^6.3.1",
-    "@dnd-kit/sortable": "^10.0.0",
-    "@dnd-kit/utilities": "^3.2.2",
-    "atem-connection": "^3.9.0",
-    "axios": "^1.13.1",
-    "html-to-image": "^1.11.13",
-    "jspdf": "^4.2.1",
-    "keytar": "^7.9.0",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
-    "reactflow": "^11.11.4",
-    "uuid": "^13.0.0",
-    "yaml": "^2.8.3",
-    "zustand": "^5.0.8"
-  },
-  "devDependencies": {
-    "@electron/rebuild": "^4.0.4",
-    "@eslint/js": "^9.39.4",
-    "@tailwindcss/postcss": "^4.1.15",
-    "@types/node": "^24.12.2",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
-    "autoprefixer": "^10.4.21",
-    "concurrently": "^9.2.1",
-    "cross-env": "^10.1.0",
-    "electron": "^41.2.2",
-    "electron-builder": "^26.0.12",
-    "eslint": "^9.39.4",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17.5.0",
-    "png-to-ico": "^3.0.1",
-    "postcss": "^8.5.6",
-    "sharp": "^0.34.5",
-    "tailwindcss": "^4.1.15",
-    "typescript": "~6.0.2",
-    "typescript-eslint": "^8.58.2",
-    "vite": "^8.0.9",
-    "wait-on": "^9.0.1"
-  },
-  "build": {
-    "appId": "net.cableplanner.app",
-    "productName": "Cable Planner",
-    "files": [
-      "dist/**/*",
-      "package.json"
-    ],
-    "directories": {
-      "buildResources": "build",
-      "output": "release"
-    },
-    "mac": {
-      "category": "public.app-category.productivity",
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "identity": null,
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
-    },
-    "win": {
-      "target": [
-        "nsis"
-      ]
-    }
-  }
+    "name":  "cable-planner",
+    "private":  true,
+    "version":  "0.2.30",
+    "description":  "Electron desktop app for planning and visualizing broadcast equipment cabling",
+    "author":  {
+                   "name":  "Lars Zumpe",
+                   "email":  "lars@zumpe.dev"
+               },
+    "type":  "module",
+    "main":  "dist/main/index.js",
+    "scripts":  {
+                    "dev":  "concurrently -k \"npm:dev:renderer\" \"npm:dev:main\" \"npm:dev:preload\" \"npm:dev:electron\"",
+                    "dev:renderer":  "vite",
+                    "dev:main":  "tsc -p tsconfig.main.json --watch",
+                    "dev:preload":  "tsc -p tsconfig.preload.json --watch",
+                    "dev:electron":  "wait-on tcp:5173 dist/main/index.js dist/main/preload.cjs \u0026\u0026 cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .",
+                    "build":  "npm run build:main \u0026\u0026 npm run build:preload \u0026\u0026 npm run build:renderer",
+                    "build:main":  "tsc -p tsconfig.main.json",
+                    "build:preload":  "tsc -p tsconfig.preload.json",
+                    "build:renderer":  "vite build",
+                    "lint":  "eslint .",
+                    "preview":  "vite preview",
+                    "dist":  "npm run build \u0026\u0026 electron-builder --config electron-builder.config.js"
+                },
+    "dependencies":  {
+                         "@dnd-kit/core":  "^6.3.1",
+                         "@dnd-kit/sortable":  "^10.0.0",
+                         "@dnd-kit/utilities":  "^3.2.2",
+                         "atem-connection":  "^3.9.0",
+                         "axios":  "^1.13.1",
+                         "html-to-image":  "^1.11.13",
+                         "jspdf":  "^4.2.1",
+                         "keytar":  "^7.9.0",
+                         "react":  "^19.2.5",
+                         "react-dom":  "^19.2.5",
+                         "reactflow":  "^11.11.4",
+                         "uuid":  "^13.0.0",
+                         "yaml":  "^2.8.3",
+                         "zustand":  "^5.0.8"
+                     },
+    "devDependencies":  {
+                            "@electron/rebuild":  "^4.0.4",
+                            "@eslint/js":  "^9.39.4",
+                            "@tailwindcss/postcss":  "^4.1.15",
+                            "@types/node":  "^24.12.2",
+                            "@types/react":  "^19.2.14",
+                            "@types/react-dom":  "^19.2.3",
+                            "@vitejs/plugin-react":  "^6.0.1",
+                            "autoprefixer":  "^10.4.21",
+                            "concurrently":  "^9.2.1",
+                            "cross-env":  "^10.1.0",
+                            "electron":  "^41.2.2",
+                            "electron-builder":  "^26.0.12",
+                            "eslint":  "^9.39.4",
+                            "eslint-plugin-react-hooks":  "^7.1.1",
+                            "eslint-plugin-react-refresh":  "^0.5.2",
+                            "globals":  "^17.5.0",
+                            "png-to-ico":  "^3.0.1",
+                            "postcss":  "^8.5.6",
+                            "sharp":  "^0.34.5",
+                            "tailwindcss":  "^4.1.15",
+                            "typescript":  "~6.0.2",
+                            "typescript-eslint":  "^8.58.2",
+                            "vite":  "^8.0.9",
+                            "wait-on":  "^9.0.1"
+                        },
+    "build":  {
+                  "appId":  "net.cableplanner.app",
+                  "productName":  "Cable Planner",
+                  "files":  [
+                                "dist/**/*",
+                                "package.json"
+                            ],
+                  "directories":  {
+                                      "buildResources":  "build",
+                                      "output":  "release"
+                                  },
+                  "mac":  {
+                              "category":  "public.app-category.productivity",
+                              "target":  [
+                                             {
+                                                 "target":  "dmg",
+                                                 "arch":  [
+                                                              "x64",
+                                                              "arm64"
+                                                          ]
+                                             }
+                                         ],
+                              "identity":  null,
+                              "artifactName":  "${productName}-${version}-${arch}.${ext}"
+                          },
+                  "win":  {
+                              "target":  [
+                                             "nsis"
+                                         ]
+                          }
+              }
 }

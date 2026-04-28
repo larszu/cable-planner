@@ -182,6 +182,9 @@ const persistGroupPresets = (presets: GroupPreset[]) => {
 interface ProjectState {
   project: CablePlannerProject
   filePath?: string
+  /** Incremented each time loadProject or clear() is called. Canvas uses this
+   *  to detect a project-load event and restore the saved viewport. */
+  projectVersion: number
   selectedEquipmentId?: string
   selectedCableId?: string
   selectedLocationId?: string
@@ -312,6 +315,7 @@ const shouldSyncRentmanTemplateCache = (patch: Partial<EquipmentItem>): boolean 
 
 export const useProjectStore = create<ProjectState>((set, get) => ({
   project: loadAutosavedProject() ?? defaultProject(),
+  projectVersion: 0,
   showCableDialog: false,
   recentProjects: [],
   customLibrary: loadCustomLibrary(),
@@ -319,14 +323,15 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   setRecentProjects: (items) => set({ recentProjects: items }),
   setFilePath: (path) => set({ filePath: path }),
   loadProject: (project, filePath) =>
-    set({
+    set((state) => ({
       project,
       filePath,
+      projectVersion: state.projectVersion + 1,
       selectedEquipmentId: undefined,
       selectedCableId: undefined,
       pendingConnection: undefined,
       showCableDialog: false,
-    }),
+    })),
   setProjectMeta: (name, description) =>
     set((state) => ({
       project: touchProject({
@@ -846,12 +851,13 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     } catch {
       /* ignore */
     }
-    set({
+    set((state) => ({
       project: defaultProject(),
       filePath: undefined,
+      projectVersion: state.projectVersion + 1,
       selectedEquipmentId: undefined,
       selectedCableId: undefined,
-    })
+    }))
   },
   addCustomTemplate: (template) =>
     set((state) => {

@@ -96,7 +96,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
     )
   }
 
-  const headerHeight = data.ipAddress ? HEADER_HEIGHT_WITH_IP : HEADER_HEIGHT
+  const headerHeight = data.ipAddress
+    ? (data.subtitle ? HEADER_HEIGHT_WITH_IP + 14 : HEADER_HEIGHT_WITH_IP)
+    : (data.subtitle ? HEADER_HEIGHT + 14 : HEADER_HEIGHT)
   const portRows = Math.max(data.inputs.length, data.outputs.length, 1)
   const width = Math.max(data.width ?? 220, 200)
   const computedHeight = headerHeight + portRows * PORT_ROW + PADDING
@@ -111,8 +113,8 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
         position: 'relative',
         width,
         height,
-        background: '#0f172a',
-        border: `1px solid ${selected ? '#38bdf8' : '#475569'}`,
+        background: data.nodeColor ? `${data.nodeColor}22` : '#0f172a',
+        border: `1px solid ${selected ? '#38bdf8' : (data.nodeColor ?? '#475569')}`,
         borderRadius: 6,
         color: '#e2e8f0',
         fontSize: 12,
@@ -120,7 +122,12 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
       }}
     >
       {/* Header */}
-      <div style={{ padding: `${PADDING}px ${PADDING}px 0 ${PADDING}px` }}>
+      <div style={{
+        padding: `${PADDING}px ${PADDING}px 0 ${PADDING}px`,
+        borderBottom: `1px solid ${data.nodeColor ?? '#1e293b'}`,
+        background: data.nodeColor ? `${data.nodeColor}33` : 'transparent',
+        borderRadius: '5px 5px 0 0',
+      }}>
         <div style={{ fontWeight: 600, lineHeight: '16px', display: 'flex', alignItems: 'center', gap: 4 }}>
           {data.rentmanId && !data.rentmanRemoved ? (
             // R badge: device is tracked in Rentman
@@ -172,6 +179,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
           <span>{data.name}</span>
         </div>
         <div style={{ fontSize: 11, color: '#94a3b8', lineHeight: '14px' }}>{data.category}</div>
+        {data.subtitle && (
+          <div style={{ fontSize: 11, color: '#cbd5e1', lineHeight: '14px', fontStyle: 'italic' }}>{data.subtitle}</div>
+        )}
         {data.ipAddress && (
           <div
             style={{
