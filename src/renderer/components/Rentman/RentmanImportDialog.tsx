@@ -243,7 +243,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   // (default), overwrite it with the Rentman version, or skip the import
   // entirely. Without this prompt, every Rentman import would silently
   // overwrite hand-edited templates, which is what the user complained about.
-  type ConflictDecision = 'keep' | 'overwrite' | 'merge' | 'skip'
+  type ConflictDecision = 'keep' | 'overwrite' | 'merge' | 'skip' | 'link'
   interface CategoryAssignment {
     name: string
     sourceCategory: string
@@ -254,6 +254,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     category: string
     rentmanId: string
     decision: ConflictDecision
+    linkedToLocalName?: string
   }
   interface MergeQueueItem {
     equipmentId: string
@@ -266,6 +267,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const [conflictItems, setConflictItems] = useState<ConflictItem[] | null>(null)
   const [pendingDecisions, setPendingDecisions] = useState<Record<string, ConflictDecision>>({})
   const [pendingMergeTemplates, setPendingMergeTemplates] = useState<Record<string, EquipmentTemplate>>({})
+  const [pendingLinks, setPendingLinks] = useState<Record<string, string>>({})
   const [mergeQueue, setMergeQueue] = useState<MergeQueueItem[]>([])
   const [mergeIndex, setMergeIndex] = useState(0)
   // Cable-plan import: detected cables grouped by `${type}|${length}`. The
@@ -623,6 +625,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     templatesByEquipmentId: Record<string, EquipmentTemplate>,
     decisionsByName: Record<string, ConflictDecision> = {},
     categoryByName: Record<string, string> = {},
+    linksByName: Record<string, string> = {},
   ): number => {
     // One library template per unique device name — quantity is irrelevant for the template.
     const seen = new Set<string>()
@@ -644,6 +647,24 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
 
       // Skip: user chose not to import this device at all.
       if (decision === 'skip') return
+
+      // Link to local: user chose to link this imported device to a different local device
+      if (decision === 'link' && linksByName[item.name]) {
+        const linkedLocalName = linksByName[item.name]
+        const linkedTemplate = customLibrary.find((t) => t.name === linkedLocalName)
+        if (linkedTemplate) {
+          const projectName = projects.find((p) => p.id === selectedProjectId)?.name
+          addCustomTemplate({
+            ...linkedTemplate,
+            category: assignedCategory,
+            rentmanId: item.equipmentId,
+            rentmanSource: selectedProjectId,
+            rentmanProjectName: projectName,
+          })
+          addedCount++
+        }
+        return
+      }
 
       // Silent re-import: same rentmanId already in library. Refresh
       // project link metadata, keep ports/dimensions intact.
@@ -784,6 +805,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     decisionsByName: Record<string, ConflictDecision>,
     categoryByName: Record<string, string> = pendingCategoryByName,
     mergeTemplatesByEquipmentId: Record<string, EquipmentTemplate> = pendingMergeTemplates,
+    linksByName: Record<string, string> = {},
   ) => {
     const selected = visibleItems.filter((item) => item.checked)
     if (selected.length === 0) return
@@ -795,6 +817,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     selected.forEach((item) => {
       if (knownNames.has(item.name)) return
       if (decisionsByName[item.name] === 'skip') return
+      if (decisionsByName[item.name] === 'link') return
       if (matchBlackmagicTemplate(item.name)) return
       if (matchUbiquitiTemplate(item.name)) return
       if (matchMonitorTemplate(item.name)) return
@@ -810,7 +833,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     })
 
     if (unknownMap.size === 0) {
-      const count = saveToLibrary(selected, mergeTemplatesByEquipmentId, decisionsByName, categoryByName)
+      const count = saveToLibrary(selected, mergeTemplatesByEquipmentId, decisionsByName, categoryByName, linksByName)
       setImportResult(count)
       setTimeout(() => { setImportResult(null); safeClose() }, 2000)
       return
@@ -820,6 +843,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     setPendingDecisions(decisionsByName)
     setPendingCategoryByName(categoryByName)
     setPendingMergeTemplates(mergeTemplatesByEquipmentId)
+    setPendingLinks(linksByName)
     setWizardQueue(Array.from(unknownMap.values()))
     setWizardTemplates({})
     setWizardSkipped(new Set())
@@ -838,6 +862,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       { ...templates, ...pendingMergeTemplates },
       pendingDecisions,
       pendingCategoryByName,
+      pendingLinks,
     )
     setWizardQueue(null)
     setWizardTemplates({})
@@ -846,6 +871,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     setPendingDecisions({})
     setPendingCategoryByName({})
     setPendingMergeTemplates({})
+    setPendingLinks({})
     setImportResult(count)
     setTimeout(() => { setImportResult(null); safeClose() }, 2000)
   }
@@ -966,27 +992,59 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                         {(
                           [
                             ['keep', 'Lokale Version beibehalten (empfohlen)'],
+                            ['link', 'Mit anderem lokalem Gerät verknüpfen'],
                             ['overwrite', 'Mit Rentman-Version überschreiben'],
+                            ['merge', 'Ports mergen'],
                             ['skip', 'Überspringen (nicht importieren)'],
                           ] as const
                         ).map(([value, label]) => (
-                          <label key={value} className="flex items-center gap-1.5">
-                            <input
-                              type="radio"
-                              name={`conflict-${idx}`}
-                              checked={c.decision === value}
-                              onChange={() => {
-                                setConflictItems((prev) =>
-                                  prev
-                                    ? prev.map((item, i) =>
-                                        i === idx ? { ...item, decision: value } : item,
-                                      )
-                                    : prev,
-                                )
-                              }}
-                            />
-                            <span>{label}</span>
-                          </label>
+                          <div key={value}>
+                            <label className="flex items-center gap-1.5">
+                              <input
+                                type="radio"
+                                name={`conflict-${idx}`}
+                                checked={c.decision === value}
+                                onChange={() => {
+                                  setConflictItems((prev) =>
+                                    prev
+                                      ? prev.map((item, i) =>
+                                          i === idx ? { ...item, decision: value } : item,
+                                        )
+                                      : prev,
+                                  )
+                                  setPendingLinks((prev) => {
+                                    const next = { ...prev }
+                                    if (value !== 'link') delete next[c.name]
+                                    return next
+                                  })
+                                }}
+                              />
+                              <span>{label}</span>
+                            </label>
+                            {value === 'link' && c.decision === 'link' && (
+                              <div className="ml-6 mt-1">
+                                <select
+                                  value={pendingLinks[c.name] || ''}
+                                  onChange={(e) => {
+                                    setPendingLinks((prev) => ({
+                                      ...prev,
+                                      [c.name]: e.target.value,
+                                    }))
+                                  }}
+                                  className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-100"
+                                >
+                                  <option value="">-- Gerät wählen --</option>
+                                  {customLibrary
+                                    .filter((t) => t.name !== c.name)
+                                    .map((t) => (
+                                      <option key={t.name} value={t.name}>
+                                        {t.name} ({t.category || 'Sonstiges'})
+                                      </option>
+                                    ))}
+                                </select>
+                              </div>
+                            )}
+                          </div>
                         ))}
                       </div>
                     </td>
@@ -1069,7 +1127,8 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                   return
                 }
 
-                proceedAfterConflicts(decisions, pendingCategoryByName, {})
+                proceedAfterConflicts(decisions, pendingCategoryByName, {}, pendingLinks)
+                setPendingLinks({})
               }}
               className="rounded bg-emerald-600 px-3 py-1.5 text-sm font-medium hover:bg-emerald-500"
             >
@@ -1465,7 +1524,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
             const decisions = pendingDecisions
             setMergeQueue([])
             setMergeIndex(0)
-            proceedAfterConflicts(decisions, pendingCategoryByName, nextTemplates)
+            proceedAfterConflicts(decisions, pendingCategoryByName, nextTemplates, pendingLinks)
             return
           }
           setMergeIndex((value) => value + 1)
