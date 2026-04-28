@@ -1,5 +1,5 @@
 import { Handle, Position, type NodeProps } from 'reactflow'
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import type { EquipmentItem } from '../../types/equipment'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
@@ -7,7 +7,7 @@ import { useProjectStore } from '../../store/projectStore'
 const HEADER_HEIGHT = 48
 const HEADER_HEIGHT_WITH_IP = 62
 const PORT_ROW = 22
-const HANDLE_SIZE = 10
+const HANDLE_SIZE = 16   // larger hit zone (was 10) — easier to click/drag
 const PADDING = 8
 
 export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) => {
@@ -95,6 +95,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
       pendingCable.handleType === handleType
     )
   }
+
+  // Hover state for port rows — gives visual feedback before click
+  const [hoveredPort, setHoveredPort] = useState<string | null>(null)
 
   const headerHeight = data.ipAddress
     ? (data.subtitle ? HEADER_HEIGHT_WITH_IP + 14 : HEADER_HEIGHT_WITH_IP)
@@ -208,9 +211,13 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
       {data.inputs.map((port, index) => {
         const top = headerHeight + index * PORT_ROW
         const flipped = !!data.portsFlipped
+        const isHovered = hoveredPort === `in-${port.id}`
+        const isActive = isPendingStart(port.id, 'input')
         return (
           <div
             key={port.id}
+            onMouseEnter={() => setHoveredPort(`in-${port.id}`)}
+            onMouseLeave={() => setHoveredPort(null)}
             style={{
               position: 'absolute',
               top,
@@ -224,10 +231,17 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
               justifyContent: flipped ? 'flex-end' : 'flex-start',
               textAlign: flipped ? 'right' : 'left',
               fontSize: 11,
-              pointerEvents: 'none',
+              cursor: 'crosshair',
+              borderRadius: 3,
+              background: isActive
+                ? 'rgba(251,191,36,0.15)'
+                : isHovered
+                  ? 'rgba(14,165,233,0.12)'
+                  : 'transparent',
+              transition: 'background 0.1s',
             }}
           >
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}>
               {flipped ? (
                 <><span style={{ color: '#64748b' }}>{port.connectorType} · </span>{port.name}</>
               ) : (
@@ -282,9 +296,13 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
       {data.outputs.map((port, index) => {
         const top = headerHeight + index * PORT_ROW
         const flipped = !!data.portsFlipped
+        const isHovered = hoveredPort === `out-${port.id}`
+        const isActive = isPendingStart(port.id, 'output')
         return (
           <div
             key={port.id}
+            onMouseEnter={() => setHoveredPort(`out-${port.id}`)}
+            onMouseLeave={() => setHoveredPort(null)}
             style={{
               position: 'absolute',
               top,
@@ -298,10 +316,17 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentItem>) 
               justifyContent: flipped ? 'flex-start' : 'flex-end',
               textAlign: flipped ? 'left' : 'right',
               fontSize: 11,
-              pointerEvents: 'none',
+              cursor: 'crosshair',
+              borderRadius: 3,
+              background: isActive
+                ? 'rgba(251,191,36,0.15)'
+                : isHovered
+                  ? 'rgba(34,197,94,0.12)'
+                  : 'transparent',
+              transition: 'background 0.1s',
             }}
           >
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}>
               {flipped ? (
                 <>{port.name}<span style={{ color: '#64748b' }}> · {port.connectorType}</span></>
               ) : (

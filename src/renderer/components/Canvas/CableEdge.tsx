@@ -92,28 +92,33 @@ const buildPath = (
   if (waypoints.length === 0) {
     // No manual waypoints and no obstacle detour: build a simple orthogonal
     // L-shape. Using getSmoothStepPath here produces unexpected smooth curves
-    // that don't look "orthogonal". An explicit L-shape is more predictable:
-    // horizontal first (to the target X), then vertical to the target Y.
-    // This matches user expectation for orthogonal cable routing.
+    // that don't look "orthogonal". An explicit L-shape is more predictable.
     const sx = args.sourceX
     const sy = args.sourceY
     const tx = args.targetX
     const ty = args.targetY
     // Skip L-shape if source and target are already collinear (same x or y).
     if (Math.abs(sx - tx) < 2) {
-      // Same column — draw a straight vertical line.
       const midY = (sy + ty) / 2
       return [`M ${sx} ${sy} L ${tx} ${ty}`, (sx + tx) / 2, midY]
     }
     if (Math.abs(sy - ty) < 2) {
-      // Same row — draw a straight horizontal line.
       const midX = (sx + tx) / 2
       return [`M ${sx} ${sy} L ${tx} ${ty}`, midX, (sy + ty) / 2]
     }
-    // L-shape: horizontal first then vertical.
-    const bend = { x: tx, y: sy }
+    // Smart L-shape direction:
+    // When the target is to the LEFT of the source (i.e. the connection runs
+    // "backwards"), horizontal-first would immediately loop the cable back over
+    // the source device, which looks wrong. Vertical-first exits downward or
+    // upward instead, creating a clean U-path that never crosses the source.
+    // When the target is to the right, horizontal-first is the natural choice.
+    const bend = tx < sx - 20
+      ? { x: sx, y: ty }   // vertical-first: exit down/up, then go left
+      : { x: tx, y: sy }   // horizontal-first: exit right, then go to targetY
     const d = `M ${sx} ${sy} L ${bend.x} ${bend.y} L ${tx} ${ty}`
-    return [d, (sx + tx) / 2, (sy + ty) / 2]
+    const labelX = (sx + tx) / 2
+    const labelY = (sy + ty) / 2
+    return [d, labelX, labelY]
   }
   const points = [
     { x: args.sourceX, y: args.sourceY },
@@ -123,8 +128,22 @@ const buildPath = (
   const d = points
     .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
     .join(' ')
-  const mid = points[Math.floor(points.length / 2)]
-  return [d, mid.x, mid.y]
+  // Place label at midpoint of the longest segment so it appears on a clear
+  // stretch of cable, not crammed into the bend corner.
+  let bestLen = -1
+  let labelX = points[Math.floor(points.length / 2)].x
+  let labelY = points[Math.floor(points.length / 2)].y
+  for (let i = 0; i < points.length - 1; i++) {
+    const dx = points[i + 1].x - points[i].x
+    const dy = points[i + 1].y - points[i].y
+    const len = Math.abs(dx) + Math.abs(dy)
+    if (len > bestLen) {
+      bestLen = len
+      labelX = (points[i].x + points[i + 1].x) / 2
+      labelY = (points[i].y + points[i + 1].y) / 2
+    }
+  }
+  return [d, labelX, labelY]
 }
 
 export const CableEdge = ({
