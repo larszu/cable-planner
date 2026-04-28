@@ -201,6 +201,14 @@ const CanvasContent = () => {
   // to jump when other items in the array are deleted/added.
   const [rfNodes, setRfNodes] = useState<Node[]>(nodes)
 
+  // Briefly flash a node red when its drag is rejected due to overlap, so the
+  // user understands why the device snapped back (not a glitch).
+  const [overlapFlashId, setOverlapFlashId] = useState<string | null>(null)
+  const flashOverlap = (id: string) => {
+    setOverlapFlashId(id)
+    window.setTimeout(() => setOverlapFlashId(null), 500)
+  }
+
 
   // Ids currently being dragged. While a node is in this set we preserve its
   // local React Flow position (so active drags don't snap back). Anything not
@@ -449,7 +457,8 @@ const CanvasContent = () => {
           // Check overlap before persisting
           const eq = project.equipment.find((e) => e.id === change.id)
           if (eq && hasOverlap(eq.id, px, py, eq.width ?? 0, eq.height ?? 0)) {
-            // Revert to last position
+            // Revert to last position and flash the node red so the user
+            // understands why it snapped back (not a bug).
             const lastRfNode = rfNodes.find((n) => n.id === change.id)
             if (lastRfNode) {
               setRfNodes((current) =>
@@ -458,6 +467,7 @@ const CanvasContent = () => {
                 ),
               )
             }
+            flashOverlap(change.id)
           } else {
             updateEquipment(change.id, { x: px, y: py })
           }
@@ -809,7 +819,11 @@ const CanvasContent = () => {
         </defs>
       </svg>
       <ReactFlow
-        nodes={rfNodes}
+        nodes={rfNodes.map((n) =>
+          overlapFlashId === n.id
+            ? { ...n, className: (n.className ? n.className + ' ' : '') + 'overlap-flash' }
+            : n,
+        )}
         edges={edges}
         nodesDraggable={!interactionLocked}
         elementsSelectable={!interactionLocked}
