@@ -986,8 +986,24 @@ export const LibraryPanel = () => {
 
                           const renderItem = (item: { id: string; name: string; category: string }) => {
                             const busy = rentmanCatalogAddBusy === item.id
+                            const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
+                              const template = {
+                                name: item.name,
+                                category: item.category || 'Sonstiges',
+                                rentmanId: item.id,
+                                inputs: [],
+                                outputs: [],
+                              }
+                              event.dataTransfer.setData('application/cable-planner-equipment', JSON.stringify(template))
+                              event.dataTransfer.effectAllowed = 'copy'
+                            }
                             return (
-                              <div key={item.id} className="flex items-center justify-between gap-2 rounded border border-slate-800 bg-slate-900/40 px-2 py-1.5 text-xs">
+                              <div
+                                key={item.id}
+                                draggable
+                                onDragStart={handleDragStart}
+                                className="flex cursor-grab items-center justify-between gap-2 rounded border border-slate-800 bg-slate-900/40 px-2 py-1.5 text-xs"
+                              >
                                 <div className="min-w-0 flex-1">
                                   <div className="truncate font-medium text-slate-200">{item.name}</div>
                                   <div className="truncate text-[10px] text-slate-500">Rentman-ID {item.id}</div>
