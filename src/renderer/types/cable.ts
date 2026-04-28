@@ -41,4 +41,10 @@ export interface Cable {
   waypoints?: CableWaypoint[]
   /** Where to show the cable label. Defaults to 'center'. */
   labelPosition?: 'center' | 'source' | 'target'
+  /** When true, this is a wireless link (no physical cable). */
+  wireless?: boolean
+  /** RF/WiFi frequency string for wireless links, e.g. "5.8 GHz", "600 MHz". */
+  frequency?: string
+  /** WiFi/wireless channel, e.g. "6", "36", "149", "100-140 DFS". */
+  wifiChannel?: string
 }

@@ -16,9 +16,10 @@ interface EquipmentChecklistProps {
   onToggle: (id: string) => void
   onSetAll?: (checked: boolean) => void
   onQtyChange?: (id: string, qty: number) => void
+  onSetAllChildren?: (parentId: string, checked: boolean) => void
 }
 
-export const EquipmentChecklist = ({ items, onToggle, onSetAll, onQtyChange }: EquipmentChecklistProps) => {
+export const EquipmentChecklist = ({ items, onToggle, onSetAll, onQtyChange, onSetAllChildren }: EquipmentChecklistProps) => {
   // Build parent -> children map. Children whose parent is not in the visible list
   // are promoted to root level so they remain reachable.
   const { roots, childrenByParent } = useMemo(() => {
@@ -56,6 +57,29 @@ export const EquipmentChecklist = ({ items, onToggle, onSetAll, onQtyChange }: E
 
   const expandAll = () => setExpanded(new Set(Object.keys(childrenByParent)))
   const collapseAll = () => setExpanded(new Set())
+
+  const QtyBadge = ({ item }: { item: ChecklistItem }) => {
+    if (!item.qty || item.qty <= 1) return null
+    if (onQtyChange && item.checked) {
+      return (
+        <input
+          type="number"
+          min={1}
+          max={999}
+          value={item.qty}
+          onChange={(event) => onQtyChange(item.id, Number(event.target.value))}
+          className="w-14 rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-right text-xs"
+          aria-label="Quantity"
+          title="How many to add"
+        />
+      )
+    }
+    return (
+      <span className="rounded bg-slate-700/60 px-1.5 py-0.5 text-[10px] text-slate-400" title="Stückzahl im Rentman-Projekt">
+        ×{item.qty}
+      </span>
+    )
+  }
 
   return (
     <div className="max-h-72 space-y-3 overflow-auto rounded border border-slate-700 p-2 text-sm">
@@ -107,6 +131,7 @@ export const EquipmentChecklist = ({ items, onToggle, onSetAll, onQtyChange }: E
               const children = childrenByParent[item.id]
               const isSet = Boolean(children && children.length > 0)
               const isOpen = expanded.has(item.id)
+              const allChildrenChecked = isSet && children!.every((c) => c.checked)
               return (
                 <div key={item.id}>
                   <div className="flex items-center gap-2">
@@ -144,17 +169,16 @@ export const EquipmentChecklist = ({ items, onToggle, onSetAll, onQtyChange }: E
                         )}
                       </span>
                     </label>
-                    {onQtyChange && item.checked && (
-                      <input
-                        type="number"
-                        min={1}
-                        max={999}
-                        value={item.qty ?? 1}
-                        onChange={(event) => onQtyChange(item.id, Number(event.target.value))}
-                        className="w-14 rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-right text-xs"
-                        aria-label="Quantity"
-                        title="How many to add"
-                      />
+                    <QtyBadge item={item} />
+                    {isSet && isOpen && onSetAllChildren && (
+                      <button
+                        type="button"
+                        onClick={() => onSetAllChildren(item.id, !allChildrenChecked)}
+                        className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
+                        title={allChildrenChecked ? 'Alle Kinder abwählen' : 'Alle Kinder auswählen'}
+                      >
+                        {allChildrenChecked ? '☐ alle' : '☑ alle'}
+                      </button>
                     )}
                   </div>
                   {isSet && isOpen && (
@@ -167,18 +191,7 @@ export const EquipmentChecklist = ({ items, onToggle, onSetAll, onQtyChange }: E
                             onChange={() => onToggle(child.id)}
                           />
                           <span className="flex-1">{child.name}</span>
-                          {onQtyChange && child.checked && (
-                            <input
-                              type="number"
-                              min={1}
-                              max={999}
-                              value={child.qty ?? 1}
-                              onChange={(event) => onQtyChange(child.id, Number(event.target.value))}
-                              className="w-14 rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-right text-xs"
-                              aria-label="Quantity"
-                              title="How many to add"
-                            />
-                          )}
+                          <QtyBadge item={child} />
                         </label>
                       ))}
                     </div>

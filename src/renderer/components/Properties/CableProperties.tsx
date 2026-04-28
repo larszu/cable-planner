@@ -298,6 +298,39 @@ export const CableProperties = () => {
         </label>
       </div>
 
+      <div className="rounded border border-slate-700 bg-slate-950/50 p-2 space-y-2">
+        <label className="flex items-center gap-2 text-[11px] text-slate-300 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={cable.wireless ?? false}
+            onChange={(event) => updateCable(cable.id, { wireless: event.target.checked, dashed: event.target.checked ? true : cable.dashed })}
+          />
+          <span className="font-semibold">Wireless Verbindung (kein Kabel)</span>
+        </label>
+        {cable.wireless && (
+          <div className="grid grid-cols-2 gap-2 pl-5">
+            <label className="block">
+              <span className="mb-0.5 block text-[10px] text-slate-400">Frequenz (z.B. 5.8 GHz)</span>
+              <input
+                value={cable.frequency ?? ''}
+                onChange={(event) => updateCable(cable.id, { frequency: event.target.value || undefined })}
+                placeholder="z.B. 5.8 GHz, 600 MHz"
+                className="w-full rounded border border-slate-700 bg-slate-900 p-1.5 text-xs"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-0.5 block text-[10px] text-slate-400">Kanal / Channel</span>
+              <input
+                value={cable.wifiChannel ?? ''}
+                onChange={(event) => updateCable(cable.id, { wifiChannel: event.target.value || undefined })}
+                placeholder="z.B. 36, 6, 149"
+                className="w-full rounded border border-slate-700 bg-slate-900 p-1.5 text-xs"
+              />
+            </label>
+          </div>
+        )}
+      </div>
+
       <label className="block">
         <span className="mb-1 block text-slate-300">Notes</span>
         <textarea

@@ -9,6 +9,9 @@ export type ConnectorType =
   | 'DIN'
   | 'DisplayPort'
   | 'USB'
+  | 'USB-C'
+  | 'Triax'
+  | 'Wireless/RF'
   | 'IEC 230V'
   | 'PowerCON'
   | 'Schuko 230V'
@@ -18,7 +21,8 @@ export type ConnectorType =
 /** All valid connector type values in display order. */
 export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
   'XLR', 'BNC', 'HDMI', 'Ethernet/RJ45', 'Fiber', 'SFP', 'SFP+', 'DIN',
-  'DisplayPort', 'USB', 'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker', 'Custom',
+  'DisplayPort', 'USB', 'USB-C', 'Triax', 'Wireless/RF',
+  'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker', 'Custom',
 ]
 
 import type { SignalStandard } from './cableSpec'

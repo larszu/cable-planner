@@ -1164,6 +1164,17 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
             >
               Projekte laden
             </button>
+            {linkedProjectId && (
+              <button
+                type="button"
+                onClick={() => fetchEquipment(linkedProjectId)}
+                disabled={loading}
+                className="rounded bg-emerald-700 px-3 py-1 text-sm font-medium hover:bg-emerald-600 disabled:opacity-50"
+                title={`Stückzahlen und Geräte für "${linkedProjectName ?? linkedProjectId}" neu laden`}
+              >
+                ↺ Rentman aktualisieren
+              </button>
+            )}
             <span className="text-xs text-slate-500">
               {projects.length > 0
                 ? `${sortedProjects.length} / ${projects.length} Projekte`
@@ -1290,6 +1301,12 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               onToggle={toggleItem}
               onSetAll={setAllVisible}
               onQtyChange={setQty}
+              onSetAllChildren={(parentId, checked) => {
+                const children = items.filter((i) => i.parentId === parentId)
+                children.forEach((child) => {
+                  if (child.checked !== checked) toggleItem(child.id)
+                })
+              }}
             />
 
             {cableBuckets.length > 0 && (

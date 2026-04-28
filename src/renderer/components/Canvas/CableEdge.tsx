@@ -163,7 +163,9 @@ export const CableEdge = ({
   }
 
   const strokeWidth = cable?.strokeWidth ?? 2.5
-  const dashArray = cable?.dashed ? '6 4' : undefined
+  // Wireless cables are always dashed (unless the user has explicitly set dashed=false)
+  const isWireless = cable?.wireless === true
+  const dashArray = (cable?.dashed || isWireless) ? '6 4' : undefined
 
   const markerEnd = cable?.arrowEnd === false ? undefined : 'url(#cable-planner-arrow-end)'
   const markerStart = cable?.arrowStart ? 'url(#cable-planner-arrow-start)' : undefined
@@ -174,6 +176,12 @@ export const CableEdge = ({
     strokeDasharray: dashArray,
     filter: selected ? 'drop-shadow(0 0 3px rgba(56,189,248,0.9))' : undefined,
   }
+
+  // Build label text: for wireless cables, prefix with signal icon + frequency/channel info
+  const wirelessSuffix = isWireless
+    ? ` 〜${cable?.frequency ? ` ${cable.frequency}` : ''}${cable?.wifiChannel ? ` CH${cable.wifiChannel}` : ''}`
+    : ''
+  const displayLabel = label ? `${label}${wirelessSuffix}` : (wirelessSuffix.trim() ? wirelessSuffix.trim() : undefined)
 
   return (
     <>
@@ -193,7 +201,7 @@ export const CableEdge = ({
           target={{ x: targetX, y: targetY }}
         />
       )}
-      {label && (
+      {displayLabel && (
         <EdgeLabelRenderer>
           <div
             style={{
@@ -209,7 +217,7 @@ export const CableEdge = ({
             }}
             className="nodrag nopan"
           >
-            {label}
+            {displayLabel}
             {selected && cable && (
               <button
                 type="button"

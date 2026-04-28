@@ -16,6 +16,8 @@ interface PersistedUiState {
   /** Whether cable color on the canvas is derived from the manually set color
    * or from the standard length-color coding. */
   cableColorMode: 'manual' | 'byLength'
+  /** Canvas background theme. */
+  canvasTheme: 'dark' | 'light'
 }
 
 const defaults: PersistedUiState = {
@@ -28,6 +30,7 @@ const defaults: PersistedUiState = {
   libraryWidth: 260,
   propertiesWidth: 280,
   cableColorMode: 'manual',
+  canvasTheme: 'dark',
 }
 
 const load = (): PersistedUiState => {
@@ -58,6 +61,7 @@ interface UiState extends PersistedUiState {
   setLibraryWidth: (value: number) => void
   setPropertiesWidth: (value: number) => void
   setCableColorMode: (value: 'manual' | 'byLength') => void
+  setCanvasTheme: (value: 'dark' | 'light') => void
   cableEdit: { open: boolean; cableId?: string }
   openCableEdit: (cableId: string) => void
   closeCableEdit: () => void
@@ -113,6 +117,7 @@ const applyPatch =
       libraryWidth: state.libraryWidth,
       propertiesWidth: state.propertiesWidth,
       cableColorMode: state.cableColorMode,
+      canvasTheme: state.canvasTheme,
       ...patch,
     }
     persist(next)
@@ -134,6 +139,7 @@ export const useUiStore = create<UiState>((set) => ({
   setPropertiesWidth: (value) =>
     set(applyPatch({ propertiesWidth: Math.max(220, Math.min(600, Math.round(value))) })),
   setCableColorMode: (value) => set(applyPatch({ cableColorMode: value })),
+  setCanvasTheme: (value) => set(applyPatch({ canvasTheme: value })),
   cableEdit: { open: false },
   openCableEdit: (cableId) => set({ cableEdit: { open: true, cableId } }),
   closeCableEdit: () => set({ cableEdit: { open: false } }),

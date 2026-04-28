@@ -531,6 +531,46 @@ export const RackBuilderDialog = ({ open, templates, onClose, onSave }: RackBuil
                 <div className="rounded border border-slate-800 bg-slate-900/40 p-2 text-[11px] text-slate-400">
                   Ports sichtbar: {selectedPlacement.inputs.length} Inputs / {selectedPlacement.outputs.length} Outputs
                 </div>
+                <div className="space-y-1">
+                  <div className="text-[11px] font-semibold text-slate-400">Panel-Bilder</div>
+                  {(['front', 'rear'] as const).map((side) => {
+                    const urlKey = side === 'front' ? 'frontPanelImageUrl' : 'rearPanelImageUrl'
+                    const currentUrl = selectedPlacement[urlKey]
+                    return (
+                      <div key={side} className="flex items-center gap-2">
+                        <span className="w-12 text-[10px] text-slate-500 capitalize">{side === 'front' ? 'Vorne' : 'Hinten'}</span>
+                        <label className="cursor-pointer rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600">
+                          {currentUrl ? 'Ändern' : '+ Bild'}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(event) => {
+                              const file = event.target.files?.[0]
+                              if (!file) return
+                              const reader = new FileReader()
+                              reader.onload = () => updatePlacement(selectedPlacement.id, { [urlKey]: reader.result as string })
+                              reader.readAsDataURL(file)
+                            }}
+                          />
+                        </label>
+                        {currentUrl && (
+                          <button
+                            type="button"
+                            onClick={() => updatePlacement(selectedPlacement.id, { [urlKey]: undefined })}
+                            className="text-[10px] text-red-400 hover:text-red-300"
+                            title="Bild entfernen"
+                          >
+                            ✕
+                          </button>
+                        )}
+                        {currentUrl && (
+                          <img src={currentUrl} alt={`${side} panel`} className="h-6 rounded border border-slate-700 object-contain" style={{ maxWidth: 60 }} />
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
                 <button
                   type="button"
                   onClick={() => removePlacement(selectedPlacement.id)}

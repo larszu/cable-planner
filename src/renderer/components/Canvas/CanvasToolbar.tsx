@@ -21,6 +21,8 @@ export const CanvasToolbar = () => {
   const setDefaultArrow = useUiStore((state) => state.setDefaultArrow)
   const cableColorMode = useUiStore((state) => state.cableColorMode)
   const setCableColorMode = useUiStore((state) => state.setCableColorMode)
+  const canvasTheme = useUiStore((state) => state.canvasTheme)
+  const setCanvasTheme = useUiStore((state) => state.setCanvasTheme)
   const [showLengthLegend, setShowLengthLegend] = useState(false)
   const addLocation = useProjectStore((state) => state.addLocation)
   const addLocationAroundEquipment = useProjectStore(
@@ -208,6 +210,23 @@ export const CanvasToolbar = () => {
           </button>
         </div>
       )}
+      <span style={{ width: 1, height: 18, background: '#334155', margin: '0 4px' }} />
+      <button
+        type="button"
+        onClick={() => setCanvasTheme(canvasTheme === 'dark' ? 'light' : 'dark')}
+        title={canvasTheme === 'dark' ? 'Heller Hintergrund' : 'Dunkler Hintergrund'}
+        style={{
+          padding: '2px 6px',
+          background: '#1e293b',
+          border: '1px solid #334155',
+          color: '#e2e8f0',
+          borderRadius: 3,
+          cursor: 'pointer',
+          fontSize: 13,
+        }}
+      >
+        {canvasTheme === 'dark' ? '☀' : '🌙'}
+      </button>
       <span style={{ width: 1, height: 18, background: '#334155', margin: '0 4px' }} />
       <span style={{ color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
         Layout
