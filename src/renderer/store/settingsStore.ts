@@ -4,10 +4,14 @@ const SETTINGS_KEY = 'cable-planner:settings'
 
 interface PersistedSettings {
   autosaveIntervalMs: number
+  sharedSyncPath: string
+  sharedSyncUser: string
 }
 
 const defaults: PersistedSettings = {
   autosaveIntervalMs: 400,
+  sharedSyncPath: '',
+  sharedSyncUser: '',
 }
 
 const load = (): PersistedSettings => {
@@ -20,6 +24,8 @@ const load = (): PersistedSettings => {
         typeof parsed.autosaveIntervalMs === 'number'
           ? Math.max(100, Math.min(30000, Math.round(parsed.autosaveIntervalMs)))
           : defaults.autosaveIntervalMs,
+      sharedSyncPath: typeof parsed.sharedSyncPath === 'string' ? parsed.sharedSyncPath : defaults.sharedSyncPath,
+      sharedSyncUser: typeof parsed.sharedSyncUser === 'string' ? parsed.sharedSyncUser : defaults.sharedSyncUser,
     }
   } catch {
     return defaults
@@ -40,9 +46,13 @@ interface SettingsState {
   tokenStatus: string
   hasToken: boolean
   autosaveIntervalMs: number
+  sharedSyncPath: string
+  sharedSyncUser: string
   setHasToken: (value: boolean) => void
   setTokenStatus: (value: string) => void
   setAutosaveIntervalMs: (value: number) => void
+  setSyncPath: (value: string) => void
+  setSyncUser: (value: string) => void
 }
 
 const initial = load()
@@ -51,12 +61,24 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   tokenStatus: 'No token configured',
   hasToken: false,
   autosaveIntervalMs: initial.autosaveIntervalMs,
+  sharedSyncPath: initial.sharedSyncPath,
+  sharedSyncUser: initial.sharedSyncUser,
   setHasToken: (value) => set({ hasToken: value }),
   setTokenStatus: (value) => set({ tokenStatus: value }),
   setAutosaveIntervalMs: (value) =>
-    set(() => {
+    set((state) => {
       const next = Math.max(100, Math.min(30000, Math.round(value || defaults.autosaveIntervalMs)))
-      persist({ autosaveIntervalMs: next })
+      persist({ autosaveIntervalMs: next, sharedSyncPath: state.sharedSyncPath, sharedSyncUser: state.sharedSyncUser })
       return { autosaveIntervalMs: next }
+    }),
+  setSyncPath: (value) =>
+    set((state) => {
+      persist({ autosaveIntervalMs: state.autosaveIntervalMs, sharedSyncPath: value, sharedSyncUser: state.sharedSyncUser })
+      return { sharedSyncPath: value }
+    }),
+  setSyncUser: (value) =>
+    set((state) => {
+      persist({ autosaveIntervalMs: state.autosaveIntervalMs, sharedSyncPath: state.sharedSyncPath, sharedSyncUser: value })
+      return { sharedSyncUser: value }
     }),
 }))

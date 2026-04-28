@@ -106,6 +106,13 @@ type CablePlannerApi = {
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) => void
   }
+  sync: {
+    readFile: (filePath: string) => Promise<string>
+    writeFile: (filePath: string, data: string) => Promise<void>
+    exists: (filePath: string) => Promise<boolean>
+    acquireLock: (dirPath: string, owner: string) => Promise<{ ok: boolean; lockedBy?: string }>
+    releaseLock: (dirPath: string, owner: string) => Promise<void>
+  }
 }
 
 const TOKEN_KEY = 'cable-planner:web:token'
@@ -448,6 +455,17 @@ const webFallbackApi: CablePlannerApi = {
   },
   logs: {
     rendererError: () => {},
+  },
+  sync: {
+    readFile: async () => {
+      throw new Error('Netzwerk-Sync erfordert die Desktop-App.')
+    },
+    writeFile: async () => {
+      throw new Error('Netzwerk-Sync erfordert die Desktop-App.')
+    },
+    exists: async () => false,
+    acquireLock: async () => ({ ok: false, lockedBy: undefined }),
+    releaseLock: async () => {},
   },
 }
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
 
 interface MenuBarProps {
   onNewProject: () => void
@@ -156,6 +157,7 @@ export const MenuBar = ({
       </div>
 
       <div className="flex items-center gap-2">
+        <SharedSyncPanel />
         {onChangeVideoFormat && (
           <label className="flex items-center gap-1 text-[11px] text-slate-400">
             <span>Format:</span>

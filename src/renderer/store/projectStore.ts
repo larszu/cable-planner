@@ -257,6 +257,8 @@ interface ProjectState {
   toggleTemplateFavorite: (name: string) => void
   /** Toggle hidden flag on a library template. */
   toggleTemplateHidden: (name: string) => void
+  /** Replace the entire custom library (e.g. after a Sync Pull). */
+  setCustomLibrary: (templates: EquipmentTemplate[]) => void
   knownCategories: string[]
   addKnownCategories: (categories: string[]) => void
   groupPresets: GroupPreset[]
@@ -264,6 +266,8 @@ interface ProjectState {
   saveGroupPreset: (name: string, equipmentIds: string[]) => void
   deleteGroupPreset: (id: string) => void
   placeGroupPreset: (presetId: string, x: number, y: number) => void
+  /** Replace all group presets (e.g. after a Sync Pull). */
+  setGroupPresets: (presets: GroupPreset[]) => void
   /** Save or replace the GreenGo intercom planning config in the project. */
   updateGreenGoConfig: (config: GreenGoConfig) => void
 }
@@ -1023,6 +1027,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       persistCustomLibrary(next)
       return { customLibrary: next }
     }),
+  setCustomLibrary: (templates) =>
+    set(() => {
+      persistCustomLibrary(templates)
+      return { customLibrary: templates }
+    }),
   groupPresets: loadGroupPresets(),
   addGroupPreset: (preset) =>
     set((state) => {
@@ -1088,6 +1097,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       const next = state.groupPresets.filter((p) => p.id !== id)
       persistGroupPresets(next)
       return { groupPresets: next }
+    }),
+  setGroupPresets: (presets) =>
+    set(() => {
+      persistGroupPresets(presets)
+      return { groupPresets: presets }
     }),
   placeGroupPreset: (presetId, x, y) =>
     set((state) => {

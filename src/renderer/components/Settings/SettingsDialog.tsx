@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { cablePlannerApi } from '../../lib/bridge'
+import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
@@ -9,7 +9,7 @@ interface SettingsDialogProps {
   onClose: () => void
 }
 
-type SettingsSection = 'project' | 'rentman' | 'general'
+type SettingsSection = 'project' | 'rentman' | 'general' | 'sync'
 
 export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const [section, setSection] = useState<SettingsSection>('project')
@@ -23,6 +23,12 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const setTokenStatus = useSettingsStore((state) => state.setTokenStatus)
   const autosaveIntervalMs = useSettingsStore((state) => state.autosaveIntervalMs)
   const setAutosaveIntervalMs = useSettingsStore((state) => state.setAutosaveIntervalMs)
+  const sharedSyncPath = useSettingsStore((state) => state.sharedSyncPath)
+  const sharedSyncUser = useSettingsStore((state) => state.sharedSyncUser)
+  const setSyncPath = useSettingsStore((state) => state.setSyncPath)
+  const setSyncUser = useSettingsStore((state) => state.setSyncUser)
+  const [draftSyncPath, setDraftSyncPath] = useState(sharedSyncPath)
+  const [draftSyncUser, setDraftSyncUser] = useState(sharedSyncUser)
   const [busy, setBusy] = useState(false)
 
   // Project metadata (kept in sync with store via local mirror so we can
@@ -32,8 +38,12 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const openRentmanImport = useUiStore((state) => state.openRentmanImport)
   const [draftMeta, setDraftMeta] = useState(metadata)
   useEffect(() => {
-    if (open) setDraftMeta(metadata)
-  }, [open, metadata])
+    if (open) {
+      setDraftMeta(metadata)
+      setDraftSyncPath(sharedSyncPath)
+      setDraftSyncUser(sharedSyncUser)
+    }
+  }, [open, metadata, sharedSyncPath, sharedSyncUser])
 
   useEffect(() => {
     if (!open) {
@@ -154,6 +164,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
           {navItem('project', 'Projekt', '📋')}
           {navItem('rentman', 'Rentman API', '🔌')}
           {navItem('general', 'Allgemein', '⚙')}
+          {navItem('sync', 'Netzwerk-Sync', '🔄')}
         </aside>
 
         {/* Body */}
@@ -163,6 +174,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
               {section === 'project' && 'Projekt-Einstellungen'}
               {section === 'rentman' && 'Rentman API'}
               {section === 'general' && 'Allgemein'}
+              {section === 'sync' && 'Netzwerk-Sync'}
             </h2>
             <button
               type="button"
@@ -448,6 +460,64 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                   <div className="mt-2 text-[11px] text-slate-500">
                     100 ms bis 30.000 ms. Standard ist 400 ms.
                   </div>
+                </div>
+              </div>
+            )}
+
+            {section === 'sync' && (
+              <div className="space-y-3 text-sm">
+                {!hasDesktopBridge && (
+                  <div className="rounded border border-amber-700/50 bg-amber-900/20 p-2 text-xs text-amber-300">
+                    Netzwerk-Sync ist nur in der Desktop-App verfügbar.
+                  </div>
+                )}
+                <p className="text-xs text-slate-400">
+                  Gemeinsames Verzeichnis (FTP-Laufwerk, Netzwerkpfad oder lokaler Ordner), in dem
+                  Projekt, Library und Presets als JSON-Dateien geteilt werden.
+                </p>
+                <label className="block text-sm text-slate-300">
+                  Sync-Verzeichnis
+                  <input
+                    type="text"
+                    value={draftSyncPath}
+                    onChange={(e) => setDraftSyncPath(e.target.value)}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-xs"
+                    placeholder="Z:\Projekte\CablePlanner oder \\server\share\cable-planner"
+                  />
+                </label>
+                <label className="block text-sm text-slate-300">
+                  Benutzername (für Lock-Anzeige)
+                  <input
+                    type="text"
+                    value={draftSyncUser}
+                    onChange={(e) => setDraftSyncUser(e.target.value)}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+                    placeholder="z. B. Max Mustermann"
+                  />
+                </label>
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => { setDraftSyncPath(sharedSyncPath); setDraftSyncUser(sharedSyncUser) }}
+                    className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
+                  >
+                    Zurücksetzen
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setSyncPath(draftSyncPath); setSyncUser(draftSyncUser) }}
+                    className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500"
+                  >
+                    Speichern
+                  </button>
+                </div>
+                <div className="rounded border border-slate-800 bg-slate-950/40 p-3 text-xs text-slate-400">
+                  <div className="mb-1 font-semibold text-slate-300">Hinweise</div>
+                  <ul className="list-inside list-disc space-y-1">
+                    <li>Push schreibt: <code>cable-planner.project.json</code>, <code>.library.json</code>, <code>.presets.json</code></li>
+                    <li>Pull lädt diese Dateien aus dem Verzeichnis in den aktuellen Stand.</li>
+                    <li>Ein Lock-File (<code>.cable-planner-sync.lock</code>) verhindert gleichzeitiges Überschreiben (2 h TTL).</li>
+                  </ul>
                 </div>
               </div>
             )}

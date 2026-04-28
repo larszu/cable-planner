@@ -36,6 +36,13 @@ declare global {
       videohub: {
         sendRouting: (params: { host: string; port: number; block: string }) => Promise<{ ok: boolean; message: string }>
       }
+      sync: {
+        readFile: (filePath: string) => Promise<string>
+        writeFile: (filePath: string, data: string) => Promise<void>
+        exists: (filePath: string) => Promise<boolean>
+        acquireLock: (dirPath: string, owner: string) => Promise<{ ok: boolean; lockedBy?: string }>
+        releaseLock: (dirPath: string, owner: string) => Promise<void>
+      }
     }
   }
 }
