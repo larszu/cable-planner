@@ -69,4 +69,19 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     rendererError: (payload: { message: string; stack?: string; source?: string }) =>
       ipcRenderer.send('logs:renderer-error', payload),
   },
+  sync: {
+    readFile: (filePath: string) =>
+      ipcRenderer.invoke('sync:read-file', filePath) as Promise<string>,
+    writeFile: (filePath: string, data: string) =>
+      ipcRenderer.invoke('sync:write-file', filePath, data) as Promise<void>,
+    exists: (filePath: string) =>
+      ipcRenderer.invoke('sync:exists', filePath) as Promise<boolean>,
+    acquireLock: (dirPath: string, owner: string) =>
+      ipcRenderer.invoke('sync:acquire-lock', dirPath, owner) as Promise<{
+        ok: boolean
+        lockedBy?: string
+      }>,
+    releaseLock: (dirPath: string, owner: string) =>
+      ipcRenderer.invoke('sync:release-lock', dirPath, owner) as Promise<void>,
+  },
 })
