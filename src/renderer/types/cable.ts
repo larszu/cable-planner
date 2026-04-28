@@ -39,4 +39,6 @@ export interface Cable {
   arrowEnd?: boolean
   /** Optional user-placed bend points (flow coordinates). */
   waypoints?: CableWaypoint[]
+  /** Where to show the cable label. Defaults to 'center'. */
+  labelPosition?: 'center' | 'source' | 'target'
 }

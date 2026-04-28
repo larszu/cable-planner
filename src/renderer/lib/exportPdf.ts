@@ -1,4 +1,4 @@
-import { toPng } from 'html-to-image'
+import { toJpeg } from 'html-to-image'
 import jsPDF from 'jspdf'
 import type { ProjectMetadata } from '../types/project'
 
@@ -94,8 +94,9 @@ const drawTitleBlock = (
 export const exportCanvasToPdf = async (
   projectName: string,
   metadata?: ProjectMetadata,
+  quality = 0.85,
 ) => {
-  const pdf = await buildCanvasPdf(metadata)
+  const pdf = await buildCanvasPdf(metadata, quality)
   pdf.save(`${(projectName || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')}.pdf`)
 }
 
@@ -106,14 +107,15 @@ export const exportCanvasToPdf = async (
  */
 export const exportCanvasToPdfBytes = async (
   metadata?: ProjectMetadata,
+  quality = 0.85,
 ): Promise<Uint8Array> => {
-  const pdf = await buildCanvasPdf(metadata)
+  const pdf = await buildCanvasPdf(metadata, quality)
   // jsPDF returns an ArrayBuffer when format is 'arraybuffer'.
   const buffer = pdf.output('arraybuffer') as ArrayBuffer
   return new Uint8Array(buffer)
 }
 
-const buildCanvasPdf = async (metadata?: ProjectMetadata): Promise<jsPDF> => {
+const buildCanvasPdf = async (metadata?: ProjectMetadata, quality = 0.85): Promise<jsPDF> => {
   const canvasEl = document.getElementById('cable-planner-canvas')
   if (!canvasEl) {
     throw new Error('Canvas not found')
@@ -180,9 +182,10 @@ const buildCanvasPdf = async (metadata?: ProjectMetadata): Promise<jsPDF> => {
   // sits at (0, 0). html-to-image's `width`/`height` clip the output to the
   // requested rectangle and `style` overrides the captured element's style
   // during capture (does not mutate the live DOM).
-  const dataUrl = await toPng(viewportEl, {
+  const dataUrl = await toJpeg(viewportEl, {
     backgroundColor: '#0f172a',
-    pixelRatio: 2,
+    pixelRatio: 1.5,
+    quality,
     cacheBust: true,
     width: contentW,
     height: contentH,
@@ -239,7 +242,7 @@ const buildCanvasPdf = async (metadata?: ProjectMetadata): Promise<jsPDF> => {
 
   const offsetX = margin
   const offsetY = margin + headerHeight
-  pdf.addImage(dataUrl, 'PNG', offsetX, offsetY, drawingW, drawingH)
+  pdf.addImage(dataUrl, 'JPEG', offsetX, offsetY, drawingW, drawingH)
 
   if (metadata) {
     drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin)

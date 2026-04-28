@@ -64,6 +64,8 @@ export interface EquipmentItem {
   subtitle?: string
   /** Optional background/accent color for the node header (CSS hex, e.g. "#0f4c81"). */
   nodeColor?: string
+  /** When true, inputs appear on the right side and outputs on the left side. */
+  portsFlipped?: boolean
   category: string
   inputs: Port[]
   outputs: Port[]

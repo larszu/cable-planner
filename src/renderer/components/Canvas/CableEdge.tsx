@@ -146,9 +146,21 @@ export const CableEdge = ({
     sourcePosition,
     targetPosition,
   }
-  const [path, labelX, labelY] = cable
+  const [path, centerX, centerY] = cable
     ? buildPath(cable, routingArgs, obstacles, obstacleIds)
     : getSmoothStepPath(routingArgs)
+
+  // Resolve label position: center (default), near source, near target.
+  const labelPos = cable?.labelPosition ?? 'center'
+  let labelX = centerX
+  let labelY = centerY
+  if (labelPos === 'source') {
+    labelX = sourceX + (centerX - sourceX) * 0.15
+    labelY = sourceY + (centerY - sourceY) * 0.15
+  } else if (labelPos === 'target') {
+    labelX = targetX + (centerX - targetX) * 0.15
+    labelY = targetY + (centerY - targetY) * 0.15
+  }
 
   const strokeWidth = cable?.strokeWidth ?? 2.5
   const dashArray = cable?.dashed ? '6 4' : undefined
