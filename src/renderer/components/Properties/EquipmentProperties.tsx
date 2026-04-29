@@ -172,7 +172,7 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
                 ))}
               </select>
             </div>
-            <div className="mt-1">
+            <div className="mt-1 grid grid-cols-2 gap-1">
               <select
                 aria-label="Port direction"
                 value={port.direction ?? ''}
@@ -190,6 +190,21 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
                 <option value="in">Nur Input</option>
                 <option value="out">Nur Output</option>
                 <option value="bidirectional">Bidirektional (z.B. Netzwerk)</option>
+              </select>
+              <select
+                aria-label="Port side"
+                value={port.side ?? ''}
+                onChange={(event) =>
+                  updatePort(port.id, {
+                    side: event.target.value ? (event.target.value as 'left' | 'right') : undefined,
+                  })
+                }
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                title="Port-Seite am Gerät: Auto nutzt Input/Output + globale Spiegelung"
+              >
+                <option value="">Seite (auto)</option>
+                <option value="left">Links</option>
+                <option value="right">Rechts</option>
               </select>
             </div>
             {(port.connectorType === 'Fiber' || port.connectorType === 'SFP' || port.connectorType === 'SFP+') && (

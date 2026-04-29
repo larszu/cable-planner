@@ -3,6 +3,7 @@ import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
+import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 
 interface SettingsDialogProps {
   open: boolean
@@ -13,6 +14,7 @@ type SettingsSection = 'project' | 'rentman' | 'general' | 'sync'
 
 export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const [section, setSection] = useState<SettingsSection>('project')
+  const drag = useDraggablePosition('cable-planner:modal-pos:settings', open)
 
   // Token lives only in local component state — never in global store — to
   // minimise how long the plaintext credential is reachable in memory.
@@ -155,7 +157,11 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-      <div className="flex w-full max-w-3xl overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
+      <div
+        ref={drag.containerRef}
+        style={drag.containerStyle}
+        className="flex w-full max-w-3xl overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
+      >
         {/* Sidebar */}
         <aside className="flex w-48 shrink-0 flex-col gap-1 border-r border-slate-800 bg-slate-950/40 p-3">
           <h3 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -169,7 +175,10 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
 
         {/* Body */}
         <main className="flex min-w-0 flex-1 flex-col">
-          <header className="flex items-center justify-between border-b border-slate-800 px-4 py-2">
+          <header
+            {...drag.headerProps}
+            className="flex items-center justify-between border-b border-slate-800 px-4 py-2 select-none"
+          >
             <h2 className="text-base font-semibold">
               {section === 'project' && 'Projekt-Einstellungen'}
               {section === 'rentman' && 'Rentman API'}

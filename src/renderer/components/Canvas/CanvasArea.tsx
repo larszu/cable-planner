@@ -26,7 +26,6 @@ import { CableEdge } from './CableEdge'
 import { CanvasToolbar } from './CanvasToolbar'
 import { LocationFrameNode } from './LocationFrameNode'
 import { PendingCableOverlay } from './PendingCableOverlay'
-import { TitleBlock } from './TitleBlock'
 import { colorByLength } from '../../lib/cableColors'
 import {
   setViewportCenterGetter,
@@ -56,6 +55,7 @@ const CanvasContent = () => {
   const gridSize = useUiStore((state) => state.gridSize)
   const cableColorMode = useUiStore((state) => state.cableColorMode)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
+  const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
   const pendingCable = useUiStore((state) => state.pendingCable)
   const addPendingWaypoint = useUiStore((state) => state.addPendingWaypoint)
   const clearPendingCable = useUiStore((state) => state.clearPendingCable)
@@ -105,28 +105,6 @@ const CanvasContent = () => {
     return () => setViewportCenterGetter(null)
   }, [screenToFlowPosition])
 
-  // Allow non-canvas components (LibraryPanel) to clear any active canvas
-  // selection. Used when the cursor enters the library so a previously
-  // moved-and-still-selected node can't participate in React Flow's
-  // multi-select group drag on the next pointer event.
-  useEffect(() => {
-    setCanvasSelectionClearer(() => {
-      setRfNodes((current) => {
-        let changed = false
-        const next = current.map((n) => {
-          if (n.selected) {
-            changed = true
-            return { ...n, selected: false }
-          }
-          return n
-        })
-        return changed ? next : current
-      })
-      setSelection(undefined, undefined, undefined)
-    })
-    return () => setCanvasSelectionClearer(null)
-  }, [setSelection])
-
   useEffect(() => {
     setCanvasInteractionLockHandlers({
       requestLock: requestInteractionLock,
@@ -173,6 +151,7 @@ const CanvasContent = () => {
   // be a new memo every render, which cascades into the `useEffect([nodes])`
   // calling `setRfNodes` on every render → infinite loop (React #185).
   const locations = useMemo(() => project.locations ?? [], [project.locations])
+  const effectiveCanvasTheme = pdfExportThemeOverride ?? canvasTheme
 
   const nodes = useMemo<Node[]>(() => {
     // Location frames first so they render behind equipment.
@@ -180,7 +159,7 @@ const CanvasContent = () => {
       id: loc.id,
       type: 'location',
       position: { x: loc.x, y: loc.y },
-      data: loc,
+      data: { ...loc, exportThemeOverride: pdfExportThemeOverride },
       zIndex: -1,
       style: { width: loc.width, height: loc.height },
       draggable: true,
@@ -190,16 +169,38 @@ const CanvasContent = () => {
       id: item.id,
       type: 'equipment',
       position: { x: item.x, y: item.y },
-      data: item,
+      data: { ...item, exportThemeOverride: pdfExportThemeOverride },
     }))
     return [...locationNodes, ...equipmentNodes]
-  }, [project.equipment, locations])
+  }, [project.equipment, locations, pdfExportThemeOverride])
 
   // Local state keeps React Flow's controlled node positions in sync during drag.
   // We initialise once from the store and then apply changes incrementally.
   // A wholesale replace on every store update is avoided because it causes nodes
   // to jump when other items in the array are deleted/added.
   const [rfNodes, setRfNodes] = useState<Node[]>(nodes)
+
+  // Allow non-canvas components (LibraryPanel) to clear any active canvas
+  // selection. Used when the cursor enters the library so a previously
+  // moved-and-still-selected node can't participate in React Flow's
+  // multi-select group drag on the next pointer event.
+  useEffect(() => {
+    setCanvasSelectionClearer(() => {
+      setRfNodes((current) => {
+        let changed = false
+        const next = current.map((n) => {
+          if (n.selected) {
+            changed = true
+            return { ...n, selected: false }
+          }
+          return n
+        })
+        return changed ? next : current
+      })
+      setSelection(undefined, undefined, undefined)
+    })
+    return () => setCanvasSelectionClearer(null)
+  }, [setSelection])
 
   // Briefly flash a node red when its drag is rejected due to overlap, so the
   // user understands why the device snapped back (not a glitch).
@@ -221,10 +222,26 @@ const CanvasContent = () => {
   // from the RF state during drags, but everything else flows store → RF so
   // edits are visible on the canvas immediately.
   const prevIdsRef = useRef<string>(nodes.map((n) => n.id).join(','))
+  // Track the projectVersion that rfNodes were last fully synced from. When
+  // the user opens a different project (or reopens the same project after
+  // editing it elsewhere), `projectVersion` increments — and rfNodes MUST be
+  // rebuilt from the store positions, otherwise the local rfNodes state
+  // (which deliberately survives store updates to keep drag positions stable)
+  // would keep stale positions that disagree with the freshly loaded file.
+  // This was the root cause of the "Geräte verschoben beim Öffnen" bug.
+  const lastSyncedProjectVersionRef = useRef(projectVersion)
   useEffect(() => {
     const changedIds: string[] = []
+    const projectChanged = projectVersion !== lastSyncedProjectVersionRef.current
     setRfNodes((current) => {
       const currentById = new Map(current.map((n) => [n.id, n]))
+      // When a different project was just loaded, throw away ALL local rfNode
+      // state and rebuild straight from the freshly loaded store. Otherwise
+      // any equipment that happens to share an id with the previous project
+      // (e.g. reopening the same file) would keep its stale local position.
+      if (projectChanged) {
+        return nodes.map((n) => ({ ...n }))
+      }
       // For every node that already exists in rfNodes we keep the existing
       // RF node object (position, selection flags, measured dimensions, etc.)
       // and only refresh `data` from the store. Existing-node positions are
@@ -244,12 +261,18 @@ const CanvasContent = () => {
         return { ...existing, data: n.data }
       })
     })
+    if (projectChanged) {
+      // After a project switch every node needs its handles re-registered
+      // so cable edges latch onto the correct port positions.
+      updateNodeInternals(nodes.map((n) => n.id))
+      lastSyncedProjectVersionRef.current = projectVersion
+    }
     prevIdsRef.current = nodes.map((n) => n.id).join(',')
     // Re-register handles for nodes whose data changed (port additions,
     // removals, reorders). Without this ReactFlow keeps stale handle
     // positions and edges visually stay connected to the old handle.
     if (changedIds.length > 0) updateNodeInternals(changedIds)
-  }, [nodes, updateNodeInternals])
+  }, [nodes, projectVersion, updateNodeInternals])
 
   const edges = useMemo<Edge[]>(
     () =>
@@ -275,17 +298,17 @@ const CanvasContent = () => {
           type: 'cable',
           updatable: true,
           style: { stroke: strokeColor, strokeWidth: item.strokeWidth ?? 2.5, strokeDasharray: dashArray },
-          data: { cable: item },
+          data: { cable: item, exportThemeOverride: pdfExportThemeOverride },
           label: item.needsConverter
             ? `${item.name} (${item.length}m) ⚠ converter`
             : `${item.name} (${item.length}m)`,
         }
       }),
-    [project.cables, cableColorMode],
+    [project.cables, cableColorMode, pdfExportThemeOverride],
   )
 
   // Helper: check if equipment position overlaps with others
-  const hasOverlap = (id: string, x: number, y: number, width: number, height: number): boolean => {
+  const hasOverlap = useCallback((id: string, x: number, y: number, width: number, height: number): boolean => {
     return project.equipment.some((eq) => {
       if (eq.id === id) return false
       const eqW = eq.width ?? 0
@@ -293,7 +316,7 @@ const CanvasContent = () => {
       // AABB intersection test
       return !(x + width <= eq.x || x >= eq.x + eqW || y + height <= eq.y || y >= eq.y + eqH)
     })
-  }
+  }, [project.equipment])
 
   const onNodesChange = (changes: NodeChange[]) => {
     // snap helper used both in the locked and normal paths
@@ -349,6 +372,13 @@ const CanvasContent = () => {
           } else {
             updateEquipment(change.id, { x: px, y: py })
           }
+          // Sync rfNodes to the snapped position so local visual state
+          // matches the persisted store value.
+          setRfNodes((current) =>
+            current.map((n) =>
+              n.id === change.id ? { ...n, position: { x: px, y: py } } : n,
+            ),
+          )
         }
       })
       return
@@ -449,8 +479,30 @@ const CanvasContent = () => {
             const dx = px - loc.x
             const dy = py - loc.y
             moveLocationWithContents(change.id, dx, dy, drag.containedEquipmentIds)
+            // Sync rfNodes for the location AND every contained equipment to
+            // the snapped delta so visuals match the store.
+            const containedSet = new Set(drag.containedEquipmentIds)
+            setRfNodes((current) =>
+              current.map((n) => {
+                if (n.id === change.id) {
+                  return { ...n, position: { x: px, y: py } }
+                }
+                if (containedSet.has(n.id)) {
+                  return {
+                    ...n,
+                    position: { x: n.position.x + dx, y: n.position.y + dy },
+                  }
+                }
+                return n
+              }),
+            )
           } else {
             updateLocation(change.id, { x: px, y: py })
+            setRfNodes((current) =>
+              current.map((n) =>
+                n.id === change.id ? { ...n, position: { x: px, y: py } } : n,
+              ),
+            )
           }
           locationDragRef.current = null
         } else {
@@ -470,6 +522,25 @@ const CanvasContent = () => {
             flashOverlap(change.id)
           } else {
             updateEquipment(change.id, { x: px, y: py })
+            console.log('[drag-end persist]', {
+              id: change.id,
+              raw: change.position,
+              snapped: { x: px, y: py },
+              snapToGrid,
+              gridSize,
+            })
+            // CRITICAL: Also overwrite rfNodes with the SNAPPED position so
+            // local visual state and the store agree. Otherwise rfNodes keeps
+            // the raw (unsnapped) drag position while the store has the
+            // snapped one — saving then persists the snapped value, but the
+            // user sees the unsnapped one in the canvas. After re-opening the
+            // file, every device appears shifted by its individual sub-grid
+            // drift amount.
+            setRfNodes((current) =>
+              current.map((n) =>
+                n.id === change.id ? { ...n, position: { x: px, y: py } } : n,
+              ),
+            )
           }
         }
       }
@@ -517,6 +588,46 @@ const CanvasContent = () => {
   )
 
   const onNodeDragStop = useCallback((_event: React.MouseEvent, node: Node) => {
+    const snap = (v: number) =>
+      snapToGrid && gridSize > 0 ? Math.round(v / gridSize) * gridSize : v
+    const px = snap(node.position.x)
+    const py = snap(node.position.y)
+
+    if (Number.isFinite(px) && Number.isFinite(py)) {
+      if (node.type === 'location') {
+        const drag = locationDragRef.current
+        const loc = locations.find((l) => l.id === node.id)
+        if (drag && drag.locationId === node.id && loc) {
+          const dx = px - loc.x
+          const dy = py - loc.y
+          if (dx || dy) {
+            moveLocationWithContents(node.id, dx, dy, drag.containedEquipmentIds)
+          }
+        } else if (loc && (loc.x !== px || loc.y !== py)) {
+          updateLocation(node.id, { x: px, y: py })
+        }
+      } else {
+        const eq = project.equipment.find((e) => e.id === node.id)
+        if (eq && (eq.x !== px || eq.y !== py)) {
+          if (hasOverlap(eq.id, px, py, eq.width ?? 0, eq.height ?? 0)) {
+            setRfNodes((current) =>
+              current.map((n) =>
+                n.id === node.id ? { ...n, position: { x: eq.x, y: eq.y } } : n,
+              ),
+            )
+            flashOverlap(node.id)
+          } else {
+            updateEquipment(node.id, { x: px, y: py })
+            setRfNodes((current) =>
+              current.map((n) =>
+                n.id === node.id ? { ...n, position: { x: px, y: py } } : n,
+              ),
+            )
+          }
+        }
+      }
+    }
+
     // A completed drag must not leave any ids behind. If stale ids remain here,
     // a later library add can make React Flow emit `dragging:false` position
     // syncs for those ids, which our persistence logic would otherwise treat as
@@ -527,7 +638,7 @@ const CanvasContent = () => {
       // changes (like adding equipment by click) cannot shift other nodes.
       locationDragRef.current = null
     }
-  }, [])
+  }, [gridSize, hasOverlap, locations, moveLocationWithContents, project.equipment, snapToGrid, updateEquipment, updateLocation])
 
   const onEdgesChange = (_changes: EdgeChange[]) => {
     applyEdgeChanges(_changes, edges)
@@ -623,7 +734,17 @@ const CanvasContent = () => {
       if (!srcPort) return
 
       const stubSide: 'input' | 'output' = start.handleType === 'source' ? 'input' : 'output'
-      const encoded = addOpenEndStub({ x: flowPos.x - 70, y: flowPos.y - 30 }, srcPort.connectorType, stubSide)
+      // Snap stub position so floats from screenToFlowPosition (e.g. at
+      // zoom 1.5) don't sneak into the store.
+      const rawX = flowPos.x - 70
+      const rawY = flowPos.y - 30
+      const stubX = snapToGrid && gridSize > 0
+        ? Math.round(rawX / gridSize) * gridSize
+        : Math.round(rawX)
+      const stubY = snapToGrid && gridSize > 0
+        ? Math.round(rawY / gridSize) * gridSize
+        : Math.round(rawY)
+      const encoded = addOpenEndStub({ x: stubX, y: stubY }, srcPort.connectorType, stubSide)
       const [stubId, stubPortId] = encoded.split('|')
 
       // Queue cable dialog just like a normal connection.
@@ -643,7 +764,7 @@ const CanvasContent = () => {
         })
       }
     },
-    [addOpenEndStub, project.equipment, queueConnection, screenToFlowPosition],
+    [addOpenEndStub, project.equipment, queueConnection, screenToFlowPosition, snapToGrid, gridSize],
   )
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -663,12 +784,22 @@ const CanvasContent = () => {
       try {
         const template = JSON.parse(payload) as EquipmentTemplate
         const position = screenToFlowPosition({ x: event.clientX, y: event.clientY })
-        addEquipment({ ...template, x: position.x, y: position.y })
+        // Snap drop-position to grid (or at least to integer) so the store
+        // never receives sub-pixel floats from screenToFlowPosition. Without
+        // this, dropping at zoom != 1 produces fractional coords (e.g.
+        // -135.333) that would later drift visibly when re-opened.
+        const px = snapToGrid && gridSize > 0
+          ? Math.round(position.x / gridSize) * gridSize
+          : Math.round(position.x)
+        const py = snapToGrid && gridSize > 0
+          ? Math.round(position.y / gridSize) * gridSize
+          : Math.round(position.y)
+        addEquipment({ ...template, x: px, y: py })
       } catch (error) {
         console.error('Failed to drop equipment:', error)
       }
     },
-    [addEquipment, screenToFlowPosition],
+    [addEquipment, screenToFlowPosition, snapToGrid, gridSize],
   )
 
   // In-app clipboard for Ctrl+C / Ctrl+V. Snapshots the selected equipment
@@ -720,7 +851,7 @@ const CanvasContent = () => {
       }),
     )
     setSelection(newIds[0], undefined, undefined)
-  }, [pasteEquipment, setSelection])
+  }, [pasteEquipment, setSelection, setRfNodes])
 
   const duplicateSelection = useCallback(() => {
     if (!copySelectionToClipboard()) return
@@ -787,7 +918,7 @@ const CanvasContent = () => {
       ref={wrapperRef}
       style={{ width: '100%', height: '100%', minHeight: 400, position: 'relative' }}
       id="cable-planner-canvas"
-      className={canvasTheme === 'light' ? 'canvas-theme-light' : ''}
+      className={effectiveCanvasTheme === 'light' ? 'canvas-theme-light' : ''}
       onDrop={onDrop}
       onDragOver={onDragOver}
     >
@@ -819,6 +950,7 @@ const CanvasContent = () => {
         </defs>
       </svg>
       <ReactFlow
+        proOptions={{ hideAttribution: true }}
         nodes={rfNodes.map((n) =>
           overlapFlashId === n.id
             ? { ...n, className: (n.className ? n.className + ' ' : '') + 'overlap-flash' }
@@ -827,7 +959,7 @@ const CanvasContent = () => {
         edges={edges}
         nodesDraggable={!interactionLocked}
         elementsSelectable={!interactionLocked}
-        edgesReconnectable={!interactionLocked}
+        edgesUpdatable={!interactionLocked}
         panOnDrag={interactionLocked ? false : true}
         panOnScroll={!interactionLocked}
         zoomOnScroll={!interactionLocked}
@@ -890,14 +1022,13 @@ const CanvasContent = () => {
         onMoveEnd={(_event, viewport) => setCanvasState(viewport.x, viewport.y, viewport.zoom)}
       >
         <MiniMap pannable zoomable
-          className={canvasTheme === 'light' ? '!bg-slate-100' : '!bg-slate-800'}
-          maskColor={canvasTheme === 'light' ? 'rgba(226,232,240,0.7)' : 'rgba(15,23,42,0.7)'}
+          className={effectiveCanvasTheme === 'light' ? '!bg-slate-100' : '!bg-slate-800'}
+          maskColor={effectiveCanvasTheme === 'light' ? 'rgba(226,232,240,0.7)' : 'rgba(15,23,42,0.7)'}
         />
         <Controls />
-        <Background color={canvasTheme === 'light' ? '#cbd5e1' : '#334155'} />
+        <Background color={effectiveCanvasTheme === 'light' ? '#cbd5e1' : '#334155'} />
       </ReactFlow>
       <PendingCableOverlay />
-      <TitleBlock />
     </div>
   )
 }

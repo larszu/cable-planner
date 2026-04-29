@@ -304,8 +304,49 @@ const sanitizePort = (port: Partial<Port>, fallbackName: string): Port => ({
   name: port.name ?? fallbackName,
   type: port.type ?? 'Custom',
   connectorType: port.connectorType ?? 'Custom',
+  side: port.side,
   standard: port.standard,
 })
+
+/**
+ * Heal a project loaded from disk: round every equipment / location position
+ * (and width/height where applicable) to an integer. Older project files
+ * saved before the snap-on-add fix can contain sub-pixel floats from
+ * `screenToFlowPosition` at non-integer zoom (e.g. `-135.333`). Without this
+ * pass, opening such a file shows devices visibly shifted by individual
+ * sub-pixel deltas — exactly the "verschoben beim Öffnen" symptom.
+ *
+ * We don't try to snap to the user's current grid here because the user's
+ * grid may differ from the one used when the file was created. Plain integer
+ * rounding is enough to remove the visible drift and is reversible (the
+ * shift is in the order of fractions of a pixel, never more).
+ */
+const healProjectPositions = (project: CablePlannerProject): CablePlannerProject => {
+  const r = (v: unknown): number =>
+    typeof v === 'number' && Number.isFinite(v) ? Math.round(v) : 0
+  return {
+    ...project,
+    equipment: project.equipment.map((item) => ({
+      ...item,
+      x: r(item.x),
+      y: r(item.y),
+      width: typeof item.width === 'number' ? Math.round(item.width) : item.width,
+      height: typeof item.height === 'number' ? Math.round(item.height) : item.height,
+    })),
+    locations: (project.locations ?? []).map((loc) => ({
+      ...loc,
+      x: r(loc.x),
+      y: r(loc.y),
+      width: Math.round(loc.width),
+      height: Math.round(loc.height),
+    })),
+    cables: project.cables.map((c) =>
+      c.waypoints && c.waypoints.length > 0
+        ? { ...c, waypoints: c.waypoints.map((w) => ({ x: r(w.x), y: r(w.y) })) }
+        : c,
+    ),
+  }
+}
 
 const shouldSyncRentmanTemplateCache = (patch: Partial<EquipmentItem>): boolean => {
   const keys = Object.keys(patch) as Array<keyof EquipmentItem>
@@ -314,7 +355,10 @@ const shouldSyncRentmanTemplateCache = (patch: Partial<EquipmentItem>): boolean 
 }
 
 export const useProjectStore = create<ProjectState>((set, get) => ({
-  project: loadAutosavedProject() ?? defaultProject(),
+  project: (() => {
+    const auto = loadAutosavedProject()
+    return auto ? healProjectPositions(auto) : defaultProject()
+  })(),
   projectVersion: 0,
   showCableDialog: false,
   recentProjects: [],
@@ -324,7 +368,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   setFilePath: (path) => set({ filePath: path }),
   loadProject: (project, filePath) =>
     set((state) => ({
-      project,
+      project: healProjectPositions(project),
       filePath,
       projectVersion: state.projectVersion + 1,
       selectedEquipmentId: undefined,

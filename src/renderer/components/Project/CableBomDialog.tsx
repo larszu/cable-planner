@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import jsPDF from 'jspdf'
 import { useProjectStore } from '../../store/projectStore'
 import type { Cable } from '../../types/cable'
+import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 
 export interface CableBomDialogProps {
   open: boolean
@@ -36,6 +37,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
   const project = useProjectStore((s) => s.project)
   const updateMeta = useProjectStore((s) => s.updateProjectMetadata)
   const [draftPlan, setDraftPlan] = useState<Record<string, number> | null>(null)
+  const drag = useDraggablePosition('cable-planner:modal-pos:cable-bom', open)
 
   const rows: BomRow[] = useMemo(() => {
     if (!open) return []
@@ -155,10 +157,15 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
       onClick={onClose}
     >
       <div
+        ref={drag.containerRef}
+        style={drag.containerStyle}
         className="flex max-h-[90vh] w-[820px] max-w-[95vw] flex-col rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
+        <div
+          {...drag.headerProps}
+          className="flex items-center justify-between border-b border-slate-700 px-4 py-2 select-none"
+        >
           <h2 className="text-sm font-semibold">Kabel-Stückliste</h2>
           <button
             type="button"

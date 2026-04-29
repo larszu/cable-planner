@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 
 interface CropRect {
   x: number
@@ -16,20 +17,49 @@ interface RackImageCropDialogProps {
   onConfirm: (payload: { dataUrl: string; crop: CropRect }) => void
 }
 
+// 19" rack panel aspect: outer 482.6 mm / 1U 44.45 mm = 10.857 (width / 1HE-height).
+const PANEL_ASPECT_PER_1HE = 10.857
+const HE_PRESETS = [1, 2, 3, 4, 6, 8, 12]
+
 const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value))
 
-const defaultCrop = (units: number): CropRect => {
-  // Approx 19" panel aspect: width / (1HE height) ~= 10.86
-  const targetAspect = 10.86 / Math.max(1, units)
-  if (targetAspect >= 1) {
+// Default crop rectangle (normalized 0..1) sized to the requested HE-aspect,
+// centered in the source image with sane padding so the user always sees the
+// full crop frame before adjusting it.
+//
+// IMPORTANT: the crop rect lives in normalized [0..1] coordinates of the
+// source image. To make the rect look like a real rack panel on screen we
+// must convert the pixel target aspect (width/height in real pixels) into a
+// normalized aspect by dividing by the source image aspect. Without this the
+// preset boxes were the wrong shape on non-square images.
+const defaultCrop = (units: number, imageAspect: number): CropRect => {
+  const pixelAspect = PANEL_ASPECT_PER_1HE / Math.max(1, units)
+  const normAspect = pixelAspect / Math.max(0.0001, imageAspect)
+  if (normAspect >= 1) {
     const width = 0.9
-    const height = width / targetAspect
-    return { x: 0.05, y: Math.max(0.05, (1 - height) / 2), width, height: Math.min(0.9, height) }
+    const height = Math.min(0.9, width / normAspect)
+    return { x: (1 - width) / 2, y: (1 - height) / 2, width, height }
   }
   const height = 0.9
-  const width = height * targetAspect
-  return { x: Math.max(0.05, (1 - width) / 2), y: 0.05, width: Math.min(0.9, width), height }
+  const width = Math.min(0.9, height * normAspect)
+  return { x: (1 - width) / 2, y: (1 - height) / 2, width, height }
 }
+
+// Eight resize anchors. Each entry encodes which crop edges the handle moves
+// when dragged: dx/dy = pull from left/top edge, dw/dh = pull from right/bottom.
+type HandleId = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w'
+const HANDLE_DEFS: Record<HandleId, { left: string; top: string; cursor: string }> = {
+  nw: { left: '0%', top: '0%', cursor: 'nwse-resize' },
+  n: { left: '50%', top: '0%', cursor: 'ns-resize' },
+  ne: { left: '100%', top: '0%', cursor: 'nesw-resize' },
+  e: { left: '100%', top: '50%', cursor: 'ew-resize' },
+  se: { left: '100%', top: '100%', cursor: 'nwse-resize' },
+  s: { left: '50%', top: '100%', cursor: 'ns-resize' },
+  sw: { left: '0%', top: '100%', cursor: 'nesw-resize' },
+  w: { left: '0%', top: '50%', cursor: 'ew-resize' },
+}
+
+const MIN_SIZE = 0.04 // 4 % of source image — prevents collapsing the crop box.
 
 export const RackImageCropDialog = ({
   open,
@@ -39,35 +69,197 @@ export const RackImageCropDialog = ({
   onCancel,
   onConfirm,
 }: RackImageCropDialogProps) => {
-  const [crop, setCrop] = useState<CropRect>(defaultCrop(rackUnits))
-  const [dragging, setDragging] = useState(false)
-  const [pointerOffset, setPointerOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
+  const [crop, setCrop] = useState<CropRect>(defaultCrop(rackUnits, 1))
   const [zoom, setZoom] = useState(1)
+  const [aspectLock, setAspectLock] = useState(true)
+  const [activeHandle, setActiveHandle] = useState<HandleId | 'move' | null>(null)
+  // Tracks the source image's pixel aspect (naturalWidth / naturalHeight) so
+  // every preset / aspect-lock calculation maps from pixel-space to the
+  // normalized [0..1] crop coordinates correctly. Defaults to 1 until onLoad
+  // fires — then the effect below resets the crop to a properly shaped box.
+  const [imgAspect, setImgAspect] = useState(1)
   const imgRef = useRef<HTMLImageElement | null>(null)
+  const overlayRef = useRef<HTMLDivElement | null>(null)
+  const scrollRef = useRef<HTMLDivElement | null>(null)
+  const dragStartRef = useRef<{ pointerNx: number; pointerNy: number; crop: CropRect } | null>(null)
+  const drag = useDraggablePosition('cable-planner:modal-pos:rack-crop', open)
 
   useEffect(() => {
     if (open) {
-      setCrop(defaultCrop(rackUnits))
+      setCrop(defaultCrop(rackUnits, imgAspect))
+      setZoom(1)
+      setAspectLock(true)
+    }
+  }, [open, rackUnits, imageSrc, imgAspect])
+
+  // Live HE estimate derived from the current crop's *pixel* aspect ratio.
+  // The crop rect is normalized to [0..1] of the source image, so we have to
+  // multiply by the image's pixel aspect to get the real-world panel aspect.
+  const liveHe = useMemo(() => {
+    if (crop.width <= 0 || crop.height <= 0) return rackUnits
+    const cropPixelAspect = (crop.width / crop.height) * imgAspect
+    if (cropPixelAspect <= 0) return rackUnits
+    return PANEL_ASPECT_PER_1HE / cropPixelAspect
+  }, [crop.width, crop.height, rackUnits, imgAspect])
+
+  // Pixel-space target aspect (used for canvas export at finalize time).
+  const targetAspect = useMemo(() => PANEL_ASPECT_PER_1HE / Math.max(1, rackUnits), [rackUnits])
+  // Normalized-space target aspect for resize-locking and preset framing.
+  const normTargetAspect = useMemo(
+    () => targetAspect / Math.max(0.0001, imgAspect),
+    [targetAspect, imgAspect],
+  )
+
+  // Convert a pointer event into the overlay's normalized 0..1 coordinates.
+  const pointerToNormalized = (event: React.PointerEvent | PointerEvent): { x: number; y: number } | null => {
+    const el = overlayRef.current
+    if (!el) return null
+    const rect = el.getBoundingClientRect()
+    if (rect.width <= 0 || rect.height <= 0) return null
+    return {
+      x: clamp((event.clientX - rect.left) / rect.width, 0, 1),
+      y: clamp((event.clientY - rect.top) / rect.height, 0, 1),
+    }
+  }
+
+  // Apply a resize for the currently active handle, optionally constrained to
+  // the panel aspect when aspect-lock is on or the user is holding shift.
+  const applyResize = (handle: HandleId, pointerNx: number, pointerNy: number, lockAspect: boolean) => {
+    const start = dragStartRef.current
+    if (!start) return
+    const c0 = start.crop
+    let left = c0.x
+    let top = c0.y
+    let right = c0.x + c0.width
+    let bottom = c0.y + c0.height
+
+    if (handle.includes('w')) left = clamp(pointerNx, 0, right - MIN_SIZE)
+    if (handle.includes('e')) right = clamp(pointerNx, left + MIN_SIZE, 1)
+    if (handle.includes('n')) top = clamp(pointerNy, 0, bottom - MIN_SIZE)
+    if (handle.includes('s')) bottom = clamp(pointerNy, top + MIN_SIZE, 1)
+
+    let width = right - left
+    let height = bottom - top
+
+    if (lockAspect) {
+      // Resolve aspect by adjusting whichever dimension was NOT primarily
+      // dragged. For corner handles use the larger delta as the master.
+      const isCorner = handle.length === 2
+      const masterIsWidth = isCorner
+        ? Math.abs(width - c0.width) > Math.abs(height - c0.height)
+        : handle === 'e' || handle === 'w'
+      if (masterIsWidth) {
+        height = clamp(width / normTargetAspect, MIN_SIZE, 1)
+        if (handle.includes('n')) top = clamp(bottom - height, 0, bottom - MIN_SIZE)
+        else bottom = clamp(top + height, top + MIN_SIZE, 1)
+        height = bottom - top
+        width = height * normTargetAspect
+        if (handle.includes('w')) left = clamp(right - width, 0, right - MIN_SIZE)
+        else right = clamp(left + width, left + MIN_SIZE, 1)
+      } else {
+        width = clamp(height * normTargetAspect, MIN_SIZE, 1)
+        if (handle.includes('w')) left = clamp(right - width, 0, right - MIN_SIZE)
+        else right = clamp(left + width, left + MIN_SIZE, 1)
+        width = right - left
+        height = width / normTargetAspect
+        if (handle.includes('n')) top = clamp(bottom - height, 0, bottom - MIN_SIZE)
+        else bottom = clamp(top + height, top + MIN_SIZE, 1)
+      }
+    }
+
+    setCrop({ x: left, y: top, width: right - left, height: bottom - top })
+  }
+
+  const onPointerDown = (handle: HandleId | 'move') => (event: React.PointerEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    const norm = pointerToNormalized(event)
+    if (!norm) return
+    dragStartRef.current = { pointerNx: norm.x, pointerNy: norm.y, crop: { ...crop } }
+    setActiveHandle(handle)
+    ;(event.target as Element).setPointerCapture?.(event.pointerId)
+  }
+
+  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!activeHandle) return
+    const norm = pointerToNormalized(event)
+    if (!norm) return
+    if (activeHandle === 'move') {
+      const start = dragStartRef.current
+      if (!start) return
+      const dx = norm.x - start.pointerNx
+      const dy = norm.y - start.pointerNy
+      const nextX = clamp(start.crop.x + dx, 0, 1 - start.crop.width)
+      const nextY = clamp(start.crop.y + dy, 0, 1 - start.crop.height)
+      setCrop({ ...start.crop, x: nextX, y: nextY })
+      return
+    }
+    applyResize(activeHandle, norm.x, norm.y, aspectLock || event.shiftKey)
+  }
+
+  const onPointerUp = () => {
+    setActiveHandle(null)
+    dragStartRef.current = null
+  }
+
+  // Wheel zoom centered on the cursor — adjusts the source-image scale and
+  // keeps the pixel under the cursor stationary by scrolling the container.
+  const onWheelZoom = (event: React.WheelEvent<HTMLDivElement>) => {
+    if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+      // Plain wheel = zoom (matches Photoshop / image editors). Hold ctrl for
+      // page scroll if needed.
+      event.preventDefault()
+      const scroller = scrollRef.current
+      if (!scroller) return
+      const before = scroller.getBoundingClientRect()
+      const cursorX = event.clientX - before.left + scroller.scrollLeft
+      const cursorY = event.clientY - before.top + scroller.scrollTop
+      const factor = event.deltaY > 0 ? 0.9 : 1.1
+      const nextZoom = clamp(zoom * factor, 0.5, 6)
+      const ratio = nextZoom / zoom
+      setZoom(nextZoom)
+      // After the DOM updates, re-anchor scroll so the cursor stays put.
+      requestAnimationFrame(() => {
+        if (!scrollRef.current) return
+        scrollRef.current.scrollLeft = cursorX * ratio - (event.clientX - before.left)
+        scrollRef.current.scrollTop = cursorY * ratio - (event.clientY - before.top)
+      })
+    }
+  }
+
+  // Keyboard support: arrow nudge, +/- zoom, R = reset.
+  const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const step = event.shiftKey ? 0.05 : 0.005
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault()
+      setCrop((c) => ({ ...c, x: clamp(c.x - step, 0, 1 - c.width) }))
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault()
+      setCrop((c) => ({ ...c, x: clamp(c.x + step, 0, 1 - c.width) }))
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault()
+      setCrop((c) => ({ ...c, y: clamp(c.y - step, 0, 1 - c.height) }))
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      setCrop((c) => ({ ...c, y: clamp(c.y + step, 0, 1 - c.height) }))
+    } else if (event.key === '+' || event.key === '=') {
+      event.preventDefault()
+      setZoom((z) => clamp(z * 1.1, 0.5, 6))
+    } else if (event.key === '-' || event.key === '_') {
+      event.preventDefault()
+      setZoom((z) => clamp(z * 0.9, 0.5, 6))
+    } else if (event.key === 'r' || event.key === 'R') {
+      event.preventDefault()
+      setCrop(defaultCrop(rackUnits, imgAspect))
       setZoom(1)
     }
-  }, [open, rackUnits, imageSrc])
-
-  const hePresets = useMemo(() => [1, 2, 3, 4, 6, 8, 12], [])
+  }
 
   if (!open || !imageSrc) return null
-
-  const toNormalized = (event: React.MouseEvent<HTMLDivElement, MouseEvent>): { x: number; y: number } | null => {
-    const host = event.currentTarget.getBoundingClientRect()
-    if (host.width <= 0 || host.height <= 0) return null
-    const x = clamp((event.clientX - host.left) / host.width, 0, 1)
-    const y = clamp((event.clientY - host.top) / host.height, 0, 1)
-    return { x, y }
-  }
 
   const finalizeCrop = () => {
     const img = imgRef.current
     if (!img) return
-
     const sourceW = img.naturalWidth
     const sourceH = img.naturalHeight
     if (sourceW <= 0 || sourceH <= 0) return
@@ -77,11 +269,11 @@ export const RackImageCropDialog = ({
     const sw = Math.max(1, Math.round(crop.width * sourceW))
     const sh = Math.max(1, Math.round(crop.height * sourceH))
 
-    // Scale export by a 1HE reference derived from current screen height,
-    // so front/rear/rack panels stay visually consistent across views.
+    // Export at a screen-derived 1HE size so panels stay visually consistent
+    // across views regardless of source resolution.
     const oneHePx = Math.max(48, Math.round(window.innerHeight * 0.045))
     const targetHeight = Math.max(1, Math.round(oneHePx * Math.max(1, rackUnits)))
-    const targetWidth = Math.max(1, Math.round(targetHeight * (10.86 / Math.max(1, rackUnits))))
+    const targetWidth = Math.max(1, Math.round(targetHeight * targetAspect))
 
     const canvas = document.createElement('canvas')
     canvas.width = targetWidth
@@ -91,17 +283,31 @@ export const RackImageCropDialog = ({
     ctx.imageSmoothingEnabled = true
     ctx.imageSmoothingQuality = 'high'
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetWidth, targetHeight)
-
     onConfirm({ dataUrl: canvas.toDataURL('image/png'), crop })
   }
 
+  const cropGlow = activeHandle ? '0 0 0 1px rgba(34,211,238,0.9), 0 0 18px 2px rgba(34,211,238,0.55)' : '0 0 0 1px rgba(34,211,238,0.6)'
+
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/75 p-6">
-      <div className="max-h-[94vh] w-full max-w-5xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
-        <div className="mb-3 flex items-center justify-between">
+    <div
+      className="fixed inset-0 z-[90] flex items-center justify-center bg-black/75 p-4 outline-none"
+      tabIndex={-1}
+      onKeyDown={onKeyDown}
+    >
+      <div
+        ref={drag.containerRef}
+        style={drag.containerStyle}
+        className="max-h-[94vh] w-full max-w-5xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4 text-slate-100 shadow-2xl"
+      >
+        <div
+          {...drag.headerProps}
+          className="mb-3 flex items-start justify-between gap-3 select-none"
+        >
           <div>
-            <h3 className="text-base font-semibold">{side === 'front' ? 'Front' : 'Rear'} Grafik zuschneiden</h3>
-            <p className="text-xs text-slate-400">Schnittvorlagen wie im Snipping-Tool. Ziehen, dann speichern.</p>
+            <h3 className="text-base font-semibold">{side === 'front' ? 'Front' : 'Rear'} Grafik zuschneiden ({rackUnits} HE)</h3>
+            <p className="mt-0.5 text-xs text-slate-400">
+              Mausrad zoomt · Ecken &amp; Kanten ziehen zum Skalieren · Shift = Aspekt halten · Pfeiltasten nudgen · R = Reset
+            </p>
           </div>
           <button
             type="button"
@@ -112,158 +318,209 @@ export const RackImageCropDialog = ({
           </button>
         </div>
 
-        <div className="mb-3 grid grid-cols-[1fr_auto] gap-3">
+        <div className="mb-3 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_280px]">
           <div className="rounded border border-slate-700 bg-slate-950/40 p-2">
             <div className="mb-2 flex items-center gap-2 text-xs text-slate-400">
-              <span>Quellbild-Skalierung</span>
+              <span>Zoom</span>
               <input
                 type="range"
                 min={0.5}
-                max={4}
+                max={6}
                 step={0.05}
                 value={zoom}
                 onChange={(event) => setZoom(Number(event.target.value) || 1)}
-                title="Quellbild-Skalierung"
                 className="flex-1"
+                title="Mausrad oder + / - tut dasselbe"
               />
-              <span className="w-12 text-right">{zoom.toFixed(2)}x</span>
+              <span className="w-12 text-right tabular-nums">{zoom.toFixed(2)}x</span>
+              <label className="ml-2 flex items-center gap-1 text-[11px]">
+                <input
+                  type="checkbox"
+                  checked={aspectLock}
+                  onChange={(event) => setAspectLock(event.target.checked)}
+                />
+                Aspekt fixieren
+              </label>
             </div>
-            <div className="max-h-[70vh] overflow-auto rounded border border-slate-700">
+            <div
+              ref={scrollRef}
+              className="relative max-h-[70vh] overflow-auto rounded border border-slate-700"
+              onWheel={onWheelZoom}
+            >
               <div
-                className="relative mx-auto"
-                style={{
-                  width: `${Math.max(480, 860 * zoom)}px`,
-                }}
+                className="relative mx-auto select-none"
+                style={{ width: `${Math.max(480, 860 * zoom)}px` }}
               >
-                <img ref={imgRef} src={imageSrc} alt="Rack crop source" className="h-auto w-full object-contain" />
-              <div
-                className="absolute inset-0"
-                onMouseMove={(event) => {
-                  if (!dragging) return
-                  const host = event.currentTarget.getBoundingClientRect()
-                  const nx = clamp((event.clientX - host.left) / host.width - pointerOffset.x, 0, 1 - crop.width)
-                  const ny = clamp((event.clientY - host.top) / host.height - pointerOffset.y, 0, 1 - crop.height)
-                  setCrop((current) => ({ ...current, x: nx, y: ny }))
-                }}
-                onMouseUp={() => setDragging(false)}
-                onMouseLeave={() => setDragging(false)}
-              >
-                <div
-                  className="absolute border-2 border-cyan-400 bg-cyan-500/15"
-                  style={{
-                    left: `${crop.x * 100}%`,
-                    top: `${crop.y * 100}%`,
-                    width: `${crop.width * 100}%`,
-                    height: `${crop.height * 100}%`,
-                  }}
-                  onMouseDown={(event) => {
-                    const host = (event.currentTarget.parentElement as HTMLDivElement).getBoundingClientRect()
-                    const rect = event.currentTarget.getBoundingClientRect()
-                    setPointerOffset({
-                      x: (event.clientX - rect.left) / host.width,
-                      y: (event.clientY - rect.top) / host.height,
-                    })
-                    setDragging(true)
+                <img
+                  ref={imgRef}
+                  src={imageSrc}
+                  alt="Rack crop source"
+                  className="block h-auto w-full object-contain"
+                  draggable={false}
+                  onLoad={(event) => {
+                    const target = event.currentTarget
+                    if (target.naturalWidth > 0 && target.naturalHeight > 0) {
+                      setImgAspect(target.naturalWidth / target.naturalHeight)
+                    }
                   }}
                 />
+                <div
+                  ref={overlayRef}
+                  className="absolute inset-0"
+                  onPointerMove={onPointerMove}
+                  onPointerUp={onPointerUp}
+                  onPointerCancel={onPointerUp}
+                >
+                  {/* Dim mask outside crop using four absolute rectangles */}
+                  <div className="pointer-events-none absolute inset-x-0 top-0 bg-black/40" style={{ height: `${crop.y * 100}%` }} />
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-black/40" style={{ height: `${(1 - crop.y - crop.height) * 100}%` }} />
+                  <div className="pointer-events-none absolute left-0 bg-black/40" style={{ top: `${crop.y * 100}%`, height: `${crop.height * 100}%`, width: `${crop.x * 100}%` }} />
+                  <div className="pointer-events-none absolute right-0 bg-black/40" style={{ top: `${crop.y * 100}%`, height: `${crop.height * 100}%`, width: `${(1 - crop.x - crop.width) * 100}%` }} />
+
+                  {/* Crop frame + handles */}
+                  <div
+                    className="absolute"
+                    style={{
+                      left: `${crop.x * 100}%`,
+                      top: `${crop.y * 100}%`,
+                      width: `${crop.width * 100}%`,
+                      height: `${crop.height * 100}%`,
+                      boxShadow: cropGlow,
+                      cursor: activeHandle === 'move' ? 'grabbing' : 'grab',
+                    }}
+                    onPointerDown={onPointerDown('move')}
+                  >
+                    {/* Live HE badge inside the crop box */}
+                    <div className="pointer-events-none absolute right-1 top-1 rounded bg-cyan-600/90 px-1.5 py-0.5 text-[10px] font-semibold text-white shadow">
+                      {aspectLock ? `${rackUnits} HE` : `\u2248 ${liveHe.toFixed(1)} HE`}
+                    </div>
+                    {/* Resize handles */}
+                    {(Object.keys(HANDLE_DEFS) as HandleId[]).map((id) => {
+                      const def = HANDLE_DEFS[id]
+                      return (
+                        <div
+                          key={id}
+                          onPointerDown={onPointerDown(id)}
+                          className="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-sm border border-cyan-200 bg-cyan-400 hover:bg-cyan-300"
+                          style={{ left: def.left, top: def.top, cursor: def.cursor, touchAction: 'none' }}
+                        />
+                      )
+                    })}
+                  </div>
+                </div>
               </div>
-            </div>
             </div>
           </div>
 
-          <div className="w-[280px] space-y-2 rounded border border-slate-700 bg-slate-950/40 p-2 text-xs">
-            <div className="text-[11px] uppercase tracking-wide text-slate-500">Schnittvorlagen (HE)</div>
+          <div className="space-y-2 rounded border border-slate-700 bg-slate-950/40 p-2 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] uppercase tracking-wide text-slate-500">Schnittvorlagen</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setCrop(defaultCrop(rackUnits, imgAspect))
+                  setZoom(1)
+                }}
+                className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
+                title="Crop und Zoom zurücksetzen (R)"
+              >
+                ⟲ Reset
+              </button>
+            </div>
             <div className="grid grid-cols-4 gap-1">
-              {hePresets.map((he) => (
+              {HE_PRESETS.map((he) => (
                 <button
                   key={he}
                   type="button"
-                  onClick={() => setCrop(defaultCrop(he))}
-                  className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
-                  title={`Vorlage ${he} HE`}
+                  onClick={() => setCrop(defaultCrop(he, imgAspect))}
+                  className={`rounded px-2 py-1 ${he === rackUnits ? 'bg-cyan-700 hover:bg-cyan-600' : 'bg-slate-700 hover:bg-slate-600'}`}
+                  title={`Vorlage ${he} HE Aspekt`}
                 >
                   {he}HE
                 </button>
               ))}
             </div>
 
-            <label className="block">
-              X
-              <input
-                type="number"
-                step="0.01"
-                min={0}
-                max={1}
-                value={crop.x}
-                onChange={(event) => {
-                  const value = clamp(Number(event.target.value) || 0, 0, 1 - crop.width)
-                  setCrop((current) => ({ ...current, x: value }))
-                }}
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-900 p-1"
-              />
-            </label>
-            <label className="block">
-              Y
-              <input
-                type="number"
-                step="0.01"
-                min={0}
-                max={1}
-                value={crop.y}
-                onChange={(event) => {
-                  const value = clamp(Number(event.target.value) || 0, 0, 1 - crop.height)
-                  setCrop((current) => ({ ...current, y: value }))
-                }}
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-900 p-1"
-              />
-            </label>
-            <label className="block">
-              Breite
-              <input
-                type="number"
-                step="0.01"
-                min={0.05}
-                max={1}
-                value={crop.width}
-                onChange={(event) => {
-                  const width = clamp(Number(event.target.value) || 0.1, 0.05, 1)
-                  setCrop((current) => ({ ...current, width, x: clamp(current.x, 0, 1 - width) }))
-                }}
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-900 p-1"
-              />
-            </label>
-            <label className="block">
-              Hohe
-              <input
-                type="number"
-                step="0.01"
-                min={0.05}
-                max={1}
-                value={crop.height}
-                onChange={(event) => {
-                  const height = clamp(Number(event.target.value) || 0.1, 0.05, 1)
-                  setCrop((current) => ({ ...current, height, y: clamp(current.y, 0, 1 - height) }))
-                }}
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-900 p-1"
-              />
-            </label>
+            <div className="mt-3 rounded border border-slate-800 bg-slate-900/60 p-2">
+              <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">Manuelle Werte (0–1)</div>
+              <div className="grid grid-cols-2 gap-1.5">
+                <label className="block text-[11px]">
+                  X
+                  <input
+                    type="number"
+                    step="0.01"
+                    min={0}
+                    max={1}
+                    value={crop.x.toFixed(3)}
+                    onChange={(event) => {
+                      const value = clamp(Number(event.target.value) || 0, 0, 1 - crop.width)
+                      setCrop((current) => ({ ...current, x: value }))
+                    }}
+                    className="mt-0.5 w-full rounded border border-slate-700 bg-slate-900 p-1 tabular-nums"
+                  />
+                </label>
+                <label className="block text-[11px]">
+                  Y
+                  <input
+                    type="number"
+                    step="0.01"
+                    min={0}
+                    max={1}
+                    value={crop.y.toFixed(3)}
+                    onChange={(event) => {
+                      const value = clamp(Number(event.target.value) || 0, 0, 1 - crop.height)
+                      setCrop((current) => ({ ...current, y: value }))
+                    }}
+                    className="mt-0.5 w-full rounded border border-slate-700 bg-slate-900 p-1 tabular-nums"
+                  />
+                </label>
+                <label className="block text-[11px]">
+                  Breite
+                  <input
+                    type="number"
+                    step="0.01"
+                    min={MIN_SIZE}
+                    max={1}
+                    value={crop.width.toFixed(3)}
+                    onChange={(event) => {
+                      const width = clamp(Number(event.target.value) || MIN_SIZE, MIN_SIZE, 1)
+                      setCrop((current) => ({ ...current, width, x: clamp(current.x, 0, 1 - width) }))
+                    }}
+                    className="mt-0.5 w-full rounded border border-slate-700 bg-slate-900 p-1 tabular-nums"
+                  />
+                </label>
+                <label className="block text-[11px]">
+                  Höhe
+                  <input
+                    type="number"
+                    step="0.01"
+                    min={MIN_SIZE}
+                    max={1}
+                    value={crop.height.toFixed(3)}
+                    onChange={(event) => {
+                      const height = clamp(Number(event.target.value) || MIN_SIZE, MIN_SIZE, 1)
+                      setCrop((current) => ({ ...current, height, y: clamp(current.y, 0, 1 - height) }))
+                    }}
+                    className="mt-0.5 w-full rounded border border-slate-700 bg-slate-900 p-1 tabular-nums"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="rounded border border-slate-800 bg-slate-900/60 p-2 text-[11px] text-slate-400">
+              <div>Ziel-Aspekt: <span className="tabular-nums text-slate-200">{targetAspect.toFixed(2)}:1</span></div>
+              <div>Aktueller Crop-Aspekt: <span className="tabular-nums text-slate-200">{(crop.width / Math.max(0.001, crop.height)).toFixed(2)}:1</span></div>
+              <div>Live HE: <span className="tabular-nums text-slate-200">{liveHe.toFixed(2)}</span></div>
+            </div>
           </div>
         </div>
 
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
-          >
+          <button type="button" onClick={onCancel} className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600">
             Abbrechen
           </button>
-          <button
-            type="button"
-            onClick={finalizeCrop}
-            className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500"
-          >
-            Zuschnitt ubernehmen
+          <button type="button" onClick={finalizeCrop} className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500">
+            Zuschnitt übernehmen
           </button>
         </div>
       </div>

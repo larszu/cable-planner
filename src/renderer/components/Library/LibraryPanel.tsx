@@ -72,6 +72,9 @@ export const LibraryPanel = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [showNetBoxDialog, setShowNetBoxDialog] = useState(false)
   const [showRackBuilderDialog, setShowRackBuilderDialog] = useState(false)
+  // When set, the rack builder opens in edit mode and seeds from this preset.
+  // null = creating a new rack.
+  const [editingRackPresetId, setEditingRackPresetId] = useState<string | null>(null)
   const [name, setName] = useState('Custom Device')
   const [category, setCategory] = useState('Kameras')
   const [isRackDeviceDraft, setIsRackDeviceDraft] = useState(false)
@@ -1299,6 +1302,17 @@ export const LibraryPanel = () => {
                           <button
                             type="button"
                             onClick={() => {
+                              setEditingRackPresetId(preset.id)
+                              setShowRackBuilderDialog(true)
+                            }}
+                            className="rounded bg-sky-700 px-2 py-1 text-[11px] hover:bg-sky-600"
+                            title="Rack im 2D-Builder bearbeiten"
+                          >
+                            Bearbeiten
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
                               if (window.confirm(`Rack \"${preset.name}\" löschen?`)) {
                                 deleteGroupPreset(preset.id)
                               }
@@ -1622,10 +1636,17 @@ export const LibraryPanel = () => {
       <RackBuilderDialog
         open={showRackBuilderDialog}
         templates={rackBuilderTemplates}
-        onClose={() => setShowRackBuilderDialog(false)}
+        initialPreset={editingRackPresetId ? groupPresets.find((p) => p.id === editingRackPresetId) ?? null : null}
+        onClose={() => {
+          setShowRackBuilderDialog(false)
+          setEditingRackPresetId(null)
+        }}
         onSave={(preset) => {
+          // addGroupPreset upserts by id, so edit-mode reuses the same id and
+          // simply overwrites the existing entry.
           addGroupPreset(preset)
           setShowRackBuilderDialog(false)
+          setEditingRackPresetId(null)
           setTab('racks')
         }}
       />
