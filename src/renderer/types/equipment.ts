@@ -33,6 +33,8 @@ export interface Port {
   name: string
   type: string
   connectorType: ConnectorType
+  /** Optional side override on the node (default comes from input/output + mirror). */
+  side?: 'left' | 'right'
   /** Optional signal standard declared for this port (e.g. SDI-12G on a camera out). */
   standard?: SignalStandard
   /**

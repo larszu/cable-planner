@@ -39,8 +39,8 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div style={{
           padding: 24,
-          color: '#e2e8f0',
-          background: '#0f172a',
+          color: 'var(--cp-text, #e2e8f0)',
+          background: 'var(--cp-bg, #0f172a)',
           minHeight: '100vh',
           fontFamily: 'system-ui, sans-serif',
           overflow: 'auto',

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useReactFlow } from 'reactflow'
 import type { Cable, CableWaypoint } from '../../types/cable'
 import { useProjectStore } from '../../store/projectStore'
+import { useUiStore } from '../../store/uiStore'
 
 interface Props {
   cable: Cable
@@ -10,6 +11,9 @@ interface Props {
   selected: boolean
   source: { x: number; y: number }
   target: { x: number; y: number }
+  /** Effective rendered orthogonal waypoints (manual or auto-routed). */
+  renderWaypoints?: { x: number; y: number }[]
+  exportThemeOverride?: 'dark' | 'light'
 }
 
 const HANDLE_SIZE = 8
@@ -31,6 +35,47 @@ function segmentCursor(axis: SegmentAxis): string {
 }
 
 /**
+ * Remove redundant collinear waypoints.
+ * A waypoint is redundant when the segment leading in and the segment
+ * leading out share the same axis and the point lies on that line —
+ * i.e. three consecutive points are all on the same horizontal or vertical.
+ *
+ * Example: source→wp0 is horizontal and wp0→wp1 is also horizontal
+ * (same Y) → wp0 adds no bend and can be removed.
+ *
+ * Runs iteratively until stable so it handles cascading collinearities.
+ */
+function cleanCollinear(
+  waypoints: CableWaypoint[],
+  source: { x: number; y: number },
+  target: { x: number; y: number },
+  tol = AXIS_TOL,
+): CableWaypoint[] {
+  let pts: { x: number; y: number }[] = [source, ...waypoints, target]
+  let changed = true
+  while (changed) {
+    changed = false
+    const next: typeof pts = [pts[0]]
+    for (let i = 1; i < pts.length - 1; i++) {
+      const prev = pts[i - 1]
+      const curr = pts[i]
+      const nextp = pts[i + 1]
+      const horizontal = Math.abs(prev.y - curr.y) < tol && Math.abs(curr.y - nextp.y) < tol
+      const vertical   = Math.abs(prev.x - curr.x) < tol && Math.abs(curr.x - nextp.x) < tol
+      if (horizontal || vertical) {
+        changed = true // skip this waypoint — it's collinear
+      } else {
+        next.push(curr)
+      }
+    }
+    next.push(pts[pts.length - 1])
+    pts = next
+  }
+  // strip source and target back off; return only interior waypoints
+  return pts.slice(1, -1) as CableWaypoint[]
+}
+
+/**
  * Renders segment drag hit-areas (always active) and waypoint dot handles
  * (only when selected).
  *
@@ -40,17 +85,30 @@ function segmentCursor(axis: SegmentAxis): string {
  * - Drag starts segment movement; unselected edge is auto-selected first
  * - Selected edge additionally shows blue dot handles for fine-tuning
  */
-export const CableWaypoints = ({ cable, edgeId, selected, source, target }: Props) => {
+export const CableWaypoints = ({
+  cable,
+  edgeId,
+  selected,
+  source,
+  target,
+  renderWaypoints,
+  exportThemeOverride,
+}: Props) => {
   const updateCable = useProjectStore((state) => state.updateCable)
   const setSelection = useProjectStore((state) => state.setSelection)
   const { screenToFlowPosition } = useReactFlow()
+  const canvasTheme = useUiStore((s) => s.canvasTheme)
+  const isLight = (exportThemeOverride ?? canvasTheme) === 'light'
   const [hoveredSeg, setHoveredSeg] = useState<number | null>(null)
 
   const routing = cable.routing ?? 'orthogonal'
   if (routing === 'curved') return null
 
   const waypoints = cable.waypoints ?? []
-  const points: { x: number; y: number }[] = [source, ...waypoints, target]
+  // If no manual waypoints exist, use the currently rendered orthogonal path
+  // so segment hit-zones match what the user sees on screen.
+  const effectiveWaypoints = waypoints.length > 0 ? waypoints : (renderWaypoints ?? [])
+  const points: { x: number; y: number }[] = [source, ...effectiveWaypoints, target]
   const totalPoints = points.length
 
   // ── helpers ────────────────────────────────────────────────────────────────
@@ -75,6 +133,13 @@ export const CableWaypoints = ({ cable, edgeId, selected, source, target }: Prop
       el.removeEventListener('pointerup', handleUp)
       el.removeEventListener('pointercancel', handleUp)
       try { el.releasePointerCapture(event.pointerId) } catch { /* ignore */ }
+      // After drag ends, collapse any redundant collinear waypoints so that
+      // segments that became straight lines don't leave orphan bend-points.
+      const currentWPs = (useProjectStore.getState().project.cables.find(c => c.id === cable.id)?.waypoints) ?? []
+      const cleaned = cleanCollinear(currentWPs, source, target)
+      if (cleaned.length !== currentWPs.length) {
+        updateCable(cable.id, { waypoints: cleaned.length ? cleaned : undefined })
+      }
     }
     el.addEventListener('pointermove', handleMove as EventListener)
     el.addEventListener('pointerup', handleUp)
@@ -156,7 +221,7 @@ export const CableWaypoints = ({ cable, edgeId, selected, source, target }: Prop
 
     const startIsSource = segIdx === 0
     const endIsTarget = segIdx + 1 === totalPoints - 1
-    const initWaypoints = [...waypoints]
+    const initWaypoints = [...effectiveWaypoints]
     const needsRoutingSwitch = routing === 'straight'
 
     // For diagonal fallback only.
@@ -228,10 +293,14 @@ export const CableWaypoints = ({ cable, edgeId, selected, source, target }: Prop
 
   return (
     <g className="nodrag nopan" style={{ pointerEvents: 'all' }}>
-      {/* ── Segment hit areas — ALWAYS rendered ── */}
+      {/* ── Segment hit areas ──
+          In orthogonal routing only horizontal/vertical segments are draggable;
+          diagonal segments (e.g. while transitioning) get no handle so the
+          user can't accidentally bend a non-ortho segment. */}
       {points.slice(0, -1).map((p, i) => {
         const q = points[i + 1]
         const axis = segmentAxis(p, q)
+        if (routing === 'orthogonal' && axis === 'diagonal') return null
         const cursor = segmentCursor(axis)
         const isHovered = hoveredSeg === i
 
@@ -275,7 +344,7 @@ export const CableWaypoints = ({ cable, edgeId, selected, source, target }: Prop
           cx={wp.x} cy={wp.y}
           r={HANDLE_SIZE / 2}
           fill="#38bdf8"
-          stroke="#0f172a"
+          stroke={isLight ? '#e2e8f0' : '#0f172a'}
           strokeWidth={1.5}
           style={{ cursor: 'move' }}
           onPointerDown={dragExisting(index)}

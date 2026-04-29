@@ -20,8 +20,6 @@ export const useProject = () => {
   const setRecentProjects = useProjectStore((state) => state.setRecentProjects)
   const setProjectMeta = useProjectStore((state) => state.setProjectMeta)
   const clear = useProjectStore((state) => state.clear)
-  const project = useProjectStore((state) => state.project)
-  const filePath = useProjectStore((state) => state.filePath)
 
   const refreshRecent = useCallback(async () => {
     const recents = await cablePlannerApi.project.getRecentProjects()
@@ -38,6 +36,15 @@ export const useProject = () => {
   const openProject = useCallback(async () => {
     const result = (await cablePlannerApi.project.openProject()) as OpenProjectResponse | null
     if (result) {
+      console.log('[openProject] from disk', {
+        filePath: result.filePath,
+        equipmentCount: result.data?.equipment?.length,
+        firstThreePositions: result.data?.equipment?.slice(0, 3).map((e) => ({
+          name: e.name,
+          x: e.x,
+          y: e.y,
+        })),
+      })
       // Sync metadata.name with filename if project still has the default name.
       const incoming = result.data
       if (
@@ -56,6 +63,15 @@ export const useProject = () => {
   }, [loadProject, refreshRecent])
 
   const saveProject = useCallback(async () => {
+    const { project, filePath } = useProjectStore.getState()
+    console.log('[saveProject] from store', {
+      equipmentCount: project.equipment.length,
+      firstThreePositions: project.equipment.slice(0, 3).map((e) => ({
+        name: e.name,
+        x: e.x,
+        y: e.y,
+      })),
+    })
     const path = await cablePlannerApi.project.saveProject(project, filePath)
     if (path) {
       useProjectStore.getState().setFilePath(path)
@@ -65,9 +81,10 @@ export const useProject = () => {
       }
       await refreshRecent()
     }
-  }, [filePath, project, refreshRecent, setProjectMeta])
+  }, [refreshRecent, setProjectMeta])
 
   const saveProjectAs = useCallback(async () => {
+    const { project } = useProjectStore.getState()
     const path = await cablePlannerApi.project.saveProjectAs(project)
     if (path) {
       useProjectStore.getState().setFilePath(path)
@@ -76,7 +93,7 @@ export const useProject = () => {
       }
       await refreshRecent()
     }
-  }, [project, refreshRecent, setProjectMeta])
+  }, [refreshRecent, setProjectMeta])
 
   return {
     newProject,

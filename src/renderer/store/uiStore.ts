@@ -62,6 +62,8 @@ interface UiState extends PersistedUiState {
   setPropertiesWidth: (value: number) => void
   setCableColorMode: (value: 'manual' | 'byLength') => void
   setCanvasTheme: (value: 'dark' | 'light') => void
+  pdfExportThemeOverride: 'dark' | 'light' | null
+  setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
   cableEdit: { open: boolean; cableId?: string }
   openCableEdit: (cableId: string) => void
   closeCableEdit: () => void
@@ -140,6 +142,8 @@ export const useUiStore = create<UiState>((set) => ({
     set(applyPatch({ propertiesWidth: Math.max(220, Math.min(600, Math.round(value))) })),
   setCableColorMode: (value) => set(applyPatch({ cableColorMode: value })),
   setCanvasTheme: (value) => set(applyPatch({ canvasTheme: value })),
+  pdfExportThemeOverride: null,
+  setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
   cableEdit: { open: false },
   openCableEdit: (cableId) => set({ cableEdit: { open: true, cableId } }),
   closeCableEdit: () => set({ cableEdit: { open: false } }),

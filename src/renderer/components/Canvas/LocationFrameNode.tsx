@@ -1,6 +1,11 @@
 import { memo } from 'react'
 import { NodeResizer, type NodeProps } from 'reactflow'
 import type { LocationFrame } from '../../types/location'
+import { useUiStore } from '../../store/uiStore'
+
+type LocationFrameNodeData = LocationFrame & {
+  exportThemeOverride?: 'dark' | 'light'
+}
 
 /**
  * Visual "group" frame rendered behind equipment nodes.
@@ -10,8 +15,10 @@ import type { LocationFrame } from '../../types/location'
  * node starts dragging, it snapshots which equipment is inside, and applies
  * the same delta to them. Resulting UX: drag the frame → contents move with it.
  */
-export const LocationFrameNode = memo(({ data, selected }: NodeProps<LocationFrame>) => {
+export const LocationFrameNode = memo(({ data, selected }: NodeProps<LocationFrameNodeData>) => {
   const color = data.color || '#38bdf8'
+  const canvasTheme = useUiStore((s) => s.canvasTheme)
+  const isLight = (data.exportThemeOverride ?? canvasTheme) === 'light'
   return (
     <div
       style={{
@@ -40,7 +47,7 @@ export const LocationFrameNode = memo(({ data, selected }: NodeProps<LocationFra
           top: -11,
           left: 12,
           padding: '0 6px',
-          background: '#0f172a',
+          background: isLight ? '#dde4ee' : '#0f172a',
           color,
           fontSize: 12,
           fontStyle: 'italic',

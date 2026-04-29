@@ -23,6 +23,7 @@ export const CanvasToolbar = () => {
   const setCableColorMode = useUiStore((state) => state.setCableColorMode)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
   const setCanvasTheme = useUiStore((state) => state.setCanvasTheme)
+  const isLight = canvasTheme === 'light'
   const [showLengthLegend, setShowLengthLegend] = useState(false)
   const addLocation = useProjectStore((state) => state.addLocation)
   const addLocationAroundEquipment = useProjectStore(
@@ -30,9 +31,50 @@ export const CanvasToolbar = () => {
   )
   const saveGroupPreset = useProjectStore((state) => state.saveGroupPreset)
   const canvasState = useProjectStore((state) => state.project.canvasState)
+  const updateEquipment = useProjectStore((state) => state.updateEquipment)
+  const equipmentList = useProjectStore((state) => state.project.equipment)
   const { getNodes } = useReactFlow()
   const [namingGroup, setNamingGroup] = useState(false)
   const [groupName, setGroupName] = useState('')
+
+  /**
+   * Align the currently selected equipment nodes along the requested axis.
+   * The bounding box of the selection is the reference frame; positions are
+   * persisted via the project store so cables follow automatically.
+   */
+  const alignSelected = (
+    mode: 'left' | 'right' | 'center-h' | 'top' | 'bottom' | 'center-v',
+  ) => {
+    const ids = getNodes()
+      .filter((n) => n.selected && n.type === 'equipment')
+      .map((n) => n.id)
+    if (ids.length < 2) return
+    const items = equipmentList.filter((e) => ids.includes(e.id))
+    if (items.length < 2) return
+    const minX = Math.min(...items.map((e) => e.x))
+    const maxRight = Math.max(...items.map((e) => e.x + (e.width ?? 0)))
+    const minY = Math.min(...items.map((e) => e.y))
+    const maxBottom = Math.max(...items.map((e) => e.y + (e.height ?? 0)))
+    const centerX = (minX + maxRight) / 2
+    const centerY = (minY + maxBottom) / 2
+    for (const item of items) {
+      const w = item.width ?? 0
+      const h = item.height ?? 0
+      let nx = item.x
+      let ny = item.y
+      switch (mode) {
+        case 'left':     nx = minX;             break
+        case 'right':    nx = maxRight - w;     break
+        case 'center-h': nx = centerX - w / 2;  break
+        case 'top':      ny = minY;             break
+        case 'bottom':   ny = maxBottom - h;    break
+        case 'center-v': ny = centerY - h / 2;  break
+      }
+      if (nx !== item.x || ny !== item.y) {
+        updateEquipment(item.id, { x: nx, y: ny })
+      }
+    }
+  }
 
   return (
     <div
@@ -47,16 +89,16 @@ export const CanvasToolbar = () => {
         gap: 6,
         maxWidth: 'min(860px, calc(100vw - 420px))',
         padding: 6,
-        background: 'rgba(15,23,42,0.94)',
-        border: '1px solid #334155',
+        background: isLight ? 'rgba(248,250,252,0.96)' : 'rgba(15,23,42,0.94)',
+        border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
         borderRadius: 8,
-        boxShadow: '0 18px 40px rgba(0,0,0,0.28)',
+        boxShadow: isLight ? '0 18px 40px rgba(0,0,0,0.12)' : '0 18px 40px rgba(0,0,0,0.28)',
         fontSize: 11,
-        color: '#e2e8f0',
+        color: isLight ? '#1e293b' : '#e2e8f0',
         alignItems: 'center',
       }}
     >
-      <span style={{ color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
+      <span style={{ color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
         Canvas
       </span>
       <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
@@ -75,16 +117,16 @@ export const CanvasToolbar = () => {
         onChange={(event) => setGridSize(Number(event.target.value))}
         style={{
           width: 50,
-          background: '#0f172a',
-          border: '1px solid #334155',
-          color: '#e2e8f0',
+          background: isLight ? '#ffffff' : '#0f172a',
+          border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
+          color: isLight ? '#1e293b' : '#e2e8f0',
           padding: '1px 4px',
           borderRadius: 3,
         }}
         title="Rastergröße in Pixeln"
       />
-      <span style={{ width: 1, height: 18, background: '#334155', margin: '0 4px' }} />
-      <span style={{ color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
+      <span style={{ width: 1, height: 18, background: isLight ? '#cbd5e1' : '#334155', margin: '0 4px' }} />
+      <span style={{ color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
         Routing
       </span>
       {routingOptions.map((opt) => (
@@ -95,9 +137,9 @@ export const CanvasToolbar = () => {
           title={opt.hint}
           style={{
             padding: '2px 6px',
-            background: defaultRouting === opt.value ? '#0369a1' : '#1e293b',
-            border: '1px solid #334155',
-            color: '#e2e8f0',
+            background: defaultRouting === opt.value ? '#0369a1' : (isLight ? '#e2e8f0' : '#1e293b'),
+            border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
+            color: isLight ? '#1e293b' : '#e2e8f0',
             borderRadius: 3,
             cursor: 'pointer',
           }}
@@ -113,10 +155,10 @@ export const CanvasToolbar = () => {
         />
         Pfeil
       </label>
-      <span style={{ width: 1, height: 18, background: '#334155', margin: '0 4px' }} />
+      <span style={{ width: 1, height: 18, background: isLight ? '#cbd5e1' : '#334155', margin: '0 4px' }} />
       {/* Cable color mode toggle */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-        <span style={{ color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10, marginRight: 2 }}>
+        <span style={{ color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10, marginRight: 2 }}>
           Kabel
         </span>
         <button
@@ -125,9 +167,9 @@ export const CanvasToolbar = () => {
           title="Kabelfarbe: manuell (wie im Kabel-Dialog gesetzt)"
           style={{
             padding: '2px 6px',
-            background: cableColorMode === 'manual' ? '#0369a1' : '#1e293b',
-            border: '1px solid #334155',
-            color: '#e2e8f0',
+            background: cableColorMode === 'manual' ? '#0369a1' : (isLight ? '#e2e8f0' : '#1e293b'),
+            border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
+            color: isLight ? '#1e293b' : '#e2e8f0',
             borderRadius: 3,
             cursor: 'pointer',
           }}
@@ -140,9 +182,9 @@ export const CanvasToolbar = () => {
           title="Kabelfarbe: nach Standardlänge (1m=rot, 2m=gelb, 3m=grün …)"
           style={{
             padding: '2px 6px',
-            background: cableColorMode === 'byLength' ? '#0369a1' : '#1e293b',
-            border: '1px solid #334155',
-            color: '#e2e8f0',
+            background: cableColorMode === 'byLength' ? '#0369a1' : (isLight ? '#e2e8f0' : '#1e293b'),
+            border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
+            color: isLight ? '#1e293b' : '#e2e8f0',
             borderRadius: 3,
             cursor: 'pointer',
           }}
@@ -156,9 +198,9 @@ export const CanvasToolbar = () => {
             title="Legende der Längenfarben anzeigen"
             style={{
               padding: '2px 5px',
-              background: '#1e293b',
-              border: '1px solid #334155',
-              color: '#94a3b8',
+              background: isLight ? '#e2e8f0' : '#1e293b',
+              border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
+              color: isLight ? '#64748b' : '#94a3b8',
               borderRadius: 3,
               cursor: 'pointer',
             }}
@@ -173,8 +215,8 @@ export const CanvasToolbar = () => {
             position: 'absolute',
             top: 36,
             left: 0,
-            background: 'rgba(15,23,42,0.97)',
-            border: '1px solid #334155',
+            background: isLight ? 'rgba(241,245,249,0.98)' : 'rgba(15,23,42,0.97)',
+            border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
             borderRadius: 6,
             padding: '8px 12px',
             zIndex: 20,
@@ -194,32 +236,32 @@ export const CanvasToolbar = () => {
                   height: 3,
                   background: r.color,
                   borderRadius: 2,
-                  border: '1px solid #475569',
+                  border: `1px solid ${isLight ? '#94a3b8' : '#475569'}`,
                   ...(r.dashArray ? { backgroundImage: `repeating-linear-gradient(90deg,${r.color} 0 6px,transparent 6px 10px)`, backgroundColor: 'transparent' } : {}),
                 }}
               />
-              <span style={{ color: '#cbd5e1' }}>{r.label}</span>
+              <span style={{ color: isLight ? '#334155' : '#cbd5e1' }}>{r.label}</span>
             </div>
           ))}
           <button
             type="button"
             onClick={() => setShowLengthLegend(false)}
-            style={{ marginTop: 6, fontSize: 10, color: '#64748b', background: 'none', border: 'none', cursor: 'pointer' }}
+            style={{ marginTop: 6, fontSize: 10, color: isLight ? '#475569' : '#64748b', background: 'none', border: 'none', cursor: 'pointer' }}
           >
             Schließen
           </button>
         </div>
       )}
-      <span style={{ width: 1, height: 18, background: '#334155', margin: '0 4px' }} />
+      <span style={{ width: 1, height: 18, background: isLight ? '#cbd5e1' : '#334155', margin: '0 4px' }} />
       <button
         type="button"
         onClick={() => setCanvasTheme(canvasTheme === 'dark' ? 'light' : 'dark')}
         title={canvasTheme === 'dark' ? 'Heller Hintergrund' : 'Dunkler Hintergrund'}
         style={{
           padding: '2px 6px',
-          background: '#1e293b',
-          border: '1px solid #334155',
-          color: '#e2e8f0',
+          background: isLight ? '#e2e8f0' : '#1e293b',
+          border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
+          color: isLight ? '#1e293b' : '#e2e8f0',
           borderRadius: 3,
           cursor: 'pointer',
           fontSize: 13,
@@ -227,8 +269,8 @@ export const CanvasToolbar = () => {
       >
         {canvasTheme === 'dark' ? '☀' : '🌙'}
       </button>
-      <span style={{ width: 1, height: 18, background: '#334155', margin: '0 4px' }} />
-      <span style={{ color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
+      <span style={{ width: 1, height: 18, background: isLight ? '#cbd5e1' : '#334155', margin: '0 4px' }} />
+      <span style={{ color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
         Layout
       </span>
       <button
@@ -291,9 +333,9 @@ export const CanvasToolbar = () => {
                 placeholder="Gruppenname…"
                 style={{
                   width: 140,
-                  background: '#0f172a',
-                  border: '1px solid #334155',
-                  color: '#e2e8f0',
+                  background: isLight ? '#ffffff' : '#0f172a',
+                  border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
+                  color: isLight ? '#1e293b' : '#e2e8f0',
                   padding: '1px 6px',
                   borderRadius: 3,
                   fontSize: 11,
@@ -317,9 +359,9 @@ export const CanvasToolbar = () => {
                 onClick={() => setNamingGroup(false)}
                 style={{
                   padding: '2px 6px',
-                  background: '#1e293b',
-                  border: '1px solid #334155',
-                  color: '#94a3b8',
+                  background: isLight ? '#e2e8f0' : '#1e293b',
+                  border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
+                  color: isLight ? '#475569' : '#94a3b8',
                   borderRadius: 3,
                   cursor: 'pointer',
                 }}
@@ -345,6 +387,36 @@ export const CanvasToolbar = () => {
           >
             Gruppe speichern ({selectedEquipmentIds.length})
           </button>
+        )
+      })()}
+      {(() => {
+        const selectedCount = getNodes().filter(
+          (n) => n.selected && n.type === 'equipment',
+        ).length
+        if (selectedCount < 2) return null
+        const btnStyle = {
+          padding: '2px 6px',
+          background: isLight ? '#e2e8f0' : '#1e293b',
+          border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
+          color: isLight ? '#1e293b' : '#e2e8f0',
+          borderRadius: 3,
+          cursor: 'pointer',
+          fontSize: 13,
+          lineHeight: 1,
+        } as const
+        return (
+          <>
+            <span style={{ width: 1, height: 18, background: isLight ? '#cbd5e1' : '#334155', margin: '0 4px' }} />
+            <span style={{ color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700, textTransform: 'uppercase', fontSize: 10 }}>
+              Ausrichten
+            </span>
+            <button type="button" title="Linksbündig (gleiche linke Kante)" onClick={() => alignSelected('left')} style={btnStyle}>⇤</button>
+            <button type="button" title="Horizontal zentrieren (gleiche X-Mitte)" onClick={() => alignSelected('center-h')} style={btnStyle}>↔</button>
+            <button type="button" title="Rechtsbündig (gleiche rechte Kante)" onClick={() => alignSelected('right')} style={btnStyle}>⇥</button>
+            <button type="button" title="Oben ausrichten (gleiche obere Kante)" onClick={() => alignSelected('top')} style={btnStyle}>⤒</button>
+            <button type="button" title="Vertikal zentrieren (gleiche Y-Mitte)" onClick={() => alignSelected('center-v')} style={btnStyle}>↕</button>
+            <button type="button" title="Unten ausrichten (gleiche untere Kante)" onClick={() => alignSelected('bottom')} style={btnStyle}>⤓</button>
+          </>
         )
       })()}
     </div>

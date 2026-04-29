@@ -2,6 +2,10 @@ import { toJpeg } from 'html-to-image'
 import jsPDF from 'jspdf'
 import type { ProjectMetadata } from '../types/project'
 
+export interface ExportPdfOptions {
+  backgroundTheme?: 'dark' | 'light'
+}
+
 const fmtDate = (iso?: string): string => {
   if (!iso) return '—'
   try {
@@ -95,8 +99,9 @@ export const exportCanvasToPdf = async (
   projectName: string,
   metadata?: ProjectMetadata,
   quality = 0.85,
+  options?: ExportPdfOptions,
 ) => {
-  const pdf = await buildCanvasPdf(metadata, quality)
+  const pdf = await buildCanvasPdf(metadata, quality, options)
   pdf.save(`${(projectName || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')}.pdf`)
 }
 
@@ -108,14 +113,19 @@ export const exportCanvasToPdf = async (
 export const exportCanvasToPdfBytes = async (
   metadata?: ProjectMetadata,
   quality = 0.85,
+  options?: ExportPdfOptions,
 ): Promise<Uint8Array> => {
-  const pdf = await buildCanvasPdf(metadata, quality)
+  const pdf = await buildCanvasPdf(metadata, quality, options)
   // jsPDF returns an ArrayBuffer when format is 'arraybuffer'.
   const buffer = pdf.output('arraybuffer') as ArrayBuffer
   return new Uint8Array(buffer)
 }
 
-const buildCanvasPdf = async (metadata?: ProjectMetadata, quality = 0.85): Promise<jsPDF> => {
+const buildCanvasPdf = async (
+  metadata?: ProjectMetadata,
+  quality = 0.85,
+  options?: ExportPdfOptions,
+): Promise<jsPDF> => {
   const canvasEl = document.getElementById('cable-planner-canvas')
   if (!canvasEl) {
     throw new Error('Canvas not found')
@@ -166,6 +176,48 @@ const buildCanvasPdf = async (metadata?: ProjectMetadata, quality = 0.85): Promi
     if (x + w > maxX) maxX = x + w
     if (y + h > maxY) maxY = y + h
   }
+
+  // Also include every edge path (cables) and edge label so cables that
+  // travel outside the node bounding box — e.g. with manually placed
+  // waypoints or wireless edges that loop around — are guaranteed to fit
+  // inside the exported page.
+  //
+  // Edge SVG paths use flow coordinates (the parent viewport transform sets
+  // the on-screen scale, so `getBBox()` returns untransformed flow-space
+  // values regardless of the user's current zoom).
+  const edgePathEls = viewportEl.querySelectorAll<SVGGraphicsElement>(
+    '.react-flow__edge .react-flow__edge-path, .react-flow__edge path',
+  )
+  for (const path of edgePathEls) {
+    try {
+      const bb = path.getBBox()
+      if (bb.width === 0 && bb.height === 0) continue
+      if (bb.x < minX) minX = bb.x
+      if (bb.y < minY) minY = bb.y
+      if (bb.x + bb.width > maxX) maxX = bb.x + bb.width
+      if (bb.y + bb.height > maxY) maxY = bb.y + bb.height
+    } catch {
+      // getBBox throws on detached/zero-size elements — ignore.
+    }
+  }
+
+  // Edge labels are absolutely positioned via translate() in flow-space.
+  const edgeLabelEls = Array.from(
+    viewportEl.querySelectorAll<HTMLElement>('.react-flow__edge-textwrapper, .react-flow__edge-label'),
+  )
+  for (const label of edgeLabelEls) {
+    const { x, y } = parseTranslate(label)
+    const w = label.offsetWidth
+    const h = label.offsetHeight
+    // Labels are typically centered on (x, y) — extend by half each direction.
+    const lx = x - w / 2
+    const ly = y - h / 2
+    if (lx < minX) minX = lx
+    if (ly < minY) minY = ly
+    if (lx + w > maxX) maxX = lx + w
+    if (ly + h > maxY) maxY = ly + h
+  }
+
   if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
     throw new Error('Konnte den Inhalt des Canvas nicht vermessen')
   }
@@ -182,8 +234,26 @@ const buildCanvasPdf = async (metadata?: ProjectMetadata, quality = 0.85): Promi
   // sits at (0, 0). html-to-image's `width`/`height` clip the output to the
   // requested rectangle and `style` overrides the captured element's style
   // during capture (does not mutate the live DOM).
+  //
+  // Background must match the live canvas styling defined in `index.css`
+  // (`#cable-planner-canvas` / `.canvas-theme-light .react-flow__pane`) plus
+  // the React Flow `<Background />` dot pattern. The viewport itself is a
+  // sibling of `.react-flow__background` so dots aren't captured implicitly —
+  // we reproduce them here as a CSS background-image so the exported PDF
+  // matches what the user sees on screen.
+  const theme = options?.backgroundTheme ?? 'dark'
+  const bgFallback = theme === 'light' ? '#e8edf4' : '#0f172a'
+  const bgGradient =
+    theme === 'light'
+      ? 'radial-gradient(circle at 30% 20%, #eef2f7 0%, #e8edf4 50%, #dde4ee 100%)'
+      : 'radial-gradient(circle at 20% 10%, #1e293b 0%, #0f172a 45%, #020617 100%)'
+  const dotColor = theme === 'light' ? '#cbd5e1' : '#334155'
+  // React Flow `<Background />` defaults: dots, gap=20, size=1.
+  const dotPattern = `radial-gradient(${dotColor} 1px, transparent 1px)`
+  const composedBackground = `${dotPattern}, ${bgGradient}`
+
   const dataUrl = await toJpeg(viewportEl, {
-    backgroundColor: '#0f172a',
+    backgroundColor: bgFallback,
     pixelRatio: 1.5,
     quality,
     cacheBust: true,
@@ -192,6 +262,10 @@ const buildCanvasPdf = async (metadata?: ProjectMetadata, quality = 0.85): Promi
     style: {
       width: `${contentW}px`,
       height: `${contentH}px`,
+      background: composedBackground,
+      backgroundSize: '20px 20px, 100% 100%',
+      backgroundRepeat: 'repeat, no-repeat',
+      backgroundColor: bgFallback,
       transform: `translate(${-contentX}px, ${-contentY}px)`,
       transformOrigin: '0 0',
     },

@@ -23,8 +23,6 @@ interface MenuBarProps {
   projectName?: string
   rentmanProjectName?: string
   hasToken?: boolean
-  equipmentCount?: number
-  cableCount?: number
 }
 
 /**
@@ -54,8 +52,6 @@ export const MenuBar = ({
   projectName,
   rentmanProjectName,
   hasToken = false,
-  equipmentCount = 0,
-  cableCount = 0,
 }: MenuBarProps) => {
   return (
     <header className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-700 bg-slate-950 px-3 py-1.5 text-xs shadow-sm">
@@ -139,21 +135,7 @@ export const MenuBar = ({
             )}
           </button>
         )}
-        <span className="hidden rounded border border-slate-700 bg-slate-900 px-2 py-0.5 text-[10px] text-slate-400 lg:inline-flex">
-          {equipmentCount} Geräte · {cableCount} Kabel
-        </span>
-        <span
-          className={`hidden max-w-[24ch] truncate rounded border px-2 py-0.5 text-[10px] lg:inline-flex ${
-            rentmanProjectName
-              ? 'border-orange-700/60 bg-orange-950/40 text-orange-200'
-              : hasToken
-                ? 'border-slate-700 bg-slate-900 text-slate-400'
-                : 'border-slate-800 bg-slate-900/70 text-slate-500'
-          }`}
-          title={rentmanProjectName ? `Rentman: ${rentmanProjectName}` : 'Kein Rentman-Projekt verknüpft'}
-        >
-          Rentman: {rentmanProjectName ?? (hasToken ? 'bereit' : 'offline')}
-        </span>
+
       </div>
 
       <div className="flex items-center gap-2">

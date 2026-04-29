@@ -1,9 +1,19 @@
 import type { EquipmentItem } from '../types/equipment'
 import { getViewportCenter } from './canvasViewport'
+import { useUiStore } from '../store/uiStore'
 
 // Built-in library intentionally empty. Users add their own devices via
 // "+ Custom" or import from Rentman.
 export const builtInLibrary: Omit<EquipmentItem, 'id' | 'x' | 'y'>[] = []
+
+/** Round a coordinate to the configured grid (or to integer when snap is off). */
+export const snapCoordinate = (value: number): number => {
+  const { snapToGrid, gridSize } = useUiStore.getState()
+  if (snapToGrid && gridSize > 0) {
+    return Math.round(value / gridSize) * gridSize
+  }
+  return Math.round(value)
+}
 
 /**
  * Position for a newly placed equipment item added via click (NOT drag-drop).
@@ -30,8 +40,8 @@ export const nextPlacementPosition = (
   // exactly behind the previous one.
   const step = (count % 8) * 24
   return {
-    x: Math.round(cx - PROBE_W / 2 + step),
-    y: Math.round(cy - PROBE_H / 2 + step),
+    x: snapCoordinate(cx - PROBE_W / 2 + step),
+    y: snapCoordinate(cy - PROBE_H / 2 + step),
   }
 }
 

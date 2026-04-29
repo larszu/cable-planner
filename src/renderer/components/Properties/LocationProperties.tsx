@@ -85,14 +85,9 @@ export const LocationProperties = () => {
         </label>
       </div>
 
-      <label className="flex items-center gap-2 text-[11px] text-slate-300">
-        <input
-          type="checkbox"
-          checked={!!location.moveContents}
-          onChange={(e) => updateLocation(location.id, { moveContents: e.target.checked })}
-        />
-        Geräte beim Verschieben mitnehmen
-      </label>
+      {/* "Geräte beim Verschieben mitnehmen" is temporarily hidden while the
+          group-drag selection logic is being reworked. The store field and the
+          CanvasArea.onNodeDragStart implementation remain intact. */}
 
       <div className="space-y-2 pt-2">
         <button

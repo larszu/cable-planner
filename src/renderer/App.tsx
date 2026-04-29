@@ -47,6 +47,7 @@ import {
 
 export default function App() {
   const project = useProjectStore((state) => state.project)
+  const canvasTheme = useUiStore((state) => state.canvasTheme)
   const showCableDialog = useProjectStore((state) => state.showCableDialog)
   const pendingConnection = useProjectStore((state) => state.pendingConnection)
   const createCableFromPending = useProjectStore((state) => state.createCableFromPending)
@@ -82,6 +83,18 @@ export default function App() {
   const [cableBomOpen, setCableBomOpen] = useState(false)
   const [tourOpen, setTourOpen] = useState(false)
   const [welcomeOpen, setWelcomeOpen] = useState(false)
+  const [pdfExportOpen, setPdfExportOpen] = useState(false)
+  const [pdfTheme, setPdfTheme] = useState<'dark' | 'light'>('light')
+  const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
+  const setPdfExportThemeOverride = useUiStore((state) => state.setPdfExportThemeOverride)
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = pdfExportThemeOverride ?? canvasTheme
+  }, [canvasTheme, pdfExportThemeOverride])
+
+  useEffect(() => {
+    if (pdfExportOpen) setPdfTheme('light')
+  }, [pdfExportOpen])
 
   useEffect(() => {
     // First-launch project chooser. Show only when:
@@ -174,12 +187,20 @@ export default function App() {
     setMetaDialog(null)
   }
 
-  const handleExportPdf = async () => {
+  const handleExportPdf = async (theme: 'dark' | 'light' = canvasTheme) => {
+    setPdfExportThemeOverride(theme)
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    )
     try {
-      await exportCanvasToPdf(project.metadata.name, project.metadata)
+      await exportCanvasToPdf(project.metadata.name, project.metadata, 0.85, {
+        backgroundTheme: theme,
+      })
     } catch (error) {
       console.error('PDF export failed:', error)
       alert(`PDF export failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setPdfExportThemeOverride(null)
     }
   }
 
@@ -203,7 +224,7 @@ export default function App() {
       return
     }
     try {
-      const bytes = await exportCanvasToPdfBytes(meta)
+      const bytes = await exportCanvasToPdfBytes(meta, 0.85, { backgroundTheme: canvasTheme })
       const baseName = (meta.name || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
       const fileName = `${baseName}_${stamp}.pdf`
@@ -262,7 +283,7 @@ export default function App() {
         onSaveProject={() => void saveProject()}
         onSaveProjectAs={() => void saveProjectAs()}
         onOpenSettings={() => setSettingsOpen(true)}
-        onExportPdf={() => void handleExportPdf()}
+        onExportPdf={() => setPdfExportOpen(true)}
         onAttachPdfToRentman={() => void handleUploadPdfToRentman()}
         onOpenRentmanCableExport={openRentmanCableExport}
         hasRentmanLink={Boolean(project.metadata.rentmanProjectId)}
@@ -274,8 +295,6 @@ export default function App() {
         projectName={project.metadata.name}
         rentmanProjectName={project.metadata.rentmanProjectName}
         hasToken={hasToken}
-        equipmentCount={project.equipment.length}
-        cableCount={project.cables.length}
       />
 
       <main
@@ -342,6 +361,17 @@ export default function App() {
 
       <CableBomDialog open={cableBomOpen} onClose={() => setCableBomOpen(false)} />
 
+      <PdfExportDialog
+        open={pdfExportOpen}
+        theme={pdfTheme}
+        onThemeChange={setPdfTheme}
+        onClose={() => setPdfExportOpen(false)}
+        onExport={() => {
+          setPdfExportOpen(false)
+          void handleExportPdf(pdfTheme)
+        }}
+      />
+
       {cableEdit.open && editCable && (
         <CableEditDialog
           cable={editCable}
@@ -361,6 +391,72 @@ export default function App() {
           onCreate={createCableWithPlanCheck}
         />
       )}
+    </div>
+  )
+}
+
+interface PdfExportDialogProps {
+  open: boolean
+  theme: 'dark' | 'light'
+  onThemeChange: (theme: 'dark' | 'light') => void
+  onClose: () => void
+  onExport: () => void
+}
+
+const PdfExportDialog = ({
+  open,
+  theme,
+  onThemeChange,
+  onClose,
+  onExport,
+}: PdfExportDialogProps) => {
+  if (!open) return null
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4">
+      <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-4 shadow-2xl">
+        <h2 className="mb-3 text-sm font-semibold text-slate-100">Plan als PDF exportieren</h2>
+        <div className="space-y-3">
+          <fieldset className="rounded border border-slate-700 p-3">
+            <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
+              Hintergrund
+            </legend>
+            <label className="mb-2 flex cursor-pointer items-center gap-2 text-xs text-slate-200">
+              <input
+                type="radio"
+                name="pdf-bg-theme"
+                checked={theme === 'light'}
+                onChange={() => onThemeChange('light')}
+              />
+              Hell
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
+              <input
+                type="radio"
+                name="pdf-bg-theme"
+                checked={theme === 'dark'}
+                onChange={() => onThemeChange('dark')}
+              />
+              Dunkel
+            </label>
+          </fieldset>
+        </div>
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-700"
+          >
+            Abbrechen
+          </button>
+          <button
+            type="button"
+            onClick={onExport}
+            className="rounded bg-sky-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-600"
+          >
+            PDF exportieren
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

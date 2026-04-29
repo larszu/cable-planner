@@ -8,11 +8,13 @@ import {
 } from 'reactflow'
 import type { Cable } from '../../types/cable'
 import { useProjectStore } from '../../store/projectStore'
+import { useUiStore } from '../../store/uiStore'
 import { CableWaypoints } from './CableWaypoints'
 import { computeObstacleAwareWaypoints, type Rect } from '../../lib/cableRouting'
 
 interface CableEdgeData {
   cable: Cable
+  exportThemeOverride?: 'dark' | 'light'
 }
 
 /** Normalize waypoints so every segment is strictly horizontal or vertical.
@@ -39,6 +41,38 @@ function normalizeOrthogonal(
   return result
 }
 
+const resolveOrthogonalWaypoints = (
+  cable: Cable,
+  args: {
+    sourceX: number
+    sourceY: number
+    targetX: number
+    targetY: number
+  },
+  obstacles: Rect[],
+  obstacleIds: string[],
+): { x: number; y: number }[] => {
+  const manualWaypoints = cable.waypoints ?? []
+  const autoWaypoints =
+    manualWaypoints.length === 0
+      ? computeObstacleAwareWaypoints(
+          { x: args.sourceX, y: args.sourceY },
+          { x: args.targetX, y: args.targetY },
+          obstacles,
+          new Set([cable.fromEquipmentId, cable.toEquipmentId]),
+          obstacleIds,
+        )
+      : []
+  const rawWaypoints = manualWaypoints.length > 0 ? manualWaypoints : autoWaypoints
+  return rawWaypoints.length > 0
+    ? normalizeOrthogonal(
+        { x: args.sourceX, y: args.sourceY },
+        rawWaypoints,
+        { x: args.targetX, y: args.targetY },
+      )
+    : rawWaypoints
+}
+
 const buildPath = (
   cable: Cable,
   args: {
@@ -51,6 +85,7 @@ const buildPath = (
   },
   obstacles: Rect[],
   obstacleIds: string[],
+  resolvedOrthogonalWaypoints?: { x: number; y: number }[],
 ): [string, number, number] => {
   const routing = cable.routing ?? 'orthogonal'
 
@@ -67,27 +102,9 @@ const buildPath = (
     const [path, labelX, labelY] = getBezierPath(args)
     return [path, labelX, labelY]
   }
-  const manualWaypoints = cable.waypoints ?? []
-  // When the user has not placed any waypoints, compute an obstacle-aware
-  // detour so cables don't cross through equipment rectangles.
-  const autoWaypoints =
-    manualWaypoints.length === 0
-      ? computeObstacleAwareWaypoints(
-          { x: args.sourceX, y: args.sourceY },
-          { x: args.targetX, y: args.targetY },
-          obstacles,
-          new Set([cable.fromEquipmentId, cable.toEquipmentId]),
-          obstacleIds,
-        )
-      : []
-  const rawWaypoints = manualWaypoints.length > 0 ? manualWaypoints : autoWaypoints
-  const waypoints = rawWaypoints.length > 0
-    ? normalizeOrthogonal(
-        { x: args.sourceX, y: args.sourceY },
-        rawWaypoints,
-        { x: args.targetX, y: args.targetY },
-      )
-    : rawWaypoints
+  const waypoints =
+    resolvedOrthogonalWaypoints ??
+    resolveOrthogonalWaypoints(cable, args, obstacles, obstacleIds)
 
   if (waypoints.length === 0) {
     // No manual waypoints and no obstacle detour: build a simple orthogonal
@@ -162,6 +179,8 @@ export const CableEdge = ({
   const cable = data?.cable
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const equipment = useProjectStore((state) => state.project.equipment)
+  const canvasTheme = useUiStore((s) => s.canvasTheme)
+  const isLight = (data?.exportThemeOverride ?? canvasTheme) === 'light'
 
   const { obstacles, obstacleIds } = (() => {
     const rects: Rect[] = []
@@ -187,8 +206,11 @@ export const CableEdge = ({
     sourcePosition,
     targetPosition,
   }
+  const orthogonalWaypoints = cable
+    ? resolveOrthogonalWaypoints(cable, routingArgs, obstacles, obstacleIds)
+    : []
   const [path, centerX, centerY] = cable
-    ? buildPath(cable, routingArgs, obstacles, obstacleIds)
+    ? buildPath(cable, routingArgs, obstacles, obstacleIds, orthogonalWaypoints)
     : getSmoothStepPath(routingArgs)
 
   // Resolve label position: center (default), near source, near target.
@@ -240,6 +262,8 @@ export const CableEdge = ({
           selected={!!selected}
           source={{ x: sourceX, y: sourceY }}
           target={{ x: targetX, y: targetY }}
+          renderWaypoints={orthogonalWaypoints}
+          exportThemeOverride={data?.exportThemeOverride}
         />
       )}
       {displayLabel && (
@@ -248,9 +272,9 @@ export const CableEdge = ({
             style={{
               position: 'absolute',
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
-              background: 'rgba(15,23,42,0.85)',
-              color: '#e2e8f0',
-              border: '1px solid #475569',
+              background: isLight ? 'rgba(241,245,249,0.92)' : 'rgba(15,23,42,0.85)',
+              color: isLight ? '#1e293b' : '#e2e8f0',
+              border: `1px solid ${isLight ? '#94a3b8' : '#475569'}`,
               padding: '2px 6px',
               borderRadius: 4,
               fontSize: 11,
