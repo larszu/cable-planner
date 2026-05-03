@@ -14,19 +14,113 @@
 </p>
 
 <p align="center">
-  Plan, visualize, and manage complex broadcast cabling.
+  Plan, visualize, and manage complex broadcast cabling systems with real-world production integrations.
 </p>
 
 ---
 
 ## ✨ Overview
 
-**CablePlanner** is a desktop application for planning and visualizing broadcast equipment cabling.  
-Built with **Electron, React, and TypeScript**, it provides an intuitive node-based canvas to design complex signal flows and cable layouts.
+**CablePlanner** is a desktop application for designing, visualizing, and managing broadcast signal infrastructure.  
+Built with **Electron, React, and TypeScript**, it provides a node-based canvas for mapping complex audio, video, and data signal flows.
 
-✔ Works fully offline  
-✔ Runs on macOS & Windows  
-✔ Integrates with Rentman  
-✔ Built for real-world broadcast environments  
+It is designed for real-world production environments such as studios, OB vans, and live event setups.
+
+✔ Fully offline desktop application  
+✔ macOS & Windows support  
+✔ Production-focused broadcast tooling  
+✔ Extensible integration system  
 
 ---
+
+## ✨ Core Features
+
+### 🎛️ Visual Cable Canvas
+- Drag & drop node-based interface (React Flow)
+- Equipment nodes with input/output ports
+- Interactive cable connections between devices
+- Cable metadata (type, length, color, notes)
+- Zoom, pan, minimap navigation
+- Real-time signal topology visualization
+
+---
+
+### 🔌 Equipment & Cable Management
+- Built-in broadcast equipment library
+- Custom device templates
+- Port-level connection system
+- Cable properties:
+  - Type (SDI, HDMI, Ethernet, etc.)
+  - Length tracking
+  - Color coding
+  - Labeling & notes
+- Reusable project components
+
+---
+
+### 📡 ATEM Multiviewer Configuration
+- Visual multiview layout editor
+- Camera / program / preview assignment
+- Grid-based layout system
+- Preconfigured source mapping
+- Exportable production configs
+
+Compatible with Blackmagic ATEM Television Studio systems.
+
+---
+
+### 🔀 Videohub Routing Configuration
+- SDI routing visualization
+- Source → destination patch mapping
+- Logical router configuration editor
+- Visual signal path overview
+- Exportable routing setups
+
+Designed for Blackmagic Videohub infrastructure.
+
+---
+
+### 📡 Rentman Integration
+- Secure API integration with :contentReference[oaicite:2]{index=2}
+- Import projects, equipment, and categories
+- Token-based authentication (encrypted local storage)
+- No credentials stored in source code
+- Selective import workflow (project/equipment filtering)
+
+---
+
+### 📄 Export & Documentation
+- PDF export of full cable layouts
+- Includes:
+  - Equipment lists
+  - Cable metadata
+  - Signal routing overview
+- Print-ready production documentation
+
+---
+
+## 🧠 Project Management
+- Local JSON project system
+- New / Open / Save / Save As workflows
+- Recent projects list (auto-managed)
+- Safe file handling with concurrency protection
+
+---
+
+## ⚙️ Experimental Features
+- 📦 Cable Bill of Materials (BOM) generator *(in progress)*
+- 🌐 Network / Sync collaboration system *(planned)*
+- 🔌 Extended device integrations (ATEM, Videohub, etc.)
+- 🧪 Greengo configuration export *(experimental)*
+
+---
+
+## 👤 Author
+
+Built and maintained by **Lars Zumpe**
+
+---
+
+## 📄 License
+
+MIT
