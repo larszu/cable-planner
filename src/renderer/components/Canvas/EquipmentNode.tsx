@@ -257,6 +257,8 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         return (
           <div
             key={port.id}
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={handlePortClick(port.id, 'input')}
             onMouseEnter={() => setHoveredPort(`in-${port.id}`)}
             onMouseLeave={() => setHoveredPort(null)}
             style={{
@@ -344,6 +346,8 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         return (
           <div
             key={port.id}
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={handlePortClick(port.id, 'output')}
             onMouseEnter={() => setHoveredPort(`out-${port.id}`)}
             onMouseLeave={() => setHoveredPort(null)}
             style={{

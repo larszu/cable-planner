@@ -300,12 +300,15 @@ const touchProject = (project: CablePlannerProject): CablePlannerProject => ({
 })
 
 const sanitizePort = (port: Partial<Port>, fallbackName: string): Port => ({
+  // Spread first so optional fields like `direction`, `sfpType`, `sfpStandard`,
+  // `sfpWavelength`, `sfpVendor` survive the trip through addEquipment /
+  // importEquipment. Without this they were silently dropped, which broke
+  // bidirectional handles and SFP module metadata for catalog/NetBox imports.
+  ...port,
   id: port.id && port.id.length > 0 ? port.id : uuidv4(),
   name: port.name ?? fallbackName,
   type: port.type ?? 'Custom',
   connectorType: port.connectorType ?? 'Custom',
-  side: port.side,
-  standard: port.standard,
 })
 
 /**
