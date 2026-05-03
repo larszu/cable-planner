@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  Plan, visualize, and manage complex broadcast cabling — fully offline.
+  Plan, visualize, and manage complex broadcast cabling.
 </p>
 
 ---
