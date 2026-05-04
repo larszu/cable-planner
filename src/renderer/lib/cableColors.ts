@@ -38,3 +38,35 @@ export const colorByLength = (
   if (!rule) return null
   return { color: rule.color, dashArray: rule.dashArray }
 }
+
+import type { ConnectorType } from '../types/equipment'
+
+/**
+ * Visual color associated with each connector type. Used by the optional
+ * "Ports nach Typ einfärben" toggle so users can spot SDI/HDMI/Ethernet
+ * ports at a glance on equipment nodes. Values match the cable catalog
+ * defaults where possible (e.g. SDI = amber, HDMI = purple).
+ */
+export const CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
+  XLR: '#38bdf8',
+  BNC: '#f59e0b',
+  HDMI: '#a855f7',
+  'Ethernet/RJ45': '#22c55e',
+  Fiber: '#eab308',
+  SFP: '#facc15',
+  'SFP+': '#ca8a04',
+  DIN: '#94a3b8',
+  DisplayPort: '#8b5cf6',
+  USB: '#64748b',
+  'USB-C': '#7c3aed',
+  Triax: '#d97706',
+  'Wireless/RF': '#ec4899',
+  'IEC 230V': '#475569',
+  PowerCON: '#0ea5e9',
+  'Schuko 230V': '#334155',
+  'C7 Eurostecker': '#64748b',
+  Custom: '#94a3b8',
+}
+
+export const colorForConnector = (connectorType: ConnectorType): string =>
+  CONNECTOR_TYPE_COLORS[connectorType] ?? CONNECTOR_TYPE_COLORS.Custom

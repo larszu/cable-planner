@@ -34,11 +34,11 @@ jobs:
         run: npm run build
 
       - name: Build macOS DMGs (x64 + arm64)
-        env:
-          # No Apple signing credentials available in this workflow; produce
-          # unsigned DMGs. Users will need to right-click -> Open the first
-          # time to bypass Gatekeeper.
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        # No paid Apple signing credentials. The mac config asks for an
+        # ad-hoc signature ("identity: '-'") so Gatekeeper does not
+        # reject the binary with "is damaged" on Apple Silicon. Users
+        # still see the standard "unidentified developer" prompt and
+        # need to right-click → Open the first time.
         run: npx electron-builder --mac dmg --x64 --arm64 --publish never
 
       - name: List artifacts
