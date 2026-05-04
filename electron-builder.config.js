@@ -20,6 +20,16 @@ export default {
     ],
     artifactName: '${productName}-${version}-${arch}.${ext}',
     icon: 'build/icon.png',
+    // Ad-hoc sign the app so macOS Gatekeeper doesn't reject the binary
+    // outright with "Cable Planner is damaged and can't be opened" on
+    // Apple Silicon. arm64 macOS refuses to load completely-unsigned
+    // binaries; a placeholder ("-") signature is enough for the OS to
+    // accept the binary structure. Users still see the standard
+    // "unidentified developer" prompt on first launch and need to
+    // right-click → Open (no paid Apple Developer ID required).
+    identity: '-',
+    hardenedRuntime: false,
+    gatekeeperAssess: false,
   },
   win: {
     target: ['nsis', 'portable'],
