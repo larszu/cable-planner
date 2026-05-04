@@ -14,6 +14,7 @@ export default {
   },
   npmRebuild: false,
   mac: {
+    category: 'public.app-category.productivity',
     target: [
       { target: 'dmg', arch: 'x64' },
       { target: 'dmg', arch: 'arm64' },

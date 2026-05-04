@@ -51,7 +51,7 @@ jobs:
           # because in some electron-builder versions that flag
           # short-circuits the explicit ad-hoc identity and the build
           # falls back to a fully-unsigned binary again.
-        run: npx electron-builder --config electron-builder.config.js ${{ matrix.build_args }} --publish never
+        run: npx electron-builder ${{ matrix.build_args }} --publish never
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
