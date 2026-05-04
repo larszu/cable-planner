@@ -501,9 +501,9 @@ export const LibraryPanel = () => {
                   setTimeout(() => newGroupInputRef.current?.focus(), 50)
                 }}
                 className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
-                title="Add new category"
+                title="Neue Equipment-Kategorie anlegen"
               >
-                + Gruppe
+                + Kategorie
               </button>
               <button
                 type="button"
@@ -523,6 +523,18 @@ export const LibraryPanel = () => {
                 const cat = newGroupName.trim()
                 if (cat) {
                   addKnownCategories([cat])
+                  // A freshly-added category has no devices yet, so it would
+                  // otherwise be hidden by the "Leere ausblenden" filter and
+                  // the user would think nothing happened. Force the empty
+                  // toggle on and uncollapse the new category so the
+                  // newly-created group is visible right away.
+                  setShowEmpty(true)
+                  setCollapsedCats((prev) => {
+                    if (!prev.has(cat)) return prev
+                    const next = new Set(prev)
+                    next.delete(cat)
+                    return next
+                  })
                   setNewGroupName('')
                   setShowNewGroup(false)
                 }

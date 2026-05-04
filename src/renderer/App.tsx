@@ -244,6 +244,45 @@ export default function App() {
    * is populated by the Rentman import dialog.
    */
   const createCableWithPlanCheck: typeof createCableFromPending = (draft) => {
+    // Issue #43: warn when either endpoint already has a cable plugged in
+    // and offer to delete the existing cable(s) before adding the new one.
+    const stateBefore = useProjectStore.getState()
+    const pending = stateBefore.pendingConnection
+    if (
+      pending &&
+      pending.source &&
+      pending.target &&
+      pending.sourceHandle &&
+      pending.targetHandle
+    ) {
+      const fromEqId = pending.source
+      const fromPortId = pending.sourceHandle
+      const toEqId = pending.target
+      const toPortId = pending.targetHandle
+      const usesPort = (cable: Cable, eqId: string, portId: string) =>
+        (cable.fromEquipmentId === eqId && cable.fromPortId === portId) ||
+        (cable.toEquipmentId === eqId && cable.toPortId === portId)
+      const conflicts = stateBefore.project.cables.filter(
+        (c) => usesPort(c, fromEqId, fromPortId) || usesPort(c, toEqId, toPortId),
+      )
+      if (conflicts.length > 0) {
+        const list = conflicts
+          .map((c) => `• ${c.name || `${c.type} ${c.length} m`}`)
+          .join('\n')
+        const replace = window.confirm(
+          `An mindestens einem der Ports steckt bereits ein Kabel:\n\n${list}\n\n` +
+            `OK = bestehendes Kabel löschen und neue Verbindung anlegen.\n` +
+            `Abbrechen = neue Verbindung verwerfen, alles bleibt wie es ist.`,
+        )
+        if (!replace) {
+          stateBefore.closeCableDialog()
+          return
+        }
+        for (const c of conflicts) {
+          useProjectStore.getState().deleteCable(c.id)
+        }
+      }
+    }
     createCableFromPending(draft)
     const plan = useProjectStore.getState().project.metadata.rentmanCablePlan
     if (!plan) return
@@ -510,26 +549,30 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
 
   // For SDI↔SDI connections, pick the cable that matches the project's default
   // video format (or 1080p50 fallback) and the two devices' SDI capabilities.
+  // When no catalog entry fits the connectors, fall back to the Custom Cable
+  // preset so the resulting cable inherits the start port's connector type
+  // instead of landing on the first (unrelated) cable in the catalog.
   const initialSpecId = useMemo(() => {
-    const firstUsable = ranked.find((item) => item.level !== 'error') ?? ranked[0]
-    if (!fromPort || !toPort) return firstUsable?.cable.id ?? cableCatalog[0].id
+    const firstUsable = ranked.find((item) => item.level !== 'error')
+    if (!firstUsable) return CUSTOM_CABLE_SPEC_ID
+    if (!fromPort || !toPort) return firstUsable.cable.id
     const sdiConnectors = new Set<ConnectorType>(['BNC'])
     const bothSdi =
       sdiConnectors.has(fromPort.connectorType) && sdiConnectors.has(toPort.connectorType)
-    if (!bothSdi) return firstUsable?.cable.id ?? cableCatalog[0].id
+    if (!bothSdi) return firstUsable.cable.id
     const format = videoFormatById(defaultVideoFormat ?? DEFAULT_VIDEO_FORMAT)
-    if (!format) return firstUsable?.cable.id ?? cableCatalog[0].id
+    if (!format) return firstUsable.cable.id
     const target = pickCableStandardForFormat(format, fromDev?.sdiCaps, toDev?.sdiCaps)
     const match = ranked.find(
       (item) => item.level !== 'error' && item.cable.standards.includes(target),
     )
-    return match?.cable.id ?? firstUsable?.cable.id ?? cableCatalog[0].id
+    return match?.cable.id ?? firstUsable.cable.id
   }, [ranked, fromPort, toPort, fromDev, toDev, defaultVideoFormat])
 
+  // Default the Custom Cable's connector to the START port's type so the cable
+  // type inherits from the start connector when the user keeps the Custom preset.
   const inferredConnector: ConnectorType =
-    fromPort?.connectorType === toPort?.connectorType
-      ? (fromPort?.connectorType ?? 'Custom')
-      : (fromPort?.connectorType ?? toPort?.connectorType ?? 'Custom')
+    fromPort?.connectorType ?? toPort?.connectorType ?? 'Custom'
 
   const [specId, setSpecId] = useState<string>(initialSpecId)
   const [customConnectorType, setCustomConnectorType] = useState<ConnectorType>(inferredConnector)

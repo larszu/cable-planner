@@ -43,8 +43,14 @@ jobs:
       - name: Package with electron-builder
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Disable code signing — we don't have certificates configured.
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          # No paid signing certificate available. The macOS config
+          # requests an ad-hoc signature ("identity: '-'") so Apple
+          # Silicon Gatekeeper accepts the binary instead of the
+          # "Cable Planner is damaged and can't be opened" rejection.
+          # We deliberately do NOT set CSC_IDENTITY_AUTO_DISCOVERY=false
+          # because in some electron-builder versions that flag
+          # short-circuits the explicit ad-hoc identity and the build
+          # falls back to a fully-unsigned binary again.
         run: npx electron-builder --config electron-builder.config.js ${{ matrix.build_args }} --publish never
 
       - name: Upload artifacts

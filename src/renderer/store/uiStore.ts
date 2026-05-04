@@ -18,6 +18,11 @@ interface PersistedUiState {
   cableColorMode: 'manual' | 'byLength'
   /** Canvas background theme. */
   canvasTheme: 'dark' | 'light'
+  /** When true, port handle dots on equipment nodes are rendered in the
+   * color associated with their connector type (SDI = amber, HDMI = purple,
+   * Ethernet = green, …). When false, the input/output dichotomy palette
+   * is used (cyan for inputs, green for outputs, purple for bidirectional). */
+  colorPortsByType: boolean
 }
 
 const defaults: PersistedUiState = {
@@ -31,6 +36,7 @@ const defaults: PersistedUiState = {
   propertiesWidth: 280,
   cableColorMode: 'manual',
   canvasTheme: 'dark',
+  colorPortsByType: false,
 }
 
 const load = (): PersistedUiState => {
@@ -62,6 +68,7 @@ interface UiState extends PersistedUiState {
   setPropertiesWidth: (value: number) => void
   setCableColorMode: (value: 'manual' | 'byLength') => void
   setCanvasTheme: (value: 'dark' | 'light') => void
+  setColorPortsByType: (value: boolean) => void
   pdfExportThemeOverride: 'dark' | 'light' | null
   setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
   cableEdit: { open: boolean; cableId?: string }
@@ -120,6 +127,7 @@ const applyPatch =
       propertiesWidth: state.propertiesWidth,
       cableColorMode: state.cableColorMode,
       canvasTheme: state.canvasTheme,
+      colorPortsByType: state.colorPortsByType,
       ...patch,
     }
     persist(next)
@@ -142,6 +150,7 @@ export const useUiStore = create<UiState>((set) => ({
     set(applyPatch({ propertiesWidth: Math.max(220, Math.min(600, Math.round(value))) })),
   setCableColorMode: (value) => set(applyPatch({ cableColorMode: value })),
   setCanvasTheme: (value) => set(applyPatch({ canvasTheme: value })),
+  setColorPortsByType: (value) => set(applyPatch({ colorPortsByType: value })),
   pdfExportThemeOverride: null,
   setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
   cableEdit: { open: false },
