@@ -23,6 +23,8 @@ export const CanvasToolbar = () => {
   const setCableColorMode = useUiStore((state) => state.setCableColorMode)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
   const setCanvasTheme = useUiStore((state) => state.setCanvasTheme)
+  const colorPortsByType = useUiStore((state) => state.colorPortsByType)
+  const setColorPortsByType = useUiStore((state) => state.setColorPortsByType)
   const isLight = canvasTheme === 'light'
   const [showLengthLegend, setShowLengthLegend] = useState(false)
   const addLocation = useProjectStore((state) => state.addLocation)
@@ -154,6 +156,17 @@ export const CanvasToolbar = () => {
           onChange={(event) => setDefaultArrow(event.target.checked)}
         />
         Pfeil
+      </label>
+      <label
+        style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', marginLeft: 4 }}
+        title="Port-Punkte in der Farbe des Steckertyps darstellen (SDI=amber, HDMI=violett, Ethernet=grün …) statt nach Input/Output"
+      >
+        <input
+          type="checkbox"
+          checked={colorPortsByType}
+          onChange={(event) => setColorPortsByType(event.target.checked)}
+        />
+        Ports nach Typ
       </label>
       <span style={{ width: 1, height: 18, background: isLight ? '#cbd5e1' : '#334155', margin: '0 4px' }} />
       {/* Cable color mode toggle */}

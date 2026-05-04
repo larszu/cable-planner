@@ -3,6 +3,7 @@ import { Fragment, useState } from 'react'
 import type { EquipmentItem } from '../../types/equipment'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
+import { colorForConnector } from '../../lib/cableColors'
 
 type EquipmentNodeData = EquipmentItem & {
   exportThemeOverride?: 'dark' | 'light'
@@ -29,6 +30,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   const startPendingCable = useUiStore((s) => s.startPendingCable)
   const clearPendingCable = useUiStore((s) => s.clearPendingCable)
   const canvasTheme = useUiStore((s) => s.canvasTheme)
+  const colorPortsByType = useUiStore((s) => s.colorPortsByType)
   const isLight = (data.exportThemeOverride ?? canvasTheme) === 'light'
   const queueConnection = useProjectStore((s) => s.queueConnection)
 
@@ -301,6 +303,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         const placement = inputPlacement.get(port.id) ?? { side: 'left' as const, slot: index }
         const side = placement.side
         const pos = side === 'left' ? Position.Left : Position.Right
+        const dotColor = colorPortsByType
+          ? colorForConnector(port.connectorType)
+          : (bi ? '#a855f7' : '#0ea5e9')
         return (
           <Fragment key={`h-in-${port.id}`}>
             <Handle
@@ -312,7 +317,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 top: rowCenter(placement.slot),
                 width: HANDLE_SIZE,
                 height: HANDLE_SIZE,
-                background: bi ? '#a855f7' : '#0ea5e9',
+                background: dotColor,
                 border: isStart ? '2px solid #fbbf24' : `2px solid ${isLight ? '#e2e8f0' : '#0f172a'}`,
                 boxShadow: isStart ? '0 0 0 3px rgba(251,191,36,0.45)' : undefined,
                 cursor: 'crosshair',
@@ -390,6 +395,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         const placement = outputPlacement.get(port.id) ?? { side: 'right' as const, slot: index }
         const side = placement.side
         const pos = side === 'left' ? Position.Left : Position.Right
+        const dotColor = colorPortsByType
+          ? colorForConnector(port.connectorType)
+          : (bi ? '#a855f7' : '#22c55e')
         return (
           <Fragment key={`h-out-${port.id}`}>
             <Handle
@@ -401,7 +409,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 top: rowCenter(placement.slot),
                 width: HANDLE_SIZE,
                 height: HANDLE_SIZE,
-                background: bi ? '#a855f7' : '#22c55e',
+                background: dotColor,
                 border: isStart ? '2px solid #fbbf24' : `2px solid ${isLight ? '#e2e8f0' : '#0f172a'}`,
                 boxShadow: isStart ? '0 0 0 3px rgba(251,191,36,0.45)' : undefined,
                 cursor: 'crosshair',
