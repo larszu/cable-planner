@@ -269,9 +269,18 @@ const CanvasContent = () => {
     }
     prevIdsRef.current = nodes.map((n) => n.id).join(',')
     // Re-register handles for nodes whose data changed (port additions,
-    // removals, reorders). Without this ReactFlow keeps stale handle
-    // positions and edges visually stay connected to the old handle.
-    if (changedIds.length > 0) updateNodeInternals(changedIds)
+    // removals, reorders, "Ports spiegeln" toggle). The setRfNodes above
+    // schedules a render, so we call updateNodeInternals once now AND
+    // again on the next animation frame — by then the EquipmentNode has
+    // re-rendered with the new handle positions and ReactFlow can latch
+    // existing cable edges onto the moved ports. Without the deferred
+    // call, edges stayed pinned to the OLD handle positions after a
+    // portsFlipped toggle.
+    if (changedIds.length > 0) {
+      updateNodeInternals(changedIds)
+      const id = requestAnimationFrame(() => updateNodeInternals(changedIds))
+      return () => cancelAnimationFrame(id)
+    }
   }, [nodes, projectVersion, updateNodeInternals])
 
   const edges = useMemo<Edge[]>(
@@ -645,6 +654,28 @@ const CanvasContent = () => {
   }
 
   const onConnect: OnConnect = (connection) => {
+    // ReactFlow's ConnectionMode.Loose lets the user drag from any handle
+    // (including the transparent overlay handle on each port). When they
+    // drag from an Input to an Output, ReactFlow picks the drag-origin
+    // handle as `source` — which leaves the cable arrow pointing the wrong
+    // way (Input → Output). Normalise here so the canonical signal flow
+    // (output → input) is preserved regardless of which end the user
+    // started from.
+    if (connection.source && connection.target && connection.sourceHandle && connection.targetHandle) {
+      const sourceEq = project.equipment.find((e) => e.id === connection.source)
+      const targetEq = project.equipment.find((e) => e.id === connection.target)
+      const sourceIsOutput = !!sourceEq?.outputs.find((p) => p.id === connection.sourceHandle)
+      const targetIsOutput = !!targetEq?.outputs.find((p) => p.id === connection.targetHandle)
+      if (!sourceIsOutput && targetIsOutput) {
+        queueConnection({
+          source: connection.target,
+          sourceHandle: connection.targetHandle,
+          target: connection.source,
+          targetHandle: connection.sourceHandle,
+        })
+        return
+      }
+    }
     queueConnection(connection)
   }
 
@@ -943,7 +974,7 @@ const CanvasContent = () => {
             refY="5"
             markerWidth="6"
             markerHeight="6"
-            orient="auto-start-reverse"
+            orient="auto"
           >
             <path d="M 10 0 L 0 5 L 10 10 z" fill="currentColor" />
           </marker>

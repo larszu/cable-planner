@@ -244,6 +244,45 @@ export default function App() {
    * is populated by the Rentman import dialog.
    */
   const createCableWithPlanCheck: typeof createCableFromPending = (draft) => {
+    // Issue #43: warn when either endpoint already has a cable plugged in
+    // and offer to delete the existing cable(s) before adding the new one.
+    const stateBefore = useProjectStore.getState()
+    const pending = stateBefore.pendingConnection
+    if (
+      pending &&
+      pending.source &&
+      pending.target &&
+      pending.sourceHandle &&
+      pending.targetHandle
+    ) {
+      const fromEqId = pending.source
+      const fromPortId = pending.sourceHandle
+      const toEqId = pending.target
+      const toPortId = pending.targetHandle
+      const usesPort = (cable: Cable, eqId: string, portId: string) =>
+        (cable.fromEquipmentId === eqId && cable.fromPortId === portId) ||
+        (cable.toEquipmentId === eqId && cable.toPortId === portId)
+      const conflicts = stateBefore.project.cables.filter(
+        (c) => usesPort(c, fromEqId, fromPortId) || usesPort(c, toEqId, toPortId),
+      )
+      if (conflicts.length > 0) {
+        const list = conflicts
+          .map((c) => `• ${c.name || `${c.type} ${c.length} m`}`)
+          .join('\n')
+        const replace = window.confirm(
+          `An mindestens einem der Ports steckt bereits ein Kabel:\n\n${list}\n\n` +
+            `OK = bestehendes Kabel löschen und neue Verbindung anlegen.\n` +
+            `Abbrechen = neue Verbindung verwerfen, alles bleibt wie es ist.`,
+        )
+        if (!replace) {
+          stateBefore.closeCableDialog()
+          return
+        }
+        for (const c of conflicts) {
+          useProjectStore.getState().deleteCable(c.id)
+        }
+      }
+    }
     createCableFromPending(draft)
     const plan = useProjectStore.getState().project.metadata.rentmanCablePlan
     if (!plan) return
