@@ -12,7 +12,11 @@ export default {
     buildResources: 'build',
     output: 'release',
   },
-  npmRebuild: false,
+  // npmRebuild defaults to true. We explicitly do NOT set it to false here:
+  // skipping the rebuild leaves native modules (keytar, @julusian/freetype2)
+  // built against Node's ABI rather than Electron's, which on Windows caused
+  // electron-builder to silently produce zero EXE artifacts in CI (the job
+  // succeeded but the upload step found no *.exe to attach to the release).
   mac: {
     category: 'public.app-category.productivity',
     target: [
@@ -33,16 +37,15 @@ export default {
     gatekeeperAssess: false,
   },
   win: {
-    target: ['nsis', 'portable'],
+    target: [
+      { target: 'nsis', arch: 'x64' },
+      { target: 'portable', arch: 'x64' },
+    ],
     artifactName: '${productName}-${version}-${arch}.${ext}',
     icon: 'build/icon.ico',
-    // electron-builder picks up CSC_LINK / CSC_KEY_PASSWORD automatically.
-    signtoolOptions: {
-      publisherName: ['Lars Zumpe'],
-      signingHashAlgorithms: ['sha256'],
-    },
-    // SmartScreen reputation needs a CA-issued cert; self-signed will still
-    // trigger "Unknown publisher". See scripts/generate-cert.ps1.
+    // No code-signing: electron-builder skips signtool when CSC_LINK is unset.
+    // SmartScreen will show "Unknown publisher" until a CA-issued cert is
+    // wired up via CSC_LINK + CSC_KEY_PASSWORD (see scripts/generate-cert.ps1).
   },
   nsis: {
     oneClick: false,
