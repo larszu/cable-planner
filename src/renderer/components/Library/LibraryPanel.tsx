@@ -4,6 +4,9 @@ import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useRentman } from '../../hooks/useRentman'
 import { promptDialog } from '../../lib/promptDialog'
+import { suggestPortGroups, type PortGroupHint } from '../../lib/portSuggestions'
+import { getGeminiApiKey, setGeminiApiKey, suggestFromAI } from '../../lib/aiSuggestions'
+import { suggestFromWeb } from '../../lib/webPortSuggestions'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, EquipmentTemplate, Port } from '../../types/equipment'
 import { nextPlacementPosition } from '../../lib/library'
@@ -101,6 +104,14 @@ export const LibraryPanel = () => {
   // Global library search (Strg+F). Filters customLibrary by name/category
   // across all categories. When non-empty, all categories are auto-expanded.
   const [librarySearch, setLibrarySearch] = useState('')
+  // Local-device-create dialog: same Gemini-AI / Web-search auto-fill the
+  // Rentman wizard already offers (user request, parallels NewRentmanDeviceWizard).
+  const [aiLoading, setAiLoading] = useState(false)
+  const [webLoading, setWebLoading] = useState(false)
+  const [suggestError, setSuggestError] = useState('')
+  const [suggestInfo, setSuggestInfo] = useState('')
+  const [aiSettingsOpen, setAiSettingsOpen] = useState(false)
+  const [aiKeyDraft, setAiKeyDraft] = useState('')
   const newGroupInputRef = useRef<HTMLInputElement>(null)
   const librarySearchRef = useRef<HTMLInputElement>(null)
 
@@ -277,6 +288,81 @@ export const LibraryPanel = () => {
     }
     return Array.from(byName.values())
   }, [customLibrary, equipmentItems])
+
+  /**
+   * Convert a list of PortGroupHints (from heuristics, Gemini, or Web search)
+   * into the local PortGroupDraft shape. The heuristic returns one hint per
+   * port-direction × connector-type group, which is exactly what the local
+   * dialog stores — only the field names differ.
+   */
+  const hintsToLocalDrafts = (hints: PortGroupHint[]): PortGroupDraft[] =>
+    hints.map((h) => ({
+      id: uuidv4(),
+      direction: h.direction,
+      count: h.count,
+      connectorType: h.connectorType,
+      label: h.label,
+    }))
+
+  const handleHeuristicSuggest = () => {
+    setSuggestError('')
+    setSuggestInfo('')
+    const hints = suggestPortGroups(name, category)
+    if (hints.length === 0) {
+      setSuggestError('Keine Heuristik-Treffer für diesen Namen.')
+      return
+    }
+    setGroups(hintsToLocalDrafts(hints))
+    setSuggestInfo(`${hints.length} Port-Gruppe(n) per Heuristik vorgeschlagen.`)
+  }
+
+  const handleAiSuggest = async () => {
+    setSuggestError('')
+    setSuggestInfo('')
+    if (!getGeminiApiKey()) {
+      setAiKeyDraft('')
+      setAiSettingsOpen(true)
+      setSuggestError('Kein Gemini-API-Key. Trage einen ein oder nutze Web/Heuristik.')
+      return
+    }
+    setAiLoading(true)
+    try {
+      const hints = await suggestFromAI(name, category)
+      if (hints.length === 0) {
+        setSuggestError('Gemini lieferte keine Ports zurück.')
+        return
+      }
+      setGroups(hintsToLocalDrafts(hints))
+      setSuggestInfo(`${hints.length} Port-Gruppe(n) von Gemini übernommen.`)
+    } catch (err) {
+      setSuggestError(err instanceof Error ? err.message : 'Gemini-Aufruf fehlgeschlagen')
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
+  const handleWebSuggest = async () => {
+    setSuggestError('')
+    setSuggestInfo('')
+    setWebLoading(true)
+    try {
+      const { hints, source, snippet } = await suggestFromWeb(name, category)
+      if (hints.length === 0) {
+        setSuggestInfo(
+          snippet
+            ? `Keine Stecker im ${source}-Snippet erkannt. Hersteller + Modell präzisieren.`
+            : 'Kein Treffer im Web. Hersteller + Modell präzisieren.',
+        )
+        return
+      }
+      setGroups(hintsToLocalDrafts(hints))
+      setSuggestInfo(`${hints.length} Port-Gruppe(n) aus ${source} übernommen.`)
+    } catch (err) {
+      setSuggestError(err instanceof Error ? err.message : 'Web-Suche fehlgeschlagen')
+    } finally {
+      setWebLoading(false)
+    }
+  }
 
   const updateGroup = (id: string, patch: Partial<PortGroupDraft>) => {
     setGroups((current) => current.map((group) => (group.id === id ? { ...group, ...patch } : group)))
@@ -1366,8 +1452,64 @@ export const LibraryPanel = () => {
                             type="button"
                             onClick={() => placeGroupPreset(preset.id, cx, cy)}
                             className="rounded bg-emerald-700 px-2 py-1 text-[11px] hover:bg-emerald-600"
+                            title="Alle Geräte einzeln auf dem Canvas platzieren — interne Kabel werden mitgenommen"
                           >
                             Platzieren
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              // Issue #47 — Black-Box-Einfügen. Erzeugt EIN
+                              // Equipment-Item, das das Rack repräsentiert.
+                              // Alle Ports der internen Geräte, die NICHT
+                              // schon durch eine interne Verbindung belegt
+                              // sind, werden als externe Ports des Racks
+                              // exponiert. Interne Verkabelung bleibt
+                              // implizit (keine Kabel auf dem Canvas).
+                              const usedPortNames = new Set<string>()
+                              for (const stub of preset.cables) {
+                                usedPortNames.add(`${stub.fromItemIndex}:${stub.fromPortName}`)
+                                usedPortNames.add(`${stub.toItemIndex}:${stub.toPortName}`)
+                              }
+                              const externalIns: Port[] = []
+                              const externalOuts: Port[] = []
+                              preset.items.forEach((item, idx) => {
+                                for (const p of item.inputs) {
+                                  if (!usedPortNames.has(`${idx}:${p.name}`)) {
+                                    externalIns.push({
+                                      ...p,
+                                      id: uuidv4(),
+                                      name: `${item.name} · ${p.name}`,
+                                    })
+                                  }
+                                }
+                                for (const p of item.outputs) {
+                                  if (!usedPortNames.has(`${idx}:${p.name}`)) {
+                                    externalOuts.push({
+                                      ...p,
+                                      id: uuidv4(),
+                                      name: `${item.name} · ${p.name}`,
+                                    })
+                                  }
+                                }
+                              })
+                              addEquipment({
+                                name: `${preset.name} (Rack)`,
+                                category: 'Rack',
+                                inputs: externalIns,
+                                outputs: externalOuts,
+                                x: cx,
+                                y: cy,
+                                width: 280,
+                                height: 0,
+                                icon: '🗄',
+                                notes: `Black-Box-Rack: ${preset.items.length} Geräte, ${preset.cables.length} interne Verbindungen.`,
+                              })
+                            }}
+                            className="rounded bg-amber-700 px-2 py-1 text-[11px] hover:bg-amber-600"
+                            title="Rack als einzelnes Black-Box-Gerät einfügen — nur extern erreichbare Ports werden exponiert (interne Verkabelung bleibt implizit)"
+                          >
+                            Black-Box
                           </button>
                           <button
                             type="button"
@@ -1589,6 +1731,104 @@ export const LibraryPanel = () => {
                 )}
               </label>
             </div>
+
+            <div className="mb-2 rounded border border-violet-800/60 bg-violet-950/30 p-2 text-xs">
+              <div className="mb-1 flex items-center justify-between">
+                <span className="font-semibold text-violet-200">
+                  Auto-Vorschlag aus Geräte-Name
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAiKeyDraft(getGeminiApiKey())
+                    setAiSettingsOpen(true)
+                  }}
+                  className="text-[10px] text-violet-300 hover:underline"
+                  title="Gemini-API-Key konfigurieren"
+                >
+                  ⚙ AI-Settings
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                <button
+                  type="button"
+                  onClick={handleHeuristicSuggest}
+                  className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
+                  title="Aus eingebauten Heuristik-Mustern (Camera, ATEM, Konverter, ...)"
+                >
+                  📐 Heuristik
+                </button>
+                <button
+                  type="button"
+                  disabled={webLoading}
+                  onClick={handleWebSuggest}
+                  className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
+                  title="Wikipedia + DuckDuckGo Snippet (kein API-Key nötig)"
+                >
+                  {webLoading ? 'Suche…' : '🌐 Web'}
+                </button>
+                <button
+                  type="button"
+                  disabled={aiLoading}
+                  onClick={handleAiSuggest}
+                  className="rounded bg-violet-700 px-2 py-1 hover:bg-violet-600 disabled:opacity-50"
+                  title="Gemini AI — braucht einen API-Key"
+                >
+                  {aiLoading ? 'Frage…' : '✨ Gemini'}
+                </button>
+              </div>
+              {suggestError && (
+                <div className="mt-1 text-amber-300">{suggestError}</div>
+              )}
+              {suggestInfo && (
+                <div className="mt-1 text-emerald-300">{suggestInfo}</div>
+              )}
+            </div>
+
+            {aiSettingsOpen && (
+              <div className="mb-2 rounded border border-slate-700 bg-slate-950 p-2 text-xs">
+                <div className="mb-1 font-semibold text-slate-200">Gemini API-Key</div>
+                <div className="flex gap-1">
+                  <input
+                    type="password"
+                    value={aiKeyDraft}
+                    onChange={(e) => setAiKeyDraft(e.target.value)}
+                    placeholder="AIza…"
+                    className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGeminiApiKey(aiKeyDraft.trim())
+                      setAiSettingsOpen(false)
+                      setSuggestError('')
+                    }}
+                    className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600"
+                  >
+                    Speichern
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAiSettingsOpen(false)}
+                    className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
+                  >
+                    Abbrechen
+                  </button>
+                </div>
+                <div className="mt-1 text-[10px] text-slate-500">
+                  Gespeichert nur lokal in localStorage. Key bei{' '}
+                  <a
+                    href="https://aistudio.google.com/app/apikey"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    aistudio.google.com
+                  </a>{' '}
+                  erstellen.
+                </div>
+              </div>
+            )}
 
             <div className="mb-2 flex items-center justify-between">
               <div className="text-sm font-semibold">Port Groups</div>

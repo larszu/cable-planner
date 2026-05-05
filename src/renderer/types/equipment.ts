@@ -121,6 +121,15 @@ export interface EquipmentItem {
    * in the live state (see `AtemMvConfig`).
    */
   atemMvConfig?: AtemMvConfig
+  /**
+   * Issue #45: offline-editable audio router matrix for ATEM Fairlight.
+   * `sources[].mainGain` = master fader contribution in dB (-INF..+6),
+   * `sources[].balance` = -100..+100, `sources[].onAir` = whether the source
+   * routes to the main bus. Future work pushes this to a live ATEM via the
+   * same bridge as atemMvConfig. Stored even when no ATEM is connected so
+   * the user can plan audio routing offline (Fairlight-style).
+   */
+  atemAudioConfig?: AtemAudioConfig
   /** Mark equipment as favorite in the library (sorted to the top). */
   favorite?: boolean
   /** Hide from the library unless "Ausgeblendete zeigen" is active. */
@@ -149,6 +158,8 @@ export interface EquipmentItem {
   imageUrl?: string
   /** Optional manufacturer / product page URL (issue #38). */
   manufacturerUrl?: string
+  /** Issue #39: physical serial number, surfaces in location/frame BOM exports. */
+  serialNumber?: string
   /**
    * When true, render the equipment node as a compact label-only badge
    * (icon + name only, ports as dots on the edges) instead of the full
@@ -177,6 +188,28 @@ export interface AtemMvDefinition {
   programPreviewSwapped?: boolean
   /** window index → ATEM input id. Non-listed windows are left unchanged. */
   windows: { windowIndex: number; sourceId: number }[]
+}
+
+/** Issue #45 — ATEM Fairlight audio router config. */
+export interface AtemAudioConfig {
+  /** Per-input or audio source routing settings. */
+  sources: AtemAudioSourceConfig[]
+}
+
+export interface AtemAudioSourceConfig {
+  /** ATEM audio source id (matches the live Fairlight source list). */
+  sourceId: number
+  /** Display label echoed back from the live ATEM, when known. */
+  label?: string
+  /** -INF..+6 dB. -Infinity is encoded as null for JSON-safety. */
+  mainGain: number | null
+  /** -100..+100 (Fairlight balance percentage). */
+  balance: number
+  /**
+   * On-air mix mode: 'on' = always routed to main bus,
+   * 'off' = muted, 'afv' = follows program (Audio-Follow-Video).
+   */
+  onAir: 'on' | 'off' | 'afv'
 }
 
 export interface VlanDef {
