@@ -132,6 +132,30 @@ export interface EquipmentItem {
   resolution?: string
   /** Display diagonal size in inches (monitors / displays). */
   displaySizeInch?: number
+  /**
+   * Optional single emoji or 1-2 character glyph rendered in the top-left
+   * corner of the equipment node (issue #46). Lets users tag categories of
+   * device at a glance — camera 📷, monitor 🖥, converter ⇄, etc. Empty
+   * string suppresses the icon; missing means "auto" (derived from kind).
+   */
+  icon?: string
+  /**
+   * Generic reference image for the device — port layout photo, manual
+   * snippet, etc. Stored as a data URI so it travels with the project file.
+   * Shown as a thumbnail in the properties panel; opens fullscreen on click
+   * (issue #38). For 19" rack devices, the front/rearPanelImageUrl above is
+   * preferred so the rack builder can render it in-place.
+   */
+  imageUrl?: string
+  /** Optional manufacturer / product page URL (issue #38). */
+  manufacturerUrl?: string
+  /**
+   * When true, render the equipment node as a compact label-only badge
+   * (icon + name only, ports as dots on the edges) instead of the full
+   * port-list card. Issue #37 — useful for converters and other devices
+   * where the port list is just visual noise on the canvas.
+   */
+  collapsed?: boolean
 }
 
 /**

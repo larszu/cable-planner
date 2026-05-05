@@ -237,6 +237,11 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const [wizardSkipped, setWizardSkipped] = useState<Set<string>>(new Set())
   const [wizardExcluded, setWizardExcluded] = useState<Set<string>>(new Set())
   const [importResult, setImportResult] = useState<number | null>(null)
+  // Issue #33: per-row "link to existing local device" mapping. Keyed by the
+  // Rentman item id (RentmanEquipment.id, not equipmentId). Linked items are
+  // skipped during import and instead the local device gets `rentmanId` set
+  // so future re-fetches recognise it as the canonical entry.
+  const [linkedExistingMap, setLinkedExistingMap] = useState<Record<string, string>>({})
   const [pendingProjectSwitch, setPendingProjectSwitch] = useState<{ id: string; name: string } | null>(null)
   // Conflict resolution: when an imported device name already exists in the
   // local custom library we ask the user whether to keep the local entry
@@ -747,6 +752,23 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     if (importCategoryOptions.length === 0) {
       setError('Keine Kategorien verfugbar. Bitte zuerst lokale Kategorien anlegen.')
       return
+    }
+
+    // Issue #33: apply linked-existing mappings *before* the normal import
+    // pipeline. For each linked Rentman item, stamp its rentmanId onto the
+    // existing local equipment so future re-fetches treat them as the same
+    // device, then drop it from the to-be-imported list.
+    const linkEntries = Object.entries(linkedExistingMap)
+    if (linkEntries.length > 0) {
+      const visibleSelectedById = new Map(selected.map((s) => [s.id, s]))
+      for (const [rentmanItemId, localEqId] of linkEntries) {
+        const rItem = visibleSelectedById.get(rentmanItemId)
+        if (!rItem) continue
+        updateEquipment(localEqId, {
+          rentmanId: rItem.equipmentId,
+          rentmanRemoved: false,
+        })
+      }
     }
 
     const uniqueByName = new Map<string, RentmanEquipment>()
@@ -1377,6 +1399,13 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 children.forEach((child) => {
                   if (child.checked !== checked) toggleItem(child.id)
                 })
+              }}
+              linkableEquipment={projectEquipment
+                .filter((e) => !e.rentmanId)
+                .map((e) => ({ id: e.id, name: e.name }))}
+              linkedMap={linkedExistingMap}
+              onLinkExisting={(rentmanItemId, localEquipmentId) => {
+                setLinkedExistingMap((prev) => ({ ...prev, [rentmanItemId]: localEquipmentId }))
               }}
             />
 

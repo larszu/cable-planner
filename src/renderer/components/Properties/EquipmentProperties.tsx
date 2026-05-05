@@ -821,6 +821,145 @@ export const EquipmentProperties = () => {
         />
       </label>
 
+      <label className="block">
+        <span className="mb-1 block text-slate-300">
+          Hersteller-Link <span className="text-slate-500">(optional, für Datenblatt-Aufruf)</span>
+        </span>
+        <div className="flex gap-1">
+          <input
+            type="url"
+            value={equipment.manufacturerUrl ?? ''}
+            placeholder="https://…"
+            onChange={(event) =>
+              updateEquipment(equipment.id, { manufacturerUrl: event.target.value || undefined })
+            }
+            className="flex-1 rounded border border-slate-700 bg-slate-900 p-2"
+          />
+          {equipment.manufacturerUrl && (
+            <a
+              href={equipment.manufacturerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded bg-sky-700 px-2 py-1 text-xs hover:bg-sky-600"
+              title="In externem Browser öffnen"
+            >
+              Öffnen ↗
+            </a>
+          )}
+        </div>
+      </label>
+
+      <label className="block">
+        <span className="mb-1 block text-slate-300">
+          Referenzbild <span className="text-slate-500">(z. B. Port-Belegung)</span>
+        </span>
+        <div className="flex items-start gap-2">
+          {equipment.imageUrl ? (
+            <a
+              href={equipment.imageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block max-h-24 max-w-[120px] overflow-hidden rounded border border-slate-700"
+              title="In voller Größe öffnen"
+            >
+              <img src={equipment.imageUrl} alt="" className="max-h-24 max-w-[120px] object-contain" />
+            </a>
+          ) : (
+            <div className="flex h-24 w-[120px] items-center justify-center rounded border border-dashed border-slate-700 text-[10px] text-slate-500">
+              Kein Bild
+            </div>
+          )}
+          <div className="flex flex-col gap-1">
+            <button
+              type="button"
+              onClick={() => {
+                const input = document.createElement('input')
+                input.type = 'file'
+                input.accept = 'image/png,image/jpeg,image/svg+xml,image/webp'
+                input.onchange = () => {
+                  const file = input.files?.[0]
+                  if (!file) return
+                  const reader = new FileReader()
+                  reader.onload = () => {
+                    if (typeof reader.result === 'string') {
+                      updateEquipment(equipment.id, { imageUrl: reader.result })
+                    }
+                  }
+                  reader.readAsDataURL(file)
+                }
+                input.click()
+              }}
+              className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+            >
+              {equipment.imageUrl ? 'Ersetzen…' : 'Auswählen…'}
+            </button>
+            {equipment.imageUrl && (
+              <button
+                type="button"
+                onClick={() => updateEquipment(equipment.id, { imageUrl: undefined })}
+                className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
+              >
+                Entfernen
+              </button>
+            )}
+          </div>
+        </div>
+      </label>
+
+      <label className="block">
+        <span className="mb-1 block text-slate-300">
+          Icon <span className="text-slate-500">(Glyph oder Emoji, max 2 Zeichen — leer = automatisch)</span>
+        </span>
+        <div className="flex flex-wrap items-center gap-1">
+          <input
+            value={equipment.icon ?? ''}
+            placeholder="auto"
+            onChange={(event) => {
+              const v = event.target.value
+              updateEquipment(equipment.id, { icon: v.length === 0 ? undefined : v.slice(0, 2) })
+            }}
+            className="w-20 rounded border border-slate-700 bg-slate-900 p-2 text-center text-base"
+            maxLength={2}
+          />
+          {(['📷', '🖥', '💻', '📺', '🎙', '💡', '🌐', '⚡', '🔌', '🔧', '⇄'] as const).map((g) => (
+            <button
+              key={g}
+              type="button"
+              onClick={() => updateEquipment(equipment.id, { icon: g })}
+              className={`rounded border px-1.5 py-1 text-base ${
+                equipment.icon === g
+                  ? 'border-sky-500 bg-sky-700/30'
+                  : 'border-slate-700 bg-slate-900 hover:bg-slate-800'
+              }`}
+              title={`Icon ${g}`}
+            >
+              {g}
+            </button>
+          ))}
+          {equipment.icon && (
+            <button
+              type="button"
+              onClick={() => updateEquipment(equipment.id, { icon: undefined })}
+              className="rounded bg-slate-700 px-1.5 py-1 text-[10px] hover:bg-slate-600"
+              title="Auf automatisch zurücksetzen"
+            >
+              auto
+            </button>
+          )}
+        </div>
+      </label>
+
+      <label className="flex items-center gap-2 text-[12px] text-slate-300">
+        <input
+          type="checkbox"
+          checked={!!equipment.collapsed}
+          onChange={(event) =>
+            updateEquipment(equipment.id, { collapsed: event.target.checked || undefined })
+          }
+        />
+        Kompakte Darstellung <span className="text-slate-500">(nur Icon + Name, Ports als Punkte)</span>
+      </label>
+
       <label className="flex items-center justify-between gap-2">
         <span className="text-slate-300">Gerätefarbe</span>
         <div className="flex items-center gap-2">
