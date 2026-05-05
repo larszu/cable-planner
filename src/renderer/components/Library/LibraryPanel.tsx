@@ -1,8 +1,9 @@
-import { useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useRentman } from '../../hooks/useRentman'
+import { promptDialog } from '../../lib/promptDialog'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, EquipmentTemplate, Port } from '../../types/equipment'
 import { nextPlacementPosition } from '../../lib/library'
@@ -97,7 +98,31 @@ export const LibraryPanel = () => {
   const [collapsedRentmanCats, setCollapsedRentmanCats] = useState<Set<string>>(new Set())
   const [showEmpty, setShowEmpty] = useState(false)
   const [showHidden, setShowHidden] = useState(false)
+  // Global library search (Strg+F). Filters customLibrary by name/category
+  // across all categories. When non-empty, all categories are auto-expanded.
+  const [librarySearch, setLibrarySearch] = useState('')
   const newGroupInputRef = useRef<HTMLInputElement>(null)
+  const librarySearchRef = useRef<HTMLInputElement>(null)
+
+  // Strg+F focuses the library search box, matching the shortcut common in
+  // editors and browsers. Listen on window so the shortcut works regardless
+  // of which canvas/dialog has focus.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+        // Don't hijack if the user is in a textarea/contenteditable — that
+        // would make in-app text editing surprising.
+        const target = e.target as HTMLElement | null
+        const tag = target?.tagName
+        if (tag === 'TEXTAREA' || target?.isContentEditable) return
+        e.preventDefault()
+        librarySearchRef.current?.focus()
+        librarySearchRef.current?.select()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   // Currently linked Rentman project (from project metadata).
   const linkedRentmanProjectId = useProjectStore(
@@ -563,6 +588,30 @@ export const LibraryPanel = () => {
             </form>
           )}
 
+          <div className="mb-2 flex items-center gap-1">
+            <input
+              ref={librarySearchRef}
+              type="text"
+              value={librarySearch}
+              onChange={(e) => setLibrarySearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setLibrarySearch('')
+              }}
+              placeholder="Suchen… (Strg+F)"
+              className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 placeholder-slate-500"
+            />
+            {librarySearch && (
+              <button
+                type="button"
+                onClick={() => setLibrarySearch('')}
+                title="Suche löschen"
+                className="rounded bg-slate-700 px-1.5 py-1 text-xs text-slate-300 hover:bg-slate-600"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
           <div className="mb-1 flex items-center justify-between text-[10px] text-slate-500">
             <span className="italic">Auf Canvas ziehen oder klicken zum Hinzufügen</span>
             <div className="flex flex-wrap gap-2">
@@ -611,13 +660,23 @@ export const LibraryPanel = () => {
                 .filter(Boolean)
                 .sort((a, b) => a.localeCompare(b))
               if (allCats.length === 0) allCats.push('Sonstiges')
+              const searchQuery = librarySearch.trim().toLowerCase()
               return allCats.map((cat) => {
                 const items = customLibrary.filter(
                   (t) => (t.category || 'Sonstiges') === cat,
                 )
-                const visibleItems = items.filter((t) => showHidden || !t.hidden)
+                const visibleItems = items
+                  .filter((t) => showHidden || !t.hidden)
+                  .filter((t) =>
+                    !searchQuery
+                      ? true
+                      : t.name.toLowerCase().includes(searchQuery) ||
+                        (t.category ?? '').toLowerCase().includes(searchQuery),
+                  )
                 if (!showEmpty && visibleItems.length === 0) return null
-                const collapsed = collapsedCats.has(cat)
+                // Force-expand categories during a search so matches are
+                // visible immediately without manual category clicks.
+                const collapsed = !searchQuery && collapsedCats.has(cat)
                 return (
                   <section
                     key={cat}
@@ -659,13 +718,12 @@ export const LibraryPanel = () => {
                     {/* Items */}
                     {!collapsed && (
                       <div className="space-y-1 px-1 pb-1">
-                        {items.length === 0 ? (
+                        {visibleItems.length === 0 ? (
                           <div className="px-1 py-1 text-[11px] italic text-slate-600">
-                            Gerät hierher ziehen zum Verschieben
+                            {searchQuery ? `Keine Treffer für "${librarySearch}"` : 'Gerät hierher ziehen zum Verschieben'}
                           </div>
                         ) : (
-                          items
-                            .filter((item) => showHidden || !item.hidden)
+                          visibleItems
                             .slice()
                             .sort((a, b) => {
                               const af = a.favorite ? 0 : 1
@@ -1478,10 +1536,10 @@ export const LibraryPanel = () => {
                 Category
                 <select
                   value={category}
-                  onChange={(event) => {
+                  onChange={async (event) => {
                     const value = event.target.value
                     if (value === '__new__') {
-                      const entered = window.prompt('Neue Kategorie')?.trim()
+                      const entered = (await promptDialog('Neue Kategorie'))?.trim()
                       if (entered) {
                         setCategory(entered)
                         addKnownCategories([entered])

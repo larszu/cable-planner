@@ -4,6 +4,8 @@ import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import { useSettingsStore } from '../../store/settingsStore'
 import { RackImageCropDialog } from './RackImageCropDialog'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { promptDialog } from '../../lib/promptDialog'
+import { useProjectStore } from '../../store/projectStore'
 
 interface RackBuilderDialogProps {
   open: boolean
@@ -121,6 +123,7 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
 
 export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onSave }: RackBuilderDialogProps) => {
   const autosaveIntervalMs = useSettingsStore((state) => state.autosaveIntervalMs)
+  const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
   const editingId = initialPreset?.id
   const [draft, setDraft] = useState<RackDraft>({
     rackName: 'Neues Rack',
@@ -606,11 +609,14 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   Kategorie
                   <select
                     value={selectedPlacement.category}
-                    onChange={(event) => {
+                    onChange={async (event) => {
                       const value = event.target.value
                       if (value === '__new__') {
-                        const entered = window.prompt('Neue Kategorie')?.trim()
-                        if (entered) updatePlacement(selectedPlacement.id, { category: entered })
+                        const entered = (await promptDialog('Neue Kategorie'))?.trim()
+                        if (entered) {
+                          updatePlacement(selectedPlacement.id, { category: entered })
+                          addKnownCategories([entered])
+                        }
                         return
                       }
                       updatePlacement(selectedPlacement.id, { category: value })
