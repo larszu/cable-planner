@@ -48,6 +48,15 @@ jobs:
         run: npm run build
 
       - name: Package with electron-builder
+        # Force bash on every OS. The default Windows shell is pwsh, which in
+        # v0.2.35 swallowed electron-builder's output and exit code: the step
+        # finished in 1.5s with zero stdout/stderr, was reported as success,
+        # and the job then failed at upload-artifact because release/*.exe
+        # didn't exist. Git Bash is preinstalled on windows-latest, matches
+        # what macos-latest uses by default, and propagates non-zero exits
+        # via -eo pipefail. Keep --config explicit so we never depend on
+        # electron-builder's auto-discovery rules for the config filename.
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # No paid signing certificate available. The macOS config
@@ -58,7 +67,9 @@ jobs:
           # because in some electron-builder versions that flag
           # short-circuits the explicit ad-hoc identity and the build
           # falls back to a fully-unsigned binary again.
-        run: npx electron-builder ${{ matrix.build_args }} --publish never
+        run: |
+          set -x
+          npx --yes electron-builder --config electron-builder.js ${{ matrix.build_args }} --publish never
 
       - name: List release/ contents
         # Make it obvious in the log when electron-builder produces no
