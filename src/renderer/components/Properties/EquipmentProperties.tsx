@@ -708,6 +708,7 @@ export const EquipmentProperties = () => {
   const openGreenGoExport = useUiStore((state) => state.openGreenGoExport)
   const openAtemDialog = useUiStore((state) => state.openAtemDialog)
   const openAtemMvConfig = useUiStore((state) => state.openAtemMvConfig)
+  const openAtemAudioConfig = useUiStore((state) => state.openAtemAudioConfig)
   const saveEquipmentAsTemplate = useProjectStore((state) => state.saveEquipmentAsTemplate)
   const saveEquipmentAsNewTemplate = useProjectStore((state) => state.saveEquipmentAsNewTemplate)
   const [rackViewMode, setRackViewMode] = useState<'front' | 'rear' | 'both'>('front')
@@ -783,6 +784,14 @@ export const EquipmentProperties = () => {
               title="Multiviewer-Layout offline konfigurieren. Wird beim nächsten Connect übertragen."
             >
               Multiviewer-Layout konfigurieren →
+            </button>
+            <button
+              type="button"
+              onClick={() => openAtemAudioConfig(equipment.id)}
+              className="w-full rounded bg-fuchsia-700 px-2 py-1 text-xs hover:bg-fuchsia-600"
+              title="Fairlight Audio-Router offline planen (Gain, Balance, AFV)."
+            >
+              Audio-Router (Fairlight) konfigurieren →
             </button>
           </div>
         </div>
@@ -1063,6 +1072,17 @@ export const EquipmentProperties = () => {
                 updateEquipment(equipment.id, { ipAddress: event.target.value })
               }
               placeholder="192.168.1.10"
+              className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-slate-300">Seriennummer</span>
+            <input
+              value={equipment.serialNumber ?? ''}
+              onChange={(event) =>
+                updateEquipment(equipment.id, { serialNumber: event.target.value || undefined })
+              }
+              placeholder="S/N"
               className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
             />
           </label>

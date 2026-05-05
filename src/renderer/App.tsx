@@ -13,6 +13,8 @@ import { GreenGoExportDialog } from './components/Export/GreenGoExportDialog'
 import { AtemDialog } from './components/Atem/AtemDialog'
 import { MultiviewerLayoutView } from './components/Atem/MultiviewerLayoutView'
 import { AtemMvConfigDialog } from './components/Atem/AtemMvConfigDialog'
+import { AtemAudioRouterDialog } from './components/Atem/AtemAudioRouterDialog'
+import { LocationBomDialog } from './components/Project/LocationBomDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
 import { WelcomeDialog } from './components/Project/WelcomeDialog'
@@ -389,6 +391,8 @@ export default function App() {
       )}
       {atemMvLayout.open && <MultiviewerLayoutView onClose={closeAtemMvLayout} />}
       <AtemMvConfigDialog />
+      <AtemAudioRouterDialog />
+      <LocationBomDialog />
 
       <ProjectMetaDialog
         open={metaDialog !== null}

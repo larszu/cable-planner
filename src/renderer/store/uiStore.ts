@@ -89,6 +89,14 @@ interface UiState extends PersistedUiState {
   atemMvConfig: { open: boolean; deviceId?: string }
   openAtemMvConfig: (deviceId?: string) => void
   closeAtemMvConfig: () => void
+  /** Issue #45 — ATEM Fairlight audio router dialog. */
+  atemAudioConfig: { open: boolean; deviceId?: string }
+  openAtemAudioConfig: (deviceId?: string) => void
+  closeAtemAudioConfig: () => void
+  /** Issue #39 — frame-scoped BOM export dialog. */
+  locationBom: { open: boolean; locationId?: string }
+  openLocationBom: (locationId: string) => void
+  closeLocationBom: () => void
   /** Rentman equipment import dialog (cross-component trigger). */
   rentmanImport: { open: boolean }
   openRentmanImport: () => void
@@ -171,6 +179,12 @@ export const useUiStore = create<UiState>((set) => ({
   atemMvConfig: { open: false },
   openAtemMvConfig: (deviceId) => set({ atemMvConfig: { open: true, deviceId } }),
   closeAtemMvConfig: () => set({ atemMvConfig: { open: false } }),
+  atemAudioConfig: { open: false },
+  openAtemAudioConfig: (deviceId) => set({ atemAudioConfig: { open: true, deviceId } }),
+  closeAtemAudioConfig: () => set({ atemAudioConfig: { open: false } }),
+  locationBom: { open: false },
+  openLocationBom: (locationId) => set({ locationBom: { open: true, locationId } }),
+  closeLocationBom: () => set({ locationBom: { open: false } }),
   rentmanImport: { open: false },
   openRentmanImport: () => set({ rentmanImport: { open: true } }),
   closeRentmanImport: () => set({ rentmanImport: { open: false } }),

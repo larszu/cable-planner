@@ -1,4 +1,5 @@
 import { useProjectStore } from '../../store/projectStore'
+import { useUiStore } from '../../store/uiStore'
 
 export const LocationProperties = () => {
   const selectedId = useProjectStore((state) => state.selectedLocationId)
@@ -10,6 +11,7 @@ export const LocationProperties = () => {
   const deleteLocationWithContents = useProjectStore(
     (state) => state.deleteLocationWithContents,
   )
+  const openLocationBom = useUiStore((state) => state.openLocationBom)
 
   if (!location) return null
 
@@ -90,6 +92,14 @@ export const LocationProperties = () => {
           CanvasArea.onNodeDragStart implementation remain intact. */}
 
       <div className="space-y-2 pt-2">
+        <button
+          type="button"
+          onClick={() => openLocationBom(location.id)}
+          className="w-full rounded bg-amber-700 px-2 py-1 text-xs hover:bg-amber-600"
+          title="Stückliste der Geräte und Kabel im Rahmen — als PDF exportierbar (#39)"
+        >
+          📋 Stückliste exportieren
+        </button>
         <button
           type="button"
           onClick={() => {
