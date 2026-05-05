@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useProjectStore } from '../../store/projectStore'
 import { nextPlacementPosition } from '../../lib/library'
+import { promptDialog } from '../../lib/promptDialog'
 
 export const TemplateProperties = () => {
   const selectedTemplateName = useProjectStore((state) => state.selectedTemplateName)
@@ -12,6 +13,7 @@ export const TemplateProperties = () => {
   const equipmentItems = useProjectStore((state) => state.project.equipment)
   const setSelectedTemplateName = useProjectStore((state) => state.setSelectedTemplateName)
   const knownCategories = useProjectStore((state) => state.knownCategories)
+  const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
 
   const template = customLibrary.find((t) => t.name === selectedTemplateName)
 
@@ -88,12 +90,13 @@ export const TemplateProperties = () => {
         <span className="mb-1 block text-slate-300">Kategorie</span>
         <select
           value={category}
-          onChange={(e) => {
+          onChange={async (e) => {
             const value = e.target.value
             if (value === '__new__') {
-              const entered = window.prompt('Neue Kategorie')?.trim()
+              const entered = (await promptDialog('Neue Kategorie'))?.trim()
               if (entered) {
                 setCategory(entered)
+                addKnownCategories([entered])
               }
               return
             }

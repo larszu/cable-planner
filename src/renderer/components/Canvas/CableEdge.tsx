@@ -1,6 +1,7 @@
 import {
   BaseEdge,
   EdgeLabelRenderer,
+  Position,
   getBezierPath,
   getSmoothStepPath,
   getStraightPath,
@@ -107,34 +108,81 @@ const buildPath = (
     resolveOrthogonalWaypoints(cable, args, obstacles, obstacleIds)
 
   if (waypoints.length === 0) {
-    // No manual waypoints and no obstacle detour: build a simple orthogonal
-    // L-shape. Using getSmoothStepPath here produces unexpected smooth curves
-    // that don't look "orthogonal". An explicit L-shape is more predictable.
+    // No manual waypoints and no obstacle detour: build a stub-respecting
+    // orthogonal path. The first/last segment must be perpendicular to the
+    // device handle (i.e. exit a Right-handle going right, enter a Left-handle
+    // going right). Without that, an L-shape can land at the target's left
+    // handle going *vertically*, so the cable runs along the device's left
+    // edge and visually disappears behind the device body (issue #51).
     const sx = args.sourceX
     const sy = args.sourceY
     const tx = args.targetX
     const ty = args.targetY
-    // Skip L-shape if source and target are already collinear (same x or y).
-    if (Math.abs(sx - tx) < 2) {
-      const midY = (sy + ty) / 2
-      return [`M ${sx} ${sy} L ${tx} ${ty}`, (sx + tx) / 2, midY]
+    const STUB = 18
+    const stub = (
+      pt: { x: number; y: number },
+      pos: EdgeProps['sourcePosition'] | EdgeProps['targetPosition'] | undefined,
+    ): { x: number; y: number } => {
+      switch (pos) {
+        case Position.Left:
+          return { x: pt.x - STUB, y: pt.y }
+        case Position.Right:
+          return { x: pt.x + STUB, y: pt.y }
+        case Position.Top:
+          return { x: pt.x, y: pt.y - STUB }
+        case Position.Bottom:
+          return { x: pt.x, y: pt.y + STUB }
+        default:
+          // Unknown handle orientation: fall back to a tiny rightward stub so
+          // the path is still well-defined.
+          return { x: pt.x + STUB, y: pt.y }
+      }
     }
-    if (Math.abs(sy - ty) < 2) {
-      const midX = (sx + tx) / 2
-      return [`M ${sx} ${sy} L ${tx} ${ty}`, midX, (sy + ty) / 2]
+    const sStub = stub({ x: sx, y: sy }, args.sourcePosition)
+    const tStub = stub({ x: tx, y: ty }, args.targetPosition)
+    const sHorizontal =
+      args.sourcePosition === Position.Left || args.sourcePosition === Position.Right
+    const tHorizontal =
+      args.targetPosition === Position.Left || args.targetPosition === Position.Right
+
+    // Compose intermediate points between sStub and tStub. The exact shape
+    // depends on whether the two stubs share an axis after stub-out.
+    const points: { x: number; y: number }[] = [{ x: sx, y: sy }, sStub]
+    if (Math.abs(sStub.x - tStub.x) < 2 || Math.abs(sStub.y - tStub.y) < 2) {
+      // Stubs are collinear: src → sStub → tStub → tgt is already orthogonal.
+    } else if (sHorizontal && tHorizontal) {
+      // Both handles horizontal (typical port-to-port): bend at midX.
+      const midX = (sStub.x + tStub.x) / 2
+      points.push({ x: midX, y: sStub.y }, { x: midX, y: tStub.y })
+    } else if (!sHorizontal && !tHorizontal) {
+      // Both handles vertical: bend at midY.
+      const midY = (sStub.y + tStub.y) / 2
+      points.push({ x: sStub.x, y: midY }, { x: tStub.x, y: midY })
+    } else if (sHorizontal) {
+      // Source horizontal → target vertical: single bend at (tStub.x, sStub.y).
+      points.push({ x: tStub.x, y: sStub.y })
+    } else {
+      // Source vertical → target horizontal: single bend at (sStub.x, tStub.y).
+      points.push({ x: sStub.x, y: tStub.y })
     }
-    // Smart L-shape direction:
-    // When the target is to the LEFT of the source (i.e. the connection runs
-    // "backwards"), horizontal-first would immediately loop the cable back over
-    // the source device, which looks wrong. Vertical-first exits downward or
-    // upward instead, creating a clean U-path that never crosses the source.
-    // When the target is to the right, horizontal-first is the natural choice.
-    const bend = tx < sx - 20
-      ? { x: sx, y: ty }   // vertical-first: exit down/up, then go left
-      : { x: tx, y: sy }   // horizontal-first: exit right, then go to targetY
-    const d = `M ${sx} ${sy} L ${bend.x} ${bend.y} L ${tx} ${ty}`
-    const labelX = (sx + tx) / 2
-    const labelY = (sy + ty) / 2
+    points.push(tStub, { x: tx, y: ty })
+
+    // Build SVG path and find the longest segment for the label position.
+    const d = points
+      .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
+      .join(' ')
+    let bestLen = -1
+    let labelX = (sx + tx) / 2
+    let labelY = (sy + ty) / 2
+    for (let i = 0; i < points.length - 1; i++) {
+      const len =
+        Math.abs(points[i + 1].x - points[i].x) + Math.abs(points[i + 1].y - points[i].y)
+      if (len > bestLen) {
+        bestLen = len
+        labelX = (points[i].x + points[i + 1].x) / 2
+        labelY = (points[i].y + points[i + 1].y) / 2
+      }
+    }
     return [d, labelX, labelY]
   }
   const points = [

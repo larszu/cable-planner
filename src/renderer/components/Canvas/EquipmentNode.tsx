@@ -1,5 +1,5 @@
-import { Handle, Position, type NodeProps } from 'reactflow'
-import { Fragment, useState } from 'react'
+import { Handle, Position, useUpdateNodeInternals, type NodeProps } from 'reactflow'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import type { EquipmentItem } from '../../types/equipment'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
@@ -33,6 +33,27 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   const colorPortsByType = useUiStore((s) => s.colorPortsByType)
   const isLight = (data.exportThemeOverride ?? canvasTheme) === 'light'
   const queueConnection = useProjectStore((s) => s.queueConnection)
+  const updateNodeInternals = useUpdateNodeInternals()
+
+  // Re-register handle positions whenever the data that affects port placement
+  // actually changes — portsFlipped (ports spiegeln), per-port `side` overrides,
+  // or input/output port additions/reorders. The previous fix in CanvasArea
+  // called updateNodeInternals from the store-sync useEffect, but at that point
+  // EquipmentNode hadn't re-rendered with the new handle positions yet, so
+  // ReactFlow re-measured the OLD layout. Calling it from inside EquipmentNode
+  // guarantees the call happens *after* this component has committed the new
+  // handle DOM, so existing cables snap to the moved ports.
+  const portsLayoutKey = JSON.stringify({
+    flipped: !!data.portsFlipped,
+    inputs: data.inputs.map((p) => `${p.id}:${p.side ?? ''}`),
+    outputs: data.outputs.map((p) => `${p.id}:${p.side ?? ''}`),
+  })
+  const lastLayoutKey = useRef(portsLayoutKey)
+  useEffect(() => {
+    if (lastLayoutKey.current === portsLayoutKey) return
+    lastLayoutKey.current = portsLayoutKey
+    updateNodeInternals(id)
+  }, [id, portsLayoutKey, updateNodeInternals])
 
   /**
    * Port click handler: enables draw.io-style click-to-connect.
@@ -138,7 +159,18 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   }
 
   const portRows = Math.max(sideCounts.left, sideCounts.right, 1)
-  const width = Math.max(data.width ?? 220, 200)
+  // Auto-grow node width so the longest port label (name + connector type) is
+  // not truncated by the 50%-width port columns. Without this, long names like
+  // "REF IN BNC" got ellipsised to "REF…" on the canvas. ~7px per character is
+  // a conservative estimate for the 11px UI font; 32px reserves space for the
+  // handle dot, padding, and the "·" separator.
+  const longestPortText = [...data.inputs, ...data.outputs].reduce(
+    (max, p) => Math.max(max, (p.name?.length ?? 0) + (p.connectorType?.length ?? 0) + 3),
+    0,
+  )
+  const labelWidth = longestPortText * 7 + 32
+  const intrinsicWidth = Math.max(220, labelWidth * 2)
+  const width = Math.max(data.width ?? intrinsicWidth, intrinsicWidth)
   const computedHeight = headerHeight + portRows * PORT_ROW + PADDING
   const height = Math.max(data.height ?? computedHeight, computedHeight)
 
@@ -287,7 +319,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               transition: 'background 0.1s',
             }}
           >
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}>
+            <span
+              title={`${port.name} · ${port.connectorType}`}
+              style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}
+            >
               {isLeft ? (
                 <>{port.name}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
               ) : (
@@ -379,7 +414,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               transition: 'background 0.1s',
             }}
           >
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}>
+            <span
+              title={`${port.name} · ${port.connectorType}`}
+              style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}
+            >
               {isLeft ? (
                 <>{port.name}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
               ) : (

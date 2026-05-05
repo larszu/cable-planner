@@ -27,6 +27,7 @@ import { CanvasToolbar } from './CanvasToolbar'
 import { LocationFrameNode } from './LocationFrameNode'
 import { PendingCableOverlay } from './PendingCableOverlay'
 import { colorByLength } from '../../lib/cableColors'
+import { promptDialog } from '../../lib/promptDialog'
 import {
   setViewportCenterGetter,
   setCanvasSelectionClearer,
@@ -61,6 +62,10 @@ const CanvasContent = () => {
   const clearPendingCable = useUiStore((state) => state.clearPendingCable)
   const openCableEdit = useUiStore((state) => state.openCableEdit)
   const wrapperRef = useRef<HTMLDivElement>(null)
+  // Last screen-pixel mouse position over the canvas. Used by Strg++ quick-add
+  // (#44) so the new device lands where the user pointed instead of always at
+  // the viewport origin.
+  const lastMousePosRef = useRef<{ x: number; y: number } | null>(null)
   const { screenToFlowPosition, setViewport } = useReactFlow()
   const updateNodeInternals = useUpdateNodeInternals()
   const [interactionLocked, setInteractionLocked] = useState(false)
@@ -921,6 +926,29 @@ const CanvasContent = () => {
           duplicateSelection()
           return
         }
+        // Strg+= or Strg++  (issue #44): quick-add device. Opens a name
+        // prompt; the new equipment lands at the last known mouse position
+        // in flow coordinates, snapped to grid.
+        if (event.key === '+' || event.key === '=') {
+          event.preventDefault()
+          ;(async () => {
+            const name = (await promptDialog('Neues Gerät', 'Neues Gerät'))?.trim()
+            if (!name) return
+            const pos = lastMousePosRef.current
+            const flow = pos
+              ? screenToFlowPosition({ x: pos.x, y: pos.y })
+              : { x: 200, y: 200 }
+            addEquipment({
+              name,
+              category: 'Sonstiges',
+              inputs: [],
+              outputs: [],
+              x: flow.x,
+              y: flow.y,
+            })
+          })()
+          return
+        }
       }
       if (event.key !== 'Delete' && event.key !== 'Backspace') return
       const ids = getSelectedEquipmentIds()
@@ -952,6 +980,9 @@ const CanvasContent = () => {
       className={effectiveCanvasTheme === 'light' ? 'canvas-theme-light' : ''}
       onDrop={onDrop}
       onDragOver={onDragOver}
+      onMouseMove={(event) => {
+        lastMousePosRef.current = { x: event.clientX, y: event.clientY }
+      }}
     >
       <CanvasToolbar />
       <svg style={{ position: 'absolute', width: 0, height: 0 }}>
@@ -1037,10 +1068,10 @@ const CanvasContent = () => {
             ? setSelection(undefined, undefined, node.id)
             : setSelection(node.id, undefined, undefined)
         }
-        onNodeDoubleClick={(_event, node) => {
+        onNodeDoubleClick={async (_event, node) => {
           if (node.type === 'location') {
             const current = (node.data as { name?: string }).name ?? ''
-            const newName = window.prompt('Location umbenennen:', current)
+            const newName = await promptDialog('Location umbenennen:', current)
             if (newName !== null && newName.trim()) {
               updateLocation(node.id, { name: newName.trim() })
             }

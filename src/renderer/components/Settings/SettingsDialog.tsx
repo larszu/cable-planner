@@ -38,6 +38,10 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const metadata = useProjectStore((state) => state.project.metadata)
   const updateProjectMetadata = useProjectStore((state) => state.updateProjectMetadata)
   const openRentmanImport = useUiStore((state) => state.openRentmanImport)
+  const defaultRouting = useUiStore((state) => state.defaultRouting)
+  const setDefaultRouting = useUiStore((state) => state.setDefaultRouting)
+  const cables = useProjectStore((state) => state.project.cables)
+  const updateCable = useProjectStore((state) => state.updateCable)
   const [draftMeta, setDraftMeta] = useState(metadata)
   useEffect(() => {
     if (open) {
@@ -452,6 +456,52 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
 
             {section === 'general' && (
               <div className="space-y-3 text-sm text-slate-300">
+                <div className="rounded border border-slate-800 bg-slate-950/40 p-3 text-xs text-slate-400">
+                  <div className="mb-2 font-semibold text-slate-300">Standard-Kabelführung</div>
+                  <p className="mb-2 text-[11px] text-slate-500">
+                    Welche Form neue Kabel auf dem Canvas haben sollen. Per Kabel überschreibbar.
+                  </p>
+                  <div className="flex gap-1">
+                    {([
+                      { value: 'orthogonal', label: 'Ortho' },
+                      { value: 'straight', label: 'Linie' },
+                      { value: 'curved', label: 'Kurve' },
+                    ] as const).map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setDefaultRouting(opt.value)}
+                        className={`flex-1 rounded px-2 py-1 text-xs ${
+                          defaultRouting === opt.value
+                            ? 'bg-sky-700 text-white'
+                            : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    disabled={cables.length === 0}
+                    onClick={() => {
+                      if (
+                        !window.confirm(
+                          `Routing aller ${cables.length} bestehenden Kabel auf "${defaultRouting}" setzen?`,
+                        )
+                      ) return
+                      cables.forEach((c) => {
+                        if (c.routing !== defaultRouting) {
+                          updateCable(c.id, { routing: defaultRouting })
+                        }
+                      })
+                    }}
+                    className="mt-2 w-full rounded bg-slate-800 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-700 disabled:opacity-40"
+                  >
+                    Auf alle bestehenden Kabel anwenden ({cables.length})
+                  </button>
+                </div>
+
                 <div className="rounded border border-slate-800 bg-slate-950/40 p-3 text-xs text-slate-400">
                   <div className="mb-2 font-semibold text-slate-300">Autosave</div>
                   <label className="block text-sm text-slate-300">

@@ -4,6 +4,7 @@ import { buildTemplateFromHints, suggestPortGroups, type PortGroupHint } from '.
 import { getGeminiApiKey, setGeminiApiKey, suggestFromAI } from '../../lib/aiSuggestions'
 import { suggestFromWeb } from '../../lib/webPortSuggestions'
 import { useProjectStore } from '../../store/projectStore'
+import { promptDialog } from '../../lib/promptDialog'
 
 const connectorOptions: ConnectorType[] = [
   'XLR',
@@ -209,10 +210,10 @@ export const NewRentmanDeviceWizard = ({
             <div className="mt-1 flex gap-1">
               <select
                 value={category}
-                onChange={(event) => {
+                onChange={async (event) => {
                   const value = event.target.value
                   if (value === '__new__') {
-                    const entered = window.prompt('Neue Kategorie')?.trim()
+                    const entered = (await promptDialog('Neue Kategorie'))?.trim()
                     if (entered) {
                       setCategory(entered)
                       addKnownCategories([entered])

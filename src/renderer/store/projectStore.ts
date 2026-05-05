@@ -37,6 +37,7 @@ const DEFAULT_CATEGORIES = [
   'Audio',
   'Video',
   'Monitore',
+  'PC',
   'Netzwerk',
   'Kabel',
   'Strom',

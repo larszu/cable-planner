@@ -20,6 +20,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { detectDeviceKind, detectNetworkDevice } from '../../lib/deviceKind'
+import { promptDialog } from '../../lib/promptDialog'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, Port, VlanDef, PortVlanAssignment } from '../../types/equipment'
 import { ALL_SIGNAL_STANDARDS } from '../../types/cableSpec'
@@ -710,6 +711,7 @@ export const EquipmentProperties = () => {
   const saveEquipmentAsTemplate = useProjectStore((state) => state.saveEquipmentAsTemplate)
   const saveEquipmentAsNewTemplate = useProjectStore((state) => state.saveEquipmentAsNewTemplate)
   const [rackViewMode, setRackViewMode] = useState<'front' | 'rear' | 'both'>('front')
+  const [showPassword, setShowPassword] = useState(false)
   const [cropDialog, setCropDialog] = useState<
     { side: 'front' | 'rear'; src: string } | null
   >(null)
@@ -881,10 +883,10 @@ export const EquipmentProperties = () => {
           return (
             <select
               value={equipment.category}
-              onChange={(event) => {
+              onChange={async (event) => {
                 const value = event.target.value
                 if (value === '__new__') {
-                  const entered = window.prompt('Neue Kategorie')?.trim()
+                  const entered = (await promptDialog('Neue Kategorie'))?.trim()
                   if (entered) {
                     updateEquipment(equipment.id, { category: entered })
                     addKnownCategories([entered])
@@ -949,15 +951,25 @@ export const EquipmentProperties = () => {
           </label>
           <label className="block">
             <span className="mb-1 block text-slate-300">Password</span>
-            <input
-              type="password"
-              value={equipment.password ?? ''}
-              onChange={(event) =>
-                updateEquipment(equipment.id, { password: event.target.value })
-              }
-              autoComplete="new-password"
-              className="w-full rounded border border-slate-700 bg-slate-900 p-2"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={equipment.password ?? ''}
+                onChange={(event) =>
+                  updateEquipment(equipment.id, { password: event.target.value })
+                }
+                autoComplete="new-password"
+                className="w-full rounded border border-slate-700 bg-slate-900 p-2 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                title={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
+                className="absolute inset-y-0 right-0 flex items-center px-2 text-xs text-slate-400 hover:text-slate-200"
+              >
+                {showPassword ? '🙈' : '👁'}
+              </button>
+            </div>
           </label>
         </div>
         <label className="mt-2 block">
@@ -1130,9 +1142,9 @@ export const EquipmentProperties = () => {
           </button>
           <button
             type="button"
-            onClick={() => {
+            onClick={async () => {
               const suggestion = `${equipment.name} (Custom)`
-              const input = window.prompt(
+              const input = await promptDialog(
                 'Als neues Gerät in der Bibliothek speichern.\nName:',
                 suggestion,
               )
