@@ -69,7 +69,14 @@ jobs:
           # falls back to a fully-unsigned binary again.
         run: |
           set -x
-          npx --yes electron-builder --config electron-builder.js ${{ matrix.build_args }} --publish never
+          node --version
+          ls -la node_modules/electron-builder/cli.js
+          # Invoke cli.js directly via node. Going through `npx electron-builder`
+          # on Windows hit the .cmd shim (and pwsh swallowed both stdout and the
+          # exit code), so the step finished in 1.5s with no output and was
+          # incorrectly marked successful. Direct node invocation bypasses the
+          # shim and lets bash -eo pipefail surface real failures.
+          node node_modules/electron-builder/cli.js --config electron-builder.js ${{ matrix.build_args }} --publish never
 
       - name: List release/ contents
         # Make it obvious in the log when electron-builder produces no
