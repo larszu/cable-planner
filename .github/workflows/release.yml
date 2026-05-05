@@ -9,6 +9,13 @@ on:
 permissions:
   contents: write
 
+# Silence the "Node.js 20 actions are deprecated" warnings GitHub started
+# emitting in May 2026. The actions themselves still ship Node 20 runners,
+# this opts in early to the upcoming Node 24 default. Drop this once we
+# upgrade to action versions that bundle Node 24 natively.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   build:
     strategy:
@@ -53,6 +60,12 @@ jobs:
           # falls back to a fully-unsigned binary again.
         run: npx electron-builder ${{ matrix.build_args }} --publish never
 
+      - name: List release/ contents
+        # Make it obvious in the log when electron-builder produces no
+        # artifacts (silent failure mode that bit us on Windows in v0.2.34).
+        shell: bash
+        run: ls -lh release/ || true
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -62,7 +75,11 @@ jobs:
             release/*.dmg
             release/*.blockmap
             release/latest*.yml
-          if-no-files-found: ignore
+          # Fail the job loudly if no artifacts were produced. Previously
+          # 'ignore' caused the Windows job to silently succeed with an
+          # empty artifact, which then yielded a release with only the
+          # macOS DMGs (issue surfaced in v0.2.34).
+          if-no-files-found: error
 
   release:
     needs: build
