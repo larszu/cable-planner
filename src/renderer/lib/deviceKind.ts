@@ -1,5 +1,31 @@
 import type { EquipmentItem } from '../types/equipment'
 
+/**
+ * Derive a default icon glyph for an equipment item from its category, name,
+ * and port layout. Used by EquipmentNode when item.icon is undefined (#46).
+ * Returning empty string means "no icon".
+ */
+export const defaultIconForEquipment = (device: {
+  category?: string
+  name?: string
+  inputs?: Array<{ connectorType?: string }>
+  outputs?: Array<{ connectorType?: string }>
+}): string => {
+  const cat = (device.category ?? '').toLowerCase()
+  const name = (device.name ?? '').toLowerCase()
+  if (cat === 'kameras' || /\bcam(era)?\b|ursa|alexa|venice|fx\d/.test(name)) return '📷'
+  if (cat === 'monitore' || /monitor|display|ozone|tvlogic/.test(name)) return '🖥'
+  if (cat === 'pc' || /\bpc\b|workstation|laptop|mac\s?(book|pro|mini)|minisforum/.test(name)) return '💻'
+  if (cat === 'audio' || /\bmic|microphone|mixer|audio|fairlight|wing\b/.test(name)) return '🎙'
+  if (cat === 'licht' || /\blight|skypanel|aputure|ledpanel/.test(name)) return '💡'
+  if (cat === 'netzwerk' || /switch|router|firewall|access point|edgerouter/.test(name)) return '🌐'
+  if (cat === 'strom' || /\bpower\b|psu|ups|distro/.test(name)) return '⚡'
+  if (cat === 'video' || /converter|teranex|mini.?converter|hyperdeck|atem|videohub/.test(name)) return '📺'
+  if (cat === 'kabel') return '🔌'
+  if (cat === 'rigging') return '🔧'
+  return ''
+}
+
 export type DeviceKind = 'videohub' | 'atem' | 'multiviewer' | 'greengo' | null
 
 export type NetworkDeviceKind = 'switch' | 'router' | null

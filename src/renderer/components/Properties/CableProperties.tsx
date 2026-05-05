@@ -3,6 +3,7 @@ import { cableCatalog } from '../../types/cableSpec'
 import { useUiStore } from '../../store/uiStore'
 import type { Cable, CableRouting } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
+import { v4 as uuidv4 } from 'uuid'
 
 const routings: { value: CableRouting; label: string }[] = [
   { value: 'orthogonal', label: 'Ortho' },
@@ -215,6 +216,15 @@ export const CableProperties = () => {
               ⚠ Ziel-Port bereits durch „{toConflict.name}" belegt.
             </div>
           )}
+          {/* #48 Converter-Vorschlag: Connector-Typ-Mismatch erkennen und passende
+              Geräte aus der Library als klickbare Vorschläge listen. */}
+          <ConnectorMismatchHint
+            fromPort={fromPort}
+            toPort={toPort}
+            cableId={cable.id}
+            fromEquipmentId={cable.fromEquipmentId}
+            toEquipmentId={cable.toEquipmentId}
+          />
         </div>
       </details>
 
@@ -348,6 +358,125 @@ export const CableProperties = () => {
       >
         Delete Cable
       </button>
+    </div>
+  )
+}
+
+/**
+ * Issue #48: Show a warning when the cable's two endpoints use different
+ * connector types and surface library templates that can bridge them
+ * (i.e. converters with at least one input matching the source connector
+ * AND at least one output matching the target connector). Clicking a
+ * converter inserts it on the canvas mid-way between the two devices and
+ * splits the cable into source→converter and converter→target.
+ */
+const ConnectorMismatchHint = ({
+  fromPort,
+  toPort,
+  cableId,
+  fromEquipmentId,
+  toEquipmentId,
+}: {
+  fromPort: Port | undefined
+  toPort: Port | undefined
+  cableId: string
+  fromEquipmentId: string
+  toEquipmentId: string
+}) => {
+  const customLibrary = useProjectStore((s) => s.customLibrary)
+  const equipment = useProjectStore((s) => s.project.equipment)
+  const importEquipment = useProjectStore((s) => s.importEquipment)
+  const updateCable = useProjectStore((s) => s.updateCable)
+  const queueConnection = useProjectStore((s) => s.queueConnection)
+  const createCableFromPending = useProjectStore((s) => s.createCableFromPending)
+
+  if (!fromPort || !toPort) return null
+  if (fromPort.connectorType === toPort.connectorType) return null
+
+  const matches = customLibrary.filter(
+    (t) =>
+      !t.hidden &&
+      (t.inputs ?? []).some((p) => p.connectorType === fromPort.connectorType) &&
+      (t.outputs ?? []).some((p) => p.connectorType === toPort.connectorType),
+  )
+
+  const fromDev = equipment.find((e) => e.id === fromEquipmentId)
+  const toDev = equipment.find((e) => e.id === toEquipmentId)
+
+  return (
+    <div className="mt-2 rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1.5 text-[11px] text-amber-100">
+      <div>
+        ⚠ Connector-Typen passen nicht: <strong>{fromPort.connectorType}</strong> ↔{' '}
+        <strong>{toPort.connectorType}</strong>
+      </div>
+      {matches.length > 0 ? (
+        <>
+          <div className="mt-1 text-amber-200">Passende Konverter aus deiner Library:</div>
+          <div className="mt-1 flex flex-wrap gap-1">
+            {matches.slice(0, 8).map((t) => (
+              <button
+                key={t.name}
+                type="button"
+                onClick={() => {
+                  if (!fromDev || !toDev) return
+                  const matchingIn = t.inputs?.find((p) => p.connectorType === fromPort.connectorType)
+                  const matchingOut = t.outputs?.find((p) => p.connectorType === toPort.connectorType)
+                  if (!matchingIn || !matchingOut) return
+                  // Pre-mint the converter's equipment id and port ids so we
+                  // can wire up the cable splits right after importEquipment.
+                  // (addEquipment is set()-only and doesn't return the id; we
+                  // build the EquipmentItem ourselves and use importEquipment
+                  // which preserves explicit ids — this keeps the in-place
+                  // wiring atomic instead of guessing the new id later.)
+                  const newId = uuidv4()
+                  const newInPortId = uuidv4()
+                  const newOutPortId = uuidv4()
+                  const midX = (fromDev.x + toDev.x) / 2
+                  const midY = (fromDev.y + toDev.y) / 2
+                  importEquipment([
+                    {
+                      ...t,
+                      id: newId,
+                      x: midX,
+                      y: midY,
+                      inputs: (t.inputs ?? []).map((p) =>
+                        p.id === matchingIn.id ? { ...p, id: newInPortId } : { ...p, id: uuidv4() },
+                      ),
+                      outputs: (t.outputs ?? []).map((p) =>
+                        p.id === matchingOut.id ? { ...p, id: newOutPortId } : { ...p, id: uuidv4() },
+                      ),
+                    },
+                  ])
+                  // Re-route original cable: source → converter input
+                  updateCable(cableId, {
+                    toEquipmentId: newId,
+                    toPortId: newInPortId,
+                  })
+                  // Add second cable: converter output → original target
+                  queueConnection({
+                    fromEquipmentId: newId,
+                    fromPortId: newOutPortId,
+                    toEquipmentId,
+                    toPortId: toPort.id,
+                  })
+                  createCableFromPending({
+                    name: `${t.name} → ${toDev.name}`,
+                    color: '#94a3b8',
+                  })
+                }}
+                className="rounded bg-amber-800/60 px-1.5 py-0.5 text-amber-100 hover:bg-amber-700/80"
+                title={`${t.name} einfügen — splittet das Kabel automatisch`}
+              >
+                + {t.name}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="mt-1 text-amber-200/70">
+          Kein passender Konverter in der Library. Eines z. B. via „+ Gerät" oder Rentman-Import anlegen.
+        </div>
+      )}
     </div>
   )
 }

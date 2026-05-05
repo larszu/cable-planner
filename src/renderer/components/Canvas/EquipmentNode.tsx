@@ -4,6 +4,7 @@ import type { EquipmentItem } from '../../types/equipment'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { colorForConnector } from '../../lib/cableColors'
+import { defaultIconForEquipment } from '../../lib/deviceKind'
 
 type EquipmentNodeData = EquipmentItem & {
   exportThemeOverride?: 'dark' | 'light'
@@ -158,6 +159,94 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
     outputPlacement.set(port.id, { side, slot })
   }
 
+  // Collapsed view (issue #37): render a small label-only badge with port
+  // dots evenly distributed on the edges. No port labels, just the icon and
+  // name. Useful for converters / passive devices where the full port list
+  // is visual noise on the canvas. Toggleable per device in EquipmentProperties.
+  if (data.collapsed) {
+    const icon = data.icon ?? defaultIconForEquipment(data)
+    const inLeft = data.inputs.filter((p) => resolvePortSide(p, 'left', !!data.portsFlipped) === 'left')
+    const inRight = data.inputs.filter((p) => resolvePortSide(p, 'left', !!data.portsFlipped) === 'right')
+    const outLeft = data.outputs.filter((p) => resolvePortSide(p, 'right', !!data.portsFlipped) === 'left')
+    const outRight = data.outputs.filter((p) => resolvePortSide(p, 'right', !!data.portsFlipped) === 'right')
+    const leftPorts = [...inLeft, ...outLeft]
+    const rightPorts = [...inRight, ...outRight]
+    const cWidth = 130
+    const cHeight = Math.max(36, Math.max(leftPorts.length, rightPorts.length) * 12 + 14)
+    return (
+      <div
+        style={{
+          position: 'relative',
+          width: cWidth,
+          height: cHeight,
+          background: data.nodeColor
+            ? `${data.nodeColor}${isLight ? '22' : '33'}`
+            : (isLight ? '#f8fafc' : '#0f172a'),
+          border: `1px solid ${selected ? '#38bdf8' : (data.nodeColor ?? (isLight ? '#94a3b8' : '#475569'))}`,
+          borderRadius: 6,
+          color: isLight ? '#1e293b' : '#e2e8f0',
+          fontSize: 11,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 4,
+          padding: '4px 12px',
+          boxShadow: isLight ? '0 2px 6px rgba(0,0,0,0.12)' : '0 2px 6px rgba(0,0,0,0.4)',
+        }}
+        title={`${data.name}${data.subtitle ? ' — ' + data.subtitle : ''}`}
+      >
+        {icon && <span style={{ fontSize: 14, flexShrink: 0 }}>{icon}</span>}
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 600 }}>
+          {data.name}
+        </span>
+        {/* Port dots — left side */}
+        {leftPorts.map((port, i) => {
+          const isInput = data.inputs.includes(port)
+          const y = (i + 0.5) * (cHeight / leftPorts.length)
+          return (
+            <Handle
+              key={port.id}
+              id={port.id}
+              type={isInput ? 'target' : 'source'}
+              position={Position.Left}
+              isConnectable
+              style={{
+                top: y,
+                left: 0,
+                width: 10,
+                height: 10,
+                background: isInput ? '#22d3ee' : '#34d399',
+                border: '1px solid #0f172a',
+              }}
+            />
+          )
+        })}
+        {/* Port dots — right side */}
+        {rightPorts.map((port, i) => {
+          const isInput = data.inputs.includes(port)
+          const y = (i + 0.5) * (cHeight / rightPorts.length)
+          return (
+            <Handle
+              key={port.id}
+              id={port.id}
+              type={isInput ? 'target' : 'source'}
+              position={Position.Right}
+              isConnectable
+              style={{
+                top: y,
+                right: 0,
+                width: 10,
+                height: 10,
+                background: isInput ? '#22d3ee' : '#34d399',
+                border: '1px solid #0f172a',
+              }}
+            />
+          )
+        })}
+      </div>
+    )
+  }
+
   const portRows = Math.max(sideCounts.left, sideCounts.right, 1)
   // Auto-grow node width so the longest port label (name + connector type) is
   // not truncated by the 50%-width port columns. Without this, long names like
@@ -252,6 +341,17 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               title="Kein Rentman-Eintrag"
             />
           )}
+          {(() => {
+            // Issue #46: small leading icon glyph derived from category/name,
+            // overridable per device via data.icon. Empty string suppresses.
+            const icon = data.icon ?? defaultIconForEquipment(data)
+            if (!icon) return null
+            return (
+              <span style={{ fontSize: 14, lineHeight: '16px', flexShrink: 0 }} title={`Icon: ${icon}`}>
+                {icon}
+              </span>
+            )
+          })()}
           <span>{data.name}</span>
         </div>
         <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#94a3b8', lineHeight: '14px' }}>{data.category}</div>

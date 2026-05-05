@@ -17,9 +17,29 @@ interface EquipmentChecklistProps {
   onSetAll?: (checked: boolean) => void
   onQtyChange?: (id: string, qty: number) => void
   onSetAllChildren?: (parentId: string, checked: boolean) => void
+  /**
+   * Issue #33: Per-row "link to existing local device" mapping. When
+   * provided, each row gets a dropdown of local equipment (without a
+   * Rentman ID yet). Selecting one writes that Rentman id onto the
+   * existing equipment so the user can claim a manually-built device
+   * during a later Rentman re-fetch instead of getting a duplicate.
+   */
+  linkableEquipment?: Array<{ id: string; name: string }>
+  onLinkExisting?: (rentmanItemId: string, localEquipmentId: string) => void
+  /** Map of Rentman item id → local equipment id that has been linked (for badge). */
+  linkedMap?: Record<string, string>
 }
 
-export const EquipmentChecklist = ({ items, onToggle, onSetAll, onQtyChange, onSetAllChildren }: EquipmentChecklistProps) => {
+export const EquipmentChecklist = ({
+  items,
+  onToggle,
+  onSetAll,
+  onQtyChange,
+  onSetAllChildren,
+  linkableEquipment,
+  onLinkExisting,
+  linkedMap,
+}: EquipmentChecklistProps) => {
   // Build parent -> children map. Children whose parent is not in the visible list
   // are promoted to root level so they remain reachable.
   const { roots, childrenByParent } = useMemo(() => {
@@ -170,6 +190,39 @@ export const EquipmentChecklist = ({ items, onToggle, onSetAll, onQtyChange, onS
                       </span>
                     </label>
                     <QtyBadge item={item} />
+                    {onLinkExisting && linkableEquipment && (
+                      (() => {
+                        const linkedId = linkedMap?.[item.id]
+                        const linkedDevice = linkedId
+                          ? linkableEquipment.find((e) => e.id === linkedId)
+                          : null
+                        if (linkedDevice) {
+                          return (
+                            <span
+                              className="rounded bg-sky-800/60 px-1.5 py-0.5 text-[10px] text-sky-100"
+                              title="Verknüpft mit lokalem Gerät — wird beim Import nicht doppelt angelegt"
+                            >
+                              🔗 {linkedDevice.name}
+                            </span>
+                          )
+                        }
+                        return (
+                          <select
+                            value=""
+                            onChange={(e) => {
+                              if (e.target.value) onLinkExisting(item.id, e.target.value)
+                            }}
+                            className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[10px] text-slate-300"
+                            title="Mit existierendem Gerät verknüpfen"
+                          >
+                            <option value="">🔗 Verknüpfen…</option>
+                            {linkableEquipment.map((e) => (
+                              <option key={e.id} value={e.id}>{e.name}</option>
+                            ))}
+                          </select>
+                        )
+                      })()
+                    )}
                     {isSet && isOpen && onSetAllChildren && (
                       <button
                         type="button"

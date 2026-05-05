@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 import { useReactFlow, useViewport } from 'reactflow'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
@@ -104,6 +105,159 @@ export const PendingCableOverlay = () => {
       >
         Kabel zeichnen: Klick auf Canvas für Knick, Klick auf Port zum Beenden, Esc zum Abbrechen.
       </div>
+      <PendingCableSuggestions
+        sourcePortConnector={port.connectorType}
+        sourceNodeId={node.id}
+        sourcePortId={port.id}
+        sourceIsOutput={pendingCable.handleType === 'source'}
+      />
     </>
+  )
+}
+
+/**
+ * Issue #49: Quick suggestions panel. While the user is mid-cable-draw,
+ * shows a small list of library templates whose ports match the source's
+ * connector type. Sorted by usage frequency in the current project so the
+ * most-used target devices come first. Clicking a suggestion places that
+ * device at the last mouse position and finishes the cable to its first
+ * matching port — the user gets a 1-click "next likely device" workflow.
+ */
+const PendingCableSuggestions = ({
+  sourcePortConnector,
+  sourceNodeId,
+  sourcePortId,
+  sourceIsOutput,
+}: {
+  sourcePortConnector: string
+  sourceNodeId: string
+  sourcePortId: string
+  sourceIsOutput: boolean
+}) => {
+  const customLibrary = useProjectStore((s) => s.customLibrary)
+  const cables = useProjectStore((s) => s.project.cables)
+  const equipment = useProjectStore((s) => s.project.equipment)
+  const importEquipment = useProjectStore((s) => s.importEquipment)
+  const queueConnection = useProjectStore((s) => s.queueConnection)
+  const createCableFromPending = useProjectStore((s) => s.createCableFromPending)
+  const clearPendingCable = useUiStore((s) => s.clearPendingCable)
+  const { screenToFlowPosition } = useReactFlow()
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
+    window.addEventListener('mousemove', handler)
+    return () => window.removeEventListener('mousemove', handler)
+  }, [])
+
+  const suggestions = useMemo(() => {
+    // Usage counts: how often each template name has been the *target* (or
+    // source, depending on which direction we're searching) of any cable in
+    // the current project. Templates the user wires up frequently float to
+    // the top.
+    const usage = new Map<string, number>()
+    const nameById = new Map(equipment.map((e) => [e.id, e.name]))
+    for (const c of cables) {
+      const targetEqId = sourceIsOutput ? c.toEquipmentId : c.fromEquipmentId
+      const name = nameById.get(targetEqId)
+      if (name) usage.set(name, (usage.get(name) ?? 0) + 1)
+    }
+    // Required port direction on the candidate template:
+    //   - source is an OUTPUT port  → candidate needs an INPUT  with same connector
+    //   - source is an INPUT  port  → candidate needs an OUTPUT with same connector
+    const needsKey = sourceIsOutput ? 'inputs' : 'outputs'
+    return customLibrary
+      .filter((t) => !t.hidden)
+      .filter((t) =>
+        (t[needsKey] ?? []).some((p) => p.connectorType === sourcePortConnector),
+      )
+      .sort((a, b) => (usage.get(b.name) ?? 0) - (usage.get(a.name) ?? 0))
+      .slice(0, 8)
+  }, [customLibrary, cables, equipment, sourceIsOutput, sourcePortConnector])
+
+  if (suggestions.length === 0) return null
+
+  const place = (template: typeof suggestions[number]) => {
+    if (!mousePos) return
+    const flow = screenToFlowPosition(mousePos)
+    const matchKey = sourceIsOutput ? 'inputs' : 'outputs'
+    const matchPort = (template[matchKey] ?? []).find(
+      (p) => p.connectorType === sourcePortConnector,
+    )
+    if (!matchPort) return
+    const newId = uuidv4()
+    const newPortId = uuidv4()
+    importEquipment([
+      {
+        ...template,
+        id: newId,
+        x: flow.x,
+        y: flow.y,
+        inputs: (template.inputs ?? []).map((p) =>
+          p.id === matchPort.id && sourceIsOutput
+            ? { ...p, id: newPortId }
+            : { ...p, id: uuidv4() },
+        ),
+        outputs: (template.outputs ?? []).map((p) =>
+          p.id === matchPort.id && !sourceIsOutput
+            ? { ...p, id: newPortId }
+            : { ...p, id: uuidv4() },
+        ),
+      },
+    ])
+    queueConnection({
+      fromEquipmentId: sourceIsOutput ? sourceNodeId : newId,
+      fromPortId: sourceIsOutput ? sourcePortId : newPortId,
+      toEquipmentId: sourceIsOutput ? newId : sourceNodeId,
+      toPortId: sourceIsOutput ? newPortId : sourcePortId,
+    })
+    createCableFromPending({ name: template.name })
+    clearPendingCable()
+  }
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 60,
+        right: 12,
+        background: 'rgba(15,23,42,0.95)',
+        color: '#e2e8f0',
+        border: '1px solid #475569',
+        padding: 8,
+        borderRadius: 6,
+        fontSize: 11,
+        zIndex: 50,
+        maxWidth: 220,
+        pointerEvents: 'auto',
+      }}
+      className="nodrag nopan"
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <div style={{ marginBottom: 6, fontWeight: 600, color: '#a5b4fc' }}>
+        Schnelle Vorschläge ({sourcePortConnector})
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {suggestions.map((t) => (
+          <button
+            key={t.name}
+            type="button"
+            onClick={() => place(t)}
+            style={{
+              textAlign: 'left',
+              padding: '4px 6px',
+              background: '#1e293b',
+              border: '1px solid #334155',
+              borderRadius: 3,
+              color: '#e2e8f0',
+              cursor: 'pointer',
+            }}
+            title={`Bei Mausposition platzieren und Verbindung herstellen (${t.category})`}
+          >
+            {t.name}
+          </button>
+        ))}
+      </div>
+    </div>
   )
 }
