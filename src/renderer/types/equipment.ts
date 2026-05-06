@@ -191,24 +191,52 @@ export interface AtemMvDefinition {
 }
 
 /**
- * Issue #45 (v2) — ATEM Profile AudioMapping routing matrix. Mirrors the
- * <AudioMapping> section of an ATEM Profile XML: a flat list of audio sources
- * (Inputs, Microphone, MADI, Talkback, Program, Aux Mix, …) and a flat list
- * of physical/logical audio outputs (MADI tracks, Aux N/M sub-pairs) where
- * each output stores exactly ONE sourceId — that's the routing. sourceId=0
- * means "No Audio".
+ * Issue #45 — ATEM Profile audio configuration.
  *
- * The matrix UI is a Dante-Controller-style crosspoint grid (sources × outputs);
- * clicking a cell sets that output's sourceId. We keep the original raw XML so
- * "Save" can patch only the AudioMapping section and round-trip every other
- * section of the Profile (MixEffectBlocks, Settings, Fairlight, etc.) byte-for-
- * byte unchanged.
+ * The shape of the audio section in an ATEM Profile XML differs by switcher
+ * model. We detect what's present and expose whichever (or both) the user can
+ * edit:
+ *
+ * - `matrix` — the <AudioMapping> section (newer Fairlight-capable models, e.g.
+ *   Constellation / 4 M/E). Outputs × Sources crosspoint grid: each output
+ *   stores exactly ONE sourceId (0 = "No Audio").
+ * - `classicMixer` — the <AudioMixer> section (older Production Studio models,
+ *   e.g. ATEM 2 M/E Production Studio 4K). Per-input mixOption (Off/On/AFV)
+ *   plus gain (dB) and balance (-100..+100). No routing matrix; every input
+ *   bus into the program out, controlled by mixOption.
+ * - `inputLabels` — friendly short/long names from <Settings><Inputs>, used
+ *   by both UIs so the user sees "Cam1 / Cam1 - Jan" instead of bare ids.
+ *
+ * `rawXml` retains the original full Profile XML so Save can patch only the
+ * attributes the user changed and round-trip every other section byte-for-byte.
  */
 export interface AtemAudioConfig {
+  matrix?: AtemAudioMatrix
+  classicMixer?: AtemClassicMixer
+  inputLabels?: Record<number, AtemInputLabel>
+  rawXml?: string
+}
+
+export interface AtemAudioMatrix {
   sources: AtemAudioSource[]
   outputs: AtemAudioOutput[]
-  /** Original full Profile XML, for non-destructive save. */
-  rawXml?: string
+}
+
+export interface AtemClassicMixer {
+  programOutGain: number
+  programOutBalance: number
+  programOutFollowFadeToBlack: boolean
+  audioFollowVideoCrossfadeTransition: boolean
+  inputs: AtemClassicAudioInput[]
+}
+
+export interface AtemClassicAudioInput {
+  id: number
+  mixOption: 'Off' | 'On' | 'AudioFollowVideo'
+  /** Channel-strip gain, dB. ATEM stores -inf as the literal string "-inf"
+   *  in XML; we encode it as null on the JS side. */
+  gain: number | null
+  balance: number
 }
 
 export interface AtemAudioSource {
@@ -222,6 +250,12 @@ export interface AtemAudioOutput {
   /** sourceId currently routed to this output. 0 = "No Audio". */
   sourceId: number
   name: string
+}
+
+export interface AtemInputLabel {
+  shortName: string
+  longName: string
+  externalPortType?: string
 }
 
 export interface VlanDef {
