@@ -1,14 +1,9 @@
 import { useState } from 'react'
 import { useReactFlow } from 'reactflow'
-import { useUiStore, type EdgeRouting } from '../../store/uiStore'
+import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
-
-const routingOptions: { value: EdgeRouting; label: string; hint: string }[] = [
-  { value: 'orthogonal', label: 'Ortho', hint: 'Rechtwinkliges Routing (draw.io Standard)' },
-  { value: 'straight', label: 'Linie', hint: 'Gerade Linie' },
-  { value: 'curved', label: 'Kurve', hint: 'Bézier-Kurve' },
-]
+import { RoutingToggle } from '../shared/RoutingToggle'
 
 export const CanvasToolbar = () => {
   const snapToGrid = useUiStore((state) => state.snapToGrid)
@@ -131,24 +126,12 @@ export const CanvasToolbar = () => {
       <span style={{ color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
         Routing
       </span>
-      {routingOptions.map((opt) => (
-        <button
-          key={opt.value}
-          type="button"
-          onClick={() => setDefaultRouting(opt.value)}
-          title={opt.hint}
-          style={{
-            padding: '2px 6px',
-            background: defaultRouting === opt.value ? '#0369a1' : (isLight ? '#e2e8f0' : '#1e293b'),
-            border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
-            color: isLight ? '#1e293b' : '#e2e8f0',
-            borderRadius: 3,
-            cursor: 'pointer',
-          }}
-        >
-          {opt.label}
-        </button>
-      ))}
+      <RoutingToggle
+        value={defaultRouting}
+        onChange={setDefaultRouting}
+        variant="toolbar"
+        isLight={isLight}
+      />
       <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', marginLeft: 4 }}>
         <input
           type="checkbox"

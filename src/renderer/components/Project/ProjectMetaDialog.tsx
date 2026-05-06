@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ProjectMetadata } from '../../types/project'
+import { readImageAsDataUri } from '../../lib/readImageAsDataUri'
 
 /**
  * Dialog used both when starting a new project and when editing metadata
@@ -14,13 +15,6 @@ export interface ProjectMetaDialogProps {
   onConfirm: (patch: Partial<ProjectMetadata>) => void
 }
 
-const readFileAsDataUrl = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(String(reader.result))
-    reader.onerror = () => reject(reader.error)
-    reader.readAsDataURL(file)
-  })
 
 export const ProjectMetaDialog = ({
   open,
@@ -194,7 +188,7 @@ export const ProjectMetaDialog = ({
                 onChange={async (e) => {
                   const f = e.target.files?.[0]
                   if (!f) return
-                  setCompanyLogo(await readFileAsDataUrl(f))
+                  setCompanyLogo((await readImageAsDataUri(f)) ?? "")
                   e.target.value = ''
                 }}
               />
@@ -232,7 +226,7 @@ export const ProjectMetaDialog = ({
                 onChange={async (e) => {
                   const f = e.target.files?.[0]
                   if (!f) return
-                  setClientLogo(await readFileAsDataUrl(f))
+                  setClientLogo((await readImageAsDataUri(f)) ?? "")
                   e.target.value = ''
                 }}
               />

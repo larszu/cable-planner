@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useProjectStore } from '../../store/projectStore'
 import { nextPlacementPosition } from '../../lib/library'
-import { promptDialog } from '../../lib/promptDialog'
+import { CategorySelect } from '../shared/CategorySelect'
+import { confirmDialog } from '../../lib/confirmDialog'
 
 export const TemplateProperties = () => {
   const selectedTemplateName = useProjectStore((state) => state.selectedTemplateName)
@@ -12,8 +13,6 @@ export const TemplateProperties = () => {
   const equipmentCount = useProjectStore((state) => state.project.equipment.length)
   const equipmentItems = useProjectStore((state) => state.project.equipment)
   const setSelectedTemplateName = useProjectStore((state) => state.setSelectedTemplateName)
-  const knownCategories = useProjectStore((state) => state.knownCategories)
-  const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
 
   const template = customLibrary.find((t) => t.name === selectedTemplateName)
 
@@ -25,15 +24,6 @@ export const TemplateProperties = () => {
     setName(template?.name ?? '')
     setCategory(template?.category ?? '')
   }, [template?.name, template?.category])
-
-  const allCategoryOptions = Array.from(
-    new Set([
-      ...knownCategories,
-      ...customLibrary.map((t) => t.category).filter(Boolean),
-      category,
-      template?.category,
-    ].filter(Boolean) as string[]),
-  ).sort((a, b) => a.localeCompare(b))
 
   if (!template) {
     return <div className="text-xs text-slate-400">Keine Vorlage ausgewählt.</div>
@@ -57,8 +47,11 @@ export const TemplateProperties = () => {
     addEquipment({ ...template, ...pos })
   }
 
-  const handleDelete = () => {
-    if (!confirm(`Vorlage "${template.name}" löschen?`)) return
+  const handleDelete = async () => {
+    if (!(await confirmDialog(`Vorlage "${template.name}" löschen?`, {
+      destructive: true,
+      okLabel: 'Löschen',
+    }))) return
     removeCustomTemplate(template.name)
     setSelectedTemplateName(undefined)
   }
@@ -88,29 +81,7 @@ export const TemplateProperties = () => {
 
       <label className="block">
         <span className="mb-1 block text-slate-300">Kategorie</span>
-        <select
-          value={category}
-          onChange={async (e) => {
-            const value = e.target.value
-            if (value === '__new__') {
-              const entered = (await promptDialog('Neue Kategorie'))?.trim()
-              if (entered) {
-                setCategory(entered)
-                addKnownCategories([entered])
-              }
-              return
-            }
-            setCategory(value)
-          }}
-          className="w-full rounded border border-slate-700 bg-slate-900 p-2"
-        >
-          {allCategoryOptions.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-          <option value="__new__">+ Neue Kategorie…</option>
-        </select>
+        <CategorySelect value={category} onChange={setCategory} />
       </label>
 
       <div className="rounded bg-slate-900 p-2 space-y-1">

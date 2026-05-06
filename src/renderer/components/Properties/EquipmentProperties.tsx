@@ -27,6 +27,8 @@ import { ALL_SIGNAL_STANDARDS } from '../../types/cableSpec'
 import type { SignalStandard } from '../../types/cableSpec'
 import { QUAD_LINK_LABEL, type QuadLinkMode } from '../../types/videoFormat'
 import { RackImageCropDialog } from '../Rack/RackImageCropDialog'
+import { CategorySelect } from '../shared/CategorySelect'
+import { pickImageAsDataUri, readImageAsDataUri } from '../../lib/readImageAsDataUri'
 
 const makePort = (name: string): Port => ({
   id: uuidv4(),
@@ -881,22 +883,9 @@ export const EquipmentProperties = () => {
           <div className="flex flex-col gap-1">
             <button
               type="button"
-              onClick={() => {
-                const input = document.createElement('input')
-                input.type = 'file'
-                input.accept = 'image/png,image/jpeg,image/svg+xml,image/webp'
-                input.onchange = () => {
-                  const file = input.files?.[0]
-                  if (!file) return
-                  const reader = new FileReader()
-                  reader.onload = () => {
-                    if (typeof reader.result === 'string') {
-                      updateEquipment(equipment.id, { imageUrl: reader.result })
-                    }
-                  }
-                  reader.readAsDataURL(file)
-                }
-                input.click()
+              onClick={async () => {
+                const dataUri = await pickImageAsDataUri()
+                if (dataUri) updateEquipment(equipment.id, { imageUrl: dataUri })
               }}
               className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
             >
@@ -1020,41 +1009,11 @@ export const EquipmentProperties = () => {
       )}
       <label className="block">
         <span className="mb-1 block text-slate-300">Kategorie</span>
-        {(() => {
-          const options = Array.from(
-            new Set([
-              ...knownCategories,
-              ...customLibrary.map((t) => t.category).filter(Boolean),
-              equipment.category,
-            ].filter(Boolean)),
-          ).sort((a, b) => a.localeCompare(b))
-          return (
-            <select
-              value={equipment.category}
-              onChange={async (event) => {
-                const value = event.target.value
-                if (value === '__new__') {
-                  const entered = (await promptDialog('Neue Kategorie'))?.trim()
-                  if (entered) {
-                    updateEquipment(equipment.id, { category: entered })
-                    addKnownCategories([entered])
-                  }
-                  return
-                }
-                updateEquipment(equipment.id, { category: value })
-              }}
-              className="w-full rounded border border-slate-700 bg-slate-900 p-2"
-            >
-              {options.length === 0 && <option value="">—</option>}
-              {options.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-              <option value="__new__">+ Neue Kategorie…</option>
-            </select>
-          )
-        })()}
+        <CategorySelect
+          value={equipment.category}
+          onChange={(category) => updateEquipment(equipment.id, { category })}
+          extraOptions={[equipment.category]}
+        />
       </label>
 
       <DisplayPropertiesBlock equipment={equipment} />
@@ -1219,22 +1178,9 @@ export const EquipmentProperties = () => {
             <div className="mt-2 grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => {
-                  const input = document.createElement('input')
-                  input.type = 'file'
-                  input.accept = 'image/png,image/jpeg,image/webp'
-                  input.onchange = () => {
-                    const file = input.files?.[0]
-                    if (!file) return
-                    const reader = new FileReader()
-                    reader.onload = () => {
-                      if (typeof reader.result === 'string') {
-                        setCropDialog({ side: 'front', src: reader.result })
-                      }
-                    }
-                    reader.readAsDataURL(file)
-                  }
-                  input.click()
+                onClick={async () => {
+                  const dataUri = await pickImageAsDataUri('image/png,image/jpeg,image/webp')
+                  if (dataUri) setCropDialog({ side: 'front', src: dataUri })
                 }}
                 className="rounded bg-sky-700 px-2 py-1 text-xs hover:bg-sky-600"
               >
@@ -1242,22 +1188,9 @@ export const EquipmentProperties = () => {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  const input = document.createElement('input')
-                  input.type = 'file'
-                  input.accept = 'image/png,image/jpeg,image/webp'
-                  input.onchange = () => {
-                    const file = input.files?.[0]
-                    if (!file) return
-                    const reader = new FileReader()
-                    reader.onload = () => {
-                      if (typeof reader.result === 'string') {
-                        setCropDialog({ side: 'rear', src: reader.result })
-                      }
-                    }
-                    reader.readAsDataURL(file)
-                  }
-                  input.click()
+                onClick={async () => {
+                  const dataUri = await pickImageAsDataUri('image/png,image/jpeg,image/webp')
+                  if (dataUri) setCropDialog({ side: 'rear', src: dataUri })
                 }}
                 className="rounded bg-purple-700 px-2 py-1 text-xs hover:bg-purple-600"
               >

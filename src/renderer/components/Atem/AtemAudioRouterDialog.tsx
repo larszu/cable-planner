@@ -12,6 +12,7 @@ import {
   parseAudioConfigXml,
   serializeAudioConfigXml,
 } from '../../lib/atemAudioMappingXml'
+import { confirmDialog } from '../../lib/confirmDialog'
 
 /**
  * Issue #45 — ATEM Audio editor.
@@ -343,8 +344,14 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
     })
   }
 
-  const clearAllOutputs = () => {
-    if (!window.confirm('Alle Routings auf "No Audio" zurücksetzen?')) return
+  const clearAllOutputs = async () => {
+    if (
+      !(await confirmDialog('Alle Routings auf "No Audio" zurücksetzen?', {
+        destructive: true,
+        okLabel: 'Zurücksetzen',
+      }))
+    )
+      return
     setConfig({
       ...config,
       matrix: {

@@ -4,6 +4,9 @@ import { useSettingsStore } from '../../store/settingsStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { RoutingToggle } from '../shared/RoutingToggle'
+import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
+import { confirmDialog } from '../../lib/confirmDialog'
 
 interface SettingsDialogProps {
   open: boolean
@@ -113,34 +116,9 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
     })
   }
 
-  /**
-   * Read a user-picked image as a data URI so it can travel with the project
-   * file (no separate filesystem path to keep in sync). Resolves with `''`
-   * if the user cancels — caller treats empty string as "remove logo".
-   */
-  const readImageAsDataUri = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '')
-      reader.onerror = () => reject(new Error('Konnte Bild nicht lesen'))
-      reader.readAsDataURL(file)
-    })
-
   const pickLogo = async (which: 'companyLogo' | 'clientLogo') => {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = 'image/png,image/jpeg,image/svg+xml,image/webp'
-    input.onchange = async () => {
-      const file = input.files?.[0]
-      if (!file) return
-      try {
-        const dataUri = await readImageAsDataUri(file)
-        setDraftMeta((prev) => ({ ...prev, [which]: dataUri }))
-      } catch {
-        // ignore — file picker already closed
-      }
-    }
-    input.click()
+    const dataUri = await pickImageAsDataUri()
+    if (dataUri) setDraftMeta((prev) => ({ ...prev, [which]: dataUri }))
   }
 
   const navItem = (id: SettingsSection, label: string, icon: string) => (
@@ -461,34 +439,16 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                   <p className="mb-2 text-[11px] text-slate-500">
                     Welche Form neue Kabel auf dem Canvas haben sollen. Per Kabel überschreibbar.
                   </p>
-                  <div className="flex gap-1">
-                    {([
-                      { value: 'orthogonal', label: 'Ortho' },
-                      { value: 'straight', label: 'Linie' },
-                      { value: 'curved', label: 'Kurve' },
-                    ] as const).map((opt) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setDefaultRouting(opt.value)}
-                        className={`flex-1 rounded px-2 py-1 text-xs ${
-                          defaultRouting === opt.value
-                            ? 'bg-sky-700 text-white'
-                            : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
+                  <RoutingToggle value={defaultRouting} onChange={setDefaultRouting} />
                   <button
                     type="button"
                     disabled={cables.length === 0}
-                    onClick={() => {
+                    onClick={async () => {
                       if (
-                        !window.confirm(
+                        !(await confirmDialog(
                           `Routing aller ${cables.length} bestehenden Kabel auf "${defaultRouting}" setzen?`,
-                        )
+                          { okLabel: 'Anwenden' },
+                        ))
                       ) return
                       cables.forEach((c) => {
                         if (c.routing !== defaultRouting) {
