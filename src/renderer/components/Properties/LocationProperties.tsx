@@ -1,5 +1,6 @@
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
+import { confirmDialog } from '../../lib/confirmDialog'
 
 export const LocationProperties = () => {
   const selectedId = useProjectStore((state) => state.selectedLocationId)
@@ -102,8 +103,14 @@ export const LocationProperties = () => {
         </button>
         <button
           type="button"
-          onClick={() => {
-            if (confirm(`Nur den Rahmen "${location.name}" löschen? Geräte bleiben erhalten.`)) {
+          onClick={async () => {
+            if (
+              await confirmDialog(`Nur den Rahmen "${location.name}" löschen?`, {
+                body: 'Geräte darin bleiben auf dem Canvas.',
+                destructive: true,
+                okLabel: 'Löschen',
+              })
+            ) {
               deleteLocation(location.id)
             }
           }}
@@ -114,11 +121,13 @@ export const LocationProperties = () => {
         </button>
         <button
           type="button"
-          onClick={() => {
+          onClick={async () => {
             if (
-              confirm(
-                `Rahmen "${location.name}" UND alle darin enthaltenen Geräte samt deren Kabel löschen?`,
-              )
+              await confirmDialog(`Rahmen "${location.name}" UND Inhalt löschen?`, {
+                body: 'Alle Geräte im Rahmen samt deren Kabel werden mitgelöscht.',
+                destructive: true,
+                okLabel: 'Alles löschen',
+              })
             ) {
               deleteLocationWithContents(location.id)
             }

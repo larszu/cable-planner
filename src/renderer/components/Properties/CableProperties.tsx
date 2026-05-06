@@ -1,15 +1,10 @@
 import { useProjectStore } from '../../store/projectStore'
 import { cableCatalog } from '../../types/cableSpec'
 import { useUiStore } from '../../store/uiStore'
-import type { Cable, CableRouting } from '../../types/cable'
+import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
 import { v4 as uuidv4 } from 'uuid'
-
-const routings: { value: CableRouting; label: string }[] = [
-  { value: 'orthogonal', label: 'Ortho' },
-  { value: 'straight', label: 'Line' },
-  { value: 'curved', label: 'Curve' },
-]
+import { RoutingToggle } from '../shared/RoutingToggle'
 
 export const CableProperties = () => {
   const selectedCableId = useProjectStore((state) => state.selectedCableId)
@@ -230,22 +225,12 @@ export const CableProperties = () => {
 
       <div>
         <span className="mb-1 block text-slate-300">Routing</span>
-        <div className="flex gap-1">
-          {routings.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => updateCable(cable.id, { routing: opt.value, waypoints: undefined })}
-              className={`flex-1 rounded border px-2 py-1 ${
-                routing === opt.value
-                  ? 'border-sky-500 bg-sky-800 text-white'
-                  : 'border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
+        <RoutingToggle
+          value={routing}
+          onChange={(value) =>
+            updateCable(cable.id, { routing: value, waypoints: undefined })
+          }
+        />
       </div>
 
       <label className="block">

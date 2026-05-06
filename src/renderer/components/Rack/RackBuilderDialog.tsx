@@ -4,8 +4,9 @@ import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import { useSettingsStore } from '../../store/settingsStore'
 import { RackImageCropDialog } from './RackImageCropDialog'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
-import { promptDialog } from '../../lib/promptDialog'
-import { useProjectStore } from '../../store/projectStore'
+import { CategorySelect } from '../shared/CategorySelect'
+import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
+import { confirmDialog } from '../../lib/confirmDialog'
 
 interface RackBuilderDialogProps {
   open: boolean
@@ -123,7 +124,6 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
 
 export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onSave }: RackBuilderDialogProps) => {
   const autosaveIntervalMs = useSettingsStore((state) => state.autosaveIntervalMs)
-  const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
   const editingId = initialPreset?.id
   const [draft, setDraft] = useState<RackDraft>({
     rackName: 'Neues Rack',
@@ -290,8 +290,16 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     return () => window.clearTimeout(timer)
   }, [autosaveIntervalMs, draftSnapshot, open, initialPreset])
 
-  const closeWithConfirm = () => {
-    if (dirty && !window.confirm('Ungespeicherte Rack-Anderungen verwerfen und schliessen?')) return
+  const closeWithConfirm = async () => {
+    if (
+      dirty &&
+      !(await confirmDialog('Ungespeicherte Rack-Änderungen verwerfen?', {
+        body: 'Die Änderungen am Rack-Layout gehen verloren.',
+        okLabel: 'Verwerfen',
+        destructive: true,
+      }))
+    )
+      return
     onClose()
   }
 
@@ -607,32 +615,12 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 </label>
                 <label className="block">
                   Kategorie
-                  <select
+                  <CategorySelect
                     value={selectedPlacement.category}
-                    onChange={async (event) => {
-                      const value = event.target.value
-                      if (value === '__new__') {
-                        const entered = (await promptDialog('Neue Kategorie'))?.trim()
-                        if (entered) {
-                          updatePlacement(selectedPlacement.id, { category: entered })
-                          addKnownCategories([entered])
-                        }
-                        return
-                      }
-                      updatePlacement(selectedPlacement.id, { category: value })
-                    }}
+                    onChange={(category) => updatePlacement(selectedPlacement.id, { category })}
+                    extraOptions={[...categoryOptions, selectedPlacement.category]}
                     className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
-                  >
-                    {categoryOptions.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                    {!categoryOptions.includes(selectedPlacement.category) && selectedPlacement.category && (
-                      <option value={selectedPlacement.category}>{selectedPlacement.category}</option>
-                    )}
-                    <option value="__new__">+ Neue Kategorie…</option>
-                  </select>
+                  />
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -680,22 +668,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           <button
                             type="button"
                             className={`w-full rounded ${btnColor} px-2 py-1 text-[11px]`}
-                            onClick={() => {
-                              const input = document.createElement('input')
-                              input.type = 'file'
-                              input.accept = 'image/png,image/jpeg,image/webp'
-                              input.onchange = () => {
-                                const file = input.files?.[0]
-                                if (!file) return
-                                const reader = new FileReader()
-                                reader.onload = () => {
-                                  if (typeof reader.result === 'string') {
-                                    setCropDialog({ placementId: selectedPlacement.id, side, src: reader.result })
-                                  }
-                                }
-                                reader.readAsDataURL(file)
-                              }
-                              input.click()
+                            onClick={async () => {
+                              const dataUri = await pickImageAsDataUri('image/png,image/jpeg,image/webp')
+                              if (dataUri)
+                                setCropDialog({ placementId: selectedPlacement.id, side, src: dataUri })
                             }}
                           >
                             {currentUrl ? `${label} ersetzen…` : `${label} importieren…`}

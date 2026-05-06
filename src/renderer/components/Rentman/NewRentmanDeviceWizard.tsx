@@ -4,7 +4,7 @@ import { buildTemplateFromHints, suggestPortGroups, type PortGroupHint } from '.
 import { getGeminiApiKey, setGeminiApiKey, suggestFromAI } from '../../lib/aiSuggestions'
 import { suggestFromWeb } from '../../lib/webPortSuggestions'
 import { useProjectStore } from '../../store/projectStore'
-import { promptDialog } from '../../lib/promptDialog'
+import { CategorySelect } from '../shared/CategorySelect'
 
 const connectorOptions: ConnectorType[] = [
   'XLR',
@@ -57,7 +57,6 @@ export const NewRentmanDeviceWizard = ({
   const [index, setIndex] = useState(0)
   const current = items[index]
 
-  const knownCategories = useProjectStore((state) => state.knownCategories)
   const customLibrary = useProjectStore((state) => state.customLibrary)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
 
@@ -208,37 +207,11 @@ export const NewRentmanDeviceWizard = ({
           <label className="block">
             Category
             <div className="mt-1 flex gap-1">
-              <select
+              <CategorySelect
                 value={category}
-                onChange={async (event) => {
-                  const value = event.target.value
-                  if (value === '__new__') {
-                    const entered = (await promptDialog('Neue Kategorie'))?.trim()
-                    if (entered) {
-                      setCategory(entered)
-                      addKnownCategories([entered])
-                    }
-                    return
-                  }
-                  setCategory(value)
-                }}
+                onChange={setCategory}
                 className="w-full rounded border border-slate-700 bg-slate-950 p-2"
-              >
-                {Array.from(
-                  new Set([
-                    ...knownCategories,
-                    ...customLibrary.map((t) => t.category).filter(Boolean),
-                    category,
-                  ].filter(Boolean)),
-                )
-                  .sort((a, b) => a.localeCompare(b))
-                  .map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                <option value="__new__">+ Neue Kategorie…</option>
-              </select>
+              />
               <button
                 type="button"
                 onClick={() => {

@@ -4,6 +4,8 @@ import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useRentman } from '../../hooks/useRentman'
 import { promptDialog } from '../../lib/promptDialog'
+import { CategorySelect } from '../shared/CategorySelect'
+import { confirmDialog } from '../../lib/confirmDialog'
 import { suggestPortGroups, type PortGroupHint } from '../../lib/portSuggestions'
 import { getGeminiApiKey, setGeminiApiKey, suggestFromAI } from '../../lib/aiSuggestions'
 import { suggestFromWeb } from '../../lib/webPortSuggestions'
@@ -1382,8 +1384,8 @@ export const LibraryPanel = () => {
                         </button>
                         <button
                           type="button"
-                          onClick={() => {
-                            if (window.confirm(`Gruppe "${preset.name}" löschen?`)) {
+                          onClick={async () => {
+                            if (await confirmDialog(`Gruppe "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
                               deleteGroupPreset(preset.id)
                             }
                           }}
@@ -1524,8 +1526,8 @@ export const LibraryPanel = () => {
                           </button>
                           <button
                             type="button"
-                            onClick={() => {
-                              if (window.confirm(`Rack \"${preset.name}\" löschen?`)) {
+                            onClick={async () => {
+                              if (await confirmDialog(`Rack "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
                                 deleteGroupPreset(preset.id)
                               }
                             }}
@@ -1676,37 +1678,11 @@ export const LibraryPanel = () => {
               </label>
               <label className="block">
                 Category
-                <select
+                <CategorySelect
                   value={category}
-                  onChange={async (event) => {
-                    const value = event.target.value
-                    if (value === '__new__') {
-                      const entered = (await promptDialog('Neue Kategorie'))?.trim()
-                      if (entered) {
-                        setCategory(entered)
-                        addKnownCategories([entered])
-                      }
-                      return
-                    }
-                    setCategory(value)
-                  }}
+                  onChange={setCategory}
                   className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
-                >
-                  {Array.from(
-                    new Set([
-                      ...knownCategories,
-                      ...customLibrary.map((t) => t.category).filter(Boolean),
-                      category,
-                    ].filter(Boolean)),
-                  )
-                    .sort((a, b) => a.localeCompare(b))
-                    .map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  <option value="__new__">+ Neue Kategorie…</option>
-                </select>
+                />
               </label>
               <label className="block">
                 19" Rack-Gerät
