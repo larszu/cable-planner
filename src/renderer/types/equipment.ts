@@ -190,26 +190,38 @@ export interface AtemMvDefinition {
   windows: { windowIndex: number; sourceId: number }[]
 }
 
-/** Issue #45 — ATEM Fairlight audio router config. */
+/**
+ * Issue #45 (v2) — ATEM Profile AudioMapping routing matrix. Mirrors the
+ * <AudioMapping> section of an ATEM Profile XML: a flat list of audio sources
+ * (Inputs, Microphone, MADI, Talkback, Program, Aux Mix, …) and a flat list
+ * of physical/logical audio outputs (MADI tracks, Aux N/M sub-pairs) where
+ * each output stores exactly ONE sourceId — that's the routing. sourceId=0
+ * means "No Audio".
+ *
+ * The matrix UI is a Dante-Controller-style crosspoint grid (sources × outputs);
+ * clicking a cell sets that output's sourceId. We keep the original raw XML so
+ * "Save" can patch only the AudioMapping section and round-trip every other
+ * section of the Profile (MixEffectBlocks, Settings, Fairlight, etc.) byte-for-
+ * byte unchanged.
+ */
 export interface AtemAudioConfig {
-  /** Per-input or audio source routing settings. */
-  sources: AtemAudioSourceConfig[]
+  sources: AtemAudioSource[]
+  outputs: AtemAudioOutput[]
+  /** Original full Profile XML, for non-destructive save. */
+  rawXml?: string
 }
 
-export interface AtemAudioSourceConfig {
-  /** ATEM audio source id (matches the live Fairlight source list). */
+export interface AtemAudioSource {
+  /** ATEM audio source id (huge numbers like 150798336 — handled by JS Number). */
+  id: number
+  name: string
+}
+
+export interface AtemAudioOutput {
+  id: number
+  /** sourceId currently routed to this output. 0 = "No Audio". */
   sourceId: number
-  /** Display label echoed back from the live ATEM, when known. */
-  label?: string
-  /** -INF..+6 dB. -Infinity is encoded as null for JSON-safety. */
-  mainGain: number | null
-  /** -100..+100 (Fairlight balance percentage). */
-  balance: number
-  /**
-   * On-air mix mode: 'on' = always routed to main bus,
-   * 'off' = muted, 'afv' = follows program (Audio-Follow-Video).
-   */
-  onAir: 'on' | 'off' | 'afv'
+  name: string
 }
 
 export interface VlanDef {
