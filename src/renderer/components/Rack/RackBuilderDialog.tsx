@@ -217,7 +217,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     const issues: string[] = []
     for (const placement of draft.placements) {
       if (!placement.isRackDevice) {
-        issues.push(`${placement.name}: ist nicht als Rack-Gerat markiert.`)
+        issues.push(`${placement.name}: ist nicht als Rack-Gerät markiert.`)
       }
       if (placement.startUnit < 1) {
         issues.push(`${placement.name}: Start-HE muss >= 1 sein.`)
@@ -342,7 +342,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       return
     }
     if (draft.placements.length === 0) {
-      window.alert('Bitte mindestens ein Gerat ins Rack legen.')
+      window.alert('Bitte mindestens ein Gerät ins Rack legen.')
       return
     }
     if (conflicts.length > 0) {
@@ -487,7 +487,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
 
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[260px_1fr_300px] xl:grid-cols-[300px_1fr_320px]">
           <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Rack-Gerate aus Library</div>
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Rack-Geräte aus Library</div>
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -600,9 +600,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           </div>
 
           <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Gerate-Properties im Rack</div>
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Geräte-Properties im Rack</div>
             {!selectedPlacement ? (
-              <div className="rounded border border-slate-800 bg-slate-900/40 p-3 text-xs text-slate-500">Gerat im Rack anklicken.</div>
+              <div className="rounded border border-slate-800 bg-slate-900/40 p-3 text-xs text-slate-500">Gerät im Rack anklicken.</div>
             ) : (
               <div className="space-y-2 text-xs">
                 <label className="block">
@@ -628,7 +628,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     checked={selectedPlacement.isRackDevice}
                     onChange={(event) => updatePlacement(selectedPlacement.id, { isRackDevice: event.target.checked })}
                   />
-                  <span>Ist Rack-Gerat</span>
+                  <span>Ist Rack-Gerät</span>
                 </label>
                 <label className="block">
                   Hohe (HE)
@@ -707,7 +707,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         </div>
 
         <div className="mt-3 flex items-center justify-between">
-          <div className="text-[11px] text-slate-500">{dirty ? 'Ungespeicherte Anderungen vorhanden (Autosave aktiv).' : 'Keine ungespeicherten Anderungen.'}</div>
+          <div className="text-[11px] text-slate-500">{dirty ? 'Ungespeicherte Änderungen vorhanden (Autosave aktiv).' : 'Keine ungespeicherten Änderungen.'}</div>
           <div className="flex gap-2">
             <button type="button" onClick={closeWithConfirm} className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600">
               Abbrechen

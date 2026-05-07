@@ -278,7 +278,7 @@ export const LibraryPanel = () => {
       byName.set(template.name, template)
     }
     // Include current canvas devices as ad-hoc templates so enabling
-    // "Ist ein 19\" Rack-Gerat" in properties makes them immediately
+    // "Ist ein 19\" Rack-Gerät" in properties makes them immediately
     // available in the rack builder without a separate library save step.
     for (const item of equipmentItems) {
       if (!item.isRackDevice && !item.rackUnits) continue
@@ -447,7 +447,7 @@ export const LibraryPanel = () => {
   const handleImportNetBox = async (item: NetBoxDeviceTypeSearchResult) => {
     const selectedCategory = (netBoxCategoryByPath[item.path] ?? '').trim()
     if (!selectedCategory) {
-      setNetBoxError('Bitte eine bestehende Kategorie fur diesen Import auswahlen.')
+      setNetBoxError('Bitte eine bestehende Kategorie für diesen Import auswählen.')
       return
     }
     setNetBoxImportBusy(item.path)
@@ -1637,7 +1637,7 @@ export const LibraryPanel = () => {
                             }
                             className="min-w-0 flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs"
                           >
-                            <option value="">Bitte auswahlen...</option>
+                            <option value="">Bitte auswählen...</option>
                             {existingCategoryOptions.map((cat) => (
                               <option key={cat} value={cat}>
                                 {cat}
@@ -1666,7 +1666,7 @@ export const LibraryPanel = () => {
       {showCreateDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
           <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4">
-            <h3 className="mb-3 text-base font-semibold">Create Custom Device</h3>
+            <h3 className="mb-3 text-base font-semibold">Eigenes Gerät anlegen</h3>
             <div className="mb-3 grid grid-cols-3 gap-2 text-sm">
               <label className="block">
                 Name
@@ -1677,7 +1677,7 @@ export const LibraryPanel = () => {
                 />
               </label>
               <label className="block">
-                Category
+                Kategorie
                 <CategorySelect
                   value={category}
                   onChange={setCategory}
@@ -1896,23 +1896,23 @@ export const LibraryPanel = () => {
                 }}
                 className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
               >
-                Cancel
+                Abbrechen
               </button>
               <button
                 type="button"
                 onClick={saveCustomToLibrary}
                 className="rounded bg-sky-600 px-3 py-1 text-sm hover:bg-sky-500"
-                title="Save to custom library for re-use"
+                title="In die Bibliothek speichern (zur Wiederverwendung)"
               >
-                Save to Library
+                In Bibliothek speichern
               </button>
               <button
                 type="button"
                 onClick={saveCustomAndPlace}
                 className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500"
-                title="Save and drop one on the canvas"
+                title="Speichern und gleich auf dem Canvas platzieren"
               >
-                Save + Place
+                Speichern + Platzieren
               </button>
             </div>
           </div>
@@ -1940,7 +1940,7 @@ export const LibraryPanel = () => {
       {netBoxConflict && (
         <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/70 p-6">
           <div className="w-full max-w-xl rounded border border-amber-600 bg-slate-900 p-4 text-slate-100">
-            <h3 className="mb-2 text-base font-semibold text-amber-300">Gerat existiert bereits</h3>
+            <h3 className="mb-2 text-base font-semibold text-amber-300">Gerät existiert bereits</h3>
             <p className="mb-3 text-sm text-slate-300">
               {netBoxConflict.incoming.name} ist bereits in der lokalen Library. Wahlen, wie importiert werden soll.
             </p>

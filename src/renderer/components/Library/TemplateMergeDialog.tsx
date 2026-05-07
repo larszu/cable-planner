@@ -112,7 +112,7 @@ export const TemplateMergeDialog = ({
       <div className="max-h-[92vh] w-full max-w-4xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
         <div className="mb-3 flex items-center justify-between gap-2">
           <div>
-            <h3 className="text-base font-semibold">Gerate zusammenfuhren</h3>
+            <h3 className="text-base font-semibold">Geräte zusammenfuhren</h3>
             <p className="text-xs text-slate-400">
               Wahlen, welche Inputs/Outputs aus Lokal und {incomingLabel} ubernommen werden.
             </p>
@@ -134,7 +134,7 @@ export const TemplateMergeDialog = ({
               onChange={(event) => setCategory(event.target.value)}
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
             >
-              <option value="">Bitte wahlen...</option>
+              <option value="">Bitte wählen...</option>
               {categoryOptions.map((cat) => (
                 <option key={cat} value={cat}>
                   {cat}
@@ -244,11 +244,11 @@ export const TemplateMergeDialog = ({
               const merged = buildMergedTemplate()
               if (!merged) return
               if (!category) {
-                window.alert('Bitte Zielkategorie auswahlen.')
+                window.alert('Bitte Zielkategorie auswählen.')
                 return
               }
               if (merged.inputs.length === 0 && merged.outputs.length === 0) {
-                window.alert('Bitte mindestens einen Port auswahlen.')
+                window.alert('Bitte mindestens einen Port auswählen.')
                 return
               }
               onConfirm(merged)

@@ -191,7 +191,7 @@ export const NewRentmanDeviceWizard = ({
             onClick={onCancel}
             className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
           >
-            Cancel import
+            Import abbrechen
           </button>
         </div>
 
@@ -205,7 +205,7 @@ export const NewRentmanDeviceWizard = ({
             />
           </label>
           <label className="block">
-            Category
+            Kategorie
             <div className="mt-1 flex gap-1">
               <CategorySelect
                 value={category}

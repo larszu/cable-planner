@@ -750,7 +750,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     if (selected.length === 0) return
 
     if (importCategoryOptions.length === 0) {
-      setError('Keine Kategorien verfugbar. Bitte zuerst lokale Kategorien anlegen.')
+      setError('Keine Kategorien verfügbar. Bitte zuerst lokale Kategorien anlegen.')
       return
     }
 
@@ -942,7 +942,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
       {/* ── Confirmation: switch linked Rentman project ── */}
-                            ['merge', 'Ports mergen (Inputs/Outputs auswahlen)'],
+                            ['merge', 'Ports mergen (Inputs/Outputs auswählen)'],
       {pendingProjectSwitch && (
         <div className="w-full max-w-md rounded border border-amber-600 bg-slate-900 p-5 text-slate-100 shadow-xl">
           <h3 className="mb-2 text-base font-semibold text-amber-400">Rentman-Projekt wechseln?</h3>
@@ -1170,7 +1170,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
             <table className="w-full text-xs">
               <thead className="sticky top-0 bg-slate-950 text-left text-[11px] uppercase tracking-wide text-slate-400">
                 <tr>
-                  <th className="px-2 py-1">Gerat</th>
+                  <th className="px-2 py-1">Gerät</th>
                   <th className="px-2 py-1">Rentman</th>
                   <th className="px-2 py-1">Zielkategorie</th>
                 </tr>
@@ -1194,7 +1194,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                         }
                         className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
                       >
-                        <option value="">Bitte auswahlen...</option>
+                        <option value="">Bitte auswählen...</option>
                         {importCategoryOptions.map((cat) => (
                           <option key={cat} value={cat}>
                             {cat}
@@ -1220,7 +1220,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               onClick={() => {
                 const hasMissing = categoryAssignments.some((row) => !row.targetCategory.trim())
                 if (hasMissing) {
-                  window.alert('Bitte fur jedes Gerat eine bestehende Kategorie wahlen.')
+                  window.alert('Bitte für jedes Gerät eine bestehende Kategorie wählen.')
                   return
                 }
                 const categoryByName: Record<string, string> = {}
@@ -1242,9 +1242,9 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         <>
       <div className="w-full max-w-3xl rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Import from Rentman</h3>
+          <h3 className="text-lg font-semibold">Aus Rentman importieren</h3>
           <button type="button" onClick={onClose} className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600">
-            Close
+            Schließen
           </button>
         </div>
 
@@ -1431,7 +1431,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                           }}
                           className="rounded bg-slate-700 px-2 py-0.5 hover:bg-slate-600"
                         >
-                          {allSelected ? 'Alle abwahlen' : 'Alle auswahlen'}
+                          {allSelected ? 'Alle abwählen' : 'Alle auswählen'}
                         </button>
                       )
                     })()}
