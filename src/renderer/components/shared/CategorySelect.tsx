@@ -1,5 +1,6 @@
 import { useProjectStore } from '../../store/projectStore'
 import { promptDialog } from '../../lib/promptDialog'
+import { useTranslation } from '../../lib/i18n'
 
 interface CategorySelectProps {
   value: string
@@ -37,11 +38,13 @@ export const CategorySelect = ({
   extraOptions,
   className = 'w-full rounded border border-slate-700 bg-slate-900 p-2',
   noCreate = false,
-  promptTitle = 'Neue Kategorie',
+  promptTitle,
 }: CategorySelectProps) => {
   const knownCategories = useProjectStore((s) => s.knownCategories)
   const customLibrary = useProjectStore((s) => s.customLibrary)
   const addKnownCategories = useProjectStore((s) => s.addKnownCategories)
+  const t = useTranslation()
+  const resolvedPromptTitle = promptTitle ?? t('category.newPrompt', 'Neue Kategorie')
 
   const options = Array.from(
     new Set(
@@ -60,7 +63,7 @@ export const CategorySelect = ({
       onChange={async (event) => {
         const next = event.target.value
         if (next === '__new__') {
-          const entered = (await promptDialog(promptTitle))?.trim()
+          const entered = (await promptDialog(resolvedPromptTitle))?.trim()
           if (entered) {
             onChange(entered)
             addKnownCategories([entered])
@@ -77,7 +80,7 @@ export const CategorySelect = ({
           {cat}
         </option>
       ))}
-      {!noCreate && <option value="__new__">+ Neue Kategorie…</option>}
+      {!noCreate && <option value="__new__">{t('category.new', '+ Neue Kategorie…')}</option>}
     </select>
   )
 }

@@ -9,6 +9,8 @@ import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { getGeminiApiKey, setGeminiApiKey } from '../../lib/aiSuggestions'
+import { format, useTranslation } from '../../lib/i18n'
+import type { Language } from '../../store/uiStore'
 
 interface SettingsDialogProps {
   open: boolean
@@ -23,18 +25,37 @@ type SettingsSection =
   | 'sync'
   | 'advanced'
 
-const TAB_TITLES: Record<SettingsSection, { label: string; icon: string; title: string }> = {
-  project: { label: 'Projekt', icon: '📋', title: 'Projekt-Einstellungen' },
-  appearance: { label: 'Darstellung', icon: '🎨', title: 'Darstellung' },
-  editing: { label: 'Bearbeiten', icon: '✏️', title: 'Bearbeiten' },
-  integrations: { label: 'Integrationen', icon: '🔌', title: 'Integrationen' },
-  sync: { label: 'Netzwerk-Sync', icon: '🔄', title: 'Netzwerk-Sync' },
-  advanced: { label: 'Erweitert', icon: '⚙', title: 'Erweitert' },
+const TAB_ICONS: Record<SettingsSection, string> = {
+  project: '📋',
+  appearance: '🎨',
+  editing: '✏️',
+  integrations: '🔌',
+  sync: '🔄',
+  advanced: '⚙',
+}
+
+const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
+  project: 'Projekt',
+  appearance: 'Darstellung',
+  editing: 'Bearbeiten',
+  integrations: 'Integrationen',
+  sync: 'Netzwerk-Sync',
+  advanced: 'Erweitert',
+}
+
+const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
+  project: 'Projekt-Einstellungen',
+  appearance: 'Darstellung',
+  editing: 'Bearbeiten',
+  integrations: 'Integrationen',
+  sync: 'Netzwerk-Sync',
+  advanced: 'Erweitert',
 }
 
 export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const [section, setSection] = useState<SettingsSection>('project')
   const drag = useDraggablePosition('cable-planner:modal-pos:settings', open)
+  const t = useTranslation()
 
   if (!open) return null
 
@@ -49,8 +70,8 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
           : 'text-slate-300 hover:bg-slate-800'
       }`}
     >
-      <span className="text-base">{TAB_TITLES[id].icon}</span>
-      <span>{TAB_TITLES[id].label}</span>
+      <span className="text-base">{TAB_ICONS[id]}</span>
+      <span>{t(`settings.tab.${id}`, TAB_FALLBACK_LABEL[id])}</span>
     </button>
   )
 
@@ -63,9 +84,9 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
       >
         <aside className="flex w-52 shrink-0 flex-col gap-1 border-r border-slate-800 bg-slate-950/40 p-3">
           <h3 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Einstellungen
+            {t('settings.section', 'Einstellungen')}
           </h3>
-          {(Object.keys(TAB_TITLES) as SettingsSection[]).map((id) => navItem(id))}
+          {(Object.keys(TAB_ICONS) as SettingsSection[]).map((id) => navItem(id))}
         </aside>
 
         <main className="flex min-w-0 flex-1 flex-col">
@@ -73,13 +94,15 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
             {...drag.headerProps}
             className="flex items-center justify-between border-b border-slate-800 px-4 py-2 select-none"
           >
-            <h2 className="text-base font-semibold">{TAB_TITLES[section].title}</h2>
+            <h2 className="text-base font-semibold">
+              {t(`settings.tabTitle.${section}`, TAB_FALLBACK_TITLE[section])}
+            </h2>
             <button
               type="button"
               onClick={onClose}
               className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
             >
-              Schließen
+              {t('common.close', 'Schließen')}
             </button>
           </header>
 
@@ -121,6 +144,7 @@ const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
   const metadata = useProjectStore((s) => s.project.metadata)
   const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
   const [draftMeta, setDraftMeta] = useState(metadata)
+  const t = useTranslation()
   useEffect(() => setDraftMeta(metadata), [metadata])
 
   const persistMeta = () =>
@@ -143,80 +167,92 @@ const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
   return (
     <div className="space-y-3">
       <p className="text-xs text-slate-400">
-        Projekt-Metadaten — werden mit der Cable-Planner-Datei gespeichert.
+        {t(
+          'settings.project.intro',
+          'Projekt-Metadaten — werden mit der Cable-Planner-Datei gespeichert.',
+        )}
       </p>
       <label className="block text-sm">
-        Projektname
+        {t('settings.project.name', 'Projektname')}
         <input
           type="text"
           value={draftMeta.name}
           onChange={(e) => setDraftMeta({ ...draftMeta, name: e.target.value })}
           className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
-          placeholder="Projektname"
+          placeholder={t('settings.project.name', 'Projektname')}
         />
       </label>
       <label className="block text-sm">
-        Beschreibung
+        {t('settings.project.description', 'Beschreibung')}
         <textarea
           value={draftMeta.description ?? ''}
           onChange={(e) => setDraftMeta({ ...draftMeta, description: e.target.value })}
           rows={3}
           className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
-          placeholder="Optionale Projektbeschreibung"
+          placeholder={t(
+            'settings.project.descriptionPlaceholder',
+            'Optionale Projektbeschreibung',
+          )}
         />
       </label>
       <div className="grid grid-cols-2 gap-2">
         <label className="block text-sm">
-          Auftraggeber (Kunde)
+          {t('settings.project.client', 'Auftraggeber (Kunde)')}
           <input
             type="text"
             value={draftMeta.client ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, client: e.target.value })}
             className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
-            placeholder="Endkunde"
+            placeholder={t('settings.project.clientPlaceholder', 'Endkunde')}
           />
         </label>
         <label className="block text-sm">
-          Auftragnehmer
+          {t('settings.project.contractor', 'Auftragnehmer')}
           <input
             type="text"
             value={draftMeta.contractor ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, contractor: e.target.value })}
             className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
-            placeholder="Ausführende Firma"
+            placeholder={t('settings.project.contractorPlaceholder', 'Ausführende Firma')}
           />
         </label>
       </div>
       <div className="grid grid-cols-2 gap-2">
         <label className="block text-sm">
-          Autor
+          {t('settings.project.author', 'Autor')}
           <input
             type="text"
             value={draftMeta.author ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, author: e.target.value })}
             className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
-            placeholder="Dein Name"
+            placeholder={t('settings.project.authorPlaceholder', 'Dein Name')}
           />
         </label>
         <label className="block text-sm">
-          Projekt-Nr.
+          {t('settings.project.number', 'Projekt-Nr.')}
           <input
             type="text"
             value={draftMeta.projectNumber ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, projectNumber: e.target.value })}
             className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
-            placeholder="z. B. 2026-042"
+            placeholder={t('settings.project.numberPlaceholder', 'z. B. 2026-042')}
           />
         </label>
       </div>
 
       <SettingsCard
-        title="Bauplan-Signatur (Logos)"
-        description="Logos werden als Daten-URI in der Projektdatei gespeichert (PDF-Export & Canvas-Signatur)."
+        title={t('settings.project.logos', 'Bauplan-Signatur (Logos)')}
+        description={t(
+          'settings.project.logosHint',
+          'Logos werden als Daten-URI in der Projektdatei gespeichert (PDF-Export & Canvas-Signatur).',
+        )}
       >
         <div className="grid grid-cols-2 gap-3">
           {(['companyLogo', 'clientLogo'] as const).map((field) => {
-            const label = field === 'companyLogo' ? 'Auftragnehmer' : 'Kunde'
+            const label =
+              field === 'companyLogo'
+                ? t('settings.project.logo.contractor', 'Auftragnehmer')
+                : t('settings.project.logo.client', 'Kunde')
             const current = draftMeta[field]
             return (
               <div key={field} className="flex flex-col items-center gap-2">
@@ -233,13 +269,13 @@ const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
                     onClick={() => pickLogo(field)}
                     className="flex-1 rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
                   >
-                    Wählen…
+                    {t('common.choose', 'Wählen…')}
                   </button>
                   {current && (
                     <button
                       type="button"
                       onClick={() => setDraftMeta((prev) => ({ ...prev, [field]: undefined }))}
-                      title="Logo entfernen"
+                      title={t('common.remove', 'Entfernen')}
                       className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
                     >
                       ✕
@@ -252,7 +288,7 @@ const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
         </div>
       </SettingsCard>
 
-      <SettingsCard title="Verknüpftes Rentman-Projekt">
+      <SettingsCard title={t('settings.project.linkedRentman', 'Verknüpftes Rentman-Projekt')}>
         {metadata.rentmanProjectId ? (
           <div className="text-xs text-slate-400">
             <span className="text-orange-300">
@@ -262,7 +298,10 @@ const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           </div>
         ) : (
           <div className="text-xs text-slate-500">
-            Kein Rentman-Projekt verknüpft. Verknüpfung im Tab „Integrationen“ herstellen.
+            {t(
+              'settings.project.notLinked',
+              'Kein Rentman-Projekt verknüpft. Verknüpfung im Tab „Integrationen“ herstellen.',
+            )}
           </div>
         )}
       </SettingsCard>
@@ -273,14 +312,14 @@ const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           onClick={() => setDraftMeta(metadata)}
           className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
         >
-          Zurücksetzen
+          {t('common.reset', 'Zurücksetzen')}
         </button>
         <button
           type="button"
           onClick={persistMeta}
           className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500"
         >
-          Speichern
+          {t('common.save', 'Speichern')}
         </button>
       </div>
     </div>
@@ -298,34 +337,81 @@ const AppearanceTab = () => {
   const setCableColorMode = useUiStore((s) => s.setCableColorMode)
   const defaultArrow = useUiStore((s) => s.defaultArrow)
   const setDefaultArrow = useUiStore((s) => s.setDefaultArrow)
+  const language = useUiStore((s) => s.language)
+  const setLanguage = useUiStore((s) => s.setLanguage)
+  const t = useTranslation()
 
   return (
     <div className="space-y-3">
       <SettingsCard
-        title="Theme"
-        description="Hintergrundfarbe des Canvas. Auf Dunkel optimiert; hell ist für PDF-Export oder helles Umgebungslicht."
+        title={t('settings.appearance.language', 'Sprache')}
+        description={t(
+          'settings.appearance.languageDesc',
+          'UI-Sprache. Umstellen wirkt sofort. Tief verschachtelte Dialoge sind teilweise noch nur deutsch — siehe Hinweis unten.',
+        )}
       >
         <div className="flex gap-1">
-          {(['dark', 'light'] as const).map((t) => (
+          {(
+            [
+              { value: 'de', flag: '🇩🇪', label: 'Deutsch' },
+              { value: 'en', flag: '🇬🇧', label: 'English' },
+            ] as { value: Language; flag: string; label: string }[]
+          ).map((opt) => (
             <button
-              key={t}
+              key={opt.value}
               type="button"
-              onClick={() => setCanvasTheme(t)}
+              onClick={() => setLanguage(opt.value)}
               className={`flex-1 rounded px-3 py-1 text-xs ${
-                canvasTheme === t
+                language === opt.value
                   ? 'bg-sky-700 text-white'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
             >
-              {t === 'dark' ? '🌙 Dunkel' : '☀ Hell'}
+              {opt.flag} {opt.label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-[10px] text-slate-500">
+          {t(
+            'settings.appearance.coverage',
+            'Aktuell übersetzt: Einstellungen, Top-Level-Menüs und gemeinsame Buttons. Properties-Panels, Bibliothek, Rentman, ATEM und Export-Dialoge bleiben einstweilen deutsch.',
+          )}
+        </p>
+      </SettingsCard>
+
+      <SettingsCard
+        title={t('settings.appearance.theme', 'Theme')}
+        description={t(
+          'settings.appearance.themeDesc',
+          'Hintergrundfarbe des Canvas. Auf Dunkel optimiert; hell ist für PDF-Export oder helles Umgebungslicht.',
+        )}
+      >
+        <div className="flex gap-1">
+          {(['dark', 'light'] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setCanvasTheme(mode)}
+              className={`flex-1 rounded px-3 py-1 text-xs ${
+                canvasTheme === mode
+                  ? 'bg-sky-700 text-white'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              }`}
+            >
+              {mode === 'dark'
+                ? t('settings.appearance.theme.dark', '🌙 Dunkel')
+                : t('settings.appearance.theme.light', '☀ Hell')}
             </button>
           ))}
         </div>
       </SettingsCard>
 
       <SettingsCard
-        title="Port-Farben"
-        description="Steuert, wie Anschluss-Punkte auf Geräten eingefärbt sind."
+        title={t('settings.appearance.ports', 'Port-Farben')}
+        description={t(
+          'settings.appearance.portsDesc',
+          'Steuert, wie Anschluss-Punkte auf Geräten eingefärbt sind.',
+        )}
       >
         <div className="flex gap-1">
           <button
@@ -336,9 +422,12 @@ const AppearanceTab = () => {
                 ? 'bg-sky-700 text-white'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
             }`}
-            title="Cyan = Eingang, Grün = Ausgang, Lila = bidirektional"
+            title={t(
+              'settings.appearance.ports.byDirectionTitle',
+              'Cyan = Eingang, Grün = Ausgang, Lila = bidirektional',
+            )}
           >
-            Nach Richtung (Standard)
+            {t('settings.appearance.ports.byDirection', 'Nach Richtung (Standard)')}
           </button>
           <button
             type="button"
@@ -348,16 +437,22 @@ const AppearanceTab = () => {
                 ? 'bg-sky-700 text-white'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
             }`}
-            title="SDI=amber, HDMI=violett, Ethernet=grün, Glasfaser=gelb …"
+            title={t(
+              'settings.appearance.ports.byTypeTitle',
+              'SDI=amber, HDMI=violett, Ethernet=grün, Glasfaser=gelb …',
+            )}
           >
-            Nach Steckertyp
+            {t('settings.appearance.ports.byType', 'Nach Steckertyp')}
           </button>
         </div>
       </SettingsCard>
 
       <SettingsCard
-        title="Kabelfarbe"
-        description="Manuell = pro Kabel im Properties-Panel; nach Länge = Längen-basierte Farbcodierung."
+        title={t('settings.appearance.cableColor', 'Kabelfarbe')}
+        description={t(
+          'settings.appearance.cableColorDesc',
+          'Manuell = pro Kabel im Properties-Panel; nach Länge = Längen-basierte Farbcodierung.',
+        )}
       >
         <div className="flex gap-1">
           <button
@@ -369,7 +464,7 @@ const AppearanceTab = () => {
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
             }`}
           >
-            Manuell
+            {t('settings.appearance.cableColor.manual', 'Manuell')}
           </button>
           <button
             type="button"
@@ -380,14 +475,17 @@ const AppearanceTab = () => {
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
             }`}
           >
-            Nach Länge
+            {t('settings.appearance.cableColor.byLength', 'Nach Länge')}
           </button>
         </div>
       </SettingsCard>
 
       <SettingsCard
-        title="Pfeile auf Kabeln"
-        description="Standard für neu gezeichnete Kabel. Per Kabel im Properties-Panel überschreibbar."
+        title={t('settings.appearance.arrows', 'Pfeile auf Kabeln')}
+        description={t(
+          'settings.appearance.arrowsDesc',
+          'Standard für neu gezeichnete Kabel. Per Kabel im Properties-Panel überschreibbar.',
+        )}
       >
         <label className="flex items-center gap-2 text-sm text-slate-200">
           <input
@@ -395,7 +493,10 @@ const AppearanceTab = () => {
             checked={defaultArrow}
             onChange={(e) => setDefaultArrow(e.target.checked)}
           />
-          Pfeil am Ziel-Ende anzeigen (Signalflussrichtung)
+          {t(
+            'settings.appearance.arrows.label',
+            'Pfeil am Ziel-Ende anzeigen (Signalflussrichtung)',
+          )}
         </label>
       </SettingsCard>
     </div>
@@ -413,12 +514,16 @@ const EditingTab = () => {
   const setDefaultRouting = useUiStore((s) => s.setDefaultRouting)
   const cables = useProjectStore((s) => s.project.cables)
   const updateCable = useProjectStore((s) => s.updateCable)
+  const t = useTranslation()
 
   return (
     <div className="space-y-3">
       <SettingsCard
-        title="Standard-Kabelführung"
-        description="Welche Form neue Kabel auf dem Canvas haben sollen. Per Kabel überschreibbar."
+        title={t('settings.editing.routing', 'Standard-Kabelführung')}
+        description={t(
+          'settings.editing.routingDesc',
+          'Welche Form neue Kabel auf dem Canvas haben sollen. Per Kabel überschreibbar.',
+        )}
       >
         <RoutingToggle value={defaultRouting} onChange={setDefaultRouting} />
         <button
@@ -427,8 +532,14 @@ const EditingTab = () => {
           onClick={async () => {
             if (
               !(await confirmDialog(
-                `Routing aller ${cables.length} bestehenden Kabel auf "${defaultRouting}" setzen?`,
-                { okLabel: 'Anwenden' },
+                format(
+                  t(
+                    'settings.editing.routing.applyAllConfirm',
+                    'Routing aller {count} bestehenden Kabel auf "{routing}" setzen?',
+                  ),
+                  { count: cables.length, routing: defaultRouting },
+                ),
+                { okLabel: t('common.apply', 'Anwenden') },
               ))
             )
               return
@@ -438,21 +549,27 @@ const EditingTab = () => {
           }}
           className="mt-2 w-full rounded bg-slate-800 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-700 disabled:opacity-40"
         >
-          Auf alle bestehenden Kabel anwenden ({cables.length})
+          {format(
+            t('settings.editing.routing.applyAll', 'Auf alle bestehenden Kabel anwenden ({count})'),
+            { count: cables.length },
+          )}
         </button>
       </SettingsCard>
 
-      <SettingsCard title="Raster (Grid)" description="Snap-to-Grid und Rastergröße in Pixeln.">
+      <SettingsCard
+        title={t('settings.editing.grid', 'Raster (Grid)')}
+        description={t('settings.editing.gridDesc', 'Snap-to-Grid und Rastergröße in Pixeln.')}
+      >
         <label className="flex items-center gap-2 text-sm text-slate-200">
           <input
             type="checkbox"
             checked={snapToGrid}
             onChange={(e) => setSnapToGrid(e.target.checked)}
           />
-          Geräte am Raster einrasten
+          {t('settings.editing.snapLabel', 'Geräte am Raster einrasten')}
         </label>
         <label className="mt-2 block text-sm text-slate-300">
-          Rastergröße (Pixel)
+          {t('settings.editing.gridSize', 'Rastergröße (Pixel)')}
           <input
             type="number"
             min={2}
@@ -480,13 +597,19 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
   const [busy, setBusy] = useState(false)
   const [geminiKey, setGeminiKeyState] = useState(getGeminiApiKey())
   const [geminiSaved, setGeminiSaved] = useState(false)
+  const t = useTranslation()
 
   useEffect(() => {
     cablePlannerApi.credentials.getToken().then((stored) => {
       setHasToken(Boolean(stored))
       setToken(stored ?? '')
-      setTokenStatus(stored ? 'Token aus sicherem Speicher geladen.' : 'Kein Token konfiguriert')
+      setTokenStatus(
+        stored
+          ? t('settings.integrations.rentman.statusLoaded', 'Token aus sicherem Speicher geladen.')
+          : t('settings.integrations.rentman.statusNone', 'Kein Token konfiguriert'),
+      )
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setHasToken, setTokenStatus])
 
   const saveToken = async () => {
@@ -494,7 +617,9 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
     try {
       await cablePlannerApi.credentials.saveToken(token)
       setHasToken(true)
-      setTokenStatus('Token sicher gespeichert.')
+      setTokenStatus(
+        t('settings.integrations.rentman.statusSaved', 'Token sicher gespeichert.'),
+      )
     } catch (error) {
       setTokenStatus(error instanceof Error ? error.message : 'Konnte Token nicht speichern')
     } finally {
@@ -518,7 +643,7 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
       await cablePlannerApi.credentials.deleteToken()
       setToken('')
       setHasToken(false)
-      setTokenStatus('Token gelöscht.')
+      setTokenStatus(t('settings.integrations.rentman.statusDeleted', 'Token gelöscht.'))
     } finally {
       setBusy(false)
     }
@@ -533,17 +658,23 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
   return (
     <div className="space-y-3">
       <SettingsCard
-        title="Rentman API"
-        description="Bearer-Token aus deinem Rentman-Account. Wird mit dem Betriebssystem-Schlüsselbund verschlüsselt gespeichert (nie im Projektfile)."
+        title={t('settings.integrations.rentman', 'Rentman API')}
+        description={t(
+          'settings.integrations.rentmanDesc',
+          'Bearer-Token aus deinem Rentman-Account. Wird mit dem Betriebssystem-Schlüsselbund verschlüsselt gespeichert (nie im Projektfile).',
+        )}
       >
         <label className="block text-sm">
-          API-Token
+          {t('settings.integrations.rentman.token', 'API-Token')}
           <input
             type="password"
             value={token}
             onChange={(e) => setToken(e.target.value)}
             className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-xs"
-            placeholder="Bearer-Token einfügen"
+            placeholder={t(
+              'settings.integrations.rentman.tokenPlaceholder',
+              'Bearer-Token einfügen',
+            )}
             autoComplete="off"
           />
         </label>
@@ -555,9 +686,15 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           }`}
         >
           <div>
-            <span className="font-semibold">Status:</span> {tokenStatus}
+            <span className="font-semibold">
+              {t('settings.integrations.rentman.status', 'Status:')}
+            </span>{' '}
+            {tokenStatus}
           </div>
-          <div className="text-slate-500">Token gespeichert: {hasToken ? 'Ja' : 'Nein'}</div>
+          <div className="text-slate-500">
+            {t('settings.integrations.rentman.tokenStored', 'Token gespeichert:')}{' '}
+            {hasToken ? t('common.yes', 'Ja') : t('common.no', 'Nein')}
+          </div>
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
           <button
@@ -566,7 +703,7 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             onClick={saveToken}
             className="rounded bg-sky-600 px-3 py-1 text-sm hover:bg-sky-500 disabled:opacity-50"
           >
-            Token speichern
+            {t('settings.integrations.rentman.save', 'Token speichern')}
           </button>
           <button
             type="button"
@@ -574,7 +711,7 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             onClick={testToken}
             className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500 disabled:opacity-50"
           >
-            Verbindung testen
+            {t('settings.integrations.rentman.test', 'Verbindung testen')}
           </button>
           <button
             type="button"
@@ -582,19 +719,22 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             onClick={removeToken}
             className="rounded bg-red-600 px-3 py-1 text-sm hover:bg-red-500 disabled:opacity-50"
           >
-            Token löschen
+            {t('settings.integrations.rentman.delete', 'Token löschen')}
           </button>
         </div>
         <div className="mt-2 text-[11px] text-slate-500">
-          Endpunkt: <code>https://api.rentman.net</code>
+          {t('settings.integrations.rentman.endpoint', 'Endpunkt:')}{' '}
+          <code>https://api.rentman.net</code>
         </div>
       </SettingsCard>
 
-      <SettingsCard title="Verknüpftes Rentman-Projekt">
+      <SettingsCard
+        title={t('settings.integrations.linkedRentman', 'Verknüpftes Rentman-Projekt')}
+      >
         {metadata.rentmanProjectId ? (
           <div className="space-y-2">
             <div className="text-xs text-slate-400">
-              Aktuell verknüpft mit{' '}
+              {t('settings.integrations.linkedRentman.current', 'Aktuell verknüpft mit ')}
               <span className="text-orange-300">
                 {metadata.rentmanProjectName ?? `Projekt #${metadata.rentmanProjectId}`}
               </span>
@@ -609,13 +749,19 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
               }}
               className="rounded bg-orange-700 px-3 py-1 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
             >
-              Anderes Rentman-Projekt wählen…
+              {t(
+                'settings.integrations.linkedRentman.choose',
+                'Anderes Rentman-Projekt wählen…',
+              )}
             </button>
           </div>
         ) : (
           <div className="space-y-2">
             <div className="text-xs text-slate-500">
-              Noch kein Rentman-Projekt mit diesem Cable-Planner-Projekt verknüpft.
+              {t(
+                'settings.integrations.linkedRentman.none',
+                'Noch kein Rentman-Projekt mit diesem Cable-Planner-Projekt verknüpft.',
+              )}
             </div>
             <button
               type="button"
@@ -625,17 +771,27 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
                 onClose()
               }}
               className="rounded bg-orange-700 px-3 py-1 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
-              title={hasToken ? 'Rentman-Projekt auswählen' : 'Erst Token speichern'}
+              title={
+                hasToken
+                  ? t('settings.integrations.linkedRentman.titleSelect', 'Rentman-Projekt auswählen')
+                  : t('settings.integrations.linkedRentman.titleNeedToken', 'Erst Token speichern')
+              }
             >
-              Mit Rentman-Projekt verknüpfen…
+              {t(
+                'settings.integrations.linkedRentman.link',
+                'Mit Rentman-Projekt verknüpfen…',
+              )}
             </button>
           </div>
         )}
       </SettingsCard>
 
       <SettingsCard
-        title="Gemini API (KI-Port-Vorschläge)"
-        description="API-Key von aistudio.google.com. Wird im Browser-localStorage gespeichert. Nötig für die '✨ Gemini'-Buttons im Geräte-Wizard und in der Bibliothek."
+        title={t('settings.integrations.gemini', 'Gemini API (KI-Port-Vorschläge)')}
+        description={t(
+          'settings.integrations.geminiDesc',
+          "API-Key von aistudio.google.com. Wird im Browser-localStorage gespeichert. Nötig für die '✨ Gemini'-Buttons im Geräte-Wizard und in der Bibliothek.",
+        )}
       >
         <input
           type="password"
@@ -651,9 +807,13 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             onClick={saveGemini}
             className="rounded bg-sky-600 px-3 py-1 text-sm hover:bg-sky-500"
           >
-            Key speichern
+            {t('settings.integrations.gemini.save', 'Key speichern')}
           </button>
-          {geminiSaved && <span className="text-xs text-emerald-300">✓ gespeichert</span>}
+          {geminiSaved && (
+            <span className="text-xs text-emerald-300">
+              {t('settings.integrations.gemini.saved', '✓ gespeichert')}
+            </span>
+          )}
           {geminiKey && (
             <button
               type="button"
@@ -663,12 +823,12 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
               }}
               className="ml-auto rounded bg-slate-800 px-3 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
             >
-              Löschen
+              {t('settings.integrations.gemini.delete', 'Löschen')}
             </button>
           )}
         </div>
         <div className="mt-2 text-[11px] text-slate-500">
-          Key bei{' '}
+          {t('settings.integrations.gemini.hint', 'Key bei ')}
           <a
             href="https://aistudio.google.com/app/apikey"
             target="_blank"
@@ -693,6 +853,7 @@ const SyncTab = () => {
   const setSyncUser = useSettingsStore((s) => s.setSyncUser)
   const [draftSyncPath, setDraftSyncPath] = useState(sharedSyncPath)
   const [draftSyncUser, setDraftSyncUser] = useState(sharedSyncUser)
+  const t = useTranslation()
 
   useEffect(() => {
     setDraftSyncPath(sharedSyncPath)
@@ -703,15 +864,20 @@ const SyncTab = () => {
     <div className="space-y-3 text-sm">
       {!hasDesktopBridge && (
         <div className="rounded border border-amber-700/50 bg-amber-900/20 p-2 text-xs text-amber-300">
-          Netzwerk-Sync ist nur in der Desktop-App verfügbar.
+          {t(
+            'settings.sync.desktopOnly',
+            'Netzwerk-Sync ist nur in der Desktop-App verfügbar.',
+          )}
         </div>
       )}
       <p className="text-xs text-slate-400">
-        Gemeinsames Verzeichnis (FTP-Laufwerk, Netzwerkpfad oder lokaler Ordner), in dem Projekt,
-        Bibliothek und Presets als JSON-Dateien geteilt werden.
+        {t(
+          'settings.sync.intro',
+          'Gemeinsames Verzeichnis (FTP-Laufwerk, Netzwerkpfad oder lokaler Ordner), in dem Projekt, Bibliothek und Presets als JSON-Dateien geteilt werden.',
+        )}
       </p>
       <label className="block text-sm text-slate-300">
-        Sync-Verzeichnis
+        {t('settings.sync.path', 'Sync-Verzeichnis')}
         <input
           type="text"
           value={draftSyncPath}
@@ -721,13 +887,13 @@ const SyncTab = () => {
         />
       </label>
       <label className="block text-sm text-slate-300">
-        Benutzername (für Lock-Anzeige)
+        {t('settings.sync.user', 'Benutzername (für Lock-Anzeige)')}
         <input
           type="text"
           value={draftSyncUser}
           onChange={(e) => setDraftSyncUser(e.target.value)}
           className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
-          placeholder="z. B. Max Mustermann"
+          placeholder={t('settings.sync.userPlaceholder', 'z. B. Max Mustermann')}
         />
       </label>
       <div className="flex justify-end gap-2 pt-1">
@@ -739,7 +905,7 @@ const SyncTab = () => {
           }}
           className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
         >
-          Zurücksetzen
+          {t('common.reset', 'Zurücksetzen')}
         </button>
         <button
           type="button"
@@ -749,19 +915,28 @@ const SyncTab = () => {
           }}
           className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500"
         >
-          Speichern
+          {t('common.save', 'Speichern')}
         </button>
       </div>
-      <SettingsCard title="Hinweise">
+      <SettingsCard title={t('settings.sync.notes', 'Hinweise')}>
         <ul className="list-inside list-disc space-y-1 text-xs text-slate-400">
           <li>
-            Push schreibt: <code>cable-planner.project.json</code>,{' '}
-            <code>.library.json</code>, <code>.presets.json</code>
+            {t(
+              'settings.sync.notes.push',
+              'Push schreibt: cable-planner.project.json, .library.json, .presets.json',
+            )}
           </li>
-          <li>Pull lädt diese Dateien aus dem Verzeichnis in den aktuellen Stand.</li>
           <li>
-            Ein Lock-File (<code>.cable-planner-sync.lock</code>) verhindert gleichzeitiges
-            Überschreiben (2 h TTL).
+            {t(
+              'settings.sync.notes.pull',
+              'Pull lädt diese Dateien aus dem Verzeichnis in den aktuellen Stand.',
+            )}
+          </li>
+          <li>
+            {t(
+              'settings.sync.notes.lock',
+              'Ein Lock-File (.cable-planner-sync.lock) verhindert gleichzeitiges Überschreiben (2 h TTL).',
+            )}
           </li>
         </ul>
       </SettingsCard>
@@ -778,38 +953,56 @@ const AdvancedTab = () => {
   const customLibrary = useProjectStore((s) => s.customLibrary)
   const renameCustomCategory = useProjectStore((s) => s.renameCustomCategory)
   const addKnownCategories = useProjectStore((s) => s.addKnownCategories)
+  const t = useTranslation()
 
   const allCategories = useMemo(
     () =>
       Array.from(
         new Set([
           ...knownCategories,
-          ...customLibrary.map((t) => t.category).filter(Boolean),
+          ...customLibrary.map((tpl) => tpl.category).filter(Boolean),
         ]),
       ).sort((a, b) => a.localeCompare(b)),
     [knownCategories, customLibrary],
   )
 
   const usageCount = (cat: string) =>
-    customLibrary.filter((t) => t.category === cat).length
+    customLibrary.filter((tpl) => tpl.category === cat).length
 
   const handleRename = async (cat: string) => {
-    const next = (await promptDialog('Kategorie umbenennen', cat))?.trim()
+    const next = (
+      await promptDialog(t('settings.advanced.categories.renamePrompt', 'Kategorie umbenennen'), cat)
+    )?.trim()
     if (!next || next === cat) return
     renameCustomCategory(cat, next)
   }
 
   const handleAdd = async () => {
-    const next = (await promptDialog('Neue Kategorie'))?.trim()
+    const next = (
+      await promptDialog(t('settings.advanced.categories.addPrompt', 'Neue Kategorie'))
+    )?.trim()
     if (next) addKnownCategories([next])
   }
 
   const clearCache = async (key: string, label: string) => {
-    if (!(await confirmDialog(`${label} leeren?`, { destructive: true, okLabel: 'Leeren' })))
+    if (
+      !(await confirmDialog(
+        format(t('settings.advanced.caches.confirm', '{label} leeren?'), { label }),
+        { destructive: true, okLabel: t('settings.advanced.caches.confirmBtn', 'Leeren') },
+      ))
+    )
       return
     try {
       localStorage.removeItem(key)
-      window.alert(`${label} geleert. Beim nächsten Start wird neu geladen.`)
+      window.alert(
+        format(
+          t(
+            'settings.advanced.caches.cleared',
+            '{label} geleert. Beim nächsten Start wird neu geladen.',
+          ),
+          { label },
+        ),
+      )
     } catch {
       /* ignore */
     }
@@ -831,9 +1024,13 @@ const AdvancedTab = () => {
 
   const resetWelcome = async () => {
     if (
-      !(await confirmDialog('Willkommens-Dialog beim nächsten Start wieder anzeigen?', {
-        okLabel: 'Zurücksetzen',
-      }))
+      !(await confirmDialog(
+        t(
+          'settings.advanced.caches.welcomeConfirm',
+          'Willkommens-Dialog beim nächsten Start wieder anzeigen?',
+        ),
+        { okLabel: t('common.reset', 'Zurücksetzen') },
+      ))
     )
       return
     localStorage.removeItem('cable-planner:welcomed')
@@ -842,11 +1039,14 @@ const AdvancedTab = () => {
   return (
     <div className="space-y-3">
       <SettingsCard
-        title="Autosave"
-        description="Wie oft das aktuelle Projekt automatisch in localStorage gespeichert wird. Standard: 400 ms."
+        title={t('settings.advanced.autosave', 'Autosave')}
+        description={t(
+          'settings.advanced.autosaveDesc',
+          'Wie oft das aktuelle Projekt automatisch in localStorage gespeichert wird. Standard: 400 ms.',
+        )}
       >
         <label className="block text-sm text-slate-300">
-          Autosave-Intervall (ms)
+          {t('settings.advanced.autosaveInterval', 'Autosave-Intervall (ms)')}
           <input
             type="number"
             min={100}
@@ -860,16 +1060,23 @@ const AdvancedTab = () => {
       </SettingsCard>
 
       <SettingsCard
-        title="Kategorienverwaltung"
-        description="Bibliothek-Kategorien umbenennen oder neue anlegen. Beim Umbenennen wandern alle zugeordneten Vorlagen mit."
+        title={t('settings.advanced.categories', 'Kategorienverwaltung')}
+        description={t(
+          'settings.advanced.categoriesDesc',
+          'Bibliothek-Kategorien umbenennen oder neue anlegen. Beim Umbenennen wandern alle zugeordneten Vorlagen mit.',
+        )}
       >
         <div className="max-h-56 overflow-auto rounded border border-slate-800 bg-slate-950/50">
           <table className="w-full text-xs">
             <thead className="sticky top-0 bg-slate-900 text-slate-400">
               <tr>
-                <th className="px-2 py-1 text-left">Kategorie</th>
-                <th className="px-2 py-1 text-right">Vorlagen</th>
-                <th className="px-2 py-1" />
+                <th className="px-2 py-1 text-left">
+                  {t('settings.advanced.categories.col.name', 'Kategorie')}
+                </th>
+                <th className="px-2 py-1 text-right">
+                  {t('settings.advanced.categories.col.count', 'Vorlagen')}
+                </th>
+                <th className="px-2 py-1" aria-label="Aktionen" />
               </tr>
             </thead>
             <tbody>
@@ -883,7 +1090,7 @@ const AdvancedTab = () => {
                       onClick={() => handleRename(cat)}
                       className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
                     >
-                      Umbenennen
+                      {t('common.rename', 'Umbenennen')}
                     </button>
                   </td>
                 </tr>
@@ -891,7 +1098,7 @@ const AdvancedTab = () => {
               {allCategories.length === 0 && (
                 <tr>
                   <td colSpan={3} className="px-2 py-3 text-center text-slate-500">
-                    Noch keine Kategorien.
+                    {t('settings.advanced.categories.empty', 'Noch keine Kategorien.')}
                   </td>
                 </tr>
               )}
@@ -903,13 +1110,16 @@ const AdvancedTab = () => {
           onClick={handleAdd}
           className="mt-2 rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600"
         >
-          + Neue Kategorie
+          {t('settings.advanced.categories.addBtn', '+ Neue Kategorie')}
         </button>
       </SettingsCard>
 
       <SettingsCard
-        title="Caches & Lokale Daten"
-        description="Cache-Inhalte werden bei Bedarf neu geladen. Daten gehen nicht verloren — nur die Performance-Caches."
+        title={t('settings.advanced.caches', 'Caches & Lokale Daten')}
+        description={t(
+          'settings.advanced.cachesDesc',
+          'Cache-Inhalte werden bei Bedarf neu geladen. Daten gehen nicht verloren — nur die Performance-Caches.',
+        )}
       >
         <div className="grid grid-cols-1 gap-1">
           <button
@@ -919,42 +1129,45 @@ const AdvancedTab = () => {
             }
             className="rounded bg-slate-700 px-3 py-1 text-xs text-left hover:bg-slate-600"
           >
-            Rentman-Template-Cache leeren
+            {t('settings.advanced.caches.rentman', 'Rentman-Template-Cache leeren')}
           </button>
           <button
             type="button"
             onClick={() => clearCache('cable-planner:netbox:index:v1', 'NetBox-Index-Cache')}
             className="rounded bg-slate-700 px-3 py-1 text-xs text-left hover:bg-slate-600"
           >
-            NetBox-Index-Cache leeren
+            {t('settings.advanced.caches.netbox', 'NetBox-Index-Cache leeren')}
           </button>
           <button
             type="button"
             onClick={() => clearCache('cable-planner:web:recents', 'Web-Suchverlauf')}
             className="rounded bg-slate-700 px-3 py-1 text-xs text-left hover:bg-slate-600"
           >
-            Web-Suchverlauf leeren
+            {t('settings.advanced.caches.web', 'Web-Suchverlauf leeren')}
           </button>
           <button
             type="button"
             onClick={resetWelcome}
             className="rounded bg-slate-700 px-3 py-1 text-xs text-left hover:bg-slate-600"
           >
-            Willkommens-Dialog beim nächsten Start zeigen
+            {t('settings.advanced.caches.welcome', 'Willkommens-Dialog beim nächsten Start zeigen')}
           </button>
         </div>
       </SettingsCard>
 
       <SettingsCard
-        title="Datenexport"
-        description="Lokal gespeicherte Cable-Planner-Daten als JSON exportieren — z. B. zum Übertragen auf eine andere Maschine."
+        title={t('settings.advanced.export', 'Datenexport')}
+        description={t(
+          'settings.advanced.exportDesc',
+          'Lokal gespeicherte Cable-Planner-Daten als JSON exportieren — z. B. zum Übertragen auf eine andere Maschine.',
+        )}
       >
         <button
           type="button"
           onClick={exportAllData}
           className="rounded bg-amber-700 px-3 py-1 text-xs hover:bg-amber-600"
         >
-          Alle localStorage-Daten exportieren
+          {t('settings.advanced.exportBtn', 'Alle localStorage-Daten exportieren')}
         </button>
       </SettingsCard>
     </div>
