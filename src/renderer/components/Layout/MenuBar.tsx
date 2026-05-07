@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
+import { useTranslation } from '../../lib/i18n'
 
 interface MenuBarProps {
   onNewProject: () => void
@@ -53,37 +54,38 @@ export const MenuBar = ({
   rentmanProjectName,
   hasToken = false,
 }: MenuBarProps) => {
+  const t = useTranslation()
   return (
     <header className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-700 bg-slate-950 px-3 py-1.5 text-xs shadow-sm">
       <div className="flex items-center gap-2">
         <span className="select-none font-semibold tracking-wide text-slate-300">
-          Cable Planner
+          {t('app.title', 'Cable Planner')}
         </span>
         <span className="text-slate-700">│</span>
 
-        <Menu label="Datei">
+        <Menu label={t('app.menu.file', 'Datei')}>
           <MenuItem onClick={onNewProject} icon="📄" shortcut="Strg+N">
-            Neues Projekt
+            {t('app.menu.file.new', 'Neues Projekt')}
           </MenuItem>
           <MenuItem onClick={onOpenProject} icon="📂" shortcut="Strg+O">
-            Öffnen…
+            {t('app.menu.file.open', 'Öffnen…')}
           </MenuItem>
           <MenuSep />
           <MenuItem onClick={onSaveProject} icon="💾" shortcut="Strg+S">
-            Speichern
+            {t('app.menu.file.save', 'Speichern')}
           </MenuItem>
           <MenuItem onClick={onSaveProjectAs} icon="💾" shortcut="Strg+Umsch+S">
-            Speichern unter…
+            {t('app.menu.file.saveAs', 'Speichern unter…')}
           </MenuItem>
         </Menu>
 
-        <Menu label="Export">
+        <Menu label={t('app.menu.export', 'Export')}>
           <MenuItem onClick={onExportPdf} icon="📑">
-            Plan als PDF…
+            {t('app.menu.export.pdf', 'Plan als PDF…')}
           </MenuItem>
           {onOpenCableBom && (
             <MenuItem onClick={onOpenCableBom} icon="🧮">
-              Kabel-Stückliste (BOM)…
+              {t('app.menu.export.cableBom', 'Kabel-Stückliste (BOM)…')}
             </MenuItem>
           )}
           {(onAttachPdfToRentman || onOpenRentmanCableExport) && <MenuSep />}
@@ -93,8 +95,11 @@ export const MenuBar = ({
               icon="📎"
             >
               {hasRentmanLink
-                ? 'Plan an Rentman anhängen…'
-                : 'Plan an Rentman anhängen (kein Projekt verknüpft)'}
+                ? t('app.menu.export.attachRentman', 'Plan an Rentman anhängen…')
+                : t(
+                    'app.menu.export.attachRentmanDisabled',
+                    'Plan an Rentman anhängen (kein Projekt verknüpft)',
+                  )}
             </MenuItem>
           )}
           {onOpenRentmanCableExport && (
@@ -103,16 +108,19 @@ export const MenuBar = ({
               icon="🔌"
             >
               {hasRentmanLink
-                ? 'Kabel an Rentman senden…'
-                : 'Kabel an Rentman senden (kein Projekt verknüpft)'}
+                ? t('app.menu.export.cablesRentman', 'Kabel an Rentman senden…')
+                : t(
+                    'app.menu.export.cablesRentmanDisabled',
+                    'Kabel an Rentman senden (kein Projekt verknüpft)',
+                  )}
             </MenuItem>
           )}
         </Menu>
 
         {onOpenTour && (
-          <Menu label="Hilfe">
+          <Menu label={t('app.menu.help', 'Hilfe')}>
             <MenuItem onClick={onOpenTour} icon="💡">
-              Erste-Schritte-Tour…
+              {t('app.menu.help.tour', 'Erste-Schritte-Tour…')}
             </MenuItem>
           </Menu>
         )}
@@ -125,7 +133,7 @@ export const MenuBar = ({
             onClick={onEditProjectMeta}
             disabled={!onEditProjectMeta}
             className="group flex max-w-[42ch] items-center gap-1 truncate rounded px-2 py-0.5 text-slate-200 hover:bg-slate-800 hover:text-white disabled:cursor-default disabled:hover:bg-transparent"
-            title={onEditProjectMeta ? 'Projektdaten bearbeiten' : projectName}
+            title={onEditProjectMeta ? t('app.editProjectMeta', 'Projektdaten bearbeiten') : projectName}
           >
             <span className="truncate font-medium">{projectName}</span>
             {onEditProjectMeta && (
@@ -142,12 +150,12 @@ export const MenuBar = ({
         <SharedSyncPanel />
         {onChangeVideoFormat && (
           <label className="flex items-center gap-1 text-[11px] text-slate-400">
-            <span>Format:</span>
+            <span>{t('app.videoFormat', 'Format:')}</span>
             <select
               value={videoFormat ?? '1080p50'}
               onChange={(event) => onChangeVideoFormat(event.target.value)}
               className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-xs text-slate-100"
-              title="Projekt-Standard-Videoformat (SDI)"
+              title={t('app.videoFormatTitle', 'Projekt-Standard-Videoformat (SDI)')}
             >
               <option value="1080i50">1080i50</option>
               <option value="1080p25">1080p25</option>
@@ -164,9 +172,9 @@ export const MenuBar = ({
           type="button"
           onClick={onOpenSettings}
           className="rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
-          title="Einstellungen"
+          title={t('settings.title', 'Einstellungen')}
         >
-          ⚙ Einstellungen
+          ⚙ {t('settings.title', 'Einstellungen')}
         </button>
       </div>
     </header>

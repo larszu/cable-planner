@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { createRoot } from 'react-dom/client'
+import { useTranslation } from './i18n'
 
 /**
  * Promise-based replacement for window.confirm(). Matches `promptDialog`
@@ -49,6 +50,7 @@ interface Props {
 
 const ConfirmDialog = ({ title, options, onDone }: Props) => {
   const okRef = useRef<HTMLButtonElement>(null)
+  const t = useTranslation()
 
   useEffect(() => {
     okRef.current?.focus()
@@ -117,7 +119,7 @@ const ConfirmDialog = ({ title, options, onDone }: Props) => {
               fontSize: 13,
             }}
           >
-            {options.cancelLabel ?? 'Abbrechen'}
+            {options.cancelLabel ?? t('common.cancel', 'Abbrechen')}
           </button>
           <button
             ref={okRef}
@@ -136,7 +138,7 @@ const ConfirmDialog = ({ title, options, onDone }: Props) => {
             onMouseEnter={(e) => (e.currentTarget.style.background = okHover)}
             onMouseLeave={(e) => (e.currentTarget.style.background = okBg)}
           >
-            {options.okLabel ?? 'OK'}
+            {options.okLabel ?? t('common.ok', 'OK')}
           </button>
         </div>
       </div>

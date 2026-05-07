@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 
 export type EdgeRouting = 'orthogonal' | 'straight' | 'curved'
+export type Language = 'de' | 'en'
 
 const KEY = 'cable-planner:ui'
 
@@ -23,6 +24,9 @@ interface PersistedUiState {
    * Ethernet = green, …). When false, the input/output dichotomy palette
    * is used (cyan for inputs, green for outputs, purple for bidirectional). */
   colorPortsByType: boolean
+  /** UI language. Coverage is partial today — see lib/i18n.ts. Defaults to
+   *  German because that's the historical UI language of the codebase. */
+  language: Language
 }
 
 const defaults: PersistedUiState = {
@@ -37,6 +41,7 @@ const defaults: PersistedUiState = {
   cableColorMode: 'manual',
   canvasTheme: 'dark',
   colorPortsByType: false,
+  language: 'de',
 }
 
 const load = (): PersistedUiState => {
@@ -69,6 +74,7 @@ interface UiState extends PersistedUiState {
   setCableColorMode: (value: 'manual' | 'byLength') => void
   setCanvasTheme: (value: 'dark' | 'light') => void
   setColorPortsByType: (value: boolean) => void
+  setLanguage: (value: Language) => void
   pdfExportThemeOverride: 'dark' | 'light' | null
   setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
   cableEdit: { open: boolean; cableId?: string }
@@ -159,6 +165,7 @@ export const useUiStore = create<UiState>((set) => ({
   setCableColorMode: (value) => set(applyPatch({ cableColorMode: value })),
   setCanvasTheme: (value) => set(applyPatch({ canvasTheme: value })),
   setColorPortsByType: (value) => set(applyPatch({ colorPortsByType: value })),
+  setLanguage: (value) => set(applyPatch({ language: value })),
   pdfExportThemeOverride: null,
   setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
   cableEdit: { open: false },

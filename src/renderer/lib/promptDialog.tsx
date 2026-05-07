@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
+import { useTranslation } from './i18n'
 
 /**
  * Promise-based replacement for window.prompt(). Electron disables the native
@@ -30,6 +31,7 @@ interface Props {
 const PromptDialog = ({ title, defaultValue, onDone }: Props) => {
   const [value, setValue] = useState(defaultValue)
   const inputRef = useRef<HTMLInputElement>(null)
+  const t = useTranslation()
 
   useEffect(() => {
     inputRef.current?.focus()
@@ -105,7 +107,7 @@ const PromptDialog = ({ title, defaultValue, onDone }: Props) => {
               cursor: 'pointer',
             }}
           >
-            Abbrechen
+            {t('common.cancel', 'Abbrechen')}
           </button>
           <button
             type="submit"
@@ -118,7 +120,7 @@ const PromptDialog = ({ title, defaultValue, onDone }: Props) => {
               cursor: 'pointer',
             }}
           >
-            OK
+            {t('common.ok', 'OK')}
           </button>
         </div>
       </form>
