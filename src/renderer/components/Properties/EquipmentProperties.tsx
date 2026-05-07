@@ -1134,12 +1134,12 @@ export const EquipmentProperties = () => {
               })
             }
           />
-          <span>Ist ein 19" Rack-Gerat</span>
+          <span>Ist ein 19" Rack-Gerät</span>
         </label>
 
         {!equipment.isRackDevice && (
           <div className="rounded border border-slate-800 bg-slate-900/50 p-2 text-[11px] text-slate-400">
-            Rack-Felder erscheinen nur, wenn das Gerat als 19" Rack-Gerat markiert ist.
+            Rack-Felder erscheinen nur, wenn das Gerät als 19" Rack-Gerät markiert ist.
           </div>
         )}
 

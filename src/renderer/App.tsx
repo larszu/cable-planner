@@ -830,7 +830,7 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
             onClick={onCancel}
             className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
           >
-            Cancel
+            Abbrechen
           </button>
           <button
             type="button"

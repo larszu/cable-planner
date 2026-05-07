@@ -341,7 +341,7 @@ export const CableProperties = () => {
         onClick={() => deleteCable(cable.id)}
         className="w-full rounded bg-red-700 px-2 py-1 text-white hover:bg-red-600"
       >
-        Delete Cable
+        Kabel löschen
       </button>
     </div>
   )

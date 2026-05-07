@@ -102,7 +102,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     const port = parseInt(vhPort, 10)
     if (!vhHost.trim() || isNaN(port)) {
       setSendStatus('error')
-      setSendMessage('Bitte gÃ¼ltige IP und Port angeben.')
+      setSendMessage('Bitte gültige IP und Port angeben.')
       return
     }
     setSendStatus('sending')
@@ -126,25 +126,25 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
       <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-base font-semibold">Export â†’ Blackmagic Videohub</h3>
+          <h3 className="text-base font-semibold">Export → Blackmagic Videohub</h3>
           <button
             type="button"
             onClick={onClose}
             className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
           >
-            âœ•
+            ✕
           </button>
         </div>
 
         <div className="mb-3 grid grid-cols-2 gap-3 text-sm">
           <label className="block">
-            GerÃ¤t auf dem Canvas
+            Gerät auf dem Canvas
             <select
               value={deviceId}
               onChange={(e) => setDeviceId(e.target.value)}
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
             >
-              <option value="">â€” GerÃ¤t wÃ¤hlen â€”</option>
+              <option value="">— Gerät wählen —</option>
               {equipment.map((e) => (
                 <option key={e.id} value={e.id}>
                   {e.name} ({e.inputs.length}/{e.outputs.length})
@@ -167,7 +167,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             >
               {videohubPresets.map((p) => (
                 <option key={p.key} value={p.key}>
-                  {p.model} ({p.inputs}Ã—{p.outputs})
+                  {p.model} ({p.inputs}×{p.outputs})
                 </option>
               ))}
             </select>
@@ -198,8 +198,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
 
         {device && (device.inputs.length > preset.inputs || device.outputs.length > preset.outputs) && (
           <div className="mb-2 rounded bg-amber-950 p-2 text-xs text-amber-300">
-            Warnung: Das GerÃ¤t hat mehr Ports ({device.inputs.length} IN / {device.outputs.length} OUT)
-            als das gewÃ¤hlte Modell ({preset.inputs}Ã—{preset.outputs}). ÃœberschÃ¼ssige Ports werden
+            Warnung: Das Gerät hat mehr Ports ({device.inputs.length} IN / {device.outputs.length} OUT)
+            als das gewählte Modell ({preset.inputs}×{preset.outputs}). Überschüssige Ports werden
             abgeschnitten.
           </div>
         )}
@@ -216,13 +216,13 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 {showMatrix ? 'â–¼' : 'â–¶'} Routing-Matrix
               </button>
               <span className="text-xs text-slate-500">
-                {preset.inputs} Eing. Ã— {preset.outputs} Ausg.
+                {preset.inputs} Eing. × {preset.outputs} Ausg.
               </span>
               <button
                 type="button"
                 onClick={() => setRouting(buildDefaultRouting(preset.inputs, preset.outputs))}
                 className="ml-auto rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
-                title="Diagonal-Routing zurÃ¼cksetzen (Ausgang N â†’ Eingang N)"
+                title="Diagonal-Routing zurücksetzen (Ausgang N → Eingang N)"
               >
                 â†º Reset
               </button>
@@ -252,7 +252,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <div className="mb-2 text-[10px] uppercase tracking-wide text-slate-400">
               An Videohub senden (TCP)
               {!hasDesktopBridge && (
-                <span className="ml-2 text-amber-400">Â· nur in Desktop-App verfÃ¼gbar</span>
+                <span className="ml-2 text-amber-400">· nur in Desktop-App verfügbar</span>
               )}
             </div>
             <div className="flex items-end gap-2">
@@ -286,7 +286,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
                 className="rounded bg-purple-700 px-3 py-1.5 text-xs hover:bg-purple-600 disabled:opacity-40"
               >
-                {sendStatus === 'sending' ? 'âŸ³ Sendenâ€¦' : 'â¬† Routing Ã¼bertragen'}
+                {sendStatus === 'sending' ? '⏳ Senden…' : '⬆ Routing übertragen'}
               </button>
             </div>
             {sendStatus !== 'idle' && (
@@ -299,8 +299,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                       : 'bg-slate-700 text-slate-300'
                 }`}
               >
-                {sendStatus === 'ok' && 'âœ“ '}
-                {sendStatus === 'error' && 'âœ— '}
+                {sendStatus === 'ok' && '✓ '}
+                {sendStatus === 'error' && '✗ '}
                 {sendMessage}
               </div>
             )}

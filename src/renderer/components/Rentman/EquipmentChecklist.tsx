@@ -112,14 +112,14 @@ export const EquipmentChecklist = ({
                 onClick={() => onSetAll(true)}
                 className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
               >
-                Select All
+                Alle auswählen
               </button>
               <button
                 type="button"
                 onClick={() => onSetAll(false)}
                 className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
               >
-                Unselect All
+                Alle abwählen
               </button>
             </>
           )}
@@ -130,14 +130,14 @@ export const EquipmentChecklist = ({
                 onClick={expandAll}
                 className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
               >
-                Expand sets
+                Alle Sets ausklappen
               </button>
               <button
                 type="button"
                 onClick={collapseAll}
                 className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
               >
-                Collapse sets
+                Alle Sets einklappen
               </button>
             </>
           )}
@@ -160,8 +160,8 @@ export const EquipmentChecklist = ({
                         type="button"
                         onClick={() => toggleExpand(item.id)}
                         className="w-5 rounded bg-slate-800 text-[10px] leading-none hover:bg-slate-700"
-                        aria-label={isOpen ? 'Collapse set' : 'Expand set'}
-                        title={isOpen ? 'Collapse set' : 'Expand set'}
+                        aria-label={isOpen ? 'Set einklappen' : 'Set ausklappen'}
+                        title={isOpen ? 'Set einklappen' : 'Set ausklappen'}
                       >
                         {isOpen ? '▾' : '▸'}
                       </button>
