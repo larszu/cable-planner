@@ -5,8 +5,10 @@ import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
 import { v4 as uuidv4 } from 'uuid'
 import { RoutingToggle } from '../shared/RoutingToggle'
+import { format, useTranslation } from '../../lib/i18n'
 
 export const CableProperties = () => {
+  const t = useTranslation()
   const selectedCableId = useProjectStore((state) => state.selectedCableId)
   const cable = useProjectStore((state) => state.project.cables.find((item) => item.id === selectedCableId))
   const equipment = useProjectStore((state) => state.project.equipment)
@@ -16,7 +18,11 @@ export const CableProperties = () => {
   const openCableEdit = useUiStore((state) => state.openCableEdit)
 
   if (!cable) {
-    return <div className="text-xs text-slate-400">Kabel anklicken um Eigenschaften zu sehen.</div>
+    return (
+      <div className="text-xs text-slate-400">
+        {t('cable.click.placeholder', 'Kabel anklicken um Eigenschaften zu sehen.')}
+      </div>
+    )
   }
 
   const routing = cable.routing ?? 'orthogonal'
@@ -114,7 +120,7 @@ export const CableProperties = () => {
         />
       </label>
       <label className="block">
-        <span className="mb-1 block text-slate-300">Color</span>
+        <span className="mb-1 block text-slate-300">{t('cable.field.color', 'Farbe')}</span>
         <input
           type="color"
           value={cable.color}
@@ -127,7 +133,9 @@ export const CableProperties = () => {
           re-route a cable from the properties panel without opening a dialog. */}
       <details open className="rounded border border-slate-700 bg-slate-950/50">
         <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] text-slate-300 hover:bg-slate-800/40">
-          <span className="font-semibold uppercase tracking-wide text-slate-400">Verbindung</span>
+          <span className="font-semibold uppercase tracking-wide text-slate-400">
+            {t('cable.field.connection', 'Verbindung')}
+          </span>
           <span className="ml-2 text-slate-300">
             {fromDev?.name ?? '?'} · {fromPort?.name ?? cable.fromPortId}
             <span className="mx-1 text-slate-500">→</span>
@@ -203,12 +211,12 @@ export const CableProperties = () => {
           </div>
           {fromConflict && (
             <div className="mt-2 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
-              ⚠ Quell-Port bereits durch „{fromConflict.name}" belegt.
+              {format(t('cable.warn.fromBusy', '⚠ Quell-Port bereits durch „{name}" belegt.'), { name: fromConflict.name })}
             </div>
           )}
           {toConflict && (
             <div className="mt-1 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
-              ⚠ Ziel-Port bereits durch „{toConflict.name}" belegt.
+              {format(t('cable.warn.toBusy', '⚠ Ziel-Port bereits durch „{name}" belegt.'), { name: toConflict.name })}
             </div>
           )}
           {/* #48 Converter-Vorschlag: Connector-Typ-Mismatch erkennen und passende
@@ -224,7 +232,7 @@ export const CableProperties = () => {
       </details>
 
       <div>
-        <span className="mb-1 block text-slate-300">Routing</span>
+        <span className="mb-1 block text-slate-300">{t('cable.field.routing', 'Routing')}</span>
         <RoutingToggle
           value={routing}
           onChange={(value) =>
@@ -341,7 +349,7 @@ export const CableProperties = () => {
         onClick={() => deleteCable(cable.id)}
         className="w-full rounded bg-red-700 px-2 py-1 text-white hover:bg-red-600"
       >
-        Kabel löschen
+        {t('cable.action.delete', 'Kabel löschen')}
       </button>
     </div>
   )
@@ -374,15 +382,16 @@ const ConnectorMismatchHint = ({
   const updateCable = useProjectStore((s) => s.updateCable)
   const queueConnection = useProjectStore((s) => s.queueConnection)
   const createCableFromPending = useProjectStore((s) => s.createCableFromPending)
+  const t = useTranslation()
 
   if (!fromPort || !toPort) return null
   if (fromPort.connectorType === toPort.connectorType) return null
 
   const matches = customLibrary.filter(
-    (t) =>
-      !t.hidden &&
-      (t.inputs ?? []).some((p) => p.connectorType === fromPort.connectorType) &&
-      (t.outputs ?? []).some((p) => p.connectorType === toPort.connectorType),
+    (tpl) =>
+      !tpl.hidden &&
+      (tpl.inputs ?? []).some((p) => p.connectorType === fromPort.connectorType) &&
+      (tpl.outputs ?? []).some((p) => p.connectorType === toPort.connectorType),
   )
 
   const fromDev = equipment.find((e) => e.id === fromEquipmentId)
@@ -391,21 +400,23 @@ const ConnectorMismatchHint = ({
   return (
     <div className="mt-2 rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1.5 text-[11px] text-amber-100">
       <div>
-        ⚠ Connector-Typen passen nicht: <strong>{fromPort.connectorType}</strong> ↔{' '}
-        <strong>{toPort.connectorType}</strong>
+        {format(
+          t('cable.warn.connectorMismatch', '⚠ Connector-Typen passen nicht: {from} ↔ {to}'),
+          { from: fromPort.connectorType, to: toPort.connectorType },
+        )}
       </div>
       {matches.length > 0 ? (
         <>
-          <div className="mt-1 text-amber-200">Passende Konverter aus deiner Library:</div>
+          <div className="mt-1 text-amber-200">{t('cable.warn.converterSuggest', 'Passende Konverter aus deiner Library:')}</div>
           <div className="mt-1 flex flex-wrap gap-1">
-            {matches.slice(0, 8).map((t) => (
+            {matches.slice(0, 8).map((tpl) => (
               <button
-                key={t.name}
+                key={tpl.name}
                 type="button"
                 onClick={() => {
                   if (!fromDev || !toDev) return
-                  const matchingIn = t.inputs?.find((p) => p.connectorType === fromPort.connectorType)
-                  const matchingOut = t.outputs?.find((p) => p.connectorType === toPort.connectorType)
+                  const matchingIn = tpl.inputs?.find((p) => p.connectorType === fromPort.connectorType)
+                  const matchingOut = tpl.outputs?.find((p) => p.connectorType === toPort.connectorType)
                   if (!matchingIn || !matchingOut) return
                   // Pre-mint the converter's equipment id and port ids so we
                   // can wire up the cable splits right after importEquipment.
@@ -420,14 +431,14 @@ const ConnectorMismatchHint = ({
                   const midY = (fromDev.y + toDev.y) / 2
                   importEquipment([
                     {
-                      ...t,
+                      ...tpl,
                       id: newId,
                       x: midX,
                       y: midY,
-                      inputs: (t.inputs ?? []).map((p) =>
+                      inputs: (tpl.inputs ?? []).map((p) =>
                         p.id === matchingIn.id ? { ...p, id: newInPortId } : { ...p, id: uuidv4() },
                       ),
-                      outputs: (t.outputs ?? []).map((p) =>
+                      outputs: (tpl.outputs ?? []).map((p) =>
                         p.id === matchingOut.id ? { ...p, id: newOutPortId } : { ...p, id: uuidv4() },
                       ),
                     },
@@ -445,12 +456,15 @@ const ConnectorMismatchHint = ({
                     toPortId: toPort.id,
                   })
                   createCableFromPending({
-                    name: `${t.name} → ${toDev.name}`,
+                    name: `${tpl.name} → ${toDev.name}`,
                     color: '#94a3b8',
                   })
                 }}
                 className="rounded bg-amber-800/60 px-1.5 py-0.5 text-amber-100 hover:bg-amber-700/80"
-                title={`${t.name} einfügen — splittet das Kabel automatisch`}
+                title={format(
+                  t('cable.warn.converterInsertTitle', '{name} einfügen — splittet das Kabel automatisch'),
+                  { name: tpl.name },
+                )}
               >
                 + {t.name}
               </button>
@@ -459,7 +473,10 @@ const ConnectorMismatchHint = ({
         </>
       ) : (
         <div className="mt-1 text-amber-200/70">
-          Kein passender Konverter in der Library. Eines z. B. via „+ Gerät" oder Rentman-Import anlegen.
+          {t(
+            'cable.warn.converterNone',
+            'Kein passender Konverter in der Library. Eines z. B. via „+ Gerät" oder Rentman-Import anlegen.',
+          )}
         </div>
       )}
     </div>

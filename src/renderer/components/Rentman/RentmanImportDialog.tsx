@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { useTranslation } from '../../lib/i18n'
 import { useRentman } from '../../hooks/useRentman'
 import { useProjectStore } from '../../store/projectStore'
 import { matchBlackmagicTemplate } from '../../lib/blackmagicCatalog'
@@ -203,6 +204,7 @@ interface RentmanImportDialogProps {
 }
 
 export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps) => {
+  const t = useTranslation()
   const { loadProjects, loadProjectEquipment, loadFolders, loadEquipment } = useRentman()
   const customLibrary = useProjectStore((state) => state.customLibrary)
   const projectEquipment = useProjectStore((state) => state.project.equipment)
@@ -1242,9 +1244,11 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         <>
       <div className="w-full max-w-3xl rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Aus Rentman importieren</h3>
+          <h3 className="text-lg font-semibold">
+            {t('rentman.import.title', 'Aus Rentman importieren')}
+          </h3>
           <button type="button" onClick={onClose} className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600">
-            Schließen
+            {t('common.close', 'Schließen')}
           </button>
         </div>
 

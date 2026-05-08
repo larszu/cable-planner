@@ -29,6 +29,7 @@ import { QUAD_LINK_LABEL, type QuadLinkMode } from '../../types/videoFormat'
 import { RackImageCropDialog } from '../Rack/RackImageCropDialog'
 import { CategorySelect } from '../shared/CategorySelect'
 import { pickImageAsDataUri, readImageAsDataUri } from '../../lib/readImageAsDataUri'
+import { useTranslation } from '../../lib/i18n'
 
 const makePort = (name: string): Port => ({
   id: uuidv4(),
@@ -698,6 +699,7 @@ const DisplayPropertiesBlock = ({ equipment }: { equipment: import('../../types/
 }
 
 export const EquipmentProperties = () => {
+  const t = useTranslation()
   const selectedEquipmentId = useProjectStore((state) => state.selectedEquipmentId)
   const equipment = useProjectStore((state) =>
     state.project.equipment.find((item) => item.id === selectedEquipmentId),
@@ -814,7 +816,7 @@ export const EquipmentProperties = () => {
         </div>
       )}
       <label className="block">
-        <span className="mb-1 block text-slate-300">Name</span>
+        <span className="mb-1 block text-slate-300">{t('eq.field.name', 'Name')}</span>
         <input
           value={equipment.name}
           onChange={(event) => updateEquipment(equipment.id, { name: event.target.value })}
@@ -823,10 +825,15 @@ export const EquipmentProperties = () => {
       </label>
 
       <label className="block">
-        <span className="mb-1 block text-slate-300">Untertitel <span className="text-slate-500">(optional, z.B. "PGM Monitor")</span></span>
+        <span className="mb-1 block text-slate-300">
+          {t('eq.field.subtitle', 'Untertitel')}{' '}
+          <span className="text-slate-500">
+            ({t('common.optional', 'optional')}, {t('eq.field.subtitleHint', 'z.B. "PGM Monitor"')})
+          </span>
+        </span>
         <input
           value={equipment.subtitle ?? ''}
-          placeholder="Untertitel…"
+          placeholder={t('eq.field.subtitlePlaceholder', 'Untertitel…')}
           onChange={(event) => updateEquipment(equipment.id, { subtitle: event.target.value || undefined })}
           className="w-full rounded border border-slate-700 bg-slate-900 p-2"
         />
@@ -834,7 +841,10 @@ export const EquipmentProperties = () => {
 
       <label className="block">
         <span className="mb-1 block text-slate-300">
-          Hersteller-Link <span className="text-slate-500">(optional, für Datenblatt-Aufruf)</span>
+          {t('eq.field.manufacturerUrl', 'Hersteller-Link')}{' '}
+          <span className="text-slate-500">
+            ({t('common.optional', 'optional')}, {t('eq.field.manufacturerUrlHint', 'für Datenblatt-Aufruf')})
+          </span>
         </span>
         <div className="flex gap-1">
           <input
@@ -852,9 +862,9 @@ export const EquipmentProperties = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="rounded bg-sky-700 px-2 py-1 text-xs hover:bg-sky-600"
-              title="In externem Browser öffnen"
+              title={t('eq.field.manufacturerUrlOpenTitle', 'In externem Browser öffnen')}
             >
-              Öffnen ↗
+              {t('eq.field.manufacturerUrlOpen', 'Öffnen ↗')}
             </a>
           )}
         </div>
@@ -862,7 +872,8 @@ export const EquipmentProperties = () => {
 
       <label className="block">
         <span className="mb-1 block text-slate-300">
-          Referenzbild <span className="text-slate-500">(z. B. Port-Belegung)</span>
+          {t('eq.field.refImage', 'Referenzbild')}{' '}
+          <span className="text-slate-500">({t('eq.field.refImageHint', 'z. B. Port-Belegung')})</span>
         </span>
         <div className="flex items-start gap-2">
           {equipment.imageUrl ? (
@@ -871,13 +882,13 @@ export const EquipmentProperties = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="block max-h-24 max-w-[120px] overflow-hidden rounded border border-slate-700"
-              title="In voller Größe öffnen"
+              title={t('eq.field.refImageFullsize', 'In voller Größe öffnen')}
             >
               <img src={equipment.imageUrl} alt="" className="max-h-24 max-w-[120px] object-contain" />
             </a>
           ) : (
             <div className="flex h-24 w-[120px] items-center justify-center rounded border border-dashed border-slate-700 text-[10px] text-slate-500">
-              Kein Bild
+              {t('eq.field.refImageNone', 'Kein Bild')}
             </div>
           )}
           <div className="flex flex-col gap-1">
@@ -889,7 +900,9 @@ export const EquipmentProperties = () => {
               }}
               className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
             >
-              {equipment.imageUrl ? 'Ersetzen…' : 'Auswählen…'}
+              {equipment.imageUrl
+                ? t('eq.field.refImageReplace', 'Ersetzen…')
+                : t('common.choose', 'Auswählen…')}
             </button>
             {equipment.imageUrl && (
               <button
@@ -897,7 +910,7 @@ export const EquipmentProperties = () => {
                 onClick={() => updateEquipment(equipment.id, { imageUrl: undefined })}
                 className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
               >
-                Entfernen
+                {t('common.remove', 'Entfernen')}
               </button>
             )}
           </div>
@@ -955,11 +968,12 @@ export const EquipmentProperties = () => {
             updateEquipment(equipment.id, { collapsed: event.target.checked || undefined })
           }
         />
-        Kompakte Darstellung <span className="text-slate-500">(nur Icon + Name, Ports als Punkte)</span>
+        {t('eq.field.compact', 'Kompakte Darstellung')}{' '}
+        <span className="text-slate-500">({t('eq.field.compactHint', 'nur Icon + Name, Ports als Punkte')})</span>
       </label>
 
       <label className="flex items-center justify-between gap-2">
-        <span className="text-slate-300">Gerätefarbe</span>
+        <span className="text-slate-300">{t('eq.field.color', 'Gerätefarbe')}</span>
         <div className="flex items-center gap-2">
           <input
             type="color"
@@ -1008,7 +1022,7 @@ export const EquipmentProperties = () => {
         </div>
       )}
       <label className="block">
-        <span className="mb-1 block text-slate-300">Kategorie</span>
+        <span className="mb-1 block text-slate-300">{t('eq.field.category', 'Kategorie')}</span>
         <CategorySelect
           value={equipment.category}
           onChange={(category) => updateEquipment(equipment.id, { category })}
@@ -1035,29 +1049,29 @@ export const EquipmentProperties = () => {
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-slate-300">Seriennummer</span>
+            <span className="mb-1 block text-slate-300">{t('eq.field.serial', 'Seriennummer')}</span>
             <input
               value={equipment.serialNumber ?? ''}
               onChange={(event) =>
                 updateEquipment(equipment.id, { serialNumber: event.target.value || undefined })
               }
-              placeholder="S/N"
+              placeholder={t('eq.field.serialPlaceholder', 'S/N')}
               className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-slate-300">Subnet Mask</span>
+            <span className="mb-1 block text-slate-300">{t('eq.field.subnet', 'Subnet Mask')}</span>
             <input
               value={equipment.subnetMask ?? ''}
               onChange={(event) =>
                 updateEquipment(equipment.id, { subnetMask: event.target.value })
               }
-              placeholder="255.255.255.0 oder /24"
+              placeholder={t('eq.field.subnetPlaceholder', '255.255.255.0 oder /24')}
               className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-slate-300">Username</span>
+            <span className="mb-1 block text-slate-300">{t('eq.field.username', 'Username')}</span>
             <input
               value={equipment.username ?? ''}
               onChange={(event) =>
@@ -1068,7 +1082,7 @@ export const EquipmentProperties = () => {
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-slate-300">Password</span>
+            <span className="mb-1 block text-slate-300">{t('eq.field.password', 'Password')}</span>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -1082,7 +1096,11 @@ export const EquipmentProperties = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                title={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
+                title={
+                  showPassword
+                    ? t('eq.field.passwordHide', 'Passwort verbergen')
+                    : t('eq.field.passwordShow', 'Passwort anzeigen')
+                }
                 className="absolute inset-y-0 right-0 flex items-center px-2 text-xs text-slate-400 hover:text-slate-200"
               >
                 {showPassword ? '🙈' : '👁'}
