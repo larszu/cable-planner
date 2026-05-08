@@ -13,6 +13,7 @@ import {
   serializeAudioConfigXml,
 } from '../../lib/atemAudioMappingXml'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { format, useTranslation } from '../../lib/i18n'
 
 /**
  * Issue #45 — ATEM Audio editor.
@@ -31,6 +32,7 @@ import { confirmDialog } from '../../lib/confirmDialog'
  * is round-tripped byte-for-byte unchanged.
  */
 export const AtemAudioRouterDialog = () => {
+  const t = useTranslation()
   const { open, deviceId } = useUiStore((s) => s.atemAudioConfig)
   const close = useUiStore((s) => s.closeAtemAudioConfig)
   const equipment = useProjectStore((s) =>
@@ -133,10 +135,10 @@ export const AtemAudioRouterDialog = () => {
         >
           <div>
             <h2 className="text-base font-semibold">
-              ATEM Audio-Konfiguration — {equipment.name}
+              {t('atem.audio.title', 'ATEM Audio-Konfiguration')} — {equipment.name}
             </h2>
             <div className="text-[11px] text-slate-400">
-              {summarise(draft)}
+              {summarise(draft, t)}
             </div>
           </div>
           <button
@@ -144,7 +146,7 @@ export const AtemAudioRouterDialog = () => {
             onClick={close}
             className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
           >
-            Schließen
+            {t('common.close', 'Schließen')}
           </button>
         </header>
 
@@ -154,18 +156,24 @@ export const AtemAudioRouterDialog = () => {
             onClick={handleLoadXml}
             disabled={busy}
             className="rounded bg-sky-700 px-3 py-1 hover:bg-sky-600 disabled:opacity-50"
-            title="ATEM Profile-XML laden — die Audio-Sektion(en) werden in den Editor übernommen"
+            title={t(
+              'atem.audio.action.loadXmlTitle',
+              'ATEM Profile-XML laden — die Audio-Sektion(en) werden in den Editor übernommen',
+            )}
           >
-            📂 XML laden
+            {t('atem.audio.action.loadXml', '📂 XML laden')}
           </button>
           <button
             type="button"
             onClick={handleSaveXml}
             disabled={!draft || busy}
             className="rounded bg-emerald-700 px-3 py-1 hover:bg-emerald-600 disabled:opacity-50"
-            title="Patched Profile-XML herunterladen (alle Nicht-Audio-Sektionen bleiben unverändert)"
+            title={t(
+              'atem.audio.action.saveXmlTitle',
+              'Patched Profile-XML herunterladen (alle Nicht-Audio-Sektionen bleiben unverändert)',
+            )}
           >
-            💾 XML speichern
+            {t('atem.audio.action.saveXml', '💾 XML speichern')}
           </button>
           {draft && (draft.matrix || draft.classicMixer) && (
             <>
@@ -180,7 +188,7 @@ export const AtemAudioRouterDialog = () => {
                       : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                   }`}
                 >
-                  🎚 Routing-Matrix ({draft.matrix.outputs.length}×{draft.matrix.sources.length})
+                  {t('atem.audio.tab.matrix', '🎚 Routing-Matrix')} ({draft.matrix.outputs.length}×{draft.matrix.sources.length})
                 </button>
               )}
               {draft.classicMixer && (
@@ -193,7 +201,7 @@ export const AtemAudioRouterDialog = () => {
                       : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                   }`}
                 >
-                  🎛 Klassischer Mixer ({draft.classicMixer.inputs.length} Inputs)
+                  {t('atem.audio.tab.classic', '🎛 Klassischer Mixer')} ({draft.classicMixer.inputs.length} Inputs)
                 </button>
               )}
             </>
@@ -224,24 +232,29 @@ export const AtemAudioRouterDialog = () => {
 
         <footer className="flex items-center justify-end gap-2 border-t border-slate-700 px-4 py-2 text-xs">
           <span className="mr-auto text-slate-500">
-            Nicht-destruktiv: nur Audio-Attribute werden geändert, alle anderen
-            Profile-Sektionen bleiben erhalten.
+            {t(
+              'atem.audio.footer',
+              'Nicht-destruktiv: nur Audio-Attribute werden geändert, alle anderen Profile-Sektionen bleiben erhalten.',
+            )}
           </span>
           <button
             type="button"
             onClick={close}
             className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
           >
-            Abbrechen
+            {t('common.cancel', 'Abbrechen')}
           </button>
           <button
             type="button"
             onClick={handleSaveToProject}
             disabled={!draft}
             className="rounded bg-emerald-700 px-3 py-1 hover:bg-emerald-600 disabled:opacity-50"
-            title="Konfiguration im Projekt persistieren (überlebt Reload)."
+            title={t(
+              'atem.audio.action.saveProjectTitle',
+              'Konfiguration im Projekt persistieren (überlebt Reload).',
+            )}
           >
-            Im Projekt speichern
+            {t('atem.audio.action.saveProject', 'Im Projekt speichern')}
           </button>
         </footer>
       </div>
@@ -249,15 +262,27 @@ export const AtemAudioRouterDialog = () => {
   )
 }
 
-const summarise = (draft: AtemAudioConfig | null): string => {
+const summarise = (
+  draft: AtemAudioConfig | null,
+  t: (key: string, fallback?: string) => string,
+): string => {
   if (!draft) {
-    return 'Lade ein ATEM Profile-XML — Editor erkennt automatisch ob Crosspoint-Matrix oder Klassischer Mixer.'
+    return t(
+      'atem.audio.empty.summary',
+      'Lade ein ATEM Profile-XML — Editor erkennt automatisch ob Crosspoint-Matrix oder Klassischer Mixer.',
+    )
   }
   const parts: string[] = []
   if (draft.matrix) {
     const routed = draft.matrix.outputs.filter((o) => o.sourceId !== 0).length
     parts.push(
-      `Matrix: ${draft.matrix.sources.length} Quellen × ${draft.matrix.outputs.length} Outputs · ${routed} aktive Routings`,
+      format(
+        t(
+          'atem.audio.summary',
+          'Matrix: {sources} Quellen × {outputs} Outputs · {routed} aktive Routings',
+        ),
+        { sources: draft.matrix.sources.length, outputs: draft.matrix.outputs.length, routed },
+      ),
     )
   }
   if (draft.classicMixer) {
@@ -265,10 +290,16 @@ const summarise = (draft: AtemAudioConfig | null): string => {
       (i) => i.mixOption !== 'Off',
     ).length
     parts.push(
-      `Classic Mixer: ${draft.classicMixer.inputs.length} Inputs · ${live} aktiv (On / AFV)`,
+      format(
+        t(
+          'atem.audio.summaryClassic',
+          'Classic Mixer: {count} Inputs · {live} aktiv (On / AFV)',
+        ),
+        { count: draft.classicMixer.inputs.length, live },
+      ),
     )
   }
-  return parts.join(' · ') || 'Audio-Sektion erkannt.'
+  return parts.join(' · ') || t('atem.audio.detected', 'Audio-Sektion erkannt.')
 }
 
 const EmptyState = ({ onLoad }: { onLoad: () => void }) => (

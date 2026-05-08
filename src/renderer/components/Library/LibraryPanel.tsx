@@ -6,6 +6,7 @@ import { useRentman } from '../../hooks/useRentman'
 import { promptDialog } from '../../lib/promptDialog'
 import { CategorySelect } from '../shared/CategorySelect'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { format, useTranslation } from '../../lib/i18n'
 import { suggestPortGroups, type PortGroupHint } from '../../lib/portSuggestions'
 import { getGeminiApiKey, setGeminiApiKey, suggestFromAI } from '../../lib/aiSuggestions'
 import { suggestFromWeb } from '../../lib/webPortSuggestions'
@@ -54,6 +55,7 @@ const buildPorts = (groups: PortGroupDraft[], direction: 'in' | 'out'): Port[] =
 }
 
 export const LibraryPanel = () => {
+  const t = useTranslation()
   const addEquipment = useProjectStore((state) => state.addEquipment)
   const equipmentCount = useProjectStore((state) => state.project.equipment.length)
   const equipmentItems = useProjectStore((state) => state.project.equipment)
@@ -603,9 +605,12 @@ export const LibraryPanel = () => {
                 type="button"
                 onClick={() => setShowNetBoxDialog(true)}
                 className="rounded bg-cyan-700 px-2 py-1 text-xs hover:bg-cyan-600"
-                title="Geräte aus der NetBox device-type-library importieren"
+                title={t(
+                  'library.add.netboxTitle',
+                  'Geräte aus der NetBox device-type-library importieren',
+                )}
               >
-                + NetBox
+                {t('library.add.netbox', '+ NetBox')}
               </button>
               <button
                 type="button"
@@ -614,16 +619,16 @@ export const LibraryPanel = () => {
                   setTimeout(() => newGroupInputRef.current?.focus(), 50)
                 }}
                 className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
-                title="Neue Equipment-Kategorie anlegen"
+                title={t('library.add.categoryTitle', 'Neue Equipment-Kategorie anlegen')}
               >
-                + Kategorie
+                {t('library.add.category', '+ Kategorie')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowCreateDialog(true)}
                 className="rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
               >
-                + Gerät
+                {t('library.add.device', '+ Gerät')}
               </button>
             </div>
           </div>
@@ -685,14 +690,14 @@ export const LibraryPanel = () => {
               onKeyDown={(e) => {
                 if (e.key === 'Escape') setLibrarySearch('')
               }}
-              placeholder="Suchen… (Strg+F)"
+              placeholder={t('library.search.placeholder', 'Suchen… (Strg+F)')}
               className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 placeholder-slate-500"
             />
             {librarySearch && (
               <button
                 type="button"
                 onClick={() => setLibrarySearch('')}
-                title="Suche löschen"
+                title={t('library.search.clear', 'Suche löschen')}
                 className="rounded bg-slate-700 px-1.5 py-1 text-xs text-slate-300 hover:bg-slate-600"
               >
                 ✕
@@ -701,7 +706,9 @@ export const LibraryPanel = () => {
           </div>
 
           <div className="mb-1 flex items-center justify-between text-[10px] text-slate-500">
-            <span className="italic">Auf Canvas ziehen oder klicken zum Hinzufügen</span>
+            <span className="italic">
+              {t('library.dragHint', 'Auf Canvas ziehen oder klicken zum Hinzufügen')}
+            </span>
             <div className="flex flex-wrap gap-2">
               {(() => {
                 const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
@@ -715,9 +722,15 @@ export const LibraryPanel = () => {
                       else setCollapsedCats(new Set(allCats))
                     }}
                     className="underline hover:text-slate-300"
-                    title={allCollapsed ? 'Alle Kategorien ausklappen' : 'Alle Kategorien einklappen'}
+                    title={
+                      allCollapsed
+                        ? t('library.expandAllTitle', 'Alle Kategorien ausklappen')
+                        : t('library.collapseAllTitle', 'Alle Kategorien einklappen')
+                    }
                   >
-                    {allCollapsed ? 'Alle ausklappen' : 'Alle einklappen'}
+                    {allCollapsed
+                      ? t('library.expandAll', 'Alle ausklappen')
+                      : t('library.collapseAll', 'Alle einklappen')}
                   </button>
                 )
               })()}
@@ -808,7 +821,9 @@ export const LibraryPanel = () => {
                       <div className="space-y-1 px-1 pb-1">
                         {visibleItems.length === 0 ? (
                           <div className="px-1 py-1 text-[11px] italic text-slate-600">
-                            {searchQuery ? `Keine Treffer für "${librarySearch}"` : 'Gerät hierher ziehen zum Verschieben'}
+                            {searchQuery
+                              ? format(t('library.empty.search', 'Keine Treffer für "{query}"'), { query: librarySearch })
+                              : t('library.empty.dragHere', 'Gerät hierher ziehen zum Verschieben')}
                           </div>
                         ) : (
                           visibleItems
@@ -1666,7 +1681,9 @@ export const LibraryPanel = () => {
       {showCreateDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
           <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4">
-            <h3 className="mb-3 text-base font-semibold">Eigenes Gerät anlegen</h3>
+            <h3 className="mb-3 text-base font-semibold">
+              {t('library.create.title', 'Eigenes Gerät anlegen')}
+            </h3>
             <div className="mb-3 grid grid-cols-3 gap-2 text-sm">
               <label className="block">
                 Name
@@ -1807,21 +1824,23 @@ export const LibraryPanel = () => {
             )}
 
             <div className="mb-2 flex items-center justify-between">
-              <div className="text-sm font-semibold">Port Groups</div>
+              <div className="text-sm font-semibold">
+                {t('library.create.portGroups', 'Port-Gruppen')}
+              </div>
               <div className="flex gap-2 text-xs">
                 <button
                   type="button"
                   onClick={() => addGroup('in')}
                   className="rounded bg-sky-700 px-2 py-1 hover:bg-sky-600"
                 >
-                  + Input Group
+                  {t('library.create.addInputGroup', '+ Input-Gruppe')}
                 </button>
                 <button
                   type="button"
                   onClick={() => addGroup('out')}
                   className="rounded bg-green-700 px-2 py-1 hover:bg-green-600"
                 >
-                  + Output Group
+                  {t('library.create.addOutputGroup', '+ Output-Gruppe')}
                 </button>
               </div>
             </div>
@@ -1896,23 +1915,29 @@ export const LibraryPanel = () => {
                 }}
                 className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
               >
-                Abbrechen
+                {t('common.cancel', 'Abbrechen')}
               </button>
               <button
                 type="button"
                 onClick={saveCustomToLibrary}
                 className="rounded bg-sky-600 px-3 py-1 text-sm hover:bg-sky-500"
-                title="In die Bibliothek speichern (zur Wiederverwendung)"
+                title={t(
+                  'library.create.saveTitle',
+                  'In die Bibliothek speichern (zur Wiederverwendung)',
+                )}
               >
-                In Bibliothek speichern
+                {t('library.create.save', 'In Bibliothek speichern')}
               </button>
               <button
                 type="button"
                 onClick={saveCustomAndPlace}
                 className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500"
-                title="Speichern und gleich auf dem Canvas platzieren"
+                title={t(
+                  'library.create.savePlaceTitle',
+                  'Speichern und gleich auf dem Canvas platzieren',
+                )}
               >
-                Speichern + Platzieren
+                {t('library.create.savePlace', 'Speichern + Platzieren')}
               </button>
             </div>
           </div>

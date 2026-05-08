@@ -9,12 +9,16 @@ import { useUiStore, type Language } from '../store/uiStore'
  *   ✓ Common buttons (OK / Abbrechen / Speichern / Schließen / Löschen / …)
  *   ✓ promptDialog + confirmDialog default labels
  *   ✓ CategorySelect "+ Neue Kategorie…" entry
- *   ◯ Properties panels (Equipment / Cable / Location / Template) — DE only
- *   ◯ Library panel — DE only
- *   ◯ Rentman dialogs — DE only
- *   ◯ ATEM dialogs — DE only
+ *   ✓ Library panel — chrome (header buttons, search, tab labels)
+ *   ✓ Properties panels — section titles + most common labels
+ *   ✓ Rentman import — top-level chrome (title, close, cancel)
+ *   ✓ ATEM audio router — empty state, action buttons, tabs
+ *   ◯ Library panel — per-template detail buttons still DE
+ *   ◯ Properties panels — long-tail tooltips still DE
+ *   ◯ Rentman import — per-row tooltips, conflict resolution UI still DE
+ *   ◯ ATEM dialogs — channel-strip table headers still DE
  *   ◯ Rack builder — DE only
- *   ◯ Export dialogs — DE only
+ *   ◯ Export dialogs (Videohub, GreenGo, BOM, Location BOM) — DE only
  *
  * Strings without a translation fall through to the German source string,
  * so a partially-translated UI stays readable rather than showing missing-
@@ -227,6 +231,224 @@ const en: Dict = {
   // CategorySelect
   'category.new': '+ New category…',
   'category.newPrompt': 'New category',
+
+  // Library panel
+  'library.title': 'Library',
+  'library.tab.equipment': 'Equipment',
+  'library.tab.cables': 'Cables',
+  'library.tab.groups': 'Groups',
+  'library.tab.racks': 'Racks',
+  'library.section.local': 'Local',
+  'library.section.rentman': 'Rentman',
+  'library.add.netbox': '+ NetBox',
+  'library.add.netboxTitle':
+    'Import devices from the NetBox device-type-library',
+  'library.add.category': '+ Category',
+  'library.add.categoryTitle': 'Create new equipment category',
+  'library.add.device': '+ Device',
+  'library.search.placeholder': 'Search… (Ctrl+F)',
+  'library.search.clear': 'Clear search',
+  'library.collapseAll': 'Collapse all',
+  'library.expandAll': 'Expand all',
+  'library.dragHint': 'Drag onto canvas or click to add',
+  'library.empty.search': 'No matches for "{query}"',
+  'library.empty.dragHere': 'Drag a device here to move it',
+  'library.template.editTitle': 'Edit template (name, category)',
+  'library.create.title': 'Create your own device',
+  'library.create.name': 'Name',
+  'library.create.category': 'Category',
+  'library.create.suggest': 'Auto-suggest from device name',
+  'library.create.suggest.heuristic': '📐 Heuristic',
+  'library.create.suggest.heuristicTitle':
+    'Built-in heuristic patterns (camera, ATEM, converter…)',
+  'library.create.suggest.web': '🌐 Web',
+  'library.create.suggest.webBusy': 'Searching…',
+  'library.create.suggest.webTitle':
+    'Wikipedia + DuckDuckGo snippet (no API key required)',
+  'library.create.suggest.gemini': '✨ Gemini',
+  'library.create.suggest.geminiBusy': 'Asking…',
+  'library.create.suggest.geminiTitle': 'Gemini AI — needs an API key',
+  'library.create.aiSettings': '⚙ AI settings',
+  'library.create.aiKey.title': 'Gemini API key',
+  'library.create.aiKey.placeholder': 'AIza…',
+  'library.create.aiKey.save': 'Save',
+  'library.create.aiKey.cancel': 'Cancel',
+  'library.create.portGroups': 'Port groups',
+  'library.create.addInputGroup': '+ Input group',
+  'library.create.addOutputGroup': '+ Output group',
+  'library.create.noGroups': 'No port groups yet. Add one above.',
+  'library.create.cancel': 'Cancel',
+  'library.create.save': 'Save to library',
+  'library.create.savePlace': 'Save + place',
+  'library.create.savePlaceTitle': 'Save and drop one on the canvas',
+  'library.create.saveTitle': 'Save to custom library for re-use',
+  'library.create.is19Inch': '19" rack device',
+  'library.create.height': 'HE',
+
+  // Equipment properties
+  'eq.section.identity': 'Identity',
+  'eq.section.appearance': 'Appearance',
+  'eq.section.network': 'Network',
+  'eq.section.ports': 'Ports',
+  'eq.section.atem': 'ATEM',
+  'eq.section.rack': 'Rack',
+  'eq.section.library': 'Library',
+  'eq.field.name': 'Name',
+  'eq.field.subtitle': 'Subtitle',
+  'eq.field.subtitleHint': 'optional, e.g. "PGM monitor"',
+  'eq.field.subtitlePlaceholder': 'Subtitle…',
+  'eq.field.category': 'Category',
+  'eq.field.color': 'Device colour',
+  'eq.field.colorReset': 'Reset colour',
+  'eq.field.colorTitle': 'Device node colour',
+  'eq.field.colorResetBtn': '✕ reset',
+  'eq.field.icon': 'Icon',
+  'eq.field.iconHint': 'glyph or emoji, max 2 chars — empty = automatic',
+  'eq.field.iconAuto': 'auto',
+  'eq.field.iconAutoTitle': 'Reset to automatic',
+  'eq.field.compact': 'Compact display',
+  'eq.field.compactHint': 'icon + name only, ports as dots',
+  'eq.field.serial': 'Serial number',
+  'eq.field.serialPlaceholder': 'S/N',
+  'eq.field.ip': 'IP address',
+  'eq.field.subnet': 'Subnet mask',
+  'eq.field.subnetPlaceholder': '255.255.255.0 or /24',
+  'eq.field.username': 'Username',
+  'eq.field.password': 'Password',
+  'eq.field.passwordShow': 'Show password',
+  'eq.field.passwordHide': 'Hide password',
+  'eq.field.mac': 'MAC address',
+  'eq.field.firmware': 'Firmware',
+  'eq.field.mgmtUrl': 'Management URL',
+  'eq.field.notes': 'Notes',
+  'eq.field.manufacturerUrl': 'Manufacturer link',
+  'eq.field.manufacturerUrlHint': 'optional, for datasheet access',
+  'eq.field.manufacturerUrlOpen': 'Open ↗',
+  'eq.field.refImage': 'Reference image',
+  'eq.field.refImageHint': 'e.g. port layout',
+  'eq.field.refImageNone': 'No image',
+  'eq.field.refImageReplace': 'Replace…',
+  'eq.field.refImageRemove': 'Remove',
+
+  // Cable properties
+  'cable.title': 'Cable',
+  'cable.field.name': 'Name',
+  'cable.field.namePlaceholder': 'Cable name',
+  'cable.field.length': 'Length (m)',
+  'cable.field.color': 'Colour',
+  'cable.field.routing': 'Routing',
+  'cable.field.dashed': 'Dashed',
+  'cable.field.arrowStart': 'Arrow ◄',
+  'cable.field.arrowEnd': 'Arrow ►',
+  'cable.field.connection': 'Connection',
+  'cable.field.fromDevice': 'From device',
+  'cable.field.fromPort': 'Port',
+  'cable.field.toDevice': 'To device',
+  'cable.field.toPort': 'Port',
+  'cable.action.delete': 'Delete cable',
+  'cable.action.openEdit': 'Open editor…',
+  'cable.warn.fromBusy': '⚠ Source port already in use by "{name}".',
+  'cable.warn.toBusy': '⚠ Target port already in use by "{name}".',
+  'cable.warn.connectorMismatch':
+    '⚠ Connector types differ: {from} ↔ {to}',
+  'cable.warn.converterSuggest': 'Matching converters from your library:',
+  'cable.warn.converterNone':
+    'No matching converter in the library. Add one via "+ Device" or Rentman import.',
+  'cable.click.placeholder': 'Click a cable to see properties.',
+
+  // Location properties
+  'location.title': 'Location',
+  'location.field.name': 'Name',
+  'location.field.width': 'Width',
+  'location.field.height': 'Height',
+  'location.field.floor': 'Floor',
+  'location.field.floorPlaceholder': 'e.g. ground floor, 1st',
+  'location.field.color': 'Colour',
+  'location.field.notes': 'Notes',
+  'location.action.bom': '📋 Export BOM',
+  'location.action.bomTitle':
+    'List of devices and cables in the frame — exportable as PDF',
+  'location.action.deleteFrame': 'Delete frame only',
+  'location.action.deleteFrameTitle':
+    'Removes only the frame — devices inside stay on the canvas.',
+  'location.action.deleteAll': 'Delete frame + contents',
+  'location.confirm.deleteFrame': 'Delete frame "{name}"?',
+  'location.confirm.deleteFrameBody': 'Devices inside stay on the canvas.',
+  'location.confirm.deleteAll': 'Delete frame "{name}" AND its contents?',
+  'location.confirm.deleteAllBody':
+    'All devices in the frame and their cables are deleted as well.',
+  'location.tip':
+    'Tip: the frame moves independently by default. Enable "Take devices along" to move all contained devices with the frame.',
+
+  // Template properties
+  'template.title': 'Template',
+  'template.field.name': 'Name',
+  'template.field.category': 'Category',
+  'template.action.place': 'Place on canvas',
+  'template.action.delete': 'Delete template',
+  'template.action.deleteConfirm': 'Delete template "{name}"?',
+  'template.field.inputs': 'Inputs',
+  'template.field.outputs': 'Outputs',
+
+  // Rentman import dialog
+  'rentman.import.title': 'Import from Rentman',
+  'rentman.import.close': 'Close',
+  'rentman.import.cancel': 'Cancel import',
+  'rentman.import.loading': 'Loading…',
+  'rentman.import.noToken':
+    'No Rentman API token configured. Open Settings → Integrations → Rentman API.',
+  'rentman.import.selectProject': 'Select a Rentman project',
+  'rentman.import.shown': '{visible} of {total} shown',
+  'rentman.import.selected': '{count} selected',
+  'rentman.import.inSets': '· {count} in sets (expand to view)',
+  'rentman.import.linkable': '🔗 Link…',
+  'rentman.import.linkableTitle': 'Link to existing local device',
+  'rentman.import.unlinked':
+    'Save token first to be able to fetch projects.',
+
+  // ATEM audio router dialog
+  'atem.audio.title': 'ATEM audio configuration',
+  'atem.audio.empty.title': 'ATEM audio configuration',
+  'atem.audio.empty.body':
+    'Load an ATEM Profile XML (e.g. exported from ATEM Software Control).',
+  'atem.audio.empty.matrix':
+    'Fairlight-capable models (Constellation / 4 M/E) open with the crosspoint matrix.',
+  'atem.audio.empty.classic':
+    'Production Studio / Television Studio open with the classic channel strip (Off/On/AFV + gain).',
+  'atem.audio.empty.both': 'Devices with both sections get both tabs.',
+  'atem.audio.action.loadXml': '📂 Load XML',
+  'atem.audio.action.loadXmlTitle':
+    'Load ATEM Profile XML — the audio section(s) will be imported into the editor',
+  'atem.audio.action.saveXml': '💾 Save XML',
+  'atem.audio.action.saveXmlTitle':
+    'Download patched Profile XML (all non-audio sections stay unchanged)',
+  'atem.audio.action.clearAll': 'Reset all routings',
+  'atem.audio.action.clearAllConfirm': 'Reset all routings to "No Audio"?',
+  'atem.audio.action.clearAllOk': 'Reset',
+  'atem.audio.action.saveProject': 'Save in project',
+  'atem.audio.action.saveProjectTitle':
+    'Persist routing in the project (survives reload).',
+  'atem.audio.action.cancel': 'Cancel',
+  'atem.audio.tab.matrix': '🎚 Routing matrix',
+  'atem.audio.tab.classic': '🎛 Classic mixer',
+  'atem.audio.matrix.tooLarge':
+    '{count} visible crosspoints is too many for smooth display. Please narrow down via the filters above (target: under 12,000 cells).',
+  'atem.audio.matrix.filterSources': 'Filter sources…',
+  'atem.audio.matrix.filterOutputs': 'Filter outputs…',
+  'atem.audio.matrix.visible': '{sources} × {outputs} visible',
+  'atem.audio.classic.empty':
+    'No {tab} in the loaded profile. Switch tab or load a profile that has this section.',
+  'atem.audio.summary':
+    'Matrix: {sources} sources × {outputs} outputs · {routed} active routings',
+  'atem.audio.summaryClassic':
+    'Classic mixer: {count} inputs · {live} active (On / AFV)',
+  'atem.audio.footer':
+    'Non-destructive: only audio attributes are changed; every other profile section is preserved.',
+
+  // ConfirmDialog labels
+  'confirm.delete': 'Delete',
+  'confirm.discard': 'Discard',
+  'confirm.applyAll': 'Apply',
 }
 
 const translations: Record<Language, Dict> = {

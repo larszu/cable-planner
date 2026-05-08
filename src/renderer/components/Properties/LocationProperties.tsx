@@ -1,8 +1,10 @@
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { format, useTranslation } from '../../lib/i18n'
 
 export const LocationProperties = () => {
+  const t = useTranslation()
   const selectedId = useProjectStore((state) => state.selectedLocationId)
   const location = useProjectStore((state) =>
     (state.project.locations ?? []).find((l) => l.id === selectedId),
@@ -19,9 +21,11 @@ export const LocationProperties = () => {
   return (
     <div className="space-y-3 text-xs">
       <div>
-        <div className="mb-1 text-[11px] uppercase tracking-wide text-slate-400">Location</div>
+        <div className="mb-1 text-[11px] uppercase tracking-wide text-slate-400">
+          {t('location.title', 'Location')}
+        </div>
         <label className="block">
-          Name
+          {t('location.field.name', 'Name')}
           <input
             value={location.name}
             onChange={(e) => updateLocation(location.id, { name: e.target.value })}
@@ -32,7 +36,7 @@ export const LocationProperties = () => {
 
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
-          Breite
+          {t('location.field.width', 'Breite')}
           <input
             type="number"
             value={Math.round(location.width)}
@@ -43,7 +47,7 @@ export const LocationProperties = () => {
           />
         </label>
         <label className="block">
-          Höhe
+          {t('location.field.height', 'Höhe')}
           <input
             type="number"
             value={Math.round(location.height)}
@@ -57,16 +61,16 @@ export const LocationProperties = () => {
 
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
-          Stockwerk
+          {t('location.field.floor', 'Stockwerk')}
           <input
             value={location.floor ?? ''}
-            placeholder="z.B. EG, 1.OG"
+            placeholder={t('location.field.floorPlaceholder', 'z.B. EG, 1.OG')}
             onChange={(e) => updateLocation(location.id, { floor: e.target.value })}
             className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
           />
         </label>
         <label className="block">
-          Farbe
+          {t('location.field.color', 'Farbe')}
           <input
             type="color"
             value={location.color}
@@ -78,7 +82,7 @@ export const LocationProperties = () => {
 
       <div>
         <label className="block">
-          Notizen
+          {t('location.field.notes', 'Notizen')}
           <textarea
             value={location.notes ?? ''}
             onChange={(e) => updateLocation(location.id, { notes: e.target.value })}
@@ -97,50 +101,75 @@ export const LocationProperties = () => {
           type="button"
           onClick={() => openLocationBom(location.id)}
           className="w-full rounded bg-amber-700 px-2 py-1 text-xs hover:bg-amber-600"
-          title="Stückliste der Geräte und Kabel im Rahmen — als PDF exportierbar (#39)"
+          title={t(
+            'location.action.bomTitle',
+            'Stückliste der Geräte und Kabel im Rahmen — als PDF exportierbar',
+          )}
         >
-          📋 Stückliste exportieren
+          {t('location.action.bom', '📋 Stückliste exportieren')}
         </button>
         <button
           type="button"
           onClick={async () => {
             if (
-              await confirmDialog(`Nur den Rahmen "${location.name}" löschen?`, {
-                body: 'Geräte darin bleiben auf dem Canvas.',
-                destructive: true,
-                okLabel: 'Löschen',
-              })
+              await confirmDialog(
+                format(t('location.confirm.deleteFrame', 'Rahmen "{name}" löschen?'), {
+                  name: location.name,
+                }),
+                {
+                  body: t(
+                    'location.confirm.deleteFrameBody',
+                    'Geräte darin bleiben auf dem Canvas.',
+                  ),
+                  destructive: true,
+                  okLabel: t('confirm.delete', 'Löschen'),
+                },
+              )
             ) {
               deleteLocation(location.id)
             }
           }}
           className="w-full rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
-          title="Entfernt nur den Rahmen — Geräte darin bleiben auf dem Canvas."
+          title={t(
+            'location.action.deleteFrameTitle',
+            'Entfernt nur den Rahmen — Geräte darin bleiben auf dem Canvas.',
+          )}
         >
-          Nur Rahmen löschen
+          {t('location.action.deleteFrame', 'Nur Rahmen löschen')}
         </button>
         <button
           type="button"
           onClick={async () => {
             if (
-              await confirmDialog(`Rahmen "${location.name}" UND Inhalt löschen?`, {
-                body: 'Alle Geräte im Rahmen samt deren Kabel werden mitgelöscht.',
-                destructive: true,
-                okLabel: 'Alles löschen',
-              })
+              await confirmDialog(
+                format(
+                  t('location.confirm.deleteAll', 'Rahmen "{name}" UND Inhalt löschen?'),
+                  { name: location.name },
+                ),
+                {
+                  body: t(
+                    'location.confirm.deleteAllBody',
+                    'Alle Geräte im Rahmen samt deren Kabel werden mitgelöscht.',
+                  ),
+                  destructive: true,
+                  okLabel: t('confirm.deleteAll', 'Alles löschen'),
+                },
+              )
             ) {
               deleteLocationWithContents(location.id)
             }
           }}
           className="w-full rounded bg-red-700 px-2 py-1 text-xs hover:bg-red-600"
         >
-          Rahmen + Inhalt löschen
+          {t('location.action.deleteAll', 'Rahmen + Inhalt löschen')}
         </button>
       </div>
 
       <p className="text-[10px] italic text-slate-500">
-        Tipp: Der Rahmen bewegt sich standardmäßig unabhängig. Aktiviere „Geräte mitnehmen",
-        wenn alle enthaltenen Geräte beim Verschieben des Rahmens mitwandern sollen.
+        {t(
+          'location.tip',
+          'Tipp: Der Rahmen bewegt sich standardmäßig unabhängig. Aktiviere „Geräte mitnehmen", wenn alle enthaltenen Geräte beim Verschieben des Rahmens mitwandern sollen.',
+        )}
       </p>
     </div>
   )
