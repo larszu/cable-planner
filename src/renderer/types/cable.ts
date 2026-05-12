@@ -47,4 +47,8 @@ export interface Cable {
   frequency?: string
   /** WiFi/wireless channel, e.g. "6", "36", "149", "100-140 DFS". */
   wifiChannel?: string
+  /** Stable origin id from an imported yEd / GraphML edge. Lets a
+   *  re-import correlate the same cable across runs. Set by the GraphML
+   *  import flow only. */
+  graphmlEdgeId?: string
 }

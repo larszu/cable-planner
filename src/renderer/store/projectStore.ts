@@ -207,6 +207,41 @@ interface ProjectState {
   addEquipment: (equipment: Omit<EquipmentItem, 'id'>) => void
   importEquipment: (equipment: EquipmentItem[]) => void
   /**
+   * Insert devices and cables coming from a yEd / GraphML import. Each
+   * device carries an optional `graphmlId` so a re-import (`mode:
+   * 'replace'`) can correlate the previous snapshot with the new one
+   * and update positions/ports in place rather than producing
+   * duplicates. Cables use the port-import-key map built by the dialog
+   * to look up the freshly-assigned cable-planner uuids.
+   *
+   * Returns the list of newly inserted equipment ids in import order
+   * so the caller can select them on the canvas to draw the user's
+   * attention to what changed.
+   */
+  importGraphml: (payload: {
+    devices: Array<Omit<EquipmentItem, 'id'> & { graphmlId: string; importKey: string }>
+    /** Map from ResolvedPort.importKey to the *position index within the
+     *  device's inputs/outputs array*, so the store can resolve cable
+     *  endpoints once it has assigned real uuids. */
+    portIndex: Record<string, { deviceImportKey: string; side: 'in' | 'out'; index: number }>
+    cables: Array<{
+      importKey: string
+      graphmlEdgeId: string
+      sourceDeviceImportKey: string
+      sourcePortImportKey: string
+      targetDeviceImportKey: string
+      targetPortImportKey: string
+      type: Cable['type']
+      length: number
+      color: string
+      name: string
+      standard?: Cable['standard']
+      cableSpecId?: string
+      notes?: string
+    }>
+    mode: 'append' | 'replace'
+  }) => string[]
+  /**
    * Paste a snapshot of equipment items + connecting cables (Ctrl+V / duplicate).
    * All ids (equipment, ports, cable) are remapped to fresh uuids; cable refs
    * to ports/equipment outside the snapshot are dropped. The new equipment is
@@ -473,6 +508,103 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         ],
       }),
     })),
+  importGraphml: (payload) => {
+    const newIds: string[] = []
+    set((state) => {
+      // In 'replace' mode we throw out the existing GraphML-imported
+      // equipment + cables before inserting the new snapshot, so the
+      // caller never has to pre-clean. Manually-added items are kept.
+      const baseEquipment = payload.mode === 'replace'
+        ? state.project.equipment.filter((e) => e.importSource !== 'graphml')
+        : state.project.equipment
+      const baseCables = payload.mode === 'replace'
+        ? state.project.cables.filter((c) => !c.graphmlEdgeId)
+        : state.project.cables
+
+      // Build the new equipment items with fresh uuids and sanitized
+      // ports. We retain a deviceImportKey → fresh-id map for the
+      // cable resolution pass below.
+      const deviceImportKeyToId = new Map<string, string>()
+      const portImportKeyToId = new Map<string, string>()
+      const insertedEquipment = payload.devices.map((draft) => {
+        const id = uuidv4()
+        deviceImportKeyToId.set(draft.importKey, id)
+        newIds.push(id)
+        const inputs = draft.inputs.map((p, idx) => {
+          const port = sanitizePort(p, `In ${idx + 1}`)
+          const key = payload.portIndex
+          // Reverse-lookup: find the importKey for (deviceImportKey, 'in', idx)
+          for (const [importKey, ref] of Object.entries(key)) {
+            if (ref.deviceImportKey === draft.importKey && ref.side === 'in' && ref.index === idx) {
+              portImportKeyToId.set(importKey, port.id)
+              break
+            }
+          }
+          return port
+        })
+        const outputs = draft.outputs.map((p, idx) => {
+          const port = sanitizePort(p, `Out ${idx + 1}`)
+          const key = payload.portIndex
+          for (const [importKey, ref] of Object.entries(key)) {
+            if (ref.deviceImportKey === draft.importKey && ref.side === 'out' && ref.index === idx) {
+              portImportKeyToId.set(importKey, port.id)
+              break
+            }
+          }
+          return port
+        })
+        return {
+          ...draft,
+          id,
+          importSource: 'graphml' as const,
+          x: Number.isFinite(draft.x) ? draft.x : 0,
+          y: Number.isFinite(draft.y) ? draft.y : 0,
+          inputs,
+          outputs,
+        }
+      })
+
+      const ui = useUiStore.getState()
+      const insertedCables: Cable[] = []
+      for (const draft of payload.cables) {
+        const fromEquipmentId = deviceImportKeyToId.get(draft.sourceDeviceImportKey)
+        const toEquipmentId = deviceImportKeyToId.get(draft.targetDeviceImportKey)
+        const fromPortId = portImportKeyToId.get(draft.sourcePortImportKey)
+        const toPortId = portImportKeyToId.get(draft.targetPortImportKey)
+        // Cables whose endpoints didn't make it through the device/port
+        // mapping are dropped silently — the dialog already surfaced
+        // them as unresolved before the user clicked Import.
+        if (!fromEquipmentId || !toEquipmentId || !fromPortId || !toPortId) continue
+        insertedCables.push({
+          id: uuidv4(),
+          name: draft.name,
+          type: draft.type,
+          length: draft.length,
+          color: draft.color,
+          fromEquipmentId,
+          fromPortId,
+          toEquipmentId,
+          toPortId,
+          notes: draft.notes ?? '',
+          standard: draft.standard,
+          cableSpecId: draft.cableSpecId,
+          routing: ui.defaultRouting,
+          arrowEnd: ui.defaultArrow,
+          strokeWidth: 2.5,
+          graphmlEdgeId: draft.graphmlEdgeId,
+        })
+      }
+
+      return {
+        project: touchProject({
+          ...state.project,
+          equipment: [...baseEquipment, ...insertedEquipment],
+          cables: [...baseCables, ...insertedCables],
+        }),
+      }
+    })
+    return newIds
+  },
   pasteEquipment: (items, cables, offset) => {
     if (items.length === 0) return []
     // Build remap tables so port refs in copied cables stay valid.
