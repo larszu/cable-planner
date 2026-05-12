@@ -33,6 +33,14 @@ contextBridge.exposeInMainWorld('cablePlanner', {
         mimeType,
       ) as Promise<unknown>,
   },
+  graphml: {
+    openFile: () =>
+      ipcRenderer.invoke('graphml:open-file') as Promise<{
+        filePath: string
+        fileName: string
+        xml: string
+      } | null>,
+  },
   project: {
     newProject: () => ipcRenderer.invoke('project:new') as Promise<void>,
     openProject: () => ipcRenderer.invoke('project:open') as Promise<unknown | null>,

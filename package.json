@@ -29,6 +29,7 @@
         "@dnd-kit/utilities": "^3.2.2",
         "atem-connection": "^3.9.0",
         "axios": "^1.13.1",
+        "fast-xml-parser": "^5.8.0",
         "html-to-image": "^1.11.13",
         "jspdf": "^4.2.1",
         "keytar": "^7.9.0",

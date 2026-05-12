@@ -92,6 +92,14 @@ export interface EquipmentItem {
   rentmanId?: string
   /** Set to true when a Rentman re-fetch no longer finds this item in the project. */
   rentmanRemoved?: boolean
+  /** Stable origin id from an imported yEd / GraphML node. Lets a
+   *  re-import correlate the same device across runs even when names or
+   *  positions change. Set by the GraphML import flow only. */
+  graphmlId?: string
+  /** Tracks how the device entered the project — used by the import
+   *  dialog's diff view and by Rentman / GraphML re-imports so we know
+   *  which subset of devices is replaceable. */
+  importSource?: 'graphml' | 'rentman' | 'netbox' | 'manual'
   x: number
   y: number
   width: number

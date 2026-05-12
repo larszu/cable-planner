@@ -5,6 +5,7 @@ import { MenuBar } from './components/Layout/MenuBar'
 import { StatusBar } from './components/Layout/StatusBar'
 import { PropertiesPanel } from './components/Properties/PropertiesPanel'
 import { RentmanImportDialog } from './components/Rentman/RentmanImportDialog'
+import { GraphmlImportDialog } from './components/Import/GraphmlImportDialog'
 import { RentmanCableExportDialog } from './components/Rentman/RentmanCableExportDialog'
 import { OnboardingTour, hasSeenTour } from './components/Onboarding/OnboardingTour'
 import { SettingsDialog } from './components/Settings/SettingsDialog'
@@ -87,6 +88,7 @@ export default function App() {
   const [welcomeOpen, setWelcomeOpen] = useState(false)
   const [pdfExportOpen, setPdfExportOpen] = useState(false)
   const [pdfTheme, setPdfTheme] = useState<'dark' | 'light'>('light')
+  const [graphmlImportOpen, setGraphmlImportOpen] = useState(false)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
   const setPdfExportThemeOverride = useUiStore((state) => state.setPdfExportThemeOverride)
 
@@ -325,6 +327,7 @@ export default function App() {
         onSaveProjectAs={() => void saveProjectAs()}
         onOpenSettings={() => setSettingsOpen(true)}
         onExportPdf={() => setPdfExportOpen(true)}
+        onOpenGraphmlImport={() => setGraphmlImportOpen(true)}
         onAttachPdfToRentman={() => void handleUploadPdfToRentman()}
         onOpenRentmanCableExport={openRentmanCableExport}
         hasRentmanLink={Boolean(project.metadata.rentmanProjectId)}
@@ -365,6 +368,7 @@ export default function App() {
 
       <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <RentmanImportDialog open={rentmanImport.open} onClose={closeRentmanImport} />
+      <GraphmlImportDialog open={graphmlImportOpen} onClose={() => setGraphmlImportOpen(false)} />
       <RentmanCableExportDialog
         open={rentmanCableExport.open}
         onClose={closeRentmanCableExport}

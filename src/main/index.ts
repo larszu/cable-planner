@@ -9,6 +9,7 @@ import { registerAtemIpc } from './ipc/atemIpc.js'
 import { registerVideohubIpc } from './ipc/videohubIpc.js'
 import { registerLogIpc } from './ipc/logIpc.js'
 import { registerSyncIpc } from './ipc/syncIpc.js'
+import { registerGraphmlIpc } from './ipc/graphmlIpc.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -88,6 +89,7 @@ app.whenReady().then(async () => {
   registerVideohubIpc()
   registerLogIpc()
   registerSyncIpc()
+  registerGraphmlIpc()
 
   await createWindow()
 
