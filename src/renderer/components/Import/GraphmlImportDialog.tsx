@@ -79,6 +79,38 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
   const importGraphml = useProjectStore((s) => s.importGraphml)
   const setSelection = useProjectStore((s) => s.setSelection)
 
+  // CRITICAL: every hook must run on every render — never gate them behind
+  // the `if (!open) return null` below. Otherwise React #310 fires the
+  // moment the dialog mounts/unmounts (the bundled prod build crashed
+  // the renderer on startup in v0.4.0 because useMemo lived after the
+  // early-return). Both memos are cheap when `stage.kind !== 'preview'`.
+  const filteredDevices = useMemo(() => {
+    if (stage.kind !== 'preview') return [] as ResolvedDevice[]
+    if (!filterText.trim()) return stage.preview.devices
+    const needle = filterText.toLowerCase()
+    return stage.preview.devices.filter(
+      (d) =>
+        d.name.toLowerCase().includes(needle) ||
+        d.category.toLowerCase().includes(needle) ||
+        (d.ipAddress ?? '').toLowerCase().includes(needle),
+    )
+  }, [stage, filterText])
+
+  const filteredCables = useMemo(() => {
+    if (stage.kind !== 'preview') return [] as ResolvedCable[]
+    if (!filterText.trim()) return stage.preview.cables
+    const needle = filterText.toLowerCase()
+    const deviceName = (importKey: string) =>
+      stage.preview.devices.find((d) => d.importKey === importKey)?.name ?? ''
+    return stage.preview.cables.filter(
+      (c) =>
+        deviceName(c.sourceDeviceImportKey).toLowerCase().includes(needle) ||
+        deviceName(c.targetDeviceImportKey).toLowerCase().includes(needle) ||
+        (c.signalName ?? '').toLowerCase().includes(needle) ||
+        c.inferredCableType.toLowerCase().includes(needle),
+    )
+  }, [stage, filterText])
+
   if (!open) return null
 
   const reset = () => {
@@ -154,33 +186,6 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
       return next
     })
   }
-
-  const filteredDevices = useMemo(() => {
-    if (stage.kind !== 'preview') return [] as ResolvedDevice[]
-    if (!filterText.trim()) return stage.preview.devices
-    const needle = filterText.toLowerCase()
-    return stage.preview.devices.filter(
-      (d) =>
-        d.name.toLowerCase().includes(needle) ||
-        d.category.toLowerCase().includes(needle) ||
-        (d.ipAddress ?? '').toLowerCase().includes(needle),
-    )
-  }, [stage, filterText])
-
-  const filteredCables = useMemo(() => {
-    if (stage.kind !== 'preview') return [] as ResolvedCable[]
-    if (!filterText.trim()) return stage.preview.cables
-    const needle = filterText.toLowerCase()
-    const deviceName = (importKey: string) =>
-      stage.preview.devices.find((d) => d.importKey === importKey)?.name ?? ''
-    return stage.preview.cables.filter(
-      (c) =>
-        deviceName(c.sourceDeviceImportKey).toLowerCase().includes(needle) ||
-        deviceName(c.targetDeviceImportKey).toLowerCase().includes(needle) ||
-        (c.signalName ?? '').toLowerCase().includes(needle) ||
-        c.inferredCableType.toLowerCase().includes(needle),
-    )
-  }, [stage, filterText])
 
   const handleImport = () => {
     if (stage.kind !== 'preview') return
