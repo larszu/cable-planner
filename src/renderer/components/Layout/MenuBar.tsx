@@ -9,6 +9,8 @@ interface MenuBarProps {
   onSaveProjectAs: () => void
   onOpenSettings: () => void
   onExportPdf: () => void
+  /** Open the GraphML / yEd import dialog. */
+  onOpenGraphmlImport?: () => void
   onEditProjectMeta?: () => void
   onOpenCableBom?: () => void
   /** Attach the current plan as a PDF to the linked Rentman project. */
@@ -42,6 +44,7 @@ export const MenuBar = ({
   onSaveProjectAs,
   onOpenSettings,
   onExportPdf,
+  onOpenGraphmlImport,
   onEditProjectMeta,
   onOpenCableBom,
   onAttachPdfToRentman,
@@ -77,6 +80,14 @@ export const MenuBar = ({
           <MenuItem onClick={onSaveProjectAs} icon="💾" shortcut="Strg+Umsch+S">
             {t('app.menu.file.saveAs', 'Speichern unter…')}
           </MenuItem>
+          {onOpenGraphmlImport && (
+            <>
+              <MenuSep />
+              <MenuItem onClick={onOpenGraphmlImport} icon="📐">
+                {t('app.menu.file.importGraphml', 'yEd / GraphML importieren…')}
+              </MenuItem>
+            </>
+          )}
         </Menu>
 
         <Menu label={t('app.menu.export', 'Export')}>
