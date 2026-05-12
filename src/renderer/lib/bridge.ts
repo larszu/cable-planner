@@ -76,6 +76,9 @@ type CablePlannerApi = {
     saveProjectAs: (project: CablePlannerProject) => Promise<string | null>
     getRecentProjects: () => Promise<string[]>
   }
+  graphml: {
+    openFile: () => Promise<{ filePath: string; fileName: string; xml: string } | null>
+  }
   atem: {
     connect: (ip: string) => Promise<AtemConnectResult>
     disconnect: () => Promise<{ ok: boolean }>
@@ -427,6 +430,28 @@ const webFallbackApi: CablePlannerApi = {
       return fileName
     },
     getRecentProjects: async () => loadRecents(),
+  },
+  graphml: {
+    // Browser fallback for dev / non-Electron contexts: use a hidden
+    // <input type="file"> instead of Electron's native dialog.
+    openFile: async () => {
+      const input = document.createElement('input')
+      input.type = 'file'
+      input.accept = '.graphml,application/xml,text/xml'
+      return await new Promise<{ filePath: string; fileName: string; xml: string } | null>((resolve) => {
+        input.onchange = async () => {
+          const file = input.files?.[0]
+          if (!file) return resolve(null)
+          try {
+            const xml = await file.text()
+            resolve({ filePath: file.name, fileName: file.name, xml })
+          } catch {
+            resolve(null)
+          }
+        }
+        input.click()
+      })
+    },
   },
   atem: {
     connect: async () => {
