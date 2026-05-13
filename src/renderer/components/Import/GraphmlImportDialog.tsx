@@ -31,6 +31,9 @@ export interface GraphmlImportDialogProps {
   onClose: () => void
 }
 
+import type { GraphmlDocument } from '../../lib/graphml/types'
+import { GraphmlViewer } from './GraphmlViewer'
+
 type Stage =
   | { kind: 'empty' }
   | { kind: 'parsing'; fileName: string }
@@ -38,6 +41,9 @@ type Stage =
   | {
       kind: 'preview'
       fileName: string
+      /** Kept around for the yEd visual preview tab — rendering needs
+       *  the raw geometry, not the resolved cable-planner shapes. */
+      document: GraphmlDocument
       preview: ImportPreview
       warningsCount: number
     }
@@ -67,7 +73,7 @@ const formatBytes = (n: number) => {
 
 export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps) => {
   const [stage, setStage] = useState<Stage>({ kind: 'empty' })
-  const [tab, setTab] = useState<'devices' | 'cables' | 'skipped'>('devices')
+  const [tab, setTab] = useState<'preview' | 'devices' | 'cables' | 'skipped'>('preview')
   const [mode, setMode] = useState<'append' | 'replace'>('append')
   const [skipDevices, setSkipDevices] = useState<Set<string>>(new Set())
   const [skipCables, setSkipCables] = useState<Set<string>>(new Set())
@@ -143,6 +149,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
           setStage({
             kind: 'preview',
             fileName: result.fileName,
+            document: doc,
             preview,
             warningsCount: warnings.length,
           })
@@ -197,6 +204,9 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
     })
     const newIds = importGraphml({ ...payload, mode })
     // Select the first imported device on the canvas to draw attention.
+    // The store action also pans + zooms the viewport onto the imported
+    // bounding box so the user actually sees them — yEd diagrams sit
+    // far from (0,0) and the previous viewport stayed unchanged.
     if (newIds[0]) setSelection(newIds[0])
     reset()
     onClose()
@@ -336,6 +346,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         {/* Tabs */}
         <div className="flex border-b border-slate-800 text-xs">
           {([
+            ['preview', 'yEd-Vorschau'],
             ['devices', `Geräte (${totalDevices})`],
             ['cables', `Kabel (${totalCables})`],
             ['skipped', `Übersprungen (${preview.skippedNodes.length + preview.unresolvedEdges.length})`],
@@ -357,6 +368,21 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
 
         {/* Tab body */}
         <div className="min-h-0 flex-1 overflow-auto">
+          {tab === 'preview' && (
+            // Live render of the parsed yEd document at original
+            // coordinates so the user can visually confirm cable-planner
+            // is reading the file correctly before committing the
+            // import. Highlights the nodes the resolver picked as
+            // import-worthy devices (faded ones are decorative / port
+            // shapes that won't become Equipment items).
+            <div className="h-full min-h-0">
+              <GraphmlViewer
+                document={s.document}
+                highlightNodes={new Set(preview.devices.map((d) => d.graphmlId))}
+                className="relative h-full w-full"
+              />
+            </div>
+          )}
           {tab === 'devices' && (
             <table className="w-full text-xs">
               <thead className="sticky top-0 bg-slate-900 text-slate-400">
