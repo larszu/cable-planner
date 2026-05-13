@@ -87,6 +87,11 @@ export interface ResolvedCable {
    *  so the UI can surface them; orphan = true means at least one end
    *  doesn't map to an imported device. */
   orphan: boolean
+  /** Polyline bend points the user drew in yEd between source and
+   *  target, in absolute flow coordinates. Carried verbatim from the
+   *  parsed edge — without these the cable-planner canvas auto-routes
+   *  and the import no longer looks like the source diagram. */
+  waypoints: { x: number; y: number }[]
 }
 
 export interface ImportPreview {
@@ -559,6 +564,7 @@ export const resolveGraphml = (doc: GraphmlDocument): ImportPreview => {
         rawData: edge.data,
         lineColor: edge.lineColor,
         orphan: false,
+        waypoints: edge.waypoints,
       })
       continue
     }
@@ -647,6 +653,7 @@ export const resolveGraphml = (doc: GraphmlDocument): ImportPreview => {
       rawData: edge.data,
       lineColor: edge.lineColor,
       orphan: false,
+      waypoints: edge.waypoints,
     }
   }
 
@@ -751,6 +758,10 @@ export const buildImportPayload = (
       notes: [c.rawCableType ? `CableType: ${c.rawCableType}` : '', c.videoStandard ? `Standard: ${c.videoStandard}` : '']
         .filter(Boolean)
         .join('\n') || undefined,
+      // Carry yEd's polyline bend points through so the store can apply
+      // them to Cable.waypoints — without this the canvas auto-routes
+      // every cable and the import no longer matches the source diagram.
+      waypoints: c.waypoints.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y) })),
     }))
 
   return { devices, portIndex, cables }

@@ -346,10 +346,13 @@ const walkGraph = (
     )
 
     // Edge graphics (y:PolyLineEdge / y:BezierEdge / …) carries the
-    // visual labels and line style.
+    // visual labels, line style, AND the polyline waypoints + path
+    // offsets we need to recreate the original yEd routing 1:1.
     let labels: string[] = []
     let lineColor: string | null = null
     let lineType: string | null = null
+    let waypoints: { x: number; y: number }[] = []
+    let pathOffset = { sx: 0, sy: 0, tx: 0, ty: 0 }
     if (edgegraphics && typeof edgegraphics === 'object') {
       const eg = edgegraphics as RawAttrs
       // Pick whatever edge realizer is present.
@@ -366,13 +369,46 @@ const walkGraph = (
               .filter(Boolean)
             lineColor = readAttr(fr['y:LineStyle'], 'color')
             lineType = readAttr(fr['y:LineStyle'], 'type')
+            // y:Path holds the start/end offset attributes (sx/sy/tx/ty)
+            // AND any y:Point bend points the user dragged into the
+            // polyline. Both are needed to recreate the routing in
+            // cable-planner — otherwise the canvas auto-routes a
+            // straight or L-shaped path and the diagram looks nothing
+            // like the source.
+            const path = fr['y:Path']
+            if (path && typeof path === 'object') {
+              const p = path as RawAttrs
+              pathOffset = {
+                sx: readNumberAttr(p, 'sx') ?? 0,
+                sy: readNumberAttr(p, 'sy') ?? 0,
+                tx: readNumberAttr(p, 'tx') ?? 0,
+                ty: readNumberAttr(p, 'ty') ?? 0,
+              }
+              waypoints = toArray(p['y:Point'])
+                .map((pt) => {
+                  const x = readNumberAttr(pt, 'x')
+                  const y = readNumberAttr(pt, 'y')
+                  return x != null && y != null ? { x, y } : null
+                })
+                .filter((w): w is { x: number; y: number } => w != null)
+            }
             break
           }
         }
       }
     }
 
-    edges.push({ id, sourceId: source, targetId: target, labels, data, lineColor, lineType })
+    edges.push({
+      id,
+      sourceId: source,
+      targetId: target,
+      labels,
+      data,
+      lineColor,
+      lineType,
+      waypoints,
+      pathOffset,
+    })
   }
 }
 

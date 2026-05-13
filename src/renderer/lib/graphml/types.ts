@@ -55,6 +55,14 @@ export interface GraphmlEdge {
   data: Record<string, string>
   lineColor: string | null
   lineType: string | null
+  /** Intermediate bend points the user drew in yEd between source and
+   *  target (absolute graph coordinates). Empty when the edge runs as
+   *  a straight line. */
+  waypoints: { x: number; y: number }[]
+  /** Offsets from source/target node center to the actual line endpoints
+   *  inside yEd (`y:Path sx/sy/tx/ty`). Used when re-creating the visual
+   *  start/end of the polyline. */
+  pathOffset: { sx: number; sy: number; tx: number; ty: number }
 }
 
 export type GraphmlKeyDomain = 'node' | 'edge' | 'graph' | 'graphml' | 'port' | 'all'
