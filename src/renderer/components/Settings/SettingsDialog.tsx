@@ -701,7 +701,82 @@ const EditingTab = () => {
           />
         </label>
       </SettingsCard>
+
+      <CustomCableTypesCard />
     </div>
+  )
+}
+
+/**
+ * Manage the library of user-defined cable specs (issue #64). Built-in
+ * specs from `cableCatalog` are read-only and not shown here; only the
+ * user's own entries appear with rename / colour / delete controls.
+ *
+ * Adding a new spec is normally done inline from the Cable dialog via
+ * "Als Kabel-Typ speichern" — this card is the corresponding management
+ * surface for cleanup and tweaks. Avoids duplicating the full editor.
+ */
+const CustomCableTypesCard = () => {
+  const t = useTranslation()
+  const specs = useUiStore((s) => s.customCableSpecs)
+  const updateSpec = useUiStore((s) => s.updateCustomCableSpec)
+  const removeSpec = useUiStore((s) => s.removeCustomCableSpec)
+  return (
+    <SettingsCard
+      title={t('settings.customCables.title', 'Eigene Kabel-Typen')}
+      description={t(
+        'settings.customCables.desc',
+        'Vom User angelegte Kabel-Typen. Anlegen geht im Kabel-Dialog über "Als Kabel-Typ speichern" wenn "Custom Cable" gewählt ist.',
+      )}
+    >
+      {specs.length === 0 ? (
+        <p className="text-[11px] text-slate-500">
+          {t('settings.customCables.empty', 'Noch keine eigenen Kabel-Typen gespeichert.')}
+        </p>
+      ) : (
+        <ul className="space-y-1">
+          {specs.map((spec) => (
+            <li
+              key={spec.id}
+              className="flex items-center gap-2 rounded border border-slate-800 bg-slate-950 px-2 py-1 text-xs"
+            >
+              <input
+                type="color"
+                value={spec.color}
+                onChange={(e) => updateSpec(spec.id, { color: e.target.value })}
+                className="h-6 w-7 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
+                aria-label="Kabel-Farbe"
+              />
+              <input
+                type="text"
+                value={spec.name}
+                onChange={(e) => updateSpec(spec.id, { name: e.target.value })}
+                className="flex-1 rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-slate-100"
+              />
+              <span className="text-[10px] text-slate-500">
+                {spec.connectorType}
+                {spec.maxLengthMeters ? ` · max ${spec.maxLengthMeters} m` : ''}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      `Kabel-Typ "${spec.name}" wirklich löschen? Bereits damit verlegte Kabel auf dem Canvas bleiben unverändert, lassen sich aber nicht mehr neu auf diesen Typ setzen.`,
+                    )
+                  ) {
+                    removeSpec(spec.id)
+                  }
+                }}
+                className="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-slate-300 hover:bg-red-700 hover:text-white"
+              >
+                {t('common.delete', 'Löschen')}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </SettingsCard>
   )
 }
 

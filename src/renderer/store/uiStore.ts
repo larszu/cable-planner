@@ -45,6 +45,13 @@ interface PersistedUiState {
   /** Background grid opacity 0..1. Lower values make the dots/lines
    *  fainter — useful when zooming way out on large diagrams. */
   bgOpacity: number
+  /** Issue #64: user-defined cable specs persisted across sessions.
+   *  Each entry has the same shape as a built-in CableSpec but its
+   *  `id` is prefixed with 'custom-cable:' so the cable dialog can
+   *  visually distinguish them. They show up in the dropdown next
+   *  to the built-in catalog and can be re-edited / deleted from
+   *  Settings. */
+  customCableSpecs: import('../types/cableSpec').CableSpec[]
 }
 
 const defaults: PersistedUiState = {
@@ -64,6 +71,7 @@ const defaults: PersistedUiState = {
   connectorTypeColors: {},
   bgVariant: 'dots',
   bgOpacity: 0.5,
+  customCableSpecs: [],
 }
 
 const load = (): PersistedUiState => {
@@ -102,6 +110,17 @@ interface UiState extends PersistedUiState {
   resetConnectorTypeColors: () => void
   setBgVariant: (value: 'dots' | 'lines' | 'cross' | 'none') => void
   setBgOpacity: (value: number) => void
+  /** Add a new custom cable spec. The store assigns a `custom-cable:`
+   *  id automatically; if a spec with the same name already exists
+   *  it's replaced (so re-saving keeps the library clean). */
+  addCustomCableSpec: (spec: Omit<import('../types/cableSpec').CableSpec, 'id'>) => import('../types/cableSpec').CableSpec
+  /** Patch an existing custom spec in place. No-op if `id` doesn't
+   *  start with 'custom-cable:' — built-ins are read-only. */
+  updateCustomCableSpec: (
+    id: string,
+    patch: Partial<Omit<import('../types/cableSpec').CableSpec, 'id'>>,
+  ) => void
+  removeCustomCableSpec: (id: string) => void
   pdfExportThemeOverride: 'dark' | 'light' | null
   setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
   cableEdit: { open: boolean; cableId?: string }
@@ -187,6 +206,7 @@ const applyPatch =
       connectorTypeColors: state.connectorTypeColors,
       bgVariant: state.bgVariant,
       bgOpacity: state.bgOpacity,
+      customCableSpecs: state.customCableSpecs,
       ...patch,
     }
     persist(next)
@@ -222,6 +242,29 @@ export const useUiStore = create<UiState>((set) => ({
   resetConnectorTypeColors: () => set(applyPatch({ connectorTypeColors: {} })),
   setBgVariant: (value) => set(applyPatch({ bgVariant: value })),
   setBgOpacity: (value) => set(applyPatch({ bgOpacity: Math.max(0, Math.min(1, value)) })),
+  addCustomCableSpec: (spec) => {
+    const id = `custom-cable:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
+    const entry = { ...spec, id }
+    set((state) => {
+      // Drop any existing spec with the same name so the user can re-save
+      // an edited definition without duplicating it in the dropdown.
+      const filtered = state.customCableSpecs.filter((s) => s.name !== spec.name)
+      return applyPatch({ customCableSpecs: [...filtered, entry] })(state)
+    })
+    return entry
+  },
+  updateCustomCableSpec: (id, patch) =>
+    set((state) => {
+      if (!id.startsWith('custom-cable:')) return state
+      const next = state.customCableSpecs.map((s) =>
+        s.id === id ? { ...s, ...patch, id: s.id } : s,
+      )
+      return applyPatch({ customCableSpecs: next })(state)
+    }),
+  removeCustomCableSpec: (id) =>
+    set((state) =>
+      applyPatch({ customCableSpecs: state.customCableSpecs.filter((s) => s.id !== id) })(state),
+    ),
   pdfExportThemeOverride: null,
   setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
   cableEdit: { open: false },
