@@ -137,14 +137,19 @@ const drawColumn = (
   return y
 }
 
-export const exportDevicePatchSheet = async (
+/**
+ * Render a single device's patch sheet onto the CURRENT page of `pdf`.
+ * Caller is responsible for creating the pdf, adding pages between
+ * devices in batch mode, and saving the file. Factored out from
+ * `exportDevicePatchSheet` so the new batch export can reuse it
+ * without duplicating layout logic.
+ */
+const drawDevicePage = (
+  pdf: jsPDF,
   device: EquipmentItem,
   allEquipment: EquipmentItem[],
   allCables: Cable[],
-  options?: { format?: 'a4' | 'a3' },
-): Promise<void> => {
-  const format = options?.format ?? 'a4'
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format })
+): void => {
   const pageWidth = pdf.internal.pageSize.getWidth()
   const pageHeight = pdf.internal.pageSize.getHeight()
   const margin = 32
@@ -217,7 +222,39 @@ export const exportDevicePatchSheet = async (
     pageHeight - 12,
     { align: 'center' },
   )
+}
 
+export const exportDevicePatchSheet = async (
+  device: EquipmentItem,
+  allEquipment: EquipmentItem[],
+  allCables: Cable[],
+  options?: { format?: 'a4' | 'a3' },
+): Promise<void> => {
+  const format = options?.format ?? 'a4'
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format })
+  drawDevicePage(pdf, device, allEquipment, allCables)
   const safeName = (device.name || 'device').replace(/[/\\?%*:|"<>]/g, '-').trim() || 'device'
   pdf.save(`${safeName}-patch.pdf`)
+}
+
+/**
+ * Combined patch-sheet PDF — one device per page in a single file.
+ * Used by the new "Drucken" dialog when the user picks several devices
+ * and wants a single PDF (instead of one download per device).
+ */
+export const exportDevicesPatchSheetsBatch = async (
+  devices: EquipmentItem[],
+  allEquipment: EquipmentItem[],
+  allCables: Cable[],
+  options?: { format?: 'a4' | 'a3'; fileName?: string },
+): Promise<void> => {
+  if (devices.length === 0) return
+  const format = options?.format ?? 'a4'
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format })
+  devices.forEach((device, idx) => {
+    if (idx > 0) pdf.addPage()
+    drawDevicePage(pdf, device, allEquipment, allCables)
+  })
+  const fileName = options?.fileName ?? 'cable-planner-patch-sammlung.pdf'
+  pdf.save(fileName)
 }

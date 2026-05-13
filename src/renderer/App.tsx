@@ -18,6 +18,7 @@ import { AtemAudioRouterDialog } from './components/Atem/AtemAudioRouterDialog'
 import { LocationBomDialog } from './components/Project/LocationBomDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
+import { PrintDialog } from './components/Print/PrintDialog'
 import { WelcomeDialog } from './components/Project/WelcomeDialog'
 import { Splitter } from './components/Layout/Splitter'
 import { useProject } from './hooks/useProject'
@@ -89,6 +90,7 @@ export default function App() {
   const [welcomeOpen, setWelcomeOpen] = useState(false)
   const [pdfExportOpen, setPdfExportOpen] = useState(false)
   const [pdfTheme, setPdfTheme] = useState<'dark' | 'light'>('light')
+  const [printDialogOpen, setPrintDialogOpen] = useState(false)
   const [graphmlImportOpen, setGraphmlImportOpen] = useState(false)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
   const setPdfExportThemeOverride = useUiStore((state) => state.setPdfExportThemeOverride)
@@ -328,12 +330,7 @@ export default function App() {
         onSaveProjectAs={() => void saveProjectAs()}
         onOpenSettings={() => setSettingsOpen(true)}
         onExportPdf={() => setPdfExportOpen(true)}
-        onExportPng={() =>
-          void exportCanvasToImage(project.metadata.name, 'png', { backgroundTheme: canvasTheme })
-        }
-        onExportJpeg={() =>
-          void exportCanvasToImage(project.metadata.name, 'jpeg', { backgroundTheme: canvasTheme })
-        }
+        onOpenPrintDialog={() => setPrintDialogOpen(true)}
         onOpenGraphmlImport={() => setGraphmlImportOpen(true)}
         onAttachPdfToRentman={() => void handleUploadPdfToRentman()}
         onOpenRentmanCableExport={openRentmanCableExport}
@@ -415,6 +412,18 @@ export default function App() {
       />
 
       <CableBomDialog open={cableBomOpen} onClose={() => setCableBomOpen(false)} />
+
+      <PrintDialog
+        open={printDialogOpen}
+        onClose={() => setPrintDialogOpen(false)}
+        onPrintPlanPdf={() => setPdfExportOpen(true)}
+        onPrintPlanPng={() =>
+          void exportCanvasToImage(project.metadata.name, 'png', { backgroundTheme: canvasTheme })
+        }
+        onPrintPlanJpeg={() =>
+          void exportCanvasToImage(project.metadata.name, 'jpeg', { backgroundTheme: canvasTheme })
+        }
+      />
 
       <PdfExportDialog
         open={pdfExportOpen}
