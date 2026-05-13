@@ -10,6 +10,7 @@ import ReactFlow, {
   useReactFlow,
   useUpdateNodeInternals,
   ConnectionMode,
+  SelectionMode,
   type Connection,
   type Edge,
   type Node,
@@ -1029,7 +1030,14 @@ const CanvasContent = () => {
         zoomOnDoubleClick={!interactionLocked}
         selectNodesOnDrag={false}
         multiSelectionKeyCode={['Control', 'Meta']}
-        selectionKeyCode={null}
+        // Hold Shift and drag on empty canvas to draw a marquee selection
+        // box (issue #66). Plain drag still pans the viewport, so the
+        // user's normal pan workflow is untouched.
+        selectionKeyCode={interactionLocked ? null : 'Shift'}
+        // 'Partial' = any node touching the marquee is selected. The
+        // alternative ('Full' / SelectionMode.Full) requires the whole
+        // node to fit inside the box, which is annoying for big devices.
+        selectionMode={SelectionMode.Partial}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         connectionMode={ConnectionMode.Loose}

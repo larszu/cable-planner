@@ -278,8 +278,15 @@ export const CableEdge = ({
   const isWireless = cable?.wireless === true
   const dashArray = (cable?.dashed || isWireless) ? '6 4' : undefined
 
-  const markerEnd = cable?.arrowEnd === false ? undefined : 'url(#cable-planner-arrow-end)'
-  const markerStart = cable?.arrowStart ? 'url(#cable-planner-arrow-start)' : undefined
+  // Bidirectional cables (USB, Ethernet, Fibre, …) get arrow markers on
+  // BOTH ends to communicate two-way signal flow. The user can still
+  // override per-end with the arrowStart / arrowEnd toggles, but the
+  // bidirectional flag is the easier single switch (issue #67).
+  const bidi = cable?.bidirectional === true
+  const markerEnd =
+    bidi || cable?.arrowEnd !== false ? 'url(#cable-planner-arrow-end)' : undefined
+  const markerStart =
+    bidi || cable?.arrowStart ? 'url(#cable-planner-arrow-start)' : undefined
 
   const mergedStyle: React.CSSProperties = {
     ...style,
