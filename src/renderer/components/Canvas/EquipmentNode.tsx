@@ -32,6 +32,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   const clearPendingCable = useUiStore((s) => s.clearPendingCable)
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const colorPortsByType = useUiStore((s) => s.colorPortsByType)
+  // Issue #62: user-editable per-connector-type colour overrides.
+  // The override map is sparse — empty/missing entries fall back to
+  // the built-in palette inside colorForConnector().
+  const connectorTypeColors = useUiStore((s) => s.connectorTypeColors)
   const isLight = (data.exportThemeOverride ?? canvasTheme) === 'light'
   const queueConnection = useProjectStore((s) => s.queueConnection)
   const updateNodeInternals = useUpdateNodeInternals()
@@ -439,7 +443,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         const side = placement.side
         const pos = side === 'left' ? Position.Left : Position.Right
         const dotColor = colorPortsByType
-          ? colorForConnector(port.connectorType)
+          ? colorForConnector(port.connectorType, connectorTypeColors)
           : (bi ? '#a855f7' : '#0ea5e9')
         return (
           <Fragment key={`h-in-${port.id}`}>
@@ -534,7 +538,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         const side = placement.side
         const pos = side === 'left' ? Position.Left : Position.Right
         const dotColor = colorPortsByType
-          ? colorForConnector(port.connectorType)
+          ? colorForConnector(port.connectorType, connectorTypeColors)
           : (bi ? '#a855f7' : '#22c55e')
         return (
           <Fragment key={`h-out-${port.id}`}>

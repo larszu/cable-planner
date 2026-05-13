@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useReactFlow } from 'reactflow'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
@@ -33,6 +33,18 @@ export const CanvasToolbar = () => {
   const { getNodes } = useReactFlow()
   const [namingGroup, setNamingGroup] = useState(false)
   const [groupName, setGroupName] = useState('')
+  // Issue #59: the toolbar's group-name input sometimes ignored keystrokes
+  // until app restart. autoFocus alone is unreliable when another component
+  // (e.g. ReactFlow's pane after a click) steals focus on the same tick.
+  // Hold a ref and re-focus explicitly each time the form opens.
+  const groupNameRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (namingGroup) {
+      // Defer one frame so the input is in the DOM before .focus() runs.
+      const id = requestAnimationFrame(() => groupNameRef.current?.focus())
+      return () => cancelAnimationFrame(id)
+    }
+  }, [namingGroup])
 
   /**
    * Align the currently selected equipment nodes along the requested axis.
@@ -323,9 +335,17 @@ export const CanvasToolbar = () => {
               }}
             >
               <input
+                ref={groupNameRef}
                 autoFocus
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
+                // ReactFlow's pane swallows pointer events on its children
+                // unless we stop propagation here. Without this the click
+                // that focuses the input also bubbles to the pane, which
+                // can immediately re-focus itself and steal the caret
+                // (issue #59: "manchmal lässt sich kein text eingeben").
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
                 placeholder="Gruppenname…"
                 style={{
                   width: 140,

@@ -299,6 +299,17 @@ export const CableProperties = () => {
           />
           Arrow ►
         </label>
+        <label
+          className="flex items-center gap-1"
+          title="Bidirektionales Kabel (z.B. USB, Ethernet, LWL) — Pfeile auf beiden Seiten"
+        >
+          <input
+            type="checkbox"
+            checked={cable.bidirectional ?? false}
+            onChange={(event) => updateCable(cable.id, { bidirectional: event.target.checked })}
+          />
+          Bidirektional ⇌
+        </label>
       </div>
 
       <div className="rounded border border-slate-700 bg-slate-950/50 p-2 space-y-2">
