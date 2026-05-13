@@ -348,6 +348,10 @@ const AppearanceTab = () => {
   const connectorTypeColors = useUiStore((s) => s.connectorTypeColors)
   const setConnectorTypeColor = useUiStore((s) => s.setConnectorTypeColor)
   const resetConnectorTypeColors = useUiStore((s) => s.resetConnectorTypeColors)
+  const bgVariant = useUiStore((s) => s.bgVariant)
+  const setBgVariant = useUiStore((s) => s.setBgVariant)
+  const bgOpacity = useUiStore((s) => s.bgOpacity)
+  const setBgOpacity = useUiStore((s) => s.setBgOpacity)
   const setDefaultArrow = useUiStore((s) => s.setDefaultArrow)
   const language = useUiStore((s) => s.language)
   const setLanguage = useUiStore((s) => s.setLanguage)
@@ -530,6 +534,46 @@ const AppearanceTab = () => {
             'Beliebige Inputs und Outputs ohne Warnung verbinden',
           )}
         </label>
+      </SettingsCard>
+
+      <SettingsCard
+        title={t('settings.canvasBg.title', 'Canvas-Hintergrund')}
+        description={t(
+          'settings.canvasBg.desc',
+          'Muster + Deckkraft des Canvas-Rasters. Bei großen Plänen reduziert eine niedrige Deckkraft die visuelle Unruhe. Rastergröße kommt aus dem Canvas-Toolbar oben.',
+        )}
+      >
+        <div className="flex flex-wrap items-center gap-3 text-sm text-slate-200">
+          <label className="flex items-center gap-2">
+            <span className="text-xs text-slate-400">{t('settings.canvasBg.variant', 'Muster')}</span>
+            <select
+              value={bgVariant}
+              onChange={(e) => setBgVariant(e.target.value as 'dots' | 'lines' | 'cross' | 'none')}
+              className="rounded border border-slate-700 bg-slate-900 p-1 text-xs"
+            >
+              <option value="dots">{t('settings.canvasBg.variant.dots', 'Punkte')}</option>
+              <option value="lines">{t('settings.canvasBg.variant.lines', 'Linien')}</option>
+              <option value="cross">{t('settings.canvasBg.variant.cross', 'Kreuze')}</option>
+              <option value="none">{t('settings.canvasBg.variant.none', 'Kein Raster')}</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-2">
+            <span className="text-xs text-slate-400">{t('settings.canvasBg.opacity', 'Deckkraft')}</span>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={bgOpacity}
+              onChange={(e) => setBgOpacity(parseFloat(e.target.value))}
+              className="w-32"
+              disabled={bgVariant === 'none'}
+            />
+            <span className="w-10 text-right text-xs text-slate-400">
+              {Math.round(bgOpacity * 100)}%
+            </span>
+          </label>
+        </div>
       </SettingsCard>
 
       <SettingsCard
