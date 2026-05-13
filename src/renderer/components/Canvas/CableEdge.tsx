@@ -228,6 +228,11 @@ export const CableEdge = ({
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const equipment = useProjectStore((state) => state.project.equipment)
   const canvasTheme = useUiStore((s) => s.canvasTheme)
+  // Issue #68: when hovered, draw the cable thicker + with a sky glow.
+  // EquipmentNode reads the same store value to highlight the matching
+  // port handles, so the entire connection visually pops at once.
+  const hoveredCableId = useUiStore((s) => s.hoveredCableId)
+  const hovered = hoveredCableId === id
   const isLight = (data?.exportThemeOverride ?? canvasTheme) === 'light'
 
   const { obstacles, obstacleIds } = (() => {
@@ -290,9 +295,15 @@ export const CableEdge = ({
 
   const mergedStyle: React.CSSProperties = {
     ...style,
-    strokeWidth,
+    // Bump stroke a bit on hover so the connection visually pops out
+    // even when surrounded by dense routing (issue #68).
+    strokeWidth: hovered ? strokeWidth + 1.5 : strokeWidth,
     strokeDasharray: dashArray,
-    filter: selected ? 'drop-shadow(0 0 3px rgba(56,189,248,0.9))' : undefined,
+    filter: selected
+      ? 'drop-shadow(0 0 3px rgba(56,189,248,0.9))'
+      : hovered
+        ? 'drop-shadow(0 0 4px rgba(56,189,248,0.65))'
+        : undefined,
   }
 
   // Build label text: for wireless cables, prefix with signal icon + frequency/channel info

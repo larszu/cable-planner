@@ -142,6 +142,11 @@ export interface EquipmentItem {
   favorite?: boolean
   /** Hide from the library unless "Ausgeblendete zeigen" is active. */
   hidden?: boolean
+  /** Pack-status checkbox used during build-up / pack-down. When true,
+   *  the device is considered physically packed and ready to ship.
+   *  Visualised on the canvas with a small ✓ marker on the header and
+   *  surfaced as a column in the equipment BOM. (H2R parity.) */
+  packed?: boolean
   /**
    * Native display resolution (for monitors, multiviewers, displays).
    * Format example: "1920x1080", "3840x2160".
