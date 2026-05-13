@@ -1,7 +1,7 @@
 {
     "name": "cable-planner",
     "private": true,
-    "version": "0.9.0",
+    "version": "0.10.0",
     "description": "Electron desktop app for planning and visualizing broadcast equipment cabling",
     "author": {
         "name": "Lars Zumpe",
@@ -37,6 +37,7 @@
         "react-dom": "^19.2.5",
         "reactflow": "^11.11.4",
         "uuid": "^13.0.0",
+        "xlsx": "^0.18.5",
         "yaml": "^2.8.3",
         "zustand": "^5.0.8"
     },

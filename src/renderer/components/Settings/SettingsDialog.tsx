@@ -19,6 +19,7 @@ import {
   saveGreenGoPreset,
 } from '../../lib/greengoSync'
 import type { DeviceConfigEntry, DeviceConfigKind } from '../../store/uiStore'
+import { HOTKEY_ACTION_LABEL, comboFromEvent } from '../../lib/hotkeys'
 
 interface SettingsDialogProps {
   open: boolean
@@ -29,6 +30,7 @@ type SettingsSection =
   | 'project'
   | 'appearance'
   | 'editing'
+  | 'hotkeys'
   | 'integrations'
   | 'configs'
   | 'sync'
@@ -38,6 +40,7 @@ const TAB_ICONS: Record<SettingsSection, string> = {
   project: '📋',
   appearance: '🎨',
   editing: '✏️',
+  hotkeys: '⌨',
   integrations: '🔌',
   configs: '🗄',
   sync: '🔄',
@@ -48,6 +51,7 @@ const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
   project: 'Projekt',
   appearance: 'Darstellung',
   editing: 'Bearbeiten',
+  hotkeys: 'Hotkeys',
   integrations: 'Integrationen',
   configs: 'Konfigurationen',
   sync: 'Netzwerk-Sync',
@@ -58,6 +62,7 @@ const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
   project: 'Projekt-Einstellungen',
   appearance: 'Darstellung',
   editing: 'Bearbeiten',
+  hotkeys: 'Tastenkürzel',
   integrations: 'Integrationen',
   configs: 'Geräte-Konfigurationen',
   sync: 'Netzwerk-Sync',
@@ -122,6 +127,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
             {section === 'project' && <ProjectTab onClose={onClose} />}
             {section === 'appearance' && <AppearanceTab />}
             {section === 'editing' && <EditingTab />}
+            {section === 'hotkeys' && <HotkeysTab />}
             {section === 'integrations' && <IntegrationsTab onClose={onClose} />}
             {section === 'configs' && <ConfigsTab />}
             {section === 'sync' && <SyncTab />}
@@ -708,8 +714,54 @@ const EditingTab = () => {
         </label>
       </SettingsCard>
 
+      <CableVisualOptionsCard />
+
       <CustomCableTypesCard />
     </div>
+  )
+}
+
+/** Issue #65 / #53: visual options for orthogonal cable routing.
+ *  Cable bumps draw a small arc on crossings; collision-shift moves
+ *  parallel midlines apart so cables don't overlay. Both are stored
+ *  in uiStore so they persist across sessions. */
+const CableVisualOptionsCard = () => {
+  const t = useTranslation()
+  const cableBumps = useUiStore((s) => s.cableBumps)
+  const setCableBumps = useUiStore((s) => s.setCableBumps)
+  const orthogonalCollisionShift = useUiStore((s) => s.orthogonalCollisionShift)
+  const setOrthogonalCollisionShift = useUiStore((s) => s.setOrthogonalCollisionShift)
+  return (
+    <SettingsCard
+      title={t('settings.editing.cableVisuals', 'Kabel-Darstellung')}
+      description={t(
+        'settings.editing.cableVisualsDesc',
+        'Visuelle Hilfen für orthogonal verlegte Kabel (yEd-ähnliche Brücken bei Kreuzungen und automatische Versetzung sich überlagernder Mittellinien).',
+      )}
+    >
+      <label className="mb-2 flex items-center gap-2 text-sm text-slate-200">
+        <input
+          type="checkbox"
+          checked={cableBumps}
+          onChange={(e) => setCableBumps(e.target.checked)}
+        />
+        {t(
+          'settings.editing.cableBumps',
+          'Kreuzungs-Brücken auf orthogonalen Kabeln (#65, experimentell — globale Berechnung in v0.11)',
+        )}
+      </label>
+      <label className="flex items-center gap-2 text-sm text-slate-200">
+        <input
+          type="checkbox"
+          checked={orthogonalCollisionShift}
+          onChange={(e) => setOrthogonalCollisionShift(e.target.checked)}
+        />
+        {t(
+          'settings.editing.collisionShift',
+          'Mittellinien automatisch versetzen wenn Kabel sich überlagern (#53, experimentell)',
+        )}
+      </label>
+    </SettingsCard>
   )
 }
 
@@ -783,6 +835,101 @@ const CustomCableTypesCard = () => {
         </ul>
       )}
     </SettingsCard>
+  )
+}
+
+// --- Tab: Hotkeys (Issue #69) ---------------------------------------------
+
+const HotkeyRow = ({
+  action,
+  combo,
+  onChange,
+}: {
+  action: string
+  combo: string
+  onChange: (combo: string) => void
+}) => {
+  const [capturing, setCapturing] = useState(false)
+  const label = HOTKEY_ACTION_LABEL[action] ?? action
+  return (
+    <li className="flex items-center gap-2 rounded border border-slate-800 bg-slate-950 px-2 py-1.5 text-xs">
+      <span className="flex-1 truncate text-slate-200">{label}</span>
+      <button
+        type="button"
+        onClick={() => setCapturing(true)}
+        onBlur={() => setCapturing(false)}
+        onKeyDown={(e) => {
+          if (!capturing) return
+          e.preventDefault()
+          const next = comboFromEvent(e)
+          if (next) {
+            onChange(next)
+            setCapturing(false)
+          }
+        }}
+        className={`min-w-[120px] rounded border px-2 py-1 text-center font-mono text-[11px] ${
+          capturing
+            ? 'border-sky-500 bg-sky-950/60 text-sky-200'
+            : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-600'
+        }`}
+        title={capturing ? 'Taste oder Tasten-Kombination drücken…' : 'Klicken und Taste(n) drücken'}
+      >
+        {capturing ? 'Taste drücken…' : combo || '—'}
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange('')}
+        className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-400 hover:bg-red-700 hover:text-white"
+        title="Hotkey leeren"
+      >
+        ✕
+      </button>
+    </li>
+  )
+}
+
+const HotkeysTab = () => {
+  const t = useTranslation()
+  const hotkeys = useUiStore((s) => s.hotkeys)
+  const setHotkey = useUiStore((s) => s.setHotkey)
+  const resetHotkeys = useUiStore((s) => s.resetHotkeys)
+  const actions = Object.keys(HOTKEY_ACTION_LABEL)
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-slate-400">
+        {t(
+          'settings.hotkeys.intro',
+          'Tastenkürzel können hier frei belegt werden. Klicke auf eine Combo-Zelle und drücke die gewünschten Tasten — Ctrl/Shift/Alt + Buchstabe oder Funktionstaste.',
+        )}
+      </p>
+      <SettingsCard
+        title={t('settings.hotkeys.title', 'Aktive Tastenkürzel')}
+        description={t(
+          'settings.hotkeys.desc',
+          'Format: Ctrl+Shift+S. Leere Felder deaktivieren den Hotkey. Doppel-Belegungen sind erlaubt — der zuerst gefundene Hotkey gewinnt.',
+        )}
+      >
+        <ul className="space-y-1">
+          {actions.map((action) => (
+            <HotkeyRow
+              key={action}
+              action={action}
+              combo={hotkeys[action] ?? ''}
+              onChange={(combo) => setHotkey(action, combo)}
+            />
+          ))}
+        </ul>
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            onClick={resetHotkeys}
+            className="rounded bg-slate-800 px-3 py-1 text-xs text-slate-300 hover:bg-slate-700"
+          >
+            {t('settings.hotkeys.reset', 'Auf Standard zurücksetzen')}
+          </button>
+        </div>
+      </SettingsCard>
+    </div>
   )
 }
 

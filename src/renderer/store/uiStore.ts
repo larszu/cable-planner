@@ -85,6 +85,18 @@ interface PersistedUiState {
   /** Issue #80: global library of device-config files (ATEM, Videohub,
    *  GreenGo). Each entry can optionally be bound to one equipment id. */
   deviceConfigLibrary: DeviceConfigEntry[]
+  /** Issue #65: draw small jump-bumps when two orthogonal cables cross,
+   *  the way yEd does, so the user can visually trace which cable is on
+   *  top. The lower-id cable gets the bump. Off by default to preserve
+   *  the existing visual baseline. */
+  cableBumps: boolean
+  /** Issue #53: when two orthogonal cables share an X- or Y-midline,
+   *  shift one of them by a small offset so they're parallel instead of
+   *  perfectly overlapping. */
+  orthogonalCollisionShift: boolean
+  /** Issue #69: customizable keyboard shortcuts. Map of action → key
+   *  combo. Empty string disables the shortcut. */
+  hotkeys: Record<string, string>
 }
 
 const defaults: PersistedUiState = {
@@ -106,13 +118,53 @@ const defaults: PersistedUiState = {
   bgOpacity: 0.5,
   customCableSpecs: [],
   deviceConfigLibrary: [],
+  cableBumps: false,
+  orthogonalCollisionShift: false,
+  hotkeys: {
+    undo: 'Ctrl+Z',
+    redo: 'Ctrl+Y',
+    save: 'Ctrl+S',
+    saveAs: 'Ctrl+Shift+S',
+    newProject: 'Ctrl+N',
+    openProject: 'Ctrl+O',
+    deleteSelected: 'Delete',
+    clearSelection: 'Escape',
+    toggleLibrary: 'Ctrl+B',
+    toggleProperties: 'Ctrl+I',
+    showLegend: 'L',
+    jumpToPatches: 'P',
+    toggleArrows: 'A',
+    toggleRouting: 'R',
+  },
 }
 
 const load = (): PersistedUiState => {
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return defaults
-    return { ...defaults, ...(JSON.parse(raw) as Partial<PersistedUiState>) }
+    const parsed = JSON.parse(raw) as Partial<PersistedUiState>
+    // Defensive: ensure every field has the right TYPE, otherwise React
+    // selectors that expect arrays/objects can crash on first render and
+    // trigger an infinite mount loop (React #185 / #310). Replace any
+    // field with the wrong type by the default. This protects users who
+    // updated from a much older version with a different schema.
+    const merged: PersistedUiState = { ...defaults, ...parsed }
+    if (!Array.isArray(merged.customCableSpecs)) merged.customCableSpecs = []
+    if (!Array.isArray(merged.deviceConfigLibrary)) merged.deviceConfigLibrary = []
+    if (typeof merged.cableBumps !== 'boolean') merged.cableBumps = defaults.cableBumps
+    if (typeof merged.orthogonalCollisionShift !== 'boolean')
+      merged.orthogonalCollisionShift = defaults.orthogonalCollisionShift
+    if (!merged.hotkeys || typeof merged.hotkeys !== 'object') merged.hotkeys = defaults.hotkeys
+    else merged.hotkeys = { ...defaults.hotkeys, ...merged.hotkeys }
+    if (merged.connectorTypeColors === null || typeof merged.connectorTypeColors !== 'object')
+      merged.connectorTypeColors = {}
+    if (typeof merged.bgOpacity !== 'number' || !Number.isFinite(merged.bgOpacity))
+      merged.bgOpacity = defaults.bgOpacity
+    if (typeof merged.gridSize !== 'number' || merged.gridSize < 2)
+      merged.gridSize = defaults.gridSize
+    if (typeof merged.libraryWidth !== 'number') merged.libraryWidth = defaults.libraryWidth
+    if (typeof merged.propertiesWidth !== 'number') merged.propertiesWidth = defaults.propertiesWidth
+    return merged
   } catch {
     return defaults
   }
@@ -161,6 +213,10 @@ interface UiState extends PersistedUiState {
   removeDeviceConfig: (id: string) => void
   /** Bulk-replace the entire library. Used by the JSON-bundle importer. */
   replaceDeviceConfigLibrary: (entries: DeviceConfigEntry[]) => void
+  setCableBumps: (value: boolean) => void
+  setOrthogonalCollisionShift: (value: boolean) => void
+  setHotkey: (action: string, combo: string) => void
+  resetHotkeys: () => void
   pdfExportThemeOverride: 'dark' | 'light' | null
   setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
   cableEdit: { open: boolean; cableId?: string }
@@ -248,6 +304,9 @@ const applyPatch =
       bgOpacity: state.bgOpacity,
       customCableSpecs: state.customCableSpecs,
       deviceConfigLibrary: state.deviceConfigLibrary,
+      cableBumps: state.cableBumps,
+      orthogonalCollisionShift: state.orthogonalCollisionShift,
+      hotkeys: state.hotkeys,
       ...patch,
     }
     persist(next)
@@ -333,6 +392,11 @@ export const useUiStore = create<UiState>((set) => ({
     ),
   replaceDeviceConfigLibrary: (entries) =>
     set((state) => applyPatch({ deviceConfigLibrary: entries })(state)),
+  setCableBumps: (value) => set(applyPatch({ cableBumps: value })),
+  setOrthogonalCollisionShift: (value) => set(applyPatch({ orthogonalCollisionShift: value })),
+  setHotkey: (action, combo) =>
+    set((state) => applyPatch({ hotkeys: { ...state.hotkeys, [action]: combo } })(state)),
+  resetHotkeys: () => set(applyPatch({ hotkeys: defaults.hotkeys })),
   pdfExportThemeOverride: null,
   setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
   cableEdit: { open: false },

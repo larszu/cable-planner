@@ -27,9 +27,10 @@ import { cablePlannerApi } from './lib/bridge'
 import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
 import { exportCanvasToImage } from './lib/exportImage'
 import { useProjectStore } from './store/projectStore'
-import { useUndoRedoShortcuts } from './store/projectHistory'
+import { useUndoRedoShortcuts, projectHistory } from './store/projectHistory'
 import { useSettingsStore } from './store/settingsStore'
 import { useUiStore } from './store/uiStore'
+import { useHotkeys } from './lib/hotkeys'
 import type { Cable, CableType } from './types/cable'
 import { ALL_CONNECTOR_TYPES } from './types/equipment'
 import type { ConnectorType, EquipmentItem, Port } from './types/equipment'
@@ -154,6 +155,35 @@ export default function App() {
   }, [refreshRecent, setHasToken])
 
   useUndoRedoShortcuts()
+
+  // Issue #69: dispatch user-customizable hotkeys defined in
+  // Settings → Hotkeys. The undo/redo entries below intentionally
+  // overlap with useUndoRedoShortcuts() — only the first matching
+  // handler fires, so there's no double-trigger.
+  const hotkeys = useUiStore((s) => s.hotkeys)
+  const hotkeyHandlers = useMemo(
+    () => ({
+      undo: () => projectHistory.undo(),
+      redo: () => projectHistory.redo(),
+      save: () => void saveProject(),
+      saveAs: () => void saveProjectAs(),
+      newProject: () => void handleNewProject(),
+      openProject: () => void openProject(),
+      deleteSelected: () => useProjectStore.getState().deleteSelected(),
+      clearSelection: () =>
+        useProjectStore.getState().setSelection(undefined, undefined, undefined),
+      toggleLibrary: () => useUiStore.getState().toggleLibraryCollapsed(),
+      toggleProperties: () => useUiStore.getState().togglePropertiesCollapsed(),
+      toggleArrows: () =>
+        useUiStore.getState().setDefaultArrow(!useUiStore.getState().defaultArrow),
+    }),
+    // We rebuild handlers only when stable refs change. Most setters
+    // come from zustand; handleNewProject is recreated each render
+    // but it's only invoked on key press so a stale capture is fine.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [openProject, saveProject, saveProjectAs],
+  )
+  useHotkeys(hotkeys, hotkeyHandlers)
 
   const handleNewProject = async () => {
     // Only *open* the dialog here. The actual project reset happens when the
