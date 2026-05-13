@@ -22,6 +22,7 @@ import { useUiStore } from '../../store/uiStore'
 import { detectDeviceKind, detectNetworkDevice } from '../../lib/deviceKind'
 import { promptDialog } from '../../lib/promptDialog'
 import { useGreenGoBeltpack } from '../../lib/greengoSync'
+import { exportDevicePatchSheet } from '../../lib/exportDevicePdf'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, Port, VlanDef, PortVlanAssignment } from '../../types/equipment'
 import { ALL_SIGNAL_STANDARDS } from '../../types/cableSpec'
@@ -1370,6 +1371,44 @@ export const EquipmentProperties = () => {
             title="Erstellt eine neue Vorlage unter anderem Namen — bestehende bleibt unverändert."
           >
             Als neues Gerät in Library speichern ✚
+          </button>
+        </div>
+      </div>
+
+      <div className="rounded border border-slate-700 bg-slate-900/40 p-2">
+        <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
+          Druck / Dokumentation
+        </div>
+        <div className="flex flex-col gap-1">
+          <button
+            type="button"
+            onClick={() =>
+              void exportDevicePatchSheet(
+                equipment,
+                useProjectStore.getState().project.equipment,
+                useProjectStore.getState().project.cables,
+                { format: 'a4' },
+              )
+            }
+            className="w-full rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600"
+            title="Erzeugt eine einseitige A4-Patch-Liste mit allen Ports + verbundenen Kabeln — zum Aufkleben am Gerät (Issue #74)."
+          >
+            🖨 Patch-Sheet (A4 PDF) drucken
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              void exportDevicePatchSheet(
+                equipment,
+                useProjectStore.getState().project.equipment,
+                useProjectStore.getState().project.cables,
+                { format: 'a3' },
+              )
+            }
+            className="w-full rounded bg-sky-800 px-2 py-1 text-xs text-white hover:bg-sky-700"
+            title="A3-Variante für Geräte mit vielen Ports."
+          >
+            🖨 Patch-Sheet (A3 PDF) drucken
           </button>
         </div>
       </div>
