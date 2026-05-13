@@ -10,6 +10,10 @@ import {
   parseGg5File,
   type Gg5ImportResult,
 } from '../../lib/importGreengo'
+import {
+  exportIntercomMatrixXlsx,
+  parseIntercomMatrixXlsx,
+} from '../../lib/intercomMatrixXlsx'
 
 interface Props {
   onClose: () => void
@@ -44,8 +48,10 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
   // ── import state ──────────────────────────────────────────────────────────
 
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const xlsxInputRef = useRef<HTMLInputElement>(null)
   const [importResult, setImportResult] = useState<Gg5ImportResult | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
+  const [xlsxImportNotice, setXlsxImportNotice] = useState<string | null>(null)
   /** userId → canvas equipmentId mapping chosen by the user in the import overlay */
   const [importMappings, setImportMappings] = useState<Map<number, string>>(new Map())
 
@@ -88,6 +94,73 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
   const cancelImport = () => {
     setImportResult(null)
     setImportError(null)
+  }
+
+  // ── XLSX intercom-matrix round-trip ───────────────────────────────────────
+
+  const handleXlsxSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const buffer = ev.target?.result
+      if (!(buffer instanceof ArrayBuffer)) {
+        setImportError('Konnte XLSX nicht als Binärdaten lesen.')
+        return
+      }
+      const result = parseIntercomMatrixXlsx(buffer)
+      if ('error' in result) {
+        setImportError(result.error)
+        return
+      }
+      // Merge with current config: prefer the XLSX-derived users/groups
+      // but keep system metadata (multicast/sampleRate) from the current
+      // session so the user doesn't lose those defaults.
+      setConfig((prev) => ({
+        ...prev,
+        systemName: result.config.systemName,
+        description: result.config.description,
+        users: result.config.users,
+        groups: result.config.groups,
+      }))
+      setActiveTab('matrix')
+      const lines: string[] = []
+      lines.push(
+        `✓ ${result.config.users.length} Benutzer · ${result.config.groups.length} Gruppen aus Excel übernommen.`,
+      )
+      if (result.directTalkPairs.length > 0) {
+        lines.push(
+          `${result.directTalkPairs.length} Direkt-Linien (User↔User) wurden ignoriert — GreenGo speichert Mitgliedschaften, keine 1:1-Routen.`,
+        )
+      }
+      if (result.equipmentMarks.length > 0) {
+        lines.push(
+          `${result.equipmentMarks.length} Equipment-Markierungen sind nur Audit — ordne die Beltpacks auf dem Canvas zu.`,
+        )
+      }
+      for (const w of result.warnings) lines.push(`⚠ ${w}`)
+      setXlsxImportNotice(lines.join('\n'))
+      setImportError(null)
+    }
+    reader.onerror = () => setImportError('XLSX konnte nicht gelesen werden.')
+    reader.readAsArrayBuffer(file)
+    e.target.value = ''
+  }
+
+  const handleXlsxExport = () => {
+    const buffer = exportIntercomMatrixXlsx(config)
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    const safeName = config.systemName.replace(/[^a-z0-9_\-]/gi, '_') || 'intercom'
+    a.download = `${safeName}-IntercomMatrix.xlsx`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
 
   // ── system helpers ────────────────────────────────────────────────────────
@@ -579,14 +652,21 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
               <span className="ml-2 text-emerald-700">· {intercomEquipment.length} Geräte auf Canvas</span>
             )}
           </span>
-          <div className="flex gap-2">
-            {/* Hidden file input for .gg5 import */}
+          <div className="flex flex-wrap gap-2">
+            {/* Hidden file inputs for .gg5 and .xlsx imports */}
             <input
               ref={fileInputRef}
               type="file"
               accept=".gg5,.json"
               className="hidden"
               onChange={handleFileSelected}
+            />
+            <input
+              ref={xlsxInputRef}
+              type="file"
+              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              className="hidden"
+              onChange={handleXlsxSelected}
             />
             <button
               type="button"
@@ -595,6 +675,22 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
               title=".gg5 Datei importieren und mit Canvas-Geräten verknüpfen"
             >
               ⬆ .gg5 importieren
+            </button>
+            <button
+              type="button"
+              onClick={() => xlsxInputRef.current?.click()}
+              className="rounded border border-slate-600 px-3 py-1.5 text-xs text-slate-400 hover:border-cyan-700 hover:text-cyan-300"
+              title="Intercom-Matrix-Excel hochladen — die Users + Gruppen werden in die GreenGo-Konfiguration übernommen."
+            >
+              📊 Excel-Matrix importieren
+            </button>
+            <button
+              type="button"
+              onClick={handleXlsxExport}
+              className="rounded border border-slate-600 px-3 py-1.5 text-xs text-slate-400 hover:border-cyan-700 hover:text-cyan-300"
+              title="Aktuelle GreenGo-Konfiguration als Intercom-Matrix-Excel herunterladen (für Druck / Weitergabe)."
+            >
+              📊 Excel-Matrix exportieren
             </button>
             <button
               type="button"
@@ -613,6 +709,20 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
           </div>
         </div>
       </div>
+
+      {/* ══════ XLSX IMPORT TOAST (multi-line) ══════ */}
+      {xlsxImportNotice && (
+        <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 max-w-lg rounded border border-cyan-700 bg-cyan-950 px-4 py-3 text-xs text-cyan-100 shadow-lg">
+          <pre className="whitespace-pre-wrap font-sans">{xlsxImportNotice}</pre>
+          <button
+            type="button"
+            onClick={() => setXlsxImportNotice(null)}
+            className="mt-2 rounded bg-cyan-800 px-2 py-1 text-[11px] text-white hover:bg-cyan-700"
+          >
+            OK
+          </button>
+        </div>
+      )}
 
       {/* ══════ IMPORT ERROR TOAST ══════ */}
       {importError && (

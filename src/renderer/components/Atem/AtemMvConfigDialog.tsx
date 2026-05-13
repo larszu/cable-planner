@@ -438,20 +438,29 @@ export const AtemMvConfigDialog = () => {
           {mv && spec && (
             <>
               <div className="mb-3 flex flex-wrap items-center gap-3 text-xs">
-                <label className="flex items-center gap-2">
-                  <span className="text-slate-300">Layout</span>
-                  <select
-                    value={mv.layout}
-                    onChange={(e) => updateMv(activeMv, { layout: Number(e.target.value) })}
-                    className="rounded border border-slate-700 bg-slate-900 px-2 py-1"
-                  >
-                    {MV_LAYOUT_OPTIONS.map((l) => (
-                      <option key={l.value} value={l.value}>
-                        {l.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                {/* Issue #55: ATEM-software-style layout picker. Each
+                    button shows the layout label and is clickable to
+                    switch the active multiviewer's grid. Active layout
+                    is highlighted in sky-700. Replaces the previous
+                    dropdown (less obvious which layouts exist). */}
+                <span className="text-slate-300">Layout</span>
+                <div className="flex flex-wrap gap-1">
+                  {MV_LAYOUT_OPTIONS.map((l) => (
+                    <button
+                      key={l.value}
+                      type="button"
+                      onClick={() => updateMv(activeMv, { layout: l.value })}
+                      className={`rounded border px-2 py-1 text-[11px] transition-colors ${
+                        mv.layout === l.value
+                          ? 'border-sky-500 bg-sky-700 text-white'
+                          : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-sky-700 hover:text-sky-200'
+                      }`}
+                      title={`Layout: ${l.label}`}
+                    >
+                      {l.label}
+                    </button>
+                  ))}
+                </div>
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"

@@ -66,11 +66,19 @@ export const MenuBar = ({
   // buttons reflect the current canUndo/canRedo state. Keyboard shortcuts
   // (Strg+Z / Strg+Umsch+Z / Strg+Y) live in useUndoRedoShortcuts; these
   // buttons exist because users couldn't tell that history was working
-  // (issue #72: "Redo geht noch nicht. muss auch in die oberste topbar").
-  useSyncExternalStore(projectHistory.subscribe, () => projectHistory.canUndo() ? 'u' : '', () => '')
-  useSyncExternalStore(projectHistory.subscribe, () => projectHistory.canRedo() ? 'r' : '', () => '')
-  const canUndo = projectHistory.canUndo()
-  const canRedo = projectHistory.canRedo()
+  // (issue #72). Use stable method references for getSnapshot — inline
+  // arrows would create fresh function objects every render and have
+  // occasionally been the trigger for React #185 boot loops.
+  const canUndo = useSyncExternalStore(
+    projectHistory.subscribe,
+    projectHistory.canUndo,
+    projectHistory.canUndo,
+  )
+  const canRedo = useSyncExternalStore(
+    projectHistory.subscribe,
+    projectHistory.canRedo,
+    projectHistory.canRedo,
+  )
   return (
     <header className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-700 bg-slate-950 px-3 py-1.5 text-xs shadow-sm">
       <div className="flex items-center gap-2">
