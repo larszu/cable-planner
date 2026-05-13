@@ -5,6 +5,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { colorForConnector } from '../../lib/cableColors'
 import { defaultIconForEquipment } from '../../lib/deviceKind'
+import { findGreenGoUserForEquipment } from '../../lib/greengoSync'
 
 type EquipmentNodeData = EquipmentItem & {
   exportThemeOverride?: 'dark' | 'light'
@@ -38,6 +39,12 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   const connectorTypeColors = useUiStore((s) => s.connectorTypeColors)
   const isLight = (data.exportThemeOverride ?? canvasTheme) === 'light'
   const queueConnection = useProjectStore((s) => s.queueConnection)
+  // Issue #56: GreenGo beltpack name is the canvas-visible identifier
+  // for intercom devices. Reads from project.greengoConfig.users —
+  // same source the EquipmentProperties beltpack section and the GG
+  // dialog write to, so all three views stay in sync.
+  const greengoConfig = useProjectStore((s) => s.project.greengoConfig)
+  const greengoUser = findGreenGoUserForEquipment(id, greengoConfig)
   const updateNodeInternals = useUpdateNodeInternals()
 
   // Re-register handle positions whenever the data that affects port placement
@@ -143,9 +150,14 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // Hover state for port rows — gives visual feedback before click
   const [hoveredPort, setHoveredPort] = useState<string | null>(null)
 
-  const headerHeight = data.ipAddress
-    ? (data.subtitle ? HEADER_HEIGHT_WITH_IP + 14 : HEADER_HEIGHT_WITH_IP)
-    : (data.subtitle ? HEADER_HEIGHT + 14 : HEADER_HEIGHT)
+  // Header layout grows by 14 px per optional line (subtitle, beltpack
+  // name, …) so ports never overlap with the device label area.
+  const beltpackLine = greengoUser ? 14 : 0
+  const headerHeight = (
+    data.ipAddress
+      ? (data.subtitle ? HEADER_HEIGHT_WITH_IP + 14 : HEADER_HEIGHT_WITH_IP)
+      : (data.subtitle ? HEADER_HEIGHT + 14 : HEADER_HEIGHT)
+  ) + beltpackLine
   const inputPlacement = new Map<string, { side: 'left' | 'right'; slot: number }>()
   const outputPlacement = new Map<string, { side: 'left' | 'right'; slot: number }>()
   const sideCounts: Record<'left' | 'right', number> = { left: 0, right: 0 }
@@ -361,6 +373,20 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#94a3b8', lineHeight: '14px' }}>{data.category}</div>
         {data.subtitle && (
           <div style={{ fontSize: 11, color: isLight ? '#475569' : '#cbd5e1', lineHeight: '14px', fontStyle: 'italic' }}>{data.subtitle}</div>
+        )}
+        {greengoUser && (
+          <div
+            style={{
+              fontSize: 10,
+              color: isLight ? '#047857' : '#34d399',
+              lineHeight: '13px',
+              fontWeight: 600,
+              marginTop: 1,
+            }}
+            title={`GreenGo Beltpack #${greengoUser.user.id}${greengoUser.groupNames.length > 0 ? ` · Gruppen: ${greengoUser.groupNames.join(', ')}` : ''}`}
+          >
+            🎧 {greengoUser.user.name}
+          </div>
         )}
         {data.ipAddress && (
           <div

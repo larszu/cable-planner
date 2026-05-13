@@ -13,6 +13,11 @@ import { format, useTranslation } from '../../lib/i18n'
 import type { Language } from '../../store/uiStore'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import { DEFAULT_CONNECTOR_TYPE_COLORS } from '../../lib/cableColors'
+import {
+  deleteGreenGoPreset,
+  loadGreenGoPresets,
+  saveGreenGoPreset,
+} from '../../lib/greengoSync'
 
 interface SettingsDialogProps {
   open: boolean
@@ -912,7 +917,125 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           erstellen.
         </div>
       </SettingsCard>
+
+      <GreenGoPresetsCard />
     </div>
+  )
+}
+
+/**
+ * Global library of GreenGo Intercom presets. Stored in localStorage —
+ * survives across projects, separate from the per-project
+ * greengoConfig. Lets the user keep a "house template" config and
+ * apply it to new projects with one click (issue #56).
+ */
+const GreenGoPresetsCard = () => {
+  const t = useTranslation()
+  const greengoConfig = useProjectStore((s) => s.project.greengoConfig)
+  const updateGreenGoConfig = useProjectStore((s) => s.updateGreenGoConfig)
+  const [presets, setPresets] = useState(() => loadGreenGoPresets())
+  const refreshPresets = () => setPresets(loadGreenGoPresets())
+  const usableConfig = greengoConfig && greengoConfig.users.length > 0
+
+  return (
+    <SettingsCard
+      title={t('settings.greengo.title', 'GreenGo Intercom Presets')}
+      description={t(
+        'settings.greengo.desc',
+        'Globale Bibliothek wiederverwendbarer Intercom-Konfigurationen. Speichere die aktuelle Projekt-Konfiguration als benannten Preset und lade ihn später in jedes neue Projekt — Beltpack-Namen, Gruppen und Routing inklusive.',
+      )}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          disabled={!usableConfig}
+          onClick={async () => {
+            if (!greengoConfig) return
+            const name = await promptDialog(
+              t('settings.greengo.savePromptTitle', 'Name des Presets:'),
+              greengoConfig.systemName || 'Intercom-Setup',
+            )
+            if (!name) return
+            saveGreenGoPreset(name, greengoConfig)
+            refreshPresets()
+          }}
+          className="rounded bg-emerald-700 px-3 py-1 text-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+          title={
+            usableConfig
+              ? undefined
+              : t('settings.greengo.saveDisabled', 'Aktuelles Projekt hat noch keine GreenGo-Konfiguration')
+          }
+        >
+          {t('settings.greengo.save', 'Aktuelle Konfiguration als Preset speichern')}
+        </button>
+      </div>
+      {presets.length === 0 ? (
+        <div className="mt-2 text-[11px] text-slate-500">
+          {t('settings.greengo.empty', 'Noch keine Presets gespeichert.')}
+        </div>
+      ) : (
+        <ul className="mt-3 space-y-1">
+          {presets.map((p) => (
+            <li
+              key={p.id}
+              className="flex items-center justify-between rounded border border-emerald-900/40 bg-emerald-950/30 px-2 py-1 text-xs"
+            >
+              <div className="min-w-0 flex-1 truncate">
+                <span className="font-medium text-emerald-100">{p.name}</span>
+                <span className="ml-2 text-[10px] text-emerald-400/60">
+                  {p.config.users.length} User · {p.config.groups.length} Gruppen ·{' '}
+                  {new Date(p.savedAt).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const ok = await confirmDialog(
+                      t('settings.greengo.applyTitle', 'Preset anwenden?'),
+                      {
+                        body: t(
+                          'settings.greengo.applyBody',
+                          'Die aktuelle GreenGo-Konfiguration im Projekt wird durch das Preset ersetzt. Equipment-Zuordnungen aus dem Preset, die im aktuellen Projekt nicht existieren, werden ignoriert.',
+                        ),
+                        okLabel: t('settings.greengo.applyConfirm', 'Übernehmen'),
+                      },
+                    )
+                    if (!ok) return
+                    updateGreenGoConfig(p.config)
+                  }}
+                  className="rounded bg-emerald-700 px-2 py-0.5 text-[11px] text-white hover:bg-emerald-600"
+                >
+                  {t('settings.greengo.apply', 'Laden')}
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const ok = await confirmDialog(
+                      t('settings.greengo.deleteTitle', 'Preset löschen?'),
+                      {
+                        body: format(
+                          t('settings.greengo.deleteBody', 'Preset "{name}" wirklich löschen?'),
+                          { name: p.name },
+                        ),
+                        okLabel: t('settings.greengo.deleteConfirm', 'Löschen'),
+                        destructive: true,
+                      },
+                    )
+                    if (!ok) return
+                    deleteGreenGoPreset(p.id)
+                    refreshPresets()
+                  }}
+                  className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-red-700 hover:text-white"
+                >
+                  {t('settings.greengo.delete', 'Löschen')}
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </SettingsCard>
   )
 }
 
