@@ -238,6 +238,7 @@ interface ProjectState {
       standard?: Cable['standard']
       cableSpecId?: string
       notes?: string
+      waypoints?: { x: number; y: number }[]
     }>
     mode: 'append' | 'replace'
   }) => string[]
@@ -599,11 +600,61 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
           notes: draft.notes ?? '',
           standard: draft.standard,
           cableSpecId: draft.cableSpecId,
-          routing: ui.defaultRouting,
+          // yEd-imported cables ship their original bend points so the
+          // canvas matches the source diagram 1:1. If there are no
+          // waypoints the auto-routing kicks in via the user's default
+          // routing mode (orthogonal / straight / curved).
+          routing: draft.waypoints && draft.waypoints.length > 0 ? 'straight' : ui.defaultRouting,
+          waypoints: draft.waypoints && draft.waypoints.length > 0 ? draft.waypoints : undefined,
           arrowEnd: ui.defaultArrow,
           strokeWidth: 2.5,
           graphmlEdgeId: draft.graphmlEdgeId,
         })
+      }
+
+      // Compute the bounding box of the just-inserted devices and pan
+      // the viewport onto it. Without this the user clicks Import and
+      // sees nothing — yEd diagrams typically sit at (-1400..+2500) on
+      // both axes, well outside the visible canvas. We bump
+      // projectVersion so the existing setViewport effect in
+      // CanvasArea picks the new canvasState up.
+      let minX = Infinity
+      let minY = Infinity
+      let maxX = -Infinity
+      let maxY = -Infinity
+      for (const d of insertedEquipment) {
+        if (d.x < minX) minX = d.x
+        if (d.y < minY) minY = d.y
+        const w = d.width ?? 240
+        const h = d.height ?? 120
+        if (d.x + w > maxX) maxX = d.x + w
+        if (d.y + h > maxY) maxY = d.y + h
+      }
+      // Approximate the visible canvas area. The real value depends on
+      // the user's library / properties panel widths, but the constants
+      // below produce a sensible default for both default and collapsed
+      // layouts.
+      const VIEWPORT_W = 1200
+      const VIEWPORT_H = 700
+      let canvasState = state.project.canvasState
+      if (Number.isFinite(minX)) {
+        const bboxW = Math.max(1, maxX - minX)
+        const bboxH = Math.max(1, maxY - minY)
+        // Fit-to-view zoom: pick whichever axis is more constraining,
+        // cap at 1 so we never zoom in past 100%, and add 10% margin
+        // on each side so labels at the edge stay readable.
+        const fitZoom = Math.min(
+          1,
+          (VIEWPORT_W * 0.9) / bboxW,
+          (VIEWPORT_H * 0.9) / bboxH,
+        )
+        const cx = (minX + maxX) / 2
+        const cy = (minY + maxY) / 2
+        canvasState = {
+          x: VIEWPORT_W / 2 - cx * fitZoom,
+          y: VIEWPORT_H / 2 - cy * fitZoom,
+          zoom: Math.max(0.1, fitZoom),
+        }
       }
 
       return {
@@ -611,7 +662,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
           ...state.project,
           equipment: [...baseEquipment, ...insertedEquipment],
           cables: [...baseCables, ...insertedCables],
+          canvasState,
         }),
+        // Triggers CanvasArea's setViewport effect so the user actually
+        // sees the imported devices instead of an empty canvas.
+        projectVersion: state.projectVersion + 1,
       }
     })
     return newIds
