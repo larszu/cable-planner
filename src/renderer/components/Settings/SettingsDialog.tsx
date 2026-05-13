@@ -18,6 +18,7 @@ import {
   loadGreenGoPresets,
   saveGreenGoPreset,
 } from '../../lib/greengoSync'
+import type { DeviceConfigEntry, DeviceConfigKind } from '../../store/uiStore'
 
 interface SettingsDialogProps {
   open: boolean
@@ -29,6 +30,7 @@ type SettingsSection =
   | 'appearance'
   | 'editing'
   | 'integrations'
+  | 'configs'
   | 'sync'
   | 'advanced'
 
@@ -37,6 +39,7 @@ const TAB_ICONS: Record<SettingsSection, string> = {
   appearance: '🎨',
   editing: '✏️',
   integrations: '🔌',
+  configs: '🗄',
   sync: '🔄',
   advanced: '⚙',
 }
@@ -46,6 +49,7 @@ const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
   appearance: 'Darstellung',
   editing: 'Bearbeiten',
   integrations: 'Integrationen',
+  configs: 'Konfigurationen',
   sync: 'Netzwerk-Sync',
   advanced: 'Erweitert',
 }
@@ -55,6 +59,7 @@ const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
   appearance: 'Darstellung',
   editing: 'Bearbeiten',
   integrations: 'Integrationen',
+  configs: 'Geräte-Konfigurationen',
   sync: 'Netzwerk-Sync',
   advanced: 'Erweitert',
 }
@@ -118,6 +123,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
             {section === 'appearance' && <AppearanceTab />}
             {section === 'editing' && <EditingTab />}
             {section === 'integrations' && <IntegrationsTab onClose={onClose} />}
+            {section === 'configs' && <ConfigsTab />}
             {section === 'sync' && <SyncTab />}
             {section === 'advanced' && <AdvancedTab />}
           </div>
@@ -1155,6 +1161,331 @@ const GreenGoPresetsCard = () => {
         </ul>
       )}
     </SettingsCard>
+  )
+}
+
+// --- Tab: Configs (Issue #80) ---------------------------------------------
+
+const CONFIG_KIND_LABEL: Record<DeviceConfigKind, string> = {
+  'atem-mv': 'ATEM Multiviewer Layout',
+  'atem-audio': 'ATEM Fairlight Audio',
+  'videohub-labels': 'Videohub Labels',
+  'videohub-routing': 'Videohub Routing',
+  greengo: 'GreenGo Intercom (.gg5)',
+  other: 'Sonstige',
+}
+
+const CONFIG_KIND_ICON: Record<DeviceConfigKind, string> = {
+  'atem-mv': '🟦',
+  'atem-audio': '🟪',
+  'videohub-labels': '🟣',
+  'videohub-routing': '🟣',
+  greengo: '🟢',
+  other: '📄',
+}
+
+const guessKindFromFileName = (fileName: string): DeviceConfigKind => {
+  const lower = fileName.toLowerCase()
+  if (lower.endsWith('.gg5')) return 'greengo'
+  if (lower.includes('multiview') || lower.includes('mvw') || lower.includes('mv-layout'))
+    return 'atem-mv'
+  if (lower.includes('audio') || lower.includes('fairlight')) return 'atem-audio'
+  if (lower.includes('label')) return 'videohub-labels'
+  if (lower.includes('routing') || lower.includes('matrix')) return 'videohub-routing'
+  if (lower.endsWith('.xml') && lower.includes('atem')) return 'atem-mv'
+  return 'other'
+}
+
+const downloadConfig = (entry: DeviceConfigEntry) => {
+  const blob = new Blob([entry.content], { type: entry.mimeType || 'application/octet-stream' })
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = entry.fileName || `${entry.name}.txt`
+  a.click()
+  URL.revokeObjectURL(a.href)
+}
+
+const pickTextFile = (): Promise<{ name: string; content: string; mimeType: string } | null> =>
+  new Promise((resolve) => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.xml,.json,.gg5,.txt,.csv,application/xml,application/json,text/plain'
+    input.onchange = () => {
+      const file = input.files?.[0]
+      if (!file) {
+        resolve(null)
+        return
+      }
+      const reader = new FileReader()
+      reader.onload = () =>
+        resolve({
+          name: file.name,
+          mimeType: file.type || 'application/octet-stream',
+          content: typeof reader.result === 'string' ? reader.result : '',
+        })
+      reader.onerror = () => resolve(null)
+      reader.readAsText(file)
+    }
+    input.click()
+  })
+
+const ConfigsTab = () => {
+  const t = useTranslation()
+  const library = useUiStore((s) => s.deviceConfigLibrary)
+  const addDeviceConfig = useUiStore((s) => s.addDeviceConfig)
+  const updateDeviceConfig = useUiStore((s) => s.updateDeviceConfig)
+  const removeDeviceConfig = useUiStore((s) => s.removeDeviceConfig)
+  const replaceDeviceConfigLibrary = useUiStore((s) => s.replaceDeviceConfigLibrary)
+  const equipment = useProjectStore((s) => s.project.equipment)
+  const [filter, setFilter] = useState<DeviceConfigKind | 'all'>('all')
+
+  const grouped = useMemo(() => {
+    const filtered = filter === 'all' ? library : library.filter((e) => e.kind === filter)
+    const byKind = new Map<DeviceConfigKind, DeviceConfigEntry[]>()
+    for (const entry of filtered) {
+      const list = byKind.get(entry.kind) ?? []
+      list.push(entry)
+      byKind.set(entry.kind, list)
+    }
+    return byKind
+  }, [library, filter])
+
+  const handleUpload = async () => {
+    const file = await pickTextFile()
+    if (!file) return
+    const kind = guessKindFromFileName(file.name)
+    addDeviceConfig({
+      kind,
+      name: file.name.replace(/\.[^.]+$/, ''),
+      fileName: file.name,
+      mimeType: file.mimeType,
+      content: file.content,
+    })
+  }
+
+  const handleExportBundle = () => {
+    const blob = new Blob([JSON.stringify({ version: 1, library }, null, 2)], {
+      type: 'application/json',
+    })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `cable-planner-konfigurationen-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(a.href)
+  }
+
+  const handleImportBundle = async () => {
+    const file = await pickTextFile()
+    if (!file) return
+    try {
+      const parsed = JSON.parse(file.content) as { version?: number; library?: DeviceConfigEntry[] }
+      if (!parsed.library || !Array.isArray(parsed.library)) {
+        window.alert('Datei enthält kein gültiges Konfigurations-Bundle.')
+        return
+      }
+      const replace = window.confirm(
+        `${parsed.library.length} Konfigurationen aus der Datei laden?\n\nOK = bestehende Bibliothek ersetzen\nAbbrechen = neue Konfigurationen anhängen`,
+      )
+      if (replace) {
+        replaceDeviceConfigLibrary(parsed.library)
+      } else {
+        // Append, but assign fresh ids so we never collide with existing ones.
+        for (const entry of parsed.library) {
+          const { id: _drop, savedAt: _drop2, ...rest } = entry
+          void _drop
+          void _drop2
+          addDeviceConfig(rest)
+        }
+      }
+    } catch (err) {
+      window.alert(`Fehler beim Import: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-slate-400">
+        {t(
+          'settings.configs.intro',
+          'Globale Bibliothek von Geräte-Konfigurationen (ATEM, Videohub, GreenGo). Lade Dateien hier hoch, lade sie als Datei wieder herunter, oder weise einer canvas-Gerät die passende Config zu (im Properties-Panel des Geräts).',
+        )}
+      </p>
+
+      <SettingsCard
+        title={t('settings.configs.upload.title', 'Neue Konfiguration hochladen')}
+        description={t(
+          'settings.configs.upload.desc',
+          'XML / JSON / TXT / .gg5 — der Typ wird aus dem Dateinamen geraten und kann unten geändert werden.',
+        )}
+      >
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => void handleUpload()}
+            className="rounded bg-sky-700 px-3 py-1 text-xs text-white hover:bg-sky-600"
+          >
+            📤 Datei wählen…
+          </button>
+          <button
+            type="button"
+            onClick={handleExportBundle}
+            disabled={library.length === 0}
+            className="rounded bg-emerald-700 px-3 py-1 text-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            💾 Bibliothek als JSON exportieren
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleImportBundle()}
+            className="rounded bg-amber-700 px-3 py-1 text-xs text-white hover:bg-amber-600"
+          >
+            ⤵ JSON-Bibliothek importieren…
+          </button>
+        </div>
+      </SettingsCard>
+
+      <SettingsCard
+        title={t('settings.configs.library.title', 'Konfigurations-Bibliothek')}
+        description={
+          library.length === 0
+            ? t(
+                'settings.configs.library.empty',
+                'Noch keine Konfigurationen hochgeladen.',
+              )
+            : `${library.length} Einträge`
+        }
+      >
+        <div className="mb-2 flex flex-wrap gap-1">
+          {(['all', 'atem-mv', 'atem-audio', 'videohub-labels', 'videohub-routing', 'greengo', 'other'] as const).map(
+            (k) => (
+              <button
+                key={k}
+                type="button"
+                onClick={() => setFilter(k)}
+                className={`rounded px-2 py-0.5 text-[11px] ${
+                  filter === k
+                    ? 'bg-sky-700 text-white'
+                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                {k === 'all'
+                  ? `Alle (${library.length})`
+                  : `${CONFIG_KIND_ICON[k]} ${CONFIG_KIND_LABEL[k]} (${
+                      library.filter((e) => e.kind === k).length
+                    })`}
+              </button>
+            ),
+          )}
+        </div>
+
+        {library.length === 0 ? (
+          <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-500">
+            Lade die erste Konfigurationsdatei hoch — sie wird hier gelistet und kann anschließend
+            einem Gerät auf dem Canvas zugeordnet werden.
+          </div>
+        ) : grouped.size === 0 ? (
+          <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-500">
+            Kein Eintrag passt zum gewählten Filter.
+          </div>
+        ) : (
+          <ul className="space-y-2">
+            {Array.from(grouped.entries()).map(([kind, entries]) => (
+              <li key={kind}>
+                <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
+                  {CONFIG_KIND_ICON[kind]} {CONFIG_KIND_LABEL[kind]}
+                </div>
+                <ul className="space-y-1">
+                  {entries.map((entry) => {
+                    const linked = entry.equipmentId
+                      ? equipment.find((eq) => eq.id === entry.equipmentId)
+                      : undefined
+                    return (
+                      <li
+                        key={entry.id}
+                        className="flex flex-wrap items-center gap-2 rounded border border-slate-800 bg-slate-950 px-2 py-1.5 text-xs"
+                      >
+                        <input
+                          type="text"
+                          value={entry.name}
+                          onChange={(e) => updateDeviceConfig(entry.id, { name: e.target.value })}
+                          className="min-w-0 flex-1 rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-slate-100"
+                        />
+                        <select
+                          value={entry.kind}
+                          onChange={(e) =>
+                            updateDeviceConfig(entry.id, {
+                              kind: e.target.value as DeviceConfigKind,
+                            })
+                          }
+                          className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[11px] text-slate-200"
+                        >
+                          {(Object.keys(CONFIG_KIND_LABEL) as DeviceConfigKind[]).map((k) => (
+                            <option key={k} value={k}>
+                              {CONFIG_KIND_LABEL[k]}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          value={entry.equipmentId ?? ''}
+                          onChange={(e) =>
+                            updateDeviceConfig(entry.id, {
+                              equipmentId: e.target.value || undefined,
+                            })
+                          }
+                          className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[11px] text-slate-200"
+                          title="Gerät auf dem Canvas, dem diese Konfiguration zugeordnet ist"
+                        >
+                          <option value="">(unzugeordnet)</option>
+                          {equipment.map((eq) => (
+                            <option key={eq.id} value={eq.id}>
+                              {eq.name}
+                            </option>
+                          ))}
+                        </select>
+                        <span
+                          className="hidden text-[10px] text-slate-500 sm:inline"
+                          title={`Originaldatei: ${entry.fileName}\nHochgeladen: ${new Date(
+                            entry.savedAt,
+                          ).toLocaleString()}\n${entry.content.length.toLocaleString()} Zeichen`}
+                        >
+                          {entry.fileName}{linked ? ' · ✓' : ''}
+                        </span>
+                        <div className="flex shrink-0 gap-1">
+                          <button
+                            type="button"
+                            onClick={() => downloadConfig(entry)}
+                            className="rounded bg-slate-700 px-2 py-0.5 text-[11px] text-slate-100 hover:bg-slate-600"
+                            title="Originaldatei herunterladen"
+                          >
+                            ⬇
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (
+                                window.confirm(
+                                  `Konfiguration "${entry.name}" löschen? Die Datei selbst auf der Festplatte bleibt unverändert.`,
+                                )
+                              ) {
+                                removeDeviceConfig(entry.id)
+                              }
+                            }}
+                            className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-red-700 hover:text-white"
+                            title="Aus Bibliothek entfernen"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        )}
+      </SettingsCard>
+    </div>
   )
 }
 

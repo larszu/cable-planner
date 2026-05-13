@@ -85,6 +85,20 @@ export const CanvasToolbar = () => {
     }
   }
 
+  const sectionLabelStyle: React.CSSProperties = {
+    color: isLight ? '#475569' : '#94a3b8',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+    fontSize: 9,
+    paddingRight: 2,
+  }
+  const dividerStyle: React.CSSProperties = {
+    width: 1,
+    height: 18,
+    background: isLight ? '#e2e8f0' : '#1f2937',
+    margin: '0 2px',
+  }
   return (
     <div
       className="nodrag nopan"
@@ -96,20 +110,22 @@ export const CanvasToolbar = () => {
         display: 'flex',
         flexWrap: 'wrap',
         gap: 6,
-        maxWidth: 'min(860px, calc(100vw - 420px))',
-        padding: 6,
-        background: isLight ? 'rgba(248,250,252,0.96)' : 'rgba(15,23,42,0.94)',
-        border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
-        borderRadius: 8,
-        boxShadow: isLight ? '0 18px 40px rgba(0,0,0,0.12)' : '0 18px 40px rgba(0,0,0,0.28)',
+        maxWidth: 'min(880px, calc(100vw - 420px))',
+        padding: '5px 8px',
+        background: isLight ? 'rgba(248,250,252,0.92)' : 'rgba(15,23,42,0.92)',
+        border: `1px solid ${isLight ? '#cbd5e1' : '#1f2937'}`,
+        borderRadius: 10,
+        boxShadow: isLight
+          ? '0 8px 24px rgba(15,23,42,0.10), 0 2px 6px rgba(15,23,42,0.06)'
+          : '0 8px 24px rgba(0,0,0,0.40), 0 2px 6px rgba(0,0,0,0.30)',
         fontSize: 11,
         color: isLight ? '#1e293b' : '#e2e8f0',
         alignItems: 'center',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
       }}
     >
-      <span style={{ color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
-        Canvas
-      </span>
+      <span style={sectionLabelStyle}>Canvas</span>
       <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
         <input
           type="checkbox"
@@ -134,10 +150,8 @@ export const CanvasToolbar = () => {
         }}
         title="Rastergröße in Pixeln"
       />
-      <span style={{ width: 1, height: 18, background: isLight ? '#cbd5e1' : '#334155', margin: '0 4px' }} />
-      <span style={{ color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
-        Routing
-      </span>
+      <span style={dividerStyle} />
+      <span style={sectionLabelStyle}>Routing</span>
       <RoutingToggle
         value={defaultRouting}
         onChange={setDefaultRouting}
@@ -163,12 +177,10 @@ export const CanvasToolbar = () => {
         />
         Ports nach Typ
       </label>
-      <span style={{ width: 1, height: 18, background: isLight ? '#cbd5e1' : '#334155', margin: '0 4px' }} />
+      <span style={dividerStyle} />
       {/* Cable color mode toggle */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-        <span style={{ color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10, marginRight: 2 }}>
-          Kabel
-        </span>
+        <span style={{ ...sectionLabelStyle, marginRight: 2 }}>Kabel</span>
         <button
           type="button"
           onClick={() => setCableColorMode('manual')}
@@ -260,7 +272,7 @@ export const CanvasToolbar = () => {
           </button>
         </div>
       )}
-      <span style={{ width: 1, height: 18, background: isLight ? '#cbd5e1' : '#334155', margin: '0 4px' }} />
+      <span style={dividerStyle} />
       <button
         type="button"
         onClick={() => setCanvasTheme(canvasTheme === 'dark' ? 'light' : 'dark')}
@@ -277,10 +289,8 @@ export const CanvasToolbar = () => {
       >
         {canvasTheme === 'dark' ? '☀' : '🌙'}
       </button>
-      <span style={{ width: 1, height: 18, background: isLight ? '#cbd5e1' : '#334155', margin: '0 4px' }} />
-      <span style={{ color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, fontSize: 10 }}>
-        Layout
-      </span>
+      <span style={dividerStyle} />
+      <span style={sectionLabelStyle}>Layout</span>
       <button
         type="button"
         onClick={() => {
@@ -422,10 +432,8 @@ export const CanvasToolbar = () => {
         } as const
         return (
           <>
-            <span style={{ width: 1, height: 18, background: isLight ? '#cbd5e1' : '#334155', margin: '0 4px' }} />
-            <span style={{ color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700, textTransform: 'uppercase', fontSize: 10 }}>
-              Ausrichten
-            </span>
+            <span style={dividerStyle} />
+            <span style={sectionLabelStyle}>Ausrichten</span>
             <button type="button" title="Linksbündig (gleiche linke Kante)" onClick={() => alignSelected('left')} style={btnStyle}>⇤</button>
             <button type="button" title="Horizontal zentrieren (gleiche X-Mitte)" onClick={() => alignSelected('center-h')} style={btnStyle}>↔</button>
             <button type="button" title="Rechtsbündig (gleiche rechte Kante)" onClick={() => alignSelected('right')} style={btnStyle}>⇥</button>
