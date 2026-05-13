@@ -11,6 +11,8 @@ import { promptDialog } from '../../lib/promptDialog'
 import { getGeminiApiKey, setGeminiApiKey } from '../../lib/aiSuggestions'
 import { format, useTranslation } from '../../lib/i18n'
 import type { Language } from '../../store/uiStore'
+import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
+import { DEFAULT_CONNECTOR_TYPE_COLORS } from '../../lib/cableColors'
 
 interface SettingsDialogProps {
   open: boolean
@@ -336,6 +338,11 @@ const AppearanceTab = () => {
   const cableColorMode = useUiStore((s) => s.cableColorMode)
   const setCableColorMode = useUiStore((s) => s.setCableColorMode)
   const defaultArrow = useUiStore((s) => s.defaultArrow)
+  const overrideConnectionWarnings = useUiStore((s) => s.overrideConnectionWarnings)
+  const setOverrideConnectionWarnings = useUiStore((s) => s.setOverrideConnectionWarnings)
+  const connectorTypeColors = useUiStore((s) => s.connectorTypeColors)
+  const setConnectorTypeColor = useUiStore((s) => s.setConnectorTypeColor)
+  const resetConnectorTypeColors = useUiStore((s) => s.resetConnectorTypeColors)
   const setDefaultArrow = useUiStore((s) => s.setDefaultArrow)
   const language = useUiStore((s) => s.language)
   const setLanguage = useUiStore((s) => s.setLanguage)
@@ -498,6 +505,71 @@ const AppearanceTab = () => {
             'Pfeil am Ziel-Ende anzeigen (Signalflussrichtung)',
           )}
         </label>
+      </SettingsCard>
+
+      <SettingsCard
+        title={t('settings.connections.title', 'Verbindungs-Warnungen')}
+        description={t(
+          'settings.connections.overrideDesc',
+          'Steckertyp-Konflikt erzeugt normalerweise eine Bestätigungs-Abfrage. Mit Override wird die Verbindung trotzdem ohne Rückfrage angelegt (als Adapter/Konverter markiert).',
+        )}
+      >
+        <label className="flex items-center gap-2 text-sm text-slate-200">
+          <input
+            type="checkbox"
+            checked={overrideConnectionWarnings}
+            onChange={(e) => setOverrideConnectionWarnings(e.target.checked)}
+          />
+          {t(
+            'settings.connections.override.label',
+            'Beliebige Inputs und Outputs ohne Warnung verbinden',
+          )}
+        </label>
+      </SettingsCard>
+
+      <SettingsCard
+        title={t('settings.connectorColors.title', 'Steckertyp-Farben')}
+        description={t(
+          'settings.connectorColors.desc',
+          'Eigene Farbe pro Stecker-Typ — nur sichtbar wenn "Ports nach Typ" oben aktiv ist. Leeres Feld setzt zurück auf Standard.',
+        )}
+      >
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm md:grid-cols-3">
+          {ALL_CONNECTOR_TYPES.map((ct) => {
+            const override = connectorTypeColors[ct] ?? ''
+            const effective = override || DEFAULT_CONNECTOR_TYPE_COLORS[ct]
+            return (
+              <label key={ct} className="flex items-center gap-2 text-slate-200" title={`Default: ${DEFAULT_CONNECTOR_TYPE_COLORS[ct]}`}>
+                <input
+                  type="color"
+                  value={effective}
+                  onChange={(e) => setConnectorTypeColor(ct, e.target.value)}
+                  className="h-6 w-8 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
+                />
+                <span className="flex-1 truncate text-xs">{ct}</span>
+                {override && (
+                  <button
+                    type="button"
+                    onClick={() => setConnectorTypeColor(ct, null)}
+                    className="rounded bg-slate-700 px-1 py-0.5 text-[10px] text-slate-300 hover:bg-slate-600"
+                    title="Auf Default zurücksetzen"
+                  >
+                    ↺
+                  </button>
+                )}
+              </label>
+            )
+          })}
+        </div>
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            onClick={() => resetConnectorTypeColors()}
+            className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-300 hover:bg-slate-700"
+          >
+            {t('settings.connectorColors.resetAll', 'Alle zurücksetzen')}
+          </button>
+        </div>
       </SettingsCard>
     </div>
   )

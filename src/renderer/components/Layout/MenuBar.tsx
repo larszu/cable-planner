@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
 import { useTranslation } from '../../lib/i18n'
+import { projectHistory } from '../../store/projectHistory'
 
 interface MenuBarProps {
   onNewProject: () => void
@@ -58,6 +59,15 @@ export const MenuBar = ({
   hasToken = false,
 }: MenuBarProps) => {
   const t = useTranslation()
+  // Re-render whenever the projectHistory store changes so the undo/redo
+  // buttons reflect the current canUndo/canRedo state. Keyboard shortcuts
+  // (Strg+Z / Strg+Umsch+Z / Strg+Y) live in useUndoRedoShortcuts; these
+  // buttons exist because users couldn't tell that history was working
+  // (issue #72: "Redo geht noch nicht. muss auch in die oberste topbar").
+  useSyncExternalStore(projectHistory.subscribe, () => projectHistory.canUndo() ? 'u' : '', () => '')
+  useSyncExternalStore(projectHistory.subscribe, () => projectHistory.canRedo() ? 'r' : '', () => '')
+  const canUndo = projectHistory.canUndo()
+  const canRedo = projectHistory.canRedo()
   return (
     <header className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-700 bg-slate-950 px-3 py-1.5 text-xs shadow-sm">
       <div className="flex items-center gap-2">
@@ -158,6 +168,29 @@ export const MenuBar = ({
       </div>
 
       <div className="flex items-center gap-2">
+        <div className="flex items-center rounded border border-slate-700 bg-slate-900">
+          <button
+            type="button"
+            onClick={() => projectHistory.undo()}
+            disabled={!canUndo}
+            title={t('app.undo', 'Rückgängig (Strg+Z)')}
+            aria-label={t('app.undo', 'Rückgängig (Strg+Z)')}
+            className="px-2 py-1 text-slate-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
+          >
+            ⟲
+          </button>
+          <span className="h-4 w-px bg-slate-700" aria-hidden="true" />
+          <button
+            type="button"
+            onClick={() => projectHistory.redo()}
+            disabled={!canRedo}
+            title={t('app.redo', 'Wiederherstellen (Strg+Y)')}
+            aria-label={t('app.redo', 'Wiederherstellen (Strg+Y)')}
+            className="px-2 py-1 text-slate-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
+          >
+            ⟳
+          </button>
+        </div>
         <SharedSyncPanel />
         {onChangeVideoFormat && (
           <label className="flex items-center gap-1 text-[11px] text-slate-400">

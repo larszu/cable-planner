@@ -539,6 +539,11 @@ const makeCustomCableSpec = (connectorType: ConnectorType, color: string): Cable
 })
 
 const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onCancel, onCreate }: CableDialogProps) => {
+  // Issue #70: optional global override of connector-mismatch warnings.
+  // When enabled, the dialog still SHOWS the warning banner so the user
+  // sees what's happening, but the submit path skips the modal confirm
+  // so the cable can be created in one click.
+  const overrideWarnings = useUiStore((s) => s.overrideConnectionWarnings)
   // Build list of cables ranked by compatibility with the two ports.
   const ranked = useMemo(() => {
     if (!fromPort || !toPort) {
@@ -642,7 +647,7 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
       : null
 
   const submit = () => {
-    if (connectorMismatch === 'error') {
+    if (connectorMismatch === 'error' && !overrideWarnings) {
       if (
         !window.confirm(
           `${connectorMessage}\n\nAdd this connection anyway (marked as needing a converter)?`,

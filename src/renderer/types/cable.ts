@@ -37,6 +37,11 @@ export interface Cable {
   arrowStart?: boolean
   /** Draw arrow marker at end (default true). */
   arrowEnd?: boolean
+  /** Marks the cable as carrying signal in both directions (USB, Ethernet,
+   *  Fibre, …). When true the CableEdge renders arrow markers on BOTH
+   *  ends regardless of arrowStart/arrowEnd. Auto-enabled for inherently
+   *  bidirectional cable types (issue #67). */
+  bidirectional?: boolean
   /** Optional user-placed bend points (flow coordinates). */
   waypoints?: CableWaypoint[]
   /** Where to show the cable label. Defaults to 'center'. */

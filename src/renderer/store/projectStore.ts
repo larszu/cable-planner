@@ -313,6 +313,17 @@ interface ProjectState {
 
 const now = () => new Date().toISOString()
 
+/** Cable types that physically carry signal in both directions. Newly
+ *  created cables of these types get cable.bidirectional = true by
+ *  default so CableEdge draws arrow markers on both ends (issue #67). */
+const BIDIRECTIONAL_CABLE_TYPES = new Set<Cable['type']>([
+  'Ethernet/RJ45',
+  'Fiber',
+  'SFP',
+  'SFP+',
+  'USB-C',
+])
+
 const defaultProject = (): CablePlannerProject => ({
   metadata: {
     name: 'Untitled Project',
@@ -918,6 +929,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         needsConverter: draft.needsConverter,
         routing: ui.defaultRouting,
         arrowEnd: ui.defaultArrow,
+        // Inherently two-way cable types get the bidirectional flag set
+        // by default (issue #67). The user can still untick it in
+        // CableProperties if they want to show a one-way arrow anyway.
+        bidirectional: BIDIRECTIONAL_CABLE_TYPES.has(draft.type),
         strokeWidth: 2.5,
         waypoints: state.pendingWaypoints,
       }
