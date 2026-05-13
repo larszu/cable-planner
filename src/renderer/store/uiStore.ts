@@ -3,6 +3,36 @@ import { create } from 'zustand'
 export type EdgeRouting = 'orthogonal' | 'straight' | 'curved'
 export type Language = 'de' | 'en'
 
+/** Issue #80: globally stored device-config files (ATEM MV/audio configs,
+ *  Videohub label & routing dumps, GreenGo .gg5 etc.) that the user can
+ *  upload once and then assign to a specific equipment node on the canvas.
+ *  Persisted in localStorage so the library survives across projects.
+ *
+ *  `kind` drives the upload picker and the icon in the list. `equipmentId`
+ *  is the binding to a canvas device; null/undefined means "in library
+ *  but not assigned". Content is stored as text — XML, JSON or plain
+ *  text payload — so we don't need to deal with binary blob storage
+ *  in localStorage. */
+export type DeviceConfigKind =
+  | 'atem-mv'
+  | 'atem-audio'
+  | 'videohub-labels'
+  | 'videohub-routing'
+  | 'greengo'
+  | 'other'
+
+export interface DeviceConfigEntry {
+  id: string
+  kind: DeviceConfigKind
+  name: string
+  fileName: string
+  mimeType: string
+  content: string
+  notes?: string
+  savedAt: string
+  equipmentId?: string
+}
+
 const KEY = 'cable-planner:ui'
 
 interface PersistedUiState {
@@ -52,6 +82,9 @@ interface PersistedUiState {
    *  to the built-in catalog and can be re-edited / deleted from
    *  Settings. */
   customCableSpecs: import('../types/cableSpec').CableSpec[]
+  /** Issue #80: global library of device-config files (ATEM, Videohub,
+   *  GreenGo). Each entry can optionally be bound to one equipment id. */
+  deviceConfigLibrary: DeviceConfigEntry[]
 }
 
 const defaults: PersistedUiState = {
@@ -72,6 +105,7 @@ const defaults: PersistedUiState = {
   bgVariant: 'dots',
   bgOpacity: 0.5,
   customCableSpecs: [],
+  deviceConfigLibrary: [],
 }
 
 const load = (): PersistedUiState => {
@@ -121,6 +155,12 @@ interface UiState extends PersistedUiState {
     patch: Partial<Omit<import('../types/cableSpec').CableSpec, 'id'>>,
   ) => void
   removeCustomCableSpec: (id: string) => void
+  /** Issue #80: device-config library (ATEM / Videohub / GreenGo configs). */
+  addDeviceConfig: (entry: Omit<DeviceConfigEntry, 'id' | 'savedAt'>) => DeviceConfigEntry
+  updateDeviceConfig: (id: string, patch: Partial<Omit<DeviceConfigEntry, 'id' | 'savedAt'>>) => void
+  removeDeviceConfig: (id: string) => void
+  /** Bulk-replace the entire library. Used by the JSON-bundle importer. */
+  replaceDeviceConfigLibrary: (entries: DeviceConfigEntry[]) => void
   pdfExportThemeOverride: 'dark' | 'light' | null
   setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
   cableEdit: { open: boolean; cableId?: string }
@@ -207,6 +247,7 @@ const applyPatch =
       bgVariant: state.bgVariant,
       bgOpacity: state.bgOpacity,
       customCableSpecs: state.customCableSpecs,
+      deviceConfigLibrary: state.deviceConfigLibrary,
       ...patch,
     }
     persist(next)
@@ -265,6 +306,33 @@ export const useUiStore = create<UiState>((set) => ({
     set((state) =>
       applyPatch({ customCableSpecs: state.customCableSpecs.filter((s) => s.id !== id) })(state),
     ),
+  addDeviceConfig: (entry) => {
+    const id = `cfg:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
+    const created: DeviceConfigEntry = {
+      ...entry,
+      id,
+      savedAt: new Date().toISOString(),
+    }
+    set((state) =>
+      applyPatch({ deviceConfigLibrary: [...state.deviceConfigLibrary, created] })(state),
+    )
+    return created
+  },
+  updateDeviceConfig: (id, patch) =>
+    set((state) => {
+      const next = state.deviceConfigLibrary.map((e) =>
+        e.id === id ? { ...e, ...patch, id: e.id, savedAt: e.savedAt } : e,
+      )
+      return applyPatch({ deviceConfigLibrary: next })(state)
+    }),
+  removeDeviceConfig: (id) =>
+    set((state) =>
+      applyPatch({ deviceConfigLibrary: state.deviceConfigLibrary.filter((e) => e.id !== id) })(
+        state,
+      ),
+    ),
+  replaceDeviceConfigLibrary: (entries) =>
+    set((state) => applyPatch({ deviceConfigLibrary: entries })(state)),
   pdfExportThemeOverride: null,
   setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
   cableEdit: { open: false },
