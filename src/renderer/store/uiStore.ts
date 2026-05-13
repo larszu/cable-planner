@@ -27,6 +27,17 @@ interface PersistedUiState {
   /** UI language. Coverage is partial today — see lib/i18n.ts. Defaults to
    *  German because that's the historical UI language of the codebase. */
   language: Language
+  /** Issue #70: When true the cable dialog will not block creation on
+   *  connector-type incompatibilities — the user can connect any input
+   *  to any output without the "needs converter" confirmation prompt.
+   *  The cable is still flagged needsConverter for downstream warnings,
+   *  it just doesn't interrupt the user mid-flow. */
+  overrideConnectionWarnings: boolean
+  /** Issue #62: per-connector-type colour overrides. When a connector
+   *  type is missing or its value is an empty string the built-in
+   *  default from DEFAULT_CONNECTOR_TYPE_COLORS applies. Stored sparsely
+   *  so we don't bloat localStorage with the full default palette. */
+  connectorTypeColors: Record<string, string>
 }
 
 const defaults: PersistedUiState = {
@@ -42,6 +53,8 @@ const defaults: PersistedUiState = {
   canvasTheme: 'dark',
   colorPortsByType: false,
   language: 'de',
+  overrideConnectionWarnings: false,
+  connectorTypeColors: {},
 }
 
 const load = (): PersistedUiState => {
@@ -75,6 +88,9 @@ interface UiState extends PersistedUiState {
   setCanvasTheme: (value: 'dark' | 'light') => void
   setColorPortsByType: (value: boolean) => void
   setLanguage: (value: Language) => void
+  setOverrideConnectionWarnings: (value: boolean) => void
+  setConnectorTypeColor: (connectorType: string, color: string | null) => void
+  resetConnectorTypeColors: () => void
   pdfExportThemeOverride: 'dark' | 'light' | null
   setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
   cableEdit: { open: boolean; cableId?: string }
@@ -142,6 +158,15 @@ const applyPatch =
       cableColorMode: state.cableColorMode,
       canvasTheme: state.canvasTheme,
       colorPortsByType: state.colorPortsByType,
+      // The two fields below were missing from the explicit list — any
+      // call through applyPatch was silently dropping them when writing
+      // to localStorage. Result: the next time the user toggled a
+      // different setting their language / override choice got reset to
+      // the default. (Fixed as part of issue #70 which added the
+      // override toggle.)
+      language: state.language,
+      overrideConnectionWarnings: state.overrideConnectionWarnings,
+      connectorTypeColors: state.connectorTypeColors,
       ...patch,
     }
     persist(next)
@@ -166,6 +191,15 @@ export const useUiStore = create<UiState>((set) => ({
   setCanvasTheme: (value) => set(applyPatch({ canvasTheme: value })),
   setColorPortsByType: (value) => set(applyPatch({ colorPortsByType: value })),
   setLanguage: (value) => set(applyPatch({ language: value })),
+  setOverrideConnectionWarnings: (value) => set(applyPatch({ overrideConnectionWarnings: value })),
+  setConnectorTypeColor: (connectorType, color) =>
+    set((state) => {
+      const next = { ...state.connectorTypeColors }
+      if (!color) delete next[connectorType]
+      else next[connectorType] = color
+      return applyPatch({ connectorTypeColors: next })(state)
+    }),
+  resetConnectorTypeColors: () => set(applyPatch({ connectorTypeColors: {} })),
   pdfExportThemeOverride: null,
   setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
   cableEdit: { open: false },

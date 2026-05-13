@@ -47,7 +47,7 @@ import type { ConnectorType } from '../types/equipment'
  * ports at a glance on equipment nodes. Values match the cable catalog
  * defaults where possible (e.g. SDI = amber, HDMI = purple).
  */
-export const CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
+export const DEFAULT_CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
   XLR: '#38bdf8',
   BNC: '#f59e0b',
   HDMI: '#a855f7',
@@ -68,5 +68,18 @@ export const CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
   Custom: '#94a3b8',
 }
 
-export const colorForConnector = (connectorType: ConnectorType): string =>
-  CONNECTOR_TYPE_COLORS[connectorType] ?? CONNECTOR_TYPE_COLORS.Custom
+/** Backwards-compat alias for older imports. Prefer
+ *  `useUiStore.getState().connectorTypeColors` or the colorForConnector
+ *  helper below — both honour user overrides made in Settings. */
+export const CONNECTOR_TYPE_COLORS = DEFAULT_CONNECTOR_TYPE_COLORS
+
+/** Resolve a colour for a connector type, preferring user overrides if a
+ *  map is provided (read from the UI store). Falls back to the built-in
+ *  default palette, then to the Custom colour. */
+export const colorForConnector = (
+  connectorType: ConnectorType,
+  overrides?: Partial<Record<ConnectorType, string>>,
+): string =>
+  overrides?.[connectorType] ??
+  DEFAULT_CONNECTOR_TYPE_COLORS[connectorType] ??
+  DEFAULT_CONNECTOR_TYPE_COLORS.Custom
