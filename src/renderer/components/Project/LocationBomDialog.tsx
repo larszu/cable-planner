@@ -1,5 +1,6 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import jsPDF from 'jspdf'
+import { toJpeg } from 'html-to-image'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
@@ -19,7 +20,14 @@ export const LocationBomDialog = () => {
   const { open, locationId } = useUiStore((s) => s.locationBom)
   const close = useUiStore((s) => s.closeLocationBom)
   const project = useProjectStore((s) => s.project)
+  const canvasTheme = useUiStore((s) => s.canvasTheme)
   const drag = useDraggablePosition('cable-planner:modal-pos:location-bom', open)
+  // Issue #54: optionally embed a snapshot of the canvas (cropped to the
+  // location's bbox) as the first page so the recipient gets the plan +
+  // the parts list in one document. Off by default — capturing a 2.4 MB
+  // diagram region takes ~500 ms and the user might not always want it.
+  const [includePlan, setIncludePlan] = useState(true)
+  const [busy, setBusy] = useState(false)
 
   const location = (project.locations ?? []).find((l) => l.id === locationId)
 
@@ -52,71 +60,137 @@ export const LocationBomDialog = () => {
 
   if (!open || !location) return null
 
-  const exportPdf = () => {
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
-    const pageW = pdf.internal.pageSize.getWidth()
-    const margin = 32
-    let y = margin + 4
-    pdf.setFontSize(14)
-    pdf.text(`Stückliste — ${location.name}`, margin, y)
-    y += 18
-    pdf.setFontSize(9)
-    pdf.setTextColor(80)
-    if (location.floor) pdf.text(`Stockwerk: ${location.floor}`, margin, y)
-    pdf.text(new Date().toLocaleString(), pageW - margin, y, { align: 'right' })
-    y += 18
+  /** Capture the canvas region covered by the current location frame as a
+   *  JPEG dataURL, padded slightly so cables touching the border aren't
+   *  clipped. Mirrors the trick exportCanvasToPdf uses. */
+  const capturePlanForLocation = async (): Promise<string | null> => {
+    const viewportEl = document.querySelector<HTMLElement>('.react-flow__viewport')
+    if (!viewportEl || !location) return null
+    const padding = 40
+    const cx = location.x - padding
+    const cy = location.y - padding
+    const cw = Math.ceil(location.width + padding * 2)
+    const ch = Math.ceil(location.height + padding * 2)
+    const bgFallback = canvasTheme === 'light' ? '#e8edf4' : '#0f172a'
+    return await toJpeg(viewportEl, {
+      backgroundColor: bgFallback,
+      pixelRatio: 1.5,
+      quality: 0.85,
+      cacheBust: true,
+      width: cw,
+      height: ch,
+      style: {
+        width: `${cw}px`,
+        height: `${ch}px`,
+        backgroundColor: bgFallback,
+        transform: `translate(${-cx}px, ${-cy}px)`,
+        transformOrigin: '0 0',
+      },
+      filter: (node) => {
+        if (!(node instanceof HTMLElement)) return true
+        if (node.classList.contains('react-flow__minimap')) return false
+        if (node.classList.contains('react-flow__controls')) return false
+        return true
+      },
+    })
+  }
 
-    pdf.setTextColor(20)
-    pdf.setFontSize(11)
-    pdf.text(`Geräte (${devices.length})`, margin, y)
-    y += 14
-    pdf.setFontSize(8)
-    for (const d of devices) {
-      if (y > 780) {
-        pdf.addPage()
-        y = margin
+  const exportPdf = async () => {
+    if (busy) return
+    setBusy(true)
+    try {
+      const planDataUrl = includePlan ? await capturePlanForLocation() : null
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
+      const pageW = pdf.internal.pageSize.getWidth()
+      const pageH = pdf.internal.pageSize.getHeight()
+      const margin = 32
+      let y = margin + 4
+      pdf.setFontSize(14)
+      pdf.text(`Stückliste — ${location.name}`, margin, y)
+      y += 18
+      pdf.setFontSize(9)
+      pdf.setTextColor(80)
+      if (location.floor) pdf.text(`Stockwerk: ${location.floor}`, margin, y)
+      pdf.text(new Date().toLocaleString(), pageW - margin, y, { align: 'right' })
+      y += 18
+
+      // Embed the plan snapshot at the top, scaled to fit the page width
+      // while preserving aspect ratio. Capped at half the page height so
+      // the parts list still has room on the same page when small.
+      if (planDataUrl) {
+        const img = new Image()
+        img.src = planDataUrl
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve()
+          img.onerror = () => reject(new Error('Konnte den Plan-Snapshot nicht laden'))
+        })
+        const avail = pageW - margin * 2
+        const maxH = (pageH - margin * 2) * 0.5
+        const ratio = img.naturalWidth / Math.max(1, img.naturalHeight)
+        let drawW = avail
+        let drawH = drawW / ratio
+        if (drawH > maxH) {
+          drawH = maxH
+          drawW = drawH * ratio
+        }
+        pdf.addImage(planDataUrl, 'JPEG', margin, y, drawW, drawH)
+        y += drawH + 14
       }
-      const sn = d.serialNumber ? `  S/N: ${d.serialNumber}` : ''
-      const ip = d.ipAddress ? `  IP: ${d.ipAddress}` : ''
-      pdf.text(`• ${d.name}  [${d.category}]${sn}${ip}`, margin, y)
-      y += 11
-    }
 
-    y += 8
-    pdf.setFontSize(11)
-    pdf.text(`Interne Kabel (${internalCables.length})`, margin, y)
-    y += 14
-    pdf.setFontSize(8)
-    for (const c of internalCables) {
-      if (y > 780) {
-        pdf.addPage()
-        y = margin
-      }
-      pdf.text(
-        `• ${c.name ?? c.type ?? 'Kabel'}  ${c.length ? `(${c.length} m)` : ''}`,
-        margin,
-        y,
-      )
-      y += 11
-    }
-
-    if (externalCables.length > 0) {
-      y += 8
+      pdf.setTextColor(20)
       pdf.setFontSize(11)
-      pdf.text(`Externe Verbindungen (${externalCables.length})`, margin, y)
+      pdf.text(`Geräte (${devices.length})`, margin, y)
       y += 14
       pdf.setFontSize(8)
-      for (const c of externalCables) {
+      for (const d of devices) {
         if (y > 780) {
           pdf.addPage()
           y = margin
         }
-        pdf.text(`• ${c.name ?? c.type ?? 'Kabel'}`, margin, y)
+        const sn = d.serialNumber ? `  S/N: ${d.serialNumber}` : ''
+        const ip = d.ipAddress ? `  IP: ${d.ipAddress}` : ''
+        pdf.text(`• ${d.name}  [${d.category}]${sn}${ip}`, margin, y)
         y += 11
       }
-    }
 
-    pdf.save(`${location.name.replace(/[^a-z0-9\-_. ]/gi, '_')}-stueckliste.pdf`)
+      y += 8
+      pdf.setFontSize(11)
+      pdf.text(`Interne Kabel (${internalCables.length})`, margin, y)
+      y += 14
+      pdf.setFontSize(8)
+      for (const c of internalCables) {
+        if (y > 780) {
+          pdf.addPage()
+          y = margin
+        }
+        pdf.text(
+          `• ${c.name ?? c.type ?? 'Kabel'}  ${c.length ? `(${c.length} m)` : ''}`,
+          margin,
+          y,
+        )
+        y += 11
+      }
+
+      if (externalCables.length > 0) {
+        y += 8
+        pdf.setFontSize(11)
+        pdf.text(`Externe Verbindungen (${externalCables.length})`, margin, y)
+        y += 14
+        pdf.setFontSize(8)
+        for (const c of externalCables) {
+          if (y > 780) {
+            pdf.addPage()
+            y = margin
+          }
+          pdf.text(`• ${c.name ?? c.type ?? 'Kabel'}`, margin, y)
+          y += 11
+        }
+      }
+
+      pdf.save(`${location.name.replace(/[^a-z0-9\-_. ]/gi, '_')}-stueckliste.pdf`)
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
@@ -153,12 +227,24 @@ export const LocationBomDialog = () => {
                 Externe Verbindungen: <b className="text-slate-200">{externalCables.length}</b>
               </span>
             )}
+            <label
+              className="ml-auto flex items-center gap-1.5 text-[11px] text-slate-300"
+              title="Hängt einen Plan-Ausschnitt der Location als JPEG vor die Geräteliste — die Empfänger bekommen Stückliste + Plan in einem Dokument (Issue #54)."
+            >
+              <input
+                type="checkbox"
+                checked={includePlan}
+                onChange={(e) => setIncludePlan(e.target.checked)}
+              />
+              Plan einbetten
+            </label>
             <button
               type="button"
-              onClick={exportPdf}
-              className="ml-auto rounded bg-amber-700 px-3 py-1 text-xs hover:bg-amber-600"
+              onClick={() => { void exportPdf() }}
+              disabled={busy}
+              className="rounded bg-amber-700 px-3 py-1 text-xs hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              PDF exportieren
+              {busy ? 'Rendere…' : 'PDF exportieren'}
             </button>
           </div>
 

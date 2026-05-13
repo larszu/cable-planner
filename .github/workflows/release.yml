@@ -9,10 +9,11 @@ on:
 permissions:
   contents: write
 
-# Silence the "Node.js 20 actions are deprecated" warnings GitHub started
-# emitting in May 2026. The actions themselves still ship Node 20 runners,
-# this opts in early to the upcoming Node 24 default. Drop this once we
-# upgrade to action versions that bundle Node 24 natively.
+# actions/checkout@v5 and actions/setup-node@v5 ship Node 24 natively.
+# Three actions still don't have a Node-24 release as of May 2026:
+# actions/upload-artifact@v4, actions/download-artifact@v4, and
+# softprops/action-gh-release@v2 — so we keep the env flag to force them
+# onto Node 24 too. Drop it once all four publish a v5.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
@@ -33,12 +34,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          # Node 20 went end-of-life in April 2026. Build on 22 LTS so
+          # we stay on a supported runtime; electron-builder 26.x and
+          # vite 8.x both support 22.
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies

@@ -1089,6 +1089,17 @@ export const EquipmentProperties = () => {
         />
         Ports spiegeln (Inputs rechts, Outputs links)
       </label>
+      <label
+        className="flex items-center gap-2 text-[11px] text-slate-300"
+        title="Markiert das Gerät als gepackt. Erscheint als ✓ auf dem Canvas und als eigene Spalte in der Geräte-BOM."
+      >
+        <input
+          type="checkbox"
+          checked={!!equipment.packed}
+          onChange={(event) => updateEquipment(equipment.id, { packed: event.target.checked || undefined })}
+        />
+        Gepackt / Pack-Status
+      </label>
 
       {/* Rentman sync status */}
       {equipment.rentmanRemoved ? (

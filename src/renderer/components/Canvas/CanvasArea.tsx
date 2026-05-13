@@ -11,6 +11,7 @@ import ReactFlow, {
   useUpdateNodeInternals,
   ConnectionMode,
   SelectionMode,
+  BackgroundVariant,
   type Connection,
   type Edge,
   type Node,
@@ -55,6 +56,9 @@ const CanvasContent = () => {
   const moveLocationWithContents = useProjectStore((state) => state.moveLocationWithContents)
   const snapToGrid = useUiStore((state) => state.snapToGrid)
   const gridSize = useUiStore((state) => state.gridSize)
+  // Issue #71: user-configurable canvas background pattern + opacity.
+  const bgVariant = useUiStore((state) => state.bgVariant)
+  const bgOpacity = useUiStore((state) => state.bgOpacity)
   const cableColorMode = useUiStore((state) => state.cableColorMode)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
@@ -62,6 +66,7 @@ const CanvasContent = () => {
   const addPendingWaypoint = useUiStore((state) => state.addPendingWaypoint)
   const clearPendingCable = useUiStore((state) => state.clearPendingCable)
   const openCableEdit = useUiStore((state) => state.openCableEdit)
+  const setHoveredCableId = useUiStore((state) => state.setHoveredCableId)
   const wrapperRef = useRef<HTMLDivElement>(null)
   // Last screen-pixel mouse position over the canvas. Used by Strg++ quick-add
   // (#44) so the new device lands where the user pointed instead of always at
@@ -1089,6 +1094,11 @@ const CanvasContent = () => {
         onNodeDragStop={onNodeDragStop}
         onEdgeClick={(_event, edge) => setSelection(undefined, edge.id, undefined)}
         onEdgeDoubleClick={(_event, edge) => openCableEdit(edge.id)}
+        // Issue #68: track which edge the mouse is over so CableEdge can
+        // thicken/glow itself and EquipmentNode can highlight the matching
+        // port handles. The store value is read by both components.
+        onEdgeMouseEnter={(_event, edge) => setHoveredCableId(edge.id)}
+        onEdgeMouseLeave={() => setHoveredCableId(null)}
         onMoveEnd={(_event, viewport) => setCanvasState(viewport.x, viewport.y, viewport.zoom)}
       >
         <MiniMap pannable zoomable
@@ -1096,7 +1106,23 @@ const CanvasContent = () => {
           maskColor={effectiveCanvasTheme === 'light' ? 'rgba(226,232,240,0.7)' : 'rgba(15,23,42,0.7)'}
         />
         <Controls />
-        <Background color={effectiveCanvasTheme === 'light' ? '#cbd5e1' : '#334155'} />
+        {/* Issue #71: background pattern is user-configurable. When the
+            user picked 'none' we omit the component entirely so React
+            Flow falls back to its plain coloured canvas. */}
+        {bgVariant !== 'none' && (
+          <Background
+            variant={
+              bgVariant === 'lines'
+                ? BackgroundVariant.Lines
+                : bgVariant === 'cross'
+                  ? BackgroundVariant.Cross
+                  : BackgroundVariant.Dots
+            }
+            gap={gridSize > 0 ? gridSize : 20}
+            color={effectiveCanvasTheme === 'light' ? '#cbd5e1' : '#334155'}
+            style={{ opacity: bgOpacity }}
+          />
+        )}
       </ReactFlow>
       <PendingCableOverlay />
     </div>

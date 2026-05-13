@@ -24,6 +24,7 @@ import { useProject } from './hooks/useProject'
 import { useRentman } from './hooks/useRentman'
 import { cablePlannerApi } from './lib/bridge'
 import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
+import { exportCanvasToImage } from './lib/exportImage'
 import { useProjectStore } from './store/projectStore'
 import { useUndoRedoShortcuts } from './store/projectHistory'
 import { useSettingsStore } from './store/settingsStore'
@@ -327,6 +328,12 @@ export default function App() {
         onSaveProjectAs={() => void saveProjectAs()}
         onOpenSettings={() => setSettingsOpen(true)}
         onExportPdf={() => setPdfExportOpen(true)}
+        onExportPng={() =>
+          void exportCanvasToImage(project.metadata.name, 'png', { backgroundTheme: canvasTheme })
+        }
+        onExportJpeg={() =>
+          void exportCanvasToImage(project.metadata.name, 'jpeg', { backgroundTheme: canvasTheme })
+        }
         onOpenGraphmlImport={() => setGraphmlImportOpen(true)}
         onAttachPdfToRentman={() => void handleUploadPdfToRentman()}
         onOpenRentmanCableExport={openRentmanCableExport}
@@ -363,6 +370,7 @@ export default function App() {
         equipmentCount={project.equipment.length}
         cableCount={project.cables.length}
         locationCount={project.locations?.length ?? 0}
+        packedCount={project.equipment.filter((e) => e.packed).length}
         rentmanProjectName={project.metadata.rentmanProjectName}
       />
 
