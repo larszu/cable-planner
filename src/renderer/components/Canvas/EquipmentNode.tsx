@@ -45,6 +45,20 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // dialog write to, so all three views stay in sync.
   const greengoConfig = useProjectStore((s) => s.project.greengoConfig)
   const greengoUser = findGreenGoUserForEquipment(id, greengoConfig)
+  // Issue #68: if the user hovers an edge, we want to light up the
+  // port handles on both endpoints. Resolve the hovered cable's source
+  // and target port IDs that live on THIS device, so the handle
+  // renderer below can apply the glow.
+  const hoveredCableId = useUiStore((s) => s.hoveredCableId)
+  const hoveredEndpointPortIds = useProjectStore((s) => {
+    if (!hoveredCableId) return null
+    const cable = s.project.cables.find((c) => c.id === hoveredCableId)
+    if (!cable) return null
+    const ids = new Set<string>()
+    if (cable.fromEquipmentId === id) ids.add(cable.fromPortId)
+    if (cable.toEquipmentId === id) ids.add(cable.toPortId)
+    return ids.size > 0 ? ids : null
+  })
   const updateNodeInternals = useUpdateNodeInternals()
 
   // Re-register handle positions whenever the data that affects port placement
@@ -369,6 +383,23 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             )
           })()}
           <span>{data.name}</span>
+          {data.packed && (
+            <span
+              style={{
+                marginLeft: 4,
+                background: '#10b981',
+                color: '#022c22',
+                fontSize: 9,
+                fontWeight: 700,
+                borderRadius: 3,
+                padding: '0 4px',
+                lineHeight: '14px',
+              }}
+              title="Gepackt — bereit zum Versand"
+            >
+              ✓
+            </span>
+          )}
         </div>
         <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#94a3b8', lineHeight: '14px' }}>{data.category}</div>
         {data.subtitle && (
@@ -471,6 +502,8 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         const dotColor = colorPortsByType
           ? colorForConnector(port.connectorType, connectorTypeColors)
           : (bi ? '#a855f7' : '#0ea5e9')
+        // Issue #68: glow when this port is an endpoint of the hovered cable.
+        const isHoveredEndpoint = hoveredEndpointPortIds?.has(port.id) ?? false
         return (
           <Fragment key={`h-in-${port.id}`}>
             <Handle
@@ -483,8 +516,16 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 width: HANDLE_SIZE,
                 height: HANDLE_SIZE,
                 background: dotColor,
-                border: isStart ? '2px solid #fbbf24' : `2px solid ${isLight ? '#e2e8f0' : '#0f172a'}`,
-                boxShadow: isStart ? '0 0 0 3px rgba(251,191,36,0.45)' : undefined,
+                border: isStart
+                  ? '2px solid #fbbf24'
+                  : isHoveredEndpoint
+                    ? '2px solid #38bdf8'
+                    : `2px solid ${isLight ? '#e2e8f0' : '#0f172a'}`,
+                boxShadow: isStart
+                  ? '0 0 0 3px rgba(251,191,36,0.45)'
+                  : isHoveredEndpoint
+                    ? '0 0 0 3px rgba(56,189,248,0.55)'
+                    : undefined,
                 cursor: 'crosshair',
               }}
             />
@@ -566,6 +607,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         const dotColor = colorPortsByType
           ? colorForConnector(port.connectorType, connectorTypeColors)
           : (bi ? '#a855f7' : '#22c55e')
+        const isHoveredEndpoint = hoveredEndpointPortIds?.has(port.id) ?? false
         return (
           <Fragment key={`h-out-${port.id}`}>
             <Handle
@@ -578,8 +620,16 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 width: HANDLE_SIZE,
                 height: HANDLE_SIZE,
                 background: dotColor,
-                border: isStart ? '2px solid #fbbf24' : `2px solid ${isLight ? '#e2e8f0' : '#0f172a'}`,
-                boxShadow: isStart ? '0 0 0 3px rgba(251,191,36,0.45)' : undefined,
+                border: isStart
+                  ? '2px solid #fbbf24'
+                  : isHoveredEndpoint
+                    ? '2px solid #38bdf8'
+                    : `2px solid ${isLight ? '#e2e8f0' : '#0f172a'}`,
+                boxShadow: isStart
+                  ? '0 0 0 3px rgba(251,191,36,0.45)'
+                  : isHoveredEndpoint
+                    ? '0 0 0 3px rgba(56,189,248,0.55)'
+                    : undefined,
                 cursor: 'crosshair',
               }}
             />

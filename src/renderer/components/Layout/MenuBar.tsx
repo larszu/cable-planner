@@ -10,6 +10,10 @@ interface MenuBarProps {
   onSaveProjectAs: () => void
   onOpenSettings: () => void
   onExportPdf: () => void
+  /** Save the canvas as a PNG bitmap (H2R parity). */
+  onExportPng?: () => void
+  /** Save the canvas as a JPEG bitmap. */
+  onExportJpeg?: () => void
   /** Open the GraphML / yEd import dialog. */
   onOpenGraphmlImport?: () => void
   onEditProjectMeta?: () => void
@@ -45,6 +49,8 @@ export const MenuBar = ({
   onSaveProjectAs,
   onOpenSettings,
   onExportPdf,
+  onExportPng,
+  onExportJpeg,
   onOpenGraphmlImport,
   onEditProjectMeta,
   onOpenCableBom,
@@ -104,6 +110,16 @@ export const MenuBar = ({
           <MenuItem onClick={onExportPdf} icon="📑">
             {t('app.menu.export.pdf', 'Plan als PDF…')}
           </MenuItem>
+          {onExportPng && (
+            <MenuItem onClick={onExportPng} icon="🖼">
+              {t('app.menu.export.png', 'Plan als PNG…')}
+            </MenuItem>
+          )}
+          {onExportJpeg && (
+            <MenuItem onClick={onExportJpeg} icon="🖼">
+              {t('app.menu.export.jpeg', 'Plan als JPEG…')}
+            </MenuItem>
+          )}
           {onOpenCableBom && (
             <MenuItem onClick={onOpenCableBom} icon="🧮">
               {t('app.menu.export.cableBom', 'Kabel-Stückliste (BOM)…')}

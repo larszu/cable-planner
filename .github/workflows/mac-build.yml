@@ -12,7 +12,8 @@ on:
       - 'v*'
   workflow_dispatch: {}
 
-# Match release.yml — silences the Node 20 deprecation warnings.
+# Match release.yml — keep the FORCE flag until upload-artifact and
+# action-gh-release publish Node-24 versions.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
@@ -23,12 +24,13 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          # Node 20 EOL'd in April 2026 — build on 22 LTS.
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies

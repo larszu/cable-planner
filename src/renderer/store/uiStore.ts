@@ -38,6 +38,13 @@ interface PersistedUiState {
    *  default from DEFAULT_CONNECTOR_TYPE_COLORS applies. Stored sparsely
    *  so we don't bloat localStorage with the full default palette. */
   connectorTypeColors: Record<string, string>
+  /** Issue #71: canvas background pattern variant. 'dots' draws the
+   *  ReactFlow dot grid (default), 'lines' draws orthogonal lines,
+   *  'cross' draws a + at each grid intersection, 'none' disables. */
+  bgVariant: 'dots' | 'lines' | 'cross' | 'none'
+  /** Background grid opacity 0..1. Lower values make the dots/lines
+   *  fainter — useful when zooming way out on large diagrams. */
+  bgOpacity: number
 }
 
 const defaults: PersistedUiState = {
@@ -55,6 +62,8 @@ const defaults: PersistedUiState = {
   language: 'de',
   overrideConnectionWarnings: false,
   connectorTypeColors: {},
+  bgVariant: 'dots',
+  bgOpacity: 0.5,
 }
 
 const load = (): PersistedUiState => {
@@ -91,6 +100,8 @@ interface UiState extends PersistedUiState {
   setOverrideConnectionWarnings: (value: boolean) => void
   setConnectorTypeColor: (connectorType: string, color: string | null) => void
   resetConnectorTypeColors: () => void
+  setBgVariant: (value: 'dots' | 'lines' | 'cross' | 'none') => void
+  setBgOpacity: (value: number) => void
   pdfExportThemeOverride: 'dark' | 'light' | null
   setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
   cableEdit: { open: boolean; cableId?: string }
@@ -127,6 +138,13 @@ interface UiState extends PersistedUiState {
   rentmanCableExport: { open: boolean }
   openRentmanCableExport: () => void
   closeRentmanCableExport: () => void
+  /** Issue #68: id of the cable currently under the mouse cursor (on
+   *  the canvas OR in the cables legend). CableEdge highlights itself
+   *  when its id matches; EquipmentNode highlights any handle whose
+   *  port id matches the hovered cable's endpoints. Cleared on mouse
+   *  leave. */
+  hoveredCableId: string | null
+  setHoveredCableId: (id: string | null) => void
   /**
    * When the user is drawing a cable by clicking (draw.io-style), this holds
    * the start handle and the list of waypoints the user has placed on the
@@ -167,6 +185,8 @@ const applyPatch =
       language: state.language,
       overrideConnectionWarnings: state.overrideConnectionWarnings,
       connectorTypeColors: state.connectorTypeColors,
+      bgVariant: state.bgVariant,
+      bgOpacity: state.bgOpacity,
       ...patch,
     }
     persist(next)
@@ -200,6 +220,8 @@ export const useUiStore = create<UiState>((set) => ({
       return applyPatch({ connectorTypeColors: next })(state)
     }),
   resetConnectorTypeColors: () => set(applyPatch({ connectorTypeColors: {} })),
+  setBgVariant: (value) => set(applyPatch({ bgVariant: value })),
+  setBgOpacity: (value) => set(applyPatch({ bgOpacity: Math.max(0, Math.min(1, value)) })),
   pdfExportThemeOverride: null,
   setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
   cableEdit: { open: false },
@@ -232,6 +254,8 @@ export const useUiStore = create<UiState>((set) => ({
   rentmanCableExport: { open: false },
   openRentmanCableExport: () => set({ rentmanCableExport: { open: true } }),
   closeRentmanCableExport: () => set({ rentmanCableExport: { open: false } }),
+  hoveredCableId: null,
+  setHoveredCableId: (id) => set({ hoveredCableId: id }),
   pendingCable: null,
   startPendingCable: (start) =>
     set({ pendingCable: { ...start, waypoints: [] } }),
