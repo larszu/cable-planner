@@ -17,6 +17,7 @@ import { AtemMvConfigDialog } from './components/Atem/AtemMvConfigDialog'
 import { AtemAudioRouterDialog } from './components/Atem/AtemAudioRouterDialog'
 import { LocationBomDialog } from './components/Project/LocationBomDialog'
 import { RackEditorDialog } from './components/Rack/RackEditorDialog'
+import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
 import { PrintDialog } from './components/Print/PrintDialog'
@@ -24,7 +25,7 @@ import { WelcomeDialog } from './components/Project/WelcomeDialog'
 import { Splitter } from './components/Layout/Splitter'
 import { useProject } from './hooks/useProject'
 import { useRentman } from './hooks/useRentman'
-import { cablePlannerApi } from './lib/bridge'
+import { cablePlannerApi, hasDesktopBridge } from './lib/bridge'
 import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
 import { exportCanvasToImage } from './lib/exportImage'
 import { useProjectStore } from './store/projectStore'
@@ -156,6 +157,19 @@ export default function App() {
   }, [refreshRecent, setHasToken])
 
   useUndoRedoShortcuts()
+
+  // Whenever the project changes, push it to the in-process mobile-
+  // share HTTP server so the phone always sees the latest state on
+  // refresh. The bridge no-ops gracefully when the server isn't
+  // running, so we don't need to gate this on a UI flag. Debounced
+  // 500 ms to avoid IPC churn during rapid drags.
+  useEffect(() => {
+    if (!hasDesktopBridge) return
+    const timer = window.setTimeout(() => {
+      void cablePlannerApi.mobileShare.setProject(project)
+    }, 500)
+    return () => window.clearTimeout(timer)
+  }, [project])
 
   // Issue #69: dispatch user-customizable hotkeys defined in
   // Settings → Hotkeys. The undo/redo entries below intentionally
@@ -434,6 +448,7 @@ export default function App() {
       <AtemAudioRouterDialog />
       <LocationBomDialog />
       <RackEditorDialog />
+      <MobileShareDialog />
 
       <ProjectMetaDialog
         open={metaDialog !== null}
