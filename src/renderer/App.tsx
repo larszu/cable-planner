@@ -67,6 +67,8 @@ export default function App() {
   const setHasToken = useSettingsStore((state) => state.setHasToken)
   const propertiesCollapsed = useUiStore((state) => state.propertiesCollapsed)
   const libraryCollapsed = useUiStore((state) => state.libraryCollapsed)
+  const libraryFloating = useUiStore((state) => state.libraryFloating)
+  const propertiesFloating = useUiStore((state) => state.propertiesFloating)
   const libraryWidth = useUiStore((state) => state.libraryWidth)
   const propertiesWidth = useUiStore((state) => state.propertiesWidth)
   const setLibraryWidth = useUiStore((state) => state.setLibraryWidth)
@@ -396,7 +398,17 @@ export default function App() {
       <main
         className="grid min-h-0 flex-1 overflow-hidden"
         style={{
-          gridTemplateColumns: `${libraryCollapsed ? '32px' : `${libraryWidth}px`} 4px 1fr 4px ${propertiesCollapsed ? '32px' : `${propertiesWidth}px`}`,
+          // When a panel is floating, its grid column collapses to 0
+          // (no chip, no splitter spacing) so the canvas reclaims the
+          // space. The panel itself renders as an overlay via
+          // FloatingPanelShell.
+          gridTemplateColumns: `${
+            libraryFloating ? '0px' : libraryCollapsed ? '32px' : `${libraryWidth}px`
+          } ${libraryFloating ? '0px' : '4px'} 1fr ${
+            propertiesFloating ? '0px' : '4px'
+          } ${
+            propertiesFloating ? '0px' : propertiesCollapsed ? '32px' : `${propertiesWidth}px`
+          }`,
         }}
       >
         <LibraryPanel />
