@@ -287,6 +287,31 @@ const load = (): PersistedUiState => {
   }
 }
 
+/** v7.8.4 — setState rate guard. When a store mutates more than
+ *  RATE_THRESHOLD times within RATE_WINDOW_MS, we throw an Error so
+ *  the React error boundary captures it (with stack + component
+ *  stack) instead of letting the silent #185 loop chew the renderer.
+ *  Throwing at the first pathological set freezes the loop early and
+ *  surfaces the actual call site in the stack — much easier to debug
+ *  than React's "Maximum update depth exceeded" with no offending
+ *  setter. */
+const RATE_THRESHOLD = 80
+const RATE_WINDOW_MS = 250
+let recentSetTimestamps: number[] = []
+const checkSetRate = (label: string) => {
+  const now = Date.now()
+  recentSetTimestamps.push(now)
+  // Keep only the timestamps within the window.
+  recentSetTimestamps = recentSetTimestamps.filter((t) => now - t <= RATE_WINDOW_MS)
+  if (recentSetTimestamps.length > RATE_THRESHOLD) {
+    const count = recentSetTimestamps.length
+    recentSetTimestamps = []
+    throw new Error(
+      `[CablePlanner] uiStore set-rate guard tripped: ${count} mutations in ${RATE_WINDOW_MS} ms (last setter: ${label}). Likely a render-loop. Captured stack pinpoints the offending caller.`,
+    )
+  }
+}
+
 const persist = (state: PersistedUiState) => {
   try {
     localStorage.setItem(KEY, JSON.stringify(state))
@@ -423,6 +448,7 @@ interface UiState extends PersistedUiState {
 const applyPatch =
   (patch: Partial<PersistedUiState>) =>
   (state: UiState): Partial<UiState> => {
+    checkSetRate(Object.keys(patch).join(','))
     const next: PersistedUiState = {
       propertiesCollapsed: state.propertiesCollapsed,
       libraryCollapsed: state.libraryCollapsed,
