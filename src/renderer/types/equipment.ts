@@ -79,6 +79,22 @@ export interface EquipmentItem {
   isRackDevice?: boolean
   /** Optional rack height in HE/U for future 2D rack layouts. */
   rackUnits?: number
+  /** Issue #61: Sub-canvas-per-rack. When a GroupPreset with `rack`
+   *  metadata is placed via `placeGroupPreset`, every equipment item
+   *  spawned by that placement is tagged with the same fresh
+   *  `rackInstanceId`. The sub-canvas Rack-Editor uses this tag to
+   *  filter the main project down to a single rack's contents while
+   *  the underlying data lives in the same project store (so undo/
+   *  redo and autosave keep working). `rackInstanceLabel` is set on
+   *  every member so the editor can show a human title without
+   *  consulting the originating preset (which may have been deleted). */
+  rackInstanceId?: string
+  rackInstanceLabel?: string
+  /** Position inside a rack instance — measured in rack-units from the
+   *  rack's top rail. Used by the Rack-Editor to render the 19" guide
+   *  rails and snap devices to whole-HU rows. Only meaningful when
+   *  `rackInstanceId` is set. */
+  rackInstanceStartUnit?: number
   /** Optional source path from NetBox device-type-library. */
   netboxPath?: string
   /** Optional raw image URL for the front panel asset. */
