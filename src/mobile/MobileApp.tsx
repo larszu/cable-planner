@@ -144,11 +144,13 @@ const DeviceCard = ({
   cables,
   checks,
   onTogglePort,
+  allEquipment,
 }: {
   device: CablePlannerProject['equipment'][number]
   cables: CablePlannerProject['cables']
   checks: CheckState
   onTogglePort: (deviceId: string, portId: string) => void
+  allEquipment: CablePlannerProject['equipment']
 }) => {
   const inputCables = useMemo(
     () => cables.filter((c) => c.toEquipmentId === device.id),
@@ -189,6 +191,7 @@ const DeviceCard = ({
           mode="in"
           checks={checks}
           onTogglePort={onTogglePort}
+          allEquipment={allEquipment}
         />
         <PortList
           label="Outputs"
@@ -198,6 +201,7 @@ const DeviceCard = ({
           mode="out"
           checks={checks}
           onTogglePort={onTogglePort}
+          allEquipment={allEquipment}
         />
       </div>
     </details>
@@ -212,6 +216,7 @@ const PortList = ({
   mode,
   checks,
   onTogglePort,
+  allEquipment,
 }: {
   label: string
   deviceId: string
@@ -220,6 +225,7 @@ const PortList = ({
   mode: 'in' | 'out'
   checks: CheckState
   onTogglePort: (deviceId: string, portId: string) => void
+  allEquipment: CablePlannerProject['equipment']
 }) => {
   if (ports.length === 0) return null
   return (
@@ -231,33 +237,66 @@ const PortList = ({
             (c) =>
               (mode === 'in' ? c.toPortId : c.fromPortId) === p.id,
           )
+          // Resolve the OTHER endpoint of the cable so the field tech
+          // sees "what plugs in here", not just the cable type — the
+          // user's main mobile-app feedback was that just "BNC 1m"
+          // wasn't useful when racking the gear.
+          let otherDevice: CablePlannerProject['equipment'][number] | undefined
+          let otherPort: CablePlannerProject['equipment'][number]['inputs'][number] | undefined
+          if (cable) {
+            const isFromMe = cable.fromEquipmentId === deviceId
+            const otherEqId = isFromMe ? cable.toEquipmentId : cable.fromEquipmentId
+            const otherPortId = isFromMe ? cable.toPortId : cable.fromPortId
+            otherDevice = allEquipment.find((e) => e.id === otherEqId)
+            otherPort =
+              otherDevice?.inputs?.find((q) => q.id === otherPortId) ??
+              otherDevice?.outputs?.find((q) => q.id === otherPortId)
+          }
           const checked = !!checks.ports[portKey(deviceId, p.id)]
           return (
             <li key={p.id}>
               <button
                 type="button"
                 onClick={() => onTogglePort(deviceId, p.id)}
-                className={`flex w-full items-center gap-2 rounded border px-2 py-1.5 text-left ${
+                className={`flex w-full items-start gap-2 rounded border px-2 py-1.5 text-left ${
                   checked
                     ? 'border-emerald-700 bg-emerald-900/30 text-emerald-100'
                     : 'border-slate-800 bg-slate-950 text-slate-200 hover:border-slate-700'
                 }`}
               >
                 <span
-                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded ${
+                  className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded ${
                     checked ? 'bg-emerald-600 text-white' : 'border border-slate-600 bg-slate-900'
                   }`}
                 >
                   {checked ? '✓' : ''}
                 </span>
-                <span className="flex-1 truncate">
-                  <span className="font-medium">{p.name}</span>
-                  <span className="ml-2 text-[10px] text-slate-500">
-                    {p.connectorType}
+                <span className="flex-1 min-w-0">
+                  <span className="block">
+                    <span className="font-medium">{p.name}</span>
+                    <span className="ml-2 text-[10px] text-slate-500">
+                      {p.connectorType}
+                    </span>
                   </span>
+                  {cable && otherDevice && (
+                    <span className="mt-0.5 block truncate text-[11px] text-sky-300">
+                      → {otherDevice.name}
+                      {otherPort && (
+                        <>
+                          <span className="mx-1 text-slate-500">·</span>
+                          <span>{otherPort.name}</span>
+                          {otherPort.connectorType && (
+                            <span className="ml-1 text-[10px] text-slate-500">
+                              ({otherPort.connectorType})
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </span>
+                  )}
                 </span>
                 {cable && (
-                  <span className="shrink-0 text-[10px] text-sky-300">
+                  <span className="shrink-0 text-[10px] text-slate-400">
                     {cable.type} · {cable.length} m
                   </span>
                 )}
@@ -381,6 +420,7 @@ const ProjectView = ({
               cables={project.cables}
               checks={checks}
               onTogglePort={togglePort}
+              allEquipment={project.equipment}
             />
           ))
         )}
