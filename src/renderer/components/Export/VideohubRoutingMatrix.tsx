@@ -9,8 +9,14 @@ interface Props {
 
 /**
  * Interactive routing crosspoint matrix for Blackmagic Videohub.
- * For ≤40×40 routers renders an XY grid (click to route).
- * For larger routers falls back to per-output select dropdowns.
+ *
+ * Renders the same grid for every preset (12×12, 20×20, 40×40, 72×72,
+ * 288×288). Earlier versions fell back to a per-output dropdown for
+ * >40 in/out, which the user reported as "schlechte" because it
+ * looked different from the smaller routers. The fall-back is now
+ * gated only on extreme sizes (>320×320 = ~100k cells) where the
+ * browser would refuse to scroll smoothly. For 72 and 288 the grid
+ * scrolls horizontally inside an `overflow-auto` container.
  */
 export const VideohubRoutingMatrix = ({
   totalInputs,
@@ -20,11 +26,17 @@ export const VideohubRoutingMatrix = ({
   routing,
   onRoute,
 }: Props) => {
-  const useGrid = totalInputs <= 40 && totalOutputs <= 40
+  const cellCount = totalInputs * totalOutputs
+  const useGrid = cellCount <= 100_000
 
   if (!useGrid) {
     return (
       <div className="overflow-auto max-h-64 rounded border border-slate-700 bg-slate-950 p-2">
+        <div className="mb-2 text-[10px] text-amber-300">
+          {totalInputs}×{totalOutputs} ({cellCount.toLocaleString()} Crosspoints) — Listen-
+          Modus, da die Crosspoint-Matrix bei dieser Größe das Browser-Rendering
+          überlastet.
+        </div>
         <div className="space-y-0.5">
           {outputLabels.map((outLabel, oi) => (
             <div key={oi} className="flex items-center gap-2 text-xs">
@@ -48,8 +60,21 @@ export const VideohubRoutingMatrix = ({
     )
   }
 
+  // Cell size shrinks as the router grows so 72×72 fits in a 1024 wrap and
+  // 288×288 stays under the 100k-cell threshold without becoming unscrollable.
+  // 40-and-below routers keep the original 14 px squares.
+  const dense = totalInputs > 80 || totalOutputs > 80
+  const cell = dense ? 10 : totalInputs > 40 || totalOutputs > 40 ? 12 : 14
+  const cellClass = dense ? 'h-[10px] w-[10px]' : totalInputs > 40 || totalOutputs > 40 ? 'h-[12px] w-[12px]' : 'h-[14px] w-[14px]'
+  // 16rem max-height is fine for ≤40; bump for larger routers so users
+  // see more rows at once. ≈ 18 rows of 10 px = 180 px = 11 rem.
+  const maxHeight = dense ? '24rem' : totalInputs > 40 ? '20rem' : '16rem'
+
   return (
-    <div className="overflow-auto rounded border border-slate-700 bg-slate-950" style={{ maxHeight: '16rem' }}>
+    <div
+      className="overflow-auto rounded border border-slate-700 bg-slate-950"
+      style={{ maxHeight }}
+    >
       <table className="border-collapse text-[10px]">
         <thead>
           <tr>
@@ -58,7 +83,8 @@ export const VideohubRoutingMatrix = ({
             {inputLabels.map((label, i) => (
               <th
                 key={i}
-                className="sticky top-0 z-10 w-[18px] min-w-[18px] bg-slate-900 p-0"
+                className="sticky top-0 z-10 bg-slate-900 p-0"
+                style={{ width: cell, minWidth: cell }}
               >
                 <div
                   className="overflow-hidden text-center text-slate-400"
@@ -92,8 +118,8 @@ export const VideohubRoutingMatrix = ({
                       title={`${outLabel} ← ${inLabel}`}
                       className={
                         active
-                          ? 'mx-auto my-0.5 block h-[14px] w-[14px] rounded-sm bg-emerald-500'
-                          : 'mx-auto my-0.5 block h-[14px] w-[14px] rounded-sm bg-slate-700 hover:bg-slate-500'
+                          ? `mx-auto my-0.5 block ${cellClass} rounded-sm bg-emerald-500`
+                          : `mx-auto my-0.5 block ${cellClass} rounded-sm bg-slate-700 hover:bg-slate-500`
                       }
                     />
                   </td>

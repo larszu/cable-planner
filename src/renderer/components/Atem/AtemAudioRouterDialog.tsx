@@ -342,25 +342,180 @@ const CELL = 18
 const HEADER_HEIGHT = 110
 const SIDE_WIDTH = 220
 
+/** Issue #63: shared checkbox-list overlay for excluding sources or
+ *  outputs from the matrix. Items are grouped by `groupKey` so the
+ *  user can tick a whole device (e.g. "MADI", "Out 5/6") in one
+ *  click. Used by both source and output filter buttons. */
+interface ChannelPickerProps {
+  label: string
+  items: { id: number; name: string }[]
+  excluded: Set<number>
+  onToggle: (id: number) => void
+  onSetAll: (excludedIds: number[]) => void
+  groupKey: (name: string) => string
+  onClose: () => void
+}
+
+const ChannelPicker = ({
+  label,
+  items,
+  excluded,
+  onToggle,
+  onSetAll,
+  groupKey,
+  onClose,
+}: ChannelPickerProps) => {
+  const groups = useMemo(() => {
+    const map = new Map<string, { id: number; name: string }[]>()
+    for (const it of items) {
+      const k = groupKey(it.name)
+      const list = map.get(k) ?? []
+      list.push(it)
+      map.set(k, list)
+    }
+    return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b))
+  }, [items, groupKey])
+
+  const allExcluded = items.length > 0 && items.every((it) => excluded.has(it.id))
+  return (
+    <div className="border-b border-slate-800 bg-slate-950/60 px-4 py-2 text-xs">
+      <div className="mb-1 flex items-center justify-between">
+        <span className="text-slate-300">
+          {label} ein-/ausblenden — abgewählte Einträge fallen aus Filter, Liste und Matrix.
+        </span>
+        <div className="flex gap-1">
+          <button
+            type="button"
+            onClick={() => onSetAll([])}
+            className="rounded bg-slate-800 px-2 py-0.5 text-[11px] hover:bg-slate-700"
+          >
+            Alle zeigen
+          </button>
+          <button
+            type="button"
+            onClick={() => onSetAll(items.map((i) => i.id))}
+            className="rounded bg-slate-800 px-2 py-0.5 text-[11px] hover:bg-slate-700"
+            disabled={allExcluded}
+          >
+            Alle ausblenden
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded bg-slate-800 px-2 py-0.5 text-[11px] hover:bg-slate-700"
+          >
+            Schließen
+          </button>
+        </div>
+      </div>
+      <div className="flex max-h-32 flex-wrap gap-x-3 gap-y-1 overflow-auto">
+        {groups.map(([key, members]) => {
+          const allHidden = members.every((m) => excluded.has(m.id))
+          const someHidden = members.some((m) => excluded.has(m.id))
+          return (
+            <div key={key} className="flex flex-col">
+              <button
+                type="button"
+                onClick={() => {
+                  const next = new Set(excluded)
+                  if (allHidden) {
+                    for (const m of members) next.delete(m.id)
+                  } else {
+                    for (const m of members) next.add(m.id)
+                  }
+                  onSetAll(Array.from(next))
+                }}
+                className={`mb-0.5 rounded px-2 py-0.5 text-left text-[11px] font-semibold ${
+                  allHidden
+                    ? 'bg-slate-800 text-slate-500'
+                    : someHidden
+                      ? 'bg-amber-900/40 text-amber-200'
+                      : 'bg-sky-900/40 text-sky-200'
+                }`}
+                title={`${key} — komplette Gruppe an-/abhaken`}
+              >
+                {allHidden ? '☐' : someHidden ? '◐' : '☑'} {key}
+              </button>
+              {members.map((m) => (
+                <label
+                  key={m.id}
+                  className="flex items-center gap-1 pl-2 text-[10px] text-slate-300"
+                >
+                  <input
+                    type="checkbox"
+                    checked={!excluded.has(m.id)}
+                    onChange={() => onToggle(m.id)}
+                  />
+                  <span className="truncate" title={m.name}>
+                    {m.name}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 const MatrixView = ({ config, setConfig }: ViewProps) => {
   const matrix = config.matrix!
   const [filterSources, setFilterSources] = useState('')
   const [filterOutputs, setFilterOutputs] = useState('')
+  // Issue #63: per-id exclude lists so the user can hide groups of
+  // sources/outputs they never patch (e.g. MADI block, output pairs
+  // 5/6, 7/8 …). Stored in this component's state because it's a
+  // pure UI concern; persisting would only help across sessions and
+  // adds store surface for little gain.
+  const [excludedSourceIds, setExcludedSourceIds] = useState<Set<number>>(new Set())
+  const [excludedOutputIds, setExcludedOutputIds] = useState<Set<number>>(new Set())
+  const [showSourcePicker, setShowSourcePicker] = useState(false)
+  const [showOutputPicker, setShowOutputPicker] = useState(false)
+  // Override the "too many crosspoints" guard — the user wants to be
+  // able to scroll through a big matrix anyway. We start with the
+  // guard armed (so the warning still flashes once for a fresh
+  // session) and remember the override across re-renders.
+  const [renderAnyway, setRenderAnyway] = useState(false)
 
   const visibleSources = useMemo(() => {
     const q = filterSources.trim().toLowerCase()
-    if (!q) return matrix.sources
-    return matrix.sources.filter((s) => s.name.toLowerCase().includes(q))
-  }, [matrix.sources, filterSources])
+    return matrix.sources.filter((s) => {
+      if (excludedSourceIds.has(s.id)) return false
+      if (q && !s.name.toLowerCase().includes(q)) return false
+      return true
+    })
+  }, [matrix.sources, filterSources, excludedSourceIds])
 
   const visibleOutputs = useMemo(() => {
     const q = filterOutputs.trim().toLowerCase()
-    if (!q) return matrix.outputs
-    return matrix.outputs.filter((o) => o.name.toLowerCase().includes(q))
-  }, [matrix.outputs, filterOutputs])
+    return matrix.outputs.filter((o) => {
+      if (excludedOutputIds.has(o.id)) return false
+      if (q && !o.name.toLowerCase().includes(q)) return false
+      return true
+    })
+  }, [matrix.outputs, filterOutputs, excludedOutputIds])
 
   const cellCount = visibleSources.length * visibleOutputs.length
-  const tooLarge = cellCount > 12000
+  const tooLarge = cellCount > 12000 && !renderAnyway
+
+  /** Heuristic group key for the checkbox list: take the part before the
+   *  trailing number. "MADI 1" → "MADI", "Out 5" → "Out", "AES 4" → "AES".
+   *  Lets the user toggle whole device-classes with one click via the
+   *  "alle gleichnamigen" link. */
+  const groupKey = (name: string): string =>
+    name.replace(/\s*\d+(?:[/-]\d+)?\s*$/, '').trim() || name
+
+  const toggleSetMember = (
+    setter: (next: Set<number>) => void,
+    current: Set<number>,
+    id: number,
+  ) => {
+    const next = new Set(current)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    setter(next)
+  }
 
   const setRouting = (outputId: number, sourceId: number) => {
     setConfig({
@@ -414,6 +569,40 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
         />
         <button
           type="button"
+          onClick={() => setShowSourcePicker((v) => !v)}
+          title="Quellen einzeln an-/abhaken (z. B. MADI, Mic, Tape …)"
+          className={`rounded border px-3 py-1 ${
+            excludedSourceIds.size > 0
+              ? 'border-sky-600 bg-sky-900/40 text-sky-200'
+              : 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700'
+          }`}
+        >
+          Quellen-Auswahl
+          {excludedSourceIds.size > 0 && (
+            <span className="ml-1 text-[10px] text-sky-300">
+              ({excludedSourceIds.size} versteckt)
+            </span>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowOutputPicker((v) => !v)}
+          title="Outputs einzeln an-/abhaken (z. B. Out 5/6, 7/8 weglassen)"
+          className={`rounded border px-3 py-1 ${
+            excludedOutputIds.size > 0
+              ? 'border-sky-600 bg-sky-900/40 text-sky-200'
+              : 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700'
+          }`}
+        >
+          Outputs-Auswahl
+          {excludedOutputIds.size > 0 && (
+            <span className="ml-1 text-[10px] text-sky-300">
+              ({excludedOutputIds.size} versteckt)
+            </span>
+          )}
+        </button>
+        <button
+          type="button"
           onClick={clearAllOutputs}
           className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
         >
@@ -421,17 +610,50 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
         </button>
         <span className="ml-2 text-slate-500">
           {visibleSources.length} × {visibleOutputs.length} sichtbar
+          {cellCount.toLocaleString() !== ''
+            ? ` · ${cellCount.toLocaleString()} Crosspoints`
+            : ''}
         </span>
       </div>
+
+      {showSourcePicker && (
+        <ChannelPicker
+          label="Quellen"
+          items={matrix.sources}
+          excluded={excludedSourceIds}
+          onToggle={(id) => toggleSetMember(setExcludedSourceIds, excludedSourceIds, id)}
+          onSetAll={(ids) => setExcludedSourceIds(new Set(ids))}
+          groupKey={groupKey}
+          onClose={() => setShowSourcePicker(false)}
+        />
+      )}
+      {showOutputPicker && (
+        <ChannelPicker
+          label="Outputs"
+          items={matrix.outputs}
+          excluded={excludedOutputIds}
+          onToggle={(id) => toggleSetMember(setExcludedOutputIds, excludedOutputIds, id)}
+          onSetAll={(ids) => setExcludedOutputIds(new Set(ids))}
+          groupKey={groupKey}
+          onClose={() => setShowOutputPicker(false)}
+        />
+      )}
 
       {tooLarge ? (
         <div className="m-auto max-w-md text-center text-sm text-amber-200">
           <div className="mb-2 text-2xl">⚠</div>
           <p>
-            {cellCount.toLocaleString()} sichtbare Crosspoints sind zu viel
-            für eine flüssige Darstellung. Bitte über die Filter eingrenzen
-            (Ziel: unter 12.000 Zellen).
+            {cellCount.toLocaleString()} sichtbare Crosspoints können das Rendering
+            verlangsamen. Über die Quellen-/Outputs-Auswahl eingrenzen oder trotzdem
+            anzeigen lassen — die Warnung bleibt dann für diese Sitzung aus.
           </p>
+          <button
+            type="button"
+            onClick={() => setRenderAnyway(true)}
+            className="mt-3 rounded bg-amber-700 px-3 py-1 text-xs text-amber-50 hover:bg-amber-600"
+          >
+            Trotzdem anzeigen
+          </button>
         </div>
       ) : (
         <div className="flex-1 overflow-auto">
