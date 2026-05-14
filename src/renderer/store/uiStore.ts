@@ -163,6 +163,7 @@ const defaults: PersistedUiState = {
   propertiesFloatingPos: { x: 80, y: 80 },
   customPalette: null,
   equipmentSectionOrder: [
+    'modes',
     'ports',
     'network',
     'sdi',
@@ -331,8 +332,8 @@ interface UiState extends PersistedUiState {
   patchList: { open: boolean }
   openPatchList: () => void
   closePatchList: () => void
-  calculators: { open: boolean; tab?: 'length' | 'bandwidth' | 'power' }
-  openCalculators: (tab?: 'length' | 'bandwidth' | 'power') => void
+  calculators: { open: boolean; tab?: 'bandwidth' | 'power' }
+  openCalculators: (tab?: 'bandwidth' | 'power') => void
   closeCalculators: () => void
   /** Rentman equipment import dialog (cross-component trigger). */
   rentmanImport: { open: boolean }

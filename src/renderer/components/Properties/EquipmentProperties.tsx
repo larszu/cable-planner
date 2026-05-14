@@ -320,6 +320,72 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
                 </div>
               </div>
             )}
+            {port.connectorType === 'BNC' && (
+              <div className="mt-1 rounded border border-amber-900/60 bg-amber-950/20 p-1.5">
+                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-amber-300">
+                  SDI-Fähigkeiten (port-spezifisch)
+                </div>
+                <div className="grid grid-cols-2 gap-1 text-[10px]">
+                  <label className="flex items-center gap-1 text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={!!port.sdiCaps?.levelA}
+                      onChange={(e) =>
+                        updatePort(port.id, {
+                          sdiCaps: {
+                            ...(port.sdiCaps ?? {}),
+                            levelA: e.target.checked || undefined,
+                          },
+                        })
+                      }
+                    />
+                    3G Level A
+                  </label>
+                  <label className="flex items-center gap-1 text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={!!port.sdiCaps?.levelB}
+                      onChange={(e) =>
+                        updatePort(port.id, {
+                          sdiCaps: {
+                            ...(port.sdiCaps ?? {}),
+                            levelB: e.target.checked || undefined,
+                          },
+                        })
+                      }
+                    />
+                    3G Level B
+                  </label>
+                  <label className="col-span-2 block">
+                    <span className="text-slate-400">Max Single-Link</span>
+                    <select
+                      value={port.sdiCaps?.maxSingleLink ?? ''}
+                      onChange={(e) =>
+                        updatePort(port.id, {
+                          sdiCaps: {
+                            ...(port.sdiCaps ?? {}),
+                            maxSingleLink: (e.target.value || undefined) as NonNullable<
+                              NonNullable<typeof port.sdiCaps>['maxSingleLink']
+                            >,
+                          },
+                        })
+                      }
+                      className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                    >
+                      <option value="">(Geräte-Default)</option>
+                      <option value="SDI-HD">SDI-HD (1.5G)</option>
+                      <option value="SDI-3G">SDI-3G</option>
+                      <option value="SDI-6G">SDI-6G</option>
+                      <option value="SDI-12G">SDI-12G</option>
+                    </select>
+                  </label>
+                </div>
+                <div className="mt-1 text-[9px] text-slate-500">
+                  Überschreibt die Geräte-SDI-Fähigkeiten für diesen Port.
+                  Leer = Default vom Gerät.
+                </div>
+              </div>
+            )}
           </SortablePortItem>
         ))}
           </ul>
@@ -914,6 +980,58 @@ const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => {
       )}
       <div className="mt-1 text-[10px] text-slate-500">
         Neue Konfigurationen über Einstellungen → Konfigurationen hochladen.
+      </div>
+    </div>
+  )
+}
+
+/**
+ * v7.5.0 — Operating-mode picker for multi-mode devices (media servers,
+ * modular processors like Pixelhue P20, Parco S3, Brompton Tessera).
+ * Each mode defines its own port layout; switching the active mode
+ * rewrites the equipment's live `inputs`/`outputs` so the canvas
+ * shows the correct ports for that mode.
+ *
+ * Out of scope for v7.5.0: an inline "edit modes" UI. Modes are
+ * created either (a) by the library author when shipping a multi-mode
+ * device template, or (b) via JSON import. The user can still pick
+ * between existing modes here.
+ */
+const DeviceModePicker = ({
+  equipment,
+}: {
+  equipment: import('../../types/equipment').EquipmentItem
+}) => {
+  const setActiveDeviceMode = useProjectStore((s) => s.setActiveDeviceMode)
+  const modes = equipment.modes ?? []
+  const active = equipment.activeModeId
+  return (
+    <div className="space-y-2 text-xs">
+      <p className="text-[10px] text-slate-500">
+        Wechselt das Port-Layout des Geräts. Bestehende Kabel an Ports, die im neuen
+        Modus nicht existieren, bleiben im Projekt, müssen aber neu gesteckt werden.
+      </p>
+      <div className="grid grid-cols-1 gap-1">
+        {modes.map((m) => (
+          <button
+            key={m.id}
+            type="button"
+            onClick={() => setActiveDeviceMode(equipment.id, m.id)}
+            className={`flex flex-col items-start rounded border px-2 py-1.5 text-left transition-colors ${
+              active === m.id
+                ? 'border-sky-500 bg-sky-900/40 text-sky-100'
+                : 'border-slate-700 bg-slate-900 text-slate-200 hover:border-sky-700'
+            }`}
+          >
+            <span className="font-medium">{m.name}</span>
+            {m.description && (
+              <span className="text-[10px] text-slate-400">{m.description}</span>
+            )}
+            <span className="mt-1 text-[10px] text-slate-500">
+              {m.inputs.length} In · {m.outputs.length} Out
+            </span>
+          </button>
+        ))}
       </div>
     </div>
   )
@@ -1527,6 +1645,20 @@ export const EquipmentProperties = () => {
             allPorts={[...equipment.inputs, ...equipment.outputs]}
             kind={networkKind}
           />
+        </SortableSection>
+      )}
+
+      {equipment.modes && equipment.modes.length > 0 && (
+        <SortableSection
+          id="modes"
+          title="Betriebsmodus"
+          subtitle={
+            equipment.modes.find((m) => m.id === equipment.activeModeId)?.name ??
+            'kein Modus aktiv'
+          }
+          defaultOpen
+        >
+          <DeviceModePicker equipment={equipment} />
         </SortableSection>
       )}
 

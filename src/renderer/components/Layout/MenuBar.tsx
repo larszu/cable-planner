@@ -165,12 +165,6 @@ export const MenuBar = ({
             {t('app.menu.tools.patchList', 'Patchliste…')}
           </MenuItem>
           <MenuItem
-            onClick={() => useUiStore.getState().openCalculators('length')}
-            icon="📐"
-          >
-            {t('app.menu.tools.cableLength', 'Kabel-Länge berechnen…')}
-          </MenuItem>
-          <MenuItem
             onClick={() => useUiStore.getState().openCalculators('bandwidth')}
             icon="📡"
           >
