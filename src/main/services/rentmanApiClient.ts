@@ -113,9 +113,15 @@ export const createRentmanApiClient = (token: string) => {
       fileBytes: Uint8Array,
       mimeType: string = 'application/pdf',
     ) {
-      // FormData is available in Node 18+ which Electron 41 ships with.
+      // FormData is available in Node 18+ which Electron 42 ships with.
       const form = new FormData()
-      const blob = new Blob([fileBytes], { type: mimeType })
+      // Node 25's @types/node tightened Uint8Array's buffer constraint,
+      // making Uint8Array<ArrayBufferLike> incompatible with the Blob
+      // ctor's Uint8Array<ArrayBuffer> expectation. Reconstruct from a
+      // fresh ArrayBuffer so the resulting view is strictly typed.
+      const buf = new Uint8Array(new ArrayBuffer(fileBytes.byteLength))
+      buf.set(fileBytes)
+      const blob = new Blob([buf], { type: mimeType })
       form.append('file', blob, fileName)
       form.append('name', fileName)
       form.append('item', projectId)
