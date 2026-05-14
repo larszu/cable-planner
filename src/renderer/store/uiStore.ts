@@ -118,6 +118,14 @@ interface PersistedUiState {
    *  default position so adding new sections in future versions
    *  doesn't lose the user's existing ordering. */
   equipmentSectionOrder: string[]
+  /** v7.7.1 — Custom canvas background image (Issue #71). Separate
+   *  uploads for dark and light theme so the user can tune visibility.
+   *  When set, the image replaces the radial gradient and tiles by
+   *  default ('cover'). `null` falls back to the theme gradient. */
+  canvasBgImageDark: string | null
+  canvasBgImageLight: string | null
+  /** How the custom image is sized on the canvas. */
+  canvasBgImageFit: 'cover' | 'contain' | 'tile'
 }
 
 const defaults: PersistedUiState = {
@@ -162,6 +170,9 @@ const defaults: PersistedUiState = {
   propertiesFloating: false,
   propertiesFloatingPos: { x: 80, y: 80 },
   customPalette: null,
+  canvasBgImageDark: null,
+  canvasBgImageLight: null,
+  canvasBgImageFit: 'cover',
   equipmentSectionOrder: [
     'modes',
     'ports',
@@ -229,6 +240,12 @@ const load = (): PersistedUiState => {
       merged.gridSize = defaults.gridSize
     if (typeof merged.libraryWidth !== 'number') merged.libraryWidth = defaults.libraryWidth
     if (typeof merged.propertiesWidth !== 'number') merged.propertiesWidth = defaults.propertiesWidth
+    if (merged.canvasBgImageDark != null && typeof merged.canvasBgImageDark !== 'string')
+      merged.canvasBgImageDark = null
+    if (merged.canvasBgImageLight != null && typeof merged.canvasBgImageLight !== 'string')
+      merged.canvasBgImageLight = null
+    if (!['cover', 'contain', 'tile'].includes(merged.canvasBgImageFit))
+      merged.canvasBgImageFit = defaults.canvasBgImageFit
     return merged
   } catch {
     return defaults
@@ -288,6 +305,8 @@ interface UiState extends PersistedUiState {
   setPropertiesFloatingPos: (pos: { x: number; y: number }) => void
   setCustomPalette: (palette: { canvasBg: string; gridColor: string; accent: string } | null) => void
   setEquipmentSectionOrder: (order: string[]) => void
+  setCanvasBgImage: (theme: 'dark' | 'light', dataUri: string | null) => void
+  setCanvasBgImageFit: (fit: 'cover' | 'contain' | 'tile') => void
   pdfExportThemeOverride: 'dark' | 'light' | null
   setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
   cableEdit: { open: boolean; cableId?: string }
@@ -402,6 +421,9 @@ const applyPatch =
       propertiesFloating: state.propertiesFloating,
       propertiesFloatingPos: state.propertiesFloatingPos,
       customPalette: state.customPalette,
+      canvasBgImageDark: state.canvasBgImageDark,
+      canvasBgImageLight: state.canvasBgImageLight,
+      canvasBgImageFit: state.canvasBgImageFit,
       equipmentSectionOrder: state.equipmentSectionOrder,
       ...patch,
     }
@@ -499,6 +521,13 @@ export const useUiStore = create<UiState>((set) => ({
   setPropertiesFloatingPos: (pos) => set(applyPatch({ propertiesFloatingPos: pos })),
   setCustomPalette: (palette) => set(applyPatch({ customPalette: palette })),
   setEquipmentSectionOrder: (order) => set(applyPatch({ equipmentSectionOrder: order })),
+  setCanvasBgImage: (theme, dataUri) =>
+    set(applyPatch(
+      theme === 'dark'
+        ? { canvasBgImageDark: dataUri }
+        : { canvasBgImageLight: dataUri },
+    )),
+  setCanvasBgImageFit: (fit) => set(applyPatch({ canvasBgImageFit: fit })),
   pdfExportThemeOverride: null,
   setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
   cableEdit: { open: false },

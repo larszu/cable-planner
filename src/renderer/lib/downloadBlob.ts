@@ -23,7 +23,9 @@ const inferType = (content: DownloadContent, override?: string): string => {
 const toBlob = (content: DownloadContent, mimeType: string): Blob => {
   if (content instanceof Blob) return content
   if (typeof content === 'string') return new Blob([content], { type: mimeType })
-  return new Blob([content], { type: mimeType })
+  // Cast — TS 6 disallows ArrayBufferLike-backed Uint8Array as BlobPart
+  // even though it's structurally fine for the runtime Blob constructor.
+  return new Blob([content as unknown as BlobPart], { type: mimeType })
 }
 
 /**
