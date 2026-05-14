@@ -1,8 +1,26 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'node:path'
+import { readFileSync } from 'node:fs'
+
+// Read version from package.json at build time so the renderer can show
+// it in the About dialog + StatusBar without an IPC round-trip. Build
+// timestamp is also injected — handy for QA when comparing build hashes.
+const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8')) as {
+  version: string
+  description?: string
+  author?: { name?: string; email?: string } | string
+}
 
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+    __APP_DESCRIPTION__: JSON.stringify(pkg.description ?? ''),
+    __APP_AUTHOR__: JSON.stringify(
+      typeof pkg.author === 'string' ? pkg.author : pkg.author?.name ?? '',
+    ),
+    __APP_BUILD_DATE__: JSON.stringify(new Date().toISOString()),
+  },
   plugins: [
     react(),
     // Remove crossorigin attribute so file:// loading works in packaged Electron

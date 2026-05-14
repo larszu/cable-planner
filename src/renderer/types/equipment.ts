@@ -163,6 +163,10 @@ export interface EquipmentItem {
    *  Visualised on the canvas with a small ✓ marker on the header and
    *  surfaced as a column in the equipment BOM. (H2R parity.) */
   packed?: boolean
+  /** Roadmap #76 follow-up: rated power consumption in watts (continuous).
+   *  Fed into the Power-Consumption calculator and the equipment BOM
+   *  totals row. Optional — only the user/data-sheet fills this in. */
+  powerConsumptionWatts?: number
   /**
    * Native display resolution (for monitors, multiviewers, displays).
    * Format example: "1920x1080", "3840x2160".
