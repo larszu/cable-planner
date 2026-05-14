@@ -196,7 +196,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           </div>
         )}
 
-        {/* â”€â”€ Routing Matrix â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── Routing Matrix ─────────────────────────────────────────── */}
         {format === 'routing' && (
           <div className="mb-3">
             <div className="mb-1 flex items-center gap-2">
@@ -205,7 +205,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 onClick={() => setShowMatrix((m) => !m)}
                 className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
               >
-                {showMatrix ? 'â–¼' : 'â–¶'} Routing-Matrix
+                {showMatrix ? '▼' : '▶'} Routing-Matrix
               </button>
               <span className="text-xs text-slate-500">
                 {preset.inputs} Eing. × {preset.outputs} Ausg.
@@ -216,7 +216,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 className="ml-auto rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
                 title="Diagonal-Routing zurücksetzen (Ausgang N → Eingang N)"
               >
-                â†º Reset
+                ↺ Reset
               </button>
             </div>
             {showMatrix && (
@@ -238,7 +238,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           </div>
         )}
 
-        {/* â”€â”€ TCP Senden â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── TCP Senden ─────────────────────────────────────────────── */}
         {format === 'routing' && (
           <div className="mb-3 rounded border border-slate-600 bg-slate-800/60 p-2">
             <div className="mb-2 text-[10px] uppercase tracking-wide text-slate-400">
