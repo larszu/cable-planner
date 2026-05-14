@@ -32,6 +32,21 @@ const wipeLocalState = () => {
   }
 }
 
+/** Render-loop errors (React #185 / #310 / "Maximum update depth")
+ *  cause a deep stack of re-renders that crashes before the
+ *  componentDidCatch handler can mark a second-crash timestamp. For
+ *  these, treat the FIRST occurrence as already-broken and wipe
+ *  immediately — the cost of an extra wipe is low compared to leaving
+ *  the user stuck on the error screen. */
+const isRenderLoopError = (error: Error): boolean => {
+  const msg = `${error.name ?? ''} ${error.message ?? ''}`
+  return (
+    /Minified React error #1?(85|85;|85 )/.test(msg) ||
+    /Minified React error #310/.test(msg) ||
+    /Maximum update depth exceeded/i.test(msg)
+  )
+}
+
 /**
  * Catches any uncaught render-time errors (including React #185 / #300) so
  * the user sees a readable message instead of a black screen, and reports
@@ -43,6 +58,11 @@ const wipeLocalState = () => {
  * the boot loop that a corrupt autosave / ui-store can cause. The user
  * still sees the error screen on the SINGLE crash so we don't silently
  * eat reports.
+ *
+ * v7.7.3 — render-loop errors (#185 / #310 / "Maximum update depth")
+ * are wiped on the FIRST hit. They never reach a second crash because
+ * the loop crashes synchronously, so the previous "wait for two"
+ * heuristic kept users permanently stuck.
  */
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { error: null, autoRecovered: false }
@@ -60,6 +80,20 @@ export class ErrorBoundary extends Component<Props, State> {
       })
     } catch {
       /* ignore */
+    }
+    // Render-loop short-circuit: wipe + reload on the first hit since
+    // the loop synchronously aborts before any second-crash counter
+    // could fire.
+    if (isRenderLoopError(error)) {
+      try {
+        wipeLocalState()
+        localStorage.removeItem(BOOT_ERROR_KEY)
+      } catch {
+        /* ignore */
+      }
+      this.setState({ autoRecovered: true })
+      window.setTimeout(() => location.reload(), 600)
+      return
     }
     // Boot-loop detection.
     try {
