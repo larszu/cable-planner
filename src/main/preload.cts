@@ -92,4 +92,22 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     releaseLock: (dirPath: string, owner: string) =>
       ipcRenderer.invoke('sync:release-lock', dirPath, owner) as Promise<void>,
   },
+  mobileShare: {
+    start: () =>
+      ipcRenderer.invoke('mobileShare:start') as Promise<{
+        port: number
+        urls: string[]
+        hasProject: boolean
+      }>,
+    stop: () => ipcRenderer.invoke('mobileShare:stop') as Promise<{ ok: boolean }>,
+    status: () =>
+      ipcRenderer.invoke('mobileShare:status') as Promise<{
+        running: boolean
+        port: number
+        urls: string[]
+        hasProject: boolean
+      }>,
+    setProject: (project: unknown) =>
+      ipcRenderer.invoke('mobileShare:setProject', project) as Promise<{ ok: boolean }>,
+  },
 })
