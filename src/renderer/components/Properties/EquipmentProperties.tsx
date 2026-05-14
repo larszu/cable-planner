@@ -989,6 +989,11 @@ export const EquipmentProperties = () => {
         />
       </label>
 
+      <details className="rounded border border-slate-800 bg-slate-950/40 [&_summary]:cursor-pointer">
+        <summary className="px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
+          Optionale Felder (Hersteller-Link, Referenzbild, Icon)
+        </summary>
+        <div className="space-y-3 border-t border-slate-800 p-2">
       <label className="block">
         <span className="mb-1 block text-slate-300">
           {t('eq.field.manufacturerUrl', 'Hersteller-Link')}{' '}
@@ -1109,6 +1114,8 @@ export const EquipmentProperties = () => {
           )}
         </div>
       </label>
+        </div>
+      </details>
 
       <label className="flex items-center gap-2 text-[12px] text-slate-300">
         <input
@@ -1279,6 +1286,28 @@ export const EquipmentProperties = () => {
             className="w-full rounded border border-slate-700 bg-slate-900 p-2"
           />
         </label>
+        <label className="mt-2 block">
+          <span className="mb-1 block text-slate-300">
+            Stromverbrauch (W)
+            <span className="ml-1 text-slate-500">(continuous; vom Datenblatt)</span>
+          </span>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={equipment.powerConsumptionWatts ?? ''}
+            placeholder="optional"
+            onChange={(event) =>
+              updateEquipment(equipment.id, {
+                powerConsumptionWatts: event.target.value
+                  ? Math.max(0, Number(event.target.value))
+                  : undefined,
+              })
+            }
+            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+            title="Wird im Werkzeuge → Stromverbrauch-Rechner aufsummiert."
+          />
+        </label>
       </fieldset>
 
       {hasSdiPorts(equipment) && (
@@ -1300,8 +1329,14 @@ export const EquipmentProperties = () => {
         onChange={(outputs) => updateEquipment(equipment.id, { outputs })}
       />
 
-      <fieldset className="rounded border border-slate-700 p-2">
-        <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">Rack / 19" Einstellungen</legend>
+      <details
+        className="rounded border border-slate-700 [&_summary]:cursor-pointer"
+        open={!!equipment.isRackDevice}
+      >
+        <summary className="px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
+          Rack / 19" Einstellungen {equipment.isRackDevice ? `(${equipment.rackUnits ?? 1} HE)` : ''}
+        </summary>
+        <fieldset className="border-t border-slate-800 p-2">
         <label className="mb-2 flex items-center gap-2 text-xs">
           <input
             type="checkbox"
@@ -1386,7 +1421,8 @@ export const EquipmentProperties = () => {
             <RackFacePreview equipment={equipment} viewMode={rackViewMode} />
           </>
         )}
-      </fieldset>
+        </fieldset>
+      </details>
 
       <div className="rounded border border-slate-700 bg-slate-900/40 p-2">
         <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">

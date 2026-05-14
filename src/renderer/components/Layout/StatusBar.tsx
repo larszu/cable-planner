@@ -1,3 +1,6 @@
+import { APP_VERSION } from '../../lib/appInfo'
+import { useUiStore } from '../../store/uiStore'
+
 interface StatusBarProps {
   projectName: string
   zoom: number
@@ -69,6 +72,14 @@ export const StatusBar = ({
           Rentman: {rentmanProjectName ?? (hasToken ? 'Token bereit' : 'Standalone')}
         </span>
         <span>Zoom: {(zoom * 100).toFixed(0)}%</span>
+        <button
+          type="button"
+          onClick={() => useUiStore.getState().openAboutDialog()}
+          className="rounded bg-slate-800 px-1.5 py-0.5 font-mono text-[10px] text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+          title="Über Cable Planner"
+        >
+          v{APP_VERSION}
+        </button>
       </div>
     </footer>
   )
