@@ -49,16 +49,25 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // port handles on both endpoints. Resolve the hovered cable's source
   // and target port IDs that live on THIS device, so the handle
   // renderer below can apply the glow.
+  // v7.8.2 — Previously this selector built a fresh `Set` every call
+  // (`new Set() !== new Set()`), so zustand thought the value changed
+  // on every store update and forced a re-render of every Equipment
+  // node, even when no cable was hovered. We now return a stable
+  // string key ("port1|port2" or null) and derive a Set per-render
+  // locally — cheap and stable across selector calls.
   const hoveredCableId = useUiStore((s) => s.hoveredCableId)
-  const hoveredEndpointPortIds = useProjectStore((s) => {
+  const hoveredEndpointKey = useProjectStore((s) => {
     if (!hoveredCableId) return null
     const cable = s.project.cables.find((c) => c.id === hoveredCableId)
     if (!cable) return null
-    const ids = new Set<string>()
-    if (cable.fromEquipmentId === id) ids.add(cable.fromPortId)
-    if (cable.toEquipmentId === id) ids.add(cable.toPortId)
-    return ids.size > 0 ? ids : null
+    const parts: string[] = []
+    if (cable.fromEquipmentId === id) parts.push(cable.fromPortId)
+    if (cable.toEquipmentId === id) parts.push(cable.toPortId)
+    return parts.length > 0 ? parts.join('|') : null
   })
+  const hoveredEndpointPortIds = hoveredEndpointKey
+    ? new Set(hoveredEndpointKey.split('|'))
+    : null
   const updateNodeInternals = useUpdateNodeInternals()
 
   // Re-register handle positions whenever the data that affects port placement
