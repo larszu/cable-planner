@@ -51,6 +51,25 @@ export const CanvasToolbar = () => {
    * The bounding box of the selection is the reference frame; positions are
    * persisted via the project store so cables follow automatically.
    */
+  /** v7.6.0 — Milanote/Figma-style alignment. Earlier versions
+   *  fell back to `width ?? 0` / `height ?? 0` when a device hadn't
+   *  been resized, which collapsed the bounding box and snapped
+   *  every device into the same point. The fixed version uses the
+   *  same visual defaults the equipment-node renderer uses (220 px
+   *  wide; height derived from port count). Center alignments use
+   *  device CENTERS as the reference, not corners. */
+  const measuredSize = (item: { width?: number; height?: number; inputs?: { length: number }[]; outputs?: { length: number }[]; ipAddress?: string }) => {
+    const w = item.width && item.width > 0 ? item.width : 220
+    if (item.height && item.height > 0) return { w, h: item.height }
+    // Match EquipmentNode's intrinsic layout: header + N port rows + padding.
+    const HEADER = item.ipAddress ? 62 : 48
+    const ROW = 22
+    const PADDING = 8
+    const inLen = item.inputs?.length ?? 0
+    const outLen = item.outputs?.length ?? 0
+    const portRows = Math.max(inLen, outLen, 1)
+    return { w, h: HEADER + portRows * ROW + PADDING }
+  }
   const alignSelected = (
     mode: 'left' | 'right' | 'center-h' | 'top' | 'bottom' | 'center-v',
   ) => {
@@ -60,20 +79,22 @@ export const CanvasToolbar = () => {
     if (ids.length < 2) return
     const items = equipmentList.filter((e) => ids.includes(e.id))
     if (items.length < 2) return
-    const minX = Math.min(...items.map((e) => e.x))
-    const maxRight = Math.max(...items.map((e) => e.x + (e.width ?? 0)))
-    const minY = Math.min(...items.map((e) => e.y))
-    const maxBottom = Math.max(...items.map((e) => e.y + (e.height ?? 0)))
+    // Use the actual rendered sizes so the bounding box is real
+    // (a 220x80 default node won't collapse to a single point).
+    const sized = items.map((item) => ({ item, ...measuredSize(item) }))
+    const minX = Math.min(...sized.map((s) => s.item.x))
+    const maxRight = Math.max(...sized.map((s) => s.item.x + s.w))
+    const minY = Math.min(...sized.map((s) => s.item.y))
+    const maxBottom = Math.max(...sized.map((s) => s.item.y + s.h))
     const centerX = (minX + maxRight) / 2
     const centerY = (minY + maxBottom) / 2
-    for (const item of items) {
-      const w = item.width ?? 0
-      const h = item.height ?? 0
+    for (const { item, w, h } of sized) {
       let nx = item.x
       let ny = item.y
       switch (mode) {
         case 'left':     nx = minX;             break
         case 'right':    nx = maxRight - w;     break
+        // Milanote-style: each item's CENTER lands on the selection-bbox center.
         case 'center-h': nx = centerX - w / 2;  break
         case 'top':      ny = minY;             break
         case 'bottom':   ny = maxBottom - h;    break

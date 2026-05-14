@@ -229,7 +229,7 @@ export const LocationBomDialog = () => {
             )}
             <label
               className="ml-auto flex items-center gap-1.5 text-[11px] text-slate-300"
-              title="Hängt einen Plan-Ausschnitt der Location als JPEG vor die Geräteliste — die Empfänger bekommen Stückliste + Plan in einem Dokument (Issue #54)."
+              title="Hängt einen Plan-Ausschnitt der Location als JPEG vor die Geräteliste — die Empfänger bekommen Stückliste + Plan in einem Dokument."
             >
               <input
                 type="checkbox"

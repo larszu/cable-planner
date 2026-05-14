@@ -180,39 +180,56 @@ const BandwidthTab = () => {
 
 /** Standard German/EU mains supply presets the user picks the cabling
  *  from. Phase column count drives the bin-packer below: 1 for Schuko,
- *  3 for CEE 16A/32A/63A. The per-phase amp limit is what one CEE
- *  fuse trips at. */
+ *  3 for CEE / Powerlock. */
 const SUPPLY_PRESETS = [
-  {
-    id: 'schuko' as const,
-    label: 'Schuko / Einphasig (16A)',
-    voltage: 230,
-    phases: 1,
-    perPhaseAmps: 16,
-  },
-  {
-    id: 'cee16' as const,
-    label: 'CEE 16A (3-Phasen, rot)',
-    voltage: 230,
-    phases: 3,
-    perPhaseAmps: 16,
-  },
-  {
-    id: 'cee32' as const,
-    label: 'CEE 32A (3-Phasen, rot)',
-    voltage: 230,
-    phases: 3,
-    perPhaseAmps: 32,
-  },
-  {
-    id: 'cee63' as const,
-    label: 'CEE 63A (3-Phasen, rot)',
-    voltage: 230,
-    phases: 3,
-    perPhaseAmps: 63,
-  },
+  { id: 'schuko' as const, label: 'Schuko / Einphasig (16A)', voltage: 230, phases: 1, perPhaseAmps: 16 },
+  { id: 'cee16' as const, label: 'CEE 16A (3-Phasen, rot)', voltage: 230, phases: 3, perPhaseAmps: 16 },
+  { id: 'cee32' as const, label: 'CEE 32A (3-Phasen, rot)', voltage: 230, phases: 3, perPhaseAmps: 32 },
+  { id: 'cee63' as const, label: 'CEE 63A (3-Phasen, rot)', voltage: 230, phases: 3, perPhaseAmps: 63 },
+  { id: 'cee125' as const, label: 'CEE 125A (3-Phasen)', voltage: 230, phases: 3, perPhaseAmps: 125 },
+  { id: 'powerlock-200' as const, label: 'Powerlock 200A (3-Phasen)', voltage: 230, phases: 3, perPhaseAmps: 200 },
+  { id: 'powerlock-400' as const, label: 'Powerlock 400A (3-Phasen)', voltage: 230, phases: 3, perPhaseAmps: 400 },
+  { id: 'powerlock-660' as const, label: 'Powerlock 660A (3-Phasen)', voltage: 230, phases: 3, perPhaseAmps: 660 },
 ]
 type SupplyPresetId = (typeof SUPPLY_PRESETS)[number]['id']
+
+/** DIN VDE 0293-308 phase identification colour code (EU harmonised):
+ *  L1 brown, L2 black, L3 grey, N blue, PE green-yellow. We render the
+ *  per-phase cards in those colours instead of arbitrary rosé/amber/sky
+ *  so the picture matches the physical cabling at the venue. */
+const PHASE_COLORS = {
+  L1: {
+    bg: 'bg-amber-900/40',
+    border: 'border-amber-700',
+    text: 'text-amber-200',
+    dot: '#92400e' /* brown */,
+  },
+  L2: {
+    bg: 'bg-slate-800/80',
+    border: 'border-slate-500',
+    text: 'text-slate-200',
+    dot: '#0f172a' /* black */,
+  },
+  L3: {
+    bg: 'bg-slate-700/60',
+    border: 'border-slate-400',
+    text: 'text-slate-100',
+    dot: '#94a3b8' /* grey */,
+  },
+  N: {
+    bg: 'bg-sky-900/40',
+    border: 'border-sky-700',
+    text: 'text-sky-200',
+    dot: '#0284c7' /* blue */,
+  },
+  PE: {
+    bg: 'bg-yellow-900/40',
+    border: 'border-yellow-600',
+    text: 'text-yellow-200',
+    dot: '#84cc16' /* green-yellow */,
+  },
+} as const
+const PHASE_KEYS = ['L1', 'L2', 'L3'] as const
 
 interface DeviceAssignment {
   name: string
@@ -243,9 +260,8 @@ const balancePhases = (
   return { perPhaseWatts, assignments }
 }
 
-const PHASE_BG = ['bg-rose-900/40', 'bg-amber-900/40', 'bg-sky-900/40']
-const PHASE_TEXT = ['text-rose-200', 'text-amber-200', 'text-sky-200']
-const PHASE_BORDER = ['border-rose-700', 'border-amber-700', 'border-sky-700']
+// v7.6.0 — EU phase code (DIN VDE 0293-308): L1=brown, L2=black, L3=grey.
+// Use the PHASE_COLORS map directly via PHASE_KEYS[idx].
 
 const PowerTab = () => {
   const equipment = useProjectStore((s) => s.project.equipment)
@@ -389,9 +405,16 @@ const PowerTab = () => {
               return (
                 <div
                   key={idx}
-                  className={`rounded border ${PHASE_BORDER[idx]} ${PHASE_BG[idx]} p-2`}
+                  className={`rounded border ${PHASE_COLORS[PHASE_KEYS[idx]].border} ${PHASE_COLORS[PHASE_KEYS[idx]].bg} p-2`}
                 >
-                  <div className={`text-[10px] uppercase tracking-wider ${PHASE_TEXT[idx]}`}>
+                  <div
+                    className={`flex items-center gap-1 text-[10px] uppercase tracking-wider ${PHASE_COLORS[PHASE_KEYS[idx]].text}`}
+                  >
+                    <span
+                      className="inline-block h-2 w-2 rounded-full"
+                      style={{ background: PHASE_COLORS[PHASE_KEYS[idx]].dot }}
+                      title={`EU-Farbcode L${idx + 1}`}
+                    />
                     Phase L{idx + 1}
                   </div>
                   <div className="font-mono text-base text-slate-100">
@@ -437,7 +460,7 @@ const PowerTab = () => {
                     <td className="truncate py-0.5">{a.name}</td>
                     <td className="text-right font-mono text-slate-400">{a.watts}</td>
                     <td
-                      className={`pr-2 text-right font-mono font-semibold ${PHASE_TEXT[a.phase - 1]}`}
+                      className={`pr-2 text-right font-mono font-semibold ${PHASE_COLORS[PHASE_KEYS[a.phase - 1]].text}`}
                     >
                       L{a.phase}
                     </td>
@@ -446,6 +469,20 @@ const PowerTab = () => {
               </tbody>
             </table>
           </details>
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-slate-400">
+            <span className="font-semibold uppercase tracking-wide text-slate-500">
+              EU-Farbcode (DIN VDE 0293-308):
+            </span>
+            {(['L1', 'L2', 'L3', 'N', 'PE'] as const).map((key) => (
+              <span key={key} className="flex items-center gap-1">
+                <span
+                  className="inline-block h-2 w-2 rounded-full"
+                  style={{ background: PHASE_COLORS[key].dot }}
+                />
+                <span>{key}</span>
+              </span>
+            ))}
+          </div>
           <p className="mt-2 text-[10px] text-slate-500">
             Greedy-Verteilung: sortiert nach Leistung, jedes Gerät auf die aktuell am
             schwächsten belastete Phase. Bei symmetrischen Lasten zieht der Drehstrom
