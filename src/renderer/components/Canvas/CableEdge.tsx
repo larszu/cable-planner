@@ -18,6 +18,110 @@ interface CableEdgeData {
   exportThemeOverride?: 'dark' | 'light'
 }
 
+/**
+ * Issue #65: Replace each crossing point with a small jump-bump arc so
+ * the user can see which cable is "on top" when two cables cross.
+ *
+ * Input: a polyline (list of points forming straight segments).
+ * Output: an SVG-path `d` string with the original moves/lines plus an
+ *         arc of `bumpRadius` over each crossing point.
+ *
+ * We only consider perpendicular crossings; near-parallel overlaps fall
+ * through as regular line segments because a bump there would look
+ * weird. The crossings are computed against `otherSegments`, which
+ * should be the segments of all OTHER cables on the canvas.
+ */
+const buildPathWithBumps = (
+  points: { x: number; y: number }[],
+  otherSegments: Array<{
+    a: { x: number; y: number }
+    b: { x: number; y: number }
+  }>,
+  bumpRadius = 5,
+): string => {
+  if (points.length < 2 || otherSegments.length === 0) {
+    return points
+      .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
+      .join(' ')
+  }
+  const segments: string[] = []
+  segments.push(`M ${points[0].x} ${points[0].y}`)
+  for (let i = 0; i < points.length - 1; i++) {
+    const p = points[i]
+    const q = points[i + 1]
+    const horizontal = Math.abs(q.y - p.y) < 1
+    const vertical = Math.abs(q.x - p.x) < 1
+    if (!horizontal && !vertical) {
+      segments.push(`L ${q.x} ${q.y}`)
+      continue
+    }
+    // Find perpendicular crossings on this segment, sorted by distance
+    // from p so we draw them in order.
+    const hits: number[] = []
+    for (const other of otherSegments) {
+      const oHoriz = Math.abs(other.a.y - other.b.y) < 1
+      const oVert = Math.abs(other.a.x - other.b.x) < 1
+      if (horizontal && oVert) {
+        const ox = other.a.x
+        const oyMin = Math.min(other.a.y, other.b.y)
+        const oyMax = Math.max(other.a.y, other.b.y)
+        const xMin = Math.min(p.x, q.x)
+        const xMax = Math.max(p.x, q.x)
+        if (
+          ox > xMin + bumpRadius &&
+          ox < xMax - bumpRadius &&
+          p.y > oyMin + 1 &&
+          p.y < oyMax - 1
+        ) {
+          hits.push(ox)
+        }
+      } else if (vertical && oHoriz) {
+        const oy = other.a.y
+        const oxMin = Math.min(other.a.x, other.b.x)
+        const oxMax = Math.max(other.a.x, other.b.x)
+        const yMin = Math.min(p.y, q.y)
+        const yMax = Math.max(p.y, q.y)
+        if (
+          oy > yMin + bumpRadius &&
+          oy < yMax - bumpRadius &&
+          p.x > oxMin + 1 &&
+          p.x < oxMax - 1
+        ) {
+          hits.push(oy)
+        }
+      }
+    }
+    if (hits.length === 0) {
+      segments.push(`L ${q.x} ${q.y}`)
+      continue
+    }
+    // Sort by distance from p along the segment direction.
+    const ascending = horizontal ? q.x > p.x : q.y > p.y
+    hits.sort((a, b) => (ascending ? a - b : b - a))
+    let curX = p.x
+    let curY = p.y
+    for (const hit of hits) {
+      if (horizontal) {
+        const arcStartX = ascending ? hit - bumpRadius : hit + bumpRadius
+        const arcEndX = ascending ? hit + bumpRadius : hit - bumpRadius
+        segments.push(`L ${arcStartX} ${curY}`)
+        // sweep flag 0 keeps the arc on the "top" side (negative y) of
+        // a horizontal segment regardless of travel direction
+        segments.push(`A ${bumpRadius} ${bumpRadius} 0 0 ${ascending ? 1 : 0} ${arcEndX} ${curY}`)
+        curX = arcEndX
+      } else {
+        const arcStartY = ascending ? hit - bumpRadius : hit + bumpRadius
+        const arcEndY = ascending ? hit + bumpRadius : hit - bumpRadius
+        segments.push(`L ${curX} ${arcStartY}`)
+        segments.push(`A ${bumpRadius} ${bumpRadius} 0 0 ${ascending ? 0 : 1} ${curX} ${arcEndY}`)
+        curY = arcEndY
+      }
+    }
+    segments.push(`L ${q.x} ${q.y}`)
+  }
+  return segments.join(' ')
+}
+
 /** Normalize waypoints so every segment is strictly horizontal or vertical.
  *  Any diagonal is replaced by an L-corner (horizontal-first). Already
  *  orthogonal segments are passed through unchanged so we don't introduce

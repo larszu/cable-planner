@@ -34,28 +34,32 @@ export const PropertiesPanel = () => {
 
   if (collapsed) {
     return (
-      <aside className="flex h-full w-8 flex-col items-center border-l border-slate-700 bg-slate-950 py-2">
+      <aside className="group flex h-full w-8 flex-col items-center border-l border-slate-700 bg-slate-950 transition-colors hover:bg-slate-900">
         <button
           type="button"
           onClick={toggle}
-          title="Expand properties"
-          className="rounded px-1 py-2 text-slate-300 hover:bg-slate-800"
+          title="Eigenschaften einblenden"
+          aria-label="Eigenschaften einblenden"
+          className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300"
         >
-          ◄
+          <span className="text-base leading-none">‹</span>
         </button>
-        <div
-          className="mt-4 text-[10px] uppercase tracking-wider text-slate-500"
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label="Eigenschaften einblenden"
+          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:text-slate-300"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
-          Properties
-        </div>
+          Eigenschaften
+        </button>
       </aside>
     )
   }
 
   return (
-    <aside className="flex h-full min-h-0 flex-col border-l border-slate-700 bg-slate-950 p-3 text-slate-100">
-      <div className="mb-3 flex items-start justify-between gap-2">
+    <aside className="flex h-full min-h-0 flex-col border-l border-slate-700 bg-slate-950 text-slate-100">
+      <div className="flex items-start justify-between gap-2 border-b border-slate-800 px-3 py-2.5">
         <div className="min-w-0">
           <h2 className="truncate text-sm font-semibold">{title}</h2>
           <div className="mt-0.5 text-[10px] uppercase tracking-wide text-slate-500">
@@ -65,13 +69,14 @@ export const PropertiesPanel = () => {
         <button
           type="button"
           onClick={toggle}
-          title="Collapse properties"
-          className="rounded px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-800"
+          title="Eigenschaften ausblenden"
+          aria-label="Eigenschaften ausblenden"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300"
         >
-          ►
+          <span className="text-base leading-none">›</span>
         </button>
       </div>
-      <div className="flex-1 min-h-0 overflow-auto">
+      <div className="flex-1 min-h-0 overflow-auto px-3 pb-3 pt-3">
         {selectedEquipmentId && <EquipmentProperties />}
         {selectedCableId && <CableProperties />}
         {selectedLocationId && <LocationProperties />}
