@@ -75,6 +75,12 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
   const [stage, setStage] = useState<Stage>({ kind: 'empty' })
   const [tab, setTab] = useState<'preview' | 'devices' | 'cables' | 'skipped'>('preview')
   const [mode, setMode] = useState<'append' | 'replace'>('append')
+  // v7.7.0 — Canvas vs Library destination. Canvas: places imported
+  // devices on the canvas and creates cables (legacy behaviour).
+  // Library: only adds device templates to the custom library (no
+  // canvas placement, no cables) — useful when the user has a yEd file
+  // they want to harvest as a reusable equipment library.
+  const [destination, setDestination] = useState<'canvas' | 'library'>('canvas')
   const [skipDevices, setSkipDevices] = useState<Set<string>>(new Set())
   const [skipCables, setSkipCables] = useState<Set<string>>(new Set())
   const [nameOverrides, setNameOverrides] = useState<Record<string, string>>({})
@@ -83,6 +89,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
   const [busy, setBusy] = useState(false)
 
   const importGraphml = useProjectStore((s) => s.importGraphml)
+  const addCustomTemplates = useProjectStore((s) => s.addCustomTemplates)
   const setSelection = useProjectStore((s) => s.setSelection)
 
   // CRITICAL: every hook must run on every render — never gate them behind
@@ -202,6 +209,33 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
       categoryOverrides,
       nameOverrides,
     })
+    if (destination === 'library') {
+      // Library-only path: strip canvas-specific fields and push each
+      // device as an EquipmentTemplate. Existing templates with the
+      // same name are kept (addCustomTemplates already guards against
+      // overwriting). Cables are intentionally dropped — templates
+      // don't carry cabling.
+      const templates = payload.devices.map((d) => {
+        const {
+          id: _id,
+          x: _x,
+          y: _y,
+          importKey: _ik,
+          graphmlId: _gid,
+          ...rest
+        } = d as typeof d & { id?: string }
+        void _id
+        void _x
+        void _y
+        void _ik
+        void _gid
+        return rest
+      })
+      addCustomTemplates(templates)
+      reset()
+      onClose()
+      return
+    }
     const newIds = importGraphml({ ...payload, mode })
     // Select the first imported device on the canvas to draw attention.
     // The store action also pans + zooms the viewport onto the imported
@@ -314,25 +348,48 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
           </div>
         </div>
 
-        {/* Mode + filter row */}
-        <div className="flex items-center justify-between border-b border-slate-800 bg-slate-950/70 px-4 py-2 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="text-slate-400">Modus:</span>
-            <button
-              type="button"
-              onClick={() => setMode('append')}
-              className={`rounded px-2 py-0.5 ${mode === 'append' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
-            >
-              An Projekt anhängen
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('replace')}
-              className={`rounded px-2 py-0.5 ${mode === 'replace' ? 'bg-amber-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
-              title="Ersetzt nur GraphML-importierte Geräte; manuell hinzugefügte bleiben unangetastet."
-            >
-              GraphML-Import ersetzen
-            </button>
+        {/* Destination + Mode + filter row */}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-slate-950/70 px-4 py-2 text-xs">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1">
+              <span className="text-slate-400">Ziel:</span>
+              <button
+                type="button"
+                onClick={() => setDestination('canvas')}
+                className={`rounded px-2 py-0.5 ${destination === 'canvas' ? 'bg-emerald-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+                title="Geräte direkt auf dem Canvas platzieren (inkl. Kabel)."
+              >
+                🗺 Canvas
+              </button>
+              <button
+                type="button"
+                onClick={() => setDestination('library')}
+                className={`rounded px-2 py-0.5 ${destination === 'library' ? 'bg-violet-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+                title="Nur als wiederverwendbare Geräte-Vorlagen in die Library übernehmen (ohne Kabel, ohne Canvas-Platzierung)."
+              >
+                📚 Library
+              </button>
+            </div>
+            {destination === 'canvas' && (
+              <div className="flex items-center gap-1">
+                <span className="text-slate-400">Modus:</span>
+                <button
+                  type="button"
+                  onClick={() => setMode('append')}
+                  className={`rounded px-2 py-0.5 ${mode === 'append' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+                >
+                  An Projekt anhängen
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode('replace')}
+                  className={`rounded px-2 py-0.5 ${mode === 'replace' ? 'bg-amber-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+                  title="Ersetzt nur GraphML-importierte Geräte; manuell hinzugefügte bleiben unangetastet."
+                >
+                  GraphML-Import ersetzen
+                </button>
+              </div>
+            )}
           </div>
           <input
             type="text"
@@ -558,10 +615,11 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             type="button"
             onClick={handleImport}
             disabled={includedDevices === 0}
-            className="rounded bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className={`rounded px-4 py-1.5 text-xs font-medium text-white disabled:opacity-50 ${destination === 'library' ? 'bg-violet-600 hover:bg-violet-500' : 'bg-emerald-600 hover:bg-emerald-500'}`}
           >
-            {includedDevices} {includedDevices === 1 ? 'Gerät' : 'Geräte'} & {includedCables}{' '}
-            {includedCables === 1 ? 'Kabel' : 'Kabel'} importieren
+            {destination === 'library'
+              ? `${includedDevices} ${includedDevices === 1 ? 'Gerät' : 'Geräte'} in Library übernehmen`
+              : `${includedDevices} ${includedDevices === 1 ? 'Gerät' : 'Geräte'} & ${includedCables} ${includedCables === 1 ? 'Kabel' : 'Kabel'} auf Canvas importieren`}
           </button>
         </div>
       </div>

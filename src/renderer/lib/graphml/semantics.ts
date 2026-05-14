@@ -137,6 +137,30 @@ const isPortShaped = (g: GraphmlGeometry | null) => {
   return area <= 6000 && g.width <= 200 && g.height <= 50
 }
 
+/** A node is "label-shaped" if it's small, has visible text, and looks
+ *  like a free-floating text annotation rather than a port shape. We
+ *  treat ports separately (filled rectangles next to the device edge);
+ *  label-shaped nodes are usually wider than tall (text runs sideways)
+ *  and frequently have no fill color OR a near-transparent fill, since
+ *  yEd's default text-tool produces that. We accept both because some
+ *  templates do paint a light backdrop behind port names. */
+const isLabelShaped = (n: GraphmlNode): boolean => {
+  if (!n.geometry) return false
+  if (n.labels.every((l) => !l.text.trim())) return false
+  const { width, height } = n.geometry
+  // Labels are typically narrower than 200 px (~12-15 chars) and short
+  // in height. The check is generous: a single line of 10pt text in
+  // yEd lands around 16-18 px tall, a 14pt one around 22 px.
+  if (height > 40) return false
+  if (width > 240) return false
+  // Wide-and-short bias: ratio at least 1.3 distinguishes text from a
+  // square port marker. Very narrow nodes (numeric port labels like
+  // "1", "2") still pass because the geometry is small enough overall.
+  const ratio = width / Math.max(height, 1)
+  if (width >= 30 && ratio < 1.2) return false
+  return true
+}
+
 /** A device rectangle is large enough to contain ports (≥160×80) AND has
  *  at least one non-empty visual label. */
 const looksLikeDeviceRect = (n: GraphmlNode) => {
@@ -182,6 +206,81 @@ const extractCableLength = (raw: string | null): number | null => {
 interface DeviceCandidate {
   node: GraphmlNode
   portNodes: GraphmlNode[]
+}
+
+/** Floating "port-name" labels: small text nodes the yEd user dropped
+ *  next to a port shape to name it ("SDI 1", "AES Out 4", "PGM"). The
+ *  resolver maps each such label to the closest port across all
+ *  devices, within a generous proximity radius. Returns a map keyed by
+ *  port node id, with the label text to graft onto the port. The
+ *  matched label nodes' IDs are added to `consumedLabelIds` so the
+ *  resolver doesn't surface them as "skipped — unattached". */
+const associateFloatingPortLabels = (
+  candidates: DeviceCandidate[],
+  topNodes: GraphmlNode[],
+  consumedLabelIds: Set<string>,
+): Map<string, string> => {
+  const portIds = new Set<string>()
+  const portCenters = new Map<string, { x: number; y: number; node: GraphmlNode }>()
+  for (const c of candidates) {
+    for (const p of c.portNodes) {
+      if (!p.geometry) continue
+      portIds.add(p.id)
+      portCenters.set(p.id, { ...center(p.geometry), node: p })
+    }
+  }
+
+  // Candidate label-nodes: small text-shaped nodes that are NOT already
+  // a recognised port and NOT a recognised device. Empty labels also
+  // disqualify them.
+  const labelNodes = topNodes.filter((n) => {
+    if (portIds.has(n.id)) return false
+    if (candidates.some((c) => c.node.id === n.id)) return false
+    if (!isLabelShaped(n)) return false
+    return true
+  })
+
+  // Adjacency radius scales with port size — for tiny BNC port markers
+  // (20×20 px) labels usually sit within ~40 px; for big PowerCON
+  // labels (~80×30 px) the user may place them up to ~80 px away.
+  const baseRadius = 50
+
+  const result = new Map<string, string>()
+  for (const label of labelNodes) {
+    if (!label.geometry) continue
+    const lc = center(label.geometry)
+    let bestPortId: string | null = null
+    let bestScore = Infinity
+    for (const [portId, pc] of portCenters) {
+      const dx = lc.x - pc.x
+      const dy = lc.y - pc.y
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      const portRadius = Math.max(
+        pc.node.geometry ? Math.max(pc.node.geometry.width, pc.node.geometry.height) : 30,
+        30,
+      )
+      const radius = baseRadius + portRadius
+      if (dist > radius) continue
+      // Prefer the closer port; ties broken by smaller port (labels
+      // usually annotate the nearest small marker, not the big device).
+      const score = dist
+      if (score < bestScore) {
+        bestPortId = portId
+        bestScore = score
+      }
+    }
+    if (bestPortId) {
+      const text = label.labels.map((l) => l.text.trim()).filter(Boolean).join(' ').trim()
+      if (text) {
+        const existing = result.get(bestPortId)
+        // If two labels match the same port (rare: e.g. signal name +
+        // connector type both floating), join them with " — ".
+        result.set(bestPortId, existing ? `${existing} — ${text}` : text)
+        consumedLabelIds.add(label.id)
+      }
+    }
+  }
+  return result
 }
 
 /** Pattern 1: spatial inference. Walks the flat top-level node list,
@@ -292,11 +391,18 @@ const collectNestedCandidates = (
 
 /** Convert a single device candidate into a ResolvedDevice, including
  *  every port. Edges are not wired here; cables() does that in a second
- *  pass once every device's ports have stable importKeys. */
+ *  pass once every device's ports have stable importKeys.
+ *
+ *  `floatingPortLabels` carries text from sibling label-nodes that the
+ *  yEd user drew adjacent to a specific port shape — these win over the
+ *  port's own (often empty) labels because the user clearly intended
+ *  them as the port name. Falls back to the port's own label, then to
+ *  "Port N". */
 const buildResolvedDevice = (
   candidate: DeviceCandidate,
   category: DeviceCategory,
   edgeIncidenceByPort: Map<string, { asSource: number; asTarget: number }>,
+  floatingPortLabels: Map<string, string>,
 ): ResolvedDevice => {
   const dev = candidate.node
   const mainLabel = dev.labels.find((l) => !/^ip[:\s]/i.test(l.text))?.text.trim() ?? dev.labels[0]?.text.trim() ?? dev.id
@@ -336,7 +442,14 @@ const buildResolvedDevice = (
   }
 
   for (const port of sortedPorts) {
-    const rawLabel = port.labels.map((l) => l.text).join(' ').trim() || port.id
+    const ownLabel = port.labels.map((l) => l.text).join(' ').trim()
+    const floating = floatingPortLabels.get(port.id) ?? ''
+    // If a floating label exists, prefer it but keep the port's own
+    // label as additional context (it sometimes carries connector type
+    // info like "BNC"). Otherwise fall back to the port id.
+    const rawLabel = floating
+      ? (ownLabel && ownLabel !== floating ? `${floating} ${ownLabel}` : floating)
+      : (ownLabel || port.id)
     // The Connector / SignalType data field is more authoritative than
     // the label text when present (templates put it there explicitly).
     const conn = inferConnectorType(
@@ -357,10 +470,17 @@ const buildResolvedDevice = (
       }
     }
 
+    // Prefer a clean floating-label-only name for the port name field
+    // (which the user sees on the canvas), keep the joined rawLabel for
+    // inference. Trims connector noise from the visible name when it's
+    // already represented by `connectorType`.
+    const displayName =
+      (floating || ownLabel || rawLabel || '').trim() ||
+      `Port ${candidate.portNodes.indexOf(port) + 1}`
     const resolved: ResolvedPort = {
       importKey: `${dev.id}|${port.id}`,
       graphmlId: port.id,
-      name: rawLabel || `Port ${candidate.portNodes.indexOf(port) + 1}`,
+      name: displayName,
       connectorType: conn.type,
       direction: dir,
       rawLabel,
@@ -485,12 +605,26 @@ export const resolveGraphml = (doc: GraphmlDocument): ImportPreview => {
     }
   }
 
+  // Heuristic: floating "port-name" text nodes the user dropped next
+  // to port shapes (a very common yEd convention — the port itself is
+  // a tiny coloured rectangle and the name lives in a separate label
+  // node beside it). Match each label to its closest port within an
+  // adjacency radius. Consumed label IDs are remembered so they don't
+  // surface as "skipped — Decorative shape" below.
+  const consumedLabelIds = new Set<string>()
+  const floatingPortLabels = associateFloatingPortLabels(
+    candidates,
+    doc.nodes.filter((n) => n.parentId == null),
+    consumedLabelIds,
+  )
+
   // Drop nodes the resolver classified as decorative or as unattached
   // port-shapes (port-sized nodes that didn't land in any device's bbox).
   for (const n of doc.nodes) {
     if (n.parentId) continue
     if (candidates.some((c) => c.node.id === n.id)) continue
     if (categoryLikeContainers.includes(n)) continue
+    if (consumedLabelIds.has(n.id)) continue
     if (looksDecorative(n)) {
       skippedNodes.push({ id: n.id, reason: 'Decorative shape' })
     } else if (isPortShaped(n.geometry) && !portToDevice.has(n.id)) {
@@ -499,7 +633,12 @@ export const resolveGraphml = (doc: GraphmlDocument): ImportPreview => {
   }
 
   const devices = candidates.map((c) =>
-    buildResolvedDevice(c, deviceCategory.get(c.node.id) ?? 'Importiert', edgeIncidenceByPort),
+    buildResolvedDevice(
+      c,
+      deviceCategory.get(c.node.id) ?? 'Importiert',
+      edgeIncidenceByPort,
+      floatingPortLabels,
+    ),
   )
 
   // Index ports by their original GraphML node id to wire edges later.
