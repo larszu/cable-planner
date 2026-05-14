@@ -195,7 +195,20 @@ const load = (): PersistedUiState => {
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return defaults
-    const parsed = JSON.parse(raw) as Partial<PersistedUiState>
+    let parsed: Partial<PersistedUiState>
+    try {
+      parsed = JSON.parse(raw) as Partial<PersistedUiState>
+    } catch {
+      // Malformed JSON — wipe and start fresh. Keeping the bad string
+      // around would trip every subsequent boot.
+      try {
+        localStorage.removeItem(KEY)
+      } catch {
+        /* ignore */
+      }
+      return defaults
+    }
+    if (!parsed || typeof parsed !== 'object') return defaults
     // Defensive: ensure every field has the right TYPE, otherwise React
     // selectors that expect arrays/objects can crash on first render and
     // trigger an infinite mount loop (React #185 / #310). Replace any
@@ -230,8 +243,30 @@ const load = (): PersistedUiState => {
         typeof merged.customPalette.accent !== 'string')
     )
       merged.customPalette = null
-    if (!Array.isArray(merged.equipmentSectionOrder))
+    if (!Array.isArray(merged.equipmentSectionOrder)) {
       merged.equipmentSectionOrder = defaults.equipmentSectionOrder
+    } else {
+      // v7.8.2 — also strip non-string entries and duplicates. SortableContext
+      // tolerates extra IDs but a non-string in `items` could throw inside
+      // dnd-kit's matching during a drag.
+      const seen = new Set<string>()
+      const cleaned = merged.equipmentSectionOrder.filter((id): id is string => {
+        if (typeof id !== 'string' || !id) return false
+        if (seen.has(id)) return false
+        seen.add(id)
+        return true
+      })
+      // Make sure every default ID is present so newly-added sections
+      // (e.g. 'modes' added in v7.5, 'power' in v7.4) appear for users
+      // upgrading from older versions.
+      for (const def of defaults.equipmentSectionOrder) {
+        if (!seen.has(def)) {
+          cleaned.push(def)
+          seen.add(def)
+        }
+      }
+      merged.equipmentSectionOrder = cleaned
+    }
     if (merged.connectorTypeColors === null || typeof merged.connectorTypeColors !== 'object')
       merged.connectorTypeColors = {}
     if (typeof merged.bgOpacity !== 'number' || !Number.isFinite(merged.bgOpacity))
