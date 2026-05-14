@@ -1109,20 +1109,40 @@ const CanvasContent = () => {
         {/* Issue #71: background pattern is user-configurable. When the
             user picked 'none' we omit the component entirely so React
             Flow falls back to its plain coloured canvas. */}
-        {bgVariant !== 'none' && (
-          <Background
-            variant={
-              bgVariant === 'lines'
-                ? BackgroundVariant.Lines
-                : bgVariant === 'cross'
-                  ? BackgroundVariant.Cross
-                  : BackgroundVariant.Dots
-            }
-            gap={gridSize > 0 ? gridSize : 20}
-            color={effectiveCanvasTheme === 'light' ? '#cbd5e1' : '#334155'}
-            style={{ opacity: bgOpacity }}
-          />
-        )}
+        {bgVariant !== 'none' && (() => {
+          // Background pattern. Earlier defaults rendered the dots at gap=
+          // gridSize (often 10 px) with a near-bg-color stroke at 50 %
+          // opacity — practically invisible. Lift the floor:
+          //   • gap snaps to a sensible minimum of 16 px so dots don't
+          //     blur into a solid wash on dense gridSize values.
+          //   • Lines/Cross get a slightly bigger gap (3× gridSize) so
+          //     they read as a grid, not noise.
+          //   • Stroke uses high-contrast slate-500 (dark) / slate-400
+          //     (light) and we floor the user's opacity at 0.35 — below
+          //     that the pattern was effectively gone.
+          const variant =
+            bgVariant === 'lines'
+              ? BackgroundVariant.Lines
+              : bgVariant === 'cross'
+                ? BackgroundVariant.Cross
+                : BackgroundVariant.Dots
+          const baseGap = gridSize > 0 ? gridSize : 20
+          const gap =
+            variant === BackgroundVariant.Dots
+              ? Math.max(16, baseGap)
+              : Math.max(20, baseGap * 3)
+          const color = effectiveCanvasTheme === 'light' ? '#94a3b8' : '#64748b'
+          const opacity = Math.max(0.35, bgOpacity)
+          return (
+            <Background
+              variant={variant}
+              gap={gap}
+              size={variant === BackgroundVariant.Dots ? 1.5 : 1}
+              color={color}
+              style={{ opacity }}
+            />
+          )
+        })()}
       </ReactFlow>
       <PendingCableOverlay />
     </div>
