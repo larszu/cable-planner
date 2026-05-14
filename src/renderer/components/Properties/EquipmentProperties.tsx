@@ -33,6 +33,78 @@ import { CategorySelect } from '../shared/CategorySelect'
 import { pickImageAsDataUri, readImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { useTranslation } from '../../lib/i18n'
 
+/**
+ * v7.4.0 — wraps a single EquipmentProperties accordion section so
+ * the user can drag-reorder them. We use CSS `order` (driven by the
+ * uiStore-persisted `equipmentSectionOrder` list) instead of an
+ * array-based render so the existing JSX tree stays mostly intact;
+ * dnd-kit applies live drag-transforms while dragging, and on drop
+ * the section order in uiStore is updated which flips the `order`
+ * values for the rest of the session.
+ *
+ * Each section is its own `<details>` so independent collapse keeps
+ * working. The `≡` handle on the left of the summary triggers drag;
+ * everything else inside summary (chevron / title click) still
+ * toggles the accordion.
+ */
+const SortableSection = ({
+  id,
+  title,
+  subtitle,
+  defaultOpen = false,
+  children,
+}: {
+  id: string
+  title: React.ReactNode
+  subtitle?: React.ReactNode
+  defaultOpen?: boolean
+  children: React.ReactNode
+}) => {
+  const order = useUiStore((s) => s.equipmentSectionOrder)
+  const visualOrder = order.indexOf(id)
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  })
+  return (
+    <details
+      ref={setNodeRef}
+      open={defaultOpen}
+      className={`rounded border border-slate-700 bg-slate-900/40 [&_summary]:cursor-pointer ${
+        isDragging ? 'opacity-60 shadow-xl shadow-slate-950/50' : ''
+      }`}
+      style={{
+        order: visualOrder < 0 ? 999 : visualOrder,
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+    >
+      <summary className="flex items-center gap-2 px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
+        <span
+          {...attributes}
+          {...listeners}
+          onPointerDown={(e) => {
+            // Drag handle only — keep the click-to-toggle behaviour on
+            // the rest of the summary. preventDefault on the handle so
+            // dragging doesn't also flip the accordion open/closed.
+            e.preventDefault()
+            listeners?.onPointerDown?.(e as unknown as PointerEvent)
+          }}
+          title="Sektion ziehen, um Reihenfolge zu ändern"
+          className="cursor-grab text-slate-500 hover:text-slate-300 active:cursor-grabbing"
+          aria-label="Sektion verschieben"
+        >
+          ⋮⋮
+        </span>
+        <span className="flex-1">{title}</span>
+        {subtitle && (
+          <span className="normal-case text-[10px] text-slate-500">{subtitle}</span>
+        )}
+      </summary>
+      <div className="border-t border-slate-800 p-2">{children}</div>
+    </details>
+  )
+}
+
 const makePort = (name: string): Port => ({
   id: uuidv4(),
   name,
@@ -847,6 +919,124 @@ const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => {
   )
 }
 
+/**
+ * v7.4.0 — Stromverbrauch accordion. Two entry paths:
+ *   • Watts directly (datasheet)
+ *   • Voltage × Ampere → auto-derive Watts
+ * If V and A are both filled, the W field is computed live. The user
+ * can still override W (which will then "win" over V×A until they
+ * change V or A again). All three values persist on the equipment so
+ * the field tech sees the original specification next time.
+ */
+const PowerConsumptionSection = ({
+  equipment,
+}: {
+  equipment: import('../../types/equipment').EquipmentItem
+}) => {
+  const updateEquipment = useProjectStore((s) => s.updateEquipment)
+  const v = equipment.voltage
+  const a = equipment.currentAmps
+  const w = equipment.powerConsumptionWatts
+  const computedW = typeof v === 'number' && typeof a === 'number' ? v * a : undefined
+  const summary =
+    typeof w === 'number'
+      ? `${w} W`
+      : typeof computedW === 'number'
+        ? `~${Math.round(computedW)} W`
+        : '–'
+  return (
+    <SortableSection id="power" title="Stromverbrauch" subtitle={summary}>
+      <div className="grid grid-cols-3 gap-2 text-xs">
+        <label className="block">
+          <span className="mb-1 block text-slate-400">Spannung (V)</span>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={v ?? ''}
+            placeholder="z. B. 230"
+            onChange={(e) => {
+              const nextV = e.target.value ? Math.max(0, Number(e.target.value)) : undefined
+              // Recompute W only when both V and A are present AND
+              // the user hadn't manually overridden a W value that
+              // diverges from the previous V×A. If W matches the
+              // OLD V×A (or W is blank), update it; otherwise leave
+              // the explicit override intact.
+              const oldProduct =
+                typeof v === 'number' && typeof a === 'number' ? v * a : undefined
+              const wAutoMatched =
+                w === undefined || (oldProduct !== undefined && Math.abs(w - oldProduct) < 0.5)
+              const newProduct =
+                typeof nextV === 'number' && typeof a === 'number' ? nextV * a : undefined
+              updateEquipment(equipment.id, {
+                voltage: nextV,
+                powerConsumptionWatts: wAutoMatched ? newProduct : w,
+              })
+            }}
+            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-slate-400">Stromstärke (A)</span>
+          <input
+            type="number"
+            min={0}
+            step={0.01}
+            value={a ?? ''}
+            placeholder="z. B. 1.5"
+            onChange={(e) => {
+              const nextA = e.target.value ? Math.max(0, Number(e.target.value)) : undefined
+              const oldProduct =
+                typeof v === 'number' && typeof a === 'number' ? v * a : undefined
+              const wAutoMatched =
+                w === undefined || (oldProduct !== undefined && Math.abs(w - oldProduct) < 0.5)
+              const newProduct =
+                typeof v === 'number' && typeof nextA === 'number' ? v * nextA : undefined
+              updateEquipment(equipment.id, {
+                currentAmps: nextA,
+                powerConsumptionWatts: wAutoMatched ? newProduct : w,
+              })
+            }}
+            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-slate-400">
+            Leistung (W)
+            {computedW !== undefined && (
+              <span className="ml-1 text-emerald-400/70" title="Aus V × A berechnet">
+                ⚡
+              </span>
+            )}
+          </span>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={w ?? ''}
+            placeholder={
+              computedW !== undefined ? `auto: ${Math.round(computedW)}` : 'optional'
+            }
+            onChange={(e) =>
+              updateEquipment(equipment.id, {
+                powerConsumptionWatts: e.target.value
+                  ? Math.max(0, Number(e.target.value))
+                  : undefined,
+              })
+            }
+            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+            title="Datenblatt-Wert. V × A wird vorgeschlagen, kann hier überschrieben werden."
+          />
+        </label>
+      </div>
+      <p className="mt-2 text-[10px] text-slate-500">
+        Wenn Spannung und Stromstärke gesetzt sind, wird die Leistung automatisch berechnet
+        (P = U × I). Werkzeuge → Stromverbrauch summiert das Leistungs-Feld über alle Geräte.
+      </p>
+    </SortableSection>
+  )
+}
+
 export const EquipmentProperties = () => {
   const t = useTranslation()
   const selectedEquipmentId = useProjectStore((state) => state.selectedEquipmentId)
@@ -877,8 +1067,30 @@ export const EquipmentProperties = () => {
   const deviceKind = detectDeviceKind(equipment)
   const networkKind = detectNetworkDevice(equipment)
 
+  // v7.4.0 — sortable accordion sections. The parent is `flex flex-col`
+  // so CSS `order` works. Non-movable elements (device-kind cards,
+  // Name, Category, Rentman badge) have no `order` declared → they
+  // default to 0 → render first in JSX order. Each SortableSection
+  // sets its own `order` based on the uiStore-persisted user order.
+  const sectionOrder = useUiStore((s) => s.equipmentSectionOrder)
+  const setSectionOrder = useUiStore((s) => s.setEquipmentSectionOrder)
+  const dragSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+  const handleSectionDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = sectionOrder.indexOf(String(active.id))
+    const newIndex = sectionOrder.indexOf(String(over.id))
+    if (oldIndex < 0 || newIndex < 0) return
+    setSectionOrder(arrayMove(sectionOrder, oldIndex, newIndex))
+  }
+
   return (
-    <div className="space-y-3 text-xs">
+    <DndContext sensors={dragSensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
+    <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
+    <div className="flex flex-col gap-3 text-xs">
       {deviceKind === 'greengo' && (
         <div className="rounded border border-emerald-700 bg-emerald-900/30 p-2">
           <div className="mb-1 text-[10px] uppercase tracking-wide text-emerald-300">
@@ -943,9 +1155,9 @@ export const EquipmentProperties = () => {
               type="button"
               onClick={() => openAtemAudioConfig(equipment.id)}
               className="w-full rounded bg-fuchsia-700 px-2 py-1 text-xs hover:bg-fuchsia-600"
-              title="Fairlight Audio-Router offline planen (Gain, Balance, AFV)."
+              title="ATEM Audio-Router offline planen (Routing-Matrix oder klassischer Mixer)."
             >
-              Audio-Router (Fairlight) konfigurieren →
+              Audio-Router konfigurieren →
             </button>
           </div>
         </div>
@@ -989,11 +1201,8 @@ export const EquipmentProperties = () => {
         />
       </label>
 
-      <details className="rounded border border-slate-800 bg-slate-950/40 [&_summary]:cursor-pointer">
-        <summary className="px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
-          Optionale Felder (Hersteller-Link, Referenzbild, Icon)
-        </summary>
-        <div className="space-y-3 border-t border-slate-800 p-2">
+      <SortableSection id="optional" title="Optionale Felder" subtitle="Hersteller-Link, Referenzbild, Icon">
+        <div className="space-y-3">
       <label className="block">
         <span className="mb-1 block text-slate-300">
           {t('eq.field.manufacturerUrl', 'Hersteller-Link')}{' '}
@@ -1115,16 +1324,10 @@ export const EquipmentProperties = () => {
         </div>
       </label>
         </div>
-      </details>
+      </SortableSection>
 
-      <details className="rounded border border-slate-800 bg-slate-950/40 [&_summary]:cursor-pointer">
-        <summary className="px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
-          Darstellung &amp; Flags
-          <span className="ml-2 text-[10px] text-slate-500">
-            (kompakt · Farbe · Ports spiegeln · gepackt)
-          </span>
-        </summary>
-        <div className="space-y-2 border-t border-slate-800 p-2">
+      <SortableSection id="flags" title="Darstellung & Flags" subtitle="kompakt · Farbe · Ports spiegeln · gepackt">
+        <div className="space-y-2">
           <label className="flex items-center gap-2 text-[12px] text-slate-300">
             <input
               type="checkbox"
@@ -1180,7 +1383,7 @@ export const EquipmentProperties = () => {
             Gepackt / Pack-Status
           </label>
         </div>
-      </details>
+      </SortableSection>
 
       {/* Rentman sync status */}
       {equipment.rentmanRemoved ? (
@@ -1210,10 +1413,12 @@ export const EquipmentProperties = () => {
 
       <DisplayPropertiesBlock equipment={equipment} />
 
-      <fieldset className="rounded border border-slate-700 p-2">
-        <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-          Network &amp; Access
-        </legend>
+      <SortableSection
+        id="network"
+        title="Network & Access"
+        subtitle="IP · S/N · Login"
+        defaultOpen
+      >
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
             <span className="mb-1 block text-slate-300">IP Address</span>
@@ -1296,57 +1501,62 @@ export const EquipmentProperties = () => {
             className="w-full rounded border border-slate-700 bg-slate-900 p-2"
           />
         </label>
-        <label className="mt-2 block">
-          <span className="mb-1 block text-slate-300">
-            Stromverbrauch (W)
-            <span className="ml-1 text-slate-500">(continuous; vom Datenblatt)</span>
-          </span>
-          <input
-            type="number"
-            min={0}
-            step={1}
-            value={equipment.powerConsumptionWatts ?? ''}
-            placeholder="optional"
-            onChange={(event) =>
-              updateEquipment(equipment.id, {
-                powerConsumptionWatts: event.target.value
-                  ? Math.max(0, Number(event.target.value))
-                  : undefined,
-              })
-            }
-            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
-            title="Wird im Werkzeuge → Stromverbrauch-Rechner aufsummiert."
-          />
-        </label>
-      </fieldset>
+      </SortableSection>
+
+      <PowerConsumptionSection equipment={equipment} />
 
       {hasSdiPorts(equipment) && (
-        <SdiCapabilitiesBlock equipmentId={equipment.id} caps={equipment.sdiCaps} />
+        <SortableSection
+          id="sdi"
+          title="SDI Fähigkeiten"
+          subtitle="3G Level · Single-Link · Quad-Link"
+        >
+          <SdiCapabilitiesBlock equipmentId={equipment.id} caps={equipment.sdiCaps} />
+        </SortableSection>
       )}
 
       {networkKind && (
-        <NetworkConfig equipmentId={equipment.id} item={equipment} allPorts={[...equipment.inputs, ...equipment.outputs]} kind={networkKind} />
+        <SortableSection
+          id="network-config"
+          title={networkKind === 'router' ? 'Router Config' : 'Switch Config'}
+          subtitle="VLAN · Port-Map · Gateway"
+        >
+          <NetworkConfig
+            equipmentId={equipment.id}
+            item={equipment}
+            allPorts={[...equipment.inputs, ...equipment.outputs]}
+            kind={networkKind}
+          />
+        </SortableSection>
       )}
 
-      <PortList
-        title="Inputs"
-        ports={equipment.inputs}
-        onChange={(inputs) => updateEquipment(equipment.id, { inputs })}
-      />
-      <PortList
-        title="Outputs"
-        ports={equipment.outputs}
-        onChange={(outputs) => updateEquipment(equipment.id, { outputs })}
-      />
-
-      <details
-        className="rounded border border-slate-700 [&_summary]:cursor-pointer"
-        open={!!equipment.isRackDevice}
+      <SortableSection
+        id="ports"
+        title="Inputs & Outputs"
+        subtitle={`${equipment.inputs.length} In · ${equipment.outputs.length} Out`}
+        defaultOpen
       >
-        <summary className="px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
-          Rack / 19" Einstellungen {equipment.isRackDevice ? `(${equipment.rackUnits ?? 1} HE)` : ''}
-        </summary>
-        <fieldset className="border-t border-slate-800 p-2">
+        <div className="space-y-2">
+          <PortList
+            title="Inputs"
+            ports={equipment.inputs}
+            onChange={(inputs) => updateEquipment(equipment.id, { inputs })}
+          />
+          <PortList
+            title="Outputs"
+            ports={equipment.outputs}
+            onChange={(outputs) => updateEquipment(equipment.id, { outputs })}
+          />
+        </div>
+      </SortableSection>
+
+      <SortableSection
+        id="rack"
+        title={`Rack / 19" Einstellungen`}
+        subtitle={equipment.isRackDevice ? `${equipment.rackUnits ?? 1} HE` : 'nicht aktiv'}
+        defaultOpen={!!equipment.isRackDevice}
+      >
+        <fieldset className="border-0 p-0">
         <label className="mb-2 flex items-center gap-2 text-xs">
           <input
             type="checkbox"
@@ -1432,16 +1642,14 @@ export const EquipmentProperties = () => {
           </>
         )}
         </fieldset>
-      </details>
+      </SortableSection>
 
-      <details className="rounded border border-slate-700 bg-slate-900/40 [&_summary]:cursor-pointer">
-        <summary className="px-2 py-1.5 text-[10px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
-          Bibliothek
-          <span className="ml-2 normal-case text-[10px] text-slate-500">
-            (als Vorlage speichern)
-          </span>
-        </summary>
-        <div className="flex flex-col gap-1 border-t border-slate-800 p-2">
+      <SortableSection
+        id="library"
+        title="Bibliothek"
+        subtitle="als Vorlage speichern"
+      >
+        <div className="flex flex-col gap-1">
           <button
             type="button"
             onClick={() => {
@@ -1485,7 +1693,7 @@ export const EquipmentProperties = () => {
             Als neues Gerät in Library speichern ✚
           </button>
         </div>
-      </details>
+      </SortableSection>
 
       {equipment.rackInstanceId && (
         <div className="rounded border border-cyan-700 bg-cyan-950/30 p-2">
@@ -1515,14 +1723,12 @@ export const EquipmentProperties = () => {
 
       <DeviceConfigsBlock equipmentId={equipment.id} />
 
-      <details className="rounded border border-slate-700 bg-slate-900/40 [&_summary]:cursor-pointer">
-        <summary className="px-2 py-1.5 text-[10px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
-          Druck / Dokumentation
-          <span className="ml-2 normal-case text-[10px] text-slate-500">
-            (Patch-Sheet A4/A3)
-          </span>
-        </summary>
-        <div className="flex flex-col gap-1 border-t border-slate-800 p-2">
+      <SortableSection
+        id="print"
+        title="Druck / Dokumentation"
+        subtitle="Patch-Sheet A4/A3"
+      >
+        <div className="flex flex-col gap-1">
           <button
             type="button"
             onClick={() =>
@@ -1554,7 +1760,7 @@ export const EquipmentProperties = () => {
             🖨 Patch-Sheet (A3 PDF) drucken
           </button>
         </div>
-      </details>
+      </SortableSection>
 
       <RackImageCropDialog
         open={!!cropDialog}
@@ -1573,5 +1779,7 @@ export const EquipmentProperties = () => {
         }}
       />
     </div>
+    </SortableContext>
+    </DndContext>
   )
 }

@@ -113,6 +113,11 @@ interface PersistedUiState {
     gridColor: string
     accent: string
   } | null
+  /** v7.4.0 — user-defined order of the accordion sections in the
+   *  EquipmentProperties panel. Unknown ids fall back to the natural
+   *  default position so adding new sections in future versions
+   *  doesn't lose the user's existing ordering. */
+  equipmentSectionOrder: string[]
 }
 
 const defaults: PersistedUiState = {
@@ -157,6 +162,21 @@ const defaults: PersistedUiState = {
   propertiesFloating: false,
   propertiesFloatingPos: { x: 80, y: 80 },
   customPalette: null,
+  equipmentSectionOrder: [
+    'ports',
+    'network',
+    'sdi',
+    'power',
+    'display',
+    'network-config',
+    'optional',
+    'flags',
+    'rack',
+    'library',
+    'configs',
+    'rack-instance',
+    'print',
+  ],
 }
 
 const load = (): PersistedUiState => {
@@ -198,6 +218,8 @@ const load = (): PersistedUiState => {
         typeof merged.customPalette.accent !== 'string')
     )
       merged.customPalette = null
+    if (!Array.isArray(merged.equipmentSectionOrder))
+      merged.equipmentSectionOrder = defaults.equipmentSectionOrder
     if (merged.connectorTypeColors === null || typeof merged.connectorTypeColors !== 'object')
       merged.connectorTypeColors = {}
     if (typeof merged.bgOpacity !== 'number' || !Number.isFinite(merged.bgOpacity))
@@ -264,6 +286,7 @@ interface UiState extends PersistedUiState {
   setPropertiesFloating: (value: boolean) => void
   setPropertiesFloatingPos: (pos: { x: number; y: number }) => void
   setCustomPalette: (palette: { canvasBg: string; gridColor: string; accent: string } | null) => void
+  setEquipmentSectionOrder: (order: string[]) => void
   pdfExportThemeOverride: 'dark' | 'light' | null
   setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
   cableEdit: { open: boolean; cableId?: string }
@@ -378,6 +401,7 @@ const applyPatch =
       propertiesFloating: state.propertiesFloating,
       propertiesFloatingPos: state.propertiesFloatingPos,
       customPalette: state.customPalette,
+      equipmentSectionOrder: state.equipmentSectionOrder,
       ...patch,
     }
     persist(next)
@@ -473,6 +497,7 @@ export const useUiStore = create<UiState>((set) => ({
   setPropertiesFloating: (value) => set(applyPatch({ propertiesFloating: value })),
   setPropertiesFloatingPos: (pos) => set(applyPatch({ propertiesFloatingPos: pos })),
   setCustomPalette: (palette) => set(applyPatch({ customPalette: palette })),
+  setEquipmentSectionOrder: (order) => set(applyPatch({ equipmentSectionOrder: order })),
   pdfExportThemeOverride: null,
   setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
   cableEdit: { open: false },
