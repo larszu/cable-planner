@@ -17,6 +17,11 @@ permissions:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
+# Centralised Node version for the build matrix. Node 24 LTS is the
+# active LTS as of October 2025 — bump here if you move to a newer LTS.
+# Electron 42 ships with Node 22 internally; the build host itself can
+# run on any modern Node (≥22). 24 LTS gives us long-term coverage.
+
 jobs:
   build:
     strategy:
@@ -39,10 +44,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          # Node 20 went end-of-life in April 2026. Build on 22 LTS so
-          # we stay on a supported runtime; electron-builder 26.x and
-          # vite 8.x both support 22.
-          node-version: '22'
+          # Node 24 LTS (active LTS since October 2025) — Node 22 still
+          # supported as Maintenance LTS until April 2027 but 24 is the
+          # current default for new projects. electron-builder 26 + vite 8
+          # + electron 42 all support 24.
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
