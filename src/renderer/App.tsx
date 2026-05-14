@@ -18,6 +18,7 @@ import { AtemAudioRouterDialog } from './components/Atem/AtemAudioRouterDialog'
 import { LocationBomDialog } from './components/Project/LocationBomDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
+import { PrintDialog } from './components/Print/PrintDialog'
 import { WelcomeDialog } from './components/Project/WelcomeDialog'
 import { Splitter } from './components/Layout/Splitter'
 import { useProject } from './hooks/useProject'
@@ -26,9 +27,10 @@ import { cablePlannerApi } from './lib/bridge'
 import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
 import { exportCanvasToImage } from './lib/exportImage'
 import { useProjectStore } from './store/projectStore'
-import { useUndoRedoShortcuts } from './store/projectHistory'
+import { useUndoRedoShortcuts, projectHistory } from './store/projectHistory'
 import { useSettingsStore } from './store/settingsStore'
 import { useUiStore } from './store/uiStore'
+import { useHotkeys } from './lib/hotkeys'
 import type { Cable, CableType } from './types/cable'
 import { ALL_CONNECTOR_TYPES } from './types/equipment'
 import type { ConnectorType, EquipmentItem, Port } from './types/equipment'
@@ -89,6 +91,7 @@ export default function App() {
   const [welcomeOpen, setWelcomeOpen] = useState(false)
   const [pdfExportOpen, setPdfExportOpen] = useState(false)
   const [pdfTheme, setPdfTheme] = useState<'dark' | 'light'>('light')
+  const [printDialogOpen, setPrintDialogOpen] = useState(false)
   const [graphmlImportOpen, setGraphmlImportOpen] = useState(false)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
   const setPdfExportThemeOverride = useUiStore((state) => state.setPdfExportThemeOverride)
@@ -152,6 +155,35 @@ export default function App() {
   }, [refreshRecent, setHasToken])
 
   useUndoRedoShortcuts()
+
+  // Issue #69: dispatch user-customizable hotkeys defined in
+  // Settings → Hotkeys. The undo/redo entries below intentionally
+  // overlap with useUndoRedoShortcuts() — only the first matching
+  // handler fires, so there's no double-trigger.
+  const hotkeys = useUiStore((s) => s.hotkeys)
+  const hotkeyHandlers = useMemo(
+    () => ({
+      undo: () => projectHistory.undo(),
+      redo: () => projectHistory.redo(),
+      save: () => void saveProject(),
+      saveAs: () => void saveProjectAs(),
+      newProject: () => void handleNewProject(),
+      openProject: () => void openProject(),
+      deleteSelected: () => useProjectStore.getState().deleteSelected(),
+      clearSelection: () =>
+        useProjectStore.getState().setSelection(undefined, undefined, undefined),
+      toggleLibrary: () => useUiStore.getState().toggleLibraryCollapsed(),
+      toggleProperties: () => useUiStore.getState().togglePropertiesCollapsed(),
+      toggleArrows: () =>
+        useUiStore.getState().setDefaultArrow(!useUiStore.getState().defaultArrow),
+    }),
+    // We rebuild handlers only when stable refs change. Most setters
+    // come from zustand; handleNewProject is recreated each render
+    // but it's only invoked on key press so a stale capture is fine.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [openProject, saveProject, saveProjectAs],
+  )
+  useHotkeys(hotkeys, hotkeyHandlers)
 
   const handleNewProject = async () => {
     // Only *open* the dialog here. The actual project reset happens when the
@@ -328,12 +360,7 @@ export default function App() {
         onSaveProjectAs={() => void saveProjectAs()}
         onOpenSettings={() => setSettingsOpen(true)}
         onExportPdf={() => setPdfExportOpen(true)}
-        onExportPng={() =>
-          void exportCanvasToImage(project.metadata.name, 'png', { backgroundTheme: canvasTheme })
-        }
-        onExportJpeg={() =>
-          void exportCanvasToImage(project.metadata.name, 'jpeg', { backgroundTheme: canvasTheme })
-        }
+        onOpenPrintDialog={() => setPrintDialogOpen(true)}
         onOpenGraphmlImport={() => setGraphmlImportOpen(true)}
         onAttachPdfToRentman={() => void handleUploadPdfToRentman()}
         onOpenRentmanCableExport={openRentmanCableExport}
@@ -415,6 +442,18 @@ export default function App() {
       />
 
       <CableBomDialog open={cableBomOpen} onClose={() => setCableBomOpen(false)} />
+
+      <PrintDialog
+        open={printDialogOpen}
+        onClose={() => setPrintDialogOpen(false)}
+        onPrintPlanPdf={() => setPdfExportOpen(true)}
+        onPrintPlanPng={() =>
+          void exportCanvasToImage(project.metadata.name, 'png', { backgroundTheme: canvasTheme })
+        }
+        onPrintPlanJpeg={() =>
+          void exportCanvasToImage(project.metadata.name, 'jpeg', { backgroundTheme: canvasTheme })
+        }
+      />
 
       <PdfExportDialog
         open={pdfExportOpen}
@@ -552,12 +591,20 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
   // sees what's happening, but the submit path skips the modal confirm
   // so the cable can be created in one click.
   const overrideWarnings = useUiStore((s) => s.overrideConnectionWarnings)
+  // Combined catalog = built-ins + user-defined custom cable specs (issue #64).
+  // The custom specs come from uiStore.customCableSpecs and persist in
+  // localStorage so the user can recall them across sessions.
+  const customCableSpecs = useUiStore((s) => s.customCableSpecs)
+  const fullCableCatalog = useMemo(
+    () => [...cableCatalog, ...customCableSpecs],
+    [customCableSpecs],
+  )
   // Build list of cables ranked by compatibility with the two ports.
   const ranked = useMemo(() => {
     if (!fromPort || !toPort) {
-      return cableCatalog.map((cable) => ({ cable, level: 'ok' as const, message: '' }))
+      return fullCableCatalog.map((cable) => ({ cable, level: 'ok' as const, message: '' }))
     }
-    return cableCatalog
+    return fullCableCatalog
       .map((cable) => ({
         cable,
         ...checkCableCompatibility(fromPort.connectorType, toPort.connectorType, cable),
@@ -625,7 +672,7 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
       // the user's custom name. (Bug #13)
       return
     }
-    const spec = cableCatalog.find((c) => c.id === id)
+    const spec = fullCableCatalog.find((c) => c.id === id)
     if (!spec) return
     setName(spec.name)
     setColor(spec.color)
@@ -760,6 +807,36 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
                   className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
                 />
               </label>
+              <button
+                type="button"
+                onClick={() => {
+                  // Issue #64: persist the current Custom Cable as a
+                  // reusable type. We prompt for a name (defaulting to
+                  // the user's current `name`) and save the spec; the
+                  // dialog then switches to the new spec so the user
+                  // can see it landed in the dropdown.
+                  const proposedName = name.trim() || `${customConnectorType} Custom`
+                  const finalName = window.prompt(
+                    'Name für den neuen Kabel-Typ:',
+                    proposedName,
+                  )?.trim()
+                  if (!finalName) return
+                  const created = useUiStore.getState().addCustomCableSpec({
+                    name: finalName,
+                    connectorType: customConnectorType,
+                    standards: [customStandard],
+                    color,
+                    maxLengthMeters: typeof customMaxLength === 'number' ? customMaxLength : undefined,
+                    notes: notes || undefined,
+                  })
+                  setSpecId(created.id)
+                  setName(created.name)
+                }}
+                className="mt-2 w-full rounded bg-sky-700 px-2 py-1 text-xs font-medium text-white hover:bg-sky-600"
+                title="Speichert diese Custom-Definition als wiederverwendbaren Kabeltyp in der Bibliothek (Issue #64)."
+              >
+                💾 Als Kabel-Typ speichern…
+              </button>
             </div>
           )}
 
@@ -871,6 +948,14 @@ interface CableEditDialogProps {
 const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
   const equipment = useProjectStore((state) => state.project.equipment)
   const cables = useProjectStore((state) => state.project.cables)
+  // Issue #64: include user-defined custom cable specs in the dropdown
+  // so editing a cable that uses a custom type doesn't lose the
+  // reference. Built-ins + custom share the same shape.
+  const customCableSpecs = useUiStore((s) => s.customCableSpecs)
+  const fullCableCatalog = useMemo(
+    () => [...cableCatalog, ...customCableSpecs],
+    [customCableSpecs],
+  )
 
   const initialCustomConnectorType: ConnectorType =
     cable.type === 'Custom' ? 'Custom' : (cable.type as ConnectorType)
@@ -879,7 +964,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
   const [customStandard, setCustomStandard] = useState<SignalStandard>(cable.standard ?? 'Generic')
   const selected: CableSpec = specId === CUSTOM_CABLE_SPEC_ID
     ? makeCustomCableSpec(customConnectorType, cable.color)
-    : (cableCatalog.find((c) => c.id === specId) ?? cableCatalog[0])
+    : (fullCableCatalog.find((c) => c.id === specId) ?? fullCableCatalog[0])
   const [standard, setStandard] = useState<SignalStandard | undefined>(
     cable.standard ?? (specId === CUSTOM_CABLE_SPEC_ID ? customStandard : pickHighestSdiStandard(selected.standards)),
   )
@@ -938,7 +1023,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
       setStandard(customStandard)
       return
     }
-    const spec = cableCatalog.find((c) => c.id === id)
+    const spec = fullCableCatalog.find((c) => c.id === id)
     if (!spec) return
     setStandard(pickHighestSdiStandard(spec.standards))
   }
@@ -1002,7 +1087,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
             >
               <option value={CUSTOM_CABLE_SPEC_ID}>★ Custom Cable…</option>
-              {cableCatalog.map((c) => (
+              {fullCableCatalog.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name} ({c.connectorType})
                 </option>

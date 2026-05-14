@@ -10,10 +10,8 @@ interface MenuBarProps {
   onSaveProjectAs: () => void
   onOpenSettings: () => void
   onExportPdf: () => void
-  /** Save the canvas as a PNG bitmap (H2R parity). */
-  onExportPng?: () => void
-  /** Save the canvas as a JPEG bitmap. */
-  onExportJpeg?: () => void
+  /** Open the consolidated "Drucken" hub (Plan + per-device patch-sheets, Issue #74). */
+  onOpenPrintDialog?: () => void
   /** Open the GraphML / yEd import dialog. */
   onOpenGraphmlImport?: () => void
   onEditProjectMeta?: () => void
@@ -49,8 +47,7 @@ export const MenuBar = ({
   onSaveProjectAs,
   onOpenSettings,
   onExportPdf,
-  onExportPng,
-  onExportJpeg,
+  onOpenPrintDialog,
   onOpenGraphmlImport,
   onEditProjectMeta,
   onOpenCableBom,
@@ -69,11 +66,19 @@ export const MenuBar = ({
   // buttons reflect the current canUndo/canRedo state. Keyboard shortcuts
   // (Strg+Z / Strg+Umsch+Z / Strg+Y) live in useUndoRedoShortcuts; these
   // buttons exist because users couldn't tell that history was working
-  // (issue #72: "Redo geht noch nicht. muss auch in die oberste topbar").
-  useSyncExternalStore(projectHistory.subscribe, () => projectHistory.canUndo() ? 'u' : '', () => '')
-  useSyncExternalStore(projectHistory.subscribe, () => projectHistory.canRedo() ? 'r' : '', () => '')
-  const canUndo = projectHistory.canUndo()
-  const canRedo = projectHistory.canRedo()
+  // (issue #72). Use stable method references for getSnapshot — inline
+  // arrows would create fresh function objects every render and have
+  // occasionally been the trigger for React #185 boot loops.
+  const canUndo = useSyncExternalStore(
+    projectHistory.subscribe,
+    projectHistory.canUndo,
+    projectHistory.canUndo,
+  )
+  const canRedo = useSyncExternalStore(
+    projectHistory.subscribe,
+    projectHistory.canRedo,
+    projectHistory.canRedo,
+  )
   return (
     <header className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-700 bg-slate-950 px-3 py-1.5 text-xs shadow-sm">
       <div className="flex items-center gap-2">
@@ -107,19 +112,15 @@ export const MenuBar = ({
         </Menu>
 
         <Menu label={t('app.menu.export', 'Export')}>
+          {onOpenPrintDialog && (
+            <MenuItem onClick={onOpenPrintDialog} icon="🖨">
+              {t('app.menu.export.print', 'Drucken… (Plan + Einzelgeräte)')}
+            </MenuItem>
+          )}
+          {onOpenPrintDialog && <MenuSep />}
           <MenuItem onClick={onExportPdf} icon="📑">
             {t('app.menu.export.pdf', 'Plan als PDF…')}
           </MenuItem>
-          {onExportPng && (
-            <MenuItem onClick={onExportPng} icon="🖼">
-              {t('app.menu.export.png', 'Plan als PNG…')}
-            </MenuItem>
-          )}
-          {onExportJpeg && (
-            <MenuItem onClick={onExportJpeg} icon="🖼">
-              {t('app.menu.export.jpeg', 'Plan als JPEG…')}
-            </MenuItem>
-          )}
           {onOpenCableBom && (
             <MenuItem onClick={onOpenCableBom} icon="🧮">
               {t('app.menu.export.cableBom', 'Kabel-Stückliste (BOM)…')}

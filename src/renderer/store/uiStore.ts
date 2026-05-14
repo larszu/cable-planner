@@ -3,6 +3,36 @@ import { create } from 'zustand'
 export type EdgeRouting = 'orthogonal' | 'straight' | 'curved'
 export type Language = 'de' | 'en'
 
+/** Issue #80: globally stored device-config files (ATEM MV/audio configs,
+ *  Videohub label & routing dumps, GreenGo .gg5 etc.) that the user can
+ *  upload once and then assign to a specific equipment node on the canvas.
+ *  Persisted in localStorage so the library survives across projects.
+ *
+ *  `kind` drives the upload picker and the icon in the list. `equipmentId`
+ *  is the binding to a canvas device; null/undefined means "in library
+ *  but not assigned". Content is stored as text — XML, JSON or plain
+ *  text payload — so we don't need to deal with binary blob storage
+ *  in localStorage. */
+export type DeviceConfigKind =
+  | 'atem-mv'
+  | 'atem-audio'
+  | 'videohub-labels'
+  | 'videohub-routing'
+  | 'greengo'
+  | 'other'
+
+export interface DeviceConfigEntry {
+  id: string
+  kind: DeviceConfigKind
+  name: string
+  fileName: string
+  mimeType: string
+  content: string
+  notes?: string
+  savedAt: string
+  equipmentId?: string
+}
+
 const KEY = 'cable-planner:ui'
 
 interface PersistedUiState {
@@ -45,6 +75,28 @@ interface PersistedUiState {
   /** Background grid opacity 0..1. Lower values make the dots/lines
    *  fainter — useful when zooming way out on large diagrams. */
   bgOpacity: number
+  /** Issue #64: user-defined cable specs persisted across sessions.
+   *  Each entry has the same shape as a built-in CableSpec but its
+   *  `id` is prefixed with 'custom-cable:' so the cable dialog can
+   *  visually distinguish them. They show up in the dropdown next
+   *  to the built-in catalog and can be re-edited / deleted from
+   *  Settings. */
+  customCableSpecs: import('../types/cableSpec').CableSpec[]
+  /** Issue #80: global library of device-config files (ATEM, Videohub,
+   *  GreenGo). Each entry can optionally be bound to one equipment id. */
+  deviceConfigLibrary: DeviceConfigEntry[]
+  /** Issue #65: draw small jump-bumps when two orthogonal cables cross,
+   *  the way yEd does, so the user can visually trace which cable is on
+   *  top. The lower-id cable gets the bump. Off by default to preserve
+   *  the existing visual baseline. */
+  cableBumps: boolean
+  /** Issue #53: when two orthogonal cables share an X- or Y-midline,
+   *  shift one of them by a small offset so they're parallel instead of
+   *  perfectly overlapping. */
+  orthogonalCollisionShift: boolean
+  /** Issue #69: customizable keyboard shortcuts. Map of action → key
+   *  combo. Empty string disables the shortcut. */
+  hotkeys: Record<string, string>
 }
 
 const defaults: PersistedUiState = {
@@ -64,13 +116,55 @@ const defaults: PersistedUiState = {
   connectorTypeColors: {},
   bgVariant: 'dots',
   bgOpacity: 0.5,
+  customCableSpecs: [],
+  deviceConfigLibrary: [],
+  cableBumps: false,
+  orthogonalCollisionShift: false,
+  hotkeys: {
+    undo: 'Ctrl+Z',
+    redo: 'Ctrl+Y',
+    save: 'Ctrl+S',
+    saveAs: 'Ctrl+Shift+S',
+    newProject: 'Ctrl+N',
+    openProject: 'Ctrl+O',
+    deleteSelected: 'Delete',
+    clearSelection: 'Escape',
+    toggleLibrary: 'Ctrl+B',
+    toggleProperties: 'Ctrl+I',
+    showLegend: 'L',
+    jumpToPatches: 'P',
+    toggleArrows: 'A',
+    toggleRouting: 'R',
+  },
 }
 
 const load = (): PersistedUiState => {
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return defaults
-    return { ...defaults, ...(JSON.parse(raw) as Partial<PersistedUiState>) }
+    const parsed = JSON.parse(raw) as Partial<PersistedUiState>
+    // Defensive: ensure every field has the right TYPE, otherwise React
+    // selectors that expect arrays/objects can crash on first render and
+    // trigger an infinite mount loop (React #185 / #310). Replace any
+    // field with the wrong type by the default. This protects users who
+    // updated from a much older version with a different schema.
+    const merged: PersistedUiState = { ...defaults, ...parsed }
+    if (!Array.isArray(merged.customCableSpecs)) merged.customCableSpecs = []
+    if (!Array.isArray(merged.deviceConfigLibrary)) merged.deviceConfigLibrary = []
+    if (typeof merged.cableBumps !== 'boolean') merged.cableBumps = defaults.cableBumps
+    if (typeof merged.orthogonalCollisionShift !== 'boolean')
+      merged.orthogonalCollisionShift = defaults.orthogonalCollisionShift
+    if (!merged.hotkeys || typeof merged.hotkeys !== 'object') merged.hotkeys = defaults.hotkeys
+    else merged.hotkeys = { ...defaults.hotkeys, ...merged.hotkeys }
+    if (merged.connectorTypeColors === null || typeof merged.connectorTypeColors !== 'object')
+      merged.connectorTypeColors = {}
+    if (typeof merged.bgOpacity !== 'number' || !Number.isFinite(merged.bgOpacity))
+      merged.bgOpacity = defaults.bgOpacity
+    if (typeof merged.gridSize !== 'number' || merged.gridSize < 2)
+      merged.gridSize = defaults.gridSize
+    if (typeof merged.libraryWidth !== 'number') merged.libraryWidth = defaults.libraryWidth
+    if (typeof merged.propertiesWidth !== 'number') merged.propertiesWidth = defaults.propertiesWidth
+    return merged
   } catch {
     return defaults
   }
@@ -102,6 +196,27 @@ interface UiState extends PersistedUiState {
   resetConnectorTypeColors: () => void
   setBgVariant: (value: 'dots' | 'lines' | 'cross' | 'none') => void
   setBgOpacity: (value: number) => void
+  /** Add a new custom cable spec. The store assigns a `custom-cable:`
+   *  id automatically; if a spec with the same name already exists
+   *  it's replaced (so re-saving keeps the library clean). */
+  addCustomCableSpec: (spec: Omit<import('../types/cableSpec').CableSpec, 'id'>) => import('../types/cableSpec').CableSpec
+  /** Patch an existing custom spec in place. No-op if `id` doesn't
+   *  start with 'custom-cable:' — built-ins are read-only. */
+  updateCustomCableSpec: (
+    id: string,
+    patch: Partial<Omit<import('../types/cableSpec').CableSpec, 'id'>>,
+  ) => void
+  removeCustomCableSpec: (id: string) => void
+  /** Issue #80: device-config library (ATEM / Videohub / GreenGo configs). */
+  addDeviceConfig: (entry: Omit<DeviceConfigEntry, 'id' | 'savedAt'>) => DeviceConfigEntry
+  updateDeviceConfig: (id: string, patch: Partial<Omit<DeviceConfigEntry, 'id' | 'savedAt'>>) => void
+  removeDeviceConfig: (id: string) => void
+  /** Bulk-replace the entire library. Used by the JSON-bundle importer. */
+  replaceDeviceConfigLibrary: (entries: DeviceConfigEntry[]) => void
+  setCableBumps: (value: boolean) => void
+  setOrthogonalCollisionShift: (value: boolean) => void
+  setHotkey: (action: string, combo: string) => void
+  resetHotkeys: () => void
   pdfExportThemeOverride: 'dark' | 'light' | null
   setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
   cableEdit: { open: boolean; cableId?: string }
@@ -187,6 +302,11 @@ const applyPatch =
       connectorTypeColors: state.connectorTypeColors,
       bgVariant: state.bgVariant,
       bgOpacity: state.bgOpacity,
+      customCableSpecs: state.customCableSpecs,
+      deviceConfigLibrary: state.deviceConfigLibrary,
+      cableBumps: state.cableBumps,
+      orthogonalCollisionShift: state.orthogonalCollisionShift,
+      hotkeys: state.hotkeys,
       ...patch,
     }
     persist(next)
@@ -222,6 +342,61 @@ export const useUiStore = create<UiState>((set) => ({
   resetConnectorTypeColors: () => set(applyPatch({ connectorTypeColors: {} })),
   setBgVariant: (value) => set(applyPatch({ bgVariant: value })),
   setBgOpacity: (value) => set(applyPatch({ bgOpacity: Math.max(0, Math.min(1, value)) })),
+  addCustomCableSpec: (spec) => {
+    const id = `custom-cable:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
+    const entry = { ...spec, id }
+    set((state) => {
+      // Drop any existing spec with the same name so the user can re-save
+      // an edited definition without duplicating it in the dropdown.
+      const filtered = state.customCableSpecs.filter((s) => s.name !== spec.name)
+      return applyPatch({ customCableSpecs: [...filtered, entry] })(state)
+    })
+    return entry
+  },
+  updateCustomCableSpec: (id, patch) =>
+    set((state) => {
+      if (!id.startsWith('custom-cable:')) return state
+      const next = state.customCableSpecs.map((s) =>
+        s.id === id ? { ...s, ...patch, id: s.id } : s,
+      )
+      return applyPatch({ customCableSpecs: next })(state)
+    }),
+  removeCustomCableSpec: (id) =>
+    set((state) =>
+      applyPatch({ customCableSpecs: state.customCableSpecs.filter((s) => s.id !== id) })(state),
+    ),
+  addDeviceConfig: (entry) => {
+    const id = `cfg:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
+    const created: DeviceConfigEntry = {
+      ...entry,
+      id,
+      savedAt: new Date().toISOString(),
+    }
+    set((state) =>
+      applyPatch({ deviceConfigLibrary: [...state.deviceConfigLibrary, created] })(state),
+    )
+    return created
+  },
+  updateDeviceConfig: (id, patch) =>
+    set((state) => {
+      const next = state.deviceConfigLibrary.map((e) =>
+        e.id === id ? { ...e, ...patch, id: e.id, savedAt: e.savedAt } : e,
+      )
+      return applyPatch({ deviceConfigLibrary: next })(state)
+    }),
+  removeDeviceConfig: (id) =>
+    set((state) =>
+      applyPatch({ deviceConfigLibrary: state.deviceConfigLibrary.filter((e) => e.id !== id) })(
+        state,
+      ),
+    ),
+  replaceDeviceConfigLibrary: (entries) =>
+    set((state) => applyPatch({ deviceConfigLibrary: entries })(state)),
+  setCableBumps: (value) => set(applyPatch({ cableBumps: value })),
+  setOrthogonalCollisionShift: (value) => set(applyPatch({ orthogonalCollisionShift: value })),
+  setHotkey: (action, combo) =>
+    set((state) => applyPatch({ hotkeys: { ...state.hotkeys, [action]: combo } })(state)),
+  resetHotkeys: () => set(applyPatch({ hotkeys: defaults.hotkeys })),
   pdfExportThemeOverride: null,
   setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
   cableEdit: { open: false },

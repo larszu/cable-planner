@@ -472,36 +472,41 @@ export const LibraryPanel = () => {
     }
   }
 
+  if (collapsed) {
+    return (
+      <aside className="flex h-full w-8 flex-col items-center border-r border-slate-700 bg-slate-950 transition-colors hover:bg-slate-900">
+        <button
+          type="button"
+          onClick={toggleCollapsed}
+          title="Library einblenden"
+          aria-label="Library einblenden"
+          className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300"
+        >
+          <span className="text-base leading-none">›</span>
+        </button>
+        <button
+          type="button"
+          onClick={toggleCollapsed}
+          aria-label="Library einblenden"
+          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:text-slate-300"
+          style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+        >
+          Library
+        </button>
+      </aside>
+    )
+  }
   return (
     <aside className="flex h-full min-h-0 flex-col border-r border-slate-700 bg-slate-950 p-3 text-slate-100">
-      {/* ---- collapsed state ---- */}
-      {collapsed ? (
-        <>
-          <button
-            type="button"
-            onClick={toggleCollapsed}
-            title="Library aufklappen"
-            className="rounded px-1 py-2 text-slate-300 hover:bg-slate-800"
-          >
-            ►
-          </button>
-          <div
-            className="mt-4 text-[10px] uppercase tracking-wider text-slate-500"
-            style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
-          >
-            Library
-          </div>
-        </>
-      ) : (
-        <>
       <div className="mb-3 flex items-center gap-2 text-xs">
         <button
           type="button"
           onClick={toggleCollapsed}
-          title="Library einklappen"
-          className="rounded px-1 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+          title="Library ausblenden"
+          aria-label="Library ausblenden"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300"
         >
-          ◄
+          <span className="text-base leading-none">‹</span>
         </button>
         <button
           type="button"
@@ -2032,8 +2037,6 @@ export const LibraryPanel = () => {
           window.alert('Merge gespeichert.')
         }}
       />
-      </>
-      )}
     </aside>
   )
 }

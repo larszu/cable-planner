@@ -22,6 +22,7 @@ import { useUiStore } from '../../store/uiStore'
 import { detectDeviceKind, detectNetworkDevice } from '../../lib/deviceKind'
 import { promptDialog } from '../../lib/promptDialog'
 import { useGreenGoBeltpack } from '../../lib/greengoSync'
+import { exportDevicePatchSheet } from '../../lib/exportDevicePdf'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, Port, VlanDef, PortVlanAssignment } from '../../types/equipment'
 import { ALL_SIGNAL_STANDARDS } from '../../types/cableSpec'
@@ -783,6 +784,69 @@ const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string }) => {
   )
 }
 
+/**
+ * Issue #80: Per-device view of the global device-config library
+ * (uiStore.deviceConfigLibrary). Lists configs already assigned to
+ * this equipment, plus a dropdown to assign an existing unassigned
+ * config to it. Upload/management of the library itself lives in
+ * Settings → Konfigurationen.
+ */
+const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => {
+  const library = useUiStore((s) => s.deviceConfigLibrary)
+  const updateDeviceConfig = useUiStore((s) => s.updateDeviceConfig)
+  const assigned = library.filter((e) => e.equipmentId === equipmentId)
+  const unassigned = library.filter((e) => !e.equipmentId)
+  if (library.length === 0) return null
+  return (
+    <div className="rounded border border-slate-700 bg-slate-900/40 p-2">
+      <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
+        Konfigurationen
+      </div>
+      {assigned.length === 0 ? (
+        <div className="text-[11px] text-slate-500">Keine Konfiguration zugeordnet.</div>
+      ) : (
+        <ul className="mb-2 space-y-1">
+          {assigned.map((e) => (
+            <li key={e.id} className="flex items-center gap-2 rounded bg-slate-950 px-2 py-1 text-[11px]">
+              <span className="flex-1 truncate" title={`${e.fileName} (${e.kind})`}>
+                {e.name}
+              </span>
+              <span className="shrink-0 text-[10px] text-slate-500">{e.kind}</span>
+              <button
+                type="button"
+                onClick={() => updateDeviceConfig(e.id, { equipmentId: undefined })}
+                className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-300 hover:bg-red-700 hover:text-white"
+                title="Zuordnung lösen (Datei bleibt in der Bibliothek)"
+              >
+                Lösen
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {unassigned.length > 0 && (
+        <select
+          value=""
+          onChange={(e) => {
+            if (e.target.value) updateDeviceConfig(e.target.value, { equipmentId })
+          }}
+          className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-[11px]"
+        >
+          <option value="">+ Vorhandene Konfiguration zuordnen…</option>
+          {unassigned.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.kind} · {e.name}
+            </option>
+          ))}
+        </select>
+      )}
+      <div className="mt-1 text-[10px] text-slate-500">
+        Neue Konfigurationen über Einstellungen → Konfigurationen hochladen.
+      </div>
+    </div>
+  )
+}
+
 export const EquipmentProperties = () => {
   const t = useTranslation()
   const selectedEquipmentId = useProjectStore((state) => state.selectedEquipmentId)
@@ -1370,6 +1434,46 @@ export const EquipmentProperties = () => {
             title="Erstellt eine neue Vorlage unter anderem Namen — bestehende bleibt unverändert."
           >
             Als neues Gerät in Library speichern ✚
+          </button>
+        </div>
+      </div>
+
+      <DeviceConfigsBlock equipmentId={equipment.id} />
+
+      <div className="rounded border border-slate-700 bg-slate-900/40 p-2">
+        <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
+          Druck / Dokumentation
+        </div>
+        <div className="flex flex-col gap-1">
+          <button
+            type="button"
+            onClick={() =>
+              void exportDevicePatchSheet(
+                equipment,
+                useProjectStore.getState().project.equipment,
+                useProjectStore.getState().project.cables,
+                { format: 'a4' },
+              )
+            }
+            className="w-full rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600"
+            title="Erzeugt eine einseitige A4-Patch-Liste mit allen Ports + verbundenen Kabeln — zum Aufkleben am Gerät (Issue #74)."
+          >
+            🖨 Patch-Sheet (A4 PDF) drucken
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              void exportDevicePatchSheet(
+                equipment,
+                useProjectStore.getState().project.equipment,
+                useProjectStore.getState().project.cables,
+                { format: 'a3' },
+              )
+            }
+            className="w-full rounded bg-sky-800 px-2 py-1 text-xs text-white hover:bg-sky-700"
+            title="A3-Variante für Geräte mit vielen Ports."
+          >
+            🖨 Patch-Sheet (A3 PDF) drucken
           </button>
         </div>
       </div>
