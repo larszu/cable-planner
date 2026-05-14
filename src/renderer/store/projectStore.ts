@@ -121,20 +121,30 @@ const loadAutosavedProject = (): CablePlannerProject | null => {
     if (!raw) return null
     const parsed = JSON.parse(raw) as CablePlannerProject
     if (!parsed || !Array.isArray(parsed.equipment) || !Array.isArray(parsed.cables)) return null
-    // Repair equipment that was seeded with empty port ids (old library
-    // templates used `id: ''` and relied on the store to fill them in — see
-    // sanitizePort). Without this, every handle on the node would share an
-    // empty string id and ReactFlow would always snap new cables to port 1.
+    // Defensive: ensure each equipment item has valid inputs+outputs
+    // arrays. A corrupt autosave (older schema, partial write, or
+    // hand-edited localStorage) where `item.inputs` is null/undefined
+    // crashes the renderer downstream with `cannot read .map of undefined`
+    // — which surfaces as React #185 boot loops via the ErrorBoundary
+    // re-mount. Repair-on-load is cheaper than a try/catch in every
+    // PortList / cable-routing code path.
     let mutated = false
     parsed.equipment = parsed.equipment.map((item) => {
-      const fixInputs = item.inputs?.some((p) => !p.id) ?? false
-      const fixOutputs = item.outputs?.some((p) => !p.id) ?? false
-      if (!fixInputs && !fixOutputs) return item
+      const inputs = Array.isArray(item.inputs) ? item.inputs : []
+      const outputs = Array.isArray(item.outputs) ? item.outputs : []
+      const needsArrayRepair = inputs !== item.inputs || outputs !== item.outputs
+      const fixInputs = inputs.some((p) => !p || !p.id)
+      const fixOutputs = outputs.some((p) => !p || !p.id)
+      if (!needsArrayRepair && !fixInputs && !fixOutputs) return item
       mutated = true
       return {
         ...item,
-        inputs: (item.inputs ?? []).map((p) => (p.id ? p : { ...p, id: uuidv4() })),
-        outputs: (item.outputs ?? []).map((p) => (p.id ? p : { ...p, id: uuidv4() })),
+        inputs: inputs
+          .filter((p): p is NonNullable<typeof p> => Boolean(p))
+          .map((p) => (p.id ? p : { ...p, id: uuidv4() })),
+        outputs: outputs
+          .filter((p): p is NonNullable<typeof p> => Boolean(p))
+          .map((p) => (p.id ? p : { ...p, id: uuidv4() })),
       }
     })
     if (mutated) {
