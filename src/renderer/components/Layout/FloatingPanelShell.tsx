@@ -68,7 +68,16 @@ export const FloatingPanelShell = ({
     offsetY: number
   } | null>(null)
 
-  useEffect(() => setPos(position), [position])
+  // Sync local pos with prop ONLY when the actual coordinates change.
+  // Without the value-comparison guard, a parent re-render that passes
+  // a fresh {x,y} object with the same values would still trigger
+  // setPos → re-render → fresh prop ref → setPos → loop. This is a
+  // textbook React #185 "max update depth" recipe.
+  useEffect(() => {
+    setPos((current) =>
+      current.x === position.x && current.y === position.y ? current : position,
+    )
+  }, [position.x, position.y])
 
   // Re-clamp on resize so a previously valid position doesn't leave the
   // panel off-screen on smaller viewports.
