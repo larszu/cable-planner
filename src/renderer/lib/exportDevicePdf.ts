@@ -254,6 +254,21 @@ export const exportDevicePatchSheet = async (
   pdf.save(`${safeName}-patch.pdf`)
 }
 
+/** Same as `exportDevicePatchSheet` but returns the PDF as a Blob
+ *  instead of triggering a download — the caller can pipe it into
+ *  the OS print dialog (via a hidden iframe + window.print()). */
+export const buildDevicePatchSheetBlob = (
+  device: EquipmentItem,
+  allEquipment: EquipmentItem[],
+  allCables: Cable[],
+  options?: { format?: 'a4' | 'a3' },
+): Blob => {
+  const format = options?.format ?? 'a4'
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format })
+  drawDevicePage(pdf, device, allEquipment, allCables)
+  return pdf.output('blob')
+}
+
 /**
  * Combined patch-sheet PDF — one device per page in a single file.
  * Used by the new "Drucken" dialog when the user picks several devices
@@ -274,4 +289,22 @@ export const exportDevicesPatchSheetsBatch = async (
   })
   const fileName = options?.fileName ?? 'cable-planner-patch-sammlung.pdf'
   pdf.save(fileName)
+}
+
+/** Blob variant of the batch export for the Drucken-Dialog (#print
+ *  via OS dialog instead of file download). */
+export const buildDevicesPatchSheetsBatchBlob = (
+  devices: EquipmentItem[],
+  allEquipment: EquipmentItem[],
+  allCables: Cable[],
+  options?: { format?: 'a4' | 'a3' },
+): Blob | null => {
+  if (devices.length === 0) return null
+  const format = options?.format ?? 'a4'
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format })
+  devices.forEach((device, idx) => {
+    if (idx > 0) pdf.addPage()
+    drawDevicePage(pdf, device, allEquipment, allCables)
+  })
+  return pdf.output('blob')
 }
