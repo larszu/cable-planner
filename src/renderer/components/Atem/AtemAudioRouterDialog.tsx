@@ -121,6 +121,68 @@ export const AtemAudioRouterDialog = () => {
     close()
   }
 
+  /** Build a fresh AtemAudioConfig with the ATEM-default Crosspoint
+   *  Matrix layout — 24 sources × 8 output buses. Source IDs use the
+   *  conventional ATEM input numbering so any saved XML can be
+   *  imported into the real software without a re-map. */
+  const handleCreateMatrix = () => {
+    const sources = [
+      // Camera inputs 1..8 (ATEM convention)
+      ...Array.from({ length: 8 }, (_, i) => ({
+        id: i + 1,
+        name: `Cam ${i + 1}`,
+      })),
+      // Aux + MP + Color sources match ATEM's internal IDs
+      { id: 1101, name: 'MP 1' },
+      { id: 1102, name: 'MP 2' },
+      { id: 2001, name: 'Color 1' },
+      { id: 2002, name: 'Color 2' },
+      // Aux 1..6
+      ...Array.from({ length: 6 }, (_, i) => ({
+        id: 8001 + i,
+        name: `Aux ${i + 1}`,
+      })),
+      { id: 10010, name: 'Program' },
+      { id: 10011, name: 'Preview' },
+      { id: 10012, name: 'Clean Feed 1' },
+      { id: 10013, name: 'Clean Feed 2' },
+      { id: 16000, name: 'No Audio' }, // sentinel; ATEM treats sourceId 0 as "no audio"
+    ]
+    const outputs = [
+      { id: 1, sourceId: 10010, name: 'Out 1 (Program)' },
+      ...Array.from({ length: 7 }, (_, i) => ({
+        id: i + 2,
+        sourceId: 0,
+        name: `Out ${i + 2}`,
+      })),
+    ]
+    setDraft({ matrix: { sources, outputs } })
+    setActiveTab('matrix')
+    setErrorMsg('')
+  }
+
+  /** Build a fresh AtemAudioConfig with the classic-mixer defaults —
+   *  8 channel strips, all On, 0 dB, centred. Matches the ATEM 2 M/E
+   *  Production Studio out-of-the-box state. */
+  const handleCreateClassic = () => {
+    setDraft({
+      classicMixer: {
+        programOutGain: 0,
+        programOutBalance: 0,
+        programOutFollowFadeToBlack: false,
+        audioFollowVideoCrossfadeTransition: false,
+        inputs: Array.from({ length: 8 }, (_, i) => ({
+          id: i + 1,
+          mixOption: 'On' as const,
+          gain: 0,
+          balance: 0,
+        })),
+      },
+    })
+    setActiveTab('classic')
+    setErrorMsg('')
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div
@@ -215,7 +277,12 @@ export const AtemAudioRouterDialog = () => {
 
         <main className="flex flex-1 overflow-hidden">
           {!draft ? (
-            <EmptyState onLoad={handleLoadXml} />
+            <EmptyState
+              onLoad={handleLoadXml}
+              onCreateMatrix={handleCreateMatrix}
+              onCreateClassic={handleCreateClassic}
+              equipmentName={equipment.name}
+            />
           ) : activeTab === 'matrix' && draft.matrix ? (
             <MatrixView config={draft} setConfig={setDraft} />
           ) : activeTab === 'classic' && draft.classicMixer ? (
@@ -301,33 +368,67 @@ const summarise = (
   return parts.join(' · ') || t('atem.audio.detected', 'Audio-Sektion erkannt.')
 }
 
-const EmptyState = ({ onLoad }: { onLoad: () => void }) => (
+const EmptyState = ({
+  onLoad,
+  onCreateMatrix,
+  onCreateClassic,
+  equipmentName,
+}: {
+  onLoad: () => void
+  onCreateMatrix: () => void
+  onCreateClassic: () => void
+  equipmentName: string
+}) => (
   <div className="m-auto max-w-md text-center text-sm text-slate-400">
     <div className="mb-2 text-3xl">🎛</div>
     <div className="mb-3 text-base font-semibold text-slate-200">
       ATEM Audio-Konfiguration
     </div>
     <p className="mb-3">
-      Lade ein ATEM Profile-XML (z. B. exportiert aus dem ATEM Software Control).
+      Lade ein bestehendes ATEM Profile-XML — oder fang manuell mit den Standard-Defaults
+      für deinen Mischer an. Beim Speichern erzeugen wir ein gültiges Profile-XML, das du
+      direkt im ATEM Software Control importieren kannst.
     </p>
     <ul className="mb-4 list-inside list-disc text-left text-xs text-slate-400">
       <li>
-        Fairlight-fähige Modelle (Constellation / 4 M/E) öffnen mit{' '}
+        Neuere Modelle (Constellation / 4 M/E) nutzen die{' '}
         <strong>Crosspoint-Matrix</strong>.
       </li>
       <li>
         Production Studio / Television Studio öffnen mit{' '}
         <strong>klassischem Channel-Strip</strong> (Off/On/AFV + Gain).
       </li>
-      <li>Geräte mit beiden Sektionen erhalten beide Tabs.</li>
     </ul>
-    <button
-      type="button"
-      onClick={onLoad}
-      className="rounded bg-sky-700 px-4 py-2 text-sm hover:bg-sky-600"
-    >
-      📂 ATEM Profile-XML laden
-    </button>
+    <div className="flex flex-wrap items-center justify-center gap-2">
+      <button
+        type="button"
+        onClick={onLoad}
+        className="rounded bg-sky-700 px-4 py-2 text-sm hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+      >
+        📂 Profile-XML laden
+      </button>
+      <button
+        type="button"
+        onClick={onCreateMatrix}
+        title="Frische Crosspoint-Matrix mit den ATEM-Standard-Eingängen + 8 Output-Bussen (für Constellation / 4 M/E)."
+        className="rounded border border-slate-700 bg-slate-800 px-4 py-2 text-sm text-slate-100 hover:border-sky-600 hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+      >
+        🎚 Matrix manuell
+      </button>
+      <button
+        type="button"
+        onClick={onCreateClassic}
+        title="Frischer klassischer Mixer (8 Channel-Strips, alle On, 0 dB, mittig)."
+        className="rounded border border-slate-700 bg-slate-800 px-4 py-2 text-sm text-slate-100 hover:border-sky-600 hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+      >
+        🎛 Klassischer Mixer
+      </button>
+    </div>
+    <p className="mt-3 text-[10px] text-slate-500">
+      Für {equipmentName || 'das aktuelle Gerät'}. Die Defaults richten sich nach den
+      üblichen ATEM-Audio-Bus-Layouts; du kannst Quellen, Outputs + Mappings danach frei
+      bearbeiten.
+    </p>
   </div>
 )
 
