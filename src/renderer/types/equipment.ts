@@ -165,8 +165,16 @@ export interface EquipmentItem {
   packed?: boolean
   /** Roadmap #76 follow-up: rated power consumption in watts (continuous).
    *  Fed into the Power-Consumption calculator and the equipment BOM
-   *  totals row. Optional — only the user/data-sheet fills this in. */
+   *  totals row. Optional — only the user/data-sheet fills this in.
+   *  The Properties panel can auto-derive this from `voltage` × `currentAmps`
+   *  when both are supplied — but the user can also enter W directly. */
   powerConsumptionWatts?: number
+  /** Nominal supply voltage in volts. Optional. When both this and
+   *  `currentAmps` are present, `powerConsumptionWatts` is auto-
+   *  computed (V × A) so the BOM stays accurate without manual maths. */
+  voltage?: number
+  /** Nominal current draw in amperes (continuous, at the rated voltage). */
+  currentAmps?: number
   /**
    * Native display resolution (for monitors, multiviewers, displays).
    * Format example: "1920x1080", "3840x2160".
