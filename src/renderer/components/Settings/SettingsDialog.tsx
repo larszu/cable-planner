@@ -1380,7 +1380,7 @@ const GreenGoPresetsCard = () => {
 
 const CONFIG_KIND_LABEL: Record<DeviceConfigKind, string> = {
   'atem-mv': 'ATEM Multiviewer Layout',
-  'atem-audio': 'ATEM Fairlight Audio',
+  'atem-audio': 'ATEM Audio-Routing',
   'videohub-labels': 'Videohub Labels',
   'videohub-routing': 'Videohub Routing',
   greengo: 'GreenGo Intercom (.gg5)',
