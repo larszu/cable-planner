@@ -364,7 +364,9 @@ const webFallbackApi: CablePlannerApi = {
         throw new Error('Rentman token missing or malformed.')
       }
       const form = new FormData()
-      const blob = new Blob([fileBytes], { type: mimeType })
+      // Cast to BlobPart — Uint8Array<ArrayBufferLike> is structurally a
+      // BlobPart but TS 6 narrows the buffer type to disallow shared.
+      const blob = new Blob([fileBytes as unknown as BlobPart], { type: mimeType })
       form.append('file', blob, fileName)
       form.append('name', fileName)
       form.append('item', projectId)

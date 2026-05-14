@@ -59,6 +59,12 @@ import {
 export default function App() {
   const project = useProjectStore((state) => state.project)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
+  // v7.7.1 — exporters now read the live canvas-background settings so the
+  // exported PDF / PNG / JPEG matches what the user sees on the canvas.
+  const exportBgVariant = useUiStore((state) => state.bgVariant)
+  const exportBgOpacity = useUiStore((state) => state.bgOpacity)
+  const exportGridSize = useUiStore((state) => state.gridSize)
+  const exportCustomPalette = useUiStore((state) => state.customPalette)
   const showCableDialog = useProjectStore((state) => state.showCableDialog)
   const pendingConnection = useProjectStore((state) => state.pendingConnection)
   const createCableFromPending = useProjectStore((state) => state.createCableFromPending)
@@ -244,6 +250,24 @@ export default function App() {
     setMetaDialog(null)
   }
 
+  // v7.7.1 — PNG / JPEG export (canvas only, no header / title block).
+  const handleExportImage = async (format: 'png' | 'jpeg') => {
+    try {
+      await exportCanvasToImage(project.metadata.name, format, {
+        backgroundTheme: canvasTheme,
+        bgVariant: exportBgVariant,
+        gridSize: exportGridSize,
+        bgOpacity: exportBgOpacity,
+        customPalette: exportCustomPalette,
+      })
+    } catch (error) {
+      console.error(`${format.toUpperCase()} export failed:`, error)
+      alert(
+        `${format.toUpperCase()} export failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      )
+    }
+  }
+
   const handleExportPdf = async (theme: 'dark' | 'light' = canvasTheme) => {
     setPdfExportThemeOverride(theme)
     await new Promise<void>((resolve) =>
@@ -252,6 +276,10 @@ export default function App() {
     try {
       await exportCanvasToPdf(project.metadata.name, project.metadata, 0.85, {
         backgroundTheme: theme,
+        bgVariant: exportBgVariant,
+        gridSize: exportGridSize,
+        bgOpacity: exportBgOpacity,
+        customPalette: exportCustomPalette,
       })
     } catch (error) {
       console.error('PDF export failed:', error)
@@ -281,7 +309,13 @@ export default function App() {
       return
     }
     try {
-      const bytes = await exportCanvasToPdfBytes(meta, 0.85, { backgroundTheme: canvasTheme })
+      const bytes = await exportCanvasToPdfBytes(meta, 0.85, {
+        backgroundTheme: canvasTheme,
+        bgVariant: exportBgVariant,
+        gridSize: exportGridSize,
+        bgOpacity: exportBgOpacity,
+        customPalette: exportCustomPalette,
+      })
       const baseName = (meta.name || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
       const fileName = `${baseName}_${stamp}.pdf`
@@ -380,6 +414,8 @@ export default function App() {
         onSaveProjectAs={() => void saveProjectAs()}
         onOpenSettings={() => setSettingsOpen(true)}
         onExportPdf={() => setPdfExportOpen(true)}
+        onExportPng={() => void handleExportImage('png')}
+        onExportJpeg={() => void handleExportImage('jpeg')}
         onOpenPrintDialog={() => setPrintDialogOpen(true)}
         onOpenGraphmlImport={() => setGraphmlImportOpen(true)}
         onAttachPdfToRentman={() => void handleUploadPdfToRentman()}
@@ -628,7 +664,7 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
     [customCableSpecs],
   )
   // Build list of cables ranked by compatibility with the two ports.
-  const ranked = useMemo(() => {
+  const ranked = useMemo((): Array<{ cable: CableSpec; level: 'ok' | 'warn' | 'error'; message: string }> => {
     if (!fromPort || !toPort) {
       return fullCableCatalog.map((cable) => ({ cable, level: 'ok' as const, message: '' }))
     }
@@ -641,7 +677,7 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
         const order = { ok: 0, warn: 1, error: 2 }
         return order[a.level] - order[b.level]
       })
-  }, [fromPort, toPort])
+  }, [fromPort, toPort, fullCableCatalog])
 
   // For SDI↔SDI connections, pick the cable that matches the project's default
   // video format (or 1080p50 fallback) and the two devices' SDI capabilities.
@@ -716,7 +752,8 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
     return checkSdiStandardMismatch(fromPort.standard ?? standard, toPort.standard ?? standard)
   }, [fromPort, toPort, standard])
 
-  const connectorMismatch = specId === CUSTOM_CABLE_SPEC_ID ? 'ok' : selectedEntry.level
+  const connectorMismatch: 'ok' | 'warn' | 'error' =
+    specId === CUSTOM_CABLE_SPEC_ID ? 'ok' : selectedEntry.level
   const connectorMessage = specId === CUSTOM_CABLE_SPEC_ID ? '' : selectedEntry.message
 
   const needsConverter =
@@ -747,7 +784,9 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
       notes,
       cableSpecId: specId === CUSTOM_CABLE_SPEC_ID ? undefined : selected.id,
       standard: specId === CUSTOM_CABLE_SPEC_ID ? customStandard : standard,
-      needsConverter: needsConverter || connectorMismatch === 'error',
+      // `needsConverter` already covers warn-level and error-level mismatch
+      // (see definition above), so no extra fall-through check needed.
+      needsConverter,
     })
   }
 

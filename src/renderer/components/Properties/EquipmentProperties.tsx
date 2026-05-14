@@ -24,7 +24,7 @@ import { promptDialog } from '../../lib/promptDialog'
 import { useGreenGoBeltpack } from '../../lib/greengoSync'
 import { exportDevicePatchSheet } from '../../lib/exportDevicePdf'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
-import type { ConnectorType, Port, VlanDef, PortVlanAssignment } from '../../types/equipment'
+import type { ConnectorType, EquipmentItem, Port, VlanDef, PortVlanAssignment } from '../../types/equipment'
 import { ALL_SIGNAL_STANDARDS } from '../../types/cableSpec'
 import type { SignalStandard } from '../../types/cableSpec'
 import { QUAD_LINK_LABEL, type QuadLinkMode } from '../../types/videoFormat'
@@ -433,7 +433,7 @@ const RackFacePreview = ({
                       src={imageUrl}
                       alt={`${equipment.name} ${side}`}
                       className="mx-auto rounded object-contain"
-                      style={{ width: panelWidth, height: Math.max(1, equipment.rackUnits) * unitHeight }}
+                      style={{ width: panelWidth, height: Math.max(1, equipment.rackUnits ?? 1) * unitHeight }}
                     />
                   ) : (
                     <>

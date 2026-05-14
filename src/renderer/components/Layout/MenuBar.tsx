@@ -12,6 +12,10 @@ interface MenuBarProps {
   onSaveProjectAs: () => void
   onOpenSettings: () => void
   onExportPdf: () => void
+  /** v7.7.1 — export the canvas as a PNG image (uses live bg settings). */
+  onExportPng?: () => void
+  /** v7.7.1 — export the canvas as a JPEG image (uses live bg settings). */
+  onExportJpeg?: () => void
   /** Open the consolidated "Drucken" hub (Plan + per-device patch-sheets, Issue #74). */
   onOpenPrintDialog?: () => void
   /** Open the GraphML / yEd import dialog. */
@@ -49,6 +53,8 @@ export const MenuBar = ({
   onSaveProjectAs,
   onOpenSettings,
   onExportPdf,
+  onExportPng,
+  onExportJpeg,
   onOpenPrintDialog,
   onOpenGraphmlImport,
   onEditProjectMeta,
@@ -118,6 +124,16 @@ export const MenuBar = ({
           <MenuItem onClick={onExportPdf} icon="📑">
             {t('app.menu.file.exportPdf', 'Plan als PDF exportieren…')}
           </MenuItem>
+          {onExportPng && (
+            <MenuItem onClick={onExportPng} icon="🖼">
+              {t('app.menu.file.exportPng', 'Plan als PNG exportieren…')}
+            </MenuItem>
+          )}
+          {onExportJpeg && (
+            <MenuItem onClick={onExportJpeg} icon="🖼">
+              {t('app.menu.file.exportJpeg', 'Plan als JPEG exportieren…')}
+            </MenuItem>
+          )}
           {onOpenCableBom && (
             <MenuItem onClick={onOpenCableBom} icon="🧮">
               {t('app.menu.file.cableBom', 'Kabel-Stückliste (BOM) exportieren…')}
