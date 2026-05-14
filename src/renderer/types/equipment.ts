@@ -37,6 +37,12 @@ export interface Port {
   side?: 'left' | 'right'
   /** Optional signal standard declared for this port (e.g. SDI-12G on a camera out). */
   standard?: SignalStandard
+  /** v7.5.0 — per-port SDI capabilities. A device with a mixed SDI port
+   *  layout (e.g. some BNC are 12G level A, others 6G only, others
+   *  HD-SDI) can declare each port's spec individually here. The
+   *  device-level `equipment.sdiCaps` stays as a fallback default
+   *  when the port doesn't override it. */
+  sdiCaps?: import('./videoFormat').SdiCapabilities
   /**
    * Direction of the port. Defaults to the array it lives in (`inputs` → 'in',
    * `outputs` → 'out'). A port marked `bidirectional` (e.g. an RJ45 network
@@ -63,6 +69,21 @@ export interface Port {
   sfpVendor?: string
 }
 
+/** v7.5.0 — a named operating mode for a device whose port layout
+ *  changes depending on configuration (e.g. media-server boards,
+ *  modular processors). Each mode owns its own ports; switching the
+ *  active mode on an EquipmentItem rewrites its `inputs`/`outputs`
+ *  to the mode's snapshot. */
+export interface DeviceMode {
+  id: string
+  name: string
+  /** Optional description that surfaces in the mode picker, e.g.
+   *  "12G IN / 4× HDMI OUT" or "Standalone (1× SDI passthrough)". */
+  description?: string
+  inputs: Port[]
+  outputs: Port[]
+}
+
 export interface EquipmentItem {
   id: string
   name: string
@@ -75,6 +96,16 @@ export interface EquipmentItem {
   category: string
   inputs: Port[]
   outputs: Port[]
+  /** v7.5.0 — operating-mode-dependent port layouts (media servers,
+   *  modular processors like Pixelhue P20 / Parco S3 / Brompton Tessera).
+   *  Each mode carries its own `inputs` + `outputs`. When `activeModeId`
+   *  is set to a mode's id, the equipment's live `inputs`/`outputs`
+   *  arrays are replaced with that mode's port set — switching mode in
+   *  the UI swaps the visible ports on the canvas. Cables that no
+   *  longer find their port id are left orphaned (the user can
+   *  re-route them). */
+  modes?: DeviceMode[]
+  activeModeId?: string
   /** Explicit flag: true when this is a 19" rack device. */
   isRackDevice?: boolean
   /** Optional rack height in HE/U for future 2D rack layouts. */

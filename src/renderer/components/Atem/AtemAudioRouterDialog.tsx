@@ -43,7 +43,12 @@ export const AtemAudioRouterDialog = () => {
   const drag = useDraggablePosition('cable-planner:modal-pos:atem-audio', open)
 
   const [draft, setDraft] = useState<AtemAudioConfig | null>(null)
-  const [activeTab, setActiveTab] = useState<'matrix' | 'classic'>('matrix')
+  // v7.5.0 — the classic-mixer view was removed. The router now
+  // edits only the routing matrix (AudioMapping section). Imported
+  // XMLs that also contain a classic-mixer (AudioMixer) section keep
+  // that data in `draft.classicMixer` so save round-trips byte-for-
+  // byte, but the user-facing UI is matrix-only.
+  const [activeTab, setActiveTab] = useState<'matrix'>('matrix')
   const [busy, setBusy] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -66,8 +71,7 @@ export const AtemAudioRouterDialog = () => {
     }
     const value = stored as AtemAudioConfig
     setDraft(value)
-    if (value.matrix) setActiveTab('matrix')
-    else if (value.classicMixer) setActiveTab('classic')
+    setActiveTab('matrix')
   }, [open, equipment])
 
   if (!open || !equipment) return null
@@ -86,8 +90,7 @@ export const AtemAudioRouterDialog = () => {
           setDraft(config)
           setErrorMsg('')
           // Auto-pick a sensible default tab
-          if (config.matrix) setActiveTab('matrix')
-          else if (config.classicMixer) setActiveTab('classic')
+          setActiveTab('matrix')
         } catch (e) {
           setErrorMsg(e instanceof Error ? e.message : String(e))
         }
@@ -161,28 +164,6 @@ export const AtemAudioRouterDialog = () => {
     setErrorMsg('')
   }
 
-  /** Build a fresh AtemAudioConfig with the classic-mixer defaults —
-   *  8 channel strips, all On, 0 dB, centred. Matches the ATEM 2 M/E
-   *  Production Studio out-of-the-box state. */
-  const handleCreateClassic = () => {
-    setDraft({
-      classicMixer: {
-        programOutGain: 0,
-        programOutBalance: 0,
-        programOutFollowFadeToBlack: false,
-        audioFollowVideoCrossfadeTransition: false,
-        inputs: Array.from({ length: 8 }, (_, i) => ({
-          id: i + 1,
-          mixOption: 'On' as const,
-          gain: 0,
-          balance: 0,
-        })),
-      },
-    })
-    setActiveTab('classic')
-    setErrorMsg('')
-  }
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div
@@ -236,34 +217,19 @@ export const AtemAudioRouterDialog = () => {
           >
             {t('atem.audio.action.saveXml', '💾 XML speichern')}
           </button>
-          {draft && (draft.matrix || draft.classicMixer) && (
+          {draft?.matrix && (
             <>
               <span className="ml-2 text-slate-500">|</span>
-              {draft.matrix && (
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('matrix')}
-                  className={`rounded px-3 py-1 ${
-                    activeTab === 'matrix'
-                      ? 'bg-sky-800 text-white'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                  }`}
-                >
-                  {t('atem.audio.tab.matrix', '🎚 Routing-Matrix')} ({draft.matrix.outputs.length}×{draft.matrix.sources.length})
-                </button>
-              )}
+              <span className="rounded bg-sky-800 px-3 py-1 text-white">
+                {t('atem.audio.tab.matrix', '🎚 Routing-Matrix')} ({draft.matrix.outputs.length}×{draft.matrix.sources.length})
+              </span>
               {draft.classicMixer && (
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('classic')}
-                  className={`rounded px-3 py-1 ${
-                    activeTab === 'classic'
-                      ? 'bg-sky-800 text-white'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                  }`}
+                <span
+                  className="text-[10px] text-slate-500"
+                  title="Das geladene XML enthält zusätzlich eine klassische AudioMixer-Sektion. Sie wird beim Speichern unverändert mit zurück ins XML geschrieben, ist aber hier nicht editierbar."
                 >
-                  {t('atem.audio.tab.classic', '🎛 Klassischer Mixer')} ({draft.classicMixer.inputs.length} Inputs)
-                </button>
+                  + AudioMixer-Sektion (read-only, round-trip)
+                </span>
               )}
             </>
           )}
@@ -280,13 +246,27 @@ export const AtemAudioRouterDialog = () => {
             <EmptyState
               onLoad={handleLoadXml}
               onCreateMatrix={handleCreateMatrix}
-              onCreateClassic={handleCreateClassic}
               equipmentName={equipment.name}
             />
-          ) : activeTab === 'matrix' && draft.matrix ? (
+          ) : draft.matrix ? (
             <MatrixView config={draft} setConfig={setDraft} />
-          ) : activeTab === 'classic' && draft.classicMixer ? (
-            <ClassicMixerView config={draft} setConfig={setDraft} />
+          ) : draft.classicMixer && !draft.matrix ? (
+            <div className="m-auto max-w-md text-center text-sm text-slate-400">
+              <p>
+                Dieses XML enthält nur eine klassische AudioMixer-Sektion und keine
+                Routing-Matrix. Die Sektion wird beim Speichern unverändert
+                zurückgeschrieben (Round-Trip), ist aber im Editor nicht editierbar.
+                Lege bei Bedarf via <strong>🎚 Matrix manuell</strong> oben eine
+                neue Crosspoint-Matrix an — beide Sektionen koexistieren dann im XML.
+              </p>
+              <button
+                type="button"
+                onClick={handleCreateMatrix}
+                className="mt-3 rounded bg-sky-700 px-3 py-1 text-xs text-white hover:bg-sky-600"
+              >
+                🎚 Matrix manuell anlegen
+              </button>
+            </div>
           ) : (
             <div className="m-auto text-sm text-slate-400">
               Kein {activeTab === 'matrix' ? 'Routing' : 'Klassischer Mixer'} im
@@ -371,34 +351,22 @@ const summarise = (
 const EmptyState = ({
   onLoad,
   onCreateMatrix,
-  onCreateClassic,
   equipmentName,
 }: {
   onLoad: () => void
   onCreateMatrix: () => void
-  onCreateClassic: () => void
   equipmentName: string
 }) => (
   <div className="m-auto max-w-md text-center text-sm text-slate-400">
-    <div className="mb-2 text-3xl">🎛</div>
+    <div className="mb-2 text-3xl">🎚</div>
     <div className="mb-3 text-base font-semibold text-slate-200">
-      ATEM Audio-Konfiguration
+      ATEM Audio-Routing
     </div>
     <p className="mb-3">
-      Lade ein bestehendes ATEM Profile-XML — oder fang manuell mit den Standard-Defaults
-      für deinen Mischer an. Beim Speichern erzeugen wir ein gültiges Profile-XML, das du
-      direkt im ATEM Software Control importieren kannst.
+      Lade ein bestehendes ATEM Profile-XML — oder fang manuell mit der Crosspoint-Matrix
+      an. Beim Speichern erzeugen wir ein gültiges Profile-XML, das du direkt im ATEM
+      Software Control importieren kannst.
     </p>
-    <ul className="mb-4 list-inside list-disc text-left text-xs text-slate-400">
-      <li>
-        Neuere Modelle (Constellation / 4 M/E) nutzen die{' '}
-        <strong>Crosspoint-Matrix</strong>.
-      </li>
-      <li>
-        Production Studio / Television Studio öffnen mit{' '}
-        <strong>klassischem Channel-Strip</strong> (Off/On/AFV + Gain).
-      </li>
-    </ul>
     <div className="flex flex-wrap items-center justify-center gap-2">
       <button
         type="button"
@@ -410,24 +378,15 @@ const EmptyState = ({
       <button
         type="button"
         onClick={onCreateMatrix}
-        title="Frische Crosspoint-Matrix mit den ATEM-Standard-Eingängen + 8 Output-Bussen (für Constellation / 4 M/E)."
+        title="Frische Crosspoint-Matrix mit den ATEM-Standard-Eingängen + 8 Output-Bussen."
         className="rounded border border-slate-700 bg-slate-800 px-4 py-2 text-sm text-slate-100 hover:border-sky-600 hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
         🎚 Matrix manuell
       </button>
-      <button
-        type="button"
-        onClick={onCreateClassic}
-        title="Frischer klassischer Mixer (8 Channel-Strips, alle On, 0 dB, mittig)."
-        className="rounded border border-slate-700 bg-slate-800 px-4 py-2 text-sm text-slate-100 hover:border-sky-600 hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-      >
-        🎛 Klassischer Mixer
-      </button>
     </div>
     <p className="mt-3 text-[10px] text-slate-500">
-      Für {equipmentName || 'das aktuelle Gerät'}. Die Defaults richten sich nach den
-      üblichen ATEM-Audio-Bus-Layouts; du kannst Quellen, Outputs + Mappings danach frei
-      bearbeiten.
+      Für {equipmentName || 'das aktuelle Gerät'}. 24 Standard-Quellen × 8 Output-Busse;
+      Quellen + Outputs + Mappings danach frei bearbeiten.
     </p>
   </div>
 )
@@ -928,208 +887,3 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
 
 // --- Classic mixer view -------------------------------------------------
 
-const ClassicMixerView = ({ config, setConfig }: ViewProps) => {
-  const mixer = config.classicMixer!
-  const [filter, setFilter] = useState('')
-
-  const labelFor = (id: number): string => {
-    const lbl = config.inputLabels?.[id]
-    if (lbl?.longName) return lbl.longName
-    if (lbl?.shortName) return lbl.shortName
-    // Special audio-only ids for older mixers
-    if (id === 1001) return 'Mic 1'
-    if (id === 1101) return 'Mic 2'
-    if (id === 1201) return 'RCA'
-    if (id === 1301) return 'XLR'
-    if (id >= 2001 && id <= 2099) return `Color ${id - 2000}`
-    if (id >= 3010 && id < 3050) return `Media Player ${Math.floor((id - 3010) / 10) + 1}`
-    return `Input ${id}`
-  }
-
-  const filteredInputs = useMemo(() => {
-    const q = filter.trim().toLowerCase()
-    if (!q) return mixer.inputs
-    return mixer.inputs.filter((inp) => {
-      if (String(inp.id).includes(q)) return true
-      return labelFor(inp.id).toLowerCase().includes(q)
-    })
-  }, [mixer.inputs, filter, config.inputLabels])
-
-  const setInput = (id: number, patch: Partial<AtemClassicAudioInput>) => {
-    setConfig({
-      ...config,
-      classicMixer: {
-        ...mixer,
-        inputs: mixer.inputs.map((i) =>
-          i.id === id ? { ...i, ...patch } : i,
-        ),
-      },
-    })
-  }
-
-  return (
-    <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex flex-wrap items-center gap-3 border-b border-slate-800 bg-slate-950/30 px-4 py-2 text-xs">
-        <input
-          type="text"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder="Inputs filtern (Name oder ID)…"
-          title="Substring-Filter für Audio-Inputs"
-          aria-label="Inputs filtern"
-          className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs"
-        />
-        <span className="text-slate-500">
-          {filteredInputs.length} / {mixer.inputs.length} sichtbar
-        </span>
-        <span className="ml-auto text-slate-400">
-          Master: gain{' '}
-          <input
-            type="number"
-            step={0.1}
-            value={mixer.programOutGain}
-            onChange={(e) =>
-              setConfig({
-                ...config,
-                classicMixer: {
-                  ...mixer,
-                  programOutGain: Number(e.target.value),
-                },
-              })
-            }
-            className="w-16 rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-right font-mono"
-            title="programOutGain (dB)"
-            aria-label="Master Gain (dB)"
-          />{' '}
-          dB · balance{' '}
-          <input
-            type="number"
-            step={1}
-            min={-100}
-            max={100}
-            value={mixer.programOutBalance}
-            onChange={(e) =>
-              setConfig({
-                ...config,
-                classicMixer: {
-                  ...mixer,
-                  programOutBalance: Number(e.target.value),
-                },
-              })
-            }
-            className="w-14 rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-right font-mono"
-            title="programOutBalance (-100..+100)"
-            aria-label="Master Balance"
-          />
-        </span>
-      </div>
-
-      <div className="flex-1 overflow-auto">
-        <table className="w-full text-xs">
-          <thead className="sticky top-0 bg-slate-950 text-slate-300">
-            <tr className="border-b border-slate-700">
-              <th className="px-2 py-1 text-left">ID</th>
-              <th className="px-2 py-1 text-left">Bezeichnung</th>
-              <th className="px-2 py-1 text-left">Mix</th>
-              <th className="px-2 py-1 text-right">Gain (dB)</th>
-              <th className="px-2 py-1 text-right">Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredInputs.map((inp) => {
-              const lbl = config.inputLabels?.[inp.id]
-              const port = lbl?.externalPortType
-              return (
-                <tr
-                  key={inp.id}
-                  className={`border-b border-slate-800 ${
-                    inp.mixOption !== 'Off' ? 'bg-emerald-950/20' : ''
-                  }`}
-                >
-                  <td className="px-2 py-1 font-mono text-slate-500">
-                    {inp.id}
-                  </td>
-                  <td className="px-2 py-1">
-                    <span className="text-slate-100">{labelFor(inp.id)}</span>
-                    {lbl?.shortName && (
-                      <span className="ml-2 text-[10px] text-slate-500">
-                        ({lbl.shortName})
-                      </span>
-                    )}
-                    {port && (
-                      <span className="ml-2 rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-400">
-                        {port}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-2 py-1">
-                    <div className="inline-flex overflow-hidden rounded border border-slate-700">
-                      {(['Off', 'On', 'AudioFollowVideo'] as const).map((m) => (
-                        <button
-                          key={m}
-                          type="button"
-                          onClick={() => setInput(inp.id, { mixOption: m })}
-                          className={`px-2 py-0.5 text-[10px] ${
-                            inp.mixOption === m
-                              ? m === 'Off'
-                                ? 'bg-slate-600 text-white'
-                                : m === 'On'
-                                  ? 'bg-emerald-700 text-white'
-                                  : 'bg-amber-700 text-white'
-                              : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
-                          }`}
-                          title={
-                            m === 'Off'
-                              ? 'Stumm'
-                              : m === 'On'
-                                ? 'Immer aktiv (im Programm-Mix)'
-                                : 'Audio-Follow-Video'
-                          }
-                        >
-                          {m === 'AudioFollowVideo' ? 'AFV' : m}
-                        </button>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-2 py-1 text-right">
-                    <input
-                      type="number"
-                      step={0.1}
-                      max={6}
-                      value={inp.gain ?? ''}
-                      placeholder="-inf"
-                      onChange={(e) => {
-                        const v = e.target.value
-                        setInput(inp.id, {
-                          gain: v === '' ? null : Number(v),
-                        })
-                      }}
-                      className="w-20 rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-right font-mono"
-                      title={`Gain für Input ${inp.id} in dB. Leer = -inf (stumm).`}
-                      aria-label={`Gain Input ${inp.id}`}
-                    />
-                  </td>
-                  <td className="px-2 py-1 text-right">
-                    <input
-                      type="number"
-                      step={1}
-                      min={-100}
-                      max={100}
-                      value={inp.balance}
-                      onChange={(e) =>
-                        setInput(inp.id, { balance: Number(e.target.value) })
-                      }
-                      className="w-16 rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-right font-mono"
-                      title={`Balance für Input ${inp.id} (-100..+100)`}
-                      aria-label={`Balance Input ${inp.id}`}
-                    />
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-}

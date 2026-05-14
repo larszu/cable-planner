@@ -265,6 +265,12 @@ interface ProjectState {
     offset: { dx: number; dy: number },
   ) => string[]
   updateEquipment: (id: string, patch: Partial<EquipmentItem>) => void
+  /** v7.5.0 — activate a named DeviceMode on the given equipment.
+   *  Replaces the live `inputs`/`outputs` arrays with snapshots from
+   *  the mode definition so the canvas re-renders with the new port
+   *  set. Cables whose ports no longer exist stay in the project but
+   *  show as "orphaned" until the user re-routes them. */
+  setActiveDeviceMode: (equipmentId: string, modeId: string | null) => void
   setSelection: (equipmentId?: string, cableId?: string, locationId?: string) => void
   setSelectedTemplateName: (name?: string) => void
   addLocation: (partial?: Partial<LocationFrame>) => void
@@ -812,6 +818,32 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
           cables: nextCables,
         }),
       }
+    }),
+  setActiveDeviceMode: (equipmentId, modeId) =>
+    set((state) => {
+      const eq = state.project.equipment.find((e) => e.id === equipmentId)
+      if (!eq || !eq.modes || eq.modes.length === 0) return {}
+      const mode = modeId ? eq.modes.find((m) => m.id === modeId) : null
+      if (modeId && !mode) return {}
+      // Replace the live port arrays with the mode's snapshot (or
+      // leave them as-is when clearing the active mode — the user can
+      // still edit ports manually).
+      const nextEquipment = state.project.equipment.map((item) =>
+        item.id === equipmentId
+          ? {
+              ...item,
+              activeModeId: mode?.id,
+              inputs: mode ? mode.inputs.map((p) => ({ ...p })) : item.inputs,
+              outputs: mode ? mode.outputs.map((p) => ({ ...p })) : item.outputs,
+            }
+          : item,
+      )
+      const updated = touchProject({
+        ...state.project,
+        equipment: nextEquipment,
+      })
+      scheduleProjectAutosave(updated)
+      return { project: updated }
     }),
   setSelection: (equipmentId, cableId, locationId) =>
     set({
