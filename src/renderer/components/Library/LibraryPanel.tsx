@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
+import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
 import { useRentman } from '../../hooks/useRentman'
 import { promptDialog } from '../../lib/promptDialog'
 import { CategorySelect } from '../shared/CategorySelect'
@@ -65,6 +66,11 @@ export const LibraryPanel = () => {
   const toggleTemplateFavorite = useProjectStore((state) => state.toggleTemplateFavorite)
   const collapsed = useUiStore((state) => state.libraryCollapsed)
   const toggleCollapsed = useUiStore((state) => state.toggleLibraryCollapsed)
+  const floating = useUiStore((state) => state.libraryFloating)
+  const setFloating = useUiStore((state) => state.setLibraryFloating)
+  const floatingPos = useUiStore((state) => state.libraryFloatingPos)
+  const setFloatingPos = useUiStore((state) => state.setLibraryFloatingPos)
+  const libraryWidth = useUiStore((state) => state.libraryWidth)
   const openRentmanImport = useUiStore((state) => state.openRentmanImport)
   const toggleTemplateHidden = useProjectStore((state) => state.toggleTemplateHidden)
   const setCustomTemplateCategory = useProjectStore((state) => state.setCustomTemplateCategory)
@@ -480,7 +486,7 @@ export const LibraryPanel = () => {
           onClick={toggleCollapsed}
           title="Library einblenden"
           aria-label="Library einblenden"
-          className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300"
+          className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
           <span className="text-base leading-none">›</span>
         </button>
@@ -488,7 +494,7 @@ export const LibraryPanel = () => {
           type="button"
           onClick={toggleCollapsed}
           aria-label="Library einblenden"
-          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:text-slate-300"
+          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:text-slate-300 focus-visible:outline-none focus-visible:text-sky-300"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
           Library
@@ -496,18 +502,31 @@ export const LibraryPanel = () => {
       </aside>
     )
   }
-  return (
-    <aside className="flex h-full min-h-0 flex-col border-r border-slate-700 bg-slate-950 p-3 text-slate-100">
+  const inner = (
+    <aside className={`flex h-full min-h-0 flex-col ${floating ? 'bg-transparent p-3' : 'border-r border-slate-700 bg-slate-950 p-3'} text-slate-100`}>
       <div className="mb-3 flex items-center gap-2 text-xs">
-        <button
-          type="button"
-          onClick={toggleCollapsed}
-          title="Library ausblenden"
-          aria-label="Library ausblenden"
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300"
-        >
-          <span className="text-base leading-none">‹</span>
-        </button>
+        {!floating && (
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            title="Library ausblenden"
+            aria-label="Library ausblenden"
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          >
+            <span className="text-base leading-none">‹</span>
+          </button>
+        )}
+        {!floating && (
+          <button
+            type="button"
+            onClick={() => setFloating(true)}
+            title="Library abdocken (frei verschiebbar)"
+            aria-label="Library abdocken"
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          >
+            <span className="text-[11px] leading-none">⤢</span>
+          </button>
+        )}
         <button
           type="button"
           onClick={() => setTab('equipment')}
@@ -2039,4 +2058,19 @@ export const LibraryPanel = () => {
       />
     </aside>
   )
+
+  if (floating) {
+    return (
+      <FloatingPanelShell
+        title="Library"
+        position={floatingPos}
+        onMove={setFloatingPos}
+        onDock={() => setFloating(false)}
+        width={Math.max(libraryWidth, 320)}
+      >
+        {inner}
+      </FloatingPanelShell>
+    )
+  }
+  return inner
 }

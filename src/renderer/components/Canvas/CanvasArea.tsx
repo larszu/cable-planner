@@ -59,6 +59,7 @@ const CanvasContent = () => {
   // Issue #71: user-configurable canvas background pattern + opacity.
   const bgVariant = useUiStore((state) => state.bgVariant)
   const bgOpacity = useUiStore((state) => state.bgOpacity)
+  const customPalette = useUiStore((state) => state.customPalette)
   const cableColorMode = useUiStore((state) => state.cableColorMode)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
@@ -981,7 +982,13 @@ const CanvasContent = () => {
   return (
     <div
       ref={wrapperRef}
-      style={{ width: '100%', height: '100%', minHeight: 400, position: 'relative' }}
+      style={{
+        width: '100%',
+        height: '100%',
+        minHeight: 400,
+        position: 'relative',
+        background: customPalette?.canvasBg,
+      }}
       id="cable-planner-canvas"
       className={effectiveCanvasTheme === 'light' ? 'canvas-theme-light' : ''}
       onDrop={onDrop}
@@ -1110,16 +1117,10 @@ const CanvasContent = () => {
             user picked 'none' we omit the component entirely so React
             Flow falls back to its plain coloured canvas. */}
         {bgVariant !== 'none' && (() => {
-          // Background pattern. Earlier defaults rendered the dots at gap=
-          // gridSize (often 10 px) with a near-bg-color stroke at 50 %
-          // opacity — practically invisible. Lift the floor:
-          //   • gap snaps to a sensible minimum of 16 px so dots don't
-          //     blur into a solid wash on dense gridSize values.
-          //   • Lines/Cross get a slightly bigger gap (3× gridSize) so
-          //     they read as a grid, not noise.
-          //   • Stroke uses high-contrast slate-500 (dark) / slate-400
-          //     (light) and we floor the user's opacity at 0.35 — below
-          //     that the pattern was effectively gone.
+          // Background pattern with sensible floors so dots/lines stay
+          // visible regardless of gridSize, theme or persisted opacity.
+          // The custom palette (if set in Settings) overrides the
+          // theme-derived grid color.
           const variant =
             bgVariant === 'lines'
               ? BackgroundVariant.Lines
@@ -1131,7 +1132,8 @@ const CanvasContent = () => {
             variant === BackgroundVariant.Dots
               ? Math.max(16, baseGap)
               : Math.max(20, baseGap * 3)
-          const color = effectiveCanvasTheme === 'light' ? '#94a3b8' : '#64748b'
+          const themeColor = effectiveCanvasTheme === 'light' ? '#94a3b8' : '#64748b'
+          const color = customPalette?.gridColor ?? themeColor
           const opacity = Math.max(0.35, bgOpacity)
           return (
             <Background

@@ -262,3 +262,31 @@ body,
 [data-theme="light"] .border-slate-800\/60 { border-color: rgba(184,196,208,0.6); }
 [data-theme="light"] .border-slate-800\/80 { border-color: rgba(184,196,208,0.8); }
 [data-theme="light"] .border-slate-900\/40 { border-color: rgba(234,239,245,0.4); }
+
+
+/* v7.3.0 — Global focus-visible rings so keyboard navigation works on
+   every button/link/input without per-component edits. Per-component
+   focus styles still override via more-specific selectors. */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="checkbox"]:focus-visible,
+[role="tab"]:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: -1px;
+}
+[data-theme="light"] button:focus-visible,
+[data-theme="light"] a:focus-visible,
+[data-theme="light"] input:focus-visible,
+[data-theme="light"] select:focus-visible,
+[data-theme="light"] textarea:focus-visible {
+  outline-color: #0284c7;
+}

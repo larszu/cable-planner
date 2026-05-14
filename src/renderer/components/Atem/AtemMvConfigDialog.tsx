@@ -10,6 +10,25 @@ import {
   getMvGridSpec,
 } from '../../lib/atemMvLayout'
 
+/** Issue #55 — per-quadrant layout cycle. Clicking on a quadrant
+ *  steps through the layouts that affect that quadrant (between "1
+ *  big window covering this quadrant" and "this quadrant split into
+ *  4 small windows"), matching the real ATEM software. We use the
+ *  9 layouts that the cable-planner already supports and group them
+ *  per quadrant. The cycle wraps around so repeated clicks rotate. */
+const QUADRANT_LAYOUT_CYCLES = {
+  // Top-left: Default (TL big) → ProgramTop (top half = one big) →
+  // Small-TL-corner (1 small in TL) → back
+  TL: [0, 12, 1] as const,
+  // Top-right: Default (TR big) → ProgramTop → Small-TR-corner
+  TR: [0, 12, 2] as const,
+  // Bottom-left: Default (BL = 4 small) → ProgramBottom (bottom half
+  // = one big) → Small-BL-corner
+  BL: [0, 3, 4] as const,
+  // Bottom-right: Default (BR = 4 small) → ProgramBottom → Small-BR-corner
+  BR: [0, 3, 8] as const,
+} as const
+
 /**
  * Catalog of commonly-used ATEM source IDs and their labels. These are offered
  * in the click-to-select popover so users can configure MVs without a live
@@ -473,14 +492,21 @@ export const AtemMvConfigDialog = () => {
                 </label>
               </div>
 
-              <div
-                className="grid w-full gap-[2px] rounded border border-slate-700 bg-slate-950 p-1"
-                style={{
-                  gridTemplateColumns: 'repeat(4, 1fr)',
-                  gridTemplateRows: 'repeat(4, 1fr)',
-                  aspectRatio: '16 / 9',
-                }}
-              >
+              {/* Issue #55 — ATEM-software-style quadrant click cycle.
+                  Each invisible overlay corresponds to one MV quadrant
+                  (TL / TR / BL / BR). Clicking advances through the
+                  layouts that affect that quadrant. Combined with the
+                  layout-button row above, this matches the real ATEM
+                  software where you can also click a quadrant to flip
+                  it between 1-big and 4-small. */}
+              <div className="relative w-full" style={{ aspectRatio: '16 / 9' }}>
+                <div
+                  className="absolute inset-0 grid gap-[2px] rounded border border-slate-700 bg-slate-950 p-1"
+                  style={{
+                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gridTemplateRows: 'repeat(4, 1fr)',
+                  }}
+                >
                 {spec.big.map((big) => {
                   const role =
                     big.window === pgmIndex
@@ -506,6 +532,39 @@ export const AtemMvConfigDialog = () => {
                       gridRow: `${cell.rowStart} / span 1`,
                     },
                     'small',
+                  )
+                })}
+                </div>
+                {/* Quadrant click overlay — half-transparent button per
+                    quadrant. Hover surfaces a subtle outline + label
+                    "1 ↔ 4". Click cycles through that quadrant's
+                    relevant layouts (matching ATEM software's flip
+                    between one big window and four small windows). */}
+                {(['TL', 'TR', 'BL', 'BR'] as const).map((q) => {
+                  const cycle = QUADRANT_LAYOUT_CYCLES[q]
+                  const idx = cycle.indexOf(mv.layout)
+                  const next = cycle[(idx + 1) % cycle.length] ?? cycle[0]
+                  const style: React.CSSProperties = {
+                    position: 'absolute',
+                    width: '50%',
+                    height: '50%',
+                    top: q.startsWith('T') ? 0 : '50%',
+                    left: q.endsWith('L') ? 0 : '50%',
+                  }
+                  return (
+                    <button
+                      key={q}
+                      type="button"
+                      onClick={() => updateMv(activeMv, { layout: next })}
+                      title={`Quadrant ${q} — Klick: nächstes ATEM-Layout (${next})`}
+                      aria-label={`Layout-Quadrant ${q} umschalten`}
+                      style={style}
+                      className="group cursor-pointer rounded outline-none transition-all hover:bg-sky-500/10 hover:ring-2 hover:ring-sky-400/60 focus-visible:bg-sky-500/15 focus-visible:ring-2 focus-visible:ring-sky-400"
+                    >
+                      <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-[10px] font-bold uppercase tracking-wider text-sky-200 opacity-0 transition-opacity group-hover:opacity-90 group-focus-visible:opacity-90">
+                        1 ↔ 4 · {q}
+                      </span>
+                    </button>
                   )
                 })}
               </div>

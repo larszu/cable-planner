@@ -11,6 +11,7 @@
 import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
+import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 
 type Tab = 'length' | 'bandwidth' | 'power'
 
@@ -348,14 +349,22 @@ export const CalculatorsDialog = () => {
   const close = useUiStore((s) => s.closeCalculators)
   const initialTab = useUiStore((s) => s.calculators.tab) ?? 'length'
   const [tab, setTab] = useState<Tab>(initialTab)
+  const drag = useDraggablePosition('cable-planner:modal-pos:calculators', open)
   if (!open) return null
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       onMouseDown={(e) => e.target === e.currentTarget && close()}
     >
-      <div className="w-full max-w-2xl rounded-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
-        <header className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
+      <div
+        ref={drag.containerRef}
+        style={drag.containerStyle}
+        className="w-full max-w-2xl rounded-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
+      >
+        <header
+          {...drag.headerProps}
+          className="flex items-center justify-between border-b border-slate-700 px-4 py-3 select-none"
+        >
           <h2 className="text-sm font-semibold">
             <span className="mr-2">🧮</span>Werkzeuge / Rechner
           </h2>
