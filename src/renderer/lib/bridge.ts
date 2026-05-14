@@ -117,6 +117,12 @@ type CablePlannerApi = {
     acquireLock: (dirPath: string, owner: string) => Promise<{ ok: boolean; lockedBy?: string }>
     releaseLock: (dirPath: string, owner: string) => Promise<void>
   }
+  mobileShare: {
+    start: () => Promise<{ port: number; urls: string[]; hasProject: boolean }>
+    stop: () => Promise<{ ok: boolean }>
+    status: () => Promise<{ running: boolean; port: number; urls: string[]; hasProject: boolean }>
+    setProject: (project: unknown) => Promise<{ ok: boolean }>
+  }
 }
 
 const TOKEN_KEY = 'cable-planner:web:token'
@@ -485,6 +491,14 @@ const webFallbackApi: CablePlannerApi = {
     exists: async () => false,
     acquireLock: async () => ({ ok: false, lockedBy: undefined }),
     releaseLock: async () => {},
+  },
+  mobileShare: {
+    start: async () => {
+      throw new Error('Handy-Zugriff erfordert die Desktop-App.')
+    },
+    stop: async () => ({ ok: true }),
+    status: async () => ({ running: false, port: 0, urls: [], hasProject: false }),
+    setProject: async () => ({ ok: true }),
   },
 }
 

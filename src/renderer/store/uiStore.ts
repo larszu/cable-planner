@@ -251,6 +251,10 @@ interface UiState extends PersistedUiState {
   rackEditor: { open: boolean; rackInstanceId?: string }
   openRackEditor: (rackInstanceId: string) => void
   closeRackEditor: () => void
+  /** Phone-share dialog (LAN HTTP server + QR code, v7.2.1). */
+  mobileShare: { open: boolean }
+  openMobileShare: () => void
+  closeMobileShare: () => void
   /** Rentman equipment import dialog (cross-component trigger). */
   rentmanImport: { open: boolean }
   openRentmanImport: () => void
@@ -432,6 +436,9 @@ export const useUiStore = create<UiState>((set) => ({
   rackEditor: { open: false },
   openRackEditor: (rackInstanceId) => set({ rackEditor: { open: true, rackInstanceId } }),
   closeRackEditor: () => set({ rackEditor: { open: false } }),
+  mobileShare: { open: false },
+  openMobileShare: () => set({ mobileShare: { open: true } }),
+  closeMobileShare: () => set({ mobileShare: { open: false } }),
   rentmanImport: { open: false },
   openRentmanImport: () => set({ rentmanImport: { open: true } }),
   closeRentmanImport: () => set({ rentmanImport: { open: false } }),

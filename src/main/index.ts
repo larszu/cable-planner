@@ -10,6 +10,7 @@ import { registerVideohubIpc } from './ipc/videohubIpc.js'
 import { registerLogIpc } from './ipc/logIpc.js'
 import { registerSyncIpc } from './ipc/syncIpc.js'
 import { registerGraphmlIpc } from './ipc/graphmlIpc.js'
+import { registerMobileShareIpc } from './ipc/mobileShareIpc.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -90,6 +91,7 @@ app.whenReady().then(async () => {
   registerLogIpc()
   registerSyncIpc()
   registerGraphmlIpc()
+  registerMobileShareIpc()
 
   await createWindow()
 

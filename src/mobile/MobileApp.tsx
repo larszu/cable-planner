@@ -391,12 +391,83 @@ const ProjectView = ({
 
 export const MobileApp = () => {
   const [project, setProject] = useState<CablePlannerProject | null>(null)
+  const [autoLoadAttempted, setAutoLoadAttempted] = useState(false)
+  const [autoLoadError, setAutoLoadError] = useState<string | null>(null)
+
+  // When loaded via the desktop app's LAN share server, a sibling
+  // /project.json endpoint serves the live project. Auto-fetch on
+  // mount and (separately) poll every 5 s so the phone stays in sync
+  // while it's the active window.
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await fetch('/share-info.json', { cache: 'no-store' })
+        if (!res.ok) {
+          setAutoLoadAttempted(true)
+          return
+        }
+        const info = (await res.json()) as { ok: boolean; hasProject: boolean }
+        if (!info.ok || !info.hasProject) {
+          setAutoLoadAttempted(true)
+          return
+        }
+        const projectRes = await fetch('/project.json', { cache: 'no-store' })
+        if (!projectRes.ok) {
+          setAutoLoadError(`Server antwortete mit ${projectRes.status}.`)
+          setAutoLoadAttempted(true)
+          return
+        }
+        const data = (await projectRes.json()) as CablePlannerProject
+        if (!cancelled && data && Array.isArray(data.equipment)) {
+          setProject(data)
+        }
+      } catch {
+        // Not running from the share server — show the manual picker.
+      } finally {
+        if (!cancelled) setAutoLoadAttempted(true)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  // Refresh every 5 s once we've successfully auto-loaded so the
+  // phone reflects edits made on the desktop.
+  useEffect(() => {
+    if (!project) return
+    const id = window.setInterval(async () => {
+      try {
+        const r = await fetch('/project.json', { cache: 'no-store' })
+        if (!r.ok) return
+        const next = (await r.json()) as CablePlannerProject
+        if (next && Array.isArray(next.equipment)) setProject(next)
+      } catch {
+        /* server stopped or network blip — keep last good state */
+      }
+    }, 5000)
+    return () => window.clearInterval(id)
+  }, [project !== null])
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      {project ? (
+      {!autoLoadAttempted ? (
+        <div className="grid min-h-screen place-items-center p-4 text-xs text-slate-400">
+          <div className="animate-pulse">Lade Projekt vom Desktop…</div>
+        </div>
+      ) : project ? (
         <ProjectView project={project} onUnload={() => setProject(null)} />
       ) : (
-        <ProjectPicker onLoad={setProject} />
+        <>
+          <ProjectPicker onLoad={setProject} />
+          {autoLoadError && (
+            <div className="mx-auto mt-2 max-w-md rounded border border-amber-700 bg-amber-950 p-2 text-[11px] text-amber-200">
+              Hinweis: Es lief offenbar ein Desktop-Share-Server, aber das Laden ist
+              fehlgeschlagen ({autoLoadError}).
+            </div>
+          )}
+        </>
       )}
     </div>
   )
