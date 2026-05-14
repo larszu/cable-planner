@@ -1,9 +1,18 @@
 import { toJpeg } from 'html-to-image'
 import jsPDF from 'jspdf'
 import type { ProjectMetadata } from '../types/project'
+import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 
 export interface ExportPdfOptions {
   backgroundTheme?: 'dark' | 'light'
+  /** v7.7.1 — Canvas grid variant from the UI store. Defaults to 'dots'. */
+  bgVariant?: ExportBgVariant
+  /** Grid step in CSS pixels (UI default = 10). */
+  gridSize?: number
+  /** Pattern opacity 0..1 (UI default = 0.5). */
+  bgOpacity?: number
+  /** Custom palette overrides from Settings → Canvas-Hintergrund. */
+  customPalette?: { canvasBg: string; gridColor: string } | null
 }
 
 const fmtDate = (iso?: string): string => {
@@ -222,9 +231,10 @@ const buildCanvasPdf = async (
     throw new Error('Konnte den Inhalt des Canvas nicht vermessen')
   }
 
-  // Padding around the content (in flow pixels) so cable bends and labels
-  // near the edge aren't clipped.
-  const padding = 80
+  // v7.7.1 — padding bumped to 200 px so the exported file shows
+  // generous margin AROUND the content, making the grid pattern look
+  // like an extension of the live canvas instead of a tight crop.
+  const padding = 200
   const contentX = minX - padding
   const contentY = minY - padding
   const contentW = Math.ceil(maxX - minX + padding * 2)
@@ -235,25 +245,19 @@ const buildCanvasPdf = async (
   // requested rectangle and `style` overrides the captured element's style
   // during capture (does not mutate the live DOM).
   //
-  // Background must match the live canvas styling defined in `index.css`
-  // (`#cable-planner-canvas` / `.canvas-theme-light .react-flow__pane`) plus
-  // the React Flow `<Background />` dot pattern. The viewport itself is a
-  // sibling of `.react-flow__background` so dots aren't captured implicitly —
-  // we reproduce them here as a CSS background-image so the exported PDF
-  // matches what the user sees on screen.
-  const theme = options?.backgroundTheme ?? 'dark'
-  const bgFallback = theme === 'light' ? '#e8edf4' : '#0f172a'
-  const bgGradient =
-    theme === 'light'
-      ? 'radial-gradient(circle at 30% 20%, #eef2f7 0%, #e8edf4 50%, #dde4ee 100%)'
-      : 'radial-gradient(circle at 20% 10%, #1e293b 0%, #0f172a 45%, #020617 100%)'
-  const dotColor = theme === 'light' ? '#cbd5e1' : '#334155'
-  // React Flow `<Background />` defaults: dots, gap=20, size=1.
-  const dotPattern = `radial-gradient(${dotColor} 1px, transparent 1px)`
-  const composedBackground = `${dotPattern}, ${bgGradient}`
+  // Background must match the live canvas — including the user's current
+  // bgVariant / gridSize / opacity / palette settings. Compose via the
+  // shared helper so PNG / JPEG / PDF all stay in sync.
+  const composed = composeExportBackground({
+    theme: options?.backgroundTheme ?? 'dark',
+    variant: options?.bgVariant ?? 'dots',
+    gridSize: options?.gridSize ?? 20,
+    opacity: options?.bgOpacity ?? 0.5,
+    customPalette: options?.customPalette ?? null,
+  })
 
   const dataUrl = await toJpeg(viewportEl, {
-    backgroundColor: bgFallback,
+    backgroundColor: composed.bgFallback,
     pixelRatio: 1.5,
     quality,
     cacheBust: true,
@@ -262,10 +266,10 @@ const buildCanvasPdf = async (
     style: {
       width: `${contentW}px`,
       height: `${contentH}px`,
-      background: composedBackground,
-      backgroundSize: '20px 20px, 100% 100%',
-      backgroundRepeat: 'repeat, no-repeat',
-      backgroundColor: bgFallback,
+      background: composed.background,
+      backgroundSize: composed.backgroundSize,
+      backgroundRepeat: composed.backgroundRepeat,
+      backgroundColor: composed.bgFallback,
       transform: `translate(${-contentX}px, ${-contentY}px)`,
       transformOrigin: '0 0',
     },

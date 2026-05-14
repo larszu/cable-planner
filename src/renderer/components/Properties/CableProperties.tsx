@@ -461,14 +461,17 @@ const ConnectorMismatchHint = ({
                   })
                   // Add second cable: converter output → original target
                   queueConnection({
-                    fromEquipmentId: newId,
-                    fromPortId: newOutPortId,
-                    toEquipmentId,
-                    toPortId: toPort.id,
+                    source: newId,
+                    sourceHandle: newOutPortId,
+                    target: toEquipmentId,
+                    targetHandle: toPort.id,
                   })
                   createCableFromPending({
                     name: `${tpl.name} → ${toDev.name}`,
                     color: '#94a3b8',
+                    type: 'Custom',
+                    length: 1,
+                    notes: '',
                   })
                 }}
                 className="rounded bg-amber-800/60 px-1.5 py-0.5 text-amber-100 hover:bg-amber-700/80"

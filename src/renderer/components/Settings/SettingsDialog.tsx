@@ -366,6 +366,12 @@ const AppearanceTab = () => {
   const setBgVariant = useUiStore((s) => s.setBgVariant)
   const bgOpacity = useUiStore((s) => s.bgOpacity)
   const setBgOpacity = useUiStore((s) => s.setBgOpacity)
+  // v7.7.1 — Custom canvas background image (Issue #71).
+  const canvasBgImageDark = useUiStore((s) => s.canvasBgImageDark)
+  const canvasBgImageLight = useUiStore((s) => s.canvasBgImageLight)
+  const canvasBgImageFit = useUiStore((s) => s.canvasBgImageFit)
+  const setCanvasBgImage = useUiStore((s) => s.setCanvasBgImage)
+  const setCanvasBgImageFit = useUiStore((s) => s.setCanvasBgImageFit)
   const setDefaultArrow = useUiStore((s) => s.setDefaultArrow)
   const language = useUiStore((s) => s.language)
   const setLanguage = useUiStore((s) => s.setLanguage)
@@ -586,6 +592,80 @@ const AppearanceTab = () => {
             <span className="w-10 text-right text-xs text-slate-400">
               {Math.round(bgOpacity * 100)}%
             </span>
+          </label>
+        </div>
+        {/* v7.7.1 — Custom canvas background image upload (Issue #71). */}
+        <div className="mt-4 border-t border-slate-800 pt-3">
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            {t('settings.canvasBg.imageTitle', 'Eigenes Hintergrundbild')}
+          </div>
+          <div className="mb-2 text-[11px] text-slate-500">
+            {t(
+              'settings.canvasBg.imageDesc',
+              'Lade ein eigenes Bild als Canvas-Hintergrund — getrennt für Dark- und Light-Mode. Das Rastermuster (Punkte/Linien/Kreuze) wird darüber gezeichnet.',
+            )}
+          </div>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            {([
+              ['dark', '🌙 Dark-Mode-Bild', canvasBgImageDark] as const,
+              ['light', '☀ Light-Mode-Bild', canvasBgImageLight] as const,
+            ]).map(([theme, label, current]) => (
+              <div key={theme} className="rounded border border-slate-800 bg-slate-950/40 p-2">
+                <div className="mb-1 text-[11px] font-semibold text-slate-300">{label}</div>
+                {current ? (
+                  <>
+                    <img
+                      src={current}
+                      alt={`${theme} background`}
+                      className="mb-2 h-20 w-full rounded border border-slate-700 object-cover"
+                    />
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const dataUri = await pickImageAsDataUri()
+                          if (dataUri) setCanvasBgImage(theme, dataUri)
+                        }}
+                        className="flex-1 rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
+                      >
+                        {t('settings.canvasBg.replace', 'Ersetzen…')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCanvasBgImage(theme, null)}
+                        className="rounded bg-red-900/60 px-2 py-1 text-[11px] text-red-200 hover:bg-red-800"
+                        title={t('settings.canvasBg.remove', 'Bild entfernen')}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const dataUri = await pickImageAsDataUri()
+                      if (dataUri) setCanvasBgImage(theme, dataUri)
+                    }}
+                    className="w-full rounded border border-dashed border-slate-700 bg-slate-900 px-2 py-4 text-[11px] text-slate-400 hover:border-slate-600 hover:text-slate-200"
+                  >
+                    {t('settings.canvasBg.upload', '+ Bild hochladen…')}
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          <label className="mt-3 flex items-center gap-2 text-xs text-slate-300">
+            <span className="text-slate-400">{t('settings.canvasBg.fit', 'Skalierung')}</span>
+            <select
+              value={canvasBgImageFit}
+              onChange={(e) => setCanvasBgImageFit(e.target.value as 'cover' | 'contain' | 'tile')}
+              className="rounded border border-slate-700 bg-slate-900 p-1 text-xs"
+            >
+              <option value="cover">{t('settings.canvasBg.fit.cover', 'Cover (füllt komplett, beschneidet)')}</option>
+              <option value="contain">{t('settings.canvasBg.fit.contain', 'Contain (vollständig sichtbar, mit Rand)')}</option>
+              <option value="tile">{t('settings.canvasBg.fit.tile', 'Kacheln (wiederholt)')}</option>
+            </select>
           </label>
         </div>
       </SettingsCard>

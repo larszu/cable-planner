@@ -24,20 +24,25 @@ body,
   height: 100%;
 }
 
+/* v7.7.1 — Gradient lives on the canvas container itself, NOT on
+ * `.react-flow__pane`. The pane sits on top of `.react-flow__background`
+ * (the SVG that draws the dots/lines pattern), so making the pane opaque
+ * obscures the user-configurable Background component entirely. The
+ * pane must stay transparent for the pattern to be visible. */
 #cable-planner-canvas {
-  background: #0f172a;
-}
-
-#cable-planner-canvas .react-flow__pane {
   background: radial-gradient(circle at 20% 10%, #1e293b 0%, #0f172a 45%, #020617 100%);
 }
 
+#cable-planner-canvas .react-flow__pane {
+  background: transparent;
+}
+
 #cable-planner-canvas.canvas-theme-light {
-  background: #e8edf4;
+  background: radial-gradient(circle at 30% 20%, #eef2f7 0%, #e8edf4 50%, #dde4ee 100%);
 }
 
 #cable-planner-canvas.canvas-theme-light .react-flow__pane {
-  background: radial-gradient(circle at 30% 20%, #eef2f7 0%, #e8edf4 50%, #dde4ee 100%);
+  background: transparent;
 }
 
 #cable-planner-canvas.canvas-theme-light .react-flow__controls {

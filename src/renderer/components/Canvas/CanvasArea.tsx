@@ -60,6 +60,9 @@ const CanvasContent = () => {
   const bgVariant = useUiStore((state) => state.bgVariant)
   const bgOpacity = useUiStore((state) => state.bgOpacity)
   const customPalette = useUiStore((state) => state.customPalette)
+  const canvasBgImageDark = useUiStore((state) => state.canvasBgImageDark)
+  const canvasBgImageLight = useUiStore((state) => state.canvasBgImageLight)
+  const canvasBgImageFit = useUiStore((state) => state.canvasBgImageFit)
   const cableColorMode = useUiStore((state) => state.cableColorMode)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
@@ -952,6 +955,8 @@ const CanvasContent = () => {
               outputs: [],
               x: flow.x,
               y: flow.y,
+              width: 240,
+              height: 80,
             })
           })()
           return
@@ -979,6 +984,32 @@ const CanvasContent = () => {
     getSelectedEquipmentIds,
   ])
 
+  // v7.7.1 — Custom canvas background image (Issue #71). When the user
+  // uploaded an image for the current theme, render it as the canvas
+  // backdrop in place of the radial gradient. The pattern overlay from
+  // ReactFlow's <Background> still draws on top so the grid remains
+  // visible. Fit mode maps to CSS `background-size`.
+  const canvasBgImage =
+    effectiveCanvasTheme === 'light' ? canvasBgImageLight : canvasBgImageDark
+  const canvasBgSize =
+    canvasBgImageFit === 'cover'
+      ? 'cover'
+      : canvasBgImageFit === 'contain'
+        ? 'contain'
+        : 'auto'
+  const canvasBgRepeat = canvasBgImageFit === 'tile' ? 'repeat' : 'no-repeat'
+  const canvasBgInlineStyle: React.CSSProperties = canvasBgImage
+    ? {
+        backgroundImage: `url(${canvasBgImage})`,
+        backgroundSize: canvasBgSize,
+        backgroundRepeat: canvasBgRepeat,
+        backgroundPosition: 'center center',
+        backgroundColor:
+          customPalette?.canvasBg ??
+          (effectiveCanvasTheme === 'light' ? '#e8edf4' : '#0f172a'),
+      }
+    : { background: customPalette?.canvasBg }
+
   return (
     <div
       ref={wrapperRef}
@@ -987,7 +1018,7 @@ const CanvasContent = () => {
         height: '100%',
         minHeight: 400,
         position: 'relative',
-        background: customPalette?.canvasBg,
+        ...canvasBgInlineStyle,
       }}
       id="cable-planner-canvas"
       className={effectiveCanvasTheme === 'light' ? 'canvas-theme-light' : ''}
