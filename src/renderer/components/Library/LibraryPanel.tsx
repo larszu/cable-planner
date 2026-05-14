@@ -504,7 +504,7 @@ export const LibraryPanel = () => {
   }
   const inner = (
     <aside className={`flex h-full min-h-0 flex-col ${floating ? 'bg-transparent p-3' : 'border-r border-slate-700 bg-slate-950 p-3'} text-slate-100`}>
-      <div className="mb-3 flex items-center gap-2 text-xs">
+      <div className="mb-3 flex flex-wrap items-center gap-y-1 gap-x-2 text-xs">
         {!floating && (
           <button
             type="button"
@@ -614,7 +614,7 @@ export const LibraryPanel = () => {
       )}
       {tab === 'equipment' && equipmentSection === 'local' && (
         <>
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
             <div className="flex min-w-0 items-center gap-2">
               <h2 className="text-sm font-semibold">Lokale Library</h2>
               <span
@@ -624,7 +624,7 @@ export const LibraryPanel = () => {
                 Lokal
               </span>
             </div>
-            <div className="flex gap-1">
+            <div className="flex flex-wrap gap-1">
               {/* v7.6.0 — NetBox import removed per user request. The data
                   source was rarely matched what we needed for broadcast
                   gear; keeping the dialog code (lib/netboxImport.ts +
@@ -1373,7 +1373,7 @@ export const LibraryPanel = () => {
 
       {tab === 'groups' && (
         <div className="flex flex-1 min-h-0 flex-col">
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
             <h2 className="text-sm font-semibold">Gerätegruppen</h2>
             <span className="text-[10px] text-slate-500">Mehrere Geräte + Kabel als Vorlage</span>
           </div>
@@ -1439,8 +1439,8 @@ export const LibraryPanel = () => {
 
       {tab === 'racks' && (
         <div className="flex flex-1 min-h-0 flex-col">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <div>
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
+            <div className="min-w-0">
               <h2 className="text-sm font-semibold">2D Rack Builder</h2>
               <div className="text-[10px] text-slate-500">Rack-Slots in HE, als platzierbare Gruppe gespeichert</div>
             </div>

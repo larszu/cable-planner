@@ -175,6 +175,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
 
   // Derived row height in pixels. Falls back to a sensible default while the
   // ResizeObserver hasn't fired yet so the initial render isn't 0 px.
+  // v7.7.0 — at zoom=1 the panel exactly fits paneWidth (panel width =
+  // rowHeight*aspect = paneWidth). Zoom>1 makes the panel wider; the
+  // overflow-x-auto on the rack canvas wrapper handles that gracefully
+  // instead of breaking the dialog layout.
   const rowHeight = useMemo(() => {
     if (paneWidth <= 0) return DEFAULT_ROW_HEIGHT
     const fit = paneWidth / RACK_PANEL_ASPECT_PER_1HE
@@ -518,11 +522,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             </div>
           </div>
 
-          <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
+          <div className="min-w-0 rounded border border-slate-700 bg-slate-950/50 p-2">
             <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Rack-Slots (Drag & Drop hoch/runter)</div>
             <div
               ref={rackCanvasRef}
-              className={`grid gap-2 ${draft.viewMode === 'both' ? 'grid-cols-2' : 'grid-cols-1'}`}
+              className={`grid gap-2 overflow-x-auto ${draft.viewMode === 'both' ? 'grid-cols-2' : 'grid-cols-1'}`}
             >
               {(draft.viewMode === 'both' ? ['front', 'rear'] : [draft.viewMode]).map((side) => (
                 <div key={side} className="rounded border border-slate-800 bg-slate-950 p-2">
@@ -569,25 +573,50 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       return (
                         <div
                           key={`${side}-block-${item.id}`}
-                          className={`absolute overflow-hidden rounded border ${selectedPlacementId === item.id ? 'border-amber-400 bg-amber-900/30' : 'border-sky-600/70 bg-sky-900/40'}`}
+                          className={`absolute cursor-grab touch-none select-none overflow-hidden rounded border active:cursor-grabbing ${selectedPlacementId === item.id ? 'border-amber-400 bg-amber-900/30' : 'border-sky-600/70 bg-sky-900/40'}`}
                           style={{ top, height, left: 0, right: 0 }}
                           title={`${item.name} (${item.rackUnits} HE)`}
                           onPointerDown={(event) => {
+                            // Capture so onPointerMove fires reliably even
+                            // when the cursor leaves the small block.
                             event.preventDefault()
+                            event.stopPropagation()
+                            event.currentTarget.setPointerCapture?.(event.pointerId)
                             const host = event.currentTarget.parentElement?.getBoundingClientRect()
                             if (!host) return
                             const pointerUnit = Math.max(1, Math.min(draft.totalUnits, Math.floor((event.clientY - host.top) / rowHeight) + 1))
                             setSelectedPlacementId(item.id)
                             setDragState({ placementId: item.id, offsetUnits: pointerUnit - item.startUnit, pointerId: event.pointerId })
                           }}
+                          onPointerMove={(event) => {
+                            if (!dragState || dragState.pointerId !== event.pointerId) return
+                            const host = event.currentTarget.parentElement?.getBoundingClientRect()
+                            if (!host) return
+                            const y = clamp(event.clientY - host.top, 0, host.height)
+                            const unitAtPointer = Math.max(1, Math.min(draft.totalUnits, Math.floor(y / rowHeight) + 1))
+                            const placement = draft.placements.find((p) => p.id === dragState.placementId)
+                            if (!placement) return
+                            const nextStart = Math.max(1, Math.min(draft.totalUnits - placement.rackUnits + 1, unitAtPointer - dragState.offsetUnits))
+                            updatePlacement(placement.id, { startUnit: nextStart })
+                          }}
+                          onPointerUp={(event) => {
+                            event.currentTarget.releasePointerCapture?.(event.pointerId)
+                            setDragState(null)
+                          }}
+                          onPointerCancel={() => setDragState(null)}
                           onClick={() => setSelectedPlacementId(item.id)}
                         >
                           {image ? (
-                            <img src={image} alt={`${item.name} ${side}`} className="h-full w-full object-contain" />
+                            <img
+                              src={image}
+                              alt={`${item.name} ${side}`}
+                              draggable={false}
+                              className="pointer-events-none h-full w-full object-contain"
+                            />
                           ) : (
-                            <div className="flex h-full items-center justify-center px-2 text-center text-[10px] font-semibold text-sky-100">{item.name}</div>
+                            <div className="pointer-events-none flex h-full items-center justify-center px-2 text-center text-[10px] font-semibold text-sky-100">{item.name}</div>
                           )}
-                          <div className="absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5 text-[9px] text-white">
+                          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5 text-[9px] text-white">
                             {item.inputs.length} In · {item.outputs.length} Out
                           </div>
                         </div>
