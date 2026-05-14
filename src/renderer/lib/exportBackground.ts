@@ -64,37 +64,37 @@ export const composeExportBackground = (
 
   // Variant-specific pattern values. Sizes echo the ReactFlow defaults
   // (dot radius 1.5, line width 1, cross arm 6 px).
-  let pattern = ''
-  let patternSize = ''
-  switch (variant) {
-    case 'dots':
-      pattern = `radial-gradient(${rgbaGrid} 1.5px, transparent 1.6px)`
-      patternSize = `${gridSize}px ${gridSize}px`
-      break
-    case 'lines':
-      // Orthogonal lines, 1 px wide, every gridSize px on both axes.
-      pattern =
-        `linear-gradient(${rgbaGrid} 1px, transparent 1px),` +
-        ` linear-gradient(90deg, ${rgbaGrid} 1px, transparent 1px)`
-      patternSize = `${gridSize}px ${gridSize}px, ${gridSize}px ${gridSize}px`
-      break
-    case 'cross': {
-      // 6-px cross at each intersection — approximated with two short
-      // line segments. Using radial-gradient with stops to fake the
-      // cross arms keeps the markup simple while still tiling.
-      const arm = 6
-      pattern =
-        `linear-gradient(${rgbaGrid} 1px, transparent 1px),` +
-        ` linear-gradient(90deg, ${rgbaGrid} 1px, transparent 1px)`
-      patternSize = `${gridSize}px ${arm}px, ${arm}px ${gridSize}px`
-      break
+  const { pattern, patternSize } = (() => {
+    switch (variant) {
+      case 'dots':
+        return {
+          pattern: `radial-gradient(${rgbaGrid} 1.5px, transparent 1.6px)`,
+          patternSize: `${gridSize}px ${gridSize}px`,
+        }
+      case 'lines':
+        // Orthogonal lines, 1 px wide, every gridSize px on both axes.
+        return {
+          pattern:
+            `linear-gradient(${rgbaGrid} 1px, transparent 1px),` +
+            ` linear-gradient(90deg, ${rgbaGrid} 1px, transparent 1px)`,
+          patternSize: `${gridSize}px ${gridSize}px, ${gridSize}px ${gridSize}px`,
+        }
+      case 'cross': {
+        // 6-px cross at each intersection — approximated with two short
+        // line segments. Keeps the markup simple while still tiling.
+        const arm = 6
+        return {
+          pattern:
+            `linear-gradient(${rgbaGrid} 1px, transparent 1px),` +
+            ` linear-gradient(90deg, ${rgbaGrid} 1px, transparent 1px)`,
+          patternSize: `${gridSize}px ${arm}px, ${arm}px ${gridSize}px`,
+        }
+      }
+      case 'none':
+      default:
+        return { pattern: '', patternSize: '' }
     }
-    case 'none':
-    default:
-      pattern = ''
-      patternSize = ''
-      break
-  }
+  })()
 
   if (!pattern) {
     return {

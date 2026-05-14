@@ -98,7 +98,7 @@ const drawColumn = (
   pageBottom: number,
   margin: number,
 ) => {
-  let x = xStart
+  const x = xStart
   let y = yStart
   pdf.setFontSize(11)
   pdf.setTextColor(20)
