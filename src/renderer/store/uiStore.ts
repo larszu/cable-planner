@@ -97,6 +97,22 @@ interface PersistedUiState {
   /** Issue #69: customizable keyboard shortcuts. Map of action → key
    *  combo. Empty string disables the shortcut. */
   hotkeys: Record<string, string>
+  /** v7.3.0 — floating side panels. When true the corresponding side
+   *  panel is rendered as a draggable overlay instead of a grid
+   *  column, so it doesn't push the canvas. Position survives
+   *  reloads via {x,y}. */
+  libraryFloating: boolean
+  libraryFloatingPos: { x: number; y: number }
+  propertiesFloating: boolean
+  propertiesFloatingPos: { x: number; y: number }
+  /** v7.3.0 — Custom canvas/UI palette override. When set, the
+   *  canvas chrome (background, edge colors) uses these instead of
+   *  the dark/light defaults. `null` means follow theme. */
+  customPalette: {
+    canvasBg: string
+    gridColor: string
+    accent: string
+  } | null
 }
 
 const defaults: PersistedUiState = {
@@ -136,6 +152,11 @@ const defaults: PersistedUiState = {
     toggleArrows: 'A',
     toggleRouting: 'R',
   },
+  libraryFloating: false,
+  libraryFloatingPos: { x: 80, y: 80 },
+  propertiesFloating: false,
+  propertiesFloatingPos: { x: 80, y: 80 },
+  customPalette: null,
 }
 
 const load = (): PersistedUiState => {
@@ -156,6 +177,27 @@ const load = (): PersistedUiState => {
       merged.orthogonalCollisionShift = defaults.orthogonalCollisionShift
     if (!merged.hotkeys || typeof merged.hotkeys !== 'object') merged.hotkeys = defaults.hotkeys
     else merged.hotkeys = { ...defaults.hotkeys, ...merged.hotkeys }
+    if (typeof merged.libraryFloating !== 'boolean') merged.libraryFloating = false
+    if (typeof merged.propertiesFloating !== 'boolean') merged.propertiesFloating = false
+    if (
+      !merged.libraryFloatingPos ||
+      typeof merged.libraryFloatingPos.x !== 'number' ||
+      typeof merged.libraryFloatingPos.y !== 'number'
+    )
+      merged.libraryFloatingPos = defaults.libraryFloatingPos
+    if (
+      !merged.propertiesFloatingPos ||
+      typeof merged.propertiesFloatingPos.x !== 'number' ||
+      typeof merged.propertiesFloatingPos.y !== 'number'
+    )
+      merged.propertiesFloatingPos = defaults.propertiesFloatingPos
+    if (
+      merged.customPalette &&
+      (typeof merged.customPalette.canvasBg !== 'string' ||
+        typeof merged.customPalette.gridColor !== 'string' ||
+        typeof merged.customPalette.accent !== 'string')
+    )
+      merged.customPalette = null
     if (merged.connectorTypeColors === null || typeof merged.connectorTypeColors !== 'object')
       merged.connectorTypeColors = {}
     if (typeof merged.bgOpacity !== 'number' || !Number.isFinite(merged.bgOpacity))
@@ -217,6 +259,11 @@ interface UiState extends PersistedUiState {
   setOrthogonalCollisionShift: (value: boolean) => void
   setHotkey: (action: string, combo: string) => void
   resetHotkeys: () => void
+  setLibraryFloating: (value: boolean) => void
+  setLibraryFloatingPos: (pos: { x: number; y: number }) => void
+  setPropertiesFloating: (value: boolean) => void
+  setPropertiesFloatingPos: (pos: { x: number; y: number }) => void
+  setCustomPalette: (palette: { canvasBg: string; gridColor: string; accent: string } | null) => void
   pdfExportThemeOverride: 'dark' | 'light' | null
   setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
   cableEdit: { open: boolean; cableId?: string }
@@ -326,6 +373,11 @@ const applyPatch =
       cableBumps: state.cableBumps,
       orthogonalCollisionShift: state.orthogonalCollisionShift,
       hotkeys: state.hotkeys,
+      libraryFloating: state.libraryFloating,
+      libraryFloatingPos: state.libraryFloatingPos,
+      propertiesFloating: state.propertiesFloating,
+      propertiesFloatingPos: state.propertiesFloatingPos,
+      customPalette: state.customPalette,
       ...patch,
     }
     persist(next)
@@ -416,6 +468,11 @@ export const useUiStore = create<UiState>((set) => ({
   setHotkey: (action, combo) =>
     set((state) => applyPatch({ hotkeys: { ...state.hotkeys, [action]: combo } })(state)),
   resetHotkeys: () => set(applyPatch({ hotkeys: defaults.hotkeys })),
+  setLibraryFloating: (value) => set(applyPatch({ libraryFloating: value })),
+  setLibraryFloatingPos: (pos) => set(applyPatch({ libraryFloatingPos: pos })),
+  setPropertiesFloating: (value) => set(applyPatch({ propertiesFloating: value })),
+  setPropertiesFloatingPos: (pos) => set(applyPatch({ propertiesFloatingPos: pos })),
+  setCustomPalette: (palette) => set(applyPatch({ customPalette: palette })),
   pdfExportThemeOverride: null,
   setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
   cableEdit: { open: false },

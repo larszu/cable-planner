@@ -22,6 +22,7 @@ import { useEffect, useState } from 'react'
 import QRCode from 'qrcode'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
+import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 
 interface ShareStatus {
   running: boolean
@@ -92,6 +93,8 @@ export const MobileShareDialog = () => {
     void renderQrTo(primary).then(setQrDataUrl)
   }, [status.urls, selectedUrl])
 
+  const drag = useDraggablePosition('cable-planner:modal-pos:mobile-share', open)
+
   if (!open) return null
 
   const handleStart = async () => {
@@ -130,8 +133,15 @@ export const MobileShareDialog = () => {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       onMouseDown={(e) => e.target === e.currentTarget && close()}
     >
-      <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
-        <header className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
+      <div
+        ref={drag.containerRef}
+        style={drag.containerStyle}
+        className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
+      >
+        <header
+          {...drag.headerProps}
+          className="flex items-center justify-between border-b border-slate-700 px-4 py-3 select-none"
+        >
           <h2 className="text-sm font-semibold">
             <span className="mr-2">📱</span>Handy-Zugriff
           </h2>

@@ -6,6 +6,7 @@
  */
 
 import { useUiStore } from '../../store/uiStore'
+import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import {
   APP_AUTHOR,
   APP_BUILD_DATE,
@@ -25,14 +26,22 @@ const buildDateLocal = (() => {
 export const AboutDialog = () => {
   const open = useUiStore((s) => s.aboutDialog.open)
   const close = useUiStore((s) => s.closeAboutDialog)
+  const drag = useDraggablePosition('cable-planner:modal-pos:about', open)
   if (!open) return null
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       onMouseDown={(e) => e.target === e.currentTarget && close()}
     >
-      <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
-        <header className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
+      <div
+        ref={drag.containerRef}
+        style={drag.containerStyle}
+        className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
+      >
+        <header
+          {...drag.headerProps}
+          className="flex items-center justify-between border-b border-slate-700 px-4 py-3 select-none"
+        >
           <h2 className="text-sm font-semibold">
             <span className="mr-2">ⓘ</span>Über Cable Planner
           </h2>

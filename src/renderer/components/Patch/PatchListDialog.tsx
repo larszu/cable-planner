@@ -11,6 +11,7 @@ import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 
 type SortKey = 'fromDevice' | 'toDevice' | 'type' | 'length' | 'color'
 
@@ -88,6 +89,8 @@ export const PatchListDialog = () => {
     )
   }, [rows, filter])
 
+  const drag = useDraggablePosition('cable-planner:modal-pos:patchlist', open)
+
   if (!open) return null
 
   const exportCsv = () => {
@@ -121,8 +124,15 @@ export const PatchListDialog = () => {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       onMouseDown={(e) => e.target === e.currentTarget && close()}
     >
-      <div className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
-        <header className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
+      <div
+        ref={drag.containerRef}
+        style={drag.containerStyle}
+        className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
+      >
+        <header
+          {...drag.headerProps}
+          className="flex items-center justify-between border-b border-slate-700 px-4 py-3 select-none"
+        >
           <div>
             <h2 className="text-sm font-semibold">
               <span className="mr-2">🪢</span>Patchliste
