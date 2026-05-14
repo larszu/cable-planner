@@ -204,6 +204,7 @@ const buildPath = (
   },
   obstacles: Rect[],
   obstacleIds: string[],
+  collisionShiftOn: boolean,
   resolvedOrthogonalWaypoints?: { x: number; y: number }[],
 ): [string, number, number] => {
   const routing = cable.routing ?? 'orthogonal'
@@ -265,11 +266,10 @@ const buildPath = (
 
     // Compose intermediate points between sStub and tStub. The exact shape
     // depends on whether the two stubs share an axis after stub-out.
-    // Issue #53: when the user enabled `orthogonalCollisionShift` we
-    // jitter the midline so cables that would compute identical
-    // midX/midY don't perfectly overlap. The jitter is hashed from the
-    // cable id so it's stable across re-renders.
-    const collisionShiftOn = useUiStore.getState().orthogonalCollisionShift
+    // Issue #53: when `collisionShiftOn` is true (read from uiStore by
+    // the calling component) we jitter the midline so cables that would
+    // compute identical midX/midY don't perfectly overlap. The jitter
+    // is hashed from the cable id so it's stable across re-renders.
     const jitter = collisionShiftOn ? midlineJitter(cable.id) : 0
     const points: { x: number; y: number }[] = [{ x: sx, y: sy }, sStub]
     if (Math.abs(sStub.x - tStub.x) < 2 || Math.abs(sStub.y - tStub.y) < 2) {
@@ -356,6 +356,7 @@ export const CableEdge = ({
   // EquipmentNode reads the same store value to highlight the matching
   // port handles, so the entire connection visually pops at once.
   const hoveredCableId = useUiStore((s) => s.hoveredCableId)
+  const collisionShiftOn = useUiStore((s) => s.orthogonalCollisionShift)
   const hovered = hoveredCableId === id
   const isLight = (data?.exportThemeOverride ?? canvasTheme) === 'light'
 
@@ -387,7 +388,7 @@ export const CableEdge = ({
     ? resolveOrthogonalWaypoints(cable, routingArgs, obstacles, obstacleIds)
     : []
   const [path, centerX, centerY] = cable
-    ? buildPath(cable, routingArgs, obstacles, obstacleIds, orthogonalWaypoints)
+    ? buildPath(cable, routingArgs, obstacles, obstacleIds, collisionShiftOn, orthogonalWaypoints)
     : getSmoothStepPath(routingArgs)
 
   // Resolve label position: center (default), near source, near target.
