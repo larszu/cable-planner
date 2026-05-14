@@ -1744,7 +1744,7 @@ export const LibraryPanel = () => {
             </div>
 
             <div className="mb-2 rounded border border-violet-800/60 bg-violet-950/30 p-2 text-xs">
-              <div className="mb-1 flex items-center justify-between">
+              <div className="mb-1 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
                 <span className="font-semibold text-violet-200">
                   Auto-Vorschlag aus Geräte-Name
                 </span>
@@ -1841,11 +1841,11 @@ export const LibraryPanel = () => {
               </div>
             )}
 
-            <div className="mb-2 flex items-center justify-between">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
               <div className="text-sm font-semibold">
                 {t('library.create.portGroups', 'Port-Gruppen')}
               </div>
-              <div className="flex gap-2 text-xs">
+              <div className="flex flex-wrap gap-2 text-xs">
                 <button
                   type="button"
                   onClick={() => addGroup('in')}
