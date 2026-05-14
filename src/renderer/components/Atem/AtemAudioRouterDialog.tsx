@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { downloadBlob } from '../../lib/downloadBlob'
 import type {
   AtemAudioConfig,
   AtemClassicAudioInput,
@@ -102,13 +103,11 @@ export const AtemAudioRouterDialog = () => {
     setBusy(true)
     try {
       const xml = serializeAudioConfigXml(draft)
-      const blob = new Blob([xml], { type: 'application/xml' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${equipment.name.replace(/[^a-z0-9\-_. ]/gi, '_')}-AudioConfig.xml`
-      a.click()
-      URL.revokeObjectURL(url)
+      downloadBlob(
+        `${equipment.name}-AudioConfig.xml`,
+        xml,
+        'application/xml',
+      )
     } catch (e) {
       setErrorMsg(e instanceof Error ? e.message : String(e))
     } finally {

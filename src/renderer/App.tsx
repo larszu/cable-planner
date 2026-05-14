@@ -16,6 +16,7 @@ import { MultiviewerLayoutView } from './components/Atem/MultiviewerLayoutView'
 import { AtemMvConfigDialog } from './components/Atem/AtemMvConfigDialog'
 import { AtemAudioRouterDialog } from './components/Atem/AtemAudioRouterDialog'
 import { LocationBomDialog } from './components/Project/LocationBomDialog'
+import { RackEditorDialog } from './components/Rack/RackEditorDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
 import { PrintDialog } from './components/Print/PrintDialog'
@@ -432,6 +433,7 @@ export default function App() {
       <AtemMvConfigDialog />
       <AtemAudioRouterDialog />
       <LocationBomDialog />
+      <RackEditorDialog />
 
       <ProjectMetaDialog
         open={metaDialog !== null}

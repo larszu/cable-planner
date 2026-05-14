@@ -1384,14 +1384,30 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     set((state) => {
       const preset = state.groupPresets.find((p) => p.id === presetId)
       if (!preset) return {}
+      // Issue #61: when the preset carries `rack` metadata it represents
+      // a 19" rack layout. Tag every spawned equipment item with a fresh
+      // `rackInstanceId` + the preset name so the Rack-Editor can later
+      // filter the canvas down to "just this rack" without us needing a
+      // dedicated rack entity in the data model.
+      const rackInstanceId = preset.rack ? `rack:${uuidv4()}` : undefined
+      const rackInstanceLabel = preset.rack ? preset.name : undefined
+      const placementByIndex = new Map<number, { startUnit: number; heightUnits: number }>()
+      if (preset.rack) {
+        for (const p of preset.rack.placements) {
+          placementByIndex.set(p.itemIndex, { startUnit: p.startUnit, heightUnits: p.heightUnits })
+        }
+      }
       // Create new equipment items with fresh IDs and port IDs.
-      const newEquipment: EquipmentItem[] = preset.items.map((item) => ({
+      const newEquipment: EquipmentItem[] = preset.items.map((item, idx) => ({
         ...item,
         id: uuidv4(),
         x: x + item.offsetX,
         y: y + item.offsetY,
         inputs: item.inputs.map((p) => ({ ...p, id: uuidv4() })),
         outputs: item.outputs.map((p) => ({ ...p, id: uuidv4() })),
+        rackInstanceId,
+        rackInstanceLabel,
+        rackInstanceStartUnit: placementByIndex.get(idx)?.startUnit,
       }))
       // Build (itemIndex:portName) → new port ID lookup
       const portIdMap = new Map<string, string>()
