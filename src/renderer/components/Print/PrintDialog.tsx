@@ -9,6 +9,7 @@
 
 import { useMemo, useState } from 'react'
 import { useProjectStore } from '../../store/projectStore'
+import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import {
   exportDevicePatchSheet,
   exportDevicesPatchSheetsBatch,
@@ -49,6 +50,7 @@ export const PrintDialog = ({
   const [format, setFormat] = useState<PaperFormat>('a4')
   const [mode, setMode] = useState<DeviceMode>('combined')
   const [busy, setBusy] = useState(false)
+  const drag = useDraggablePosition('cable-planner:modal-pos:print', open)
 
   if (!open) return null
 
@@ -98,8 +100,15 @@ export const PrintDialog = ({
       className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-slate-700 bg-slate-900 shadow-2xl">
-        <header className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
+      <div
+        ref={drag.containerRef}
+        style={drag.containerStyle}
+        className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
+      >
+        <header
+          {...drag.headerProps}
+          className="flex items-center justify-between border-b border-slate-700 px-4 py-3 select-none"
+        >
           <h2 className="text-sm font-semibold text-slate-100">
             <span className="mr-2">🖨</span>
             Drucken

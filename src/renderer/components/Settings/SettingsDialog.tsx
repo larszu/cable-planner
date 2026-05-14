@@ -590,6 +590,8 @@ const AppearanceTab = () => {
         </div>
       </SettingsCard>
 
+      <CustomPaletteCard />
+
       <SettingsCard
         title={t('settings.connectorColors.title', 'Steckertyp-Farben')}
         description={t(
@@ -635,6 +637,67 @@ const AppearanceTab = () => {
         </div>
       </SettingsCard>
     </div>
+  )
+}
+
+/** v7.3.0 — Custom palette override (canvas bg, grid color, accent).
+ *  When unset, falls back to the dark/light defaults. The CanvasArea
+ *  reads `customPalette` from uiStore and uses these in preference
+ *  over the theme-derived values, so a user with very specific brand
+ *  colors can pin them across dark/light theme toggles. */
+const CustomPaletteCard = () => {
+  const t = useTranslation()
+  const palette = useUiStore((s) => s.customPalette)
+  const setPalette = useUiStore((s) => s.setCustomPalette)
+  const enabled = palette !== null
+  const current = palette ?? {
+    canvasBg: '#0f172a',
+    gridColor: '#64748b',
+    accent: '#38bdf8',
+  }
+  return (
+    <SettingsCard
+      title={t('settings.customPalette.title', 'Custom-Palette')}
+      description={t(
+        'settings.customPalette.desc',
+        'Eigene Farben für Canvas-Hintergrund, Raster und Akzent — überschreibt die Theme-Defaults (dark/light). Wirkt nur auf den Canvas; Dialoge bleiben themed.',
+      )}
+    >
+      <label className="mb-2 flex items-center gap-2 text-sm text-slate-200">
+        <input
+          type="checkbox"
+          checked={enabled}
+          onChange={(e) => setPalette(e.target.checked ? current : null)}
+        />
+        Eigene Palette aktivieren
+      </label>
+      {enabled && (
+        <div className="grid grid-cols-3 gap-3 text-xs">
+          {(
+            [
+              { key: 'canvasBg', label: 'Hintergrund' },
+              { key: 'gridColor', label: 'Raster-Strich' },
+              { key: 'accent', label: 'Akzent' },
+            ] as const
+          ).map((field) => (
+            <label key={field.key} className="block">
+              <span className="mb-1 block text-slate-400">{field.label}</span>
+              <input
+                type="color"
+                value={current[field.key]}
+                onChange={(e) =>
+                  setPalette({ ...current, [field.key]: e.target.value })
+                }
+                className="h-10 w-full cursor-pointer rounded border border-slate-700 bg-slate-900 p-1"
+              />
+              <code className="mt-1 block text-[10px] text-slate-500">
+                {current[field.key]}
+              </code>
+            </label>
+          ))}
+        </div>
+      )}
+    </SettingsCard>
   )
 }
 

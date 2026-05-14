@@ -1117,60 +1117,70 @@ export const EquipmentProperties = () => {
         </div>
       </details>
 
-      <label className="flex items-center gap-2 text-[12px] text-slate-300">
-        <input
-          type="checkbox"
-          checked={!!equipment.collapsed}
-          onChange={(event) =>
-            updateEquipment(equipment.id, { collapsed: event.target.checked || undefined })
-          }
-        />
-        {t('eq.field.compact', 'Kompakte Darstellung')}{' '}
-        <span className="text-slate-500">({t('eq.field.compactHint', 'nur Icon + Name, Ports als Punkte')})</span>
-      </label>
+      <details className="rounded border border-slate-800 bg-slate-950/40 [&_summary]:cursor-pointer">
+        <summary className="px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
+          Darstellung &amp; Flags
+          <span className="ml-2 text-[10px] text-slate-500">
+            (kompakt · Farbe · Ports spiegeln · gepackt)
+          </span>
+        </summary>
+        <div className="space-y-2 border-t border-slate-800 p-2">
+          <label className="flex items-center gap-2 text-[12px] text-slate-300">
+            <input
+              type="checkbox"
+              checked={!!equipment.collapsed}
+              onChange={(event) =>
+                updateEquipment(equipment.id, { collapsed: event.target.checked || undefined })
+              }
+            />
+            {t('eq.field.compact', 'Kompakte Darstellung')}{' '}
+            <span className="text-slate-500">({t('eq.field.compactHint', 'nur Icon + Name, Ports als Punkte')})</span>
+          </label>
 
-      <label className="flex items-center justify-between gap-2">
-        <span className="text-slate-300">{t('eq.field.color', 'Gerätefarbe')}</span>
-        <div className="flex items-center gap-2">
-          <input
-            type="color"
-            value={equipment.nodeColor ?? '#475569'}
-            onChange={(event) => updateEquipment(equipment.id, { nodeColor: event.target.value })}
-            className="h-7 w-12 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
-            title="Farbe des Geräte-Knotens"
-          />
-          {equipment.nodeColor && (
-            <button
-              type="button"
-              onClick={() => updateEquipment(equipment.id, { nodeColor: undefined })}
-              className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
-              title="Farbe zurücksetzen"
-            >
-              ✕ Reset
-            </button>
-          )}
+          <label className="flex items-center justify-between gap-2">
+            <span className="text-slate-300">{t('eq.field.color', 'Gerätefarbe')}</span>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={equipment.nodeColor ?? '#475569'}
+                onChange={(event) => updateEquipment(equipment.id, { nodeColor: event.target.value })}
+                className="h-7 w-12 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
+                title="Farbe des Geräte-Knotens"
+              />
+              {equipment.nodeColor && (
+                <button
+                  type="button"
+                  onClick={() => updateEquipment(equipment.id, { nodeColor: undefined })}
+                  className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
+                  title="Farbe zurücksetzen"
+                >
+                  ✕ Reset
+                </button>
+              )}
+            </div>
+          </label>
+
+          <label className="flex items-center gap-2 text-[11px] text-slate-300">
+            <input
+              type="checkbox"
+              checked={!!equipment.portsFlipped}
+              onChange={(event) => updateEquipment(equipment.id, { portsFlipped: event.target.checked || undefined })}
+            />
+            Ports spiegeln (Inputs rechts, Outputs links)
+          </label>
+          <label
+            className="flex items-center gap-2 text-[11px] text-slate-300"
+            title="Markiert das Gerät als gepackt. Erscheint als ✓ auf dem Canvas und als eigene Spalte in der Geräte-BOM."
+          >
+            <input
+              type="checkbox"
+              checked={!!equipment.packed}
+              onChange={(event) => updateEquipment(equipment.id, { packed: event.target.checked || undefined })}
+            />
+            Gepackt / Pack-Status
+          </label>
         </div>
-      </label>
-
-      <label className="flex items-center gap-2 text-[11px] text-slate-300">
-        <input
-          type="checkbox"
-          checked={!!equipment.portsFlipped}
-          onChange={(event) => updateEquipment(equipment.id, { portsFlipped: event.target.checked || undefined })}
-        />
-        Ports spiegeln (Inputs rechts, Outputs links)
-      </label>
-      <label
-        className="flex items-center gap-2 text-[11px] text-slate-300"
-        title="Markiert das Gerät als gepackt. Erscheint als ✓ auf dem Canvas und als eigene Spalte in der Geräte-BOM."
-      >
-        <input
-          type="checkbox"
-          checked={!!equipment.packed}
-          onChange={(event) => updateEquipment(equipment.id, { packed: event.target.checked || undefined })}
-        />
-        Gepackt / Pack-Status
-      </label>
+      </details>
 
       {/* Rentman sync status */}
       {equipment.rentmanRemoved ? (
@@ -1424,11 +1434,14 @@ export const EquipmentProperties = () => {
         </fieldset>
       </details>
 
-      <div className="rounded border border-slate-700 bg-slate-900/40 p-2">
-        <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
+      <details className="rounded border border-slate-700 bg-slate-900/40 [&_summary]:cursor-pointer">
+        <summary className="px-2 py-1.5 text-[10px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
           Bibliothek
-        </div>
-        <div className="flex flex-col gap-1">
+          <span className="ml-2 normal-case text-[10px] text-slate-500">
+            (als Vorlage speichern)
+          </span>
+        </summary>
+        <div className="flex flex-col gap-1 border-t border-slate-800 p-2">
           <button
             type="button"
             onClick={() => {
@@ -1472,7 +1485,7 @@ export const EquipmentProperties = () => {
             Als neues Gerät in Library speichern ✚
           </button>
         </div>
-      </div>
+      </details>
 
       {equipment.rackInstanceId && (
         <div className="rounded border border-cyan-700 bg-cyan-950/30 p-2">
@@ -1502,11 +1515,14 @@ export const EquipmentProperties = () => {
 
       <DeviceConfigsBlock equipmentId={equipment.id} />
 
-      <div className="rounded border border-slate-700 bg-slate-900/40 p-2">
-        <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
+      <details className="rounded border border-slate-700 bg-slate-900/40 [&_summary]:cursor-pointer">
+        <summary className="px-2 py-1.5 text-[10px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
           Druck / Dokumentation
-        </div>
-        <div className="flex flex-col gap-1">
+          <span className="ml-2 normal-case text-[10px] text-slate-500">
+            (Patch-Sheet A4/A3)
+          </span>
+        </summary>
+        <div className="flex flex-col gap-1 border-t border-slate-800 p-2">
           <button
             type="button"
             onClick={() =>
@@ -1517,7 +1533,7 @@ export const EquipmentProperties = () => {
                 { format: 'a4' },
               )
             }
-            className="w-full rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600"
+            className="w-full rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
             title="Erzeugt eine einseitige A4-Patch-Liste mit allen Ports + verbundenen Kabeln — zum Aufkleben am Gerät (Issue #74)."
           >
             🖨 Patch-Sheet (A4 PDF) drucken
@@ -1538,7 +1554,7 @@ export const EquipmentProperties = () => {
             🖨 Patch-Sheet (A3 PDF) drucken
           </button>
         </div>
-      </div>
+      </details>
 
       <RackImageCropDialog
         open={!!cropDialog}
