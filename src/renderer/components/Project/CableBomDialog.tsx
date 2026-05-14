@@ -3,6 +3,7 @@ import jsPDF from 'jspdf'
 import { useProjectStore } from '../../store/projectStore'
 import type { Cable } from '../../types/cable'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { downloadBlob } from '../../lib/downloadBlob'
 
 export interface CableBomDialogProps {
   open: boolean
@@ -95,13 +96,11 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
     for (const r of rows) {
       lines.push([r.type, String(r.length), String(r.built), String(r.planned), fmtSignFixed(r.diff)].join(';'))
     }
-    const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${(project.metadata.name || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')}-kabel-bom.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadBlob(
+      `${project.metadata.name || 'cable-planner'}-kabel-bom.csv`,
+      '\ufeff' + lines.join('\r\n'),
+      'text/csv;charset=utf-8',
+    )
   }
 
   const exportPdf = () => {

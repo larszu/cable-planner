@@ -64,6 +64,17 @@ export default defineConfig({
   build: {
     outDir: 'dist/renderer',
     emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        // Desktop renderer (loaded by Electron from index.html).
+        main: resolve(__dirname, 'index.html'),
+        // Issue #73: read-only mobile viewer. Loads a project JSON
+        // and lets the field tech tick off ports they've already
+        // plugged. Ship together with the desktop build so users
+        // can open dist/renderer/mobile.html in any browser.
+        mobile: resolve(__dirname, 'mobile.html'),
+      },
+    },
   },
   resolve: {
     alias: {
