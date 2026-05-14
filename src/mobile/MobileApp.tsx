@@ -258,7 +258,7 @@ const PortList = ({
               <button
                 type="button"
                 onClick={() => onTogglePort(deviceId, p.id)}
-                className={`flex w-full items-start gap-2 rounded border px-2 py-1.5 text-left ${
+                className={`flex w-full items-start gap-2 rounded border px-2 py-2 text-left ${
                   checked
                     ? 'border-emerald-700 bg-emerald-900/30 text-emerald-100'
                     : 'border-slate-800 bg-slate-950 text-slate-200 hover:border-slate-700'
@@ -271,22 +271,36 @@ const PortList = ({
                 >
                   {checked ? '✓' : ''}
                 </span>
-                <span className="flex-1 min-w-0">
-                  <span className="block">
+                <span className="flex-1 min-w-0 break-words">
+                  <span className="flex flex-wrap items-baseline gap-x-2">
                     <span className="font-medium">{p.name}</span>
-                    <span className="ml-2 text-[10px] text-slate-500">
+                    <span className="text-[10px] text-slate-500">
                       {p.connectorType}
                     </span>
+                    {cable && (
+                      <span className="text-[10px] text-slate-400">
+                        {cable.type} · {cable.length} m
+                      </span>
+                    )}
                   </span>
+                  {/* v7.7.3 — Destination call-out: prominent line that
+                      shows the field tech which device + port the other
+                      end of THIS cable goes to. Was previously truncated
+                      and too small to be useful on a phone. */}
                   {cable && otherDevice && (
-                    <span className="mt-0.5 block truncate text-[11px] text-sky-300">
-                      → {otherDevice.name}
+                    <span className="mt-1 block rounded bg-sky-950/60 px-2 py-1 text-xs text-sky-200">
+                      <span className="text-[10px] uppercase tracking-wide text-sky-400/80">
+                        → geht zu
+                      </span>
+                      <span className="ml-1 font-semibold text-sky-100">
+                        {otherDevice.name}
+                      </span>
                       {otherPort && (
                         <>
-                          <span className="mx-1 text-slate-500">·</span>
+                          <span className="mx-1 text-sky-500">·</span>
                           <span>{otherPort.name}</span>
                           {otherPort.connectorType && (
-                            <span className="ml-1 text-[10px] text-slate-500">
+                            <span className="ml-1 text-[10px] text-sky-400/80">
                               ({otherPort.connectorType})
                             </span>
                           )}
@@ -294,12 +308,12 @@ const PortList = ({
                       )}
                     </span>
                   )}
+                  {cable && !otherDevice && (
+                    <span className="mt-1 block text-[11px] italic text-slate-500">
+                      Offenes Ende
+                    </span>
+                  )}
                 </span>
-                {cable && (
-                  <span className="shrink-0 text-[10px] text-slate-400">
-                    {cable.type} · {cable.length} m
-                  </span>
-                )}
               </button>
             </li>
           )
@@ -323,11 +337,34 @@ const ProjectView = ({
 
   useEffect(() => saveChecks(projectName, checks), [projectName, checks])
 
+  // v7.7.3 — Toggling a port toggles BOTH endpoints of the cable that's
+  // plugged into it (and the cable itself), because physically plugging
+  // in one connector ALWAYS plugs in the other end too. Open-end ports
+  // (no cable attached) still toggle individually. Without this the
+  // field tech had to remember to find and tick the other device by
+  // hand, which defeats the point of the checklist.
   const togglePort = (deviceId: string, portId: string) => {
-    setChecks((prev) => ({
-      ...prev,
-      ports: { ...prev.ports, [portKey(deviceId, portId)]: !prev.ports[portKey(deviceId, portId)] },
-    }))
+    setChecks((prev) => {
+      const key = portKey(deviceId, portId)
+      const newState = !prev.ports[key]
+      const cable = project.cables.find(
+        (c) =>
+          (c.fromEquipmentId === deviceId && c.fromPortId === portId) ||
+          (c.toEquipmentId === deviceId && c.toPortId === portId),
+      )
+      const nextPorts: Record<string, boolean> = { ...prev.ports, [key]: newState }
+      const nextCables: Record<string, boolean> = { ...prev.cables }
+      if (cable) {
+        const isFromMe = cable.fromEquipmentId === deviceId
+        const otherKey = portKey(
+          isFromMe ? cable.toEquipmentId : cable.fromEquipmentId,
+          isFromMe ? cable.toPortId : cable.fromPortId,
+        )
+        nextPorts[otherKey] = newState
+        nextCables[cable.id] = newState
+      }
+      return { ...prev, ports: nextPorts, cables: nextCables }
+    })
   }
 
   const filteredDevices = useMemo(() => {
