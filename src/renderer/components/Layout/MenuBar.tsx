@@ -157,13 +157,46 @@ export const MenuBar = ({
           )}
         </Menu>
 
-        {onOpenTour && (
-          <Menu label={t('app.menu.help', 'Hilfe')}>
+        <Menu label={t('app.menu.tools', 'Werkzeuge')}>
+          <MenuItem
+            onClick={() => useUiStore.getState().openPatchList()}
+            icon="🪢"
+          >
+            {t('app.menu.tools.patchList', 'Patchliste…')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().openCalculators('length')}
+            icon="📐"
+          >
+            {t('app.menu.tools.cableLength', 'Kabel-Länge berechnen…')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().openCalculators('bandwidth')}
+            icon="📡"
+          >
+            {t('app.menu.tools.bandwidth', 'Bandbreite berechnen…')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().openCalculators('power')}
+            icon="⚡"
+          >
+            {t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
+          </MenuItem>
+        </Menu>
+
+        <Menu label={t('app.menu.help', 'Hilfe')}>
+          {onOpenTour && (
             <MenuItem onClick={onOpenTour} icon="💡">
               {t('app.menu.help.tour', 'Erste-Schritte-Tour…')}
             </MenuItem>
-          </Menu>
-        )}
+          )}
+          <MenuItem
+            onClick={() => useUiStore.getState().openAboutDialog()}
+            icon="ⓘ"
+          >
+            {t('app.menu.help.about', 'Über Cable Planner…')}
+          </MenuItem>
+        </Menu>
       </div>
 
       <div className="flex min-w-0 flex-1 items-center justify-center gap-2">
