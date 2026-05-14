@@ -48,7 +48,10 @@ const summarizeEndpoint = (
     : undefined
   const lengthLabel = cable.length ? `${cable.length} m` : ''
   const typeLabel = cable.type ? String(cable.type) : ''
-  const baseLabel = [typeLabel, lengthLabel].filter(Boolean).join(' · ') || 'Kabel'
+  // ASCII separator — the middle-dot · (U+00B7) IS in latin-1 so it
+  // works, but for visual consistency with the rest of the PDF (now
+  // pure ASCII for safety) we use a plain dash.
+  const baseLabel = [typeLabel, lengthLabel].filter(Boolean).join(' - ') || 'Kabel'
   const cableLabel = cable.name?.trim() ? `${cable.name.trim()}  (${baseLabel})` : baseLabel
   return {
     cableLabel,
@@ -108,7 +111,12 @@ const drawColumn = (
     }
     pdf.setTextColor(15)
     pdf.setFont('helvetica', 'bold')
-    const portLine = `■ ${row.port.name || row.port.id}`
+    // Helvetica (jsPDF's built-in font) only ships ISO-8859-1 glyphs.
+    // The bullet ■ (U+25A0) and arrow → (U+2192) used to print as
+    // "%" and "!'" respectively, and any non-Latin char downstream
+    // got individually space-padded ("S D I I n 1") because jsPDF
+    // can't lay out unmapped glyphs. Switch to ASCII-safe markers.
+    const portLine = `> ${row.port.name || row.port.id}`
     const portType = row.port.connectorType ? `  [${row.port.connectorType}]` : ''
     pdf.text(`${portLine}${portType}`, x, y, { maxWidth: colWidth - 4 })
     pdf.setFont('helvetica', 'normal')
@@ -116,19 +124,19 @@ const drawColumn = (
 
     if (row.cables.length === 0) {
       pdf.setTextColor(140)
-      pdf.text('  → frei', x, y)
+      pdf.text('  -- frei --', x, y)
       y += 11
       pdf.setTextColor(15)
       continue
     }
     for (const c of row.cables) {
       pdf.setTextColor(15)
-      pdf.text(`  → ${c.cableLabel}`, x, y, { maxWidth: colWidth - 6 })
+      pdf.text(`  -> ${c.cableLabel}`, x, y, { maxWidth: colWidth - 6 })
       y += 11
       pdf.setTextColor(80)
       const tgt = c.otherPortName
-        ? `       zu ${c.otherDeviceName} · ${c.otherPortName}`
-        : `       zu ${c.otherDeviceName}`
+        ? `       an ${c.otherDeviceName} - ${c.otherPortName}`
+        : `       an ${c.otherDeviceName}`
       pdf.text(tgt, x, y, { maxWidth: colWidth - 6 })
       y += 11
     }
@@ -166,7 +174,7 @@ const drawDevicePage = (
   if (device.category) metaParts.push(device.category)
   if (device.subtitle) metaParts.push(device.subtitle)
   if (device.ipAddress) metaParts.push(`IP ${device.ipAddress}`)
-  pdf.text(metaParts.join('  ·  '), margin, margin + 20)
+  pdf.text(metaParts.join('  -'), margin, margin + 20)
   pdf.text(new Date().toLocaleString(), pageWidth - margin, margin + 20, { align: 'right' })
 
   // Subtle horizontal rule below the header
@@ -217,7 +225,7 @@ const drawDevicePage = (
   pdf.setFontSize(7)
   pdf.setTextColor(140)
   pdf.text(
-    `Cable Planner · ${device.name} · ${inputRows.length} In / ${outputRows.length} Out · automatisch erzeugte Patch-Liste`,
+    `Cable Planner - ${device.name} - ${inputRows.length} In / ${outputRows.length} Out - automatisch erzeugte Patch-Liste`,
     pageWidth / 2,
     pageHeight - 12,
     { align: 'center' },

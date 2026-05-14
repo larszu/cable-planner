@@ -10,6 +10,67 @@ import {
   getMvGridSpec,
 } from '../../lib/atemMvLayout'
 
+/** Issue #55 — visual ATEM-software-style "Ansichtsauswahl"
+ *  thumbnail. Renders the 4×4 grid of an MV layout as a small SVG
+ *  with the "big" windows shaded darker than the small cells, so
+ *  the user can recognise each layout by its silhouette without
+ *  reading the label. */
+const MvLayoutThumb = ({
+  layoutId,
+  active,
+}: {
+  layoutId: number
+  active: boolean
+}) => {
+  const spec = getMvGridSpec(layoutId)
+  const cell = 8 // px per 4x4 cell
+  const gap = 1
+  const dim = cell * 4 + gap * 3
+  // Build a "this cell is part of a big window" lookup by walking the
+  // spec's `big` rectangles. Cells not covered by any big rect are
+  // small.
+  const bigCells = new Set<string>()
+  for (const big of spec.big) {
+    for (let r = big.rowStart; r < big.rowStart + big.rowSpan; r++) {
+      for (let c = big.colStart; c < big.colStart + big.colSpan; c++) {
+        bigCells.add(`${r},${c}`)
+      }
+    }
+  }
+  const fillBig = active ? '#0ea5e9' : '#334155'
+  const fillSmall = active ? '#075985' : '#1e293b'
+  const stroke = active ? '#0c4a6e' : '#0f172a'
+  return (
+    <svg
+      width={dim}
+      height={dim * (9 / 16)}
+      viewBox={`0 0 ${dim} ${(dim * 9) / 16}`}
+      role="presentation"
+    >
+      {Array.from({ length: 4 }).map((_, ri) =>
+        Array.from({ length: 4 }).map((_, ci) => {
+          const isBig = bigCells.has(`${ri + 1},${ci + 1}`)
+          const x = ci * (cell + gap)
+          const y = (ri * (cell + gap)) * (9 / 16) + 0.5
+          return (
+            <rect
+              key={`${ri}-${ci}`}
+              x={x}
+              y={y}
+              width={cell}
+              height={cell * (9 / 16) - 0.5}
+              fill={isBig ? fillBig : fillSmall}
+              stroke={stroke}
+              strokeWidth={0.5}
+              rx={1}
+            />
+          )
+        }),
+      )}
+    </svg>
+  )
+}
+
 /** Issue #55 — per-quadrant layout cycle. Clicking on a quadrant
  *  steps through the layouts that affect that quadrant (between "1
  *  big window covering this quadrant" and "this quadrant split into
@@ -457,28 +518,39 @@ export const AtemMvConfigDialog = () => {
           {mv && spec && (
             <>
               <div className="mb-3 flex flex-wrap items-center gap-3 text-xs">
-                {/* Issue #55: ATEM-software-style layout picker. Each
-                    button shows the layout label and is clickable to
-                    switch the active multiviewer's grid. Active layout
-                    is highlighted in sky-700. Replaces the previous
-                    dropdown (less obvious which layouts exist). */}
-                <span className="text-slate-300">Layout</span>
-                <div className="flex flex-wrap gap-1">
-                  {MV_LAYOUT_OPTIONS.map((l) => (
-                    <button
-                      key={l.value}
-                      type="button"
-                      onClick={() => updateMv(activeMv, { layout: l.value })}
-                      className={`rounded border px-2 py-1 text-[11px] transition-colors ${
-                        mv.layout === l.value
-                          ? 'border-sky-500 bg-sky-700 text-white'
-                          : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-sky-700 hover:text-sky-200'
-                      }`}
-                      title={`Layout: ${l.label}`}
-                    >
-                      {l.label}
-                    </button>
-                  ))}
+                {/* Issue #55: visual layout thumbnails like the
+                    Blackmagic ATEM software's "Ansichtsauswahl"
+                    picker. Each button renders a tiny 4x4 SVG preview
+                    of that layout's grid (big windows + small cells)
+                    so the user can pick by sight, not by reading. */}
+                <span className="text-slate-300">Ansichtsauswahl</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {MV_LAYOUT_OPTIONS.map((l) => {
+                    const active = mv.layout === l.value
+                    return (
+                      <button
+                        key={l.value}
+                        type="button"
+                        onClick={() => updateMv(activeMv, { layout: l.value })}
+                        className={`flex flex-col items-center gap-0.5 rounded border p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
+                          active
+                            ? 'border-sky-500 bg-sky-950/50'
+                            : 'border-slate-700 bg-slate-900 hover:border-sky-700'
+                        }`}
+                        title={`Layout: ${l.label}`}
+                        aria-label={`Layout ${l.label}${active ? ' (aktiv)' : ''}`}
+                      >
+                        <MvLayoutThumb layoutId={l.value} active={active} />
+                        <span
+                          className={`max-w-[64px] truncate text-[9px] ${
+                            active ? 'text-sky-200' : 'text-slate-400'
+                          }`}
+                        >
+                          {l.label}
+                        </span>
+                      </button>
+                    )
+                  })}
                 </div>
                 <label className="flex items-center gap-2">
                   <input
