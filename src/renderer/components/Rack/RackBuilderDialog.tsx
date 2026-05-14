@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import { useSettingsStore } from '../../store/settingsStore'
 import { RackImageCropDialog } from './RackImageCropDialog'
+import { RackInternalWireDialog } from './RackInternalWireDialog'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { CategorySelect } from '../shared/CategorySelect'
 import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
@@ -38,6 +39,24 @@ interface RackDraft {
   totalUnits: number
   viewMode: 'front' | 'rear' | 'both'
   placements: RackPlacementDraft[]
+  /** v7.8.5 — internal wiring between rack devices. Authored in the
+   *  RackInternalWireDialog and persisted into the GroupPreset on save.
+   *  References placements by `id` (not array index) so re-ordering
+   *  placements doesn't invalidate cables. The save step maps ids back
+   *  to indices when building the preset. */
+  internalCables: InternalCableDraft[]
+}
+
+interface InternalCableDraft {
+  fromPlacementId: string
+  fromPortName: string
+  toPlacementId: string
+  toPortName: string
+  name: string
+  type: string
+  length: number
+  color?: string
+  standard?: string
 }
 
 // 19" rack standard: outer width 482.6 mm, 1U height 44.45 mm.
@@ -72,16 +91,26 @@ const toPlacement = (template: EquipmentTemplate, startUnit: number): RackPlacem
   rearPanelCrop: template.rearPanelCrop,
 })
 
-const normalizeDraft = (draft: RackDraft): RackDraft => ({
-  ...draft,
-  rackName: draft.rackName.trim() || 'Neues Rack',
-  totalUnits: Math.max(1, Math.min(60, Math.round(draft.totalUnits) || 42)),
-  placements: draft.placements.map((p) => ({
+const normalizeDraft = (draft: RackDraft): RackDraft => {
+  const normalizedPlacements = draft.placements.map((p) => ({
     ...p,
     startUnit: Math.max(1, Math.round(p.startUnit) || 1),
     rackUnits: Math.max(1, Math.round(p.rackUnits) || 1),
-  })),
-})
+  }))
+  // Drop internal cables that point at placements that no longer exist
+  // (user removed a device after wiring it).
+  const livePlacementIds = new Set(normalizedPlacements.map((p) => p.id))
+  const normalizedCables = (draft.internalCables ?? []).filter(
+    (c) => livePlacementIds.has(c.fromPlacementId) && livePlacementIds.has(c.toPlacementId),
+  )
+  return {
+    ...draft,
+    rackName: draft.rackName.trim() || 'Neues Rack',
+    totalUnits: Math.max(1, Math.min(60, Math.round(draft.totalUnits) || 42)),
+    placements: normalizedPlacements,
+    internalCables: normalizedCables,
+  }
+}
 
 const formatRackUnits = (value: number): string => `${value} HE`
 
@@ -114,11 +143,34 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
       rearPanelCrop: item.rearPanelCrop,
     }
   })
+  // Hydrate internal cables: cables in the stored preset reference items
+  // by INDEX; the new placements have fresh ids, so we map index → id.
+  const indexToPlacementId = new Map<number, string>()
+  placements.forEach((p, idx) => indexToPlacementId.set(idx, p.id))
+  const internalCables: InternalCableDraft[] = []
+  for (const c of preset.cables ?? []) {
+    const fromId = indexToPlacementId.get(c.fromItemIndex)
+    const toId = indexToPlacementId.get(c.toItemIndex)
+    if (!fromId || !toId) continue
+    const entry: InternalCableDraft = {
+      fromPlacementId: fromId,
+      fromPortName: c.fromPortName,
+      toPlacementId: toId,
+      toPortName: c.toPortName,
+      name: c.name,
+      type: c.type,
+      length: c.length,
+    }
+    if (c.color != null) entry.color = c.color
+    if (c.standard != null) entry.standard = c.standard
+    internalCables.push(entry)
+  }
   return {
     rackName: preset.name,
     totalUnits: preset.rack?.totalUnits ?? 42,
     viewMode: 'front',
     placements,
+    internalCables,
   }
 }
 
@@ -130,7 +182,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     totalUnits: 42,
     viewMode: 'front',
     placements: [],
+    internalCables: [],
   })
+  const [wireDialogOpen, setWireDialogOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [selectedPlacementId, setSelectedPlacementId] = useState<string | null>(null)
   const [lastSavedSnapshot, setLastSavedSnapshot] = useState('')
@@ -379,6 +433,30 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       heightUnits: placement.rackUnits,
     }))
 
+    // v7.8.5 — Map internal cables (referenced by placement id) onto the
+    // post-sort item indices for the persisted preset. Cables whose
+    // endpoints reference a placement that's been deleted are skipped.
+    const placementIdToSortedIndex = new Map<string, number>()
+    sorted.forEach((p, idx) => placementIdToSortedIndex.set(p.id, idx))
+    const persistedCables: GroupPreset['cables'] = []
+    for (const c of draft.internalCables) {
+      const fromIdx = placementIdToSortedIndex.get(c.fromPlacementId)
+      const toIdx = placementIdToSortedIndex.get(c.toPlacementId)
+      if (fromIdx == null || toIdx == null) continue
+      const entry: GroupPreset['cables'][number] = {
+        fromItemIndex: fromIdx,
+        fromPortName: c.fromPortName,
+        toItemIndex: toIdx,
+        toPortName: c.toPortName,
+        name: c.name,
+        type: c.type,
+        length: c.length,
+      }
+      if (c.color != null) entry.color = c.color
+      if (c.standard != null) entry.standard = c.standard
+      persistedCables.push(entry)
+    }
+
     const preset: GroupPreset = {
       id: editingId ?? uuidv4(),
       name: draft.rackName.trim(),
@@ -387,7 +465,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         placements: rackPlacements,
       },
       items: itemRecords,
-      cables: initialPreset?.cables ?? [],
+      cables: persistedCables,
     }
 
     onSave(preset)
@@ -735,18 +813,103 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-between">
-          <div className="text-[11px] text-slate-500">{dirty ? 'Ungespeicherte Änderungen vorhanden (Autosave aktiv).' : 'Keine ungespeicherten Änderungen.'}</div>
-          <div className="flex gap-2">
-            <button type="button" onClick={closeWithConfirm} className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <div className="text-[11px] text-slate-500">
+            {dirty ? 'Ungespeicherte Änderungen vorhanden (Autosave aktiv).' : 'Keine ungespeicherten Änderungen.'}
+            {draft.internalCables.length > 0 && (
+              <span className="ml-2 rounded bg-sky-900/60 px-1.5 py-0.5 text-[10px] text-sky-200">
+                🔌 {draft.internalCables.length} interne Verbindung{draft.internalCables.length === 1 ? '' : 'en'}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setWireDialogOpen(true)}
+              disabled={draft.placements.length < 1}
+              className="rounded bg-sky-700 px-3 py-1 text-sm text-white hover:bg-sky-600 disabled:opacity-40"
+              title="Geräte des Racks intern verkabeln (eigene Canvas-Ansicht)"
+            >
+              🔌 Intern verkabeln…
+            </button>
+            <button
+              type="button"
+              onClick={closeWithConfirm}
+              className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
+            >
               Abbrechen
             </button>
-            <button type="button" onClick={saveRack} className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500">
+            <button
+              type="button"
+              onClick={saveRack}
+              className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500"
+            >
               Als Rack-Gruppe speichern
             </button>
           </div>
         </div>
       </div>
+
+      <RackInternalWireDialog
+        open={wireDialogOpen}
+        rackName={draft.rackName}
+        placements={draft.placements.map((p) => ({
+          id: p.id,
+          name: p.name,
+          startUnit: p.startUnit,
+          rackUnits: p.rackUnits,
+          inputs: p.inputs,
+          outputs: p.outputs,
+        }))}
+        // The wire dialog uses array INDEX into placements as the item
+        // index. We map the draft's per-id cables → indices using the
+        // CURRENT placement order, so changes survive the round-trip.
+        initialCables={(() => {
+          const result: GroupPreset['cables'] = []
+          for (const c of draft.internalCables) {
+            const fromIdx = draft.placements.findIndex((p) => p.id === c.fromPlacementId)
+            const toIdx = draft.placements.findIndex((p) => p.id === c.toPlacementId)
+            if (fromIdx < 0 || toIdx < 0) continue
+            const entry: GroupPreset['cables'][number] = {
+              fromItemIndex: fromIdx,
+              fromPortName: c.fromPortName,
+              toItemIndex: toIdx,
+              toPortName: c.toPortName,
+              name: c.name,
+              type: c.type,
+              length: c.length,
+            }
+            if (c.color != null) entry.color = c.color
+            if (c.standard != null) entry.standard = c.standard
+            result.push(entry)
+          }
+          return result
+        })()}
+        onCancel={() => setWireDialogOpen(false)}
+        onApply={(cables) => {
+          // Re-map index-based cables back to per-id storage in the draft.
+          const next: InternalCableDraft[] = []
+          for (const c of cables) {
+            const fromId = draft.placements[c.fromItemIndex]?.id
+            const toId = draft.placements[c.toItemIndex]?.id
+            if (!fromId || !toId) continue
+            const entry: InternalCableDraft = {
+              fromPlacementId: fromId,
+              fromPortName: c.fromPortName,
+              toPlacementId: toId,
+              toPortName: c.toPortName,
+              name: c.name,
+              type: c.type,
+              length: c.length,
+            }
+            if (c.color != null) entry.color = c.color
+            if (c.standard != null) entry.standard = c.standard
+            next.push(entry)
+          }
+          setDraft((current) => ({ ...current, internalCables: next }))
+          setWireDialogOpen(false)
+        }}
+      />
 
       <RackImageCropDialog
         open={!!cropDialog}
