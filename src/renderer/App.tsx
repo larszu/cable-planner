@@ -481,13 +481,6 @@ export default function App() {
       <PrintDialog
         open={printDialogOpen}
         onClose={() => setPrintDialogOpen(false)}
-        onPrintPlanPdf={() => setPdfExportOpen(true)}
-        onPrintPlanPng={() =>
-          void exportCanvasToImage(project.metadata.name, 'png', { backgroundTheme: canvasTheme })
-        }
-        onPrintPlanJpeg={() =>
-          void exportCanvasToImage(project.metadata.name, 'jpeg', { backgroundTheme: canvasTheme })
-        }
       />
 
       <PdfExportDialog
@@ -868,7 +861,7 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
                   setName(created.name)
                 }}
                 className="mt-2 w-full rounded bg-sky-700 px-2 py-1 text-xs font-medium text-white hover:bg-sky-600"
-                title="Speichert diese Custom-Definition als wiederverwendbaren Kabeltyp in der Bibliothek (Issue #64)."
+                title="Speichert diese Custom-Definition als wiederverwendbaren Kabeltyp in der Bibliothek."
               >
                 💾 Als Kabel-Typ speichern…
               </button>

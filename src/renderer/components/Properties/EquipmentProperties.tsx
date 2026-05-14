@@ -33,19 +33,28 @@ import { CategorySelect } from '../shared/CategorySelect'
 import { pickImageAsDataUri, readImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { useTranslation } from '../../lib/i18n'
 
+/** Module-level sensor options so re-renders don't churn the sensor
+ *  instances. Stable references are critical for DnDContext's
+ *  internal subscriptions — fresh sensor objects on every render
+ *  was a known #185 contributor before. */
+const POINTER_SENSOR_OPTIONS = { activationConstraint: { distance: 6 } } as const
+const KEYBOARD_SENSOR_OPTIONS = {
+  coordinateGetter: sortableKeyboardCoordinates,
+} as const
+
 /**
- * v7.4.0 — wraps a single EquipmentProperties accordion section so
- * the user can drag-reorder them. We use CSS `order` (driven by the
- * uiStore-persisted `equipmentSectionOrder` list) instead of an
- * array-based render so the existing JSX tree stays mostly intact;
- * dnd-kit applies live drag-transforms while dragging, and on drop
- * the section order in uiStore is updated which flips the `order`
- * values for the rest of the session.
+ * v7.4.0 / v7.6.0 — drag-reorderable accordion section. Each section
+ * lives in its own `<details>` for independent collapse, and uses
+ * dnd-kit's `useSortable` to participate in the parent's drag
+ * context. We rely on `useSortable`'s `index` (the position in the
+ * SortableContext items array) for CSS `order` so that ALL sections
+ * don't need to subscribe to the uiStore order array — that was
+ * causing every section to re-render on every reorder and possibly
+ * trigping React #185 during heavy drag activity.
  *
- * Each section is its own `<details>` so independent collapse keeps
- * working. The `≡` handle on the left of the summary triggers drag;
- * everything else inside summary (chevron / title click) still
- * toggles the accordion.
+ * The `⋮⋮` handle on the summary triggers drag via spread attributes
+ * + listeners (dnd-kit's contract); the rest of the summary keeps
+ * the click-to-toggle behaviour for the accordion.
  */
 const SortableSection = ({
   id,
@@ -60,11 +69,8 @@ const SortableSection = ({
   defaultOpen?: boolean
   children: React.ReactNode
 }) => {
-  const order = useUiStore((s) => s.equipmentSectionOrder)
-  const visualOrder = order.indexOf(id)
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id,
-  })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging, index } =
+    useSortable({ id })
   return (
     <details
       ref={setNodeRef}
@@ -73,7 +79,7 @@ const SortableSection = ({
         isDragging ? 'opacity-60 shadow-xl shadow-slate-950/50' : ''
       }`}
       style={{
-        order: visualOrder < 0 ? 999 : visualOrder,
+        order: index < 0 ? 999 : index,
         transform: CSS.Transform.toString(transform),
         transition,
       }}
@@ -82,16 +88,10 @@ const SortableSection = ({
         <span
           {...attributes}
           {...listeners}
-          onPointerDown={(e) => {
-            // Drag handle only — keep the click-to-toggle behaviour on
-            // the rest of the summary. preventDefault on the handle so
-            // dragging doesn't also flip the accordion open/closed.
-            e.preventDefault()
-            listeners?.onPointerDown?.(e as unknown as PointerEvent)
-          }}
           title="Sektion ziehen, um Reihenfolge zu ändern"
           className="cursor-grab text-slate-500 hover:text-slate-300 active:cursor-grabbing"
           aria-label="Sektion verschieben"
+          role="button"
         >
           ⋮⋮
         </span>
@@ -986,25 +986,106 @@ const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => {
 }
 
 /**
- * v7.5.0 — Operating-mode picker for multi-mode devices (media servers,
- * modular processors like Pixelhue P20, Parco S3, Brompton Tessera).
- * Each mode defines its own port layout; switching the active mode
- * rewrites the equipment's live `inputs`/`outputs` so the canvas
- * shows the correct ports for that mode.
+ * v7.5.0 / v7.6.0 — Operating-mode picker + inline editor for multi-mode
+ * devices (media servers, modular processors like Pixelhue P20, Parco
+ * S3, Brompton Tessera).
  *
- * Out of scope for v7.5.0: an inline "edit modes" UI. Modes are
- * created either (a) by the library author when shipping a multi-mode
- * device template, or (b) via JSON import. The user can still pick
- * between existing modes here.
+ * Workflow:
+ *   1. Edit ports normally with the PortList accordion → layout A.
+ *   2. Click "+ aus aktuellem Layout" → name it "Layout A". Now the
+ *      current ports are captured as a mode, and that mode is active.
+ *   3. Edit ports → layout B → "+ aus aktuellem Layout" → "Layout B".
+ *   4. Switch modes via the cards. Each card has rename + delete.
+ *
+ * Switching activates the mode and copies its snapshot to the live
+ * inputs/outputs (via setActiveDeviceMode in the store). Editing the
+ * ports later doesn't automatically sync back to the mode — there's
+ * an "Aktuelle Ports in Modus übernehmen" button per active mode for
+ * that, so the user controls when a mode definition is updated.
  */
 const DeviceModePicker = ({
   equipment,
 }: {
   equipment: import('../../types/equipment').EquipmentItem
 }) => {
+  const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const setActiveDeviceMode = useProjectStore((s) => s.setActiveDeviceMode)
   const modes = equipment.modes ?? []
   const active = equipment.activeModeId
+
+  const createModeFromPorts = () => {
+    const name = window.prompt(
+      'Name des neuen Modus (z. B. "12G Single-Link" / "HDMI Output Mode"):',
+      `Modus ${modes.length + 1}`,
+    )?.trim()
+    if (!name) return
+    const newMode = {
+      id: `mode:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 5)}`,
+      name,
+      inputs: equipment.inputs.map((p) => ({ ...p })),
+      outputs: equipment.outputs.map((p) => ({ ...p })),
+    }
+    updateEquipment(equipment.id, {
+      modes: [...modes, newMode],
+      activeModeId: newMode.id,
+    })
+  }
+
+  const renameMode = (modeId: string) => {
+    const mode = modes.find((m) => m.id === modeId)
+    if (!mode) return
+    const name = window.prompt('Modus-Name:', mode.name)?.trim()
+    if (!name) return
+    updateEquipment(equipment.id, {
+      modes: modes.map((m) => (m.id === modeId ? { ...m, name } : m)),
+    })
+  }
+
+  const editDescription = (modeId: string) => {
+    const mode = modes.find((m) => m.id === modeId)
+    if (!mode) return
+    const desc = window.prompt(
+      'Kurze Beschreibung (z. B. "1× 12G IN, 4× HDMI OUT"):',
+      mode.description ?? '',
+    )
+    if (desc === null) return
+    updateEquipment(equipment.id, {
+      modes: modes.map((m) => (m.id === modeId ? { ...m, description: desc || undefined } : m)),
+    })
+  }
+
+  const deleteMode = (modeId: string) => {
+    const mode = modes.find((m) => m.id === modeId)
+    if (!mode) return
+    if (!window.confirm(`Modus "${mode.name}" löschen? Die zugehörigen Ports bleiben am Gerät erhalten.`)) return
+    updateEquipment(equipment.id, {
+      modes: modes.filter((m) => m.id !== modeId),
+      activeModeId: active === modeId ? undefined : active,
+    })
+  }
+
+  const captureCurrentPortsToMode = (modeId: string) => {
+    const mode = modes.find((m) => m.id === modeId)
+    if (!mode) return
+    if (
+      !window.confirm(
+        `Aktuelles Port-Layout (${equipment.inputs.length} In, ${equipment.outputs.length} Out) als neue Definition für "${mode.name}" speichern?`,
+      )
+    )
+      return
+    updateEquipment(equipment.id, {
+      modes: modes.map((m) =>
+        m.id === modeId
+          ? {
+              ...m,
+              inputs: equipment.inputs.map((p) => ({ ...p })),
+              outputs: equipment.outputs.map((p) => ({ ...p })),
+            }
+          : m,
+      ),
+    })
+  }
+
   return (
     <div className="space-y-2 text-xs">
       <p className="text-[10px] text-slate-500">
@@ -1012,27 +1093,84 @@ const DeviceModePicker = ({
         Modus nicht existieren, bleiben im Projekt, müssen aber neu gesteckt werden.
       </p>
       <div className="grid grid-cols-1 gap-1">
+        {modes.length === 0 && (
+          <div className="rounded border border-dashed border-slate-700 p-3 text-center text-[11px] text-slate-500">
+            Keine Modi definiert. Ports oben bearbeiten und anschließend mit
+            <strong className="text-slate-300"> + aus aktuellem Layout </strong>
+            als Modus speichern.
+          </div>
+        )}
         {modes.map((m) => (
-          <button
+          <div
             key={m.id}
-            type="button"
-            onClick={() => setActiveDeviceMode(equipment.id, m.id)}
-            className={`flex flex-col items-start rounded border px-2 py-1.5 text-left transition-colors ${
-              active === m.id
-                ? 'border-sky-500 bg-sky-900/40 text-sky-100'
-                : 'border-slate-700 bg-slate-900 text-slate-200 hover:border-sky-700'
+            className={`rounded border ${
+              active === m.id ? 'border-sky-500 bg-sky-900/40' : 'border-slate-700 bg-slate-900'
             }`}
           >
-            <span className="font-medium">{m.name}</span>
-            {m.description && (
-              <span className="text-[10px] text-slate-400">{m.description}</span>
-            )}
-            <span className="mt-1 text-[10px] text-slate-500">
-              {m.inputs.length} In · {m.outputs.length} Out
-            </span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveDeviceMode(equipment.id, m.id)}
+              className="flex w-full flex-col items-start px-2 py-1.5 text-left text-slate-100"
+              title={active === m.id ? 'Aktiv' : 'Aktivieren'}
+            >
+              <span className="font-medium">
+                {active === m.id && <span className="mr-1 text-sky-300">●</span>}
+                {m.name}
+              </span>
+              {m.description && (
+                <span className="text-[10px] text-slate-400">{m.description}</span>
+              )}
+              <span className="mt-1 text-[10px] text-slate-500">
+                {m.inputs.length} In · {m.outputs.length} Out
+              </span>
+            </button>
+            <div className="flex gap-1 border-t border-slate-800 bg-slate-950/40 px-1 py-1 text-[10px]">
+              <button
+                type="button"
+                onClick={() => renameMode(m.id)}
+                className="rounded px-1.5 py-0.5 text-slate-300 hover:bg-slate-800"
+                title="Namen ändern"
+              >
+                ✎ Name
+              </button>
+              <button
+                type="button"
+                onClick={() => editDescription(m.id)}
+                className="rounded px-1.5 py-0.5 text-slate-300 hover:bg-slate-800"
+                title="Beschreibung ändern"
+              >
+                ✎ Beschreibung
+              </button>
+              {active === m.id && (
+                <button
+                  type="button"
+                  onClick={() => captureCurrentPortsToMode(m.id)}
+                  className="rounded px-1.5 py-0.5 text-emerald-300 hover:bg-emerald-900/30"
+                  title="Aktuelles Port-Layout in diesen Modus übernehmen"
+                >
+                  ⬆ Ports übernehmen
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => deleteMode(m.id)}
+                className="ml-auto rounded px-1.5 py-0.5 text-slate-400 hover:bg-red-700 hover:text-white"
+                title="Modus löschen"
+              >
+                🗑
+              </button>
+            </div>
+          </div>
         ))}
       </div>
+      <button
+        type="button"
+        onClick={createModeFromPorts}
+        className="w-full rounded border border-dashed border-emerald-700 bg-emerald-950/30 px-2 py-1 text-[11px] text-emerald-200 hover:bg-emerald-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+        title="Speichert das aktuelle Port-Layout des Geräts als neuen Modus."
+      >
+        + aus aktuellem Layout speichern
+      </button>
     </div>
   )
 }
@@ -1193,8 +1331,8 @@ export const EquipmentProperties = () => {
   const sectionOrder = useUiStore((s) => s.equipmentSectionOrder)
   const setSectionOrder = useUiStore((s) => s.setEquipmentSectionOrder)
   const dragSensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(PointerSensor, POINTER_SENSOR_OPTIONS),
+    useSensor(KeyboardSensor, KEYBOARD_SENSOR_OPTIONS),
   )
   const handleSectionDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
@@ -1648,19 +1786,19 @@ export const EquipmentProperties = () => {
         </SortableSection>
       )}
 
-      {equipment.modes && equipment.modes.length > 0 && (
-        <SortableSection
-          id="modes"
-          title="Betriebsmodus"
-          subtitle={
-            equipment.modes.find((m) => m.id === equipment.activeModeId)?.name ??
-            'kein Modus aktiv'
-          }
-          defaultOpen
-        >
-          <DeviceModePicker equipment={equipment} />
-        </SortableSection>
-      )}
+      <SortableSection
+        id="modes"
+        title="Betriebsmodi"
+        subtitle={
+          (equipment.modes ?? []).length === 0
+            ? 'keiner'
+            : (equipment.modes?.find((m) => m.id === equipment.activeModeId)?.name ??
+              `${equipment.modes?.length} definiert`)
+        }
+        defaultOpen={!!equipment.activeModeId}
+      >
+        <DeviceModePicker equipment={equipment} />
+      </SortableSection>
 
       <SortableSection
         id="ports"
@@ -1833,7 +1971,7 @@ export const EquipmentProperties = () => {
             Rack-Instanz · {equipment.rackInstanceLabel ?? 'Rack'}
           </div>
           <p className="mb-2 text-[10px] text-slate-400">
-            Dieses Gerät gehört zu einer Rack-Instanz (Issue #61). Der Rack-Editor zeigt eine
+            Dieses Gerät gehört zu einer Rack-Instanz. Der Rack-Editor zeigt eine
             gefilterte Sub-Canvas mit nur diesem Rack — Änderungen an der Position werden
             beim Loslassen auf ganze HU gerundet.
           </p>
@@ -1872,7 +2010,7 @@ export const EquipmentProperties = () => {
               )
             }
             className="w-full rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-            title="Erzeugt eine einseitige A4-Patch-Liste mit allen Ports + verbundenen Kabeln — zum Aufkleben am Gerät (Issue #74)."
+            title="Erzeugt eine einseitige A4-Patch-Liste mit allen Ports + verbundenen Kabeln — zum Aufkleben am Gerät."
           >
             🖨 Patch-Sheet (A4 PDF) drucken
           </button>
