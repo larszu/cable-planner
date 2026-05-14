@@ -61,6 +61,10 @@ interface MobileShareState {
   project: unknown | null
   /** Absolute path to dist/renderer (where mobile.html + assets live). */
   rendererDir: string
+  /** When set (e.g. `npm run dev`), static-asset requests are proxied
+   *  here instead of read from disk so the phone can also load the
+   *  mobile viewer from a Vite-served HMR build. */
+  devProxyUrl: string | undefined
 }
 
 const state: MobileShareState = {
@@ -68,6 +72,7 @@ const state: MobileShareState = {
   port: 0,
   project: null,
   rendererDir: '',
+  devProxyUrl: undefined,
 }
 
 /** Lookup non-internal IPv4 addresses across all network interfaces. */
@@ -105,6 +110,41 @@ const sendFile = (res: ServerResponse, filePath: string) => {
   res.end(body)
 }
 
+/** Proxy a static-asset request to the Vite dev server when running
+ *  under `npm run dev`. Falls through to a 502 if Vite isn't up. */
+const proxyToDev = async (
+  res: ServerResponse,
+  pathname: string,
+  search: string,
+): Promise<void> => {
+  if (!state.devProxyUrl) {
+    res.statusCode = 502
+    res.end('Dev proxy URL not configured')
+    return
+  }
+  try {
+    const target = `${state.devProxyUrl.replace(/\/$/, '')}${pathname}${search}`
+    const upstream = await fetch(target)
+    res.statusCode = upstream.status
+    upstream.headers.forEach((value, key) => {
+      // Strip hop-by-hop headers + content-encoding (we re-emit raw).
+      if (
+        key.toLowerCase() === 'content-encoding' ||
+        key.toLowerCase() === 'transfer-encoding' ||
+        key.toLowerCase() === 'connection'
+      )
+        return
+      res.setHeader(key, value)
+    })
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    const buffer = Buffer.from(await upstream.arrayBuffer())
+    res.end(buffer)
+  } catch (err) {
+    res.statusCode = 502
+    res.end(`Dev proxy error: ${(err as Error).message}`)
+  }
+}
+
 const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
   if (!req.url) {
     res.statusCode = 400
@@ -135,8 +175,16 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
         ok: true,
         hasProject: state.project !== null,
         port: state.port,
+        mode: state.devProxyUrl ? 'dev-proxy' : 'static',
       }),
     )
+    return
+  }
+
+  // Favicon: silently 204 rather than 404 so browsers don't spam logs.
+  if (pathname === '/favicon.ico') {
+    res.statusCode = 204
+    res.end()
     return
   }
 
@@ -145,6 +193,12 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
     res.statusCode = 302
     res.setHeader('Location', '/mobile.html')
     res.end()
+    return
+  }
+
+  // Dev mode: proxy to Vite (files don't exist on disk yet).
+  if (state.devProxyUrl) {
+    void proxyToDev(res, pathname, url.search)
     return
   }
 
@@ -195,6 +249,7 @@ export interface MobileShareInfo {
 
 export const startMobileShareServer = async (
   rendererDir: string,
+  devProxyUrl?: string,
 ): Promise<MobileShareInfo> => {
   if (state.server) {
     return {
@@ -204,6 +259,7 @@ export const startMobileShareServer = async (
     }
   }
   state.rendererDir = pathResolve(rendererDir)
+  state.devProxyUrl = devProxyUrl
   const server = createServer(handleRequest)
   const port = await findFreePort(server)
   state.server = server
@@ -221,6 +277,7 @@ export const stopMobileShareServer = (): void => {
   state.server = null
   state.port = 0
   state.project = null
+  state.devProxyUrl = undefined
 }
 
 export const setMobileShareProject = (project: unknown): void => {
