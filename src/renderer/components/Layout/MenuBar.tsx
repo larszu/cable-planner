@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
 import { useTranslation } from '../../lib/i18n'
 import { projectHistory } from '../../store/projectHistory'
+import { useUiStore } from '../../store/uiStore'
+import { hasDesktopBridge } from '../../lib/bridge'
 
 interface MenuBarProps {
   onNewProject: () => void
@@ -228,6 +230,19 @@ export const MenuBar = ({
               <option value="2160p60">2160p60 (12G)</option>
             </select>
           </label>
+        )}
+        {hasDesktopBridge && (
+          <button
+            type="button"
+            onClick={() => useUiStore.getState().openMobileShare()}
+            className="rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
+            title={t(
+              'app.mobileShare.title',
+              'Handy-Zugriff: kleiner LAN-Server + QR-Code, damit das Handy den Mobile-Viewer öffnen kann.',
+            )}
+          >
+            📱
+          </button>
         )}
         <button
           type="button"
