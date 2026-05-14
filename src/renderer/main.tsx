@@ -32,11 +32,27 @@ try {
 
 // Report uncaught renderer errors to the main process so they land in
 // `%APPDATA%\cable-planner\renderer-error.log` even when DevTools is closed.
+// v7.8.3 — also include the full stack + window context in every report
+// so we can chase intermittent crashes from a single user log file.
+const buildContext = (): string => {
+  const lines: string[] = []
+  const ver = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'unknown'
+  lines.push(`App version: ${ver}`)
+  lines.push(`Time: ${new Date().toISOString()}`)
+  try {
+    lines.push(`User-Agent: ${navigator.userAgent}`)
+    lines.push(`Window: ${window.innerWidth}x${window.innerHeight}`)
+  } catch {
+    /* ignore */
+  }
+  return lines.join('\n')
+}
+
 window.addEventListener('error', (event) => {
   try {
     cablePlannerApi.logs.rendererError({
       message: event.message,
-      stack: event.error instanceof Error ? event.error.stack : undefined,
+      stack: `${buildContext()}\n\n${event.error instanceof Error ? event.error.stack ?? '(no stack)' : '(no Error object)'}`,
       source: `window.error ${event.filename}:${event.lineno}:${event.colno}`,
     })
   } catch { /* ignore */ }
@@ -47,7 +63,7 @@ window.addEventListener('unhandledrejection', (event) => {
     const reason = event.reason
     cablePlannerApi.logs.rendererError({
       message: reason instanceof Error ? reason.message : String(reason),
-      stack: reason instanceof Error ? reason.stack : undefined,
+      stack: `${buildContext()}\n\n${reason instanceof Error ? reason.stack ?? '(no stack)' : '(no Error object)'}`,
       source: 'unhandledrejection',
     })
   } catch { /* ignore */ }
