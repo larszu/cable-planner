@@ -255,6 +255,15 @@ interface UiState extends PersistedUiState {
   mobileShare: { open: boolean }
   openMobileShare: () => void
   closeMobileShare: () => void
+  aboutDialog: { open: boolean }
+  openAboutDialog: () => void
+  closeAboutDialog: () => void
+  patchList: { open: boolean }
+  openPatchList: () => void
+  closePatchList: () => void
+  calculators: { open: boolean; tab?: 'length' | 'bandwidth' | 'power' }
+  openCalculators: (tab?: 'length' | 'bandwidth' | 'power') => void
+  closeCalculators: () => void
   /** Rentman equipment import dialog (cross-component trigger). */
   rentmanImport: { open: boolean }
   openRentmanImport: () => void
@@ -439,6 +448,15 @@ export const useUiStore = create<UiState>((set) => ({
   mobileShare: { open: false },
   openMobileShare: () => set({ mobileShare: { open: true } }),
   closeMobileShare: () => set({ mobileShare: { open: false } }),
+  aboutDialog: { open: false },
+  openAboutDialog: () => set({ aboutDialog: { open: true } }),
+  closeAboutDialog: () => set({ aboutDialog: { open: false } }),
+  patchList: { open: false },
+  openPatchList: () => set({ patchList: { open: true } }),
+  closePatchList: () => set({ patchList: { open: false } }),
+  calculators: { open: false },
+  openCalculators: (tab) => set({ calculators: { open: true, tab } }),
+  closeCalculators: () => set({ calculators: { open: false } }),
   rentmanImport: { open: false },
   openRentmanImport: () => set({ rentmanImport: { open: true } }),
   closeRentmanImport: () => set({ rentmanImport: { open: false } }),

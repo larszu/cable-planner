@@ -178,6 +178,20 @@ const resolveOrthogonalWaypoints = (
     : rawWaypoints
 }
 
+/** Issue #53: deterministic small offset for the midline of a cable
+ *  so two cables that would compute the same midX/midY don't perfectly
+ *  overlap. Hash the cable id to a stable jitter in -10..+10 px. */
+const midlineJitter = (cableId: string): number => {
+  let hash = 0
+  for (let i = 0; i < cableId.length; i++) {
+    hash = (hash * 31 + cableId.charCodeAt(i)) | 0
+  }
+  // Map to -10, -6, -2, +2, +6, +10 — six discrete lanes so even
+  // many overlapping cables space out predictably.
+  const lanes = [-10, -6, -2, 2, 6, 10]
+  return lanes[Math.abs(hash) % lanes.length]
+}
+
 const buildPath = (
   cable: Cable,
   args: {
@@ -251,16 +265,22 @@ const buildPath = (
 
     // Compose intermediate points between sStub and tStub. The exact shape
     // depends on whether the two stubs share an axis after stub-out.
+    // Issue #53: when the user enabled `orthogonalCollisionShift` we
+    // jitter the midline so cables that would compute identical
+    // midX/midY don't perfectly overlap. The jitter is hashed from the
+    // cable id so it's stable across re-renders.
+    const collisionShiftOn = useUiStore.getState().orthogonalCollisionShift
+    const jitter = collisionShiftOn ? midlineJitter(cable.id) : 0
     const points: { x: number; y: number }[] = [{ x: sx, y: sy }, sStub]
     if (Math.abs(sStub.x - tStub.x) < 2 || Math.abs(sStub.y - tStub.y) < 2) {
       // Stubs are collinear: src → sStub → tStub → tgt is already orthogonal.
     } else if (sHorizontal && tHorizontal) {
       // Both handles horizontal (typical port-to-port): bend at midX.
-      const midX = (sStub.x + tStub.x) / 2
+      const midX = (sStub.x + tStub.x) / 2 + jitter
       points.push({ x: midX, y: sStub.y }, { x: midX, y: tStub.y })
     } else if (!sHorizontal && !tHorizontal) {
       // Both handles vertical: bend at midY.
-      const midY = (sStub.y + tStub.y) / 2
+      const midY = (sStub.y + tStub.y) / 2 + jitter
       points.push({ x: sStub.x, y: midY }, { x: tStub.x, y: midY })
     } else if (sHorizontal) {
       // Source horizontal → target vertical: single bend at (tStub.x, sStub.y).

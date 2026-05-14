@@ -18,6 +18,9 @@ import { AtemAudioRouterDialog } from './components/Atem/AtemAudioRouterDialog'
 import { LocationBomDialog } from './components/Project/LocationBomDialog'
 import { RackEditorDialog } from './components/Rack/RackEditorDialog'
 import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
+import { AboutDialog } from './components/About/AboutDialog'
+import { PatchListDialog } from './components/Patch/PatchListDialog'
+import { CalculatorsDialog } from './components/Calculators/CalculatorsDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
 import { PrintDialog } from './components/Print/PrintDialog'
@@ -449,6 +452,9 @@ export default function App() {
       <LocationBomDialog />
       <RackEditorDialog />
       <MobileShareDialog />
+      <AboutDialog />
+      <PatchListDialog />
+      <CalculatorsDialog />
 
       <ProjectMetaDialog
         open={metaDialog !== null}
