@@ -625,17 +625,11 @@ export const LibraryPanel = () => {
               </span>
             </div>
             <div className="flex gap-1">
-              <button
-                type="button"
-                onClick={() => setShowNetBoxDialog(true)}
-                className="rounded bg-cyan-700 px-2 py-1 text-xs hover:bg-cyan-600"
-                title={t(
-                  'library.add.netboxTitle',
-                  'Geräte aus der NetBox device-type-library importieren',
-                )}
-              >
-                {t('library.add.netbox', '+ NetBox')}
-              </button>
+              {/* v7.6.0 — NetBox import removed per user request. The data
+                  source was rarely matched what we needed for broadcast
+                  gear; keeping the dialog code (lib/netboxImport.ts +
+                  the LibraryPanel handlers) as dead code that tree-
+                  shaking can drop, but the UI entry point is gone. */}
               <button
                 type="button"
                 onClick={() => {

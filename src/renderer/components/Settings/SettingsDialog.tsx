@@ -1958,13 +1958,7 @@ const AdvancedTab = () => {
           >
             {t('settings.advanced.caches.rentman', 'Rentman-Template-Cache leeren')}
           </button>
-          <button
-            type="button"
-            onClick={() => clearCache('cable-planner:netbox:index:v1', 'NetBox-Index-Cache')}
-            className="rounded bg-slate-700 px-3 py-1 text-xs text-left hover:bg-slate-600"
-          >
-            {t('settings.advanced.caches.netbox', 'NetBox-Index-Cache leeren')}
-          </button>
+          {/* v7.6.0 — NetBox import removed; cache entry will not be populated. */}
           <button
             type="button"
             onClick={() => clearCache('cable-planner:web:recents', 'Web-Suchverlauf')}

@@ -111,21 +111,21 @@ export const MenuBar = ({
               </MenuItem>
             </>
           )}
-        </Menu>
-
-        <Menu label={t('app.menu.export', 'Export')}>
-          {onOpenPrintDialog && (
-            <MenuItem onClick={onOpenPrintDialog} icon="🖨">
-              {t('app.menu.export.print', 'Drucken… (Plan + Einzelgeräte)')}
-            </MenuItem>
-          )}
-          {onOpenPrintDialog && <MenuSep />}
+          <MenuSep />
+          {/* v7.6.0 — Export + Drucken moved into Datei (logischere Hierarchie).
+              "Plan als …" sind Export-Features, das echte Drucken läuft über
+              den separaten Drucken-Dialog mit nativem Druck-Workflow. */}
           <MenuItem onClick={onExportPdf} icon="📑">
-            {t('app.menu.export.pdf', 'Plan als PDF…')}
+            {t('app.menu.file.exportPdf', 'Plan als PDF exportieren…')}
           </MenuItem>
           {onOpenCableBom && (
             <MenuItem onClick={onOpenCableBom} icon="🧮">
-              {t('app.menu.export.cableBom', 'Kabel-Stückliste (BOM)…')}
+              {t('app.menu.file.cableBom', 'Kabel-Stückliste (BOM) exportieren…')}
+            </MenuItem>
+          )}
+          {onOpenPrintDialog && (
+            <MenuItem onClick={onOpenPrintDialog} icon="🖨" shortcut="Strg+P">
+              {t('app.menu.file.print', 'Drucken…')}
             </MenuItem>
           )}
           {(onAttachPdfToRentman || onOpenRentmanCableExport) && <MenuSep />}
@@ -135,9 +135,9 @@ export const MenuBar = ({
               icon="📎"
             >
               {hasRentmanLink
-                ? t('app.menu.export.attachRentman', 'Plan an Rentman anhängen…')
+                ? t('app.menu.file.attachRentman', 'Plan an Rentman anhängen…')
                 : t(
-                    'app.menu.export.attachRentmanDisabled',
+                    'app.menu.file.attachRentmanDisabled',
                     'Plan an Rentman anhängen (kein Projekt verknüpft)',
                   )}
             </MenuItem>
@@ -148,9 +148,9 @@ export const MenuBar = ({
               icon="🔌"
             >
               {hasRentmanLink
-                ? t('app.menu.export.cablesRentman', 'Kabel an Rentman senden…')
+                ? t('app.menu.file.cablesRentman', 'Kabel an Rentman senden…')
                 : t(
-                    'app.menu.export.cablesRentmanDisabled',
+                    'app.menu.file.cablesRentmanDisabled',
                     'Kabel an Rentman senden (kein Projekt verknüpft)',
                   )}
             </MenuItem>
