@@ -421,7 +421,35 @@ const shouldSyncRentmanTemplateCache = (patch: Partial<EquipmentItem>): boolean 
   return keys.some((key) => key !== 'x' && key !== 'y')
 }
 
-export const useProjectStore = create<ProjectState>((set, get) => ({
+/** v7.8.4 — set-rate guard. When the store mutates more than
+ *  PROJECT_RATE_THRESHOLD times within PROJECT_RATE_WINDOW_MS, throw
+ *  so the React error boundary captures the stack with a real
+ *  pointer to the offending caller. Without this, the silent #185
+ *  loop just chews the renderer with no actionable info. */
+const PROJECT_RATE_THRESHOLD = 80
+const PROJECT_RATE_WINDOW_MS = 250
+let projectRecentSetTs: number[] = []
+const checkProjectSetRate = () => {
+  const now = Date.now()
+  projectRecentSetTs.push(now)
+  projectRecentSetTs = projectRecentSetTs.filter((t) => now - t <= PROJECT_RATE_WINDOW_MS)
+  if (projectRecentSetTs.length > PROJECT_RATE_THRESHOLD) {
+    const count = projectRecentSetTs.length
+    projectRecentSetTs = []
+    throw new Error(
+      `[CablePlanner] projectStore set-rate guard tripped: ${count} mutations in ${PROJECT_RATE_WINDOW_MS} ms. Render-loop suspected — captured stack pinpoints the offending caller.`,
+    )
+  }
+}
+
+export const useProjectStore = create<ProjectState>((set, get) => {
+  // Listen to our OWN store via subscribe (registered after the store
+  // exists). Throwing inside a zustand listener propagates up to the
+  // setter's caller, which lands in React's error boundary.
+  setTimeout(() => {
+    useProjectStore.subscribe(() => checkProjectSetRate())
+  }, 0)
+  return {
   project: (() => {
     const auto = loadAutosavedProject()
     return auto ? healProjectPositions(auto) : defaultProject()
@@ -1495,7 +1523,8 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
-}))
+  }
+})
 
 // Autosave the working project to localStorage whenever it changes.
 useProjectStore.subscribe((state, prev) => {
