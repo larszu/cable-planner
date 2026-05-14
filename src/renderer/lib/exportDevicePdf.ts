@@ -31,6 +31,10 @@ interface CableEndpointSummary {
   otherDeviceName: string
   /** Name of the port on the other side, if known. */
   otherPortName: string | null
+  /** Connector type of the port on the other side (e.g. "BNC"), if known.
+   *  Mirrors what the mobile viewer prints next to each port so the
+   *  patch sheet and the phone screen match. */
+  otherPortConnectorType: string | null
   cable: Cable
 }
 
@@ -57,6 +61,7 @@ const summarizeEndpoint = (
     cableLabel,
     otherDeviceName: other?.name ?? 'unbekannt',
     otherPortName: otherPort?.name ?? null,
+    otherPortConnectorType: otherPort?.connectorType ? String(otherPort.connectorType) : null,
     cable,
   }
 }
@@ -134,8 +139,12 @@ const drawColumn = (
       pdf.text(`  -> ${c.cableLabel}`, x, y, { maxWidth: colWidth - 6 })
       y += 11
       pdf.setTextColor(80)
+      // Mirror the mobile viewer's "Camera 1 · SDI Out 3 (BNC)"
+      // line — device name + port name + connector type — so the
+      // printed sheet and the phone match exactly.
+      const otherSuffix = c.otherPortConnectorType ? ` [${c.otherPortConnectorType}]` : ''
       const tgt = c.otherPortName
-        ? `       an ${c.otherDeviceName} - ${c.otherPortName}`
+        ? `       an ${c.otherDeviceName} - ${c.otherPortName}${otherSuffix}`
         : `       an ${c.otherDeviceName}`
       pdf.text(tgt, x, y, { maxWidth: colWidth - 6 })
       y += 11
