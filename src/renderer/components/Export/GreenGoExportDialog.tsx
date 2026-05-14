@@ -14,22 +14,14 @@ import {
   exportIntercomMatrixXlsx,
   parseIntercomMatrixXlsx,
 } from '../../lib/intercomMatrixXlsx'
+import { downloadBlob } from '../../lib/downloadBlob'
 
 interface Props {
   onClose: () => void
 }
 
-const downloadFile = (filename: string, content: string) => {
-  const blob = new Blob([content], { type: 'application/json;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
-}
+const downloadFile = (filename: string, content: string) =>
+  downloadBlob(filename, content, 'application/json;charset=utf-8')
 
 const MAX_USERS = 12
 const MAX_GROUPS = 9
@@ -149,18 +141,11 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
   const handleXlsxExport = () => {
     const buffer = exportIntercomMatrixXlsx(config)
-    const blob = new Blob([buffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    const safeName = config.systemName.replace(/[^a-z0-9_\-]/gi, '_') || 'intercom'
-    a.download = `${safeName}-IntercomMatrix.xlsx`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    downloadBlob(
+      `${config.systemName || 'intercom'}-IntercomMatrix.xlsx`,
+      buffer,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
   }
 
   // ── system helpers ────────────────────────────────────────────────────────

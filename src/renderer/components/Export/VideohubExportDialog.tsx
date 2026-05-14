@@ -1,6 +1,7 @@
 ﻿import { useMemo, useState } from 'react'
 import { useProjectStore } from '../../store/projectStore'
 import { guessVideohubPresetKey } from '../../lib/deviceKind'
+import { downloadBlob } from '../../lib/downloadBlob'
 import {
   buildVideohubLabelTxt,
   buildVideohubRoutingDump,
@@ -25,17 +26,8 @@ const buildDefaultRouting = (totalIn: number, totalOut: number): Record<number, 
   return r
 }
 
-const downloadTextFile = (filename: string, content: string) => {
-  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
-}
+const downloadTextFile = (filename: string, content: string) =>
+  downloadBlob(filename, content, 'text/plain;charset=utf-8')
 
 export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShowMatrix }: Props) => {
   const equipment = useProjectStore((s) => s.project.equipment)

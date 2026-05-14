@@ -1,4 +1,5 @@
 import type { CablePlannerProject } from '../types/project'
+import { downloadBlob } from './downloadBlob'
 
 type OpenProjectResponse = {
   filePath: string
@@ -141,15 +142,8 @@ const pushRecent = (item: string) => {
   saveRecents(next)
 }
 
-const downloadJson = (project: CablePlannerProject, suggestedFileName: string) => {
-  const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = suggestedFileName
-  a.click()
-  URL.revokeObjectURL(url)
-}
+const downloadJson = (project: CablePlannerProject, suggestedFileName: string) =>
+  downloadBlob(suggestedFileName, JSON.stringify(project, null, 2), 'application/json')
 
 /**
  * Normalise whatever the user pasted into the Rentman token field.

@@ -245,6 +245,12 @@ interface UiState extends PersistedUiState {
   locationBom: { open: boolean; locationId?: string }
   openLocationBom: (locationId: string) => void
   closeLocationBom: () => void
+  /** Issue #61 — Rack-Editor sub-canvas. `rackInstanceId` is the tag
+   *  written by `placeGroupPreset` on every device that belongs to the
+   *  same rack instance. */
+  rackEditor: { open: boolean; rackInstanceId?: string }
+  openRackEditor: (rackInstanceId: string) => void
+  closeRackEditor: () => void
   /** Rentman equipment import dialog (cross-component trigger). */
   rentmanImport: { open: boolean }
   openRentmanImport: () => void
@@ -423,6 +429,9 @@ export const useUiStore = create<UiState>((set) => ({
   locationBom: { open: false },
   openLocationBom: (locationId) => set({ locationBom: { open: true, locationId } }),
   closeLocationBom: () => set({ locationBom: { open: false } }),
+  rackEditor: { open: false },
+  openRackEditor: (rackInstanceId) => set({ rackEditor: { open: true, rackInstanceId } }),
+  closeRackEditor: () => set({ rackEditor: { open: false } }),
   rentmanImport: { open: false },
   openRentmanImport: () => set({ rentmanImport: { open: true } }),
   closeRentmanImport: () => set({ rentmanImport: { open: false } }),

@@ -20,6 +20,8 @@ import {
 } from '../../lib/greengoSync'
 import type { DeviceConfigEntry, DeviceConfigKind } from '../../store/uiStore'
 import { HOTKEY_ACTION_LABEL, comboFromEvent } from '../../lib/hotkeys'
+import { downloadBlob } from '../../lib/downloadBlob'
+import { pickTextFile } from '../../lib/pickFile'
 
 interface SettingsDialogProps {
   open: boolean
@@ -1344,37 +1346,11 @@ const guessKindFromFileName = (fileName: string): DeviceConfigKind => {
 }
 
 const downloadConfig = (entry: DeviceConfigEntry) => {
-  const blob = new Blob([entry.content], { type: entry.mimeType || 'application/octet-stream' })
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob)
-  a.download = entry.fileName || `${entry.name}.txt`
-  a.click()
-  URL.revokeObjectURL(a.href)
+  downloadBlob(entry.fileName || `${entry.name}.txt`, entry.content, entry.mimeType)
 }
 
-const pickTextFile = (): Promise<{ name: string; content: string; mimeType: string } | null> =>
-  new Promise((resolve) => {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = '.xml,.json,.gg5,.txt,.csv,application/xml,application/json,text/plain'
-    input.onchange = () => {
-      const file = input.files?.[0]
-      if (!file) {
-        resolve(null)
-        return
-      }
-      const reader = new FileReader()
-      reader.onload = () =>
-        resolve({
-          name: file.name,
-          mimeType: file.type || 'application/octet-stream',
-          content: typeof reader.result === 'string' ? reader.result : '',
-        })
-      reader.onerror = () => resolve(null)
-      reader.readAsText(file)
-    }
-    input.click()
-  })
+const CONFIG_PICKER_ACCEPT =
+  '.xml,.json,.gg5,.txt,.csv,application/xml,application/json,text/plain'
 
 const ConfigsTab = () => {
   const t = useTranslation()
@@ -1398,7 +1374,7 @@ const ConfigsTab = () => {
   }, [library, filter])
 
   const handleUpload = async () => {
-    const file = await pickTextFile()
+    const file = await pickTextFile(CONFIG_PICKER_ACCEPT)
     if (!file) return
     const kind = guessKindFromFileName(file.name)
     addDeviceConfig({
@@ -1411,18 +1387,15 @@ const ConfigsTab = () => {
   }
 
   const handleExportBundle = () => {
-    const blob = new Blob([JSON.stringify({ version: 1, library }, null, 2)], {
-      type: 'application/json',
-    })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `cable-planner-konfigurationen-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(a.href)
+    downloadBlob(
+      `cable-planner-konfigurationen-${new Date().toISOString().slice(0, 10)}.json`,
+      JSON.stringify({ version: 1, library }, null, 2),
+      'application/json',
+    )
   }
 
   const handleImportBundle = async () => {
-    const file = await pickTextFile()
+    const file = await pickTextFile(CONFIG_PICKER_ACCEPT)
     if (!file) return
     try {
       const parsed = JSON.parse(file.content) as { version?: number; library?: DeviceConfigEntry[] }
@@ -1806,12 +1779,11 @@ const AdvancedTab = () => {
       const k = localStorage.key(i)
       if (k && k.startsWith('cable-planner:')) dump[k] = localStorage.getItem(k)
     }
-    const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `cable-planner-localStorage-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(a.href)
+    downloadBlob(
+      `cable-planner-localStorage-${new Date().toISOString().slice(0, 10)}.json`,
+      JSON.stringify(dump, null, 2),
+      'application/json',
+    )
   }
 
   const resetWelcome = async () => {
