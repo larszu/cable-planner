@@ -613,7 +613,7 @@ export const AtemMvConfigDialog = () => {
                     relevant layouts (matching ATEM software's flip
                     between one big window and four small windows). */}
                 {(['TL', 'TR', 'BL', 'BR'] as const).map((q) => {
-                  const cycle = QUADRANT_LAYOUT_CYCLES[q]
+                  const cycle = QUADRANT_LAYOUT_CYCLES[q] as readonly number[]
                   const idx = cycle.indexOf(mv.layout)
                   const next = cycle[(idx + 1) % cycle.length] ?? cycle[0]
                   const style: React.CSSProperties = {

@@ -58,7 +58,7 @@ export const CanvasToolbar = () => {
    *  same visual defaults the equipment-node renderer uses (220 px
    *  wide; height derived from port count). Center alignments use
    *  device CENTERS as the reference, not corners. */
-  const measuredSize = (item: { width?: number; height?: number; inputs?: { length: number }[]; outputs?: { length: number }[]; ipAddress?: string }) => {
+  const measuredSize = (item: { width?: number; height?: number; inputs?: ReadonlyArray<unknown>; outputs?: ReadonlyArray<unknown>; ipAddress?: string }) => {
     const w = item.width && item.width > 0 ? item.width : 220
     if (item.height && item.height > 0) return { w, h: item.height }
     // Match EquipmentNode's intrinsic layout: header + N port rows + padding.

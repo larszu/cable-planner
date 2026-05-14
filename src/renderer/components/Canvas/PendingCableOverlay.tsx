@@ -206,12 +206,18 @@ const PendingCableSuggestions = ({
       },
     ])
     queueConnection({
-      fromEquipmentId: sourceIsOutput ? sourceNodeId : newId,
-      fromPortId: sourceIsOutput ? sourcePortId : newPortId,
-      toEquipmentId: sourceIsOutput ? newId : sourceNodeId,
-      toPortId: sourceIsOutput ? newPortId : sourcePortId,
+      source: sourceIsOutput ? sourceNodeId : newId,
+      sourceHandle: sourceIsOutput ? sourcePortId : newPortId,
+      target: sourceIsOutput ? newId : sourceNodeId,
+      targetHandle: sourceIsOutput ? newPortId : sourcePortId,
     })
-    createCableFromPending({ name: template.name })
+    createCableFromPending({
+      name: template.name,
+      type: 'Custom',
+      length: 1,
+      color: '#64748b',
+      notes: '',
+    })
     clearPendingCable()
   }
 

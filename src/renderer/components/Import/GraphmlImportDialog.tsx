@@ -400,6 +400,15 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
           />
         </div>
 
+        {/* Library-mode hint: cables are dropped (templates carry no cabling). */}
+        {destination === 'library' && (
+          <div className="border-b border-violet-800/60 bg-violet-950/40 px-4 py-2 text-[11px] text-violet-200">
+            📚 Library-Modus: Geräte werden als wiederverwendbare Vorlagen
+            in die lokale Library gespeichert. Kabel werden nicht
+            mit übernommen (Templates enthalten keine Verkabelung).
+          </div>
+        )}
+
         {/* Tabs */}
         <div className="flex border-b border-slate-800 text-xs">
           {([

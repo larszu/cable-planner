@@ -8,8 +8,17 @@
 // directly so the output skips jsPDF entirely.
 
 import { toJpeg, toPng } from 'html-to-image'
+import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 
 export type ImageExportFormat = 'png' | 'jpeg'
+
+export interface ImageExportBackgroundOptions {
+  /** Canvas grid variant. Defaults to 'dots'. */
+  bgVariant?: ExportBgVariant
+  gridSize?: number
+  bgOpacity?: number
+  customPalette?: { canvasBg: string; gridColor: string } | null
+}
 
 interface ContentBox {
   contentX: number
@@ -91,7 +100,9 @@ const computeContentBox = (viewportEl: HTMLElement): ContentBox => {
     throw new Error('Konnte den Inhalt des Canvas nicht vermessen')
   }
 
-  const padding = 80
+  // v7.7.1 — generous padding so the exported image shows plenty of
+  // background pattern around the content. Mirrors exportPdf.ts.
+  const padding = 200
   return {
     contentX: minX - padding,
     contentY: minY - padding,
@@ -105,6 +116,7 @@ const captureViewport = async (
   backgroundTheme: 'dark' | 'light',
   pixelRatio: number,
   jpegQuality: number,
+  bgOptions: ImageExportBackgroundOptions,
 ): Promise<string> => {
   const viewportEl =
     (document.querySelector('.react-flow__viewport') as HTMLElement | null) ?? null
@@ -112,17 +124,16 @@ const captureViewport = async (
 
   const { contentX, contentY, contentW, contentH } = computeContentBox(viewportEl)
 
-  const bgFallback = backgroundTheme === 'light' ? '#e8edf4' : '#0f172a'
-  const bgGradient =
-    backgroundTheme === 'light'
-      ? 'radial-gradient(circle at 30% 20%, #eef2f7 0%, #e8edf4 50%, #dde4ee 100%)'
-      : 'radial-gradient(circle at 20% 10%, #1e293b 0%, #0f172a 45%, #020617 100%)'
-  const dotColor = backgroundTheme === 'light' ? '#cbd5e1' : '#334155'
-  const dotPattern = `radial-gradient(${dotColor} 1px, transparent 1px)`
-  const composedBackground = `${dotPattern}, ${bgGradient}`
+  const composed = composeExportBackground({
+    theme: backgroundTheme,
+    variant: bgOptions.bgVariant ?? 'dots',
+    gridSize: bgOptions.gridSize ?? 20,
+    opacity: bgOptions.bgOpacity ?? 0.5,
+    customPalette: bgOptions.customPalette ?? null,
+  })
 
   const captureOptions = {
-    backgroundColor: bgFallback,
+    backgroundColor: composed.bgFallback,
     pixelRatio,
     cacheBust: true,
     width: contentW,
@@ -130,10 +141,10 @@ const captureViewport = async (
     style: {
       width: `${contentW}px`,
       height: `${contentH}px`,
-      background: composedBackground,
-      backgroundSize: '20px 20px, 100% 100%',
-      backgroundRepeat: 'repeat, no-repeat',
-      backgroundColor: bgFallback,
+      background: composed.background,
+      backgroundSize: composed.backgroundSize,
+      backgroundRepeat: composed.backgroundRepeat,
+      backgroundColor: composed.bgFallback,
       transform: `translate(${-contentX}px, ${-contentY}px)`,
       transformOrigin: '0 0',
     },
@@ -165,13 +176,23 @@ const triggerDownload = (dataUrl: string, fileName: string) => {
 export const exportCanvasToImage = async (
   projectName: string,
   format: ImageExportFormat,
-  options?: { backgroundTheme?: 'dark' | 'light'; pixelRatio?: number; jpegQuality?: number },
+  options?: {
+    backgroundTheme?: 'dark' | 'light'
+    pixelRatio?: number
+    jpegQuality?: number
+  } & ImageExportBackgroundOptions,
 ): Promise<void> => {
   const dataUrl = await captureViewport(
     format,
     options?.backgroundTheme ?? 'dark',
     options?.pixelRatio ?? 2,
     options?.jpegQuality ?? 0.92,
+    {
+      bgVariant: options?.bgVariant,
+      gridSize: options?.gridSize,
+      bgOpacity: options?.bgOpacity,
+      customPalette: options?.customPalette,
+    },
   )
   const safeName = projectName.replace(/[/\\?%*:|"<>]/g, '-').trim() || 'cable-planner'
   triggerDownload(dataUrl, `${safeName}.${format === 'png' ? 'png' : 'jpg'}`)
