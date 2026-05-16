@@ -46,6 +46,24 @@ const createWindow = async () => {
     } catch { /* ignore */ }
   })
 
+  // v7.9.4 — `show: false` + ready-to-show MUSS vor loadURL registriert
+  // werden, sonst feuert das Event evtl. bevor wir zuhören → das Fenster
+  // bleibt unsichtbar und der User denkt Electron sei nicht gestartet.
+  // Plus 5s-Fallback: falls ready-to-show aus irgendeinem Grund nicht
+  // feuert (Renderer-Crash, blockierte JS-Init, …) zeigen wir das
+  // Fenster trotzdem damit der User sieht was los ist.
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
+  const showFallbackTimer = setTimeout(() => {
+    if (!mainWindow.isDestroyed() && !mainWindow.isVisible()) {
+      console.warn('[main] ready-to-show 5s timeout — showing window anyway')
+      mainWindow.show()
+    }
+  }, 5000)
+  mainWindow.once('show', () => clearTimeout(showFallbackTimer))
+  mainWindow.once('closed', () => clearTimeout(showFallbackTimer))
+
   // v7.9.4 — Electron 42+ liefert ein einziges Event-Object statt
   // (event, level, message, line, sourceId) (alte Signatur deprecated).
   // Neue Felder: event.level ist ein String ('warning'/'error'/...),
@@ -95,10 +113,6 @@ const createWindow = async () => {
   } else {
     await mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
-
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.show()
-  })
 
   // F12 opens DevTools for debugging in production
   mainWindow.webContents.on('before-input-event', (_event, input) => {
