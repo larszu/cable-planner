@@ -421,12 +421,13 @@ export const CableEdge = ({
       (cable.bumpStyle !== 'off' && globalCableBumps))
   useLayoutEffect(() => {
     if (!cable) return
-    // Locate THIS edge's path in the DOM.
-    const myEdgeGroup = document.querySelector(
-      `g.react-flow__edge[data-id="${CSS.escape(id)}"]`,
-    )
-    const myPath = myEdgeGroup?.querySelector<SVGPathElement>('path.react-flow__edge-path')
-    if (!myPath) return
+    // v7.8.9 — ReactFlow v11 marks edge groups with `data-testid="rf__edge-<id>"`
+    // (not `data-id`); the path INSIDE the group carries `id="<cableId>"`.
+    // The earlier selector used `[data-id]` which never matched, so the
+    // bump rendering was silently broken since v7.8.7. Querying by the
+    // path's own id is robust regardless of the wrapping group.
+    const myPath = document.getElementById(id) as SVGPathElement | null
+    if (!myPath || !myPath.classList.contains('react-flow__edge-path')) return
     pathRef.current = myPath
     // If bumps are not requested, make sure we restore the plain path
     // (in case bumps were applied on a previous render and the user
@@ -435,15 +436,13 @@ export const CableEdge = ({
       myPath.setAttribute('d', path)
       return
     }
-    // Collect orthogonal segments from every OTHER cable currently in
-    // the DOM. Parse only M and L commands — anything else (arcs,
-    // curves) means the path is already bumped or non-orthogonal and
-    // can be skipped.
+    // Collect orthogonal segments from every OTHER cable's path in the
+    // DOM. Parse only M and L commands — anything else (arcs, curves)
+    // means the path is already bumped or non-orthogonal.
     const otherSegments: Array<{ a: { x: number; y: number }; b: { x: number; y: number } }> = []
-    const allPaths = document.querySelectorAll<SVGPathElement>(
-      'g.react-flow__edge:not([data-id="' + CSS.escape(id) + '"]) path.react-flow__edge-path',
-    )
+    const allPaths = document.querySelectorAll<SVGPathElement>('path.react-flow__edge-path')
     allPaths.forEach((p) => {
+      if (p === myPath) return
       const d = p.getAttribute('d')
       if (!d) return
       // Quick reject: any non-M/L command means we'd misinterpret arcs.

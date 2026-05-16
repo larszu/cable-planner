@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
+import { triggerCanvasFitView } from '../../lib/canvasViewport'
 import { useRentman } from '../../hooks/useRentman'
 import { promptDialog } from '../../lib/promptDialog'
 import { CategorySelect } from '../shared/CategorySelect'
@@ -89,6 +90,64 @@ export const LibraryPanel = () => {
   // When set, the rack builder opens in edit mode and seeds from this preset.
   // null = creating a new rack.
   const [editingRackPresetId, setEditingRackPresetId] = useState<string | null>(null)
+  // v7.9.0 / Issue #120 — synthesized preset from canvas-selection
+  // "Als Rack speichern". Lives in component state because it's
+  // ephemeral (only valid while the dialog is open).
+  const [seedPreset, setSeedPreset] = useState<import('../../types/equipment').GroupPreset | null>(null)
+  // Watch the global trigger fired by the CanvasToolbar button.
+  const rackBuilderSeedTrigger = useUiStore((s) => s.rackBuilderSeedTrigger)
+  const clearRackBuilderSeedTrigger = useUiStore((s) => s.clearRackBuilderSeedTrigger)
+  useEffect(() => {
+    if (!rackBuilderSeedTrigger || rackBuilderSeedTrigger.length === 0) return
+    // Resolve the selected equipment to a synthesized GroupPreset
+    // shape. Stack them top-to-bottom by HE size; non-rack devices
+    // default to 1 HE. Cables connecting selected devices are NOT
+    // included (the user can wire them later in the sub-canvas).
+    const items = rackBuilderSeedTrigger
+      .map((id) => equipmentItems.find((e) => e.id === id))
+      .filter((e): e is NonNullable<typeof e> => e != null)
+    if (items.length === 0) {
+      clearRackBuilderSeedTrigger()
+      return
+    }
+    let cursorUnit = 1
+    const placements = items.map((eq, index) => {
+      const heightUnits = Math.max(1, eq.rackUnits ?? 1)
+      const placement = { itemIndex: index, startUnit: cursorUnit, heightUnits }
+      cursorUnit += heightUnits
+      return placement
+    })
+    const synthesized: import('../../types/equipment').GroupPreset = {
+      id: `__seed-${Date.now().toString(36)}`,
+      name: 'Neues Rack aus Auswahl',
+      rack: {
+        totalUnits: Math.max(cursorUnit + 3, 12),
+        placements,
+      },
+      items: items.map((eq) => ({
+        name: eq.name,
+        category: eq.category ?? 'Sonstiges',
+        inputs: eq.inputs,
+        outputs: eq.outputs,
+        isRackDevice: eq.isRackDevice ?? !!eq.rackUnits,
+        rackUnits: Math.max(1, eq.rackUnits ?? 1),
+        frontPanelImageUrl: eq.frontPanelImageUrl,
+        rearPanelImageUrl: eq.rearPanelImageUrl,
+        frontPanelCrop: eq.frontPanelCrop,
+        rearPanelCrop: eq.rearPanelCrop,
+        width: eq.width ?? 240,
+        height: eq.height ?? 80,
+        offsetX: 0,
+        offsetY: 0,
+      })),
+      cables: [],
+    }
+    setSeedPreset(synthesized)
+    setEditingRackPresetId(null)
+    setShowRackBuilderDialog(true)
+    setTab('racks')
+    clearRackBuilderSeedTrigger()
+  }, [rackBuilderSeedTrigger, equipmentItems, clearRackBuilderSeedTrigger])
   const [name, setName] = useState('Custom Device')
   const [category, setCategory] = useState('Kameras')
   const [isRackDeviceDraft, setIsRackDeviceDraft] = useState(false)
@@ -519,7 +578,14 @@ export const LibraryPanel = () => {
         {!floating && (
           <button
             type="button"
-            onClick={() => setFloating(true)}
+            onClick={() => {
+              setFloating(true)
+              // v7.9.0 / Issue #108 — after the side track collapses
+              // to 0px, run fitView so nodes that scrolled off-screen
+              // come back into view. Defer a tick so the grid has
+              // actually re-measured first.
+              window.setTimeout(triggerCanvasFitView, 60)
+            }}
             title="Library abdocken (frei verschiebbar)"
             aria-label="Library abdocken"
             className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
@@ -1965,17 +2031,28 @@ export const LibraryPanel = () => {
       <RackBuilderDialog
         open={showRackBuilderDialog}
         templates={rackBuilderTemplates}
-        initialPreset={editingRackPresetId ? groupPresets.find((p) => p.id === editingRackPresetId) ?? null : null}
+        initialPreset={
+          editingRackPresetId
+            ? groupPresets.find((p) => p.id === editingRackPresetId) ?? null
+            : // v7.9.0 / Issue #120 — wenn der RackBuilder via Toolbar-Seed
+              // geöffnet wurde, übergeben wir die synthetisierte Preset
+              // als initialPreset. Beim Speichern wird id durch addGroupPreset
+              // ggf. überschrieben (Upsert).
+              seedPreset
+        }
         onClose={() => {
           setShowRackBuilderDialog(false)
           setEditingRackPresetId(null)
+          setSeedPreset(null)
         }}
         onSave={(preset) => {
           // addGroupPreset upserts by id, so edit-mode reuses the same id and
-          // simply overwrites the existing entry.
+          // simply overwrites the existing entry. For seed-mode the synthetic
+          // __seed- id is replaced by a fresh uuid in saveRack already.
           addGroupPreset(preset)
           setShowRackBuilderDialog(false)
           setEditingRackPresetId(null)
+          setSeedPreset(null)
           setTab('racks')
         }}
       />
@@ -2059,7 +2136,10 @@ export const LibraryPanel = () => {
         title="Library"
         position={floatingPos}
         onMove={setFloatingPos}
-        onDock={() => setFloating(false)}
+        onDock={() => {
+          setFloating(false)
+          window.setTimeout(triggerCanvasFitView, 60)
+        }}
         width={Math.max(libraryWidth, 320)}
       >
         {inner}
