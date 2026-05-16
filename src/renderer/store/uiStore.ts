@@ -74,6 +74,11 @@ interface PersistedUiState {
   /** v7.9.5 — Kategorien-Sortierung: 'manual' = User-Order via Drag&Drop,
    *  'asc' = alphabetisch A→Z, 'desc' = Z→A. */
   librarySortMode: 'manual' | 'asc' | 'desc'
+  /** v7.9.5 — Persistent Author-Name für Annotations. Wird einmal
+   *  abgefragt wenn der User die erste Annotation erstellt; danach
+   *  bei jeder weiteren als Default verwendet. Leer-String bedeutet
+   *  noch nicht gesetzt → beim nächsten Annotate-Versuch promptet. */
+  annotationAuthor: string
   /** Issue #62: per-connector-type colour overrides. When a connector
    *  type is missing or its value is an empty string the built-in
    *  default from DEFAULT_CONNECTOR_TYPE_COLORS applies. Stored sparsely
@@ -163,6 +168,7 @@ const defaults: PersistedUiState = {
   rentmanEnabled: true,
   libraryViewMode: 'list',
   librarySortMode: 'manual',
+  annotationAuthor: '',
   connectorTypeColors: {},
   bgVariant: 'dots',
   bgOpacity: 0.5,
@@ -252,6 +258,8 @@ const load = (): PersistedUiState => {
       merged.librarySortMode !== 'desc'
     )
       merged.librarySortMode = defaults.librarySortMode
+    if (typeof merged.annotationAuthor !== 'string')
+      merged.annotationAuthor = defaults.annotationAuthor
     if (typeof merged.orthogonalCollisionShift !== 'boolean')
       merged.orthogonalCollisionShift = defaults.orthogonalCollisionShift
     if (!merged.hotkeys || typeof merged.hotkeys !== 'object') merged.hotkeys = defaults.hotkeys
@@ -371,6 +379,7 @@ interface UiState extends PersistedUiState {
   setRentmanEnabled: (value: boolean) => void
   setLibraryViewMode: (mode: 'list' | 'grid') => void
   setLibrarySortMode: (mode: 'manual' | 'asc' | 'desc') => void
+  setAnnotationAuthor: (name: string) => void
   setConnectorTypeColor: (connectorType: string, color: string | null) => void
   resetConnectorTypeColors: () => void
   setBgVariant: (value: 'dots' | 'lines' | 'cross' | 'none') => void
@@ -542,6 +551,7 @@ const applyPatch =
       rentmanEnabled: state.rentmanEnabled,
       libraryViewMode: state.libraryViewMode,
       librarySortMode: state.librarySortMode,
+      annotationAuthor: state.annotationAuthor,
       connectorTypeColors: state.connectorTypeColors,
       bgVariant: state.bgVariant,
       bgOpacity: state.bgOpacity,
@@ -589,6 +599,7 @@ export const useUiStore = create<UiState>((set) => ({
   setRentmanEnabled: (value) => set(applyPatch({ rentmanEnabled: value })),
   setLibraryViewMode: (mode) => set(applyPatch({ libraryViewMode: mode })),
   setLibrarySortMode: (mode) => set(applyPatch({ librarySortMode: mode })),
+  setAnnotationAuthor: (name) => set(applyPatch({ annotationAuthor: name })),
   setConnectorTypeColor: (connectorType, color) =>
     set((state) => {
       const next = { ...state.connectorTypeColors }

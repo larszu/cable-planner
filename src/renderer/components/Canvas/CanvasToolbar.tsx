@@ -27,7 +27,6 @@ export const CanvasToolbar = () => {
   const cableColorMode = useUiStore((state) => state.cableColorMode)
   const setCableColorMode = useUiStore((state) => state.setCableColorMode)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
-  const setCanvasTheme = useUiStore((state) => state.setCanvasTheme)
   const colorPortsByType = useUiStore((state) => state.colorPortsByType)
   const setColorPortsByType = useUiStore((state) => state.setColorPortsByType)
   const isLight = canvasTheme === 'light'
@@ -373,23 +372,9 @@ export const CanvasToolbar = () => {
           </button>
         </div>
       )}
-      <span style={dividerStyle} />
-      <button
-        type="button"
-        onClick={() => setCanvasTheme(canvasTheme === 'dark' ? 'light' : 'dark')}
-        title={canvasTheme === 'dark' ? 'Heller Hintergrund' : 'Dunkler Hintergrund'}
-        style={{
-          padding: '2px 6px',
-          background: isLight ? '#e2e8f0' : '#1e293b',
-          border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
-          color: isLight ? '#1e293b' : '#e2e8f0',
-          borderRadius: 3,
-          cursor: 'pointer',
-          fontSize: 13,
-        }}
-      >
-        {canvasTheme === 'dark' ? '☀' : '🌙'}
-      </button>
+      {/* v7.9.5 — Dark/Light-Toggle aus der Toolbar entfernt
+          (User-Request: "Dark/Light mode muss nicht in toolbar sein").
+          Weiterhin verfügbar via Settings → Darstellung. */}
       <span style={dividerStyle} />
       {/* v7.9.3 — Planungs-Lock-Toggle (User-Request: "Planung
           abgeschlossen"-Button). 'editing'→'finalized' macht das
