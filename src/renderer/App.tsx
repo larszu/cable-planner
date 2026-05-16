@@ -186,6 +186,18 @@ export default function App() {
     return () => window.clearTimeout(timer)
   }, [project])
 
+  // v7.9.3 — Subscribe to mobile check-state updates. Wenn der Field-
+  // Tech am Handy einen Port als "gesteckt" markiert, schickt das
+  // Mobile-View POST /checks → IPC → wir landen hier und updaten den
+  // Store, was die Canvas-Häkchen live rendert.
+  const setCheckState = useProjectStore((s) => s.setCheckState)
+  useEffect(() => {
+    if (!hasDesktopBridge) return
+    return cablePlannerApi.mobileShare.onChecksUpdate((checks) => {
+      setCheckState(checks)
+    })
+  }, [setCheckState])
+
   // Issue #69: dispatch user-customizable hotkeys defined in
   // Settings → Hotkeys. The undo/redo entries below intentionally
   // overlap with useUndoRedoShortcuts() — only the first matching

@@ -109,5 +109,18 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       }>,
     setProject: (project: unknown) =>
       ipcRenderer.invoke('mobileShare:setProject', project) as Promise<{ ok: boolean }>,
+    // v7.9.3 — Subscriber für Mobile-Check-State-Updates. Main schickt
+    // 'mobileShare:checksUpdate' wenn POST /checks reinkommt; Renderer
+    // updated daraufhin project.checkState im Store.
+    onChecksUpdate: (
+      cb: (checks: { ports: Record<string, boolean>; cables: Record<string, boolean> }) => void,
+    ) => {
+      const listener = (
+        _event: unknown,
+        checks: { ports: Record<string, boolean>; cables: Record<string, boolean> },
+      ) => cb(checks)
+      ipcRenderer.on('mobileShare:checksUpdate', listener)
+      return () => ipcRenderer.removeListener('mobileShare:checksUpdate', listener)
+    },
   },
 })

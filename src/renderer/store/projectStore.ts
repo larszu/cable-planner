@@ -326,6 +326,21 @@ interface ProjectState {
   setGroupPresets: (presets: GroupPreset[]) => void
   /** Save or replace the GreenGo intercom planning config in the project. */
   updateGreenGoConfig: (config: GreenGoConfig) => void
+  /** v7.9.3 — Mobile-Viewer Check-State setzen (vom POST /checks-IPC).
+   *  Komplettes Objekt-Replace damit gelöschte Checks (false → kein
+   *  key) auch übernommen werden. */
+  setCheckState: (checks: { ports: Record<string, boolean>; cables: Record<string, boolean> }) => void
+  /** v7.9.3 — Planungs-Status: 'editing' (default), 'finalized' (Canvas
+   *  read-only, vom Plan-Eigentümer setzbar), 'viewer' (durch Import
+   *  einer .cpviewer-Datei, permanent read-only). */
+  setProjectMode: (mode: 'editing' | 'finalized' | 'viewer') => void
+  /** v7.9.3 — Annotations-CRUD für Viewer-Modus. */
+  addAnnotation: (annotation: import('../types/project').ProjectAnnotation) => void
+  updateAnnotation: (id: string, patch: Partial<import('../types/project').ProjectAnnotation>) => void
+  removeAnnotation: (id: string) => void
+  /** v7.9.3 — Setzt Viewer-Session-Author (beim ersten Öffnen einer
+   *  .cpviewer-Datei). */
+  setViewerSession: (session: { author: string; startedAt: string } | undefined) => void
 }
 
 const now = () => new Date().toISOString()
@@ -1520,6 +1535,49 @@ export const useProjectStore = create<ProjectState>((set, get) => {
   updateGreenGoConfig: (config) =>
     set((state) => {
       const updated = { ...state.project, greengoConfig: config }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  setCheckState: (checks) =>
+    set((state) => {
+      const updated = { ...state.project, checkState: checks }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  setProjectMode: (mode) =>
+    set((state) => {
+      const updated = { ...state.project, mode }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  addAnnotation: (annotation) =>
+    set((state) => {
+      const existing = state.project.annotations ?? []
+      const updated = { ...state.project, annotations: [...existing, annotation] }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  updateAnnotation: (id, patch) =>
+    set((state) => {
+      const existing = state.project.annotations ?? []
+      const next = existing.map((a) => (a.id === id ? { ...a, ...patch } : a))
+      const updated = { ...state.project, annotations: next }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  removeAnnotation: (id) =>
+    set((state) => {
+      const existing = state.project.annotations ?? []
+      const updated = {
+        ...state.project,
+        annotations: existing.filter((a) => a.id !== id),
+      }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  setViewerSession: (session) =>
+    set((state) => {
+      const updated = { ...state.project, viewerSession: session }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
