@@ -18,6 +18,7 @@ import { AtemAudioRouterDialog } from './components/Atem/AtemAudioRouterDialog'
 import { LocationBomDialog } from './components/Project/LocationBomDialog'
 import { RackEditorDialog } from './components/Rack/RackEditorDialog'
 import { CableContextMenu } from './components/Canvas/CableContextMenu'
+import { ExportDialog } from './components/Export/ExportDialog'
 import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
 import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
@@ -105,6 +106,8 @@ export default function App() {
   const [welcomeOpen, setWelcomeOpen] = useState(false)
   const [pdfExportOpen, setPdfExportOpen] = useState(false)
   const [pdfTheme, setPdfTheme] = useState<'dark' | 'light'>('light')
+  // v7.9.0 / Issue #110 — unified export dialog
+  const [exportDialogOpen, setExportDialogOpen] = useState(false)
   const [printDialogOpen, setPrintDialogOpen] = useState(false)
   const [graphmlImportOpen, setGraphmlImportOpen] = useState(false)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
@@ -414,6 +417,7 @@ export default function App() {
         onSaveProject={() => void saveProject()}
         onSaveProjectAs={() => void saveProjectAs()}
         onOpenSettings={() => setSettingsOpen(true)}
+        onOpenExportDialog={() => setExportDialogOpen(true)}
         onExportPdf={() => setPdfExportOpen(true)}
         onExportPng={() => void handleExportImage('png')}
         onExportJpeg={() => void handleExportImage('jpeg')}
@@ -505,6 +509,12 @@ export default function App() {
       <PatchListDialog />
       <CalculatorsDialog />
       <CableContextMenu />
+      <ExportDialog
+        open={exportDialogOpen}
+        onClose={() => setExportDialogOpen(false)}
+        onExportPdf={(theme) => handleExportPdf(theme)}
+        onExportImage={(format) => handleExportImage(format)}
+      />
 
       <ProjectMetaDialog
         open={metaDialog !== null}
