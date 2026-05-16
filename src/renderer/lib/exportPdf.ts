@@ -2,6 +2,7 @@ import { toJpeg } from 'html-to-image'
 import jsPDF from 'jspdf'
 import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
+import { sanitizeForPdf } from './sanitizeForPdf'
 
 export interface ExportPdfOptions {
   backgroundTheme?: 'dark' | 'light'
@@ -92,9 +93,9 @@ const drawTitleBlock = (
   pdf.setFontSize(8)
   for (const [label, value] of visibleRows) {
     pdf.setTextColor(100)
-    pdf.text(label, x + 4, rowY + 10)
+    pdf.text(sanitizeForPdf(label), x + 4, rowY + 10)
     pdf.setTextColor(15)
-    pdf.text(value ?? '—', x + 85, rowY + 10, {
+    pdf.text(sanitizeForPdf(value ?? '-'), x + 85, rowY + 10, {
       maxWidth: boxW - 90,
     })
     pdf.line(x, rowY + rowH, x + boxW, rowY + rowH)
@@ -313,10 +314,10 @@ const buildCanvasPdf = async (
 
   pdf.setFontSize(14)
   pdf.setTextColor(15)
-  pdf.text(metadata?.name || 'Cable Planner Project', margin, margin + 4)
+  pdf.text(sanitizeForPdf(metadata?.name || 'Cable Planner Project'), margin, margin + 4)
   pdf.setFontSize(9)
   pdf.setTextColor(80)
-  pdf.text(new Date().toLocaleString(), pageWidth - margin, margin + 4, { align: 'right' })
+  pdf.text(sanitizeForPdf(new Date().toLocaleString()), pageWidth - margin, margin + 4, { align: 'right' })
 
   const offsetX = margin
   const offsetY = margin + headerHeight
