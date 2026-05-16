@@ -65,6 +65,8 @@ export const LibraryPanel = () => {
   const removeCustomTemplate = useProjectStore((state) => state.removeCustomTemplate)
   const toggleTemplateFavorite = useProjectStore((state) => state.toggleTemplateFavorite)
   const collapsed = useUiStore((state) => state.libraryCollapsed)
+  // v7.9.4 — Rentman-Tabs ausblenden wenn die Integration deaktiviert ist.
+  const rentmanEnabled = useUiStore((state) => state.rentmanEnabled)
   const toggleCollapsed = useUiStore((state) => state.toggleLibraryCollapsed)
   // v7.9.2 — Library nicht mehr abdockbar. Falls ein User-Zustand
   // noch `floating: true` aus alten Versionen mitbringt, wird er hier
@@ -628,9 +630,10 @@ export const LibraryPanel = () => {
         </button>
       </div>
 
-      {tab === 'equipment' && (
+      {tab === 'equipment' && rentmanEnabled && (
         <>
-          {/* Sub-section toggle: Lokal vs. Rentman, both inside the Equipment tab */}
+          {/* Sub-section toggle: Lokal vs. Rentman, both inside the Equipment tab.
+              v7.9.4: nur sichtbar wenn rentmanEnabled — sonst gibt's nur Lokal. */}
           <div className="mb-2 flex gap-1 rounded bg-slate-950/40 p-1">
             <button
               type="button"
@@ -667,7 +670,7 @@ export const LibraryPanel = () => {
           </div>
         </>
       )}
-      {tab === 'equipment' && equipmentSection === 'local' && (
+      {tab === 'equipment' && (equipmentSection === 'local' || !rentmanEnabled) && (
         <>
           <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
             <div className="flex min-w-0 items-center gap-2">
@@ -940,7 +943,7 @@ export const LibraryPanel = () => {
 
       {tab === 'cables' && <CableLibraryPanel />}
 
-      {tab === 'equipment' && equipmentSection === 'rentman' && (() => {
+      {tab === 'equipment' && equipmentSection === 'rentman' && rentmanEnabled && (() => {
         const rentmanItems = customLibrary.filter((template) => template.rentmanSource)
         const projectMap = new Map<
           string,

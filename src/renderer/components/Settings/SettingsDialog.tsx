@@ -1217,6 +1217,9 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
   const setTokenStatus = useSettingsStore((s) => s.setTokenStatus)
   const metadata = useProjectStore((s) => s.project.metadata)
   const openRentmanImport = useUiStore((s) => s.openRentmanImport)
+  // v7.9.4 — Rentman komplett ein-/ausschaltbar.
+  const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
+  const setRentmanEnabled = useUiStore((s) => s.setRentmanEnabled)
   const [busy, setBusy] = useState(false)
   const [geminiKey, setGeminiKeyState] = useState(getGeminiApiKey())
   const [geminiSaved, setGeminiSaved] = useState(false)
@@ -1280,6 +1283,31 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div className="space-y-3">
+      {/* v7.9.4 — Rentman-Toggle als ERSTE Karte. User kann die ganze
+          Integration mit einem Klick aus-/anschalten — dann verschwinden
+          alle Rentman-Buttons, Tabs, Status-Badges und Library-Spalten. */}
+      <SettingsCard
+        title="Rentman-Integration"
+        description="Wenn aktiv: Library-Tab, Menü-Einträge und Status-Anzeigen für Rentman erscheinen. Ausgeschaltet zeigt der Cable Planner nur lokale Geräte/Kabel — alle Rentman-Funktionen werden ausgeblendet."
+      >
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={rentmanEnabled}
+            onChange={(e) => setRentmanEnabled(e.target.checked)}
+            className="h-4 w-4 accent-sky-500"
+          />
+          <span>
+            Rentman-Integration aktivieren{' '}
+            <span className="text-[10px] text-slate-500">
+              ({rentmanEnabled ? 'ein' : 'aus'})
+            </span>
+          </span>
+        </label>
+      </SettingsCard>
+
+      {rentmanEnabled && (
+      <>
       <SettingsCard
         title={t('settings.integrations.rentman', 'Rentman API')}
         description={t(
@@ -1408,6 +1436,8 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           </div>
         )}
       </SettingsCard>
+      </>
+      )}
 
       <SettingsCard
         title={t('settings.integrations.gemini', 'Gemini API (KI-Port-Vorschläge)')}

@@ -63,6 +63,11 @@ interface PersistedUiState {
    *  The cable is still flagged needsConverter for downstream warnings,
    *  it just doesn't interrupt the user mid-flow. */
   overrideConnectionWarnings: boolean
+  /** v7.9.4 — Rentman-Integration ein-/ausschaltbar. Wenn `false`,
+   *  werden alle Rentman-Funktionen ausgeblendet (Library-Tab,
+   *  Menü-Einträge, Status-Badge, Badges am LibraryItem, BOM-
+   *  Rentman-Spalten). Persistiert. Default `true` für Kompatibilität. */
+  rentmanEnabled: boolean
   /** Issue #62: per-connector-type colour overrides. When a connector
    *  type is missing or its value is an empty string the built-in
    *  default from DEFAULT_CONNECTOR_TYPE_COLORS applies. Stored sparsely
@@ -149,6 +154,7 @@ const defaults: PersistedUiState = {
   colorPortsByType: false,
   language: 'de',
   overrideConnectionWarnings: false,
+  rentmanEnabled: true,
   connectorTypeColors: {},
   bgVariant: 'dots',
   bgOpacity: 0.5,
@@ -229,6 +235,7 @@ const load = (): PersistedUiState => {
     if (!Array.isArray(merged.customSignalStandards)) merged.customSignalStandards = []
     if (!Array.isArray(merged.deviceConfigLibrary)) merged.deviceConfigLibrary = []
     if (typeof merged.cableBumps !== 'boolean') merged.cableBumps = defaults.cableBumps
+    if (typeof merged.rentmanEnabled !== 'boolean') merged.rentmanEnabled = defaults.rentmanEnabled
     if (typeof merged.orthogonalCollisionShift !== 'boolean')
       merged.orthogonalCollisionShift = defaults.orthogonalCollisionShift
     if (!merged.hotkeys || typeof merged.hotkeys !== 'object') merged.hotkeys = defaults.hotkeys
@@ -345,6 +352,7 @@ interface UiState extends PersistedUiState {
   setColorPortsByType: (value: boolean) => void
   setLanguage: (value: Language) => void
   setOverrideConnectionWarnings: (value: boolean) => void
+  setRentmanEnabled: (value: boolean) => void
   setConnectorTypeColor: (connectorType: string, color: string | null) => void
   resetConnectorTypeColors: () => void
   setBgVariant: (value: 'dots' | 'lines' | 'cross' | 'none') => void
@@ -513,6 +521,7 @@ const applyPatch =
       // override toggle.)
       language: state.language,
       overrideConnectionWarnings: state.overrideConnectionWarnings,
+      rentmanEnabled: state.rentmanEnabled,
       connectorTypeColors: state.connectorTypeColors,
       bgVariant: state.bgVariant,
       bgOpacity: state.bgOpacity,
@@ -557,6 +566,7 @@ export const useUiStore = create<UiState>((set) => ({
   setColorPortsByType: (value) => set(applyPatch({ colorPortsByType: value })),
   setLanguage: (value) => set(applyPatch({ language: value })),
   setOverrideConnectionWarnings: (value) => set(applyPatch({ overrideConnectionWarnings: value })),
+  setRentmanEnabled: (value) => set(applyPatch({ rentmanEnabled: value })),
   setConnectorTypeColor: (connectorType, color) =>
     set((state) => {
       const next = { ...state.connectorTypeColors }
