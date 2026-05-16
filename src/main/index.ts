@@ -46,13 +46,26 @@ const createWindow = async () => {
     } catch { /* ignore */ }
   })
 
-  mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
-    if (level >= 2) { // warning/error only
-      const msg = `[renderer][${level}] ${message} (${sourceId}:${line})\n`
-      try {
-        fs.appendFileSync(path.join(app.getPath('userData'), 'renderer-error.log'), msg)
-      } catch { /* ignore */ }
+  // v7.9.4 — Electron 42+ liefert ein einziges Event-Object statt
+  // (event, level, message, line, sourceId) (alte Signatur deprecated).
+  // Neue Felder: event.level ist ein String ('warning'/'error'/...),
+  // event.message, event.lineNumber, event.sourceId.
+  mainWindow.webContents.on('console-message', (event) => {
+    const e = event as unknown as {
+      level?: string | number
+      message?: string
+      lineNumber?: number
+      sourceId?: string
     }
+    const isSerious =
+      e.level === 'warning' ||
+      e.level === 'error' ||
+      (typeof e.level === 'number' && e.level >= 2)
+    if (!isSerious) return
+    const msg = `[renderer][${e.level}] ${e.message ?? ''} (${e.sourceId ?? '?'}:${e.lineNumber ?? '?'})\n`
+    try {
+      fs.appendFileSync(path.join(app.getPath('userData'), 'renderer-error.log'), msg)
+    } catch { /* ignore */ }
   })
 
   if (isDev && process.env.VITE_DEV_SERVER_URL) {
