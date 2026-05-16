@@ -639,6 +639,10 @@ const BomSection = () => {
 
   return (
     <div className="flex h-full flex-col gap-2">
+      {/* v7.9.4 — Status-Zeile oben, OHNE Action-Buttons (User-Request:
+          "Kabel-Stückliste Drucken-Button muss auch nach unten und PDF
+          und SV button auch — UI muss konsistent sein zu Patch-Sheets
+          und Plan, sind ein Exportieren-&-Drucken-Dialog"). */}
       <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
         <span>
           Verbaute Kabel: <b className="text-slate-200">{project.cables.length}</b>
@@ -653,30 +657,6 @@ const BomSection = () => {
             ✓ Alle geplanten Mengen abgedeckt
           </span>
         )}
-        <div className="ml-auto flex gap-2">
-          <button
-            type="button"
-            onClick={exportCsv}
-            className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
-          >
-            CSV
-          </button>
-          <button
-            type="button"
-            onClick={exportPdf}
-            className="rounded bg-amber-700 px-2 py-1 text-xs hover:bg-amber-600"
-          >
-            PDF
-          </button>
-          <button
-            type="button"
-            onClick={printPdf}
-            className="rounded bg-indigo-700 px-2 py-1 text-xs font-medium text-white hover:bg-indigo-600"
-            title="Kabel-Stückliste im OS-Druckdialog öffnen"
-          >
-            🖨 Drucken
-          </button>
-        </div>
       </div>
 
       <div className="flex-1 overflow-auto rounded border border-slate-800 bg-slate-950/40">
@@ -744,6 +724,8 @@ const BomSection = () => {
         </table>
       </div>
 
+      {/* Rentman-Planung-Save (eigene Zeile — gehört zur Tabellen-Bearbeitung,
+          nicht zum Export). */}
       <div className="flex items-center justify-between text-[11px]">
         <span className="text-slate-400">
           {draftPlan
@@ -769,6 +751,36 @@ const BomSection = () => {
             Rentman-Planung speichern
           </button>
         </div>
+      </div>
+
+      {/* v7.9.4 — Export-Action-Zeile UNTEN, analog zu Plan + Patch-Sheets.
+          CSV / PDF / Drucken sind die Export-Outputs der Sektion und
+          gehören damit konsistent ans rechte Ende der untersten Zeile. */}
+      <div className="flex justify-end gap-2 border-t border-slate-800 pt-2">
+        <button
+          type="button"
+          onClick={exportCsv}
+          className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600"
+          title="Tabelle als CSV (UTF-8 mit BOM für Excel) herunterladen"
+        >
+          Als CSV herunterladen
+        </button>
+        <button
+          type="button"
+          onClick={exportPdf}
+          className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500"
+          title="Tabelle als PDF herunterladen"
+        >
+          Als PDF herunterladen
+        </button>
+        <button
+          type="button"
+          onClick={printPdf}
+          className="rounded bg-indigo-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600"
+          title="Kabel-Stückliste im OS-Druckdialog öffnen"
+        >
+          🖨 Drucken
+        </button>
       </div>
     </div>
   )
