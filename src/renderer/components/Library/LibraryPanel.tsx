@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
+import { triggerCanvasFitView } from '../../lib/canvasViewport'
 import { useRentman } from '../../hooks/useRentman'
 import { promptDialog } from '../../lib/promptDialog'
 import { CategorySelect } from '../shared/CategorySelect'
@@ -519,7 +520,14 @@ export const LibraryPanel = () => {
         {!floating && (
           <button
             type="button"
-            onClick={() => setFloating(true)}
+            onClick={() => {
+              setFloating(true)
+              // v7.9.0 / Issue #108 — after the side track collapses
+              // to 0px, run fitView so nodes that scrolled off-screen
+              // come back into view. Defer a tick so the grid has
+              // actually re-measured first.
+              window.setTimeout(triggerCanvasFitView, 60)
+            }}
             title="Library abdocken (frei verschiebbar)"
             aria-label="Library abdocken"
             className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
@@ -2059,7 +2067,10 @@ export const LibraryPanel = () => {
         title="Library"
         position={floatingPos}
         onMove={setFloatingPos}
-        onDock={() => setFloating(false)}
+        onDock={() => {
+          setFloating(false)
+          window.setTimeout(triggerCanvasFitView, 60)
+        }}
         width={Math.max(libraryWidth, 320)}
       >
         {inner}

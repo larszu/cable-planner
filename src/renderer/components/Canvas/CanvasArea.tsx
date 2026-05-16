@@ -35,6 +35,7 @@ import {
   setCanvasSelectionClearer,
   setCanvasInteractionLockHandlers,
   setCableRouter,
+  setCanvasFitViewHandler,
 } from '../../lib/canvasViewport'
 import { routeCableWithAStar, type HandleSide } from '../../lib/routeCableWithAStar'
 import type { PixelRect } from '../../lib/cableAStar'
@@ -81,7 +82,7 @@ const CanvasContent = () => {
   // (#44) so the new device lands where the user pointed instead of always at
   // the viewport origin.
   const lastMousePosRef = useRef<{ x: number; y: number } | null>(null)
-  const { screenToFlowPosition, setViewport } = useReactFlow()
+  const { screenToFlowPosition, setViewport, fitView } = useReactFlow()
   const updateCable = useProjectStore((state) => state.updateCable)
   const updateNodeInternals = useUpdateNodeInternals()
   const [interactionLocked, setInteractionLocked] = useState(false)
@@ -136,6 +137,15 @@ const CanvasContent = () => {
       unlockInteractionNow()
     }
   }, [requestInteractionLock, unlockInteractionNow])
+
+  // v7.9.0 / Issue #108 — expose fitView so the side panels can call
+  // it after docking/undocking. Without this, undocking a wide panel
+  // would leave devices outside the new viewport bounds and the user
+  // reported "canvas verschwindet" because nodes scrolled off-screen.
+  useEffect(() => {
+    setCanvasFitViewHandler(() => fitView({ padding: 0.1, duration: 250 }))
+    return () => setCanvasFitViewHandler(null)
+  }, [fitView])
 
   // v7.8.8 — Register the A*-based cable router. Caller is the cable
   // context menu (and a future Settings toggle for auto-route). We

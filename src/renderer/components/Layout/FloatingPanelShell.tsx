@@ -73,11 +73,22 @@ export const FloatingPanelShell = ({
   // a fresh {x,y} object with the same values would still trigger
   // setPos → re-render → fresh prop ref → setPos → loop. This is a
   // textbook React #185 "max update depth" recipe.
+  // v7.9.0 / Issue #108 — also clamp on mount so a persisted off-screen
+  // position (e.g. saved from a larger monitor) doesn't strand the
+  // panel where the user can't see it. clamp() uses the current
+  // viewport bounds.
   useEffect(() => {
-    setPos((current) =>
-      current.x === position.x && current.y === position.y ? current : position,
-    )
-  }, [position.x, position.y])
+    setPos((current) => {
+      const clamped = clamp(position, width, typeof height === 'number' ? height : 400)
+      if (
+        current.x === clamped.x &&
+        current.y === clamped.y
+      ) {
+        return current
+      }
+      return clamped
+    })
+  }, [position.x, position.y, width, height])
 
   // Re-clamp on resize so a previously valid position doesn't leave the
   // panel off-screen on smaller viewports.
