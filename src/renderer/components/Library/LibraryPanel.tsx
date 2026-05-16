@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
-import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
 import { triggerCanvasFitView } from '../../lib/canvasViewport'
 import { useRentman } from '../../hooks/useRentman'
 import { promptDialog } from '../../lib/promptDialog'
@@ -67,11 +66,15 @@ export const LibraryPanel = () => {
   const toggleTemplateFavorite = useProjectStore((state) => state.toggleTemplateFavorite)
   const collapsed = useUiStore((state) => state.libraryCollapsed)
   const toggleCollapsed = useUiStore((state) => state.toggleLibraryCollapsed)
-  const floating = useUiStore((state) => state.libraryFloating)
+  // v7.9.2 — Library nicht mehr abdockbar. Falls ein User-Zustand
+  // noch `floating: true` aus alten Versionen mitbringt, wird er hier
+  // einmalig hart auf false gezwungen, damit das Canvas nicht verschwindet.
+  const floatingRaw = useUiStore((state) => state.libraryFloating)
   const setFloating = useUiStore((state) => state.setLibraryFloating)
-  const floatingPos = useUiStore((state) => state.libraryFloatingPos)
-  const setFloatingPos = useUiStore((state) => state.setLibraryFloatingPos)
-  const libraryWidth = useUiStore((state) => state.libraryWidth)
+  useEffect(() => {
+    if (floatingRaw) setFloating(false)
+  }, [floatingRaw, setFloating])
+  const floating = false
   const openRentmanImport = useUiStore((state) => state.openRentmanImport)
   const toggleTemplateHidden = useProjectStore((state) => state.toggleTemplateHidden)
   const setCustomTemplateCategory = useProjectStore((state) => state.setCustomTemplateCategory)
@@ -575,24 +578,10 @@ export const LibraryPanel = () => {
             <span className="text-base leading-none">‹</span>
           </button>
         )}
-        {!floating && (
-          <button
-            type="button"
-            onClick={() => {
-              setFloating(true)
-              // v7.9.0 / Issue #108 — after the side track collapses
-              // to 0px, run fitView so nodes that scrolled off-screen
-              // come back into view. Defer a tick so the grid has
-              // actually re-measured first.
-              window.setTimeout(triggerCanvasFitView, 60)
-            }}
-            title="Library abdocken (frei verschiebbar)"
-            aria-label="Library abdocken"
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-          >
-            <span className="text-[11px] leading-none">⤢</span>
-          </button>
-        )}
+        {/* v7.9.2 — Library-Abdocken-Button entfernt. Der Abdock-Modus
+            machte das Canvas teils verschwinden (Issue: "Bei library
+            abdocken verschweindet trotzdem noch der canvas"). Die
+            Library ist jetzt fest gedockt. */}
         <button
           type="button"
           onClick={() => setTab('equipment')}
@@ -2130,21 +2119,6 @@ export const LibraryPanel = () => {
     </aside>
   )
 
-  if (floating) {
-    return (
-      <FloatingPanelShell
-        title="Library"
-        position={floatingPos}
-        onMove={setFloatingPos}
-        onDock={() => {
-          setFloating(false)
-          window.setTimeout(triggerCanvasFitView, 60)
-        }}
-        width={Math.max(libraryWidth, 320)}
-      >
-        {inner}
-      </FloatingPanelShell>
-    )
-  }
+  // v7.9.2 — Floating-Modus entfernt. Library ist fest gedockt.
   return inner
 }
