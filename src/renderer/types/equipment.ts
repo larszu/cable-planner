@@ -43,6 +43,11 @@ export interface Port {
    *  device-level `equipment.sdiCaps` stays as a fallback default
    *  when the port doesn't override it. */
   sdiCaps?: import('./videoFormat').SdiCapabilities
+  /** v7.9.7 — Quad-Link Set: vier BNC-Ports mit gleichem
+   *  `quadLinkGroup`-String bilden zusammen ein 4K-Quad-Link-Bündel.
+   *  Free text ID (z.B. 'QL-1', 'QL-2'); pro Gerät beliebig viele
+   *  Sets möglich. UI warnt wenn eine Gruppe nicht 4 Ports hat. */
+  quadLinkGroup?: string
   /**
    * Direction of the port. Defaults to the array it lives in (`inputs` → 'in',
    * `outputs` → 'out'). A port marked `bidirectional` (e.g. an RJ45 network

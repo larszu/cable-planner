@@ -376,16 +376,30 @@ export const CableLibraryPanel = () => {
   const addCustomCableSpec = useUiStore((s) => s.addCustomCableSpec)
   const updateCustomCableSpec = useUiStore((s) => s.updateCustomCableSpec)
   const removeCustomCableSpec = useUiStore((s) => s.removeCustomCableSpec)
+  // v7.9.7 — Override layer for built-in cable specs. Lets users
+  // rename / recolor / edit catalogue entries without touching the
+  // shared cableCatalog. Custom specs keep using their own update path.
+  const cableSpecOverrides = useUiStore((s) => s.cableSpecOverrides)
+  const setCableSpecOverride = useUiStore((s) => s.setCableSpecOverride)
+  const clearCableSpecOverride = useUiStore((s) => s.clearCableSpecOverride)
 
   // Editor state — null = closed, undefined = "new", a CableSpec = edit.
   const [editing, setEditing] = useState<CableSpec | null | undefined>(null)
   const isEditorOpen = editing !== null
   const editorInitial = editing === undefined ? null : editing
 
-  // Merged spec list = built-in catalogue + user's custom entries.
+  // Merged spec list = built-in catalogue (with overrides applied) +
+  // user's custom entries. Overrides are merged at display time so
+  // future catalogue updates flow through for untouched fields.
   const fullCatalog: CableSpec[] = useMemo(
-    () => [...cableCatalog, ...customCableSpecs],
-    [customCableSpecs],
+    () => [
+      ...cableCatalog.map((spec) => {
+        const ov = cableSpecOverrides[spec.id]
+        return ov ? { ...spec, ...ov, id: spec.id } : spec
+      }),
+      ...customCableSpecs,
+    ],
+    [customCableSpecs, cableSpecOverrides],
   )
 
   const preferredSdi: SignalStandard | undefined = useMemo(() => {
@@ -565,6 +579,14 @@ export const CableLibraryPanel = () => {
                               Eigen
                             </span>
                           )}
+                          {!isCustom && cableSpecOverrides[cable.id] && (
+                            <span
+                              className="rounded bg-amber-700/70 px-1 text-[9px] font-semibold uppercase text-amber-100"
+                              title="Built-in Spec mit lokalem Override (Reset über Bearbeiten-Dialog)"
+                            >
+                              Angepasst
+                            </span>
+                          )}
                           {isRecommended && (
                             <span className="rounded bg-emerald-600 px-1 text-[9px] font-semibold uppercase text-white">
                               ✓
@@ -583,38 +605,55 @@ export const CableLibraryPanel = () => {
                               {built}{planned > 0 ? `/${planned}` : ''}
                             </span>
                           )}
+                          <button
+                            type="button"
+                            onClick={() => setEditing(cable)}
+                            className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] text-slate-200 hover:bg-slate-600"
+                            title={isCustom ? 'Kabeltyp bearbeiten' : 'Kabeltyp lokal anpassen (Override)'}
+                          >
+                            ✎
+                          </button>
+                          {!isCustom && cableSpecOverrides[cable.id] && (
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const ok = await confirmDialog(
+                                  `Override für "${cable.name}" zurücksetzen?`,
+                                  {
+                                    body: 'Die ursprünglichen Built-in-Werte werden wiederhergestellt.',
+                                    okLabel: 'Zurücksetzen',
+                                  },
+                                )
+                                if (ok) clearCableSpecOverride(cable.id)
+                              }}
+                              className="rounded bg-amber-800/70 px-1.5 py-0.5 text-[10px] text-amber-100 hover:bg-amber-700"
+                              title="Override entfernen (auf Default zurücksetzen)"
+                            >
+                              ↺
+                            </button>
+                          )}
                           {isCustom && (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => setEditing(cable)}
-                                className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] text-slate-200 hover:bg-slate-600"
-                                title="Kabeltyp bearbeiten"
-                              >
-                                ✎
-                              </button>
-                              <button
-                                type="button"
-                                onClick={async () => {
-                                  const ok = await confirmDialog(
-                                    `Kabeltyp "${cable.name}" löschen?`,
-                                    {
-                                      body:
-                                        built > 0
-                                          ? `Achtung: ${built} verbaute Kabel referenzieren diesen Typ. Sie behalten ihren Stecker/Standard, verlieren aber die Spec-Verknüpfung.`
-                                          : 'Verbaute Kabel sind nicht betroffen.',
-                                      okLabel: 'Löschen',
-                                      destructive: true,
-                                    },
-                                  )
-                                  if (ok) removeCustomCableSpec(cable.id)
-                                }}
-                                className="rounded bg-red-900/60 px-1.5 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
-                                title="Kabeltyp löschen"
-                              >
-                                ✕
-                              </button>
-                            </>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const ok = await confirmDialog(
+                                  `Kabeltyp "${cable.name}" löschen?`,
+                                  {
+                                    body:
+                                      built > 0
+                                        ? `Achtung: ${built} verbaute Kabel referenzieren diesen Typ. Sie behalten ihren Stecker/Standard, verlieren aber die Spec-Verknüpfung.`
+                                        : 'Verbaute Kabel sind nicht betroffen.',
+                                    okLabel: 'Löschen',
+                                    destructive: true,
+                                  },
+                                )
+                                if (ok) removeCustomCableSpec(cable.id)
+                              }}
+                              className="rounded bg-red-900/60 px-1.5 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
+                              title="Kabeltyp löschen"
+                            >
+                              ✕
+                            </button>
                           )}
                         </div>
                         <div className="mt-0.5 text-[11px] text-slate-400">
@@ -651,7 +690,15 @@ export const CableLibraryPanel = () => {
         onCancel={() => setEditing(null)}
         onSave={(spec) => {
           if (editorInitial) {
-            updateCustomCableSpec(editorInitial.id, spec)
+            const isCustomSpec = editorInitial.id.startsWith('custom-cable:')
+            if (isCustomSpec) {
+              updateCustomCableSpec(editorInitial.id, spec)
+            } else {
+              // Built-in cable → speichere als Override damit der globale
+              // cableCatalog unverändert bleibt und der User per ↺ jederzeit
+              // auf den Default zurücksetzen kann.
+              setCableSpecOverride(editorInitial.id, spec)
+            }
           } else {
             addCustomCableSpec(spec)
           }
