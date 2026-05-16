@@ -519,6 +519,8 @@ export const LibraryPanel = () => {
   const deleteGroupPreset = useProjectStore((state) => state.deleteGroupPreset)
   const placeGroupPreset = useProjectStore((state) => state.placeGroupPreset)
   const reorderGroupPresets = useProjectStore((state) => state.reorderGroupPresets)
+  const renameGroupPreset = useProjectStore((state) => state.renameGroupPreset)
+  const renameCustomCategory = useProjectStore((state) => state.renameCustomCategory)
   const canvasState = useProjectStore((state) => state.project.canvasState)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [showNetBoxDialog, setShowNetBoxDialog] = useState(false)
@@ -1331,28 +1333,45 @@ export const LibraryPanel = () => {
                       } catch { /* ignore */ }
                     }}
                   >
-                    {/* v7.9.5 — Kategorie-Header mit deutlicher Affordance.
-                        Volle Zeile als Klick-Fläche, Hover-Background, Caret
-                        und Count rechts ausgerichtet. */}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setCollapsedCats((prev) => {
-                          const next = new Set(prev)
-                          collapsed ? next.delete(cat) : next.add(cat)
-                          return next
-                        })
-                      }
-                      className="flex w-full items-center gap-1.5 rounded-t bg-slate-900/60 px-2 py-1.5 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-300 hover:bg-slate-800/80 hover:text-slate-100"
-                    >
-                      <span className="inline-block w-3 text-center text-slate-500">
-                        {collapsed ? '▸' : '▾'}
-                      </span>
-                      <span className="flex-1 truncate normal-case tracking-normal">{cat}</span>
+                    {/* v7.9.7 — Header-Zeile als flex-Container damit
+                        der ✎-Rename-Button neben Collapse-Button platz
+                        bekommt. Klick auf Caret/Name togglet, Klick auf
+                        ✎ ruft promptDialog für Umbenennung. */}
+                    <div className="group/cat flex items-center gap-1.5 rounded-t bg-slate-900/60 px-2 py-1.5 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-300 hover:bg-slate-800/80 hover:text-slate-100">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCollapsedCats((prev) => {
+                            const next = new Set(prev)
+                            collapsed ? next.delete(cat) : next.add(cat)
+                            return next
+                          })
+                        }
+                        className="flex flex-1 min-w-0 items-center gap-1.5 text-left"
+                      >
+                        <span className="inline-block w-3 text-center text-slate-500">
+                          {collapsed ? '▸' : '▾'}
+                        </span>
+                        <span className="flex-1 truncate normal-case tracking-normal">{cat}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={async (e) => {
+                          e.stopPropagation()
+                          const next = await promptDialog(`Kategorie umbenennen:`, cat)
+                          if (next && next.trim() && next.trim() !== cat) {
+                            renameCustomCategory(cat, next.trim())
+                          }
+                        }}
+                        className="hidden rounded bg-slate-700/80 px-1.5 py-0.5 text-[10px] font-normal normal-case text-slate-200 hover:bg-slate-600 group-hover/cat:block"
+                        title="Kategorie umbenennen"
+                      >
+                        ✎
+                      </button>
                       <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-normal text-slate-400">
                         {items.length}
                       </span>
-                    </button>
+                    </div>
 
                     {/* Items */}
                     {!collapsed && (
@@ -1959,6 +1978,19 @@ export const LibraryPanel = () => {
                               <button
                                 type="button"
                                 onClick={async () => {
+                                  const next = await promptDialog('Gruppe umbenennen:', preset.name)
+                                  if (next && next.trim() && next.trim() !== preset.name) {
+                                    renameGroupPreset(preset.id, next.trim())
+                                  }
+                                }}
+                                className="rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
+                                title="Gruppe umbenennen"
+                              >
+                                Umbenennen
+                              </button>
+                              <button
+                                type="button"
+                                onClick={async () => {
                                   if (await confirmDialog(`Gruppe "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
                                     deleteGroupPreset(preset.id)
                                   }
@@ -2107,6 +2139,19 @@ export const LibraryPanel = () => {
                             title="Rack im 2D-Builder bearbeiten"
                           >
                             Bearbeiten
+                          </button>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const next = await promptDialog('Rack umbenennen:', preset.name)
+                              if (next && next.trim() && next.trim() !== preset.name) {
+                                renameGroupPreset(preset.id, next.trim())
+                              }
+                            }}
+                            className="rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
+                            title="Rack umbenennen"
+                          >
+                            Umbenennen
                           </button>
                           <button
                             type="button"

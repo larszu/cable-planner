@@ -774,9 +774,16 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
   // The custom specs come from uiStore.customCableSpecs and persist in
   // localStorage so the user can recall them across sessions.
   const customCableSpecs = useUiStore((s) => s.customCableSpecs)
+  const cableSpecOverrides = useUiStore((s) => s.cableSpecOverrides)
   const fullCableCatalog = useMemo(
-    () => [...cableCatalog, ...customCableSpecs],
-    [customCableSpecs],
+    () => [
+      ...cableCatalog.map((spec) => {
+        const ov = cableSpecOverrides[spec.id]
+        return ov ? { ...spec, ...ov, id: spec.id } : spec
+      }),
+      ...customCableSpecs,
+    ],
+    [customCableSpecs, cableSpecOverrides],
   )
   // v7.9.6 — Inline-Anlage neuer Stecker-/Signal-Typen aus dem Kabel-
   // Dialog. Bisher waren die Dropdowns auf ALL_CONNECTOR_TYPES /
@@ -1187,9 +1194,16 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
   // so editing a cable that uses a custom type doesn't lose the
   // reference. Built-ins + custom share the same shape.
   const customCableSpecs = useUiStore((s) => s.customCableSpecs)
+  const cableSpecOverrides = useUiStore((s) => s.cableSpecOverrides)
   const fullCableCatalog = useMemo(
-    () => [...cableCatalog, ...customCableSpecs],
-    [customCableSpecs],
+    () => [
+      ...cableCatalog.map((spec) => {
+        const ov = cableSpecOverrides[spec.id]
+        return ov ? { ...spec, ...ov, id: spec.id } : spec
+      }),
+      ...customCableSpecs,
+    ],
+    [customCableSpecs, cableSpecOverrides],
   )
   const customConnectorTypes = useUiStore((s) => s.customConnectorTypes)
   const customSignalStandards = useUiStore((s) => s.customSignalStandards)

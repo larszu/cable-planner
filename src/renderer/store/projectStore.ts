@@ -331,6 +331,8 @@ interface ProjectState {
    *  angehängt, damit ein Teil-Reorder (nur Groups-Tab oder nur Racks-
    *  Tab) den jeweils anderen Subset nicht verliert. */
   reorderGroupPresets: (newOrder: string[]) => void
+  /** v7.9.7 — Group-/Rack-Preset umbenennen. */
+  renameGroupPreset: (id: string, newName: string) => void
   /** Save or replace the GreenGo intercom planning config in the project. */
   updateGreenGoConfig: (config: GreenGoConfig) => void
   /** v7.9.3 — Mobile-Viewer Check-State setzen (vom POST /checks-IPC).
@@ -1317,18 +1319,37 @@ export const useProjectStore = create<ProjectState>((set, get) => {
     }),
   renameCustomCategory: (oldCategory, newCategory) =>
     set((state) => {
+      if (isProjectLocked(state)) return state
       const from = oldCategory.trim()
       const to = newCategory.trim()
       if (!from || !to || from === to) return {}
-      const next = state.customLibrary.map((t) =>
+      // v7.9.7 — Echtes Umbenennen: Templates UND verbaute Geräte
+      // migrieren, alten Kategorie-Namen aus knownCategories entfernen
+      // (sonst bleibt eine leere Phantom-Kategorie in der Library
+      // hängen) und manuelle Reihenfolge erhalten.
+      const nextLib = state.customLibrary.map((t) =>
         t.category === from ? { ...t, category: to } : t,
       )
-      persistCustomLibrary(next)
-      const cats = new Set(state.knownCategories)
-      cats.add(to)
-      const catsSorted = Array.from(cats).sort((a, b) => a.localeCompare(b))
-      persistKnownCategories(catsSorted)
-      return { customLibrary: next, knownCategories: catsSorted }
+      persistCustomLibrary(nextLib)
+      const nextEquipment = state.project.equipment.map((e) =>
+        e.category === from ? { ...e, category: to } : e,
+      )
+      const orderedCats: string[] = []
+      const seen = new Set<string>()
+      for (const c of state.knownCategories) {
+        const out = c === from ? to : c
+        if (!seen.has(out)) {
+          orderedCats.push(out)
+          seen.add(out)
+        }
+      }
+      if (!seen.has(to)) orderedCats.push(to)
+      persistKnownCategories(orderedCats)
+      return {
+        customLibrary: nextLib,
+        knownCategories: orderedCats,
+        project: { ...state.project, equipment: nextEquipment },
+      }
     }),
   addKnownCategories: (categories) =>
     set((state) => {
@@ -1531,6 +1552,16 @@ export const useProjectStore = create<ProjectState>((set, get) => {
   deleteGroupPreset: (id) =>
     set((state) => {
       const next = state.groupPresets.filter((p) => p.id !== id)
+      persistGroupPresets(next)
+      return { groupPresets: next }
+    }),
+  renameGroupPreset: (id, newName) =>
+    set((state) => {
+      const trimmed = newName.trim()
+      if (!trimmed) return state
+      const next = state.groupPresets.map((p) =>
+        p.id === id ? { ...p, name: trimmed } : p,
+      )
       persistGroupPresets(next)
       return { groupPresets: next }
     }),

@@ -110,6 +110,12 @@ interface PersistedUiState {
    *  groups land at the end so adding a new connector type doesn't lose
    *  visibility. */
   cableGroupOrder: string[]
+  /** v7.9.7 — Built-in CableSpec overrides keyed by base-spec id. Stores
+   *  only the fields the user changed (Partial) so future catalogue
+   *  updates still flow through for untouched fields. Custom cable
+   *  specs continue to live in customCableSpecs — they own their own
+   *  id and don't need this layer. */
+  cableSpecOverrides: Record<string, Partial<import('../types/cableSpec').CableSpec>>
   /** Issue #80: global library of device-config files (ATEM, Videohub,
    *  GreenGo). Each entry can optionally be bound to one equipment id. */
   deviceConfigLibrary: DeviceConfigEntry[]
@@ -181,6 +187,7 @@ const defaults: PersistedUiState = {
   customConnectorTypes: [],
   customSignalStandards: [],
   cableGroupOrder: [],
+  cableSpecOverrides: {},
   deviceConfigLibrary: [],
   cableBumps: false,
   orthogonalCollisionShift: false,
@@ -334,6 +341,12 @@ const load = (): PersistedUiState => {
       merged.cableGroupOrder = merged.cableGroupOrder.filter(
         (n): n is string => typeof n === 'string' && !!n,
       )
+    if (
+      !merged.cableSpecOverrides ||
+      typeof merged.cableSpecOverrides !== 'object' ||
+      Array.isArray(merged.cableSpecOverrides)
+    )
+      merged.cableSpecOverrides = {}
     return merged
   } catch {
     return defaults
@@ -414,6 +427,14 @@ interface UiState extends PersistedUiState {
   addCustomSignalStandard: (name: string) => void
   removeCustomSignalStandard: (name: string) => void
   setCableGroupOrder: (order: string[]) => void
+  /** v7.9.7 — Override-Schicht für eingebaute CableSpec-Einträge. Erlaubt
+   *  Umbenennen/Recolor/Notes-Editing ohne den globalen cableCatalog
+   *  anzufassen. `clearCableSpecOverride` setzt die Defaults wieder her. */
+  setCableSpecOverride: (
+    id: string,
+    patch: Partial<import('../types/cableSpec').CableSpec>,
+  ) => void
+  clearCableSpecOverride: (id: string) => void
   /** Issue #80: device-config library (ATEM / Videohub / GreenGo configs). */
   addDeviceConfig: (entry: Omit<DeviceConfigEntry, 'id' | 'savedAt'>) => DeviceConfigEntry
   updateDeviceConfig: (id: string, patch: Partial<Omit<DeviceConfigEntry, 'id' | 'savedAt'>>) => void
@@ -571,6 +592,7 @@ const applyPatch =
       customConnectorTypes: state.customConnectorTypes,
       customSignalStandards: state.customSignalStandards,
       cableGroupOrder: state.cableGroupOrder,
+      cableSpecOverrides: state.cableSpecOverrides,
       deviceConfigLibrary: state.deviceConfigLibrary,
       cableBumps: state.cableBumps,
       orthogonalCollisionShift: state.orthogonalCollisionShift,
@@ -677,6 +699,24 @@ export const useUiStore = create<UiState>((set) => ({
       })(state),
     ),
   setCableGroupOrder: (order) => set(applyPatch({ cableGroupOrder: order })),
+  setCableSpecOverride: (id, patch) =>
+    set((state) => {
+      const current = state.cableSpecOverrides[id] ?? {}
+      const merged = { ...current, ...patch }
+      // Strip undefined to keep storage compact.
+      for (const k of Object.keys(merged) as (keyof typeof merged)[]) {
+        if (merged[k] === undefined) delete merged[k]
+      }
+      const nextMap = { ...state.cableSpecOverrides, [id]: merged }
+      return applyPatch({ cableSpecOverrides: nextMap })(state)
+    }),
+  clearCableSpecOverride: (id) =>
+    set((state) => {
+      if (!(id in state.cableSpecOverrides)) return state
+      const nextMap = { ...state.cableSpecOverrides }
+      delete nextMap[id]
+      return applyPatch({ cableSpecOverrides: nextMap })(state)
+    }),
   addDeviceConfig: (entry) => {
     const id = `cfg:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
     const created: DeviceConfigEntry = {
