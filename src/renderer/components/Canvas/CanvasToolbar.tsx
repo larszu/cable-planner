@@ -373,7 +373,12 @@ export const CanvasToolbar = () => {
         const selectedEquipmentIds = getNodes()
           .filter((n) => n.selected && n.type === 'equipment')
           .map((n) => n.id)
-        if (selectedEquipmentIds.length < 2) return null
+        // v7.9.2 — Schwelle von >=2 auf >=1 gesenkt, damit Gruppe und
+        // "Als Rack speichern" gleichzeitig sichtbar sind sobald min.
+        // 1 Gerät selektiert ist. Vorher war "Gruppe speichern"
+        // unsichtbar bei 1-Geräte-Auswahl, der User dachte die Funktion
+        // sei weg ("die funktion ist leider weg").
+        if (selectedEquipmentIds.length < 1) return null
         if (namingGroup) {
           return (
             <form
