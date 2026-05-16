@@ -122,6 +122,13 @@ type CablePlannerApi = {
     stop: () => Promise<{ ok: boolean }>
     status: () => Promise<{ running: boolean; port: number; urls: string[]; hasProject: boolean }>
     setProject: (project: unknown) => Promise<{ ok: boolean }>
+    /** v7.9.3 — Listener für CheckState-Updates vom Mobile-Viewer.
+     *  Wird vom Renderer registriert; der Main-Prozess schickt
+     *  'mobileShare:checksUpdate' Events sobald POST /checks
+     *  reinkommt. Gibt eine Unsubscribe-Funktion zurück. */
+    onChecksUpdate: (
+      cb: (checks: { ports: Record<string, boolean>; cables: Record<string, boolean> }) => void,
+    ) => () => void
   }
 }
 
@@ -501,6 +508,7 @@ const webFallbackApi: CablePlannerApi = {
     stop: async () => ({ ok: true }),
     status: async () => ({ running: false, port: 0, urls: [], hasProject: false }),
     setProject: async () => ({ ok: true }),
+    onChecksUpdate: () => () => {},
   },
 }
 

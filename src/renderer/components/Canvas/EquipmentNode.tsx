@@ -77,6 +77,28 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // 🔒-Icon + dim color. Datenmodell-frei — rein render-zeit.
   const projectCables = useProjectStore((s) => s.project.cables)
   const projectEquipment = useProjectStore((s) => s.project.equipment)
+  // v7.9.3 — Plugged-Status aus Mobile-Viewer. Wenn ein Port am Handy
+  // als "gesteckt" markiert wurde, zeigen wir am Canvas-Port ein
+  // kleines Häkchen (User-Request: "wenn ich in der handy zugriff
+  // html einen port als gesteckt markiere, muss in dem cable planner
+  // auch ein kleiner haken an dem port erscheinen").
+  // Stable string key zum Vermeiden des zustand-Set-Reference-Bugs (v7.8.2).
+  const pluggedPortKey = useProjectStore((s) => {
+    const checks = s.project.checkState?.ports
+    if (!checks) return ''
+    const pluggedHere: string[] = []
+    for (const port of data.inputs) {
+      if (checks[`${id}|${port.id}`]) pluggedHere.push(port.id)
+    }
+    for (const port of data.outputs) {
+      if (checks[`${id}|${port.id}`]) pluggedHere.push(port.id)
+    }
+    return pluggedHere.sort().join('|')
+  })
+  const pluggedPortIds = useMemo(
+    () => (pluggedPortKey ? new Set(pluggedPortKey.split('|')) : null),
+    [pluggedPortKey],
+  )
   const rackInternalPortKey = useMemo(() => {
     const rackId = data.rackInstanceId
     if (!rackId) return ''
@@ -495,6 +517,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         const isHovered = hoveredPort === `in-${port.id}`
         const isActive = isPendingStart(port.id, 'input')
         const isRackInternal = rackInternalPortIds?.has(port.id) ?? false
+        const isPlugged = pluggedPortIds?.has(port.id) ?? false
         return (
           <div
             key={port.id}
@@ -531,10 +554,24 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               title={
                 isRackInternal
                   ? `${port.name} · ${port.connectorType} — Rack-intern verkabelt`
-                  : `${port.name} · ${port.connectorType}`
+                  : isPlugged
+                    ? `${port.name} · ${port.connectorType} — vor Ort gesteckt`
+                    : `${port.name} · ${port.connectorType}`
               }
               style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}
             >
+              {isPlugged && (
+                <span
+                  style={{
+                    marginRight: 3,
+                    color: '#10b981',
+                    fontWeight: 700,
+                  }}
+                  title="Vor Ort gesteckt (vom Mobile-Viewer markiert)"
+                >
+                  ✓
+                </span>
+              )}
               {isRackInternal && <span style={{ marginRight: 3 }}>🔒</span>}
               {isLeft ? (
                 <>{port.name}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
@@ -610,6 +647,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         const isHovered = hoveredPort === `out-${port.id}`
         const isActive = isPendingStart(port.id, 'output')
         const isRackInternal = rackInternalPortIds?.has(port.id) ?? false
+        const isPlugged = pluggedPortIds?.has(port.id) ?? false
         return (
           <div
             key={port.id}
@@ -646,10 +684,20 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               title={
                 isRackInternal
                   ? `${port.name} · ${port.connectorType} — Rack-intern verkabelt`
-                  : `${port.name} · ${port.connectorType}`
+                  : isPlugged
+                    ? `${port.name} · ${port.connectorType} — vor Ort gesteckt`
+                    : `${port.name} · ${port.connectorType}`
               }
               style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}
             >
+              {isPlugged && (
+                <span
+                  style={{ marginRight: 3, color: '#10b981', fontWeight: 700 }}
+                  title="Vor Ort gesteckt (vom Mobile-Viewer markiert)"
+                >
+                  ✓
+                </span>
+              )}
               {isRackInternal && <span style={{ marginRight: 3 }}>🔒</span>}
               {isLeft ? (
                 <>{port.name}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
