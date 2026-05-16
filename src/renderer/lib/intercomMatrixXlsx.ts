@@ -24,7 +24,14 @@
  *   group memberships, not user-to-user shortcuts).
  */
 
-import * as XLSX from 'xlsx'
+// v7.9.4 — Wechsel von 'xlsx' auf 'xlsx-js-style' (drop-in API).
+// Grund: Das offizielle 'xlsx' Paket auf npm ist auf 0.18.5 stehen
+// geblieben, der Maintainer published nur noch auf cdn.sheetjs.com.
+// 0.18.5 hat zwei offene High-Severity-Advisories (Prototype
+// Pollution + ReDoS beim Parsen), und beim Intercom-Matrix-Import
+// parsen wir User-Files. 'xlsx-js-style' ist ein maintained Fork
+// mit identischer API + bewussten Patches gegen die CVEs.
+import * as XLSX from 'xlsx-js-style'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../types/greengo'
 
 /** What a single cell can contain after we've stringified it. */
