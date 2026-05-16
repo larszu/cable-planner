@@ -28,6 +28,10 @@ interface MenuBarProps {
   onOpenGraphmlImport?: () => void
   onEditProjectMeta?: () => void
   onOpenCableBom?: () => void
+  /** v7.9.3 — Plan als .cpviewer-Datei exportieren (read-only für Reviewer). */
+  onExportViewer?: () => void
+  /** v7.9.3 — Annotations aus einer .cpviewer-Datei zurück importieren. */
+  onImportAnnotations?: () => void
   /** Attach the current plan as a PDF to the linked Rentman project. */
   onAttachPdfToRentman?: () => void
   /** Open the Rentman cable export dialog. */
@@ -59,6 +63,8 @@ export const MenuBar = ({
   onSaveProjectAs,
   onOpenSettings,
   onOpenExportDialog,
+  onExportViewer,
+  onImportAnnotations,
   onExportPdf,
   onExportPng,
   onExportJpeg,
@@ -160,6 +166,19 @@ export const MenuBar = ({
           {onOpenPrintDialog && (
             <MenuItem onClick={onOpenPrintDialog} icon="🖨" shortcut="Strg+P">
               {t('app.menu.file.print', 'Drucken (OS-Dialog)…')}
+            </MenuItem>
+          )}
+          {/* v7.9.3 — Viewer-Workflow: Plan als .cpviewer für Freelancer
+              exportieren, später deren Anmerkungen zurück mergen. */}
+          {(onExportViewer || onImportAnnotations) && <MenuSep />}
+          {onExportViewer && (
+            <MenuItem onClick={onExportViewer} icon="👁">
+              {t('app.menu.file.exportViewer', 'Als Viewer-Datei für Freelancer exportieren…')}
+            </MenuItem>
+          )}
+          {onImportAnnotations && (
+            <MenuItem onClick={onImportAnnotations} icon="💬">
+              {t('app.menu.file.importAnnotations', 'Anmerkungen aus Viewer-Datei importieren…')}
             </MenuItem>
           )}
           {(onAttachPdfToRentman || onOpenRentmanCableExport) && <MenuSep />}
