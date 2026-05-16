@@ -514,6 +514,8 @@ export default function App() {
         onClose={() => setExportDialogOpen(false)}
         onExportPdf={(theme) => handleExportPdf(theme)}
         onExportImage={(format) => handleExportImage(format)}
+        onOpenCableBom={() => setCableBomOpen(true)}
+        onOpenPrintDialog={() => setPrintDialogOpen(true)}
       />
 
       <ProjectMetaDialog
