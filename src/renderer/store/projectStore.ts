@@ -327,6 +327,10 @@ interface ProjectState {
   placeGroupPreset: (presetId: string, x: number, y: number) => void
   /** Replace all group presets (e.g. after a Sync Pull). */
   setGroupPresets: (presets: GroupPreset[]) => void
+  /** v7.9.6 — Drag&Drop-Reorder der groupPresets. Fehlende IDs werden
+   *  angehängt, damit ein Teil-Reorder (nur Groups-Tab oder nur Racks-
+   *  Tab) den jeweils anderen Subset nicht verliert. */
+  reorderGroupPresets: (newOrder: string[]) => void
   /** Save or replace the GreenGo intercom planning config in the project. */
   updateGreenGoConfig: (config: GreenGoConfig) => void
   /** v7.9.3 — Mobile-Viewer Check-State setzen (vom POST /checks-IPC).
@@ -1534,6 +1538,27 @@ export const useProjectStore = create<ProjectState>((set, get) => {
     set(() => {
       persistGroupPresets(presets)
       return { groupPresets: presets }
+    }),
+  /** v7.9.6 — Reorder groupPresets. Accepts the desired ID order;
+   *  anything not in the list is appended at the end so partial
+   *  reorders (e.g. only racks, only non-racks) don't lose entries. */
+  reorderGroupPresets: (newOrder) =>
+    set((state) => {
+      const idToPreset = new Map(state.groupPresets.map((p) => [p.id, p]))
+      const ordered: GroupPreset[] = []
+      const seen = new Set<string>()
+      for (const id of newOrder) {
+        const p = idToPreset.get(id)
+        if (p && !seen.has(id)) {
+          ordered.push(p)
+          seen.add(id)
+        }
+      }
+      for (const p of state.groupPresets) {
+        if (!seen.has(p.id)) ordered.push(p)
+      }
+      persistGroupPresets(ordered)
+      return { groupPresets: ordered }
     }),
   placeGroupPreset: (presetId, x, y) =>
     set((state) => {

@@ -944,7 +944,13 @@ const CanvasContent = () => {
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault()
     event.stopPropagation()
-    event.dataTransfer.dropEffect = 'copy'
+    // dropEffect MUST match the source's effectAllowed, otherwise the
+    // browser shows the forbidden cursor. Annotations are dragged with
+    // effectAllowed='move' (re-anchor existing entity), equipment
+    // templates with the default 'copy' (clone into new instance).
+    const types = event.dataTransfer.types
+    event.dataTransfer.dropEffect =
+      types && Array.from(types).includes(ANNOTATION_DRAG_MIME) ? 'move' : 'copy'
   }, [])
 
   const onDrop = useCallback(

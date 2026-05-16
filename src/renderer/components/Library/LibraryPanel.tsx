@@ -325,6 +325,79 @@ const SortableCategorySection = ({
   )
 }
 
+// v7.9.6 — Reusable sortable wrapper for group / rack preset cards.
+// Provides a 6×12 dotted drag handle in the top-left corner; the
+// content (action buttons) keeps full pointer-events. Disabling is
+// handled by *not* wrapping in a DndContext rather than per-item.
+const SortablePresetCard = ({
+  id,
+  children,
+}: {
+  id: string
+  children: ReactNode
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    position: 'relative',
+  }
+  return (
+    <div ref={setNodeRef} style={style} className="rounded border border-slate-700 bg-slate-900 p-2 pl-5 text-xs">
+      <span
+        {...attributes}
+        {...listeners}
+        aria-label="Verschieben"
+        title="Per Drag&Drop verschieben"
+        role="button"
+        tabIndex={0}
+        className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-slate-500 hover:text-slate-200 active:cursor-grabbing"
+      >
+        <svg width="6" height="12" viewBox="0 0 6 12" fill="currentColor">
+          <circle cx="1.5" cy="2" r="1" />
+          <circle cx="4.5" cy="2" r="1" />
+          <circle cx="1.5" cy="6" r="1" />
+          <circle cx="4.5" cy="6" r="1" />
+          <circle cx="1.5" cy="10" r="1" />
+          <circle cx="4.5" cy="10" r="1" />
+        </svg>
+      </span>
+      {children}
+    </div>
+  )
+}
+
+const PresetDndWrapper = ({
+  ids,
+  onReorder,
+  children,
+}: {
+  ids: string[]
+  onReorder: (newOrder: string[]) => void
+  children: ReactNode
+}) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = ids.indexOf(active.id as string)
+    const newIndex = ids.indexOf(over.id as string)
+    if (oldIndex < 0 || newIndex < 0) return
+    onReorder(arrayMove(ids, oldIndex, newIndex))
+  }
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+        {children}
+      </SortableContext>
+    </DndContext>
+  )
+}
+
 // v7.9.5 — Wrapper mit DnD-Context+SortableContext nur wenn manueller
 // Sort-Modus aktiv ist. Sonst transparent durchreichen.
 const CategoryDndWrapper = ({
@@ -445,6 +518,7 @@ export const LibraryPanel = () => {
   const addGroupPreset = useProjectStore((state) => state.addGroupPreset)
   const deleteGroupPreset = useProjectStore((state) => state.deleteGroupPreset)
   const placeGroupPreset = useProjectStore((state) => state.placeGroupPreset)
+  const reorderGroupPresets = useProjectStore((state) => state.reorderGroupPresets)
   const canvasState = useProjectStore((state) => state.project.canvasState)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [showNetBoxDialog, setShowNetBoxDialog] = useState(false)
@@ -1843,55 +1917,66 @@ export const LibraryPanel = () => {
               <span>Wähle auf dem Canvas ≥ 2 Geräte aus und klicke <b>Als Gruppe</b> in der Canvas-Toolbar.</span>
             </div>
           ) : (
-            <div className="flex-1 min-h-0 space-y-2 overflow-auto">
-              {groupPresets.map((preset) => {
-                const zoom = canvasState.zoom || 1
-                const cx = (-canvasState.x + 400) / zoom
-                const cy = (-canvasState.y + 250) / zoom
-                const totalRackUnits = preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 0), 0)
-                return (
-                  <div
-                    key={preset.id}
-                    className="rounded border border-slate-700 bg-slate-900 p-2 text-xs"
+            (() => {
+              const nonRackPresets = groupPresets.filter((p) => !p.rack)
+              const nonRackIds = nonRackPresets.map((p) => p.id)
+              return (
+                <div className="flex-1 min-h-0 space-y-2 overflow-auto">
+                  <PresetDndWrapper
+                    ids={nonRackIds}
+                    onReorder={(newIds) => {
+                      const rackIds = groupPresets.filter((p) => !!p.rack).map((p) => p.id)
+                      reorderGroupPresets([...newIds, ...rackIds])
+                    }}
                   >
-                    <div className="flex items-start justify-between gap-1">
-                      <div>
-                        <div className="font-medium text-slate-100">{preset.name}</div>
-                        <div className="text-[10px] text-slate-500 mt-0.5">
-                          {preset.items.length} Geräte · {preset.cables.length} Kabel
-                          {totalRackUnits > 0 ? ` · ${totalRackUnits} HE` : ''}
-                        </div>
-                        <div className="text-[10px] text-slate-600 mt-0.5 truncate max-w-[160px]">
-                          {preset.items.map((i) => i.name).join(', ')}
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-1 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => placeGroupPreset(preset.id, cx, cy)}
-                          className="rounded bg-emerald-700 px-2 py-1 text-[11px] hover:bg-emerald-600"
-                          title="Gruppe auf Canvas platzieren"
-                        >
-                          Platzieren
-                        </button>
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            if (await confirmDialog(`Gruppe "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
-                              deleteGroupPreset(preset.id)
-                            }
-                          }}
-                          className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
-                          title="Gruppe löschen"
-                        >
-                          Löschen
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+                    {nonRackPresets.map((preset) => {
+                      const zoom = canvasState.zoom || 1
+                      const cx = (-canvasState.x + 400) / zoom
+                      const cy = (-canvasState.y + 250) / zoom
+                      const totalRackUnits = preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 0), 0)
+                      return (
+                        <SortablePresetCard key={preset.id} id={preset.id}>
+                          <div className="flex items-start justify-between gap-1">
+                            <div>
+                              <div className="font-medium text-slate-100">{preset.name}</div>
+                              <div className="text-[10px] text-slate-500 mt-0.5">
+                                {preset.items.length} Geräte · {preset.cables.length} Kabel
+                                {totalRackUnits > 0 ? ` · ${totalRackUnits} HE` : ''}
+                              </div>
+                              <div className="text-[10px] text-slate-600 mt-0.5 truncate max-w-[160px]">
+                                {preset.items.map((i) => i.name).join(', ')}
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => placeGroupPreset(preset.id, cx, cy)}
+                                className="rounded bg-emerald-700 px-2 py-1 text-[11px] hover:bg-emerald-600"
+                                title="Gruppe auf Canvas platzieren"
+                              >
+                                Platzieren
+                              </button>
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  if (await confirmDialog(`Gruppe "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
+                                    deleteGroupPreset(preset.id)
+                                  }
+                                }}
+                                className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
+                                title="Gruppe löschen"
+                              >
+                                Löschen
+                              </button>
+                            </div>
+                          </div>
+                        </SortablePresetCard>
+                      )
+                    })}
+                  </PresetDndWrapper>
+                </div>
+              )
+            })()
           )}
         </div>
       )}
@@ -1918,19 +2003,26 @@ export const LibraryPanel = () => {
               <span>Noch kein Rack-Layout gespeichert.</span>
             </div>
           ) : (
-            <div className="flex-1 min-h-0 space-y-2 overflow-auto">
-              {groupPresets
-                .filter((preset) => !!preset.rack)
+            (() => {
+              const rackPresets = groupPresets.filter((preset) => !!preset.rack)
+              const rackIds = rackPresets.map((p) => p.id)
+              return (
+                <div className="flex-1 min-h-0 space-y-2 overflow-auto">
+                  <PresetDndWrapper
+                    ids={rackIds}
+                    onReorder={(newIds) => {
+                      const nonRackIds = groupPresets.filter((p) => !p.rack).map((p) => p.id)
+                      reorderGroupPresets([...nonRackIds, ...newIds])
+                    }}
+                  >
+              {rackPresets
                 .map((preset) => {
                   const zoom = canvasState.zoom || 1
                   const cx = (-canvasState.x + 400) / zoom
                   const cy = (-canvasState.y + 250) / zoom
                   const totalUnits = preset.rack?.totalUnits ?? preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 1), 0)
                   return (
-                    <div
-                      key={preset.id}
-                      className="rounded border border-slate-700 bg-slate-900 p-2 text-xs"
-                    >
+                    <SortablePresetCard key={preset.id} id={preset.id}>
                       <div className="flex items-start justify-between gap-1">
                         <div>
                           <div className="font-medium text-slate-100">{preset.name}</div>
@@ -2029,10 +2121,13 @@ export const LibraryPanel = () => {
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </SortablePresetCard>
                   )
                 })}
-            </div>
+                  </PresetDndWrapper>
+                </div>
+              )
+            })()
           )}
         </div>
       )}

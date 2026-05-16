@@ -1,4 +1,21 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { ALL_SIGNAL_STANDARDS, cableCatalog } from '../../types/cableSpec'
 import type { CableSpec, SignalStandard } from '../../types/cableSpec'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
@@ -300,7 +317,52 @@ const groupOf = (specId: string, connectorType: string): string => {
     connectorType === 'Schuko 230V'
   )
     return 'Power'
+  // v7.9.6 — User-defined connector types each get their own group so
+  // a custom cable with a brand-new connector (e.g. "Speakon NL4")
+  // shows under a "Speakon NL4" section instead of "Andere".
+  if (connectorType && connectorType !== 'Custom') return connectorType
   return 'Andere'
+}
+
+const SortableCableGroup = ({
+  group,
+  children,
+}: {
+  group: string
+  children: ReactNode
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: group,
+  })
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    position: 'relative',
+  }
+  return (
+    <div ref={setNodeRef} style={style} className="rounded border border-slate-700 bg-slate-900">
+      <span
+        {...attributes}
+        {...listeners}
+        aria-label="Gruppe verschieben"
+        title="Per Drag&Drop verschieben"
+        role="button"
+        tabIndex={0}
+        className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-slate-500 hover:text-slate-200 active:cursor-grabbing"
+      >
+        <svg width="6" height="12" viewBox="0 0 6 12" fill="currentColor">
+          <circle cx="1.5" cy="2" r="1" />
+          <circle cx="4.5" cy="2" r="1" />
+          <circle cx="1.5" cy="6" r="1" />
+          <circle cx="4.5" cy="6" r="1" />
+          <circle cx="1.5" cy="10" r="1" />
+          <circle cx="4.5" cy="10" r="1" />
+        </svg>
+      </span>
+      {children}
+    </div>
+  )
 }
 
 export const CableLibraryPanel = () => {
@@ -358,6 +420,13 @@ export const CableLibraryPanel = () => {
     return map
   }, [rentmanCablePlan, fullCatalog])
 
+  // v7.9.6 — User-defined group order persists in uiStore. Unknown
+  // groups land at the end so adding a new connector type doesn't
+  // hide it. Sort is applied at render time so reordering reacts
+  // immediately without rebuilding the underlying catalog.
+  const cableGroupOrder = useUiStore((s) => s.cableGroupOrder)
+  const setCableGroupOrder = useUiStore((s) => s.setCableGroupOrder)
+
   const grouped = useMemo(() => {
     const map = new Map<string, CableSpec[]>()
     for (const cable of fullCatalog) {
@@ -366,8 +435,33 @@ export const CableLibraryPanel = () => {
       list.push(cable)
       map.set(g, list)
     }
-    return Array.from(map.entries())
-  }, [fullCatalog])
+    const entries = Array.from(map.entries())
+    const orderIndex = new Map(cableGroupOrder.map((g, i) => [g, i]))
+    entries.sort(([a], [b]) => {
+      const ai = orderIndex.get(a)
+      const bi = orderIndex.get(b)
+      if (ai !== undefined && bi !== undefined) return ai - bi
+      if (ai !== undefined) return -1
+      if (bi !== undefined) return 1
+      return a.localeCompare(b)
+    })
+    return entries
+  }, [fullCatalog, cableGroupOrder])
+
+  const groupIds = useMemo(() => grouped.map(([g]) => g), [grouped])
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = groupIds.indexOf(active.id as string)
+    const newIndex = groupIds.indexOf(over.id as string)
+    if (oldIndex < 0 || newIndex < 0) return
+    setCableGroupOrder(arrayMove(groupIds, oldIndex, newIndex))
+  }
 
   const allSpecNames = useMemo(() => fullCatalog.map((c) => c.name), [fullCatalog])
 
@@ -402,17 +496,19 @@ export const CableLibraryPanel = () => {
           </>
         )}
       </p>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+       <SortableContext items={groupIds} strategy={verticalListSortingStrategy}>
       <div className="flex-1 min-h-0 space-y-1 overflow-auto">
         {grouped.map(([group, specs]) => {
           const isOpen = open[group] ?? false
           const groupBuilt = specs.reduce((sum, s) => sum + (builtBySpecId.get(s.id) ?? 0), 0)
           const groupPlanned = specs.reduce((sum, s) => sum + (plannedBySpecId.get(s.id) ?? 0), 0)
           return (
-            <div key={group} className="rounded border border-slate-700 bg-slate-900">
+            <SortableCableGroup key={group} group={group}>
               <button
                 type="button"
                 onClick={() => toggle(group)}
-                className="flex w-full items-center justify-between px-2 py-1.5 text-left text-xs font-semibold hover:bg-slate-800"
+                className="flex w-full items-center justify-between px-2 py-1.5 pl-5 text-left text-xs font-semibold hover:bg-slate-800"
               >
                 <span className="flex items-center gap-1.5">
                   {group}
@@ -541,10 +637,12 @@ export const CableLibraryPanel = () => {
                   })}
                 </div>
               )}
-            </div>
+            </SortableCableGroup>
           )
         })}
       </div>
+       </SortableContext>
+      </DndContext>
 
       <CableTypeEditor
         open={isEditorOpen}
