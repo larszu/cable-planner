@@ -11,7 +11,33 @@
 import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useProjectStore } from '../../store/projectStore'
+import { useUiStore } from '../../store/uiStore'
+import { promptDialog } from '../../lib/promptDialog'
 import type { ProjectAnnotation } from '../../types/project'
+
+/** v7.9.5 — Custom-Mime-Type für Annotations-Drag-Drop. Canvas-Drop-
+ *  Handler erkennt diesen Typ und re-anchort die Annotation. */
+export const ANNOTATION_DRAG_MIME = 'application/cable-planner-annotation'
+
+/** v7.9.5 — Liefert den effektiven Author-Namen für neue Annotations.
+ *  Promptet den User wenn noch keiner gesetzt ist (kein 'Anonym'!).
+ *  Returns null wenn der User den Prompt cancelt. */
+export const ensureAnnotationAuthor = async (): Promise<string | null> => {
+  const uiState = useUiStore.getState()
+  const projState = useProjectStore.getState()
+  const fromViewer = projState.project.viewerSession?.author?.trim()
+  if (fromViewer) return fromViewer
+  const fromStore = uiState.annotationAuthor?.trim()
+  if (fromStore) return fromStore
+  const name = (await promptDialog(
+    'Bitte gib deinen Namen ein.\n\n' +
+      'Er wird allen Anmerkungen angeheftet die du jetzt und in Zukunft erstellst.',
+    '',
+  ))?.trim()
+  if (!name) return null
+  uiState.setAnnotationAuthor(name)
+  return name
+}
 
 const STATUS_LABEL: Record<ProjectAnnotation['status'], string> = {
   open: 'offen',
@@ -56,6 +82,9 @@ export const AnnotationsPanel = ({
   const addAnnotation = useProjectStore((s) => s.addAnnotation)
   const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
   const viewerSession = useProjectStore((s) => s.project.viewerSession)
+  // v7.9.5 — Persistierter Author-Name für Annotations im
+  // editing/finalized Modus (im viewer-Modus dominiert viewerSession).
+  const annotationAuthorPref = useUiStore((s) => s.annotationAuthor)
   const [statusFilter, setStatusFilter] = useState<ProjectAnnotation['status'] | 'all'>('all')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [draftText, setDraftText] = useState('')
@@ -89,7 +118,12 @@ export const AnnotationsPanel = ({
 
   if (!open) return null
 
-  const author = viewerSession?.author ?? 'Anonym'
+  // v7.9.5 — KEIN Anonym-Fallback mehr. Falls beides leer ist (kein
+  // Viewer-Session + kein gespeicherter Name) zeigt das Eingabefeld
+  // einen entsprechenden Placeholder; das Submit ruft ensureAnnotation-
+  // Author() das den User dann promptet.
+  const currentAuthor =
+    viewerSession?.author?.trim() || annotationAuthorPref?.trim() || ''
   const canCreateFree =
     (projectMode === 'viewer' || projectMode === 'finalized' || projectMode === 'editing') && creating
 
@@ -135,18 +169,25 @@ export const AnnotationsPanel = ({
               onChange={(e) => setDraftText(e.target.value)}
               autoFocus
               rows={3}
-              placeholder={`Anmerkung als ${author}…`}
+              placeholder={
+                currentAuthor
+                  ? `Anmerkung als ${currentAuthor}…`
+                  : 'Anmerkung… (Name wird einmalig abgefragt)'
+              }
               className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
             />
             <div className="flex gap-1">
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   const text = draftText.trim()
                   if (!text) return
+                  // v7.9.5 — KEIN Anonym mehr. Prompt wenn nötig.
+                  const finalAuthor = await ensureAnnotationAuthor()
+                  if (!finalAuthor) return
                   addAnnotation({
                     id: uuidv4(),
-                    author,
+                    author: finalAuthor,
                     createdAt: new Date().toISOString(),
                     text,
                     status: 'open',
@@ -200,7 +241,16 @@ export const AnnotationsPanel = ({
                   return (
                     <li
                       key={a.id}
-                      className="rounded border border-slate-700 bg-slate-950/40 p-2 text-xs"
+                      // v7.9.5 — Annotation per Drag&Drop aufs Canvas
+                      // verschiebbar. CanvasArea#onDrop liest die ID
+                      // und ruft updateAnnotation mit neuem anchor.
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData(ANNOTATION_DRAG_MIME, a.id)
+                        e.dataTransfer.effectAllowed = 'move'
+                      }}
+                      className="cursor-grab rounded border border-slate-700 bg-slate-950/40 p-2 text-xs active:cursor-grabbing"
+                      title="Ziehen, um diese Anmerkung auf dem Canvas zu platzieren oder einem Gerät zuzuweisen"
                     >
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <span
