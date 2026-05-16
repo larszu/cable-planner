@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import jsPDF from 'jspdf'
+import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { useProjectStore } from '../../store/projectStore'
 import type { Cable } from '../../types/cable'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
@@ -109,12 +110,12 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
     const margin = 32
     pdf.setFontSize(14)
     pdf.setTextColor(15)
-    pdf.text('Kabel-Stückliste', margin, margin + 4)
+    pdf.text(sanitizeForPdf('Kabel-Stückliste'), margin, margin + 4)
     pdf.setFontSize(10)
     pdf.setTextColor(60)
-    pdf.text(project.metadata.name || '—', margin, margin + 22)
+    pdf.text(sanitizeForPdf(project.metadata.name || '-'), margin, margin + 22)
     pdf.setFontSize(8)
-    pdf.text(new Date().toLocaleString(), pageWidth - margin, margin + 4, { align: 'right' })
+    pdf.text(sanitizeForPdf(new Date().toLocaleString()), pageWidth - margin, margin + 4, { align: 'right' })
 
     const colX = [margin, margin + 160, margin + 260, margin + 340, margin + 440]
     const headerY = margin + 46
@@ -123,7 +124,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
     pdf.setTextColor(15)
     pdf.setFontSize(9)
     ;['Typ', 'Länge (m)', 'Verbaut', 'Rentman', 'Differenz'].forEach((h, i) => {
-      pdf.text(h, colX[i] + 2, headerY)
+      pdf.text(sanitizeForPdf(h), colX[i] + 2, headerY)
     })
 
     let y = headerY + 14
@@ -134,14 +135,14 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
         y = margin
       }
       pdf.setTextColor(15)
-      pdf.text(r.type, colX[0] + 2, y)
-      pdf.text(String(r.length), colX[1] + 2, y)
-      pdf.text(String(r.built), colX[2] + 2, y)
-      pdf.text(String(r.planned), colX[3] + 2, y)
+      pdf.text(sanitizeForPdf(r.type), colX[0] + 2, y)
+      pdf.text(sanitizeForPdf(String(r.length)), colX[1] + 2, y)
+      pdf.text(sanitizeForPdf(String(r.built)), colX[2] + 2, y)
+      pdf.text(sanitizeForPdf(String(r.planned)), colX[3] + 2, y)
       if (r.diff === 0) pdf.setTextColor(20, 120, 20)
       else if (r.diff > 0) pdf.setTextColor(180, 80, 20)
       else pdf.setTextColor(180, 20, 20)
-      pdf.text(fmtSignFixed(r.diff), colX[4] + 2, y)
+      pdf.text(sanitizeForPdf(fmtSignFixed(r.diff)), colX[4] + 2, y)
       pdf.setDrawColor(220)
       pdf.line(margin, y + 4, pageWidth - margin, y + 4)
       y += 14
