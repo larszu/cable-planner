@@ -1,0 +1,62 @@
+name: D1 Daily Backup
+
+on:
+  schedule:
+    # 09:00 UTC ≈ 01:00 Alaska. Daily.
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+# Free-tier D1 has no Time Travel — this workflow is the only recovery path.
+# Bucket: easyschematic-backups (private R2). Lifecycle deletes objects after 365 days.
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install API dependencies
+        run: cd api && npm ci
+
+      - name: Compute timestamp
+        id: ts
+        run: |
+          echo "iso=$(date -u +%Y%m%d-%H%M%S)" >> "$GITHUB_OUTPUT"
+          echo "path=$(date -u +%Y/%m/%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Export D1 database to SQL
+        run: cd api && npx wrangler d1 export easyschematic-db --remote --output=../backup.sql
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Report backup size and row counts
+        run: |
+          echo "Backup file size:"
+          ls -lh backup.sql
+          echo ""
+          echo "Statement counts (sanity check):"
+          grep -c "^CREATE TABLE" backup.sql || true
+          grep -c "^INSERT INTO templates" backup.sql || true
+          grep -c "^INSERT INTO submissions" backup.sql || true
+          grep -c "^INSERT INTO users" backup.sql || true
+
+      - name: Upload backup to R2
+        run: |
+          cd api && npx wrangler r2 object put \
+            "easyschematic-backups/db/${{ steps.ts.outputs.path }}/easyschematic-${{ steps.ts.outputs.iso }}.sql" \
+            --file=../backup.sql \
+            --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Confirm upload
+        run: cd api && npx wrangler r2 object get "easyschematic-backups/db/${{ steps.ts.outputs.path }}/easyschematic-${{ steps.ts.outputs.iso }}.sql" --file=/tmp/verify.sql --remote && ls -lh /tmp/verify.sql
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

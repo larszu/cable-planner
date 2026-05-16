@@ -1,0 +1,31 @@
+{
+  "name": "easyschematic-docs",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "build-search-index": "node scripts/build-search-index.mjs",
+    "build-dev-reference": "cd .. && npm run build:dev-reference",
+    "prebuild": "node scripts/build-search-index.mjs && npm run build-dev-reference",
+    "predev": "node scripts/build-search-index.mjs"
+  },
+  "dependencies": {
+    "@xyflow/react": "12.10.1",
+    "minisearch": "^7.2.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "zustand": "^5.0.11"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.5.2",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.8.0",
+    "vite": "^6.3.0"
+  }
+}

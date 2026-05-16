@@ -1,0 +1,75 @@
+{
+  "name": "easyschematic",
+  "private": true,
+  "license": "AGPL-3.0",
+  "version": "0.39.0",
+  "type": "module",
+  "description": "Browser-based AV signal flow diagram tool for designing audio/video system schematics",
+  "homepage": "https://easyschematic.live",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/duremovich/EasySchematic.git"
+  },
+  "bugs": {
+    "url": "https://github.com/duremovich/EasySchematic/issues"
+  },
+  "author": "duremovich",
+  "keywords": [
+    "av",
+    "audio-video",
+    "signal-flow",
+    "schematic",
+    "diagram",
+    "broadcast",
+    "av-integration",
+    "dxf",
+    "cad"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "generate-fallback": "npx tsx api/seed/generate-fallback.ts",
+    "build": "npm run generate-fallback && tsc -b && vite build",
+    "build:dev-reference": "typedoc",
+    "lint": "eslint .",
+    "db:sync": "cd api && npm run seed:remote",
+    "preview": "vite preview",
+    "postinstall": "patch-package",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "overrides": {
+    "serialize-javascript": "^7.0.5"
+  },
+  "dependencies": {
+    "@xyflow/react": "12.10.1",
+    "html-to-image": "^1.11.13",
+    "jspdf": "^4.2.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "zustand": "^5.0.11"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@types/node": "^24.12.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.0",
+    "dxf-parser": "^1.1.2",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "patch-package": "^8.0.1",
+    "postcss": "^8.5.8",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^4.2.1",
+    "typedoc": "^0.28.19",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.56.1",
+    "vite": "^8.0.0",
+    "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^4.1.0",
+    "wrangler": "^4.73.0"
+  }
+}

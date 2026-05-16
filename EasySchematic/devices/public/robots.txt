@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://devices.easyschematic.live/sitemap.xml

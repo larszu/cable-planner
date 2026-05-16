@@ -1,0 +1,77 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+.env*
+
+# Claude Code
+CLAUDE.md
+.claude/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Build artifacts
+*.tsbuildinfo
+
+# Debug artifacts
+canvas-screenshot*.png
+debug-capture.mjs
+screenshot.mjs
+debug/
+edge-debug.log
+*.tmp.*
+
+# Generated seed data
+api/seed/seed-data.sql
+api/seed/import-*.sql
+api/seed/prod-templates.sql
+src/deviceLibrary.fallback.json
+docs/src/searchIndex.json
+
+# Generated developer API reference (TypeDoc → /dev/ on the docs site)
+docs/public/dev/
+
+# DB backups
+api/backup-*.sql
+backups/
+
+# Wrangler local state
+.wrangler/
+.dev.vars
+
+# Vite cache
+.vite/
+
+# Internal notes
+internal/
+
+# Shadow .js emissions next to TypeScript sources — Vite resolves .js before .ts,
+# so any stray compiled .js will silently override the real source.
+docs/src/**/*.js
+src/**/*.js
+devices/src/**/*.js
+
+# One-off scripts at repo root (anchor so nested scripts/ dirs aren't swept up)
+/scripts/
+
+# Local dev
+start-dev.sh
+email-signature.html

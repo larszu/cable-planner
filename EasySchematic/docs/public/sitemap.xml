@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://docs.easyschematic.live/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://docs.easyschematic.live/overview</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://docs.easyschematic.live/getting-started</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://docs.easyschematic.live/devices-and-ports</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://docs.easyschematic.live/connections</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://docs.easyschematic.live/connection-routing</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://docs.easyschematic.live/rooms-and-grouping</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://docs.easyschematic.live/notes</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://docs.easyschematic.live/device-library</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://docs.easyschematic.live/pack-list</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://docs.easyschematic.live/printing</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://docs.easyschematic.live/import-export</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://docs.easyschematic.live/api</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+</urlset>

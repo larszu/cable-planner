@@ -1,0 +1,16 @@
+name = "easyschematic-api"
+main = "src/index.ts"
+compatibility_date = "2025-04-01"
+
+[dev]
+port = 8787
+persist_to = ".wrangler/state"
+
+[[d1_databases]]
+binding = "easyschematic_db"
+database_name = "easyschematic-db"
+database_id = "26615646-10b7-4af7-86ed-c5f57d1b4243"
+
+[[r2_buckets]]
+binding = "SCHEMATIC_STORAGE"
+bucket_name = "easyschematic-schematics"

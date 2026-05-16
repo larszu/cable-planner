@@ -1,0 +1,24 @@
+{
+  "label": "Extron DTP2 T 212",
+  "manufacturer": "Extron",
+  "modelNumber": "60-1271-01",
+  "deviceType": "hdbaset-extender",
+  "category": "KVM / Extenders",
+  "referenceUrl": "https://www.extron.com/product/dtp2t212",
+  "searchTerms": ["dtp2", "hdbaset", "transmitter", "extender"],
+  "color": "#1e40af",
+  "heightMm": 25,
+  "widthMm": 216,
+  "depthMm": 114,
+  "weightKg": 0.68,
+  "powerDrawW": 12,
+  "voltage": "12V DC",
+  "unitCost": 1095,
+  "ports": [
+    { "label": "HDMI IN",   "signalType": "hdmi",    "connectorType": "hdmi",    "direction": "input",         "section": "Front" },
+    { "label": "HDMI LOOP", "signalType": "hdmi",    "connectorType": "hdmi",    "direction": "output",        "section": "Rear" },
+    { "label": "DTP2 OUT",  "signalType": "hdbaset", "connectorType": "rj45",    "direction": "output",        "section": "Rear" },
+    { "label": "RS-232",    "signalType": "serial",  "connectorType": "phoenix", "direction": "bidirectional", "section": "Rear" },
+    { "label": "12V DC",    "signalType": "power",   "connectorType": "barrel",  "direction": "input",         "section": "Rear" }
+  ]
+}

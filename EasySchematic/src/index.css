@@ -1,0 +1,343 @@
+@import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
+@import "./theme.css";
+
+/* Enable class-based dark mode for Tailwind dark: utilities */
+@variant dark (&:where(.dark, .dark *));
+
+/* Dark mode overrides for hardcoded Tailwind utility colors used in components */
+.dark .bg-white { background-color: var(--color-surface) !important; }
+.dark .bg-gray-50 { background-color: var(--color-surface) !important; }
+.dark .bg-gray-100 { background-color: var(--color-surface-hover) !important; }
+.dark .hover\:bg-gray-50:hover { background-color: var(--color-surface-hover) !important; }
+.dark .hover\:bg-gray-100:hover { background-color: var(--color-surface-hover) !important; }
+.dark .border-gray-200 { border-color: var(--color-border) !important; }
+.dark .border-gray-300 { border-color: var(--color-border) !important; }
+.dark .text-gray-900 { color: var(--color-text-heading) !important; }
+.dark .text-gray-800 { color: var(--color-text-heading) !important; }
+.dark .text-gray-700 { color: var(--color-text) !important; }
+.dark .text-gray-600 { color: var(--color-text) !important; }
+.dark .text-gray-500 { color: var(--color-text-muted) !important; }
+.dark .text-gray-400 { color: var(--color-text-muted) !important; }
+.dark .text-gray-300 { color: var(--color-border) !important; }
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/Inter-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Inter';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/Inter-Bold.ttf') format('truetype');
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* React Flow overrides */
+.react-flow {
+  overscroll-behavior: none;
+}
+
+/* Pan-first mode cursor feedback */
+.pan-mode .react-flow__pane { cursor: grab; }
+.pan-mode .react-flow__pane:active { cursor: grabbing; }
+
+.react-flow__background {
+  background: var(--color-bg) !important;
+}
+
+.react-flow__minimap {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 6px !important;
+}
+
+.react-flow__controls {
+  border: 1px solid var(--color-border) !important;
+  border-radius: 6px !important;
+  overflow: hidden;
+}
+
+.react-flow__controls button {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border-color: var(--color-border) !important;
+}
+
+.react-flow__controls button:hover {
+  background: var(--color-surface-hover) !important;
+}
+
+/* Restore list styles inside note nodes (Tailwind preflight strips them) */
+[contenteditable] ul {
+  list-style: disc;
+  padding-left: 1.25em;
+}
+[contenteditable] ol {
+  list-style: decimal;
+  padding-left: 1.25em;
+}
+
+/* Handles: raise above node content and enlarge hit area */
+.react-flow__handle {
+  z-index: 10;
+}
+.react-flow__handle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+}
+
+/* During a connection drag, make node bodies transparent to pointer events
+   so only handles receive hover/drop — prevents the node from stealing focus. */
+.react-flow.connecting .react-flow__node *:not(.react-flow__handle) {
+  pointer-events: none;
+}
+
+/* During a connection drag, prevent edges from intercepting the connection.
+   Handles remain interactive because they live on the node layer. */
+.react-flow.connecting .react-flow__edges {
+  pointer-events: none;
+}
+
+/* Locked rooms: pass through pointer events so drag-select works over them.
+   Unlocked rooms keep normal pointer events for move/resize/context-menu. */
+.react-flow__node-room.locked {
+  pointer-events: none !important;
+}
+.react-flow__node-room .react-flow__resize-control {
+  pointer-events: auto !important;
+}
+
+/* Debug mode: dim schematic so debug overlay visuals are prominent */
+.react-flow.debug-active .react-flow__nodes,
+.react-flow.debug-active .react-flow__edges,
+.react-flow.debug-active .react-flow__edgelabel-renderer {
+  opacity: 0.2;
+}
+
+/* Hide group-selection bounding box — per-node blue borders are clearer
+   in crowded schematics and don't block shift+click toggle selection */
+.react-flow__nodesselection-rect {
+  display: none !important;
+}
+
+/* AutoCAD-style directional selection */
+/* Window (left→right): blue solid, selects fully-enclosed items */
+.react-flow.selection-window .react-flow__selection {
+  background: rgba(59, 130, 246, 0.08) !important;
+  border: 1.5px solid rgba(59, 130, 246, 0.6) !important;
+}
+
+/* Crossing (right→left): green dashed, selects intersected items */
+.react-flow.selection-crossing .react-flow__selection {
+  background: rgba(34, 197, 94, 0.08) !important;
+  border: 1.5px dashed rgba(34, 197, 94, 0.6) !important;
+}
+
+/* Edge labels must sit above edges regardless of React Flow's internal z-index
+   calculations. RF elevates edges when source/target nodes have a parentId (room),
+   which can push edge z-index into the hundreds. 10000 guarantees labels stay on top. */
+.react-flow__edgelabel-renderer {
+  z-index: 10000;
+}
+
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke-width: 3;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+
+/* Edge updater anchors — SVG circles rendered by React Flow internally.
+   These handle ALL reconnection interaction natively (cursor, click, drag).
+   Visual indicators in HTML layer (OffsetEdge.tsx) show position above labels. */
+.react-flow__edgeupdater {
+  fill: transparent;
+  stroke: none;
+  pointer-events: none;
+  r: 8;
+}
+
+.react-flow__edge:hover .react-flow__edgeupdater,
+.react-flow__edge.selected .react-flow__edgeupdater {
+  pointer-events: all;
+  cursor: grab;
+}
+
+/* Visual-only reconnect circles — rendered in HTML layer above cable labels */
+.reconnect-visual {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1.5px solid rgba(59, 130, 246, 0.6);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Tooltip for reconnect circles */
+.reconnect-tooltip {
+  position: absolute;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-family: Inter, system-ui, sans-serif;
+  white-space: nowrap;
+  background: #1f2937;
+  color: white;
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Connected handles: let clicks fall through to
+   edge updater in SVG layer below for reconnect/disconnect. */
+.react-flow__handle-left[data-connected],
+.react-flow__handle-right[data-connected] {
+  pointer-events: none;
+}
+
+/* Multi-connect handles stay clickable even when connected,
+   so users can pull additional connection threads from them. */
+.react-flow__handle-left[data-connected][data-multi-connect],
+.react-flow__handle-right[data-connected][data-multi-connect] {
+  pointer-events: auto;
+}
+
+/* Connected handle hover ring */
+.react-flow__handle[data-connected]:hover {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+  cursor: move;
+}
+
+/* Multi-connect hover: amber ring + crosshair to suggest "pull another" */
+.react-flow__handle[data-multi-connect]:hover {
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.5);
+  cursor: crosshair;
+}
+
+.react-flow__connection-line {
+  stroke-width: 2;
+}
+
+/* ===== Image/PDF capture: hide overlays during export ===== */
+[data-export-capturing] .react-flow__minimap,
+[data-export-capturing] .react-flow__controls,
+[data-export-capturing] .react-flow__background,
+[data-export-capturing] [data-print-hide],
+[data-export-capturing] .page-boundary-overlay {
+  display: none !important;
+}
+
+/* Force light-mode colors during export capture so dark mode doesn't bleed
+   into exported images (html-to-image captures computed styles) */
+[data-export-capturing] {
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f3f4f6;
+  --color-border: #000000;
+  --color-text: #374151;
+  --color-text-heading: #111827;
+  --color-text-muted: #6b7280;
+  --color-canvas-origin: #e5e5e5;
+  --color-power-neutral: #808080;
+  --color-power-l1: #000000;
+}
+
+/* ===== Print ===== */
+@media print {
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Force light-mode colors for print — dark backgrounds waste ink and
+     light-on-dark text is unreadable on white paper */
+  :root {
+    --color-bg: #ffffff;
+    --color-surface: #ffffff;
+    --color-surface-hover: #f3f4f6;
+    --color-border: #000000;
+    --color-text: #374151;
+    --color-text-heading: #111827;
+    --color-text-muted: #6b7280;
+    --color-canvas-origin: #e5e5e5;
+    --color-power-neutral: #808080;
+    --color-power-l1: #000000;
+  }
+
+  /* Neutralize .dark utility overrides for print */
+  .dark .bg-white { background-color: #ffffff !important; }
+  .dark .bg-gray-50 { background-color: #f9fafb !important; }
+  .dark .bg-gray-100 { background-color: #f3f4f6 !important; }
+  .dark .text-gray-900 { color: #111827 !important; }
+  .dark .text-gray-800 { color: #1f2937 !important; }
+  .dark .text-gray-700 { color: #374151 !important; }
+  .dark .text-gray-600 { color: #4b5563 !important; }
+  .dark .text-gray-500 { color: #6b7280 !important; }
+  .dark .text-gray-400 { color: #9ca3af !important; }
+  .dark .text-gray-300 { color: #d1d5db !important; }
+  .dark .border-gray-200 { border-color: #000000 !important; }
+  .dark .border-gray-300 { border-color: #000000 !important; }
+
+  /* Hide UI chrome */
+  [data-print-hide],
+  [data-print-dialog],
+  .react-flow__minimap,
+  .react-flow__controls,
+  .react-flow__background,
+  .print-title-block {
+    display: none !important;
+  }
+
+  /* Flatten app layout wrappers L1–L3 only; stops before .react-flow (L4)
+     so edges/nodes keep their absolute + transform coordinate space */
+  html, body, #root {
+    display: block !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  #root > div,
+  #root > div > div,
+  #root > div > div > div {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    flex: none !important;
+  }
+
+  /* .react-flow needs relative positioning so .react-flow__container
+     (absolute, inset:0) resolves against it properly */
+  .react-flow {
+    position: relative !important;
+  }
+}
+
+@media (max-width: 767px) {
+  [data-mobile-hide],
+  .react-flow__minimap,
+  .react-flow__controls {
+    display: none !important;
+  }
+}

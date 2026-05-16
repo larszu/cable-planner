@@ -1,0 +1,4482 @@
+{
+  "version": 29,
+  "name": "Untitled Schematic",
+  "nodes": [
+    {
+      "id": "room-5",
+      "type": "room",
+      "position": {
+        "x": 1040,
+        "y": 1500
+      },
+      "data": {
+        "label": "TECH TABLE",
+        "locked": true
+      },
+      "style": {
+        "width": 1314,
+        "height": 674
+      },
+      "zIndex": -1,
+      "measured": {
+        "width": 1314,
+        "height": 674
+      },
+      "selected": false,
+      "selectable": false,
+      "className": "locked",
+      "dragging": false,
+      "width": 1314,
+      "height": 674,
+      "resizing": false,
+      "draggable": false
+    },
+    {
+      "id": "room-4",
+      "type": "room",
+      "position": {
+        "x": 4100,
+        "y": 180
+      },
+      "data": {
+        "label": "Stage",
+        "locked": true
+      },
+      "style": {
+        "width": 738,
+        "height": 1994
+      },
+      "zIndex": -1,
+      "measured": {
+        "width": 738,
+        "height": 1992
+      },
+      "selected": false,
+      "selectable": false,
+      "className": "locked",
+      "dragging": false,
+      "width": 738,
+      "height": 1992,
+      "resizing": false,
+      "draggable": false
+    },
+    {
+      "id": "room-3",
+      "type": "room",
+      "position": {
+        "x": 800,
+        "y": 180
+      },
+      "data": {
+        "label": "Booth",
+        "locked": true
+      },
+      "style": {
+        "width": 1545,
+        "height": 1247
+      },
+      "zIndex": -1,
+      "measured": {
+        "width": 1545,
+        "height": 1247
+      },
+      "selected": false,
+      "selectable": false,
+      "className": "locked",
+      "dragging": false,
+      "width": 1545,
+      "height": 1247,
+      "resizing": false,
+      "draggable": false
+    },
+    {
+      "id": "device-33",
+      "type": "device",
+      "position": {
+        "x": 540,
+        "y": 120
+      },
+      "data": {
+        "label": "Mac Studio (M4)",
+        "deviceType": "computer",
+        "ports": [
+          {
+            "id": "p1773360118182-0",
+            "label": "TB5 1",
+            "signalType": "thunderbolt",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-12"
+          },
+          {
+            "id": "p1773360118182-1",
+            "label": "TB5 2",
+            "signalType": "thunderbolt",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-13"
+          },
+          {
+            "id": "p1773360118182-2",
+            "label": "TB5 3",
+            "signalType": "thunderbolt",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-14"
+          },
+          {
+            "id": "p1773360118182-3",
+            "label": "TB5 4",
+            "signalType": "thunderbolt",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-15"
+          },
+          {
+            "id": "p1773360118182-4",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-16"
+          },
+          {
+            "id": "p1773360118182-5",
+            "label": "USB-A 1",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-a",
+            "templatePortId": "port-17"
+          },
+          {
+            "id": "p1773360118182-6",
+            "label": "USB-A 2",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-a",
+            "templatePortId": "port-18"
+          },
+          {
+            "id": "p1773360118182-7",
+            "label": "USB-C Front 1",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-19"
+          },
+          {
+            "id": "p1773360118182-8",
+            "label": "USB-C Front 2",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-20"
+          },
+          {
+            "id": "p1773360118182-9",
+            "label": "Ethernet",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "templatePortId": "port-21",
+            "networkConfig": {
+              "ip": "192.168.0.3",
+              "subnetMask": "255.255.255.0"
+            }
+          },
+          {
+            "id": "pw-device-33",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-22"
+          },
+          {
+            "id": "device-33-sync-1mo686",
+            "label": "SDXC Card",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "other",
+            "templatePortId": "port-23"
+          },
+          {
+            "id": "device-33-sync-dfz4u3",
+            "label": "Headphone",
+            "signalType": "analog-audio",
+            "direction": "output",
+            "connectorType": "trs-eighth",
+            "templatePortId": "port-24"
+          }
+        ],
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0024-4000-8000-000000000036",
+        "manufacturer": "Apple",
+        "modelNumber": "Mac Studio (M4)",
+        "heightMm": 95,
+        "widthMm": 197,
+        "depthMm": 197,
+        "weightKg": 2.7,
+        "powerDrawW": 150
+      },
+      "measured": {
+        "width": 180,
+        "height": 300
+      },
+      "parentId": "room-3",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-38",
+      "type": "device",
+      "position": {
+        "x": 160,
+        "y": 1180
+      },
+      "data": {
+        "label": "Panasonic DZ13K",
+        "deviceType": "projector",
+        "ports": [
+          {
+            "id": "p1773360337151-0",
+            "label": "RGBHV In (BNC)",
+            "signalType": "vga",
+            "direction": "input",
+            "connectorType": "vga",
+            "templatePortId": "port-3536"
+          },
+          {
+            "id": "p1773360337151-1",
+            "label": "RGB In (VGA)",
+            "signalType": "vga",
+            "direction": "input",
+            "connectorType": "vga",
+            "templatePortId": "port-3537"
+          },
+          {
+            "id": "p1773360337151-2",
+            "label": "DVI-D In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi",
+            "templatePortId": "port-3538"
+          },
+          {
+            "id": "p1773360337151-3",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi",
+            "templatePortId": "port-3539"
+          },
+          {
+            "id": "p1773360337151-4",
+            "label": "SDI In 1",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-3540"
+          },
+          {
+            "id": "p1773360337151-5",
+            "label": "SDI In 2 (3G)",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-3541"
+          },
+          {
+            "id": "p1773360337151-6",
+            "label": "Composite In",
+            "signalType": "composite",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-3542"
+          },
+          {
+            "id": "p1773360337151-7",
+            "label": "RS-232 In",
+            "signalType": "serial",
+            "direction": "input",
+            "connectorType": "db9",
+            "templatePortId": "port-3543"
+          },
+          {
+            "id": "p1773360337151-8",
+            "label": "LAN",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "templatePortId": "port-3544",
+            "networkConfig": {
+              "ip": "192.168.0.5",
+              "subnetMask": "255.255.255.0"
+            }
+          },
+          {
+            "id": "p1773360337151-9",
+            "label": "RS-232 Out",
+            "signalType": "serial",
+            "direction": "output",
+            "connectorType": "db9",
+            "templatePortId": "port-3545"
+          },
+          {
+            "id": "pw-device-38",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-3546"
+          }
+        ],
+        "baseLabel": "Panasonic DZ13K",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0022-4000-8000-000000000034",
+        "manufacturer": "Panasonic",
+        "modelNumber": "PT-DZ13K",
+        "heightMm": 200,
+        "widthMm": 530,
+        "depthMm": 549,
+        "weightKg": 24,
+        "powerDrawW": 1000
+      },
+      "parentId": "room-4",
+      "measured": {
+        "width": 180,
+        "height": 260
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-39",
+      "type": "device",
+      "position": {
+        "x": 460,
+        "y": 60
+      },
+      "data": {
+        "label": "TV 1",
+        "deviceType": "tv",
+        "ports": [
+          {
+            "id": "p1773360347184-0",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi",
+            "templatePortId": "port-1715"
+          },
+          {
+            "id": "pw-device-39",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-1716"
+          }
+        ],
+        "baseLabel": "TV",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0004-4000-8000-000000000004",
+        "powerDrawW": 150
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "parentId": "room-4",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-40",
+      "type": "device",
+      "position": {
+        "x": 460,
+        "y": 200
+      },
+      "data": {
+        "label": "TV 2",
+        "deviceType": "tv",
+        "ports": [
+          {
+            "id": "p1773360349704-0",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi",
+            "templatePortId": "port-1715"
+          },
+          {
+            "id": "pw-device-40",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-1716"
+          }
+        ],
+        "baseLabel": "TV",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0004-4000-8000-000000000004",
+        "powerDrawW": 150
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "parentId": "room-4",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-41",
+      "type": "device",
+      "position": {
+        "x": 460,
+        "y": 340
+      },
+      "data": {
+        "label": "TV 3",
+        "deviceType": "tv",
+        "ports": [
+          {
+            "id": "p1773360350057-0",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi",
+            "templatePortId": "port-1715"
+          },
+          {
+            "id": "pw-device-41",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-1716"
+          }
+        ],
+        "baseLabel": "TV",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0004-4000-8000-000000000004",
+        "powerDrawW": 150
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "parentId": "room-4",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-42",
+      "type": "device",
+      "position": {
+        "x": 460,
+        "y": 460
+      },
+      "data": {
+        "label": "TV 4",
+        "deviceType": "tv",
+        "ports": [
+          {
+            "id": "p1773360350281-0",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi",
+            "templatePortId": "port-1715"
+          },
+          {
+            "id": "pw-device-42",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-1716"
+          }
+        ],
+        "baseLabel": "TV",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0004-4000-8000-000000000004",
+        "powerDrawW": 150
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "parentId": "room-4",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-43",
+      "type": "device",
+      "position": {
+        "x": 460,
+        "y": 600
+      },
+      "data": {
+        "label": "TV 5",
+        "deviceType": "tv",
+        "ports": [
+          {
+            "id": "p1773360350504-0",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi",
+            "templatePortId": "port-1715"
+          },
+          {
+            "id": "pw-device-43",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-1716"
+          }
+        ],
+        "baseLabel": "TV",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0004-4000-8000-000000000004",
+        "powerDrawW": 150
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "parentId": "room-4",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-44",
+      "type": "device",
+      "position": {
+        "x": 460,
+        "y": 720
+      },
+      "data": {
+        "label": "TV 6",
+        "deviceType": "tv",
+        "ports": [
+          {
+            "id": "p1773360350730-0",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi",
+            "templatePortId": "port-1715"
+          },
+          {
+            "id": "pw-device-44",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-1716"
+          }
+        ],
+        "baseLabel": "TV",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0004-4000-8000-000000000004",
+        "powerDrawW": 150
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "parentId": "room-4",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-45",
+      "type": "device",
+      "position": {
+        "x": 460,
+        "y": 860
+      },
+      "data": {
+        "label": "TV 7",
+        "deviceType": "tv",
+        "ports": [
+          {
+            "id": "p1773360351145-0",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi",
+            "templatePortId": "port-1715"
+          },
+          {
+            "id": "pw-device-45",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-1716"
+          }
+        ],
+        "baseLabel": "TV",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0004-4000-8000-000000000004",
+        "powerDrawW": 150
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "parentId": "room-4",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-46",
+      "type": "device",
+      "position": {
+        "x": 460,
+        "y": 1040
+      },
+      "data": {
+        "label": "TV 8",
+        "deviceType": "tv",
+        "ports": [
+          {
+            "id": "p1773360351528-0",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi",
+            "templatePortId": "port-1715"
+          },
+          {
+            "id": "pw-device-46",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-1716"
+          }
+        ],
+        "baseLabel": "TV",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0004-4000-8000-000000000004",
+        "powerDrawW": 150
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "parentId": "room-4",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-47",
+      "type": "device",
+      "position": {
+        "x": 1240,
+        "y": 60
+      },
+      "data": {
+        "label": "Datapath FX4 SDI 1",
+        "deviceType": "video-wall-controller",
+        "ports": [
+          {
+            "id": "p1773360761700-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-3423"
+          },
+          {
+            "id": "p1773360761700-1",
+            "label": "DP In",
+            "signalType": "displayport",
+            "direction": "input",
+            "connectorType": "displayport",
+            "templatePortId": "port-3424"
+          },
+          {
+            "id": "p1773360761700-2",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi",
+            "templatePortId": "port-3425"
+          },
+          {
+            "id": "p1773360761700-3",
+            "label": "Genlock In",
+            "signalType": "genlock",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-3426"
+          },
+          {
+            "id": "p1773360761700-4",
+            "label": "SDI Out 1",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-3427"
+          },
+          {
+            "id": "p1773360761700-5",
+            "label": "SDI Out 2",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-3428"
+          },
+          {
+            "id": "p1773360761700-6",
+            "label": "SDI Out 3",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-3429"
+          },
+          {
+            "id": "p1773360761700-7",
+            "label": "SDI Out 4",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-3430"
+          },
+          {
+            "id": "p1773360761700-8",
+            "label": "DP Loop",
+            "signalType": "displayport",
+            "direction": "output",
+            "connectorType": "displayport",
+            "templatePortId": "port-3431"
+          },
+          {
+            "id": "pw-device-47",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-3432"
+          },
+          {
+            "id": "device-47-sync-d0onp3",
+            "label": "Ethernet 1",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "templatePortId": "port-3433"
+          },
+          {
+            "id": "device-47-sync-65po46",
+            "label": "Ethernet 2",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "templatePortId": "port-3434"
+          },
+          {
+            "id": "device-47-sync-k39900",
+            "label": "USB-B",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-b",
+            "templatePortId": "port-3435"
+          }
+        ],
+        "baseLabel": "Datapath FX4 SDI",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0020-4000-8000-000000000032",
+        "manufacturer": "Datapath",
+        "modelNumber": "FX4 SDI",
+        "heightMm": 42,
+        "widthMm": 316,
+        "depthMm": 172,
+        "weightKg": 1.9,
+        "powerDrawW": 35
+      },
+      "measured": {
+        "width": 180,
+        "height": 220
+      },
+      "parentId": "room-3",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-48",
+      "type": "device",
+      "position": {
+        "x": 1240,
+        "y": 280
+      },
+      "data": {
+        "label": "Datapath FX4 SDI 2",
+        "deviceType": "video-wall-controller",
+        "ports": [
+          {
+            "id": "p1773360771090-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-3423"
+          },
+          {
+            "id": "p1773360771090-1",
+            "label": "DP In",
+            "signalType": "displayport",
+            "direction": "input",
+            "connectorType": "displayport",
+            "templatePortId": "port-3424"
+          },
+          {
+            "id": "p1773360771090-2",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi",
+            "templatePortId": "port-3425"
+          },
+          {
+            "id": "p1773360771090-3",
+            "label": "Genlock In",
+            "signalType": "genlock",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-3426"
+          },
+          {
+            "id": "p1773360771090-4",
+            "label": "SDI Out 1",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-3427"
+          },
+          {
+            "id": "p1773360771090-5",
+            "label": "SDI Out 2",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-3428"
+          },
+          {
+            "id": "p1773360771090-6",
+            "label": "SDI Out 3",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-3429"
+          },
+          {
+            "id": "p1773360771090-7",
+            "label": "SDI Out 4",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-3430"
+          },
+          {
+            "id": "p1773360771090-8",
+            "label": "DP Loop",
+            "signalType": "displayport",
+            "direction": "output",
+            "connectorType": "displayport",
+            "templatePortId": "port-3431"
+          },
+          {
+            "id": "pw-device-48",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-3432"
+          },
+          {
+            "id": "device-48-sync-5jn2q0",
+            "label": "Ethernet 1",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "templatePortId": "port-3433"
+          },
+          {
+            "id": "device-48-sync-j9pvgc",
+            "label": "Ethernet 2",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "templatePortId": "port-3434"
+          },
+          {
+            "id": "device-48-sync-mo6b1d",
+            "label": "USB-B",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-b",
+            "templatePortId": "port-3435"
+          }
+        ],
+        "baseLabel": "Datapath FX4 SDI",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0020-4000-8000-000000000032",
+        "manufacturer": "Datapath",
+        "modelNumber": "FX4 SDI",
+        "heightMm": 42,
+        "widthMm": 316,
+        "depthMm": 172,
+        "weightKg": 1.9,
+        "powerDrawW": 35
+      },
+      "measured": {
+        "width": 180,
+        "height": 220
+      },
+      "parentId": "room-3",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-49",
+      "type": "device",
+      "position": {
+        "x": 160,
+        "y": 60
+      },
+      "data": {
+        "label": "BMD SDI→HDMI 1",
+        "deviceType": "converter",
+        "ports": [
+          {
+            "id": "p1773360933938-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-2763"
+          },
+          {
+            "id": "p1773360933938-1",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-2764"
+          },
+          {
+            "id": "p1773360933938-2",
+            "label": "SDI Loop",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-2765"
+          }
+        ],
+        "baseLabel": "BMD SDI→HDMI",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0006-4000-8000-000000000006",
+        "manufacturer": "Blackmagic Design",
+        "modelNumber": "Micro Converter SDI to HDMI 3G",
+        "heightMm": 25,
+        "widthMm": 77,
+        "depthMm": 46,
+        "weightKg": 0.2,
+        "powerDrawW": 2
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "selected": false,
+      "dragging": false,
+      "parentId": "room-4"
+    },
+    {
+      "id": "device-50",
+      "type": "device",
+      "position": {
+        "x": 160,
+        "y": 200
+      },
+      "data": {
+        "label": "BMD SDI→HDMI 2",
+        "deviceType": "converter",
+        "ports": [
+          {
+            "id": "p1773360956827-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-2763"
+          },
+          {
+            "id": "p1773360956827-1",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-2764"
+          },
+          {
+            "id": "p1773360956827-2",
+            "label": "SDI Loop",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-2765"
+          }
+        ],
+        "baseLabel": "BMD SDI→HDMI",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0006-4000-8000-000000000006",
+        "manufacturer": "Blackmagic Design",
+        "modelNumber": "Micro Converter SDI to HDMI 3G",
+        "heightMm": 25,
+        "widthMm": 77,
+        "depthMm": 46,
+        "weightKg": 0.2,
+        "powerDrawW": 2
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "selected": false,
+      "dragging": false,
+      "parentId": "room-4"
+    },
+    {
+      "id": "device-51",
+      "type": "device",
+      "position": {
+        "x": 160,
+        "y": 340
+      },
+      "data": {
+        "label": "BMD SDI→HDMI 3",
+        "deviceType": "converter",
+        "ports": [
+          {
+            "id": "p1773360957146-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-2763"
+          },
+          {
+            "id": "p1773360957146-1",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-2764"
+          },
+          {
+            "id": "p1773360957146-2",
+            "label": "SDI Loop",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-2765"
+          }
+        ],
+        "baseLabel": "BMD SDI→HDMI",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0006-4000-8000-000000000006",
+        "manufacturer": "Blackmagic Design",
+        "modelNumber": "Micro Converter SDI to HDMI 3G",
+        "heightMm": 25,
+        "widthMm": 77,
+        "depthMm": 46,
+        "weightKg": 0.2,
+        "powerDrawW": 2
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "selected": false,
+      "dragging": false,
+      "parentId": "room-4"
+    },
+    {
+      "id": "device-52",
+      "type": "device",
+      "position": {
+        "x": 160,
+        "y": 460
+      },
+      "data": {
+        "label": "BMD SDI→HDMI 4",
+        "deviceType": "converter",
+        "ports": [
+          {
+            "id": "p1773360957595-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-2763"
+          },
+          {
+            "id": "p1773360957595-1",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-2764"
+          },
+          {
+            "id": "p1773360957595-2",
+            "label": "SDI Loop",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-2765"
+          }
+        ],
+        "baseLabel": "BMD SDI→HDMI",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0006-4000-8000-000000000006",
+        "manufacturer": "Blackmagic Design",
+        "modelNumber": "Micro Converter SDI to HDMI 3G",
+        "heightMm": 25,
+        "widthMm": 77,
+        "depthMm": 46,
+        "weightKg": 0.2,
+        "powerDrawW": 2
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "selected": false,
+      "dragging": false,
+      "parentId": "room-4"
+    },
+    {
+      "id": "device-53",
+      "type": "device",
+      "position": {
+        "x": 160,
+        "y": 600
+      },
+      "data": {
+        "label": "BMD SDI→HDMI 5",
+        "deviceType": "converter",
+        "ports": [
+          {
+            "id": "p1773360957946-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-2763"
+          },
+          {
+            "id": "p1773360957946-1",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-2764"
+          },
+          {
+            "id": "p1773360957946-2",
+            "label": "SDI Loop",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-2765"
+          }
+        ],
+        "baseLabel": "BMD SDI→HDMI",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0006-4000-8000-000000000006",
+        "manufacturer": "Blackmagic Design",
+        "modelNumber": "Micro Converter SDI to HDMI 3G",
+        "heightMm": 25,
+        "widthMm": 77,
+        "depthMm": 46,
+        "weightKg": 0.2,
+        "powerDrawW": 2
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "selected": false,
+      "dragging": false,
+      "parentId": "room-4"
+    },
+    {
+      "id": "device-54",
+      "type": "device",
+      "position": {
+        "x": 160,
+        "y": 720
+      },
+      "data": {
+        "label": "BMD SDI→HDMI 6",
+        "deviceType": "converter",
+        "ports": [
+          {
+            "id": "p1773360958363-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-2763"
+          },
+          {
+            "id": "p1773360958363-1",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-2764"
+          },
+          {
+            "id": "p1773360958363-2",
+            "label": "SDI Loop",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-2765"
+          }
+        ],
+        "baseLabel": "BMD SDI→HDMI",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0006-4000-8000-000000000006",
+        "manufacturer": "Blackmagic Design",
+        "modelNumber": "Micro Converter SDI to HDMI 3G",
+        "heightMm": 25,
+        "widthMm": 77,
+        "depthMm": 46,
+        "weightKg": 0.2,
+        "powerDrawW": 2
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "selected": false,
+      "dragging": false,
+      "parentId": "room-4"
+    },
+    {
+      "id": "device-55",
+      "type": "device",
+      "position": {
+        "x": 160,
+        "y": 860
+      },
+      "data": {
+        "label": "BMD SDI→HDMI 7",
+        "deviceType": "converter",
+        "ports": [
+          {
+            "id": "p1773360959547-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-2763"
+          },
+          {
+            "id": "p1773360959547-1",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-2764"
+          },
+          {
+            "id": "p1773360959547-2",
+            "label": "SDI Loop",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-2765"
+          }
+        ],
+        "baseLabel": "BMD SDI→HDMI",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0006-4000-8000-000000000006",
+        "manufacturer": "Blackmagic Design",
+        "modelNumber": "Micro Converter SDI to HDMI 3G",
+        "heightMm": 25,
+        "widthMm": 77,
+        "depthMm": 46,
+        "weightKg": 0.2,
+        "powerDrawW": 2
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "selected": false,
+      "dragging": false,
+      "parentId": "room-4"
+    },
+    {
+      "id": "device-56",
+      "type": "device",
+      "position": {
+        "x": 160,
+        "y": 1040
+      },
+      "data": {
+        "label": "BMD SDI→HDMI 8",
+        "deviceType": "converter",
+        "ports": [
+          {
+            "id": "p1773360960220-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc",
+            "templatePortId": "port-2763"
+          },
+          {
+            "id": "p1773360960220-1",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-2764"
+          },
+          {
+            "id": "p1773360960220-2",
+            "label": "SDI Loop",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-2765"
+          }
+        ],
+        "baseLabel": "BMD SDI→HDMI",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0006-4000-8000-000000000006",
+        "manufacturer": "Blackmagic Design",
+        "modelNumber": "Micro Converter SDI to HDMI 3G",
+        "heightMm": 25,
+        "widthMm": 77,
+        "depthMm": 46,
+        "weightKg": 0.2,
+        "powerDrawW": 2
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "selected": false,
+      "dragging": false,
+      "parentId": "room-4"
+    },
+    {
+      "id": "device-60",
+      "type": "device",
+      "position": {
+        "x": 920,
+        "y": 520
+      },
+      "data": {
+        "label": "Ethernet Switch (8-port)",
+        "deviceType": "network-switch",
+        "ports": [
+          {
+            "id": "p1773415859541-0",
+            "label": "Port 1",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "addressable": false,
+            "linkSpeed": "1G",
+            "templatePortId": "port-3169"
+          },
+          {
+            "id": "p1773415859541-1",
+            "label": "Port 2",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "addressable": false,
+            "linkSpeed": "1G",
+            "templatePortId": "port-3170"
+          },
+          {
+            "id": "p1773415859541-2",
+            "label": "Port 3",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "addressable": false,
+            "linkSpeed": "1G",
+            "templatePortId": "port-3171"
+          },
+          {
+            "id": "p1773415859541-3",
+            "label": "Port 4",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "addressable": false,
+            "linkSpeed": "1G",
+            "templatePortId": "port-3172"
+          },
+          {
+            "id": "p1773415859541-4",
+            "label": "Port 5",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "addressable": false,
+            "linkSpeed": "1G",
+            "templatePortId": "port-3173"
+          },
+          {
+            "id": "p1773415859541-5",
+            "label": "Port 6",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "addressable": false,
+            "linkSpeed": "1G",
+            "templatePortId": "port-3174"
+          },
+          {
+            "id": "p1773415859541-6",
+            "label": "Port 7",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "addressable": false,
+            "linkSpeed": "1G",
+            "templatePortId": "port-3175"
+          },
+          {
+            "id": "p1773415859541-7",
+            "label": "Port 8",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "addressable": false,
+            "linkSpeed": "1G",
+            "templatePortId": "port-3176"
+          },
+          {
+            "id": "pw-device-60",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-3177"
+          }
+        ],
+        "baseLabel": "Ethernet Switch (8-port)",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0026-4000-8000-000000000038",
+        "powerDrawW": 25,
+        "poeBudgetW": 120
+      },
+      "measured": {
+        "width": 180,
+        "height": 240
+      },
+      "parentId": "room-3",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-61",
+      "type": "device",
+      "position": {
+        "x": 160,
+        "y": 1560
+      },
+      "data": {
+        "label": "PTZOptics Move SE 1",
+        "deviceType": "ptz-camera",
+        "ports": [
+          {
+            "id": "p1773416243486-0",
+            "label": "3.5mm Audio In",
+            "signalType": "analog-audio",
+            "direction": "input",
+            "connectorType": "trs-eighth",
+            "templatePortId": "port-29"
+          },
+          {
+            "id": "p1773416243486-1",
+            "label": "Ethernet",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "templatePortId": "port-30",
+            "networkConfig": {
+              "ip": "192.168.0.6",
+              "subnetMask": "255.255.255.0"
+            }
+          },
+          {
+            "id": "p1773416243486-2",
+            "label": "RS-232 In",
+            "signalType": "serial",
+            "direction": "input",
+            "connectorType": "db9",
+            "templatePortId": "port-31"
+          },
+          {
+            "id": "p1773416243486-3",
+            "label": "SDI Out",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-32"
+          },
+          {
+            "id": "p1773416243486-4",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-33"
+          },
+          {
+            "id": "p1773416243486-5",
+            "label": "USB-C Out",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-34"
+          },
+          {
+            "id": "p1773416243486-6",
+            "label": "RS-232 Out",
+            "signalType": "serial",
+            "direction": "output",
+            "connectorType": "db9",
+            "templatePortId": "port-35"
+          },
+          {
+            "id": "pw-device-61",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-36"
+          },
+          {
+            "id": "device-61-sync-9ij7rw",
+            "label": "3.5mm Audio Out",
+            "signalType": "analog-audio",
+            "direction": "output",
+            "connectorType": "trs-eighth",
+            "templatePortId": "port-37"
+          },
+          {
+            "id": "device-61-sync-0eboba",
+            "label": "RS-485",
+            "signalType": "serial",
+            "direction": "bidirectional",
+            "connectorType": "phoenix",
+            "templatePortId": "port-38"
+          }
+        ],
+        "baseLabel": "PTZOptics Move SE",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-002a-4000-8000-000000000042",
+        "manufacturer": "PTZOptics",
+        "modelNumber": "Move SE",
+        "heightMm": 164,
+        "widthMm": 142,
+        "depthMm": 169,
+        "weightKg": 1.5,
+        "powerDrawW": 25
+      },
+      "measured": {
+        "width": 180,
+        "height": 200
+      },
+      "parentId": "room-4",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-62",
+      "type": "device",
+      "position": {
+        "x": 160,
+        "y": 1780
+      },
+      "data": {
+        "label": "PTZOptics Move SE 2",
+        "deviceType": "ptz-camera",
+        "ports": [
+          {
+            "id": "p1773416246636-0",
+            "label": "3.5mm Audio In",
+            "signalType": "analog-audio",
+            "direction": "input",
+            "connectorType": "trs-eighth",
+            "templatePortId": "port-29"
+          },
+          {
+            "id": "p1773416246636-1",
+            "label": "Ethernet",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "templatePortId": "port-30",
+            "networkConfig": {
+              "ip": "192.168.0.7",
+              "subnetMask": "255.255.255.0"
+            }
+          },
+          {
+            "id": "p1773416246636-2",
+            "label": "RS-232 In",
+            "signalType": "serial",
+            "direction": "input",
+            "connectorType": "db9",
+            "templatePortId": "port-31"
+          },
+          {
+            "id": "p1773416246636-3",
+            "label": "SDI Out",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-32"
+          },
+          {
+            "id": "p1773416246636-4",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-33"
+          },
+          {
+            "id": "p1773416246636-5",
+            "label": "USB-C Out",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-34"
+          },
+          {
+            "id": "p1773416246636-6",
+            "label": "RS-232 Out",
+            "signalType": "serial",
+            "direction": "output",
+            "connectorType": "db9",
+            "templatePortId": "port-35"
+          },
+          {
+            "id": "pw-device-62",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-36"
+          },
+          {
+            "id": "device-62-sync-a4sn8m",
+            "label": "3.5mm Audio Out",
+            "signalType": "analog-audio",
+            "direction": "output",
+            "connectorType": "trs-eighth",
+            "templatePortId": "port-37"
+          },
+          {
+            "id": "device-62-sync-1uzide",
+            "label": "RS-485",
+            "signalType": "serial",
+            "direction": "bidirectional",
+            "connectorType": "phoenix",
+            "templatePortId": "port-38"
+          }
+        ],
+        "baseLabel": "PTZOptics Move SE",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-002a-4000-8000-000000000042",
+        "manufacturer": "PTZOptics",
+        "modelNumber": "Move SE",
+        "heightMm": 164,
+        "widthMm": 142,
+        "depthMm": 169,
+        "weightKg": 1.5,
+        "powerDrawW": 25
+      },
+      "measured": {
+        "width": 180,
+        "height": 200
+      },
+      "parentId": "room-4",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-63",
+      "type": "device",
+      "position": {
+        "x": 1040,
+        "y": 100
+      },
+      "data": {
+        "label": "Ethernet Switch (4-port)",
+        "deviceType": "network-switch",
+        "ports": [
+          {
+            "id": "p1773416490870-0",
+            "label": "Port 1",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "addressable": false,
+            "linkSpeed": "1G",
+            "templatePortId": "port-3164"
+          },
+          {
+            "id": "p1773416490870-1",
+            "label": "Port 2",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "addressable": false,
+            "linkSpeed": "1G",
+            "templatePortId": "port-3165"
+          },
+          {
+            "id": "p1773416490870-2",
+            "label": "Port 3",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "addressable": false,
+            "linkSpeed": "1G",
+            "templatePortId": "port-3166"
+          },
+          {
+            "id": "p1773416490870-3",
+            "label": "Port 4",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "addressable": false,
+            "linkSpeed": "1G",
+            "templatePortId": "port-3167"
+          },
+          {
+            "id": "pw-device-63",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-3168"
+          }
+        ],
+        "baseLabel": "Ethernet Switch (4-port)",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0025-4000-8000-000000000037",
+        "powerDrawW": 15,
+        "poeBudgetW": 60
+      },
+      "measured": {
+        "width": 180,
+        "height": 160
+      },
+      "parentId": "room-5",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-64",
+      "type": "device",
+      "position": {
+        "x": 280,
+        "y": 100
+      },
+      "data": {
+        "label": "Designer Computer",
+        "deviceType": "computer",
+        "ports": [
+          {
+            "id": "p1773416651073-0",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi"
+          },
+          {
+            "id": "p1773416651073-1",
+            "label": "USB-C",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-a"
+          },
+          {
+            "id": "p1773416651073-2",
+            "label": "Ethernet",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "networkConfig": {
+              "ip": "192.168.0.2",
+              "subnetMask": "255.255.255.0"
+            }
+          },
+          {
+            "id": "pw-device-64",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "edison"
+          }
+        ],
+        "model": "Designer Computer",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ]
+      },
+      "measured": {
+        "width": 180,
+        "height": 120
+      },
+      "parentId": "room-5",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-65",
+      "type": "device",
+      "position": {
+        "x": 280,
+        "y": 400
+      },
+      "data": {
+        "label": "Associate Computer",
+        "deviceType": "computer",
+        "ports": [
+          {
+            "id": "p1773416567045-0",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi"
+          },
+          {
+            "id": "p1773416567045-1",
+            "label": "USB-C",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-a"
+          },
+          {
+            "id": "p1773416567045-2",
+            "label": "Ethernet",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "networkConfig": {
+              "ip": "192.168.0.1",
+              "subnetMask": "255.255.255.0"
+            }
+          },
+          {
+            "id": "pw-device-65",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "edison"
+          }
+        ],
+        "model": "Associate Computer",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ]
+      },
+      "measured": {
+        "width": 180,
+        "height": 120
+      },
+      "parentId": "room-5",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-70",
+      "type": "device",
+      "position": {
+        "x": 920,
+        "y": 1080
+      },
+      "data": {
+        "label": "1920x1080 Monitor",
+        "deviceType": "monitor",
+        "ports": [
+          {
+            "id": "p1773418206517-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc"
+          },
+          {
+            "id": "p1773418206517-1",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi"
+          },
+          {
+            "id": "p1773418206517-2",
+            "label": "SDI Loop",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc"
+          },
+          {
+            "id": "pw-device-70",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "edison"
+          }
+        ],
+        "model": "1920x1080 Monitor",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ]
+      },
+      "measured": {
+        "width": 180,
+        "height": 120
+      },
+      "selected": false,
+      "dragging": false,
+      "parentId": "room-3"
+    },
+    {
+      "id": "device-71",
+      "type": "device",
+      "position": {
+        "x": 240,
+        "y": 100
+      },
+      "data": {
+        "label": "Mouse",
+        "deviceType": "mouse",
+        "ports": [
+          {
+            "id": "p1773418394243-0",
+            "label": "USB-A",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-a",
+            "templatePortId": "port-3644"
+          }
+        ],
+        "baseLabel": "Mouse",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0028-4000-8000-000000000040",
+        "powerDrawW": 0
+      },
+      "measured": {
+        "width": 180,
+        "height": 80
+      },
+      "parentId": "room-3",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-72",
+      "type": "device",
+      "position": {
+        "x": 240,
+        "y": 220
+      },
+      "data": {
+        "label": "Keyboard",
+        "deviceType": "keyboard",
+        "ports": [
+          {
+            "id": "p1773420485646-0",
+            "label": "USB-A",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-a",
+            "templatePortId": "port-3645"
+          }
+        ],
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0029-4000-8000-000000000041",
+        "powerDrawW": 0
+      },
+      "measured": {
+        "width": 180,
+        "height": 80
+      },
+      "parentId": "room-3",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-73",
+      "type": "device",
+      "position": {
+        "x": 1240,
+        "y": 500
+      },
+      "data": {
+        "label": "BMD HDMI→SDI",
+        "deviceType": "converter",
+        "ports": [
+          {
+            "id": "p1773420713933-0",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi",
+            "templatePortId": "port-2766"
+          },
+          {
+            "id": "p1773420713933-1",
+            "label": "SDI Out",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-2767"
+          },
+          {
+            "id": "p1773420713933-2",
+            "label": "SDI Out 2",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc",
+            "templatePortId": "port-2768"
+          }
+        ],
+        "baseLabel": "BMD HDMI→SDI",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0007-4000-8000-000000000007",
+        "manufacturer": "Blackmagic Design",
+        "modelNumber": "Micro Converter HDMI to SDI 3G",
+        "heightMm": 25,
+        "widthMm": 77,
+        "depthMm": 46,
+        "weightKg": 0.2,
+        "powerDrawW": 2
+      },
+      "measured": {
+        "width": 180,
+        "height": 100
+      },
+      "parentId": "room-3",
+      "selected": true,
+      "dragging": false
+    },
+    {
+      "id": "device-74",
+      "type": "device",
+      "position": {
+        "x": 540,
+        "y": 60
+      },
+      "data": {
+        "label": "1920x1080 Monitor",
+        "deviceType": "monitor",
+        "ports": [
+          {
+            "id": "p1773421719892-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc"
+          },
+          {
+            "id": "p1773421719892-1",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi"
+          },
+          {
+            "id": "p1773421719892-2",
+            "label": "SDI Loop",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc"
+          },
+          {
+            "id": "pw-device-74",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "edison"
+          }
+        ],
+        "model": "1920x1080 Monitor",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ]
+      },
+      "measured": {
+        "width": 180,
+        "height": 120
+      },
+      "selected": false,
+      "dragging": false,
+      "parentId": "room-5"
+    },
+    {
+      "id": "device-75",
+      "type": "device",
+      "position": {
+        "x": 540,
+        "y": 300
+      },
+      "data": {
+        "label": "1920x1080 Monitor",
+        "deviceType": "monitor",
+        "ports": [
+          {
+            "id": "p1773421731964-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc"
+          },
+          {
+            "id": "p1773421731964-1",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi"
+          },
+          {
+            "id": "p1773421731964-2",
+            "label": "SDI Loop",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc"
+          },
+          {
+            "id": "pw-device-75",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "edison"
+          }
+        ],
+        "model": "1920x1080 Monitor",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ]
+      },
+      "measured": {
+        "width": 180,
+        "height": 120
+      },
+      "selected": false,
+      "dragging": false,
+      "parentId": "room-5"
+    },
+    {
+      "id": "note-1",
+      "type": "note",
+      "position": {
+        "x": 20,
+        "y": 520
+      },
+      "data": {
+        "html": "<div><font size=\"4\"><b>Welcome to EasySchematic!</b></font></div><div><br></div><div><b>Getting started:</b></div><div>• Drag devices from the library, or <b>double-click</b> the canvas to quick-add</div><div>• Click an output port, then click an input to connect</div><div>• Right-click a connection to add routing handles</div><div>• Right-click a room to change its style</div><div><br></div><div><b>Tips:</b></div><div>• ★ Star your favorite devices in the library for faster access</div><div>• Use the search bar — multi-word queries like \"ethernet switch\" work great</div><div>• <b>F9</b> toggles Print View for page layout and PDF export</div><div>• Space + drag to pan, Ctrl+Z to undo</div><div><br></div><div>Your work auto-saves to your browser. Use <b>Save</b> to export a file and <b>Load</b> to import one.</div><div><br></div><div>Full docs at <b>docs.easyschematic.live</b></div>"
+      },
+      "style": {
+        "width": 380,
+        "height": 340
+      },
+      "measured": {
+        "width": 480,
+        "height": 300
+      },
+      "selected": false,
+      "width": 480,
+      "height": 300,
+      "resizing": false,
+      "dragging": false,
+      "parentId": "room-3"
+    },
+    {
+      "id": "device-76",
+      "type": "device",
+      "position": {
+        "x": 920,
+        "y": 920
+      },
+      "data": {
+        "label": "1920x1080 Monitor",
+        "deviceType": "monitor",
+        "ports": [
+          {
+            "id": "p1773507931939-0",
+            "label": "SDI In",
+            "signalType": "sdi",
+            "direction": "input",
+            "connectorType": "bnc"
+          },
+          {
+            "id": "p1773507931939-1",
+            "label": "HDMI In",
+            "signalType": "hdmi",
+            "direction": "input",
+            "connectorType": "hdmi"
+          },
+          {
+            "id": "p1773507931939-2",
+            "label": "SDI Loop",
+            "signalType": "sdi",
+            "direction": "output",
+            "connectorType": "bnc"
+          },
+          {
+            "id": "pw-device-76",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "edison"
+          }
+        ],
+        "model": "1920x1080 Monitor",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ]
+      },
+      "measured": {
+        "width": 180,
+        "height": 120
+      },
+      "selected": false,
+      "dragging": false,
+      "parentId": "room-3"
+    },
+    {
+      "id": "device-77",
+      "type": "device",
+      "position": {
+        "x": 600,
+        "y": 640
+      },
+      "data": {
+        "label": "Mac Studio (M4)",
+        "deviceType": "computer",
+        "ports": [
+          {
+            "id": "p1773508594582-0",
+            "label": "TB5 1",
+            "signalType": "thunderbolt",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-12"
+          },
+          {
+            "id": "p1773508594582-1",
+            "label": "TB5 2",
+            "signalType": "thunderbolt",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-13"
+          },
+          {
+            "id": "p1773508594582-2",
+            "label": "TB5 3",
+            "signalType": "thunderbolt",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-14"
+          },
+          {
+            "id": "p1773508594582-3",
+            "label": "TB5 4",
+            "signalType": "thunderbolt",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-15"
+          },
+          {
+            "id": "p1773508594582-4",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-16"
+          },
+          {
+            "id": "p1773508594582-8",
+            "label": "USB-A 1",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-a",
+            "templatePortId": "port-17"
+          },
+          {
+            "id": "p1773508594582-9",
+            "label": "USB-A 2",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-a",
+            "templatePortId": "port-18"
+          },
+          {
+            "id": "p1773508594582-5",
+            "label": "USB-C Front 1",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-19"
+          },
+          {
+            "id": "p1773508594582-6",
+            "label": "USB-C Front 2",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "usb-c",
+            "templatePortId": "port-20"
+          },
+          {
+            "id": "p1773508594582-7",
+            "label": "Ethernet",
+            "signalType": "ethernet",
+            "direction": "bidirectional",
+            "connectorType": "rj45",
+            "templatePortId": "port-21",
+            "networkConfig": {
+              "ip": "192.168.0.4",
+              "subnetMask": "255.255.255.0"
+            }
+          },
+          {
+            "id": "pw-device-77",
+            "label": "AC Power",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "iec",
+            "templatePortId": "port-22"
+          },
+          {
+            "id": "device-77-sync-u6l87p",
+            "label": "SDXC Card",
+            "signalType": "usb",
+            "direction": "bidirectional",
+            "connectorType": "other",
+            "templatePortId": "port-23"
+          },
+          {
+            "id": "device-77-sync-p5doi2",
+            "label": "Headphone",
+            "signalType": "analog-audio",
+            "direction": "output",
+            "connectorType": "trs-eighth",
+            "templatePortId": "port-24"
+          }
+        ],
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "templateId": "c0a80101-0024-4000-8000-000000000036",
+        "manufacturer": "Apple",
+        "modelNumber": "Mac Studio (M4)",
+        "heightMm": 95,
+        "widthMm": 197,
+        "depthMm": 197,
+        "weightKg": 2.7,
+        "powerDrawW": 150
+      },
+      "measured": {
+        "width": 180,
+        "height": 300
+      },
+      "parentId": "room-3",
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-79",
+      "type": "device",
+      "position": {
+        "x": 580,
+        "y": 1100
+      },
+      "data": {
+        "label": "Lex DB-100",
+        "deviceType": "power-distribution",
+        "ports": [
+          {
+            "id": "p1774317685062-0",
+            "label": "Cam-Lok In L1",
+            "signalType": "power-l1",
+            "direction": "input",
+            "connectorType": "cam-lok",
+            "section": "3-Phase Input",
+            "templatePortId": "port-3820"
+          },
+          {
+            "id": "p1774317685062-1",
+            "label": "Cam-Lok In L2",
+            "signalType": "power-l2",
+            "direction": "input",
+            "connectorType": "cam-lok",
+            "section": "3-Phase Input",
+            "templatePortId": "port-3821"
+          },
+          {
+            "id": "p1774317685062-2",
+            "label": "Cam-Lok In L3",
+            "signalType": "power-l3",
+            "direction": "input",
+            "connectorType": "cam-lok",
+            "section": "3-Phase Input",
+            "templatePortId": "port-3822"
+          },
+          {
+            "id": "p1774317685062-3",
+            "label": "Cam-Lok In N",
+            "signalType": "power-neutral",
+            "direction": "input",
+            "connectorType": "cam-lok",
+            "section": "3-Phase Input",
+            "templatePortId": "port-3823"
+          },
+          {
+            "id": "p1774317685062-4",
+            "label": "Cam-Lok In G",
+            "signalType": "power-ground",
+            "direction": "input",
+            "connectorType": "cam-lok",
+            "section": "3-Phase Input",
+            "templatePortId": "port-3824"
+          },
+          {
+            "id": "p1774317685062-5",
+            "label": "L5-20 Out 1",
+            "signalType": "power",
+            "direction": "output",
+            "connectorType": "l5-20",
+            "templatePortId": "port-3825"
+          },
+          {
+            "id": "p1774317685062-6",
+            "label": "L5-20 Out 2",
+            "signalType": "power",
+            "direction": "output",
+            "connectorType": "l5-20",
+            "templatePortId": "port-3826"
+          },
+          {
+            "id": "p1774317685062-7",
+            "label": "L5-20 Out 3",
+            "signalType": "power",
+            "direction": "output",
+            "connectorType": "l5-20",
+            "templatePortId": "port-3827"
+          },
+          {
+            "id": "p1774317685062-8",
+            "label": "L5-20 Out 4",
+            "signalType": "power",
+            "direction": "output",
+            "connectorType": "l5-20",
+            "templatePortId": "port-3828"
+          },
+          {
+            "id": "p1774317685062-9",
+            "label": "L5-20 Out 5",
+            "signalType": "power",
+            "direction": "output",
+            "connectorType": "l5-20",
+            "templatePortId": "port-3829"
+          },
+          {
+            "id": "p1774317685062-10",
+            "label": "L5-20 Out 6",
+            "signalType": "power",
+            "direction": "output",
+            "connectorType": "l5-20",
+            "templatePortId": "port-3830"
+          },
+          {
+            "id": "p1774317685062-11",
+            "label": "L6-20 Out 1",
+            "signalType": "power",
+            "direction": "output",
+            "connectorType": "l6-20",
+            "templatePortId": "port-3831"
+          },
+          {
+            "id": "p1774317685062-12",
+            "label": "L6-20 Out 2",
+            "signalType": "power",
+            "direction": "output",
+            "connectorType": "l6-20",
+            "templatePortId": "port-3832"
+          },
+          {
+            "id": "p1774317685062-13",
+            "label": "L6-20 Out 3",
+            "signalType": "power",
+            "direction": "output",
+            "connectorType": "l6-20",
+            "templatePortId": "port-3833"
+          },
+          {
+            "id": "p1774317685062-14",
+            "label": "L6-20 Out 4",
+            "signalType": "power",
+            "direction": "output",
+            "connectorType": "l6-20",
+            "templatePortId": "port-3834"
+          },
+          {
+            "id": "p1774317685062-15",
+            "label": "L6-20 Out 5",
+            "signalType": "power",
+            "direction": "output",
+            "connectorType": "l6-20",
+            "templatePortId": "port-3835"
+          },
+          {
+            "id": "p1774317685062-16",
+            "label": "L6-20 Out 6",
+            "signalType": "power",
+            "direction": "output",
+            "connectorType": "l6-20",
+            "templatePortId": "port-3836"
+          }
+        ],
+        "baseLabel": "Lex DB-100",
+        "templateId": "c0a80101-021b-4000-8000-000000000539",
+        "templateVersion": 1,
+        "manufacturer": "Lex Products",
+        "modelNumber": "DB-100",
+        "powerCapacityW": 20800,
+        "voltage": "208V",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "heightMm": 359,
+        "widthMm": 362,
+        "depthMm": 362,
+        "weightKg": 14.5
+      },
+      "measured": {
+        "width": 180,
+        "height": 300
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-80",
+      "type": "device",
+      "position": {
+        "x": 880,
+        "y": 140
+      },
+      "parentId": "room-3",
+      "data": {
+        "label": "TB (M) → HDMI (F) Adapter 1",
+        "deviceType": "adapter",
+        "ports": [
+          {
+            "id": "p1774318146564-0",
+            "label": "TB In",
+            "signalType": "thunderbolt",
+            "direction": "input",
+            "connectorType": "usb-c",
+            "directAttach": true,
+            "templatePortId": "port-2836"
+          },
+          {
+            "id": "p1774318146564-1",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-2837"
+          }
+        ],
+        "templateId": "c0a80101-001e-4000-8000-000000000030",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "powerDrawW": 0
+      },
+      "measured": {
+        "width": 180,
+        "height": 80
+      },
+      "selected": false,
+      "dragging": false,
+      "style": {}
+    },
+    {
+      "id": "device-81",
+      "type": "device",
+      "position": {
+        "x": 880,
+        "y": 240
+      },
+      "parentId": "room-3",
+      "data": {
+        "label": "TB (M) → HDMI (F) Adapter 1",
+        "deviceType": "adapter",
+        "ports": [
+          {
+            "id": "p1774318632632-0",
+            "label": "TB In",
+            "signalType": "thunderbolt",
+            "direction": "input",
+            "connectorType": "usb-c",
+            "directAttach": true,
+            "templatePortId": "port-2836"
+          },
+          {
+            "id": "p1774318632632-1",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-2837"
+          }
+        ],
+        "baseLabel": "TB (M) → HDMI (F) Adapter",
+        "templateId": "c0a80101-001e-4000-8000-000000000030",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "powerDrawW": 0
+      },
+      "measured": {
+        "width": 180,
+        "height": 80
+      },
+      "style": {},
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-82",
+      "type": "device",
+      "position": {
+        "x": 880,
+        "y": 400
+      },
+      "parentId": "room-3",
+      "data": {
+        "label": "TB (M) → HDMI (F) Adapter 2",
+        "deviceType": "adapter",
+        "ports": [
+          {
+            "id": "p1774318838122-0",
+            "label": "TB In",
+            "signalType": "thunderbolt",
+            "direction": "input",
+            "connectorType": "usb-c",
+            "directAttach": true,
+            "templatePortId": "port-2836"
+          },
+          {
+            "id": "p1774318838122-1",
+            "label": "HDMI Out",
+            "signalType": "hdmi",
+            "direction": "output",
+            "connectorType": "hdmi",
+            "templatePortId": "port-2837"
+          }
+        ],
+        "baseLabel": "TB (M) → HDMI (F) Adapter",
+        "templateId": "c0a80101-001e-4000-8000-000000000030",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "powerDrawW": 0
+      },
+      "measured": {
+        "width": 180,
+        "height": 80
+      },
+      "selected": false,
+      "dragging": false,
+      "style": {}
+    },
+    {
+      "id": "device-83",
+      "type": "device",
+      "position": {
+        "x": 240,
+        "y": 1100
+      },
+      "data": {
+        "label": "Company Switch 400A 3-Phase",
+        "deviceType": "company-switch",
+        "ports": [
+          {
+            "id": "p1774320816606-0",
+            "label": "Feed 1 L1",
+            "signalType": "power-l1",
+            "direction": "output",
+            "connectorType": "cam-lok",
+            "section": "Feed 1",
+            "templatePortId": "port-3770"
+          },
+          {
+            "id": "p1774320816606-1",
+            "label": "Feed 1 L2",
+            "signalType": "power-l2",
+            "direction": "output",
+            "connectorType": "cam-lok",
+            "section": "Feed 1",
+            "templatePortId": "port-3771"
+          },
+          {
+            "id": "p1774320816606-2",
+            "label": "Feed 1 L3",
+            "signalType": "power-l3",
+            "direction": "output",
+            "connectorType": "cam-lok",
+            "section": "Feed 1",
+            "templatePortId": "port-3772"
+          },
+          {
+            "id": "p1774320816606-3",
+            "label": "Feed 1 N",
+            "signalType": "power-neutral",
+            "direction": "output",
+            "connectorType": "cam-lok",
+            "section": "Feed 1",
+            "templatePortId": "port-3773"
+          },
+          {
+            "id": "p1774320816606-4",
+            "label": "Feed 1 G",
+            "signalType": "power-ground",
+            "direction": "output",
+            "connectorType": "cam-lok",
+            "section": "Feed 1",
+            "templatePortId": "port-3774"
+          },
+          {
+            "id": "p1774320816606-5",
+            "label": "Feed 2 L1",
+            "signalType": "power-l1",
+            "direction": "output",
+            "connectorType": "cam-lok",
+            "section": "Feed 2",
+            "templatePortId": "port-3775"
+          },
+          {
+            "id": "p1774320816606-6",
+            "label": "Feed 2 L2",
+            "signalType": "power-l2",
+            "direction": "output",
+            "connectorType": "cam-lok",
+            "section": "Feed 2",
+            "templatePortId": "port-3776"
+          },
+          {
+            "id": "p1774320816606-7",
+            "label": "Feed 2 L3",
+            "signalType": "power-l3",
+            "direction": "output",
+            "connectorType": "cam-lok",
+            "section": "Feed 2",
+            "templatePortId": "port-3777"
+          },
+          {
+            "id": "p1774320816606-8",
+            "label": "Feed 2 N",
+            "signalType": "power-neutral",
+            "direction": "output",
+            "connectorType": "cam-lok",
+            "section": "Feed 2",
+            "templatePortId": "port-3778"
+          },
+          {
+            "id": "p1774320816606-9",
+            "label": "Feed 2 G",
+            "signalType": "power-ground",
+            "direction": "output",
+            "connectorType": "cam-lok",
+            "section": "Feed 2",
+            "templatePortId": "port-3779"
+          }
+        ],
+        "baseLabel": "Company Switch 400A 3-Phase",
+        "templateId": "c0a80101-0301-4000-8000-000000000701",
+        "templateVersion": 1,
+        "powerCapacityW": 144000,
+        "voltage": "208V 3-Phase",
+        "isVenueProvided": true,
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ]
+      },
+      "measured": {
+        "width": 180,
+        "height": 300
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "device-84",
+      "type": "device",
+      "position": {
+        "x": 220,
+        "y": 920
+      },
+      "data": {
+        "label": "L5-20 (M) → Edison (F) Adapter",
+        "deviceType": "adapter",
+        "ports": [
+          {
+            "id": "p1774320860171-0",
+            "label": "L5-20 In",
+            "signalType": "power",
+            "direction": "input",
+            "connectorType": "l5-20",
+            "templatePortId": "port-3051"
+          },
+          {
+            "id": "p1774320860171-1",
+            "label": "Edison Out",
+            "signalType": "power",
+            "direction": "output",
+            "connectorType": "edison",
+            "templatePortId": "port-3052"
+          }
+        ],
+        "baseLabel": "L5-20 (M) → Edison (F) Adapter",
+        "templateId": "c0a80101-00d4-4000-8000-000000000212",
+        "auxiliaryData": [
+          {
+            "text": "{{deviceType}}",
+            "position": "header"
+          }
+        ],
+        "powerDrawW": 0
+      },
+      "measured": {
+        "width": 180,
+        "height": 80
+      },
+      "selected": false,
+      "dragging": false,
+      "parentId": "room-3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-18",
+      "source": "device-47",
+      "target": "device-49",
+      "sourceHandle": "p1773360761700-4",
+      "targetHandle": "p1773360933938-0",
+      "data": {
+        "signalType": "sdi"
+      },
+      "style": {
+        "stroke": "var(--color-sdi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-19",
+      "source": "device-47",
+      "target": "device-50",
+      "sourceHandle": "p1773360761700-5",
+      "targetHandle": "p1773360956827-0",
+      "data": {
+        "signalType": "sdi"
+      },
+      "style": {
+        "stroke": "var(--color-sdi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-20",
+      "source": "device-47",
+      "target": "device-51",
+      "sourceHandle": "p1773360761700-6",
+      "targetHandle": "p1773360957146-0",
+      "data": {
+        "signalType": "sdi"
+      },
+      "style": {
+        "stroke": "var(--color-sdi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-21",
+      "source": "device-47",
+      "target": "device-52",
+      "sourceHandle": "p1773360761700-7",
+      "targetHandle": "p1773360957595-0",
+      "data": {
+        "signalType": "sdi"
+      },
+      "style": {
+        "stroke": "var(--color-sdi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-22",
+      "source": "device-48",
+      "target": "device-53",
+      "sourceHandle": "p1773360771090-4",
+      "targetHandle": "p1773360957946-0",
+      "data": {
+        "signalType": "sdi"
+      },
+      "style": {
+        "stroke": "var(--color-sdi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-26",
+      "source": "device-49",
+      "target": "device-39",
+      "sourceHandle": "p1773360933938-1",
+      "targetHandle": "p1773360347184-0",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-27",
+      "source": "device-50",
+      "target": "device-40",
+      "sourceHandle": "p1773360956827-1",
+      "targetHandle": "p1773360349704-0",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-28",
+      "source": "device-51",
+      "target": "device-41",
+      "sourceHandle": "p1773360957146-1",
+      "targetHandle": "p1773360350057-0",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-29",
+      "source": "device-52",
+      "target": "device-42",
+      "sourceHandle": "p1773360957595-1",
+      "targetHandle": "p1773360350281-0",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-30",
+      "source": "device-53",
+      "target": "device-43",
+      "sourceHandle": "p1773360957946-1",
+      "targetHandle": "p1773360350504-0",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-31",
+      "source": "device-54",
+      "target": "device-44",
+      "sourceHandle": "p1773360958363-1",
+      "targetHandle": "p1773360350730-0",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-32",
+      "source": "device-55",
+      "target": "device-45",
+      "sourceHandle": "p1773360959547-1",
+      "targetHandle": "p1773360351145-0",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-33",
+      "source": "device-56",
+      "target": "device-46",
+      "sourceHandle": "p1773360960220-1",
+      "targetHandle": "p1773360351528-0",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-41",
+      "source": "device-60",
+      "target": "device-62",
+      "sourceHandle": "p1773415859541-6-out",
+      "targetHandle": "p1773416246636-1-in",
+      "data": {
+        "signalType": "ethernet"
+      },
+      "style": {
+        "stroke": "var(--color-ethernet)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-43",
+      "source": "device-60",
+      "target": "device-38",
+      "sourceHandle": "p1773415859541-4-out",
+      "targetHandle": "p1773360337151-8-in",
+      "data": {
+        "signalType": "ethernet"
+      },
+      "style": {
+        "stroke": "var(--color-ethernet)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-56",
+      "source": "device-60",
+      "target": "device-63",
+      "sourceHandle": "p1773415859541-7-out",
+      "targetHandle": "p1773416490870-0-in",
+      "data": {
+        "signalType": "ethernet"
+      },
+      "style": {
+        "stroke": "var(--color-ethernet)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-59",
+      "source": "device-65",
+      "target": "device-63",
+      "sourceHandle": "p1773416567045-2-out",
+      "targetHandle": "p1773416490870-3-in",
+      "data": {
+        "signalType": "ethernet"
+      },
+      "style": {
+        "stroke": "var(--color-ethernet)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-60",
+      "source": "device-71",
+      "target": "device-33",
+      "sourceHandle": "p1773418394243-0-out",
+      "targetHandle": "p1773360118182-5-in",
+      "data": {
+        "signalType": "usb"
+      },
+      "style": {
+        "stroke": "var(--color-usb)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-62",
+      "source": "device-48",
+      "target": "device-54",
+      "sourceHandle": "p1773360771090-5",
+      "targetHandle": "p1773360958363-0",
+      "data": {
+        "signalType": "sdi"
+      },
+      "style": {
+        "stroke": "var(--color-sdi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-63",
+      "source": "device-48",
+      "target": "device-55",
+      "sourceHandle": "p1773360771090-6",
+      "targetHandle": "p1773360959547-0",
+      "data": {
+        "signalType": "sdi"
+      },
+      "style": {
+        "stroke": "var(--color-sdi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-64",
+      "source": "device-48",
+      "target": "device-56",
+      "sourceHandle": "p1773360771090-7",
+      "targetHandle": "p1773360960220-0",
+      "data": {
+        "signalType": "sdi"
+      },
+      "style": {
+        "stroke": "var(--color-sdi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-66",
+      "source": "device-73",
+      "target": "device-38",
+      "sourceHandle": "p1773420713933-1",
+      "targetHandle": "p1773360337151-4",
+      "data": {
+        "signalType": "sdi"
+      },
+      "style": {
+        "stroke": "var(--color-sdi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-67",
+      "source": "device-64",
+      "target": "device-74",
+      "sourceHandle": "p1773416651073-0",
+      "targetHandle": "p1773421719892-1",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-68",
+      "source": "device-65",
+      "target": "device-75",
+      "sourceHandle": "p1773416567045-0",
+      "targetHandle": "p1773421731964-1",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-69",
+      "source": "device-72",
+      "target": "device-33",
+      "sourceHandle": "p1773420485646-0-out",
+      "targetHandle": "p1773360118182-6-in",
+      "data": {
+        "signalType": "usb"
+      },
+      "style": {
+        "stroke": "var(--color-usb)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-70",
+      "source": "device-60",
+      "target": "device-61",
+      "sourceHandle": "p1773415859541-5-out",
+      "targetHandle": "p1773416243486-1-in",
+      "data": {
+        "signalType": "ethernet"
+      },
+      "style": {
+        "stroke": "var(--color-ethernet)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-71",
+      "source": "device-64",
+      "target": "device-63",
+      "sourceHandle": "p1773416651073-2-out",
+      "targetHandle": "p1773416490870-1-in",
+      "data": {
+        "signalType": "ethernet"
+      },
+      "style": {
+        "stroke": "var(--color-ethernet)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-72",
+      "source": "device-77",
+      "target": "device-76",
+      "sourceHandle": "p1773508594582-4",
+      "targetHandle": "p1773507931939-1",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-76",
+      "source": "device-33",
+      "target": "device-81",
+      "sourceHandle": "p1773360118182-1-out",
+      "targetHandle": "p1774318632632-0",
+      "data": {
+        "signalType": "thunderbolt",
+        "directAttach": true
+      },
+      "style": {
+        "stroke": "#9ca3af",
+        "strokeWidth": 1
+      }
+    },
+    {
+      "type": "smoothstep",
+      "source": "device-77",
+      "target": "device-60",
+      "sourceHandle": "p1773508594582-7",
+      "targetHandle": "p1773415859541-3-in",
+      "data": {
+        "signalType": "ethernet"
+      },
+      "style": {
+        "stroke": "var(--color-ethernet)",
+        "strokeWidth": 2
+      },
+      "id": "xy-edge__device-77p1773508594582-7-device-60p1773415859541-3-in"
+    },
+    {
+      "type": "smoothstep",
+      "source": "device-33",
+      "target": "device-82",
+      "sourceHandle": "p1773360118182-2-out",
+      "targetHandle": "p1774318838122-0",
+      "data": {
+        "signalType": "thunderbolt",
+        "directAttach": true
+      },
+      "style": {
+        "stroke": "#9ca3af",
+        "strokeWidth": 1
+      },
+      "id": "xy-edge__device-33p1773360118182-2-out-device-82p1774318838122-0"
+    },
+    {
+      "id": "edge-77",
+      "source": "device-33",
+      "target": "device-80",
+      "sourceHandle": "p1773360118182-0-out",
+      "targetHandle": "p1774318146564-0",
+      "data": {
+        "signalType": "thunderbolt",
+        "directAttach": true
+      },
+      "style": {
+        "stroke": "#9ca3af",
+        "strokeWidth": 1
+      }
+    },
+    {
+      "id": "edge-79",
+      "source": "device-80",
+      "target": "device-47",
+      "sourceHandle": "p1774318146564-1",
+      "targetHandle": "p1773360761700-2",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "type": "smoothstep",
+      "source": "device-82",
+      "target": "device-73",
+      "sourceHandle": "p1774318838122-1",
+      "targetHandle": "p1773420713933-0",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      },
+      "id": "xy-edge__device-82p1774318838122-1-device-73p1773420713933-0"
+    },
+    {
+      "id": "edge-80",
+      "source": "device-81",
+      "target": "device-48",
+      "sourceHandle": "p1774318632632-1",
+      "targetHandle": "p1773360771090-2",
+      "data": {
+        "signalType": "hdmi"
+      },
+      "style": {
+        "stroke": "var(--color-hdmi)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-81",
+      "source": "device-83",
+      "target": "device-79",
+      "sourceHandle": "p1774320816606-0",
+      "targetHandle": "p1774317685062-0",
+      "data": {
+        "signalType": "power-l1"
+      },
+      "style": {
+        "stroke": "var(--color-power-l1)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-82",
+      "source": "device-83",
+      "target": "device-79",
+      "sourceHandle": "p1774320816606-1",
+      "targetHandle": "p1774317685062-1",
+      "data": {
+        "signalType": "power-l2"
+      },
+      "style": {
+        "stroke": "var(--color-power-l2)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-83",
+      "source": "device-83",
+      "target": "device-79",
+      "sourceHandle": "p1774320816606-2",
+      "targetHandle": "p1774317685062-2",
+      "data": {
+        "signalType": "power-l3"
+      },
+      "style": {
+        "stroke": "var(--color-power-l3)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-84",
+      "source": "device-83",
+      "target": "device-79",
+      "sourceHandle": "p1774320816606-3",
+      "targetHandle": "p1774317685062-3",
+      "data": {
+        "signalType": "power-neutral"
+      },
+      "style": {
+        "stroke": "var(--color-power-neutral)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-85",
+      "source": "device-83",
+      "target": "device-79",
+      "sourceHandle": "p1774320816606-4",
+      "targetHandle": "p1774317685062-4",
+      "data": {
+        "signalType": "power-ground"
+      },
+      "style": {
+        "stroke": "var(--color-power-ground)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-86",
+      "source": "device-79",
+      "target": "device-84",
+      "sourceHandle": "p1774317685062-5",
+      "targetHandle": "p1774320860171-0",
+      "data": {
+        "signalType": "power"
+      },
+      "style": {
+        "stroke": "var(--color-power)",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "edge-87",
+      "source": "device-84",
+      "target": "device-77",
+      "sourceHandle": "p1774320860171-1",
+      "targetHandle": "pw-device-77",
+      "data": {
+        "signalType": "power"
+      },
+      "style": {
+        "stroke": "var(--color-power)",
+        "strokeWidth": 2
+      }
+    }
+  ],
+  "printPaperId": "arch-d",
+  "printOrientation": "landscape",
+  "printScale": 1,
+  "titleBlock": {
+    "showName": "The Best Show Ever",
+    "venue": "The Worst Venue Ever",
+    "designer": "Some Nerd",
+    "engineer": "Underpaid Geek",
+    "drawingTitle": "Signal Flow Schematic",
+    "date": "3/15/2026",
+    "company": "",
+    "revision": "",
+    "logo": "data:image/png;base64,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",
+    "customFields": []
+  },
+  "titleBlockLayout": {
+    "columns": [
+      0.2429012722439236,
+      0.3685184054904514,
+      0.388580322265625
+    ],
+    "rows": [
+      0.16666666666666666,
+      0.16666666666666666,
+      0.16666666666666666,
+      0.16666666666666666,
+      0.16666666666666666,
+      0.16666666666666666
+    ],
+    "heightIn": 1,
+    "cells": [
+      {
+        "id": "cell-1",
+        "row": 0,
+        "col": 1,
+        "rowSpan": 1,
+        "colSpan": 2,
+        "content": {
+          "type": "field",
+          "field": "showName"
+        },
+        "fontSize": 9,
+        "fontWeight": "bold",
+        "fontFamily": "sans-serif",
+        "align": "center",
+        "color": "#1e293b"
+      },
+      {
+        "id": "cell-2",
+        "row": 1,
+        "col": 1,
+        "rowSpan": 1,
+        "colSpan": 2,
+        "content": {
+          "type": "field",
+          "field": "venue"
+        },
+        "fontSize": 7.5,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "center",
+        "color": "#475569"
+      },
+      {
+        "id": "cell-3",
+        "row": 2,
+        "col": 1,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "static",
+          "text": "Designer:"
+        },
+        "fontSize": 7,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "left",
+        "color": "#000000"
+      },
+      {
+        "id": "cell-4",
+        "row": 2,
+        "col": 2,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "field",
+          "field": "designer"
+        },
+        "fontSize": 7,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "left",
+        "color": "#1e293b"
+      },
+      {
+        "id": "cell-5",
+        "row": 3,
+        "col": 1,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "static",
+          "text": "Engineer:"
+        },
+        "fontSize": 7,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "left",
+        "color": "#000000"
+      },
+      {
+        "id": "cell-6",
+        "row": 3,
+        "col": 2,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "field",
+          "field": "engineer"
+        },
+        "fontSize": 7,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "left",
+        "color": "#1e293b"
+      },
+      {
+        "id": "cell-7",
+        "row": 4,
+        "col": 1,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "static",
+          "text": "Date:"
+        },
+        "fontSize": 7,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "left",
+        "color": "#000000"
+      },
+      {
+        "id": "cell-8",
+        "row": 4,
+        "col": 2,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "field",
+          "field": "date"
+        },
+        "fontSize": 7,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "left",
+        "color": "#1e293b"
+      },
+      {
+        "id": "cell-9",
+        "row": 5,
+        "col": 1,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "field",
+          "field": "drawingTitle"
+        },
+        "fontSize": 7,
+        "fontWeight": "bold",
+        "fontFamily": "sans-serif",
+        "align": "left",
+        "color": "#1e293b"
+      },
+      {
+        "id": "cell-10",
+        "row": 5,
+        "col": 2,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "pageNumber"
+        },
+        "fontSize": 7,
+        "fontWeight": "bold",
+        "fontFamily": "sans-serif",
+        "align": "center",
+        "color": "#475569"
+      },
+      {
+        "id": "cell-23",
+        "row": 0,
+        "col": 0,
+        "rowSpan": 6,
+        "colSpan": 1,
+        "content": {
+          "type": "logo"
+        },
+        "fontSize": 7,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "left",
+        "color": "#1e293b"
+      }
+    ],
+    "widthIn": 3
+  },
+  "reportLayouts": {
+    "easyschematic-packlist-layout": {
+      "headerLayout": {
+        "columns": [
+          0.6,
+          0.4
+        ],
+        "rows": [
+          0.3666666666666667,
+          0.3,
+          0.2766212429035464,
+          0.05671209042978696
+        ],
+        "widthIn": 8,
+        "heightIn": 0.8,
+        "cells": [
+          {
+            "id": "cell-11",
+            "row": 0,
+            "col": 0,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "static",
+              "text": "Pack List"
+            },
+            "fontSize": 14,
+            "fontWeight": "bold",
+            "fontFamily": "sans-serif",
+            "align": "left",
+            "color": "#1e293b"
+          },
+          {
+            "id": "cell-12",
+            "row": 0,
+            "col": 1,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "logo"
+            },
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "fontFamily": "sans-serif",
+            "align": "right",
+            "color": "#1e293b"
+          },
+          {
+            "id": "cell-13",
+            "row": 1,
+            "col": 0,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "field",
+              "field": "showName"
+            },
+            "fontSize": 8,
+            "fontWeight": "normal",
+            "fontFamily": "sans-serif",
+            "align": "left",
+            "color": "#1e293b"
+          },
+          {
+            "id": "cell-14",
+            "row": 1,
+            "col": 1,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "field",
+              "field": "date"
+            },
+            "fontSize": 8,
+            "fontWeight": "normal",
+            "fontFamily": "sans-serif",
+            "align": "right",
+            "color": "#666666"
+          },
+          {
+            "id": "cell-35",
+            "row": 2,
+            "col": 0,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "field",
+              "field": "venue"
+            },
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "fontFamily": "sans-serif",
+            "align": "left",
+            "color": "#1e293b"
+          },
+          {
+            "id": "cell-36",
+            "row": 2,
+            "col": 1,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "static",
+              "text": ""
+            },
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "fontFamily": "sans-serif",
+            "align": "left",
+            "color": "#1e293b"
+          }
+        ]
+      },
+      "headerHeightMm": 22,
+      "footerLayout": {
+        "columns": [
+          0.6,
+          0.4
+        ],
+        "rows": [
+          1
+        ],
+        "widthIn": 8,
+        "heightIn": 0.3,
+        "cells": [
+          {
+            "id": "cell-15",
+            "row": 0,
+            "col": 0,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "field",
+              "field": "engineer"
+            },
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "fontFamily": "sans-serif",
+            "align": "left",
+            "color": "#888888"
+          },
+          {
+            "id": "cell-16",
+            "row": 0,
+            "col": 1,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "pageNumber"
+            },
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "fontFamily": "sans-serif",
+            "align": "right",
+            "color": "#888888"
+          }
+        ]
+      },
+      "footerHeightMm": 8,
+      "tables": [
+        {
+          "id": "devices",
+          "label": "Devices",
+          "columns": [
+            {
+              "key": "count",
+              "header": "Qty",
+              "widthMm": 12,
+              "visible": true
+            },
+            {
+              "key": "model",
+              "header": "Device",
+              "widthMm": 60,
+              "visible": true
+            },
+            {
+              "key": "deviceType",
+              "header": "Type",
+              "widthMm": 40,
+              "visible": true
+            },
+            {
+              "key": "room",
+              "header": "Room",
+              "widthMm": 50,
+              "visible": true
+            }
+          ],
+          "groupBy": null,
+          "groupByOptions": [
+            {
+              "key": "",
+              "label": "None"
+            },
+            {
+              "key": "room",
+              "label": "Room"
+            }
+          ],
+          "sortBy": null,
+          "sortDir": "asc"
+        },
+        {
+          "id": "cables",
+          "label": "Cables",
+          "columns": [
+            {
+              "key": "count",
+              "header": "Qty",
+              "widthMm": 12,
+              "visible": true
+            },
+            {
+              "key": "cableType",
+              "header": "Cable Type",
+              "widthMm": 30,
+              "visible": true
+            },
+            {
+              "key": "signalType",
+              "header": "Signal",
+              "widthMm": 28,
+              "visible": true
+            },
+            {
+              "key": "route",
+              "header": "Route",
+              "widthMm": 70,
+              "visible": true
+            }
+          ],
+          "groupBy": null,
+          "groupByOptions": [
+            {
+              "key": "",
+              "label": "None"
+            },
+            {
+              "key": "path",
+              "label": "Path"
+            }
+          ],
+          "sortBy": null,
+          "sortDir": "asc"
+        }
+      ],
+      "orientation": "portrait",
+      "paperSize": "letter"
+    },
+    "easyschematic-network-report-layout": {
+      "headerLayout": {
+        "columns": [
+          0.6,
+          0.4
+        ],
+        "rows": [
+          0.55,
+          0.45
+        ],
+        "widthIn": 8,
+        "heightIn": 0.8,
+        "cells": [
+          {
+            "id": "cell-23",
+            "row": 0,
+            "col": 0,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "static",
+              "text": "Network Report"
+            },
+            "fontSize": 14,
+            "fontWeight": "bold",
+            "fontFamily": "sans-serif",
+            "align": "left",
+            "color": "#1e293b"
+          },
+          {
+            "id": "cell-24",
+            "row": 0,
+            "col": 1,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "logo"
+            },
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "fontFamily": "sans-serif",
+            "align": "right",
+            "color": "#1e293b"
+          },
+          {
+            "id": "cell-25",
+            "row": 1,
+            "col": 0,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "field",
+              "field": "showName"
+            },
+            "fontSize": 8,
+            "fontWeight": "normal",
+            "fontFamily": "sans-serif",
+            "align": "left",
+            "color": "#1e293b"
+          },
+          {
+            "id": "cell-26",
+            "row": 1,
+            "col": 1,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "field",
+              "field": "date"
+            },
+            "fontSize": 8,
+            "fontWeight": "normal",
+            "fontFamily": "sans-serif",
+            "align": "right",
+            "color": "#666666"
+          }
+        ]
+      },
+      "headerHeightMm": 22,
+      "footerLayout": {
+        "columns": [
+          0.6,
+          0.4
+        ],
+        "rows": [
+          1
+        ],
+        "widthIn": 8,
+        "heightIn": 0.3,
+        "cells": [
+          {
+            "id": "cell-27",
+            "row": 0,
+            "col": 0,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "static",
+              "text": ""
+            },
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "fontFamily": "sans-serif",
+            "align": "left",
+            "color": "#888888"
+          },
+          {
+            "id": "cell-28",
+            "row": 0,
+            "col": 1,
+            "rowSpan": 1,
+            "colSpan": 1,
+            "content": {
+              "type": "pageNumber"
+            },
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "fontFamily": "sans-serif",
+            "align": "right",
+            "color": "#888888"
+          }
+        ]
+      },
+      "footerHeightMm": 8,
+      "tables": [
+        {
+          "id": "network",
+          "label": "Network Addresses",
+          "columns": [
+            {
+              "key": "deviceLabel",
+              "header": "Device",
+              "widthMm": 40,
+              "visible": true
+            },
+            {
+              "key": "portLabel",
+              "header": "Port",
+              "widthMm": 30,
+              "visible": false
+            },
+            {
+              "key": "room",
+              "header": "Room",
+              "widthMm": 30,
+              "visible": true
+            },
+            {
+              "key": "signalType",
+              "header": "Signal",
+              "widthMm": 25,
+              "visible": true
+            },
+            {
+              "key": "ip",
+              "header": "IP",
+              "widthMm": 32,
+              "visible": true
+            },
+            {
+              "key": "subnetMask",
+              "header": "Subnet",
+              "widthMm": 32,
+              "visible": true
+            },
+            {
+              "key": "gateway",
+              "header": "Gateway",
+              "widthMm": 32,
+              "visible": true
+            },
+            {
+              "key": "vlan",
+              "header": "VLAN",
+              "widthMm": 16,
+              "visible": true
+            },
+            {
+              "key": "dhcp",
+              "header": "DHCP",
+              "widthMm": 14,
+              "visible": true
+            }
+          ],
+          "groupBy": null,
+          "groupByOptions": [
+            {
+              "key": "",
+              "label": "None"
+            },
+            {
+              "key": "room",
+              "label": "Room"
+            },
+            {
+              "key": "signalType",
+              "label": "Signal Type"
+            }
+          ],
+          "sortBy": null,
+          "sortDir": "asc"
+        }
+      ],
+      "orientation": "portrait",
+      "paperSize": "letter"
+    }
+  },
+  "globalReportHeaderLayout": {
+    "columns": [
+      0.6,
+      0.4
+    ],
+    "rows": [
+      0.3666666666666667,
+      0.3,
+      0.2766212429035464,
+      0.05671209042978696
+    ],
+    "widthIn": 8,
+    "heightIn": 0.8,
+    "cells": [
+      {
+        "id": "global-h-1",
+        "row": 0,
+        "col": 0,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "static",
+          "text": "Pack List"
+        },
+        "fontSize": 14,
+        "fontWeight": "bold",
+        "fontFamily": "sans-serif",
+        "align": "left",
+        "color": "#1e293b"
+      },
+      {
+        "id": "global-h-2",
+        "row": 0,
+        "col": 1,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "logo"
+        },
+        "fontSize": 7,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "right",
+        "color": "#1e293b"
+      },
+      {
+        "id": "global-h-3",
+        "row": 1,
+        "col": 0,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "field",
+          "field": "showName"
+        },
+        "fontSize": 8,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "left",
+        "color": "#1e293b"
+      },
+      {
+        "id": "global-h-4",
+        "row": 1,
+        "col": 1,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "field",
+          "field": "date"
+        },
+        "fontSize": 8,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "right",
+        "color": "#666666"
+      },
+      {
+        "id": "global-h-5",
+        "row": 2,
+        "col": 0,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "field",
+          "field": "venue"
+        },
+        "fontSize": 7,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "left",
+        "color": "#1e293b"
+      },
+      {
+        "id": "global-h-6",
+        "row": 2,
+        "col": 1,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "static",
+          "text": ""
+        },
+        "fontSize": 7,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "left",
+        "color": "#1e293b"
+      }
+    ]
+  },
+  "globalReportFooterLayout": {
+    "columns": [
+      0.6,
+      0.4
+    ],
+    "rows": [
+      1
+    ],
+    "widthIn": 8,
+    "heightIn": 0.3,
+    "cells": [
+      {
+        "id": "global-f-1",
+        "row": 0,
+        "col": 0,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "field",
+          "field": "engineer"
+        },
+        "fontSize": 7,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "left",
+        "color": "#888888"
+      },
+      {
+        "id": "global-f-2",
+        "row": 0,
+        "col": 1,
+        "rowSpan": 1,
+        "colSpan": 1,
+        "content": {
+          "type": "pageNumber"
+        },
+        "fontSize": 7,
+        "fontWeight": "normal",
+        "fontFamily": "sans-serif",
+        "align": "right",
+        "color": "#888888"
+      }
+    ]
+  }
+}

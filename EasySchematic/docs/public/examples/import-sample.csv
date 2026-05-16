@@ -1,0 +1,21 @@
+model_number,manufacturer,label,device_type,height_mm,width_mm,depth_mm,weight_kg,power_draw_w,reference_url,port_label,port_direction,port_signal_type,port_connector_type,port_section
+HD-MD-4X1-4K-E,Crestron,Crestron HD-MD-4X1-4K-E,switcher,44,432,229,2.5,28,https://www.crestron.com/Products/HD-MD-4X1-4K-E,IN 1,input,hdmi,hdmi,Rear
+HD-MD-4X1-4K-E,Crestron,Crestron HD-MD-4X1-4K-E,switcher,44,432,229,2.5,28,https://www.crestron.com/Products/HD-MD-4X1-4K-E,IN 2,input,hdmi,hdmi,Rear
+HD-MD-4X1-4K-E,Crestron,Crestron HD-MD-4X1-4K-E,switcher,44,432,229,2.5,28,https://www.crestron.com/Products/HD-MD-4X1-4K-E,IN 3,input,hdmi,hdmi,Rear
+HD-MD-4X1-4K-E,Crestron,Crestron HD-MD-4X1-4K-E,switcher,44,432,229,2.5,28,https://www.crestron.com/Products/HD-MD-4X1-4K-E,IN 4,input,hdmi,hdmi,Rear
+HD-MD-4X1-4K-E,Crestron,Crestron HD-MD-4X1-4K-E,switcher,44,432,229,2.5,28,https://www.crestron.com/Products/HD-MD-4X1-4K-E,OUT,output,hdmi,hdmi,Rear
+HD-MD-4X1-4K-E,Crestron,Crestron HD-MD-4X1-4K-E,switcher,44,432,229,2.5,28,https://www.crestron.com/Products/HD-MD-4X1-4K-E,LAN,bidirectional,ethernet,rj45,Rear
+HD-MD-4X1-4K-E,Crestron,Crestron HD-MD-4X1-4K-E,switcher,44,432,229,2.5,28,https://www.crestron.com/Products/HD-MD-4X1-4K-E,IR,output,ir,trs-eighth,Rear
+HD-MD-4X1-4K-E,Crestron,Crestron HD-MD-4X1-4K-E,switcher,44,432,229,2.5,28,https://www.crestron.com/Products/HD-MD-4X1-4K-E,RS-232,bidirectional,serial,db9,Rear
+HD-MD-4X1-4K-E,Crestron,Crestron HD-MD-4X1-4K-E,switcher,44,432,229,2.5,28,https://www.crestron.com/Products/HD-MD-4X1-4K-E,AC IN,input,power,iec,Rear
+AT-HDDA-8,Atlona,Atlona AT-HDDA-8,da,44,432,254,2.0,18,https://atlona.com/product/at-hdda-8/,IN,input,hdmi,hdmi,Rear
+AT-HDDA-8,Atlona,Atlona AT-HDDA-8,da,44,432,254,2.0,18,https://atlona.com/product/at-hdda-8/,OUT 1,output,hdmi,hdmi,Rear
+AT-HDDA-8,Atlona,Atlona AT-HDDA-8,da,44,432,254,2.0,18,https://atlona.com/product/at-hdda-8/,OUT 2,output,hdmi,hdmi,Rear
+AT-HDDA-8,Atlona,Atlona AT-HDDA-8,da,44,432,254,2.0,18,https://atlona.com/product/at-hdda-8/,OUT 3,output,hdmi,hdmi,Rear
+AT-HDDA-8,Atlona,Atlona AT-HDDA-8,da,44,432,254,2.0,18,https://atlona.com/product/at-hdda-8/,OUT 4,output,hdmi,hdmi,Rear
+AT-HDDA-8,Atlona,Atlona AT-HDDA-8,da,44,432,254,2.0,18,https://atlona.com/product/at-hdda-8/,OUT 5,output,hdmi,hdmi,Rear
+AT-HDDA-8,Atlona,Atlona AT-HDDA-8,da,44,432,254,2.0,18,https://atlona.com/product/at-hdda-8/,OUT 6,output,hdmi,hdmi,Rear
+AT-HDDA-8,Atlona,Atlona AT-HDDA-8,da,44,432,254,2.0,18,https://atlona.com/product/at-hdda-8/,OUT 7,output,hdmi,hdmi,Rear
+AT-HDDA-8,Atlona,Atlona AT-HDDA-8,da,44,432,254,2.0,18,https://atlona.com/product/at-hdda-8/,OUT 8,output,hdmi,hdmi,Rear
+AT-HDDA-8,Atlona,Atlona AT-HDDA-8,da,44,432,254,2.0,18,https://atlona.com/product/at-hdda-8/,AC IN,input,power,iec,Rear
+,Generic,Generic 1U Shelf,frame,44,482,300,3.5,0,,,bidirectional,custom,none,

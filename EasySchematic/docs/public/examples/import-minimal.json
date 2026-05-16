@@ -1,0 +1,12 @@
+{
+  "label": "Generic 4×1 HDMI Switcher",
+  "manufacturer": "Generic",
+  "deviceType": "switcher",
+  "ports": [
+    { "label": "IN 1", "signalType": "hdmi", "direction": "input" },
+    { "label": "IN 2", "signalType": "hdmi", "direction": "input" },
+    { "label": "IN 3", "signalType": "hdmi", "direction": "input" },
+    { "label": "IN 4", "signalType": "hdmi", "direction": "input" },
+    { "label": "OUT", "signalType": "hdmi", "direction": "output" }
+  ]
+}

@@ -1,0 +1,420 @@
+import { port, ports } from "./_helpers";
+import type { DeviceTemplate } from "../types";
+
+export const templates: DeviceTemplate[] = [
+  // Recorder
+  {
+    id: "c0a80101-001a-4000-8000-000000000026",
+    deviceType: "recorder",
+    label: "Recorder",
+    powerDrawW: 30, // typical
+    ports: [
+      port("SDI In", "sdi", "input"),
+      port("HDMI In", "hdmi", "input"),
+      port("SDI Out", "sdi", "output"),
+    
+      port("AC Power", "power", "input"),
+    ],
+  },
+  // Blackmagic HyperDeck Extreme
+  {
+    id: "c0a80101-001b-4000-8000-000000000027",
+    deviceType: "recorder",
+    label: "BMD HyperDeck Extreme",
+    manufacturer: "Blackmagic Design",
+    modelNumber: "HyperDeck Extreme 8K HDR",
+    referenceUrl: "https://www.blackmagicdesign.com/products/hyperdeckextreme/techspecs",
+    searchTerms: ["blackmagic", "hyperdeck", "4k", "hdr", "recorder", "player"],
+    powerDrawW: 80, // typical
+    heightMm: 131,
+    widthMm: 210,
+    depthMm: 334,
+    weightKg: 3.7,
+    ports: [
+      port("SDI In 1", "sdi", "input"),
+      port("HDMI In", "hdmi", "input"),
+      port("SDI Out 1", "sdi", "output"),
+      port("HDMI Out", "hdmi", "output"),
+      port("SDI Monitor", "sdi", "output"),
+      port("RS-422", "rs422", "bidirectional"),
+      port("Ethernet", "ethernet", "bidirectional"),
+      port("AC Power", "power", "input"),
+    
+      port("SDI In 2", "sdi", "input"),
+    
+      port("SDI In 3", "sdi", "input"),
+    
+      port("SDI In 4", "sdi", "input"),
+    
+      port("SDI Out 2", "sdi", "output"),
+    
+      port("SDI Out 3", "sdi", "output"),
+    
+      port("SDI Out 4", "sdi", "output"),
+    
+      port("Ref In", "genlock", "input"),
+    
+      port("Timecode In", "genlock", "input", "xlr-3"),
+    
+      port("Timecode Out", "genlock", "output", "xlr-3"),
+    
+      port("XLR In 1", "analog-audio", "input"),
+    
+      port("XLR In 2", "analog-audio", "input"),
+    
+      port("XLR In 3", "analog-audio", "input"),
+    
+      port("XLR In 4", "analog-audio", "input"),
+    ],
+  },
+  {
+    id: "c0a80101-0068-4000-8000-000000000104",
+    deviceType: "recorder",
+    label: "Atomos Shogun Ultra",
+    manufacturer: "Atomos",
+    modelNumber: "Shogun Ultra",
+    referenceUrl: "https://www.atomos.com/products/shogun-ultra",
+    searchTerms: ["atomos", "shogun", "ultra", "monitor recorder", "12g"],
+    powerDrawW: 30, // typical
+    heightMm: 133,
+    widthMm: 198,
+    depthMm: 40,
+    weightKg: 0.7,
+    ports: [
+      port("12G-SDI In 1", "sdi", "input"),
+      port("12G-SDI In 2", "sdi", "input"),
+      port("HDMI In", "hdmi", "input"),
+      port("12G-SDI Out 1", "sdi", "output"),
+      port("12G-SDI Out 2", "sdi", "output"),
+      port("HDMI Out", "hdmi", "output"),
+      port("AC Power", "power", "input"),
+    
+      port("3.5mm Audio In", "analog-audio", "input", "trs-eighth"),
+    
+      port("Headphone", "analog-audio", "output", "trs-eighth"),
+    
+      port("Ethernet", "ethernet", "bidirectional"),
+    
+      port("USB-C", "usb", "bidirectional", "usb-c"),
+    ],
+  },
+  {
+    id: "c0a80101-0069-4000-8000-000000000105",
+    deviceType: "recorder",
+    label: "Atomos Ninja V",
+    manufacturer: "Atomos",
+    modelNumber: "Ninja V",
+    referenceUrl: "https://www.atomos.com/products/ninja-v",
+    searchTerms: ["atomos", "ninja", "monitor recorder", "hdmi"],
+    powerDrawW: 20, // typical
+    heightMm: 92,
+    widthMm: 151,
+    depthMm: 31,
+    weightKg: 0.4,
+    ports: [
+      port("HDMI In", "hdmi", "input"),
+      port("HDMI Out", "hdmi", "output"),
+    
+      port("Headphone", "analog-audio", "output", "trs-eighth"),
+    ],
+  },
+  // ── Recorders ────────────────────────────────────────────────────
+  {
+    id: "c0a80101-006a-4000-8000-000000000106",
+    deviceType: "recorder",
+    label: "BMD HyperDeck HD Mini",
+    manufacturer: "Blackmagic Design",
+    modelNumber: "HyperDeck Studio HD Mini",
+    referenceUrl: "https://www.blackmagicdesign.com/products/hyperdeckstudio",
+    searchTerms: ["blackmagic", "hyperdeck", "mini", "recorder"],
+    powerDrawW: 12, // typical
+    heightMm: 44,
+    widthMm: 177,
+    depthMm: 140,
+    weightKg: 0.8,
+    ports: [
+      port("SDI In", "sdi", "input"),
+      port("SDI Out", "sdi", "output"),
+      port("AC Power", "power", "input"),
+    
+      port("HDMI Out", "hdmi", "output"),
+    
+      port("RS-422", "rs422", "bidirectional", "other"),
+    
+      port("Ref In", "genlock", "input"),
+    
+      port("Ref Out", "genlock", "output"),
+    
+      port("Timecode In", "genlock", "input"),
+    
+      port("Timecode Out", "genlock", "output"),
+    
+      port("Ethernet", "ethernet", "bidirectional"),
+    
+      port("USB-C", "usb", "bidirectional", "usb-c"),
+    ],
+  },
+  {
+    id: "c0a80101-006b-4000-8000-000000000107",
+    deviceType: "recorder",
+    label: "BMD HyperDeck HD Plus",
+    manufacturer: "Blackmagic Design",
+    modelNumber: "HyperDeck Studio HD Plus",
+    referenceUrl: "https://www.blackmagicdesign.com/products/hyperdeckstudio",
+    searchTerms: ["blackmagic", "hyperdeck", "plus", "recorder"],
+    powerDrawW: 30, // typical
+    heightMm: 44,
+    widthMm: 210,
+    depthMm: 177,
+    weightKg: 1.1,
+    ports: [
+      port("SDI In", "sdi", "input"),
+      port("HDMI In", "hdmi", "input"),
+      port("SDI Out", "sdi", "output"),
+      port("HDMI Out", "hdmi", "output"),
+      port("RS-422", "rs422", "bidirectional"),
+      port("Ethernet", "ethernet", "bidirectional"),
+      port("AC Power", "power", "input"),
+    
+      port("SDI Out 2", "sdi", "output"),
+    
+      port("SDI Monitor", "sdi", "output"),
+    
+      port("Ref In", "genlock", "input"),
+    
+      port("Ref Out", "genlock", "output"),
+    
+      port("Timecode In", "genlock", "input"),
+    
+      port("Timecode Out", "genlock", "output"),
+    
+      port("USB-C", "usb", "bidirectional", "usb-c"),
+    ],
+  },
+  {
+    id: "c0a80101-006c-4000-8000-000000000108",
+    deviceType: "recorder",
+    label: "BMD HyperDeck 4K Pro",
+    manufacturer: "Blackmagic Design",
+    modelNumber: "HyperDeck Studio 4K Pro",
+    referenceUrl: "https://www.blackmagicdesign.com/products/hyperdeckstudio",
+    searchTerms: ["blackmagic", "hyperdeck", "4k pro", "recorder"],
+    powerDrawW: 40, // typical
+    heightMm: 44,
+    widthMm: 483,
+    depthMm: 236,
+    weightKg: 2.5,
+    ports: [
+      port("12G-SDI In 1", "sdi", "input"),
+      port("HDMI In", "hdmi", "input"),
+      port("12G-SDI Out 1", "sdi", "output"),
+      port("12G-SDI Out 2", "sdi", "output"),
+      port("HDMI Out", "hdmi", "output"),
+      port("RS-422", "rs422", "bidirectional"),
+      port("Ethernet", "ethernet", "bidirectional"),
+      port("AC Power", "power", "input"),
+    
+      port("SDI Monitor", "sdi", "output"),
+    
+      port("Ref In", "genlock", "input"),
+    
+      port("Ref Out", "genlock", "output"),
+    
+      port("Timecode In", "genlock", "input", "xlr-3"),
+    
+      port("Timecode Out", "genlock", "output", "xlr-3"),
+    
+      port("USB-C", "usb", "bidirectional", "usb-c"),
+    ],
+  },
+  {
+    id: "c0a80101-006d-4000-8000-000000000109",
+    deviceType: "recorder",
+    label: "AJA Ki Pro Ultra 12G",
+    manufacturer: "AJA",
+    modelNumber: "Ki Pro Ultra 12G",
+    referenceUrl: "https://www.aja.com/products/ki-pro-ultra-12g",
+    searchTerms: ["aja", "ki pro", "ultra", "12g", "recorder", "player"],
+    powerDrawW: 60, // typical
+    heightMm: 84,
+    widthMm: 237,
+    depthMm: 220,
+    weightKg: 2.5,
+    ports: [
+      port("12G-SDI In 1", "sdi", "input"),
+      port("12G-SDI In 2", "sdi", "input"),
+      port("12G-SDI Out 1", "sdi", "output"),
+      port("12G-SDI Out 2", "sdi", "output"),
+      port("HDMI Out", "hdmi", "output"),
+      port("Analog In L", "analog-audio", "input"),
+      port("Analog In R", "analog-audio", "input"),
+      port("Analog Out L", "analog-audio", "output"),
+      port("Analog Out R", "analog-audio", "output"),
+      port("Ref In", "genlock", "input"),
+      port("RS-422", "rs422", "bidirectional"),
+      port("Ethernet", "ethernet", "bidirectional"),
+      port("AC Power", "power", "input"),
+    
+      port("HDMI In", "hdmi", "input"),
+    ],
+  },
+  {
+    id: "c0a80101-006e-4000-8000-000000000110",
+    deviceType: "recorder",
+    label: "Sound Devices PIX 270i",
+    manufacturer: "Sound Devices",
+    modelNumber: "PIX 270i",
+    referenceUrl: "https://www.sounddevices.com/product/pix-270i/",
+    searchTerms: ["sound devices", "pix", "270i", "recorder"],
+    powerDrawW: 30, // typical
+    heightMm: 84,
+    widthMm: 218,
+    depthMm: 262,
+    weightKg: 3.4,
+    ports: [
+      port("SDI In", "sdi", "input"),
+      port("SDI Out", "sdi", "output"),
+      port("HDMI In", "hdmi", "input"),
+      port("HDMI Out", "hdmi", "output"),
+      port("AES In", "aes", "input"),
+      port("AES Out", "aes", "output"),
+      port("Analog In 1", "analog-audio", "input"),
+      port("Analog In 2", "analog-audio", "input"),
+      port("Analog Out 1", "analog-audio", "output"),
+      port("Analog Out 2", "analog-audio", "output"),
+      port("Ethernet", "ethernet", "bidirectional"),
+      port("AC Power", "power", "input"),
+    
+      port("MADI", "madi", "bidirectional"),
+    
+      port("Dante", "dante", "bidirectional"),
+    ],
+  },
+  // ─── New devices from audit reports ───────────────────────────────────────
+  // BMD new devices
+  {
+    id: "c0a80101-00f8-4000-8000-000000000324",
+    deviceType: "recorder",
+    category: "recorders",
+    label: "BMD Video Assist 12G HDR 7in",
+    manufacturer: "Blackmagic Design",
+    modelNumber: "Video Assist 7 inch 12G HDR",
+    referenceUrl: "https://www.blackmagicdesign.com/products/blackmagicvideoassist",
+    searchTerms: ["blackmagic", "video assist", "monitor recorder", "12g", "hdr"],
+    powerDrawW: 25, // typical
+    heightMm: 131,
+    widthMm: 193,
+    depthMm: 37,
+    weightKg: 0.8,
+    ports: [
+      port("12G-SDI In", "sdi", "input"),
+      port("12G-SDI Out", "sdi", "output"),
+      port("HDMI In", "hdmi", "input"),
+      port("HDMI Out", "hdmi", "output"),
+      port("Mini XLR In 1", "analog-audio", "input", "mini-xlr"),
+      port("Mini XLR In 2", "analog-audio", "input", "mini-xlr"),
+      port("Headphone", "analog-audio", "output", "trs-eighth"),
+      port("USB-C", "usb", "bidirectional", "usb-c"),
+    ],
+  },
+  {
+    id: "c0a80101-00f9-4000-8000-000000000325",
+    deviceType: "recorder",
+    category: "recorders",
+    label: "BMD Video Assist 12G HDR 5in",
+    manufacturer: "Blackmagic Design",
+    modelNumber: "Video Assist 5 inch 12G HDR",
+    referenceUrl: "https://www.blackmagicdesign.com/products/blackmagicvideoassist",
+    searchTerms: ["blackmagic", "video assist", "monitor recorder", "5 inch", "12g"],
+    powerDrawW: 20, // typical
+    heightMm: 90,
+    widthMm: 148,
+    depthMm: 37,
+    weightKg: 0.4,
+    ports: [
+      port("12G-SDI In", "sdi", "input"),
+      port("12G-SDI Out", "sdi", "output"),
+      port("HDMI In", "hdmi", "input"),
+      port("HDMI Out", "hdmi", "output"),
+      port("Headphone", "analog-audio", "output", "trs-eighth"),
+      port("USB-C", "usb", "bidirectional", "usb-c"),
+    ],
+  },
+  {
+    id: "c0a80101-0101-4000-8000-000000000333",
+    deviceType: "recorder",
+    category: "recorders",
+    label: "Atomos Ninja Ultra",
+    manufacturer: "Atomos",
+    modelNumber: "Ninja Ultra",
+    referenceUrl: "https://www.atomos.com/product/ninja-ultra/",
+    searchTerms: ["atomos", "ninja", "ultra", "monitor recorder", "5 inch"],
+    powerDrawW: 25, // typical
+    heightMm: 92,
+    widthMm: 151,
+    depthMm: 31,
+    weightKg: 0.4,
+    ports: [
+      port("HDMI In", "hdmi", "input"),
+      port("HDMI Out", "hdmi", "output"),
+      port("SDI In", "sdi", "input"),
+      port("SDI Out", "sdi", "output"),
+      port("Headphone", "analog-audio", "output", "trs-eighth"),
+      port("USB-C", "usb", "bidirectional", "usb-c"),
+    ],
+  },
+  {
+    id: "c0a80101-0192-4000-8000-000000000402",
+    deviceType: "recorder",
+    category: "recorders",
+    label: "AJA Ki Pro GO2",
+    manufacturer: "AJA",
+    modelNumber: "Ki Pro GO2",
+    referenceUrl: "https://www.aja.com/products/ki-pro-go2",
+    searchTerms: ["aja", "ki pro", "go2", "multi-channel", "recorder", "h265", "hevc"],
+    powerDrawW: 50, // typical
+    heightMm: 84,
+    widthMm: 220,
+    depthMm: 269,
+    weightKg: 2.3,
+    ports: [
+      ...ports("3G-SDI In", "sdi", "input", 4),
+      ...ports("HDMI In", "hdmi", "input", 4),
+      ...ports("3G-SDI Out", "sdi", "output", 4),
+      port("SDI Monitor", "sdi", "output"),
+      port("HDMI Monitor", "hdmi", "output"),
+      port("XLR In L", "analog-audio", "input"),
+      port("XLR In R", "analog-audio", "input"),
+      port("Headphone", "analog-audio", "output", "trs-quarter"),
+      port("Ethernet", "ethernet", "bidirectional"),
+      port("AC Power", "power", "input"),
+    ],
+  },
+  {
+    id: "c0a80101-0193-4000-8000-000000000403",
+    deviceType: "recorder",
+    category: "recorders",
+    label: "BMD HyperDeck Studio Pro 2",
+    manufacturer: "Blackmagic Design",
+    modelNumber: "HyperDeck Studio Pro 2",
+    referenceUrl: "https://www.blackmagicdesign.com/products/hyperdeckstudio",
+    searchTerms: ["blackmagic", "hyperdeck", "studio pro", "recorder", "4k", "6g"],
+    powerDrawW: 40, // typical
+    ports: [
+      ...ports("3G-SDI In", "sdi", "input", 3),
+      port("6G-SDI In", "sdi", "input"),
+      port("HDMI In", "hdmi", "input"),
+      port("Component In (3-BNC)", "composite", "input", "bnc"),
+      ...ports("SDI Out", "sdi", "output", 4),
+      port("SDI Monitor", "sdi", "output"),
+      port("HDMI Out", "hdmi", "output"),
+      port("Component Out (3-BNC)", "composite", "output", "bnc"),
+      port("Thunderbolt", "thunderbolt", "bidirectional"),
+      port("RS-422", "rs422", "bidirectional"),
+      port("Ref In", "genlock", "input"),
+      port("Ethernet", "ethernet", "bidirectional"),
+      port("USB-B", "usb", "bidirectional", "usb-b"),
+      port("AC Power", "power", "input"),
+    ],
+  },
+];

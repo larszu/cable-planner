@@ -1,0 +1,57 @@
+[
+  {
+    "label": "Extron DTP2 T 212",
+    "manufacturer": "Extron",
+    "modelNumber": "60-1271-01",
+    "deviceType": "hdbaset-extender",
+    "referenceUrl": "https://www.extron.com/product/dtp2t212",
+    "heightMm": 25, "widthMm": 216, "depthMm": 114, "weightKg": 0.68, "powerDrawW": 12,
+    "ports": [
+      { "label": "HDMI IN",   "signalType": "hdmi",    "connectorType": "hdmi",    "direction": "input" },
+      { "label": "HDMI LOOP", "signalType": "hdmi",    "connectorType": "hdmi",    "direction": "output" },
+      { "label": "DTP2 OUT",  "signalType": "hdbaset", "connectorType": "rj45",    "direction": "output" },
+      { "label": "RS-232",    "signalType": "serial",  "connectorType": "phoenix", "direction": "bidirectional" },
+      { "label": "12V DC",    "signalType": "power",   "connectorType": "barrel",  "direction": "input" }
+    ]
+  },
+  {
+    "label": "Extron DTP2 R 211",
+    "manufacturer": "Extron",
+    "modelNumber": "60-1272-01",
+    "deviceType": "hdbaset-extender",
+    "referenceUrl": "https://www.extron.com/product/dtp2r211",
+    "heightMm": 25, "widthMm": 216, "depthMm": 114, "weightKg": 0.68, "powerDrawW": 12,
+    "ports": [
+      { "label": "DTP2 IN",  "signalType": "hdbaset", "connectorType": "rj45",       "direction": "input" },
+      { "label": "HDMI OUT", "signalType": "hdmi",    "connectorType": "hdmi",       "direction": "output" },
+      { "label": "RS-232",   "signalType": "serial",  "connectorType": "phoenix",    "direction": "bidirectional" },
+      { "label": "IR OUT",   "signalType": "ir",      "connectorType": "trs-eighth", "direction": "output" },
+      { "label": "12V DC",   "signalType": "power",   "connectorType": "barrel",     "direction": "input" }
+    ]
+  },
+  {
+    "label": "Extron DXP 84 HD 4K PLUS",
+    "manufacturer": "Extron",
+    "modelNumber": "60-1543-01",
+    "deviceType": "switcher",
+    "referenceUrl": "https://www.extron.com/product/dxp84hd4kplus",
+    "heightMm": 44, "widthMm": 432, "depthMm": 305, "weightKg": 3.1, "powerDrawW": 35, "voltage": "100-240V AC",
+    "ports": [
+      { "label": "IN 1",   "signalType": "hdmi",     "connectorType": "hdmi",    "direction": "input",         "section": "Inputs" },
+      { "label": "IN 2",   "signalType": "hdmi",     "connectorType": "hdmi",    "direction": "input",         "section": "Inputs" },
+      { "label": "IN 3",   "signalType": "hdmi",     "connectorType": "hdmi",    "direction": "input",         "section": "Inputs" },
+      { "label": "IN 4",   "signalType": "hdmi",     "connectorType": "hdmi",    "direction": "input",         "section": "Inputs" },
+      { "label": "IN 5",   "signalType": "hdmi",     "connectorType": "hdmi",    "direction": "input",         "section": "Inputs" },
+      { "label": "IN 6",   "signalType": "hdmi",     "connectorType": "hdmi",    "direction": "input",         "section": "Inputs" },
+      { "label": "IN 7",   "signalType": "hdmi",     "connectorType": "hdmi",    "direction": "input",         "section": "Inputs" },
+      { "label": "IN 8",   "signalType": "hdmi",     "connectorType": "hdmi",    "direction": "input",         "section": "Inputs" },
+      { "label": "OUT 1",  "signalType": "hdmi",     "connectorType": "hdmi",    "direction": "output",        "section": "Outputs" },
+      { "label": "OUT 2",  "signalType": "hdmi",     "connectorType": "hdmi",    "direction": "output",        "section": "Outputs" },
+      { "label": "OUT 3",  "signalType": "hdmi",     "connectorType": "hdmi",    "direction": "output",        "section": "Outputs" },
+      { "label": "OUT 4",  "signalType": "hdmi",     "connectorType": "hdmi",    "direction": "output",        "section": "Outputs" },
+      { "label": "LAN",    "signalType": "ethernet", "connectorType": "rj45",    "direction": "bidirectional" },
+      { "label": "RS-232", "signalType": "serial",   "connectorType": "phoenix", "direction": "bidirectional" },
+      { "label": "AC IN",  "signalType": "power",    "connectorType": "iec",     "direction": "input" }
+    ]
+  }
+]

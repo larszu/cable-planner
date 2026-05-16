@@ -1,0 +1,19 @@
+# EasySchematic — deployed as a static assets Worker on Cloudflare
+name = "easyschematic"
+compatibility_date = "2025-04-01"
+
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"
+
+# Beta channel — same bundle, served from beta.easyschematic.live.
+# Push to master auto-deploys here; prod is a manual workflow_dispatch promotion.
+[env.beta]
+name = "easyschematic-beta"
+routes = [
+  { pattern = "beta.easyschematic.live", custom_domain = true },
+]
+
+[env.beta.assets]
+directory = "./dist"
+not_found_handling = "single-page-application"

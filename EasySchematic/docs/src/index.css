@@ -1,0 +1,166 @@
+@import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
+@import "../../src/theme.css";
+
+/* Scan main app components so Tailwind picks up their utility classes */
+@source "../../src";
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/Inter-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Inter';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/Inter-Bold.ttf') format('truetype');
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  color: #374151;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* React Flow handle overrides */
+.react-flow__handle {
+  z-index: 10;
+}
+.react-flow__handle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+}
+
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke-width: 3;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+
+/* During a connection drag, make node bodies transparent to pointer events */
+.react-flow.connecting .react-flow__node *:not(.react-flow__handle) {
+  pointer-events: none;
+}
+
+/* Demo canvas container */
+.demo-canvas {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+/* Prose typography for docs content */
+.prose {
+  max-width: 48rem;
+  line-height: 1.75;
+}
+.prose h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+.prose h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.25rem;
+}
+.prose h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+.prose p {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.prose a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+.prose a:hover {
+  color: #1d4ed8;
+}
+.prose strong {
+  font-weight: 600;
+}
+.prose ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.prose ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.prose li {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+.prose code {
+  background: #f3f4f6;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.875em;
+}
+.prose pre {
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+.prose pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+.prose th {
+  text-align: left;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+.prose td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+.prose hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 2rem 0;
+}

@@ -1,0 +1,92 @@
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #f8f8f8;
+  --color-surface-hover: #f0f0f0;
+  --color-border: #a3a3a3;
+  --color-text: #374151;
+  --color-text-heading: #111827;
+  --color-text-muted: #6b7280;
+  /* Canvas origin overlay — slightly darker than bg to mark non-printable zone */
+  --color-canvas-origin: #e5e5e5;
+
+  /* Signal type colors — max distinction at a glance, print-friendly on white */
+  --color-sdi: #2563eb;       /* blue — broadcast standard */
+  --color-hdmi: #dc2626;      /* red — instantly distinct from SDI blue */
+  --color-ndi: #16a34a;       /* green — network video */
+  --color-dante: #ea580c;     /* orange — network audio */
+  --color-avb: #65a30d;       /* lime — AVB/Milan network audio (IEEE 802.1 / TSN) */
+  --color-analog-audio: #854d0e; /* brown — old-school warmth */
+  --color-speaker-level: #9f1239; /* rose — speaker-level, distinct from line-level analog */
+  --color-bluetooth: #0082fc; /* Bluetooth brand blue */
+  --color-aes: #7c3aed;       /* purple — digital audio */
+  --color-dmx: #b91c1c;       /* dark red — lighting control */
+  --color-madi: #059669;      /* emerald — multi-channel digital audio */
+  --color-usb: #db2777;       /* pink — ubiquitous connector */
+  --color-ethernet: #0891b2;  /* teal — networking */
+  --color-fiber: #d97706;     /* amber — industry standard for fiber */
+  --color-displayport: #0d9488; /* dark teal — video alt */
+  --color-hdbaset: #9333ea;   /* violet — HDMI-over-cat, distinct from HDMI red */
+  --color-srt: #15803d;       /* forest green — streaming */
+  --color-genlock: #475569;   /* slate — sync/timing */
+  --color-wordclock: #64748b;  /* cool slate — audio clock reference */
+  --color-gpio: #78716c;      /* warm gray — control */
+  --color-contact-closure: #57534e;  /* dark stone — dry-contact relay */
+  --color-rs422: #6d28d9;     /* deep violet — machine control */
+  --color-serial: #525252;    /* gray — generic serial */
+  --color-thunderbolt: #4f46e5; /* indigo — high-speed */
+  --color-composite: #ca8a04; /* yellow — classic yellow RCA */
+  --color-component-video: #92700c; /* dark olive — analog YPbPr component */
+  --color-s-video: #b45309;   /* amber — S-Video Y/C */
+  --color-vga: #0369a1;       /* dark sky blue — classic VGA blue */
+  --color-dvi: #1e40af;       /* deep blue — DVI video */
+  --color-power: #a16207;     /* dark amber — electrical */
+  --color-power-l1: #1a1a1a;  /* black — Phase A (L1) */
+  --color-power-l2: #cc0000;  /* red — Phase B (L2) */
+  --color-power-l3: #0066cc;  /* blue — Phase C (L3) */
+  --color-power-neutral: #888888; /* gray — neutral (white invisible on white bg) */
+  --color-power-ground: #00aa00;  /* green — safety ground */
+  --color-midi: #c026d3;      /* fuchsia — musical instrument digital interface */
+  --color-tally: #be185d;     /* deep rose — tally/status */
+  --color-spdif: #a855f7;     /* lighter violet — digital audio (coax) */
+  --color-adat: #0e7490;      /* dark cyan — multi-ch optical audio */
+  --color-artnet: #f59e0b;    /* amber — lighting network protocol */
+  --color-sacn: #eab308;      /* yellow — streaming ACN lighting */
+  --color-ir: #f97316;        /* orange — infrared control */
+  --color-timecode: #06b6d4;  /* cyan — timecode */
+  --color-gigaace: #7c3aed;   /* violet — Allen & Heath GigaACE */
+  --color-dx5: #8b5cf6;       /* lighter violet — Allen & Heath DX5 */
+  --color-slink: #a78bfa;     /* light violet — Allen & Heath SLink */
+  --color-soundgrid: #6d28d9; /* deep violet — Waves SoundGrid */
+  --color-fibreace: #9333ea;  /* purple — Allen & Heath fibreACE */
+  --color-dsnake: #d946ef;    /* fuchsia — Allen & Heath dSnake */
+  --color-dxlink: #2563eb;    /* blue — AMX/Harman DX Link */
+  --color-gps: #059669;       /* emerald — GPS timing */
+  --color-dars: #64748b;      /* slate — DARS reference */
+  --color-rtmp: #dc2626;      /* red — RTMP streaming */
+  --color-rtsp: #ea580c;      /* orange — RTSP streaming */
+  --color-mpeg-ts: #ca8a04;   /* gold — MPEG-TS */
+  --color-digilink: #9a3412;  /* dark orange — Avid Mini-DigiLink */
+  --color-ebus: #0c4a6e;      /* deep navy — Extron eBUS controller bus */
+  --color-control-voltage: #92400e; /* burnt amber — 0-10V analog DC control */
+  --color-extron-exp: #7e22ce; /* deep purple — Extron EXP audio expansion bus */
+  --color-pots: #3f3f46;      /* zinc — POTS / analog telephony */
+  --color-blu-link: #0284c7;  /* sky blue — BSS BLU link audio bus */
+  --color-cresnet: #a21caf;   /* magenta — Crestron Cresnet control bus */
+  --color-sensor: #71717a;    /* zinc gray — ambient sensor input */
+  --color-custom: #64748b;    /* cool gray */
+}
+
+.dark {
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-hover: #334155;
+  --color-border: #94a3b8;
+  --color-text: #cbd5e1;
+  --color-text-heading: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  /* Power colors adjusted for dark backgrounds */
+  --color-power-neutral: #b0b0b0;
+  --color-power-l1: #e5e5e5;
+  /* Canvas origin overlay — slightly lighter than bg to mark non-printable zone */
+  --color-canvas-origin: #1e293b;
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/devApi.ts"],
+  "out": "docs/public/dev",
+  "cleanOutputDir": false,
+  "tsconfig": "tsconfig.app.json",
+  "name": "EasySchematic Developer Reference",
+  "readme": "none",
+  "customCss": "typedoc-overrides.css",
+  "customJs": "typedoc-overrides.js",
+  "visibilityFilters": {},
+  "includeVersion": true,
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "skipErrorChecking": true,
+  "sort": ["alphabetical"],
+  "navigation": {
+    "includeCategories": false,
+    "includeGroups": true
+  },
+  "hideGenerator": false,
+  "searchInComments": true,
+  "categorizeByGroup": true,
+  "treatWarningsAsErrors": false,
+  "validation": {
+    "notExported": false,
+    "invalidLink": false,
+    "notDocumented": false
+  }
+}

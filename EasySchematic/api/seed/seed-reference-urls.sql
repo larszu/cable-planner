@@ -1,0 +1,41 @@
+-- Set reference_url for all branded device templates
+-- Run after applying migration 0004_add_reference_url.sql
+
+UPDATE templates SET reference_url = 'https://www.blackmagicdesign.com/products/microconverters/techspecs/W-CONU-12' WHERE label = 'BMD SDI→HDMI';
+UPDATE templates SET reference_url = 'https://www.blackmagicdesign.com/products/microconverters/techspecs/W-CONU-11' WHERE label = 'BMD HDMI→SDI';
+UPDATE templates SET reference_url = 'https://www.blackmagicdesign.com/products/microconverters/techspecs/W-CONU-09' WHERE label = 'BMD BiDir SDI/HDMI 3G';
+UPDATE templates SET reference_url = 'https://www.blackmagicdesign.com/products/blackmagicvideohub/techspecs' WHERE label = 'BMD Videohub 20x20';
+UPDATE templates SET reference_url = 'https://www.blackmagicdesign.com/products/blackmagicvideohub/techspecs/W-VHS-06' WHERE label = 'BMD CleanSwitch 12x12';
+UPDATE templates SET reference_url = 'https://www.blackmagicdesign.com/products/hyperdeckextreme/techspecs' WHERE label = 'BMD HyperDeck Extreme';
+UPDATE templates SET reference_url = 'https://www.blackmagicdesign.com/products/ultrastudio/techspecs/W-DLUS-11' WHERE label = 'BMD UltraStudio 4K Mini';
+UPDATE templates SET reference_url = 'https://www.blackmagicdesign.com/products/teranexmini/techspecs/W-TERAMIN-05' WHERE label = 'BMD SDI→Audio 12G';
+UPDATE templates SET reference_url = 'https://www.blackmagicdesign.com/products/teranexmini/techspecs/W-TERAMIN-06' WHERE label = 'BMD Audio→SDI 12G';
+UPDATE templates SET reference_url = 'https://www.blackmagicdesign.com/products/atemconstellation/techspecs/W-ATC-03' WHERE label = 'BMD GPI & Tally';
+UPDATE templates SET reference_url = 'https://decimator.com/Products/MiniConverters/MD-LX/MD-LX.html' WHERE label = 'Decimator MD-LX';
+UPDATE templates SET reference_url = 'https://decimator.com/Products/MiniConverters/MD-HX/MD-HX.html' WHERE label = 'Decimator MD-HX';
+UPDATE templates SET reference_url = 'https://www.aja.com/products/fido-4t' WHERE label = 'AJA FiDO-4T';
+UPDATE templates SET reference_url = 'https://www.aja.com/products/fido-4r' WHERE label = 'AJA FiDO-4R';
+UPDATE templates SET reference_url = 'https://www.aja.com/products/fido-t' WHERE label = 'AJA FiDO-T';
+UPDATE templates SET reference_url = 'https://www.aja.com/products/fido-r' WHERE label = 'AJA FiDO-R';
+UPDATE templates SET reference_url = 'https://www.datavideo.com/us/product/DAC-70' WHERE label = 'Datavideo DAC-70';
+UPDATE templates SET reference_url = 'https://www.extron.com/product/dsc301hd' WHERE label = 'Extron DSC 301 HD';
+UPDATE templates SET reference_url = 'https://www.extron.com/product/dtpthd24k230' WHERE label = 'Extron DTP T HD2 4K';
+UPDATE templates SET reference_url = 'https://www.extron.com/product/dtphdmi230rx' WHERE label = 'Extron DTP R HD2 4K';
+UPDATE templates SET reference_url = 'https://www1.kramerav.com/us/product/vs-88h2' WHERE label = 'Kramer VS-88H2';
+UPDATE templates SET reference_url = 'https://teradek.com/products/bolt-4k-750-set' WHERE label = 'Teradek Bolt 4K TX';
+UPDATE templates SET reference_url = 'https://teradek.com/products/bolt-4k-750-rx-only' WHERE label = 'Teradek Bolt 4K RX';
+UPDATE templates SET reference_url = 'https://teradek.com/pages/prism-flex' WHERE label = 'Teradek Prism Flex';
+UPDATE templates SET reference_url = 'https://www.clearcom.com/Products/Products-By-Name/Station-IC/fsii-base-ii' WHERE label = 'ClearCom FreeSpeak II';
+UPDATE templates SET reference_url = 'https://www.apple.com/mac-studio/specs/' WHERE label = 'Mac Studio (M4)';
+UPDATE templates SET reference_url = 'https://ptzoptics.com/move-se/' WHERE label = 'PTZOptics Move SE';
+UPDATE templates SET reference_url = 'https://www.adder.com/en/kvm-solutions/adderlink-xdip' WHERE label = 'Adder XDIP';
+UPDATE templates SET reference_url = 'https://docs.brightsign.biz/hardware/xd235-xd1035' WHERE label = 'BrightSign XD1035';
+UPDATE templates SET reference_url = 'https://www.shure.com/en-US/products/wireless-systems/ulx-d_digital_wireless/ulxd4q' WHERE label = 'Shure ULXD4Q';
+UPDATE templates SET reference_url = 'https://www.sennheiser.com/en-us/catalog/products/wireless-systems/ew-dx-em-4-dante/ew-dx-em-4-dante-q1-9-509370' WHERE label = 'Sennheiser EW-DX EM 4';
+UPDATE templates SET reference_url = 'https://us.focusrite.com/products/rednet-a16r-mkii' WHERE label = 'Focusrite RedNet A16R';
+UPDATE templates SET reference_url = 'https://www.crestron.com/Products/Catalog/Control-and-Management/Control-System/Rack-Mount/CP4N' WHERE label = 'Crestron CP4N';
+UPDATE templates SET reference_url = 'https://www.crestron.com/Products/Catalog/AV-Over-IP/DM-NVX-AV-Over-IP/Video-Endpoint/DM-NVX-351' WHERE label = 'Crestron DM-NVX-351';
+UPDATE templates SET reference_url = 'https://www.datapath.co.uk/datapath-products/video-wall-controllers/datapath-fx4-sdi/' WHERE label = 'Datapath FX4 SDI';
+UPDATE templates SET reference_url = 'https://www.datapath.co.uk/datapath-products/video-wall-controllers/datapath-fx4/' WHERE label = 'Datapath FX4 HDMI';
+UPDATE templates SET reference_url = 'https://na.panasonic.com/us/audio-video-solutions/projectors/large-venue/pt-dz13ku-3-chip-dlptm-large-venue-projector' WHERE label = 'Panasonic DZ13K';
+UPDATE templates SET reference_url = 'https://na.panasonic.com/us/audio-video-solutions/projectors/large-venue/pt-rz21ku-3-chip-dlptm-solid-shine-laser-projector' WHERE label = 'Panasonic RZ21K';

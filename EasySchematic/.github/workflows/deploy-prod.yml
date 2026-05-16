@@ -1,0 +1,81 @@
+name: Deploy prod
+
+# Manual promotion to production. Trigger from the Actions tab; optionally
+# pass a specific SHA to promote (defaults to current master HEAD).
+# This is the 5-second friction step that breaks the "I'll just push it" reflex.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "Commit SHA to promote (defaults to master HEAD)"
+        required: false
+        default: ""
+
+jobs:
+  deploy-prod:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.sha || github.sha }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      # ── Main app (easyschematic) ──
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Build main app
+        run: npm run build
+
+      - name: Deploy main app
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # ── API worker (easyschematic-api) ──
+      - name: Install API dependencies
+        run: cd api && npm ci
+
+      - name: Apply D1 migrations
+        run: cd api && npx wrangler d1 migrations apply easyschematic-db --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deploy API worker
+        run: cd api && npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # ── Devices site (easyschematic-devices) ──
+      - name: Install devices dependencies
+        run: cd devices && npm ci
+
+      - name: Build devices site
+        run: cd devices && npm run build
+
+      - name: Deploy devices site
+        run: cd devices && npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # ── Docs site (easyschematic-docs) ──
+      - name: Install docs dependencies
+        run: cd docs && npm ci
+
+      - name: Build docs site
+        run: cd docs && npm run build
+
+      - name: Deploy docs site
+        run: cd docs && npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

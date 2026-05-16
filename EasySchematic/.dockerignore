@@ -1,0 +1,27 @@
+**/node_modules
+.git
+dist
+.wrangler
+
+# Sub-projects not needed for frontend build
+devices
+docs
+api/src
+api/migrations
+api/backup-*.sql
+
+# Secrets and local config
+.env*
+.dev.vars
+
+# Dev artifacts
+debug
+scripts
+*.log
+canvas-screenshot*.png
+
+# Editor / CI
+.vscode
+.idea
+.claude
+CLAUDE.md
