@@ -8,6 +8,7 @@ import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { CategorySelect } from '../shared/CategorySelect'
 import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { promptDialog } from '../../lib/promptDialog'
 
 interface RackBuilderDialogProps {
   open: boolean
@@ -370,18 +371,20 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     onClose()
   }
 
-  const addTemplate = (template: EquipmentTemplate) => {
+  const addTemplate = async (template: EquipmentTemplate) => {
     // v7.9.0 / Issue #112 — Wenn das Template (noch) nicht als 19"-
     // Rack-Gerät markiert ist, fragen wir den User nach der HE-Höhe
-    // und markieren es im Draft entsprechend. Die ECHTE Library-
-    // Persistenz erfolgt erst beim Save (saveRack baut den Preset
-    // mit isRackDevice=true für alle Placements).
+    // und markieren es im Draft entsprechend.
+    // v7.9.2 — Verwendet jetzt den In-App promptDialog statt
+    // window.prompt (User-Issue: "kann nicht im rack platzieren").
+    // Der native prompt() ist in modern-Electron teilweise blockiert.
     let effectiveTemplate = template
     if (!template.isRackDevice && !template.rackUnits) {
-      const answer = window.prompt(
-        `Das Template "${template.name}" ist nicht als 19"-Rack-Gerät markiert.\n\n` +
-          `Wie hoch (HE) soll es im Rack sein? Leer = Abbruch.`,
-        '1',
+      const answer = (
+        await promptDialog(
+          `Wieviele HE für "${template.name}" im Rack? (1-20, leer = Abbruch)`,
+          '1',
+        )
       )?.trim()
       if (!answer) return
       const heightHE = Math.max(1, Math.min(20, Math.round(Number(answer))))
@@ -520,7 +523,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       <div
         ref={drag.containerRef}
         style={drag.containerStyle}
-        className="max-h-[96vh] w-full max-w-[1400px] overflow-auto rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl sm:p-4"
+        // v7.9.2 — responsive: kein fixes 1400px max-width, sondern
+        // 100vw mit Padding. Verhindert horizontal-Scroll auf Laptops.
+        className="max-h-[96vh] w-[min(1400px,calc(100vw-1rem))] overflow-auto rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl sm:p-4"
       >
         <div
           {...drag.headerProps}
@@ -600,7 +605,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[260px_1fr_300px] xl:grid-cols-[300px_1fr_320px]">
+        {/* v7.9.2 — responsiver: 1-Spalter bis md, 2-Spalter md (Library
+            + Rack), 3-Spalter ab xl. Verhindert horizontal-Overflow. */}
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-[240px_1fr] xl:grid-cols-[260px_1fr_300px]">
           <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
             <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Rack-Geräte aus Library</div>
             <input
@@ -771,7 +778,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             </div>
           </div>
 
-          <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
+          {/* v7.9.2 — Auf md-Bildschirmen (2 Spalten) spannen sich die
+              Geräte-Properties über die volle Breite unterhalb der
+              Library/Rack-Spalten. Ab xl sind sie wieder die 3. Spalte. */}
+          <div className="rounded border border-slate-700 bg-slate-950/50 p-2 md:col-span-2 xl:col-span-1">
             <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Geräte-Properties im Rack</div>
             {!selectedPlacement ? (
               <div className="rounded border border-slate-800 bg-slate-900/40 p-3 text-xs text-slate-500">Gerät im Rack anklicken.</div>

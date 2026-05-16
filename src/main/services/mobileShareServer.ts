@@ -65,6 +65,11 @@ interface MobileShareState {
    *  here instead of read from disk so the phone can also load the
    *  mobile viewer from a Vite-served HMR build. */
   devProxyUrl: string | undefined
+  /** v7.9.3 — Callback der vom Renderer registriert wird, um auf
+   *  Check-State-Updates vom Mobile-Viewer zu reagieren. Wird vom
+   *  POST /checks-Handler aufgerufen sobald das Handy einen Port
+   *  als gesteckt markiert. */
+  onChecksUpdate: ((checks: { ports: Record<string, boolean>; cables: Record<string, boolean> }) => void) | null
 }
 
 const state: MobileShareState = {
@@ -73,6 +78,7 @@ const state: MobileShareState = {
   project: null,
   rendererDir: '',
   devProxyUrl: undefined,
+  onChecksUpdate: null,
 }
 
 /** Lookup non-internal IPv4 addresses across all network interfaces. */
@@ -161,6 +167,53 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
     res.setHeader('Cache-Control', 'no-store')
     res.setHeader('Access-Control-Allow-Origin', '*')
     res.end(state.project ? JSON.stringify(state.project) : '{}')
+    return
+  }
+
+  // v7.9.3 — POST /checks: das Mobile-View schickt nach jedem Toggle
+  // einen vollständigen CheckState. Wir leiten ihn via Callback an
+  // den Renderer weiter, der dann project.checkState updated → das
+  // Canvas zeigt die Häkchen sofort live an.
+  if (pathname === '/checks' && req.method === 'POST') {
+    let body = ''
+    req.on('data', (chunk) => {
+      body += chunk
+      // Verhindere DoS durch riesige Bodies — 1 MB reicht für tausende Ports.
+      if (body.length > 1_000_000) {
+        res.statusCode = 413
+        res.end('Payload too large')
+        req.destroy()
+      }
+    })
+    req.on('end', () => {
+      try {
+        const parsed = JSON.parse(body) as {
+          ports?: Record<string, boolean>
+          cables?: Record<string, boolean>
+        }
+        const checks = {
+          ports: parsed.ports && typeof parsed.ports === 'object' ? parsed.ports : {},
+          cables: parsed.cables && typeof parsed.cables === 'object' ? parsed.cables : {},
+        }
+        state.onChecksUpdate?.(checks)
+        res.statusCode = 200
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.end('{"ok":true}')
+      } catch {
+        res.statusCode = 400
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.end('{"error":"invalid json"}')
+      }
+    })
+    return
+  }
+  // CORS preflight for POST /checks
+  if (pathname === '/checks' && req.method === 'OPTIONS') {
+    res.statusCode = 204
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    res.end()
     return
   }
 
@@ -282,6 +335,15 @@ export const stopMobileShareServer = (): void => {
 
 export const setMobileShareProject = (project: unknown): void => {
   state.project = project
+}
+
+/** v7.9.3 — Registrierung des Callbacks, der vom IPC-Handler im
+ *  Main-Prozess aufgerufen wird sobald das Mobile-View POST /checks
+ *  geschickt hat. Der Renderer macht daraus dann ein Store-Update. */
+export const setMobileShareChecksHandler = (
+  handler: ((checks: { ports: Record<string, boolean>; cables: Record<string, boolean> }) => void) | null,
+): void => {
+  state.onChecksUpdate = handler
 }
 
 export const getMobileShareStatus = (): MobileShareInfo & { running: boolean } => ({

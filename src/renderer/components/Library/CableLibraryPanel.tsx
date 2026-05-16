@@ -41,6 +41,25 @@ const CableTypeEditor = ({
   const [color, setColor] = useState(initial?.color ?? '#64748b')
   const [maxLength, setMaxLength] = useState<number | ''>(initial?.maxLengthMeters ?? '')
   const [notes, setNotes] = useState(initial?.notes ?? '')
+  // v7.9.2 — User-defined custom connector types and signal standards
+  // are merged with the built-in lists so they can be selected
+  // alongside XLR/BNC etc. New entries are created via the "+"
+  // buttons next to each list (User-Issue: "muss man auch neue
+  // steckertypen anlegen können").
+  const customConnectorTypes = useUiStore((s) => s.customConnectorTypes)
+  const addCustomConnectorType = useUiStore((s) => s.addCustomConnectorType)
+  const customSignalStandards = useUiStore((s) => s.customSignalStandards)
+  const addCustomSignalStandard = useUiStore((s) => s.addCustomSignalStandard)
+  const allConnectorTypeOptions = useMemo(
+    () =>
+      [...ALL_CONNECTOR_TYPES, ...customConnectorTypes.filter((c) => !ALL_CONNECTOR_TYPES.includes(c as ConnectorType))] as ConnectorType[],
+    [customConnectorTypes],
+  )
+  const allSignalStandardOptions = useMemo(
+    () =>
+      [...ALL_SIGNAL_STANDARDS, ...customSignalStandards.filter((s) => !ALL_SIGNAL_STANDARDS.includes(s as SignalStandard))] as SignalStandard[],
+    [customSignalStandards],
+  )
 
   if (!open) return null
 
@@ -101,15 +120,32 @@ const CableTypeEditor = ({
           </label>
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
-              <span className="text-slate-400">Stecker-Typ</span>
+              <span className="flex items-center justify-between text-slate-400">
+                <span>Stecker-Typ</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const n = window.prompt('Neuer Stecker-Typ (z.B. "Speakon NL4"):')?.trim()
+                    if (n) {
+                      addCustomConnectorType(n)
+                      setConnectorType(n as ConnectorType)
+                    }
+                  }}
+                  className="rounded bg-emerald-700 px-1.5 text-[9px] text-emerald-100 hover:bg-emerald-600"
+                  title="Neuen Stecker-Typ anlegen"
+                >
+                  +
+                </button>
+              </span>
               <select
                 value={connectorType}
                 onChange={(e) => setConnectorType(e.target.value as ConnectorType)}
                 className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
               >
-                {ALL_CONNECTOR_TYPES.map((c) => (
+                {allConnectorTypeOptions.map((c) => (
                   <option key={c} value={c}>
                     {c}
+                    {customConnectorTypes.includes(c as string) ? ' (custom)' : ''}
                   </option>
                 ))}
               </select>
@@ -127,7 +163,7 @@ const CableTypeEditor = ({
           <div>
             <span className="text-slate-400">Auch kompatibel mit (optional)</span>
             <div className="mt-1 flex max-h-24 flex-wrap gap-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-1.5">
-              {ALL_CONNECTOR_TYPES.filter((c) => c !== connectorType).map((c) => {
+              {allConnectorTypeOptions.filter((c) => c !== connectorType).map((c) => {
                 const on = compatible.includes(c)
                 return (
                   <button
@@ -151,9 +187,25 @@ const CableTypeEditor = ({
             </div>
           </div>
           <div>
-            <span className="text-slate-400">Signal-Standards</span>
+            <span className="flex items-center justify-between text-slate-400">
+              <span>Signal-Standards</span>
+              <button
+                type="button"
+                onClick={() => {
+                  const n = window.prompt('Neuer Signal-Standard (z.B. "Dante Primary"):')?.trim()
+                  if (n) {
+                    addCustomSignalStandard(n)
+                    setStandards((prev) => [...prev, n as SignalStandard])
+                  }
+                }}
+                className="rounded bg-sky-700 px-1.5 text-[9px] text-sky-100 hover:bg-sky-600"
+                title="Neuen Signal-Standard anlegen"
+              >
+                + Standard
+              </button>
+            </span>
             <div className="mt-1 flex max-h-32 flex-wrap gap-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-1.5">
-              {ALL_SIGNAL_STANDARDS.map((s) => {
+              {allSignalStandardOptions.map((s) => {
                 const on = standards.includes(s)
                 return (
                   <button
@@ -168,7 +220,7 @@ const CableTypeEditor = ({
                       on
                         ? 'bg-sky-700 text-white'
                         : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                    }`}
+                    } ${customSignalStandards.includes(s as string) ? 'italic' : ''}`}
                   >
                     {s}
                   </button>

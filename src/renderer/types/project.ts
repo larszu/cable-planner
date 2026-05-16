@@ -57,4 +57,45 @@ export interface CablePlannerProject {
   locations?: LocationFrame[]
   /** GreenGo intercom planning configuration (users, groups, system settings). */
   greengoConfig?: GreenGoConfig
+  /** v7.9.3 — Aufbau-Status: welche Ports / Kabel der Field-Tech bereits
+   *  physikalisch gesteckt hat. Wird vom Mobile-Viewer (handy.html) via
+   *  POST /checks zurückgespielt und im Haupt-Canvas als kleines Häkchen
+   *  am Port angezeigt. Port-Key: `${deviceId}|${portId}`, Cable-Key:
+   *  Cable-ID. Optional damit alte Projekte beim Laden nicht crashen. */
+  checkState?: {
+    ports: Record<string, boolean>
+    cables: Record<string, boolean>
+  }
+  /** v7.9.3 — Lock-Status des Projekts:
+   *   - 'editing' (Default): voll bearbeitbar
+   *   - 'finalized': "Planung abgeschlossen", Canvas read-only,
+   *     kann vom Planer wieder auf 'editing' zurückgesetzt werden
+   *   - 'viewer': permanent read-only (entstanden durch Import einer
+   *     .cpviewer-Datei); nur Annotations können hinzugefügt werden */
+  mode?: 'editing' | 'finalized' | 'viewer'
+  /** v7.9.3 — Anmerkungen von externen Reviewern (z.B. Freelancer beim
+   *  Aufbau). Werden im Viewer-Modus erstellt und können vom Planer
+   *  zurück ins Original gemerged werden. */
+  annotations?: ProjectAnnotation[]
+  /** v7.9.3 — Im Viewer-Modus gespeicherter Reviewer-Name. Wird beim
+   *  Öffnen der .cpviewer-Datei einmalig abgefragt und ist Author für
+   *  alle in dieser Session erstellten Anmerkungen. */
+  viewerSession?: {
+    author: string
+    startedAt: string
+  }
+}
+
+/** v7.9.3 — Anmerkung eines Reviewers an einem Canvas-Element. */
+export interface ProjectAnnotation {
+  id: string
+  author: string
+  createdAt: string
+  text: string
+  status: 'open' | 'built' | 'resolved'
+  anchor:
+    | { type: 'device'; deviceId: string }
+    | { type: 'port'; deviceId: string; portId: string }
+    | { type: 'cable'; cableId: string }
+    | { type: 'free'; x: number; y: number }
 }

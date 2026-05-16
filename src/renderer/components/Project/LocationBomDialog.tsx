@@ -4,6 +4,7 @@ import { toJpeg } from 'html-to-image'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 
 /**
  * Issue #39 — Frame-scoped Bill of Materials. For a selected location/frame
@@ -144,12 +145,12 @@ export const LocationBomDialog = () => {
       const margin = 32
       let y = margin + 4
       pdf.setFontSize(14)
-      pdf.text(`Stückliste — ${location.name}`, margin, y)
+      pdf.text(sanitizeForPdf(`Stückliste - ${location.name}`), margin, y)
       y += 18
       pdf.setFontSize(9)
       pdf.setTextColor(80)
-      if (location.floor) pdf.text(`Stockwerk: ${location.floor}`, margin, y)
-      pdf.text(new Date().toLocaleString(), pageW - margin, y, { align: 'right' })
+      if (location.floor) pdf.text(sanitizeForPdf(`Stockwerk: ${location.floor}`), margin, y)
+      pdf.text(sanitizeForPdf(new Date().toLocaleString()), pageW - margin, y, { align: 'right' })
       y += 18
 
       // Embed the plan snapshot at the top, scaled to fit the page width
@@ -177,7 +178,7 @@ export const LocationBomDialog = () => {
 
       pdf.setTextColor(20)
       pdf.setFontSize(11)
-      pdf.text(`Geräte (${devices.length})`, margin, y)
+      pdf.text(sanitizeForPdf(`Geräte (${devices.length})`), margin, y)
       y += 14
       pdf.setFontSize(8)
       for (const d of devices) {
@@ -187,13 +188,13 @@ export const LocationBomDialog = () => {
         }
         const sn = d.serialNumber ? `  S/N: ${d.serialNumber}` : ''
         const ip = d.ipAddress ? `  IP: ${d.ipAddress}` : ''
-        pdf.text(`• ${d.name}  [${d.category}]${sn}${ip}`, margin, y)
+        pdf.text(sanitizeForPdf(`* ${d.name}  [${d.category}]${sn}${ip}`), margin, y)
         y += 11
       }
 
       y += 8
       pdf.setFontSize(11)
-      pdf.text(`Interne Kabel (${internalCables.length})`, margin, y)
+      pdf.text(sanitizeForPdf(`Interne Kabel (${internalCables.length})`), margin, y)
       y += 14
       pdf.setFontSize(8)
       for (const c of internalCables) {
@@ -202,7 +203,9 @@ export const LocationBomDialog = () => {
           y = margin
         }
         pdf.text(
-          `• ${c.name ?? c.type ?? 'Kabel'}  ${c.length ? `(${c.length} m)` : ''}`,
+          sanitizeForPdf(
+            `* ${c.name ?? c.type ?? 'Kabel'}  ${c.length ? `(${c.length} m)` : ''}`,
+          ),
           margin,
           y,
         )
@@ -212,7 +215,7 @@ export const LocationBomDialog = () => {
       if (externalCables.length > 0) {
         y += 8
         pdf.setFontSize(11)
-        pdf.text(`Externe Verbindungen (${externalCables.length})`, margin, y)
+        pdf.text(sanitizeForPdf(`Externe Verbindungen (${externalCables.length})`), margin, y)
         y += 14
         pdf.setFontSize(8)
         for (const c of externalCables) {
@@ -220,7 +223,7 @@ export const LocationBomDialog = () => {
             pdf.addPage()
             y = margin
           }
-          pdf.text(`• ${c.name ?? c.type ?? 'Kabel'}`, margin, y)
+          pdf.text(sanitizeForPdf(`* ${c.name ?? c.type ?? 'Kabel'}`), margin, y)
           y += 11
         }
       }

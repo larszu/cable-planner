@@ -32,6 +32,14 @@ export const CanvasToolbar = () => {
   const canvasState = useProjectStore((state) => state.project.canvasState)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const equipmentList = useProjectStore((state) => state.project.equipment)
+  // v7.9.3 — Plan-Lock-Status: 'editing' | 'finalized' | 'viewer'.
+  // Toolbar-Button toggelt editing↔finalized; viewer-Modus wird nur
+  // durch .cpviewer-Import gesetzt und kann nicht zurück.
+  const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
+  const setProjectMode = useProjectStore((s) => s.setProjectMode)
+  const annotationsPanelOpen = useUiStore((s) => s.annotationsPanelOpen)
+  const setAnnotationsPanelOpen = useUiStore((s) => s.setAnnotationsPanelOpen)
+  const annotationsCount = useProjectStore((s) => s.project.annotations?.length ?? 0)
   const { getNodes, setNodes } = useReactFlow()
   const [namingGroup, setNamingGroup] = useState(false)
   const [groupName, setGroupName] = useState('')
@@ -332,6 +340,107 @@ export const CanvasToolbar = () => {
         {canvasTheme === 'dark' ? '☀' : '🌙'}
       </button>
       <span style={dividerStyle} />
+      {/* v7.9.3 — Planungs-Lock-Toggle (User-Request: "Planung
+          abgeschlossen"-Button). 'editing'→'finalized' macht das
+          Canvas read-only. Viewer-Modus (entstanden durch Import
+          einer .cpviewer-Datei) kann hier NICHT zurückgesetzt
+          werden (Button wird disabled/anders gerendert). */}
+      <button
+        type="button"
+        onClick={() => {
+          if (projectMode === 'viewer') return
+          if (projectMode === 'finalized') {
+            const ok = window.confirm(
+              'Planung wieder zur Bearbeitung freigeben?\n\n' +
+                'Im Editing-Modus können Geräte und Kabel wieder verschoben, hinzugefügt und gelöscht werden.',
+            )
+            if (ok) setProjectMode('editing')
+          } else {
+            const ok = window.confirm(
+              'Planung abschließen?\n\n' +
+                'Das Canvas wird gesperrt — keine Verschiebungen, neue Verbindungen ' +
+                'oder Löschungen möglich. Du kannst die Sperre jederzeit wieder aufheben.',
+            )
+            if (ok) setProjectMode('finalized')
+          }
+        }}
+        disabled={projectMode === 'viewer'}
+        title={
+          projectMode === 'viewer'
+            ? 'Viewer-Modus — die Datei wurde aus einer .cpviewer-Datei geladen und ist permanent read-only.'
+            : projectMode === 'finalized'
+              ? 'Planung ist abgeschlossen (read-only). Klicken um wieder zu bearbeiten.'
+              : 'Planung als abgeschlossen markieren (Canvas read-only schalten).'
+        }
+        style={{
+          padding: '2px 8px',
+          background:
+            projectMode === 'viewer'
+              ? '#1e293b'
+              : projectMode === 'finalized'
+                ? '#0e7490'
+                : (isLight ? '#e2e8f0' : '#1e293b'),
+          border:
+            '1px solid ' +
+            (projectMode === 'viewer'
+              ? '#475569'
+              : projectMode === 'finalized'
+                ? '#06b6d4'
+                : (isLight ? '#cbd5e1' : '#334155')),
+          color:
+            projectMode === 'viewer'
+              ? '#94a3b8'
+              : projectMode === 'finalized'
+                ? '#e0f2fe'
+                : (isLight ? '#475569' : '#cbd5e1'),
+          borderRadius: 3,
+          cursor: projectMode === 'viewer' ? 'not-allowed' : 'pointer',
+          fontSize: 11,
+        }}
+      >
+        {projectMode === 'viewer' && '👁 Viewer'}
+        {projectMode === 'finalized' && '🔒 Plan abgeschlossen'}
+        {projectMode === 'editing' && '🔓 Plan abschließen'}
+      </button>
+      {/* v7.9.3 — Annotations-Panel-Toggle. Im Viewer-Modus prominent
+          dargestellt, im Editor-Modus dezent (für Plan-Eigentümer der
+          Reviewer-Kommentare durchgehen will). */}
+      <button
+        type="button"
+        onClick={() => setAnnotationsPanelOpen(!annotationsPanelOpen)}
+        title={
+          projectMode === 'viewer'
+            ? 'Anmerkungen — als Reviewer Notizen hinterlassen'
+            : 'Anmerkungen anzeigen'
+        }
+        style={{
+          padding: '2px 8px',
+          background: annotationsPanelOpen
+            ? '#0e7490'
+            : projectMode === 'viewer'
+              ? '#7c3aed'
+              : (isLight ? '#e2e8f0' : '#1e293b'),
+          border:
+            '1px solid ' +
+            (annotationsPanelOpen
+              ? '#06b6d4'
+              : projectMode === 'viewer'
+                ? '#a78bfa'
+                : (isLight ? '#cbd5e1' : '#334155')),
+          color:
+            annotationsPanelOpen
+              ? '#e0f2fe'
+              : projectMode === 'viewer'
+                ? '#e2e8f0'
+                : (isLight ? '#475569' : '#cbd5e1'),
+          borderRadius: 3,
+          cursor: 'pointer',
+          fontSize: 11,
+        }}
+      >
+        💬 Anmerkungen{annotationsCount > 0 ? ` (${annotationsCount})` : ''}
+      </button>
+      <span style={dividerStyle} />
       <span style={sectionLabelStyle}>Layout</span>
       <button
         type="button"
@@ -373,7 +482,12 @@ export const CanvasToolbar = () => {
         const selectedEquipmentIds = getNodes()
           .filter((n) => n.selected && n.type === 'equipment')
           .map((n) => n.id)
-        if (selectedEquipmentIds.length < 2) return null
+        // v7.9.2 — Schwelle von >=2 auf >=1 gesenkt, damit Gruppe und
+        // "Als Rack speichern" gleichzeitig sichtbar sind sobald min.
+        // 1 Gerät selektiert ist. Vorher war "Gruppe speichern"
+        // unsichtbar bei 1-Geräte-Auswahl, der User dachte die Funktion
+        // sei weg ("die funktion ist leider weg").
+        if (selectedEquipmentIds.length < 1) return null
         if (namingGroup) {
           return (
             <form

@@ -77,6 +77,11 @@ const CanvasContent = () => {
   const setHoveredCableId = useUiStore((state) => state.setHoveredCableId)
   // v7.8.7 — cable right-click context menu trigger.
   const openCableContextMenu = useUiStore((state) => state.openCableContextMenu)
+  // v7.9.3 — Projekt-Lock: 'finalized' und 'viewer' Modus blockieren
+  // alle Bearbeitungs-Interaktionen am Canvas. Viewer kann zusätzlich
+  // Annotations setzen (UI in CanvasToolbar + AnnotationsPanel).
+  const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
+  const projectIsLocked = projectMode === 'finalized' || projectMode === 'viewer'
   const wrapperRef = useRef<HTMLDivElement>(null)
   // Last screen-pixel mouse position over the canvas. Used by Strg++ quick-add
   // (#44) so the new device lands where the user pointed instead of always at
@@ -1184,9 +1189,10 @@ const CanvasContent = () => {
             : n,
         )}
         edges={edges}
-        nodesDraggable={!interactionLocked}
+        nodesDraggable={!interactionLocked && !projectIsLocked}
+        nodesConnectable={!projectIsLocked}
         elementsSelectable={!interactionLocked}
-        edgesUpdatable={!interactionLocked}
+        edgesUpdatable={!interactionLocked && !projectIsLocked}
         panOnDrag={interactionLocked ? false : true}
         panOnScroll={!interactionLocked}
         zoomOnScroll={!interactionLocked}

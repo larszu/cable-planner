@@ -1,10 +1,11 @@
-import { app, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'node:path'
 import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
   getMobileShareStatus,
   setMobileShareProject,
+  setMobileShareChecksHandler,
   startMobileShareServer,
   stopMobileShareServer,
 } from '../services/mobileShareServer.js'
@@ -50,6 +51,17 @@ const resolveDevProxyUrl = (): string | undefined =>
   process.env.VITE_DEV_SERVER_URL || undefined
 
 export const registerMobileShareIpc = () => {
+  // v7.9.3 — Wenn das Mobile-View POST /checks schickt, broadcasten
+  // wir den Update an alle Renderer-Fenster. Der Renderer hängt sich
+  // im preload via `cablePlannerApi.onMobileChecksUpdate(cb)` rein
+  // und schreibt das Update ins ProjectStore → Canvas zeigt Häkchen.
+  setMobileShareChecksHandler((checks) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (win.isDestroyed()) continue
+      win.webContents.send('mobileShare:checksUpdate', checks)
+    }
+  })
+
   ipcMain.handle('mobileShare:start', async () => {
     return await startMobileShareServer(resolveRendererDir(), resolveDevProxyUrl())
   })
