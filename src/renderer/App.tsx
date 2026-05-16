@@ -17,6 +17,7 @@ import { AtemMvConfigDialog } from './components/Atem/AtemMvConfigDialog'
 import { AtemAudioRouterDialog } from './components/Atem/AtemAudioRouterDialog'
 import { LocationBomDialog } from './components/Project/LocationBomDialog'
 import { RackEditorDialog } from './components/Rack/RackEditorDialog'
+import { CableContextMenu } from './components/Canvas/CableContextMenu'
 import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
 import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
@@ -503,6 +504,7 @@ export default function App() {
       <AboutDialog />
       <PatchListDialog />
       <CalculatorsDialog />
+      <CableContextMenu />
 
       <ProjectMetaDialog
         open={metaDialog !== null}

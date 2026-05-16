@@ -56,4 +56,10 @@ export interface Cable {
    *  re-import correlate the same cable across runs. Set by the GraphML
    *  import flow only. */
   graphmlEdgeId?: string
+  /** v7.8.7 — per-cable override for the global cable-bumps (#65 / #106)
+   *  setting. 'auto' (default) follows uiStore.cableBumps; 'on' always
+   *  draws bumps where this cable crosses another orthogonal segment;
+   *  'off' suppresses bumps for this cable specifically. Set via the
+   *  right-click context menu on the cable. */
+  bumpStyle?: 'auto' | 'on' | 'off'
 }
