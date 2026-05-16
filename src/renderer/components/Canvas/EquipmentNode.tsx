@@ -1,5 +1,5 @@
 import { Handle, Position, useUpdateNodeInternals, type NodeProps } from 'reactflow'
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import type { EquipmentItem } from '../../types/equipment'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
@@ -70,6 +70,36 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
     : null
   const updateNodeInternals = useUpdateNodeInternals()
 
+  // v7.9.1 — Rack-internal port detection (User-Request).
+  // Wenn dieses Gerät zu einem Rack gehört (rackInstanceId gesetzt),
+  // markieren wir Ports die mit anderen Geräten desselben Racks
+  // verkabelt sind als "rack-intern verkabelt". Visuell: kleines
+  // 🔒-Icon + dim color. Datenmodell-frei — rein render-zeit.
+  const projectCables = useProjectStore((s) => s.project.cables)
+  const projectEquipment = useProjectStore((s) => s.project.equipment)
+  const rackInternalPortKey = useMemo(() => {
+    const rackId = data.rackInstanceId
+    if (!rackId) return ''
+    const sameRackIds = new Set(
+      projectEquipment.filter((e) => e.rackInstanceId === rackId).map((e) => e.id),
+    )
+    // Sammle alle Port-IDs an MEINEM Gerät die auf ein anderes Gerät
+    // desselben Racks zeigen.
+    const portIds: string[] = []
+    for (const c of projectCables) {
+      if (c.fromEquipmentId === id && sameRackIds.has(c.toEquipmentId)) {
+        portIds.push(c.fromPortId)
+      } else if (c.toEquipmentId === id && sameRackIds.has(c.fromEquipmentId)) {
+        portIds.push(c.toPortId)
+      }
+    }
+    return portIds.sort().join('|')
+  }, [data.rackInstanceId, id, projectCables, projectEquipment])
+  const rackInternalPortIds = useMemo(
+    () => (rackInternalPortKey ? new Set(rackInternalPortKey.split('|')) : null),
+    [rackInternalPortKey],
+  )
+
   // Re-register handle positions whenever the data that affects port placement
   // actually changes — portsFlipped (ports spiegeln), per-port `side` overrides,
   // or input/output port additions/reorders. The previous fix in CanvasArea
@@ -104,6 +134,12 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
     side: 'input' | 'output',
   ) => (event: React.MouseEvent) => {
     event.stopPropagation()
+    // v7.9.1 — Rack-intern verkabelte Ports sind "belegt" — kein externes
+    // Click-to-Connect erlaubt. Sowohl als Startpunkt als auch als
+    // Endpunkt einer pending-Cable verboten.
+    if (rackInternalPortIds?.has(portId)) {
+      return
+    }
     const handleType: 'source' | 'target' = side === 'output' ? 'source' : 'target'
     if (!pendingCable) {
       startPendingCable({ nodeId: id, handleId: portId, handleType })
@@ -458,6 +494,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         const isLeft = side === 'left'
         const isHovered = hoveredPort === `in-${port.id}`
         const isActive = isPendingStart(port.id, 'input')
+        const isRackInternal = rackInternalPortIds?.has(port.id) ?? false
         return (
           <div
             key={port.id}
@@ -479,7 +516,8 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               justifyContent: isLeft ? 'flex-start' : 'flex-end',
               textAlign: isLeft ? 'left' : 'right',
               fontSize: 11,
-              cursor: 'crosshair',
+              cursor: isRackInternal ? 'not-allowed' : 'crosshair',
+              opacity: isRackInternal ? 0.55 : 1,
               borderRadius: 3,
               background: isActive
                 ? 'rgba(251,191,36,0.15)'
@@ -490,9 +528,14 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             }}
           >
             <span
-              title={`${port.name} · ${port.connectorType}`}
+              title={
+                isRackInternal
+                  ? `${port.name} · ${port.connectorType} — Rack-intern verkabelt`
+                  : `${port.name} · ${port.connectorType}`
+              }
               style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}
             >
+              {isRackInternal && <span style={{ marginRight: 3 }}>🔒</span>}
               {isLeft ? (
                 <>{port.name}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
               ) : (
@@ -513,18 +556,21 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           : (bi ? '#a855f7' : '#0ea5e9')
         // Issue #68: glow when this port is an endpoint of the hovered cable.
         const isHoveredEndpoint = hoveredEndpointPortIds?.has(port.id) ?? false
+        const isRackInternal = rackInternalPortIds?.has(port.id) ?? false
         return (
           <Fragment key={`h-in-${port.id}`}>
             <Handle
               type="target"
               id={port.id}
               position={pos}
+              isConnectable={!isRackInternal}
               onClick={handlePortClick(port.id, 'input')}
               style={{
                 top: rowCenter(placement.slot),
                 width: HANDLE_SIZE,
                 height: HANDLE_SIZE,
-                background: dotColor,
+                background: isRackInternal ? (isLight ? '#cbd5e1' : '#475569') : dotColor,
+                opacity: isRackInternal ? 0.65 : 1,
                 border: isStart
                   ? '2px solid #fbbf24'
                   : isHoveredEndpoint
@@ -535,7 +581,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                   : isHoveredEndpoint
                     ? '0 0 0 3px rgba(56,189,248,0.55)'
                     : undefined,
-                cursor: 'crosshair',
+                cursor: isRackInternal ? 'not-allowed' : 'crosshair',
               }}
             />
             <Handle
@@ -563,6 +609,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         const isLeft = side === 'left'
         const isHovered = hoveredPort === `out-${port.id}`
         const isActive = isPendingStart(port.id, 'output')
+        const isRackInternal = rackInternalPortIds?.has(port.id) ?? false
         return (
           <div
             key={port.id}
@@ -584,7 +631,8 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               justifyContent: isLeft ? 'flex-start' : 'flex-end',
               textAlign: isLeft ? 'left' : 'right',
               fontSize: 11,
-              cursor: 'crosshair',
+              cursor: isRackInternal ? 'not-allowed' : 'crosshair',
+              opacity: isRackInternal ? 0.55 : 1,
               borderRadius: 3,
               background: isActive
                 ? 'rgba(251,191,36,0.15)'
@@ -595,9 +643,14 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             }}
           >
             <span
-              title={`${port.name} · ${port.connectorType}`}
+              title={
+                isRackInternal
+                  ? `${port.name} · ${port.connectorType} — Rack-intern verkabelt`
+                  : `${port.name} · ${port.connectorType}`
+              }
               style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}
             >
+              {isRackInternal && <span style={{ marginRight: 3 }}>🔒</span>}
               {isLeft ? (
                 <>{port.name}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
               ) : (
@@ -617,18 +670,21 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           ? colorForConnector(port.connectorType, connectorTypeColors)
           : (bi ? '#a855f7' : '#22c55e')
         const isHoveredEndpoint = hoveredEndpointPortIds?.has(port.id) ?? false
+        const isRackInternal = rackInternalPortIds?.has(port.id) ?? false
         return (
           <Fragment key={`h-out-${port.id}`}>
             <Handle
               type="source"
               id={port.id}
               position={pos}
+              isConnectable={!isRackInternal}
               onClick={handlePortClick(port.id, 'output')}
               style={{
                 top: rowCenter(placement.slot),
                 width: HANDLE_SIZE,
                 height: HANDLE_SIZE,
-                background: dotColor,
+                background: isRackInternal ? (isLight ? '#cbd5e1' : '#475569') : dotColor,
+                opacity: isRackInternal ? 0.65 : 1,
                 border: isStart
                   ? '2px solid #fbbf24'
                   : isHoveredEndpoint
@@ -639,7 +695,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                   : isHoveredEndpoint
                     ? '0 0 0 3px rgba(56,189,248,0.55)'
                     : undefined,
-                cursor: 'crosshair',
+                cursor: isRackInternal ? 'not-allowed' : 'crosshair',
               }}
             />
             <Handle
