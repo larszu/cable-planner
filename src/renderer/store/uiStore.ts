@@ -68,6 +68,9 @@ interface PersistedUiState {
    *  Menü-Einträge, Status-Badge, Badges am LibraryItem, BOM-
    *  Rentman-Spalten). Persistiert. Default `true` für Kompatibilität. */
   rentmanEnabled: boolean
+  /** v7.9.5 — Library-Liste vs. Kachel-Ansicht. Kachel zeigt Front-
+   *  Panel-Thumbnails wenn vorhanden. */
+  libraryViewMode: 'list' | 'grid'
   /** Issue #62: per-connector-type colour overrides. When a connector
    *  type is missing or its value is an empty string the built-in
    *  default from DEFAULT_CONNECTOR_TYPE_COLORS applies. Stored sparsely
@@ -155,6 +158,7 @@ const defaults: PersistedUiState = {
   language: 'de',
   overrideConnectionWarnings: false,
   rentmanEnabled: true,
+  libraryViewMode: 'list',
   connectorTypeColors: {},
   bgVariant: 'dots',
   bgOpacity: 0.5,
@@ -236,6 +240,8 @@ const load = (): PersistedUiState => {
     if (!Array.isArray(merged.deviceConfigLibrary)) merged.deviceConfigLibrary = []
     if (typeof merged.cableBumps !== 'boolean') merged.cableBumps = defaults.cableBumps
     if (typeof merged.rentmanEnabled !== 'boolean') merged.rentmanEnabled = defaults.rentmanEnabled
+    if (merged.libraryViewMode !== 'list' && merged.libraryViewMode !== 'grid')
+      merged.libraryViewMode = defaults.libraryViewMode
     if (typeof merged.orthogonalCollisionShift !== 'boolean')
       merged.orthogonalCollisionShift = defaults.orthogonalCollisionShift
     if (!merged.hotkeys || typeof merged.hotkeys !== 'object') merged.hotkeys = defaults.hotkeys
@@ -353,6 +359,7 @@ interface UiState extends PersistedUiState {
   setLanguage: (value: Language) => void
   setOverrideConnectionWarnings: (value: boolean) => void
   setRentmanEnabled: (value: boolean) => void
+  setLibraryViewMode: (mode: 'list' | 'grid') => void
   setConnectorTypeColor: (connectorType: string, color: string | null) => void
   resetConnectorTypeColors: () => void
   setBgVariant: (value: 'dots' | 'lines' | 'cross' | 'none') => void
@@ -522,6 +529,7 @@ const applyPatch =
       language: state.language,
       overrideConnectionWarnings: state.overrideConnectionWarnings,
       rentmanEnabled: state.rentmanEnabled,
+      libraryViewMode: state.libraryViewMode,
       connectorTypeColors: state.connectorTypeColors,
       bgVariant: state.bgVariant,
       bgOpacity: state.bgOpacity,
@@ -567,6 +575,7 @@ export const useUiStore = create<UiState>((set) => ({
   setLanguage: (value) => set(applyPatch({ language: value })),
   setOverrideConnectionWarnings: (value) => set(applyPatch({ overrideConnectionWarnings: value })),
   setRentmanEnabled: (value) => set(applyPatch({ rentmanEnabled: value })),
+  setLibraryViewMode: (mode) => set(applyPatch({ libraryViewMode: mode })),
   setConnectorTypeColor: (connectorType, color) =>
     set((state) => {
       const next = { ...state.connectorTypeColors }

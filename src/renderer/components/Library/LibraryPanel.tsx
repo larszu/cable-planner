@@ -55,6 +55,246 @@ const buildPorts = (groups: PortGroupDraft[], direction: 'in' | 'out'): Port[] =
   )
 }
 
+// v7.9.5 — Plus-Dropdown: ein einziger "+"-Button statt zwei separater
+// "+ Kategorie" / "+ Gerät" Knöpfe. Click toggles dropdown, Klick außen
+// schließt es. Items: Neues Gerät / Neue Kategorie.
+const PlusMenu = ({
+  onNewDevice,
+  onNewCategory,
+}: {
+  onNewDevice: () => void
+  onNewCategory: () => void
+}) => {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex h-7 items-center gap-0.5 rounded bg-emerald-700 px-2 text-xs hover:bg-emerald-600"
+        title="Neues Gerät oder neue Kategorie anlegen"
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        <span className="text-sm leading-none">+</span>
+        <span className="text-[9px] leading-none">▾</span>
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded border border-slate-700 bg-slate-900 py-1 text-xs shadow-xl"
+        >
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false)
+              onNewDevice()
+            }}
+            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+          >
+            Neues Gerät…
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false)
+              onNewCategory()
+            }}
+            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+          >
+            Neue Kategorie…
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// v7.9.5 — View-Mode-Toggle (Liste/Kacheln). Persistiert in uiStore.
+const ViewModeToggle = ({
+  mode,
+  onChange,
+}: {
+  mode: 'list' | 'grid'
+  onChange: (m: 'list' | 'grid') => void
+}) => (
+  <div className="flex h-7 overflow-hidden rounded border border-slate-700">
+    <button
+      type="button"
+      onClick={() => onChange('list')}
+      title="Listen-Ansicht"
+      className={`flex h-full items-center px-1.5 ${
+        mode === 'list' ? 'bg-sky-700 text-white' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+      }`}
+    >
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <line x1="2" y1="4" x2="14" y2="4" />
+        <line x1="2" y1="8" x2="14" y2="8" />
+        <line x1="2" y1="12" x2="14" y2="12" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      onClick={() => onChange('grid')}
+      title="Kachel-Ansicht (mit Vorschau wenn vorhanden)"
+      className={`flex h-full items-center px-1.5 ${
+        mode === 'grid' ? 'bg-sky-700 text-white' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+      }`}
+    >
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <rect x="2" y="2" width="5" height="5" rx="0.5" />
+        <rect x="9" y="2" width="5" height="5" rx="0.5" />
+        <rect x="2" y="9" width="5" height="5" rx="0.5" />
+        <rect x="9" y="9" width="5" height="5" rx="0.5" />
+      </svg>
+    </button>
+  </div>
+)
+
+// v7.9.5 — Filter-Overflow-Menü. Ersetzt drei unterstrichene Text-Links
+// (Alle ein/aus, Versteckte zeigen, Leere zeigen). Drei-Punkt-Icon als
+// Trigger, Dropdown mit Checkmark-Toggles.
+const LibraryFiltersMenu = ({
+  showHidden,
+  setShowHidden,
+  showEmpty,
+  setShowEmpty,
+  hiddenCount,
+  allCollapsed,
+  onToggleAllCats,
+}: {
+  showHidden: boolean
+  setShowHidden: (v: boolean) => void
+  showEmpty: boolean
+  setShowEmpty: (v: boolean) => void
+  hiddenCount: number
+  allCollapsed: boolean
+  onToggleAllCats: (allCollapsed: boolean) => void
+}) => {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        title="Filter und Ansichtsoptionen"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="flex h-7 w-7 items-center justify-center rounded border border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+          <circle cx="3" cy="8" r="1.4" />
+          <circle cx="8" cy="8" r="1.4" />
+          <circle cx="13" cy="8" r="1.4" />
+        </svg>
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-10 mt-1 min-w-[210px] rounded border border-slate-700 bg-slate-900 py-1 text-xs shadow-xl"
+        >
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            aria-checked={!allCollapsed}
+            onClick={() => onToggleAllCats(allCollapsed)}
+            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+          >
+            <span className="mr-2 inline-block w-4 text-center text-slate-400">
+              {allCollapsed ? '▸' : '▾'}
+            </span>
+            {allCollapsed ? 'Alle Kategorien ausklappen' : 'Alle Kategorien einklappen'}
+          </button>
+          <div className="my-1 border-t border-slate-800" />
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            aria-checked={showHidden}
+            onClick={() => setShowHidden(!showHidden)}
+            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+          >
+            <span className="mr-2 inline-block w-4 text-center">
+              {showHidden ? '☑' : '☐'}
+            </span>
+            Versteckte zeigen{hiddenCount > 0 ? ` (${hiddenCount})` : ''}
+          </button>
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            aria-checked={showEmpty}
+            onClick={() => setShowEmpty(!showEmpty)}
+            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+          >
+            <span className="mr-2 inline-block w-4 text-center">
+              {showEmpty ? '☑' : '☐'}
+            </span>
+            Leere Kategorien zeigen
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// v7.9.5 — Tab-Button-Helper. SVG-Icon links, Label rechts, optionaler
+// count-Badge. Aktiv-Style: sky-700-bg, weiße Schrift, kein Hover.
+const TabButton = ({
+  active,
+  onClick,
+  label,
+  icon,
+  count,
+  title,
+}: {
+  active: boolean
+  onClick: () => void
+  label: string
+  icon: ReactNode
+  count?: number
+  title?: string
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={title}
+    className={`flex items-center gap-1 rounded px-2 py-1 ${
+      active ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+    }`}
+  >
+    <span className={active ? 'text-white' : 'text-slate-400'}>{icon}</span>
+    <span>{label}</span>
+    {count != null && count > 0 && (
+      <span
+        className={`ml-1 rounded-full px-1 text-[10px] ${
+          active ? 'bg-sky-900/70 text-sky-100' : 'bg-slate-900 text-slate-400'
+        }`}
+      >
+        {count}
+      </span>
+    )}
+  </button>
+)
+
 export const LibraryPanel = () => {
   const t = useTranslation()
   const addEquipment = useProjectStore((state) => state.addEquipment)
@@ -67,6 +307,9 @@ export const LibraryPanel = () => {
   const collapsed = useUiStore((state) => state.libraryCollapsed)
   // v7.9.4 — Rentman-Tabs ausblenden wenn die Integration deaktiviert ist.
   const rentmanEnabled = useUiStore((state) => state.rentmanEnabled)
+  // v7.9.5 — Listen- vs. Kachel-Ansicht im Items-Listing
+  const libraryViewMode = useUiStore((state) => state.libraryViewMode)
+  const setLibraryViewMode = useUiStore((state) => state.setLibraryViewMode)
   const toggleCollapsed = useUiStore((state) => state.toggleLibraryCollapsed)
   // v7.9.2 — Library nicht mehr abdockbar. Falls ein User-Zustand
   // noch `floating: true` aus alten Versionen mitbringt, wird er hier
@@ -568,66 +811,77 @@ export const LibraryPanel = () => {
   }
   const inner = (
     <aside className={`flex h-full min-h-0 flex-col ${floating ? 'bg-transparent p-3' : 'border-r border-slate-700 bg-slate-950 p-3'} text-slate-100`}>
-      <div className="mb-3 flex flex-wrap items-center gap-y-1 gap-x-2 text-xs">
+      {/* v7.9.5 — Kompakte Tab-Strip mit SVG-Icons (keine Emojis) und
+          konsistent deutschen Labels (Geräte/Kabel/Gruppen/Racks).
+          Counts NUR an der kleinsten Granularität — der R-Badge am
+          Equipment-Tab ist raus, weil die Lokal/Rentman-Untertoggle
+          die gleiche Info zeigt. Tab-Zeile in EINE Zeile gepackt. */}
+      <div className="mb-2 flex items-center gap-1 text-xs">
         {!floating && (
           <button
             type="button"
             onClick={toggleCollapsed}
             title="Library ausblenden"
             aria-label="Library ausblenden"
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-base leading-none">‹</span>
           </button>
         )}
-        {/* v7.9.2 — Library-Abdocken-Button entfernt. Der Abdock-Modus
-            machte das Canvas teils verschwinden (Issue: "Bei library
-            abdocken verschweindet trotzdem noch der canvas"). Die
-            Library ist jetzt fest gedockt. */}
-        <button
-          type="button"
+        <TabButton
+          active={tab === 'equipment'}
           onClick={() => setTab('equipment')}
-          className={`rounded px-2 py-1 ${tab === 'equipment' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
-        >
-          Equipment
-          {customLibrary.filter((t) => t.rentmanSource).length > 0 && (
-            <span
-              className="ml-1 rounded-full bg-orange-700 px-1 text-[10px]"
-              title={`${customLibrary.filter((t) => t.rentmanSource).length} Geräte aus Rentman importiert`}
-            >
-              {customLibrary.filter((t) => t.rentmanSource).length}R
-            </span>
-          )}
-        </button>
-        <button
-          type="button"
+          label="Geräte"
+          icon={
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="2" y="3" width="12" height="10" rx="1.5" />
+              <circle cx="5" cy="7" r="0.8" fill="currentColor" />
+              <circle cx="11" cy="7" r="0.8" fill="currentColor" />
+              <line x1="4" y1="11" x2="12" y2="11" />
+            </svg>
+          }
+        />
+        <TabButton
+          active={tab === 'cables'}
           onClick={() => setTab('cables')}
-          className={`rounded px-2 py-1 ${tab === 'cables' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
-        >
-          Cables
-        </button>
-        <button
-          type="button"
+          label="Kabel"
+          icon={
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M2 11 Q 5 5, 8 8 T 14 5" strokeLinecap="round" />
+              <circle cx="2.5" cy="11" r="1.2" />
+              <circle cx="13.5" cy="5" r="1.2" />
+            </svg>
+          }
+        />
+        <TabButton
+          active={tab === 'groups'}
           onClick={() => setTab('groups')}
-          className={`rounded px-2 py-1 ${tab === 'groups' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+          label="Gruppen"
+          count={groupPresets.length}
           title="Gespeicherte Gerätegruppen (mehrere Geräte + Kabel als Vorlage)"
-        >
-          Gruppen
-          {groupPresets.length > 0 && (
-            <span className="ml-1 rounded-full bg-sky-900 px-1 text-[10px]">{groupPresets.length}</span>
-          )}
-        </button>
-        <button
-          type="button"
+          icon={
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="2" y="2" width="6" height="5" rx="0.8" />
+              <rect x="8" y="2" width="6" height="5" rx="0.8" />
+              <rect x="5" y="9" width="6" height="5" rx="0.8" />
+            </svg>
+          }
+        />
+        <TabButton
+          active={tab === 'racks'}
           onClick={() => setTab('racks')}
-          className={`rounded px-2 py-1 ${tab === 'racks' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+          label="Racks"
+          count={groupPresets.filter((preset) => !!preset.rack).length}
           title="2D Rack Builder und gespeicherte Rack-Layouts"
-        >
-          Racks
-          {groupPresets.filter((preset) => !!preset.rack).length > 0 && (
-            <span className="ml-1 rounded-full bg-sky-900 px-1 text-[10px]">{groupPresets.filter((preset) => !!preset.rack).length}</span>
-          )}
-        </button>
+          icon={
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="3" y="2" width="10" height="12" rx="0.8" />
+              <line x1="3" y1="5" x2="13" y2="5" />
+              <line x1="3" y1="8" x2="13" y2="8" />
+              <line x1="3" y1="11" x2="13" y2="11" />
+            </svg>
+          }
+        />
       </div>
 
       {tab === 'equipment' && rentmanEnabled && (
@@ -672,41 +926,83 @@ export const LibraryPanel = () => {
       )}
       {tab === 'equipment' && (equipmentSection === 'local' || !rentmanEnabled) && (
         <>
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
-            <div className="flex min-w-0 items-center gap-2">
-              <h2 className="text-sm font-semibold">Lokale Library</h2>
-              <span
-                className="rounded bg-sky-800/80 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-100"
-                title="Eigene und importierte Vorlagen, die in dieser Cable-Planner-Installation gespeichert sind"
+          {/* v7.9.5 — Such-Zeile mit "+"-Dropdown rechts (statt zwei
+              getrennten "+ Kategorie" / "+ Gerät" Buttons) und View-Mode-
+              Toggle. Strg+F-Hint bleibt als grauer Suffix sichtbar auch
+              nach Eingabe. Der redundante "Lokale Library / Lokal"-Header
+              ist raus — der Sub-Toggle oberhalb sagt schon was Sache ist. */}
+          <div className="mb-2 flex items-center gap-1">
+            <div className="relative flex-1">
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-slate-500"
               >
-                Lokal
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {/* v7.6.0 — NetBox import removed per user request. The data
-                  source was rarely matched what we needed for broadcast
-                  gear; keeping the dialog code (lib/netboxImport.ts +
-                  the LibraryPanel handlers) as dead code that tree-
-                  shaking can drop, but the UI entry point is gone. */}
-              <button
-                type="button"
-                onClick={() => {
-                  setShowNewGroup((v) => !v)
-                  setTimeout(() => newGroupInputRef.current?.focus(), 50)
+                <circle cx="7" cy="7" r="4.5" />
+                <line x1="10.3" y1="10.3" x2="13" y2="13" strokeLinecap="round" />
+              </svg>
+              <input
+                ref={librarySearchRef}
+                type="text"
+                value={librarySearch}
+                onChange={(e) => setLibrarySearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') setLibrarySearch('')
                 }}
-                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
-                title={t('library.add.categoryTitle', 'Neue Equipment-Kategorie anlegen')}
-              >
-                {t('library.add.category', '+ Kategorie')}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowCreateDialog(true)}
-                className="rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
-              >
-                {t('library.add.device', '+ Gerät')}
-              </button>
+                placeholder={t('library.search.placeholder', 'Suchen…')}
+                className="w-full rounded border border-slate-700 bg-slate-900 py-1 pl-7 pr-12 text-xs text-slate-100 placeholder-slate-500"
+              />
+              {librarySearch ? (
+                <button
+                  type="button"
+                  onClick={() => setLibrarySearch('')}
+                  title={t('library.search.clear', 'Suche löschen')}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
+                >
+                  ✕
+                </button>
+              ) : (
+                <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[9px] uppercase tracking-wider text-slate-600">
+                  Strg+F
+                </span>
+              )}
             </div>
+            {/* Einziger "+"-Button als Menu */}
+            <PlusMenu
+              onNewDevice={() => setShowCreateDialog(true)}
+              onNewCategory={() => {
+                setShowNewGroup((v) => !v)
+                setTimeout(() => newGroupInputRef.current?.focus(), 50)
+              }}
+            />
+            {/* View-Mode-Toggle: Liste ↔ Kacheln */}
+            <ViewModeToggle mode={libraryViewMode} onChange={setLibraryViewMode} />
+            {/* Overflow-Menü für selten genutzte Filter (Leere/Versteckte/Alle ein-aus) */}
+            <LibraryFiltersMenu
+              showHidden={showHidden}
+              setShowHidden={setShowHidden}
+              showEmpty={showEmpty}
+              setShowEmpty={setShowEmpty}
+              hiddenCount={customLibrary.filter((t) => t.hidden).length}
+              onToggleAllCats={(allCollapsed) => {
+                if (allCollapsed) {
+                  setCollapsedCats(new Set())
+                } else {
+                  const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
+                  const allCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
+                  setCollapsedCats(new Set(allCats))
+                }
+              }}
+              allCollapsed={(() => {
+                const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
+                const allCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
+                return allCats.length > 0 && allCats.every((cat) => collapsedCats.has(cat))
+              })()}
+            />
           </div>
 
           {showNewGroup && (
@@ -717,11 +1013,6 @@ export const LibraryPanel = () => {
                 const cat = newGroupName.trim()
                 if (cat) {
                   addKnownCategories([cat])
-                  // A freshly-added category has no devices yet, so it would
-                  // otherwise be hidden by the "Leere ausblenden" filter and
-                  // the user would think nothing happened. Force the empty
-                  // toggle on and uncollapse the new category so the
-                  // newly-created group is visible right away.
                   setShowEmpty(true)
                   setCollapsedCats((prev) => {
                     if (!prev.has(cat)) return prev
@@ -757,79 +1048,6 @@ export const LibraryPanel = () => {
             </form>
           )}
 
-          <div className="mb-2 flex items-center gap-1">
-            <input
-              ref={librarySearchRef}
-              type="text"
-              value={librarySearch}
-              onChange={(e) => setLibrarySearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') setLibrarySearch('')
-              }}
-              placeholder={t('library.search.placeholder', 'Suchen… (Strg+F)')}
-              className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 placeholder-slate-500"
-            />
-            {librarySearch && (
-              <button
-                type="button"
-                onClick={() => setLibrarySearch('')}
-                title={t('library.search.clear', 'Suche löschen')}
-                className="rounded bg-slate-700 px-1.5 py-1 text-xs text-slate-300 hover:bg-slate-600"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          <div className="mb-1 flex items-center justify-between text-[10px] text-slate-500">
-            <span className="italic">
-              {t('library.dragHint', 'Auf Canvas ziehen oder klicken zum Hinzufügen')}
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {(() => {
-                const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
-                const allCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
-                const allCollapsed = allCats.length > 0 && allCats.every((cat) => collapsedCats.has(cat))
-                return (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (allCollapsed) setCollapsedCats(new Set())
-                      else setCollapsedCats(new Set(allCats))
-                    }}
-                    className="underline hover:text-slate-300"
-                    title={
-                      allCollapsed
-                        ? t('library.expandAllTitle', 'Alle Kategorien ausklappen')
-                        : t('library.collapseAllTitle', 'Alle Kategorien einklappen')
-                    }
-                  >
-                    {allCollapsed
-                      ? t('library.expandAll', 'Alle ausklappen')
-                      : t('library.collapseAll', 'Alle einklappen')}
-                  </button>
-                )
-              })()}
-              <button
-                type="button"
-                onClick={() => setShowHidden((v) => !v)}
-                className="underline hover:text-slate-300"
-                title="Ausgeblendete Geräte ein-/ausblenden"
-              >
-                {showHidden
-                  ? `Ausgeblendete verbergen (${customLibrary.filter((t) => t.hidden).length})`
-                  : `Ausgeblendete zeigen (${customLibrary.filter((t) => t.hidden).length})`}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowEmpty((v) => !v)}
-                className="underline hover:text-slate-300"
-              >
-                {showEmpty ? 'Leere ausblenden' : 'Leere zeigen'}
-              </button>
-            </div>
-          </div>
-
           <div className="flex-1 min-h-0 space-y-1 overflow-auto">
             {(() => {
               const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
@@ -838,6 +1056,32 @@ export const LibraryPanel = () => {
                 .sort((a, b) => a.localeCompare(b))
               if (allCats.length === 0) allCats.push('Sonstiges')
               const searchQuery = librarySearch.trim().toLowerCase()
+              // v7.9.5 — Globaler Empty-State wenn Suche projektweit nichts trifft.
+              if (searchQuery) {
+                const anyMatch = customLibrary.some((t) =>
+                  t.name.toLowerCase().includes(searchQuery),
+                )
+                if (!anyMatch) {
+                  return (
+                    <div className="mt-4 rounded border border-slate-800 bg-slate-950/60 p-4 text-center text-xs text-slate-400">
+                      <div className="mb-2 font-semibold text-slate-300">
+                        Keine Geräte gefunden
+                      </div>
+                      <div className="mb-3 text-[11px] text-slate-500">
+                        Kein Treffer für „{librarySearch}". Versuche einen anderen Suchbegriff
+                        oder lösche das Suchfeld.
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setLibrarySearch('')}
+                        className="rounded bg-slate-700 px-3 py-1 text-[11px] text-slate-100 hover:bg-slate-600"
+                      >
+                        Suche zurücksetzen
+                      </button>
+                    </div>
+                  )
+                }
+              }
               return allCats.map((cat) => {
                 const items = customLibrary.filter(
                   (t) => (t.category || 'Sonstiges') === cat,
@@ -873,30 +1117,40 @@ export const LibraryPanel = () => {
                     }}
                     className="rounded border border-slate-800"
                   >
-                    {/* Category header */}
-                    <div className="flex items-center justify-between px-2 py-1">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setCollapsedCats((prev) => {
-                            const next = new Set(prev)
-                            collapsed ? next.delete(cat) : next.add(cat)
-                            return next
-                          })
-                        }
-                        className="flex flex-1 items-center gap-1 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-400 hover:text-slate-200"
-                      >
-                        <span>{collapsed ? '▶' : '▼'}</span>
-                        <span>{cat}</span>
-                        <span className="font-normal text-slate-600">({items.length})</span>
-                      </button>
-                    </div>
+                    {/* v7.9.5 — Kategorie-Header mit deutlicher Affordance.
+                        Volle Zeile als Klick-Fläche, Hover-Background, Caret
+                        und Count rechts ausgerichtet. */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCollapsedCats((prev) => {
+                          const next = new Set(prev)
+                          collapsed ? next.delete(cat) : next.add(cat)
+                          return next
+                        })
+                      }
+                      className="flex w-full items-center gap-1.5 rounded-t bg-slate-900/60 px-2 py-1.5 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-300 hover:bg-slate-800/80 hover:text-slate-100"
+                    >
+                      <span className="inline-block w-3 text-center text-slate-500">
+                        {collapsed ? '▸' : '▾'}
+                      </span>
+                      <span className="flex-1 truncate normal-case tracking-normal">{cat}</span>
+                      <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-normal text-slate-400">
+                        {items.length}
+                      </span>
+                    </button>
 
                     {/* Items */}
                     {!collapsed && (
-                      <div className="space-y-1 px-1 pb-1">
+                      <div
+                        className={
+                          libraryViewMode === 'grid'
+                            ? 'grid grid-cols-2 gap-1 px-1 pb-1'
+                            : 'space-y-1 px-1 pb-1'
+                        }
+                      >
                         {visibleItems.length === 0 ? (
-                          <div className="px-1 py-1 text-[11px] italic text-slate-600">
+                          <div className="col-span-2 px-1 py-1 text-[11px] italic text-slate-600">
                             {searchQuery
                               ? format(t('library.empty.search', 'Keine Treffer für "{query}"'), { query: librarySearch })
                               : t('library.empty.dragHere', 'Gerät hierher ziehen zum Verschieben')}
