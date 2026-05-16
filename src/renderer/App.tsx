@@ -19,6 +19,16 @@ import { LocationBomDialog } from './components/Project/LocationBomDialog'
 import { RackEditorDialog } from './components/Rack/RackEditorDialog'
 import { CableContextMenu } from './components/Canvas/CableContextMenu'
 import { ExportDialog } from './components/Export/ExportDialog'
+import { AnnotationsPanel } from './components/Annotations/AnnotationsPanel'
+
+// v7.9.3 — Hook-Wrapper damit das Annotations-Panel auf
+// uiStore.annotationsPanelOpen reagiert. Direkt im JSX würde
+// useUiStore.getState() nur beim ersten Render gelesen.
+const AnnotationsPanelHost = () => {
+  const open = useUiStore((s) => s.annotationsPanelOpen)
+  const setOpen = useUiStore((s) => s.setAnnotationsPanelOpen)
+  return <AnnotationsPanel open={open} onClose={() => setOpen(false)} />
+}
 import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
 import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
@@ -521,6 +531,7 @@ export default function App() {
       <PatchListDialog />
       <CalculatorsDialog />
       <CableContextMenu />
+      <AnnotationsPanelHost />
       <ExportDialog
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}

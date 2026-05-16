@@ -390,6 +390,9 @@ interface UiState extends PersistedUiState {
   cableEdit: { open: boolean; cableId?: string }
   openCableEdit: (cableId: string) => void
   closeCableEdit: () => void
+  /** v7.9.3 — Annotations-Sidebar (Viewer-Modus + Finalized + Editing). */
+  annotationsPanelOpen: boolean
+  setAnnotationsPanelOpen: (open: boolean) => void
   videohubExport: { open: boolean; deviceId?: string; initialShowMatrix?: boolean }
   openVideohubExport: (deviceId?: string, initialShowMatrix?: boolean) => void
   closeVideohubExport: () => void
@@ -667,6 +670,8 @@ export const useUiStore = create<UiState>((set) => ({
   cableEdit: { open: false },
   openCableEdit: (cableId) => set({ cableEdit: { open: true, cableId } }),
   closeCableEdit: () => set({ cableEdit: { open: false } }),
+  annotationsPanelOpen: false,
+  setAnnotationsPanelOpen: (open) => set({ annotationsPanelOpen: open }),
   videohubExport: { open: false },
   openVideohubExport: (deviceId, initialShowMatrix) => set({ videohubExport: { open: true, deviceId, initialShowMatrix } }),
   closeVideohubExport: () => set({ videohubExport: { open: false } }),
