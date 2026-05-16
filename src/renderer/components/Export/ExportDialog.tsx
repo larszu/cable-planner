@@ -108,18 +108,26 @@ export const ExportDialog = ({
               Schließen
             </button>
           </header>
-          <div className="min-h-0 flex-1 overflow-y-auto p-4">
-            <p className="mb-4 text-xs text-slate-400">{SECTION_DESC[section]}</p>
-            {section === 'plan' && (
-              <PlanSection
-                onExportPdf={onExportPdf}
-                onPrintPdf={onPrintPdf}
-                onExportImage={onExportImage}
-                onClose={onClose}
-              />
-            )}
-            {section === 'patch' && <PatchSheetSection onClose={onClose} />}
-            {section === 'bom' && <BomSection />}
+          {/* v7.9.4 — Body als flex-col OHNE eigenes overflow-auto.
+              Jede Sektion macht ihr Scrolling intern (innere Tabelle
+              bzw. Device-Liste scrollt, Action-Buttons + Footer
+              bleiben pinned unten sichtbar). User-Bug:
+              "Standard-Viewport von Kabel-Stückliste ist so groß
+              dass man scrollen muss um Drucken-Button zu sehen". */}
+          <div className="flex min-h-0 flex-1 flex-col p-4">
+            <p className="mb-3 shrink-0 text-xs text-slate-400">{SECTION_DESC[section]}</p>
+            <div className="flex min-h-0 flex-1 flex-col">
+              {section === 'plan' && (
+                <PlanSection
+                  onExportPdf={onExportPdf}
+                  onPrintPdf={onPrintPdf}
+                  onExportImage={onExportImage}
+                  onClose={onClose}
+                />
+              )}
+              {section === 'patch' && <PatchSheetSection onClose={onClose} />}
+              {section === 'bom' && <BomSection />}
+            </div>
           </div>
         </main>
       </div>
@@ -638,12 +646,11 @@ const BomSection = () => {
   }
 
   return (
-    <div className="flex h-full flex-col gap-2">
-      {/* v7.9.4 — Status-Zeile oben, OHNE Action-Buttons (User-Request:
-          "Kabel-Stückliste Drucken-Button muss auch nach unten und PDF
-          und SV button auch — UI muss konsistent sein zu Patch-Sheets
-          und Plan, sind ein Exportieren-&-Drucken-Dialog"). */}
-      <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+    <div className="flex min-h-0 flex-1 flex-col gap-2">
+      {/* v7.9.4 — Status-Zeile oben (shrink-0), Tabelle nimmt flex-1 mit
+          eigenem overflow-auto, Footer + Action-Buttons sind shrink-0
+          → bleiben IMMER sichtbar, egal wie groß der Dialog ist. */}
+      <div className="flex shrink-0 flex-wrap items-center gap-2 text-[11px] text-slate-400">
         <span>
           Verbaute Kabel: <b className="text-slate-200">{project.cables.length}</b>
         </span>
@@ -659,7 +666,7 @@ const BomSection = () => {
         )}
       </div>
 
-      <div className="flex-1 overflow-auto rounded border border-slate-800 bg-slate-950/40">
+      <div className="min-h-0 flex-1 overflow-auto rounded border border-slate-800 bg-slate-950/40">
         <table className="w-full text-xs">
           <thead className="sticky top-0 bg-slate-950 text-slate-300">
             <tr>
@@ -724,9 +731,8 @@ const BomSection = () => {
         </table>
       </div>
 
-      {/* Rentman-Planung-Save (eigene Zeile — gehört zur Tabellen-Bearbeitung,
-          nicht zum Export). */}
-      <div className="flex items-center justify-between text-[11px]">
+      {/* Rentman-Planung-Save (shrink-0, pinned). */}
+      <div className="flex shrink-0 items-center justify-between text-[11px]">
         <span className="text-slate-400">
           {draftPlan
             ? 'Nicht gespeicherte Änderungen an der Rentman-Planung.'
@@ -753,10 +759,11 @@ const BomSection = () => {
         </div>
       </div>
 
-      {/* v7.9.4 — Export-Action-Zeile UNTEN, analog zu Plan + Patch-Sheets.
-          CSV / PDF / Drucken sind die Export-Outputs der Sektion und
-          gehören damit konsistent ans rechte Ende der untersten Zeile. */}
-      <div className="flex justify-end gap-2 border-t border-slate-800 pt-2">
+      {/* Export-Action-Zeile UNTEN (shrink-0, pinned), analog zu Plan +
+          Patch-Sheets. CSV / PDF / Drucken sind die Export-Outputs der
+          Sektion. Tabelle nimmt flex-1, diese Zeile shrink-0 → immer
+          sichtbar ohne scrollen. */}
+      <div className="flex shrink-0 justify-end gap-2 border-t border-slate-800 pt-2">
         <button
           type="button"
           onClick={exportCsv}
