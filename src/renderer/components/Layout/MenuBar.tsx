@@ -163,11 +163,10 @@ export const MenuBar = ({
               )}
             </>
           )}
-          {onOpenPrintDialog && (
-            <MenuItem onClick={onOpenPrintDialog} icon="🖨" shortcut="Strg+P">
-              {t('app.menu.file.print', 'Drucken (OS-Dialog)…')}
-            </MenuItem>
-          )}
+          {/* v7.9.4 — Eigenständiger "Drucken (OS-Dialog)…"-Eintrag
+              entfernt — war doppelt zur "Drucken"-Sektion im
+              Exportieren-&-Drucken-Hub (User-Bug: "Datei → Drucken
+              ist doppelt"). */}
           {/* v7.9.3 — Viewer-Workflow: Plan als .cpviewer für Freelancer
               exportieren, später deren Anmerkungen zurück mergen. */}
           {(onExportViewer || onImportAnnotations) && <MenuSep />}
