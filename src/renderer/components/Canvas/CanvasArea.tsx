@@ -34,7 +34,10 @@ import {
   setViewportCenterGetter,
   setCanvasSelectionClearer,
   setCanvasInteractionLockHandlers,
+  setCableRouter,
 } from '../../lib/canvasViewport'
+import { routeCableWithAStar, type HandleSide } from '../../lib/routeCableWithAStar'
+import type { PixelRect } from '../../lib/cableAStar'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
 const edgeTypes = { cable: CableEdge }
@@ -79,6 +82,7 @@ const CanvasContent = () => {
   // the viewport origin.
   const lastMousePosRef = useRef<{ x: number; y: number } | null>(null)
   const { screenToFlowPosition, setViewport } = useReactFlow()
+  const updateCable = useProjectStore((state) => state.updateCable)
   const updateNodeInternals = useUpdateNodeInternals()
   const [interactionLocked, setInteractionLocked] = useState(false)
   const interactionLockedRef = useRef(false)
@@ -132,6 +136,111 @@ const CanvasContent = () => {
       unlockInteractionNow()
     }
   }, [requestInteractionLock, unlockInteractionNow])
+
+  // v7.8.8 — Register the A*-based cable router. Caller is the cable
+  // context menu (and a future Settings toggle for auto-route). We
+  // capture the current scene state via the project store for each
+  // invocation so the registered callbacks always reroute against the
+  // latest positions.
+  useEffect(() => {
+    // Compute the layout geometry of one equipment item, matching the
+    // visual rendering in EquipmentNode. Returns the equipment's
+    // bounding rect plus precomputed port positions so we can place
+    // the cable's source/target on the exact handle centres.
+    const layoutOf = (eq: typeof project.equipment[number]) => {
+      const HEADER = eq.ipAddress ? 62 : 48
+      const ROW = 22
+      const PADDING = 8
+      const inputs = eq.inputs ?? []
+      const outputs = eq.outputs ?? []
+      const rows = Math.max(inputs.length, outputs.length, 1)
+      const width = Math.max(eq.width ?? 220, 200)
+      const height = Math.max(eq.height ?? HEADER + rows * ROW + PADDING, HEADER + rows * ROW + PADDING)
+      const portsFlipped = !!eq.portsFlipped
+      const defaultInputSide: HandleSide = portsFlipped ? 'right' : 'left'
+      const defaultOutputSide: HandleSide = portsFlipped ? 'left' : 'right'
+      const handleAt = (portId: string, type: 'source' | 'target'): {
+        side: HandleSide
+        pos: { x: number; y: number }
+      } | null => {
+        const isOutput = type === 'source'
+        const list = isOutput ? outputs : inputs
+        const idx = list.findIndex((p) => p.id === portId)
+        if (idx < 0) {
+          // Fallback: try the other list — handles can be 'bidirectional'
+          // and live in either array depending on how ReactFlow attached.
+          const altList = isOutput ? inputs : outputs
+          const altIdx = altList.findIndex((p) => p.id === portId)
+          if (altIdx < 0) return null
+          const port = altList[altIdx]
+          const sideRaw = (port?.side as HandleSide | undefined) ??
+            (isOutput ? defaultInputSide : defaultOutputSide)
+          const y = eq.y + HEADER + altIdx * ROW + ROW / 2
+          const x =
+            sideRaw === 'left'
+              ? eq.x
+              : sideRaw === 'right'
+                ? eq.x + width
+                : eq.x + width / 2
+          return { side: sideRaw, pos: { x, y } }
+        }
+        const port = list[idx]
+        const sideRaw = (port?.side as HandleSide | undefined) ??
+          (isOutput ? defaultOutputSide : defaultInputSide)
+        const y = eq.y + HEADER + idx * ROW + ROW / 2
+        const x =
+          sideRaw === 'left'
+            ? eq.x
+            : sideRaw === 'right'
+              ? eq.x + width
+              : eq.x + width / 2
+        return { side: sideRaw, pos: { x, y } }
+      }
+      return { width, height, handleAt }
+    }
+
+    const routeOne = (cableId: string): boolean => {
+      const proj = useProjectStore.getState().project
+      const cable = proj.cables.find((c) => c.id === cableId)
+      if (!cable) return false
+      const srcEq = proj.equipment.find((e) => e.id === cable.fromEquipmentId)
+      const tgtEq = proj.equipment.find((e) => e.id === cable.toEquipmentId)
+      if (!srcEq || !tgtEq) return false
+      const srcLayout = layoutOf(srcEq)
+      const tgtLayout = layoutOf(tgtEq)
+      const srcHandle = srcLayout.handleAt(cable.fromPortId, 'source')
+      const tgtHandle = tgtLayout.handleAt(cable.toPortId, 'target')
+      if (!srcHandle || !tgtHandle) return false
+      const obstacles: PixelRect[] = proj.equipment.map((eq) => {
+        const l = layoutOf(eq)
+        return { x: eq.x, y: eq.y, width: l.width, height: l.height, id: eq.id }
+      })
+      const waypoints = routeCableWithAStar({
+        source: srcHandle.pos,
+        target: tgtHandle.pos,
+        sourceSide: srcHandle.side,
+        targetSide: tgtHandle.side,
+        obstacles,
+        sourceEquipmentId: cable.fromEquipmentId,
+        targetEquipmentId: cable.toEquipmentId,
+      })
+      if (!waypoints) return false
+      updateCable(cable.id, { waypoints: waypoints.length > 0 ? waypoints : undefined })
+      return true
+    }
+
+    const routeAll = (): number => {
+      const proj = useProjectStore.getState().project
+      let ok = 0
+      for (const c of proj.cables) {
+        if (routeOne(c.id)) ok += 1
+      }
+      return ok
+    }
+
+    setCableRouter({ routeOne, routeAll })
+    return () => setCableRouter(null)
+  }, [project.equipment, updateCable])
 
   // Restore saved viewport whenever a new project is loaded (projectVersion changes).
   // The initial render uses defaultViewport below; this effect handles

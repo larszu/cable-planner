@@ -62,3 +62,44 @@ export const unlockCanvasInteraction = () => {
     /* no-op */
   }
 }
+
+// v7.8.8 — A*-router callback registered by CanvasArea. The context
+// menu and any other non-canvas caller can ask "please re-route cable
+// X using A*" without needing to live inside the React Flow context.
+// CanvasArea owns the live data (rfNodes for actual rendered handle
+// positions, full obstacle list, all cables for soft-obstacle
+// avoidance) and turns the request into the actual write.
+let cableRouter: ((cableId: string) => boolean) | null = null
+let allCablesRouter: (() => number) | null = null
+
+export const setCableRouter = (
+  fns:
+    | {
+        routeOne: (cableId: string) => boolean
+        routeAll: () => number
+      }
+    | null,
+) => {
+  cableRouter = fns?.routeOne ?? null
+  allCablesRouter = fns?.routeAll ?? null
+}
+
+/** Reroute a single cable using A*. Returns true if a path was found
+ *  and written to the cable. */
+export const routeCable = (cableId: string): boolean => {
+  try {
+    return cableRouter ? cableRouter(cableId) : false
+  } catch {
+    return false
+  }
+}
+
+/** Reroute every cable using A*. Returns the number of cables that
+ *  successfully found a path. */
+export const routeAllCables = (): number => {
+  try {
+    return allCablesRouter ? allCablesRouter() : 0
+  } catch {
+    return 0
+  }
+}
