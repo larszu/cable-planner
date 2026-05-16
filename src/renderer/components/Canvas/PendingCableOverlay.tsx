@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useReactFlow, useViewport } from 'reactflow'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
+import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 
 /**
  * Visual overlay that renders the in-progress cable while the user is
@@ -41,19 +42,19 @@ export const PendingCableOverlay = () => {
       : node.inputs.find((p) => p.id === pendingCable.handleId)
   if (!port) return null
 
-  // Derive the approximate screen position of the port based on the node's
-  // bounding box. Right-side handles sit at x = node.x + width, left-side at
-  // x = node.x. Port Y is approximated by its index within the port list.
-  const side: 'left' | 'right' = pendingCable.handleType === 'source' ? 'right' : 'left'
-  const portList = side === 'right' ? node.outputs : node.inputs
-  const portIndex = portList.findIndex((p) => p.id === port.id)
-  const HEADER = node.ipAddress ? 62 : 48
-  const ROW = 22
-  const w = Math.max(node.width ?? 220, 200)
-  const portFlow = {
-    x: side === 'right' ? node.x + w : node.x,
-    y: node.y + HEADER + portIndex * ROW + ROW / 2,
-  }
+  // v7.9.4 — Exakte Handle-Position via shared computeEquipmentLayout.
+  // Vorher rechnete diese Datei mit fixer width=220 ohne Auto-Expand,
+  // ohne Side-Overrides und ohne IP/Subtitle/Beltpack-Header-Offset →
+  // bei breiteren Geräten landete der Startpunkt der gestrichelten
+  // Linie mitten im Gerät statt am Port (User-Bug "startpunkt der
+  // gelben gestrichelten linie ist aktuell immer die geräte mitte").
+  const layout = computeEquipmentLayout(node, project.greengoConfig)
+  const pos = layout.portPos(
+    port.id,
+    pendingCable.handleType === 'source' ? 'source' : 'target',
+  )
+  if (!pos) return null
+  const portFlow = { x: pos.x, y: pos.y }
 
   const points = [portFlow, ...pendingCable.waypoints]
   if (mouseFlow) points.push(mouseFlow)
