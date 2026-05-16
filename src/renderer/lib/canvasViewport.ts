@@ -63,6 +63,26 @@ export const unlockCanvasInteraction = () => {
   }
 }
 
+// v7.9.0 / Issue #108 — fitView callback. Caller is the docking
+// toggle in LibraryPanel / PropertiesPanel (and in future the
+// floating-panel close button). When the user docks or undocks a
+// side panel the canvas track changes width abruptly; without
+// re-fitting, devices may shift out of view, which the user
+// reported as "canvas verschwindet beim abdocken".
+let fitViewHandler: (() => void) | null = null
+
+export const setCanvasFitViewHandler = (fn: (() => void) | null) => {
+  fitViewHandler = fn
+}
+
+export const triggerCanvasFitView = () => {
+  try {
+    fitViewHandler?.()
+  } catch {
+    /* no-op */
+  }
+}
+
 // v7.8.8 — A*-router callback registered by CanvasArea. The context
 // menu and any other non-canvas caller can ask "please re-route cable
 // X using A*" without needing to live inside the React Flow context.
