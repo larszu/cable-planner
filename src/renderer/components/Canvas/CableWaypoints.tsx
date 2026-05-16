@@ -105,9 +105,20 @@ export const CableWaypoints = ({
   if (routing === 'curved') return null
 
   const waypoints = cable.waypoints ?? []
-  // If no manual waypoints exist, use the currently rendered orthogonal path
-  // so segment hit-zones match what the user sees on screen.
-  const effectiveWaypoints = waypoints.length > 0 ? waypoints : (renderWaypoints ?? [])
+  // v7.9.4 — Drag-Hit-Zonen müssen GENAU dem entsprechen was der User
+  // sieht. Vorher: `waypoints.length > 0 ? waypoints : renderWaypoints`
+  // → die Hit-Zonen kamen aus den ROHEN cable.waypoints, die Visual-
+  // Linie aber aus den normalisierten (mit L-Ecken bei Diagonalen).
+  // Sobald eine Mutation einen Waypoint außerhalb der 3px Achsen-
+  // Toleranz ablegte, war das Segment-Polyline-Match falsch:
+  // - Visuell: orthogonal (durch normalizeOrthogonal injizierte L-Ecken)
+  // - Hit-Zonen: diagonale Segmente → durch
+  //   `if (orthogonal && diagonal) return null` rausgefiltert
+  // Resultat: Kabel klickbar, aber NICHT mehr per Segment ziehbar.
+  // Fix: `renderWaypoints` (= immer normalisiert) hat Priorität,
+  // Fallback auf raw waypoints nur wenn renderWaypoints fehlt.
+  const effectiveWaypoints =
+    renderWaypoints && renderWaypoints.length > 0 ? renderWaypoints : waypoints
   const points: { x: number; y: number }[] = [source, ...effectiveWaypoints, target]
   const totalPoints = points.length
 
@@ -285,6 +296,17 @@ export const CableWaypoints = ({
       el.removeEventListener('pointerup', handleUp)
       el.removeEventListener('pointercancel', handleUp)
       try { el.releasePointerCapture(event.pointerId) } catch { /* ignore */ }
+      // v7.9.4 — Gleiche Hygiene wie bei dragExisting: nach Segment-Drag
+      // alle redundanten kollinearen Waypoints rauswerfen, sonst
+      // sammeln sich bei jeder Segment-Bewegung 2 Punkte mehr an, was
+      // bei der nächsten Drag wieder eine "wer normalisiert was?"-
+      // Diskrepanz erzeugt.
+      const currentWPs =
+        useProjectStore.getState().project.cables.find((c) => c.id === cable.id)?.waypoints ?? []
+      const cleaned = cleanCollinear(currentWPs, source, target)
+      if (cleaned.length !== currentWPs.length) {
+        updateCable(cable.id, { waypoints: cleaned.length ? cleaned : undefined })
+      }
     }
     el.addEventListener('pointermove', handleMove as EventListener)
     el.addEventListener('pointerup', handleUp)
