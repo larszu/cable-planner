@@ -20,6 +20,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { detectDeviceKind, detectNetworkDevice } from '../../lib/deviceKind'
+import { ModeEditorDialog } from './ModeEditorDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { useGreenGoBeltpack } from '../../lib/greengoSync'
 import { exportDevicePatchSheet } from '../../lib/exportDevicePdf'
@@ -1012,6 +1013,32 @@ const DeviceModePicker = ({
   const setActiveDeviceMode = useProjectStore((s) => s.setActiveDeviceMode)
   const modes = equipment.modes ?? []
   const active = equipment.activeModeId
+  // v7.9.0 / Issue #113 — Mode-Editor-Dialog (richer form)
+  const [editorState, setEditorState] = useState<
+    | { mode: 'create' }
+    | { mode: 'edit'; modeId: string }
+    | null
+  >(null)
+  const editingMode =
+    editorState?.mode === 'edit'
+      ? modes.find((m) => m.id === editorState.modeId) ?? null
+      : null
+
+  const saveModeFromEditor = (newMode: import('../../types/equipment').DeviceMode) => {
+    if (editorState?.mode === 'edit') {
+      // Replace existing mode by id
+      updateEquipment(equipment.id, {
+        modes: modes.map((m) => (m.id === newMode.id ? newMode : m)),
+      })
+    } else {
+      // Append new mode and activate it
+      updateEquipment(equipment.id, {
+        modes: [...modes, newMode],
+        activeModeId: newMode.id,
+      })
+    }
+    setEditorState(null)
+  }
 
   const createModeFromPorts = () => {
     const name = window.prompt(
@@ -1127,6 +1154,14 @@ const DeviceModePicker = ({
             <div className="flex gap-1 border-t border-slate-800 bg-slate-950/40 px-1 py-1 text-[10px]">
               <button
                 type="button"
+                onClick={() => setEditorState({ mode: 'edit', modeId: m.id })}
+                className="rounded px-1.5 py-0.5 text-sky-300 hover:bg-sky-900/30"
+                title="Modus im Editor öffnen (Name, Beschreibung, Ports auf einmal)"
+              >
+                ✎ Editor
+              </button>
+              <button
+                type="button"
                 onClick={() => renameMode(m.id)}
                 className="rounded px-1.5 py-0.5 text-slate-300 hover:bg-slate-800"
                 title="Namen ändern"
@@ -1163,14 +1198,31 @@ const DeviceModePicker = ({
           </div>
         ))}
       </div>
-      <button
-        type="button"
-        onClick={createModeFromPorts}
-        className="w-full rounded border border-dashed border-emerald-700 bg-emerald-950/30 px-2 py-1 text-[11px] text-emerald-200 hover:bg-emerald-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-        title="Speichert das aktuelle Port-Layout des Geräts als neuen Modus."
-      >
-        + aus aktuellem Layout speichern
-      </button>
+      <div className="flex flex-col gap-1">
+        <button
+          type="button"
+          onClick={() => setEditorState({ mode: 'create' })}
+          className="w-full rounded border border-sky-700 bg-sky-900/30 px-2 py-1 text-[11px] text-sky-100 hover:bg-sky-800/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          title="Öffnet einen Editor in dem Name, Beschreibung und Ports des neuen Modus konfiguriert werden können (Issue #113)."
+        >
+          + Neuer Modus (Editor)
+        </button>
+        <button
+          type="button"
+          onClick={createModeFromPorts}
+          className="w-full rounded border border-dashed border-emerald-700 bg-emerald-950/30 px-2 py-1 text-[11px] text-emerald-200 hover:bg-emerald-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+          title="Speichert das aktuelle Port-Layout des Geräts als neuen Modus (Quick-Save)."
+        >
+          + aus aktuellem Layout speichern
+        </button>
+      </div>
+      <ModeEditorDialog
+        open={editorState !== null}
+        equipment={equipment}
+        editingMode={editingMode}
+        onCancel={() => setEditorState(null)}
+        onSave={saveModeFromEditor}
+      />
     </div>
   )
 }
