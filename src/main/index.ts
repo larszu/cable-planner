@@ -56,7 +56,26 @@ const createWindow = async () => {
   })
 
   if (isDev && process.env.VITE_DEV_SERVER_URL) {
-    await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
+    // v7.9.4 — Wenn Vite kurz nach `wait-on` noch nicht antwortet
+    // (z.B. HMR-Bundling läuft, Dependency-Optimizer kalt), bleibt
+    // Electron auf chrome-error://chromewebdata/ hängen und JEDE
+    // spätere Navigation wird cross-origin geblockt
+    // ("Unsafe attempt to load URL ... from frame with URL
+    // chrome-error://..."). Retry mit exponentiellem Backoff
+    // bis Vite tatsächlich liefert.
+    const url = process.env.VITE_DEV_SERVER_URL
+    let attempt = 0
+    while (attempt < 8) {
+      try {
+        await mainWindow.loadURL(url)
+        break
+      } catch (err) {
+        attempt += 1
+        const delay = Math.min(2000, 200 * 2 ** attempt)
+        console.warn(`[main] loadURL ${url} failed (attempt ${attempt}): ${(err as Error).message}. Retry in ${delay}ms`)
+        await new Promise((r) => setTimeout(r, delay))
+      }
+    }
     if (shouldOpenDevTools) {
       mainWindow.webContents.openDevTools({ mode: 'detach' })
     }
