@@ -294,6 +294,56 @@ export default function App() {
     }
   }
 
+  // v7.9.3 — Viewer-File-Export. Plan wird mit mode='viewer' und
+  // .cpviewer-Extension exportiert. Reviewer öffnen es im Cable-
+  // Planner und werden beim ersten Mal nach ihrem Namen gefragt.
+  const handleExportViewer = async () => {
+    if (!hasDesktopBridge) {
+      window.alert('Viewer-Export erfordert die Desktop-App.')
+      return
+    }
+    try {
+      const path = await cablePlannerApi.project.exportViewer(project)
+      if (path) {
+        window.alert(
+          `Viewer-Datei gespeichert:\n\n${path}\n\n` +
+            'Sende sie an deine Freelancer/Helfer. Beim Öffnen werden sie nach\n' +
+            'ihrem Namen gefragt — Anmerkungen sind dann automatisch attributiert.',
+        )
+      }
+    } catch (error) {
+      console.error('Viewer export failed:', error)
+      window.alert(`Viewer-Export fehlgeschlagen: ${(error as Error).message}`)
+    }
+  }
+
+  // v7.9.3 — Annotations von Reviewern zurückmergen ins Original.
+  // Liest annotations[] aus der .cpviewer und fügt sie unserer
+  // project.annotations[] hinzu (ID-basierte De-Duplikation).
+  const handleImportAnnotations = async () => {
+    if (!hasDesktopBridge) {
+      window.alert('Annotations-Re-Import erfordert die Desktop-App.')
+      return
+    }
+    const result = await cablePlannerApi.project.importAnnotations()
+    if (!result) return
+    const incoming = result.annotations as Array<{ id?: string } & Record<string, unknown>>
+    const current = project.annotations ?? []
+    const existingIds = new Set(current.map((a) => a.id))
+    const addAnnotation = useProjectStore.getState().addAnnotation
+    let imported = 0
+    for (const a of incoming) {
+      if (!a.id || typeof a.id !== 'string') continue
+      if (existingIds.has(a.id)) continue
+      addAnnotation(a as import('./types/project').ProjectAnnotation)
+      imported++
+    }
+    window.alert(
+      `${imported} neue Anmerkung${imported === 1 ? '' : 'en'} importiert.\n` +
+        `(${incoming.length - imported} bereits vorhanden, übersprungen.)`,
+    )
+  }
+
   const handleExportPdf = async (theme: 'dark' | 'light' = canvasTheme) => {
     setPdfExportThemeOverride(theme)
     await new Promise<void>((resolve) =>
@@ -444,6 +494,8 @@ export default function App() {
         onExportPng={() => void handleExportImage('png')}
         onExportJpeg={() => void handleExportImage('jpeg')}
         onOpenPrintDialog={() => setPrintDialogOpen(true)}
+        onExportViewer={() => void handleExportViewer()}
+        onImportAnnotations={() => void handleImportAnnotations()}
         onOpenGraphmlImport={() => setGraphmlImportOpen(true)}
         onAttachPdfToRentman={() => void handleUploadPdfToRentman()}
         onOpenRentmanCableExport={openRentmanCableExport}

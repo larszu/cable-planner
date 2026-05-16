@@ -48,6 +48,13 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.invoke('project:save', project, currentPath) as Promise<string | null>,
     saveProjectAs: (project: unknown) => ipcRenderer.invoke('project:save-as', project) as Promise<string | null>,
     getRecentProjects: () => ipcRenderer.invoke('project:get-recent') as Promise<string[]>,
+    // v7.9.3 — Viewer-File Export + Annotations-Re-Import.
+    exportViewer: (project: unknown) =>
+      ipcRenderer.invoke('project:export-viewer', project) as Promise<string | null>,
+    importAnnotations: () =>
+      ipcRenderer.invoke('project:import-annotations') as Promise<
+        { filePath: string; annotations: unknown[] } | null
+      >,
   },
   atem: {
     connect: (ip: string) => ipcRenderer.invoke('atem:connect', ip) as Promise<unknown>,
