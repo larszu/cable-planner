@@ -24,6 +24,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
+import { routeCable } from '../../lib/canvasViewport'
 import type { Cable, CableRouting } from '../../types/cable'
 
 /** Distance from a point to the nearest existing waypoint. Returns the
@@ -162,6 +163,17 @@ export const CableContextMenu = () => {
 
   const clearWaypoints = () => doUpdate({ waypoints: undefined })
 
+  /** v7.8.8 — Run A*-based pathfinding for this single cable. The
+   *  router writes its result into cable.waypoints, so the cable
+   *  immediately re-renders with the new path. */
+  const rerouteWithAStar = () => {
+    const ok = routeCable(cable.id)
+    if (!ok) {
+      window.alert('A*-Routing fehlgeschlagen — kein Pfad gefunden (Geräte blockieren?).')
+    }
+    close()
+  }
+
   const setRouting = (r: CableRouting) => doUpdate({ routing: r })
 
   const setBumpStyle = (s: 'auto' | 'on' | 'off') => doUpdate({ bumpStyle: s })
@@ -230,6 +242,9 @@ export const CableContextMenu = () => {
         disabled={waypointCount === 0}
       >
         Alle Wegpunkte löschen ({waypointCount})
+      </Item>
+      <Item onClick={rerouteWithAStar} icon="🧭">
+        Mit A* neu routen
       </Item>
       <Separator />
       {/* Routing submenu */}
