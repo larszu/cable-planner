@@ -186,6 +186,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   })
   const [wireDialogOpen, setWireDialogOpen] = useState(false)
   const [query, setQuery] = useState('')
+  // v7.9.0 / Issue #112 — zeige auch Templates die NICHT als 19"-
+  // Rack-Gerät markiert sind, damit man sie aus dem Builder
+  // suchen + nachträglich umflaggen kann.
+  const [showNonRack, setShowNonRack] = useState(false)
   const [selectedPlacementId, setSelectedPlacementId] = useState<string | null>(null)
   const [lastSavedSnapshot, setLastSavedSnapshot] = useState('')
   const [dragState, setDragState] = useState<
@@ -241,13 +245,18 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
 
   const filteredTemplates = useMemo(() => {
     const q = query.trim().toLowerCase()
+    // v7.9.0 / Issue #112 — Wenn showNonRack aktiv ist, zeigen wir ALLE
+    // Templates an; sonst nur die als Rack-Gerät markierten. Beim
+    // Hinzufügen eines nicht-rack-Templates fragen wir den User über
+    // window.prompt nach der HE-Höhe, damit das Template danach für
+    // alle zukünftigen Rack-Builds als Rack-Gerät zur Verfügung steht.
     const sorted = templates
-      .filter((template) => template.isRackDevice || template.rackUnits)
+      .filter((template) => showNonRack || template.isRackDevice || template.rackUnits)
       .slice()
       .sort((a, b) => `${a.category} ${a.name}`.localeCompare(`${b.category} ${b.name}`))
     if (!q) return sorted
     return sorted.filter((t) => `${t.name} ${t.category}`.toLowerCase().includes(q))
-  }, [query, templates])
+  }, [query, templates, showNonRack])
 
   const selectedPlacement = useMemo(
     () => draft.placements.find((placement) => placement.id === selectedPlacementId) ?? null,
@@ -362,7 +371,31 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   }
 
   const addTemplate = (template: EquipmentTemplate) => {
-    const units = parseUnits(template)
+    // v7.9.0 / Issue #112 — Wenn das Template (noch) nicht als 19"-
+    // Rack-Gerät markiert ist, fragen wir den User nach der HE-Höhe
+    // und markieren es im Draft entsprechend. Die ECHTE Library-
+    // Persistenz erfolgt erst beim Save (saveRack baut den Preset
+    // mit isRackDevice=true für alle Placements).
+    let effectiveTemplate = template
+    if (!template.isRackDevice && !template.rackUnits) {
+      const answer = window.prompt(
+        `Das Template "${template.name}" ist nicht als 19"-Rack-Gerät markiert.\n\n` +
+          `Wie hoch (HE) soll es im Rack sein? Leer = Abbruch.`,
+        '1',
+      )?.trim()
+      if (!answer) return
+      const heightHE = Math.max(1, Math.min(20, Math.round(Number(answer))))
+      if (!Number.isFinite(heightHE) || heightHE < 1) {
+        window.alert('Ungültige HE-Eingabe. Abgebrochen.')
+        return
+      }
+      effectiveTemplate = {
+        ...template,
+        isRackDevice: true,
+        rackUnits: heightHE,
+      }
+    }
+    const units = parseUnits(effectiveTemplate)
     let targetUnit = 1
     const occupied = draft.placements
       .map((item) => ({ start: item.startUnit, end: item.startUnit + item.rackUnits - 1 }))
@@ -374,7 +407,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     if (targetUnit + units - 1 > draft.totalUnits) {
       targetUnit = Math.max(1, draft.totalUnits - units + 1)
     }
-    const placement = toPlacement(template, targetUnit)
+    const placement = toPlacement(effectiveTemplate, targetUnit)
     setDraft((current) => ({ ...current, placements: [...current.placements, placement] }))
     setSelectedPlacementId(placement.id)
   }
@@ -576,27 +609,59 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               placeholder="Suchen..."
               className="mb-2 w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
             />
+            <label
+              className="mb-2 flex items-center gap-1 text-[10px] text-slate-400"
+              title="Wenn aktiv, werden auch Templates angezeigt die nicht als 19”-Rack-Gerät markiert sind. Beim Hinzufügen wirst du nach der HE-Höhe gefragt (Issue #112)."
+            >
+              <input
+                type="checkbox"
+                checked={showNonRack}
+                onChange={(e) => setShowNonRack(e.target.checked)}
+              />
+              Auch Nicht-Rack-Geräte zeigen
+            </label>
             <div className="max-h-[58vh] space-y-1 overflow-auto">
-              {filteredTemplates.map((template) => (
-                <div key={template.name} className="rounded border border-slate-800 bg-slate-900/60 p-2 text-xs">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="truncate font-medium text-slate-100">{template.name}</div>
-                      <div className="truncate text-[10px] text-slate-500">{template.category}</div>
+              {filteredTemplates.map((template) => {
+                const isRack = template.isRackDevice || !!template.rackUnits
+                return (
+                  <div
+                    key={template.name}
+                    className={`rounded border p-2 text-xs ${
+                      isRack
+                        ? 'border-slate-800 bg-slate-900/60'
+                        : 'border-amber-800/40 bg-amber-950/20'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1">
+                          <span className="truncate font-medium text-slate-100">{template.name}</span>
+                          {!isRack && (
+                            <span
+                              className="rounded bg-amber-800/60 px-1 text-[8px] font-semibold uppercase text-amber-200"
+                              title="Nicht als 19”-Rack-Gerät markiert — wird beim Hinzufügen abgefragt."
+                            >
+                              No-HE
+                            </span>
+                          )}
+                        </div>
+                        <div className="truncate text-[10px] text-slate-500">{template.category}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => addTemplate(template)}
+                        className="rounded bg-emerald-700 px-2 py-0.5 text-[11px] hover:bg-emerald-600"
+                      >
+                        + Rack
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => addTemplate(template)}
-                      className="rounded bg-emerald-700 px-2 py-0.5 text-[11px] hover:bg-emerald-600"
-                    >
-                      + Rack
-                    </button>
+                    <div className="mt-1 text-[10px] text-slate-400">
+                      {isRack ? `${parseUnits(template)} HE · ` : 'HE ? · '}
+                      {template.inputs.length} In · {template.outputs.length} Out
+                    </div>
                   </div>
-                  <div className="mt-1 text-[10px] text-slate-400">
-                    {parseUnits(template)} HE · {template.inputs.length} In · {template.outputs.length} Out
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
 
@@ -886,6 +951,18 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           return result
         })()}
         onCancel={() => setWireDialogOpen(false)}
+        onRenamePlacement={(placementId, newName) => {
+          // Mirror the rename into the rack draft so the change persists
+          // beyond this sub-canvas session.
+          updatePlacement(placementId, { name: newName })
+        }}
+        onShowPlacementInRack={(placementId) => {
+          // Close the wire dialog and select the placement so the user
+          // can edit panel images, U-position, ports etc. in the main
+          // rack layout panel.
+          setWireDialogOpen(false)
+          setSelectedPlacementId(placementId)
+        }}
         onApply={(cables) => {
           // Re-map index-based cables back to per-id storage in the draft.
           const next: InternalCableDraft[] = []

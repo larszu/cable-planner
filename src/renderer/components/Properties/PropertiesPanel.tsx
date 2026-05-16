@@ -5,6 +5,7 @@ import { EquipmentProperties } from './EquipmentProperties'
 import { LocationProperties } from './LocationProperties'
 import { TemplateProperties } from './TemplateProperties'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
+import { triggerCanvasFitView } from '../../lib/canvasViewport'
 
 export const PropertiesPanel = () => {
   const selectedEquipmentId = useProjectStore((state) => state.selectedEquipmentId)
@@ -81,7 +82,10 @@ export const PropertiesPanel = () => {
         }
         position={floatingPos}
         onMove={setFloatingPos}
-        onDock={() => setFloating(false)}
+        onDock={() => {
+          setFloating(false)
+          window.setTimeout(triggerCanvasFitView, 60)
+        }}
         width={propertiesWidth}
       >
         {body}
@@ -126,7 +130,10 @@ export const PropertiesPanel = () => {
         <div className="flex shrink-0 items-center gap-1">
           <button
             type="button"
-            onClick={() => setFloating(true)}
+            onClick={() => {
+              setFloating(true)
+              window.setTimeout(triggerCanvasFitView, 60)
+            }}
             title="Eigenschaften abdocken (frei verschiebbar)"
             aria-label="Eigenschaften abdocken"
             className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"

@@ -27,6 +27,11 @@ export const LocationBomDialog = () => {
   // the parts list in one document. Off by default — capturing a 2.4 MB
   // diagram region takes ~500 ms and the user might not always want it.
   const [includePlan, setIncludePlan] = useState(true)
+  // v7.9.0 / Issue #116 — Kabel-Liste lässt sich zwischen "Detail"
+  // (eine Zeile pro Kabel) und "Gruppiert" (eine Zeile pro Typ+Länge
+  // mit Stückzahl) umschalten. Gruppiert ist Default — das ist was
+  // ein Einkäufer/Materialwart bekommen will.
+  const [grouped, setGrouped] = useState(true)
   const [busy, setBusy] = useState(false)
 
   const location = (project.locations ?? []).find((l) => l.id === locationId)
@@ -57,6 +62,39 @@ export const LocationBomDialog = () => {
     )
     return { devices, internalCables, externalCables }
   }, [location, project.equipment, project.cables])
+
+  // v7.9.0 / Issue #116 — gruppiere Kabel nach Typ + Länge.
+  // Beispiel: 5× "BNC, 1m", 3× "BNC, 3m". Length wird auf 0.1 m
+  // gerundet damit minimale Float-Drifts (1.0001 vs 1) nicht zwei
+  // separate Gruppen erzeugen.
+  type CableGroup = {
+    key: string
+    type: string
+    length: number
+    count: number
+    examples: string[] // up to 3 cable names for tooltip
+  }
+  const aggregateCables = (cables: typeof internalCables): CableGroup[] => {
+    const map = new Map<string, CableGroup>()
+    for (const c of cables) {
+      const type = c.type ?? '—'
+      const length = Math.round((c.length ?? 0) * 10) / 10
+      const key = `${type}|${length}`
+      let g = map.get(key)
+      if (!g) {
+        g = { key, type, length, count: 0, examples: [] }
+        map.set(key, g)
+      }
+      g.count += 1
+      if (g.examples.length < 3 && c.name) g.examples.push(c.name)
+    }
+    // Sort by type, then length asc
+    return Array.from(map.values()).sort((a, b) =>
+      a.type === b.type ? a.length - b.length : a.type.localeCompare(b.type),
+    )
+  }
+  const internalGroups = aggregateCables(internalCables)
+  const externalGroups = aggregateCables(externalCables)
 
   if (!open || !location) return null
 
@@ -229,6 +267,17 @@ export const LocationBomDialog = () => {
             )}
             <label
               className="ml-auto flex items-center gap-1.5 text-[11px] text-slate-300"
+              title="Gruppiert gleiche Kabel (selber Typ + Länge) in einer Zeile mit Stückzahl — Standard für Stückliste."
+            >
+              <input
+                type="checkbox"
+                checked={grouped}
+                onChange={(e) => setGrouped(e.target.checked)}
+              />
+              Kabel zusammenfassen
+            </label>
+            <label
+              className="flex items-center gap-1.5 text-[11px] text-slate-300"
               title="Hängt einen Plan-Ausschnitt der Location als JPEG vor die Geräteliste — die Empfänger bekommen Stückliste + Plan in einem Dokument."
             >
               <input
@@ -277,6 +326,33 @@ export const LocationBomDialog = () => {
           <h3 className="mb-1 text-sm font-semibold text-slate-200">Interne Kabel</h3>
           {internalCables.length === 0 ? (
             <div className="mb-3 text-slate-500">Keine internen Kabel.</div>
+          ) : grouped ? (
+            <table className="mb-4 w-full text-xs">
+              <thead className="text-slate-400">
+                <tr className="border-b border-slate-700">
+                  <th className="px-2 py-1 text-right w-12">Stk.</th>
+                  <th className="px-2 py-1 text-left">Typ</th>
+                  <th className="px-2 py-1 text-right">Länge (m)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {internalGroups.map((g) => (
+                  <tr
+                    key={g.key}
+                    className="border-b border-slate-800"
+                    title={g.examples.length > 0 ? `Beispiele: ${g.examples.join(', ')}` : undefined}
+                  >
+                    <td className="px-2 py-1 text-right font-mono font-semibold text-emerald-300">
+                      {g.count}×
+                    </td>
+                    <td className="px-2 py-1 text-slate-200">{g.type}</td>
+                    <td className="px-2 py-1 text-right font-mono text-slate-400">
+                      {g.length}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           ) : (
             <table className="mb-4 w-full text-xs">
               <thead className="text-slate-400">
@@ -305,26 +381,55 @@ export const LocationBomDialog = () => {
               <h3 className="mb-1 text-sm font-semibold text-amber-200">
                 Externe Verbindungen
               </h3>
-              <table className="w-full text-xs">
-                <thead className="text-slate-400">
-                  <tr className="border-b border-slate-700">
-                    <th className="px-2 py-1 text-left">Name</th>
-                    <th className="px-2 py-1 text-left">Typ</th>
-                    <th className="px-2 py-1 text-right">Länge (m)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {externalCables.map((c) => (
-                    <tr key={c.id} className="border-b border-slate-800">
-                      <td className="px-2 py-1">{c.name ?? '—'}</td>
-                      <td className="px-2 py-1 text-slate-400">{c.type ?? '—'}</td>
-                      <td className="px-2 py-1 text-right font-mono text-slate-400">
-                        {c.length ?? '—'}
-                      </td>
+              {grouped ? (
+                <table className="w-full text-xs">
+                  <thead className="text-slate-400">
+                    <tr className="border-b border-slate-700">
+                      <th className="px-2 py-1 text-right w-12">Stk.</th>
+                      <th className="px-2 py-1 text-left">Typ</th>
+                      <th className="px-2 py-1 text-right">Länge (m)</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {externalGroups.map((g) => (
+                      <tr
+                        key={g.key}
+                        className="border-b border-slate-800"
+                        title={g.examples.length > 0 ? `Beispiele: ${g.examples.join(', ')}` : undefined}
+                      >
+                        <td className="px-2 py-1 text-right font-mono font-semibold text-amber-300">
+                          {g.count}×
+                        </td>
+                        <td className="px-2 py-1 text-slate-200">{g.type}</td>
+                        <td className="px-2 py-1 text-right font-mono text-slate-400">
+                          {g.length}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <table className="w-full text-xs">
+                  <thead className="text-slate-400">
+                    <tr className="border-b border-slate-700">
+                      <th className="px-2 py-1 text-left">Name</th>
+                      <th className="px-2 py-1 text-left">Typ</th>
+                      <th className="px-2 py-1 text-right">Länge (m)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {externalCables.map((c) => (
+                      <tr key={c.id} className="border-b border-slate-800">
+                        <td className="px-2 py-1">{c.name ?? '—'}</td>
+                        <td className="px-2 py-1 text-slate-400">{c.type ?? '—'}</td>
+                        <td className="px-2 py-1 text-right font-mono text-slate-400">
+                          {c.length ?? '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </>
           )}
         </main>

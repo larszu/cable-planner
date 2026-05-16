@@ -401,6 +401,13 @@ interface UiState extends PersistedUiState {
   rackEditor: { open: boolean; rackInstanceId?: string }
   openRackEditor: (rackInstanceId: string) => void
   closeRackEditor: () => void
+  /** v7.9.0 / Issue #120 — Trigger that the RackBuilder should open
+   *  seeded with these equipment ids (converted to placements). Null
+   *  when no seed is pending. Set by the canvas "Als Rack speichern"
+   *  toolbar button, consumed by LibraryPanel's RackBuilder mount. */
+  rackBuilderSeedTrigger: string[] | null
+  triggerRackBuilderFromSelection: (equipmentIds: string[]) => void
+  clearRackBuilderSeedTrigger: () => void
   /** v7.8.7 / Issues #106 + #117 — context-menu state for cables.
    *  `cableId` identifies the right-clicked cable; `screenX/screenY` is
    *  where the menu pops up; `flowX/flowY` is the click position in
@@ -634,6 +641,10 @@ export const useUiStore = create<UiState>((set) => ({
   rackEditor: { open: false },
   openRackEditor: (rackInstanceId) => set({ rackEditor: { open: true, rackInstanceId } }),
   closeRackEditor: () => set({ rackEditor: { open: false } }),
+  rackBuilderSeedTrigger: null,
+  triggerRackBuilderFromSelection: (equipmentIds) =>
+    set({ rackBuilderSeedTrigger: equipmentIds.length > 0 ? equipmentIds : null }),
+  clearRackBuilderSeedTrigger: () => set({ rackBuilderSeedTrigger: null }),
   cableContextMenu: { open: false },
   openCableContextMenu: ({ cableId, screenX, screenY, flowX, flowY }) =>
     set({ cableContextMenu: { open: true, cableId, screenX, screenY, flowX, flowY } }),

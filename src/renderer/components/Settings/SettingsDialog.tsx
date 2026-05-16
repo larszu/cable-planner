@@ -161,6 +161,128 @@ const SettingsCard = ({
 
 // --- Tab: Project ----------------------------------------------------------
 
+// v7.9.0 / Issue #122 — Library Export/Import. Erstes Stück eines
+// zentralen Library-Speichers: bisher leben customLibrary +
+// groupPresets in localStorage (pro Electron-Installation). Mit dem
+// Export kann der User die ganze Library als JSON-Datei speichern
+// (Dropbox-sync, Team-Backup, …) und auf einer anderen Installation
+// importieren. Eine echte Datei-pro-Gerät + Versions-Tracking
+// kommt in einer späteren Phase (#122 ist als Roadmap-Issue
+// offen markiert).
+interface LibraryExportFile {
+  type: 'cable-planner-library'
+  version: 1
+  exportedAt: string
+  customLibrary: import('../../types/equipment').EquipmentTemplate[]
+  groupPresets: import('../../types/equipment').GroupPreset[]
+  knownCategories: string[]
+}
+
+const LibraryExportSection = () => {
+  const customLibrary = useProjectStore((s) => s.customLibrary)
+  const groupPresets = useProjectStore((s) => s.groupPresets)
+  const knownCategories = useProjectStore((s) => s.knownCategories)
+  const addCustomTemplates = useProjectStore((s) => s.addCustomTemplates)
+  const setGroupPresets = useProjectStore((s) => s.setGroupPresets)
+  const addKnownCategories = useProjectStore((s) => s.addKnownCategories)
+  const [importBusy, setImportBusy] = useState(false)
+
+  const handleExport = () => {
+    const payload: LibraryExportFile = {
+      type: 'cable-planner-library',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      customLibrary,
+      groupPresets,
+      knownCategories,
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: 'application/json',
+    })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    const ts = new Date().toISOString().slice(0, 10)
+    a.download = `cable-planner-library-${ts}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = '' // allow re-import of the same file
+    setImportBusy(true)
+    try {
+      const text = await file.text()
+      const data = JSON.parse(text) as LibraryExportFile
+      if (data?.type !== 'cable-planner-library') {
+        window.alert('Diese Datei ist keine cable-planner-Library (falscher type).')
+        return
+      }
+      // Merge-by-name: addCustomTemplates only adds entries whose name
+      // doesn't exist yet. Damit überschreibt der Import nie eigene
+      // Edits am gleichen Template.
+      if (Array.isArray(data.customLibrary)) {
+        addCustomTemplates(data.customLibrary)
+      }
+      if (Array.isArray(data.knownCategories)) {
+        addKnownCategories(data.knownCategories)
+      }
+      // Group-Presets dürfen ebenfalls nur ergänzt werden, nicht
+      // ersetzt — wir kombinieren.
+      if (Array.isArray(data.groupPresets)) {
+        const byId = new Map(groupPresets.map((p) => [p.id, p]))
+        for (const p of data.groupPresets) {
+          if (!byId.has(p.id)) byId.set(p.id, p)
+        }
+        setGroupPresets(Array.from(byId.values()))
+      }
+      window.alert(
+        `Library importiert: ${data.customLibrary?.length ?? 0} Geräte-Templates, ${
+          data.groupPresets?.length ?? 0
+        } Gruppen-Presets (nur neue Einträge — vorhandene wurden NICHT überschrieben).`,
+      )
+    } catch (err) {
+      window.alert(
+        `Import fehlgeschlagen:\n\n${err instanceof Error ? err.message : String(err)}`,
+      )
+    } finally {
+      setImportBusy(false)
+    }
+  }
+
+  return (
+    <SettingsCard
+      title="Library Export / Import (#122)"
+      description="Sichere deine eigenen Geräte-Templates, Gruppen und Rack-Presets als JSON-Datei. Beim Import werden bestehende Einträge mit gleichem Namen NICHT überschrieben (merge-by-name)."
+    >
+      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-200">
+        <button
+          type="button"
+          onClick={handleExport}
+          className="rounded bg-emerald-700 px-3 py-1.5 hover:bg-emerald-600"
+          title={`${customLibrary.length} Geräte + ${groupPresets.length} Gruppen exportieren`}
+        >
+          ⬇ Library exportieren ({customLibrary.length} Geräte, {groupPresets.length} Gruppen)
+        </button>
+        <label className="rounded bg-sky-700 px-3 py-1.5 cursor-pointer hover:bg-sky-600">
+          {importBusy ? 'Importiere…' : '⬆ Library importieren…'}
+          <input
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={handleImport}
+            disabled={importBusy}
+          />
+        </label>
+      </div>
+    </SettingsCard>
+  )
+}
+
 const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
   const metadata = useProjectStore((s) => s.project.metadata)
   const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
@@ -326,6 +448,8 @@ const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           </div>
         )}
       </SettingsCard>
+
+      <LibraryExportSection />
 
       <div className="flex justify-end gap-2 pt-2">
         <button
