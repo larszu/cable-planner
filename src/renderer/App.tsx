@@ -42,6 +42,7 @@ import { useProject } from './hooks/useProject'
 import { useRentman } from './hooks/useRentman'
 import { cablePlannerApi, hasDesktopBridge } from './lib/bridge'
 import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
+import { printPdfBlob } from './lib/printPdfBlob'
 import { exportCanvasToImage } from './lib/exportImage'
 import { useProjectStore } from './store/projectStore'
 import { useUndoRedoShortcuts, projectHistory } from './store/projectHistory'
@@ -365,6 +366,32 @@ export default function App() {
     }
   }
 
+  /** v7.9.4 — Plan-PDF in den OS-Drucker statt File-Download.
+   *  Baut die gleiche PDF wie handleExportPdf, schickt sie aber durch
+   *  printPdfBlob → unsichtbares iframe → window.print() → OS-Druckdialog. */
+  const handlePrintPdf = async (theme: 'dark' | 'light' = canvasTheme) => {
+    setPdfExportThemeOverride(theme)
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    )
+    try {
+      const bytes = await exportCanvasToPdfBytes(project.metadata, 0.85, {
+        backgroundTheme: theme,
+        bgVariant: exportBgVariant,
+        gridSize: exportGridSize,
+        bgOpacity: exportBgOpacity,
+        customPalette: exportCustomPalette,
+      })
+      const blob = new Blob([new Uint8Array(bytes)], { type: 'application/pdf' })
+      printPdfBlob(blob)
+    } catch (error) {
+      console.error('PDF print failed:', error)
+      alert(`PDF print failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setPdfExportThemeOverride(null)
+    }
+  }
+
   /**
    * Render the canvas as a PDF and attach it to the linked Rentman project.
    *
@@ -588,9 +615,8 @@ export default function App() {
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExportPdf={(theme) => handleExportPdf(theme)}
+        onPrintPdf={(theme) => handlePrintPdf(theme)}
         onExportImage={(format) => handleExportImage(format)}
-        onOpenCableBom={() => setCableBomOpen(true)}
-        onOpenPrintDialog={() => setPrintDialogOpen(true)}
       />
 
       <ProjectMetaDialog

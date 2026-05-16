@@ -1,74 +1,66 @@
-// v7.9.0 / Issue #110 — Unified Export Dialog
-// v7.9.2 — Erweitert zu ECHTEM Hub. User-Issue:
-//   "Es gibt Exportieren Button in top Toolbar, Kabel Stückliste
-//   exportieren button in topbar, drucken button in top bar. in dem
-//   drucken button gibt es auch nochmal eine exportieren funktion.
-//   Und in einzelnen geräten gibt es auch nochmal druck funktionen.
-//   Vereinheitliche zu einer Großen funktion die alles kann und
-//   übersiichtlich UI gestaltet ist. Behale alle funktionen. mache
-//   es non destruktiv. aber verbessere die UX deutlich!"
-//
-// Architektur:
-//   - Eine zentrale Dialog-Komponente mit 4 Sektionen (Tabs):
-//     1. Plan (Canvas → PDF/PNG/JPEG)
-//     2. Patch-Sheets (pro Gerät, einzeln oder Batch, A4/A3)
-//     3. Kabel-Stückliste (BOM als CSV oder PDF)
-//     4. Drucken (OS-Druckdialog via PrintDialog)
-//   - Jede Sektion enthält die WICHTIGSTEN Optionen direkt; für
-//     Advanced-Fälle gibt es einen "Erweitert…"-Button der den
-//     existierenden Detail-Dialog öffnet.
-//   - Bestehende Standalone-Dialoge (CableBomDialog, PrintDialog,
-//     LocationBomDialog) bleiben funktionsfähig und werden NICHT
-//     dupliziert — dieser Hub ist die zentrale UI darüber.
+// v7.9.0 / Issue #110 — Unified Export Dialog (Hub).
+// v7.9.4 — User-Iteration: jede Sektion enthält jetzt direkt die volle
+//          Funktionalität (kein Delegate an Standalone-Dialoge mehr):
+//   - Plan: "Als PDF herunterladen" UND "Drucken"
+//   - Patch-Sheets: "Einzel PDF", "Sammel PDF", "Drucken" — A4/A3-
+//     Auswahl erscheint NACH dem Klick
+//   - Kabel-Stückliste: voller Inhalt direkt eingebettet (keine
+//     "Öffnen…"-Schaltfläche mehr)
+//   - Print-Tab entfernt — Drucken passiert jetzt pro Sektion
 
 import { useMemo, useState } from 'react'
+import jsPDF from 'jspdf'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
-import { exportDevicePatchSheet, exportDevicesPatchSheetsBatch } from '../../lib/exportDevicePdf'
+import {
+  buildDevicePatchSheetBlob,
+  buildDevicesPatchSheetsBatchBlob,
+  exportDevicePatchSheet,
+  exportDevicesPatchSheetsBatch,
+} from '../../lib/exportDevicePdf'
+import { printPdfBlob } from '../../lib/printPdfBlob'
+import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
+import { downloadBlob } from '../../lib/downloadBlob'
+import type { Cable } from '../../types/cable'
 
 export type ExportFormat = 'pdf' | 'png' | 'jpeg'
-type Section = 'plan' | 'patch' | 'bom' | 'print'
+type Section = 'plan' | 'patch' | 'bom'
 
 interface ExportDialogProps {
   open: boolean
   onClose: () => void
-  /** Triggers the actual export pipelines App.tsx already owns. */
+  /** Triggert PDF-Download des Plans. */
   onExportPdf: (theme: 'dark' | 'light') => Promise<void> | void
+  /** Triggert OS-Druckdialog mit dem Plan-PDF. */
+  onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
+  /** Triggert PNG/JPEG-Download des Plans. */
   onExportImage: (format: 'png' | 'jpeg') => Promise<void> | void
-  /** Opens the standalone Kabel-Stückliste dialog for advanced options. */
-  onOpenCableBom?: () => void
-  /** Opens the standalone OS-Print dialog with device selection. */
-  onOpenPrintDialog?: () => void
 }
 
 const SECTION_LABEL: Record<Section, string> = {
   plan: 'Plan',
   patch: 'Patch-Sheets',
   bom: 'Kabel-Stückliste',
-  print: 'Drucken',
 }
 
 const SECTION_ICON: Record<Section, string> = {
   plan: '📑',
   patch: '🔌',
   bom: '🧮',
-  print: '🖨',
 }
 
 const SECTION_DESC: Record<Section, string> = {
-  plan: 'Den gesamten Canvas-Plan als PDF, PNG oder JPEG exportieren — Vektor-PDF mit Titelblock für Druck, PNG/JPEG für E-Mail.',
-  patch: 'Pro Gerät eine Port-Belegungs-Liste — ideal zum Aufkleben am Gerät. Einzeln oder als Sammel-PDF (eine Seite pro Gerät).',
-  bom: 'Stückliste aller Kabel im Projekt (Typ + Länge zusammengefasst). Als CSV für Excel oder als PDF mit Rentman-Abgleich.',
-  print: 'OS-Druckdialog mit Vorschau und Geräte-Auswahl. Druckt Plan oder Patch-Sheets direkt aufs Papier.',
+  plan: 'Den Canvas-Plan als PDF herunterladen oder direkt drucken. PDF mit Titelblock — druckfertig. Auch PNG/JPEG für E-Mail/Slack.',
+  patch: 'Pro Gerät eine Port-Belegungs-Liste — ideal zum Aufkleben am Gerät. Auswahl an Geräten, dann Einzel-PDF, Sammel-PDF oder direkt drucken. Papier-Format wird nach Klick abgefragt.',
+  bom: 'Stückliste aller Kabel im Projekt (Typ + Länge zusammengefasst). Editierbare Rentman-Planung daneben. Export als CSV oder PDF.',
 }
 
 export const ExportDialog = ({
   open,
   onClose,
   onExportPdf,
+  onPrintPdf,
   onExportImage,
-  onOpenCableBom,
-  onOpenPrintDialog,
 }: ExportDialogProps) => {
   const [section, setSection] = useState<Section>('plan')
 
@@ -81,10 +73,10 @@ export const ExportDialog = ({
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div className="flex h-[80vh] w-full max-w-4xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl sm:flex-row">
+      <div className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl sm:flex-row">
         <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-slate-800 bg-slate-950/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
           <h3 className="mb-2 hidden px-2 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
-            Exportieren
+            Exportieren & Drucken
           </h3>
           {(Object.keys(SECTION_LABEL) as Section[]).map((id) => (
             <button
@@ -106,7 +98,7 @@ export const ExportDialog = ({
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2">
             <h2 className="text-base font-semibold">
-              {SECTION_ICON[section]} {SECTION_LABEL[section]} exportieren
+              {SECTION_ICON[section]} {SECTION_LABEL[section]}
             </h2>
             <button
               type="button"
@@ -121,17 +113,13 @@ export const ExportDialog = ({
             {section === 'plan' && (
               <PlanSection
                 onExportPdf={onExportPdf}
+                onPrintPdf={onPrintPdf}
                 onExportImage={onExportImage}
                 onClose={onClose}
               />
             )}
             {section === 'patch' && <PatchSheetSection onClose={onClose} />}
-            {section === 'bom' && (
-              <BomSection onOpenCableBom={onOpenCableBom} onClose={onClose} />
-            )}
-            {section === 'print' && (
-              <PrintSection onOpenPrintDialog={onOpenPrintDialog} onClose={onClose} />
-            )}
+            {section === 'bom' && <BomSection />}
           </div>
         </main>
       </div>
@@ -144,10 +132,12 @@ export const ExportDialog = ({
 // --------------------------------------------------------------------
 const PlanSection = ({
   onExportPdf,
+  onPrintPdf,
   onExportImage,
   onClose,
 }: {
   onExportPdf: (theme: 'dark' | 'light') => Promise<void> | void
+  onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
   onExportImage: (format: 'png' | 'jpeg') => Promise<void> | void
   onClose: () => void
 }) => {
@@ -162,6 +152,19 @@ const PlanSection = ({
     try {
       if (format === 'pdf') await onExportPdf(pdfTheme)
       else await onExportImage(format)
+      onClose()
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handlePrint = async () => {
+    setBusy(true)
+    try {
+      // Nur PDF ist sinnvoll druckbar — der OS-Druckdialog erwartet
+      // ein PDF im iframe. PNG/JPEG würde direkt das Bild öffnen,
+      // ungünstig formatiert für Print.
+      await onPrintPdf(pdfTheme)
       onClose()
     } finally {
       setBusy(false)
@@ -235,14 +238,30 @@ const PlanSection = ({
         Datei wird unter <code className="rounded bg-slate-800 px-1 py-0.5">{projectName || 'cable-planner'}</code> heruntergeladen.
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        {/* v7.9.4 — Drucken-Button neben "Als PDF herunterladen"
+            (User-Request). Nur sinnvoll für PDF; bei PNG/JPEG
+            disabled mit Tooltip. */}
+        <button
+          type="button"
+          onClick={handlePrint}
+          disabled={busy || format !== 'pdf'}
+          title={
+            format === 'pdf'
+              ? 'Plan-PDF im OS-Druckdialog öffnen'
+              : 'Drucken funktioniert nur mit Format PDF — bei PNG/JPEG einfach herunterladen.'
+          }
+          className="rounded bg-indigo-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-40"
+        >
+          🖨 Drucken
+        </button>
         <button
           type="button"
           onClick={handleExport}
           disabled={busy}
           className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
         >
-          {busy ? 'Exportiere…' : `Als ${format.toUpperCase()} herunterladen`}
+          {busy ? 'Verarbeite…' : `Als ${format.toUpperCase()} herunterladen`}
         </button>
       </div>
     </div>
@@ -252,17 +271,26 @@ const PlanSection = ({
 // --------------------------------------------------------------------
 // Patch sheet section
 // --------------------------------------------------------------------
+type PatchAction = 'individual' | 'batch' | 'print'
+type PaperFormat = 'a4' | 'a3'
+
 const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
   const equipment = useProjectStore((s) => s.project.equipment)
   const cables = useProjectStore((s) => s.project.cables)
-  const [paper, setPaper] = useState<'a4' | 'a3'>('a4')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [busy, setBusy] = useState(false)
   const [filter, setFilter] = useState('')
+  // v7.9.4 — "Pending" Action nachdem der User auf Einzel/Sammel/Drucken
+  // geklickt hat. Solange das gesetzt ist, zeigen wir die A4/A3-
+  // Auswahl statt der drei Buttons. Nach Auswahl wird der Job
+  // ausgeführt und pendingAction wieder geleert.
+  const [pendingAction, setPendingAction] = useState<PatchAction | null>(null)
 
   const filtered = useMemo(() => {
     const q = filter.trim().toLowerCase()
-    return equipment.filter((d) => !q || d.name.toLowerCase().includes(q) || d.category.toLowerCase().includes(q))
+    return equipment.filter(
+      (d) => !q || d.name.toLowerCase().includes(q) || d.category.toLowerCase().includes(q),
+    )
   }, [equipment, filter])
 
   const toggleAll = () => {
@@ -270,43 +298,42 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
     else setSelectedIds(new Set(filtered.map((d) => d.id)))
   }
 
-  const handleExport = async (asBatch: boolean) => {
+  const runAction = async (action: PatchAction, paper: PaperFormat) => {
     if (selectedIds.size === 0) return
     setBusy(true)
     try {
       const devices = equipment.filter((d) => selectedIds.has(d.id))
-      if (asBatch) {
+      if (action === 'batch') {
         await exportDevicesPatchSheetsBatch(devices, equipment, cables, { format: paper })
-      } else {
+      } else if (action === 'individual') {
         for (const d of devices) {
           await exportDevicePatchSheet(d, equipment, cables, { format: paper })
         }
+      } else if (action === 'print') {
+        // Combined PDF in einen Print-Job; mehrere Devices → eine PDF
+        // mit einer Seite pro Gerät, damit der User EINEN Druckdialog
+        // bekommt statt N.
+        const blob =
+          devices.length === 1
+            ? buildDevicePatchSheetBlob(devices[0], equipment, cables, { format: paper })
+            : buildDevicesPatchSheetsBatchBlob(devices, equipment, cables, { format: paper })
+        if (blob) printPdfBlob(blob)
       }
       onClose()
     } finally {
       setBusy(false)
+      setPendingAction(null)
     }
+  }
+
+  const actionLabel: Record<PatchAction, string> = {
+    individual: 'Einzel-PDFs',
+    batch: 'Sammel-PDF',
+    print: 'Drucken',
   }
 
   return (
     <div className="space-y-3">
-      <fieldset className="space-y-1">
-        <legend className="text-xs font-semibold text-slate-300">Papier</legend>
-        <div className="flex gap-2">
-          {(['a4', 'a3'] as const).map((p) => (
-            <label
-              key={p}
-              className={`flex cursor-pointer items-center gap-1 rounded border px-3 py-1 text-xs ${
-                paper === p ? 'border-sky-500 bg-sky-900/30' : 'border-slate-700 bg-slate-950'
-              }`}
-            >
-              <input type="radio" name="paper" checked={paper === p} onChange={() => setPaper(p)} />
-              <span>{p.toUpperCase()}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
       <div>
         <div className="mb-1 flex items-center justify-between">
           <span className="text-xs font-semibold text-slate-300">
@@ -360,101 +387,388 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
         </div>
       </div>
 
-      <div className="flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={() => handleExport(false)}
-          disabled={busy || selectedIds.size === 0}
-          className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600 disabled:opacity-40"
-          title="Eine PDF pro selektiertem Gerät"
-        >
-          Einzeln ({selectedIds.size} Datei{selectedIds.size === 1 ? '' : 'en'})
-        </button>
-        <button
-          type="button"
-          onClick={() => handleExport(true)}
-          disabled={busy || selectedIds.size === 0}
-          className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
-          title="Eine Sammel-PDF — ein Gerät pro Seite"
-        >
-          Sammel-PDF ({selectedIds.size} Seite{selectedIds.size === 1 ? '' : 'n'})
-        </button>
-      </div>
+      {/* v7.9.4 — Action-Zeile. Wenn keine pending action: 3 Buttons.
+          Wenn pending action: A4/A3-Auswahl + Abbrechen. */}
+      {pendingAction == null ? (
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => setPendingAction('individual')}
+            disabled={busy || selectedIds.size === 0}
+            className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600 disabled:opacity-40"
+            title="Eine PDF pro selektiertem Gerät"
+          >
+            Einzel PDF ({selectedIds.size} Datei{selectedIds.size === 1 ? '' : 'en'})
+          </button>
+          <button
+            type="button"
+            onClick={() => setPendingAction('batch')}
+            disabled={busy || selectedIds.size === 0}
+            className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600 disabled:opacity-40"
+            title="Eine Sammel-PDF — ein Gerät pro Seite"
+          >
+            Sammel-PDF ({selectedIds.size} Seite{selectedIds.size === 1 ? '' : 'n'})
+          </button>
+          <button
+            type="button"
+            onClick={() => setPendingAction('print')}
+            disabled={busy || selectedIds.size === 0}
+            className="rounded bg-indigo-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-40"
+            title="Patch-Sheet(s) im OS-Druckdialog öffnen"
+          >
+            🖨 Drucken
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center justify-end gap-2 rounded border border-sky-700/60 bg-sky-950/40 px-3 py-2">
+          <span className="mr-auto text-xs text-slate-300">
+            <span className="font-semibold text-sky-200">{actionLabel[pendingAction]}</span>
+            {' '}— Papier-Format wählen:
+          </span>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void runAction(pendingAction, 'a4')}
+            className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+          >
+            A4
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void runAction(pendingAction, 'a3')}
+            className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+          >
+            A3
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => setPendingAction(null)}
+            className="rounded bg-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-600 disabled:opacity-40"
+          >
+            Abbrechen
+          </button>
+        </div>
+      )}
     </div>
   )
 }
 
 // --------------------------------------------------------------------
-// BOM section — delegates to existing CableBomDialog for advanced options
+// BOM section — Kabel-Stückliste DIREKT eingebettet
+// User-Request: "Kabel Stückliste öffnen Button ist ein Schritt zu
+// viel. Im Exportieren-Dialog kann direkt Kabel-Stückliste Fenster
+// eingebunden sein."
 // --------------------------------------------------------------------
-const BomSection = ({
-  onOpenCableBom,
-  onClose,
-}: {
-  onOpenCableBom?: () => void
-  onClose: () => void
-}) => {
-  return (
-    <div className="space-y-3 text-xs">
-      <div className="rounded border border-slate-700 bg-slate-950/50 p-3">
-        <h4 className="mb-1 text-sm font-semibold">Kabel-Stückliste (BOM)</h4>
-        <p className="mb-2 text-slate-400">
-          Aggregiert alle Kabel im Projekt nach Typ + Länge. Kann zusätzlich
-          gegen Rentman abgeglichen werden (Verbaut vs. Geplant vs. Differenz).
-        </p>
-        <ul className="ml-4 list-disc space-y-0.5 text-slate-400">
-          <li>CSV — für Excel / Google Sheets</li>
-          <li>PDF — gedrucktes Datenblatt mit Rentman-Differenzen</li>
-        </ul>
-        <button
-          type="button"
-          onClick={() => {
-            onOpenCableBom?.()
-            onClose()
-          }}
-          disabled={!onOpenCableBom}
-          className="mt-3 rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
-        >
-          Kabel-Stückliste öffnen…
-        </button>
-      </div>
-    </div>
-  )
+interface BomRow {
+  key: string
+  type: string
+  length: number
+  built: number
+  planned: number
+  diff: number
+  sample?: Cable
 }
 
-// --------------------------------------------------------------------
-// Print section — delegates to existing PrintDialog
-// --------------------------------------------------------------------
-const PrintSection = ({
-  onOpenPrintDialog,
-  onClose,
-}: {
-  onOpenPrintDialog?: () => void
-  onClose: () => void
-}) => {
+const bomKeyOf = (c: Pick<Cable, 'type' | 'length'>): string => `${c.type}|${c.length}`
+const parseBomKey = (key: string): { type: string; length: number } => {
+  const [type, lenStr] = key.split('|')
+  return { type, length: Number(lenStr) || 0 }
+}
+const fmtSignFixed = (n: number): string => (n > 0 ? `+${n}` : String(n))
+
+const BomSection = () => {
+  const project = useProjectStore((s) => s.project)
+  const updateMeta = useProjectStore((s) => s.updateProjectMetadata)
+  const [draftPlan, setDraftPlan] = useState<Record<string, number> | null>(null)
+
+  const rows: BomRow[] = useMemo(() => {
+    const built = new Map<string, { count: number; sample: Cable }>()
+    for (const c of project.cables) {
+      const k = bomKeyOf(c)
+      const entry = built.get(k)
+      if (entry) entry.count += 1
+      else built.set(k, { count: 1, sample: c })
+    }
+    const planned = draftPlan ?? project.metadata.rentmanCablePlan ?? {}
+    const keys = new Set<string>([...built.keys(), ...Object.keys(planned)])
+    const list: BomRow[] = []
+    for (const k of keys) {
+      const b = built.get(k)?.count ?? 0
+      const p = planned[k] ?? 0
+      const parsed = parseBomKey(k)
+      list.push({
+        key: k,
+        type: parsed.type,
+        length: parsed.length,
+        built: b,
+        planned: p,
+        diff: b - p,
+        sample: built.get(k)?.sample,
+      })
+    }
+    list.sort((a, b) =>
+      a.type === b.type ? a.length - b.length : a.type.localeCompare(b.type),
+    )
+    return list
+  }, [project.cables, project.metadata.rentmanCablePlan, draftPlan])
+
+  const currentPlan = draftPlan ?? project.metadata.rentmanCablePlan ?? {}
+  const setPlanned = (key: string, value: number) => {
+    const next = { ...currentPlan, [key]: Math.max(0, value) }
+    if (value <= 0) delete next[key]
+    setDraftPlan(next)
+  }
+  const savePlan = () => {
+    if (draftPlan) {
+      updateMeta({ rentmanCablePlan: draftPlan })
+      setDraftPlan(null)
+    }
+  }
+  const discardPlan = () => setDraftPlan(null)
+
+  const exportCsv = () => {
+    const lines = [['Typ', 'Länge (m)', 'Verbaut', 'Rentman geplant', 'Differenz'].join(';')]
+    for (const r of rows) {
+      lines.push(
+        [r.type, String(r.length), String(r.built), String(r.planned), fmtSignFixed(r.diff)].join(';'),
+      )
+    }
+    downloadBlob(
+      `${project.metadata.name || 'cable-planner'}-kabel-bom.csv`,
+      '﻿' + lines.join('\r\n'),
+      'text/csv;charset=utf-8',
+    )
+  }
+
+  const exportPdf = () => {
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
+    const pageWidth = pdf.internal.pageSize.getWidth()
+    const margin = 32
+    pdf.setFontSize(14)
+    pdf.setTextColor(15)
+    pdf.text(sanitizeForPdf('Kabel-Stückliste'), margin, margin + 4)
+    pdf.setFontSize(10)
+    pdf.setTextColor(60)
+    pdf.text(sanitizeForPdf(project.metadata.name || '-'), margin, margin + 22)
+    pdf.setFontSize(8)
+    pdf.text(sanitizeForPdf(new Date().toLocaleString()), pageWidth - margin, margin + 4, {
+      align: 'right',
+    })
+    const colX = [margin, margin + 160, margin + 260, margin + 340, margin + 440]
+    const headerY = margin + 46
+    pdf.setFillColor(230, 230, 230)
+    pdf.rect(margin, headerY - 10, pageWidth - margin * 2, 14, 'F')
+    pdf.setTextColor(15)
+    pdf.setFontSize(9)
+    ;['Typ', 'Länge (m)', 'Verbaut', 'Rentman', 'Differenz'].forEach((h, i) => {
+      pdf.text(sanitizeForPdf(h), colX[i] + 2, headerY)
+    })
+    let y = headerY + 14
+    pdf.setFontSize(9)
+    for (const r of rows) {
+      if (y > pdf.internal.pageSize.getHeight() - margin) {
+        pdf.addPage()
+        y = margin
+      }
+      pdf.setTextColor(15)
+      pdf.text(sanitizeForPdf(r.type), colX[0] + 2, y)
+      pdf.text(sanitizeForPdf(String(r.length)), colX[1] + 2, y)
+      pdf.text(sanitizeForPdf(String(r.built)), colX[2] + 2, y)
+      pdf.text(sanitizeForPdf(String(r.planned)), colX[3] + 2, y)
+      if (r.diff === 0) pdf.setTextColor(20, 120, 20)
+      else if (r.diff > 0) pdf.setTextColor(180, 80, 20)
+      else pdf.setTextColor(180, 20, 20)
+      pdf.text(sanitizeForPdf(fmtSignFixed(r.diff)), colX[4] + 2, y)
+      pdf.setDrawColor(220)
+      pdf.line(margin, y + 4, pageWidth - margin, y + 4)
+      y += 14
+    }
+    pdf.save(
+      `${(project.metadata.name || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')}-kabel-bom.pdf`,
+    )
+  }
+
+  const printPdf = () => {
+    // Gleiches Layout wie exportPdf, aber als Blob in den OS-Druckdialog.
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
+    const pageWidth = pdf.internal.pageSize.getWidth()
+    const margin = 32
+    pdf.setFontSize(14)
+    pdf.text(sanitizeForPdf('Kabel-Stückliste'), margin, margin + 4)
+    pdf.setFontSize(10)
+    pdf.setTextColor(60)
+    pdf.text(sanitizeForPdf(project.metadata.name || '-'), margin, margin + 22)
+    pdf.setFontSize(8)
+    pdf.text(sanitizeForPdf(new Date().toLocaleString()), pageWidth - margin, margin + 4, {
+      align: 'right',
+    })
+    const colX = [margin, margin + 160, margin + 260, margin + 340, margin + 440]
+    const headerY = margin + 46
+    pdf.setFillColor(230, 230, 230)
+    pdf.rect(margin, headerY - 10, pageWidth - margin * 2, 14, 'F')
+    pdf.setTextColor(15)
+    pdf.setFontSize(9)
+    ;['Typ', 'Länge (m)', 'Verbaut', 'Rentman', 'Differenz'].forEach((h, i) => {
+      pdf.text(sanitizeForPdf(h), colX[i] + 2, headerY)
+    })
+    let y = headerY + 14
+    pdf.setFontSize(9)
+    for (const r of rows) {
+      if (y > pdf.internal.pageSize.getHeight() - margin) {
+        pdf.addPage()
+        y = margin
+      }
+      pdf.setTextColor(15)
+      pdf.text(sanitizeForPdf(r.type), colX[0] + 2, y)
+      pdf.text(sanitizeForPdf(String(r.length)), colX[1] + 2, y)
+      pdf.text(sanitizeForPdf(String(r.built)), colX[2] + 2, y)
+      pdf.text(sanitizeForPdf(String(r.planned)), colX[3] + 2, y)
+      if (r.diff === 0) pdf.setTextColor(20, 120, 20)
+      else if (r.diff > 0) pdf.setTextColor(180, 80, 20)
+      else pdf.setTextColor(180, 20, 20)
+      pdf.text(sanitizeForPdf(fmtSignFixed(r.diff)), colX[4] + 2, y)
+      pdf.setDrawColor(220)
+      pdf.line(margin, y + 4, pageWidth - margin, y + 4)
+      y += 14
+    }
+    const blob = pdf.output('blob') as Blob
+    printPdfBlob(blob)
+  }
+
   return (
-    <div className="space-y-3 text-xs">
-      <div className="rounded border border-slate-700 bg-slate-950/50 p-3">
-        <h4 className="mb-1 text-sm font-semibold">OS-Druckdialog</h4>
-        <p className="mb-2 text-slate-400">
-          Öffnet den Druckdialog deines Betriebssystems mit Live-Vorschau.
-          Drucker, Papierformat und Skalierung wählst du dort.
-        </p>
-        <ul className="ml-4 list-disc space-y-0.5 text-slate-400">
-          <li>Gesamten Plan (Canvas) drucken</li>
-          <li>Geräte-Patch-Sheets (1 Seite pro Gerät) drucken</li>
-        </ul>
-        <button
-          type="button"
-          onClick={() => {
-            onOpenPrintDialog?.()
-            onClose()
-          }}
-          disabled={!onOpenPrintDialog}
-          className="mt-3 rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
-        >
-          Druck-Dialog öffnen…
-        </button>
+    <div className="flex h-full flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+        <span>
+          Verbaute Kabel: <b className="text-slate-200">{project.cables.length}</b>
+        </span>
+        {rows.some((r) => r.diff < 0) && (
+          <span className="rounded bg-red-900/50 px-2 py-0.5 font-semibold text-red-300">
+            ⚠ {rows.filter((r) => r.diff < 0).length} Kabeltype(n) fehlen
+          </span>
+        )}
+        {rows.length > 0 && rows.every((r) => r.diff >= 0) && rows.some((r) => r.planned > 0) && (
+          <span className="rounded bg-emerald-900/50 px-2 py-0.5 font-semibold text-emerald-300">
+            ✓ Alle geplanten Mengen abgedeckt
+          </span>
+        )}
+        <div className="ml-auto flex gap-2">
+          <button
+            type="button"
+            onClick={exportCsv}
+            className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+          >
+            CSV
+          </button>
+          <button
+            type="button"
+            onClick={exportPdf}
+            className="rounded bg-amber-700 px-2 py-1 text-xs hover:bg-amber-600"
+          >
+            PDF
+          </button>
+          <button
+            type="button"
+            onClick={printPdf}
+            className="rounded bg-indigo-700 px-2 py-1 text-xs font-medium text-white hover:bg-indigo-600"
+            title="Kabel-Stückliste im OS-Druckdialog öffnen"
+          >
+            🖨 Drucken
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-auto rounded border border-slate-800 bg-slate-950/40">
+        <table className="w-full text-xs">
+          <thead className="sticky top-0 bg-slate-950 text-slate-300">
+            <tr>
+              <th className="px-3 py-2 text-left">Typ</th>
+              <th className="px-3 py-2 text-right">Länge (m)</th>
+              <th className="px-3 py-2 text-right">Verbaut</th>
+              <th className="px-3 py-2 text-right">Rentman geplant</th>
+              <th className="px-3 py-2 text-right">Differenz</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length === 0 && (
+              <tr>
+                <td className="px-3 py-4 text-center text-slate-500" colSpan={5}>
+                  Keine Kabel im Projekt.
+                </td>
+              </tr>
+            )}
+            {rows.map((r) => (
+              <tr
+                key={r.key}
+                className={`border-t border-slate-800 ${r.diff < 0 ? 'bg-red-950/30' : ''}`}
+              >
+                <td className="px-3 py-1">
+                  <span className="font-medium text-slate-100">{r.type}</span>
+                  {r.sample && (
+                    <span className="ml-1 text-[10px] text-slate-500">({r.sample.name})</span>
+                  )}
+                </td>
+                <td className="px-3 py-1 text-right font-mono">{r.length}</td>
+                <td className="px-3 py-1 text-right font-mono">{r.built}</td>
+                <td className="px-3 py-1 text-right">
+                  <input
+                    type="number"
+                    min={0}
+                    value={r.planned}
+                    onChange={(e) => setPlanned(r.key, Number(e.target.value))}
+                    className="w-16 rounded border border-slate-700 bg-slate-950 px-1 py-0.5 text-right font-mono"
+                  />
+                </td>
+                <td
+                  className={`px-3 py-1 text-right font-mono ${
+                    r.diff === 0
+                      ? 'text-emerald-400'
+                      : r.diff > 0
+                        ? 'text-amber-400'
+                        : 'text-red-400'
+                  }`}
+                  title={
+                    r.diff === 0
+                      ? 'Verbaut = geplant'
+                      : r.diff > 0
+                        ? 'Mehr verbaut als geplant'
+                        : 'Weniger verbaut als geplant'
+                  }
+                >
+                  {fmtSignFixed(r.diff)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex items-center justify-between text-[11px]">
+        <span className="text-slate-400">
+          {draftPlan
+            ? 'Nicht gespeicherte Änderungen an der Rentman-Planung.'
+            : 'Rentman-Planung wird im Projekt gespeichert.'}
+        </span>
+        <div className="flex gap-2">
+          {draftPlan && (
+            <button
+              type="button"
+              onClick={discardPlan}
+              className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+            >
+              Verwerfen
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={savePlan}
+            disabled={!draftPlan}
+            className="rounded bg-emerald-700 px-3 py-1 text-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Rentman-Planung speichern
+          </button>
+        </div>
       </div>
     </div>
   )
