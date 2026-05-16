@@ -138,46 +138,9 @@ const PlusMenu = ({
   )
 }
 
-// v7.9.5 — View-Mode-Toggle (Liste/Kacheln). Persistiert in uiStore.
-const ViewModeToggle = ({
-  mode,
-  onChange,
-}: {
-  mode: 'list' | 'grid'
-  onChange: (m: 'list' | 'grid') => void
-}) => (
-  <div className="flex h-7 overflow-hidden rounded border border-slate-700">
-    <button
-      type="button"
-      onClick={() => onChange('list')}
-      title="Listen-Ansicht"
-      className={`flex h-full items-center px-1.5 ${
-        mode === 'list' ? 'bg-sky-700 text-white' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
-      }`}
-    >
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <line x1="2" y1="4" x2="14" y2="4" />
-        <line x1="2" y1="8" x2="14" y2="8" />
-        <line x1="2" y1="12" x2="14" y2="12" />
-      </svg>
-    </button>
-    <button
-      type="button"
-      onClick={() => onChange('grid')}
-      title="Kachel-Ansicht (mit Vorschau wenn vorhanden)"
-      className={`flex h-full items-center px-1.5 ${
-        mode === 'grid' ? 'bg-sky-700 text-white' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
-      }`}
-    >
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <rect x="2" y="2" width="5" height="5" rx="0.5" />
-        <rect x="9" y="2" width="5" height="5" rx="0.5" />
-        <rect x="2" y="9" width="5" height="5" rx="0.5" />
-        <rect x="9" y="9" width="5" height="5" rx="0.5" />
-      </svg>
-    </button>
-  </div>
-)
+// v7.9.5 — Listen-/Kachel-View-Toggle entfernt auf User-Wunsch.
+// libraryViewMode bleibt im uiStore (Backwards-Compat persistierter
+// State), wird aber nicht mehr ausgewertet.
 
 // v7.9.5 — Filter-Overflow-Menü. Ersetzt drei unterstrichene Text-Links
 // (Alle ein/aus, Versteckte zeigen, Leere zeigen). Drei-Punkt-Icon als
@@ -445,9 +408,6 @@ export const LibraryPanel = () => {
   const collapsed = useUiStore((state) => state.libraryCollapsed)
   // v7.9.4 — Rentman-Tabs ausblenden wenn die Integration deaktiviert ist.
   const rentmanEnabled = useUiStore((state) => state.rentmanEnabled)
-  // v7.9.5 — Listen- vs. Kachel-Ansicht im Items-Listing
-  const libraryViewMode = useUiStore((state) => state.libraryViewMode)
-  const setLibraryViewMode = useUiStore((state) => state.setLibraryViewMode)
   // v7.9.5 — Kategorien-Sortierung: manual (Drag&Drop), asc, desc
   const librarySortMode = useUiStore((state) => state.librarySortMode)
   const setLibrarySortMode = useUiStore((state) => state.setLibrarySortMode)
@@ -1138,8 +1098,6 @@ export const LibraryPanel = () => {
                 setTimeout(() => newGroupInputRef.current?.focus(), 50)
               }}
             />
-            {/* View-Mode-Toggle: Liste ↔ Kacheln */}
-            <ViewModeToggle mode={libraryViewMode} onChange={setLibraryViewMode} />
             {/* Overflow-Menü für selten genutzte Filter (Leere/Versteckte/Alle ein-aus) */}
             <LibraryFiltersMenu
               showHidden={showHidden}
@@ -1324,15 +1282,9 @@ export const LibraryPanel = () => {
 
                     {/* Items */}
                     {!collapsed && (
-                      <div
-                        className={
-                          libraryViewMode === 'grid'
-                            ? 'grid grid-cols-2 gap-1 px-1 pb-1'
-                            : 'space-y-1 px-1 pb-1'
-                        }
-                      >
+                      <div className="space-y-1 px-1 pb-1">
                         {visibleItems.length === 0 ? (
-                          <div className="col-span-2 px-1 py-1 text-[11px] italic text-slate-600">
+                          <div className="px-1 py-1 text-[11px] italic text-slate-600">
                             {searchQuery
                               ? format(t('library.empty.search', 'Keine Treffer für "{query}"'), { query: librarySearch })
                               : t('library.empty.dragHere', 'Gerät hierher ziehen zum Verschieben')}

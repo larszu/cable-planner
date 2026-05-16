@@ -4,8 +4,13 @@ import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { RoutingToggle } from '../shared/RoutingToggle'
+import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 
 export const CanvasToolbar = () => {
+  // v7.9.5 — Toolbar frei verschiebbar (User-Request: "Mache die
+  // toolbar im canvas frei verschiebbar"). useDraggablePosition liefert
+  // den persistierten Offset relativ zur Default-Position top:8 left:8.
+  const drag = useDraggablePosition('cable-planner:canvas-toolbar-pos', true)
   // v7.9.0 / Issue #120 — open RackBuilder seeded with current selection
   const triggerRackBuilderFromSelection = useUiStore((s) => s.triggerRackBuilderFromSelection)
   const snapToGrid = useUiStore((state) => state.snapToGrid)
@@ -154,6 +159,7 @@ export const CanvasToolbar = () => {
   }
   return (
     <div
+      ref={drag.containerRef}
       className="nodrag nopan"
       style={{
         position: 'absolute',
@@ -172,12 +178,39 @@ export const CanvasToolbar = () => {
           ? '0 8px 24px rgba(15,23,42,0.10), 0 2px 6px rgba(15,23,42,0.06)'
           : '0 8px 24px rgba(0,0,0,0.40), 0 2px 6px rgba(0,0,0,0.30)',
         fontSize: 11,
+        ...drag.containerStyle,
         color: isLight ? '#1e293b' : '#e2e8f0',
         alignItems: 'center',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
       }}
     >
+      {/* v7.9.5 — Drag-Grip am Anfang. PointerDown auf diesem Span
+          startet das Verschieben der Toolbar; alle anderen Buttons
+          und Inputs bleiben normal klickbar (useDraggablePosition's
+          headerProps ignoriert target.closest('button,input,...')). */}
+      <span
+        {...drag.headerProps}
+        title="Toolbar verschieben"
+        aria-label="Toolbar verschieben"
+        style={{
+          ...drag.headerProps.style,
+          display: 'inline-flex',
+          alignItems: 'center',
+          padding: '0 2px',
+          color: isLight ? '#94a3b8' : '#64748b',
+          userSelect: 'none',
+        }}
+      >
+        <svg width="8" height="14" viewBox="0 0 8 14" fill="currentColor" aria-hidden="true">
+          <circle cx="2" cy="2" r="1.1" />
+          <circle cx="6" cy="2" r="1.1" />
+          <circle cx="2" cy="7" r="1.1" />
+          <circle cx="6" cy="7" r="1.1" />
+          <circle cx="2" cy="12" r="1.1" />
+          <circle cx="6" cy="12" r="1.1" />
+        </svg>
+      </span>
       <span style={sectionLabelStyle}>Canvas</span>
       <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
         <input
