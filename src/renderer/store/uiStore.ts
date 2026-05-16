@@ -401,6 +401,22 @@ interface UiState extends PersistedUiState {
   rackEditor: { open: boolean; rackInstanceId?: string }
   openRackEditor: (rackInstanceId: string) => void
   closeRackEditor: () => void
+  /** v7.8.7 / Issues #106 + #117 — context-menu state for cables.
+   *  `cableId` identifies the right-clicked cable; `screenX/screenY` is
+   *  where the menu pops up; `flowX/flowY` is the click position in
+   *  flow coordinates so an "add waypoint here" action lands exactly
+   *  where the user clicked. */
+  cableContextMenu:
+    | { open: true; cableId: string; screenX: number; screenY: number; flowX: number; flowY: number }
+    | { open: false }
+  openCableContextMenu: (args: {
+    cableId: string
+    screenX: number
+    screenY: number
+    flowX: number
+    flowY: number
+  }) => void
+  closeCableContextMenu: () => void
   /** Phone-share dialog (LAN HTTP server + QR code, v7.2.1). */
   mobileShare: { open: boolean }
   openMobileShare: () => void
@@ -618,6 +634,10 @@ export const useUiStore = create<UiState>((set) => ({
   rackEditor: { open: false },
   openRackEditor: (rackInstanceId) => set({ rackEditor: { open: true, rackInstanceId } }),
   closeRackEditor: () => set({ rackEditor: { open: false } }),
+  cableContextMenu: { open: false },
+  openCableContextMenu: ({ cableId, screenX, screenY, flowX, flowY }) =>
+    set({ cableContextMenu: { open: true, cableId, screenX, screenY, flowX, flowY } }),
+  closeCableContextMenu: () => set({ cableContextMenu: { open: false } }),
   mobileShare: { open: false },
   openMobileShare: () => set({ mobileShare: { open: true } }),
   closeMobileShare: () => set({ mobileShare: { open: false } }),

@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from 'react'
 import {
   BaseEdge,
   EdgeLabelRenderer,
@@ -357,6 +358,11 @@ export const CableEdge = ({
   // port handles, so the entire connection visually pops at once.
   const hoveredCableId = useUiStore((s) => s.hoveredCableId)
   const collisionShiftOn = useUiStore((s) => s.orthogonalCollisionShift)
+  // v7.8.7 / Issue #106 — Global cable-bumps toggle from Settings; can
+  // be overridden per-cable via the right-click context menu's
+  // bumpStyle field.
+  const globalCableBumps = useUiStore((s) => s.cableBumps)
+  const routing = cable?.routing ?? 'orthogonal'
   const hovered = hoveredCableId === id
   const isLight = (data?.exportThemeOverride ?? canvasTheme) === 'light'
 
@@ -390,6 +396,88 @@ export const CableEdge = ({
   const [path, centerX, centerY] = cable
     ? buildPath(cable, routingArgs, obstacles, obstacleIds, collisionShiftOn, orthogonalWaypoints)
     : getSmoothStepPath(routingArgs)
+
+  // v7.8.7 / Issue #106 — Apply cable bumps (line jumps) where THIS
+  // cable's horizontal segments cross OTHER cables' vertical segments.
+  // Implementation strategy: after this edge has been rendered by
+  // ReactFlow, query sibling .react-flow__edge-path elements in the DOM,
+  // parse their `d` attributes into orthogonal segments, and rewrite our
+  // own `d` with arc hops via `buildPathWithBumps`.
+  //
+  // Why DOM post-process: ReactFlow renders each edge independently and
+  // doesn't expose a "all-edge-segments" hook. Computing geometry at
+  // CanvasArea level would require duplicating ReactFlow's handle-
+  // position logic for every cable. The DOM has the answer already —
+  // we just have to read it after layout commits.
+  //
+  // Trade-off: when a NON-connected neighbour cable moves, our effect
+  // doesn't re-run automatically (ReactFlow only re-renders edges whose
+  // endpoints changed). We re-bump on every render of THIS edge, which
+  // catches the common cases (endpoint moves, waypoint edits).
+  const pathRef = useRef<SVGPathElement | null>(null)
+  const wantsBumps =
+    cable && (routing === 'orthogonal') &&
+    (cable.bumpStyle === 'on' ||
+      (cable.bumpStyle !== 'off' && globalCableBumps))
+  useLayoutEffect(() => {
+    if (!cable) return
+    // Locate THIS edge's path in the DOM.
+    const myEdgeGroup = document.querySelector(
+      `g.react-flow__edge[data-id="${CSS.escape(id)}"]`,
+    )
+    const myPath = myEdgeGroup?.querySelector<SVGPathElement>('path.react-flow__edge-path')
+    if (!myPath) return
+    pathRef.current = myPath
+    // If bumps are not requested, make sure we restore the plain path
+    // (in case bumps were applied on a previous render and the user
+    // just toggled them off).
+    if (!wantsBumps) {
+      myPath.setAttribute('d', path)
+      return
+    }
+    // Collect orthogonal segments from every OTHER cable currently in
+    // the DOM. Parse only M and L commands — anything else (arcs,
+    // curves) means the path is already bumped or non-orthogonal and
+    // can be skipped.
+    const otherSegments: Array<{ a: { x: number; y: number }; b: { x: number; y: number } }> = []
+    const allPaths = document.querySelectorAll<SVGPathElement>(
+      'g.react-flow__edge:not([data-id="' + CSS.escape(id) + '"]) path.react-flow__edge-path',
+    )
+    allPaths.forEach((p) => {
+      const d = p.getAttribute('d')
+      if (!d) return
+      // Quick reject: any non-M/L command means we'd misinterpret arcs.
+      if (/[CcQqAaSsTtZz]/.test(d)) return
+      const matches = d.match(/[ML]\s*-?\d+(?:\.\d+)?\s*,?\s*-?\d+(?:\.\d+)?/g)
+      if (!matches || matches.length < 2) return
+      const pts: { x: number; y: number }[] = []
+      for (const tok of matches) {
+        const nums = tok.replace(/[ML]/, '').match(/-?\d+(?:\.\d+)?/g)
+        if (!nums || nums.length < 2) continue
+        pts.push({ x: parseFloat(nums[0]), y: parseFloat(nums[1]) })
+      }
+      for (let i = 0; i < pts.length - 1; i++) {
+        otherSegments.push({ a: pts[i], b: pts[i + 1] })
+      }
+    })
+    if (otherSegments.length === 0) {
+      myPath.setAttribute('d', path)
+      return
+    }
+    // Parse OUR path into points for the bumps builder. We use the
+    // already-built `path` string above so we know it's plain M/L.
+    const myMatches = path.match(/[ML]\s*-?\d+(?:\.\d+)?\s*,?\s*-?\d+(?:\.\d+)?/g)
+    if (!myMatches || myMatches.length < 2) return
+    const myPts: { x: number; y: number }[] = []
+    for (const tok of myMatches) {
+      const nums = tok.replace(/[ML]/, '').match(/-?\d+(?:\.\d+)?/g)
+      if (!nums || nums.length < 2) continue
+      myPts.push({ x: parseFloat(nums[0]), y: parseFloat(nums[1]) })
+    }
+    if (myPts.length < 2) return
+    const bumped = buildPathWithBumps(myPts, otherSegments)
+    myPath.setAttribute('d', bumped)
+  })
 
   // Resolve label position: center (default), near source, near target.
   const labelPos = cable?.labelPosition ?? 'center'
