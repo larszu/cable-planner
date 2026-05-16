@@ -23,6 +23,27 @@
 import jsPDF from 'jspdf'
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
+import { sanitizeForPdf } from './sanitizeForPdf'
+
+/** Wrap pdf.text so user-typed strings are auto-sanitized for Latin-1.
+ *  Splits long strings via splitTextToSize when maxWidth is given so
+ *  multi-line wraps render and advance y by the correct height. */
+const pdfText = (
+  pdf: jsPDF,
+  text: string,
+  x: number,
+  y: number,
+  options?: { maxWidth?: number; align?: 'left' | 'right' | 'center' },
+) => {
+  const safe = sanitizeForPdf(text)
+  if (options?.maxWidth) {
+    const lines = pdf.splitTextToSize(safe, options.maxWidth) as string[]
+    pdf.text(lines, x, y, { align: options.align })
+    return lines.length
+  }
+  pdf.text(safe, x, y, { align: options?.align })
+  return 1
+}
 
 interface CableEndpointSummary {
   /** Human-readable label for the cable (name OR fallback to type+length). */
@@ -171,7 +192,7 @@ const drawPageHeader = (pdf: jsPDF, device: EquipmentItem): number => {
   pdf.setFontSize(16)
   pdf.setTextColor(15)
   pdf.setFont('helvetica', 'bold')
-  pdf.text(device.name || 'Gerät', margin, margin + 4)
+  pdfText(pdf, device.name || 'Gerät', margin, margin + 4)
 
   pdf.setFontSize(9)
   pdf.setFont('helvetica', 'normal')
@@ -180,8 +201,8 @@ const drawPageHeader = (pdf: jsPDF, device: EquipmentItem): number => {
   if (device.category) metaParts.push(device.category)
   if (device.subtitle) metaParts.push(device.subtitle)
   if (device.ipAddress) metaParts.push(`IP ${device.ipAddress}`)
-  pdf.text(metaParts.join('  -'), margin, margin + 20)
-  pdf.text(new Date().toLocaleString(), pageWidth - margin, margin + 20, { align: 'right' })
+  pdfText(pdf, metaParts.join('  -'), margin, margin + 20)
+  pdfText(pdf, new Date().toLocaleString(), pageWidth - margin, margin + 20, { align: 'right' })
 
   pdf.setDrawColor(180)
   pdf.line(margin, margin + 28, pageWidth - margin, margin + 28)
@@ -217,42 +238,48 @@ const drawPortRowPair = (
   }
   const rowHeight = Math.max(sideRowHeight(leftRow), sideRowHeight(rightRow))
 
+  // v7.9.2 — splitTextToSize liefert die tatsächliche Zeilenanzahl
+  // zurück; dadurch advancen wir y korrekt auch wenn ein Cable-Label
+  // oder die "an Device…"-Zeile umgebrochen wurde. Vorher gab es
+  // Text-Overlap weil immer nur 11px advance't wurde (User-Issue:
+  // "exportierte pdfs überlagern sich auch der text").
   const drawSide = (
     row: { port: Port; cables: CableEndpointSummary[] } | null,
     x: number,
   ) => {
-    if (!row) return
+    if (!row) return 0
     let cy = y
     pdf.setTextColor(15)
     pdf.setFont('helvetica', 'bold')
     const portLine = `> ${row.port.name || row.port.id}`
     const portType = row.port.connectorType ? `  [${row.port.connectorType}]` : ''
-    pdf.text(`${portLine}${portType}`, x, cy, { maxWidth: colWidth - 4 })
+    const portLines = pdfText(pdf, `${portLine}${portType}`, x, cy, { maxWidth: colWidth - 4 })
     pdf.setFont('helvetica', 'normal')
-    cy += 12
+    cy += 12 * portLines
 
     if (row.cables.length === 0) {
       pdf.setTextColor(140)
-      pdf.text('  -- frei --', x, cy)
-      return
+      pdfText(pdf, '  -- frei --', x, cy)
+      return cy + 11 - y
     }
     for (const c of row.cables) {
       pdf.setTextColor(15)
-      pdf.text(`  -> ${c.cableLabel}`, x, cy, { maxWidth: colWidth - 6 })
-      cy += 11
+      const labelLines = pdfText(pdf, `  -> ${c.cableLabel}`, x, cy, { maxWidth: colWidth - 6 })
+      cy += 11 * labelLines
       pdf.setTextColor(80)
       const otherSuffix = c.otherPortConnectorType ? ` [${c.otherPortConnectorType}]` : ''
       const tgt = c.otherPortName
         ? `       an ${c.otherDeviceName} - ${c.otherPortName}${otherSuffix}`
         : `       an ${c.otherDeviceName}`
-      pdf.text(tgt, x, cy, { maxWidth: colWidth - 6 })
-      cy += 11
+      const tgtLines = pdfText(pdf, tgt, x, cy, { maxWidth: colWidth - 6 })
+      cy += 11 * tgtLines
     }
+    return cy - y
   }
 
-  drawSide(leftRow, leftX)
-  drawSide(rightRow, rightX)
-  return y + rowHeight
+  const leftHeight = drawSide(leftRow, leftX)
+  const rightHeight = drawSide(rightRow, rightX)
+  return y + Math.max(rowHeight, leftHeight, rightHeight)
 }
 
 const drawDevicePage = (
@@ -293,8 +320,8 @@ const drawDevicePage = (
   pdf.setFontSize(11)
   pdf.setFont('helvetica', 'bold')
   pdf.setTextColor(20)
-  pdf.text(`INPUTS (${inputRows.length})`, leftX, y)
-  pdf.text(`OUTPUTS (${outputRows.length})`, rightX, y)
+  pdfText(pdf, `INPUTS (${inputRows.length})`, leftX, y)
+  pdfText(pdf, `OUTPUTS (${outputRows.length})`, rightX, y)
   pdf.setFont('helvetica', 'normal')
   pdf.setFontSize(9)
   y += 14
@@ -320,8 +347,8 @@ const drawDevicePage = (
       pdf.setFontSize(11)
       pdf.setFont('helvetica', 'bold')
       pdf.setTextColor(20)
-      pdf.text(`INPUTS (${inputRows.length}) - Forts.`, leftX, y)
-      pdf.text(`OUTPUTS (${outputRows.length}) - Forts.`, rightX, y)
+      pdfText(pdf, `INPUTS (${inputRows.length}) - Forts.`, leftX, y)
+      pdfText(pdf, `OUTPUTS (${outputRows.length}) - Forts.`, rightX, y)
       pdf.setFont('helvetica', 'normal')
       pdf.setFontSize(9)
       y += 14
@@ -333,7 +360,8 @@ const drawDevicePage = (
   // Footer — note about cable colour key
   pdf.setFontSize(7)
   pdf.setTextColor(140)
-  pdf.text(
+  pdfText(
+    pdf,
     `Cable Planner - ${device.name} - ${inputRows.length} In / ${outputRows.length} Out - automatisch erzeugte Patch-Liste`,
     pageWidth / 2,
     pageHeight - 12,

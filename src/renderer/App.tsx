@@ -19,6 +19,16 @@ import { LocationBomDialog } from './components/Project/LocationBomDialog'
 import { RackEditorDialog } from './components/Rack/RackEditorDialog'
 import { CableContextMenu } from './components/Canvas/CableContextMenu'
 import { ExportDialog } from './components/Export/ExportDialog'
+import { AnnotationsPanel } from './components/Annotations/AnnotationsPanel'
+
+// v7.9.3 — Hook-Wrapper damit das Annotations-Panel auf
+// uiStore.annotationsPanelOpen reagiert. Direkt im JSX würde
+// useUiStore.getState() nur beim ersten Render gelesen.
+const AnnotationsPanelHost = () => {
+  const open = useUiStore((s) => s.annotationsPanelOpen)
+  const setOpen = useUiStore((s) => s.setAnnotationsPanelOpen)
+  return <AnnotationsPanel open={open} onClose={() => setOpen(false)} />
+}
 import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
 import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
@@ -186,6 +196,18 @@ export default function App() {
     return () => window.clearTimeout(timer)
   }, [project])
 
+  // v7.9.3 — Subscribe to mobile check-state updates. Wenn der Field-
+  // Tech am Handy einen Port als "gesteckt" markiert, schickt das
+  // Mobile-View POST /checks → IPC → wir landen hier und updaten den
+  // Store, was die Canvas-Häkchen live rendert.
+  const setCheckState = useProjectStore((s) => s.setCheckState)
+  useEffect(() => {
+    if (!hasDesktopBridge) return
+    return cablePlannerApi.mobileShare.onChecksUpdate((checks) => {
+      setCheckState(checks)
+    })
+  }, [setCheckState])
+
   // Issue #69: dispatch user-customizable hotkeys defined in
   // Settings → Hotkeys. The undo/redo entries below intentionally
   // overlap with useUndoRedoShortcuts() — only the first matching
@@ -270,6 +292,56 @@ export default function App() {
         `${format.toUpperCase()} export failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
       )
     }
+  }
+
+  // v7.9.3 — Viewer-File-Export. Plan wird mit mode='viewer' und
+  // .cpviewer-Extension exportiert. Reviewer öffnen es im Cable-
+  // Planner und werden beim ersten Mal nach ihrem Namen gefragt.
+  const handleExportViewer = async () => {
+    if (!hasDesktopBridge) {
+      window.alert('Viewer-Export erfordert die Desktop-App.')
+      return
+    }
+    try {
+      const path = await cablePlannerApi.project.exportViewer(project)
+      if (path) {
+        window.alert(
+          `Viewer-Datei gespeichert:\n\n${path}\n\n` +
+            'Sende sie an deine Freelancer/Helfer. Beim Öffnen werden sie nach\n' +
+            'ihrem Namen gefragt — Anmerkungen sind dann automatisch attributiert.',
+        )
+      }
+    } catch (error) {
+      console.error('Viewer export failed:', error)
+      window.alert(`Viewer-Export fehlgeschlagen: ${(error as Error).message}`)
+    }
+  }
+
+  // v7.9.3 — Annotations von Reviewern zurückmergen ins Original.
+  // Liest annotations[] aus der .cpviewer und fügt sie unserer
+  // project.annotations[] hinzu (ID-basierte De-Duplikation).
+  const handleImportAnnotations = async () => {
+    if (!hasDesktopBridge) {
+      window.alert('Annotations-Re-Import erfordert die Desktop-App.')
+      return
+    }
+    const result = await cablePlannerApi.project.importAnnotations()
+    if (!result) return
+    const incoming = result.annotations as Array<{ id?: string } & Record<string, unknown>>
+    const current = project.annotations ?? []
+    const existingIds = new Set(current.map((a) => a.id))
+    const addAnnotation = useProjectStore.getState().addAnnotation
+    let imported = 0
+    for (const a of incoming) {
+      if (!a.id || typeof a.id !== 'string') continue
+      if (existingIds.has(a.id)) continue
+      addAnnotation(a as import('./types/project').ProjectAnnotation)
+      imported++
+    }
+    window.alert(
+      `${imported} neue Anmerkung${imported === 1 ? '' : 'en'} importiert.\n` +
+        `(${incoming.length - imported} bereits vorhanden, übersprungen.)`,
+    )
   }
 
   const handleExportPdf = async (theme: 'dark' | 'light' = canvasTheme) => {
@@ -422,6 +494,8 @@ export default function App() {
         onExportPng={() => void handleExportImage('png')}
         onExportJpeg={() => void handleExportImage('jpeg')}
         onOpenPrintDialog={() => setPrintDialogOpen(true)}
+        onExportViewer={() => void handleExportViewer()}
+        onImportAnnotations={() => void handleImportAnnotations()}
         onOpenGraphmlImport={() => setGraphmlImportOpen(true)}
         onAttachPdfToRentman={() => void handleUploadPdfToRentman()}
         onOpenRentmanCableExport={openRentmanCableExport}
@@ -509,11 +583,14 @@ export default function App() {
       <PatchListDialog />
       <CalculatorsDialog />
       <CableContextMenu />
+      <AnnotationsPanelHost />
       <ExportDialog
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExportPdf={(theme) => handleExportPdf(theme)}
         onExportImage={(format) => handleExportImage(format)}
+        onOpenCableBom={() => setCableBomOpen(true)}
+        onOpenPrintDialog={() => setPrintDialogOpen(true)}
       />
 
       <ProjectMetaDialog

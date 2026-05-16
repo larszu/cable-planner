@@ -28,6 +28,10 @@ interface MenuBarProps {
   onOpenGraphmlImport?: () => void
   onEditProjectMeta?: () => void
   onOpenCableBom?: () => void
+  /** v7.9.3 — Plan als .cpviewer-Datei exportieren (read-only für Reviewer). */
+  onExportViewer?: () => void
+  /** v7.9.3 — Annotations aus einer .cpviewer-Datei zurück importieren. */
+  onImportAnnotations?: () => void
   /** Attach the current plan as a PDF to the linked Rentman project. */
   onAttachPdfToRentman?: () => void
   /** Open the Rentman cable export dialog. */
@@ -59,6 +63,8 @@ export const MenuBar = ({
   onSaveProjectAs,
   onOpenSettings,
   onOpenExportDialog,
+  onExportViewer,
+  onImportAnnotations,
   onExportPdf,
   onExportPng,
   onExportJpeg,
@@ -125,14 +131,15 @@ export const MenuBar = ({
             </>
           )}
           <MenuSep />
-          {/* v7.9.0 / Issue #110 — Einzelner "Exportieren"-Eintrag der
-              den ExportDialog mit Format-Auswahl öffnet. Die drei
-              alten Einträge (Plan als PDF/PNG/JPEG) sind in den
-              Dialog wandern; falls jemand den Dialog NICHT verdrahtet
-              hat, fallen wir auf die Legacy-Einträge zurück. */}
+          {/* v7.9.2 — Vereinheitlichter Export-Hub. Statt 5 separater
+              Menü-Einträge (Plan PDF/PNG/JPEG, Kabel-BOM, Drucken)
+              führt jetzt ein einziger "Exportieren & Drucken…"-
+              Eintrag zum Hub-Dialog mit allen Sektionen.
+              User-Request: "Vereinheitliche zu einer Großen funktion".
+              Strg+P bleibt als direkter Shortcut für den OS-Druckdialog. */}
           {onOpenExportDialog ? (
             <MenuItem onClick={onOpenExportDialog} icon="📤">
-              {t('app.menu.file.export', 'Exportieren…')}
+              {t('app.menu.file.export', 'Exportieren & Drucken…')}
             </MenuItem>
           ) : (
             <>
@@ -149,16 +156,29 @@ export const MenuBar = ({
                   {t('app.menu.file.exportJpeg', 'Plan als JPEG exportieren…')}
                 </MenuItem>
               )}
+              {onOpenCableBom && (
+                <MenuItem onClick={onOpenCableBom} icon="🧮">
+                  {t('app.menu.file.cableBom', 'Kabel-Stückliste (BOM) exportieren…')}
+                </MenuItem>
+              )}
             </>
-          )}
-          {onOpenCableBom && (
-            <MenuItem onClick={onOpenCableBom} icon="🧮">
-              {t('app.menu.file.cableBom', 'Kabel-Stückliste (BOM) exportieren…')}
-            </MenuItem>
           )}
           {onOpenPrintDialog && (
             <MenuItem onClick={onOpenPrintDialog} icon="🖨" shortcut="Strg+P">
-              {t('app.menu.file.print', 'Drucken…')}
+              {t('app.menu.file.print', 'Drucken (OS-Dialog)…')}
+            </MenuItem>
+          )}
+          {/* v7.9.3 — Viewer-Workflow: Plan als .cpviewer für Freelancer
+              exportieren, später deren Anmerkungen zurück mergen. */}
+          {(onExportViewer || onImportAnnotations) && <MenuSep />}
+          {onExportViewer && (
+            <MenuItem onClick={onExportViewer} icon="👁">
+              {t('app.menu.file.exportViewer', 'Als Viewer-Datei für Freelancer exportieren…')}
+            </MenuItem>
+          )}
+          {onImportAnnotations && (
+            <MenuItem onClick={onImportAnnotations} icon="💬">
+              {t('app.menu.file.importAnnotations', 'Anmerkungen aus Viewer-Datei importieren…')}
             </MenuItem>
           )}
           {(onAttachPdfToRentman || onOpenRentmanCableExport) && <MenuSep />}

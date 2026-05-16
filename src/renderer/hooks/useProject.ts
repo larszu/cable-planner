@@ -56,6 +56,36 @@ export const useProject = () => {
           name: nameFromPath(result.filePath),
         }
       }
+      // v7.9.3 — Beim Öffnen einer .cpviewer-Datei (oder eines Projekts
+      // mit mode='viewer') den Reviewer-Namen abfragen und in
+      // viewerSession ablegen. Wenn schon eine Session existiert
+      // (z.B. der gleiche Reviewer öffnet die Datei ein zweites Mal),
+      // re-prompten wir mit dem alten Namen vorbelegt.
+      const isViewer =
+        result.filePath.toLowerCase().endsWith('.cpviewer') ||
+        (incoming as { mode?: string })?.mode === 'viewer'
+      if (isViewer) {
+        const oldAuthor =
+          (incoming as { viewerSession?: { author?: string } })?.viewerSession?.author ?? ''
+        const author = window.prompt(
+          'Du öffnest eine Viewer-Datei zum Begutachten.\n\n' +
+            'Bitte gib deinen Namen ein — er wird allen Anmerkungen\n' +
+            'angeheftet, die du in dieser Session erstellst.',
+          oldAuthor,
+        )?.trim()
+        if (author) {
+          ;(incoming as Record<string, unknown>).viewerSession = {
+            author,
+            startedAt: new Date().toISOString(),
+          }
+          ;(incoming as Record<string, unknown>).mode = 'viewer'
+        } else {
+          window.alert(
+            'Ohne Namen können keine Anmerkungen gemacht werden. Datei wird nicht geladen.',
+          )
+          return
+        }
+      }
       loadProject(incoming, result.filePath)
       projectHistory.reset()
       await refreshRecent()

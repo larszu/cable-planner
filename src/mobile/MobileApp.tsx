@@ -331,11 +331,34 @@ const ProjectView = ({
   onUnload: () => void
 }) => {
   const projectName = project.metadata?.name || 'cable-planner'
-  const [checks, setChecks] = useState<CheckState>(() => loadChecks(projectName))
+  // v7.9.3 — Initial-State kommt jetzt PRIMÄR aus project.checkState
+  // (Desktop ist Source-of-Truth) und nur als Fallback aus localStorage
+  // (für Offline-Sessions). Nach jedem Toggle wird der State zusätzlich
+  // an /checks gepostet, damit das Canvas das Häkchen live rendert.
+  const [checks, setChecks] = useState<CheckState>(() => {
+    const fromProject = (project as unknown as { checkState?: CheckState }).checkState
+    if (fromProject && (fromProject.ports || fromProject.cables)) {
+      return {
+        ports: fromProject.ports ?? {},
+        cables: fromProject.cables ?? {},
+      }
+    }
+    return loadChecks(projectName)
+  })
   const [filter, setFilter] = useState('')
   const [onlyOpen, setOnlyOpen] = useState(false)
 
-  useEffect(() => saveChecks(projectName, checks), [projectName, checks])
+  useEffect(() => {
+    saveChecks(projectName, checks)
+    // POST to the desktop server so the Cable Planner Canvas shows
+    // the green tick at this port immediately. Fire-and-forget; offline
+    // Mobile-Sessions fallen auf localStorage zurück (siehe oben).
+    void fetch('/checks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(checks),
+    }).catch(() => {})
+  }, [projectName, checks])
 
   // v7.7.3 — Toggling a port toggles BOTH endpoints of the cable that's
   // plugged into it (and the cable itself), because physically plugging

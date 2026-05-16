@@ -99,19 +99,21 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
       <div
         ref={drag.containerRef}
         style={drag.containerStyle}
-        className="flex max-h-[95vh] min-h-0 w-full max-w-4xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl sm:flex-row"
+        // v7.9.2 — Fix-große Höhe statt max-h, damit der Viewport nicht
+        // pro Tab variabel groß ist. Inner-Scroll greift immer.
+        className="flex h-[85vh] min-h-0 w-full max-w-4xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl sm:flex-row"
       >
-        <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-slate-800 bg-slate-950/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:border-b-0 sm:border-r">
+        <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-slate-800 bg-slate-950/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
           <h3 className="mb-2 hidden px-2 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
             {t('settings.section', 'Einstellungen')}
           </h3>
           {(Object.keys(TAB_ICONS) as SettingsSection[]).map((id) => navItem(id))}
         </aside>
 
-        <main className="flex min-w-0 flex-1 flex-col">
+        <main className="flex min-w-0 min-h-0 flex-1 flex-col">
           <header
             {...drag.headerProps}
-            className="flex items-center justify-between border-b border-slate-800 px-4 py-2 select-none"
+            className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2 select-none"
           >
             <h2 className="text-base font-semibold">
               {t(`settings.tabTitle.${section}`, TAB_FALLBACK_TITLE[section])}
@@ -125,7 +127,10 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
             </button>
           </header>
 
-          <div className="flex-1 overflow-auto p-4">
+          {/* v7.9.2 — min-h-0 + flex-1 + overflow-y-auto sorgt für
+              zuverlässiges Scrollen in JEDEM Tab (z.B. Datenexport
+              im langen Erweitert-Tab). */}
+          <div className="min-h-0 flex-1 overflow-y-auto p-4">
             {section === 'project' && <ProjectTab onClose={onClose} />}
             {section === 'appearance' && <AppearanceTab />}
             {section === 'editing' && <EditingTab />}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import {
   DndContext,
@@ -165,6 +165,30 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
+  // v7.9.3 — gleiche Custom-Stecker/Signal-Logik wie im Kabeltyp-Editor.
+  // Beides nutzt jetzt die gleiche Quelle: useUiStore.customConnectorTypes
+  // und customSignalStandards (User-Request: "das greift ja alles auf die
+  // gleiche kabel stecker und signaltyp logik zu").
+  const customConnectorTypes = useUiStore((s) => s.customConnectorTypes)
+  const addCustomConnectorType = useUiStore((s) => s.addCustomConnectorType)
+  const customSignalStandards = useUiStore((s) => s.customSignalStandards)
+  const addCustomSignalStandard = useUiStore((s) => s.addCustomSignalStandard)
+  const allConnectorTypeOptions = useMemo(
+    () =>
+      [
+        ...ALL_CONNECTOR_TYPES,
+        ...customConnectorTypes.filter((c) => !ALL_CONNECTOR_TYPES.includes(c as ConnectorType)),
+      ] as ConnectorType[],
+    [customConnectorTypes],
+  )
+  const allSignalStandardOptions = useMemo(
+    () =>
+      [
+        ...ALL_SIGNAL_STANDARDS,
+        ...customSignalStandards.filter((s) => !ALL_SIGNAL_STANDARDS.includes(s as SignalStandard)),
+      ] as SignalStandard[],
+    [customSignalStandards],
+  )
 
   const updatePort = (portId: string, patch: Partial<Port>) => {
     onChange(ports.map((port) => (port.id === portId ? { ...port, ...patch } : port)))
@@ -216,40 +240,66 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
               </button>
             </div>
             <div className="mt-1 grid grid-cols-2 gap-1">
-              <select
-                aria-label="Connector type"
-                value={port.connectorType}
-                onChange={(event) =>
-                  updatePort(port.id, {
-                    connectorType: event.target.value as ConnectorType,
-                    type: event.target.value,
-                  })
-                }
-                className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
-              >
-                {ALL_CONNECTOR_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-              <select
-                aria-label="Signal standard"
-                value={port.standard ?? ''}
-                onChange={(event) =>
-                  updatePort(port.id, {
-                    standard: event.target.value ? (event.target.value as SignalStandard) : undefined,
-                  })
-                }
-                className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
-              >
-                <option value="">—</option>
-                {ALL_SIGNAL_STANDARDS.map((std) => (
-                  <option key={std} value={std}>
-                    {std}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-stretch gap-0.5">
+                <select
+                  aria-label="Connector type"
+                  value={port.connectorType}
+                  onChange={(event) => {
+                    const v = event.target.value
+                    if (v === '__new__') {
+                      const name = window.prompt('Neuer Stecker-Typ (z.B. "Speakon NL4"):')?.trim()
+                      if (name) {
+                        addCustomConnectorType(name)
+                        updatePort(port.id, { connectorType: name as ConnectorType, type: name })
+                      }
+                      return
+                    }
+                    updatePort(port.id, {
+                      connectorType: v as ConnectorType,
+                      type: v,
+                    })
+                  }}
+                  className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                >
+                  {allConnectorTypeOptions.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                      {customConnectorTypes.includes(type as string) ? ' (custom)' : ''}
+                    </option>
+                  ))}
+                  <option value="__new__">+ Neuer Stecker-Typ…</option>
+                </select>
+              </div>
+              <div className="flex items-stretch gap-0.5">
+                <select
+                  aria-label="Signal standard"
+                  value={port.standard ?? ''}
+                  onChange={(event) => {
+                    const v = event.target.value
+                    if (v === '__new__') {
+                      const name = window.prompt('Neuer Signal-Standard (z.B. "Dante Primary"):')?.trim()
+                      if (name) {
+                        addCustomSignalStandard(name)
+                        updatePort(port.id, { standard: name as SignalStandard })
+                      }
+                      return
+                    }
+                    updatePort(port.id, {
+                      standard: v ? (v as SignalStandard) : undefined,
+                    })
+                  }}
+                  className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                >
+                  <option value="">-</option>
+                  {allSignalStandardOptions.map((std) => (
+                    <option key={std} value={std}>
+                      {std}
+                      {customSignalStandards.includes(std as string) ? ' (custom)' : ''}
+                    </option>
+                  ))}
+                  <option value="__new__">+ Neuer Standard…</option>
+                </select>
+              </div>
             </div>
             <div className="mt-1 grid grid-cols-2 gap-1">
               <select
@@ -1838,16 +1888,22 @@ export const EquipmentProperties = () => {
         </SortableSection>
       )}
 
+      {/* v7.9.2 — Betriebsmodi standardmäßig aufgeklappt damit das
+          Feld direkt sichtbar ist (User-Issue: "Es gibt noch nicht das
+          feld 'Betriebsmodi' sichtbar in der UI"). Die Sektion war
+          vorher nur offen wenn schon ein aktiver Modus gesetzt war —
+          Geräte ohne Modus zeigten nur "keiner" in der collapsed-Bar
+          und der "+ Modus anlegen"-Knopf war unter dem Klick verborgen. */}
       <SortableSection
         id="modes"
         title="Betriebsmodi"
         subtitle={
           (equipment.modes ?? []).length === 0
-            ? 'keiner'
+            ? 'keiner — anlegen unten'
             : (equipment.modes?.find((m) => m.id === equipment.activeModeId)?.name ??
               `${equipment.modes?.length} definiert`)
         }
-        defaultOpen={!!equipment.activeModeId}
+        defaultOpen
       >
         <DeviceModePicker equipment={equipment} />
       </SortableSection>

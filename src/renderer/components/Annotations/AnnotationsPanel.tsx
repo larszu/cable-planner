@@ -1,0 +1,265 @@
+// v7.9.3 — Annotations-Panel für Viewer-Modus (User-Request:
+// "Vielleicht sogar so das man den plan als 'Viewer' datei exportiert
+// dann können externe das in dem cable planner nativ sehen und notizen
+// machen und kommentieren was geändert werden soll oder was
+// physikalisch auf einem auftrag schon gebaut wurde, aber nicht den
+// ursprünglichen plan verändern.")
+//
+// Sidebar mit Liste aller Anmerkungen, gruppiert nach Author und Status.
+// Im Viewer-Modus zusätzlich ein "+ Anmerkung an diese Position"-Button.
+
+import { useMemo, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+import { useProjectStore } from '../../store/projectStore'
+import type { ProjectAnnotation } from '../../types/project'
+
+const STATUS_LABEL: Record<ProjectAnnotation['status'], string> = {
+  open: 'offen',
+  built: 'gebaut',
+  resolved: 'erledigt',
+}
+
+const STATUS_COLOR: Record<ProjectAnnotation['status'], string> = {
+  open: '#f59e0b',
+  built: '#10b981',
+  resolved: '#64748b',
+}
+
+const ANCHOR_LABEL = (annotation: ProjectAnnotation, deviceNames: Map<string, string>, cableNames: Map<string, string>): string => {
+  const a = annotation.anchor
+  if (a.type === 'free') return `auf Canvas (${Math.round(a.x)}, ${Math.round(a.y)})`
+  if (a.type === 'device') return `Gerät: ${deviceNames.get(a.deviceId) ?? a.deviceId}`
+  if (a.type === 'port') return `Port: ${deviceNames.get(a.deviceId) ?? a.deviceId} · ${a.portId}`
+  if (a.type === 'cable') return `Kabel: ${cableNames.get(a.cableId) ?? a.cableId}`
+  return ''
+}
+
+export const AnnotationsPanel = ({
+  open,
+  onClose,
+}: {
+  open: boolean
+  onClose: () => void
+}) => {
+  const annotations = useProjectStore((s) => s.project.annotations ?? [])
+  const equipment = useProjectStore((s) => s.project.equipment)
+  const cables = useProjectStore((s) => s.project.cables)
+  const updateAnnotation = useProjectStore((s) => s.updateAnnotation)
+  const removeAnnotation = useProjectStore((s) => s.removeAnnotation)
+  const addAnnotation = useProjectStore((s) => s.addAnnotation)
+  const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
+  const viewerSession = useProjectStore((s) => s.project.viewerSession)
+  const [statusFilter, setStatusFilter] = useState<ProjectAnnotation['status'] | 'all'>('all')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [draftText, setDraftText] = useState('')
+  const [creating, setCreating] = useState(false)
+
+  const deviceNames = useMemo(() => {
+    const m = new Map<string, string>()
+    for (const e of equipment) m.set(e.id, e.name)
+    return m
+  }, [equipment])
+  const cableNames = useMemo(() => {
+    const m = new Map<string, string>()
+    for (const c of cables) m.set(c.id, c.name || c.type)
+    return m
+  }, [cables])
+
+  const visible = useMemo(
+    () => annotations.filter((a) => statusFilter === 'all' || a.status === statusFilter),
+    [annotations, statusFilter],
+  )
+
+  const grouped = useMemo(() => {
+    const m = new Map<string, ProjectAnnotation[]>()
+    for (const a of visible) {
+      const list = m.get(a.author) ?? []
+      list.push(a)
+      m.set(a.author, list)
+    }
+    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+  }, [visible])
+
+  if (!open) return null
+
+  const author = viewerSession?.author ?? 'Anonym'
+  const canCreateFree =
+    (projectMode === 'viewer' || projectMode === 'finalized' || projectMode === 'editing') && creating
+
+  return (
+    <div className="fixed right-0 top-0 z-40 flex h-screen w-96 max-w-[95vw] flex-col border-l border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
+      <header className="flex items-center justify-between border-b border-slate-800 px-3 py-2">
+        <div className="flex flex-col">
+          <h3 className="text-sm font-semibold">💬 Anmerkungen ({annotations.length})</h3>
+          {viewerSession && (
+            <span className="text-[10px] text-slate-500">Reviewer: {viewerSession.author}</span>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+        >
+          Schließen
+        </button>
+      </header>
+
+      <div className="border-b border-slate-800 bg-slate-950/40 px-3 py-2">
+        <div className="mb-2 flex gap-1">
+          {(['all', 'open', 'built', 'resolved'] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setStatusFilter(s)}
+              className={`rounded px-2 py-0.5 text-[10px] ${
+                statusFilter === s
+                  ? 'bg-sky-700 text-white'
+                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+              }`}
+            >
+              {s === 'all' ? 'alle' : STATUS_LABEL[s]}
+            </button>
+          ))}
+        </div>
+        {canCreateFree ? (
+          <div className="space-y-1">
+            <textarea
+              value={draftText}
+              onChange={(e) => setDraftText(e.target.value)}
+              autoFocus
+              rows={3}
+              placeholder={`Anmerkung als ${author}…`}
+              className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+            />
+            <div className="flex gap-1">
+              <button
+                type="button"
+                onClick={() => {
+                  const text = draftText.trim()
+                  if (!text) return
+                  addAnnotation({
+                    id: uuidv4(),
+                    author,
+                    createdAt: new Date().toISOString(),
+                    text,
+                    status: 'open',
+                    anchor: { type: 'free', x: 0, y: 0 },
+                  })
+                  setDraftText('')
+                  setCreating(false)
+                }}
+                className="flex-1 rounded bg-emerald-600 px-2 py-1 text-xs hover:bg-emerald-500"
+              >
+                Hinzufügen
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setDraftText('')
+                  setCreating(false)
+                }}
+                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+              >
+                Abbruch
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setCreating(true)}
+            className="w-full rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600"
+          >
+            + Neue Anmerkung
+          </button>
+        )}
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-3">
+        {grouped.length === 0 ? (
+          <p className="text-[11px] text-slate-500">
+            Noch keine Anmerkungen. Klicke "+ Neue Anmerkung" oder mache einen
+            Rechtsklick auf ein Gerät / Kabel.
+          </p>
+        ) : (
+          grouped.map(([authorName, items]) => (
+            <div key={authorName} className="mb-3">
+              <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                {authorName} ({items.length})
+              </h4>
+              <ul className="space-y-1">
+                {items.map((a) => {
+                  const isEditing = editingId === a.id
+                  return (
+                    <li
+                      key={a.id}
+                      className="rounded border border-slate-700 bg-slate-950/40 p-2 text-xs"
+                    >
+                      <div className="mb-1 flex items-center justify-between gap-2">
+                        <span
+                          className="rounded px-1 py-0.5 text-[9px] font-semibold"
+                          style={{ background: STATUS_COLOR[a.status], color: '#0f172a' }}
+                        >
+                          {STATUS_LABEL[a.status]}
+                        </span>
+                        <span className="truncate text-[10px] text-slate-500" title={a.createdAt}>
+                          {new Date(a.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+                      {isEditing ? (
+                        <textarea
+                          value={a.text}
+                          onChange={(e) => updateAnnotation(a.id, { text: e.target.value })}
+                          rows={3}
+                          className="w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs"
+                          onBlur={() => setEditingId(null)}
+                          autoFocus
+                        />
+                      ) : (
+                        <p
+                          className="cursor-text whitespace-pre-wrap break-words"
+                          onClick={() => setEditingId(a.id)}
+                          title="Klicken zum Bearbeiten"
+                        >
+                          {a.text}
+                        </p>
+                      )}
+                      <div className="mt-1 text-[10px] text-slate-500">
+                        {ANCHOR_LABEL(a, deviceNames, cableNames)}
+                      </div>
+                      <div className="mt-1 flex gap-1">
+                        <select
+                          value={a.status}
+                          onChange={(e) =>
+                            updateAnnotation(a.id, {
+                              status: e.target.value as ProjectAnnotation['status'],
+                            })
+                          }
+                          className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[10px]"
+                        >
+                          <option value="open">offen</option>
+                          <option value="built">gebaut</option>
+                          <option value="resolved">erledigt</option>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm('Anmerkung löschen?')) removeAnnotation(a.id)
+                          }}
+                          className="rounded bg-red-900/60 px-1 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
+                          title="Anmerkung löschen"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  )
+}

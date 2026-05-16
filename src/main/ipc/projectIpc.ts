@@ -38,8 +38,21 @@ const defaultSavePath = (project: unknown): string => {
   return `${sanitizeFileName(name || 'cable-project')}.json`
 }
 
+const defaultViewerPath = (project: unknown): string => {
+  const name =
+    project && typeof project === 'object' && 'metadata' in project
+      ? String(((project as { metadata?: { name?: unknown } }).metadata?.name ?? '')).trim()
+      : ''
+  return `${sanitizeFileName(name || 'cable-project')}.cpviewer`
+}
+
 const ensureJsonExtension = (filePath: string): string =>
-  filePath.toLowerCase().endsWith('.json') ? filePath : `${filePath}.json`
+  filePath.toLowerCase().endsWith('.json') || filePath.toLowerCase().endsWith('.cpviewer')
+    ? filePath
+    : `${filePath}.json`
+
+const ensureViewerExtension = (filePath: string): string =>
+  filePath.toLowerCase().endsWith('.cpviewer') ? filePath : `${filePath}.cpviewer`
 
 export const registerProjectIpc = () => {
   ipcMain.handle('project:new', async () => null)
@@ -47,7 +60,13 @@ export const registerProjectIpc = () => {
   ipcMain.handle('project:open', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       title: 'Open Cable Planner Project',
-      filters: [{ name: 'Cable Planner Project', extensions: ['json'] }],
+      filters: [
+        // v7.9.3 — .cpviewer ist eine Read-only Variante der normalen
+        // JSON-Datei (gleicher Inhalt + project.mode='viewer').
+        { name: 'Cable Planner Project / Viewer', extensions: ['json', 'cpviewer'] },
+        { name: 'JSON', extensions: ['json'] },
+        { name: 'Viewer (read-only)', extensions: ['cpviewer'] },
+      ],
       properties: ['openFile'],
     })
 
@@ -62,6 +81,51 @@ export const registerProjectIpc = () => {
     return {
       filePath,
       data: JSON.parse(content),
+    }
+  })
+
+  // v7.9.3 — Viewer-File-Export: gleiche JSON-Struktur wie save, aber
+  // mit erzwungenem mode='viewer' und .cpviewer-Extension. Reviewer
+  // beim Öffnen werden nach Namen gefragt (App.tsx Loader).
+  ipcMain.handle('project:export-viewer', async (_event, project: unknown) => {
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Als Viewer-Datei exportieren',
+      defaultPath: defaultViewerPath(project),
+      filters: [{ name: 'Cable Planner Viewer', extensions: ['cpviewer'] }],
+    })
+    if (canceled || !filePath) return null
+    const target = ensureViewerExtension(filePath)
+    // mode='viewer' erzwingen; bestehende Annotations aber NICHT
+    // wegwerfen (der Plan-Eigentümer kann auch Pre-Annotations setzen,
+    // z.B. "TODO: Cable XY checken" für die Freelancer).
+    const safe = JSON.parse(JSON.stringify(project)) as Record<string, unknown>
+    safe.mode = 'viewer'
+    // viewerSession beim Export leeren — der Reviewer setzt seinen
+    // eigenen Namen beim ersten Öffnen.
+    delete safe.viewerSession
+    await writeFile(target, JSON.stringify(safe, null, 2), 'utf-8')
+    return target
+  })
+
+  // v7.9.3 — Annotations-Re-Import: liest eine .cpviewer-Datei und
+  // gibt NUR die annotations[] zurück. Plan-Eigentümer mergen das
+  // dann ins Original (im Renderer, siehe importAnnotations Action).
+  ipcMain.handle('project:import-annotations', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      title: 'Anmerkungen aus Viewer-Datei importieren',
+      filters: [
+        { name: 'Cable Planner Viewer / JSON', extensions: ['cpviewer', 'json'] },
+      ],
+      properties: ['openFile'],
+    })
+    if (canceled || filePaths.length === 0) return null
+    const content = await readFile(filePaths[0], 'utf-8')
+    try {
+      const parsed = JSON.parse(content) as { annotations?: unknown[] }
+      const annotations = Array.isArray(parsed.annotations) ? parsed.annotations : []
+      return { filePath: filePaths[0], annotations }
+    } catch {
+      return { filePath: filePaths[0], annotations: [] }
     }
   })
 

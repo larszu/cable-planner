@@ -76,6 +76,10 @@ type CablePlannerApi = {
     saveProject: (project: CablePlannerProject, currentPath?: string) => Promise<string | null>
     saveProjectAs: (project: CablePlannerProject) => Promise<string | null>
     getRecentProjects: () => Promise<string[]>
+    /** v7.9.3 — Viewer-File-Export (.cpviewer Extension). */
+    exportViewer: (project: CablePlannerProject) => Promise<string | null>
+    /** v7.9.3 — Annotations aus einer Viewer-Datei zurück-importieren. */
+    importAnnotations: () => Promise<{ filePath: string; annotations: unknown[] } | null>
   }
   graphml: {
     openFile: () => Promise<{ filePath: string; fileName: string; xml: string } | null>
@@ -122,6 +126,13 @@ type CablePlannerApi = {
     stop: () => Promise<{ ok: boolean }>
     status: () => Promise<{ running: boolean; port: number; urls: string[]; hasProject: boolean }>
     setProject: (project: unknown) => Promise<{ ok: boolean }>
+    /** v7.9.3 — Listener für CheckState-Updates vom Mobile-Viewer.
+     *  Wird vom Renderer registriert; der Main-Prozess schickt
+     *  'mobileShare:checksUpdate' Events sobald POST /checks
+     *  reinkommt. Gibt eine Unsubscribe-Funktion zurück. */
+    onChecksUpdate: (
+      cb: (checks: { ports: Record<string, boolean>; cables: Record<string, boolean> }) => void,
+    ) => () => void
   }
 }
 
@@ -432,6 +443,14 @@ const webFallbackApi: CablePlannerApi = {
       return fileName
     },
     getRecentProjects: async () => loadRecents(),
+    exportViewer: async (project: CablePlannerProject) => {
+      // Browser-Fallback: trigger Download mit .cpviewer-Extension.
+      const fileName = `${project.metadata.name || 'project'}.cpviewer`
+      const safe = { ...project, mode: 'viewer' as const, viewerSession: undefined }
+      downloadJson(safe, fileName)
+      return fileName
+    },
+    importAnnotations: async () => null,
   },
   graphml: {
     // Browser fallback for dev / non-Electron contexts: use a hidden
@@ -501,6 +520,7 @@ const webFallbackApi: CablePlannerApi = {
     stop: async () => ({ ok: true }),
     status: async () => ({ running: false, port: 0, urls: [], hasProject: false }),
     setProject: async () => ({ ok: true }),
+    onChecksUpdate: () => () => {},
   },
 }
 
