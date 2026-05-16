@@ -30,7 +30,7 @@ export const CanvasToolbar = () => {
   const canvasState = useProjectStore((state) => state.project.canvasState)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const equipmentList = useProjectStore((state) => state.project.equipment)
-  const { getNodes } = useReactFlow()
+  const { getNodes, setNodes } = useReactFlow()
   const [namingGroup, setNamingGroup] = useState(false)
   const [groupName, setGroupName] = useState('')
   // Issue #59: the toolbar's group-name input sometimes ignored keystrokes
@@ -88,6 +88,16 @@ export const CanvasToolbar = () => {
     const maxBottom = Math.max(...sized.map((s) => s.item.y + s.h))
     const centerX = (minX + maxRight) / 2
     const centerY = (minY + maxBottom) / 2
+    // v7.9.0 / Issue #119 — Two-stage update: first write the new
+    // positions to the project store (autosave + undo/redo), then
+    // immediately patch React Flow's local rfNodes state so the
+    // canvas re-renders with the new positions. Without the
+    // setNodes() the canvas would keep showing OLD positions because
+    // CanvasArea's structural-sync useEffect deliberately preserves
+    // existing rfNode positions across data updates to avoid drag-
+    // jumps — alignment is a deliberate position change and needs to
+    // bypass that.
+    const newPositionById = new Map<string, { x: number; y: number }>()
     for (const { item, w, h } of sized) {
       let nx = item.x
       let ny = item.y
@@ -102,7 +112,16 @@ export const CanvasToolbar = () => {
       }
       if (nx !== item.x || ny !== item.y) {
         updateEquipment(item.id, { x: nx, y: ny })
+        newPositionById.set(item.id, { x: nx, y: ny })
       }
+    }
+    if (newPositionById.size > 0) {
+      setNodes((rf) =>
+        rf.map((n) => {
+          const pos = newPositionById.get(n.id)
+          return pos ? { ...n, position: pos } : n
+        }),
+      )
     }
   }
 
@@ -440,27 +459,34 @@ export const CanvasToolbar = () => {
         const selectedCount = getNodes().filter(
           (n) => n.selected && n.type === 'equipment',
         ).length
-        if (selectedCount < 2) return null
+        // v7.9.0 / Issue #119 — Toolbar erscheint jetzt ab 1+ selektiertem
+        // Gerät; Ausrichtungs-Buttons sind aber bei nur 1 Gerät disabled
+        // (mit Hinweis-Title), da Alignment zwischen mehreren stattfindet.
+        if (selectedCount < 1) return null
+        const enabled = selectedCount >= 2
         const btnStyle = {
           padding: '2px 6px',
           background: isLight ? '#e2e8f0' : '#1e293b',
           border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
           color: isLight ? '#1e293b' : '#e2e8f0',
           borderRadius: 3,
-          cursor: 'pointer',
+          cursor: enabled ? 'pointer' : 'not-allowed',
+          opacity: enabled ? 1 : 0.4,
           fontSize: 13,
           lineHeight: 1,
         } as const
+        const tip = (base: string): string =>
+          enabled ? base : `${base} — mindestens 2 Geräte auswählen`
         return (
           <>
             <span style={dividerStyle} />
             <span style={sectionLabelStyle}>Ausrichten</span>
-            <button type="button" title="Linksbündig (gleiche linke Kante)" onClick={() => alignSelected('left')} style={btnStyle}>⇤</button>
-            <button type="button" title="Horizontal zentrieren (gleiche X-Mitte)" onClick={() => alignSelected('center-h')} style={btnStyle}>↔</button>
-            <button type="button" title="Rechtsbündig (gleiche rechte Kante)" onClick={() => alignSelected('right')} style={btnStyle}>⇥</button>
-            <button type="button" title="Oben ausrichten (gleiche obere Kante)" onClick={() => alignSelected('top')} style={btnStyle}>⤒</button>
-            <button type="button" title="Vertikal zentrieren (gleiche Y-Mitte)" onClick={() => alignSelected('center-v')} style={btnStyle}>↕</button>
-            <button type="button" title="Unten ausrichten (gleiche untere Kante)" onClick={() => alignSelected('bottom')} style={btnStyle}>⤓</button>
+            <button type="button" disabled={!enabled} title={tip('Linksbündig (gleiche linke Kante)')} onClick={() => alignSelected('left')} style={btnStyle}>⇤</button>
+            <button type="button" disabled={!enabled} title={tip('Horizontal zentrieren (gleiche X-Mitte)')} onClick={() => alignSelected('center-h')} style={btnStyle}>↔</button>
+            <button type="button" disabled={!enabled} title={tip('Rechtsbündig (gleiche rechte Kante)')} onClick={() => alignSelected('right')} style={btnStyle}>⇥</button>
+            <button type="button" disabled={!enabled} title={tip('Oben ausrichten (gleiche obere Kante)')} onClick={() => alignSelected('top')} style={btnStyle}>⤒</button>
+            <button type="button" disabled={!enabled} title={tip('Vertikal zentrieren (gleiche Y-Mitte)')} onClick={() => alignSelected('center-v')} style={btnStyle}>↕</button>
+            <button type="button" disabled={!enabled} title={tip('Unten ausrichten (gleiche untere Kante)')} onClick={() => alignSelected('bottom')} style={btnStyle}>⤓</button>
           </>
         )
       })()}
