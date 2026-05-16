@@ -88,12 +88,13 @@ const MENU_WIDTH = 240
 export const CableContextMenu = () => {
   const menu = useUiStore((s) => s.cableContextMenu)
   const close = useUiStore((s) => s.closeCableContextMenu)
+  const globalCableBumps = useUiStore((s) => s.cableBumps)
   const updateCable = useProjectStore((s) => s.updateCable)
   const deleteCable = useProjectStore((s) => s.deleteCable)
   const cable = useProjectStore((s) =>
     menu.open ? s.project.cables.find((c) => c.id === menu.cableId) : undefined,
   )
-  const [submenu, setSubmenu] = useState<'routing' | 'bump' | null>(null)
+  const [submenu, setSubmenu] = useState<'routing' | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
 
   // Close on outside click, Escape, or any window resize (the latter
@@ -176,7 +177,18 @@ export const CableContextMenu = () => {
 
   const setRouting = (r: CableRouting) => doUpdate({ routing: r })
 
-  const setBumpStyle = (s: 'auto' | 'on' | 'off') => doUpdate({ bumpStyle: s })
+  // v7.9.5 — Kabelbrücken pro Kabel: nur 'on' oder 'off'. undefined =
+  // follow global (= kein Override). Toggle wechselt zwischen on/off
+  // basierend auf dem aktuellen Effektiv-Zustand.
+  const toggleBumpForThisCable = () => {
+    const effective =
+      cable.bumpStyle === 'on'
+        ? true
+        : cable.bumpStyle === 'off'
+          ? false
+          : globalCableBumps
+    doUpdate({ bumpStyle: effective ? 'off' : 'on' })
+  }
 
   const toggleArrowEnd = () =>
     doUpdate({ arrowEnd: cable.arrowEnd === false ? true : false })
@@ -191,7 +203,9 @@ export const CableContextMenu = () => {
   }
 
   const waypointCount = cable.waypoints?.length ?? 0
-  const bumpStyle = cable.bumpStyle ?? 'auto'
+  const bumpStyle = cable.bumpStyle
+  const effectiveBumps =
+    bumpStyle === 'on' ? true : bumpStyle === 'off' ? false : globalCableBumps
   const routing = cable.routing ?? 'orthogonal'
 
   return (
@@ -246,26 +260,22 @@ export const CableContextMenu = () => {
           ))}
         </div>
       )}
-      {/* Bump style submenu (#106) */}
-      <Item
-        onClick={() => setSubmenu(submenu === 'bump' ? null : 'bump')}
-        icon="〰"
-      >
-        Kabelbrücken: <strong className="ml-1">{bumpLabel(bumpStyle)}</strong>
-        <span className="ml-auto text-slate-500">{submenu === 'bump' ? '▾' : '▸'}</span>
+      {/* v7.9.5 — Kabelbrücken-Toggle pro Kabel — kein Submenu mehr.
+          Aktueller Effektiv-Zustand (entweder per-cable override oder
+          global) bestimmt was der Toggle-Klick macht. */}
+      <Item onClick={toggleBumpForThisCable} icon={effectiveBumps ? '✓' : ' '}>
+        Kabelbrücken für dieses Kabel
+        {bumpStyle == null && (
+          <span className="ml-auto text-[10px] text-slate-500">global</span>
+        )}
       </Item>
-      {submenu === 'bump' && (
-        <div className="border-l-2 border-sky-700 bg-slate-950/50">
-          {(['auto', 'on', 'off'] as const).map((s) => (
-            <Item
-              key={s}
-              onClick={() => setBumpStyle(s)}
-              icon={s === bumpStyle ? '✓' : ' '}
-            >
-              {bumpLabel(s)}
-            </Item>
-          ))}
-        </div>
+      {bumpStyle != null && (
+        <Item
+          onClick={() => doUpdate({ bumpStyle: undefined })}
+          icon=" "
+        >
+          <span className="text-[11px] text-slate-400">Override entfernen (global folgen)</span>
+        </Item>
       )}
       <Separator />
       <Item onClick={toggleArrowEnd} icon={cable.arrowEnd === false ? ' ' : '→'}>
@@ -291,8 +301,6 @@ export const CableContextMenu = () => {
 const routingLabel = (r: CableRouting): string =>
   r === 'orthogonal' ? 'Orthogonal' : r === 'straight' ? 'Direkt' : 'Geschwungen'
 
-const bumpLabel = (s: 'auto' | 'on' | 'off'): string =>
-  s === 'auto' ? 'Auto (global)' : s === 'on' ? 'Immer an' : 'Immer aus'
 
 const Item = ({
   onClick,
