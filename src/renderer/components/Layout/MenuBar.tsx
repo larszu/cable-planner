@@ -11,10 +11,16 @@ interface MenuBarProps {
   onSaveProject: () => void
   onSaveProjectAs: () => void
   onOpenSettings: () => void
+  /** v7.9.0 / Issue #110 — unified Export-Dialog opener. Replaces the
+   *  former three separate menu entries (PDF / PNG / JPEG) with a
+   *  single "Exportieren…" item that opens a dialog where the user
+   *  picks the format. */
+  onOpenExportDialog?: () => void
+  /** Legacy direct triggers — kept for backwards compatibility with
+   *  callers that still want individual menu items. When
+   *  onOpenExportDialog is provided we hide these. */
   onExportPdf: () => void
-  /** v7.7.1 — export the canvas as a PNG image (uses live bg settings). */
   onExportPng?: () => void
-  /** v7.7.1 — export the canvas as a JPEG image (uses live bg settings). */
   onExportJpeg?: () => void
   /** Open the consolidated "Drucken" hub (Plan + per-device patch-sheets, Issue #74). */
   onOpenPrintDialog?: () => void
@@ -52,6 +58,7 @@ export const MenuBar = ({
   onSaveProject,
   onSaveProjectAs,
   onOpenSettings,
+  onOpenExportDialog,
   onExportPdf,
   onExportPng,
   onExportJpeg,
@@ -118,21 +125,31 @@ export const MenuBar = ({
             </>
           )}
           <MenuSep />
-          {/* v7.6.0 — Export + Drucken moved into Datei (logischere Hierarchie).
-              "Plan als …" sind Export-Features, das echte Drucken läuft über
-              den separaten Drucken-Dialog mit nativem Druck-Workflow. */}
-          <MenuItem onClick={onExportPdf} icon="📑">
-            {t('app.menu.file.exportPdf', 'Plan als PDF exportieren…')}
-          </MenuItem>
-          {onExportPng && (
-            <MenuItem onClick={onExportPng} icon="🖼">
-              {t('app.menu.file.exportPng', 'Plan als PNG exportieren…')}
+          {/* v7.9.0 / Issue #110 — Einzelner "Exportieren"-Eintrag der
+              den ExportDialog mit Format-Auswahl öffnet. Die drei
+              alten Einträge (Plan als PDF/PNG/JPEG) sind in den
+              Dialog wandern; falls jemand den Dialog NICHT verdrahtet
+              hat, fallen wir auf die Legacy-Einträge zurück. */}
+          {onOpenExportDialog ? (
+            <MenuItem onClick={onOpenExportDialog} icon="📤">
+              {t('app.menu.file.export', 'Exportieren…')}
             </MenuItem>
-          )}
-          {onExportJpeg && (
-            <MenuItem onClick={onExportJpeg} icon="🖼">
-              {t('app.menu.file.exportJpeg', 'Plan als JPEG exportieren…')}
-            </MenuItem>
+          ) : (
+            <>
+              <MenuItem onClick={onExportPdf} icon="📑">
+                {t('app.menu.file.exportPdf', 'Plan als PDF exportieren…')}
+              </MenuItem>
+              {onExportPng && (
+                <MenuItem onClick={onExportPng} icon="🖼">
+                  {t('app.menu.file.exportPng', 'Plan als PNG exportieren…')}
+                </MenuItem>
+              )}
+              {onExportJpeg && (
+                <MenuItem onClick={onExportJpeg} icon="🖼">
+                  {t('app.menu.file.exportJpeg', 'Plan als JPEG exportieren…')}
+                </MenuItem>
+              )}
+            </>
           )}
           {onOpenCableBom && (
             <MenuItem onClick={onOpenCableBom} icon="🧮">

@@ -161,6 +161,100 @@ const drawColumn = (
  * `exportDevicePatchSheet` so the new batch export can reuse it
  * without duplicating layout logic.
  */
+/** v7.9.0 / Issue #109 — Draws the page header (device name + meta +
+ *  current date/time + horizontal rule). Called once on the first
+ *  page AND repeated on every subsequent page so users can identify
+ *  the printed sheet without flipping back to page 1. */
+const drawPageHeader = (pdf: jsPDF, device: EquipmentItem): number => {
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const margin = 32
+  pdf.setFontSize(16)
+  pdf.setTextColor(15)
+  pdf.setFont('helvetica', 'bold')
+  pdf.text(device.name || 'Gerät', margin, margin + 4)
+
+  pdf.setFontSize(9)
+  pdf.setFont('helvetica', 'normal')
+  pdf.setTextColor(80)
+  const metaParts: string[] = []
+  if (device.category) metaParts.push(device.category)
+  if (device.subtitle) metaParts.push(device.subtitle)
+  if (device.ipAddress) metaParts.push(`IP ${device.ipAddress}`)
+  pdf.text(metaParts.join('  -'), margin, margin + 20)
+  pdf.text(new Date().toLocaleString(), pageWidth - margin, margin + 20, { align: 'right' })
+
+  pdf.setDrawColor(180)
+  pdf.line(margin, margin + 28, pageWidth - margin, margin + 28)
+  // Return the y-position where content can start.
+  return margin + 48
+}
+
+/** v7.9.0 / Issue #109 — Draws ONE port row in BOTH columns so they
+ *  stay vertically aligned. Returns the y-position AFTER this row.
+ *  When a row would overflow the page, the caller is responsible for
+ *  starting a new page first; this helper just paints. */
+const drawPortRowPair = (
+  pdf: jsPDF,
+  leftRow: { port: Port; cables: CableEndpointSummary[] } | null,
+  rightRow: { port: Port; cables: CableEndpointSummary[] } | null,
+  y: number,
+  leftX: number,
+  rightX: number,
+  colWidth: number,
+): number => {
+  // Determine how tall this row will be on each side, then advance by
+  // the MAX so both sides stay aligned no matter how many cables each
+  // port has.
+  const sideRowHeight = (row: { port: Port; cables: CableEndpointSummary[] } | null): number => {
+    if (!row) return 0
+    let h = 12 // port-name line
+    if (row.cables.length === 0) {
+      h += 11
+    } else {
+      h += row.cables.length * 22 // cable label + target line
+    }
+    return h + 4 // small gap below the row
+  }
+  const rowHeight = Math.max(sideRowHeight(leftRow), sideRowHeight(rightRow))
+
+  const drawSide = (
+    row: { port: Port; cables: CableEndpointSummary[] } | null,
+    x: number,
+  ) => {
+    if (!row) return
+    let cy = y
+    pdf.setTextColor(15)
+    pdf.setFont('helvetica', 'bold')
+    const portLine = `> ${row.port.name || row.port.id}`
+    const portType = row.port.connectorType ? `  [${row.port.connectorType}]` : ''
+    pdf.text(`${portLine}${portType}`, x, cy, { maxWidth: colWidth - 4 })
+    pdf.setFont('helvetica', 'normal')
+    cy += 12
+
+    if (row.cables.length === 0) {
+      pdf.setTextColor(140)
+      pdf.text('  -- frei --', x, cy)
+      return
+    }
+    for (const c of row.cables) {
+      pdf.setTextColor(15)
+      pdf.text(`  -> ${c.cableLabel}`, x, cy, { maxWidth: colWidth - 6 })
+      cy += 11
+      pdf.setTextColor(80)
+      const otherSuffix = c.otherPortConnectorType ? ` [${c.otherPortConnectorType}]` : ''
+      const tgt = c.otherPortName
+        ? `       an ${c.otherDeviceName} - ${c.otherPortName}${otherSuffix}`
+        : `       an ${c.otherDeviceName}`
+      pdf.text(tgt, x, cy, { maxWidth: colWidth - 6 })
+      cy += 11
+    }
+  }
+
+  drawSide(leftRow, leftX)
+  drawSide(rightRow, rightX)
+  return y + rowHeight
+}
+
 const drawDevicePage = (
   pdf: jsPDF,
   device: EquipmentItem,
@@ -172,27 +266,14 @@ const drawDevicePage = (
   const margin = 32
   const pageBottom = pageHeight - margin
 
-  // Header — device name + meta line
-  pdf.setFontSize(16)
-  pdf.setTextColor(15)
-  pdf.text(device.name || 'Gerät', margin, margin + 4)
-
-  pdf.setFontSize(9)
-  pdf.setTextColor(80)
-  const metaParts: string[] = []
-  if (device.category) metaParts.push(device.category)
-  if (device.subtitle) metaParts.push(device.subtitle)
-  if (device.ipAddress) metaParts.push(`IP ${device.ipAddress}`)
-  pdf.text(metaParts.join('  -'), margin, margin + 20)
-  pdf.text(new Date().toLocaleString(), pageWidth - margin, margin + 20, { align: 'right' })
-
-  // Subtle horizontal rule below the header
-  pdf.setDrawColor(180)
-  pdf.line(margin, margin + 28, pageWidth - margin, margin + 28)
+  // Header on page 1
+  let y = drawPageHeader(pdf, device)
 
   // Two-column layout for inputs (left) and outputs (right)
   const gutter = 18
   const colWidth = (pageWidth - margin * 2 - gutter) / 2
+  const leftX = margin
+  const rightX = margin + colWidth + gutter
   const inputRows = collectPortRows(
     device,
     device.inputs ?? [],
@@ -208,27 +289,46 @@ const drawDevicePage = (
     allEquipment,
   )
 
-  const colYStart = margin + 48
-  drawColumn(
-    pdf,
-    `INPUTS (${inputRows.length})`,
-    inputRows,
-    margin,
-    colYStart,
-    colWidth,
-    pageBottom,
-    margin,
-  )
-  drawColumn(
-    pdf,
-    `OUTPUTS (${outputRows.length})`,
-    outputRows,
-    margin + colWidth + gutter,
-    colYStart,
-    colWidth,
-    pageBottom,
-    margin,
-  )
+  // Column titles
+  pdf.setFontSize(11)
+  pdf.setFont('helvetica', 'bold')
+  pdf.setTextColor(20)
+  pdf.text(`INPUTS (${inputRows.length})`, leftX, y)
+  pdf.text(`OUTPUTS (${outputRows.length})`, rightX, y)
+  pdf.setFont('helvetica', 'normal')
+  pdf.setFontSize(9)
+  y += 14
+
+  // Walk both columns in lock-step so inputs and outputs always start
+  // at the SAME y on every page (Issue #109).
+  const rowCount = Math.max(inputRows.length, outputRows.length)
+  for (let i = 0; i < rowCount; i++) {
+    const leftRow = inputRows[i] ?? null
+    const rightRow = outputRows[i] ?? null
+
+    // Estimate row height to decide page break.
+    const estHeight = Math.max(
+      leftRow ? 12 + (leftRow.cables.length === 0 ? 11 : leftRow.cables.length * 22) + 4 : 0,
+      rightRow ? 12 + (rightRow.cables.length === 0 ? 11 : rightRow.cables.length * 22) + 4 : 0,
+    )
+
+    if (y + estHeight > pageBottom) {
+      pdf.addPage()
+      // Repeat header on every new page (Issue #109)
+      y = drawPageHeader(pdf, device)
+      // Repeat column titles too so the user knows what's left/right
+      pdf.setFontSize(11)
+      pdf.setFont('helvetica', 'bold')
+      pdf.setTextColor(20)
+      pdf.text(`INPUTS (${inputRows.length}) - Forts.`, leftX, y)
+      pdf.text(`OUTPUTS (${outputRows.length}) - Forts.`, rightX, y)
+      pdf.setFont('helvetica', 'normal')
+      pdf.setFontSize(9)
+      y += 14
+    }
+
+    y = drawPortRowPair(pdf, leftRow, rightRow, y, leftX, rightX, colWidth)
+  }
 
   // Footer — note about cable colour key
   pdf.setFontSize(7)
