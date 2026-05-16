@@ -1,8 +1,233 @@
 import { useMemo, useState } from 'react'
-import { cableCatalog } from '../../types/cableSpec'
+import { ALL_SIGNAL_STANDARDS, cableCatalog } from '../../types/cableSpec'
+import type { CableSpec, SignalStandard } from '../../types/cableSpec'
+import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
+import type { ConnectorType } from '../../types/equipment'
 import { useProjectStore } from '../../store/projectStore'
+import { useUiStore } from '../../store/uiStore'
 import { videoFormatById, pickCableStandardForFormat } from '../../types/videoFormat'
-import type { SignalStandard } from '../../types/cableSpec'
+import { confirmDialog } from '../../lib/confirmDialog'
+
+/** v7.8.6 — Editor dialog for creating / editing custom cable specs.
+ *  Lives at the bottom of this file. Pure controlled form, no store
+ *  access — caller passes an initial value (if editing) and a save
+ *  callback. */
+interface CableTypeEditorProps {
+  open: boolean
+  initial?: CableSpec | null
+  /** Used to detect duplicate-name conflicts inside the dialog. */
+  existingNames: string[]
+  onCancel: () => void
+  onSave: (spec: Omit<CableSpec, 'id'>) => void
+}
+
+const CableTypeEditor = ({
+  open,
+  initial,
+  existingNames,
+  onCancel,
+  onSave,
+}: CableTypeEditorProps) => {
+  const [name, setName] = useState(initial?.name ?? '')
+  const [connectorType, setConnectorType] = useState<ConnectorType>(
+    initial?.connectorType ?? 'Custom',
+  )
+  const [compatible, setCompatible] = useState<ConnectorType[]>(
+    initial?.compatibleConnectors ?? [],
+  )
+  const [standards, setStandards] = useState<SignalStandard[]>(
+    initial?.standards ?? ['Generic'],
+  )
+  const [color, setColor] = useState(initial?.color ?? '#64748b')
+  const [maxLength, setMaxLength] = useState<number | ''>(initial?.maxLengthMeters ?? '')
+  const [notes, setNotes] = useState(initial?.notes ?? '')
+
+  if (!open) return null
+
+  const trimmedName = name.trim()
+  const isEditing = !!initial
+  const conflictsWithExisting =
+    !!trimmedName &&
+    !isEditing &&
+    existingNames.some((n) => n.toLowerCase() === trimmedName.toLowerCase())
+  const canSave = trimmedName.length > 0 && standards.length > 0
+
+  const submit = () => {
+    if (!canSave) return
+    const spec: Omit<CableSpec, 'id'> = {
+      name: trimmedName,
+      connectorType,
+      compatibleConnectors: compatible.length > 0 ? compatible : undefined,
+      standards,
+      color,
+      maxLengthMeters: typeof maxLength === 'number' && maxLength > 0 ? maxLength : undefined,
+      notes: notes.trim() || undefined,
+    }
+    onSave(spec)
+  }
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-4">
+      <div className="w-full max-w-md rounded border border-slate-700 bg-slate-900 p-4 text-slate-100 shadow-2xl">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold">
+            {isEditing ? 'Kabeltyp bearbeiten' : 'Neuer Kabeltyp'}
+          </h3>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="text-slate-500 hover:text-slate-200"
+            aria-label="Schließen"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="space-y-2 text-xs">
+          <label className="block">
+            <span className="text-slate-400">Name</span>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="z.B. CAT6a Patch 5m"
+              autoFocus
+              className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-slate-100"
+            />
+            {conflictsWithExisting && (
+              <span className="mt-0.5 block text-[10px] text-amber-400">
+                ⚠ Name existiert bereits — Speichern überschreibt den vorhandenen Eintrag.
+              </span>
+            )}
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="block">
+              <span className="text-slate-400">Stecker-Typ</span>
+              <select
+                value={connectorType}
+                onChange={(e) => setConnectorType(e.target.value as ConnectorType)}
+                className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
+              >
+                {ALL_CONNECTOR_TYPES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className="text-slate-400">Kabel-Farbe</span>
+              <input
+                type="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="mt-0.5 h-7 w-full cursor-pointer rounded border border-slate-700 bg-slate-950 p-0.5"
+              />
+            </label>
+          </div>
+          <div>
+            <span className="text-slate-400">Auch kompatibel mit (optional)</span>
+            <div className="mt-1 flex max-h-24 flex-wrap gap-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-1.5">
+              {ALL_CONNECTOR_TYPES.filter((c) => c !== connectorType).map((c) => {
+                const on = compatible.includes(c)
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() =>
+                      setCompatible((prev) =>
+                        on ? prev.filter((x) => x !== c) : [...prev, c],
+                      )
+                    }
+                    className={`rounded px-1.5 py-0.5 text-[10px] ${
+                      on
+                        ? 'bg-emerald-700 text-white'
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    }`}
+                  >
+                    {c}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+          <div>
+            <span className="text-slate-400">Signal-Standards</span>
+            <div className="mt-1 flex max-h-32 flex-wrap gap-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-1.5">
+              {ALL_SIGNAL_STANDARDS.map((s) => {
+                const on = standards.includes(s)
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() =>
+                      setStandards((prev) =>
+                        on ? prev.filter((x) => x !== s) : [...prev, s],
+                      )
+                    }
+                    className={`rounded px-1.5 py-0.5 text-[10px] ${
+                      on
+                        ? 'bg-sky-700 text-white'
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    }`}
+                  >
+                    {s}
+                  </button>
+                )
+              })}
+            </div>
+            {standards.length === 0 && (
+              <span className="mt-0.5 block text-[10px] text-red-400">
+                Mindestens einen Standard auswählen.
+              </span>
+            )}
+          </div>
+          <label className="block">
+            <span className="text-slate-400">Max. Länge (m) – optional</span>
+            <input
+              type="number"
+              min={0}
+              step={0.5}
+              value={maxLength}
+              onChange={(e) => {
+                const v = e.target.value
+                setMaxLength(v === '' ? '' : Math.max(0, Number(v)))
+              }}
+              placeholder="z.B. 100"
+              className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
+            />
+          </label>
+          <label className="block">
+            <span className="text-slate-400">Notiz (optional)</span>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+              placeholder="z.B. nur für indoor, geschirmt, …"
+              className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
+            />
+          </label>
+        </div>
+        <div className="mt-4 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+          >
+            Abbrechen
+          </button>
+          <button
+            type="button"
+            onClick={submit}
+            disabled={!canSave}
+            className="rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+          >
+            {isEditing ? 'Speichern' : 'Anlegen'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 /**
  * Group cables by their primary connector family. SDI cables are highlighted
@@ -32,6 +257,22 @@ export const CableLibraryPanel = () => {
   )
   const cables = useProjectStore((s) => s.project.cables)
   const rentmanCablePlan = useProjectStore((s) => s.project.metadata.rentmanCablePlan)
+  // v7.8.6 — custom cable types live in uiStore.customCableSpecs.
+  const customCableSpecs = useUiStore((s) => s.customCableSpecs)
+  const addCustomCableSpec = useUiStore((s) => s.addCustomCableSpec)
+  const updateCustomCableSpec = useUiStore((s) => s.updateCustomCableSpec)
+  const removeCustomCableSpec = useUiStore((s) => s.removeCustomCableSpec)
+
+  // Editor state — null = closed, undefined = "new", a CableSpec = edit.
+  const [editing, setEditing] = useState<CableSpec | null | undefined>(null)
+  const isEditorOpen = editing !== null
+  const editorInitial = editing === undefined ? null : editing
+
+  // Merged spec list = built-in catalogue + user's custom entries.
+  const fullCatalog: CableSpec[] = useMemo(
+    () => [...cableCatalog, ...customCableSpecs],
+    [customCableSpecs],
+  )
 
   const preferredSdi: SignalStandard | undefined = useMemo(() => {
     const f = videoFormatById(defaultVideoFormat)
@@ -55,26 +296,28 @@ export const CableLibraryPanel = () => {
     const map = new Map<string, number>()
     for (const [key, qty] of Object.entries(rentmanCablePlan)) {
       const [type] = key.split('|')
-      // Match against specs by connectorType
-      for (const spec of cableCatalog) {
+      // Match against specs by connectorType (catalog + custom)
+      for (const spec of fullCatalog) {
         if (spec.connectorType === type || spec.id.startsWith(type.toLowerCase())) {
           map.set(spec.id, (map.get(spec.id) ?? 0) + qty)
         }
       }
     }
     return map
-  }, [rentmanCablePlan])
+  }, [rentmanCablePlan, fullCatalog])
 
   const grouped = useMemo(() => {
-    const map = new Map<string, typeof cableCatalog>()
-    for (const cable of cableCatalog) {
+    const map = new Map<string, CableSpec[]>()
+    for (const cable of fullCatalog) {
       const g = groupOf(cable.id, cable.connectorType)
       const list = map.get(g) ?? []
       list.push(cable)
       map.set(g, list)
     }
     return Array.from(map.entries())
-  }, [])
+  }, [fullCatalog])
+
+  const allSpecNames = useMemo(() => fullCatalog.map((c) => c.name), [fullCatalog])
 
   // Start with all groups collapsed - power users open what they need.
   const [open, setOpen] = useState<Record<string, boolean>>({})
@@ -82,12 +325,25 @@ export const CableLibraryPanel = () => {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-sm font-semibold">Kabel-Library</h2>
-        <span className="text-[10px] text-slate-500">{cables.length} verbaut</span>
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-semibold">Kabel-Library</h2>
+          <span className="text-[10px] text-slate-500">{cables.length} verbaut</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setEditing(undefined)}
+          className="rounded bg-emerald-700 px-2 py-1 text-[11px] text-white hover:bg-emerald-600"
+          title="Neuen Kabeltyp anlegen (eigenes Preset für die Library)"
+        >
+          + Neuer Kabeltyp
+        </button>
       </div>
       <p className="mb-2 text-[11px] text-slate-400">
         Presets mit Stecker- und Signalinfos.
+        {customCableSpecs.length > 0 && (
+          <> {customCableSpecs.length} eigene{customCableSpecs.length === 1 ? 'r' : ''} Kabeltyp{customCableSpecs.length === 1 ? '' : 'en'}.</>
+        )}
         {preferredSdi && (
           <>
             {' '}SDI-Empfehlung: <span className="font-semibold text-emerald-400">{preferredSdi}</span>.
@@ -131,6 +387,7 @@ export const CableLibraryPanel = () => {
                       group === 'SDI' &&
                       cable.standards.includes(preferredSdi) &&
                       cable.standards[cable.standards.length - 1] === preferredSdi
+                    const isCustom = cable.id.startsWith('custom-cable:')
                     const built = builtBySpecId.get(cable.id) ?? 0
                     const planned = plannedBySpecId.get(cable.id) ?? 0
                     const hasCount = built > 0 || planned > 0
@@ -140,7 +397,9 @@ export const CableLibraryPanel = () => {
                         className={`rounded border px-2 py-1.5 text-xs ${
                           isRecommended
                             ? 'border-emerald-500 bg-emerald-950/40'
-                            : 'border-slate-700 bg-slate-950'
+                            : isCustom
+                              ? 'border-violet-700/60 bg-violet-950/30'
+                              : 'border-slate-700 bg-slate-950'
                         }`}
                         title={cable.notes ?? ''}
                       >
@@ -150,6 +409,14 @@ export const CableLibraryPanel = () => {
                             style={{ backgroundColor: cable.color }}
                           />
                           <span className="font-medium flex-1">{cable.name}</span>
+                          {isCustom && (
+                            <span
+                              className="rounded bg-violet-700/80 px-1 text-[9px] font-semibold uppercase text-violet-100"
+                              title="Eigener Kabeltyp (lokal angelegt)"
+                            >
+                              Eigen
+                            </span>
+                          )}
                           {isRecommended && (
                             <span className="rounded bg-emerald-600 px-1 text-[9px] font-semibold uppercase text-white">
                               ✓
@@ -167,6 +434,39 @@ export const CableLibraryPanel = () => {
                             >
                               {built}{planned > 0 ? `/${planned}` : ''}
                             </span>
+                          )}
+                          {isCustom && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => setEditing(cable)}
+                                className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] text-slate-200 hover:bg-slate-600"
+                                title="Kabeltyp bearbeiten"
+                              >
+                                ✎
+                              </button>
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  const ok = await confirmDialog(
+                                    `Kabeltyp "${cable.name}" löschen?`,
+                                    {
+                                      body:
+                                        built > 0
+                                          ? `Achtung: ${built} verbaute Kabel referenzieren diesen Typ. Sie behalten ihren Stecker/Standard, verlieren aber die Spec-Verknüpfung.`
+                                          : 'Verbaute Kabel sind nicht betroffen.',
+                                      okLabel: 'Löschen',
+                                      destructive: true,
+                                    },
+                                  )
+                                  if (ok) removeCustomCableSpec(cable.id)
+                                }}
+                                className="rounded bg-red-900/60 px-1.5 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
+                                title="Kabeltyp löschen"
+                              >
+                                ✕
+                              </button>
+                            </>
                           )}
                         </div>
                         <div className="mt-0.5 text-[11px] text-slate-400">
@@ -193,6 +493,21 @@ export const CableLibraryPanel = () => {
           )
         })}
       </div>
+
+      <CableTypeEditor
+        open={isEditorOpen}
+        initial={editorInitial}
+        existingNames={allSpecNames}
+        onCancel={() => setEditing(null)}
+        onSave={(spec) => {
+          if (editorInitial) {
+            updateCustomCableSpec(editorInitial.id, spec)
+          } else {
+            addCustomCableSpec(spec)
+          }
+          setEditing(null)
+        }}
+      />
     </div>
   )
 }

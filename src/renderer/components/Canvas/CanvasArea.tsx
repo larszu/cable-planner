@@ -71,6 +71,8 @@ const CanvasContent = () => {
   const clearPendingCable = useUiStore((state) => state.clearPendingCable)
   const openCableEdit = useUiStore((state) => state.openCableEdit)
   const setHoveredCableId = useUiStore((state) => state.setHoveredCableId)
+  // v7.8.7 — cable right-click context menu trigger.
+  const openCableContextMenu = useUiStore((state) => state.openCableContextMenu)
   const wrapperRef = useRef<HTMLDivElement>(null)
   // Last screen-pixel mouse position over the canvas. Used by Strg++ quick-add
   // (#44) so the new device lands where the user pointed instead of always at
@@ -1132,6 +1134,22 @@ const CanvasContent = () => {
         onNodeDragStop={onNodeDragStop}
         onEdgeClick={(_event, edge) => setSelection(undefined, edge.id, undefined)}
         onEdgeDoubleClick={(_event, edge) => openCableEdit(edge.id)}
+        // v7.8.7 / Issues #106 + #117 — right-click on a cable opens the
+        // context menu (rename, add/remove waypoint, change routing,
+        // toggle cable-bumps, delete, …). State lives in uiStore so the
+        // menu is one global element rendered next to CanvasArea.
+        onEdgeContextMenu={(event, edge) => {
+          event.preventDefault()
+          const me = event as unknown as MouseEvent
+          const flow = screenToFlowPosition({ x: me.clientX, y: me.clientY })
+          openCableContextMenu({
+            cableId: edge.id,
+            screenX: me.clientX,
+            screenY: me.clientY,
+            flowX: flow.x,
+            flowY: flow.y,
+          })
+        }}
         // Issue #68: track which edge the mouse is over so CableEdge can
         // thicken/glow itself and EquipmentNode can highlight the matching
         // port handles. The store value is read by both components.
