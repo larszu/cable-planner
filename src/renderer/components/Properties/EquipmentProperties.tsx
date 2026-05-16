@@ -1838,16 +1838,22 @@ export const EquipmentProperties = () => {
         </SortableSection>
       )}
 
+      {/* v7.9.2 — Betriebsmodi standardmäßig aufgeklappt damit das
+          Feld direkt sichtbar ist (User-Issue: "Es gibt noch nicht das
+          feld 'Betriebsmodi' sichtbar in der UI"). Die Sektion war
+          vorher nur offen wenn schon ein aktiver Modus gesetzt war —
+          Geräte ohne Modus zeigten nur "keiner" in der collapsed-Bar
+          und der "+ Modus anlegen"-Knopf war unter dem Klick verborgen. */}
       <SortableSection
         id="modes"
         title="Betriebsmodi"
         subtitle={
           (equipment.modes ?? []).length === 0
-            ? 'keiner'
+            ? 'keiner — anlegen unten'
             : (equipment.modes?.find((m) => m.id === equipment.activeModeId)?.name ??
               `${equipment.modes?.length} definiert`)
         }
-        defaultOpen={!!equipment.activeModeId}
+        defaultOpen
       >
         <DeviceModePicker equipment={equipment} />
       </SortableSection>

@@ -247,7 +247,11 @@ const resolveStrokeStyle = (
 
 /** Build an Edge from a connection + cable-data. Single source of truth
  *  for label/style so addEdge() and the properties dialog stay in sync.
- *  Takes the global cableColorMode so re-renders pick up Settings changes. */
+ *  Takes the global cableColorMode so re-renders pick up Settings changes.
+ *  v7.9.2 — Länge wird NICHT mehr ans Label gehängt (User-Feedback:
+ *  "Das die länge dabei steht ist nicht zielführend"). Im byLength-
+ *  Modus encodet die Farbe schon die Länge, im manual-Modus ist sie
+ *  über Doppelklick im Properties-Dialog editierbar. */
 const edgeFromCableData = (
   base: Pick<Edge, 'id' | 'source' | 'sourceHandle' | 'target' | 'targetHandle'>,
   data: CableData,
@@ -257,7 +261,7 @@ const edgeFromCableData = (
   return {
     ...base,
     type: 'step',
-    label: cableColorMode === 'byLength' ? `${data.name} (${data.length}m)` : data.name,
+    label: data.name,
     data,
     labelBgPadding: [4, 2] as [number, number],
     labelBgBorderRadius: 4,

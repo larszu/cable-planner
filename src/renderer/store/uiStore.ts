@@ -82,6 +82,13 @@ interface PersistedUiState {
    *  to the built-in catalog and can be re-edited / deleted from
    *  Settings. */
   customCableSpecs: import('../types/cableSpec').CableSpec[]
+  /** v7.9.2 — User-definierte Steckertypen (z.B. "BNC HD-Push-Lock",
+   *  "Speakon NL4"), die zusätzlich zu ALL_CONNECTOR_TYPES verfügbar
+   *  sind. Werden im Kabeltyp-Editor angelegt und persistiert. */
+  customConnectorTypes: string[]
+  /** v7.9.2 — User-definierte Signal-Standards (z.B. "Madi 64ch",
+   *  "Dante Primary"), zusätzlich zu ALL_SIGNAL_STANDARDS. */
+  customSignalStandards: string[]
   /** Issue #80: global library of device-config files (ATEM, Videohub,
    *  GreenGo). Each entry can optionally be bound to one equipment id. */
   deviceConfigLibrary: DeviceConfigEntry[]
@@ -146,6 +153,8 @@ const defaults: PersistedUiState = {
   bgVariant: 'dots',
   bgOpacity: 0.5,
   customCableSpecs: [],
+  customConnectorTypes: [],
+  customSignalStandards: [],
   deviceConfigLibrary: [],
   cableBumps: false,
   orthogonalCollisionShift: false,
@@ -216,6 +225,8 @@ const load = (): PersistedUiState => {
     // updated from a much older version with a different schema.
     const merged: PersistedUiState = { ...defaults, ...parsed }
     if (!Array.isArray(merged.customCableSpecs)) merged.customCableSpecs = []
+    if (!Array.isArray(merged.customConnectorTypes)) merged.customConnectorTypes = []
+    if (!Array.isArray(merged.customSignalStandards)) merged.customSignalStandards = []
     if (!Array.isArray(merged.deviceConfigLibrary)) merged.deviceConfigLibrary = []
     if (typeof merged.cableBumps !== 'boolean') merged.cableBumps = defaults.cableBumps
     if (typeof merged.orthogonalCollisionShift !== 'boolean')
@@ -349,6 +360,13 @@ interface UiState extends PersistedUiState {
     patch: Partial<Omit<import('../types/cableSpec').CableSpec, 'id'>>,
   ) => void
   removeCustomCableSpec: (id: string) => void
+  /** v7.9.2 — User-definierte Stecker- und Signal-Typ Helpers. Used
+   *  by the Kabeltyp-Editor und vom EquipmentProperties wo immer
+   *  ALL_CONNECTOR_TYPES / ALL_SIGNAL_STANDARDS gerendert wird. */
+  addCustomConnectorType: (name: string) => void
+  removeCustomConnectorType: (name: string) => void
+  addCustomSignalStandard: (name: string) => void
+  removeCustomSignalStandard: (name: string) => void
   /** Issue #80: device-config library (ATEM / Videohub / GreenGo configs). */
   addDeviceConfig: (entry: Omit<DeviceConfigEntry, 'id' | 'savedAt'>) => DeviceConfigEntry
   updateDeviceConfig: (id: string, patch: Partial<Omit<DeviceConfigEntry, 'id' | 'savedAt'>>) => void
@@ -496,6 +514,8 @@ const applyPatch =
       bgVariant: state.bgVariant,
       bgOpacity: state.bgOpacity,
       customCableSpecs: state.customCableSpecs,
+      customConnectorTypes: state.customConnectorTypes,
+      customSignalStandards: state.customSignalStandards,
       deviceConfigLibrary: state.deviceConfigLibrary,
       cableBumps: state.cableBumps,
       orthogonalCollisionShift: state.orthogonalCollisionShift,
@@ -566,6 +586,36 @@ export const useUiStore = create<UiState>((set) => ({
   removeCustomCableSpec: (id) =>
     set((state) =>
       applyPatch({ customCableSpecs: state.customCableSpecs.filter((s) => s.id !== id) })(state),
+    ),
+  addCustomConnectorType: (name) =>
+    set((state) => {
+      const trimmed = name.trim()
+      if (!trimmed) return state
+      if (state.customConnectorTypes.includes(trimmed)) return state
+      return applyPatch({
+        customConnectorTypes: [...state.customConnectorTypes, trimmed],
+      })(state)
+    }),
+  removeCustomConnectorType: (name) =>
+    set((state) =>
+      applyPatch({
+        customConnectorTypes: state.customConnectorTypes.filter((n) => n !== name),
+      })(state),
+    ),
+  addCustomSignalStandard: (name) =>
+    set((state) => {
+      const trimmed = name.trim()
+      if (!trimmed) return state
+      if (state.customSignalStandards.includes(trimmed)) return state
+      return applyPatch({
+        customSignalStandards: [...state.customSignalStandards, trimmed],
+      })(state)
+    }),
+  removeCustomSignalStandard: (name) =>
+    set((state) =>
+      applyPatch({
+        customSignalStandards: state.customSignalStandards.filter((n) => n !== name),
+      })(state),
     ),
   addDeviceConfig: (entry) => {
     const id = `cfg:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
