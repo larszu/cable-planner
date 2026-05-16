@@ -95,14 +95,14 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   )
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6">
       <div
         ref={drag.containerRef}
         style={drag.containerStyle}
-        className="flex w-full max-w-4xl overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
+        className="flex max-h-[95vh] min-h-0 w-full max-w-4xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl sm:flex-row"
       >
-        <aside className="flex w-52 shrink-0 flex-col gap-1 border-r border-slate-800 bg-slate-950/40 p-3">
-          <h3 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+        <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-slate-800 bg-slate-950/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:border-b-0 sm:border-r">
+          <h3 className="mb-2 hidden px-2 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
             {t('settings.section', 'Einstellungen')}
           </h3>
           {(Object.keys(TAB_ICONS) as SettingsSection[]).map((id) => navItem(id))}

@@ -207,10 +207,17 @@ interface OpenNode {
 
 /** Pack a (col, row, dir) tuple into a single number for fast Map keys.
  *  Assumes col/row stay within ±32767 (1.3M pixels at CELL_SIZE=20 —
- *  plenty for any sane schematic). */
+ *  plenty for any sane schematic).
+ *
+ *  IMPORTANT: do NOT `| 0` the result — bitwise ops truncate to 32-bit
+ *  signed integers (~2.1B). With (col+32768)*262144 the result regularly
+ *  exceeds 2^31 (e.g. col=100 → ~8.6B), which would silently wrap
+ *  around to a negative number, corrupting the closed-set membership
+ *  test and making A* return "no path" for nearly any input.
+ *  JS numbers are safe integers up to 2^53, so plain arithmetic
+ *  handles the packed value without precision loss. */
 const packState = (col: number, row: number, dir: Direction): number =>
-  // ((col + 32768) << 18) | ((row + 32768) << 4) | dir   — bit-packed
-  ((col + 32768) * 0x40000 + (row + 32768) * 16 + dir) | 0
+  (col + 32768) * 0x40000 + (row + 32768) * 16 + dir
 
 /** A* search on the integer grid. Returns null when no path exists
  *  within `maxNodes` expansions. */
