@@ -1,5 +1,22 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { triggerCanvasFitView } from '../../lib/canvasViewport'
@@ -173,6 +190,8 @@ const LibraryFiltersMenu = ({
   hiddenCount,
   allCollapsed,
   onToggleAllCats,
+  sortMode,
+  setSortMode,
 }: {
   showHidden: boolean
   setShowHidden: (v: boolean) => void
@@ -181,6 +200,8 @@ const LibraryFiltersMenu = ({
   hiddenCount: number
   allCollapsed: boolean
   onToggleAllCats: (allCollapsed: boolean) => void
+  sortMode: 'manual' | 'asc' | 'desc'
+  setSortMode: (m: 'manual' | 'asc' | 'desc') => void
 }) => {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -226,6 +247,31 @@ const LibraryFiltersMenu = ({
             {allCollapsed ? 'Alle Kategorien ausklappen' : 'Alle Kategorien einklappen'}
           </button>
           <div className="my-1 border-t border-slate-800" />
+          <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-slate-500">
+            Sortierung
+          </div>
+          {(
+            [
+              { value: 'manual' as const, label: 'Manuell (Drag&Drop)' },
+              { value: 'asc' as const, label: 'Alphabetisch A → Z' },
+              { value: 'desc' as const, label: 'Alphabetisch Z → A' },
+            ]
+          ).map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              role="menuitemradio"
+              aria-checked={sortMode === opt.value}
+              onClick={() => setSortMode(opt.value)}
+              className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+            >
+              <span className="mr-2 inline-block w-4 text-center">
+                {sortMode === opt.value ? '●' : '○'}
+              </span>
+              {opt.label}
+            </button>
+          ))}
+          <div className="my-1 border-t border-slate-800" />
           <button
             type="button"
             role="menuitemcheckbox"
@@ -253,6 +299,98 @@ const LibraryFiltersMenu = ({
         </div>
       )}
     </div>
+  )
+}
+
+// v7.9.5 — Sortable-Kategorie-Section. Wenn manualSort aktiv, hängt es
+// einen Drag-Grip an die obere linke Ecke (greift via Pointer-Listener);
+// useSortable übernimmt Transform/Transition. Im 'asc'/'desc' Sort-Mode
+// ist DnD disabled.
+const SortableCategorySection = ({
+  cat,
+  manualSort,
+  onDragOverTemplate,
+  onDropTemplate,
+  children,
+}: {
+  cat: string
+  manualSort: boolean
+  onDragOverTemplate: (event: React.DragEvent<HTMLElement>) => void
+  onDropTemplate: (event: React.DragEvent<HTMLElement>) => void
+  children: ReactNode
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: cat,
+    disabled: !manualSort,
+  })
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    position: 'relative',
+  }
+  return (
+    <section
+      ref={setNodeRef}
+      style={style}
+      onDragOver={onDragOverTemplate}
+      onDrop={onDropTemplate}
+      className="rounded border border-slate-800"
+    >
+      {manualSort && (
+        <span
+          {...attributes}
+          {...listeners}
+          aria-label="Kategorie verschieben"
+          title="Per Drag&Drop verschieben"
+          role="button"
+          tabIndex={0}
+          className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-slate-500 hover:text-slate-200 active:cursor-grabbing"
+        >
+          <svg width="6" height="12" viewBox="0 0 6 12" fill="currentColor">
+            <circle cx="1.5" cy="2" r="1" />
+            <circle cx="4.5" cy="2" r="1" />
+            <circle cx="1.5" cy="6" r="1" />
+            <circle cx="4.5" cy="6" r="1" />
+            <circle cx="1.5" cy="10" r="1" />
+            <circle cx="4.5" cy="10" r="1" />
+          </svg>
+        </span>
+      )}
+      {children}
+    </section>
+  )
+}
+
+// v7.9.5 — Wrapper mit DnD-Context+SortableContext nur wenn manueller
+// Sort-Modus aktiv ist. Sonst transparent durchreichen.
+const CategoryDndWrapper = ({
+  cats,
+  onReorder,
+  children,
+}: {
+  cats: string[]
+  onReorder: (newOrder: string[]) => void
+  children: ReactNode
+}) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = cats.indexOf(active.id as string)
+    const newIndex = cats.indexOf(over.id as string)
+    if (oldIndex < 0 || newIndex < 0) return
+    onReorder(arrayMove(cats, oldIndex, newIndex))
+  }
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={cats} strategy={verticalListSortingStrategy}>
+        {children}
+      </SortableContext>
+    </DndContext>
   )
 }
 
@@ -310,6 +448,10 @@ export const LibraryPanel = () => {
   // v7.9.5 — Listen- vs. Kachel-Ansicht im Items-Listing
   const libraryViewMode = useUiStore((state) => state.libraryViewMode)
   const setLibraryViewMode = useUiStore((state) => state.setLibraryViewMode)
+  // v7.9.5 — Kategorien-Sortierung: manual (Drag&Drop), asc, desc
+  const librarySortMode = useUiStore((state) => state.librarySortMode)
+  const setLibrarySortMode = useUiStore((state) => state.setLibrarySortMode)
+  const reorderCategories = useProjectStore((state) => state.reorderCategories)
   const toggleCollapsed = useUiStore((state) => state.toggleLibraryCollapsed)
   // v7.9.2 — Library nicht mehr abdockbar. Falls ein User-Zustand
   // noch `floating: true` aus alten Versionen mitbringt, wird er hier
@@ -327,6 +469,18 @@ export const LibraryPanel = () => {
   const setSelectedTemplateName = useProjectStore((state) => state.setSelectedTemplateName)
   const knownCategories = useProjectStore((state) => state.knownCategories)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
+  const customLibraryForInit = useProjectStore((state) => state.customLibrary)
+  // v7.9.5 — Beim ersten Mount alle aktuell vorhandenen Kategorien
+  // einklappen (Default-collapsed). Läuft nur einmal, danach wird
+  // collapsedCats vom User selbst gesteuert.
+  useEffect(() => {
+    if (collapsedInitRef.current) return
+    const usedCats = new Set(customLibraryForInit.map((t) => t.category || 'Sonstiges'))
+    const allCats = new Set([...knownCategories, ...usedCats])
+    if (allCats.size === 0) return
+    collapsedInitRef.current = true
+    setCollapsedCats(allCats)
+  }, [customLibraryForInit, knownCategories])
   const groupPresets = useProjectStore((state) => state.groupPresets)
   const addGroupPreset = useProjectStore((state) => state.addGroupPreset)
   const deleteGroupPreset = useProjectStore((state) => state.deleteGroupPreset)
@@ -413,7 +567,12 @@ export const LibraryPanel = () => {
   // Category management state
   const [newGroupName, setNewGroupName] = useState('')
   const [showNewGroup, setShowNewGroup] = useState(false)
+  // v7.9.5 — Standard: ALLES eingeklappt (User-Request). Initial-Set
+  // wird beim ersten Mount mit den aktuellen Kategorien gefüllt; danach
+  // verwaltet der User selber per Klick was offen oder zu ist (Component-
+  // State, kein persist).
   const [collapsedCats, setCollapsedCats] = useState<Set<string>>(new Set())
+  const collapsedInitRef = useRef(false)
   const [collapsedRentmanProjects, setCollapsedRentmanProjects] = useState<Set<string>>(new Set())
   const [collapsedRentmanCats, setCollapsedRentmanCats] = useState<Set<string>>(new Set())
   const [showEmpty, setShowEmpty] = useState(false)
@@ -988,6 +1147,8 @@ export const LibraryPanel = () => {
               showEmpty={showEmpty}
               setShowEmpty={setShowEmpty}
               hiddenCount={customLibrary.filter((t) => t.hidden).length}
+              sortMode={librarySortMode}
+              setSortMode={setLibrarySortMode}
               onToggleAllCats={(allCollapsed) => {
                 if (allCollapsed) {
                   setCollapsedCats(new Set())
@@ -1051,9 +1212,25 @@ export const LibraryPanel = () => {
           <div className="flex-1 min-h-0 space-y-1 overflow-auto">
             {(() => {
               const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
-              const allCats = Array.from(new Set([...knownCategories, ...usedCats]))
-                .filter(Boolean)
-                .sort((a, b) => a.localeCompare(b))
+              // v7.9.5 — Kategorien-Order respektiert jetzt den User-
+              // gewählten Sort-Modus. 'manual' = knownCategories-Order
+              // (Drag&Drop-Reihenfolge), 'asc' / 'desc' = alphabetisch.
+              const baseCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
+              const allCats =
+                librarySortMode === 'asc'
+                  ? [...baseCats].sort((a, b) => a.localeCompare(b))
+                  : librarySortMode === 'desc'
+                    ? [...baseCats].sort((a, b) => b.localeCompare(a))
+                    : // manual: knownCategories-Order zuerst, dann genutzte
+                      // Kategorien die nicht in knownCategories sind ans Ende
+                      (() => {
+                        const knownSet = new Set(knownCategories)
+                        const head = knownCategories.filter((c) => baseCats.includes(c))
+                        const tail = baseCats
+                          .filter((c) => !knownSet.has(c))
+                          .sort((a, b) => a.localeCompare(b))
+                        return [...head, ...tail]
+                      })()
               if (allCats.length === 0) allCats.push('Sonstiges')
               const searchQuery = librarySearch.trim().toLowerCase()
               // v7.9.5 — Globaler Empty-State wenn Suche projektweit nichts trifft.
@@ -1082,7 +1259,11 @@ export const LibraryPanel = () => {
                   )
                 }
               }
-              return allCats.map((cat) => {
+              // v7.9.5 — Im 'manual' Sort-Modus wrappen wir die Sections
+              // in DndContext+SortableContext so dass jeder Header per
+              // Drag&Drop sortierbar ist. Im 'asc'/'desc' Modus ist die
+              // Reihenfolge fest alphabetisch → kein DnD nötig.
+              const sectionsList = allCats.map((cat) => {
                 const items = customLibrary.filter(
                   (t) => (t.category || 'Sonstiges') === cat,
                 )
@@ -1099,15 +1280,17 @@ export const LibraryPanel = () => {
                 // visible immediately without manual category clicks.
                 const collapsed = !searchQuery && collapsedCats.has(cat)
                 return (
-                  <section
+                  <SortableCategorySection
                     key={cat}
-                    onDragOver={(event) => {
+                    cat={cat}
+                    manualSort={librarySortMode === 'manual'}
+                    onDragOverTemplate={(event) => {
                       if (event.dataTransfer.types.includes('application/cable-planner-equipment')) {
                         event.preventDefault()
                         event.dataTransfer.dropEffect = 'move'
                       }
                     }}
-                    onDrop={(event) => {
+                    onDropTemplate={(event) => {
                       const raw = event.dataTransfer.getData('application/cable-planner-equipment')
                       if (!raw) return
                       try {
@@ -1115,7 +1298,6 @@ export const LibraryPanel = () => {
                         if (tpl.name) { event.preventDefault(); setCustomTemplateCategory(tpl.name, cat) }
                       } catch { /* ignore */ }
                     }}
-                    className="rounded border border-slate-800"
                   >
                     {/* v7.9.5 — Kategorie-Header mit deutlicher Affordance.
                         Volle Zeile als Klick-Fläche, Hover-Background, Caret
@@ -1187,9 +1369,22 @@ export const LibraryPanel = () => {
                         )}
                       </div>
                     )}
-                  </section>
+                  </SortableCategorySection>
                 )
-              })
+              }).filter(Boolean) as JSX.Element[]
+              // v7.9.5 — Manuelle Sortierung: DnD-Wrapper drumherum.
+              // Sonst direkt rendern.
+              if (librarySortMode === 'manual') {
+                return (
+                  <CategoryDndWrapper
+                    cats={allCats}
+                    onReorder={(newOrder) => reorderCategories(newOrder)}
+                  >
+                    {sectionsList}
+                  </CategoryDndWrapper>
+                )
+              }
+              return sectionsList
             })()}
           </div>
         </>

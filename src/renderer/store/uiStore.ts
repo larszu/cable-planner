@@ -71,6 +71,9 @@ interface PersistedUiState {
   /** v7.9.5 — Library-Liste vs. Kachel-Ansicht. Kachel zeigt Front-
    *  Panel-Thumbnails wenn vorhanden. */
   libraryViewMode: 'list' | 'grid'
+  /** v7.9.5 — Kategorien-Sortierung: 'manual' = User-Order via Drag&Drop,
+   *  'asc' = alphabetisch A→Z, 'desc' = Z→A. */
+  librarySortMode: 'manual' | 'asc' | 'desc'
   /** Issue #62: per-connector-type colour overrides. When a connector
    *  type is missing or its value is an empty string the built-in
    *  default from DEFAULT_CONNECTOR_TYPE_COLORS applies. Stored sparsely
@@ -159,6 +162,7 @@ const defaults: PersistedUiState = {
   overrideConnectionWarnings: false,
   rentmanEnabled: true,
   libraryViewMode: 'list',
+  librarySortMode: 'manual',
   connectorTypeColors: {},
   bgVariant: 'dots',
   bgOpacity: 0.5,
@@ -242,6 +246,12 @@ const load = (): PersistedUiState => {
     if (typeof merged.rentmanEnabled !== 'boolean') merged.rentmanEnabled = defaults.rentmanEnabled
     if (merged.libraryViewMode !== 'list' && merged.libraryViewMode !== 'grid')
       merged.libraryViewMode = defaults.libraryViewMode
+    if (
+      merged.librarySortMode !== 'manual' &&
+      merged.librarySortMode !== 'asc' &&
+      merged.librarySortMode !== 'desc'
+    )
+      merged.librarySortMode = defaults.librarySortMode
     if (typeof merged.orthogonalCollisionShift !== 'boolean')
       merged.orthogonalCollisionShift = defaults.orthogonalCollisionShift
     if (!merged.hotkeys || typeof merged.hotkeys !== 'object') merged.hotkeys = defaults.hotkeys
@@ -360,6 +370,7 @@ interface UiState extends PersistedUiState {
   setOverrideConnectionWarnings: (value: boolean) => void
   setRentmanEnabled: (value: boolean) => void
   setLibraryViewMode: (mode: 'list' | 'grid') => void
+  setLibrarySortMode: (mode: 'manual' | 'asc' | 'desc') => void
   setConnectorTypeColor: (connectorType: string, color: string | null) => void
   resetConnectorTypeColors: () => void
   setBgVariant: (value: 'dots' | 'lines' | 'cross' | 'none') => void
@@ -530,6 +541,7 @@ const applyPatch =
       overrideConnectionWarnings: state.overrideConnectionWarnings,
       rentmanEnabled: state.rentmanEnabled,
       libraryViewMode: state.libraryViewMode,
+      librarySortMode: state.librarySortMode,
       connectorTypeColors: state.connectorTypeColors,
       bgVariant: state.bgVariant,
       bgOpacity: state.bgOpacity,
@@ -576,6 +588,7 @@ export const useUiStore = create<UiState>((set) => ({
   setOverrideConnectionWarnings: (value) => set(applyPatch({ overrideConnectionWarnings: value })),
   setRentmanEnabled: (value) => set(applyPatch({ rentmanEnabled: value })),
   setLibraryViewMode: (mode) => set(applyPatch({ libraryViewMode: mode })),
+  setLibrarySortMode: (mode) => set(applyPatch({ librarySortMode: mode })),
   setConnectorTypeColor: (connectorType, color) =>
     set((state) => {
       const next = { ...state.connectorTypeColors }
