@@ -6,6 +6,8 @@ import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { RoutingToggle } from '../shared/RoutingToggle'
 
 export const CanvasToolbar = () => {
+  // v7.9.0 / Issue #120 — open RackBuilder seeded with current selection
+  const triggerRackBuilderFromSelection = useUiStore((s) => s.triggerRackBuilderFromSelection)
   const snapToGrid = useUiStore((state) => state.snapToGrid)
   const setSnapToGrid = useUiStore((state) => state.setSnapToGrid)
   const gridSize = useUiStore((state) => state.gridSize)
@@ -452,6 +454,30 @@ export const CanvasToolbar = () => {
             }}
           >
             Gruppe speichern ({selectedEquipmentIds.length})
+          </button>
+        )
+      })()}
+      {/* v7.9.0 / Issue #120 — "Als Rack speichern" neben "Gruppe speichern" */}
+      {(() => {
+        const selectedEquipmentIds = getNodes()
+          .filter((n) => n.selected && n.type === 'equipment')
+          .map((n) => n.id)
+        if (selectedEquipmentIds.length < 1) return null
+        return (
+          <button
+            type="button"
+            onClick={() => triggerRackBuilderFromSelection(selectedEquipmentIds)}
+            title={`${selectedEquipmentIds.length} ${selectedEquipmentIds.length === 1 ? 'Gerät' : 'Geräte'} im 2D-Rack-Builder anlegen (Rack-Layout + interne Verkabelung)`}
+            style={{
+              padding: '2px 8px',
+              background: '#7c3aed',
+              border: '1px solid #a78bfa',
+              color: '#e2e8f0',
+              borderRadius: 3,
+              cursor: 'pointer',
+            }}
+          >
+            ▤ Als Rack speichern ({selectedEquipmentIds.length})
           </button>
         )
       })()}
