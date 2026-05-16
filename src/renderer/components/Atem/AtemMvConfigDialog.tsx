@@ -9,7 +9,6 @@ import {
   defaultMvCount,
   getMvCapabilities,
   getMvGridSpec,
-  isLayoutSupported,
   type AtemMvCapabilities,
 } from '../../lib/atemMvLayout'
 
@@ -185,7 +184,7 @@ const MvLayoutPicker = ({
               : `${q.name}: aktuell 4 kleine Fenster — Klick: zu 1 großem zusammenfassen`
           }
           aria-label={`Quadrant ${q.name} umschalten`}
-          className="group absolute cursor-pointer rounded outline-none transition-all hover:bg-sky-500/20 hover:ring-2 hover:ring-sky-400/70 focus-visible:bg-sky-500/25 focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="group absolute cursor-pointer outline-none transition-all hover:bg-sky-500/25 hover:ring-2 hover:ring-sky-400 focus-visible:bg-sky-500/30 focus-visible:ring-2 focus-visible:ring-sky-400"
           style={{
             width: '50%',
             height: '50%',
@@ -193,7 +192,12 @@ const MvLayoutPicker = ({
             left: q.cols[0] === 1 ? 0 : '50%',
           }}
         >
-          <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-[9px] font-bold uppercase tracking-wider text-sky-100 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+          {/* v7.9.4 — Hint immer leicht sichtbar (User-Issue: man muss
+              auch durch Klick auf PGM/PVW zu 4 kleinen wechseln können).
+              Zeigt im Default-Layout direkt auf den großen PGM/PVW
+              Kacheln "1→4" als Hinweis dass sie klickbar sind, ohne
+              dass der User erst hovern muss um es zu entdecken. */}
+          <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-[10px] font-bold uppercase tracking-wider text-sky-100 opacity-60 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
             {state[q.idx] === 'big' ? '1 → 4' : '4 → 1'}
           </span>
         </button>
@@ -787,34 +791,6 @@ export const AtemMvConfigDialog = () => {
                 Klick auf einen Quadranten:<br />
                 groß ↔ 4 kleine
               </span>
-            </div>
-            {/* v7.9.4 — Direkt-Buttons für die "Alle"-Layouts (Grid16, Quad4).
-                Per Quadrant-Klick ist das kaum erreichbar weil ATEM keine
-                Zwischen-Zustände erlaubt; diese Shortcuts setzen das Layout
-                in einem Schritt. Nur sichtbar wenn das Modell sie kann. */}
-            <div className="flex flex-col gap-1">
-              {isLayoutSupported(MV_LAYOUT.Grid16Small, caps) && (
-                <button
-                  type="button"
-                  onClick={() => updateMv(activeMv, { layout: MV_LAYOUT.Grid16Small })}
-                  disabled={mv.layout === MV_LAYOUT.Grid16Small}
-                  className="rounded bg-slate-800 px-2 py-1 text-[10px] text-slate-200 hover:bg-slate-700 disabled:cursor-default disabled:bg-sky-900 disabled:text-sky-200"
-                  title="Alle 16 Fenster gleichgroß (Grid)"
-                >
-                  ▦ 16 klein
-                </button>
-              )}
-              {isLayoutSupported(MV_LAYOUT.Quad4Big, caps) && (
-                <button
-                  type="button"
-                  onClick={() => updateMv(activeMv, { layout: MV_LAYOUT.Quad4Big })}
-                  disabled={mv.layout === MV_LAYOUT.Quad4Big}
-                  className="rounded bg-slate-800 px-2 py-1 text-[10px] text-slate-200 hover:bg-slate-700 disabled:cursor-default disabled:bg-sky-900 disabled:text-sky-200"
-                  title="4 große Fenster (Quad)"
-                >
-                  ⊞ 4 groß
-                </button>
-              )}
             </div>
             <label className="ml-auto flex shrink-0 items-center gap-2 self-center text-xs">
               <input
