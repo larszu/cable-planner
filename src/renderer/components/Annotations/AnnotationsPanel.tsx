@@ -34,6 +34,8 @@ const ANCHOR_LABEL = (annotation: ProjectAnnotation, deviceNames: Map<string, st
   return ''
 }
 
+const EMPTY_ANNOTATIONS: ProjectAnnotation[] = []
+
 export const AnnotationsPanel = ({
   open,
   onClose,
@@ -41,7 +43,12 @@ export const AnnotationsPanel = ({
   open: boolean
   onClose: () => void
 }) => {
-  const annotations = useProjectStore((s) => s.project.annotations ?? [])
+  // v7.9.3-fix — `?? []` INSIDE der Selector-Funktion erzeugte ein
+  // neues Array bei jedem getSnapshot(); useSyncExternalStore sah
+  // jedes Mal "change" und triggerte Render-Loop (React-Error #185,
+  // gleiche Bug-Klasse wie v7.8.2 hoveredEndpointPortIds). Fix: das
+  // ?? im Component-Scope, mit stabilem Modul-Konstanten-Fallback.
+  const annotations = useProjectStore((s) => s.project.annotations) ?? EMPTY_ANNOTATIONS
   const equipment = useProjectStore((s) => s.project.equipment)
   const cables = useProjectStore((s) => s.project.cables)
   const updateAnnotation = useProjectStore((s) => s.updateAnnotation)
