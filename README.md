@@ -121,6 +121,20 @@ Built and maintained by **Lars Zumpe**
 
 ---
 
+## ❤️ Support / Donate
+
+If CablePlanner saves you time on your next show, consider buying me a coffee:
+
+<p>
+  <a href="https://paypal.me/larszumpe">
+    <img src="https://img.shields.io/badge/PayPal-larszumpe-00457C?logo=paypal&logoColor=white" alt="Donate via PayPal" />
+  </a>
+</p>
+
+Donations are completely optional — the app stays MIT-licensed and free either way. 🙌
+
+---
+
 ## 📄 License
 
 MIT
