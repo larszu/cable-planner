@@ -1445,10 +1445,27 @@ export const EquipmentProperties = () => {
     setSectionOrder(arrayMove(sectionOrder, oldIndex, newIndex))
   }
 
+  // v7.9.5 — Property-Panel im Lock-Modus visuell + funktional sperren.
+  // fieldset/disabled blockiert ALLE Form-Controls darunter; das CSS
+  // greift dann mit grauerem Look (pointer-events:none + opacity).
+  const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
+  const projectIsLocked = projectMode === 'finalized' || projectMode === 'viewer'
+
   return (
     <DndContext sensors={dragSensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
     <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
-    <div className="flex flex-col gap-3 text-xs">
+    <fieldset
+      disabled={projectIsLocked}
+      className="flex flex-col gap-3 text-xs disabled:cursor-default disabled:opacity-60"
+      style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}
+    >
+      {projectIsLocked && (
+        <div className="rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1.5 text-[11px] text-amber-200">
+          {projectMode === 'viewer'
+            ? 'Viewer-Modus — Felder können nicht bearbeitet werden.'
+            : 'Plan abgeschlossen — Felder gesperrt. Im Canvas-Banner „Bearbeitung freigeben" klicken.'}
+        </div>
+      )}
       {deviceKind === 'greengo' && (
         <div className="rounded border border-emerald-700 bg-emerald-900/30 p-2">
           <div className="mb-1 text-[10px] uppercase tracking-wide text-emerald-300">
@@ -2156,7 +2173,7 @@ export const EquipmentProperties = () => {
           setCropDialog(null)
         }}
       />
-    </div>
+    </fieldset>
     </SortableContext>
     </DndContext>
   )
