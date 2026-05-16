@@ -4,51 +4,95 @@ import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi } from '../../lib/bridge'
 import type { AtemMvConfig, AtemMvDefinition } from '../../types/equipment'
-import {
-  MV_LAYOUT_OPTIONS,
-  defaultMvCount,
-  getMvGridSpec,
-} from '../../lib/atemMvLayout'
+import { defaultMvCount, getMvGridSpec } from '../../lib/atemMvLayout'
 
-/** v7.9.4 — Ersetzt den alten abstrakten MvLayoutThumb. Statt
- *  einfacher farbiger Rechtecke rendert dieses Preview die echte
- *  Layout-Struktur mit den aktuellen Quellen-Labels und IDs — sieht
- *  aus wie eine Mini-Version des Big-Windows, damit der User die
- *  Layouts an ihren tatsächlichen Inhalten erkennt (User-Request:
- *  "ersetze diese durch eine die so funktioniert wie das große
- *  fenster. Das wo die IDs bei stehen").
- *
- *  Wichtig: der Preview SOLL klein bleiben (kein Source-Picker, kein
- *  Anklicken einzelner Zellen) — er ist nur ein Layout-Button. Die
- *  Klick-Action ist immer "dieses Layout aktivieren". Die
- *  Quellenauswahl passiert ausschließlich im Big-Window. */
-const MvLayoutPreview = ({
+/** v7.9.4 — Quadranten-State pro Layout. Jedes Layout hat einen
+ *  4-Tupel-Zustand (TL, TR, BL, BR) wo jeder Quadrant entweder ein
+ *  großes Fenster ('big', 2×2 Zellen) ODER vier kleine Zellen
+ *  ('small', je 1×1) enthält. Die ATEM unterstützt nur 4 echte
+ *  Patterns; mehrere Layout-IDs sind im Cable-Planner-Spec visuell
+ *  identisch, weichen aber im PGM-Slot ab. */
+type QuadState = 'big' | 'small'
+const QUAD_STATE_MAP: Record<number, [QuadState, QuadState, QuadState, QuadState]> = {
+  0: ['big', 'big', 'small', 'small'], // Default
+  1: ['small', 'big', 'small', 'big'], // TopLeftSmall (= right column big)
+  2: ['big', 'small', 'big', 'small'], // TopRightSmall (= left column big)
+  3: ['small', 'small', 'big', 'big'], // ProgramBottom
+  4: ['big', 'big', 'small', 'small'], // BottomLeftSmall
+  5: ['small', 'big', 'small', 'big'], // ProgramRight
+  8: ['big', 'big', 'small', 'small'], // BottomRightSmall
+  10: ['big', 'small', 'big', 'small'], // ProgramLeft
+  12: ['big', 'big', 'small', 'small'], // ProgramTop
+}
+
+const ALL_LAYOUTS = [0, 1, 2, 3, 4, 5, 8, 10, 12]
+
+/** Klick auf einen Quadranten → finde das Layout das den Zustand
+ *  DIESES Quadranten flippt und ansonsten möglichst viele andere
+ *  Quadranten unverändert lässt. ATEM hat nur 4 reale Patterns, also
+ *  ist eine 100%-Übereinstimmung mit "nur DIESEN Quadranten flippen"
+ *  nicht immer erreichbar — wir picken dann den nächstbesten. */
+const nextLayoutOnQuadrantClick = (currentLayout: number, quadIdx: 0 | 1 | 2 | 3): number => {
+  const cur = QUAD_STATE_MAP[currentLayout] ?? QUAD_STATE_MAP[0]
+  const targetState: QuadState = cur[quadIdx] === 'big' ? 'small' : 'big'
+  const candidates = ALL_LAYOUTS.filter((l) => QUAD_STATE_MAP[l][quadIdx] === targetState)
+  if (candidates.length === 0) return currentLayout
+  let best = candidates[0]
+  let bestScore = -1
+  for (const l of candidates) {
+    let score = 0
+    for (let i = 0; i < 4; i++) {
+      if (i === quadIdx) continue
+      if (QUAD_STATE_MAP[l][i] === cur[i]) score++
+    }
+    if (score > bestScore) {
+      bestScore = score
+      best = l
+    }
+  }
+  return best
+}
+
+/** v7.9.4 — Einziger Layout-Picker oben. Zeigt das AKTUELLE Layout
+ *  als mittlere Vorschau, jeder Quadrant ist klickbar:
+ *   - Quadrant mit Big-Window klicken → Quadrant wird zu 4 kleinen
+ *   - Quadrant mit 4 kleinen klicken → Quadrant wird zu Big-Window
+ *  Der Quadranten-Wechsel sucht das ATEM-Layout das diesen Zustand
+ *  am besten trifft. Wenn die exakte Kombi nicht existiert (z.B.
+ *  "TL big + TR big + BL big + BR small"), wird der nächstbeste
+ *  Layout-Match gewählt. Quellen-Picker bleibt EXKLUSIV im großen
+ *  Big-Window unten. */
+const MvLayoutPicker = ({
   layoutId,
-  active,
   windows,
   pgmIndex,
   prvIndex,
   inputs,
+  onLayoutChange,
 }: {
   layoutId: number
-  active: boolean
   windows: { windowIndex: number; sourceId: number }[]
   pgmIndex: number
   prvIndex: number
   inputs: { id: number; label: string }[]
+  onLayoutChange: (newLayout: number) => void
 }) => {
   const spec = getMvGridSpec(layoutId)
-  // 16:9 mini preview — 96x54 ist klein genug für die Picker-Zeile,
-  // groß genug damit ID-Text in den Big-Cells lesbar bleibt.
-  const W = 112
-  const H = 63
+  const state = QUAD_STATE_MAP[layoutId] ?? QUAD_STATE_MAP[0]
+  // Quadrant ↔ Zell-Region Mapping (4×4 Grid):
+  //   TL = col 1-2, row 1-2   TR = col 3-4, row 1-2
+  //   BL = col 1-2, row 3-4   BR = col 3-4, row 3-4
+  const QUADRANTS = [
+    { name: 'TL', idx: 0 as const, cols: [1, 2], rows: [1, 2] },
+    { name: 'TR', idx: 1 as const, cols: [3, 4], rows: [1, 2] },
+    { name: 'BL', idx: 2 as const, cols: [1, 2], rows: [3, 4] },
+    { name: 'BR', idx: 3 as const, cols: [3, 4], rows: [3, 4] },
+  ] as const
   return (
-    <div
-      className="relative shrink-0"
-      style={{ width: W, height: H, background: '#0f172a' }}
-    >
+    <div className="relative" style={{ width: 240, aspectRatio: '16 / 9' }}>
+      {/* Inhalt rendern — Big-Cells mit Label+ID, kleine Cells nur Farbe */}
       <div
-        className="absolute inset-0 grid gap-[1px] p-[1px]"
+        className="absolute inset-0 grid gap-[2px] rounded border border-slate-700 bg-slate-950 p-[2px]"
         style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(4, 1fr)' }}
       >
         {spec.big.map((big) => {
@@ -68,14 +112,14 @@ const MvLayoutPreview = ({
                 background: bg,
                 color: sid === 0 ? '#cbd5e1' : '#0f172a',
                 boxShadow: highlight ? `inset 0 0 0 1px ${highlight}` : undefined,
-                fontSize: 6,
+                fontSize: 9,
                 lineHeight: 1.1,
               }}
             >
-              <span className="truncate px-0.5" style={{ maxWidth: '100%', fontWeight: 600 }}>
+              <span className="truncate px-1" style={{ maxWidth: '100%', fontWeight: 600 }}>
                 {label}
               </span>
-              <span className="opacity-70">{sid}</span>
+              <span className="text-[8px] opacity-70">ID {sid}</span>
             </div>
           )
         })}
@@ -93,24 +137,39 @@ const MvLayoutPreview = ({
                 gridColumn: `${cell.colStart} / span 1`,
                 gridRow: `${cell.rowStart} / span 1`,
                 background: bg,
-                fontSize: 5,
-                lineHeight: 1,
-                color: sid === 0 ? '#94a3b8' : '#0f172a',
               }}
               title={`${label} (ID ${sid})`}
             />
           )
         })}
       </div>
-      {/* Aktiv-Rahmen */}
-      <div
-        className="pointer-events-none absolute inset-0 rounded transition-colors"
-        style={{
-          boxShadow: active
-            ? 'inset 0 0 0 2px #0ea5e9'
-            : 'inset 0 0 0 1px #334155',
-        }}
-      />
+      {/* Klickbare Quadranten-Overlays — jeweils 50% Breite/Höhe.
+          Hover zeigt einen subtilen Rahmen und einen Hint:
+          "→ 1 großes" wenn aktuell 4 kleine, "→ 4 kleine" wenn aktuell big. */}
+      {QUADRANTS.map((q) => (
+        <button
+          key={q.name}
+          type="button"
+          onClick={() => onLayoutChange(nextLayoutOnQuadrantClick(layoutId, q.idx))}
+          title={
+            state[q.idx] === 'big'
+              ? `${q.name}: aktuell 1 großes Fenster — Klick: in 4 kleine teilen`
+              : `${q.name}: aktuell 4 kleine Fenster — Klick: zu 1 großem zusammenfassen`
+          }
+          aria-label={`Quadrant ${q.name} umschalten`}
+          className="group absolute cursor-pointer rounded outline-none transition-all hover:bg-sky-500/20 hover:ring-2 hover:ring-sky-400/70 focus-visible:bg-sky-500/25 focus-visible:ring-2 focus-visible:ring-sky-400"
+          style={{
+            width: '50%',
+            height: '50%',
+            top: q.rows[0] === 1 ? 0 : '50%',
+            left: q.cols[0] === 1 ? 0 : '50%',
+          }}
+        >
+          <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-[9px] font-bold uppercase tracking-wider text-sky-100 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+            {state[q.idx] === 'big' ? '1 → 4' : '4 → 1'}
+          </span>
+        </button>
+      ))}
     </div>
   )
 }
@@ -539,49 +598,31 @@ export const AtemMvConfigDialog = () => {
           </span>
         </div>
 
-        {/* v7.9.4 — Layout-Picker LIVE PREVIEW. Steht außerhalb von
-            mvGridRef damit der PNG-Export nur das Big-Window zeigt
-            (User-Issue: "das ist jetzt verdeckt von der ansichts
-            auswahl funktion auf dem png exportierbarem layout").
-            Jedes Layout wird als Mini-Variante des echten Big-Windows
-            gerendert mit den aktuellen Quellen-Labels + IDs — der
-            User erkennt das gewünschte Layout an seiner tatsächlichen
-            Belegung, nicht an einer abstrakten Box-Silhouette. */}
+        {/* v7.9.4 — Ein einziger Layout-Picker. User-Request:
+            "Es soll von dem kleinen Layout-Picker oben nur einen
+            geben. Wenn ich ein Feld mit 4 kleinen Feldern anklicke
+            soll es ein großes Feld werden und wenn ich ein großes
+            Feld anklicke sollen es 4 kleine Felder werden."
+
+            Steht außerhalb von mvGridRef → PNG-Export bleibt clean. */}
         {mv && (
-          <div className="flex flex-wrap items-start gap-3 border-b border-slate-800 px-3 py-2">
-            <span className="mt-1 text-[11px] text-slate-300">Layout</span>
-            <div className="flex flex-wrap gap-1.5">
-              {MV_LAYOUT_OPTIONS.map((l) => {
-                const active = mv.layout === l.value
-                return (
-                  <button
-                    key={l.value}
-                    type="button"
-                    onClick={() => updateMv(activeMv, { layout: l.value })}
-                    className="group flex flex-col items-center gap-0.5 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-                    title={`Layout: ${l.label}`}
-                    aria-label={`Layout ${l.label}${active ? ' (aktiv)' : ''}`}
-                  >
-                    <MvLayoutPreview
-                      layoutId={l.value}
-                      active={active}
-                      windows={Array.isArray(mv.windows) ? mv.windows : []}
-                      pgmIndex={pgmIndex}
-                      prvIndex={prvIndex}
-                      inputs={inputs}
-                    />
-                    <span
-                      className={`max-w-[112px] truncate text-[9px] ${
-                        active ? 'text-sky-300' : 'text-slate-500 group-hover:text-slate-300'
-                      }`}
-                    >
-                      {l.label}
-                    </span>
-                  </button>
-                )
-              })}
+          <div className="flex flex-wrap items-center gap-4 border-b border-slate-800 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-slate-300">Layout</span>
+              <MvLayoutPicker
+                layoutId={mv.layout}
+                windows={Array.isArray(mv.windows) ? mv.windows : []}
+                pgmIndex={pgmIndex}
+                prvIndex={prvIndex}
+                inputs={inputs}
+                onLayoutChange={(newLayout) => updateMv(activeMv, { layout: newLayout })}
+              />
+              <span className="text-[10px] text-slate-500">
+                Klick auf einen Quadranten:<br />
+                groß ↔ 4 kleine
+              </span>
             </div>
-            <label className="ml-auto flex shrink-0 items-center gap-2 self-start text-xs">
+            <label className="ml-auto flex shrink-0 items-center gap-2 self-center text-xs">
               <input
                 type="checkbox"
                 checked={!!mv.programPreviewSwapped}
