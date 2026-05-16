@@ -4,14 +4,19 @@ import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi } from '../../lib/bridge'
 import type { AtemMvConfig, AtemMvDefinition } from '../../types/equipment'
-import { defaultMvCount, getMvGridSpec } from '../../lib/atemMvLayout'
+import {
+  MV_LAYOUT,
+  defaultMvCount,
+  getMvCapabilities,
+  getMvGridSpec,
+  isLayoutSupported,
+  type AtemMvCapabilities,
+} from '../../lib/atemMvLayout'
 
 /** v7.9.4 — Quadranten-State pro Layout. Jedes Layout hat einen
  *  4-Tupel-Zustand (TL, TR, BL, BR) wo jeder Quadrant entweder ein
  *  großes Fenster ('big', 2×2 Zellen) ODER vier kleine Zellen
- *  ('small', je 1×1) enthält. Die ATEM unterstützt nur 4 echte
- *  Patterns; mehrere Layout-IDs sind im Cable-Planner-Spec visuell
- *  identisch, weichen aber im PGM-Slot ab. */
+ *  ('small', je 1×1) enthält. */
 type QuadState = 'big' | 'small'
 const QUAD_STATE_MAP: Record<number, [QuadState, QuadState, QuadState, QuadState]> = {
   0: ['big', 'big', 'small', 'small'], // Default
@@ -23,19 +28,26 @@ const QUAD_STATE_MAP: Record<number, [QuadState, QuadState, QuadState, QuadState
   8: ['big', 'big', 'small', 'small'], // BottomRightSmall
   10: ['big', 'small', 'big', 'small'], // ProgramLeft
   12: ['big', 'big', 'small', 'small'], // ProgramTop
+  [MV_LAYOUT.Grid16Small]: ['small', 'small', 'small', 'small'], // Grid: alles klein
+  [MV_LAYOUT.Quad4Big]: ['big', 'big', 'big', 'big'], //          Quad: alles groß
 }
-
-const ALL_LAYOUTS = [0, 1, 2, 3, 4, 5, 8, 10, 12]
 
 /** Klick auf einen Quadranten → finde das Layout das den Zustand
  *  DIESES Quadranten flippt und ansonsten möglichst viele andere
- *  Quadranten unverändert lässt. ATEM hat nur 4 reale Patterns, also
- *  ist eine 100%-Übereinstimmung mit "nur DIESEN Quadranten flippen"
- *  nicht immer erreichbar — wir picken dann den nächstbesten. */
-const nextLayoutOnQuadrantClick = (currentLayout: number, quadIdx: 0 | 1 | 2 | 3): number => {
+ *  Quadranten unverändert lässt. Filter auf Layouts die das ATEM-
+ *  Modell tatsächlich kann (capabilities-Lookup). */
+const nextLayoutOnQuadrantClick = (
+  currentLayout: number,
+  quadIdx: 0 | 1 | 2 | 3,
+  caps: AtemMvCapabilities,
+): number => {
   const cur = QUAD_STATE_MAP[currentLayout] ?? QUAD_STATE_MAP[0]
   const targetState: QuadState = cur[quadIdx] === 'big' ? 'small' : 'big'
-  const candidates = ALL_LAYOUTS.filter((l) => QUAD_STATE_MAP[l][quadIdx] === targetState)
+  // Nur Layouts die (a) den Quadranten in der gewünschten Form haben
+  // UND (b) vom Modell unterstützt werden.
+  const candidates = caps.supportedLayouts.filter(
+    (l) => QUAD_STATE_MAP[l] && QUAD_STATE_MAP[l][quadIdx] === targetState,
+  )
   if (candidates.length === 0) return currentLayout
   let best = candidates[0]
   let bestScore = -1
@@ -44,6 +56,20 @@ const nextLayoutOnQuadrantClick = (currentLayout: number, quadIdx: 0 | 1 | 2 | 3
     for (let i = 0; i < 4; i++) {
       if (i === quadIdx) continue
       if (QUAD_STATE_MAP[l][i] === cur[i]) score++
+    }
+    // Tie-Breaker: bei gleichem Score Quad4Big/Grid16Small bevorzugen
+    // wenn ALLE Ziel-Quadranten 'big' bzw. 'small' sind — sonst
+    // landet der User nie bei den All-Layouts via Click.
+    const targetAll: QuadState = targetState
+    const targetIsAll = [0, 1, 2, 3].every((i) =>
+      i === quadIdx ? true : cur[i] === targetAll,
+    )
+    if (
+      targetIsAll &&
+      ((targetAll === 'big' && l === MV_LAYOUT.Quad4Big) ||
+        (targetAll === 'small' && l === MV_LAYOUT.Grid16Small))
+    ) {
+      return l
     }
     if (score > bestScore) {
       bestScore = score
@@ -68,6 +94,7 @@ const MvLayoutPicker = ({
   pgmIndex,
   prvIndex,
   inputs,
+  caps,
   onLayoutChange,
 }: {
   layoutId: number
@@ -75,6 +102,7 @@ const MvLayoutPicker = ({
   pgmIndex: number
   prvIndex: number
   inputs: { id: number; label: string }[]
+  caps: AtemMvCapabilities
   onLayoutChange: (newLayout: number) => void
 }) => {
   const spec = getMvGridSpec(layoutId)
@@ -124,7 +152,7 @@ const MvLayoutPicker = ({
           )
         })}
         {spec.small.map((cell, smallIdx) => {
-          const wi = smallIdx + 2
+          const wi = (spec.smallWindowOffset ?? 2) + smallIdx
           const win = windows.find((w) => w.windowIndex === wi)
           const sid = typeof win?.sourceId === 'number' ? win.sourceId : 0
           const label = sourceLabel(sid, inputs)
@@ -150,7 +178,7 @@ const MvLayoutPicker = ({
         <button
           key={q.name}
           type="button"
-          onClick={() => onLayoutChange(nextLayoutOnQuadrantClick(layoutId, q.idx))}
+          onClick={() => onLayoutChange(nextLayoutOnQuadrantClick(layoutId, q.idx, caps))}
           title={
             state[q.idx] === 'big'
               ? `${q.name}: aktuell 1 großes Fenster — Klick: in 4 kleine teilen`
@@ -201,11 +229,14 @@ const DEFAULT_SOURCES: { id: number; label: string; group: string }[] = [
   { id: 8004, label: 'AUX 4', group: 'AUX' },
 ]
 
-const makeMv = (index: number): AtemMvDefinition => ({
+const makeMv = (index: number, maxWindows = 16): AtemMvDefinition => ({
   index,
   layout: 0,
   programPreviewSwapped: false,
-  windows: Array.from({ length: 10 }, (_, i) => ({
+  // v7.9.4 — Bis zu 16 Fenster (Grid16Small braucht 0..15). Default
+  // Layout nutzt nur 0..9, die zusätzlichen Slots stehen aber bereit
+  // wenn das Layout gewechselt wird.
+  windows: Array.from({ length: maxWindows }, (_, i) => ({
     windowIndex: i,
     sourceId: i === 0 ? 10011 : i === 1 ? 10010 : 0,
   })),
@@ -353,6 +384,134 @@ const SourcePicker = ({ currentId, inputs, onPick, onClose, anchor }: SourcePick
   )
 }
 
+/** v7.9.4 — Klappbare Info-/Override-Zeile für die Modell-
+ *  Capabilities. Zeigt was die Heuristik erkannt hat und lässt den
+ *  User die unterstützten Layouts manuell anpassen. */
+const CapabilitiesPanel = ({
+  equipmentName,
+  caps,
+  hasOverride,
+  onOverride,
+}: {
+  equipmentName: string
+  caps: AtemMvCapabilities
+  hasOverride: boolean
+  onOverride: (next: AtemMvCapabilities | undefined) => void
+}) => {
+  const [open, setOpen] = useState(false)
+  const allLayouts: { value: number; label: string }[] = [
+    { value: 0, label: 'Default' },
+    { value: 12, label: 'Program Top' },
+    { value: 3, label: 'Program Bottom' },
+    { value: 10, label: 'Program Left' },
+    { value: 5, label: 'Program Right' },
+    { value: 1, label: 'Top-Left Small' },
+    { value: 2, label: 'Top-Right Small' },
+    { value: 4, label: 'Bottom-Left Small' },
+    { value: 8, label: 'Bottom-Right Small' },
+    { value: MV_LAYOUT.Grid16Small, label: 'Grid (16 klein)' },
+    { value: MV_LAYOUT.Quad4Big, label: 'Quad (4 groß)' },
+  ]
+  const toggleLayout = (val: number) => {
+    const set = new Set(caps.supportedLayouts)
+    if (set.has(val)) set.delete(val)
+    else set.add(val)
+    onOverride({ ...caps, supportedLayouts: Array.from(set).sort((a, b) => a - b) })
+  }
+  return (
+    <div className="border-t border-slate-800 bg-slate-950/40 px-3 py-1.5 text-[10px] text-slate-400">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center gap-2 text-left hover:text-slate-200"
+      >
+        <span>{open ? '▾' : '▸'}</span>
+        <span>
+          Modell-Capabilities: <span className="text-slate-300">{equipmentName}</span> ·{' '}
+          {caps.mvCount} MV{caps.mvCount === 1 ? '' : 's'} ·{' '}
+          {caps.supportedLayouts.length} Layouts{' '}
+          {hasOverride && (
+            <span className="rounded bg-amber-900/60 px-1 text-amber-200">manuell</span>
+          )}
+        </span>
+      </button>
+      {open && (
+        <div className="mt-1 space-y-1.5 pl-4">
+          <p className="text-slate-500">
+            Heuristik basierend auf dem Geräte-Namen. Falls dein Modell ein Layout unterstützt
+            das die Heuristik nicht erkennt (oder umgekehrt), Häkchen hier setzen — die
+            Auswahl überschreibt das Default und bleibt beim Projekt.
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {allLayouts.map((l) => {
+              const on = caps.supportedLayouts.includes(l.value)
+              return (
+                <button
+                  key={l.value}
+                  type="button"
+                  onClick={() => toggleLayout(l.value)}
+                  className={`rounded px-2 py-0.5 text-[10px] ${
+                    on
+                      ? 'bg-sky-900 text-sky-200'
+                      : 'bg-slate-800 text-slate-500 hover:bg-slate-700'
+                  }`}
+                  title={`${l.label} (${l.value})`}
+                >
+                  {on ? '☑' : '☐'} {l.label}
+                </button>
+              )
+            })}
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-1">
+              <span>MV-Anzahl:</span>
+              <input
+                type="number"
+                min={0}
+                max={4}
+                value={caps.mvCount}
+                onChange={(e) =>
+                  onOverride({
+                    ...caps,
+                    mvCount: Math.max(0, Math.min(4, Number(e.target.value) || 0)),
+                  })
+                }
+                className="w-12 rounded border border-slate-700 bg-slate-900 px-1 py-0.5"
+              />
+            </label>
+            <label className="flex items-center gap-1">
+              <span>Max Fenster:</span>
+              <input
+                type="number"
+                min={0}
+                max={32}
+                value={caps.maxWindowsPerMv}
+                onChange={(e) =>
+                  onOverride({
+                    ...caps,
+                    maxWindowsPerMv: Math.max(0, Math.min(32, Number(e.target.value) || 0)),
+                  })
+                }
+                className="w-14 rounded border border-slate-700 bg-slate-900 px-1 py-0.5"
+              />
+            </label>
+            {hasOverride && (
+              <button
+                type="button"
+                onClick={() => onOverride(undefined)}
+                className="ml-auto rounded bg-amber-900/60 px-2 py-0.5 text-amber-200 hover:bg-amber-800/70"
+                title="Override entfernen — wieder Auto-Erkennung verwenden"
+              >
+                Override zurücksetzen
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export const AtemMvConfigDialog = () => {
   const slot = useUiStore((s) => s.atemMvConfig)
   const close = useUiStore((s) => s.closeAtemMvConfig)
@@ -408,6 +567,12 @@ export const AtemMvConfigDialog = () => {
   }, [equipment])
 
   if (!slot.open || !equipment) return null
+
+  // v7.9.4 — Modell-Capabilities (Auto-Erkennung oder User-Override).
+  const caps: AtemMvCapabilities = getMvCapabilities(
+    equipment.name,
+    equipment.atemMvCapabilitiesOverride,
+  )
 
   const updateMv = (mvIdx: number, patch: Partial<AtemMvDefinition>) => {
     setConfig((prev) => ({
@@ -615,12 +780,41 @@ export const AtemMvConfigDialog = () => {
                 pgmIndex={pgmIndex}
                 prvIndex={prvIndex}
                 inputs={inputs}
+                caps={caps}
                 onLayoutChange={(newLayout) => updateMv(activeMv, { layout: newLayout })}
               />
               <span className="text-[10px] text-slate-500">
                 Klick auf einen Quadranten:<br />
                 groß ↔ 4 kleine
               </span>
+            </div>
+            {/* v7.9.4 — Direkt-Buttons für die "Alle"-Layouts (Grid16, Quad4).
+                Per Quadrant-Klick ist das kaum erreichbar weil ATEM keine
+                Zwischen-Zustände erlaubt; diese Shortcuts setzen das Layout
+                in einem Schritt. Nur sichtbar wenn das Modell sie kann. */}
+            <div className="flex flex-col gap-1">
+              {isLayoutSupported(MV_LAYOUT.Grid16Small, caps) && (
+                <button
+                  type="button"
+                  onClick={() => updateMv(activeMv, { layout: MV_LAYOUT.Grid16Small })}
+                  disabled={mv.layout === MV_LAYOUT.Grid16Small}
+                  className="rounded bg-slate-800 px-2 py-1 text-[10px] text-slate-200 hover:bg-slate-700 disabled:cursor-default disabled:bg-sky-900 disabled:text-sky-200"
+                  title="Alle 16 Fenster gleichgroß (Grid)"
+                >
+                  ▦ 16 klein
+                </button>
+              )}
+              {isLayoutSupported(MV_LAYOUT.Quad4Big, caps) && (
+                <button
+                  type="button"
+                  onClick={() => updateMv(activeMv, { layout: MV_LAYOUT.Quad4Big })}
+                  disabled={mv.layout === MV_LAYOUT.Quad4Big}
+                  className="rounded bg-slate-800 px-2 py-1 text-[10px] text-slate-200 hover:bg-slate-700 disabled:cursor-default disabled:bg-sky-900 disabled:text-sky-200"
+                  title="4 große Fenster (Quad)"
+                >
+                  ⊞ 4 groß
+                </button>
+              )}
             </div>
             <label className="ml-auto flex shrink-0 items-center gap-2 self-center text-xs">
               <input
@@ -664,7 +858,7 @@ export const AtemMvConfigDialog = () => {
                   )
                 })}
                 {spec.small.map((cell, smallIdx) => {
-                  const windowIndex = smallIdx + 2
+                  const windowIndex = (spec.smallWindowOffset ?? 2) + smallIdx
                   return renderCell(
                     windowIndex,
                     {
@@ -678,6 +872,17 @@ export const AtemMvConfigDialog = () => {
             </div>
           )}
         </div>
+
+        {/* v7.9.4 — Modell-Capabilities anzeigen + Override. User-Request:
+            "muss man händisch aber anpassen können". */}
+        <CapabilitiesPanel
+          equipmentName={equipment.name}
+          caps={caps}
+          hasOverride={!!equipment.atemMvCapabilitiesOverride}
+          onOverride={(next) =>
+            updateEquipment(equipment.id, { atemMvCapabilitiesOverride: next })
+          }
+        />
 
         <div className="flex items-center justify-between border-t border-slate-700 px-4 py-2">
           <span className="text-[11px] text-slate-400">

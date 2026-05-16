@@ -176,6 +176,16 @@ export interface EquipmentItem {
    * in the live state (see `AtemMvConfig`).
    */
   atemMvConfig?: AtemMvConfig
+  /** v7.9.4 — User-Override für die Modell-Heuristik bzgl.
+   *  Multiviewer-Capabilities. Wenn gesetzt, überschreibt es die
+   *  Auto-Erkennung in getMvCapabilities(name). Use Case: User hat
+   *  ein Modell wo unsere Regex nicht greift oder ATEM-Firmware-Update
+   *  hat neue Layouts hinzugefügt. UI in EquipmentProperties. */
+  atemMvCapabilitiesOverride?: {
+    mvCount: number
+    supportedLayouts: number[]
+    maxWindowsPerMv: number
+  }
   /**
    * Issue #45: offline-editable audio router matrix for ATEM Fairlight.
    * `sources[].mainGain` = master fader contribution in dB (-INF..+6),
