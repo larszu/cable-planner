@@ -105,6 +105,11 @@ interface PersistedUiState {
   /** v7.9.2 — User-definierte Signal-Standards (z.B. "Madi 64ch",
    *  "Dante Primary"), zusätzlich zu ALL_SIGNAL_STANDARDS. */
   customSignalStandards: string[]
+  /** v7.9.6 — User-defined order of cable groups (SDI, HDMI, …) in the
+   *  Kabel-Library. Empty array = natural order from groupOf(). Unknown
+   *  groups land at the end so adding a new connector type doesn't lose
+   *  visibility. */
+  cableGroupOrder: string[]
   /** Issue #80: global library of device-config files (ATEM, Videohub,
    *  GreenGo). Each entry can optionally be bound to one equipment id. */
   deviceConfigLibrary: DeviceConfigEntry[]
@@ -175,6 +180,7 @@ const defaults: PersistedUiState = {
   customCableSpecs: [],
   customConnectorTypes: [],
   customSignalStandards: [],
+  cableGroupOrder: [],
   deviceConfigLibrary: [],
   cableBumps: false,
   orthogonalCollisionShift: false,
@@ -323,6 +329,11 @@ const load = (): PersistedUiState => {
       merged.canvasBgImageLight = null
     if (!['cover', 'contain', 'tile'].includes(merged.canvasBgImageFit))
       merged.canvasBgImageFit = defaults.canvasBgImageFit
+    if (!Array.isArray(merged.cableGroupOrder)) merged.cableGroupOrder = []
+    else
+      merged.cableGroupOrder = merged.cableGroupOrder.filter(
+        (n): n is string => typeof n === 'string' && !!n,
+      )
     return merged
   } catch {
     return defaults
@@ -402,6 +413,7 @@ interface UiState extends PersistedUiState {
   removeCustomConnectorType: (name: string) => void
   addCustomSignalStandard: (name: string) => void
   removeCustomSignalStandard: (name: string) => void
+  setCableGroupOrder: (order: string[]) => void
   /** Issue #80: device-config library (ATEM / Videohub / GreenGo configs). */
   addDeviceConfig: (entry: Omit<DeviceConfigEntry, 'id' | 'savedAt'>) => DeviceConfigEntry
   updateDeviceConfig: (id: string, patch: Partial<Omit<DeviceConfigEntry, 'id' | 'savedAt'>>) => void
@@ -558,6 +570,7 @@ const applyPatch =
       customCableSpecs: state.customCableSpecs,
       customConnectorTypes: state.customConnectorTypes,
       customSignalStandards: state.customSignalStandards,
+      cableGroupOrder: state.cableGroupOrder,
       deviceConfigLibrary: state.deviceConfigLibrary,
       cableBumps: state.cableBumps,
       orthogonalCollisionShift: state.orthogonalCollisionShift,
@@ -663,6 +676,7 @@ export const useUiStore = create<UiState>((set) => ({
         customSignalStandards: state.customSignalStandards.filter((n) => n !== name),
       })(state),
     ),
+  setCableGroupOrder: (order) => set(applyPatch({ cableGroupOrder: order })),
   addDeviceConfig: (entry) => {
     const id = `cfg:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
     const created: DeviceConfigEntry = {

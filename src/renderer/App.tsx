@@ -778,6 +778,30 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
     () => [...cableCatalog, ...customCableSpecs],
     [customCableSpecs],
   )
+  // v7.9.6 — Inline-Anlage neuer Stecker-/Signal-Typen aus dem Kabel-
+  // Dialog. Bisher waren die Dropdowns auf ALL_CONNECTOR_TYPES /
+  // ALL_SIGNAL_STANDARDS festgenagelt; jetzt zeigen sie zusätzlich die
+  // in uiStore.customConnectorTypes / customSignalStandards bereits
+  // angelegten Custom-Werte und bieten einen "+ Neuer…"-Eintrag, der
+  // den Wert via Prompt anlegt und sofort persistiert.
+  const customConnectorTypes = useUiStore((s) => s.customConnectorTypes)
+  const customSignalStandards = useUiStore((s) => s.customSignalStandards)
+  const allConnectorOptions = useMemo(
+    () =>
+      [
+        ...ALL_CONNECTOR_TYPES,
+        ...customConnectorTypes.filter((c) => !ALL_CONNECTOR_TYPES.includes(c as ConnectorType)),
+      ] as ConnectorType[],
+    [customConnectorTypes],
+  )
+  const allStandardOptions = useMemo(
+    () =>
+      [
+        ...ALL_SIGNAL_STANDARDS,
+        ...customSignalStandards.filter((s) => !ALL_SIGNAL_STANDARDS.includes(s as SignalStandard)),
+      ] as SignalStandard[],
+    [customSignalStandards],
+  )
   // Build list of cables ranked by compatibility with the two ports.
   const ranked = useMemo((): Array<{ cable: CableSpec; level: 'ok' | 'warn' | 'error'; message: string }> => {
     if (!fromPort || !toPort) {
@@ -953,12 +977,27 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
                   Connector Type
                   <select
                     value={customConnectorType}
-                    onChange={(e) => setCustomConnectorType(e.target.value as ConnectorType)}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      if (v === '__new__') {
+                        const name = window.prompt('Neuer Stecker-Typ (z.B. "Speakon NL4"):')?.trim()
+                        if (name) {
+                          useUiStore.getState().addCustomConnectorType(name)
+                          setCustomConnectorType(name as ConnectorType)
+                        }
+                        return
+                      }
+                      setCustomConnectorType(v as ConnectorType)
+                    }}
                     className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
                   >
-                    {ALL_CONNECTOR_TYPES.map((type) => (
-                      <option key={type} value={type}>{type}</option>
+                    {allConnectorOptions.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                        {customConnectorTypes.includes(type as string) ? ' (custom)' : ''}
+                      </option>
                     ))}
+                    <option value="__new__">+ Neuer Stecker-Typ…</option>
                   </select>
                 </label>
                 <label className="block">
@@ -966,15 +1005,29 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
                   <select
                     value={customStandard}
                     onChange={(e) => {
-                      const next = e.target.value as SignalStandard
+                      const v = e.target.value
+                      if (v === '__new__') {
+                        const name = window.prompt('Neuer Signal-Standard (z.B. "Madi 64ch"):')?.trim()
+                        if (name) {
+                          useUiStore.getState().addCustomSignalStandard(name)
+                          setCustomStandard(name as SignalStandard)
+                          setStandard(name as SignalStandard)
+                        }
+                        return
+                      }
+                      const next = v as SignalStandard
                       setCustomStandard(next)
                       setStandard(next)
                     }}
                     className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
                   >
-                    {ALL_SIGNAL_STANDARDS.map((item) => (
-                      <option key={item} value={item}>{item}</option>
+                    {allStandardOptions.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                        {customSignalStandards.includes(item as string) ? ' (custom)' : ''}
+                      </option>
                     ))}
+                    <option value="__new__">+ Neuer Signal-Standard…</option>
                   </select>
                 </label>
               </div>
@@ -1138,6 +1191,24 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
     () => [...cableCatalog, ...customCableSpecs],
     [customCableSpecs],
   )
+  const customConnectorTypes = useUiStore((s) => s.customConnectorTypes)
+  const customSignalStandards = useUiStore((s) => s.customSignalStandards)
+  const allConnectorOptions = useMemo(
+    () =>
+      [
+        ...ALL_CONNECTOR_TYPES,
+        ...customConnectorTypes.filter((c) => !ALL_CONNECTOR_TYPES.includes(c as ConnectorType)),
+      ] as ConnectorType[],
+    [customConnectorTypes],
+  )
+  const allStandardOptions = useMemo(
+    () =>
+      [
+        ...ALL_SIGNAL_STANDARDS,
+        ...customSignalStandards.filter((s) => !ALL_SIGNAL_STANDARDS.includes(s as SignalStandard)),
+      ] as SignalStandard[],
+    [customSignalStandards],
+  )
 
   const initialCustomConnectorType: ConnectorType =
     cable.type === 'Custom' ? 'Custom' : (cable.type as ConnectorType)
@@ -1283,12 +1354,27 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                 Connector Type
                 <select
                   value={customConnectorType}
-                  onChange={(e) => setCustomConnectorType(e.target.value as ConnectorType)}
+                  onChange={(e) => {
+                    const v = e.target.value
+                    if (v === '__new__') {
+                      const name = window.prompt('Neuer Stecker-Typ (z.B. "Speakon NL4"):')?.trim()
+                      if (name) {
+                        useUiStore.getState().addCustomConnectorType(name)
+                        setCustomConnectorType(name as ConnectorType)
+                      }
+                      return
+                    }
+                    setCustomConnectorType(v as ConnectorType)
+                  }}
                   className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
                 >
-                  {ALL_CONNECTOR_TYPES.map((type) => (
-                    <option key={type} value={type}>{type}</option>
+                  {allConnectorOptions.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                      {customConnectorTypes.includes(type as string) ? ' (custom)' : ''}
+                    </option>
                   ))}
+                  <option value="__new__">+ Neuer Stecker-Typ…</option>
                 </select>
               </label>
               <label className="block">
@@ -1296,15 +1382,29 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                 <select
                   value={customStandard}
                   onChange={(e) => {
-                    const next = e.target.value as SignalStandard
+                    const v = e.target.value
+                    if (v === '__new__') {
+                      const name = window.prompt('Neuer Signal-Standard (z.B. "Madi 64ch"):')?.trim()
+                      if (name) {
+                        useUiStore.getState().addCustomSignalStandard(name)
+                        setCustomStandard(name as SignalStandard)
+                        setStandard(name as SignalStandard)
+                      }
+                      return
+                    }
+                    const next = v as SignalStandard
                     setCustomStandard(next)
                     setStandard(next)
                   }}
                   className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
                 >
-                  {ALL_SIGNAL_STANDARDS.map((item) => (
-                    <option key={item} value={item}>{item}</option>
+                  {allStandardOptions.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                      {customSignalStandards.includes(item as string) ? ' (custom)' : ''}
+                    </option>
                   ))}
+                  <option value="__new__">+ Neuer Signal-Standard…</option>
                 </select>
               </label>
             </div>
