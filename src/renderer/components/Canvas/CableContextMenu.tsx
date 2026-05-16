@@ -178,27 +178,6 @@ export const CableContextMenu = () => {
 
   const setBumpStyle = (s: 'auto' | 'on' | 'off') => doUpdate({ bumpStyle: s })
 
-  const changeColor = () => {
-    // The simplest cross-platform color picker is a hidden <input
-    // type="color"> we trigger here. Native dialog blocks until the
-    // user closes it; result is committed on change.
-    const input = document.createElement('input')
-    input.type = 'color'
-    input.value = cable.color || '#64748b'
-    input.style.position = 'fixed'
-    input.style.left = '-9999px'
-    document.body.appendChild(input)
-    input.addEventListener('change', () => {
-      doUpdate({ color: input.value })
-      input.remove()
-    })
-    input.addEventListener('cancel', () => {
-      input.remove()
-      close()
-    })
-    input.click()
-  }
-
   const toggleArrowEnd = () =>
     doUpdate({ arrowEnd: cable.arrowEnd === false ? true : false })
   const toggleArrowStart = () => doUpdate({ arrowStart: !cable.arrowStart })
@@ -226,7 +205,6 @@ export const CableContextMenu = () => {
         Kabel: <span className="font-semibold text-slate-200">{cable.name}</span>
       </div>
       <Item onClick={renameLabel} icon="✎">Bezeichnung ändern…</Item>
-      <Item onClick={changeColor} icon="🎨">Farbe wählen…</Item>
       <Separator />
       <Item onClick={addWaypointHere} icon="＋">Wegpunkt hier hinzufügen</Item>
       <Item
