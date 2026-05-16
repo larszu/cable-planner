@@ -951,6 +951,18 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           return result
         })()}
         onCancel={() => setWireDialogOpen(false)}
+        onRenamePlacement={(placementId, newName) => {
+          // Mirror the rename into the rack draft so the change persists
+          // beyond this sub-canvas session.
+          updatePlacement(placementId, { name: newName })
+        }}
+        onShowPlacementInRack={(placementId) => {
+          // Close the wire dialog and select the placement so the user
+          // can edit panel images, U-position, ports etc. in the main
+          // rack layout panel.
+          setWireDialogOpen(false)
+          setSelectedPlacementId(placementId)
+        }}
         onApply={(cables) => {
           // Re-map index-based cables back to per-id storage in the draft.
           const next: InternalCableDraft[] = []
