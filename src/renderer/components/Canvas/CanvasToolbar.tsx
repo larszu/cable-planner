@@ -16,6 +16,9 @@ export const CanvasToolbar = () => {
   const setDefaultRouting = useUiStore((state) => state.setDefaultRouting)
   const defaultArrow = useUiStore((state) => state.defaultArrow)
   const setDefaultArrow = useUiStore((state) => state.setDefaultArrow)
+  // v7.9.5 — globaler Kabelbrücken-Toggle in der Toolbar
+  const cableBumps = useUiStore((state) => state.cableBumps)
+  const setCableBumps = useUiStore((state) => state.setCableBumps)
   const cableColorMode = useUiStore((state) => state.cableColorMode)
   const setCableColorMode = useUiStore((state) => state.setCableColorMode)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
@@ -215,6 +218,21 @@ export const CanvasToolbar = () => {
           onChange={(event) => setDefaultArrow(event.target.checked)}
         />
         Pfeil
+      </label>
+      {/* v7.9.5 — Globaler Kabelbrücken-Toggle (User-Request:
+          "In der toolbar soll man global kabelbrücken an und aus
+          machen können"). Pro-Kabel-Override geschieht weiter im
+          Kabel-Rechtsklick. */}
+      <label
+        style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', marginLeft: 4 }}
+        title="Kabelbrücken bei Kreuzungen global an/aus. Pro Kabel überschreibbar via Rechtsklick."
+      >
+        <input
+          type="checkbox"
+          checked={cableBumps}
+          onChange={(event) => setCableBumps(event.target.checked)}
+        />
+        Brücken
       </label>
       <label
         style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', marginLeft: 4 }}

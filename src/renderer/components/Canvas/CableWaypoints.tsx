@@ -106,19 +106,27 @@ export const CableWaypoints = ({
 
   const waypoints = cable.waypoints ?? []
   // v7.9.4 — Drag-Hit-Zonen müssen GENAU dem entsprechen was der User
-  // sieht. Vorher: `waypoints.length > 0 ? waypoints : renderWaypoints`
-  // → die Hit-Zonen kamen aus den ROHEN cable.waypoints, die Visual-
-  // Linie aber aus den normalisierten (mit L-Ecken bei Diagonalen).
-  // Sobald eine Mutation einen Waypoint außerhalb der 3px Achsen-
-  // Toleranz ablegte, war das Segment-Polyline-Match falsch:
-  // - Visuell: orthogonal (durch normalizeOrthogonal injizierte L-Ecken)
-  // - Hit-Zonen: diagonale Segmente → durch
-  //   `if (orthogonal && diagonal) return null` rausgefiltert
-  // Resultat: Kabel klickbar, aber NICHT mehr per Segment ziehbar.
-  // Fix: `renderWaypoints` (= immer normalisiert) hat Priorität,
-  // Fallback auf raw waypoints nur wenn renderWaypoints fehlt.
-  const effectiveWaypoints =
+  // sieht: renderWaypoints (vom CableEdge, schon durch normalizeOrthogonal
+  // gelaufen) hat Priorität vor den rohen cable.waypoints.
+  // v7.9.5 — Für KABEL OHNE Waypoints, bei denen source↔target diagonal
+  // verlaufen würde, fügen wir hier in der Hit-Zone-Liste einen L-Ecken-
+  // Punkt ein. Sonst wäre das einzige Segment diagonal → durch den
+  // `if (orthogonal && diagonal) return null`-Guard hätte es KEIN
+  // klickbares Hit-Zone — der User konnte ein scheinbar orthogonales
+  // Kabel überhaupt nicht ziehen ("Segment vertikal verschieben muss
+  // bei allen ortho kabeln immer möglich sein"). dragSegment kommt
+  // mit dem startIsSource && endIsTarget-Pfad einwandfrei klar wenn
+  // der User den horizontalen Teil-Seg dann verschiebt.
+  const rawEffective =
     renderWaypoints && renderWaypoints.length > 0 ? renderWaypoints : waypoints
+  const needsAutoLcorner =
+    routing === 'orthogonal' &&
+    rawEffective.length === 0 &&
+    Math.abs(target.x - source.x) > AXIS_TOL &&
+    Math.abs(target.y - source.y) > AXIS_TOL
+  const effectiveWaypoints = needsAutoLcorner
+    ? [{ x: target.x, y: source.y }]
+    : rawEffective
   const points: { x: number; y: number }[] = [source, ...effectiveWaypoints, target]
   const totalPoints = points.length
 
