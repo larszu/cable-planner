@@ -5,90 +5,206 @@ import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi } from '../../lib/bridge'
 import type { AtemMvConfig, AtemMvDefinition } from '../../types/equipment'
 import {
-  MV_LAYOUT_OPTIONS,
+  MV_LAYOUT,
   defaultMvCount,
+  getMvCapabilities,
   getMvGridSpec,
+  type AtemMvCapabilities,
 } from '../../lib/atemMvLayout'
 
-/** Issue #55 — visual ATEM-software-style "Ansichtsauswahl"
- *  thumbnail. Renders the 4×4 grid of an MV layout as a small SVG
- *  with the "big" windows shaded darker than the small cells, so
- *  the user can recognise each layout by its silhouette without
- *  reading the label. */
-const MvLayoutThumb = ({
-  layoutId,
-  active,
-}: {
-  layoutId: number
-  active: boolean
-}) => {
-  const spec = getMvGridSpec(layoutId)
-  const cell = 8 // px per 4x4 cell
-  const gap = 1
-  const dim = cell * 4 + gap * 3
-  // Build a "this cell is part of a big window" lookup by walking the
-  // spec's `big` rectangles. Cells not covered by any big rect are
-  // small.
-  const bigCells = new Set<string>()
-  for (const big of spec.big) {
-    for (let r = big.rowStart; r < big.rowStart + big.rowSpan; r++) {
-      for (let c = big.colStart; c < big.colStart + big.colSpan; c++) {
-        bigCells.add(`${r},${c}`)
-      }
-    }
-  }
-  const fillBig = active ? '#0ea5e9' : '#334155'
-  const fillSmall = active ? '#075985' : '#1e293b'
-  const stroke = active ? '#0c4a6e' : '#0f172a'
-  return (
-    <svg
-      width={dim}
-      height={dim * (9 / 16)}
-      viewBox={`0 0 ${dim} ${(dim * 9) / 16}`}
-      role="presentation"
-    >
-      {Array.from({ length: 4 }).map((_, ri) =>
-        Array.from({ length: 4 }).map((_, ci) => {
-          const isBig = bigCells.has(`${ri + 1},${ci + 1}`)
-          const x = ci * (cell + gap)
-          const y = (ri * (cell + gap)) * (9 / 16) + 0.5
-          return (
-            <rect
-              key={`${ri}-${ci}`}
-              x={x}
-              y={y}
-              width={cell}
-              height={cell * (9 / 16) - 0.5}
-              fill={isBig ? fillBig : fillSmall}
-              stroke={stroke}
-              strokeWidth={0.5}
-              rx={1}
-            />
-          )
-        }),
-      )}
-    </svg>
-  )
+/** v7.9.4 — Quadranten-State pro Layout. Jedes Layout hat einen
+ *  4-Tupel-Zustand (TL, TR, BL, BR) wo jeder Quadrant entweder ein
+ *  großes Fenster ('big', 2×2 Zellen) ODER vier kleine Zellen
+ *  ('small', je 1×1) enthält. */
+type QuadState = 'big' | 'small'
+const QUAD_STATE_MAP: Record<number, [QuadState, QuadState, QuadState, QuadState]> = {
+  0: ['big', 'big', 'small', 'small'], // Default
+  1: ['small', 'big', 'small', 'big'], // TopLeftSmall (= right column big)
+  2: ['big', 'small', 'big', 'small'], // TopRightSmall (= left column big)
+  3: ['small', 'small', 'big', 'big'], // ProgramBottom
+  4: ['big', 'big', 'small', 'small'], // BottomLeftSmall
+  5: ['small', 'big', 'small', 'big'], // ProgramRight
+  8: ['big', 'big', 'small', 'small'], // BottomRightSmall
+  10: ['big', 'small', 'big', 'small'], // ProgramLeft
+  12: ['big', 'big', 'small', 'small'], // ProgramTop
+  [MV_LAYOUT.Grid16Small]: ['small', 'small', 'small', 'small'], // Grid: alles klein
+  [MV_LAYOUT.Quad4Big]: ['big', 'big', 'big', 'big'], //          Quad: alles groß
 }
 
-/** Issue #55 — per-quadrant layout cycle. Clicking on a quadrant
- *  steps through the layouts that affect that quadrant (between "1
- *  big window covering this quadrant" and "this quadrant split into
- *  4 small windows"), matching the real ATEM software. We use the
- *  9 layouts that the cable-planner already supports and group them
- *  per quadrant. The cycle wraps around so repeated clicks rotate. */
-const QUADRANT_LAYOUT_CYCLES = {
-  // Top-left: Default (TL big) → ProgramTop (top half = one big) →
-  // Small-TL-corner (1 small in TL) → back
-  TL: [0, 12, 1] as const,
-  // Top-right: Default (TR big) → ProgramTop → Small-TR-corner
-  TR: [0, 12, 2] as const,
-  // Bottom-left: Default (BL = 4 small) → ProgramBottom (bottom half
-  // = one big) → Small-BL-corner
-  BL: [0, 3, 4] as const,
-  // Bottom-right: Default (BR = 4 small) → ProgramBottom → Small-BR-corner
-  BR: [0, 3, 8] as const,
-} as const
+/** Klick auf einen Quadranten → finde das Layout das den Zustand
+ *  DIESES Quadranten flippt und ansonsten möglichst viele andere
+ *  Quadranten unverändert lässt. Filter auf Layouts die das ATEM-
+ *  Modell tatsächlich kann (capabilities-Lookup). */
+const nextLayoutOnQuadrantClick = (
+  currentLayout: number,
+  quadIdx: 0 | 1 | 2 | 3,
+  caps: AtemMvCapabilities,
+): number => {
+  const cur = QUAD_STATE_MAP[currentLayout] ?? QUAD_STATE_MAP[0]
+  const targetState: QuadState = cur[quadIdx] === 'big' ? 'small' : 'big'
+  // Nur Layouts die (a) den Quadranten in der gewünschten Form haben
+  // UND (b) vom Modell unterstützt werden.
+  const candidates = caps.supportedLayouts.filter(
+    (l) => QUAD_STATE_MAP[l] && QUAD_STATE_MAP[l][quadIdx] === targetState,
+  )
+  if (candidates.length === 0) return currentLayout
+  let best = candidates[0]
+  let bestScore = -1
+  for (const l of candidates) {
+    let score = 0
+    for (let i = 0; i < 4; i++) {
+      if (i === quadIdx) continue
+      if (QUAD_STATE_MAP[l][i] === cur[i]) score++
+    }
+    // Tie-Breaker: bei gleichem Score Quad4Big/Grid16Small bevorzugen
+    // wenn ALLE Ziel-Quadranten 'big' bzw. 'small' sind — sonst
+    // landet der User nie bei den All-Layouts via Click.
+    const targetAll: QuadState = targetState
+    const targetIsAll = [0, 1, 2, 3].every((i) =>
+      i === quadIdx ? true : cur[i] === targetAll,
+    )
+    if (
+      targetIsAll &&
+      ((targetAll === 'big' && l === MV_LAYOUT.Quad4Big) ||
+        (targetAll === 'small' && l === MV_LAYOUT.Grid16Small))
+    ) {
+      return l
+    }
+    if (score > bestScore) {
+      bestScore = score
+      best = l
+    }
+  }
+  return best
+}
+
+/** v7.9.4 — Einziger Layout-Picker oben. Zeigt das AKTUELLE Layout
+ *  als mittlere Vorschau, jeder Quadrant ist klickbar:
+ *   - Quadrant mit Big-Window klicken → Quadrant wird zu 4 kleinen
+ *   - Quadrant mit 4 kleinen klicken → Quadrant wird zu Big-Window
+ *  Der Quadranten-Wechsel sucht das ATEM-Layout das diesen Zustand
+ *  am besten trifft. Wenn die exakte Kombi nicht existiert (z.B.
+ *  "TL big + TR big + BL big + BR small"), wird der nächstbeste
+ *  Layout-Match gewählt. Quellen-Picker bleibt EXKLUSIV im großen
+ *  Big-Window unten. */
+const MvLayoutPicker = ({
+  layoutId,
+  windows,
+  pgmIndex,
+  prvIndex,
+  inputs,
+  caps,
+  onLayoutChange,
+}: {
+  layoutId: number
+  windows: { windowIndex: number; sourceId: number }[]
+  pgmIndex: number
+  prvIndex: number
+  inputs: { id: number; label: string }[]
+  caps: AtemMvCapabilities
+  onLayoutChange: (newLayout: number) => void
+}) => {
+  const spec = getMvGridSpec(layoutId)
+  const state = QUAD_STATE_MAP[layoutId] ?? QUAD_STATE_MAP[0]
+  // Quadrant ↔ Zell-Region Mapping (4×4 Grid):
+  //   TL = col 1-2, row 1-2   TR = col 3-4, row 1-2
+  //   BL = col 1-2, row 3-4   BR = col 3-4, row 3-4
+  const QUADRANTS = [
+    { name: 'TL', idx: 0 as const, cols: [1, 2], rows: [1, 2] },
+    { name: 'TR', idx: 1 as const, cols: [3, 4], rows: [1, 2] },
+    { name: 'BL', idx: 2 as const, cols: [1, 2], rows: [3, 4] },
+    { name: 'BR', idx: 3 as const, cols: [3, 4], rows: [3, 4] },
+  ] as const
+  return (
+    <div className="relative" style={{ width: 240, aspectRatio: '16 / 9' }}>
+      {/* Inhalt rendern — Big-Cells mit Label+ID, kleine Cells nur Farbe */}
+      <div
+        className="absolute inset-0 grid gap-[2px] rounded border border-slate-700 bg-slate-950 p-[2px]"
+        style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(4, 1fr)' }}
+      >
+        {spec.big.map((big) => {
+          const win = windows.find((w) => w.windowIndex === big.window)
+          const sid = typeof win?.sourceId === 'number' ? win.sourceId : 0
+          const label = sourceLabel(sid, inputs)
+          const bg = sourceColor(sid, label)
+          const role = big.window === pgmIndex ? 'pgm' : big.window === prvIndex ? 'prv' : 'small'
+          const highlight = role === 'pgm' ? '#ef4444' : role === 'prv' ? '#22c55e' : undefined
+          return (
+            <div
+              key={`big-${big.window}`}
+              className="flex flex-col items-center justify-center overflow-hidden text-center"
+              style={{
+                gridColumn: `${big.colStart} / span ${big.colSpan}`,
+                gridRow: `${big.rowStart} / span ${big.rowSpan}`,
+                background: bg,
+                color: sid === 0 ? '#cbd5e1' : '#0f172a',
+                boxShadow: highlight ? `inset 0 0 0 1px ${highlight}` : undefined,
+                fontSize: 9,
+                lineHeight: 1.1,
+              }}
+            >
+              <span className="truncate px-1" style={{ maxWidth: '100%', fontWeight: 600 }}>
+                {label}
+              </span>
+              <span className="text-[8px] opacity-70">ID {sid}</span>
+            </div>
+          )
+        })}
+        {spec.small.map((cell, smallIdx) => {
+          const wi = (spec.smallWindowOffset ?? 2) + smallIdx
+          const win = windows.find((w) => w.windowIndex === wi)
+          const sid = typeof win?.sourceId === 'number' ? win.sourceId : 0
+          const label = sourceLabel(sid, inputs)
+          const bg = sourceColor(sid, label)
+          return (
+            <div
+              key={`small-${wi}`}
+              className="overflow-hidden"
+              style={{
+                gridColumn: `${cell.colStart} / span 1`,
+                gridRow: `${cell.rowStart} / span 1`,
+                background: bg,
+              }}
+              title={`${label} (ID ${sid})`}
+            />
+          )
+        })}
+      </div>
+      {/* Klickbare Quadranten-Overlays — jeweils 50% Breite/Höhe.
+          Hover zeigt einen subtilen Rahmen und einen Hint:
+          "→ 1 großes" wenn aktuell 4 kleine, "→ 4 kleine" wenn aktuell big. */}
+      {QUADRANTS.map((q) => (
+        <button
+          key={q.name}
+          type="button"
+          onClick={() => onLayoutChange(nextLayoutOnQuadrantClick(layoutId, q.idx, caps))}
+          title={
+            state[q.idx] === 'big'
+              ? `${q.name}: aktuell 1 großes Fenster — Klick: in 4 kleine teilen`
+              : `${q.name}: aktuell 4 kleine Fenster — Klick: zu 1 großem zusammenfassen`
+          }
+          aria-label={`Quadrant ${q.name} umschalten`}
+          className="group absolute cursor-pointer outline-none transition-all hover:bg-sky-500/25 hover:ring-2 hover:ring-sky-400 focus-visible:bg-sky-500/30 focus-visible:ring-2 focus-visible:ring-sky-400"
+          style={{
+            width: '50%',
+            height: '50%',
+            top: q.rows[0] === 1 ? 0 : '50%',
+            left: q.cols[0] === 1 ? 0 : '50%',
+          }}
+        >
+          {/* v7.9.4 — Hint immer leicht sichtbar (User-Issue: man muss
+              auch durch Klick auf PGM/PVW zu 4 kleinen wechseln können).
+              Zeigt im Default-Layout direkt auf den großen PGM/PVW
+              Kacheln "1→4" als Hinweis dass sie klickbar sind, ohne
+              dass der User erst hovern muss um es zu entdecken. */}
+          <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-[10px] font-bold uppercase tracking-wider text-sky-100 opacity-60 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+            {state[q.idx] === 'big' ? '1 → 4' : '4 → 1'}
+          </span>
+        </button>
+      ))}
+    </div>
+  )
+}
 
 /**
  * Catalog of commonly-used ATEM source IDs and their labels. These are offered
@@ -117,11 +233,14 @@ const DEFAULT_SOURCES: { id: number; label: string; group: string }[] = [
   { id: 8004, label: 'AUX 4', group: 'AUX' },
 ]
 
-const makeMv = (index: number): AtemMvDefinition => ({
+const makeMv = (index: number, maxWindows = 16): AtemMvDefinition => ({
   index,
   layout: 0,
   programPreviewSwapped: false,
-  windows: Array.from({ length: 10 }, (_, i) => ({
+  // v7.9.4 — Bis zu 16 Fenster (Grid16Small braucht 0..15). Default
+  // Layout nutzt nur 0..9, die zusätzlichen Slots stehen aber bereit
+  // wenn das Layout gewechselt wird.
+  windows: Array.from({ length: maxWindows }, (_, i) => ({
     windowIndex: i,
     sourceId: i === 0 ? 10011 : i === 1 ? 10010 : 0,
   })),
@@ -269,6 +388,134 @@ const SourcePicker = ({ currentId, inputs, onPick, onClose, anchor }: SourcePick
   )
 }
 
+/** v7.9.4 — Klappbare Info-/Override-Zeile für die Modell-
+ *  Capabilities. Zeigt was die Heuristik erkannt hat und lässt den
+ *  User die unterstützten Layouts manuell anpassen. */
+const CapabilitiesPanel = ({
+  equipmentName,
+  caps,
+  hasOverride,
+  onOverride,
+}: {
+  equipmentName: string
+  caps: AtemMvCapabilities
+  hasOverride: boolean
+  onOverride: (next: AtemMvCapabilities | undefined) => void
+}) => {
+  const [open, setOpen] = useState(false)
+  const allLayouts: { value: number; label: string }[] = [
+    { value: 0, label: 'Default' },
+    { value: 12, label: 'Program Top' },
+    { value: 3, label: 'Program Bottom' },
+    { value: 10, label: 'Program Left' },
+    { value: 5, label: 'Program Right' },
+    { value: 1, label: 'Top-Left Small' },
+    { value: 2, label: 'Top-Right Small' },
+    { value: 4, label: 'Bottom-Left Small' },
+    { value: 8, label: 'Bottom-Right Small' },
+    { value: MV_LAYOUT.Grid16Small, label: 'Grid (16 klein)' },
+    { value: MV_LAYOUT.Quad4Big, label: 'Quad (4 groß)' },
+  ]
+  const toggleLayout = (val: number) => {
+    const set = new Set(caps.supportedLayouts)
+    if (set.has(val)) set.delete(val)
+    else set.add(val)
+    onOverride({ ...caps, supportedLayouts: Array.from(set).sort((a, b) => a - b) })
+  }
+  return (
+    <div className="border-t border-slate-800 bg-slate-950/40 px-3 py-1.5 text-[10px] text-slate-400">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center gap-2 text-left hover:text-slate-200"
+      >
+        <span>{open ? '▾' : '▸'}</span>
+        <span>
+          Modell-Capabilities: <span className="text-slate-300">{equipmentName}</span> ·{' '}
+          {caps.mvCount} MV{caps.mvCount === 1 ? '' : 's'} ·{' '}
+          {caps.supportedLayouts.length} Layouts{' '}
+          {hasOverride && (
+            <span className="rounded bg-amber-900/60 px-1 text-amber-200">manuell</span>
+          )}
+        </span>
+      </button>
+      {open && (
+        <div className="mt-1 space-y-1.5 pl-4">
+          <p className="text-slate-500">
+            Heuristik basierend auf dem Geräte-Namen. Falls dein Modell ein Layout unterstützt
+            das die Heuristik nicht erkennt (oder umgekehrt), Häkchen hier setzen — die
+            Auswahl überschreibt das Default und bleibt beim Projekt.
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {allLayouts.map((l) => {
+              const on = caps.supportedLayouts.includes(l.value)
+              return (
+                <button
+                  key={l.value}
+                  type="button"
+                  onClick={() => toggleLayout(l.value)}
+                  className={`rounded px-2 py-0.5 text-[10px] ${
+                    on
+                      ? 'bg-sky-900 text-sky-200'
+                      : 'bg-slate-800 text-slate-500 hover:bg-slate-700'
+                  }`}
+                  title={`${l.label} (${l.value})`}
+                >
+                  {on ? '☑' : '☐'} {l.label}
+                </button>
+              )
+            })}
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-1">
+              <span>MV-Anzahl:</span>
+              <input
+                type="number"
+                min={0}
+                max={4}
+                value={caps.mvCount}
+                onChange={(e) =>
+                  onOverride({
+                    ...caps,
+                    mvCount: Math.max(0, Math.min(4, Number(e.target.value) || 0)),
+                  })
+                }
+                className="w-12 rounded border border-slate-700 bg-slate-900 px-1 py-0.5"
+              />
+            </label>
+            <label className="flex items-center gap-1">
+              <span>Max Fenster:</span>
+              <input
+                type="number"
+                min={0}
+                max={32}
+                value={caps.maxWindowsPerMv}
+                onChange={(e) =>
+                  onOverride({
+                    ...caps,
+                    maxWindowsPerMv: Math.max(0, Math.min(32, Number(e.target.value) || 0)),
+                  })
+                }
+                className="w-14 rounded border border-slate-700 bg-slate-900 px-1 py-0.5"
+              />
+            </label>
+            {hasOverride && (
+              <button
+                type="button"
+                onClick={() => onOverride(undefined)}
+                className="ml-auto rounded bg-amber-900/60 px-2 py-0.5 text-amber-200 hover:bg-amber-800/70"
+                title="Override entfernen — wieder Auto-Erkennung verwenden"
+              >
+                Override zurücksetzen
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export const AtemMvConfigDialog = () => {
   const slot = useUiStore((s) => s.atemMvConfig)
   const close = useUiStore((s) => s.closeAtemMvConfig)
@@ -324,6 +571,12 @@ export const AtemMvConfigDialog = () => {
   }, [equipment])
 
   if (!slot.open || !equipment) return null
+
+  // v7.9.4 — Modell-Capabilities (Auto-Erkennung oder User-Override).
+  const caps: AtemMvCapabilities = getMvCapabilities(
+    equipment.name,
+    equipment.atemMvCapabilitiesOverride,
+  )
 
   const updateMv = (mvIdx: number, patch: Partial<AtemMvDefinition>) => {
     setConfig((prev) => ({
@@ -514,71 +767,56 @@ export const AtemMvConfigDialog = () => {
           </span>
         </div>
 
+        {/* v7.9.4 — Ein einziger Layout-Picker. User-Request:
+            "Es soll von dem kleinen Layout-Picker oben nur einen
+            geben. Wenn ich ein Feld mit 4 kleinen Feldern anklicke
+            soll es ein großes Feld werden und wenn ich ein großes
+            Feld anklicke sollen es 4 kleine Felder werden."
+
+            Steht außerhalb von mvGridRef → PNG-Export bleibt clean. */}
+        {mv && (
+          <div className="flex flex-wrap items-center gap-4 border-b border-slate-800 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-slate-300">Layout</span>
+              <MvLayoutPicker
+                layoutId={mv.layout}
+                windows={Array.isArray(mv.windows) ? mv.windows : []}
+                pgmIndex={pgmIndex}
+                prvIndex={prvIndex}
+                inputs={inputs}
+                caps={caps}
+                onLayoutChange={(newLayout) => updateMv(activeMv, { layout: newLayout })}
+              />
+              <span className="text-[10px] text-slate-500">
+                Klick auf einen Quadranten:<br />
+                groß ↔ 4 kleine
+              </span>
+            </div>
+            <label className="ml-auto flex shrink-0 items-center gap-2 self-center text-xs">
+              <input
+                type="checkbox"
+                checked={!!mv.programPreviewSwapped}
+                onChange={(e) => updateMv(activeMv, { programPreviewSwapped: e.target.checked })}
+              />
+              <span className="text-slate-300">PGM/PRV getauscht</span>
+            </label>
+          </div>
+        )}
+
+        {/* v7.9.4 — Big-Window: NUR Source-Picker. Die ehemaligen
+            Quadrant-Overlays die das Layout zyklisch durchschalteten
+            sind entfernt; sie haben die Cell-Klicks abgefangen und
+            erschienen als "1 ↔ 4 · TL"-Geister im PNG-Export. */}
         <div ref={mvGridRef} className="flex-1 overflow-auto p-4">
           {mv && spec && (
-            <>
-              <div className="mb-3 flex flex-wrap items-center gap-3 text-xs">
-                {/* Issue #55: visual layout thumbnails like the
-                    Blackmagic ATEM software's "Ansichtsauswahl"
-                    picker. Each button renders a tiny 4x4 SVG preview
-                    of that layout's grid (big windows + small cells)
-                    so the user can pick by sight, not by reading. */}
-                <span className="text-slate-300">Ansichtsauswahl</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {MV_LAYOUT_OPTIONS.map((l) => {
-                    const active = mv.layout === l.value
-                    return (
-                      <button
-                        key={l.value}
-                        type="button"
-                        onClick={() => updateMv(activeMv, { layout: l.value })}
-                        className={`flex flex-col items-center gap-0.5 rounded border p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
-                          active
-                            ? 'border-sky-500 bg-sky-950/50'
-                            : 'border-slate-700 bg-slate-900 hover:border-sky-700'
-                        }`}
-                        title={`Layout: ${l.label}`}
-                        aria-label={`Layout ${l.label}${active ? ' (aktiv)' : ''}`}
-                      >
-                        <MvLayoutThumb layoutId={l.value} active={active} />
-                        <span
-                          className={`max-w-[64px] truncate text-[9px] ${
-                            active ? 'text-sky-200' : 'text-slate-400'
-                          }`}
-                        >
-                          {l.label}
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={!!mv.programPreviewSwapped}
-                    onChange={(e) =>
-                      updateMv(activeMv, { programPreviewSwapped: e.target.checked })
-                    }
-                  />
-                  <span className="text-slate-300">PGM/PRV getauscht</span>
-                </label>
-              </div>
-
-              {/* Issue #55 — ATEM-software-style quadrant click cycle.
-                  Each invisible overlay corresponds to one MV quadrant
-                  (TL / TR / BL / BR). Clicking advances through the
-                  layouts that affect that quadrant. Combined with the
-                  layout-button row above, this matches the real ATEM
-                  software where you can also click a quadrant to flip
-                  it between 1-big and 4-small. */}
-              <div className="relative w-full" style={{ aspectRatio: '16 / 9' }}>
-                <div
-                  className="absolute inset-0 grid gap-[2px] rounded border border-slate-700 bg-slate-950 p-1"
-                  style={{
-                    gridTemplateColumns: 'repeat(4, 1fr)',
-                    gridTemplateRows: 'repeat(4, 1fr)',
-                  }}
-                >
+            <div className="relative w-full" style={{ aspectRatio: '16 / 9' }}>
+              <div
+                className="absolute inset-0 grid gap-[2px] rounded border border-slate-700 bg-slate-950 p-1"
+                style={{
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gridTemplateRows: 'repeat(4, 1fr)',
+                }}
+              >
                 {spec.big.map((big) => {
                   const role =
                     big.window === pgmIndex
@@ -596,7 +834,7 @@ export const AtemMvConfigDialog = () => {
                   )
                 })}
                 {spec.small.map((cell, smallIdx) => {
-                  const windowIndex = smallIdx + 2
+                  const windowIndex = (spec.smallWindowOffset ?? 2) + smallIdx
                   return renderCell(
                     windowIndex,
                     {
@@ -606,43 +844,21 @@ export const AtemMvConfigDialog = () => {
                     'small',
                   )
                 })}
-                </div>
-                {/* Quadrant click overlay — half-transparent button per
-                    quadrant. Hover surfaces a subtle outline + label
-                    "1 ↔ 4". Click cycles through that quadrant's
-                    relevant layouts (matching ATEM software's flip
-                    between one big window and four small windows). */}
-                {(['TL', 'TR', 'BL', 'BR'] as const).map((q) => {
-                  const cycle = QUADRANT_LAYOUT_CYCLES[q] as readonly number[]
-                  const idx = cycle.indexOf(mv.layout)
-                  const next = cycle[(idx + 1) % cycle.length] ?? cycle[0]
-                  const style: React.CSSProperties = {
-                    position: 'absolute',
-                    width: '50%',
-                    height: '50%',
-                    top: q.startsWith('T') ? 0 : '50%',
-                    left: q.endsWith('L') ? 0 : '50%',
-                  }
-                  return (
-                    <button
-                      key={q}
-                      type="button"
-                      onClick={() => updateMv(activeMv, { layout: next })}
-                      title={`Quadrant ${q} — Klick: nächstes ATEM-Layout (${next})`}
-                      aria-label={`Layout-Quadrant ${q} umschalten`}
-                      style={style}
-                      className="group cursor-pointer rounded outline-none transition-all hover:bg-sky-500/10 hover:ring-2 hover:ring-sky-400/60 focus-visible:bg-sky-500/15 focus-visible:ring-2 focus-visible:ring-sky-400"
-                    >
-                      <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-[10px] font-bold uppercase tracking-wider text-sky-200 opacity-0 transition-opacity group-hover:opacity-90 group-focus-visible:opacity-90">
-                        1 ↔ 4 · {q}
-                      </span>
-                    </button>
-                  )
-                })}
               </div>
-            </>
+            </div>
           )}
         </div>
+
+        {/* v7.9.4 — Modell-Capabilities anzeigen + Override. User-Request:
+            "muss man händisch aber anpassen können". */}
+        <CapabilitiesPanel
+          equipmentName={equipment.name}
+          caps={caps}
+          hasOverride={!!equipment.atemMvCapabilitiesOverride}
+          onOverride={(next) =>
+            updateEquipment(equipment.id, { atemMvCapabilitiesOverride: next })
+          }
+        />
 
         <div className="flex items-center justify-between border-t border-slate-700 px-4 py-2">
           <span className="text-[11px] text-slate-400">

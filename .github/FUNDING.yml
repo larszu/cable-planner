@@ -1,0 +1,5 @@
+# GitHub-Sponsor-Button: erscheint oben auf der Repo-Seite und auf
+# jedem PR/Issue als "❤ Sponsor". `custom`-Feld nimmt beliebige URLs.
+# Doku: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-sponsor-button-in-your-repository
+custom:
+  - 'https://paypal.me/larszumpe'
