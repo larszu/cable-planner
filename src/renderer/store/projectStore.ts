@@ -381,6 +381,16 @@ const touchProject = (project: CablePlannerProject): CablePlannerProject => ({
   },
 })
 
+/** v7.9.5 — Zentrale Lock-Check für Plan-Mutationen. Wenn der User
+ *  den Plan als "abgeschlossen" markiert hat oder eine Viewer-Datei
+ *  geöffnet ist, dürfen Geräte/Kabel/Layout NICHT mehr verändert
+ *  werden. Annotations + Mobile-Check-State + Mode-Switch sind
+ *  davon ausgenommen (für viewer/finalized explizit erlaubt). */
+const isProjectLocked = (state: { project: CablePlannerProject }): boolean => {
+  const mode = state.project.mode
+  return mode === 'finalized' || mode === 'viewer'
+}
+
 const sanitizePort = (port: Partial<Port>, fallbackName: string): Port => ({
   // Spread first so optional fields like `direction`, `sfpType`, `sfpStandard`,
   // `sfpWavelength`, `sfpVendor` survive the trip through addEquipment /
@@ -528,7 +538,9 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       },
     })),
   addEquipment: (equipment) =>
-    set((state) => ({
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
       // Adding from the Library (click / drag-drop) must NOT keep any prior
       // selection live, because React Flow's internal multi-select would
       // otherwise cause the next pointer-down on the canvas to start a
@@ -561,9 +573,12 @@ export const useProjectStore = create<ProjectState>((set, get) => {
           },
         ],
       }),
-    })),
+      }
+    }),
   importEquipment: (equipment) =>
-    set((state) => ({
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
       project: touchProject({
         ...state.project,
         equipment: [
@@ -581,7 +596,8 @@ export const useProjectStore = create<ProjectState>((set, get) => {
           })),
         ],
       }),
-    })),
+      }
+    }),
   importGraphml: (payload) => {
     const newIds: string[] = []
     set((state) => {
@@ -798,6 +814,7 @@ export const useProjectStore = create<ProjectState>((set, get) => {
   },
   updateEquipment: (id, patch) =>
     set((state) => {
+      if (isProjectLocked(state)) return state
       const prev = state.project.equipment.find((e) => e.id === id)
       let updatedItem: EquipmentItem | undefined
       const nextEquipment = state.project.equipment.map((item) =>
@@ -907,6 +924,7 @@ export const useProjectStore = create<ProjectState>((set, get) => {
     }),
   addLocation: (partial) =>
     set((state) => {
+      if (isProjectLocked(state)) return state
       const loc: LocationFrame = {
         id: uuidv4(),
         name: partial?.name ?? 'Location',
@@ -963,25 +981,32 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       }
     }),
   updateLocation: (id, patch) =>
-    set((state) => ({
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
       project: touchProject({
         ...state.project,
         locations: (state.project.locations ?? []).map((l) =>
           l.id === id ? { ...l, ...patch } : l,
         ),
       }),
-    })),
+      }
+    }),
   deleteLocation: (id) =>
-    set((state) => ({
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
       project: touchProject({
         ...state.project,
         locations: (state.project.locations ?? []).filter((l) => l.id !== id),
       }),
       selectedLocationId:
         state.selectedLocationId === id ? undefined : state.selectedLocationId,
-    })),
+      }
+    }),
   deleteLocationWithContents: (id) =>
     set((state) => {
+      if (isProjectLocked(state)) return state
       const loc = (state.project.locations ?? []).find((l) => l.id === id)
       if (!loc) return {}
       const containedIds = new Set(
@@ -1042,10 +1067,13 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       }
     }),
   queueConnection: (connection, waypoints) =>
-    set({
-      pendingConnection: connection,
-      pendingWaypoints: waypoints && waypoints.length > 0 ? waypoints : undefined,
-      showCableDialog: true,
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
+        pendingConnection: connection,
+        pendingWaypoints: waypoints && waypoints.length > 0 ? waypoints : undefined,
+        showCableDialog: true,
+      }
     }),
   closeCableDialog: () =>
     set({ pendingConnection: undefined, pendingWaypoints: undefined, showCableDialog: false }),
@@ -1092,14 +1120,19 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       }
     }),
   updateCable: (id, patch) =>
-    set((state) => ({
-      project: touchProject({
-        ...state.project,
-        cables: state.project.cables.map((item) => (item.id === id ? { ...item, ...patch } : item)),
-      }),
-    })),
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
+        project: touchProject({
+          ...state.project,
+          cables: state.project.cables.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+        }),
+      }
+    }),
   deleteEquipment: (id) =>
-    set((state) => ({
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
       project: touchProject({
         ...state.project,
         equipment: state.project.equipment.filter((item) => item.id !== id),
@@ -1109,17 +1142,22 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       }),
       selectedEquipmentId:
         state.selectedEquipmentId === id ? undefined : state.selectedEquipmentId,
-    })),
+      }
+    }),
   deleteCable: (id) =>
-    set((state) => ({
-      project: touchProject({
-        ...state.project,
-        cables: state.project.cables.filter((item) => item.id !== id),
-      }),
-      selectedCableId: state.selectedCableId === id ? undefined : state.selectedCableId,
-    })),
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
+        project: touchProject({
+          ...state.project,
+          cables: state.project.cables.filter((item) => item.id !== id),
+        }),
+        selectedCableId: state.selectedCableId === id ? undefined : state.selectedCableId,
+      }
+    }),
   deleteSelected: () =>
     set((state) => {
+      if (isProjectLocked(state)) return state
       if (state.selectedCableId) {
         return {
           project: touchProject({

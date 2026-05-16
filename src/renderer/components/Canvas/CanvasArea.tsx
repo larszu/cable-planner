@@ -1155,6 +1155,64 @@ const CanvasContent = () => {
       }}
     >
       <CanvasToolbar />
+      {/* v7.9.5 — Lock-Banner. Wenn projectMode='finalized' oder 'viewer'
+          ist, zeigt eine prominente Leiste oben dass das Canvas
+          gesperrt ist + im finalized-Fall einen Quick-Unlock-Button. */}
+      {projectIsLocked && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '6px 14px',
+            background:
+              projectMode === 'viewer' ? 'rgba(124, 58, 237, 0.92)' : 'rgba(14, 116, 144, 0.92)',
+            color: '#fff',
+            borderRadius: '0 0 8px 8px',
+            fontSize: 12,
+            fontWeight: 600,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.35)',
+            pointerEvents: 'auto',
+          }}
+        >
+          <span>
+            {projectMode === 'viewer'
+              ? 'Viewer-Modus — Plan ist read-only. Änderungen nicht möglich.'
+              : 'Plan ist abgeschlossen — Änderungen sind gesperrt.'}
+          </span>
+          {projectMode === 'finalized' && (
+            <button
+              type="button"
+              onClick={() => {
+                if (
+                  window.confirm(
+                    'Planung wieder zur Bearbeitung freigeben?\n\n' +
+                      'Geräte, Kabel und Layout können dann wieder verändert werden.',
+                  )
+                ) {
+                  useProjectStore.getState().setProjectMode('editing')
+                }
+              }}
+              style={{
+                padding: '2px 10px',
+                background: 'rgba(255, 255, 255, 0.18)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                borderRadius: 4,
+                color: '#fff',
+                fontSize: 11,
+                cursor: 'pointer',
+              }}
+            >
+              Bearbeitung freigeben
+            </button>
+          )}
+        </div>
+      )}
       <svg style={{ position: 'absolute', width: 0, height: 0 }}>
         <defs>
           <marker
