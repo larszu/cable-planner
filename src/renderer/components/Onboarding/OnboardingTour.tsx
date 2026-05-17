@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { STORAGE_KEYS } from '../../lib/storageKeys'
+import { ModalShell } from '../shared/ModalShell'
 
 const TOUR_STORAGE_KEY = STORAGE_KEYS.tourSeenV1
 
@@ -97,51 +98,17 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
-      onMouseDown={(event) => event.target === event.currentTarget && finish()}
-    >
-      <div className="flex w-[520px] max-w-[95vw] flex-col rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
-        <header className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
-          <div className="text-[11px] uppercase tracking-wider text-slate-500">
-            Erste-Schritte-Tour · Schritt {step + 1} / {STEPS.length}
-          </div>
-          <button
-            type="button"
-            onClick={finish}
-            className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
-            title="Tour schließen"
-          >
-            ✕
-          </button>
-        </header>
-
-        <div className="space-y-3 px-4 py-4">
-          <h2 className="text-base font-semibold text-slate-100">{current.title}</h2>
-          <p className="text-sm leading-relaxed text-slate-300">{current.body}</p>
-          {current.hint && (
-            <div className="rounded border border-slate-800 bg-slate-950/40 px-2 py-1 text-[11px] text-slate-400">
-              Tipp: {current.hint}
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center gap-1 border-t border-slate-800 bg-slate-950/30 px-4 py-1.5">
-          {STEPS.map((_, index) => (
-            <span
-              key={index}
-              className={`h-1.5 w-4 rounded-full ${
-                index === step
-                  ? 'bg-orange-500'
-                  : index < step
-                    ? 'bg-orange-700/60'
-                    : 'bg-slate-700'
-              }`}
-            />
-          ))}
-        </div>
-
-        <footer className="flex items-center justify-between gap-2 border-t border-slate-700 px-4 py-2">
+    <ModalShell
+      open={open}
+      onClose={finish}
+      title={
+        <span className="text-[11px] uppercase tracking-wider text-slate-500">
+          Erste-Schritte-Tour · Schritt {step + 1} / {STEPS.length}
+        </span>
+      }
+      maxWidth="lg"
+      footer={
+        <div className="flex items-center justify-between gap-2">
           <button
             type="button"
             onClick={finish}
@@ -149,7 +116,21 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
           >
             Tour beenden
           </button>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              {STEPS.map((_, index) => (
+                <span
+                  key={index}
+                  className={`h-1.5 w-4 rounded-full ${
+                    index === step
+                      ? 'bg-orange-500'
+                      : index < step
+                        ? 'bg-orange-700/60'
+                        : 'bg-slate-700'
+                  }`}
+                />
+              ))}
+            </div>
             <button
               type="button"
               onClick={() => setStep((index) => Math.max(0, index - 1))}
@@ -176,8 +157,18 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
               </button>
             )}
           </div>
-        </footer>
+        </div>
+      }
+    >
+      <div className="space-y-3">
+        <h2 className="text-base font-semibold text-slate-100">{current.title}</h2>
+        <p className="text-sm leading-relaxed text-slate-300">{current.body}</p>
+        {current.hint && (
+          <div className="rounded border border-slate-800 bg-slate-950/40 px-2 py-1 text-[11px] text-slate-400">
+            Tipp: {current.hint}
+          </div>
+        )}
       </div>
-    </div>
+    </ModalShell>
   )
 }
