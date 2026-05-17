@@ -62,4 +62,10 @@ export interface Cable {
    *  Kabel. Legacy-Daten mit bumpStyle: 'auto' werden wie undefined
    *  behandelt. Set via the right-click context menu on the cable. */
   bumpStyle?: 'on' | 'off'
+  /** v7.9.54 — Marker für Kabel, die NICHT vom Planer am Desktop, sondern
+   *  spontan vor Ort über die Mobile-Viewer-App hinzugefügt wurden (z.B.
+   *  weil der Techniker am Gerät steht und merkt dass ein Patch fehlt).
+   *  Canvas rendert dafür ein "📱"-Badge, damit der Planer sieht welche
+   *  Verbindungen aus dem Feld nachgepflegt wurden. */
+  addedFromMobile?: boolean
 }

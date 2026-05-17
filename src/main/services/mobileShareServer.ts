@@ -70,6 +70,24 @@ interface MobileShareState {
    *  POST /checks-Handler aufgerufen sobald das Handy einen Port
    *  als gesteckt markiert. */
   onChecksUpdate: ((checks: { ports: Record<string, boolean>; cables: Record<string, boolean> }) => void) | null
+  /** v7.9.54 — Callback für vom Mobile-Viewer hinzugefügte Kabel.
+   *  Der User steht vor Ort am Gerät, merkt dass ein Patch fehlt und
+   *  trägt das fehlende Kabel über die Dropdown-UI im Phone ein.
+   *  Server reicht das hier rein, Renderer fügt es ins Projekt mit
+   *  addedFromMobile=true ein. */
+  onCableAdded:
+    | ((cable: {
+        fromEquipmentId: string
+        fromPortId: string
+        toEquipmentId: string
+        toPortId: string
+        name?: string
+        type?: string
+        length?: number
+        color?: string
+        notes?: string
+      }) => void)
+    | null
 }
 
 const state: MobileShareState = {
@@ -79,6 +97,7 @@ const state: MobileShareState = {
   rendererDir: '',
   devProxyUrl: undefined,
   onChecksUpdate: null,
+  onCableAdded: null,
 }
 
 /** Lookup non-internal IPv4 addresses across all network interfaces. */
@@ -217,6 +236,64 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
     return
   }
 
+  // v7.9.54 — POST /cables: das Mobile-View schickt nach Hinzufügen eines
+  // neuen Kabels via Dropdown-UI eine Cable-Spec. Wir validieren minimal
+  // (alle 4 IDs vorhanden) und leiten an den Renderer-Callback weiter.
+  if (pathname === '/cables' && req.method === 'POST') {
+    let body = ''
+    req.on('data', (chunk) => {
+      body += chunk
+      if (body.length > 100_000) {
+        res.statusCode = 413
+        res.end('Payload too large')
+        req.destroy()
+      }
+    })
+    req.on('end', () => {
+      try {
+        const parsed = JSON.parse(body) as Record<string, unknown>
+        const fromEquipmentId = String(parsed.fromEquipmentId ?? '').trim()
+        const fromPortId = String(parsed.fromPortId ?? '').trim()
+        const toEquipmentId = String(parsed.toEquipmentId ?? '').trim()
+        const toPortId = String(parsed.toPortId ?? '').trim()
+        if (!fromEquipmentId || !fromPortId || !toEquipmentId || !toPortId) {
+          res.statusCode = 400
+          res.setHeader('Access-Control-Allow-Origin', '*')
+          res.end('{"error":"missing endpoint ids"}')
+          return
+        }
+        const cable = {
+          fromEquipmentId,
+          fromPortId,
+          toEquipmentId,
+          toPortId,
+          name: typeof parsed.name === 'string' ? parsed.name : undefined,
+          type: typeof parsed.type === 'string' ? parsed.type : undefined,
+          length: typeof parsed.length === 'number' ? parsed.length : undefined,
+          color: typeof parsed.color === 'string' ? parsed.color : undefined,
+          notes: typeof parsed.notes === 'string' ? parsed.notes : undefined,
+        }
+        state.onCableAdded?.(cable)
+        res.statusCode = 200
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.end('{"ok":true}')
+      } catch {
+        res.statusCode = 400
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.end('{"error":"invalid json"}')
+      }
+    })
+    return
+  }
+  if (pathname === '/cables' && req.method === 'OPTIONS') {
+    res.statusCode = 204
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    res.end()
+    return
+  }
+
   // Health/info endpoint — useful for the renderer to verify
   // the server is alive without round-tripping the whole project.
   if (pathname === '/share-info.json') {
@@ -344,6 +421,26 @@ export const setMobileShareChecksHandler = (
   handler: ((checks: { ports: Record<string, boolean>; cables: Record<string, boolean> }) => void) | null,
 ): void => {
   state.onChecksUpdate = handler
+}
+
+/** v7.9.54 — Registrierung des Callbacks für vom Mobile-Viewer
+ *  hinzugefügte Kabel (POST /cables). */
+export const setMobileShareCableAddedHandler = (
+  handler:
+    | ((cable: {
+        fromEquipmentId: string
+        fromPortId: string
+        toEquipmentId: string
+        toPortId: string
+        name?: string
+        type?: string
+        length?: number
+        color?: string
+        notes?: string
+      }) => void)
+    | null,
+): void => {
+  state.onCableAdded = handler
 }
 
 export const getMobileShareStatus = (): MobileShareInfo & { running: boolean } => ({
