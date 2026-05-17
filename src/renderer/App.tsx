@@ -51,6 +51,7 @@ import {
   markGroupSynced,
   findOutdatedEquipment,
   applyDeviceTemplateUpdate,
+  detectFolderDeletions,
 } from './lib/librarySync'
 import { useUndoRedoShortcuts, projectHistory } from './store/projectHistory'
 import { useSettingsStore } from './store/settingsStore'
@@ -149,25 +150,43 @@ export default function App() {
   // der User behält seine lokalen Edits.
   useEffect(() => {
     void (async () => {
+      if (!hasDesktopBridge) {
+        setLibraryReady(true)
+        return
+      }
       const items = await scanLibraryFolder()
-      if (items.length > 0) {
-        const state = useProjectStore.getState()
-        const existingDeviceNames = new Set(state.customLibrary.map((t) => t.name))
-        const existingGroupNames = new Set(state.groupPresets.map((p) => p.name))
-        const newDevices = items
-          .filter((i) => i.kind === 'device' && !existingDeviceNames.has(i.template.name))
-          .map((i) => (i as { template: import('./types/equipment').EquipmentTemplate }).template)
-        const newGroups = items
-          .filter((i) => i.kind === 'group' && !existingGroupNames.has(i.preset.name))
-          .map((i) => (i as { preset: import('./types/equipment').GroupPreset }).preset)
-        // Marker im Sync-Cache setzen damit der folgende addCustomTemplates-
-        // /addGroupPreset-Call den Diff als "schon synchron" sieht und nicht
-        // sofort wieder in den Ordner zurückschreibt (was die fileVersion
-        // ohne Inhaltsänderung bumpen würde).
-        for (const t of newDevices) markDeviceSynced(t)
-        for (const p of newGroups) markGroupSynced(p)
-        if (newDevices.length > 0) state.addCustomTemplates(newDevices)
-        for (const preset of newGroups) state.addGroupPreset(preset)
+      const state = useProjectStore.getState()
+      // ── ADD: neue Folder-Items, die noch nicht im Store sind
+      const existingDeviceNames = new Set(state.customLibrary.map((t) => t.name))
+      const existingGroupNames = new Set(state.groupPresets.map((p) => p.name))
+      const newDevices = items
+        .filter((i) => i.kind === 'device' && !existingDeviceNames.has(i.template.name))
+        .map((i) => (i as { template: import('./types/equipment').EquipmentTemplate }).template)
+      const newGroups = items
+        .filter((i) => i.kind === 'group' && !existingGroupNames.has(i.preset.name))
+        .map((i) => (i as { preset: import('./types/equipment').GroupPreset }).preset)
+      // Marker im Sync-Cache setzen damit der folgende addCustomTemplates-
+      // /addGroupPreset-Call den Diff als "schon synchron" sieht und nicht
+      // sofort wieder in den Ordner zurückschreibt.
+      for (const t of newDevices) markDeviceSynced(t)
+      for (const p of newGroups) markGroupSynced(p)
+      if (newDevices.length > 0) state.addCustomTemplates(newDevices)
+      for (const preset of newGroups) state.addGroupPreset(preset)
+      // ── REMOVE: Items die mal im Folder waren (folderTracked-Set), jetzt
+      // aber fehlen → User hat die Datei aus dem Ordner gelöscht. Wir
+      // spiegeln das im Store wider damit die UI mit dem Folder übereinstimmt.
+      // Built-ins beim First-Install sind NICHT folderTracked (noch nie
+      // gesynced), bleiben also erhalten.
+      const { deletedDevices, deletedGroups } = detectFolderDeletions(items)
+      const refreshed = useProjectStore.getState()
+      for (const name of deletedDevices) {
+        if (refreshed.customLibrary.some((t) => t.name === name)) {
+          refreshed.removeCustomTemplate(name)
+        }
+      }
+      for (const name of deletedGroups) {
+        const preset = refreshed.groupPresets.find((p) => p.name === name)
+        if (preset) refreshed.deleteGroupPreset(preset.id)
       }
       setLibraryReady(true)
     })()

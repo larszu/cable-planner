@@ -52,7 +52,90 @@ const isPreset = (x: unknown): x is GroupPreset =>
   typeof (x as GroupPreset).name === 'string' &&
   Array.isArray((x as GroupPreset).items)
 
-// ── Refs-Lookup (template-Name → current library file version) ─────
+// ── Persisted Folder-Tracking ──────────────────────────────────────
+// Wir merken uns welche Items wir schon mal im Folder gesehen / dort
+// hingeschrieben haben. Damit erkennt der Startup-Scan welche Items
+// vom User aus dem Folder gelöscht wurden (= im Tracking, aber nicht
+// mehr im Scan-Ergebnis) und entfernt sie aus dem Store.
+// Without persisting we hätten kein Way to distinguish "frisches
+// localStorage-Item, das noch nie gesynced wurde" von "Item, das im
+// Folder gelöscht wurde".
+
+const FOLDER_TRACK_KEY = 'cable-planner:folderTrackedItems'
+
+interface FolderTrackedItems {
+  devices: string[]
+  groups: string[]
+}
+
+const loadFolderTrackedItems = (): FolderTrackedItems => {
+  try {
+    const raw = localStorage.getItem(FOLDER_TRACK_KEY)
+    if (!raw) return { devices: [], groups: [] }
+    const parsed = JSON.parse(raw) as Partial<FolderTrackedItems>
+    return {
+      devices: Array.isArray(parsed.devices) ? parsed.devices : [],
+      groups: Array.isArray(parsed.groups) ? parsed.groups : [],
+    }
+  } catch {
+    return { devices: [], groups: [] }
+  }
+}
+
+let folderTracked = loadFolderTrackedItems()
+
+const persistFolderTracked = (): void => {
+  try {
+    localStorage.setItem(FOLDER_TRACK_KEY, JSON.stringify(folderTracked))
+  } catch {
+    /* ignore */
+  }
+}
+
+const trackDevice = (name: string): void => {
+  if (!folderTracked.devices.includes(name)) {
+    folderTracked.devices.push(name)
+    persistFolderTracked()
+  }
+}
+
+const untrackDevice = (name: string): void => {
+  const before = folderTracked.devices.length
+  folderTracked.devices = folderTracked.devices.filter((n) => n !== name)
+  if (folderTracked.devices.length !== before) persistFolderTracked()
+}
+
+const trackGroup = (name: string): void => {
+  if (!folderTracked.groups.includes(name)) {
+    folderTracked.groups.push(name)
+    persistFolderTracked()
+  }
+}
+
+const untrackGroup = (name: string): void => {
+  const before = folderTracked.groups.length
+  folderTracked.groups = folderTracked.groups.filter((n) => n !== name)
+  if (folderTracked.groups.length !== before) persistFolderTracked()
+}
+
+/** After a startup scan, returns the names of items that were tracked
+ *  in folder before but no longer exist (= deleted by user via OS).
+ *  Caller should remove these from the store. */
+export const detectFolderDeletions = (currentFolderItems: ScannedItem[]): {
+  deletedDevices: string[]
+  deletedGroups: string[]
+} => {
+  const currentDevices = new Set(
+    currentFolderItems.filter((i) => i.kind === 'device').map((i) => i.template.name),
+  )
+  const currentGroups = new Set(
+    currentFolderItems.filter((i) => i.kind === 'group').map((i) => i.preset.name),
+  )
+  return {
+    deletedDevices: folderTracked.devices.filter((n) => !currentDevices.has(n)),
+    deletedGroups: folderTracked.groups.filter((n) => !currentGroups.has(n)),
+  }
+}
 // Damit "Mit Lib-Version X importiert"-Markierungen am platzierten
 // Equipment stehen können (Phase 3). Map wird gefüllt von scan + write.
 
@@ -115,6 +198,7 @@ export const scanLibraryFolder = async (): Promise<ScannedItem[]> => {
       }
       if (entry.kind === 'device' && isTemplate(entry.payload)) {
         deviceRefByName.set(entry.payload.name, ref)
+        trackDevice(entry.payload.name)
         result.push({
           kind: 'device',
           fileName: entry.fileName,
@@ -124,6 +208,7 @@ export const scanLibraryFolder = async (): Promise<ScannedItem[]> => {
         })
       } else if (entry.kind === 'group' && isPreset(entry.payload)) {
         groupRefByName.set(entry.payload.name, ref)
+        trackGroup(entry.payload.name)
         result.push({
           kind: 'group',
           fileName: entry.fileName,
@@ -154,6 +239,7 @@ export const writeDeviceToFolder = async (
       payload: template,
     })
     deviceRefByName.set(template.name, res)
+    trackDevice(template.name)
     return res
   } catch {
     return null
@@ -169,6 +255,7 @@ export const writeGroupToFolder = async (preset: GroupPreset): Promise<LibraryRe
       payload: preset,
     })
     groupRefByName.set(preset.name, res)
+    trackGroup(preset.name)
     return res
   } catch {
     return null
@@ -177,6 +264,7 @@ export const writeGroupToFolder = async (preset: GroupPreset): Promise<LibraryRe
 
 export const deleteDeviceFromFolder = async (templateName: string): Promise<void> => {
   deviceRefByName.delete(templateName)
+  untrackDevice(templateName)
   if (!hasDesktopBridge) return
   try {
     await cablePlannerApi.library.deleteItem({ kind: 'device', name: templateName })
@@ -187,6 +275,7 @@ export const deleteDeviceFromFolder = async (templateName: string): Promise<void
 
 export const deleteGroupFromFolder = async (presetName: string): Promise<void> => {
   groupRefByName.delete(presetName)
+  untrackGroup(presetName)
   if (!hasDesktopBridge) return
   try {
     await cablePlannerApi.library.deleteItem({ kind: 'group', name: presetName })
