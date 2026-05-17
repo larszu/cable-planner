@@ -37,6 +37,12 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
   const [ip, setIp] = useState(equipment?.ipAddress ?? '')
   const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
+  // v7.9.53 — mDNS Auto-Discovery State
+  const [discovering, setDiscovering] = useState(false)
+  const [discovered, setDiscovered] = useState<
+    Array<{ name: string; ip: string; port: number; model?: string }>
+  >([])
+  const [discoveryDone, setDiscoveryDone] = useState(false)
   const [state, setState] = useState<AtemStateSummary | null>(null)
   const [events, setEvents] = useState<string[]>([])
   const [drafts, setDrafts] = useState<Record<number, { long: string; short: string }>>({})
@@ -62,6 +68,24 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
     })
     return () => unsubscribe()
   }, [])
+
+  // v7.9.53 — mDNS-Discovery: scannt 3s lang nach "_blackmagic._tcp"
+  // Services im lokalen Netz. Ergebnis erscheint als Klick-Liste die
+  // den IP-Input auto-füllt.
+  const discover = async () => {
+    setDiscovering(true)
+    setDiscoveryDone(false)
+    setDiscovered([])
+    try {
+      const list = await cablePlannerApi.atem.discover({ timeoutMs: 3000 })
+      setDiscovered(list)
+    } catch {
+      setDiscovered([])
+    } finally {
+      setDiscovering(false)
+      setDiscoveryDone(true)
+    }
+  }
 
   const connect = async () => {
     setStatus('connecting')
@@ -171,6 +195,17 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
             {status !== 'connected' && (
               <button
                 type="button"
+                onClick={discover}
+                disabled={discovering || status === 'connecting'}
+                className="rounded bg-purple-700 px-3 py-2 text-sm hover:bg-purple-600 disabled:opacity-50"
+                title="ATEM-Switcher per mDNS (Bonjour) im lokalen Netzwerk suchen"
+              >
+                {discovering ? '🔍 Suche…' : '🔍 Suchen'}
+              </button>
+            )}
+            {status !== 'connected' && (
+              <button
+                type="button"
                 onClick={connect}
                 disabled={status === 'connecting' || !ip.trim()}
                 className="rounded bg-sky-700 px-3 py-2 text-sm hover:bg-sky-600 disabled:opacity-50"
@@ -198,6 +233,42 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               </button>
             )}
           </div>
+          {/* v7.9.53 — Discovery-Result-Liste. Erscheint nach dem ersten
+              "Suchen"-Klick. Klick auf eine Zeile füllt den IP-Input. */}
+          {discoveryDone && status !== 'connected' && (
+            <div className="mt-2">
+              {discovered.length === 0 ? (
+                <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-2 text-[11px] text-slate-500">
+                  Kein ATEM-Switcher per mDNS im lokalen Netzwerk gefunden. (Manche
+                  Modelle / Firewall-Setups blocken mDNS — dann IP manuell eingeben.)
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                    Gefunden ({discovered.length}) — Klick übernimmt die IP:
+                  </div>
+                  {discovered.map((dev) => (
+                    <button
+                      key={dev.ip}
+                      type="button"
+                      onClick={() => setIp(dev.ip)}
+                      className="flex w-full items-center justify-between gap-2 rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-left text-xs hover:border-purple-500 hover:bg-slate-900"
+                    >
+                      <span className="font-medium text-slate-100">
+                        {dev.name}
+                        {dev.model && (
+                          <span className="ml-2 text-[10px] text-slate-400">
+                            ({dev.model})
+                          </span>
+                        )}
+                      </span>
+                      <span className="font-mono text-[11px] text-purple-300">{dev.ip}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           {status === 'connected' && state && (
             <div className="mt-2 text-[11px] text-slate-400">
               {state.productIdentifier}
