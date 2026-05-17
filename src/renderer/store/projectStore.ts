@@ -317,6 +317,9 @@ interface ProjectState {
   setCustomLibrary: (templates: EquipmentTemplate[]) => void
   knownCategories: string[]
   addKnownCategories: (categories: string[]) => void
+  /** v7.9.5 — Kategorien-Reihenfolge per Drag&Drop ändern.
+   *  Übernimmt den exakten gegebenen Order ohne Re-Sortieren. */
+  reorderCategories: (newOrder: string[]) => void
   groupPresets: GroupPreset[]
   addGroupPreset: (preset: GroupPreset) => void
   saveGroupPreset: (name: string, equipmentIds: string[]) => void
@@ -324,6 +327,12 @@ interface ProjectState {
   placeGroupPreset: (presetId: string, x: number, y: number) => void
   /** Replace all group presets (e.g. after a Sync Pull). */
   setGroupPresets: (presets: GroupPreset[]) => void
+  /** v7.9.6 — Drag&Drop-Reorder der groupPresets. Fehlende IDs werden
+   *  angehängt, damit ein Teil-Reorder (nur Groups-Tab oder nur Racks-
+   *  Tab) den jeweils anderen Subset nicht verliert. */
+  reorderGroupPresets: (newOrder: string[]) => void
+  /** v7.9.7 — Group-/Rack-Preset umbenennen. */
+  renameGroupPreset: (id: string, newName: string) => void
   /** Save or replace the GreenGo intercom planning config in the project. */
   updateGreenGoConfig: (config: GreenGoConfig) => void
   /** v7.9.3 — Mobile-Viewer Check-State setzen (vom POST /checks-IPC).
@@ -377,6 +386,16 @@ const touchProject = (project: CablePlannerProject): CablePlannerProject => ({
     updatedAt: now(),
   },
 })
+
+/** v7.9.5 — Zentrale Lock-Check für Plan-Mutationen. Wenn der User
+ *  den Plan als "abgeschlossen" markiert hat oder eine Viewer-Datei
+ *  geöffnet ist, dürfen Geräte/Kabel/Layout NICHT mehr verändert
+ *  werden. Annotations + Mobile-Check-State + Mode-Switch sind
+ *  davon ausgenommen (für viewer/finalized explizit erlaubt). */
+const isProjectLocked = (state: { project: CablePlannerProject }): boolean => {
+  const mode = state.project.mode
+  return mode === 'finalized' || mode === 'viewer'
+}
 
 const sanitizePort = (port: Partial<Port>, fallbackName: string): Port => ({
   // Spread first so optional fields like `direction`, `sfpType`, `sfpStandard`,
@@ -525,7 +544,9 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       },
     })),
   addEquipment: (equipment) =>
-    set((state) => ({
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
       // Adding from the Library (click / drag-drop) must NOT keep any prior
       // selection live, because React Flow's internal multi-select would
       // otherwise cause the next pointer-down on the canvas to start a
@@ -558,9 +579,12 @@ export const useProjectStore = create<ProjectState>((set, get) => {
           },
         ],
       }),
-    })),
+      }
+    }),
   importEquipment: (equipment) =>
-    set((state) => ({
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
       project: touchProject({
         ...state.project,
         equipment: [
@@ -578,7 +602,8 @@ export const useProjectStore = create<ProjectState>((set, get) => {
           })),
         ],
       }),
-    })),
+      }
+    }),
   importGraphml: (payload) => {
     const newIds: string[] = []
     set((state) => {
@@ -795,6 +820,7 @@ export const useProjectStore = create<ProjectState>((set, get) => {
   },
   updateEquipment: (id, patch) =>
     set((state) => {
+      if (isProjectLocked(state)) return state
       const prev = state.project.equipment.find((e) => e.id === id)
       let updatedItem: EquipmentItem | undefined
       const nextEquipment = state.project.equipment.map((item) =>
@@ -904,6 +930,7 @@ export const useProjectStore = create<ProjectState>((set, get) => {
     }),
   addLocation: (partial) =>
     set((state) => {
+      if (isProjectLocked(state)) return state
       const loc: LocationFrame = {
         id: uuidv4(),
         name: partial?.name ?? 'Location',
@@ -960,25 +987,32 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       }
     }),
   updateLocation: (id, patch) =>
-    set((state) => ({
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
       project: touchProject({
         ...state.project,
         locations: (state.project.locations ?? []).map((l) =>
           l.id === id ? { ...l, ...patch } : l,
         ),
       }),
-    })),
+      }
+    }),
   deleteLocation: (id) =>
-    set((state) => ({
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
       project: touchProject({
         ...state.project,
         locations: (state.project.locations ?? []).filter((l) => l.id !== id),
       }),
       selectedLocationId:
         state.selectedLocationId === id ? undefined : state.selectedLocationId,
-    })),
+      }
+    }),
   deleteLocationWithContents: (id) =>
     set((state) => {
+      if (isProjectLocked(state)) return state
       const loc = (state.project.locations ?? []).find((l) => l.id === id)
       if (!loc) return {}
       const containedIds = new Set(
@@ -1039,10 +1073,13 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       }
     }),
   queueConnection: (connection, waypoints) =>
-    set({
-      pendingConnection: connection,
-      pendingWaypoints: waypoints && waypoints.length > 0 ? waypoints : undefined,
-      showCableDialog: true,
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
+        pendingConnection: connection,
+        pendingWaypoints: waypoints && waypoints.length > 0 ? waypoints : undefined,
+        showCableDialog: true,
+      }
     }),
   closeCableDialog: () =>
     set({ pendingConnection: undefined, pendingWaypoints: undefined, showCableDialog: false }),
@@ -1089,14 +1126,19 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       }
     }),
   updateCable: (id, patch) =>
-    set((state) => ({
-      project: touchProject({
-        ...state.project,
-        cables: state.project.cables.map((item) => (item.id === id ? { ...item, ...patch } : item)),
-      }),
-    })),
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
+        project: touchProject({
+          ...state.project,
+          cables: state.project.cables.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+        }),
+      }
+    }),
   deleteEquipment: (id) =>
-    set((state) => ({
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
       project: touchProject({
         ...state.project,
         equipment: state.project.equipment.filter((item) => item.id !== id),
@@ -1106,17 +1148,22 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       }),
       selectedEquipmentId:
         state.selectedEquipmentId === id ? undefined : state.selectedEquipmentId,
-    })),
+      }
+    }),
   deleteCable: (id) =>
-    set((state) => ({
-      project: touchProject({
-        ...state.project,
-        cables: state.project.cables.filter((item) => item.id !== id),
-      }),
-      selectedCableId: state.selectedCableId === id ? undefined : state.selectedCableId,
-    })),
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
+        project: touchProject({
+          ...state.project,
+          cables: state.project.cables.filter((item) => item.id !== id),
+        }),
+        selectedCableId: state.selectedCableId === id ? undefined : state.selectedCableId,
+      }
+    }),
   deleteSelected: () =>
     set((state) => {
+      if (isProjectLocked(state)) return state
       if (state.selectedCableId) {
         return {
           project: touchProject({
@@ -1272,18 +1319,37 @@ export const useProjectStore = create<ProjectState>((set, get) => {
     }),
   renameCustomCategory: (oldCategory, newCategory) =>
     set((state) => {
+      if (isProjectLocked(state)) return state
       const from = oldCategory.trim()
       const to = newCategory.trim()
       if (!from || !to || from === to) return {}
-      const next = state.customLibrary.map((t) =>
+      // v7.9.7 — Echtes Umbenennen: Templates UND verbaute Geräte
+      // migrieren, alten Kategorie-Namen aus knownCategories entfernen
+      // (sonst bleibt eine leere Phantom-Kategorie in der Library
+      // hängen) und manuelle Reihenfolge erhalten.
+      const nextLib = state.customLibrary.map((t) =>
         t.category === from ? { ...t, category: to } : t,
       )
-      persistCustomLibrary(next)
-      const cats = new Set(state.knownCategories)
-      cats.add(to)
-      const catsSorted = Array.from(cats).sort((a, b) => a.localeCompare(b))
-      persistKnownCategories(catsSorted)
-      return { customLibrary: next, knownCategories: catsSorted }
+      persistCustomLibrary(nextLib)
+      const nextEquipment = state.project.equipment.map((e) =>
+        e.category === from ? { ...e, category: to } : e,
+      )
+      const orderedCats: string[] = []
+      const seen = new Set<string>()
+      for (const c of state.knownCategories) {
+        const out = c === from ? to : c
+        if (!seen.has(out)) {
+          orderedCats.push(out)
+          seen.add(out)
+        }
+      }
+      if (!seen.has(to)) orderedCats.push(to)
+      persistKnownCategories(orderedCats)
+      return {
+        customLibrary: nextLib,
+        knownCategories: orderedCats,
+        project: { ...state.project, equipment: nextEquipment },
+      }
     }),
   addKnownCategories: (categories) =>
     set((state) => {
@@ -1292,9 +1358,38 @@ export const useProjectStore = create<ProjectState>((set, get) => {
         const trimmed = c.trim()
         if (trimmed) set_.add(trimmed)
       })
-      const next = Array.from(set_).sort((a, b) => a.localeCompare(b))
+      // v7.9.5 — Append NEU statt komplett zu sortieren, damit der User
+      // seine manuelle Drag&Drop-Reihenfolge nicht verliert. Existing
+      // categories behalten ihre Position; nur neue kommen ans Ende.
+      const existing = state.knownCategories.filter((c) => set_.has(c))
+      const added: string[] = []
+      for (const c of set_) {
+        if (!existing.includes(c)) added.push(c)
+      }
+      added.sort((a, b) => a.localeCompare(b))
+      const next = [...existing, ...added]
       persistKnownCategories(next)
       return { knownCategories: next }
+    }),
+  reorderCategories: (newOrder) =>
+    set((state) => {
+      // Nur Kategorien akzeptieren die wir bereits kennen, in der
+      // gegebenen Reihenfolge. Unbekannte werden ignoriert; ausgelassene
+      // werden ans Ende gehängt um nichts zu verlieren.
+      const known = new Set(state.knownCategories)
+      const ordered: string[] = []
+      const seen = new Set<string>()
+      for (const c of newOrder) {
+        if (known.has(c) && !seen.has(c)) {
+          ordered.push(c)
+          seen.add(c)
+        }
+      }
+      for (const c of state.knownCategories) {
+        if (!seen.has(c)) ordered.push(c)
+      }
+      persistKnownCategories(ordered)
+      return { knownCategories: ordered }
     }),
   saveEquipmentAsTemplate: (equipmentId) =>
     set((state) => {
@@ -1460,10 +1555,41 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       persistGroupPresets(next)
       return { groupPresets: next }
     }),
+  renameGroupPreset: (id, newName) =>
+    set((state) => {
+      const trimmed = newName.trim()
+      if (!trimmed) return state
+      const next = state.groupPresets.map((p) =>
+        p.id === id ? { ...p, name: trimmed } : p,
+      )
+      persistGroupPresets(next)
+      return { groupPresets: next }
+    }),
   setGroupPresets: (presets) =>
     set(() => {
       persistGroupPresets(presets)
       return { groupPresets: presets }
+    }),
+  /** v7.9.6 — Reorder groupPresets. Accepts the desired ID order;
+   *  anything not in the list is appended at the end so partial
+   *  reorders (e.g. only racks, only non-racks) don't lose entries. */
+  reorderGroupPresets: (newOrder) =>
+    set((state) => {
+      const idToPreset = new Map(state.groupPresets.map((p) => [p.id, p]))
+      const ordered: GroupPreset[] = []
+      const seen = new Set<string>()
+      for (const id of newOrder) {
+        const p = idToPreset.get(id)
+        if (p && !seen.has(id)) {
+          ordered.push(p)
+          seen.add(id)
+        }
+      }
+      for (const p of state.groupPresets) {
+        if (!seen.has(p.id)) ordered.push(p)
+      }
+      persistGroupPresets(ordered)
+      return { groupPresets: ordered }
     }),
   placeGroupPreset: (presetId, x, y) =>
     set((state) => {

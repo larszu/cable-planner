@@ -62,32 +62,48 @@ export const composeExportBackground = (
   // would fade the gradient too, which the user didn't ask for).
   const rgbaGrid = withOpacity(gridColor, Math.max(0, Math.min(1, opacity)))
 
-  // Variant-specific pattern values. Sizes echo the ReactFlow defaults
-  // (dot radius 1.5, line width 1, cross arm 6 px).
+  // v7.9.4 — Variant-Patterns als SVG-Data-URL statt CSS-Gradient.
+  // CSS radial-gradient() für Dots-Pattern wurde von html-to-image's
+  // foreignObject-Capture nicht zuverlässig gerendert: im Export
+  // tauchten Punkte nur in einem kleineren Mittelrechteck auf, nicht
+  // über die gesamte Capture-Fläche (User-Bug "canvas punkte sind in
+  // export nicht über gesamte fläche"). SVG-data-URLs werden vom
+  // SVG-Renderer in foreignObject nativ unterstützt und tilen
+  // korrekt — die Punkte erscheinen jetzt über die volle Padding-
+  // Zone hinweg.
+  const svgDataUrl = (innerSvg: string): string => {
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${gridSize}' height='${gridSize}'>${innerSvg}</svg>`
+    return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`
+  }
+
   const { pattern, patternSize } = (() => {
     switch (variant) {
-      case 'dots':
+      case 'dots': {
+        const c = gridSize / 2
         return {
-          pattern: `radial-gradient(${rgbaGrid} 1.5px, transparent 1.6px)`,
+          pattern: svgDataUrl(
+            `<circle cx='${c}' cy='${c}' r='1.5' fill='${rgbaGrid}' />`,
+          ),
           patternSize: `${gridSize}px ${gridSize}px`,
         }
+      }
       case 'lines':
-        // Orthogonal lines, 1 px wide, every gridSize px on both axes.
         return {
-          pattern:
-            `linear-gradient(${rgbaGrid} 1px, transparent 1px),` +
-            ` linear-gradient(90deg, ${rgbaGrid} 1px, transparent 1px)`,
-          patternSize: `${gridSize}px ${gridSize}px, ${gridSize}px ${gridSize}px`,
+          pattern: svgDataUrl(
+            `<path d='M0 0H${gridSize}M0 0V${gridSize}' stroke='${rgbaGrid}' stroke-width='1' fill='none' />`,
+          ),
+          patternSize: `${gridSize}px ${gridSize}px`,
         }
       case 'cross': {
-        // 6-px cross at each intersection — approximated with two short
-        // line segments. Keeps the markup simple while still tiling.
-        const arm = 6
+        // Kleines Plus-Kreuz an jedem Gitter-Punkt — gleicher Stil wie
+        // ReactFlow's eingebauter "cross"-Variant.
+        const c = gridSize / 2
+        const arm = 3
         return {
-          pattern:
-            `linear-gradient(${rgbaGrid} 1px, transparent 1px),` +
-            ` linear-gradient(90deg, ${rgbaGrid} 1px, transparent 1px)`,
-          patternSize: `${gridSize}px ${arm}px, ${arm}px ${gridSize}px`,
+          pattern: svgDataUrl(
+            `<path d='M${c - arm} ${c}H${c + arm}M${c} ${c - arm}V${c + arm}' stroke='${rgbaGrid}' stroke-width='1' fill='none' />`,
+          ),
+          patternSize: `${gridSize}px ${gridSize}px`,
         }
       }
       case 'none':
@@ -107,12 +123,8 @@ export const composeExportBackground = (
   return {
     bgFallback,
     background: `${pattern}, ${bgGradient}`,
-    backgroundSize: variant === 'cross'
-      ? `${patternSize}, 100% 100%`
-      : variant === 'lines'
-        ? `${patternSize}, 100% 100%`
-        : `${patternSize}, 100% 100%`,
-    backgroundRepeat: variant === 'none' ? 'no-repeat' : 'repeat, no-repeat',
+    backgroundSize: `${patternSize}, 100% 100%`,
+    backgroundRepeat: 'repeat, no-repeat',
   }
 }
 

@@ -68,9 +68,13 @@ export const StatusBar = ({
         </span>
       </div>
       <div className="flex items-center gap-3">
-        <span className={rentmanProjectName ? 'text-orange-300' : hasToken ? 'text-slate-400' : 'text-slate-500'}>
-          Rentman: {rentmanProjectName ?? (hasToken ? 'Token bereit' : 'Standalone')}
-        </span>
+        {/* v7.9.4 — Rentman-Badge nur sichtbar wenn die Integration
+            in den Einstellungen aktiviert ist. */}
+        {useUiStore((s) => s.rentmanEnabled) && (
+          <span className={rentmanProjectName ? 'text-orange-300' : hasToken ? 'text-slate-400' : 'text-slate-500'}>
+            Rentman: {rentmanProjectName ?? (hasToken ? 'Token bereit' : 'Standalone')}
+          </span>
+        )}
         <span>Zoom: {(zoom * 100).toFixed(0)}%</span>
         <button
           type="button"

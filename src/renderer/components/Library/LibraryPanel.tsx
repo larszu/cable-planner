@@ -1,5 +1,22 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { triggerCanvasFitView } from '../../lib/canvasViewport'
@@ -55,6 +72,403 @@ const buildPorts = (groups: PortGroupDraft[], direction: 'in' | 'out'): Port[] =
   )
 }
 
+// v7.9.5 — Plus-Dropdown: ein einziger "+"-Button statt zwei separater
+// "+ Kategorie" / "+ Gerät" Knöpfe. Click toggles dropdown, Klick außen
+// schließt es. Items: Neues Gerät / Neue Kategorie.
+const PlusMenu = ({
+  onNewDevice,
+  onNewCategory,
+}: {
+  onNewDevice: () => void
+  onNewCategory: () => void
+}) => {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex h-7 items-center gap-0.5 rounded bg-emerald-700 px-2 text-xs hover:bg-emerald-600"
+        title="Neues Gerät oder neue Kategorie anlegen"
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        <span className="text-sm leading-none">+</span>
+        <span className="text-[9px] leading-none">▾</span>
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded border border-slate-700 bg-slate-900 py-1 text-xs shadow-xl"
+        >
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false)
+              onNewDevice()
+            }}
+            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+          >
+            Neues Gerät…
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false)
+              onNewCategory()
+            }}
+            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+          >
+            Neue Kategorie…
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// v7.9.5 — Listen-/Kachel-View-Toggle entfernt auf User-Wunsch.
+// libraryViewMode bleibt im uiStore (Backwards-Compat persistierter
+// State), wird aber nicht mehr ausgewertet.
+
+// v7.9.5 — Filter-Overflow-Menü. Ersetzt drei unterstrichene Text-Links
+// (Alle ein/aus, Versteckte zeigen, Leere zeigen). Drei-Punkt-Icon als
+// Trigger, Dropdown mit Checkmark-Toggles.
+const LibraryFiltersMenu = ({
+  showHidden,
+  setShowHidden,
+  showEmpty,
+  setShowEmpty,
+  hiddenCount,
+  allCollapsed,
+  onToggleAllCats,
+  sortMode,
+  setSortMode,
+}: {
+  showHidden: boolean
+  setShowHidden: (v: boolean) => void
+  showEmpty: boolean
+  setShowEmpty: (v: boolean) => void
+  hiddenCount: number
+  allCollapsed: boolean
+  onToggleAllCats: (allCollapsed: boolean) => void
+  sortMode: 'manual' | 'asc' | 'desc'
+  setSortMode: (m: 'manual' | 'asc' | 'desc') => void
+}) => {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        title="Filter und Ansichtsoptionen"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="flex h-7 w-7 items-center justify-center rounded border border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+          <circle cx="3" cy="8" r="1.4" />
+          <circle cx="8" cy="8" r="1.4" />
+          <circle cx="13" cy="8" r="1.4" />
+        </svg>
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-10 mt-1 min-w-[210px] rounded border border-slate-700 bg-slate-900 py-1 text-xs shadow-xl"
+        >
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            aria-checked={!allCollapsed}
+            onClick={() => onToggleAllCats(allCollapsed)}
+            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+          >
+            <span className="mr-2 inline-block w-4 text-center text-slate-400">
+              {allCollapsed ? '▸' : '▾'}
+            </span>
+            {allCollapsed ? 'Alle Kategorien ausklappen' : 'Alle Kategorien einklappen'}
+          </button>
+          <div className="my-1 border-t border-slate-800" />
+          <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-slate-500">
+            Sortierung
+          </div>
+          {(
+            [
+              { value: 'manual' as const, label: 'Manuell (Drag&Drop)' },
+              { value: 'asc' as const, label: 'Alphabetisch A → Z' },
+              { value: 'desc' as const, label: 'Alphabetisch Z → A' },
+            ]
+          ).map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              role="menuitemradio"
+              aria-checked={sortMode === opt.value}
+              onClick={() => setSortMode(opt.value)}
+              className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+            >
+              <span className="mr-2 inline-block w-4 text-center">
+                {sortMode === opt.value ? '●' : '○'}
+              </span>
+              {opt.label}
+            </button>
+          ))}
+          <div className="my-1 border-t border-slate-800" />
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            aria-checked={showHidden}
+            onClick={() => setShowHidden(!showHidden)}
+            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+          >
+            <span className="mr-2 inline-block w-4 text-center">
+              {showHidden ? '☑' : '☐'}
+            </span>
+            Versteckte zeigen{hiddenCount > 0 ? ` (${hiddenCount})` : ''}
+          </button>
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            aria-checked={showEmpty}
+            onClick={() => setShowEmpty(!showEmpty)}
+            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+          >
+            <span className="mr-2 inline-block w-4 text-center">
+              {showEmpty ? '☑' : '☐'}
+            </span>
+            Leere Kategorien zeigen
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// v7.9.5 — Sortable-Kategorie-Section. Wenn manualSort aktiv, hängt es
+// einen Drag-Grip an die obere linke Ecke (greift via Pointer-Listener);
+// useSortable übernimmt Transform/Transition. Im 'asc'/'desc' Sort-Mode
+// ist DnD disabled.
+const SortableCategorySection = ({
+  cat,
+  manualSort,
+  onDragOverTemplate,
+  onDropTemplate,
+  children,
+}: {
+  cat: string
+  manualSort: boolean
+  onDragOverTemplate: (event: React.DragEvent<HTMLElement>) => void
+  onDropTemplate: (event: React.DragEvent<HTMLElement>) => void
+  children: ReactNode
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: cat,
+    disabled: !manualSort,
+  })
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    position: 'relative',
+  }
+  return (
+    <section
+      ref={setNodeRef}
+      style={style}
+      onDragOver={onDragOverTemplate}
+      onDrop={onDropTemplate}
+      className="rounded border border-slate-800"
+    >
+      {manualSort && (
+        <span
+          {...attributes}
+          {...listeners}
+          aria-label="Kategorie verschieben"
+          title="Per Drag&Drop verschieben"
+          role="button"
+          tabIndex={0}
+          className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-slate-500 hover:text-slate-200 active:cursor-grabbing"
+        >
+          <svg width="6" height="12" viewBox="0 0 6 12" fill="currentColor">
+            <circle cx="1.5" cy="2" r="1" />
+            <circle cx="4.5" cy="2" r="1" />
+            <circle cx="1.5" cy="6" r="1" />
+            <circle cx="4.5" cy="6" r="1" />
+            <circle cx="1.5" cy="10" r="1" />
+            <circle cx="4.5" cy="10" r="1" />
+          </svg>
+        </span>
+      )}
+      {children}
+    </section>
+  )
+}
+
+// v7.9.6 — Reusable sortable wrapper for group / rack preset cards.
+// Provides a 6×12 dotted drag handle in the top-left corner; the
+// content (action buttons) keeps full pointer-events. Disabling is
+// handled by *not* wrapping in a DndContext rather than per-item.
+const SortablePresetCard = ({
+  id,
+  children,
+}: {
+  id: string
+  children: ReactNode
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    position: 'relative',
+  }
+  return (
+    <div ref={setNodeRef} style={style} className="rounded border border-slate-700 bg-slate-900 p-2 pl-5 text-xs">
+      <span
+        {...attributes}
+        {...listeners}
+        aria-label="Verschieben"
+        title="Per Drag&Drop verschieben"
+        role="button"
+        tabIndex={0}
+        className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-slate-500 hover:text-slate-200 active:cursor-grabbing"
+      >
+        <svg width="6" height="12" viewBox="0 0 6 12" fill="currentColor">
+          <circle cx="1.5" cy="2" r="1" />
+          <circle cx="4.5" cy="2" r="1" />
+          <circle cx="1.5" cy="6" r="1" />
+          <circle cx="4.5" cy="6" r="1" />
+          <circle cx="1.5" cy="10" r="1" />
+          <circle cx="4.5" cy="10" r="1" />
+        </svg>
+      </span>
+      {children}
+    </div>
+  )
+}
+
+const PresetDndWrapper = ({
+  ids,
+  onReorder,
+  children,
+}: {
+  ids: string[]
+  onReorder: (newOrder: string[]) => void
+  children: ReactNode
+}) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = ids.indexOf(active.id as string)
+    const newIndex = ids.indexOf(over.id as string)
+    if (oldIndex < 0 || newIndex < 0) return
+    onReorder(arrayMove(ids, oldIndex, newIndex))
+  }
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+        {children}
+      </SortableContext>
+    </DndContext>
+  )
+}
+
+// v7.9.5 — Wrapper mit DnD-Context+SortableContext nur wenn manueller
+// Sort-Modus aktiv ist. Sonst transparent durchreichen.
+const CategoryDndWrapper = ({
+  cats,
+  onReorder,
+  children,
+}: {
+  cats: string[]
+  onReorder: (newOrder: string[]) => void
+  children: ReactNode
+}) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = cats.indexOf(active.id as string)
+    const newIndex = cats.indexOf(over.id as string)
+    if (oldIndex < 0 || newIndex < 0) return
+    onReorder(arrayMove(cats, oldIndex, newIndex))
+  }
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={cats} strategy={verticalListSortingStrategy}>
+        {children}
+      </SortableContext>
+    </DndContext>
+  )
+}
+
+// v7.9.5 — Tab-Button-Helper. SVG-Icon links, Label rechts, optionaler
+// count-Badge. Aktiv-Style: sky-700-bg, weiße Schrift, kein Hover.
+const TabButton = ({
+  active,
+  onClick,
+  label,
+  icon,
+  count,
+  title,
+}: {
+  active: boolean
+  onClick: () => void
+  label: string
+  icon: ReactNode
+  count?: number
+  title?: string
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={title}
+    className={`flex items-center gap-1 rounded px-2 py-1 ${
+      active ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+    }`}
+  >
+    <span className={active ? 'text-white' : 'text-slate-400'}>{icon}</span>
+    <span>{label}</span>
+    {count != null && count > 0 && (
+      <span
+        className={`ml-1 rounded-full px-1 text-[10px] ${
+          active ? 'bg-sky-900/70 text-sky-100' : 'bg-slate-900 text-slate-400'
+        }`}
+      >
+        {count}
+      </span>
+    )}
+  </button>
+)
+
 export const LibraryPanel = () => {
   const t = useTranslation()
   const addEquipment = useProjectStore((state) => state.addEquipment)
@@ -65,6 +479,12 @@ export const LibraryPanel = () => {
   const removeCustomTemplate = useProjectStore((state) => state.removeCustomTemplate)
   const toggleTemplateFavorite = useProjectStore((state) => state.toggleTemplateFavorite)
   const collapsed = useUiStore((state) => state.libraryCollapsed)
+  // v7.9.4 — Rentman-Tabs ausblenden wenn die Integration deaktiviert ist.
+  const rentmanEnabled = useUiStore((state) => state.rentmanEnabled)
+  // v7.9.5 — Kategorien-Sortierung: manual (Drag&Drop), asc, desc
+  const librarySortMode = useUiStore((state) => state.librarySortMode)
+  const setLibrarySortMode = useUiStore((state) => state.setLibrarySortMode)
+  const reorderCategories = useProjectStore((state) => state.reorderCategories)
   const toggleCollapsed = useUiStore((state) => state.toggleLibraryCollapsed)
   // v7.9.2 — Library nicht mehr abdockbar. Falls ein User-Zustand
   // noch `floating: true` aus alten Versionen mitbringt, wird er hier
@@ -82,10 +502,25 @@ export const LibraryPanel = () => {
   const setSelectedTemplateName = useProjectStore((state) => state.setSelectedTemplateName)
   const knownCategories = useProjectStore((state) => state.knownCategories)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
+  const customLibraryForInit = useProjectStore((state) => state.customLibrary)
+  // v7.9.5 — Beim ersten Mount alle aktuell vorhandenen Kategorien
+  // einklappen (Default-collapsed). Läuft nur einmal, danach wird
+  // collapsedCats vom User selbst gesteuert.
+  useEffect(() => {
+    if (collapsedInitRef.current) return
+    const usedCats = new Set(customLibraryForInit.map((t) => t.category || 'Sonstiges'))
+    const allCats = new Set([...knownCategories, ...usedCats])
+    if (allCats.size === 0) return
+    collapsedInitRef.current = true
+    setCollapsedCats(allCats)
+  }, [customLibraryForInit, knownCategories])
   const groupPresets = useProjectStore((state) => state.groupPresets)
   const addGroupPreset = useProjectStore((state) => state.addGroupPreset)
   const deleteGroupPreset = useProjectStore((state) => state.deleteGroupPreset)
   const placeGroupPreset = useProjectStore((state) => state.placeGroupPreset)
+  const reorderGroupPresets = useProjectStore((state) => state.reorderGroupPresets)
+  const renameGroupPreset = useProjectStore((state) => state.renameGroupPreset)
+  const renameCustomCategory = useProjectStore((state) => state.renameCustomCategory)
   const canvasState = useProjectStore((state) => state.project.canvasState)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [showNetBoxDialog, setShowNetBoxDialog] = useState(false)
@@ -168,7 +603,12 @@ export const LibraryPanel = () => {
   // Category management state
   const [newGroupName, setNewGroupName] = useState('')
   const [showNewGroup, setShowNewGroup] = useState(false)
+  // v7.9.5 — Standard: ALLES eingeklappt (User-Request). Initial-Set
+  // wird beim ersten Mount mit den aktuellen Kategorien gefüllt; danach
+  // verwaltet der User selber per Klick was offen oder zu ist (Component-
+  // State, kein persist).
   const [collapsedCats, setCollapsedCats] = useState<Set<string>>(new Set())
+  const collapsedInitRef = useRef(false)
   const [collapsedRentmanProjects, setCollapsedRentmanProjects] = useState<Set<string>>(new Set())
   const [collapsedRentmanCats, setCollapsedRentmanCats] = useState<Set<string>>(new Set())
   const [showEmpty, setShowEmpty] = useState(false)
@@ -566,71 +1006,83 @@ export const LibraryPanel = () => {
   }
   const inner = (
     <aside className={`flex h-full min-h-0 flex-col ${floating ? 'bg-transparent p-3' : 'border-r border-slate-700 bg-slate-950 p-3'} text-slate-100`}>
-      <div className="mb-3 flex flex-wrap items-center gap-y-1 gap-x-2 text-xs">
+      {/* v7.9.5 — Kompakte Tab-Strip mit SVG-Icons (keine Emojis) und
+          konsistent deutschen Labels (Geräte/Kabel/Gruppen/Racks).
+          Counts NUR an der kleinsten Granularität — der R-Badge am
+          Equipment-Tab ist raus, weil die Lokal/Rentman-Untertoggle
+          die gleiche Info zeigt. Tab-Zeile in EINE Zeile gepackt. */}
+      <div className="mb-2 flex items-center gap-1 text-xs">
         {!floating && (
           <button
             type="button"
             onClick={toggleCollapsed}
             title="Library ausblenden"
             aria-label="Library ausblenden"
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-base leading-none">‹</span>
           </button>
         )}
-        {/* v7.9.2 — Library-Abdocken-Button entfernt. Der Abdock-Modus
-            machte das Canvas teils verschwinden (Issue: "Bei library
-            abdocken verschweindet trotzdem noch der canvas"). Die
-            Library ist jetzt fest gedockt. */}
-        <button
-          type="button"
+        <TabButton
+          active={tab === 'equipment'}
           onClick={() => setTab('equipment')}
-          className={`rounded px-2 py-1 ${tab === 'equipment' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
-        >
-          Equipment
-          {customLibrary.filter((t) => t.rentmanSource).length > 0 && (
-            <span
-              className="ml-1 rounded-full bg-orange-700 px-1 text-[10px]"
-              title={`${customLibrary.filter((t) => t.rentmanSource).length} Geräte aus Rentman importiert`}
-            >
-              {customLibrary.filter((t) => t.rentmanSource).length}R
-            </span>
-          )}
-        </button>
-        <button
-          type="button"
+          label="Geräte"
+          icon={
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="2" y="3" width="12" height="10" rx="1.5" />
+              <circle cx="5" cy="7" r="0.8" fill="currentColor" />
+              <circle cx="11" cy="7" r="0.8" fill="currentColor" />
+              <line x1="4" y1="11" x2="12" y2="11" />
+            </svg>
+          }
+        />
+        <TabButton
+          active={tab === 'cables'}
           onClick={() => setTab('cables')}
-          className={`rounded px-2 py-1 ${tab === 'cables' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
-        >
-          Cables
-        </button>
-        <button
-          type="button"
+          label="Kabel"
+          icon={
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M2 11 Q 5 5, 8 8 T 14 5" strokeLinecap="round" />
+              <circle cx="2.5" cy="11" r="1.2" />
+              <circle cx="13.5" cy="5" r="1.2" />
+            </svg>
+          }
+        />
+        <TabButton
+          active={tab === 'groups'}
           onClick={() => setTab('groups')}
-          className={`rounded px-2 py-1 ${tab === 'groups' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+          label="Gruppen"
+          count={groupPresets.length}
           title="Gespeicherte Gerätegruppen (mehrere Geräte + Kabel als Vorlage)"
-        >
-          Gruppen
-          {groupPresets.length > 0 && (
-            <span className="ml-1 rounded-full bg-sky-900 px-1 text-[10px]">{groupPresets.length}</span>
-          )}
-        </button>
-        <button
-          type="button"
+          icon={
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="2" y="2" width="6" height="5" rx="0.8" />
+              <rect x="8" y="2" width="6" height="5" rx="0.8" />
+              <rect x="5" y="9" width="6" height="5" rx="0.8" />
+            </svg>
+          }
+        />
+        <TabButton
+          active={tab === 'racks'}
           onClick={() => setTab('racks')}
-          className={`rounded px-2 py-1 ${tab === 'racks' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+          label="Racks"
+          count={groupPresets.filter((preset) => !!preset.rack).length}
           title="2D Rack Builder und gespeicherte Rack-Layouts"
-        >
-          Racks
-          {groupPresets.filter((preset) => !!preset.rack).length > 0 && (
-            <span className="ml-1 rounded-full bg-sky-900 px-1 text-[10px]">{groupPresets.filter((preset) => !!preset.rack).length}</span>
-          )}
-        </button>
+          icon={
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="3" y="2" width="10" height="12" rx="0.8" />
+              <line x1="3" y1="5" x2="13" y2="5" />
+              <line x1="3" y1="8" x2="13" y2="8" />
+              <line x1="3" y1="11" x2="13" y2="11" />
+            </svg>
+          }
+        />
       </div>
 
-      {tab === 'equipment' && (
+      {tab === 'equipment' && rentmanEnabled && (
         <>
-          {/* Sub-section toggle: Lokal vs. Rentman, both inside the Equipment tab */}
+          {/* Sub-section toggle: Lokal vs. Rentman, both inside the Equipment tab.
+              v7.9.4: nur sichtbar wenn rentmanEnabled — sonst gibt's nur Lokal. */}
           <div className="mb-2 flex gap-1 rounded bg-slate-950/40 p-1">
             <button
               type="button"
@@ -667,43 +1119,85 @@ export const LibraryPanel = () => {
           </div>
         </>
       )}
-      {tab === 'equipment' && equipmentSection === 'local' && (
+      {tab === 'equipment' && (equipmentSection === 'local' || !rentmanEnabled) && (
         <>
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
-            <div className="flex min-w-0 items-center gap-2">
-              <h2 className="text-sm font-semibold">Lokale Library</h2>
-              <span
-                className="rounded bg-sky-800/80 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-100"
-                title="Eigene und importierte Vorlagen, die in dieser Cable-Planner-Installation gespeichert sind"
+          {/* v7.9.5 — Such-Zeile mit "+"-Dropdown rechts (statt zwei
+              getrennten "+ Kategorie" / "+ Gerät" Buttons) und View-Mode-
+              Toggle. Strg+F-Hint bleibt als grauer Suffix sichtbar auch
+              nach Eingabe. Der redundante "Lokale Library / Lokal"-Header
+              ist raus — der Sub-Toggle oberhalb sagt schon was Sache ist. */}
+          <div className="mb-2 flex items-center gap-1">
+            <div className="relative flex-1">
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-slate-500"
               >
-                Lokal
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {/* v7.6.0 — NetBox import removed per user request. The data
-                  source was rarely matched what we needed for broadcast
-                  gear; keeping the dialog code (lib/netboxImport.ts +
-                  the LibraryPanel handlers) as dead code that tree-
-                  shaking can drop, but the UI entry point is gone. */}
-              <button
-                type="button"
-                onClick={() => {
-                  setShowNewGroup((v) => !v)
-                  setTimeout(() => newGroupInputRef.current?.focus(), 50)
+                <circle cx="7" cy="7" r="4.5" />
+                <line x1="10.3" y1="10.3" x2="13" y2="13" strokeLinecap="round" />
+              </svg>
+              <input
+                ref={librarySearchRef}
+                type="text"
+                value={librarySearch}
+                onChange={(e) => setLibrarySearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') setLibrarySearch('')
                 }}
-                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
-                title={t('library.add.categoryTitle', 'Neue Equipment-Kategorie anlegen')}
-              >
-                {t('library.add.category', '+ Kategorie')}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowCreateDialog(true)}
-                className="rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
-              >
-                {t('library.add.device', '+ Gerät')}
-              </button>
+                placeholder={t('library.search.placeholder', 'Suchen…')}
+                className="w-full rounded border border-slate-700 bg-slate-900 py-1 pl-7 pr-12 text-xs text-slate-100 placeholder-slate-500"
+              />
+              {librarySearch ? (
+                <button
+                  type="button"
+                  onClick={() => setLibrarySearch('')}
+                  title={t('library.search.clear', 'Suche löschen')}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
+                >
+                  ✕
+                </button>
+              ) : (
+                <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[9px] uppercase tracking-wider text-slate-600">
+                  Strg+F
+                </span>
+              )}
             </div>
+            {/* Einziger "+"-Button als Menu */}
+            <PlusMenu
+              onNewDevice={() => setShowCreateDialog(true)}
+              onNewCategory={() => {
+                setShowNewGroup((v) => !v)
+                setTimeout(() => newGroupInputRef.current?.focus(), 50)
+              }}
+            />
+            {/* Overflow-Menü für selten genutzte Filter (Leere/Versteckte/Alle ein-aus) */}
+            <LibraryFiltersMenu
+              showHidden={showHidden}
+              setShowHidden={setShowHidden}
+              showEmpty={showEmpty}
+              setShowEmpty={setShowEmpty}
+              hiddenCount={customLibrary.filter((t) => t.hidden).length}
+              sortMode={librarySortMode}
+              setSortMode={setLibrarySortMode}
+              onToggleAllCats={(allCollapsed) => {
+                if (allCollapsed) {
+                  setCollapsedCats(new Set())
+                } else {
+                  const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
+                  const allCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
+                  setCollapsedCats(new Set(allCats))
+                }
+              }}
+              allCollapsed={(() => {
+                const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
+                const allCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
+                return allCats.length > 0 && allCats.every((cat) => collapsedCats.has(cat))
+              })()}
+            />
           </div>
 
           {showNewGroup && (
@@ -714,11 +1208,6 @@ export const LibraryPanel = () => {
                 const cat = newGroupName.trim()
                 if (cat) {
                   addKnownCategories([cat])
-                  // A freshly-added category has no devices yet, so it would
-                  // otherwise be hidden by the "Leere ausblenden" filter and
-                  // the user would think nothing happened. Force the empty
-                  // toggle on and uncollapse the new category so the
-                  // newly-created group is visible right away.
                   setShowEmpty(true)
                   setCollapsedCats((prev) => {
                     if (!prev.has(cat)) return prev
@@ -754,88 +1243,61 @@ export const LibraryPanel = () => {
             </form>
           )}
 
-          <div className="mb-2 flex items-center gap-1">
-            <input
-              ref={librarySearchRef}
-              type="text"
-              value={librarySearch}
-              onChange={(e) => setLibrarySearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') setLibrarySearch('')
-              }}
-              placeholder={t('library.search.placeholder', 'Suchen… (Strg+F)')}
-              className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 placeholder-slate-500"
-            />
-            {librarySearch && (
-              <button
-                type="button"
-                onClick={() => setLibrarySearch('')}
-                title={t('library.search.clear', 'Suche löschen')}
-                className="rounded bg-slate-700 px-1.5 py-1 text-xs text-slate-300 hover:bg-slate-600"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          <div className="mb-1 flex items-center justify-between text-[10px] text-slate-500">
-            <span className="italic">
-              {t('library.dragHint', 'Auf Canvas ziehen oder klicken zum Hinzufügen')}
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {(() => {
-                const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
-                const allCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
-                const allCollapsed = allCats.length > 0 && allCats.every((cat) => collapsedCats.has(cat))
-                return (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (allCollapsed) setCollapsedCats(new Set())
-                      else setCollapsedCats(new Set(allCats))
-                    }}
-                    className="underline hover:text-slate-300"
-                    title={
-                      allCollapsed
-                        ? t('library.expandAllTitle', 'Alle Kategorien ausklappen')
-                        : t('library.collapseAllTitle', 'Alle Kategorien einklappen')
-                    }
-                  >
-                    {allCollapsed
-                      ? t('library.expandAll', 'Alle ausklappen')
-                      : t('library.collapseAll', 'Alle einklappen')}
-                  </button>
-                )
-              })()}
-              <button
-                type="button"
-                onClick={() => setShowHidden((v) => !v)}
-                className="underline hover:text-slate-300"
-                title="Ausgeblendete Geräte ein-/ausblenden"
-              >
-                {showHidden
-                  ? `Ausgeblendete verbergen (${customLibrary.filter((t) => t.hidden).length})`
-                  : `Ausgeblendete zeigen (${customLibrary.filter((t) => t.hidden).length})`}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowEmpty((v) => !v)}
-                className="underline hover:text-slate-300"
-              >
-                {showEmpty ? 'Leere ausblenden' : 'Leere zeigen'}
-              </button>
-            </div>
-          </div>
-
           <div className="flex-1 min-h-0 space-y-1 overflow-auto">
             {(() => {
               const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
-              const allCats = Array.from(new Set([...knownCategories, ...usedCats]))
-                .filter(Boolean)
-                .sort((a, b) => a.localeCompare(b))
+              // v7.9.5 — Kategorien-Order respektiert jetzt den User-
+              // gewählten Sort-Modus. 'manual' = knownCategories-Order
+              // (Drag&Drop-Reihenfolge), 'asc' / 'desc' = alphabetisch.
+              const baseCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
+              const allCats =
+                librarySortMode === 'asc'
+                  ? [...baseCats].sort((a, b) => a.localeCompare(b))
+                  : librarySortMode === 'desc'
+                    ? [...baseCats].sort((a, b) => b.localeCompare(a))
+                    : // manual: knownCategories-Order zuerst, dann genutzte
+                      // Kategorien die nicht in knownCategories sind ans Ende
+                      (() => {
+                        const knownSet = new Set(knownCategories)
+                        const head = knownCategories.filter((c) => baseCats.includes(c))
+                        const tail = baseCats
+                          .filter((c) => !knownSet.has(c))
+                          .sort((a, b) => a.localeCompare(b))
+                        return [...head, ...tail]
+                      })()
               if (allCats.length === 0) allCats.push('Sonstiges')
               const searchQuery = librarySearch.trim().toLowerCase()
-              return allCats.map((cat) => {
+              // v7.9.5 — Globaler Empty-State wenn Suche projektweit nichts trifft.
+              if (searchQuery) {
+                const anyMatch = customLibrary.some((t) =>
+                  t.name.toLowerCase().includes(searchQuery),
+                )
+                if (!anyMatch) {
+                  return (
+                    <div className="mt-4 rounded border border-slate-800 bg-slate-950/60 p-4 text-center text-xs text-slate-400">
+                      <div className="mb-2 font-semibold text-slate-300">
+                        Keine Geräte gefunden
+                      </div>
+                      <div className="mb-3 text-[11px] text-slate-500">
+                        Kein Treffer für „{librarySearch}". Versuche einen anderen Suchbegriff
+                        oder lösche das Suchfeld.
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setLibrarySearch('')}
+                        className="rounded bg-slate-700 px-3 py-1 text-[11px] text-slate-100 hover:bg-slate-600"
+                      >
+                        Suche zurücksetzen
+                      </button>
+                    </div>
+                  )
+                }
+              }
+              // v7.9.5 — Im 'manual' Sort-Modus wrappen wir die Sections
+              // in DndContext+SortableContext so dass jeder Header per
+              // Drag&Drop sortierbar ist. Im 'asc'/'desc' Modus ist die
+              // Reihenfolge fest alphabetisch → kein DnD nötig.
+              const sectionsList = allCats.map((cat) => {
                 const items = customLibrary.filter(
                   (t) => (t.category || 'Sonstiges') === cat,
                 )
@@ -852,15 +1314,17 @@ export const LibraryPanel = () => {
                 // visible immediately without manual category clicks.
                 const collapsed = !searchQuery && collapsedCats.has(cat)
                 return (
-                  <section
+                  <SortableCategorySection
                     key={cat}
-                    onDragOver={(event) => {
+                    cat={cat}
+                    manualSort={librarySortMode === 'manual'}
+                    onDragOverTemplate={(event) => {
                       if (event.dataTransfer.types.includes('application/cable-planner-equipment')) {
                         event.preventDefault()
                         event.dataTransfer.dropEffect = 'move'
                       }
                     }}
-                    onDrop={(event) => {
+                    onDropTemplate={(event) => {
                       const raw = event.dataTransfer.getData('application/cable-planner-equipment')
                       if (!raw) return
                       try {
@@ -868,10 +1332,12 @@ export const LibraryPanel = () => {
                         if (tpl.name) { event.preventDefault(); setCustomTemplateCategory(tpl.name, cat) }
                       } catch { /* ignore */ }
                     }}
-                    className="rounded border border-slate-800"
                   >
-                    {/* Category header */}
-                    <div className="flex items-center justify-between px-2 py-1">
+                    {/* v7.9.7 — Header-Zeile als flex-Container damit
+                        der ✎-Rename-Button neben Collapse-Button platz
+                        bekommt. Klick auf Caret/Name togglet, Klick auf
+                        ✎ ruft promptDialog für Umbenennung. */}
+                    <div className="group/cat flex items-center gap-1.5 rounded-t bg-slate-900/60 px-2 py-1.5 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-300 hover:bg-slate-800/80 hover:text-slate-100">
                       <button
                         type="button"
                         onClick={() =>
@@ -881,12 +1347,30 @@ export const LibraryPanel = () => {
                             return next
                           })
                         }
-                        className="flex flex-1 items-center gap-1 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-400 hover:text-slate-200"
+                        className="flex flex-1 min-w-0 items-center gap-1.5 text-left"
                       >
-                        <span>{collapsed ? '▶' : '▼'}</span>
-                        <span>{cat}</span>
-                        <span className="font-normal text-slate-600">({items.length})</span>
+                        <span className="inline-block w-3 text-center text-slate-500">
+                          {collapsed ? '▸' : '▾'}
+                        </span>
+                        <span className="flex-1 truncate normal-case tracking-normal">{cat}</span>
                       </button>
+                      <button
+                        type="button"
+                        onClick={async (e) => {
+                          e.stopPropagation()
+                          const next = await promptDialog(`Kategorie umbenennen:`, cat)
+                          if (next && next.trim() && next.trim() !== cat) {
+                            renameCustomCategory(cat, next.trim())
+                          }
+                        }}
+                        className="hidden rounded bg-slate-700/80 px-1.5 py-0.5 text-[10px] font-normal normal-case text-slate-200 hover:bg-slate-600 group-hover/cat:block"
+                        title="Kategorie umbenennen"
+                      >
+                        ✎
+                      </button>
+                      <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-normal text-slate-400">
+                        {items.length}
+                      </span>
                     </div>
 
                     {/* Items */}
@@ -930,9 +1414,22 @@ export const LibraryPanel = () => {
                         )}
                       </div>
                     )}
-                  </section>
+                  </SortableCategorySection>
                 )
-              })
+              }).filter(Boolean) as JSX.Element[]
+              // v7.9.5 — Manuelle Sortierung: DnD-Wrapper drumherum.
+              // Sonst direkt rendern.
+              if (librarySortMode === 'manual') {
+                return (
+                  <CategoryDndWrapper
+                    cats={allCats}
+                    onReorder={(newOrder) => reorderCategories(newOrder)}
+                  >
+                    {sectionsList}
+                  </CategoryDndWrapper>
+                )
+              }
+              return sectionsList
             })()}
           </div>
         </>
@@ -940,7 +1437,7 @@ export const LibraryPanel = () => {
 
       {tab === 'cables' && <CableLibraryPanel />}
 
-      {tab === 'equipment' && equipmentSection === 'rentman' && (() => {
+      {tab === 'equipment' && equipmentSection === 'rentman' && rentmanEnabled && (() => {
         const rentmanItems = customLibrary.filter((template) => template.rentmanSource)
         const projectMap = new Map<
           string,
@@ -1439,55 +1936,79 @@ export const LibraryPanel = () => {
               <span>Wähle auf dem Canvas ≥ 2 Geräte aus und klicke <b>Als Gruppe</b> in der Canvas-Toolbar.</span>
             </div>
           ) : (
-            <div className="flex-1 min-h-0 space-y-2 overflow-auto">
-              {groupPresets.map((preset) => {
-                const zoom = canvasState.zoom || 1
-                const cx = (-canvasState.x + 400) / zoom
-                const cy = (-canvasState.y + 250) / zoom
-                const totalRackUnits = preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 0), 0)
-                return (
-                  <div
-                    key={preset.id}
-                    className="rounded border border-slate-700 bg-slate-900 p-2 text-xs"
+            (() => {
+              const nonRackPresets = groupPresets.filter((p) => !p.rack)
+              const nonRackIds = nonRackPresets.map((p) => p.id)
+              return (
+                <div className="flex-1 min-h-0 space-y-2 overflow-auto">
+                  <PresetDndWrapper
+                    ids={nonRackIds}
+                    onReorder={(newIds) => {
+                      const rackIds = groupPresets.filter((p) => !!p.rack).map((p) => p.id)
+                      reorderGroupPresets([...newIds, ...rackIds])
+                    }}
                   >
-                    <div className="flex items-start justify-between gap-1">
-                      <div>
-                        <div className="font-medium text-slate-100">{preset.name}</div>
-                        <div className="text-[10px] text-slate-500 mt-0.5">
-                          {preset.items.length} Geräte · {preset.cables.length} Kabel
-                          {totalRackUnits > 0 ? ` · ${totalRackUnits} HE` : ''}
-                        </div>
-                        <div className="text-[10px] text-slate-600 mt-0.5 truncate max-w-[160px]">
-                          {preset.items.map((i) => i.name).join(', ')}
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-1 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => placeGroupPreset(preset.id, cx, cy)}
-                          className="rounded bg-emerald-700 px-2 py-1 text-[11px] hover:bg-emerald-600"
-                          title="Gruppe auf Canvas platzieren"
-                        >
-                          Platzieren
-                        </button>
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            if (await confirmDialog(`Gruppe "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
-                              deleteGroupPreset(preset.id)
-                            }
-                          }}
-                          className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
-                          title="Gruppe löschen"
-                        >
-                          Löschen
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+                    {nonRackPresets.map((preset) => {
+                      const zoom = canvasState.zoom || 1
+                      const cx = (-canvasState.x + 400) / zoom
+                      const cy = (-canvasState.y + 250) / zoom
+                      const totalRackUnits = preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 0), 0)
+                      return (
+                        <SortablePresetCard key={preset.id} id={preset.id}>
+                          <div className="flex items-start justify-between gap-1">
+                            <div>
+                              <div className="font-medium text-slate-100">{preset.name}</div>
+                              <div className="text-[10px] text-slate-500 mt-0.5">
+                                {preset.items.length} Geräte · {preset.cables.length} Kabel
+                                {totalRackUnits > 0 ? ` · ${totalRackUnits} HE` : ''}
+                              </div>
+                              <div className="text-[10px] text-slate-600 mt-0.5 truncate max-w-[160px]">
+                                {preset.items.map((i) => i.name).join(', ')}
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => placeGroupPreset(preset.id, cx, cy)}
+                                className="rounded bg-emerald-700 px-2 py-1 text-[11px] hover:bg-emerald-600"
+                                title="Gruppe auf Canvas platzieren"
+                              >
+                                Platzieren
+                              </button>
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  const next = await promptDialog('Gruppe umbenennen:', preset.name)
+                                  if (next && next.trim() && next.trim() !== preset.name) {
+                                    renameGroupPreset(preset.id, next.trim())
+                                  }
+                                }}
+                                className="rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
+                                title="Gruppe umbenennen"
+                              >
+                                Umbenennen
+                              </button>
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  if (await confirmDialog(`Gruppe "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
+                                    deleteGroupPreset(preset.id)
+                                  }
+                                }}
+                                className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
+                                title="Gruppe löschen"
+                              >
+                                Löschen
+                              </button>
+                            </div>
+                          </div>
+                        </SortablePresetCard>
+                      )
+                    })}
+                  </PresetDndWrapper>
+                </div>
+              )
+            })()
           )}
         </div>
       )}
@@ -1514,19 +2035,26 @@ export const LibraryPanel = () => {
               <span>Noch kein Rack-Layout gespeichert.</span>
             </div>
           ) : (
-            <div className="flex-1 min-h-0 space-y-2 overflow-auto">
-              {groupPresets
-                .filter((preset) => !!preset.rack)
+            (() => {
+              const rackPresets = groupPresets.filter((preset) => !!preset.rack)
+              const rackIds = rackPresets.map((p) => p.id)
+              return (
+                <div className="flex-1 min-h-0 space-y-2 overflow-auto">
+                  <PresetDndWrapper
+                    ids={rackIds}
+                    onReorder={(newIds) => {
+                      const nonRackIds = groupPresets.filter((p) => !p.rack).map((p) => p.id)
+                      reorderGroupPresets([...nonRackIds, ...newIds])
+                    }}
+                  >
+              {rackPresets
                 .map((preset) => {
                   const zoom = canvasState.zoom || 1
                   const cx = (-canvasState.x + 400) / zoom
                   const cy = (-canvasState.y + 250) / zoom
                   const totalUnits = preset.rack?.totalUnits ?? preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 1), 0)
                   return (
-                    <div
-                      key={preset.id}
-                      className="rounded border border-slate-700 bg-slate-900 p-2 text-xs"
-                    >
+                    <SortablePresetCard key={preset.id} id={preset.id}>
                       <div className="flex items-start justify-between gap-1">
                         <div>
                           <div className="font-medium text-slate-100">{preset.name}</div>
@@ -1615,6 +2143,19 @@ export const LibraryPanel = () => {
                           <button
                             type="button"
                             onClick={async () => {
+                              const next = await promptDialog('Rack umbenennen:', preset.name)
+                              if (next && next.trim() && next.trim() !== preset.name) {
+                                renameGroupPreset(preset.id, next.trim())
+                              }
+                            }}
+                            className="rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
+                            title="Rack umbenennen"
+                          >
+                            Umbenennen
+                          </button>
+                          <button
+                            type="button"
+                            onClick={async () => {
                               if (await confirmDialog(`Rack "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
                                 deleteGroupPreset(preset.id)
                               }
@@ -1625,10 +2166,13 @@ export const LibraryPanel = () => {
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </SortablePresetCard>
                   )
                 })}
-            </div>
+                  </PresetDndWrapper>
+                </div>
+              )
+            })()
           )}
         </div>
       )}

@@ -302,3 +302,120 @@ export const isLayoutSupported = (
   layout: number,
   caps: AtemMvCapabilities,
 ): boolean => caps.supportedLayouts.includes(layout)
+
+// v7.9.4 — Quadranten-basiertes Model. Der User kann JEDEN Quadranten
+// einzeln zwischen "1 großes Fenster" und "4 kleine Fenster" togglen,
+// unabhängig von ATEMs festen Pattern-Vorgaben. ATEM-Layout wird beim
+// Senden aus den Quadrants abgeleitet.
+import type { AtemMvDefinition, AtemMvQuadrants, AtemMvQuadrantState } from '../types/equipment'
+
+/** Quadranten-Zustand für die 9 echten ATEM-Layouts. Dient als
+ *  Default-Ableitung wenn ein MV-Eintrag kein `quadrants`-Field hat
+ *  (Legacy-Daten). */
+const LAYOUT_TO_QUADRANTS: Record<number, AtemMvQuadrants> = {
+  0: ['big', 'big', 'small', 'small'], // Default
+  1: ['small', 'big', 'small', 'big'], // TopLeftSmall
+  2: ['big', 'small', 'big', 'small'], // TopRightSmall
+  3: ['small', 'small', 'big', 'big'], // ProgramBottom
+  4: ['big', 'big', 'small', 'small'], // BottomLeftSmall
+  5: ['small', 'big', 'small', 'big'], // ProgramRight
+  8: ['big', 'big', 'small', 'small'], // BottomRightSmall
+  10: ['big', 'small', 'big', 'small'], // ProgramLeft
+  12: ['big', 'big', 'small', 'small'], // ProgramTop
+  [MV_LAYOUT.Grid16Small]: ['small', 'small', 'small', 'small'],
+  [MV_LAYOUT.Quad4Big]: ['big', 'big', 'big', 'big'],
+}
+
+/** Liefert das Quadranten-4-Tupel für einen MV-Eintrag. Bevorzugt
+ *  `mv.quadrants`, fällt sonst auf eine Ableitung aus `mv.layout`
+ *  zurück. */
+export const getMvQuadrants = (
+  mv: Pick<AtemMvDefinition, 'quadrants' | 'layout'>,
+): AtemMvQuadrants => {
+  if (mv.quadrants) return mv.quadrants
+  return LAYOUT_TO_QUADRANTS[mv.layout] ?? LAYOUT_TO_QUADRANTS[0]
+}
+
+/** Window-Index Schema im Quadranten-Modell:
+ *  - 0/1/2/3 = großer Slot für TL/TR/BL/BR
+ *  - 10-13/20-23/30-33/40-43 = die 4 kleinen Zellen pro Quadrant
+ *  (Zell-Order innerhalb des Quadranten: row-major, top-left zuerst.) */
+export const mvWindowIndex = (quadIdx: 0 | 1 | 2 | 3, cellIdx?: 0 | 1 | 2 | 3): number => {
+  if (cellIdx === undefined) return quadIdx
+  return (quadIdx + 1) * 10 + cellIdx
+}
+
+/** Findet das nächstgelegene unterstützte ATEM-Layout für eine
+ *  Quadranten-Konfiguration. Wird beim Senden an die ATEM benutzt
+ *  damit das Modell den Befehl überhaupt versteht. */
+export const closestAtemLayout = (
+  quadrants: AtemMvQuadrants,
+  caps: AtemMvCapabilities,
+): number => {
+  let best = caps.supportedLayouts[0] ?? 0
+  let bestScore = -1
+  for (const l of caps.supportedLayouts) {
+    const q = LAYOUT_TO_QUADRANTS[l]
+    if (!q) continue
+    let score = 0
+    for (let i = 0; i < 4; i++) {
+      if (q[i] === quadrants[i]) score++
+    }
+    if (score > bestScore) {
+      bestScore = score
+      best = l
+    }
+  }
+  return best
+}
+
+/** Migriert eine Legacy-MvDefinition (alte windowIndex-Slots 0..9
+ *  in ATEM-Standard-Reihenfolge) auf das neue Quadranten-Schema.
+ *  Idempotent: wenn `quadrants` schon gesetzt ist, bleibt alles wie es ist. */
+export const migrateMvToQuadrants = (mv: AtemMvDefinition): AtemMvDefinition => {
+  if (mv.quadrants) return mv
+  const quadrants = LAYOUT_TO_QUADRANTS[mv.layout] ?? LAYOUT_TO_QUADRANTS[0]
+  const spec = MV_GRID_4X4[mv.layout] ?? MV_GRID_4X4[0]
+  // Map legacy windowIndex → new windowIndex via the grid spec's positions.
+  const quadrantOf = (col: number, row: number): 0 | 1 | 2 | 3 => {
+    const qCol = col <= 2 ? 0 : 1
+    const qRow = row <= 2 ? 0 : 1
+    return (qRow * 2 + qCol) as 0 | 1 | 2 | 3
+  }
+  const newWindows: { windowIndex: number; sourceId: number }[] = []
+  for (const big of spec.big) {
+    const quadIdx = quadrantOf(big.colStart, big.rowStart)
+    const legacy = mv.windows.find((w) => w.windowIndex === big.window)
+    if (legacy) {
+      newWindows.push({ windowIndex: mvWindowIndex(quadIdx), sourceId: legacy.sourceId })
+    }
+  }
+  for (let smallIdx = 0; smallIdx < spec.small.length; smallIdx++) {
+    const cell = spec.small[smallIdx]
+    const quadIdx = quadrantOf(cell.colStart, cell.rowStart)
+    const subCol = ((cell.colStart - 1) % 2) as 0 | 1
+    const subRow = ((cell.rowStart - 1) % 2) as 0 | 1
+    const cellIdx = (subRow * 2 + subCol) as 0 | 1 | 2 | 3
+    const legacyWi = (spec.smallWindowOffset ?? 2) + smallIdx
+    const legacy = mv.windows.find((w) => w.windowIndex === legacyWi)
+    if (legacy) {
+      newWindows.push({
+        windowIndex: mvWindowIndex(quadIdx, cellIdx),
+        sourceId: legacy.sourceId,
+      })
+    }
+  }
+  return { ...mv, quadrants, windows: newWindows }
+}
+
+/** Helper für Highlight im Picker: PGM (10011) bzw. PVW (10010) bekommen
+ *  rote/grüne Border — die User-Anweisung "PGM/PVW sind nur Sources" ist
+ *  korrekt, aber sie als spezielle Sources visuell hervorzuheben hilft
+ *  trotzdem dem Operator. */
+export const roleForSource = (sourceId: number): 'pgm' | 'pvw' | 'other' => {
+  if (sourceId === 10011) return 'pgm'
+  if (sourceId === 10010) return 'pvw'
+  return 'other'
+}
+
+export type { AtemMvQuadrants, AtemMvQuadrantState }

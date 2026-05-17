@@ -63,6 +63,22 @@ interface PersistedUiState {
    *  The cable is still flagged needsConverter for downstream warnings,
    *  it just doesn't interrupt the user mid-flow. */
   overrideConnectionWarnings: boolean
+  /** v7.9.4 — Rentman-Integration ein-/ausschaltbar. Wenn `false`,
+   *  werden alle Rentman-Funktionen ausgeblendet (Library-Tab,
+   *  Menü-Einträge, Status-Badge, Badges am LibraryItem, BOM-
+   *  Rentman-Spalten). Persistiert. Default `true` für Kompatibilität. */
+  rentmanEnabled: boolean
+  /** v7.9.5 — Library-Liste vs. Kachel-Ansicht. Kachel zeigt Front-
+   *  Panel-Thumbnails wenn vorhanden. */
+  libraryViewMode: 'list' | 'grid'
+  /** v7.9.5 — Kategorien-Sortierung: 'manual' = User-Order via Drag&Drop,
+   *  'asc' = alphabetisch A→Z, 'desc' = Z→A. */
+  librarySortMode: 'manual' | 'asc' | 'desc'
+  /** v7.9.5 — Persistent Author-Name für Annotations. Wird einmal
+   *  abgefragt wenn der User die erste Annotation erstellt; danach
+   *  bei jeder weiteren als Default verwendet. Leer-String bedeutet
+   *  noch nicht gesetzt → beim nächsten Annotate-Versuch promptet. */
+  annotationAuthor: string
   /** Issue #62: per-connector-type colour overrides. When a connector
    *  type is missing or its value is an empty string the built-in
    *  default from DEFAULT_CONNECTOR_TYPE_COLORS applies. Stored sparsely
@@ -89,6 +105,17 @@ interface PersistedUiState {
   /** v7.9.2 — User-definierte Signal-Standards (z.B. "Madi 64ch",
    *  "Dante Primary"), zusätzlich zu ALL_SIGNAL_STANDARDS. */
   customSignalStandards: string[]
+  /** v7.9.6 — User-defined order of cable groups (SDI, HDMI, …) in the
+   *  Kabel-Library. Empty array = natural order from groupOf(). Unknown
+   *  groups land at the end so adding a new connector type doesn't lose
+   *  visibility. */
+  cableGroupOrder: string[]
+  /** v7.9.7 — Built-in CableSpec overrides keyed by base-spec id. Stores
+   *  only the fields the user changed (Partial) so future catalogue
+   *  updates still flow through for untouched fields. Custom cable
+   *  specs continue to live in customCableSpecs — they own their own
+   *  id and don't need this layer. */
+  cableSpecOverrides: Record<string, Partial<import('../types/cableSpec').CableSpec>>
   /** Issue #80: global library of device-config files (ATEM, Videohub,
    *  GreenGo). Each entry can optionally be bound to one equipment id. */
   deviceConfigLibrary: DeviceConfigEntry[]
@@ -149,12 +176,18 @@ const defaults: PersistedUiState = {
   colorPortsByType: false,
   language: 'de',
   overrideConnectionWarnings: false,
+  rentmanEnabled: true,
+  libraryViewMode: 'list',
+  librarySortMode: 'manual',
+  annotationAuthor: '',
   connectorTypeColors: {},
   bgVariant: 'dots',
   bgOpacity: 0.5,
   customCableSpecs: [],
   customConnectorTypes: [],
   customSignalStandards: [],
+  cableGroupOrder: [],
+  cableSpecOverrides: {},
   deviceConfigLibrary: [],
   cableBumps: false,
   orthogonalCollisionShift: false,
@@ -229,6 +262,17 @@ const load = (): PersistedUiState => {
     if (!Array.isArray(merged.customSignalStandards)) merged.customSignalStandards = []
     if (!Array.isArray(merged.deviceConfigLibrary)) merged.deviceConfigLibrary = []
     if (typeof merged.cableBumps !== 'boolean') merged.cableBumps = defaults.cableBumps
+    if (typeof merged.rentmanEnabled !== 'boolean') merged.rentmanEnabled = defaults.rentmanEnabled
+    if (merged.libraryViewMode !== 'list' && merged.libraryViewMode !== 'grid')
+      merged.libraryViewMode = defaults.libraryViewMode
+    if (
+      merged.librarySortMode !== 'manual' &&
+      merged.librarySortMode !== 'asc' &&
+      merged.librarySortMode !== 'desc'
+    )
+      merged.librarySortMode = defaults.librarySortMode
+    if (typeof merged.annotationAuthor !== 'string')
+      merged.annotationAuthor = defaults.annotationAuthor
     if (typeof merged.orthogonalCollisionShift !== 'boolean')
       merged.orthogonalCollisionShift = defaults.orthogonalCollisionShift
     if (!merged.hotkeys || typeof merged.hotkeys !== 'object') merged.hotkeys = defaults.hotkeys
@@ -292,6 +336,17 @@ const load = (): PersistedUiState => {
       merged.canvasBgImageLight = null
     if (!['cover', 'contain', 'tile'].includes(merged.canvasBgImageFit))
       merged.canvasBgImageFit = defaults.canvasBgImageFit
+    if (!Array.isArray(merged.cableGroupOrder)) merged.cableGroupOrder = []
+    else
+      merged.cableGroupOrder = merged.cableGroupOrder.filter(
+        (n): n is string => typeof n === 'string' && !!n,
+      )
+    if (
+      !merged.cableSpecOverrides ||
+      typeof merged.cableSpecOverrides !== 'object' ||
+      Array.isArray(merged.cableSpecOverrides)
+    )
+      merged.cableSpecOverrides = {}
     return merged
   } catch {
     return defaults
@@ -345,6 +400,10 @@ interface UiState extends PersistedUiState {
   setColorPortsByType: (value: boolean) => void
   setLanguage: (value: Language) => void
   setOverrideConnectionWarnings: (value: boolean) => void
+  setRentmanEnabled: (value: boolean) => void
+  setLibraryViewMode: (mode: 'list' | 'grid') => void
+  setLibrarySortMode: (mode: 'manual' | 'asc' | 'desc') => void
+  setAnnotationAuthor: (name: string) => void
   setConnectorTypeColor: (connectorType: string, color: string | null) => void
   resetConnectorTypeColors: () => void
   setBgVariant: (value: 'dots' | 'lines' | 'cross' | 'none') => void
@@ -367,6 +426,15 @@ interface UiState extends PersistedUiState {
   removeCustomConnectorType: (name: string) => void
   addCustomSignalStandard: (name: string) => void
   removeCustomSignalStandard: (name: string) => void
+  setCableGroupOrder: (order: string[]) => void
+  /** v7.9.7 — Override-Schicht für eingebaute CableSpec-Einträge. Erlaubt
+   *  Umbenennen/Recolor/Notes-Editing ohne den globalen cableCatalog
+   *  anzufassen. `clearCableSpecOverride` setzt die Defaults wieder her. */
+  setCableSpecOverride: (
+    id: string,
+    patch: Partial<import('../types/cableSpec').CableSpec>,
+  ) => void
+  clearCableSpecOverride: (id: string) => void
   /** Issue #80: device-config library (ATEM / Videohub / GreenGo configs). */
   addDeviceConfig: (entry: Omit<DeviceConfigEntry, 'id' | 'savedAt'>) => DeviceConfigEntry
   updateDeviceConfig: (id: string, patch: Partial<Omit<DeviceConfigEntry, 'id' | 'savedAt'>>) => void
@@ -513,12 +581,18 @@ const applyPatch =
       // override toggle.)
       language: state.language,
       overrideConnectionWarnings: state.overrideConnectionWarnings,
+      rentmanEnabled: state.rentmanEnabled,
+      libraryViewMode: state.libraryViewMode,
+      librarySortMode: state.librarySortMode,
+      annotationAuthor: state.annotationAuthor,
       connectorTypeColors: state.connectorTypeColors,
       bgVariant: state.bgVariant,
       bgOpacity: state.bgOpacity,
       customCableSpecs: state.customCableSpecs,
       customConnectorTypes: state.customConnectorTypes,
       customSignalStandards: state.customSignalStandards,
+      cableGroupOrder: state.cableGroupOrder,
+      cableSpecOverrides: state.cableSpecOverrides,
       deviceConfigLibrary: state.deviceConfigLibrary,
       cableBumps: state.cableBumps,
       orthogonalCollisionShift: state.orthogonalCollisionShift,
@@ -557,6 +631,10 @@ export const useUiStore = create<UiState>((set) => ({
   setColorPortsByType: (value) => set(applyPatch({ colorPortsByType: value })),
   setLanguage: (value) => set(applyPatch({ language: value })),
   setOverrideConnectionWarnings: (value) => set(applyPatch({ overrideConnectionWarnings: value })),
+  setRentmanEnabled: (value) => set(applyPatch({ rentmanEnabled: value })),
+  setLibraryViewMode: (mode) => set(applyPatch({ libraryViewMode: mode })),
+  setLibrarySortMode: (mode) => set(applyPatch({ librarySortMode: mode })),
+  setAnnotationAuthor: (name) => set(applyPatch({ annotationAuthor: name })),
   setConnectorTypeColor: (connectorType, color) =>
     set((state) => {
       const next = { ...state.connectorTypeColors }
@@ -620,6 +698,25 @@ export const useUiStore = create<UiState>((set) => ({
         customSignalStandards: state.customSignalStandards.filter((n) => n !== name),
       })(state),
     ),
+  setCableGroupOrder: (order) => set(applyPatch({ cableGroupOrder: order })),
+  setCableSpecOverride: (id, patch) =>
+    set((state) => {
+      const current = state.cableSpecOverrides[id] ?? {}
+      const merged = { ...current, ...patch }
+      // Strip undefined to keep storage compact.
+      for (const k of Object.keys(merged) as (keyof typeof merged)[]) {
+        if (merged[k] === undefined) delete merged[k]
+      }
+      const nextMap = { ...state.cableSpecOverrides, [id]: merged }
+      return applyPatch({ cableSpecOverrides: nextMap })(state)
+    }),
+  clearCableSpecOverride: (id) =>
+    set((state) => {
+      if (!(id in state.cableSpecOverrides)) return state
+      const nextMap = { ...state.cableSpecOverrides }
+      delete nextMap[id]
+      return applyPatch({ cableSpecOverrides: nextMap })(state)
+    }),
   addDeviceConfig: (entry) => {
     const id = `cfg:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
     const created: DeviceConfigEntry = {

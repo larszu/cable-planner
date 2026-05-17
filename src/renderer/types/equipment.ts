@@ -43,6 +43,11 @@ export interface Port {
    *  device-level `equipment.sdiCaps` stays as a fallback default
    *  when the port doesn't override it. */
   sdiCaps?: import('./videoFormat').SdiCapabilities
+  /** v7.9.7 — Quad-Link Set: vier BNC-Ports mit gleichem
+   *  `quadLinkGroup`-String bilden zusammen ein 4K-Quad-Link-Bündel.
+   *  Free text ID (z.B. 'QL-1', 'QL-2'); pro Gerät beliebig viele
+   *  Sets möglich. UI warnt wenn eine Gruppe nicht 4 Ports hat. */
+  quadLinkGroup?: string
   /**
    * Direction of the port. Defaults to the array it lives in (`inputs` → 'in',
    * `outputs` → 'out'). A port marked `bidirectional` (e.g. an RJ45 network
@@ -258,6 +263,18 @@ export interface EquipmentItem {
  * holds, per multiviewer, the ATEM input id that should be shown in each
  * window slot (0-based window index).
  */
+/** v7.9.4 — Pro Quadrant: groß oder 4 klein. Unabhängig von ATEM's
+ *  festen Patterns, damit der User jeden Quadranten einzeln togglen
+ *  kann. Beim Übertragen an die echte ATEM wird das auf den nächst-
+ *  besten ATEM-Layout abgebildet. */
+export type AtemMvQuadrantState = 'big' | 'small'
+export type AtemMvQuadrants = [
+  AtemMvQuadrantState, // TL
+  AtemMvQuadrantState, // TR
+  AtemMvQuadrantState, // BL
+  AtemMvQuadrantState, // BR
+]
+
 export interface AtemMvConfig {
   multiViewers: AtemMvDefinition[]
 }
@@ -265,11 +282,22 @@ export interface AtemMvConfig {
 export interface AtemMvDefinition {
   /** 0-based multiviewer index on the switcher. */
   index: number
-  /** MultiViewerLayout enum value (0 = Default). */
+  /** MultiViewerLayout enum value (0 = Default). Wird beim Senden an
+   *  die ATEM aus `quadrants` abgeleitet wenn dieses gesetzt ist. */
   layout: number
   programPreviewSwapped?: boolean
-  /** window index → ATEM input id. Non-listed windows are left unchanged. */
+  /** window index → ATEM input id. Non-listed windows are left unchanged.
+   *  v7.9.4 — neues Indexing-Schema mit quadrants-Field:
+   *  - 0/1/2/3 = große Fenster für TL/TR/BL/BR
+   *  - 10-13/20-23/30-33/40-43 = die 4 kleinen Zellen pro Quadrant
+   *  Bei legacy-Daten ohne `quadrants` gilt das alte Schema
+   *  (windowIndex 0/1 sind die big-Slots, 2-9 die small cells). */
   windows: { windowIndex: number; sourceId: number }[]
+  /** v7.9.4 — Pro-Quadrant-Zustand. Wenn gesetzt ist DAS die Quelle
+   *  der Wahrheit für die Darstellung; `layout` wird daraus für die
+   *  ATEM-Übertragung abgeleitet. Wenn null/undefined, derives from
+   *  `layout` (legacy compat). */
+  quadrants?: AtemMvQuadrants
 }
 
 /**

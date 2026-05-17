@@ -127,7 +127,7 @@ const buildPathWithBumps = (
  *  Any diagonal is replaced by an L-corner (horizontal-first). Already
  *  orthogonal segments are passed through unchanged so we don't introduce
  *  spurious bends that make the cable visually "jump". */
-function normalizeOrthogonal(
+export function normalizeOrthogonal(
   src: { x: number; y: number },
   wps: { x: number; y: number }[],
   tgt: { x: number; y: number },
@@ -415,8 +415,12 @@ export const CableEdge = ({
   // endpoints changed). We re-bump on every render of THIS edge, which
   // catches the common cases (endpoint moves, waypoint edits).
   const pathRef = useRef<SVGPathElement | null>(null)
+  // v7.9.5 — Bumps-Logik vereinfacht: per-cable Override (on/off) hat
+  // Priorität, sonst folgt das Kabel dem globalen Setting. 'auto'
+  // existiert nicht mehr; legacy-Werte 'auto' werden als undefined
+  // (== global folgen) interpretiert.
   const wantsBumps =
-    cable && (routing === 'orthogonal') &&
+    cable && routing === 'orthogonal' &&
     (cable.bumpStyle === 'on' ||
       (cable.bumpStyle !== 'off' && globalCableBumps))
   useLayoutEffect(() => {
