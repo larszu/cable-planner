@@ -13,6 +13,7 @@ import { useCanvasProjectStore as useProjectStore } from '../../store/projectSto
 import { useUiStore } from '../../store/uiStore'
 import { CableWaypoints } from './CableWaypoints'
 import { computeObstacleAwareWaypoints, type Rect } from '../../lib/cableRouting'
+import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
 
 interface CableEdgeData {
   cable: Cable
@@ -373,7 +374,7 @@ export const CableEdge = ({
       const HEADER = item.ipAddress ? 62 : 48
       const ROW = 22
       const PADDING = 8
-      const width = Math.max(item.width ?? 220, 200)
+      const width = Math.max(item.width ?? EQUIPMENT_LAYOUT.DEFAULT_WIDTH, 200)
       const portRows = Math.max(item.inputs.length, item.outputs.length, 1)
       const height = Math.max(item.height ?? HEADER + portRows * ROW + PADDING, HEADER + portRows * ROW + PADDING)
       rects.push({ x: item.x, y: item.y, width, height })

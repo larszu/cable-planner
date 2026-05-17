@@ -24,6 +24,7 @@ import {
   useCanvasProjectStoreInstance,
 } from '../../store/projectStoreContext'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
 import { useUiStore } from '../../store/uiStore'
 import { ANNOTATION_DRAG_MIME } from '../Annotations/AnnotationsPanel'
 import { AnnotationCanvasOverlay } from '../Annotations/AnnotationCanvasOverlay'
@@ -180,7 +181,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       const inputs = eq.inputs ?? []
       const outputs = eq.outputs ?? []
       const rows = Math.max(inputs.length, outputs.length, 1)
-      const width = Math.max(eq.width ?? 220, 200)
+      const width = Math.max(eq.width ?? EQUIPMENT_LAYOUT.DEFAULT_WIDTH, 200)
       const height = Math.max(eq.height ?? HEADER + rows * ROW + PADDING, HEADER + rows * ROW + PADDING)
       const portsFlipped = !!eq.portsFlipped
       const defaultInputSide: HandleSide = portsFlipped ? 'right' : 'left'

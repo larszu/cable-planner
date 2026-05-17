@@ -16,7 +16,9 @@ interface Props {
 }
 
 /** Boot-loop tracker — persists across the auto-reload. */
-const BOOT_ERROR_KEY = 'cable-planner:boot-error-ts'
+import { STORAGE_KEYS } from './lib/storageKeys'
+
+const BOOT_ERROR_KEY = STORAGE_KEYS.bootErrorTs
 const RECOVERY_WINDOW_MS = 10_000
 
 /** v7.8.3 — keys whose values are USER DATA and must NEVER be wiped

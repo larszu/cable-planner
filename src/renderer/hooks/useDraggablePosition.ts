@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { DIALOG_LIMITS } from '../lib/layoutConstants'
 
 /**
  * Persistable drag-to-move position state for modal dialogs. Returns props that
@@ -47,9 +48,10 @@ export const useDraggablePosition = (storageKey: string, open: boolean) => {
     const el = containerRef.current
     if (!el) return { x, y }
     const rect = el.getBoundingClientRect()
-    // Keep at least a 60px-wide strip of the dialog visible on every edge so
-    // it can always be grabbed back even when zoomed in or window resized.
-    const margin = 60
+    // Halte mindestens DIALOG_LIMITS.MIN_VISIBLE_STRIP_PX vom Dialog
+    // sichtbar an jeder Kante, damit der User das Dialog auch nach
+    // einem off-screen-Drag zurückholen kann.
+    const margin = DIALOG_LIMITS.MIN_VISIBLE_STRIP_PX
     const maxX = (window.innerWidth - margin) / 2 - rect.width / 2 + rect.width - margin
     const minX = -((window.innerWidth - margin) / 2 - rect.width / 2 + rect.width - margin)
     const maxY = (window.innerHeight - margin) / 2 - rect.height / 2 + rect.height - margin

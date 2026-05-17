@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+import { STORAGE_KEYS } from '../../lib/storageKeys'
 
-const TOUR_STORAGE_KEY = 'cable-planner.tour.seen.v1'
+const TOUR_STORAGE_KEY = STORAGE_KEYS.tourSeenV1
 
 /**
  * One-time onboarding tour shown on first launch (and re-openable from the

@@ -3,8 +3,25 @@ import type { ConnectorType } from '../types/equipment'
 import { ALL_SIGNAL_STANDARDS } from '../types/cableSpec'
 import type { SignalStandard } from '../types/cableSpec'
 import type { PortGroupHint } from './portSuggestions'
+import { STORAGE_KEYS } from './storageKeys'
 
-const API_KEY_STORAGE = 'cable-planner:geminiApiKey'
+const API_KEY_STORAGE = STORAGE_KEYS.geminiApiKey
+
+// v7.9.23 — API-Endpoint + Model-Version sind hier als Konstanten
+// definiert statt im Funktions-Body. Damit Updates auf neue Gemini-
+// Versionen oder ein anderes API-Tier nur eine Zeile berühren.
+// Override via window.__CABLE_PLANNER_GEMINI__ möglich für E2E-Tests
+// (gegen einen Mock-Endpoint).
+const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta'
+const GEMINI_MODEL = 'gemini-2.5-flash'
+const getGeminiConfig = (): { base: string; model: string } => {
+  const override = (globalThis as { __CABLE_PLANNER_GEMINI__?: { base?: string; model?: string } })
+    .__CABLE_PLANNER_GEMINI__
+  return {
+    base: override?.base ?? GEMINI_API_BASE,
+    model: override?.model ?? GEMINI_MODEL,
+  }
+}
 
 export const getGeminiApiKey = (): string => {
   try {
@@ -64,7 +81,8 @@ export const suggestFromAI = async (
   if (!key) {
     throw new Error('No Gemini API key configured. Click "AI settings" to set one.')
   }
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`
+  const cfg = getGeminiConfig()
+  const url = `${cfg.base}/models/${cfg.model}:generateContent?key=${encodeURIComponent(key)}`
   const body = {
     contents: [{ role: 'user', parts: [{ text: PROMPT_TEMPLATE(deviceName, category) }] }],
     generationConfig: {

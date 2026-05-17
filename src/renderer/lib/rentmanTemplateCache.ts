@@ -1,6 +1,7 @@
 import type { EquipmentItem, EquipmentTemplate } from '../types/equipment'
+import { STORAGE_KEYS } from './storageKeys'
 
-const RENTMAN_TEMPLATE_CACHE_KEY = 'cable-planner:rentmanTemplateCache:v1'
+const RENTMAN_TEMPLATE_CACHE_KEY = STORAGE_KEYS.rentmanTemplateCacheV1
 
 type RentmanTemplateCache = Record<string, EquipmentTemplate>
 

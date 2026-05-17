@@ -11,11 +11,16 @@ type EquipmentNodeData = EquipmentItem & {
   exportThemeOverride?: 'dark' | 'light'
 }
 
-const HEADER_HEIGHT = 48
-const HEADER_HEIGHT_WITH_IP = 62
-const PORT_ROW = 22
-const HANDLE_SIZE = 16   // larger hit zone (was 10) — easier to click/drag
-const PADDING = 8
+// v7.9.23 — Layout-Konstanten aus zentraler lib/layoutConstants.ts.
+// Vorher waren diese Werte zwischen EquipmentNode.tsx und
+// equipmentLayout.ts dupliziert — Bug-Garantie wenn einer der beiden
+// geändert wurde.
+import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+const HEADER_HEIGHT = EQUIPMENT_LAYOUT.HEADER_HEIGHT
+const HEADER_HEIGHT_WITH_IP = EQUIPMENT_LAYOUT.HEADER_HEIGHT_WITH_IP
+const PORT_ROW = EQUIPMENT_LAYOUT.PORT_ROW
+const HANDLE_SIZE = EQUIPMENT_LAYOUT.HANDLE_SIZE
+const PADDING = EQUIPMENT_LAYOUT.PADDING
 
 // v7.9.14 — Farb-Palette für Rack-Geräte-Bänder im Black-Box-Mode.
 // Gut sichtbare, aber gedeckte Farben mit gutem Kontrast auf
@@ -258,13 +263,16 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // Hover state for port rows — gives visual feedback before click
   const [hoveredPort, setHoveredPort] = useState<string | null>(null)
 
-  // Header layout grows by 14 px per optional line (subtitle, beltpack
-  // name, …) so ports never overlap with the device label area.
-  const beltpackLine = greengoUser ? 14 : 0
+  // v7.9.26 — Optionale Header-Zeilen (Subtitle / Beltpack-Name)
+  // erweitern den Header um 11 px (1 Grid-Step) statt 14, sodass der
+  // headerHeight immer ein Vielfaches von gridSize bleibt und die
+  // Ports auf Dot-Reihen landen.
+  const EXTRA_HEADER_LINE = EQUIPMENT_LAYOUT.GRID_SIZE
+  const beltpackLine = greengoUser ? EXTRA_HEADER_LINE : 0
   const headerHeight = (
     data.ipAddress
-      ? (data.subtitle ? HEADER_HEIGHT_WITH_IP + 14 : HEADER_HEIGHT_WITH_IP)
-      : (data.subtitle ? HEADER_HEIGHT + 14 : HEADER_HEIGHT)
+      ? (data.subtitle ? HEADER_HEIGHT_WITH_IP + EXTRA_HEADER_LINE : HEADER_HEIGHT_WITH_IP)
+      : (data.subtitle ? HEADER_HEIGHT + EXTRA_HEADER_LINE : HEADER_HEIGHT)
   ) + beltpackLine
   const inputPlacement = new Map<string, { side: 'left' | 'right'; slot: number }>()
   const outputPlacement = new Map<string, { side: 'left' | 'right'; slot: number }>()
@@ -470,10 +478,18 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
     0,
   )
   const labelWidth = longestPortText * 7 + 32
-  const intrinsicWidth = Math.max(220, labelWidth * 2)
-  const width = Math.max(data.width ?? intrinsicWidth, intrinsicWidth)
+  // v7.9.26 — Width rastet auf gridSize-Vielfache (11 px) ein, sodass
+  // die Außenkanten der Karte mit Dot-Spalten zusammenfallen. Auto-
+  // Expand für lange Port-Labels rundet entsprechend AUF.
+  const GRID = EQUIPMENT_LAYOUT.GRID_SIZE
+  const snapUp = (n: number) => Math.ceil(n / GRID) * GRID
+  const intrinsicWidth = snapUp(Math.max(EQUIPMENT_LAYOUT.DEFAULT_WIDTH, labelWidth * 2))
+  const width = Math.max(snapUp(data.width ?? intrinsicWidth), intrinsicWidth)
+  // computedHeight ist per Konstruktion bereits Vielfaches von GRID
+  // (headerHeight, PORT_ROW, PADDING sind alle Vielfache); data.height
+  // wird zur Sicherheit aufgerundet falls der User es manuell setzt.
   const computedHeight = headerHeight + portRows * PORT_ROW + PADDING
-  const height = Math.max(data.height ?? computedHeight, computedHeight)
+  const height = Math.max(snapUp(data.height ?? computedHeight), computedHeight)
 
   // Y offset for the handle dot: aligns to vertical center of the row.
   const rowCenter = (index: number) => headerHeight + index * PORT_ROW + PORT_ROW / 2
