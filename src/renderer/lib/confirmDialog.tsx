@@ -1,6 +1,14 @@
-import { useEffect, useRef } from 'react'
-import { createRoot } from 'react-dom/client'
+import { useRef } from 'react'
 import { useTranslation } from './i18n'
+import {
+  MODAL_BACKDROP,
+  MODAL_BUTTON_SECONDARY,
+  MODAL_CARD,
+  backdropMouseDown,
+  modalButtonPrimary,
+  mountModal,
+  useModalKeyboard,
+} from './modalRoot'
 
 /**
  * Promise-based replacement for window.confirm(). Matches `promptDialog`
@@ -10,6 +18,10 @@ import { useTranslation } from './i18n'
  * and keeps the call sites short:
  *
  *   if (!(await confirmDialog('Wirklich löschen?'))) return
+ *
+ * v7.9.45 — Mount-Lifecycle + Backdrop-/Card-/Button-Styles + Keyboard-
+ * Handler kommen aus lib/modalRoot. Vorher waren sie in jeder der drei
+ * Dialog-Dateien dupliziert.
  */
 export interface ConfirmDialogOptions {
   /** Body paragraph below the title. Optional. */
@@ -29,17 +41,9 @@ export function confirmDialog(
   title: string,
   options: ConfirmDialogOptions = {},
 ): Promise<boolean> {
-  return new Promise((resolve) => {
-    const container = document.createElement('div')
-    document.body.appendChild(container)
-    const root = createRoot(container)
-    const done = (value: boolean) => {
-      root.unmount()
-      container.remove()
-      resolve(value)
-    }
-    root.render(<ConfirmDialog title={title} options={options} onDone={done} />)
-  })
+  return mountModal<boolean>((done) => (
+    <ConfirmDialog title={title} options={options} onDone={done} />
+  ))
 }
 
 interface Props {
@@ -52,51 +56,17 @@ const ConfirmDialog = ({ title, options, onDone }: Props) => {
   const okRef = useRef<HTMLButtonElement>(null)
   const t = useTranslation()
 
-  useEffect(() => {
-    okRef.current?.focus()
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        onDone(false)
-      } else if (e.key === 'Enter') {
-        e.preventDefault()
-        onDone(true)
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onDone])
+  useModalKeyboard(
+    () => onDone(false),
+    () => onDone(true),
+  )
 
-  const okBg = options.destructive ? '#dc2626' : '#10b981'
+  const okColor = options.destructive ? '#dc2626' : '#10b981'
   const okHover = options.destructive ? '#b91c1c' : '#059669'
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 10000,
-      }}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onDone(false)
-      }}
-    >
-      <div
-        style={{
-          background: '#1e293b',
-          color: '#e2e8f0',
-          border: '1px solid #334155',
-          borderRadius: 8,
-          padding: 16,
-          minWidth: 360,
-          maxWidth: 520,
-          boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-        }}
-      >
+    <div style={MODAL_BACKDROP} onMouseDown={backdropMouseDown(() => onDone(false))}>
+      <div style={MODAL_CARD}>
         <div style={{ marginBottom: options.body ? 8 : 16, fontSize: 14, fontWeight: 600 }}>
           {title}
         </div>
@@ -106,37 +76,17 @@ const ConfirmDialog = ({ title, options, onDone }: Props) => {
           </div>
         )}
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-          <button
-            type="button"
-            onClick={() => onDone(false)}
-            style={{
-              padding: '6px 14px',
-              background: '#334155',
-              border: 'none',
-              borderRadius: 4,
-              color: '#e2e8f0',
-              cursor: 'pointer',
-              fontSize: 13,
-            }}
-          >
+          <button type="button" onClick={() => onDone(false)} style={MODAL_BUTTON_SECONDARY}>
             {options.cancelLabel ?? t('common.cancel', 'Abbrechen')}
           </button>
           <button
             ref={okRef}
             type="button"
             onClick={() => onDone(true)}
-            style={{
-              padding: '6px 14px',
-              background: okBg,
-              border: 'none',
-              borderRadius: 4,
-              color: 'white',
-              cursor: 'pointer',
-              fontSize: 13,
-              fontWeight: 600,
-            }}
+            style={modalButtonPrimary(okColor)}
             onMouseEnter={(e) => (e.currentTarget.style.background = okHover)}
-            onMouseLeave={(e) => (e.currentTarget.style.background = okBg)}
+            onMouseLeave={(e) => (e.currentTarget.style.background = okColor)}
+            autoFocus
           >
             {options.okLabel ?? t('common.ok', 'OK')}
           </button>
