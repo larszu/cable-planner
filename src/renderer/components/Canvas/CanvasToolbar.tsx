@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useReactFlow } from 'reactflow'
+import { useOnSelectionChange, useReactFlow } from 'reactflow'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
@@ -217,9 +217,30 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     </button>
   )
 
-  const selectedEquipmentIds = getNodes()
-    .filter((n) => n.selected && n.type === 'equipment')
-    .map((n) => n.id)
+  // v7.9.19 — Reaktive Selection-Anzeige. getNodes() von useReactFlow
+  // ist nur ein Lookup auf den aktuellen ReactFlow-Store; ohne
+  // useOnSelectionChange würde die Toolbar nicht zwingend re-rendern
+  // wenn der User Geräte selektiert / deselektiert. Mit dem Listener
+  // erzwingen wir Re-Render bei jeder Selection-Änderung — daher
+  // erscheinen/verschwinden die selection-dependent Buttons sofort.
+  const [selectedEquipmentIds, setSelectedEquipmentIds] = useState<string[]>([])
+  useOnSelectionChange({
+    onChange: ({ nodes }) => {
+      setSelectedEquipmentIds(
+        nodes.filter((n) => n.type === 'equipment').map((n) => n.id),
+      )
+    },
+  })
+  // Initiale Hydration (z.B. nach Project-Load mit erhaltener
+  // Selection) — getNodes() ist live; einmal beim Mount lesen.
+  useEffect(() => {
+    setSelectedEquipmentIds(
+      getNodes()
+        .filter((n) => n.selected && n.type === 'equipment')
+        .map((n) => n.id),
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const hasSelection = selectedEquipmentIds.length >= 1
   const alignEnabled = selectedEquipmentIds.length >= 2
 
@@ -337,7 +358,12 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
       {/* ── Gruppe 3: Auswahl-Aktionen ───────────────────────────────
           v7.9.12 — Im Rack-Mode ausgeblendet: Location-Frames, Group-
           Save, Sub-Rack-Build sind alle Project-Level Operations, im
-          Rack-Sub-Canvas nicht sinnvoll. */}
+          Rack-Sub-Canvas nicht sinnvoll.
+          v7.9.19 — Group- und Rack-Aktionen sind selection-dependent
+          und werden NUR angezeigt wenn mindestens ein Gerät selektiert
+          ist. Vorher waren sie permanent (disabled) sichtbar, was die
+          Toolbar visuell unruhig hielt. Frame bleibt always-on weil er
+          auch ohne Auswahl ein leeres Rahmen-Rechteck erstellt. */}
       {mode === 'main' && (
         <>
           <IconButton
@@ -367,29 +393,31 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               <rect x="2" y="3" width="12" height="10" rx="0.5" strokeDasharray="2 1.5" />
             </svg>
           </IconButton>
-          <IconButton
-            title={hasSelection ? `Markierte Geräte als Gruppe speichern` : 'Erst Geräte markieren'}
-            disabled={!hasSelection}
-            onClick={() => setNamingGroup(true)}
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-              <rect x="2" y="2" width="6" height="5" rx="0.5" />
-              <rect x="8" y="2" width="6" height="5" rx="0.5" />
-              <rect x="5" y="9" width="6" height="5" rx="0.5" />
-            </svg>
-          </IconButton>
-          <IconButton
-            title={hasSelection ? `Markierte Geräte im 2D-Rack-Builder anordnen` : 'Erst Geräte markieren'}
-            disabled={!hasSelection}
-            onClick={() => triggerRackBuilderFromSelection(selectedEquipmentIds)}
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-              <rect x="3" y="2" width="10" height="12" rx="0.5" />
-              <line x1="3" y1="5" x2="13" y2="5" />
-              <line x1="3" y1="8" x2="13" y2="8" />
-              <line x1="3" y1="11" x2="13" y2="11" />
-            </svg>
-          </IconButton>
+          {hasSelection && (
+            <IconButton
+              title={`${selectedEquipmentIds.length} markierte Geräte als Gruppe speichern`}
+              onClick={() => setNamingGroup(true)}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+                <rect x="2" y="2" width="6" height="5" rx="0.5" />
+                <rect x="8" y="2" width="6" height="5" rx="0.5" />
+                <rect x="5" y="9" width="6" height="5" rx="0.5" />
+              </svg>
+            </IconButton>
+          )}
+          {hasSelection && (
+            <IconButton
+              title={`${selectedEquipmentIds.length} markierte Geräte im 2D-Rack-Builder anordnen`}
+              onClick={() => triggerRackBuilderFromSelection(selectedEquipmentIds)}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+                <rect x="3" y="2" width="10" height="12" rx="0.5" />
+                <line x1="3" y1="5" x2="13" y2="5" />
+                <line x1="3" y1="8" x2="13" y2="8" />
+                <line x1="3" y1="11" x2="13" y2="11" />
+              </svg>
+            </IconButton>
+          )}
         </>
       )}
 
@@ -445,51 +473,52 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         </form>
       )}
 
-      <span style={dividerStyle} />
-
-      {/* ── Gruppe 4: Ausrichten ───────────────────────────────────── */}
-      <IconButton
-        title={alignEnabled ? 'Linksbündig' : 'Mind. 2 Geräte auswählen'}
-        disabled={!alignEnabled}
-        onClick={() => alignSelected('left')}
-      >
-        <span style={{ fontSize: 14 }}>⇤</span>
-      </IconButton>
-      <IconButton
-        title={alignEnabled ? 'Horizontal zentrieren' : 'Mind. 2 Geräte auswählen'}
-        disabled={!alignEnabled}
-        onClick={() => alignSelected('center-h')}
-      >
-        <span style={{ fontSize: 14 }}>↔</span>
-      </IconButton>
-      <IconButton
-        title={alignEnabled ? 'Rechtsbündig' : 'Mind. 2 Geräte auswählen'}
-        disabled={!alignEnabled}
-        onClick={() => alignSelected('right')}
-      >
-        <span style={{ fontSize: 14 }}>⇥</span>
-      </IconButton>
-      <IconButton
-        title={alignEnabled ? 'Oben ausrichten' : 'Mind. 2 Geräte auswählen'}
-        disabled={!alignEnabled}
-        onClick={() => alignSelected('top')}
-      >
-        <span style={{ fontSize: 14 }}>⤒</span>
-      </IconButton>
-      <IconButton
-        title={alignEnabled ? 'Vertikal zentrieren' : 'Mind. 2 Geräte auswählen'}
-        disabled={!alignEnabled}
-        onClick={() => alignSelected('center-v')}
-      >
-        <span style={{ fontSize: 14 }}>↕</span>
-      </IconButton>
-      <IconButton
-        title={alignEnabled ? 'Unten ausrichten' : 'Mind. 2 Geräte auswählen'}
-        disabled={!alignEnabled}
-        onClick={() => alignSelected('bottom')}
-      >
-        <span style={{ fontSize: 14 }}>⤓</span>
-      </IconButton>
+      {/* ── Gruppe 4: Ausrichten ─────────────────────────────────────
+          v7.9.19 — Komplette Align-Gruppe (Divider + 6 Buttons) wird
+          nur gerendert wenn mind. 2 Geräte ausgewählt sind. Vorher
+          waren alle 6 Buttons disabled aber sichtbar — visueller Lärm
+          für Use-Cases ohne Multi-Selection. */}
+      {alignEnabled && (
+        <>
+          <span style={dividerStyle} />
+          <IconButton
+            title="Linksbündig"
+            onClick={() => alignSelected('left')}
+          >
+            <span style={{ fontSize: 14 }}>⇤</span>
+          </IconButton>
+          <IconButton
+            title="Horizontal zentrieren"
+            onClick={() => alignSelected('center-h')}
+          >
+            <span style={{ fontSize: 14 }}>↔</span>
+          </IconButton>
+          <IconButton
+            title="Rechtsbündig"
+            onClick={() => alignSelected('right')}
+          >
+            <span style={{ fontSize: 14 }}>⇥</span>
+          </IconButton>
+          <IconButton
+            title="Oben ausrichten"
+            onClick={() => alignSelected('top')}
+          >
+            <span style={{ fontSize: 14 }}>⤒</span>
+          </IconButton>
+          <IconButton
+            title="Vertikal zentrieren"
+            onClick={() => alignSelected('center-v')}
+          >
+            <span style={{ fontSize: 14 }}>↕</span>
+          </IconButton>
+          <IconButton
+            title="Unten ausrichten"
+            onClick={() => alignSelected('bottom')}
+          >
+            <span style={{ fontSize: 14 }}>⤓</span>
+          </IconButton>
+        </>
+      )}
 
       {/* ── Status-Gruppe (rechts gepusht): Plan-Lock + Annotations ─
           v7.9.12 — Im Rack-Mode komplett ausgeblendet. Plan-Lock und
