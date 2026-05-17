@@ -31,6 +31,12 @@ interface RackPlacementDraft {
   inputs: EquipmentTemplate['inputs']
   outputs: EquipmentTemplate['outputs']
   isRackDevice: boolean
+  /** v7.9.14 — Optionale Position des Geräts im RackInternalCanvas
+   *  (eigenständige 2D-Ansicht der Internal-Verkabelung). Wird wie
+   *  beim normalen Canvas frei vom User gesetzt und persistiert mit
+   *  dem GroupPreset; Default-Position aus startUnit. */
+  canvasX?: number
+  canvasY?: number
   frontPanelImageUrl?: string
   rearPanelImageUrl?: string
   frontPanelCrop?: EquipmentTemplate['frontPanelCrop']
@@ -153,8 +159,11 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
       heightUnits: placement.heightUnits,
     })
   }
+  // v7.9.14 — Hydrate Canvas-Positionen aus gespeichertem Preset.
+  const savedPositions = preset.rack?.internalCanvasPositions ?? {}
   const placements: RackPlacementDraft[] = preset.items.map((item, index) => {
     const meta = placementsByIndex.get(index)
+    const pos = savedPositions[index]
     return {
       id: uuidv4(),
       templateName: item.name,
@@ -165,6 +174,8 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
       inputs: item.inputs,
       outputs: item.outputs,
       isRackDevice: item.isRackDevice ?? !!item.rackUnits,
+      canvasX: pos?.x,
+      canvasY: pos?.y,
       frontPanelImageUrl: item.frontPanelImageUrl,
       rearPanelImageUrl: item.rearPanelImageUrl,
       frontPanelCrop: item.frontPanelCrop,
@@ -593,12 +604,25 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       persistedCables.push(entry)
     }
 
+    // v7.9.14 — Persistente Canvas-Positionen für den
+    // RackInternalCanvas. Nur Geräte mit User-gesetzten Positionen
+    // landen hier; andere bleiben beim nächsten Öffnen auf der
+    // Default-Position aus startUnit.
+    const internalCanvasPositions: Record<number, { x: number; y: number }> = {}
+    sorted.forEach((placement, index) => {
+      if (placement.canvasX != null && placement.canvasY != null) {
+        internalCanvasPositions[index] = { x: placement.canvasX, y: placement.canvasY }
+      }
+    })
+    const hasPositions = Object.keys(internalCanvasPositions).length > 0
+
     const preset: GroupPreset = {
       id: editingId ?? uuidv4(),
       name: draft.rackName.trim(),
       rack: {
         totalUnits: draft.totalUnits,
         placements: rackPlacements,
+        ...(hasPositions ? { internalCanvasPositions } : {}),
       },
       items: itemRecords,
       cables: persistedCables,
@@ -1401,6 +1425,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   inputs: p.inputs,
                   outputs: p.outputs,
                   isRackDevice: p.isRackDevice,
+                  canvasX: p.canvasX,
+                  canvasY: p.canvasY,
                 }))}
                 initialCables={(() => {
                   // draft.internalCables (per-id) → GroupPreset.cables (per-index)
@@ -1448,6 +1474,12 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 }}
                 onPlacementRenamed={(placementId, newName) => {
                   updatePlacement(placementId, { name: newName })
+                }}
+                onPlacementMoved={(placementId, x, y) => {
+                  // v7.9.14 — Canvas-Position des Geräts im Internal-
+                  // Canvas in den Draft persistieren. Beim Save landet
+                  // sie in GroupPreset.rack.internalCanvasPositions.
+                  updatePlacement(placementId, { canvasX: x, canvasY: y })
                 }}
               />
             </div>

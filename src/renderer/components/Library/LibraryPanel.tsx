@@ -2098,6 +2098,12 @@ export const LibraryPanel = () => {
                                       ...p,
                                       id: uuidv4(),
                                       name: `${item.name} · ${p.name}`,
+                                      // v7.9.14 — track origin device so the
+                                      // EquipmentNode kann Ports nach Gerät
+                                      // gruppieren (Color-Bänder, In/Out auf
+                                      // gleicher Höhe).
+                                      rackOriginDeviceIndex: idx,
+                                      rackOriginDeviceName: item.name,
                                     })
                                   }
                                 }
@@ -2107,6 +2113,8 @@ export const LibraryPanel = () => {
                                       ...p,
                                       id: uuidv4(),
                                       name: `${item.name} · ${p.name}`,
+                                      rackOriginDeviceIndex: idx,
+                                      rackOriginDeviceName: item.name,
                                     })
                                   }
                                 }
