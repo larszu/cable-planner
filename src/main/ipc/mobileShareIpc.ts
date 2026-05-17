@@ -6,6 +6,7 @@ import {
   getMobileShareStatus,
   setMobileShareProject,
   setMobileShareChecksHandler,
+  setMobileShareCableAddedHandler,
   startMobileShareServer,
   stopMobileShareServer,
 } from '../services/mobileShareServer.js'
@@ -59,6 +60,16 @@ export const registerMobileShareIpc = () => {
     for (const win of BrowserWindow.getAllWindows()) {
       if (win.isDestroyed()) continue
       win.webContents.send('mobileShare:checksUpdate', checks)
+    }
+  })
+
+  // v7.9.54 — Mobile-User hat ein Kabel via Dropdown-UI hinzugefügt.
+  // Broadcast an alle Renderer; ProjectStore fügt es mit
+  // addedFromMobile=true ein.
+  setMobileShareCableAddedHandler((cable) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (win.isDestroyed()) continue
+      win.webContents.send('mobileShare:cableAdded', cable)
     }
   })
 

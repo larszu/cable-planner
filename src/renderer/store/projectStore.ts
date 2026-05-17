@@ -405,6 +405,19 @@ export interface ProjectState {
    *  Komplettes Objekt-Replace damit gelöschte Checks (false → kein
    *  key) auch übernommen werden. */
   setCheckState: (checks: { ports: Record<string, boolean>; cables: Record<string, boolean> }) => void
+  /** v7.9.54 — Vom Mobile-Viewer hinzugefügtes Kabel ins Projekt. Wird
+   *  mit addedFromMobile=true markiert (Canvas zeigt 📱-Badge). */
+  addCableFromMobile: (input: {
+    fromEquipmentId: string
+    fromPortId: string
+    toEquipmentId: string
+    toPortId: string
+    name?: string
+    type?: string
+    length?: number
+    color?: string
+    notes?: string
+  }) => void
   /** v7.9.3 — Planungs-Status: 'editing' (default), 'finalized' (Canvas
    *  read-only, vom Plan-Eigentümer setzbar), 'viewer' (durch Import
    *  einer .cpviewer-Datei, permanent read-only). */
@@ -1847,6 +1860,46 @@ const buildProjectStore = (
       const updated = { ...state.project, checkState: checks }
       scheduleProjectAutosave(updated)
       return { project: updated }
+    }),
+  addCableFromMobile: (input) =>
+    set((state) => {
+      // v7.9.54 — Kabel-Add vom Mobile-Viewer. Validiert dass beide
+      // Endpoints (Equipment+Port-Pair) im aktuellen Projekt existieren;
+      // sonst silently skip (Mobile zeigt eh nur das was im Projekt war).
+      const fromEq = state.project.equipment.find((e) => e.id === input.fromEquipmentId)
+      const toEq = state.project.equipment.find((e) => e.id === input.toEquipmentId)
+      if (!fromEq || !toEq) return {}
+      const fromPort =
+        [...fromEq.inputs, ...fromEq.outputs].find((p) => p.id === input.fromPortId) ?? null
+      const toPort =
+        [...toEq.inputs, ...toEq.outputs].find((p) => p.id === input.toPortId) ?? null
+      if (!fromPort || !toPort) return {}
+      // Doppelte verhindern: gleiche Port-Combo schon mal verbunden? skip.
+      const dupe = state.project.cables.some(
+        (c) =>
+          (c.fromPortId === input.fromPortId && c.toPortId === input.toPortId) ||
+          (c.fromPortId === input.toPortId && c.toPortId === input.fromPortId),
+      )
+      if (dupe) return {}
+      const cable: Cable = {
+        id: uuidv4(),
+        name: input.name?.trim() || `${fromEq.name} → ${toEq.name}`,
+        type: (input.type as Cable['type']) || 'unbekannt',
+        length: input.length ?? 0,
+        color: input.color ?? '#64748b',
+        fromEquipmentId: input.fromEquipmentId,
+        fromPortId: input.fromPortId,
+        toEquipmentId: input.toEquipmentId,
+        toPortId: input.toPortId,
+        notes: input.notes ?? '',
+        addedFromMobile: true,
+      }
+      const updated = touchProject({
+        ...state.project,
+        cables: [...state.project.cables, cable],
+      })
+      scheduleProjectAutosave(updated)
+      return { project: updated, projectVersion: state.projectVersion + 1 }
     }),
   setProjectMode: (mode) =>
     set((state) => {

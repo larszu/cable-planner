@@ -200,6 +200,20 @@ type CablePlannerApi = {
     onChecksUpdate: (
       cb: (checks: { ports: Record<string, boolean>; cables: Record<string, boolean> }) => void,
     ) => () => void
+    /** v7.9.54 — Listener für Mobile-Cable-Add-Events. */
+    onCableAdded: (
+      cb: (cable: {
+        fromEquipmentId: string
+        fromPortId: string
+        toEquipmentId: string
+        toPortId: string
+        name?: string
+        type?: string
+        length?: number
+        color?: string
+        notes?: string
+      }) => void,
+    ) => () => void
   }
 }
 
@@ -610,6 +624,7 @@ const webFallbackApi: CablePlannerApi = {
     status: async () => ({ running: false, port: 0, urls: [], hasProject: false }),
     setProject: async () => ({ ok: true }),
     onChecksUpdate: () => () => {},
+    onCableAdded: () => () => {},
   },
 }
 
