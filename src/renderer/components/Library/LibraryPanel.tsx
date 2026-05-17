@@ -41,7 +41,11 @@ import {
 import { RackBuilderDialog } from '../Rack/RackBuilderDialog'
 import { TemplateMergeDialog } from './TemplateMergeDialog'
 import { LibraryItem } from './LibraryItem'
-import { parseLibraryItemFile } from '../../lib/itemExport'
+import {
+  exportTemplateToFile,
+  exportPresetToFile,
+  parseLibraryItemFile,
+} from '../../lib/itemExport'
 import { openLibraryFolder, stampDeviceLibraryRef } from '../../lib/librarySync'
 import { hasDesktopBridge } from '../../lib/bridge'
 import { CableLibraryPanel } from './CableLibraryPanel'
@@ -1561,6 +1565,7 @@ export const LibraryPanel = () => {
                                 onRemove={() => removeCustomTemplate(item.name)}
                                 onToggleFavorite={() => toggleTemplateFavorite(item.name)}
                                 onToggleHidden={() => toggleTemplateHidden(item.name)}
+                                onExport={() => exportTemplateToFile(item)}
                               />
                               {/* Edit button — appears on hover */}
                               <button
@@ -1810,6 +1815,7 @@ export const LibraryPanel = () => {
                                                     ...nextPlacementPosition(equipmentCount, equipmentItems),
                                                   })
                                                 }}
+                                                onExport={() => exportTemplateToFile(item)}
                                               />
                                             ))}
                                         </div>
@@ -2140,6 +2146,18 @@ export const LibraryPanel = () => {
                             <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
                               <button
                                 type="button"
+                                onClick={(event) => {
+                                  event.stopPropagation()
+                                  exportPresetToFile(preset)
+                                }}
+                                className="rounded bg-slate-700 px-1 text-[11px] text-slate-300 hover:bg-slate-600"
+                                title="Als Datei exportieren (Kopie in den Downloads-Ordner)"
+                                aria-label="Exportieren"
+                              >
+                                ⬇
+                              </button>
+                              <button
+                                type="button"
                                 onClick={async (event) => {
                                   event.stopPropagation()
                                   if (await confirmDialog(`Gruppe "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
@@ -2243,6 +2261,18 @@ export const LibraryPanel = () => {
                             aria-label="Bearbeiten"
                           >
                             ✎
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              exportPresetToFile(preset)
+                            }}
+                            className="rounded bg-slate-700 px-1 py-0.5 text-[11px] text-slate-300 hover:bg-slate-600"
+                            title="Als Datei exportieren (Kopie in den Downloads-Ordner)"
+                            aria-label="Exportieren"
+                          >
+                            ⬇
                           </button>
                           <button
                             type="button"
