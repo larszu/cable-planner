@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ProjectMetadata } from '../../types/project'
 import { readImageAsDataUri } from '../../lib/readImageAsDataUri'
+import { ModalShell } from '../shared/ModalShell'
 
 /**
  * Dialog used both when starting a new project and when editing metadata
@@ -53,8 +54,6 @@ export const ProjectMetaDialog = ({
     setClientLogo(src.clientLogo)
   }, [open, mode])
 
-  if (!open) return null
-
   const canConfirm = name.trim().length > 0
 
   const handleConfirm = () => {
@@ -72,35 +71,32 @@ export const ProjectMetaDialog = ({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      // Use mousedown + target check instead of onClick. onClick fires on the
-      // common ancestor when mousedown and mouseup happen on different elements
-      // (e.g. user presses inside an input, drags a tiny bit, releases on the
-      // backdrop). That would close the dialog as soon as the user clicked into
-      // a field — very frustrating.
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onCancel()
-      }}
-    >
-      <div
-        className="w-[560px] max-w-[95vw] rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
-          <h2 className="text-sm font-semibold">
-            {mode === 'new' ? 'Neues Projekt' : 'Projektdaten bearbeiten'}
-          </h2>
+    <ModalShell
+      open={open}
+      onClose={onCancel}
+      title={mode === 'new' ? 'Neues Projekt' : 'Projektdaten bearbeiten'}
+      maxWidth="2xl"
+      footer={
+        <div className="flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
+            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
           >
             Abbrechen
           </button>
+          <button
+            type="button"
+            disabled={!canConfirm}
+            onClick={handleConfirm}
+            className="rounded bg-emerald-700 px-3 py-1 text-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {mode === 'new' ? 'Projekt anlegen' : 'Speichern'}
+          </button>
         </div>
-
-        <div className="max-h-[75vh] space-y-3 overflow-auto p-4 text-xs">
+      }
+    >
+      <div className="space-y-3 text-xs">
           <label className="block">
             Projektname <span className="text-red-400">*</span>
             <input
@@ -244,26 +240,7 @@ export const ProjectMetaDialog = ({
             Diese Daten erscheinen im Planköpfchen unten rechts beim PDF-Export.
             Jeder Speichervorgang aktualisiert das „zuletzt geändert"-Datum automatisch.
           </p>
-        </div>
-
-        <div className="flex items-center justify-end gap-2 border-t border-slate-700 px-4 py-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
-          >
-            Abbrechen
-          </button>
-          <button
-            type="button"
-            disabled={!canConfirm}
-            onClick={handleConfirm}
-            className="rounded bg-emerald-700 px-3 py-1 text-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {mode === 'new' ? 'Projekt anlegen' : 'Speichern'}
-          </button>
-        </div>
       </div>
-    </div>
+    </ModalShell>
   )
 }

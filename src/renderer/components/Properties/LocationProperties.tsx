@@ -2,6 +2,7 @@ import { useCanvasProjectStore as useProjectStore } from '../../store/projectSto
 import { useUiStore } from '../../store/uiStore'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { format, useTranslation } from '../../lib/i18n'
+import { ColorField } from '../shared/ColorField'
 
 export const LocationProperties = () => {
   const t = useTranslation()
@@ -69,15 +70,11 @@ export const LocationProperties = () => {
             className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
           />
         </label>
-        <label className="block">
-          {t('location.field.color', 'Farbe')}
-          <input
-            type="color"
-            value={location.color}
-            onChange={(e) => updateLocation(location.id, { color: e.target.value })}
-            className="mt-1 h-8 w-full cursor-pointer rounded border border-slate-700 bg-slate-950"
-          />
-        </label>
+        <ColorField
+          label={t('location.field.color', 'Farbe')}
+          value={location.color}
+          onChange={(color) => updateLocation(location.id, { color })}
+        />
       </div>
 
       <div>

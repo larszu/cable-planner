@@ -9,7 +9,7 @@
 
 import { useMemo, useState } from 'react'
 import { useProjectStore } from '../../store/projectStore'
-import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { ModalShell } from '../shared/ModalShell'
 import {
   buildDevicePatchSheetBlob,
   buildDevicesPatchSheetsBatchBlob,
@@ -42,7 +42,6 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
   const [mode, setMode] = useState<DeviceMode>('combined')
   const [action, setAction] = useState<'print' | 'download'>('print')
   const [busy, setBusy] = useState(false)
-  const drag = useDraggablePosition('cable-planner:modal-pos:print', open)
 
   if (!open) return null
 
@@ -105,34 +104,48 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4"
-      onMouseDown={(e) => e.target === e.currentTarget && onClose()}
+    <ModalShell
+      open={open}
+      onClose={onClose}
+      title="Drucken"
+      titleIcon="🖨"
+      maxWidth="2xl"
+      draggableKey="cable-planner:modal-pos:print"
+      footer={
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-[11px] text-slate-400">
+            {selectionCount === 0
+              ? 'Kein Gerät ausgewählt'
+              : `${selectionCount} Gerät${selectionCount === 1 ? '' : 'e'} ausgewählt`}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-700"
+            >
+              Schließen
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleExportDevices()}
+              disabled={selectionCount === 0 || busy}
+              className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {busy
+                ? 'Erzeuge PDF…'
+                : action === 'print'
+                  ? selectionCount > 1 && mode === 'individual'
+                    ? `🖨 ${selectionCount} Druckjobs starten`
+                    : '🖨 Drucker-Dialog öffnen'
+                  : selectionCount > 1 && mode === 'individual'
+                    ? `⬇ ${selectionCount} PDFs herunterladen`
+                    : '⬇ Patch-Sheet PDF herunterladen'}
+            </button>
+          </div>
+        </div>
+      }
     >
-      <div
-        ref={drag.containerRef}
-        style={drag.containerStyle}
-        className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
-      >
-        <header
-          {...drag.headerProps}
-          className="flex items-center justify-between border-b border-slate-700 px-4 py-3 select-none"
-        >
-          <h2 className="text-sm font-semibold text-slate-100">
-            <span className="mr-2">🖨</span>
-            Drucken
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded px-2 py-1 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100"
-            aria-label="Schließen"
-          >
-            ✕
-          </button>
-        </header>
-
-        <div className="flex-1 overflow-y-auto px-4 py-3">
           {/* v7.6.0 — Plan-Export is in Datei → Export now. The
               Drucken-Dialog is dedicated to ACTUAL printing through the
               OS print dialog (real printer list, real paper size /
@@ -320,41 +333,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
               </div>
             </div>
           </fieldset>
-        </div>
 
-        <footer className="flex items-center justify-between gap-2 border-t border-slate-700 bg-slate-950/60 px-4 py-3">
-          <div className="text-[11px] text-slate-400">
-            {selectionCount === 0
-              ? 'Kein Gerät ausgewählt'
-              : `${selectionCount} Gerät${selectionCount === 1 ? '' : 'e'} ausgewählt`}
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-700"
-            >
-              Schließen
-            </button>
-            <button
-              type="button"
-              onClick={() => void handleExportDevices()}
-              disabled={selectionCount === 0 || busy}
-              className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {busy
-                ? 'Erzeuge PDF…'
-                : action === 'print'
-                  ? selectionCount > 1 && mode === 'individual'
-                    ? `🖨 ${selectionCount} Druckjobs starten`
-                    : '🖨 Drucker-Dialog öffnen'
-                  : selectionCount > 1 && mode === 'individual'
-                    ? `⬇ ${selectionCount} PDFs herunterladen`
-                    : '⬇ Patch-Sheet PDF herunterladen'}
-            </button>
-          </div>
-        </footer>
-      </div>
-    </div>
+    </ModalShell>
   )
 }
