@@ -2,7 +2,7 @@ import { Handle, Position, useUpdateNodeInternals, type NodeProps } from 'reactf
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import type { EquipmentItem } from '../../types/equipment'
 import { useUiStore } from '../../store/uiStore'
-import { useProjectStore } from '../../store/projectStore'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { colorForConnector } from '../../lib/cableColors'
 import { defaultIconForEquipment } from '../../lib/deviceKind'
 import { findGreenGoUserForEquipment } from '../../lib/greengoSync'
@@ -763,6 +763,90 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           </Fragment>
         )
       })}
+
+      {/* v7.9.9 — Black-Box-Rack Internal-Wiring-Overlay. Wenn das Item
+          aus "Black-Box-Einfügen" stammt und einen rackInternalSnapshot
+          hat, zeichnen wir die internen Verbindungen als gestrichelte
+          Linien zwischen den HE-Slots im Body. So sieht der User auf
+          dem Canvas was im Rack passiert. */}
+      {data.rackInternalSnapshot && data.rackInternalSnapshot.cables.length > 0 && (
+        (() => {
+          const snap = data.rackInternalSnapshot
+          const innerTop = headerHeight + 4
+          const innerBottom = height - 6
+          const innerH = Math.max(20, innerBottom - innerTop)
+          const innerW = Math.max(40, width - 24)
+          const innerLeft = 12
+          const HE_HEIGHT = innerH / Math.max(1, snap.totalUnits)
+          const itemCenterY = (itemIdx: number): number => {
+            const item = snap.items[itemIdx]
+            if (!item) return innerTop + innerH / 2
+            return innerTop + (item.startUnit - 1 + item.rackUnits / 2) * HE_HEIGHT
+          }
+          return (
+            <svg
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                pointerEvents: 'none',
+              }}
+            >
+              <rect
+                x={innerLeft - 2}
+                y={innerTop - 2}
+                width={innerW + 4}
+                height={innerH + 4}
+                fill="none"
+                stroke={isLight ? 'rgba(100,116,139,0.3)' : 'rgba(148,163,184,0.25)'}
+                strokeWidth={0.5}
+                rx={3}
+              />
+              {snap.items.map((item, idx) => {
+                const top = innerTop + (item.startUnit - 1) * HE_HEIGHT
+                const h = item.rackUnits * HE_HEIGHT
+                return (
+                  <rect
+                    key={`rack-item-${idx}`}
+                    x={innerLeft}
+                    y={top}
+                    width={innerW}
+                    height={h - 1}
+                    fill={isLight ? 'rgba(100,116,139,0.10)' : 'rgba(71,85,105,0.30)'}
+                    stroke={isLight ? 'rgba(100,116,139,0.30)' : 'rgba(148,163,184,0.30)'}
+                    strokeWidth={0.5}
+                  />
+                )
+              })}
+              {snap.cables.map((c, ci) => {
+                const y1 = itemCenterY(c.fromItemIndex)
+                const y2 = itemCenterY(c.toItemIndex)
+                const x1 = innerLeft + innerW * 0.65
+                const x2 = innerLeft + innerW * 0.65
+                const bulge = innerW * 0.28
+                const midX = x1 + bulge
+                const color = c.color ?? (isLight ? '#0369a1' : '#38bdf8')
+                return (
+                  <g key={`internal-cable-${ci}`}>
+                    <path
+                      d={`M ${x1} ${y1} C ${midX} ${y1} ${midX} ${y2} ${x2} ${y2}`}
+                      fill="none"
+                      stroke={color}
+                      strokeWidth={1}
+                      strokeDasharray="3 2"
+                      opacity={0.85}
+                    />
+                    <circle cx={x1} cy={y1} r={1.5} fill={color} />
+                    <circle cx={x2} cy={y2} r={1.5} fill={color} />
+                  </g>
+                )
+              })}
+            </svg>
+          )
+        })()
+      )}
     </div>
   )
 }

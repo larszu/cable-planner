@@ -2122,6 +2122,30 @@ export const LibraryPanel = () => {
                                 height: 0,
                                 icon: '🗄',
                                 notes: `Black-Box-Rack: ${preset.items.length} Geräte, ${preset.cables.length} interne Verbindungen.`,
+                                // v7.9.9 — Snapshot der internen Verkabelung
+                                // mitnehmen, damit EquipmentNode sie als Overlay
+                                // im Black-Box-Body zeichnen kann.
+                                rackInternalSnapshot: {
+                                  items: preset.items.map((item, idx) => ({
+                                    name: item.name,
+                                    startUnit:
+                                      preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.startUnit ??
+                                      idx + 1,
+                                    rackUnits:
+                                      preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.heightUnits ??
+                                      item.rackUnits ?? 1,
+                                  })),
+                                  cables: preset.cables.map((c) => ({
+                                    fromItemIndex: c.fromItemIndex,
+                                    fromPortName: c.fromPortName,
+                                    toItemIndex: c.toItemIndex,
+                                    toPortName: c.toPortName,
+                                    color: c.color,
+                                  })),
+                                  totalUnits:
+                                    preset.rack?.totalUnits ??
+                                    preset.items.reduce((sum, it) => sum + (it.rackUnits ?? 1), 0),
+                                },
                               })
                             }}
                             className="rounded bg-amber-700 px-2 py-1 text-[11px] hover:bg-amber-600"

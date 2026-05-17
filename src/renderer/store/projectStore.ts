@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
-import { create } from 'zustand'
+import { create, type StateCreator } from 'zustand'
 import type { Connection } from 'reactflow'
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, EquipmentTemplate, GroupPreset, Port } from '../types/equipment'
@@ -190,7 +190,7 @@ const persistGroupPresets = (presets: GroupPreset[]) => {
   }
 }
 
-interface ProjectState {
+export interface ProjectState {
   project: CablePlannerProject
   filePath?: string
   /** Incremented each time loadProject or clear() is called. Canvas uses this
@@ -476,18 +476,25 @@ const checkProjectSetRate = () => {
   }
 }
 
-export const useProjectStore = create<ProjectState>((set, get) => {
-  // Listen to our OWN store via subscribe (registered after the store
-  // exists). Throwing inside a zustand listener propagates up to the
-  // setter's caller, which lands in React's error boundary.
-  setTimeout(() => {
-    useProjectStore.subscribe(() => checkProjectSetRate())
-  }, 0)
-  return {
-  project: (() => {
-    const auto = loadAutosavedProject()
-    return auto ? healProjectPositions(auto) : defaultProject()
-  })(),
+/** v7.9.9 — Store-Factory. Erlaubt sowohl die Default-Instanz mit
+ *  Autoload aus localStorage (Main-Canvas) als auch parallele
+ *  Scratch-Instanzen für Sub-Canvas-Use-Cases wie der RackInternal-
+ *  Canvas. Action-Definitionen sind in beiden Fällen identisch; nur
+ *  die Init-Quelle des Projects unterscheidet sich.
+ *
+ *  Scratch-Instanzen bekommen weder die Autosave-Subscription noch
+ *  den Rate-Guard — Autosave würde sonst den localStorage des
+ *  Main-Projects überschreiben, und der Rate-Guard ist nur sinnvoll
+ *  für die langlebige Default-Instanz. */
+const buildProjectStore = (
+  opts: { initialProject?: CablePlannerProject } = {},
+): StateCreator<ProjectState> => (set, get) => ({
+  project:
+    opts.initialProject ??
+    (() => {
+      const auto = loadAutosavedProject()
+      return auto ? healProjectPositions(auto) : defaultProject()
+    })(),
   projectVersion: 0,
   showCableDialog: false,
   recentProjects: [],
@@ -1707,8 +1714,17 @@ export const useProjectStore = create<ProjectState>((set, get) => {
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
-  }
 })
+
+// Default singleton — used everywhere via the existing `useProjectStore`
+// import. Autoload aus localStorage, Autosave-Subscription, Rate-Guard.
+export const useProjectStore = create<ProjectState>(buildProjectStore())
+
+// Rate-Guard nur für die Default-Instanz (siehe Kommentar in
+// buildProjectStore).
+setTimeout(() => {
+  useProjectStore.subscribe(() => checkProjectSetRate())
+}, 0)
 
 // Autosave the working project to localStorage whenever it changes.
 useProjectStore.subscribe((state, prev) => {
@@ -1716,5 +1732,13 @@ useProjectStore.subscribe((state, prev) => {
     scheduleProjectAutosave(state.project)
   }
 })
+
+/** v7.9.9 — Scratch-Store-Factory für Sub-Canvas-Use-Cases wie die
+ *  Rack-internal-Verkabelung. Initialisiert ohne Autoload mit dem
+ *  übergebenen Project. Es werden weder Autosave noch Rate-Guard
+ *  registriert — der Scratch-Store ist eine kurzlebige, isolierte
+ *  Mutations-Sandbox. */
+export const createProjectStoreInstance = (initialProject: CablePlannerProject) =>
+  create<ProjectState>(buildProjectStore({ initialProject }))
 
 export const getProjectPayload = () => useProjectStore.getState().project

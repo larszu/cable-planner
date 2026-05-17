@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useReactFlow } from 'reactflow'
 import { useUiStore } from '../../store/uiStore'
-import { useProjectStore } from '../../store/projectStore'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { RoutingToggle } from '../shared/RoutingToggle'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
