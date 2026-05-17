@@ -509,6 +509,16 @@ interface UiState extends PersistedUiState {
   rackBuilderSeedTrigger: string[] | null
   triggerRackBuilderFromSelection: (equipmentIds: string[]) => void
   clearRackBuilderSeedTrigger: () => void
+  /** v7.9.51 — Trigger zum Bearbeiten eines bereits platzierten Black-
+   *  Box-Racks auf dem Canvas. Anders als rackBuilderSeedTrigger geht
+   *  es hier nicht um eine neue Rack-Erzeugung aus Auswahl, sondern
+   *  um das Editieren des Source-Presets des selektierten Black-Box-
+   *  Equipments. LibraryPanel sucht die zugehörige GroupPreset anhand
+   *  des Equipment-Namens (preset.name + " (Rack)" === equipment.name)
+   *  oder via rackInstanceLabel. */
+  rackBuilderEditFromBlackBoxTrigger: string | null
+  triggerRackBuilderEditFromBlackBox: (equipmentId: string) => void
+  clearRackBuilderEditFromBlackBoxTrigger: () => void
   /** v7.8.7 / Issues #106 + #117 — context-menu state for cables.
    *  `cableId` identifies the right-clicked cable; `screenX/screenY` is
    *  where the menu pops up; `flowX/flowY` is the click position in
@@ -811,6 +821,11 @@ export const useUiStore = create<UiState>((set) => ({
   triggerRackBuilderFromSelection: (equipmentIds) =>
     set({ rackBuilderSeedTrigger: equipmentIds.length > 0 ? equipmentIds : null }),
   clearRackBuilderSeedTrigger: () => set({ rackBuilderSeedTrigger: null }),
+  rackBuilderEditFromBlackBoxTrigger: null,
+  triggerRackBuilderEditFromBlackBox: (equipmentId) =>
+    set({ rackBuilderEditFromBlackBoxTrigger: equipmentId }),
+  clearRackBuilderEditFromBlackBoxTrigger: () =>
+    set({ rackBuilderEditFromBlackBoxTrigger: null }),
   cableContextMenu: { open: false },
   openCableContextMenu: ({ cableId, screenX, screenY, flowX, flowY }) =>
     set({ cableContextMenu: { open: true, cableId, screenX, screenY, flowX, flowY } }),
