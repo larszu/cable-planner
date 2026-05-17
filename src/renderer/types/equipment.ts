@@ -293,6 +293,18 @@ export interface EquipmentItem {
    * where the port list is just visual noise on the canvas.
    */
   collapsed?: boolean
+  /**
+   * v7.9.33 — Reference to the central library file this equipment was
+   * placed from. The project compares this against the library folder
+   * on open and offers updates if the folder has a newer revision.
+   * Equipment without a libraryRef is a standalone canvas-only item
+   * (e.g. typed directly, imported from Rentman, etc.).
+   */
+  libraryRef?: {
+    fileName: string
+    fileVersion: number
+    modifiedAt: string
+  }
 }
 
 /**

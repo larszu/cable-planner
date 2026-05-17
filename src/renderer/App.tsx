@@ -45,6 +45,11 @@ import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
 import { printPdfBlob } from './lib/printPdfBlob'
 import { exportCanvasToImage } from './lib/exportImage'
 import { useProjectStore } from './store/projectStore'
+import {
+  scanLibraryFolder,
+  markDeviceSynced,
+  markGroupSynced,
+} from './lib/librarySync'
 import { useUndoRedoShortcuts, projectHistory } from './store/projectHistory'
 import { useSettingsStore } from './store/settingsStore'
 import { useUiStore } from './store/uiStore'
@@ -130,6 +135,36 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = pdfExportThemeOverride ?? canvasTheme
   }, [canvasTheme, pdfExportThemeOverride])
+
+  // v7.9.33 — Library-Folder-Sync beim App-Start. Liest alle .cpdevice/
+  // .cpgroup Dateien aus userData/library/, fügt Items hinzu die im
+  // localStorage noch nicht stehen. So überlebt die Library App-
+  // Reinstalls und kann zwischen Systemen per Dropbox o.ä. abgeglichen
+  // werden. Bestehende localStorage-Items werden NICHT überschrieben —
+  // der User behält seine lokalen Edits.
+  useEffect(() => {
+    void (async () => {
+      const items = await scanLibraryFolder()
+      if (items.length === 0) return
+      const state = useProjectStore.getState()
+      const existingDeviceNames = new Set(state.customLibrary.map((t) => t.name))
+      const existingGroupNames = new Set(state.groupPresets.map((p) => p.name))
+      const newDevices = items
+        .filter((i) => i.kind === 'device' && !existingDeviceNames.has(i.template.name))
+        .map((i) => (i as { template: import('./types/equipment').EquipmentTemplate }).template)
+      const newGroups = items
+        .filter((i) => i.kind === 'group' && !existingGroupNames.has(i.preset.name))
+        .map((i) => (i as { preset: import('./types/equipment').GroupPreset }).preset)
+      // Marker im Sync-Cache setzen damit der folgende addCustomTemplates-
+      // /addGroupPreset-Call den Diff als "schon synchron" sieht und nicht
+      // sofort wieder in den Ordner zurückschreibt (was die fileVersion
+      // ohne Inhaltsänderung bumpen würde).
+      for (const t of newDevices) markDeviceSynced(t)
+      for (const p of newGroups) markGroupSynced(p)
+      if (newDevices.length > 0) state.addCustomTemplates(newDevices)
+      for (const preset of newGroups) state.addGroupPreset(preset)
+    })()
+  }, [])
 
   useEffect(() => {
     if (pdfExportOpen) setPdfTheme('light')
