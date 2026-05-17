@@ -439,7 +439,7 @@ export default function App() {
         customPalette: exportCustomPalette,
       })
       const blob = new Blob([new Uint8Array(bytes)], { type: 'application/pdf' })
-      printPdfBlob(blob)
+      void printPdfBlob(blob)
     } catch (error) {
       console.error('PDF print failed:', error)
       await infoDialog('PDF-Druck fehlgeschlagen', {

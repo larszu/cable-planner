@@ -1,9 +1,18 @@
-// v7.9.4 — Open a freshly built PDF blob in a hidden iframe and trigger the
-// browser/Electron print dialog. Closest we get to real native printing
-// without bundling a platform-specific print driver: the OS dialog appears
-// with the real printer list, paper sizes, copies + orientation.
+// v7.9.27 — Hybrid print: native Electron print path im Desktop, iframe-
+// Fallback im Browser. Hintergrund: iframe.contentWindow.print() bricht
+// bei manchen jsPDF-Outputs (z.B. wenn der Microsoft-Print-to-PDF
+// Drucker ausgewählt wird), weil Chromium's PDFium-Viewer im iframe
+// das PDF nicht zuverlässig an die Print-Pipeline weiterreicht und
+// eine leere/kaputte Datei rauskommt ("Die Datei kann nicht geöffnet
+// werden. Etwas hat nicht funktioniert.").
+// Lösung: In Electron schicken wir die PDF-Bytes per IPC ans Main-
+// Process, das lädt sie in eine Hidden-BrowserWindow und ruft
+// webContents.print() direkt — Chromium's Print-Backend bekommt das
+// PDF dann sauber gerendert.
 
-export const printPdfBlob = (pdfBlob: Blob): void => {
+import { cablePlannerApi, hasDesktopBridge } from './bridge'
+
+const printViaIframe = (pdfBlob: Blob): void => {
   const url = URL.createObjectURL(pdfBlob)
   const iframe = document.createElement('iframe')
   iframe.style.position = 'fixed'
@@ -21,10 +30,26 @@ export const printPdfBlob = (pdfBlob: Blob): void => {
     } catch {
       /* fall back silently */
     }
-    // Revoke after a delay so the print job isn't cut off mid-stream.
     window.setTimeout(() => {
       document.body.removeChild(iframe)
       URL.revokeObjectURL(url)
     }, 60_000)
   }
+}
+
+export const printPdfBlob = async (pdfBlob: Blob): Promise<void> => {
+  if (hasDesktopBridge) {
+    try {
+      const buffer = await pdfBlob.arrayBuffer()
+      const bytes = new Uint8Array(buffer)
+      await cablePlannerApi.print.pdfBytes(bytes)
+      return
+    } catch {
+      // Native path fehlgeschlagen — fallback auf iframe damit der User
+      // wenigstens irgendwie drucken kann.
+      printViaIframe(pdfBlob)
+      return
+    }
+  }
+  printViaIframe(pdfBlob)
 }
