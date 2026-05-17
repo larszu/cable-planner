@@ -92,6 +92,13 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.on('atem:event', listener)
       return () => ipcRenderer.removeListener('atem:event', listener)
     },
+    /** v7.9.53 — mDNS-Auto-Discovery für ATEM-Switcher. Liefert nach
+     *  timeoutMs (Default 3000) eine Liste aller _blackmagic._tcp-Services
+     *  im lokalen Netzwerk. */
+    discover: (params?: { timeoutMs?: number }) =>
+      ipcRenderer.invoke('atem:discover', params) as Promise<
+        Array<{ name: string; ip: string; port: number; model?: string }>
+      >,
   },
   videohub: {
     sendRouting: (params: { host: string; port: number; block: string }) =>
