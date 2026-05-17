@@ -297,6 +297,15 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   const hasSelection = selectedEquipmentIds.length >= 1
+  // v7.9.50 — Wenn eines der selektierten Geräte selbst ein Rack ist
+  // (also rackInternalSnapshot trägt = Black-Box-Rack auf dem Canvas),
+  // ist "im 2D-Rack-Builder anordnen" verboten. Sonst könnte der User
+  // ein Rack-Black-Box in ein neues Rack packen → endlose Verschachtelung
+  // ohne sinnvolle Bedeutung.
+  const selectionContainsRack = selectedEquipmentIds.some((id) => {
+    const eq = equipmentList.find((e) => e.id === id)
+    return !!eq?.rackInternalSnapshot
+  })
   // v7.9.28 — Align-Buttons schon ab 1 Selection (richtet am Viewport
   // aus, Figma-Pattern). Distribute braucht 3+ Items.
   const alignEnabled = selectedEquipmentIds.length >= 1
@@ -432,7 +441,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               </svg>
             </IconButton>
           )}
-          {hasSelection && (
+          {hasSelection && !selectionContainsRack && (
             <IconButton
               title={`${selectedEquipmentIds.length} markierte Geräte im 2D-Rack-Builder anordnen`}
               onClick={() => triggerRackBuilderFromSelection(selectedEquipmentIds)}
