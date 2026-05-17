@@ -14,7 +14,7 @@
 // Web-Fallback: bridge.library.* gibt no-op-Werte zurück, alles
 // passiert nur über localStorage wie vorher.
 
-import type { EquipmentTemplate, GroupPreset } from '../types/equipment'
+import type { EquipmentItem, EquipmentTemplate, GroupPreset } from '../types/equipment'
 import { cablePlannerApi, hasDesktopBridge } from './bridge'
 
 export interface LibraryRef {
@@ -52,15 +52,69 @@ const isPreset = (x: unknown): x is GroupPreset =>
   typeof (x as GroupPreset).name === 'string' &&
   Array.isArray((x as GroupPreset).items)
 
+// ── Refs-Lookup (template-Name → current library file version) ─────
+// Damit "Mit Lib-Version X importiert"-Markierungen am platzierten
+// Equipment stehen können (Phase 3). Map wird gefüllt von scan + write.
+
+const deviceRefByName = new Map<string, LibraryRef>()
+const groupRefByName = new Map<string, LibraryRef>()
+
+export const getDeviceLibraryRef = (templateName: string): LibraryRef | undefined =>
+  deviceRefByName.get(templateName)
+
+export const getGroupLibraryRef = (presetName: string): LibraryRef | undefined =>
+  groupRefByName.get(presetName)
+
+/** Attach the current device libraryRef to a template before placement.
+ *  Returns the original if no folder-tracked ref exists (e.g. on web,
+ *  for built-in catalog items, or before the startup scan finished). */
+export const stampDeviceLibraryRef = (template: EquipmentTemplate): EquipmentTemplate => {
+  const ref = deviceRefByName.get(template.name)
+  if (!ref) return template
+  return {
+    ...template,
+    libraryRef: {
+      kind: 'device',
+      name: template.name,
+      fileVersion: ref.fileVersion,
+      modifiedAt: ref.modifiedAt,
+    },
+  }
+}
+
+/** Stamp every spawned equipment from a group placement with the group's
+ *  libraryRef. Used by placeGroupPreset so the project can later check
+ *  for group updates. */
+export const stampGroupLibraryRef = (
+  presetName: string,
+): EquipmentItem['libraryRef'] | undefined => {
+  const ref = groupRefByName.get(presetName)
+  if (!ref) return undefined
+  return {
+    kind: 'group',
+    name: presetName,
+    fileVersion: ref.fileVersion,
+    modifiedAt: ref.modifiedAt,
+  }
+}
+
 /** Read every item file from the central library folder. Returns empty
- *  array in the web fallback / when the folder isn't accessible. */
+ *  array in the web fallback / when the folder isn't accessible.
+ *  Side-effect: aktualisiert die internen Refs-Maps damit nachfolgende
+ *  Placements ihren libraryRef finden. */
 export const scanLibraryFolder = async (): Promise<ScannedItem[]> => {
   if (!hasDesktopBridge) return []
   try {
     const raw = await cablePlannerApi.library.scan()
     const result: ScannedItem[] = []
     for (const entry of raw) {
+      const ref: LibraryRef = {
+        fileName: entry.fileName,
+        fileVersion: entry.fileVersion,
+        modifiedAt: entry.modifiedAt,
+      }
       if (entry.kind === 'device' && isTemplate(entry.payload)) {
+        deviceRefByName.set(entry.payload.name, ref)
         result.push({
           kind: 'device',
           fileName: entry.fileName,
@@ -69,6 +123,7 @@ export const scanLibraryFolder = async (): Promise<ScannedItem[]> => {
           template: entry.payload,
         })
       } else if (entry.kind === 'group' && isPreset(entry.payload)) {
+        groupRefByName.set(entry.payload.name, ref)
         result.push({
           kind: 'group',
           fileName: entry.fileName,
@@ -98,6 +153,7 @@ export const writeDeviceToFolder = async (
       name: template.name,
       payload: template,
     })
+    deviceRefByName.set(template.name, res)
     return res
   } catch {
     return null
@@ -112,6 +168,7 @@ export const writeGroupToFolder = async (preset: GroupPreset): Promise<LibraryRe
       name: preset.name,
       payload: preset,
     })
+    groupRefByName.set(preset.name, res)
     return res
   } catch {
     return null
@@ -119,6 +176,7 @@ export const writeGroupToFolder = async (preset: GroupPreset): Promise<LibraryRe
 }
 
 export const deleteDeviceFromFolder = async (templateName: string): Promise<void> => {
+  deviceRefByName.delete(templateName)
   if (!hasDesktopBridge) return
   try {
     await cablePlannerApi.library.deleteItem({ kind: 'device', name: templateName })
@@ -128,6 +186,7 @@ export const deleteDeviceFromFolder = async (templateName: string): Promise<void
 }
 
 export const deleteGroupFromFolder = async (presetName: string): Promise<void> => {
+  groupRefByName.delete(presetName)
   if (!hasDesktopBridge) return
   try {
     await cablePlannerApi.library.deleteItem({ kind: 'group', name: presetName })
@@ -197,6 +256,73 @@ export const syncDevicesToFolder = (items: EquipmentTemplate[]): void => {
     }
   }
   lastSyncedDevices = next
+}
+
+// ── Update-Check (Phase 3) ─────────────────────────────────────────
+// Beim Projekt-Öffnen vergleicht der Renderer jedes Equipment mit
+// libraryRef gegen den aktuellen Folder-Stand. Items, deren Folder-
+// Datei einen höheren fileVersion-Wert hat, gelten als "outdated"
+// und werden dem User zur Aktualisierung angeboten.
+
+export interface OutdatedLibraryItem {
+  equipmentId: string
+  equipmentName: string
+  refKind: 'device' | 'group'
+  refName: string
+  storedFileVersion: number
+  storedModifiedAt: string
+  currentFileVersion: number
+  currentModifiedAt: string
+}
+
+export const findOutdatedEquipment = (
+  equipment: ReadonlyArray<EquipmentItem>,
+): OutdatedLibraryItem[] => {
+  const out: OutdatedLibraryItem[] = []
+  for (const eq of equipment) {
+    if (!eq.libraryRef) continue
+    const ref = eq.libraryRef
+    const current =
+      ref.kind === 'device' ? deviceRefByName.get(ref.name) : groupRefByName.get(ref.name)
+    if (!current) continue // library file deleted/renamed → keine Aktualisierung möglich
+    if (current.fileVersion > ref.fileVersion) {
+      out.push({
+        equipmentId: eq.id,
+        equipmentName: eq.name,
+        refKind: ref.kind,
+        refName: ref.name,
+        storedFileVersion: ref.fileVersion,
+        storedModifiedAt: ref.modifiedAt,
+        currentFileVersion: current.fileVersion,
+        currentModifiedAt: current.modifiedAt,
+      })
+    }
+  }
+  return out
+}
+
+/** Apply a fresh device template to an existing placed equipment, while
+ *  preserving its identity (id, x, y) and re-stamping the libraryRef
+ *  to the new fileVersion. Cables connected via port-id may become
+ *  dangling if v2 of the template changed port IDs — the user is
+ *  responsible for that (rare in practice because templates rarely
+ *  recycle IDs). */
+export const applyDeviceTemplateUpdate = (
+  oldEq: EquipmentItem,
+  newTemplate: EquipmentTemplate,
+): EquipmentItem => {
+  const stamped = stampDeviceLibraryRef(newTemplate)
+  return {
+    ...stamped,
+    id: oldEq.id,
+    x: oldEq.x,
+    y: oldEq.y,
+    // Preserve user-local Edits am Equipment — Notizen + ggf. Rename
+    // sind nicht Teil des Library-Templates, der Update soll sie nicht
+    // wegwerfen.
+    name: oldEq.name,
+    notes: oldEq.notes,
+  }
 }
 
 export const syncPresetsToFolder = (presets: GroupPreset[]): void => {

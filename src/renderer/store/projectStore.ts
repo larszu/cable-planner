@@ -28,6 +28,7 @@ import {
   syncDevicesToFolder,
   syncPresetsToFolder,
   seedLibrarySyncCache,
+  stampGroupLibraryRef,
 } from '../lib/librarySync'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
@@ -1694,6 +1695,10 @@ const buildProjectStore = (
           placementByIndex.set(p.itemIndex, { startUnit: p.startUnit, heightUnits: p.heightUnits })
         }
       }
+      // v7.9.33 — Stempelt jedes platzierte Gerät mit dem aktuellen
+      // Group-File-Stand damit Update-Prompt beim Projekt-Öffnen erkennt
+      // wenn die Gruppe in der Library aktualisiert wurde.
+      const groupRef = stampGroupLibraryRef(preset.name)
       // Create new equipment items with fresh IDs and port IDs.
       const newEquipment: EquipmentItem[] = preset.items.map((item, idx) => ({
         ...item,
@@ -1705,6 +1710,7 @@ const buildProjectStore = (
         rackInstanceId,
         rackInstanceLabel,
         rackInstanceStartUnit: placementByIndex.get(idx)?.startUnit,
+        libraryRef: groupRef,
       }))
       // Build (itemIndex:portName) → new port ID lookup
       const portIdMap = new Map<string, string>()

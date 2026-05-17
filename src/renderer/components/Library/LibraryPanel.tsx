@@ -42,7 +42,7 @@ import { RackBuilderDialog } from '../Rack/RackBuilderDialog'
 import { TemplateMergeDialog } from './TemplateMergeDialog'
 import { LibraryItem } from './LibraryItem'
 import { parseLibraryItemFile } from '../../lib/itemExport'
-import { openLibraryFolder } from '../../lib/librarySync'
+import { openLibraryFolder, stampDeviceLibraryRef } from '../../lib/librarySync'
 import { hasDesktopBridge } from '../../lib/bridge'
 import { CableLibraryPanel } from './CableLibraryPanel'
 
@@ -1557,7 +1557,7 @@ export const LibraryPanel = () => {
                             <div key={item.name} className="group/item relative">
                               <LibraryItem
                                 item={item}
-                                onAdd={() => addEquipment({ ...item, ...nextPosition })}
+                                onAdd={() => addEquipment({ ...stampDeviceLibraryRef(item), ...nextPosition })}
                                 onRemove={() => removeCustomTemplate(item.name)}
                                 onToggleFavorite={() => toggleTemplateFavorite(item.name)}
                                 onToggleHidden={() => toggleTemplateHidden(item.name)}
@@ -1806,7 +1806,7 @@ export const LibraryPanel = () => {
                                                 item={item}
                                                 onAdd={() => {
                                                   addEquipment({
-                                                    ...item,
+                                                    ...stampDeviceLibraryRef(item),
                                                     ...nextPlacementPosition(equipmentCount, equipmentItems),
                                                   })
                                                 }}
