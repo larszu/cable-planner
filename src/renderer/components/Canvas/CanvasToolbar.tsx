@@ -5,6 +5,7 @@ import { useCanvasProjectStore as useProjectStore } from '../../store/projectSto
 import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { RoutingToggle } from '../shared/RoutingToggle'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { confirmDialog } from '../../lib/confirmDialog'
 
 type CanvasToolbarMode = 'main' | 'rack'
 
@@ -527,20 +528,21 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
       <span style={{ ...dividerStyle, marginLeft: 'auto' }} />
       <button
         type="button"
-        onClick={() => {
+        onClick={async () => {
           if (projectMode === 'viewer') return
           if (projectMode === 'finalized') {
-            const ok = window.confirm(
-              'Planung wieder zur Bearbeitung freigeben?\n\n' +
-                'Geräte, Kabel und Layout können dann wieder verändert werden.',
-            )
+            const ok = await confirmDialog('Planung wieder zur Bearbeitung freigeben?', {
+              body: 'Geräte, Kabel und Layout können dann wieder verändert werden.',
+              okLabel: 'Freigeben',
+            })
             if (ok) setProjectMode('editing')
           } else {
-            const ok = window.confirm(
-              'Planung abschließen?\n\n' +
+            const ok = await confirmDialog('Planung abschließen?', {
+              body:
                 'Das Canvas wird gesperrt — keine Verschiebungen, neue Verbindungen ' +
                 'oder Löschungen möglich. Du kannst die Sperre jederzeit wieder aufheben.',
-            )
+              okLabel: 'Abschließen',
+            })
             if (ok) setProjectMode('finalized')
           }
         }}

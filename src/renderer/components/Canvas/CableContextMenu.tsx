@@ -25,6 +25,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { routeCable } from '../../lib/canvasViewport'
+import { confirmDialog } from '../../lib/confirmDialog'
+import { promptDialog } from '../../lib/promptDialog'
+import { infoDialog } from '../../lib/infoDialog'
 import type { Cable, CableRouting } from '../../types/cable'
 
 /** Distance from a point to the nearest existing waypoint. Returns the
@@ -140,8 +143,8 @@ export const CableContextMenu = () => {
     close()
   }
 
-  const renameLabel = () => {
-    const next = window.prompt('Kabel-Bezeichnung', cable.name)
+  const renameLabel = async () => {
+    const next = await promptDialog('Kabel-Bezeichnung', cable.name)
     if (next != null && next.trim() !== cable.name) {
       doUpdate({ name: next.trim() })
     } else {
@@ -170,7 +173,10 @@ export const CableContextMenu = () => {
   const rerouteWithAStar = () => {
     const ok = routeCable(cable.id)
     if (!ok) {
-      window.alert('A*-Routing fehlgeschlagen — kein Pfad gefunden (Geräte blockieren?).')
+      void infoDialog('A*-Routing fehlgeschlagen', {
+        body: 'Kein Pfad gefunden — möglicherweise blockieren andere Geräte den Korridor.',
+        tone: 'warning',
+      })
     }
     close()
   }
@@ -195,8 +201,11 @@ export const CableContextMenu = () => {
   const toggleArrowStart = () => doUpdate({ arrowStart: !cable.arrowStart })
   const toggleBidirectional = () => doUpdate({ bidirectional: !cable.bidirectional })
 
-  const removeCable = () => {
-    if (window.confirm(`Kabel "${cable.name}" löschen?`)) {
+  const removeCable = async () => {
+    if (await confirmDialog(`Kabel "${cable.name}" löschen?`, {
+      okLabel: 'Löschen',
+      destructive: true,
+    })) {
       deleteCable(cable.id)
     }
     close()

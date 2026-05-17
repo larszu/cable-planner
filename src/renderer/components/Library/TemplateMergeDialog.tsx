@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import type { EquipmentTemplate, Port } from '../../types/equipment'
+import { infoDialog } from '../../lib/infoDialog'
 
 interface TemplateMergeDialogProps {
   open: boolean
@@ -244,11 +245,17 @@ export const TemplateMergeDialog = ({
               const merged = buildMergedTemplate()
               if (!merged) return
               if (!category) {
-                window.alert('Bitte Zielkategorie auswählen.')
+                void infoDialog('Kategorie wählen', {
+                  body: 'Bitte Zielkategorie auswählen.',
+                  tone: 'warning',
+                })
                 return
               }
               if (merged.inputs.length === 0 && merged.outputs.length === 0) {
-                window.alert('Bitte mindestens einen Port auswählen.')
+                void infoDialog('Port wählen', {
+                  body: 'Bitte mindestens einen Port auswählen.',
+                  tone: 'warning',
+                })
                 return
               }
               onConfirm(merged)
