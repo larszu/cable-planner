@@ -26,7 +26,12 @@ import {
 import { confirmDialog } from '../../lib/confirmDialog'
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
 import { useUiStore } from '../../store/uiStore'
-import { ANNOTATION_DRAG_MIME } from '../Annotations/AnnotationsPanel'
+import {
+  MIME_ANNOTATION as ANNOTATION_DRAG_MIME,
+  MIME_EQUIPMENT,
+  MIME_GROUP_PRESET,
+  MIME_RACK_PRESET,
+} from '../../lib/dragDropMimes'
 import { AnnotationCanvasOverlay } from '../Annotations/AnnotationCanvasOverlay'
 import type { EquipmentItem, EquipmentTemplate } from '../../types/equipment'
 import type { Cable } from '../../types/cable'
@@ -994,7 +999,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       // v7.9.15 — Rack-Preset-Drop. Wenn ein Black-Box-Rack aus der
       // Library-Racks-Tab gezogen wird, fügen wir es als ein einziges
       // Equipment-Item (Black-Box) am Drop-Punkt ein.
-      const rackPresetId = event.dataTransfer.getData('application/cable-planner-rack-preset')
+      const rackPresetId = event.dataTransfer.getData(MIME_RACK_PRESET)
       if (rackPresetId) {
         if (mode === 'rack') return
         const px = snapX(position.x)
@@ -1005,7 +1010,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       // v7.9.16 — Group-Preset-Drop (Non-Rack-Gruppen). Funktioniert wie
       // der Platzieren-Button: spawn die Geräte mit Internal-Cables am
       // Drop-Punkt (placeGroupPreset).
-      const groupPresetId = event.dataTransfer.getData('application/cable-planner-group-preset')
+      const groupPresetId = event.dataTransfer.getData(MIME_GROUP_PRESET)
       if (groupPresetId) {
         if (mode === 'rack') return
         const px = snapX(position.x)
@@ -1014,7 +1019,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         return
       }
 
-      const payload = event.dataTransfer.getData('application/cable-planner-equipment')
+      const payload = event.dataTransfer.getData(MIME_EQUIPMENT)
       if (!payload) {
         return
       }
