@@ -11,6 +11,7 @@ import { registerLogIpc } from './ipc/logIpc.js'
 import { registerSyncIpc } from './ipc/syncIpc.js'
 import { registerGraphmlIpc } from './ipc/graphmlIpc.js'
 import { registerMobileShareIpc } from './ipc/mobileShareIpc.js'
+import { registerPrintIpc } from './ipc/printIpc.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -212,6 +213,7 @@ app.whenReady().then(async () => {
   registerSyncIpc()
   registerGraphmlIpc()
   registerMobileShareIpc()
+  registerPrintIpc()
 
   await createWindow()
 

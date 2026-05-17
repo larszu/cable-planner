@@ -99,6 +99,14 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     releaseLock: (dirPath: string, owner: string) =>
       ipcRenderer.invoke('sync:release-lock', dirPath, owner) as Promise<void>,
   },
+  print: {
+    /** v7.9.27 — PDF-Bytes ans Main schicken, das öffnet die in einer
+     *  Hidden-BrowserWindow und ruft webContents.print(). Robuster als
+     *  iframe.contentWindow.print() das Microsoft-Print-to-PDF in
+     *  manchen Fällen kaputte Dateien schreiben lässt. */
+    pdfBytes: (bytes: Uint8Array) =>
+      ipcRenderer.invoke('print:pdf-bytes', bytes) as Promise<boolean>,
+  },
   mobileShare: {
     start: () =>
       ipcRenderer.invoke('mobileShare:start') as Promise<{

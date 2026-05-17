@@ -82,12 +82,12 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
             ? buildDevicesPatchSheetsBatchBlob(selectedDevices, equipment, cables, { format })
             : null
         if (blob) {
-          printPdfBlob(blob)
+          void printPdfBlob(blob)
         } else if (mode === 'individual') {
           // Individual prints: each device PDF in its own print job.
           for (const device of selectedDevices) {
             const each = buildDevicePatchSheetBlob(device, equipment, cables, { format })
-            printPdfBlob(each)
+            void printPdfBlob(each)
           }
         }
       } else {

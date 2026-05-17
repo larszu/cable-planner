@@ -325,7 +325,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           devices.length === 1
             ? buildDevicePatchSheetBlob(devices[0], equipment, cables, { format: paper })
             : buildDevicesPatchSheetsBatchBlob(devices, equipment, cables, { format: paper })
-        if (blob) printPdfBlob(blob)
+        if (blob) void printPdfBlob(blob)
       }
       onClose()
     } finally {
@@ -642,7 +642,7 @@ const BomSection = () => {
       y += 14
     }
     const blob = pdf.output('blob') as Blob
-    printPdfBlob(blob)
+    void printPdfBlob(blob)
   }
 
   return (
