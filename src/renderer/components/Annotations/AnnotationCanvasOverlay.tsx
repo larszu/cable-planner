@@ -1,15 +1,15 @@
-// v7.9.5 — Annotations-Badges direkt aufs Canvas. Free-Annotations
-// schweben an ihrer x/y-Position, device-anchored sitzen oben rechts
-// am Geräte-Node. Hover öffnet den Volltext, Klick scrollt im
-// Annotations-Panel zur passenden Karte (zukünftig).
-//
-// Sehr leichtgewichtig: ein einziges absolutes SVG/HTML-Layer auf
-// dem Canvas, das pro Annotation einen kleinen farbigen Pin mit
-// Author-Initialen rendert.
+// v7.9.8 — Annotations-Overlay mit Drag + Klick-Toggle. Free-Annotations
+// können auf dem Canvas verschoben werden (Pointer-Capture, Snap-to-Grid
+// optional). Klick auf den Kreis togglet eine Detail-Karte, die direkt
+// neben dem Kreis erscheint und Author + Status + Text zeigt. Klick auf
+// den Kreis schliesst die Karte wieder. Device/Port-Anchors sind nicht
+// verschiebbar (sie folgen ihrem Gerät) — aber Klick-Toggle gilt für
+// alle Anchor-Typen.
 
-import { useMemo } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useReactFlow, useViewport } from 'reactflow'
 import { useProjectStore } from '../../store/projectStore'
+import { useUiStore } from '../../store/uiStore'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import type { ProjectAnnotation } from '../../types/project'
 
@@ -19,22 +19,49 @@ const STATUS_COLOR: Record<ProjectAnnotation['status'], string> = {
   resolved: '#94a3b8',
 }
 
+const STATUS_LABEL: Record<ProjectAnnotation['status'], string> = {
+  open: 'Offen',
+  built: 'Gebaut',
+  resolved: 'Erledigt',
+}
+
 const initialsOf = (author: string): string => {
   const parts = author.trim().split(/\s+/)
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
+// Click-vs-Drag-Schwelle in Pixeln (Screen-Space). Unterhalb dieser
+// Bewegung gilt PointerUp als Klick und togglet die Detail-Karte.
+const DRAG_THRESHOLD = 4
+
 const EMPTY: ProjectAnnotation[] = []
+
+type DragState = {
+  id: string
+  startClientX: number
+  startClientY: number
+  startFlowX: number
+  startFlowY: number
+  flow: { x: number; y: number }
+  moved: boolean
+}
 
 export const AnnotationCanvasOverlay = () => {
   const annotations = useProjectStore((s) => s.project.annotations) ?? EMPTY
   const equipment = useProjectStore((s) => s.project.equipment)
   const greengoConfig = useProjectStore((s) => s.project.greengoConfig)
-  const { flowToScreenPosition } = useReactFlow()
+  const updateAnnotation = useProjectStore((s) => s.updateAnnotation)
+  const snapToGrid = useUiStore((s) => s.snapToGrid)
+  const gridSize = useUiStore((s) => s.gridSize)
+  const { flowToScreenPosition, screenToFlowPosition } = useReactFlow()
   const viewport = useViewport()
-  // Reference viewport so badges follow pan/zoom
   void viewport
+
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [dragState, setDragState] = useState<DragState | null>(null)
+  const dragRef = useRef<DragState | null>(null)
+  dragRef.current = dragState
 
   const positions = useMemo(() => {
     return annotations
@@ -47,7 +74,6 @@ export const AnnotationCanvasOverlay = () => {
           const eq = equipment.find((e) => e.id === anchor.deviceId)
           if (!eq) return null
           const layout = computeEquipmentLayout(eq, greengoConfig)
-          // Position the badge at the device's top-right corner
           return {
             annotation: a,
             flow: { x: eq.x + layout.width - 8, y: eq.y + 4 },
@@ -57,16 +83,22 @@ export const AnnotationCanvasOverlay = () => {
           const eq = equipment.find((e) => e.id === anchor.deviceId)
           if (!eq) return null
           const layout = computeEquipmentLayout(eq, greengoConfig)
-          const pos = layout.portPos(anchor.portId, 'source') ?? layout.portPos(anchor.portId, 'target')
+          const pos =
+            layout.portPos(anchor.portId, 'source') ?? layout.portPos(anchor.portId, 'target')
           if (!pos) return null
           return { annotation: a, flow: { x: pos.x, y: pos.y } }
         }
         return null
       })
-      .filter((x): x is { annotation: ProjectAnnotation; flow: { x: number; y: number } } => !!x)
+      .filter(
+        (x): x is { annotation: ProjectAnnotation; flow: { x: number; y: number } } => !!x,
+      )
   }, [annotations, equipment, greengoConfig])
 
   if (positions.length === 0) return null
+
+  const snap = (n: number): number =>
+    snapToGrid && gridSize > 0 ? Math.round(n / gridSize) * gridSize : n
 
   return (
     <div
@@ -78,32 +110,189 @@ export const AnnotationCanvasOverlay = () => {
       }}
     >
       {positions.map(({ annotation, flow }) => {
-        const screen = flowToScreenPosition(flow)
+        const isDragging = dragState && dragState.id === annotation.id && dragState.moved
+        const effectiveFlow = isDragging ? dragState!.flow : flow
+        const screen = flowToScreenPosition(effectiveFlow)
+        const isExpanded = expandedId === annotation.id
+        const isFree = annotation.anchor.type === 'free'
+        const cardOnRight =
+          typeof window !== 'undefined' ? screen.x + 18 + 240 <= window.innerWidth : true
         return (
-          <div
-            key={annotation.id}
-            title={`${annotation.author}: ${annotation.text}`}
-            style={{
-              position: 'absolute',
-              left: screen.x - 10,
-              top: screen.y - 10,
-              width: 22,
-              height: 22,
-              borderRadius: '50%',
-              background: STATUS_COLOR[annotation.status],
-              color: '#0f172a',
-              border: '2px solid #0f172a',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 9,
-              fontWeight: 700,
-              pointerEvents: 'auto',
-              cursor: 'help',
-            }}
-          >
-            {initialsOf(annotation.author)}
+          <div key={annotation.id} style={{ position: 'absolute', left: 0, top: 0 }}>
+            <div
+              title={
+                isFree
+                  ? 'Klick = Text anzeigen · Ziehen = Position'
+                  : 'Klick = Text anzeigen'
+              }
+              onPointerDown={(e) => {
+                e.stopPropagation()
+                if (!isFree) return
+                e.preventDefault()
+                e.currentTarget.setPointerCapture(e.pointerId)
+                const anchor = annotation.anchor
+                if (anchor.type !== 'free') return
+                const next: DragState = {
+                  id: annotation.id,
+                  startClientX: e.clientX,
+                  startClientY: e.clientY,
+                  startFlowX: anchor.x,
+                  startFlowY: anchor.y,
+                  flow: { x: anchor.x, y: anchor.y },
+                  moved: false,
+                }
+                setDragState(next)
+              }}
+              onPointerMove={(e) => {
+                const ds = dragRef.current
+                if (!ds || ds.id !== annotation.id) return
+                const dx = e.clientX - ds.startClientX
+                const dy = e.clientY - ds.startClientY
+                if (!ds.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return
+                const flowNow = screenToFlowPosition({ x: e.clientX, y: e.clientY })
+                setDragState({
+                  ...ds,
+                  moved: true,
+                  flow: { x: snap(flowNow.x), y: snap(flowNow.y) },
+                })
+              }}
+              onPointerUp={(e) => {
+                const ds = dragRef.current
+                if (ds && ds.id === annotation.id) {
+                  try {
+                    e.currentTarget.releasePointerCapture(e.pointerId)
+                  } catch {
+                    /* ignore */
+                  }
+                  if (ds.moved) {
+                    updateAnnotation(annotation.id, {
+                      anchor: { type: 'free', x: ds.flow.x, y: ds.flow.y },
+                    })
+                  } else {
+                    setExpandedId((cur) => (cur === annotation.id ? null : annotation.id))
+                  }
+                  setDragState(null)
+                  return
+                }
+                // Non-free anchors: simple click-toggle.
+                setExpandedId((cur) => (cur === annotation.id ? null : annotation.id))
+              }}
+              style={{
+                position: 'absolute',
+                left: screen.x - 11,
+                top: screen.y - 11,
+                width: 22,
+                height: 22,
+                borderRadius: '50%',
+                background: STATUS_COLOR[annotation.status],
+                color: '#0f172a',
+                border: isExpanded ? '2px solid #e2e8f0' : '2px solid #0f172a',
+                boxShadow: isExpanded
+                  ? '0 0 0 2px rgba(56,189,248,0.4), 0 2px 4px rgba(0,0,0,0.4)'
+                  : '0 2px 4px rgba(0,0,0,0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 9,
+                fontWeight: 700,
+                pointerEvents: 'auto',
+                cursor: isFree ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
+                touchAction: 'none',
+                userSelect: 'none',
+              }}
+            >
+              {initialsOf(annotation.author)}
+            </div>
+
+            {isExpanded && (
+              <div
+                role="dialog"
+                aria-label={`Anmerkung von ${annotation.author}`}
+                style={{
+                  position: 'absolute',
+                  left: cardOnRight ? screen.x + 18 : screen.x - 258,
+                  top: screen.y - 12,
+                  width: 240,
+                  background: '#0f172a',
+                  color: '#e2e8f0',
+                  border: `2px solid ${STATUS_COLOR[annotation.status]}`,
+                  borderRadius: 6,
+                  padding: 8,
+                  fontSize: 11,
+                  lineHeight: 1.35,
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+                  pointerEvents: 'auto',
+                  zIndex: 12,
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                onWheel={(e) => e.stopPropagation()}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    marginBottom: 6,
+                  }}
+                >
+                  <span
+                    style={{
+                      background: STATUS_COLOR[annotation.status],
+                      color: '#0f172a',
+                      padding: '1px 6px',
+                      borderRadius: 3,
+                      fontSize: 9,
+                      fontWeight: 700,
+                      letterSpacing: 0.2,
+                    }}
+                  >
+                    {STATUS_LABEL[annotation.status]}
+                  </span>
+                  <span style={{ flex: 1, fontWeight: 600, fontSize: 11 }}>
+                    {annotation.author}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setExpandedId(null)}
+                    title="Schließen"
+                    style={{
+                      background: '#334155',
+                      color: '#e2e8f0',
+                      border: 'none',
+                      borderRadius: 3,
+                      padding: '1px 6px',
+                      fontSize: 11,
+                      cursor: 'pointer',
+                      lineHeight: 1,
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+                <div
+                  style={{
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    maxHeight: 200,
+                    overflowY: 'auto',
+                  }}
+                >
+                  {annotation.text || <em style={{ color: '#64748b' }}>(leer)</em>}
+                </div>
+                <div
+                  style={{
+                    marginTop: 6,
+                    fontSize: 9,
+                    color: '#64748b',
+                  }}
+                >
+                  {new Date(annotation.createdAt).toLocaleString()}
+                  {annotation.anchor.type !== 'free' && (
+                    <span> · gepinnt an {annotation.anchor.type === 'device' ? 'Gerät' : 'Port'}</span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )
       })}
