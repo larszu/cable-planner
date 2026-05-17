@@ -46,6 +46,8 @@ export const CanvasToolbar = () => {
   const setProjectMode = useProjectStore((s) => s.setProjectMode)
   const annotationsPanelOpen = useUiStore((s) => s.annotationsPanelOpen)
   const setAnnotationsPanelOpen = useUiStore((s) => s.setAnnotationsPanelOpen)
+  const annotationsVisible = useUiStore((s) => s.annotationsVisible)
+  const setAnnotationsVisible = useUiStore((s) => s.setAnnotationsVisible)
   const annotationsCount = useProjectStore((s) => s.project.annotations?.length ?? 0)
   const { getNodes, setNodes } = useReactFlow()
   const [namingGroup, setNamingGroup] = useState(false)
@@ -545,6 +547,41 @@ export const CanvasToolbar = () => {
               ? 'Abgeschlossen'
               : 'Abschließen'}
         </span>
+      </button>
+      {/* v7.9.8 — Sichtbarkeits-Toggle für Canvas-Annotations. Versteckt
+          die farbigen Kreis-Badges OHNE die Annotations zu löschen. */}
+      <button
+        type="button"
+        onClick={() => setAnnotationsVisible(!annotationsVisible)}
+        title={
+          annotationsVisible
+            ? 'Anmerkungen-Badges auf dem Canvas ausblenden (Daten bleiben erhalten)'
+            : 'Anmerkungen-Badges auf dem Canvas wieder einblenden'
+        }
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: T.iconBtnSize,
+          height: T.iconBtnSize,
+          background: annotationsVisible ? T.btnBg : T.btnActiveBg,
+          color: annotationsVisible ? T.text : '#ffffff',
+          border: `1px solid ${annotationsVisible ? T.border : T.btnActiveBg}`,
+          borderRadius: 6,
+          cursor: 'pointer',
+        }}
+      >
+        {annotationsVisible ? (
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M1.5 8c1.5-3 4-5 6.5-5s5 2 6.5 5c-1.5 3-4 5-6.5 5s-5-2-6.5-5z" />
+            <circle cx="8" cy="8" r="2" />
+          </svg>
+        ) : (
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M2 2l12 12" />
+            <path d="M3 5.5c1.4-1.6 3-2.5 5-2.5s3.6.9 5 2.5M1.5 8c1-2 2.5-3.5 4.5-4.3M14.5 8c-1.5 3-4 5-6.5 5-.7 0-1.4-.15-2-.4" />
+          </svg>
+        )}
       </button>
       <button
         type="button"
