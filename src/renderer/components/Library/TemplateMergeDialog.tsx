@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import type { EquipmentTemplate, Port } from '../../types/equipment'
 import { infoDialog } from '../../lib/infoDialog'
+import { ModalShell } from '../shared/ModalShell'
 
 interface TemplateMergeDialogProps {
   open: boolean
@@ -106,28 +107,57 @@ export const TemplateMergeDialog = ({
     }
   }
 
-  if (!open || !localTemplate || !incomingTemplate) return null
+  if (!localTemplate || !incomingTemplate) return null
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-6">
-      <div className="max-h-[92vh] w-full max-w-4xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
-        <div className="mb-3 flex items-center justify-between gap-2">
-          <div>
-            <h3 className="text-base font-semibold">Geräte zusammenfuhren</h3>
-            <p className="text-xs text-slate-400">
-              Wahlen, welche Inputs/Outputs aus Lokal und {incomingLabel} ubernommen werden.
-            </p>
-          </div>
+    <ModalShell
+      open={open}
+      onClose={onCancel}
+      title="Geräte zusammenführen"
+      maxWidth="4xl"
+      zIndex={80}
+      footer={
+        <div className="flex justify-end gap-2">
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
           >
-            Schliessen
+            Abbrechen
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const merged = buildMergedTemplate()
+              if (!merged) return
+              if (!category) {
+                void infoDialog('Kategorie wählen', {
+                  body: 'Bitte Zielkategorie auswählen.',
+                  tone: 'warning',
+                })
+                return
+              }
+              if (merged.inputs.length === 0 && merged.outputs.length === 0) {
+                void infoDialog('Port wählen', {
+                  body: 'Bitte mindestens einen Port auswählen.',
+                  tone: 'warning',
+                })
+                return
+              }
+              onConfirm(merged)
+            }}
+            className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500"
+          >
+            Merge speichern
           </button>
         </div>
+      }
+    >
+      <p className="mb-3 text-xs text-slate-400">
+        Wählen, welche Inputs/Outputs aus Lokal und {incomingLabel} übernommen werden.
+      </p>
 
-        <div className="mb-3 grid grid-cols-3 gap-2 text-xs">
+      <div className="mb-3 grid grid-cols-3 gap-2 text-xs">
           <label className="block">
             Zielkategorie
             <select
@@ -231,41 +261,6 @@ export const TemplateMergeDialog = ({
           </div>
         </div>
 
-        <div className="mt-3 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
-          >
-            Abbrechen
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              const merged = buildMergedTemplate()
-              if (!merged) return
-              if (!category) {
-                void infoDialog('Kategorie wählen', {
-                  body: 'Bitte Zielkategorie auswählen.',
-                  tone: 'warning',
-                })
-                return
-              }
-              if (merged.inputs.length === 0 && merged.outputs.length === 0) {
-                void infoDialog('Port wählen', {
-                  body: 'Bitte mindestens einen Port auswählen.',
-                  tone: 'warning',
-                })
-                return
-              }
-              onConfirm(merged)
-            }}
-            className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500"
-          >
-            Merge speichern
-          </button>
-        </div>
-      </div>
-    </div>
+    </ModalShell>
   )
 }
