@@ -1736,9 +1736,12 @@ const buildProjectStore = (
       if (isProjectLocked(state)) return state
       const preset = state.groupPresets.find((p) => p.id === presetId)
       if (!preset) return state
-      // Sammle alle PortNamen die in internen Verbindungen verwendet
-      // sind. Diese Ports tauchen NICHT als externe Black-Box-Ports auf
-      // — sie sind im Rack-Inneren "verbraucht".
+      // v7.9.17 — ALLE Ports werden jetzt exponiert (vorher wurden
+      // intern verkabelte Ports rausgefiltert). Internal-Ports tragen
+      // rackInternallyConnected=true → EquipmentNode rendert sie
+      // ausgegraut + non-connectable, damit der User sieht welche Ports
+      // intern belegt sind. Die internen Kabel-Linien können dann
+      // direkt zwischen den realen Port-Positionen gezeichnet werden.
       const usedPortNames = new Set<string>()
       for (const stub of preset.cables) {
         usedPortNames.add(`${stub.fromItemIndex}:${stub.fromPortName}`)
@@ -1748,26 +1751,28 @@ const buildProjectStore = (
       const externalOuts: import('../types/equipment').Port[] = []
       preset.items.forEach((item, idx) => {
         for (const p of item.inputs) {
-          if (!usedPortNames.has(`${idx}:${p.name}`)) {
-            externalIns.push({
-              ...p,
-              id: uuidv4(),
-              name: `${item.name} · ${p.name}`,
-              rackOriginDeviceIndex: idx,
-              rackOriginDeviceName: item.name,
-            })
-          }
+          const isInternal = usedPortNames.has(`${idx}:${p.name}`)
+          externalIns.push({
+            ...p,
+            id: uuidv4(),
+            name: `${item.name} · ${p.name}`,
+            rackOriginDeviceIndex: idx,
+            rackOriginDeviceName: item.name,
+            rackOriginPortName: p.name,
+            rackInternallyConnected: isInternal,
+          })
         }
         for (const p of item.outputs) {
-          if (!usedPortNames.has(`${idx}:${p.name}`)) {
-            externalOuts.push({
-              ...p,
-              id: uuidv4(),
-              name: `${item.name} · ${p.name}`,
-              rackOriginDeviceIndex: idx,
-              rackOriginDeviceName: item.name,
-            })
-          }
+          const isInternal = usedPortNames.has(`${idx}:${p.name}`)
+          externalOuts.push({
+            ...p,
+            id: uuidv4(),
+            name: `${item.name} · ${p.name}`,
+            rackOriginDeviceIndex: idx,
+            rackOriginDeviceName: item.name,
+            rackOriginPortName: p.name,
+            rackInternallyConnected: isInternal,
+          })
         }
       })
       const totalUnits =

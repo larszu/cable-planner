@@ -56,6 +56,17 @@ export interface Port {
    *  legacy-Rack-Items ohne Snapshot ignoriert. */
   rackOriginDeviceIndex?: number
   rackOriginDeviceName?: string
+  /** v7.9.17 — Ursprünglicher Port-Name im Quell-Gerät (also OHNE
+   *  "Device · "-Präfix). Wird genutzt um interne Cable-Endpunkte
+   *  aus rackInternalSnapshot.cables (by-name) auf reale Port-Handles
+   *  zu mappen. */
+  rackOriginPortName?: string
+  /** v7.9.17 — Markiert dass dieser Port intern im Rack mit einem
+   *  anderen Port verbunden ist (also nicht "extern frei"). Vorher
+   *  wurden solche Ports gefiltert; jetzt zeigen wir sie ausgegraut +
+   *  non-connectable, damit der User sieht WELCHE Ports intern belegt
+   *  sind und WIE die Verkabelung im Rack läuft. */
+  rackInternallyConnected?: boolean
   /**
    * Direction of the port. Defaults to the array it lives in (`inputs` → 'in',
    * `outputs` → 'out'). A port marked `bidirectional` (e.g. an RJ45 network
