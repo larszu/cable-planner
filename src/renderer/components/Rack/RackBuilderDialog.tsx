@@ -8,6 +8,7 @@ import { RackInternalCanvas } from './RackInternalCanvas'
 import { RackLivePreview } from './RackLivePreview'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { CategorySelect } from '../shared/CategorySelect'
+import { ModalShell } from '../shared/ModalShell'
 import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
@@ -239,6 +240,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   // suchen + nachträglich umflaggen kann.
   const [showNonRack, setShowNonRack] = useState(false)
   const [selectedPlacementId, setSelectedPlacementId] = useState<string | null>(null)
+  // v7.9.49 — Eigenschaften-Panel ist jetzt ein Popup, das per Doppelklick
+  // auf ein Gerät im Rack aufgeht. Vorher war es immer als rechte Spalte
+  // sichtbar — hat zuviel Platz im Builder gefressen für ein Detail-
+  // Editing, das nur selten passiert.
+  const [placementPropsOpen, setPlacementPropsOpen] = useState(false)
   const [lastSavedSnapshot, setLastSavedSnapshot] = useState('')
   const [dragState, setDragState] = useState<
     { placementId: string; offsetUnits: number; pointerId: number } | null
@@ -1091,6 +1097,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           }}
                           onPointerCancel={() => setDragState(null)}
                           onClick={() => setSelectedPlacementId(item.id)}
+                          onDoubleClick={(event) => {
+                            event.stopPropagation()
+                            setSelectedPlacementId(item.id)
+                            setPlacementPropsOpen(true)
+                          }}
                         >
                           {image ? (
                             <img
@@ -1145,27 +1156,67 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             />
           </div>
 
-          <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
-            <div className="mb-2 flex items-center justify-between">
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                {selectedPlacement ? `Eigenschaften · ${selectedPlacement.name}` : 'Eigenschaften'}
-              </div>
-              {selectedPlacement && (
+          {/* v7.9.49 — Eigenschaften-Panel ist jetzt ein Popup
+              (PlacementPropertiesDialog am Ende der Component), das per
+              Doppelklick auf ein Gerät im Rack aufgeht. Hier nur ein
+              kleiner Hinweis statt der dauerhaft offenen Sidebar. */}
+          <div className="rounded border border-dashed border-slate-700 bg-slate-950/30 px-2 py-3 text-center text-[10px] text-slate-500">
+            Doppelklick auf ein Gerät im Rack → öffnet Eigenschaften-Popup
+            (Höhe, Start-HE, Panel-Bilder, Entfernen).
+          </div>
+
+          </div>
+        </div>
+
+        {/* v7.9.49 — Eigenschaften-Popup für ein einzelnes Rack-Gerät.
+            Vorher als immer-sichtbares Side-Panel im Builder; jetzt nur
+            bei Doppelklick auf ein Gerät. */}
+        {selectedPlacement && placementPropsOpen && (() => {
+          const heightInvalid =
+            selectedPlacement.rackUnits + selectedPlacement.startUnit - 1 >
+            draft.totalUnits
+          const startMax = Math.max(
+            1,
+            draft.totalUnits - selectedPlacement.rackUnits + 1,
+          )
+          const heRange =
+            selectedPlacement.rackUnits > 1
+              ? `HE${selectedPlacement.startUnit}–${selectedPlacement.startUnit + selectedPlacement.rackUnits - 1}`
+              : `HE${selectedPlacement.startUnit}`
+          return (
+            <ModalShell
+              open={placementPropsOpen}
+              onClose={() => setPlacementPropsOpen(false)}
+              title={`Eigenschaften · ${selectedPlacement.name}`}
+              titleIcon={
                 <span className="rounded bg-amber-900/60 px-1.5 py-0.5 text-[9px] font-semibold text-amber-200">
-                  HE{selectedPlacement.startUnit}
-                  {selectedPlacement.rackUnits > 1
-                    ? `–${selectedPlacement.startUnit + selectedPlacement.rackUnits - 1}`
-                    : ''}
+                  {heRange}
                 </span>
-              )}
-            </div>
-            {!selectedPlacement ? (
-              <div className="rounded border border-dashed border-slate-700 bg-slate-900/40 p-4 text-center text-[11px] text-slate-500">
-                <div className="mb-1 text-2xl">⊕</div>
-                <div className="font-medium text-slate-400">Nichts ausgewählt</div>
-                <div className="mt-1">Klick auf ein Gerät im Rack rechts → seine Eigenschaften erscheinen hier.</div>
-              </div>
-            ) : (
+              }
+              maxWidth="lg"
+              zIndex={70}
+              footer={
+                <div className="flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      removePlacement(selectedPlacement.id)
+                      setPlacementPropsOpen(false)
+                    }}
+                    className="rounded bg-red-900/60 px-3 py-1 text-xs hover:bg-red-800"
+                  >
+                    Aus Rack entfernen
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPlacementPropsOpen(false)}
+                    className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+                  >
+                    Schließen
+                  </button>
+                </div>
+              }
+            >
               <div className="space-y-2 text-xs">
                 <label className="block">
                   Name
@@ -1185,77 +1236,58 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   />
                 </label>
                 <label className="flex items-center gap-2 opacity-60" title="Im Builder schreibgeschützt — wurde beim Hinzufügen gesetzt.">
-                  <input
-                    type="checkbox"
-                    checked={selectedPlacement.isRackDevice}
-                    disabled
-                    readOnly
-                  />
+                  <input type="checkbox" checked={selectedPlacement.isRackDevice} disabled readOnly />
                   <span>Ist Rack-Gerät (im Builder fix)</span>
                 </label>
-                {(() => {
-                  // v7.9.9 — Live-Constraints: Höhe + Start-HE müssen
-                  // zusammen ins Rack passen. Wenn der User sie übergross
-                  // tippt, clampen wir direkt + zeigen Inline-Hinweis.
-                  const heightInvalid =
-                    selectedPlacement.rackUnits + selectedPlacement.startUnit - 1 >
-                    draft.totalUnits
-                  const startMax = Math.max(
-                    1,
-                    draft.totalUnits - selectedPlacement.rackUnits + 1,
-                  )
-                  return (
-                    <>
-                      <label className="block">
-                        Höhe (HE)
-                        <input
-                          type="number"
-                          min={1}
-                          max={draft.totalUnits}
-                          value={selectedPlacement.rackUnits}
-                          aria-invalid={heightInvalid}
-                          onChange={(event) => {
-                            const raw = Math.max(1, Number(event.target.value) || 1)
-                            const clamped = Math.min(
-                              raw,
-                              draft.totalUnits - selectedPlacement.startUnit + 1,
-                            )
-                            updatePlacement(selectedPlacement.id, { rackUnits: clamped })
-                          }}
-                          className={`mt-1 w-full rounded border bg-slate-950 p-1.5 ${
-                            heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-slate-700'
-                          }`}
-                        />
-                        {heightInvalid && (
-                          <span className="mt-0.5 block text-[10px] text-red-400">
-                            Höhe + Start-HE überschreitet Rack ({draft.totalUnits} HE).
-                          </span>
-                        )}
-                      </label>
-                      <label className="block">
-                        Start-HE
-                        <input
-                          type="number"
-                          min={1}
-                          max={startMax}
-                          value={selectedPlacement.startUnit}
-                          aria-invalid={heightInvalid}
-                          onChange={(event) => {
-                            const raw = Math.max(1, Number(event.target.value) || 1)
-                            const clamped = Math.min(raw, startMax)
-                            updatePlacement(selectedPlacement.id, { startUnit: clamped })
-                          }}
-                          className={`mt-1 w-full rounded border bg-slate-950 p-1.5 ${
-                            heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-slate-700'
-                          }`}
-                        />
-                        <span className="mt-0.5 block text-[10px] text-slate-500">
-                          max {startMax} (Höhe {selectedPlacement.rackUnits} HE)
-                        </span>
-                      </label>
-                    </>
-                  )
-                })()}
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="block">
+                    Höhe (HE)
+                    <input
+                      type="number"
+                      min={1}
+                      max={draft.totalUnits}
+                      value={selectedPlacement.rackUnits}
+                      aria-invalid={heightInvalid}
+                      onChange={(event) => {
+                        const raw = Math.max(1, Number(event.target.value) || 1)
+                        const clamped = Math.min(
+                          raw,
+                          draft.totalUnits - selectedPlacement.startUnit + 1,
+                        )
+                        updatePlacement(selectedPlacement.id, { rackUnits: clamped })
+                      }}
+                      className={`mt-1 w-full rounded border bg-slate-950 p-1.5 ${
+                        heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-slate-700'
+                      }`}
+                    />
+                    {heightInvalid && (
+                      <span className="mt-0.5 block text-[10px] text-red-400">
+                        Höhe + Start-HE überschreitet Rack ({draft.totalUnits} HE).
+                      </span>
+                    )}
+                  </label>
+                  <label className="block">
+                    Start-HE
+                    <input
+                      type="number"
+                      min={1}
+                      max={startMax}
+                      value={selectedPlacement.startUnit}
+                      aria-invalid={heightInvalid}
+                      onChange={(event) => {
+                        const raw = Math.max(1, Number(event.target.value) || 1)
+                        const clamped = Math.min(raw, startMax)
+                        updatePlacement(selectedPlacement.id, { startUnit: clamped })
+                      }}
+                      className={`mt-1 w-full rounded border bg-slate-950 p-1.5 ${
+                        heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-slate-700'
+                      }`}
+                    />
+                    <span className="mt-0.5 block text-[10px] text-slate-500">
+                      max {startMax} (Höhe {selectedPlacement.rackUnits} HE)
+                    </span>
+                  </label>
+                </div>
                 <div className="rounded border border-slate-800 bg-slate-900/40 p-2 text-[11px] text-slate-400">
                   Ports sichtbar: {selectedPlacement.inputs.length} Inputs / {selectedPlacement.outputs.length} Outputs
                 </div>
@@ -1298,18 +1330,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     })}
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => removePlacement(selectedPlacement.id)}
-                  className="w-full rounded bg-red-900/60 px-2 py-1 hover:bg-red-800"
-                >
-                  Entfernen
-                </button>
               </div>
-            )}
-          </div>
-          </div>
-        </div>
+            </ModalShell>
+          )
+        })()}
 
         {/* v7.9.11 — Status-Footer mit drei klaren Zonen:
             Links = Stats-Badges (Devices · HE · Cables),
