@@ -44,8 +44,7 @@ import {
   setCableRouter,
   setCanvasFitViewHandler,
 } from '../../lib/canvasViewport'
-import { routeCableWithAStar, type HandleSide } from '../../lib/routeCableWithAStar'
-import type { PixelRect } from '../../lib/cableAStar'
+import { routeCableWithAStar, type HandleSide, type PixelRect } from '../../lib/routeCableWithAStar'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
 const edgeTypes = { cable: CableEdge }
