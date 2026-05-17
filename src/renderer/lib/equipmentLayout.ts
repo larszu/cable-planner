@@ -57,15 +57,18 @@ export const computeEquipmentLayout = (
   const portsFlipped = !!eq.portsFlipped
 
   // Header height: identical formula as EquipmentNode.tsx.
+  // v7.9.26 — Optionale Header-Zeilen sind gridSize-aligned (11 px)
+  // statt 14, damit Port-Y-Positionen auf Dot-Reihen landen.
   const greengoUser = findGreenGoUserForEquipment(eq.id, greengoConfig)
-  const beltpackLine = greengoUser ? 14 : 0
+  const EXTRA_HEADER_LINE = EQUIPMENT_LAYOUT.GRID_SIZE
+  const beltpackLine = greengoUser ? EXTRA_HEADER_LINE : 0
   const headerHeight =
     (eq.ipAddress
       ? eq.subtitle
-        ? HEADER_HEIGHT_WITH_IP + 14
+        ? HEADER_HEIGHT_WITH_IP + EXTRA_HEADER_LINE
         : HEADER_HEIGHT_WITH_IP
       : eq.subtitle
-        ? HEADER_HEIGHT + 14
+        ? HEADER_HEIGHT + EXTRA_HEADER_LINE
         : HEADER_HEIGHT) + beltpackLine
 
   // Side bucketing — identical to EquipmentNode.
