@@ -23,12 +23,73 @@ if (process.platform === 'win32') {
   app.disableHardwareAcceleration()
 }
 
+// v7.9.23 — Window-Geometry-Defaults + Persistenz.
+// Vorher waren width/height hardcoded — beim Start landete jedes Mal
+// das gleiche 1500x900-Fenster, egal wo der User es zuletzt hatte.
+// Jetzt: lokale Datei `window-geometry.json` in userData speichert
+// die letzte Position/Größe und stellt sie beim nächsten Start wieder
+// her. Min-Größen + Default-Größe sind weiterhin Konstanten weil sie
+// nicht user-konfigurierbar sind.
+const WINDOW_DEFAULTS = {
+  width: 1500,
+  height: 900,
+  minWidth: 1100,
+  minHeight: 700,
+}
+const GEOMETRY_FILE = 'window-geometry.json'
+type Geometry = { x?: number; y?: number; width: number; height: number; maximized?: boolean }
+const loadGeometry = (): Geometry => {
+  try {
+    const file = path.join(app.getPath('userData'), GEOMETRY_FILE)
+    if (!fs.existsSync(file)) {
+      return { width: WINDOW_DEFAULTS.width, height: WINDOW_DEFAULTS.height }
+    }
+    const raw = JSON.parse(fs.readFileSync(file, 'utf-8')) as Partial<Geometry>
+    return {
+      x: typeof raw.x === 'number' ? raw.x : undefined,
+      y: typeof raw.y === 'number' ? raw.y : undefined,
+      width: Math.max(
+        WINDOW_DEFAULTS.minWidth,
+        typeof raw.width === 'number' ? raw.width : WINDOW_DEFAULTS.width,
+      ),
+      height: Math.max(
+        WINDOW_DEFAULTS.minHeight,
+        typeof raw.height === 'number' ? raw.height : WINDOW_DEFAULTS.height,
+      ),
+      maximized: !!raw.maximized,
+    }
+  } catch {
+    return { width: WINDOW_DEFAULTS.width, height: WINDOW_DEFAULTS.height }
+  }
+}
+const saveGeometry = (win: BrowserWindow) => {
+  try {
+    const bounds = win.getBounds()
+    const data: Geometry = {
+      x: bounds.x,
+      y: bounds.y,
+      width: bounds.width,
+      height: bounds.height,
+      maximized: win.isMaximized(),
+    }
+    fs.writeFileSync(
+      path.join(app.getPath('userData'), GEOMETRY_FILE),
+      JSON.stringify(data, null, 2),
+    )
+  } catch {
+    /* ignore */
+  }
+}
+
 const createWindow = async () => {
+  const geometry = loadGeometry()
   const mainWindow = new BrowserWindow({
-    width: 1500,
-    height: 900,
-    minWidth: 1100,
-    minHeight: 700,
+    x: geometry.x,
+    y: geometry.y,
+    width: geometry.width,
+    height: geometry.height,
+    minWidth: WINDOW_DEFAULTS.minWidth,
+    minHeight: WINDOW_DEFAULTS.minHeight,
     show: false,
     backgroundColor: '#0f172a',
     webPreferences: {
@@ -37,6 +98,19 @@ const createWindow = async () => {
       preload: path.join(__dirname, 'preload.cjs'),
     },
   })
+  if (geometry.maximized) mainWindow.maximize()
+  // Persist on user-initiated resize/move/maximize so even crashes
+  // don't lose the user's window placement.
+  let saveTimer: NodeJS.Timeout | null = null
+  const scheduleSave = () => {
+    if (saveTimer) clearTimeout(saveTimer)
+    saveTimer = setTimeout(() => saveGeometry(mainWindow), 400)
+  }
+  mainWindow.on('resize', scheduleSave)
+  mainWindow.on('move', scheduleSave)
+  mainWindow.on('maximize', scheduleSave)
+  mainWindow.on('unmaximize', scheduleSave)
+  mainWindow.on('close', () => saveGeometry(mainWindow))
 
   mainWindow.webContents.on('did-fail-load', (_event, code, description, url) => {
     const msg = `[did-fail-load] code=${code} desc=${description} url=${url}\n`

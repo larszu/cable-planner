@@ -1,11 +1,12 @@
 import { v4 as uuidv4 } from 'uuid'
 import { parse } from 'yaml'
 import type { ConnectorType, EquipmentTemplate, Port } from '../types/equipment'
+import { STORAGE_KEYS } from './storageKeys'
 
 const OWNER = 'netbox-community'
 const REPO = 'devicetype-library'
 const BRANCHES = ['master', 'main'] as const
-const INDEX_CACHE_KEY = 'cable-planner:netbox:index:v1'
+const INDEX_CACHE_KEY = STORAGE_KEYS.netboxIndexV1
 
 type GitTreeEntry = {
   path: string

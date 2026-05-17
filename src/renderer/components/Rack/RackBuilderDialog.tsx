@@ -11,6 +11,8 @@ import { CategorySelect } from '../shared/CategorySelect'
 import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
+import { STORAGE_KEYS } from '../../lib/storageKeys'
+import { LIMITS } from '../../lib/layoutConstants'
 
 interface RackBuilderDialogProps {
   open: boolean
@@ -79,7 +81,7 @@ const RACK_PANEL_ASPECT_PER_1HE = 10.857
 const MIN_ROW_HEIGHT = 6
 const MAX_ROW_HEIGHT = 56
 const DEFAULT_ROW_HEIGHT = 22
-const DRAFT_KEY = 'cable-planner:rack-builder:draft:v2'
+const DRAFT_KEY = STORAGE_KEYS.rackBuilderDraftV2
 
 const parseUnits = (template?: EquipmentTemplate): number => {
   const raw = template?.rackUnits
@@ -140,7 +142,7 @@ const normalizeDraft = (draft: RackDraft): RackDraft => {
   return {
     ...draft,
     rackName: draft.rackName.trim() || 'Neues Rack',
-    totalUnits: Math.max(1, Math.min(60, Math.round(draft.totalUnits) || 42)),
+    totalUnits: Math.max(1, Math.min(LIMITS.MAX_RACK_HEIGHT_HE, Math.round(draft.totalUnits) || 42)),
     placements: normalizedPlacements,
     internalCables: normalizedCables,
   }
@@ -473,7 +475,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         )
       )?.trim()
       if (!answer) return
-      const heightHE = Math.max(1, Math.min(20, Math.round(Number(answer))))
+      const heightHE = Math.max(1, Math.min(LIMITS.MAX_PORT_HEIGHT_HE, Math.round(Number(answer))))
       if (!Number.isFinite(heightHE) || heightHE < 1) {
         setSaveError(`Ungültige HE-Eingabe für "${template.name}". Bitte 1–20 angeben.`)
         return
@@ -729,12 +731,12 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             <input
               type="number"
               min={1}
-              max={60}
+              max={LIMITS.MAX_RACK_HEIGHT_HE}
               value={draft.totalUnits}
               onChange={(event) =>
                 setDraft((current) => ({
                   ...current,
-                  totalUnits: Math.max(1, Math.min(60, Number(event.target.value) || 1)),
+                  totalUnits: Math.max(1, Math.min(LIMITS.MAX_RACK_HEIGHT_HE, Number(event.target.value) || 1)),
                 }))
               }
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-sm font-normal text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"

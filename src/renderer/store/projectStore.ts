@@ -22,11 +22,14 @@ import { useSettingsStore } from './settingsStore'
 type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
   Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>
 
-const CUSTOM_LIB_KEY = 'cable-planner:customLibrary'
-const PROJECT_AUTOSAVE_KEY = 'cable-planner:projectAutosave'
-const KNOWN_CATEGORIES_KEY = 'cable-planner:knownCategories'
-const GROUP_PRESETS_KEY = 'cable-planner:groupPresets'
-const LIB_MIGRATION_KEY = 'cable-planner:libMigration'
+import { STORAGE_KEYS } from '../lib/storageKeys'
+import { EQUIPMENT_LAYOUT, LIMITS, VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
+
+const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
+const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
+const KNOWN_CATEGORIES_KEY = STORAGE_KEYS.knownCategories
+const GROUP_PRESETS_KEY = STORAGE_KEYS.groupPresets
+const LIB_MIGRATION_KEY = STORAGE_KEYS.libMigration
 const LIB_MIGRATION_VERSION = '2026-04-greengo-catalog-v2'
 
 const DEFAULT_CATEGORIES = [
@@ -780,8 +783,11 @@ const buildProjectStore = (
       // the user's library / properties panel widths, but the constants
       // below produce a sensible default for both default and collapsed
       // layouts.
-      const VIEWPORT_W = 1200
-      const VIEWPORT_H = 700
+      // v7.9.23 — vorher hardcoded 1200x700; jetzt aus VIEWPORT_DEFAULTS.
+      // TODO: an die tatsächliche Canvas-Größe binden (ResizeObserver auf
+      // dem CanvasArea-Wrapper) — derzeit ist es ein Fallback.
+      const VIEWPORT_W = VIEWPORT_DEFAULTS.FALLBACK_WIDTH
+      const VIEWPORT_H = VIEWPORT_DEFAULTS.FALLBACK_HEIGHT
       let canvasState = state.project.canvasState
       if (Number.isFinite(minX)) {
         const bboxW = Math.max(1, maxX - minX)
@@ -1022,7 +1028,7 @@ const buildProjectStore = (
       let maxX = -Infinity
       let maxY = -Infinity
       for (const e of items) {
-        const w = e.width ?? 220
+        const w = e.width ?? EQUIPMENT_LAYOUT.DEFAULT_WIDTH
         const h = e.height ?? 140
         if (e.x < minX) minX = e.x
         if (e.y < minY) minY = e.y
@@ -1381,7 +1387,7 @@ const buildProjectStore = (
     }),
   markTemplateAsRack: (name, rackUnits) =>
     set((state) => {
-      const heightHE = Math.max(1, Math.min(60, Math.round(rackUnits)))
+      const heightHE = Math.max(1, Math.min(LIMITS.MAX_RACK_HEIGHT_HE, Math.round(rackUnits)))
       const next = state.customLibrary.map((t) =>
         t.name === name
           ? { ...t, isRackDevice: true, rackUnits: heightHE }
