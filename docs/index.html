@@ -1,0 +1,1125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CablePlanner — Visual cable planning for broadcast workflows</title>
+<meta name="description" content="CablePlanner is a desktop app for designing, visualizing, and managing broadcast signal infrastructure. Node-based canvas, ATEM multiview, Videohub routing, Rentman import, PDF export. Free & MIT-licensed for macOS and Windows." />
+<meta property="og:title" content="CablePlanner — Visual cable planning for broadcast workflows" />
+<meta property="og:description" content="Drag-and-drop node canvas for studios, OB vans and live events. ATEM, Videohub, Rentman. macOS & Windows." />
+<meta property="og:type" content="website" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<style>
+  :root {
+    --bg-0: #020617;
+    --bg-1: #0f172a;
+    --bg-2: #1e293b;
+    --bg-3: #334155;
+    --line: #1f2a3d;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-faint: #64748b;
+    --brand: #863bff;
+    --brand-2: #aa3bff;
+    --brand-3: #7e14ff;
+    --accent: #47bfff;
+    --ok: #10b981;
+    --warn: #f59e0b;
+    --err: #ef4444;
+    --sdi: #f97316;
+    --hdmi: #8b5cf6;
+    --eth: #22d3ee;
+    --xlr: #facc15;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:
+      radial-gradient(circle at 20% 10%, #1e293b 0%, #0f172a 45%, #020617 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  a { color: var(--brand-2); text-decoration: none; }
+  a:hover { color: #d3a8ff; }
+  h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; margin: 0 0 0.5em; }
+  h1 { font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 800; }
+  h2 { font-size: clamp(1.7rem, 3vw, 2.4rem); font-weight: 700; }
+  h3 { font-size: 1.15rem; font-weight: 600; }
+  p { margin: 0 0 1em; color: var(--text-dim); }
+
+  /* ── Layout ─────────────────────────────────────────── */
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Top nav ────────────────────────────────────────── */
+  nav.top {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: rgba(2, 6, 23, 0.6);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  nav.top .inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  nav.top .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+  nav.top .brand svg { width: 28px; height: 28px; }
+  nav.top .links { display: flex; gap: 22px; align-items: center; }
+  nav.top .links a { color: var(--text-dim); font-size: 0.92rem; }
+  nav.top .links a:hover { color: var(--text); }
+  nav.top .cta {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-3) 100%);
+    color: white !important;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+  @media (max-width: 720px) { nav.top .links a:not(.cta) { display: none; } }
+
+  /* ── Hero ───────────────────────────────────────────── */
+  .hero { padding: 80px 0 60px; position: relative; overflow: hidden; }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    align-items: center;
+  }
+  @media (max-width: 960px) { .hero-grid { grid-template-columns: 1fr; gap: 40px; } }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(134, 59, 255, 0.12);
+    border: 1px solid rgba(134, 59, 255, 0.3);
+    color: #c7a8ff;
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 500;
+  }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand-2); box-shadow: 0 0 8px var(--brand-2); }
+  .hero h1 .grad {
+    background: linear-gradient(135deg, #c7a8ff 0%, #47bfff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .lede { font-size: 1.15rem; color: var(--text-dim); max-width: 540px; }
+
+  .btn-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 22px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.98rem;
+    border: 1px solid transparent;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    cursor: pointer;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-3) 100%);
+    color: white;
+    box-shadow: 0 8px 28px -10px rgba(134, 59, 255, 0.7);
+  }
+  .btn-primary:hover { box-shadow: 0 14px 32px -10px rgba(134, 59, 255, 0.85); color: white; }
+  .btn-ghost {
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    border-color: rgba(255,255,255,0.08);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+  .release-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 18px;
+    color: var(--text-faint);
+    font-size: 0.85rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .release-tag .v {
+    background: rgba(71, 191, 255, 0.12);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(71, 191, 255, 0.3);
+  }
+
+  /* ── Generic card ───────────────────────────────────── */
+  .card {
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.55) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  .window-chrome {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    background: rgba(2,6,23,0.6);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.78rem;
+    color: var(--text-faint);
+  }
+  .window-chrome .dots { display: flex; gap: 6px; margin-right: 8px; }
+  .window-chrome .dots i {
+    display: block; width: 11px; height: 11px; border-radius: 50%;
+  }
+  .window-chrome .dots i:nth-child(1) { background: #ff5f57; }
+  .window-chrome .dots i:nth-child(2) { background: #febc2e; }
+  .window-chrome .dots i:nth-child(3) { background: #28c840; }
+  .window-chrome .title { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  /* ── Hero canvas (live mock) ────────────────────────── */
+  .canvas-wrap {
+    position: relative;
+    aspect-ratio: 16 / 11;
+    background:
+      radial-gradient(circle at 20% 10%, #1e293b 0%, #0f172a 45%, #020617 100%);
+  }
+  .canvas-dots {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(148, 163, 184, 0.22) 1px, transparent 1px);
+    background-size: 22px 22px;
+    pointer-events: none;
+  }
+  .cable-svg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .cable-svg path {
+    fill: none;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 6px currentColor);
+  }
+  .cable-svg path.sdi  { stroke: var(--sdi); color: var(--sdi); }
+  .cable-svg path.hdmi { stroke: var(--hdmi); color: var(--hdmi); }
+  .cable-svg path.eth  { stroke: var(--eth);  color: var(--eth); }
+  .cable-svg path.xlr  { stroke: var(--xlr);  color: var(--xlr); }
+
+  .node {
+    position: absolute;
+    min-width: 138px;
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid #334155;
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 0.78rem;
+    cursor: grab;
+    user-select: none;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .node:hover { border-color: var(--brand-2); box-shadow: 0 0 0 1px var(--brand-2), 0 12px 24px rgba(0,0,0,0.5); }
+  .node.dragging { cursor: grabbing; z-index: 10; }
+  .node .header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px;
+    border-bottom: 1px solid #1f2a3d;
+    font-weight: 600;
+    background: rgba(134, 59, 255, 0.08);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+  .node .header .ico {
+    width: 18px; height: 18px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(134, 59, 255, 0.2);
+    color: var(--brand-2);
+    border-radius: 4px;
+    font-size: 0.7rem;
+  }
+  .node .header .sub { color: var(--text-faint); font-weight: 400; font-size: 0.68rem; margin-left: auto; }
+  .node .ports { padding: 6px 10px 10px; display: flex; flex-direction: column; gap: 4px; }
+  .node .port { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-dim); }
+  .node .port .handle {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #475569;
+    border: 1px solid #64748b;
+  }
+  .node .port.in  { justify-content: flex-start; }
+  .node .port.out { justify-content: flex-end; }
+  .node .port.in .handle  { margin-left: -16px; }
+  .node .port.out .handle { margin-right: -16px; }
+  .node .port .handle.active { background: var(--brand-2); border-color: var(--brand-2); box-shadow: 0 0 6px var(--brand-2); }
+  .node .port.bidir { justify-content: space-between; }
+
+  .minimap {
+    position: absolute;
+    bottom: 12px; right: 12px;
+    width: 130px; height: 80px;
+    background: rgba(2,6,23,0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .minimap .mm-node {
+    position: absolute;
+    background: var(--brand-2);
+    border-radius: 2px;
+    opacity: 0.85;
+  }
+  .controls {
+    position: absolute;
+    bottom: 12px; left: 12px;
+    display: flex; flex-direction: column;
+    background: rgba(2,6,23,0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .controls button {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    width: 28px; height: 28px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 14px;
+  }
+  .controls button:last-child { border-bottom: 0; }
+  .controls button:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+
+  .cable-legend {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: rgba(2,6,23,0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .cable-legend .row { display: flex; align-items: center; gap: 8px; }
+  .cable-legend .swatch { width: 14px; height: 3px; border-radius: 2px; }
+
+  .hint {
+    position: absolute;
+    top: 12px; left: 12px;
+    background: rgba(134, 59, 255, 0.15);
+    border: 1px solid rgba(134, 59, 255, 0.35);
+    color: #d4b8ff;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.72rem;
+    pointer-events: none;
+  }
+
+  /* ── Stats strip ────────────────────────────────────── */
+  .stats {
+    margin-top: 80px;
+    padding: 28px 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    text-align: center;
+  }
+  @media (max-width: 720px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+  .stat .n { font-size: 1.7rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+  .stat .l { font-size: 0.82rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ── Sections ───────────────────────────────────────── */
+  section { padding: 90px 0; }
+  .section-head { text-align: center; max-width: 720px; margin: 0 auto 50px; }
+  .section-head .eyebrow {
+    display: inline-block;
+    color: var(--brand-2);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 10px;
+  }
+  .section-head p { font-size: 1.05rem; }
+
+  /* ── Feature grid ───────────────────────────────────── */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  @media (max-width: 900px) { .features { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
+  .feature {
+    padding: 22px;
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.45), rgba(15, 23, 42, 0.45));
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .feature:hover { border-color: rgba(134, 59, 255, 0.35); transform: translateY(-2px); }
+  .feature .ico {
+    width: 38px; height: 38px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 9px;
+    background: rgba(134, 59, 255, 0.14);
+    color: var(--brand-2);
+    margin-bottom: 14px;
+  }
+  .feature h3 { color: var(--text); margin-bottom: 6px; }
+  .feature p { font-size: 0.92rem; color: var(--text-dim); margin: 0; }
+
+  /* ── Showcase rows ──────────────────────────────────── */
+  .showcase { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; margin-bottom: 80px; }
+  .showcase:last-child { margin-bottom: 0; }
+  .showcase.reverse > div:first-child { order: 2; }
+  @media (max-width: 900px) {
+    .showcase { grid-template-columns: 1fr; gap: 28px; }
+    .showcase.reverse > div:first-child { order: 0; }
+  }
+  .showcase h2 { font-size: 1.8rem; }
+  .showcase ul { list-style: none; padding: 0; margin: 18px 0 0; }
+  .showcase ul li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 7px 0;
+    color: var(--text-dim);
+    font-size: 0.96rem;
+  }
+  .showcase ul li::before {
+    content: "";
+    flex: 0 0 18px;
+    height: 18px;
+    margin-top: 3px;
+    background: rgba(134, 59, 255, 0.14);
+    border-radius: 5px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'><path d='M3 8.5l3 3 7-7' stroke='%23aa3bff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  /* ── ATEM Multiviewer mock ──────────────────────────── */
+  .multiview {
+    aspect-ratio: 16 / 9;
+    background: #000;
+    padding: 4px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+  }
+  .mv-cell {
+    background: linear-gradient(180deg, #0b1322, #050912);
+    border: 1px solid #1f2a3d;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-faint);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.7rem;
+  }
+  .mv-cell.program { grid-row: 1 / 3; grid-column: 1 / 2; border-color: var(--err); box-shadow: inset 0 0 0 2px var(--err); }
+  .mv-cell.preview { grid-column: 2 / 3; grid-row: 1 / 2; border-color: var(--ok); box-shadow: inset 0 0 0 2px var(--ok); }
+  .mv-cell .label {
+    position: absolute;
+    bottom: 4px; left: 4px;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    padding: 2px 6px;
+    font-size: 0.62rem;
+    border-radius: 2px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .mv-cell .tally {
+    position: absolute; top: 4px; right: 4px;
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .mv-cell.program .tally { background: var(--err); box-shadow: 0 0 6px var(--err); }
+  .mv-cell.preview .tally { background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+  .mv-bars {
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg,
+      #c8c800 0 14.28%,
+      #00c8c8 14.28% 28.57%,
+      #00c800 28.57% 42.86%,
+      #c800c8 42.86% 57.14%,
+      #c80000 57.14% 71.43%,
+      #0000c8 71.43% 85.71%,
+      #1a1a1a 85.71% 100%);
+    opacity: 0.65;
+  }
+  .mv-cam1 { background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e3a5f 100%); }
+  .mv-cam2 { background: linear-gradient(135deg, #1a3a1a 0%, #0a1a0a 100%); }
+  .mv-cam3 { background: linear-gradient(135deg, #3a1a1a 0%, #1a0a0a 100%); }
+  .mv-gfx  { background: radial-gradient(circle at 30% 40%, #863bff44, #0a0a1a 70%); }
+
+  /* ── Videohub patch mock ────────────────────────────── */
+  .vhub {
+    padding: 16px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.7), rgba(2, 6, 23, 0.7));
+  }
+  .vhub-grid {
+    display: grid;
+    grid-template-columns: 120px repeat(8, 1fr);
+    gap: 2px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.7rem;
+  }
+  .vhub-grid .cell {
+    background: rgba(30, 41, 59, 0.6);
+    padding: 6px 4px;
+    text-align: center;
+    color: var(--text-faint);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background .12s ease;
+  }
+  .vhub-grid .cell:hover { background: rgba(134, 59, 255, 0.15); color: var(--text); }
+  .vhub-grid .cell.head { background: transparent; color: var(--text); font-weight: 600; cursor: default; }
+  .vhub-grid .cell.head:hover { background: transparent; }
+  .vhub-grid .cell.row-head { text-align: left; padding-left: 10px; }
+  .vhub-grid .cell.active {
+    background: var(--brand);
+    color: white;
+    box-shadow: 0 0 8px rgba(134, 59, 255, 0.6);
+  }
+  .vhub-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .vhub-title h4 { margin: 0; color: var(--text); font-size: 0.95rem; }
+  .vhub-title .status {
+    font-size: 0.72rem; color: var(--ok);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .vhub-title .status::before {
+    content: ""; display: block; width: 6px; height: 6px;
+    background: var(--ok); border-radius: 50%;
+    box-shadow: 0 0 6px var(--ok);
+  }
+
+  /* ── Download / release block ───────────────────────── */
+  .release-card {
+    padding: 36px;
+    margin-top: 40px;
+  }
+  .release-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
+  .release-head h3 { font-size: 1.4rem; }
+  .release-head .meta { color: var(--text-faint); font-size: 0.88rem; }
+  .release-head .meta code {
+    background: rgba(71, 191, 255, 0.12);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    border: 1px solid rgba(71, 191, 255, 0.3);
+  }
+  .assets {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 24px;
+  }
+  @media (max-width: 720px) { .assets { grid-template-columns: 1fr; } }
+  .asset {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    color: var(--text);
+    transition: border-color .15s ease, transform .15s ease, background .15s ease;
+  }
+  .asset:hover {
+    border-color: var(--brand-2);
+    background: rgba(134, 59, 255, 0.08);
+    transform: translateY(-2px);
+    color: var(--text);
+  }
+  .asset .os {
+    width: 36px; height: 36px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 8px;
+    background: rgba(134, 59, 255, 0.14);
+    color: var(--brand-2);
+  }
+  .asset .info { flex: 1; min-width: 0; }
+  .asset .info .name { font-weight: 600; font-size: 0.95rem; }
+  .asset .info .sz { color: var(--text-faint); font-size: 0.78rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .asset .arrow { color: var(--text-faint); }
+  .asset:hover .arrow { color: var(--brand-2); }
+
+  /* ── Footer ─────────────────────────────────────────── */
+  footer {
+    margin-top: 60px;
+    padding: 40px 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    color: var(--text-faint);
+    font-size: 0.88rem;
+  }
+  footer .row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; align-items: center; }
+  footer .brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 700; }
+  footer .brand svg { width: 24px; height: 24px; }
+  footer .lks { display: flex; gap: 22px; }
+  footer .lks a { color: var(--text-faint); }
+  footer .lks a:hover { color: var(--text); }
+  footer .made { margin-top: 14px; font-size: 0.78rem; }
+
+  /* ── Scroll reveal ──────────────────────────────────── */
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── Top Nav ─────────────────────────────────────── -->
+<nav class="top">
+  <div class="container inner">
+    <a href="#" class="brand">
+      <svg viewBox="0 0 48 46" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path fill="#863bff" d="M25.946 44.938c-.664.845-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.287c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.497 0-3.578-1.842-3.578H1.237c-.92 0-1.456-1.04-.92-1.788L10.013.474c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.579 1.842 3.579h11.377c.943 0 1.473 1.088.89 1.83L25.947 44.94z"/>
+      </svg>
+      CablePlanner
+    </a>
+    <div class="links">
+      <a href="#features">Features</a>
+      <a href="#showcase">Showcase</a>
+      <a href="#download">Download</a>
+      <a href="https://github.com/larszu/cable-planner" target="_blank" rel="noopener">GitHub</a>
+      <a href="#download" class="cta">Get v7.9.5</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ─── Hero ────────────────────────────────────────── -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="badge-row">
+          <span class="pill"><span class="dot"></span> v7.9.5 just released</span>
+          <span class="pill" style="background:rgba(71,191,255,.1);border-color:rgba(71,191,255,.3);color:#a8e1ff;">macOS · Windows</span>
+          <span class="pill" style="background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:#86efac;">100% offline</span>
+        </div>
+        <h1>
+          Plan every cable.<br />
+          <span class="grad">From camera to broadcast.</span>
+        </h1>
+        <p class="lede">
+          CablePlanner is a desktop application for designing, visualizing, and managing
+          broadcast signal infrastructure — built for studios, OB vans and live events
+          where every SDI, HDMI, Ethernet and XLR run has to be right the first time.
+        </p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="https://github.com/larszu/cable-planner/releases/latest" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+            Download CablePlanner
+          </a>
+          <a class="btn btn-ghost" href="https://github.com/larszu/cable-planner" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 19 19" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M9.356 1.85C5.05 1.85 1.57 5.356 1.57 9.694a7.84 7.84 0 0 0 5.324 7.44c.387.079.528-.168.528-.376 0-.182-.013-.805-.013-1.454-2.165.467-2.616-.935-2.616-.935-.349-.91-.864-1.143-.864-1.143-.71-.48.051-.48.051-.48.787.051 1.2.805 1.2.805.695 1.194 1.817.857 2.268.649.064-.507.27-.857.49-1.052-1.728-.182-3.545-.857-3.545-3.87 0-.857.31-1.558.8-2.104-.078-.195-.349-1 .077-2.078 0 0 .657-.208 2.14.805a7.5 7.5 0 0 1 1.946-.26c.657 0 1.328.092 1.946.26 1.483-1.013 2.14-.805 2.14-.805.426 1.078.155 1.883.078 2.078.502.546.799 1.247.799 2.104 0 3.013-1.818 3.675-3.558 3.87.284.247.528.714.528 1.454 0 1.052-.012 1.896-.012 2.156 0 .208.142.455.528.377a7.84 7.84 0 0 0 5.324-7.441c.013-4.338-3.48-7.844-7.773-7.844" clip-rule="evenodd"/></svg>
+            View on GitHub
+          </a>
+        </div>
+        <div class="release-tag">
+          Latest release
+          <span class="v">v7.9.5</span>
+          · published <span id="rel-date">May 17, 2026</span>
+        </div>
+      </div>
+
+      <!-- Live cable canvas mock (real DOM, drag the nodes) -->
+      <div class="card reveal">
+        <div class="window-chrome">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="title">studio-a-show.cableplan</div>
+        </div>
+        <div class="canvas-wrap" id="canvas">
+          <div class="canvas-dots"></div>
+          <div class="hint">Drag the nodes — connections follow live</div>
+
+          <svg class="cable-svg" id="cables" aria-hidden="true">
+            <path id="c1" class="sdi"  d=""/>
+            <path id="c2" class="sdi"  d=""/>
+            <path id="c3" class="hdmi" d=""/>
+            <path id="c4" class="eth"  d=""/>
+            <path id="c5" class="xlr"  d=""/>
+          </svg>
+
+          <div class="node" data-id="cam1" style="left: 5%; top: 8%;">
+            <div class="header"><span class="ico">📹</span> CAM 1 — URSA <span class="sub">12G-SDI</span></div>
+            <div class="ports">
+              <div class="port out"><span>SDI OUT</span><span class="handle active" data-port="cam1-out"></span></div>
+              <div class="port out"><span>RET IN</span><span class="handle" data-port="cam1-ret"></span></div>
+            </div>
+          </div>
+
+          <div class="node" data-id="cam2" style="left: 5%; top: 50%;">
+            <div class="header"><span class="ico">📹</span> CAM 2 — URSA <span class="sub">12G-SDI</span></div>
+            <div class="ports">
+              <div class="port out"><span>SDI OUT</span><span class="handle active" data-port="cam2-out"></span></div>
+            </div>
+          </div>
+
+          <div class="node" data-id="atem" style="left: 40%; top: 28%; min-width: 170px;">
+            <div class="header"><span class="ico">🎚</span> ATEM 4M/E <span class="sub">SDI · Audio</span></div>
+            <div class="ports">
+              <div class="port in"><span class="handle active" data-port="atem-in1"></span><span>IN 1</span></div>
+              <div class="port in"><span class="handle active" data-port="atem-in2"></span><span>IN 2</span></div>
+              <div class="port in"><span class="handle" data-port="atem-in3"></span><span>IN 3 — GFX</span></div>
+              <div class="port out"><span>PGM OUT</span><span class="handle active" data-port="atem-pgm"></span></div>
+              <div class="port out"><span>MV OUT</span><span class="handle active" data-port="atem-mv"></span></div>
+            </div>
+          </div>
+
+          <div class="node" data-id="mv" style="left: 75%; top: 8%;">
+            <div class="header"><span class="ico">🖥</span> Multiview <span class="sub">HDMI</span></div>
+            <div class="ports">
+              <div class="port in"><span class="handle active" data-port="mv-in"></span><span>HDMI IN</span></div>
+            </div>
+          </div>
+
+          <div class="node" data-id="enc" style="left: 75%; top: 52%;">
+            <div class="header"><span class="ico">🌐</span> Encoder <span class="sub">SRT · Ethernet</span></div>
+            <div class="ports">
+              <div class="port in"><span class="handle active" data-port="enc-in"></span><span>SDI IN</span></div>
+              <div class="port out"><span>LAN</span><span class="handle active" data-port="enc-lan"></span></div>
+            </div>
+          </div>
+
+          <div class="node" data-id="mic" style="left: 5%; top: 84%;">
+            <div class="header"><span class="ico">🎙</span> Talent Mic <span class="sub">XLR</span></div>
+            <div class="ports">
+              <div class="port out"><span>XLR OUT</span><span class="handle active" data-port="mic-out"></span></div>
+            </div>
+          </div>
+
+          <div class="cable-legend">
+            <div class="row"><span class="swatch" style="background:var(--sdi)"></span> SDI</div>
+            <div class="row"><span class="swatch" style="background:var(--hdmi)"></span> HDMI</div>
+            <div class="row"><span class="swatch" style="background:var(--eth)"></span> Ethernet</div>
+            <div class="row"><span class="swatch" style="background:var(--xlr)"></span> XLR</div>
+          </div>
+
+          <div class="minimap" aria-hidden="true">
+            <div class="mm-node" style="left:6%;top:8%;width:18%;height:14%;"></div>
+            <div class="mm-node" style="left:6%;top:50%;width:18%;height:12%;"></div>
+            <div class="mm-node" style="left:40%;top:28%;width:22%;height:30%;"></div>
+            <div class="mm-node" style="left:75%;top:8%;width:18%;height:12%;"></div>
+            <div class="mm-node" style="left:75%;top:50%;width:18%;height:14%;"></div>
+            <div class="mm-node" style="left:6%;top:84%;width:14%;height:10%;"></div>
+          </div>
+
+          <div class="controls" aria-hidden="true">
+            <button title="Zoom in">+</button>
+            <button title="Zoom out">−</button>
+            <button title="Fit view">⛶</button>
+            <button title="Lock">🔒</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Stats strip ─── -->
+    <div class="stats reveal">
+      <div class="stats-grid">
+        <div class="stat"><div class="n">6</div><div class="l">Cable types</div></div>
+        <div class="stat"><div class="n">∞</div><div class="l">Nodes per plan</div></div>
+        <div class="stat"><div class="n">100%</div><div class="l">Offline</div></div>
+        <div class="stat"><div class="n">MIT</div><div class="l">Open source</div></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ─── Features ────────────────────────────────────── -->
+<section id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">What's inside</div>
+      <h2>Everything you need to wire a show</h2>
+      <p>One desktop app for the canvas, the routing, the multiview, and the paperwork. No SaaS, no logins, no internet required.</p>
+    </div>
+
+    <div class="features">
+      <div class="feature reveal">
+        <div class="ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M6 9v6a3 3 0 0 0 3 3h6"/><path d="M9 6h6"/></svg>
+        </div>
+        <h3>Node-based canvas</h3>
+        <p>React Flow powered drag-and-drop. Pan, zoom, minimap, snap. Visualize the entire signal topology at a glance.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/><circle cx="8" cy="6" r="1.5" fill="currentColor"/><circle cx="14" cy="12" r="1.5" fill="currentColor"/><circle cx="6" cy="18" r="1.5" fill="currentColor"/></svg>
+        </div>
+        <h3>Equipment library</h3>
+        <p>Built-in broadcast gear + custom device templates with proper input/output ports — reusable across every project.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M9 4v14"/><path d="M15 4v14"/><path d="M3 9h18"/><path d="M3 13h18"/></svg>
+        </div>
+        <h3>ATEM multiviewer</h3>
+        <p>Visual multiview layout editor for Blackmagic ATEM. Camera / program / preview assignment with exportable configs.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/><circle cx="7" cy="7" r="2" fill="currentColor"/><circle cx="14" cy="12" r="2" fill="currentColor"/><circle cx="18" cy="17" r="2" fill="currentColor"/></svg>
+        </div>
+        <h3>Videohub routing</h3>
+        <p>SDI source → destination patch mapping for Blackmagic Videohub. Logical router editor with visual signal path overview.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/></svg>
+        </div>
+        <h3>Rentman integration</h3>
+        <p>Pull projects, equipment and categories straight from Rentman. Token-based auth, encrypted local storage, zero secrets in code.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+        </div>
+        <h3>PDF export</h3>
+        <p>Print-ready production paperwork. Full cable layouts, equipment lists, metadata and signal routing in one document.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Showcase / embedded UI ──────────────────────── -->
+<section id="showcase" style="padding-top:30px;">
+  <div class="container">
+
+    <div class="section-head reveal">
+      <div class="eyebrow">From the actual app</div>
+      <h2>Real UI, embedded right here</h2>
+      <p>These aren't screenshots — they're the same components, rebuilt in HTML so you can hover, click and drag.</p>
+    </div>
+
+    <!-- ATEM Multiviewer -->
+    <div class="showcase">
+      <div class="reveal">
+        <div class="eyebrow" style="color:var(--brand-2);font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.14em;">ATEM Multiviewer</div>
+        <h2 style="margin-top:8px;">Configure the multiview before you patch a single cable</h2>
+        <p>Drag-and-drop layout grid for ATEM Television Studio systems. Tally states, source labels and audio meters all align with what operators see live on monitor walls.</p>
+        <ul>
+          <li>2×2, 4×4 and asymmetric program/preview layouts</li>
+          <li>Per-cell source assignment with live preview labels</li>
+          <li>Hardware tally indication (PGM red, PVW green)</li>
+          <li>Export-ready ATEM configurations</li>
+        </ul>
+      </div>
+      <div class="card reveal">
+        <div class="window-chrome">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="title">multiviewer.atem · 6-output layout</div>
+        </div>
+        <div class="multiview">
+          <div class="mv-cell program mv-cam1">
+            <div class="label">PGM · CAM 1</div>
+            <div class="tally"></div>
+          </div>
+          <div class="mv-cell preview mv-cam2">
+            <div class="label">PVW · CAM 2</div>
+            <div class="tally"></div>
+          </div>
+          <div class="mv-cell mv-cam3"><div class="label">CAM 3</div></div>
+          <div class="mv-cell mv-gfx"><div class="label">GFX 1</div></div>
+          <div class="mv-cell" style="background:#0a0a0a;"><div class="mv-bars"></div><div class="label">CBARS</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Videohub patch -->
+    <div class="showcase reverse">
+      <div class="reveal">
+        <div class="eyebrow" style="color:var(--brand-2);font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.14em;">Videohub Routing</div>
+        <h2 style="margin-top:8px;">Patch sources to destinations visually</h2>
+        <p>The same matrix UI that lives inside CablePlanner — click any cell to route a source to a destination. Active routes are highlighted, mismatches are flagged.</p>
+        <ul>
+          <li>Logical router configuration for any Blackmagic Videohub size</li>
+          <li>Click-to-route patch matrix with hover preview</li>
+          <li>Save and recall full snapshots per show</li>
+          <li>Exportable routing setup files</li>
+        </ul>
+      </div>
+      <div class="card reveal">
+        <div class="window-chrome">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="title">videohub-40x40 · routing matrix</div>
+        </div>
+        <div class="vhub">
+          <div class="vhub-title">
+            <h4>Smart Videohub 40×40</h4>
+            <span class="status">Connected · 10.0.1.42</span>
+          </div>
+          <div class="vhub-grid" id="vhub"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Download ────────────────────────────────────── -->
+<section id="download">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">Latest release</div>
+      <h2>Download CablePlanner v7.9.5</h2>
+      <p>Free, open source, MIT-licensed. Pick the build for your machine — no account required.</p>
+    </div>
+
+    <div class="card release-card reveal">
+      <div class="release-head">
+        <div>
+          <h3>v7.9.5 — Night issue cleanup</h3>
+          <div class="meta">
+            Published <span>May 17, 2026</span> · tag <code>v7.9.5</code> ·
+            <a href="https://github.com/larszu/cable-planner/releases/tag/v7.9.5" target="_blank" rel="noopener">view on GitHub →</a>
+          </div>
+        </div>
+        <a class="btn btn-primary" href="https://github.com/larszu/cable-planner/releases/latest" target="_blank" rel="noopener">
+          All releases
+        </a>
+      </div>
+
+      <div class="assets">
+        <a class="asset" href="https://github.com/larszu/cable-planner/releases/download/v7.9.5/Cable.Planner-7.9.8-x64.exe" target="_blank" rel="noopener">
+          <span class="os" title="Windows">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.5 11 4v7H3zM12 3.8 21 2.5V11h-9zM3 12h8v7l-8-1.5zM12 12h9v8.5L12 19z"/></svg>
+          </span>
+          <div class="info">
+            <div class="name">Cable Planner — Windows (x64)</div>
+            <div class="sz">.exe installer · 112 MB</div>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+
+        <a class="asset" href="https://github.com/larszu/cable-planner/releases/download/v7.9.5/Cable.Planner-7.9.8-portable.exe" target="_blank" rel="noopener">
+          <span class="os" title="Windows portable">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+          </span>
+          <div class="info">
+            <div class="name">Cable Planner — Windows portable</div>
+            <div class="sz">.exe portable · 112 MB</div>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+
+        <a class="asset" href="https://github.com/larszu/cable-planner/releases/download/v7.9.5/Cable.Planner-7.9.8-arm64.dmg" target="_blank" rel="noopener">
+          <span class="os" title="macOS Apple Silicon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.4c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.8-3.6.8-.8 0-1.9-.8-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 3 2.4 1.2-.1 1.6-.8 3.1-.8 1.4 0 1.8.8 3.1.7 1.3 0 2.1-1.2 2.8-2.3.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.5-1-2.5-3.9zM14.3 5.2c.7-.8 1.1-1.9 1-3-.9 0-2 .6-2.7 1.4-.6.7-1.2 1.8-1 2.9 1 .1 2-.5 2.7-1.3z"/></svg>
+          </span>
+          <div class="info">
+            <div class="name">Cable Planner — macOS (Apple Silicon)</div>
+            <div class="sz">.dmg arm64 · 131 MB</div>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+
+        <a class="asset" href="https://github.com/larszu/cable-planner/releases/download/v7.9.5/Cable.Planner-7.9.8-x64.dmg" target="_blank" rel="noopener">
+          <span class="os" title="macOS Intel">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.4c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.8-3.6.8-.8 0-1.9-.8-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 3 2.4 1.2-.1 1.6-.8 3.1-.8 1.4 0 1.8.8 3.1.7 1.3 0 2.1-1.2 2.8-2.3.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.5-1-2.5-3.9zM14.3 5.2c.7-.8 1.1-1.9 1-3-.9 0-2 .6-2.7 1.4-.6.7-1.2 1.8-1 2.9 1 .1 2-.5 2.7-1.3z"/></svg>
+          </span>
+          <div class="info">
+            <div class="name">Cable Planner — macOS (Intel)</div>
+            <div class="sz">.dmg x64 · 138 MB</div>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Footer ──────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="brand">
+        <svg viewBox="0 0 48 46" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="#863bff" d="M25.946 44.938c-.664.845-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.287c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.497 0-3.578-1.842-3.578H1.237c-.92 0-1.456-1.04-.92-1.788L10.013.474c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.579 1.842 3.579h11.377c.943 0 1.473 1.088.89 1.83L25.947 44.94z"/>
+        </svg>
+        CablePlanner
+      </div>
+      <div class="lks">
+        <a href="https://github.com/larszu/cable-planner" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/larszu/cable-planner/releases" target="_blank" rel="noopener">Releases</a>
+        <a href="https://github.com/larszu/cable-planner/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+        <a href="https://paypal.me/larszumpe" target="_blank" rel="noopener">Donate</a>
+      </div>
+    </div>
+    <div class="made">
+      Built and maintained by <strong>Lars Zumpe</strong> · Made with Electron + React + TypeScript ·
+      © <span id="yr"></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Year
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  // ── Reveal-on-scroll
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    }
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+  // ── Drag-and-drop nodes + live SVG cables
+  (function () {
+    const canvas = document.getElementById('canvas');
+    const cables = document.getElementById('cables');
+    if (!canvas || !cables) return;
+
+    // From-port -> to-port mapping for our 5 cables
+    const connections = [
+      { id: 'c1', from: 'cam1-out',  to: 'atem-in1' },
+      { id: 'c2', from: 'cam2-out',  to: 'atem-in2' },
+      { id: 'c3', from: 'atem-mv',   to: 'mv-in'    },
+      { id: 'c4', from: 'atem-pgm',  to: 'enc-in'   },
+      { id: 'c5', from: 'mic-out',   to: 'atem-in3' },
+    ];
+
+    function getHandleCenter(portId) {
+      const h = canvas.querySelector('[data-port="' + portId + '"]');
+      if (!h) return null;
+      const r = h.getBoundingClientRect();
+      const c = canvas.getBoundingClientRect();
+      return {
+        x: r.left + r.width / 2 - c.left,
+        y: r.top + r.height / 2 - c.top,
+      };
+    }
+
+    function bezier(a, b) {
+      const dx = Math.max(40, Math.abs(b.x - a.x) * 0.5);
+      return 'M ' + a.x + ' ' + a.y +
+             ' C ' + (a.x + dx) + ' ' + a.y + ', ' +
+                    (b.x - dx) + ' ' + b.y + ', ' +
+                    b.x + ' ' + b.y;
+    }
+
+    function drawCables() {
+      for (const c of connections) {
+        const a = getHandleCenter(c.from);
+        const b = getHandleCenter(c.to);
+        const path = document.getElementById(c.id);
+        if (!path || !a || !b) continue;
+        path.setAttribute('d', bezier(a, b));
+      }
+    }
+
+    // Drag handling — pointer events for mouse + touch
+    let dragging = null;
+    let offsetX = 0, offsetY = 0;
+
+    canvas.querySelectorAll('.node').forEach((node) => {
+      node.addEventListener('pointerdown', (e) => {
+        // ignore clicks on the handles themselves
+        if (e.target.closest('.handle')) return;
+        dragging = node;
+        node.classList.add('dragging');
+        node.setPointerCapture(e.pointerId);
+        const r = node.getBoundingClientRect();
+        offsetX = e.clientX - r.left;
+        offsetY = e.clientY - r.top;
+        e.preventDefault();
+      });
+      node.addEventListener('pointermove', (e) => {
+        if (dragging !== node) return;
+        const c = canvas.getBoundingClientRect();
+        let x = e.clientX - c.left - offsetX;
+        let y = e.clientY - c.top - offsetY;
+        const w = node.offsetWidth;
+        const h = node.offsetHeight;
+        x = Math.max(0, Math.min(c.width - w, x));
+        y = Math.max(0, Math.min(c.height - h, y));
+        node.style.left = (x / c.width * 100) + '%';
+        node.style.top  = (y / c.height * 100) + '%';
+        drawCables();
+      });
+      const endDrag = (e) => {
+        if (dragging !== node) return;
+        node.classList.remove('dragging');
+        try { node.releasePointerCapture(e.pointerId); } catch (_) {}
+        dragging = null;
+      };
+      node.addEventListener('pointerup', endDrag);
+      node.addEventListener('pointercancel', endDrag);
+    });
+
+    // initial draw + redraw on resize / font load
+    requestAnimationFrame(drawCables);
+    window.addEventListener('resize', drawCables);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawCables);
+  })();
+
+  // ── Build videohub patch matrix
+  (function () {
+    const grid = document.getElementById('vhub');
+    if (!grid) return;
+    const srcs = ['CAM 1', 'CAM 2', 'CAM 3', 'GFX 1', 'PLAYOUT', 'EVS', 'RET', 'BARS'];
+    const dsts = ['ATEM 1', 'ATEM 2', 'ATEM 3', 'MV 1', 'MV 2', 'REC 1', 'REC 2'];
+    const active = { 'ATEM 1': 'CAM 1', 'ATEM 2': 'CAM 2', 'ATEM 3': 'GFX 1', 'MV 1': 'CAM 3', 'REC 1': 'EVS' };
+
+    // header row
+    const corner = document.createElement('div');
+    corner.className = 'cell head';
+    corner.textContent = 'DST ↓ / SRC →';
+    grid.appendChild(corner);
+    srcs.forEach((s) => {
+      const c = document.createElement('div');
+      c.className = 'cell head';
+      c.textContent = s;
+      grid.appendChild(c);
+    });
+
+    dsts.forEach((d) => {
+      const rh = document.createElement('div');
+      rh.className = 'cell head row-head';
+      rh.textContent = d;
+      grid.appendChild(rh);
+      srcs.forEach((s) => {
+        const c = document.createElement('div');
+        c.className = 'cell';
+        c.textContent = '·';
+        if (active[d] === s) {
+          c.classList.add('active');
+          c.textContent = '●';
+        }
+        c.addEventListener('click', () => {
+          // clear row, mark this cell
+          [...grid.children].forEach((ch) => {
+            if (ch === rh) return;
+            // find row siblings by index math: row index, col index
+          });
+          // simpler: clear by row using data attributes
+          const rowIndex = dsts.indexOf(d);
+          const start = (srcs.length + 1) /*header row*/ + rowIndex * (srcs.length + 1) + 1;
+          for (let i = start; i < start + srcs.length; i++) {
+            grid.children[i].classList.remove('active');
+            grid.children[i].textContent = '·';
+          }
+          c.classList.add('active');
+          c.textContent = '●';
+        });
+        grid.appendChild(c);
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
