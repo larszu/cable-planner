@@ -33,7 +33,10 @@ export interface DeviceConfigEntry {
   equipmentId?: string
 }
 
-const KEY = 'cable-planner:ui'
+import { STORAGE_KEYS } from '../lib/storageKeys'
+import { PANEL_LIMITS, EQUIPMENT_LAYOUT } from '../lib/layoutConstants'
+
+const KEY = STORAGE_KEYS.ui
 
 interface PersistedUiState {
   propertiesCollapsed: boolean
@@ -166,7 +169,7 @@ const defaults: PersistedUiState = {
   propertiesCollapsed: false,
   libraryCollapsed: false,
   snapToGrid: true,
-  gridSize: 10,
+  gridSize: EQUIPMENT_LAYOUT.GRID_SIZE,
   defaultRouting: 'orthogonal',
   defaultArrow: true,
   libraryWidth: 260,
@@ -625,13 +628,13 @@ export const useUiStore = create<UiState>((set) => ({
   toggleLibraryCollapsed: () =>
     set((state) => applyPatch({ libraryCollapsed: !state.libraryCollapsed })(state)),
   setSnapToGrid: (value) => set(applyPatch({ snapToGrid: value })),
-  setGridSize: (value) => set(applyPatch({ gridSize: Math.max(2, Math.min(100, value)) })),
+  setGridSize: (value) => set(applyPatch({ gridSize: Math.max(PANEL_LIMITS.gridSize.MIN, Math.min(PANEL_LIMITS.gridSize.MAX, value)) })),
   setDefaultRouting: (value) => set(applyPatch({ defaultRouting: value })),
   setDefaultArrow: (value) => set(applyPatch({ defaultArrow: value })),
   setLibraryWidth: (value) =>
-    set(applyPatch({ libraryWidth: Math.max(180, Math.min(600, Math.round(value))) })),
+    set(applyPatch({ libraryWidth: Math.max(PANEL_LIMITS.library.MIN, Math.min(PANEL_LIMITS.library.MAX, Math.round(value))) })),
   setPropertiesWidth: (value) =>
-    set(applyPatch({ propertiesWidth: Math.max(220, Math.min(600, Math.round(value))) })),
+    set(applyPatch({ propertiesWidth: Math.max(PANEL_LIMITS.properties.MIN, Math.min(PANEL_LIMITS.properties.MAX, Math.round(value))) })),
   setCableColorMode: (value) => set(applyPatch({ cableColorMode: value })),
   setCanvasTheme: (value) => set(applyPatch({ canvasTheme: value })),
   setColorPortsByType: (value) => set(applyPatch({ colorPortsByType: value })),

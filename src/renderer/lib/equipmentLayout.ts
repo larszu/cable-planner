@@ -9,11 +9,15 @@
 
 import type { EquipmentItem, GreenGoConfig, Port } from '../types/equipment'
 import { findGreenGoUserForEquipment } from './greengoSync'
+import { EQUIPMENT_LAYOUT } from './layoutConstants'
 
-const HEADER_HEIGHT = 48
-const HEADER_HEIGHT_WITH_IP = 62
-const PORT_ROW = 22
-const PADDING = 8
+// v7.9.23 — Layout-Konstanten zentralisiert in lib/layoutConstants.ts.
+// Vorher waren diese Werte zwischen EquipmentNode.tsx + equipmentLayout.ts
+// dupliziert — Bug-Garantie wenn einer der beiden geändert wurde.
+const HEADER_HEIGHT = EQUIPMENT_LAYOUT.HEADER_HEIGHT
+const HEADER_HEIGHT_WITH_IP = EQUIPMENT_LAYOUT.HEADER_HEIGHT_WITH_IP
+const PORT_ROW = EQUIPMENT_LAYOUT.PORT_ROW
+const PADDING = EQUIPMENT_LAYOUT.PADDING
 
 export type PortSide = 'left' | 'right'
 
@@ -53,15 +57,18 @@ export const computeEquipmentLayout = (
   const portsFlipped = !!eq.portsFlipped
 
   // Header height: identical formula as EquipmentNode.tsx.
+  // v7.9.26 — Optionale Header-Zeilen sind gridSize-aligned (11 px)
+  // statt 14, damit Port-Y-Positionen auf Dot-Reihen landen.
   const greengoUser = findGreenGoUserForEquipment(eq.id, greengoConfig)
-  const beltpackLine = greengoUser ? 14 : 0
+  const EXTRA_HEADER_LINE = EQUIPMENT_LAYOUT.GRID_SIZE
+  const beltpackLine = greengoUser ? EXTRA_HEADER_LINE : 0
   const headerHeight =
     (eq.ipAddress
       ? eq.subtitle
-        ? HEADER_HEIGHT_WITH_IP + 14
+        ? HEADER_HEIGHT_WITH_IP + EXTRA_HEADER_LINE
         : HEADER_HEIGHT_WITH_IP
       : eq.subtitle
-        ? HEADER_HEIGHT + 14
+        ? HEADER_HEIGHT + EXTRA_HEADER_LINE
         : HEADER_HEIGHT) + beltpackLine
 
   // Side bucketing — identical to EquipmentNode.

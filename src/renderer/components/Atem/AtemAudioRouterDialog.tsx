@@ -3,6 +3,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { LIMITS } from '../../lib/layoutConstants'
 import type {
   AtemAudioConfig,
   AtemClassicAudioInput,
@@ -557,7 +558,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
   }, [matrix.outputs, filterOutputs, excludedOutputIds])
 
   const cellCount = visibleSources.length * visibleOutputs.length
-  const tooLarge = cellCount > 12000 && !renderAnyway
+  const tooLarge = cellCount > LIMITS.MAX_ATEM_MATRIX_CELLS && !renderAnyway
 
   /** Heuristic group key for the checkbox list: take the part before the
    *  trailing number. "MADI 1" → "MADI", "Out 5" → "Out", "AES 4" → "AES".

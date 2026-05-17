@@ -18,8 +18,9 @@
 import { useCallback, useMemo } from 'react'
 import type { GreenGoConfig, GreenGoUser } from '../types/greengo'
 import { useProjectStore } from '../store/projectStore'
+import { STORAGE_KEYS } from './storageKeys'
 
-const PRESETS_KEY = 'cable-planner:greengoPresets'
+const PRESETS_KEY = STORAGE_KEYS.greengoPresets
 
 export interface GreenGoBeltpackInfo {
   user: GreenGoUser
