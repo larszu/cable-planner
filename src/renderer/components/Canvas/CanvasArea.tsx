@@ -1001,6 +1001,17 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         projectStoreInstance.getState().insertBlackBoxRack(rackPresetId, px, py)
         return
       }
+      // v7.9.16 — Group-Preset-Drop (Non-Rack-Gruppen). Funktioniert wie
+      // der Platzieren-Button: spawn die Geräte mit Internal-Cables am
+      // Drop-Punkt (placeGroupPreset).
+      const groupPresetId = event.dataTransfer.getData('application/cable-planner-group-preset')
+      if (groupPresetId) {
+        if (mode === 'rack') return
+        const px = snapX(position.x)
+        const py = snapX(position.y)
+        projectStoreInstance.getState().placeGroupPreset(groupPresetId, px, py)
+        return
+      }
 
       const payload = event.dataTransfer.getData('application/cable-planner-equipment')
       if (!payload) {
