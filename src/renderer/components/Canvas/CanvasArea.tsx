@@ -1192,7 +1192,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         lastMousePosRef.current = { x: event.clientX, y: event.clientY }
       }}
     >
-      {mode === 'main' && <CanvasToolbar />}
+      {/* v7.9.12 — Toolbar wird auch im Rack-Mode gerendert, allerdings
+          mit reduziertem Feature-Set (Frame/Group/Lock/Annotations
+          ausgeblendet). Snap/Grid/Routing-Defaults/Align bleiben
+          weil sie auch im Rack-Sub-Canvas Sinn machen. */}
+      <CanvasToolbar mode={mode} />
       {mode === 'main' && <AnnotationCanvasOverlay />}
       {/* v7.9.5 — Lock-Banner. Wenn projectMode='finalized' oder 'viewer'
           ist, zeigt eine prominente Leiste oben dass das Canvas

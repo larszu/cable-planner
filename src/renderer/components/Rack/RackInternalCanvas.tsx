@@ -72,7 +72,34 @@ const X_OFFSET = 100
 const Y_OFFSET = 80
 
 /** Map placements → EquipmentItem[]. Y-Position wird aus startUnit
- *  abgeleitet, damit das Layout sofort die richtige Reihenfolge zeigt. */
+ *  abgeleitet, damit das Layout sofort die richtige Reihenfolge zeigt.
+ *
+ *  v7.9.12 — Port-IDs werden hier zwingend mit UUIDs versorgt. Die
+ *  Catalog-Templates (Blackmagic, Misc, Camera, …) emittieren Ports
+ *  mit `id: ''` und verlassen sich darauf dass `addEquipment` im
+ *  projectStore sie sanitisiert. Da RackInternalCanvas die Templates
+ *  aber direkt in den Scratch-Store überträgt (ohne addEquipment),
+ *  blieben die IDs leer — Folge: ReactFlow/ React benutzten die
+ *  Port-IDs als Keys → identische Keys ('') → nur EIN Port wurde
+ *  gerendert, der Rest "gestapelt". Templates mit bereits gefüllten
+ *  IDs (z.B. Rentman-Imports) waren nicht betroffen, daher zeigte
+ *  Videohub korrekt aber X32 nicht. */
+const sanitizePorts = <T extends { id: string }>(ports: T[]): T[] => {
+  const seen = new Set<string>()
+  return ports.map((p) => {
+    let id = p.id
+    if (!id || seen.has(id)) {
+      // crypto.randomUUID wird breit unterstützt (Electron + alle
+      // modernen Browser). Fallback auf Math.random für Test-Envs.
+      id = typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `port-${Math.random().toString(36).slice(2, 11)}`
+    }
+    seen.add(id)
+    return { ...p, id }
+  })
+}
+
 const buildScratchEquipment = (
   placements: RackPlacementForCanvas[],
 ): EquipmentItem[] =>
@@ -80,8 +107,8 @@ const buildScratchEquipment = (
     id: p.id,
     name: p.name,
     category: p.category,
-    inputs: p.inputs,
-    outputs: p.outputs,
+    inputs: sanitizePorts(p.inputs),
+    outputs: sanitizePorts(p.outputs),
     x: X_OFFSET,
     y: Y_OFFSET + (p.startUnit - 1) * HE_TO_PX,
     width: NODE_WIDTH,
