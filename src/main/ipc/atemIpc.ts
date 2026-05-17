@@ -237,4 +237,177 @@ export const registerAtemIpc = () => {
       return { applied }
     },
   )
+
+  // v7.9.52 — OpenSwitcher-style Live-Audio-Routing.
+  //
+  // Liest den vollständigen Audio-State live aus dem aktuellen Switcher und
+  // gibt ihn im AtemAudioConfig-Format zurück (kompatibel zum XML-Flow,
+  // sodass das gleiche UI beide Quellen verarbeiten kann). Anders als
+  // der XML-Pfad, der nur eine offline gespeicherte ATEM-Profile-XML
+  // patcht, holt das hier den TATSÄCHLICHEN aktuellen Zustand.
+  //
+  // atem-connection legt den State unter atem.state.audio (Classic) /
+  // atem.state.fairlight + atem.state.fairlight.audioRouting (Matrix
+  // auf Extreme/Constellation). Wir mappen direkt darauf.
+  ipcMain.handle('atem:read-audio-config', async () => {
+    if (!atem || atem.status !== AtemConnectionStatus.CONNECTED) {
+      throw new Error('ATEM not connected')
+    }
+    const state = atem.state
+    if (!state) return null
+
+    // Input-Labels (gleiche Quelle wie summarizeState)
+    const inputLabels: Record<number, { shortName: string; longName: string; externalPortType?: string }> = {}
+    for (const [idStr, input] of Object.entries(state.inputs ?? {})) {
+      if (!input) continue
+      const id = Number(idStr)
+      inputLabels[id] = {
+        shortName: input.shortName ?? '',
+        longName: input.longName ?? '',
+        externalPortType: input.internalPortType?.toString(),
+      }
+    }
+
+    // Classic Mixer (state.audio.channels)
+    let classic:
+      | {
+          programOutGain: number
+          programOutBalance: number
+          programOutFollowFadeToBlack: boolean
+          audioFollowVideoCrossfadeTransition: boolean
+          inputs: Array<{
+            id: number
+            mixOption: 'Off' | 'On' | 'AudioFollowVideo'
+            gain: number | null
+            balance: number
+          }>
+        }
+      | undefined
+    if (state.audio?.channels) {
+      const inputs: Array<{ id: number; mixOption: 'Off' | 'On' | 'AudioFollowVideo'; gain: number | null; balance: number }> = []
+      for (const [idStr, channel] of Object.entries(state.audio.channels)) {
+        if (!channel) continue
+        const mixOption = channel.mixOption === 0 ? 'Off' : channel.mixOption === 1 ? 'On' : 'AudioFollowVideo'
+        inputs.push({
+          id: Number(idStr),
+          mixOption,
+          gain: Number.isFinite(channel.gain) ? channel.gain : null,
+          balance: channel.balance,
+        })
+      }
+      classic = {
+        programOutGain: state.audio.master?.gain ?? 0,
+        programOutBalance: state.audio.master?.balance ?? 0,
+        programOutFollowFadeToBlack: state.audio.master?.followFadeToBlack ?? false,
+        audioFollowVideoCrossfadeTransition:
+          (state.audio as unknown as { audioFollowVideoCrossfadeTransition?: boolean })
+            .audioFollowVideoCrossfadeTransition ?? false,
+        inputs,
+      }
+    }
+
+    // Fairlight Audio Routing Matrix (Extreme/Constellation)
+    let matrix: { sources: Array<{ id: number; name: string }>; outputs: Array<{ id: number; sourceId: number; name: string }> } | undefined
+    const routing = state.fairlight?.audioRouting
+    if (routing) {
+      const sources = Object.entries(routing.sources ?? {}).map(([id, s]) => ({
+        id: Number(id),
+        name: (s as { name?: string })?.name ?? `Source ${id}`,
+      }))
+      const outputs = Object.entries(routing.outputs ?? {}).map(([id, o]) => {
+        const out = o as { sourceId?: number | bigint; name?: string }
+        const srcId = typeof out.sourceId === 'bigint' ? Number(out.sourceId) : out.sourceId ?? 0
+        return { id: Number(id), sourceId: srcId, name: out.name ?? `Output ${id}` }
+      })
+      matrix = { sources, outputs }
+    }
+
+    return {
+      classicMixer: classic,
+      matrix,
+      inputLabels,
+    }
+  })
+
+  // v7.9.52 — Sendet ein bearbeitetes AtemAudioConfig an den Switcher.
+  // Nur die jeweils befüllten Sections werden gepusht (Matrix UND/ODER
+  // Classic UND/ODER Labels). Keine Validierung gegen Mixer-Capabilities —
+  // wenn etwas nicht unterstützt wird, fängt atem-connection den Fehler
+  // und wir loggen ihn ins event-Log; gesendet wird trotzdem alles.
+  ipcMain.handle(
+    'atem:apply-audio-config',
+    async (
+      _event,
+      config: {
+        matrix?: { outputs: Array<{ id: number; sourceId: number }> }
+        classicMixer?: {
+          inputs: Array<{
+            id: number
+            mixOption: 'Off' | 'On' | 'AudioFollowVideo'
+            gain: number | null
+            balance: number
+          }>
+        }
+        inputLabels?: Record<number, { shortName: string; longName: string }>
+      },
+    ): Promise<{ matrixApplied: number; classicApplied: number; labelsApplied: number }> => {
+      if (!atem || atem.status !== AtemConnectionStatus.CONNECTED) {
+        throw new Error('ATEM not connected')
+      }
+      let matrixApplied = 0
+      let classicApplied = 0
+      let labelsApplied = 0
+
+      if (config.inputLabels) {
+        for (const [idStr, label] of Object.entries(config.inputLabels)) {
+          try {
+            await atem.setInputSettings(
+              { longName: label.longName.slice(0, 20), shortName: label.shortName.slice(0, 4) },
+              Number(idStr),
+            )
+            labelsApplied += 1
+          } catch (err) {
+            pushEvent(`Label-Push ${idStr} failed: ${(err as Error).message}`)
+          }
+        }
+      }
+
+      if (config.classicMixer) {
+        for (const input of config.classicMixer.inputs) {
+          try {
+            await atem.setClassicAudioMixerInputProps(input.id, {
+              mixOption: input.mixOption === 'Off' ? 0 : input.mixOption === 'On' ? 1 : 2,
+              gain: input.gain ?? -Infinity,
+              balance: input.balance,
+            })
+            classicApplied += 1
+          } catch (err) {
+            pushEvent(`Classic input ${input.id} failed: ${(err as Error).message}`)
+          }
+        }
+      }
+
+      if (config.matrix) {
+        for (const output of config.matrix.outputs) {
+          try {
+            // setFairlightAudioRoutingOutputProperties nimmt outputId als
+            // erstes Argument; das war historisch die "sourceId" — der
+            // Parameter-Name in der atem-connection API ist verwirrend
+            // benannt, gemeint ist die ID des Outputs (= AROC index).
+            await atem.setFairlightAudioRoutingOutputProperties(output.id, {
+              sourceId: BigInt(output.sourceId),
+            } as unknown as Partial<{ sourceId: number; name: string }>)
+            matrixApplied += 1
+          } catch (err) {
+            pushEvent(`Matrix output ${output.id} failed: ${(err as Error).message}`)
+          }
+        }
+      }
+
+      pushEvent(
+        `Applied audio config: matrix=${matrixApplied}, classic=${classicApplied}, labels=${labelsApplied}`,
+      )
+      return { matrixApplied, classicApplied, labelsApplied }
+    },
+  )
 }

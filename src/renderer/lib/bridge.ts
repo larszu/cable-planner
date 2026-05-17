@@ -106,6 +106,41 @@ type CablePlannerApi = {
         windows: { windowIndex: number; sourceId: number }[]
       }[]
     }) => Promise<{ applied: number }>
+    /** v7.9.52 — OpenSwitcher-style Live-Audio-State lesen. */
+    readAudioConfig: () => Promise<{
+      matrix?: {
+        sources: Array<{ id: number; name: string }>
+        outputs: Array<{ id: number; sourceId: number; name: string }>
+      }
+      classicMixer?: {
+        programOutGain: number
+        programOutBalance: number
+        programOutFollowFadeToBlack: boolean
+        audioFollowVideoCrossfadeTransition: boolean
+        inputs: Array<{
+          id: number
+          mixOption: 'Off' | 'On' | 'AudioFollowVideo'
+          gain: number | null
+          balance: number
+        }>
+      }
+      inputLabels?: Record<number, { shortName: string; longName: string; externalPortType?: string }>
+    } | null>
+    /** v7.9.52 — OpenSwitcher-style: Push einer kompletten oder partiellen
+     *  AtemAudioConfig direkt an den verbundenen Switcher. Umgeht den
+     *  XML-Import-Schritt von ATEM Software Control. */
+    applyAudioConfig: (config: {
+      matrix?: { outputs: Array<{ id: number; sourceId: number }> }
+      classicMixer?: {
+        inputs: Array<{
+          id: number
+          mixOption: 'Off' | 'On' | 'AudioFollowVideo'
+          gain: number | null
+          balance: number
+        }>
+      }
+      inputLabels?: Record<number, { shortName: string; longName: string }>
+    }) => Promise<{ matrixApplied: number; classicApplied: number; labelsApplied: number }>
     onEvent: (cb: (line: string) => void) => () => void
   }
   videohub: {
@@ -518,6 +553,10 @@ const webFallbackApi: CablePlannerApi = {
     getEvents: async () => [],
     getStatus: async () => ({ connected: false, ip: null }),
     applyMvConfig: async () => {
+      throw new Error('ATEM control requires the desktop app.')
+    },
+    readAudioConfig: async () => null,
+    applyAudioConfig: async () => {
       throw new Error('ATEM control requires the desktop app.')
     },
     onEvent: () => () => {},
