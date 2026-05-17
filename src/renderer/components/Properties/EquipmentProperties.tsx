@@ -32,6 +32,7 @@ import { ALL_SIGNAL_STANDARDS } from '../../types/cableSpec'
 import type { SignalStandard } from '../../types/cableSpec'
 import { RackImageCropDialog } from '../Rack/RackImageCropDialog'
 import { CategorySelect } from '../shared/CategorySelect'
+import { ColorField } from '../shared/ColorField'
 import { pickImageAsDataUri, readImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { useTranslation } from '../../lib/i18n'
 
@@ -1783,28 +1784,14 @@ export const EquipmentProperties = () => {
             <span className="text-slate-500">({t('eq.field.compactHint', 'nur Icon + Name, Ports als Punkte')})</span>
           </label>
 
-          <label className="flex items-center justify-between gap-2">
-            <span className="text-slate-300">{t('eq.field.color', 'Gerätefarbe')}</span>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={equipment.nodeColor ?? '#475569'}
-                onChange={(event) => updateEquipment(equipment.id, { nodeColor: event.target.value })}
-                className="h-7 w-12 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
-                title="Farbe des Geräte-Knotens"
-              />
-              {equipment.nodeColor && (
-                <button
-                  type="button"
-                  onClick={() => updateEquipment(equipment.id, { nodeColor: undefined })}
-                  className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
-                  title="Farbe zurücksetzen"
-                >
-                  ✕ Reset
-                </button>
-              )}
-            </div>
-          </label>
+          <ColorField
+            layout="inline"
+            label={t('eq.field.color', 'Gerätefarbe')}
+            value={equipment.nodeColor ?? '#475569'}
+            onChange={(nodeColor) => updateEquipment(equipment.id, { nodeColor })}
+            onReset={equipment.nodeColor ? () => updateEquipment(equipment.id, { nodeColor: undefined }) : undefined}
+            title="Farbe des Geräte-Knotens"
+          />
 
           <label className="flex items-center gap-2 text-[11px] text-slate-300">
             <input

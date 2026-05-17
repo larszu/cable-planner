@@ -1,0 +1,74 @@
+// v7.9.43 — Wiederverwendbares Color-Picker-Field.
+//
+// Vorher gab es drei sehr ähnliche Color-Input-Setups: CableProperties
+// (vertikal, full-width), LocationProperties (vertikal, full-width),
+// EquipmentProperties (horizontal mit Reset-Button). Jedes Setup hatte
+// minimale Style-Abweichungen (h-7 vs h-8 vs h-9, rounded, padding-1),
+// was zwischen den Properties-Panels leicht uneinheitlich wirkte.
+//
+// Jetzt: ein ColorField mit `layout`-Variante. Default "block" für
+// vertikal+fullwidth, "inline" für die horizontale Variante mit
+// optionalem Reset-Button.
+
+interface ColorFieldProps {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  /** Wenn gesetzt: zeigt einen kleinen Reset-Button rechts neben dem
+   *  Swatch (nur sinnvoll wenn der Wert optional ist und ein Default-
+   *  Fallback existiert). */
+  onReset?: () => void
+  /** 'block' = Label oben, Swatch full-width darunter (Default).
+   *  'inline' = Label links, Swatch+Reset rechts. */
+  layout?: 'block' | 'inline'
+  /** Optional tooltip für den Swatch. */
+  title?: string
+}
+
+export const ColorField = ({
+  label,
+  value,
+  onChange,
+  onReset,
+  layout = 'block',
+  title,
+}: ColorFieldProps) => {
+  if (layout === 'inline') {
+    return (
+      <label className="flex items-center justify-between gap-2">
+        <span className="text-slate-300">{label}</span>
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            className="h-7 w-12 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
+            title={title}
+          />
+          {onReset && (
+            <button
+              type="button"
+              onClick={onReset}
+              className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
+              title="Farbe zurücksetzen"
+            >
+              ✕ Reset
+            </button>
+          )}
+        </div>
+      </label>
+    )
+  }
+  return (
+    <label className="block">
+      <span className="mb-1 block text-slate-300">{label}</span>
+      <input
+        type="color"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-9 w-full cursor-pointer rounded border border-slate-700 bg-slate-900 p-1"
+        title={title}
+      />
+    </label>
+  )
+}

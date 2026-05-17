@@ -23,27 +23,7 @@
 import jsPDF from 'jspdf'
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
-import { sanitizeForPdf } from './sanitizeForPdf'
-
-/** Wrap pdf.text so user-typed strings are auto-sanitized for Latin-1.
- *  Splits long strings via splitTextToSize when maxWidth is given so
- *  multi-line wraps render and advance y by the correct height. */
-const pdfText = (
-  pdf: jsPDF,
-  text: string,
-  x: number,
-  y: number,
-  options?: { maxWidth?: number; align?: 'left' | 'right' | 'center' },
-) => {
-  const safe = sanitizeForPdf(text)
-  if (options?.maxWidth) {
-    const lines = pdf.splitTextToSize(safe, options.maxWidth) as string[]
-    pdf.text(lines, x, y, { align: options.align })
-    return lines.length
-  }
-  pdf.text(safe, x, y, { align: options?.align })
-  return 1
-}
+import { pdfText } from './pdfHelpers'
 
 interface CableEndpointSummary {
   /** Human-readable label for the cable (name OR fallback to type+length). */

@@ -3,6 +3,7 @@ import { cableCatalog } from '../../types/cableSpec'
 import { useUiStore } from '../../store/uiStore'
 import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
+import { ColorField } from '../shared/ColorField'
 import { v4 as uuidv4 } from 'uuid'
 import { RoutingToggle } from '../shared/RoutingToggle'
 import { format, useTranslation } from '../../lib/i18n'
@@ -119,15 +120,11 @@ export const CableProperties = () => {
           className="w-full rounded border border-slate-700 bg-slate-900 p-2"
         />
       </label>
-      <label className="block">
-        <span className="mb-1 block text-slate-300">{t('cable.field.color', 'Farbe')}</span>
-        <input
-          type="color"
-          value={cable.color}
-          onChange={(event) => updateCable(cable.id, { color: event.target.value })}
-          className="h-9 w-full rounded border border-slate-700 bg-slate-900 p-1"
-        />
-      </label>
+      <ColorField
+        label={t('cable.field.color', 'Farbe')}
+        value={cable.color}
+        onChange={(color) => updateCable(cable.id, { color })}
+      />
 
       {/* Endpoint editor — inline accordion (open by default) so users can
           re-route a cable from the properties panel without opening a dialog. */}

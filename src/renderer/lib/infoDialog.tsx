@@ -6,10 +6,20 @@
 //
 // Optional kann `tone` auf 'info' | 'success' | 'warning' | 'error'
 // gesetzt werden — dann wird das Icon + die Accent-Farbe angepasst.
+//
+// v7.9.45 — Mount-Lifecycle + Backdrop-Styles + Keyboard-Handler aus
+// lib/modalRoot. Card-Style hat eigenen Border-Left-Accent, deshalb
+// nicht 100% das MODAL_CARD-Style aus modalRoot.
 
-import { useEffect, useRef } from 'react'
-import { createRoot } from 'react-dom/client'
+import { useRef } from 'react'
 import { useTranslation } from './i18n'
+import {
+  MODAL_BACKDROP,
+  MODAL_CARD,
+  backdropMouseDown,
+  mountModal,
+  useModalKeyboard,
+} from './modalRoot'
 
 export type InfoDialogTone = 'info' | 'success' | 'warning' | 'error'
 
@@ -29,17 +39,9 @@ const TONE_ACCENT: Record<InfoDialogTone, { bg: string; border: string; icon: st
 }
 
 export function infoDialog(title: string, options: InfoDialogOptions = {}): Promise<void> {
-  return new Promise((resolve) => {
-    const container = document.createElement('div')
-    document.body.appendChild(container)
-    const root = createRoot(container)
-    const done = () => {
-      root.unmount()
-      container.remove()
-      resolve()
-    }
-    root.render(<InfoDialog title={title} options={options} onDone={done} />)
-  })
+  return mountModal<void>((done) => (
+    <InfoDialog title={title} options={options} onDone={() => done(undefined)} />
+  ))
 }
 
 interface Props {
@@ -54,44 +56,16 @@ const InfoDialog = ({ title, options, onDone }: Props) => {
   const tone = options.tone ?? 'info'
   const accent = TONE_ACCENT[tone]
 
-  useEffect(() => {
-    okRef.current?.focus()
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' || e.key === 'Enter') {
-        e.preventDefault()
-        onDone()
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onDone])
+  useModalKeyboard(onDone, onDone)
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 10000,
-      }}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onDone()
-      }}
-    >
+    <div style={MODAL_BACKDROP} onMouseDown={backdropMouseDown(onDone)}>
       <div
         style={{
-          background: '#1e293b',
-          color: '#e2e8f0',
+          ...MODAL_CARD,
           border: `1px solid ${accent.border}`,
           borderLeft: `4px solid ${accent.bg}`,
-          borderRadius: 8,
-          padding: 16,
           minWidth: 360,
-          maxWidth: 560,
-          boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
         }}
       >
         <div
@@ -149,6 +123,7 @@ const InfoDialog = ({ title, options, onDone }: Props) => {
               fontSize: 13,
               fontWeight: 600,
             }}
+            autoFocus
           >
             {options.okLabel ?? t('common.ok', 'OK')}
           </button>

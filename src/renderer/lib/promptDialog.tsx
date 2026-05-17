@@ -1,25 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
-import { createRoot } from 'react-dom/client'
 import { useTranslation } from './i18n'
+import {
+  MODAL_BACKDROP,
+  MODAL_BUTTON_SECONDARY,
+  MODAL_CARD,
+  backdropMouseDown,
+  modalButtonPrimary,
+  mountModal,
+} from './modalRoot'
 
 /**
  * Promise-based replacement for window.prompt(). Electron disables the native
  * window.prompt() (it just returns null without showing anything), which is
  * why every "+ Neue Kategorie…" / rename action did nothing in production.
  * Mounts a one-shot modal, resolves with the trimmed string or null on cancel.
+ *
+ * v7.9.45 — Mount-Lifecycle + Backdrop-/Card-/Button-Styles aus lib/modalRoot.
  */
 export function promptDialog(title: string, defaultValue = ''): Promise<string | null> {
-  return new Promise((resolve) => {
-    const container = document.createElement('div')
-    document.body.appendChild(container)
-    const root = createRoot(container)
-    const done = (value: string | null) => {
-      root.unmount()
-      container.remove()
-      resolve(value)
-    }
-    root.render(<PromptDialog title={title} defaultValue={defaultValue} onDone={done} />)
-  })
+  return mountModal<string | null>((done) => (
+    <PromptDialog title={title} defaultValue={defaultValue} onDone={done} />
+  ))
 }
 
 interface Props {
@@ -44,34 +45,13 @@ const PromptDialog = ({ title, defaultValue, onDone }: Props) => {
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 10000,
-      }}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onDone(null)
-      }}
-    >
+    <div style={MODAL_BACKDROP} onMouseDown={backdropMouseDown(() => onDone(null))}>
       <form
         onSubmit={(e) => {
           e.preventDefault()
           submit()
         }}
-        style={{
-          background: '#1e293b',
-          color: '#e2e8f0',
-          border: '1px solid #334155',
-          borderRadius: 8,
-          padding: 16,
-          minWidth: 320,
-          boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-        }}
+        style={{ ...MODAL_CARD, minWidth: 320 }}
       >
         <div style={{ marginBottom: 8, fontSize: 14 }}>{title}</div>
         <input
@@ -98,28 +78,11 @@ const PromptDialog = ({ title, defaultValue, onDone }: Props) => {
           <button
             type="button"
             onClick={() => onDone(null)}
-            style={{
-              padding: '4px 12px',
-              background: '#334155',
-              border: 'none',
-              borderRadius: 4,
-              color: '#e2e8f0',
-              cursor: 'pointer',
-            }}
+            style={MODAL_BUTTON_SECONDARY}
           >
             {t('common.cancel', 'Abbrechen')}
           </button>
-          <button
-            type="submit"
-            style={{
-              padding: '4px 12px',
-              background: '#10b981',
-              border: 'none',
-              borderRadius: 4,
-              color: 'white',
-              cursor: 'pointer',
-            }}
-          >
+          <button type="submit" style={modalButtonPrimary('#10b981')}>
             {t('common.ok', 'OK')}
           </button>
         </div>
