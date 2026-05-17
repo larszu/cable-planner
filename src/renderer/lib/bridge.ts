@@ -121,6 +121,13 @@ type CablePlannerApi = {
     acquireLock: (dirPath: string, owner: string) => Promise<{ ok: boolean; lockedBy?: string }>
     releaseLock: (dirPath: string, owner: string) => Promise<void>
   }
+  print: {
+    /** v7.9.27 — PDF nativ über Electron-Hauptprozess drucken statt
+     *  iframe.contentWindow.print(). Liefert true wenn der Print-
+     *  Dialog erfolgreich abgeschlossen wurde, false bei Cancel
+     *  oder Fehler. */
+    pdfBytes: (bytes: Uint8Array) => Promise<boolean>
+  }
   mobileShare: {
     start: () => Promise<{ port: number; urls: string[]; hasProject: boolean }>
     stop: () => Promise<{ ok: boolean }>
@@ -514,6 +521,9 @@ const webFallbackApi: CablePlannerApi = {
     exists: async () => false,
     acquireLock: async () => ({ ok: false, lockedBy: undefined }),
     releaseLock: async () => {},
+  },
+  print: {
+    pdfBytes: async () => false,
   },
   mobileShare: {
     start: async () => {
