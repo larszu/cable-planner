@@ -333,6 +333,8 @@ const SortablePresetCard = ({
   id,
   children,
   nativeDragData,
+  onCardClick,
+  clickTitle,
 }: {
   id: string
   children: ReactNode
@@ -341,6 +343,11 @@ const SortablePresetCard = ({
    *  Drag-Handle nutzt PointerEvents, der HTML5-Drag-Path nutzt
    *  dragstart/dragend — Konflikte gibt es keine. */
   nativeDragData?: { mime: string; data: string }
+  /** v7.9.16 — Klick auf die Karte (außerhalb von Action-Buttons)
+   *  triggert diesen Callback. Analog zu LibraryItem.onAdd — Click
+   *  platziert, Drag-Drop platziert an der Drop-Position. */
+  onCardClick?: () => void
+  clickTitle?: string
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
   const style: React.CSSProperties = {
@@ -353,13 +360,40 @@ const SortablePresetCard = ({
     <div
       ref={setNodeRef}
       style={style}
-      className="rounded border border-slate-700 bg-slate-900 p-2 pl-5 text-xs"
+      className={`group rounded border border-slate-700 bg-slate-900 p-2 pl-5 text-xs ${
+        onCardClick ? 'cursor-grab hover:bg-slate-800 active:cursor-grabbing' : ''
+      }`}
       draggable={!!nativeDragData}
       onDragStart={(event) => {
         if (!nativeDragData) return
         event.dataTransfer.effectAllowed = 'copy'
         event.dataTransfer.setData(nativeDragData.mime, nativeDragData.data)
-      }}>
+      }}
+      onClick={
+        onCardClick
+          ? (event) => {
+              // Klicks auf Action-Buttons (mit stopPropagation darin)
+              // werden NICHT durchgereicht. Reine Klicks auf Card-Body
+              // landen hier.
+              if (event.defaultPrevented) return
+              onCardClick()
+            }
+          : undefined
+      }
+      role={onCardClick ? 'button' : undefined}
+      tabIndex={onCardClick ? 0 : undefined}
+      onKeyDown={
+        onCardClick
+          ? (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                onCardClick()
+              }
+            }
+          : undefined
+      }
+      title={onCardClick ? clickTitle : undefined}
+    >
       <span
         {...attributes}
         {...listeners}
@@ -1970,51 +2004,41 @@ export const LibraryPanel = () => {
                       const cy = (-canvasState.y + 250) / zoom
                       const totalRackUnits = preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 0), 0)
                       return (
-                        <SortablePresetCard key={preset.id} id={preset.id}>
-                          <div className="flex items-start justify-between gap-1">
-                            <div>
-                              <div className="font-medium text-slate-100">{preset.name}</div>
-                              <div className="text-[10px] text-slate-500 mt-0.5">
+                        <SortablePresetCard
+                          key={preset.id}
+                          id={preset.id}
+                          nativeDragData={{
+                            mime: 'application/cable-planner-group-preset',
+                            data: preset.id,
+                          }}
+                          onCardClick={() => placeGroupPreset(preset.id, cx, cy)}
+                          clickTitle="Klick = auf Canvas platzieren · Drag&Drop = an Drop-Position platzieren"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate font-medium text-slate-100">{preset.name}</div>
+                              <div className="mt-0.5 text-[10px] text-slate-500">
                                 {preset.items.length} Geräte · {preset.cables.length} Kabel
                                 {totalRackUnits > 0 ? ` · ${totalRackUnits} HE` : ''}
                               </div>
-                              <div className="text-[10px] text-slate-600 mt-0.5 truncate max-w-[160px]">
+                              <div className="mt-0.5 truncate text-[10px] text-slate-600">
                                 {preset.items.map((i) => i.name).join(', ')}
                               </div>
                             </div>
-                            <div className="flex flex-col gap-1 shrink-0">
+                            <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
                               <button
                                 type="button"
-                                onClick={() => placeGroupPreset(preset.id, cx, cy)}
-                                className="rounded bg-emerald-700 px-2 py-1 text-[11px] hover:bg-emerald-600"
-                                title="Gruppe auf Canvas platzieren"
-                              >
-                                Platzieren
-                              </button>
-                              <button
-                                type="button"
-                                onClick={async () => {
-                                  const next = await promptDialog('Gruppe umbenennen:', preset.name)
-                                  if (next && next.trim() && next.trim() !== preset.name) {
-                                    renameGroupPreset(preset.id, next.trim())
-                                  }
-                                }}
-                                className="rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
-                                title="Gruppe umbenennen"
-                              >
-                                Umbenennen
-                              </button>
-                              <button
-                                type="button"
-                                onClick={async () => {
+                                onClick={async (event) => {
+                                  event.stopPropagation()
                                   if (await confirmDialog(`Gruppe "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
                                     deleteGroupPreset(preset.id)
                                   }
                                 }}
-                                className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
-                                title="Gruppe löschen"
+                                className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
+                                title="Gruppe aus Library entfernen"
+                                aria-label="Löschen"
                               >
-                                Löschen
+                                ×
                               </button>
                             </div>
                           </div>
@@ -2077,68 +2101,50 @@ export const LibraryPanel = () => {
                         mime: 'application/cable-planner-rack-preset',
                         data: preset.id,
                       }}
+                      onCardClick={() => insertBlackBoxRack(preset.id, cx, cy)}
+                      clickTitle="Klick = als Black-Box auf Canvas platzieren · Drag&Drop = an Drop-Position platzieren"
                     >
-                      <div className="flex items-start justify-between gap-1">
-                        <div>
-                          <div className="font-medium text-slate-100">{preset.name}</div>
-                          <div className="text-[10px] text-slate-500 mt-0.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate font-medium text-slate-100">{preset.name}</div>
+                          <div className="mt-0.5 text-[10px] text-slate-500">
                             {preset.items.length} Geräte · {totalUnits} HE · {preset.cables.length} Kabel
                           </div>
-                          <div className="text-[10px] text-slate-600 mt-0.5 truncate max-w-[180px]">
+                          <div className="mt-0.5 truncate text-[10px] text-slate-600">
                             {preset.items.map((i) => i.name).join(', ')}
                           </div>
                         </div>
-                        <div className="flex flex-col gap-1 shrink-0">
+                        {/* v7.9.16 — Hover-Actions wie bei LibraryItem:
+                            Edit (✎) und Delete (×) als kleine Icon-Buttons,
+                            erscheinen erst beim Hover. Platzieren passiert
+                            durch Click auf den Card-Body. */}
+                        <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
                           <button
                             type="button"
-                            onClick={() => placeGroupPreset(preset.id, cx, cy)}
-                            className="rounded bg-emerald-700 px-2 py-1 text-[11px] hover:bg-emerald-600"
-                            title="Alle Geräte einzeln auf dem Canvas platzieren — interne Kabel werden mitgenommen"
-                          >
-                            Platzieren
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => insertBlackBoxRack(preset.id, cx, cy)}
-                            className="rounded bg-amber-700 px-2 py-1 text-[11px] hover:bg-amber-600"
-                            title="Rack als einzelnes Black-Box-Gerät einfügen (Drag-Drop auf Canvas funktioniert auch)"
-                          >
-                            Black-Box
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
+                            onClick={(event) => {
+                              event.stopPropagation()
                               setEditingRackPresetId(preset.id)
                               setShowRackBuilderDialog(true)
                             }}
-                            className="rounded bg-sky-700 px-2 py-1 text-[11px] hover:bg-sky-600"
-                            title="Rack im 2D-Builder bearbeiten"
+                            className="rounded bg-slate-700 px-1 py-0.5 text-[11px] hover:bg-slate-600"
+                            title="Im 2D-Rack-Builder bearbeiten"
+                            aria-label="Bearbeiten"
                           >
-                            Bearbeiten
+                            ✎
                           </button>
                           <button
                             type="button"
-                            onClick={async () => {
-                              const next = await promptDialog('Rack umbenennen:', preset.name)
-                              if (next && next.trim() && next.trim() !== preset.name) {
-                                renameGroupPreset(preset.id, next.trim())
-                              }
-                            }}
-                            className="rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
-                            title="Rack umbenennen"
-                          >
-                            Umbenennen
-                          </button>
-                          <button
-                            type="button"
-                            onClick={async () => {
+                            onClick={async (event) => {
+                              event.stopPropagation()
                               if (await confirmDialog(`Rack "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
                                 deleteGroupPreset(preset.id)
                               }
                             }}
-                            className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
+                            className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
+                            title="Rack aus Library entfernen"
+                            aria-label="Löschen"
                           >
-                            Löschen
+                            ×
                           </button>
                         </div>
                       </div>

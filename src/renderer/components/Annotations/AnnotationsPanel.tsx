@@ -248,6 +248,35 @@ export const AnnotationsPanel = ({
                       onDragStart={(e) => {
                         e.dataTransfer.setData(ANNOTATION_DRAG_MIME, a.id)
                         e.dataTransfer.effectAllowed = 'move'
+                        // v7.9.16 — Custom Drag-Image: ein kleiner Kreis
+                        // in Status-Farbe, mittig am Cursor. Vorher
+                        // benutzte der Browser das ganze Listen-Item als
+                        // Ghost — riesig und versetzt zum Cursor, daher
+                        // wirkte der Drop "random". Mit setDragImage
+                        // sieht der User exakt wo die Annotation landet.
+                        try {
+                          const preview = document.createElement('div')
+                          preview.style.cssText = [
+                            'position:absolute',
+                            'top:-1000px',
+                            'left:-1000px',
+                            'width:22px',
+                            'height:22px',
+                            'border-radius:50%',
+                            `background:${STATUS_COLOR[a.status]}`,
+                            'border:2px solid #0f172a',
+                            'box-shadow:0 2px 4px rgba(0,0,0,0.4)',
+                            'pointer-events:none',
+                          ].join(';')
+                          document.body.appendChild(preview)
+                          e.dataTransfer.setDragImage(preview, 11, 11)
+                          // Aufräumen nachdem das Bild gerendert ist.
+                          setTimeout(() => {
+                            try { document.body.removeChild(preview) } catch { /* ignore */ }
+                          }, 0)
+                        } catch {
+                          /* setDragImage nicht supported — egal, Drop funktioniert trotzdem */
+                        }
                       }}
                       className="cursor-grab rounded border border-slate-700 bg-slate-950/40 p-2 text-xs active:cursor-grabbing"
                       title="Ziehen, um diese Anmerkung auf dem Canvas zu platzieren oder einem Gerät zuzuweisen"

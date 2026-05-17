@@ -41,8 +41,13 @@ type DragState = {
   id: string
   startClientX: number
   startClientY: number
-  startFlowX: number
-  startFlowY: number
+  /** v7.9.16 — Offset zwischen Cursor-Position und Annotation-Mitte
+   *  beim Pointer-Down (in Flow-Koordinaten). Damit der Kreis beim
+   *  Drag NICHT zur Cursor-Mitte springt sondern relativ zum ursprünglichen
+   *  Grab-Punkt mitwandert. Vorher landete jedes Drag auf dem Cursor
+   *  was sich für den User wie ein "random Sprung" anfühlte. */
+  offsetFlowX: number
+  offsetFlowY: number
   flow: { x: number; y: number }
   moved: boolean
 }
@@ -134,12 +139,16 @@ export const AnnotationCanvasOverlay = () => {
                 e.currentTarget.setPointerCapture(e.pointerId)
                 const anchor = annotation.anchor
                 if (anchor.type !== 'free') return
+                // v7.9.16 — Offset zwischen Cursor und Annotation-Mitte
+                // in Flow-Koordinaten merken. Beim Drag behält die
+                // Annotation diese Beziehung zum Cursor — kein Sprung.
+                const cursorFlow = screenToFlowPosition({ x: e.clientX, y: e.clientY })
                 const next: DragState = {
                   id: annotation.id,
                   startClientX: e.clientX,
                   startClientY: e.clientY,
-                  startFlowX: anchor.x,
-                  startFlowY: anchor.y,
+                  offsetFlowX: anchor.x - cursorFlow.x,
+                  offsetFlowY: anchor.y - cursorFlow.y,
                   flow: { x: anchor.x, y: anchor.y },
                   moved: false,
                 }
@@ -151,11 +160,14 @@ export const AnnotationCanvasOverlay = () => {
                 const dx = e.clientX - ds.startClientX
                 const dy = e.clientY - ds.startClientY
                 if (!ds.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return
-                const flowNow = screenToFlowPosition({ x: e.clientX, y: e.clientY })
+                const cursorFlow = screenToFlowPosition({ x: e.clientX, y: e.clientY })
+                // Cursor-Position + Grab-Offset = neuer Annotation-Center.
+                const targetX = cursorFlow.x + ds.offsetFlowX
+                const targetY = cursorFlow.y + ds.offsetFlowY
                 setDragState({
                   ...ds,
                   moved: true,
-                  flow: { x: snap(flowNow.x), y: snap(flowNow.y) },
+                  flow: { x: snap(targetX), y: snap(targetY) },
                 })
               }}
               onPointerUp={(e) => {
