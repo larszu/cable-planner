@@ -1,5 +1,6 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import { Atem, AtemConnectionStatus } from 'atem-connection'
+import { Bonjour, type Service } from 'bonjour-service'
 
 /**
  * Singleton ATEM session. Only one device at a time is supported - matches the
@@ -408,6 +409,56 @@ export const registerAtemIpc = () => {
         `Applied audio config: matrix=${matrixApplied}, classic=${classicApplied}, labels=${labelsApplied}`,
       )
       return { matrixApplied, classicApplied, labelsApplied }
+    },
+  )
+
+  // v7.9.53 — mDNS-Auto-Discovery für ATEM-Switcher.
+  //
+  // ATEMs broadcasten sich selbst als "_blackmagic._tcp.local"-Service.
+  // Wir starten einen Bonjour-Browser für 3 s, sammeln alle "up"-Events
+  // und liefern die Liste {name, ip, port} zurück. Renderer kann das
+  // dann z.B. als Picker-UI anzeigen.
+  //
+  // Bewusst kein langlebiger Browser — Discovery ist ein User-getriggerter
+  // One-Shot ("Suchen"-Button), damit wir nicht im Hintergrund einen
+  // mDNS-Listener auf der CPU haben.
+  ipcMain.handle(
+    'atem:discover',
+    async (
+      _event,
+      params?: { timeoutMs?: number },
+    ): Promise<Array<{ name: string; ip: string; port: number; model?: string }>> => {
+      const timeoutMs = Math.max(500, Math.min(15000, params?.timeoutMs ?? 3000))
+      const bonjour = new Bonjour()
+      const found = new Map<string, { name: string; ip: string; port: number; model?: string }>()
+      const browser = bonjour.find({ type: 'blackmagic' })
+      const onUp = (svc: Service) => {
+        // ATEM antwortet typisch mit fqdn wie "<HostName>._blackmagic._tcp.local"
+        // und addresses=[<IPv4>]. Wir bevorzugen referer.address (= UDP-Reply-
+        // Quelle) weil das die garantiert erreichbare Adresse ist, fallen
+        // sonst auf addresses[0] zurück.
+        const ip = svc.referer?.address ?? svc.addresses?.[0]
+        if (!ip) return
+        const key = svc.fqdn || svc.name || ip
+        if (found.has(key)) return
+        found.set(key, {
+          name: svc.name || svc.fqdn || ip,
+          ip,
+          port: svc.port ?? 9910,
+          // TXT-Records: ATEM tagged z.B. "model=ATEM Mini Pro"
+          model:
+            (svc.txt && typeof svc.txt === 'object' && 'model' in (svc.txt as Record<string, unknown>)
+              ? String((svc.txt as Record<string, unknown>).model)
+              : undefined) ?? undefined,
+        })
+      }
+      browser.on('up', onUp)
+      await new Promise<void>((resolve) => setTimeout(resolve, timeoutMs))
+      browser.stop()
+      bonjour.destroy()
+      const result = [...found.values()].sort((a, b) => a.name.localeCompare(b.name))
+      pushEvent(`Discovery scan: ${result.length} ATEM(s) gefunden`)
+      return result
     },
   )
 }
