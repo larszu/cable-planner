@@ -17,6 +17,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
+import { ModalShell } from '../shared/ModalShell'
 import type { ConnectorType, DeviceMode, EquipmentItem, Port } from '../../types/equipment'
 
 export interface ModeEditorDialogProps {
@@ -133,35 +134,38 @@ export const ModeEditorDialog = ({
   const nameConflict =
     !isEditing && existingNames.some((n) => n.toLowerCase() === name.trim().toLowerCase())
 
-  if (!open) return null
-
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onCancel()
-      }}
-    >
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
-        <header className="flex items-center justify-between border-b border-slate-800 px-4 py-2">
-          <h3 className="text-sm font-semibold">
-            {isEditing ? 'Modus bearbeiten' : 'Neuer Betriebsmodus'}
-          </h3>
+    <ModalShell
+      open={open}
+      onClose={onCancel}
+      title={isEditing ? 'Modus bearbeiten' : 'Neuer Betriebsmodus'}
+      maxWidth="2xl"
+      zIndex={60}
+      footer={
+        <div className="flex justify-end gap-2">
           <button
             type="button"
             onClick={onCancel}
-            className="text-slate-500 hover:text-slate-200"
-            aria-label="Schließen"
+            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
           >
-            ✕
+            Abbrechen
           </button>
-        </header>
-
-        <div className="flex-1 overflow-auto p-4 text-xs">
-          {/* Name & description */}
-          <div className="space-y-2">
-            <label className="block">
-              <span className="text-slate-400">Name</span>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={!canSave}
+            className="rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+          >
+            {isEditing ? 'Speichern' : 'Modus anlegen'}
+          </button>
+        </div>
+      }
+    >
+      <div className="text-xs">
+        {/* Name & description */}
+        <div className="space-y-2">
+          <label className="block">
+            <span className="text-slate-400">Name</span>
               <input
                 type="text"
                 value={name}
@@ -277,25 +281,6 @@ export const ModeEditorDialog = ({
             ))}
           </div>
         </div>
-
-        <footer className="flex justify-end gap-2 border-t border-slate-800 px-4 py-3">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
-          >
-            Abbrechen
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={!canSave}
-            className="rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
-          >
-            {isEditing ? 'Speichern' : 'Modus anlegen'}
-          </button>
-        </footer>
-      </div>
-    </div>
+    </ModalShell>
   )
 }
