@@ -107,10 +107,19 @@ export const AnnotationCanvasOverlay = () => {
   const snap = (n: number): number =>
     snapToGrid && gridSize > 0 ? Math.round(n / gridSize) * gridSize : n
 
+  // v7.9.20 — Position: fixed statt absolute. flowToScreenPosition()
+  // von ReactFlow gibt VIEWPORT-Koordinaten zurück (clientX/Y-Space).
+  // Mit position: absolute war der Overlay auf den Canvas-Wrapper
+  // bezogen, sodass style.left = viewport.x den Kreis um die
+  // Library-Sidebar-Breite versetzt darstellte → Drop auf den Canvas
+  // landete sichtbar daneben. position: fixed entspricht dem Pattern
+  // von PendingCableOverlay und ist viewport-anchored — Drop-Position
+  // und Render-Position stimmen jetzt zusammen unabhängig davon wo
+  // die Sidebars stehen.
   return (
     <div
       style={{
-        position: 'absolute',
+        position: 'fixed',
         inset: 0,
         pointerEvents: 'none',
         zIndex: 11,
