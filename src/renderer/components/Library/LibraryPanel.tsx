@@ -632,6 +632,12 @@ export const LibraryPanel = () => {
   // Watch the global trigger fired by the CanvasToolbar button.
   const rackBuilderSeedTrigger = useUiStore((s) => s.rackBuilderSeedTrigger)
   const clearRackBuilderSeedTrigger = useUiStore((s) => s.clearRackBuilderSeedTrigger)
+  const rackBuilderEditFromBlackBoxTrigger = useUiStore(
+    (s) => s.rackBuilderEditFromBlackBoxTrigger,
+  )
+  const clearRackBuilderEditFromBlackBoxTrigger = useUiStore(
+    (s) => s.clearRackBuilderEditFromBlackBoxTrigger,
+  )
   useEffect(() => {
     if (!rackBuilderSeedTrigger || rackBuilderSeedTrigger.length === 0) return
     // Resolve the selected equipment to a synthesized GroupPreset
@@ -683,6 +689,85 @@ export const LibraryPanel = () => {
     setTab('racks')
     clearRackBuilderSeedTrigger()
   }, [rackBuilderSeedTrigger, equipmentItems, clearRackBuilderSeedTrigger])
+
+  // v7.9.51 — Edit-Trigger vom Canvas-Toolbar-Button für ein bereits
+  // platziertes Black-Box-Rack. Wir suchen das zugehörige Source-Preset
+  // (Match per Name — insertBlackBoxRack benennt das Equipment immer
+  // als "<Preset-Name> (Rack)") und öffnen den Builder im Edit-Mode.
+  // Falls der Preset zwischenzeitlich gelöscht wurde, synthetisieren wir
+  // einen neuen aus rackInternalSnapshot.
+  useEffect(() => {
+    if (!rackBuilderEditFromBlackBoxTrigger) return
+    const eq = equipmentItems.find((e) => e.id === rackBuilderEditFromBlackBoxTrigger)
+    if (!eq) {
+      clearRackBuilderEditFromBlackBoxTrigger()
+      return
+    }
+    // Strip "(Rack)"-Suffix das insertBlackBoxRack anhängt
+    const candidateName = eq.name.replace(/\s*\(Rack\)\s*$/, '').trim()
+    const existing = groupPresets.find(
+      (p) =>
+        !!p.rack &&
+        (p.name === candidateName || p.name === eq.rackInstanceLabel || p.name === eq.name),
+    )
+    if (existing) {
+      setSeedPreset(null)
+      setEditingRackPresetId(existing.id)
+      setShowRackBuilderDialog(true)
+      setTab('racks')
+    } else if (eq.rackInternalSnapshot) {
+      // Preset wurde gelöscht aber das Equipment trägt noch den Snapshot —
+      // wir bauen daraus ein temporäres Preset zum Bearbeiten.
+      const snap = eq.rackInternalSnapshot
+      const itemsByIndex = snap.items
+      const synth: import('../../types/equipment').GroupPreset = {
+        id: `__edit-blackbox-${Date.now().toString(36)}`,
+        name: candidateName,
+        rack: {
+          totalUnits: snap.totalUnits,
+          placements: itemsByIndex.map((it, idx) => ({
+            itemIndex: idx,
+            startUnit: it.startUnit,
+            heightUnits: it.rackUnits,
+          })),
+        },
+        items: itemsByIndex.map((it) => ({
+          name: it.name,
+          category: 'Sonstiges',
+          inputs: [],
+          outputs: [],
+          isRackDevice: true,
+          rackUnits: it.rackUnits,
+          width: 240,
+          height: 80,
+          offsetX: 0,
+          offsetY: 0,
+        })),
+        cables: snap.cables.map((c) => ({
+          fromItemIndex: c.fromItemIndex,
+          fromPortName: c.fromPortName,
+          toItemIndex: c.toItemIndex,
+          toPortName: c.toPortName,
+          name: '',
+          type: 'unbekannt',
+          length: 0,
+          color: c.color,
+          standard: 'unbekannt',
+        })),
+      }
+      setSeedPreset(synth)
+      setEditingRackPresetId(null)
+      setShowRackBuilderDialog(true)
+      setTab('racks')
+    }
+    clearRackBuilderEditFromBlackBoxTrigger()
+  }, [
+    rackBuilderEditFromBlackBoxTrigger,
+    equipmentItems,
+    groupPresets,
+    clearRackBuilderEditFromBlackBoxTrigger,
+  ])
+
   const [name, setName] = useState('Custom Device')
   const [category, setCategory] = useState('Kameras')
   const [isRackDeviceDraft, setIsRackDeviceDraft] = useState(false)
