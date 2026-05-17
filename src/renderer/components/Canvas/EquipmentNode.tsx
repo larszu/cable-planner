@@ -691,7 +691,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         const isLeft = side === 'left'
         const isHovered = hoveredPort === `in-${port.id}`
         const isActive = isPendingStart(port.id, 'input')
-        const isRackInternal = rackInternalPortIds?.has(port.id) ?? false
+        const isRackInternal = (rackInternalPortIds?.has(port.id) ?? false) || !!port.rackInternallyConnected
         const isPlugged = pluggedPortIds?.has(port.id) ?? false
         return (
           <div
@@ -768,7 +768,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           : (bi ? '#a855f7' : '#0ea5e9')
         // Issue #68: glow when this port is an endpoint of the hovered cable.
         const isHoveredEndpoint = hoveredEndpointPortIds?.has(port.id) ?? false
-        const isRackInternal = rackInternalPortIds?.has(port.id) ?? false
+        const isRackInternal = (rackInternalPortIds?.has(port.id) ?? false) || !!port.rackInternallyConnected
         return (
           <Fragment key={`h-in-${port.id}`}>
             <Handle
@@ -821,7 +821,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         const isLeft = side === 'left'
         const isHovered = hoveredPort === `out-${port.id}`
         const isActive = isPendingStart(port.id, 'output')
-        const isRackInternal = rackInternalPortIds?.has(port.id) ?? false
+        const isRackInternal = (rackInternalPortIds?.has(port.id) ?? false) || !!port.rackInternallyConnected
         const isPlugged = pluggedPortIds?.has(port.id) ?? false
         return (
           <div
@@ -893,7 +893,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           ? colorForConnector(port.connectorType, connectorTypeColors)
           : (bi ? '#a855f7' : '#22c55e')
         const isHoveredEndpoint = hoveredEndpointPortIds?.has(port.id) ?? false
-        const isRackInternal = rackInternalPortIds?.has(port.id) ?? false
+        const isRackInternal = (rackInternalPortIds?.has(port.id) ?? false) || !!port.rackInternallyConnected
         return (
           <Fragment key={`h-out-${port.id}`}>
             <Handle
@@ -951,49 +951,46 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           jeder Port als eigener Anschlusspunkt mit kleinem Label
           ausgegeben — der User sieht welcher Port welche Verbindung
           trägt. */}
-      {/* v7.9.15 — Internal-Wiring-Overlay als Bezier-Kurven zwischen
-          den Geräte-Bändern. Die internen Verbindungen sind dadurch
-          auch im normalen Canvas sichtbar (vorher waren sie versteckt
-          im Black-Box-Body). Cables curven rechts neben den Bändern
-          mit der Cable-Farbe + kleinen Endpunkten + Hover-Title mit
-          Port-Namen. */}
+      {/* v7.9.17 — Internal-Wiring-Overlay verbindet jetzt REALE
+          Port-Handles statt Stubs. Vorher waren die internen Ports
+          gefiltert (nicht sichtbar) und die Kabel landeten auf
+          symbolischen Punkten im rechten Viertel — daraus war für
+          den User nicht ersichtlich welcher Port wohin geht.
+          Jetzt:
+          1) Die ports stehen alle sichtbar im Black-Box (intern
+             ausgegraut + locked, extern voll),
+          2) die Kabel-Curves gehen direkt von Port-Handle-Position
+             zur anderen Port-Handle-Position, in Cable-Farbe und mit
+             Hover-Title.
+          So sieht der User auf einen Blick: "Output X von Device A
+          geht intern an Input Y von Device B". */}
       {isRackBlackBox && rackBands.length > 0 && data.rackInternalSnapshot && data.rackInternalSnapshot.cables.length > 0 && (
         (() => {
           const snap = data.rackInternalSnapshot
-          // Pro Gerät: sammle Port-Namen die in internen Cables vorkommen
-          // und verteile sie als eigene Slot-Y-Positionen INNERHALB des
-          // Bandes (analog zur Logik im RackInternalCanvas — verhindert
-          // dass mehrere Cables pro Gerät auf demselben Punkt landen).
-          const slotsByDevice = new Map<number, string[]>()
-          for (const c of snap.cables) {
-            if (!slotsByDevice.has(c.fromItemIndex)) slotsByDevice.set(c.fromItemIndex, [])
-            if (!slotsByDevice.has(c.toItemIndex)) slotsByDevice.set(c.toItemIndex, [])
-            const fromList = slotsByDevice.get(c.fromItemIndex)!
-            if (!fromList.includes(c.fromPortName)) fromList.push(c.fromPortName)
-            const toList = slotsByDevice.get(c.toItemIndex)!
-            if (!toList.includes(c.toPortName)) toList.push(c.toPortName)
+          // Lookup: (deviceIndex, originPortName) → portId.
+          const portIdByDeviceAndName = new Map<string, string>()
+          for (const p of [...data.inputs, ...data.outputs]) {
+            if (p.rackOriginDeviceIndex == null || !p.rackOriginPortName) continue
+            portIdByDeviceAndName.set(
+              `${p.rackOriginDeviceIndex}:${p.rackOriginPortName}`,
+              p.id,
+            )
           }
-          const bandByDevice = new Map<number, RackBand>()
-          for (const band of rackBands) bandByDevice.set(band.deviceIndex, band)
-          const portSlotY = (deviceIdx: number, portName: string): number | null => {
-            const band = bandByDevice.get(deviceIdx)
-            if (!band) return null
-            const slots = slotsByDevice.get(deviceIdx) ?? [portName]
-            const idx = Math.max(0, slots.indexOf(portName))
-            const count = slots.length
-            const bandTopPx = headerHeight + band.topSlot * PORT_ROW
-            const bandH = band.rowSpan * PORT_ROW
-            // Internal-cable-stubs leben im RECHTEN Drittel des Bands,
-            // unter dem Header und in den mittleren Y-Bereich verteilt.
-            const usableTop = bandTopPx + PORT_ROW + 2 // unterhalb des Headers
-            const usableH = Math.max(8, bandH - PORT_ROW - 4)
-            if (count <= 1) return usableTop + usableH / 2
-            return usableTop + (idx / (count - 1)) * usableH
+          // Lookup: portId → placement (slot + side).
+          const allPlacements = new Map<string, { side: 'left' | 'right'; slot: number }>()
+          for (const [id, pl] of inputPlacement) allPlacements.set(id, pl)
+          for (const [id, pl] of outputPlacement) allPlacements.set(id, pl)
+          // Port-Handle-Position berechnen. ReactFlow Handle ist auf
+          // der Kante des Nodes; wir setzen den Kabel-Anfang knapp
+          // INNERHALB der Karte (~12 px), damit die Kurve aus dem Port
+          // herauszukommen scheint statt am Rand abgeschnitten.
+          const portAnchor = (portId: string): { x: number; y: number } | null => {
+            const pl = allPlacements.get(portId)
+            if (!pl) return null
+            const y = headerHeight + pl.slot * PORT_ROW + PORT_ROW / 2
+            const x = pl.side === 'left' ? 14 : width - 14
+            return { x, y }
           }
-          // X-Positionen: Stubs sitzen ca. 70% der Card-Breite, Kabel
-          // curven dann etwas weiter rechts (loop nach rechts raus).
-          const stubX = Math.min(width - 18, width * 0.7)
-          const curveBulge = Math.min(40, width * 0.15)
           return (
             <svg
               style={{
@@ -1006,50 +1003,55 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 zIndex: 2,
               }}
             >
-              {/* Stubs pro Geräte-Port */}
-              {Array.from(slotsByDevice.entries()).flatMap(([deviceIdx, ports]) =>
-                ports.map((portName) => {
-                  const y = portSlotY(deviceIdx, portName)
-                  if (y == null) return null
-                  const band = bandByDevice.get(deviceIdx)
-                  const color = band?.color ?? '#94a3b8'
-                  return (
-                    <g key={`int-stub-${deviceIdx}-${portName}`}>
-                      <circle
-                        cx={stubX}
-                        cy={y}
-                        r={2.5}
-                        fill={color}
-                        stroke={isLight ? '#fff' : '#0f172a'}
-                        strokeWidth={0.5}
-                      >
-                        <title>{`${band?.deviceName ?? `#${deviceIdx}`}: ${portName}`}</title>
-                      </circle>
-                    </g>
-                  )
-                }),
-              )}
-              {/* Kabel-Curves */}
+              {/* Kabel-Curves zwischen den realen Port-Positionen */}
               {snap.cables.map((c, ci) => {
-                const y1 = portSlotY(c.fromItemIndex, c.fromPortName)
-                const y2 = portSlotY(c.toItemIndex, c.toPortName)
-                if (y1 == null || y2 == null) return null
-                const midX = stubX + curveBulge
+                const fromId = portIdByDeviceAndName.get(`${c.fromItemIndex}:${c.fromPortName}`)
+                const toId = portIdByDeviceAndName.get(`${c.toItemIndex}:${c.toPortName}`)
+                if (!fromId || !toId) return null
+                const a = portAnchor(fromId)
+                const b = portAnchor(toId)
+                if (!a || !b) return null
+                // Bezier-Kontrollpunkte: jeweils ~30% der Karten-Breite
+                // einwärts gezogen. Bei verschiedenen Seiten ergibt das
+                // eine S-Kurve durch die Mitte; bei gleicher Seite einen
+                // sanften Loop nach innen.
+                const inwardA = a.x < width / 2 ? width * 0.45 : width * 0.55
+                const inwardB = b.x < width / 2 ? width * 0.45 : width * 0.55
                 const color = c.color ?? '#94a3b8'
                 return (
-                  <path
-                    key={`int-cable-${ci}`}
-                    d={`M ${stubX} ${y1} C ${midX} ${y1} ${midX} ${y2} ${stubX} ${y2}`}
-                    fill="none"
-                    stroke={color}
-                    strokeWidth={1.4}
-                    strokeDasharray="3 2"
-                    opacity={0.9}
-                  >
-                    <title>
-                      {`Intern: ${snap.items[c.fromItemIndex]?.name ?? '?'}:${c.fromPortName} ↔ ${snap.items[c.toItemIndex]?.name ?? '?'}:${c.toPortName}`}
-                    </title>
-                  </path>
+                  <g key={`int-cable-${ci}`}>
+                    <path
+                      d={`M ${a.x} ${a.y} C ${inwardA} ${a.y} ${inwardB} ${b.y} ${b.x} ${b.y}`}
+                      fill="none"
+                      stroke={color}
+                      strokeWidth={1.6}
+                      strokeDasharray="4 2"
+                      opacity={0.85}
+                    >
+                      <title>
+                        {`Intern: ${snap.items[c.fromItemIndex]?.name ?? '?'}:${c.fromPortName} ↔ ${snap.items[c.toItemIndex]?.name ?? '?'}:${c.toPortName}`}
+                      </title>
+                    </path>
+                    {/* Kleine "Kabel-Dot"s an beiden Enden — visuelle
+                        Bestätigung dass dieser Port an dieses andere
+                        andockt. */}
+                    <circle
+                      cx={a.x}
+                      cy={a.y}
+                      r={2.2}
+                      fill={color}
+                      stroke={isLight ? '#fff' : '#0f172a'}
+                      strokeWidth={0.6}
+                    />
+                    <circle
+                      cx={b.x}
+                      cy={b.y}
+                      r={2.2}
+                      fill={color}
+                      stroke={isLight ? '#fff' : '#0f172a'}
+                      strokeWidth={0.6}
+                    />
+                  </g>
                 )
               })}
             </svg>
