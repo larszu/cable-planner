@@ -461,6 +461,12 @@ interface UiState extends PersistedUiState {
   /** v7.9.3 — Annotations-Sidebar (Viewer-Modus + Finalized + Editing). */
   annotationsPanelOpen: boolean
   setAnnotationsPanelOpen: (open: boolean) => void
+  /** v7.9.8 — Sichtbarkeit der Annotation-Badges auf dem Canvas. Wenn
+   *  false werden die farbigen Kreise und Detail-Karten nicht gerendert
+   *  — Daten bleiben erhalten, nur die visuelle Überlagerung ist
+   *  ausgeblendet. Praktisch um den Canvas kurz "sauber" zu sehen. */
+  annotationsVisible: boolean
+  setAnnotationsVisible: (visible: boolean) => void
   videohubExport: { open: boolean; deviceId?: string; initialShowMatrix?: boolean }
   openVideohubExport: (deviceId?: string, initialShowMatrix?: boolean) => void
   closeVideohubExport: () => void
@@ -769,6 +775,8 @@ export const useUiStore = create<UiState>((set) => ({
   closeCableEdit: () => set({ cableEdit: { open: false } }),
   annotationsPanelOpen: false,
   setAnnotationsPanelOpen: (open) => set({ annotationsPanelOpen: open }),
+  annotationsVisible: true,
+  setAnnotationsVisible: (visible) => set({ annotationsVisible: visible }),
   videohubExport: { open: false },
   openVideohubExport: (deviceId, initialShowMatrix) => set({ videohubExport: { open: true, deviceId, initialShowMatrix } }),
   closeVideohubExport: () => set({ videohubExport: { open: false } }),
