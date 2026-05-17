@@ -48,6 +48,11 @@ import {
 } from '../../lib/itemExport'
 import { openLibraryFolder, stampDeviceLibraryRef } from '../../lib/librarySync'
 import { hasDesktopBridge } from '../../lib/bridge'
+import {
+  MIME_EQUIPMENT,
+  MIME_GROUP_PRESET,
+  MIME_RACK_PRESET,
+} from '../../lib/dragDropMimes'
 import { CableLibraryPanel } from './CableLibraryPanel'
 
 const connectorOptions = ALL_CONNECTOR_TYPES
@@ -1485,13 +1490,13 @@ export const LibraryPanel = () => {
                     cat={cat}
                     manualSort={librarySortMode === 'manual'}
                     onDragOverTemplate={(event) => {
-                      if (event.dataTransfer.types.includes('application/cable-planner-equipment')) {
+                      if (event.dataTransfer.types.includes(MIME_EQUIPMENT)) {
                         event.preventDefault()
                         event.dataTransfer.dropEffect = 'move'
                       }
                     }}
                     onDropTemplate={(event) => {
-                      const raw = event.dataTransfer.getData('application/cable-planner-equipment')
+                      const raw = event.dataTransfer.getData(MIME_EQUIPMENT)
                       if (!raw) return
                       try {
                         const tpl = JSON.parse(raw) as EquipmentTemplate
@@ -1908,7 +1913,7 @@ export const LibraryPanel = () => {
                                 inputs: [],
                                 outputs: [],
                               }
-                              event.dataTransfer.setData('application/cable-planner-equipment', JSON.stringify(template))
+                              event.dataTransfer.setData(MIME_EQUIPMENT, JSON.stringify(template))
                               event.dataTransfer.effectAllowed = 'copy'
                             }
                             return (
@@ -2126,7 +2131,7 @@ export const LibraryPanel = () => {
                           key={preset.id}
                           id={preset.id}
                           nativeDragData={{
-                            mime: 'application/cable-planner-group-preset',
+                            mime: MIME_GROUP_PRESET,
                             data: preset.id,
                           }}
                           onCardClick={() => placeGroupPreset(preset.id, cx, cy)}
@@ -2228,7 +2233,7 @@ export const LibraryPanel = () => {
                       key={preset.id}
                       id={preset.id}
                       nativeDragData={{
-                        mime: 'application/cable-planner-rack-preset',
+                        mime: MIME_RACK_PRESET,
                         data: preset.id,
                       }}
                       onCardClick={() => insertBlackBoxRack(preset.id, cx, cy)}
