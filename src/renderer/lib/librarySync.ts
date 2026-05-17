@@ -294,6 +294,36 @@ export const openLibraryFolder = async (): Promise<void> => {
   }
 }
 
+/** v7.9.38 — First-Install-Sync. Schreibt alle Items aus dem Store
+ *  in den zentralen Ordner, die dort noch nicht liegen (d.h. nicht
+ *  in deviceRefByName / groupRefByName nach dem Scan). Damit landen
+ *  die Built-in-Templates und alle bisher nur in localStorage
+ *  gespeicherten User-Items auch wirklich als Dateien im Ordner —
+ *  vorher waren sie zwar im seedLibrarySyncCache als "synchron"
+ *  markiert, aber tatsächlich nie geschrieben worden, weil das nur
+ *  bei Mutationen passiert ist. */
+export const pushMissingItemsToFolder = async (
+  devices: ReadonlyArray<EquipmentTemplate>,
+  groups: ReadonlyArray<GroupPreset>,
+): Promise<{ devicesWritten: number; groupsWritten: number }> => {
+  if (!hasDesktopBridge) return { devicesWritten: 0, groupsWritten: 0 }
+  let dw = 0
+  let gw = 0
+  for (const t of devices) {
+    if (!deviceRefByName.has(t.name)) {
+      const res = await writeDeviceToFolder(t)
+      if (res) dw += 1
+    }
+  }
+  for (const p of groups) {
+    if (!groupRefByName.has(p.name)) {
+      const res = await writeGroupToFolder(p)
+      if (res) gw += 1
+    }
+  }
+  return { devicesWritten: dw, groupsWritten: gw }
+}
+
 export const getLibraryFolderPath = async (): Promise<string> => {
   if (!hasDesktopBridge) return ''
   try {

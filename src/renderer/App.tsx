@@ -52,6 +52,7 @@ import {
   findOutdatedEquipment,
   applyDeviceTemplateUpdate,
   detectFolderDeletions,
+  pushMissingItemsToFolder,
 } from './lib/librarySync'
 import { useUndoRedoShortcuts, projectHistory } from './store/projectHistory'
 import { useSettingsStore } from './store/settingsStore'
@@ -188,6 +189,15 @@ export default function App() {
         const preset = refreshed.groupPresets.find((p) => p.name === name)
         if (preset) refreshed.deleteGroupPreset(preset.id)
       }
+      // ── PUSH: Items im Store, die NICHT im Folder sind, jetzt schreiben.
+      // Damit landen Built-ins (First-Install) und alle bisher nur in
+      // localStorage gespeicherten Items auch wirklich als .cpdevice/
+      // .cpgroup-Dateien im userData/library/-Pfad. Vorher hat der
+      // seedLibrarySyncCache sie zwar als "synchron" markiert, aber
+      // weil kein User-Edit passierte, wurde nie auf die Platte
+      // geschrieben.
+      const afterDeletes = useProjectStore.getState()
+      await pushMissingItemsToFolder(afterDeletes.customLibrary, afterDeletes.groupPresets)
       setLibraryReady(true)
     })()
   }, [])
