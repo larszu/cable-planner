@@ -184,6 +184,48 @@ export default function App() {
 
   useUndoRedoShortcuts()
 
+  // v7.9.21 — Defensiver Focus-Rescue für Text-Inputs.
+  //
+  // Symptom: Manchmal landet ein Klick auf einem <input>/<textarea>
+  // nicht auf dem Input (User tippt → nichts passiert). Ein zweiter
+  // Klick funktioniert dann sofort.
+  //
+  // Wurzel: ReactFlow's Pane ist tabindex-fokussierbar (für Keyboard-
+  // Accessibility). Nach Klick auf einen Node wandert Browser-Focus
+  // dorthin. Wenn der User unmittelbar danach auf ein Input in einer
+  // Sidebar/Dialog klickt, sollte Focus weiterspringen — aber durch
+  // React's Render-Batching und ReactFlow's interne State-Updates
+  // wird der mousedown→focus-Transfer manchmal verschluckt. Beim
+  // zweiten Klick ist React stabil, Focus springt sauber.
+  //
+  // Indiz: CanvasToolbar hat schon einen RAF-Focus-Workaround für
+  // einen einzelnen Input (Issue #59). Wir lösen das hier global.
+  //
+  // Strategie: globaler mousedown-Listener prüft ob das Ziel ein
+  // editierbares Element ist. Wenn ja, nach requestAnimationFrame
+  // explizit fokussieren (falls nicht bereits dort). Idempotent —
+  // wenn der Browser den Focus selbst gesetzt hat passiert nichts.
+  useEffect(() => {
+    const handler = (event: MouseEvent) => {
+      const target = event.target
+      if (!(target instanceof HTMLElement)) return
+      const tag = target.tagName
+      const editable =
+        tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable
+      if (!editable) return
+      // Disabled / readonly Inputs nicht zwangs-fokussieren.
+      if ((target as HTMLInputElement).disabled) return
+      if ((target as HTMLInputElement).readOnly) return
+      requestAnimationFrame(() => {
+        if (document.activeElement !== target && document.contains(target)) {
+          target.focus({ preventScroll: true })
+        }
+      })
+    }
+    document.addEventListener('mousedown', handler, true)
+    return () => document.removeEventListener('mousedown', handler, true)
+  }, [])
+
   // Whenever the project changes, push it to the in-process mobile-
   // share HTTP server so the phone always sees the latest state on
   // refresh. The bridge no-ops gracefully when the server isn't
