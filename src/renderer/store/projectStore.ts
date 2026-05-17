@@ -173,10 +173,55 @@ const scheduleProjectAutosave = (project: CablePlannerProject) => {
   }, delay)
 }
 
+// v7.9.13 — Heal-on-Load für GroupPresets. Alte Presets aus früheren
+// Versionen können Ports mit `id: ''` enthalten (catalogue-Templates
+// hatten leere IDs, vor dem sanitize-Fix wurde das ungeprüft persistiert).
+// Beim Laden geben wir jedem Port der noch keine valide eindeutige ID
+// hat einen frischen UUID, damit ReactFlow / EquipmentNode keine Key-
+// Kollisionen mehr haben. Idempotent — bei bereits sauberen Presets
+// passiert nichts.
+const healGroupPresetPorts = (presets: GroupPreset[]): GroupPreset[] => {
+  let needsRewrite = false
+  const out = presets.map((preset) => {
+    const items = preset.items.map((item) => {
+      const sanitizePortList = <T extends { id?: string }>(ports: T[]): T[] => {
+        const seen = new Set<string>()
+        return ports.map((p) => {
+          let id = p.id ?? ''
+          if (!id || seen.has(id)) {
+            needsRewrite = true
+            id = typeof crypto !== 'undefined' && crypto.randomUUID
+              ? crypto.randomUUID()
+              : `port-${Math.random().toString(36).slice(2, 11)}`
+          }
+          seen.add(id)
+          return { ...p, id }
+        })
+      }
+      return {
+        ...item,
+        inputs: sanitizePortList(item.inputs),
+        outputs: sanitizePortList(item.outputs),
+      }
+    })
+    return { ...preset, items }
+  })
+  if (needsRewrite) {
+    try {
+      localStorage.setItem(GROUP_PRESETS_KEY, JSON.stringify(out))
+    } catch {
+      /* ignore */
+    }
+  }
+  return out
+}
+
 const loadGroupPresets = (): GroupPreset[] => {
   try {
     const raw = localStorage.getItem(GROUP_PRESETS_KEY)
-    return raw ? (JSON.parse(raw) as GroupPreset[]) : []
+    if (!raw) return []
+    const parsed = JSON.parse(raw) as GroupPreset[]
+    return healGroupPresetPorts(parsed)
   } catch {
     return []
   }
@@ -305,6 +350,11 @@ export interface ProjectState {
   renameCustomCategory: (oldCategory: string, newCategory: string) => void
   /** Update name and/or category of an existing library template. */
   updateCustomTemplate: (currentName: string, patch: { name?: string; category?: string }) => void
+  /** v7.9.13 — Markiert ein Library-Template permanent als 19"-Rack-
+   *  Gerät mit gegebener HE-Höhe. Nutzt der Rack-Builder wenn der User
+   *  ein Nicht-Rack-Template hinzufügt und im Dialog bestätigt dass
+   *  das Template global als Rack-Gerät zur Verfügung stehen soll. */
+  markTemplateAsRack: (name: string, rackUnits: number) => void
   /** Overwrite a template with the current equipment item's layout. */
   saveEquipmentAsTemplate: (equipmentId: string) => void
   /** Save the current equipment item as a new library template under the given name. */
@@ -1323,6 +1373,17 @@ const buildProjectStore = (
       const catsSorted = Array.from(cats).sort((a, b) => a.localeCompare(b))
       persistKnownCategories(catsSorted)
       return { customLibrary: next, knownCategories: catsSorted }
+    }),
+  markTemplateAsRack: (name, rackUnits) =>
+    set((state) => {
+      const heightHE = Math.max(1, Math.min(60, Math.round(rackUnits)))
+      const next = state.customLibrary.map((t) =>
+        t.name === name
+          ? { ...t, isRackDevice: true, rackUnits: heightHE }
+          : t,
+      )
+      persistCustomLibrary(next)
+      return { customLibrary: next }
     }),
   renameCustomCategory: (oldCategory, newCategory) =>
     set((state) => {
