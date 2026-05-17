@@ -41,6 +41,11 @@ import {
 import { RackBuilderDialog } from '../Rack/RackBuilderDialog'
 import { TemplateMergeDialog } from './TemplateMergeDialog'
 import { LibraryItem } from './LibraryItem'
+import {
+  exportTemplateToFile,
+  exportPresetToFile,
+  parseLibraryItemFile,
+} from '../../lib/itemExport'
 import { CableLibraryPanel } from './CableLibraryPanel'
 
 const connectorOptions = ALL_CONNECTOR_TYPES
@@ -79,9 +84,11 @@ const buildPorts = (groups: PortGroupDraft[], direction: 'in' | 'out'): Port[] =
 const PlusMenu = ({
   onNewDevice,
   onNewCategory,
+  onImportFile,
 }: {
   onNewDevice: () => void
   onNewCategory: () => void
+  onImportFile: () => void
 }) => {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -132,6 +139,19 @@ const PlusMenu = ({
             className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
           >
             Neue Kategorie…
+          </button>
+          <div className="my-1 border-t border-slate-800" />
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false)
+              onImportFile()
+            }}
+            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+            title=".cpdevice oder .cpgroup-Datei importieren"
+          >
+            Datei importieren…
           </button>
         </div>
       )}
@@ -1010,6 +1030,70 @@ export const LibraryPanel = () => {
     }
   }
 
+  /** v7.9.31 — Single-item-Import (.cpdevice / .cpgroup) via Hidden-
+   *  File-Input. Konflikte (gleicher Name → bei Geräten / gleicher Name
+   *  ODER gleiche ID → bei Gruppen) lassen den User entscheiden:
+   *  überschreiben oder abbrechen. Importierte Gruppen kriegen optional
+   *  eine frische UUID damit beim Re-Import ohne Konflikt zwei
+   *  Kopien entstehen statt überschrieben zu werden. */
+  const handleImportLibraryFile = () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.cpdevice,.cpgroup,application/json'
+    input.onchange = async () => {
+      const file = input.files?.[0]
+      if (!file) return
+      const text = await file.text()
+      const parsed = parseLibraryItemFile(text)
+      if (!parsed) {
+        await infoDialog('Datei nicht erkannt', {
+          body: 'Diese Datei ist kein gültiger .cpdevice- oder .cpgroup-Export.',
+          tone: 'error',
+        })
+        return
+      }
+      if (parsed.kind === 'device') {
+        const template = parsed.template
+        const conflict = customLibrary.some((t) => t.name === template.name)
+        if (conflict) {
+          const overwrite = await confirmDialog(
+            `Ein Gerät mit dem Namen "${template.name}" existiert bereits.\n\nÜberschreiben?`,
+            { okLabel: 'Überschreiben', destructive: true },
+          )
+          if (!overwrite) return
+        }
+        addCustomTemplate(template)
+        await infoDialog('Gerät importiert', {
+          body: `"${template.name}" wurde der Library hinzugefügt.`,
+          tone: 'success',
+        })
+        return
+      }
+      // group
+      const preset = parsed.preset
+      const nameConflict = groupPresets.find((p) => p.name === preset.name)
+      if (nameConflict) {
+        const overwrite = await confirmDialog(
+          `Eine Gruppe mit dem Namen "${preset.name}" existiert bereits.\n\nÜberschreiben?`,
+          { okLabel: 'Überschreiben', destructive: true },
+        )
+        if (!overwrite) return
+        addGroupPreset({ ...preset, id: nameConflict.id })
+      } else {
+        // Frische UUID damit ein evtl. ID-Clash mit einer bestehenden
+        // Preset-ID (Re-Import nach Rename) nicht stillschweigend
+        // überschreibt.
+        addGroupPreset({ ...preset, id: uuidv4() })
+      }
+      const kind = preset.rack ? 'Rack' : 'Gruppe'
+      await infoDialog(`${kind} importiert`, {
+        body: `"${preset.name}" wurde der Library hinzugefügt (${preset.items.length} Geräte, ${preset.cables.length} interne Kabel).`,
+        tone: 'success',
+      })
+    }
+    input.click()
+  }
+
   const handleImportNetBox = async (item: NetBoxDeviceTypeSearchResult) => {
     const selectedCategory = (netBoxCategoryByPath[item.path] ?? '').trim()
     if (!selectedCategory) {
@@ -1232,6 +1316,7 @@ export const LibraryPanel = () => {
                 setShowNewGroup((v) => !v)
                 setTimeout(() => newGroupInputRef.current?.focus(), 50)
               }}
+              onImportFile={handleImportLibraryFile}
             />
             {/* Overflow-Menü für selten genutzte Filter (Leere/Versteckte/Alle ein-aus) */}
             <LibraryFiltersMenu
@@ -1458,6 +1543,7 @@ export const LibraryPanel = () => {
                                 onRemove={() => removeCustomTemplate(item.name)}
                                 onToggleFavorite={() => toggleTemplateFavorite(item.name)}
                                 onToggleHidden={() => toggleTemplateHidden(item.name)}
+                                onExport={() => exportTemplateToFile(item)}
                               />
                               {/* Edit button — appears on hover */}
                               <button
@@ -1707,6 +1793,7 @@ export const LibraryPanel = () => {
                                                     ...nextPlacementPosition(equipmentCount, equipmentItems),
                                                   })
                                                 }}
+                                                onExport={() => exportTemplateToFile(item)}
                                               />
                                             ))}
                                         </div>
@@ -2037,6 +2124,18 @@ export const LibraryPanel = () => {
                             <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
                               <button
                                 type="button"
+                                onClick={(event) => {
+                                  event.stopPropagation()
+                                  exportPresetToFile(preset)
+                                }}
+                                className="rounded bg-slate-700 px-1 text-[11px] text-slate-300 hover:bg-slate-600"
+                                title="Als .cpgroup-Datei exportieren (inkl. interner Kabel)"
+                                aria-label="Exportieren"
+                              >
+                                ⬇
+                              </button>
+                              <button
+                                type="button"
                                 onClick={async (event) => {
                                   event.stopPropagation()
                                   if (await confirmDialog(`Gruppe "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
@@ -2140,6 +2239,18 @@ export const LibraryPanel = () => {
                             aria-label="Bearbeiten"
                           >
                             ✎
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              exportPresetToFile(preset)
+                            }}
+                            className="rounded bg-slate-700 px-1 py-0.5 text-[11px] text-slate-300 hover:bg-slate-600"
+                            title="Als .cpgroup-Datei exportieren"
+                            aria-label="Exportieren"
+                          >
+                            ⬇
                           </button>
                           <button
                             type="button"
