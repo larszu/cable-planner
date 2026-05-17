@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import { useSettingsStore } from '../../store/settingsStore'
+import { useProjectStore } from '../../store/projectStore'
 import { RackImageCropDialog } from './RackImageCropDialog'
 import { RackInternalCanvas } from './RackInternalCanvas'
 import { RackLivePreview } from './RackLivePreview'
@@ -80,6 +81,28 @@ const parseUnits = (template?: EquipmentTemplate): number => {
   return Math.max(1, Math.round(raw))
 }
 
+// v7.9.13 — Port-IDs sanitisieren. Die Catalog-Templates (Blackmagic,
+// Misc, Camera, …) emittieren ihre Ports mit `id: ''`. Wenn die Ports
+// hier mit leerem ID in den RackPlacementDraft kopiert werden, sind die
+// Internal-Cable-Refs (per Port-NAME) zwar stabil — aber bei Render-
+// Wiederverwendung als ReactFlow-Nodes (z.B. im RackInternalCanvas)
+// kollidieren die leeren IDs als React-Keys → "Ports gestapelt". Bonus:
+// Old presets die schon mit leeren IDs in localStorage liegen, werden
+// beim Laden ebenfalls über sanitizeTemplatePorts (s.u.) geheilt.
+const sanitizeTemplatePorts = <T extends { id?: string }>(ports: T[]): T[] => {
+  const seen = new Set<string>()
+  return ports.map((p) => {
+    let id = p.id ?? ''
+    if (!id || seen.has(id)) {
+      id = typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `port-${Math.random().toString(36).slice(2, 11)}`
+    }
+    seen.add(id)
+    return { ...p, id }
+  })
+}
+
 const toPlacement = (template: EquipmentTemplate, startUnit: number): RackPlacementDraft => ({
   id: uuidv4(),
   templateName: template.name,
@@ -87,8 +110,8 @@ const toPlacement = (template: EquipmentTemplate, startUnit: number): RackPlacem
   category: template.category,
   startUnit,
   rackUnits: parseUnits(template),
-  inputs: template.inputs,
-  outputs: template.outputs,
+  inputs: sanitizeTemplatePorts(template.inputs),
+  outputs: sanitizeTemplatePorts(template.outputs),
   isRackDevice: template.isRackDevice ?? !!template.rackUnits,
   frontPanelImageUrl: template.frontPanelImageUrl,
   rearPanelImageUrl: template.rearPanelImageUrl,
@@ -180,6 +203,8 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
 }
 
 export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onSave }: RackBuilderDialogProps) => {
+  // v7.9.13 — Permanent-Mark-As-Rack-Device action.
+  const markTemplateAsRack = useProjectStore((s) => s.markTemplateAsRack)
   const autosaveIntervalMs = useSettingsStore((state) => state.autosaveIntervalMs)
   const editingId = initialPreset?.id
   const [draft, setDraft] = useState<RackDraft>({
@@ -423,9 +448,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     // v7.9.0 / Issue #112 — Wenn das Template (noch) nicht als 19"-
     // Rack-Gerät markiert ist, fragen wir den User nach der HE-Höhe
     // und markieren es im Draft entsprechend.
-    // v7.9.2 — Verwendet jetzt den In-App promptDialog statt
-    // window.prompt (User-Issue: "kann nicht im rack platzieren").
-    // Der native prompt() ist in modern-Electron teilweise blockiert.
+    // v7.9.13 — Zusätzlich: nach dem HE-Prompt fragen wir per
+    // confirmDialog ob das Template auch PERMANENT (in der Library)
+    // als Rack-Gerät markiert werden soll. Bei "Ja" greift
+    // markTemplateAsRack und das Gerät erscheint künftig direkt unter
+    // den Rack-Geräten ohne erneute HE-Abfrage.
     let effectiveTemplate = template
     if (!template.isRackDevice && !template.rackUnits) {
       const answer = (
@@ -439,6 +466,18 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       if (!Number.isFinite(heightHE) || heightHE < 1) {
         setSaveError(`Ungültige HE-Eingabe für "${template.name}". Bitte 1–20 angeben.`)
         return
+      }
+      const persistFlag = await confirmDialog(
+        `"${template.name}" permanent als 19"-Rack-Gerät markieren?`,
+        {
+          body:
+            `Empfohlen wenn dieses Gerät immer in Racks verbaut wird. Dann erscheint es künftig direkt unter den Rack-Geräten — ohne erneute HE-Abfrage. Du kannst die Markierung in den Geräte-Eigenschaften jederzeit wieder entfernen.\n\nHE-Höhe: ${heightHE}`,
+          okLabel: 'Ja, permanent markieren',
+          cancelLabel: 'Nur für dieses Rack',
+        },
+      )
+      if (persistFlag) {
+        markTemplateAsRack(template.name, heightHE)
       }
       effectiveTemplate = {
         ...template,
