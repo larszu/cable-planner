@@ -16,9 +16,9 @@ import { promptDialog } from '../../lib/promptDialog'
 import { confirmDialog } from '../../lib/confirmDialog'
 import type { ProjectAnnotation } from '../../types/project'
 
-/** v7.9.5 — Custom-Mime-Type für Annotations-Drag-Drop. Canvas-Drop-
- *  Handler erkennt diesen Typ und re-anchort die Annotation. */
-export const ANNOTATION_DRAG_MIME = 'application/cable-planner-annotation'
+// v7.9.41 — Re-export für Backward-Kompatibilität. Source-of-Truth ist
+// jetzt lib/dragDropMimes.ts (alle Canvas-Drag-MIMEs zentral).
+export { MIME_ANNOTATION as ANNOTATION_DRAG_MIME } from '../../lib/dragDropMimes'
 
 /** v7.9.5 — Liefert den effektiven Author-Namen für neue Annotations.
  *  Promptet den User wenn noch keiner gesetzt ist (kein 'Anonym'!).
