@@ -245,7 +245,7 @@ export const CableContextMenu = () => {
         Alle Wegpunkte löschen ({waypointCount})
       </Item>
       <Item onClick={rerouteWithAStar} icon="🧭">
-        Mit A* neu routen
+        Automatisch neu routen
       </Item>
       <Separator />
       {/* Routing submenu */}

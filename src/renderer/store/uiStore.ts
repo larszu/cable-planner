@@ -329,8 +329,11 @@ const load = (): PersistedUiState => {
       merged.connectorTypeColors = {}
     if (typeof merged.bgOpacity !== 'number' || !Number.isFinite(merged.bgOpacity))
       merged.bgOpacity = defaults.bgOpacity
-    if (typeof merged.gridSize !== 'number' || merged.gridSize < 2)
-      merged.gridSize = defaults.gridSize
+    // v7.9.30 — Snap-to-Grid und gridSize sind nicht mehr user-konfigurierbar
+    // (Toolbar-Toggle entfernt). Werte werden bei jedem Hydrate auf die
+    // Defaults gezwungen — alte localStorage-Stände werden überschrieben.
+    merged.snapToGrid = defaults.snapToGrid
+    merged.gridSize = defaults.gridSize
     if (typeof merged.libraryWidth !== 'number') merged.libraryWidth = defaults.libraryWidth
     if (typeof merged.propertiesWidth !== 'number') merged.propertiesWidth = defaults.propertiesWidth
     if (merged.canvasBgImageDark != null && typeof merged.canvasBgImageDark !== 'string')

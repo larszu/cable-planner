@@ -17,10 +17,11 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   const drag = useDraggablePosition('cable-planner:canvas-toolbar-pos', true)
   // v7.9.0 / Issue #120 — open RackBuilder seeded with current selection
   const triggerRackBuilderFromSelection = useUiStore((s) => s.triggerRackBuilderFromSelection)
+  // v7.9.30 — Snap-to-Grid + Grid-Size sind nicht mehr user-konfigurierbar.
+  // Werte kommen jetzt aus dem Store-Default (snapToGrid=true,
+  // gridSize=EQUIPMENT_LAYOUT.GRID_SIZE=11) — siehe uiStore-Migration.
   const snapToGrid = useUiStore((state) => state.snapToGrid)
-  const setSnapToGrid = useUiStore((state) => state.setSnapToGrid)
   const gridSize = useUiStore((state) => state.gridSize)
-  const setGridSize = useUiStore((state) => state.setGridSize)
   const defaultRouting = useUiStore((state) => state.defaultRouting)
   const setDefaultRouting = useUiStore((state) => state.setDefaultRouting)
   const defaultArrow = useUiStore((state) => state.defaultArrow)
@@ -357,42 +358,11 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
 
       <span style={dividerStyle} />
 
-      {/* ── Gruppe 1: Snap-to-Grid + Grid-Size ─────────────────────── */}
-      <IconButton
-        title={`Geräte beim Verschieben am Raster (${gridSize}px) einrasten`}
-        onClick={() => setSnapToGrid(!snapToGrid)}
-        active={snapToGrid}
-      >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-          <rect x="2" y="2" width="12" height="12" rx="0.5" />
-          <line x1="6" y1="2" x2="6" y2="14" />
-          <line x1="10" y1="2" x2="10" y2="14" />
-          <line x1="2" y1="6" x2="14" y2="6" />
-          <line x1="2" y1="10" x2="14" y2="10" />
-        </svg>
-      </IconButton>
-      <input
-        type="number"
-        min={2}
-        max={100}
-        value={gridSize}
-        onChange={(event) => setGridSize(Number(event.target.value))}
-        style={{
-          width: 40,
-          height: T.iconBtnSize - 4,
-          background: isLight ? '#ffffff' : '#0f172a',
-          border: `1px solid ${T.border}`,
-          color: T.text,
-          padding: '0 4px',
-          borderRadius: 4,
-          fontSize: 11,
-        }}
-        title="Rastergröße in Pixeln"
-      />
-
-      <span style={dividerStyle} />
-
-      {/* ── Gruppe 2: Defaults-Dropdown ────────────────────────────── */}
+      {/* ── Gruppe 1: Defaults-Dropdown ─────────────────────────────
+          v7.9.30 — Snap-to-Grid Toggle und Grid-Size Input entfernt.
+          Diese Werte sind jetzt fest (snapToGrid=true, gridSize=11) und
+          aufeinander abgestimmt mit dem Equipment-Layout — User-
+          Konfiguration brach das symmetrische Dot-Reihen-Alignment. */}
       <DefaultsMenu
         T={T}
         defaultRouting={defaultRouting}
