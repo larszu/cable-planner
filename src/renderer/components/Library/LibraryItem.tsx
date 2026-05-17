@@ -1,6 +1,7 @@
 import type { EquipmentTemplate } from '../../types/equipment'
 import { useProjectStore } from '../../store/projectStore'
 import { clearCanvasSelection } from '../../lib/canvasViewport'
+import { stampDeviceLibraryRef } from '../../lib/librarySync'
 
 interface LibraryItemProps {
   item: EquipmentTemplate
@@ -26,7 +27,10 @@ export const LibraryItem = ({
 
   const onDragStart = (event: React.DragEvent<HTMLDivElement>) => {
     clearCanvasSelection()
-    const payload = JSON.stringify(item)
+    // v7.9.33 — Stempelt den aktuellen Library-File-Stand auf das
+    // platzierte Gerät. Update-Prompt beim Projekt-Öffnen vergleicht
+    // gegen den dann aktuellen Folder-Stand.
+    const payload = JSON.stringify(stampDeviceLibraryRef(item))
     event.dataTransfer.setData('application/cable-planner-equipment', payload)
     event.dataTransfer.effectAllowed = 'copy'
   }

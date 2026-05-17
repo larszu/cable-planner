@@ -297,11 +297,18 @@ export interface EquipmentItem {
    * v7.9.33 — Reference to the central library file this equipment was
    * placed from. The project compares this against the library folder
    * on open and offers updates if the folder has a newer revision.
+   * `kind` discriminates: 'device' = single .cpdevice, 'group' = part
+   * of a placed .cpgroup (all items spawned by one placeGroupPreset
+   * call share the same group ref).
+   * `name` is the template/preset name at placement time — that's the
+   * lookup key against the live library; the on-disk file name is
+   * derived via sanitization and may differ from this string.
    * Equipment without a libraryRef is a standalone canvas-only item
    * (e.g. typed directly, imported from Rentman, etc.).
    */
   libraryRef?: {
-    fileName: string
+    kind: 'device' | 'group'
+    name: string
     fileVersion: number
     modifiedAt: string
   }
