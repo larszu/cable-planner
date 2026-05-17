@@ -990,6 +990,29 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         return
       }
 
+      // v7.9.15 — Rack-Preset-Drop. Wenn ein Black-Box-Rack aus der
+      // Library-Racks-Tab gezogen wird, fügen wir es als ein einziges
+      // Equipment-Item (Black-Box) am Drop-Punkt ein.
+      const rackPresetId = event.dataTransfer.getData('application/cable-planner-rack-preset')
+      if (rackPresetId) {
+        if (mode === 'rack') return
+        const px = snapX(position.x)
+        const py = snapX(position.y)
+        projectStoreInstance.getState().insertBlackBoxRack(rackPresetId, px, py)
+        return
+      }
+      // v7.9.16 — Group-Preset-Drop (Non-Rack-Gruppen). Funktioniert wie
+      // der Platzieren-Button: spawn die Geräte mit Internal-Cables am
+      // Drop-Punkt (placeGroupPreset).
+      const groupPresetId = event.dataTransfer.getData('application/cable-planner-group-preset')
+      if (groupPresetId) {
+        if (mode === 'rack') return
+        const px = snapX(position.x)
+        const py = snapX(position.y)
+        projectStoreInstance.getState().placeGroupPreset(groupPresetId, px, py)
+        return
+      }
+
       const payload = event.dataTransfer.getData('application/cable-planner-equipment')
       if (!payload) {
         return
@@ -1192,7 +1215,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         lastMousePosRef.current = { x: event.clientX, y: event.clientY }
       }}
     >
-      {mode === 'main' && <CanvasToolbar />}
+      {/* v7.9.12 — Toolbar wird auch im Rack-Mode gerendert, allerdings
+          mit reduziertem Feature-Set (Frame/Group/Lock/Annotations
+          ausgeblendet). Snap/Grid/Routing-Defaults/Align bleiben
+          weil sie auch im Rack-Sub-Canvas Sinn machen. */}
+      <CanvasToolbar mode={mode} />
       {mode === 'main' && <AnnotationCanvasOverlay />}
       {/* v7.9.5 — Lock-Banner. Wenn projectMode='finalized' oder 'viewer'
           ist, zeigt eine prominente Leiste oben dass das Canvas
