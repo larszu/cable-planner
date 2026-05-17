@@ -24,6 +24,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { videoFormatById, pickCableStandardForFormat } from '../../types/videoFormat'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { promptDialog } from '../../lib/promptDialog'
 
 /** v7.8.6 — Editor dialog for creating / editing custom cable specs.
  *  Lives at the bottom of this file. Pure controlled form, no store
@@ -141,8 +142,8 @@ const CableTypeEditor = ({
                 <span>Stecker-Typ</span>
                 <button
                   type="button"
-                  onClick={() => {
-                    const n = window.prompt('Neuer Stecker-Typ (z.B. "Speakon NL4"):')?.trim()
+                  onClick={async () => {
+                    const n = (await promptDialog('Neuer Stecker-Typ (z.B. "Speakon NL4"):'))?.trim()
                     if (n) {
                       addCustomConnectorType(n)
                       setConnectorType(n as ConnectorType)
@@ -208,8 +209,8 @@ const CableTypeEditor = ({
               <span>Signal-Standards</span>
               <button
                 type="button"
-                onClick={() => {
-                  const n = window.prompt('Neuer Signal-Standard (z.B. "Dante Primary"):')?.trim()
+                onClick={async () => {
+                  const n = (await promptDialog('Neuer Signal-Standard (z.B. "Dante Primary"):'))?.trim()
                   if (n) {
                     addCustomSignalStandard(n)
                     setStandards((prev) => [...prev, n as SignalStandard])

@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { promptDialog } from '../../lib/promptDialog'
+import { confirmDialog } from '../../lib/confirmDialog'
 import type { ProjectAnnotation } from '../../types/project'
 
 /** v7.9.5 — Custom-Mime-Type für Annotations-Drag-Drop. Canvas-Drop-
@@ -329,8 +330,11 @@ export const AnnotationsPanel = ({
                         </select>
                         <button
                           type="button"
-                          onClick={() => {
-                            if (window.confirm('Anmerkung löschen?')) removeAnnotation(a.id)
+                          onClick={async () => {
+                            if (await confirmDialog('Anmerkung löschen?', {
+                              okLabel: 'Löschen',
+                              destructive: true,
+                            })) removeAnnotation(a.id)
                           }}
                           className="rounded bg-red-900/60 px-1 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
                           title="Anmerkung löschen"

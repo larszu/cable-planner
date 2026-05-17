@@ -3,6 +3,8 @@ import { cablePlannerApi } from '../lib/bridge'
 import { useProjectStore } from '../store/projectStore'
 import { projectHistory } from '../store/projectHistory'
 import type { CablePlannerProject } from '../types/project'
+import { promptDialog } from '../lib/promptDialog'
+import { infoDialog } from '../lib/infoDialog'
 
 interface OpenProjectResponse {
   filePath: string
@@ -67,12 +69,12 @@ export const useProject = () => {
       if (isViewer) {
         const oldAuthor =
           (incoming as { viewerSession?: { author?: string } })?.viewerSession?.author ?? ''
-        const author = window.prompt(
-          'Du öffnest eine Viewer-Datei zum Begutachten.\n\n' +
-            'Bitte gib deinen Namen ein — er wird allen Anmerkungen\n' +
-            'angeheftet, die du in dieser Session erstellst.',
+        const author = (await promptDialog(
+          'Viewer-Datei — Name eingeben\n\n' +
+            'Du öffnest eine Viewer-Datei zum Begutachten. Bitte gib deinen Namen ' +
+            'ein — er wird allen Anmerkungen angeheftet, die du in dieser Session erstellst.',
           oldAuthor,
-        )?.trim()
+        ))?.trim()
         if (author) {
           ;(incoming as Record<string, unknown>).viewerSession = {
             author,
@@ -80,9 +82,10 @@ export const useProject = () => {
           }
           ;(incoming as Record<string, unknown>).mode = 'viewer'
         } else {
-          window.alert(
-            'Ohne Namen können keine Anmerkungen gemacht werden. Datei wird nicht geladen.',
-          )
+          await infoDialog('Name fehlt', {
+            body: 'Ohne Namen können keine Anmerkungen gemacht werden. Die Datei wird nicht geladen.',
+            tone: 'warning',
+          })
           return
         }
       }

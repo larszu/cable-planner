@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useTranslation } from '../../lib/i18n'
+import { infoDialog } from '../../lib/infoDialog'
 import { useRentman } from '../../hooks/useRentman'
 import { useProjectStore } from '../../store/projectStore'
 import { matchBlackmagicTemplate } from '../../lib/blackmagicCatalog'
@@ -213,7 +214,10 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   // (fixes race condition when user clicks back/close before import completes)
   const safeClose = () => {
     if (loading || wizardQueue !== null || mergeQueue.length > 0 || categoryAssignments !== null || conflictItems !== null) {
-      window.alert('Importvorgänge laufen noch. Bitte warten Sie auf den Abschluss.')
+      void infoDialog('Importvorgänge laufen noch', {
+        body: 'Bitte warten Sie auf den Abschluss.',
+        tone: 'info',
+      })
       return
     }
     onClose()
@@ -1222,7 +1226,10 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               onClick={() => {
                 const hasMissing = categoryAssignments.some((row) => !row.targetCategory.trim())
                 if (hasMissing) {
-                  window.alert('Bitte für jedes Gerät eine bestehende Kategorie wählen.')
+                  void infoDialog('Kategorie fehlt', {
+                    body: 'Bitte für jedes Gerät eine bestehende Kategorie wählen.',
+                    tone: 'warning',
+                  })
                   return
                 }
                 const categoryByName: Record<string, string> = {}

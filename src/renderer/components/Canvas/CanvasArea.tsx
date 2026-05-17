@@ -23,6 +23,7 @@ import {
   useCanvasProjectStore as useProjectStore,
   useCanvasProjectStoreInstance,
 } from '../../store/projectStoreContext'
+import { confirmDialog } from '../../lib/confirmDialog'
 import { useUiStore } from '../../store/uiStore'
 import { ANNOTATION_DRAG_MIME } from '../Annotations/AnnotationsPanel'
 import { AnnotationCanvasOverlay } from '../Annotations/AnnotationCanvasOverlay'
@@ -1254,12 +1255,12 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           {projectMode === 'finalized' && (
             <button
               type="button"
-              onClick={() => {
+              onClick={async () => {
                 if (
-                  window.confirm(
-                    'Planung wieder zur Bearbeitung freigeben?\n\n' +
-                      'Geräte, Kabel und Layout können dann wieder verändert werden.',
-                  )
+                  await confirmDialog('Planung wieder zur Bearbeitung freigeben?', {
+                    body: 'Geräte, Kabel und Layout können dann wieder verändert werden.',
+                    okLabel: 'Freigeben',
+                  })
                 ) {
                   projectStoreInstance.getState().setProjectMode('editing')
                 }
