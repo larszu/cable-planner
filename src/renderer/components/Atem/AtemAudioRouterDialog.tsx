@@ -4,6 +4,8 @@ import { useProjectStore } from '../../store/projectStore'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { LIMITS } from '../../lib/layoutConstants'
+import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
+import { infoDialog } from '../../lib/infoDialog'
 import type {
   AtemAudioConfig,
   AtemClassicAudioInput,
@@ -75,6 +77,28 @@ export const AtemAudioRouterDialog = () => {
     setActiveTab('matrix')
   }, [open, equipment])
 
+  // v7.9.52 — Live-Connection-Status für die OpenSwitcher-style
+  // Read/Push-Buttons. Wird beim Dialog-Open + alle 4s gepollt.
+  const [atemConnected, setAtemConnected] = useState(false)
+  useEffect(() => {
+    if (!open) return
+    let stopped = false
+    const refresh = async () => {
+      try {
+        const st = await cablePlannerApi.atem.getStatus()
+        if (!stopped) setAtemConnected(!!st?.connected)
+      } catch {
+        if (!stopped) setAtemConnected(false)
+      }
+    }
+    void refresh()
+    const id = window.setInterval(refresh, 4000)
+    return () => {
+      stopped = true
+      window.clearInterval(id)
+    }
+  }, [open])
+
   if (!open || !equipment) return null
 
   const handleLoadXml = () => {
@@ -123,6 +147,100 @@ export const AtemAudioRouterDialog = () => {
     if (!draft) return
     updateEquipment(equipment.id, { atemAudioConfig: draft })
     close()
+  }
+
+  // v7.9.52 — OpenSwitcher-Style: liest den aktuellen Audio-Zustand
+  // direkt vom verbundenen ATEM (Matrix + Classic + Input-Labels), ohne
+  // Umweg über das Profile-XML.
+  const handleReadFromAtem = async () => {
+    if (!atemConnected) {
+      await infoDialog('ATEM nicht verbunden', {
+        body: 'Verbinde dich zuerst mit dem ATEM (Hauptdialog "ATEM Mischer").',
+        tone: 'warning',
+      })
+      return
+    }
+    setBusy(true)
+    setErrorMsg('')
+    try {
+      const live = await cablePlannerApi.atem.readAudioConfig()
+      if (!live || (!live.matrix && !live.classicMixer)) {
+        await infoDialog('Keine Audio-Daten', {
+          body: 'Der verbundene ATEM hat weder eine Routing-Matrix noch einen Classic-Mixer im State. Manche Mini-Modelle haben gar kein editierbares Audio-Routing.',
+          tone: 'warning',
+        })
+        return
+      }
+      // raws aus Draft beibehalten (XML-Round-Trip kompatibilität), nur
+      // matrix/classicMixer/inputLabels überschreiben.
+      const merged: AtemAudioConfig = {
+        ...(draft ?? {}),
+        matrix: live.matrix ?? draft?.matrix,
+        classicMixer: live.classicMixer ?? draft?.classicMixer,
+        inputLabels: live.inputLabels ?? draft?.inputLabels,
+      }
+      setDraft(merged)
+      setActiveTab('matrix')
+      await infoDialog('Audio-Config vom ATEM geladen', {
+        body: [
+          live.matrix ? `Matrix: ${live.matrix.outputs.length} Outputs × ${live.matrix.sources.length} Sources` : null,
+          live.classicMixer ? `Classic-Mixer: ${live.classicMixer.inputs.length} Inputs` : null,
+          live.inputLabels ? `Input-Labels: ${Object.keys(live.inputLabels).length}` : null,
+        ].filter(Boolean).join('\n'),
+        tone: 'success',
+      })
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : String(err))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handlePushToAtem = async () => {
+    if (!draft) return
+    if (!atemConnected) {
+      await infoDialog('ATEM nicht verbunden', {
+        body: 'Verbinde dich zuerst mit dem ATEM (Hauptdialog "ATEM Mischer").',
+        tone: 'warning',
+      })
+      return
+    }
+    const confirmed = await confirmDialog(
+      'Audio-Konfiguration an ATEM senden?',
+      {
+        body: 'Die geladene Routing-Matrix / Classic-Mixer-Werte werden direkt an den verbundenen Switcher geschickt. Änderungen sind sofort wirksam und werden NICHT als Startup-State persistiert — dazu musst du in ATEM Software Control "Save Startup State" aufrufen.',
+        okLabel: 'Senden',
+      },
+    )
+    if (!confirmed) return
+    setBusy(true)
+    setErrorMsg('')
+    try {
+      const result = await cablePlannerApi.atem.applyAudioConfig({
+        matrix: draft.matrix
+          ? { outputs: draft.matrix.outputs.map((o) => ({ id: o.id, sourceId: o.sourceId })) }
+          : undefined,
+        classicMixer: draft.classicMixer
+          ? { inputs: draft.classicMixer.inputs }
+          : undefined,
+        inputLabels: draft.inputLabels
+          ? Object.fromEntries(
+              Object.entries(draft.inputLabels).map(([id, l]) => [
+                id,
+                { shortName: l.shortName, longName: l.longName },
+              ]),
+            )
+          : undefined,
+      })
+      await infoDialog('Konfiguration gesendet', {
+        body: `Matrix: ${result.matrixApplied} · Classic: ${result.classicApplied} · Labels: ${result.labelsApplied}\n\nNicht vergessen: in ATEM Software Control "Save Startup State" um die Werte persistent zu machen.`,
+        tone: 'success',
+      })
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : String(err))
+    } finally {
+      setBusy(false)
+    }
   }
 
   /** Build a fresh AtemAudioConfig with the ATEM-default Crosspoint
@@ -218,6 +336,41 @@ export const AtemAudioRouterDialog = () => {
           >
             {t('atem.audio.action.saveXml', '💾 XML speichern')}
           </button>
+          {/* v7.9.52 — OpenSwitcher-style Live-Direct-Pfad. Sichtbar nur
+              wenn Desktop-Bridge verfügbar; Aktiv nur wenn ATEM gerade
+              verbunden ist. Funktioniert OHNE XML-Datei — liest und
+              schreibt direkt aus/in den Switcher-State. */}
+          {hasDesktopBridge && (
+            <>
+              <span className="ml-2 text-slate-600">|</span>
+              <button
+                type="button"
+                onClick={handleReadFromAtem}
+                disabled={!atemConnected || busy}
+                className="rounded bg-purple-700 px-3 py-1 hover:bg-purple-600 disabled:opacity-50"
+                title={
+                  atemConnected
+                    ? 'Live-State vom verbundenen ATEM lesen (Matrix + Classic-Mixer + Labels)'
+                    : 'ATEM nicht verbunden — im Haupt-Dialog "ATEM Mischer" verbinden'
+                }
+              >
+                {atemConnected ? '🔌 Vom ATEM lesen' : '🔌 Lesen (offline)'}
+              </button>
+              <button
+                type="button"
+                onClick={handlePushToAtem}
+                disabled={!atemConnected || !draft || busy}
+                className="rounded bg-orange-700 px-3 py-1 hover:bg-orange-600 disabled:opacity-50"
+                title={
+                  atemConnected
+                    ? 'Aktuelle Konfiguration direkt an den ATEM senden (kein XML-Umweg)'
+                    : 'ATEM nicht verbunden — im Haupt-Dialog "ATEM Mischer" verbinden'
+                }
+              >
+                {atemConnected ? '📤 An ATEM senden' : '📤 Senden (offline)'}
+              </button>
+            </>
+          )}
           {draft?.matrix && (
             <>
               <span className="ml-2 text-slate-500">|</span>
