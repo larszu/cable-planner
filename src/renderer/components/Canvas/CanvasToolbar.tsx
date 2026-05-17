@@ -17,6 +17,9 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   const drag = useDraggablePosition('cable-planner:canvas-toolbar-pos', true)
   // v7.9.0 / Issue #120 — open RackBuilder seeded with current selection
   const triggerRackBuilderFromSelection = useUiStore((s) => s.triggerRackBuilderFromSelection)
+  const triggerRackBuilderEditFromBlackBox = useUiStore(
+    (s) => s.triggerRackBuilderEditFromBlackBox,
+  )
   // v7.9.30 — Snap-to-Grid + Grid-Size sind nicht mehr user-konfigurierbar.
   // Werte kommen jetzt aus dem Store-Default (snapToGrid=true,
   // gridSize=EQUIPMENT_LAYOUT.GRID_SIZE=11) — siehe uiStore-Migration.
@@ -451,6 +454,23 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
                 <line x1="3" y1="5" x2="13" y2="5" />
                 <line x1="3" y1="8" x2="13" y2="8" />
                 <line x1="3" y1="11" x2="13" y2="11" />
+              </svg>
+            </IconButton>
+          )}
+          {/* v7.9.51 — Rack-Bearbeiten-Button erscheint, wenn genau EIN
+              Rack (Black-Box mit rackInternalSnapshot) selektiert ist.
+              Öffnet den 2D-Rack-Builder mit dem Source-Preset des Racks. */}
+          {selectedEquipmentIds.length === 1 && selectionContainsRack && (
+            <IconButton
+              title="Dieses Rack im 2D-Rack-Builder bearbeiten"
+              onClick={() => triggerRackBuilderEditFromBlackBox(selectedEquipmentIds[0])}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+                <rect x="3" y="2" width="10" height="12" rx="0.5" />
+                <line x1="3" y1="5" x2="13" y2="5" />
+                <line x1="3" y1="8" x2="13" y2="8" />
+                <line x1="3" y1="11" x2="13" y2="11" />
+                <path d="M9 10.5 L12 7.5 L13.5 9 L10.5 12 L9 12 Z" fill="currentColor" stroke="none" />
               </svg>
             </IconButton>
           )}
