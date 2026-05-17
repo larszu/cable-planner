@@ -768,7 +768,15 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           aus "Black-Box-Einfügen" stammt und einen rackInternalSnapshot
           hat, zeichnen wir die internen Verbindungen als gestrichelte
           Linien zwischen den HE-Slots im Body. So sieht der User auf
-          dem Canvas was im Rack passiert. */}
+          dem Canvas was im Rack passiert.
+
+          v7.9.10 — Pro Gerät bekommt jeder beteiligte Port-Name einen
+          eigenen Slot entlang der Geräte-Höhe. Vorher landeten alle
+          Kabel-Enden auf dem gleichen Punkt (Geräte-Center), was bei
+          mehreren Kabeln pro Gerät zu Stack-Overlap führte. Jetzt wird
+          jeder Port als eigener Anschlusspunkt mit kleinem Label
+          ausgegeben — der User sieht welcher Port welche Verbindung
+          trägt. */}
       {data.rackInternalSnapshot && data.rackInternalSnapshot.cables.length > 0 && (
         (() => {
           const snap = data.rackInternalSnapshot
@@ -778,11 +786,42 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           const innerW = Math.max(40, width - 24)
           const innerLeft = 12
           const HE_HEIGHT = innerH / Math.max(1, snap.totalUnits)
-          const itemCenterY = (itemIdx: number): number => {
+
+          // v7.9.10 — Sammle alle Port-Namen pro Gerät (in Reihenfolge
+          // ihres ersten Auftauchens in den Cables) damit jeder Port
+          // eine stabile vertikale Position innerhalb des Geräte-
+          // Rechtecks bekommt.
+          const portSlotsByItem = new Map<number, string[]>()
+          for (const c of snap.cables) {
+            if (!portSlotsByItem.has(c.fromItemIndex)) portSlotsByItem.set(c.fromItemIndex, [])
+            if (!portSlotsByItem.has(c.toItemIndex)) portSlotsByItem.set(c.toItemIndex, [])
+            const fromList = portSlotsByItem.get(c.fromItemIndex)!
+            if (!fromList.includes(c.fromPortName)) fromList.push(c.fromPortName)
+            const toList = portSlotsByItem.get(c.toItemIndex)!
+            if (!toList.includes(c.toPortName)) toList.push(c.toPortName)
+          }
+
+          const portSlotY = (itemIdx: number, portName: string): number => {
             const item = snap.items[itemIdx]
             if (!item) return innerTop + innerH / 2
-            return innerTop + (item.startUnit - 1 + item.rackUnits / 2) * HE_HEIGHT
+            const itemTop = innerTop + (item.startUnit - 1) * HE_HEIGHT
+            const itemH = item.rackUnits * HE_HEIGHT
+            const slots = portSlotsByItem.get(itemIdx) ?? [portName]
+            const idx = Math.max(0, slots.indexOf(portName))
+            const count = slots.length
+            // Nutze die mittleren 80 % der Geräte-Höhe, mit gleichem
+            // Abstand zwischen den Slots. Bei einem einzigen Slot
+            // landen wir in der Mitte.
+            if (count <= 1) return itemTop + itemH / 2
+            const usable = itemH * 0.8
+            const startY = itemTop + itemH * 0.1
+            return startY + (idx / (count - 1)) * usable
           }
+
+          // x-Position der Port-Stub-Punkte: rechts in der Gerätekarte,
+          // mit dezentem Hinausragen damit die Bezier-Kurven Luft haben.
+          const stubX = innerLeft + innerW - 4
+
           return (
             <svg
               style={{
@@ -807,40 +846,81 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               {snap.items.map((item, idx) => {
                 const top = innerTop + (item.startUnit - 1) * HE_HEIGHT
                 const h = item.rackUnits * HE_HEIGHT
+                const labelFontSize = Math.min(8, Math.max(6, h * 0.45))
                 return (
-                  <rect
-                    key={`rack-item-${idx}`}
-                    x={innerLeft}
-                    y={top}
-                    width={innerW}
-                    height={h - 1}
-                    fill={isLight ? 'rgba(100,116,139,0.10)' : 'rgba(71,85,105,0.30)'}
-                    stroke={isLight ? 'rgba(100,116,139,0.30)' : 'rgba(148,163,184,0.30)'}
-                    strokeWidth={0.5}
-                  />
+                  <g key={`rack-item-${idx}`}>
+                    <rect
+                      x={innerLeft}
+                      y={top}
+                      width={innerW}
+                      height={h - 1}
+                      fill={isLight ? 'rgba(100,116,139,0.10)' : 'rgba(71,85,105,0.30)'}
+                      stroke={isLight ? 'rgba(100,116,139,0.30)' : 'rgba(148,163,184,0.30)'}
+                      strokeWidth={0.5}
+                    />
+                    {/* v7.9.10 — Geräte-Name im Slot, damit der User
+                        sieht zu welchem Gerät die Port-Stubs gehören. */}
+                    <text
+                      x={innerLeft + 3}
+                      y={top + Math.min(h - 1, labelFontSize + 2)}
+                      fill={isLight ? '#334155' : '#cbd5e1'}
+                      fontSize={labelFontSize}
+                      fontWeight={600}
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      {item.name.length > 18 ? `${item.name.slice(0, 17)}…` : item.name}
+                    </text>
+                  </g>
                 )
               })}
+              {/* Port-Stubs pro Gerät + Port-Namen-Labels */}
+              {Array.from(portSlotsByItem.entries()).map(([itemIdx, ports]) =>
+                ports.map((portName, slotIdx) => {
+                  const y = portSlotY(itemIdx, portName)
+                  return (
+                    <g key={`stub-${itemIdx}-${slotIdx}`}>
+                      <circle
+                        cx={stubX}
+                        cy={y}
+                        r={1.8}
+                        fill={isLight ? '#334155' : '#94a3b8'}
+                      />
+                      <text
+                        x={stubX - 4}
+                        y={y + 2}
+                        fill={isLight ? '#475569' : '#94a3b8'}
+                        fontSize={6}
+                        textAnchor="end"
+                        style={{ pointerEvents: 'none' }}
+                      >
+                        {portName.length > 10 ? `${portName.slice(0, 9)}…` : portName}
+                      </text>
+                    </g>
+                  )
+                }),
+              )}
+              {/* Cables verbinden jetzt Port-Stub → Port-Stub statt
+                  Geräte-Center → Geräte-Center. Die seitliche Bezier-
+                  Kurve geht nach rechts aus der Karte raus und wieder
+                  rein, damit die Linien klar erkennbar bleiben. */}
               {snap.cables.map((c, ci) => {
-                const y1 = itemCenterY(c.fromItemIndex)
-                const y2 = itemCenterY(c.toItemIndex)
-                const x1 = innerLeft + innerW * 0.65
-                const x2 = innerLeft + innerW * 0.65
-                const bulge = innerW * 0.28
+                const y1 = portSlotY(c.fromItemIndex, c.fromPortName)
+                const y2 = portSlotY(c.toItemIndex, c.toPortName)
+                const x1 = stubX
+                const x2 = stubX
+                const bulge = innerW * 0.18 + Math.min(12, Math.abs(y2 - y1) * 0.15)
                 const midX = x1 + bulge
                 const color = c.color ?? (isLight ? '#0369a1' : '#38bdf8')
                 return (
-                  <g key={`internal-cable-${ci}`}>
-                    <path
-                      d={`M ${x1} ${y1} C ${midX} ${y1} ${midX} ${y2} ${x2} ${y2}`}
-                      fill="none"
-                      stroke={color}
-                      strokeWidth={1}
-                      strokeDasharray="3 2"
-                      opacity={0.85}
-                    />
-                    <circle cx={x1} cy={y1} r={1.5} fill={color} />
-                    <circle cx={x2} cy={y2} r={1.5} fill={color} />
-                  </g>
+                  <path
+                    key={`internal-cable-${ci}`}
+                    d={`M ${x1} ${y1} C ${midX} ${y1} ${midX} ${y2} ${x2} ${y2}`}
+                    fill="none"
+                    stroke={color}
+                    strokeWidth={1.2}
+                    strokeDasharray="3 2"
+                    opacity={0.85}
+                  />
                 )
               })}
             </svg>

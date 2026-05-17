@@ -994,6 +994,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       if (!payload) {
         return
       }
+      // v7.9.10 — In rack-mode keine Library-Drops. Geräte werden im
+      // Rack-Builder via "+ Rack"-Button hinzugefügt, nicht durch
+      // Drag-Drop vom Haupt-Library-Panel ins Sub-Canvas.
+      if (mode === 'rack') return
       try {
         const template = JSON.parse(payload) as EquipmentTemplate
         // Snap drop-position to grid (or at least to integer) so the store
@@ -1005,7 +1009,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         console.error('Failed to drop equipment:', error)
       }
     },
-    [addEquipment, screenToFlowPosition, snapToGrid, gridSize],
+    [addEquipment, screenToFlowPosition, snapToGrid, gridSize, mode, projectStoreInstance],
   )
 
   // In-app clipboard for Ctrl+C / Ctrl+V. Snapshots the selected equipment

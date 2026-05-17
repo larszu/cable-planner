@@ -66,7 +66,10 @@ interface InternalCableDraft {
 // rowHeight in pixels from the measured panel width so the on-screen rack is
 // proportional to a real 19" rack, regardless of available screen space.
 const RACK_PANEL_ASPECT_PER_1HE = 10.857
-const MIN_ROW_HEIGHT = 14
+// v7.9.10 — MIN auf 6 px gesenkt damit bei kleinem Dialog + vielen HE
+// (42 HE) der Rack noch in den sichtbaren Bereich passt. Wer Details
+// sehen will dreht den Zoom hoch.
+const MIN_ROW_HEIGHT = 6
 const MAX_ROW_HEIGHT = 56
 const DEFAULT_ROW_HEIGHT = 22
 const DRAFT_KEY = 'cable-planner:rack-builder:draft:v2'
@@ -216,10 +219,19 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   // Zoom multiplier on top of the auto-fit row height (1 = fit-to-width).
   const [zoom, setZoom] = useState(1)
 
-  // Width of one rack pane in pixels. Measured via ResizeObserver so the rack
-  // is responsive: shrinking the dialog or splitting front/rear into two
-  // columns automatically reduces rowHeight while keeping the 19" aspect.
+  // Width + Height of one rack pane in pixels. Measured via ResizeObserver
+  // damit der Rack responsiv schrumpft: wird das Dialog-Fenster kleiner,
+  // wird auch der Rack kleiner statt zu scrollen.
+  //
+  // v7.9.10 — Auch die Höhe der verfügbaren Pane-Fläche berücksichtigen
+  // (User-Request: "wenn das fenster klein ist, stelle doch auch das
+  // rack klein dar. sonst muss man immer scrollen"). Vorher floss nur
+  // die Breite in rowHeight ein → bei 42 HE & 30 px/HE = 1260 px hoch
+  // → vertikaler Scroll. Jetzt nimmt rowHeight das Minimum aus
+  // "Breiten-Fit" und "Höhen-Fit", sodass das Rack komplett in den
+  // sichtbaren Bereich passt.
   const [paneWidth, setPaneWidth] = useState(0)
+  const [paneHeight, setPaneHeight] = useState(0)
   useEffect(() => {
     if (!open) return
     const el = rackCanvasRef.current
@@ -228,27 +240,40 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       const cols = draft.viewMode === 'both' ? 2 : 1
       const gap = 8 // grid gap-2
       const padding = 8 * 2 // p-2 on inner side card
-      const total = el.getBoundingClientRect().width
-      const perPane = Math.max(0, (total - (cols - 1) * gap) / cols - padding)
-      setPaneWidth(perPane)
+      const rect = el.getBoundingClientRect()
+      const perPaneW = Math.max(0, (rect.width - (cols - 1) * gap) / cols - padding)
+      setPaneWidth(perPaneW)
+      // Verfügbare Höhe = Dialog-Viewport-Höhe minus Header/Properties
+      // unten. Wir nutzen einen einfachen Heuristik: aktuelle Höhe der
+      // rackCanvas-Wrapper-Box minus ~28 px für "Front"-Label
+      // innerhalb des Panes.
+      const perPaneH = Math.max(120, rect.height - 28)
+      setPaneHeight(perPaneH)
     }
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(el)
-    return () => ro.disconnect()
+    // Auch bei window resize neu messen — manche Layout-Änderungen
+    // landen nicht im ResizeObserver des Canvas-Refs.
+    window.addEventListener('resize', measure)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', measure)
+    }
   }, [open, draft.viewMode])
 
   // Derived row height in pixels. Falls back to a sensible default while the
   // ResizeObserver hasn't fired yet so the initial render isn't 0 px.
-  // v7.7.0 — at zoom=1 the panel exactly fits paneWidth (panel width =
-  // rowHeight*aspect = paneWidth). Zoom>1 makes the panel wider; the
-  // overflow-x-auto on the rack canvas wrapper handles that gracefully
-  // instead of breaking the dialog layout.
+  // v7.7.0 — at zoom=1 the panel exactly fits paneWidth.
+  // v7.9.10 — at zoom=1 the panel fits BOTH paneWidth and paneHeight.
   const rowHeight = useMemo(() => {
     if (paneWidth <= 0) return DEFAULT_ROW_HEIGHT
-    const fit = paneWidth / RACK_PANEL_ASPECT_PER_1HE
-    return Math.max(MIN_ROW_HEIGHT, Math.min(MAX_ROW_HEIGHT, fit * zoom))
-  }, [paneWidth, zoom])
+    const widthFit = paneWidth / RACK_PANEL_ASPECT_PER_1HE
+    const heightFit = paneHeight > 0 ? paneHeight / Math.max(1, draft.totalUnits) : widthFit
+    // Auto-fit = Minimum: damit das Rack in beide Dimensionen passt
+    const autoFit = Math.min(widthFit, heightFit)
+    return Math.max(MIN_ROW_HEIGHT, Math.min(MAX_ROW_HEIGHT, autoFit * zoom))
+  }, [paneWidth, paneHeight, draft.totalUnits, zoom])
 
   const filteredTemplates = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -773,9 +798,14 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 <div className="mt-2 text-[10px]">Tipp: oben "Auch Nicht-Rack-Geräte zeigen" aktivieren, wenn dein Wunschgerät nicht erscheint.</div>
               </div>
             )}
+            {/* v7.9.10 — max-h begrenzt den Rack-Canvas auf die
+                Viewport-Höhe minus Header/Footer; in Kombi mit dem
+                neuen height-fit in rowHeight passt sich das Rack
+                automatisch dem sichtbaren Bereich an. */}
             <div
               ref={rackCanvasRef}
-              className={`grid gap-2 overflow-x-auto ${draft.viewMode === 'both' ? 'grid-cols-2' : 'grid-cols-1'}`}
+              className={`grid gap-2 overflow-auto ${draft.viewMode === 'both' ? 'grid-cols-2' : 'grid-cols-1'}`}
+              style={{ maxHeight: 'min(75vh, 800px)' }}
             >
               {(draft.viewMode === 'both' ? ['front', 'rear'] : [draft.viewMode]).map((side) => (
                 <div key={side} className="rounded border border-slate-800 bg-slate-950 p-2">
