@@ -2,12 +2,13 @@
  * Read a user-picked image (or any binary file) as a data URI so it can travel
  * with the project file — no separate filesystem path to keep in sync.
  *
- * Replaces 6 inline FileReader.readAsDataURL setups in
- * EquipmentProperties (3×), RackBuilderDialog, SettingsDialog and
- * ProjectMetaDialog. Resolves with the data URI on success or `null` if the
- * read fails (e.g. the user cancelled the picker after selecting a file the
- * browser can't open). Never rejects.
+ * v7.9.42 — Picker-Setup nutzt jetzt openFilePicker aus lib/pickFile;
+ * Reader-Logik bleibt hier weil sie File-Object→Data-URI nimmt (statt
+ * Picker-flow). readImageAsDataUri ist immer noch das öffentliche
+ * Interface, das Dialoge mit ihrem eigenen `<input>` benutzen.
  */
+import { openFilePicker } from './pickFile'
+
 export const readImageAsDataUri = (file: File): Promise<string | null> =>
   new Promise((resolve) => {
     const reader = new FileReader()
@@ -24,20 +25,10 @@ export const readImageAsDataUri = (file: File): Promise<string | null> =>
  * to the chosen image's data URI, or `null` if the user dismissed the picker
  * or picked something unreadable.
  */
-export const pickImageAsDataUri = (
+export const pickImageAsDataUri = async (
   mimeAccept = 'image/png,image/jpeg,image/svg+xml,image/webp',
-): Promise<string | null> =>
-  new Promise((resolve) => {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = mimeAccept
-    input.onchange = async () => {
-      const file = input.files?.[0]
-      if (!file) return resolve(null)
-      resolve(await readImageAsDataUri(file))
-    }
-    // Browser fires no event when the user closes the picker without
-    // choosing — we just leave the promise unresolved in that case (the
-    // typical UX, matching window.prompt cancel).
-    input.click()
-  })
+): Promise<string | null> => {
+  const file = await openFilePicker(mimeAccept)
+  if (!file) return null
+  return readImageAsDataUri(file)
+}
