@@ -1,8 +1,23 @@
-import { toJpeg } from 'html-to-image'
+import { toPng } from 'html-to-image'
 import jsPDF from 'jspdf'
 import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { sanitizeForPdf } from './sanitizeForPdf'
+import { hexToRgb, drawVectorBackground } from './pdfBackground'
+
+// Helper: aus composed-Background-Optionen den Grid-Hex extrahieren.
+// composeExportBackground hat keinen public `gridColor` Output (nur
+// CSS-zusammengebaut), daher rekonstruieren wir hier den Wert via
+// derselben Default-Logik wie in exportBackground.ts.
+const extractGridColor = (
+  _composed: unknown,
+  options?: { backgroundTheme?: 'dark' | 'light'; customPalette?: { gridColor: string } | null },
+): string => {
+  if (options?.customPalette?.gridColor) return options.customPalette.gridColor
+  return (options?.backgroundTheme ?? 'dark') === 'light' ? '#94a3b8' : '#64748b'
+}
+// hexToRgb only used by pdfBackground — import here to avoid bundling twice
+void hexToRgb
 
 export interface ExportPdfOptions {
   backgroundTheme?: 'dark' | 'light'
@@ -257,30 +272,41 @@ const buildCanvasPdf = async (
     customPalette: options?.customPalette ?? null,
   })
 
-  const dataUrl = await toJpeg(viewportEl, {
-    backgroundColor: composed.bgFallback,
+  // v7.9.24 — Hintergrund wird jetzt VEKTOR in jsPDF gerendert (siehe
+  // pdfBackground.ts). Capture liefert nur Equipment+Kabel als PNG mit
+  // TRANSPARENTEM Hintergrund, sodass das Pattern unter dem Content
+  // durchscheint und beim PDF-Zoom unendlich scharf bleibt.
+  const dataUrl = await toPng(viewportEl, {
+    backgroundColor: undefined, // transparent
     pixelRatio: 1.5,
-    quality,
     cacheBust: true,
     width: contentW,
     height: contentH,
     style: {
       width: `${contentW}px`,
       height: `${contentH}px`,
-      background: composed.background,
-      backgroundSize: composed.backgroundSize,
-      backgroundRepeat: composed.backgroundRepeat,
-      backgroundColor: composed.bgFallback,
+      background: 'transparent',
+      backgroundColor: 'transparent',
       transform: `translate(${-contentX}px, ${-contentY}px)`,
       transformOrigin: '0 0',
     },
     filter: (node) => {
-      if (!(node instanceof HTMLElement)) return true
-      if (node.classList.contains('react-flow__minimap')) return false
-      if (node.classList.contains('react-flow__controls')) return false
+      if (!(node instanceof HTMLElement) && !(node instanceof SVGElement)) return true
+      const el = node as HTMLElement | SVGElement
+      if (el.classList.contains('react-flow__minimap')) return false
+      if (el.classList.contains('react-flow__controls')) return false
+      // v7.9.24 — ReactFlow's eigene Background-Komponente (Dots-Pattern
+      // SVG) ausschliessen. Wir rendern das Pattern stattdessen als
+      // Vektor direkt im PDF (siehe drawVectorBackground). Sonst wäre
+      // das Pattern doppelt: einmal als gerasterter SVG-Snapshot
+      // (sichtbar nur im React-Flow-Viewport-Bereich) und einmal als
+      // Vektor — was den User-Bug "Punkte nur teilweise da" verursachte.
+      if (el.classList.contains('react-flow__background')) return false
       return true
     },
   })
+  // Stelle `quality` als unused dar — Format ist jetzt PNG (lossless).
+  void quality
 
   const img = new Image()
   img.src = dataUrl
@@ -321,7 +347,22 @@ const buildCanvasPdf = async (
 
   const offsetX = margin
   const offsetY = margin + headerHeight
-  pdf.addImage(dataUrl, 'JPEG', offsetX, offsetY, drawingW, drawingH)
+  // v7.9.24 — Vektor-Hintergrund VOR dem Content-Image rendern, damit
+  // er als unterste Layer liegt. Pattern (Dots/Lines/Cross) skaliert
+  // jetzt unendlich beim PDF-Zoom und deckt die volle Drawing-Fläche
+  // ab — kein weißer Rand mehr, keine fehlenden Pattern-Bereiche.
+  drawVectorBackground(pdf, {
+    x: offsetX,
+    y: offsetY,
+    width: drawingW,
+    height: drawingH,
+    variant: options?.bgVariant ?? 'dots',
+    bgFillHex: composed.bgFallback,
+    patternHex: extractGridColor(composed, options),
+    opacity: options?.bgOpacity ?? 0.5,
+    gridSizePx: options?.gridSize ?? 20,
+  })
+  pdf.addImage(dataUrl, 'PNG', offsetX, offsetY, drawingW, drawingH)
 
   if (metadata) {
     drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin)
