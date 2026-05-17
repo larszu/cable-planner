@@ -11,7 +11,7 @@ import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { downloadBlob } from '../../lib/downloadBlob'
-import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { ModalShell } from '../shared/ModalShell'
 
 type SortKey = 'fromDevice' | 'toDevice' | 'type' | 'length' | 'color'
 
@@ -89,7 +89,6 @@ export const PatchListDialog = () => {
     )
   }, [rows, filter])
 
-  const drag = useDraggablePosition('cable-planner:modal-pos:patchlist', open)
 
   if (!open) return null
 
@@ -120,47 +119,33 @@ export const PatchListDialog = () => {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-      onMouseDown={(e) => e.target === e.currentTarget && close()}
+    <ModalShell
+      open={open}
+      onClose={close}
+      title="Patchliste"
+      titleIcon="🪢"
+      maxWidth="5xl"
+      draggableKey="cable-planner:modal-pos:patchlist"
+      scrollBody={false}
+      footer={
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] text-slate-400">
+            Jedes Kabel als eigene Zeile, sortiert für die Patch-Reihenfolge auf dem Set.
+            CSV-Export für Excel/Druck enthält die aktuell gefilterten Zeilen.
+          </p>
+          <button
+            type="button"
+            onClick={exportCsv}
+            disabled={filtered.length === 0}
+            className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
+          >
+            ⬇ CSV exportieren
+          </button>
+        </div>
+      }
     >
-      <div
-        ref={drag.containerRef}
-        style={drag.containerStyle}
-        className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
-      >
-        <header
-          {...drag.headerProps}
-          className="flex items-center justify-between border-b border-slate-700 px-4 py-3 select-none"
-        >
-          <div>
-            <h2 className="text-sm font-semibold">
-              <span className="mr-2">🪢</span>Patchliste
-            </h2>
-            <p className="text-[10px] text-slate-400">
-              Jedes Kabel als eigene Zeile, sortiert für die Patch-Reihenfolge auf dem Set.
-              CSV-Export für Excel/Druck enthält die aktuell gefilterten Zeilen.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={exportCsv}
-              disabled={filtered.length === 0}
-              className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
-            >
-              ⬇ CSV exportieren
-            </button>
-            <button
-              type="button"
-              onClick={close}
-              className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
-            >
-              Schließen
-            </button>
-          </div>
-        </header>
-        <div className="flex items-center gap-2 border-b border-slate-800 px-4 py-2">
+      <div className="flex h-full flex-col">
+        <div className="flex items-center gap-2 border-b border-slate-800 py-2">
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -227,6 +212,6 @@ export const PatchListDialog = () => {
           </table>
         </div>
       </div>
-    </div>
+    </ModalShell>
   )
 }
