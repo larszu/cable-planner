@@ -6,6 +6,7 @@ import { useCanvasProjectStore as useProjectStore } from '../../store/projectSto
 import { colorForConnector } from '../../lib/cableColors'
 import { defaultIconForEquipment } from '../../lib/deviceKind'
 import { findGreenGoUserForEquipment } from '../../lib/greengoSync'
+import { rackBandColor } from '../../lib/rackBandColors'
 
 type EquipmentNodeData = EquipmentItem & {
   exportThemeOverride?: 'dark' | 'light'
@@ -22,31 +23,8 @@ const PORT_ROW = EQUIPMENT_LAYOUT.PORT_ROW
 const HANDLE_SIZE = EQUIPMENT_LAYOUT.HANDLE_SIZE
 const PADDING = EQUIPMENT_LAYOUT.PADDING
 
-// v7.9.14 — Farb-Palette für Rack-Geräte-Bänder im Black-Box-Mode.
-// Gut sichtbare, aber gedeckte Farben mit gutem Kontrast auf
-// slate-900-Hintergrund. Reihenfolge ist absichtlich gemixt damit
-// benachbarte Geräte selten gleiche Farbe haben (Hash-Verteilung).
-const RACK_BAND_PALETTE = [
-  '#0ea5e9', // sky
-  '#a855f7', // violet
-  '#22c55e', // emerald
-  '#f59e0b', // amber
-  '#ec4899', // pink
-  '#06b6d4', // cyan
-  '#84cc16', // lime
-  '#f97316', // orange
-  '#6366f1', // indigo
-  '#14b8a6', // teal
-  '#e11d48', // rose
-  '#eab308', // yellow
-]
-const rackBandColor = (name: string): string => {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) {
-    hash = (hash * 31 + name.charCodeAt(i)) | 0
-  }
-  return RACK_BAND_PALETTE[Math.abs(hash) % RACK_BAND_PALETTE.length]
-}
+// v7.9.39 — rackBandColor lebt jetzt in '../../lib/rackBandColors' damit
+// die RackLivePreview im 2D Rack Builder identische Band-Farben rendert.
 
 const resolvePortSide = (
   port: EquipmentItem['inputs'][number] | EquipmentItem['outputs'][number],
