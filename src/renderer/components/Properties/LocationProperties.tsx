@@ -1,4 +1,4 @@
-import { useProjectStore } from '../../store/projectStore'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { format, useTranslation } from '../../lib/i18n'

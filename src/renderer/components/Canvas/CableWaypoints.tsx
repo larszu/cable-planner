@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useReactFlow } from 'reactflow'
 import type { Cable, CableWaypoint } from '../../types/cable'
-import { useProjectStore } from '../../store/projectStore'
+import { useCanvasProjectStore as useProjectStore, useCanvasProjectStoreInstance } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 
 interface Props {
@@ -96,6 +96,7 @@ export const CableWaypoints = ({
 }: Props) => {
   const updateCable = useProjectStore((state) => state.updateCable)
   const setSelection = useProjectStore((state) => state.setSelection)
+  const projectStoreInstance = useCanvasProjectStoreInstance()
   const { screenToFlowPosition } = useReactFlow()
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const isLight = (exportThemeOverride ?? canvasTheme) === 'light'
@@ -154,7 +155,7 @@ export const CableWaypoints = ({
       try { el.releasePointerCapture(event.pointerId) } catch { /* ignore */ }
       // After drag ends, collapse any redundant collinear waypoints so that
       // segments that became straight lines don't leave orphan bend-points.
-      const currentWPs = (useProjectStore.getState().project.cables.find(c => c.id === cable.id)?.waypoints) ?? []
+      const currentWPs = (projectStoreInstance.getState().project.cables.find(c => c.id === cable.id)?.waypoints) ?? []
       const cleaned = cleanCollinear(currentWPs, source, target)
       if (cleaned.length !== currentWPs.length) {
         updateCable(cable.id, { waypoints: cleaned.length ? cleaned : undefined })
@@ -310,7 +311,7 @@ export const CableWaypoints = ({
       // bei der nächsten Drag wieder eine "wer normalisiert was?"-
       // Diskrepanz erzeugt.
       const currentWPs =
-        useProjectStore.getState().project.cables.find((c) => c.id === cable.id)?.waypoints ?? []
+        projectStoreInstance.getState().project.cables.find((c) => c.id === cable.id)?.waypoints ?? []
       const cleaned = cleanCollinear(currentWPs, source, target)
       if (cleaned.length !== currentWPs.length) {
         updateCable(cable.id, { waypoints: cleaned.length ? cleaned : undefined })

@@ -8,7 +8,7 @@
 
 import { useMemo, useRef, useState } from 'react'
 import { useReactFlow, useViewport } from 'reactflow'
-import { useProjectStore } from '../../store/projectStore'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import type { ProjectAnnotation } from '../../types/project'
@@ -54,6 +54,7 @@ export const AnnotationCanvasOverlay = () => {
   const updateAnnotation = useProjectStore((s) => s.updateAnnotation)
   const snapToGrid = useUiStore((s) => s.snapToGrid)
   const gridSize = useUiStore((s) => s.gridSize)
+  const annotationsVisible = useUiStore((s) => s.annotationsVisible)
   const { flowToScreenPosition, screenToFlowPosition } = useReactFlow()
   const viewport = useViewport()
   void viewport
@@ -96,6 +97,7 @@ export const AnnotationCanvasOverlay = () => {
   }, [annotations, equipment, greengoConfig])
 
   if (positions.length === 0) return null
+  if (!annotationsVisible) return null
 
   const snap = (n: number): number =>
     snapToGrid && gridSize > 0 ? Math.round(n / gridSize) * gridSize : n
