@@ -1,21 +1,26 @@
-// v7.9.9 — Live-Preview-Pane für den 2D Rack Builder. Zeigt zwei
-// Darstellungen synchron zum Draft:
+// v7.9.40 — Live-Preview im 2D Rack Builder rendert die echte Canvas-
+// Black-Box, weil sie jetzt dieselbe Shared-Komponente nutzt wie
+// EquipmentNode (RackBandsOverlay + RackInternalCablesOverlay). Damit:
+//  - Identische Band-Farben, Position, Header-Style
+//  - Identische Bezier-Geometry, Dash, Opacity, Dots
+//  - Identische Cable-Tooltips (Hover am Pfad zeigt "Intern: A:p ↔ B:p")
 //
-//  1. Schwarz-Box-Card: Wie der Rack als EIN Equipment-Item auf dem
-//     Hauptcanvas aussehen wird. Externe Ports (= alle Ports an
-//     internen Geräten, die NICHT in internal cables verwendet sind)
-//     werden links/rechts gezeigt. So sieht der User vor dem Speichern
-//     wie viele Ports am Rack später anstehen.
+// Pre-v7.9.40 hatte die Preview eine separate Implementierung der
+// Cable-Curves OHNE Tooltips — der User hat das als "die Beschreibungen
+// an den Kabeln vergessen" wahrgenommen. Fix: dasselbe Element rendern.
 //
-//  2. Internal-Wiring-Overlay: Innerhalb des Rack-Bilds werden die
-//     internal cables als gestrichelte Linien zwischen den
-//     Slot-Positionen gezeichnet. So sieht der User welche internen
-//     Verbindungen schon stehen ohne die Wire-Canvas zu öffnen.
-//
-// Beide Views aktualisieren sich live während der User den Draft
-// bearbeitet.
+// Die separate "Interne Verkabelung Schema"-View ist weggefallen — sie
+// duplizierte das was die Black-Box jetzt selbst zeigt.
 
 import { useMemo } from 'react'
+import { rackBandColor } from '../../lib/rackBandColors'
+import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import {
+  RackBandsOverlay,
+  RackInternalCablesOverlay,
+  type BlackBoxBand,
+  type BlackBoxCable,
+} from './blackBoxShared'
 
 interface PreviewPlacement {
   id: string
@@ -41,59 +46,135 @@ interface RackLivePreviewProps {
   cables: PreviewCable[]
 }
 
-const HE_PX = 14
-const HEADER_PX = 28
-const SIDE_PORT_GAP = 14
-const SIDE_DOT = 6
+const PORT_ROW = EQUIPMENT_LAYOUT.PORT_ROW
+const HEADER_HEIGHT = EQUIPMENT_LAYOUT.HEADER_HEIGHT
+const PADDING = EQUIPMENT_LAYOUT.PADDING
+const HANDLE_R = 4
+const BAND_HEADER_ROW = 1
+const GAP_BETWEEN_BANDS = 1
+const BLACK_BOX_WIDTH = 260
+
+interface BandComputed {
+  placement: PreviewPlacement
+  band: BlackBoxBand
+  externalInputs: Array<{ name: string; connectorType: string }>
+  externalOutputs: Array<{ name: string; connectorType: string }>
+}
 
 export const RackLivePreview = ({
   rackName,
-  totalUnits,
+  totalUnits: _totalUnits,
   placements,
   cables,
 }: RackLivePreviewProps) => {
-  const internalsByDevice = useMemo(() => {
-    const used = new Map<string, Set<string>>()
+  void _totalUnits
+
+  // Ports die in internen Kabeln verwendet werden = "intern" und tauchen
+  // nicht als externe Ports an der Black-Box auf (Canvas-Verhalten).
+  const usedPorts = useMemo(() => {
+    const m = new Map<string, Set<string>>()
     for (const c of cables) {
-      if (!used.has(c.fromPlacementId)) used.set(c.fromPlacementId, new Set())
-      if (!used.has(c.toPlacementId)) used.set(c.toPlacementId, new Set())
-      used.get(c.fromPlacementId)!.add(c.fromPortName)
-      used.get(c.toPlacementId)!.add(c.toPortName)
+      if (!m.has(c.fromPlacementId)) m.set(c.fromPlacementId, new Set())
+      if (!m.has(c.toPlacementId)) m.set(c.toPlacementId, new Set())
+      m.get(c.fromPlacementId)!.add(c.fromPortName)
+      m.get(c.toPlacementId)!.add(c.toPortName)
     }
-    return used
+    return m
   }, [cables])
 
-  // Externe Ports: alle die nicht in internal cables verwendet werden.
-  const externalIns = useMemo(() => {
-    const out: Array<{ device: string; port: string; connectorType: string }> = []
-    for (const p of placements) {
-      const used = internalsByDevice.get(p.id) ?? new Set()
-      for (const port of p.inputs) {
-        if (!used.has(port.name)) {
-          out.push({ device: p.name, port: port.name, connectorType: port.connectorType })
-        }
-      }
+  // Bänder aufbauen — sortiert nach HE-Position wie auf dem Canvas.
+  const bandsComputed = useMemo<BandComputed[]>(() => {
+    const sorted = [...placements].sort((a, b) => a.startUnit - b.startUnit)
+    let cursor = 0
+    const result: BandComputed[] = []
+    for (const p of sorted) {
+      const used = usedPorts.get(p.id) ?? new Set<string>()
+      const externalInputs = p.inputs.filter((port) => !used.has(port.name))
+      const externalOutputs = p.outputs.filter((port) => !used.has(port.name))
+      const ports = Math.max(externalInputs.length, externalOutputs.length, 1)
+      const rowSpan = BAND_HEADER_ROW + ports
+      const color = rackBandColor(p.name)
+      result.push({
+        placement: p,
+        band: {
+          key: p.id,
+          topSlot: cursor,
+          rowSpan,
+          color,
+          deviceName: p.name,
+          inputCount: externalInputs.length,
+          outputCount: externalOutputs.length,
+        },
+        externalInputs,
+        externalOutputs,
+      })
+      cursor += rowSpan + GAP_BETWEEN_BANDS
     }
-    return out
-  }, [placements, internalsByDevice])
+    return result
+  }, [placements, usedPorts])
 
-  const externalOuts = useMemo(() => {
-    const out: Array<{ device: string; port: string; connectorType: string }> = []
-    for (const p of placements) {
-      const used = internalsByDevice.get(p.id) ?? new Set()
-      for (const port of p.outputs) {
-        if (!used.has(port.name)) {
-          out.push({ device: p.name, port: port.name, connectorType: port.connectorType })
-        }
+  // Port-Anker (x, y, side) für jeden Port — extern an der jeweiligen
+  // Slot-Y-Position, intern in der Mitte des Bandes (gleich wie Canvas).
+  const portAnchorByKey = useMemo(() => {
+    type Anchor = { x: number; y: number; side: 'left' | 'right' }
+    const m = new Map<string, Anchor>()
+    for (const bc of bandsComputed) {
+      const bandTopPx = HEADER_HEIGHT + bc.band.topSlot * PORT_ROW
+      const portsTopPx = bandTopPx + BAND_HEADER_ROW * PORT_ROW
+      const internalCenterY = bandTopPx + (bc.band.rowSpan * PORT_ROW) / 2
+      const externalInputIdx = new Map(bc.externalInputs.map((p, i) => [p.name, i]))
+      const externalOutputIdx = new Map(bc.externalOutputs.map((p, i) => [p.name, i]))
+      for (const port of bc.placement.inputs) {
+        const idx = externalInputIdx.get(port.name)
+        const y =
+          idx != null
+            ? portsTopPx + idx * PORT_ROW + PORT_ROW / 2
+            : internalCenterY
+        m.set(`${bc.placement.id}:${port.name}`, { x: 0, y, side: 'left' })
+      }
+      for (const port of bc.placement.outputs) {
+        const idx = externalOutputIdx.get(port.name)
+        const y =
+          idx != null
+            ? portsTopPx + idx * PORT_ROW + PORT_ROW / 2
+            : internalCenterY
+        m.set(`${bc.placement.id}:${port.name}`, { x: BLACK_BOX_WIDTH, y, side: 'right' })
       }
     }
-    return out
-  }, [placements, internalsByDevice])
+    return m
+  }, [bandsComputed])
 
   const placementById = useMemo(
     () => new Map(placements.map((p) => [p.id, p])),
     [placements],
   )
+
+  // Cables in das shared BlackBoxCable-Format umrechnen — identische
+  // Anchor-Berechnung wie EquipmentNode, damit der gerenderte Pfad
+  // exakt gleich aussieht.
+  const blackBoxCables = useMemo<BlackBoxCable[]>(() => {
+    const list: BlackBoxCable[] = []
+    for (let i = 0; i < cables.length; i++) {
+      const c = cables[i]
+      const a = portAnchorByKey.get(`${c.fromPlacementId}:${c.fromPortName}`)
+      const b = portAnchorByKey.get(`${c.toPlacementId}:${c.toPortName}`)
+      if (!a || !b) continue
+      const fromName = placementById.get(c.fromPlacementId)?.name ?? '?'
+      const toName = placementById.get(c.toPlacementId)?.name ?? '?'
+      list.push({
+        key: String(i),
+        ax: a.x,
+        ay: a.y,
+        aSide: a.side,
+        bx: b.x,
+        by: b.y,
+        bSide: b.side,
+        color: c.color ?? '#94a3b8',
+        label: `Intern: ${fromName}:${c.fromPortName} ↔ ${toName}:${c.toPortName}`,
+      })
+    }
+    return list
+  }, [cables, portAnchorByKey, placementById])
 
   if (placements.length === 0) {
     return (
@@ -103,289 +184,114 @@ export const RackLivePreview = ({
     )
   }
 
-  // Schwarz-Box: Höhe wird durch grössere Port-Liste bestimmt
-  const totalExtPorts = Math.max(externalIns.length, externalOuts.length, 1)
-  const blackBoxHeight = Math.max(80, HEADER_PX + totalExtPorts * SIDE_PORT_GAP + 12)
-  // v7.9.10 — Card wider damit "device:port"-Labels nicht abgeschnitten
-  // werden. Bei vielen externen Ports + langen Geräte-Namen sind
-  // 240px ein guter Default.
-  const blackBoxWidth = 260
-
-  // Internal Wiring SVG: Rack-Inneres als Slot-Stack
-  const rackInnerHeight = totalUnits * HE_PX
-  const rackInnerWidth = 80
+  const totalSlots = bandsComputed.reduce(
+    (acc, b) => Math.max(acc, b.band.topSlot + b.band.rowSpan),
+    0,
+  )
+  const blackBoxHeight = HEADER_HEIGHT + totalSlots * PORT_ROW + PADDING
+  const bands: ReadonlyArray<BlackBoxBand> = bandsComputed.map((bc) => bc.band)
 
   return (
-    <div className="space-y-3">
-      {/* --- View 1: Black-Box (so sieht es auf dem Canvas aus) --- */}
-      <div>
-        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+    <div>
+      <div className="mb-1 flex items-center justify-between">
+        <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
           Black-Box auf Canvas
         </div>
-        <div className="flex items-center justify-center rounded border border-slate-700 bg-slate-950/60 p-3">
-          <div
-            className="relative rounded border-2 border-slate-500 bg-slate-900 shadow-lg"
-            style={{ width: blackBoxWidth, height: blackBoxHeight }}
-          >
-            <div
-              className="border-b border-slate-700 bg-slate-800/90 px-2 text-[10px] font-semibold text-slate-100"
-              style={{ lineHeight: `${HEADER_PX - 4}px`, paddingTop: 2 }}
-              title={rackName}
-            >
-              {(rackName || '(unbenannt)').slice(0, 28)}
-              {(rackName || '').length > 28 ? '…' : ''}
-              <span className="ml-1 text-[8px] font-normal text-slate-500">
-                ({placements.length} Geräte)
-              </span>
-            </div>
-            {externalIns.map((port, idx) => (
-              <div
-                key={`in-${idx}`}
-                className="absolute left-0 flex items-center gap-1"
-                style={{ top: HEADER_PX + 4 + idx * SIDE_PORT_GAP, transform: 'translateX(-50%)' }}
-                title={`${port.device}: ${port.port} (${port.connectorType})`}
-              >
-                <span
-                  className="rounded-full border border-slate-700"
-                  style={{ width: SIDE_DOT, height: SIDE_DOT, background: '#10b981' }}
-                />
-              </div>
-            ))}
-            {externalIns.map((port, idx) => (
-              <div
-                key={`in-lbl-${idx}`}
-                className="absolute truncate text-[8px] text-slate-300"
-                style={{
-                  left: SIDE_DOT + 4,
-                  top: HEADER_PX + idx * SIDE_PORT_GAP,
-                  maxWidth: blackBoxWidth / 2 - 8,
-                }}
-                title={`${port.device}: ${port.port} (${port.connectorType})`}
-              >
-                <span className="text-slate-500">{port.device.slice(0, 8)}{port.device.length > 8 ? '…' : ''}:</span>
-                <span className="font-semibold text-slate-200">{port.port}</span>
-              </div>
-            ))}
-            {externalOuts.map((port, idx) => (
-              <div
-                key={`out-${idx}`}
-                className="absolute right-0 flex items-center gap-1"
-                style={{ top: HEADER_PX + 4 + idx * SIDE_PORT_GAP, transform: 'translateX(50%)' }}
-                title={`${port.device}: ${port.port} (${port.connectorType})`}
-              >
-                <span
-                  className="rounded-full border border-slate-700"
-                  style={{ width: SIDE_DOT, height: SIDE_DOT, background: '#0ea5e9' }}
-                />
-              </div>
-            ))}
-            {externalOuts.map((port, idx) => (
-              <div
-                key={`out-lbl-${idx}`}
-                className="absolute truncate text-right text-[8px] text-slate-300"
-                style={{
-                  right: SIDE_DOT + 4,
-                  top: HEADER_PX + idx * SIDE_PORT_GAP,
-                  maxWidth: blackBoxWidth / 2 - 8,
-                }}
-                title={`${port.device}: ${port.port} (${port.connectorType})`}
-              >
-                <span className="font-semibold text-slate-200">{port.port}</span>
-                <span className="text-slate-500">:{port.device.slice(0, 8)}{port.device.length > 8 ? '…' : ''}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="mt-1 grid grid-cols-2 gap-2 text-[10px] text-slate-400">
-          <div>
-            <span className="text-emerald-400">●</span> {externalIns.length} ext. Inputs
-          </div>
-          <div className="text-right">
-            <span className="text-sky-400">●</span> {externalOuts.length} ext. Outputs
-          </div>
+        <div className="text-[10px] text-slate-500">
+          {placements.length} Geräte · {cables.length} interne Kabel
         </div>
       </div>
-
-      {/* --- View 2: Internal Wiring Schema --- */}
-      <div>
-        <div className="mb-1 flex items-center justify-between">
-          <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-            Interne Verkabelung
-          </div>
-          <div className="text-[10px] text-slate-500">{cables.length} Kabel</div>
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-950/60 p-2">
-          <svg
-            width="100%"
-            height={rackInnerHeight + 12}
-            viewBox={`0 0 ${rackInnerWidth + 200} ${rackInnerHeight + 12}`}
-            style={{ display: 'block' }}
+      <div className="flex items-start justify-center rounded border border-slate-700 bg-slate-950/60 p-3">
+        <div
+          className="relative rounded border-2 border-slate-500 bg-slate-900 shadow-lg"
+          style={{ width: BLACK_BOX_WIDTH, height: blackBoxHeight }}
+        >
+          {/* Header — gleicher Look wie EquipmentNode-Card-Header */}
+          <div
+            className="border-b border-slate-700 bg-slate-800/90 px-2 text-[11px] font-semibold text-slate-100"
+            style={{
+              lineHeight: `${HEADER_HEIGHT - 6}px`,
+              height: HEADER_HEIGHT,
+              paddingTop: 3,
+              boxSizing: 'border-box',
+            }}
+            title={rackName}
           >
-            {/* Rack-Slots */}
-            {Array.from({ length: totalUnits }).map((_, i) => (
-              <line
-                key={`grid-${i}`}
-                x1={0}
-                y1={6 + i * HE_PX}
-                x2={rackInnerWidth}
-                y2={6 + i * HE_PX}
-                stroke="#1e293b"
-                strokeWidth={0.5}
-              />
-            ))}
-            <rect
-              x={0}
-              y={6}
-              width={rackInnerWidth}
-              height={rackInnerHeight}
-              fill="none"
-              stroke="#475569"
-              strokeWidth={1}
-            />
-            {placements.map((p) => {
-              const top = 6 + (p.startUnit - 1) * HE_PX
-              const h = p.rackUnits * HE_PX
-              return (
-                <g key={p.id}>
-                  <rect
-                    x={2}
-                    y={top}
-                    width={rackInnerWidth - 4}
-                    height={h - 1}
-                    fill="#334155"
-                    stroke="#64748b"
-                    strokeWidth={0.5}
-                    rx={2}
-                  />
-                  <text
-                    x={rackInnerWidth / 2}
-                    y={top + h / 2 + 3}
-                    fill="#e2e8f0"
-                    fontSize={Math.min(9, h - 2)}
-                    textAnchor="middle"
-                  >
-                    {p.name.slice(0, 14)}
-                  </text>
-                </g>
-              )
-            })}
-            {/* v7.9.10 — Pro Gerät bekommt jeder beteiligte Port einen
-                eigenen Slot entlang der Geräte-Höhe. Vorher landeten
-                alle Kabel auf dem Geräte-Center → bei mehreren Kabeln
-                stack-overlap. Jetzt distinct Port-Stub-Position pro
-                Port-Name. */}
-            {(() => {
-              const portSlotsByDevice = new Map<string, string[]>()
-              for (const c of cables) {
-                if (!portSlotsByDevice.has(c.fromPlacementId))
-                  portSlotsByDevice.set(c.fromPlacementId, [])
-                if (!portSlotsByDevice.has(c.toPlacementId))
-                  portSlotsByDevice.set(c.toPlacementId, [])
-                const fromList = portSlotsByDevice.get(c.fromPlacementId)!
-                if (!fromList.includes(c.fromPortName)) fromList.push(c.fromPortName)
-                const toList = portSlotsByDevice.get(c.toPlacementId)!
-                if (!toList.includes(c.toPortName)) toList.push(c.toPortName)
-              }
-              const portSlotY = (placementId: string, portName: string): number => {
-                const p = placementById.get(placementId)
-                if (!p) return 6
-                const itemTop = 6 + (p.startUnit - 1) * HE_PX
-                const itemH = p.rackUnits * HE_PX
-                const slots = portSlotsByDevice.get(placementId) ?? [portName]
-                const idx = Math.max(0, slots.indexOf(portName))
-                const count = slots.length
-                if (count <= 1) return itemTop + itemH / 2
-                const usable = itemH * 0.8
-                const startY = itemTop + itemH * 0.1
-                return startY + (idx / (count - 1)) * usable
-              }
+            {(rackName || '(unbenannt)').slice(0, 32)}
+            {(rackName || '').length > 32 ? '…' : ''}
+          </div>
 
+          {/* Bänder — geteilte Komponente, identisch zum Canvas. */}
+          <RackBandsOverlay
+            bands={bands}
+            headerHeight={HEADER_HEIGHT}
+            isLight={false}
+          />
+
+          {/* Externe Port-Dots (Preview-spezifisch — auf Canvas sind das
+              echte ReactFlow-Handles, hier zeigen wir nur ihre Position). */}
+          {bandsComputed.flatMap((bc) =>
+            bc.externalInputs.map((port, idx) => {
+              const y =
+                HEADER_HEIGHT +
+                (bc.band.topSlot + BAND_HEADER_ROW + idx) * PORT_ROW +
+                PORT_ROW / 2
               return (
-                <>
-                  {/* Port-Stub-Markers + Labels pro Gerät */}
-                  {Array.from(portSlotsByDevice.entries()).flatMap(([pid, ports]) =>
-                    ports.map((portName, idx) => {
-                      const y = portSlotY(pid, portName)
-                      return (
-                        <g key={`stub-${pid}-${idx}`}>
-                          <circle
-                            cx={rackInnerWidth}
-                            cy={y}
-                            r={2}
-                            fill="#94a3b8"
-                          />
-                          <text
-                            x={rackInnerWidth + 5}
-                            y={y + 2}
-                            fill="#64748b"
-                            fontSize={7}
-                          >
-                            {portName}
-                          </text>
-                        </g>
-                      )
-                    }),
-                  )}
-                  {/* Kabel zwischen Port-Stubs */}
-                  {cables.map((c, i) => {
-                    const from = placementById.get(c.fromPlacementId)
-                    const to = placementById.get(c.toPlacementId)
-                    if (!from || !to) return null
-                    const y1 = portSlotY(c.fromPlacementId, c.fromPortName)
-                    const y2 = portSlotY(c.toPlacementId, c.toPortName)
-                    const x1 = rackInnerWidth
-                    const bulge = 30 + Math.min(40, Math.abs(y2 - y1) * 0.25)
-                    const midX = x1 + bulge
-                    const color = c.color ?? '#0ea5e9'
-                    return (
-                      <path
-                        key={`cable-${i}`}
-                        d={`M ${x1} ${y1} C ${midX} ${y1} ${midX} ${y2} ${x1} ${y2}`}
-                        fill="none"
-                        stroke={color}
-                        strokeWidth={1.4}
-                        strokeDasharray="3 2"
-                        opacity={0.85}
-                      />
-                    )
-                  })}
-                </>
+                <div
+                  key={`pin-in-${bc.placement.id}-${port.name}`}
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: y,
+                    transform: 'translate(-50%, -50%)',
+                    width: HANDLE_R * 2,
+                    height: HANDLE_R * 2,
+                    borderRadius: '50%',
+                    background: bc.band.color,
+                    border: '1px solid #0f172a',
+                    boxSizing: 'border-box',
+                  }}
+                  title={`${bc.placement.name}: ${port.name} (${port.connectorType})`}
+                />
               )
-            })()}
-            {cables.length === 0 && (
-              <text
-                x={rackInnerWidth + 30}
-                y={rackInnerHeight / 2}
-                fill="#64748b"
-                fontSize={9}
-                textAnchor="middle"
-              >
-                Keine internen Kabel
-              </text>
-            )}
-          </svg>
+            }),
+          )}
+          {bandsComputed.flatMap((bc) =>
+            bc.externalOutputs.map((port, idx) => {
+              const y =
+                HEADER_HEIGHT +
+                (bc.band.topSlot + BAND_HEADER_ROW + idx) * PORT_ROW +
+                PORT_ROW / 2
+              return (
+                <div
+                  key={`pin-out-${bc.placement.id}-${port.name}`}
+                  style={{
+                    position: 'absolute',
+                    right: 0,
+                    top: y,
+                    transform: 'translate(50%, -50%)',
+                    width: HANDLE_R * 2,
+                    height: HANDLE_R * 2,
+                    borderRadius: '50%',
+                    background: bc.band.color,
+                    border: '1px solid #0f172a',
+                    boxSizing: 'border-box',
+                  }}
+                  title={`${bc.placement.name}: ${port.name} (${port.connectorType})`}
+                />
+              )
+            }),
+          )}
+
+          {/* Interne Kabel-Curves — geteilte Komponente, exakt wie Canvas
+              inkl. <title>-Tooltip ("Intern: A:p ↔ B:p"). */}
+          <RackInternalCablesOverlay
+            cables={blackBoxCables}
+            width={BLACK_BOX_WIDTH}
+            height={blackBoxHeight}
+            isLight={false}
+          />
         </div>
-        {cables.length > 0 && (
-          <ul className="mt-1 max-h-32 space-y-0.5 overflow-auto text-[10px] text-slate-400">
-            {cables.slice(0, 20).map((c, i) => {
-              const from = placementById.get(c.fromPlacementId)
-              const to = placementById.get(c.toPlacementId)
-              if (!from || !to) return null
-              return (
-                <li key={`list-${i}`} className="truncate">
-                  <span
-                    className="mr-1 inline-block h-1.5 w-1.5 rounded-full"
-                    style={{ background: c.color ?? '#0ea5e9' }}
-                  />
-                  {from.name}:{c.fromPortName} → {to.name}:{c.toPortName}
-                </li>
-              )
-            })}
-            {cables.length > 20 && (
-              <li className="text-[9px] italic text-slate-600">… und {cables.length - 20} weitere</li>
-            )}
-          </ul>
-        )}
       </div>
     </div>
   )
