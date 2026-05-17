@@ -41,11 +41,9 @@ import {
 import { RackBuilderDialog } from '../Rack/RackBuilderDialog'
 import { TemplateMergeDialog } from './TemplateMergeDialog'
 import { LibraryItem } from './LibraryItem'
-import {
-  exportTemplateToFile,
-  exportPresetToFile,
-  parseLibraryItemFile,
-} from '../../lib/itemExport'
+import { parseLibraryItemFile } from '../../lib/itemExport'
+import { openLibraryFolder } from '../../lib/librarySync'
+import { hasDesktopBridge } from '../../lib/bridge'
 import { CableLibraryPanel } from './CableLibraryPanel'
 
 const connectorOptions = ALL_CONNECTOR_TYPES
@@ -85,10 +83,14 @@ const PlusMenu = ({
   onNewDevice,
   onNewCategory,
   onImportFile,
+  onOpenFolder,
+  hasFolder,
 }: {
   onNewDevice: () => void
   onNewCategory: () => void
   onImportFile: () => void
+  onOpenFolder: () => void
+  hasFolder: boolean
 }) => {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -153,6 +155,20 @@ const PlusMenu = ({
           >
             Datei importieren…
           </button>
+          {hasFolder && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setOpen(false)
+                onOpenFolder()
+              }}
+              className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+              title="Library-Ordner im Datei-Manager öffnen"
+            >
+              Bibliotheks-Ordner öffnen…
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -1317,6 +1333,8 @@ export const LibraryPanel = () => {
                 setTimeout(() => newGroupInputRef.current?.focus(), 50)
               }}
               onImportFile={handleImportLibraryFile}
+              onOpenFolder={() => void openLibraryFolder()}
+              hasFolder={hasDesktopBridge}
             />
             {/* Overflow-Menü für selten genutzte Filter (Leere/Versteckte/Alle ein-aus) */}
             <LibraryFiltersMenu
@@ -1543,7 +1561,6 @@ export const LibraryPanel = () => {
                                 onRemove={() => removeCustomTemplate(item.name)}
                                 onToggleFavorite={() => toggleTemplateFavorite(item.name)}
                                 onToggleHidden={() => toggleTemplateHidden(item.name)}
-                                onExport={() => exportTemplateToFile(item)}
                               />
                               {/* Edit button — appears on hover */}
                               <button
@@ -1793,7 +1810,6 @@ export const LibraryPanel = () => {
                                                     ...nextPlacementPosition(equipmentCount, equipmentItems),
                                                   })
                                                 }}
-                                                onExport={() => exportTemplateToFile(item)}
                                               />
                                             ))}
                                         </div>
@@ -2124,18 +2140,6 @@ export const LibraryPanel = () => {
                             <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
                               <button
                                 type="button"
-                                onClick={(event) => {
-                                  event.stopPropagation()
-                                  exportPresetToFile(preset)
-                                }}
-                                className="rounded bg-slate-700 px-1 text-[11px] text-slate-300 hover:bg-slate-600"
-                                title="Als .cpgroup-Datei exportieren (inkl. interner Kabel)"
-                                aria-label="Exportieren"
-                              >
-                                ⬇
-                              </button>
-                              <button
-                                type="button"
                                 onClick={async (event) => {
                                   event.stopPropagation()
                                   if (await confirmDialog(`Gruppe "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
@@ -2239,18 +2243,6 @@ export const LibraryPanel = () => {
                             aria-label="Bearbeiten"
                           >
                             ✎
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              event.stopPropagation()
-                              exportPresetToFile(preset)
-                            }}
-                            className="rounded bg-slate-700 px-1 py-0.5 text-[11px] text-slate-300 hover:bg-slate-600"
-                            title="Als .cpgroup-Datei exportieren"
-                            aria-label="Exportieren"
-                          >
-                            ⬇
                           </button>
                           <button
                             type="button"
