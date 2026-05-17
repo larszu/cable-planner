@@ -7,6 +7,7 @@ import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { RoutingToggle } from '../shared/RoutingToggle'
 import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { infoDialog } from '../../lib/infoDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { getGeminiApiKey, setGeminiApiKey } from '../../lib/aiSuggestions'
 import { format, useTranslation } from '../../lib/i18n'
@@ -225,7 +226,10 @@ const LibraryExportSection = () => {
       const text = await file.text()
       const data = JSON.parse(text) as LibraryExportFile
       if (data?.type !== 'cable-planner-library') {
-        window.alert('Diese Datei ist keine cable-planner-Library (falscher type).')
+        await infoDialog('Falsches Dateiformat', {
+          body: 'Diese Datei ist keine cable-planner-Library.',
+          tone: 'error',
+        })
         return
       }
       // Merge-by-name: addCustomTemplates only adds entries whose name
@@ -246,15 +250,18 @@ const LibraryExportSection = () => {
         }
         setGroupPresets(Array.from(byId.values()))
       }
-      window.alert(
-        `Library importiert: ${data.customLibrary?.length ?? 0} Geräte-Templates, ${
-          data.groupPresets?.length ?? 0
-        } Gruppen-Presets (nur neue Einträge — vorhandene wurden NICHT überschrieben).`,
-      )
+      await infoDialog('Library importiert', {
+        body:
+          `${data.customLibrary?.length ?? 0} Geräte-Templates · ` +
+          `${data.groupPresets?.length ?? 0} Gruppen-Presets\n\n` +
+          'Nur neue Einträge wurden hinzugefügt — vorhandene Templates bleiben unverändert.',
+        tone: 'success',
+      })
     } catch (err) {
-      window.alert(
-        `Import fehlgeschlagen:\n\n${err instanceof Error ? err.message : String(err)}`,
-      )
+      await infoDialog('Import fehlgeschlagen', {
+        body: err instanceof Error ? err.message : String(err),
+        tone: 'error',
+      })
     } finally {
       setImportBusy(false)
     }
@@ -1654,12 +1661,20 @@ const ConfigsTab = () => {
     try {
       const parsed = JSON.parse(file.content) as { version?: number; library?: DeviceConfigEntry[] }
       if (!parsed.library || !Array.isArray(parsed.library)) {
-        window.alert('Datei enthält kein gültiges Konfigurations-Bundle.')
+        await infoDialog('Ungültiges Konfigurations-Bundle', {
+          body: 'Die Datei enthält kein cable-planner-Konfigurations-Bundle.',
+          tone: 'error',
+        })
         return
       }
-      const replace = window.confirm(
-        `${parsed.library.length} Konfigurationen aus der Datei laden?\n\nOK = bestehende Bibliothek ersetzen\nAbbrechen = neue Konfigurationen anhängen`,
-      )
+      const replace = await confirmDialog(`${parsed.library.length} Konfigurationen laden`, {
+        body:
+          '"Ersetzen" = bestehende Bibliothek wird überschrieben.\n' +
+          '"Anhängen" = neue Konfigurationen werden hinzugefügt, bestehende bleiben.',
+        okLabel: 'Ersetzen',
+        cancelLabel: 'Anhängen',
+        destructive: true,
+      })
       if (replace) {
         replaceDeviceConfigLibrary(parsed.library)
       } else {
@@ -1672,7 +1687,10 @@ const ConfigsTab = () => {
         }
       }
     } catch (err) {
-      window.alert(`Fehler beim Import: ${err instanceof Error ? err.message : String(err)}`)
+      await infoDialog('Fehler beim Import', {
+        body: err instanceof Error ? err.message : String(err),
+        tone: 'error',
+      })
     }
   }
 
@@ -1835,11 +1853,13 @@ const ConfigsTab = () => {
                           </button>
                           <button
                             type="button"
-                            onClick={() => {
+                            onClick={async () => {
                               if (
-                                window.confirm(
-                                  `Konfiguration "${entry.name}" löschen? Die Datei selbst auf der Festplatte bleibt unverändert.`,
-                                )
+                                await confirmDialog(`Konfiguration "${entry.name}" löschen?`, {
+                                  body: 'Die Datei selbst auf der Festplatte bleibt unverändert.',
+                                  okLabel: 'Löschen',
+                                  destructive: true,
+                                })
                               ) {
                                 removeDeviceConfig(entry.id)
                               }
@@ -2013,14 +2033,15 @@ const AdvancedTab = () => {
       return
     try {
       localStorage.removeItem(key)
-      window.alert(
+      await infoDialog(
         format(
-          t(
-            'settings.advanced.caches.cleared',
-            '{label} geleert. Beim nächsten Start wird neu geladen.',
-          ),
+          t('settings.advanced.caches.cleared', '{label} geleert.'),
           { label },
         ),
+        {
+          body: 'Beim nächsten Start wird neu geladen.',
+          tone: 'success',
+        },
       )
     } catch {
       /* ignore */

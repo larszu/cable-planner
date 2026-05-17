@@ -23,6 +23,7 @@ import { detectDeviceKind, detectNetworkDevice } from '../../lib/deviceKind'
 import { ModeEditorDialog } from './ModeEditorDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { infoDialog } from '../../lib/infoDialog'
 import { useGreenGoBeltpack } from '../../lib/greengoSync'
 import { exportDevicePatchSheet } from '../../lib/exportDevicePdf'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
@@ -222,9 +223,10 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
       (p) => p.id !== sourcePortId && p.connectorType === 'BNC' && !p.quadLinkGroup,
     )
     if (freeBncPorts.length === 0) {
-      alert(
-        `Quad-Link Set ${g} hat nur ${haveCount}/4 Ports. Es sind keine weiteren freien BNC-Ports verfügbar — bitte zuerst BNC-Ports hinzufügen oder bestehende freigeben.`,
-      )
+      await infoDialog(`Quad-Link Set ${g} unvollständig`, {
+        body: `Hat nur ${haveCount}/4 Ports. Keine weiteren freien BNC-Ports verfügbar — bitte zuerst BNC-Ports hinzufügen oder bestehende freigeben.`,
+        tone: 'warning',
+      })
       return
     }
     const ok = await confirmDialog(
@@ -278,9 +280,10 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
           )
         }
       } else if (needed > 0) {
-        alert(
-          `Quad-Link Set ${newId} hat ${haveCount}/4 Ports. Bitte weitere BNC-Ports anlegen und ebenfalls dem Set zuweisen.`,
-        )
+        await infoDialog(`Quad-Link Set ${newId} angelegt`, {
+          body: `Hat aktuell ${haveCount}/4 Ports. Bitte weitere BNC-Ports anlegen und ebenfalls dem Set zuweisen.`,
+          tone: 'info',
+        })
       }
       return
     }
@@ -335,10 +338,10 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
                 <select
                   aria-label="Connector type"
                   value={port.connectorType}
-                  onChange={(event) => {
+                  onChange={async (event) => {
                     const v = event.target.value
                     if (v === '__new__') {
-                      const name = window.prompt('Neuer Stecker-Typ (z.B. "Speakon NL4"):')?.trim()
+                      const name = (await promptDialog('Neuer Stecker-Typ (z.B. "Speakon NL4"):'))?.trim()
                       if (name) {
                         addCustomConnectorType(name)
                         updatePort(port.id, { connectorType: name as ConnectorType, type: name })
@@ -365,10 +368,10 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
                 <select
                   aria-label="Signal standard"
                   value={port.standard ?? ''}
-                  onChange={(event) => {
+                  onChange={async (event) => {
                     const v = event.target.value
                     if (v === '__new__') {
-                      const name = window.prompt('Neuer Signal-Standard (z.B. "Dante Primary"):')?.trim()
+                      const name = (await promptDialog('Neuer Signal-Standard (z.B. "Dante Primary"):'))?.trim()
                       if (name) {
                         addCustomSignalStandard(name)
                         updatePort(port.id, { standard: name as SignalStandard })
@@ -1150,11 +1153,11 @@ const DeviceModePicker = ({
     setEditorState(null)
   }
 
-  const createModeFromPorts = () => {
-    const name = window.prompt(
+  const createModeFromPorts = async () => {
+    const name = (await promptDialog(
       'Name des neuen Modus (z. B. "12G Single-Link" / "HDMI Output Mode"):',
       `Modus ${modes.length + 1}`,
-    )?.trim()
+    ))?.trim()
     if (!name) return
     const newMode = {
       id: `mode:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 5)}`,
@@ -1168,21 +1171,21 @@ const DeviceModePicker = ({
     })
   }
 
-  const renameMode = (modeId: string) => {
+  const renameMode = async (modeId: string) => {
     const mode = modes.find((m) => m.id === modeId)
     if (!mode) return
-    const name = window.prompt('Modus-Name:', mode.name)?.trim()
+    const name = (await promptDialog('Modus-Name:', mode.name))?.trim()
     if (!name) return
     updateEquipment(equipment.id, {
       modes: modes.map((m) => (m.id === modeId ? { ...m, name } : m)),
     })
   }
 
-  const editDescription = (modeId: string) => {
+  const editDescription = async (modeId: string) => {
     const mode = modes.find((m) => m.id === modeId)
     if (!mode) return
-    const desc = window.prompt(
-      'Kurze Beschreibung (z. B. "1× 12G IN, 4× HDMI OUT"):',
+    const desc = await promptDialog(
+      'Kurze Beschreibung (z. B. "1x 12G IN, 4x HDMI OUT"):',
       mode.description ?? '',
     )
     if (desc === null) return
@@ -1191,23 +1194,27 @@ const DeviceModePicker = ({
     })
   }
 
-  const deleteMode = (modeId: string) => {
+  const deleteMode = async (modeId: string) => {
     const mode = modes.find((m) => m.id === modeId)
     if (!mode) return
-    if (!window.confirm(`Modus "${mode.name}" löschen? Die zugehörigen Ports bleiben am Gerät erhalten.`)) return
+    if (!(await confirmDialog(`Modus "${mode.name}" löschen?`, {
+      body: 'Die zugehörigen Ports bleiben am Gerät erhalten.',
+      okLabel: 'Löschen',
+      destructive: true,
+    }))) return
     updateEquipment(equipment.id, {
       modes: modes.filter((m) => m.id !== modeId),
       activeModeId: active === modeId ? undefined : active,
     })
   }
 
-  const captureCurrentPortsToMode = (modeId: string) => {
+  const captureCurrentPortsToMode = async (modeId: string) => {
     const mode = modes.find((m) => m.id === modeId)
     if (!mode) return
     if (
-      !window.confirm(
-        `Aktuelles Port-Layout (${equipment.inputs.length} In, ${equipment.outputs.length} Out) als neue Definition für "${mode.name}" speichern?`,
-      )
+      !(await confirmDialog(`Aktuelles Port-Layout als Definition für "${mode.name}" speichern?`, {
+        body: `${equipment.inputs.length} Inputs · ${equipment.outputs.length} Outputs`,
+      }))
     )
       return
     updateEquipment(equipment.id, {
@@ -2093,12 +2100,18 @@ export const EquipmentProperties = () => {
         <div className="flex flex-col gap-1">
           <button
             type="button"
-            onClick={() => {
+            onClick={async () => {
               const existing = customLibrary.find((t) => t.name === equipment.name)
-              const msg = existing
-                ? `"${equipment.name}" existiert bereits in der Bibliothek. Mit den aktuellen Einstellungen dieses Geräts überschreiben?`
-                : `"${equipment.name}" als neue Standard-Vorlage in der Bibliothek speichern?`
-              if (window.confirm(msg)) {
+              const ok = existing
+                ? await confirmDialog(`"${equipment.name}" überschreiben?`, {
+                    body: 'Existiert bereits in der Bibliothek. Mit den aktuellen Einstellungen dieses Geräts überschreiben?',
+                    okLabel: 'Überschreiben',
+                    destructive: true,
+                  })
+                : await confirmDialog(`"${equipment.name}" speichern?`, {
+                    body: 'Als neue Standard-Vorlage in der Bibliothek speichern.',
+                  })
+              if (ok) {
                 saveEquipmentAsTemplate(equipment.id)
               }
             }}
@@ -2121,9 +2134,10 @@ export const EquipmentProperties = () => {
               const trimmed = input.trim()
               if (!trimmed) return
               if (customLibrary.some((t) => t.name === trimmed)) {
-                window.alert(
-                  `"${trimmed}" existiert bereits. Bitte einen anderen Namen wählen oder die bestehende Vorlage überschreiben.`,
-                )
+                await infoDialog(`"${trimmed}" existiert bereits`, {
+                  body: 'Bitte einen anderen Namen wählen oder die bestehende Vorlage überschreiben.',
+                  tone: 'warning',
+                })
                 return
               }
               saveEquipmentAsNewTemplate(equipment.id, trimmed, equipment.category)

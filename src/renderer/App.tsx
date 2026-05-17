@@ -68,6 +68,9 @@ import {
   videoFormatById,
   type VideoFormatId,
 } from './types/videoFormat'
+import { confirmDialog } from './lib/confirmDialog'
+import { promptDialog } from './lib/promptDialog'
+import { infoDialog } from './lib/infoDialog'
 
 export default function App() {
   const project = useProjectStore((state) => state.project)
@@ -331,9 +334,10 @@ export default function App() {
       })
     } catch (error) {
       console.error(`${format.toUpperCase()} export failed:`, error)
-      alert(
-        `${format.toUpperCase()} export failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      )
+      await infoDialog(`${format.toUpperCase()}-Export fehlgeschlagen`, {
+        body: error instanceof Error ? error.message : 'Unbekannter Fehler',
+        tone: 'error',
+      })
     }
   }
 
@@ -342,21 +346,26 @@ export default function App() {
   // Planner und werden beim ersten Mal nach ihrem Namen gefragt.
   const handleExportViewer = async () => {
     if (!hasDesktopBridge) {
-      window.alert('Viewer-Export erfordert die Desktop-App.')
+      await infoDialog('Viewer-Export erfordert die Desktop-App.', { tone: 'warning' })
       return
     }
     try {
       const path = await cablePlannerApi.project.exportViewer(project)
       if (path) {
-        window.alert(
-          `Viewer-Datei gespeichert:\n\n${path}\n\n` +
-            'Sende sie an deine Freelancer/Helfer. Beim Öffnen werden sie nach\n' +
+        await infoDialog('Viewer-Datei gespeichert', {
+          body:
+            `${path}\n\n` +
+            'Sende sie an deine Freelancer/Helfer. Beim Öffnen werden sie nach ' +
             'ihrem Namen gefragt — Anmerkungen sind dann automatisch attributiert.',
-        )
+          tone: 'success',
+        })
       }
     } catch (error) {
       console.error('Viewer export failed:', error)
-      window.alert(`Viewer-Export fehlgeschlagen: ${(error as Error).message}`)
+      await infoDialog('Viewer-Export fehlgeschlagen', {
+        body: (error as Error).message,
+        tone: 'error',
+      })
     }
   }
 
@@ -365,7 +374,7 @@ export default function App() {
   // project.annotations[] hinzu (ID-basierte De-Duplikation).
   const handleImportAnnotations = async () => {
     if (!hasDesktopBridge) {
-      window.alert('Annotations-Re-Import erfordert die Desktop-App.')
+      await infoDialog('Annotations-Re-Import erfordert die Desktop-App.', { tone: 'warning' })
       return
     }
     const result = await cablePlannerApi.project.importAnnotations()
@@ -381,10 +390,12 @@ export default function App() {
       addAnnotation(a as import('./types/project').ProjectAnnotation)
       imported++
     }
-    window.alert(
-      `${imported} neue Anmerkung${imported === 1 ? '' : 'en'} importiert.\n` +
-        `(${incoming.length - imported} bereits vorhanden, übersprungen.)`,
-    )
+    await infoDialog('Annotations importiert', {
+      body:
+        `${imported} neue Anmerkung${imported === 1 ? '' : 'en'} importiert.\n` +
+        `${incoming.length - imported} bereits vorhanden — übersprungen.`,
+      tone: 'success',
+    })
   }
 
   const handleExportPdf = async (theme: 'dark' | 'light' = canvasTheme) => {
@@ -402,7 +413,10 @@ export default function App() {
       })
     } catch (error) {
       console.error('PDF export failed:', error)
-      alert(`PDF export failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      await infoDialog('PDF-Export fehlgeschlagen', {
+        body: error instanceof Error ? error.message : 'Unbekannter Fehler',
+        tone: 'error',
+      })
     } finally {
       setPdfExportThemeOverride(null)
     }
@@ -428,7 +442,10 @@ export default function App() {
       printPdfBlob(blob)
     } catch (error) {
       console.error('PDF print failed:', error)
-      alert(`PDF print failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      await infoDialog('PDF-Druck fehlgeschlagen', {
+        body: error instanceof Error ? error.message : 'Unbekannter Fehler',
+        tone: 'error',
+      })
     } finally {
       setPdfExportThemeOverride(null)
     }
@@ -446,11 +463,14 @@ export default function App() {
     const meta = project.metadata
     const linkedId = meta.rentmanProjectId
     if (!linkedId) {
-      window.alert('Kein Rentman-Projekt verknüpft. Bitte zuerst in den Einstellungen verknüpfen.')
+      await infoDialog('Kein Rentman-Projekt verknüpft', {
+        body: 'Bitte zuerst in den Einstellungen verknüpfen.',
+        tone: 'warning',
+      })
       return
     }
     const targetName = meta.rentmanProjectName ?? `Projekt #${linkedId}`
-    if (!window.confirm(`Aktuellen Plan als PDF an Rentman-Projekt "${targetName}" anhängen?`)) {
+    if (!(await confirmDialog(`Aktuellen Plan als PDF an Rentman-Projekt "${targetName}" anhängen?`))) {
       return
     }
     try {
@@ -465,11 +485,14 @@ export default function App() {
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
       const fileName = `${baseName}_${stamp}.pdf`
       await addProjectFile(linkedId, fileName, bytes, 'application/pdf')
-      window.alert(`✓ ${fileName} an Rentman angehängt.`)
+      await infoDialog('An Rentman angehängt', {
+        body: `${fileName} wurde dem Projekt "${targetName}" als Anhang hinzugefügt.`,
+        tone: 'success',
+      })
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error('PDF upload to Rentman failed:', err)
-      window.alert(`Fehler beim PDF-Upload:\n\n${msg}`)
+      await infoDialog('Fehler beim PDF-Upload', { body: msg, tone: 'error' })
     }
   }
 
@@ -479,7 +502,7 @@ export default function App() {
    * Rentman quantity. The plan comes from `metadata.rentmanCablePlan`, which
    * is populated by the Rentman import dialog.
    */
-  const createCableWithPlanCheck: typeof createCableFromPending = (draft) => {
+  const createCableWithPlanCheck: typeof createCableFromPending = async (draft) => {
     // Issue #43: warn when either endpoint already has a cable plugged in
     // and offer to delete the existing cable(s) before adding the new one.
     const stateBefore = useProjectStore.getState()
@@ -505,11 +528,14 @@ export default function App() {
         const list = conflicts
           .map((c) => `• ${c.name || `${c.type} ${c.length} m`}`)
           .join('\n')
-        const replace = window.confirm(
-          `An mindestens einem der Ports steckt bereits ein Kabel:\n\n${list}\n\n` +
-            `OK = bestehendes Kabel löschen und neue Verbindung anlegen.\n` +
-            `Abbrechen = neue Verbindung verwerfen, alles bleibt wie es ist.`,
-        )
+        const replace = await confirmDialog('Port bereits belegt', {
+          body:
+            `An mindestens einem der Ports steckt bereits ein Kabel:\n\n${list}\n\n` +
+            `"Ersetzen" = bestehendes Kabel löschen und neue Verbindung anlegen.\n` +
+            `"Abbrechen" = neue Verbindung verwerfen, alles bleibt wie es ist.`,
+          okLabel: 'Ersetzen',
+          destructive: true,
+        })
         if (!replace) {
           stateBefore.closeCableDialog()
           return
@@ -529,9 +555,13 @@ export default function App() {
       .getState()
       .project.cables.filter((c) => c.type === draft.type && c.length === draft.length).length
     if (built > planned) {
-      window.alert(
-        `Warnung: Es sind jetzt ${built} × ${draft.type} ${draft.length} m verbaut, aber nur ${planned} laut Rentman-Plan vorhanden. Bitte zusätzliche Kabel in Rentman buchen oder die Verkabelung anpassen.`,
-      )
+      await infoDialog('Ueber Rentman-Plan hinaus', {
+        body:
+          `Es sind jetzt ${built} x ${draft.type} ${draft.length} m verbaut, ` +
+          `aber nur ${planned} laut Rentman-Plan vorhanden. ` +
+          `Bitte zusaetzliche Kabel in Rentman buchen oder die Verkabelung anpassen.`,
+        tone: 'warning',
+      })
     }
   }
 
@@ -954,13 +984,14 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
       ? `Length exceeds recommended maximum of ${effectiveMaxLength} m for ${selected.name}.`
       : null
 
-  const submit = () => {
+  const submit = async () => {
     if (connectorMismatch === 'error' && !overrideWarnings) {
-      if (
-        !window.confirm(
-          `${connectorMessage}\n\nAdd this connection anyway (marked as needing a converter)?`,
-        )
-      ) {
+      const proceed = await confirmDialog('Stecker-Kompatibilität', {
+        body: `${connectorMessage}\n\nVerbindung trotzdem anlegen (markiert als "braucht Konverter")?`,
+        okLabel: 'Trotzdem anlegen',
+        destructive: true,
+      })
+      if (!proceed) {
         return
       }
     }
@@ -1026,10 +1057,10 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
                   Connector Type
                   <select
                     value={customConnectorType}
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const v = e.target.value
                       if (v === '__new__') {
-                        const name = window.prompt('Neuer Stecker-Typ (z.B. "Speakon NL4"):')?.trim()
+                        const name = (await promptDialog('Neuer Stecker-Typ (z.B. "Speakon NL4"):'))?.trim()
                         if (name) {
                           useUiStore.getState().addCustomConnectorType(name)
                           setCustomConnectorType(name as ConnectorType)
@@ -1053,10 +1084,10 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
                   Signal Standard
                   <select
                     value={customStandard}
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const v = e.target.value
                       if (v === '__new__') {
-                        const name = window.prompt('Neuer Signal-Standard (z.B. "Madi 64ch"):')?.trim()
+                        const name = (await promptDialog('Neuer Signal-Standard (z.B. "Madi 64ch"):'))?.trim()
                         if (name) {
                           useUiStore.getState().addCustomSignalStandard(name)
                           setCustomStandard(name as SignalStandard)
@@ -1093,17 +1124,17 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
               </label>
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   // Issue #64: persist the current Custom Cable as a
                   // reusable type. We prompt for a name (defaulting to
                   // the user's current `name`) and save the spec; the
                   // dialog then switches to the new spec so the user
                   // can see it landed in the dropdown.
                   const proposedName = name.trim() || `${customConnectorType} Custom`
-                  const finalName = window.prompt(
+                  const finalName = (await promptDialog(
                     'Name für den neuen Kabel-Typ:',
                     proposedName,
-                  )?.trim()
+                  ))?.trim()
                   if (!finalName) return
                   const created = useUiStore.getState().addCustomCableSpec({
                     name: finalName,
@@ -1410,10 +1441,10 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                 Connector Type
                 <select
                   value={customConnectorType}
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const v = e.target.value
                     if (v === '__new__') {
-                      const name = window.prompt('Neuer Stecker-Typ (z.B. "Speakon NL4"):')?.trim()
+                      const name = (await promptDialog('Neuer Stecker-Typ (z.B. "Speakon NL4"):'))?.trim()
                       if (name) {
                         useUiStore.getState().addCustomConnectorType(name)
                         setCustomConnectorType(name as ConnectorType)
@@ -1437,10 +1468,10 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                 Signalstandard
                 <select
                   value={customStandard}
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const v = e.target.value
                     if (v === '__new__') {
-                      const name = window.prompt('Neuer Signal-Standard (z.B. "Madi 64ch"):')?.trim()
+                      const name = (await promptDialog('Neuer Signal-Standard (z.B. "Madi 64ch"):'))?.trim()
                       if (name) {
                         useUiStore.getState().addCustomSignalStandard(name)
                         setCustomStandard(name as SignalStandard)
