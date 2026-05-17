@@ -980,16 +980,19 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           const allPlacements = new Map<string, { side: 'left' | 'right'; slot: number }>()
           for (const [id, pl] of inputPlacement) allPlacements.set(id, pl)
           for (const [id, pl] of outputPlacement) allPlacements.set(id, pl)
-          // Port-Handle-Position berechnen. ReactFlow Handle ist auf
-          // der Kante des Nodes; wir setzen den Kabel-Anfang knapp
-          // INNERHALB der Karte (~12 px), damit die Kurve aus dem Port
-          // herauszukommen scheint statt am Rand abgeschnitten.
-          const portAnchor = (portId: string): { x: number; y: number } | null => {
+          // v7.9.18 — Port-Handle-Position exakt auf der Karten-Kante.
+          // ReactFlow rendert seine Handles bei x=0 (left) bzw. x=width
+          // (right), zentriert auf rowCenter(slot). Damit die internen
+          // Kabel-Linien VISUELL an diesen Handles andocken müssen
+          // unsere Anker dieselben Koordinaten haben — vorher hatte ich
+          // x=14/width-14 als Inset, was eine 14-px-Lücke zwischen Port
+          // und Cable-Endpunkt erzeugte.
+          const portAnchor = (portId: string): { x: number; y: number; side: 'left' | 'right' } | null => {
             const pl = allPlacements.get(portId)
             if (!pl) return null
             const y = headerHeight + pl.slot * PORT_ROW + PORT_ROW / 2
-            const x = pl.side === 'left' ? 14 : width - 14
-            return { x, y }
+            const x = pl.side === 'left' ? 0 : width
+            return { x, y, side: pl.side }
           }
           return (
             <svg
@@ -1011,45 +1014,50 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 const a = portAnchor(fromId)
                 const b = portAnchor(toId)
                 if (!a || !b) return null
-                // Bezier-Kontrollpunkte: jeweils ~30% der Karten-Breite
-                // einwärts gezogen. Bei verschiedenen Seiten ergibt das
-                // eine S-Kurve durch die Mitte; bei gleicher Seite einen
-                // sanften Loop nach innen.
-                const inwardA = a.x < width / 2 ? width * 0.45 : width * 0.55
-                const inwardB = b.x < width / 2 ? width * 0.45 : width * 0.55
+                // v7.9.18 — Bezier-Kontrollpunkte ziehen die Kurve aus
+                // jedem Port EINWÄRTS Richtung Karten-Mitte. cp1 sitzt
+                // direkt neben Port a (auf dessen Innenseite), cp2 neben
+                // Port b. Damit:
+                //  - Gleiche Seite (z.B. beide Inputs links) → Kurve
+                //    bleibt KOMPLETT auf der Innenseite der Karte
+                //    (ports approach from inside, wie der User wollte)
+                //  - Verschiedene Seiten → flache S-Kurve quer durch
+                //    die Karte zwischen den Handles
+                const cp1x = a.side === 'left' ? width * 0.32 : width * 0.68
+                const cp2x = b.side === 'left' ? width * 0.32 : width * 0.68
                 const color = c.color ?? '#94a3b8'
                 return (
                   <g key={`int-cable-${ci}`}>
                     <path
-                      d={`M ${a.x} ${a.y} C ${inwardA} ${a.y} ${inwardB} ${b.y} ${b.x} ${b.y}`}
+                      d={`M ${a.x} ${a.y} C ${cp1x} ${a.y} ${cp2x} ${b.y} ${b.x} ${b.y}`}
                       fill="none"
                       stroke={color}
-                      strokeWidth={1.6}
+                      strokeWidth={1.8}
                       strokeDasharray="4 2"
-                      opacity={0.85}
+                      opacity={0.9}
                     >
                       <title>
                         {`Intern: ${snap.items[c.fromItemIndex]?.name ?? '?'}:${c.fromPortName} ↔ ${snap.items[c.toItemIndex]?.name ?? '?'}:${c.toPortName}`}
                       </title>
                     </path>
-                    {/* Kleine "Kabel-Dot"s an beiden Enden — visuelle
-                        Bestätigung dass dieser Port an dieses andere
-                        andockt. */}
+                    {/* Kabel-Dots exakt auf dem Port-Handle (x=0 bzw.
+                        x=width, y=rowCenter) — visuelle Bestätigung
+                        welcher Port mit welchem verbunden ist. */}
                     <circle
                       cx={a.x}
                       cy={a.y}
-                      r={2.2}
+                      r={2.6}
                       fill={color}
                       stroke={isLight ? '#fff' : '#0f172a'}
-                      strokeWidth={0.6}
+                      strokeWidth={0.7}
                     />
                     <circle
                       cx={b.x}
                       cy={b.y}
-                      r={2.2}
+                      r={2.6}
                       fill={color}
                       stroke={isLight ? '#fff' : '#0f172a'}
-                      strokeWidth={0.6}
+                      strokeWidth={0.7}
                     />
                   </g>
                 )
