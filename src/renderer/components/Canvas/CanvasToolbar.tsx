@@ -6,6 +6,7 @@ import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { RoutingToggle } from '../shared/RoutingToggle'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
 
 type CanvasToolbarMode = 'main' | 'rack'
 
@@ -52,7 +53,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   const annotationsVisible = useUiStore((s) => s.annotationsVisible)
   const setAnnotationsVisible = useUiStore((s) => s.setAnnotationsVisible)
   const annotationsCount = useProjectStore((s) => s.project.annotations?.length ?? 0)
-  const { getNodes, setNodes } = useReactFlow()
+  const { getNodes, setNodes, screenToFlowPosition } = useReactFlow()
   const [namingGroup, setNamingGroup] = useState(false)
   const [groupName, setGroupName] = useState('')
   // Issue #59: the toolbar's group-name input sometimes ignored keystrokes
@@ -68,83 +69,135 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     }
   }, [namingGroup])
 
-  /**
-   * Align the currently selected equipment nodes along the requested axis.
-   * The bounding box of the selection is the reference frame; positions are
-   * persisted via the project store so cables follow automatically.
-   */
-  /** v7.6.0 — Milanote/Figma-style alignment. Earlier versions
-   *  fell back to `width ?? 0` / `height ?? 0` when a device hadn't
-   *  been resized, which collapsed the bounding box and snapped
-   *  every device into the same point. The fixed version uses the
-   *  same visual defaults the equipment-node renderer uses (220 px
-   *  wide; height derived from port count). Center alignments use
-   *  device CENTERS as the reference, not corners. */
+  /** v7.9.28 — Figma-style alignment + distribute + viewport-relative
+   *  Single-Selection. Vorher waren die Buttons unter 2 Items komplett
+   *  ausgeblendet; Distribute fehlte komplett; nach Align landeten
+   *  Positionen zwischen Raster-Linien. Jetzt:
+   *  - 1 Selection → richtet das Gerät am sichtbaren Viewport aus
+   *    (Figma: "align to parent frame")
+   *  - 2+ Selection → Bounding-Box-Referenz (Figma-Standard)
+   *  - 3+ Selection → zusätzlich Distribute (gleiche Lücken)
+   *  - Wenn Snap-to-Grid aktiv ist, snappt jedes Ergebnis auf
+   *    `gridSize` (Default 11) — bleibt damit auf Dot-Reihen. */
   const measuredSize = (item: { width?: number; height?: number; inputs?: ReadonlyArray<unknown>; outputs?: ReadonlyArray<unknown>; ipAddress?: string }) => {
-    const w = item.width && item.width > 0 ? item.width : 220
+    const w = item.width && item.width > 0 ? item.width : EQUIPMENT_LAYOUT.DEFAULT_WIDTH
     if (item.height && item.height > 0) return { w, h: item.height }
-    // Match EquipmentNode's intrinsic layout: header + N port rows + padding.
-    const HEADER = item.ipAddress ? 62 : 48
-    const ROW = 22
-    const PADDING = 8
+    const HEADER = item.ipAddress
+      ? EQUIPMENT_LAYOUT.HEADER_HEIGHT_WITH_IP
+      : EQUIPMENT_LAYOUT.HEADER_HEIGHT
     const inLen = item.inputs?.length ?? 0
     const outLen = item.outputs?.length ?? 0
     const portRows = Math.max(inLen, outLen, 1)
-    return { w, h: HEADER + portRows * ROW + PADDING }
+    return { w, h: HEADER + portRows * EQUIPMENT_LAYOUT.PORT_ROW + EQUIPMENT_LAYOUT.PADDING }
   }
-  const alignSelected = (
-    mode: 'left' | 'right' | 'center-h' | 'top' | 'bottom' | 'center-v',
-  ) => {
+
+  type AlignMode = 'left' | 'right' | 'center-h' | 'top' | 'bottom' | 'center-v' | 'distribute-h' | 'distribute-v'
+
+  const snap = (val: number) => {
+    if (!snapToGrid || gridSize <= 0) return Math.round(val)
+    return Math.round(val / gridSize) * gridSize
+  }
+
+  /** Viewport-Rechteck in Flow-Koordinaten — basiert auf der ReactFlow-
+   *  DOM-Bounding-Box damit Toolbar-Offset und Sidebar ausgeblendet
+   *  bleiben (nicht window-Center). */
+  const viewportBoundsInFlow = (): { minX: number; minY: number; maxX: number; maxY: number } | null => {
+    const el = document.querySelector('.react-flow') as HTMLElement | null
+    if (!el) return null
+    const r = el.getBoundingClientRect()
+    const tl = screenToFlowPosition({ x: r.left, y: r.top })
+    const br = screenToFlowPosition({ x: r.right, y: r.bottom })
+    return { minX: tl.x, minY: tl.y, maxX: br.x, maxY: br.y }
+  }
+
+  const commitPositions = (newPositionById: Map<string, { x: number; y: number }>) => {
+    if (newPositionById.size === 0) return
+    for (const [id, pos] of newPositionById) {
+      updateEquipment(id, pos)
+    }
+    setNodes((rf) =>
+      rf.map((n) => {
+        const pos = newPositionById.get(n.id)
+        return pos ? { ...n, position: pos } : n
+      }),
+    )
+  }
+
+  const alignSelected = (mode: AlignMode) => {
     const ids = getNodes()
       .filter((n) => n.selected && n.type === 'equipment')
       .map((n) => n.id)
-    if (ids.length < 2) return
+    if (ids.length === 0) return
     const items = equipmentList.filter((e) => ids.includes(e.id))
-    if (items.length < 2) return
-    // Use the actual rendered sizes so the bounding box is real
-    // (a 220x80 default node won't collapse to a single point).
+    if (items.length === 0) return
     const sized = items.map((item) => ({ item, ...measuredSize(item) }))
-    const minX = Math.min(...sized.map((s) => s.item.x))
-    const maxRight = Math.max(...sized.map((s) => s.item.x + s.w))
-    const minY = Math.min(...sized.map((s) => s.item.y))
-    const maxBottom = Math.max(...sized.map((s) => s.item.y + s.h))
-    const centerX = (minX + maxRight) / 2
-    const centerY = (minY + maxBottom) / 2
-    // v7.9.0 / Issue #119 — Two-stage update: first write the new
-    // positions to the project store (autosave + undo/redo), then
-    // immediately patch React Flow's local rfNodes state so the
-    // canvas re-renders with the new positions. Without the
-    // setNodes() the canvas would keep showing OLD positions because
-    // CanvasArea's structural-sync useEffect deliberately preserves
-    // existing rfNode positions across data updates to avoid drag-
-    // jumps — alignment is a deliberate position change and needs to
-    // bypass that.
+
+    // Distribute braucht 3+ Items — sonst no-op.
+    if ((mode === 'distribute-h' || mode === 'distribute-v') && sized.length < 3) return
+
     const newPositionById = new Map<string, { x: number; y: number }>()
-    for (const { item, w, h } of sized) {
-      let nx = item.x
-      let ny = item.y
-      switch (mode) {
-        case 'left':     nx = minX;             break
-        case 'right':    nx = maxRight - w;     break
-        // Milanote-style: each item's CENTER lands on the selection-bbox center.
-        case 'center-h': nx = centerX - w / 2;  break
-        case 'top':      ny = minY;             break
-        case 'bottom':   ny = maxBottom - h;    break
-        case 'center-v': ny = centerY - h / 2;  break
+
+    if (mode === 'distribute-h') {
+      const sorted = [...sized].sort((a, b) => a.item.x - b.item.x)
+      const first = sorted[0]
+      const last = sorted[sorted.length - 1]
+      const span = last.item.x + last.w - first.item.x
+      const totalWidths = sorted.reduce((sum, s) => sum + s.w, 0)
+      const gapEach = (span - totalWidths) / (sorted.length - 1)
+      let cursor = first.item.x
+      for (const s of sorted) {
+        const nx = snap(cursor)
+        if (nx !== s.item.x) newPositionById.set(s.item.id, { x: nx, y: s.item.y })
+        cursor += s.w + gapEach
       }
-      if (nx !== item.x || ny !== item.y) {
-        updateEquipment(item.id, { x: nx, y: ny })
-        newPositionById.set(item.id, { x: nx, y: ny })
+    } else if (mode === 'distribute-v') {
+      const sorted = [...sized].sort((a, b) => a.item.y - b.item.y)
+      const first = sorted[0]
+      const last = sorted[sorted.length - 1]
+      const span = last.item.y + last.h - first.item.y
+      const totalHeights = sorted.reduce((sum, s) => sum + s.h, 0)
+      const gapEach = (span - totalHeights) / (sorted.length - 1)
+      let cursor = first.item.y
+      for (const s of sorted) {
+        const ny = snap(cursor)
+        if (ny !== s.item.y) newPositionById.set(s.item.id, { x: s.item.x, y: ny })
+        cursor += s.h + gapEach
+      }
+    } else {
+      // Single Selection → Bounding-Box ist der sichtbare Viewport.
+      // Multi → Selection-Bounding-Box (Figma-Standard).
+      let minX: number, maxX: number, minY: number, maxY: number
+      if (sized.length === 1) {
+        const vp = viewportBoundsInFlow()
+        if (!vp) return
+        minX = vp.minX; maxX = vp.maxX; minY = vp.minY; maxY = vp.maxY
+      } else {
+        minX = Math.min(...sized.map((s) => s.item.x))
+        maxX = Math.max(...sized.map((s) => s.item.x + s.w))
+        minY = Math.min(...sized.map((s) => s.item.y))
+        maxY = Math.max(...sized.map((s) => s.item.y + s.h))
+      }
+      const centerX = (minX + maxX) / 2
+      const centerY = (minY + maxY) / 2
+      for (const { item, w, h } of sized) {
+        let nx = item.x
+        let ny = item.y
+        switch (mode) {
+          case 'left':     nx = minX; break
+          case 'right':    nx = maxX - w; break
+          case 'center-h': nx = centerX - w / 2; break
+          case 'top':      ny = minY; break
+          case 'bottom':   ny = maxY - h; break
+          case 'center-v': ny = centerY - h / 2; break
+        }
+        nx = snap(nx); ny = snap(ny)
+        if (nx !== item.x || ny !== item.y) {
+          newPositionById.set(item.id, { x: nx, y: ny })
+        }
       }
     }
-    if (newPositionById.size > 0) {
-      setNodes((rf) =>
-        rf.map((n) => {
-          const pos = newPositionById.get(n.id)
-          return pos ? { ...n, position: pos } : n
-        }),
-      )
-    }
+
+    commitPositions(newPositionById)
   }
 
   // v7.9.5 — Unified design tokens für die Toolbar.
@@ -243,7 +296,10 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   const hasSelection = selectedEquipmentIds.length >= 1
-  const alignEnabled = selectedEquipmentIds.length >= 2
+  // v7.9.28 — Align-Buttons schon ab 1 Selection (richtet am Viewport
+  // aus, Figma-Pattern). Distribute braucht 3+ Items.
+  const alignEnabled = selectedEquipmentIds.length >= 1
+  const distributeEnabled = selectedEquipmentIds.length >= 3
 
   return (
     <div
@@ -475,49 +531,96 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
       )}
 
       {/* ── Gruppe 4: Ausrichten ─────────────────────────────────────
-          v7.9.19 — Komplette Align-Gruppe (Divider + 6 Buttons) wird
-          nur gerendert wenn mind. 2 Geräte ausgewählt sind. Vorher
-          waren alle 6 Buttons disabled aber sichtbar — visueller Lärm
-          für Use-Cases ohne Multi-Selection. */}
+          v7.9.28 — Figma-style SVG-Icons statt Unicode-Pfeile.
+          1 Selection → richtet am Viewport aus. 2+ Selection →
+          Selection-Bounding-Box. 3+ Selection → zusätzlich Distribute. */}
       {alignEnabled && (
         <>
           <span style={dividerStyle} />
           <IconButton
-            title="Linksbündig"
+            title={selectedEquipmentIds.length === 1 ? 'An linkem Viewport-Rand ausrichten' : 'Linksbündig'}
             onClick={() => alignSelected('left')}
           >
-            <span style={{ fontSize: 14 }}>⇤</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
+              <line x1="2" y1="2" x2="2" y2="12" strokeLinecap="round" />
+              <rect x="2.5" y="3" width="6" height="3" fill="currentColor" stroke="none" />
+              <rect x="2.5" y="8" width="9" height="3" fill="currentColor" stroke="none" />
+            </svg>
           </IconButton>
           <IconButton
-            title="Horizontal zentrieren"
+            title={selectedEquipmentIds.length === 1 ? 'Horizontal in Viewport zentrieren' : 'Horizontal zentrieren'}
             onClick={() => alignSelected('center-h')}
           >
-            <span style={{ fontSize: 14 }}>↔</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
+              <line x1="7" y1="2" x2="7" y2="12" strokeLinecap="round" />
+              <rect x="4" y="3" width="6" height="3" fill="currentColor" stroke="none" />
+              <rect x="2.5" y="8" width="9" height="3" fill="currentColor" stroke="none" />
+            </svg>
           </IconButton>
           <IconButton
-            title="Rechtsbündig"
+            title={selectedEquipmentIds.length === 1 ? 'An rechtem Viewport-Rand ausrichten' : 'Rechtsbündig'}
             onClick={() => alignSelected('right')}
           >
-            <span style={{ fontSize: 14 }}>⇥</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
+              <line x1="12" y1="2" x2="12" y2="12" strokeLinecap="round" />
+              <rect x="5.5" y="3" width="6" height="3" fill="currentColor" stroke="none" />
+              <rect x="2.5" y="8" width="9" height="3" fill="currentColor" stroke="none" />
+            </svg>
           </IconButton>
           <IconButton
-            title="Oben ausrichten"
+            title={selectedEquipmentIds.length === 1 ? 'An oberem Viewport-Rand ausrichten' : 'Oben ausrichten'}
             onClick={() => alignSelected('top')}
           >
-            <span style={{ fontSize: 14 }}>⤒</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
+              <line x1="2" y1="2" x2="12" y2="2" strokeLinecap="round" />
+              <rect x="3" y="2.5" width="3" height="6" fill="currentColor" stroke="none" />
+              <rect x="8" y="2.5" width="3" height="9" fill="currentColor" stroke="none" />
+            </svg>
           </IconButton>
           <IconButton
-            title="Vertikal zentrieren"
+            title={selectedEquipmentIds.length === 1 ? 'Vertikal in Viewport zentrieren' : 'Vertikal zentrieren'}
             onClick={() => alignSelected('center-v')}
           >
-            <span style={{ fontSize: 14 }}>↕</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
+              <line x1="2" y1="7" x2="12" y2="7" strokeLinecap="round" />
+              <rect x="3" y="4" width="3" height="6" fill="currentColor" stroke="none" />
+              <rect x="8" y="2.5" width="3" height="9" fill="currentColor" stroke="none" />
+            </svg>
           </IconButton>
           <IconButton
-            title="Unten ausrichten"
+            title={selectedEquipmentIds.length === 1 ? 'An unterem Viewport-Rand ausrichten' : 'Unten ausrichten'}
             onClick={() => alignSelected('bottom')}
           >
-            <span style={{ fontSize: 14 }}>⤓</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
+              <line x1="2" y1="12" x2="12" y2="12" strokeLinecap="round" />
+              <rect x="3" y="5.5" width="3" height="6" fill="currentColor" stroke="none" />
+              <rect x="8" y="2.5" width="3" height="9" fill="currentColor" stroke="none" />
+            </svg>
           </IconButton>
+          {distributeEnabled && (
+            <>
+              <IconButton
+                title="Horizontal gleichmäßig verteilen"
+                onClick={() => alignSelected('distribute-h')}
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
+                  <rect x="2" y="3" width="2.5" height="8" fill="currentColor" stroke="none" />
+                  <rect x="5.75" y="3" width="2.5" height="8" fill="currentColor" stroke="none" />
+                  <rect x="9.5" y="3" width="2.5" height="8" fill="currentColor" stroke="none" />
+                </svg>
+              </IconButton>
+              <IconButton
+                title="Vertikal gleichmäßig verteilen"
+                onClick={() => alignSelected('distribute-v')}
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
+                  <rect x="3" y="2" width="8" height="2.5" fill="currentColor" stroke="none" />
+                  <rect x="3" y="5.75" width="8" height="2.5" fill="currentColor" stroke="none" />
+                  <rect x="3" y="9.5" width="8" height="2.5" fill="currentColor" stroke="none" />
+                </svg>
+              </IconButton>
+            </>
+          )}
         </>
       )}
 
