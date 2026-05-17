@@ -23,7 +23,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
-import { useProjectStore } from '../../store/projectStore'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { routeCable } from '../../lib/canvasViewport'
 import type { Cable, CableRouting } from '../../types/cable'
 

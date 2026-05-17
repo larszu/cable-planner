@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useReactFlow, useViewport } from 'reactflow'
 import { useUiStore } from '../../store/uiStore'
-import { useProjectStore } from '../../store/projectStore'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 
 /**

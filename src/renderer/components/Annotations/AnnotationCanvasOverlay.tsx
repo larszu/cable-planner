@@ -8,7 +8,7 @@
 
 import { useMemo, useRef, useState } from 'react'
 import { useReactFlow, useViewport } from 'reactflow'
-import { useProjectStore } from '../../store/projectStore'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import type { ProjectAnnotation } from '../../types/project'

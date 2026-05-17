@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useProjectStore } from '../../store/projectStore'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 
 const fmtDate = (iso?: string): string => {
   if (!iso) return '—'

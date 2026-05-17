@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from 'uuid'
 import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import { useSettingsStore } from '../../store/settingsStore'
 import { RackImageCropDialog } from './RackImageCropDialog'
-import { RackInternalWireDialog } from './RackInternalWireDialog'
+import { RackInternalCanvas } from './RackInternalCanvas'
+import { RackLivePreview } from './RackLivePreview'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { CategorySelect } from '../shared/CategorySelect'
 import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
@@ -187,6 +188,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   })
   const [wireDialogOpen, setWireDialogOpen] = useState(false)
   const [query, setQuery] = useState('')
+  // v7.9.9 — Inline-Validation: Statt window.alert blockiert
+  // saveError wird als Banner im Dialog gezeigt. Beim ersten gültigen
+  // Submit-Versuch wird der Banner gelöscht.
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const rackNameInputRef = useRef<HTMLInputElement | null>(null)
   // v7.9.0 / Issue #112 — zeige auch Templates die NICHT als 19"-
   // Rack-Gerät markiert sind, damit man sie aus dem Builder
   // suchen + nachträglich umflaggen kann.
@@ -308,7 +314,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             b.startUnit + b.rackUnits - 1,
           )
         ) {
-          issues.push(`${a.name} uberlappt mit ${b.name}.`)
+          issues.push(`${a.name} überlappt mit ${b.name}.`)
         }
       }
     }
@@ -371,6 +377,23 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     onClose()
   }
 
+  // v7.9.9 — Escape-Taste schliesst den Dialog (mit dirty-Confirm).
+  // Nicht bindet wenn ein Sub-Dialog (Wire/Crop) offen ist — die haben
+  // eigene Escape-Behandlung. NOTE: confirmDialog/promptDialog blocken
+  // selber alle Tasten, daher kein extra Guard nötig.
+  useEffect(() => {
+    if (!open) return
+    const handler = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      if (wireDialogOpen || cropDialog) return
+      event.preventDefault()
+      void closeWithConfirm()
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, wireDialogOpen, dirty])
+
   const addTemplate = async (template: EquipmentTemplate) => {
     // v7.9.0 / Issue #112 — Wenn das Template (noch) nicht als 19"-
     // Rack-Gerät markiert ist, fragen wir den User nach der HE-Höhe
@@ -389,7 +412,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       if (!answer) return
       const heightHE = Math.max(1, Math.min(20, Math.round(Number(answer))))
       if (!Number.isFinite(heightHE) || heightHE < 1) {
-        window.alert('Ungültige HE-Eingabe. Abgebrochen.')
+        setSaveError(`Ungültige HE-Eingabe für "${template.name}". Bitte 1–20 angeben.`)
         return
       }
       effectiveTemplate = {
@@ -422,27 +445,40 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     }))
   }
 
-  const removePlacement = (id: string) => {
+  const removePlacement = async (id: string) => {
+    const item = draft.placements.find((p) => p.id === id)
+    if (!item) return
+    const ok = await confirmDialog(`Gerät "${item.name}" aus Rack entfernen?`, {
+      body: 'Position + Höhe gehen verloren. Internal-Cables an diesem Gerät werden ebenfalls entfernt.',
+      okLabel: 'Entfernen',
+      destructive: true,
+    })
+    if (!ok) return
     setDraft((current) => ({
       ...current,
-      placements: current.placements.filter((item) => item.id !== id),
+      placements: current.placements.filter((p) => p.id !== id),
+      internalCables: current.internalCables.filter(
+        (c) => c.fromPlacementId !== id && c.toPlacementId !== id,
+      ),
     }))
     if (selectedPlacementId === id) setSelectedPlacementId(null)
   }
 
   const saveRack = () => {
     if (!draft.rackName.trim()) {
-      window.alert('Bitte Rack-Name angeben.')
+      setSaveError('Bitte Rack-Name angeben.')
+      rackNameInputRef.current?.focus()
       return
     }
     if (draft.placements.length === 0) {
-      window.alert('Bitte mindestens ein Gerät ins Rack legen.')
+      setSaveError('Bitte mindestens ein Gerät ins Rack legen.')
       return
     }
     if (conflicts.length > 0) {
-      window.alert(`Rack hat Konflikte:\n\n- ${conflicts.join('\n- ')}`)
+      setSaveError(`Rack hat Konflikte:\n- ${conflicts.join('\n- ')}`)
       return
     }
+    setSaveError(null)
 
     const sorted = draft.placements.slice().sort((a, b) => a.startUnit - b.startUnit)
 
@@ -536,21 +572,32 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             <p className="mt-1 text-xs text-slate-400">HE-Slots, Drag-and-Drop nach oben/unten, Front/Rear Ansicht, Port-Sichtbarkeit.</p>
           </div>
           <button type="button" onClick={closeWithConfirm} className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600">
-            Schliessen
+            Schließen
           </button>
         </div>
 
         <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <label className="block text-sm">
-            Rack-Name
+            Rack-Name *
             <input
+              ref={rackNameInputRef}
               value={draft.rackName}
-              onChange={(event) => setDraft((current) => ({ ...current, rackName: event.target.value }))}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+              onChange={(event) => {
+                if (saveError) setSaveError(null)
+                setDraft((current) => ({ ...current, rackName: event.target.value }))
+              }}
+              aria-required="true"
+              aria-invalid={!draft.rackName.trim() && !!saveError}
+              placeholder='z.B. "Power Rack A" oder "Main Video Rack"'
+              className={`mt-1 w-full rounded border bg-slate-950 p-2 ${
+                !draft.rackName.trim() && saveError
+                  ? 'border-red-600 ring-1 ring-red-600/40'
+                  : 'border-slate-700'
+              }`}
             />
           </label>
           <label className="block text-sm">
-            Rack-Hohe (HE)
+            Rack-Höhe (HE)
             <input
               type="number"
               min={1}
@@ -594,14 +641,37 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           </label>
         </div>
 
-        {conflicts.length > 0 && (
-          <div className="mb-3 rounded border border-red-700/60 bg-red-900/30 px-3 py-2 text-xs text-red-100">
-            <div className="font-semibold">Konflikte</div>
-            <ul className="mt-1 list-disc space-y-1 pl-4">
-              {conflicts.map((issue, index) => (
-                <li key={`${issue}-${index}`}>{issue}</li>
-              ))}
-            </ul>
+        {/* v7.9.9 — Sticky-Konflikt+Save-Error-Banner. Bleibt beim
+            Scrollen im Properties-Panel oben sichtbar, damit der User
+            sieht ob sein Edit den Konflikt aufgelöst hat. */}
+        {(conflicts.length > 0 || saveError) && (
+          <div
+            className="sticky top-0 z-20 mb-3 rounded border border-red-700/60 bg-red-900/40 px-3 py-2 text-xs text-red-100 shadow-lg backdrop-blur-sm"
+          >
+            {saveError && (
+              <div className="mb-2 flex items-start gap-2">
+                <span className="font-semibold">Speichern blockiert:</span>
+                <span className="whitespace-pre-wrap flex-1">{saveError}</span>
+                <button
+                  type="button"
+                  onClick={() => setSaveError(null)}
+                  className="rounded bg-red-800/80 px-1.5 text-[10px] hover:bg-red-700"
+                  title="Ausblenden"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            {conflicts.length > 0 && (
+              <>
+                <div className="font-semibold">Konflikte ({conflicts.length})</div>
+                <ul className="mt-1 list-disc space-y-1 pl-4">
+                  {conflicts.map((issue, index) => (
+                    <li key={`${issue}-${index}`}>{issue}</li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
         )}
 
@@ -628,8 +698,20 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               Auch Nicht-Rack-Geräte zeigen
             </label>
             <div className="max-h-[58vh] space-y-1 overflow-auto">
+              {filteredTemplates.length === 0 && (
+                <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-3 text-center text-[11px] text-slate-500">
+                  Keine Treffer. Suche anpassen oder "Auch Nicht-Rack-Geräte zeigen" aktivieren.
+                </div>
+              )}
               {filteredTemplates.map((template) => {
                 const isRack = template.isRackDevice || !!template.rackUnits
+                // v7.9.9 — "Bereits im Rack"-Marker. Mehrfachzuweisung
+                // bleibt erlaubt (Stage-Setups haben oft mehrere
+                // identische Geräte) aber der User sieht jetzt sofort
+                // wie oft das Template schon platziert ist.
+                const placedCount = draft.placements.filter(
+                  (p) => p.templateName === template.name,
+                ).length
                 return (
                   <div
                     key={template.name}
@@ -637,12 +719,20 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       isRack
                         ? 'border-slate-800 bg-slate-900/60'
                         : 'border-amber-800/40 bg-amber-950/20'
-                    }`}
+                    } ${placedCount > 0 ? 'opacity-75' : ''}`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <div className="flex items-center gap-1">
                           <span className="truncate font-medium text-slate-100">{template.name}</span>
+                          {placedCount > 0 && (
+                            <span
+                              className="rounded bg-emerald-800/70 px-1 text-[8px] font-semibold uppercase text-emerald-200"
+                              title={`${placedCount}× im Rack platziert`}
+                            >
+                              ✓ {placedCount}×
+                            </span>
+                          )}
                           {!isRack && (
                             <span
                               className="rounded bg-amber-800/60 px-1 text-[8px] font-semibold uppercase text-amber-200"
@@ -658,6 +748,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         type="button"
                         onClick={() => addTemplate(template)}
                         className="rounded bg-emerald-700 px-2 py-0.5 text-[11px] hover:bg-emerald-600"
+                        title={placedCount > 0 ? 'Weitere Instanz hinzufügen' : 'Ins Rack hinzufügen'}
                       >
                         + Rack
                       </button>
@@ -674,6 +765,14 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
 
           <div className="min-w-0 rounded border border-slate-700 bg-slate-950/50 p-2">
             <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Rack-Slots (Drag & Drop hoch/runter)</div>
+            {draft.placements.length === 0 && (
+              <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center text-xs text-slate-500">
+                <div className="mb-2 text-3xl">▥</div>
+                <div className="mb-1 font-semibold text-slate-300">Rack ist leer</div>
+                <div>Geräte aus der Library links hinzufügen (Button "+ Rack").</div>
+                <div className="mt-2 text-[10px]">Tipp: oben "Auch Nicht-Rack-Geräte zeigen" aktivieren, wenn dein Wunschgerät nicht erscheint.</div>
+              </div>
+            )}
             <div
               ref={rackCanvasRef}
               className={`grid gap-2 overflow-x-auto ${draft.viewMode === 'both' ? 'grid-cols-2' : 'grid-cols-1'}`}
@@ -781,7 +880,35 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           {/* v7.9.2 — Auf md-Bildschirmen (2 Spalten) spannen sich die
               Geräte-Properties über die volle Breite unterhalb der
               Library/Rack-Spalten. Ab xl sind sie wieder die 3. Spalte. */}
-          <div className="rounded border border-slate-700 bg-slate-950/50 p-2 md:col-span-2 xl:col-span-1">
+          <div className="space-y-3 md:col-span-2 xl:col-span-1">
+          {/* v7.9.9 — Live-Preview-Pane: Black-Box auf Canvas + interne
+              Verkabelung — Updates live mit jeder Draft-Änderung. */}
+          <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Live-Preview
+            </div>
+            <RackLivePreview
+              rackName={draft.rackName}
+              totalUnits={draft.totalUnits}
+              placements={draft.placements.map((p) => ({
+                id: p.id,
+                name: p.name,
+                startUnit: p.startUnit,
+                rackUnits: p.rackUnits,
+                inputs: p.inputs.map((port) => ({ id: port.id, name: port.name, connectorType: port.connectorType as string })),
+                outputs: p.outputs.map((port) => ({ id: port.id, name: port.name, connectorType: port.connectorType as string })),
+              }))}
+              cables={draft.internalCables.map((c) => ({
+                fromPlacementId: c.fromPlacementId,
+                fromPortName: c.fromPortName,
+                toPlacementId: c.toPlacementId,
+                toPortName: c.toPortName,
+                color: c.color,
+              }))}
+            />
+          </div>
+
+          <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
             <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Geräte-Properties im Rack</div>
             {!selectedPlacement ? (
               <div className="rounded border border-slate-800 bg-slate-900/40 p-3 text-xs text-slate-500">Gerät im Rack anklicken.</div>
@@ -804,36 +931,78 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
                   />
                 </label>
-                <label className="flex items-center gap-2">
+                <label className="flex items-center gap-2 opacity-60" title="Im Builder schreibgeschützt — wurde beim Hinzufügen gesetzt.">
                   <input
                     type="checkbox"
                     checked={selectedPlacement.isRackDevice}
-                    onChange={(event) => updatePlacement(selectedPlacement.id, { isRackDevice: event.target.checked })}
+                    disabled
+                    readOnly
                   />
-                  <span>Ist Rack-Gerät</span>
+                  <span>Ist Rack-Gerät (im Builder fix)</span>
                 </label>
-                <label className="block">
-                  Hohe (HE)
-                  <input
-                    type="number"
-                    min={1}
-                    max={draft.totalUnits}
-                    value={selectedPlacement.rackUnits}
-                    onChange={(event) => updatePlacement(selectedPlacement.id, { rackUnits: Math.max(1, Number(event.target.value) || 1) })}
-                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
-                  />
-                </label>
-                <label className="block">
-                  Start-HE
-                  <input
-                    type="number"
-                    min={1}
-                    max={draft.totalUnits}
-                    value={selectedPlacement.startUnit}
-                    onChange={(event) => updatePlacement(selectedPlacement.id, { startUnit: Math.max(1, Number(event.target.value) || 1) })}
-                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
-                  />
-                </label>
+                {(() => {
+                  // v7.9.9 — Live-Constraints: Höhe + Start-HE müssen
+                  // zusammen ins Rack passen. Wenn der User sie übergross
+                  // tippt, clampen wir direkt + zeigen Inline-Hinweis.
+                  const heightInvalid =
+                    selectedPlacement.rackUnits + selectedPlacement.startUnit - 1 >
+                    draft.totalUnits
+                  const startMax = Math.max(
+                    1,
+                    draft.totalUnits - selectedPlacement.rackUnits + 1,
+                  )
+                  return (
+                    <>
+                      <label className="block">
+                        Höhe (HE)
+                        <input
+                          type="number"
+                          min={1}
+                          max={draft.totalUnits}
+                          value={selectedPlacement.rackUnits}
+                          aria-invalid={heightInvalid}
+                          onChange={(event) => {
+                            const raw = Math.max(1, Number(event.target.value) || 1)
+                            const clamped = Math.min(
+                              raw,
+                              draft.totalUnits - selectedPlacement.startUnit + 1,
+                            )
+                            updatePlacement(selectedPlacement.id, { rackUnits: clamped })
+                          }}
+                          className={`mt-1 w-full rounded border bg-slate-950 p-1.5 ${
+                            heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-slate-700'
+                          }`}
+                        />
+                        {heightInvalid && (
+                          <span className="mt-0.5 block text-[10px] text-red-400">
+                            Höhe + Start-HE überschreitet Rack ({draft.totalUnits} HE).
+                          </span>
+                        )}
+                      </label>
+                      <label className="block">
+                        Start-HE
+                        <input
+                          type="number"
+                          min={1}
+                          max={startMax}
+                          value={selectedPlacement.startUnit}
+                          aria-invalid={heightInvalid}
+                          onChange={(event) => {
+                            const raw = Math.max(1, Number(event.target.value) || 1)
+                            const clamped = Math.min(raw, startMax)
+                            updatePlacement(selectedPlacement.id, { startUnit: clamped })
+                          }}
+                          className={`mt-1 w-full rounded border bg-slate-950 p-1.5 ${
+                            heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-slate-700'
+                          }`}
+                        />
+                        <span className="mt-0.5 block text-[10px] text-slate-500">
+                          max {startMax} (Höhe {selectedPlacement.rackUnits} HE)
+                        </span>
+                      </label>
+                    </>
+                  )
+                })()}
                 <div className="rounded border border-slate-800 bg-slate-900/40 p-2 text-[11px] text-slate-400">
                   Ports sichtbar: {selectedPlacement.inputs.length} Inputs / {selectedPlacement.outputs.length} Outputs
                 </div>
@@ -886,6 +1055,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               </div>
             )}
           </div>
+          </div>
         </div>
 
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
@@ -925,78 +1095,90 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         </div>
       </div>
 
-      <RackInternalWireDialog
-        open={wireDialogOpen}
-        rackName={draft.rackName}
-        placements={draft.placements.map((p) => ({
-          id: p.id,
-          name: p.name,
-          startUnit: p.startUnit,
-          rackUnits: p.rackUnits,
-          inputs: p.inputs,
-          outputs: p.outputs,
-        }))}
-        // The wire dialog uses array INDEX into placements as the item
-        // index. We map the draft's per-id cables → indices using the
-        // CURRENT placement order, so changes survive the round-trip.
-        initialCables={(() => {
-          const result: GroupPreset['cables'] = []
-          for (const c of draft.internalCables) {
-            const fromIdx = draft.placements.findIndex((p) => p.id === c.fromPlacementId)
-            const toIdx = draft.placements.findIndex((p) => p.id === c.toPlacementId)
-            if (fromIdx < 0 || toIdx < 0) continue
-            const entry: GroupPreset['cables'][number] = {
-              fromItemIndex: fromIdx,
-              fromPortName: c.fromPortName,
-              toItemIndex: toIdx,
-              toPortName: c.toPortName,
-              name: c.name,
-              type: c.type,
-              length: c.length,
-            }
-            if (c.color != null) entry.color = c.color
-            if (c.standard != null) entry.standard = c.standard
-            result.push(entry)
-          }
-          return result
-        })()}
-        onCancel={() => setWireDialogOpen(false)}
-        onRenamePlacement={(placementId, newName) => {
-          // Mirror the rename into the rack draft so the change persists
-          // beyond this sub-canvas session.
-          updatePlacement(placementId, { name: newName })
-        }}
-        onShowPlacementInRack={(placementId) => {
-          // Close the wire dialog and select the placement so the user
-          // can edit panel images, U-position, ports etc. in the main
-          // rack layout panel.
-          setWireDialogOpen(false)
-          setSelectedPlacementId(placementId)
-        }}
-        onApply={(cables) => {
-          // Re-map index-based cables back to per-id storage in the draft.
-          const next: InternalCableDraft[] = []
-          for (const c of cables) {
-            const fromId = draft.placements[c.fromItemIndex]?.id
-            const toId = draft.placements[c.toItemIndex]?.id
-            if (!fromId || !toId) continue
-            const entry: InternalCableDraft = {
-              fromPlacementId: fromId,
-              fromPortName: c.fromPortName,
-              toPlacementId: toId,
-              toPortName: c.toPortName,
-              name: c.name,
-              type: c.type,
-              length: c.length,
-            }
-            if (c.color != null) entry.color = c.color
-            if (c.standard != null) entry.standard = c.standard
-            next.push(entry)
-          }
-          setDraft((current) => ({ ...current, internalCables: next }))
-          setWireDialogOpen(false)
-        }}
-      />
+      {wireDialogOpen && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-2 sm:p-6">
+          <div className="flex h-[92vh] w-[min(1500px,calc(100vw-1rem))] flex-col rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-semibold">Rack-Verkabelung: {draft.rackName || '(unbenannt)'}</h3>
+                <p className="mt-1 text-xs text-slate-400">
+                  Ziehe Linien Output → Input. Rechtsklick auf Kabel = Menü, Doppelklick = Eigenschaften, Entf = Löschen.
+                  Verwendet jetzt die echte Canvas-Komponente — Toolbar, Routing, Waypoints, A*-Routing alles wie im Hauptcanvas.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setWireDialogOpen(false)}
+                className="rounded bg-emerald-700 px-3 py-1.5 text-xs hover:bg-emerald-600"
+              >
+                Fertig
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-hidden rounded border border-slate-700">
+              <RackInternalCanvas
+                rackName={draft.rackName}
+                placements={draft.placements.map((p) => ({
+                  id: p.id,
+                  name: p.name,
+                  category: p.category,
+                  startUnit: p.startUnit,
+                  rackUnits: p.rackUnits,
+                  inputs: p.inputs,
+                  outputs: p.outputs,
+                  isRackDevice: p.isRackDevice,
+                }))}
+                initialCables={(() => {
+                  // draft.internalCables (per-id) → GroupPreset.cables (per-index)
+                  const result: GroupPreset['cables'] = []
+                  for (const c of draft.internalCables) {
+                    const fromIdx = draft.placements.findIndex((p) => p.id === c.fromPlacementId)
+                    const toIdx = draft.placements.findIndex((p) => p.id === c.toPlacementId)
+                    if (fromIdx < 0 || toIdx < 0) continue
+                    const entry: GroupPreset['cables'][number] = {
+                      fromItemIndex: fromIdx,
+                      fromPortName: c.fromPortName,
+                      toItemIndex: toIdx,
+                      toPortName: c.toPortName,
+                      name: c.name,
+                      type: c.type,
+                      length: c.length,
+                    }
+                    if (c.color != null) entry.color = c.color
+                    if (c.standard != null) entry.standard = c.standard
+                    result.push(entry)
+                  }
+                  return result
+                })()}
+                onCablesChanged={(cables) => {
+                  // GroupPreset.cables (per-index) → draft.internalCables (per-id)
+                  const next: InternalCableDraft[] = []
+                  for (const c of cables) {
+                    const fromId = draft.placements[c.fromItemIndex]?.id
+                    const toId = draft.placements[c.toItemIndex]?.id
+                    if (!fromId || !toId) continue
+                    const entry: InternalCableDraft = {
+                      fromPlacementId: fromId,
+                      fromPortName: c.fromPortName,
+                      toPlacementId: toId,
+                      toPortName: c.toPortName,
+                      name: c.name,
+                      type: c.type,
+                      length: c.length,
+                    }
+                    if (c.color != null) entry.color = c.color
+                    if (c.standard != null) entry.standard = c.standard
+                    next.push(entry)
+                  }
+                  setDraft((current) => ({ ...current, internalCables: next }))
+                }}
+                onPlacementRenamed={(placementId, newName) => {
+                  updatePlacement(placementId, { name: newName })
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <RackImageCropDialog
         open={!!cropDialog}
