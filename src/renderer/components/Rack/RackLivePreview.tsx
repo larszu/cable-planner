@@ -106,7 +106,10 @@ export const RackLivePreview = ({
   // Schwarz-Box: Höhe wird durch grössere Port-Liste bestimmt
   const totalExtPorts = Math.max(externalIns.length, externalOuts.length, 1)
   const blackBoxHeight = Math.max(80, HEADER_PX + totalExtPorts * SIDE_PORT_GAP + 12)
-  const blackBoxWidth = 200
+  // v7.9.10 — Card wider damit "device:port"-Labels nicht abgeschnitten
+  // werden. Bei vielen externen Ports + langen Geräte-Namen sind
+  // 240px ein guter Default.
+  const blackBoxWidth = 260
 
   // Internal Wiring SVG: Rack-Inneres als Slot-Stack
   const rackInnerHeight = totalUnits * HE_PX
@@ -157,9 +160,10 @@ export const RackLivePreview = ({
                   top: HEADER_PX + idx * SIDE_PORT_GAP,
                   maxWidth: blackBoxWidth / 2 - 8,
                 }}
-                title={`${port.device}: ${port.port}`}
+                title={`${port.device}: ${port.port} (${port.connectorType})`}
               >
-                {port.port}
+                <span className="text-slate-500">{port.device.slice(0, 8)}{port.device.length > 8 ? '…' : ''}:</span>
+                <span className="font-semibold text-slate-200">{port.port}</span>
               </div>
             ))}
             {externalOuts.map((port, idx) => (
@@ -184,9 +188,10 @@ export const RackLivePreview = ({
                   top: HEADER_PX + idx * SIDE_PORT_GAP,
                   maxWidth: blackBoxWidth / 2 - 8,
                 }}
-                title={`${port.device}: ${port.port}`}
+                title={`${port.device}: ${port.port} (${port.connectorType})`}
               >
-                {port.port}
+                <span className="font-semibold text-slate-200">{port.port}</span>
+                <span className="text-slate-500">:{port.device.slice(0, 8)}{port.device.length > 8 ? '…' : ''}</span>
               </div>
             ))}
           </div>
@@ -264,33 +269,89 @@ export const RackLivePreview = ({
                 </g>
               )
             })}
-            {/* Internal cables: gebogene Linien von rechts (Output-Seite des
-                Quell-Devices) zum Ziel-Device. */}
-            {cables.map((c, i) => {
-              const from = placementById.get(c.fromPlacementId)
-              const to = placementById.get(c.toPlacementId)
-              if (!from || !to) return null
-              const y1 = 6 + (from.startUnit - 1) * HE_PX + (from.rackUnits * HE_PX) / 2
-              const y2 = 6 + (to.startUnit - 1) * HE_PX + (to.rackUnits * HE_PX) / 2
-              const x1 = rackInnerWidth
-              const x2 = rackInnerWidth + 60
-              const midX = x1 + 30
-              const color = c.color ?? '#0ea5e9'
+            {/* v7.9.10 — Pro Gerät bekommt jeder beteiligte Port einen
+                eigenen Slot entlang der Geräte-Höhe. Vorher landeten
+                alle Kabel auf dem Geräte-Center → bei mehreren Kabeln
+                stack-overlap. Jetzt distinct Port-Stub-Position pro
+                Port-Name. */}
+            {(() => {
+              const portSlotsByDevice = new Map<string, string[]>()
+              for (const c of cables) {
+                if (!portSlotsByDevice.has(c.fromPlacementId))
+                  portSlotsByDevice.set(c.fromPlacementId, [])
+                if (!portSlotsByDevice.has(c.toPlacementId))
+                  portSlotsByDevice.set(c.toPlacementId, [])
+                const fromList = portSlotsByDevice.get(c.fromPlacementId)!
+                if (!fromList.includes(c.fromPortName)) fromList.push(c.fromPortName)
+                const toList = portSlotsByDevice.get(c.toPlacementId)!
+                if (!toList.includes(c.toPortName)) toList.push(c.toPortName)
+              }
+              const portSlotY = (placementId: string, portName: string): number => {
+                const p = placementById.get(placementId)
+                if (!p) return 6
+                const itemTop = 6 + (p.startUnit - 1) * HE_PX
+                const itemH = p.rackUnits * HE_PX
+                const slots = portSlotsByDevice.get(placementId) ?? [portName]
+                const idx = Math.max(0, slots.indexOf(portName))
+                const count = slots.length
+                if (count <= 1) return itemTop + itemH / 2
+                const usable = itemH * 0.8
+                const startY = itemTop + itemH * 0.1
+                return startY + (idx / (count - 1)) * usable
+              }
+
               return (
-                <g key={`cable-${i}`}>
-                  <path
-                    d={`M ${x1} ${y1} C ${midX} ${y1} ${midX} ${y2} ${x2} ${y2} L ${x1} ${y2}`}
-                    fill="none"
-                    stroke={color}
-                    strokeWidth={1.2}
-                    strokeDasharray="3 2"
-                    opacity={0.85}
-                  />
-                  <circle cx={x1} cy={y1} r={2} fill={color} />
-                  <circle cx={x1} cy={y2} r={2} fill={color} />
-                </g>
+                <>
+                  {/* Port-Stub-Markers + Labels pro Gerät */}
+                  {Array.from(portSlotsByDevice.entries()).flatMap(([pid, ports]) =>
+                    ports.map((portName, idx) => {
+                      const y = portSlotY(pid, portName)
+                      return (
+                        <g key={`stub-${pid}-${idx}`}>
+                          <circle
+                            cx={rackInnerWidth}
+                            cy={y}
+                            r={2}
+                            fill="#94a3b8"
+                          />
+                          <text
+                            x={rackInnerWidth + 5}
+                            y={y + 2}
+                            fill="#64748b"
+                            fontSize={7}
+                          >
+                            {portName}
+                          </text>
+                        </g>
+                      )
+                    }),
+                  )}
+                  {/* Kabel zwischen Port-Stubs */}
+                  {cables.map((c, i) => {
+                    const from = placementById.get(c.fromPlacementId)
+                    const to = placementById.get(c.toPlacementId)
+                    if (!from || !to) return null
+                    const y1 = portSlotY(c.fromPlacementId, c.fromPortName)
+                    const y2 = portSlotY(c.toPlacementId, c.toPortName)
+                    const x1 = rackInnerWidth
+                    const bulge = 30 + Math.min(40, Math.abs(y2 - y1) * 0.25)
+                    const midX = x1 + bulge
+                    const color = c.color ?? '#0ea5e9'
+                    return (
+                      <path
+                        key={`cable-${i}`}
+                        d={`M ${x1} ${y1} C ${midX} ${y1} ${midX} ${y2} ${x1} ${y2}`}
+                        fill="none"
+                        stroke={color}
+                        strokeWidth={1.4}
+                        strokeDasharray="3 2"
+                        opacity={0.85}
+                      />
+                    )
+                  })}
+                </>
               )
-            })}
+            })()}
             {cables.length === 0 && (
               <text
                 x={rackInnerWidth + 30}
