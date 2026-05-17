@@ -142,6 +142,11 @@ type CablePlannerApi = {
       inputLabels?: Record<number, { shortName: string; longName: string }>
     }) => Promise<{ matrixApplied: number; classicApplied: number; labelsApplied: number }>
     onEvent: (cb: (line: string) => void) => () => void
+    /** v7.9.53 — mDNS-Auto-Discovery für ATEM-Switcher im lokalen Netz.
+     *  Sucht für timeoutMs (Default 3000) nach "_blackmagic._tcp"-Services. */
+    discover: (params?: { timeoutMs?: number }) => Promise<
+      Array<{ name: string; ip: string; port: number; model?: string }>
+    >
   }
   videohub: {
     sendRouting: (params: { host: string; port: number; block: string }) => Promise<{ ok: boolean; message: string }>
@@ -560,6 +565,7 @@ const webFallbackApi: CablePlannerApi = {
       throw new Error('ATEM control requires the desktop app.')
     },
     onEvent: () => () => {},
+    discover: async () => [],
   },
   videohub: {
     sendRouting: async () => ({
