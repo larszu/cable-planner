@@ -24,6 +24,12 @@ type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
 
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import { EQUIPMENT_LAYOUT, LIMITS, VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
+import {
+  syncDevicesToFolder,
+  syncPresetsToFolder,
+  seedLibrarySyncCache,
+  stampGroupLibraryRef,
+} from '../lib/librarySync'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -96,6 +102,7 @@ const persistCustomLibrary = (items: EquipmentTemplate[]) => {
   } catch {
     /* ignore */
   }
+  syncDevicesToFolder(items)
 }
 
 const loadKnownCategories = (): string[] => {
@@ -236,6 +243,7 @@ const persistGroupPresets = (presets: GroupPreset[]) => {
   } catch {
     /* ignore */
   }
+  syncPresetsToFolder(presets)
 }
 
 export interface ProjectState {
@@ -1687,6 +1695,10 @@ const buildProjectStore = (
           placementByIndex.set(p.itemIndex, { startUnit: p.startUnit, heightUnits: p.heightUnits })
         }
       }
+      // v7.9.33 — Stempelt jedes platzierte Gerät mit dem aktuellen
+      // Group-File-Stand damit Update-Prompt beim Projekt-Öffnen erkennt
+      // wenn die Gruppe in der Library aktualisiert wurde.
+      const groupRef = stampGroupLibraryRef(preset.name)
       // Create new equipment items with fresh IDs and port IDs.
       const newEquipment: EquipmentItem[] = preset.items.map((item, idx) => ({
         ...item,
@@ -1698,6 +1710,7 @@ const buildProjectStore = (
         rackInstanceId,
         rackInstanceLabel,
         rackInstanceStartUnit: placementByIndex.get(idx)?.startUnit,
+        libraryRef: groupRef,
       }))
       // Build (itemIndex:portName) → new port ID lookup
       const portIdMap = new Map<string, string>()
@@ -1877,6 +1890,17 @@ const buildProjectStore = (
 // Default singleton — used everywhere via the existing `useProjectStore`
 // import. Autoload aus localStorage, Autosave-Subscription, Rate-Guard.
 export const useProjectStore = create<ProjectState>(buildProjectStore())
+
+// v7.9.33 — Seed des Sync-Caches mit dem aus localStorage geladenen
+// Stand. Damit weiß `syncDevicesToFolder` beim ersten Mutate-Call
+// welche Items bereits in der zentralen Library liegen und schreibt
+// nur den tatsächlichen Delta. Ohne den Seed würde die erste User-
+// Aktion ALLE existierenden Items in den Folder schreiben + deren
+// fileVersion bumpen — auch wenn sich am Item nichts geändert hat.
+{
+  const initial = useProjectStore.getState()
+  seedLibrarySyncCache(initial.customLibrary, initial.groupPresets)
+}
 
 // Rate-Guard nur für die Default-Instanz (siehe Kommentar in
 // buildProjectStore).

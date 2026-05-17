@@ -107,6 +107,34 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     pdfBytes: (bytes: Uint8Array) =>
       ipcRenderer.invoke('print:pdf-bytes', bytes) as Promise<boolean>,
   },
+  library: {
+    /** v7.9.33 — Zentraler Library-Ordner (userData/library/). Jedes
+     *  Gerät/Gruppe liegt als eigene Datei (.cpdevice/.cpgroup); damit
+     *  überleben sie App-Reinstalls und können per Dropbox o.ä. synchron
+     *  zwischen Systemen gehalten werden. */
+    getFolderPath: () =>
+      ipcRenderer.invoke('library:get-folder-path') as Promise<string>,
+    revealFolder: () =>
+      ipcRenderer.invoke('library:reveal-folder') as Promise<string>,
+    scan: () =>
+      ipcRenderer.invoke('library:scan') as Promise<
+        Array<{
+          kind: 'device' | 'group'
+          fileName: string
+          fileVersion: number
+          modifiedAt: string
+          payload: unknown
+        }>
+      >,
+    write: (params: { kind: 'device' | 'group'; name: string; payload: unknown }) =>
+      ipcRenderer.invoke('library:write', params) as Promise<{
+        fileName: string
+        fileVersion: number
+        modifiedAt: string
+      }>,
+    deleteItem: (params: { kind: 'device' | 'group'; name: string }) =>
+      ipcRenderer.invoke('library:delete', params) as Promise<boolean>,
+  },
   mobileShare: {
     start: () =>
       ipcRenderer.invoke('mobileShare:start') as Promise<{
