@@ -332,9 +332,22 @@ const SortableCategorySection = ({
 const SortablePresetCard = ({
   id,
   children,
+  nativeDragData,
+  onCardClick,
+  clickTitle,
 }: {
   id: string
   children: ReactNode
+  /** v7.9.15 — Optional: HTML5-native drag-Daten, damit die Karte zusätzlich
+   *  zum dnd-kit-Sort-Drag auf den Canvas gezogen werden kann. Der dnd-kit-
+   *  Drag-Handle nutzt PointerEvents, der HTML5-Drag-Path nutzt
+   *  dragstart/dragend — Konflikte gibt es keine. */
+  nativeDragData?: { mime: string; data: string }
+  /** v7.9.16 — Klick auf die Karte (außerhalb von Action-Buttons)
+   *  triggert diesen Callback. Analog zu LibraryItem.onAdd — Click
+   *  platziert, Drag-Drop platziert an der Drop-Position. */
+  onCardClick?: () => void
+  clickTitle?: string
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
   const style: React.CSSProperties = {
@@ -344,7 +357,43 @@ const SortablePresetCard = ({
     position: 'relative',
   }
   return (
-    <div ref={setNodeRef} style={style} className="rounded border border-slate-700 bg-slate-900 p-2 pl-5 text-xs">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`group rounded border border-slate-700 bg-slate-900 p-2 pl-5 text-xs ${
+        onCardClick ? 'cursor-grab hover:bg-slate-800 active:cursor-grabbing' : ''
+      }`}
+      draggable={!!nativeDragData}
+      onDragStart={(event) => {
+        if (!nativeDragData) return
+        event.dataTransfer.effectAllowed = 'copy'
+        event.dataTransfer.setData(nativeDragData.mime, nativeDragData.data)
+      }}
+      onClick={
+        onCardClick
+          ? (event) => {
+              // Klicks auf Action-Buttons (mit stopPropagation darin)
+              // werden NICHT durchgereicht. Reine Klicks auf Card-Body
+              // landen hier.
+              if (event.defaultPrevented) return
+              onCardClick()
+            }
+          : undefined
+      }
+      role={onCardClick ? 'button' : undefined}
+      tabIndex={onCardClick ? 0 : undefined}
+      onKeyDown={
+        onCardClick
+          ? (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                onCardClick()
+              }
+            }
+          : undefined
+      }
+      title={onCardClick ? clickTitle : undefined}
+    >
       <span
         {...attributes}
         {...listeners}
@@ -518,6 +567,7 @@ export const LibraryPanel = () => {
   const addGroupPreset = useProjectStore((state) => state.addGroupPreset)
   const deleteGroupPreset = useProjectStore((state) => state.deleteGroupPreset)
   const placeGroupPreset = useProjectStore((state) => state.placeGroupPreset)
+  const insertBlackBoxRack = useProjectStore((state) => state.insertBlackBoxRack)
   const reorderGroupPresets = useProjectStore((state) => state.reorderGroupPresets)
   const renameGroupPreset = useProjectStore((state) => state.renameGroupPreset)
   const renameCustomCategory = useProjectStore((state) => state.renameCustomCategory)
@@ -1954,51 +2004,41 @@ export const LibraryPanel = () => {
                       const cy = (-canvasState.y + 250) / zoom
                       const totalRackUnits = preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 0), 0)
                       return (
-                        <SortablePresetCard key={preset.id} id={preset.id}>
-                          <div className="flex items-start justify-between gap-1">
-                            <div>
-                              <div className="font-medium text-slate-100">{preset.name}</div>
-                              <div className="text-[10px] text-slate-500 mt-0.5">
+                        <SortablePresetCard
+                          key={preset.id}
+                          id={preset.id}
+                          nativeDragData={{
+                            mime: 'application/cable-planner-group-preset',
+                            data: preset.id,
+                          }}
+                          onCardClick={() => placeGroupPreset(preset.id, cx, cy)}
+                          clickTitle="Klick = auf Canvas platzieren · Drag&Drop = an Drop-Position platzieren"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate font-medium text-slate-100">{preset.name}</div>
+                              <div className="mt-0.5 text-[10px] text-slate-500">
                                 {preset.items.length} Geräte · {preset.cables.length} Kabel
                                 {totalRackUnits > 0 ? ` · ${totalRackUnits} HE` : ''}
                               </div>
-                              <div className="text-[10px] text-slate-600 mt-0.5 truncate max-w-[160px]">
+                              <div className="mt-0.5 truncate text-[10px] text-slate-600">
                                 {preset.items.map((i) => i.name).join(', ')}
                               </div>
                             </div>
-                            <div className="flex flex-col gap-1 shrink-0">
+                            <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
                               <button
                                 type="button"
-                                onClick={() => placeGroupPreset(preset.id, cx, cy)}
-                                className="rounded bg-emerald-700 px-2 py-1 text-[11px] hover:bg-emerald-600"
-                                title="Gruppe auf Canvas platzieren"
-                              >
-                                Platzieren
-                              </button>
-                              <button
-                                type="button"
-                                onClick={async () => {
-                                  const next = await promptDialog('Gruppe umbenennen:', preset.name)
-                                  if (next && next.trim() && next.trim() !== preset.name) {
-                                    renameGroupPreset(preset.id, next.trim())
-                                  }
-                                }}
-                                className="rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
-                                title="Gruppe umbenennen"
-                              >
-                                Umbenennen
-                              </button>
-                              <button
-                                type="button"
-                                onClick={async () => {
+                                onClick={async (event) => {
+                                  event.stopPropagation()
                                   if (await confirmDialog(`Gruppe "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
                                     deleteGroupPreset(preset.id)
                                   }
                                 }}
-                                className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
-                                title="Gruppe löschen"
+                                className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
+                                title="Gruppe aus Library entfernen"
+                                aria-label="Löschen"
                               >
-                                Löschen
+                                ×
                               </button>
                             </div>
                           </div>
@@ -2054,139 +2094,57 @@ export const LibraryPanel = () => {
                   const cy = (-canvasState.y + 250) / zoom
                   const totalUnits = preset.rack?.totalUnits ?? preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 1), 0)
                   return (
-                    <SortablePresetCard key={preset.id} id={preset.id}>
-                      <div className="flex items-start justify-between gap-1">
-                        <div>
-                          <div className="font-medium text-slate-100">{preset.name}</div>
-                          <div className="text-[10px] text-slate-500 mt-0.5">
+                    <SortablePresetCard
+                      key={preset.id}
+                      id={preset.id}
+                      nativeDragData={{
+                        mime: 'application/cable-planner-rack-preset',
+                        data: preset.id,
+                      }}
+                      onCardClick={() => insertBlackBoxRack(preset.id, cx, cy)}
+                      clickTitle="Klick = als Black-Box auf Canvas platzieren · Drag&Drop = an Drop-Position platzieren"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate font-medium text-slate-100">{preset.name}</div>
+                          <div className="mt-0.5 text-[10px] text-slate-500">
                             {preset.items.length} Geräte · {totalUnits} HE · {preset.cables.length} Kabel
                           </div>
-                          <div className="text-[10px] text-slate-600 mt-0.5 truncate max-w-[180px]">
+                          <div className="mt-0.5 truncate text-[10px] text-slate-600">
                             {preset.items.map((i) => i.name).join(', ')}
                           </div>
                         </div>
-                        <div className="flex flex-col gap-1 shrink-0">
+                        {/* v7.9.16 — Hover-Actions wie bei LibraryItem:
+                            Edit (✎) und Delete (×) als kleine Icon-Buttons,
+                            erscheinen erst beim Hover. Platzieren passiert
+                            durch Click auf den Card-Body. */}
+                        <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
                           <button
                             type="button"
-                            onClick={() => placeGroupPreset(preset.id, cx, cy)}
-                            className="rounded bg-emerald-700 px-2 py-1 text-[11px] hover:bg-emerald-600"
-                            title="Alle Geräte einzeln auf dem Canvas platzieren — interne Kabel werden mitgenommen"
-                          >
-                            Platzieren
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              // Issue #47 — Black-Box-Einfügen. Erzeugt EIN
-                              // Equipment-Item, das das Rack repräsentiert.
-                              // Alle Ports der internen Geräte, die NICHT
-                              // schon durch eine interne Verbindung belegt
-                              // sind, werden als externe Ports des Racks
-                              // exponiert. Interne Verkabelung bleibt
-                              // implizit (keine Kabel auf dem Canvas).
-                              const usedPortNames = new Set<string>()
-                              for (const stub of preset.cables) {
-                                usedPortNames.add(`${stub.fromItemIndex}:${stub.fromPortName}`)
-                                usedPortNames.add(`${stub.toItemIndex}:${stub.toPortName}`)
-                              }
-                              const externalIns: Port[] = []
-                              const externalOuts: Port[] = []
-                              preset.items.forEach((item, idx) => {
-                                for (const p of item.inputs) {
-                                  if (!usedPortNames.has(`${idx}:${p.name}`)) {
-                                    externalIns.push({
-                                      ...p,
-                                      id: uuidv4(),
-                                      name: `${item.name} · ${p.name}`,
-                                    })
-                                  }
-                                }
-                                for (const p of item.outputs) {
-                                  if (!usedPortNames.has(`${idx}:${p.name}`)) {
-                                    externalOuts.push({
-                                      ...p,
-                                      id: uuidv4(),
-                                      name: `${item.name} · ${p.name}`,
-                                    })
-                                  }
-                                }
-                              })
-                              addEquipment({
-                                name: `${preset.name} (Rack)`,
-                                category: 'Rack',
-                                inputs: externalIns,
-                                outputs: externalOuts,
-                                x: cx,
-                                y: cy,
-                                width: 280,
-                                height: 0,
-                                icon: '🗄',
-                                notes: `Black-Box-Rack: ${preset.items.length} Geräte, ${preset.cables.length} interne Verbindungen.`,
-                                // v7.9.9 — Snapshot der internen Verkabelung
-                                // mitnehmen, damit EquipmentNode sie als Overlay
-                                // im Black-Box-Body zeichnen kann.
-                                rackInternalSnapshot: {
-                                  items: preset.items.map((item, idx) => ({
-                                    name: item.name,
-                                    startUnit:
-                                      preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.startUnit ??
-                                      idx + 1,
-                                    rackUnits:
-                                      preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.heightUnits ??
-                                      item.rackUnits ?? 1,
-                                  })),
-                                  cables: preset.cables.map((c) => ({
-                                    fromItemIndex: c.fromItemIndex,
-                                    fromPortName: c.fromPortName,
-                                    toItemIndex: c.toItemIndex,
-                                    toPortName: c.toPortName,
-                                    color: c.color,
-                                  })),
-                                  totalUnits:
-                                    preset.rack?.totalUnits ??
-                                    preset.items.reduce((sum, it) => sum + (it.rackUnits ?? 1), 0),
-                                },
-                              })
-                            }}
-                            className="rounded bg-amber-700 px-2 py-1 text-[11px] hover:bg-amber-600"
-                            title="Rack als einzelnes Black-Box-Gerät einfügen — nur extern erreichbare Ports werden exponiert (interne Verkabelung bleibt implizit)"
-                          >
-                            Black-Box
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
+                            onClick={(event) => {
+                              event.stopPropagation()
                               setEditingRackPresetId(preset.id)
                               setShowRackBuilderDialog(true)
                             }}
-                            className="rounded bg-sky-700 px-2 py-1 text-[11px] hover:bg-sky-600"
-                            title="Rack im 2D-Builder bearbeiten"
+                            className="rounded bg-slate-700 px-1 py-0.5 text-[11px] hover:bg-slate-600"
+                            title="Im 2D-Rack-Builder bearbeiten"
+                            aria-label="Bearbeiten"
                           >
-                            Bearbeiten
+                            ✎
                           </button>
                           <button
                             type="button"
-                            onClick={async () => {
-                              const next = await promptDialog('Rack umbenennen:', preset.name)
-                              if (next && next.trim() && next.trim() !== preset.name) {
-                                renameGroupPreset(preset.id, next.trim())
-                              }
-                            }}
-                            className="rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
-                            title="Rack umbenennen"
-                          >
-                            Umbenennen
-                          </button>
-                          <button
-                            type="button"
-                            onClick={async () => {
+                            onClick={async (event) => {
+                              event.stopPropagation()
                               if (await confirmDialog(`Rack "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
                                 deleteGroupPreset(preset.id)
                               }
                             }}
-                            className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
+                            className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
+                            title="Rack aus Library entfernen"
+                            aria-label="Löschen"
                           >
-                            Löschen
+                            ×
                           </button>
                         </div>
                       </div>

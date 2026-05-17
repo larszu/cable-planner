@@ -48,6 +48,11 @@ export interface RackPlacementForCanvas {
   inputs: EquipmentTemplate['inputs']
   outputs: EquipmentTemplate['outputs']
   isRackDevice: boolean
+  /** v7.9.14 — Falls der User die Position im RackInternalCanvas
+   *  bereits manuell gesetzt hat, wird sie hier durchgereicht und
+   *  ersetzt die Default-Berechnung aus startUnit. */
+  canvasX?: number
+  canvasY?: number
 }
 
 export interface RackInternalCanvasProps {
@@ -61,6 +66,10 @@ export interface RackInternalCanvasProps {
   /** Optional: wenn ein Gerät im Canvas umbenannt wird (z.B. via
    *  EquipmentProperties), propagieren wir das in den Builder-Draft. */
   onPlacementRenamed?: (id: string, newName: string) => void
+  /** v7.9.14 — Live-Sync der Canvas-Positionen zurück in den Builder-
+   *  Draft. Wird bei jeder x/y-Änderung eines Geräts gefeuert, damit
+   *  der Draft die User-gesetzten Positionen persistiert. */
+  onPlacementMoved?: (id: string, x: number, y: number) => void
 }
 
 const NODE_WIDTH = 280
@@ -72,7 +81,34 @@ const X_OFFSET = 100
 const Y_OFFSET = 80
 
 /** Map placements → EquipmentItem[]. Y-Position wird aus startUnit
- *  abgeleitet, damit das Layout sofort die richtige Reihenfolge zeigt. */
+ *  abgeleitet, damit das Layout sofort die richtige Reihenfolge zeigt.
+ *
+ *  v7.9.12 — Port-IDs werden hier zwingend mit UUIDs versorgt. Die
+ *  Catalog-Templates (Blackmagic, Misc, Camera, …) emittieren Ports
+ *  mit `id: ''` und verlassen sich darauf dass `addEquipment` im
+ *  projectStore sie sanitisiert. Da RackInternalCanvas die Templates
+ *  aber direkt in den Scratch-Store überträgt (ohne addEquipment),
+ *  blieben die IDs leer — Folge: ReactFlow/ React benutzten die
+ *  Port-IDs als Keys → identische Keys ('') → nur EIN Port wurde
+ *  gerendert, der Rest "gestapelt". Templates mit bereits gefüllten
+ *  IDs (z.B. Rentman-Imports) waren nicht betroffen, daher zeigte
+ *  Videohub korrekt aber X32 nicht. */
+const sanitizePorts = <T extends { id: string }>(ports: T[]): T[] => {
+  const seen = new Set<string>()
+  return ports.map((p) => {
+    let id = p.id
+    if (!id || seen.has(id)) {
+      // crypto.randomUUID wird breit unterstützt (Electron + alle
+      // modernen Browser). Fallback auf Math.random für Test-Envs.
+      id = typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `port-${Math.random().toString(36).slice(2, 11)}`
+    }
+    seen.add(id)
+    return { ...p, id }
+  })
+}
+
 const buildScratchEquipment = (
   placements: RackPlacementForCanvas[],
 ): EquipmentItem[] =>
@@ -80,10 +116,12 @@ const buildScratchEquipment = (
     id: p.id,
     name: p.name,
     category: p.category,
-    inputs: p.inputs,
-    outputs: p.outputs,
-    x: X_OFFSET,
-    y: Y_OFFSET + (p.startUnit - 1) * HE_TO_PX,
+    inputs: sanitizePorts(p.inputs),
+    outputs: sanitizePorts(p.outputs),
+    // v7.9.14 — User-gespeicherte Position bevorzugt, sonst Default
+    // aus startUnit (vertikaler Stack im Rack-internen Canvas).
+    x: p.canvasX ?? X_OFFSET,
+    y: p.canvasY ?? Y_OFFSET + (p.startUnit - 1) * HE_TO_PX,
     width: NODE_WIDTH,
     height: 0,
     isRackDevice: p.isRackDevice,
@@ -190,6 +228,7 @@ export const RackInternalCanvas = ({
   initialCables,
   onCablesChanged,
   onPlacementRenamed,
+  onPlacementMoved,
 }: RackInternalCanvasProps) => {
   // Scratch store nur einmal pro Mount initialisieren. Spätere
   // Placement-Updates aus dem Parent-Builder werden über einen
@@ -215,17 +254,23 @@ export const RackInternalCanvas = ({
         lastEmittedCablesRef.current = key
         onCablesChanged(next)
       }
-      if (onPlacementRenamed) {
-        for (const eq of state.project.equipment) {
-          const prevEq = prev.project.equipment.find((e) => e.id === eq.id)
-          if (prevEq && prevEq.name !== eq.name) {
-            onPlacementRenamed(eq.id, eq.name)
-          }
+      for (const eq of state.project.equipment) {
+        const prevEq = prev.project.equipment.find((e) => e.id === eq.id)
+        if (!prevEq) continue
+        if (onPlacementRenamed && prevEq.name !== eq.name) {
+          onPlacementRenamed(eq.id, eq.name)
+        }
+        // v7.9.14 — Position-Sync. Bei Drag im Canvas-Mode landen die
+        // neuen x/y im scratch-equipment. Wir propagieren sie zurück
+        // in den Builder-Draft, damit sie beim Speichern in der
+        // GroupPreset.rack.internalCanvasPositions landen.
+        if (onPlacementMoved && (prevEq.x !== eq.x || prevEq.y !== eq.y)) {
+          onPlacementMoved(eq.id, eq.x, eq.y)
         }
       }
     })
     return unsub
-  }, [scratchStore, onCablesChanged, onPlacementRenamed])
+  }, [scratchStore, onCablesChanged, onPlacementRenamed, onPlacementMoved])
 
   // Cable-Erstellung: statt den CableDialog zu öffnen, direkt mit
   // sinnvollen Defaults anlegen. Connector-Type wird aus den

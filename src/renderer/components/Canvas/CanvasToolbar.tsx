@@ -6,7 +6,9 @@ import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { RoutingToggle } from '../shared/RoutingToggle'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 
-export const CanvasToolbar = () => {
+type CanvasToolbarMode = 'main' | 'rack'
+
+export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = {}) => {
   // v7.9.5 — Toolbar frei verschiebbar (User-Request: "Mache die
   // toolbar im canvas frei verschiebbar"). useDraggablePosition liefert
   // den persistierten Offset relativ zur Default-Position top:8 left:8.
@@ -332,57 +334,64 @@ export const CanvasToolbar = () => {
 
       <span style={dividerStyle} />
 
-      {/* ── Gruppe 3: Auswahl-Aktionen ─────────────────────────────── */}
-      <IconButton
-        title={
-          hasSelection
-            ? `Rahmen um die ${selectedEquipmentIds.length} markierten Geräte`
-            : 'Neuen Location-Rahmen einfügen'
-        }
-        onClick={() => {
-          if (hasSelection) {
-            addLocationAroundEquipment(selectedEquipmentIds)
-            return
-          }
-          const zoom = canvasState.zoom || 1
-          const viewportCenterX = (-canvasState.x + 400) / zoom
-          const viewportCenterY = (-canvasState.y + 250) / zoom
-          addLocation({
-            name: 'Neue Location',
-            x: viewportCenterX - 180,
-            y: viewportCenterY - 120,
-            width: 360,
-            height: 240,
-          })
-        }}
-      >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-          <rect x="2" y="3" width="12" height="10" rx="0.5" strokeDasharray="2 1.5" />
-        </svg>
-      </IconButton>
-      <IconButton
-        title={hasSelection ? `Markierte Geräte als Gruppe speichern` : 'Erst Geräte markieren'}
-        disabled={!hasSelection}
-        onClick={() => setNamingGroup(true)}
-      >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-          <rect x="2" y="2" width="6" height="5" rx="0.5" />
-          <rect x="8" y="2" width="6" height="5" rx="0.5" />
-          <rect x="5" y="9" width="6" height="5" rx="0.5" />
-        </svg>
-      </IconButton>
-      <IconButton
-        title={hasSelection ? `Markierte Geräte im 2D-Rack-Builder anordnen` : 'Erst Geräte markieren'}
-        disabled={!hasSelection}
-        onClick={() => triggerRackBuilderFromSelection(selectedEquipmentIds)}
-      >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-          <rect x="3" y="2" width="10" height="12" rx="0.5" />
-          <line x1="3" y1="5" x2="13" y2="5" />
-          <line x1="3" y1="8" x2="13" y2="8" />
-          <line x1="3" y1="11" x2="13" y2="11" />
-        </svg>
-      </IconButton>
+      {/* ── Gruppe 3: Auswahl-Aktionen ───────────────────────────────
+          v7.9.12 — Im Rack-Mode ausgeblendet: Location-Frames, Group-
+          Save, Sub-Rack-Build sind alle Project-Level Operations, im
+          Rack-Sub-Canvas nicht sinnvoll. */}
+      {mode === 'main' && (
+        <>
+          <IconButton
+            title={
+              hasSelection
+                ? `Rahmen um die ${selectedEquipmentIds.length} markierten Geräte`
+                : 'Neuen Location-Rahmen einfügen'
+            }
+            onClick={() => {
+              if (hasSelection) {
+                addLocationAroundEquipment(selectedEquipmentIds)
+                return
+              }
+              const zoom = canvasState.zoom || 1
+              const viewportCenterX = (-canvasState.x + 400) / zoom
+              const viewportCenterY = (-canvasState.y + 250) / zoom
+              addLocation({
+                name: 'Neue Location',
+                x: viewportCenterX - 180,
+                y: viewportCenterY - 120,
+                width: 360,
+                height: 240,
+              })
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+              <rect x="2" y="3" width="12" height="10" rx="0.5" strokeDasharray="2 1.5" />
+            </svg>
+          </IconButton>
+          <IconButton
+            title={hasSelection ? `Markierte Geräte als Gruppe speichern` : 'Erst Geräte markieren'}
+            disabled={!hasSelection}
+            onClick={() => setNamingGroup(true)}
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+              <rect x="2" y="2" width="6" height="5" rx="0.5" />
+              <rect x="8" y="2" width="6" height="5" rx="0.5" />
+              <rect x="5" y="9" width="6" height="5" rx="0.5" />
+            </svg>
+          </IconButton>
+          <IconButton
+            title={hasSelection ? `Markierte Geräte im 2D-Rack-Builder anordnen` : 'Erst Geräte markieren'}
+            disabled={!hasSelection}
+            onClick={() => triggerRackBuilderFromSelection(selectedEquipmentIds)}
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+              <rect x="3" y="2" width="10" height="12" rx="0.5" />
+              <line x1="3" y1="5" x2="13" y2="5" />
+              <line x1="3" y1="8" x2="13" y2="8" />
+              <line x1="3" y1="11" x2="13" y2="11" />
+            </svg>
+          </IconButton>
+        </>
+      )}
 
       {namingGroup && hasSelection && (
         <form
@@ -482,7 +491,10 @@ export const CanvasToolbar = () => {
         <span style={{ fontSize: 14 }}>⤓</span>
       </IconButton>
 
-      {/* ── Status-Gruppe (rechts gepusht): Plan-Lock + Annotations ─ */}
+      {/* ── Status-Gruppe (rechts gepusht): Plan-Lock + Annotations ─
+          v7.9.12 — Im Rack-Mode komplett ausgeblendet. Plan-Lock und
+          Annotations sind Project-Level-Concerns, nicht Rack-intern. */}
+      {mode === 'main' && <>
       <span style={{ ...dividerStyle, marginLeft: 'auto' }} />
       <button
         type="button"
@@ -621,6 +633,7 @@ export const CanvasToolbar = () => {
         </svg>
         <span>Anmerkungen{annotationsCount > 0 ? ` (${annotationsCount})` : ''}</span>
       </button>
+      </>}
 
       {/* Length-Color-Legend Popover (bei Bedarf gerendert) */}
       {showLengthLegend && cableColorMode === 'byLength' && (
