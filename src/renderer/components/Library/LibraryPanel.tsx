@@ -24,6 +24,7 @@ import { useRentman } from '../../hooks/useRentman'
 import { promptDialog } from '../../lib/promptDialog'
 import { CategorySelect } from '../shared/CategorySelect'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { infoDialog } from '../../lib/infoDialog'
 import { format, useTranslation } from '../../lib/i18n'
 import { suggestPortGroups, type PortGroupHint } from '../../lib/portSuggestions'
 import { getGeminiApiKey, setGeminiApiKey, suggestFromAI } from '../../lib/aiSuggestions'
@@ -808,20 +809,25 @@ export const LibraryPanel = () => {
     if (!linkedRentmanProjectId) return
     const projectName = linkedRentmanProjectName ?? 'aktivem Rentman-Projekt'
     if (
-      !window.confirm(
-        `Gerät "${item.name}" wirklich dem ${projectName} in Rentman hinzufügen?\n\nDas ändert dein Rentman-Projekt und ist nicht automatisch reversibel.`,
-      )
+      !(await confirmDialog(`"${item.name}" zu Rentman hinzufügen?`, {
+        body: `Das ändert dein ${projectName} und ist nicht automatisch reversibel.`,
+        okLabel: 'Hinzufügen',
+      }))
     ) {
       return
     }
     setRentmanCatalogAddBusy(item.id)
     try {
       await addProjectEquipment(linkedRentmanProjectId, item.id, 1)
-      window.alert(`"${item.name}" wurde zu Rentman-Projekt hinzugefügt.`)
+      await infoDialog(`"${item.name}" hinzugefügt`, {
+        body: `Wurde dem Rentman-Projekt "${projectName}" hinzugefügt.`,
+        tone: 'success',
+      })
     } catch (err) {
-      window.alert(
-        `Fehler beim Hinzufügen zu Rentman:\n\n${err instanceof Error ? err.message : String(err)}`,
-      )
+      await infoDialog('Fehler beim Hinzufügen zu Rentman', {
+        body: err instanceof Error ? err.message : String(err),
+        tone: 'error',
+      })
     } finally {
       setRentmanCatalogAddBusy(null)
     }
@@ -1022,7 +1028,10 @@ export const LibraryPanel = () => {
       persistCategory(template)
       addCustomTemplate(template)
       setNetBoxResults((current) => current.filter((entry) => entry.path !== item.path))
-      window.alert(`✓ ${template.name} aus NetBox importiert.`)
+      await infoDialog(`${template.name} importiert`, {
+        body: 'Aus NetBox in die Library übernommen.',
+        tone: 'success',
+      })
     } catch (error) {
       setNetBoxError(error instanceof Error ? error.message : String(error))
     } finally {
@@ -2594,9 +2603,12 @@ export const LibraryPanel = () => {
               </button>
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   setNetBoxConflict(null)
-                  window.alert('Lokale Version bleibt unverandert.')
+                  await infoDialog('Lokale Version beibehalten', {
+                    body: 'Die bestehende Library-Version bleibt unverändert.',
+                    tone: 'info',
+                  })
                 }}
                 className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
               >
@@ -2604,10 +2616,13 @@ export const LibraryPanel = () => {
               </button>
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   addCustomTemplate(netBoxConflict.incoming)
                   setNetBoxConflict(null)
-                  window.alert('NetBox-Version wurde ubernommen.')
+                  await infoDialog('NetBox-Version übernommen', {
+                    body: 'Die lokale Version wurde durch die NetBox-Version ersetzt.',
+                    tone: 'success',
+                  })
                 }}
                 className="rounded bg-amber-700 px-3 py-1 text-sm hover:bg-amber-600"
               >
@@ -2636,10 +2651,13 @@ export const LibraryPanel = () => {
         categoryOptions={existingCategoryOptions}
         initialCategory={netBoxMergePair?.incoming.category}
         onCancel={() => setNetBoxMergePair(null)}
-        onConfirm={(merged) => {
+        onConfirm={async (merged) => {
           addCustomTemplate(merged)
           setNetBoxMergePair(null)
-          window.alert('Merge gespeichert.')
+          await infoDialog('Merge gespeichert', {
+            body: 'Die zusammengeführte Version wurde in der Library gespeichert.',
+            tone: 'success',
+          })
         }}
       />
     </aside>

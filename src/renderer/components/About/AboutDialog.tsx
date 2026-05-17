@@ -94,9 +94,7 @@ export const AboutDialog = () => {
           </dl>
 
           <div className="rounded border border-slate-800 bg-slate-950/40 p-3 text-[11px] text-slate-400">
-            Issues + Feature-Wünsche bitte direkt auf GitHub melden. Der Release-Workflow
-            baut Windows EXE + macOS DMG automatisch, sobald ein <code>v*</code>-Tag auf{' '}
-            <code>main</code> gepusht wird.
+            Issues + Feature-Wünsche bitte direkt auf GitHub melden.
           </div>
         </div>
       </div>

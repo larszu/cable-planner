@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { cablePlannerApi } from './lib/bridge'
+import { confirmDialog } from './lib/confirmDialog'
 
 interface State {
   error: Error | null
@@ -347,14 +348,16 @@ export class ErrorBoundary extends Component<Props, State> {
             </button>
             <button
               type="button"
-              onClick={() => {
+              onClick={async () => {
                 if (
-                  !window.confirm(
-                    'WARNUNG: Lokale Daten werden zurückgesetzt.\n\n' +
-                      '✅ Vorher wird eine Sicherheitskopie deines Projekts angelegt\n' +
-                      '   (cable-planner:projectBackup:<Zeit> in localStorage).\n\n' +
-                      'Wirklich zurücksetzen und neu laden?',
-                  )
+                  !(await confirmDialog('Lokale Daten zurücksetzen?', {
+                    body:
+                      'Eine Sicherheitskopie deines Projekts wird vorher angelegt ' +
+                      '(cable-planner:projectBackup:<Zeit> in localStorage).\n\n' +
+                      'Soll wirklich zurückgesetzt und neu geladen werden?',
+                    okLabel: 'Zurücksetzen',
+                    destructive: true,
+                  }))
                 ) {
                   return
                 }
