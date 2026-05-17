@@ -53,6 +53,7 @@ import {
   MIME_GROUP_PRESET,
   MIME_RACK_PRESET,
 } from '../../lib/dragDropMimes'
+import { pickTextFile } from '../../lib/pickFile'
 import { CableLibraryPanel } from './CableLibraryPanel'
 
 const connectorOptions = ALL_CONNECTOR_TYPES
@@ -1061,62 +1062,55 @@ export const LibraryPanel = () => {
    *  überschreiben oder abbrechen. Importierte Gruppen kriegen optional
    *  eine frische UUID damit beim Re-Import ohne Konflikt zwei
    *  Kopien entstehen statt überschrieben zu werden. */
-  const handleImportLibraryFile = () => {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = '.cpdevice,.cpgroup,application/json'
-    input.onchange = async () => {
-      const file = input.files?.[0]
-      if (!file) return
-      const text = await file.text()
-      const parsed = parseLibraryItemFile(text)
-      if (!parsed) {
-        await infoDialog('Datei nicht erkannt', {
-          body: 'Diese Datei ist kein gültiger .cpdevice- oder .cpgroup-Export.',
-          tone: 'error',
-        })
-        return
-      }
-      if (parsed.kind === 'device') {
-        const template = parsed.template
-        const conflict = customLibrary.some((t) => t.name === template.name)
-        if (conflict) {
-          const overwrite = await confirmDialog(
-            `Ein Gerät mit dem Namen "${template.name}" existiert bereits.\n\nÜberschreiben?`,
-            { okLabel: 'Überschreiben', destructive: true },
-          )
-          if (!overwrite) return
-        }
-        addCustomTemplate(template)
-        await infoDialog('Gerät importiert', {
-          body: `"${template.name}" wurde der Library hinzugefügt.`,
-          tone: 'success',
-        })
-        return
-      }
-      // group
-      const preset = parsed.preset
-      const nameConflict = groupPresets.find((p) => p.name === preset.name)
-      if (nameConflict) {
+  const handleImportLibraryFile = async () => {
+    const picked = await pickTextFile('.cpdevice,.cpgroup,application/json')
+    if (!picked) return
+    const parsed = parseLibraryItemFile(picked.content)
+    if (!parsed) {
+      await infoDialog('Datei nicht erkannt', {
+        body: 'Diese Datei ist kein gültiger .cpdevice- oder .cpgroup-Export.',
+        tone: 'error',
+      })
+      return
+    }
+    if (parsed.kind === 'device') {
+      const template = parsed.template
+      const conflict = customLibrary.some((t) => t.name === template.name)
+      if (conflict) {
         const overwrite = await confirmDialog(
-          `Eine Gruppe mit dem Namen "${preset.name}" existiert bereits.\n\nÜberschreiben?`,
+          `Ein Gerät mit dem Namen "${template.name}" existiert bereits.\n\nÜberschreiben?`,
           { okLabel: 'Überschreiben', destructive: true },
         )
         if (!overwrite) return
-        addGroupPreset({ ...preset, id: nameConflict.id })
-      } else {
-        // Frische UUID damit ein evtl. ID-Clash mit einer bestehenden
-        // Preset-ID (Re-Import nach Rename) nicht stillschweigend
-        // überschreibt.
-        addGroupPreset({ ...preset, id: uuidv4() })
       }
-      const kind = preset.rack ? 'Rack' : 'Gruppe'
-      await infoDialog(`${kind} importiert`, {
-        body: `"${preset.name}" wurde der Library hinzugefügt (${preset.items.length} Geräte, ${preset.cables.length} interne Kabel).`,
+      addCustomTemplate(template)
+      await infoDialog('Gerät importiert', {
+        body: `"${template.name}" wurde der Library hinzugefügt.`,
         tone: 'success',
       })
+      return
     }
-    input.click()
+    // group
+    const preset = parsed.preset
+    const nameConflict = groupPresets.find((p) => p.name === preset.name)
+    if (nameConflict) {
+      const overwrite = await confirmDialog(
+        `Eine Gruppe mit dem Namen "${preset.name}" existiert bereits.\n\nÜberschreiben?`,
+        { okLabel: 'Überschreiben', destructive: true },
+      )
+      if (!overwrite) return
+      addGroupPreset({ ...preset, id: nameConflict.id })
+    } else {
+      // Frische UUID damit ein evtl. ID-Clash mit einer bestehenden
+      // Preset-ID (Re-Import nach Rename) nicht stillschweigend
+      // überschreibt.
+      addGroupPreset({ ...preset, id: uuidv4() })
+    }
+    const kind = preset.rack ? 'Rack' : 'Gruppe'
+    await infoDialog(`${kind} importiert`, {
+      body: `"${preset.name}" wurde der Library hinzugefügt (${preset.items.length} Geräte, ${preset.cables.length} interne Kabel).`,
+      tone: 'success',
+    })
   }
 
   const handleImportNetBox = async (item: NetBoxDeviceTypeSearchResult) => {
