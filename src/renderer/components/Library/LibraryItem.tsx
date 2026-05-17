@@ -9,6 +9,7 @@ interface LibraryItemProps {
   onRemove?: () => void
   onToggleFavorite?: () => void
   onToggleHidden?: () => void
+  onExport?: () => void
 }
 
 export const LibraryItem = ({
@@ -17,6 +18,7 @@ export const LibraryItem = ({
   onRemove,
   onToggleFavorite,
   onToggleHidden,
+  onExport,
 }: LibraryItemProps) => {
   // Currently linked Rentman project — used to colour-code rentman badges
   // so users can distinguish "from active Rentman project" vs "from another
@@ -152,6 +154,20 @@ export const LibraryItem = ({
             title={item.hidden ? 'Wieder anzeigen' : 'Ausblenden'}
           >
             {item.hidden ? '◎' : '⦸'}
+          </button>
+        )}
+        {onExport && (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation()
+              onExport()
+            }}
+            className="rounded bg-slate-700 px-1 text-[11px] text-slate-300 hover:bg-slate-600"
+            title="Als Datei exportieren (Kopie in den Downloads-Ordner)"
+            aria-label="Exportieren"
+          >
+            ⬇
           </button>
         )}
         {onRemove && (
