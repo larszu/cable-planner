@@ -963,6 +963,16 @@ export interface ComputeEdgePathOptions {
   penaltySpatialIndex?: PenaltySpatialIndex;
   globalGrid?: IntGrid;
   freeEndDir?: boolean;
+  /** v7.9.37 — Override ROUTING_PARAMS.STUB für diesen einen Aufruf.
+   *  Brauch der Adapter wenn er Source/Target in Obstacles inkludiert
+   *  und die Stubs weiter raus muss, damit der A*-Start außerhalb der
+   *  Padding-Zone liegt. */
+  stubCells?: number;
+  /** v7.9.37 — Zusätzliche Cells die beim Grid-Build force-unblocked
+   *  werden (zusätzlich zu den Stub-Endpunkten). Brauch der Adapter
+   *  um einen Korridor vom Handle durch die eigene Padding-Zone zu
+   *  öffnen. */
+  extraForceOpen?: { gx: number; gy: number }[];
 }
 
 export function computeEdgePath(
@@ -983,6 +993,8 @@ export function computeEdgePath(
     penaltySpatialIndex,
     globalGrid,
     freeEndDir,
+    stubCells,
+    extraForceOpen,
   } = opts;
 
   // Convert pixel coordinates to grid coordinates
@@ -991,10 +1003,11 @@ export function computeEdgePath(
   const tgx = px2g(targetX);
   const tgy = px2g(targetY);
 
-  // Stub: 1 cell horizontal exit from port
+  // Stub: outward exit from port. Default 1 cell, kann per stubCells
+  // erhöht werden wenn Source/Target gepaddete Obstacles sind.
   const srcRight = sourceExitsRight ?? true;
   const tgtLeft = targetEntersLeft ?? true;
-  const stub = ROUTING_PARAMS.STUB;
+  const stub = stubCells ?? ROUTING_PARAMS.STUB;
   const stubSGX = noSourceStub ? sgx : sgx + (srcRight ? stub : -stub);
   const stubTGX = noTargetStub ? tgx : tgx + (tgtLeft ? -stub : stub);
 
@@ -1010,6 +1023,7 @@ export function computeEdgePath(
     const forceOpen = [
       { gx: stubSGX, gy: sgy },
       { gx: stubTGX, gy: tgy },
+      ...(extraForceOpen ?? []),
     ];
     for (const pt of forceOpen) {
       const c = pt.gx - originX;
@@ -1027,6 +1041,7 @@ export function computeEdgePath(
     const forceOpen = [
       { gx: stubSGX, gy: sgy },
       { gx: stubTGX, gy: tgy },
+      ...(extraForceOpen ?? []),
     ];
     grid = buildGrid(stubSGX, sgy, stubTGX, tgy, gridRects, forceOpen);
   }
