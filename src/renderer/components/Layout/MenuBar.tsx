@@ -83,6 +83,7 @@ export const MenuBar = ({
   hasToken = false,
 }: MenuBarProps) => {
   const t = useTranslation()
+  const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
   // Re-render whenever the projectHistory store changes so the undo/redo
   // buttons reflect the current canUndo/canRedo state. Keyboard shortcuts
   // (Strg+Z / Strg+Umsch+Z / Strg+Y) live in useUndoRedoShortcuts; these
@@ -163,11 +164,10 @@ export const MenuBar = ({
               )}
             </>
           )}
-          {onOpenPrintDialog && (
-            <MenuItem onClick={onOpenPrintDialog} icon="🖨" shortcut="Strg+P">
-              {t('app.menu.file.print', 'Drucken (OS-Dialog)…')}
-            </MenuItem>
-          )}
+          {/* v7.9.4 — Eigenständiger "Drucken (OS-Dialog)…"-Eintrag
+              entfernt — war doppelt zur "Drucken"-Sektion im
+              Exportieren-&-Drucken-Hub (User-Bug: "Datei → Drucken
+              ist doppelt"). */}
           {/* v7.9.3 — Viewer-Workflow: Plan als .cpviewer für Freelancer
               exportieren, später deren Anmerkungen zurück mergen. */}
           {(onExportViewer || onImportAnnotations) && <MenuSep />}
@@ -181,8 +181,10 @@ export const MenuBar = ({
               {t('app.menu.file.importAnnotations', 'Anmerkungen aus Viewer-Datei importieren…')}
             </MenuItem>
           )}
-          {(onAttachPdfToRentman || onOpenRentmanCableExport) && <MenuSep />}
-          {onAttachPdfToRentman && (
+          {/* v7.9.4 — Rentman-Menü-Einträge nur wenn die Integration
+              in den Einstellungen aktiviert ist. */}
+          {rentmanEnabled && (onAttachPdfToRentman || onOpenRentmanCableExport) && <MenuSep />}
+          {rentmanEnabled && onAttachPdfToRentman && (
             <MenuItem
               onClick={hasRentmanLink ? onAttachPdfToRentman : undefined}
               icon="📎"
@@ -195,7 +197,7 @@ export const MenuBar = ({
                   )}
             </MenuItem>
           )}
-          {onOpenRentmanCableExport && (
+          {rentmanEnabled && onOpenRentmanCableExport && (
             <MenuItem
               onClick={hasRentmanLink ? onOpenRentmanCableExport : undefined}
               icon="🔌"

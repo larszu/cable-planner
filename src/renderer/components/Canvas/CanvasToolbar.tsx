@@ -4,8 +4,13 @@ import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { RoutingToggle } from '../shared/RoutingToggle'
+import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 
 export const CanvasToolbar = () => {
+  // v7.9.5 — Toolbar frei verschiebbar (User-Request: "Mache die
+  // toolbar im canvas frei verschiebbar"). useDraggablePosition liefert
+  // den persistierten Offset relativ zur Default-Position top:8 left:8.
+  const drag = useDraggablePosition('cable-planner:canvas-toolbar-pos', true)
   // v7.9.0 / Issue #120 — open RackBuilder seeded with current selection
   const triggerRackBuilderFromSelection = useUiStore((s) => s.triggerRackBuilderFromSelection)
   const snapToGrid = useUiStore((state) => state.snapToGrid)
@@ -16,10 +21,12 @@ export const CanvasToolbar = () => {
   const setDefaultRouting = useUiStore((state) => state.setDefaultRouting)
   const defaultArrow = useUiStore((state) => state.defaultArrow)
   const setDefaultArrow = useUiStore((state) => state.setDefaultArrow)
+  // v7.9.5 — globaler Kabelbrücken-Toggle in der Toolbar
+  const cableBumps = useUiStore((state) => state.cableBumps)
+  const setCableBumps = useUiStore((state) => state.setCableBumps)
   const cableColorMode = useUiStore((state) => state.cableColorMode)
   const setCableColorMode = useUiStore((state) => state.setCableColorMode)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
-  const setCanvasTheme = useUiStore((state) => state.setCanvasTheme)
   const colorPortsByType = useUiStore((state) => state.colorPortsByType)
   const setColorPortsByType = useUiStore((state) => state.setColorPortsByType)
   const isLight = canvasTheme === 'light'
@@ -135,22 +142,86 @@ export const CanvasToolbar = () => {
     }
   }
 
-  const sectionLabelStyle: React.CSSProperties = {
-    color: isLight ? '#475569' : '#94a3b8',
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    letterSpacing: '0.06em',
-    fontSize: 9,
-    paddingRight: 2,
+  // v7.9.5 — Unified design tokens für die Toolbar.
+  const T = {
+    iconBtnSize: 28,
+    bg: isLight ? 'rgba(248,250,252,0.92)' : 'rgba(15,23,42,0.92)',
+    border: isLight ? '#cbd5e1' : '#1f2937',
+    text: isLight ? '#1e293b' : '#e2e8f0',
+    textMuted: isLight ? '#64748b' : '#94a3b8',
+    btnBg: 'transparent',
+    btnBgHover: isLight ? 'rgba(15,23,42,0.06)' : 'rgba(148,163,184,0.12)',
+    btnActiveBg: '#0284c7',
+    btnActiveText: '#ffffff',
+    dividerColor: isLight ? '#e2e8f0' : '#1f2937',
   }
   const dividerStyle: React.CSSProperties = {
     width: 1,
-    height: 18,
-    background: isLight ? '#e2e8f0' : '#1f2937',
-    margin: '0 2px',
+    height: 22,
+    background: T.dividerColor,
+    margin: '0 4px',
+    alignSelf: 'center',
   }
+
+  // v7.9.5 — Compact icon button: 28×28, transparent default, hover-bg,
+  // active-state in sky-blue. Disabled = 40% opacity, not-allowed cursor.
+  const IconButton = ({
+    title,
+    onClick,
+    active,
+    disabled,
+    children,
+    color,
+  }: {
+    title: string
+    onClick?: () => void
+    active?: boolean
+    disabled?: boolean
+    children: React.ReactNode
+    color?: string
+  }) => (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        width: T.iconBtnSize,
+        height: T.iconBtnSize,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 0,
+        background: active ? T.btnActiveBg : T.btnBg,
+        color: active ? T.btnActiveText : (color ?? T.text),
+        border: '1px solid transparent',
+        borderRadius: 6,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.4 : 1,
+        transition: 'background 0.12s',
+      }}
+      onMouseEnter={(e) => {
+        if (!disabled && !active)
+          (e.currentTarget as HTMLButtonElement).style.background = T.btnBgHover
+      }}
+      onMouseLeave={(e) => {
+        if (!active)
+          (e.currentTarget as HTMLButtonElement).style.background = T.btnBg
+      }}
+    >
+      {children}
+    </button>
+  )
+
+  const selectedEquipmentIds = getNodes()
+    .filter((n) => n.selected && n.type === 'equipment')
+    .map((n) => n.id)
+  const hasSelection = selectedEquipmentIds.length >= 1
+  const alignEnabled = selectedEquipmentIds.length >= 2
+
   return (
     <div
+      ref={drag.containerRef}
       className="nodrag nopan"
       style={{
         position: 'absolute',
@@ -159,31 +230,65 @@ export const CanvasToolbar = () => {
         zIndex: 10,
         display: 'flex',
         flexWrap: 'wrap',
-        gap: 6,
+        gap: 2,
         maxWidth: 'min(880px, calc(100vw - 420px))',
-        padding: '5px 8px',
-        background: isLight ? 'rgba(248,250,252,0.92)' : 'rgba(15,23,42,0.92)',
-        border: `1px solid ${isLight ? '#cbd5e1' : '#1f2937'}`,
+        padding: '4px 6px',
+        background: T.bg,
+        border: `1px solid ${T.border}`,
         borderRadius: 10,
         boxShadow: isLight
           ? '0 8px 24px rgba(15,23,42,0.10), 0 2px 6px rgba(15,23,42,0.06)'
           : '0 8px 24px rgba(0,0,0,0.40), 0 2px 6px rgba(0,0,0,0.30)',
         fontSize: 11,
-        color: isLight ? '#1e293b' : '#e2e8f0',
+        ...drag.containerStyle,
+        color: T.text,
         alignItems: 'center',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
       }}
     >
-      <span style={sectionLabelStyle}>Canvas</span>
-      <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
-        <input
-          type="checkbox"
-          checked={snapToGrid}
-          onChange={(event) => setSnapToGrid(event.target.checked)}
-        />
-        Einrasten
-      </label>
+      {/* ── Drag-Grip (verschiebt die Toolbar) ─────────────────────── */}
+      <span
+        {...drag.headerProps}
+        title="Toolbar verschieben"
+        aria-label="Toolbar verschieben"
+        style={{
+          ...drag.headerProps.style,
+          display: 'inline-flex',
+          alignItems: 'center',
+          padding: '0 4px',
+          height: T.iconBtnSize,
+          color: T.textMuted,
+          userSelect: 'none',
+          borderRadius: 4,
+        }}
+      >
+        <svg width="8" height="14" viewBox="0 0 8 14" fill="currentColor" aria-hidden="true">
+          <circle cx="2" cy="2" r="1.1" />
+          <circle cx="6" cy="2" r="1.1" />
+          <circle cx="2" cy="7" r="1.1" />
+          <circle cx="6" cy="7" r="1.1" />
+          <circle cx="2" cy="12" r="1.1" />
+          <circle cx="6" cy="12" r="1.1" />
+        </svg>
+      </span>
+
+      <span style={dividerStyle} />
+
+      {/* ── Gruppe 1: Snap-to-Grid + Grid-Size ─────────────────────── */}
+      <IconButton
+        title={`Geräte beim Verschieben am Raster (${gridSize}px) einrasten`}
+        onClick={() => setSnapToGrid(!snapToGrid)}
+        active={snapToGrid}
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+          <rect x="2" y="2" width="12" height="12" rx="0.5" />
+          <line x1="6" y1="2" x2="6" y2="14" />
+          <line x1="10" y1="2" x2="10" y2="14" />
+          <line x1="2" y1="6" x2="14" y2="6" />
+          <line x1="2" y1="10" x2="14" y2="10" />
+        </svg>
+      </IconButton>
       <input
         type="number"
         min={2}
@@ -191,267 +296,49 @@ export const CanvasToolbar = () => {
         value={gridSize}
         onChange={(event) => setGridSize(Number(event.target.value))}
         style={{
-          width: 50,
+          width: 40,
+          height: T.iconBtnSize - 4,
           background: isLight ? '#ffffff' : '#0f172a',
-          border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
-          color: isLight ? '#1e293b' : '#e2e8f0',
-          padding: '1px 4px',
-          borderRadius: 3,
+          border: `1px solid ${T.border}`,
+          color: T.text,
+          padding: '0 4px',
+          borderRadius: 4,
+          fontSize: 11,
         }}
         title="Rastergröße in Pixeln"
       />
+
       <span style={dividerStyle} />
-      <span style={sectionLabelStyle}>Routing</span>
-      <RoutingToggle
-        value={defaultRouting}
-        onChange={setDefaultRouting}
-        variant="toolbar"
+
+      {/* ── Gruppe 2: Defaults-Dropdown ────────────────────────────── */}
+      <DefaultsMenu
+        T={T}
+        defaultRouting={defaultRouting}
+        setDefaultRouting={setDefaultRouting}
+        defaultArrow={defaultArrow}
+        setDefaultArrow={setDefaultArrow}
+        cableBumps={cableBumps}
+        setCableBumps={setCableBumps}
+        colorPortsByType={colorPortsByType}
+        setColorPortsByType={setColorPortsByType}
+        cableColorMode={cableColorMode}
+        setCableColorMode={setCableColorMode}
+        showLengthLegend={showLengthLegend}
+        setShowLengthLegend={setShowLengthLegend}
         isLight={isLight}
       />
-      <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', marginLeft: 4 }}>
-        <input
-          type="checkbox"
-          checked={defaultArrow}
-          onChange={(event) => setDefaultArrow(event.target.checked)}
-        />
-        Pfeil
-      </label>
-      <label
-        style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', marginLeft: 4 }}
-        title="Port-Punkte in der Farbe des Steckertyps darstellen (SDI=amber, HDMI=violett, Ethernet=grün …) statt nach Input/Output"
-      >
-        <input
-          type="checkbox"
-          checked={colorPortsByType}
-          onChange={(event) => setColorPortsByType(event.target.checked)}
-        />
-        Ports nach Typ
-      </label>
+
       <span style={dividerStyle} />
-      {/* Cable color mode toggle */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-        <span style={{ ...sectionLabelStyle, marginRight: 2 }}>Kabel</span>
-        <button
-          type="button"
-          onClick={() => setCableColorMode('manual')}
-          title="Kabelfarbe: manuell (wie im Kabel-Dialog gesetzt)"
-          style={{
-            padding: '2px 6px',
-            background: cableColorMode === 'manual' ? '#0369a1' : (isLight ? '#e2e8f0' : '#1e293b'),
-            border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
-            color: isLight ? '#1e293b' : '#e2e8f0',
-            borderRadius: 3,
-            cursor: 'pointer',
-          }}
-        >
-          Farbe: Typ
-        </button>
-        <button
-          type="button"
-          onClick={() => setCableColorMode('byLength')}
-          title="Kabelfarbe: nach Standardlänge (1m=rot, 2m=gelb, 3m=grün …)"
-          style={{
-            padding: '2px 6px',
-            background: cableColorMode === 'byLength' ? '#0369a1' : (isLight ? '#e2e8f0' : '#1e293b'),
-            border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
-            color: isLight ? '#1e293b' : '#e2e8f0',
-            borderRadius: 3,
-            cursor: 'pointer',
-          }}
-        >
-          Farbe: Länge
-        </button>
-        {cableColorMode === 'byLength' && (
-          <button
-            type="button"
-            onClick={() => setShowLengthLegend((v) => !v)}
-            title="Legende der Längenfarben anzeigen"
-            style={{
-              padding: '2px 5px',
-              background: isLight ? '#e2e8f0' : '#1e293b',
-              border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
-              color: isLight ? '#64748b' : '#94a3b8',
-              borderRadius: 3,
-              cursor: 'pointer',
-            }}
-          >
-            ?
-          </button>
-        )}
-      </div>
-      {showLengthLegend && cableColorMode === 'byLength' && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 36,
-            left: 0,
-            background: isLight ? 'rgba(241,245,249,0.98)' : 'rgba(15,23,42,0.97)',
-            border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
-            borderRadius: 6,
-            padding: '8px 12px',
-            zIndex: 20,
-            minWidth: 180,
-          }}
-        >
-          <div style={{ fontWeight: 600, marginBottom: 6, fontSize: 11 }}>Längenfarben</div>
-          {LENGTH_COLOR_RULES.map((r) => (
-            <div
-              key={r.length}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3, fontSize: 11 }}
-            >
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: 24,
-                  height: 3,
-                  background: r.color,
-                  borderRadius: 2,
-                  border: `1px solid ${isLight ? '#94a3b8' : '#475569'}`,
-                  ...(r.dashArray ? { backgroundImage: `repeating-linear-gradient(90deg,${r.color} 0 6px,transparent 6px 10px)`, backgroundColor: 'transparent' } : {}),
-                }}
-              />
-              <span style={{ color: isLight ? '#334155' : '#cbd5e1' }}>{r.label}</span>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => setShowLengthLegend(false)}
-            style={{ marginTop: 6, fontSize: 10, color: isLight ? '#475569' : '#64748b', background: 'none', border: 'none', cursor: 'pointer' }}
-          >
-            Schließen
-          </button>
-        </div>
-      )}
-      <span style={dividerStyle} />
-      <button
-        type="button"
-        onClick={() => setCanvasTheme(canvasTheme === 'dark' ? 'light' : 'dark')}
-        title={canvasTheme === 'dark' ? 'Heller Hintergrund' : 'Dunkler Hintergrund'}
-        style={{
-          padding: '2px 6px',
-          background: isLight ? '#e2e8f0' : '#1e293b',
-          border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
-          color: isLight ? '#1e293b' : '#e2e8f0',
-          borderRadius: 3,
-          cursor: 'pointer',
-          fontSize: 13,
-        }}
-      >
-        {canvasTheme === 'dark' ? '☀' : '🌙'}
-      </button>
-      <span style={dividerStyle} />
-      {/* v7.9.3 — Planungs-Lock-Toggle (User-Request: "Planung
-          abgeschlossen"-Button). 'editing'→'finalized' macht das
-          Canvas read-only. Viewer-Modus (entstanden durch Import
-          einer .cpviewer-Datei) kann hier NICHT zurückgesetzt
-          werden (Button wird disabled/anders gerendert). */}
-      <button
-        type="button"
-        onClick={() => {
-          if (projectMode === 'viewer') return
-          if (projectMode === 'finalized') {
-            const ok = window.confirm(
-              'Planung wieder zur Bearbeitung freigeben?\n\n' +
-                'Im Editing-Modus können Geräte und Kabel wieder verschoben, hinzugefügt und gelöscht werden.',
-            )
-            if (ok) setProjectMode('editing')
-          } else {
-            const ok = window.confirm(
-              'Planung abschließen?\n\n' +
-                'Das Canvas wird gesperrt — keine Verschiebungen, neue Verbindungen ' +
-                'oder Löschungen möglich. Du kannst die Sperre jederzeit wieder aufheben.',
-            )
-            if (ok) setProjectMode('finalized')
-          }
-        }}
-        disabled={projectMode === 'viewer'}
+
+      {/* ── Gruppe 3: Auswahl-Aktionen ─────────────────────────────── */}
+      <IconButton
         title={
-          projectMode === 'viewer'
-            ? 'Viewer-Modus — die Datei wurde aus einer .cpviewer-Datei geladen und ist permanent read-only.'
-            : projectMode === 'finalized'
-              ? 'Planung ist abgeschlossen (read-only). Klicken um wieder zu bearbeiten.'
-              : 'Planung als abgeschlossen markieren (Canvas read-only schalten).'
+          hasSelection
+            ? `Rahmen um die ${selectedEquipmentIds.length} markierten Geräte`
+            : 'Neuen Location-Rahmen einfügen'
         }
-        style={{
-          padding: '2px 8px',
-          background:
-            projectMode === 'viewer'
-              ? '#1e293b'
-              : projectMode === 'finalized'
-                ? '#0e7490'
-                : (isLight ? '#e2e8f0' : '#1e293b'),
-          border:
-            '1px solid ' +
-            (projectMode === 'viewer'
-              ? '#475569'
-              : projectMode === 'finalized'
-                ? '#06b6d4'
-                : (isLight ? '#cbd5e1' : '#334155')),
-          color:
-            projectMode === 'viewer'
-              ? '#94a3b8'
-              : projectMode === 'finalized'
-                ? '#e0f2fe'
-                : (isLight ? '#475569' : '#cbd5e1'),
-          borderRadius: 3,
-          cursor: projectMode === 'viewer' ? 'not-allowed' : 'pointer',
-          fontSize: 11,
-        }}
-      >
-        {projectMode === 'viewer' && '👁 Viewer'}
-        {projectMode === 'finalized' && '🔒 Plan abgeschlossen'}
-        {projectMode === 'editing' && '🔓 Plan abschließen'}
-      </button>
-      {/* v7.9.3 — Annotations-Panel-Toggle. Im Viewer-Modus prominent
-          dargestellt, im Editor-Modus dezent (für Plan-Eigentümer der
-          Reviewer-Kommentare durchgehen will). */}
-      <button
-        type="button"
-        onClick={() => setAnnotationsPanelOpen(!annotationsPanelOpen)}
-        title={
-          projectMode === 'viewer'
-            ? 'Anmerkungen — als Reviewer Notizen hinterlassen'
-            : 'Anmerkungen anzeigen'
-        }
-        style={{
-          padding: '2px 8px',
-          background: annotationsPanelOpen
-            ? '#0e7490'
-            : projectMode === 'viewer'
-              ? '#7c3aed'
-              : (isLight ? '#e2e8f0' : '#1e293b'),
-          border:
-            '1px solid ' +
-            (annotationsPanelOpen
-              ? '#06b6d4'
-              : projectMode === 'viewer'
-                ? '#a78bfa'
-                : (isLight ? '#cbd5e1' : '#334155')),
-          color:
-            annotationsPanelOpen
-              ? '#e0f2fe'
-              : projectMode === 'viewer'
-                ? '#e2e8f0'
-                : (isLight ? '#475569' : '#cbd5e1'),
-          borderRadius: 3,
-          cursor: 'pointer',
-          fontSize: 11,
-        }}
-      >
-        💬 Anmerkungen{annotationsCount > 0 ? ` (${annotationsCount})` : ''}
-      </button>
-      <span style={dividerStyle} />
-      <span style={sectionLabelStyle}>Layout</span>
-      <button
-        type="button"
         onClick={() => {
-          // If the user has multiple equipment nodes selected (Shift/Ctrl-click
-          // or marquee), wrap them in a frame without moving them. Otherwise
-          // drop a fresh frame in the viewport center.
-          const selectedEquipmentIds = getNodes()
-            .filter((n) => n.selected && n.type === 'equipment')
-            .map((n) => n.id)
-          if (selectedEquipmentIds.length > 0) {
+          if (hasSelection) {
             addLocationAroundEquipment(selectedEquipmentIds)
             return
           }
@@ -466,170 +353,548 @@ export const CanvasToolbar = () => {
             height: 240,
           })
         }}
-        style={{
-          padding: '2px 8px',
-          background: '#0369a1',
-          border: '1px solid #0ea5e9',
-          color: '#e2e8f0',
-          borderRadius: 3,
-          cursor: 'pointer',
-        }}
-        title="Neue Location: wenn Geräte markiert sind, Rahmen um die Auswahl; sonst leerer Rahmen in der Bildschirmmitte"
       >
-        ▣ Rahmen
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+          <rect x="2" y="3" width="12" height="10" rx="0.5" strokeDasharray="2 1.5" />
+        </svg>
+      </IconButton>
+      <IconButton
+        title={hasSelection ? `Markierte Geräte als Gruppe speichern` : 'Erst Geräte markieren'}
+        disabled={!hasSelection}
+        onClick={() => setNamingGroup(true)}
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+          <rect x="2" y="2" width="6" height="5" rx="0.5" />
+          <rect x="8" y="2" width="6" height="5" rx="0.5" />
+          <rect x="5" y="9" width="6" height="5" rx="0.5" />
+        </svg>
+      </IconButton>
+      <IconButton
+        title={hasSelection ? `Markierte Geräte im 2D-Rack-Builder anordnen` : 'Erst Geräte markieren'}
+        disabled={!hasSelection}
+        onClick={() => triggerRackBuilderFromSelection(selectedEquipmentIds)}
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+          <rect x="3" y="2" width="10" height="12" rx="0.5" />
+          <line x1="3" y1="5" x2="13" y2="5" />
+          <line x1="3" y1="8" x2="13" y2="8" />
+          <line x1="3" y1="11" x2="13" y2="11" />
+        </svg>
+      </IconButton>
+
+      {namingGroup && hasSelection && (
+        <form
+          style={{ display: 'flex', gap: 2, alignItems: 'center', marginLeft: 4 }}
+          onSubmit={(e) => {
+            e.preventDefault()
+            const trimmed = groupName.trim() || `Gruppe ${new Date().toLocaleTimeString()}`
+            saveGroupPreset(trimmed, selectedEquipmentIds)
+            setNamingGroup(false)
+            setGroupName('')
+          }}
+        >
+          <input
+            ref={groupNameRef}
+            autoFocus
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            placeholder="Gruppenname…"
+            style={{
+              width: 140,
+              height: T.iconBtnSize - 4,
+              background: isLight ? '#ffffff' : '#0f172a',
+              border: `1px solid ${T.border}`,
+              color: T.text,
+              padding: '0 6px',
+              borderRadius: 4,
+              fontSize: 11,
+            }}
+          />
+          <button
+            type="submit"
+            title="Gruppe speichern"
+            style={{
+              width: T.iconBtnSize,
+              height: T.iconBtnSize,
+              background: '#059669',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: 4,
+              cursor: 'pointer',
+              fontSize: 13,
+            }}
+          >
+            ✓
+          </button>
+          <IconButton title="Abbrechen" onClick={() => setNamingGroup(false)}>
+            <span style={{ fontSize: 11 }}>✕</span>
+          </IconButton>
+        </form>
+      )}
+
+      <span style={dividerStyle} />
+
+      {/* ── Gruppe 4: Ausrichten ───────────────────────────────────── */}
+      <IconButton
+        title={alignEnabled ? 'Linksbündig' : 'Mind. 2 Geräte auswählen'}
+        disabled={!alignEnabled}
+        onClick={() => alignSelected('left')}
+      >
+        <span style={{ fontSize: 14 }}>⇤</span>
+      </IconButton>
+      <IconButton
+        title={alignEnabled ? 'Horizontal zentrieren' : 'Mind. 2 Geräte auswählen'}
+        disabled={!alignEnabled}
+        onClick={() => alignSelected('center-h')}
+      >
+        <span style={{ fontSize: 14 }}>↔</span>
+      </IconButton>
+      <IconButton
+        title={alignEnabled ? 'Rechtsbündig' : 'Mind. 2 Geräte auswählen'}
+        disabled={!alignEnabled}
+        onClick={() => alignSelected('right')}
+      >
+        <span style={{ fontSize: 14 }}>⇥</span>
+      </IconButton>
+      <IconButton
+        title={alignEnabled ? 'Oben ausrichten' : 'Mind. 2 Geräte auswählen'}
+        disabled={!alignEnabled}
+        onClick={() => alignSelected('top')}
+      >
+        <span style={{ fontSize: 14 }}>⤒</span>
+      </IconButton>
+      <IconButton
+        title={alignEnabled ? 'Vertikal zentrieren' : 'Mind. 2 Geräte auswählen'}
+        disabled={!alignEnabled}
+        onClick={() => alignSelected('center-v')}
+      >
+        <span style={{ fontSize: 14 }}>↕</span>
+      </IconButton>
+      <IconButton
+        title={alignEnabled ? 'Unten ausrichten' : 'Mind. 2 Geräte auswählen'}
+        disabled={!alignEnabled}
+        onClick={() => alignSelected('bottom')}
+      >
+        <span style={{ fontSize: 14 }}>⤓</span>
+      </IconButton>
+
+      {/* ── Status-Gruppe (rechts gepusht): Plan-Lock + Annotations ─ */}
+      <span style={{ ...dividerStyle, marginLeft: 'auto' }} />
+      <button
+        type="button"
+        onClick={() => {
+          if (projectMode === 'viewer') return
+          if (projectMode === 'finalized') {
+            const ok = window.confirm(
+              'Planung wieder zur Bearbeitung freigeben?\n\n' +
+                'Geräte, Kabel und Layout können dann wieder verändert werden.',
+            )
+            if (ok) setProjectMode('editing')
+          } else {
+            const ok = window.confirm(
+              'Planung abschließen?\n\n' +
+                'Das Canvas wird gesperrt — keine Verschiebungen, neue Verbindungen ' +
+                'oder Löschungen möglich. Du kannst die Sperre jederzeit wieder aufheben.',
+            )
+            if (ok) setProjectMode('finalized')
+          }
+        }}
+        disabled={projectMode === 'viewer'}
+        title={
+          projectMode === 'viewer'
+            ? 'Viewer-Datei — read-only'
+            : projectMode === 'finalized'
+              ? 'Planung ist abgeschlossen (Klick: Bearbeitung freigeben)'
+              : 'Planung als abgeschlossen markieren'
+        }
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 4,
+          height: T.iconBtnSize,
+          padding: '0 10px',
+          background:
+            projectMode === 'viewer'
+              ? (isLight ? '#e2e8f0' : '#1e293b')
+              : projectMode === 'finalized'
+                ? '#0e7490'
+                : T.btnBg,
+          color:
+            projectMode === 'viewer'
+              ? T.textMuted
+              : projectMode === 'finalized'
+                ? '#e0f2fe'
+                : T.text,
+          border: `1px solid ${projectMode === 'finalized' ? '#06b6d4' : T.border}`,
+          borderRadius: 6,
+          cursor: projectMode === 'viewer' ? 'not-allowed' : 'pointer',
+          fontSize: 11,
+          fontWeight: 500,
+        }}
+      >
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <rect x="3" y="7" width="10" height="7" rx="1" />
+          <path d={projectMode === 'editing' ? 'M5 7V4.5a3 3 0 0 1 6 0V6' : 'M5 7V4.5a3 3 0 0 1 6 0V7'} />
+        </svg>
+        <span>
+          {projectMode === 'viewer'
+            ? 'Viewer'
+            : projectMode === 'finalized'
+              ? 'Abgeschlossen'
+              : 'Abschließen'}
+        </span>
       </button>
-      {(() => {
-        const selectedEquipmentIds = getNodes()
-          .filter((n) => n.selected && n.type === 'equipment')
-          .map((n) => n.id)
-        // v7.9.2 — Schwelle von >=2 auf >=1 gesenkt, damit Gruppe und
-        // "Als Rack speichern" gleichzeitig sichtbar sind sobald min.
-        // 1 Gerät selektiert ist. Vorher war "Gruppe speichern"
-        // unsichtbar bei 1-Geräte-Auswahl, der User dachte die Funktion
-        // sei weg ("die funktion ist leider weg").
-        if (selectedEquipmentIds.length < 1) return null
-        if (namingGroup) {
-          return (
-            <form
-              style={{ display: 'flex', gap: 4, alignItems: 'center' }}
-              onSubmit={(e) => {
-                e.preventDefault()
-                const trimmed = groupName.trim() || `Gruppe ${new Date().toLocaleTimeString()}`
-                saveGroupPreset(trimmed, selectedEquipmentIds)
-                setNamingGroup(false)
-                setGroupName('')
-              }}
+      <button
+        type="button"
+        onClick={() => setAnnotationsPanelOpen(!annotationsPanelOpen)}
+        title={
+          projectMode === 'viewer'
+            ? 'Anmerkungen — als Reviewer Notizen hinterlassen'
+            : 'Anmerkungen anzeigen / verwalten'
+        }
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 4,
+          height: T.iconBtnSize,
+          padding: '0 10px',
+          background: annotationsPanelOpen
+            ? T.btnActiveBg
+            : projectMode === 'viewer'
+              ? '#7c3aed'
+              : T.btnBg,
+          color: annotationsPanelOpen || projectMode === 'viewer' ? '#ffffff' : T.text,
+          border: `1px solid ${
+            annotationsPanelOpen
+              ? T.btnActiveBg
+              : projectMode === 'viewer'
+                ? '#a78bfa'
+                : T.border
+          }`,
+          borderRadius: 6,
+          cursor: 'pointer',
+          fontSize: 11,
+          fontWeight: 500,
+        }}
+      >
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M2 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H6.5L4 13.5V11H3a1 1 0 0 1-1-1V4z" />
+        </svg>
+        <span>Anmerkungen{annotationsCount > 0 ? ` (${annotationsCount})` : ''}</span>
+      </button>
+
+      {/* Length-Color-Legend Popover (bei Bedarf gerendert) */}
+      {showLengthLegend && cableColorMode === 'byLength' && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 42,
+            left: 0,
+            background: T.bg,
+            border: `1px solid ${T.border}`,
+            borderRadius: 8,
+            padding: '10px 14px',
+            zIndex: 20,
+            minWidth: 200,
+            boxShadow: '0 6px 16px rgba(0,0,0,0.25)',
+          }}
+        >
+          <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 11, color: T.text }}>
+            Längenfarben
+          </div>
+          {LENGTH_COLOR_RULES.map((r) => (
+            <div
+              key={r.length}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, fontSize: 11 }}
             >
-              <input
-                ref={groupNameRef}
-                autoFocus
-                value={groupName}
-                onChange={(e) => setGroupName(e.target.value)}
-                // ReactFlow's pane swallows pointer events on its children
-                // unless we stop propagation here. Without this the click
-                // that focuses the input also bubbles to the pane, which
-                // can immediately re-focus itself and steal the caret
-                // (issue #59: "manchmal lässt sich kein text eingeben").
-                onMouseDown={(e) => e.stopPropagation()}
-                onClick={(e) => e.stopPropagation()}
-                placeholder="Gruppenname…"
+              <span
                 style={{
-                  width: 140,
-                  background: isLight ? '#ffffff' : '#0f172a',
-                  border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
-                  color: isLight ? '#1e293b' : '#e2e8f0',
-                  padding: '1px 6px',
-                  borderRadius: 3,
-                  fontSize: 11,
+                  display: 'inline-block',
+                  width: 28,
+                  height: 3,
+                  background: r.color,
+                  borderRadius: 2,
+                  border: `1px solid ${isLight ? '#94a3b8' : '#475569'}`,
+                  ...(r.dashArray
+                    ? { backgroundImage: `repeating-linear-gradient(90deg,${r.color} 0 6px,transparent 6px 10px)`, backgroundColor: 'transparent' }
+                    : {}),
                 }}
               />
+              <span style={{ color: T.textMuted }}>{r.label}</span>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => setShowLengthLegend(false)}
+            style={{
+              marginTop: 8,
+              fontSize: 10,
+              color: T.textMuted,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            Schließen
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ────────────────────────────────────────────────────────────────────
+// v7.9.5 — Defaults-Dropdown: alle "Standard-Verhalten"-Toggles
+// (Routing, Pfeil, Brücken, Ports nach Typ, Kabelfarbe) gebündelt in
+// EINEM Menü statt 5 inline-Checkboxen. Click → Panel auf, Klick
+// außerhalb schließt.
+// ────────────────────────────────────────────────────────────────────
+const DefaultsMenu = ({
+  T,
+  defaultRouting,
+  setDefaultRouting,
+  defaultArrow,
+  setDefaultArrow,
+  cableBumps,
+  setCableBumps,
+  colorPortsByType,
+  setColorPortsByType,
+  cableColorMode,
+  setCableColorMode,
+  showLengthLegend,
+  setShowLengthLegend,
+  isLight,
+}: {
+  T: {
+    iconBtnSize: number
+    bg: string
+    border: string
+    text: string
+    textMuted: string
+    btnBg: string
+    btnBgHover: string
+    btnActiveBg: string
+    btnActiveText: string
+    dividerColor: string
+  }
+  defaultRouting: 'orthogonal' | 'straight' | 'curved'
+  setDefaultRouting: (v: 'orthogonal' | 'straight' | 'curved') => void
+  defaultArrow: boolean
+  setDefaultArrow: (v: boolean) => void
+  cableBumps: boolean
+  setCableBumps: (v: boolean) => void
+  colorPortsByType: boolean
+  setColorPortsByType: (v: boolean) => void
+  cableColorMode: 'manual' | 'byLength'
+  setCableColorMode: (v: 'manual' | 'byLength') => void
+  showLengthLegend: boolean
+  setShowLengthLegend: (v: boolean) => void
+  isLight: boolean
+}) => {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  const anyNonDefault =
+    defaultRouting !== 'orthogonal' ||
+    defaultArrow ||
+    cableBumps ||
+    colorPortsByType ||
+    cableColorMode !== 'manual'
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        title="Standard-Verhalten für neue Kabel + Darstellung"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 4,
+          height: T.iconBtnSize,
+          padding: '0 8px',
+          background: open ? T.btnActiveBg : T.btnBg,
+          color: open ? T.btnActiveText : T.text,
+          border: '1px solid transparent',
+          borderRadius: 6,
+          cursor: 'pointer',
+          fontSize: 11,
+        }}
+      >
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <circle cx="8" cy="8" r="2" />
+          <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3" />
+        </svg>
+        <span>Defaults</span>
+        {anyNonDefault && (
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: '#f59e0b',
+              marginLeft: 1,
+            }}
+            title="Mindestens ein Default wurde verändert"
+          />
+        )}
+        <span style={{ fontSize: 9 }}>{open ? '▴' : '▾'}</span>
+      </button>
+      {open && (
+        <div
+          role="menu"
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 4px)',
+            left: 0,
+            minWidth: 260,
+            background: T.bg,
+            border: `1px solid ${T.border}`,
+            borderRadius: 8,
+            padding: 8,
+            boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
+            fontSize: 11,
+            color: T.text,
+            zIndex: 30,
+          }}
+        >
+          <div style={{ marginBottom: 6, fontWeight: 600, color: T.textMuted, textTransform: 'uppercase', fontSize: 9 }}>
+            Kabel-Routing
+          </div>
+          <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+            {(
+              [
+                { value: 'orthogonal' as const, label: 'Ortho' },
+                { value: 'straight' as const, label: 'Direkt' },
+                { value: 'curved' as const, label: 'Kurve' },
+              ]
+            ).map((opt) => (
               <button
-                type="submit"
+                key={opt.value}
+                type="button"
+                onClick={() => setDefaultRouting(opt.value)}
                 style={{
-                  padding: '2px 8px',
-                  background: '#047857',
-                  border: '1px solid #059669',
-                  color: '#e2e8f0',
-                  borderRadius: 3,
+                  flex: 1,
+                  padding: 4,
+                  background: defaultRouting === opt.value ? T.btnActiveBg : (isLight ? '#f1f5f9' : '#1e293b'),
+                  color: defaultRouting === opt.value ? T.btnActiveText : T.text,
+                  border: '1px solid transparent',
+                  borderRadius: 4,
                   cursor: 'pointer',
+                  fontSize: 11,
                 }}
               >
-                OK
+                {opt.label}
               </button>
+            ))}
+          </div>
+
+          <div style={{ marginBottom: 6, fontWeight: 600, color: T.textMuted, textTransform: 'uppercase', fontSize: 9 }}>
+            Kabelfarbe
+          </div>
+          <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+            <button
+              type="button"
+              onClick={() => setCableColorMode('manual')}
+              style={{
+                flex: 1,
+                padding: 4,
+                background: cableColorMode === 'manual' ? T.btnActiveBg : (isLight ? '#f1f5f9' : '#1e293b'),
+                color: cableColorMode === 'manual' ? T.btnActiveText : T.text,
+                border: '1px solid transparent',
+                borderRadius: 4,
+                cursor: 'pointer',
+                fontSize: 11,
+              }}
+            >
+              Nach Typ
+            </button>
+            <button
+              type="button"
+              onClick={() => setCableColorMode('byLength')}
+              style={{
+                flex: 1,
+                padding: 4,
+                background: cableColorMode === 'byLength' ? T.btnActiveBg : (isLight ? '#f1f5f9' : '#1e293b'),
+                color: cableColorMode === 'byLength' ? T.btnActiveText : T.text,
+                border: '1px solid transparent',
+                borderRadius: 4,
+                cursor: 'pointer',
+                fontSize: 11,
+              }}
+            >
+              Nach Länge
+            </button>
+            {cableColorMode === 'byLength' && (
               <button
                 type="button"
-                onClick={() => setNamingGroup(false)}
+                onClick={() => setShowLengthLegend(!showLengthLegend)}
+                title="Legende der Längenfarben"
                 style={{
-                  padding: '2px 6px',
-                  background: isLight ? '#e2e8f0' : '#1e293b',
-                  border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
-                  color: isLight ? '#475569' : '#94a3b8',
-                  borderRadius: 3,
+                  padding: '4px 6px',
+                  background: isLight ? '#f1f5f9' : '#1e293b',
+                  color: T.textMuted,
+                  border: '1px solid transparent',
+                  borderRadius: 4,
                   cursor: 'pointer',
+                  fontSize: 11,
                 }}
               >
-                ✕
+                ?
               </button>
-            </form>
-          )
-        }
-        return (
-          <button
-            type="button"
-            onClick={() => setNamingGroup(true)}
-            title={`${selectedEquipmentIds.length} Geräte als Gruppe speichern (inkl. Kabel zwischen ihnen)`}
-            style={{
-              padding: '2px 8px',
-              background: '#0e7490',
-              border: '1px solid #06b6d4',
-              color: '#e2e8f0',
-              borderRadius: 3,
-              cursor: 'pointer',
-            }}
-          >
-            Gruppe speichern ({selectedEquipmentIds.length})
-          </button>
-        )
-      })()}
-      {/* v7.9.0 / Issue #120 — "Als Rack speichern" neben "Gruppe speichern" */}
-      {(() => {
-        const selectedEquipmentIds = getNodes()
-          .filter((n) => n.selected && n.type === 'equipment')
-          .map((n) => n.id)
-        if (selectedEquipmentIds.length < 1) return null
-        return (
-          <button
-            type="button"
-            onClick={() => triggerRackBuilderFromSelection(selectedEquipmentIds)}
-            title={`${selectedEquipmentIds.length} ${selectedEquipmentIds.length === 1 ? 'Gerät' : 'Geräte'} im 2D-Rack-Builder anlegen (Rack-Layout + interne Verkabelung)`}
-            style={{
-              padding: '2px 8px',
-              background: '#7c3aed',
-              border: '1px solid #a78bfa',
-              color: '#e2e8f0',
-              borderRadius: 3,
-              cursor: 'pointer',
-            }}
-          >
-            ▤ Als Rack speichern ({selectedEquipmentIds.length})
-          </button>
-        )
-      })()}
-      {(() => {
-        const selectedCount = getNodes().filter(
-          (n) => n.selected && n.type === 'equipment',
-        ).length
-        // v7.9.0 / Issue #119 — Toolbar erscheint jetzt ab 1+ selektiertem
-        // Gerät; Ausrichtungs-Buttons sind aber bei nur 1 Gerät disabled
-        // (mit Hinweis-Title), da Alignment zwischen mehreren stattfindet.
-        if (selectedCount < 1) return null
-        const enabled = selectedCount >= 2
-        const btnStyle = {
-          padding: '2px 6px',
-          background: isLight ? '#e2e8f0' : '#1e293b',
-          border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
-          color: isLight ? '#1e293b' : '#e2e8f0',
-          borderRadius: 3,
-          cursor: enabled ? 'pointer' : 'not-allowed',
-          opacity: enabled ? 1 : 0.4,
-          fontSize: 13,
-          lineHeight: 1,
-        } as const
-        const tip = (base: string): string =>
-          enabled ? base : `${base} — mindestens 2 Geräte auswählen`
-        return (
-          <>
-            <span style={dividerStyle} />
-            <span style={sectionLabelStyle}>Ausrichten</span>
-            <button type="button" disabled={!enabled} title={tip('Linksbündig (gleiche linke Kante)')} onClick={() => alignSelected('left')} style={btnStyle}>⇤</button>
-            <button type="button" disabled={!enabled} title={tip('Horizontal zentrieren (gleiche X-Mitte)')} onClick={() => alignSelected('center-h')} style={btnStyle}>↔</button>
-            <button type="button" disabled={!enabled} title={tip('Rechtsbündig (gleiche rechte Kante)')} onClick={() => alignSelected('right')} style={btnStyle}>⇥</button>
-            <button type="button" disabled={!enabled} title={tip('Oben ausrichten (gleiche obere Kante)')} onClick={() => alignSelected('top')} style={btnStyle}>⤒</button>
-            <button type="button" disabled={!enabled} title={tip('Vertikal zentrieren (gleiche Y-Mitte)')} onClick={() => alignSelected('center-v')} style={btnStyle}>↕</button>
-            <button type="button" disabled={!enabled} title={tip('Unten ausrichten (gleiche untere Kante)')} onClick={() => alignSelected('bottom')} style={btnStyle}>⤓</button>
-          </>
-        )
-      })()}
+            )}
+          </div>
+
+          <div style={{ marginBottom: 6, fontWeight: 600, color: T.textMuted, textTransform: 'uppercase', fontSize: 9 }}>
+            Sonstiges
+          </div>
+          {(
+            [
+              {
+                label: 'Pfeil am Kabel-Ende',
+                value: defaultArrow,
+                set: setDefaultArrow,
+                hint: 'Frisch gezogene Kabel bekommen einen Pfeil',
+              },
+              {
+                label: 'Kabelbrücken bei Kreuzungen',
+                value: cableBumps,
+                set: setCableBumps,
+                hint: 'Globaler Default — pro Kabel via Rechtsklick überschreibbar',
+              },
+              {
+                label: 'Ports nach Connector-Typ einfärben',
+                value: colorPortsByType,
+                set: setColorPortsByType,
+                hint: 'SDI = bernstein, HDMI = violett, Ethernet = grün, …',
+              },
+            ]
+          ).map((opt) => (
+            <label
+              key={opt.label}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 2px', cursor: 'pointer' }}
+              title={opt.hint}
+            >
+              <input
+                type="checkbox"
+                checked={opt.value}
+                onChange={(e) => opt.set(e.target.checked)}
+              />
+              <span>{opt.label}</span>
+            </label>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

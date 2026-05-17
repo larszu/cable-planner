@@ -22,13 +22,13 @@ import { useUiStore } from '../../store/uiStore'
 import { detectDeviceKind, detectNetworkDevice } from '../../lib/deviceKind'
 import { ModeEditorDialog } from './ModeEditorDialog'
 import { promptDialog } from '../../lib/promptDialog'
+import { confirmDialog } from '../../lib/confirmDialog'
 import { useGreenGoBeltpack } from '../../lib/greengoSync'
 import { exportDevicePatchSheet } from '../../lib/exportDevicePdf'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, EquipmentItem, Port, VlanDef, PortVlanAssignment } from '../../types/equipment'
 import { ALL_SIGNAL_STANDARDS } from '../../types/cableSpec'
 import type { SignalStandard } from '../../types/cableSpec'
-import { QUAD_LINK_LABEL, type QuadLinkMode } from '../../types/videoFormat'
 import { RackImageCropDialog } from '../Rack/RackImageCropDialog'
 import { CategorySelect } from '../shared/CategorySelect'
 import { pickImageAsDataUri, readImageAsDataUri } from '../../lib/readImageAsDataUri'
@@ -195,6 +195,97 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
   }
   const addPort = () => onChange([...ports, makePort(`${title.slice(0, -1)} ${ports.length + 1}`)])
   const removePort = (portId: string) => onChange(ports.filter((port) => port.id !== portId))
+
+  // v7.9.7 — Quad-Link Set Helpers. Ein Set besteht aus 4 BNC-Ports auf
+  // derselben Seite (Inputs ODER Outputs) mit gleichem quadLinkGroup-ID.
+  // Die Sets werden pro Seite verwaltet — eine Kamera mit Quad-Out hat
+  // ihre 4 BNC-Outs als ein Set; ein Monitor mit Quad-In dito.
+  const existingQuadGroups = useMemo(() => {
+    const set = new Set<string>()
+    for (const p of ports) {
+      if (p.quadLinkGroup) set.add(p.quadLinkGroup)
+    }
+    return Array.from(set).sort()
+  }, [ports])
+  const quadGroupCount = (g: string): number =>
+    ports.filter((p) => p.quadLinkGroup === g).length
+  const nextQuadGroupId = (): string => {
+    let i = 1
+    while (existingQuadGroups.includes(`QL-${i}`)) i++
+    return `QL-${i}`
+  }
+  const autoFillQuadGroup = async (g: string, sourcePortId: string) => {
+    const haveCount = quadGroupCount(g)
+    const needed = 4 - haveCount
+    if (needed <= 0) return
+    const freeBncPorts = ports.filter(
+      (p) => p.id !== sourcePortId && p.connectorType === 'BNC' && !p.quadLinkGroup,
+    )
+    if (freeBncPorts.length === 0) {
+      alert(
+        `Quad-Link Set ${g} hat nur ${haveCount}/4 Ports. Es sind keine weiteren freien BNC-Ports verfügbar — bitte zuerst BNC-Ports hinzufügen oder bestehende freigeben.`,
+      )
+      return
+    }
+    const ok = await confirmDialog(
+      `Quad-Link Set ${g} ergänzen?`,
+      {
+        body: `Aktuell ${haveCount}/4 Ports. ${Math.min(needed, freeBncPorts.length)} weitere freie BNC-Ports automatisch dem Set zuweisen?`,
+        okLabel: 'Ja, ergänzen',
+      },
+    )
+    if (!ok) return
+    const toAdd = new Set(freeBncPorts.slice(0, needed).map((p) => p.id))
+    onChange(
+      ports.map((p) =>
+        toAdd.has(p.id) ? { ...p, quadLinkGroup: g } : p,
+      ),
+    )
+  }
+  const assignQuadGroup = async (portId: string, raw: string) => {
+    if (raw === '__new__') {
+      const newId = nextQuadGroupId()
+      const updated = ports.map((p) =>
+        p.id === portId ? { ...p, quadLinkGroup: newId } : p,
+      )
+      onChange(updated)
+      // Direkt im Anschluss versuchen, das Set zu vervollständigen.
+      // Wir nutzen einen Microtask damit `ports` im autoFill noch
+      // den frischen Wert hat — autoFillQuadGroup verlässt sich auf
+      // den aktuellen `ports`-Closure-Wert, daher pre-compute hier.
+      const haveCount = updated.filter((p) => p.quadLinkGroup === newId).length
+      const freeBncPorts = updated.filter(
+        (p) =>
+          p.id !== portId &&
+          p.connectorType === 'BNC' &&
+          !p.quadLinkGroup,
+      )
+      const needed = 4 - haveCount
+      if (needed > 0 && freeBncPorts.length > 0) {
+        const ok = await confirmDialog(
+          `Quad-Link Set ${newId} anlegen?`,
+          {
+            body: `1/4 Ports gesetzt. ${Math.min(needed, freeBncPorts.length)} weitere freie BNC-Ports automatisch dem Set zuweisen?`,
+            okLabel: 'Ja, ergänzen',
+          },
+        )
+        if (ok) {
+          const toAdd = new Set(freeBncPorts.slice(0, needed).map((p) => p.id))
+          onChange(
+            updated.map((p) =>
+              toAdd.has(p.id) ? { ...p, quadLinkGroup: newId } : p,
+            ),
+          )
+        }
+      } else if (needed > 0) {
+        alert(
+          `Quad-Link Set ${newId} hat ${haveCount}/4 Ports. Bitte weitere BNC-Ports anlegen und ebenfalls dem Set zuweisen.`,
+        )
+      }
+      return
+    }
+    updatePort(portId, { quadLinkGroup: raw || undefined })
+  }
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
@@ -435,6 +526,51 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
                   Überschreibt die Geräte-SDI-Fähigkeiten für diesen Port.
                   Leer = Default vom Gerät.
                 </div>
+                {(() => {
+                  const g = port.quadLinkGroup
+                  const count = g ? quadGroupCount(g) : 0
+                  const ok = count === 4
+                  return (
+                    <div className="mt-1.5 flex items-center gap-1 text-[10px]">
+                      <span className="text-slate-400">Quad-Link Set:</span>
+                      <select
+                        value={g ?? ''}
+                        onChange={(e) => void assignQuadGroup(port.id, e.target.value)}
+                        className="rounded border border-slate-700 bg-slate-950 px-1 py-0.5 text-[10px]"
+                      >
+                        <option value="">— Kein —</option>
+                        {existingQuadGroups.map((gid) => (
+                          <option key={gid} value={gid}>{gid}</option>
+                        ))}
+                        <option value="__new__">+ Neues Set…</option>
+                      </select>
+                      {g && (
+                        <>
+                          <span
+                            className={`rounded px-1 py-0.5 text-[9px] font-bold ${
+                              ok
+                                ? 'bg-emerald-900/60 text-emerald-300'
+                                : 'bg-amber-900/60 text-amber-300'
+                            }`}
+                            title={ok ? 'Set komplett' : 'Set unvollständig — 4 Ports nötig'}
+                          >
+                            {count}/4
+                          </span>
+                          {!ok && (
+                            <button
+                              type="button"
+                              onClick={() => void autoFillQuadGroup(g, port.id)}
+                              className="rounded bg-sky-800 px-1 py-0.5 text-[9px] text-sky-100 hover:bg-sky-700"
+                              title="Freie BNC-Ports automatisch dem Set zuweisen"
+                            >
+                              auto-fill
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )
+                })()}
               </div>
             )}
           </SortablePortItem>
@@ -445,9 +581,6 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
     </div>
   )
 }
-
-const hasSdiPorts = (device: { inputs: Port[]; outputs: Port[] }): boolean =>
-  [...device.inputs, ...device.outputs].some((p) => p.connectorType === 'BNC')
 
 const RackFacePreview = ({
   equipment,
@@ -538,85 +671,12 @@ const RackFacePreview = ({
   )
 }
 
-interface SdiCapabilitiesBlockProps {
-  equipmentId: string
-  caps?: import('../../types/videoFormat').SdiCapabilities
-}
-
-const SdiCapabilitiesBlock = ({ equipmentId, caps }: SdiCapabilitiesBlockProps) => {
-  const updateEquipment = useProjectStore((state) => state.updateEquipment)
-  const current = caps ?? {}
-  const patch = (next: Partial<typeof current>) => {
-    const merged = { ...current, ...next }
-    const isEmpty =
-      !merged.levelA &&
-      !merged.levelB &&
-      !merged.maxSingleLink &&
-      (!merged.quadLink3G || merged.quadLink3G === 'none')
-    updateEquipment(equipmentId, { sdiCaps: isEmpty ? undefined : merged })
-  }
-  const quadModes: QuadLinkMode[] = ['none', '2SI', 'SquareDivision', 'both']
-
-  return (
-    <fieldset className="rounded border border-amber-700 bg-amber-950/20 p-2">
-      <legend className="px-1 text-[11px] uppercase tracking-wide text-amber-300">
-        SDI Fähigkeiten
-      </legend>
-      <div className="grid grid-cols-2 gap-2">
-        <label className="flex items-center gap-2 text-xs">
-          <input
-            type="checkbox"
-            checked={!!current.levelA}
-            onChange={(event) => patch({ levelA: event.target.checked })}
-          />
-          <span>3G-SDI Level A</span>
-        </label>
-        <label className="flex items-center gap-2 text-xs">
-          <input
-            type="checkbox"
-            checked={!!current.levelB}
-            onChange={(event) => patch({ levelB: event.target.checked })}
-          />
-          <span>3G-SDI Level B</span>
-        </label>
-      </div>
-      <label className="mt-2 block">
-        <span className="mb-1 block text-slate-300">Max Single-Link</span>
-        <select
-          value={current.maxSingleLink ?? ''}
-          onChange={(event) =>
-            patch({
-              maxSingleLink: event.target.value
-                ? (event.target.value as NonNullable<typeof current.maxSingleLink>)
-                : undefined,
-            })
-          }
-          className="w-full rounded border border-slate-700 bg-slate-900 p-2"
-        >
-          <option value="">—</option>
-          <option value="SDI-HD">SDI-HD (1.5G)</option>
-          <option value="SDI-3G">SDI-3G</option>
-          <option value="SDI-6G">SDI-6G</option>
-          <option value="SDI-12G">SDI-12G</option>
-        </select>
-      </label>
-      <label className="mt-2 block">
-        <span className="mb-1 block text-slate-300">Quad Link 3G-SDI</span>
-        <select
-          value={current.quadLink3G ?? 'none'}
-          onChange={(event) => patch({ quadLink3G: event.target.value as QuadLinkMode })}
-          className="w-full rounded border border-slate-700 bg-slate-900 p-2"
-        >
-          {quadModes.map((m) => (
-            <option key={m} value={m}>
-              {QUAD_LINK_LABEL[m]}
-            </option>
-          ))}
-        </select>
-      </label>
-    </fieldset>
-  )
-}
+// v7.9.7 — Device-Level "SDI Fähigkeiten" Block entfernt. Quad-Link
+// passiert jetzt pro Port via `port.quadLinkGroup`. Level A/B + Max
+// Single-Link bleiben pro BNC-Port erhalten. Falls die Device-Level
+// API noch von Importern / Exportern gelesen wird (z.B. Rentman-
+// Templates), bleibt das Datenmodell-Feld `equipment.sdiCaps`
+// vorerst bestehen — nur die UI ist weg.
 
 interface NetworkConfigProps {
   equipmentId: string
@@ -1405,6 +1465,7 @@ export const EquipmentProperties = () => {
   const knownCategories = useProjectStore((state) => state.knownCategories)
   const customLibrary = useProjectStore((state) => state.customLibrary)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
+  const rentmanEnabled = useUiStore((state) => state.rentmanEnabled)
   const openVideohubExport = useUiStore((state) => state.openVideohubExport)
   const openGreenGoExport = useUiStore((state) => state.openGreenGoExport)
   const openAtemDialog = useUiStore((state) => state.openAtemDialog)
@@ -1445,10 +1506,27 @@ export const EquipmentProperties = () => {
     setSectionOrder(arrayMove(sectionOrder, oldIndex, newIndex))
   }
 
+  // v7.9.5 — Property-Panel im Lock-Modus visuell + funktional sperren.
+  // fieldset/disabled blockiert ALLE Form-Controls darunter; das CSS
+  // greift dann mit grauerem Look (pointer-events:none + opacity).
+  const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
+  const projectIsLocked = projectMode === 'finalized' || projectMode === 'viewer'
+
   return (
     <DndContext sensors={dragSensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
     <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
-    <div className="flex flex-col gap-3 text-xs">
+    <fieldset
+      disabled={projectIsLocked}
+      className="flex flex-col gap-3 text-xs disabled:cursor-default disabled:opacity-60"
+      style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}
+    >
+      {projectIsLocked && (
+        <div className="rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1.5 text-[11px] text-amber-200">
+          {projectMode === 'viewer'
+            ? 'Viewer-Modus — Felder können nicht bearbeitet werden.'
+            : 'Plan abgeschlossen — Felder gesperrt. Im Canvas-Banner „Bearbeitung freigeben" klicken.'}
+        </div>
+      )}
       {deviceKind === 'greengo' && (
         <div className="rounded border border-emerald-700 bg-emerald-900/30 p-2">
           <div className="mb-1 text-[10px] uppercase tracking-wide text-emerald-300">
@@ -1743,22 +1821,24 @@ export const EquipmentProperties = () => {
         </div>
       </SortableSection>
 
-      {/* Rentman sync status */}
-      {equipment.rentmanRemoved ? (
-        <div className="flex items-center gap-1.5 rounded border border-red-700/50 bg-red-900/20 px-2 py-1 text-[11px] text-red-300">
-          <span>⚠</span>
-          <span>In Rentman nicht mehr vorhanden!</span>
-        </div>
-      ) : equipment.rentmanId ? (
-        <div className="flex items-center gap-1.5 rounded border border-orange-700/50 bg-orange-900/20 px-2 py-1 text-[11px] text-orange-300">
-          <span className="rounded bg-orange-700 px-1 font-bold text-white">R</span>
-          Rentman-ID: {equipment.rentmanId}
-        </div>
-      ) : (
-        <div className="flex items-center gap-1.5 rounded border border-amber-700/40 bg-amber-900/10 px-2 py-1 text-[11px] text-amber-400">
-          <span>⚠</span>
-          <span>Nicht im Rentman-Plan erfasst</span>
-        </div>
+      {/* Rentman sync status — komplett ausgeblendet wenn Integration global aus */}
+      {rentmanEnabled && (
+        equipment.rentmanRemoved ? (
+          <div className="flex items-center gap-1.5 rounded border border-red-700/50 bg-red-900/20 px-2 py-1 text-[11px] text-red-300">
+            <span>⚠</span>
+            <span>In Rentman nicht mehr vorhanden!</span>
+          </div>
+        ) : equipment.rentmanId ? (
+          <div className="flex items-center gap-1.5 rounded border border-orange-700/50 bg-orange-900/20 px-2 py-1 text-[11px] text-orange-300">
+            <span className="rounded bg-orange-700 px-1 font-bold text-white">R</span>
+            Rentman-ID: {equipment.rentmanId}
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 rounded border border-amber-700/40 bg-amber-900/10 px-2 py-1 text-[11px] text-amber-400">
+            <span>⚠</span>
+            <span>Nicht im Rentman-Plan erfasst</span>
+          </div>
+        )
       )}
       <label className="block">
         <span className="mb-1 block text-slate-300">{t('eq.field.category', 'Kategorie')}</span>
@@ -1863,16 +1943,6 @@ export const EquipmentProperties = () => {
 
       <PowerConsumptionSection equipment={equipment} />
 
-      {hasSdiPorts(equipment) && (
-        <SortableSection
-          id="sdi"
-          title="SDI Fähigkeiten"
-          subtitle="3G Level · Single-Link · Quad-Link"
-        >
-          <SdiCapabilitiesBlock equipmentId={equipment.id} caps={equipment.sdiCaps} />
-        </SortableSection>
-      )}
-
       {networkKind && (
         <SortableSection
           id="network-config"
@@ -1888,12 +1958,6 @@ export const EquipmentProperties = () => {
         </SortableSection>
       )}
 
-      {/* v7.9.2 — Betriebsmodi standardmäßig aufgeklappt damit das
-          Feld direkt sichtbar ist (User-Issue: "Es gibt noch nicht das
-          feld 'Betriebsmodi' sichtbar in der UI"). Die Sektion war
-          vorher nur offen wenn schon ein aktiver Modus gesetzt war —
-          Geräte ohne Modus zeigten nur "keiner" in der collapsed-Bar
-          und der "+ Modus anlegen"-Knopf war unter dem Klick verborgen. */}
       <SortableSection
         id="modes"
         title="Betriebsmodi"
@@ -1903,7 +1967,6 @@ export const EquipmentProperties = () => {
             : (equipment.modes?.find((m) => m.id === equipment.activeModeId)?.name ??
               `${equipment.modes?.length} definiert`)
         }
-        defaultOpen
       >
         <DeviceModePicker equipment={equipment} />
       </SortableSection>
@@ -2156,7 +2219,7 @@ export const EquipmentProperties = () => {
           setCropDialog(null)
         }}
       />
-    </div>
+    </fieldset>
     </SortableContext>
     </DndContext>
   )

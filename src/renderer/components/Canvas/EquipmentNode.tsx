@@ -37,6 +37,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // The override map is sparse — empty/missing entries fall back to
   // the built-in palette inside colorForConnector().
   const connectorTypeColors = useUiStore((s) => s.connectorTypeColors)
+  const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
   const isLight = (data.exportThemeOverride ?? canvasTheme) === 'light'
   const queueConnection = useProjectStore((s) => s.queueConnection)
   // Issue #56: GreenGo beltpack name is the canvas-visible identifier
@@ -391,52 +392,52 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         borderRadius: '5px 5px 0 0',
       }}>
         <div style={{ fontWeight: 600, lineHeight: '16px', display: 'flex', alignItems: 'center', gap: 4 }}>
-          {data.rentmanId && !data.rentmanRemoved ? (
-            // R badge: device is tracked in Rentman
-            <span
-              style={{
-                background: '#c2410c',
-                color: '#fff',
-                fontSize: 9,
-                fontWeight: 700,
-                borderRadius: 3,
-                padding: '0 3px',
-                lineHeight: '13px',
-                flexShrink: 0,
-              }}
-              title={`Rentman-ID: ${data.rentmanId}`}
-            >
-              R
-            </span>
-          ) : data.rentmanRemoved ? (
-            // ⚠ badge: was in Rentman but no longer found in last re-fetch
-            <span
-              style={{
-                background: '#92400e',
-                color: '#fef3c7',
-                fontSize: 9,
-                fontWeight: 700,
-                borderRadius: 3,
-                padding: '0 3px',
-                lineHeight: '13px',
-                flexShrink: 0,
-              }}
-              title="In Rentman nicht mehr vorhanden!"
-            >
-              ⚠
-            </span>
-          ) : (
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                background: '#92400e',
-                flexShrink: 0,
-                opacity: 0.7,
-              }}
-              title="Kein Rentman-Eintrag"
-            />
+          {rentmanEnabled && (
+            data.rentmanId && !data.rentmanRemoved ? (
+              <span
+                style={{
+                  background: '#c2410c',
+                  color: '#fff',
+                  fontSize: 9,
+                  fontWeight: 700,
+                  borderRadius: 3,
+                  padding: '0 3px',
+                  lineHeight: '13px',
+                  flexShrink: 0,
+                }}
+                title={`Rentman-ID: ${data.rentmanId}`}
+              >
+                R
+              </span>
+            ) : data.rentmanRemoved ? (
+              <span
+                style={{
+                  background: '#92400e',
+                  color: '#fef3c7',
+                  fontSize: 9,
+                  fontWeight: 700,
+                  borderRadius: 3,
+                  padding: '0 3px',
+                  lineHeight: '13px',
+                  flexShrink: 0,
+                }}
+                title="In Rentman nicht mehr vorhanden!"
+              >
+                ⚠
+              </span>
+            ) : (
+              <span
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  background: '#92400e',
+                  flexShrink: 0,
+                  opacity: 0.7,
+                }}
+                title="Kein Rentman-Eintrag"
+              />
+            )
           )}
           {(() => {
             // Issue #46: small leading icon glyph derived from category/name,

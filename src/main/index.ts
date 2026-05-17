@@ -46,13 +46,44 @@ const createWindow = async () => {
     } catch { /* ignore */ }
   })
 
-  mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
-    if (level >= 2) { // warning/error only
-      const msg = `[renderer][${level}] ${message} (${sourceId}:${line})\n`
-      try {
-        fs.appendFileSync(path.join(app.getPath('userData'), 'renderer-error.log'), msg)
-      } catch { /* ignore */ }
+  // v7.9.4 — `show: false` + ready-to-show MUSS vor loadURL registriert
+  // werden, sonst feuert das Event evtl. bevor wir zuhören → das Fenster
+  // bleibt unsichtbar und der User denkt Electron sei nicht gestartet.
+  // Plus 5s-Fallback: falls ready-to-show aus irgendeinem Grund nicht
+  // feuert (Renderer-Crash, blockierte JS-Init, …) zeigen wir das
+  // Fenster trotzdem damit der User sieht was los ist.
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
+  const showFallbackTimer = setTimeout(() => {
+    if (!mainWindow.isDestroyed() && !mainWindow.isVisible()) {
+      console.warn('[main] ready-to-show 5s timeout — showing window anyway')
+      mainWindow.show()
     }
+  }, 5000)
+  mainWindow.once('show', () => clearTimeout(showFallbackTimer))
+  mainWindow.once('closed', () => clearTimeout(showFallbackTimer))
+
+  // v7.9.4 — Electron 42+ liefert ein einziges Event-Object statt
+  // (event, level, message, line, sourceId) (alte Signatur deprecated).
+  // Neue Felder: event.level ist ein String ('warning'/'error'/...),
+  // event.message, event.lineNumber, event.sourceId.
+  mainWindow.webContents.on('console-message', (event) => {
+    const e = event as unknown as {
+      level?: string | number
+      message?: string
+      lineNumber?: number
+      sourceId?: string
+    }
+    const isSerious =
+      e.level === 'warning' ||
+      e.level === 'error' ||
+      (typeof e.level === 'number' && e.level >= 2)
+    if (!isSerious) return
+    const msg = `[renderer][${e.level}] ${e.message ?? ''} (${e.sourceId ?? '?'}:${e.lineNumber ?? '?'})\n`
+    try {
+      fs.appendFileSync(path.join(app.getPath('userData'), 'renderer-error.log'), msg)
+    } catch { /* ignore */ }
   })
 
   if (isDev && process.env.VITE_DEV_SERVER_URL) {
@@ -82,10 +113,6 @@ const createWindow = async () => {
   } else {
     await mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
-
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.show()
-  })
 
   // F12 opens DevTools for debugging in production
   mainWindow.webContents.on('before-input-event', (_event, input) => {

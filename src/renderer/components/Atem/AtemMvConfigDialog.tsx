@@ -3,183 +3,164 @@ import { toPng } from 'html-to-image'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi } from '../../lib/bridge'
-import type { AtemMvConfig, AtemMvDefinition } from '../../types/equipment'
+import type {
+  AtemMvConfig,
+  AtemMvDefinition,
+  AtemMvQuadrants,
+} from '../../types/equipment'
 import {
   MV_LAYOUT,
+  closestAtemLayout,
   defaultMvCount,
   getMvCapabilities,
-  getMvGridSpec,
+  getMvQuadrants,
+  migrateMvToQuadrants,
+  mvWindowIndex,
+  roleForSource,
   type AtemMvCapabilities,
 } from '../../lib/atemMvLayout'
 
-/** v7.9.4 — Quadranten-State pro Layout. Jedes Layout hat einen
- *  4-Tupel-Zustand (TL, TR, BL, BR) wo jeder Quadrant entweder ein
- *  großes Fenster ('big', 2×2 Zellen) ODER vier kleine Zellen
- *  ('small', je 1×1) enthält. */
-type QuadState = 'big' | 'small'
-const QUAD_STATE_MAP: Record<number, [QuadState, QuadState, QuadState, QuadState]> = {
-  0: ['big', 'big', 'small', 'small'], // Default
-  1: ['small', 'big', 'small', 'big'], // TopLeftSmall (= right column big)
-  2: ['big', 'small', 'big', 'small'], // TopRightSmall (= left column big)
-  3: ['small', 'small', 'big', 'big'], // ProgramBottom
-  4: ['big', 'big', 'small', 'small'], // BottomLeftSmall
-  5: ['small', 'big', 'small', 'big'], // ProgramRight
-  8: ['big', 'big', 'small', 'small'], // BottomRightSmall
-  10: ['big', 'small', 'big', 'small'], // ProgramLeft
-  12: ['big', 'big', 'small', 'small'], // ProgramTop
-  [MV_LAYOUT.Grid16Small]: ['small', 'small', 'small', 'small'], // Grid: alles klein
-  [MV_LAYOUT.Quad4Big]: ['big', 'big', 'big', 'big'], //          Quad: alles groß
+/** v7.9.4 — Quadranten-basiertes Render-Helper. Wir rendern NICHT
+ *  mehr basierend auf ATEM-Layout-IDs, sondern auf einem direkten
+ *  4-Tupel (TL/TR/BL/BR). Jeder Quadrant wird einzeln umgeschaltet,
+ *  PGM/PVW sind nur Sources (10011/10010), keine speziellen Slots. */
+type QuadDef = {
+  name: 'TL' | 'TR' | 'BL' | 'BR'
+  idx: 0 | 1 | 2 | 3
+  // 4×4-Grid-Position (colStart, rowStart). Big spans 2×2, small ist eine Zelle.
+  col: number // 1 oder 3
+  row: number // 1 oder 3
 }
+const QUADRANTS: ReadonlyArray<QuadDef> = [
+  { name: 'TL', idx: 0, col: 1, row: 1 },
+  { name: 'TR', idx: 1, col: 3, row: 1 },
+  { name: 'BL', idx: 2, col: 1, row: 3 },
+  { name: 'BR', idx: 3, col: 3, row: 3 },
+]
 
-/** Klick auf einen Quadranten → finde das Layout das den Zustand
- *  DIESES Quadranten flippt und ansonsten möglichst viele andere
- *  Quadranten unverändert lässt. Filter auf Layouts die das ATEM-
- *  Modell tatsächlich kann (capabilities-Lookup). */
-const nextLayoutOnQuadrantClick = (
-  currentLayout: number,
-  quadIdx: 0 | 1 | 2 | 3,
-  caps: AtemMvCapabilities,
-): number => {
-  const cur = QUAD_STATE_MAP[currentLayout] ?? QUAD_STATE_MAP[0]
-  const targetState: QuadState = cur[quadIdx] === 'big' ? 'small' : 'big'
-  // Nur Layouts die (a) den Quadranten in der gewünschten Form haben
-  // UND (b) vom Modell unterstützt werden.
-  const candidates = caps.supportedLayouts.filter(
-    (l) => QUAD_STATE_MAP[l] && QUAD_STATE_MAP[l][quadIdx] === targetState,
-  )
-  if (candidates.length === 0) return currentLayout
-  let best = candidates[0]
-  let bestScore = -1
-  for (const l of candidates) {
-    let score = 0
-    for (let i = 0; i < 4; i++) {
-      if (i === quadIdx) continue
-      if (QUAD_STATE_MAP[l][i] === cur[i]) score++
-    }
-    // Tie-Breaker: bei gleichem Score Quad4Big/Grid16Small bevorzugen
-    // wenn ALLE Ziel-Quadranten 'big' bzw. 'small' sind — sonst
-    // landet der User nie bei den All-Layouts via Click.
-    const targetAll: QuadState = targetState
-    const targetIsAll = [0, 1, 2, 3].every((i) =>
-      i === quadIdx ? true : cur[i] === targetAll,
-    )
-    if (
-      targetIsAll &&
-      ((targetAll === 'big' && l === MV_LAYOUT.Quad4Big) ||
-        (targetAll === 'small' && l === MV_LAYOUT.Grid16Small))
-    ) {
-      return l
-    }
-    if (score > bestScore) {
-      bestScore = score
-      best = l
-    }
-  }
-  return best
-}
-
-/** v7.9.4 — Einziger Layout-Picker oben. Zeigt das AKTUELLE Layout
- *  als mittlere Vorschau, jeder Quadrant ist klickbar:
- *   - Quadrant mit Big-Window klicken → Quadrant wird zu 4 kleinen
- *   - Quadrant mit 4 kleinen klicken → Quadrant wird zu Big-Window
- *  Der Quadranten-Wechsel sucht das ATEM-Layout das diesen Zustand
- *  am besten trifft. Wenn die exakte Kombi nicht existiert (z.B.
- *  "TL big + TR big + BL big + BR small"), wird der nächstbeste
- *  Layout-Match gewählt. Quellen-Picker bleibt EXKLUSIV im großen
- *  Big-Window unten. */
-const MvLayoutPicker = ({
-  layoutId,
+/** Ein klickbarer Quadrant in der Mini-Vorschau (= "Layout-Picker"). */
+const QuadrantBlock = ({
+  quad,
+  state,
   windows,
-  pgmIndex,
-  prvIndex,
   inputs,
-  caps,
-  onLayoutChange,
+  cellSize,
+  fontBig,
+  fontIdBig,
+  onToggle,
 }: {
-  layoutId: number
+  quad: QuadDef
+  state: 'big' | 'small'
   windows: { windowIndex: number; sourceId: number }[]
-  pgmIndex: number
-  prvIndex: number
   inputs: { id: number; label: string }[]
-  caps: AtemMvCapabilities
-  onLayoutChange: (newLayout: number) => void
+  cellSize: number
+  fontBig: number
+  fontIdBig: number
+  onToggle: () => void
 }) => {
-  const spec = getMvGridSpec(layoutId)
-  const state = QUAD_STATE_MAP[layoutId] ?? QUAD_STATE_MAP[0]
-  // Quadrant ↔ Zell-Region Mapping (4×4 Grid):
-  //   TL = col 1-2, row 1-2   TR = col 3-4, row 1-2
-  //   BL = col 1-2, row 3-4   BR = col 3-4, row 3-4
-  const QUADRANTS = [
-    { name: 'TL', idx: 0 as const, cols: [1, 2], rows: [1, 2] },
-    { name: 'TR', idx: 1 as const, cols: [3, 4], rows: [1, 2] },
-    { name: 'BL', idx: 2 as const, cols: [1, 2], rows: [3, 4] },
-    { name: 'BR', idx: 3 as const, cols: [3, 4], rows: [3, 4] },
-  ] as const
+  const renderBig = () => {
+    const wi = mvWindowIndex(quad.idx)
+    const win = windows.find((w) => w.windowIndex === wi)
+    const sid = typeof win?.sourceId === 'number' ? win.sourceId : 0
+    const label = sourceLabel(sid, inputs)
+    const bg = sourceColor(sid, label)
+    const role = roleForSource(sid)
+    const highlight = role === 'pgm' ? '#ef4444' : role === 'pvw' ? '#22c55e' : undefined
+    return (
+      <div
+        className="flex flex-col items-center justify-center overflow-hidden text-center"
+        style={{
+          gridColumn: `${quad.col} / span 2`,
+          gridRow: `${quad.row} / span 2`,
+          background: bg,
+          color: sid === 0 ? '#cbd5e1' : '#0f172a',
+          boxShadow: highlight ? `inset 0 0 0 1px ${highlight}` : undefined,
+          fontSize: fontBig,
+          lineHeight: 1.1,
+        }}
+      >
+        <span className="truncate px-1" style={{ maxWidth: '100%', fontWeight: 600 }}>
+          {label}
+        </span>
+        <span style={{ fontSize: fontIdBig, opacity: 0.7 }}>ID {sid}</span>
+      </div>
+    )
+  }
+  const renderSmall = () => {
+    // 4 kleine Cells in einem 2×2 Sub-Grid innerhalb des Quadranten
+    return [0, 1, 2, 3].map((ci) => {
+      const wi = mvWindowIndex(quad.idx, ci as 0 | 1 | 2 | 3)
+      const win = windows.find((w) => w.windowIndex === wi)
+      const sid = typeof win?.sourceId === 'number' ? win.sourceId : 0
+      const label = sourceLabel(sid, inputs)
+      const bg = sourceColor(sid, label)
+      const subCol = quad.col + (ci % 2)
+      const subRow = quad.row + Math.floor(ci / 2)
+      return (
+        <div
+          key={`q-${quad.idx}-c-${ci}`}
+          className="overflow-hidden"
+          style={{
+            gridColumn: `${subCol} / span 1`,
+            gridRow: `${subRow} / span 1`,
+            background: bg,
+          }}
+          title={`${label} (ID ${sid})`}
+        />
+      )
+    })
+  }
+  // Optional: ein größerer Hint im großen Quadranten erklärt was beim
+  // Klick passiert. Bei kleinen Quadranten reicht der Hover-Hint.
+  void cellSize
+  return state === 'big' ? renderBig() : <>{renderSmall()}</>
+}
+
+/** v7.9.4 — Mini-Vorschau ("Layout-Picker"). Jeder Quadrant einzeln
+ *  togglebar — Klick auf big → der Quadrant wird zu 4 klein. Klick
+ *  auf 4 klein → wird zu 1 big. PGM/PVW sind NICHT speziell — nur
+ *  Sources die irgendwo zugewiesen werden. */
+const MvLayoutPicker = ({
+  quadrants,
+  windows,
+  inputs,
+  onToggleQuadrant,
+}: {
+  quadrants: AtemMvQuadrants
+  windows: { windowIndex: number; sourceId: number }[]
+  inputs: { id: number; label: string }[]
+  onToggleQuadrant: (quadIdx: 0 | 1 | 2 | 3) => void
+}) => {
   return (
     <div className="relative" style={{ width: 240, aspectRatio: '16 / 9' }}>
-      {/* Inhalt rendern — Big-Cells mit Label+ID, kleine Cells nur Farbe */}
       <div
         className="absolute inset-0 grid gap-[2px] rounded border border-slate-700 bg-slate-950 p-[2px]"
         style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(4, 1fr)' }}
       >
-        {spec.big.map((big) => {
-          const win = windows.find((w) => w.windowIndex === big.window)
-          const sid = typeof win?.sourceId === 'number' ? win.sourceId : 0
-          const label = sourceLabel(sid, inputs)
-          const bg = sourceColor(sid, label)
-          const role = big.window === pgmIndex ? 'pgm' : big.window === prvIndex ? 'prv' : 'small'
-          const highlight = role === 'pgm' ? '#ef4444' : role === 'prv' ? '#22c55e' : undefined
-          return (
-            <div
-              key={`big-${big.window}`}
-              className="flex flex-col items-center justify-center overflow-hidden text-center"
-              style={{
-                gridColumn: `${big.colStart} / span ${big.colSpan}`,
-                gridRow: `${big.rowStart} / span ${big.rowSpan}`,
-                background: bg,
-                color: sid === 0 ? '#cbd5e1' : '#0f172a',
-                boxShadow: highlight ? `inset 0 0 0 1px ${highlight}` : undefined,
-                fontSize: 9,
-                lineHeight: 1.1,
-              }}
-            >
-              <span className="truncate px-1" style={{ maxWidth: '100%', fontWeight: 600 }}>
-                {label}
-              </span>
-              <span className="text-[8px] opacity-70">ID {sid}</span>
-            </div>
-          )
-        })}
-        {spec.small.map((cell, smallIdx) => {
-          const wi = (spec.smallWindowOffset ?? 2) + smallIdx
-          const win = windows.find((w) => w.windowIndex === wi)
-          const sid = typeof win?.sourceId === 'number' ? win.sourceId : 0
-          const label = sourceLabel(sid, inputs)
-          const bg = sourceColor(sid, label)
-          return (
-            <div
-              key={`small-${wi}`}
-              className="overflow-hidden"
-              style={{
-                gridColumn: `${cell.colStart} / span 1`,
-                gridRow: `${cell.rowStart} / span 1`,
-                background: bg,
-              }}
-              title={`${label} (ID ${sid})`}
-            />
-          )
-        })}
+        {QUADRANTS.map((q) => (
+          <QuadrantBlock
+            key={q.name}
+            quad={q}
+            state={quadrants[q.idx]}
+            windows={windows}
+            inputs={inputs}
+            cellSize={28}
+            fontBig={9}
+            fontIdBig={8}
+            onToggle={() => onToggleQuadrant(q.idx)}
+          />
+        ))}
       </div>
-      {/* Klickbare Quadranten-Overlays — jeweils 50% Breite/Höhe.
-          Hover zeigt einen subtilen Rahmen und einen Hint:
-          "→ 1 großes" wenn aktuell 4 kleine, "→ 4 kleine" wenn aktuell big. */}
+      {/* Klickbare Quadranten-Overlays — flippen JEWEILS NUR diesen
+          einen Quadranten in `quadrants`. Andere bleiben unverändert,
+          PGM/PVW wandern nicht zwischen Slots herum (User-Anweisung). */}
       {QUADRANTS.map((q) => (
         <button
           key={q.name}
           type="button"
-          onClick={() => onLayoutChange(nextLayoutOnQuadrantClick(layoutId, q.idx, caps))}
+          onClick={() => onToggleQuadrant(q.idx)}
           title={
-            state[q.idx] === 'big'
+            quadrants[q.idx] === 'big'
               ? `${q.name}: aktuell 1 großes Fenster — Klick: in 4 kleine teilen`
               : `${q.name}: aktuell 4 kleine Fenster — Klick: zu 1 großem zusammenfassen`
           }
@@ -188,17 +169,12 @@ const MvLayoutPicker = ({
           style={{
             width: '50%',
             height: '50%',
-            top: q.rows[0] === 1 ? 0 : '50%',
-            left: q.cols[0] === 1 ? 0 : '50%',
+            top: q.row === 1 ? 0 : '50%',
+            left: q.col === 1 ? 0 : '50%',
           }}
         >
-          {/* v7.9.4 — Hint immer leicht sichtbar (User-Issue: man muss
-              auch durch Klick auf PGM/PVW zu 4 kleinen wechseln können).
-              Zeigt im Default-Layout direkt auf den großen PGM/PVW
-              Kacheln "1→4" als Hinweis dass sie klickbar sind, ohne
-              dass der User erst hovern muss um es zu entdecken. */}
           <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-[10px] font-bold uppercase tracking-wider text-sky-100 opacity-60 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-            {state[q.idx] === 'big' ? '1 → 4' : '4 → 1'}
+            {quadrants[q.idx] === 'big' ? '1 → 4' : '4 → 1'}
           </span>
         </button>
       ))}
@@ -233,17 +209,26 @@ const DEFAULT_SOURCES: { id: number; label: string; group: string }[] = [
   { id: 8004, label: 'AUX 4', group: 'AUX' },
 ]
 
-const makeMv = (index: number, maxWindows = 16): AtemMvDefinition => ({
+/** v7.9.4 — Frische MV-Definition mit dem neuen Quadranten-Indexing.
+ *  Default: TL+TR big (PGM/PVW vorgestopft als bequemer Startpunkt),
+ *  BL+BR sind 4 kleine schwarze Cells. PGM/PVW sind aber NICHT
+ *  spezielle Slots — User kann die Sources beliebig umsetzen. */
+const makeMv = (index: number): AtemMvDefinition => ({
   index,
   layout: 0,
-  programPreviewSwapped: false,
-  // v7.9.4 — Bis zu 16 Fenster (Grid16Small braucht 0..15). Default
-  // Layout nutzt nur 0..9, die zusätzlichen Slots stehen aber bereit
-  // wenn das Layout gewechselt wird.
-  windows: Array.from({ length: maxWindows }, (_, i) => ({
-    windowIndex: i,
-    sourceId: i === 0 ? 10011 : i === 1 ? 10010 : 0,
-  })),
+  quadrants: ['big', 'big', 'small', 'small'],
+  windows: [
+    { windowIndex: mvWindowIndex(0), sourceId: 10011 }, // TL big — PGM-Vorbelegung
+    { windowIndex: mvWindowIndex(1), sourceId: 10010 }, // TR big — PVW-Vorbelegung
+    { windowIndex: mvWindowIndex(2, 0), sourceId: 0 },
+    { windowIndex: mvWindowIndex(2, 1), sourceId: 0 },
+    { windowIndex: mvWindowIndex(2, 2), sourceId: 0 },
+    { windowIndex: mvWindowIndex(2, 3), sourceId: 0 },
+    { windowIndex: mvWindowIndex(3, 0), sourceId: 0 },
+    { windowIndex: mvWindowIndex(3, 1), sourceId: 0 },
+    { windowIndex: mvWindowIndex(3, 2), sourceId: 0 },
+    { windowIndex: mvWindowIndex(3, 3), sourceId: 0 },
+  ],
 })
 
 const makeDefaultConfig = (name: string): AtemMvConfig => {
@@ -541,19 +526,15 @@ export const AtemMvConfigDialog = () => {
     if (!slot.open || !equipment) return
     setStatus('')
     setPicker(null)
-    // Load config or build default; normalise each MV so windows always has
-    // exactly 10 entries (older saves may have fewer).
+    // v7.9.4 — Migration auf Quadranten-Modell. Falls ein MV noch das
+    // legacy windowIndex-Schema (0..9 in ATEM-Reihenfolge) hat, wird
+    // er per migrateMvToQuadrants in das neue Schema (0/1/2/3 + 10-13/
+    // 20-23/30-33/40-43) konvertiert UND bekommt ein `quadrants`-Feld.
     const raw = equipment.atemMvConfig ?? makeDefaultConfig(equipment.name)
-    const mvs = Array.isArray(raw.multiViewers) && raw.multiViewers.length > 0
-      ? raw.multiViewers.map((mv) => {
-          const existingWindows = Array.isArray(mv.windows) ? mv.windows : []
-          const windows = Array.from({ length: 10 }, (_, i) => {
-            const found = existingWindows.find((w) => w.windowIndex === i)
-            return found ?? { windowIndex: i, sourceId: i === 0 ? 10011 : i === 1 ? 10010 : 0 }
-          })
-          return { ...mv, windows }
-        })
-      : makeDefaultConfig(equipment.name).multiViewers
+    const mvs =
+      Array.isArray(raw.multiViewers) && raw.multiViewers.length > 0
+        ? raw.multiViewers.map((mv) => migrateMvToQuadrants({ ...mv }))
+        : makeDefaultConfig(equipment.name).multiViewers
     setConfig({ multiViewers: mvs })
     setActiveMv((prev) => Math.max(0, Math.min(prev, mvs.length - 1)))
     cablePlannerApi.atem
@@ -653,54 +634,96 @@ export const AtemMvConfigDialog = () => {
   }
 
   const mv = config.multiViewers[activeMv]
-  const spec = mv ? getMvGridSpec(mv.layout) : null
-  const pgmIndex = mv?.programPreviewSwapped ? 0 : 1
-  const prvIndex = mv?.programPreviewSwapped ? 1 : 0
+  const quadrants: AtemMvQuadrants = mv
+    ? getMvQuadrants(mv)
+    : ['big', 'big', 'small', 'small']
 
-  const renderCell = (
-    windowIndex: number,
-    cellStyle: React.CSSProperties,
-    role: 'pgm' | 'prv' | 'small',
-  ) => {
+  // v7.9.4 — User-Anweisung: PGM und PVW sind nur Sources (10011 / 10010),
+  // KEINE speziellen Slots. Highlighting passiert in roleForSource() pro
+  // Source-ID, nicht über windowIndex 0/1 wie früher.
+
+  const toggleQuadrant = (quadIdx: 0 | 1 | 2 | 3) => {
+    if (!mv) return
+    const newQuadrants: AtemMvQuadrants = [...quadrants]
+    newQuadrants[quadIdx] = newQuadrants[quadIdx] === 'big' ? 'small' : 'big'
+    // Layout-Feld für ATEM-Übertragung wird abgeleitet (nächstbestes Match).
+    const newLayout = closestAtemLayout(newQuadrants, caps)
+    updateMv(activeMv, { quadrants: newQuadrants, layout: newLayout })
+  }
+
+  /** Eine große Zelle (big-Quadrant) im Haupt-Big-Window. */
+  const renderBigCell = (quad: QuadDef) => {
     if (!mv) return null
+    const windowIndex = mvWindowIndex(quad.idx)
     const windows = Array.isArray(mv.windows) ? mv.windows : []
-    const win = windows.find((w) => w.windowIndex === windowIndex) ?? windows[windowIndex]
+    const win = windows.find((w) => w.windowIndex === windowIndex)
     const sid = typeof win?.sourceId === 'number' ? win.sourceId : 0
     const label = sourceLabel(sid, inputs)
     const bg = sourceColor(sid, label)
-    const highlight =
-      role === 'pgm' ? '#ef4444' : role === 'prv' ? '#22c55e' : undefined
+    const role = roleForSource(sid)
+    const highlight = role === 'pgm' ? '#ef4444' : role === 'pvw' ? '#22c55e' : undefined
     return (
       <button
         type="button"
-        key={`w-${windowIndex}`}
+        key={`big-${quad.idx}`}
         onClick={(e) => {
           const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-          setPicker({
-            mvIdx: activeMv,
-            windowIndex,
-            x: rect.right + 6,
-            y: rect.top,
-          })
+          setPicker({ mvIdx: activeMv, windowIndex, x: rect.right + 6, y: rect.top })
         }}
         style={{
-          ...cellStyle,
+          gridColumn: `${quad.col} / span 2`,
+          gridRow: `${quad.row} / span 2`,
           background: bg,
           boxShadow: highlight ? `inset 0 0 0 3px ${highlight}` : undefined,
           color: sid === 0 ? '#cbd5e1' : '#0f172a',
         }}
         className="group relative flex flex-col items-center justify-center overflow-hidden border border-slate-900/40 text-center hover:brightness-95"
-        title={`Source ${windowIndex + 1}: ${label} (ID ${sid}) — klicken zum Ändern`}
+        title={`${quad.name} groß: ${label} (ID ${sid}) — klicken zum Ändern`}
       >
-        {role !== 'small' && (
+        {role !== 'other' && (
           <div className="absolute left-1 top-0 text-[9px] font-semibold uppercase tracking-wider opacity-70">
             {role.toUpperCase()}
           </div>
         )}
-        <div className="truncate px-1 text-[11px] font-medium leading-tight">
-          {label}
-        </div>
+        <div className="truncate px-1 text-[11px] font-medium leading-tight">{label}</div>
         <div className="truncate px-1 text-[9px] opacity-60">ID {sid}</div>
+      </button>
+    )
+  }
+
+  /** Eine kleine Zelle (small-Quadrant: 4 Cells) im Haupt-Big-Window. */
+  const renderSmallCell = (quad: QuadDef, cellIdx: 0 | 1 | 2 | 3) => {
+    if (!mv) return null
+    const windowIndex = mvWindowIndex(quad.idx, cellIdx)
+    const windows = Array.isArray(mv.windows) ? mv.windows : []
+    const win = windows.find((w) => w.windowIndex === windowIndex)
+    const sid = typeof win?.sourceId === 'number' ? win.sourceId : 0
+    const label = sourceLabel(sid, inputs)
+    const bg = sourceColor(sid, label)
+    const role = roleForSource(sid)
+    const highlight = role === 'pgm' ? '#ef4444' : role === 'pvw' ? '#22c55e' : undefined
+    const subCol = quad.col + (cellIdx % 2)
+    const subRow = quad.row + Math.floor(cellIdx / 2)
+    return (
+      <button
+        type="button"
+        key={`small-${quad.idx}-${cellIdx}`}
+        onClick={(e) => {
+          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+          setPicker({ mvIdx: activeMv, windowIndex, x: rect.right + 6, y: rect.top })
+        }}
+        style={{
+          gridColumn: `${subCol} / span 1`,
+          gridRow: `${subRow} / span 1`,
+          background: bg,
+          boxShadow: highlight ? `inset 0 0 0 2px ${highlight}` : undefined,
+          color: sid === 0 ? '#cbd5e1' : '#0f172a',
+        }}
+        className="group relative flex flex-col items-center justify-center overflow-hidden border border-slate-900/40 text-center hover:brightness-95"
+        title={`${quad.name} klein #${cellIdx + 1}: ${label} (ID ${sid}) — klicken zum Ändern`}
+      >
+        <div className="truncate px-1 text-[10px] font-medium leading-tight">{label}</div>
+        <div className="truncate px-1 text-[8px] opacity-60">{sid}</div>
       </button>
     )
   }
@@ -779,36 +802,26 @@ export const AtemMvConfigDialog = () => {
             <div className="flex items-center gap-2">
               <span className="text-[11px] text-slate-300">Layout</span>
               <MvLayoutPicker
-                layoutId={mv.layout}
+                quadrants={quadrants}
                 windows={Array.isArray(mv.windows) ? mv.windows : []}
-                pgmIndex={pgmIndex}
-                prvIndex={prvIndex}
                 inputs={inputs}
-                caps={caps}
-                onLayoutChange={(newLayout) => updateMv(activeMv, { layout: newLayout })}
+                onToggleQuadrant={toggleQuadrant}
               />
               <span className="text-[10px] text-slate-500">
                 Klick auf einen Quadranten:<br />
                 groß ↔ 4 kleine
               </span>
             </div>
-            <label className="ml-auto flex shrink-0 items-center gap-2 self-center text-xs">
-              <input
-                type="checkbox"
-                checked={!!mv.programPreviewSwapped}
-                onChange={(e) => updateMv(activeMv, { programPreviewSwapped: e.target.checked })}
-              />
-              <span className="text-slate-300">PGM/PRV getauscht</span>
-            </label>
           </div>
         )}
 
-        {/* v7.9.4 — Big-Window: NUR Source-Picker. Die ehemaligen
-            Quadrant-Overlays die das Layout zyklisch durchschalteten
-            sind entfernt; sie haben die Cell-Klicks abgefangen und
-            erschienen als "1 ↔ 4 · TL"-Geister im PNG-Export. */}
+        {/* v7.9.4 — Big-Window: rendert je Quadrant entweder 1 großes
+            Feld oder 4 kleine (entsprechend `quadrants`). Klick auf
+            jede Zelle öffnet den Source-Picker. PGM/PVW sind keine
+            Slots — nur Source-IDs 10011/10010 die im Picker gewählt
+            werden und dann rot/grün umrandet werden. */}
         <div ref={mvGridRef} className="flex-1 overflow-auto p-4">
-          {mv && spec && (
+          {mv && (
             <div className="relative w-full" style={{ aspectRatio: '16 / 9' }}>
               <div
                 className="absolute inset-0 grid gap-[2px] rounded border border-slate-700 bg-slate-950 p-1"
@@ -817,33 +830,11 @@ export const AtemMvConfigDialog = () => {
                   gridTemplateRows: 'repeat(4, 1fr)',
                 }}
               >
-                {spec.big.map((big) => {
-                  const role =
-                    big.window === pgmIndex
-                      ? 'pgm'
-                      : big.window === prvIndex
-                        ? 'prv'
-                        : 'small'
-                  return renderCell(
-                    big.window,
-                    {
-                      gridColumn: `${big.colStart} / span ${big.colSpan}`,
-                      gridRow: `${big.rowStart} / span ${big.rowSpan}`,
-                    },
-                    role as 'pgm' | 'prv' | 'small',
-                  )
-                })}
-                {spec.small.map((cell, smallIdx) => {
-                  const windowIndex = (spec.smallWindowOffset ?? 2) + smallIdx
-                  return renderCell(
-                    windowIndex,
-                    {
-                      gridColumn: `${cell.colStart} / span 1`,
-                      gridRow: `${cell.rowStart} / span 1`,
-                    },
-                    'small',
-                  )
-                })}
+                {QUADRANTS.map((q) =>
+                  quadrants[q.idx] === 'big'
+                    ? renderBigCell(q)
+                    : ([0, 1, 2, 3] as const).map((ci) => renderSmallCell(q, ci)),
+                )}
               </div>
             </div>
           )}
