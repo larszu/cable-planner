@@ -7,6 +7,12 @@ import { colorForConnector } from '../../lib/cableColors'
 import { defaultIconForEquipment } from '../../lib/deviceKind'
 import { findGreenGoUserForEquipment } from '../../lib/greengoSync'
 import { rackBandColor } from '../../lib/rackBandColors'
+import {
+  RackBandsOverlay,
+  RackInternalCablesOverlay,
+  type BlackBoxBand,
+  type BlackBoxCable,
+} from '../Rack/blackBoxShared'
 
 type EquipmentNodeData = EquipmentItem & {
   exportThemeOverride?: 'dark' | 'light'
@@ -620,62 +626,25 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
       {/* v7.9.14 — Rack-Bänder: Hintergrund-Rechtecke + Geräte-Name-Labels
           für jedes interne Rack-Gerät. Mit subtilem farbigen Akzent
           links + Glyph-Name oben im Band. Rendert NUR im Black-Box-Mode. */}
-      {isRackBlackBox && rackBands.map((band) => {
-        const top = headerHeight + band.topSlot * PORT_ROW
-        const h = band.rowSpan * PORT_ROW
-        return (
-          <div
-            key={`rack-band-${band.deviceIndex}`}
-            style={{
-              position: 'absolute',
-              top,
-              left: 6,
-              right: 6,
-              height: h,
-              borderRadius: 4,
-              background: isLight
-                ? `${band.color}10`
-                : `${band.color}1a`,
-              border: `1px solid ${band.color}55`,
-              borderLeft: `4px solid ${band.color}`,
-              pointerEvents: 'none',
-              boxSizing: 'border-box',
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                top: 2,
-                left: 8,
-                right: 8,
-                height: PORT_ROW - 2,
-                fontSize: 10,
-                fontWeight: 700,
-                color: band.color,
-                letterSpacing: 0.2,
-                lineHeight: `${PORT_ROW - 4}px`,
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textShadow: isLight ? 'none' : '0 1px 1px rgba(0,0,0,0.5)',
-              }}
-              title={band.deviceName}
-            >
-              {band.deviceName}
-              <span
-                style={{
-                  marginLeft: 6,
-                  fontSize: 9,
-                  fontWeight: 500,
-                  opacity: 0.7,
-                }}
-              >
-                · {band.inputs.length} In · {band.outputs.length} Out
-              </span>
-            </div>
-          </div>
-        )
-      })}
+      {/* v7.9.40 — Bänder-Stripes via geteilter Komponente. Pre-v7.9.40
+          war das Rendering inline hier; RackLivePreview im 2D-Builder
+          hatte eine eigene Implementierung — beide sind jetzt eine
+          geteilte Komponente. */}
+      {isRackBlackBox && (
+        <RackBandsOverlay
+          bands={rackBands.map((band): BlackBoxBand => ({
+            key: String(band.deviceIndex),
+            topSlot: band.topSlot,
+            rowSpan: band.rowSpan,
+            color: band.color,
+            deviceName: band.deviceName,
+            inputCount: band.inputs.length,
+            outputCount: band.outputs.length,
+          }))}
+          headerHeight={headerHeight}
+          isLight={isLight}
+        />
+      )}
 
       {/* Inputs */}
       {data.inputs.map((port, index) => {
@@ -961,7 +930,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
       {isRackBlackBox && rackBands.length > 0 && data.rackInternalSnapshot && data.rackInternalSnapshot.cables.length > 0 && (
         (() => {
           const snap = data.rackInternalSnapshot
-          // Lookup: (deviceIndex, originPortName) → portId.
+          // (deviceIndex, originPortName) → portId
           const portIdByDeviceAndName = new Map<string, string>()
           for (const p of [...data.inputs, ...data.outputs]) {
             if (p.rackOriginDeviceIndex == null || !p.rackOriginPortName) continue
@@ -970,93 +939,39 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               p.id,
             )
           }
-          // Lookup: portId → placement (slot + side).
           const allPlacements = new Map<string, { side: 'left' | 'right'; slot: number }>()
           for (const [id, pl] of inputPlacement) allPlacements.set(id, pl)
           for (const [id, pl] of outputPlacement) allPlacements.set(id, pl)
-          // v7.9.18 — Port-Handle-Position exakt auf der Karten-Kante.
-          // ReactFlow rendert seine Handles bei x=0 (left) bzw. x=width
-          // (right), zentriert auf rowCenter(slot). Damit die internen
-          // Kabel-Linien VISUELL an diesen Handles andocken müssen
-          // unsere Anker dieselben Koordinaten haben — vorher hatte ich
-          // x=14/width-14 als Inset, was eine 14-px-Lücke zwischen Port
-          // und Cable-Endpunkt erzeugte.
-          const portAnchor = (portId: string): { x: number; y: number; side: 'left' | 'right' } | null => {
-            const pl = allPlacements.get(portId)
-            if (!pl) return null
-            const y = headerHeight + pl.slot * PORT_ROW + PORT_ROW / 2
-            const x = pl.side === 'left' ? 0 : width
-            return { x, y, side: pl.side }
+          // v7.9.18 — Port-Handle-Position exakt auf der Karten-Kante
+          // (x=0 left / x=width right, y=rowCenter), damit Kabel-Linien
+          // an den ReactFlow-Handles ankern.
+          const cables: BlackBoxCable[] = []
+          for (let ci = 0; ci < snap.cables.length; ci++) {
+            const c = snap.cables[ci]
+            const fromId = portIdByDeviceAndName.get(`${c.fromItemIndex}:${c.fromPortName}`)
+            const toId = portIdByDeviceAndName.get(`${c.toItemIndex}:${c.toPortName}`)
+            if (!fromId || !toId) continue
+            const aPl = allPlacements.get(fromId)
+            const bPl = allPlacements.get(toId)
+            if (!aPl || !bPl) continue
+            cables.push({
+              key: String(ci),
+              ax: aPl.side === 'left' ? 0 : width,
+              ay: headerHeight + aPl.slot * PORT_ROW + PORT_ROW / 2,
+              aSide: aPl.side,
+              bx: bPl.side === 'left' ? 0 : width,
+              by: headerHeight + bPl.slot * PORT_ROW + PORT_ROW / 2,
+              bSide: bPl.side,
+              color: c.color ?? '#94a3b8',
+              label: `Intern: ${snap.items[c.fromItemIndex]?.name ?? '?'}:${c.fromPortName} ↔ ${snap.items[c.toItemIndex]?.name ?? '?'}:${c.toPortName}`,
+            })
           }
           return (
-            <svg
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                pointerEvents: 'none',
-                zIndex: 2,
-              }}
-            >
-              {/* Kabel-Curves zwischen den realen Port-Positionen */}
-              {snap.cables.map((c, ci) => {
-                const fromId = portIdByDeviceAndName.get(`${c.fromItemIndex}:${c.fromPortName}`)
-                const toId = portIdByDeviceAndName.get(`${c.toItemIndex}:${c.toPortName}`)
-                if (!fromId || !toId) return null
-                const a = portAnchor(fromId)
-                const b = portAnchor(toId)
-                if (!a || !b) return null
-                // v7.9.18 — Bezier-Kontrollpunkte ziehen die Kurve aus
-                // jedem Port EINWÄRTS Richtung Karten-Mitte. cp1 sitzt
-                // direkt neben Port a (auf dessen Innenseite), cp2 neben
-                // Port b. Damit:
-                //  - Gleiche Seite (z.B. beide Inputs links) → Kurve
-                //    bleibt KOMPLETT auf der Innenseite der Karte
-                //    (ports approach from inside, wie der User wollte)
-                //  - Verschiedene Seiten → flache S-Kurve quer durch
-                //    die Karte zwischen den Handles
-                const cp1x = a.side === 'left' ? width * 0.32 : width * 0.68
-                const cp2x = b.side === 'left' ? width * 0.32 : width * 0.68
-                const color = c.color ?? '#94a3b8'
-                return (
-                  <g key={`int-cable-${ci}`}>
-                    <path
-                      d={`M ${a.x} ${a.y} C ${cp1x} ${a.y} ${cp2x} ${b.y} ${b.x} ${b.y}`}
-                      fill="none"
-                      stroke={color}
-                      strokeWidth={1.8}
-                      strokeDasharray="4 2"
-                      opacity={0.9}
-                    >
-                      <title>
-                        {`Intern: ${snap.items[c.fromItemIndex]?.name ?? '?'}:${c.fromPortName} ↔ ${snap.items[c.toItemIndex]?.name ?? '?'}:${c.toPortName}`}
-                      </title>
-                    </path>
-                    {/* Kabel-Dots exakt auf dem Port-Handle (x=0 bzw.
-                        x=width, y=rowCenter) — visuelle Bestätigung
-                        welcher Port mit welchem verbunden ist. */}
-                    <circle
-                      cx={a.x}
-                      cy={a.y}
-                      r={2.6}
-                      fill={color}
-                      stroke={isLight ? '#fff' : '#0f172a'}
-                      strokeWidth={0.7}
-                    />
-                    <circle
-                      cx={b.x}
-                      cy={b.y}
-                      r={2.6}
-                      fill={color}
-                      stroke={isLight ? '#fff' : '#0f172a'}
-                      strokeWidth={0.7}
-                    />
-                  </g>
-                )
-              })}
-            </svg>
+            <RackInternalCablesOverlay
+              cables={cables}
+              width={width}
+              isLight={isLight}
+            />
           )
         })()
       )}

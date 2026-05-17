@@ -1,27 +1,26 @@
-// v7.9.39 — Live-Preview im 2D Rack Builder ist jetzt visuell IDENTISCH
-// mit der Black-Box-Darstellung auf dem Canvas:
+// v7.9.40 — Live-Preview im 2D Rack Builder rendert die echte Canvas-
+// Black-Box, weil sie jetzt dieselbe Shared-Komponente nutzt wie
+// EquipmentNode (RackBandsOverlay + RackInternalCablesOverlay). Damit:
+//  - Identische Band-Farben, Position, Header-Style
+//  - Identische Bezier-Geometry, Dash, Opacity, Dots
+//  - Identische Cable-Tooltips (Hover am Pfad zeigt "Intern: A:p ↔ B:p")
 //
-//  - Bänder pro Quell-Gerät, sortiert nach HE-Position
-//  - Band-Farbe per rackBandColor() (gleicher Algorithmus wie Canvas)
-//  - Translucent-Background + farbige Linke-Kante + Name-Label
-//  - In/Out-Ports innerhalb des Bandes vertikal gestapelt
-//  - SVG-Overlay mit den internen Bezier-Kabel-Curves
+// Pre-v7.9.40 hatte die Preview eine separate Implementierung der
+// Cable-Curves OHNE Tooltips — der User hat das als "die Beschreibungen
+// an den Kabeln vergessen" wahrgenommen. Fix: dasselbe Element rendern.
 //
 // Die separate "Interne Verkabelung Schema"-View ist weggefallen — sie
-// duplizierte das was die Black-Box jetzt selbst zeigt und hat im
-// Builder zu viel Höhe gefressen.
-//
-// Konstanten und Render-Logik sind 1:1 an EquipmentNode angelehnt
-// (PORT_ROW, HEADER, padding, Bezier-Curve-Math) damit "exakt identisch"
-// auch bei späteren Tweaks gilt.
-//
-// Datenfluss: der Builder gibt PreviewPlacement[]+PreviewCable[] rein,
-// referenziert per Placement-ID + Port-Name. Wir mappen das auf einen
-// Black-Box-View ohne dafür eine echte EquipmentNode rendern zu müssen
-// (die wäre ohne ReactFlow-Context schwer einzubinden).
+// duplizierte das was die Black-Box jetzt selbst zeigt.
+
 import { useMemo } from 'react'
 import { rackBandColor } from '../../lib/rackBandColors'
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import {
+  RackBandsOverlay,
+  RackInternalCablesOverlay,
+  type BlackBoxBand,
+  type BlackBoxCable,
+} from './blackBoxShared'
 
 interface PreviewPlacement {
   id: string
@@ -47,7 +46,6 @@ interface RackLivePreviewProps {
   cables: PreviewCable[]
 }
 
-// Match EquipmentNode constants (gleiche Konstanten = gleiches Pixel-Raster).
 const PORT_ROW = EQUIPMENT_LAYOUT.PORT_ROW
 const HEADER_HEIGHT = EQUIPMENT_LAYOUT.HEADER_HEIGHT
 const PADDING = EQUIPMENT_LAYOUT.PADDING
@@ -56,13 +54,11 @@ const BAND_HEADER_ROW = 1
 const GAP_BETWEEN_BANDS = 1
 const BLACK_BOX_WIDTH = 260
 
-interface Band {
+interface BandComputed {
   placement: PreviewPlacement
-  color: string
-  topSlot: number
-  rowSpan: number
-  externalInputs: Array<{ id: string; name: string; connectorType: string }>
-  externalOutputs: Array<{ id: string; name: string; connectorType: string }>
+  band: BlackBoxBand
+  externalInputs: Array<{ name: string; connectorType: string }>
+  externalOutputs: Array<{ name: string; connectorType: string }>
 }
 
 export const RackLivePreview = ({
@@ -71,11 +67,10 @@ export const RackLivePreview = ({
   placements,
   cables,
 }: RackLivePreviewProps) => {
-  void _totalUnits // height is derived from band stack, totalUnits only used in the rack-builder grid
+  void _totalUnits
 
-  // Ports, die in internen Kabeln verwendet werden, gelten als "intern"
-  // und tauchen NICHT als externe Ports an der Black-Box auf — exakt
-  // wie der Canvas sie filtert.
+  // Ports die in internen Kabeln verwendet werden = "intern" und tauchen
+  // nicht als externe Ports an der Black-Box auf (Canvas-Verhalten).
   const usedPorts = useMemo(() => {
     const m = new Map<string, Set<string>>()
     for (const c of cables) {
@@ -87,23 +82,29 @@ export const RackLivePreview = ({
     return m
   }, [cables])
 
-  // Bänder aufbauen: ein Band pro Placement, sortiert nach HE-Position
-  // (kleinster startUnit oben), exakt wie EquipmentNode es macht.
-  const bands = useMemo<Band[]>(() => {
+  // Bänder aufbauen — sortiert nach HE-Position wie auf dem Canvas.
+  const bandsComputed = useMemo<BandComputed[]>(() => {
     const sorted = [...placements].sort((a, b) => a.startUnit - b.startUnit)
     let cursor = 0
-    const result: Band[] = []
+    const result: BandComputed[] = []
     for (const p of sorted) {
       const used = usedPorts.get(p.id) ?? new Set<string>()
       const externalInputs = p.inputs.filter((port) => !used.has(port.name))
       const externalOutputs = p.outputs.filter((port) => !used.has(port.name))
       const ports = Math.max(externalInputs.length, externalOutputs.length, 1)
       const rowSpan = BAND_HEADER_ROW + ports
+      const color = rackBandColor(p.name)
       result.push({
         placement: p,
-        color: rackBandColor(p.name),
-        topSlot: cursor,
-        rowSpan,
+        band: {
+          key: p.id,
+          topSlot: cursor,
+          rowSpan,
+          color,
+          deviceName: p.name,
+          inputCount: externalInputs.length,
+          outputCount: externalOutputs.length,
+        },
         externalInputs,
         externalOutputs,
       })
@@ -112,51 +113,68 @@ export const RackLivePreview = ({
     return result
   }, [placements, usedPorts])
 
-  // Berechne Anker-Punkte (x, y) für JEDEN Port (intern + extern),
-  // damit das SVG-Overlay die internen Cable-Curves zwischen ihnen
-  // ziehen kann. Wie auf dem Canvas: x=0 (left) / x=width (right),
-  // y in der Mitte der jeweiligen Port-Zeile.
-  type PortAnchor = { x: number; y: number; side: 'left' | 'right' }
+  // Port-Anker (x, y, side) für jeden Port — extern an der jeweiligen
+  // Slot-Y-Position, intern in der Mitte des Bandes (gleich wie Canvas).
   const portAnchorByKey = useMemo(() => {
-    const m = new Map<string, PortAnchor>()
-    for (const band of bands) {
-      // Internal-only Ports (= used in cables) liegen visuell auf dem
-      // Geräte-Center; sie haben keinen externen Pin aber Bezier-Curves
-      // sollen trotzdem da starten/enden.
-      const used = usedPorts.get(band.placement.id) ?? new Set<string>()
-      const allInputs = band.placement.inputs
-      const allOutputs = band.placement.outputs
-      // External-Slot-Indizes (= Reihenfolge in band.externalInputs)
-      const externalInputIdx = new Map(band.externalInputs.map((p, i) => [p.name, i]))
-      const externalOutputIdx = new Map(band.externalOutputs.map((p, i) => [p.name, i]))
-      const bandTopPx = HEADER_HEIGHT + band.topSlot * PORT_ROW
+    type Anchor = { x: number; y: number; side: 'left' | 'right' }
+    const m = new Map<string, Anchor>()
+    for (const bc of bandsComputed) {
+      const bandTopPx = HEADER_HEIGHT + bc.band.topSlot * PORT_ROW
       const portsTopPx = bandTopPx + BAND_HEADER_ROW * PORT_ROW
-      const internalCenterY = bandTopPx + (band.rowSpan * PORT_ROW) / 2
-      for (const port of allInputs) {
-        let y: number
-        if (externalInputIdx.has(port.name)) {
-          y = portsTopPx + (externalInputIdx.get(port.name) ?? 0) * PORT_ROW + PORT_ROW / 2
-        } else {
-          // Internal-only port → ankert in der Mitte des Bandes
-          y = internalCenterY
-        }
-        m.set(`${band.placement.id}:${port.name}`, { x: 0, y, side: 'left' })
+      const internalCenterY = bandTopPx + (bc.band.rowSpan * PORT_ROW) / 2
+      const externalInputIdx = new Map(bc.externalInputs.map((p, i) => [p.name, i]))
+      const externalOutputIdx = new Map(bc.externalOutputs.map((p, i) => [p.name, i]))
+      for (const port of bc.placement.inputs) {
+        const idx = externalInputIdx.get(port.name)
+        const y =
+          idx != null
+            ? portsTopPx + idx * PORT_ROW + PORT_ROW / 2
+            : internalCenterY
+        m.set(`${bc.placement.id}:${port.name}`, { x: 0, y, side: 'left' })
       }
-      for (const port of allOutputs) {
-        let y: number
-        if (externalOutputIdx.has(port.name)) {
-          y = portsTopPx + (externalOutputIdx.get(port.name) ?? 0) * PORT_ROW + PORT_ROW / 2
-        } else {
-          y = internalCenterY
-        }
-        m.set(`${band.placement.id}:${port.name}`, { x: BLACK_BOX_WIDTH, y, side: 'right' })
+      for (const port of bc.placement.outputs) {
+        const idx = externalOutputIdx.get(port.name)
+        const y =
+          idx != null
+            ? portsTopPx + idx * PORT_ROW + PORT_ROW / 2
+            : internalCenterY
+        m.set(`${bc.placement.id}:${port.name}`, { x: BLACK_BOX_WIDTH, y, side: 'right' })
       }
-      // Wenn ein Port-Name sowohl in inputs als auch outputs ist (selten),
-      // gewinnt der zuletzt gesetzte. Vernachlässigbar für die Preview.
-      void used
     }
     return m
-  }, [bands, usedPorts])
+  }, [bandsComputed])
+
+  const placementById = useMemo(
+    () => new Map(placements.map((p) => [p.id, p])),
+    [placements],
+  )
+
+  // Cables in das shared BlackBoxCable-Format umrechnen — identische
+  // Anchor-Berechnung wie EquipmentNode, damit der gerenderte Pfad
+  // exakt gleich aussieht.
+  const blackBoxCables = useMemo<BlackBoxCable[]>(() => {
+    const list: BlackBoxCable[] = []
+    for (let i = 0; i < cables.length; i++) {
+      const c = cables[i]
+      const a = portAnchorByKey.get(`${c.fromPlacementId}:${c.fromPortName}`)
+      const b = portAnchorByKey.get(`${c.toPlacementId}:${c.toPortName}`)
+      if (!a || !b) continue
+      const fromName = placementById.get(c.fromPlacementId)?.name ?? '?'
+      const toName = placementById.get(c.toPlacementId)?.name ?? '?'
+      list.push({
+        key: String(i),
+        ax: a.x,
+        ay: a.y,
+        aSide: a.side,
+        bx: b.x,
+        by: b.y,
+        bSide: b.side,
+        color: c.color ?? '#94a3b8',
+        label: `Intern: ${fromName}:${c.fromPortName} ↔ ${toName}:${c.toPortName}`,
+      })
+    }
+    return list
+  }, [cables, portAnchorByKey, placementById])
 
   if (placements.length === 0) {
     return (
@@ -166,12 +184,12 @@ export const RackLivePreview = ({
     )
   }
 
-  // Höhe der Black-Box = Header + alle Bänder + Padding unten
-  const totalSlots = bands.reduce(
-    (acc, b) => Math.max(acc, b.topSlot + b.rowSpan),
+  const totalSlots = bandsComputed.reduce(
+    (acc, b) => Math.max(acc, b.band.topSlot + b.band.rowSpan),
     0,
   )
   const blackBoxHeight = HEADER_HEIGHT + totalSlots * PORT_ROW + PADDING
+  const bands: ReadonlyArray<BlackBoxBand> = bandsComputed.map((bc) => bc.band)
 
   return (
     <div>
@@ -188,82 +206,39 @@ export const RackLivePreview = ({
           className="relative rounded border-2 border-slate-500 bg-slate-900 shadow-lg"
           style={{ width: BLACK_BOX_WIDTH, height: blackBoxHeight }}
         >
-          {/* Header */}
+          {/* Header — gleicher Look wie EquipmentNode-Card-Header */}
           <div
             className="border-b border-slate-700 bg-slate-800/90 px-2 text-[11px] font-semibold text-slate-100"
-            style={{ lineHeight: `${HEADER_HEIGHT - 6}px`, height: HEADER_HEIGHT, paddingTop: 3, boxSizing: 'border-box' }}
+            style={{
+              lineHeight: `${HEADER_HEIGHT - 6}px`,
+              height: HEADER_HEIGHT,
+              paddingTop: 3,
+              boxSizing: 'border-box',
+            }}
             title={rackName}
           >
             {(rackName || '(unbenannt)').slice(0, 32)}
             {(rackName || '').length > 32 ? '…' : ''}
           </div>
 
-          {/* Bänder */}
-          {bands.map((band) => {
-            const top = HEADER_HEIGHT + band.topSlot * PORT_ROW
-            const h = band.rowSpan * PORT_ROW
-            return (
-              <div
-                key={`band-${band.placement.id}`}
-                style={{
-                  position: 'absolute',
-                  top,
-                  left: 6,
-                  right: 6,
-                  height: h,
-                  borderRadius: 4,
-                  background: `${band.color}1a`,
-                  border: `1px solid ${band.color}55`,
-                  borderLeft: `4px solid ${band.color}`,
-                  pointerEvents: 'none',
-                  boxSizing: 'border-box',
-                }}
-              >
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 2,
-                    left: 8,
-                    right: 8,
-                    height: PORT_ROW - 2,
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: band.color,
-                    letterSpacing: 0.2,
-                    lineHeight: `${PORT_ROW - 4}px`,
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textShadow: '0 1px 1px rgba(0,0,0,0.5)',
-                  }}
-                  title={band.placement.name}
-                >
-                  {band.placement.name}
-                  <span
-                    style={{
-                      marginLeft: 6,
-                      fontSize: 9,
-                      fontWeight: 500,
-                      opacity: 0.7,
-                    }}
-                  >
-                    · {band.externalInputs.length} In · {band.externalOutputs.length} Out
-                  </span>
-                </div>
-              </div>
-            )
-          })}
+          {/* Bänder — geteilte Komponente, identisch zum Canvas. */}
+          <RackBandsOverlay
+            bands={bands}
+            headerHeight={HEADER_HEIGHT}
+            isLight={false}
+          />
 
-          {/* Externe Port-Dots links (Inputs) */}
-          {bands.flatMap((band) =>
-            band.externalInputs.map((port, idx) => {
+          {/* Externe Port-Dots (Preview-spezifisch — auf Canvas sind das
+              echte ReactFlow-Handles, hier zeigen wir nur ihre Position). */}
+          {bandsComputed.flatMap((bc) =>
+            bc.externalInputs.map((port, idx) => {
               const y =
                 HEADER_HEIGHT +
-                (band.topSlot + BAND_HEADER_ROW + idx) * PORT_ROW +
+                (bc.band.topSlot + BAND_HEADER_ROW + idx) * PORT_ROW +
                 PORT_ROW / 2
               return (
                 <div
-                  key={`pin-in-${band.placement.id}-${port.name}`}
+                  key={`pin-in-${bc.placement.id}-${port.name}`}
                   style={{
                     position: 'absolute',
                     left: 0,
@@ -272,25 +247,24 @@ export const RackLivePreview = ({
                     width: HANDLE_R * 2,
                     height: HANDLE_R * 2,
                     borderRadius: '50%',
-                    background: band.color,
+                    background: bc.band.color,
                     border: '1px solid #0f172a',
                     boxSizing: 'border-box',
                   }}
-                  title={`${band.placement.name}: ${port.name} (${port.connectorType})`}
+                  title={`${bc.placement.name}: ${port.name} (${port.connectorType})`}
                 />
               )
             }),
           )}
-          {/* Externe Port-Dots rechts (Outputs) */}
-          {bands.flatMap((band) =>
-            band.externalOutputs.map((port, idx) => {
+          {bandsComputed.flatMap((bc) =>
+            bc.externalOutputs.map((port, idx) => {
               const y =
                 HEADER_HEIGHT +
-                (band.topSlot + BAND_HEADER_ROW + idx) * PORT_ROW +
+                (bc.band.topSlot + BAND_HEADER_ROW + idx) * PORT_ROW +
                 PORT_ROW / 2
               return (
                 <div
-                  key={`pin-out-${band.placement.id}-${port.name}`}
+                  key={`pin-out-${bc.placement.id}-${port.name}`}
                   style={{
                     position: 'absolute',
                     right: 0,
@@ -299,69 +273,24 @@ export const RackLivePreview = ({
                     width: HANDLE_R * 2,
                     height: HANDLE_R * 2,
                     borderRadius: '50%',
-                    background: band.color,
+                    background: bc.band.color,
                     border: '1px solid #0f172a',
                     boxSizing: 'border-box',
                   }}
-                  title={`${band.placement.name}: ${port.name} (${port.connectorType})`}
+                  title={`${bc.placement.name}: ${port.name} (${port.connectorType})`}
                 />
               )
             }),
           )}
 
-          {/* Interne Cable-Curves — gleicher Look wie Canvas:
-              gestrichelt 4 2, opacity 0.9, color fallback #94a3b8,
-              Bezier mit cp auf 32%/68% der Breite je nach Seite. */}
-          <svg
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              pointerEvents: 'none',
-              overflow: 'visible',
-            }}
-            viewBox={`0 0 ${BLACK_BOX_WIDTH} ${blackBoxHeight}`}
-            preserveAspectRatio="none"
-          >
-            {cables.map((c, i) => {
-              const a = portAnchorByKey.get(`${c.fromPlacementId}:${c.fromPortName}`)
-              const b = portAnchorByKey.get(`${c.toPlacementId}:${c.toPortName}`)
-              if (!a || !b) return null
-              const cp1x = a.side === 'left' ? BLACK_BOX_WIDTH * 0.32 : BLACK_BOX_WIDTH * 0.68
-              const cp2x = b.side === 'left' ? BLACK_BOX_WIDTH * 0.32 : BLACK_BOX_WIDTH * 0.68
-              const color = c.color ?? '#94a3b8'
-              return (
-                <g key={`int-${i}`}>
-                  <path
-                    d={`M ${a.x} ${a.y} C ${cp1x} ${a.y} ${cp2x} ${b.y} ${b.x} ${b.y}`}
-                    fill="none"
-                    stroke={color}
-                    strokeWidth={1.8}
-                    strokeDasharray="4 2"
-                    opacity={0.9}
-                  />
-                  <circle
-                    cx={a.x}
-                    cy={a.y}
-                    r={2.6}
-                    fill={color}
-                    stroke="#0f172a"
-                    strokeWidth={0.7}
-                  />
-                  <circle
-                    cx={b.x}
-                    cy={b.y}
-                    r={2.6}
-                    fill={color}
-                    stroke="#0f172a"
-                    strokeWidth={0.7}
-                  />
-                </g>
-              )
-            })}
-          </svg>
+          {/* Interne Kabel-Curves — geteilte Komponente, exakt wie Canvas
+              inkl. <title>-Tooltip ("Intern: A:p ↔ B:p"). */}
+          <RackInternalCablesOverlay
+            cables={blackBoxCables}
+            width={BLACK_BOX_WIDTH}
+            height={blackBoxHeight}
+            isLight={false}
+          />
         </div>
       </div>
     </div>
