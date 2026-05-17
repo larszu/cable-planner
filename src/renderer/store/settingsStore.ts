@@ -1,6 +1,8 @@
 import { create } from 'zustand'
+import { STORAGE_KEYS } from '../lib/storageKeys'
+import { LIMITS } from '../lib/layoutConstants'
 
-const SETTINGS_KEY = 'cable-planner:settings'
+const SETTINGS_KEY = STORAGE_KEYS.settings
 
 interface PersistedSettings {
   autosaveIntervalMs: number
@@ -22,7 +24,7 @@ const load = (): PersistedSettings => {
     return {
       autosaveIntervalMs:
         typeof parsed.autosaveIntervalMs === 'number'
-          ? Math.max(100, Math.min(30000, Math.round(parsed.autosaveIntervalMs)))
+          ? Math.max(LIMITS.AUTOSAVE_INTERVAL.MIN_MS, Math.min(LIMITS.AUTOSAVE_INTERVAL.MAX_MS, Math.round(parsed.autosaveIntervalMs)))
           : defaults.autosaveIntervalMs,
       sharedSyncPath: typeof parsed.sharedSyncPath === 'string' ? parsed.sharedSyncPath : defaults.sharedSyncPath,
       sharedSyncUser: typeof parsed.sharedSyncUser === 'string' ? parsed.sharedSyncUser : defaults.sharedSyncUser,
@@ -67,7 +69,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   setTokenStatus: (value) => set({ tokenStatus: value }),
   setAutosaveIntervalMs: (value) =>
     set((state) => {
-      const next = Math.max(100, Math.min(30000, Math.round(value || defaults.autosaveIntervalMs)))
+      const next = Math.max(LIMITS.AUTOSAVE_INTERVAL.MIN_MS, Math.min(LIMITS.AUTOSAVE_INTERVAL.MAX_MS, Math.round(value || defaults.autosaveIntervalMs)))
       persist({ autosaveIntervalMs: next, sharedSyncPath: state.sharedSyncPath, sharedSyncUser: state.sharedSyncUser })
       return { autosaveIntervalMs: next }
     }),

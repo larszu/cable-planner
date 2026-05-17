@@ -11,11 +11,16 @@ type EquipmentNodeData = EquipmentItem & {
   exportThemeOverride?: 'dark' | 'light'
 }
 
-const HEADER_HEIGHT = 48
-const HEADER_HEIGHT_WITH_IP = 62
-const PORT_ROW = 22
-const HANDLE_SIZE = 16   // larger hit zone (was 10) — easier to click/drag
-const PADDING = 8
+// v7.9.23 — Layout-Konstanten aus zentraler lib/layoutConstants.ts.
+// Vorher waren diese Werte zwischen EquipmentNode.tsx und
+// equipmentLayout.ts dupliziert — Bug-Garantie wenn einer der beiden
+// geändert wurde.
+import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+const HEADER_HEIGHT = EQUIPMENT_LAYOUT.HEADER_HEIGHT
+const HEADER_HEIGHT_WITH_IP = EQUIPMENT_LAYOUT.HEADER_HEIGHT_WITH_IP
+const PORT_ROW = EQUIPMENT_LAYOUT.PORT_ROW
+const HANDLE_SIZE = EQUIPMENT_LAYOUT.HANDLE_SIZE
+const PADDING = EQUIPMENT_LAYOUT.PADDING
 
 // v7.9.14 — Farb-Palette für Rack-Geräte-Bänder im Black-Box-Mode.
 // Gut sichtbare, aber gedeckte Farben mit gutem Kontrast auf
@@ -470,7 +475,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
     0,
   )
   const labelWidth = longestPortText * 7 + 32
-  const intrinsicWidth = Math.max(220, labelWidth * 2)
+  const intrinsicWidth = Math.max(EQUIPMENT_LAYOUT.DEFAULT_WIDTH, labelWidth * 2)
   const width = Math.max(data.width ?? intrinsicWidth, intrinsicWidth)
   const computedHeight = headerHeight + portRows * PORT_ROW + PADDING
   const height = Math.max(data.height ?? computedHeight, computedHeight)

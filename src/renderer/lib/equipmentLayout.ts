@@ -9,11 +9,15 @@
 
 import type { EquipmentItem, GreenGoConfig, Port } from '../types/equipment'
 import { findGreenGoUserForEquipment } from './greengoSync'
+import { EQUIPMENT_LAYOUT } from './layoutConstants'
 
-const HEADER_HEIGHT = 48
-const HEADER_HEIGHT_WITH_IP = 62
-const PORT_ROW = 22
-const PADDING = 8
+// v7.9.23 — Layout-Konstanten zentralisiert in lib/layoutConstants.ts.
+// Vorher waren diese Werte zwischen EquipmentNode.tsx + equipmentLayout.ts
+// dupliziert — Bug-Garantie wenn einer der beiden geändert wurde.
+const HEADER_HEIGHT = EQUIPMENT_LAYOUT.HEADER_HEIGHT
+const HEADER_HEIGHT_WITH_IP = EQUIPMENT_LAYOUT.HEADER_HEIGHT_WITH_IP
+const PORT_ROW = EQUIPMENT_LAYOUT.PORT_ROW
+const PADDING = EQUIPMENT_LAYOUT.PADDING
 
 export type PortSide = 'left' | 'right'
 

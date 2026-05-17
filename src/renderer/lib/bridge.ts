@@ -136,8 +136,10 @@ type CablePlannerApi = {
   }
 }
 
-const TOKEN_KEY = 'cable-planner:web:token'
-const RECENTS_KEY = 'cable-planner:web:recents'
+import { STORAGE_KEYS } from './storageKeys'
+
+const TOKEN_KEY = STORAGE_KEYS.webToken
+const RECENTS_KEY = STORAGE_KEYS.webRecents
 
 export const hasDesktopBridge = Boolean(window.cablePlanner)
 
