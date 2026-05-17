@@ -332,9 +332,15 @@ const SortableCategorySection = ({
 const SortablePresetCard = ({
   id,
   children,
+  nativeDragData,
 }: {
   id: string
   children: ReactNode
+  /** v7.9.15 — Optional: HTML5-native drag-Daten, damit die Karte zusätzlich
+   *  zum dnd-kit-Sort-Drag auf den Canvas gezogen werden kann. Der dnd-kit-
+   *  Drag-Handle nutzt PointerEvents, der HTML5-Drag-Path nutzt
+   *  dragstart/dragend — Konflikte gibt es keine. */
+  nativeDragData?: { mime: string; data: string }
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
   const style: React.CSSProperties = {
@@ -344,7 +350,16 @@ const SortablePresetCard = ({
     position: 'relative',
   }
   return (
-    <div ref={setNodeRef} style={style} className="rounded border border-slate-700 bg-slate-900 p-2 pl-5 text-xs">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="rounded border border-slate-700 bg-slate-900 p-2 pl-5 text-xs"
+      draggable={!!nativeDragData}
+      onDragStart={(event) => {
+        if (!nativeDragData) return
+        event.dataTransfer.effectAllowed = 'copy'
+        event.dataTransfer.setData(nativeDragData.mime, nativeDragData.data)
+      }}>
       <span
         {...attributes}
         {...listeners}
@@ -518,6 +533,7 @@ export const LibraryPanel = () => {
   const addGroupPreset = useProjectStore((state) => state.addGroupPreset)
   const deleteGroupPreset = useProjectStore((state) => state.deleteGroupPreset)
   const placeGroupPreset = useProjectStore((state) => state.placeGroupPreset)
+  const insertBlackBoxRack = useProjectStore((state) => state.insertBlackBoxRack)
   const reorderGroupPresets = useProjectStore((state) => state.reorderGroupPresets)
   const renameGroupPreset = useProjectStore((state) => state.renameGroupPreset)
   const renameCustomCategory = useProjectStore((state) => state.renameCustomCategory)
@@ -2054,7 +2070,14 @@ export const LibraryPanel = () => {
                   const cy = (-canvasState.y + 250) / zoom
                   const totalUnits = preset.rack?.totalUnits ?? preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 1), 0)
                   return (
-                    <SortablePresetCard key={preset.id} id={preset.id}>
+                    <SortablePresetCard
+                      key={preset.id}
+                      id={preset.id}
+                      nativeDragData={{
+                        mime: 'application/cable-planner-rack-preset',
+                        data: preset.id,
+                      }}
+                    >
                       <div className="flex items-start justify-between gap-1">
                         <div>
                           <div className="font-medium text-slate-100">{preset.name}</div>
@@ -2076,88 +2099,9 @@ export const LibraryPanel = () => {
                           </button>
                           <button
                             type="button"
-                            onClick={() => {
-                              // Issue #47 — Black-Box-Einfügen. Erzeugt EIN
-                              // Equipment-Item, das das Rack repräsentiert.
-                              // Alle Ports der internen Geräte, die NICHT
-                              // schon durch eine interne Verbindung belegt
-                              // sind, werden als externe Ports des Racks
-                              // exponiert. Interne Verkabelung bleibt
-                              // implizit (keine Kabel auf dem Canvas).
-                              const usedPortNames = new Set<string>()
-                              for (const stub of preset.cables) {
-                                usedPortNames.add(`${stub.fromItemIndex}:${stub.fromPortName}`)
-                                usedPortNames.add(`${stub.toItemIndex}:${stub.toPortName}`)
-                              }
-                              const externalIns: Port[] = []
-                              const externalOuts: Port[] = []
-                              preset.items.forEach((item, idx) => {
-                                for (const p of item.inputs) {
-                                  if (!usedPortNames.has(`${idx}:${p.name}`)) {
-                                    externalIns.push({
-                                      ...p,
-                                      id: uuidv4(),
-                                      name: `${item.name} · ${p.name}`,
-                                      // v7.9.14 — track origin device so the
-                                      // EquipmentNode kann Ports nach Gerät
-                                      // gruppieren (Color-Bänder, In/Out auf
-                                      // gleicher Höhe).
-                                      rackOriginDeviceIndex: idx,
-                                      rackOriginDeviceName: item.name,
-                                    })
-                                  }
-                                }
-                                for (const p of item.outputs) {
-                                  if (!usedPortNames.has(`${idx}:${p.name}`)) {
-                                    externalOuts.push({
-                                      ...p,
-                                      id: uuidv4(),
-                                      name: `${item.name} · ${p.name}`,
-                                      rackOriginDeviceIndex: idx,
-                                      rackOriginDeviceName: item.name,
-                                    })
-                                  }
-                                }
-                              })
-                              addEquipment({
-                                name: `${preset.name} (Rack)`,
-                                category: 'Rack',
-                                inputs: externalIns,
-                                outputs: externalOuts,
-                                x: cx,
-                                y: cy,
-                                width: 280,
-                                height: 0,
-                                icon: '🗄',
-                                notes: `Black-Box-Rack: ${preset.items.length} Geräte, ${preset.cables.length} interne Verbindungen.`,
-                                // v7.9.9 — Snapshot der internen Verkabelung
-                                // mitnehmen, damit EquipmentNode sie als Overlay
-                                // im Black-Box-Body zeichnen kann.
-                                rackInternalSnapshot: {
-                                  items: preset.items.map((item, idx) => ({
-                                    name: item.name,
-                                    startUnit:
-                                      preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.startUnit ??
-                                      idx + 1,
-                                    rackUnits:
-                                      preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.heightUnits ??
-                                      item.rackUnits ?? 1,
-                                  })),
-                                  cables: preset.cables.map((c) => ({
-                                    fromItemIndex: c.fromItemIndex,
-                                    fromPortName: c.fromPortName,
-                                    toItemIndex: c.toItemIndex,
-                                    toPortName: c.toPortName,
-                                    color: c.color,
-                                  })),
-                                  totalUnits:
-                                    preset.rack?.totalUnits ??
-                                    preset.items.reduce((sum, it) => sum + (it.rackUnits ?? 1), 0),
-                                },
-                              })
-                            }}
+                            onClick={() => insertBlackBoxRack(preset.id, cx, cy)}
                             className="rounded bg-amber-700 px-2 py-1 text-[11px] hover:bg-amber-600"
-                            title="Rack als einzelnes Black-Box-Gerät einfügen — nur extern erreichbare Ports werden exponiert (interne Verkabelung bleibt implizit)"
+                            title="Rack als einzelnes Black-Box-Gerät einfügen (Drag-Drop auf Canvas funktioniert auch)"
                           >
                             Black-Box
                           </button>

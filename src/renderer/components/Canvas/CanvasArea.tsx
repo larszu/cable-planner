@@ -990,6 +990,18 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         return
       }
 
+      // v7.9.15 — Rack-Preset-Drop. Wenn ein Black-Box-Rack aus der
+      // Library-Racks-Tab gezogen wird, fügen wir es als ein einziges
+      // Equipment-Item (Black-Box) am Drop-Punkt ein.
+      const rackPresetId = event.dataTransfer.getData('application/cable-planner-rack-preset')
+      if (rackPresetId) {
+        if (mode === 'rack') return
+        const px = snapX(position.x)
+        const py = snapX(position.y)
+        projectStoreInstance.getState().insertBlackBoxRack(rackPresetId, px, py)
+        return
+      }
+
       const payload = event.dataTransfer.getData('application/cable-planner-equipment')
       if (!payload) {
         return

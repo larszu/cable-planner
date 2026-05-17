@@ -375,6 +375,11 @@ export interface ProjectState {
   saveGroupPreset: (name: string, equipmentIds: string[]) => void
   deleteGroupPreset: (id: string) => void
   placeGroupPreset: (presetId: string, x: number, y: number) => void
+  /** v7.9.15 — Black-Box-Einfügen eines GroupPreset/Rack-Presets:
+   *  EIN Equipment-Item das das ganze Rack repräsentiert. Externe
+   *  Ports = alle Ports die nicht in preset.cables vorkommen.
+   *  rackInternalSnapshot trägt die internen Verbindungen mit. */
+  insertBlackBoxRack: (presetId: string, x: number, y: number) => void
   /** Replace all group presets (e.g. after a Sync Pull). */
   setGroupPresets: (presets: GroupPreset[]) => void
   /** v7.9.6 — Drag&Drop-Reorder der groupPresets. Fehlende IDs werden
@@ -1722,6 +1727,87 @@ const buildProjectStore = (
         ...state.project,
         equipment: [...state.project.equipment, ...newEquipment],
         cables: [...state.project.cables, ...newCables],
+      })
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  insertBlackBoxRack: (presetId, x, y) =>
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      const preset = state.groupPresets.find((p) => p.id === presetId)
+      if (!preset) return state
+      // Sammle alle PortNamen die in internen Verbindungen verwendet
+      // sind. Diese Ports tauchen NICHT als externe Black-Box-Ports auf
+      // — sie sind im Rack-Inneren "verbraucht".
+      const usedPortNames = new Set<string>()
+      for (const stub of preset.cables) {
+        usedPortNames.add(`${stub.fromItemIndex}:${stub.fromPortName}`)
+        usedPortNames.add(`${stub.toItemIndex}:${stub.toPortName}`)
+      }
+      const externalIns: import('../types/equipment').Port[] = []
+      const externalOuts: import('../types/equipment').Port[] = []
+      preset.items.forEach((item, idx) => {
+        for (const p of item.inputs) {
+          if (!usedPortNames.has(`${idx}:${p.name}`)) {
+            externalIns.push({
+              ...p,
+              id: uuidv4(),
+              name: `${item.name} · ${p.name}`,
+              rackOriginDeviceIndex: idx,
+              rackOriginDeviceName: item.name,
+            })
+          }
+        }
+        for (const p of item.outputs) {
+          if (!usedPortNames.has(`${idx}:${p.name}`)) {
+            externalOuts.push({
+              ...p,
+              id: uuidv4(),
+              name: `${item.name} · ${p.name}`,
+              rackOriginDeviceIndex: idx,
+              rackOriginDeviceName: item.name,
+            })
+          }
+        }
+      })
+      const totalUnits =
+        preset.rack?.totalUnits ??
+        preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 1), 0)
+      const newItem: EquipmentItem = {
+        id: uuidv4(),
+        name: `${preset.name} (Rack)`,
+        category: 'Rack',
+        inputs: externalIns,
+        outputs: externalOuts,
+        x,
+        y,
+        width: 280,
+        height: 0,
+        icon: '🗄',
+        notes: `Black-Box-Rack: ${preset.items.length} Geräte, ${preset.cables.length} interne Verbindungen.`,
+        rackInternalSnapshot: {
+          items: preset.items.map((item, idx) => ({
+            name: item.name,
+            startUnit:
+              preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.startUnit ??
+              idx + 1,
+            rackUnits:
+              preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.heightUnits ??
+              item.rackUnits ?? 1,
+          })),
+          cables: preset.cables.map((c) => ({
+            fromItemIndex: c.fromItemIndex,
+            fromPortName: c.fromPortName,
+            toItemIndex: c.toItemIndex,
+            toPortName: c.toPortName,
+            color: c.color,
+          })),
+          totalUnits,
+        },
+      }
+      const updated = touchProject({
+        ...state.project,
+        equipment: [...state.project.equipment, newItem],
       })
       scheduleProjectAutosave(updated)
       return { project: updated }

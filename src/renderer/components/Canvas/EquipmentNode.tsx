@@ -951,10 +951,114 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           jeder Port als eigener Anschlusspunkt mit kleinem Label
           ausgegeben — der User sieht welcher Port welche Verbindung
           trägt. */}
-      {/* v7.9.14 — Wenn Bänder gerendert werden, ist der SVG-Overlay
-          (HE-Slots + Bezier-Kabel) redundant — die Bänder selbst zeigen
-          die Geräte-Struktur klarer. Overlay nur als Fallback für
-          Legacy-Black-Boxes ohne rackOriginDeviceIndex-Markierung. */}
+      {/* v7.9.15 — Internal-Wiring-Overlay als Bezier-Kurven zwischen
+          den Geräte-Bändern. Die internen Verbindungen sind dadurch
+          auch im normalen Canvas sichtbar (vorher waren sie versteckt
+          im Black-Box-Body). Cables curven rechts neben den Bändern
+          mit der Cable-Farbe + kleinen Endpunkten + Hover-Title mit
+          Port-Namen. */}
+      {isRackBlackBox && rackBands.length > 0 && data.rackInternalSnapshot && data.rackInternalSnapshot.cables.length > 0 && (
+        (() => {
+          const snap = data.rackInternalSnapshot
+          // Pro Gerät: sammle Port-Namen die in internen Cables vorkommen
+          // und verteile sie als eigene Slot-Y-Positionen INNERHALB des
+          // Bandes (analog zur Logik im RackInternalCanvas — verhindert
+          // dass mehrere Cables pro Gerät auf demselben Punkt landen).
+          const slotsByDevice = new Map<number, string[]>()
+          for (const c of snap.cables) {
+            if (!slotsByDevice.has(c.fromItemIndex)) slotsByDevice.set(c.fromItemIndex, [])
+            if (!slotsByDevice.has(c.toItemIndex)) slotsByDevice.set(c.toItemIndex, [])
+            const fromList = slotsByDevice.get(c.fromItemIndex)!
+            if (!fromList.includes(c.fromPortName)) fromList.push(c.fromPortName)
+            const toList = slotsByDevice.get(c.toItemIndex)!
+            if (!toList.includes(c.toPortName)) toList.push(c.toPortName)
+          }
+          const bandByDevice = new Map<number, RackBand>()
+          for (const band of rackBands) bandByDevice.set(band.deviceIndex, band)
+          const portSlotY = (deviceIdx: number, portName: string): number | null => {
+            const band = bandByDevice.get(deviceIdx)
+            if (!band) return null
+            const slots = slotsByDevice.get(deviceIdx) ?? [portName]
+            const idx = Math.max(0, slots.indexOf(portName))
+            const count = slots.length
+            const bandTopPx = headerHeight + band.topSlot * PORT_ROW
+            const bandH = band.rowSpan * PORT_ROW
+            // Internal-cable-stubs leben im RECHTEN Drittel des Bands,
+            // unter dem Header und in den mittleren Y-Bereich verteilt.
+            const usableTop = bandTopPx + PORT_ROW + 2 // unterhalb des Headers
+            const usableH = Math.max(8, bandH - PORT_ROW - 4)
+            if (count <= 1) return usableTop + usableH / 2
+            return usableTop + (idx / (count - 1)) * usableH
+          }
+          // X-Positionen: Stubs sitzen ca. 70% der Card-Breite, Kabel
+          // curven dann etwas weiter rechts (loop nach rechts raus).
+          const stubX = Math.min(width - 18, width * 0.7)
+          const curveBulge = Math.min(40, width * 0.15)
+          return (
+            <svg
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                pointerEvents: 'none',
+                zIndex: 2,
+              }}
+            >
+              {/* Stubs pro Geräte-Port */}
+              {Array.from(slotsByDevice.entries()).flatMap(([deviceIdx, ports]) =>
+                ports.map((portName) => {
+                  const y = portSlotY(deviceIdx, portName)
+                  if (y == null) return null
+                  const band = bandByDevice.get(deviceIdx)
+                  const color = band?.color ?? '#94a3b8'
+                  return (
+                    <g key={`int-stub-${deviceIdx}-${portName}`}>
+                      <circle
+                        cx={stubX}
+                        cy={y}
+                        r={2.5}
+                        fill={color}
+                        stroke={isLight ? '#fff' : '#0f172a'}
+                        strokeWidth={0.5}
+                      >
+                        <title>{`${band?.deviceName ?? `#${deviceIdx}`}: ${portName}`}</title>
+                      </circle>
+                    </g>
+                  )
+                }),
+              )}
+              {/* Kabel-Curves */}
+              {snap.cables.map((c, ci) => {
+                const y1 = portSlotY(c.fromItemIndex, c.fromPortName)
+                const y2 = portSlotY(c.toItemIndex, c.toPortName)
+                if (y1 == null || y2 == null) return null
+                const midX = stubX + curveBulge
+                const color = c.color ?? '#94a3b8'
+                return (
+                  <path
+                    key={`int-cable-${ci}`}
+                    d={`M ${stubX} ${y1} C ${midX} ${y1} ${midX} ${y2} ${stubX} ${y2}`}
+                    fill="none"
+                    stroke={color}
+                    strokeWidth={1.4}
+                    strokeDasharray="3 2"
+                    opacity={0.9}
+                  >
+                    <title>
+                      {`Intern: ${snap.items[c.fromItemIndex]?.name ?? '?'}:${c.fromPortName} ↔ ${snap.items[c.toItemIndex]?.name ?? '?'}:${c.toPortName}`}
+                    </title>
+                  </path>
+                )
+              })}
+            </svg>
+          )
+        })()
+      )}
+
+      {/* Legacy-Fallback (alte Black-Boxes ohne Origin-Marker): zeichne
+          das HE-Slot-SVG-Overlay wie früher. */}
       {!isRackBlackBox && data.rackInternalSnapshot && data.rackInternalSnapshot.cables.length > 0 && (
         (() => {
           const snap = data.rackInternalSnapshot
