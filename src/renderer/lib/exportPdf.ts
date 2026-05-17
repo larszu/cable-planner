@@ -2,7 +2,7 @@ import { toPng } from 'html-to-image'
 import jsPDF from 'jspdf'
 import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
-import { sanitizeForPdf } from './sanitizeForPdf'
+import { pdfText } from './pdfHelpers'
 import { hexToRgb, drawVectorBackground } from './pdfBackground'
 
 // Helper: aus composed-Background-Optionen den Grid-Hex extrahieren.
@@ -108,11 +108,9 @@ const drawTitleBlock = (
   pdf.setFontSize(8)
   for (const [label, value] of visibleRows) {
     pdf.setTextColor(100)
-    pdf.text(sanitizeForPdf(label), x + 4, rowY + 10)
+    pdfText(pdf, label, x + 4, rowY + 10)
     pdf.setTextColor(15)
-    pdf.text(sanitizeForPdf(value ?? '-'), x + 85, rowY + 10, {
-      maxWidth: boxW - 90,
-    })
+    pdfText(pdf, value ?? '-', x + 85, rowY + 10, { maxWidth: boxW - 90 })
     pdf.line(x, rowY + rowH, x + boxW, rowY + rowH)
     rowY += rowH
   }
@@ -340,10 +338,10 @@ const buildCanvasPdf = async (
 
   pdf.setFontSize(14)
   pdf.setTextColor(15)
-  pdf.text(sanitizeForPdf(metadata?.name || 'Cable Planner Project'), margin, margin + 4)
+  pdfText(pdf, metadata?.name || 'Cable Planner Project', margin, margin + 4)
   pdf.setFontSize(9)
   pdf.setTextColor(80)
-  pdf.text(sanitizeForPdf(new Date().toLocaleString()), pageWidth - margin, margin + 4, { align: 'right' })
+  pdfText(pdf, new Date().toLocaleString(), pageWidth - margin, margin + 4, { align: 'right' })
 
   const offsetX = margin
   const offsetY = margin + headerHeight
