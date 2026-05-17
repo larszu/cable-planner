@@ -23,7 +23,12 @@ import { useEffect, useMemo, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { CanvasArea } from '../Canvas/CanvasArea'
 import { CableContextMenu } from '../Canvas/CableContextMenu'
-import { ProjectStoreProvider } from '../../store/projectStoreContext'
+import { CableProperties } from '../Properties/CableProperties'
+import { EquipmentProperties } from '../Properties/EquipmentProperties'
+import {
+  ProjectStoreProvider,
+  useCanvasProjectStore,
+} from '../../store/projectStoreContext'
 import { createProjectStoreInstance } from '../../store/projectStore'
 import type {
   EquipmentItem,
@@ -312,12 +317,64 @@ export const RackInternalCanvas = ({
 
   return (
     <ProjectStoreProvider store={scratchStore}>
-      <div style={{ width: '100%', height: '100%', position: 'relative', minHeight: 320 }}>
-        <CanvasArea mode="rack" />
-        {/* CableContextMenu muss innerhalb des Providers gerendert
-            sein, damit seine Mutationen den Scratch-Store treffen. */}
-        <CableContextMenu />
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          minHeight: 320,
+          display: 'grid',
+          gridTemplateColumns: '1fr 280px',
+          gap: 8,
+        }}
+      >
+        <div style={{ position: 'relative', minWidth: 0 }}>
+          <CanvasArea mode="rack" />
+          {/* CableContextMenu muss innerhalb des Providers gerendert
+              sein, damit seine Mutationen den Scratch-Store treffen. */}
+          <CableContextMenu />
+        </div>
+        {/* v7.9.11 — Inline-Properties-Pane: zeigt EquipmentProperties
+            wenn ein Rack-Gerät ausgewählt ist, CableProperties wenn ein
+            Kabel ausgewählt ist. Beide nutzen useCanvasProjectStore
+            (via dem Provider drumherum) und arbeiten daher gegen den
+            Scratch-Store. */}
+        <RackSidePropertiesPane />
       </div>
     </ProjectStoreProvider>
+  )
+}
+
+const RackSidePropertiesPane = () => {
+  const selectedEquipmentId = useCanvasProjectStore((s) => s.selectedEquipmentId)
+  const selectedCableId = useCanvasProjectStore((s) => s.selectedCableId)
+  const selectedEquipment = useCanvasProjectStore((s) =>
+    selectedEquipmentId ? s.project.equipment.find((e) => e.id === selectedEquipmentId) : undefined,
+  )
+  const selectedCable = useCanvasProjectStore((s) =>
+    selectedCableId ? s.project.cables.find((c) => c.id === selectedCableId) : undefined,
+  )
+  const title = selectedEquipment
+    ? `Gerät: ${selectedEquipment.name}`
+    : selectedCable
+      ? `Kabel: ${selectedCable.name}`
+      : 'Inspector'
+  return (
+    <aside className="flex h-full min-h-0 flex-col rounded border border-slate-700 bg-slate-950">
+      <div className="border-b border-slate-800 px-3 py-2">
+        <h3 className="truncate text-xs font-semibold text-slate-100">{title}</h3>
+        <div className="mt-0.5 text-[9px] uppercase tracking-wide text-slate-500">
+          Eigenschaften (Rack-Scope)
+        </div>
+      </div>
+      <div className="flex-1 min-h-0 overflow-auto p-2 text-xs">
+        {selectedEquipmentId && <EquipmentProperties />}
+        {selectedCableId && <CableProperties />}
+        {!selectedEquipmentId && !selectedCableId && (
+          <div className="rounded border border-slate-800 bg-slate-900/40 p-3 text-[11px] text-slate-500">
+            Klick auf ein Rack-Gerät oder eine Verbindung im Canvas → die Eigenschaften erscheinen hier.
+          </div>
+        )}
+      </div>
+    </aside>
   )
 }
