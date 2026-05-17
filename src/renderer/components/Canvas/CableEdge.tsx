@@ -9,7 +9,7 @@ import {
   type EdgeProps,
 } from 'reactflow'
 import type { Cable } from '../../types/cable'
-import { useProjectStore } from '../../store/projectStore'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { CableWaypoints } from './CableWaypoints'
 import { computeObstacleAwareWaypoints, type Rect } from '../../lib/cableRouting'

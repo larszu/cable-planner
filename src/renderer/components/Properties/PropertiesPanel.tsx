@@ -1,4 +1,4 @@
-import { useProjectStore } from '../../store/projectStore'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { CableProperties } from './CableProperties'
 import { EquipmentProperties } from './EquipmentProperties'

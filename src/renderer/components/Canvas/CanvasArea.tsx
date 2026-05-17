@@ -19,7 +19,10 @@ import ReactFlow, {
   type NodeChange,
   type EdgeChange,
 } from 'reactflow'
-import { useProjectStore } from '../../store/projectStore'
+import {
+  useCanvasProjectStore as useProjectStore,
+  useCanvasProjectStoreInstance,
+} from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { ANNOTATION_DRAG_MIME } from '../Annotations/AnnotationsPanel'
 import { AnnotationCanvasOverlay } from '../Annotations/AnnotationCanvasOverlay'
@@ -45,7 +48,12 @@ import type { PixelRect } from '../../lib/cableAStar'
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
 const edgeTypes = { cable: CableEdge }
 
-const CanvasContent = () => {
+type CanvasMode = 'main' | 'rack'
+
+const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
+  // v7.9.9 — context-aware project store instance. Default = main store,
+  // override = scratch store (z.B. RackInternalCanvas).
+  const projectStoreInstance = useCanvasProjectStoreInstance()
   const project = useProjectStore((state) => state.project)
   const projectVersion = useProjectStore((state) => state.projectVersion)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
@@ -217,7 +225,7 @@ const CanvasContent = () => {
     }
 
     const routeOne = (cableId: string): boolean => {
-      const proj = useProjectStore.getState().project
+      const proj = projectStoreInstance.getState().project
       const cable = proj.cables.find((c) => c.id === cableId)
       if (!cable) return false
       const srcEq = proj.equipment.find((e) => e.id === cable.fromEquipmentId)
@@ -247,7 +255,7 @@ const CanvasContent = () => {
     }
 
     const routeAll = (): number => {
-      const proj = useProjectStore.getState().project
+      const proj = projectStoreInstance.getState().project
       let ok = 0
       for (const c of proj.cables) {
         if (routeOne(c.id)) ok += 1
@@ -969,7 +977,7 @@ const CanvasContent = () => {
         const target = event.target as HTMLElement | null
         const deviceEl = target?.closest('.react-flow__node-equipment') as HTMLElement | null
         const deviceId = deviceEl?.getAttribute('data-id') ?? null
-        const updateAnnotation = useProjectStore.getState().updateAnnotation
+        const updateAnnotation = projectStoreInstance.getState().updateAnnotation
         if (deviceId) {
           updateAnnotation(annotationId, {
             anchor: { type: 'device', deviceId },
@@ -986,6 +994,10 @@ const CanvasContent = () => {
       if (!payload) {
         return
       }
+      // v7.9.10 — In rack-mode keine Library-Drops. Geräte werden im
+      // Rack-Builder via "+ Rack"-Button hinzugefügt, nicht durch
+      // Drag-Drop vom Haupt-Library-Panel ins Sub-Canvas.
+      if (mode === 'rack') return
       try {
         const template = JSON.parse(payload) as EquipmentTemplate
         // Snap drop-position to grid (or at least to integer) so the store
@@ -997,7 +1009,7 @@ const CanvasContent = () => {
         console.error('Failed to drop equipment:', error)
       }
     },
-    [addEquipment, screenToFlowPosition, snapToGrid, gridSize],
+    [addEquipment, screenToFlowPosition, snapToGrid, gridSize, mode, projectStoreInstance],
   )
 
   // In-app clipboard for Ctrl+C / Ctrl+V. Snapshots the selected equipment
@@ -1180,12 +1192,12 @@ const CanvasContent = () => {
         lastMousePosRef.current = { x: event.clientX, y: event.clientY }
       }}
     >
-      <CanvasToolbar />
-      <AnnotationCanvasOverlay />
+      {mode === 'main' && <CanvasToolbar />}
+      {mode === 'main' && <AnnotationCanvasOverlay />}
       {/* v7.9.5 — Lock-Banner. Wenn projectMode='finalized' oder 'viewer'
           ist, zeigt eine prominente Leiste oben dass das Canvas
           gesperrt ist + im finalized-Fall einen Quick-Unlock-Button. */}
-      {projectIsLocked && (
+      {mode === 'main' && projectIsLocked && (
         <div
           style={{
             position: 'absolute',
@@ -1222,7 +1234,7 @@ const CanvasContent = () => {
                       'Geräte, Kabel und Layout können dann wieder verändert werden.',
                   )
                 ) {
-                  useProjectStore.getState().setProjectMode('editing')
+                  projectStoreInstance.getState().setProjectMode('editing')
                 }
               }}
               style={{
@@ -1410,8 +1422,8 @@ const CanvasContent = () => {
   )
 }
 
-export const CanvasArea = () => (
+export const CanvasArea = ({ mode = 'main' }: { mode?: CanvasMode } = {}) => (
   <ReactFlowProvider>
-    <CanvasContent />
+    <CanvasContent mode={mode} />
   </ReactFlowProvider>
 )

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useProjectStore } from '../../store/projectStore'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { nextPlacementPosition } from '../../lib/library'
 import { CategorySelect } from '../shared/CategorySelect'
 import { confirmDialog } from '../../lib/confirmDialog'

@@ -1,4 +1,4 @@
-import { useProjectStore } from '../../store/projectStore'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { cableCatalog } from '../../types/cableSpec'
 import { useUiStore } from '../../store/uiStore'
 import type { Cable } from '../../types/cable'

@@ -115,6 +115,26 @@ export interface EquipmentItem {
   isRackDevice?: boolean
   /** Optional rack height in HE/U for future 2D rack layouts. */
   rackUnits?: number
+  /** v7.9.9 — Snapshot der internen Rack-Verkabelung wenn das Item
+   *  durch "Black-Box-Einfügen" auf das Canvas gelegt wurde. Wird vom
+   *  EquipmentNode genutzt um die internen Verbindungen als Overlay
+   *  im Karten-Body zu zeichnen, damit der User auf einen Blick sieht
+   *  was im Rack passiert ohne die GroupPreset zu öffnen.
+   *
+   *  Items + Cables-Format ist eine vereinfachte Version der
+   *  GroupPreset-Strukturen. Read-only — die echte Quelle ist nach wie
+   *  vor der GroupPreset im projectStore. */
+  rackInternalSnapshot?: {
+    items: Array<{ name: string; startUnit: number; rackUnits: number }>
+    cables: Array<{
+      fromItemIndex: number
+      fromPortName: string
+      toItemIndex: number
+      toPortName: string
+      color?: string
+    }>
+    totalUnits: number
+  }
   /** Issue #61: Sub-canvas-per-rack. When a GroupPreset with `rack`
    *  metadata is placed via `placeGroupPreset`, every equipment item
    *  spawned by that placement is tagged with the same fresh
