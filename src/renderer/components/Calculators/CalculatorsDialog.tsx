@@ -11,7 +11,7 @@
 import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
-import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { ModalShell } from '../shared/ModalShell'
 
 // v7.5.0 — Cable-Length tab removed. The standalone calculator
 // can't produce meaningful estimates without inter-location distances
@@ -521,37 +521,18 @@ export const CalculatorsDialog = () => {
   const [tab, setTab] = useState<Tab>(
     initialTab === 'bandwidth' || initialTab === 'power' ? initialTab : 'bandwidth',
   )
-  const drag = useDraggablePosition('cable-planner:modal-pos:calculators', open)
-  if (!open) return null
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-      onMouseDown={(e) => e.target === e.currentTarget && close()}
+    <ModalShell
+      open={open}
+      onClose={close}
+      title="Werkzeuge / Rechner"
+      titleIcon="🧮"
+      maxWidth="2xl"
+      draggableKey="cable-planner:modal-pos:calculators"
     >
-      <div
-        ref={drag.containerRef}
-        style={drag.containerStyle}
-        className="w-full max-w-2xl rounded-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
-      >
-        <header
-          {...drag.headerProps}
-          className="flex items-center justify-between border-b border-slate-700 px-4 py-3 select-none"
-        >
-          <h2 className="text-sm font-semibold">
-            <span className="mr-2">🧮</span>Werkzeuge / Rechner
-          </h2>
-          <button
-            type="button"
-            onClick={close}
-            className="rounded px-2 py-1 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100"
-          >
-            ✕
-          </button>
-        </header>
-        <TabBar active={tab} onChange={setTab} />
-        {tab === 'bandwidth' && <BandwidthTab />}
-        {tab === 'power' && <PowerTab />}
-      </div>
-    </div>
+      <TabBar active={tab} onChange={setTab} />
+      {tab === 'bandwidth' && <BandwidthTab />}
+      {tab === 'power' && <PowerTab />}
+    </ModalShell>
   )
 }
