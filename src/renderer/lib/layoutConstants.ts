@@ -10,20 +10,36 @@
 // Jetzt: ein zentrales `LAYOUT` + `LIMITS` Objekt. Wer die Werte
 // ändern will fasst genau eine Stelle an.
 
-/** Equipment-Node-Layout (geteilt zwischen EquipmentNode + equipmentLayout.ts). */
+/** Equipment-Node-Layout (geteilt zwischen EquipmentNode + equipmentLayout.ts).
+ *  v7.9.26 — Alle Werte sind Vielfache von 11 px (= gridSize). Dadurch:
+ *    - Port-Handle (im Row-Center bei headerHeight + slot*PORT_ROW + 11)
+ *      landet exakt auf einer Dot-Reihe → Kabel laufen sichtbar entlang
+ *      der Gitter-Linien.
+ *    - Geräte-Höhe = headerHeight + N·PORT_ROW + PADDING = mult of 11
+ *      → die Karten-Unterkante liegt immer auf einer Dot-Reihe.
+ *    - DEFAULT_WIDTH = 220 = 20·11 → Geräte-Außenkanten links/rechts
+ *      decken sich mit Dot-Spalten.
+ *  Snap der Geräte-Position erfolgt mit gridSize=11 (siehe uiStore-Default). */
 export const EQUIPMENT_LAYOUT = {
-  /** Höhe der Karten-Header-Zone ohne IP-Adresse. */
-  HEADER_HEIGHT: 48,
-  /** Höhe wenn die Karte eine IP-Adresse als Subtitle zeigt. */
-  HEADER_HEIGHT_WITH_IP: 62,
-  /** Höhe einer Port-Zeile (Input/Output mit Connector-Dot + Label). */
+  /** Höhe der Karten-Header-Zone ohne IP-Adresse. 4·11 = 44 px. */
+  HEADER_HEIGHT: 44,
+  /** Höhe wenn die Karte eine IP-Adresse als Subtitle zeigt. 6·11 = 66 px. */
+  HEADER_HEIGHT_WITH_IP: 66,
+  /** Höhe einer Port-Zeile (Input/Output mit Connector-Dot + Label).
+   *  2·11 = 22 px — Port-Handle in der Mitte liegt damit auf jeder
+   *  zweiten Dot-Reihe. */
   PORT_ROW: 22,
-  /** Größe der ReactFlow-Handle-Hitzone (transparent, click area). */
+  /** Größe der ReactFlow-Handle-Hitzone (transparent, click area).
+   *  Nicht grid-gebunden — rein visuelles UX-Element. */
   HANDLE_SIZE: 16,
-  /** Inner-Padding der Equipment-Karte. */
-  PADDING: 8,
-  /** Default-Breite eines Equipment-Items wenn nicht explizit gesetzt. */
+  /** Inner-Padding der Equipment-Karte. 1·11 = 11 px. */
+  PADDING: 11,
+  /** Default-Breite eines Equipment-Items wenn nicht explizit gesetzt.
+   *  20·11 = 220 px. Auto-Expand schnappt ebenfalls auf 11-px-Schritte. */
   DEFAULT_WIDTH: 220,
+  /** Default-Grid-Step in CSS-Pixeln. Single source of truth — der
+   *  uiStore-Default referenziert diesen Wert. */
+  GRID_SIZE: 11,
 } as const
 
 /** Default-Werte für Viewport-Berechnungen (zoom-to-fit etc.). */

@@ -34,7 +34,7 @@ export interface DeviceConfigEntry {
 }
 
 import { STORAGE_KEYS } from '../lib/storageKeys'
-import { PANEL_LIMITS } from '../lib/layoutConstants'
+import { PANEL_LIMITS, EQUIPMENT_LAYOUT } from '../lib/layoutConstants'
 
 const KEY = STORAGE_KEYS.ui
 
@@ -169,7 +169,7 @@ const defaults: PersistedUiState = {
   propertiesCollapsed: false,
   libraryCollapsed: false,
   snapToGrid: true,
-  gridSize: 10,
+  gridSize: EQUIPMENT_LAYOUT.GRID_SIZE,
   defaultRouting: 'orthogonal',
   defaultArrow: true,
   libraryWidth: 260,
