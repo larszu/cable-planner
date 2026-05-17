@@ -17,6 +17,32 @@ const PORT_ROW = 22
 const HANDLE_SIZE = 16   // larger hit zone (was 10) — easier to click/drag
 const PADDING = 8
 
+// v7.9.14 — Farb-Palette für Rack-Geräte-Bänder im Black-Box-Mode.
+// Gut sichtbare, aber gedeckte Farben mit gutem Kontrast auf
+// slate-900-Hintergrund. Reihenfolge ist absichtlich gemixt damit
+// benachbarte Geräte selten gleiche Farbe haben (Hash-Verteilung).
+const RACK_BAND_PALETTE = [
+  '#0ea5e9', // sky
+  '#a855f7', // violet
+  '#22c55e', // emerald
+  '#f59e0b', // amber
+  '#ec4899', // pink
+  '#06b6d4', // cyan
+  '#84cc16', // lime
+  '#f97316', // orange
+  '#6366f1', // indigo
+  '#14b8a6', // teal
+  '#e11d48', // rose
+  '#eab308', // yellow
+]
+const rackBandColor = (name: string): string => {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash * 31 + name.charCodeAt(i)) | 0
+  }
+  return RACK_BAND_PALETTE[Math.abs(hash) % RACK_BAND_PALETTE.length]
+}
+
 const resolvePortSide = (
   port: EquipmentItem['inputs'][number] | EquipmentItem['outputs'][number],
   defaultSide: 'left' | 'right',
@@ -244,17 +270,105 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   const outputPlacement = new Map<string, { side: 'left' | 'right'; slot: number }>()
   const sideCounts: Record<'left' | 'right', number> = { left: 0, right: 0 }
 
-  for (const port of data.inputs) {
-    const side = resolvePortSide(port, 'left', !!data.portsFlipped)
-    const slot = sideCounts[side]
-    sideCounts[side] += 1
-    inputPlacement.set(port.id, { side, slot })
+  // v7.9.14 — Black-Box-Rack-Mode: wenn das Equipment einen
+  // rackInternalSnapshot hat UND die Ports rackOriginDeviceIndex
+  // mitbringen, gruppieren wir die Ports nach Quell-Gerät und stapeln
+  // sie als "Bänder" — In + Out desselben Geräts landen auf gleicher
+  // horizontaler Höhe. Jedes Gerät bekommt zusätzlich ein farbiges
+  // Hintergrund-Band (siehe rackBandColor) und Geräte-Name-Label,
+  // damit man auf einen Blick erkennt welcher Port zu welchem Gerät
+  // gehört (User-Request: "in der blackbox ist nicht ersichtlich
+  // welche ports zu welchem gerät gehören").
+  type RackBand = {
+    deviceIndex: number
+    deviceName: string
+    color: string
+    topSlot: number
+    rowSpan: number
+    inputs: typeof data.inputs
+    outputs: typeof data.outputs
   }
-  for (const port of data.outputs) {
-    const side = resolvePortSide(port, 'right', !!data.portsFlipped)
-    const slot = sideCounts[side]
-    sideCounts[side] += 1
-    outputPlacement.set(port.id, { side, slot })
+  const rackBands: RackBand[] = []
+  const isRackBlackBox =
+    !!data.rackInternalSnapshot &&
+    (data.inputs.some((p) => p.rackOriginDeviceIndex !== undefined) ||
+      data.outputs.some((p) => p.rackOriginDeviceIndex !== undefined))
+
+  if (isRackBlackBox) {
+    const snap = data.rackInternalSnapshot!
+    const portsByDevice = new Map<number, RackBand>()
+    const ensureBand = (idx: number, name: string): RackBand => {
+      let band = portsByDevice.get(idx)
+      if (!band) {
+        band = {
+          deviceIndex: idx,
+          deviceName: name,
+          color: rackBandColor(name),
+          topSlot: 0,
+          rowSpan: 0,
+          inputs: [],
+          outputs: [],
+        }
+        portsByDevice.set(idx, band)
+      }
+      return band
+    }
+    for (const port of data.inputs) {
+      if (port.rackOriginDeviceIndex == null) continue
+      const item = snap.items[port.rackOriginDeviceIndex]
+      const name = port.rackOriginDeviceName ?? item?.name ?? `#${port.rackOriginDeviceIndex}`
+      ensureBand(port.rackOriginDeviceIndex, name).inputs.push(port)
+    }
+    for (const port of data.outputs) {
+      if (port.rackOriginDeviceIndex == null) continue
+      const item = snap.items[port.rackOriginDeviceIndex]
+      const name = port.rackOriginDeviceName ?? item?.name ?? `#${port.rackOriginDeviceIndex}`
+      ensureBand(port.rackOriginDeviceIndex, name).outputs.push(port)
+    }
+    // Sort by HE-position (snap.items[idx].startUnit)
+    const sortedBands = Array.from(portsByDevice.values()).sort((a, b) => {
+      const aTop = snap.items[a.deviceIndex]?.startUnit ?? a.deviceIndex
+      const bTop = snap.items[b.deviceIndex]?.startUnit ?? b.deviceIndex
+      return aTop - bTop
+    })
+    // 1 Slot Gap zwischen Geräten (= sichtbare Trennung im Body).
+    const GAP_BETWEEN_BANDS = 1
+    // 1 Header-Row pro Band für den Geräte-Namen (kleines Label oben).
+    const HEADER_ROW_PER_BAND = 1
+    let cursor = 0
+    for (const band of sortedBands) {
+      const ports = Math.max(band.inputs.length, band.outputs.length, 1)
+      band.topSlot = cursor
+      band.rowSpan = HEADER_ROW_PER_BAND + ports
+      band.inputs.forEach((p, i) => {
+        const side = resolvePortSide(p, 'left', !!data.portsFlipped)
+        const slot = band.topSlot + HEADER_ROW_PER_BAND + i
+        inputPlacement.set(p.id, { side, slot })
+        sideCounts[side] = Math.max(sideCounts[side], slot + 1)
+      })
+      band.outputs.forEach((p, i) => {
+        const side = resolvePortSide(p, 'right', !!data.portsFlipped)
+        const slot = band.topSlot + HEADER_ROW_PER_BAND + i
+        outputPlacement.set(p.id, { side, slot })
+        sideCounts[side] = Math.max(sideCounts[side], slot + 1)
+      })
+      cursor += band.rowSpan + GAP_BETWEEN_BANDS
+    }
+    rackBands.push(...sortedBands)
+  } else {
+    // Standard layout: slots per side, fortlaufend in Definitionsreihenfolge.
+    for (const port of data.inputs) {
+      const side = resolvePortSide(port, 'left', !!data.portsFlipped)
+      const slot = sideCounts[side]
+      sideCounts[side] += 1
+      inputPlacement.set(port.id, { side, slot })
+    }
+    for (const port of data.outputs) {
+      const side = resolvePortSide(port, 'right', !!data.portsFlipped)
+      const slot = sideCounts[side]
+      sideCounts[side] += 1
+      outputPlacement.set(port.id, { side, slot })
+    }
   }
 
   // Collapsed view (issue #37): render a small label-only badge with port
@@ -508,6 +622,66 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           </div>
         )}
       </div>
+
+      {/* v7.9.14 — Rack-Bänder: Hintergrund-Rechtecke + Geräte-Name-Labels
+          für jedes interne Rack-Gerät. Mit subtilem farbigen Akzent
+          links + Glyph-Name oben im Band. Rendert NUR im Black-Box-Mode. */}
+      {isRackBlackBox && rackBands.map((band) => {
+        const top = headerHeight + band.topSlot * PORT_ROW
+        const h = band.rowSpan * PORT_ROW
+        return (
+          <div
+            key={`rack-band-${band.deviceIndex}`}
+            style={{
+              position: 'absolute',
+              top,
+              left: 6,
+              right: 6,
+              height: h,
+              borderRadius: 4,
+              background: isLight
+                ? `${band.color}10`
+                : `${band.color}1a`,
+              border: `1px solid ${band.color}55`,
+              borderLeft: `4px solid ${band.color}`,
+              pointerEvents: 'none',
+              boxSizing: 'border-box',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                top: 2,
+                left: 8,
+                right: 8,
+                height: PORT_ROW - 2,
+                fontSize: 10,
+                fontWeight: 700,
+                color: band.color,
+                letterSpacing: 0.2,
+                lineHeight: `${PORT_ROW - 4}px`,
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textShadow: isLight ? 'none' : '0 1px 1px rgba(0,0,0,0.5)',
+              }}
+              title={band.deviceName}
+            >
+              {band.deviceName}
+              <span
+                style={{
+                  marginLeft: 6,
+                  fontSize: 9,
+                  fontWeight: 500,
+                  opacity: 0.7,
+                }}
+              >
+                · {band.inputs.length} In · {band.outputs.length} Out
+              </span>
+            </div>
+          </div>
+        )
+      })}
 
       {/* Inputs */}
       {data.inputs.map((port, index) => {
@@ -777,7 +951,11 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           jeder Port als eigener Anschlusspunkt mit kleinem Label
           ausgegeben — der User sieht welcher Port welche Verbindung
           trägt. */}
-      {data.rackInternalSnapshot && data.rackInternalSnapshot.cables.length > 0 && (
+      {/* v7.9.14 — Wenn Bänder gerendert werden, ist der SVG-Overlay
+          (HE-Slots + Bezier-Kabel) redundant — die Bänder selbst zeigen
+          die Geräte-Struktur klarer. Overlay nur als Fallback für
+          Legacy-Black-Boxes ohne rackOriginDeviceIndex-Markierung. */}
+      {!isRackBlackBox && data.rackInternalSnapshot && data.rackInternalSnapshot.cables.length > 0 && (
         (() => {
           const snap = data.rackInternalSnapshot
           const innerTop = headerHeight + 4

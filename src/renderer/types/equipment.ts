@@ -48,6 +48,14 @@ export interface Port {
    *  Free text ID (z.B. 'QL-1', 'QL-2'); pro Gerät beliebig viele
    *  Sets möglich. UI warnt wenn eine Gruppe nicht 4 Ports hat. */
   quadLinkGroup?: string
+  /** v7.9.14 — Wenn dieses Equipment ein Black-Box-Rack ist, markiert
+   *  jeder externe Port aus welchem internen Rack-Gerät er stammt
+   *  (Index in rackInternalSnapshot.items). EquipmentNode nutzt diese
+   *  Info um Ports nach Gerät zu gruppieren (Color-Band + aligned
+   *  In/Out auf gleicher Höhe). Read-only — bei Nicht-Rack-Items oder
+   *  legacy-Rack-Items ohne Snapshot ignoriert. */
+  rackOriginDeviceIndex?: number
+  rackOriginDeviceName?: string
   /**
    * Direction of the port. Defaults to the array it lives in (`inputs` → 'in',
    * `outputs` → 'out'). A port marked `bidirectional` (e.g. an RJ45 network
@@ -432,6 +440,12 @@ export interface GroupPreset {
       startUnit: number
       heightUnits: number
     }>
+    /** v7.9.14 — Canvas-Positionen für den RackInternalCanvas. Wird
+     *  vom Rack-Builder beim Speichern befüllt, falls der User Geräte
+     *  in der Internal-Verkabelungs-Ansicht frei verschoben hat.
+     *  Keyed by itemIndex. Wenn ein Eintrag fehlt, fällt der Canvas
+     *  auf die Default-Position aus startUnit zurück. */
+    internalCanvasPositions?: Record<number, { x: number; y: number }>
   }
   items: Array<
     EquipmentTemplate & {
