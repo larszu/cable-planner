@@ -45,6 +45,14 @@ import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
 import { printPdfBlob } from './lib/printPdfBlob'
 import { exportCanvasToImage } from './lib/exportImage'
 import { useProjectStore } from './store/projectStore'
+import {
+  scanLibraryFolder,
+  markDeviceSynced,
+  markGroupSynced,
+  findOutdatedEquipment,
+  applyDeviceTemplateUpdate,
+  detectFolderDeletions,
+} from './lib/librarySync'
 import { useUndoRedoShortcuts, projectHistory } from './store/projectHistory'
 import { useSettingsStore } from './store/settingsStore'
 import { useUiStore } from './store/uiStore'
@@ -130,6 +138,109 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = pdfExportThemeOverride ?? canvasTheme
   }, [canvasTheme, pdfExportThemeOverride])
+
+  const projectVersion = useProjectStore((s) => s.projectVersion)
+  const [libraryReady, setLibraryReady] = useState(false)
+
+  // v7.9.33 — Library-Folder-Sync beim App-Start. Liest alle .cpdevice/
+  // .cpgroup Dateien aus userData/library/, fügt Items hinzu die im
+  // localStorage noch nicht stehen. So überlebt die Library App-
+  // Reinstalls und kann zwischen Systemen per Dropbox o.ä. abgeglichen
+  // werden. Bestehende localStorage-Items werden NICHT überschrieben —
+  // der User behält seine lokalen Edits.
+  useEffect(() => {
+    void (async () => {
+      if (!hasDesktopBridge) {
+        setLibraryReady(true)
+        return
+      }
+      const items = await scanLibraryFolder()
+      const state = useProjectStore.getState()
+      // ── ADD: neue Folder-Items, die noch nicht im Store sind
+      const existingDeviceNames = new Set(state.customLibrary.map((t) => t.name))
+      const existingGroupNames = new Set(state.groupPresets.map((p) => p.name))
+      const newDevices = items
+        .filter((i) => i.kind === 'device' && !existingDeviceNames.has(i.template.name))
+        .map((i) => (i as { template: import('./types/equipment').EquipmentTemplate }).template)
+      const newGroups = items
+        .filter((i) => i.kind === 'group' && !existingGroupNames.has(i.preset.name))
+        .map((i) => (i as { preset: import('./types/equipment').GroupPreset }).preset)
+      // Marker im Sync-Cache setzen damit der folgende addCustomTemplates-
+      // /addGroupPreset-Call den Diff als "schon synchron" sieht und nicht
+      // sofort wieder in den Ordner zurückschreibt.
+      for (const t of newDevices) markDeviceSynced(t)
+      for (const p of newGroups) markGroupSynced(p)
+      if (newDevices.length > 0) state.addCustomTemplates(newDevices)
+      for (const preset of newGroups) state.addGroupPreset(preset)
+      // ── REMOVE: Items die mal im Folder waren (folderTracked-Set), jetzt
+      // aber fehlen → User hat die Datei aus dem Ordner gelöscht. Wir
+      // spiegeln das im Store wider damit die UI mit dem Folder übereinstimmt.
+      // Built-ins beim First-Install sind NICHT folderTracked (noch nie
+      // gesynced), bleiben also erhalten.
+      const { deletedDevices, deletedGroups } = detectFolderDeletions(items)
+      const refreshed = useProjectStore.getState()
+      for (const name of deletedDevices) {
+        if (refreshed.customLibrary.some((t) => t.name === name)) {
+          refreshed.removeCustomTemplate(name)
+        }
+      }
+      for (const name of deletedGroups) {
+        const preset = refreshed.groupPresets.find((p) => p.name === name)
+        if (preset) refreshed.deleteGroupPreset(preset.id)
+      }
+      setLibraryReady(true)
+    })()
+  }, [])
+
+  // v7.9.33 — Update-Prompt für Library-Items.
+  // Triggered: wenn (a) der Library-Scan abgeschlossen ist UND (b) ein
+  // Projekt geladen wurde (projectVersion bumpt bei Load/New). Wenn
+  // platzierte Geräte einen libraryRef haben und der Folder eine neuere
+  // fileVersion enthält, fragt der Dialog ob aktualisiert werden soll.
+  useEffect(() => {
+    if (!libraryReady) return
+    void (async () => {
+      const state = useProjectStore.getState()
+      const outdated = findOutdatedEquipment(state.project.equipment)
+      if (outdated.length === 0) return
+      const lines = outdated.slice(0, 12).map((o) => {
+        const kindLabel = o.refKind === 'device' ? 'Gerät' : 'Rack/Gruppe'
+        return `• ${o.equipmentName} (${kindLabel}: ${o.refName}) — v${o.storedFileVersion} → v${o.currentFileVersion}`
+      })
+      const more = outdated.length > lines.length ? `\n…und ${outdated.length - lines.length} weitere` : ''
+      const ok = await confirmDialog(
+        `${outdated.length} Library-Item${outdated.length === 1 ? '' : 's'} im Projekt sind veraltet:`,
+        {
+          body: `${lines.join('\n')}${more}\n\nIm Bibliotheks-Ordner liegt eine neuere Version. Auf die aktuellen Library-Stände aktualisieren?\n\n(Geräte-Namen + Notizen bleiben erhalten. Rack/Gruppen-Updates müssen aktuell manuell neu platziert werden.)`,
+          okLabel: 'Aktualisieren',
+        },
+      )
+      if (!ok) return
+      const freshState = useProjectStore.getState()
+      let applied = 0
+      for (const item of outdated) {
+        if (item.refKind !== 'device') continue // Group/Rack-Update später
+        const newTemplate = freshState.customLibrary.find((t) => t.name === item.refName)
+        if (!newTemplate) continue
+        const oldEq = freshState.project.equipment.find((e) => e.id === item.equipmentId)
+        if (!oldEq) continue
+        const updated = applyDeviceTemplateUpdate(oldEq, newTemplate)
+        freshState.updateEquipment(item.equipmentId, updated)
+        applied += 1
+      }
+      const skipped = outdated.length - applied
+      if (applied > 0 || skipped > 0) {
+        await infoDialog('Update fertig', {
+          body: `${applied} Gerät${applied === 1 ? '' : 'e'} aktualisiert.${
+            skipped > 0
+              ? `\n${skipped} Rack/Gruppen-Item${skipped === 1 ? '' : 's'} übersprungen — bitte manuell neu platzieren wenn nötig.`
+              : ''
+          }`,
+          tone: 'success',
+        })
+      }
+    })()
+  }, [libraryReady, projectVersion])
 
   useEffect(() => {
     if (pdfExportOpen) setPdfTheme('light')

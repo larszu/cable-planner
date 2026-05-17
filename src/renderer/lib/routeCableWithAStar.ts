@@ -6,6 +6,19 @@
  * The adapter does NOT mutate the store. It is a pure function that
  * returns waypoints; the caller decides whether to write them back to
  * the cable.
+ *
+ * v7.9.32 — Obstacles werden inflated bevor sie an den Pathfinder gehen.
+ * v7.9.37 — Source/Target werden jetzt AUCH als Obstacles mit Padding
+ * in den Pathfinder gegeben. Vorher waren beide komplett ausgeschlossen,
+ * was A* erlaubt hat den Pfad durch den Source/Target hindurch zu
+ * optimieren (kürzer = mehr Cells, weniger Turns). Mit Padding + Korridor:
+ *  - Source-Device + 40 px Padding sind hart blockiert
+ *  - Korridor vom Handle nach außen (durch das eigene Padding) ist
+ *    force-unblocked, damit der Pfad raus kommt
+ *  - Stub-Endpunkt liegt jenseits des Paddings, damit A* dort frei
+ *    weiterplanen kann
+ *  - Pfad kann nie zurück durch den eigenen Body (auch nicht aus dem
+ *    Padding)
  */
 
 import {
@@ -27,66 +40,100 @@ export interface PixelRect {
 }
 
 export interface RouteCableArgs {
-  /** Flow-pixel position of the source handle (already includes
-   *  ReactFlow's viewport offset etc. — pass through what's in
-   *  EdgeProps). */
+  /** Flow-pixel position of the source handle. */
   source: { x: number; y: number }
   target: { x: number; y: number }
   sourceSide: HandleSide
   targetSide: HandleSide
-  /** All equipment rectangles (in flow coordinates). The source and
-   *  target equipment are excluded automatically by id so the router
-   *  isn't asked to dodge its own endpoints. */
+  /** All equipment rectangles (in flow coordinates). Source/Target
+   *  müssen in dieser Liste vorhanden sein UND ihre id muss source-/
+   *  targetEquipmentId entsprechen, damit der Adapter sie als
+   *  "Korridor erforderlich" markiert. */
   obstacles: PixelRect[]
   sourceEquipmentId: string
   targetEquipmentId: string
 }
 
-// ReactFlow side → outward direction (0=E, 1=S, 2=W, 3=N).
-const handleToOutwardDir = (side: HandleSide): 0 | 1 | 2 | 3 => {
+/** v7.9.32 — Sichtbare Lücke um jedes Hindernis. 2 Grid-Cells = 40 px. */
+const OBSTACLE_PAD_CELLS = 2
+const OBSTACLE_PAD_PX = OBSTACLE_PAD_CELLS * CELL_SIZE
+
+// ReactFlow side → outward direction in pixel space (dx, dy).
+const handleOutwardDelta = (side: HandleSide): { dx: number; dy: number } => {
   switch (side) {
-    case 'right':  return 0
-    case 'bottom': return 1
-    case 'left':   return 2
-    case 'top':    return 3
+    case 'right':  return { dx: 1, dy: 0 }
+    case 'bottom': return { dx: 0, dy: 1 }
+    case 'left':   return { dx: -1, dy: 0 }
+    case 'top':    return { dx: 0, dy: -1 }
   }
 }
 
-const pixelRectToRect = (r: PixelRect): Rect => ({
-  left: r.x,
-  top: r.y,
-  right: r.x + r.width,
-  bottom: r.y + r.height,
+const inflate = (r: PixelRect, pad: number): Rect => ({
+  left: r.x - pad,
+  top: r.y - pad,
+  right: r.x + r.width + pad,
+  bottom: r.y + r.height + pad,
   nodeId: r.id,
 })
 
-/** Run pathfinding and return waypoints (flow-pixel coordinates) that,
- *  when combined with the source/target by the renderer, form a clean
- *  orthogonal path. Returns null if no path could be found.
- *
- *  Note: the returned waypoints are the intermediate corner points only —
- *  the literal source/target handle positions are stripped because
- *  CableEdge prepends source and appends target itself. */
+/** Compute force-open cells: ein Korridor vom Handle, einen Cell tief
+ *  ins Source-Device hinein (damit der gerenderte erste Segment am
+ *  Handle anschließt) PLUS OBSTACLE_PAD_CELLS Cells nach außen durch
+ *  das eigene Padding. Ohne den Korridor wäre der Stub-Endpunkt in der
+ *  Padding-Zone des Source-Devices selbst gefangen. */
+const handleCorridor = (
+  handlePx: { x: number; y: number },
+  side: HandleSide,
+  outwardCells: number,
+): { gx: number; gy: number }[] => {
+  const { dx, dy } = handleOutwardDelta(side)
+  const baseGx = Math.round(handlePx.x / CELL_SIZE)
+  const baseGy = Math.round(handlePx.y / CELL_SIZE)
+  const cells: { gx: number; gy: number }[] = []
+  for (let i = 0; i <= outwardCells; i++) {
+    cells.push({ gx: baseGx + dx * i, gy: baseGy + dy * i })
+  }
+  return cells
+}
+
 export const routeCableWithAStar = (
   args: RouteCableArgs,
 ): { x: number; y: number }[] | null => {
-  // Source and target equipment must be excluded from the obstacle set
-  // so the router can plant a stub inside them.
-  const excluded = new Set([args.sourceEquipmentId, args.targetEquipmentId])
-  const obstacles: Rect[] = args.obstacles
-    .filter((o) => !o.id || !excluded.has(o.id))
-    .map(pixelRectToRect)
+  // v7.9.37 — ALLE Devices kommen mit Padding als Hard-Obstacles rein,
+  // inklusive Source und Target. Damit kann A* den Pfad nicht mehr durch
+  // den eigenen Source/Target-Body optimieren.
+  const obstacles: Rect[] = args.obstacles.map((r) => inflate(r, OBSTACLE_PAD_PX))
 
-  const sourceExitsRight = args.sourceSide === 'right'
-  const targetEntersLeft = args.targetSide === 'left'
+  // Stub-Distanz: muss past dem eigenen Padding liegen, sonst sitzt
+  // der A*-Startpunkt im blockierten Padding-Bereich fest.
+  const stubCells = OBSTACLE_PAD_CELLS + 1
 
-  // Direction the path arrives at the goal cell, in pathfinding's enum
-  // (0=E, 1=S, 2=W, 3=N). Path travels INTO the device, so it's the
-  // opposite of the handle's outward direction.
-  const arriveDir = (handleToOutwardDir(args.targetSide) + 2) % 4
-  // Free end-direction unless the handle is on a horizontal side. The
-  // underlying A* already enforces "arrive horizontally" by default, so
-  // for vertical handles we open it up and exclude the wrong-way arrival.
+  // Korridor force-open: vom Handle nach außen durch das eigene Padding,
+  // damit der gerenderte erste Segment (Handle → erstes Waypoint = Stub)
+  // einen freien Weg hat und A* den Stub erreichen kann.
+  const extraForceOpen = [
+    ...handleCorridor(args.source, args.sourceSide, stubCells),
+    ...handleCorridor(args.target, args.targetSide, stubCells),
+  ]
+
+  // Bei Top/Bottom-Handles weiß der Pathfinder nicht von "vertical stub" —
+  // er kennt nur horizontale Stubs (links/rechts). Wir wählen die Stub-
+  // Richtung anhand der relativen Source/Target-Position so dass der
+  // Stub in Richtung Ziel zeigt, was meistens visuell sinnvoll ist.
+  const sourceExitsRight =
+    args.sourceSide === 'right'
+      ? true
+      : args.sourceSide === 'left'
+        ? false
+        : args.source.x <= args.target.x
+  const targetEntersLeft =
+    args.targetSide === 'left'
+      ? true
+      : args.targetSide === 'right'
+        ? false
+        : args.source.x <= args.target.x
+
+  const arriveDir = handleArriveDir(args.targetSide)
   const freeEndDir = args.targetSide === 'top' || args.targetSide === 'bottom'
   const excludeEndDir = freeEndDir ? ((arriveDir + 2) % 4) : undefined
 
@@ -100,13 +147,11 @@ export const routeCableWithAStar = (
     targetEntersLeft,
     freeEndDir,
     excludeEndDir,
+    stubCells,
+    extraForceOpen,
   })
   if (!result) return null
 
-  // computeEdgePath returns waypoints including source + target (grid-
-  // snapped). Strip them — CableEdge re-adds the actual handle pixels.
-  // Also dedup neighbouring points within one cell so stub == handle
-  // doesn't leave a zero-length segment.
   const inner = result.waypoints.slice(1, -1)
   const out: { x: number; y: number }[] = []
   for (const p of inner) {
@@ -114,6 +159,18 @@ export const routeCableWithAStar = (
     if (!last || Math.abs(last.x - p.x) > 1 || Math.abs(last.y - p.y) > 1) out.push(p)
   }
   return out
+}
+
+const handleArriveDir = (side: HandleSide): 0 | 1 | 2 | 3 => {
+  // Direction the path arrives at the goal cell, in pathfinding's enum
+  // (0=E, 1=S, 2=W, 3=N). Path travels INTO the device, so it's the
+  // opposite of the handle's outward direction.
+  switch (side) {
+    case 'right':  return 2 // arrives going west
+    case 'bottom': return 3 // arrives going north
+    case 'left':   return 0 // arrives going east
+    case 'top':    return 1 // arrives going south
+  }
 }
 
 // Re-exported for callers that previously imported these from cableAStar.

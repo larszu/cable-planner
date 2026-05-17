@@ -128,6 +128,26 @@ type CablePlannerApi = {
      *  oder Fehler. */
     pdfBytes: (bytes: Uint8Array) => Promise<boolean>
   }
+  library: {
+    /** v7.9.33 — Zentraler Library-Ordner (userData/library/). */
+    getFolderPath: () => Promise<string>
+    revealFolder: () => Promise<string>
+    scan: () => Promise<
+      Array<{
+        kind: 'device' | 'group'
+        fileName: string
+        fileVersion: number
+        modifiedAt: string
+        payload: unknown
+      }>
+    >
+    write: (params: {
+      kind: 'device' | 'group'
+      name: string
+      payload: unknown
+    }) => Promise<{ fileName: string; fileVersion: number; modifiedAt: string }>
+    deleteItem: (params: { kind: 'device' | 'group'; name: string }) => Promise<boolean>
+  }
   mobileShare: {
     start: () => Promise<{ port: number; urls: string[]; hasProject: boolean }>
     stop: () => Promise<{ ok: boolean }>
@@ -524,6 +544,18 @@ const webFallbackApi: CablePlannerApi = {
   },
   print: {
     pdfBytes: async () => false,
+  },
+  library: {
+    // Web-Fallback: kein zentraler Folder verfügbar, alle ops no-op.
+    getFolderPath: async () => '',
+    revealFolder: async () => '',
+    scan: async () => [],
+    write: async () => ({
+      fileName: '',
+      fileVersion: 0,
+      modifiedAt: new Date().toISOString(),
+    }),
+    deleteItem: async () => false,
   },
   mobileShare: {
     start: async () => {
