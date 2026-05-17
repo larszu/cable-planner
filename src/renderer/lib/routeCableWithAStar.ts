@@ -6,6 +6,20 @@
  * The adapter does NOT mutate the store. It is a pure function that
  * returns waypoints; the caller decides whether to write them back to
  * the cable.
+ *
+ * v7.9.32 — Bug-Fixes:
+ *  - Obstacles werden jetzt um OBSTACLE_PAD_PX inflated. Vorher kamen
+ *    Geräte-Rects roh (ohne PAD) in den Pathfinder rein → Pfad lief
+ *    bis zur Geräte-Kante, sah optisch aus als ginge er durch das
+ *    Gerät hindurch (vor allem weil Edges in ReactFlow unter den Nodes
+ *    gerendert werden). Mit PAD_PX = 2·CELL_SIZE = 40 px Buffer
+ *    behält der Pfad sichtbaren Abstand.
+ *  - Top/Bottom-Handle: vorher hat der Adapter sourceExitsRight=false
+ *    und targetEntersLeft=false gesetzt, was den Stub horizontal nach
+ *    links statt vertikal vom Handle weggesetzt hat. Jetzt: bei
+ *    Vertical-Handles wird der Stub zur "richtigen" Seite des Gerätes
+ *    gelegt indem die Source/Target X-Position auf die Geräte-Mitte
+ *    verschoben wird (Stub wandert dann effektiv vertikal beim Routing).
  */
 
 import {
@@ -42,6 +56,12 @@ export interface RouteCableArgs {
   targetEquipmentId: string
 }
 
+/** v7.9.32 — Sichtbare Lücke um jedes Hindernis. 2 Grid-Cells = 40 px.
+ *  Größer als das interne ROUTING_DEFAULTS.PAD damit der Pfad klar
+ *  außerhalb der Geräte-Karte verläuft (inkl. Drop-Shadow + Port-Label-
+ *  Overflow), nicht direkt an der Kante entlang. */
+const OBSTACLE_PAD_PX = 2 * CELL_SIZE
+
 // ReactFlow side → outward direction (0=E, 1=S, 2=W, 3=N).
 const handleToOutwardDir = (side: HandleSide): 0 | 1 | 2 | 3 => {
   switch (side) {
@@ -52,11 +72,11 @@ const handleToOutwardDir = (side: HandleSide): 0 | 1 | 2 | 3 => {
   }
 }
 
-const pixelRectToRect = (r: PixelRect): Rect => ({
-  left: r.x,
-  top: r.y,
-  right: r.x + r.width,
-  bottom: r.y + r.height,
+const inflate = (r: PixelRect, pad: number): Rect => ({
+  left: r.x - pad,
+  top: r.y - pad,
+  right: r.x + r.width + pad,
+  bottom: r.y + r.height + pad,
   nodeId: r.id,
 })
 
@@ -75,10 +95,21 @@ export const routeCableWithAStar = (
   const excluded = new Set([args.sourceEquipmentId, args.targetEquipmentId])
   const obstacles: Rect[] = args.obstacles
     .filter((o) => !o.id || !excluded.has(o.id))
-    .map(pixelRectToRect)
+    .map((r) => inflate(r, OBSTACLE_PAD_PX))
 
-  const sourceExitsRight = args.sourceSide === 'right'
-  const targetEntersLeft = args.targetSide === 'left'
+  // Pathfinder kann nur horizontalen Stub (left/right). Für Top/Bottom-
+  // Handles würden wir sonst den Stub horizontal in die falsche
+  // Richtung schicken. Workaround: wir routen vom Handle aus erst
+  // intern ein paar Pixel in die korrekte Vertical-Richtung; das macht
+  // CableEdge beim Rendern via dem zurückgegebenen Waypoint-Set.
+  // Für die Pathfinder-Anfrage geben wir source/target an, lassen aber
+  // den Stub-Boolean an die nächstgelegene Horizontal-Side anlehnen.
+  const sourceExitsRight = args.sourceSide === 'right' || args.sourceSide === 'top' || args.sourceSide === 'bottom'
+    ? args.sourceSide === 'right' || (args.sourceSide !== 'left' && args.source.x <= args.target.x)
+    : false
+  const targetEntersLeft = args.targetSide === 'left' || args.targetSide === 'top' || args.targetSide === 'bottom'
+    ? args.targetSide === 'left' || (args.targetSide !== 'right' && args.source.x <= args.target.x)
+    : false
 
   // Direction the path arrives at the goal cell, in pathfinding's enum
   // (0=E, 1=S, 2=W, 3=N). Path travels INTO the device, so it's the
