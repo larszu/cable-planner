@@ -302,6 +302,8 @@ const EquipmentColorsSection = () => {
   const equipmentColors = useUiStore((s) => s.equipmentColors)
   const setEquipmentColors = useUiStore((s) => s.setEquipmentColors)
   const resetEquipmentColors = useUiStore((s) => s.resetEquipmentColors)
+  const defaultDeviceColor = useUiStore((s) => s.defaultDeviceColor)
+  const setDefaultDeviceColor = useUiStore((s) => s.setDefaultDeviceColor)
   const roles: Array<{ key: keyof typeof equipmentColors.light; label: string; hint: string }> = [
     { key: 'body', label: 'Karten-Body', hint: 'Hintergrund der Geräte-Karte' },
     { key: 'header', label: 'Header-Strip', hint: 'Strip oben mit Name + IP' },
@@ -355,6 +357,33 @@ const EquipmentColorsSection = () => {
       <div className="mt-2 text-[10px] text-slate-500">
         Hinweis: Geräte mit eigener Farbe (Properties → Gerätefarbe) überschreiben den Body-Wert
         weiterhin individuell.
+      </div>
+      {/* v7.9.63 / #172 — Default-Farbe für NEU hinzugefügte Geräte. */}
+      <div className="mt-3 flex items-center justify-between gap-2 rounded border border-slate-700 bg-slate-950/40 p-2">
+        <div>
+          <div className="text-xs font-semibold text-slate-200">Standard-Gerätefarbe</div>
+          <div className="text-[10px] text-slate-500">
+            Neu hinzugefügte Geräte starten mit dieser Farbe (Properties → Gerätefarbe lässt sich
+            danach individuell ändern). Wenn leer: nutzt die Theme-Body-Farbe.
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            value={defaultDeviceColor ?? '#475569'}
+            onChange={(e) => setDefaultDeviceColor(e.target.value)}
+            className="h-7 w-12 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
+          />
+          {defaultDeviceColor && (
+            <button
+              type="button"
+              onClick={() => setDefaultDeviceColor(undefined)}
+              className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
+            >
+              ✕ Reset
+            </button>
+          )}
+        </div>
       </div>
     </SettingsCard>
   )
