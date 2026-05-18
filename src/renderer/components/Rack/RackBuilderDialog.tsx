@@ -7,6 +7,8 @@ import { RackImageCropDialog } from './RackImageCropDialog'
 import { RackInternalCanvas } from './RackInternalCanvas'
 import { RackLivePreview } from './RackLivePreview'
 import { Rack3DView } from './Rack3DView'
+import { PatchPanelCreateDialog } from './PatchPanelCreateDialog'
+import { RackShelfCreateDialog } from './RackShelfCreateDialog'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { CategorySelect } from '../shared/CategorySelect'
 import { ModalShell } from '../shared/ModalShell'
@@ -53,6 +55,10 @@ interface RackPlacementDraft {
   mountSide?: 'front' | 'rear' | 'full'
   /** v7.9.73 / #170 — Optional STL als data:base64 für die 3D-Geometrie. */
   stlDataUri?: string
+  /** v7.9.75 / #170 — Patchblende-Marker, vererbt vom Template. */
+  isPatchPanel?: boolean
+  /** v7.9.75 / #170 — Rack-Shelf-Marker. */
+  isRackShelf?: boolean
 }
 
 interface RackDraft {
@@ -137,6 +143,12 @@ const toPlacement = (template: EquipmentTemplate, startUnit: number): RackPlacem
   rearPanelImageUrl: template.rearPanelImageUrl,
   frontPanelCrop: template.frontPanelCrop,
   rearPanelCrop: template.rearPanelCrop,
+  // v7.9.75 / #170 — Tiefe + STL aus dem Template (Patchblende kommt
+  // bereits mit depthMm=50 aus dem Create-Dialog).
+  depthMm: template.depthMm,
+  stlDataUri: template.stlDataUri,
+  isPatchPanel: template.isPatchPanel,
+  isRackShelf: template.isRackShelf,
 })
 
 const normalizeDraft = (draft: RackDraft): RackDraft => {
@@ -203,6 +215,8 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
       depthMm: item.depthMm,
       mountSide: mountSideByIndex.get(index),
       stlDataUri: item.stlDataUri,
+      isPatchPanel: item.isPatchPanel,
+      isRackShelf: item.isRackShelf,
     }
   })
   // Hydrate internal cables: cables in the stored preset reference items
@@ -269,6 +283,14 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   // v7.9.73 / #170 — Tab in der Rack-Layout-Spalte: 2D-Panel-Ansicht
   // (default, identisch mit bisherigem Verhalten) vs. 3D-Orbit-Ansicht.
   const [viewTab, setViewTab] = useState<'2d' | '3d'>('2d')
+  // v7.9.75 / #170 — Patch-Panel-Creation-Dialog.
+  const [patchPanelDialogOpen, setPatchPanelDialogOpen] = useState(false)
+  const [shelfDialogOpen, setShelfDialogOpen] = useState(false)
+  // v7.9.75 / #170 — View-Mode-Filter aus Issue-Kommentar 1:
+  // 'all'      = alles sichtbar (Default)
+  // 'free'     = nur freie Ports + Patchblenden + externe Patchfelder
+  // 'released' = nur freigegebene Items (free + patch panels)
+  const [renderMode, setRenderMode] = useState<'all' | 'free' | 'released'>('all')
   const [lastSavedSnapshot, setLastSavedSnapshot] = useState('')
   const [dragState, setDragState] = useState<
     { placementId: string; offsetUnits: number; pointerId: number } | null
@@ -608,6 +630,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       // v7.9.73 / #170 — Engineering-Daten ans Item-Record durchreichen.
       depthMm: placement.depthMm,
       stlDataUri: placement.stlDataUri,
+      // v7.9.75 / #170 — Patchblende-/Shelf-Marker persistieren.
+      isPatchPanel: placement.isPatchPanel,
+      isRackShelf: placement.isRackShelf,
       width: 240,
       height: 80 + Math.max(placement.inputs.length, placement.outputs.length, 3) * 22,
       offsetX: 0,
@@ -912,6 +937,29 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 {filteredTemplates.length} / {templates.length}
               </span>
             </div>
+            {/* v7.9.75 / #170 — Schnellzugriff: Patchblende anlegen.
+                Erzeugt ein EquipmentTemplate mit isPatchPanel=true und
+                schickt es durch addTemplate, sodass es genau wie eine
+                normale 19"-Komponente platziert wird (smart startUnit,
+                Properties-Panel, internal-Cables). */}
+            <div className="mb-2 grid grid-cols-2 gap-1">
+              <button
+                type="button"
+                onClick={() => setPatchPanelDialogOpen(true)}
+                className="rounded border border-amber-700 bg-amber-900/30 px-2 py-1.5 text-[11px] font-semibold text-amber-200 hover:bg-amber-900/50"
+                title="Neue Patchblende anlegen: Höhe, Port-Count, Connector-Typ"
+              >
+                + Patchblende
+              </button>
+              <button
+                type="button"
+                onClick={() => setShelfDialogOpen(true)}
+                className="rounded border border-emerald-700 bg-emerald-900/30 px-2 py-1.5 text-[11px] font-semibold text-emerald-200 hover:bg-emerald-900/50"
+                title="Rack-Shelf für Non-19&quot;-Gear anlegen"
+              >
+                + Rack-Shelf
+              </button>
+            </div>
             <div className="relative mb-2">
               <svg
                 width="12"
@@ -1081,30 +1129,100 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               </div>
             )}
             {/* v7.9.73 / #170 — 3D-Tab: nur lesende Orbit-Ansicht.
-                Bearbeitung geht weiter im 2D-Tab. */}
-            {viewTab === '3d' && draft.placements.length > 0 && (
-              <div
-                style={{ height: 'min(75vh, 800px)' }}
-                className="rounded border border-slate-800 bg-slate-950"
-              >
-                <Rack3DView
-                  totalUnits={draft.totalUnits}
-                  rackDepthMm={draft.depthMm}
-                  placements={draft.placements.map((p) => ({
-                    id: p.id,
-                    name: p.name,
-                    startUnit: p.startUnit,
-                    rackUnits: p.rackUnits,
-                    depthMm: p.depthMm,
-                    mountSide: p.mountSide,
-                    stlDataUri: p.stlDataUri,
-                    frontPanelImageUrl: p.frontPanelImageUrl,
-                    rearPanelImageUrl: p.rearPanelImageUrl,
-                  }))}
-                  selectedPlacementId={selectedPlacementId}
-                  onSelectPlacement={(id) => setSelectedPlacementId(id)}
-                />
-              </div>
+                Bearbeitung geht weiter im 2D-Tab.
+                v7.9.75 / #170 — View-Mode-Filter über den Placements:
+                'all' / 'free' / 'released' ausgewertet anhand
+                draft.internalCables. */}
+            {viewTab === '3d' && (
+              <>
+                <div className="mb-2 flex items-center gap-1 text-[10px]">
+                  <span className="text-slate-500">Ansicht:</span>
+                  {(['all', 'free', 'released'] as const).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setRenderMode(m)}
+                      className={`rounded px-2 py-0.5 ${
+                        renderMode === m
+                          ? 'bg-purple-700 text-white'
+                          : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                      }`}
+                      title={
+                        m === 'all'
+                          ? 'Alle Geräte + freie Ports + Patchblenden'
+                          : m === 'free'
+                            ? 'Nur Geräte mit freien Ports + Patchblenden'
+                            : 'Nur freigegebene: Patchblenden + extern verkabelbare Geräte'
+                      }
+                    >
+                      {m === 'all' ? 'Alle' : m === 'free' ? 'Freie Ports' : 'Released'}
+                    </button>
+                  ))}
+                </div>
+                {draft.placements.length > 0 ? (
+                  <div
+                    style={{ height: 'min(75vh, 800px)' }}
+                    className="rounded border border-slate-800 bg-slate-950"
+                  >
+                    <Rack3DView
+                      totalUnits={draft.totalUnits}
+                      rackDepthMm={draft.depthMm}
+                      placements={(() => {
+                        // Berechne pro Placement wie viele Ports schon
+                        // intern verkabelt sind. Patchblenden sind
+                        // immer sichtbar (sie ZEIGEN die freien Ports).
+                        const usedPortsByPlacement = new Map<string, Set<string>>()
+                        for (const c of draft.internalCables) {
+                          if (!usedPortsByPlacement.has(c.fromPlacementId)) {
+                            usedPortsByPlacement.set(c.fromPlacementId, new Set())
+                          }
+                          if (!usedPortsByPlacement.has(c.toPlacementId)) {
+                            usedPortsByPlacement.set(c.toPlacementId, new Set())
+                          }
+                          usedPortsByPlacement.get(c.fromPlacementId)!.add(c.fromPortName)
+                          usedPortsByPlacement.get(c.toPlacementId)!.add(c.toPortName)
+                        }
+                        return draft.placements
+                          .filter((p) => {
+                            if (renderMode === 'all') return true
+                            if (p.isPatchPanel || p.isRackShelf) return true
+                            const usedSet = usedPortsByPlacement.get(p.id) ?? new Set()
+                            const totalPorts = (p.inputs?.length ?? 0) + (p.outputs?.length ?? 0)
+                            const hasFreePort = usedSet.size < totalPorts
+                            if (renderMode === 'free') return hasFreePort
+                            // 'released': Items mit AUSSCHLIESSLICH zu
+                            // Patchblenden verkabelten Ports gelten als
+                            // released (die Patchblende ist der externe
+                            // Übergang). Vereinfachte Approximation:
+                            // wenn alle Ports intern verbunden sind,
+                            // gelten sie als nicht-released (versteckt).
+                            return hasFreePort
+                          })
+                          .map((p) => ({
+                            id: p.id,
+                            name: p.name,
+                            startUnit: p.startUnit,
+                            rackUnits: p.rackUnits,
+                            depthMm: p.depthMm,
+                            mountSide: p.mountSide,
+                            stlDataUri: p.stlDataUri,
+                            frontPanelImageUrl: p.frontPanelImageUrl,
+                            rearPanelImageUrl: p.rearPanelImageUrl,
+                            portCount: (p.inputs?.length ?? 0) + (p.outputs?.length ?? 0),
+                            isPatchPanel: p.isPatchPanel,
+                            isRackShelf: p.isRackShelf,
+                          }))
+                      })()}
+                      selectedPlacementId={selectedPlacementId}
+                      onSelectPlacement={(id) => setSelectedPlacementId(id)}
+                    />
+                  </div>
+                ) : (
+                  <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center text-xs text-slate-500">
+                    Erst Geräte ins Rack legen, dann erscheint die 3D-Ansicht.
+                  </div>
+                )}
+              </>
             )}
             {/* v7.9.10 — max-h begrenzt den Rack-Canvas auf die
                 Viewport-Höhe minus Header/Footer; in Kombi mit dem
@@ -1724,6 +1842,49 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             updatePlacement(cropDialog.placementId, { rearPanelImageUrl: dataUrl, rearPanelCrop: crop })
           }
           setCropDialog(null)
+        }}
+      />
+
+      {/* v7.9.75 / #170 — Patch-Panel-Create-Dialog. Wenn der User
+          "Patchblende erstellen" klickt, schicken wir das fertige
+          EquipmentTemplate durch addTemplate, das die smart-Slot-Suche +
+          das Platzieren übernimmt — Patchblende landet im nächsten freien
+          HE-Block. Falls mountSide=rear gesetzt war, schreiben wir
+          direkt nach addTemplate noch das mountSide-Flag auf den
+          frischen Placement. */}
+      <PatchPanelCreateDialog
+        open={patchPanelDialogOpen}
+        onClose={() => setPatchPanelDialogOpen(false)}
+        onCreated={(template) => {
+          void addTemplate(template).then(() => {
+            // Wenn das Template mit notes "Mount: rear" geflagged ist,
+            // patchen wir mountSide auf das frisch hinzugefügte Placement.
+            const notes = template.notes ?? ''
+            const mount: 'front' | 'rear' | 'full' = notes.includes('Mount: rear')
+              ? 'rear'
+              : notes.includes('Mount: front')
+                ? 'front'
+                : 'full'
+            if (mount !== 'full') {
+              setDraft((cur) => {
+                const last = cur.placements[cur.placements.length - 1]
+                if (!last || last.templateName !== template.name) return cur
+                return {
+                  ...cur,
+                  placements: cur.placements.map((p) =>
+                    p.id === last.id ? { ...p, mountSide: mount } : p,
+                  ),
+                }
+              })
+            }
+          })
+        }}
+      />
+      <RackShelfCreateDialog
+        open={shelfDialogOpen}
+        onClose={() => setShelfDialogOpen(false)}
+        onCreated={(template) => {
+          void addTemplate(template)
         }}
       />
     </div>
