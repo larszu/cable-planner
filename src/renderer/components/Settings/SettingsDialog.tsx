@@ -296,6 +296,70 @@ const LibraryExportSection = () => {
   )
 }
 
+// v7.9.59 — Settings-Section für Geräte-Karten-Farben.
+// Pro Theme (Light + Dark) fünf Color-Rollen mit Picker und Reset.
+const EquipmentColorsSection = () => {
+  const equipmentColors = useUiStore((s) => s.equipmentColors)
+  const setEquipmentColors = useUiStore((s) => s.setEquipmentColors)
+  const resetEquipmentColors = useUiStore((s) => s.resetEquipmentColors)
+  const roles: Array<{ key: keyof typeof equipmentColors.light; label: string; hint: string }> = [
+    { key: 'body', label: 'Karten-Body', hint: 'Hintergrund der Geräte-Karte' },
+    { key: 'header', label: 'Header-Strip', hint: 'Strip oben mit Name + IP' },
+    { key: 'border', label: 'Rand', hint: '1-px Border um die Karte' },
+    { key: 'text', label: 'Haupttext', hint: 'Geräte-Name + Port-Labels' },
+    { key: 'subtext', label: 'Sekundär-Text', hint: 'Kategorie, IP, Connector-Typen' },
+  ]
+  return (
+    <SettingsCard
+      title="Geräte-Karten-Farben"
+      description="Hintergrund/Text/Rand für Equipment-Knoten — pro Theme separat anpassbar. Defaults sind so gewählt dass die Karten klar vom Canvas-Hintergrund abstehen. Einzelne Geräte können in den Properties zusätzlich eine individuelle Farbe bekommen."
+    >
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        {(['light', 'dark'] as const).map((theme) => (
+          <div key={theme} className="rounded border border-slate-700 bg-slate-950/40 p-2">
+            <div className="mb-2 flex items-center justify-between">
+              <h4 className="text-xs font-semibold text-slate-200">
+                {theme === 'light' ? '☀ Hell' : '🌙 Dunkel'}
+              </h4>
+              <button
+                type="button"
+                onClick={() => resetEquipmentColors(theme)}
+                className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
+                title="Auf Default zurücksetzen"
+              >
+                ↺ Reset
+              </button>
+            </div>
+            <div className="space-y-1.5">
+              {roles.map((r) => (
+                <label key={r.key} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="text-slate-300" title={r.hint}>{r.label}</span>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="color"
+                      value={equipmentColors[theme][r.key]}
+                      onChange={(e) => setEquipmentColors(theme, { [r.key]: e.target.value })}
+                      className="h-6 w-10 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
+                      title={r.hint}
+                    />
+                    <span className="font-mono text-[10px] text-slate-500">
+                      {equipmentColors[theme][r.key]}
+                    </span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-2 text-[10px] text-slate-500">
+        Hinweis: Geräte mit eigener Farbe (Properties → Gerätefarbe) überschreiben den Body-Wert
+        weiterhin individuell.
+      </div>
+    </SettingsCard>
+  )
+}
+
 const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
   const metadata = useProjectStore((s) => s.project.metadata)
   const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
@@ -597,6 +661,8 @@ const AppearanceTab = () => {
           ))}
         </div>
       </SettingsCard>
+
+      <EquipmentColorsSection />
 
       <SettingsCard
         title={t('settings.appearance.ports', 'Port-Farben')}

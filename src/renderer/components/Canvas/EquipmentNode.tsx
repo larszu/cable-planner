@@ -48,12 +48,17 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   const clearPendingCable = useUiStore((s) => s.clearPendingCable)
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const colorPortsByType = useUiStore((s) => s.colorPortsByType)
+  // v7.9.59 — User-anpassbare Geräte-Karten-Farben pro Theme. Vorher
+  // waren die Farben inline (#f8fafc / #0f172a etc.) was zu Karten
+  // führte die im Dark-Mode komplett mit dem Canvas-BG verschmolzen.
+  const equipmentColors = useUiStore((s) => s.equipmentColors)
   // Issue #62: user-editable per-connector-type colour overrides.
   // The override map is sparse — empty/missing entries fall back to
   // the built-in palette inside colorForConnector().
   const connectorTypeColors = useUiStore((s) => s.connectorTypeColors)
   const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
   const isLight = (data.exportThemeOverride ?? canvasTheme) === 'light'
+  const tokens = isLight ? equipmentColors.light : equipmentColors.dark
   const queueConnection = useProjectStore((s) => s.queueConnection)
   // Issue #56: GreenGo beltpack name is the canvas-visible identifier
   // for intercom devices. Reads from project.greengoConfig.users —
@@ -385,10 +390,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           height: cHeight,
           background: data.nodeColor
             ? `${data.nodeColor}${isLight ? '22' : '33'}`
-            : (isLight ? '#f8fafc' : '#0f172a'),
-          border: `1px solid ${selected ? '#38bdf8' : (data.nodeColor ?? (isLight ? '#94a3b8' : '#475569'))}`,
+            : tokens.body,
+          border: `1px solid ${selected ? '#38bdf8' : (data.nodeColor ?? tokens.border)}`,
           borderRadius: 6,
-          color: isLight ? '#1e293b' : '#e2e8f0',
+          color: tokens.text,
           fontSize: 11,
           display: 'flex',
           alignItems: 'center',
@@ -486,10 +491,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         height,
         background: data.nodeColor
           ? `${data.nodeColor}${isLight ? '18' : '22'}`
-          : (isLight ? '#f8fafc' : '#0f172a'),
-        border: `1px solid ${selected ? '#38bdf8' : (data.nodeColor ?? (isLight ? '#94a3b8' : '#475569'))}`,
+          : tokens.body,
+        border: `1px solid ${selected ? '#38bdf8' : (data.nodeColor ?? tokens.border)}`,
         borderRadius: 6,
-        color: isLight ? '#1e293b' : '#e2e8f0',
+        color: tokens.text,
         fontSize: 12,
         boxShadow: isLight
           ? '0 2px 6px rgba(0,0,0,0.12)'
@@ -499,10 +504,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
       {/* Header */}
       <div style={{
         padding: `${PADDING}px ${PADDING}px 0 ${PADDING}px`,
-        borderBottom: `1px solid ${data.nodeColor ?? (isLight ? '#cbd5e1' : '#1e293b')}`,
+        borderBottom: `1px solid ${data.nodeColor ?? tokens.border}`,
         background: data.nodeColor
           ? `${data.nodeColor}${isLight ? '18' : '33'}`
-          : (isLight ? 'rgba(226,232,240,0.4)' : 'transparent'),
+          : tokens.header,
         borderRadius: '5px 5px 0 0',
       }}>
         <div style={{ fontWeight: 600, lineHeight: '16px', display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -583,9 +588,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             </span>
           )}
         </div>
-        <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#94a3b8', lineHeight: '14px' }}>{data.category}</div>
+        <div style={{ fontSize: 11, color: tokens.subtext, lineHeight: '14px' }}>{data.category}</div>
         {data.subtitle && (
-          <div style={{ fontSize: 11, color: isLight ? '#475569' : '#cbd5e1', lineHeight: '14px', fontStyle: 'italic' }}>{data.subtitle}</div>
+          <div style={{ fontSize: 11, color: tokens.subtext, lineHeight: '14px', fontStyle: 'italic' }}>{data.subtitle}</div>
         )}
         {greengoUser && (
           <div
