@@ -1476,6 +1476,9 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
     cable.standard ?? (specId === CUSTOM_CABLE_SPEC_ID ? customStandard : pickHighestSdiStandard(selected.standards)),
   )
   const [length, setLength] = useState(cable.length)
+  // v7.9.68 / #182 — Bei Wireless-Links wird im UI maxRange statt length
+  // angezeigt; lokaler State spiegelt das.
+  const [maxRange, setMaxRange] = useState<number | undefined>(cable.maxRange)
   const [name, setName] = useState(cable.name)
   const [color, setColor] = useState(cable.color)
   const [notes, setNotes] = useState(cable.notes ?? '')
@@ -1550,8 +1553,10 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
     setToPortId(first)
   }
 
+  // v7.9.68 / #182 — Bei Wireless gibt es keine "Länge"; daher auch keine
+  // Längen-Warnung anzeigen.
   const lengthWarning =
-    selected.maxLengthMeters && length > selected.maxLengthMeters
+    !cable.wireless && selected.maxLengthMeters && length > selected.maxLengthMeters
       ? `Länge überschreitet empfohlenes Maximum von ${selected.maxLengthMeters} m für ${selected.name}.`
       : null
 
@@ -1559,6 +1564,10 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
     onSave({
       name,
       length,
+      // v7.9.68 / #182 — Bei Wireless wird maxRange anstelle von length
+      // geschrieben (length bleibt erhalten falls vorhanden, hat aber im
+      // UI keine Bedeutung mehr).
+      ...(cable.wireless ? { maxRange } : {}),
       color,
       notes,
       cableSpecId: specId === CUSTOM_CABLE_SPEC_ID ? undefined : selected.id,
@@ -1691,16 +1700,33 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
           </label>
 
           <div className="grid grid-cols-2 gap-2">
-            <label className="block">
-              Länge (m)
-              <input
-                type="number"
-                min={0}
-                value={length}
-                onChange={(e) => setLength(Number(e.target.value))}
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
-              />
-            </label>
+            {cable.wireless ? (
+              <label className="block">
+                Max. Reichweite (m)
+                <input
+                  type="number"
+                  min={0}
+                  value={maxRange ?? ''}
+                  placeholder="z.B. 100"
+                  onChange={(e) => {
+                    const v = e.target.value
+                    setMaxRange(v === '' ? undefined : Number(v))
+                  }}
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                />
+              </label>
+            ) : (
+              <label className="block">
+                Länge (m)
+                <input
+                  type="number"
+                  min={0}
+                  value={length}
+                  onChange={(e) => setLength(Number(e.target.value))}
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                />
+              </label>
+            )}
             <label className="block">
               Farbe
               <input
