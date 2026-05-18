@@ -22,7 +22,7 @@
  * STLLoader geladen und in die HE-Box eingepasst. Sonst prozedurale Box.
  */
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { Canvas, useLoader } from '@react-three/fiber'
+import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber'
 import { OrbitControls, Edges, Html } from '@react-three/drei'
 import { STLLoader } from 'three-stdlib'
 import * as THREE from 'three'
@@ -61,6 +61,12 @@ interface Rack3DPlacement {
    *  Front entspricht inputs[], Rear entspricht outputs[]. */
   frontPorts?: Rack3DPort[]
   rearPorts?: Rack3DPort[]
+  /** v7.9.80 / #170 — Physische Maße in mm für Non-19″-Shelf-Geräte.
+   *  Wenn gesetzt, rendert DeviceBox mit diesen Maßen statt der vollen
+   *  Rack-Mount-Breite — und positioniert das Gerät zentriert auf dem
+   *  Bodenrand der HE-Reihe (= "steht auf dem Shelf darunter"). */
+  widthMm?: number
+  heightMm?: number
 }
 
 /** v7.9.77 / #170 — Port-Connector-Type → Dot-Farbe. Vereinheitlicht mit
@@ -237,12 +243,23 @@ const DeviceBox = ({
   const mountSide = placement.mountSide ?? 'full'
   const depthMm = Math.max(20, placement.depthMm ?? DEFAULT_DEVICE_DEPTH_MM)
   const yBottom = (totalUnits - placement.startUnit - placement.rackUnits + 1) * HE_HEIGHT_MM
-  const heightMm = placement.rackUnits * HE_HEIGHT_MM
-  const widthMm = RACK_MOUNT_WIDTH_MM
+  // v7.9.80 / #170 — Wenn das Template eigene mm-Maße trägt (Shelf-
+  // Device), nehmen wir die statt der HE × Rack-Mount-Breite. Geräte
+  // sitzen dann zentriert auf dem unteren Bodenrand der HE-Reihe
+  // (dort wo das Shelf liegt). Klassische Rack-Geräte: HE × volle Breite.
+  const isShelfDevice = !!(placement.widthMm && placement.heightMm)
+  const heightMm = isShelfDevice
+    ? Math.min(placement.heightMm!, placement.rackUnits * HE_HEIGHT_MM)
+    : placement.rackUnits * HE_HEIGHT_MM
+  const widthMm = isShelfDevice
+    ? Math.min(placement.widthMm!, RACK_MOUNT_WIDTH_MM)
+    : RACK_MOUNT_WIDTH_MM
 
   const zStart = mountSide === 'rear' ? rackDepthMm - depthMm : 0
   const xCenter = (RACK_OUTER_WIDTH_MM - widthMm) / 2 + widthMm / 2
-  const yCenter = yBottom + heightMm / 2
+  // Shelf-Geräte ruhen auf dem unteren Rand der HE-Reihe (yBottom + heightMm/2)
+  // statt mittig in der HE-Reihe. Bei Rack-Geräten ist beides identisch.
+  const yCenter = isShelfDevice ? yBottom + heightMm / 2 : yBottom + heightMm / 2
   const zCenter = zStart + depthMm / 2
 
   // v7.9.75 / #170 — Patchblenden bekommen eine eigene Farbe damit der
@@ -583,6 +600,58 @@ const DeviceSTL = ({
   )
 }
 
+/** v7.9.80 / #170 — Keyboard-Camera-Controller. Solange der User
+ *  Shift hält, fährt die Kamera (samt OrbitControls.target) nach oben;
+ *  Tab hält → nach unten. Damit kann der User die Höhe seines Blicks
+ *  ändern UND gerade auf eine bestimmte HE-Reihe schauen, ohne mit der
+ *  Maus um den Rack-Body kreisen zu müssen. Tab-Default (Focus-Wechsel)
+ *  wird verhindert. */
+const CameraKeyboardController = ({
+  orbitTargetRef,
+}: {
+  orbitTargetRef: React.RefObject<{ target: THREE.Vector3; update: () => void } | null>
+}) => {
+  const { camera } = useThree()
+  const keys = useRef({ shift: false, tab: false })
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      // Nur capturen wenn der Fokus nicht in einem Input/Textarea ist —
+      // sonst killt Shift Text-Selektion und Tab den Form-Wechsel.
+      const tag = (e.target as HTMLElement | null)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (e.key === 'Shift') keys.current.shift = true
+      if (e.key === 'Tab') {
+        keys.current.tab = true
+        e.preventDefault()
+      }
+    }
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'Shift') keys.current.shift = false
+      if (e.key === 'Tab') keys.current.tab = false
+    }
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup', onKeyUp)
+    }
+  }, [])
+  useFrame((_, delta) => {
+    if (!keys.current.shift && !keys.current.tab) return
+    // 800 mm pro Sekunde Kamera-Vertikalgeschwindigkeit — schnell genug
+    // um schnell durch ein 42HE-Rack zu scrollen, langsam genug für
+    // präzise Höheneinstellung.
+    const speed = 800 * delta
+    const dy = keys.current.shift ? speed : -speed
+    camera.position.y += dy
+    if (orbitTargetRef.current?.target) {
+      orbitTargetRef.current.target.y += dy
+      orbitTargetRef.current.update?.()
+    }
+  })
+  return null
+}
+
 /** v7.9.78 / #170 — Rack-interne Verkabelung als 3D-Linien. Berechnet
  *  pro Cable die Welt-Position des From- und To-Ports, baut eine
  *  BufferGeometry mit 2 (oder mehr für Kurven) Punkten und rendert sie
@@ -671,7 +740,10 @@ export const Rack3DView = ({
   internalCables,
 }: Rack3DViewProps) => {
   const depthMm = rackDepthMm ?? DEFAULT_RACK_DEPTH_MM
-  const orbitRef = useRef<unknown>(null)
+  // v7.9.80 / #170 — OrbitControls ref für den CameraKeyboardController:
+  // wir mutieren controls.target.y zusammen mit camera.y, sonst tilted
+  // die Kamera statt zu pannen.
+  const orbitRef = useRef<{ target: THREE.Vector3; update: () => void } | null>(null)
   const rackHeightMm = totalUnits * HE_HEIGHT_MM
   // Set initial camera so the rack is fully visible.
   const cameraPos: [number, number, number] = [
@@ -750,6 +822,7 @@ export const Rack3DView = ({
           minDistance={150}
           maxDistance={4000}
         />
+        <CameraKeyboardController orbitTargetRef={orbitRef} />
         <gridHelper
           args={[2000, 20, '#334155', '#1e293b']}
           position={[RACK_OUTER_WIDTH_MM / 2, -1, depthMm / 2]}
@@ -793,9 +866,11 @@ export const Rack3DView = ({
           fontSize: 10,
           color: '#94a3b8',
           pointerEvents: 'none',
+          lineHeight: 1.4,
         }}
       >
-        🖱 Linke Maustaste: drehen · Rechte: pannen · Scroll: zoom
+        🖱 Drehen: links · Pannen: rechts · Zoom: scroll<br />
+        ⌨ Höhe: <kbd style={{ background: '#1e293b', padding: '0 3px', borderRadius: 2 }}>Shift</kbd> hoch · <kbd style={{ background: '#1e293b', padding: '0 3px', borderRadius: 2 }}>Tab</kbd> runter
       </div>
     </div>
   )

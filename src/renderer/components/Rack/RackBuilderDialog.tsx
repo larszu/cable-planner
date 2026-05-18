@@ -10,12 +10,13 @@ import { Rack3DView } from './Rack3DView'
 import { PatchPanelCreateDialog } from './PatchPanelCreateDialog'
 import { RackShelfCreateDialog } from './RackShelfCreateDialog'
 import { PortDots2D } from './PortDots2D'
+import { RackAddSplitButton } from './RackAddSplitButton'
+import { NonRackAddDialog } from './NonRackAddDialog'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { CategorySelect } from '../shared/CategorySelect'
 import { ModalShell } from '../shared/ModalShell'
 import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { confirmDialog } from '../../lib/confirmDialog'
-import { promptDialog } from '../../lib/promptDialog'
 import { STORAGE_KEYS } from '../../lib/storageKeys'
 import { LIMITS } from '../../lib/layoutConstants'
 
@@ -255,6 +256,7 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
 export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onSave }: RackBuilderDialogProps) => {
   // v7.9.13 — Permanent-Mark-As-Rack-Device action.
   const markTemplateAsRack = useProjectStore((s) => s.markTemplateAsRack)
+  const addCustomTemplate = useProjectStore((s) => s.addCustomTemplate)
   const autosaveIntervalMs = useSettingsStore((state) => state.autosaveIntervalMs)
   const editingId = initialPreset?.id
   const [draft, setDraft] = useState<RackDraft>({
@@ -287,6 +289,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   // v7.9.75 / #170 — Patch-Panel-Creation-Dialog.
   const [patchPanelDialogOpen, setPatchPanelDialogOpen] = useState(false)
   const [shelfDialogOpen, setShelfDialogOpen] = useState(false)
+  // v7.9.80 / #170 — Non-Rack-Add-Dialog: Auswahl HE-Höhe vs. Shelf-Maße.
+  const [nonRackDialog, setNonRackDialog] = useState<{
+    template: EquipmentTemplate
+    options?: { mountSide?: 'front' | 'rear' | 'full'; preferStartUnit?: number }
+  } | null>(null)
   // v7.9.75 / #170 — View-Mode-Filter aus Issue-Kommentar 1:
   // 'all'      = alles sichtbar (Default)
   // 'free'     = nur freie Ports + Patchblenden + externe Patchfelder
@@ -524,35 +531,13 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     // den Rack-Geräten ohne erneute HE-Abfrage.
     let effectiveTemplate = template
     if (!template.isRackDevice && !template.rackUnits) {
-      const answer = (
-        await promptDialog(
-          `Wieviele HE für "${template.name}" im Rack? (1-20, leer = Abbruch)`,
-          '1',
-        )
-      )?.trim()
-      if (!answer) return
-      const heightHE = Math.max(1, Math.min(LIMITS.MAX_PORT_HEIGHT_HE, Math.round(Number(answer))))
-      if (!Number.isFinite(heightHE) || heightHE < 1) {
-        setSaveError(`Ungültige HE-Eingabe für "${template.name}". Bitte 1–20 angeben.`)
-        return
-      }
-      const persistFlag = await confirmDialog(
-        `"${template.name}" permanent als 19"-Rack-Gerät markieren?`,
-        {
-          body:
-            `Empfohlen wenn dieses Gerät immer in Racks verbaut wird. Dann erscheint es künftig direkt unter den Rack-Geräten — ohne erneute HE-Abfrage. Du kannst die Markierung in den Geräte-Eigenschaften jederzeit wieder entfernen.\n\nHE-Höhe: ${heightHE}`,
-          okLabel: 'Ja, permanent markieren',
-          cancelLabel: 'Nur für dieses Rack',
-        },
-      )
-      if (persistFlag) {
-        markTemplateAsRack(template.name, heightHE)
-      }
-      effectiveTemplate = {
-        ...template,
-        isRackDevice: true,
-        rackUnits: heightHE,
-      }
+      // v7.9.80 / #170 — Statt einer simplen HE-Promptbox jetzt ein
+      // richtiger Dialog mit zwei Pfaden: 19″-Rack-Gerät (HE) oder
+      // Shelf-mounted (W/H/D in mm). Dialog stellt das Template asynchron
+      // bereit; addTemplate kehrt hier zurück und der Dialog ruft später
+      // selber wieder addTemplate auf — mit dem dimensionierten Template.
+      setNonRackDialog({ template, options })
+      return
     }
     const units = parseUnits(effectiveTemplate)
     let targetUnit = 1
@@ -795,7 +780,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         {/* v7.9.11 — Control-Bar mit gewichteten Spalten. Name (Pflichtfeld
             + längster Inhalt) bekommt 2 Spalten, Höhe + Ansicht + Zoom je 1.
             Zoom hat jetzt explizite +/- Buttons für Tastatur/Maus-User. */}
-        <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           <label className="block text-xs font-medium text-slate-300 lg:col-span-2">
             Rack-Name *
             <input
@@ -851,20 +836,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               title="Rack-Tiefe in mm. Standard: 800 mm. Gängige Werte: 350/450/600/800/1000/1200."
             />
           </label>
-          <label className="block text-xs font-medium text-slate-300">
-            Ansicht
-            <select
-              value={draft.viewMode}
-              onChange={(event) =>
-                setDraft((current) => ({ ...current, viewMode: event.target.value as 'front' | 'rear' | 'both' }))
-              }
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-sm font-normal text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-            >
-              <option value="front">Nur vorne</option>
-              <option value="rear">Nur hinten</option>
-              <option value="both">Front + Rear</option>
-            </select>
-          </label>
+          {/* v7.9.80 / #170 — "Ansicht" (Front/Rear/Both) ist nach
+              unten in die 2D-Rack-Spalte gewandert (als Tab-Bar dort);
+              Grid hier ist auf 4 Spalten reduziert (Name=2fr, Höhe,
+              Tiefe, Zoom). */}
           <div className="block text-xs font-medium text-slate-300">
             <div className="flex items-baseline justify-between">
               <span>Zoom</span>
@@ -1089,37 +1064,17 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         </div>
                         <div className="truncate text-[10px] text-slate-500">{template.category}</div>
                       </div>
-                      {/* v7.9.76 / #170 — Drei Mount-Side-Buttons statt
-                          einem "+ Rack": Vorne (front-mount), Beide
-                          (full-depth = Default), Hinten (rear-mount).
-                          Beide bleibt der prominent grüne Button — die
-                          gewünschte Wahl ist explizit. */}
-                      <div className="flex shrink-0 overflow-hidden rounded border border-slate-700">
-                        <button
-                          type="button"
-                          onClick={() => addTemplate(template, { mountSide: 'front' })}
-                          className="bg-green-700 px-1.5 py-1 text-[10px] font-semibold text-white hover:bg-green-600"
-                          title="Vorne im Rack montieren (front-mount, Default-Tiefe)"
-                        >
-                          F
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => addTemplate(template, { mountSide: 'full' })}
-                          className="bg-emerald-700 px-2 py-1 text-[10px] font-semibold text-white hover:bg-emerald-600"
-                          title={placedCount > 0 ? 'Weitere Instanz full-depth einfügen' : 'Full-depth ins Rack (vorne+hinten)'}
-                        >
-                          + Beide
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => addTemplate(template, { mountSide: 'rear' })}
-                          className="bg-purple-700 px-1.5 py-1 text-[10px] font-semibold text-white hover:bg-purple-600"
-                          title="Hinten im Rack montieren (rear-mount, z.B. Patchblende)"
-                        >
-                          R
-                        </button>
-                      </div>
+                      {/* v7.9.80 / #170 — Split-Button: Hauptaktion
+                          "+ Hinzufügen" (Default = full-depth) + kleines
+                          ▾ Chevron das die alternativen Mount-Optionen
+                          (Vorne / Hinten) zeigt. Cleanere Hierarchie als
+                          drei gleichberechtigte Buttons. */}
+                      <RackAddSplitButton
+                        onAddFull={() => void addTemplate(template, { mountSide: 'full' })}
+                        onAddFront={() => void addTemplate(template, { mountSide: 'front' })}
+                        onAddRear={() => void addTemplate(template, { mountSide: 'rear' })}
+                        primaryLabel={placedCount > 0 ? '+ Weitere' : '+ Ins Rack'}
+                      />
                     </div>
                     <div className="mt-1 text-[10px] text-slate-400">
                       {isRack ? `${parseUnits(template)} HE · ` : 'HE ? · '}
@@ -1286,12 +1241,20 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             if (renderMode === 'free') return hasFreePort
                             return hasFreePort
                           })
-                          .map((p) => ({
+                          .map((p) => {
+                            // v7.9.80 / #170 — Shelf-Device-Maße aus dem
+                            // Template ziehen (sind im Builder nicht im
+                            // RackPlacementDraft, sondern auf dem Library-
+                            // Template gespeichert).
+                            const tpl = templates.find((t) => t.name === p.templateName)
+                            return {
                             id: p.id,
                             name: p.name,
                             startUnit: p.startUnit,
                             rackUnits: p.rackUnits,
-                            depthMm: p.depthMm,
+                            depthMm: p.depthMm ?? tpl?.depthMm,
+                            widthMm: tpl?.widthMm,
+                            heightMm: tpl?.heightMm,
                             mountSide: p.mountSide,
                             stlDataUri: p.stlDataUri,
                             frontPanelImageUrl: p.frontPanelImageUrl,
@@ -1315,7 +1278,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                               panelPosX: port.panelPosX,
                               panelPosY: port.panelPosY,
                             })),
-                          }))
+                          }
+                          })
                       })()}
                       selectedPlacementId={selectedPlacementId}
                       onSelectPlacement={(id) => setSelectedPlacementId(id)}
@@ -1373,6 +1337,35 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   </div>
                 )}
               </>
+            )}
+            {/* v7.9.80 / #170 — Front/Rear/Both-Toggle ist jetzt Teil der
+                2D-Rack-Spalte (war vorher als Select im Header). */}
+            {viewTab === '2d' && (
+              <div className="mb-2 flex overflow-hidden rounded-md border border-slate-700 text-[11px]">
+                {([
+                  ['front', 'Nur vorne', '#22c55e'],
+                  ['both', 'Beide', '#64748b'],
+                  ['rear', 'Nur hinten', '#a855f7'],
+                ] as const).map(([mode, label, color]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setDraft((cur) => ({ ...cur, viewMode: mode }))}
+                    className={`flex flex-1 items-center justify-center gap-1.5 px-2 py-1 font-medium transition ${
+                      draft.viewMode === mode
+                        ? 'bg-slate-800 text-white'
+                        : 'bg-slate-900/50 text-slate-400 hover:bg-slate-800/60'
+                    }`}
+                    aria-pressed={draft.viewMode === mode}
+                  >
+                    <span
+                      className="inline-block h-1.5 w-1.5 rounded-full"
+                      style={{ background: color }}
+                    />
+                    {label}
+                  </button>
+                ))}
+              </div>
             )}
             {/* v7.9.10 — max-h begrenzt den Rack-Canvas auf die
                 Viewport-Höhe minus Header/Footer; in Kombi mit dem
@@ -1760,50 +1753,82 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     </select>
                   </label>
                 </div>
-                {/* STL-Upload für 3D-Modell */}
-                <label className="block">
-                  3D-Modell (STL, optional)
+                {/* STL-Upload für 3D-Modell.
+                    v7.9.80 / #170 — Eigener gestylter "Datei wählen…"-
+                    Button (statt nacktem <input type="file">, der je nach
+                    OS nur "Keine ausgewählt" zeigt). Speichert die STL
+                    zusätzlich aufs Template via addCustomTemplate, damit
+                    sie über librarySync in die zentrale .cpdevice-Datei
+                    landet und beim nächsten Mal aus der Library schon
+                    mit STL kommt. */}
+                <div className="block">
+                  <div className="mb-1 text-xs text-slate-300">3D-Modell (STL, optional)</div>
                   <div className="mt-1 flex items-center gap-2">
-                    <input
-                      type="file"
-                      accept=".stl,application/octet-stream"
-                      onChange={async (event) => {
-                        const file = event.target.files?.[0]
-                        if (!file) return
-                        if (file.size > 5 * 1024 * 1024) {
-                          await confirmDialog('Datei zu groß', {
-                            body: 'STL-Dateien über 5 MB werden nicht angenommen, sonst explodiert der Projekt-Save.',
-                            okLabel: 'OK',
-                          })
-                          return
-                        }
-                        const buf = await file.arrayBuffer()
-                        const b64 = btoa(
-                          String.fromCharCode(...new Uint8Array(buf)),
-                        )
-                        updatePlacement(selectedPlacement.id, {
-                          stlDataUri: `data:application/octet-stream;base64,${b64}`,
-                        })
-                      }}
-                      className="flex-1 text-[11px]"
-                    />
+                    <label
+                      className="inline-flex cursor-pointer items-center gap-1 rounded border border-slate-600 bg-sky-700 px-3 py-1 text-[11px] font-semibold text-white hover:bg-sky-600"
+                      title="STL-Datei (.stl, max 5 MB) zum Gerät hochladen"
+                    >
+                      <span>📁</span>
+                      <span>{selectedPlacement.stlDataUri ? 'STL ersetzen…' : 'STL auswählen…'}</span>
+                      <input
+                        type="file"
+                        accept=".stl,application/octet-stream"
+                        onChange={async (event) => {
+                          const file = event.target.files?.[0]
+                          if (!file) return
+                          if (file.size > 5 * 1024 * 1024) {
+                            await confirmDialog('Datei zu groß', {
+                              body: 'STL-Dateien über 5 MB werden nicht angenommen, sonst explodiert der Projekt-Save.',
+                              okLabel: 'OK',
+                            })
+                            event.target.value = ''
+                            return
+                          }
+                          const buf = await file.arrayBuffer()
+                          const b64 = btoa(String.fromCharCode(...new Uint8Array(buf)))
+                          const dataUri = `data:application/octet-stream;base64,${b64}`
+                          updatePlacement(selectedPlacement.id, { stlDataUri: dataUri })
+                          // Auch ins Template heften: librarySync schreibt
+                          // das .cpdevice (mit STL inline base64) in den
+                          // zentralen Library-Ordner — damit ist die STL
+                          // permanent ans Gerät gebunden.
+                          const tpl = templates.find(
+                            (t) => t.name === selectedPlacement.templateName,
+                          )
+                          if (tpl) {
+                            addCustomTemplate({ ...tpl, stlDataUri: dataUri })
+                          }
+                          event.target.value = '' // reset so user can re-upload same file
+                        }}
+                        className="hidden"
+                      />
+                    </label>
                     {selectedPlacement.stlDataUri && (
                       <button
                         type="button"
-                        onClick={() => updatePlacement(selectedPlacement.id, { stlDataUri: undefined })}
-                        className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
+                        onClick={() => {
+                          updatePlacement(selectedPlacement.id, { stlDataUri: undefined })
+                          // Auch im Template entfernen, falls dort gespeichert
+                          const tpl = templates.find(
+                            (t) => t.name === selectedPlacement.templateName,
+                          )
+                          if (tpl && tpl.stlDataUri) {
+                            addCustomTemplate({ ...tpl, stlDataUri: undefined })
+                          }
+                        }}
+                        className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-600"
                         title="STL entfernen — Gerät wird wieder als Box gerendert"
                       >
-                        ✕
+                        ✕ Entfernen
                       </button>
                     )}
                   </div>
-                  <span className="mt-0.5 block text-[10px] text-slate-500">
+                  <span className="mt-1 block text-[10px] text-slate-500">
                     {selectedPlacement.stlDataUri
-                      ? '✓ STL geladen — wird im 3D-Tab gerendert.'
-                      : 'Ohne STL wird das Gerät als Box dargestellt.'}
+                      ? '✓ STL geladen — wird im 3D-Tab gerendert und permanent am Gerät gespeichert (Library + Projekt).'
+                      : 'Ohne STL wird das Gerät als Box mit Front-/Rear-Foto dargestellt.'}
                   </span>
-                </label>
+                </div>
                 <div className="rounded border border-slate-800 bg-slate-900/40 p-2 text-[11px] text-slate-400">
                   Ports sichtbar: {selectedPlacement.inputs.length} Inputs / {selectedPlacement.outputs.length} Outputs
                 </div>
@@ -2111,6 +2136,48 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           void addTemplate(template)
         }}
       />
+      {/* v7.9.80 / #170 — Non-Rack-Add-Dialog. Bei Confirm wird das
+          Template mit den gewählten Maßen angereichert und addTemplate
+          rekursiv neu aufgerufen — diesmal MIT isRackDevice + rackUnits
+          gesetzt, sodass der early-return nicht mehr greift. Optional
+          auch ins Library-Template-Storage geschrieben (persistFlag). */}
+      {nonRackDialog && (
+        <NonRackAddDialog
+          open
+          templateName={nonRackDialog.template.name}
+          initialDimensions={{
+            widthMm: nonRackDialog.template.widthMm,
+            heightMm: nonRackDialog.template.heightMm,
+            depthMm: nonRackDialog.template.depthMm,
+          }}
+          onCancel={() => setNonRackDialog(null)}
+          onConfirm={(result) => {
+            const base = nonRackDialog.template
+            const options = nonRackDialog.options
+            const enrichedTemplate: EquipmentTemplate = {
+              ...base,
+              isRackDevice: true,
+              rackUnits: result.rackUnits,
+              ...(result.mode === 'shelf'
+                ? {
+                    widthMm: result.widthMm,
+                    heightMm: result.heightMm,
+                    depthMm: result.depthMm,
+                  }
+                : {}),
+            }
+            if (result.persistToTemplate) {
+              if (result.mode === 'rack') {
+                markTemplateAsRack(base.name, result.rackUnits)
+              } else {
+                addCustomTemplate(enrichedTemplate)
+              }
+            }
+            setNonRackDialog(null)
+            void addTemplate(enrichedTemplate, options)
+          }}
+        />
+      )}
     </div>
   )
 }
