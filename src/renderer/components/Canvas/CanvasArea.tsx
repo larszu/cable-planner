@@ -322,9 +322,12 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       data: { ...loc, exportThemeOverride: pdfExportThemeOverride },
       zIndex: -1,
       style: { width: loc.width, height: loc.height },
-      // v7.9.67 / #178 + #177 — Per-Frame-Lock (loc.positionLocked) ODER
-      // globaler Toolbar-Lock (lockFrames) blockiert Drag UND Resize.
-      draggable: !loc.positionLocked && !lockFrames,
+      // v7.9.68 — Per-Frame-Lock (#178) ODER globaler Toolbar-Lock (#177)
+      // ODER Plan-Lock (#173 Punkt 3) blockiert Drag. Bisher hat das
+      // per-node draggable: true den globalen nodesDraggable={false}
+      // überschrieben, weshalb Rahmen auch im finalisierten Plan noch
+      // verschiebbar waren.
+      draggable: !loc.positionLocked && !lockFrames && !projectIsLocked,
       selectable: true,
     }))
     const equipmentNodes: Node[] = project.equipment.map((item) => ({
@@ -332,11 +335,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       type: 'equipment',
       position: { x: item.x, y: item.y },
       data: { ...item, exportThemeOverride: pdfExportThemeOverride },
-      // v7.9.67 / #178 + #177 — Per-Device-Lock ODER globaler Toolbar-Lock.
-      draggable: !item.positionLocked && !lockEquipment,
+      // v7.9.68 — analog für Geräte.
+      draggable: !item.positionLocked && !lockEquipment && !projectIsLocked,
     }))
     return [...locationNodes, ...equipmentNodes]
-  }, [project.equipment, locations, pdfExportThemeOverride, lockFrames, lockEquipment])
+  }, [project.equipment, locations, pdfExportThemeOverride, lockFrames, lockEquipment, projectIsLocked])
 
   // Local state keeps React Flow's controlled node positions in sync during drag.
   // We initialise once from the store and then apply changes incrementally.
@@ -649,6 +652,18 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     // (die auf node.position basiert, NICHT auf den oben geklemmten changes)
     // keine Startposition mehr und würde die ungeklemmte Position speichern.
     
+    // v7.9.68 / #173 — Resize-driven position changes. NodeResizer dispatches
+    // a paired (position + dimensions) Änderung wenn der User am W/N-Handle
+    // zieht. Ohne diese Erkennung würde der position-Change vom Filter unten
+    // verworfen → nur width/height wachsen, x bleibt → Rahmen "wächst" auf
+    // der falschen Seite (Bug "links vergrößern → rechts wächst").
+    const resizingIds = new Set<string>()
+    for (const change of changes) {
+      if (change.type === 'dimensions' && change.dimensions) {
+        resizingIds.add(change.id)
+      }
+    }
+
     // Filter out spurious `position` changes that React Flow emits during
     // internal syncs (e.g. after a node is added or its dimensions change).
     // These have `dragging === false` but the id is *not* in `endedDragIds`
@@ -660,7 +675,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     const filteredChanges = changes.filter((change) => {
       if (change.type !== 'position') return true
       if (change.dragging) return true
-      return endedDragIds.has(change.id)
+      if (endedDragIds.has(change.id)) return true
+      // v7.9.68 / #173 — Resize-driven position-Changes durchlassen.
+      if (resizingIds.has(change.id)) return true
+      return false
     })
 
     // Update rfNodes during drag for visual feedback only
@@ -799,6 +817,31 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           const newH = Math.max(40, change.dimensions.height)
           if (!loc || loc.width !== newW || loc.height !== newH) {
             updateLocation(change.id, { width: newW, height: newH })
+          }
+        }
+      }
+      // v7.9.68 / #173 — Resize-driven position-Change persistieren. Beim
+      // Anfassen des W/N-Handles emittiert NodeResizer ZUSÄTZLICH zum
+      // dimensions-Change einen position-Change mit neuer x/y (damit der
+      // Rahmen tatsächlich auf der Anfassen-Seite wächst und nicht auf der
+      // gegenüberliegenden). Wenn wir den nur visuell anwenden aber nicht im
+      // Store speichern, springt der Rahmen beim nächsten Store→RF-Sync
+      // zurück auf die alte x/y → das gefühlte "wächst auf der falschen
+      // Seite"-Verhalten kehrt zurück.
+      if (
+        change.type === 'position' &&
+        change.position &&
+        resizingIds.has(change.id) &&
+        !endedDragIds.has(change.id) &&
+        !change.dragging
+      ) {
+        const isLocation = locations.some((l) => l.id === change.id)
+        if (isLocation) {
+          const loc = locations.find((l) => l.id === change.id)
+          const nx = change.position.x
+          const ny = change.position.y
+          if (loc && (loc.x !== nx || loc.y !== ny)) {
+            updateLocation(change.id, { x: nx, y: ny })
           }
         }
       }
