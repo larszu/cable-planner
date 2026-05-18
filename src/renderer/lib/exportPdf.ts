@@ -1,4 +1,4 @@
-import { toPng } from 'html-to-image'
+import { toJpeg, toPng } from 'html-to-image'
 import jsPDF from 'jspdf'
 import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
@@ -270,25 +270,47 @@ const buildCanvasPdf = async (
     customPalette: options?.customPalette ?? null,
   })
 
+  // v7.9.57 — Adaptiver pixelRatio + JPEG-Fallback für sehr große Pläne.
+  //
+  // Vorher: pixelRatio fix auf 1.5, immer PNG. Bei XL-Plänen (z.B.
+  // 5000×4000 px Content) ergab das 7500×6000 = 45 MP Bilder, die als
+  // base64-PNG-DataURL >100 MB Strings produzierten. Browser-RAM ging
+  // ohne Fehlermeldung in die Knie → "Export geht nicht".
+  //
+  // Jetzt: ein Mega-Pixel-Budget (~25 MP) limitiert das Capture-Format.
+  // Bei kleinen Plänen wird weiterhin 1.5x gerendert (knackig scharf),
+  // bei großen runtergeskalt damit es ins Budget passt. Plus: ab einer
+  // Schwelle (oder bei Capture-Fehler) wird JPEG statt PNG benutzt —
+  // ~10× kleiner bei kaum sichtbarer Qualitätseinbuße.
+  const MAX_CAPTURE_MEGAPIXELS = 25_000_000
+  const naturalPixels = contentW * contentH
+  const ratioFit = Math.sqrt(MAX_CAPTURE_MEGAPIXELS / naturalPixels)
+  const pixelRatio = Math.min(1.5, Math.max(0.5, ratioFit))
+  // PNG kann bei großen Bildern den Memory-Limit knacken; ab 12 MP
+  // direkt auf JPEG umstellen (mit Quality-Parameter den der Caller eh
+  // mitgibt; Default 0.85 ist visuell verlustfrei für CAD-artige Plans).
+  const useJpeg = naturalPixels * pixelRatio * pixelRatio > 12_000_000
+
   // v7.9.24 — Hintergrund wird jetzt VEKTOR in jsPDF gerendert (siehe
-  // pdfBackground.ts). Capture liefert nur Equipment+Kabel als PNG mit
-  // TRANSPARENTEM Hintergrund, sodass das Pattern unter dem Content
-  // durchscheint und beim PDF-Zoom unendlich scharf bleibt.
-  const dataUrl = await toPng(viewportEl, {
-    backgroundColor: undefined, // transparent
-    pixelRatio: 1.5,
+  // pdfBackground.ts). Capture liefert nur Equipment+Kabel als PNG/JPEG
+  // mit Hintergrund passend zum gewählten Format (transparent bei PNG,
+  // composed.bgFallback bei JPEG da JPEG keine Transparenz kann).
+  const captureOpts = {
+    backgroundColor: useJpeg ? composed.bgFallback : undefined,
+    pixelRatio,
     cacheBust: true,
     width: contentW,
     height: contentH,
+    quality: useJpeg ? quality : undefined,
     style: {
       width: `${contentW}px`,
       height: `${contentH}px`,
-      background: 'transparent',
-      backgroundColor: 'transparent',
+      background: useJpeg ? composed.bgFallback : 'transparent',
+      backgroundColor: useJpeg ? composed.bgFallback : 'transparent',
       transform: `translate(${-contentX}px, ${-contentY}px)`,
       transformOrigin: '0 0',
     },
-    filter: (node) => {
+    filter: (node: Node) => {
       if (!(node instanceof HTMLElement) && !(node instanceof SVGElement)) return true
       const el = node as HTMLElement | SVGElement
       if (el.classList.contains('react-flow__minimap')) return false
@@ -302,8 +324,34 @@ const buildCanvasPdf = async (
       if (el.classList.contains('react-flow__background')) return false
       return true
     },
-  })
-  // Stelle `quality` als unused dar — Format ist jetzt PNG (lossless).
+  }
+
+  let dataUrl: string
+  try {
+    dataUrl = useJpeg
+      ? await toJpeg(viewportEl, captureOpts)
+      : await toPng(viewportEl, captureOpts)
+  } catch (err) {
+    // Wenn das schon mit der dynamisch berechneten Größe fehlschlägt
+    // (z.B. wegen Browser-Canvas-Limit das hier nicht abschätzbar ist),
+    // letzter Versuch: JPEG bei 0.7-fachem Faktor zusätzlich.
+    const fallbackOpts = {
+      ...captureOpts,
+      pixelRatio: pixelRatio * 0.7,
+      quality: 0.7,
+      backgroundColor: composed.bgFallback,
+      style: { ...captureOpts.style, background: composed.bgFallback, backgroundColor: composed.bgFallback },
+    }
+    try {
+      dataUrl = await toJpeg(viewportEl, fallbackOpts)
+    } catch {
+      throw new Error(
+        `Canvas zu groß für PDF-Export (${contentW}×${contentH}px). Bitte Ansicht zoomen oder einen Ausschnitt exportieren. Original-Fehler: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
+    }
+  }
   void quality
 
   const img = new Image()
@@ -360,7 +408,19 @@ const buildCanvasPdf = async (
     opacity: options?.bgOpacity ?? 0.5,
     gridSizePx: options?.gridSize ?? 20,
   })
-  pdf.addImage(dataUrl, 'PNG', offsetX, offsetY, drawingW, drawingH)
+  pdf.addImage(
+    dataUrl,
+    useJpeg ? 'JPEG' : 'PNG',
+    offsetX,
+    offsetY,
+    drawingW,
+    drawingH,
+    undefined,
+    // FAST-compression bei großen Bildern damit jsPDF nicht in der
+    // Embed-Phase blockiert. Bei kleinen PNGs bleibt MEDIUM für die
+    // bessere Kompression.
+    useJpeg ? 'FAST' : 'MEDIUM',
+  )
 
   if (metadata) {
     drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin)
