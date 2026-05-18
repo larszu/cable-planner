@@ -122,7 +122,11 @@ export const AnnotationCanvasOverlay = () => {
         position: 'fixed',
         inset: 0,
         pointerEvents: 'none',
-        zIndex: 11,
+        // v7.9.63 / #181 — z:1 statt z:11. Annotations sollen über dem
+        // Canvas-BG liegen aber HINTER allen Sidebars/Panels/Dialogen
+        // (Library z:auto+content, AnnotationsPanel z:40, Settings z:50).
+        // Vorher überlagerten Pins die Library wenn sie geöffnet war.
+        zIndex: 1,
       }}
     >
       {positions.map(({ annotation, flow }) => {
@@ -245,7 +249,7 @@ export const AnnotationCanvasOverlay = () => {
                   lineHeight: 1.35,
                   boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
                   pointerEvents: 'auto',
-                  zIndex: 12,
+                  zIndex: 2,
                 }}
                 onPointerDown={(e) => e.stopPropagation()}
                 onWheel={(e) => e.stopPropagation()}

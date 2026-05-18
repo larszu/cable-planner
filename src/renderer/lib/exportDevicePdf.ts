@@ -51,7 +51,16 @@ const summarizeEndpoint = (
   const otherPort: Port | undefined = other
     ? [...(other.inputs ?? []), ...(other.outputs ?? [])].find((p) => p.id === otherPortId)
     : undefined
-  const lengthLabel = cable.length ? `${cable.length} m` : ''
+  // v7.9.68 / #182 — Wireless-Kabel haben statt einer "Länge" eine
+  // "Max. Reichweite" (m). Wenn wireless aktiv ist und maxRange gepflegt
+  // wurde, das stattdessen anzeigen.
+  const lengthLabel = cable.wireless
+    ? cable.maxRange
+      ? `<=${cable.maxRange} m`
+      : ''
+    : cable.length
+      ? `${cable.length} m`
+      : ''
   const typeLabel = cable.type ? String(cable.type) : ''
   // ASCII separator — the middle-dot · (U+00B7) IS in latin-1 so it
   // works, but for visual consistency with the rest of the PDF (now

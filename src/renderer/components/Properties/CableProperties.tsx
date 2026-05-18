@@ -110,16 +110,35 @@ export const CableProperties = () => {
           className="w-full rounded border border-slate-700 bg-slate-900 p-2"
         />
       </label>
-      <label className="block">
-        <span className="mb-1 block text-slate-300">Length (m)</span>
-        <input
-          type="number"
-          min={0}
-          value={cable.length}
-          onChange={(event) => updateCable(cable.id, { length: Number(event.target.value) })}
-          className="w-full rounded border border-slate-700 bg-slate-900 p-2"
-        />
-      </label>
+      {/* v7.9.68 / #182 — Bei Wireless-Links macht "Länge" keinen Sinn;
+          stattdessen "Max. Reichweite" eintragen. */}
+      {cable.wireless ? (
+        <label className="block">
+          <span className="mb-1 block text-slate-300">Max. Reichweite (m)</span>
+          <input
+            type="number"
+            min={0}
+            value={cable.maxRange ?? ''}
+            placeholder="z.B. 100"
+            onChange={(event) => {
+              const v = event.target.value
+              updateCable(cable.id, { maxRange: v === '' ? undefined : Number(v) })
+            }}
+            className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+          />
+        </label>
+      ) : (
+        <label className="block">
+          <span className="mb-1 block text-slate-300">Länge (m)</span>
+          <input
+            type="number"
+            min={0}
+            value={cable.length}
+            onChange={(event) => updateCable(cable.id, { length: Number(event.target.value) })}
+            className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+          />
+        </label>
+      )}
       <ColorField
         label={t('cable.field.color', 'Farbe')}
         value={cable.color}

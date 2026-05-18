@@ -119,6 +119,10 @@ interface PortListProps {
   title: string
   ports: Port[]
   onChange: (ports: Port[]) => void
+  /** v7.9.63 / #185 — Wenn die PortList in einem details-Wrapper liegt
+   *  der bereits Titel + Count zeigt, lassen wir die interne Headline
+   *  weg um doppelten Text zu vermeiden. */
+  hideTitle?: boolean
 }
 
 interface SortablePortItemProps {
@@ -162,7 +166,7 @@ const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
   )
 }
 
-const PortList = ({ title, ports, onChange }: PortListProps) => {
+const PortList = ({ title, ports, onChange, hideTitle }: PortListProps) => {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -192,8 +196,38 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
     [customSignalStandards],
   )
 
+  // v7.9.63 / #175 — Default-Port-Name-Pattern. Wenn der User noch nicht
+  // umbenannt hat (Name = "Input 1", "Output 2", "In 3", "Out 4"), wird
+  // bei Wechsel von Connector-Type oder Signal-Standard automatisch
+  // ein passender Name vorgeschlagen (z.B. "SDI 1" statt "Input 1").
+  // Hat der User schon einen Custom-Namen vergeben, wird er nicht
+  // überschrieben.
+  const DEFAULT_NAME_PATTERN = /^(input|output|in|out)\s*\d*$/i
+  const isDefaultName = (name: string): boolean =>
+    DEFAULT_NAME_PATTERN.test(name.trim())
+  const renameIfDefault = (portId: string, prefix: string) => {
+    const port = ports.find((p) => p.id === portId)
+    if (!port || !isDefaultName(port.name)) return null
+    // Index aus dem aktuellen Default-Namen ziehen, sonst Index im Array.
+    const numMatch = port.name.match(/\d+/)
+    const idx = numMatch ? numMatch[0] : String(ports.indexOf(port) + 1)
+    return `${prefix} ${idx}`.trim()
+  }
+
   const updatePort = (portId: string, patch: Partial<Port>) => {
-    onChange(ports.map((port) => (port.id === portId ? { ...port, ...patch } : port)))
+    // v7.9.63 / #175 — Auto-Rename ankoppeln. Wenn der User connectorType
+    // oder standard ändert UND der Name noch der Default ist, schlagen
+    // wir einen besseren vor. Das passiert IM SELBEN Patch damit
+    // Undo/Redo es als einen Schritt sieht.
+    let nameOverride: string | null = null
+    if (patch.connectorType !== undefined && patch.name === undefined) {
+      nameOverride = renameIfDefault(portId, String(patch.connectorType))
+    }
+    if (!nameOverride && patch.standard !== undefined && patch.name === undefined) {
+      nameOverride = renameIfDefault(portId, String(patch.standard))
+    }
+    const finalPatch = nameOverride ? { ...patch, name: nameOverride } : patch
+    onChange(ports.map((port) => (port.id === portId ? { ...port, ...finalPatch } : port)))
   }
   const addPort = () => onChange([...ports, makePort(`${title.slice(0, -1)} ${ports.length + 1}`)])
   const removePort = (portId: string) => onChange(ports.filter((port) => port.id !== portId))
@@ -303,7 +337,11 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
   return (
     <div className="rounded border border-slate-700 p-2">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-300">{title}</span>
+        {/* v7.9.63 / #185 — Wrapper-Details liefert eigene Headline mit
+            Count; PortList-Title hier ausgeblendet damit's nicht doppelt
+            steht. Bei direkter Verwendung (ohne Wrapper) bleibt der
+            Titel sichtbar. */}
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-300">{hideTitle ? '' : title}</span>
         <button
           type="button"
           onClick={addPort}
@@ -472,36 +510,43 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
                   SDI-Fähigkeiten (port-spezifisch)
                 </div>
                 <div className="grid grid-cols-2 gap-1 text-[10px]">
-                  <label className="flex items-center gap-1 text-slate-300">
-                    <input
-                      type="checkbox"
-                      checked={!!port.sdiCaps?.levelA}
-                      onChange={(e) =>
-                        updatePort(port.id, {
-                          sdiCaps: {
-                            ...(port.sdiCaps ?? {}),
-                            levelA: e.target.checked || undefined,
-                          },
-                        })
-                      }
-                    />
-                    3G Level A
-                  </label>
-                  <label className="flex items-center gap-1 text-slate-300">
-                    <input
-                      type="checkbox"
-                      checked={!!port.sdiCaps?.levelB}
-                      onChange={(e) =>
-                        updatePort(port.id, {
-                          sdiCaps: {
-                            ...(port.sdiCaps ?? {}),
-                            levelB: e.target.checked || undefined,
-                          },
-                        })
-                      }
-                    />
-                    3G Level B
-                  </label>
+                  {/* v7.9.63 / #176 — 3G Level A/B nur anzeigen wenn das
+                      Port-Max tatsächlich SDI-3G ist. Für 6G/12G/HD sind die
+                      Level-Optionen bedeutungslos und nur visueller Lärm. */}
+                  {port.sdiCaps?.maxSingleLink === 'SDI-3G' && (
+                    <>
+                      <label className="flex items-center gap-1 text-slate-300">
+                        <input
+                          type="checkbox"
+                          checked={!!port.sdiCaps?.levelA}
+                          onChange={(e) =>
+                            updatePort(port.id, {
+                              sdiCaps: {
+                                ...(port.sdiCaps ?? {}),
+                                levelA: e.target.checked || undefined,
+                              },
+                            })
+                          }
+                        />
+                        3G Level A
+                      </label>
+                      <label className="flex items-center gap-1 text-slate-300">
+                        <input
+                          type="checkbox"
+                          checked={!!port.sdiCaps?.levelB}
+                          onChange={(e) =>
+                            updatePort(port.id, {
+                              sdiCaps: {
+                                ...(port.sdiCaps ?? {}),
+                                levelB: e.target.checked || undefined,
+                              },
+                            })
+                          }
+                        />
+                        3G Level B
+                      </label>
+                    </>
+                  )}
                   <label className="col-span-2 block">
                     <span className="text-slate-400">Max Single-Link</span>
                     <select
@@ -1972,16 +2017,36 @@ export const EquipmentProperties = () => {
         defaultOpen
       >
         <div className="space-y-2">
-          <PortList
-            title="Inputs"
-            ports={equipment.inputs}
-            onChange={(inputs) => updateEquipment(equipment.id, { inputs })}
-          />
-          <PortList
-            title="Outputs"
-            ports={equipment.outputs}
-            onChange={(outputs) => updateEquipment(equipment.id, { outputs })}
-          />
+          {/* v7.9.63 / #185 — Inputs und Outputs unabhängig collapsible.
+              Vorher musste der User immer durch alle Inputs scrollen um
+              die Outputs zu erreichen. Beide Defaults auf open damit
+              alte UX nicht plötzlich anders aussieht. */}
+          <details open className="rounded border border-slate-800 bg-slate-950/30">
+            <summary className="cursor-pointer select-none px-2 py-1 text-xs font-semibold text-slate-300 hover:text-slate-100">
+              Inputs <span className="text-slate-500">({equipment.inputs.length})</span>
+            </summary>
+            <div className="px-2 pb-2">
+              <PortList
+                title="Inputs"
+                ports={equipment.inputs}
+                onChange={(inputs) => updateEquipment(equipment.id, { inputs })}
+                hideTitle
+              />
+            </div>
+          </details>
+          <details open className="rounded border border-slate-800 bg-slate-950/30">
+            <summary className="cursor-pointer select-none px-2 py-1 text-xs font-semibold text-slate-300 hover:text-slate-100">
+              Outputs <span className="text-slate-500">({equipment.outputs.length})</span>
+            </summary>
+            <div className="px-2 pb-2">
+              <PortList
+                title="Outputs"
+                ports={equipment.outputs}
+                onChange={(outputs) => updateEquipment(equipment.id, { outputs })}
+                hideTitle
+              />
+            </div>
+          </details>
         </div>
       </SortableSection>
 

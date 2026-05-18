@@ -135,6 +135,13 @@ export default function App() {
   const [graphmlImportOpen, setGraphmlImportOpen] = useState(false)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
   const setPdfExportThemeOverride = useUiStore((state) => state.setPdfExportThemeOverride)
+  // v7.9.62 — Progress-State für die PDF-Export-Phasen damit der User
+  // sieht dass der Export läuft (war vorher silent → wirkte "ewig hängend").
+  const [pdfProgress, setPdfProgress] = useState<{
+    active: boolean
+    phase?: string
+    detail?: string
+  }>({ active: false })
 
   useEffect(() => {
     document.documentElement.dataset.theme = pdfExportThemeOverride ?? canvasTheme
@@ -532,6 +539,7 @@ export default function App() {
 
   const handleExportPdf = async (theme: 'dark' | 'light' = canvasTheme) => {
     setPdfExportThemeOverride(theme)
+    setPdfProgress({ active: true, phase: 'Starte…' })
     await new Promise<void>((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
     )
@@ -542,6 +550,8 @@ export default function App() {
         gridSize: exportGridSize,
         bgOpacity: exportBgOpacity,
         customPalette: exportCustomPalette,
+        onProgress: (phase, detail) =>
+          setPdfProgress({ active: true, phase, detail }),
       })
     } catch (error) {
       console.error('PDF export failed:', error)
@@ -551,6 +561,7 @@ export default function App() {
       })
     } finally {
       setPdfExportThemeOverride(null)
+      setPdfProgress({ active: false })
     }
   }
 
@@ -559,6 +570,7 @@ export default function App() {
    *  printPdfBlob → unsichtbares iframe → window.print() → OS-Druckdialog. */
   const handlePrintPdf = async (theme: 'dark' | 'light' = canvasTheme) => {
     setPdfExportThemeOverride(theme)
+    setPdfProgress({ active: true, phase: 'Starte…' })
     await new Promise<void>((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
     )
@@ -569,6 +581,8 @@ export default function App() {
         gridSize: exportGridSize,
         bgOpacity: exportBgOpacity,
         customPalette: exportCustomPalette,
+        onProgress: (phase, detail) =>
+          setPdfProgress({ active: true, phase, detail }),
       })
       const blob = new Blob([new Uint8Array(bytes)], { type: 'application/pdf' })
       void printPdfBlob(blob)
@@ -580,6 +594,7 @@ export default function App() {
       })
     } finally {
       setPdfExportThemeOverride(null)
+      setPdfProgress({ active: false })
     }
   }
 
@@ -867,6 +882,26 @@ export default function App() {
           onCancel={closeCableDialog}
           onCreate={createCableWithPlanCheck}
         />
+      )}
+      {pdfProgress.active && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-[420px] max-w-[90vw] rounded-lg border border-slate-700 bg-slate-900 p-5 text-slate-100 shadow-2xl">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="h-3 w-3 animate-pulse rounded-full bg-sky-400" />
+              <h2 className="text-sm font-semibold">PDF wird erstellt…</h2>
+            </div>
+            <div className="mb-3 h-1.5 w-full overflow-hidden rounded bg-slate-800">
+              <div className="h-full w-full origin-left animate-pulse bg-sky-500" />
+            </div>
+            <div className="text-xs text-slate-300">{pdfProgress.phase}</div>
+            {pdfProgress.detail && (
+              <div className="mt-1 text-[11px] text-slate-500">{pdfProgress.detail}</div>
+            )}
+            <div className="mt-3 text-[10px] text-slate-600">
+              Bei großen Plänen können einige Sekunden vergehen. Bitte nicht abbrechen.
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
@@ -1441,6 +1476,9 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
     cable.standard ?? (specId === CUSTOM_CABLE_SPEC_ID ? customStandard : pickHighestSdiStandard(selected.standards)),
   )
   const [length, setLength] = useState(cable.length)
+  // v7.9.68 / #182 — Bei Wireless-Links wird im UI maxRange statt length
+  // angezeigt; lokaler State spiegelt das.
+  const [maxRange, setMaxRange] = useState<number | undefined>(cable.maxRange)
   const [name, setName] = useState(cable.name)
   const [color, setColor] = useState(cable.color)
   const [notes, setNotes] = useState(cable.notes ?? '')
@@ -1515,8 +1553,10 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
     setToPortId(first)
   }
 
+  // v7.9.68 / #182 — Bei Wireless gibt es keine "Länge"; daher auch keine
+  // Längen-Warnung anzeigen.
   const lengthWarning =
-    selected.maxLengthMeters && length > selected.maxLengthMeters
+    !cable.wireless && selected.maxLengthMeters && length > selected.maxLengthMeters
       ? `Länge überschreitet empfohlenes Maximum von ${selected.maxLengthMeters} m für ${selected.name}.`
       : null
 
@@ -1524,6 +1564,10 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
     onSave({
       name,
       length,
+      // v7.9.68 / #182 — Bei Wireless wird maxRange anstelle von length
+      // geschrieben (length bleibt erhalten falls vorhanden, hat aber im
+      // UI keine Bedeutung mehr).
+      ...(cable.wireless ? { maxRange } : {}),
       color,
       notes,
       cableSpecId: specId === CUSTOM_CABLE_SPEC_ID ? undefined : selected.id,
@@ -1656,16 +1700,33 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
           </label>
 
           <div className="grid grid-cols-2 gap-2">
-            <label className="block">
-              Länge (m)
-              <input
-                type="number"
-                min={0}
-                value={length}
-                onChange={(e) => setLength(Number(e.target.value))}
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
-              />
-            </label>
+            {cable.wireless ? (
+              <label className="block">
+                Max. Reichweite (m)
+                <input
+                  type="number"
+                  min={0}
+                  value={maxRange ?? ''}
+                  placeholder="z.B. 100"
+                  onChange={(e) => {
+                    const v = e.target.value
+                    setMaxRange(v === '' ? undefined : Number(v))
+                  }}
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                />
+              </label>
+            ) : (
+              <label className="block">
+                Länge (m)
+                <input
+                  type="number"
+                  min={0}
+                  value={length}
+                  onChange={(e) => setLength(Number(e.target.value))}
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                />
+              </label>
+            )}
             <label className="block">
               Farbe
               <input

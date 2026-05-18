@@ -274,33 +274,36 @@ const buildCanvasPdf = async (
     customPalette: options?.customPalette ?? null,
   })
 
-  // v7.9.61 — Single-Shot bevorzugt, Tiling nur als Notfall-Fallback.
+  // v7.9.62 — Drei orthogonale Hebel um die PDF schnell + scharf zu kriegen:
   //
-  // Geschichte: v7.9.58 hat aus Stabilitäts-Gründen das gesamte Canvas
-  // in NxM Kacheln aufgeteilt. Theoretisch sauber — praktisch aber
-  // RUINÖS langsam, weil jeder Tile eine VOLLE DOM-Serialisierung des
-  // viewportEl macht (html-to-image clont den kompletten DOM-Baum,
-  // rendert ihn nach SVG, und clipt erst dann auf die Tile-Größe).
-  // Bei 109 Geräten × 28 Tiles → 28× full DOM walk → Minuten statt
-  // Sekunden.
+  // 1. CAPTURE: Single-Shot bei dynamischem Ratio (Budget 25 MP). 91-MP-
+  //    Plan → ratio ≈ 0.52 → 25 MP captured. v7.9.61 hatte 16 MP =
+  //    verpixelt; v7.9.62-erstversuch hatte 50 MP = jsPDF hängte.
+  //    25 MP ist der Süßpunkt: scharf genug, jsPDF überlebt's.
   //
-  // Jetzt: ein SINGLE-SHOT-Capture bei adaptivem pixelRatio das ins
-  // Memory-Budget passt. Nur wenn das einen harten Fehler wirft (echte
-  // Canvas-Limit-Überschreitung) wird auf Tiling zurückgefallen.
+  // 2. KOMPRESSION: JPEG @ 0.75 + jsPDF compress=true. Output bleibt
+  //    klein (~5-10 MB für unseren Test-Plan) ohne sichtbaren Verlust.
   //
-  // Memory-Budget: ~16 MP nach Skalierung (= ~64 MB RAM für die
-  // Output-Canvas). Modernes Desktop-Browser packen das easy.
+  // 3. YIELD: vor und nach jsPDF.addImage einen Microtask-Tick einlegen
+  //    damit der Browser den Progress-Overlay updaten kann (UI wirkt
+  //    nicht eingefroren). yieldToBrowser() unten.
   const onProgress = options?.onProgress ?? (() => {})
-  const SINGLE_SHOT_BUDGET_MP = 16_000_000
+  const SINGLE_SHOT_BUDGET_MP = 25_000_000
   const naturalPixels = contentW * contentH
   const singleShotRatio = Math.min(
     1.5,
-    Math.max(0.35, Math.sqrt(SINGLE_SHOT_BUDGET_MP / naturalPixels)),
+    Math.max(0.4, Math.sqrt(SINGLE_SHOT_BUDGET_MP / naturalPixels)),
   )
-  // JPEG für alle nicht-trivialen Canvas-Größen (≥ 8 MP nach Skalierung).
-  // Bei kleinen Plänen bleibt PNG für lossless-Crispness.
-  const useJpeg = naturalPixels * singleShotRatio * singleShotRatio > 8_000_000
+  // JPEG immer wenn capture > 4 MP — bei dem Datenvolumen wird jsPDF
+  // sonst rasend langsam (PNG-embedding-Pfad). PNG nur für mini-Pläne.
+  const useJpeg = naturalPixels * singleShotRatio * singleShotRatio > 4_000_000
   const capture = useJpeg ? toJpeg : toPng
+  const jpegQuality = useJpeg ? Math.min(quality, 0.75) : quality
+  // Microtask-yield damit der Browser zwischen den Heavy-Steps der UI
+  // Zeit gibt das Progress-Overlay zu updaten. Ohne sieht der User
+  // einen eingefrorenen Screen für 10+ Sekunden.
+  const yieldToBrowser = () =>
+    new Promise<void>((resolve) => setTimeout(resolve, 0))
   const baseFilter = (node: Node): boolean => {
     if (!(node instanceof HTMLElement) && !(node instanceof SVGElement)) return true
     const el = node as HTMLElement | SVGElement
@@ -332,7 +335,7 @@ const buildCanvasPdf = async (
       backgroundColor: useJpeg ? composed.bgFallback : undefined,
       pixelRatio: singleShotRatio,
       cacheBust: true,
-      quality: useJpeg ? quality : undefined,
+      quality: useJpeg ? jpegQuality : undefined,
       width: contentW,
       height: contentH,
       style: {
@@ -437,6 +440,10 @@ const buildCanvasPdf = async (
     orientation,
     unit: 'pt',
     format: [pageWidth, pageHeight],
+    // v7.9.62 — Stream-Kompression einschalten. Für JPEG-Images bringt
+    // das nur wenig (sind eh komprimiert), aber Vektor-Hintergrund +
+    // Title-Block + Metadata shrinken sich messbar.
+    compress: true,
   })
 
   pdf.setFontSize(14)
@@ -468,8 +475,13 @@ const buildCanvasPdf = async (
   // an einander stoßen. Side-by-side im finalen PDF → optisch ein
   // zusammenhängendes Bild ohne sichtbare Grenzen.
   onProgress('render', `${tiles.length} Bild(er) in PDF einbetten…`)
+  // Yield damit der Progress-Overlay das "render"-Phase-Label rendert
+  // BEVOR jsPDF.addImage blockiert.
+  await yieldToBrowser()
   for (let i = 0; i < tiles.length; i++) {
     const tile = tiles[i]
+    onProgress('render', `Bild ${i + 1}/${tiles.length} in PDF…`)
+    await yieldToBrowser()
     const tileXpt = offsetX + tile.pxX * PX_TO_PT
     const tileYpt = offsetY + tile.pxY * PX_TO_PT
     const tileWpt = tile.pxW * PX_TO_PT
@@ -488,7 +500,8 @@ const buildCanvasPdf = async (
       format === 'JPEG' ? 'FAST' : 'MEDIUM',
     )
   }
-  onProgress('done', `PDF mit ${tiles.length} Bild(ern) generiert`)
+  onProgress('serialize', `PDF-Stream serialisieren…`)
+  await yieldToBrowser()
 
   if (metadata) {
     drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin)

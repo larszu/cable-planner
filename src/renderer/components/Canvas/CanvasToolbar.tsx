@@ -56,6 +56,13 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   const setAnnotationsPanelOpen = useUiStore((s) => s.setAnnotationsPanelOpen)
   const annotationsVisible = useUiStore((s) => s.annotationsVisible)
   const setAnnotationsVisible = useUiStore((s) => s.setAnnotationsVisible)
+  // v7.9.67 / #177 — Toolbar-Modi um ganze Objektarten zu sperren.
+  const lockFrames = useUiStore((s) => s.lockFrames)
+  const setLockFrames = useUiStore((s) => s.setLockFrames)
+  const lockEquipment = useUiStore((s) => s.lockEquipment)
+  const setLockEquipment = useUiStore((s) => s.setLockEquipment)
+  const lockCables = useUiStore((s) => s.lockCables)
+  const setLockCables = useUiStore((s) => s.setLockCables)
   const annotationsCount = useProjectStore((s) => s.project.annotations?.length ?? 0)
   const { getNodes, setNodes, screenToFlowPosition } = useReactFlow()
   const [namingGroup, setNamingGroup] = useState(false)
@@ -628,6 +635,84 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           Annotations sind Project-Level-Concerns, nicht Rack-intern. */}
       {mode === 'main' && <>
       <span style={{ ...dividerStyle, marginLeft: 'auto' }} />
+      {/* v7.9.67 / #177 — 3 Lock-Mode-Buttons (Rahmen / Geräte / Kabel).
+          Toggelt globalen Schutz gegen Verschieben pro Objektart. */}
+      {([
+        {
+          key: 'frames',
+          active: lockFrames,
+          toggle: () => setLockFrames(!lockFrames),
+          title: lockFrames ? 'Rahmen entsperren' : 'Rahmen sperren (keine Frame-Verschiebung)',
+          icon: (
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="2" y="2" width="12" height="12" rx="1" />
+            </svg>
+          ),
+        },
+        {
+          key: 'equipment',
+          active: lockEquipment,
+          toggle: () => setLockEquipment(!lockEquipment),
+          title: lockEquipment
+            ? 'Geräte entsperren'
+            : 'Geräte sperren (keine Geräte-Verschiebung)',
+          icon: (
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="2" y="4" width="12" height="8" rx="1" />
+              <circle cx="5" cy="8" r="0.8" fill="currentColor" />
+              <circle cx="11" cy="8" r="0.8" fill="currentColor" />
+            </svg>
+          ),
+        },
+        {
+          key: 'cables',
+          active: lockCables,
+          toggle: () => setLockCables(!lockCables),
+          title: lockCables
+            ? 'Kabel entsperren'
+            : 'Kabel sperren (keine Waypoint-Bearbeitung)',
+          icon: (
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M2 12c2 0 2-8 6-8s4 8 6 8" />
+            </svg>
+          ),
+        },
+      ] as const).map((btn) => (
+        <button
+          key={btn.key}
+          type="button"
+          onClick={btn.toggle}
+          title={btn.title}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: T.iconBtnSize,
+            height: T.iconBtnSize,
+            background: btn.active ? '#0e7490' : T.btnBg,
+            color: btn.active ? '#e0f2fe' : T.text,
+            border: `1px solid ${btn.active ? '#06b6d4' : T.border}`,
+            borderRadius: 6,
+            cursor: 'pointer',
+            position: 'relative',
+          }}
+        >
+          {btn.icon}
+          {btn.active && (
+            <svg
+              width="8"
+              height="8"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              style={{ position: 'absolute', right: 2, bottom: 2 }}
+            >
+              <rect x="5" y="7" width="6" height="5" rx="0.5" />
+              <path d="M6 7V5.5a2 2 0 0 1 4 0V7" fill="none" stroke="currentColor" strokeWidth="1.2" />
+            </svg>
+          )}
+        </button>
+      ))}
+      <span style={dividerStyle} />
       <button
         type="button"
         onClick={async () => {
