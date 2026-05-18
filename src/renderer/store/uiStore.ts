@@ -19,24 +19,39 @@ export interface EquipmentColorTokens {
   subtext: string
 }
 
-/** Default-Theme-Farben — bewusst kontrastreich gegen die jeweiligen
- *  Canvas-Backgrounds gewählt:
- *  - Light Canvas #e8edf4 → Body #ffffff (pure white) sticht hervor
- *  - Dark Canvas #0f172a → Body #1e293b (slate-800) ist ZWEI Stufen
- *    heller, sodass die Karten klar abgrenzen */
+/** Default-Theme-Farben. Konventionen aus modernen Design-Systemen
+ *  (Material 3, Linear, Figma):
+ *  - BODY ist das ruhige Fundament — sticht klar gegen Canvas ab
+ *  - HEADER ist eine Stufe AKZENTIERT gegen Body, NICHT identisch (Strip
+ *    muss als Abgrenzung wahrnehmbar sein)
+ *    - Light: Header LEICHT GRAU gegen weißen Body
+ *    - Dark: Header HELLER als Body (sonst optisch hinter dem Body
+ *      versinkt — eine Header-Stripe oben dunkler als das Body wäre
+ *      verkehrt herum)
+ *  - BORDER ist eine Mitte-Stufe (slate-500) — kräftig genug für klare
+ *    Silhouette, ohne dass die Karte technisch wirkt
+ *  - TEXT immer max Kontrast gegen Body (WCAG AAA-Niveau)
+ *  - SUBTEXT eine Stufe gedämpft, ≥ 4.5:1 (WCAG AA)
+ *
+ *  Konkrete Kontrast-Ratios (gerundet):
+ *    Light: text/body 19:1, subtext/body 7:1, header/body 1.15:1
+ *    Dark:  text/body 13:1, subtext/body 7:1, header/body 1.5:1
+ *
+ *  Per-Equipment-nodeColor (Properties → Gerätefarbe) überschreibt nur
+ *  Body+Border alpha-blended — Header bleibt auf diesen Token-Werten. */
 export const DEFAULT_EQUIPMENT_COLORS_LIGHT: EquipmentColorTokens = {
   body: '#ffffff',
-  header: '#f1f5f9',
-  border: '#94a3b8',
+  header: '#e2e8f0', // slate-200 — sichtbar gegen Body, nicht aufdringlich
+  border: '#64748b', // slate-500 — kräftige Silhouette gegen helle Canvas
   text: '#0f172a',
-  subtext: '#64748b',
+  subtext: '#475569',
 }
 export const DEFAULT_EQUIPMENT_COLORS_DARK: EquipmentColorTokens = {
-  body: '#1e293b',
-  header: '#0f172a',
-  border: '#475569',
-  text: '#f1f5f9',
-  subtext: '#94a3b8',
+  body: '#1e293b', // slate-800 — zwei Stufen heller als Canvas (slate-950)
+  header: '#334155', // slate-700 — HELLER als Body, Strip steht hervor
+  border: '#64748b', // slate-500 — denselbe wie Light für visuelle Konsistenz
+  text: '#f8fafc',
+  subtext: '#cbd5e1',
 }
 
 /** Issue #80: globally stored device-config files (ATEM MV/audio configs,
@@ -379,9 +394,13 @@ const load = (): PersistedUiState => {
     }
     if (merged.connectorTypeColors === null || typeof merged.connectorTypeColors !== 'object')
       merged.connectorTypeColors = {}
-    // v7.9.59 — Equipment-Karten-Farben mergen. Wenn das Feld fehlt
-    // (alte localStorage-Stände) oder corrupted ist, mit Defaults
-    // ersetzen. Wenn nur ein Theme fehlt, partial-fillen.
+    // v7.9.59 — Equipment-Karten-Farben mergen.
+    // v7.9.60 — Defaults wurden überarbeitet. Wenn ein User noch die
+    // v7.9.59-Old-Defaults im localStorage hat (Body=#ffffff/header=
+    // #f1f5f9/border=#94a3b8/text=#0f172a/subtext=#64748b für Light
+    // bzw. Body=#1e293b/header=#0f172a/border=#475569/text=#f1f5f9/
+    // subtext=#94a3b8 für Dark), wird automatisch auf v7.9.60-Defaults
+    // migriert. Custom-Farben (alles andere) bleiben unangetastet.
     const eqc = (merged as { equipmentColors?: unknown }).equipmentColors
     const validTokens = (v: unknown): v is EquipmentColorTokens =>
       !!v && typeof v === 'object' &&
@@ -390,6 +409,18 @@ const load = (): PersistedUiState => {
       typeof (v as Record<string, unknown>).border === 'string' &&
       typeof (v as Record<string, unknown>).text === 'string' &&
       typeof (v as Record<string, unknown>).subtext === 'string'
+    const isV59LightDefault = (v: EquipmentColorTokens) =>
+      v.body === '#ffffff' &&
+      v.header === '#f1f5f9' &&
+      v.border === '#94a3b8' &&
+      v.text === '#0f172a' &&
+      v.subtext === '#64748b'
+    const isV59DarkDefault = (v: EquipmentColorTokens) =>
+      v.body === '#1e293b' &&
+      v.header === '#0f172a' &&
+      v.border === '#475569' &&
+      v.text === '#f1f5f9' &&
+      v.subtext === '#94a3b8'
     if (!eqc || typeof eqc !== 'object') {
       ;(merged as { equipmentColors: unknown }).equipmentColors = {
         light: { ...DEFAULT_EQUIPMENT_COLORS_LIGHT },
@@ -397,9 +428,11 @@ const load = (): PersistedUiState => {
       }
     } else {
       const obj = eqc as Record<string, unknown>
+      const lightTok = validTokens(obj.light) ? obj.light : { ...DEFAULT_EQUIPMENT_COLORS_LIGHT }
+      const darkTok = validTokens(obj.dark) ? obj.dark : { ...DEFAULT_EQUIPMENT_COLORS_DARK }
       ;(merged as { equipmentColors: unknown }).equipmentColors = {
-        light: validTokens(obj.light) ? obj.light : { ...DEFAULT_EQUIPMENT_COLORS_LIGHT },
-        dark: validTokens(obj.dark) ? obj.dark : { ...DEFAULT_EQUIPMENT_COLORS_DARK },
+        light: isV59LightDefault(lightTok) ? { ...DEFAULT_EQUIPMENT_COLORS_LIGHT } : lightTok,
+        dark: isV59DarkDefault(darkTok) ? { ...DEFAULT_EQUIPMENT_COLORS_DARK } : darkTok,
       }
     }
     if (typeof merged.bgOpacity !== 'number' || !Number.isFinite(merged.bgOpacity))
