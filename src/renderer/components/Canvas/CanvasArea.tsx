@@ -514,16 +514,32 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     [project.cables, cableColorMode, pdfExportThemeOverride],
   )
 
-  // Helper: check if equipment position overlaps with others
+  // Helper: check if equipment position overlaps with others.
+  // v7.9.69 / #183 — Ghost-Blocking-Fix:
+  //  1. Bevorzuge die LIVE-gemessenen Dimensionen aus rfNodes (n.width /
+  //     n.height) statt der im Store gespeicherten Werte. Stored width/
+  //     height können veraltet sein (z.B. nach Port-Änderungen, die das
+  //     Layout schrumpfen), während rfNodes immer das aktuelle DOM-
+  //     Bounding-Rect kennt.
+  //  2. EPSILON von 1 px Toleranz: AABB-Tests mit strenger <= Vergleichung
+  //     melden bei exakter Kante-an-Kante-Adjazenz Overlap. 1 px Slack
+  //     macht "an die Nachbar-Karte schmiegen" wieder möglich.
   const hasOverlap = useCallback((id: string, x: number, y: number, width: number, height: number): boolean => {
+    const EPS = 1
     return project.equipment.some((eq) => {
       if (eq.id === id) return false
-      const eqW = eq.width ?? 0
-      const eqH = eq.height ?? 0
-      // AABB intersection test
-      return !(x + width <= eq.x || x >= eq.x + eqW || y + height <= eq.y || y >= eq.y + eqH)
+      const rfNode = rfNodes.find((n) => n.id === eq.id)
+      const eqW = rfNode?.width ?? eq.width ?? 0
+      const eqH = rfNode?.height ?? eq.height ?? 0
+      if (eqW <= 0 || eqH <= 0) return false
+      return !(
+        x + width <= eq.x + EPS ||
+        x + EPS >= eq.x + eqW ||
+        y + height <= eq.y + EPS ||
+        y + EPS >= eq.y + eqH
+      )
     })
-  }, [project.equipment])
+  }, [project.equipment, rfNodes])
 
   const onNodesChange = (changes: NodeChange[]) => {
     // snap helper used both in the locked and normal paths
@@ -712,6 +728,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       return next
     })
 
+    // v7.9.69 / #184 — Multi-Select-Drag: Sammele die Delta-Verschiebungen
+    // pro Equipment-Id. Nach der Schleife shiften wir alle Kabel-Waypoints
+    // dazwischen, damit die "kleben-gebliebenen" Knickpunkte mit umziehen.
+    const equipmentDeltas = new Map<string, { dx: number; dy: number }>()
+
     // Persist to store ONLY on a real drag-end. `change.dragging === false`
     // alone is not enough — React Flow emits those during internal syncs too,
     // which would nudge unrelated nodes whenever a new one is added.
@@ -771,9 +792,14 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           }
           locationDragRef.current = null
         } else {
-          // Check overlap before persisting
+          // Check overlap before persisting. v7.9.69 / #183 — use live
+          // measured dimensions from rfNodes if available, so stale stored
+          // width/height can't cause ghost-blocking.
           const eq = project.equipment.find((e) => e.id === change.id)
-          if (eq && hasOverlap(eq.id, px, py, eq.width ?? 0, eq.height ?? 0)) {
+          const movedRfNode = rfNodes.find((n) => n.id === change.id)
+          const movedW = movedRfNode?.width ?? eq?.width ?? 0
+          const movedH = movedRfNode?.height ?? eq?.height ?? 0
+          if (eq && hasOverlap(eq.id, px, py, movedW, movedH)) {
             // Revert to last position and flash the node red so the user
             // understands why it snapped back (not a bug).
             const lastRfNode = rfNodes.find((n) => n.id === change.id)
@@ -786,6 +812,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             }
             flashOverlap(change.id)
           } else {
+            // v7.9.69 / #184 — Verschiebungs-Delta merken für späteres
+            // Mit-Verschieben von Kabel-Waypoints in Group-Drags.
+            if (eq) {
+              equipmentDeltas.set(change.id, { dx: px - eq.x, dy: py - eq.y })
+            }
             updateEquipment(change.id, { x: px, y: py })
             console.log('[drag-end persist]', {
               id: change.id,
@@ -846,6 +877,37 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         }
       }
     })
+
+    // v7.9.69 / #184 — Cable-Waypoints mit-verschieben bei Multi-Select-Drag.
+    // Konsistent zu moveLocationWithContents (Location-Group-Drag): wenn
+    // mindestens EIN Endpunkt eines Kabels mit verschoben wird, shiften wir
+    // dessen Waypoints um den gleichen Delta-Vektor mit. Sonst "kleben" die
+    // Knickpunkte am Canvas und das Kabel verbiegt sich grotesk.
+    if (equipmentDeltas.size > 0) {
+      // Alle Deltas sollten identisch sein (ReactFlow shift't alle selected
+      // Nodes um denselben Pointer-Delta), aber wir nehmen den ersten als
+      // Referenz für die Waypoint-Verschiebung.
+      const firstDelta = equipmentDeltas.values().next().value
+      if (firstDelta && (firstDelta.dx !== 0 || firstDelta.dy !== 0)) {
+        for (const cable of project.cables) {
+          const fromMoved = equipmentDeltas.has(cable.fromEquipmentId)
+          const toMoved = equipmentDeltas.has(cable.toEquipmentId)
+          if ((fromMoved || toMoved) && cable.waypoints?.length) {
+            // Nur shiften wenn BEIDE Endpunkte zusammen verschoben wurden
+            // — sonst werden die Waypoints "verbogen" weil ein Endpunkt
+            // bleibt wo er war. Bei einem-endpoint-Drag ist die "klebende"
+            // Variante das geringere Übel.
+            if (fromMoved && toMoved) {
+              const shifted = cable.waypoints.map((wp) => ({
+                x: wp.x + firstDelta.dx,
+                y: wp.y + firstDelta.dy,
+              }))
+              updateCable(cable.id, { waypoints: shifted })
+            }
+          }
+        }
+      }
+    }
   }
 
   // v7.9.67 / #178 — Rechtsklick → Kontextmenü mit "Position sperren".
@@ -971,7 +1033,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       } else {
         const eq = project.equipment.find((e) => e.id === node.id)
         if (eq && (eq.x !== px || eq.y !== py)) {
-          if (hasOverlap(eq.id, px, py, eq.width ?? 0, eq.height ?? 0)) {
+          // v7.9.69 / #183 — measured size > stored size (siehe hasOverlap).
+          const movedW = node.width ?? eq.width ?? 0
+          const movedH = node.height ?? eq.height ?? 0
+          if (hasOverlap(eq.id, px, py, movedW, movedH)) {
             setRfNodes((current) =>
               current.map((n) =>
                 n.id === node.id ? { ...n, position: { x: eq.x, y: eq.y } } : n,
