@@ -374,6 +374,26 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // move nodes back visually when the store reverts.
   const draggingIdsRef = useRef<Set<string>>(new Set())
 
+  // v7.9.66 / #187 — Shift = Axis-Lock beim Drag. dragStartPositionsRef hält
+  // pro Node-Id die Startposition (am dragstart aufgenommen), damit wir live
+  // bei jedem dragging-Position-Change |dx| vs |dy| vergleichen und die
+  // kleinere Achse auf den Startwert klemmen können. shiftKeyRef wird live
+  // per window keydown/keyup gepflegt, damit der User Shift mitten im Drag
+  // drücken/loslassen kann.
+  const dragStartPositionsRef = useRef<Map<string, { x: number; y: number }>>(new Map())
+  const shiftKeyRef = useRef(false)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      shiftKeyRef.current = e.shiftKey
+    }
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('keyup', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keyup', onKey)
+    }
+  }, [])
+
   // Sync store → RF for structural changes (adds/removes) AND data changes
   // (name, ports, IP, etc. edited in the Properties panel). Position is kept
   // from the RF state during drags, but everything else flows store → RF so
@@ -567,6 +587,49 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         }
       }
     }
+
+    // v7.9.66 / #187 — Shift = Axis-Lock. Bei jedem Position-Change (sowohl
+    // dragging:true als auch dragging:false drag-end) |dx| vs |dy| vergleichen
+    // und die kleinere Achse auf den am dragstart gespeicherten Startwert
+    // klemmen. dragging:false MUSS auch geklemmt werden, weil ReactFlow das
+    // finale drag-end auf Basis seiner eigenen Pointer-Tracking-State berechnet
+    // (nicht aus unserem geklemmten rfNodes), sonst springt das Gerät beim
+    // Loslassen an die ungeklemmte Position. shiftKeyRef wird live durch
+    // window keydown/keyup gepflegt, damit Shift auch mitten im Drag
+    // gedrückt/losgelassen werden kann.
+    if (shiftKeyRef.current) {
+      for (const change of changes) {
+        if (change.type === 'position' && change.position) {
+          const start = dragStartPositionsRef.current.get(change.id)
+          if (start) {
+            const dx = change.position.x - start.x
+            const dy = change.position.y - start.y
+            if (Math.abs(dx) >= Math.abs(dy)) {
+              change.position = { x: change.position.x, y: start.y }
+              if (change.positionAbsolute) {
+                change.positionAbsolute = {
+                  x: change.positionAbsolute.x,
+                  y: change.positionAbsolute.y - dy,
+                }
+              }
+            } else {
+              change.position = { x: start.x, y: change.position.y }
+              if (change.positionAbsolute) {
+                change.positionAbsolute = {
+                  x: change.positionAbsolute.x - dx,
+                  y: change.positionAbsolute.y,
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Hinweis: dragStartPositionsRef wird NICHT hier geleert — sondern erst in
+    // onNodeDragStop. Sonst hätte die finale Persistierung in onNodeDragStop
+    // (die auf node.position basiert, NICHT auf den oben geklemmten changes)
+    // keine Startposition mehr und würde die ungeklemmte Position speichern.
     
     // Filter out spurious `position` changes that React Flow emits during
     // internal syncs (e.g. after a node is added or its dimensions change).
@@ -725,7 +788,27 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   }
 
   const onNodeDragStart = useCallback(
-    (_event: React.MouseEvent, node: Node) => {
+    (event: React.MouseEvent, node: Node) => {
+      // v7.9.66 / #187 — Snapshot Startpositionen für Axis-Lock. Sowohl die
+      // Position des direkt gegriffenen Nodes als auch aller mitgewählten
+      // Nodes (Multi-Select-Drag) werden eingefroren, damit shift-axis-lock
+      // pro Node die korrekte Achse klemmen kann.
+      shiftKeyRef.current = event.shiftKey
+      dragStartPositionsRef.current.clear()
+      const snapshot = (id: string) => {
+        const rfNode = rfNodes.find((n) => n.id === id)
+        if (rfNode) {
+          dragStartPositionsRef.current.set(id, {
+            x: rfNode.position.x,
+            y: rfNode.position.y,
+          })
+        }
+      }
+      snapshot(node.id)
+      for (const n of rfNodes) {
+        if (n.selected && n.id !== node.id) snapshot(n.id)
+      }
+
       if (node.type !== 'location') return
       const loc = locations.find((l) => l.id === node.id)
       if (!loc) return
@@ -750,14 +833,33 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         containedEquipmentIds: contained,
       }
     },
-    [locations, project.equipment],
+    [locations, project.equipment, rfNodes],
   )
 
   const onNodeDragStop = useCallback((_event: React.MouseEvent, node: Node) => {
     const snap = (v: number) =>
       snapToGrid && gridSize > 0 ? Math.round(v / gridSize) * gridSize : v
-    const px = snap(node.position.x)
-    const py = snap(node.position.y)
+
+    // v7.9.66 / #187 — Final Axis-Lock auf node.position. ReactFlow trackt
+    // die Drag-Position intern aus dem Pointer (nicht aus unserem geklemmten
+    // rfNodes), deshalb kommt hier die UNgeklemmte Endposition rein. Wir
+    // klemmen mit der gespeicherten Startposition nach derselben Regel wie
+    // im onNodesChange-Block (kleinere Achse = Lock).
+    let lockedPos = { x: node.position.x, y: node.position.y }
+    if (shiftKeyRef.current) {
+      const start = dragStartPositionsRef.current.get(node.id)
+      if (start) {
+        const dx = node.position.x - start.x
+        const dy = node.position.y - start.y
+        if (Math.abs(dx) >= Math.abs(dy)) {
+          lockedPos = { x: node.position.x, y: start.y }
+        } else {
+          lockedPos = { x: start.x, y: node.position.y }
+        }
+      }
+    }
+    const px = snap(lockedPos.x)
+    const py = snap(lockedPos.y)
 
     if (Number.isFinite(px) && Number.isFinite(py)) {
       if (node.type === 'location') {
@@ -799,6 +901,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     // syncs for those ids, which our persistence logic would otherwise treat as
     // another real drag-end and move unrelated devices.
     draggingIdsRef.current.clear()
+    // v7.9.66 / #187 — Axis-Lock-Startpositionen freigeben. Erst hier (nicht
+    // schon in onNodesChange), damit der oben durchgeführte Final-Lock noch
+    // auf einen gültigen Snapshot zugreifen konnte.
+    dragStartPositionsRef.current.clear()
     if (node.type === 'location') {
       // Clear any stale location drag snapshot so unrelated future node
       // changes (like adding equipment by click) cannot shift other nodes.
