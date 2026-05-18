@@ -331,6 +331,16 @@ export interface EquipmentItem {
    *  3D-Rack-Builder die echte Geometrie statt einer prozeduralen Box.
    *  Größenbegrenzung: ~5 MB damit der Projekt-Save nicht explodiert. */
   stlDataUri?: string
+  /** v7.9.75 / #170 — Patchblende-Marker. Wird vom Rack-Builder gesetzt
+   *  wenn das Template über den "Patchblende anlegen"-Dialog erzeugt wurde.
+   *  Beeinflusst die Darstellung (kleines "PP"-Badge, thin-depth in 3D
+   *  default) und das Filtering in den View-Modi. */
+  isPatchPanel?: boolean
+  /** v7.9.75 / #170 — Rack-Shelf-Marker. Geräte mit diesem Flag rendern
+   *  als flache Plattform im Rack; auf sie können Non-19"-Items "gestellt"
+   *  werden. Die HE-Höhe bleibt die volle Höhe (1HU = klassisches Single-
+   *  Shelf), die echte Plattform liegt oben in dieser HE-Range. */
+  isRackShelf?: boolean
 }
 
 /**

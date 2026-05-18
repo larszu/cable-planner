@@ -21,7 +21,7 @@
  * STL-Support: wenn placement.stlDataUri gesetzt, wird die Geometrie mit
  * STLLoader geladen und in die HE-Box eingepasst. Sonst prozedurale Box.
  */
-import { Suspense, useMemo, useRef } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useLoader } from '@react-three/fiber'
 import { OrbitControls, Edges, Html } from '@react-three/drei'
 import { STLLoader } from 'three-stdlib'
@@ -42,6 +42,12 @@ interface Rack3DPlacement {
   mountSide?: 'front' | 'rear' | 'full'
   stlDataUri?: string
   frontPanelImageUrl?: string
+  rearPanelImageUrl?: string
+  /** v7.9.75 / #170 — Anzahl der Patch-Ports (für die Darstellung als
+   *  Patchblende mit Port-Punkten und für die View-Mode-Filterung). */
+  portCount?: number
+  isPatchPanel?: boolean
+  isRackShelf?: boolean
 }
 
 interface Rack3DViewProps {
@@ -94,7 +100,59 @@ const Chassis = ({
   )
 }
 
-/** Procedural device box. Geometry: width × height × depth in mm. */
+/** v7.9.74 / #170 — Texture-Loader Hook. Lädt ein Bild zur THREE.Texture
+ *  und cached pro URL. Liefert null während des Ladens (kein Suspense, damit
+ *  Geräte ohne Foto sofort sichtbar sind und Foto erst beim Eintreffen
+ *  "aufploppt" statt das ganze Canvas zu blockieren). */
+const textureCache = new Map<string, THREE.Texture>()
+const useImageTexture = (url?: string): THREE.Texture | null => {
+  const [tex, setTex] = useState<THREE.Texture | null>(
+    url ? (textureCache.get(url) ?? null) : null,
+  )
+  useEffect(() => {
+    if (!url) {
+      setTex(null)
+      return
+    }
+    const cached = textureCache.get(url)
+    if (cached) {
+      setTex(cached)
+      return
+    }
+    const loader = new THREE.TextureLoader()
+    loader.crossOrigin = 'anonymous'
+    let cancelled = false
+    loader.load(
+      url,
+      (loaded) => {
+        if (cancelled) return
+        // Color space sRGB damit Panelfotos nicht ausgewaschen aussehen.
+        loaded.colorSpace = THREE.SRGBColorSpace
+        loaded.anisotropy = 4
+        textureCache.set(url, loaded)
+        setTex(loaded)
+      },
+      undefined,
+      () => {
+        if (!cancelled) setTex(null)
+      },
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [url])
+  return tex
+}
+
+/** Procedural device box mit Front/Rear-Foto als Textur.
+ *  Geometry: width × height × depth in mm.
+ *
+ *  v7.9.74 / #170 — Wenn frontPanelImageUrl gesetzt ist, wird das Bild
+ *  als Material auf die Vorder-Face geklebt (face index 5 = -Z). Das
+ *  Rear-Foto landet auf face index 4 (+Z). Übrige Faces: matt-grau.
+ *  Das ersetzt die ursprünglich angedachte STL-Auto-Generierung mit
+ *  Front/Rear-Textur-Backing — visuell dasselbe ohne den STL-Speicher-
+ *  Overhead und ohne extra Dateien. STL-Upload bleibt als Override. */
 const DeviceBox = ({
   placement,
   rackDepthMm,
@@ -110,41 +168,73 @@ const DeviceBox = ({
 }) => {
   const mountSide = placement.mountSide ?? 'full'
   const depthMm = Math.max(20, placement.depthMm ?? DEFAULT_DEVICE_DEPTH_MM)
-  // Y-Achse: startUnit ist HE von UNTEN gemessen (klassische 19"-Konvention).
-  // Wenn rackBuilder oben oben-zu-unten zählt, müssen wir flippen.
-  // Hier nehmen wir die Builder-Konvention: startUnit 1 = oberste HE.
-  // Flip: yBottom = (totalUnits - startUnit - rackUnits + 1) * HE
   const yBottom = (totalUnits - placement.startUnit - placement.rackUnits + 1) * HE_HEIGHT_MM
   const heightMm = placement.rackUnits * HE_HEIGHT_MM
   const widthMm = RACK_MOUNT_WIDTH_MM
 
-  const zStart =
-    mountSide === 'rear'
-      ? rackDepthMm - depthMm
-      : 0
+  const zStart = mountSide === 'rear' ? rackDepthMm - depthMm : 0
   const xCenter = (RACK_OUTER_WIDTH_MM - widthMm) / 2 + widthMm / 2
   const yCenter = yBottom + heightMm / 2
   const zCenter = zStart + depthMm / 2
 
-  const color = selected
+  // v7.9.75 / #170 — Patchblenden bekommen eine eigene Farbe damit der
+  // User sie auf einen Blick von normalen Geräten unterscheidet.
+  const baseColor = selected
     ? '#38bdf8'
-    : mountSide === 'rear'
-      ? '#a855f7'
-      : mountSide === 'front'
-        ? '#22c55e'
-        : '#64748b'
+    : placement.isPatchPanel
+      ? '#f59e0b'
+      : mountSide === 'rear'
+        ? '#a855f7'
+        : mountSide === 'front'
+          ? '#22c55e'
+          : '#64748b'
+
+  const frontTex = useImageTexture(placement.frontPanelImageUrl)
+  const rearTex = useImageTexture(placement.rearPanelImageUrl)
+
+  // BoxGeometry materials order: [+x, -x, +y, -y, +z, -z]
+  // Front face (sichtbar von -Z aus → Kamera vor dem Rack) = face index 5.
+  // Rear face = face index 4. Wenn Foto fehlt, Fallback auf Basis-Material.
+  // Die Bilder werden mit needsUpdate=false neu gerendert sobald sie aus
+  // dem Cache eintreffen.
+  const materials = useMemo<THREE.Material[]>(() => {
+    const sideMaterial = new THREE.MeshStandardMaterial({
+      color: baseColor,
+      opacity: selected ? 0.9 : 0.85,
+      transparent: true,
+      roughness: 0.7,
+      metalness: 0.15,
+    })
+    const frontMaterial = frontTex
+      ? new THREE.MeshStandardMaterial({
+          map: frontTex,
+          color: selected ? '#bae6fd' : '#ffffff',
+          roughness: 0.55,
+          metalness: 0.2,
+        })
+      : sideMaterial
+    const rearMaterial = rearTex
+      ? new THREE.MeshStandardMaterial({
+          map: rearTex,
+          color: selected ? '#bae6fd' : '#ffffff',
+          roughness: 0.55,
+          metalness: 0.2,
+        })
+      : sideMaterial
+    return [sideMaterial, sideMaterial, sideMaterial, sideMaterial, rearMaterial, frontMaterial]
+  }, [baseColor, selected, frontTex, rearTex])
 
   return (
     <group>
       <mesh
         position={[xCenter, yCenter, zCenter]}
+        material={materials}
         onClick={(e) => {
           e.stopPropagation()
           onClick()
         }}
       >
         <boxGeometry args={[widthMm, heightMm, depthMm]} />
-        <meshStandardMaterial color={color} opacity={selected ? 0.9 : 0.75} transparent />
         <Edges color={selected ? '#0ea5e9' : '#020617'} threshold={15} />
       </mesh>
       <Html
@@ -163,6 +253,63 @@ const DeviceBox = ({
         distanceFactor={300}
       >
         {placement.name} ({placement.rackUnits}HE)
+      </Html>
+    </group>
+  )
+}
+
+/** v7.9.75 / #170 — Rack-Shelf-Renderer: flache Plattform in der unteren
+ *  Hälfte der zugewiesenen HE-Range. Damit darauf Non-19"-Geräte sichtbar
+ *  "ruhen" können (sie werden mit eigenem startUnit auf dieselbe HE
+ *  gelegt — der Shelf zeigt visuell wo die Bodenfläche liegt). */
+const Shelf = ({
+  placement,
+  rackDepthMm,
+  totalUnits,
+  selected,
+  onClick,
+}: {
+  placement: Rack3DPlacement
+  rackDepthMm: number
+  totalUnits: number
+  selected: boolean
+  onClick: () => void
+}) => {
+  const depthMm = Math.max(50, placement.depthMm ?? rackDepthMm * 0.75)
+  const yBottom = (totalUnits - placement.startUnit - placement.rackUnits + 1) * HE_HEIGHT_MM
+  const heightMm = placement.rackUnits * HE_HEIGHT_MM
+  const plateThickness = 4
+  const xCenter = RACK_OUTER_WIDTH_MM / 2
+  const yCenter = yBottom + plateThickness / 2
+  const zCenter = depthMm / 2
+  const color = selected ? '#38bdf8' : '#94a3b8'
+  return (
+    <group>
+      {/* Boden-Plate */}
+      <mesh position={[xCenter, yCenter, zCenter]} onClick={(e) => { e.stopPropagation(); onClick() }}>
+        <boxGeometry args={[RACK_MOUNT_WIDTH_MM, plateThickness, depthMm]} />
+        <meshStandardMaterial color={color} roughness={0.55} metalness={0.6} />
+      </mesh>
+      {/* Front-Rail (kleiner Aufkant vorne, damit Plate als Plate erkennbar ist) */}
+      <mesh position={[xCenter, yBottom + heightMm * 0.15, 4]}>
+        <boxGeometry args={[RACK_MOUNT_WIDTH_MM, heightMm * 0.3, 4]} />
+        <meshStandardMaterial color={selected ? '#0ea5e9' : '#475569'} opacity={0.6} transparent />
+      </mesh>
+      <Html
+        position={[xCenter, yBottom + heightMm + 4, depthMm + 5]}
+        center
+        style={{
+          color: '#cbd5e1',
+          fontSize: 9,
+          background: 'rgba(15,23,42,0.7)',
+          padding: '1px 5px',
+          borderRadius: 3,
+          pointerEvents: 'none',
+        }}
+        transform={false}
+        distanceFactor={300}
+      >
+        🪑 {placement.name}
       </Html>
     </group>
   )
@@ -259,17 +406,32 @@ export const Rack3DView = ({
         <directionalLight position={[-800, 600, -400]} intensity={0.4} />
         <Chassis totalUnits={totalUnits} depthMm={depthMm} />
         <Suspense fallback={null}>
-          {placements.map((p) =>
-            p.stlDataUri ? (
-              <DeviceSTL
-                key={p.id}
-                placement={p}
-                rackDepthMm={depthMm}
-                totalUnits={totalUnits}
-                selected={selectedPlacementId === p.id}
-                onClick={() => onSelectPlacement(p.id)}
-              />
-            ) : (
+          {placements.map((p) => {
+            if (p.isRackShelf) {
+              return (
+                <Shelf
+                  key={p.id}
+                  placement={p}
+                  rackDepthMm={depthMm}
+                  totalUnits={totalUnits}
+                  selected={selectedPlacementId === p.id}
+                  onClick={() => onSelectPlacement(p.id)}
+                />
+              )
+            }
+            if (p.stlDataUri) {
+              return (
+                <DeviceSTL
+                  key={p.id}
+                  placement={p}
+                  rackDepthMm={depthMm}
+                  totalUnits={totalUnits}
+                  selected={selectedPlacementId === p.id}
+                  onClick={() => onSelectPlacement(p.id)}
+                />
+              )
+            }
+            return (
               <DeviceBox
                 key={p.id}
                 placement={p}
@@ -278,8 +440,8 @@ export const Rack3DView = ({
                 selected={selectedPlacementId === p.id}
                 onClick={() => onSelectPlacement(p.id)}
               />
-            ),
-          )}
+            )
+          })}
         </Suspense>
         <OrbitControls
           ref={orbitRef as never}
