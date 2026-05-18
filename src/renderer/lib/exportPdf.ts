@@ -29,6 +29,10 @@ export interface ExportPdfOptions {
   bgOpacity?: number
   /** Custom palette overrides from Settings → Canvas-Hintergrund. */
   customPalette?: { canvasBg: string; gridColor: string } | null
+  /** v7.9.61 — Optional Progress-Callback. Wird mit ('start'|'capture'|
+   *  'tile'|'render'|'done', detail?) gerufen damit das UI Fortschritts-
+   *  Indikatoren zeigen kann. */
+  onProgress?: (phase: string, detail?: string) => void
 }
 
 const fmtDate = (iso?: string): string => {
@@ -270,149 +274,147 @@ const buildCanvasPdf = async (
     customPalette: options?.customPalette ?? null,
   })
 
-  // v7.9.58 — Tile-basierter Capture für XL-Pläne.
+  // v7.9.61 — Single-Shot bevorzugt, Tiling nur als Notfall-Fallback.
   //
-  // Problem davor: ein einziger Capture des kompletten Canvas. Bei
-  // 91 MP natürlich (~12000×7600 px) lief der Browser entweder OOM
-  // oder das Bild kam runterskaliert + Text unleserlich.
+  // Geschichte: v7.9.58 hat aus Stabilitäts-Gründen das gesamte Canvas
+  // in NxM Kacheln aufgeteilt. Theoretisch sauber — praktisch aber
+  // RUINÖS langsam, weil jeder Tile eine VOLLE DOM-Serialisierung des
+  // viewportEl macht (html-to-image clont den kompletten DOM-Baum,
+  // rendert ihn nach SVG, und clipt erst dann auf die Tile-Größe).
+  // Bei 109 Geräten × 28 Tiles → 28× full DOM walk → Minuten statt
+  // Sekunden.
   //
-  // Lösung: wir teilen den Canvas in NxN Kacheln. Jede Kachel wird
-  // einzeln bei voller Auflösung (pixelRatio=1.5) gerastert; danach
-  // werden alle Kacheln im PDF nebeneinander positioniert. Die PDF
-  // hat weiterhin EINE riesige Seite — visuell ein nahtloses Bild,
-  // aber der Browser hat nie einen Riesen-Canvas im Speicher.
+  // Jetzt: ein SINGLE-SHOT-Capture bei adaptivem pixelRatio das ins
+  // Memory-Budget passt. Nur wenn das einen harten Fehler wirft (echte
+  // Canvas-Limit-Überschreitung) wird auf Tiling zurückgefallen.
   //
-  // Tile-Größen-Budget: jede Kachel ≤ 9 MP gerastert (= ~36 MB RAM
-  // bei 4 bytes/px) und ≤ 4000 px Kantenlänge (Mobile-Safari-Limit).
-  const TILE_TARGET_MEGAPIXELS = 9_000_000
-  const TILE_MAX_EDGE_PX = 4000
-  const TARGET_PIXEL_RATIO = 1.5
+  // Memory-Budget: ~16 MP nach Skalierung (= ~64 MB RAM für die
+  // Output-Canvas). Modernes Desktop-Browser packen das easy.
+  const onProgress = options?.onProgress ?? (() => {})
+  const SINGLE_SHOT_BUDGET_MP = 16_000_000
   const naturalPixels = contentW * contentH
-  const tilesByMP = Math.ceil(
-    (naturalPixels * TARGET_PIXEL_RATIO * TARGET_PIXEL_RATIO) / TILE_TARGET_MEGAPIXELS,
+  const singleShotRatio = Math.min(
+    1.5,
+    Math.max(0.35, Math.sqrt(SINGLE_SHOT_BUDGET_MP / naturalPixels)),
   )
-  const tilesByEdgeW = Math.ceil((contentW * TARGET_PIXEL_RATIO) / TILE_MAX_EDGE_PX)
-  const tilesByEdgeH = Math.ceil((contentH * TARGET_PIXEL_RATIO) / TILE_MAX_EDGE_PX)
-  // Spalten/Zeilen so wählen dass beides erfüllt ist UND das Layout
-  // möglichst quadratisch bleibt (Aspekt-aware split).
-  let tileCols = Math.max(
-    1,
-    Math.max(tilesByEdgeW, Math.ceil(Math.sqrt((tilesByMP * contentW) / contentH))),
-  )
-  let tileRows = Math.max(
-    1,
-    Math.max(tilesByEdgeH, Math.ceil(tilesByMP / tileCols)),
-  )
-  // Sanity: bei winzigen Canvases bleibt es bei 1x1 (kein Tiling-Overhead).
-  if (naturalPixels * TARGET_PIXEL_RATIO * TARGET_PIXEL_RATIO <= TILE_TARGET_MEGAPIXELS) {
-    tileCols = 1
-    tileRows = 1
-  }
-  const tileW = Math.ceil(contentW / tileCols)
-  const tileH = Math.ceil(contentH / tileRows)
-  // PNG nur für 1×1-Capture bei kleinem Total; sonst JPEG (geringer
-  // PDF-Footprint, optisch identisch für unsere CAD-artigen Inhalte).
-  const useJpeg =
-    tileCols * tileRows > 1 || naturalPixels * TARGET_PIXEL_RATIO * TARGET_PIXEL_RATIO > 12_000_000
-
-  const baseCaptureOpts = {
-    backgroundColor: useJpeg ? composed.bgFallback : undefined,
-    pixelRatio: TARGET_PIXEL_RATIO,
-    cacheBust: true,
-    quality: useJpeg ? quality : undefined,
-    filter: (node: Node) => {
-      if (!(node instanceof HTMLElement) && !(node instanceof SVGElement)) return true
-      const el = node as HTMLElement | SVGElement
-      if (el.classList.contains('react-flow__minimap')) return false
-      if (el.classList.contains('react-flow__controls')) return false
-      // v7.9.24 — ReactFlow's eigenes Background-Pattern ausschliessen
-      // (Vektor-Rendering im PDF separat — siehe drawVectorBackground).
-      if (el.classList.contains('react-flow__background')) return false
-      return true
-    },
+  // JPEG für alle nicht-trivialen Canvas-Größen (≥ 8 MP nach Skalierung).
+  // Bei kleinen Plänen bleibt PNG für lossless-Crispness.
+  const useJpeg = naturalPixels * singleShotRatio * singleShotRatio > 8_000_000
+  const capture = useJpeg ? toJpeg : toPng
+  const baseFilter = (node: Node): boolean => {
+    if (!(node instanceof HTMLElement) && !(node instanceof SVGElement)) return true
+    const el = node as HTMLElement | SVGElement
+    if (el.classList.contains('react-flow__minimap')) return false
+    if (el.classList.contains('react-flow__controls')) return false
+    // v7.9.24 — Background-Pattern wird separat via drawVectorBackground
+    // im PDF gerendert, deshalb hier nicht mit erfassen.
+    if (el.classList.contains('react-flow__background')) return false
+    return true
   }
 
-  // Capture jede Kachel separat. Translate-Trick: wir zeigen den
-  // Viewport mit globalem Offset, html-to-image clipt dann auf
-  // tile-W × tile-H = die jeweilige Kachel.
+  // CapturedTile bleibt das Mehrfach-Bild-Format damit der Embed-Loop
+  // unten unverändert bleibt — Single-Shot ist einfach ein 1-Element-Array.
   interface CapturedTile {
     dataUrl: string
-    col: number
-    row: number
     pxX: number
     pxY: number
     pxW: number
     pxH: number
   }
   const tiles: CapturedTile[] = []
-  const capture = useJpeg ? toJpeg : toPng
-  for (let r = 0; r < tileRows; r++) {
-    for (let c = 0; c < tileCols; c++) {
-      const tileOriginX = contentX + c * tileW
-      const tileOriginY = contentY + r * tileH
-      // Letzte Spalte/Zeile darf schmaler sein wenn contentW/H nicht
-      // exakt durch tileW/H teilbar ist.
-      const actualW = Math.min(tileW, contentW - c * tileW)
-      const actualH = Math.min(tileH, contentH - r * tileH)
-      const opts = {
-        ...baseCaptureOpts,
-        width: actualW,
-        height: actualH,
-        style: {
-          width: `${actualW}px`,
-          height: `${actualH}px`,
-          background: useJpeg ? composed.bgFallback : 'transparent',
-          backgroundColor: useJpeg ? composed.bgFallback : 'transparent',
-          transform: `translate(${-tileOriginX}px, ${-tileOriginY}px)`,
-          transformOrigin: '0 0',
-        },
-      }
-      try {
-        const dataUrl = await capture(viewportEl, opts)
-        tiles.push({
-          dataUrl,
-          col: c,
-          row: r,
-          pxX: c * tileW,
-          pxY: r * tileH,
-          pxW: actualW,
-          pxH: actualH,
-        })
-      } catch (err) {
-        // Letzter Versuch für diese Kachel: JPEG bei reduziertem Ratio.
-        const fallback = {
-          ...opts,
-          pixelRatio: TARGET_PIXEL_RATIO * 0.7,
-          quality: 0.7,
+
+  onProgress(
+    'capture',
+    `Canvas ${contentW}×${contentH}px bei ratio=${singleShotRatio.toFixed(2)} (${useJpeg ? 'JPEG' : 'PNG'})…`,
+  )
+  try {
+    const singleShotOpts = {
+      backgroundColor: useJpeg ? composed.bgFallback : undefined,
+      pixelRatio: singleShotRatio,
+      cacheBust: true,
+      quality: useJpeg ? quality : undefined,
+      width: contentW,
+      height: contentH,
+      style: {
+        width: `${contentW}px`,
+        height: `${contentH}px`,
+        background: useJpeg ? composed.bgFallback : 'transparent',
+        backgroundColor: useJpeg ? composed.bgFallback : 'transparent',
+        transform: `translate(${-contentX}px, ${-contentY}px)`,
+        transformOrigin: '0 0',
+      },
+      filter: baseFilter,
+    }
+    const dataUrl = await capture(viewportEl, singleShotOpts)
+    tiles.push({ dataUrl, pxX: 0, pxY: 0, pxW: contentW, pxH: contentH })
+    onProgress('captured', `Single-Shot fertig (${Math.round(dataUrl.length / 1024)} KB)`)
+  } catch (singleShotErr) {
+    // Single-Shot crashed → echtes Memory-/Canvas-Limit überschritten.
+    // Jetzt erst tilen. Tile-Budget bewusst großzügig: 12 MP/Tile,
+    // damit es wenige große Tiles statt vieler kleiner werden — jede
+    // Tile-Kapture kostet eine volle DOM-Serialisierung.
+    onProgress('tile-fallback', `Single-Shot fehlgeschlagen, fallback zu Tiling…`)
+    const TILE_BUDGET_MP = 12_000_000
+    const TILE_MAX_EDGE_PX = 4000
+    const tileRatio = singleShotRatio
+    const tileMaxCanvasPx = Math.sqrt(TILE_BUDGET_MP) / tileRatio
+    const tileMaxLogicalEdge = Math.min(TILE_MAX_EDGE_PX / tileRatio, tileMaxCanvasPx)
+    const tileCols = Math.max(1, Math.ceil(contentW / tileMaxLogicalEdge))
+    const tileRows = Math.max(1, Math.ceil(contentH / tileMaxLogicalEdge))
+    const tileW = Math.ceil(contentW / tileCols)
+    const tileH = Math.ceil(contentH / tileRows)
+    const captureFb = toJpeg // im Fallback IMMER JPEG für Speicher
+    for (let r = 0; r < tileRows; r++) {
+      for (let c = 0; c < tileCols; c++) {
+        const idx = r * tileCols + c + 1
+        onProgress('tile', `Kachel ${idx}/${tileCols * tileRows}`)
+        const tileOriginX = contentX + c * tileW
+        const tileOriginY = contentY + r * tileH
+        const actualW = Math.min(tileW, contentW - c * tileW)
+        const actualH = Math.min(tileH, contentH - r * tileH)
+        const opts = {
           backgroundColor: composed.bgFallback,
+          pixelRatio: tileRatio,
+          cacheBust: true,
+          quality: 0.8,
+          width: actualW,
+          height: actualH,
           style: {
-            ...opts.style,
+            width: `${actualW}px`,
+            height: `${actualH}px`,
             background: composed.bgFallback,
             backgroundColor: composed.bgFallback,
+            transform: `translate(${-tileOriginX}px, ${-tileOriginY}px)`,
+            transformOrigin: '0 0',
           },
+          filter: baseFilter,
         }
         try {
-          const dataUrl = await toJpeg(viewportEl, fallback)
+          const dataUrl = await captureFb(viewportEl, opts)
           tiles.push({
             dataUrl,
-            col: c,
-            row: r,
             pxX: c * tileW,
             pxY: r * tileH,
             pxW: actualW,
             pxH: actualH,
           })
-        } catch {
+        } catch (tileErr) {
           throw new Error(
-            `Kachel ${c + 1}/${r + 1} von ${tileCols}×${tileRows} ließ sich nicht rastern (${actualW}×${actualH}px). Original-Fehler: ${
-              err instanceof Error ? err.message : String(err)
+            `PDF-Export fehlgeschlagen. Single-Shot: ${
+              singleShotErr instanceof Error ? singleShotErr.message : 'unbekannt'
+            }. Tiling-Fallback Kachel ${idx}/${tileCols * tileRows}: ${
+              tileErr instanceof Error ? tileErr.message : 'unbekannt'
             }`,
           )
         }
       }
     }
   }
-  void quality
+  // useJpeg gilt jetzt für den Einzel-Shot-Pfad. Im Tiling-Fallback ist
+  // immer JPEG verwendet worden — wir checken über die DataURL-Header
+  // ob es PNG oder JPEG ist (für addImage-Format-Argument).
+  const detectFormat = (dataUrl: string): 'JPEG' | 'PNG' =>
+    dataUrl.startsWith('data:image/png') ? 'PNG' : 'JPEG'
 
   // Build a PDF page sized to the captured image. Content was captured at
   // pixelRatio=2 so the natural pixel dimensions are doubled; we want the PDF
@@ -465,25 +467,28 @@ const buildCanvasPdf = async (
   // werden ins PDF-pt-System umgerechnet, sodass die Kacheln nahtlos
   // an einander stoßen. Side-by-side im finalen PDF → optisch ein
   // zusammenhängendes Bild ohne sichtbare Grenzen.
-  for (const tile of tiles) {
+  onProgress('render', `${tiles.length} Bild(er) in PDF einbetten…`)
+  for (let i = 0; i < tiles.length; i++) {
+    const tile = tiles[i]
     const tileXpt = offsetX + tile.pxX * PX_TO_PT
     const tileYpt = offsetY + tile.pxY * PX_TO_PT
     const tileWpt = tile.pxW * PX_TO_PT
     const tileHpt = tile.pxH * PX_TO_PT
+    const format = detectFormat(tile.dataUrl)
     pdf.addImage(
       tile.dataUrl,
-      useJpeg ? 'JPEG' : 'PNG',
+      format,
       tileXpt,
       tileYpt,
       tileWpt,
       tileHpt,
       undefined,
-      // FAST-compression bei großen Bildern damit jsPDF nicht in der
-      // Embed-Phase blockiert. Bei kleinen PNGs bleibt MEDIUM für die
-      // bessere Kompression.
-      useJpeg ? 'FAST' : 'MEDIUM',
+      // FAST-compression bei JPEG (sonst blockt jsPDF in der Embed-Phase
+      // bei großen Bildern). PNG bekommt MEDIUM für bessere File-Size.
+      format === 'JPEG' ? 'FAST' : 'MEDIUM',
     )
   }
+  onProgress('done', `PDF mit ${tiles.length} Bild(ern) generiert`)
 
   if (metadata) {
     drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin)
