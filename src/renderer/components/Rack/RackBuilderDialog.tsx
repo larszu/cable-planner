@@ -61,6 +61,10 @@ interface RackPlacementDraft {
   isPatchPanel?: boolean
   /** v7.9.75 / #170 — Rack-Shelf-Marker. */
   isRackShelf?: boolean
+  /** v7.9.82 / #170 — Shelf-Device horizontal-Offset (mm von links). */
+  shelfOffsetX?: number
+  /** v7.9.82 / #170 — Shelf-Device depth-Offset (mm von vorne). */
+  shelfOffsetZ?: number
 }
 
 interface RackDraft {
@@ -95,6 +99,11 @@ interface InternalCableDraft {
 // rowHeight in pixels from the measured panel width so the on-screen rack is
 // proportional to a real 19" rack, regardless of available screen space.
 const RACK_PANEL_ASPECT_PER_1HE = 10.857
+// v7.9.82 / #170 — geteilt mit Rack3DView.tsx: 19″ standardisierte
+// Außenbreite + Mounting-Raum (innen zwischen den Rails). Werden für
+// die Shelf-Device Horizontal-Positionierung in 2D gebraucht.
+const RACK_OUTER_WIDTH_MM = 482.6
+const RACK_MOUNT_WIDTH_MM = 450
 // v7.9.10 — MIN auf 6 px gesenkt damit bei kleinem Dialog + vielen HE
 // (42 HE) der Rack noch in den sichtbaren Bereich passt. Wer Details
 // sehen will dreht den Zoom hoch.
@@ -151,6 +160,9 @@ const toPlacement = (template: EquipmentTemplate, startUnit: number): RackPlacem
   stlDataUri: template.stlDataUri,
   isPatchPanel: template.isPatchPanel,
   isRackShelf: template.isRackShelf,
+  // v7.9.82 / #170 — Shelf-Offsets initial 0 (= linke vordere Ecke der HE).
+  shelfOffsetX: 0,
+  shelfOffsetZ: 0,
 })
 
 const normalizeDraft = (draft: RackDraft): RackDraft => {
@@ -191,8 +203,13 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
   const savedPositions = preset.rack?.internalCanvasPositions ?? {}
   // v7.9.73 / #170 — mountSide aus preset.rack.placements[].mountSide hydraten
   const mountSideByIndex = new Map<number, 'front' | 'rear' | 'full' | undefined>()
+  // v7.9.82 / #170 — Shelf-Offsets dito.
+  const shelfOffsetByIndex = new Map<number, { x?: number; z?: number }>()
   for (const p of preset.rack?.placements ?? []) {
     if (p.mountSide) mountSideByIndex.set(p.itemIndex, p.mountSide)
+    if (p.shelfOffsetX != null || p.shelfOffsetZ != null) {
+      shelfOffsetByIndex.set(p.itemIndex, { x: p.shelfOffsetX, z: p.shelfOffsetZ })
+    }
   }
   const placements: RackPlacementDraft[] = preset.items.map((item, index) => {
     const meta = placementsByIndex.get(index)
@@ -219,6 +236,8 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
       stlDataUri: item.stlDataUri,
       isPatchPanel: item.isPatchPanel,
       isRackShelf: item.isRackShelf,
+      shelfOffsetX: shelfOffsetByIndex.get(index)?.x,
+      shelfOffsetZ: shelfOffsetByIndex.get(index)?.z,
     }
   })
   // Hydrate internal cables: cables in the stored preset reference items
@@ -652,6 +671,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       heightUnits: placement.rackUnits,
       // v7.9.73 / #170 — mountSide nur persistieren wenn explizit gesetzt.
       ...(placement.mountSide ? { mountSide: placement.mountSide } : {}),
+      // v7.9.82 / #170 — Shelf-Offsets nur wenn != 0.
+      ...(placement.shelfOffsetX ? { shelfOffsetX: placement.shelfOffsetX } : {}),
+      ...(placement.shelfOffsetZ ? { shelfOffsetZ: placement.shelfOffsetZ } : {}),
     }))
 
     // v7.8.5 — Map internal cables (referenced by placement id) onto the
@@ -1262,6 +1284,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             portCount: (p.inputs?.length ?? 0) + (p.outputs?.length ?? 0),
                             isPatchPanel: p.isPatchPanel,
                             isRackShelf: p.isRackShelf,
+                            shelfOffsetX: p.shelfOffsetX,
+                            shelfOffsetZ: p.shelfOffsetZ,
                             // v7.9.81 / #170 — Port-Side aus port.rackSide
                             // (Default 'rear' wenn nicht gesetzt). Inputs UND
                             // Outputs werden in einen Topf geworfen und nach
@@ -1302,6 +1326,14 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       })()}
                       selectedPlacementId={selectedPlacementId}
                       onSelectPlacement={(id) => setSelectedPlacementId(id)}
+                      // v7.9.82 / #170 — Shelf-Device-Drag im 3D-Tab
+                      // persistieren.
+                      onShelfDeviceMoved={(placementId, offset) => {
+                        updatePlacement(placementId, {
+                          shelfOffsetX: offset.x,
+                          shelfOffsetZ: offset.z,
+                        })
+                      }}
                       // v7.9.77 / #170 — Port-Dot-Drag persistieren: setzt
                       // panelPosX/Y am Port (in inputs ODER outputs je
                       // nach side) im Draft.
@@ -1488,16 +1520,36 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       const top = (item.startUnit - 1) * rowHeight
                       const height = item.rackUnits * rowHeight
                       const image = side === 'front' ? item.frontPanelImageUrl : item.rearPanelImageUrl
+                      // v7.9.82 / #170 — Shelf-Device-Rendering: nutze die
+                      // physischen mm-Maße (widthMm) + shelfOffsetX statt
+                      // der vollen HE-Breite. Mapping: 1 mm = (rackWidthPx /
+                      // RACK_MOUNT_WIDTH_MM). Klassische 19″-Geräte:
+                      // full-width wie bisher (left:0, right:0).
+                      const rackTpl = templates.find((t) => t.name === item.templateName)
+                      const isShelfDevice = !!(rackTpl?.widthMm && rackTpl?.heightMm)
+                      const rackWidthPx = rowHeight * RACK_PANEL_ASPECT_PER_1HE
+                      const mmToPx = rackWidthPx / RACK_OUTER_WIDTH_MM
+                      const railInsetPx = ((RACK_OUTER_WIDTH_MM - RACK_MOUNT_WIDTH_MM) / 2) * mmToPx
+                      const shelfStyle = isShelfDevice
+                        ? {
+                            top,
+                            height: Math.min(rackTpl!.heightMm! * mmToPx, height),
+                            left: railInsetPx + (item.shelfOffsetX ?? 0) * mmToPx,
+                            width: rackTpl!.widthMm! * mmToPx,
+                          }
+                        : { top, height, left: 0, right: 0 }
                       return (
                         <div
                           key={`${side}-block-${item.id}`}
                           className={`absolute cursor-grab touch-none select-none overflow-hidden rounded border-2 active:cursor-grabbing ${
                             selectedPlacementId === item.id
                               ? 'border-amber-300 bg-amber-900/40 shadow-[0_0_0_2px_rgba(252,211,77,0.45)] ring-1 ring-amber-400/40'
-                              : 'border-sky-600/70 bg-sky-900/30 hover:border-sky-400/80 hover:bg-sky-900/40'
+                              : isShelfDevice
+                                ? 'border-emerald-600/70 bg-emerald-900/30 hover:border-emerald-400/80'
+                                : 'border-sky-600/70 bg-sky-900/30 hover:border-sky-400/80 hover:bg-sky-900/40'
                           }`}
-                          style={{ top, height, left: 0, right: 0 }}
-                          title={`${item.name} (${item.rackUnits} HE, Start HE${item.startUnit})`}
+                          style={shelfStyle}
+                          title={`${item.name} (${item.rackUnits} HE, Start HE${item.startUnit}${isShelfDevice ? `, Shelf-Device ${rackTpl!.widthMm}×${rackTpl!.heightMm} mm` : ''})`}
                           onPointerDown={(event) => {
                             // Capture so onPointerMove fires reliably even
                             // when the cursor leaves the small block.
@@ -1519,7 +1571,21 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             const placement = draft.placements.find((p) => p.id === dragState.placementId)
                             if (!placement) return
                             const nextStart = Math.max(1, Math.min(draft.totalUnits - placement.rackUnits + 1, unitAtPointer - dragState.offsetUnits))
-                            updatePlacement(placement.id, { startUnit: nextStart })
+                            const patch: Partial<RackPlacementDraft> = { startUnit: nextStart }
+                            // v7.9.82 / #170 — Shelf-Devices auch horizontal
+                            // verschiebbar machen: Drop-X-Position relativ zum
+                            // Panel in mm umrechnen, in [0..(RACK_MOUNT_WIDTH_MM
+                            // - widthMm)] klemmen.
+                            if (isShelfDevice && rackTpl?.widthMm) {
+                              const mmToPxLocal = host.width / RACK_OUTER_WIDTH_MM
+                              const railInsetLocal =
+                                ((RACK_OUTER_WIDTH_MM - RACK_MOUNT_WIDTH_MM) / 2) * mmToPxLocal
+                              const x = clamp(event.clientX - host.left, 0, host.width)
+                              const offsetMm = (x - railInsetLocal) / mmToPxLocal - rackTpl.widthMm / 2
+                              const maxOffset = Math.max(0, RACK_MOUNT_WIDTH_MM - rackTpl.widthMm)
+                              patch.shelfOffsetX = clamp(offsetMm, 0, maxOffset)
+                            }
+                            updatePlacement(placement.id, patch)
                           }}
                           onPointerUp={(event) => {
                             event.currentTarget.releasePointerCapture?.(event.pointerId)
@@ -1859,6 +1925,72 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       : 'Ohne STL wird das Gerät als Box mit Front-/Rear-Foto dargestellt.'}
                   </span>
                 </div>
+                {/* v7.9.82 / #170 — Shelf-Device-Position-Editor.
+                    Nur sichtbar wenn das Template echte mm-Maße hat
+                    (Shelf-Device). Erlaubt präzises Eingeben der
+                    horizontal- + Tiefen-Position innerhalb des Racks. */}
+                {(() => {
+                  const tpl = templates.find((t) => t.name === selectedPlacement.templateName)
+                  if (!tpl?.widthMm || !tpl?.heightMm) return null
+                  const maxX = Math.max(0, RACK_MOUNT_WIDTH_MM - tpl.widthMm)
+                  const rackDepthRender = draft.depthMm ?? 800
+                  const devDepth = tpl.depthMm ?? 400
+                  const maxZ = Math.max(0, rackDepthRender - devDepth)
+                  return (
+                    <details className="rounded border border-emerald-800 bg-emerald-900/20 p-2" open>
+                      <summary className="cursor-pointer text-[11px] font-semibold text-emerald-200">
+                        🪑 Shelf-Position
+                        <span className="ml-1 text-emerald-400">
+                          ({tpl.widthMm}×{tpl.heightMm}×{tpl.depthMm ?? 400} mm)
+                        </span>
+                      </summary>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        <label className="block text-[10px]">
+                          <span className="mb-0.5 block text-emerald-300/80">
+                            Horizontal (mm vom linken Rail)
+                          </span>
+                          <input
+                            type="number"
+                            min={0}
+                            max={maxX}
+                            step={5}
+                            value={Math.round(selectedPlacement.shelfOffsetX ?? 0)}
+                            onChange={(e) =>
+                              updatePlacement(selectedPlacement.id, {
+                                shelfOffsetX: Math.max(0, Math.min(maxX, Number(e.target.value) || 0)),
+                              })
+                            }
+                            className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
+                          />
+                          <span className="text-[9px] text-slate-500">max {Math.round(maxX)} mm</span>
+                        </label>
+                        <label className="block text-[10px]">
+                          <span className="mb-0.5 block text-emerald-300/80">
+                            Tiefe (mm von vorne)
+                          </span>
+                          <input
+                            type="number"
+                            min={0}
+                            max={maxZ}
+                            step={10}
+                            value={Math.round(selectedPlacement.shelfOffsetZ ?? 0)}
+                            onChange={(e) =>
+                              updatePlacement(selectedPlacement.id, {
+                                shelfOffsetZ: Math.max(0, Math.min(maxZ, Number(e.target.value) || 0)),
+                              })
+                            }
+                            className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
+                          />
+                          <span className="text-[9px] text-slate-500">max {Math.round(maxZ)} mm</span>
+                        </label>
+                      </div>
+                      <div className="mt-1 text-[10px] text-slate-500">
+                        Tipp: Im 2D-Tab kannst du das Gerät auch horizontal per Maus
+                        verschieben. Tiefen-Position nur hier oder im 3D-Tab editierbar.
+                      </div>
+                    </details>
+                  )
+                })()}
                 {/* v7.9.81 / #170 — Port-Side-Editor.
                     Default-Annahme: alle Ports hinten. User kann einzelne
                     Ports auf vorne flippen oder alle in einer Aktion
