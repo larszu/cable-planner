@@ -1283,12 +1283,6 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             const totalPorts = (p.inputs?.length ?? 0) + (p.outputs?.length ?? 0)
                             const hasFreePort = usedSet.size < totalPorts
                             if (renderMode === 'free') return hasFreePort
-                            // 'released': Items mit AUSSCHLIESSLICH zu
-                            // Patchblenden verkabelten Ports gelten als
-                            // released (die Patchblende ist der externe
-                            // Übergang). Vereinfachte Approximation:
-                            // wenn alle Ports intern verbunden sind,
-                            // gelten sie als nicht-released (versteckt).
                             return hasFreePort
                           })
                           .map((p) => ({
@@ -1304,10 +1298,72 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             portCount: (p.inputs?.length ?? 0) + (p.outputs?.length ?? 0),
                             isPatchPanel: p.isPatchPanel,
                             isRackShelf: p.isRackShelf,
+                            // v7.9.77 / #170 — inputs = Front-Ports,
+                            // outputs = Rear-Ports (Builder-Konvention).
+                            frontPorts: (p.inputs ?? []).map((port) => ({
+                              id: port.id,
+                              name: port.name,
+                              connectorType: port.connectorType,
+                              panelPosX: port.panelPosX,
+                              panelPosY: port.panelPosY,
+                            })),
+                            rearPorts: (p.outputs ?? []).map((port) => ({
+                              id: port.id,
+                              name: port.name,
+                              connectorType: port.connectorType,
+                              panelPosX: port.panelPosX,
+                              panelPosY: port.panelPosY,
+                            })),
                           }))
                       })()}
                       selectedPlacementId={selectedPlacementId}
                       onSelectPlacement={(id) => setSelectedPlacementId(id)}
+                      // v7.9.77 / #170 — Port-Dot-Drag persistieren: setzt
+                      // panelPosX/Y am Port (in inputs ODER outputs je
+                      // nach side) im Draft.
+                      onPortMoved={(placementId, portId, side, pos) => {
+                        setDraft((current) => ({
+                          ...current,
+                          placements: current.placements.map((p) => {
+                            if (p.id !== placementId) return p
+                            const key = side === 'front' ? 'inputs' : 'outputs'
+                            return {
+                              ...p,
+                              [key]: p[key].map((port) =>
+                                port.id === portId
+                                  ? { ...port, panelPosX: pos.x, panelPosY: pos.y }
+                                  : port,
+                              ),
+                            }
+                          }),
+                        }))
+                      }}
+                      // v7.9.78 / #170 — Internal cables: portName aus
+                      // dem Cable-Eintrag → portId-Lookup + side-Ableitung
+                      // (im input → Front, im output → Rear).
+                      internalCables={draft.internalCables
+                        .map((c) => {
+                          const fromP = draft.placements.find((x) => x.id === c.fromPlacementId)
+                          const toP = draft.placements.find((x) => x.id === c.toPlacementId)
+                          if (!fromP || !toP) return null
+                          const fromInput = fromP.inputs.find((p) => p.name === c.fromPortName)
+                          const fromOutput = fromP.outputs.find((p) => p.name === c.fromPortName)
+                          const toInput = toP.inputs.find((p) => p.name === c.toPortName)
+                          const toOutput = toP.outputs.find((p) => p.name === c.toPortName)
+                          const fromPort = fromInput ?? fromOutput
+                          const toPort = toInput ?? toOutput
+                          if (!fromPort || !toPort) return null
+                          return {
+                            fromPlacementId: c.fromPlacementId,
+                            fromPortId: fromPort.id,
+                            fromSide: (fromInput ? 'front' : 'rear') as 'front' | 'rear',
+                            toPlacementId: c.toPlacementId,
+                            toPortId: toPort.id,
+                            toSide: (toInput ? 'front' : 'rear') as 'front' | 'rear',
+                            color: c.color,
+                          }
+                        })
+                        .filter((c): c is NonNullable<typeof c> => c !== null)}
                     />
                   </div>
                 ) : (
