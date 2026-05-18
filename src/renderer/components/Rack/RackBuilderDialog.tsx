@@ -1099,6 +1099,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     mountSide: p.mountSide,
                     stlDataUri: p.stlDataUri,
                     frontPanelImageUrl: p.frontPanelImageUrl,
+                    rearPanelImageUrl: p.rearPanelImageUrl,
                   }))}
                   selectedPlacementId={selectedPlacementId}
                   onSelectPlacement={(id) => setSelectedPlacementId(id)}
