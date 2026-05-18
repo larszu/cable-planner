@@ -1,7 +1,7 @@
 {
     "name": "cable-planner",
     "private": true,
-    "version": "7.9.69",
+    "version": "7.9.73",
     "description": "Electron desktop app for planning and visualizing broadcast equipment cabling",
     "author": {
         "name": "Lars Zumpe",
@@ -27,6 +27,8 @@
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
         "@dnd-kit/utilities": "^3.2.2",
+        "@react-three/drei": "^10.7.7",
+        "@react-three/fiber": "^9.6.1",
         "@types/qrcode": "^1.5.5",
         "atem-connection": "^3.9.0",
         "axios": "^1.13.1",
@@ -39,6 +41,8 @@
         "react": "^19.2.5",
         "react-dom": "^19.2.5",
         "reactflow": "^11.11.4",
+        "three": "^0.184.0",
+        "three-stdlib": "^2.36.1",
         "uuid": "^14.0.0",
         "xlsx-js-style": "^1.2.0",
         "yaml": "^2.8.3",

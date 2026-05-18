@@ -356,6 +356,10 @@ export interface ProjectState {
   clear: () => void
   addCustomTemplate: (template: EquipmentTemplate) => void
   addCustomTemplates: (templates: EquipmentTemplate[]) => void
+  /** v7.9.70 / #171 — Rebuild library entries for every Rentman-tagged
+   *  canvas equipment whose template was lost. Returns the count of
+   *  templates that were added/patched. */
+  resyncRentmanLibraryFromCanvas: () => number
   removeCustomTemplate: (name: string) => void
   setCustomTemplateCategory: (name: string, category: string) => void
   renameCustomCategory: (oldCategory: string, newCategory: string) => void
@@ -528,6 +532,103 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
   }
 }
 
+/**
+ * v7.9.70 / #171 — Heal Rentman-Library beim Project-Load.
+ *
+ * Problem: Alte Projekte haben Canvas-Equipment mit `rentmanId` gesetzt,
+ * aber die zugehörigen Library-Templates fehlen — entweder weil sie auf
+ * einer anderen Maschine angelegt wurden, weil der User die Library
+ * gelöscht hat, oder weil das Projekt aus einer Version stammt, in der
+ * der Library-Sync noch nicht aktiv war. Folge: "R"-Badge zeigt auf
+ * Canvas, aber die Sidebar-Liste "Importierte Rentman-Geräte" ist leer.
+ *
+ * Fix:
+ *  1. Für jedes Equipment mit rentmanId scannen wir die customLibrary.
+ *  2. Match per rentmanId zuerst (idempotent, garantiert kein Doppelter).
+ *     - Wenn Template gefunden aber rentmanSource fehlt: ergänzen.
+ *  3. Sonst Match per Name (Equipment-Name = Template-Name).
+ *     - Wenn gefunden: rentmanId + rentmanSource ergänzen.
+ *  4. Sonst: aus dem Equipment-Snapshot ein neues Template synthetisieren
+ *     (Ports, Dimensions, Front/Rear-Panel-URL, Kategorie etc.).
+ *
+ * rentmanSource kommt aus project.metadata.rentmanProjectId (best-guess),
+ * rentmanProjectName aus project.metadata.rentmanProjectName.
+ *
+ * Bestehende Library-Einträge ohne Rentman-Bezug bleiben unangetastet.
+ */
+const healRentmanLibraryFromProject = (
+  project: CablePlannerProject,
+  customLibrary: EquipmentTemplate[],
+): EquipmentTemplate[] => {
+  const projectRentmanId = project.metadata.rentmanProjectId
+  const projectRentmanName = project.metadata.rentmanProjectName
+  const rentmanEquipment = project.equipment.filter(
+    (e) => e.rentmanId && !e.rentmanRemoved,
+  )
+  if (rentmanEquipment.length === 0) return customLibrary
+
+  // Indexes für schnelles Lookup.
+  const libraryByRentmanId = new Map<string, EquipmentTemplate>()
+  const libraryByName = new Map<string, EquipmentTemplate>()
+  for (const t of customLibrary) {
+    if (t.rentmanId) libraryByRentmanId.set(t.rentmanId, t)
+    libraryByName.set(t.name, t)
+  }
+
+  const updates = new Map<string, EquipmentTemplate>() // key = template name
+  for (const eq of rentmanEquipment) {
+    const rid = eq.rentmanId!
+    const existing = libraryByRentmanId.get(rid) ?? libraryByName.get(eq.name)
+    if (existing) {
+      const needsHeal =
+        !existing.rentmanId ||
+        (projectRentmanId && existing.rentmanSource !== projectRentmanId) ||
+        (projectRentmanName && existing.rentmanProjectName !== projectRentmanName)
+      if (needsHeal) {
+        updates.set(existing.name, {
+          ...existing,
+          rentmanId: existing.rentmanId || rid,
+          rentmanSource: existing.rentmanSource || projectRentmanId,
+          rentmanProjectName: existing.rentmanProjectName || projectRentmanName,
+        })
+      }
+    } else {
+      // Vollständig synthetisieren aus dem Equipment-Snapshot.
+      const synthesized: EquipmentTemplate = {
+        name: eq.name,
+        category: eq.category || 'Sonstiges',
+        inputs: eq.inputs,
+        outputs: eq.outputs,
+        width: eq.width,
+        height: eq.height,
+        isRackDevice: eq.isRackDevice,
+        rackUnits: eq.rackUnits,
+        frontPanelImageUrl: eq.frontPanelImageUrl,
+        rearPanelImageUrl: eq.rearPanelImageUrl,
+        frontPanelCrop: eq.frontPanelCrop,
+        rearPanelCrop: eq.rearPanelCrop,
+        netboxPath: eq.netboxPath,
+        notes: eq.notes,
+        rentmanId: rid,
+        rentmanSource: projectRentmanId,
+        rentmanProjectName: projectRentmanName,
+      }
+      updates.set(synthesized.name, synthesized)
+    }
+  }
+
+  if (updates.size === 0) return customLibrary
+  // Existing entries first (untouched), then overrides — Map.set in array
+  // form: existing → patched. Items not in updates bleiben unverändert.
+  return customLibrary
+    .map((t) => updates.get(t.name) ?? t)
+    .concat(
+      Array.from(updates.values()).filter(
+        (u) => !customLibrary.some((t) => t.name === u.name),
+      ),
+    )
+}
+
 const shouldSyncRentmanTemplateCache = (patch: Partial<EquipmentItem>): boolean => {
   const keys = Object.keys(patch) as Array<keyof EquipmentItem>
   // Ignore pure position updates to avoid excessive localStorage writes while dragging.
@@ -582,15 +683,26 @@ const buildProjectStore = (
   setRecentProjects: (items) => set({ recentProjects: items }),
   setFilePath: (path) => set({ filePath: path }),
   loadProject: (project, filePath) =>
-    set((state) => ({
-      project: healProjectPositions(project),
-      filePath,
-      projectVersion: state.projectVersion + 1,
-      selectedEquipmentId: undefined,
-      selectedCableId: undefined,
-      pendingConnection: undefined,
-      showCableDialog: false,
-    })),
+    set((state) => {
+      // v7.9.70 / #171 — Rentman-Sync-Heal beim Project-Load.
+      // Wenn das Projekt Equipment mit rentmanId enthält, aber die zugehörigen
+      // EquipmentTemplates fehlen in customLibrary (oder haben keinen
+      // rentmanSource gesetzt), bauen wir sie automatisch nach. Damit
+      // tauchen alte Rentman-Imports nach dem Re-Open wieder in der
+      // "Importierte Rentman-Geräte"-Liste auf, ohne dass der User alles
+      // neu anlegen muss.
+      const healedLibrary = healRentmanLibraryFromProject(project, state.customLibrary)
+      return {
+        project: healProjectPositions(project),
+        filePath,
+        projectVersion: state.projectVersion + 1,
+        selectedEquipmentId: undefined,
+        selectedCableId: undefined,
+        pendingConnection: undefined,
+        showCableDialog: false,
+        customLibrary: healedLibrary,
+      }
+    }),
   setProjectMeta: (name, description) =>
     set((state) => ({
       project: touchProject({
@@ -1377,6 +1489,28 @@ const buildProjectStore = (
       })
       return { customLibrary: next }
     }),
+  resyncRentmanLibraryFromCanvas: () => {
+    let addedOrPatched = 0
+    set((state) => {
+      const healed = healRentmanLibraryFromProject(state.project, state.customLibrary)
+      // Count anything that changed (new entries OR existing entries that
+      // got their rentmanSource/rentmanId patched).
+      if (healed === state.customLibrary) return {}
+      const byName = new Map(state.customLibrary.map((t) => [t.name, t]))
+      for (const t of healed) {
+        const prev = byName.get(t.name)
+        if (!prev || prev !== t) addedOrPatched++
+      }
+      persistCustomLibrary(healed)
+      // rentmanTemplateCache parallel updaten, sonst sieht die nächste
+      // Re-Import-Diff den geheilten Eintrag nicht.
+      for (const t of healed) {
+        if (t.rentmanId) upsertCachedRentmanTemplate(t)
+      }
+      return { customLibrary: healed }
+    })
+    return addedOrPatched
+  },
   removeCustomTemplate: (name) =>
     set((state) => {
       const next = state.customLibrary.filter((t) => t.name !== name)
