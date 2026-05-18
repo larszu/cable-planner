@@ -2131,6 +2131,28 @@ export const EquipmentProperties = () => {
                 Reargrafik importieren + zuschneiden
               </button>
             </div>
+            {/* v7.9.76 / #170 — Swap-Button: tauscht Front/Rear-Foto-
+                Zuordnung am Gerät. Hilft wenn man versehentlich das
+                falsche Foto als Front hochgeladen hat. Tauscht auch
+                die Crop-Meta-Daten mit, damit der Zuschnitt erhalten
+                bleibt. */}
+            {(equipment.frontPanelImageUrl || equipment.rearPanelImageUrl) && (
+              <button
+                type="button"
+                onClick={() =>
+                  updateEquipment(equipment.id, {
+                    frontPanelImageUrl: equipment.rearPanelImageUrl,
+                    rearPanelImageUrl: equipment.frontPanelImageUrl,
+                    frontPanelCrop: equipment.rearPanelCrop,
+                    rearPanelCrop: equipment.frontPanelCrop,
+                  })
+                }
+                className="mt-2 w-full rounded border border-slate-600 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-700"
+                title="Front- und Rear-Foto vertauschen (samt Crop-Meta)"
+              >
+                ↔ Front-/Rear-Foto vertauschen
+              </button>
+            )}
 
             {equipment.netboxPath && (
               <div className="mt-2 text-[10px] text-slate-500">
