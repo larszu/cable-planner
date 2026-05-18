@@ -112,21 +112,32 @@ const sanitizePorts = <T extends { id: string }>(ports: T[]): T[] => {
 const buildScratchEquipment = (
   placements: RackPlacementForCanvas[],
 ): EquipmentItem[] =>
-  placements.map((p) => ({
-    id: p.id,
-    name: p.name,
-    category: p.category,
-    inputs: sanitizePorts(p.inputs),
-    outputs: sanitizePorts(p.outputs),
-    // v7.9.14 — User-gespeicherte Position bevorzugt, sonst Default
-    // aus startUnit (vertikaler Stack im Rack-internen Canvas).
-    x: p.canvasX ?? X_OFFSET,
-    y: p.canvasY ?? Y_OFFSET + (p.startUnit - 1) * HE_TO_PX,
-    width: NODE_WIDTH,
-    height: 0,
-    isRackDevice: p.isRackDevice,
-    rackUnits: p.rackUnits,
-  }))
+  placements.map((p) => {
+    // v7.9.84 / #206 — Sinnvolle Default-Höhe statt 0. Vorher konnte
+    // hasOverlap mit eq.height=0 vor dem ersten ReactFlow-Measure
+    // false-positive "Ghost-Blocking" liefern (Bug 2 in #206). Wir
+    // schätzen die Höhe aus header + max(inputs, outputs) Port-Rows;
+    // beim ersten Measure überschreibt onNodesChange den Wert exakt.
+    const HEADER = 48
+    const ROW = 22
+    const PADDING = 8
+    const portRows = Math.max(p.inputs.length, p.outputs.length, 1)
+    return {
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      inputs: sanitizePorts(p.inputs),
+      outputs: sanitizePorts(p.outputs),
+      // v7.9.14 — User-gespeicherte Position bevorzugt, sonst Default
+      // aus startUnit (vertikaler Stack im Rack-internen Canvas).
+      x: p.canvasX ?? X_OFFSET,
+      y: p.canvasY ?? Y_OFFSET + (p.startUnit - 1) * HE_TO_PX,
+      width: NODE_WIDTH,
+      height: HEADER + portRows * ROW + PADDING,
+      isRackDevice: p.isRackDevice,
+      rackUnits: p.rackUnits,
+    }
+  })
 
 /** Map GroupPreset.cables → Cable[]. Port-Refs werden von Index+Name
  *  auf id+portId aufgelöst. */
