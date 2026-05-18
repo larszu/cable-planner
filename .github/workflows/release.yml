@@ -54,6 +54,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Sync package.json version to tag
+        # Tag und package.json.version driften sonst auseinander, weil
+        # Tags von der Auto-Merge-Automation gesetzt werden während
+        # package.json.version manuell in PRs läuft. electron-builder
+        # liest package.json.version → Filename "Cable.Planner-X.Y.Z.exe"
+        # MUSS dem Tag entsprechen. `npm version --no-git-tag-version`
+        # rewriting package.json + package-lock.json ohne Commit/Tag.
+        # workflow_dispatch (kein Tag-Push) wird übersprungen.
+        shell: bash
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          set -eu
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "Tag-Version: $TAG_VERSION"
+          npm version "$TAG_VERSION" --no-git-tag-version --allow-same-version
+          node -e "console.log('package.json after sync:', require('./package.json').version)"
+
       - name: Build renderer + main
         run: npm run build
 
