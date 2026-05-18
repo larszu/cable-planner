@@ -148,13 +148,10 @@ interface PersistedUiState {
     light: EquipmentColorTokens
     dark: EquipmentColorTokens
   }
-  setEquipmentColors: (theme: 'light' | 'dark', patch: Partial<EquipmentColorTokens>) => void
-  resetEquipmentColors: (theme?: 'light' | 'dark') => void
   /** v7.9.63 / #172 — Default-Farbe für neu hinzugefügte Geräte.
    *  undefined = kein Override (Theme-Default wird benutzt). User
    *  setzt das in Settings → Erscheinungsbild. */
   defaultDeviceColor: string | undefined
-  setDefaultDeviceColor: (color: string | undefined) => void
   /** Issue #71: canvas background pattern variant. 'dots' draws the
    *  ReactFlow dot grid (default), 'lines' draws orthogonal lines,
    *  'cross' draws a + at each grid intersection, 'none' disables. */
@@ -526,6 +523,9 @@ interface UiState extends PersistedUiState {
   setAnnotationAuthor: (name: string) => void
   setConnectorTypeColor: (connectorType: string, color: string | null) => void
   resetConnectorTypeColors: () => void
+  setEquipmentColors: (theme: 'light' | 'dark', patch: Partial<EquipmentColorTokens>) => void
+  resetEquipmentColors: (theme?: 'light' | 'dark') => void
+  setDefaultDeviceColor: (color: string | undefined) => void
   setBgVariant: (value: 'dots' | 'lines' | 'cross' | 'none') => void
   setBgOpacity: (value: number) => void
   /** Add a new custom cable spec. The store assigns a `custom-cable:`

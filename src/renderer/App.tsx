@@ -883,6 +883,26 @@ export default function App() {
           onCreate={createCableWithPlanCheck}
         />
       )}
+      {pdfProgress.active && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-[420px] max-w-[90vw] rounded-lg border border-slate-700 bg-slate-900 p-5 text-slate-100 shadow-2xl">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="h-3 w-3 animate-pulse rounded-full bg-sky-400" />
+              <h2 className="text-sm font-semibold">PDF wird erstellt…</h2>
+            </div>
+            <div className="mb-3 h-1.5 w-full overflow-hidden rounded bg-slate-800">
+              <div className="h-full w-full origin-left animate-pulse bg-sky-500" />
+            </div>
+            <div className="text-xs text-slate-300">{pdfProgress.phase}</div>
+            {pdfProgress.detail && (
+              <div className="mt-1 text-[11px] text-slate-500">{pdfProgress.detail}</div>
+            )}
+            <div className="mt-3 text-[10px] text-slate-600">
+              Bei großen Plänen können einige Sekunden vergehen. Bitte nicht abbrechen.
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -1823,26 +1843,6 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
           </button>
         </div>
       </div>
-      {pdfProgress.active && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-[420px] max-w-[90vw] rounded-lg border border-slate-700 bg-slate-900 p-5 text-slate-100 shadow-2xl">
-            <div className="mb-3 flex items-center gap-3">
-              <div className="h-3 w-3 animate-pulse rounded-full bg-sky-400" />
-              <h2 className="text-sm font-semibold">PDF wird erstellt…</h2>
-            </div>
-            <div className="mb-3 h-1.5 w-full overflow-hidden rounded bg-slate-800">
-              <div className="h-full w-full origin-left animate-pulse bg-sky-500" />
-            </div>
-            <div className="text-xs text-slate-300">{pdfProgress.phase}</div>
-            {pdfProgress.detail && (
-              <div className="mt-1 text-[11px] text-slate-500">{pdfProgress.detail}</div>
-            )}
-            <div className="mt-3 text-[10px] text-slate-600">
-              Bei großen Plänen können einige Sekunden vergehen. Bitte nicht abbrechen.
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
