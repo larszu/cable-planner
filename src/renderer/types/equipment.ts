@@ -101,6 +101,16 @@ export interface Port {
    */
   panelPosX?: number
   panelPosY?: number
+  /**
+   * v7.9.81 / #170 — Auf welcher Rack-Face (Front/Rear) der Port
+   * physisch sitzt. Unabhängig davon ob Input/Output (das ist die
+   * Signal-Richtung). Default-Annahme bei fehlendem Wert: 'rear' —
+   * weil bei den meisten Rack-Geräten ALLE Anschlüsse hinten sind
+   * (Patchblenden + 2-seitige Geräte sind die Ausnahme).
+   * User kann Ports einzeln oder in Bulk auf die andere Seite flippen
+   * (Rack-Builder Placement-Properties).
+   */
+  rackSide?: 'front' | 'rear'
 }
 
 /** v7.5.0 — a named operating mode for a device whose port layout

@@ -103,6 +103,32 @@ body,
 [data-theme="light"] .bg-slate-700      { background-color: #cbd5e1; }
 [data-theme="light"] .bg-slate-600      { background-color: #b8c4d0; }
 
+/* v7.9.81 — Opacity-modified slate-Backgrounds (z.B. bg-slate-900/98,
+ * bg-slate-950/50, bg-black/60) wurden vom obigen Mapping NICHT erfasst,
+ * weil Tailwind sie als eigene Klassen mit rgb()-Werten generiert. Hier
+ * explizit für die häufigsten Opacity-Varianten überschreiben damit die
+ * Context-Menüs, Modal-Overlays und Sub-Karten im Light-Mode nicht
+ * dunkel bleiben. */
+[data-theme="light"] .bg-slate-950\/30   { background-color: rgba(240,244,248,0.7); }
+[data-theme="light"] .bg-slate-950\/40   { background-color: rgba(240,244,248,0.7); }
+[data-theme="light"] .bg-slate-950\/50   { background-color: rgba(240,244,248,0.75); }
+[data-theme="light"] .bg-slate-950\/60   { background-color: rgba(240,244,248,0.8); }
+[data-theme="light"] .bg-slate-950\/70   { background-color: rgba(240,244,248,0.85); }
+[data-theme="light"] .bg-slate-900\/40   { background-color: rgba(234,239,245,0.7); }
+[data-theme="light"] .bg-slate-900\/50   { background-color: rgba(234,239,245,0.75); }
+[data-theme="light"] .bg-slate-900\/60   { background-color: rgba(234,239,245,0.8); }
+[data-theme="light"] .bg-slate-900\/70   { background-color: rgba(234,239,245,0.85); }
+[data-theme="light"] .bg-slate-900\/98   { background-color: rgba(234,239,245,0.98); }
+[data-theme="light"] .bg-slate-800\/40   { background-color: rgba(221,228,238,0.7); }
+[data-theme="light"] .bg-slate-800\/50   { background-color: rgba(221,228,238,0.75); }
+[data-theme="light"] .bg-slate-800\/60   { background-color: rgba(221,228,238,0.8); }
+/* Modal-Backdrop: im Light-Mode statt schwarz ein helles Grau mit
+ * Transparenz, damit Modals "weiches Glas" auf hellem Hintergrund sind. */
+[data-theme="light"] .bg-black\/40       { background-color: rgba(15,23,42,0.15); }
+[data-theme="light"] .bg-black\/50       { background-color: rgba(15,23,42,0.20); }
+[data-theme="light"] .bg-black\/60       { background-color: rgba(15,23,42,0.25); }
+[data-theme="light"] .bg-black\/70       { background-color: rgba(15,23,42,0.30); }
+
 [data-theme="light"] .border-slate-50   { border-color: #e2e8f0; }
 [data-theme="light"] .border-slate-100  { border-color: #cbd5e1; }
 [data-theme="light"] .border-slate-200  { border-color: #cbd5e1; }

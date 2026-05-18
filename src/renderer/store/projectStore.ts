@@ -1145,6 +1145,12 @@ const buildProjectStore = (
         width: partial?.width ?? 360,
         height: partial?.height ?? 240,
         color: partial?.color ?? '#38bdf8',
+        // v7.9.81 / #194 — Default ist jetzt 'Inhalt mitbewegen' = true.
+        // Erwartung: wenn ich eine Location verschiebe, geht der Inhalt
+        // mit (Equipment, Cable-Waypoints). User kann das pro Location
+        // in den Properties wieder ausschalten falls gewünscht. Resize
+        // ist davon unberührt — der zieht nur den Rahmen.
+        moveContents: partial?.moveContents ?? true,
       }
       return {
         project: touchProject({
@@ -1183,6 +1189,8 @@ const buildProjectStore = (
         color: partial?.color ?? '#38bdf8',
         ...(partial?.width ? { width: partial.width } : {}),
         ...(partial?.height ? { height: partial.height } : {}),
+        // v7.9.81 / #194 — Default Move-Contents = true (siehe addLocation).
+        moveContents: partial?.moveContents ?? true,
       }
       return {
         project: touchProject({

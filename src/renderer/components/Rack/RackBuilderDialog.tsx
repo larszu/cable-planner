@@ -1262,22 +1262,41 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             portCount: (p.inputs?.length ?? 0) + (p.outputs?.length ?? 0),
                             isPatchPanel: p.isPatchPanel,
                             isRackShelf: p.isRackShelf,
-                            // v7.9.77 / #170 — inputs = Front-Ports,
-                            // outputs = Rear-Ports (Builder-Konvention).
-                            frontPorts: (p.inputs ?? []).map((port) => ({
-                              id: port.id,
-                              name: port.name,
-                              connectorType: port.connectorType,
-                              panelPosX: port.panelPosX,
-                              panelPosY: port.panelPosY,
-                            })),
-                            rearPorts: (p.outputs ?? []).map((port) => ({
-                              id: port.id,
-                              name: port.name,
-                              connectorType: port.connectorType,
-                              panelPosX: port.panelPosX,
-                              panelPosY: port.panelPosY,
-                            })),
+                            // v7.9.81 / #170 — Port-Side aus port.rackSide
+                            // (Default 'rear' wenn nicht gesetzt). Inputs UND
+                            // Outputs werden in einen Topf geworfen und nach
+                            // rackSide aufgesplittet. Patchblenden sind die
+                            // Ausnahme: dort wandert input → front, output →
+                            // rear (klassisches Crossfield-Layout).
+                            frontPorts: [...(p.inputs ?? []), ...(p.outputs ?? [])]
+                              .filter((port) => {
+                                if (p.isPatchPanel) {
+                                  // Patchblende: inputs = front, outputs = rear
+                                  return (p.inputs ?? []).some((i) => i.id === port.id)
+                                }
+                                return (port.rackSide ?? 'rear') === 'front'
+                              })
+                              .map((port) => ({
+                                id: port.id,
+                                name: port.name,
+                                connectorType: port.connectorType,
+                                panelPosX: port.panelPosX,
+                                panelPosY: port.panelPosY,
+                              })),
+                            rearPorts: [...(p.inputs ?? []), ...(p.outputs ?? [])]
+                              .filter((port) => {
+                                if (p.isPatchPanel) {
+                                  return (p.outputs ?? []).some((o) => o.id === port.id)
+                                }
+                                return (port.rackSide ?? 'rear') === 'rear'
+                              })
+                              .map((port) => ({
+                                id: port.id,
+                                name: port.name,
+                                connectorType: port.connectorType,
+                                panelPosX: port.panelPosX,
+                                panelPosY: port.panelPosY,
+                              })),
                           }
                           })
                       })()}
@@ -1532,7 +1551,18 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                               (panelPosX/Y). Default-Verteilung wenn kein
                               Override gesetzt. */}
                           <PortDots2D
-                            ports={side === 'front' ? item.inputs : item.outputs}
+                            // v7.9.81 / #170 — Filter nach port.rackSide
+                            // (Default 'rear'). Patchblende = Sonderfall:
+                            // inputs auf front, outputs auf rear.
+                            ports={[...item.inputs, ...item.outputs].filter((port) => {
+                              if (item.isPatchPanel) {
+                                const isInput = item.inputs.some((i) => i.id === port.id)
+                                return side === 'front' ? isInput : !isInput
+                              }
+                              return (port.rackSide ?? 'rear') === side
+                            })}
+                            allInputs={item.inputs}
+                            allOutputs={item.outputs}
                             placementId={item.id}
                             placementWidth={rowHeight * RACK_PANEL_ASPECT_PER_1HE}
                             placementHeight={height}
@@ -1829,9 +1859,121 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       : 'Ohne STL wird das Gerät als Box mit Front-/Rear-Foto dargestellt.'}
                   </span>
                 </div>
-                <div className="rounded border border-slate-800 bg-slate-900/40 p-2 text-[11px] text-slate-400">
-                  Ports sichtbar: {selectedPlacement.inputs.length} Inputs / {selectedPlacement.outputs.length} Outputs
-                </div>
+                {/* v7.9.81 / #170 — Port-Side-Editor.
+                    Default-Annahme: alle Ports hinten. User kann einzelne
+                    Ports auf vorne flippen oder alle in einer Aktion
+                    spiegeln. */}
+                <details className="rounded border border-slate-800 bg-slate-900/40 p-2" open>
+                  <summary className="cursor-pointer text-[11px] font-semibold text-slate-300">
+                    Port-Seite (Front/Rear)
+                    <span className="ml-1 text-slate-500">
+                      ({selectedPlacement.inputs.length} Inputs / {selectedPlacement.outputs.length} Outputs)
+                    </span>
+                  </summary>
+                  {/* Bulk-Buttons */}
+                  <div className="mt-2 grid grid-cols-3 gap-1 text-[10px]">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updatePlacement(selectedPlacement.id, {
+                          inputs: selectedPlacement.inputs.map((p) => ({ ...p, rackSide: 'rear' as const })),
+                          outputs: selectedPlacement.outputs.map((p) => ({ ...p, rackSide: 'rear' as const })),
+                        })
+                      }}
+                      className="rounded bg-purple-900/40 px-2 py-1 text-purple-200 hover:bg-purple-900/60"
+                      title="Alle Ports nach hinten (Default für klassische Server-Geräte)"
+                    >
+                      ⏬ alle nach hinten
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updatePlacement(selectedPlacement.id, {
+                          inputs: selectedPlacement.inputs.map((p) => ({
+                            ...p,
+                            rackSide: (p.rackSide ?? 'rear') === 'front' ? ('rear' as const) : ('front' as const),
+                          })),
+                          outputs: selectedPlacement.outputs.map((p) => ({
+                            ...p,
+                            rackSide: (p.rackSide ?? 'rear') === 'front' ? ('rear' as const) : ('front' as const),
+                          })),
+                        })
+                      }}
+                      className="rounded bg-slate-700 px-2 py-1 text-slate-100 hover:bg-slate-600"
+                      title="Front-Ports werden zu Rear-Ports und umgekehrt"
+                    >
+                      ↔ spiegeln
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updatePlacement(selectedPlacement.id, {
+                          inputs: selectedPlacement.inputs.map((p) => ({ ...p, rackSide: 'front' as const })),
+                          outputs: selectedPlacement.outputs.map((p) => ({ ...p, rackSide: 'front' as const })),
+                        })
+                      }}
+                      className="rounded bg-green-900/40 px-2 py-1 text-green-200 hover:bg-green-900/60"
+                      title="Alle Ports nach vorne (z.B. Frontpanel-Geräte)"
+                    >
+                      ⏫ alle nach vorne
+                    </button>
+                  </div>
+                  {/* Per-Port-Toggle-Liste */}
+                  <div className="mt-2 max-h-48 overflow-y-auto rounded border border-slate-800">
+                    {[
+                      ...selectedPlacement.inputs.map((p) => ({ port: p, dir: 'in' as const })),
+                      ...selectedPlacement.outputs.map((p) => ({ port: p, dir: 'out' as const })),
+                    ].map(({ port, dir }) => {
+                      const side: 'front' | 'rear' = port.rackSide ?? 'rear'
+                      return (
+                        <div
+                          key={port.id}
+                          className="flex items-center justify-between gap-2 border-t border-slate-800/60 px-2 py-0.5 text-[10px] first:border-t-0"
+                        >
+                          <span className="flex min-w-0 items-center gap-1">
+                            <span
+                              className={`shrink-0 rounded px-1 text-[8px] font-bold uppercase ${
+                                dir === 'in' ? 'bg-cyan-900/60 text-cyan-200' : 'bg-emerald-900/60 text-emerald-200'
+                              }`}
+                              title={dir === 'in' ? 'Input (Signal-Eingang)' : 'Output (Signal-Ausgang)'}
+                            >
+                              {dir}
+                            </span>
+                            <span className="truncate text-slate-300">{port.name}</span>
+                            <span className="shrink-0 text-slate-500">· {port.connectorType}</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newSide: 'front' | 'rear' = side === 'front' ? 'rear' : 'front'
+                              if (dir === 'in') {
+                                updatePlacement(selectedPlacement.id, {
+                                  inputs: selectedPlacement.inputs.map((p) =>
+                                    p.id === port.id ? { ...p, rackSide: newSide } : p,
+                                  ),
+                                })
+                              } else {
+                                updatePlacement(selectedPlacement.id, {
+                                  outputs: selectedPlacement.outputs.map((p) =>
+                                    p.id === port.id ? { ...p, rackSide: newSide } : p,
+                                  ),
+                                })
+                              }
+                            }}
+                            className={`shrink-0 rounded border px-1.5 py-0.5 font-semibold transition ${
+                              side === 'front'
+                                ? 'border-green-700 bg-green-900/40 text-green-200 hover:bg-green-900/60'
+                                : 'border-purple-700 bg-purple-900/40 text-purple-200 hover:bg-purple-900/60'
+                            }`}
+                            title={`Port-Seite umschalten (aktuell: ${side === 'front' ? 'vorne' : 'hinten'})`}
+                          >
+                            {side === 'front' ? '⏫ vorne' : '⏬ hinten'}
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </details>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="text-[11px] font-semibold text-slate-400">Panel-Bilder (Import + Zuschneiden)</div>
