@@ -1329,7 +1329,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         zoomOnPinch={!interactionLocked}
         zoomOnDoubleClick={!interactionLocked}
         selectNodesOnDrag={false}
-        multiSelectionKeyCode={['Control', 'Meta']}
+        // v7.9.63 / #179 — Shift sowohl für Rubber-Band-Selection
+        // (drag-frame) als auch für additives Click-Select. Vorher
+        // war Click-Select auf Ctrl/Meta gelegt, was zu ständigem
+        // Modifier-Wechsel zwischen "Frame ziehen" und "weiteres Item
+        // dazu wählen" zwang. Ctrl/Meta bleibt als Fallback erhalten
+        // damit alte Muscle-Memory auch noch funktioniert.
+        multiSelectionKeyCode={['Shift', 'Control', 'Meta']}
         // Hold Shift and drag on empty canvas to draw a marquee selection
         // box (issue #66). Plain drag still pans the viewport, so the
         // user's normal pan workflow is untouched.

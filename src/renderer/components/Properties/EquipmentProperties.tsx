@@ -472,36 +472,43 @@ const PortList = ({ title, ports, onChange }: PortListProps) => {
                   SDI-Fähigkeiten (port-spezifisch)
                 </div>
                 <div className="grid grid-cols-2 gap-1 text-[10px]">
-                  <label className="flex items-center gap-1 text-slate-300">
-                    <input
-                      type="checkbox"
-                      checked={!!port.sdiCaps?.levelA}
-                      onChange={(e) =>
-                        updatePort(port.id, {
-                          sdiCaps: {
-                            ...(port.sdiCaps ?? {}),
-                            levelA: e.target.checked || undefined,
-                          },
-                        })
-                      }
-                    />
-                    3G Level A
-                  </label>
-                  <label className="flex items-center gap-1 text-slate-300">
-                    <input
-                      type="checkbox"
-                      checked={!!port.sdiCaps?.levelB}
-                      onChange={(e) =>
-                        updatePort(port.id, {
-                          sdiCaps: {
-                            ...(port.sdiCaps ?? {}),
-                            levelB: e.target.checked || undefined,
-                          },
-                        })
-                      }
-                    />
-                    3G Level B
-                  </label>
+                  {/* v7.9.63 / #176 — 3G Level A/B nur anzeigen wenn das
+                      Port-Max tatsächlich SDI-3G ist. Für 6G/12G/HD sind die
+                      Level-Optionen bedeutungslos und nur visueller Lärm. */}
+                  {port.sdiCaps?.maxSingleLink === 'SDI-3G' && (
+                    <>
+                      <label className="flex items-center gap-1 text-slate-300">
+                        <input
+                          type="checkbox"
+                          checked={!!port.sdiCaps?.levelA}
+                          onChange={(e) =>
+                            updatePort(port.id, {
+                              sdiCaps: {
+                                ...(port.sdiCaps ?? {}),
+                                levelA: e.target.checked || undefined,
+                              },
+                            })
+                          }
+                        />
+                        3G Level A
+                      </label>
+                      <label className="flex items-center gap-1 text-slate-300">
+                        <input
+                          type="checkbox"
+                          checked={!!port.sdiCaps?.levelB}
+                          onChange={(e) =>
+                            updatePort(port.id, {
+                              sdiCaps: {
+                                ...(port.sdiCaps ?? {}),
+                                levelB: e.target.checked || undefined,
+                              },
+                            })
+                          }
+                        />
+                        3G Level B
+                      </label>
+                    </>
+                  )}
                   <label className="col-span-2 block">
                     <span className="text-slate-400">Max Single-Link</span>
                     <select
