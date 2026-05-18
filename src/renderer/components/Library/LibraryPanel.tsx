@@ -573,6 +573,7 @@ export const LibraryPanel = () => {
   const customLibrary = useProjectStore((state) => state.customLibrary)
   const addCustomTemplate = useProjectStore((state) => state.addCustomTemplate)
   const removeCustomTemplate = useProjectStore((state) => state.removeCustomTemplate)
+  const resyncRentmanLibraryFromCanvas = useProjectStore((state) => state.resyncRentmanLibraryFromCanvas)
   const toggleTemplateFavorite = useProjectStore((state) => state.toggleTemplateFavorite)
   const collapsed = useUiStore((state) => state.libraryCollapsed)
   // v7.9.4 — Rentman-Tabs ausblenden wenn die Integration deaktiviert ist.
@@ -1750,6 +1751,36 @@ export const LibraryPanel = () => {
                     <span className="rounded bg-red-950/50 px-1.5 py-0.5 text-red-200">{removed.length} entfernt</span>
                   )}
                 </div>
+                {(() => {
+                  // v7.9.70 / #171 — Re-Sync Button: zeige nur wenn Canvas
+                  // Equipment mit rentmanId hat, die im aktuellen Library-Set
+                  // keinen passenden Template-Eintrag finden (durch Vergleich
+                  // gegen die bereits berechneten linkedImportedCount + ohne-
+                  // Rentman-ID Buckets). Wenn alle synct: Hint ausblenden.
+                  const rentmanTaggedOnCanvas = equipmentItems.filter(
+                    (e) => e.rentmanId && !e.rentmanRemoved,
+                  ).length
+                  const missing = Math.max(0, rentmanTaggedOnCanvas - linkedImportedCount)
+                  if (missing === 0) return null
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const n = resyncRentmanLibraryFromCanvas()
+                        if (n > 0) {
+                          void confirmDialog(
+                            `${n} Library-Eintrag${n === 1 ? '' : 'e'} aus Canvas wiederhergestellt.`,
+                            { okLabel: 'OK' },
+                          )
+                        }
+                      }}
+                      className="mt-2 w-full rounded bg-orange-700/60 px-2 py-1 text-[11px] text-orange-100 hover:bg-orange-700"
+                      title={`${missing} Rentman-Geräte auf dem Canvas sind nicht mit Library-Templates verknüpft. Klick rekonstruiert die fehlenden Templates aus den Canvas-Daten.`}
+                    >
+                      🔄 {missing} fehlende Library-Einträge nachbauen
+                    </button>
+                  )
+                })()}
               </div>
             ) : (
               <div className="rounded border border-slate-700 bg-slate-900/50 p-2 text-xs text-slate-400">
