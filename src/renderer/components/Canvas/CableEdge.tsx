@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import {
   BaseEdge,
   EdgeLabelRenderer,
@@ -394,6 +394,31 @@ export const CableEdge = ({
   const orthogonalWaypoints = cable
     ? resolveOrthogonalWaypoints(cable, routingArgs, obstacles, obstacleIds)
     : []
+  // v7.9.84 / #206 — Persist auto-computed Waypoints einmalig nach dem
+  // ersten erfolgreichen Compute. Vorher hat resolveOrthogonalWaypoints
+  // bei JEDEM Render mit dem CURRENT-obstacle-Set neu berechnet — d.h.
+  // wenn ein UNBETEILIGTES Gerät verschoben wurde und sich dadurch eine
+  // andere Variante als "freier Pfad" qualifiziert hat, ist das Kabel
+  // sichtbar umgesprungen ("Kabelsprünge ohne Hindernisse"). Mit dem
+  // Persist wandert das auto-Routing nach EINMAL aktiv in die manuellen
+  // Waypoints — danach bleibt der Pfad stabil bis der User explizit
+  // "automatisch neu routen" wählt.
+  const updateCable = useProjectStore((s) => s.updateCable)
+  const persistTriedRef = useRef(false)
+  useEffect(() => {
+    if (!cable) return
+    if (cable.waypoints && cable.waypoints.length > 0) {
+      // Bereits manuell verkabelt → nichts tun. Auch wenn der User später
+      // alle waypoints löscht, soll nicht re-persisted werden (sonst kann
+      // er nie zurück zur live-Berechnung wechseln).
+      persistTriedRef.current = true
+      return
+    }
+    if (persistTriedRef.current) return
+    if (orthogonalWaypoints.length === 0) return
+    persistTriedRef.current = true
+    updateCable(cable.id, { waypoints: orthogonalWaypoints })
+  }, [cable, orthogonalWaypoints, updateCable])
   const [path, centerX, centerY] = cable
     ? buildPath(cable, routingArgs, obstacles, obstacleIds, collisionShiftOn, orthogonalWaypoints)
     : getSmoothStepPath(routingArgs)

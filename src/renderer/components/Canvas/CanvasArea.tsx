@@ -849,6 +849,25 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           if (!loc || loc.width !== newW || loc.height !== newH) {
             updateLocation(change.id, { width: newW, height: newH })
           }
+        } else {
+          // v7.9.84 / #206 — Equipment-Dimensionen ebenfalls persistieren.
+          // Vorher wurden nur Location-Dimensions ins Store geschrieben;
+          // Equipment-eq.height blieb auf dem initialen Wert (oft 0 für
+          // den RackInternalCanvas der mit `height: 0` initialisiert).
+          // Folge: hasOverlap-Tests konnten falsche Ergebnisse liefern
+          // wenn rfNode-Measure noch nicht stable war → "Ghost-Blocking
+          // obwohl Stelle leer" (Bug 2 in Issue #206). Mit gespeicherten
+          // measured Dimensions ist die fallback-Kette
+          // rfNode?.width ?? eq.width ?? 0 immer stabil.
+          const eq = project.equipment.find((e) => e.id === change.id)
+          const newW = Math.max(40, Math.round(change.dimensions.width))
+          const newH = Math.max(20, Math.round(change.dimensions.height))
+          // Diff-Check + Threshold: nur persistieren wenn nennenswert anders
+          // (mind. 2 px), um Re-Render-Loop durch Mini-Float-Schwankungen zu
+          // vermeiden.
+          if (eq && (Math.abs((eq.width ?? 0) - newW) > 2 || Math.abs((eq.height ?? 0) - newH) > 2)) {
+            updateEquipment(change.id, { width: newW, height: newH })
+          }
         }
       }
       // v7.9.68 / #173 — Resize-driven position-Change persistieren. Beim
