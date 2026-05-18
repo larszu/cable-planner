@@ -38,8 +38,19 @@ export const LocationFrameNode = memo(({ data, selected }: NodeProps<LocationFra
         minWidth={40}
         minHeight={40}
         color={color}
-        lineStyle={{ borderColor: color }}
-        handleStyle={{ background: color }}
+        // v7.9.68 / #173 — Hit-Zone der Rahmenkanten verbreitert (Bug:
+        // "schwer zu treffen, weil ich genau auf dem Strich sein muss").
+        // Die Linie selbst bleibt visuell 1 px (borderWidth=1), aber das
+        // klickbare Element wird per padding/margin um ±2 px ausgedehnt
+        // — Cursor-Treffer fühlen sich damit großzügiger an, ohne dass
+        // ein dicker Strich auf dem Canvas erscheint.
+        lineStyle={{
+          borderColor: color,
+          borderWidth: 1,
+          margin: -2,
+          padding: 2,
+        }}
+        handleStyle={{ background: color, width: 10, height: 10 }}
       />
       <div
         style={{
