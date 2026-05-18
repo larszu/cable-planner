@@ -133,6 +133,15 @@ interface Rack3DViewProps {
     placementId: string,
     offset: { x: number; z: number },
   ) => void
+  /** v7.9.83 / #170 — Snapshot der WebGL-Refs (gl/scene/camera) für den
+   *  Export-Pfad. Wird vom CanvasRefsCapture innerhalb von <Canvas>
+   *  beim ersten Frame befüllt und an den Caller weitergegeben, sodass
+   *  exportRack3DAsPngs() von außen auf die Szene zugreifen kann. */
+  onCanvasRefsReady?: (refs: {
+    gl: THREE.WebGLRenderer
+    scene: THREE.Scene
+    camera: THREE.PerspectiveCamera
+  }) => void
   /** v7.9.78 / #170 — Internal Cables zwischen Patchpunkten. */
   internalCables?: Array<{
     fromPlacementId: string
@@ -714,6 +723,26 @@ const DeviceSTL = ({
   )
 }
 
+/** v7.9.83 / #170 — Capture-Helper innerhalb <Canvas>. Liefert die
+ *  three.js Refs (gl/scene/camera) per Effect an den Caller. */
+const CanvasRefsCapture = ({
+  onReady,
+}: {
+  onReady?: (refs: {
+    gl: THREE.WebGLRenderer
+    scene: THREE.Scene
+    camera: THREE.PerspectiveCamera
+  }) => void
+}) => {
+  const { gl, scene, camera } = useThree()
+  useEffect(() => {
+    if (onReady && camera instanceof THREE.PerspectiveCamera) {
+      onReady({ gl, scene, camera })
+    }
+  }, [gl, scene, camera, onReady])
+  return null
+}
+
 /** v7.9.82 / #170 — Keyboard-Camera-Controller. Shift hält → Kamera
  *  (+ OrbitControls.target) fährt nach oben; Leertaste → nach unten.
  *  (v7.9.80 hatte Tab vorgesehen — war ungünstig weil Tab Browser-
@@ -848,6 +877,7 @@ export const Rack3DView = ({
   onSelectPlacement,
   onPortMoved,
   onShelfDeviceMoved,
+  onCanvasRefsReady,
   internalCables,
 }: Rack3DViewProps) => {
   // v7.9.81 — Theme-Awareness: 3D-Hintergrund + Help-Overlay-Farben
@@ -882,7 +912,12 @@ export const Rack3DView = ({
       <Canvas
         camera={{ position: cameraPos, near: 1, far: 10000, fov: 35 }}
         shadows={false}
+        // v7.9.83 / #170 — preserveDrawingBuffer: WebGL-Canvas behält
+        // gerendertes Frame im Buffer damit toBlob() / toDataURL()
+        // funktionieren (für die 3D-PNG-Export-Funktion).
+        gl={{ preserveDrawingBuffer: true, antialias: true }}
       >
+        <CanvasRefsCapture onReady={onCanvasRefsReady} />
         <ambientLight intensity={0.55} />
         <directionalLight position={[600, 1200, 800]} intensity={0.9} />
         <directionalLight position={[-800, 600, -400]} intensity={0.4} />
