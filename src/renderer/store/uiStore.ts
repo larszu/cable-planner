@@ -150,6 +150,11 @@ interface PersistedUiState {
   }
   setEquipmentColors: (theme: 'light' | 'dark', patch: Partial<EquipmentColorTokens>) => void
   resetEquipmentColors: (theme?: 'light' | 'dark') => void
+  /** v7.9.63 / #172 — Default-Farbe für neu hinzugefügte Geräte.
+   *  undefined = kein Override (Theme-Default wird benutzt). User
+   *  setzt das in Settings → Erscheinungsbild. */
+  defaultDeviceColor: string | undefined
+  setDefaultDeviceColor: (color: string | undefined) => void
   /** Issue #71: canvas background pattern variant. 'dots' draws the
    *  ReactFlow dot grid (default), 'lines' draws orthogonal lines,
    *  'cross' draws a + at each grid intersection, 'none' disables. */
@@ -251,6 +256,7 @@ const defaults: PersistedUiState = {
     light: { ...DEFAULT_EQUIPMENT_COLORS_LIGHT },
     dark: { ...DEFAULT_EQUIPMENT_COLORS_DARK },
   },
+  defaultDeviceColor: undefined,
   bgVariant: 'dots',
   bgOpacity: 0.5,
   customCableSpecs: [],
@@ -717,6 +723,7 @@ const applyPatch =
       annotationAuthor: state.annotationAuthor,
       connectorTypeColors: state.connectorTypeColors,
       equipmentColors: state.equipmentColors,
+      defaultDeviceColor: state.defaultDeviceColor,
       bgVariant: state.bgVariant,
       bgOpacity: state.bgOpacity,
       customCableSpecs: state.customCableSpecs,
@@ -782,6 +789,7 @@ export const useUiStore = create<UiState>((set) => ({
       }
       return applyPatch({ equipmentColors: next })(state)
     }),
+  setDefaultDeviceColor: (color) => set(applyPatch({ defaultDeviceColor: color || undefined })),
   resetEquipmentColors: (theme) =>
     set((state) => {
       if (theme === 'light') {

@@ -647,6 +647,11 @@ const buildProjectStore = (
           {
             ...equipment,
             id: uuidv4(),
+            // v7.9.63 / #172 — Default-Gerätefarbe aus uiStore wenn der
+            // Caller selber keine nodeColor mitschickt. So kann der User
+            // in Settings einmal eine Standardfarbe wählen, die für alle
+            // neu hinzugefügten Geräte gilt.
+            nodeColor: equipment.nodeColor ?? useUiStore.getState().defaultDeviceColor,
             // CRITICAL: Ensure x/y are valid numbers. If somehow they're undefined/NaN,
             // default to (0, 0) so equipment doesn't disappear.
             x: equipment.x !== undefined && !Number.isNaN(equipment.x) ? equipment.x : 0,
