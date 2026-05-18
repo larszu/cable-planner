@@ -20,10 +20,22 @@
  * familiar; Tailwind classes carry over from the shared index.css.
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CablePlannerProject } from '../renderer/types/project'
 
 const CHECK_KEY = (projectName: string) => `cable-planner-mobile:checks:${projectName}`
+// v7.9.54 — Offline-Cache des kompletten Projekts. Ein Eintrag pro
+// Hostname/Port-Origin, damit verschiedene Geräte-Sessions sich nicht
+// gegenseitig überschreiben. So überlebt eine Session den
+// Funkverbindungs-Verlust und der Techniker kann lokal weiter haken
+// setzen, die beim nächsten Re-Connect automatisch synchronisiert werden.
+const PROJECT_CACHE_KEY = `cable-planner-mobile:project-cache:${
+  typeof window !== 'undefined' ? window.location.host : 'unknown'
+}`
+interface ProjectCacheEnvelope {
+  cachedAt: string
+  project: unknown
+}
 
 interface CheckState {
   cables: Record<string, boolean>
@@ -46,6 +58,30 @@ const saveChecks = (projectName: string, state: CheckState) => {
   } catch {
     /* ignore quota */
   }
+}
+
+// v7.9.54 — Cache-Helpers für das Offline-Survival des Projekts.
+const cacheProject = (project: unknown): void => {
+  try {
+    const env: ProjectCacheEnvelope = { cachedAt: new Date().toISOString(), project }
+    localStorage.setItem(PROJECT_CACHE_KEY, JSON.stringify(env))
+  } catch {
+    /* quota / private-mode → einfach skippen, ist nur ein Cache */
+  }
+}
+
+const loadCachedProject = (): { cachedAt: string; project: unknown } | null => {
+  try {
+    const raw = localStorage.getItem(PROJECT_CACHE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as Partial<ProjectCacheEnvelope>
+    if (parsed && typeof parsed.cachedAt === 'string' && parsed.project) {
+      return { cachedAt: parsed.cachedAt, project: parsed.project }
+    }
+  } catch {
+    /* corrupted cache → ignore */
+  }
+  return null
 }
 
 const portKey = (deviceId: string, portId: string) => `${deviceId}|${portId}`
@@ -325,9 +361,13 @@ const PortList = ({
 
 const ProjectView = ({
   project,
+  online,
+  cachedAt,
   onUnload,
 }: {
   project: CablePlannerProject
+  online?: boolean
+  cachedAt?: string | null
   onUnload: () => void
 }) => {
   const projectName = project.metadata?.name || 'cable-planner'
@@ -359,6 +399,27 @@ const ProjectView = ({
       body: JSON.stringify(checks),
     }).catch(() => {})
   }, [projectName, checks])
+
+  // v7.9.54 — Reconnect-Resync. Wenn der Online-Status von false → true
+  // wechselt (= Funkverbindung wieder da), schicken wir EINMAL den
+  // gesamten lokalen Check-State an /checks damit alle offline
+  // gesetzten Häkchen ans Desktop syncen. Ohne diesen explizten Push
+  // wären Offline-Toggles nur in localStorage; das Canvas am Desktop
+  // würde sie erst beim nächsten regulären Toggle sehen.
+  const wasOnlineRef = useRef(online ?? true)
+  useEffect(() => {
+    const wasOnline = wasOnlineRef.current
+    wasOnlineRef.current = online ?? true
+    if (online && !wasOnline) {
+      void fetch('/checks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(checks),
+      }).catch(() => {})
+    }
+  }, [online, checks])
+
+  const [showAddCable, setShowAddCable] = useState(false)
 
   // v7.7.3 — Toggling a port toggles BOTH endpoints of the cable that's
   // plugged into it (and the cable itself), because physically plugging
@@ -465,8 +526,32 @@ const ProjectView = ({
             />
             offen
           </label>
+          <button
+            type="button"
+            onClick={() => setShowAddCable(true)}
+            className="rounded bg-sky-700 px-2 py-1 text-[11px] text-white hover:bg-sky-600"
+            title="Kabel vor Ort hinzufügen (Dropdowns)"
+          >
+            + Kabel
+          </button>
         </div>
+        {/* v7.9.54 — Offline-Banner. Erscheint sobald der Poll fehlschlägt
+            oder der initiale Load aus dem Cache kam. Klar erkennbar in
+            Amber, damit der User weiß dass seine Checks gerade nur
+            lokal sind und beim Re-Connect automatisch syncen. */}
+        {online === false && (
+          <div className="mt-2 rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1 text-[10px] text-amber-200">
+            ⚠ Offline · Cache vom {cachedAt ? new Date(cachedAt).toLocaleString() : '?'} · Checks
+            werden bei Re-Connect synchronisiert
+          </div>
+        )}
       </header>
+      {showAddCable && (
+        <AddCableModal
+          project={project}
+          onClose={() => setShowAddCable(false)}
+        />
+      )}
       <div className="space-y-2 pb-8">
         {filteredDevices.length === 0 ? (
           <div className="rounded border border-dashed border-slate-700 bg-slate-900 p-6 text-center text-xs text-slate-500">
@@ -493,37 +578,52 @@ export const MobileApp = () => {
   const [project, setProject] = useState<CablePlannerProject | null>(null)
   const [autoLoadAttempted, setAutoLoadAttempted] = useState(false)
   const [autoLoadError, setAutoLoadError] = useState<string | null>(null)
+  // v7.9.54 — Online/Cache-Status. `online === false` zeigt das Banner
+  // "Offline — letzter Cache vom DATE" über der UI. Erste-Load-Versuch
+  // setzt online basierend auf dem Ergebnis. Spätere Polls toggeln es.
+  const [online, setOnline] = useState(true)
+  const [cachedAt, setCachedAt] = useState<string | null>(null)
 
   // When loaded via the desktop app's LAN share server, a sibling
   // /project.json endpoint serves the live project. Auto-fetch on
-  // mount and (separately) poll every 5 s so the phone stays in sync
-  // while it's the active window.
+  // mount; bei Fehlschlag fallback auf den lokalen Offline-Cache damit
+  // der Techniker auch ohne Funkverbindung weiter haken setzen kann.
   useEffect(() => {
     let cancelled = false
     void (async () => {
       try {
         const res = await fetch('/share-info.json', { cache: 'no-store' })
-        if (!res.ok) {
-          setAutoLoadAttempted(true)
-          return
-        }
+        if (!res.ok) throw new Error(`share-info ${res.status}`)
         const info = (await res.json()) as { ok: boolean; hasProject: boolean }
         if (!info.ok || !info.hasProject) {
           setAutoLoadAttempted(true)
           return
         }
         const projectRes = await fetch('/project.json', { cache: 'no-store' })
-        if (!projectRes.ok) {
-          setAutoLoadError(`Server antwortete mit ${projectRes.status}.`)
-          setAutoLoadAttempted(true)
-          return
-        }
+        if (!projectRes.ok) throw new Error(`project ${projectRes.status}`)
         const data = (await projectRes.json()) as CablePlannerProject
         if (!cancelled && data && Array.isArray(data.equipment)) {
           setProject(data)
+          setOnline(true)
+          cacheProject(data)
+          setCachedAt(new Date().toISOString())
         }
       } catch {
-        // Not running from the share server — show the manual picker.
+        // Live-Server nicht erreichbar — Offline-Cache versuchen damit
+        // die App nicht komplett tot ist.
+        const cached = loadCachedProject()
+        if (!cancelled && cached) {
+          const data = cached.project as CablePlannerProject
+          if (data && Array.isArray(data.equipment)) {
+            setProject(data)
+            setOnline(false)
+            setCachedAt(cached.cachedAt)
+          }
+        } else if (!cancelled) {
+          // Kein Cache → manueller File-Picker. autoLoadError nur setzen
+          // wenn wir zumindest weiter versucht haben (kein hard error).
+          setAutoLoadError(null)
+        }
       } finally {
         if (!cancelled) setAutoLoadAttempted(true)
       }
@@ -533,18 +633,23 @@ export const MobileApp = () => {
     }
   }, [])
 
-  // Refresh every 5 s once we've successfully auto-loaded so the
-  // phone reflects edits made on the desktop.
+  // Refresh every 5 s. Erfolgreiche Pulls aktualisieren den Cache UND
+  // den Online-Status; Fehler markieren als offline (UI zeigt Banner).
   useEffect(() => {
     if (!project) return
     const id = window.setInterval(async () => {
       try {
         const r = await fetch('/project.json', { cache: 'no-store' })
-        if (!r.ok) return
+        if (!r.ok) throw new Error(`project ${r.status}`)
         const next = (await r.json()) as CablePlannerProject
-        if (next && Array.isArray(next.equipment)) setProject(next)
+        if (next && Array.isArray(next.equipment)) {
+          setProject(next)
+          setOnline(true)
+          cacheProject(next)
+          setCachedAt(new Date().toISOString())
+        }
       } catch {
-        /* server stopped or network blip — keep last good state */
+        setOnline(false)
       }
     }, 5000)
     return () => window.clearInterval(id)
@@ -557,7 +662,12 @@ export const MobileApp = () => {
           <div className="animate-pulse">Lade Projekt vom Desktop…</div>
         </div>
       ) : project ? (
-        <ProjectView project={project} onUnload={() => setProject(null)} />
+        <ProjectView
+          project={project}
+          online={online}
+          cachedAt={cachedAt}
+          onUnload={() => setProject(null)}
+        />
       ) : (
         <>
           <ProjectPicker onLoad={setProject} />
@@ -569,6 +679,233 @@ export const MobileApp = () => {
           )}
         </>
       )}
+    </div>
+  )
+}
+
+// v7.9.54 — Add-Cable-Modal für den Mobile-Viewer.
+//
+// Use-Case: Techniker steht vor Ort am Gerät, sieht dass das Patch im
+// Plan fehlt, will es schnell nachpflegen ohne zum Planer-Laptop zu
+// rennen. UI ist bewusst kein Canvas (= 2D-Drag würde am Phone tap-
+// freundlich nicht funktionieren) sondern 4 sequentielle Dropdowns:
+// Von Gerät → Von Port → Zu Gerät → Zu Port. Optional Name + Typ +
+// Länge. POST /cables → Renderer fügt es mit addedFromMobile=true ein.
+const AddCableModal = ({
+  project,
+  onClose,
+}: {
+  project: CablePlannerProject
+  onClose: () => void
+}) => {
+  const [fromEqId, setFromEqId] = useState('')
+  const [fromPortId, setFromPortId] = useState('')
+  const [toEqId, setToEqId] = useState('')
+  const [toPortId, setToPortId] = useState('')
+  const [name, setName] = useState('')
+  const [cableType, setCableType] = useState('')
+  const [length, setLength] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+  const [done, setDone] = useState(false)
+
+  const sortedEquipment = useMemo(
+    () => [...project.equipment].sort((a, b) => a.name.localeCompare(b.name)),
+    [project.equipment],
+  )
+  const fromEq = sortedEquipment.find((e) => e.id === fromEqId)
+  const toEq = sortedEquipment.find((e) => e.id === toEqId)
+  const fromPorts = fromEq ? [...fromEq.outputs, ...fromEq.inputs] : []
+  const toPorts = toEq ? [...toEq.inputs, ...toEq.outputs] : []
+
+  const canSubmit =
+    !!fromEqId && !!fromPortId && !!toEqId && !!toPortId && !busy
+
+  const submit = async () => {
+    if (!canSubmit) return
+    setBusy(true)
+    setErr(null)
+    try {
+      const res = await fetch('/cables', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fromEquipmentId: fromEqId,
+          fromPortId,
+          toEquipmentId: toEqId,
+          toPortId,
+          name: name.trim() || undefined,
+          type: cableType.trim() || undefined,
+          length: length ? Number(length) : undefined,
+        }),
+      })
+      if (!res.ok) throw new Error(`Server ${res.status}`)
+      setDone(true)
+      window.setTimeout(onClose, 1200)
+    } catch (e) {
+      setErr(
+        e instanceof Error
+          ? `Konnte Kabel nicht senden: ${e.message}. Verbindung zum Desktop prüfen.`
+          : 'Konnte Kabel nicht senden.',
+      )
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-20 flex items-end justify-center bg-black/60 p-2"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div className="w-full max-w-md rounded-t-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
+        <header className="flex items-center justify-between border-b border-slate-700 px-3 py-2">
+          <h2 className="text-sm font-semibold">📱 Kabel hinzufügen</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded px-2 py-0.5 text-xs text-slate-400 hover:bg-slate-800"
+          >
+            ✕
+          </button>
+        </header>
+        <div className="space-y-3 p-3 text-xs">
+          {done ? (
+            <div className="rounded border border-emerald-700 bg-emerald-900/30 p-3 text-center text-emerald-200">
+              ✓ Kabel gesendet — wird am Desktop mit 📱-Marker eingefügt
+            </div>
+          ) : (
+            <>
+              <p className="text-[10px] italic text-slate-400">
+                Wird im Plan mit 📱-Badge markiert, damit der Planer sieht dass das
+                Kabel vor Ort nachgepflegt wurde.
+              </p>
+              <label className="block">
+                <span className="mb-1 block text-slate-300">Von Gerät</span>
+                <select
+                  value={fromEqId}
+                  onChange={(e) => {
+                    setFromEqId(e.target.value)
+                    setFromPortId('')
+                  }}
+                  className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+                >
+                  <option value="">— wählen —</option>
+                  {sortedEquipment.map((eq) => (
+                    <option key={eq.id} value={eq.id}>
+                      {eq.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-slate-300">Von Port</span>
+                <select
+                  value={fromPortId}
+                  onChange={(e) => setFromPortId(e.target.value)}
+                  disabled={!fromEq}
+                  className="w-full rounded border border-slate-700 bg-slate-950 p-2 disabled:opacity-40"
+                >
+                  <option value="">— wählen —</option>
+                  {fromPorts.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({p.connectorType})
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-slate-300">Zu Gerät</span>
+                <select
+                  value={toEqId}
+                  onChange={(e) => {
+                    setToEqId(e.target.value)
+                    setToPortId('')
+                  }}
+                  className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+                >
+                  <option value="">— wählen —</option>
+                  {sortedEquipment.map((eq) => (
+                    <option key={eq.id} value={eq.id}>
+                      {eq.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-slate-300">Zu Port</span>
+                <select
+                  value={toPortId}
+                  onChange={(e) => setToPortId(e.target.value)}
+                  disabled={!toEq}
+                  className="w-full rounded border border-slate-700 bg-slate-950 p-2 disabled:opacity-40"
+                >
+                  <option value="">— wählen —</option>
+                  {toPorts.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({p.connectorType})
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <label className="block">
+                  <span className="mb-1 block text-slate-300">Typ (opt.)</span>
+                  <input
+                    value={cableType}
+                    onChange={(e) => setCableType(e.target.value)}
+                    placeholder="SDI / XLR / …"
+                    className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-slate-300">Länge in m (opt.)</span>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    value={length}
+                    onChange={(e) => setLength(e.target.value)}
+                    className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  />
+                </label>
+              </div>
+              <label className="block">
+                <span className="mb-1 block text-slate-300">Name (opt.)</span>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Auto: 'Gerät A → Gerät B'"
+                  className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+                />
+              </label>
+              {err && (
+                <div className="rounded border border-red-700/60 bg-red-900/30 p-2 text-[11px] text-red-200">
+                  ⚠ {err}
+                </div>
+              )}
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded bg-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-600"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  type="button"
+                  onClick={submit}
+                  disabled={!canSubmit}
+                  className="rounded bg-sky-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {busy ? 'Sende…' : '📤 An Desktop senden'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

@@ -527,7 +527,17 @@ export const CableEdge = ({
   const wirelessSuffix = isWireless
     ? ` 〜${cable?.frequency ? ` ${cable.frequency}` : ''}${cable?.wifiChannel ? ` CH${cable.wifiChannel}` : ''}`
     : ''
-  const displayLabel = label ? `${label}${wirelessSuffix}` : (wirelessSuffix.trim() ? wirelessSuffix.trim() : undefined)
+  // v7.9.54 — Kabel die vom Mobile-Viewer hinzugefügt wurden (Techniker
+  // vor Ort) kriegen ein 📱-Prefix damit der Planer sie auf einen Blick
+  // erkennt.
+  const mobilePrefix = cable?.addedFromMobile ? '📱 ' : ''
+  const displayLabel = label
+    ? `${mobilePrefix}${label}${wirelessSuffix}`
+    : wirelessSuffix.trim()
+      ? `${mobilePrefix}${wirelessSuffix.trim()}`
+      : mobilePrefix
+        ? mobilePrefix.trim()
+        : undefined
 
   return (
     <>
