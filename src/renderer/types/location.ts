@@ -12,4 +12,7 @@ export interface LocationFrame {
   notes?: string
   /** When true, dragging the frame also moves contained equipment (group drag). Defaults to false. */
   moveContents?: boolean
+  /** v7.9.67 / #178 — When true the frame can't be dragged or resized.
+   *  Per-frame opt-in via Rechtsklick → "Position sperren". */
+  positionLocked?: boolean
 }

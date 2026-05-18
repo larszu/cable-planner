@@ -100,10 +100,14 @@ export const CableWaypoints = ({
   const { screenToFlowPosition } = useReactFlow()
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const isLight = (exportThemeOverride ?? canvasTheme) === 'light'
+  // v7.9.67 / #177 — Globaler Toolbar-Lock für Kabel. Wenn aktiv werden die
+  // Waypoint-Drag-Hit-Zonen und Drag-Handles gar nicht erst gerendert.
+  const lockCables = useUiStore((s) => s.lockCables)
   const [hoveredSeg, setHoveredSeg] = useState<number | null>(null)
 
   const routing = cable.routing ?? 'orthogonal'
   if (routing === 'curved') return null
+  if (lockCables) return null
 
   const waypoints = cable.waypoints ?? []
   // v7.9.4 — Drag-Hit-Zonen müssen GENAU dem entsprechen was der User

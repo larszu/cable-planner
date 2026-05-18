@@ -98,6 +98,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // Annotations setzen (UI in CanvasToolbar + AnnotationsPanel).
   const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
   const projectIsLocked = projectMode === 'finalized' || projectMode === 'viewer'
+  // v7.9.67 / #177 — Toolbar-Sperren für ganze Objektarten.
+  const lockFrames = useUiStore((s) => s.lockFrames)
+  const lockEquipment = useUiStore((s) => s.lockEquipment)
   const wrapperRef = useRef<HTMLDivElement>(null)
   // Last screen-pixel mouse position over the canvas. Used by Strg++ quick-add
   // (#44) so the new device lands where the user pointed instead of always at
@@ -319,7 +322,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       data: { ...loc, exportThemeOverride: pdfExportThemeOverride },
       zIndex: -1,
       style: { width: loc.width, height: loc.height },
-      draggable: true,
+      // v7.9.67 / #178 + #177 — Per-Frame-Lock (loc.positionLocked) ODER
+      // globaler Toolbar-Lock (lockFrames) blockiert Drag UND Resize.
+      draggable: !loc.positionLocked && !lockFrames,
       selectable: true,
     }))
     const equipmentNodes: Node[] = project.equipment.map((item) => ({
@@ -327,9 +332,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       type: 'equipment',
       position: { x: item.x, y: item.y },
       data: { ...item, exportThemeOverride: pdfExportThemeOverride },
+      // v7.9.67 / #178 + #177 — Per-Device-Lock ODER globaler Toolbar-Lock.
+      draggable: !item.positionLocked && !lockEquipment,
     }))
     return [...locationNodes, ...equipmentNodes]
-  }, [project.equipment, locations, pdfExportThemeOverride])
+  }, [project.equipment, locations, pdfExportThemeOverride, lockFrames, lockEquipment])
 
   // Local state keeps React Flow's controlled node positions in sync during drag.
   // We initialise once from the store and then apply changes incrementally.
@@ -362,6 +369,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // Briefly flash a node red when its drag is rejected due to overlap, so the
   // user understands why the device snapped back (not a glitch).
   const [overlapFlashId, setOverlapFlashId] = useState<string | null>(null)
+  // v7.9.67 / #178 — Rechtsklick-Kontextmenü pro Node. {clientX, clientY} sind
+  // Screen-Pixel (für die Position des Fixed-Overlays), nodeId/nodeType
+  // identifizieren das angeklickte Element. null = Menu geschlossen.
+  const [nodeContextMenu, setNodeContextMenu] = useState<
+    | { clientX: number; clientY: number; nodeId: string; nodeType: 'equipment' | 'location' }
+    | null
+  >(null)
   const flashOverlap = (id: string) => {
     setOverlapFlashId(id)
     window.setTimeout(() => setOverlapFlashId(null), 500)
@@ -435,7 +449,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         // below. This tells ReactFlow to re-register handle positions so
         // cable edges re-route to the correct port after port edits (#20).
         if (existing.data !== n.data) changedIds.push(n.id)
-        return { ...existing, data: n.data }
+        // v7.9.67 / #178 + #177 — `draggable` muss aus dem frisch berechneten
+        // nodes-Memo durchgereicht werden, weil sich der Wert mit dem
+        // Toolbar-Lock UND mit dem Per-Device-Lock ändern kann. Ohne diese
+        // Zeile hätte rfNodes den Lock-State von der Erst-Initialisierung.
+        return { ...existing, data: n.data, draggable: n.draggable }
       })
     })
     if (projectChanged) {
@@ -786,6 +804,39 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       }
     })
   }
+
+  // v7.9.67 / #178 — Rechtsklick → Kontextmenü mit "Position sperren".
+  // ReactFlow's onNodeContextMenu liefert das React-Event und den Node;
+  // wir verhindern das native Browser-Menü und positionieren ein eigenes
+  // kleines Popup über den Cursor.
+  const onNodeContextMenu = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      if (node.type !== 'equipment' && node.type !== 'location') return
+      event.preventDefault()
+      setNodeContextMenu({
+        clientX: event.clientX,
+        clientY: event.clientY,
+        nodeId: node.id,
+        nodeType: node.type,
+      })
+    },
+    [],
+  )
+
+  // ESC oder Klick außerhalb → Menu schließen.
+  useEffect(() => {
+    if (!nodeContextMenu) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setNodeContextMenu(null)
+    }
+    const onClick = () => setNodeContextMenu(null)
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('click', onClick)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('click', onClick)
+    }
+  }, [nodeContextMenu])
 
   const onNodeDragStart = useCallback(
     (event: React.MouseEvent, node: Node) => {
@@ -1454,6 +1505,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         edgeTypes={edgeTypes}
         connectionMode={ConnectionMode.Loose}
         onNodesChange={onNodesChange}
+        onNodeContextMenu={onNodeContextMenu}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onConnectStart={onConnectStart}
@@ -1563,6 +1615,67 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         })()}
       </ReactFlow>
       <PendingCableOverlay />
+      {nodeContextMenu && (() => {
+        const isLocation = nodeContextMenu.nodeType === 'location'
+        const target = isLocation
+          ? locations.find((l) => l.id === nodeContextMenu.nodeId)
+          : project.equipment.find((e) => e.id === nodeContextMenu.nodeId)
+        if (!target) return null
+        const isLocked = !!target.positionLocked
+        const toggle = () => {
+          if (isLocation) {
+            updateLocation(nodeContextMenu.nodeId, { positionLocked: !isLocked })
+          } else {
+            updateEquipment(nodeContextMenu.nodeId, { positionLocked: !isLocked })
+          }
+          setNodeContextMenu(null)
+        }
+        return (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'fixed',
+              left: nodeContextMenu.clientX,
+              top: nodeContextMenu.clientY,
+              zIndex: 100,
+              background: '#1e293b',
+              border: '1px solid #334155',
+              borderRadius: 6,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+              padding: 4,
+              minWidth: 180,
+              fontSize: 12,
+              color: '#e2e8f0',
+            }}
+          >
+            <button
+              type="button"
+              onClick={toggle}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                width: '100%',
+                padding: '6px 10px',
+                background: 'transparent',
+                color: 'inherit',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#334155')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+            >
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="3" y="7" width="10" height="7" rx="1" />
+                <path d={isLocked ? 'M5 7V4.5a3 3 0 0 1 6 0V7' : 'M5 7V4.5a3 3 0 0 1 6 0V6'} />
+              </svg>
+              <span>{isLocked ? 'Position entsperren' : 'Position sperren'}</span>
+            </button>
+          </div>
+        )
+      })()}
     </div>
   )
 }
