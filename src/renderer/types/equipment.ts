@@ -317,6 +317,15 @@ export interface EquipmentItem {
    *  Persists in the project file, independent of the global toolbar-mode
    *  lock from #177. */
   positionLocked?: boolean
+  /** v7.9.70 / #167 — Engineering-Daten aus dem Rentman-Katalog (oder
+   *  manuell gepflegt). Werden in den Properties angezeigt und vom
+   *  3D-Rack-Builder (Issue #170) für die Tiefen-Visualisierung genutzt.
+   *  Alle Werte sind optional, damit alte Datenstände kompatibel bleiben. */
+  powerWatts?: number
+  weightKg?: number
+  /** Tiefe in mm. Wird vom 3D-Rack genutzt um zu prüfen ob ein Patchblende
+   *  noch hinter das Gerät passt. Default beim Rendering: 400 mm. */
+  depthMm?: number
 }
 
 /**
