@@ -587,6 +587,16 @@ interface UiState extends PersistedUiState {
    *  ausgeblendet. Praktisch um den Canvas kurz "sauber" zu sehen. */
   annotationsVisible: boolean
   setAnnotationsVisible: (visible: boolean) => void
+  /** v7.9.67 / #177 — Toolbar-Modi zum Sperren ganzer Objektarten gegen
+   *  Verschieben/Resize. Wirkt zusätzlich zur per-Device-Sperre (#178) und
+   *  zum Plan-Lock. Session-only (nicht persistiert), weil das ein
+   *  temporärer Schutz während des Editierens ist. */
+  lockFrames: boolean
+  lockEquipment: boolean
+  lockCables: boolean
+  setLockFrames: (v: boolean) => void
+  setLockEquipment: (v: boolean) => void
+  setLockCables: (v: boolean) => void
   videohubExport: { open: boolean; deviceId?: string; initialShowMatrix?: boolean }
   openVideohubExport: (deviceId?: string, initialShowMatrix?: boolean) => void
   closeVideohubExport: () => void
@@ -943,6 +953,12 @@ export const useUiStore = create<UiState>((set) => ({
   setAnnotationsPanelOpen: (open) => set({ annotationsPanelOpen: open }),
   annotationsVisible: true,
   setAnnotationsVisible: (visible) => set({ annotationsVisible: visible }),
+  lockFrames: false,
+  lockEquipment: false,
+  lockCables: false,
+  setLockFrames: (v) => set({ lockFrames: v }),
+  setLockEquipment: (v) => set({ lockEquipment: v }),
+  setLockCables: (v) => set({ lockCables: v }),
   videohubExport: { open: false },
   openVideohubExport: (deviceId, initialShowMatrix) => set({ videohubExport: { open: true, deviceId, initialShowMatrix } }),
   closeVideohubExport: () => set({ videohubExport: { open: false } }),
