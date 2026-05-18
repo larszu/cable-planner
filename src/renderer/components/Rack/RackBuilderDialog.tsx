@@ -509,7 +509,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, wireDialogOpen, dirty])
 
-  const addTemplate = async (template: EquipmentTemplate) => {
+  const addTemplate = async (
+    template: EquipmentTemplate,
+    options?: { mountSide?: 'front' | 'rear' | 'full'; preferStartUnit?: number },
+  ) => {
     // v7.9.0 / Issue #112 — Wenn das Template (noch) nicht als 19"-
     // Rack-Gerät markiert ist, fragen wir den User nach der HE-Höhe
     // und markieren es im Draft entsprechend.
@@ -552,17 +555,35 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     }
     const units = parseUnits(effectiveTemplate)
     let targetUnit = 1
-    const occupied = draft.placements
-      .map((item) => ({ start: item.startUnit, end: item.startUnit + item.rackUnits - 1 }))
-      .sort((a, b) => a.start - b.start)
-    for (const block of occupied) {
-      if (targetUnit + units - 1 < block.start) break
-      targetUnit = block.end + 1
-    }
-    if (targetUnit + units - 1 > draft.totalUnits) {
-      targetUnit = Math.max(1, draft.totalUnits - units + 1)
+    // v7.9.76 / #170 — Wenn der Caller eine bevorzugte Start-HE mitschickt
+    // (z.B. Drag&Drop auf eine bestimmte Position im Rack), nehmen wir die,
+    // andernfalls smart-search nach dem ersten freien Block von oben.
+    if (
+      typeof options?.preferStartUnit === 'number' &&
+      options.preferStartUnit >= 1 &&
+      options.preferStartUnit + units - 1 <= draft.totalUnits
+    ) {
+      targetUnit = options.preferStartUnit
+    } else {
+      const occupied = draft.placements
+        .map((item) => ({ start: item.startUnit, end: item.startUnit + item.rackUnits - 1 }))
+        .sort((a, b) => a.start - b.start)
+      for (const block of occupied) {
+        if (targetUnit + units - 1 < block.start) break
+        targetUnit = block.end + 1
+      }
+      if (targetUnit + units - 1 > draft.totalUnits) {
+        targetUnit = Math.max(1, draft.totalUnits - units + 1)
+      }
     }
     const placement = toPlacement(effectiveTemplate, targetUnit)
+    // v7.9.76 / #170 — Mount-Side direkt am Placement setzen falls der
+    // Caller "vorne" oder "hinten" gewählt hat (Library-Quick-Button oder
+    // Drag&Drop-Modifier). Default bleibt 'full' (= placement.mountSide
+    // undefined, was die Box als full-depth rendert).
+    if (options?.mountSide && options.mountSide !== 'full') {
+      placement.mountSide = options.mountSide
+    }
     setDraft((current) => ({ ...current, placements: [...current.placements, placement] }))
     setSelectedPlacementId(placement.id)
   }
@@ -1025,10 +1046,23 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 return (
                   <div
                     key={template.name}
+                    // v7.9.76 / #170 — Library-Card ist jetzt draggable.
+                    // Drop-Target ist die Rack-Canvas-Div (2D) bzw. die
+                    // 3D-Canvas-Wrapper-Div. Beim Drop wird targetStartUnit
+                    // aus der Drop-Y-Position errechnet und an addTemplate
+                    // weitergegeben.
+                    draggable
+                    onDragStart={(event) => {
+                      event.dataTransfer.effectAllowed = 'copy'
+                      event.dataTransfer.setData(
+                        'application/x-cable-planner-rack-template',
+                        JSON.stringify({ name: template.name }),
+                      )
+                    }}
                     className={`group rounded border p-2 text-xs transition-colors ${
                       isRack
-                        ? 'border-slate-800 bg-slate-900/60 hover:border-slate-600 hover:bg-slate-900'
-                        : 'border-amber-800/40 bg-amber-950/20 hover:border-amber-700/60'
+                        ? 'cursor-grab border-slate-800 bg-slate-900/60 hover:border-slate-600 hover:bg-slate-900 active:cursor-grabbing'
+                        : 'cursor-grab border-amber-800/40 bg-amber-950/20 hover:border-amber-700/60'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -1054,15 +1088,37 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         </div>
                         <div className="truncate text-[10px] text-slate-500">{template.category}</div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => addTemplate(template)}
-                        className="inline-flex shrink-0 items-center gap-0.5 rounded bg-emerald-700 px-2 py-1 text-[11px] font-medium text-white hover:bg-emerald-600 group-hover:bg-emerald-600"
-                        title={placedCount > 0 ? 'Weitere Instanz hinzufügen' : 'Ins Rack hinzufügen'}
-                      >
-                        <span className="text-sm leading-none">+</span>
-                        <span>Rack</span>
-                      </button>
+                      {/* v7.9.76 / #170 — Drei Mount-Side-Buttons statt
+                          einem "+ Rack": Vorne (front-mount), Beide
+                          (full-depth = Default), Hinten (rear-mount).
+                          Beide bleibt der prominent grüne Button — die
+                          gewünschte Wahl ist explizit. */}
+                      <div className="flex shrink-0 overflow-hidden rounded border border-slate-700">
+                        <button
+                          type="button"
+                          onClick={() => addTemplate(template, { mountSide: 'front' })}
+                          className="bg-green-700 px-1.5 py-1 text-[10px] font-semibold text-white hover:bg-green-600"
+                          title="Vorne im Rack montieren (front-mount, Default-Tiefe)"
+                        >
+                          F
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => addTemplate(template, { mountSide: 'full' })}
+                          className="bg-emerald-700 px-2 py-1 text-[10px] font-semibold text-white hover:bg-emerald-600"
+                          title={placedCount > 0 ? 'Weitere Instanz full-depth einfügen' : 'Full-depth ins Rack (vorne+hinten)'}
+                        >
+                          + Beide
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => addTemplate(template, { mountSide: 'rear' })}
+                          className="bg-purple-700 px-1.5 py-1 text-[10px] font-semibold text-white hover:bg-purple-600"
+                          title="Hinten im Rack montieren (rear-mount, z.B. Patchblende)"
+                        >
+                          R
+                        </button>
+                      </div>
                     </div>
                     <div className="mt-1 text-[10px] text-slate-400">
                       {isRack ? `${parseUnits(template)} HE · ` : 'HE ? · '}
@@ -1163,6 +1219,43 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   <div
                     style={{ height: 'min(75vh, 800px)' }}
                     className="rounded border border-slate-800 bg-slate-950"
+                    // v7.9.76 / #170 — Drag&Drop von Library-Cards auf
+                    // die 3D-Canvas. Da Raycast hier overkill wäre,
+                    // nutzen wir smart-Placement: Drop fügt das Gerät
+                    // in den nächsten freien HE-Block ein. Mount-Side
+                    // wird aus dem Drop-Y-Verhältnis abgeleitet:
+                    // oberer Bereich = front, untere Hälfte = rear,
+                    // Mitte = full. Pragmatisch und intuitiv für 3D-
+                    // Drops, wo präzise HE-Auswahl schwierig ist.
+                    onDragOver={(event) => {
+                      if (event.dataTransfer.types.includes(
+                        'application/x-cable-planner-rack-template',
+                      )) {
+                        event.preventDefault()
+                        event.dataTransfer.dropEffect = 'copy'
+                      }
+                    }}
+                    onDrop={(event) => {
+                      const raw = event.dataTransfer.getData(
+                        'application/x-cable-planner-rack-template',
+                      )
+                      if (!raw) return
+                      event.preventDefault()
+                      try {
+                        const parsed = JSON.parse(raw) as { name: string }
+                        const template = templates.find((t) => t.name === parsed.name)
+                        if (!template) return
+                        // Drop-X-Verhältnis: linkes Drittel = front,
+                        // rechtes Drittel = rear, Mitte = full.
+                        const host = event.currentTarget.getBoundingClientRect()
+                        const fracX = (event.clientX - host.left) / host.width
+                        const mount: 'front' | 'rear' | 'full' =
+                          fracX < 0.33 ? 'front' : fracX > 0.66 ? 'rear' : 'full'
+                        void addTemplate(template, { mountSide: mount })
+                      } catch {
+                        /* ignore */
+                      }
+                    }}
                   >
                     <Rack3DView
                       totalUnits={draft.totalUnits}
@@ -1260,6 +1353,42 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     style={{
                       width: rowHeight * RACK_PANEL_ASPECT_PER_1HE,
                       height: draft.totalUnits * rowHeight,
+                    }}
+                    // v7.9.76 / #170 — Drag&Drop von Library-Cards auf
+                    // diese Panel-Seite. Drop-Y → Start-HE, Panel-Seite
+                    // (front/rear) → mountSide. Wenn viewMode='both' und
+                    // der User auf die linke Seite droppt → front, rechts
+                    // → rear. Bei single-side wird die aktive Seite genommen.
+                    onDragOver={(event) => {
+                      if (event.dataTransfer.types.includes(
+                        'application/x-cable-planner-rack-template',
+                      )) {
+                        event.preventDefault()
+                        event.dataTransfer.dropEffect = 'copy'
+                      }
+                    }}
+                    onDrop={(event) => {
+                      const raw = event.dataTransfer.getData(
+                        'application/x-cable-planner-rack-template',
+                      )
+                      if (!raw) return
+                      event.preventDefault()
+                      try {
+                        const parsed = JSON.parse(raw) as { name: string }
+                        const template = templates.find((t) => t.name === parsed.name)
+                        if (!template) return
+                        const host = event.currentTarget.getBoundingClientRect()
+                        const y = clamp(event.clientY - host.top, 0, host.height)
+                        const dropUnit = Math.max(
+                          1,
+                          Math.min(draft.totalUnits, Math.floor(y / rowHeight) + 1),
+                        )
+                        const mount: 'front' | 'rear' | 'full' =
+                          side === 'front' ? 'front' : 'rear'
+                        void addTemplate(template, { mountSide: mount, preferStartUnit: dropUnit })
+                      } catch {
+                        /* ignore malformed drop payload */
+                      }
                     }}
                     onPointerMove={(event) => {
                       if (!dragState || dragState.pointerId !== event.pointerId) return
@@ -1607,7 +1736,30 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   Ports sichtbar: {selectedPlacement.inputs.length} Inputs / {selectedPlacement.outputs.length} Outputs
                 </div>
                 <div className="space-y-2">
-                  <div className="text-[11px] font-semibold text-slate-400">Panel-Bilder (Import + Zuschneiden)</div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[11px] font-semibold text-slate-400">Panel-Bilder (Import + Zuschneiden)</div>
+                    {/* v7.9.76 / #170 — Swap-Button: vertauscht Front- und
+                        Rear-Foto, falls der User sie versehentlich falsch
+                        zugeordnet hat. Tauscht sowohl URL als auch Crop-
+                        Meta-Daten, damit der Crop nicht verzerrt. */}
+                    {(selectedPlacement.frontPanelImageUrl || selectedPlacement.rearPanelImageUrl) && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updatePlacement(selectedPlacement.id, {
+                            frontPanelImageUrl: selectedPlacement.rearPanelImageUrl,
+                            rearPanelImageUrl: selectedPlacement.frontPanelImageUrl,
+                            frontPanelCrop: selectedPlacement.rearPanelCrop,
+                            rearPanelCrop: selectedPlacement.frontPanelCrop,
+                          })
+                        }
+                        className="rounded bg-slate-700 px-2 py-0.5 text-[10px] text-slate-200 hover:bg-slate-600"
+                        title="Front- und Rear-Foto vertauschen (falls die Zuordnung falsch ist)"
+                      >
+                        ↔ Front/Rear tauschen
+                      </button>
+                    )}
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
                     {(['front', 'rear'] as const).map((side) => {
                       const urlKey = side === 'front' ? 'frontPanelImageUrl' : 'rearPanelImageUrl'
