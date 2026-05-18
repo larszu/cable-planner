@@ -137,6 +137,22 @@ export const routeCableWithAStar = (
   const freeEndDir = args.targetSide === 'top' || args.targetSide === 'bottom'
   const excludeEndDir = freeEndDir ? ((arriveDir + 2) % 4) : undefined
 
+  // v7.9.65 / #188 — Verbiete dem A*-Solver direkt vom Stub-Cell aus
+  // wieder ZURÜCK in Richtung Source zu laufen. Ohne diese Sperre konnte
+  // der Pfad direkt am Stub wieder nach links umkehren (visuell: das
+  // Kabel "knickt" gleich am Ausgang zurück). Mit excludeStartDir = 180°-
+  // Gegenrichtung der Outward-Richtung muss der erste Move geradeaus
+  // oder seitlich gehen.
+  const outwardDirFor = (side: HandleSide): 0 | 1 | 2 | 3 => {
+    switch (side) {
+      case 'right':  return 0
+      case 'bottom': return 1
+      case 'left':   return 2
+      case 'top':    return 3
+    }
+  }
+  const excludeStartDir = (outwardDirFor(args.sourceSide) + 2) % 4
+
   const result = computeEdgePath({
     sourceX: args.source.x,
     sourceY: args.source.y,
@@ -147,6 +163,7 @@ export const routeCableWithAStar = (
     targetEntersLeft,
     freeEndDir,
     excludeEndDir,
+    excludeStartDir,
     stubCells,
     extraForceOpen,
   })
