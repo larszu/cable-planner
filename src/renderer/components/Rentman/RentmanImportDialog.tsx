@@ -36,7 +36,25 @@ interface RentmanEquipment {
   qty: number
   isSetChild: boolean
   parentId: string | null
+  /** v7.9.70 / #167 — Engineering-Daten aus dem Rentman /equipment Endpoint.
+   *  Werden beim Import auf das EquipmentTemplate gespiegelt. */
+  powerWatts?: number
+  weightKg?: number
+  depthMm?: number
   raw: Record<string, unknown>
+}
+
+// v7.9.70 / #167 — Helper: liest einen numerischen Wert aus einem Rentman-
+// Record, akzeptiert mehrere Feldnamen (Rentman API ist historisch
+// inkonsistent: power_consumption / power / wattage haben dieselbe Semantik).
+const pickNumber = (record: Record<string, unknown>, keys: string[]): number | undefined => {
+  for (const k of keys) {
+    const raw = record[k]
+    if (raw == null || raw === '') continue
+    const n = typeof raw === 'number' ? raw : Number(String(raw).replace(',', '.'))
+    if (Number.isFinite(n) && n > 0) return n
+  }
+  return undefined
 }
 
 const mapProjects = (projects: unknown[]): RentmanProject[] =>
@@ -110,6 +128,15 @@ const mapEquipment = (
     const qtyRaw = Number(record.quantity ?? record.qty ?? 1)
     const qty = Number.isFinite(qtyRaw) && qtyRaw > 0 ? Math.round(qtyRaw) : 1
 
+    // v7.9.70 / #167 — Engineering-Daten ableiten. Rentman API hat
+    // historisch verschiedene Feldnamen für dieselbe Semantik gehabt;
+    // wir akzeptieren die gängigen Aliasse damit verschiedene API-
+    // Versionen funktionieren.
+    const powerWatts = pickNumber(record, ['power_consumption', 'power', 'wattage', 'watt'])
+    const weightKg = pickNumber(record, ['weight', 'weight_kg'])
+    // Rentman nennt die Geräte-Tiefe meist "length" oder "depth" (mm).
+    const depthMm = pickNumber(record, ['depth', 'length', 'depth_mm', 'length_mm'])
+
     return {
       id: rowId,
       equipmentId,
@@ -119,6 +146,9 @@ const mapEquipment = (
       qty,
       isSetChild: hasParent,
       parentId: hasParent ? parentId : null,
+      powerWatts,
+      weightKg,
+      depthMm,
       raw: record,
     } satisfies RentmanEquipment
   })
@@ -628,6 +658,13 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       ...base,
       name: base.name || item.name,
       category: assignedCategory,
+      // v7.9.70 / #167 — Engineering-Daten aus Rentman übernehmen (falls
+      // vorhanden und das Base-Template noch keinen Wert hat — local edits
+      // gewinnen). Power/Weight für die Properties-Anzeige, Tiefe für den
+      // späteren 3D-Rack-Builder.
+      powerWatts: base.powerWatts ?? item.powerWatts,
+      weightKg: base.weightKg ?? item.weightKg,
+      depthMm: base.depthMm ?? item.depthMm,
     }
   }
 

@@ -59,6 +59,10 @@ const toTemplateFromEquipment = (item: EquipmentItem): EquipmentTemplate => ({
   hidden: item.hidden,
   resolution: item.resolution,
   displaySizeInch: item.displaySizeInch,
+  // v7.9.70 / #167 — Engineering-Daten aus dem Rentman-Katalog.
+  powerWatts: item.powerWatts,
+  weightKg: item.weightKg,
+  depthMm: item.depthMm,
 })
 
 export const getCachedRentmanTemplate = (rentmanId: string): EquipmentTemplate | undefined => {
