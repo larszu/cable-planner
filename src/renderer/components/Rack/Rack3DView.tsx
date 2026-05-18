@@ -68,6 +68,12 @@ interface Rack3DPlacement {
    *  Bodenrand der HE-Reihe (= "steht auf dem Shelf darunter"). */
   widthMm?: number
   heightMm?: number
+  /** v7.9.82 / #170 — Shelf-Device horizontale Position innerhalb der
+   *  Rack-Mount-Breite (mm vom linken Rail). Default 0 = ganz links. */
+  shelfOffsetX?: number
+  /** v7.9.82 / #170 — Shelf-Device Tiefen-Position (mm von vorne).
+   *  Default 0 = ganz vorne. */
+  shelfOffsetZ?: number
 }
 
 /** v7.9.77 / #170 — Port-Connector-Type → Dot-Farbe. Vereinheitlicht mit
@@ -118,6 +124,14 @@ interface Rack3DViewProps {
     portId: string,
     side: 'front' | 'rear',
     pos: { x: number; y: number },
+  ) => void
+  /** v7.9.82 / #170 — Shelf-Device Position-Update (horizontale + Tiefen-
+   *  Position in mm). Wird vom User per Pointer-Drag direkt auf der Box
+   *  im 3D-Tab ausgelöst (Raycast auf die Box, e.point liefert Welt-
+   *  Koordinate die wir zurück in mm-Offsets übersetzen). */
+  onShelfDeviceMoved?: (
+    placementId: string,
+    offset: { x: number; z: number },
   ) => void
   /** v7.9.78 / #170 — Internal Cables zwischen Patchpunkten. */
   internalCables?: Array<{
@@ -238,6 +252,8 @@ const DeviceBox = ({
   selected,
   onClick,
   onPortMoved,
+  onShelfDeviceMoved,
+  orbitRef,
 }: {
   placement: Rack3DPlacement
   rackDepthMm: number
@@ -245,7 +261,17 @@ const DeviceBox = ({
   selected: boolean
   onClick: () => void
   onPortMoved?: Rack3DViewProps['onPortMoved']
+  onShelfDeviceMoved?: Rack3DViewProps['onShelfDeviceMoved']
+  /** v7.9.82 — Ref auf OrbitControls, damit wir bei Shelf-Drag das
+   *  Kamera-Drehen kurz deaktivieren können (sonst dreht/pannt der
+   *  Drag gleichzeitig die Kamera, schlimmes UX). */
+  orbitRef?: React.RefObject<{ enabled: boolean } | null>
 }) => {
+  // v7.9.82 / #170 — Shelf-Device-Drag-State. Solange aktiv: pointer-
+  // move-events auf der Mesh übersetzen e.point (World-Hit auf die Box-
+  // Geometrie) zurück in mm-Offsets innerhalb des Racks.
+  const shelfDragRef = useRef<{ pointerId: number; offsetX: number; offsetZ: number } | null>(null)
+  const [shelfDragOverride, setShelfDragOverride] = useState<{ x: number; z: number } | null>(null)
   const mountSide = placement.mountSide ?? 'full'
   const depthMm = Math.max(20, placement.depthMm ?? DEFAULT_DEVICE_DEPTH_MM)
   const yBottom = (totalUnits - placement.startUnit - placement.rackUnits + 1) * HE_HEIGHT_MM
@@ -261,11 +287,23 @@ const DeviceBox = ({
     ? Math.min(placement.widthMm!, RACK_MOUNT_WIDTH_MM)
     : RACK_MOUNT_WIDTH_MM
 
-  const zStart = mountSide === 'rear' ? rackDepthMm - depthMm : 0
-  const xCenter = (RACK_OUTER_WIDTH_MM - widthMm) / 2 + widthMm / 2
-  // Shelf-Geräte ruhen auf dem unteren Rand der HE-Reihe (yBottom + heightMm/2)
-  // statt mittig in der HE-Reihe. Bei Rack-Geräten ist beides identisch.
-  const yCenter = isShelfDevice ? yBottom + heightMm / 2 : yBottom + heightMm / 2
+  // v7.9.82 / #170 — Shelf-Devices nutzen zusätzlich shelfOffsetX (mm
+  // vom linken Rail) und shelfOffsetZ (mm von der Front) — beide vom
+  // User per Drag / Number-Input gesetzt. Bei klassischen Rack-Geräten
+  // sind die Offsets undefined → zentriert/vorne wie bisher.
+  // Während eines aktiven Drags hat shelfDragOverride Vorrang (smooth
+  // live-Render).
+  const railInnerOffset = (RACK_OUTER_WIDTH_MM - RACK_MOUNT_WIDTH_MM) / 2
+  const effectiveShelfX = shelfDragOverride?.x ?? placement.shelfOffsetX ?? 0
+  const effectiveShelfZ = shelfDragOverride?.z ?? placement.shelfOffsetZ ?? 0
+  const xLeftBase = isShelfDevice
+    ? railInnerOffset + effectiveShelfX
+    : (RACK_OUTER_WIDTH_MM - widthMm) / 2
+  const zStart = isShelfDevice
+    ? effectiveShelfZ
+    : (mountSide === 'rear' ? rackDepthMm - depthMm : 0)
+  const xCenter = xLeftBase + widthMm / 2
+  const yCenter = yBottom + heightMm / 2
   const zCenter = zStart + depthMm / 2
 
   // v7.9.75 / #170 — Patchblenden bekommen eine eigene Farbe damit der
@@ -324,6 +362,55 @@ const DeviceBox = ({
           e.stopPropagation()
           onClick()
         }}
+        // v7.9.82 / #170 — Shelf-Drag im 3D: Pointer-Down speichert den
+        // Maus-Offset relativ zur aktuellen Mesh-Position. Move-Events
+        // berechnen daraus die neue Welt-Position und konvertieren in
+        // shelfOffsetX/Z (mm). Up persistiert via onShelfDeviceMoved.
+        // Nicht-Shelf-Geräte ignorieren die Drag-Events (kein onShelfDeviceMoved).
+        onPointerDown={(e) => {
+          if (!isShelfDevice || !onShelfDeviceMoved) return
+          e.stopPropagation()
+          ;(e.target as Element).setPointerCapture?.(e.pointerId)
+          // v7.9.82 — OrbitControls aus, damit der gleiche Pointer-Drag
+          // nicht zusätzlich die Kamera dreht.
+          if (orbitRef?.current) orbitRef.current.enabled = false
+          const hitX = e.point.x
+          const hitZ = e.point.z
+          shelfDragRef.current = {
+            pointerId: e.pointerId,
+            offsetX: hitX - xCenter,
+            offsetZ: hitZ - zCenter,
+          }
+        }}
+        onPointerMove={(e) => {
+          const drag = shelfDragRef.current
+          if (!drag || drag.pointerId !== e.pointerId) return
+          if (!isShelfDevice) return
+          const newCenterX = e.point.x - drag.offsetX
+          const newCenterZ = e.point.z - drag.offsetZ
+          // Center → linke Vorderkante zurück
+          const newLeftX = newCenterX - widthMm / 2
+          const newZ = newCenterZ - depthMm / 2
+          // Klemmen auf rack-internen Bereich
+          const newOffsetX = Math.max(
+            0,
+            Math.min(RACK_MOUNT_WIDTH_MM - widthMm, newLeftX - railInnerOffset),
+          )
+          const newOffsetZ = Math.max(0, Math.min(rackDepthMm - depthMm, newZ))
+          setShelfDragOverride({ x: newOffsetX, z: newOffsetZ })
+        }}
+        onPointerUp={(e) => {
+          const drag = shelfDragRef.current
+          if (!drag) return
+          ;(e.target as Element).releasePointerCapture?.(e.pointerId)
+          if (shelfDragOverride && onShelfDeviceMoved) {
+            onShelfDeviceMoved(placement.id, shelfDragOverride)
+          }
+          shelfDragRef.current = null
+          setShelfDragOverride(null)
+          // OrbitControls wieder an
+          if (orbitRef?.current) orbitRef.current.enabled = true
+        }}
       >
         <boxGeometry args={[widthMm, heightMm, depthMm]} />
         <Edges color={selected ? '#0ea5e9' : '#020617'} threshold={15} />
@@ -355,13 +442,34 @@ const DeviceBox = ({
           onPortMoved={onPortMoved}
         />
       )}
+      {/* v7.9.82 / #170 — Gerätenamen jetzt SOWOHL vorne als auch hinten,
+          damit der User aus jeder Orbit-Richtung lesen kann welches Gerät
+          er anschaut. Ohne Doppellabel war beim Drehen-um-180° die
+          Beschriftung weg. */}
       <Html
-        position={[xCenter, yCenter, mountSide === 'rear' ? zStart - 5 : zStart + depthMm + 5]}
+        position={[xCenter, yCenter, zStart - 5]}
         center
         style={{
           color: '#e2e8f0',
           fontSize: 10,
-          background: 'rgba(15,23,42,0.7)',
+          background: 'rgba(15,23,42,0.78)',
+          padding: '2px 6px',
+          borderRadius: 3,
+          pointerEvents: 'none',
+          whiteSpace: 'nowrap',
+        }}
+        transform={false}
+        distanceFactor={300}
+      >
+        {placement.name} ({placement.rackUnits}HE)
+      </Html>
+      <Html
+        position={[xCenter, yCenter, zStart + depthMm + 5]}
+        center
+        style={{
+          color: '#e2e8f0',
+          fontSize: 10,
+          background: 'rgba(15,23,42,0.78)',
           padding: '2px 6px',
           borderRadius: 3,
           pointerEvents: 'none',
@@ -606,34 +714,33 @@ const DeviceSTL = ({
   )
 }
 
-/** v7.9.80 / #170 — Keyboard-Camera-Controller. Solange der User
- *  Shift hält, fährt die Kamera (samt OrbitControls.target) nach oben;
- *  Tab hält → nach unten. Damit kann der User die Höhe seines Blicks
- *  ändern UND gerade auf eine bestimmte HE-Reihe schauen, ohne mit der
- *  Maus um den Rack-Body kreisen zu müssen. Tab-Default (Focus-Wechsel)
- *  wird verhindert. */
+/** v7.9.82 / #170 — Keyboard-Camera-Controller. Shift hält → Kamera
+ *  (+ OrbitControls.target) fährt nach oben; Leertaste → nach unten.
+ *  (v7.9.80 hatte Tab vorgesehen — war ungünstig weil Tab Browser-
+ *  Default = Focus-Switch ist. Space ist intuitiver.) */
 const CameraKeyboardController = ({
   orbitTargetRef,
 }: {
   orbitTargetRef: React.RefObject<{ target: THREE.Vector3; update: () => void } | null>
 }) => {
   const { camera } = useThree()
-  const keys = useRef({ shift: false, tab: false })
+  const keys = useRef({ shift: false, space: false })
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      // Nur capturen wenn der Fokus nicht in einem Input/Textarea ist —
-      // sonst killt Shift Text-Selektion und Tab den Form-Wechsel.
+      // Nicht capturen wenn der Fokus in einem Input/Textarea ist —
+      // sonst killt Shift Text-Selektion und Space würde im Properties-
+      // Panel die Eingabe stören.
       const tag = (e.target as HTMLElement | null)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
       if (e.key === 'Shift') keys.current.shift = true
-      if (e.key === 'Tab') {
-        keys.current.tab = true
+      if (e.key === ' ' || e.code === 'Space') {
+        keys.current.space = true
         e.preventDefault()
       }
     }
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.key === 'Shift') keys.current.shift = false
-      if (e.key === 'Tab') keys.current.tab = false
+      if (e.key === ' ' || e.code === 'Space') keys.current.space = false
     }
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
@@ -643,10 +750,7 @@ const CameraKeyboardController = ({
     }
   }, [])
   useFrame((_, delta) => {
-    if (!keys.current.shift && !keys.current.tab) return
-    // 800 mm pro Sekunde Kamera-Vertikalgeschwindigkeit — schnell genug
-    // um schnell durch ein 42HE-Rack zu scrollen, langsam genug für
-    // präzise Höheneinstellung.
+    if (!keys.current.shift && !keys.current.space) return
     const speed = 800 * delta
     const dy = keys.current.shift ? speed : -speed
     camera.position.y += dy
@@ -743,6 +847,7 @@ export const Rack3DView = ({
   selectedPlacementId,
   onSelectPlacement,
   onPortMoved,
+  onShelfDeviceMoved,
   internalCables,
 }: Rack3DViewProps) => {
   // v7.9.81 — Theme-Awareness: 3D-Hintergrund + Help-Overlay-Farben
@@ -758,7 +863,10 @@ export const Rack3DView = ({
   // v7.9.80 / #170 — OrbitControls ref für den CameraKeyboardController:
   // wir mutieren controls.target.y zusammen mit camera.y, sonst tilted
   // die Kamera statt zu pannen.
-  const orbitRef = useRef<{ target: THREE.Vector3; update: () => void } | null>(null)
+  // v7.9.82 / #170 — Plus 'enabled'-Toggle (Shelf-Drag schaltet
+  // OrbitControls kurz aus damit Pointer-Drag nicht gleichzeitig die
+  // Kamera dreht).
+  const orbitRef = useRef<{ target: THREE.Vector3; update: () => void; enabled: boolean } | null>(null)
   const rackHeightMm = totalUnits * HE_HEIGHT_MM
   // Set initial camera so the rack is fully visible.
   const cameraPos: [number, number, number] = [
@@ -814,6 +922,8 @@ export const Rack3DView = ({
                 selected={selectedPlacementId === p.id}
                 onClick={() => onSelectPlacement(p.id)}
                 onPortMoved={onPortMoved}
+                onShelfDeviceMoved={onShelfDeviceMoved}
+                orbitRef={orbitRef as React.RefObject<{ enabled: boolean } | null>}
               />
             )
           })}
@@ -890,7 +1000,7 @@ export const Rack3DView = ({
         }}
       >
         🖱 Drehen: links · Pannen: rechts · Zoom: scroll<br />
-        ⌨ Höhe: <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Shift</kbd> hoch · <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Tab</kbd> runter
+        ⌨ Höhe: <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Shift</kbd> hoch · <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Space</kbd> runter
       </div>
     </div>
   )
