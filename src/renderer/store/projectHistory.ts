@@ -44,7 +44,14 @@ export const projectHistory = {
     } finally {
       suppress = false
     }
-    lastProject = prev
+    // v7.9.71 / #186 — lastProject MUSS auf die tatsächliche neue
+    // state.project-Referenz zeigen, nicht auf das urspüngliche prev.
+    // loadProject jagt prev durch healProjectPositions, was eine NEUE
+    // Referenz erzeugt; wenn lastProject auf prev (unhealed) zeigt,
+    // sieht der nächste Diff im subscribe einen falsch berechneten
+    // Vorzustand → Undo/Redo verhielt sich in alten Projekten "verrückt"
+    // weil die history und der tatsächliche store divergiert sind.
+    lastProject = useProjectStore.getState().project
     notify()
   },
   redo: () => {
@@ -57,7 +64,8 @@ export const projectHistory = {
     } finally {
       suppress = false
     }
-    lastProject = next
+    // v7.9.71 / #186 — dito (siehe undo-Kommentar).
+    lastProject = useProjectStore.getState().project
     notify()
   },
   subscribe: (fn: () => void) => {

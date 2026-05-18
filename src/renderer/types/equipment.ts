@@ -317,6 +317,20 @@ export interface EquipmentItem {
    *  Persists in the project file, independent of the global toolbar-mode
    *  lock from #177. */
   positionLocked?: boolean
+  /** v7.9.70 / #167 — Engineering-Daten aus dem Rentman-Katalog (oder
+   *  manuell gepflegt). Werden in den Properties angezeigt und vom
+   *  3D-Rack-Builder (Issue #170) für die Tiefen-Visualisierung genutzt.
+   *  Alle Werte sind optional, damit alte Datenstände kompatibel bleiben. */
+  powerWatts?: number
+  weightKg?: number
+  /** Tiefe in mm. Wird vom 3D-Rack genutzt um zu prüfen ob ein Patchblende
+   *  noch hinter das Gerät passt. Default beim Rendering: 400 mm. */
+  depthMm?: number
+  /** v7.9.73 / #170 — Optionale STL-Datei (als data:application/octet-stream
+   *  base64-URI) für das 3D-Modell des Geräts. Wenn vorhanden, rendert der
+   *  3D-Rack-Builder die echte Geometrie statt einer prozeduralen Box.
+   *  Größenbegrenzung: ~5 MB damit der Projekt-Save nicht explodiert. */
+  stlDataUri?: string
 }
 
 /**
@@ -470,10 +484,19 @@ export interface GroupPreset {
   /** Optional rack metadata when this group was authored in the 2D rack builder. */
   rack?: {
     totalUnits: number
+    /** v7.9.73 / #170 — Rack-Tiefe in mm (Default 800 mm beim Rendering).
+     *  Wird vom 3D/Split-Builder genutzt um zu prüfen ob Patchblenden hinter
+     *  full-depth-Geräten passen. */
+    depthMm?: number
     placements: Array<{
       itemIndex: number
       startUnit: number
       heightUnits: number
+      /** v7.9.73 / #170 — Wo das Gerät montiert ist: 'front' = nur Frontschienen
+       *  (z.B. 1HE Patchblende vorne), 'rear' = nur Rückschienen (z.B.
+       *  Patchblende hinter einem vorderen Gerät), 'full' = beide Tiefen
+       *  belegt (Default für klassische Server). Fehlt → 'full'. */
+      mountSide?: 'front' | 'rear' | 'full'
     }>
     /** v7.9.14 — Canvas-Positionen für den RackInternalCanvas. Wird
      *  vom Rack-Builder beim Speichern befüllt, falls der User Geräte
