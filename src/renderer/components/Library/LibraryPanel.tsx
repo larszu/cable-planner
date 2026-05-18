@@ -933,6 +933,86 @@ export const LibraryPanel = () => {
     }
   }
 
+  // v7.9.70 / #174 — Gemini AI für Rentman-Catalog-Items.
+  // Beim Klick auf das ✨ AI Button auf einer Catalog-Zeile holt Gemini
+  // einen Port-Vorschlag, baut daraus ein vollwertiges EquipmentTemplate
+  // (mit rentmanId-Verknüpfung) und fügt es in die customLibrary ein. Der
+  // User kann das Gerät danach wie ein normales Library-Item auf den
+  // Canvas ziehen. Ohne diese Brücke landeten skeleton-Items mit leeren
+  // Ports auf dem Canvas, und der User musste in den Eigenschaften manuell
+  // jede einzelne Port-Zeile bauen.
+  const [rentmanAiBusyId, setRentmanAiBusyId] = useState<string | null>(null)
+  const handleAiSuggestCatalogItem = async (item: {
+    id: string
+    name: string
+    category: string
+  }) => {
+    if (!getGeminiApiKey()) {
+      void infoDialog('Kein Gemini-API-Key', {
+        body: 'Bitte zuerst in den Einstellungen oder im Library-Header einen Gemini-API-Key hinterlegen.',
+        tone: 'warning',
+      })
+      return
+    }
+    setRentmanAiBusyId(item.id)
+    try {
+      const hints = await suggestFromAI(item.name, item.category)
+      if (hints.length === 0) {
+        await infoDialog('Keine Ports vorgeschlagen', {
+          body: `Gemini hat für "${item.name}" keine Ports zurückgegeben. Du kannst das Gerät stattdessen leer auf den Canvas ziehen und Ports manuell pflegen.`,
+          tone: 'warning',
+        })
+        return
+      }
+      const inputs = buildPorts(
+        hints.map((h) => ({
+          id: uuidv4(),
+          direction: h.direction,
+          count: h.count,
+          connectorType: h.connectorType,
+          label: h.label,
+        })),
+        'in',
+      )
+      const outputs = buildPorts(
+        hints.map((h) => ({
+          id: uuidv4(),
+          direction: h.direction,
+          count: h.count,
+          connectorType: h.connectorType,
+          label: h.label,
+        })),
+        'out',
+      )
+      const template: EquipmentTemplate = {
+        name: item.name,
+        category: item.category || 'Sonstiges',
+        inputs,
+        outputs,
+        // Default-Box-Dimensionen, damit das Equipment beim Place auf den
+        // Canvas eine sinnvolle Größe hat. Der User kann sie hinterher
+        // anpassen — die echte Größe wird ohnehin vom DOM gemessen.
+        width: 220,
+        height: 140,
+        rentmanId: item.id,
+        rentmanSource: linkedRentmanProjectId,
+        rentmanProjectName: linkedRentmanProjectName,
+      }
+      addCustomTemplate(template)
+      await infoDialog(`"${item.name}" angelegt`, {
+        body: `${inputs.length} Inputs + ${outputs.length} Outputs von Gemini vorgeschlagen. Du findest das Gerät jetzt im "Importiert"-Tab und kannst es auf den Canvas ziehen.`,
+        tone: 'success',
+      })
+    } catch (err) {
+      await infoDialog('Gemini-Aufruf fehlgeschlagen', {
+        body: err instanceof Error ? err.message : String(err),
+        tone: 'error',
+      })
+    } finally {
+      setRentmanAiBusyId(null)
+    }
+  }
+
   const handleAddCatalogItemToProject = async (item: {
     id: string
     name: string
@@ -2015,6 +2095,7 @@ export const LibraryPanel = () => {
 
                           const renderItem = (item: { id: string; name: string; category: string }) => {
                             const busy = rentmanCatalogAddBusy === item.id
+                            const aiBusy = rentmanAiBusyId === item.id
                             const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
                               const template = {
                                 name: item.name,
@@ -2037,6 +2118,18 @@ export const LibraryPanel = () => {
                                   <div className="truncate font-medium text-slate-200">{item.name}</div>
                                   <div className="truncate text-[10px] text-slate-500">Rentman-ID {item.id}</div>
                                 </div>
+                                {/* v7.9.70 / #174 — Gemini-Vorschlag: erzeugt
+                                    Template mit AI-Ports und legt es in der
+                                    Library ab. Danach normaler Drag-Workflow. */}
+                                <button
+                                  type="button"
+                                  onClick={() => handleAiSuggestCatalogItem(item)}
+                                  disabled={aiBusy}
+                                  className="rounded bg-purple-700 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-purple-600 disabled:opacity-50"
+                                  title="Gemini AI fragen welche Ports dieses Gerät vermutlich hat und Template in der Library anlegen"
+                                >
+                                  {aiBusy ? '…' : '✨ AI'}
+                                </button>
                                 {linkedRentmanProjectId && (
                                   <button
                                     type="button"
