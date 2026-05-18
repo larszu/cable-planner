@@ -270,96 +270,149 @@ const buildCanvasPdf = async (
     customPalette: options?.customPalette ?? null,
   })
 
-  // v7.9.57 — Adaptiver pixelRatio + JPEG-Fallback für sehr große Pläne.
+  // v7.9.58 — Tile-basierter Capture für XL-Pläne.
   //
-  // Vorher: pixelRatio fix auf 1.5, immer PNG. Bei XL-Plänen (z.B.
-  // 5000×4000 px Content) ergab das 7500×6000 = 45 MP Bilder, die als
-  // base64-PNG-DataURL >100 MB Strings produzierten. Browser-RAM ging
-  // ohne Fehlermeldung in die Knie → "Export geht nicht".
+  // Problem davor: ein einziger Capture des kompletten Canvas. Bei
+  // 91 MP natürlich (~12000×7600 px) lief der Browser entweder OOM
+  // oder das Bild kam runterskaliert + Text unleserlich.
   //
-  // Jetzt: ein Mega-Pixel-Budget (~25 MP) limitiert das Capture-Format.
-  // Bei kleinen Plänen wird weiterhin 1.5x gerendert (knackig scharf),
-  // bei großen runtergeskalt damit es ins Budget passt. Plus: ab einer
-  // Schwelle (oder bei Capture-Fehler) wird JPEG statt PNG benutzt —
-  // ~10× kleiner bei kaum sichtbarer Qualitätseinbuße.
-  const MAX_CAPTURE_MEGAPIXELS = 25_000_000
+  // Lösung: wir teilen den Canvas in NxN Kacheln. Jede Kachel wird
+  // einzeln bei voller Auflösung (pixelRatio=1.5) gerastert; danach
+  // werden alle Kacheln im PDF nebeneinander positioniert. Die PDF
+  // hat weiterhin EINE riesige Seite — visuell ein nahtloses Bild,
+  // aber der Browser hat nie einen Riesen-Canvas im Speicher.
+  //
+  // Tile-Größen-Budget: jede Kachel ≤ 9 MP gerastert (= ~36 MB RAM
+  // bei 4 bytes/px) und ≤ 4000 px Kantenlänge (Mobile-Safari-Limit).
+  const TILE_TARGET_MEGAPIXELS = 9_000_000
+  const TILE_MAX_EDGE_PX = 4000
+  const TARGET_PIXEL_RATIO = 1.5
   const naturalPixels = contentW * contentH
-  const ratioFit = Math.sqrt(MAX_CAPTURE_MEGAPIXELS / naturalPixels)
-  const pixelRatio = Math.min(1.5, Math.max(0.5, ratioFit))
-  // PNG kann bei großen Bildern den Memory-Limit knacken; ab 12 MP
-  // direkt auf JPEG umstellen (mit Quality-Parameter den der Caller eh
-  // mitgibt; Default 0.85 ist visuell verlustfrei für CAD-artige Plans).
-  const useJpeg = naturalPixels * pixelRatio * pixelRatio > 12_000_000
+  const tilesByMP = Math.ceil(
+    (naturalPixels * TARGET_PIXEL_RATIO * TARGET_PIXEL_RATIO) / TILE_TARGET_MEGAPIXELS,
+  )
+  const tilesByEdgeW = Math.ceil((contentW * TARGET_PIXEL_RATIO) / TILE_MAX_EDGE_PX)
+  const tilesByEdgeH = Math.ceil((contentH * TARGET_PIXEL_RATIO) / TILE_MAX_EDGE_PX)
+  // Spalten/Zeilen so wählen dass beides erfüllt ist UND das Layout
+  // möglichst quadratisch bleibt (Aspekt-aware split).
+  let tileCols = Math.max(
+    1,
+    Math.max(tilesByEdgeW, Math.ceil(Math.sqrt((tilesByMP * contentW) / contentH))),
+  )
+  let tileRows = Math.max(
+    1,
+    Math.max(tilesByEdgeH, Math.ceil(tilesByMP / tileCols)),
+  )
+  // Sanity: bei winzigen Canvases bleibt es bei 1x1 (kein Tiling-Overhead).
+  if (naturalPixels * TARGET_PIXEL_RATIO * TARGET_PIXEL_RATIO <= TILE_TARGET_MEGAPIXELS) {
+    tileCols = 1
+    tileRows = 1
+  }
+  const tileW = Math.ceil(contentW / tileCols)
+  const tileH = Math.ceil(contentH / tileRows)
+  // PNG nur für 1×1-Capture bei kleinem Total; sonst JPEG (geringer
+  // PDF-Footprint, optisch identisch für unsere CAD-artigen Inhalte).
+  const useJpeg =
+    tileCols * tileRows > 1 || naturalPixels * TARGET_PIXEL_RATIO * TARGET_PIXEL_RATIO > 12_000_000
 
-  // v7.9.24 — Hintergrund wird jetzt VEKTOR in jsPDF gerendert (siehe
-  // pdfBackground.ts). Capture liefert nur Equipment+Kabel als PNG/JPEG
-  // mit Hintergrund passend zum gewählten Format (transparent bei PNG,
-  // composed.bgFallback bei JPEG da JPEG keine Transparenz kann).
-  const captureOpts = {
+  const baseCaptureOpts = {
     backgroundColor: useJpeg ? composed.bgFallback : undefined,
-    pixelRatio,
+    pixelRatio: TARGET_PIXEL_RATIO,
     cacheBust: true,
-    width: contentW,
-    height: contentH,
     quality: useJpeg ? quality : undefined,
-    style: {
-      width: `${contentW}px`,
-      height: `${contentH}px`,
-      background: useJpeg ? composed.bgFallback : 'transparent',
-      backgroundColor: useJpeg ? composed.bgFallback : 'transparent',
-      transform: `translate(${-contentX}px, ${-contentY}px)`,
-      transformOrigin: '0 0',
-    },
     filter: (node: Node) => {
       if (!(node instanceof HTMLElement) && !(node instanceof SVGElement)) return true
       const el = node as HTMLElement | SVGElement
       if (el.classList.contains('react-flow__minimap')) return false
       if (el.classList.contains('react-flow__controls')) return false
-      // v7.9.24 — ReactFlow's eigene Background-Komponente (Dots-Pattern
-      // SVG) ausschliessen. Wir rendern das Pattern stattdessen als
-      // Vektor direkt im PDF (siehe drawVectorBackground). Sonst wäre
-      // das Pattern doppelt: einmal als gerasterter SVG-Snapshot
-      // (sichtbar nur im React-Flow-Viewport-Bereich) und einmal als
-      // Vektor — was den User-Bug "Punkte nur teilweise da" verursachte.
+      // v7.9.24 — ReactFlow's eigenes Background-Pattern ausschliessen
+      // (Vektor-Rendering im PDF separat — siehe drawVectorBackground).
       if (el.classList.contains('react-flow__background')) return false
       return true
     },
   }
 
-  let dataUrl: string
-  try {
-    dataUrl = useJpeg
-      ? await toJpeg(viewportEl, captureOpts)
-      : await toPng(viewportEl, captureOpts)
-  } catch (err) {
-    // Wenn das schon mit der dynamisch berechneten Größe fehlschlägt
-    // (z.B. wegen Browser-Canvas-Limit das hier nicht abschätzbar ist),
-    // letzter Versuch: JPEG bei 0.7-fachem Faktor zusätzlich.
-    const fallbackOpts = {
-      ...captureOpts,
-      pixelRatio: pixelRatio * 0.7,
-      quality: 0.7,
-      backgroundColor: composed.bgFallback,
-      style: { ...captureOpts.style, background: composed.bgFallback, backgroundColor: composed.bgFallback },
-    }
-    try {
-      dataUrl = await toJpeg(viewportEl, fallbackOpts)
-    } catch {
-      throw new Error(
-        `Canvas zu groß für PDF-Export (${contentW}×${contentH}px). Bitte Ansicht zoomen oder einen Ausschnitt exportieren. Original-Fehler: ${
-          err instanceof Error ? err.message : String(err)
-        }`,
-      )
+  // Capture jede Kachel separat. Translate-Trick: wir zeigen den
+  // Viewport mit globalem Offset, html-to-image clipt dann auf
+  // tile-W × tile-H = die jeweilige Kachel.
+  interface CapturedTile {
+    dataUrl: string
+    col: number
+    row: number
+    pxX: number
+    pxY: number
+    pxW: number
+    pxH: number
+  }
+  const tiles: CapturedTile[] = []
+  const capture = useJpeg ? toJpeg : toPng
+  for (let r = 0; r < tileRows; r++) {
+    for (let c = 0; c < tileCols; c++) {
+      const tileOriginX = contentX + c * tileW
+      const tileOriginY = contentY + r * tileH
+      // Letzte Spalte/Zeile darf schmaler sein wenn contentW/H nicht
+      // exakt durch tileW/H teilbar ist.
+      const actualW = Math.min(tileW, contentW - c * tileW)
+      const actualH = Math.min(tileH, contentH - r * tileH)
+      const opts = {
+        ...baseCaptureOpts,
+        width: actualW,
+        height: actualH,
+        style: {
+          width: `${actualW}px`,
+          height: `${actualH}px`,
+          background: useJpeg ? composed.bgFallback : 'transparent',
+          backgroundColor: useJpeg ? composed.bgFallback : 'transparent',
+          transform: `translate(${-tileOriginX}px, ${-tileOriginY}px)`,
+          transformOrigin: '0 0',
+        },
+      }
+      try {
+        const dataUrl = await capture(viewportEl, opts)
+        tiles.push({
+          dataUrl,
+          col: c,
+          row: r,
+          pxX: c * tileW,
+          pxY: r * tileH,
+          pxW: actualW,
+          pxH: actualH,
+        })
+      } catch (err) {
+        // Letzter Versuch für diese Kachel: JPEG bei reduziertem Ratio.
+        const fallback = {
+          ...opts,
+          pixelRatio: TARGET_PIXEL_RATIO * 0.7,
+          quality: 0.7,
+          backgroundColor: composed.bgFallback,
+          style: {
+            ...opts.style,
+            background: composed.bgFallback,
+            backgroundColor: composed.bgFallback,
+          },
+        }
+        try {
+          const dataUrl = await toJpeg(viewportEl, fallback)
+          tiles.push({
+            dataUrl,
+            col: c,
+            row: r,
+            pxX: c * tileW,
+            pxY: r * tileH,
+            pxW: actualW,
+            pxH: actualH,
+          })
+        } catch {
+          throw new Error(
+            `Kachel ${c + 1}/${r + 1} von ${tileCols}×${tileRows} ließ sich nicht rastern (${actualW}×${actualH}px). Original-Fehler: ${
+              err instanceof Error ? err.message : String(err)
+            }`,
+          )
+        }
+      }
     }
   }
   void quality
-
-  const img = new Image()
-  img.src = dataUrl
-  await new Promise<void>((resolve, reject) => {
-    img.onload = () => resolve()
-    img.onerror = () => reject(new Error('Could not load captured image'))
-  })
 
   // Build a PDF page sized to the captured image. Content was captured at
   // pixelRatio=2 so the natural pixel dimensions are doubled; we want the PDF
@@ -408,19 +461,29 @@ const buildCanvasPdf = async (
     opacity: options?.bgOpacity ?? 0.5,
     gridSizePx: options?.gridSize ?? 20,
   })
-  pdf.addImage(
-    dataUrl,
-    useJpeg ? 'JPEG' : 'PNG',
-    offsetX,
-    offsetY,
-    drawingW,
-    drawingH,
-    undefined,
-    // FAST-compression bei großen Bildern damit jsPDF nicht in der
-    // Embed-Phase blockiert. Bei kleinen PNGs bleibt MEDIUM für die
-    // bessere Kompression.
-    useJpeg ? 'FAST' : 'MEDIUM',
-  )
+  // v7.9.58 — Jede Kachel separat einbetten. Die Pixel-Koordinaten
+  // werden ins PDF-pt-System umgerechnet, sodass die Kacheln nahtlos
+  // an einander stoßen. Side-by-side im finalen PDF → optisch ein
+  // zusammenhängendes Bild ohne sichtbare Grenzen.
+  for (const tile of tiles) {
+    const tileXpt = offsetX + tile.pxX * PX_TO_PT
+    const tileYpt = offsetY + tile.pxY * PX_TO_PT
+    const tileWpt = tile.pxW * PX_TO_PT
+    const tileHpt = tile.pxH * PX_TO_PT
+    pdf.addImage(
+      tile.dataUrl,
+      useJpeg ? 'JPEG' : 'PNG',
+      tileXpt,
+      tileYpt,
+      tileWpt,
+      tileHpt,
+      undefined,
+      // FAST-compression bei großen Bildern damit jsPDF nicht in der
+      // Embed-Phase blockiert. Bei kleinen PNGs bleibt MEDIUM für die
+      // bessere Kompression.
+      useJpeg ? 'FAST' : 'MEDIUM',
+    )
+  }
 
   if (metadata) {
     drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin)
