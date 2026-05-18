@@ -43,6 +43,11 @@ interface Rack3DPlacement {
   stlDataUri?: string
   frontPanelImageUrl?: string
   rearPanelImageUrl?: string
+  /** v7.9.75 / #170 — Anzahl der Patch-Ports (für die Darstellung als
+   *  Patchblende mit Port-Punkten und für die View-Mode-Filterung). */
+  portCount?: number
+  isPatchPanel?: boolean
+  isRackShelf?: boolean
 }
 
 interface Rack3DViewProps {
@@ -172,13 +177,17 @@ const DeviceBox = ({
   const yCenter = yBottom + heightMm / 2
   const zCenter = zStart + depthMm / 2
 
+  // v7.9.75 / #170 — Patchblenden bekommen eine eigene Farbe damit der
+  // User sie auf einen Blick von normalen Geräten unterscheidet.
   const baseColor = selected
     ? '#38bdf8'
-    : mountSide === 'rear'
-      ? '#a855f7'
-      : mountSide === 'front'
-        ? '#22c55e'
-        : '#64748b'
+    : placement.isPatchPanel
+      ? '#f59e0b'
+      : mountSide === 'rear'
+        ? '#a855f7'
+        : mountSide === 'front'
+          ? '#22c55e'
+          : '#64748b'
 
   const frontTex = useImageTexture(placement.frontPanelImageUrl)
   const rearTex = useImageTexture(placement.rearPanelImageUrl)
@@ -244,6 +253,63 @@ const DeviceBox = ({
         distanceFactor={300}
       >
         {placement.name} ({placement.rackUnits}HE)
+      </Html>
+    </group>
+  )
+}
+
+/** v7.9.75 / #170 — Rack-Shelf-Renderer: flache Plattform in der unteren
+ *  Hälfte der zugewiesenen HE-Range. Damit darauf Non-19"-Geräte sichtbar
+ *  "ruhen" können (sie werden mit eigenem startUnit auf dieselbe HE
+ *  gelegt — der Shelf zeigt visuell wo die Bodenfläche liegt). */
+const Shelf = ({
+  placement,
+  rackDepthMm,
+  totalUnits,
+  selected,
+  onClick,
+}: {
+  placement: Rack3DPlacement
+  rackDepthMm: number
+  totalUnits: number
+  selected: boolean
+  onClick: () => void
+}) => {
+  const depthMm = Math.max(50, placement.depthMm ?? rackDepthMm * 0.75)
+  const yBottom = (totalUnits - placement.startUnit - placement.rackUnits + 1) * HE_HEIGHT_MM
+  const heightMm = placement.rackUnits * HE_HEIGHT_MM
+  const plateThickness = 4
+  const xCenter = RACK_OUTER_WIDTH_MM / 2
+  const yCenter = yBottom + plateThickness / 2
+  const zCenter = depthMm / 2
+  const color = selected ? '#38bdf8' : '#94a3b8'
+  return (
+    <group>
+      {/* Boden-Plate */}
+      <mesh position={[xCenter, yCenter, zCenter]} onClick={(e) => { e.stopPropagation(); onClick() }}>
+        <boxGeometry args={[RACK_MOUNT_WIDTH_MM, plateThickness, depthMm]} />
+        <meshStandardMaterial color={color} roughness={0.55} metalness={0.6} />
+      </mesh>
+      {/* Front-Rail (kleiner Aufkant vorne, damit Plate als Plate erkennbar ist) */}
+      <mesh position={[xCenter, yBottom + heightMm * 0.15, 4]}>
+        <boxGeometry args={[RACK_MOUNT_WIDTH_MM, heightMm * 0.3, 4]} />
+        <meshStandardMaterial color={selected ? '#0ea5e9' : '#475569'} opacity={0.6} transparent />
+      </mesh>
+      <Html
+        position={[xCenter, yBottom + heightMm + 4, depthMm + 5]}
+        center
+        style={{
+          color: '#cbd5e1',
+          fontSize: 9,
+          background: 'rgba(15,23,42,0.7)',
+          padding: '1px 5px',
+          borderRadius: 3,
+          pointerEvents: 'none',
+        }}
+        transform={false}
+        distanceFactor={300}
+      >
+        🪑 {placement.name}
       </Html>
     </group>
   )
@@ -340,17 +406,32 @@ export const Rack3DView = ({
         <directionalLight position={[-800, 600, -400]} intensity={0.4} />
         <Chassis totalUnits={totalUnits} depthMm={depthMm} />
         <Suspense fallback={null}>
-          {placements.map((p) =>
-            p.stlDataUri ? (
-              <DeviceSTL
-                key={p.id}
-                placement={p}
-                rackDepthMm={depthMm}
-                totalUnits={totalUnits}
-                selected={selectedPlacementId === p.id}
-                onClick={() => onSelectPlacement(p.id)}
-              />
-            ) : (
+          {placements.map((p) => {
+            if (p.isRackShelf) {
+              return (
+                <Shelf
+                  key={p.id}
+                  placement={p}
+                  rackDepthMm={depthMm}
+                  totalUnits={totalUnits}
+                  selected={selectedPlacementId === p.id}
+                  onClick={() => onSelectPlacement(p.id)}
+                />
+              )
+            }
+            if (p.stlDataUri) {
+              return (
+                <DeviceSTL
+                  key={p.id}
+                  placement={p}
+                  rackDepthMm={depthMm}
+                  totalUnits={totalUnits}
+                  selected={selectedPlacementId === p.id}
+                  onClick={() => onSelectPlacement(p.id)}
+                />
+              )
+            }
+            return (
               <DeviceBox
                 key={p.id}
                 placement={p}
@@ -359,8 +440,8 @@ export const Rack3DView = ({
                 selected={selectedPlacementId === p.id}
                 onClick={() => onSelectPlacement(p.id)}
               />
-            ),
-          )}
+            )
+          })}
         </Suspense>
         <OrbitControls
           ref={orbitRef as never}
