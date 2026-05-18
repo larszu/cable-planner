@@ -567,7 +567,19 @@ export const CableEdge = ({
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
               background: isLight ? 'rgba(241,245,249,0.92)' : 'rgba(15,23,42,0.85)',
               color: isLight ? '#1e293b' : '#e2e8f0',
-              border: `1px solid ${isLight ? '#94a3b8' : '#475569'}`,
+              // v7.9.56 — Mobil-hinzugefügte Kabel kriegen einen lila
+              // Border statt slate, damit der Planer sie schon ohne das
+              // 📱-Symbol im Text auf den ersten Blick erkennt.
+              border: `1px solid ${
+                cable?.addedFromMobile
+                  ? '#a855f7'
+                  : isLight
+                    ? '#94a3b8'
+                    : '#475569'
+              }`,
+              boxShadow: cable?.addedFromMobile
+                ? '0 0 0 1px rgba(168,85,247,0.25)'
+                : undefined,
               padding: '2px 6px',
               borderRadius: 4,
               fontSize: 11,
