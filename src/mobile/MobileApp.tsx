@@ -703,8 +703,10 @@ const AddCableModal = ({
   const [toEqId, setToEqId] = useState('')
   const [toPortId, setToPortId] = useState('')
   const [name, setName] = useState('')
+  const [nameDirty, setNameDirty] = useState(false)
   const [cableType, setCableType] = useState('')
   const [length, setLength] = useState('')
+  const [notes, setNotes] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [done, setDone] = useState(false)
@@ -717,6 +719,45 @@ const AddCableModal = ({
   const toEq = sortedEquipment.find((e) => e.id === toEqId)
   const fromPorts = fromEq ? [...fromEq.outputs, ...fromEq.inputs] : []
   const toPorts = toEq ? [...toEq.inputs, ...toEq.outputs] : []
+
+  // v7.9.55 — Kabel-Typen aus dem aktuellen Projekt extrahieren
+  // (deduped + sortiert), plus immer-vorhandene Defaults. So sieht der
+  // User vor Ort dieselben Optionen die im Plan schon verwendet werden,
+  // ohne dass wir hier die komplette CableType-Enum hardcoden müssen.
+  const cableTypeOptions = useMemo(() => {
+    const used = new Set<string>()
+    for (const c of project.cables) {
+      if (c.type) used.add(String(c.type))
+    }
+    // Standard-Typen die der Techniker fast immer braucht — wenn das
+    // Projekt noch nichts davon hat, kriegt er sie trotzdem im Dropdown.
+    const defaults = ['SDI', 'BNC', 'HDMI', 'XLR', 'Ethernet/RJ45', 'Fiber', 'Wireless/RF', 'PowerCON', 'IEC 230V', 'Custom']
+    for (const d of defaults) used.add(d)
+    return [...used].sort((a, b) => a.localeCompare(b))
+  }, [project.cables])
+
+  // Längen aus dem Projekt + Standard-Patches damit auch ein leeres
+  // Projekt sofort sinnvolle Auswahl bietet.
+  const lengthOptions = useMemo(() => {
+    const used = new Set<number>()
+    for (const c of project.cables) {
+      if (typeof c.length === 'number' && c.length > 0) used.add(c.length)
+    }
+    for (const d of [0.5, 1, 2, 3, 5, 10, 15, 20, 30, 50, 100]) used.add(d)
+    return [...used].sort((a, b) => a - b)
+  }, [project.cables])
+
+  // Auto-Suggest für Name: "<Type> <FromDevice> → <ToDevice>". Aktiv
+  // solange der User nicht selbst was getippt hat (nameDirty=false).
+  // Sobald er manuell editiert, ist die Auto-Logik aus damit wir seine
+  // Eingabe nicht überschreiben.
+  useEffect(() => {
+    if (nameDirty) return
+    const parts: string[] = []
+    if (cableType) parts.push(cableType)
+    if (fromEq && toEq) parts.push(`${fromEq.name} → ${toEq.name}`)
+    setName(parts.join(' ').trim())
+  }, [cableType, fromEqId, toEqId, nameDirty])
 
   const canSubmit =
     !!fromEqId && !!fromPortId && !!toEqId && !!toPortId && !busy
@@ -737,6 +778,7 @@ const AddCableModal = ({
           name: name.trim() || undefined,
           type: cableType.trim() || undefined,
           length: length ? Number(length) : undefined,
+          notes: notes.trim() || undefined,
         }),
       })
       if (!res.ok) throw new Error(`Server ${res.status}`)
@@ -852,32 +894,68 @@ const AddCableModal = ({
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <label className="block">
-                  <span className="mb-1 block text-slate-300">Typ (opt.)</span>
-                  <input
+                  <span className="mb-1 block text-slate-300">Typ</span>
+                  <select
                     value={cableType}
                     onChange={(e) => setCableType(e.target.value)}
-                    placeholder="SDI / XLR / …"
                     className="w-full rounded border border-slate-700 bg-slate-950 p-2"
-                  />
+                  >
+                    <option value="">— wählen —</option>
+                    {cableTypeOptions.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
                 </label>
                 <label className="block">
-                  <span className="mb-1 block text-slate-300">Länge in m (opt.)</span>
-                  <input
-                    type="number"
-                    inputMode="decimal"
+                  <span className="mb-1 block text-slate-300">Länge (m)</span>
+                  <select
                     value={length}
                     onChange={(e) => setLength(e.target.value)}
                     className="w-full rounded border border-slate-700 bg-slate-950 p-2"
-                  />
+                  >
+                    <option value="">— wählen —</option>
+                    {lengthOptions.map((l) => (
+                      <option key={l} value={l}>
+                        {l} m
+                      </option>
+                    ))}
+                  </select>
                 </label>
               </div>
               <label className="block">
-                <span className="mb-1 block text-slate-300">Name (opt.)</span>
+                <span className="mb-1 block text-slate-300">Name</span>
                 <input
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Auto: 'Gerät A → Gerät B'"
+                  onChange={(e) => {
+                    setName(e.target.value)
+                    setNameDirty(true)
+                  }}
+                  placeholder="Auto: '<Typ> Gerät A → Gerät B'"
                   className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+                />
+                {nameDirty && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNameDirty(false)
+                    }}
+                    className="mt-1 text-[10px] text-sky-400 hover:underline"
+                    title="Wieder automatisch aus Typ + Geräten generieren"
+                  >
+                    ↺ Auto-Name zurücksetzen
+                  </button>
+                )}
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-slate-300">Notizen (opt.)</span>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={2}
+                  placeholder="Z.B. 'Notfall-Patch — bitte später ordentlich verlegen'"
+                  className="w-full resize-none rounded border border-slate-700 bg-slate-950 p-2"
                 />
               </label>
               {err && (
