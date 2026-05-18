@@ -2,6 +2,7 @@ import { memo } from 'react'
 import { NodeResizer, type NodeProps } from 'reactflow'
 import type { LocationFrame } from '../../types/location'
 import { useUiStore } from '../../store/uiStore'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 
 type LocationFrameNodeData = LocationFrame & {
   exportThemeOverride?: 'dark' | 'light'
@@ -14,11 +15,20 @@ type LocationFrameNodeData = LocationFrame & {
  * untouched). Instead, `CanvasArea` implements "soft grouping": when the frame
  * node starts dragging, it snapshots which equipment is inside, and applies
  * the same delta to them. Resulting UX: drag the frame → contents move with it.
+ *
+ * v7.9.86 / #201 — Lock-Schloss-Symbol neben dem Namen. Klick toggelt
+ * `loc.positionLocked` (existiert seit #178). Wenn locked: Frame-Body ist
+ * pointer-events:none — Clicks gehen auf darunterliegende Geräte/Canvas
+ * durch, Drag/Resize sind ausgeschaltet. Nur das Name+Schloss-Plate bleibt
+ * klickbar damit der User entsperren / Settings aufrufen kann.
  */
-export const LocationFrameNode = memo(({ data, selected }: NodeProps<LocationFrameNodeData>) => {
+export const LocationFrameNode = memo(({ id, data, selected }: NodeProps<LocationFrameNodeData>) => {
   const color = data.color || '#38bdf8'
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const isLight = (data.exportThemeOverride ?? canvasTheme) === 'light'
+  const updateLocation = useProjectStore((s) => s.updateLocation)
+  const setSelection = useProjectStore((s) => s.setSelection)
+  const locked = data.positionLocked === true
   return (
     <div
       style={{
@@ -26,32 +36,34 @@ export const LocationFrameNode = memo(({ data, selected }: NodeProps<LocationFra
         height: '100%',
         minWidth: 40,
         minHeight: 40,
-        border: `2px ${selected ? 'solid' : 'dashed'} ${color}`,
+        border: `2px ${selected ? 'solid' : locked ? 'dotted' : 'dashed'} ${color}`,
         borderRadius: 8,
-        background: `${color}12`,
+        background: locked ? `${color}06` : `${color}12`,
         position: 'relative',
         boxSizing: 'border-box',
+        // v7.9.86 / #201 — pointer-events:none auf dem ganzen Body wenn
+        // locked. Lock-Plate (siehe unten) hat eigenes pointer-events:all
+        // damit es weiter klickbar bleibt.
+        pointerEvents: locked ? 'none' : 'auto',
       }}
     >
-      <NodeResizer
-        isVisible={!!selected}
-        minWidth={40}
-        minHeight={40}
-        color={color}
-        // v7.9.68 / #173 — Hit-Zone der Rahmenkanten verbreitert (Bug:
-        // "schwer zu treffen, weil ich genau auf dem Strich sein muss").
-        // Die Linie selbst bleibt visuell 1 px (borderWidth=1), aber das
-        // klickbare Element wird per padding/margin um ±2 px ausgedehnt
-        // — Cursor-Treffer fühlen sich damit großzügiger an, ohne dass
-        // ein dicker Strich auf dem Canvas erscheint.
-        lineStyle={{
-          borderColor: color,
-          borderWidth: 1,
-          margin: -2,
-          padding: 2,
-        }}
-        handleStyle={{ background: color, width: 10, height: 10 }}
-      />
+      {!locked && (
+        <NodeResizer
+          isVisible={!!selected}
+          minWidth={40}
+          minHeight={40}
+          color={color}
+          lineStyle={{
+            borderColor: color,
+            borderWidth: 1,
+            margin: -2,
+            padding: 2,
+          }}
+          handleStyle={{ background: color, width: 10, height: 10 }}
+        />
+      )}
+      {/* Name + Lock-Plate. Immer pointer-events:all damit es auch im
+          locked-State klickbar bleibt. */}
       <div
         style={{
           position: 'absolute',
@@ -65,10 +77,57 @@ export const LocationFrameNode = memo(({ data, selected }: NodeProps<LocationFra
           fontWeight: 600,
           letterSpacing: 0.3,
           userSelect: 'none',
-          pointerEvents: 'none',
+          pointerEvents: 'all',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 4,
+          cursor: 'pointer',
+          opacity: locked ? 0.7 : 1,
         }}
+        onClick={(e) => {
+          // Click auf Name = Location selecten damit Properties aufgehen.
+          e.stopPropagation()
+          setSelection(undefined, undefined, id)
+        }}
+        title={locked
+          ? `${data.name} (gesperrt — Klick auf Schloss zum Entsperren)`
+          : data.name}
       >
-        {data.name}
+        <button
+          type="button"
+          onClick={(e) => {
+            // Lock-Toggle. stopPropagation damit der parent-onClick (select)
+            // nicht zusätzlich feuert.
+            e.stopPropagation()
+            updateLocation(id, { positionLocked: !locked })
+          }}
+          title={locked ? 'Location entsperren' : 'Location sperren (kein Verschieben/Resizen, aber Settings noch erreichbar)'}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            padding: 0,
+            margin: 0,
+            cursor: 'pointer',
+            color,
+            display: 'inline-flex',
+            alignItems: 'center',
+            lineHeight: 1,
+            fontSize: 12,
+          }}
+        >
+          {locked ? (
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="3" y="7" width="10" height="7" rx="1" fill="currentColor" fillOpacity="0.25" />
+              <path d="M5 7V4.5a3 3 0 0 1 6 0V7" />
+            </svg>
+          ) : (
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.6">
+              <rect x="3" y="7" width="10" height="7" rx="1" />
+              <path d="M5 7V4.5a3 3 0 0 1 6 0V6" />
+            </svg>
+          )}
+        </button>
+        <span>{data.name}</span>
       </div>
     </div>
   )

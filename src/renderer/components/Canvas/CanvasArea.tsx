@@ -328,7 +328,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       // überschrieben, weshalb Rahmen auch im finalisierten Plan noch
       // verschiebbar waren.
       draggable: !loc.positionLocked && !lockFrames && !projectIsLocked,
-      selectable: true,
+      // v7.9.86 / #201 — Bei locked Locations auch Selection aus, sonst
+      // erscheinen NodeResizer-Handles und ein versehentlicher Klick
+      // wählt den Frame statt das darunterliegende Gerät. Das Schloss-
+      // Plate selber bleibt klickbar via stopPropagation in LocationFrameNode.
+      selectable: !loc.positionLocked,
     }))
     const equipmentNodes: Node[] = project.equipment.map((item) => ({
       id: item.id,

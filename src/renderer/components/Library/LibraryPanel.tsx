@@ -27,7 +27,14 @@ import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
 import { format, useTranslation } from '../../lib/i18n'
 import { suggestPortGroups, type PortGroupHint } from '../../lib/portSuggestions'
-import { getGeminiApiKey, setGeminiApiKey, suggestFromAI } from '../../lib/aiSuggestions'
+import {
+  getGeminiApiKey,
+  setGeminiApiKey,
+  suggestFromAI,
+  hasAnyAiKey,
+  getSelectedAiProvider,
+  getAiProviderConfig,
+} from '../../lib/aiSuggestions'
 import { suggestFromWeb } from '../../lib/webPortSuggestions'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, EquipmentTemplate, Port } from '../../types/equipment'
@@ -947,19 +954,23 @@ export const LibraryPanel = () => {
     name: string
     category: string
   }) => {
-    if (!getGeminiApiKey()) {
-      void infoDialog('Kein Gemini-API-Key', {
-        body: 'Bitte zuerst in den Einstellungen oder im Library-Header einen Gemini-API-Key hinterlegen.',
+    // v7.9.86 / #197 — hasAnyAiKey statt nur Gemini-spezifisch. Label-
+    // Strings nehmen den aktuellen Provider damit der User weiß welcher
+    // gerade aktiv ist.
+    if (!hasAnyAiKey()) {
+      void infoDialog('Kein AI-API-Key', {
+        body: 'Bitte zuerst in den Einstellungen → AI-Provider einen Key (Gemini, Claude oder OpenAI) hinterlegen.',
         tone: 'warning',
       })
       return
     }
+    const providerLabel = getAiProviderConfig(getSelectedAiProvider()).label
     setRentmanAiBusyId(item.id)
     try {
       const hints = await suggestFromAI(item.name, item.category)
       if (hints.length === 0) {
         await infoDialog('Keine Ports vorgeschlagen', {
-          body: `Gemini hat für "${item.name}" keine Ports zurückgegeben. Du kannst das Gerät stattdessen leer auf den Canvas ziehen und Ports manuell pflegen.`,
+          body: `${providerLabel} hat für "${item.name}" keine Ports zurückgegeben. Du kannst das Gerät stattdessen leer auf den Canvas ziehen und Ports manuell pflegen.`,
           tone: 'warning',
         })
         return
@@ -1000,11 +1011,11 @@ export const LibraryPanel = () => {
       }
       addCustomTemplate(template)
       await infoDialog(`"${item.name}" angelegt`, {
-        body: `${inputs.length} Inputs + ${outputs.length} Outputs von Gemini vorgeschlagen. Du findest das Gerät jetzt im "Importiert"-Tab und kannst es auf den Canvas ziehen.`,
+        body: `${inputs.length} Inputs + ${outputs.length} Outputs von ${providerLabel} vorgeschlagen. Du findest das Gerät jetzt im "Importiert"-Tab und kannst es auf den Canvas ziehen.`,
         tone: 'success',
       })
     } catch (err) {
-      await infoDialog('Gemini-Aufruf fehlgeschlagen', {
+      await infoDialog(`${providerLabel}-Aufruf fehlgeschlagen`, {
         body: err instanceof Error ? err.message : String(err),
         tone: 'error',
       })
