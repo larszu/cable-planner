@@ -4,6 +4,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { RoutingToggle } from '../shared/RoutingToggle'
+import { LayerVisibilityChips } from './LayerVisibilityChips'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
@@ -635,6 +636,13 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           Annotations sind Project-Level-Concerns, nicht Rack-intern. */}
       {mode === 'main' && <>
       <span style={{ ...dividerStyle, marginLeft: 'auto' }} />
+      {/* v7.9.85 / #123 — Layer-Visibility-Chips (Video/Audio/Control/
+          Network/Power + Custom). Klick toggelt Layer-Sichtbarkeit;
+          gefiltert wird nur das KABEL, nicht das Gerät (Option A aus
+          #123). Aus AV-Industrie-Recherche: D-Tools, Stardraw, AVECAV
+          nutzen genau diese 5 Top-Level-Layer als Branchenstandard. */}
+      <LayerVisibilityChips />
+      <span style={dividerStyle} />
       {/* v7.9.67 / #177 — 3 Lock-Mode-Buttons (Rahmen / Geräte / Kabel).
           Toggelt globalen Schutz gegen Verschieben pro Objektart. */}
       {([

@@ -73,4 +73,10 @@ export interface Cable {
    *  Canvas rendert dafür ein "📱"-Badge, damit der Planer sieht welche
    *  Verbindungen aus dem Feld nachgepflegt wurden. */
   addedFromMobile?: boolean
+  /** v7.9.85 / #123 — Layer-Zuordnung für Ebenen-Filter ("nur Netzwerk",
+   *  "nur Video" etc.). Top-Level-Layer aus dem AV/Broadcast-Industrie-
+   *  Standard: video / audio / control / network / power. User-definierte
+   *  Sub-Layer werden als freier String erlaubt (z.B. "video.primary",
+   *  "audio.foh"). Undefined = ungrouped / immer sichtbar. */
+  layer?: string
 }
