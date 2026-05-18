@@ -336,6 +336,12 @@ export interface EquipmentItem {
   /** Tiefe in mm. Wird vom 3D-Rack genutzt um zu prüfen ob ein Patchblende
    *  noch hinter das Gerät passt. Default beim Rendering: 400 mm. */
   depthMm?: number
+  /** v7.9.80 / #170 — Physische Breite in mm (für Non-19″-Geräte auf
+   *  Rack-Shelves). Wird vom 3D-Renderer als reale Box-Breite genutzt.
+   *  Unterscheidet sich von `width` (Pixel-Größe für Canvas-Rendering). */
+  widthMm?: number
+  /** v7.9.80 / #170 — Physische Höhe in mm (für Non-19″-Geräte auf Shelves). */
+  heightMm?: number
   /** v7.9.73 / #170 — Optionale STL-Datei (als data:application/octet-stream
    *  base64-URI) für das 3D-Modell des Geräts. Wenn vorhanden, rendert der
    *  3D-Rack-Builder die echte Geometrie statt einer prozeduralen Box.
