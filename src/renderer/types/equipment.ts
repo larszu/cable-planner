@@ -91,6 +91,16 @@ export interface Port {
    * For Fiber ports: module vendor (e.g. "Cisco", "Aruba", "Ubiquiti", "FS.com").
    */
   sfpVendor?: string
+  /**
+   * v7.9.77 / #170 — Manual position override of the port-dot on the
+   * device's rack-panel (front oder rear). Normalized 0..1 across the
+   * panel face (0=links/oben, 1=rechts/unten). Wenn nicht gesetzt,
+   * verteilt der Renderer die Ports gleichmäßig (Default-Layout).
+   * Wird interaktiv per Drag in 2D-Rack-Preview / 3D-View gesetzt, damit
+   * die Dots zu importierten Front-/Rear-Panel-Fotos passen.
+   */
+  panelPosX?: number
+  panelPosY?: number
 }
 
 /** v7.5.0 — a named operating mode for a device whose port layout

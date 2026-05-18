@@ -33,6 +33,15 @@ const RACK_MOUNT_WIDTH_MM = 450
 const DEFAULT_RACK_DEPTH_MM = 800
 const DEFAULT_DEVICE_DEPTH_MM = 400
 
+interface Rack3DPort {
+  id: string
+  name: string
+  connectorType: string
+  /** Normalized 0..1 across panel face, or undefined for auto-layout. */
+  panelPosX?: number
+  panelPosY?: number
+}
+
 interface Rack3DPlacement {
   id: string
   name: string
@@ -48,6 +57,43 @@ interface Rack3DPlacement {
   portCount?: number
   isPatchPanel?: boolean
   isRackShelf?: boolean
+  /** v7.9.77 / #170 — Front + Rear Port-Listen für 3D-Dot-Rendering.
+   *  Front entspricht inputs[], Rear entspricht outputs[]. */
+  frontPorts?: Rack3DPort[]
+  rearPorts?: Rack3DPort[]
+}
+
+/** v7.9.77 / #170 — Port-Connector-Type → Dot-Farbe. Vereinheitlicht mit
+ *  dem 2D-Canvas port-by-type Color-Scheme. */
+const PORT_DOT_COLORS: Record<string, string> = {
+  BNC: '#fbbf24',
+  HDMI: '#a855f7',
+  'Ethernet/RJ45': '#10b981',
+  Fiber: '#3b82f6',
+  SFP: '#06b6d4',
+  'SFP+': '#06b6d4',
+  XLR: '#ef4444',
+  Custom: '#94a3b8',
+}
+
+const portDotColor = (connectorType: string): string =>
+  PORT_DOT_COLORS[connectorType] ?? '#94a3b8'
+
+/** v7.9.77 / #170 — Default-Port-Position (Grid-Layout) wenn der User
+ *  keine manuelle Position gesetzt hat. Ports werden in einer Spalten-
+ *  Grid auf der Panel-Face verteilt. Vermeidet Überlapp bei vielen Ports.
+ */
+const computeDefaultPortPosition = (index: number, total: number): { x: number; y: number } => {
+  if (total <= 1) return { x: 0.5, y: 0.5 }
+  // Choose column count so layout stays ungefähr square-ish.
+  const cols = Math.ceil(Math.sqrt(total * 2.5)) // mehr Spalten als Zeilen weil Panel breit ist
+  const rows = Math.ceil(total / cols)
+  const col = index % cols
+  const row = Math.floor(index / cols)
+  return {
+    x: (col + 0.5) / cols,
+    y: (row + 0.5) / rows,
+  }
 }
 
 interface Rack3DViewProps {
@@ -56,6 +102,26 @@ interface Rack3DViewProps {
   placements: Rack3DPlacement[]
   selectedPlacementId: string | null
   onSelectPlacement: (id: string | null) => void
+  /** v7.9.77 / #170 — Drag-Callback wenn der User einen Port-Dot
+   *  verschoben hat. Übergibt placement-id, port-id, side und die neue
+   *  normalisierte Position. Lokales State-Tracking während des Drags
+   *  passiert intern; Persistierung erst beim Drag-End. */
+  onPortMoved?: (
+    placementId: string,
+    portId: string,
+    side: 'front' | 'rear',
+    pos: { x: number; y: number },
+  ) => void
+  /** v7.9.78 / #170 — Internal Cables zwischen Patchpunkten. */
+  internalCables?: Array<{
+    fromPlacementId: string
+    fromPortId: string
+    fromSide: 'front' | 'rear'
+    toPlacementId: string
+    toPortId: string
+    toSide: 'front' | 'rear'
+    color?: string
+  }>
 }
 
 const Chassis = ({
@@ -159,12 +225,14 @@ const DeviceBox = ({
   totalUnits,
   selected,
   onClick,
+  onPortMoved,
 }: {
   placement: Rack3DPlacement
   rackDepthMm: number
   totalUnits: number
   selected: boolean
   onClick: () => void
+  onPortMoved?: Rack3DViewProps['onPortMoved']
 }) => {
   const mountSide = placement.mountSide ?? 'full'
   const depthMm = Math.max(20, placement.depthMm ?? DEFAULT_DEVICE_DEPTH_MM)
@@ -237,6 +305,33 @@ const DeviceBox = ({
         <boxGeometry args={[widthMm, heightMm, depthMm]} />
         <Edges color={selected ? '#0ea5e9' : '#020617'} threshold={15} />
       </mesh>
+      {/* v7.9.77 / #170 — Port-Dots auf Front-Face (-Z) und Rear-Face (+Z).
+          Werden minimal nach außen versetzt (zOffset ±1 mm) damit sie
+          immer vor dem Panel-Foto sichtbar bleiben. */}
+      {placement.frontPorts && placement.frontPorts.length > 0 && (
+        <PortDots
+          ports={placement.frontPorts}
+          side="front"
+          placementId={placement.id}
+          faceCenter={[xCenter, yCenter, zStart - 1]}
+          widthMm={widthMm * 0.95}
+          heightMm={heightMm * 0.85}
+          zOffset={0}
+          onPortMoved={onPortMoved}
+        />
+      )}
+      {placement.rearPorts && placement.rearPorts.length > 0 && (
+        <PortDots
+          ports={placement.rearPorts}
+          side="rear"
+          placementId={placement.id}
+          faceCenter={[xCenter, yCenter, zStart + depthMm + 1]}
+          widthMm={widthMm * 0.95}
+          heightMm={heightMm * 0.85}
+          zOffset={0}
+          onPortMoved={onPortMoved}
+        />
+      )}
       <Html
         position={[xCenter, yCenter, mountSide === 'rear' ? zStart - 5 : zStart + depthMm + 5]}
         center
@@ -254,6 +349,118 @@ const DeviceBox = ({
       >
         {placement.name} ({placement.rackUnits}HE)
       </Html>
+    </group>
+  )
+}
+
+/** v7.9.77 / #170 — Port-Dots auf einer Panel-Face (Front oder Rear).
+ *  Rendert kleine Kugeln, deren Position normiert auf der Face liegt.
+ *  Drag: onPointerDown auf einer Kugel → onPointerMove raycaster
+ *  schneidet wieder die Face → neue normierte Position → onPortMoved.
+ *
+ *  Face-Koordinaten:
+ *   - Face liegt in der XY-Ebene des Geräts (W × H)
+ *   - x ∈ [0..1] mappt auf widthMm
+ *   - y ∈ [0..1] mappt auf heightMm
+ *   - z = 0 (auf der Face) — wir lupen die Dots minimal nach außen
+ *     damit sie auf dem Foto sichtbar sind (zOffset = +0.5 mm)
+ */
+const PortDots = ({
+  ports,
+  side,
+  placementId,
+  faceCenter,
+  widthMm,
+  heightMm,
+  zOffset,
+  onPortMoved,
+}: {
+  ports: Rack3DPort[]
+  side: 'front' | 'rear'
+  placementId: string
+  faceCenter: [number, number, number] // world center of the face plane
+  widthMm: number
+  heightMm: number
+  /** Outward offset from face center along normal (positive = outside-of-box). */
+  zOffset: number
+  onPortMoved?: Rack3DViewProps['onPortMoved']
+}) => {
+  // Während eines Drags speichern wir lokal die neue Position, damit der
+  // Dot beim Slide live folgt (statt erst nach Drop neu zu rendern).
+  const [dragOverride, setDragOverride] = useState<{ id: string; x: number; y: number } | null>(null)
+  const draggingRef = useRef<{ id: string; pointerId: number } | null>(null)
+  const meshRefs = useRef<Map<string, THREE.Mesh>>(new Map())
+
+  // Sichere Höhe für Dot-Geometrie: ~6mm Radius, aber max 1/3 der HE-Höhe
+  // damit sie bei kleinen 1HE-Boxen nicht den ganzen Bereich überdecken.
+  const dotRadius = Math.min(6, heightMm * 0.18)
+
+  return (
+    <group>
+      {ports.map((port, idx) => {
+        const override = dragOverride?.id === port.id ? dragOverride : null
+        const px = override?.x ?? port.panelPosX ?? computeDefaultPortPosition(idx, ports.length).x
+        const py = override?.y ?? port.panelPosY ?? computeDefaultPortPosition(idx, ports.length).y
+        // Face-X: 0..1 → -widthMm/2 .. +widthMm/2 (in face local space).
+        // Y wird invertiert (oben=0 fühlt sich natürlicher an): py=0 → +heightMm/2.
+        const faceX = (px - 0.5) * widthMm
+        const faceY = (0.5 - py) * heightMm
+        // World: faceCenter ist bereits world-position. Für Front (-Z normal)
+        // schieben wir den Dot in -Z Richtung (zOffset negativ); für Rear
+        // in +Z. Der zOffset-Param trägt das schon vorzeichenrichtig.
+        const worldX = faceCenter[0] + faceX
+        const worldY = faceCenter[1] + faceY
+        const worldZ = faceCenter[2] + zOffset
+        return (
+          <mesh
+            key={port.id}
+            ref={(m) => {
+              if (m) meshRefs.current.set(port.id, m)
+              else meshRefs.current.delete(port.id)
+            }}
+            position={[worldX, worldY, worldZ]}
+            onPointerDown={(e) => {
+              if (!onPortMoved) return
+              e.stopPropagation()
+              ;(e.target as Element).setPointerCapture?.(e.pointerId)
+              draggingRef.current = { id: port.id, pointerId: e.pointerId }
+            }}
+            onPointerMove={(e) => {
+              const drag = draggingRef.current
+              if (!drag || drag.id !== port.id || drag.pointerId !== e.pointerId) return
+              // Raycast-Trick: e.point ist der getroffene World-Punkt
+              // (r3f setzt das beim pointer event). Wir konvertieren zurück
+              // in Face-Local (faceCenter abziehen, durch w/h teilen).
+              const hit = e.point as THREE.Vector3
+              const localX = hit.x - faceCenter[0]
+              const localY = hit.y - faceCenter[1]
+              const nx = Math.max(0, Math.min(1, localX / widthMm + 0.5))
+              const ny = Math.max(0, Math.min(1, 0.5 - localY / heightMm))
+              setDragOverride({ id: port.id, x: nx, y: ny })
+            }}
+            onPointerUp={(e) => {
+              const drag = draggingRef.current
+              if (!drag || drag.id !== port.id) return
+              ;(e.target as Element).releasePointerCapture?.(e.pointerId)
+              const override = dragOverride?.id === port.id ? dragOverride : null
+              if (override && onPortMoved) {
+                onPortMoved(placementId, port.id, side, { x: override.x, y: override.y })
+              }
+              draggingRef.current = null
+              setDragOverride(null)
+            }}
+          >
+            <sphereGeometry args={[dotRadius, 12, 12]} />
+            <meshStandardMaterial
+              color={portDotColor(port.connectorType)}
+              emissive={portDotColor(port.connectorType)}
+              emissiveIntensity={0.3}
+              roughness={0.4}
+              metalness={0.5}
+            />
+          </mesh>
+        )
+      })}
     </group>
   )
 }
@@ -376,12 +583,92 @@ const DeviceSTL = ({
   )
 }
 
+/** v7.9.78 / #170 — Rack-interne Verkabelung als 3D-Linien. Berechnet
+ *  pro Cable die Welt-Position des From- und To-Ports, baut eine
+ *  BufferGeometry mit 2 (oder mehr für Kurven) Punkten und rendert sie
+ *  als <line>. Farbe aus cable.color oder Connector-Default.
+ */
+const InternalCables3D = ({
+  placements,
+  totalUnits,
+  rackDepthMm,
+  cables,
+}: {
+  placements: Rack3DPlacement[]
+  totalUnits: number
+  rackDepthMm: number
+  cables: NonNullable<Rack3DViewProps['internalCables']>
+}) => {
+  // Helper: berechne World-Position eines bestimmten Port-Dots auf einer
+  // Face. Identisch zur PortDots-Mathe; dupliziert hier weil wir die
+  // Position OHNE Mesh-Render brauchen.
+  const portWorldPos = (
+    placement: Rack3DPlacement,
+    portId: string,
+    side: 'front' | 'rear',
+  ): THREE.Vector3 | null => {
+    const ports = side === 'front' ? placement.frontPorts : placement.rearPorts
+    if (!ports) return null
+    const idx = ports.findIndex((p) => p.id === portId)
+    if (idx < 0) return null
+    const p = ports[idx]
+    const depthMm = Math.max(20, placement.depthMm ?? DEFAULT_DEVICE_DEPTH_MM)
+    const mountSide = placement.mountSide ?? 'full'
+    const yBottom = (totalUnits - placement.startUnit - placement.rackUnits + 1) * HE_HEIGHT_MM
+    const heightMm = placement.rackUnits * HE_HEIGHT_MM
+    const widthMm = RACK_MOUNT_WIDTH_MM * 0.95
+    const heightActiveMm = heightMm * 0.85
+    const zStart = mountSide === 'rear' ? rackDepthMm - depthMm : 0
+    const xCenter = RACK_OUTER_WIDTH_MM / 2
+    const yCenter = yBottom + heightMm / 2
+    const faceZ = side === 'front' ? zStart - 1 : zStart + depthMm + 1
+    const px = p.panelPosX ?? computeDefaultPortPosition(idx, ports.length).x
+    const py = p.panelPosY ?? computeDefaultPortPosition(idx, ports.length).y
+    const faceX = (px - 0.5) * widthMm
+    const faceY = (0.5 - py) * heightActiveMm
+    return new THREE.Vector3(xCenter + faceX, yCenter + faceY, faceZ)
+  }
+
+  return (
+    <group>
+      {cables.map((c, idx) => {
+        const fromPl = placements.find((p) => p.id === c.fromPlacementId)
+        const toPl = placements.find((p) => p.id === c.toPlacementId)
+        if (!fromPl || !toPl) return null
+        const fromPos = portWorldPos(fromPl, c.fromPortId, c.fromSide)
+        const toPos = portWorldPos(toPl, c.toPortId, c.toSide)
+        if (!fromPos || !toPos) return null
+        // Kurze Out-of-Face-Strecke (Stub) damit das Kabel nicht direkt
+        // im Port verschwindet. 30mm außerhalb der Face entlang Normal.
+        const stubLen = 30
+        const fromStub = fromPos.clone()
+        fromStub.z += c.fromSide === 'front' ? -stubLen : stubLen
+        const toStub = toPos.clone()
+        toStub.z += c.toSide === 'front' ? -stubLen : stubLen
+        const points = [fromPos, fromStub, toStub, toPos]
+        const geom = new THREE.BufferGeometry().setFromPoints(points)
+        const color = c.color ?? '#22d3ee'
+        return (
+          <primitive key={`${c.fromPlacementId}-${c.fromPortId}-${idx}`} object={
+            new THREE.Line(
+              geom,
+              new THREE.LineBasicMaterial({ color, linewidth: 2 }),
+            )
+          } />
+        )
+      })}
+    </group>
+  )
+}
+
 export const Rack3DView = ({
   totalUnits,
   rackDepthMm,
   placements,
   selectedPlacementId,
   onSelectPlacement,
+  onPortMoved,
+  internalCables,
 }: Rack3DViewProps) => {
   const depthMm = rackDepthMm ?? DEFAULT_RACK_DEPTH_MM
   const orbitRef = useRef<unknown>(null)
@@ -439,9 +726,20 @@ export const Rack3DView = ({
                 totalUnits={totalUnits}
                 selected={selectedPlacementId === p.id}
                 onClick={() => onSelectPlacement(p.id)}
+                onPortMoved={onPortMoved}
               />
             )
           })}
+          {/* v7.9.78 / #170 — Rack-interne Verkabelung als Linien zwischen
+              den jeweiligen Port-Dots. Vereinfachte gerade Linie — wer
+              schöne Routing-Kurven will, kann später CatmullRomCurve3
+              dazwischen ziehen. */}
+          <InternalCables3D
+            placements={placements}
+            totalUnits={totalUnits}
+            rackDepthMm={depthMm}
+            cables={internalCables ?? []}
+          />
         </Suspense>
         <OrbitControls
           ref={orbitRef as never}
