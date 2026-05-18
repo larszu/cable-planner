@@ -189,5 +189,37 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.on('mobileShare:checksUpdate', listener)
       return () => ipcRenderer.removeListener('mobileShare:checksUpdate', listener)
     },
+    // v7.9.54 — Mobile-User hat ein Kabel via Dropdown-UI im Phone
+    // hinzugefügt. Renderer fügt es ins Projekt ein mit addedFromMobile=true.
+    onCableAdded: (
+      cb: (cable: {
+        fromEquipmentId: string
+        fromPortId: string
+        toEquipmentId: string
+        toPortId: string
+        name?: string
+        type?: string
+        length?: number
+        color?: string
+        notes?: string
+      }) => void,
+    ) => {
+      const listener = (
+        _event: unknown,
+        cable: {
+          fromEquipmentId: string
+          fromPortId: string
+          toEquipmentId: string
+          toPortId: string
+          name?: string
+          type?: string
+          length?: number
+          color?: string
+          notes?: string
+        },
+      ) => cb(cable)
+      ipcRenderer.on('mobileShare:cableAdded', listener)
+      return () => ipcRenderer.removeListener('mobileShare:cableAdded', listener)
+    },
   },
 })

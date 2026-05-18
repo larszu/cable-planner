@@ -375,6 +375,17 @@ export default function App() {
     })
   }, [setCheckState])
 
+  // v7.9.54 — Mobile-User hat ein Kabel via Dropdown-UI hinzugefügt.
+  // ProjectStore fügt es mit addedFromMobile=true ein → Canvas zeigt
+  // sofort ein 📱-Badge am neuen Edge.
+  const addCableFromMobile = useProjectStore((s) => s.addCableFromMobile)
+  useEffect(() => {
+    if (!hasDesktopBridge) return
+    return cablePlannerApi.mobileShare.onCableAdded((cable) => {
+      addCableFromMobile(cable)
+    })
+  }, [addCableFromMobile])
+
   // Issue #69: dispatch user-customizable hotkeys defined in
   // Settings → Hotkeys. The undo/redo entries below intentionally
   // overlap with useUndoRedoShortcuts() — only the first matching
