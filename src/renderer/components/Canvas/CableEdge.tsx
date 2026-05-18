@@ -524,8 +524,13 @@ export const CableEdge = ({
   }
 
   // Build label text: for wireless cables, prefix with signal icon + frequency/channel info
+  // v7.9.68 / #182 — Zusätzlich Max-Reichweite (m) anhängen, wenn gepflegt.
   const wirelessSuffix = isWireless
-    ? ` 〜${cable?.frequency ? ` ${cable.frequency}` : ''}${cable?.wifiChannel ? ` CH${cable.wifiChannel}` : ''}`
+    ? ` 〜${cable?.frequency ? ` ${cable.frequency}` : ''}${cable?.wifiChannel ? ` CH${cable.wifiChannel}` : ''}${
+        typeof cable?.maxRange === 'number' && cable.maxRange > 0
+          ? ` ≤${cable.maxRange} m`
+          : ''
+      }`
     : ''
   // v7.9.54 — Kabel die vom Mobile-Viewer hinzugefügt wurden (Techniker
   // vor Ort) kriegen ein 📱-Prefix damit der Planer sie auf einen Blick

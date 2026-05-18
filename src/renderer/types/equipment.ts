@@ -312,6 +312,11 @@ export interface EquipmentItem {
     fileVersion: number
     modifiedAt: string
   }
+  /** v7.9.67 / #178 — When true the canvas drag handle is disabled for
+   *  this device. Toggled per device via Rechtsklick → "Position sperren".
+   *  Persists in the project file, independent of the global toolbar-mode
+   *  lock from #177. */
+  positionLocked?: boolean
 }
 
 /**

@@ -148,8 +148,10 @@ interface PersistedUiState {
     light: EquipmentColorTokens
     dark: EquipmentColorTokens
   }
-  setEquipmentColors: (theme: 'light' | 'dark', patch: Partial<EquipmentColorTokens>) => void
-  resetEquipmentColors: (theme?: 'light' | 'dark') => void
+  /** v7.9.63 / #172 — Default-Farbe für neu hinzugefügte Geräte.
+   *  undefined = kein Override (Theme-Default wird benutzt). User
+   *  setzt das in Settings → Erscheinungsbild. */
+  defaultDeviceColor: string | undefined
   /** Issue #71: canvas background pattern variant. 'dots' draws the
    *  ReactFlow dot grid (default), 'lines' draws orthogonal lines,
    *  'cross' draws a + at each grid intersection, 'none' disables. */
@@ -251,6 +253,7 @@ const defaults: PersistedUiState = {
     light: { ...DEFAULT_EQUIPMENT_COLORS_LIGHT },
     dark: { ...DEFAULT_EQUIPMENT_COLORS_DARK },
   },
+  defaultDeviceColor: undefined,
   bgVariant: 'dots',
   bgOpacity: 0.5,
   customCableSpecs: [],
@@ -520,6 +523,9 @@ interface UiState extends PersistedUiState {
   setAnnotationAuthor: (name: string) => void
   setConnectorTypeColor: (connectorType: string, color: string | null) => void
   resetConnectorTypeColors: () => void
+  setEquipmentColors: (theme: 'light' | 'dark', patch: Partial<EquipmentColorTokens>) => void
+  resetEquipmentColors: (theme?: 'light' | 'dark') => void
+  setDefaultDeviceColor: (color: string | undefined) => void
   setBgVariant: (value: 'dots' | 'lines' | 'cross' | 'none') => void
   setBgOpacity: (value: number) => void
   /** Add a new custom cable spec. The store assigns a `custom-cable:`
@@ -581,6 +587,16 @@ interface UiState extends PersistedUiState {
    *  ausgeblendet. Praktisch um den Canvas kurz "sauber" zu sehen. */
   annotationsVisible: boolean
   setAnnotationsVisible: (visible: boolean) => void
+  /** v7.9.67 / #177 — Toolbar-Modi zum Sperren ganzer Objektarten gegen
+   *  Verschieben/Resize. Wirkt zusätzlich zur per-Device-Sperre (#178) und
+   *  zum Plan-Lock. Session-only (nicht persistiert), weil das ein
+   *  temporärer Schutz während des Editierens ist. */
+  lockFrames: boolean
+  lockEquipment: boolean
+  lockCables: boolean
+  setLockFrames: (v: boolean) => void
+  setLockEquipment: (v: boolean) => void
+  setLockCables: (v: boolean) => void
   videohubExport: { open: boolean; deviceId?: string; initialShowMatrix?: boolean }
   openVideohubExport: (deviceId?: string, initialShowMatrix?: boolean) => void
   closeVideohubExport: () => void
@@ -717,6 +733,7 @@ const applyPatch =
       annotationAuthor: state.annotationAuthor,
       connectorTypeColors: state.connectorTypeColors,
       equipmentColors: state.equipmentColors,
+      defaultDeviceColor: state.defaultDeviceColor,
       bgVariant: state.bgVariant,
       bgOpacity: state.bgOpacity,
       customCableSpecs: state.customCableSpecs,
@@ -782,6 +799,7 @@ export const useUiStore = create<UiState>((set) => ({
       }
       return applyPatch({ equipmentColors: next })(state)
     }),
+  setDefaultDeviceColor: (color) => set(applyPatch({ defaultDeviceColor: color || undefined })),
   resetEquipmentColors: (theme) =>
     set((state) => {
       if (theme === 'light') {
@@ -935,6 +953,12 @@ export const useUiStore = create<UiState>((set) => ({
   setAnnotationsPanelOpen: (open) => set({ annotationsPanelOpen: open }),
   annotationsVisible: true,
   setAnnotationsVisible: (visible) => set({ annotationsVisible: visible }),
+  lockFrames: false,
+  lockEquipment: false,
+  lockCables: false,
+  setLockFrames: (v) => set({ lockFrames: v }),
+  setLockEquipment: (v) => set({ lockEquipment: v }),
+  setLockCables: (v) => set({ lockCables: v }),
   videohubExport: { open: false },
   openVideohubExport: (deviceId, initialShowMatrix) => set({ videohubExport: { open: true, deviceId, initialShowMatrix } }),
   closeVideohubExport: () => set({ videohubExport: { open: false } }),

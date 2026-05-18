@@ -98,6 +98,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // Annotations setzen (UI in CanvasToolbar + AnnotationsPanel).
   const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
   const projectIsLocked = projectMode === 'finalized' || projectMode === 'viewer'
+  // v7.9.67 / #177 — Toolbar-Sperren für ganze Objektarten.
+  const lockFrames = useUiStore((s) => s.lockFrames)
+  const lockEquipment = useUiStore((s) => s.lockEquipment)
   const wrapperRef = useRef<HTMLDivElement>(null)
   // Last screen-pixel mouse position over the canvas. Used by Strg++ quick-add
   // (#44) so the new device lands where the user pointed instead of always at
@@ -319,7 +322,12 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       data: { ...loc, exportThemeOverride: pdfExportThemeOverride },
       zIndex: -1,
       style: { width: loc.width, height: loc.height },
-      draggable: true,
+      // v7.9.68 — Per-Frame-Lock (#178) ODER globaler Toolbar-Lock (#177)
+      // ODER Plan-Lock (#173 Punkt 3) blockiert Drag. Bisher hat das
+      // per-node draggable: true den globalen nodesDraggable={false}
+      // überschrieben, weshalb Rahmen auch im finalisierten Plan noch
+      // verschiebbar waren.
+      draggable: !loc.positionLocked && !lockFrames && !projectIsLocked,
       selectable: true,
     }))
     const equipmentNodes: Node[] = project.equipment.map((item) => ({
@@ -327,9 +335,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       type: 'equipment',
       position: { x: item.x, y: item.y },
       data: { ...item, exportThemeOverride: pdfExportThemeOverride },
+      // v7.9.68 — analog für Geräte.
+      draggable: !item.positionLocked && !lockEquipment && !projectIsLocked,
     }))
     return [...locationNodes, ...equipmentNodes]
-  }, [project.equipment, locations, pdfExportThemeOverride])
+  }, [project.equipment, locations, pdfExportThemeOverride, lockFrames, lockEquipment, projectIsLocked])
 
   // Local state keeps React Flow's controlled node positions in sync during drag.
   // We initialise once from the store and then apply changes incrementally.
@@ -362,6 +372,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // Briefly flash a node red when its drag is rejected due to overlap, so the
   // user understands why the device snapped back (not a glitch).
   const [overlapFlashId, setOverlapFlashId] = useState<string | null>(null)
+  // v7.9.67 / #178 — Rechtsklick-Kontextmenü pro Node. {clientX, clientY} sind
+  // Screen-Pixel (für die Position des Fixed-Overlays), nodeId/nodeType
+  // identifizieren das angeklickte Element. null = Menu geschlossen.
+  const [nodeContextMenu, setNodeContextMenu] = useState<
+    | { clientX: number; clientY: number; nodeId: string; nodeType: 'equipment' | 'location' }
+    | null
+  >(null)
   const flashOverlap = (id: string) => {
     setOverlapFlashId(id)
     window.setTimeout(() => setOverlapFlashId(null), 500)
@@ -373,6 +390,26 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // in the set takes its position from the store - that allows Undo/Redo to
   // move nodes back visually when the store reverts.
   const draggingIdsRef = useRef<Set<string>>(new Set())
+
+  // v7.9.66 / #187 — Shift = Axis-Lock beim Drag. dragStartPositionsRef hält
+  // pro Node-Id die Startposition (am dragstart aufgenommen), damit wir live
+  // bei jedem dragging-Position-Change |dx| vs |dy| vergleichen und die
+  // kleinere Achse auf den Startwert klemmen können. shiftKeyRef wird live
+  // per window keydown/keyup gepflegt, damit der User Shift mitten im Drag
+  // drücken/loslassen kann.
+  const dragStartPositionsRef = useRef<Map<string, { x: number; y: number }>>(new Map())
+  const shiftKeyRef = useRef(false)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      shiftKeyRef.current = e.shiftKey
+    }
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('keyup', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keyup', onKey)
+    }
+  }, [])
 
   // Sync store → RF for structural changes (adds/removes) AND data changes
   // (name, ports, IP, etc. edited in the Properties panel). Position is kept
@@ -415,7 +452,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         // below. This tells ReactFlow to re-register handle positions so
         // cable edges re-route to the correct port after port edits (#20).
         if (existing.data !== n.data) changedIds.push(n.id)
-        return { ...existing, data: n.data }
+        // v7.9.67 / #178 + #177 — `draggable` muss aus dem frisch berechneten
+        // nodes-Memo durchgereicht werden, weil sich der Wert mit dem
+        // Toolbar-Lock UND mit dem Per-Device-Lock ändern kann. Ohne diese
+        // Zeile hätte rfNodes den Lock-State von der Erst-Initialisierung.
+        return { ...existing, data: n.data, draggable: n.draggable }
       })
     })
     if (projectChanged) {
@@ -473,16 +514,32 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     [project.cables, cableColorMode, pdfExportThemeOverride],
   )
 
-  // Helper: check if equipment position overlaps with others
+  // Helper: check if equipment position overlaps with others.
+  // v7.9.69 / #183 — Ghost-Blocking-Fix:
+  //  1. Bevorzuge die LIVE-gemessenen Dimensionen aus rfNodes (n.width /
+  //     n.height) statt der im Store gespeicherten Werte. Stored width/
+  //     height können veraltet sein (z.B. nach Port-Änderungen, die das
+  //     Layout schrumpfen), während rfNodes immer das aktuelle DOM-
+  //     Bounding-Rect kennt.
+  //  2. EPSILON von 1 px Toleranz: AABB-Tests mit strenger <= Vergleichung
+  //     melden bei exakter Kante-an-Kante-Adjazenz Overlap. 1 px Slack
+  //     macht "an die Nachbar-Karte schmiegen" wieder möglich.
   const hasOverlap = useCallback((id: string, x: number, y: number, width: number, height: number): boolean => {
+    const EPS = 1
     return project.equipment.some((eq) => {
       if (eq.id === id) return false
-      const eqW = eq.width ?? 0
-      const eqH = eq.height ?? 0
-      // AABB intersection test
-      return !(x + width <= eq.x || x >= eq.x + eqW || y + height <= eq.y || y >= eq.y + eqH)
+      const rfNode = rfNodes.find((n) => n.id === eq.id)
+      const eqW = rfNode?.width ?? eq.width ?? 0
+      const eqH = rfNode?.height ?? eq.height ?? 0
+      if (eqW <= 0 || eqH <= 0) return false
+      return !(
+        x + width <= eq.x + EPS ||
+        x + EPS >= eq.x + eqW ||
+        y + height <= eq.y + EPS ||
+        y + EPS >= eq.y + eqH
+      )
     })
-  }, [project.equipment])
+  }, [project.equipment, rfNodes])
 
   const onNodesChange = (changes: NodeChange[]) => {
     // snap helper used both in the locked and normal paths
@@ -567,7 +624,62 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         }
       }
     }
+
+    // v7.9.66 / #187 — Shift = Axis-Lock. Bei jedem Position-Change (sowohl
+    // dragging:true als auch dragging:false drag-end) |dx| vs |dy| vergleichen
+    // und die kleinere Achse auf den am dragstart gespeicherten Startwert
+    // klemmen. dragging:false MUSS auch geklemmt werden, weil ReactFlow das
+    // finale drag-end auf Basis seiner eigenen Pointer-Tracking-State berechnet
+    // (nicht aus unserem geklemmten rfNodes), sonst springt das Gerät beim
+    // Loslassen an die ungeklemmte Position. shiftKeyRef wird live durch
+    // window keydown/keyup gepflegt, damit Shift auch mitten im Drag
+    // gedrückt/losgelassen werden kann.
+    if (shiftKeyRef.current) {
+      for (const change of changes) {
+        if (change.type === 'position' && change.position) {
+          const start = dragStartPositionsRef.current.get(change.id)
+          if (start) {
+            const dx = change.position.x - start.x
+            const dy = change.position.y - start.y
+            if (Math.abs(dx) >= Math.abs(dy)) {
+              change.position = { x: change.position.x, y: start.y }
+              if (change.positionAbsolute) {
+                change.positionAbsolute = {
+                  x: change.positionAbsolute.x,
+                  y: change.positionAbsolute.y - dy,
+                }
+              }
+            } else {
+              change.position = { x: start.x, y: change.position.y }
+              if (change.positionAbsolute) {
+                change.positionAbsolute = {
+                  x: change.positionAbsolute.x - dx,
+                  y: change.positionAbsolute.y,
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Hinweis: dragStartPositionsRef wird NICHT hier geleert — sondern erst in
+    // onNodeDragStop. Sonst hätte die finale Persistierung in onNodeDragStop
+    // (die auf node.position basiert, NICHT auf den oben geklemmten changes)
+    // keine Startposition mehr und würde die ungeklemmte Position speichern.
     
+    // v7.9.68 / #173 — Resize-driven position changes. NodeResizer dispatches
+    // a paired (position + dimensions) Änderung wenn der User am W/N-Handle
+    // zieht. Ohne diese Erkennung würde der position-Change vom Filter unten
+    // verworfen → nur width/height wachsen, x bleibt → Rahmen "wächst" auf
+    // der falschen Seite (Bug "links vergrößern → rechts wächst").
+    const resizingIds = new Set<string>()
+    for (const change of changes) {
+      if (change.type === 'dimensions' && change.dimensions) {
+        resizingIds.add(change.id)
+      }
+    }
+
     // Filter out spurious `position` changes that React Flow emits during
     // internal syncs (e.g. after a node is added or its dimensions change).
     // These have `dragging === false` but the id is *not* in `endedDragIds`
@@ -579,7 +691,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     const filteredChanges = changes.filter((change) => {
       if (change.type !== 'position') return true
       if (change.dragging) return true
-      return endedDragIds.has(change.id)
+      if (endedDragIds.has(change.id)) return true
+      // v7.9.68 / #173 — Resize-driven position-Changes durchlassen.
+      if (resizingIds.has(change.id)) return true
+      return false
     })
 
     // Update rfNodes during drag for visual feedback only
@@ -612,6 +727,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       }
       return next
     })
+
+    // v7.9.69 / #184 — Multi-Select-Drag: Sammele die Delta-Verschiebungen
+    // pro Equipment-Id. Nach der Schleife shiften wir alle Kabel-Waypoints
+    // dazwischen, damit die "kleben-gebliebenen" Knickpunkte mit umziehen.
+    const equipmentDeltas = new Map<string, { dx: number; dy: number }>()
 
     // Persist to store ONLY on a real drag-end. `change.dragging === false`
     // alone is not enough — React Flow emits those during internal syncs too,
@@ -672,9 +792,14 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           }
           locationDragRef.current = null
         } else {
-          // Check overlap before persisting
+          // Check overlap before persisting. v7.9.69 / #183 — use live
+          // measured dimensions from rfNodes if available, so stale stored
+          // width/height can't cause ghost-blocking.
           const eq = project.equipment.find((e) => e.id === change.id)
-          if (eq && hasOverlap(eq.id, px, py, eq.width ?? 0, eq.height ?? 0)) {
+          const movedRfNode = rfNodes.find((n) => n.id === change.id)
+          const movedW = movedRfNode?.width ?? eq?.width ?? 0
+          const movedH = movedRfNode?.height ?? eq?.height ?? 0
+          if (eq && hasOverlap(eq.id, px, py, movedW, movedH)) {
             // Revert to last position and flash the node red so the user
             // understands why it snapped back (not a bug).
             const lastRfNode = rfNodes.find((n) => n.id === change.id)
@@ -687,6 +812,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             }
             flashOverlap(change.id)
           } else {
+            // v7.9.69 / #184 — Verschiebungs-Delta merken für späteres
+            // Mit-Verschieben von Kabel-Waypoints in Group-Drags.
+            if (eq) {
+              equipmentDeltas.set(change.id, { dx: px - eq.x, dy: py - eq.y })
+            }
             updateEquipment(change.id, { x: px, y: py })
             console.log('[drag-end persist]', {
               id: change.id,
@@ -721,11 +851,120 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           }
         }
       }
+      // v7.9.68 / #173 — Resize-driven position-Change persistieren. Beim
+      // Anfassen des W/N-Handles emittiert NodeResizer ZUSÄTZLICH zum
+      // dimensions-Change einen position-Change mit neuer x/y (damit der
+      // Rahmen tatsächlich auf der Anfassen-Seite wächst und nicht auf der
+      // gegenüberliegenden). Wenn wir den nur visuell anwenden aber nicht im
+      // Store speichern, springt der Rahmen beim nächsten Store→RF-Sync
+      // zurück auf die alte x/y → das gefühlte "wächst auf der falschen
+      // Seite"-Verhalten kehrt zurück.
+      if (
+        change.type === 'position' &&
+        change.position &&
+        resizingIds.has(change.id) &&
+        !endedDragIds.has(change.id) &&
+        !change.dragging
+      ) {
+        const isLocation = locations.some((l) => l.id === change.id)
+        if (isLocation) {
+          const loc = locations.find((l) => l.id === change.id)
+          const nx = change.position.x
+          const ny = change.position.y
+          if (loc && (loc.x !== nx || loc.y !== ny)) {
+            updateLocation(change.id, { x: nx, y: ny })
+          }
+        }
+      }
     })
+
+    // v7.9.69 / #184 — Cable-Waypoints mit-verschieben bei Multi-Select-Drag.
+    // Konsistent zu moveLocationWithContents (Location-Group-Drag): wenn
+    // mindestens EIN Endpunkt eines Kabels mit verschoben wird, shiften wir
+    // dessen Waypoints um den gleichen Delta-Vektor mit. Sonst "kleben" die
+    // Knickpunkte am Canvas und das Kabel verbiegt sich grotesk.
+    if (equipmentDeltas.size > 0) {
+      // Alle Deltas sollten identisch sein (ReactFlow shift't alle selected
+      // Nodes um denselben Pointer-Delta), aber wir nehmen den ersten als
+      // Referenz für die Waypoint-Verschiebung.
+      const firstDelta = equipmentDeltas.values().next().value
+      if (firstDelta && (firstDelta.dx !== 0 || firstDelta.dy !== 0)) {
+        for (const cable of project.cables) {
+          const fromMoved = equipmentDeltas.has(cable.fromEquipmentId)
+          const toMoved = equipmentDeltas.has(cable.toEquipmentId)
+          if ((fromMoved || toMoved) && cable.waypoints?.length) {
+            // Nur shiften wenn BEIDE Endpunkte zusammen verschoben wurden
+            // — sonst werden die Waypoints "verbogen" weil ein Endpunkt
+            // bleibt wo er war. Bei einem-endpoint-Drag ist die "klebende"
+            // Variante das geringere Übel.
+            if (fromMoved && toMoved) {
+              const shifted = cable.waypoints.map((wp) => ({
+                x: wp.x + firstDelta.dx,
+                y: wp.y + firstDelta.dy,
+              }))
+              updateCable(cable.id, { waypoints: shifted })
+            }
+          }
+        }
+      }
+    }
   }
 
+  // v7.9.67 / #178 — Rechtsklick → Kontextmenü mit "Position sperren".
+  // ReactFlow's onNodeContextMenu liefert das React-Event und den Node;
+  // wir verhindern das native Browser-Menü und positionieren ein eigenes
+  // kleines Popup über den Cursor.
+  const onNodeContextMenu = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      if (node.type !== 'equipment' && node.type !== 'location') return
+      event.preventDefault()
+      setNodeContextMenu({
+        clientX: event.clientX,
+        clientY: event.clientY,
+        nodeId: node.id,
+        nodeType: node.type,
+      })
+    },
+    [],
+  )
+
+  // ESC oder Klick außerhalb → Menu schließen.
+  useEffect(() => {
+    if (!nodeContextMenu) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setNodeContextMenu(null)
+    }
+    const onClick = () => setNodeContextMenu(null)
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('click', onClick)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('click', onClick)
+    }
+  }, [nodeContextMenu])
+
   const onNodeDragStart = useCallback(
-    (_event: React.MouseEvent, node: Node) => {
+    (event: React.MouseEvent, node: Node) => {
+      // v7.9.66 / #187 — Snapshot Startpositionen für Axis-Lock. Sowohl die
+      // Position des direkt gegriffenen Nodes als auch aller mitgewählten
+      // Nodes (Multi-Select-Drag) werden eingefroren, damit shift-axis-lock
+      // pro Node die korrekte Achse klemmen kann.
+      shiftKeyRef.current = event.shiftKey
+      dragStartPositionsRef.current.clear()
+      const snapshot = (id: string) => {
+        const rfNode = rfNodes.find((n) => n.id === id)
+        if (rfNode) {
+          dragStartPositionsRef.current.set(id, {
+            x: rfNode.position.x,
+            y: rfNode.position.y,
+          })
+        }
+      }
+      snapshot(node.id)
+      for (const n of rfNodes) {
+        if (n.selected && n.id !== node.id) snapshot(n.id)
+      }
+
       if (node.type !== 'location') return
       const loc = locations.find((l) => l.id === node.id)
       if (!loc) return
@@ -750,14 +989,33 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         containedEquipmentIds: contained,
       }
     },
-    [locations, project.equipment],
+    [locations, project.equipment, rfNodes],
   )
 
   const onNodeDragStop = useCallback((_event: React.MouseEvent, node: Node) => {
     const snap = (v: number) =>
       snapToGrid && gridSize > 0 ? Math.round(v / gridSize) * gridSize : v
-    const px = snap(node.position.x)
-    const py = snap(node.position.y)
+
+    // v7.9.66 / #187 — Final Axis-Lock auf node.position. ReactFlow trackt
+    // die Drag-Position intern aus dem Pointer (nicht aus unserem geklemmten
+    // rfNodes), deshalb kommt hier die UNgeklemmte Endposition rein. Wir
+    // klemmen mit der gespeicherten Startposition nach derselben Regel wie
+    // im onNodesChange-Block (kleinere Achse = Lock).
+    let lockedPos = { x: node.position.x, y: node.position.y }
+    if (shiftKeyRef.current) {
+      const start = dragStartPositionsRef.current.get(node.id)
+      if (start) {
+        const dx = node.position.x - start.x
+        const dy = node.position.y - start.y
+        if (Math.abs(dx) >= Math.abs(dy)) {
+          lockedPos = { x: node.position.x, y: start.y }
+        } else {
+          lockedPos = { x: start.x, y: node.position.y }
+        }
+      }
+    }
+    const px = snap(lockedPos.x)
+    const py = snap(lockedPos.y)
 
     if (Number.isFinite(px) && Number.isFinite(py)) {
       if (node.type === 'location') {
@@ -775,7 +1033,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       } else {
         const eq = project.equipment.find((e) => e.id === node.id)
         if (eq && (eq.x !== px || eq.y !== py)) {
-          if (hasOverlap(eq.id, px, py, eq.width ?? 0, eq.height ?? 0)) {
+          // v7.9.69 / #183 — measured size > stored size (siehe hasOverlap).
+          const movedW = node.width ?? eq.width ?? 0
+          const movedH = node.height ?? eq.height ?? 0
+          if (hasOverlap(eq.id, px, py, movedW, movedH)) {
             setRfNodes((current) =>
               current.map((n) =>
                 n.id === node.id ? { ...n, position: { x: eq.x, y: eq.y } } : n,
@@ -799,6 +1060,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     // syncs for those ids, which our persistence logic would otherwise treat as
     // another real drag-end and move unrelated devices.
     draggingIdsRef.current.clear()
+    // v7.9.66 / #187 — Axis-Lock-Startpositionen freigeben. Erst hier (nicht
+    // schon in onNodesChange), damit der oben durchgeführte Final-Lock noch
+    // auf einen gültigen Snapshot zugreifen konnte.
+    dragStartPositionsRef.current.clear()
     if (node.type === 'location') {
       // Clear any stale location drag snapshot so unrelated future node
       // changes (like adding equipment by click) cannot shift other nodes.
@@ -1329,7 +1594,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         zoomOnPinch={!interactionLocked}
         zoomOnDoubleClick={!interactionLocked}
         selectNodesOnDrag={false}
-        multiSelectionKeyCode={['Control', 'Meta']}
+        // v7.9.63 / #179 — Shift sowohl für Rubber-Band-Selection
+        // (drag-frame) als auch für additives Click-Select. Vorher
+        // war Click-Select auf Ctrl/Meta gelegt, was zu ständigem
+        // Modifier-Wechsel zwischen "Frame ziehen" und "weiteres Item
+        // dazu wählen" zwang. Ctrl/Meta bleibt als Fallback erhalten
+        // damit alte Muscle-Memory auch noch funktioniert.
+        multiSelectionKeyCode={['Shift', 'Control', 'Meta']}
         // Hold Shift and drag on empty canvas to draw a marquee selection
         // box (issue #66). Plain drag still pans the viewport, so the
         // user's normal pan workflow is untouched.
@@ -1342,6 +1613,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         edgeTypes={edgeTypes}
         connectionMode={ConnectionMode.Loose}
         onNodesChange={onNodesChange}
+        onNodeContextMenu={onNodeContextMenu}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onConnectStart={onConnectStart}
@@ -1451,6 +1723,67 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         })()}
       </ReactFlow>
       <PendingCableOverlay />
+      {nodeContextMenu && (() => {
+        const isLocation = nodeContextMenu.nodeType === 'location'
+        const target = isLocation
+          ? locations.find((l) => l.id === nodeContextMenu.nodeId)
+          : project.equipment.find((e) => e.id === nodeContextMenu.nodeId)
+        if (!target) return null
+        const isLocked = !!target.positionLocked
+        const toggle = () => {
+          if (isLocation) {
+            updateLocation(nodeContextMenu.nodeId, { positionLocked: !isLocked })
+          } else {
+            updateEquipment(nodeContextMenu.nodeId, { positionLocked: !isLocked })
+          }
+          setNodeContextMenu(null)
+        }
+        return (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'fixed',
+              left: nodeContextMenu.clientX,
+              top: nodeContextMenu.clientY,
+              zIndex: 100,
+              background: '#1e293b',
+              border: '1px solid #334155',
+              borderRadius: 6,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+              padding: 4,
+              minWidth: 180,
+              fontSize: 12,
+              color: '#e2e8f0',
+            }}
+          >
+            <button
+              type="button"
+              onClick={toggle}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                width: '100%',
+                padding: '6px 10px',
+                background: 'transparent',
+                color: 'inherit',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#334155')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+            >
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="3" y="7" width="10" height="7" rx="1" />
+                <path d={isLocked ? 'M5 7V4.5a3 3 0 0 1 6 0V7' : 'M5 7V4.5a3 3 0 0 1 6 0V6'} />
+              </svg>
+              <span>{isLocked ? 'Position entsperren' : 'Position sperren'}</span>
+            </button>
+          </div>
+        )
+      })()}
     </div>
   )
 }
