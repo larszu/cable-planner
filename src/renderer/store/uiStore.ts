@@ -3,6 +3,57 @@ import { create } from 'zustand'
 export type EdgeRouting = 'orthogonal' | 'straight' | 'curved'
 export type Language = 'de' | 'en'
 
+/** v7.9.59 — Pro Theme: die fünf Farb-Rollen einer Geräte-Karte.
+ *  In Settings → Geräte-Darstellung kann der User jede Farbe per
+ *  Color-Picker überschreiben. */
+export interface EquipmentColorTokens {
+  /** Karten-Body (Hintergrund). */
+  body: string
+  /** Header-Strip oben (Name, Icon, IP-Bereich). */
+  header: string
+  /** 1-px-Rand um die Karte. */
+  border: string
+  /** Haupttext (Name, Port-Labels). */
+  text: string
+  /** Sekundär-Text (Kategorie, IP, Connector-Typen). */
+  subtext: string
+}
+
+/** Default-Theme-Farben. Konventionen aus modernen Design-Systemen
+ *  (Material 3, Linear, Figma):
+ *  - BODY ist das ruhige Fundament — sticht klar gegen Canvas ab
+ *  - HEADER ist eine Stufe AKZENTIERT gegen Body, NICHT identisch (Strip
+ *    muss als Abgrenzung wahrnehmbar sein)
+ *    - Light: Header LEICHT GRAU gegen weißen Body
+ *    - Dark: Header HELLER als Body (sonst optisch hinter dem Body
+ *      versinkt — eine Header-Stripe oben dunkler als das Body wäre
+ *      verkehrt herum)
+ *  - BORDER ist eine Mitte-Stufe (slate-500) — kräftig genug für klare
+ *    Silhouette, ohne dass die Karte technisch wirkt
+ *  - TEXT immer max Kontrast gegen Body (WCAG AAA-Niveau)
+ *  - SUBTEXT eine Stufe gedämpft, ≥ 4.5:1 (WCAG AA)
+ *
+ *  Konkrete Kontrast-Ratios (gerundet):
+ *    Light: text/body 19:1, subtext/body 7:1, header/body 1.15:1
+ *    Dark:  text/body 13:1, subtext/body 7:1, header/body 1.5:1
+ *
+ *  Per-Equipment-nodeColor (Properties → Gerätefarbe) überschreibt nur
+ *  Body+Border alpha-blended — Header bleibt auf diesen Token-Werten. */
+export const DEFAULT_EQUIPMENT_COLORS_LIGHT: EquipmentColorTokens = {
+  body: '#ffffff',
+  header: '#e2e8f0', // slate-200 — sichtbar gegen Body, nicht aufdringlich
+  border: '#64748b', // slate-500 — kräftige Silhouette gegen helle Canvas
+  text: '#0f172a',
+  subtext: '#475569',
+}
+export const DEFAULT_EQUIPMENT_COLORS_DARK: EquipmentColorTokens = {
+  body: '#1e293b', // slate-800 — zwei Stufen heller als Canvas (slate-950)
+  header: '#334155', // slate-700 — HELLER als Body, Strip steht hervor
+  border: '#64748b', // slate-500 — denselbe wie Light für visuelle Konsistenz
+  text: '#f8fafc',
+  subtext: '#cbd5e1',
+}
+
 /** Issue #80: globally stored device-config files (ATEM MV/audio configs,
  *  Videohub label & routing dumps, GreenGo .gg5 etc.) that the user can
  *  upload once and then assign to a specific equipment node on the canvas.
@@ -87,6 +138,18 @@ interface PersistedUiState {
    *  default from DEFAULT_CONNECTOR_TYPE_COLORS applies. Stored sparsely
    *  so we don't bloat localStorage with the full default palette. */
   connectorTypeColors: Record<string, string>
+  /** v7.9.59 — Geräte-Karten-Farben pro Theme. User-anpassbar in
+   *  Settings → Geräte-Darstellung. Defaults sind so gewählt dass die
+   *  Karten optisch klar vom Canvas-Hintergrund abstehen (kontrastreich)
+   *  ohne aufdringlich zu sein. Vorher: Light-Karten #f8fafc auf Canvas
+   *  #e8edf4 fast unsichtbar; Dark-Karten #0f172a auf Canvas #0f172a
+   *  komplett unsichtbar (gleiche Farbe). */
+  equipmentColors: {
+    light: EquipmentColorTokens
+    dark: EquipmentColorTokens
+  }
+  setEquipmentColors: (theme: 'light' | 'dark', patch: Partial<EquipmentColorTokens>) => void
+  resetEquipmentColors: (theme?: 'light' | 'dark') => void
   /** Issue #71: canvas background pattern variant. 'dots' draws the
    *  ReactFlow dot grid (default), 'lines' draws orthogonal lines,
    *  'cross' draws a + at each grid intersection, 'none' disables. */
@@ -184,6 +247,10 @@ const defaults: PersistedUiState = {
   librarySortMode: 'manual',
   annotationAuthor: '',
   connectorTypeColors: {},
+  equipmentColors: {
+    light: { ...DEFAULT_EQUIPMENT_COLORS_LIGHT },
+    dark: { ...DEFAULT_EQUIPMENT_COLORS_DARK },
+  },
   bgVariant: 'dots',
   bgOpacity: 0.5,
   customCableSpecs: [],
@@ -327,6 +394,47 @@ const load = (): PersistedUiState => {
     }
     if (merged.connectorTypeColors === null || typeof merged.connectorTypeColors !== 'object')
       merged.connectorTypeColors = {}
+    // v7.9.59 — Equipment-Karten-Farben mergen.
+    // v7.9.60 — Defaults wurden überarbeitet. Wenn ein User noch die
+    // v7.9.59-Old-Defaults im localStorage hat (Body=#ffffff/header=
+    // #f1f5f9/border=#94a3b8/text=#0f172a/subtext=#64748b für Light
+    // bzw. Body=#1e293b/header=#0f172a/border=#475569/text=#f1f5f9/
+    // subtext=#94a3b8 für Dark), wird automatisch auf v7.9.60-Defaults
+    // migriert. Custom-Farben (alles andere) bleiben unangetastet.
+    const eqc = (merged as { equipmentColors?: unknown }).equipmentColors
+    const validTokens = (v: unknown): v is EquipmentColorTokens =>
+      !!v && typeof v === 'object' &&
+      typeof (v as Record<string, unknown>).body === 'string' &&
+      typeof (v as Record<string, unknown>).header === 'string' &&
+      typeof (v as Record<string, unknown>).border === 'string' &&
+      typeof (v as Record<string, unknown>).text === 'string' &&
+      typeof (v as Record<string, unknown>).subtext === 'string'
+    const isV59LightDefault = (v: EquipmentColorTokens) =>
+      v.body === '#ffffff' &&
+      v.header === '#f1f5f9' &&
+      v.border === '#94a3b8' &&
+      v.text === '#0f172a' &&
+      v.subtext === '#64748b'
+    const isV59DarkDefault = (v: EquipmentColorTokens) =>
+      v.body === '#1e293b' &&
+      v.header === '#0f172a' &&
+      v.border === '#475569' &&
+      v.text === '#f1f5f9' &&
+      v.subtext === '#94a3b8'
+    if (!eqc || typeof eqc !== 'object') {
+      ;(merged as { equipmentColors: unknown }).equipmentColors = {
+        light: { ...DEFAULT_EQUIPMENT_COLORS_LIGHT },
+        dark: { ...DEFAULT_EQUIPMENT_COLORS_DARK },
+      }
+    } else {
+      const obj = eqc as Record<string, unknown>
+      const lightTok = validTokens(obj.light) ? obj.light : { ...DEFAULT_EQUIPMENT_COLORS_LIGHT }
+      const darkTok = validTokens(obj.dark) ? obj.dark : { ...DEFAULT_EQUIPMENT_COLORS_DARK }
+      ;(merged as { equipmentColors: unknown }).equipmentColors = {
+        light: isV59LightDefault(lightTok) ? { ...DEFAULT_EQUIPMENT_COLORS_LIGHT } : lightTok,
+        dark: isV59DarkDefault(darkTok) ? { ...DEFAULT_EQUIPMENT_COLORS_DARK } : darkTok,
+      }
+    }
     if (typeof merged.bgOpacity !== 'number' || !Number.isFinite(merged.bgOpacity))
       merged.bgOpacity = defaults.bgOpacity
     // v7.9.30 — Snap-to-Grid und gridSize sind nicht mehr user-konfigurierbar
@@ -608,6 +716,7 @@ const applyPatch =
       librarySortMode: state.librarySortMode,
       annotationAuthor: state.annotationAuthor,
       connectorTypeColors: state.connectorTypeColors,
+      equipmentColors: state.equipmentColors,
       bgVariant: state.bgVariant,
       bgOpacity: state.bgOpacity,
       customCableSpecs: state.customCableSpecs,
@@ -665,6 +774,39 @@ export const useUiStore = create<UiState>((set) => ({
       return applyPatch({ connectorTypeColors: next })(state)
     }),
   resetConnectorTypeColors: () => set(applyPatch({ connectorTypeColors: {} })),
+  setEquipmentColors: (theme, patch) =>
+    set((state) => {
+      const next = {
+        ...state.equipmentColors,
+        [theme]: { ...state.equipmentColors[theme], ...patch },
+      }
+      return applyPatch({ equipmentColors: next })(state)
+    }),
+  resetEquipmentColors: (theme) =>
+    set((state) => {
+      if (theme === 'light') {
+        return applyPatch({
+          equipmentColors: {
+            ...state.equipmentColors,
+            light: { ...DEFAULT_EQUIPMENT_COLORS_LIGHT },
+          },
+        })(state)
+      }
+      if (theme === 'dark') {
+        return applyPatch({
+          equipmentColors: {
+            ...state.equipmentColors,
+            dark: { ...DEFAULT_EQUIPMENT_COLORS_DARK },
+          },
+        })(state)
+      }
+      return applyPatch({
+        equipmentColors: {
+          light: { ...DEFAULT_EQUIPMENT_COLORS_LIGHT },
+          dark: { ...DEFAULT_EQUIPMENT_COLORS_DARK },
+        },
+      })(state)
+    }),
   setBgVariant: (value) => set(applyPatch({ bgVariant: value })),
   setBgOpacity: (value) => set(applyPatch({ bgOpacity: Math.max(0, Math.min(1, value)) })),
   addCustomCableSpec: (spec) => {
