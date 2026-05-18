@@ -9,6 +9,7 @@ import { RackLivePreview } from './RackLivePreview'
 import { Rack3DView } from './Rack3DView'
 import { PatchPanelCreateDialog } from './PatchPanelCreateDialog'
 import { RackShelfCreateDialog } from './RackShelfCreateDialog'
+import { PortDots2D } from './PortDots2D'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { CategorySelect } from '../shared/CategorySelect'
 import { ModalShell } from '../shared/ModalShell'
@@ -1530,6 +1531,21 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           ) : (
                             <div className="pointer-events-none flex h-full items-center justify-center px-2 text-center text-[10px] font-semibold text-sky-100">{item.name}</div>
                           )}
+                          {/* v7.9.78 / #170 — Port-Dots-Overlay im 2D
+                              Rack-Editor. Front-Side zeigt inputs[],
+                              Rear-Side zeigt outputs[]. Dots sind via
+                              Pointer-Drag positionierbar — Position als
+                              normalisierte 0..1 auf den Port persistiert
+                              (panelPosX/Y). Default-Verteilung wenn kein
+                              Override gesetzt. */}
+                          <PortDots2D
+                            ports={side === 'front' ? item.inputs : item.outputs}
+                            placementId={item.id}
+                            placementWidth={rowHeight * RACK_PANEL_ASPECT_PER_1HE}
+                            placementHeight={height}
+                            updatePlacement={updatePlacement}
+                            side={side as 'front' | 'rear'}
+                          />
                           <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5 text-[9px] text-white">
                             {item.inputs.length} In · {item.outputs.length} Out
                           </div>
