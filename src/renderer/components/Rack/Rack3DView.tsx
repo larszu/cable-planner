@@ -26,6 +26,7 @@ import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber'
 import { OrbitControls, Edges, Html } from '@react-three/drei'
 import { STLLoader } from 'three-stdlib'
 import * as THREE from 'three'
+import { useUiStore } from '../../store/uiStore'
 
 const HE_HEIGHT_MM = 44.45
 const RACK_OUTER_WIDTH_MM = 482.6
@@ -133,39 +134,44 @@ interface Rack3DViewProps {
 const Chassis = ({
   totalUnits,
   depthMm,
+  isLight,
 }: {
   totalUnits: number
   depthMm: number
+  isLight: boolean
 }) => {
   const heightMm = totalUnits * HE_HEIGHT_MM
-  // Solid grau-transparente Wände + Edges damit man die Geräte drin sieht.
+  // v7.9.81 — Theme-Awareness: helles Rack-Chassis im Light-Mode (graue
+  // Töne mit höherer Helligkeit), klassisches Dark-Chassis im Dark-Mode.
+  const chassisColor = isLight ? '#94a3b8' : '#1f2937'
+  const railColor = isLight ? '#64748b' : '#475569'
   return (
     <group>
       {/* Boden */}
       <mesh position={[RACK_OUTER_WIDTH_MM / 2, 0, depthMm / 2]} receiveShadow>
         <boxGeometry args={[RACK_OUTER_WIDTH_MM, 4, depthMm]} />
-        <meshStandardMaterial color="#1f2937" opacity={0.9} transparent />
+        <meshStandardMaterial color={chassisColor} opacity={0.9} transparent />
       </mesh>
       {/* Linke Wand */}
       <mesh position={[2, heightMm / 2, depthMm / 2]}>
         <boxGeometry args={[4, heightMm, depthMm]} />
-        <meshStandardMaterial color="#1f2937" opacity={0.4} transparent />
+        <meshStandardMaterial color={chassisColor} opacity={0.4} transparent />
       </mesh>
       {/* Rechte Wand */}
       <mesh position={[RACK_OUTER_WIDTH_MM - 2, heightMm / 2, depthMm / 2]}>
         <boxGeometry args={[4, heightMm, depthMm]} />
-        <meshStandardMaterial color="#1f2937" opacity={0.4} transparent />
+        <meshStandardMaterial color={chassisColor} opacity={0.4} transparent />
       </mesh>
       {/* Decke */}
       <mesh position={[RACK_OUTER_WIDTH_MM / 2, heightMm, depthMm / 2]}>
         <boxGeometry args={[RACK_OUTER_WIDTH_MM, 4, depthMm]} />
-        <meshStandardMaterial color="#1f2937" opacity={0.4} transparent />
+        <meshStandardMaterial color={chassisColor} opacity={0.4} transparent />
       </mesh>
       {/* HE-Markierungen an der linken Schiene */}
       {Array.from({ length: totalUnits + 1 }, (_, i) => (
         <mesh key={i} position={[16, i * HE_HEIGHT_MM, 1]}>
           <boxGeometry args={[2, 0.6, 2]} />
-          <meshStandardMaterial color="#475569" />
+          <meshStandardMaterial color={railColor} />
         </mesh>
       ))}
     </group>
@@ -739,6 +745,15 @@ export const Rack3DView = ({
   onPortMoved,
   internalCables,
 }: Rack3DViewProps) => {
+  // v7.9.81 — Theme-Awareness: 3D-Hintergrund + Help-Overlay-Farben
+  // folgen jetzt dem globalen canvasTheme.
+  const canvasTheme = useUiStore((s) => s.canvasTheme)
+  const isLight = canvasTheme === 'light'
+  const bgColor = isLight ? '#e2e8f0' : '#0f172a'
+  const overlayBg = isLight ? 'rgba(248,250,252,0.92)' : 'rgba(15,23,42,0.85)'
+  const overlayText = isLight ? '#334155' : '#94a3b8'
+  const overlayLegendText = isLight ? '#475569' : '#cbd5e1'
+  const kbdBg = isLight ? '#cbd5e1' : '#1e293b'
   const depthMm = rackDepthMm ?? DEFAULT_RACK_DEPTH_MM
   // v7.9.80 / #170 — OrbitControls ref für den CameraKeyboardController:
   // wir mutieren controls.target.y zusammen mit camera.y, sonst tilted
@@ -753,7 +768,7 @@ export const Rack3DView = ({
   ]
   return (
     <div
-      style={{ width: '100%', height: '100%', position: 'relative', background: '#0f172a' }}
+      style={{ width: '100%', height: '100%', position: 'relative', background: bgColor }}
       onClick={() => onSelectPlacement(null)}
     >
       <Canvas
@@ -763,7 +778,7 @@ export const Rack3DView = ({
         <ambientLight intensity={0.55} />
         <directionalLight position={[600, 1200, 800]} intensity={0.9} />
         <directionalLight position={[-800, 600, -400]} intensity={0.4} />
-        <Chassis totalUnits={totalUnits} depthMm={depthMm} />
+        <Chassis totalUnits={totalUnits} depthMm={depthMm} isLight={isLight} />
         <Suspense fallback={null}>
           {placements.map((p) => {
             if (p.isRackShelf) {
@@ -824,7 +839,12 @@ export const Rack3DView = ({
         />
         <CameraKeyboardController orbitTargetRef={orbitRef} />
         <gridHelper
-          args={[2000, 20, '#334155', '#1e293b']}
+          args={[
+            2000,
+            20,
+            isLight ? '#94a3b8' : '#334155',
+            isLight ? '#cbd5e1' : '#1e293b',
+          ]}
           position={[RACK_OUTER_WIDTH_MM / 2, -1, depthMm / 2]}
         />
       </Canvas>
@@ -834,11 +854,11 @@ export const Rack3DView = ({
           position: 'absolute',
           bottom: 8,
           left: 8,
-          background: 'rgba(15,23,42,0.85)',
+          background: overlayBg,
           padding: '6px 8px',
           borderRadius: 4,
           fontSize: 10,
-          color: '#cbd5e1',
+          color: overlayLegendText,
           pointerEvents: 'none',
         }}
       >
@@ -860,17 +880,17 @@ export const Rack3DView = ({
           position: 'absolute',
           top: 8,
           right: 8,
-          background: 'rgba(15,23,42,0.85)',
+          background: overlayBg,
           padding: '4px 8px',
           borderRadius: 4,
           fontSize: 10,
-          color: '#94a3b8',
+          color: overlayText,
           pointerEvents: 'none',
           lineHeight: 1.4,
         }}
       >
         🖱 Drehen: links · Pannen: rechts · Zoom: scroll<br />
-        ⌨ Höhe: <kbd style={{ background: '#1e293b', padding: '0 3px', borderRadius: 2 }}>Shift</kbd> hoch · <kbd style={{ background: '#1e293b', padding: '0 3px', borderRadius: 2 }}>Tab</kbd> runter
+        ⌨ Höhe: <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Shift</kbd> hoch · <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Tab</kbd> runter
       </div>
     </div>
   )

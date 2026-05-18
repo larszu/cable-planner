@@ -91,6 +91,9 @@ const MENU_WIDTH = 240
 export const CableContextMenu = () => {
   const menu = useUiStore((s) => s.cableContextMenu)
   const close = useUiStore((s) => s.closeCableContextMenu)
+  // v7.9.81 — Theme-Awareness: Menu folgt jetzt canvasTheme.
+  const canvasTheme = useUiStore((s) => s.canvasTheme)
+  const isLight = canvasTheme === 'light'
   const globalCableBumps = useUiStore((s) => s.cableBumps)
   const updateCable = useProjectStore((s) => s.updateCable)
   const deleteCable = useProjectStore((s) => s.deleteCable)
@@ -221,11 +224,19 @@ export const CableContextMenu = () => {
     <div
       ref={containerRef}
       style={{ position: 'fixed', left, top, width: MENU_WIDTH, zIndex: 9999 }}
-      className="rounded border border-slate-700 bg-slate-900/98 text-slate-100 shadow-2xl backdrop-blur-sm"
+      className={`rounded border shadow-2xl backdrop-blur-sm ${
+        isLight
+          ? 'border-slate-300 bg-white/98 text-slate-900'
+          : 'border-slate-700 bg-slate-900/98 text-slate-100'
+      }`}
       onContextMenu={(e) => e.preventDefault()}
     >
-      <div className="border-b border-slate-800 px-3 py-1.5 text-[10px] uppercase tracking-wide text-slate-400">
-        Kabel: <span className="font-semibold text-slate-200">{cable.name}</span>
+      <div
+        className={`border-b px-3 py-1.5 text-[10px] uppercase tracking-wide ${
+          isLight ? 'border-slate-200 text-slate-500' : 'border-slate-800 text-slate-400'
+        }`}
+      >
+        Kabel: <span className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>{cable.name}</span>
       </div>
       <Item onClick={renameLabel} icon="✎">Bezeichnung ändern…</Item>
       <Separator />
@@ -257,7 +268,7 @@ export const CableContextMenu = () => {
         <span className="ml-auto text-slate-500">{submenu === 'routing' ? '▾' : '▸'}</span>
       </Item>
       {submenu === 'routing' && (
-        <div className="border-l-2 border-sky-700 bg-slate-950/50">
+        <div className={`border-l-2 border-sky-700 ${isLight ? 'bg-slate-100' : 'bg-slate-950/50'}`}>
           {(['orthogonal', 'straight', 'curved'] as const).map((r) => (
             <Item
               key={r}
