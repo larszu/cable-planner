@@ -14,6 +14,7 @@ import { useUiStore } from '../../store/uiStore'
 import { CableWaypoints } from './CableWaypoints'
 import { computeObstacleAwareWaypoints, type Rect } from '../../lib/cableRouting'
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import { isCableVisibleByLayer } from '../../lib/cableLayers'
 
 interface CableEdgeData {
   cable: Cable
@@ -359,6 +360,12 @@ export const CableEdge = ({
   // port handles, so the entire connection visually pops at once.
   const hoveredCableId = useUiStore((s) => s.hoveredCableId)
   const collisionShiftOn = useUiStore((s) => s.orthogonalCollisionShift)
+  // v7.9.85 / #123 — Layer-Filter. Wenn das Kabel einen Layer hat
+  // (z.B. 'network') und der Layer-Toggle in der Toolbar AUS ist,
+  // wird das Kabel komplett ausgeblendet. Ungrouped Cables (kein layer
+  // gesetzt) sind immer sichtbar. Geräte werden NICHT gefiltert —
+  // Option A aus #123.
+  const layerVisibility = useUiStore((s) => s.layerVisibility)
   // v7.8.7 / Issue #106 — Global cable-bumps toggle from Settings; can
   // be overridden per-cable via the right-click context menu's
   // bumpStyle field.
@@ -568,6 +575,15 @@ export const CableEdge = ({
       : mobilePrefix
         ? mobilePrefix.trim()
         : undefined
+
+  // v7.9.85 / #123 — Layer-Visibility-Filter: wenn das Kabel auf einem
+  // Layer liegt der via Toolbar-Chip ausgeschaltet wurde, gar nichts
+  // rendern. Hooks oben (useState/useEffect/useUiStore) liefen schon
+  // → React Rules of Hooks bleiben gewahrt. Cable ohne Layer = immer
+  // sichtbar.
+  if (cable && !isCableVisibleByLayer(cable, layerVisibility)) {
+    return null
+  }
 
   return (
     <>

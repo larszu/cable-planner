@@ -7,6 +7,7 @@ import { ColorField } from '../shared/ColorField'
 import { v4 as uuidv4 } from 'uuid'
 import { RoutingToggle } from '../shared/RoutingToggle'
 import { format, useTranslation } from '../../lib/i18n'
+import { STANDARD_LAYERS, LAYER_STYLES } from '../../lib/cableLayers'
 
 export const CableProperties = () => {
   const t = useTranslation()
@@ -17,6 +18,7 @@ export const CableProperties = () => {
   const updateCable = useProjectStore((state) => state.updateCable)
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const openCableEdit = useUiStore((state) => state.openCableEdit)
+  const cableLayersFromStore = useUiStore((state) => state.customLayers)
 
   if (!cable) {
     return (
@@ -144,6 +146,35 @@ export const CableProperties = () => {
         value={cable.color}
         onChange={(color) => updateCable(cable.id, { color })}
       />
+
+      {/* v7.9.85 / #123 — Layer-Auswahl. Standard-Layer + Custom-Layer aus uiStore. */}
+      <label className="block">
+        <span className="mb-1 block text-slate-300">Ebene (Layer)</span>
+        <select
+          value={cable.layer ?? ''}
+          onChange={(event) =>
+            updateCable(cable.id, { layer: event.target.value || undefined })
+          }
+          className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+          title="Wirkt mit dem Layer-Filter in der Toolbar (Ebenen-Chips)"
+        >
+          <option value="">— ungrouped (immer sichtbar) —</option>
+          {STANDARD_LAYERS.map((l) => (
+            <option key={l} value={l}>
+              {LAYER_STYLES[l].icon} {LAYER_STYLES[l].label}
+            </option>
+          ))}
+          {cableLayersFromStore.length > 0 && (
+            <optgroup label="Custom">
+              {cableLayersFromStore.map((l) => (
+                <option key={l} value={l}>
+                  ◆ {l}
+                </option>
+              ))}
+            </optgroup>
+          )}
+        </select>
+      </label>
 
       {/* Endpoint editor — inline accordion (open by default) so users can
           re-route a cable from the properties panel without opening a dialog. */}

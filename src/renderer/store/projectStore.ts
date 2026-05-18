@@ -7,6 +7,7 @@ import type { LocationFrame } from '../types/location'
 import type { CablePlannerProject } from '../types/project'
 import { useUiStore } from './uiStore'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
+import { detectLayerForConnector } from '../lib/cableLayers'
 import { ubiquitiTemplates } from '../lib/ubiquitiCatalog'
 import { monitorTemplates } from '../lib/monitorCatalog'
 import { cameraTemplates } from '../lib/cameraCatalog'
@@ -1304,6 +1305,9 @@ const buildProjectStore = (
       }
 
       const ui = useUiStore.getState()
+      // v7.9.85 / #123 — Layer-Auto-Detect aus dem Cable-Type.
+      // Liefert null wenn unsicher → cable.layer bleibt undefined.
+      const autoLayer = detectLayerForConnector(draft.type)
       const cable: Cable = {
         id: uuidv4(),
         name: draft.name,
@@ -1326,6 +1330,7 @@ const buildProjectStore = (
         bidirectional: BIDIRECTIONAL_CABLE_TYPES.has(draft.type),
         strokeWidth: 2.5,
         waypoints: state.pendingWaypoints,
+        ...(autoLayer ? { layer: autoLayer } : {}),
       }
 
       return {
