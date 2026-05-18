@@ -6,6 +6,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { RackImageCropDialog } from './RackImageCropDialog'
 import { RackInternalCanvas } from './RackInternalCanvas'
 import { RackLivePreview } from './RackLivePreview'
+import { Rack3DView } from './Rack3DView'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { CategorySelect } from '../shared/CategorySelect'
 import { ModalShell } from '../shared/ModalShell'
@@ -44,12 +45,22 @@ interface RackPlacementDraft {
   rearPanelImageUrl?: string
   frontPanelCrop?: EquipmentTemplate['frontPanelCrop']
   rearPanelCrop?: EquipmentTemplate['rearPanelCrop']
+  /** v7.9.73 / #170 — Tiefe in mm (lokaler Override, sonst Template-Default).
+   *  Beim Rendering in der 3D-Ansicht greift erst dieser, dann template.depthMm,
+   *  dann 400 mm Standard. */
+  depthMm?: number
+  /** v7.9.73 / #170 — Front-/Rear-/Full-Mount. Default 'full'. */
+  mountSide?: 'front' | 'rear' | 'full'
+  /** v7.9.73 / #170 — Optional STL als data:base64 für die 3D-Geometrie. */
+  stlDataUri?: string
 }
 
 interface RackDraft {
   rackName: string
   totalUnits: number
   viewMode: 'front' | 'rear' | 'both'
+  /** v7.9.73 / #170 — Rack-Tiefe in mm. Default 800 mm. */
+  depthMm?: number
   placements: RackPlacementDraft[]
   /** v7.8.5 — internal wiring between rack devices. Authored in the
    *  RackInternalWireDialog and persisted into the GroupPreset on save.
@@ -164,6 +175,11 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
   }
   // v7.9.14 — Hydrate Canvas-Positionen aus gespeichertem Preset.
   const savedPositions = preset.rack?.internalCanvasPositions ?? {}
+  // v7.9.73 / #170 — mountSide aus preset.rack.placements[].mountSide hydraten
+  const mountSideByIndex = new Map<number, 'front' | 'rear' | 'full' | undefined>()
+  for (const p of preset.rack?.placements ?? []) {
+    if (p.mountSide) mountSideByIndex.set(p.itemIndex, p.mountSide)
+  }
   const placements: RackPlacementDraft[] = preset.items.map((item, index) => {
     const meta = placementsByIndex.get(index)
     const pos = savedPositions[index]
@@ -183,6 +199,10 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
       rearPanelImageUrl: item.rearPanelImageUrl,
       frontPanelCrop: item.frontPanelCrop,
       rearPanelCrop: item.rearPanelCrop,
+      // v7.9.73 / #170 — Engineering-/3D-Felder.
+      depthMm: item.depthMm,
+      mountSide: mountSideByIndex.get(index),
+      stlDataUri: item.stlDataUri,
     }
   })
   // Hydrate internal cables: cables in the stored preset reference items
@@ -210,6 +230,7 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
   return {
     rackName: preset.name,
     totalUnits: preset.rack?.totalUnits ?? 42,
+    depthMm: preset.rack?.depthMm,
     viewMode: 'front',
     placements,
     internalCables,
@@ -245,6 +266,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   // sichtbar — hat zuviel Platz im Builder gefressen für ein Detail-
   // Editing, das nur selten passiert.
   const [placementPropsOpen, setPlacementPropsOpen] = useState(false)
+  // v7.9.73 / #170 — Tab in der Rack-Layout-Spalte: 2D-Panel-Ansicht
+  // (default, identisch mit bisherigem Verhalten) vs. 3D-Orbit-Ansicht.
+  const [viewTab, setViewTab] = useState<'2d' | '3d'>('2d')
   const [lastSavedSnapshot, setLastSavedSnapshot] = useState('')
   const [dragState, setDragState] = useState<
     { placementId: string; offsetUnits: number; pointerId: number } | null
@@ -557,11 +581,16 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       setSaveError('Bitte mindestens ein Gerät ins Rack legen.')
       return
     }
+    // v7.9.73 / #170 (comment 2) — Konflikte (überlappende HE-Bereiche etc.)
+    // werden als Warnung gezeigt, blockieren den Save aber nicht mehr.
+    // Der User kann ein "kaputtes" Rack zwischenspeichern und später fixen.
     if (conflicts.length > 0) {
-      setSaveError(`Rack hat Konflikte:\n- ${conflicts.join('\n- ')}`)
-      return
+      setSaveError(
+        `Rack hat Konflikte (wird trotzdem gespeichert):\n- ${conflicts.join('\n- ')}`,
+      )
+    } else {
+      setSaveError(null)
     }
-    setSaveError(null)
 
     const sorted = draft.placements.slice().sort((a, b) => a.startUnit - b.startUnit)
 
@@ -576,6 +605,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       rearPanelImageUrl: placement.rearPanelImageUrl,
       frontPanelCrop: placement.frontPanelCrop,
       rearPanelCrop: placement.rearPanelCrop,
+      // v7.9.73 / #170 — Engineering-Daten ans Item-Record durchreichen.
+      depthMm: placement.depthMm,
+      stlDataUri: placement.stlDataUri,
       width: 240,
       height: 80 + Math.max(placement.inputs.length, placement.outputs.length, 3) * 22,
       offsetX: 0,
@@ -586,6 +618,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       itemIndex: index,
       startUnit: placement.startUnit,
       heightUnits: placement.rackUnits,
+      // v7.9.73 / #170 — mountSide nur persistieren wenn explizit gesetzt.
+      ...(placement.mountSide ? { mountSide: placement.mountSide } : {}),
     }))
 
     // v7.8.5 — Map internal cables (referenced by placement id) onto the
@@ -629,6 +663,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       name: draft.rackName.trim(),
       rack: {
         totalUnits: draft.totalUnits,
+        // v7.9.73 / #170 — Rack-Tiefe nur persistieren wenn vom User gesetzt.
+        ...(draft.depthMm ? { depthMm: draft.depthMm } : {}),
         placements: rackPlacements,
         ...(hasPositions ? { internalCanvasPositions } : {}),
       },
@@ -746,6 +782,26 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 }))
               }
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-sm font-normal text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+            />
+          </label>
+          {/* v7.9.73 / #170 — Rack-Tiefe in mm. Wird vom 3D-Builder genutzt
+              um zu prüfen ob hinten noch Platz für Patchblenden ist. */}
+          <label className="block text-xs font-medium text-slate-300">
+            Tiefe <span className="text-slate-500">(mm)</span>
+            <input
+              type="number"
+              min={200}
+              max={1500}
+              step={50}
+              value={draft.depthMm ?? 800}
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  depthMm: Math.max(200, Math.min(1500, Number(event.target.value) || 800)),
+                }))
+              }
+              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-sm font-normal text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+              title="Rack-Tiefe in mm. Standard: 800 mm. Gängige Werte: 350/450/600/800/1000/1200."
             />
           </label>
           <label className="block text-xs font-medium text-slate-300">
@@ -973,8 +1029,39 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           <div className="min-w-0 rounded border border-slate-700 bg-slate-950/50 p-2">
             {/* v7.9.11 — Rack-Header mit Live-HE-Belegung + Drag-Hint. */}
             <div className="mb-2 flex items-center justify-between gap-2">
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Rack-Layout
+              <div className="flex items-center gap-2">
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Rack-Layout
+                </div>
+                {/* v7.9.73 / #170 — 2D/3D Tab-Toggle. 2D ist der bestehende
+                    Front/Rear-Panel-Editor; 3D ist die neue Orbit-Ansicht
+                    auf Basis von react-three-fiber. */}
+                <div className="ml-2 flex overflow-hidden rounded border border-slate-700 text-[10px]">
+                  <button
+                    type="button"
+                    onClick={() => setViewTab('2d')}
+                    className={`px-2 py-0.5 ${
+                      viewTab === '2d'
+                        ? 'bg-sky-700 text-white'
+                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                    }`}
+                    title="2D-Editor: Vorderseite/Rückseite als Panel-Ansichten"
+                  >
+                    2D
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewTab('3d')}
+                    className={`px-2 py-0.5 ${
+                      viewTab === '3d'
+                        ? 'bg-purple-700 text-white'
+                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                    }`}
+                    title="3D-Visualisierung mit Front/Rear-Tiefe und Rotation. Nur-Lesen — bearbeitet wird im 2D-Tab."
+                  >
+                    3D
+                  </button>
+                </div>
               </div>
               <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
                 <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -993,13 +1080,39 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 </div>
               </div>
             )}
+            {/* v7.9.73 / #170 — 3D-Tab: nur lesende Orbit-Ansicht.
+                Bearbeitung geht weiter im 2D-Tab. */}
+            {viewTab === '3d' && draft.placements.length > 0 && (
+              <div
+                style={{ height: 'min(75vh, 800px)' }}
+                className="rounded border border-slate-800 bg-slate-950"
+              >
+                <Rack3DView
+                  totalUnits={draft.totalUnits}
+                  rackDepthMm={draft.depthMm}
+                  placements={draft.placements.map((p) => ({
+                    id: p.id,
+                    name: p.name,
+                    startUnit: p.startUnit,
+                    rackUnits: p.rackUnits,
+                    depthMm: p.depthMm,
+                    mountSide: p.mountSide,
+                    stlDataUri: p.stlDataUri,
+                    frontPanelImageUrl: p.frontPanelImageUrl,
+                  }))}
+                  selectedPlacementId={selectedPlacementId}
+                  onSelectPlacement={(id) => setSelectedPlacementId(id)}
+                />
+              </div>
+            )}
             {/* v7.9.10 — max-h begrenzt den Rack-Canvas auf die
                 Viewport-Höhe minus Header/Footer; in Kombi mit dem
                 neuen height-fit in rowHeight passt sich das Rack
-                automatisch dem sichtbaren Bereich an. */}
+                automatisch dem sichtbaren Bereich an.
+                v7.9.73 / #170 — nur zeigen wenn Tab='2d'. */}
             <div
               ref={rackCanvasRef}
-              className={`grid gap-2 overflow-auto ${draft.viewMode === 'both' ? 'grid-cols-2' : 'grid-cols-1'}`}
+              className={`grid gap-2 overflow-auto ${draft.viewMode === 'both' ? 'grid-cols-2' : 'grid-cols-1'} ${viewTab === '3d' ? 'hidden' : ''}`}
               style={{ maxHeight: 'min(75vh, 800px)' }}
             >
               {(draft.viewMode === 'both' ? ['front', 'rear'] : [draft.viewMode]).map((side) => (
@@ -1288,6 +1401,89 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     </span>
                   </label>
                 </div>
+                {/* v7.9.73 / #170 — 3D-Felder: Tiefe + Mount-Side + STL. */}
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="block">
+                    Tiefe (mm)
+                    <input
+                      type="number"
+                      min={20}
+                      max={1500}
+                      step={10}
+                      value={selectedPlacement.depthMm ?? ''}
+                      placeholder="400"
+                      onChange={(event) => {
+                        const v = event.target.value
+                        updatePlacement(selectedPlacement.id, {
+                          depthMm: v === '' ? undefined : Math.max(20, Math.min(1500, Number(v))),
+                        })
+                      }}
+                      className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+                      title="Geräte-Tiefe in mm. Leer = 400 mm Standard. Wird vom 3D-Tab visualisiert."
+                    />
+                  </label>
+                  <label className="block">
+                    Montage
+                    <select
+                      value={selectedPlacement.mountSide ?? 'full'}
+                      onChange={(event) =>
+                        updatePlacement(selectedPlacement.id, {
+                          mountSide: event.target.value as 'front' | 'rear' | 'full',
+                        })
+                      }
+                      className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+                      title="full = volle Rack-Tiefe. front = nur vorne. rear = nur hinten (z.B. Patchblende)."
+                    >
+                      <option value="full">Full-Depth</option>
+                      <option value="front">Nur vorne</option>
+                      <option value="rear">Nur hinten</option>
+                    </select>
+                  </label>
+                </div>
+                {/* STL-Upload für 3D-Modell */}
+                <label className="block">
+                  3D-Modell (STL, optional)
+                  <div className="mt-1 flex items-center gap-2">
+                    <input
+                      type="file"
+                      accept=".stl,application/octet-stream"
+                      onChange={async (event) => {
+                        const file = event.target.files?.[0]
+                        if (!file) return
+                        if (file.size > 5 * 1024 * 1024) {
+                          await confirmDialog('Datei zu groß', {
+                            body: 'STL-Dateien über 5 MB werden nicht angenommen, sonst explodiert der Projekt-Save.',
+                            okLabel: 'OK',
+                          })
+                          return
+                        }
+                        const buf = await file.arrayBuffer()
+                        const b64 = btoa(
+                          String.fromCharCode(...new Uint8Array(buf)),
+                        )
+                        updatePlacement(selectedPlacement.id, {
+                          stlDataUri: `data:application/octet-stream;base64,${b64}`,
+                        })
+                      }}
+                      className="flex-1 text-[11px]"
+                    />
+                    {selectedPlacement.stlDataUri && (
+                      <button
+                        type="button"
+                        onClick={() => updatePlacement(selectedPlacement.id, { stlDataUri: undefined })}
+                        className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
+                        title="STL entfernen — Gerät wird wieder als Box gerendert"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  <span className="mt-0.5 block text-[10px] text-slate-500">
+                    {selectedPlacement.stlDataUri
+                      ? '✓ STL geladen — wird im 3D-Tab gerendert.'
+                      : 'Ohne STL wird das Gerät als Box dargestellt.'}
+                  </span>
+                </label>
                 <div className="rounded border border-slate-800 bg-slate-900/40 p-2 text-[11px] text-slate-400">
                   Ports sichtbar: {selectedPlacement.inputs.length} Inputs / {selectedPlacement.outputs.length} Outputs
                 </div>
