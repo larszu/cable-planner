@@ -358,6 +358,138 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
       width: 220, height: 120,
     },
   },
+
+  // --- Micro Converter (v7.9.72 / #189) -----------------------------------
+  // BiDi-Micro converters: BNC + HDMI, jeweils in + out, gleichzeitig nutzbar.
+  {
+    match: ['micro converter', 'bidi', '12g'],
+    template: {
+      name: 'Blackmagic Micro Converter BiDirectional SDI/HDMI 12G',
+      category: 'Konverter',
+      inputs: [port('SDI In', 'BNC'), port('HDMI In', 'HDMI')],
+      outputs: [port('SDI Out', 'BNC'), port('HDMI Out', 'HDMI')],
+      width: 200, height: 140,
+    },
+  },
+  {
+    match: ['micro converter', 'bidi', '3g'],
+    template: {
+      name: 'Blackmagic Micro Converter BiDirectional SDI/HDMI 3G',
+      category: 'Konverter',
+      inputs: [port('SDI In', 'BNC'), port('HDMI In', 'HDMI')],
+      outputs: [port('SDI Out', 'BNC'), port('HDMI Out', 'HDMI')],
+      width: 200, height: 140,
+    },
+  },
+  {
+    match: ['micro converter', 'sdi to hdmi', '12g'],
+    template: {
+      name: 'Blackmagic Micro Converter SDI to HDMI 12G',
+      category: 'Konverter',
+      inputs: [port('SDI In', 'BNC')],
+      outputs: [port('SDI Loop Out', 'BNC'), port('HDMI Out', 'HDMI')],
+      width: 200, height: 140,
+    },
+  },
+  {
+    match: ['micro converter', 'sdi to hdmi', '3g'],
+    template: {
+      name: 'Blackmagic Micro Converter SDI to HDMI 3G',
+      category: 'Konverter',
+      inputs: [port('SDI In', 'BNC')],
+      outputs: [port('SDI Loop Out', 'BNC'), port('HDMI Out', 'HDMI')],
+      width: 200, height: 140,
+    },
+  },
+  {
+    match: ['micro converter', 'hdmi to sdi', '12g'],
+    template: {
+      name: 'Blackmagic Micro Converter HDMI to SDI 12G',
+      category: 'Konverter',
+      inputs: [port('HDMI In', 'HDMI')],
+      outputs: [port('SDI Out 1', 'BNC'), port('SDI Out 2', 'BNC')],
+      width: 200, height: 140,
+    },
+  },
+  {
+    match: ['micro converter', 'hdmi to sdi', '3g'],
+    template: {
+      name: 'Blackmagic Micro Converter HDMI to SDI 3G',
+      category: 'Konverter',
+      inputs: [port('HDMI In', 'HDMI')],
+      outputs: [port('SDI Out 1', 'BNC'), port('SDI Out 2', 'BNC')],
+      width: 200, height: 140,
+    },
+  },
+
+  // --- Mini Converter (zusätzliche Varianten) -----------------------------
+  {
+    match: ['mini converter', 'optical fiber', '12g'],
+    template: {
+      name: 'Blackmagic Mini Converter Optical Fiber 12G',
+      category: 'Konverter',
+      inputs: [port('SDI In', 'BNC'), port('Optical In (LC)', 'Fiber')],
+      outputs: [port('SDI Out', 'BNC'), port('Optical Out (LC)', 'Fiber')],
+      width: 220, height: 140,
+    },
+  },
+  {
+    match: ['mini converter', 'sdi distribution', '12g'],
+    template: {
+      name: 'Blackmagic Mini Converter SDI Distribution 12G',
+      category: 'Konverter',
+      inputs: [port('SDI In', 'BNC')],
+      outputs: sdiOut(8),
+      width: 220, height: 220,
+    },
+  },
+  {
+    match: ['mini converter', 'sdi to hdmi', '6g'],
+    template: {
+      name: 'Blackmagic Mini Converter SDI to HDMI 6G',
+      category: 'Konverter',
+      inputs: [port('SDI In', 'BNC')],
+      outputs: [
+        port('SDI Loop Out', 'BNC'),
+        port('HDMI Out', 'HDMI'),
+        port('XLR Audio Out 1', 'XLR'),
+        port('XLR Audio Out 2', 'XLR'),
+      ],
+      width: 220, height: 180,
+    },
+  },
+  {
+    match: ['mini converter', 'hdmi to sdi', '6g'],
+    template: {
+      name: 'Blackmagic Mini Converter HDMI to SDI 6G',
+      category: 'Konverter',
+      inputs: [port('HDMI In', 'HDMI'), port('XLR Audio In 1', 'XLR'), port('XLR Audio In 2', 'XLR')],
+      outputs: [port('SDI Out 1', 'BNC'), port('SDI Out 2', 'BNC')],
+      width: 220, height: 180,
+    },
+  },
+
+  // --- IP Converter (ST 2110) ---------------------------------------------
+  {
+    match: ['2110 ip converter', '12g'],
+    template: {
+      name: 'Blackmagic 2110 IP Converter 12G',
+      category: 'IP/NDI',
+      inputs: [port('SDI In 1', 'BNC'), port('SDI In 2', 'BNC'), port('IP Network', 'Ethernet/RJ45')],
+      outputs: [port('SDI Out 1', 'BNC'), port('SDI Out 2', 'BNC'), port('IP Network Loop', 'Ethernet/RJ45')],
+      width: 240, height: 200,
+    },
+  },
+  {
+    match: ['2110 ip converter', 'mini'],
+    template: {
+      name: 'Blackmagic 2110 IP Mini Converter',
+      category: 'IP/NDI',
+      inputs: [port('SDI In', 'BNC'), port('IP Network', 'Ethernet/RJ45')],
+      outputs: [port('SDI Out', 'BNC')],
+      width: 220, height: 160,
+    },
+  },
 ]
 
 /** Flat list of all built-in Blackmagic templates (seeded into the library). */

@@ -394,6 +394,105 @@ export const MISC_CATALOG: MiscEntry[] = [
       width: 240, height: 360,
     },
   },
+
+  // ── Decimator (zusätzliche Modelle, v7.9.72 / #189) ──────────────────
+  // Decimator MD-LX — günstigster HDMI/SDI Bi-Direktional
+  {
+    match: ['decimator', 'md-lx'],
+    template: {
+      name: 'Decimator MD-LX',
+      category: VIDEO,
+      inputs: [sdiIn('SDI In (3G/HD/SD)'), hdmiIn('HDMI In')],
+      outputs: [sdiOut('SDI Out (3G/HD/SD)'), hdmiOut('HDMI Out')],
+      width: 200, height: 120,
+    },
+  },
+  // Decimator DMON-12S — 12G SDI/HDMI Multi-Viewer mit 12 Inputs
+  {
+    match: ['decimator', 'dmon-12s'],
+    template: {
+      name: 'Decimator DMON-12S 12G Multi-Viewer',
+      category: VIDEO,
+      inputs: [
+        sdiIn('SDI In 1'), sdiIn('SDI In 2'), sdiIn('SDI In 3'), sdiIn('SDI In 4'),
+        sdiIn('SDI In 5'), sdiIn('SDI In 6'), sdiIn('SDI In 7'), sdiIn('SDI In 8'),
+        sdiIn('SDI In 9'), sdiIn('SDI In 10'), sdiIn('SDI In 11'), sdiIn('SDI In 12'),
+      ],
+      outputs: [sdiOut('SDI MV Out 1'), sdiOut('SDI MV Out 2'), hdmiOut('HDMI MV Out')],
+      width: 280, height: 420,
+    },
+  },
+  // Decimator 12G Cross Converter
+  {
+    match: ['decimator', '12g cross'],
+    template: {
+      name: 'Decimator 12G Cross Converter',
+      category: VIDEO,
+      inputs: [sdiIn('SDI In (12G/6G/3G/HD/SD)'), hdmiIn('HDMI In')],
+      outputs: [sdiOut('SDI Out (12G/6G/3G/HD/SD)'), hdmiOut('HDMI Out')],
+      width: 220, height: 140,
+    },
+  },
+
+  // ── Sonnet Thunderbolt PCIe-Gehäuse + Decklink ───────────────────────
+  // Sonnet Echo Express III-D (Thunderbolt 3 → 3 PCIe Slots) — gängige
+  // Hülle für BMD Decklink. Ports + Kapazität: 1× TB3 In, 1× TB3 Loop,
+  // 3× PCIe-Slot intern.
+  {
+    match: ['sonnet', 'echo express'],
+    template: {
+      name: 'Sonnet Echo Express III-D (TB3, 3× PCIe)',
+      category: 'IT/Server',
+      inputs: [port('Thunderbolt 3 In (USB-C)', 'USB-C')],
+      outputs: [port('Thunderbolt 3 Out (USB-C)', 'USB-C')],
+      width: 240, height: 160,
+      notes: 'Bestückbar mit 3× PCIe-Karten, z.B. BMD Decklink Duo 2 / Quad 2 / 8K Pro.',
+    },
+  },
+  // Sonnet xMac mini Server (1HE 19" Gehäuse für Mac Mini + 2 PCIe)
+  {
+    match: ['sonnet', 'xmac mini'],
+    template: {
+      name: 'Sonnet xMac mini Server (1HE, TB, 2× PCIe)',
+      category: 'IT/Server',
+      inputs: [port('Thunderbolt In (USB-C)', 'USB-C'), port('LAN', 'Ethernet/RJ45')],
+      outputs: [port('Thunderbolt Out (USB-C)', 'USB-C'), port('USB-A 1', 'USB')],
+      width: 240, height: 200,
+      isRackDevice: true,
+      rackUnits: 1,
+      notes: 'Bestückbar mit 2× PCIe-Karten + Mac Mini.',
+    },
+  },
+  // BMD Decklink Duo 2 — typische PCIe-Karte für Sonnet-Gehäuse
+  {
+    match: ['decklink', 'duo 2'],
+    template: {
+      name: 'Blackmagic Decklink Duo 2',
+      category: 'Konverter',
+      inputs: [sdiIn('SDI In 1'), sdiIn('SDI In 2'), sdiIn('SDI In 3'), sdiIn('SDI In 4')],
+      outputs: [sdiOut('SDI Out 1'), sdiOut('SDI Out 2'), sdiOut('SDI Out 3'), sdiOut('SDI Out 4')],
+      width: 240, height: 220,
+      notes: 'PCIe-Karte — in Sonnet Echo Express oder Mac Pro montieren.',
+    },
+  },
+  // BMD Decklink Quad 2
+  {
+    match: ['decklink', 'quad 2'],
+    template: {
+      name: 'Blackmagic Decklink Quad 2',
+      category: 'Konverter',
+      inputs: [
+        sdiIn('SDI In 1'), sdiIn('SDI In 2'), sdiIn('SDI In 3'), sdiIn('SDI In 4'),
+        sdiIn('SDI In 5'), sdiIn('SDI In 6'), sdiIn('SDI In 7'), sdiIn('SDI In 8'),
+      ],
+      outputs: [
+        sdiOut('SDI Out 1'), sdiOut('SDI Out 2'), sdiOut('SDI Out 3'), sdiOut('SDI Out 4'),
+        sdiOut('SDI Out 5'), sdiOut('SDI Out 6'), sdiOut('SDI Out 7'), sdiOut('SDI Out 8'),
+      ],
+      width: 240, height: 360,
+      notes: 'PCIe-Karte — in Sonnet Echo Express oder Mac Pro montieren.',
+    },
+  },
 ]
 
 /** Flat list of all built-in misc templates (seeded into the library). */
