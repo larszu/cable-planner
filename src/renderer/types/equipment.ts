@@ -533,6 +533,12 @@ export interface GroupPreset {
        *  Patchblende hinter einem vorderen Gerät), 'full' = beide Tiefen
        *  belegt (Default für klassische Server). Fehlt → 'full'. */
       mountSide?: 'front' | 'rear' | 'full'
+      /** v7.9.82 / #170 — Shelf-Devices: horizontale Position innerhalb der
+       *  Rack-Mount-Breite (mm vom linken Rail, 0 = ganz links). Default 0. */
+      shelfOffsetX?: number
+      /** v7.9.82 / #170 — Shelf-Devices: Tiefen-Position innerhalb des Racks
+       *  (mm von der Front, 0 = ganz vorne). Default 0. */
+      shelfOffsetZ?: number
     }>
     /** v7.9.14 — Canvas-Positionen für den RackInternalCanvas. Wird
      *  vom Rack-Builder beim Speichern befüllt, falls der User Geräte
