@@ -18,7 +18,15 @@ import { useRef, useState } from 'react'
 import type { Port } from '../../types/equipment'
 
 interface Props {
+  /** Ports die auf dieser Face gerendert werden sollen (bereits gefiltert
+   *  nach rackSide oder Patchblende-Konvention). Können aus inputs oder
+   *  outputs des Placements stammen — das wird in der Drag-Persist-Logik
+   *  jeweils richtig zurückgeschrieben. */
   ports: Port[]
+  /** Vollständige Listen, damit wir beim Drag das Original updaten können
+   *  egal aus welcher der beiden Listen der Port kommt. */
+  allInputs: Port[]
+  allOutputs: Port[]
   placementId: string
   placementWidth: number
   placementHeight: number
@@ -46,11 +54,12 @@ const computeDefault = (idx: number, total: number): { x: number; y: number } =>
 
 export const PortDots2D = ({
   ports,
+  allInputs,
+  allOutputs,
   placementId,
   placementWidth,
   placementHeight,
   updatePlacement,
-  side,
 }: Props) => {
   const [dragOverride, setDragOverride] = useState<{ id: string; x: number; y: number } | null>(null)
   const draggingRef = useRef<{ id: string; pointerId: number } | null>(null)
@@ -94,11 +103,22 @@ export const PortDots2D = ({
               ;(e.currentTarget as Element).releasePointerCapture?.(e.pointerId)
               const override = dragOverride?.id === port.id ? dragOverride : null
               if (override) {
-                const key = side === 'front' ? 'inputs' : 'outputs'
-                const updated = ports.map((p) =>
-                  p.id === port.id ? { ...p, panelPosX: override.x, panelPosY: override.y } : p,
-                )
-                updatePlacement(placementId, { [key]: updated })
+                // v7.9.81 / #170 — Port kann aus inputs ODER outputs kommen.
+                // Wir suchen ihn in beiden Listen und updaten die richtige.
+                const inInputs = allInputs.some((p) => p.id === port.id)
+                if (inInputs) {
+                  updatePlacement(placementId, {
+                    inputs: allInputs.map((p) =>
+                      p.id === port.id ? { ...p, panelPosX: override.x, panelPosY: override.y } : p,
+                    ),
+                  })
+                } else {
+                  updatePlacement(placementId, {
+                    outputs: allOutputs.map((p) =>
+                      p.id === port.id ? { ...p, panelPosX: override.x, panelPosY: override.y } : p,
+                    ),
+                  })
+                }
               }
               draggingRef.current = null
               setDragOverride(null)
