@@ -19,11 +19,24 @@
  *     phone always sees the latest state on refresh.
  *   - stop() closes the server and clears the in-memory project.
  *
- * Security note: server is bound to 0.0.0.0 (LAN). No write
- * endpoints. If a token gate is needed later we'd add a random
- * token to the URL and require it in `/project.json`. For a small
- * studio LAN the absence of write endpoints is the right tradeoff
- * between zero-config and security.
+ * Security note (Stand v7.9.92): server bindet auf 0.0.0.0 (LAN), CORS=*,
+ * KEINE Authentifizierung. WRITE-Endpunkte existieren (POST /checks zum
+ * Update der Check-State, POST /cables für Add-from-Mobile #210). Damit
+ * gilt das alte "no write endpoints"-Trust-Modell NICHT mehr — jede
+ * Maschine im LAN kann das Projekt manipulieren wenn sie die Server-URL
+ * kennt.
+ *
+ * Trust-Modell: kleine Studio-LANs (Crew-Mitglieder vertrauenswürdig).
+ * Bei verschärften Anforderungen wäre ein opt-in Token-Gate sinnvoll:
+ *   - random Hex bei start() generieren
+ *   - als QR/URL-Param dem Mobile-Client geben (?t=<token>)
+ *   - jeder Request: Header X-CP-Token oder ?t-Query gegen state.token prüfen
+ *   - bei mismatch: 401
+ * Plus CORS auf LAN-IPs (192.168.x, 10.x, 172.16-31.x) einschränken.
+ * Plus per-IP Rate-Limit auf Write-Endpunkten gegen Spam.
+ *
+ * Bisher nicht umgesetzt — Tradeoff zwischen Zero-Config und Security
+ * fällt aktuell zugunsten Zero-Config.
  */
 
 import { createServer, type Server, type IncomingMessage, type ServerResponse } from 'node:http'

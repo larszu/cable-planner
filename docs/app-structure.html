@@ -239,7 +239,7 @@
 <div id="app">
   <aside>
     <h1>Cable-Planner</h1>
-    <div class="subtitle">App-Struktur · v7.9.91 · ~60 Module</div>
+    <div class="subtitle">App-Struktur · v7.9.92 · ~61 Module</div>
 
     <h2>Layer-Filter</h2>
     <button class="layer-btn active" data-layer="all">Alle anzeigen</button>
@@ -303,6 +303,7 @@ const DATA = {
     { "id": "ipc-credentials",   "label": "Credentials IPC", "layer": "main",     "group": "IPC",        "purpose": "Rentman-Token sicher im OS-Keychain", "file": "src/main/ipc/credentialsIpc.ts" },
     { "id": "service-rentman",   "label": "Rentman Client",  "layer": "main",     "group": "Services",   "purpose": "Axios-Wrapper für Rentman REST API", "file": "src/main/services/rentmanApiClient.ts" },
     { "id": "service-mobile",    "label": "Mobile Server",   "layer": "main",     "group": "Services",   "purpose": "Express-Server für LAN-Sync von Mobile-App", "file": "src/main/services/mobileShareServer.ts" },
+    { "id": "util-atomic",       "label": "Atomic-Write",    "layer": "main",     "group": "Services",   "purpose": "v7.9.92: Crash-safe File-Write mit .bak-Rotation + In-Flight-Lock. Shared util zwischen project + library writes.", "file": "src/main/util/atomicWrite.ts" },
 
     // ── Preload/Bridge ─────────────────────────────────────
     { "id": "bridge",            "label": "Bridge API",      "layer": "preload",  "group": "Bridge",     "purpose": "Typed IPC Interface zum Renderer (credentials, rentman, project, atem...)", "file": "src/renderer/lib/bridge.ts" },
@@ -357,7 +358,7 @@ const DATA = {
     { "id": "project-store",     "label": "Project Store",   "layer": "renderer", "group": "Store",      "purpose": "zustand: equipment, cables, locations, library, metadata. ~2000 LOC", "file": "src/renderer/store/projectStore.ts" },
     { "id": "ui-store",          "label": "UI Store",        "layer": "renderer", "group": "Store",      "purpose": "zustand: Selection, Panels, Layers, Theme, persistent settings", "file": "src/renderer/store/uiStore.ts" },
     { "id": "settings-store",    "label": "Settings Store",  "layer": "renderer", "group": "Store",      "purpose": "zustand: Persisted Window-Settings (Position, Size)", "file": "src/renderer/store/settingsStore.ts" },
-    { "id": "project-history",   "label": "Project History", "layer": "renderer", "group": "Store",      "purpose": "Undo/Redo Stack (#186 v7.9.71 fix)", "file": "src/renderer/store/projectHistory.ts" },
+    { "id": "project-history",   "label": "Project History", "layer": "renderer", "group": "Store",      "purpose": "Undo/Redo. v7.9.92: Transactions + 200ms Coalesce-Window (draw.io-style)", "file": "src/renderer/store/projectHistory.ts" },
 
     // ── Renderer: Lib (helpers) ────────────────────────────
     { "id": "lib-pathfinding",   "label": "Pathfinding",     "layer": "renderer", "group": "Lib",        "purpose": "A* Cable-Routing mit Obstacle-Avoidance", "file": "src/renderer/lib/pathfinding.ts" },
@@ -471,6 +472,8 @@ const DATA = {
     // Main IPC → Services
     { "from": "ipc-rentman", "to": "service-rentman", "kind": "imports" },
     { "from": "ipc-mobile-share", "to": "service-mobile", "kind": "imports" },
+    { "from": "ipc-project", "to": "util-atomic", "kind": "imports" },
+    { "from": "ipc-library", "to": "util-atomic", "kind": "imports" },
     // Main Core
     { "from": "main-window", "to": "ipc-project", "kind": "imports" },
     { "from": "main-window", "to": "ipc-library", "kind": "imports" },
@@ -497,9 +500,20 @@ const DATA = {
       "steps": [
         "MenuBar: File → Save",
         "bridge.project.saveProject(project, path)",
-        "ipc-project: atomic-write zu .tmp → rename (v7.9.91)",
-        "Vorige Version landet in .bak als Sicherung",
-        "Recent-Liste wird aktualisiert"
+        "ipc-project: util-atomic.atomicWriteFile (v7.9.91/92)",
+        "→ Write zu .tmp + rename target→.bak + rename .tmp→target",
+        "In-Flight-Lock blockiert konkurrente Saves",
+        "Recent-Liste validiert + aktualisiert"
+      ]
+    },
+    {
+      "name": "Undo/Redo (draw.io-Style)",
+      "steps": [
+        "Multi-Step-Aktionen (Drag-End, Multi-Delete, Paste) → projectHistory.beginTransaction() …N atomare set() … endTransaction()",
+        "Während Transaktion: state.project-Changes tracked aber nicht in past[] gepusht",
+        "Auto-Coalesce 200ms: rapid bursts gleicher Aktion → kein neuer Entry",
+        "Ctrl+Z: past.pop() → loadProject → history+store sync via lastProject = getState().project",
+        "Ein User-Drag von 5 Devices+3 Cable-Shifts → genau EIN Undo-Step"
       ]
     },
     {

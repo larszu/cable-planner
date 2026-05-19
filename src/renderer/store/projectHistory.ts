@@ -3,20 +3,53 @@ import { useProjectStore } from './projectStore'
 import type { CablePlannerProject } from '../types/project'
 
 /**
- * Undo/redo history for the project document. We subscribe to the main
- * project store and push each new `project` reference onto an in-memory
- * history stack. A guard flag prevents the subscribe from recording
- * changes that are themselves caused by undo/redo.
+ * v7.9.92 — Undo/Redo mit Transaction + Coalesce-Window.
+ *
+ * Inspiriert von draw.io / mxGraph's `beginUpdate`/`endUpdate`-Pattern:
+ * eine User-Aktion (z.B. Multi-Select-Drag oder Paste) löst N atomare
+ * Store-Mutationen aus, soll aber EINEN Undo-Schritt sein.
+ *
+ * Zwei Mechaniken laufen parallel:
+ *
+ * 1. **Explizite Transaktionen** via `beginTransaction()` / `endTransaction()`:
+ *    Bekannte Multi-Step-Aktionen (Multi-Drag, Multi-Delete, Paste,
+ *    Group-Drag mit Contents) wickeln sich in einen Transaction-Frame.
+ *    Während der Transaktion werden Project-Changes intern verfolgt
+ *    aber NICHT als History-Entries gepusht. Beim End-Of-Transaction
+ *    landet die DIFF (Start → End) als ein einziger Entry.
+ *
+ * 2. **Auto-Coalesce** mit 200 ms Window:
+ *    Zwei aufeinanderfolgende Changes innerhalb derselben Burst-Phase
+ *    (z.B. ein Properties-Slider der bei jeder Pixel-Bewegung set()
+ *    aufruft) werden in den VORHERIGEN History-Entry geschmolzen.
+ *    Bedingung: kein offener Transaction-Frame.
+ *
+ * Plus: leerer Diff (state.project === past[-1]) blockiert No-Op-Entries.
  */
 
 const HISTORY_LIMIT = 100
+const COALESCE_WINDOW_MS = 200
+
 let past: CablePlannerProject[] = []
 let future: CablePlannerProject[] = []
 let lastProject: CablePlannerProject = useProjectStore.getState().project
 let suppress = false
 
+// Transaction-State.
+let transactionDepth = 0
+let transactionStartProject: CablePlannerProject | null = null
+
+// Coalesce-State.
+let lastChangeTime = 0
+
 const listeners = new Set<() => void>()
 const notify = () => listeners.forEach((l) => l())
+
+const pushPast = (entry: CablePlannerProject): void => {
+  past.push(entry)
+  if (past.length > HISTORY_LIMIT) past.shift()
+  future = []
+}
 
 useProjectStore.subscribe((state) => {
   if (state.project === lastProject) return
@@ -24,9 +57,24 @@ useProjectStore.subscribe((state) => {
     lastProject = state.project
     return
   }
-  past.push(lastProject)
-  if (past.length > HISTORY_LIMIT) past.shift()
-  future = []
+  // v7.9.92 — Während einer Transaktion: project-Reference im lastProject
+  // mit-tracken aber NICHT als History-Entry pushen. Der eine Entry wird
+  // bei endTransaction() aus transactionStartProject erzeugt.
+  if (transactionDepth > 0) {
+    lastProject = state.project
+    return
+  }
+  const now = Date.now()
+  // v7.9.92 — Coalesce: zwei Bursts innerhalb 200 ms → kein neuer Entry,
+  // nur lastProject tracken. Das schmiltzt z.B. Drag-Drop-Sequenzen
+  // oder Slider-Spam zu einem User-perception-Step.
+  if (now - lastChangeTime < COALESCE_WINDOW_MS && past.length > 0) {
+    lastChangeTime = now
+    lastProject = state.project
+    return
+  }
+  pushPast(lastProject)
+  lastChangeTime = now
   lastProject = state.project
   notify()
 })
@@ -34,6 +82,39 @@ useProjectStore.subscribe((state) => {
 export const projectHistory = {
   canUndo: () => past.length > 0,
   canRedo: () => future.length > 0,
+
+  /** v7.9.92 — Start einer expliziten Transaktion. Bis zum
+   *  endTransaction() werden alle Project-Mutationen NICHT als
+   *  separate Entries erfasst; der finale State landet als ein Entry. */
+  beginTransaction: (): void => {
+    if (transactionDepth === 0) {
+      transactionStartProject = lastProject
+    }
+    transactionDepth++
+  },
+  endTransaction: (): void => {
+    if (transactionDepth === 0) return
+    transactionDepth--
+    if (transactionDepth === 0 && transactionStartProject) {
+      const finalProject = useProjectStore.getState().project
+      if (finalProject !== transactionStartProject) {
+        pushPast(transactionStartProject)
+        lastChangeTime = Date.now()
+        notify()
+      }
+      transactionStartProject = null
+    }
+  },
+  /** Convenience: führt fn() innerhalb einer Transaktion aus. */
+  transact<T>(fn: () => T): T {
+    projectHistory.beginTransaction()
+    try {
+      return fn()
+    } finally {
+      projectHistory.endTransaction()
+    }
+  },
+
   undo: () => {
     if (past.length === 0) return
     const prev = past.pop()!
@@ -52,6 +133,9 @@ export const projectHistory = {
     // Vorzustand → Undo/Redo verhielt sich in alten Projekten "verrückt"
     // weil die history und der tatsächliche store divergiert sind.
     lastProject = useProjectStore.getState().project
+    // Coalesce-Reset: nach einem Undo soll der NÄCHSTE User-Edit einen
+    // frischen Entry erzeugen, nicht in den letzten gemergt werden.
+    lastChangeTime = 0
     notify()
   },
   redo: () => {
@@ -64,8 +148,8 @@ export const projectHistory = {
     } finally {
       suppress = false
     }
-    // v7.9.71 / #186 — dito (siehe undo-Kommentar).
     lastProject = useProjectStore.getState().project
+    lastChangeTime = 0
     notify()
   },
   subscribe: (fn: () => void) => {
@@ -77,6 +161,9 @@ export const projectHistory = {
     past = []
     future = []
     lastProject = useProjectStore.getState().project
+    transactionDepth = 0
+    transactionStartProject = null
+    lastChangeTime = 0
     notify()
   },
 }
