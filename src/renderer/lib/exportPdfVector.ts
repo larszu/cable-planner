@@ -173,15 +173,22 @@ const collectAllCss = (): string => {
   return parts.join('\n')
 }
 
-/** Klont das gesamte Canvas-Element. Setzt anschliessend den ReactFlow-
+/** Klont nur das `.react-flow`-Element — also die ReactFlow-Renderflaeche
+ *  ohne den umgebenden Toolbar/Banner-Chrome. Setzt anschliessend den
  *  Viewport-Transform so um, dass das natural-size Content-Rechteck bei
  *  (0,0) sitzt. So kann das Eltern-Wrapper-Element einfach
- *  width=contentW height=contentH bekommen — alles passt rein. */
+ *  width=contentW height=contentH bekommen — alles passt rein.
+ *
+ *  v7.9.101: Wir klonten frueher das ganze #cable-planner-canvas (Wrapper
+ *  mit CanvasToolbar/Banner) — Toolbar landete dann oben im PDF. Jetzt
+ *  greifen wir das innere .react-flow. */
 const cloneCanvasForPrint = (
   canvasEl: HTMLElement,
   bbox: BoundingBox,
 ): HTMLElement => {
-  const clone = canvasEl.cloneNode(true) as HTMLElement
+  const reactFlowEl = canvasEl.querySelector('.react-flow') as HTMLElement | null
+  const source = reactFlowEl ?? canvasEl
+  const clone = source.cloneNode(true) as HTMLElement
   clone.removeAttribute('id')
   // Inline-Style ueberschreibt allfaellige width/height-Constraints.
   clone.style.width = `${bbox.contentW}px`
@@ -253,6 +260,15 @@ const buildPrintHtml = (params: {
   pageHeightPx: number
   canvasWidthPx: number
   canvasHeightPx: number
+  /** Skalierungsfaktor für den Canvas-Clone (≤1). Wird auf einen
+   *  inneren Wrapper als transform: scale(...) angewendet wenn der
+   *  natural-Canvas grösser ist als die kappte Page. Bleibt Vektor. */
+  canvasScale: number
+  /** Natural-Size des Canvas (vor Skalierung) — der Clone braucht
+   *  diese Dimensionen damit Layout funktioniert; transform: scale
+   *  passt's dann visuell an. */
+  canvasNaturalWidth: number
+  canvasNaturalHeight: number
   headerHeight: number
   margin: number
   bgFallback: string
@@ -268,6 +284,9 @@ const buildPrintHtml = (params: {
     pageHeightPx,
     canvasWidthPx,
     canvasHeightPx,
+    canvasScale,
+    canvasNaturalWidth,
+    canvasNaturalHeight,
     headerHeight,
     margin,
     bgFallback,
@@ -317,6 +336,15 @@ ${appCss}
     overflow: hidden;
     background: ${bgFallback};
   }
+  /* v7.9.102 — Inner-Wrapper macht transform: scale auf den Canvas.
+     Damit kann der natural-size Clone unscaled gelayoutet werden und
+     wir skalieren das Ergebnis vektoriell runter auf die Page-Groesse. */
+  .pdf-canvas-inner {
+    width: ${canvasNaturalWidth}px;
+    height: ${canvasNaturalHeight}px;
+    transform: scale(${canvasScale});
+    transform-origin: 0 0;
+  }
   /* Kein scrollen / kein Userinteraktion-Layout-Anpassung im Print */
   .pdf-canvas-wrap * { animation: none !important; transition: none !important; }
   /* DIN-Title-Block unten rechts */
@@ -352,7 +380,9 @@ ${appCss}
     <div class="stamp">${escapeHtml(timestamp)}</div>
   </div>
   <div class="pdf-canvas-wrap">
-    ${canvasOuterHtml}
+    <div class="pdf-canvas-inner">
+      ${canvasOuterHtml}
+    </div>
   </div>
   ${metadata ? renderTitleBlock(metadata) : ''}
 </div>
@@ -413,18 +443,44 @@ export const exportCanvasToPdfVector = async (
   const margin = 24
   const headerHeight = 28
   const titleBlockReserve = metadata ? 12 : 0
-  const pageWidthPx = bbox.contentW + margin * 2
-  const pageHeightPx = bbox.contentH + margin * 2 + headerHeight + titleBlockReserve
 
-  onProgress('compose', `Print-HTML bauen (${Math.round((appCss.length + canvasOuterHtml.length) / 1024)} KB)…`)
+  // v7.9.102 — Page-Size auf A0-Landscape kappen (1189×841 mm). Viele
+  // PDF-Viewer (Preview.app, Acrobat) weigern sich, Pages > A0 zu
+  // rendern → zeigen weisse Flaeche. Wir scalen den Canvas-Clone
+  // vektoriell runter (transform: scale) wenn er groesser ist. Bleibt
+  // Vektor, Zoom in der PDF bleibt crisp. Standard-Workflow: Canvas
+  // ist kleiner → scale=1 → keine Aenderung.
+  const A0_LANDSCAPE_W_MM = 1189
+  const A0_LANDSCAPE_H_MM = 841
+  const MAX_CANVAS_W_PX = A0_LANDSCAPE_W_MM / PX_TO_MM - margin * 2
+  const MAX_CANVAS_H_PX =
+    A0_LANDSCAPE_H_MM / PX_TO_MM - margin * 2 - headerHeight - titleBlockReserve
+  const canvasScale = Math.min(
+    1,
+    MAX_CANVAS_W_PX / bbox.contentW,
+    MAX_CANVAS_H_PX / bbox.contentH,
+  )
+  const displayedCanvasWidth = Math.ceil(bbox.contentW * canvasScale)
+  const displayedCanvasHeight = Math.ceil(bbox.contentH * canvasScale)
+  const pageWidthPx = displayedCanvasWidth + margin * 2
+  const pageHeightPx =
+    displayedCanvasHeight + margin * 2 + headerHeight + titleBlockReserve
+
+  onProgress(
+    'compose',
+    `Print-HTML bauen (${Math.round((appCss.length + canvasOuterHtml.length) / 1024)} KB, scale ${(canvasScale * 100).toFixed(0)}%)…`,
+  )
   const html = buildPrintHtml({
     appCss,
     canvasOuterHtml,
     projectName,
     pageWidthPx,
     pageHeightPx,
-    canvasWidthPx: bbox.contentW,
-    canvasHeightPx: bbox.contentH,
+    canvasWidthPx: displayedCanvasWidth,
+    canvasHeightPx: displayedCanvasHeight,
+    canvasScale,
+    canvasNaturalWidth: bbox.contentW,
+    canvasNaturalHeight: bbox.contentH,
     headerHeight,
     margin,
     bgFallback,
