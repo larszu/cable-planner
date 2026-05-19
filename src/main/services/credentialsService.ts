@@ -9,7 +9,15 @@ export const credentialsService = {
   },
 
   async saveToken(token: string): Promise<boolean> {
-    await keytar.setPassword(SERVICE_NAME, ACCOUNT_NAME, token.trim())
+    // v7.9.120 — Token-Sanitization: alle Control-Chars, NBSP, BOM
+    // raus. Tokens aus PDF/Mail-Copy-Paste haben oft ​/﻿ dabei,
+    // was Rentman dann 403-malformed-Authorization-Header gibt.
+    // eslint-disable-next-line no-control-regex
+    const clean = (token ?? '')
+      .replace(/[\u0000-\u001f\u007f-\u00a0\ufeff]/g, '')
+      .trim()
+      .replace(/^Bearer\s+/i, '')
+    await keytar.setPassword(SERVICE_NAME, ACCOUNT_NAME, clean)
     return true
   },
 
