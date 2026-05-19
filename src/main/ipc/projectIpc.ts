@@ -1,16 +1,89 @@
 import { app, dialog, ipcMain } from 'electron'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { access, mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { randomBytes } from 'node:crypto'
 
 const RECENT_PATH = path.join(app.getPath('userData'), 'recent-projects.json')
+
+// v7.9.91 — In-Flight-Save-Lock pro Datei. Verhindert dass schnelle
+// Ctrl+S-Doppelklicks zwei parallele writeFile-Calls auf denselben Pfad
+// schießen (Race-Bedingung, könnte File korrupt machen).
+const inFlightSaves = new Set<string>()
+
+/**
+ * v7.9.91 — Atomarer File-Write. Schreibt in eine .tmp-Datei und rename'd
+ * sie über das Ziel. Im worst case (Crash mid-write) bleibt die alte Datei
+ * intakt. POSIX-rename ist atomar; Windows ReplaceFile auch (näherungs-
+ * weise, mit kurzem Window). Plus optionalem .bak-Backup der vorigen
+ * Version damit der User einen Stand zurück hat.
+ */
+const atomicWriteFile = async (targetPath: string, content: string): Promise<void> => {
+  if (inFlightSaves.has(targetPath)) {
+    // Conservativ: Save sofort abbrechen wenn schon einer läuft (statt
+    // queuen — der User-Save-Klick ist meist redundant). Renderer kann
+    // den nächsten Save dann erneut auslösen.
+    throw new Error('A save is already in progress for this file. Try again in a moment.')
+  }
+  inFlightSaves.add(targetPath)
+  const dir = path.dirname(targetPath)
+  // Random suffix damit zwei Saves auf verschiedene Dateien sich nicht
+  // versehentlich gegenseitig überschreiben (wenn beide same .tmp-Name
+  // hätten).
+  const tmpPath = `${targetPath}.${randomBytes(4).toString('hex')}.tmp`
+  try {
+    await mkdir(dir, { recursive: true })
+    await writeFile(tmpPath, content, 'utf-8')
+    // .bak-Rotation: alte Datei → .bak, dann tmp → ziel. So hat der
+    // User immer den vorigen Stand wenn was schiefgeht.
+    const bakPath = `${targetPath}.bak`
+    try {
+      await access(targetPath)
+      // Existiert → erst aktuelle .bak weg, dann target → .bak.
+      try { await unlink(bakPath) } catch { /* no prev backup */ }
+      await rename(targetPath, bakPath)
+    } catch {
+      // Existiert noch nicht (erster Save) — kein Backup nötig.
+    }
+    await rename(tmpPath, targetPath)
+  } catch (error) {
+    // Cleanup: tmp-File entfernen falls der atomic-rename gescheitert ist.
+    try { await unlink(tmpPath) } catch { /* ignore */ }
+    throw error
+  } finally {
+    inFlightSaves.delete(targetPath)
+  }
+}
 
 const readRecent = async (): Promise<string[]> => {
   try {
     const content = await readFile(RECENT_PATH, 'utf-8')
-    return JSON.parse(content) as string[]
+    const list = JSON.parse(content) as unknown
+    if (!Array.isArray(list)) return []
+    return list.filter((item): item is string => typeof item === 'string')
   } catch {
     return []
   }
+}
+
+// v7.9.91 — Recent-Pfade gegen Filesystem prüfen damit der User in
+// der "Recent"-Liste keine längst gelöschten/verschobenen Files sieht.
+// Stale Einträge werden silently aus der Persistenz entfernt.
+const readRecentValid = async (): Promise<string[]> => {
+  const stored = await readRecent()
+  const valid: string[] = []
+  for (const p of stored) {
+    try {
+      await access(p)
+      valid.push(p)
+    } catch {
+      /* file gone — drop from list */
+    }
+  }
+  if (valid.length !== stored.length) {
+    // Persist die bereinigte Liste async im Hintergrund.
+    void writeFile(RECENT_PATH, JSON.stringify(valid, null, 2), 'utf-8').catch(() => {})
+  }
+  return valid
 }
 
 const writeRecent = async (filePath: string) => {
@@ -103,7 +176,7 @@ export const registerProjectIpc = () => {
     // viewerSession beim Export leeren — der Reviewer setzt seinen
     // eigenen Namen beim ersten Öffnen.
     delete safe.viewerSession
-    await writeFile(target, JSON.stringify(safe, null, 2), 'utf-8')
+    await atomicWriteFile(target, JSON.stringify(safe, null, 2))
     return target
   })
 
@@ -148,7 +221,7 @@ export const registerProjectIpc = () => {
       targetPath = ensureJsonExtension(targetPath)
     }
 
-    await writeFile(targetPath, JSON.stringify(project, null, 2), 'utf-8')
+    await atomicWriteFile(targetPath, JSON.stringify(project, null, 2))
     await writeRecent(targetPath)
     return targetPath
   })
@@ -165,10 +238,10 @@ export const registerProjectIpc = () => {
     }
 
     const target = ensureJsonExtension(filePath)
-    await writeFile(target, JSON.stringify(project, null, 2), 'utf-8')
+    await atomicWriteFile(target, JSON.stringify(project, null, 2))
     await writeRecent(target)
     return target
   })
 
-  ipcMain.handle('project:get-recent', () => readRecent())
+  ipcMain.handle('project:get-recent', () => readRecentValid())
 }
