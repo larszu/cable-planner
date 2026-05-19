@@ -362,9 +362,9 @@ export const CableEdge = ({
   const collisionShiftOn = useUiStore((s) => s.orthogonalCollisionShift)
   // v7.9.85 / #123 — Layer-Filter. Wenn das Kabel einen Layer hat
   // (z.B. 'network') und der Layer-Toggle in der Toolbar AUS ist,
-  // wird das Kabel komplett ausgeblendet. Ungrouped Cables (kein layer
-  // gesetzt) sind immer sichtbar. Geräte werden NICHT gefiltert —
-  // Option A aus #123.
+  // wird das Kabel komplett ausgeblendet. v7.9.95: Kabel ohne layer-Feld
+  // werden wie 'other' behandelt — folgen also dem 'other'-Chip-Toggle.
+  // Geräte werden NICHT gefiltert — Option A aus #123.
   const layerVisibility = useUiStore((s) => s.layerVisibility)
   // v7.8.7 / Issue #106 — Global cable-bumps toggle from Settings; can
   // be overridden per-cable via the right-click context menu's

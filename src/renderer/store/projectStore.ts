@@ -525,14 +525,15 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
         patched = { ...patched, waypoints: c.waypoints.map((w) => ({ x: r(w.x), y: r(w.y) })) }
       }
       // v7.9.93 / #123 — Layer-Auto-Heal: Kabel aus Projekten vor v7.9.85
-      // haben kein layer-Feld → werden als ungrouped behandelt → die
-      // Layer-Toggle-Chips können sie nicht filtern. Beim Load alle
+      // haben kein layer-Feld → werden als 'other' behandelt → die
+      // Layer-Toggle-Chips können sie sonst nicht filtern. Beim Load alle
       // Kabel ohne layer durch die detectLayerForConnector-Heuristik
       // jagen damit die Ebenen-Funktion nachträglich greift. User kann
       // manuell überschreiben (CableProperties → Ebene-Dropdown).
+      // v7.9.95: detectLayerForConnector liefert jetzt immer einen Layer
+      // (Fallback 'other'), daher der if(auto)-Check entfällt.
       if (!patched.layer) {
-        const auto = detectLayerForConnector(patched.type)
-        if (auto) patched = { ...patched, layer: auto }
+        patched = { ...patched, layer: detectLayerForConnector(patched.type) }
       }
       return patched
     }),
@@ -1322,7 +1323,7 @@ const buildProjectStore = (
 
       const ui = useUiStore.getState()
       // v7.9.85 / #123 — Layer-Auto-Detect aus dem Cable-Type.
-      // Liefert null wenn unsicher → cable.layer bleibt undefined.
+      // v7.9.95: Fallback ist 'other', also nie undefined.
       const autoLayer = detectLayerForConnector(draft.type)
       const cable: Cable = {
         id: uuidv4(),
@@ -1346,7 +1347,7 @@ const buildProjectStore = (
         bidirectional: BIDIRECTIONAL_CABLE_TYPES.has(draft.type),
         strokeWidth: 2.5,
         waypoints: state.pendingWaypoints,
-        ...(autoLayer ? { layer: autoLayer } : {}),
+        layer: autoLayer,
       }
 
       return {
@@ -2090,8 +2091,8 @@ const buildProjectStore = (
         toPortId: input.toPortId,
         notes: input.notes ?? '',
         addedFromMobile: true,
+        layer: autoLayer,
         ...(resolvedSpecId ? { cableSpecId: resolvedSpecId } : {}),
-        ...(autoLayer ? { layer: autoLayer } : {}),
       }
       const updated = touchProject({
         ...state.project,

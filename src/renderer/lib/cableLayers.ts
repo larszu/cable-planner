@@ -1,5 +1,6 @@
 /**
  * v7.9.85 / #123 — Cable-Layer-System.
+ * v7.9.95 — 'other'-Layer für Custom/Undefined-Kabel hinzugefügt.
  *
  * Top-Level-Layer aus dem AV/Broadcast-Industrie-Standard (recherchiert
  * über D-Tools SI, Stardraw Design, Visio AV-ECAV, AVNetwork-Best-Practices):
@@ -9,6 +10,8 @@
  *   control  — RS-422, GPI, LAN-Control (Tally, Routing-Steuerung)
  *   network  — IT/Office-LAN, WiFi, Management-VLAN, DHCP/DNS
  *   power    — IEC, PowerCON, Schuko, USV-Strecken
+ *   other    — Custom/Undefined: Kabel die in keine der obigen Kategorien
+ *              fallen oder vom Auto-Detect nicht klassifiziert werden konnten
  *
  * Sub-Layer-Patterns (User kann frei erweitern):
  *   - Primary vs Backup (z.B. video.primary, video.backup)
@@ -16,13 +19,13 @@
  *   - Front-of-House vs Stage
  *
  * Auto-Detect:
- *   - Cable connectorType → wahrscheinlichster Layer
+ *   - Cable connectorType → wahrscheinlichster Layer (Fallback 'other')
  *   - Wird beim Cable-Anlegen als Vorschlag genutzt, User kann überschreiben
  */
 import type { Cable, CableType } from '../types/cable'
 import type { ConnectorType } from '../types/equipment'
 
-export const STANDARD_LAYERS = ['video', 'audio', 'control', 'network', 'power'] as const
+export const STANDARD_LAYERS = ['video', 'audio', 'control', 'network', 'power', 'other'] as const
 export type StandardLayer = (typeof STANDARD_LAYERS)[number]
 
 export interface LayerStyle {
@@ -37,16 +40,17 @@ export const LAYER_STYLES: Record<StandardLayer, LayerStyle> = {
   control: { label: 'Control', color: '#f59e0b', icon: '🎛' },
   network: { label: 'Network', color: '#10b981', icon: '🌐' },
   power: { label: 'Power', color: '#a855f7', icon: '⚡' },
+  other: { label: 'Other', color: '#64748b', icon: '◆' },
 }
 
 /** Heuristik: weise einem Cable anhand seines Connector-Typs oder
  *  CableType einen Top-Level-Layer zu. Wird als Default-Vorschlag
- *  beim Anlegen genutzt. Liefert null wenn unsicher (User soll dann
- *  selber wählen). */
+ *  beim Anlegen genutzt. Fällt auf 'other' zurück wenn keine
+ *  Detection greift — damit hat jedes Kabel garantiert einen Layer. */
 export const detectLayerForConnector = (
   connectorType: ConnectorType | CableType | undefined,
-): StandardLayer | null => {
-  if (!connectorType) return null
+): StandardLayer => {
+  if (!connectorType) return 'other'
   const ct = String(connectorType).toLowerCase()
   if (ct === 'bnc' || ct === 'hdmi' || ct === 'displayport' || ct === 'triax') return 'video'
   if (ct === 'xlr' || ct === 'din') return 'audio'
@@ -63,7 +67,7 @@ export const detectLayerForConnector = (
   )
     return 'power'
   if (ct === 'wireless/rf') return 'control'
-  return null
+  return 'other'
 }
 
 /** Liefert die effektive Layer-Bezeichnung für Filter-Zwecke.
@@ -74,21 +78,22 @@ export const topLayer = (layer: string | undefined): string | undefined => {
   return dot >= 0 ? layer.slice(0, dot) : layer
 }
 
-/** Style-Lookup mit Fallback für Custom-Layer (graue Defaults). */
+/** Style-Lookup mit Fallback für Custom-Layer (graue Defaults).
+ *  Kabel ohne layer-Feld (legacy, vor Heal) werden wie 'other' behandelt. */
 export const styleForLayer = (layer: string | undefined): LayerStyle => {
-  if (!layer) return { label: 'Ungrouped', color: '#64748b', icon: '∅' }
+  if (!layer) return LAYER_STYLES.other
   const top = topLayer(layer)
   if (top && top in LAYER_STYLES) return LAYER_STYLES[top as StandardLayer]
   return { label: layer, color: '#64748b', icon: '◆' }
 }
 
-/** Test: ist dieses Cable bei den aktuellen Layer-Visibility-Settings sichtbar? */
+/** Test: ist dieses Cable bei den aktuellen Layer-Visibility-Settings sichtbar?
+ *  Kabel ohne layer-Feld (legacy, vor Heal) werden wie 'other' behandelt. */
 export const isCableVisibleByLayer = (
   cable: Pick<Cable, 'layer'>,
   layerVisibility: Record<string, boolean>,
 ): boolean => {
-  if (!cable.layer) return true // ungrouped immer sichtbar
-  const top = topLayer(cable.layer) ?? cable.layer
+  const top = topLayer(cable.layer) ?? cable.layer ?? 'other'
   // Wenn der Layer nicht im Map ist (z.B. erstmaliges Sehen eines Custom-
   // Layers), ist er per Default sichtbar.
   if (!(top in layerVisibility)) return true
