@@ -2076,6 +2076,7 @@ const buildProjectStore = (
         }
       })
       // Recreate cables between the newly placed items.
+      const inheritType = useUiStore.getState().inheritCableTypeFromPort
       const newCables = preset.cables
         .map((stub): Cable | null => {
           const fromEqId = newEquipment[stub.fromItemIndex]?.id
@@ -2083,7 +2084,7 @@ const buildProjectStore = (
           const fromPortId = portIdMap.get(`${stub.fromItemIndex}:${stub.fromPortName}`)
           const toPortId = portIdMap.get(`${stub.toItemIndex}:${stub.toPortName}`)
           if (!fromEqId || !toEqId || !fromPortId || !toPortId) return null
-          return {
+          const cable: Cable = {
             id: uuidv4(),
             name: stub.name,
             type: stub.type as Cable['type'],
@@ -2096,6 +2097,15 @@ const buildProjectStore = (
             notes: '',
             standard: stub.standard as Cable['standard'],
           }
+          // v7.9.125 — Snapshot-erzeugte Presets tragen oft type='unbekannt'
+          // weil zum Snapshot-Zeitpunkt kein Typ verfuegbar war (siehe
+          // LibraryPanel.tsx:786). Inheritance leitet den Typ frisch aus
+          // den neuen Ports ab.
+          if (inheritType) {
+            const typePatch = cableTypePatchFromPorts(cable, newEquipment)
+            if (typePatch) Object.assign(cable, typePatch)
+          }
+          return cable
         })
         .filter((c): c is Cable => c !== null)
       const updated = touchProject({
