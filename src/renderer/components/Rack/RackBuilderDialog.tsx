@@ -12,6 +12,7 @@ import { RackShelfCreateDialog } from './RackShelfCreateDialog'
 import { PortDots2D } from './PortDots2D'
 import { RackAddSplitButton } from './RackAddSplitButton'
 import { NonRackAddDialog } from './NonRackAddDialog'
+import { StlPreview } from './StlPreview'
 import * as THREE from 'three'
 import {
   exportRack2DAsPng,
@@ -1681,11 +1682,24 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       const rackWidthPx = rowHeight * RACK_PANEL_ASPECT_PER_1HE
                       const mmToPx = rackWidthPx / RACK_OUTER_WIDTH_MM
                       const railInsetPx = ((RACK_OUTER_WIDTH_MM - RACK_MOUNT_WIDTH_MM) / 2) * mmToPx
+                      // v7.9.87 / #204 — In der Rear-Ansicht ist links/rechts
+                      // perspektivisch GESPIEGELT zu vorne (User guckt von
+                      // hinten aufs Rack). Ein Shelf-Device mit shelfOffsetX=
+                      // "10 mm vom linken Rail" muss in der Rear-Ansicht
+                      // als "10 mm vom RECHTEN Rail" rendern, damit der
+                      // physische Punkt im Rack identisch bleibt.
+                      const effectiveOffsetX = item.shelfOffsetX ?? 0
+                      const maxOffsetX = (rackTpl?.widthMm ?? 0)
+                        ? Math.max(0, RACK_MOUNT_WIDTH_MM - (rackTpl?.widthMm ?? 0))
+                        : 0
+                      const renderedOffsetX = side === 'rear'
+                        ? maxOffsetX - effectiveOffsetX
+                        : effectiveOffsetX
                       const shelfStyle = isShelfDevice
                         ? {
                             top,
                             height: Math.min(rackTpl!.heightMm! * mmToPx, height),
-                            left: railInsetPx + (item.shelfOffsetX ?? 0) * mmToPx,
+                            left: railInsetPx + renderedOffsetX * mmToPx,
                             width: rackTpl!.widthMm! * mmToPx,
                           }
                         : { top, height, left: 0, right: 0 }
@@ -1732,9 +1746,18 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                               const railInsetLocal =
                                 ((RACK_OUTER_WIDTH_MM - RACK_MOUNT_WIDTH_MM) / 2) * mmToPxLocal
                               const x = clamp(event.clientX - host.left, 0, host.width)
-                              const offsetMm = (x - railInsetLocal) / mmToPxLocal - rackTpl.widthMm / 2
+                              const renderedOffsetMm = (x - railInsetLocal) / mmToPxLocal - rackTpl.widthMm / 2
                               const maxOffset = Math.max(0, RACK_MOUNT_WIDTH_MM - rackTpl.widthMm)
-                              patch.shelfOffsetX = clamp(offsetMm, 0, maxOffset)
+                              const clampedRendered = clamp(renderedOffsetMm, 0, maxOffset)
+                              // v7.9.87 / #204 — In der Rear-Ansicht wird
+                              // der Render-Offset gespiegelt; beim Drag
+                              // dort müssen wir die Spiegelung umkehren
+                              // bevor wir den physischen shelfOffsetX
+                              // speichern. (effectiveOffsetX = maxOffset -
+                              // renderedOffsetX in Rear-Ansicht.)
+                              patch.shelfOffsetX = side === 'rear'
+                                ? maxOffset - clampedRendered
+                                : clampedRendered
                             }
                             updatePlacement(placement.id, patch)
                           }}
@@ -2070,6 +2093,13 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       </button>
                     )}
                   </div>
+                  {/* v7.9.87 / #205 — STL-Mini-Vorschau wenn ein Model
+                      hinterlegt ist. Analog zu Front/Rear-Foto-Thumbnails. */}
+                  {selectedPlacement.stlDataUri && (
+                    <div className="mt-2">
+                      <StlPreview stlDataUri={selectedPlacement.stlDataUri} size={120} />
+                    </div>
+                  )}
                   <span className="mt-1 block text-[10px] text-slate-500">
                     {selectedPlacement.stlDataUri
                       ? '✓ STL geladen — wird im 3D-Tab gerendert und permanent am Gerät gespeichert (Library + Projekt).'
