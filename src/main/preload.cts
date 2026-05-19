@@ -19,6 +19,20 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     getEquipmentFolders: () => ipcRenderer.invoke('rentman:get-equipment-folders') as Promise<unknown[]>,
     addProjectEquipment: (projectId: string, equipmentId: string, quantity?: number) =>
       ipcRenderer.invoke('rentman:add-project-equipment', projectId, equipmentId, quantity) as Promise<unknown>,
+    /** v7.9.110 — Batch-Export in eine 'CablePlanner'-EquipmentGroup im
+     *  Rentman-Projekt. Gruppe wird angelegt falls nicht vorhanden,
+     *  sonst wiederverwendet. */
+    exportToCablePlannerGroup: (
+      projectId: string,
+      items: Array<{ equipmentId: string; quantity: number }>,
+    ) =>
+      ipcRenderer.invoke('rentman:export-to-cableplanner-group', projectId, items) as Promise<{
+        added: number
+        failed: Array<{ equipmentId: string; quantity: number; error: string }>
+        groupId: string | null
+        groupCreated: boolean
+        subprojectId: string | null
+      }>,
     addProjectFile: (
       projectId: string,
       fileName: string,
