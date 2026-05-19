@@ -657,6 +657,20 @@ interface UiState extends PersistedUiState {
   rackBuilderEditFromBlackBoxTrigger: string | null
   triggerRackBuilderEditFromBlackBox: (equipmentId: string) => void
   clearRackBuilderEditFromBlackBoxTrigger: () => void
+  /** v7.9.108 / Issue #225 — Drag eines Equipments OHNE Ports auf den
+   *  Canvas. Statt direkt addEquipment aufzurufen, oeffnet LibraryPanel
+   *  den 'Eigenes Geraet anlegen'-Dialog mit Name/Kategorie vorbefuellt
+   *  und ruft beim Speichern addEquipment AT THE STORED DROP POSITION
+   *  auf. So muss der User die Ports erst definieren (oder AI fragen)
+   *  bevor das Geraet auf dem Canvas landet. */
+  pendingEmptyDeviceDrop: {
+    name: string
+    category: string
+    x: number
+    y: number
+  } | null
+  triggerEmptyDeviceDrop: (info: { name: string; category: string; x: number; y: number }) => void
+  clearEmptyDeviceDrop: () => void
   /** v7.8.7 / Issues #106 + #117 — context-menu state for cables.
    *  `cableId` identifies the right-clicked cable; `screenX/screenY` is
    *  where the menu pops up; `flowX/flowY` is the click position in
@@ -1050,6 +1064,9 @@ export const useUiStore = create<UiState>((set) => ({
     set({ rackBuilderEditFromBlackBoxTrigger: equipmentId }),
   clearRackBuilderEditFromBlackBoxTrigger: () =>
     set({ rackBuilderEditFromBlackBoxTrigger: null }),
+  pendingEmptyDeviceDrop: null,
+  triggerEmptyDeviceDrop: (info) => set({ pendingEmptyDeviceDrop: info }),
+  clearEmptyDeviceDrop: () => set({ pendingEmptyDeviceDrop: null }),
   cableContextMenu: { open: false },
   openCableContextMenu: ({ cableId, screenX, screenY, flowX, flowY }) =>
     set({ cableContextMenu: { open: true, cableId, screenX, screenY, flowX, flowY } }),
