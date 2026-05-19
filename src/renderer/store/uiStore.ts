@@ -597,6 +597,19 @@ interface UiState extends PersistedUiState {
   setLockFrames: (v: boolean) => void
   setLockEquipment: (v: boolean) => void
   setLockCables: (v: boolean) => void
+  /** v7.9.85 / #123 — Cable-Layer-Sichtbarkeit. Pro Top-Level-Layer
+   *  (video / audio / control / network / power + custom) ein
+   *  Boolean. Fehlende Keys = sichtbar (so dass neue Custom-Layer
+   *  nicht versehentlich versteckt sind). Session-only. */
+  layerVisibility: Record<string, boolean>
+  setLayerVisibility: (layer: string, visible: boolean) => void
+  resetLayerVisibility: () => void
+  /** v7.9.85 / #123 — User-definierte Custom-Layer (z.B. "intercom",
+   *  "lighting"). Werden in der Toolbar-Chip-Strip mit angezeigt und
+   *  in der Cable-Properties-Dropdown auswählbar. */
+  customLayers: string[]
+  addCustomLayer: (name: string) => void
+  removeCustomLayer: (name: string) => void
   videohubExport: { open: boolean; deviceId?: string; initialShowMatrix?: boolean }
   openVideohubExport: (deviceId?: string, initialShowMatrix?: boolean) => void
   closeVideohubExport: () => void
@@ -959,6 +972,48 @@ export const useUiStore = create<UiState>((set) => ({
   setLockFrames: (v) => set({ lockFrames: v }),
   setLockEquipment: (v) => set({ lockEquipment: v }),
   setLockCables: (v) => set({ lockCables: v }),
+  layerVisibility: {
+    video: true,
+    audio: true,
+    control: true,
+    network: true,
+    power: true,
+  },
+  setLayerVisibility: (layer, visible) =>
+    set((state) => ({
+      layerVisibility: { ...state.layerVisibility, [layer]: visible },
+    })),
+  resetLayerVisibility: () =>
+    set({
+      layerVisibility: {
+        video: true,
+        audio: true,
+        control: true,
+        network: true,
+        power: true,
+      },
+    }),
+  customLayers: [],
+  addCustomLayer: (name) =>
+    set((state) => {
+      const clean = name.trim().toLowerCase()
+      if (!clean) return {}
+      if (state.customLayers.includes(clean)) return {}
+      return {
+        customLayers: [...state.customLayers, clean],
+        // Neu hinzugefügt = standardmäßig sichtbar.
+        layerVisibility: { ...state.layerVisibility, [clean]: true },
+      }
+    }),
+  removeCustomLayer: (name) =>
+    set((state) => {
+      const next = { ...state.layerVisibility }
+      delete next[name]
+      return {
+        customLayers: state.customLayers.filter((l) => l !== name),
+        layerVisibility: next,
+      }
+    }),
   videohubExport: { open: false },
   openVideohubExport: (deviceId, initialShowMatrix) => set({ videohubExport: { open: true, deviceId, initialShowMatrix } }),
   closeVideohubExport: () => set({ videohubExport: { open: false } }),

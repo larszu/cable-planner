@@ -160,6 +160,34 @@ export const NonRackAddDialog = ({
                   className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5"
                   autoFocus
                 />
+                {/* v7.9.87 / #208 — Quick-Presets: 1/3, 1/2, 2/3 der
+                    19″-Rack-Mount-Breite (450 mm). */}
+                <div className="mt-1 flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setWidthMm(150)}
+                    className="flex-1 rounded bg-slate-800 px-1 py-0.5 text-[10px] text-slate-400 hover:bg-slate-700"
+                    title="1/3 Rack-Mount-Breite ≈ 150 mm"
+                  >
+                    1/3
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWidthMm(225)}
+                    className="flex-1 rounded bg-slate-800 px-1 py-0.5 text-[10px] text-slate-400 hover:bg-slate-700"
+                    title="1/2 Rack-Mount-Breite ≈ 225 mm"
+                  >
+                    1/2
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWidthMm(300)}
+                    className="flex-1 rounded bg-slate-800 px-1 py-0.5 text-[10px] text-slate-400 hover:bg-slate-700"
+                    title="2/3 Rack-Mount-Breite ≈ 300 mm"
+                  >
+                    2/3
+                  </button>
+                </div>
               </label>
               <label className="block">
                 <span className="mb-1 block text-xs text-slate-400">Höhe (mm)</span>
