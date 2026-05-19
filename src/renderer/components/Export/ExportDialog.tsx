@@ -21,6 +21,7 @@ import {
 import { printPdfBlob } from '../../lib/printPdfBlob'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import type { Cable } from '../../types/cable'
 
 export type ExportFormat = 'pdf' | 'png' | 'jpeg'
@@ -643,7 +644,8 @@ const BomSection = () => {
       )
     }
     downloadBlob(
-      `${project.metadata.name || 'cable-planner'}-kabel-bom.csv`,
+      // v7.9.116 — Einheitlicher Stempel.
+      buildExportFilenameWithSuffix(project.metadata.name || 'cable-planner', 'kabel-bom', 'csv'),
       '﻿' + lines.join('\r\n'),
       'text/csv;charset=utf-8',
     )
@@ -692,9 +694,8 @@ const BomSection = () => {
       pdf.line(margin, y + 4, pageWidth - margin, y + 4)
       y += 14
     }
-    pdf.save(
-      `${(project.metadata.name || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')}-kabel-bom.pdf`,
-    )
+    // v7.9.116 — Einheitlicher Stempel.
+    pdf.save(buildExportFilenameWithSuffix(project.metadata.name || 'cable-planner', 'kabel-bom', 'pdf'))
   }
 
   const printPdf = () => {

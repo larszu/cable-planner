@@ -24,6 +24,7 @@ import jsPDF from 'jspdf'
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
 import { pdfText } from './pdfHelpers'
+import { buildExportFilename, buildExportFilenameWithSuffix } from './exportFilename'
 
 interface CableEndpointSummary {
   /** Human-readable label for the cable (name OR fallback to type+length). */
@@ -367,8 +368,8 @@ export const exportDevicePatchSheet = async (
   const format = options?.format ?? 'a4'
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format })
   drawDevicePage(pdf, device, allEquipment, allCables)
-  const safeName = (device.name || 'device').replace(/[/\\?%*:|"<>]/g, '-').trim() || 'device'
-  pdf.save(`${safeName}-patch.pdf`)
+  // v7.9.116 — Einheitlicher Stempel: YYYYMMDD_<device>_NNN_patch.pdf
+  pdf.save(buildExportFilenameWithSuffix(device.name || 'device', 'patch', 'pdf'))
 }
 
 /** Same as `exportDevicePatchSheet` but returns the PDF as a Blob
@@ -404,7 +405,11 @@ export const exportDevicesPatchSheetsBatch = async (
     if (idx > 0) pdf.addPage()
     drawDevicePage(pdf, device, allEquipment, allCables)
   })
-  const fileName = options?.fileName ?? 'cable-planner-patch-sammlung.pdf'
+  // v7.9.116 — Wenn ein fileName explizit uebergeben wurde (z.B. weil
+  // der Caller einen sehr spezifischen Namen will), benutzen wir den;
+  // sonst Stempel mit 'patch-sammlung' suffix.
+  const fileName =
+    options?.fileName ?? buildExportFilename('cable-planner-patch-sammlung', 'pdf')
   pdf.save(fileName)
 }
 

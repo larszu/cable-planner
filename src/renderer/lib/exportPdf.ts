@@ -4,6 +4,7 @@ import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { pdfText } from './pdfHelpers'
 import { hexToRgb, drawVectorBackground } from './pdfBackground'
+import { buildExportFilename } from './exportFilename'
 
 // Helper: aus composed-Background-Optionen den Grid-Hex extrahieren.
 // composeExportBackground hat keinen public `gridColor` Output (nur
@@ -129,7 +130,8 @@ export const exportCanvasToPdf = async (
   options?: ExportPdfOptions,
 ) => {
   const pdf = await buildCanvasPdf(metadata, quality, options)
-  pdf.save(`${(projectName || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')}.pdf`)
+  // v7.9.116 — Einheitlicher Filename-Stempel: YYYYMMDD_<name>_NNN.pdf
+  pdf.save(buildExportFilename(projectName, 'pdf'))
 }
 
 /**
