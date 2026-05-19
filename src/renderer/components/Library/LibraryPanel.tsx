@@ -1108,9 +1108,15 @@ export const LibraryPanel = () => {
           tone: 'warning',
         })
       } else {
+        // v7.9.117 — Drei Faelle:
+        //   groupCreated=true  → neue 'CablePlanner'-Group angelegt
+        //   groupId set + !groupCreated → bestehende Group wiederverwendet
+        //   groupId=null       → Plan erlaubt keine Groups → ohne Gruppe geadded
         const groupNote = result.groupCreated
           ? ' (neue Gruppe "CablePlanner" angelegt)'
-          : ' (zur bestehenden Gruppe "CablePlanner" hinzugefuegt)'
+          : result.groupId
+            ? ' (zur bestehenden Gruppe "CablePlanner" hinzugefuegt)'
+            : ' (ohne Gruppe — dein Rentman-Plan erlaubt keine API-Gruppen)'
         await infoDialog(`"${item.name}" hinzugefügt`, {
           body: `Wurde dem Rentman-Projekt "${projectName}" hinzugefügt${groupNote}.`,
           tone: 'success',

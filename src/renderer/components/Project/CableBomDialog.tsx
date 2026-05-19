@@ -20,6 +20,11 @@ interface BomRow {
   planned: number
   diff: number
   sample?: Cable
+  /** v7.9.117 — Verknuepfter Rentman-Equipment-Name (falls verknuepft).
+   *  Macht den Abgleich gegen Rentman sauber, weil Rentman Kabel oft
+   *  unter ganz anderem Namen fuehrt als der Cable-Planner-Type. */
+  rentmanName?: string
+  rentmanId?: string
 }
 
 const keyOf = (c: Pick<Cable, 'type' | 'length'>): string => `${c.type}|${c.length}`
@@ -38,6 +43,7 @@ const fmtSignFixed = (n: number): string => (n > 0 ? `+${n}` : String(n))
  */
 export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
   const project = useProjectStore((s) => s.project)
+  const customLibrary = useProjectStore((s) => s.customLibrary)
   const updateMeta = useProjectStore((s) => s.updateProjectMetadata)
   const [draftPlan, setDraftPlan] = useState<Record<string, number> | null>(null)
   const drag = useDraggablePosition('cable-planner:modal-pos:cable-bom', open)
@@ -52,12 +58,22 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
       else built.set(k, { count: 1, sample: c })
     }
     const planned = draftPlan ?? project.metadata.rentmanCablePlan ?? {}
+    const cableMap = project.metadata.rentmanCableMap ?? {}
+    // v7.9.117 — Rentman-Equipment per ID nachschlagen via customLibrary.
+    // Library haelt rentmanId + name pro Template, das ist die direkte
+    // Quelle ohne weitere API-Anfrage.
+    const rentmanNameById = new Map<string, string>()
+    for (const tpl of customLibrary) {
+      if (tpl.rentmanId) rentmanNameById.set(String(tpl.rentmanId), tpl.name)
+    }
     const keys = new Set<string>([...built.keys(), ...Object.keys(planned)])
     const list: BomRow[] = []
     for (const k of keys) {
       const b = built.get(k)?.count ?? 0
       const p = planned[k] ?? 0
       const parsed = parseKey(k)
+      const mapping = cableMap[k]
+      const rentmanId = mapping?.rentmanEquipmentId
       list.push({
         key: k,
         type: parsed.type,
@@ -66,13 +82,22 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
         planned: p,
         diff: b - p,
         sample: built.get(k)?.sample,
+        rentmanId,
+        rentmanName: rentmanId ? rentmanNameById.get(String(rentmanId)) : undefined,
       })
     }
     list.sort((a, b) =>
       a.type === b.type ? a.length - b.length : a.type.localeCompare(b.type),
     )
     return list
-  }, [open, project.cables, project.metadata.rentmanCablePlan, draftPlan])
+  }, [
+    open,
+    project.cables,
+    project.metadata.rentmanCablePlan,
+    project.metadata.rentmanCableMap,
+    customLibrary,
+    draftPlan,
+  ])
 
   if (!open) return null
 
@@ -94,9 +119,21 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
   const discardPlan = () => setDraftPlan(null)
 
   const exportCsv = () => {
-    const lines = [['Typ', 'Länge (m)', 'Verbaut', 'Rentman geplant', 'Differenz'].join(';')]
+    // v7.9.117 — Rentman-Name als eigene Spalte fuer den Abgleich.
+    const lines = [
+      ['Typ', 'Rentman-Name', 'Länge (m)', 'Verbaut', 'Rentman geplant', 'Differenz'].join(';'),
+    ]
     for (const r of rows) {
-      lines.push([r.type, String(r.length), String(r.built), String(r.planned), fmtSignFixed(r.diff)].join(';'))
+      lines.push(
+        [
+          r.type,
+          r.rentmanName ?? '',
+          String(r.length),
+          String(r.built),
+          String(r.planned),
+          fmtSignFixed(r.diff),
+        ].join(';'),
+      )
     }
     downloadBlob(
       // v7.9.116 \u2014 Einheitlicher Stempel: YYYYMMDD_<name>_NNN_kabel-bom.csv
@@ -145,9 +182,23 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
       else if (r.diff > 0) pdf.setTextColor(180, 80, 20)
       else pdf.setTextColor(180, 20, 20)
       pdf.text(sanitizeForPdf(fmtSignFixed(r.diff)), colX[4] + 2, y)
+      // v7.9.117 — Rentman-Name unter dem Typ damit die PDF den
+      // Abgleich erlaubt. Zwei-Zeilen-Eintraege brauchen mehr Y-Vorschub.
+      let nextY = y + 14
+      if (r.rentmanName) {
+        pdf.setFontSize(7)
+        pdf.setTextColor(180, 90, 20)
+        pdf.text(
+          sanitizeForPdf(`R: ${r.rentmanName}`),
+          colX[0] + 8,
+          y + 9,
+        )
+        pdf.setFontSize(9)
+        nextY = y + 22
+      }
       pdf.setDrawColor(220)
-      pdf.line(margin, y + 4, pageWidth - margin, y + 4)
-      y += 14
+      pdf.line(margin, nextY - 6, pageWidth - margin, nextY - 6)
+      y = nextY
     }
 
     // v7.9.116 — Einheitlicher Stempel: YYYYMMDD_<name>_NNN_kabel-bom.pdf
@@ -234,11 +285,35 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
               {rows.map((r) => (
                 <tr key={r.key} className={`border-t border-slate-800 ${r.diff < 0 ? 'bg-red-950/30' : ''}`}>
                   <td className="px-3 py-1">
-                    <span className="font-medium text-slate-100">{r.type}</span>
-                    {r.sample && (
-                      <span className="ml-1 text-[10px] text-slate-500">
-                        ({r.sample.name})
-                      </span>
+                    <div className="font-medium text-slate-100">
+                      {r.type}
+                      {r.sample && (
+                        <span className="ml-1 text-[10px] text-slate-500">
+                          ({r.sample.name})
+                        </span>
+                      )}
+                    </div>
+                    {/* v7.9.117 — Rentman-Name unter dem Typ. Macht den
+                        Abgleich klar wenn Rentman das gleiche Kabel
+                        unter anderem Namen fuehrt. */}
+                    {r.rentmanName && (
+                      <div className="mt-0.5 text-[10px] text-orange-300/80">
+                        <span
+                          className="rounded bg-orange-700/30 px-1 py-0 font-mono text-[9px] text-orange-200"
+                          title="Verknuepfter Rentman-Equipment-Name"
+                        >
+                          R
+                        </span>{' '}
+                        {r.rentmanName}
+                      </div>
+                    )}
+                    {!r.rentmanName && r.rentmanId && (
+                      <div
+                        className="mt-0.5 text-[10px] text-slate-600"
+                        title="Verknuepft, aber Rentman-Template lokal nicht gefunden"
+                      >
+                        R #{r.rentmanId}
+                      </div>
                     )}
                   </td>
                   <td className="px-3 py-1 text-right font-mono">{r.length}</td>

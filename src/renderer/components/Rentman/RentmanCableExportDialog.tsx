@@ -210,7 +210,12 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
           },
         },
       })
-      const groupNote = result.groupCreated ? ' (Gruppe angelegt)' : ''
+      // v7.9.117 — Drei Faelle (siehe rentmanApiClient).
+      const groupNote = result.groupCreated
+        ? ' (Gruppe angelegt)'
+        : result.groupId
+          ? ''
+          : ' (ohne Gruppe — Plan-Restriction)'
       setStatusByKey((prev) => ({
         ...prev,
         [bucket.key]: `✓ ${bucket.delta} an Rentman gesendet${groupNote}.`,

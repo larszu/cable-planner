@@ -577,6 +577,9 @@ interface BomRow {
   planned: number
   diff: number
   sample?: Cable
+  /** v7.9.117 — Verknuepfter Rentman-Equipment-Name (siehe CableBomDialog). */
+  rentmanName?: string
+  rentmanId?: string
 }
 
 const bomKeyOf = (c: Pick<Cable, 'type' | 'length'>): string => `${c.type}|${c.length}`
@@ -588,6 +591,7 @@ const fmtSignFixed = (n: number): string => (n > 0 ? `+${n}` : String(n))
 
 const BomSection = () => {
   const project = useProjectStore((s) => s.project)
+  const customLibrary = useProjectStore((s) => s.customLibrary)
   const updateMeta = useProjectStore((s) => s.updateProjectMetadata)
   const [draftPlan, setDraftPlan] = useState<Record<string, number> | null>(null)
 
@@ -600,12 +604,21 @@ const BomSection = () => {
       else built.set(k, { count: 1, sample: c })
     }
     const planned = draftPlan ?? project.metadata.rentmanCablePlan ?? {}
+    const cableMap = project.metadata.rentmanCableMap ?? {}
+    // v7.9.117 — Rentman-Name-Lookup via customLibrary, gleicher Pattern
+    // wie im CableBomDialog.
+    const rentmanNameById = new Map<string, string>()
+    for (const tpl of customLibrary) {
+      if (tpl.rentmanId) rentmanNameById.set(String(tpl.rentmanId), tpl.name)
+    }
     const keys = new Set<string>([...built.keys(), ...Object.keys(planned)])
     const list: BomRow[] = []
     for (const k of keys) {
       const b = built.get(k)?.count ?? 0
       const p = planned[k] ?? 0
       const parsed = parseBomKey(k)
+      const mapping = cableMap[k]
+      const rentmanId = mapping?.rentmanEquipmentId
       list.push({
         key: k,
         type: parsed.type,
@@ -614,13 +627,21 @@ const BomSection = () => {
         planned: p,
         diff: b - p,
         sample: built.get(k)?.sample,
+        rentmanId,
+        rentmanName: rentmanId ? rentmanNameById.get(String(rentmanId)) : undefined,
       })
     }
     list.sort((a, b) =>
       a.type === b.type ? a.length - b.length : a.type.localeCompare(b.type),
     )
     return list
-  }, [project.cables, project.metadata.rentmanCablePlan, draftPlan])
+  }, [
+    project.cables,
+    project.metadata.rentmanCablePlan,
+    project.metadata.rentmanCableMap,
+    customLibrary,
+    draftPlan,
+  ])
 
   const currentPlan = draftPlan ?? project.metadata.rentmanCablePlan ?? {}
   const setPlanned = (key: string, value: number) => {
@@ -637,10 +658,20 @@ const BomSection = () => {
   const discardPlan = () => setDraftPlan(null)
 
   const exportCsv = () => {
-    const lines = [['Typ', 'Länge (m)', 'Verbaut', 'Rentman geplant', 'Differenz'].join(';')]
+    // v7.9.117 — Rentman-Name als eigene Spalte fuer den Abgleich.
+    const lines = [
+      ['Typ', 'Rentman-Name', 'Länge (m)', 'Verbaut', 'Rentman geplant', 'Differenz'].join(';'),
+    ]
     for (const r of rows) {
       lines.push(
-        [r.type, String(r.length), String(r.built), String(r.planned), fmtSignFixed(r.diff)].join(';'),
+        [
+          r.type,
+          r.rentmanName ?? '',
+          String(r.length),
+          String(r.built),
+          String(r.planned),
+          fmtSignFixed(r.diff),
+        ].join(';'),
       )
     }
     downloadBlob(
@@ -690,9 +721,19 @@ const BomSection = () => {
       else if (r.diff > 0) pdf.setTextColor(180, 80, 20)
       else pdf.setTextColor(180, 20, 20)
       pdf.text(sanitizeForPdf(fmtSignFixed(r.diff)), colX[4] + 2, y)
+      // v7.9.117 — Rentman-Name unter dem Typ (zweite Zeile pro Eintrag
+      // wenn Verknuepfung existiert).
+      let nextY = y + 14
+      if (r.rentmanName) {
+        pdf.setFontSize(7)
+        pdf.setTextColor(180, 90, 20)
+        pdf.text(sanitizeForPdf(`R: ${r.rentmanName}`), colX[0] + 8, y + 9)
+        pdf.setFontSize(9)
+        nextY = y + 22
+      }
       pdf.setDrawColor(220)
-      pdf.line(margin, y + 4, pageWidth - margin, y + 4)
-      y += 14
+      pdf.line(margin, nextY - 6, pageWidth - margin, nextY - 6)
+      y = nextY
     }
     // v7.9.116 — Einheitlicher Stempel.
     pdf.save(buildExportFilenameWithSuffix(project.metadata.name || 'cable-planner', 'kabel-bom', 'pdf'))
@@ -737,9 +778,19 @@ const BomSection = () => {
       else if (r.diff > 0) pdf.setTextColor(180, 80, 20)
       else pdf.setTextColor(180, 20, 20)
       pdf.text(sanitizeForPdf(fmtSignFixed(r.diff)), colX[4] + 2, y)
+      // v7.9.117 — Rentman-Name unter dem Typ (zweite Zeile pro Eintrag
+      // wenn Verknuepfung existiert).
+      let nextY = y + 14
+      if (r.rentmanName) {
+        pdf.setFontSize(7)
+        pdf.setTextColor(180, 90, 20)
+        pdf.text(sanitizeForPdf(`R: ${r.rentmanName}`), colX[0] + 8, y + 9)
+        pdf.setFontSize(9)
+        nextY = y + 22
+      }
       pdf.setDrawColor(220)
-      pdf.line(margin, y + 4, pageWidth - margin, y + 4)
-      y += 14
+      pdf.line(margin, nextY - 6, pageWidth - margin, nextY - 6)
+      y = nextY
     }
     const blob = pdf.output('blob') as Blob
     void printPdfBlob(blob)

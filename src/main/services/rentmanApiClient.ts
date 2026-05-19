@@ -164,25 +164,43 @@ export const createRentmanApiClient = (token: string) => {
   }
 
   /** v7.9.110 — Liste aller EquipmentGroups in einem Subproject. Wird
-   *  genutzt um die 'CablePlanner'-Gruppe nachzuschlagen. */
-  const getEquipmentGroups = async (subprojectId: string): Promise<unknown[]> => {
+   *  genutzt um die 'CablePlanner'-Gruppe nachzuschlagen.
+   *
+   *  v7.9.117 — Liefert null statt zu werfen, wenn der Endpoint nicht
+   *  verfuegbar ist (manche Rentman-Plaene exponieren equipmentgroups
+   *  schlicht nicht — typischerweise 403/404). Aufrufer faellt dann auf
+   *  Equipment-Add OHNE Gruppen-Bezug zurueck. */
+  const getEquipmentGroups = async (
+    subprojectId: string,
+  ): Promise<unknown[] | null> => {
     try {
-      // Rentman erlaubt Filter via Query — wenn das nicht funktioniert,
-      // holen wir alle und filtern lokal.
       return await fetchAll(
         `/equipmentgroups?subproject=${encodeURIComponent(subprojectId)}`,
       )
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status
+        if (status === 403 || status === 404) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[rentman] /equipmentgroups nicht verfuegbar (${status}) — fallback auf Equipment-Add ohne Gruppe.`,
+          )
+          return null
+        }
+      }
       throw wrapRentmanError(err, `GET equipmentgroups fuer Subproject ${subprojectId}`)
     }
   }
 
-  /** v7.9.110 — Create new equipment group in a subproject. */
+  /** v7.9.110 — Create new equipment group in a subproject.
+   *
+   *  v7.9.117 — Liefert null bei 403/404 statt zu werfen (siehe
+   *  getEquipmentGroups). Aufrufer arbeitet dann gruppenlos weiter. */
   const createEquipmentGroup = async (params: {
     name: string
     subprojectId: string
     order?: number
-  }): Promise<{ id: string }> => {
+  }): Promise<{ id: string } | null> => {
     try {
       const response = await client.post('/equipmentgroups', {
         name: params.name,
@@ -195,6 +213,16 @@ export const createRentmanApiClient = (token: string) => {
       }
       return { id }
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status
+        if (status === 403 || status === 404) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[rentman] POST /equipmentgroups nicht erlaubt (${status}) — fallback auf gruppenlosen Add.`,
+          )
+          return null
+        }
+      }
       throw wrapRentmanError(err, `POST equipmentgroups (${params.name})`)
     }
   }
@@ -203,22 +231,26 @@ export const createRentmanApiClient = (token: string) => {
    *  Anders als der alte addProjectEquipment, der nur equipment+project+
    *  quantity sendete (was Rentman teilweise mit 422 abwies weil
    *  subproject fehlte), schickt diese Variante ALLE relevanten Refs:
-   *  project, subproject, equipmentgroup, equipment, quantity. */
+   *  project, subproject, equipmentgroup, equipment, quantity.
+   *
+   *  v7.9.117 — equipmentGroupId darf null sein wenn der Plan keine
+   *  Gruppen erlaubt; das Feld wird dann im Body weggelassen. */
   const addEquipmentToGroup = async (params: {
     projectId: string
     subprojectId: string
-    equipmentGroupId: string
+    equipmentGroupId: string | null
     equipmentId: string
     quantity: number
   }): Promise<unknown> => {
     try {
-      const response = await client.post('/projectequipment', {
+      const body: Record<string, unknown> = {
         project: params.projectId,
         subproject: params.subprojectId,
-        equipmentgroup: params.equipmentGroupId,
         equipment: params.equipmentId,
         quantity: params.quantity,
-      })
+      }
+      if (params.equipmentGroupId) body.equipmentgroup = params.equipmentGroupId
+      const response = await client.post('/projectequipment', body)
       return response.data
     } catch (err) {
       throw wrapRentmanError(
@@ -270,32 +302,37 @@ export const createRentmanApiClient = (token: string) => {
     }
 
     // 2. CablePlanner-Group finden oder erstellen.
+    // v7.9.117 — Wenn der Plan/Token /equipmentgroups nicht erlaubt
+    // (Plan-Restriction), faellt getEquipmentGroups + createEquipmentGroup
+    // auf null zurueck. Wir adden dann ohne Gruppe — die Items landen
+    // im Default-Container des Subprojects. Weniger schoen, aber besser
+    // als ueberhaupt nicht zu syncen.
     const existingGroups = await getEquipmentGroups(subprojectId)
-    const existingGroup = (existingGroups as Array<Record<string, unknown>>).find(
-      (g) => typeof g.name === 'string' && g.name === CABLE_PLANNER_GROUP_NAME,
-    )
-    let groupId: string
+    let groupId: string | null = null
     let groupCreated = false
-    if (existingGroup) {
-      const id = pickId(existingGroup)
-      if (!id) {
-        throw new Error(`Existing '${CABLE_PLANNER_GROUP_NAME}'-Group hat keine id.`)
-      }
-      groupId = id
-    } else {
-      // Neue Gruppe: order = letzte+1 damit sie unten erscheint und nicht
-      // die bestehende Reihenfolge zerschiesst.
-      const maxOrder = (existingGroups as Array<Record<string, unknown>>).reduce(
-        (max, g) => (typeof g.order === 'number' && g.order > max ? g.order : max),
-        0,
+    if (existingGroups !== null) {
+      const existingGroup = (existingGroups as Array<Record<string, unknown>>).find(
+        (g) => typeof g.name === 'string' && g.name === CABLE_PLANNER_GROUP_NAME,
       )
-      const created = await createEquipmentGroup({
-        name: CABLE_PLANNER_GROUP_NAME,
-        subprojectId,
-        order: maxOrder + 1,
-      })
-      groupId = created.id
-      groupCreated = true
+      if (existingGroup) {
+        const id = pickId(existingGroup)
+        if (id) groupId = id
+      }
+      if (!groupId) {
+        const maxOrder = (existingGroups as Array<Record<string, unknown>>).reduce(
+          (max, g) => (typeof g.order === 'number' && g.order > max ? g.order : max),
+          0,
+        )
+        const created = await createEquipmentGroup({
+          name: CABLE_PLANNER_GROUP_NAME,
+          subprojectId,
+          order: maxOrder + 1,
+        })
+        if (created) {
+          groupId = created.id
+          groupCreated = true
+        }
+      }
     }
 
     // 3. Items einzeln adden (sequentiell — Rentman rate-limits stark).
@@ -311,6 +348,8 @@ export const createRentmanApiClient = (token: string) => {
         await addEquipmentToGroup({
           projectId,
           subprojectId,
+          // v7.9.117 — null = kein Gruppen-Bezug. addEquipmentToGroup
+          // unten laesst das Feld dann aus.
           equipmentGroupId: groupId,
           equipmentId: item.equipmentId,
           quantity: item.quantity,
