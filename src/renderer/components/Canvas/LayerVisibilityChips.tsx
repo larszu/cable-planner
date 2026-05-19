@@ -19,8 +19,9 @@
  */
 import { useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
-import { LAYER_STYLES, STANDARD_LAYERS, type StandardLayer } from '../../lib/cableLayers'
+import { LAYER_STYLES, STANDARD_LAYERS, topLayer, type StandardLayer } from '../../lib/cableLayers'
 import { promptDialog } from '../../lib/promptDialog'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 
 export const LayerVisibilityChips = () => {
   const layerVisibility = useUiStore((s) => s.layerVisibility)
@@ -32,6 +33,24 @@ export const LayerVisibilityChips = () => {
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const isLight = canvasTheme === 'light'
   const [menuOpen, setMenuOpen] = useState(false)
+  // v7.9.93 — Counter pro Layer: zeigt dem User auf einen Blick wie
+  // viele Kabel auf welchem Layer liegen. Macht das Feature sichtbar:
+  // wenn alle Counter "0" sind weiß der User dass keine Layer-
+  // Zuordnung im Projekt existiert (z.B. altes Projekt vor v7.9.85).
+  const cables = useProjectStore((s) => s.project.cables)
+  const layerCounts = (() => {
+    const counts: Record<string, number> = {}
+    let ungrouped = 0
+    for (const c of cables) {
+      const top = topLayer(c.layer) ?? c.layer
+      if (!top) {
+        ungrouped++
+        continue
+      }
+      counts[top] = (counts[top] ?? 0) + 1
+    }
+    return { counts, ungrouped, total: cables.length }
+  })()
 
   const allOn = STANDARD_LAYERS.every((l) => layerVisibility[l] !== false) &&
     customLayers.every((l) => layerVisibility[l] !== false)
@@ -53,12 +72,13 @@ export const LayerVisibilityChips = () => {
       {(STANDARD_LAYERS as readonly StandardLayer[]).map((layer) => {
         const style = LAYER_STYLES[layer]
         const visible = layerVisibility[layer] !== false
+        const count = layerCounts.counts[layer] ?? 0
         return (
           <button
             key={layer}
             type="button"
             onClick={() => setLayerVisibility(layer, !visible)}
-            title={`${style.label} — ${visible ? 'sichtbar (klick: ausblenden)' : 'ausgeblendet (klick: einblenden)'}`}
+            title={`${style.label} — ${count} Kabel · ${visible ? 'sichtbar (klick: ausblenden)' : 'ausgeblendet (klick: einblenden)'}`}
             className="inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[10px] font-medium transition"
             style={{
               borderColor: visible ? style.color : isLight ? '#cbd5e1' : '#334155',
@@ -74,6 +94,17 @@ export const LayerVisibilityChips = () => {
           >
             <span className="text-[11px]">{style.icon}</span>
             <span>{style.label}</span>
+            {count > 0 && (
+              <span
+                className="rounded-full px-1 text-[8px] font-semibold"
+                style={{
+                  background: visible ? `${style.color}55` : isLight ? '#cbd5e1' : '#334155',
+                  color: visible ? '#fff' : isLight ? '#475569' : '#94a3b8',
+                }}
+              >
+                {count}
+              </span>
+            )}
           </button>
         )
       })}

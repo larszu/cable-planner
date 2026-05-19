@@ -1005,9 +1005,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       const loc = locations.find((l) => l.id === node.id)
       if (!loc) return
       // By default a location frame moves independently; contained equipment
-      // only follows when the user explicitly enables `moveContents` in the
-      // location properties (opt-in).
-      if (!loc.moveContents) {
+      // only follows when `moveContents` is not explicitly disabled.
+      // v7.9.93 / #194 — Default ist seit v7.9.81 'true' (siehe addLocation),
+      // aber BESTEHENDE Locations aus älteren Projekten haben das Feld
+      // gar nicht (undefined) → vorher wurde das wie 'false' behandelt
+      // und der User-Erwartung widersprochen. Jetzt: `false` heisst
+      // explizit aus, alles andere (undefined oder true) = mitziehen.
+      if (loc.moveContents === false) {
         locationDragRef.current = null
         return
       }
