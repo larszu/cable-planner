@@ -1391,6 +1391,85 @@ const DeviceModePicker = ({
 }
 
 /**
+ * v7.9.105 / Issue #216 — Physische Dimensionen (Hoehe / Breite / Tiefe
+ * in mm). Bisher waren widthMm/heightMm/depthMm im Schema definiert,
+ * aber nur ueber den Rack-Builder editierbar. Jetzt auch im
+ * Eigenschaften-Panel — sinnvoll fuer Rack-Planung, Logistik, Platzbedarf.
+ */
+const DimensionsSection = ({
+  equipment,
+}: {
+  equipment: import('../../types/equipment').EquipmentItem
+}) => {
+  const updateEquipment = useProjectStore((s) => s.updateEquipment)
+  const wMm = equipment.widthMm
+  const hMm = equipment.heightMm
+  const dMm = equipment.depthMm
+  const summary =
+    typeof wMm === 'number' || typeof hMm === 'number' || typeof dMm === 'number'
+      ? `${wMm ?? '?'} × ${hMm ?? '?'} × ${dMm ?? '?'} mm`
+      : '–'
+  const parseMm = (raw: string): number | undefined => {
+    if (!raw) return undefined
+    const n = Number(raw)
+    if (!Number.isFinite(n) || n < 0) return undefined
+    return Math.round(n)
+  }
+  return (
+    <SortableSection id="dimensions" title="Dimensionen" subtitle={summary}>
+      <div className="grid grid-cols-3 gap-2 text-xs">
+        <label className="block">
+          <span className="mb-1 block text-slate-400">Breite (mm)</span>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={wMm ?? ''}
+            placeholder="z. B. 482"
+            onChange={(e) =>
+              updateEquipment(equipment.id, { widthMm: parseMm(e.target.value) })
+            }
+            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-slate-400">Höhe (mm)</span>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={hMm ?? ''}
+            placeholder="z. B. 44"
+            onChange={(e) =>
+              updateEquipment(equipment.id, { heightMm: parseMm(e.target.value) })
+            }
+            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-slate-400">Tiefe (mm)</span>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={dMm ?? ''}
+            placeholder="z. B. 400"
+            onChange={(e) =>
+              updateEquipment(equipment.id, { depthMm: parseMm(e.target.value) })
+            }
+            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+          />
+        </label>
+      </div>
+      <p className="mt-2 text-[10px] text-slate-500">
+        Physische Aussenmaße. 19" Rack-Geraet: 1 HE = 44.45 mm, Standard-Breite 482 mm,
+        typische Tiefe 400-600 mm. Wird vom 3D-Rack-Renderer + Logistik-Tools genutzt.
+      </p>
+    </SortableSection>
+  )
+}
+
+/**
  * v7.4.0 — Stromverbrauch accordion. Two entry paths:
  *   • Watts directly (datasheet)
  *   • Voltage × Ampere → auto-derive Watts
@@ -1981,6 +2060,9 @@ export const EquipmentProperties = () => {
       </SortableSection>
 
       <PowerConsumptionSection equipment={equipment} />
+
+      {/* v7.9.105 / Issue #216 — Physische Dimensionen (Breite/Höhe/Tiefe). */}
+      <DimensionsSection equipment={equipment} />
 
       {networkKind && (
         <SortableSection
