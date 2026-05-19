@@ -27,6 +27,9 @@ import { infoDialog } from '../../lib/infoDialog'
 import { useGreenGoBeltpack } from '../../lib/greengoSync'
 import { exportDevicePatchSheet } from '../../lib/exportDevicePdf'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
+// v7.9.108 / Issue #225 — AI-Port-Vorschlag fuer den PortAiSuggestButton.
+import { suggestFromAI } from '../../lib/aiSuggestions'
+import { buildTemplateFromHints, type PortGroupHint } from '../../lib/portSuggestions'
 import type { ConnectorType, EquipmentItem, Port, VlanDef, PortVlanAssignment } from '../../types/equipment'
 import { ALL_SIGNAL_STANDARDS } from '../../types/cableSpec'
 import type { SignalStandard } from '../../types/cableSpec'
@@ -1391,6 +1394,134 @@ const DeviceModePicker = ({
 }
 
 /**
+ * v7.9.108 / Issue #225 — AI-Suggest-Button im Ports-Panel.
+ *
+ * Sitzt oben im Inputs/Outputs-Bereich der EquipmentProperties-Sidebar.
+ * Klick → ruft suggestFromAI(equipment.name, equipment.category) via
+ * den im Settings → AI konfigurierten Provider (Gemini / Claude /
+ * OpenAI). Wenn die KI Port-Vorschlaege liefert, kann der User:
+ *  - Vorhandene Ports ERSETZEN (zerstoerende Aktion, mit Confirm)
+ *  - Vorschlaege ANHAENGEN an die bestehenden Ports (additive Aktion)
+ * Fehler werden inline ausgegeben.
+ */
+const PortAiSuggestButton = ({
+  equipment,
+}: {
+  equipment: import('../../types/equipment').EquipmentItem
+}) => {
+  const updateEquipment = useProjectStore((s) => s.updateEquipment)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [hints, setHints] = useState<PortGroupHint[] | null>(null)
+
+  const handleAsk = async () => {
+    setError(null)
+    setHints(null)
+    setBusy(true)
+    try {
+      const result = await suggestFromAI(equipment.name ?? '', equipment.category ?? '')
+      if (result.length === 0) {
+        setError('AI konnte keine Ports vorschlagen. Geraete-Name praeziseren?')
+      } else {
+        setHints(result)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'AI-Request fehlgeschlagen')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const apply = (mode: 'replace' | 'append') => {
+    if (!hints || hints.length === 0) return
+    // Wir nutzen buildTemplateFromHints um die Hints in Port-Objekte
+    // mit IDs umzurechnen — die liefert ein ganzes Template; wir nehmen
+    // nur die inputs/outputs raus.
+    const synthesized = buildTemplateFromHints(equipment.name ?? '', equipment.category ?? '', hints)
+    const newInputs =
+      mode === 'replace' ? synthesized.inputs : [...equipment.inputs, ...synthesized.inputs]
+    const newOutputs =
+      mode === 'replace' ? synthesized.outputs : [...equipment.outputs, ...synthesized.outputs]
+    updateEquipment(equipment.id, { inputs: newInputs, outputs: newOutputs })
+    setHints(null)
+    setError(null)
+  }
+
+  const totalSuggested = hints ? hints.reduce((sum, h) => sum + h.count, 0) : 0
+  const hasExisting = equipment.inputs.length > 0 || equipment.outputs.length > 0
+
+  return (
+    <div className="rounded border border-purple-700/50 bg-purple-950/20 p-2">
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-[11px] font-semibold text-purple-200">✨ AI-Port-Vorschlag</div>
+        <button
+          type="button"
+          onClick={handleAsk}
+          disabled={busy}
+          className="rounded bg-purple-700 px-2 py-0.5 text-[11px] font-medium text-white hover:bg-purple-600 disabled:opacity-50"
+          title={`Fragt den im Einstellungen → AI gewaehlten Provider was "${equipment.name}" ueblicherweise fuer Ports hat`}
+        >
+          {busy ? 'Asking AI…' : 'Ports vorschlagen'}
+        </button>
+      </div>
+      {error && (
+        <div className="mt-1 rounded bg-red-900/50 p-1.5 text-[10px] text-red-100">{error}</div>
+      )}
+      {hints && hints.length > 0 && (
+        <div className="mt-2 space-y-1">
+          <div className="text-[10px] text-purple-100/80">
+            {hints.length} Gruppe(n) / {totalSuggested} Ports vorgeschlagen:
+          </div>
+          <ul className="ml-3 list-disc text-[10px] text-purple-100">
+            {hints.map((h, idx) => (
+              <li key={idx}>
+                {h.count}× {h.connectorType} ({h.direction === 'in' ? 'Input' : 'Output'})
+                {h.label ? ` — ${h.label}` : ''}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-1 flex flex-wrap gap-1">
+            {hasExisting && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      `Bestehende ${equipment.inputs.length} In / ${equipment.outputs.length} Out durch AI-Vorschlag ueberschreiben?`,
+                    )
+                  ) {
+                    apply('replace')
+                  }
+                }}
+                className="rounded bg-amber-700 px-2 py-0.5 text-[10px] text-amber-100 hover:bg-amber-600"
+                title="Loescht aktuelle Ports und nimmt die AI-Vorschlaege"
+              >
+                Ersetzen
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => apply('append')}
+              className="rounded bg-emerald-700 px-2 py-0.5 text-[10px] text-emerald-100 hover:bg-emerald-600"
+              title="Haengt die AI-Vorschlaege an die bestehenden Ports an"
+            >
+              {hasExisting ? 'Anhaengen' : 'Uebernehmen'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setHints(null)}
+              className="rounded bg-slate-700 px-2 py-0.5 text-[10px] text-slate-200 hover:bg-slate-600"
+            >
+              Verwerfen
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
  * v7.9.105 / Issue #216 — Physische Dimensionen (Hoehe / Breite / Tiefe
  * in mm). Bisher waren widthMm/heightMm/depthMm im Schema definiert,
  * aber nur ueber den Rack-Builder editierbar. Jetzt auch im
@@ -2099,6 +2230,12 @@ export const EquipmentProperties = () => {
         defaultOpen
       >
         <div className="space-y-2">
+          {/* v7.9.108 / Issue #225 — AI-Suggest-Button fuer Ports. Fragt
+              Gemini (oder den im Settings konfigurierten Provider) was
+              ein Geraet mit diesem Namen + Kategorie ueblicherweise
+              fuer Ports hat. Mit Confirm-Step weil's existing Ports
+              ersetzt — User koennte sonst aus Versehen alles ueberbuegeln. */}
+          <PortAiSuggestButton equipment={equipment} />
           {/* v7.9.63 / #185 — Inputs und Outputs unabhängig collapsible.
               Vorher musste der User immer durch alle Inputs scrollen um
               die Outputs zu erreichen. Beide Defaults auf open damit

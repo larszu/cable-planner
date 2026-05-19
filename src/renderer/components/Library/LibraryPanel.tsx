@@ -633,6 +633,13 @@ export const LibraryPanel = () => {
   const renameCustomCategory = useProjectStore((state) => state.renameCustomCategory)
   const canvasState = useProjectStore((state) => state.project.canvasState)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  // v7.9.108 / Issue #225 — Wenn der User ein Equipment OHNE Ports auf
+  // den Canvas zieht, kommt es hier rein. Beim Speichern legen wir das
+  // Geraet an dieser Position auf dem Canvas an, nicht auf
+  // nextPlacementPosition. Wird beim Dialog-Close geleert.
+  const [pendingDropOnSave, setPendingDropOnSave] = useState<{ x: number; y: number } | null>(
+    null,
+  )
   const [showNetBoxDialog, setShowNetBoxDialog] = useState(false)
   const [showRackBuilderDialog, setShowRackBuilderDialog] = useState(false)
   // When set, the rack builder opens in edit mode and seeds from this preset.
@@ -796,6 +803,22 @@ export const LibraryPanel = () => {
     equipmentItems,
     clearRackBuilderEditFromBlackBoxTrigger,
   ])
+
+  // v7.9.108 / Issue #225 — Empty-Port-Drag-Drop vom Canvas. Wenn der
+  // User ein Equipment OHNE Ports auf den Canvas zieht, oeffnen wir den
+  // 'Eigenes Geraet anlegen'-Dialog vorbefuellt mit Name + Kategorie
+  // aus dem gedragten Item. Beim Speichern wird das Geraet an der
+  // Drop-Position platziert (siehe saveCustomAndPlace).
+  const pendingEmptyDeviceDrop = useUiStore((s) => s.pendingEmptyDeviceDrop)
+  const clearEmptyDeviceDrop = useUiStore((s) => s.clearEmptyDeviceDrop)
+  useEffect(() => {
+    if (!pendingEmptyDeviceDrop) return
+    setName(pendingEmptyDeviceDrop.name || 'Neues Gerät')
+    if (pendingEmptyDeviceDrop.category) setCategory(pendingEmptyDeviceDrop.category)
+    setPendingDropOnSave({ x: pendingEmptyDeviceDrop.x, y: pendingEmptyDeviceDrop.y })
+    setShowCreateDialog(true)
+    clearEmptyDeviceDrop()
+  }, [pendingEmptyDeviceDrop, clearEmptyDeviceDrop])
 
   const [name, setName] = useState('Custom Device')
   const [category, setCategory] = useState('Kameras')
@@ -1224,6 +1247,7 @@ export const LibraryPanel = () => {
     persistCategory(template)
     addCustomTemplate(template)
     setShowCreateDialog(false)
+    setPendingDropOnSave(null)
     resetDialog()
   }
 
@@ -1231,8 +1255,16 @@ export const LibraryPanel = () => {
     const template = buildTemplate()
     persistCategory(template)
     addCustomTemplate(template)
-    addEquipment({ ...template, ...nextPosition })
+    // v7.9.108 / Issue #225 — Wenn der Dialog wegen eines Empty-Port-
+    // Drops geoeffnet wurde, platziere das Geraet an der Drop-Position
+    // statt auf nextPlacementPosition. Sonst springt es weg.
+    if (pendingDropOnSave) {
+      addEquipment({ ...template, x: pendingDropOnSave.x, y: pendingDropOnSave.y })
+    } else {
+      addEquipment({ ...template, ...nextPosition })
+    }
     setShowCreateDialog(false)
+    setPendingDropOnSave(null)
     resetDialog()
   }
 
@@ -2994,6 +3026,10 @@ export const LibraryPanel = () => {
                 type="button"
                 onClick={() => {
                   setShowCreateDialog(false)
+                  // v7.9.108 — Cancel raeumt auch den Empty-Drop-Trigger
+                  // weg, damit der naechste Drop nicht aus Versehen das
+                  // alte Save-Target verwendet.
+                  setPendingDropOnSave(null)
                   resetDialog()
                 }}
                 className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
