@@ -578,6 +578,7 @@ export const LibraryPanel = () => {
   const equipmentCount = useProjectStore((state) => state.project.equipment.length)
   const equipmentItems = useProjectStore((state) => state.project.equipment)
   const customLibrary = useProjectStore((state) => state.customLibrary)
+  const setCustomLibrary = useProjectStore((state) => state.setCustomLibrary)
   const addCustomTemplate = useProjectStore((state) => state.addCustomTemplate)
   const removeCustomTemplate = useProjectStore((state) => state.removeCustomTemplate)
   const resyncRentmanLibraryFromCanvas = useProjectStore((state) => state.resyncRentmanLibraryFromCanvas)
@@ -821,6 +822,8 @@ export const LibraryPanel = () => {
   const collapsedInitRef = useRef(false)
   const [collapsedRentmanProjects, setCollapsedRentmanProjects] = useState<Set<string>>(new Set())
   const [collapsedRentmanCats, setCollapsedRentmanCats] = useState<Set<string>>(new Set())
+  // v7.9.106 / Issue #226 — Suchfeld in der Rentman-Projekt-Liste.
+  const [rentmanSearch, setRentmanSearch] = useState('')
   const [showEmpty, setShowEmpty] = useState(false)
   const [showHidden, setShowHidden] = useState(false)
   // Global library search (Strg+F). Filters customLibrary by name/category
@@ -1964,14 +1967,79 @@ export const LibraryPanel = () => {
                     <span>{rentmanItems.length} Geräte</span>
                   </div>
                 </div>
-                {projectGroups.length === 0 ? (
-                  <div className="flex flex-col items-center gap-2 p-3 text-center text-xs text-slate-500">
-                    <span className="text-2xl">📦</span>
-                    <span>Noch keine Rentman-Geräte importiert.</span>
+                {/* v7.9.106 / Issue #226 — Suchfeld fuer die Rentman-Liste,
+                    analog zum Katalog-Suchfeld weiter oben. Filtert Items
+                    nach Name oder Kategorie. */}
+                {projectGroups.length > 0 && (
+                  <div className="relative">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      className="pointer-events-none absolute left-1.5 top-1/2 -translate-y-1/2 text-slate-500"
+                    >
+                      <circle cx="7" cy="7" r="4" />
+                      <line x1="10.3" y1="10.3" x2="13" y2="13" strokeLinecap="round" />
+                    </svg>
+                    <input
+                      type="text"
+                      value={rentmanSearch}
+                      onChange={(e) => setRentmanSearch(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') setRentmanSearch('')
+                      }}
+                      placeholder="In Rentman-Geraeten suchen…"
+                      className="w-full rounded border border-slate-700 bg-slate-900 py-1 pl-7 pr-7 text-xs text-slate-100 placeholder-slate-500"
+                    />
+                    {rentmanSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setRentmanSearch('')}
+                        title="Suche loeschen"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
-                ) : (
+                )}
+                {(() => {
+                  const trimmed = rentmanSearch.trim().toLowerCase()
+                  const visibleProjectGroups =
+                    trimmed === ''
+                      ? projectGroups
+                      : projectGroups
+                          .map((g) => ({
+                            ...g,
+                            items: g.items.filter(
+                              (t) =>
+                                (t.name || '').toLowerCase().includes(trimmed) ||
+                                (t.category || '').toLowerCase().includes(trimmed),
+                            ),
+                          }))
+                          .filter((g) => g.items.length > 0)
+                  if (projectGroups.length === 0) {
+                    return (
+                      <div className="flex flex-col items-center gap-2 p-3 text-center text-xs text-slate-500">
+                        <span className="text-2xl">📦</span>
+                        <span>Noch keine Rentman-Geräte importiert.</span>
+                      </div>
+                    )
+                  }
+                  if (visibleProjectGroups.length === 0) {
+                    return (
+                      <div className="flex flex-col items-center gap-2 p-3 text-center text-xs text-slate-500">
+                        <span className="text-2xl">🔍</span>
+                        <span>Keine Treffer für &quot;{rentmanSearch}&quot;.</span>
+                      </div>
+                    )
+                  }
+                  return (
                   <div className="space-y-2">
-                    {projectGroups.map((group) => {
+                    {visibleProjectGroups.map((group) => {
                       const isLinked = group.id === linkedRentmanProjectId
                       const projectCollapsed = collapsedRentmanProjects.has(group.id)
                       const categories = Array.from(
@@ -2031,7 +2099,22 @@ export const LibraryPanel = () => {
                                           {categoryItems
                                             .slice()
                                             .sort((a, b) => a.name.localeCompare(b.name))
-                                            .map((item) => (
+                                            .map((item) => {
+                                              // v7.9.106 / Issue #227 — Wenn Rentman-Item KEINE Ports
+                                              // hat aber ein gleichnamiges lokales Template MIT Ports
+                                              // existiert, biete 'Verknuepfen' an. Klick uebernimmt die
+                                              // Ports vom lokalen Template ins Rentman-Library-Item.
+                                              const itemHasNoPorts =
+                                                item.inputs.length === 0 && item.outputs.length === 0
+                                              const localMatch = itemHasNoPorts
+                                                ? customLibrary.find(
+                                                    (t) =>
+                                                      !t.rentmanSource &&
+                                                      t.name.toLowerCase() === item.name.toLowerCase() &&
+                                                      (t.inputs.length > 0 || t.outputs.length > 0),
+                                                  )
+                                                : undefined
+                                              return (
                                               <LibraryItem
                                                 key={item.name}
                                                 item={item}
@@ -2042,8 +2125,27 @@ export const LibraryPanel = () => {
                                                   })
                                                 }}
                                                 onExport={() => exportTemplateToFile(item)}
+                                                onLinkPorts={
+                                                  localMatch
+                                                    ? () => {
+                                                        const updated = customLibrary.map((t) =>
+                                                          t.name === item.name &&
+                                                          t.rentmanSource === item.rentmanSource
+                                                            ? {
+                                                                ...t,
+                                                                inputs: localMatch.inputs.map((p) => ({ ...p })),
+                                                                outputs: localMatch.outputs.map((p) => ({ ...p })),
+                                                              }
+                                                            : t,
+                                                        )
+                                                        setCustomLibrary(updated)
+                                                      }
+                                                    : undefined
+                                                }
+                                                linkTargetName={localMatch?.name}
                                               />
-                                            ))}
+                                              )
+                                            })}
                                         </div>
                                       )}
                                     </div>
@@ -2056,7 +2158,8 @@ export const LibraryPanel = () => {
                       )
                     })}
                   </div>
-                )}
+                  )
+                })()}
               </div>
             )}
 
