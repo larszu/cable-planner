@@ -21,6 +21,7 @@
  */
 import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
+import { buildExportFilename } from './exportFilename'
 
 /** v7.9.103 — Standard-Page-Sizes fuer Plotter-/Print-Workflows. 'auto'
  *  kappt auf A0-Landscape (Default, max. Viewer-Kompatibilitaet). 'original'
@@ -554,7 +555,8 @@ export const exportCanvasToPdfVector = async (
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `${(projectName || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')}.pdf`
+  // v7.9.116 — Einheitlicher Filename-Stempel: YYYYMMDD_<name>_NNN.pdf
+  a.download = buildExportFilename(projectName, 'pdf')
   document.body.appendChild(a)
   a.click()
   a.remove()

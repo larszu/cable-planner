@@ -39,12 +39,23 @@ const normalize = <T>(value: unknown): T => {
  * `{ "error": "Validation failed", "details": [{...}] }` on 4xx — we lift
  * the most helpful string out and prefix with the HTTP status so triage
  * via console logs is easier.
+ *
+ * v7.9.116 — Mehr Diagnostik:
+ *  - Console-Log auf JEDEN Error: HTTP-Method + URL + Status + Body
+ *    so dass die DevTools-Konsole zeigt welche Rentman-Anfrage failt.
+ *  - User-Message enthaelt den HTTP-Method+Pfad damit User sieht ob
+ *    der gleiche Endpoint immer failt (= Permission) oder ein
+ *    spezifischer (= Route-/Body-Problem).
+ *  - 403-Hint ehrlicher: 'entweder Token-Rechte ODER Endpoint falsch
+ *    fuer deinen Account' — beides ist moeglich.
  */
 const wrapRentmanError = (err: unknown, context: string): Error => {
   if (axios.isAxiosError(err)) {
     const ax = err as AxiosError<unknown>
     const status = ax.response?.status
     const data = ax.response?.data as Record<string, unknown> | undefined
+    const reqMethod = ax.config?.method?.toUpperCase() ?? '?'
+    const reqUrl = ax.config?.url ?? '?'
     const serverMsg =
       (typeof data?.error === 'string' && data.error) ||
       (typeof data?.message === 'string' && data.message) ||
@@ -52,18 +63,30 @@ const wrapRentmanError = (err: unknown, context: string): Error => {
         ? JSON.stringify(data.details[0])
         : '') ||
       ax.message
+
+    // Console-Log fuer Debugging — sichtbar in den DevTools des
+    // Main-Prozesses (Electron-Dev-Mode console). Hilft zu unter-
+    // scheiden zwischen 'Endpoint existiert nicht / falsche URL'
+    // und 'echtes Permission-Problem'.
+    // eslint-disable-next-line no-console
+    console.error('[rentman]', reqMethod, reqUrl, '->', status, {
+      serverMsg,
+      data,
+      requestBody: ax.config?.data,
+    })
+
     const hint =
       status === 401
         ? 'Token ungültig oder abgelaufen — Einstellungen → Rentman prüfen.'
         : status === 403
-          ? 'Token hat keine Schreibrechte für diesen Endpoint (Rentman-Admin fragen).'
+          ? `403 Forbidden auf ${reqMethod} ${reqUrl}. Entweder fehlen dem Token die Schreibrechte fuer diesen Endpoint, ODER der Endpoint existiert nicht fuer deinen Rentman-Plan (manche Endpoints sind Tarif-abhaengig). Server-Antwort: ${serverMsg}`
           : status === 404
-            ? 'Resource nicht gefunden — Projekt-/Equipment-ID falsch oder gelöscht.'
+            ? `404 Not Found auf ${reqMethod} ${reqUrl}. Resource gibt's nicht — Projekt-/Equipment-ID falsch oder geloescht, oder Endpoint-Pfad falsch.`
             : status === 422
-              ? 'Validation: ' + serverMsg
+              ? `422 Validation auf ${reqMethod} ${reqUrl}: ${serverMsg}`
               : status && status >= 500
                 ? 'Rentman-Server-Fehler — später erneut versuchen.'
-                : serverMsg
+                : `${reqMethod} ${reqUrl}: ${serverMsg}`
     return new Error(`Rentman ${status ?? '??'} (${context}): ${hint}`)
   }
   if (err instanceof Error) return new Error(`${context}: ${err.message}`)

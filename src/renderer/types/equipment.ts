@@ -31,6 +31,12 @@ import type { SdiCapabilities } from './videoFormat'
 export interface Port {
   id: string
   name: string
+  /** v7.9.113 / Issue #232 — Original Template-Name. Wird beim Anlegen
+   *  vom Library-Template gesetzt und NICHT vom User editiert. Genutzt
+   *  beim Cable-Reconnect mit Label-Swap-Feature: alter Port wird auf
+   *  seinen originalName zurueckgesetzt, der vom User vergebene Name
+   *  wandert mit dem Kabel auf den neuen Port. */
+  originalName?: string
   type: string
   connectorType: ConnectorType
   /** Optional side override on the node (default comes from input/output + mirror). */
@@ -563,6 +569,12 @@ export interface GroupPreset {
     length: number
     color?: string
     standard?: string
+    /** v7.9.115 / Issue #223 — User-Waypoints im internen Rack-Canvas.
+     *  Vorher wurden Waypoints beim Save in den Preset verloren →
+     *  beim Re-Open hat A* alles neu geroutet und der User merkte
+     *  'Kabel verlieren ihre Position'. Optional — Presets ohne
+     *  Waypoints behalten ihr Auto-Routing-Verhalten. */
+    waypoints?: Array<{ x: number; y: number }>
   }>
 }
 

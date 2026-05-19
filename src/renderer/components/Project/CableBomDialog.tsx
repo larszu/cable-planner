@@ -5,6 +5,7 @@ import { useProjectStore } from '../../store/projectStore'
 import type { Cable } from '../../types/cable'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 
 export interface CableBomDialogProps {
   open: boolean
@@ -98,7 +99,8 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
       lines.push([r.type, String(r.length), String(r.built), String(r.planned), fmtSignFixed(r.diff)].join(';'))
     }
     downloadBlob(
-      `${project.metadata.name || 'cable-planner'}-kabel-bom.csv`,
+      // v7.9.116 \u2014 Einheitlicher Stempel: YYYYMMDD_<name>_NNN_kabel-bom.csv
+      buildExportFilenameWithSuffix(project.metadata.name || 'cable-planner', 'kabel-bom', 'csv'),
       '\ufeff' + lines.join('\r\n'),
       'text/csv;charset=utf-8',
     )
@@ -148,7 +150,8 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
       y += 14
     }
 
-    pdf.save(`${(project.metadata.name || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')}-kabel-bom.pdf`)
+    // v7.9.116 — Einheitlicher Stempel: YYYYMMDD_<name>_NNN_kabel-bom.pdf
+    pdf.save(buildExportFilenameWithSuffix(project.metadata.name || 'cable-planner', 'kabel-bom', 'pdf'))
   }
 
   return (

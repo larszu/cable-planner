@@ -9,6 +9,7 @@
 
 import { toJpeg, toPng } from 'html-to-image'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
+import { buildExportFilename } from './exportFilename'
 
 export type ImageExportFormat = 'png' | 'jpeg'
 
@@ -194,6 +195,6 @@ export const exportCanvasToImage = async (
       customPalette: options?.customPalette,
     },
   )
-  const safeName = projectName.replace(/[/\\?%*:|"<>]/g, '-').trim() || 'cable-planner'
-  triggerDownload(dataUrl, `${safeName}.${format === 'png' ? 'png' : 'jpg'}`)
+  // v7.9.116 — Einheitlicher Stempel: YYYYMMDD_<name>_NNN.{png|jpg}
+  triggerDownload(dataUrl, buildExportFilename(projectName, format === 'png' ? 'png' : 'jpg'))
 }

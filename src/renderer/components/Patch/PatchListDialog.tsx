@@ -11,6 +11,7 @@ import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { ModalShell } from '../shared/ModalShell'
 
 type SortKey = 'fromDevice' | 'toDevice' | 'type' | 'length' | 'color'
@@ -112,7 +113,8 @@ export const PatchListDialog = () => {
       ),
     ]
     downloadBlob(
-      `${projectName || 'cable-planner'}-patchliste.csv`,
+      // v7.9.116 — Einheitlicher Stempel.
+      buildExportFilenameWithSuffix(projectName || 'cable-planner', 'patchliste', 'csv'),
       '﻿' + lines.join('\r\n'),
       'text/csv;charset=utf-8',
     )

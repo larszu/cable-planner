@@ -260,7 +260,17 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         sourceEquipmentId: cable.fromEquipmentId,
         targetEquipmentId: cable.toEquipmentId,
       })
-      if (!waypoints) return false
+      // v7.9.115 / Issue #223 — Wenn A* keinen Pfad findet (dichtes
+      // Rack, blockierter Korridor), schweigend zurueck auf
+      // ReactFlow's Standard-Orthogonal-Routing fallen. Vorher gab's
+      // ein 'A*-Routing fehlgeschlagen'-Modal das den User blockierte.
+      // Mit waypoints=undefined nutzt CableEdge den buildPath-Pfad
+      // (orthogonalWaypoints aus pathfinding.ts) der immer eine Linie
+      // zwischen den Handles findet, selbst wenn nicht optimal.
+      if (!waypoints) {
+        updateCable(cable.id, { waypoints: undefined })
+        return true
+      }
       updateCable(cable.id, { waypoints: waypoints.length > 0 ? waypoints : undefined })
       return true
     }

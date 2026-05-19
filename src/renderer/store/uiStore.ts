@@ -192,6 +192,17 @@ interface PersistedUiState {
    *  top. The lower-id cable gets the bump. Off by default to preserve
    *  the existing visual baseline. */
   cableBumps: boolean
+  /** v7.9.112 / Issue #234 — Global Toggle der ALLE Kabel-Labels
+   *  ausblendet, unabhaengig vom per-Kabel labelPosition. Praktisch
+   *  fuer aufgeraeumte Plan-Ansicht beim Praesentieren ohne dass jedes
+   *  Kabel einzeln umgestellt werden muss. */
+  hideAllCableLabels: boolean
+  /** v7.9.113 / Issue #232 — Wenn aktiv, wird beim Cable-Reconnect der
+   *  vom User vergebene Port-Name mit dem Kabel mitgenommen: alter Port
+   *  bekommt seinen Template-default-Namen zurueck, neuer Port bekommt
+   *  den User-Namen. Spart Copy-Paste beim Umstecken. Default off
+   *  damit Reconnect nicht versehentlich Labels umbenennt. */
+  swapLabelsOnReconnect: boolean
   /** Issue #53: when two orthogonal cables share an X- or Y-midline,
    *  shift one of them by a small offset so they're parallel instead of
    *  perfectly overlapping. */
@@ -263,6 +274,8 @@ const defaults: PersistedUiState = {
   cableSpecOverrides: {},
   deviceConfigLibrary: [],
   cableBumps: false,
+  hideAllCableLabels: false,
+  swapLabelsOnReconnect: false,
   orthogonalCollisionShift: false,
   hotkeys: {
     undo: 'Ctrl+Z',
@@ -563,6 +576,8 @@ interface UiState extends PersistedUiState {
   /** Bulk-replace the entire library. Used by the JSON-bundle importer. */
   replaceDeviceConfigLibrary: (entries: DeviceConfigEntry[]) => void
   setCableBumps: (value: boolean) => void
+  setHideAllCableLabels: (value: boolean) => void
+  setSwapLabelsOnReconnect: (value: boolean) => void
   setOrthogonalCollisionShift: (value: boolean) => void
   setHotkey: (action: string, combo: string) => void
   resetHotkeys: () => void
@@ -955,6 +970,8 @@ export const useUiStore = create<UiState>((set) => ({
   replaceDeviceConfigLibrary: (entries) =>
     set((state) => applyPatch({ deviceConfigLibrary: entries })(state)),
   setCableBumps: (value) => set(applyPatch({ cableBumps: value })),
+  setHideAllCableLabels: (value) => set(applyPatch({ hideAllCableLabels: value })),
+  setSwapLabelsOnReconnect: (value) => set(applyPatch({ swapLabelsOnReconnect: value })),
   setOrthogonalCollisionShift: (value) => set(applyPatch({ orthogonalCollisionShift: value })),
   setHotkey: (action, combo) =>
     set((state) => applyPatch({ hotkeys: { ...state.hotkeys, [action]: combo } })(state)),

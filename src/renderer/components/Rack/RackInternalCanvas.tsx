@@ -173,6 +173,12 @@ const buildScratchCables = (
       standard: c.standard as SignalStandard | undefined,
       arrowEnd: true,
       strokeWidth: 2.5,
+      // v7.9.115 / Issue #223 — Waypoints aus dem Preset wieder
+      // herstellen, damit Kabel-Positionen ueber Save/Reload erhalten
+      // bleiben. Wenn der Preset noch keine Waypoints traegt (alte
+      // Daten), bleibt das Feld undefined und A* / Auto-Routing
+      // generiert frische.
+      ...(c.waypoints && c.waypoints.length > 0 ? { waypoints: c.waypoints } : {}),
     })
   }
   return result
@@ -228,6 +234,11 @@ const extractGroupPresetCables = (
       length: c.length,
       color: c.color,
       standard: c.standard,
+      // v7.9.115 / Issue #223 — Waypoints in den Preset zurueck
+      // schreiben damit User-Position nach Save/Reload erhalten bleibt.
+      ...(c.waypoints && c.waypoints.length > 0
+        ? { waypoints: c.waypoints.map((wp) => ({ x: wp.x, y: wp.y })) }
+        : {}),
     })
   }
   return out

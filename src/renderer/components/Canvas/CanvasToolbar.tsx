@@ -33,6 +33,9 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   // v7.9.5 — globaler Kabelbrücken-Toggle in der Toolbar
   const cableBumps = useUiStore((state) => state.cableBumps)
   const setCableBumps = useUiStore((state) => state.setCableBumps)
+  // v7.9.112 / Issue #234 — Global Cable-Labels ausblenden.
+  const hideAllCableLabels = useUiStore((state) => state.hideAllCableLabels)
+  const setHideAllCableLabels = useUiStore((state) => state.setHideAllCableLabels)
   const cableColorMode = useUiStore((state) => state.cableColorMode)
   const setCableColorMode = useUiStore((state) => state.setCableColorMode)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
@@ -1147,6 +1150,13 @@ const DefaultsMenu = ({
                 value: cableBumps,
                 set: setCableBumps,
                 hint: 'Globaler Default — pro Kabel via Rechtsklick überschreibbar',
+              },
+              {
+                // v7.9.112 / Issue #234 — globaler Kabel-Label-Hide.
+                label: 'Alle Kabel-Labels ausblenden',
+                value: hideAllCableLabels,
+                set: setHideAllCableLabels,
+                hint: 'Globaler Toggle. Per-Kabel-Position bleibt erhalten — beim Ausschalten kommen die Labels wieder.',
               },
               {
                 label: 'Ports nach Connector-Typ einfärben',
