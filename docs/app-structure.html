@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Cable-Planner — App-Struktur</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    overflow: hidden;
+    height: 100vh;
+  }
+  #app {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: 100vh;
+  }
+  aside {
+    background: #1e293b;
+    border-right: 1px solid #334155;
+    padding: 14px;
+    overflow-y: auto;
+    font-size: 12px;
+  }
+  aside h1 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    color: #f1f5f9;
+  }
+  aside .subtitle {
+    color: #94a3b8;
+    margin-bottom: 14px;
+    font-size: 11px;
+  }
+  aside h2 {
+    font-size: 12px;
+    margin: 16px 0 6px;
+    color: #cbd5e1;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  aside .layer-btn {
+    display: block;
+    width: 100%;
+    margin: 3px 0;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    background: #334155;
+    color: #f1f5f9;
+    text-align: left;
+    cursor: pointer;
+    font-size: 11px;
+    transition: background 0.15s;
+  }
+  aside .layer-btn:hover { background: #475569; }
+  aside .layer-btn.active { background: #0ea5e9; color: #fff; }
+  aside .flow {
+    margin: 6px 0;
+    padding: 8px;
+    background: #0f172a;
+    border-left: 3px solid #38bdf8;
+    border-radius: 3px;
+  }
+  aside .flow-name {
+    font-weight: 600;
+    color: #38bdf8;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+  aside .flow ol {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 10px;
+    color: #cbd5e1;
+    line-height: 1.4;
+  }
+  aside .flow ol li { margin: 1px 0; }
+  aside .legend {
+    background: #0f172a;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 10px;
+  }
+  aside .legend .row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 3px 0;
+  }
+  aside .legend .swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+  }
+  aside .legend .edge-key {
+    width: 24px;
+    height: 0;
+    border-top: 2px solid #94a3b8;
+  }
+  aside .legend .edge-key.dashed { border-top-style: dashed; }
+  aside .legend .edge-key.dotted { border-top-style: dotted; }
+  main {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+  }
+  svg {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+  }
+  svg:active { cursor: grabbing; }
+  .node {
+    cursor: pointer;
+  }
+  .node rect {
+    transition: stroke 0.15s, filter 0.15s;
+  }
+  .node:hover rect {
+    filter: brightness(1.15);
+    stroke: #f59e0b !important;
+    stroke-width: 2.5px;
+  }
+  .node text {
+    fill: #f8fafc;
+    font-size: 10px;
+    font-weight: 500;
+    pointer-events: none;
+  }
+  .node text.subtitle {
+    fill: #cbd5e1;
+    font-size: 8px;
+    font-weight: 400;
+  }
+  .edge {
+    fill: none;
+    stroke-width: 1.2;
+    opacity: 0.5;
+    transition: opacity 0.15s, stroke-width 0.15s;
+  }
+  .edge:hover {
+    opacity: 1;
+    stroke-width: 2.2;
+  }
+  .edge.imports { stroke: #94a3b8; }
+  .edge.uses-store { stroke: #10b981; stroke-dasharray: 4,3; }
+  .edge.ipc { stroke: #f97316; stroke-dasharray: 6,3; }
+  .edge.renders { stroke: #38bdf8; }
+  .edge.drag-drop { stroke: #a855f7; stroke-dasharray: 2,2; }
+  .edge.http { stroke: #ec4899; }
+  .edge.dimmed { opacity: 0.08; }
+  .node.dimmed rect { opacity: 0.2; }
+  .node.dimmed text { opacity: 0.2; }
+  .group-bg {
+    fill: rgba(15, 23, 42, 0.4);
+    stroke: rgba(148, 163, 184, 0.2);
+    stroke-width: 1;
+    stroke-dasharray: 4, 4;
+  }
+  .group-label {
+    fill: #94a3b8;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  #tooltip {
+    position: fixed;
+    background: #1e293b;
+    border: 1px solid #475569;
+    color: #f1f5f9;
+    padding: 8px 10px;
+    border-radius: 4px;
+    pointer-events: none;
+    font-size: 11px;
+    max-width: 280px;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  }
+  #tooltip .tt-label {
+    font-weight: 600;
+    color: #f8fafc;
+    margin-bottom: 4px;
+  }
+  #tooltip .tt-file {
+    color: #64748b;
+    font-family: monospace;
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+  #tooltip .tt-purpose {
+    color: #cbd5e1;
+    line-height: 1.4;
+  }
+  #controls {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 4px;
+    padding: 6px;
+    display: flex;
+    gap: 4px;
+    z-index: 10;
+  }
+  #controls button {
+    border: none;
+    background: #334155;
+    color: #f1f5f9;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 11px;
+  }
+  #controls button:hover { background: #475569; }
+  #header {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 4px;
+    padding: 8px 12px;
+    z-index: 10;
+    font-size: 11px;
+    color: #cbd5e1;
+  }
+  #header strong { color: #f8fafc; }
+</style>
+</head>
+<body>
+<div id="app">
+  <aside>
+    <h1>Cable-Planner</h1>
+    <div class="subtitle">App-Struktur · v7.9.91 · ~60 Module</div>
+
+    <h2>Layer-Filter</h2>
+    <button class="layer-btn active" data-layer="all">Alle anzeigen</button>
+    <button class="layer-btn" data-layer="main" style="background:#7f1d1d">Main Process</button>
+    <button class="layer-btn" data-layer="preload" style="background:#9a3412">Preload/Bridge</button>
+    <button class="layer-btn" data-layer="renderer" style="background:#1e40af">Renderer</button>
+    <button class="layer-btn" data-layer="mobile" style="background:#581c87">Mobile</button>
+
+    <h2>Edge-Legende</h2>
+    <div class="legend">
+      <div class="row"><span class="edge-key" style="border-color:#38bdf8"></span> renders</div>
+      <div class="row"><span class="edge-key" style="border-color:#94a3b8"></span> imports</div>
+      <div class="row"><span class="edge-key dashed" style="border-color:#10b981"></span> uses-store</div>
+      <div class="row"><span class="edge-key dashed" style="border-color:#f97316"></span> ipc</div>
+      <div class="row"><span class="edge-key dotted" style="border-color:#a855f7"></span> drag-drop</div>
+      <div class="row"><span class="edge-key" style="border-color:#ec4899"></span> http</div>
+    </div>
+
+    <h2>User-Flows</h2>
+    <div id="flows-list"></div>
+  </aside>
+
+  <main>
+    <div id="header">
+      <strong>Cable-Planner</strong> · Klick auf Node = Details · Scroll = Zoom · Drag = Pan
+    </div>
+    <div id="controls">
+      <button id="btn-fit">Fit</button>
+      <button id="btn-zoom-in">+</button>
+      <button id="btn-zoom-out">−</button>
+    </div>
+    <svg id="graph" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+        </marker>
+      </defs>
+      <g id="viewport"></g>
+    </svg>
+    <div id="tooltip"></div>
+  </main>
+</div>
+
+<script>
+const DATA = {
+  "layers": [
+    { "id": "main",     "label": "Main Process (Electron)", "color": "#7f1d1d", "col": 0 },
+    { "id": "preload",  "label": "Preload/Bridge",          "color": "#9a3412", "col": 1 },
+    { "id": "renderer", "label": "Renderer (React)",        "color": "#1e40af", "col": 2 },
+    { "id": "mobile",   "label": "Mobile (Web)",            "color": "#581c87", "col": 3 }
+  ],
+  "modules": [
+    // ── Main Process ───────────────────────────────────────
+    { "id": "main-window",       "label": "Window Manager",  "layer": "main",     "group": "Core",       "purpose": "BrowserWindow, geometry, autoupdate", "file": "src/main/index.ts" },
+    { "id": "ipc-project",       "label": "Project IPC",     "layer": "main",     "group": "IPC",        "purpose": "Save/Open .json/.cpviewer, recent. v7.9.91: atomic-write + .bak", "file": "src/main/ipc/projectIpc.ts" },
+    { "id": "ipc-library",       "label": "Library IPC",     "layer": "main",     "group": "IPC",        "purpose": "Scan .cpdevice/.cpgroup folders, sync items", "file": "src/main/ipc/libraryIpc.ts" },
+    { "id": "ipc-rentman",       "label": "Rentman IPC",     "layer": "main",     "group": "IPC",        "purpose": "Fetch projects/equipment, add cables", "file": "src/main/ipc/rentmanIpc.ts" },
+    { "id": "ipc-atem",          "label": "ATEM IPC",        "layer": "main",     "group": "IPC",        "purpose": "Connect/configure ATEM switchers via UDP", "file": "src/main/ipc/atemIpc.ts" },
+    { "id": "ipc-graphml",       "label": "GraphML IPC",     "layer": "main",     "group": "IPC",        "purpose": "Parse yEd-Diagramme, extract Equipment", "file": "src/main/ipc/graphmlIpc.ts" },
+    { "id": "ipc-mobile-share",  "label": "Mobile Share IPC","layer": "main",     "group": "IPC",        "purpose": "Start/Stop Mobile-Server für Tablet/Phone-Sync", "file": "src/main/ipc/mobileShareIpc.ts" },
+    { "id": "ipc-credentials",   "label": "Credentials IPC", "layer": "main",     "group": "IPC",        "purpose": "Rentman-Token sicher im OS-Keychain", "file": "src/main/ipc/credentialsIpc.ts" },
+    { "id": "service-rentman",   "label": "Rentman Client",  "layer": "main",     "group": "Services",   "purpose": "Axios-Wrapper für Rentman REST API", "file": "src/main/services/rentmanApiClient.ts" },
+    { "id": "service-mobile",    "label": "Mobile Server",   "layer": "main",     "group": "Services",   "purpose": "Express-Server für LAN-Sync von Mobile-App", "file": "src/main/services/mobileShareServer.ts" },
+
+    // ── Preload/Bridge ─────────────────────────────────────
+    { "id": "bridge",            "label": "Bridge API",      "layer": "preload",  "group": "Bridge",     "purpose": "Typed IPC Interface zum Renderer (credentials, rentman, project, atem...)", "file": "src/renderer/lib/bridge.ts" },
+
+    // ── Renderer: App + Layout ─────────────────────────────
+    { "id": "app-root",          "label": "App Root",        "layer": "renderer", "group": "Layout",     "purpose": "Router, Dialogs, MenuBar + Canvas + Panels", "file": "src/renderer/App.tsx" },
+    { "id": "menu-bar",          "label": "Menu Bar",        "layer": "renderer", "group": "Layout",     "purpose": "File/Edit/View Menus, Shortcuts", "file": "src/renderer/components/Layout/MenuBar.tsx" },
+    { "id": "status-bar",        "label": "Status Bar",      "layer": "renderer", "group": "Layout",     "purpose": "Zoom, Device-Count, Online-Status", "file": "src/renderer/components/Layout/StatusBar.tsx" },
+
+    // ── Renderer: Canvas ───────────────────────────────────
+    { "id": "canvas-area",       "label": "Canvas Area",     "layer": "renderer", "group": "Canvas",     "purpose": "ReactFlow Wrapper, Drag/Drop, Selection, Routing-API. ~1800 LOC", "file": "src/renderer/components/Canvas/CanvasArea.tsx" },
+    { "id": "equipment-node",    "label": "Equipment Node",  "layer": "renderer", "group": "Canvas",     "purpose": "Gerät mit Ports, Connectors, Drag-Handles", "file": "src/renderer/components/Canvas/EquipmentNode.tsx" },
+    { "id": "cable-edge",        "label": "Cable Edge",      "layer": "renderer", "group": "Canvas",     "purpose": "Kabel-Linie mit Waypoints, Layer-Filter, Auto-Routing-Persist", "file": "src/renderer/components/Canvas/CableEdge.tsx" },
+    { "id": "cable-waypoints",   "label": "Cable Waypoints", "layer": "renderer", "group": "Canvas",     "purpose": "Drag-Handles für manuelle Kabelpfad-Anpassung", "file": "src/renderer/components/Canvas/CableWaypoints.tsx" },
+    { "id": "cable-ctx-menu",    "label": "Cable Ctx Menu",  "layer": "renderer", "group": "Canvas",     "purpose": "Rechtsklick-Menü auf Kabeln (edit, delete, re-route)", "file": "src/renderer/components/Canvas/CableContextMenu.tsx" },
+    { "id": "pending-cable",     "label": "Pending Cable",   "layer": "renderer", "group": "Canvas",     "purpose": "Temporäres Kabel während Verbinden", "file": "src/renderer/components/Canvas/PendingCableOverlay.tsx" },
+    { "id": "canvas-toolbar",    "label": "Canvas Toolbar",  "layer": "renderer", "group": "Canvas",     "purpose": "Zoom, Grid, Lock-Modes, Layer-Visibility-Chips", "file": "src/renderer/components/Canvas/CanvasToolbar.tsx" },
+    { "id": "location-frame",    "label": "Location Frame",  "layer": "renderer", "group": "Canvas",     "purpose": "Gruppierungs-Rahmen mit Schloss-Icon (#201)", "file": "src/renderer/components/Canvas/LocationFrameNode.tsx" },
+    { "id": "layer-chips",       "label": "Layer Chips",     "layer": "renderer", "group": "Canvas",     "purpose": "AV-Industry-Layer Toggle (Video/Audio/Control/Network/Power)", "file": "src/renderer/components/Canvas/LayerVisibilityChips.tsx" },
+
+    // ── Renderer: Properties ───────────────────────────────
+    { "id": "properties-panel",  "label": "Properties Panel","layer": "renderer", "group": "Properties", "purpose": "Dispatcher für Cable/Equipment/Location/Template Editor", "file": "src/renderer/components/Properties/PropertiesPanel.tsx" },
+    { "id": "cable-properties",  "label": "Cable Properties","layer": "renderer", "group": "Properties", "purpose": "Edit Name, Type, Länge, Farbe, Layer, Endpoints", "file": "src/renderer/components/Properties/CableProperties.tsx" },
+    { "id": "equipment-props",   "label": "Equipment Props", "layer": "renderer", "group": "Properties", "purpose": "Edit Name, Kategorie, IP, Ports, Auto-Rename (#175)", "file": "src/renderer/components/Properties/EquipmentProperties.tsx" },
+    { "id": "location-props",    "label": "Location Props",  "layer": "renderer", "group": "Properties", "purpose": "Edit Location Name, Move-Contents, Position-Lock", "file": "src/renderer/components/Properties/LocationProperties.tsx" },
+    { "id": "template-props",    "label": "Template Props",  "layer": "renderer", "group": "Properties", "purpose": "Edit Library-Template (Name, Ports, Modes)", "file": "src/renderer/components/Properties/TemplateProperties.tsx" },
+
+    // ── Renderer: Library ──────────────────────────────────
+    { "id": "library-panel",     "label": "Library Panel",   "layer": "renderer", "group": "Library",    "purpose": "Search/Filter Templates, Rentman-Tab, AI-Suggest", "file": "src/renderer/components/Library/LibraryPanel.tsx" },
+    { "id": "library-item",      "label": "Library Item",    "layer": "renderer", "group": "Library",    "purpose": "Template-Card mit Thumbnail + Drag-Source", "file": "src/renderer/components/Library/LibraryItem.tsx" },
+    { "id": "cable-library",     "label": "Cable Library",   "layer": "renderer", "group": "Library",    "purpose": "Cable-Type-Presets nach Connector/Standard", "file": "src/renderer/components/Library/CableLibraryPanel.tsx" },
+
+    // ── Renderer: Rack ─────────────────────────────────────
+    { "id": "rack-builder",      "label": "Rack Builder",    "layer": "renderer", "group": "Rack",       "purpose": "2D + 3D Rack-Builder mit Patchblenden, Shelves, Tiefe", "file": "src/renderer/components/Rack/RackBuilderDialog.tsx" },
+    { "id": "rack-3d",           "label": "Rack 3D",         "layer": "renderer", "group": "Rack",       "purpose": "three.js / r3f Orbit-Viewer mit Port-Dots + Cable-Lines", "file": "src/renderer/components/Rack/Rack3DView.tsx" },
+    { "id": "rack-internal",    "label": "Rack Internal",   "layer": "renderer", "group": "Rack",       "purpose": "Sub-Canvas für interne Rack-Verkabelung", "file": "src/renderer/components/Rack/RackInternalCanvas.tsx" },
+    { "id": "stl-preview",       "label": "STL Preview",     "layer": "renderer", "group": "Rack",       "purpose": "Mini-3D-Preview hochgeladener STL-Modelle (#205)", "file": "src/renderer/components/Rack/StlPreview.tsx" },
+
+    // ── Renderer: Rentman ──────────────────────────────────
+    { "id": "rentman-import",    "label": "Rentman Import",  "layer": "renderer", "group": "Rentman",    "purpose": "Fetch Project + Equipment, Library-Heal (#171)", "file": "src/renderer/components/Rentman/RentmanImportDialog.tsx" },
+    { "id": "rentman-export",    "label": "Rentman Export",  "layer": "renderer", "group": "Rentman",    "purpose": "Cable-BOM → Rentman-Project-Push", "file": "src/renderer/components/Rentman/RentmanCableExportDialog.tsx" },
+
+    // ── Renderer: ATEM ─────────────────────────────────────
+    { "id": "atem-dialog",       "label": "ATEM Dialog",     "layer": "renderer", "group": "Atem",       "purpose": "Connect to ATEM, browse Inputs/MV", "file": "src/renderer/components/Atem/AtemDialog.tsx" },
+
+    // ── Renderer: Settings + Export + Annotations ─────────
+    { "id": "settings-dialog",   "label": "Settings Dialog", "layer": "renderer", "group": "Settings",   "purpose": "Theme, Sprache, Multi-AI-Provider Keys (#197)", "file": "src/renderer/components/Settings/SettingsDialog.tsx" },
+    { "id": "export-dialog",     "label": "Export Dialog",   "layer": "renderer", "group": "Export",     "purpose": "PDF/PNG/JSON/XLSX Export", "file": "src/renderer/components/Export/ExportDialog.tsx" },
+    { "id": "annotations",       "label": "Annotations",     "layer": "renderer", "group": "Annotations","purpose": "Reviewer-Kommentare, Overlay auf Canvas", "file": "src/renderer/components/Annotations/AnnotationsPanel.tsx" },
+
+    // ── Renderer: Stores (zustand) ─────────────────────────
+    { "id": "project-store",     "label": "Project Store",   "layer": "renderer", "group": "Store",      "purpose": "zustand: equipment, cables, locations, library, metadata. ~2000 LOC", "file": "src/renderer/store/projectStore.ts" },
+    { "id": "ui-store",          "label": "UI Store",        "layer": "renderer", "group": "Store",      "purpose": "zustand: Selection, Panels, Layers, Theme, persistent settings", "file": "src/renderer/store/uiStore.ts" },
+    { "id": "settings-store",    "label": "Settings Store",  "layer": "renderer", "group": "Store",      "purpose": "zustand: Persisted Window-Settings (Position, Size)", "file": "src/renderer/store/settingsStore.ts" },
+    { "id": "project-history",   "label": "Project History", "layer": "renderer", "group": "Store",      "purpose": "Undo/Redo Stack (#186 v7.9.71 fix)", "file": "src/renderer/store/projectHistory.ts" },
+
+    // ── Renderer: Lib (helpers) ────────────────────────────
+    { "id": "lib-pathfinding",   "label": "Pathfinding",     "layer": "renderer", "group": "Lib",        "purpose": "A* Cable-Routing mit Obstacle-Avoidance", "file": "src/renderer/lib/pathfinding.ts" },
+    { "id": "lib-routing",       "label": "Cable Routing",   "layer": "renderer", "group": "Lib",        "purpose": "Orthogonal Waypoints + cableRouting.ts heuristic", "file": "src/renderer/lib/cableRouting.ts" },
+    { "id": "lib-library-sync",  "label": "Library Sync",    "layer": "renderer", "group": "Lib",        "purpose": "Scan & write central library folder (#122)", "file": "src/renderer/lib/librarySync.ts" },
+    { "id": "lib-export-pdf",    "label": "PDF Export",      "layer": "renderer", "group": "Lib",        "purpose": "Canvas → PDF (jsPDF, Progress-Overlay)", "file": "src/renderer/lib/exportPdf.ts" },
+    { "id": "lib-export-rack",   "label": "Rack Export",     "layer": "renderer", "group": "Lib",        "purpose": "2D-PNG, 3D-PNG×4, STL, .cpgroup Export", "file": "src/renderer/lib/exportRack.ts" },
+    { "id": "lib-ai-suggest",    "label": "AI Suggestions",  "layer": "renderer", "group": "Lib",        "purpose": "Multi-Provider: Gemini/Claude/OpenAI (#197)", "file": "src/renderer/lib/aiSuggestions.ts" },
+    { "id": "lib-cable-layers",  "label": "Cable Layers",    "layer": "renderer", "group": "Lib",        "purpose": "AV-Industry Standard-Layer + Auto-Detect (#123)", "file": "src/renderer/lib/cableLayers.ts" },
+    { "id": "lib-catalogs",      "label": "Device Catalogs", "layer": "renderer", "group": "Lib",        "purpose": "Built-in Templates (Blackmagic, Decimator, Sonnet...)", "file": "src/renderer/lib/*Catalog.ts" },
+
+    // ── Renderer: Types ────────────────────────────────────
+    { "id": "types-cable",       "label": "Cable Types",     "layer": "renderer", "group": "Types",      "purpose": "Cable, CableSpec, Routing, Layer, Wireless", "file": "src/renderer/types/cable.ts" },
+    { "id": "types-equipment",   "label": "Equipment Types", "layer": "renderer", "group": "Types",      "purpose": "EquipmentItem, Template, Port, GroupPreset, Rack", "file": "src/renderer/types/equipment.ts" },
+    { "id": "types-project",     "label": "Project Types",   "layer": "renderer", "group": "Types",      "purpose": "CablePlannerProject, Metadata, CanvasState", "file": "src/renderer/types/project.ts" },
+
+    // ── Mobile ─────────────────────────────────────────────
+    { "id": "mobile-app",        "label": "Mobile App",      "layer": "mobile",   "group": "Mobile",     "purpose": "Field-tech Companion: Patch-Liste, Cable-Add (#210)", "file": "src/mobile/MobileApp.tsx" }
+  ],
+  "edges": [
+    // App-Root → kids
+    { "from": "app-root", "to": "canvas-area", "kind": "renders" },
+    { "from": "app-root", "to": "menu-bar", "kind": "renders" },
+    { "from": "app-root", "to": "status-bar", "kind": "renders" },
+    { "from": "app-root", "to": "library-panel", "kind": "renders" },
+    { "from": "app-root", "to": "properties-panel", "kind": "renders" },
+    { "from": "app-root", "to": "settings-dialog", "kind": "renders" },
+    { "from": "app-root", "to": "export-dialog", "kind": "renders" },
+    { "from": "app-root", "to": "annotations", "kind": "renders" },
+    { "from": "app-root", "to": "rack-builder", "kind": "renders" },
+    { "from": "app-root", "to": "rentman-import", "kind": "renders" },
+    { "from": "app-root", "to": "atem-dialog", "kind": "renders" },
+    { "from": "app-root", "to": "project-history", "kind": "imports" },
+    // Canvas
+    { "from": "canvas-area", "to": "equipment-node", "kind": "renders" },
+    { "from": "canvas-area", "to": "cable-edge", "kind": "renders" },
+    { "from": "canvas-area", "to": "location-frame", "kind": "renders" },
+    { "from": "canvas-area", "to": "pending-cable", "kind": "renders" },
+    { "from": "canvas-area", "to": "canvas-toolbar", "kind": "renders" },
+    { "from": "canvas-area", "to": "cable-ctx-menu", "kind": "renders" },
+    { "from": "canvas-area", "to": "lib-routing", "kind": "imports" },
+    { "from": "canvas-area", "to": "lib-pathfinding", "kind": "imports" },
+    { "from": "canvas-area", "to": "project-store", "kind": "uses-store" },
+    { "from": "canvas-area", "to": "ui-store", "kind": "uses-store" },
+    { "from": "cable-edge", "to": "cable-waypoints", "kind": "renders" },
+    { "from": "cable-edge", "to": "lib-routing", "kind": "imports" },
+    { "from": "cable-edge", "to": "lib-cable-layers", "kind": "imports" },
+    { "from": "cable-edge", "to": "project-store", "kind": "uses-store" },
+    { "from": "cable-edge", "to": "ui-store", "kind": "uses-store" },
+    { "from": "canvas-toolbar", "to": "layer-chips", "kind": "renders" },
+    { "from": "layer-chips", "to": "ui-store", "kind": "uses-store" },
+    { "from": "equipment-node", "to": "project-store", "kind": "uses-store" },
+    // Properties
+    { "from": "properties-panel", "to": "cable-properties", "kind": "renders" },
+    { "from": "properties-panel", "to": "equipment-props", "kind": "renders" },
+    { "from": "properties-panel", "to": "location-props", "kind": "renders" },
+    { "from": "properties-panel", "to": "template-props", "kind": "renders" },
+    { "from": "cable-properties", "to": "project-store", "kind": "uses-store" },
+    { "from": "cable-properties", "to": "lib-cable-layers", "kind": "imports" },
+    { "from": "equipment-props", "to": "project-store", "kind": "uses-store" },
+    { "from": "location-props", "to": "project-store", "kind": "uses-store" },
+    { "from": "template-props", "to": "project-store", "kind": "uses-store" },
+    // Library
+    { "from": "library-panel", "to": "library-item", "kind": "renders" },
+    { "from": "library-panel", "to": "cable-library", "kind": "renders" },
+    { "from": "library-panel", "to": "lib-ai-suggest", "kind": "imports" },
+    { "from": "library-panel", "to": "lib-library-sync", "kind": "imports" },
+    { "from": "library-panel", "to": "project-store", "kind": "uses-store" },
+    { "from": "library-panel", "to": "canvas-area", "kind": "drag-drop" },
+    { "from": "library-item", "to": "canvas-area", "kind": "drag-drop" },
+    // Rack
+    { "from": "rack-builder", "to": "rack-3d", "kind": "renders" },
+    { "from": "rack-builder", "to": "rack-internal", "kind": "renders" },
+    { "from": "rack-builder", "to": "stl-preview", "kind": "renders" },
+    { "from": "rack-builder", "to": "lib-export-rack", "kind": "imports" },
+    { "from": "rack-internal", "to": "canvas-area", "kind": "renders" },
+    { "from": "rack-internal", "to": "project-store", "kind": "uses-store" },
+    // Rentman
+    { "from": "rentman-import", "to": "bridge", "kind": "ipc" },
+    { "from": "rentman-import", "to": "lib-ai-suggest", "kind": "imports" },
+    { "from": "rentman-import", "to": "project-store", "kind": "uses-store" },
+    { "from": "rentman-export", "to": "bridge", "kind": "ipc" },
+    { "from": "rentman-export", "to": "project-store", "kind": "uses-store" },
+    // ATEM
+    { "from": "atem-dialog", "to": "bridge", "kind": "ipc" },
+    // Settings
+    { "from": "settings-dialog", "to": "ui-store", "kind": "uses-store" },
+    { "from": "settings-dialog", "to": "lib-ai-suggest", "kind": "imports" },
+    // Export
+    { "from": "export-dialog", "to": "lib-export-pdf", "kind": "imports" },
+    { "from": "export-dialog", "to": "bridge", "kind": "ipc" },
+    // Menu
+    { "from": "menu-bar", "to": "bridge", "kind": "ipc" },
+    // Store ↔ Store + Store → Lib
+    { "from": "project-store", "to": "lib-library-sync", "kind": "imports" },
+    { "from": "project-store", "to": "lib-cable-layers", "kind": "imports" },
+    { "from": "project-store", "to": "types-cable", "kind": "imports" },
+    { "from": "project-store", "to": "types-equipment", "kind": "imports" },
+    { "from": "project-store", "to": "types-project", "kind": "imports" },
+    { "from": "project-store", "to": "ui-store", "kind": "uses-store" },
+    { "from": "project-history", "to": "project-store", "kind": "uses-store" },
+    { "from": "lib-library-sync", "to": "bridge", "kind": "ipc" },
+    // Bridge → Main IPC
+    { "from": "bridge", "to": "ipc-project", "kind": "ipc" },
+    { "from": "bridge", "to": "ipc-library", "kind": "ipc" },
+    { "from": "bridge", "to": "ipc-rentman", "kind": "ipc" },
+    { "from": "bridge", "to": "ipc-atem", "kind": "ipc" },
+    { "from": "bridge", "to": "ipc-graphml", "kind": "ipc" },
+    { "from": "bridge", "to": "ipc-credentials", "kind": "ipc" },
+    { "from": "bridge", "to": "ipc-mobile-share", "kind": "ipc" },
+    // Main IPC → Services
+    { "from": "ipc-rentman", "to": "service-rentman", "kind": "imports" },
+    { "from": "ipc-mobile-share", "to": "service-mobile", "kind": "imports" },
+    // Main Core
+    { "from": "main-window", "to": "ipc-project", "kind": "imports" },
+    { "from": "main-window", "to": "ipc-library", "kind": "imports" },
+    // Mobile → Main Service (over HTTP)
+    { "from": "mobile-app", "to": "service-mobile", "kind": "http", "label": "GET/POST /project, /checks, /cables" },
+    // Annotations
+    { "from": "annotations", "to": "canvas-area", "kind": "renders", "label": "Overlay" },
+    { "from": "annotations", "to": "project-store", "kind": "uses-store" }
+  ],
+  "flows": [
+    {
+      "name": "Cable erstellen",
+      "steps": [
+        "User klickt Port A → ReactFlow onConnectStart",
+        "User klickt Port B → onConnect → queueConnection",
+        "projectStore.createCableFromPending(draft)",
+        "Auto-Layer-Detect aus connector-type (#123)",
+        "Cable in project.cables[] eingefügt",
+        "CableEdge rendert + auto-route Persist-Effect (v7.9.84)"
+      ]
+    },
+    {
+      "name": "Projekt speichern",
+      "steps": [
+        "MenuBar: File → Save",
+        "bridge.project.saveProject(project, path)",
+        "ipc-project: atomic-write zu .tmp → rename (v7.9.91)",
+        "Vorige Version landet in .bak als Sicherung",
+        "Recent-Liste wird aktualisiert"
+      ]
+    },
+    {
+      "name": "Library-Item importieren",
+      "steps": [
+        "LibraryPanel: Template-Card draggen",
+        "Drop auf Canvas → CanvasArea.onDrop",
+        "projectStore.addEquipment(template, x, y)",
+        "librarySync.stampDeviceLibraryRef für Versionierung",
+        "Equipment auf Canvas, EquipmentNode rendert"
+      ]
+    },
+    {
+      "name": "Rentman-Import + AI",
+      "steps": [
+        "RentmanImportDialog → bridge.rentman.getProjects()",
+        "User wählt Projekt + Equipment-Items",
+        "Auto-Layer + Power/Weight/Depth aus API (#167)",
+        "Optional: AI-Buttons für Port-Suggestion (#174)",
+        "addCustomTemplate(template) → .cpdevice Datei"
+      ]
+    },
+    {
+      "name": "Mobile-Sync",
+      "steps": [
+        "Desktop: ipc-mobile-share startet HTTP-Server auf LAN-IP",
+        "Mobile: lädt project.json über fetch()",
+        "Mobile: User checkt Port → POST /checks",
+        "service-mobile leitet an Renderer weiter",
+        "Optional: Cable-Add → addCableFromMobile mit cableSpecId-Lookup (#210)"
+      ]
+    },
+    {
+      "name": "Rack-Builder",
+      "steps": [
+        "Library-Tab Racks → + Neues Rack",
+        "RackBuilderDialog: 2D-Panel + 3D-Orbit-View",
+        "Patchblenden + Shelves erstellbar",
+        "STL-Upload mit Mini-Preview (#205)",
+        "Speichern als GroupPreset (.cpgroup)",
+        "Export: PNG×4, STL, .cpgroup"
+      ]
+    }
+  ]
+};
+
+// ─── Layout-Berechnung ───────────────────────────────────────────────────────
+const W = 200, H = 60, GAP_X = 60, GAP_Y = 18, GROUP_PAD = 22, GROUP_LABEL_H = 24;
+
+// Per Layer & Group gruppieren
+const layerOrder = ['main', 'preload', 'renderer', 'mobile'];
+const grouped = {};
+for (const m of DATA.modules) {
+  if (!grouped[m.layer]) grouped[m.layer] = {};
+  const g = m.group || 'Other';
+  if (!grouped[m.layer][g]) grouped[m.layer][g] = [];
+  grouped[m.layer][g].push(m);
+}
+
+// Layout: 4 Spalten (Layer) horizontal. Innerhalb jeder Spalte: Gruppen
+// vertikal gestapelt, in jeder Gruppe Module zentriert.
+const positions = {};
+const layerBounds = {};
+const groupBounds = [];
+
+let xOffset = 40;
+for (const layerId of layerOrder) {
+  const groups = grouped[layerId] || {};
+  const colMax = layerId === 'renderer' ? 3 : 1; // Renderer hat viele Module, breit
+  const colWidth = colMax * W + (colMax - 1) * GAP_X;
+  let yOffset = 60;
+  const groupNames = Object.keys(groups);
+  for (const gName of groupNames) {
+    const modules = groups[gName];
+    const rows = Math.ceil(modules.length / colMax);
+    const groupH = rows * H + (rows - 1) * GAP_Y + GROUP_LABEL_H + 2 * GROUP_PAD;
+    groupBounds.push({
+      layer: layerId,
+      group: gName,
+      x: xOffset,
+      y: yOffset,
+      w: colWidth + 2 * GROUP_PAD,
+      h: groupH,
+    });
+    modules.forEach((m, i) => {
+      const col = i % colMax;
+      const row = Math.floor(i / colMax);
+      positions[m.id] = {
+        x: xOffset + GROUP_PAD + col * (W + GAP_X),
+        y: yOffset + GROUP_LABEL_H + GROUP_PAD + row * (H + GAP_Y),
+        w: W,
+        h: H,
+      };
+    });
+    yOffset += groupH + 30;
+  }
+  layerBounds[layerId] = {
+    x: xOffset - 20,
+    y: 20,
+    w: colWidth + 2 * GROUP_PAD + 40,
+    h: yOffset + 20,
+  };
+  xOffset += colWidth + 2 * GROUP_PAD + 120;
+}
+
+const totalW = xOffset;
+const totalH = Math.max(...Object.values(layerBounds).map(b => b.y + b.h));
+
+// ─── SVG-Render ──────────────────────────────────────────────────────────────
+const viewport = document.getElementById('viewport');
+const tooltip = document.getElementById('tooltip');
+let activeLayer = 'all';
+
+function renderGroups() {
+  for (const g of groupBounds) {
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', g.x);
+    rect.setAttribute('y', g.y);
+    rect.setAttribute('width', g.w);
+    rect.setAttribute('height', g.h);
+    rect.setAttribute('rx', 8);
+    rect.setAttribute('class', 'group-bg');
+    rect.dataset.layer = g.layer;
+    viewport.appendChild(rect);
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', g.x + GROUP_PAD);
+    label.setAttribute('y', g.y + 16);
+    label.setAttribute('class', 'group-label');
+    label.textContent = g.group;
+    label.dataset.layer = g.layer;
+    viewport.appendChild(label);
+  }
+}
+
+function renderEdges() {
+  for (const e of DATA.edges) {
+    const a = positions[e.from], b = positions[e.to];
+    if (!a || !b) continue;
+    const x1 = a.x + a.w / 2, y1 = a.y + a.h / 2;
+    const x2 = b.x + b.w / 2, y2 = b.y + b.h / 2;
+    // Bezier-Kurve mit horizontalem Kontroll-Punkt
+    const dx = Math.abs(x2 - x1) * 0.5;
+    const d = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('class', `edge ${e.kind}`);
+    path.dataset.from = e.from;
+    path.dataset.to = e.to;
+    path.dataset.layerFrom = DATA.modules.find(m => m.id === e.from)?.layer;
+    path.dataset.layerTo = DATA.modules.find(m => m.id === e.to)?.layer;
+    viewport.appendChild(path);
+  }
+}
+
+function renderNodes() {
+  for (const m of DATA.modules) {
+    const p = positions[m.id];
+    if (!p) continue;
+    const layer = DATA.layers.find(l => l.id === m.layer);
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'node');
+    g.setAttribute('transform', `translate(${p.x}, ${p.y})`);
+    g.dataset.id = m.id;
+    g.dataset.layer = m.layer;
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('width', p.w);
+    rect.setAttribute('height', p.h);
+    rect.setAttribute('rx', 6);
+    rect.setAttribute('fill', layer.color);
+    rect.setAttribute('stroke', '#1e293b');
+    rect.setAttribute('stroke-width', '1');
+    g.appendChild(rect);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', p.w / 2);
+    text.setAttribute('y', p.h / 2 - 4);
+    text.setAttribute('text-anchor', 'middle');
+    text.textContent = m.label;
+    g.appendChild(text);
+
+    const sub = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    sub.setAttribute('x', p.w / 2);
+    sub.setAttribute('y', p.h / 2 + 10);
+    sub.setAttribute('text-anchor', 'middle');
+    sub.setAttribute('class', 'subtitle');
+    // Kürze purpose auf eine Zeile
+    const short = m.purpose.length > 40 ? m.purpose.slice(0, 38) + '…' : m.purpose;
+    sub.textContent = short;
+    g.appendChild(sub);
+
+    g.addEventListener('mouseenter', (ev) => showTooltip(ev, m));
+    g.addEventListener('mousemove', (ev) => positionTooltip(ev));
+    g.addEventListener('mouseleave', () => hideTooltip());
+    g.addEventListener('click', () => focusOnNode(m.id));
+    viewport.appendChild(g);
+  }
+}
+
+function showTooltip(ev, m) {
+  tooltip.innerHTML = `
+    <div class="tt-label">${m.label}</div>
+    <div class="tt-file">${m.file || ''}</div>
+    <div class="tt-purpose">${m.purpose}</div>
+  `;
+  tooltip.style.display = 'block';
+  positionTooltip(ev);
+}
+function positionTooltip(ev) {
+  const x = ev.clientX + 14;
+  const y = ev.clientY + 14;
+  tooltip.style.left = Math.min(x, window.innerWidth - 300) + 'px';
+  tooltip.style.top = Math.min(y, window.innerHeight - 100) + 'px';
+}
+function hideTooltip() {
+  tooltip.style.display = 'none';
+}
+
+// ─── Pan / Zoom ─────────────────────────────────────────────────────────────
+let viewX = 0, viewY = 0, scale = 0.65;
+const svg = document.getElementById('graph');
+function applyTransform() {
+  viewport.setAttribute('transform', `translate(${viewX}, ${viewY}) scale(${scale})`);
+}
+function fitView() {
+  const svgRect = svg.getBoundingClientRect();
+  const padX = 40, padY = 40;
+  const fitScale = Math.min(
+    (svgRect.width - 2 * padX) / totalW,
+    (svgRect.height - 2 * padY) / totalH,
+  );
+  scale = Math.max(0.15, Math.min(1.5, fitScale));
+  viewX = padX;
+  viewY = padY;
+  applyTransform();
+}
+let dragging = false, dragStart = null;
+svg.addEventListener('mousedown', (e) => {
+  if (e.target.closest('.node')) return;
+  dragging = true;
+  dragStart = { x: e.clientX - viewX, y: e.clientY - viewY };
+});
+window.addEventListener('mousemove', (e) => {
+  if (!dragging) return;
+  viewX = e.clientX - dragStart.x;
+  viewY = e.clientY - dragStart.y;
+  applyTransform();
+});
+window.addEventListener('mouseup', () => { dragging = false; });
+svg.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.1 : 0.9;
+  const newScale = Math.max(0.15, Math.min(3, scale * factor));
+  // zoom-zum-cursor
+  const svgRect = svg.getBoundingClientRect();
+  const cx = e.clientX - svgRect.left;
+  const cy = e.clientY - svgRect.top;
+  viewX = cx - (cx - viewX) * (newScale / scale);
+  viewY = cy - (cy - viewY) * (newScale / scale);
+  scale = newScale;
+  applyTransform();
+}, { passive: false });
+
+document.getElementById('btn-fit').addEventListener('click', fitView);
+document.getElementById('btn-zoom-in').addEventListener('click', () => { scale = Math.min(3, scale * 1.2); applyTransform(); });
+document.getElementById('btn-zoom-out').addEventListener('click', () => { scale = Math.max(0.15, scale / 1.2); applyTransform(); });
+
+// ─── Layer-Filter ───────────────────────────────────────────────────────────
+function applyLayerFilter() {
+  document.querySelectorAll('.node').forEach((n) => {
+    if (activeLayer === 'all' || n.dataset.layer === activeLayer) {
+      n.classList.remove('dimmed');
+    } else {
+      n.classList.add('dimmed');
+    }
+  });
+  document.querySelectorAll('.edge').forEach((e) => {
+    if (activeLayer === 'all' || e.dataset.layerFrom === activeLayer || e.dataset.layerTo === activeLayer) {
+      e.classList.remove('dimmed');
+    } else {
+      e.classList.add('dimmed');
+    }
+  });
+  document.querySelectorAll('rect.group-bg, text.group-label').forEach((n) => {
+    if (activeLayer === 'all' || n.dataset.layer === activeLayer) {
+      n.style.opacity = '';
+    } else {
+      n.style.opacity = '0.15';
+    }
+  });
+}
+document.querySelectorAll('.layer-btn').forEach((b) => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.layer-btn').forEach((x) => x.classList.remove('active'));
+    b.classList.add('active');
+    activeLayer = b.dataset.layer;
+    applyLayerFilter();
+  });
+});
+
+// ─── Focus-On-Node: highlight neighbors ─────────────────────────────────────
+function focusOnNode(id) {
+  const neighbors = new Set([id]);
+  for (const e of DATA.edges) {
+    if (e.from === id) neighbors.add(e.to);
+    if (e.to === id) neighbors.add(e.from);
+  }
+  document.querySelectorAll('.node').forEach((n) => {
+    n.classList.toggle('dimmed', !neighbors.has(n.dataset.id));
+  });
+  document.querySelectorAll('.edge').forEach((e) => {
+    e.classList.toggle('dimmed', !(e.dataset.from === id || e.dataset.to === id));
+  });
+}
+
+// ─── Flows-Sidebar ──────────────────────────────────────────────────────────
+const flowsList = document.getElementById('flows-list');
+for (const f of DATA.flows) {
+  const div = document.createElement('div');
+  div.className = 'flow';
+  div.innerHTML = `<div class="flow-name">${f.name}</div><ol>${f.steps.map(s => `<li>${s}</li>`).join('')}</ol>`;
+  flowsList.appendChild(div);
+}
+
+// ─── INIT ───────────────────────────────────────────────────────────────────
+renderGroups();
+renderEdges();
+renderNodes();
+fitView();
+</script>
+</body>
+</html>
