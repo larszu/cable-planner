@@ -568,6 +568,12 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
       if (!patched.layer) {
         patched = { ...patched, layer: detectLayerForConnector(patched.type) }
       }
+      // v7.9.112 / Issue #234 — Legacy labelHidden=true wird ersetzt
+      // durch labelPosition='none'. labelHidden bleibt aus Backward-
+      // Compat im Schema, wird aber nicht mehr aktiv genutzt.
+      if (patched.labelHidden === true && patched.labelPosition !== 'none') {
+        patched = { ...patched, labelPosition: 'none', labelHidden: undefined }
+      }
       return patched
     }),
     // v7.9.93 / #194 — moveContents-Default-Heal für alte Locations:
