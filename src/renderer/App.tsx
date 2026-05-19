@@ -853,7 +853,7 @@ export default function App() {
       <ExportDialog
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
-        onExportPdf={(theme) => handleExportPdf(theme)}
+        onExportPdf={(theme, vector) => handleExportPdf(theme, vector ?? false)}
         onPrintPdf={(theme) => handlePrintPdf(theme)}
         onExportImage={(format) => handleExportImage(format)}
       />
