@@ -12,6 +12,11 @@ import { Bonjour, type Service } from 'bonjour-service'
  */
 let atem: Atem | null = null
 let connectedIp: string | null = null
+// v7.9.93 — Connect-Lock gegen Race wenn der User schnell zwei IPs
+// hintereinander connect't. Ohne Lock konnten zwei parallele atem.connect()
+// im selben Modul-Scope laufen — alte Listener feuerten auf neue atem-
+// Instanz oder umgekehrt.
+let connectInFlight: Promise<unknown> | null = null
 
 const events: string[] = []
 const pushEvent = (line: string) => {
@@ -25,8 +30,13 @@ const pushEvent = (line: string) => {
 
 const ensureDisconnected = async () => {
   if (atem) {
+    const old = atem
+    // v7.9.93 — Listener vor disconnect() abreißen damit late-firing
+    // events nicht mehr in pushEvent() landen + GC den alten Object
+    // sauber abräumt.
+    try { old.removeAllListeners() } catch { /* ignore */ }
     try {
-      await atem.disconnect()
+      await old.disconnect()
     } catch {
       /* ignore */
     }
@@ -91,44 +101,77 @@ const summarizeState = () => {
 
 export const registerAtemIpc = () => {
   ipcMain.handle('atem:connect', async (_event, ip: string) => {
-    await ensureDisconnected()
     if (!ip || typeof ip !== 'string') {
       throw new Error('ATEM IP address is required.')
     }
-    atem = new Atem()
-    connectedIp = ip
+    // v7.9.93 — Serialisiere connect-Aufrufe damit zwei parallele
+    // connect-IPC-Calls (User klickt schnell mit zwei IPs) nicht
+    // race-en. Der zweite Call wartet bis der erste durch ist.
+    if (connectInFlight) {
+      try { await connectInFlight } catch { /* der erste darf scheitern */ }
+    }
+    const runConnect = async (): Promise<{ ip: string; summary: ReturnType<typeof summarizeState> }> => {
+      await ensureDisconnected()
+      const localAtem = new Atem()
+      atem = localAtem
+      connectedIp = ip
 
-    atem.on('connected', () => pushEvent(`Connected to ATEM at ${ip}`))
-    atem.on('disconnected', () => pushEvent(`Disconnected from ATEM at ${ip}`))
-    atem.on('error', (msg: string) => pushEvent(`ATEM error: ${msg}`))
-    atem.on('info', (msg: string) => pushEvent(`ATEM: ${msg}`))
+      // v7.9.93 — Event-Wait via Promise statt Polling-Loop. Wir
+      // wrappen 'connected' / 'error' / Timeout in race().
+      const handshake = new Promise<void>((resolve, reject) => {
+        const onConnected = () => {
+          cleanupOnce()
+          resolve()
+        }
+        const onError = (msg: string) => {
+          cleanupOnce()
+          reject(new Error(msg))
+        }
+        const cleanupOnce = () => {
+          localAtem.off('connected', onConnected)
+          localAtem.off('error', onError)
+        }
+        localAtem.once('connected', onConnected)
+        localAtem.once('error', onError)
+        setTimeout(() => {
+          cleanupOnce()
+          reject(new Error('Handshake timeout (5s)'))
+        }, 5000)
+      })
 
+      // Permanente Listener für UI-Events.
+      localAtem.on('connected', () => pushEvent(`Connected to ATEM at ${ip}`))
+      localAtem.on('disconnected', () => pushEvent(`Disconnected from ATEM at ${ip}`))
+      localAtem.on('error', (msg: string) => pushEvent(`ATEM error: ${msg}`))
+      localAtem.on('info', (msg: string) => pushEvent(`ATEM: ${msg}`))
+
+      try {
+        await localAtem.connect(ip)
+        await handshake
+      } catch (err) {
+        // Wenn dieser Connect noch der "aktuelle" ist → aufräumen.
+        // Bei concurrent-replace könnte atem schon auf ein anderes Objekt
+        // zeigen — dann nichts kaputt machen.
+        if (atem === localAtem) await ensureDisconnected()
+        throw new Error(
+          `Could not connect to ATEM at ${ip}: ${err instanceof Error ? err.message : String(err)}`,
+        )
+      }
+
+      if (atem !== localAtem || localAtem.status !== AtemConnectionStatus.CONNECTED) {
+        if (atem === localAtem) await ensureDisconnected()
+        throw new Error(`ATEM at ${ip} did not finish handshake within 5s.`)
+      }
+
+      return { ip, summary: summarizeState() }
+    }
+    const promise = runConnect()
+    connectInFlight = promise
     try {
-      await atem.connect(ip)
-    } catch (err) {
-      await ensureDisconnected()
-      throw new Error(
-        `Could not connect to ATEM at ${ip}: ${err instanceof Error ? err.message : String(err)}`,
-      )
+      return await promise
+    } finally {
+      if (connectInFlight === promise) connectInFlight = null
     }
-
-    // Wait briefly for initial state sync (the lib emits 'connected' once
-    // the initial protocol handshake completes).
-    const start = Date.now()
-    while (
-      atem &&
-      atem.status !== AtemConnectionStatus.CONNECTED &&
-      Date.now() - start < 5000
-    ) {
-      await new Promise((resolve) => setTimeout(resolve, 100))
-    }
-
-    if (!atem || atem.status !== AtemConnectionStatus.CONNECTED) {
-      await ensureDisconnected()
-      throw new Error(`ATEM at ${ip} did not finish handshake within 5s.`)
-    }
-
-    return { ip, summary: summarizeState() }
   })
 
   ipcMain.handle('atem:disconnect', async () => {

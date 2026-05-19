@@ -297,7 +297,7 @@ const DATA = {
     { "id": "ipc-project",       "label": "Project IPC",     "layer": "main",     "group": "IPC",        "purpose": "Save/Open .json/.cpviewer, recent. v7.9.91: atomic-write + .bak", "file": "src/main/ipc/projectIpc.ts" },
     { "id": "ipc-library",       "label": "Library IPC",     "layer": "main",     "group": "IPC",        "purpose": "Scan .cpdevice/.cpgroup folders, sync items", "file": "src/main/ipc/libraryIpc.ts" },
     { "id": "ipc-rentman",       "label": "Rentman IPC",     "layer": "main",     "group": "IPC",        "purpose": "Fetch projects/equipment, add cables", "file": "src/main/ipc/rentmanIpc.ts" },
-    { "id": "ipc-atem",          "label": "ATEM IPC",        "layer": "main",     "group": "IPC",        "purpose": "Connect/configure ATEM switchers via UDP", "file": "src/main/ipc/atemIpc.ts" },
+    { "id": "ipc-atem",          "label": "ATEM IPC",        "layer": "main",     "group": "IPC",        "purpose": "Connect/configure ATEM switchers. v7.9.94: connect-lock gegen parallele Calls + Promise-basierter Handshake-Wait + Listener-removeAll bei disconnect.", "file": "src/main/ipc/atemIpc.ts" },
     { "id": "ipc-graphml",       "label": "GraphML IPC",     "layer": "main",     "group": "IPC",        "purpose": "Parse yEd-Diagramme, extract Equipment", "file": "src/main/ipc/graphmlIpc.ts" },
     { "id": "ipc-mobile-share",  "label": "Mobile Share IPC","layer": "main",     "group": "IPC",        "purpose": "Start/Stop Mobile-Server für Tablet/Phone-Sync", "file": "src/main/ipc/mobileShareIpc.ts" },
     { "id": "ipc-credentials",   "label": "Credentials IPC", "layer": "main",     "group": "IPC",        "purpose": "Rentman-Token sicher im OS-Keychain", "file": "src/main/ipc/credentialsIpc.ts" },
