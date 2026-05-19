@@ -26,12 +26,28 @@ import type { Cable } from '../../types/cable'
 export type ExportFormat = 'pdf' | 'png' | 'jpeg'
 type Section = 'plan' | 'patch' | 'bom'
 
+/** v7.9.103 — Page-Size-Optionen fuer den Vektor-PDF-Pfad. */
+export type PdfPageSizeOpt =
+  | 'auto'
+  | 'original'
+  | 'a4'
+  | 'a3'
+  | 'a2'
+  | 'a1'
+  | 'a0'
+  | 'a0plus'
+
 interface ExportDialogProps {
   open: boolean
   onClose: () => void
   /** Triggert PDF-Download des Plans. v7.9.97: optional `vector`-Flag
-   *  schaltet auf den Chromium-printToPDF-Pfad (Beta). */
-  onExportPdf: (theme: 'dark' | 'light', vector?: boolean) => Promise<void> | void
+   *  schaltet auf den Chromium-printToPDF-Pfad (Beta).
+   *  v7.9.103: optional `pageSize` waehlt das Plotter-Format. */
+  onExportPdf: (
+    theme: 'dark' | 'light',
+    vector?: boolean,
+    pageSize?: PdfPageSizeOpt,
+  ) => Promise<void> | void
   /** Triggert OS-Druckdialog mit dem Plan-PDF. */
   onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
   /** Triggert PNG/JPEG-Download des Plans. */
@@ -145,7 +161,11 @@ const PlanSection = ({
   onExportImage,
   onClose,
 }: {
-  onExportPdf: (theme: 'dark' | 'light', vector?: boolean) => Promise<void> | void
+  onExportPdf: (
+    theme: 'dark' | 'light',
+    vector?: boolean,
+    pageSize?: PdfPageSizeOpt,
+  ) => Promise<void> | void
   onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
   onExportImage: (format: 'png' | 'jpeg') => Promise<void> | void
   onClose: () => void
@@ -156,13 +176,17 @@ const PlanSection = ({
   // v7.9.97 — Beta-Toggle: Vektor-PDF via Chromium printToPDF.
   // Default off, damit der Raster-Pfad unveraendert bleibt.
   const [pdfVector, setPdfVector] = useState(false)
+  // v7.9.103 — Plotter-Page-Size fuer den Vektor-Pfad. Default 'auto'
+  // = A0-Cap fuer Viewer-Kompatibilitaet. 'original' = volle Groesse
+  // fuer Plotter-Drucke.
+  const [pdfPageSize, setPdfPageSize] = useState<PdfPageSizeOpt>('auto')
   const [busy, setBusy] = useState(false)
   const projectName = useProjectStore((s) => s.project.metadata.name)
 
   const handleExport = async () => {
     setBusy(true)
     try {
-      if (format === 'pdf') await onExportPdf(pdfTheme, pdfVector)
+      if (format === 'pdf') await onExportPdf(pdfTheme, pdfVector, pdfPageSize)
       else await onExportImage(format)
       onClose()
     } finally {
@@ -286,6 +310,34 @@ const PlanSection = ({
               </span>
             </label>
           </fieldset>
+          {/* v7.9.103 — Plotter-Page-Size nur bei Vektor relevant. Bei
+              Raster ist das fix-bestimmt durch die natural Canvas-Groesse. */}
+          {pdfVector && (
+            <fieldset className="space-y-1">
+              <legend className="mb-1 text-xs font-semibold text-slate-300">
+                Page-Size
+              </legend>
+              <select
+                value={pdfPageSize}
+                onChange={(e) => setPdfPageSize(e.target.value as PdfPageSizeOpt)}
+                className="w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100"
+              >
+                <option value="auto">Auto — A0 Landscape (kompatibel mit allen Viewern)</option>
+                <option value="a4">A4 Landscape (297×210 mm)</option>
+                <option value="a3">A3 Landscape (420×297 mm)</option>
+                <option value="a2">A2 Landscape (594×420 mm)</option>
+                <option value="a1">A1 Landscape (841×594 mm)</option>
+                <option value="a0">A0 Landscape (1189×841 mm)</option>
+                <option value="a0plus">A0+ Plotter (1682×1189 mm)</option>
+                <option value="original">Original — volle Canvas-Groesse fuer Plotter</option>
+              </select>
+              <p className="text-[10px] text-slate-500">
+                {pdfPageSize === 'original'
+                  ? 'Achtung: Edge / Preview zeigen Pages über A0 manchmal weiss an. Acrobat + Plotter-Software drucken trotzdem.'
+                  : 'Canvas wird vektoriell auf die Page-Groesse skaliert. Text bleibt scharf.'}
+              </p>
+            </fieldset>
+          )}
         </>
       )}
 

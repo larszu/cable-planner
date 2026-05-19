@@ -544,6 +544,7 @@ export default function App() {
   const handleExportPdf = async (
     theme: 'dark' | 'light' = canvasTheme,
     vector = false,
+    pageSize: 'auto' | 'original' | 'a4' | 'a3' | 'a2' | 'a1' | 'a0' | 'a0plus' = 'auto',
   ) => {
     setPdfExportThemeOverride(theme)
     setPdfProgress({ active: true, phase: 'Starte…' })
@@ -553,12 +554,15 @@ export default function App() {
     try {
       if (vector) {
         // v7.9.97 — Vektor-Pfad: Chromium printToPDF, Text bleibt Text.
+        // v7.9.103 — pageSize: Auto = A0-Cap fuer Viewer-Kompat,
+        // Original = volle Canvas-Groesse fuer Plotter.
         await exportCanvasToPdfVector(project.metadata.name, project.metadata, {
           backgroundTheme: theme,
           bgVariant: exportBgVariant,
           gridSize: exportGridSize,
           bgOpacity: exportBgOpacity,
           customPalette: exportCustomPalette,
+          pageSize,
           onProgress: (phase, detail) =>
             setPdfProgress({ active: true, phase, detail }),
         })
@@ -853,7 +857,9 @@ export default function App() {
       <ExportDialog
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
-        onExportPdf={(theme, vector) => handleExportPdf(theme, vector ?? false)}
+        onExportPdf={(theme, vector, pageSize) =>
+          handleExportPdf(theme, vector ?? false, pageSize ?? 'auto')
+        }
         onPrintPdf={(theme) => handlePrintPdf(theme)}
         onExportImage={(format) => handleExportImage(format)}
       />
