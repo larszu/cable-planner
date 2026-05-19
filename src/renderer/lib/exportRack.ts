@@ -16,6 +16,7 @@
 import { toPng } from 'html-to-image'
 import * as THREE from 'three'
 import { STLExporter } from 'three-stdlib'
+import { buildExportFilenameWithSuffix } from './exportFilename'
 
 const downloadFile = (filename: string, blob: Blob): void => {
   const url = URL.createObjectURL(blob)
@@ -31,8 +32,7 @@ const downloadFile = (filename: string, blob: Blob): void => {
   }, 100)
 }
 
-const sanitizeFilename = (name: string): string =>
-  name.replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '_').slice(0, 80) || 'rack'
+// v7.9.116 — sanitizeFilename entfernt, buildExportFilename uebernimmt das.
 
 // ── 1) 2D Rack-Panel-Export ────────────────────────────────────────────
 
@@ -49,7 +49,8 @@ export const exportRack2DAsPng = async (
   // dataUri → Blob
   const res = await fetch(dataUri)
   const blob = await res.blob()
-  downloadFile(`${sanitizeFilename(rackName)}_2D.png`, blob)
+  // v7.9.116 — Einheitlicher Stempel.
+  downloadFile(buildExportFilenameWithSuffix(rackName, 'rack_2D', 'png'), blob)
 }
 
 // ── 2) 3D Rack-Canvas-Export aus mehreren Perspektiven ─────────────────
@@ -143,10 +144,10 @@ export const exportRack3DAsPngs = async (
   opts: Rack3DExportOpts,
 ): Promise<void> => {
   const perspectives = opts.perspectives ?? ['front', 'rear', 'iso', 'top']
-  const safeName = sanitizeFilename(opts.rackName)
   for (const p of perspectives) {
     const blob = await exportRack3DPerspective(gl, scene, camera, p, opts)
-    downloadFile(`${safeName}_3D_${p}.png`, blob)
+    // v7.9.116 — Einheitlicher Stempel.
+    downloadFile(buildExportFilenameWithSuffix(opts.rackName, `rack_3D_${p}`, 'png'), blob)
     // kurze Pause damit der Browser den nächsten Download nicht blockt.
     await new Promise((r) => setTimeout(r, 200))
   }
@@ -165,7 +166,8 @@ export const exportRackAsStl = (
   const blob = result instanceof DataView
     ? new Blob([result.buffer as ArrayBuffer], { type: 'application/octet-stream' })
     : new Blob([result], { type: 'model/stl' })
-  downloadFile(`${sanitizeFilename(rackName)}.stl`, blob)
+  // v7.9.116 — Einheitlicher Stempel.
+  downloadFile(buildExportFilenameWithSuffix(rackName, 'rack', 'stl'), blob)
 }
 
 // ── 4) .cpgroup Download mit allen inline-Assets ───────────────────────

@@ -15,6 +15,7 @@ import {
   parseIntercomMatrixXlsx,
 } from '../../lib/intercomMatrixXlsx'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 
 interface Props {
   onClose: () => void
@@ -142,7 +143,8 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
   const handleXlsxExport = () => {
     const buffer = exportIntercomMatrixXlsx(config)
     downloadBlob(
-      `${config.systemName || 'intercom'}-IntercomMatrix.xlsx`,
+      // v7.9.116 — Einheitlicher Stempel.
+      buildExportFilenameWithSuffix(config.systemName || 'intercom', 'IntercomMatrix', 'xlsx'),
       buffer,
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     )
@@ -213,8 +215,8 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
   const handleExport = () => {
     updateGreenGoConfig(config)
-    const safeName = (config.systemName || 'GreenGo').replace(/[^\w.-]+/g, '_')
-    downloadFile(`${safeName}.gg5`, buildGg5File(config))
+    // v7.9.116 — Einheitlicher Stempel, gg5-Endung beibehalten.
+    downloadFile(buildExportFilenameWithSuffix(config.systemName || 'GreenGo', 'config', 'gg5'), buildGg5File(config))
   }
 
   // ── GreenGo device filter (equipment with 'greengo' or 'intercom' in category/name) ──

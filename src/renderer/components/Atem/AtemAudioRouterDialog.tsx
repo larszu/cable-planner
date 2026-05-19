@@ -3,6 +3,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { LIMITS } from '../../lib/layoutConstants'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { infoDialog } from '../../lib/infoDialog'
@@ -132,7 +133,8 @@ export const AtemAudioRouterDialog = () => {
     try {
       const xml = serializeAudioConfigXml(draft)
       downloadBlob(
-        `${equipment.name}-AudioConfig.xml`,
+        // v7.9.116 — Einheitlicher Stempel.
+        buildExportFilenameWithSuffix(equipment.name, 'AudioConfig', 'xml'),
         xml,
         'application/xml',
       )
