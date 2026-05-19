@@ -203,6 +203,14 @@ interface PersistedUiState {
    *  den User-Namen. Spart Copy-Paste beim Umstecken. Default off
    *  damit Reconnect nicht versehentlich Labels umbenennt. */
   swapLabelsOnReconnect: boolean
+  /** v7.9.125 — Wenn aktiv (default), folgt Cable.type automatisch dem
+   *  ConnectorType der angeschlossenen Ports: aendert der User in den
+   *  Geraete-Eigenschaften den Connector eines Ports (z.B. BNC -> XLR),
+   *  uebernehmen verbundene Kabel den neuen Typ. Gleiches gilt fuer
+   *  Reconnect auf einen Port mit anderem ConnectorType. Cables mit
+   *  needsConverter=true bleiben unberuehrt (User hat absichtlich einen
+   *  abweichenden Typ gewaehlt). */
+  inheritCableTypeFromPort: boolean
   /** Issue #53: when two orthogonal cables share an X- or Y-midline,
    *  shift one of them by a small offset so they're parallel instead of
    *  perfectly overlapping. */
@@ -276,6 +284,7 @@ const defaults: PersistedUiState = {
   cableBumps: false,
   hideAllCableLabels: false,
   swapLabelsOnReconnect: false,
+  inheritCableTypeFromPort: true,
   orthogonalCollisionShift: false,
   hotkeys: {
     undo: 'Ctrl+Z',
@@ -578,6 +587,7 @@ interface UiState extends PersistedUiState {
   setCableBumps: (value: boolean) => void
   setHideAllCableLabels: (value: boolean) => void
   setSwapLabelsOnReconnect: (value: boolean) => void
+  setInheritCableTypeFromPort: (value: boolean) => void
   setOrthogonalCollisionShift: (value: boolean) => void
   setHotkey: (action: string, combo: string) => void
   resetHotkeys: () => void
@@ -786,6 +796,7 @@ const applyPatch =
       cableSpecOverrides: state.cableSpecOverrides,
       deviceConfigLibrary: state.deviceConfigLibrary,
       cableBumps: state.cableBumps,
+      inheritCableTypeFromPort: state.inheritCableTypeFromPort,
       orthogonalCollisionShift: state.orthogonalCollisionShift,
       hotkeys: state.hotkeys,
       libraryFloating: state.libraryFloating,
@@ -972,6 +983,7 @@ export const useUiStore = create<UiState>((set) => ({
   setCableBumps: (value) => set(applyPatch({ cableBumps: value })),
   setHideAllCableLabels: (value) => set(applyPatch({ hideAllCableLabels: value })),
   setSwapLabelsOnReconnect: (value) => set(applyPatch({ swapLabelsOnReconnect: value })),
+  setInheritCableTypeFromPort: (value) => set(applyPatch({ inheritCableTypeFromPort: value })),
   setOrthogonalCollisionShift: (value) => set(applyPatch({ orthogonalCollisionShift: value })),
   setHotkey: (action, combo) =>
     set((state) => applyPatch({ hotkeys: { ...state.hotkeys, [action]: combo } })(state)),
