@@ -130,6 +130,16 @@ contextBridge.exposeInMainWorld('cablePlanner', {
      *  manchen Fällen kaputte Dateien schreiben lässt. */
     pdfBytes: (bytes: Uint8Array) =>
       ipcRenderer.invoke('print:pdf-bytes', bytes) as Promise<boolean>,
+    /** v7.9.97 — Vektor-PDF: Renderer schickt fertiges HTML mit
+     *  foreignObject-SVG-Canvas + Page-Size in microns, Main rendert
+     *  via Chromium printToPDF. Liefert die PDF-Bytes zurück. Text
+     *  bleibt vektoriell und durchsuchbar. */
+    canvasPdfVector: (params: {
+      html: string
+      widthMicrons: number
+      heightMicrons: number
+    }) =>
+      ipcRenderer.invoke('canvas:export-pdf-vector', params) as Promise<Uint8Array>,
   },
   library: {
     /** v7.9.33 — Zentraler Library-Ordner (userData/library/). Jedes

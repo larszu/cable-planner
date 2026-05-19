@@ -42,6 +42,7 @@ import { useProject } from './hooks/useProject'
 import { useRentman } from './hooks/useRentman'
 import { cablePlannerApi, hasDesktopBridge } from './lib/bridge'
 import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
+import { exportCanvasToPdfVector } from './lib/exportPdfVector'
 import { printPdfBlob } from './lib/printPdfBlob'
 import { exportCanvasToImage } from './lib/exportImage'
 import { useProjectStore } from './store/projectStore'
@@ -129,6 +130,9 @@ export default function App() {
   const [welcomeOpen, setWelcomeOpen] = useState(false)
   const [pdfExportOpen, setPdfExportOpen] = useState(false)
   const [pdfTheme, setPdfTheme] = useState<'dark' | 'light'>('light')
+  // v7.9.97 — Beta-Option: Vektor-PDF statt Raster. Aus per Default,
+  // damit alle bestehenden Workflows unveraendert weiterlaufen.
+  const [pdfVectorMode, setPdfVectorMode] = useState(false)
   // v7.9.0 / Issue #110 — unified export dialog
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
   const [printDialogOpen, setPrintDialogOpen] = useState(false)
@@ -537,22 +541,38 @@ export default function App() {
     })
   }
 
-  const handleExportPdf = async (theme: 'dark' | 'light' = canvasTheme) => {
+  const handleExportPdf = async (
+    theme: 'dark' | 'light' = canvasTheme,
+    vector = false,
+  ) => {
     setPdfExportThemeOverride(theme)
     setPdfProgress({ active: true, phase: 'Starte…' })
     await new Promise<void>((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
     )
     try {
-      await exportCanvasToPdf(project.metadata.name, project.metadata, 0.85, {
-        backgroundTheme: theme,
-        bgVariant: exportBgVariant,
-        gridSize: exportGridSize,
-        bgOpacity: exportBgOpacity,
-        customPalette: exportCustomPalette,
-        onProgress: (phase, detail) =>
-          setPdfProgress({ active: true, phase, detail }),
-      })
+      if (vector) {
+        // v7.9.97 — Vektor-Pfad: Chromium printToPDF, Text bleibt Text.
+        await exportCanvasToPdfVector(project.metadata.name, project.metadata, {
+          backgroundTheme: theme,
+          bgVariant: exportBgVariant,
+          gridSize: exportGridSize,
+          bgOpacity: exportBgOpacity,
+          customPalette: exportCustomPalette,
+          onProgress: (phase, detail) =>
+            setPdfProgress({ active: true, phase, detail }),
+        })
+      } else {
+        await exportCanvasToPdf(project.metadata.name, project.metadata, 0.85, {
+          backgroundTheme: theme,
+          bgVariant: exportBgVariant,
+          gridSize: exportGridSize,
+          bgOpacity: exportBgOpacity,
+          customPalette: exportCustomPalette,
+          onProgress: (phase, detail) =>
+            setPdfProgress({ active: true, phase, detail }),
+        })
+      }
     } catch (error) {
       console.error('PDF export failed:', error)
       await infoDialog('PDF-Export fehlgeschlagen', {
@@ -857,10 +877,12 @@ export default function App() {
         open={pdfExportOpen}
         theme={pdfTheme}
         onThemeChange={setPdfTheme}
+        vector={pdfVectorMode}
+        onVectorChange={setPdfVectorMode}
         onClose={() => setPdfExportOpen(false)}
         onExport={() => {
           setPdfExportOpen(false)
-          void handleExportPdf(pdfTheme)
+          void handleExportPdf(pdfTheme, pdfVectorMode)
         }}
       />
 
@@ -911,6 +933,8 @@ interface PdfExportDialogProps {
   open: boolean
   theme: 'dark' | 'light'
   onThemeChange: (theme: 'dark' | 'light') => void
+  vector: boolean
+  onVectorChange: (vector: boolean) => void
   onClose: () => void
   onExport: () => void
 }
@@ -919,6 +943,8 @@ const PdfExportDialog = ({
   open,
   theme,
   onThemeChange,
+  vector,
+  onVectorChange,
   onClose,
   onExport,
 }: PdfExportDialogProps) => {
@@ -949,6 +975,45 @@ const PdfExportDialog = ({
                 onChange={() => onThemeChange('dark')}
               />
               Dunkel
+            </label>
+          </fieldset>
+          {/* v7.9.97 — Vektor-PDF Beta. Default aus, damit alle
+              bestehenden Workflows die bekannte Raster-Pipeline
+              nutzen. Wenn an: Text bleibt im PDF als echter Text,
+              keine Pixelung beim Zoom. */}
+          <fieldset className="rounded border border-slate-700 p-3">
+            <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
+              Render-Modus
+            </legend>
+            <label className="mb-2 flex cursor-pointer items-start gap-2 text-xs text-slate-200">
+              <input
+                type="radio"
+                name="pdf-render-mode"
+                checked={!vector}
+                onChange={() => onVectorChange(false)}
+              />
+              <span>
+                Raster (klassisch)
+                <span className="block text-[10px] text-slate-500">
+                  JPEG-Snapshot des Canvas. Zuverlässig, aber unscharf bei großem
+                  Zoom in der PDF.
+                </span>
+              </span>
+            </label>
+            <label className="flex cursor-pointer items-start gap-2 text-xs text-slate-200">
+              <input
+                type="radio"
+                name="pdf-render-mode"
+                checked={vector}
+                onChange={() => onVectorChange(true)}
+              />
+              <span>
+                Vektor (Beta)
+                <span className="block text-[10px] text-slate-500">
+                  Chromium printToPDF. Text bleibt selektierbar &amp; scharf bei
+                  jedem Zoom. Kleinere Dateigröße.
+                </span>
+              </span>
             </label>
           </fieldset>
         </div>
