@@ -1826,7 +1826,57 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                               const x = clamp(event.clientX - host.left, 0, host.width)
                               const renderedOffsetMm = (x - railInsetLocal) / mmToPxLocal - rackTpl.widthMm / 2
                               const maxOffset = Math.max(0, RACK_MOUNT_WIDTH_MM - rackTpl.widthMm)
-                              const clampedRendered = clamp(renderedOffsetMm, 0, maxOffset)
+                              let clampedRendered = clamp(renderedOffsetMm, 0, maxOffset)
+
+                              // v7.9.114 / Issue #229 — Soft edge-snap an
+                              // anderen Shelf-Devices auf demselben oder
+                              // ueberlappenden HE-Bereich. Threshold ~5mm
+                              // (~10 px bei typischem Zoom): wenn die
+                              // Drag-Position nah an einer anderen
+                              // Geraete-Kante ist (links/rechts/aligned-
+                              // left/aligned-right), snappt sie ein.
+                              // 'Sehr schwach' im Issue-Sinne — der
+                              // Threshold ist klein genug, dass weiteres
+                              // Schieben die Snap-Distanz schnell ueber-
+                              // windet.
+                              const SNAP_MM = 5
+                              const myWidth = rackTpl.widthMm
+                              const candidates: number[] = [0, maxOffset]
+                              for (const other of draft.placements) {
+                                if (other.id === placement.id) continue
+                                const otherTpl = templates.find(
+                                  (t) => t.name === other.templateName,
+                                )
+                                if (!otherTpl?.widthMm) continue
+                                // Same-row check: HE-Ranges ueberlappen?
+                                const myEnd = nextStart + placement.rackUnits
+                                const otherEnd = other.startUnit + other.rackUnits
+                                const overlapping =
+                                  !(myEnd <= other.startUnit || otherEnd <= nextStart)
+                                if (!overlapping) continue
+                                const otherLeft = other.shelfOffsetX ?? 0
+                                const otherRight = otherLeft + otherTpl.widthMm
+                                // Snap-Targets fuer mein left-edge:
+                                //   align left edges: otherLeft
+                                //   stack right of other: otherRight
+                                //   stack left of other: otherLeft - myWidth
+                                //   align right edges: otherRight - myWidth
+                                candidates.push(
+                                  otherLeft,
+                                  otherRight,
+                                  otherLeft - myWidth,
+                                  otherRight - myWidth,
+                                )
+                              }
+                              let bestDelta = SNAP_MM
+                              for (const target of candidates) {
+                                const clamped = clamp(target, 0, maxOffset)
+                                const delta = Math.abs(clampedRendered - clamped)
+                                if (delta < bestDelta) {
+                                  bestDelta = delta
+                                  clampedRendered = clamped
+                                }
+                              }
                               // v7.9.87 / #204 — In der Rear-Ansicht wird
                               // der Render-Offset gespiegelt; beim Drag
                               // dort müssen wir die Spiegelung umkehren
