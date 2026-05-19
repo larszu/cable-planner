@@ -52,6 +52,13 @@ export interface RouteCableArgs {
   obstacles: PixelRect[]
   sourceEquipmentId: string
   targetEquipmentId: string
+  /** v7.9.118 — Padding in Grid-Zellen um jedes Hindernis. Default 2
+   *  (= 40 px) — angenehmer Abstand im Haupt-Canvas. In dichten Racks
+   *  (mode='rack'), wo Geraete vertikal direkt aufeinander gestapelt
+   *  sind, sperrt das den Korridor zwischen zwei benachbarten Geraeten
+   *  komplett → A* loopt um das ganze Rack. Caller darf den Wert
+   *  reduzieren (z.B. 0) um dichte Routen zuzulassen. */
+  obstaclePadCells?: number
 }
 
 /** v7.9.32 — Sichtbare Lücke um jedes Hindernis. 2 Grid-Cells = 40 px. */
@@ -102,11 +109,17 @@ export const routeCableWithAStar = (
   // v7.9.37 — ALLE Devices kommen mit Padding als Hard-Obstacles rein,
   // inklusive Source und Target. Damit kann A* den Pfad nicht mehr durch
   // den eigenen Source/Target-Body optimieren.
-  const obstacles: Rect[] = args.obstacles.map((r) => inflate(r, OBSTACLE_PAD_PX))
+  // v7.9.118 — Padding-Zellen ueberschreibbar fuer Rack-Mode (default 2).
+  const padCells = typeof args.obstaclePadCells === 'number' && args.obstaclePadCells >= 0
+    ? args.obstaclePadCells
+    : OBSTACLE_PAD_CELLS
+  const padPx = padCells * CELL_SIZE
+  const obstacles: Rect[] = args.obstacles.map((r) => inflate(r, padPx))
 
   // Stub-Distanz: muss past dem eigenen Padding liegen, sonst sitzt
   // der A*-Startpunkt im blockierten Padding-Bereich fest.
-  const stubCells = OBSTACLE_PAD_CELLS + 1
+  // Mind. 1 damit der Handle nicht unmittelbar im Padding-Bereich endet.
+  const stubCells = Math.max(1, padCells + 1)
 
   // Korridor force-open: vom Handle nach außen durch das eigene Padding,
   // damit der gerenderte erste Segment (Handle → erstes Waypoint = Stub)

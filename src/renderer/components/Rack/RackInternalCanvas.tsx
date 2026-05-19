@@ -30,6 +30,7 @@ import {
   useCanvasProjectStore,
 } from '../../store/projectStoreContext'
 import { createProjectStoreInstance } from '../../store/projectStore'
+import { routeCable } from '../../lib/canvasViewport'
 import type {
   EquipmentItem,
   EquipmentTemplate,
@@ -327,6 +328,22 @@ export const RackInternalCanvas = ({
           length: 0.5,
           color: '#64748b',
           notes: '',
+        })
+        // v7.9.118 / Issue #223 — Auto-Route via A* fuer neu angelegtes
+        // Kabel. Im Rack-Mode hat ReactFlow's Standard-L-Routing dazu
+        // gefuehrt dass mehrere Kabel sich ueberlappen / durcheinander
+        // laufen. A* mit padding=0 (siehe CanvasArea-Branch fuer
+        // mode='rack') findet sauberere Pfade, weicht Geraeten aus.
+        //
+        // Zwei requestAnimationFrame: der erste damit ReactFlow das
+        // neue Edge gerendert + die Node-Layouts gemessen hat, der
+        // zweite damit das Layout ueber den render-Loop stabil ist.
+        // Sonst hat A* keine validen Obstacle-Rects.
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const newCable = scratchStore.getState().project.cables.slice(-1)[0]
+            if (newCable) routeCable(newCable.id)
+          })
         })
       },
     })
