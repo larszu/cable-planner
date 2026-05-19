@@ -45,6 +45,7 @@ import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
 import { exportCanvasToPdfVector } from './lib/exportPdfVector'
 import { printPdfBlob } from './lib/printPdfBlob'
 import { exportCanvasToImage } from './lib/exportImage'
+import { connectorToCableType } from './lib/cableInheritance'
 import { useProjectStore } from './store/projectStore'
 import {
   scanLibraryFolder,
@@ -59,7 +60,7 @@ import { useUndoRedoShortcuts, projectHistory } from './store/projectHistory'
 import { useSettingsStore } from './store/settingsStore'
 import { useUiStore } from './store/uiStore'
 import { useHotkeys } from './lib/hotkeys'
-import type { Cable, CableType } from './types/cable'
+import type { Cable } from './types/cable'
 import { ALL_CONNECTOR_TYPES } from './types/equipment'
 import type { ConnectorType, EquipmentItem, Port } from './types/equipment'
 import type { ProjectMetadata } from './types/project'
@@ -1057,12 +1058,6 @@ interface CableDialogProps {
   ) => void
 }
 
-const cableTypeFromConnector = (c: ConnectorType | undefined): CableType => {
-  if (!c) return 'Custom'
-  if (c === 'DIN' || c === 'DisplayPort' || c === 'USB') return 'Custom'
-  return c as CableType
-}
-
 const CUSTOM_CABLE_SPEC_ID = '__custom__'
 
 const makeCustomCableSpec = (connectorType: ConnectorType, color: string): CableSpec => ({
@@ -1235,7 +1230,7 @@ const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onC
     }
     onCreate({
       name,
-      type: cableTypeFromConnector(specId === CUSTOM_CABLE_SPEC_ID ? customConnectorType : selected.connectorType),
+      type: connectorToCableType(specId === CUSTOM_CABLE_SPEC_ID ? customConnectorType : selected.connectorType),
       length,
       color,
       notes,
@@ -1642,7 +1637,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
       color,
       notes,
       cableSpecId: specId === CUSTOM_CABLE_SPEC_ID ? undefined : selected.id,
-      type: cableTypeFromConnector(specId === CUSTOM_CABLE_SPEC_ID ? customConnectorType : selected.connectorType),
+      type: connectorToCableType(specId === CUSTOM_CABLE_SPEC_ID ? customConnectorType : selected.connectorType),
       standard: specId === CUSTOM_CABLE_SPEC_ID ? customStandard : standard,
       fromEquipmentId,
       fromPortId,
