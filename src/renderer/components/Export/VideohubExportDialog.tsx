@@ -32,6 +32,7 @@ const downloadTextFile = (filename: string, content: string) =>
 
 export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShowMatrix }: Props) => {
   const equipment = useProjectStore((s) => s.project.equipment)
+  const cables = useProjectStore((s) => s.project.cables)
   const [deviceId, setDeviceId] = useState<string>(() => {
     if (preselectedDeviceId && equipment.some((e) => e.id === preselectedDeviceId)) {
       return preselectedDeviceId
@@ -61,6 +62,82 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
 
   const device = equipment.find((e) => e.id === deviceId)
   const preset = videohubPresets.find((p) => p.key === presetKey) ?? videohubPresets[0]
+
+  // v7.9.119 / Issue #237 — XP Smart Routing.
+  // Analysiert die Canvas-Kabel des selektierten Videohub-Devices:
+  //   inputConn[i]  → was haengt am Input i (Source-Device + Port)
+  //   outputConn[i] → was haengt am Output i (Destination-Device + Port)
+  // Wird in den Matrix-Labels angezeigt damit der User sieht 'aha
+  // Output 12 versorgt Monitor Buhne' beim Routing setzen.
+  const connections = useMemo(() => {
+    const inputConn = new Map<number, { sourceName: string; portName: string }>()
+    const outputConn = new Map<number, { destName: string; portName: string }>()
+    if (!device) return { inputConn, outputConn }
+    for (const c of cables) {
+      // Kabel endet AN diesem Videohub-Input
+      if (c.toEquipmentId === device.id) {
+        const idx = device.inputs.findIndex((p) => p.id === c.toPortId)
+        if (idx >= 0) {
+          const sourceEq = equipment.find((e) => e.id === c.fromEquipmentId)
+          const sourcePort = sourceEq?.outputs.find((p) => p.id === c.fromPortId)
+          inputConn.set(idx, {
+            sourceName: sourceEq?.name ?? '?',
+            portName: sourcePort?.name ?? '?',
+          })
+        }
+      }
+      // Kabel startet AN diesem Videohub-Output
+      if (c.fromEquipmentId === device.id) {
+        const idx = device.outputs.findIndex((p) => p.id === c.fromPortId)
+        if (idx >= 0) {
+          const destEq = equipment.find((e) => e.id === c.toEquipmentId)
+          const destPort = destEq?.inputs.find((p) => p.id === c.toPortId)
+          outputConn.set(idx, {
+            destName: destEq?.name ?? '?',
+            portName: destPort?.name ?? '?',
+          })
+        }
+      }
+    }
+    return { inputConn, outputConn }
+  }, [device, cables, equipment])
+
+  /** v7.9.119 / Issue #237 — Erzeugt einen Routing-Vorschlag basierend
+   *  auf den Canvas-Verbindungen. Heuristik:
+   *  1. Fuer jeden Output mit angeschlossener Destination: suche einen
+   *     Input dessen Source-Geraet einen Token (≥2 Zeichen) mit dem
+   *     Destination-Geraet teilt. So matched z.B. 'Monitor Buhne'
+   *     mit 'Cam Buhne Hauptseite' ueber das Token 'buhne'.
+   *  2. Wenn kein Match: Diagonal (Output N → Input N % totalInputs).
+   *  Trifft nicht perfekt aber gibt einen sinnvollen Startpunkt — der
+   *  User justiert per Matrix nach. */
+  const tokensOf = (name: string): string[] =>
+    name
+      .toLowerCase()
+      .split(/[^a-z0-9äöüß]+/)
+      .filter((t) => t.length >= 2)
+  const generateSmartRouting = () => {
+    const next: Record<number, number> = {}
+    for (let outIdx = 0; outIdx < preset.outputs; outIdx++) {
+      let bestInput = outIdx < preset.inputs ? outIdx : 0
+      const dest = connections.outputConn.get(outIdx)
+      if (dest) {
+        const destTokens = tokensOf(dest.destName + ' ' + dest.portName)
+        let bestScore = 0
+        for (const [inIdx, src] of connections.inputConn) {
+          if (inIdx >= preset.inputs) continue
+          const srcTokens = tokensOf(src.sourceName + ' ' + src.portName)
+          const overlap = destTokens.filter((t) => srcTokens.includes(t)).length
+          if (overlap > bestScore) {
+            bestScore = overlap
+            bestInput = inIdx
+          }
+        }
+      }
+      next[outIdx] = bestInput
+    }
+    setRouting(next)
+  }
 
   const preview = useMemo(() => {
     if (!device) return ''
@@ -216,10 +293,21 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               <span className="text-xs text-slate-500">
                 {preset.inputs} Eing. × {preset.outputs} Ausg.
               </span>
+              {/* v7.9.119 / Issue #237 — Smart-Routing Vorschlag aus
+                  Canvas-Verbindungen. Heuristik: pro Output das beste
+                  Token-Match in den Input-Sources. Fallback: Diagonal. */}
+              <button
+                type="button"
+                onClick={generateSmartRouting}
+                className="ml-auto rounded bg-purple-700 px-2 py-1 text-xs text-purple-50 hover:bg-purple-600"
+                title="Schlaegt ein Routing vor, basierend auf den Kabeln im Canvas. Best-Match per Geraete-Namens-Aehnlichkeit; Fallback Diagonal. Per Matrix anpassbar."
+              >
+                🪄 Smart-Routing
+              </button>
               <button
                 type="button"
                 onClick={() => setRouting(buildDefaultRouting(preset.inputs, preset.outputs))}
-                className="ml-auto rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
+                className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
                 title="Diagonal-Routing zurücksetzen (Ausgang N → Eingang N)"
               >
                 ↺ Reset
@@ -229,14 +317,21 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               <VideohubRoutingMatrix
                 totalInputs={preset.inputs}
                 totalOutputs={preset.outputs}
-                inputLabels={Array.from(
-                  { length: preset.inputs },
-                  (_, i) => device?.inputs[i]?.name ?? `In ${i + 1}`,
-                )}
-                outputLabels={Array.from(
-                  { length: preset.outputs },
-                  (_, i) => device?.outputs[i]?.name ?? `Out ${i + 1}`,
-                )}
+                inputLabels={Array.from({ length: preset.inputs }, (_, i) => {
+                  const portName = device?.inputs[i]?.name ?? `In ${i + 1}`
+                  // v7.9.119 — Label um die Source aus dem Canvas ergaenzen.
+                  const conn = connections.inputConn.get(i)
+                  return conn
+                    ? `${portName} ← ${conn.sourceName}`
+                    : portName
+                })}
+                outputLabels={Array.from({ length: preset.outputs }, (_, i) => {
+                  const portName = device?.outputs[i]?.name ?? `Out ${i + 1}`
+                  const conn = connections.outputConn.get(i)
+                  return conn
+                    ? `${portName} → ${conn.destName}`
+                    : portName
+                })}
                 routing={routing}
                 onRoute={(output, input) => setRouting((r) => ({ ...r, [output]: input }))}
               />
