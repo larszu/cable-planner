@@ -63,6 +63,18 @@ type CablePlannerApi = {
       equipmentId: string,
       quantity?: number,
     ) => Promise<unknown>
+    /** v7.9.110 — Batch-Export in eine 'CablePlanner'-Group im Rentman-
+     *  Projekt. Gruppe wird angelegt falls nicht vorhanden. */
+    exportToCablePlannerGroup: (
+      projectId: string,
+      items: Array<{ equipmentId: string; quantity: number }>,
+    ) => Promise<{
+      added: number
+      failed: Array<{ equipmentId: string; quantity: number; error: string }>
+      groupId: string | null
+      groupCreated: boolean
+      subprojectId: string | null
+    }>
     addProjectFile: (
       projectId: string,
       fileName: string,
@@ -446,6 +458,15 @@ const webFallbackApi: CablePlannerApi = {
       } catch {
         return text
       }
+    },
+    /** v7.9.110 — Web-Fallback: nicht verfuegbar in Browser-only-Builds
+     *  (Mobile-Share / Web-Viewer). Der Export braucht subproject- und
+     *  equipmentgroup-Lookups die mehrere API-Calls benoetigen — wenig
+     *  Mehrwert ohne Token-Management via Electron-Credentials-Store. */
+    exportToCablePlannerGroup: async () => {
+      throw new Error(
+        'Rentman-Export ist nur in der Electron-Desktop-App verfuegbar, nicht im Web-/Mobile-Build.',
+      )
     },
     addProjectFile: async (
       projectId: string,

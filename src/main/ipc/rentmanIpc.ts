@@ -41,6 +41,23 @@ export const registerRentmanIpc = () => {
     },
   )
 
+  // v7.9.110 — High-level Export: legt im Rentman-Projekt eine
+  // EquipmentGroup namens 'CablePlanner' an (falls noch nicht vorhanden)
+  // und fuegt alle items dort ein. Idempotent: mehrfaches Ausfuehren
+  // fuegt in dieselbe Gruppe. Failure pro item bricht den Batch NICHT
+  // ab — der Renderer sieht im Ergebnis was geklappt hat + was nicht.
+  ipcMain.handle(
+    'rentman:export-to-cableplanner-group',
+    async (
+      _event,
+      projectId: string,
+      items: Array<{ equipmentId: string; quantity: number }>,
+    ) => {
+      const client = await getClient()
+      return client.exportEquipmentToCablePlannerGroup(projectId, items)
+    },
+  )
+
   ipcMain.handle(
     'rentman:add-project-file',
     async (

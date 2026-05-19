@@ -894,7 +894,12 @@ export const LibraryPanel = () => {
   // Rentman master catalog: every device available in the user's Rentman
   // account (not just the ones already in the active project). Loaded on
   // demand so we don't blow the API budget on every panel render.
-  const { loadEquipment: loadRentmanEquipment, loadFolders: loadRentmanFolders, addProjectEquipment } = useRentman()
+  const {
+    loadEquipment: loadRentmanEquipment,
+    loadFolders: loadRentmanFolders,
+    addProjectEquipment,
+    exportToCablePlannerGroup,
+  } = useRentman()
   const [rentmanCatalog, setRentmanCatalog] = useState<
     { id: string; name: string; category: string; folderId: string | null }[]
   >([])
@@ -1087,11 +1092,30 @@ export const LibraryPanel = () => {
     }
     setRentmanCatalogAddBusy(item.id)
     try {
-      await addProjectEquipment(linkedRentmanProjectId, item.id, 1)
-      await infoDialog(`"${item.name}" hinzugefügt`, {
-        body: `Wurde dem Rentman-Projekt "${projectName}" hinzugefügt.`,
-        tone: 'success',
-      })
+      // v7.9.110 — Nutze die neue Batch-Export-Action. Sie legt eine
+      // 'CablePlanner'-Group im Subproject an (oder verwendet die
+      // bestehende) und packt das item rein. Voraussetzung dass Rentman
+      // die Schreib-Anfrage akzeptiert: project + subproject + group +
+      // equipment + quantity — die alte addProjectEquipment-Variante hat
+      // subproject/group weggelassen und scheiterte deshalb oft mit 422.
+      const result = await exportToCablePlannerGroup(linkedRentmanProjectId, [
+        { equipmentId: item.id, quantity: 1 },
+      ])
+      if (result.failed.length > 0) {
+        const msg = result.failed.map((f) => `- ${f.error}`).join('\n')
+        await infoDialog('Hinzufuegen teilweise fehlgeschlagen', {
+          body: `${result.added} OK, ${result.failed.length} Fehler:\n${msg}`,
+          tone: 'warning',
+        })
+      } else {
+        const groupNote = result.groupCreated
+          ? ' (neue Gruppe "CablePlanner" angelegt)'
+          : ' (zur bestehenden Gruppe "CablePlanner" hinzugefuegt)'
+        await infoDialog(`"${item.name}" hinzugefügt`, {
+          body: `Wurde dem Rentman-Projekt "${projectName}" hinzugefügt${groupNote}.`,
+          tone: 'success',
+        })
+      }
     } catch (err) {
       await infoDialog('Fehler beim Hinzufügen zu Rentman', {
         body: err instanceof Error ? err.message : String(err),

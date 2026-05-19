@@ -46,7 +46,7 @@ const keyOf = (c: Pick<Cable, 'type' | 'length'>): string => `${c.type}|${c.leng
 export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDialogProps) => {
   const project = useProjectStore((state) => state.project)
   const updateMeta = useProjectStore((state) => state.updateProjectMetadata)
-  const { loadEquipment, loadFolders, addProjectEquipment } = useRentman()
+  const { loadEquipment, loadFolders, exportToCablePlannerGroup } = useRentman()
 
   const [catalog, setCatalog] = useState<CatalogItem[]>([])
   const [catalogLoaded, setCatalogLoaded] = useState(false)
@@ -187,7 +187,19 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
     setBusyKey(bucket.key)
     setStatusByKey((prev) => ({ ...prev, [bucket.key]: 'Sende an Rentman…' }))
     try {
-      await addProjectEquipment(linkedProjectId, bucket.mappedId, bucket.delta)
+      // v7.9.110 — Nutzt die neue Batch-Export-Action. Landet in der
+      // 'CablePlanner'-EquipmentGroup im Subproject (wird angelegt
+      // falls nicht vorhanden). Vorher ging das via addProjectEquipment,
+      // das subproject/equipmentgroup nicht setzte — Rentman wies das
+      // mit 422 ab.
+      const result = await exportToCablePlannerGroup(linkedProjectId, [
+        { equipmentId: bucket.mappedId, quantity: bucket.delta },
+      ])
+      if (result.failed.length > 0) {
+        const msg = result.failed[0]?.error ?? 'Unbekannter Fehler'
+        setStatusByKey((prev) => ({ ...prev, [bucket.key]: `Fehler: ${msg}` }))
+        return
+      }
       const current = project.metadata.rentmanCableMap ?? {}
       updateMeta({
         rentmanCableMap: {
@@ -198,9 +210,10 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
           },
         },
       })
+      const groupNote = result.groupCreated ? ' (Gruppe angelegt)' : ''
       setStatusByKey((prev) => ({
         ...prev,
-        [bucket.key]: `✓ ${bucket.delta} an Rentman gesendet.`,
+        [bucket.key]: `✓ ${bucket.delta} an Rentman gesendet${groupNote}.`,
       }))
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
