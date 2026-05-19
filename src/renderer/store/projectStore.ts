@@ -1441,10 +1441,27 @@ const buildProjectStore = (
   updateCable: (id, patch) =>
     set((state) => {
       if (isProjectLocked(state)) return state
+      // v7.9.125 — wenn CableProperties einen Endpoint umsetzt (eq/port-id),
+      // muss die Connector-Type-Inheritance auch hier greifen.
+      // updateCable wird sonst nur fuer Name/Color/Notes/etc. genutzt
+      // — die brauchen kein Typ-Update.
+      const endpointChanged =
+        patch.fromEquipmentId !== undefined ||
+        patch.fromPortId !== undefined ||
+        patch.toEquipmentId !== undefined ||
+        patch.toPortId !== undefined
+      const inheritType =
+        endpointChanged && useUiStore.getState().inheritCableTypeFromPort
       return {
         project: touchProject({
           ...state.project,
-          cables: state.project.cables.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+          cables: state.project.cables.map((item) => {
+            if (item.id !== id) return item
+            const merged = { ...item, ...patch }
+            if (!inheritType) return merged
+            const typePatch = cableTypePatchFromPorts(merged, state.project.equipment)
+            return typePatch ? { ...merged, ...typePatch } : merged
+          }),
         }),
       }
     }),
