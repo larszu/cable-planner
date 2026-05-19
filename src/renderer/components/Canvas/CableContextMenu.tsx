@@ -27,7 +27,8 @@ import { useCanvasProjectStore as useProjectStore } from '../../store/projectSto
 import { routeCable } from '../../lib/canvasViewport'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
-import { infoDialog } from '../../lib/infoDialog'
+// v7.9.115: infoDialog wird nicht mehr genutzt seit der A*-Fail nicht
+// mehr modal blockt — Fallback auf Standard-Routing ist still.
 import type { Cable, CableRouting } from '../../types/cable'
 
 /** Distance from a point to the nearest existing waypoint. Returns the
@@ -172,15 +173,13 @@ export const CableContextMenu = () => {
 
   /** v7.8.8 — Run A*-based pathfinding for this single cable. The
    *  router writes its result into cable.waypoints, so the cable
-   *  immediately re-renders with the new path. */
+   *  immediately re-renders with the new path.
+   *  v7.9.115 / Issue #223 — routeCable returns true auch wenn A*
+   *  selbst keinen Pfad gefunden hat; in dem Fall werden die waypoints
+   *  geleert und ReactFlow's Standard-Routing greift. Kein Error-Modal
+   *  mehr, kein blockierter User-Workflow im dichten Rack. */
   const rerouteWithAStar = () => {
-    const ok = routeCable(cable.id)
-    if (!ok) {
-      void infoDialog('A*-Routing fehlgeschlagen', {
-        body: 'Kein Pfad gefunden — möglicherweise blockieren andere Geräte den Korridor.',
-        tone: 'warning',
-      })
-    }
+    routeCable(cable.id)
     close()
   }
 
