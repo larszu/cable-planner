@@ -32,9 +32,20 @@ export const registerPrintIpc = (): void => {
     'canvas:export-pdf-vector',
     async (
       _event,
-      params: { html: string; widthMicrons: number; heightMicrons: number },
+      params: {
+        html: string
+        widthMicrons: number
+        heightMicrons: number
+        /** v7.9.104 — printToPDF.scale 0..1. Skaliert die ganze Page
+         *  vektoriell, statt CSS-Transform auf den Content. */
+        scale?: number
+      },
     ): Promise<Uint8Array> => {
       const { html, widthMicrons, heightMicrons } = params
+      const scale =
+        typeof params.scale === 'number' && params.scale > 0 && params.scale <= 2
+          ? params.scale
+          : 1
       if (!html) throw new Error('printToPDF: leeres HTML')
       const tmpFile = path.join(tmpdir(), `cable-planner-pdf-vec-${Date.now()}.html`)
       await writeFile(tmpFile, html, 'utf-8')
@@ -75,12 +86,20 @@ export const registerPrintIpc = (): void => {
         const buffer = await win.webContents.printToPDF({
           pageSize: { width: widthMicrons, height: heightMicrons },
           printBackground: true,
-          preferCSSPageSize: true,
+          // v7.9.104 — preferCSSPageSize: false, damit der API-Wert wins.
+          // Mit scale<1 + @page CSS in body-natural-size haetten die zwei
+          // sich gestritten. Jetzt: API-pageSize = Paper, body = natural,
+          // scale skaliert beim Render-Pass die ganze Page in die
+          // Paper-Box rein.
+          preferCSSPageSize: false,
           margins: { marginType: 'none' },
           displayHeaderFooter: false,
           landscape: widthMicrons > heightMicrons,
-          // generateTaggedPDF=false bricht bei einigen Chromium-Versionen
-          // den Render. Default lassen wir weg.
+          // Vektorielle Skalierung: Chromium schreibt das als
+          // PDF-Transformations-Matrix → Text bleibt selektierbar +
+          // scharf bei jedem Zoom. CSS-Transform haette einen GPU-Layer
+          // erzwungen → Bitmap.
+          scale,
         })
         if (!buffer || buffer.byteLength < 1000) {
           throw new Error(
