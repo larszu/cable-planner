@@ -44,8 +44,11 @@ export interface Cable {
   bidirectional?: boolean
   /** Optional user-placed bend points (flow coordinates). */
   waypoints?: CableWaypoint[]
-  /** Where to show the cable label. Defaults to 'center'. */
-  labelPosition?: 'center' | 'source' | 'target'
+  /** Where to show the cable label. Defaults to 'center'.
+   *  v7.9.112: 'none' hinzugefuegt — Label garnicht rendern. Ersetzt den
+   *  separaten labelHidden-Toggle. labelHidden=true wird beim Laden
+   *  zu labelPosition='none' geheilt. */
+  labelPosition?: 'center' | 'source' | 'target' | 'none'
   /** v7.9.93 — Feinjustierter Label-Slider entlang des Kabels (0..1).
    *  Überschreibt `labelPosition` wenn gesetzt. 0 = Source-Ende,
    *  0.5 = Mitte, 1 = Target-Ende. Erlaubt millimetergenaue Positionierung
