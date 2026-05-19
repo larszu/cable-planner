@@ -100,6 +100,9 @@ interface InternalCableDraft {
   length: number
   color?: string
   standard?: string
+  /** v7.9.115 / Issue #223 — User-Waypoints persistieren ueber den
+   *  Save-Round-Trip. Optional. */
+  waypoints?: Array<{ x: number; y: number }>
 }
 
 // 19" rack standard: outer width 482.6 mm, 1U height 44.45 mm.
@@ -268,6 +271,10 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
     }
     if (c.color != null) entry.color = c.color
     if (c.standard != null) entry.standard = c.standard
+    // v7.9.115 / Issue #223 — Waypoints aus dem Preset wieder herstellen.
+    if (c.waypoints && c.waypoints.length > 0) {
+      entry.waypoints = c.waypoints.map((wp) => ({ x: wp.x, y: wp.y }))
+    }
     internalCables.push(entry)
   }
   return {
@@ -712,6 +719,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       }
       if (c.color != null) entry.color = c.color
       if (c.standard != null) entry.standard = c.standard
+      // v7.9.115 / Issue #223 — User-Waypoints im Preset persistieren
+      // damit Kabel-Positionen ueber Save/Reload erhalten bleiben.
+      if (c.waypoints && c.waypoints.length > 0) {
+        entry.waypoints = c.waypoints.map((wp) => ({ x: wp.x, y: wp.y }))
+      }
       persistedCables.push(entry)
     }
 
@@ -2619,6 +2631,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     }
                     if (c.color != null) entry.color = c.color
                     if (c.standard != null) entry.standard = c.standard
+                    // v7.9.115 / Issue #223 — Waypoints durchreichen.
+                    if (c.waypoints && c.waypoints.length > 0) {
+                      entry.waypoints = c.waypoints.map((wp) => ({ x: wp.x, y: wp.y }))
+                    }
                     result.push(entry)
                   }
                   return result
@@ -2641,6 +2657,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     }
                     if (c.color != null) entry.color = c.color
                     if (c.standard != null) entry.standard = c.standard
+                    // v7.9.115 / Issue #223 — Waypoints durchreichen.
+                    if (c.waypoints && c.waypoints.length > 0) {
+                      entry.waypoints = c.waypoints.map((wp) => ({ x: wp.x, y: wp.y }))
+                    }
                     next.push(entry)
                   }
                   setDraft((current) => ({ ...current, internalCables: next }))

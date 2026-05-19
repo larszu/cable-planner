@@ -569,6 +569,12 @@ export interface GroupPreset {
     length: number
     color?: string
     standard?: string
+    /** v7.9.115 / Issue #223 — User-Waypoints im internen Rack-Canvas.
+     *  Vorher wurden Waypoints beim Save in den Preset verloren →
+     *  beim Re-Open hat A* alles neu geroutet und der User merkte
+     *  'Kabel verlieren ihre Position'. Optional — Presets ohne
+     *  Waypoints behalten ihr Auto-Routing-Verhalten. */
+    waypoints?: Array<{ x: number; y: number }>
   }>
 }
 
