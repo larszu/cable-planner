@@ -525,16 +525,30 @@ export const CableEdge = ({
     myPath.setAttribute('d', bumped)
   })
 
-  // Resolve label position: center (default), near source, near target.
+  // Resolve label position. v7.9.93: optional numerischer Slider
+  // (cable.labelT, 0..1) hat Vorrang vor dem Preset-Enum. Vereinfachte
+  // Linear-Interpolation entlang Source→Target — exakte Path-Position
+  // (entlang aller waypoints) wäre genauer, aber für ein Label-Anker-
+  // Point ist die Linear-Approximation visuell gut genug.
   const labelPos = cable?.labelPosition ?? 'center'
-  let labelX = centerX
-  let labelY = centerY
-  if (labelPos === 'source') {
-    labelX = sourceX + (centerX - sourceX) * 0.15
-    labelY = sourceY + (centerY - sourceY) * 0.15
-  } else if (labelPos === 'target') {
-    labelX = targetX + (centerX - targetX) * 0.15
-    labelY = targetY + (centerY - targetY) * 0.15
+  const labelT = typeof cable?.labelT === 'number'
+    ? Math.max(0, Math.min(1, cable.labelT))
+    : labelPos === 'source'
+      ? 0.15
+      : labelPos === 'target'
+        ? 0.85
+        : 0.5
+  // Bei labelT=0.5 nutzen wir den geometric centerX/Y (mid-of-longest-
+  // segment) damit Label da landet wo es sich am wenigsten überlappt.
+  // Sonst Lerp Source→Target.
+  let labelX: number
+  let labelY: number
+  if (Math.abs(labelT - 0.5) < 0.02) {
+    labelX = centerX
+    labelY = centerY
+  } else {
+    labelX = sourceX + (targetX - sourceX) * labelT
+    labelY = sourceY + (targetY - sourceY) * labelT
   }
 
   const strokeWidth = cable?.strokeWidth ?? 2.5
@@ -615,7 +629,9 @@ export const CableEdge = ({
           exportThemeOverride={data?.exportThemeOverride}
         />
       )}
-      {displayLabel && (
+      {/* v7.9.93 — labelHidden: User kann das Label komplett ausblenden
+          ohne den Namen löschen zu müssen. */}
+      {displayLabel && !cable?.labelHidden && (
         <EdgeLabelRenderer>
           <div
             style={{

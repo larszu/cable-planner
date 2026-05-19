@@ -46,6 +46,13 @@ export interface Cable {
   waypoints?: CableWaypoint[]
   /** Where to show the cable label. Defaults to 'center'. */
   labelPosition?: 'center' | 'source' | 'target'
+  /** v7.9.93 — Feinjustierter Label-Slider entlang des Kabels (0..1).
+   *  Überschreibt `labelPosition` wenn gesetzt. 0 = Source-Ende,
+   *  0.5 = Mitte, 1 = Target-Ende. Erlaubt millimetergenaue Positionierung
+   *  wenn die drei Presets center/source/target nicht reichen. */
+  labelT?: number
+  /** v7.9.93 — Label komplett ausblenden ohne den Namen löschen zu müssen. */
+  labelHidden?: boolean
   /** When true, this is a wireless link (no physical cable). */
   wireless?: boolean
   /** RF/WiFi frequency string for wireless links, e.g. "5.8 GHz", "600 MHz". */
