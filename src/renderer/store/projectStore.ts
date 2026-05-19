@@ -7,7 +7,7 @@ import type { LocationFrame } from '../types/location'
 import type { CablePlannerProject } from '../types/project'
 import { useUiStore } from './uiStore'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
-import { cableTypePatchFromPorts, isBidirectionalCableType } from '../lib/cableInheritance'
+import { cableTypePatchFromPorts, inheritedCableType, isBidirectionalCableType } from '../lib/cableInheritance'
 import { detectLayerForConnector } from '../lib/cableLayers'
 import { cableCatalog } from '../types/cableSpec'
 import { ubiquitiTemplates } from '../lib/ubiquitiCatalog'
@@ -2359,10 +2359,24 @@ const buildProjectStore = (
         }
       }
       const autoLayer = detectLayerForConnector(typeStr as Cable['type'])
+      // v7.9.125 — wenn das Mobile keinen Type liefert, leiten wir
+      // ihn aus den Ports ab statt 'unbekannt' zu stempeln (nur wenn
+      // der Inheritance-Toggle an ist; sonst Legacy-Fallback).
+      const fallbackType: Cable['type'] = useUiStore.getState().inheritCableTypeFromPort
+        ? inheritedCableType(
+            {
+              fromEquipmentId: input.fromEquipmentId,
+              fromPortId: input.fromPortId,
+              toEquipmentId: input.toEquipmentId,
+              toPortId: input.toPortId,
+            },
+            state.project.equipment,
+          ) ?? ('unbekannt' as Cable['type'])
+        : ('unbekannt' as Cable['type'])
       const cable: Cable = {
         id: uuidv4(),
         name: input.name?.trim() || `${fromEq.name} → ${toEq.name}`,
-        type: (input.type as Cable['type']) || 'unbekannt',
+        type: (input.type as Cable['type']) || fallbackType,
         length: input.length ?? 0,
         color: resolvedColor ?? '#64748b',
         fromEquipmentId: input.fromEquipmentId,
