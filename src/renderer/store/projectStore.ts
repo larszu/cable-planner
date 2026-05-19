@@ -519,18 +519,33 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
       width: typeof item.width === 'number' ? Math.round(item.width) : item.width,
       height: typeof item.height === 'number' ? Math.round(item.height) : item.height,
     })),
+    cables: project.cables.map((c) => {
+      let patched = c
+      if (c.waypoints && c.waypoints.length > 0) {
+        patched = { ...patched, waypoints: c.waypoints.map((w) => ({ x: r(w.x), y: r(w.y) })) }
+      }
+      // v7.9.93 / #123 — Layer-Auto-Heal: Kabel aus Projekten vor v7.9.85
+      // haben kein layer-Feld → werden als ungrouped behandelt → die
+      // Layer-Toggle-Chips können sie nicht filtern. Beim Load alle
+      // Kabel ohne layer durch die detectLayerForConnector-Heuristik
+      // jagen damit die Ebenen-Funktion nachträglich greift. User kann
+      // manuell überschreiben (CableProperties → Ebene-Dropdown).
+      if (!patched.layer) {
+        const auto = detectLayerForConnector(patched.type)
+        if (auto) patched = { ...patched, layer: auto }
+      }
+      return patched
+    }),
+    // v7.9.93 / #194 — moveContents-Default-Heal für alte Locations:
+    // undefined → true (siehe addLocation Default seit v7.9.81).
     locations: (project.locations ?? []).map((loc) => ({
       ...loc,
       x: r(loc.x),
       y: r(loc.y),
       width: Math.round(loc.width),
       height: Math.round(loc.height),
+      moveContents: loc.moveContents !== false,
     })),
-    cables: project.cables.map((c) =>
-      c.waypoints && c.waypoints.length > 0
-        ? { ...c, waypoints: c.waypoints.map((w) => ({ x: r(w.x), y: r(w.y) })) }
-        : c,
-    ),
   }
 }
 
