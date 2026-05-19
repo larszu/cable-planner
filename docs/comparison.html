@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Cable-Planner — Strukturvergleich</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 32px 28px 80px; }
+  header h1 { font-size: 26px; margin: 0 0 6px; color: #f1f5f9; }
+  header .subtitle { color: #94a3b8; font-size: 13px; margin-bottom: 8px; }
+  header .meta { color: #64748b; font-size: 11px; margin-bottom: 24px; }
+  h2 { font-size: 18px; margin: 36px 0 10px; color: #f1f5f9; border-bottom: 1px solid #334155; padding-bottom: 6px; }
+  h3 { font-size: 15px; margin: 22px 0 8px; color: #cbd5e1; }
+  h4 { font-size: 13px; margin: 12px 0 6px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+  p { margin: 6px 0 10px; font-size: 13px; color: #cbd5e1; }
+  ul, ol { margin: 4px 0 10px; padding-left: 22px; font-size: 13px; color: #cbd5e1; }
+  li { margin: 3px 0; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace; background: #1e293b; padding: 1px 5px; border-radius: 3px; font-size: 11.5px; color: #93c5fd; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 12px; }
+  th, td { border: 1px solid #334155; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #1e293b; color: #f1f5f9; font-weight: 600; }
+  td { background: #0f172a; color: #cbd5e1; }
+  td.us { background: #082f49; color: #e0f2fe; }
+  th.us { background: #0c4a6e; color: #f0f9ff; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; margin-right: 4px; }
+  .b-good { background: #14532d; color: #bbf7d0; }
+  .b-bad { background: #7f1d1d; color: #fecaca; }
+  .b-neutral { background: #334155; color: #e2e8f0; }
+  .b-us { background: #0c4a6e; color: #f0f9ff; }
+  .card { background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 16px 18px; margin: 12px 0; }
+  .card.us { border-color: #0ea5e9; background: #082f49; }
+  .card h3 { margin-top: 0; }
+  .pro-con { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+  .pro-con .col { padding: 10px 12px; border-radius: 4px; }
+  .pro-con .pro { background: rgba(20, 83, 45, 0.25); border-left: 3px solid #22c55e; }
+  .pro-con .con { background: rgba(127, 29, 29, 0.25); border-left: 3px solid #ef4444; }
+  .pro-con h4 { margin: 0 0 6px; font-size: 11px; }
+  .pro-con .pro h4 { color: #86efac; }
+  .pro-con .con h4 { color: #fca5a5; }
+  .pro-con ul { padding-left: 18px; font-size: 12px; }
+  .pro-con li { margin: 4px 0; }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
+  .stat { background: #1e293b; border: 1px solid #334155; border-radius: 4px; padding: 10px 12px; }
+  .stat .num { font-size: 20px; font-weight: 700; color: #38bdf8; }
+  .stat .label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+  .note { font-size: 11px; color: #64748b; font-style: italic; margin-top: 6px; }
+  a { color: #38bdf8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Cable-Planner — Strukturvergleich mit ähnlichen Tools</h1>
+  <div class="subtitle">Architektur, Tech-Stack und Domänen-Tiefe im Vergleich zu kommerziellen und Open-Source-Alternativen</div>
+  <div class="meta">Stand: 2026-05 · v7.9.94 · ~166 TS/TSX-Module · ~61.5k LOC · ~2.7 MB src/</div>
+</header>
+
+<h2>1 · Cable-Planner — Architektur-Kennzahlen</h2>
+
+<div class="stat-grid">
+  <div class="stat"><div class="num">166</div><div class="label">TS/TSX-Module</div></div>
+  <div class="stat"><div class="num">61.5k</div><div class="label">Lines of Code</div></div>
+  <div class="stat"><div class="num">~75</div><div class="label">Modul-Dependencies</div></div>
+  <div class="stat"><div class="num">7</div><div class="label">User-Flows</div></div>
+</div>
+
+<table>
+  <tr><th>Aspekt</th><th>Cable-Planner</th></tr>
+  <tr><td>Deployment</td><td>Electron-Desktop (Win / macOS / Linux) + Mobile-Companion (Web-View)</td></tr>
+  <tr><td>Tech-Stack</td><td>Electron 42 · React 19 · TypeScript 6 · Vite 8 · ReactFlow 11 · Three.js · Zustand</td></tr>
+  <tr><td>State</td><td>Zustand mit persist-Middleware · History-Store mit Transactions + 200ms-Coalesce</td></tr>
+  <tr><td>Canvas-Engine</td><td>ReactFlow (Edges/Nodes/Selektion/Drag) + Three.js für 3D-Racks</td></tr>
+  <tr><td>Dateiformat</td><td>JSON (offen, versioniert, atomic write mit .bak)</td></tr>
+  <tr><td>Import/Export</td><td>GraphML · XLSX · PDF (jsPDF) · PNG (html-to-image) · STL (three-stdlib)</td></tr>
+  <tr><td>Hardware-Integration</td><td>ATEM-UDP (atem-connection) · Bonjour-Discovery · Future: NDI/Dante-Discovery</td></tr>
+  <tr><td>Domäne</td><td>AV/Broadcast-Verkabelung mit Layer (Video/Audio/Stromnetz), Patchfeldern, Racks, Locations</td></tr>
+  <tr><td>Modul-Layout</td><td>main/ipc · main/services · renderer/components (19 Subdomänen) · renderer/store · renderer/lib</td></tr>
+  <tr><td>IPC-Modell</td><td>contextBridge + typed preload · ipcMain.handle pro Domäne (project, library, atem, ...)</td></tr>
+  <tr><td>Update-Modell</td><td>Patch-Versionen (7.9.x), ~1-3 Releases/Woche, manueller Build</td></tr>
+</table>
+
+<h2>2 · Vergleichsmatrix</h2>
+
+<table>
+  <tr>
+    <th>Dimension</th>
+    <th class="us">Cable-Planner</th>
+    <th>WireCAD</th>
+    <th>D-Tools SI</th>
+    <th>EPlan / WSCAD</th>
+    <th>draw.io</th>
+    <th>Visio</th>
+  </tr>
+  <tr>
+    <td>Domäne</td>
+    <td class="us">AV/Broadcast nativ</td>
+    <td>AV/Broadcast nativ</td>
+    <td>AV-Integration (eher PM)</td>
+    <td>Industrie-Elektrik</td>
+    <td>Allg. Diagramm</td>
+    <td>Allg. Diagramm</td>
+  </tr>
+  <tr>
+    <td>Plattform</td>
+    <td class="us">Win / macOS / Linux</td>
+    <td>Windows only</td>
+    <td>Windows only</td>
+    <td>Windows only</td>
+    <td>Web (alle OS)</td>
+    <td>Windows + Web</td>
+  </tr>
+  <tr>
+    <td>Architektur</td>
+    <td class="us">Electron + Web-Stack</td>
+    <td>WPF / .NET (nativ)</td>
+    <td>.NET + SQL Server</td>
+    <td>Nativer C++/.NET</td>
+    <td>Browser-SPA (mxGraph)</td>
+    <td>COM-Add-In-basiert</td>
+  </tr>
+  <tr>
+    <td>Open Source</td>
+    <td class="us">Quelltext einsehbar</td>
+    <td>Proprietär</td>
+    <td>Proprietär</td>
+    <td>Proprietär</td>
+    <td>Apache 2.0</td>
+    <td>Proprietär</td>
+  </tr>
+  <tr>
+    <td>Dateiformat</td>
+    <td class="us">JSON (offen)</td>
+    <td>SQLite + proprietär</td>
+    <td>SQL Server (proprietär)</td>
+    <td>Binär / EDZ</td>
+    <td>XML (drawio)</td>
+    <td>VSDX (XML in ZIP)</td>
+  </tr>
+  <tr>
+    <td>3D-View</td>
+    <td class="us">Three.js Rack-Render</td>
+    <td>Nein</td>
+    <td>Nein</td>
+    <td>3D-Cabinet-Builder</td>
+    <td>Nein</td>
+    <td>Nein</td>
+  </tr>
+  <tr>
+    <td>Hardware-Kontrolle</td>
+    <td class="us">ATEM (Live)</td>
+    <td>Nein</td>
+    <td>Nein</td>
+    <td>SPS-Integration</td>
+    <td>Nein</td>
+    <td>Nein</td>
+  </tr>
+  <tr>
+    <td>Multi-Layer-Cables</td>
+    <td class="us">Auto-Detect aus Connector</td>
+    <td>Layer-System (manuell)</td>
+    <td>Kategorien</td>
+    <td>Pages/Layers</td>
+    <td>Layer (generisch)</td>
+    <td>Layer (generisch)</td>
+  </tr>
+  <tr>
+    <td>Mobile</td>
+    <td class="us">Mobile-Share-View</td>
+    <td>Nein</td>
+    <td>Mobile-App (PM)</td>
+    <td>Nein</td>
+    <td>Browser responsive</td>
+    <td>Visio Viewer App</td>
+  </tr>
+  <tr>
+    <td>Stückliste (BOM)</td>
+    <td class="us">Auto · PDF · XLSX</td>
+    <td>Auto · PDF · CSV</td>
+    <td>Sehr stark · Procurement</td>
+    <td>Sehr stark · ERP-Sync</td>
+    <td>Plugin nötig</td>
+    <td>Plugin nötig</td>
+  </tr>
+  <tr>
+    <td>Preis (~)</td>
+    <td class="us">Selbst-Hosting / 0 €</td>
+    <td>~$1500–4500 / Lizenz</td>
+    <td>~$2000+ / Jahr</td>
+    <td>~5000–15000 € / Lizenz</td>
+    <td>0 €</td>
+    <td>~5–15 € / Monat</td>
+  </tr>
+  <tr>
+    <td>Offline</td>
+    <td class="us">Ja, voll</td>
+    <td>Ja</td>
+    <td>Eingeschränkt</td>
+    <td>Ja</td>
+    <td>Ja (Desktop-Variante)</td>
+    <td>Ja (Desktop)</td>
+  </tr>
+  <tr>
+    <td>Skript/Plugin-API</td>
+    <td>Nein (Code-Fork)</td>
+    <td>SDK</td>
+    <td>SDK</td>
+    <td>API + Scripting</td>
+    <td>Plugins (JS)</td>
+    <td>VBA, COM, JS</td>
+  </tr>
+</table>
+
+<p class="note">Preise sind grobe Richtwerte (Stand 2024–2025) und schwanken je nach Modul/Lizenztyp.</p>
+
+<h2>3 · Detail-Vergleich pro Tool</h2>
+
+<div class="card us">
+  <h3><span class="badge b-us">Referenz</span> Cable-Planner (dieses Projekt)</h3>
+  <p>Electron-App mit React-Renderer und Node-Main-Prozess. Module nach Domäne segmentiert (Canvas, Library, Properties, Rack, Atem, Patch, Export, Import). Zustand mit Persist-Middleware, eigener History-Store mit Transactions im draw.io-Stil. ReactFlow für 2D-Canvas, Three.js für 3D-Racks. Atomic File-Writes (tmp → rename + .bak). IPC über contextBridge mit getypten Channels pro Domäne.</p>
+  <div class="pro-con">
+    <div class="col pro">
+      <h4>Vorteile</h4>
+      <ul>
+        <li>Plattform-übergreifend (Win/macOS/Linux) durch Electron</li>
+        <li>Offenes JSON-Format → Diff-bar, Git-tauglich, kein Vendor-Lock-in</li>
+        <li>Domäne tief: AV-Connector-Typen, Multi-Layer-Auto-Detect, Patchfeld-Modell, ATEM-Live-Control</li>
+        <li>3D-Rack-View und STL-Export — selten in AV-Tools</li>
+        <li>Atomic File-Writes mit .bak — robust gegen Crash-Mid-Write</li>
+        <li>Undo/Redo mit Transaction-Pattern (draw.io-Vorbild)</li>
+        <li>Mobile-Share-View für Aufbau-Team auf der Baustelle</li>
+        <li>Modul-Layout sauber: 19 Komponenten-Subdomänen, klar getrennte IPC-Layer</li>
+        <li>Keine Lizenzkosten, kein Cloud-Zwang, volle Datenhoheit</li>
+      </ul>
+    </div>
+    <div class="col con">
+      <h4>Nachteile</h4>
+      <ul>
+        <li>Electron-Overhead: ~150–250 MB RAM Baseline, ~120 MB Installer</li>
+        <li>Eine Person als Maintainer → Bus-Faktor 1</li>
+        <li>Kein Plugin-/Skript-API → Erweiterungen brauchen Code-Fork</li>
+        <li>Keine kollaborative Echtzeit-Bearbeitung (Single-User-Datei)</li>
+        <li>Keine zertifizierte Symbolbibliothek (IEC/VDE-konform) wie EPlan</li>
+        <li>Renderer-Code 2.6 MB src/ — Wachstum ohne klare Modulgrenzen-Verträge riskant</li>
+        <li>Kein integriertes Cloud-Sync (nur Mobile-Share-Hop)</li>
+        <li>Mobile ist Lese-/Share-View, keine vollwertige Bearbeitung</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3><span class="badge b-neutral">Direkte Konkurrenz</span> WireCAD (Holbrook Enterprises)</h3>
+  <p>Etablierter Markt-Standard für Broadcast-/AV-Verkabelung seit ~2003. WPF/.NET-Desktop-App mit SQLite-Backend. Bietet One-Line-/Multi-Line-Schaltbilder, automatische Kabelnummerierung, Lagebücher, sehr umfangreiche Symbol-Datenbank. Zielgruppe: Systemintegratoren und Broadcaster.</p>
+  <div class="pro-con">
+    <div class="col pro">
+      <h4>Vorteile</h4>
+      <ul>
+        <li>Sehr große, gepflegte Symbol-Bibliothek (Tausende Geräte vom Hersteller)</li>
+        <li>Reife Auto-Routing-Engine</li>
+        <li>BOM mit Hersteller-Preisen, Procurement-tauglich</li>
+        <li>SDK für eigene Reports/Plugins</li>
+        <li>Etablierter Support, Schulungen</li>
+      </ul>
+    </div>
+    <div class="col con">
+      <h4>Nachteile</h4>
+      <ul>
+        <li>Nur Windows</li>
+        <li>Hohe Einstiegskosten (~$1500–4500)</li>
+        <li>UI-Design altbacken (Toolbar-Klötze, schmale Dialoge)</li>
+        <li>Proprietäres Datenformat — Vendor-Lock-in</li>
+        <li>Keine 3D-Rack-Visualisierung</li>
+        <li>Keine direkte Hardware-Kontrolle</li>
+        <li>Keine mobile View</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3><span class="badge b-neutral">Direkte Konkurrenz</span> D-Tools System Integrator</h3>
+  <p>System-Integrator-Tool mit Fokus auf den ganzen Projekt-Lifecycle (Angebot → Plan → Procurement → Inbetriebnahme → Service). Visio-basiert für Pläne, eigene Datenbank für Bauteile/Preise. SQL-Server-Backend. Zielgruppe: Custom-Install-Firmen.</p>
+  <div class="pro-con">
+    <div class="col pro">
+      <h4>Vorteile</h4>
+      <ul>
+        <li>Geschäftsprozess komplett abgedeckt (Quote → Invoice)</li>
+        <li>Sehr starke Hersteller-Datenbank mit Live-Preisen</li>
+        <li>Mobile-App für Außendienst/Service</li>
+        <li>Multi-User mit zentralem Server</li>
+        <li>Integration zu QuickBooks, Salesforce</li>
+      </ul>
+    </div>
+    <div class="col con">
+      <h4>Nachteile</h4>
+      <ul>
+        <li>Sehr teuer (mehrere $1000/Jahr je User)</li>
+        <li>Windows + SQL Server nötig</li>
+        <li>Plan-Editor lehnt sich an Visio an — Cable-Routing schwächer als WireCAD</li>
+        <li>Sehr steile Lernkurve</li>
+        <li>Overkill für kleine Studios/Freelancer</li>
+        <li>Kein Open-Format</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3><span class="badge b-neutral">Industrie-Elektrik</span> EPlan Electric P8 / WSCAD ELECTRIX</h3>
+  <p>Marktführer für Schaltschrank- und Industrie-Elektrik-Planung. Native Desktop-Apps mit umfangreichen Bibliotheken, 3D-Cabinet-Builder, IEC-konformen Symbolen, ERP-Anbindung (SAP). EPlan ist Standard im Maschinenbau, WSCAD die günstigere Alternative.</p>
+  <div class="pro-con">
+    <div class="col pro">
+      <h4>Vorteile</h4>
+      <ul>
+        <li>Zertifizierte Symbolbibliotheken (IEC, NFPA, GOST)</li>
+        <li>3D-Schaltschrank-Builder mit Bohrbild-Generierung</li>
+        <li>ERP/PDM-Integration (SAP, Teamcenter)</li>
+        <li>Skripting-API (.NET)</li>
+        <li>Klemmenplan, Aderverfolgung, Revisionsmanagement</li>
+        <li>Multi-Sprachen-Pläne automatisch</li>
+      </ul>
+    </div>
+    <div class="col con">
+      <h4>Nachteile</h4>
+      <ul>
+        <li>Sehr teuer (5–15k €/Lizenz, +Module)</li>
+        <li>Nur Windows</li>
+        <li>Steile Lernkurve, Schulung nötig</li>
+        <li>Falsche Domäne für AV/Broadcast: zu viel Industrie-Ballast (Klemmen, SPS)</li>
+        <li>Datenformate proprietär und binär</li>
+        <li>Performance bei großen Projekten zäh</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3><span class="badge b-neutral">Allgemein</span> draw.io / diagrams.net</h3>
+  <p>Apache-2.0-lizenzierter Diagramm-Editor (Web + Desktop-Variante). Basiert auf mxGraph (das Vorbild für Cable-Planners Transaction-Undo-Pattern). Sehr beliebt für Architektur-/Flussdiagramme, weniger geeignet für domänenspezifische Verkabelung.</p>
+  <div class="pro-con">
+    <div class="col pro">
+      <h4>Vorteile</h4>
+      <ul>
+        <li>Komplett kostenlos, Open Source</li>
+        <li>Läuft im Browser, kein Install nötig</li>
+        <li>Sehr reife Engine (mxGraph), saubere Undo/Redo</li>
+        <li>Export in vielen Formaten (SVG, PDF, PNG, XML)</li>
+        <li>Cloud-Sync optional (Google Drive, OneDrive)</li>
+        <li>Großer Community-Pool von Shapes</li>
+      </ul>
+    </div>
+    <div class="col con">
+      <h4>Nachteile</h4>
+      <ul>
+        <li>Generisch — keine AV-/Broadcast-Domäne</li>
+        <li>Keine Auto-Kabel-Nummerierung, kein BOM</li>
+        <li>Keine Layer-Auto-Detect aus Connector-Typ</li>
+        <li>Kein 3D-View</li>
+        <li>Keine Hardware-Integration</li>
+        <li>Keine Patchfeld-Logik (Eingang/Ausgang-Mapping)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3><span class="badge b-neutral">Allgemein</span> Microsoft Visio</h3>
+  <p>Klassiker für Business-Diagramme, Netzwerk- und Anlagenpläne. Native Win32-/COM-App mit VBA-Scripting. Heute auch Web-Variante in MS 365. Nicht primär für AV — wird aber oft als Notbehelf eingesetzt.</p>
+  <div class="pro-con">
+    <div class="col pro">
+      <h4>Vorteile</h4>
+      <ul>
+        <li>Etablierter Standard in Unternehmen</li>
+        <li>Sehr ausgereifte Konnektor-Logik</li>
+        <li>VBA/COM-Scripting für Automatisierung</li>
+        <li>Stencil-Marktplatz mit AV-Symbolen</li>
+        <li>Office-Integration (Excel-Daten-Binding)</li>
+      </ul>
+    </div>
+    <div class="col con">
+      <h4>Nachteile</h4>
+      <ul>
+        <li>Nur Windows (Desktop) — macOS-Nutzer müssen auf Web</li>
+        <li>Abo-Modell (Microsoft 365)</li>
+        <li>Generisch — keine AV-/Broadcast-Domäne out of the box</li>
+        <li>VSDX-Format zwar offen, aber Tools-Ökosystem klein</li>
+        <li>Kein 3D-View</li>
+        <li>Kein nativer BOM-Export</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3><span class="badge b-neutral">Open Source · Browser-First</span> tldraw / Excalidraw</h3>
+  <p>Moderne Web-Canvas-Tools mit Fokus auf UX. tldraw bietet SDK zum Embedden, Excalidraw setzt auf Hand-gezeichnete Ästhetik. Beide React-basiert, beide Open Source. Architektonisch das nächste Vorbild für Cable-Planners Renderer.</p>
+  <div class="pro-con">
+    <div class="col pro">
+      <h4>Vorteile</h4>
+      <ul>
+        <li>Sehr moderne UX (smooth pan/zoom, Multi-Touch)</li>
+        <li>Browser-First → instant share via URL</li>
+        <li>SDK / Library-Mode für Eigenbau-Apps</li>
+        <li>Saubere TypeScript-APIs</li>
+        <li>Echtzeit-Kollaboration (tldraw Sync, Excalidraw+)</li>
+      </ul>
+    </div>
+    <div class="col con">
+      <h4>Nachteile</h4>
+      <ul>
+        <li>Generische Whiteboards, keine Domäne</li>
+        <li>Keine Hardware-Integration (Browser-Sandbox-Grenzen)</li>
+        <li>Kein nativer File-Zugriff ohne Cloud/User-Action</li>
+        <li>Keine 3D-View</li>
+        <li>Keine ATEM/USB/Bonjour-Integration möglich</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<h2>4 · Strukturelle Stärken &amp; Risiken des Cable-Planner</h2>
+
+<h3>4.1 · Was strukturell gut gelöst ist</h3>
+<ul>
+  <li><strong>Klare Schichten</strong>: <code>main/ipc</code>, <code>main/services</code>, <code>main/util</code> vs. <code>renderer/components</code>, <code>renderer/store</code>, <code>renderer/lib</code> — die Trennung ist konsistent.</li>
+  <li><strong>Domänen-orientierte IPC-Channels</strong>: <code>project:*</code>, <code>library:*</code>, <code>atem:*</code> statt einem mega-Handler. Erleichtert Erweiterungen.</li>
+  <li><strong>Atomic Writes</strong> mit <code>util/atomicWrite.ts</code> als shared util — gleicher Schutz für Projekt-JSON und Library-JSON.</li>
+  <li><strong>Transaction-basiertes Undo</strong> (draw.io-Pattern) + 200ms-Coalesce — UX-Niveau, das die meisten kommerziellen AV-Tools nicht haben.</li>
+  <li><strong>Layer-Auto-Detect aus Connector-Typ</strong> (BNC→Video, XLR→Audio, …) — domain-smart Default statt manueller Klassifikation.</li>
+  <li><strong>Heal-Funktion beim Projekt-Laden</strong> (<code>healProjectPositions</code>) — gracefully Migration alter Dateien, kein Bruch durch Schema-Evolution.</li>
+  <li><strong>Mobile-Share-View</strong> als HTTP-Hop direkt aus der App — kein Backend-Server nötig.</li>
+</ul>
+
+<h3>4.2 · Wo strukturelle Risiken liegen</h3>
+<ul>
+  <li><strong>Renderer-Größe</strong> (2.6 MB src/, 19 Komponenten-Subdomänen): ohne klare Schnittstellen-Verträge zwischen Subdomänen können Imports kreuz und quer wachsen. Empfehlung: eine ESLint-Regel für allowed-imports pro Subdomäne (z. B. <code>eslint-plugin-boundaries</code>) oder ein explizites <code>renderer/api</code>-Layer als Single Source of Truth.</li>
+  <li><strong>Store-Monolith</strong>: <code>projectStore.ts</code> hält das gesamte Projekt-Model. Bei weiterer Skalierung würde sich ein Split lohnen (z. B. <code>cableSlice</code>, <code>locationSlice</code>, <code>rackSlice</code>) mit Zustand's <code>combine</code> oder einem Slice-Pattern.</li>
+  <li><strong>Bus-Faktor 1</strong>: ein Maintainer + viel Domäne-Wissen im Kopf. Risiko bei Personenausfall. Empfehlung: ein <code>ARCHITECTURE.md</code> mit den 7–10 wichtigsten Invarianten (z. B. Schema-Migration-Regeln, IPC-Channels, Heal-Logic).</li>
+  <li><strong>Keine Plugin-API</strong>: Erweiterungen brauchen Code-Forks. Wenn Drittnutzer eigene Connector-Typen, Reports oder Hardware-Integrationen brauchen, müssten sie patchen. Eine schmale Plugin-API (z. B. nur Reports und Library-Loader) wäre eine günstige Investition.</li>
+  <li><strong>Keine kollaborative Bearbeitung</strong>: Single-File-Modell. Wenn zwei Teams parallel am Plan arbeiten wollen, brauchen sie Merge per Hand. CRDT (z. B. Yjs) wäre architektonisch addable, aber nicht trivial.</li>
+  <li><strong>Mobile als zweiter Renderer</strong> ist eine Read-View. Wenn Mobile-Edit kommen soll, braucht's eine ernsthaftere API-Schicht statt nur Static-File-Share.</li>
+  <li><strong>Testing-Lücke</strong>: keine Test-Skripte im <code>package.json</code>. Bei 61.5k LOC ist das ein wachsendes Regressions-Risiko — gerade bei Undo/Redo und Heal-Logic. Empfehlung: <code>vitest</code> + 30–50 Snapshot-Tests auf Projekt-Migration / Heal / History.</li>
+</ul>
+
+<h3>4.3 · Wo Cable-Planner strukturell <em>besser</em> ist als die Konkurrenz</h3>
+<ul>
+  <li><strong>Plattform-Reichweite</strong>: einzige der Liste, die Win/macOS/Linux nativ liefert (außer Browser-only-Tools).</li>
+  <li><strong>Offenes Dateiformat</strong>: JSON ist diffbar/git-tauglich. WireCAD/D-Tools/EPlan sind Black-Box.</li>
+  <li><strong>Tech-Stack-Modernität</strong>: React 19 + TS 6 + Vite 8. WireCAD/EPlan sitzen auf 10+ Jahre alten .NET-Stacks.</li>
+  <li><strong>3D + 2D in einem Tool</strong>: Three.js-Rack-View + ReactFlow-Canvas. Kein Konkurrent auf der Liste hat beides nativ.</li>
+  <li><strong>Live-Hardware-Integration</strong>: ATEM-Steuerung direkt aus der Plan-App. Weder WireCAD noch D-Tools können das.</li>
+  <li><strong>Undo-UX</strong>: Transaction + Coalesce auf Niveau draw.io/mxGraph. Bei WireCAD/Visio ist Undo deutlich klobiger.</li>
+</ul>
+
+<h2>5 · Fazit &amp; Positionierung</h2>
+
+<p>Architektonisch sitzt Cable-Planner in einer Lücke: modernes Tech-Stack-Niveau wie tldraw/draw.io kombiniert mit Domänen-Tiefe wie WireCAD und Live-Hardware-Integration, die <em>keiner</em> der Konkurrenten anbietet. Der Bus-Faktor und das Fehlen einer Plugin-API sind die größten strukturellen Risiken — beides ist mit überschaubarem Aufwand adressierbar (ARCHITECTURE.md, schmale Reports-/Library-Plugin-Schnittstelle, Tests).</p>
+
+<p>Klassische Positionierung gegenüber den Wettbewerbern:</p>
+<ul>
+  <li><strong>vs. WireCAD</strong> — Cable-Planner gewinnt bei Plattform-Support, Format-Offenheit, UX-Modernität, Hardware-Integration. WireCAD gewinnt bei Symbolbibliothek-Tiefe und etabliertem Workflow.</li>
+  <li><strong>vs. D-Tools</strong> — Andere Liga: D-Tools ist Business-Lifecycle, Cable-Planner ist Plan-Tool. Komplementär statt konkurrierend.</li>
+  <li><strong>vs. EPlan/WSCAD</strong> — Falsche Domäne — EPlan ist Industrie-Elektrik, Cable-Planner ist AV. Kein direkter Wettbewerb.</li>
+  <li><strong>vs. draw.io/Visio</strong> — Cable-Planner gewinnt klar bei Domänen-Smart-Defaults (Connector-Layer, BOM, Patch). Allgemeine Tools bleiben Notbehelf für AV.</li>
+  <li><strong>vs. tldraw/Excalidraw</strong> — Andere Liga: Whiteboard vs. Fach-Tool. tldraw könnte aber als Render-Engine-Inspiration dienen, falls ReactFlow irgendwann zu eng wird.</li>
+</ul>
+
+</div>
+</body>
+</html>
