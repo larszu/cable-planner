@@ -1760,21 +1760,29 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             user picked 'none' we omit the component entirely so React
             Flow falls back to its plain coloured canvas. */}
         {bgVariant !== 'none' && (() => {
-          // Background pattern with sensible floors so dots/lines stay
-          // visible regardless of gridSize, theme or persisted opacity.
-          // The custom palette (if set in Settings) overrides the
-          // theme-derived grid color.
+          // v7.9.100 — Background-Gap = gridSize damit JEDER Dot ein
+          // echter Snap-Punkt ist. Vor v7.9.100 hatte Dots ein Floor von
+          // 16 px, Lines/Cross von 20 px — Geräte snappten auf gridSize=11
+          // aber die Dots wurden alle 16 px gezeichnet, also nie auf
+          // Geräte-Kanten. Resultat: Snap unsichtbar, "schräg wirkend".
+          //
+          // Wenn gridSize sehr klein ist (< 4 px), zeichnet ReactFlow
+          // visuell so dichte Dots dass sie zu Linien verschmelzen — wir
+          // ziehen dann visuell jeden 2./4. Dot, halten aber das echte
+          // Snap-Raster bei gridSize. So bleibt das Visual lesbar.
           const variant =
             bgVariant === 'lines'
               ? BackgroundVariant.Lines
               : bgVariant === 'cross'
                 ? BackgroundVariant.Cross
                 : BackgroundVariant.Dots
-          const baseGap = gridSize > 0 ? gridSize : 20
-          const gap =
-            variant === BackgroundVariant.Dots
-              ? Math.max(16, baseGap)
-              : Math.max(20, baseGap * 3)
+          const baseGap = gridSize > 0 ? gridSize : 11
+          // Multiplier damit ein zu kleines Grid visuell nicht aufgeht.
+          // Bei gridSize=11 (Default) bleibt's bei 1 → Dots auf jedem
+          // Snap-Punkt. Bei gridSize=2 → Multiplier 8 → Dots alle 16 px,
+          // aber Snap weiter alle 2 px.
+          const visualMultiplier = baseGap >= 8 ? 1 : Math.ceil(8 / baseGap)
+          const gap = baseGap * visualMultiplier
           const themeColor = effectiveCanvasTheme === 'light' ? '#94a3b8' : '#64748b'
           const color = customPalette?.gridColor ?? themeColor
           const opacity = Math.max(0.35, bgOpacity)
