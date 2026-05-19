@@ -14,6 +14,20 @@ export const useRentman = () => {
       cablePlannerApi.rentman.addProjectEquipment(projectId, equipmentId, quantity),
     [],
   )
+  /**
+   * v7.9.110 — Batch-Export in eine 'CablePlanner'-EquipmentGroup im
+   * Rentman-Projekt. Gruppe wird angelegt falls noch nicht vorhanden,
+   * sonst wiederverwendet. Bevorzugt gegenueber addProjectEquipment fuer
+   * alles was Cable-Planner nach Rentman schiebt — landet sortiert in
+   * einer dedizierten Gruppe statt verstreut im Projekt.
+   */
+  const exportToCablePlannerGroup = useCallback(
+    (
+      projectId: string,
+      items: Array<{ equipmentId: string; quantity: number }>,
+    ) => cablePlannerApi.rentman.exportToCablePlannerGroup(projectId, items),
+    [],
+  )
   const addProjectFile = useCallback(
     (projectId: string, fileName: string, fileBytes: Uint8Array, mimeType?: string) =>
       cablePlannerApi.rentman.addProjectFile(projectId, fileName, fileBytes, mimeType),
@@ -26,6 +40,7 @@ export const useRentman = () => {
     loadFolders,
     loadEquipment,
     addProjectEquipment,
+    exportToCablePlannerGroup,
     addProjectFile,
   }
 }
