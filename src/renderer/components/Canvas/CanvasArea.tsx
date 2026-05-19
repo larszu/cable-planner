@@ -259,6 +259,14 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         obstacles,
         sourceEquipmentId: cable.fromEquipmentId,
         targetEquipmentId: cable.toEquipmentId,
+        // v7.9.118 / Issue #223 — Im Rack-Mode kleineres Obstacle-
+        // Padding, weil Rack-Geraete in 1HE-Schritten direkt aneinander
+        // stehen. Default 2 (= 40 px) wuerde den Korridor zwischen
+        // benachbarten Geraeten komplett sperren → A* loopt ums Rack.
+        // 0 Padding ist akzeptabel hier — die Geraete-Aussenkanten
+        // sind Snap-Grid-aligned, ein Kabel direkt an der Kante stoert
+        // visuell weniger als ein Riesen-Umweg.
+        ...(mode === 'rack' ? { obstaclePadCells: 0 } : {}),
       })
       // v7.9.115 / Issue #223 — Wenn A* keinen Pfad findet (dichtes
       // Rack, blockierter Korridor), schweigend zurueck auf
