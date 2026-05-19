@@ -78,7 +78,7 @@ interface RackPlacementDraft {
 interface RackDraft {
   rackName: string
   totalUnits: number
-  viewMode: 'front' | 'rear' | 'both'
+  viewMode: 'front' | 'rear' | 'both' | 'side'
   /** v7.9.73 / #170 — Rack-Tiefe in mm. Default 800 mm. */
   depthMm?: number
   placements: RackPlacementDraft[]
@@ -1549,6 +1549,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   ['front', 'Nur vorne', '#22c55e'],
                   ['both', 'Beide', '#64748b'],
                   ['rear', 'Nur hinten', '#a855f7'],
+                  ['side', 'Seite (Tiefe)', '#0ea5e9'],
                 ] as const).map(([mode, label, color]) => (
                   <button
                     key={mode}
@@ -1580,7 +1581,84 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               className={`grid gap-2 overflow-auto ${draft.viewMode === 'both' ? 'grid-cols-2' : 'grid-cols-1'} ${viewTab === '3d' ? 'hidden' : ''}`}
               style={{ maxHeight: 'min(75vh, 800px)' }}
             >
-              {(draft.viewMode === 'both' ? ['front', 'rear'] : [draft.viewMode]).map((side) => (
+              {/* v7.9.87 / #208 — 'side' mode: rendere ein einzelnes Side-
+                  Panel (Tiefenansicht). Front/Rear/Both Modi laufen wie
+                  vorher. */}
+              {draft.viewMode === 'side' && (
+                <div className="rounded border border-slate-800 bg-slate-950 p-2">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded bg-sky-900/50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-200">
+                      <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: '#0ea5e9' }} />
+                      Seitenansicht (Tiefe)
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      Vorne ◀ {draft.depthMm ?? 800} mm ▶ Hinten
+                    </span>
+                  </div>
+                  {(() => {
+                    const depthMm = draft.depthMm ?? 800
+                    const sideWidthPx = rowHeight * RACK_PANEL_ASPECT_PER_1HE
+                    const sidePxPerMm = sideWidthPx / depthMm
+                    return (
+                      <div
+                        className="relative mx-auto overflow-hidden rounded border border-slate-700 bg-slate-900"
+                        style={{ width: sideWidthPx, height: draft.totalUnits * rowHeight }}
+                      >
+                        {/* HE-Grid */}
+                        {Array.from({ length: draft.totalUnits }).map((_, idx) => {
+                          const unit = idx + 1
+                          return (
+                            <div
+                              key={`side-grid-${unit}`}
+                              className="absolute left-0 right-0 border-t border-slate-800/80"
+                              style={{ top: idx * rowHeight, height: rowHeight }}
+                            >
+                              <span className="absolute left-1 top-0.5 text-[9px] text-slate-600">U{unit}</span>
+                            </div>
+                          )
+                        })}
+                        {/* Front + Rear Rail-Markierungen */}
+                        <div className="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-green-700/60" title="Front-Rail" />
+                        <div className="pointer-events-none absolute inset-y-0 right-0 w-0.5 bg-purple-700/60" title="Rear-Rail" />
+                        {/* Placements als horizontale Streifen (Front-of-Box bis Rear-of-Box) */}
+                        {draft.placements.map((item) => {
+                          const top = (item.startUnit - 1) * rowHeight
+                          const height = item.rackUnits * rowHeight - 1
+                          const tpl = templates.find((t) => t.name === item.templateName)
+                          const devDepthMm = item.depthMm ?? tpl?.depthMm ?? 400
+                          const mount = item.mountSide ?? 'full'
+                          // zStart in der Rack-Welt (0 = Front, depthMm = Rear)
+                          const zStart = mount === 'rear'
+                            ? depthMm - devDepthMm
+                            : (item.shelfOffsetZ ?? 0)
+                          const leftPx = zStart * sidePxPerMm
+                          const widthPx = devDepthMm * sidePxPerMm
+                          const isSelected = selectedPlacementId === item.id
+                          const colorClass = mount === 'rear'
+                            ? 'border-purple-500 bg-purple-900/40'
+                            : mount === 'front'
+                              ? 'border-green-500 bg-green-900/40'
+                              : 'border-slate-500 bg-slate-700/40'
+                          return (
+                            <div
+                              key={`side-block-${item.id}`}
+                              onClick={() => setSelectedPlacementId(item.id)}
+                              className={`absolute cursor-pointer overflow-hidden rounded border-2 text-[9px] text-white transition ${
+                                isSelected ? 'border-amber-300 ring-1 ring-amber-400/40' : colorClass
+                              }`}
+                              style={{ top, height, left: leftPx, width: widthPx }}
+                              title={`${item.name} (${item.rackUnits} HE, Tiefe ${devDepthMm} mm, Mount ${mount})`}
+                            >
+                              <div className="px-1 py-0.5 truncate">{item.name}</div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )
+                  })()}
+                </div>
+              )}
+              {draft.viewMode !== 'side' && (draft.viewMode === 'both' ? ['front', 'rear'] : [draft.viewMode]).map((side) => (
                 <div key={side} className="rounded border border-slate-800 bg-slate-950 p-2">
                   <div className="mb-2 flex items-center gap-2">
                     <span
