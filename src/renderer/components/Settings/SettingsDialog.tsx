@@ -1125,8 +1125,43 @@ const EditingTab = () => {
       </SettingsCard>
 
       <CableReconnectOptionsCard />
+      <CableInheritTypeCard />
       <CableVisualOptionsCard />
     </div>
+  )
+}
+
+/** v7.9.125 — Cable Connector Type Inheritance. Wenn aktiv (default),
+ *  folgt Cable.type automatisch dem ConnectorType der angeschlossenen
+ *  Ports: wechselt der User in den Eigenschaften eines Geraets den
+ *  Connector eines Ports (BNC -> XLR), nehmen verbundene Kabel den
+ *  neuen Typ an. Cables mit needsConverter bleiben unberuehrt. */
+const CableInheritTypeCard = () => {
+  const t = useTranslation()
+  const inheritCableTypeFromPort = useUiStore((s) => s.inheritCableTypeFromPort)
+  const setInheritCableTypeFromPort = useUiStore((s) => s.setInheritCableTypeFromPort)
+  return (
+    <SettingsCard
+      title={t('settings.editing.cableInherit', 'Kabel-Typ folgt Port-Connector')}
+      description={t(
+        'settings.editing.cableInheritDesc',
+        'Wenn ein Port-Connector geaendert wird (z.B. BNC -> XLR), uebernehmen verbundene Kabel automatisch den neuen Typ. Gilt auch beim Umstecken auf einen Port mit anderem Connector. Kabel mit Konverter-Hinweis (needsConverter) bleiben unberuehrt.',
+      )}
+    >
+      <label className="flex items-center gap-2 text-sm text-slate-200">
+        <input
+          type="checkbox"
+          checked={inheritCableTypeFromPort}
+          onChange={(e) => setInheritCableTypeFromPort(e.target.checked)}
+        />
+        {t('settings.editing.cableInheritLabel', 'Kabel-Typ aus Port-Connector ableiten')}
+      </label>
+      <p className="mt-2 text-[11px] text-slate-500">
+        Default an: meistens sollen Kabel den physischen Anschluss-Typ
+        ihrer Ports widerspiegeln. Abschalten, wenn Kabel-Typen
+        unabhaengig von Port-Typen verwaltet werden sollen.
+      </p>
+    </SettingsCard>
   )
 }
 
