@@ -508,16 +508,42 @@ const sanitizePort = (port: Partial<Port>, fallbackName: string): Port => ({
  * shift is in the order of fractions of a pixel, never more).
  */
 const healProjectPositions = (project: CablePlannerProject): CablePlannerProject => {
-  const r = (v: unknown): number =>
-    typeof v === 'number' && Number.isFinite(v) ? Math.round(v) : 0
+  // v7.9.100 — Snap-to-Grid-Heal: alle Equipment-/Location-/Waypoint-
+  // Koordinaten + Maße auf gridSize-Vielfache runden. Alte Projekte
+  // (vor snapToGrid-Default) haben x=137, width=215 usw. → liegen
+  // permanent zwischen den Dot-Reihen. Heal beim Load snappt alles auf
+  // 11er-Raster damit Geräte-Kanten und Port-Handles auf den
+  // Background-Dots sitzen. User kann das Raster in den Settings
+  // ändern; heilen aber tun wir mit dem aktuellen gridSize, weil das
+  // dem aktuell sichtbaren Background entspricht.
+  // Snap deaktiviert (snapToGrid=false oder gridSize<=0) → nur runden,
+  // nicht snappen.
+  const ui = useUiStore.getState()
+  const snap = ui.snapToGrid && ui.gridSize > 0 ? ui.gridSize : 0
+  const snapVal = (v: unknown, fallback = 0): number => {
+    if (typeof v !== 'number' || !Number.isFinite(v)) return fallback
+    if (snap > 0) return Math.round(v / snap) * snap
+    return Math.round(v)
+  }
+  const r = (v: unknown): number => snapVal(v, 0)
   return {
     ...project,
     equipment: project.equipment.map((item) => ({
       ...item,
       x: r(item.x),
       y: r(item.y),
-      width: typeof item.width === 'number' ? Math.round(item.width) : item.width,
-      height: typeof item.height === 'number' ? Math.round(item.height) : item.height,
+      width:
+        typeof item.width === 'number'
+          ? snap > 0
+            ? Math.ceil(item.width / snap) * snap
+            : Math.round(item.width)
+          : item.width,
+      height:
+        typeof item.height === 'number'
+          ? snap > 0
+            ? Math.ceil(item.height / snap) * snap
+            : Math.round(item.height)
+          : item.height,
     })),
     cables: project.cables.map((c) => {
       let patched = c
@@ -539,12 +565,15 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
     }),
     // v7.9.93 / #194 — moveContents-Default-Heal für alte Locations:
     // undefined → true (siehe addLocation Default seit v7.9.81).
+    // v7.9.100 — Auch Location-Rahmen aufs Snap-Grid (width/height per
+    // ceil damit der Rahmen nicht plötzlich kleiner wird und einen
+    // Inhalt abschneidet).
     locations: (project.locations ?? []).map((loc) => ({
       ...loc,
       x: r(loc.x),
       y: r(loc.y),
-      width: Math.round(loc.width),
-      height: Math.round(loc.height),
+      width: snap > 0 ? Math.ceil(loc.width / snap) * snap : Math.round(loc.width),
+      height: snap > 0 ? Math.ceil(loc.height / snap) * snap : Math.round(loc.height),
       moveContents: loc.moveContents !== false,
     })),
   }

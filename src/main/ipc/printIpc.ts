@@ -52,6 +52,14 @@ export const registerPrintIpc = (): void => {
           offscreen: false,
         },
       })
+      // v7.9.99 — Debug-Pfad merken damit wir bei Fehlern das HTML
+      // inspizieren können. Bei Erfolg loeschen wir das Tempfile.
+      const debugPath = path.join(tmpdir(), 'cable-planner-last-vector-print.html')
+      try {
+        await writeFile(debugPath, html, 'utf-8')
+      } catch {
+        // best-effort, nicht blockierend
+      }
       try {
         await win.loadFile(tmpFile)
         // Auf Font-Loading warten — sonst werden Glyphs fallback-gerendert.
@@ -60,8 +68,10 @@ export const registerPrintIpc = (): void => {
             'document.fonts && document.fonts.ready ? document.fonts.ready.then(() => true) : true',
           )
           .catch(() => null)
-        // Kurze Layout-Stabilisierung (foreignObject braucht 1-2 Frames).
-        await new Promise<void>((r) => setTimeout(r, 250))
+        // v7.9.99 — Layout-Stabilisierung 600ms statt 250ms. Bei sehr
+        // grossen Canvases braucht der erste Paint mehr Zeit, sonst
+        // produziert printToPDF eine leere Seite.
+        await new Promise<void>((r) => setTimeout(r, 600))
         const buffer = await win.webContents.printToPDF({
           pageSize: { width: widthMicrons, height: heightMicrons },
           printBackground: true,
@@ -69,7 +79,14 @@ export const registerPrintIpc = (): void => {
           margins: { marginType: 'none' },
           displayHeaderFooter: false,
           landscape: widthMicrons > heightMicrons,
+          // generateTaggedPDF=false bricht bei einigen Chromium-Versionen
+          // den Render. Default lassen wir weg.
         })
+        if (!buffer || buffer.byteLength < 1000) {
+          throw new Error(
+            `printToPDF gab nur ${buffer?.byteLength ?? 0} Bytes zurueck — Render fehlgeschlagen. Debug-HTML liegt unter ${debugPath}.`,
+          )
+        }
         return new Uint8Array(buffer)
       } finally {
         try {

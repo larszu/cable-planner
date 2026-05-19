@@ -1,26 +1,24 @@
 /**
- * v7.9.97 — Vektor-PDF-Export (Beta).
+ * v7.9.99 — Vektor-PDF-Export, robuster zweiter Versuch.
  *
- * Alternative zur klassischen Raster-Pipeline in exportPdf.ts. Statt
- * das Canvas zu rastern → JPEG → jsPDF.addImage, serialisieren wir es
- * via html-to-image.toSvg() als SVG mit foreignObject und lassen
- * Electrons webContents.printToPDF() das PDF erzeugen.
+ * v7.9.97 hatte html-to-image.toSvg() benutzt und produzierte leere PDFs
+ * bei größeren Canvases (vermutlich foreignObject-Serialisierung nested-
+ * mit-ReactFlow-Edge-SVGs unzuverlässig).
  *
- * Vorteile:
- *  - Text bleibt echter Text im PDF (selektier-/suchbar)
- *  - SVG-Pfade bleiben Vektor (ReactFlow-Edges sind eh SVG)
- *  - Beim Zoom kein Pixel-Matsch
- *  - Datei-Größe typisch 1-3 MB statt 5-10 MB (kein JPEG-Embedding)
+ * Neuer Ansatz:
+ *  1. Canvas-Element via cloneNode(true) direkt klonen — keine
+ *     SVG-Serialisierung, kein foreignObject
+ *  2. Alle Stylesheets aus document.styleSheets serialisieren und ins
+ *     Print-HTML einbetten (funktioniert in Dev und in Prod gleichwertig
+ *     weil alles via CSSOM ausgelesen wird)
+ *  3. Clone in ein selbst-enthaltenes HTML-Dokument legen mit
+ *     @page-CSS für die Seitengröße
+ *  4. HTML an Main schicken → printToPDF in Hidden-Window
+ *  5. Chromium rendert die geklonte HTML-Struktur nativ → Text bleibt
+ *     Text, ReactFlow-Edge-SVGs bleiben Vektor, kein Pixel-Matsch
  *
- * Nachteile / Caveats:
- *  - Nur in Electron-Builds verfügbar (braucht main-process printToPDF)
- *  - foreignObject mit komplexem CSS kann theoretisch andere Resultate
- *    geben — Chromium rendert sie aber gleich wie im Live-Canvas
- *  - Erstaufruf ist langsamer (~1-2 s Hidden-Window-Boot)
- *
- * Die Raster-Pipeline bleibt unverändert als Fallback bestehen.
+ * Die Raster-Pipeline bleibt unverändert als Default-Pfad.
  */
-import { toSvg } from 'html-to-image'
 import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 
@@ -47,7 +45,6 @@ interface CablePlannerWindow {
 
 // 96 DPI: 1 CSS-px = 1/96 inch = 25400/96 = 264.5833 microns
 const PX_TO_MICRONS = 25400 / 96
-// 1 CSS-px ≈ 0.264583 mm
 const PX_TO_MM = 25.4 / 96
 
 const fmtDate = (iso?: string): string => {
@@ -74,10 +71,6 @@ interface BoundingBox {
   contentH: number
 }
 
-/** Misst die Bounding-Box aller Nodes + Edges + Edge-Labels im
- *  ReactFlow-Viewport. Selbe Logik wie in exportPdf.ts — duplikat ist
- *  bewusst, damit der Vektor-Pfad isoliert testbar bleibt und ein
- *  Refactor am Raster-Pfad nicht versehentlich diesen hier bricht. */
 const computeNaturalBbox = (viewportEl: HTMLElement): BoundingBox => {
   const nodeEls = Array.from(
     viewportEl.querySelectorAll<HTMLElement>('.react-flow__node'),
@@ -153,28 +146,77 @@ const computeNaturalBbox = (viewportEl: HTMLElement): BoundingBox => {
   }
 }
 
-/** Decode a `data:image/svg+xml;...` URL back to its raw SVG markup. */
-const decodeSvgDataUrl = (dataUrl: string): string => {
-  const idx = dataUrl.indexOf(',')
-  if (idx < 0) throw new Error('Ungültige SVG-Data-URL')
-  const head = dataUrl.slice(0, idx)
-  const body = dataUrl.slice(idx + 1)
-  if (head.includes(';base64')) {
-    return atob(body)
+/** Sammelt ALLE CSS-Regeln aus document.styleSheets. Funktioniert in
+ *  Dev (vite-injected styles als <style>-Tags) und in Prod (gebundelte
+ *  CSS in <style>-Tags). Cross-Origin-Stylesheets werden uebersprungen
+ *  mit Warnung — sollte fuer uns nicht relevant sein da alles
+ *  same-origin via Electron/Vite kommt. */
+const collectAllCss = (): string => {
+  const parts: string[] = []
+  for (const sheet of Array.from(document.styleSheets)) {
+    try {
+      const rules = sheet.cssRules
+      if (!rules) continue
+      const segments: string[] = []
+      for (const rule of Array.from(rules)) {
+        segments.push(rule.cssText)
+      }
+      if (segments.length > 0) parts.push(segments.join('\n'))
+    } catch (err) {
+      console.warn(
+        '[pdf-vector] Stylesheet uebersprungen (CORS?):',
+        sheet.href,
+        err,
+      )
+    }
   }
-  // URL-encoded (html-to-image's default for toSvg)
-  return decodeURIComponent(body)
+  return parts.join('\n')
 }
 
-/** Filter for html-to-image: skip overlay/UI-only elements that
- *  shouldn't be in the export. */
-const baseFilter = (node: Node): boolean => {
-  if (!(node instanceof HTMLElement) && !(node instanceof SVGElement)) return true
-  const el = node as HTMLElement | SVGElement
-  if (el.classList.contains('react-flow__minimap')) return false
-  if (el.classList.contains('react-flow__controls')) return false
-  if (el.classList.contains('react-flow__background')) return false
-  return true
+/** Klont das gesamte Canvas-Element. Setzt anschliessend den ReactFlow-
+ *  Viewport-Transform so um, dass das natural-size Content-Rechteck bei
+ *  (0,0) sitzt. So kann das Eltern-Wrapper-Element einfach
+ *  width=contentW height=contentH bekommen — alles passt rein. */
+const cloneCanvasForPrint = (
+  canvasEl: HTMLElement,
+  bbox: BoundingBox,
+): HTMLElement => {
+  const clone = canvasEl.cloneNode(true) as HTMLElement
+  clone.removeAttribute('id')
+  // Inline-Style ueberschreibt allfaellige width/height-Constraints.
+  clone.style.width = `${bbox.contentW}px`
+  clone.style.height = `${bbox.contentH}px`
+  clone.style.position = 'relative'
+  clone.style.overflow = 'hidden'
+
+  // ReactFlow's Viewport-Transform auf Identity + Natural-Translation.
+  const viewport = clone.querySelector('.react-flow__viewport') as HTMLElement | null
+  if (viewport) {
+    viewport.style.transform = `translate(${-bbox.contentX}px, ${-bbox.contentY}px) scale(1)`
+    viewport.style.transformOrigin = '0 0'
+  }
+
+  // Edge-Path-SVG-Container auch auf natural sizen falls es das gibt.
+  const edgesSvg = clone.querySelector('.react-flow__edges') as SVGElement | null
+  if (edgesSvg) {
+    edgesSvg.style.width = `${bbox.contentW}px`
+    edgesSvg.style.height = `${bbox.contentH}px`
+    edgesSvg.style.overflow = 'visible'
+  }
+
+  // UI-Chrome im Clone entfernen falls vorhanden.
+  for (const sel of [
+    '.react-flow__minimap',
+    '.react-flow__controls',
+    '.react-flow__panel',
+    '.react-flow__attribution',
+  ]) {
+    for (const el of Array.from(clone.querySelectorAll(sel))) {
+      el.remove()
+    }
+  }
+
+  return clone
 }
 
 const renderTitleBlock = (meta: ProjectMetadata): string => {
@@ -189,7 +231,7 @@ const renderTitleBlock = (meta: ProjectMetadata): string => {
   ]
   const hasLogos = !!(meta.companyLogo || meta.clientLogo)
   const logos = hasLogos
-    ? `<div class="title-block-logos">
+    ? `<div class="pdf-tb-logos">
         ${meta.companyLogo ? `<img src="${escapeHtml(meta.companyLogo)}" alt="" />` : '<div></div>'}
         ${meta.clientLogo ? `<img src="${escapeHtml(meta.clientLogo)}" alt="" />` : '<div></div>'}
       </div>`
@@ -197,14 +239,15 @@ const renderTitleBlock = (meta: ProjectMetadata): string => {
   const rowsHtml = rows
     .map(
       ([k, v]) =>
-        `<div class="title-block-row"><span class="k">${escapeHtml(k)}</span><span class="v">${escapeHtml(v)}</span></div>`,
+        `<div class="pdf-tb-row"><span class="k">${escapeHtml(k)}</span><span class="v">${escapeHtml(v)}</span></div>`,
     )
     .join('')
-  return `<div class="title-block">${logos}${rowsHtml}</div>`
+  return `<div class="pdf-tb">${logos}${rowsHtml}</div>`
 }
 
 const buildPrintHtml = (params: {
-  svg: string
+  appCss: string
+  canvasOuterHtml: string
   projectName: string
   pageWidthPx: number
   pageHeightPx: number
@@ -215,9 +258,11 @@ const buildPrintHtml = (params: {
   bgFallback: string
   textColor: string
   metadata?: ProjectMetadata
+  themeDark: boolean
 }): string => {
   const {
-    svg,
+    appCss,
+    canvasOuterHtml,
     projectName,
     pageWidthPx,
     pageHeightPx,
@@ -228,86 +273,91 @@ const buildPrintHtml = (params: {
     bgFallback,
     textColor,
     metadata,
+    themeDark,
   } = params
   const pageWmm = (pageWidthPx * PX_TO_MM).toFixed(3)
   const pageHmm = (pageHeightPx * PX_TO_MM).toFixed(3)
   const timestamp = new Date().toLocaleString()
+  const themeAttr = themeDark ? 'dark' : 'light'
   return `<!doctype html>
-<html><head>
+<html lang="de" data-theme="${themeAttr}">
+<head>
 <meta charset="utf-8">
+<title>${escapeHtml(projectName || 'Cable Planner')}</title>
 <style>
+${appCss}
+</style>
+<style>
+  /* Print-Page-Setup */
   @page { size: ${pageWmm}mm ${pageHmm}mm; margin: 0; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    width: ${pageWidthPx}px;
-    height: ${pageHeightPx}px;
+  html, body {
+    margin: 0; padding: 0;
+    width: ${pageWidthPx}px; height: ${pageHeightPx}px;
     background: ${bgFallback};
     color: ${textColor};
-    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
-  .page {
-    position: relative;
-    width: ${pageWidthPx}px;
-    height: ${pageHeightPx}px;
-    box-sizing: border-box;
-    padding: ${margin}px;
+  body { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .pdf-page { position: relative; width: ${pageWidthPx}px; height: ${pageHeightPx}px; }
+  .pdf-header {
+    position: absolute; left: ${margin}px; top: ${margin}px;
+    right: ${margin}px; height: ${headerHeight}px;
+    display: flex; justify-content: space-between; align-items: baseline;
   }
-  .header { display: flex; justify-content: space-between; align-items: baseline; }
-  .header .title { font-size: 14px; font-weight: 600; }
-  .header .stamp { font-size: 9px; color: ${textColor === '#000' ? '#555' : '#94a3b8'}; }
-  .canvas-wrap {
+  .pdf-header .title { font-size: 14px; font-weight: 600; }
+  .pdf-header .stamp { font-size: 9px; opacity: 0.6; }
+  .pdf-canvas-wrap {
     position: absolute;
     left: ${margin}px;
     top: ${margin + headerHeight}px;
     width: ${canvasWidthPx}px;
     height: ${canvasHeightPx}px;
     overflow: hidden;
+    background: ${bgFallback};
   }
-  .canvas-wrap > svg { width: 100%; height: 100%; display: block; }
-  .title-block {
+  /* Kein scrollen / kein Userinteraktion-Layout-Anpassung im Print */
+  .pdf-canvas-wrap * { animation: none !important; transition: none !important; }
+  /* DIN-Title-Block unten rechts */
+  .pdf-tb {
     position: absolute;
-    right: ${margin}px;
-    bottom: ${margin}px;
+    right: ${margin}px; bottom: ${margin}px;
     width: 300px;
     border: 1px solid #444;
     font-size: 8px;
     background: ${bgFallback};
+    color: ${textColor};
   }
-  .title-block-row {
-    display: flex;
-    border-bottom: 1px solid #aaa;
-    padding: 4px 6px;
-    line-height: 1.3;
+  .pdf-tb-row {
+    display: flex; border-bottom: 1px solid rgba(150,150,150,0.5);
+    padding: 4px 6px; line-height: 1.3;
   }
-  .title-block-row:last-child { border-bottom: none; }
-  .title-block-row .k { width: 85px; color: ${textColor === '#000' ? '#555' : '#64748b'}; }
-  .title-block-row .v { flex: 1; }
-  .title-block-logos {
-    display: flex;
-    gap: 8px;
-    padding: 4px;
-    border-bottom: 1px solid #aaa;
-    align-items: center;
-    justify-content: space-around;
+  .pdf-tb-row:last-child { border-bottom: none; }
+  .pdf-tb-row .k { width: 85px; opacity: 0.6; }
+  .pdf-tb-row .v { flex: 1; }
+  .pdf-tb-logos {
+    display: flex; gap: 8px; padding: 4px;
+    border-bottom: 1px solid rgba(150,150,150,0.5);
+    align-items: center; justify-content: space-around;
     min-height: 36px;
   }
-  .title-block-logos img {
-    max-height: 32px;
-    max-width: 140px;
-    object-fit: contain;
-  }
+  .pdf-tb-logos img { max-height: 32px; max-width: 140px; object-fit: contain; }
 </style>
-</head><body>
-<div class="page">
-  <div class="header">
+</head>
+<body>
+<div class="pdf-page">
+  <div class="pdf-header">
     <div class="title">${escapeHtml(projectName || 'Cable Planner Project')}</div>
     <div class="stamp">${escapeHtml(timestamp)}</div>
   </div>
-  <div class="canvas-wrap">${svg}</div>
+  <div class="pdf-canvas-wrap">
+    ${canvasOuterHtml}
+  </div>
   ${metadata ? renderTitleBlock(metadata) : ''}
 </div>
-</body></html>`
+</body>
+</html>`
 }
 
 export const exportCanvasToPdfVector = async (
@@ -324,15 +374,15 @@ export const exportCanvasToPdfVector = async (
   }
   const onProgress = options?.onProgress ?? (() => {})
 
-  const canvasEl = document.getElementById('cable-planner-canvas')
+  const canvasEl = document.getElementById('cable-planner-canvas') as HTMLElement | null
   if (!canvasEl) throw new Error('Canvas nicht gefunden')
   const viewportEl = canvasEl.querySelector('.react-flow__viewport') as HTMLElement | null
   if (!viewportEl) throw new Error('ReactFlow-Viewport nicht gefunden')
 
   onProgress('measure', 'Inhalt vermessen…')
   const bbox = computeNaturalBbox(viewportEl)
-  const { contentX, contentY, contentW, contentH } = bbox
 
+  const themeDark = options?.backgroundTheme !== 'light'
   const composed = composeExportBackground({
     theme: options?.backgroundTheme ?? 'dark',
     variant: options?.bgVariant ?? 'dots',
@@ -341,48 +391,46 @@ export const exportCanvasToPdfVector = async (
     customPalette: options?.customPalette ?? null,
   })
   const bgFallback = composed.bgFallback
-  const textColor = options?.backgroundTheme === 'light' ? '#000' : '#fff'
+  const textColor = themeDark ? '#e2e8f0' : '#0f172a'
 
-  onProgress('capture', `Canvas ${contentW}×${contentH}px als SVG serialisieren…`)
-  // toSvg liefert eine data:image/svg+xml;... URL. Wir dekodieren sie und
-  // betten das rohe SVG ins Print-HTML ein.
-  const svgDataUrl = await toSvg(viewportEl, {
-    width: contentW,
-    height: contentH,
-    cacheBust: true,
-    backgroundColor: bgFallback,
-    style: {
-      width: `${contentW}px`,
-      height: `${contentH}px`,
-      background: bgFallback,
-      backgroundColor: bgFallback,
-      transform: `translate(${-contentX}px, ${-contentY}px)`,
-      transformOrigin: '0 0',
-    },
-    filter: baseFilter,
-  })
-  const svg = decodeSvgDataUrl(svgDataUrl)
+  onProgress('capture', 'Canvas-DOM klonen…')
+  const canvasClone = cloneCanvasForPrint(canvasEl, bbox)
+  const canvasOuterHtml = canvasClone.outerHTML
+  if (canvasOuterHtml.length < 1000) {
+    throw new Error(
+      `Canvas-Clone ist verdaechtig klein (${canvasOuterHtml.length} bytes) — Export abgebrochen.`,
+    )
+  }
 
-  // Page-Layout: identisch zum Raster-Pfad, damit Header/Title-Block
-  // stehen wo Nutzer es gewohnt sind.
+  onProgress('styles', 'Stylesheets sammeln…')
+  const appCss = collectAllCss()
+  if (appCss.length < 1000) {
+    console.warn(
+      `[pdf-vector] Wenig CSS gesammelt (${appCss.length} bytes) — moeglicherweise CORS-blockiert.`,
+    )
+  }
+
   const margin = 24
   const headerHeight = 28
   const titleBlockReserve = metadata ? 12 : 0
-  const pageWidthPx = contentW + margin * 2
-  const pageHeightPx = contentH + margin * 2 + headerHeight + titleBlockReserve
+  const pageWidthPx = bbox.contentW + margin * 2
+  const pageHeightPx = bbox.contentH + margin * 2 + headerHeight + titleBlockReserve
 
+  onProgress('compose', `Print-HTML bauen (${Math.round((appCss.length + canvasOuterHtml.length) / 1024)} KB)…`)
   const html = buildPrintHtml({
-    svg,
+    appCss,
+    canvasOuterHtml,
     projectName,
     pageWidthPx,
     pageHeightPx,
-    canvasWidthPx: contentW,
-    canvasHeightPx: contentH,
+    canvasWidthPx: bbox.contentW,
+    canvasHeightPx: bbox.contentH,
     headerHeight,
     margin,
     bgFallback,
     textColor,
     metadata,
+    themeDark,
   })
 
   onProgress('render', 'Chromium printToPDF…')
@@ -391,6 +439,11 @@ export const exportCanvasToPdfVector = async (
   const bytes = await handler({ html, widthMicrons, heightMicrons })
 
   onProgress('save', 'Datei speichern…')
+  if (!bytes || bytes.byteLength < 1000) {
+    throw new Error(
+      `printToPDF lieferte verdaechtig wenig zurueck (${bytes?.byteLength ?? 0} bytes).`,
+    )
+  }
   const blob = new Blob([new Uint8Array(bytes)], { type: 'application/pdf' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
