@@ -11,6 +11,12 @@ interface LibraryItemProps {
   onToggleFavorite?: () => void
   onToggleHidden?: () => void
   onExport?: () => void
+  /** v7.9.106 / Issue #227 — Rentman-Item ohne Ports + gleichnamiges
+   *  lokales Item mit Ports → Aktion zum Verknuepfen/Sync. Wenn gesetzt
+   *  erscheint ein 🔗-Button rechts. */
+  onLinkPorts?: () => void
+  /** Display-Name des Match-Targets fuer den Verknuepfen-Tooltip. */
+  linkTargetName?: string
 }
 
 export const LibraryItem = ({
@@ -20,6 +26,8 @@ export const LibraryItem = ({
   onToggleFavorite,
   onToggleHidden,
   onExport,
+  onLinkPorts,
+  linkTargetName,
 }: LibraryItemProps) => {
   // Currently linked Rentman project — used to colour-code rentman badges
   // so users can distinguish "from active Rentman project" vs "from another
@@ -169,6 +177,24 @@ export const LibraryItem = ({
             aria-label="Exportieren"
           >
             ⬇
+          </button>
+        )}
+        {onLinkPorts && (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation()
+              onLinkPorts()
+            }}
+            className="rounded bg-emerald-700 px-1 text-[11px] text-emerald-100 hover:bg-emerald-600"
+            title={
+              linkTargetName
+                ? `Mit lokalem Geraet "${linkTargetName}" verknuepfen (Ports uebernehmen)`
+                : 'Mit gleichnamigem lokalem Geraet verknuepfen (Ports uebernehmen)'
+            }
+            aria-label="Verknuepfen"
+          >
+            🔗
           </button>
         )}
         {onRemove && (
