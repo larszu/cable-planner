@@ -294,6 +294,7 @@ const defaults: PersistedUiState = {
     'network',
     'sdi',
     'power',
+    'dimensions',
     'display',
     'network-config',
     'optional',

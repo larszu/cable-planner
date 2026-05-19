@@ -578,6 +578,7 @@ export const LibraryPanel = () => {
   const equipmentCount = useProjectStore((state) => state.project.equipment.length)
   const equipmentItems = useProjectStore((state) => state.project.equipment)
   const customLibrary = useProjectStore((state) => state.customLibrary)
+  const setCustomLibrary = useProjectStore((state) => state.setCustomLibrary)
   const addCustomTemplate = useProjectStore((state) => state.addCustomTemplate)
   const removeCustomTemplate = useProjectStore((state) => state.removeCustomTemplate)
   const resyncRentmanLibraryFromCanvas = useProjectStore((state) => state.resyncRentmanLibraryFromCanvas)
@@ -623,6 +624,10 @@ export const LibraryPanel = () => {
   const deleteGroupPreset = useProjectStore((state) => state.deleteGroupPreset)
   const placeGroupPreset = useProjectStore((state) => state.placeGroupPreset)
   const insertBlackBoxRack = useProjectStore((state) => state.insertBlackBoxRack)
+  // v7.9.105 / Issue #224 — In-Place-Edit fuer Canvas-Racks.
+  const replaceCanvasRackWithPreset = useProjectStore(
+    (state) => state.replaceCanvasRackWithPreset,
+  )
   const reorderGroupPresets = useProjectStore((state) => state.reorderGroupPresets)
   const renameGroupPreset = useProjectStore((state) => state.renameGroupPreset)
   const renameCustomCategory = useProjectStore((state) => state.renameCustomCategory)
@@ -637,6 +642,13 @@ export const LibraryPanel = () => {
   // "Als Rack speichern". Lives in component state because it's
   // ephemeral (only valid while the dialog is open).
   const [seedPreset, setSeedPreset] = useState<import('../../types/equipment').GroupPreset | null>(null)
+  // v7.9.105 / Issue #224 — Wenn der RackBuilder aus dem Canvas-Toolbar-
+  // 'Rack bearbeiten'-Button geoeffnet wurde, merken wir uns die
+  // Equipment-ID damit Save in-place ins Canvas zurueckgeht statt in
+  // die Library-Preset.
+  const [editingCanvasRackEquipmentId, setEditingCanvasRackEquipmentId] = useState<
+    string | null
+  >(null)
   // Watch the global trigger fired by the CanvasToolbar button.
   const rackBuilderSeedTrigger = useUiStore((s) => s.rackBuilderSeedTrigger)
   const clearRackBuilderSeedTrigger = useUiStore((s) => s.clearRackBuilderSeedTrigger)
@@ -699,11 +711,13 @@ export const LibraryPanel = () => {
   }, [rackBuilderSeedTrigger, equipmentItems, clearRackBuilderSeedTrigger])
 
   // v7.9.51 — Edit-Trigger vom Canvas-Toolbar-Button für ein bereits
-  // platziertes Black-Box-Rack. Wir suchen das zugehörige Source-Preset
-  // (Match per Name — insertBlackBoxRack benennt das Equipment immer
-  // als "<Preset-Name> (Rack)") und öffnen den Builder im Edit-Mode.
-  // Falls der Preset zwischenzeitlich gelöscht wurde, synthetisieren wir
-  // einen neuen aus rackInternalSnapshot.
+  // platziertes Black-Box-Rack.
+  // v7.9.105 / Issue #224 — Wir loaden IMMER aus rackInternalSnapshot
+  // (= Canvas-Instance-State), NICHT mehr aus der Library-Preset.
+  // editingCanvasRackEquipmentId wird gesetzt, damit der Save-Handler
+  // unten die Aenderungen ins Canvas-Equipment zurueckschreibt statt
+  // in die Library-Preset. Toolbar 'Rack bearbeiten' bearbeitet
+  // jetzt also tatsaechlich das Rack im Plan, nicht das in der Library.
   useEffect(() => {
     if (!rackBuilderEditFromBlackBoxTrigger) return
     const eq = equipmentItems.find((e) => e.id === rackBuilderEditFromBlackBoxTrigger)
@@ -711,23 +725,28 @@ export const LibraryPanel = () => {
       clearRackBuilderEditFromBlackBoxTrigger()
       return
     }
-    // Strip "(Rack)"-Suffix das insertBlackBoxRack anhängt
     const candidateName = eq.name.replace(/\s*\(Rack\)\s*$/, '').trim()
-    const existing = groupPresets.find(
-      (p) =>
-        !!p.rack &&
-        (p.name === candidateName || p.name === eq.rackInstanceLabel || p.name === eq.name),
-    )
-    if (existing) {
-      setSeedPreset(null)
-      setEditingRackPresetId(existing.id)
-      setShowRackBuilderDialog(true)
-      setTab('racks')
-    } else if (eq.rackInternalSnapshot) {
-      // Preset wurde gelöscht aber das Equipment trägt noch den Snapshot —
-      // wir bauen daraus ein temporäres Preset zum Bearbeiten.
+    if (eq.rackInternalSnapshot) {
+      // Wir bauen aus dem Snapshot + equipment.inputs/outputs ein
+      // temporaeres Preset zum Bearbeiten. Ports rekonstruieren wir aus
+      // equipment.inputs/outputs (via rackOriginDeviceIndex), damit
+      // sie im Dialog editierbar erscheinen.
       const snap = eq.rackInternalSnapshot
       const itemsByIndex = snap.items
+      const inputsByItem = new Map<number, import('../../types/equipment').Port[]>()
+      const outputsByItem = new Map<number, import('../../types/equipment').Port[]>()
+      for (const p of eq.inputs) {
+        if (typeof p.rackOriginDeviceIndex !== 'number') continue
+        const list = inputsByItem.get(p.rackOriginDeviceIndex) ?? []
+        list.push({ ...p, name: p.rackOriginPortName ?? p.name })
+        inputsByItem.set(p.rackOriginDeviceIndex, list)
+      }
+      for (const p of eq.outputs) {
+        if (typeof p.rackOriginDeviceIndex !== 'number') continue
+        const list = outputsByItem.get(p.rackOriginDeviceIndex) ?? []
+        list.push({ ...p, name: p.rackOriginPortName ?? p.name })
+        outputsByItem.set(p.rackOriginDeviceIndex, list)
+      }
       const synth: import('../../types/equipment').GroupPreset = {
         id: `__edit-blackbox-${Date.now().toString(36)}`,
         name: candidateName,
@@ -739,11 +758,11 @@ export const LibraryPanel = () => {
             heightUnits: it.rackUnits,
           })),
         },
-        items: itemsByIndex.map((it) => ({
+        items: itemsByIndex.map((it, idx) => ({
           name: it.name,
           category: 'Sonstiges',
-          inputs: [],
-          outputs: [],
+          inputs: inputsByItem.get(idx) ?? [],
+          outputs: outputsByItem.get(idx) ?? [],
           isRackDevice: true,
           rackUnits: it.rackUnits,
           width: 240,
@@ -765,6 +784,9 @@ export const LibraryPanel = () => {
       }
       setSeedPreset(synth)
       setEditingRackPresetId(null)
+      // Merken: Save geht in dieses Canvas-Equipment zurueck, nicht in
+      // die Library-Preset.
+      setEditingCanvasRackEquipmentId(eq.id)
       setShowRackBuilderDialog(true)
       setTab('racks')
     }
@@ -772,7 +794,6 @@ export const LibraryPanel = () => {
   }, [
     rackBuilderEditFromBlackBoxTrigger,
     equipmentItems,
-    groupPresets,
     clearRackBuilderEditFromBlackBoxTrigger,
   ])
 
@@ -801,6 +822,8 @@ export const LibraryPanel = () => {
   const collapsedInitRef = useRef(false)
   const [collapsedRentmanProjects, setCollapsedRentmanProjects] = useState<Set<string>>(new Set())
   const [collapsedRentmanCats, setCollapsedRentmanCats] = useState<Set<string>>(new Set())
+  // v7.9.106 / Issue #226 — Suchfeld in der Rentman-Projekt-Liste.
+  const [rentmanSearch, setRentmanSearch] = useState('')
   const [showEmpty, setShowEmpty] = useState(false)
   const [showHidden, setShowHidden] = useState(false)
   // Global library search (Strg+F). Filters customLibrary by name/category
@@ -1944,14 +1967,79 @@ export const LibraryPanel = () => {
                     <span>{rentmanItems.length} Geräte</span>
                   </div>
                 </div>
-                {projectGroups.length === 0 ? (
-                  <div className="flex flex-col items-center gap-2 p-3 text-center text-xs text-slate-500">
-                    <span className="text-2xl">📦</span>
-                    <span>Noch keine Rentman-Geräte importiert.</span>
+                {/* v7.9.106 / Issue #226 — Suchfeld fuer die Rentman-Liste,
+                    analog zum Katalog-Suchfeld weiter oben. Filtert Items
+                    nach Name oder Kategorie. */}
+                {projectGroups.length > 0 && (
+                  <div className="relative">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      className="pointer-events-none absolute left-1.5 top-1/2 -translate-y-1/2 text-slate-500"
+                    >
+                      <circle cx="7" cy="7" r="4" />
+                      <line x1="10.3" y1="10.3" x2="13" y2="13" strokeLinecap="round" />
+                    </svg>
+                    <input
+                      type="text"
+                      value={rentmanSearch}
+                      onChange={(e) => setRentmanSearch(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') setRentmanSearch('')
+                      }}
+                      placeholder="In Rentman-Geraeten suchen…"
+                      className="w-full rounded border border-slate-700 bg-slate-900 py-1 pl-7 pr-7 text-xs text-slate-100 placeholder-slate-500"
+                    />
+                    {rentmanSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setRentmanSearch('')}
+                        title="Suche loeschen"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
-                ) : (
+                )}
+                {(() => {
+                  const trimmed = rentmanSearch.trim().toLowerCase()
+                  const visibleProjectGroups =
+                    trimmed === ''
+                      ? projectGroups
+                      : projectGroups
+                          .map((g) => ({
+                            ...g,
+                            items: g.items.filter(
+                              (t) =>
+                                (t.name || '').toLowerCase().includes(trimmed) ||
+                                (t.category || '').toLowerCase().includes(trimmed),
+                            ),
+                          }))
+                          .filter((g) => g.items.length > 0)
+                  if (projectGroups.length === 0) {
+                    return (
+                      <div className="flex flex-col items-center gap-2 p-3 text-center text-xs text-slate-500">
+                        <span className="text-2xl">📦</span>
+                        <span>Noch keine Rentman-Geräte importiert.</span>
+                      </div>
+                    )
+                  }
+                  if (visibleProjectGroups.length === 0) {
+                    return (
+                      <div className="flex flex-col items-center gap-2 p-3 text-center text-xs text-slate-500">
+                        <span className="text-2xl">🔍</span>
+                        <span>Keine Treffer für &quot;{rentmanSearch}&quot;.</span>
+                      </div>
+                    )
+                  }
+                  return (
                   <div className="space-y-2">
-                    {projectGroups.map((group) => {
+                    {visibleProjectGroups.map((group) => {
                       const isLinked = group.id === linkedRentmanProjectId
                       const projectCollapsed = collapsedRentmanProjects.has(group.id)
                       const categories = Array.from(
@@ -2011,7 +2099,22 @@ export const LibraryPanel = () => {
                                           {categoryItems
                                             .slice()
                                             .sort((a, b) => a.name.localeCompare(b.name))
-                                            .map((item) => (
+                                            .map((item) => {
+                                              // v7.9.106 / Issue #227 — Wenn Rentman-Item KEINE Ports
+                                              // hat aber ein gleichnamiges lokales Template MIT Ports
+                                              // existiert, biete 'Verknuepfen' an. Klick uebernimmt die
+                                              // Ports vom lokalen Template ins Rentman-Library-Item.
+                                              const itemHasNoPorts =
+                                                item.inputs.length === 0 && item.outputs.length === 0
+                                              const localMatch = itemHasNoPorts
+                                                ? customLibrary.find(
+                                                    (t) =>
+                                                      !t.rentmanSource &&
+                                                      t.name.toLowerCase() === item.name.toLowerCase() &&
+                                                      (t.inputs.length > 0 || t.outputs.length > 0),
+                                                  )
+                                                : undefined
+                                              return (
                                               <LibraryItem
                                                 key={item.name}
                                                 item={item}
@@ -2022,8 +2125,27 @@ export const LibraryPanel = () => {
                                                   })
                                                 }}
                                                 onExport={() => exportTemplateToFile(item)}
+                                                onLinkPorts={
+                                                  localMatch
+                                                    ? () => {
+                                                        const updated = customLibrary.map((t) =>
+                                                          t.name === item.name &&
+                                                          t.rentmanSource === item.rentmanSource
+                                                            ? {
+                                                                ...t,
+                                                                inputs: localMatch.inputs.map((p) => ({ ...p })),
+                                                                outputs: localMatch.outputs.map((p) => ({ ...p })),
+                                                              }
+                                                            : t,
+                                                        )
+                                                        setCustomLibrary(updated)
+                                                      }
+                                                    : undefined
+                                                }
+                                                linkTargetName={localMatch?.name}
                                               />
-                                            ))}
+                                              )
+                                            })}
                                         </div>
                                       )}
                                     </div>
@@ -2036,7 +2158,8 @@ export const LibraryPanel = () => {
                       )
                     })}
                   </div>
-                )}
+                  )
+                })()}
               </div>
             )}
 
@@ -2920,15 +3043,26 @@ export const LibraryPanel = () => {
           setShowRackBuilderDialog(false)
           setEditingRackPresetId(null)
           setSeedPreset(null)
+          setEditingCanvasRackEquipmentId(null)
         }}
         onSave={(preset) => {
-          // addGroupPreset upserts by id, so edit-mode reuses the same id and
-          // simply overwrites the existing entry. For seed-mode the synthetic
-          // __seed- id is replaced by a fresh uuid in saveRack already.
-          addGroupPreset(preset)
+          // v7.9.105 / Issue #224 — Wenn der Dialog aus dem Canvas-
+          // Toolbar-'Rack bearbeiten'-Button geoeffnet wurde, schreiben
+          // wir die Aenderungen ins Canvas-Equipment zurueck (Ports +
+          // Snapshot), nicht in die Library-Preset.
+          if (editingCanvasRackEquipmentId) {
+            replaceCanvasRackWithPreset(editingCanvasRackEquipmentId, preset)
+          } else {
+            // addGroupPreset upserts by id, so edit-mode reuses the same
+            // id and simply overwrites the existing entry. For seed-mode
+            // the synthetic __seed- id is replaced by a fresh uuid in
+            // saveRack already.
+            addGroupPreset(preset)
+          }
           setShowRackBuilderDialog(false)
           setEditingRackPresetId(null)
           setSeedPreset(null)
+          setEditingCanvasRackEquipmentId(null)
           setTab('racks')
         }}
       />
