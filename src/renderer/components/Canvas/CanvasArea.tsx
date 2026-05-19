@@ -1346,6 +1346,22 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         // never receives sub-pixel floats from screenToFlowPosition.
         const px = snapX(position.x)
         const py = snapX(position.y)
+        // v7.9.108 / Issue #225 — Wenn das Template KEINE Ports hat,
+        // direkten addEquipment-Call ueberspringen und stattdessen den
+        // 'Eigenes Geraet anlegen'-Dialog im LibraryPanel oeffnen. Der
+        // User muss erst Ports definieren (oder AI fragen) bevor das
+        // Geraet auf dem Canvas landet.
+        const hasNoPorts =
+          (template.inputs?.length ?? 0) === 0 && (template.outputs?.length ?? 0) === 0
+        if (hasNoPorts) {
+          useUiStore.getState().triggerEmptyDeviceDrop({
+            name: template.name ?? '',
+            category: template.category ?? '',
+            x: px,
+            y: py,
+          })
+          return
+        }
         addEquipment({ ...template, x: px, y: py })
       } catch (error) {
         console.error('Failed to drop equipment:', error)
