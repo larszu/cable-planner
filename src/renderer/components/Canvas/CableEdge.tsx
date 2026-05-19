@@ -412,12 +412,22 @@ export const CableEdge = ({
   // "automatisch neu routen" wählt.
   const updateCable = useProjectStore((s) => s.updateCable)
   const persistTriedRef = useRef(false)
+  const hadWaypointsRef = useRef(false)
   useEffect(() => {
     if (!cable) return
-    if (cable.waypoints && cable.waypoints.length > 0) {
-      // Bereits manuell verkabelt → nichts tun. Auch wenn der User später
-      // alle waypoints löscht, soll nicht re-persisted werden (sonst kann
-      // er nie zurück zur live-Berechnung wechseln).
+    const hasWaypoints = !!(cable.waypoints && cable.waypoints.length > 0)
+    // v7.9.90 — Wenn cable.waypoints von gesetzt → undefined wechselt
+    // (typisch nach einem Undo das einen früheren waypoint-losen Zustand
+    // wiederherstellt, oder nach explizitem User-Clear), den persist-
+    // Trigger zurücksetzen damit der nächste Render wieder auto-routed
+    // und das Ergebnis frisch persistiert. Ohne den Reset blieb das
+    // Kabel ohne gespeicherte Waypoints in Live-Recompute-Modus —
+    // genau das Verhalten das v7.9.84 fixen sollte.
+    if (hadWaypointsRef.current && !hasWaypoints) {
+      persistTriedRef.current = false
+    }
+    hadWaypointsRef.current = hasWaypoints
+    if (hasWaypoints) {
       persistTriedRef.current = true
       return
     }

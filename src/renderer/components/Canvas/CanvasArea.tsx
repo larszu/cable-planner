@@ -66,6 +66,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const addEquipment = useProjectStore((state) => state.addEquipment)
   const pasteEquipment = useProjectStore((state) => state.pasteEquipment)
   const deleteEquipment = useProjectStore((state) => state.deleteEquipment)
+  const deleteCable = useProjectStore((state) => state.deleteCable)
   const queueConnection = useProjectStore((state) => state.queueConnection)
   const setSelection = useProjectStore((state) => state.setSelection)
   const setCanvasState = useProjectStore((state) => state.setCanvasState)
@@ -106,7 +107,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // (#44) so the new device lands where the user pointed instead of always at
   // the viewport origin.
   const lastMousePosRef = useRef<{ x: number; y: number } | null>(null)
-  const { screenToFlowPosition, setViewport, fitView } = useReactFlow()
+  const { screenToFlowPosition, setViewport, fitView, getEdges } = useReactFlow()
   const updateCable = useProjectStore((state) => state.updateCable)
   const updateNodeInternals = useUpdateNodeInternals()
   const [interactionLocked, setInteractionLocked] = useState(false)
@@ -1098,31 +1099,39 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     applyEdgeChanges(_changes, edges)
   }
 
-  const onConnect: OnConnect = (connection) => {
-    // ReactFlow's ConnectionMode.Loose lets the user drag from any handle
-    // (including the transparent overlay handle on each port). When they
-    // drag from an Input to an Output, ReactFlow picks the drag-origin
-    // handle as `source` — which leaves the cable arrow pointing the wrong
-    // way (Input → Output). Normalise here so the canonical signal flow
-    // (output → input) is preserved regardless of which end the user
-    // started from.
-    if (connection.source && connection.target && connection.sourceHandle && connection.targetHandle) {
-      const sourceEq = project.equipment.find((e) => e.id === connection.source)
-      const targetEq = project.equipment.find((e) => e.id === connection.target)
-      const sourceIsOutput = !!sourceEq?.outputs.find((p) => p.id === connection.sourceHandle)
-      const targetIsOutput = !!targetEq?.outputs.find((p) => p.id === connection.targetHandle)
-      if (!sourceIsOutput && targetIsOutput) {
-        queueConnection({
-          source: connection.target,
-          sourceHandle: connection.targetHandle,
-          target: connection.source,
-          targetHandle: connection.sourceHandle,
-        })
-        return
+  // v7.9.90 — useCallback statt freier Funktion. Vorher wurde onConnect
+  // bei JEDEM Render neu erzeugt → ReactFlow re-attachte interne Listener
+  // (kein Korrektheitsbug aber unnötiger Overhead). project.equipment in
+  // den deps damit der closure-capture korrekt ist — zustand triggert
+  // sowieso re-render bei Project-Änderungen.
+  const onConnect: OnConnect = useCallback(
+    (connection) => {
+      // ReactFlow's ConnectionMode.Loose lets the user drag from any handle
+      // (including the transparent overlay handle on each port). When they
+      // drag from an Input to an Output, ReactFlow picks the drag-origin
+      // handle as `source` — which leaves the cable arrow pointing the wrong
+      // way (Input → Output). Normalise here so the canonical signal flow
+      // (output → input) is preserved regardless of which end the user
+      // started from.
+      if (connection.source && connection.target && connection.sourceHandle && connection.targetHandle) {
+        const sourceEq = project.equipment.find((e) => e.id === connection.source)
+        const targetEq = project.equipment.find((e) => e.id === connection.target)
+        const sourceIsOutput = !!sourceEq?.outputs.find((p) => p.id === connection.sourceHandle)
+        const targetIsOutput = !!targetEq?.outputs.find((p) => p.id === connection.targetHandle)
+        if (!sourceIsOutput && targetIsOutput) {
+          queueConnection({
+            source: connection.target,
+            sourceHandle: connection.targetHandle,
+            target: connection.source,
+            targetHandle: connection.sourceHandle,
+          })
+          return
+        }
       }
-    }
-    queueConnection(connection)
-  }
+      queueConnection(connection)
+    },
+    [project.equipment, queueConnection],
+  )
 
   // Reconnect / drag endpoints (draw.io-like).
   const onEdgeUpdateStart = useCallback(() => {
@@ -1444,10 +1453,19 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         }
       }
       if (event.key !== 'Delete' && event.key !== 'Backspace') return
-      const ids = getSelectedEquipmentIds()
-      if (ids.length > 1) {
+      // v7.9.90 — Multi-Select-Delete für ALLE selektierten Items
+      // (vorher: Equipment-Loop ODER Single-Select-Pointer aus dem Store
+      // — Multi-selected Cables konnten nicht gemeinsam gelöscht werden).
+      // ReactFlow's getEdges() liefert die aktuelle Edge-Liste samt
+      // .selected-Flag — daraus die selected-Cable-IDs ableiten.
+      const equipmentIds = getSelectedEquipmentIds()
+      const cableIds = getEdges().filter((e) => e.selected).map((e) => e.id)
+      if (equipmentIds.length + cableIds.length > 1) {
         event.preventDefault()
-        for (const id of ids) deleteEquipment(id)
+        // Erst Cables löschen damit kein verwaister Cable-Render von einem
+        // gerade gelöschten Equipment passiert.
+        for (const id of cableIds) deleteCable(id)
+        for (const id of equipmentIds) deleteEquipment(id)
         return
       }
       deleteSelected()
@@ -1457,6 +1475,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   }, [
     deleteSelected,
     deleteEquipment,
+    deleteCable,
+    getEdges,
     pendingCable,
     clearPendingCable,
     copySelectionToClipboard,
