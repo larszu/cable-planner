@@ -83,23 +83,33 @@ export const registerPrintIpc = (): void => {
         // grossen Canvases braucht der erste Paint mehr Zeit, sonst
         // produziert printToPDF eine leere Seite.
         await new Promise<void>((r) => setTimeout(r, 600))
-        const buffer = await win.webContents.printToPDF({
+        // v7.9.110 — Setup matched v7.9.103 (das nachweislich funktioniert
+        // hat) — preferCSSPageSize: true, landscape-Flag basierend auf
+        // pageSize-Dimensionen. Kein scale-Param (Vektoriz. via CSS zoom
+        // im HTML). Diese Konfig hatte v7.9.109 falsch geaendert.
+        const isLandscape = widthMicrons > heightMicrons
+        const printOptions = {
           pageSize: { width: widthMicrons, height: heightMicrons },
           printBackground: true,
-          // v7.9.109 — preferCSSPageSize: true (zurueck zu v7.9.103).
-          // Body in der HTML ist jetzt klein (= displayed size, nicht
-          // natural), CSS @page matched die API-pageSize. Skalierung
-          // passiert via CSS `zoom` auf einen Inner-Wrapper im HTML —
-          // das bleibt vektoriell weil zoom layout-aware ist (Chromium
-          // emittiert die Paint-Ops bei der gezoomten Groesse als
-          // normale PDF-Operations, kein Layer-Flatten).
           preferCSSPageSize: true,
-          margins: { marginType: 'none' },
+          margins: { marginType: 'none' as const },
           displayHeaderFooter: false,
-          // KEIN landscape-Flag mehr: pageSize hat die Dimensionen
-          // schon in der gewollten Orientierung; landscape:true wuerde
-          // Chromium dazu bringen es ein zweites Mal zu rotieren.
-        })
+          landscape: isLandscape,
+        }
+        let buffer: Buffer
+        try {
+          buffer = await win.webContents.printToPDF(printOptions)
+        } catch (printErr) {
+          const printMsg = printErr instanceof Error ? printErr.message : String(printErr)
+          throw new Error(
+            `Chromium printToPDF failed: ${printMsg}.\n\n` +
+              `Page: ${widthMicrons}×${heightMicrons} microns (` +
+              `${(widthMicrons / 1000).toFixed(0)}×${(heightMicrons / 1000).toFixed(0)} mm, ` +
+              `${isLandscape ? 'landscape' : 'portrait'}).\n` +
+              `Debug-HTML: ${debugPath}\n` +
+              `Tipp: HTML im Browser oeffnen — wenn sauber aussieht, ist der Bug in printToPDF; wenn leer, im HTML-Build.`,
+          )
+        }
         if (!buffer || buffer.byteLength < 1000) {
           throw new Error(
             `printToPDF gab nur ${buffer?.byteLength ?? 0} Bytes zurueck — Render fehlgeschlagen. Debug-HTML liegt unter ${debugPath}.`,
