@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import {
   BaseEdge,
   EdgeLabelRenderer,
@@ -14,6 +14,7 @@ import { useUiStore } from '../../store/uiStore'
 import { CableWaypoints } from './CableWaypoints'
 import { computeObstacleAwareWaypoints, type Rect } from '../../lib/cableRouting'
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import { isCableVisibleByLayer } from '../../lib/cableLayers'
 
 interface CableEdgeData {
   cable: Cable
@@ -359,6 +360,12 @@ export const CableEdge = ({
   // port handles, so the entire connection visually pops at once.
   const hoveredCableId = useUiStore((s) => s.hoveredCableId)
   const collisionShiftOn = useUiStore((s) => s.orthogonalCollisionShift)
+  // v7.9.85 / #123 — Layer-Filter. Wenn das Kabel einen Layer hat
+  // (z.B. 'network') und der Layer-Toggle in der Toolbar AUS ist,
+  // wird das Kabel komplett ausgeblendet. Ungrouped Cables (kein layer
+  // gesetzt) sind immer sichtbar. Geräte werden NICHT gefiltert —
+  // Option A aus #123.
+  const layerVisibility = useUiStore((s) => s.layerVisibility)
   // v7.8.7 / Issue #106 — Global cable-bumps toggle from Settings; can
   // be overridden per-cable via the right-click context menu's
   // bumpStyle field.
@@ -394,6 +401,41 @@ export const CableEdge = ({
   const orthogonalWaypoints = cable
     ? resolveOrthogonalWaypoints(cable, routingArgs, obstacles, obstacleIds)
     : []
+  // v7.9.84 / #206 — Persist auto-computed Waypoints einmalig nach dem
+  // ersten erfolgreichen Compute. Vorher hat resolveOrthogonalWaypoints
+  // bei JEDEM Render mit dem CURRENT-obstacle-Set neu berechnet — d.h.
+  // wenn ein UNBETEILIGTES Gerät verschoben wurde und sich dadurch eine
+  // andere Variante als "freier Pfad" qualifiziert hat, ist das Kabel
+  // sichtbar umgesprungen ("Kabelsprünge ohne Hindernisse"). Mit dem
+  // Persist wandert das auto-Routing nach EINMAL aktiv in die manuellen
+  // Waypoints — danach bleibt der Pfad stabil bis der User explizit
+  // "automatisch neu routen" wählt.
+  const updateCable = useProjectStore((s) => s.updateCable)
+  const persistTriedRef = useRef(false)
+  const hadWaypointsRef = useRef(false)
+  useEffect(() => {
+    if (!cable) return
+    const hasWaypoints = !!(cable.waypoints && cable.waypoints.length > 0)
+    // v7.9.90 — Wenn cable.waypoints von gesetzt → undefined wechselt
+    // (typisch nach einem Undo das einen früheren waypoint-losen Zustand
+    // wiederherstellt, oder nach explizitem User-Clear), den persist-
+    // Trigger zurücksetzen damit der nächste Render wieder auto-routed
+    // und das Ergebnis frisch persistiert. Ohne den Reset blieb das
+    // Kabel ohne gespeicherte Waypoints in Live-Recompute-Modus —
+    // genau das Verhalten das v7.9.84 fixen sollte.
+    if (hadWaypointsRef.current && !hasWaypoints) {
+      persistTriedRef.current = false
+    }
+    hadWaypointsRef.current = hasWaypoints
+    if (hasWaypoints) {
+      persistTriedRef.current = true
+      return
+    }
+    if (persistTriedRef.current) return
+    if (orthogonalWaypoints.length === 0) return
+    persistTriedRef.current = true
+    updateCable(cable.id, { waypoints: orthogonalWaypoints })
+  }, [cable, orthogonalWaypoints, updateCable])
   const [path, centerX, centerY] = cable
     ? buildPath(cable, routingArgs, obstacles, obstacleIds, collisionShiftOn, orthogonalWaypoints)
     : getSmoothStepPath(routingArgs)
@@ -543,6 +585,15 @@ export const CableEdge = ({
       : mobilePrefix
         ? mobilePrefix.trim()
         : undefined
+
+  // v7.9.85 / #123 — Layer-Visibility-Filter: wenn das Kabel auf einem
+  // Layer liegt der via Toolbar-Chip ausgeschaltet wurde, gar nichts
+  // rendern. Hooks oben (useState/useEffect/useUiStore) liefen schon
+  // → React Rules of Hooks bleiben gewahrt. Cable ohne Layer = immer
+  // sichtbar.
+  if (cable && !isCableVisibleByLayer(cable, layerVisibility)) {
+    return null
+  }
 
   return (
     <>

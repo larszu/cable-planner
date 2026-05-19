@@ -437,6 +437,7 @@ const DeviceBox = ({
           heightMm={heightMm * 0.85}
           zOffset={0}
           onPortMoved={onPortMoved}
+          orbitRef={orbitRef}
         />
       )}
       {placement.rearPorts && placement.rearPorts.length > 0 && (
@@ -449,6 +450,7 @@ const DeviceBox = ({
           heightMm={heightMm * 0.85}
           zOffset={0}
           onPortMoved={onPortMoved}
+          orbitRef={orbitRef}
         />
       )}
       {/* v7.9.82 / #170 — Gerätenamen jetzt SOWOHL vorne als auch hinten,
@@ -514,6 +516,7 @@ const PortDots = ({
   heightMm,
   zOffset,
   onPortMoved,
+  orbitRef,
 }: {
   ports: Rack3DPort[]
   side: 'front' | 'rear'
@@ -524,6 +527,11 @@ const PortDots = ({
   /** Outward offset from face center along normal (positive = outside-of-box). */
   zOffset: number
   onPortMoved?: Rack3DViewProps['onPortMoved']
+  /** v7.9.87 / #209 — OrbitControls-Ref damit der Drag eines Port-Dots
+   *  die Kamera nicht gleichzeitig dreht (war vorher das gleiche
+   *  Problem wie beim Shelf-Drag — Pointer-Down löste BOTH OrbitControls-
+   *  und Dot-Drag aus). */
+  orbitRef?: React.RefObject<{ enabled: boolean } | null>
 }) => {
   // Während eines Drags speichern wir lokal die neue Position, damit der
   // Dot beim Slide live folgt (statt erst nach Drop neu zu rendern).
@@ -563,14 +571,14 @@ const PortDots = ({
               if (!onPortMoved) return
               e.stopPropagation()
               ;(e.target as Element).setPointerCapture?.(e.pointerId)
+              // v7.9.87 / #209 — OrbitControls aus, damit der Drag eines
+              // Port-Dots die Kamera nicht gleichzeitig dreht.
+              if (orbitRef?.current) orbitRef.current.enabled = false
               draggingRef.current = { id: port.id, pointerId: e.pointerId }
             }}
             onPointerMove={(e) => {
               const drag = draggingRef.current
               if (!drag || drag.id !== port.id || drag.pointerId !== e.pointerId) return
-              // Raycast-Trick: e.point ist der getroffene World-Punkt
-              // (r3f setzt das beim pointer event). Wir konvertieren zurück
-              // in Face-Local (faceCenter abziehen, durch w/h teilen).
               const hit = e.point as THREE.Vector3
               const localX = hit.x - faceCenter[0]
               const localY = hit.y - faceCenter[1]
@@ -588,6 +596,8 @@ const PortDots = ({
               }
               draggingRef.current = null
               setDragOverride(null)
+              // OrbitControls wieder an.
+              if (orbitRef?.current) orbitRef.current.enabled = true
             }}
           >
             <sphereGeometry args={[dotRadius, 12, 12]} />

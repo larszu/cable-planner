@@ -787,6 +787,19 @@ const AddCableModal = ({
   const fromPorts = fromEq ? [...fromEq.outputs, ...fromEq.inputs] : []
   const toPorts = toEq ? [...toEq.inputs, ...toEq.outputs] : []
 
+  // v7.9.88 / #210 — Set aller Port-IDs die schon irgendwo verkabelt
+  // sind. Wird in den Port-Dropdowns benutzt um belegte Ports als
+  // "(belegt)" zu markieren, damit der Techniker nicht versehentlich
+  // einen schon gepatchten Port auswählt.
+  const occupiedPortIds = useMemo(() => {
+    const set = new Set<string>()
+    for (const c of project.cables) {
+      if (c.fromPortId) set.add(c.fromPortId)
+      if (c.toPortId) set.add(c.toPortId)
+    }
+    return set
+  }, [project.cables])
+
   // v7.9.55 — Kabel-Typen aus dem aktuellen Projekt extrahieren
   // (deduped + sortiert), plus immer-vorhandene Defaults. So sieht der
   // User vor Ort dieselben Optionen die im Plan schon verwendet werden,
@@ -920,7 +933,7 @@ const AddCableModal = ({
                   <option value="">— wählen —</option>
                   {fromPorts.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} ({p.connectorType})
+                      {p.name} ({p.connectorType}){occupiedPortIds.has(p.id) ? ' • belegt' : ''}
                     </option>
                   ))}
                 </select>
@@ -954,7 +967,7 @@ const AddCableModal = ({
                   <option value="">— wählen —</option>
                   {toPorts.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} ({p.connectorType})
+                      {p.name} ({p.connectorType}){occupiedPortIds.has(p.id) ? ' • belegt' : ''}
                     </option>
                   ))}
                 </select>

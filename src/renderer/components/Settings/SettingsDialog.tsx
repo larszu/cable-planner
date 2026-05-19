@@ -9,7 +9,14 @@ import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
 import { promptDialog } from '../../lib/promptDialog'
-import { getGeminiApiKey, setGeminiApiKey } from '../../lib/aiSuggestions'
+import {
+  getApiKey,
+  setApiKey,
+  getSelectedAiProvider,
+  setSelectedAiProvider,
+  listAiProviders,
+  type AiProvider,
+} from '../../lib/aiSuggestions'
 import { format, useTranslation } from '../../lib/i18n'
 import type { Language } from '../../store/uiStore'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
@@ -1275,8 +1282,6 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
   const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
   const setRentmanEnabled = useUiStore((s) => s.setRentmanEnabled)
   const [busy, setBusy] = useState(false)
-  const [geminiKey, setGeminiKeyState] = useState(getGeminiApiKey())
-  const [geminiSaved, setGeminiSaved] = useState(false)
   const t = useTranslation()
 
   useEffect(() => {
@@ -1329,11 +1334,6 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
     }
   }
 
-  const saveGemini = () => {
-    setGeminiApiKey(geminiKey.trim())
-    setGeminiSaved(true)
-    window.setTimeout(() => setGeminiSaved(false), 2000)
-  }
 
   return (
     <div className="space-y-3">
@@ -1493,60 +1493,10 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
       </>
       )}
 
-      <SettingsCard
-        title={t('settings.integrations.gemini', 'Gemini API (KI-Port-Vorschläge)')}
-        description={t(
-          'settings.integrations.geminiDesc',
-          "API-Key von aistudio.google.com. Wird im Browser-localStorage gespeichert. Nötig für die '✨ Gemini'-Buttons im Geräte-Wizard und in der Bibliothek.",
-        )}
-      >
-        <input
-          type="password"
-          value={geminiKey}
-          onChange={(e) => setGeminiKeyState(e.target.value)}
-          placeholder="AIza…"
-          className="w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-xs"
-          autoComplete="off"
-        />
-        <div className="mt-2 flex items-center gap-2">
-          <button
-            type="button"
-            onClick={saveGemini}
-            className="rounded bg-sky-600 px-3 py-1 text-sm hover:bg-sky-500"
-          >
-            {t('settings.integrations.gemini.save', 'Key speichern')}
-          </button>
-          {geminiSaved && (
-            <span className="text-xs text-emerald-300">
-              {t('settings.integrations.gemini.saved', '✓ gespeichert')}
-            </span>
-          )}
-          {geminiKey && (
-            <button
-              type="button"
-              onClick={() => {
-                setGeminiApiKey('')
-                setGeminiKeyState('')
-              }}
-              className="ml-auto rounded bg-slate-800 px-3 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
-            >
-              {t('settings.integrations.gemini.delete', 'Löschen')}
-            </button>
-          )}
-        </div>
-        <div className="mt-2 text-[11px] text-slate-500">
-          {t('settings.integrations.gemini.hint', 'Key bei ')}
-          <a
-            href="https://aistudio.google.com/app/apikey"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline"
-          >
-            aistudio.google.com
-          </a>{' '}
-          erstellen.
-        </div>
-      </SettingsCard>
+      {/* v7.9.86 / #197 — Multi-AI-Provider Card (Gemini / Claude / OpenAI).
+          Aktiver Provider auswählbar; jeder Provider hat eigenen API-Key-
+          Slot. Legacy-Karte mit nur Gemini wurde durch diese Card ersetzt. */}
+      <AiProvidersCard />
 
       <GreenGoPresetsCard />
     </div>
@@ -1559,6 +1509,145 @@ const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
  * greengoConfig. Lets the user keep a "house template" config and
  * apply it to new projects with one click (issue #56).
  */
+/**
+ * v7.9.86 / #197 — AI-Provider-Multi-Card.
+ *
+ * Drei Provider (Gemini / Claude / OpenAI) in einer einzigen Karte
+ * verwaltbar. Aktiver Provider per Radio-Button, jeder Provider hat
+ * eigenen API-Key-Slot (revealable via Klick auf den Key).
+ */
+const AiProvidersCard = () => {
+  const t = useTranslation()
+  const [selected, setSelected] = useState<AiProvider>(() => getSelectedAiProvider())
+  // Per-Provider State-Map (key + savedFlag). Initial aus localStorage.
+  const [keys, setKeys] = useState<Record<AiProvider, string>>(() => ({
+    gemini: getApiKey('gemini'),
+    claude: getApiKey('claude'),
+    openai: getApiKey('openai'),
+  }))
+  const [saved, setSaved] = useState<Partial<Record<AiProvider, boolean>>>({})
+  const [revealed, setRevealed] = useState<Partial<Record<AiProvider, boolean>>>({})
+
+  const handleSelect = (p: AiProvider) => {
+    setSelected(p)
+    setSelectedAiProvider(p)
+  }
+  const handleSave = (p: AiProvider) => {
+    setApiKey(p, keys[p].trim())
+    setSaved((s) => ({ ...s, [p]: true }))
+    window.setTimeout(() => setSaved((s) => ({ ...s, [p]: false })), 2000)
+  }
+  const handleClear = (p: AiProvider) => {
+    setApiKey(p, '')
+    setKeys((k) => ({ ...k, [p]: '' }))
+  }
+
+  return (
+    <SettingsCard
+      title={t('settings.integrations.ai', 'AI-Provider (KI-Port-Vorschläge)')}
+      description={t(
+        'settings.integrations.aiDesc',
+        'Aktiver Provider für die ✨-AI-Buttons im Geräte-Wizard und in der Rentman-Library. Jeder Provider hat seinen eigenen API-Key. Alle Keys werden nur lokal im Browser-localStorage gespeichert.',
+      )}
+    >
+      <div className="space-y-3">
+        {listAiProviders().map(({ id, config }) => {
+          const isSelected = selected === id
+          const hasKey = keys[id].length > 0
+          return (
+            <div
+              key={id}
+              className={`rounded border p-3 transition ${
+                isSelected
+                  ? 'border-sky-500 bg-sky-950/30'
+                  : 'border-slate-700 bg-slate-950/40'
+              }`}
+            >
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="ai-provider"
+                  checked={isSelected}
+                  onChange={() => handleSelect(id)}
+                  className="accent-sky-500"
+                />
+                <span className="font-semibold">{config.label}</span>
+                {hasKey && (
+                  <span className="rounded bg-emerald-900/40 px-1.5 py-0.5 text-[10px] text-emerald-300">
+                    ✓ Key
+                  </span>
+                )}
+                {isSelected && (
+                  <span className="ml-auto rounded bg-sky-900/40 px-1.5 py-0.5 text-[10px] text-sky-300">
+                    AKTIV
+                  </span>
+                )}
+              </label>
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  type={revealed[id] ? 'text' : 'password'}
+                  value={keys[id]}
+                  onChange={(e) => setKeys((k) => ({ ...k, [id]: e.target.value }))}
+                  placeholder={
+                    id === 'gemini'
+                      ? 'AIza…'
+                      : id === 'claude'
+                        ? 'sk-ant-…'
+                        : 'sk-proj-…'
+                  }
+                  className="flex-1 rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-xs"
+                  autoComplete="off"
+                />
+                <button
+                  type="button"
+                  onClick={() => setRevealed((r) => ({ ...r, [id]: !r[id] }))}
+                  className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-slate-700"
+                  title={revealed[id] ? 'Verbergen' : 'Anzeigen'}
+                >
+                  {revealed[id] ? '👁' : '🔒'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSave(id)}
+                  className="rounded bg-sky-600 px-3 py-1 text-xs hover:bg-sky-500"
+                >
+                  Speichern
+                </button>
+                {hasKey && (
+                  <button
+                    type="button"
+                    onClick={() => handleClear(id)}
+                    className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
+                    title="Key löschen"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              <div className="mt-1 flex items-center justify-between text-[10px] text-slate-500">
+                <span>
+                  Model: <span className="font-mono">{config.defaultModel}</span>
+                </span>
+                <a
+                  href={config.consoleUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-slate-300"
+                >
+                  Key erstellen ↗
+                </a>
+              </div>
+              {saved[id] && (
+                <div className="mt-1 text-[10px] text-emerald-300">✓ gespeichert</div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </SettingsCard>
+  )
+}
+
 const GreenGoPresetsCard = () => {
   const t = useTranslation()
   const greengoConfig = useProjectStore((s) => s.project.greengoConfig)
