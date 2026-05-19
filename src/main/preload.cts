@@ -133,11 +133,13 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     /** v7.9.97 — Vektor-PDF: Renderer schickt fertiges HTML mit
      *  foreignObject-SVG-Canvas + Page-Size in microns, Main rendert
      *  via Chromium printToPDF. Liefert die PDF-Bytes zurück. Text
-     *  bleibt vektoriell und durchsuchbar. */
+     *  bleibt vektoriell und durchsuchbar.
+     *  v7.9.104 — optional `scale` 0..1 fuer Paper-Fit. */
     canvasPdfVector: (params: {
       html: string
       widthMicrons: number
       heightMicrons: number
+      scale?: number
     }) =>
       ipcRenderer.invoke('canvas:export-pdf-vector', params) as Promise<Uint8Array>,
   },

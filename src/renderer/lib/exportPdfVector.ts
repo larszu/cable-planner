@@ -56,6 +56,9 @@ interface CablePlannerPrintApi {
     html: string
     widthMicrons: number
     heightMicrons: number
+    /** v7.9.104 — printToPDF.scale: skaliert die ganze Page vektoriell,
+     *  statt CSS-Transform der Content. Vermeidet Layer-Rasterung. */
+    scale?: number
   }) => Promise<Uint8Array>
 }
 
@@ -194,50 +197,42 @@ const collectAllCss = (): string => {
 }
 
 /** Klont nur das `.react-flow`-Element — also die ReactFlow-Renderflaeche
- *  ohne den umgebenden Toolbar/Banner-Chrome. Setzt anschliessend den
- *  Viewport-Transform so um, dass das natural-size Content-Rechteck bei
- *  (0,0) sitzt UND optional skaliert wird.
+ *  ohne den umgebenden Toolbar/Banner-Chrome. Viewport-Transform wird auf
+ *  Identity + Translation gesetzt, sodass das natural-Content-Rechteck
+ *  bei (0,0) sitzt.
  *
- *  v7.9.101: Wir klonten frueher das ganze #cable-planner-canvas (Wrapper
- *  mit CanvasToolbar/Banner) — Toolbar landete dann oben im PDF. Jetzt
- *  greifen wir das innere .react-flow.
- *  v7.9.103: Scale jetzt direkt im Viewport-Transform statt als CSS
- *  transform: scale auf einem Outer-Wrapper. Microsoft Edge's PDF-
- *  Viewer rendert Wrapper-Scale-Transforms anders als Acrobat — manche
- *  Inhalte werden gar nicht angezeigt. ReactFlow nutzt das gleiche
- *  Transform-Pattern im Normalbetrieb (translate+scale auf .viewport)
- *  → Edge kennt das Output-Pattern und rendert es zuverlaessig. */
+ *  v7.9.101: nur .react-flow klonen statt #cable-planner-canvas
+ *  (sonst landet die CanvasToolbar oben im PDF).
+ *  v7.9.104: KEIN CSS-transform-scale mehr. Skalierung passiert via
+ *  printToPDF's eigenem `scale`-Parameter — Chromium schreibt das als
+ *  PDF-Transformations-Matrix statt auf einen GPU-Layer zu rastern.
+ *  Vorher: Text wurde matschig bei A0-Cap, weil scale<1 auf der
+ *  Viewport-Transform Chromium dazu brachte, Layer-zu-Bitmap zu flatten.
+ *  Jetzt: Body bleibt natural-size, printToPDF skaliert die GESAMTE
+ *  Page vektoriell beim Render. */
 const cloneCanvasForPrint = (
   canvasEl: HTMLElement,
   bbox: BoundingBox,
-  scale: number,
 ): HTMLElement => {
   const reactFlowEl = canvasEl.querySelector('.react-flow') as HTMLElement | null
   const source = reactFlowEl ?? canvasEl
   const clone = source.cloneNode(true) as HTMLElement
   clone.removeAttribute('id')
-  // Clone-Outer auf DISPLAYED (skaliert) sizen — der Viewport drin macht
-  // den Scale selber.
-  const displayedW = bbox.contentW * scale
-  const displayedH = bbox.contentH * scale
-  clone.style.width = `${displayedW}px`
-  clone.style.height = `${displayedH}px`
+  // Clone auf Natural-Content-Groesse. Kein scale-Transform.
+  clone.style.width = `${bbox.contentW}px`
+  clone.style.height = `${bbox.contentH}px`
   clone.style.position = 'relative'
   clone.style.overflow = 'hidden'
 
-  // ReactFlow-Viewport: kombiniert translate + scale wie ReactFlow es im
-  // Normalbetrieb tut. translate kommt VOR scale (CSS-Konvention), also
-  // sind die translate-Werte in pre-scale-Koordinaten:
-  //   ein Child bei flow-coord (bbox.contentX, bbox.contentY) landet
-  //   nach Transform bei (0, 0) der DISPLAYED-Wrap.
+  // Viewport: nur Translation, KEIN scale. printToPDF skaliert spaeter
+  // die ganze Page einheitlich.
   const viewport = clone.querySelector('.react-flow__viewport') as HTMLElement | null
   if (viewport) {
-    viewport.style.transform = `translate(${-bbox.contentX * scale}px, ${-bbox.contentY * scale}px) scale(${scale})`
+    viewport.style.transform = `translate(${-bbox.contentX}px, ${-bbox.contentY}px)`
     viewport.style.transformOrigin = '0 0'
   }
 
-  // Edge-Path-SVG-Container auf natural sizen — Scale wird vom Viewport-
-  // Transform auf dieses SVG drauf-angewandt.
+  // Edge-Path-SVG-Container auf natural sizen.
   const edgesSvg = clone.querySelector('.react-flow__edges') as SVGElement | null
   if (edgesSvg) {
     edgesSvg.style.width = `${bbox.contentW}px`
@@ -449,38 +444,43 @@ export const exportCanvasToPdfVector = async (
   const headerHeight = 28
   const titleBlockReserve = metadata ? 12 : 0
 
-  // v7.9.103 — Page-Size auswerten:
-  //   'original'  → kein Cap, Natural-Canvas-Groesse stehen lassen
-  //                 (fuer Plotter-Drucke, kann in Edge weiss erscheinen)
-  //   'auto'      → A0-Landscape-Cap (Default, max. Viewer-Kompatibilitaet)
-  //   'a0'/'a1'/… → harte Festlegung auf das Standard-Format
-  // Wenn der natural Canvas groesser ist als das gewaehlte Format,
-  // wird er vektoriell runterskaliert (transform auf .react-flow__viewport).
+  // v7.9.104 — Body bleibt IMMER natural-size. Skalierung passiert via
+  // printToPDF's `scale`-Parameter beim Render — das emittiert eine
+  // PDF-Transformations-Matrix statt auf einen Layer zu rastern, also
+  // bleibt Text scharf bei jedem Zoom.
+  // Page-Size-Pref:
+  //   'original'  → Paper = Body natural size (kein Cap)
+  //   'auto'      → A0-Landscape Paper, Content scale-to-fit
+  //   'a0'/'a1'/… → konkretes Format, Content scale-to-fit
   const pageSizePref: PdfPageSize = options?.pageSize ?? 'auto'
-  let maxCanvasWidthPx: number | null
-  let maxCanvasHeightPx: number | null
+  const bodyWidthPx = bbox.contentW + margin * 2
+  const bodyHeightPx = bbox.contentH + margin * 2 + headerHeight + titleBlockReserve
+
+  let paperWidthPx: number
+  let paperHeightPx: number
   if (pageSizePref === 'original') {
-    maxCanvasWidthPx = null
-    maxCanvasHeightPx = null
+    paperWidthPx = bodyWidthPx
+    paperHeightPx = bodyHeightPx
   } else {
     const key = pageSizePref === 'auto' ? 'a0' : pageSizePref
     const [longMm, shortMm] = PAGE_SIZE_MM[key]
-    // Landscape per default
-    maxCanvasWidthPx = longMm / PX_TO_MM - margin * 2
-    maxCanvasHeightPx = shortMm / PX_TO_MM - margin * 2 - headerHeight - titleBlockReserve
+    paperWidthPx = longMm / PX_TO_MM
+    paperHeightPx = shortMm / PX_TO_MM
   }
-  const canvasScale =
-    maxCanvasWidthPx == null || maxCanvasHeightPx == null
-      ? 1
-      : Math.min(1, maxCanvasWidthPx / bbox.contentW, maxCanvasHeightPx / bbox.contentH)
-  const displayedCanvasWidth = Math.ceil(bbox.contentW * canvasScale)
-  const displayedCanvasHeight = Math.ceil(bbox.contentH * canvasScale)
-  const pageWidthPx = displayedCanvasWidth + margin * 2
-  const pageHeightPx =
-    displayedCanvasHeight + margin * 2 + headerHeight + titleBlockReserve
 
-  onProgress('capture', `Canvas-DOM klonen (scale ${(canvasScale * 100).toFixed(0)}%)…`)
-  const canvasClone = cloneCanvasForPrint(canvasEl, bbox, canvasScale)
+  // Print-Scale: kleinstes Verhaeltnis Paper/Body, damit Body in
+  // einer Page Platz hat. <=1, vektoriell.
+  const printScale = Math.min(
+    1,
+    paperWidthPx / bodyWidthPx,
+    paperHeightPx / bodyHeightPx,
+  )
+
+  onProgress(
+    'capture',
+    `Canvas-DOM klonen (Body ${bodyWidthPx}×${bodyHeightPx}px → Paper ${Math.round(paperWidthPx)}×${Math.round(paperHeightPx)}px, scale ${(printScale * 100).toFixed(0)}%)…`,
+  )
+  const canvasClone = cloneCanvasForPrint(canvasEl, bbox)
   const canvasOuterHtml = canvasClone.outerHTML
   if (canvasOuterHtml.length < 1000) {
     throw new Error(
@@ -496,10 +496,10 @@ export const exportCanvasToPdfVector = async (
     appCss,
     canvasOuterHtml,
     projectName,
-    pageWidthPx,
-    pageHeightPx,
-    canvasWidthPx: displayedCanvasWidth,
-    canvasHeightPx: displayedCanvasHeight,
+    pageWidthPx: bodyWidthPx,
+    pageHeightPx: bodyHeightPx,
+    canvasWidthPx: bbox.contentW,
+    canvasHeightPx: bbox.contentH,
     headerHeight,
     margin,
     bgFallback,
@@ -508,10 +508,12 @@ export const exportCanvasToPdfVector = async (
     themeDark,
   })
 
-  onProgress('render', 'Chromium printToPDF…')
-  const widthMicrons = Math.round(pageWidthPx * PX_TO_MICRONS)
-  const heightMicrons = Math.round(pageHeightPx * PX_TO_MICRONS)
-  const bytes = await handler({ html, widthMicrons, heightMicrons })
+  onProgress('render', `Chromium printToPDF (scale ${(printScale * 100).toFixed(0)}%)…`)
+  // Paper-Size in microns. Body in der HTML ist natural-size, scale
+  // skaliert den ganzen Body in die Paper-Seite.
+  const widthMicrons = Math.round(paperWidthPx * PX_TO_MICRONS)
+  const heightMicrons = Math.round(paperHeightPx * PX_TO_MICRONS)
+  const bytes = await handler({ html, widthMicrons, heightMicrons, scale: printScale })
 
   onProgress('save', 'Datei speichern…')
   if (!bytes || bytes.byteLength < 1000) {
