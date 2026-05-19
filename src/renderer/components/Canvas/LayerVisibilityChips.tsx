@@ -37,19 +37,16 @@ export const LayerVisibilityChips = () => {
   // viele Kabel auf welchem Layer liegen. Macht das Feature sichtbar:
   // wenn alle Counter "0" sind weiß der User dass keine Layer-
   // Zuordnung im Projekt existiert (z.B. altes Projekt vor v7.9.85).
+  // v7.9.95: Kabel ohne layer-Feld landen im 'other'-Bucket, damit das
+  // 'other'-Chip die Custom/Undefined-Kabel sichtbar macht.
   const cables = useProjectStore((s) => s.project.cables)
   const layerCounts = (() => {
     const counts: Record<string, number> = {}
-    let ungrouped = 0
     for (const c of cables) {
-      const top = topLayer(c.layer) ?? c.layer
-      if (!top) {
-        ungrouped++
-        continue
-      }
+      const top = topLayer(c.layer) ?? c.layer ?? 'other'
       counts[top] = (counts[top] ?? 0) + 1
     }
-    return { counts, ungrouped, total: cables.length }
+    return { counts, total: cables.length }
   })()
 
   const allOn = STANDARD_LAYERS.every((l) => layerVisibility[l] !== false) &&

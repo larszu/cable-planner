@@ -497,8 +497,22 @@ const DeviceBox = ({
 
 /** v7.9.77 / #170 — Port-Dots auf einer Panel-Face (Front oder Rear).
  *  Rendert kleine Kugeln, deren Position normiert auf der Face liegt.
- *  Drag: onPointerDown auf einer Kugel → onPointerMove raycaster
- *  schneidet wieder die Face → neue normierte Position → onPortMoved.
+ *
+ *  v7.9.95-Fix: Drag arbeitet jetzt mit echter Ray-Plane-Intersection.
+ *  Der alte Code las e.point während des Pointer-Captures — das ist
+ *  unzuverlässig, weil der Raycaster dann den Dot selbst trifft (auf
+ *  seiner Position VOR dem Move) und das Ergebnis stale ist. Außerdem
+ *  hat der alte Code keinen Grip-Offset gespeichert → der Dot sprang
+ *  beim ersten Move auf die Cursor-Position statt unter dem Greifpunkt
+ *  zu bleiben.
+ *
+ *  Neu:
+ *   - useThree() liefert camera + pointer (Live-NDC)
+ *   - Eine virtuelle Plane bei faceCenter mit Normale ±Z dient als Drag-
+ *     Surface (Camera-Winkel-unabhängig)
+ *   - Pointer-Down speichert (a) die initiale Dot-Position und (b) den
+ *     initialen face-lokalen Hit → das Delta wird relativ zu beidem
+ *     berechnet → glatter Drag, kein Initial-Jump
  *
  *  Face-Koordinaten:
  *   - Face liegt in der XY-Ebene des Geräts (W × H)
@@ -533,11 +547,49 @@ const PortDots = ({
    *  und Dot-Drag aus). */
   orbitRef?: React.RefObject<{ enabled: boolean } | null>
 }) => {
+  const { camera, pointer } = useThree()
+
   // Während eines Drags speichern wir lokal die neue Position, damit der
   // Dot beim Slide live folgt (statt erst nach Drop neu zu rendern).
   const [dragOverride, setDragOverride] = useState<{ id: string; x: number; y: number } | null>(null)
-  const draggingRef = useRef<{ id: string; pointerId: number } | null>(null)
+  // Drag-State mit Grip-Offset: startNx/startNy sind die normalisierten
+  // Dot-Koordinaten zum Greif-Zeitpunkt, grabFaceX/grabFaceY der Face-
+  // lokale Hit der Maus zu diesem Moment. Während des Drags berechnen
+  // wir Delta-Bewegungen relativ zu diesen Anfangswerten.
+  const draggingRef = useRef<{
+    id: string
+    pointerId: number
+    startNx: number
+    startNy: number
+    grabFaceX: number
+    grabFaceY: number
+  } | null>(null)
   const meshRefs = useRef<Map<string, THREE.Mesh>>(new Map())
+
+  // Wiederverwendbare Three-Helper damit pro Frame kein new Vector3 anfällt.
+  const raycaster = useMemo(() => new THREE.Raycaster(), [])
+  const facePlane = useMemo(() => new THREE.Plane(), [])
+  const hitPoint = useMemo(() => new THREE.Vector3(), [])
+  const faceNormal = useMemo(
+    () => new THREE.Vector3(0, 0, side === 'front' ? -1 : 1),
+    [side],
+  )
+
+  /** Aktuelle Cursor-Position in face-lokalen Koordinaten (x, y relativ
+   *  zum faceCenter, in mm). Macht einen frischen Raycast gegen die
+   *  Face-Ebene — funktioniert auch wenn der Cursor gerade kein Mesh
+   *  trifft. Liefert null wenn der Strahl parallel zur Ebene ist
+   *  (theoretisch unmöglich bei normaler Kamera-Pose). */
+  const cursorFaceHit = (): { x: number; y: number } | null => {
+    facePlane.setFromNormalAndCoplanarPoint(
+      faceNormal,
+      hitPoint.set(faceCenter[0], faceCenter[1], faceCenter[2]),
+    )
+    raycaster.setFromCamera(pointer, camera)
+    const hit = raycaster.ray.intersectPlane(facePlane, hitPoint)
+    if (!hit) return null
+    return { x: hit.x - faceCenter[0], y: hit.y - faceCenter[1] }
+  }
 
   // Sichere Höhe für Dot-Geometrie: ~6mm Radius, aber max 1/3 der HE-Höhe
   // damit sie bei kleinen 1HE-Boxen nicht den ganzen Bereich überdecken.
@@ -574,17 +626,32 @@ const PortDots = ({
               // v7.9.87 / #209 — OrbitControls aus, damit der Drag eines
               // Port-Dots die Kamera nicht gleichzeitig dreht.
               if (orbitRef?.current) orbitRef.current.enabled = false
-              draggingRef.current = { id: port.id, pointerId: e.pointerId }
+              // Greif-Position auf der Face merken. Falls (unwahrscheinlich)
+              // der Raycast die Plane nicht trifft, fallen wir auf die
+              // Dot-Position selbst zurück — dann verhält sich der Drag wie
+              // im alten Modell (snap-to-cursor).
+              const hit = cursorFaceHit() ?? { x: faceX, y: faceY }
+              draggingRef.current = {
+                id: port.id,
+                pointerId: e.pointerId,
+                startNx: px,
+                startNy: py,
+                grabFaceX: hit.x,
+                grabFaceY: hit.y,
+              }
             }}
             onPointerMove={(e) => {
               const drag = draggingRef.current
               if (!drag || drag.id !== port.id || drag.pointerId !== e.pointerId) return
-              const hit = e.point as THREE.Vector3
-              const localX = hit.x - faceCenter[0]
-              const localY = hit.y - faceCenter[1]
-              const nx = Math.max(0, Math.min(1, localX / widthMm + 0.5))
-              const ny = Math.max(0, Math.min(1, 0.5 - localY / heightMm))
-              setDragOverride({ id: port.id, x: nx, y: ny })
+              const hit = cursorFaceHit()
+              if (!hit) return
+              const dx = hit.x - drag.grabFaceX
+              const dy = hit.y - drag.grabFaceY
+              const newNx = Math.max(0, Math.min(1, drag.startNx + dx / widthMm))
+              // Y ist invertiert: positive Welt-Y heißt nach oben heißt
+              // kleinere normalisierte Y (py=0 oben).
+              const newNy = Math.max(0, Math.min(1, drag.startNy - dy / heightMm))
+              setDragOverride({ id: port.id, x: newNx, y: newNy })
             }}
             onPointerUp={(e) => {
               const drag = draggingRef.current

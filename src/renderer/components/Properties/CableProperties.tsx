@@ -147,18 +147,20 @@ export const CableProperties = () => {
         onChange={(color) => updateCable(cable.id, { color })}
       />
 
-      {/* v7.9.85 / #123 — Layer-Auswahl. Standard-Layer + Custom-Layer aus uiStore. */}
+      {/* v7.9.85 / #123 — Layer-Auswahl. Standard-Layer + Custom-Layer aus uiStore.
+          v7.9.95: 'Other' ist jetzt ein vollwertiger Standard-Layer, daher
+          kein leerer "ungrouped"-Eintrag mehr. Wenn das Feld doch leer ist
+          (legacy), behandelt isCableVisibleByLayer es wie 'other'. */}
       <label className="block">
         <span className="mb-1 block text-slate-300">Ebene (Layer)</span>
         <select
-          value={cable.layer ?? ''}
+          value={cable.layer ?? 'other'}
           onChange={(event) =>
             updateCable(cable.id, { layer: event.target.value || undefined })
           }
           className="w-full rounded border border-slate-700 bg-slate-900 p-2"
           title="Wirkt mit dem Layer-Filter in der Toolbar (Ebenen-Chips)"
         >
-          <option value="">— ungrouped (immer sichtbar) —</option>
           {STANDARD_LAYERS.map((l) => (
             <option key={l} value={l}>
               {LAYER_STYLES[l].icon} {LAYER_STYLES[l].label}
