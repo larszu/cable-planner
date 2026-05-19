@@ -623,6 +623,10 @@ export const LibraryPanel = () => {
   const deleteGroupPreset = useProjectStore((state) => state.deleteGroupPreset)
   const placeGroupPreset = useProjectStore((state) => state.placeGroupPreset)
   const insertBlackBoxRack = useProjectStore((state) => state.insertBlackBoxRack)
+  // v7.9.105 / Issue #224 — In-Place-Edit fuer Canvas-Racks.
+  const replaceCanvasRackWithPreset = useProjectStore(
+    (state) => state.replaceCanvasRackWithPreset,
+  )
   const reorderGroupPresets = useProjectStore((state) => state.reorderGroupPresets)
   const renameGroupPreset = useProjectStore((state) => state.renameGroupPreset)
   const renameCustomCategory = useProjectStore((state) => state.renameCustomCategory)
@@ -637,6 +641,13 @@ export const LibraryPanel = () => {
   // "Als Rack speichern". Lives in component state because it's
   // ephemeral (only valid while the dialog is open).
   const [seedPreset, setSeedPreset] = useState<import('../../types/equipment').GroupPreset | null>(null)
+  // v7.9.105 / Issue #224 — Wenn der RackBuilder aus dem Canvas-Toolbar-
+  // 'Rack bearbeiten'-Button geoeffnet wurde, merken wir uns die
+  // Equipment-ID damit Save in-place ins Canvas zurueckgeht statt in
+  // die Library-Preset.
+  const [editingCanvasRackEquipmentId, setEditingCanvasRackEquipmentId] = useState<
+    string | null
+  >(null)
   // Watch the global trigger fired by the CanvasToolbar button.
   const rackBuilderSeedTrigger = useUiStore((s) => s.rackBuilderSeedTrigger)
   const clearRackBuilderSeedTrigger = useUiStore((s) => s.clearRackBuilderSeedTrigger)
@@ -699,11 +710,13 @@ export const LibraryPanel = () => {
   }, [rackBuilderSeedTrigger, equipmentItems, clearRackBuilderSeedTrigger])
 
   // v7.9.51 — Edit-Trigger vom Canvas-Toolbar-Button für ein bereits
-  // platziertes Black-Box-Rack. Wir suchen das zugehörige Source-Preset
-  // (Match per Name — insertBlackBoxRack benennt das Equipment immer
-  // als "<Preset-Name> (Rack)") und öffnen den Builder im Edit-Mode.
-  // Falls der Preset zwischenzeitlich gelöscht wurde, synthetisieren wir
-  // einen neuen aus rackInternalSnapshot.
+  // platziertes Black-Box-Rack.
+  // v7.9.105 / Issue #224 — Wir loaden IMMER aus rackInternalSnapshot
+  // (= Canvas-Instance-State), NICHT mehr aus der Library-Preset.
+  // editingCanvasRackEquipmentId wird gesetzt, damit der Save-Handler
+  // unten die Aenderungen ins Canvas-Equipment zurueckschreibt statt
+  // in die Library-Preset. Toolbar 'Rack bearbeiten' bearbeitet
+  // jetzt also tatsaechlich das Rack im Plan, nicht das in der Library.
   useEffect(() => {
     if (!rackBuilderEditFromBlackBoxTrigger) return
     const eq = equipmentItems.find((e) => e.id === rackBuilderEditFromBlackBoxTrigger)
@@ -711,23 +724,28 @@ export const LibraryPanel = () => {
       clearRackBuilderEditFromBlackBoxTrigger()
       return
     }
-    // Strip "(Rack)"-Suffix das insertBlackBoxRack anhängt
     const candidateName = eq.name.replace(/\s*\(Rack\)\s*$/, '').trim()
-    const existing = groupPresets.find(
-      (p) =>
-        !!p.rack &&
-        (p.name === candidateName || p.name === eq.rackInstanceLabel || p.name === eq.name),
-    )
-    if (existing) {
-      setSeedPreset(null)
-      setEditingRackPresetId(existing.id)
-      setShowRackBuilderDialog(true)
-      setTab('racks')
-    } else if (eq.rackInternalSnapshot) {
-      // Preset wurde gelöscht aber das Equipment trägt noch den Snapshot —
-      // wir bauen daraus ein temporäres Preset zum Bearbeiten.
+    if (eq.rackInternalSnapshot) {
+      // Wir bauen aus dem Snapshot + equipment.inputs/outputs ein
+      // temporaeres Preset zum Bearbeiten. Ports rekonstruieren wir aus
+      // equipment.inputs/outputs (via rackOriginDeviceIndex), damit
+      // sie im Dialog editierbar erscheinen.
       const snap = eq.rackInternalSnapshot
       const itemsByIndex = snap.items
+      const inputsByItem = new Map<number, import('../../types/equipment').Port[]>()
+      const outputsByItem = new Map<number, import('../../types/equipment').Port[]>()
+      for (const p of eq.inputs) {
+        if (typeof p.rackOriginDeviceIndex !== 'number') continue
+        const list = inputsByItem.get(p.rackOriginDeviceIndex) ?? []
+        list.push({ ...p, name: p.rackOriginPortName ?? p.name })
+        inputsByItem.set(p.rackOriginDeviceIndex, list)
+      }
+      for (const p of eq.outputs) {
+        if (typeof p.rackOriginDeviceIndex !== 'number') continue
+        const list = outputsByItem.get(p.rackOriginDeviceIndex) ?? []
+        list.push({ ...p, name: p.rackOriginPortName ?? p.name })
+        outputsByItem.set(p.rackOriginDeviceIndex, list)
+      }
       const synth: import('../../types/equipment').GroupPreset = {
         id: `__edit-blackbox-${Date.now().toString(36)}`,
         name: candidateName,
@@ -739,11 +757,11 @@ export const LibraryPanel = () => {
             heightUnits: it.rackUnits,
           })),
         },
-        items: itemsByIndex.map((it) => ({
+        items: itemsByIndex.map((it, idx) => ({
           name: it.name,
           category: 'Sonstiges',
-          inputs: [],
-          outputs: [],
+          inputs: inputsByItem.get(idx) ?? [],
+          outputs: outputsByItem.get(idx) ?? [],
           isRackDevice: true,
           rackUnits: it.rackUnits,
           width: 240,
@@ -765,6 +783,9 @@ export const LibraryPanel = () => {
       }
       setSeedPreset(synth)
       setEditingRackPresetId(null)
+      // Merken: Save geht in dieses Canvas-Equipment zurueck, nicht in
+      // die Library-Preset.
+      setEditingCanvasRackEquipmentId(eq.id)
       setShowRackBuilderDialog(true)
       setTab('racks')
     }
@@ -772,7 +793,6 @@ export const LibraryPanel = () => {
   }, [
     rackBuilderEditFromBlackBoxTrigger,
     equipmentItems,
-    groupPresets,
     clearRackBuilderEditFromBlackBoxTrigger,
   ])
 
@@ -2920,15 +2940,26 @@ export const LibraryPanel = () => {
           setShowRackBuilderDialog(false)
           setEditingRackPresetId(null)
           setSeedPreset(null)
+          setEditingCanvasRackEquipmentId(null)
         }}
         onSave={(preset) => {
-          // addGroupPreset upserts by id, so edit-mode reuses the same id and
-          // simply overwrites the existing entry. For seed-mode the synthetic
-          // __seed- id is replaced by a fresh uuid in saveRack already.
-          addGroupPreset(preset)
+          // v7.9.105 / Issue #224 — Wenn der Dialog aus dem Canvas-
+          // Toolbar-'Rack bearbeiten'-Button geoeffnet wurde, schreiben
+          // wir die Aenderungen ins Canvas-Equipment zurueck (Ports +
+          // Snapshot), nicht in die Library-Preset.
+          if (editingCanvasRackEquipmentId) {
+            replaceCanvasRackWithPreset(editingCanvasRackEquipmentId, preset)
+          } else {
+            // addGroupPreset upserts by id, so edit-mode reuses the same
+            // id and simply overwrites the existing entry. For seed-mode
+            // the synthetic __seed- id is replaced by a fresh uuid in
+            // saveRack already.
+            addGroupPreset(preset)
+          }
           setShowRackBuilderDialog(false)
           setEditingRackPresetId(null)
           setSeedPreset(null)
+          setEditingCanvasRackEquipmentId(null)
           setTab('racks')
         }}
       />
