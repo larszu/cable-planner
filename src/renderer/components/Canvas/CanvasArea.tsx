@@ -23,6 +23,7 @@ import {
   useCanvasProjectStore as useProjectStore,
   useCanvasProjectStoreInstance,
 } from '../../store/projectStoreContext'
+import { projectHistory } from '../../store/projectHistory'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
 import { useUiStore } from '../../store/uiStore'
@@ -738,6 +739,14 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     // dazwischen, damit die "kleben-gebliebenen" Knickpunkte mit umziehen.
     const equipmentDeltas = new Map<string, { dx: number; dy: number }>()
 
+    // v7.9.92 — Wenn dieser onNodesChange-Aufruf ein Drag-End enthält
+    // (endedDragIds.size > 0), startet eine History-Transaktion damit
+    // ALLE folgenden updateEquipment + updateCable als EIN Undo-Schritt
+    // landen. Sonst hatte ein Multi-Select-Drag von 5 Geräten mit 3
+    // mitgezogenen Cable-Waypoints am Ende 8 Undo-Schritte erzeugt.
+    const isDragEndBatch = endedDragIds.size > 0
+    if (isDragEndBatch) projectHistory.beginTransaction()
+
     // Persist to store ONLY on a real drag-end. `change.dragging === false`
     // alone is not enough — React Flow emits those during internal syncs too,
     // which would nudge unrelated nodes whenever a new one is added.
@@ -932,6 +941,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         }
       }
     }
+
+    // v7.9.92 — Drag-End-Transaktion schließen (siehe oben).
+    if (isDragEndBatch) projectHistory.endTransaction()
   }
 
   // v7.9.67 / #178 — Rechtsklick → Kontextmenü mit "Position sperren".
@@ -1375,7 +1387,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     if (!snap || snap.items.length === 0) return
     pasteCountRef.current += 1
     const step = 30 * pasteCountRef.current
-    const newIds = pasteEquipment(snap.items, snap.cables, { dx: step, dy: step })
+    // v7.9.92 — Paste = ein Undo-Schritt (pasteEquipment + setSelection
+    // sind 2 separate Store-Mutationen).
+    const newIds = projectHistory.transact(() =>
+      pasteEquipment(snap.items, snap.cables, { dx: step, dy: step }),
+    )
     if (newIds.length === 0) return
     const newIdSet = new Set(newIds)
     // Reflect the new selection visually in React Flow.
@@ -1462,10 +1478,14 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       const cableIds = getEdges().filter((e) => e.selected).map((e) => e.id)
       if (equipmentIds.length + cableIds.length > 1) {
         event.preventDefault()
-        // Erst Cables löschen damit kein verwaister Cable-Render von einem
-        // gerade gelöschten Equipment passiert.
-        for (const id of cableIds) deleteCable(id)
-        for (const id of equipmentIds) deleteEquipment(id)
+        // v7.9.92 — Wrap Multi-Delete in einer History-Transaction
+        // damit der ganze Vorgang EIN Undo-Schritt ist (statt N).
+        projectHistory.transact(() => {
+          // Erst Cables löschen damit kein verwaister Cable-Render von
+          // einem gerade gelöschten Equipment passiert.
+          for (const id of cableIds) deleteCable(id)
+          for (const id of equipmentIds) deleteEquipment(id)
+        })
         return
       }
       deleteSelected()
