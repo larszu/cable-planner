@@ -8,6 +8,7 @@ import type { CablePlannerProject } from '../types/project'
 import { useUiStore } from './uiStore'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
 import { detectLayerForConnector } from '../lib/cableLayers'
+import { cableCatalog } from '../types/cableSpec'
 import { ubiquitiTemplates } from '../lib/ubiquitiCatalog'
 import { monitorTemplates } from '../lib/monitorCatalog'
 import { cameraTemplates } from '../lib/cameraCatalog'
@@ -2033,18 +2034,49 @@ const buildProjectStore = (
           (c.fromPortId === input.toPortId && c.toPortId === input.fromPortId),
       )
       if (dupe) return {}
+      // v7.9.88 / #210 — Cable-Type-String → cableSpecId Lookup. Vorher
+      // wurde nur `type` als Connector-String gesetzt; cableSpecId blieb
+      // undefined → das Properties-Panel in der Hauptapp zeigte das
+      // Kabel als "Custom" weil es keinen Spec-Eintrag gefunden hat.
+      // Jetzt suchen wir im cableCatalog (+ uiStore.customCableSpecs)
+      // einen Spec, dessen Name oder connectorType zum Input passt, und
+      // setzen ihn. Plus Layer-Auto-Detect aus dem Connector-Typ.
+      let resolvedSpecId: string | undefined
+      let resolvedColor = input.color
+      const typeStr = (input.type ?? '').trim()
+      if (typeStr) {
+        const ui = useUiStore.getState()
+        const allSpecs = [
+          ...cableCatalog,
+          ...(ui.customCableSpecs ?? []),
+        ]
+        // Exakter Name-Match first, dann Substring-Fallback auf
+        // connectorType, dann gar nichts.
+        const exact = allSpecs.find((s) => s.name.toLowerCase() === typeStr.toLowerCase())
+        const byConnector = !exact && allSpecs.find(
+          (s) => String(s.connectorType).toLowerCase() === typeStr.toLowerCase(),
+        )
+        const match = exact ?? byConnector
+        if (match) {
+          resolvedSpecId = match.id
+          if (!resolvedColor) resolvedColor = match.color
+        }
+      }
+      const autoLayer = detectLayerForConnector(typeStr as Cable['type'])
       const cable: Cable = {
         id: uuidv4(),
         name: input.name?.trim() || `${fromEq.name} → ${toEq.name}`,
         type: (input.type as Cable['type']) || 'unbekannt',
         length: input.length ?? 0,
-        color: input.color ?? '#64748b',
+        color: resolvedColor ?? '#64748b',
         fromEquipmentId: input.fromEquipmentId,
         fromPortId: input.fromPortId,
         toEquipmentId: input.toEquipmentId,
         toPortId: input.toPortId,
         notes: input.notes ?? '',
         addedFromMobile: true,
+        ...(resolvedSpecId ? { cableSpecId: resolvedSpecId } : {}),
+        ...(autoLayer ? { layer: autoLayer } : {}),
       }
       const updated = touchProject({
         ...state.project,
