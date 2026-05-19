@@ -978,6 +978,7 @@ export const useUiStore = create<UiState>((set) => ({
     control: true,
     network: true,
     power: true,
+    other: true,
   },
   setLayerVisibility: (layer, visible) =>
     set((state) => ({
@@ -991,6 +992,7 @@ export const useUiStore = create<UiState>((set) => ({
         control: true,
         network: true,
         power: true,
+        other: true,
       },
     }),
   customLayers: [],
