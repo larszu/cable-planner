@@ -302,15 +302,28 @@ export const CableProperties = () => {
       </label>
 
       <div>
-        <span className="mb-1 block text-slate-300">Label Position</span>
-        <div className="flex gap-1">
+        <div className="mb-1 flex items-center justify-between">
+          <span className="text-slate-300">Label Position</span>
+          {/* v7.9.93 — Hide-Toggle für das Label. Behält den Namen am
+              Kabel, blendet aber die schwebende Beschriftung aus. */}
+          <label className="flex items-center gap-1 text-[11px] text-slate-400">
+            <input
+              type="checkbox"
+              checked={cable.labelHidden ?? false}
+              onChange={(event) => updateCable(cable.id, { labelHidden: event.target.checked })}
+            />
+            ausblenden
+          </label>
+        </div>
+        <div className={`flex gap-1 ${cable.labelHidden ? 'opacity-40' : ''}`}>
           {(['source', 'center', 'target'] as const).map((pos) => (
             <button
               key={pos}
               type="button"
-              onClick={() => updateCable(cable.id, { labelPosition: pos })}
+              disabled={cable.labelHidden}
+              onClick={() => updateCable(cable.id, { labelPosition: pos, labelT: undefined })}
               className={`flex-1 rounded border px-2 py-1 capitalize ${
-                (cable.labelPosition ?? 'center') === pos
+                cable.labelT === undefined && (cable.labelPosition ?? 'center') === pos
                   ? 'border-sky-500 bg-sky-800 text-white'
                   : 'border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800'
               }`}
@@ -318,6 +331,49 @@ export const CableProperties = () => {
               {pos === 'source' ? '← Start' : pos === 'target' ? 'End →' : 'Mitte'}
             </button>
           ))}
+        </div>
+        {/* v7.9.93 — Feinjustierter Slider entlang des Kabels (0..1).
+            Aktiv-Indikator wenn ein Custom-Wert gesetzt ist. */}
+        <div className={`mt-2 flex items-center gap-2 text-[11px] ${cable.labelHidden ? 'opacity-40' : ''}`}>
+          <span className="text-slate-500">Slider:</span>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            disabled={cable.labelHidden}
+            value={
+              typeof cable.labelT === 'number'
+                ? cable.labelT
+                : (cable.labelPosition === 'source'
+                    ? 0.15
+                    : cable.labelPosition === 'target'
+                      ? 0.85
+                      : 0.5)
+            }
+            onChange={(e) => updateCable(cable.id, { labelT: Number(e.target.value) })}
+            className="flex-1 accent-sky-500"
+            title="Feinjustierung des Labels entlang des Kabels (0=Start, 1=Ende)"
+          />
+          <span className="w-10 text-right font-mono text-slate-400">
+            {Math.round((typeof cable.labelT === 'number'
+              ? cable.labelT
+              : (cable.labelPosition === 'source'
+                  ? 0.15
+                  : cable.labelPosition === 'target'
+                    ? 0.85
+                    : 0.5)) * 100)}%
+          </span>
+          {typeof cable.labelT === 'number' && (
+            <button
+              type="button"
+              onClick={() => updateCable(cable.id, { labelT: undefined })}
+              className="rounded bg-slate-800 px-1 py-0.5 text-[10px] text-slate-500 hover:bg-slate-700"
+              title="Slider zurücksetzen — Preset wieder aktiv"
+            >
+              reset
+            </button>
+          )}
         </div>
       </div>
 

@@ -223,7 +223,22 @@ export const LocationBomDialog = () => {
             pdf.addPage()
             y = margin
           }
-          pdf.text(sanitizeForPdf(`* ${c.name ?? c.type ?? 'Kabel'}`), margin, y)
+          // v7.9.93 — Kabel-Länge mit ausgeben (fehlte bisher in der
+          // externen Liste, war nur in den internen Cable-Gruppen drin).
+          // Wireless-Cables haben maxRange statt length (#182).
+          const lengthLabel = c.wireless
+            ? c.maxRange
+              ? ` (<=${c.maxRange} m)`
+              : ''
+            : c.length
+              ? ` (${c.length} m)`
+              : ''
+          const typeLabel = c.type ? ` [${c.type}]` : ''
+          pdf.text(
+            sanitizeForPdf(`* ${c.name ?? c.type ?? 'Kabel'}${typeLabel}${lengthLabel}`),
+            margin,
+            y,
+          )
           y += 11
         }
       }
@@ -426,7 +441,12 @@ export const LocationBomDialog = () => {
                         <td className="px-2 py-1">{c.name ?? '—'}</td>
                         <td className="px-2 py-1 text-slate-400">{c.type ?? '—'}</td>
                         <td className="px-2 py-1 text-right font-mono text-slate-400">
-                          {c.length ?? '—'}
+                          {/* v7.9.93 — Wireless zeigt maxRange statt length (#182). */}
+                          {c.wireless
+                            ? c.maxRange
+                              ? `≤${c.maxRange}`
+                              : '—'
+                            : c.length ?? '—'}
                         </td>
                       </tr>
                     ))}
