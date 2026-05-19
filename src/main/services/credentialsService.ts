@@ -9,14 +9,13 @@ export const credentialsService = {
   },
 
   async saveToken(token: string): Promise<boolean> {
-    // v7.9.120 — Token-Sanitization: alle Control-Chars, NBSP, BOM
-    // raus. Tokens aus PDF/Mail-Copy-Paste haben oft ​/﻿ dabei,
-    // was Rentman dann 403-malformed-Authorization-Header gibt.
-    // eslint-disable-next-line no-control-regex
+    // v7.9.121 — STRENGE Sanitization: keep ONLY printable ASCII
+    // (0x21-0x7e). Strippt Zero-Width-Spaces, Bidi-Marks und alles
+    // andere was meine v7.9.120-Regex (control chars + NBSP + BOM)
+    // noch durchgelassen hat. Tokens sind base64/hex/JWT — alle ASCII.
     const clean = (token ?? '')
-      .replace(/[\u0000-\u001f\u007f-\u00a0\ufeff]/g, '')
-      .trim()
-      .replace(/^Bearer\s+/i, '')
+      .replace(/[^!-~]/g, '')
+      .replace(/^Bearer\s*/i, '')
     await keytar.setPassword(SERVICE_NAME, ACCOUNT_NAME, clean)
     return true
   },
