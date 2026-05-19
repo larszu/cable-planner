@@ -1124,8 +1124,42 @@ const EditingTab = () => {
         </label>
       </SettingsCard>
 
+      <CableReconnectOptionsCard />
       <CableVisualOptionsCard />
     </div>
+  )
+}
+
+/** v7.9.113 / Issue #232 — Label-Swap-Toggle. Wenn aktiv, wandert der
+ *  vom User vergebene Port-Name beim Cable-Reconnect mit dem Kabel mit
+ *  und der vorherige Port faellt auf seinen Template-Default-Namen
+ *  zurueck. Spart Copy-Paste beim Umstecken. */
+const CableReconnectOptionsCard = () => {
+  const t = useTranslation()
+  const swapLabelsOnReconnect = useUiStore((s) => s.swapLabelsOnReconnect)
+  const setSwapLabelsOnReconnect = useUiStore((s) => s.setSwapLabelsOnReconnect)
+  return (
+    <SettingsCard
+      title={t('settings.editing.labelSwap', 'Label mit Kabel mit-wandern')}
+      description={t(
+        'settings.editing.labelSwapDesc',
+        'Beim Umstecken eines Kabels uebernimmt der neue Port den User-Namen vom alten Port. Der alte Port faellt auf seinen Template-default zurueck. Spart Copy-Paste vom Label.',
+      )}
+    >
+      <label className="flex items-center gap-2 text-sm text-slate-200">
+        <input
+          type="checkbox"
+          checked={swapLabelsOnReconnect}
+          onChange={(e) => setSwapLabelsOnReconnect(e.target.checked)}
+        />
+        {t('settings.editing.labelSwapLabel', 'Beim Reconnect Port-Labels mit-tauschen')}
+      </label>
+      <p className="mt-2 text-[11px] text-slate-500">
+        Aus Sicherheit per default aus — sonst wuerden Test-Umsteckungen
+        ungewollt Labels umbenennen. Wirkt nur bei Ports, die einen
+        vom User editierten Namen haben (sonst gibts nichts zu tauschen).
+      </p>
+    </SettingsCard>
   )
 }
 

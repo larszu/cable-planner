@@ -31,6 +31,12 @@ import type { SdiCapabilities } from './videoFormat'
 export interface Port {
   id: string
   name: string
+  /** v7.9.113 / Issue #232 — Original Template-Name. Wird beim Anlegen
+   *  vom Library-Template gesetzt und NICHT vom User editiert. Genutzt
+   *  beim Cable-Reconnect mit Label-Swap-Feature: alter Port wird auf
+   *  seinen originalName zurueckgesetzt, der vom User vergebene Name
+   *  wandert mit dem Kabel auf den neuen Port. */
+  originalName?: string
   type: string
   connectorType: ConnectorType
   /** Optional side override on the node (default comes from input/output + mirror). */
