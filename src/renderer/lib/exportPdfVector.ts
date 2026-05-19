@@ -203,13 +203,16 @@ const collectAllCss = (): string => {
  *
  *  v7.9.101: nur .react-flow klonen statt #cable-planner-canvas
  *  (sonst landet die CanvasToolbar oben im PDF).
- *  v7.9.104: KEIN CSS-transform-scale mehr. Skalierung passiert via
- *  printToPDF's eigenem `scale`-Parameter — Chromium schreibt das als
- *  PDF-Transformations-Matrix statt auf einen GPU-Layer zu rastern.
- *  Vorher: Text wurde matschig bei A0-Cap, weil scale<1 auf der
- *  Viewport-Transform Chromium dazu brachte, Layer-zu-Bitmap zu flatten.
- *  Jetzt: Body bleibt natural-size, printToPDF skaliert die GESAMTE
- *  Page vektoriell beim Render. */
+ *  v7.9.104: Hatte KEIN CSS-transform-scale mehr, dafuer printToPDF.scale.
+ *  Problem: body blieb auf natural size — bei grossen Canvases (5000+ px)
+ *  musste Chromium die ganze Hidden-Window auf Natural-Groesse rendern,
+ *  bevor scale griff → OOM/Layout-Timeout → 'Printing failed'.
+ *  v7.9.109: Body wieder auf DISPLAYED (skalierte) size. Skalierung via
+ *  CSS `zoom` auf einen Inner-Wrapper im HTML (buildPrintHtml). zoom ist
+ *  layout-aware: Chromium emittiert die Paint-Ops bei der gezoomten
+ *  Groesse als normale PDF-Vektor-Operationen, kein Layer-Flatten.
+ *  Vorteil ggu. transform: scale (v7.9.103, das rasterte): Text bleibt
+ *  selektierbar + scharf bei jedem Zoom. */
 const cloneCanvasForPrint = (
   canvasEl: HTMLElement,
   bbox: BoundingBox,
@@ -285,13 +288,20 @@ const buildPrintHtml = (params: {
   appCss: string
   canvasOuterHtml: string
   projectName: string
+  /** Body (= paper) size in CSS-px. Match @page CSS in mm. */
   pageWidthPx: number
   pageHeightPx: number
-  /** Displayed (skaliert) Canvas-Groesse — der Clone wurde bereits in
-   *  cloneCanvasForPrint() auf displayedW/displayedH skaliert; die
-   *  Werte hier sind nur fuer den .pdf-canvas-wrap-Layout-Rahmen. */
+  /** Displayed (skalierte) Canvas-Wrap-Groesse — definiert wo der
+   *  zoom-skalierte Canvas reinpasst. */
   canvasWidthPx: number
   canvasHeightPx: number
+  /** Natural (unskalierte) Canvas-Groesse — Inner-Wrap-Element bekommt
+   *  diese Dimensionen, mit zoom: canvasScale wird's auf die displayed
+   *  Groesse runter-gezogen. */
+  canvasNaturalWidth: number
+  canvasNaturalHeight: number
+  /** Zoom-Faktor 0..1. zoom layout-aware → bleibt Vektor in PDF. */
+  canvasScale: number
   headerHeight: number
   margin: number
   bgFallback: string
@@ -307,6 +317,9 @@ const buildPrintHtml = (params: {
     pageHeightPx,
     canvasWidthPx,
     canvasHeightPx,
+    canvasNaturalWidth,
+    canvasNaturalHeight,
+    canvasScale,
     headerHeight,
     margin,
     bgFallback,
@@ -356,6 +369,15 @@ ${appCss}
     overflow: hidden;
     background: ${bgFallback};
   }
+  /* v7.9.109 — Inner-Wrap mit CSS zoom: layout-aware Skalierung. Im
+     Gegensatz zu transform: scale (v7.9.103, rasterte) bleibt zoom
+     vektoriell in printToPDF. Inner ist auf NATURAL size sized, zoom
+     zieht's auf canvasWidthPx/canvasHeightPx zusammen. */
+  .pdf-canvas-inner {
+    width: ${canvasNaturalWidth}px;
+    height: ${canvasNaturalHeight}px;
+    zoom: ${canvasScale};
+  }
   /* Kein scrollen / kein Userinteraktion-Layout-Anpassung im Print */
   .pdf-canvas-wrap * { animation: none !important; transition: none !important; }
   /* DIN-Title-Block unten rechts */
@@ -391,7 +413,7 @@ ${appCss}
     <div class="stamp">${escapeHtml(timestamp)}</div>
   </div>
   <div class="pdf-canvas-wrap">
-    ${canvasOuterHtml}
+    <div class="pdf-canvas-inner">${canvasOuterHtml}</div>
   </div>
   ${metadata ? renderTitleBlock(metadata) : ''}
 </div>
@@ -444,23 +466,23 @@ export const exportCanvasToPdfVector = async (
   const headerHeight = 28
   const titleBlockReserve = metadata ? 12 : 0
 
-  // v7.9.104 — Body bleibt IMMER natural-size. Skalierung passiert via
-  // printToPDF's `scale`-Parameter beim Render — das emittiert eine
-  // PDF-Transformations-Matrix statt auf einen Layer zu rastern, also
-  // bleibt Text scharf bei jedem Zoom.
-  // Page-Size-Pref:
-  //   'original'  → Paper = Body natural size (kein Cap)
-  //   'auto'      → A0-Landscape Paper, Content scale-to-fit
-  //   'a0'/'a1'/… → konkretes Format, Content scale-to-fit
+  // v7.9.109 — Page-Size-Auswertung. Body kommt am Ende auf DISPLAYED-
+  // (skalierte) Size, NICHT natural — sonst muesste Chromium grosse
+  // Canvases in voller Aufloesung im Hidden-Window rendern und Printing
+  // failed bei Memory-/Layout-Limits (v7.9.104-Bug). Skalierung via
+  // CSS zoom auf einen Inner-Wrapper, bleibt vektoriell in printToPDF.
+  //   'original' → Paper = Body natural size (kein Cap, scale=1)
+  //   'auto'     → A0-Landscape Paper, Content scale-to-fit
+  //   'a0'/…     → konkretes Format
   const pageSizePref: PdfPageSize = options?.pageSize ?? 'auto'
-  const bodyWidthPx = bbox.contentW + margin * 2
-  const bodyHeightPx = bbox.contentH + margin * 2 + headerHeight + titleBlockReserve
+  const naturalBodyWidthPx = bbox.contentW + margin * 2
+  const naturalBodyHeightPx = bbox.contentH + margin * 2 + headerHeight + titleBlockReserve
 
   let paperWidthPx: number
   let paperHeightPx: number
   if (pageSizePref === 'original') {
-    paperWidthPx = bodyWidthPx
-    paperHeightPx = bodyHeightPx
+    paperWidthPx = naturalBodyWidthPx
+    paperHeightPx = naturalBodyHeightPx
   } else {
     const key = pageSizePref === 'auto' ? 'a0' : pageSizePref
     const [longMm, shortMm] = PAGE_SIZE_MM[key]
@@ -468,17 +490,23 @@ export const exportCanvasToPdfVector = async (
     paperHeightPx = shortMm / PX_TO_MM
   }
 
-  // Print-Scale: kleinstes Verhaeltnis Paper/Body, damit Body in
-  // einer Page Platz hat. <=1, vektoriell.
-  const printScale = Math.min(
+  // Canvas-Scale: kleinstes Verhaeltnis Paper/Body, damit Body auf eine
+  // Page passt. <=1. Wird per CSS zoom auf den Inner-Wrapper angewandt.
+  const canvasScale = Math.min(
     1,
-    paperWidthPx / bodyWidthPx,
-    paperHeightPx / bodyHeightPx,
+    paperWidthPx / naturalBodyWidthPx,
+    paperHeightPx / naturalBodyHeightPx,
   )
+  // Displayed (skaliert) Canvas-Wrap-Size — passt in die Paper-Page.
+  const displayedCanvasWidth = Math.ceil(bbox.contentW * canvasScale)
+  const displayedCanvasHeight = Math.ceil(bbox.contentH * canvasScale)
+  // Body matches paper.
+  const bodyWidthPx = Math.ceil(paperWidthPx)
+  const bodyHeightPx = Math.ceil(paperHeightPx)
 
   onProgress(
     'capture',
-    `Canvas-DOM klonen (Body ${bodyWidthPx}×${bodyHeightPx}px → Paper ${Math.round(paperWidthPx)}×${Math.round(paperHeightPx)}px, scale ${(printScale * 100).toFixed(0)}%)…`,
+    `Canvas-DOM klonen (zoom ${(canvasScale * 100).toFixed(0)}%, Body ${bodyWidthPx}×${bodyHeightPx}px)…`,
   )
   const canvasClone = cloneCanvasForPrint(canvasEl, bbox)
   const canvasOuterHtml = canvasClone.outerHTML
@@ -498,8 +526,11 @@ export const exportCanvasToPdfVector = async (
     projectName,
     pageWidthPx: bodyWidthPx,
     pageHeightPx: bodyHeightPx,
-    canvasWidthPx: bbox.contentW,
-    canvasHeightPx: bbox.contentH,
+    canvasWidthPx: displayedCanvasWidth,
+    canvasHeightPx: displayedCanvasHeight,
+    canvasNaturalWidth: bbox.contentW,
+    canvasNaturalHeight: bbox.contentH,
+    canvasScale,
     headerHeight,
     margin,
     bgFallback,
@@ -508,12 +539,10 @@ export const exportCanvasToPdfVector = async (
     themeDark,
   })
 
-  onProgress('render', `Chromium printToPDF (scale ${(printScale * 100).toFixed(0)}%)…`)
-  // Paper-Size in microns. Body in der HTML ist natural-size, scale
-  // skaliert den ganzen Body in die Paper-Seite.
-  const widthMicrons = Math.round(paperWidthPx * PX_TO_MICRONS)
-  const heightMicrons = Math.round(paperHeightPx * PX_TO_MICRONS)
-  const bytes = await handler({ html, widthMicrons, heightMicrons, scale: printScale })
+  onProgress('render', `Chromium printToPDF…`)
+  const widthMicrons = Math.round(bodyWidthPx * PX_TO_MICRONS)
+  const heightMicrons = Math.round(bodyHeightPx * PX_TO_MICRONS)
+  const bytes = await handler({ html, widthMicrons, heightMicrons })
 
   onProgress('save', 'Datei speichern…')
   if (!bytes || bytes.byteLength < 1000) {

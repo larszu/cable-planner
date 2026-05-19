@@ -36,16 +36,16 @@ export const registerPrintIpc = (): void => {
         html: string
         widthMicrons: number
         heightMicrons: number
-        /** v7.9.104 — printToPDF.scale 0..1. Skaliert die ganze Page
-         *  vektoriell, statt CSS-Transform auf den Content. */
+        /** v7.9.104 hatte hier scale 0..1 mit printToPDF.scale gehandhabt
+         *  → 'Printing failed' bei grossen Canvases (body natural → OOM
+         *  bevor scale greift). v7.9.109 macht das Scaling jetzt via
+         *  CSS `zoom` im HTML, body bleibt klein, scale-Parameter wird
+         *  nicht mehr genutzt. Field bleibt aus Kompatibilitaet im
+         *  Type — wir ignorieren ihn. */
         scale?: number
       },
     ): Promise<Uint8Array> => {
       const { html, widthMicrons, heightMicrons } = params
-      const scale =
-        typeof params.scale === 'number' && params.scale > 0 && params.scale <= 2
-          ? params.scale
-          : 1
       if (!html) throw new Error('printToPDF: leeres HTML')
       const tmpFile = path.join(tmpdir(), `cable-planner-pdf-vec-${Date.now()}.html`)
       await writeFile(tmpFile, html, 'utf-8')
@@ -86,20 +86,19 @@ export const registerPrintIpc = (): void => {
         const buffer = await win.webContents.printToPDF({
           pageSize: { width: widthMicrons, height: heightMicrons },
           printBackground: true,
-          // v7.9.104 — preferCSSPageSize: false, damit der API-Wert wins.
-          // Mit scale<1 + @page CSS in body-natural-size haetten die zwei
-          // sich gestritten. Jetzt: API-pageSize = Paper, body = natural,
-          // scale skaliert beim Render-Pass die ganze Page in die
-          // Paper-Box rein.
-          preferCSSPageSize: false,
+          // v7.9.109 — preferCSSPageSize: true (zurueck zu v7.9.103).
+          // Body in der HTML ist jetzt klein (= displayed size, nicht
+          // natural), CSS @page matched die API-pageSize. Skalierung
+          // passiert via CSS `zoom` auf einen Inner-Wrapper im HTML —
+          // das bleibt vektoriell weil zoom layout-aware ist (Chromium
+          // emittiert die Paint-Ops bei der gezoomten Groesse als
+          // normale PDF-Operations, kein Layer-Flatten).
+          preferCSSPageSize: true,
           margins: { marginType: 'none' },
           displayHeaderFooter: false,
-          landscape: widthMicrons > heightMicrons,
-          // Vektorielle Skalierung: Chromium schreibt das als
-          // PDF-Transformations-Matrix → Text bleibt selektierbar +
-          // scharf bei jedem Zoom. CSS-Transform haette einen GPU-Layer
-          // erzwungen → Bitmap.
-          scale,
+          // KEIN landscape-Flag mehr: pageSize hat die Dimensionen
+          // schon in der gewollten Orientierung; landscape:true wuerde
+          // Chromium dazu bringen es ein zweites Mal zu rotieren.
         })
         if (!buffer || buffer.byteLength < 1000) {
           throw new Error(
