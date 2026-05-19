@@ -397,6 +397,13 @@ export interface ProjectState {
    *  Ports = alle Ports die nicht in preset.cables vorkommen.
    *  rackInternalSnapshot trägt die internen Verbindungen mit. */
   insertBlackBoxRack: (presetId: string, x: number, y: number) => void
+  /** v7.9.105 / Issue #224 — Edit-in-Place fuer ein bereits im Canvas
+   *  liegendes Black-Box-Rack. Synthesiert Ports + rackInternalSnapshot
+   *  aus dem übergebenen GroupPreset und ersetzt die im equipment, OHNE
+   *  die Library-Preset zu touchen. Port-IDs werden wo moeglich erhalten
+   *  (Match per rackOriginDeviceIndex + rackOriginPortName) damit
+   *  externe Kabel ihre Verbindungen behalten. */
+  replaceCanvasRackWithPreset: (equipmentId: string, preset: GroupPreset) => void
   /** Replace all group presets (e.g. after a Sync Pull). */
   setGroupPresets: (presets: GroupPreset[]) => void
   /** v7.9.6 — Drag&Drop-Reorder der groupPresets. Fehlende IDs werden
@@ -2044,6 +2051,102 @@ const buildProjectStore = (
         ...state.project,
         equipment: [...state.project.equipment, newItem],
       })
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // v7.9.105 / Issue #224 — Toolbar 'Rack bearbeiten' soll das im Canvas
+  // selektierte Rack bearbeiten, nicht die Library-Preset. Diese Action
+  // wendet die im RackBuilder editierten Aenderungen auf das konkrete
+  // Equipment im Canvas an — Library bleibt unangetastet.
+  replaceCanvasRackWithPreset: (equipmentId, preset) =>
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      const target = state.project.equipment.find((e) => e.id === equipmentId)
+      if (!target) return state
+      // Identische Logic wie insertBlackBoxRack — Ports synthesieren aus
+      // dem Preset, dann aber Port-IDs aus dem existing Equipment uebernehmen
+      // wo (rackOriginDeviceIndex, rackOriginPortName) matcht, damit externe
+      // Kabel ihre Verbindungen behalten.
+      const portIdLookup = new Map<string, string>()
+      for (const p of target.inputs) {
+        if (typeof p.rackOriginDeviceIndex === 'number' && p.rackOriginPortName) {
+          portIdLookup.set(`in:${p.rackOriginDeviceIndex}:${p.rackOriginPortName}`, p.id)
+        }
+      }
+      for (const p of target.outputs) {
+        if (typeof p.rackOriginDeviceIndex === 'number' && p.rackOriginPortName) {
+          portIdLookup.set(`out:${p.rackOriginDeviceIndex}:${p.rackOriginPortName}`, p.id)
+        }
+      }
+      const usedPortNames = new Set<string>()
+      for (const stub of preset.cables) {
+        usedPortNames.add(`${stub.fromItemIndex}:${stub.fromPortName}`)
+        usedPortNames.add(`${stub.toItemIndex}:${stub.toPortName}`)
+      }
+      const externalIns: import('../types/equipment').Port[] = []
+      const externalOuts: import('../types/equipment').Port[] = []
+      preset.items.forEach((item, idx) => {
+        for (const p of item.inputs) {
+          const isInternal = usedPortNames.has(`${idx}:${p.name}`)
+          const reusedId = portIdLookup.get(`in:${idx}:${p.name}`)
+          externalIns.push({
+            ...p,
+            id: reusedId ?? uuidv4(),
+            name: `${item.name} · ${p.name}`,
+            rackOriginDeviceIndex: idx,
+            rackOriginDeviceName: item.name,
+            rackOriginPortName: p.name,
+            rackInternallyConnected: isInternal,
+          })
+        }
+        for (const p of item.outputs) {
+          const isInternal = usedPortNames.has(`${idx}:${p.name}`)
+          const reusedId = portIdLookup.get(`out:${idx}:${p.name}`)
+          externalOuts.push({
+            ...p,
+            id: reusedId ?? uuidv4(),
+            name: `${item.name} · ${p.name}`,
+            rackOriginDeviceIndex: idx,
+            rackOriginDeviceName: item.name,
+            rackOriginPortName: p.name,
+            rackInternallyConnected: isInternal,
+          })
+        }
+      })
+      const totalUnits =
+        preset.rack?.totalUnits ??
+        preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 1), 0)
+      const updatedEquipment = state.project.equipment.map((e) =>
+        e.id === equipmentId
+          ? {
+              ...e,
+              inputs: externalIns,
+              outputs: externalOuts,
+              rackInternalSnapshot: {
+                items: preset.items.map((item, idx) => ({
+                  name: item.name,
+                  startUnit:
+                    preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.startUnit ??
+                    idx + 1,
+                  rackUnits:
+                    preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.heightUnits ??
+                    item.rackUnits ??
+                    1,
+                })),
+                cables: preset.cables.map((c) => ({
+                  fromItemIndex: c.fromItemIndex,
+                  fromPortName: c.fromPortName,
+                  toItemIndex: c.toItemIndex,
+                  toPortName: c.toPortName,
+                  color: c.color,
+                })),
+                totalUnits,
+              },
+              notes: `Black-Box-Rack: ${preset.items.length} Geräte, ${preset.cables.length} interne Verbindungen.`,
+            }
+          : e,
+      )
+      const updated = touchProject({ ...state.project, equipment: updatedEquipment })
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
