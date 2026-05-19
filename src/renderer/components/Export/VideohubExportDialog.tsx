@@ -2,6 +2,7 @@
 import { useProjectStore } from '../../store/projectStore'
 import { guessVideohubPresetKey } from '../../lib/deviceKind'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import {
   buildVideohubLabelTxt,
   buildVideohubRoutingDump,
@@ -80,9 +81,14 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
 
   const handleExport = () => {
     if (!device) return
-    const safeName = (device.name || 'Videohub').replace(/[^\w.-]+/g, '_')
-    const suffix = format === 'labels' ? 'labels' : 'routing'
-    downloadTextFile(`${safeName}_${preset.key}_${suffix}.txt`, preview)
+    // v7.9.116 — Einheitlicher Stempel: YYYYMMDD_<device>_NNN_<preset>-<suffix>.txt
+    const baseSuffix = format === 'labels' ? 'labels' : 'routing'
+    const fileName = buildExportFilenameWithSuffix(
+      device.name || 'Videohub',
+      `${preset.key}_${baseSuffix}`,
+      'txt',
+    )
+    downloadTextFile(fileName, preview)
   }
 
   const handleCopy = () => {

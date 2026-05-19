@@ -359,6 +359,10 @@ export const CableEdge = ({
   // EquipmentNode reads the same store value to highlight the matching
   // port handles, so the entire connection visually pops at once.
   const hoveredCableId = useUiStore((s) => s.hoveredCableId)
+  // v7.9.112 / Issue #234 — Globaler Toggle blendet ALLE Kabel-Labels
+  // aus. Wirkt zusammen mit dem per-Kabel labelPosition='none' / legacy
+  // labelHidden=true (zwei Wege zum gleichen Ziel waehrend der Migration).
+  const hideAllCableLabels = useUiStore((s) => s.hideAllCableLabels)
   const collisionShiftOn = useUiStore((s) => s.orthogonalCollisionShift)
   // v7.9.85 / #123 — Layer-Filter. Wenn das Kabel einen Layer hat
   // (z.B. 'network') und der Layer-Toggle in der Toolbar AUS ist,
@@ -629,9 +633,15 @@ export const CableEdge = ({
           exportThemeOverride={data?.exportThemeOverride}
         />
       )}
-      {/* v7.9.93 — labelHidden: User kann das Label komplett ausblenden
-          ohne den Namen löschen zu müssen. */}
-      {displayLabel && !cable?.labelHidden && (
+      {/* v7.9.112 / Issue #234 — Label nur rendern wenn:
+          - globaler Toggle nicht aktiv
+          - per-Kabel labelPosition nicht 'none'
+          - legacy labelHidden nicht true (wird beim Project-Heal in
+            'none' migriert; bleibt hier als Doppelsicherung) */}
+      {displayLabel &&
+        !hideAllCableLabels &&
+        cable?.labelPosition !== 'none' &&
+        !cable?.labelHidden && (
         <EdgeLabelRenderer>
           <div
             style={{

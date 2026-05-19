@@ -5,6 +5,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
+import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 
 /**
  * Issue #39 — Frame-scoped Bill of Materials. For a selected location/frame
@@ -243,7 +244,8 @@ export const LocationBomDialog = () => {
         }
       }
 
-      pdf.save(`${location.name.replace(/[^a-z0-9\-_. ]/gi, '_')}-stueckliste.pdf`)
+      // v7.9.116 — Einheitlicher Stempel: YYYYMMDD_<location>_NNN_stueckliste.pdf
+      pdf.save(buildExportFilenameWithSuffix(location.name, 'stueckliste', 'pdf'))
     } finally {
       setBusy(false)
     }
