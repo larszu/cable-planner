@@ -29,8 +29,9 @@ type Section = 'plan' | 'patch' | 'bom'
 interface ExportDialogProps {
   open: boolean
   onClose: () => void
-  /** Triggert PDF-Download des Plans. */
-  onExportPdf: (theme: 'dark' | 'light') => Promise<void> | void
+  /** Triggert PDF-Download des Plans. v7.9.97: optional `vector`-Flag
+   *  schaltet auf den Chromium-printToPDF-Pfad (Beta). */
+  onExportPdf: (theme: 'dark' | 'light', vector?: boolean) => Promise<void> | void
   /** Triggert OS-Druckdialog mit dem Plan-PDF. */
   onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
   /** Triggert PNG/JPEG-Download des Plans. */
@@ -144,7 +145,7 @@ const PlanSection = ({
   onExportImage,
   onClose,
 }: {
-  onExportPdf: (theme: 'dark' | 'light') => Promise<void> | void
+  onExportPdf: (theme: 'dark' | 'light', vector?: boolean) => Promise<void> | void
   onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
   onExportImage: (format: 'png' | 'jpeg') => Promise<void> | void
   onClose: () => void
@@ -152,13 +153,16 @@ const PlanSection = ({
   const [format, setFormat] = useState<ExportFormat>('pdf')
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const [pdfTheme, setPdfTheme] = useState<'dark' | 'light'>(canvasTheme)
+  // v7.9.97 — Beta-Toggle: Vektor-PDF via Chromium printToPDF.
+  // Default off, damit der Raster-Pfad unveraendert bleibt.
+  const [pdfVector, setPdfVector] = useState(false)
   const [busy, setBusy] = useState(false)
   const projectName = useProjectStore((s) => s.project.metadata.name)
 
   const handleExport = async () => {
     setBusy(true)
     try {
-      if (format === 'pdf') await onExportPdf(pdfTheme)
+      if (format === 'pdf') await onExportPdf(pdfTheme, pdfVector)
       else await onExportImage(format)
       onClose()
     } finally {
@@ -219,27 +223,70 @@ const PlanSection = ({
       </fieldset>
 
       {format === 'pdf' && (
-        <fieldset className="space-y-1">
-          <legend className="mb-1 text-xs font-semibold text-slate-300">PDF-Thema</legend>
-          <label className="flex items-center gap-2 text-xs">
-            <input
-              type="radio"
-              name="pdf-theme"
-              checked={pdfTheme === 'dark'}
-              onChange={() => setPdfTheme('dark')}
-            />
-            <span>🌙 Dunkles Thema (wie Canvas)</span>
-          </label>
-          <label className="flex items-center gap-2 text-xs">
-            <input
-              type="radio"
-              name="pdf-theme"
-              checked={pdfTheme === 'light'}
-              onChange={() => setPdfTheme('light')}
-            />
-            <span>☀ Helles Thema (für Ausdruck empfohlen)</span>
-          </label>
-        </fieldset>
+        <>
+          <fieldset className="space-y-1">
+            <legend className="mb-1 text-xs font-semibold text-slate-300">PDF-Thema</legend>
+            <label className="flex items-center gap-2 text-xs">
+              <input
+                type="radio"
+                name="pdf-theme"
+                checked={pdfTheme === 'dark'}
+                onChange={() => setPdfTheme('dark')}
+              />
+              <span>🌙 Dunkles Thema (wie Canvas)</span>
+            </label>
+            <label className="flex items-center gap-2 text-xs">
+              <input
+                type="radio"
+                name="pdf-theme"
+                checked={pdfTheme === 'light'}
+                onChange={() => setPdfTheme('light')}
+              />
+              <span>☀ Helles Thema (für Ausdruck empfohlen)</span>
+            </label>
+          </fieldset>
+          {/* v7.9.97 — Render-Modus: Raster (klassisch) vs Vektor (Beta).
+              Vektor-Pfad nutzt Chromium printToPDF → Text bleibt echter
+              Text, scharf bei jedem Zoom, kleinere Dateigröße. Default
+              ist Raster damit nichts am bestehenden Workflow bricht. */}
+          <fieldset className="space-y-1">
+            <legend className="mb-1 text-xs font-semibold text-slate-300">Render-Modus</legend>
+            <label className="flex cursor-pointer items-start gap-2 text-xs">
+              <input
+                type="radio"
+                name="pdf-render-mode"
+                checked={!pdfVector}
+                onChange={() => setPdfVector(false)}
+                className="mt-0.5"
+              />
+              <span>
+                <span className="block">📷 Raster (klassisch)</span>
+                <span className="block text-[10px] text-slate-400">
+                  JPEG-Snapshot. Zuverlässig, aber Text wird unscharf bei großem
+                  Zoom in der PDF.
+                </span>
+              </span>
+            </label>
+            <label className="flex cursor-pointer items-start gap-2 text-xs">
+              <input
+                type="radio"
+                name="pdf-render-mode"
+                checked={pdfVector}
+                onChange={() => setPdfVector(true)}
+                className="mt-0.5"
+              />
+              <span>
+                <span className="block">
+                  ✨ Vektor <span className="rounded bg-sky-700 px-1 py-0.5 text-[9px] font-semibold text-white">Beta</span>
+                </span>
+                <span className="block text-[10px] text-slate-400">
+                  Chromium printToPDF. Text bleibt selektierbar &amp; scharf bei
+                  jedem Zoom. Kleinere Dateigröße.
+                </span>
+              </span>
+            </label>
+          </fieldset>
+        </>
       )}
 
       <div className="rounded border border-slate-800 bg-slate-950/40 p-2 text-[11px] text-slate-400">
