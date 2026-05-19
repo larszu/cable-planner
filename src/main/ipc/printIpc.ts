@@ -12,11 +12,80 @@
 // PrintBackend direkt — robuster als die iframe-Variante.
 
 import { BrowserWindow, app, ipcMain } from 'electron'
-import { writeFile } from 'node:fs/promises'
+import { writeFile, unlink } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
 export const registerPrintIpc = (): void => {
+  // v7.9.97 — Vektor-PDF-Export via Chromium printToPDF.
+  //
+  // Renderer schickt ein selbst-enthaltenes HTML-Dokument (mit dem
+  // Canvas als foreignObject-SVG) zusammen mit der gewünschten Page-
+  // Size in Mikrometern. Wir laden das HTML in eine Hidden-BrowserWindow
+  // und rufen webContents.printToPDF — Chromium emittiert das PDF mit
+  // echtem Text + Vektor-Pfaden statt JPEG-Embedding.
+  //
+  // 'preferCSSPageSize: true' damit @page in den Print-Styles die
+  // Papier-Größe bestimmt. 'printBackground: true' damit Hintergrund-
+  // Farben mitkommen (Chromium-Default fuer Print ist sonst aus).
+  ipcMain.handle(
+    'canvas:export-pdf-vector',
+    async (
+      _event,
+      params: { html: string; widthMicrons: number; heightMicrons: number },
+    ): Promise<Uint8Array> => {
+      const { html, widthMicrons, heightMicrons } = params
+      if (!html) throw new Error('printToPDF: leeres HTML')
+      const tmpFile = path.join(tmpdir(), `cable-planner-pdf-vec-${Date.now()}.html`)
+      await writeFile(tmpFile, html, 'utf-8')
+      const win = new BrowserWindow({
+        show: false,
+        // 1 px = 264.583 microns @ 96 DPI. Cap auf 2000 damit das
+        // Hidden-Window nicht riesig wird — printToPDF nimmt eh die
+        // @page-Size aus dem HTML, das Viewport-Format ist nur fuer
+        // Layout-Pass relevant.
+        width: Math.min(2000, Math.ceil(widthMicrons / 264.583)),
+        height: Math.min(2000, Math.ceil(heightMicrons / 264.583)),
+        webPreferences: {
+          contextIsolation: true,
+          nodeIntegration: false,
+          offscreen: false,
+        },
+      })
+      try {
+        await win.loadFile(tmpFile)
+        // Auf Font-Loading warten — sonst werden Glyphs fallback-gerendert.
+        await win.webContents
+          .executeJavaScript(
+            'document.fonts && document.fonts.ready ? document.fonts.ready.then(() => true) : true',
+          )
+          .catch(() => null)
+        // Kurze Layout-Stabilisierung (foreignObject braucht 1-2 Frames).
+        await new Promise<void>((r) => setTimeout(r, 250))
+        const buffer = await win.webContents.printToPDF({
+          pageSize: { width: widthMicrons, height: heightMicrons },
+          printBackground: true,
+          preferCSSPageSize: true,
+          margins: { marginType: 'none' },
+          displayHeaderFooter: false,
+          landscape: widthMicrons > heightMicrons,
+        })
+        return new Uint8Array(buffer)
+      } finally {
+        try {
+          win.destroy()
+        } catch {
+          // ignore
+        }
+        try {
+          await unlink(tmpFile)
+        } catch {
+          // ignore
+        }
+      }
+    },
+  )
+
   ipcMain.handle('print:pdf-bytes', async (_event, bytes: Uint8Array): Promise<boolean> => {
     if (!bytes || bytes.byteLength === 0) return false
     // PDF in tempfile schreiben — file:-URL ist verlaesslicher als data: in Electron
