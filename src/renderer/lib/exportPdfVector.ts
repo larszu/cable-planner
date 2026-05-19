@@ -22,12 +22,32 @@
 import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 
+/** v7.9.103 — Standard-Page-Sizes fuer Plotter-/Print-Workflows. 'auto'
+ *  kappt auf A0-Landscape (Default, max. Viewer-Kompatibilitaet). 'original'
+ *  laesst die natural-Canvas-Groesse stehen — fuer grosse Plotter-Drucke. */
+export type PdfPageSize = 'auto' | 'original' | 'a4' | 'a3' | 'a2' | 'a1' | 'a0' | 'a0plus'
+
+const PAGE_SIZE_MM: Record<Exclude<PdfPageSize, 'auto' | 'original'>, [number, number]> = {
+  // [long edge, short edge] — landscape per Default
+  a4: [297, 210],
+  a3: [420, 297],
+  a2: [594, 420],
+  a1: [841, 594],
+  a0: [1189, 841],
+  a0plus: [1682, 1189], // 2x A0 = max bei manchen Plottern
+}
+
 export interface ExportPdfVectorOptions {
   backgroundTheme?: 'dark' | 'light'
   bgVariant?: ExportBgVariant
   gridSize?: number
   bgOpacity?: number
   customPalette?: { canvasBg: string; gridColor: string } | null
+  /** v7.9.103 — gewuenschte Page-Size. Default 'auto' = A0-Landscape-Cap
+   *  fuer Viewer-Kompatibilitaet. 'original' = volle Natural-Canvas-
+   *  Groesse fuer Plotter-Drucke (kann in manchen PDF-Viewern wie Edge
+   *  weiss erscheinen, aber Acrobat / Adobe / Plotter-Apps drucken's). */
+  pageSize?: PdfPageSize
   onProgress?: (phase: string, detail?: string) => void
 }
 
@@ -173,30 +193,51 @@ const collectAllCss = (): string => {
   return parts.join('\n')
 }
 
-/** Klont das gesamte Canvas-Element. Setzt anschliessend den ReactFlow-
+/** Klont nur das `.react-flow`-Element — also die ReactFlow-Renderflaeche
+ *  ohne den umgebenden Toolbar/Banner-Chrome. Setzt anschliessend den
  *  Viewport-Transform so um, dass das natural-size Content-Rechteck bei
- *  (0,0) sitzt. So kann das Eltern-Wrapper-Element einfach
- *  width=contentW height=contentH bekommen — alles passt rein. */
+ *  (0,0) sitzt UND optional skaliert wird.
+ *
+ *  v7.9.101: Wir klonten frueher das ganze #cable-planner-canvas (Wrapper
+ *  mit CanvasToolbar/Banner) — Toolbar landete dann oben im PDF. Jetzt
+ *  greifen wir das innere .react-flow.
+ *  v7.9.103: Scale jetzt direkt im Viewport-Transform statt als CSS
+ *  transform: scale auf einem Outer-Wrapper. Microsoft Edge's PDF-
+ *  Viewer rendert Wrapper-Scale-Transforms anders als Acrobat — manche
+ *  Inhalte werden gar nicht angezeigt. ReactFlow nutzt das gleiche
+ *  Transform-Pattern im Normalbetrieb (translate+scale auf .viewport)
+ *  → Edge kennt das Output-Pattern und rendert es zuverlaessig. */
 const cloneCanvasForPrint = (
   canvasEl: HTMLElement,
   bbox: BoundingBox,
+  scale: number,
 ): HTMLElement => {
-  const clone = canvasEl.cloneNode(true) as HTMLElement
+  const reactFlowEl = canvasEl.querySelector('.react-flow') as HTMLElement | null
+  const source = reactFlowEl ?? canvasEl
+  const clone = source.cloneNode(true) as HTMLElement
   clone.removeAttribute('id')
-  // Inline-Style ueberschreibt allfaellige width/height-Constraints.
-  clone.style.width = `${bbox.contentW}px`
-  clone.style.height = `${bbox.contentH}px`
+  // Clone-Outer auf DISPLAYED (skaliert) sizen — der Viewport drin macht
+  // den Scale selber.
+  const displayedW = bbox.contentW * scale
+  const displayedH = bbox.contentH * scale
+  clone.style.width = `${displayedW}px`
+  clone.style.height = `${displayedH}px`
   clone.style.position = 'relative'
   clone.style.overflow = 'hidden'
 
-  // ReactFlow's Viewport-Transform auf Identity + Natural-Translation.
+  // ReactFlow-Viewport: kombiniert translate + scale wie ReactFlow es im
+  // Normalbetrieb tut. translate kommt VOR scale (CSS-Konvention), also
+  // sind die translate-Werte in pre-scale-Koordinaten:
+  //   ein Child bei flow-coord (bbox.contentX, bbox.contentY) landet
+  //   nach Transform bei (0, 0) der DISPLAYED-Wrap.
   const viewport = clone.querySelector('.react-flow__viewport') as HTMLElement | null
   if (viewport) {
-    viewport.style.transform = `translate(${-bbox.contentX}px, ${-bbox.contentY}px) scale(1)`
+    viewport.style.transform = `translate(${-bbox.contentX * scale}px, ${-bbox.contentY * scale}px) scale(${scale})`
     viewport.style.transformOrigin = '0 0'
   }
 
-  // Edge-Path-SVG-Container auch auf natural sizen falls es das gibt.
+  // Edge-Path-SVG-Container auf natural sizen — Scale wird vom Viewport-
+  // Transform auf dieses SVG drauf-angewandt.
   const edgesSvg = clone.querySelector('.react-flow__edges') as SVGElement | null
   if (edgesSvg) {
     edgesSvg.style.width = `${bbox.contentW}px`
@@ -251,6 +292,9 @@ const buildPrintHtml = (params: {
   projectName: string
   pageWidthPx: number
   pageHeightPx: number
+  /** Displayed (skaliert) Canvas-Groesse — der Clone wurde bereits in
+   *  cloneCanvasForPrint() auf displayedW/displayedH skaliert; die
+   *  Werte hier sind nur fuer den .pdf-canvas-wrap-Layout-Rahmen. */
   canvasWidthPx: number
   canvasHeightPx: number
   headerHeight: number
@@ -393,15 +437,6 @@ export const exportCanvasToPdfVector = async (
   const bgFallback = composed.bgFallback
   const textColor = themeDark ? '#e2e8f0' : '#0f172a'
 
-  onProgress('capture', 'Canvas-DOM klonen…')
-  const canvasClone = cloneCanvasForPrint(canvasEl, bbox)
-  const canvasOuterHtml = canvasClone.outerHTML
-  if (canvasOuterHtml.length < 1000) {
-    throw new Error(
-      `Canvas-Clone ist verdaechtig klein (${canvasOuterHtml.length} bytes) — Export abgebrochen.`,
-    )
-  }
-
   onProgress('styles', 'Stylesheets sammeln…')
   const appCss = collectAllCss()
   if (appCss.length < 1000) {
@@ -413,18 +448,58 @@ export const exportCanvasToPdfVector = async (
   const margin = 24
   const headerHeight = 28
   const titleBlockReserve = metadata ? 12 : 0
-  const pageWidthPx = bbox.contentW + margin * 2
-  const pageHeightPx = bbox.contentH + margin * 2 + headerHeight + titleBlockReserve
 
-  onProgress('compose', `Print-HTML bauen (${Math.round((appCss.length + canvasOuterHtml.length) / 1024)} KB)…`)
+  // v7.9.103 — Page-Size auswerten:
+  //   'original'  → kein Cap, Natural-Canvas-Groesse stehen lassen
+  //                 (fuer Plotter-Drucke, kann in Edge weiss erscheinen)
+  //   'auto'      → A0-Landscape-Cap (Default, max. Viewer-Kompatibilitaet)
+  //   'a0'/'a1'/… → harte Festlegung auf das Standard-Format
+  // Wenn der natural Canvas groesser ist als das gewaehlte Format,
+  // wird er vektoriell runterskaliert (transform auf .react-flow__viewport).
+  const pageSizePref: PdfPageSize = options?.pageSize ?? 'auto'
+  let maxCanvasWidthPx: number | null
+  let maxCanvasHeightPx: number | null
+  if (pageSizePref === 'original') {
+    maxCanvasWidthPx = null
+    maxCanvasHeightPx = null
+  } else {
+    const key = pageSizePref === 'auto' ? 'a0' : pageSizePref
+    const [longMm, shortMm] = PAGE_SIZE_MM[key]
+    // Landscape per default
+    maxCanvasWidthPx = longMm / PX_TO_MM - margin * 2
+    maxCanvasHeightPx = shortMm / PX_TO_MM - margin * 2 - headerHeight - titleBlockReserve
+  }
+  const canvasScale =
+    maxCanvasWidthPx == null || maxCanvasHeightPx == null
+      ? 1
+      : Math.min(1, maxCanvasWidthPx / bbox.contentW, maxCanvasHeightPx / bbox.contentH)
+  const displayedCanvasWidth = Math.ceil(bbox.contentW * canvasScale)
+  const displayedCanvasHeight = Math.ceil(bbox.contentH * canvasScale)
+  const pageWidthPx = displayedCanvasWidth + margin * 2
+  const pageHeightPx =
+    displayedCanvasHeight + margin * 2 + headerHeight + titleBlockReserve
+
+  onProgress('capture', `Canvas-DOM klonen (scale ${(canvasScale * 100).toFixed(0)}%)…`)
+  const canvasClone = cloneCanvasForPrint(canvasEl, bbox, canvasScale)
+  const canvasOuterHtml = canvasClone.outerHTML
+  if (canvasOuterHtml.length < 1000) {
+    throw new Error(
+      `Canvas-Clone ist verdaechtig klein (${canvasOuterHtml.length} bytes) — Export abgebrochen.`,
+    )
+  }
+
+  onProgress(
+    'compose',
+    `Print-HTML bauen (${Math.round((appCss.length + canvasOuterHtml.length) / 1024)} KB)…`,
+  )
   const html = buildPrintHtml({
     appCss,
     canvasOuterHtml,
     projectName,
     pageWidthPx,
     pageHeightPx,
-    canvasWidthPx: bbox.contentW,
-    canvasHeightPx: bbox.contentH,
+    canvasWidthPx: displayedCanvasWidth,
+    canvasHeightPx: displayedCanvasHeight,
     headerHeight,
     margin,
     bgFallback,
