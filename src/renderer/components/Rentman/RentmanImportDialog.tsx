@@ -1453,19 +1453,114 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               </span>
               <span>{checkedCount} selected</span>
             </div>
+            {/* v7.9.128 — Status-Zeile: zeigt vor Import schon wie
+                viele Items unsichtbar merged werden (rentmanId-Match,
+                kein Dialog) vs. wie viele eine User-Entscheidung
+                triggern (gleicher Name aber keine ID-Verknuepfung,
+                Konflikt-Dialog faellt) vs. komplett neu sind.
+                Macht den Re-Import-Workflow vorhersehbar. */}
+            {(() => {
+              let linked = 0
+              let conflicts = 0
+              let fresh = 0
+              const seen = new Set<string>()
+              for (const item of visibleItems) {
+                if (seen.has(item.name)) continue
+                seen.add(item.name)
+                const byRentmanId = item.equipmentId
+                  ? customLibrary.find((t) => t.rentmanId === item.equipmentId)
+                  : undefined
+                if (byRentmanId) {
+                  linked++
+                  continue
+                }
+                const byName = customLibrary.find(
+                  (t) => t.name === item.name && t.rentmanId !== item.equipmentId,
+                )
+                if (byName) {
+                  conflicts++
+                  continue
+                }
+                fresh++
+              }
+              if (linked + conflicts === 0) return null
+              return (
+                <div className="mb-2 flex flex-wrap items-center gap-1.5 text-[11px]">
+                  {linked > 0 && (
+                    <span
+                      className="rounded bg-emerald-900/40 px-1.5 py-0.5 text-emerald-200"
+                      title="Items mit identischem Rentman-Equipment-ID in der lokalen Library — silent re-import, Ports + Custom-Daten bleiben erhalten."
+                    >
+                      ✓ {linked} bereits verknuepft
+                    </span>
+                  )}
+                  {conflicts > 0 && (
+                    <span
+                      className="rounded bg-amber-900/40 px-1.5 py-0.5 text-amber-100"
+                      title="Items mit gleichem Namen wie ein lokales Template, aber ohne Rentman-ID. Beim Import faellt pro Item der Konflikt-Dialog (Default: lokale Version behalten + Rentman-ID anhaengen)."
+                    >
+                      ⚡ {conflicts} Konflikt-Dialog (gleicher Name, nicht verknuepft)
+                    </span>
+                  )}
+                  {fresh > 0 && (
+                    <span
+                      className="rounded bg-slate-800/60 px-1.5 py-0.5 text-slate-400"
+                      title="Items ohne Match in der lokalen Library — werden frisch als Template importiert."
+                    >
+                      + {fresh} neu
+                    </span>
+                  )}
+                </div>
+              )
+            })()}
             <EquipmentChecklist
               items={visibleItems.map((item) => {
-                const match =
-                  customLibrary.find((t) => t.name === item.name) ||
+                // v7.9.128 — Reihenfolge der Match-Suche:
+                // 1. Per rentmanId: existiert ein Lokales mit
+                //    EXAKT diesem Rentman-Equipment-ID? -> "schon
+                //    verknuepft" (gruener Badge, Re-Import ist
+                //    silent merge, keine Ports verloren).
+                // 2. Per Name in customLibrary (ohne ID-Match):
+                //    der Konflikt-Dialog wird beim Import triggern
+                //    -> amber Badge "Lokal vorhanden — Entscheidung
+                //    noetig". User waehlt dort default 'keep' und
+                //    behaelt die lokalen Ports.
+                // 3. Built-in Catalog (Blackmagic, etc.).
+                const byRentmanId = item.equipmentId
+                  ? customLibrary.find((t) => t.rentmanId === item.equipmentId)
+                  : undefined
+                if (byRentmanId) {
+                  return {
+                    ...item,
+                    templateMatch: byRentmanId.name,
+                    templateMatchKind: 'rentmanId' as const,
+                  }
+                }
+                const byName = customLibrary.find(
+                  (t) => t.name === item.name && t.rentmanId !== item.equipmentId,
+                )
+                if (byName) {
+                  return {
+                    ...item,
+                    templateMatch: byName.name,
+                    templateMatchKind: 'nameOnly' as const,
+                  }
+                }
+                const catalogMatch =
                   matchBlackmagicTemplate(item.name) ||
                   matchUbiquitiTemplate(item.name) ||
                   matchMonitorTemplate(item.name) ||
                   matchCameraTemplate(item.name) ||
                   matchMiscTemplate(item.name) ||
                   matchGreenGoTemplate(item.name)
-                return match
-                  ? { ...item, templateMatch: match.name }
-                  : item
+                if (catalogMatch) {
+                  return {
+                    ...item,
+                    templateMatch: catalogMatch.name,
+                    templateMatchKind: 'catalog' as const,
+                  }
+                }
+                return item
               })}
               onToggle={toggleItem}
               onSetAll={setAllVisible}
