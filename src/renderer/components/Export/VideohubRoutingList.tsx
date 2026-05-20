@@ -52,16 +52,16 @@ export const VideohubRoutingList = ({
               key={oi}
               className="flex items-center gap-2 rounded border border-slate-800 bg-slate-900/40 px-2 py-1.5 hover:bg-slate-800/50"
             >
-              {/* Output-Nummer (rot, mono) */}
+              {/* Output-Nummer (mono, neutral) */}
               <span
-                className="w-9 shrink-0 text-right font-mono text-[12px] font-semibold text-red-300/80"
+                className="w-9 shrink-0 text-right font-mono text-[12px] font-semibold text-slate-400"
                 title={`Output ${oi + 1}`}
               >
                 {oi + 1}
               </span>
-              {/* Output-Label (rot, fett) */}
+              {/* Output-Label */}
               <span
-                className="w-48 shrink-0 truncate text-[13px] font-semibold text-red-300"
+                className="w-48 shrink-0 truncate text-[13px] font-semibold text-slate-200"
                 title={outLabel}
               >
                 {outLabel}
@@ -74,11 +74,11 @@ export const VideohubRoutingList = ({
               <select
                 value={routedIdx}
                 onChange={(e) => onRoute(oi, parseInt(e.target.value, 10))}
-                className="flex-1 min-w-0 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-[13px] text-emerald-200 focus:border-emerald-500 focus:outline-none"
+                className="flex-1 min-w-0 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-[13px] text-slate-200 focus:border-sky-500 focus:outline-none"
                 title={`Input fuer Output ${oi + 1} (${outLabel}) waehlen — aktuell: ${routedIdx + 1} ${routedLabel}`}
               >
                 {inputLabels.map((inLabel, ii) => (
-                  <option key={ii} value={ii} className="bg-slate-950 text-emerald-100">
+                  <option key={ii} value={ii} className="bg-slate-950 text-slate-100">
                     {ii + 1}: {inLabel}
                   </option>
                 ))}
