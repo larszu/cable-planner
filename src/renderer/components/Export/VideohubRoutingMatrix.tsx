@@ -56,6 +56,11 @@ export const VideohubRoutingMatrix = ({
   const useGrid = cellCount <= 100_000
 
   const [hover, setHover] = useState<{ row: number; col: number } | null>(null)
+  // v7.9.128 — Drag-to-route: User klickt + zieht ueber Cells, jede
+  // ueberfahrene Cell wird geroutet. Diagonal-Drag (Out N -> In N,
+  // N+1 -> N+1, ...) ergibt sequenzielles 1:1. Vertikaler Drag
+  // (mehrere Outs auf denselben In) ergibt Multicast.
+  const [dragging, setDragging] = useState(false)
   const rowRefs = useRef<Array<HTMLTableRowElement | null>>([])
 
   // List-Mode bei riesigen Matrizen — DOM wuerde sonst kollabieren.
@@ -135,6 +140,7 @@ export const VideohubRoutingMatrix = ({
       className="overflow-auto rounded border border-slate-700 bg-slate-950"
       style={{ maxHeight }}
       onMouseLeave={() => setHover(null)}
+      onMouseUp={() => setDragging(false)}
     >
       <table className="border-collapse" style={{ fontSize: fontPx }}>
         <thead>
@@ -278,12 +284,20 @@ export const VideohubRoutingMatrix = ({
                       className={`p-0 text-center ${groupBreak ? 'border-l border-slate-700' : ''} ${
                         inCol && !rowOn ? 'bg-sky-900/30' : ''
                       }`}
-                      onMouseEnter={() => setHover({ row: oi, col: ii })}
+                      onMouseEnter={() => {
+                        setHover({ row: oi, col: ii })
+                        // Drag-Mode: jede ueberfahrene Cell routen.
+                        if (dragging) onRoute(oi, ii)
+                      }}
                     >
                       <button
                         type="button"
-                        onClick={() => onRoute(oi, ii)}
-                        title={`${outLabelTip[oi]} ← ${inLabelTip[ii]}`}
+                        onMouseDown={(e) => {
+                          e.preventDefault()
+                          setDragging(true)
+                          onRoute(oi, ii)
+                        }}
+                        title={`${outLabelTip[oi]} ← ${inLabelTip[ii]} (klick + ziehen fuer 1:1-Routing)`}
                         aria-label={`Set Output ${oi + 1} (${outLabel}) to Input ${ii + 1} (${inLabel})`}
                         className={
                           active
