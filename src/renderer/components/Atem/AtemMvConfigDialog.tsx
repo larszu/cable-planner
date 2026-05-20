@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { toPng } from 'html-to-image'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
-import { cablePlannerApi } from '../../lib/bridge'
+import { cablePlannerApi, type AtemInputSummary } from '../../lib/bridge'
 import type {
   AtemMvConfig,
   AtemMvDefinition,
@@ -248,6 +248,52 @@ const sourceLabel = (
   return `ID ${sourceId}`
 }
 
+/** v7.9.124 — Gruppieren der Source-Liste im Picker. Bevorzugt portType
+ *  (vom ATEM gemeldet), faellt auf ID-Range zurueck wenn portType
+ *  nicht da ist. ATEM-portType-Enum:
+ *   0 External, 1 Black, 2 Bars, 3 ColorGen, 4 MediaPlayer-Fill,
+ *   5 MediaPlayer-Key, 6 SuperSource, 7 ME-Output, 8 Auxiliary,
+ *   9 Mask, 10 MultiViewer, 11 KeyCut, 12 KeyMask, 13 StreamingOut. */
+const groupForPortType = (portType: number | undefined, sourceId: number): string => {
+  if (typeof portType === 'number') {
+    switch (portType) {
+      case 0:
+        return 'Inputs'
+      case 1:
+      case 2:
+      case 3:
+        return 'Generators'
+      case 4:
+      case 5:
+        return 'Media Player'
+      case 6:
+        return 'SuperSource'
+      case 7:
+        return 'ME Outputs'
+      case 8:
+        return 'AUX'
+      case 9:
+      case 11:
+      case 12:
+        return 'Key/Mask'
+      case 10:
+        return 'MultiViewer'
+      case 13:
+        return 'Streaming'
+      default:
+        return 'Other'
+    }
+  }
+  // Fallback per ID-Range fuer offline / portType-leer.
+  if (sourceId >= 1 && sourceId < 100) return 'Inputs'
+  if (sourceId === 1000) return 'Generators'
+  if (sourceId >= 2001 && sourceId < 3000) return 'Generators'
+  if (sourceId >= 3010 && sourceId < 4000) return 'Media Player'
+  if (sourceId === 10010 || sourceId === 10011) return 'ME Outputs'
+  if (sourceId >= 8001 && sourceId < 9000) return 'AUX'
+  return 'Other'
+}
+
 const sourceColor = (sourceId: number, label: string): string => {
   const l = label.toLowerCase()
   if (/cam|kamera/.test(l)) return '#d8ebc8'
@@ -262,13 +308,28 @@ const sourceColor = (sourceId: number, label: string): string => {
 
 interface SourcePickerProps {
   currentId: number
-  inputs: { id: number; label: string }[]
+  /** v7.9.124 — Pro Eintrag jetzt optional `group` (z.B. 'Inputs',
+   *  'AUX', 'ME Outputs'). Picker sortiert nach Gruppen. Wenn group
+   *  fehlt landet alles in 'Inputs'. */
+  inputs: { id: number; label: string; group?: string }[]
   onPick: (id: number) => void
   onClose: () => void
   anchor: { x: number; y: number }
+  /** v7.9.124 — Wenn true, sind die uebergebenen `inputs` bereits die
+   *  vollstaendige Source-Liste vom Live-ATEM (inkl. AUX/Color/MP/
+   *  PGM/PVW). Picker mergt dann KEINE DEFAULT_SOURCES rein, sonst
+   *  haetten wir Doppelte. */
+  hasLiveState?: boolean
 }
 
-const SourcePicker = ({ currentId, inputs, onPick, onClose, anchor }: SourcePickerProps) => {
+const SourcePicker = ({
+  currentId,
+  inputs,
+  onPick,
+  onClose,
+  anchor,
+  hasLiveState,
+}: SourcePickerProps) => {
   const [filter, setFilter] = useState('')
   const [custom, setCustom] = useState<string>(String(currentId))
   const ref = useRef<HTMLDivElement>(null)
@@ -288,16 +349,21 @@ const SourcePicker = ({ currentId, inputs, onPick, onClose, anchor }: SourcePick
   }, [onClose])
 
   const all = useMemo(() => {
-    const combined = [
-      ...inputs.map((i) => ({ id: i.id, label: i.label, group: 'Inputs' })),
-      ...DEFAULT_SOURCES,
-    ]
+    // v7.9.124 — Gruppe aus dem Input-Eintrag uebernehmen wenn da,
+    // sonst 'Inputs'. DEFAULT_SOURCES nur mergen wenn der Caller KEINE
+    // Live-State-Liste mitliefert (sonst doppeln sich PGM/PVW etc).
+    const fromInputs = inputs.map((i) => ({
+      id: i.id,
+      label: i.label,
+      group: i.group ?? 'Inputs',
+    }))
+    const combined = hasLiveState ? fromInputs : [...fromInputs, ...DEFAULT_SOURCES]
     if (!filter.trim()) return combined
     const q = filter.toLowerCase()
     return combined.filter(
       (s) => s.label.toLowerCase().includes(q) || String(s.id).includes(q),
     )
-  }, [inputs, filter])
+  }, [inputs, filter, hasLiveState])
 
   const grouped = useMemo(() => {
     const map = new Map<string, typeof all>()
@@ -514,6 +580,9 @@ export const AtemMvConfigDialog = () => {
   )
   const [status, setStatus] = useState<string>('')
   const [connected, setConnected] = useState(false)
+  // v7.9.124 — Live-ATEM-Sources (echte IDs, inkl. AUX/Color/Media-
+  // Player/PGM/PVW). null wenn ATEM nicht verbunden oder Fetch failed.
+  const [liveInputs, setLiveInputs] = useState<AtemInputSummary[] | null>(null)
   const [activeMv, setActiveMv] = useState(0)
   const [picker, setPicker] = useState<
     | { mvIdx: number; windowIndex: number; x: number; y: number }
@@ -541,15 +610,60 @@ export const AtemMvConfigDialog = () => {
       .getStatus()
       .then((s) => setConnected(s.connected))
       .catch(() => setConnected(false))
+    // v7.9.124 / Bug-2 + Bug-3 — Live-ATEM-Sources holen. Wenn der ATEM
+    // verbunden ist, hat state.inputs die ECHTEN Source-IDs (inkl.
+    // AUX/Color/MediaPlayer/PGM/PVW). Damit ersetzen wir das fragile
+    // 'idx + 1'-Mapping aus equipment.inputs.
+    cablePlannerApi.atem
+      .getState()
+      .then((s) => setLiveInputs(s?.inputs ?? null))
+      .catch(() => setLiveInputs(null))
   }, [slot.open, equipment?.id, equipment?.atemMvConfig, equipment?.name, equipment])
 
+  // v7.9.124 — Live-Refresh wenn der ATEM-Status sich aendert
+  // (z.B. User connectet/disconnectet aus einem anderen Dialog).
+  useEffect(() => {
+    if (!slot.open) return
+    const unsub = cablePlannerApi.atem.onEvent(() => {
+      cablePlannerApi.atem
+        .getState()
+        .then((s) => setLiveInputs(s?.inputs ?? null))
+        .catch(() => null)
+    })
+    return unsub
+  }, [slot.open])
+
+  /** v7.9.124 — Source-Liste mit Hierarchie:
+   *  1. Wenn ATEM live verbunden ist → echte Sources aus state.inputs
+   *     (echte IDs, inkl. AUX/Color/MediaPlayer/PGM/PVW).
+   *  2. Sonst aus equipment.inputs[] — pro Port wird die optionale
+   *     `atemSourceId` genutzt wenn der User sie manuell gesetzt hat,
+   *     sonst fallback idx+1 wie bisher.
+   *  Gruppierung per portType (Live) oder ID-Range (Offline). */
   const inputs = useMemo(() => {
+    if (liveInputs && liveInputs.length > 0) {
+      // Live-State: echte Source-IDs mit Labels. Wir benutzen longName
+      // bevorzugt, falls leer → shortName, sonst 'Src N'.
+      return liveInputs.map((inp) => ({
+        id: inp.inputId,
+        label:
+          (inp.longName && inp.longName.trim()) ||
+          (inp.shortName && inp.shortName.trim()) ||
+          `Src ${inp.inputId}`,
+        group: groupForPortType(inp.portType, inp.inputId),
+      }))
+    }
+    // Offline-Fallback: equipment.inputs durchgehen. atemSourceId
+    // ueberschreibt idx+1 wenn vom User gesetzt.
     if (!equipment || !Array.isArray(equipment.inputs)) return []
     return equipment.inputs.map((p, idx) => ({
-      id: idx + 1,
+      id: typeof p?.atemSourceId === 'number' ? p.atemSourceId : idx + 1,
       label: (p && typeof p.name === 'string' && p.name.trim()) || `Input ${idx + 1}`,
+      group: typeof p?.atemSourceId === 'number'
+        ? groupForPortType(undefined, p.atemSourceId)
+        : 'Inputs',
     }))
-  }, [equipment])
+  }, [equipment, liveInputs])
 
   if (!slot.open || !equipment) return null
 
@@ -901,6 +1015,7 @@ export const AtemMvConfigDialog = () => {
             return typeof win?.sourceId === 'number' ? win.sourceId : 0
           })()}
           inputs={inputs}
+          hasLiveState={!!(liveInputs && liveInputs.length > 0)}
           anchor={{ x: picker.x, y: picker.y }}
           onPick={(id) => {
             updateWindow(picker.mvIdx, picker.windowIndex, id)
