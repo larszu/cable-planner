@@ -1927,6 +1927,19 @@ export const LibraryPanel = () => {
                     <span className="rounded bg-red-950/50 px-1.5 py-0.5 text-red-200">{removed.length} entfernt</span>
                   )}
                 </div>
+                {/* v7.9.128 — Prominente "Aus Rentman aktualisieren"-Action.
+                    Oeffnet den RentmanImportDialog, der dank Auto-Load das
+                    verknuepfte Projekt direkt vorausgewaehlt + dessen
+                    Equipment direkt gefetched zeigt. So sieht der User
+                    in einem Klick was neu in Rentman ist. */}
+                <button
+                  type="button"
+                  onClick={openRentmanImport}
+                  className="mt-2 w-full rounded bg-orange-600 px-2 py-1.5 text-xs font-semibold text-white hover:bg-orange-500"
+                  title="Aktuelle Equipment-Liste aus dem verknuepften Rentman-Projekt holen — neue oder geaenderte Items werden im Dialog angezeigt."
+                >
+                  🔄 Aus Rentman aktualisieren / neue Items importieren
+                </button>
                 {(() => {
                   // v7.9.70 / #171 — Re-Sync Button: zeige nur wenn Canvas
                   // Equipment mit rentmanId hat, die im aktuellen Library-Set
@@ -2458,6 +2471,20 @@ export const LibraryPanel = () => {
                   <h2 className="text-sm font-semibold text-amber-300">Abgleich Canvas ↔ Rentman</h2>
                   <span className="text-[10px] text-slate-500">{untracked.length} nicht erfasst</span>
                 </div>
+                {/* v7.9.128 — Auch im Sync-View ein prominenter Fetch-Knopf.
+                    Der User landet hier wenn er pruefen will, was neu in
+                    Rentman ist — ohne diesen Knopf musste er zurueck zu
+                    Importiert und den orangenen Sync-Button suchen. */}
+                {linkedRentmanProjectId && (
+                  <button
+                    type="button"
+                    onClick={openRentmanImport}
+                    className="mb-3 w-full rounded bg-orange-600 px-2 py-1.5 text-xs font-semibold text-white hover:bg-orange-500"
+                    title="Equipment-Liste aus dem verknuepften Rentman-Projekt jetzt laden. Neue Items koennen direkt importiert werden."
+                  >
+                    🔄 Aus Rentman aktualisieren / neue Items importieren
+                  </button>
+                )}
                 {removed.length > 0 && (
                   <div className="mb-2 space-y-1">
                     <div className="mb-1 text-[10px] text-red-400">Nicht mehr in Rentman vorhanden:</div>
