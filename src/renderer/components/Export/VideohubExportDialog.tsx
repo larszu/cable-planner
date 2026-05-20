@@ -7,6 +7,8 @@ import {
   buildVideohubLabelTxt,
   buildVideohubRoutingDump,
   buildVideohubRoutingCommand,
+  buildVideohubInputLabelsCommand,
+  buildVideohubOutputLabelsCommand,
   videohubPresets,
 } from '../../lib/exportVideohub'
 import { VideohubRoutingMatrix } from './VideohubRoutingMatrix'
@@ -47,7 +49,10 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     initialDevice ? guessVideohubPresetKey(initialDevice) : 'smart-40x40-12g',
   )
   const [friendlyName, setFriendlyName] = useState<string>('')
-  const [showMatrix, setShowMatrix] = useState(initialShowMatrix ?? false)
+  // v7.9.128 — Default: Matrix offen. Vorher war's default zu — User
+  // musste extra klicken, deshalb hat er die Salvos/Activity-Log-
+  // Sektionen die unter dem Matrix-Toggle haengen nicht gesehen.
+  const [showMatrix, setShowMatrix] = useState(initialShowMatrix ?? true)
   const [routing, setRouting] = useState<Record<number, number>>(() => {
     const key = initialDevice ? guessVideohubPresetKey(initialDevice) : 'smart-40x40-12g'
     const p = videohubPresets.find((x) => x.key === key) ?? videohubPresets[0]
@@ -303,45 +308,86 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     navigator.clipboard.writeText(preview).catch(() => {})
   }
 
-  const handleSend = async () => {
-    if (!device) return
-    const port = parseInt(vhPort, 10)
-    if (!vhHost.trim() || isNaN(port)) {
+  // v7.9.128 — Effektive Labels die zum Hub gepusht werden. Reihenfolge:
+  //   1. Hub-State-Label (wenn vom Hub geladen, dient aber NUR als Default-
+  //      Anzeige; beim Send gewinnt Canvas damit der User nicht versehentlich
+  //      Hub-Labels in Canvas zurueckschreibt nach Offline-Edit).
+  //   2. Canvas-Port-Name + optionaler Source-Suffix (` ← SourceDevice`).
+  // Wenn der User in der Matrix die Labels per Doppelklick aendern wuerde
+  // (folgt in einem spaeteren Commit), wuerde der Override hier eingreifen.
+  const computeEffectiveInputLabels = (): string[] =>
+    Array.from({ length: preset.inputs }, (_, i) => {
+      const portName = device?.inputs[i]?.name ?? `In ${i + 1}`
+      const conn = connections.inputConn.get(i)
+      return conn ? `${portName} <- ${conn.sourceName}` : portName
+    })
+  const computeEffectiveOutputLabels = (): string[] =>
+    Array.from({ length: preset.outputs }, (_, i) => {
+      const portName = device?.outputs[i]?.name ?? `Out ${i + 1}`
+      const conn = connections.outputConn.get(i)
+      return conn ? `${portName} -> ${conn.destName}` : portName
+    })
+
+  // Generischer TCP-Send mit beliebigem Block-Inhalt.
+  const sendBlock = async (block: string, what: string): Promise<boolean> => {
+    if (!device) return false
+    const portNum = parseInt(vhPort, 10)
+    if (!vhHost.trim() || isNaN(portNum)) {
       setSendStatus('error')
-      setSendMessage('Bitte gültige IP und Port angeben.')
-      logEvent('Send abgebrochen: ungueltige IP/Port', false)
-      return
+      setSendMessage('Bitte gueltige IP und Port angeben.')
+      logEvent(`${what}: abgebrochen — ungueltige IP/Port`, false)
+      return false
     }
     setSendStatus('sending')
     setSendMessage('')
-    logEvent(`Senden an ${vhHost.trim()}:${port} …`)
-    const block = buildVideohubRoutingCommand(routing, preset.outputs)
+    logEvent(`${what}: sende an ${vhHost.trim()}:${portNum} …`)
     try {
       const result = await cablePlannerApi.videohub.sendRouting({
         host: vhHost.trim(),
-        port,
+        port: portNum,
         block,
       })
       setSendStatus(result.ok ? 'ok' : 'error')
-      setSendMessage(result.message)
-      logEvent(
-        `${result.ok ? 'OK' : 'Fehler'}: ${result.message}`,
-        result.ok,
-      )
-      if (result.ok) recordConnection(vhHost.trim(), String(port))
+      setSendMessage(`${what}: ${result.message}`)
+      logEvent(`${what}: ${result.ok ? 'OK' : 'Fehler'} — ${result.message}`, result.ok)
+      if (result.ok) recordConnection(vhHost.trim(), String(portNum))
+      return result.ok
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Unbekannter Fehler'
       setSendStatus('error')
-      setSendMessage(msg)
-      logEvent(`Exception: ${msg}`, false)
+      setSendMessage(`${what}: ${msg}`)
+      logEvent(`${what}: Exception — ${msg}`, false)
+      return false
     }
+  }
+
+  const handleSendRouting = async () => {
+    const block = buildVideohubRoutingCommand(routing, preset.outputs)
+    await sendBlock(block, 'Routing-Push')
+  }
+  const handleSendLabels = async () => {
+    const inLabels = computeEffectiveInputLabels()
+    const outLabels = computeEffectiveOutputLabels()
+    const block =
+      buildVideohubInputLabelsCommand(inLabels, preset.inputs) +
+      buildVideohubOutputLabelsCommand(outLabels, preset.outputs)
+    await sendBlock(block, 'Labels-Push')
+  }
+  const handleSendBoth = async () => {
+    const inLabels = computeEffectiveInputLabels()
+    const outLabels = computeEffectiveOutputLabels()
+    const block =
+      buildVideohubInputLabelsCommand(inLabels, preset.inputs) +
+      buildVideohubOutputLabelsCommand(outLabels, preset.outputs) +
+      buildVideohubRoutingCommand(routing, preset.outputs)
+    await sendBlock(block, 'Labels+Routing-Push')
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
       <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-base font-semibold">Export → Blackmagic Videohub</h3>
+          <h3 className="text-base font-semibold">🎚 Videohub konfigurieren · Labels + Routing</h3>
           <button
             type="button"
             onClick={onClose}
@@ -389,11 +435,12 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           </label>
 
           <label className="block">
-            Format
+            Datei-Export-Format
             <select
               value={format}
               onChange={(e) => setFormat(e.target.value as Format)}
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+              title="Bestimmt nur das Format der Vorschau-/Datei-Ausgabe unten. Der direkte TCP-Push (Labels/Routing-Buttons) ist davon unabhaengig."
             >
               <option value="routing">Voller Routing-Dump (Protokoll 2.5)</option>
               <option value="labels">Nur Labels (Input, n, Name)</option>
@@ -420,7 +467,10 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
         )}
 
         {/* ── Routing Matrix ─────────────────────────────────────────── */}
-        {format === 'routing' && (
+        {/* v7.9.128 — Matrix immer sichtbar (kein format='routing'-Gating
+            mehr). Funktioniert offline, beim TCP-Push wird Routing UND/ODER
+            Labels separat verschickt — siehe unten. */}
+        {true && (
           <div className="mb-3">
             <div className="mb-1 flex items-center gap-2">
               <button
@@ -494,8 +544,9 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
 
         {/* v7.9.128 — Salvos: benannte Routing-Snapshots speichern/laden.
             Inspiriert von VideoHubSim. Pro Device + Preset gespeichert in
-            localStorage. */}
-        {format === 'routing' && showMatrix && (
+            localStorage. Immer sichtbar (nicht mehr von showMatrix
+            abhaengig). */}
+        {true && (
           <div className="mb-3 rounded border border-cyan-700/40 bg-cyan-950/20 p-2">
             <div className="mb-2 flex items-center justify-between">
               <div className="text-[10px] uppercase tracking-wide text-cyan-300">
@@ -546,10 +597,15 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
         )}
 
         {/* ── TCP Senden ─────────────────────────────────────────────── */}
-        {format === 'routing' && (
+        {/* v7.9.128 — Immer sichtbar. Separate Buttons fuer Labels-Push,
+            Routing-Push, Beides. So baut der User offline alles auf und
+            pusht das ans Hub wenn er im richtigen Netz ist — ggf. nur
+            Teilmengen (z.B. nur Labels nach Re-Labelling, ohne Routing
+            zu touchen). */}
+        {true && (
           <div className="mb-3 rounded border border-slate-600 bg-slate-800/60 p-2">
             <div className="mb-2 text-[10px] uppercase tracking-wide text-slate-400">
-              An Videohub senden (TCP)
+              An Videohub senden (TCP) — offline editieren, hier pushen wenn online
               {!hasDesktopBridge && (
                 <span className="ml-2 text-amber-400">· nur in Desktop-App verfügbar</span>
               )}
@@ -617,13 +673,36 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               >
                 {readingState ? '⏳ Laden…' : '⬇ Status laden'}
               </button>
+            </div>
+            {/* v7.9.128 — Drei getrennte Push-Buttons. User kann nur
+                Labels oder nur Routing oder beides zusammen pushen. */}
+            <div className="mt-2 flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => { void handleSend() }}
+                onClick={() => { void handleSendLabels() }}
                 disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
-                className="rounded bg-purple-700 px-3 py-1.5 text-xs hover:bg-purple-600 disabled:opacity-40"
+                title="Nur INPUT LABELS + OUTPUT LABELS senden. Routing bleibt am Hub unangetastet."
+                className="rounded bg-purple-600 px-3 py-1.5 text-xs hover:bg-purple-500 disabled:opacity-40"
               >
-                {sendStatus === 'sending' ? '⏳ Senden…' : '⬆ Routing übertragen'}
+                {sendStatus === 'sending' ? '⏳ …' : '⬆ Labels senden'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { void handleSendRouting() }}
+                disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
+                title="Nur VIDEO OUTPUT ROUTING senden. Labels am Hub unveraendert."
+                className="rounded bg-purple-600 px-3 py-1.5 text-xs hover:bg-purple-500 disabled:opacity-40"
+              >
+                {sendStatus === 'sending' ? '⏳ …' : '⬆ Routing senden'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { void handleSendBoth() }}
+                disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
+                title="Labels + Routing in EINEM Push (drei Bloecke hintereinander)."
+                className="rounded bg-purple-800 px-3 py-1.5 text-xs font-semibold hover:bg-purple-700 disabled:opacity-40"
+              >
+                {sendStatus === 'sending' ? '⏳ …' : '⬆ Labels + Routing senden'}
               </button>
             </div>
             {hubState && (
