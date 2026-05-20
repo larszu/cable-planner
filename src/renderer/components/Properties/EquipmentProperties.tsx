@@ -126,6 +126,11 @@ interface PortListProps {
    *  der bereits Titel + Count zeigt, lassen wir die interne Headline
    *  weg um doppelten Text zu vermeiden. */
   hideTitle?: boolean
+  /** v7.9.126 — Zeigt pro Port ein "ATEM Source-ID"-Input. Notwendig
+   *  fuer offline-MV-Setup auf Outputs (AUX 8001+, PGM 10010, PVW
+   *  10011, ME-Outs 10020+) damit der MV-Picker sie kennt. Wird vom
+   *  Eltern-Component nur fuer ATEM-Devices gesetzt. */
+  showAtemSourceId?: boolean
 }
 
 interface SortablePortItemProps {
@@ -169,7 +174,7 @@ const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
   )
 }
 
-const PortList = ({ title, ports, onChange, hideTitle }: PortListProps) => {
+const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }: PortListProps) => {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -472,6 +477,31 @@ const PortList = ({ title, ports, onChange, hideTitle }: PortListProps) => {
                 <option value="right">Rechts</option>
               </select>
             </div>
+            {showAtemSourceId && (
+              <div className="mt-1 flex items-center gap-1.5 rounded border border-emerald-900/60 bg-emerald-950/30 px-1.5 py-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-emerald-300">
+                  ATEM Source-ID
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  max={99999}
+                  value={port.atemSourceId ?? ''}
+                  onChange={(event) => {
+                    const v = event.target.value.trim()
+                    updatePort(port.id, {
+                      atemSourceId: v === '' ? undefined : Math.max(0, Number(v) || 0),
+                    })
+                  }}
+                  placeholder="z.B. 8001 für AUX 1"
+                  title="Source-ID die im MV-Config-Dialog adressiert wird. AUX = 8001+, PGM = 10010, PVW = 10011, ME 2 PGM = 10020 …. Bei Inputs leer lassen für idx+1-Default."
+                  className="w-32 rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                />
+                <span className="text-[10px] text-slate-400">
+                  AUX 8001+ · PGM 10010 · PVW 10011
+                </span>
+              </div>
+            )}
             {(port.connectorType === 'Fiber' || port.connectorType === 'SFP' || port.connectorType === 'SFP+') && (
               <div className="mt-1 rounded border border-sky-900/60 bg-sky-950/30 p-1.5">
                 <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-sky-400">SFP-Modul</div>
@@ -2250,6 +2280,7 @@ export const EquipmentProperties = () => {
                 ports={equipment.inputs}
                 onChange={(inputs) => updateEquipment(equipment.id, { inputs })}
                 hideTitle
+                showAtemSourceId={deviceKind === 'atem'}
               />
             </div>
           </details>
@@ -2263,6 +2294,7 @@ export const EquipmentProperties = () => {
                 ports={equipment.outputs}
                 onChange={(outputs) => updateEquipment(equipment.id, { outputs })}
                 hideTitle
+                showAtemSourceId={deviceKind === 'atem'}
               />
             </div>
           </details>
