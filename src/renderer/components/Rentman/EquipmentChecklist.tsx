@@ -9,6 +9,18 @@ interface ChecklistItem {
   parentId?: string | null
   /** When set, shown as a "Template erkannt" badge next to the item. */
   templateMatch?: string
+  /** v7.9.128 — How the templateMatch was found, drives badge wording:
+   *  - 'rentmanId': Lokales Template hat denselben rentmanId → wird
+   *    beim Re-Import unsichtbar gemerged (Metadata-Update), Ports
+   *    bleiben erhalten.
+   *  - 'nameOnly': Lokales Template hat den gleichen Namen aber
+   *    KEINEN passenden rentmanId. Trigger fuer Konflikt-Dialog —
+   *    User waehlt was passieren soll (lokal behalten + Rentman-ID
+   *    anhaengen ist der Default-Empfohlene).
+   *  - 'catalog': Match gegen built-in Katalog (Blackmagic,
+   *    Ubiquiti, Monitor, Camera, Misc, GreenGo).
+   *  - undefined: kein Match. */
+  templateMatchKind?: 'rentmanId' | 'nameOnly' | 'catalog'
 }
 
 interface EquipmentChecklistProps {
@@ -179,14 +191,59 @@ export const EquipmentChecklist = ({
                         {isSet && (
                           <span className="ml-1 text-[10px] text-slate-400">[set · {children!.length}]</span>
                         )}
-                        {item.templateMatch && (
-                          <span
-                            className="ml-2 rounded bg-emerald-800/60 px-1.5 py-0.5 text-[10px] font-medium text-emerald-200"
-                            title={`Wird automatisch mit Vorlage "${item.templateMatch}" befüllt`}
-                          >
-                            ✓ {item.templateMatch}
-                          </span>
-                        )}
+                        {item.templateMatch && (() => {
+                          // v7.9.128 — Drei verschiedene Badge-Styles
+                          // damit der User direkt sieht ob das Item
+                          // (a) schon mit demselben rentmanId in der
+                          // Lib steht → unsichtbarer Re-Import (gruen,
+                          // klar das nichts kollidiert), (b) nur per
+                          // Name matched → Konflikt-Dialog kommt
+                          // (amber, deutlich dass eine Entscheidung
+                          // ansteht), (c) gegen Built-in-Katalog
+                          // matched (slate, neutral). Fallback (= alte
+                          // Variante) ist gruen wenn templateMatchKind
+                          // nicht gesetzt ist.
+                          const kind = item.templateMatchKind
+                          if (kind === 'rentmanId') {
+                            return (
+                              <span
+                                className="ml-2 rounded bg-emerald-800/60 px-1.5 py-0.5 text-[10px] font-medium text-emerald-200"
+                                title={`Bereits in lokaler Bibliothek per Rentman-ID verknuepft mit "${item.templateMatch}". Re-Import aktualisiert nur Metadaten (Kategorie, Projekt-Link) — die lokale Port-Konfiguration bleibt erhalten.`}
+                              >
+                                ✓ Bereits verknuepft: {item.templateMatch}
+                              </span>
+                            )
+                          }
+                          if (kind === 'nameOnly') {
+                            return (
+                              <span
+                                className="ml-2 rounded bg-amber-800/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-100"
+                                title={`Lokales Template "${item.templateMatch}" hat denselben Namen aber keinen Rentman-ID. Beim Import erscheint ein Konflikt-Dialog — Default ist die lokale Version (mit Ports) zu behalten und nur die Rentman-ID anzuhaengen.`}
+                              >
+                                ⚡ Lokal vorhanden: {item.templateMatch} — Konflikt-Dialog
+                              </span>
+                            )
+                          }
+                          if (kind === 'catalog') {
+                            return (
+                              <span
+                                className="ml-2 rounded bg-slate-700/60 px-1.5 py-0.5 text-[10px] font-medium text-slate-200"
+                                title={`Match aus eingebautem Katalog ("${item.templateMatch}"). Wird beim Import automatisch als Template uebernommen.`}
+                              >
+                                ⊕ Katalog: {item.templateMatch}
+                              </span>
+                            )
+                          }
+                          // Fallback (alte Variante ohne kind-Feld)
+                          return (
+                            <span
+                              className="ml-2 rounded bg-emerald-800/60 px-1.5 py-0.5 text-[10px] font-medium text-emerald-200"
+                              title={`Wird automatisch mit Vorlage "${item.templateMatch}" befuellt`}
+                            >
+                              ✓ {item.templateMatch}
+                            </span>
+                          )
+                        })()}
                       </span>
                     </label>
                     <QtyBadge item={item} />
