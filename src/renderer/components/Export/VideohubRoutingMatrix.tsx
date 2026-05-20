@@ -136,19 +136,24 @@ export const VideohubRoutingMatrix = ({
             : 'xs'
 
   const useHorizontalLabels = tier === 'xl' || tier === 'lg' || tier === 'md'
+  // Breitere Cells fuer horizontal-Label-Tiers — User: "jetzt sind
+  // die output label lesbar aber nicht die input label". Cells
+  // mussten breiter werden damit die Input-Header-Texte (inkl.
+  // Source-Suffix wie "TBR ← SDI Out 1") in eine oder zwei Zeilen
+  // passen ohne Mid-Word-Truncation.
   const defaultCellW =
-    tier === 'xl' ? 110 : tier === 'lg' ? 90 : tier === 'md' ? 60 : tier === 'sm' ? 14 : 10
+    tier === 'xl' ? 150 : tier === 'lg' ? 120 : tier === 'md' ? 80 : tier === 'sm' ? 14 : 10
   const defaultRowH =
     tier === 'xl' ? 36 : tier === 'lg' ? 32 : tier === 'md' ? 28 : tier === 'sm' ? 16 : 12
-  const labelFontPx = tier === 'xl' ? 14 : tier === 'lg' ? 13 : tier === 'md' ? 12 : tier === 'sm' ? 9 : 8
+  const labelFontPx = tier === 'xl' ? 13 : tier === 'lg' ? 12 : tier === 'md' ? 11 : tier === 'sm' ? 9 : 8
   const indexFontPx = Math.max(labelFontPx - 1, 8)
   const defaultLabelColW =
     tier === 'xl' ? 240 : tier === 'lg' ? 200 : tier === 'md' ? 160 : 120
   const indexColPx = tier === 'xl' ? 42 : tier === 'lg' ? 36 : 28
   const labelColW = layout.labelColWidth ?? defaultLabelColW
-  // Hoehe der Header-Reihe fuer Input-Labels. Horizontal → klein
-  // (eine Zeile). Rotiert → groesser.
-  const labelRowHeightPx = useHorizontalLabels ? 40 : tier === 'sm' ? 110 : 80
+  // Hoehe der Header-Reihe fuer Input-Labels — bei horizontalem
+  // Layout etwas mehr Hoehe damit 2-Zeilen-Labels (wrap) Platz haben.
+  const labelRowHeightPx = useHorizontalLabels ? 56 : tier === 'sm' ? 110 : 80
 
   const colWidth = (i: number) => layout.colWidths[i] ?? defaultCellW
   const rowHeight = (i: number) => layout.rowHeights[i] ?? defaultRowH
@@ -347,10 +352,16 @@ export const VideohubRoutingMatrix = ({
                             fontSize: labelFontPx,
                             fontWeight: 500,
                             letterSpacing: 0.2,
-                            lineHeight: 1.2,
-                            whiteSpace: 'nowrap',
+                            lineHeight: 1.15,
+                            // 2-Zeilen-Wrap statt Mid-Word-Truncation,
+                            // damit Labels wie "TBR ← SDI Out 1" voll
+                            // lesbar sind. Fallback Ellipsis nur wenn
+                            // die zweite Zeile auch nicht reicht.
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
                             overflow: 'hidden',
-                            textOverflow: 'ellipsis',
+                            wordBreak: 'break-word',
                           }}
                           title={inLabelTip[i]}
                         >
