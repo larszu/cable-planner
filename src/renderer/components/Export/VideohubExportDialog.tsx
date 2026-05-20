@@ -12,6 +12,7 @@ import {
   videohubPresets,
 } from '../../lib/exportVideohub'
 import { VideohubRoutingMatrix } from './VideohubRoutingMatrix'
+import { VideohubRoutingList } from './VideohubRoutingList'
 import { cablePlannerApi, hasDesktopBridge, type VideohubState } from '../../lib/bridge'
 
 interface Props {
@@ -53,6 +54,26 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   // musste extra klicken, deshalb hat er die Salvos/Activity-Log-
   // Sektionen die unter dem Matrix-Toggle haengen nicht gesehen.
   const [showMatrix, setShowMatrix] = useState(initialShowMatrix ?? true)
+  // v7.9.129 — Routing-View-Modus: Crosspoint-Matrix oder Listen-
+  // Ansicht mit Dropdowns. User-Wunsch: "ergaenze zusaetzlich auch
+  // diese dropdown moeglichkeit". Default = Matrix, persistiert in
+  // sessionStorage damit Tab-Wechsel die Auswahl behaelt.
+  const [routingView, setRoutingView] = useState<'matrix' | 'list'>(() => {
+    try {
+      const raw = sessionStorage.getItem('cable-planner.videohub.routing-view')
+      return raw === 'list' ? 'list' : 'matrix'
+    } catch {
+      return 'matrix'
+    }
+  })
+  const setAndPersistRoutingView = (v: 'matrix' | 'list') => {
+    setRoutingView(v)
+    try {
+      sessionStorage.setItem('cable-planner.videohub.routing-view', v)
+    } catch {
+      /* ignore */
+    }
+  }
   const [routing, setRouting] = useState<Record<number, number>>(() => {
     const key = initialDevice ? guessVideohubPresetKey(initialDevice) : 'smart-40x40-12g'
     const p = videohubPresets.find((x) => x.key === key) ?? videohubPresets[0]
@@ -472,14 +493,43 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             Labels separat verschickt — siehe unten. */}
         {true && (
           <div className="mb-3">
-            <div className="mb-1 flex items-center gap-2">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={() => setShowMatrix((m) => !m)}
                 className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
               >
-                {showMatrix ? '▼' : '▶'} Routing-Matrix
+                {showMatrix ? '▼' : '▶'} Routing-Ansicht
               </button>
+              {/* v7.9.129 — View-Mode-Switch: Matrix oder Liste */}
+              {showMatrix && (
+                <div className="flex overflow-hidden rounded border border-slate-700 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setAndPersistRoutingView('matrix')}
+                    className={`px-2 py-1 ${
+                      routingView === 'matrix'
+                        ? 'bg-sky-700 text-white'
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    }`}
+                    title="Crosspoint-Matrix"
+                  >
+                    ▦ Matrix
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAndPersistRoutingView('list')}
+                    className={`px-2 py-1 ${
+                      routingView === 'list'
+                        ? 'bg-sky-700 text-white'
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    }`}
+                    title="Listen-Ansicht mit Dropdown pro Output"
+                  >
+                    ☰ Liste
+                  </button>
+                </div>
+              )}
               <span className="text-xs text-slate-500">
                 {preset.inputs} Eing. × {preset.outputs} Ausg.
               </span>
@@ -503,42 +553,59 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 ↺ Reset
               </button>
             </div>
-            {showMatrix && (
-              <VideohubRoutingMatrix
-                totalInputs={preset.inputs}
-                totalOutputs={preset.outputs}
-                inputLabels={Array.from({ length: preset.inputs }, (_, i) => {
-                  // v7.9.128 — Hub-Labels gewinnen wenn vom Hub geladen
-                  // ("Status laden"). Sonst Canvas-Port-Name + (wenn
-                  // verkabelt) die Source aus dem Canvas (v7.9.119).
-                  const hubLabel = hubState?.inputLabels?.[i]
-                  if (hubLabel) return hubLabel
-                  const portName = device?.inputs[i]?.name ?? `In ${i + 1}`
-                  const conn = connections.inputConn.get(i)
-                  return conn
-                    ? `${portName} ← ${conn.sourceName}`
-                    : portName
-                })}
-                outputLabels={Array.from({ length: preset.outputs }, (_, i) => {
-                  const hubLabel = hubState?.outputLabels?.[i]
-                  const lockState = hubState?.outputLocks?.[i]
-                  const lockBadge =
-                    lockState === 'locked-self'
-                      ? ' 🔒'
-                      : lockState === 'locked-other'
-                        ? ' 🔒❗'
-                        : ''
-                  if (hubLabel) return `${hubLabel}${lockBadge}`
-                  const portName = device?.outputs[i]?.name ?? `Out ${i + 1}`
-                  const conn = connections.outputConn.get(i)
-                  return conn
-                    ? `${portName} → ${conn.destName}${lockBadge}`
-                    : `${portName}${lockBadge}`
-                })}
-                routing={routing}
-                onRoute={(output, input) => setRouting((r) => ({ ...r, [output]: input }))}
-              />
-            )}
+            {showMatrix && (() => {
+              // v7.9.128/129 — Labels einmal berechnen, an Matrix ODER
+              // Liste durchreichen. Hub-Labels gewinnen wenn vom Hub
+              // geladen ("Status laden"). Sonst Canvas-Port-Name +
+              // (wenn verkabelt) die Source/Dest aus dem Canvas.
+              const inputLabelArr = Array.from({ length: preset.inputs }, (_, i) => {
+                const hubLabel = hubState?.inputLabels?.[i]
+                if (hubLabel) return hubLabel
+                const portName = device?.inputs[i]?.name ?? `In ${i + 1}`
+                const conn = connections.inputConn.get(i)
+                return conn ? `${portName} ← ${conn.sourceName}` : portName
+              })
+              const outputLabelArr = Array.from({ length: preset.outputs }, (_, i) => {
+                const hubLabel = hubState?.outputLabels?.[i]
+                const lockState = hubState?.outputLocks?.[i]
+                const lockBadge =
+                  lockState === 'locked-self'
+                    ? ' 🔒'
+                    : lockState === 'locked-other'
+                      ? ' 🔒❗'
+                      : ''
+                if (hubLabel) return `${hubLabel}${lockBadge}`
+                const portName = device?.outputs[i]?.name ?? `Out ${i + 1}`
+                const conn = connections.outputConn.get(i)
+                return conn
+                  ? `${portName} → ${conn.destName}${lockBadge}`
+                  : `${portName}${lockBadge}`
+              })
+              const onRoute = (output: number, input: number) =>
+                setRouting((r) => ({ ...r, [output]: input }))
+              if (routingView === 'list') {
+                return (
+                  <VideohubRoutingList
+                    totalInputs={preset.inputs}
+                    totalOutputs={preset.outputs}
+                    inputLabels={inputLabelArr}
+                    outputLabels={outputLabelArr}
+                    routing={routing}
+                    onRoute={onRoute}
+                  />
+                )
+              }
+              return (
+                <VideohubRoutingMatrix
+                  totalInputs={preset.inputs}
+                  totalOutputs={preset.outputs}
+                  inputLabels={inputLabelArr}
+                  outputLabels={outputLabelArr}
+                  routing={routing}
+                  onRoute={onRoute}
+                />
+              )
+            })()}
           </div>
         )}
 
