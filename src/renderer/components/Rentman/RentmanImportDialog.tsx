@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useTranslation } from '../../lib/i18n'
 import { infoDialog } from '../../lib/infoDialog'
@@ -437,6 +437,34 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       a.type === b.type ? a.length - b.length : a.type.localeCompare(b.type),
     )
   }, [detectedCableRows])
+
+  // v7.9.128 — Auto-Load wenn der Dialog mit einem bereits verknuepften
+  // Rentman-Projekt geoeffnet wird. Bisher musste der User "Projekte
+  // laden" klicken, das Projekt finden und auswaehlen — viel Klick-Arbeit
+  // fuer einen simplen Re-Sync. Jetzt: Dialog auf -> Projekte werden
+  // automatisch geladen, das verknuepfte Projekt vorausgewaehlt, dessen
+  // Equipment direkt gefetched. User sieht sofort den aktuellen Stand
+  // und kann importieren / neue Geraete uebernehmen.
+  useEffect(() => {
+    if (!open || !linkedProjectId) return
+    if (loading) return
+    // Projekte noch nicht geladen? -> laden, dann auto-select.
+    if (projects.length === 0) {
+      void (async () => {
+        await fetchProjects()
+      })()
+      return
+    }
+    // Projekte da, aber noch nichts ausgewaehlt: das verknuepfte Projekt
+    // direkt auswaehlen und Equipment fetchen.
+    if (!selectedProjectId) {
+      const linked = projects.find((p) => p.id === linkedProjectId)
+      if (linked) {
+        void fetchEquipment(linked.id, linked.name)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, linkedProjectId, projects.length, selectedProjectId])
 
   if (!open) {
     return null
