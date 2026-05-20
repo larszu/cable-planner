@@ -537,9 +537,20 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           updatable: true,
           style: { stroke: strokeColor, strokeWidth: item.strokeWidth ?? 2.5, strokeDasharray: dashArray },
           data: { cable: item, exportThemeOverride: pdfExportThemeOverride },
-          label: item.needsConverter
-            ? `${item.name} (${item.length}m) ⚠ converter`
-            : `${item.name} (${item.length}m)`,
+          label: (() => {
+            // Issue #240 — kuerzere Kabel-Label-Texte:
+            // "SDI 3G (1080p50/60) (1m)" -> "SDI 3G (1m)". Format-
+            // Suffix in Klammern (Pattern (NNNpNN[/NN]) o.ae.) wird
+            // aus dem Anzeige-Namen entfernt, weil's eher um's Kabel
+            // geht als um's Signal. Voller Name + Standard sieht der
+            // User weiter in den Eigenschaften.
+            const shortName = item.name.replace(
+              /\s*\(\d{2,4}[pi]\d{2,3}(?:\/\d{2,3})?\)/gi,
+              '',
+            ).trim()
+            const base = `${shortName} (${item.length}m)`
+            return item.needsConverter ? `${base} ⚠ converter` : base
+          })(),
         }
       }),
     [project.cables, cableColorMode, pdfExportThemeOverride],
