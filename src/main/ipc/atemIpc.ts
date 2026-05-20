@@ -1,6 +1,7 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import { Atem, AtemConnectionStatus } from 'atem-connection'
 import { Bonjour, type Service } from 'bonjour-service'
+import { mapCpWindowIndexToAtem } from '../util/mvWindowMapping.js'
 
 /**
  * Singleton ATEM session. Only one device at a time is supported - matches the
@@ -254,8 +255,16 @@ export const registerAtemIpc = () => {
         throw new Error('ATEM not connected')
       }
       let applied = 0
+      let skipped = 0
       for (const mv of config.multiViewers) {
         try {
+          // v7.9.123 / Bug-1b — Layout-Code direkt durchsenden inkl.
+          // Constellation-Werten (16=Grid16Small, 32=Quad4Big). atem-
+          // connection's TypeScript-Enum kennt diese Werte nicht; wir
+          // cast'en die Zahl und vertrauen darauf dass die Hardware
+          // sie kennt (Constellation HD/4K/8K-Firmware tut das). Bei
+          // aelteren Modellen wird die Hardware den Befehl ignorieren
+          // oder auf 0 zurueckfallen.
           await atem.setMultiViewerProperties(
             {
               layout: mv.layout,
@@ -264,21 +273,37 @@ export const registerAtemIpc = () => {
             mv.index,
           )
         } catch (err) {
-          pushEvent(`MV ${mv.index} properties failed: ${(err as Error).message}`)
+          pushEvent(`MV ${mv.index} properties (layout=${mv.layout}) failed: ${(err as Error).message}`)
         }
         for (const win of mv.windows) {
+          // v7.9.123 / Bug-1a — CP-internes Quadranten-Schema (Windows
+          // 0-3 = grosse Slots, 10-13/20-23/30-33/40-43 = kleine Cells)
+          // ist NICHT das ATEM-Format. ATEM erwartet 0-15 (Grid16),
+          // 0-9 (Standard-10-Tile) oder 0-3 (Quad4Big). Mapping macht
+          // mapCpWindowIndexToAtem in atemMvLayout.ts.
+          const atemWindowIndex = mapCpWindowIndexToAtem(win.windowIndex, mv.layout)
+          if (atemWindowIndex < 0) {
+            // Dieser CP-Slot hat im gewaehlten Layout keine Entsprechung
+            // (z.B. user hat im Default-Layout Quadrant 2 als 'big'
+            // markiert, aber Default kennt nur Big-Slots an Position 0+1).
+            skipped++
+            continue
+          }
           try {
-            await atem.setMultiViewerWindowSource(win.sourceId, mv.index, win.windowIndex)
+            await atem.setMultiViewerWindowSource(win.sourceId, mv.index, atemWindowIndex)
             applied++
           } catch (err) {
             pushEvent(
-              `MV ${mv.index} window ${win.windowIndex} source ${win.sourceId} failed: ${(err as Error).message}`,
+              `MV ${mv.index} window ${atemWindowIndex} (cp ${win.windowIndex}) source ${win.sourceId} failed: ${(err as Error).message}`,
             )
           }
         }
       }
-      pushEvent(`Applied MV config: ${applied} window assignments`)
-      return { applied }
+      pushEvent(
+        `Applied MV config: ${applied} window assignments` +
+          (skipped > 0 ? ` (${skipped} ohne Entsprechung im Layout uebersprungen)` : ''),
+      )
+      return { applied, skipped }
     },
   )
 
