@@ -14,6 +14,21 @@ export interface AtemInputSummary {
   sourceAvailability?: number
 }
 
+/** v7.9.128 — Vollstaendiger State-Dump eines Videohubs (parsed). */
+export interface VideohubState {
+  protocolVersion?: string
+  modelName?: string
+  friendlyName?: string
+  uniqueId?: string
+  videoInputs?: number
+  videoOutputs?: number
+  inputLabels: Record<number, string>
+  outputLabels: Record<number, string>
+  outputLocks: Record<number, 'unlocked' | 'locked-other' | 'locked-self'>
+  routing: Record<number, number>
+  takeMode?: boolean
+}
+
 export interface AtemMultiviewerWindow {
   windowIndex: number
   sourceId: number
@@ -162,6 +177,11 @@ type CablePlannerApi = {
   }
   videohub: {
     sendRouting: (params: { host: string; port: number; block: string }) => Promise<{ ok: boolean; message: string }>
+    readState: (params: { host: string; port: number }) => Promise<{
+      ok: boolean
+      message: string
+      state: VideohubState | null
+    }>
   }
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) => void
@@ -606,6 +626,11 @@ const webFallbackApi: CablePlannerApi = {
     sendRouting: async () => ({
       ok: false,
       message: 'TCP-Übertragung erfordert die Desktop-App.',
+    }),
+    readState: async () => ({
+      ok: false,
+      message: 'TCP-Lese-Zugriff erfordert die Desktop-App.',
+      state: null,
     }),
   },
   logs: {

@@ -117,6 +117,24 @@ contextBridge.exposeInMainWorld('cablePlanner', {
   videohub: {
     sendRouting: (params: { host: string; port: number; block: string }) =>
       ipcRenderer.invoke('videohub:send', params) as Promise<{ ok: boolean; message: string }>,
+    readState: (params: { host: string; port: number }) =>
+      ipcRenderer.invoke('videohub:read-state', params) as Promise<{
+        ok: boolean
+        message: string
+        state: {
+          protocolVersion?: string
+          modelName?: string
+          friendlyName?: string
+          uniqueId?: string
+          videoInputs?: number
+          videoOutputs?: number
+          inputLabels: Record<number, string>
+          outputLabels: Record<number, string>
+          outputLocks: Record<number, 'unlocked' | 'locked-other' | 'locked-self'>
+          routing: Record<number, number>
+          takeMode?: boolean
+        } | null
+      }>,
   },
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) =>
