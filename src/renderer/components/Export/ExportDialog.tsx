@@ -69,7 +69,7 @@ const SECTION_ICON: Record<Section, string> = {
 
 const SECTION_DESC: Record<Section, string> = {
   plan: 'Den Canvas-Plan als PDF herunterladen oder direkt drucken. PDF mit Titelblock — druckfertig. Auch PNG/JPEG für E-Mail/Slack.',
-  patch: 'Pro Gerät eine Port-Belegungs-Liste — ideal zum Aufkleben am Gerät. Auswahl an Geräten, dann Einzel-PDF, Sammel-PDF oder direkt drucken. Papier-Format wird nach Klick abgefragt.',
+  patch: 'Pro Gerät eine Port-Belegungs-Liste — ideal zum Aufkleben am Gerät. Auswahl an Geräten, dann Einzel-PDF, Sammel-PDF oder direkt drucken. Papier-Format wird nach Klick abgefragt. Alternativ: kompakte Patchliste (eine Zeile pro Kabel, sortiert nach Quell-Gerät) für den Techniker im Feld.',
   bom: 'Stückliste aller Kabel im Projekt (Typ + Länge zusammengefasst). Editierbare Rentman-Planung daneben. Export als CSV oder PDF.',
 }
 
@@ -385,6 +385,7 @@ type PaperFormat = 'a4' | 'a3'
 const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
   const equipment = useProjectStore((s) => s.project.equipment)
   const cables = useProjectStore((s) => s.project.cables)
+  const openPatchList = useUiStore((s) => s.openPatchList)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [busy, setBusy] = useState(false)
   const [filter, setFilter] = useState('')
@@ -442,6 +443,32 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div className="space-y-3">
+      {/* v7.9.126 — Kompakt-Patchliste (eine Zeile pro Kabel, sortiert nach
+          Quell-Gerät) ist hier zusaetzlich erreichbar. War vorher unter
+          Werkzeuge → Patchliste; ist jetzt hier weil sie eine Export-/
+          Druck-Funktion ist. */}
+      <button
+        type="button"
+        onClick={() => {
+          openPatchList()
+          onClose()
+        }}
+        className="flex w-full items-center justify-between rounded border border-emerald-700/60 bg-emerald-950/30 px-3 py-2 text-left text-xs text-emerald-100 hover:border-emerald-500 hover:bg-emerald-900/40"
+        title="Kompakte Patchliste: alle Kabel auf einer Liste, sortiert nach Quell-Gerät — zum Ausdrucken für den Techniker im Feld."
+      >
+        <span>
+          <span className="font-semibold">🪢 Patchliste öffnen…</span>
+          <span className="ml-2 text-emerald-300/70">
+            Eine Zeile pro Kabel, sortiert nach Quell-Gerät
+          </span>
+        </span>
+        <span className="text-emerald-300">→</span>
+      </button>
+
+      <div className="mb-1 text-[11px] text-slate-500">
+        — oder pro-Gerät Patch-Sheet erzeugen:
+      </div>
+
       <div>
         <div className="mb-1 flex items-center justify-between">
           <span className="text-xs font-semibold text-slate-300">
