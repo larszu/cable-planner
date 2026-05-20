@@ -48,6 +48,7 @@ const QuadrantBlock = ({
   fontBig,
   fontIdBig,
   onToggle,
+  canvasPortNames,
 }: {
   quad: QuadDef
   state: 'big' | 'small'
@@ -57,12 +58,13 @@ const QuadrantBlock = ({
   fontBig: number
   fontIdBig: number
   onToggle: () => void
+  canvasPortNames?: Map<number, string>
 }) => {
   const renderBig = () => {
     const wi = mvWindowIndex(quad.idx)
     const win = windows.find((w) => w.windowIndex === wi)
     const sid = typeof win?.sourceId === 'number' ? win.sourceId : 0
-    const label = sourceLabel(sid, inputs)
+    const label = resolveSourceLabel(sid, inputs, canvasPortNames)
     const bg = sourceColor(sid, label)
     const role = roleForSource(sid)
     const highlight = role === 'pgm' ? '#ef4444' : role === 'pvw' ? '#22c55e' : undefined
@@ -92,7 +94,7 @@ const QuadrantBlock = ({
       const wi = mvWindowIndex(quad.idx, ci as 0 | 1 | 2 | 3)
       const win = windows.find((w) => w.windowIndex === wi)
       const sid = typeof win?.sourceId === 'number' ? win.sourceId : 0
-      const label = sourceLabel(sid, inputs)
+      const label = resolveSourceLabel(sid, inputs, canvasPortNames)
       const bg = sourceColor(sid, label)
       const subCol = quad.col + (ci % 2)
       const subRow = quad.row + Math.floor(ci / 2)
@@ -125,11 +127,13 @@ const MvLayoutPicker = ({
   windows,
   inputs,
   onToggleQuadrant,
+  canvasPortNames,
 }: {
   quadrants: AtemMvQuadrants
   windows: { windowIndex: number; sourceId: number }[]
   inputs: { id: number; label: string }[]
   onToggleQuadrant: (quadIdx: 0 | 1 | 2 | 3) => void
+  canvasPortNames?: Map<number, string>
 }) => {
   return (
     <div className="relative" style={{ width: 240, aspectRatio: '16 / 9' }}>
@@ -148,6 +152,7 @@ const MvLayoutPicker = ({
             fontBig={9}
             fontIdBig={8}
             onToggle={() => onToggleQuadrant(q.idx)}
+            canvasPortNames={canvasPortNames}
           />
         ))}
       </div>
@@ -240,15 +245,52 @@ const makeDefaultConfig = (name: string): AtemMvConfig => {
   return { multiViewers: Array.from({ length: count }, (_, i) => makeMv(i)) }
 }
 
-const sourceLabel = (
+/**
+ * v7.9.126 — Single Source of Truth fuer das Beschriften einer
+ * ATEM-Source-ID. Wird ueberall benutzt: SourcePicker-Liste, MV-Cell-
+ * Rendering, MvLayoutPicker-Vorschau. Drei Quellen werden zusammengefuehrt:
+ *
+ * 1. `DEFAULT_SOURCES` — die kanonische ATEM-Beschriftung
+ *    ("AUX 5", "ME 1 Program", "Color 1", "Media Player 1", …).
+ * 2. `inputs` — vom Caller gebuendelte Live-ATEM- oder
+ *    equipment.inputs/outputs-Labels (Live-Mode: echte ATEM-Namen;
+ *    Offline: User-Port-Namen).
+ * 3. `canvasPortNames` — Map aus equipment.inputs/outputs.atemSourceId
+ *    -> port.name. Greift fuer alle Ports im Canvas die der User mit
+ *    eigenem Namen + atemSourceId versehen hat.
+ *
+ * Reihenfolge im finalen Label: DEFAULT_SOURCES · inputs · canvasPortNames
+ * (nur einzigartige, case-insensitive-distinct Teile). Beispiele:
+ * - Offline, AUX 8005 mit Canvas-Name "Stage Monitor"
+ *     -> "AUX 5 · Stage Monitor"
+ * - Online, ATEM meldet "AUX 5" (identisch zu Default)
+ *     -> "AUX 5"
+ * - Online, ATEM meldet "Live AUX 5"
+ *     -> "AUX 5 · Live AUX 5"
+ * - Input port id=1, name "Camera 1", kein AUX-Kontext
+ *     -> "Camera 1"
+ */
+const resolveSourceLabel = (
   sourceId: number,
   inputs: { id: number; label: string }[],
+  canvasPortNames?: Map<number, string>,
 ): string => {
-  const inp = inputs.find((i) => i.id === sourceId)
-  if (inp) return inp.label
-  const def = DEFAULT_SOURCES.find((s) => s.id === sourceId)
-  if (def) return def.label
   if (sourceId === 0) return '—'
+  const fromDefault = DEFAULT_SOURCES.find((s) => s.id === sourceId)?.label
+  const fromInputs = inputs.find((i) => i.id === sourceId)?.label
+  const fromCanvas = canvasPortNames?.get(sourceId)
+  const parts: string[] = []
+  const pushIfNew = (s: string | undefined) => {
+    if (!s) return
+    const t = s.trim()
+    if (!t) return
+    if (parts.some((p) => p.toLowerCase() === t.toLowerCase())) return
+    parts.push(t)
+  }
+  pushIfNew(fromDefault)
+  pushIfNew(fromInputs)
+  pushIfNew(fromCanvas)
+  if (parts.length > 0) return parts.join(' · ')
   return `ID ${sourceId}`
 }
 
@@ -324,6 +366,12 @@ interface SourcePickerProps {
    *  PGM/PVW). Picker mergt dann KEINE DEFAULT_SOURCES rein, sonst
    *  haetten wir Doppelte. */
   hasLiveState?: boolean
+  /** v7.9.126 — Map<Source-ID, Canvas-Port-Name>. Wenn ein Eintrag
+   *  in der finalen Liste eine ID hat fuer die hier ein Name steht,
+   *  wird das Label um " · <Name>" erweitert. So sieht der User
+   *  z.B. "AUX 5 · Stage Monitor" statt nur "AUX 5". Wirkt sowohl
+   *  online als auch offline. */
+  canvasPortNames?: Map<number, string>
 }
 
 const SourcePicker = ({
@@ -333,6 +381,7 @@ const SourcePicker = ({
   onClose,
   anchor,
   hasLiveState,
+  canvasPortNames,
 }: SourcePickerProps) => {
   const [filter, setFilter] = useState('')
   const [custom, setCustom] = useState<string>(String(currentId))
@@ -353,21 +402,27 @@ const SourcePicker = ({
   }, [onClose])
 
   const all = useMemo(() => {
-    // v7.9.124 — Gruppe aus dem Input-Eintrag uebernehmen wenn da,
-    // sonst 'Inputs'. DEFAULT_SOURCES nur mergen wenn der Caller KEINE
-    // Live-State-Liste mitliefert (sonst doppeln sich PGM/PVW etc).
-    const fromInputs = inputs.map((i) => ({
-      id: i.id,
-      label: i.label,
-      group: i.group ?? 'Inputs',
+    // v7.9.126 — Kandidaten-IDs sammeln (inputs + DEFAULT_SOURCES wenn
+    // offline), Gruppen merken, und das finale Label fuer jede ID per
+    // gemeinsamem resolveSourceLabel-Helper berechnen. Damit lebt die
+    // Label-Logik genau an einer Stelle und macht's nicht doppelt:
+    // Picker, MV-Cells und Mini-Vorschau zeigen dasselbe.
+    const groupById = new Map<number, string>()
+    for (const i of inputs) if (!groupById.has(i.id)) groupById.set(i.id, i.group ?? 'Inputs')
+    if (!hasLiveState) {
+      for (const d of DEFAULT_SOURCES) if (!groupById.has(d.id)) groupById.set(d.id, d.group)
+    }
+    const labeled = Array.from(groupById.entries()).map(([id, group]) => ({
+      id,
+      group,
+      label: resolveSourceLabel(id, inputs, canvasPortNames),
     }))
-    const combined = hasLiveState ? fromInputs : [...fromInputs, ...DEFAULT_SOURCES]
-    if (!filter.trim()) return combined
+    if (!filter.trim()) return labeled
     const q = filter.toLowerCase()
-    return combined.filter(
+    return labeled.filter(
       (s) => s.label.toLowerCase().includes(q) || String(s.id).includes(q),
     )
-  }, [inputs, filter, hasLiveState])
+  }, [inputs, filter, hasLiveState, canvasPortNames])
 
   const grouped = useMemo(() => {
     const map = new Map<string, typeof all>()
@@ -681,6 +736,32 @@ export const AtemMvConfigDialog = () => {
     return [...fromInputs, ...fromOutputs]
   }, [equipment, liveInputs])
 
+  // v7.9.126 — Wenn der User in den Equipment-Properties einen AUX-
+  // Output (atemSourceId=8001+) o.ae. mit einem eigenen Namen
+  // versehen hat (z.B. "Stage Monitor"), kleben wir den hier
+  // hinter das generische "AUX 5"-Label im SourcePicker dran.
+  // Greift auch online — wenn der ATEM eine eigene Bezeichnung
+  // meldet UND der Canvas eine, sieht der User beides als " · "-
+  // Liste. Live-Label kommt aus liveInputs, Canvas-Name aus diesem
+  // Map; SourcePicker macht den Merge.
+  const canvasPortNames = useMemo(() => {
+    const m = new Map<number, string>()
+    if (!equipment) return m
+    for (const p of [
+      ...(Array.isArray(equipment.inputs) ? equipment.inputs : []),
+      ...(Array.isArray(equipment.outputs) ? equipment.outputs : []),
+    ]) {
+      if (
+        typeof p?.atemSourceId === 'number' &&
+        typeof p?.name === 'string' &&
+        p.name.trim()
+      ) {
+        m.set(p.atemSourceId, p.name.trim())
+      }
+    }
+    return m
+  }, [equipment])
+
   if (!slot.open || !equipment) return null
 
   // v7.9.4 — Modell-Capabilities (Auto-Erkennung oder User-Override).
@@ -788,7 +869,7 @@ export const AtemMvConfigDialog = () => {
     const windows = Array.isArray(mv.windows) ? mv.windows : []
     const win = windows.find((w) => w.windowIndex === windowIndex)
     const sid = typeof win?.sourceId === 'number' ? win.sourceId : 0
-    const label = sourceLabel(sid, inputs)
+    const label = resolveSourceLabel(sid, inputs, canvasPortNames)
     const bg = sourceColor(sid, label)
     const role = roleForSource(sid)
     const highlight = role === 'pgm' ? '#ef4444' : role === 'pvw' ? '#22c55e' : undefined
@@ -828,7 +909,7 @@ export const AtemMvConfigDialog = () => {
     const windows = Array.isArray(mv.windows) ? mv.windows : []
     const win = windows.find((w) => w.windowIndex === windowIndex)
     const sid = typeof win?.sourceId === 'number' ? win.sourceId : 0
-    const label = sourceLabel(sid, inputs)
+    const label = resolveSourceLabel(sid, inputs, canvasPortNames)
     const bg = sourceColor(sid, label)
     const role = roleForSource(sid)
     const highlight = role === 'pgm' ? '#ef4444' : role === 'pvw' ? '#22c55e' : undefined
@@ -936,6 +1017,7 @@ export const AtemMvConfigDialog = () => {
                 windows={Array.isArray(mv.windows) ? mv.windows : []}
                 inputs={inputs}
                 onToggleQuadrant={toggleQuadrant}
+                canvasPortNames={canvasPortNames}
               />
               <span className="text-[10px] text-slate-500">
                 Klick auf einen Quadranten:<br />
@@ -1032,6 +1114,7 @@ export const AtemMvConfigDialog = () => {
           })()}
           inputs={inputs}
           hasLiveState={!!(liveInputs && liveInputs.length > 0)}
+          canvasPortNames={canvasPortNames}
           anchor={{ x: picker.x, y: picker.y }}
           onPick={(id) => {
             updateWindow(picker.mvIdx, picker.windowIndex, id)
