@@ -743,12 +743,48 @@ export const CableEdge = ({
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           }
+          // v7.9.128 — Label-Position relativ zur Port-Seite des
+          // Geraets: Label haengt AUSSEN am Geraet, nicht uebers
+          // Geraet drueber. Beispiel:
+          //   - Port auf rechter Geraete-Seite (Position.Right):
+          //     Label-LINKE-Kante startet am Port + Gap, erstreckt
+          //     sich nach rechts vom Geraet weg.
+          //   - Port auf linker Geraete-Seite (Position.Left):
+          //     Label-RECHTE-Kante endet am Port - Gap, erstreckt
+          //     sich nach links vom Geraet weg.
+          //   - Top/Bottom analog vertikal.
+          const GAP = 6
+          const transformFor = (
+            x: number,
+            y: number,
+            pos: EdgeProps['sourcePosition'] | EdgeProps['targetPosition'] | undefined,
+          ): string => {
+            switch (pos) {
+              case Position.Right:
+                // Label-Origin am Port+Gap; horizontal: linke Kante hier
+                // (= 0), vertikal zentriert (-50%).
+                return `translate(${x + GAP}px, ${y}px) translate(0, -50%)`
+              case Position.Left:
+                // Label-Origin am Port-Gap; horizontal: rechte Kante hier
+                // (-100%), vertikal zentriert.
+                return `translate(${x - GAP}px, ${y}px) translate(-100%, -50%)`
+              case Position.Top:
+                // Label oberhalb; horizontal zentriert, untere Kante hier.
+                return `translate(${x}px, ${y - GAP}px) translate(-50%, -100%)`
+              case Position.Bottom:
+                // Label unterhalb; horizontal zentriert, obere Kante hier.
+                return `translate(${x}px, ${y + GAP}px) translate(-50%, 0)`
+              default:
+                // Fallback: ueber dem Endpunkt schweben (alte Variante).
+                return `translate(${x}px, ${y}px) translate(-50%, -130%)`
+            }
+          }
           return (
             <EdgeLabelRenderer>
               <div
                 style={{
                   ...endpointStyle,
-                  transform: `translate(-50%, -130%) translate(${sourceX}px, ${sourceY}px)`,
+                  transform: transformFor(sourceX, sourceY, sourcePosition),
                 }}
                 className="nodrag nopan"
                 title={sourceEndLabel}
@@ -758,7 +794,7 @@ export const CableEdge = ({
               <div
                 style={{
                   ...endpointStyle,
-                  transform: `translate(-50%, -130%) translate(${targetX}px, ${targetY}px)`,
+                  transform: transformFor(targetX, targetY, targetPosition),
                 }}
                 className="nodrag nopan"
                 title={targetEndLabel}
