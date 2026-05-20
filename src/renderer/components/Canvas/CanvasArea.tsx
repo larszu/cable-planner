@@ -316,6 +316,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     handleId: string | null
     handleType: 'source' | 'target' | null
   } | null>(null)
+  // v7.9.128 — Flag das onConnect setzt wenn ein gueltiger Drop auf
+  // einem Handle stattgefunden hat. onConnectEnd nutzt es um zu
+  // entscheiden ob er einen Open-End-Stub erstellen soll oder nicht.
+  // Loest das Problem dass die alte strict 'react-flow__pane'-
+  // Detection bei Drops auf Edge-Labels / Grid-Pattern / etc. das
+  // Open-End-Verhalten "verschluckt" hat.
+  const connectMadeRef = useRef(false)
   // Group-drag support: when a location frame is being dragged, we remember
   // which equipment was inside at drag-start and the previous frame position,
   // so we can apply the delta to contained equipment live.
@@ -1147,6 +1154,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       // way (Input → Output). Normalise here so the canonical signal flow
       // (output → input) is preserved regardless of which end the user
       // started from.
+      // v7.9.128 — Flag setzen damit onConnectEnd weiss: hier wurde
+      // eine echte Verbindung gemacht, KEIN Open-End-Stub mehr noetig.
+      connectMadeRef.current = true
       if (connection.source && connection.target && connection.sourceHandle && connection.targetHandle) {
         const sourceEq = project.equipment.find((e) => e.id === connection.source)
         const targetEq = project.equipment.find((e) => e.id === connection.target)
@@ -1218,6 +1228,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       params: { nodeId: string | null; handleId: string | null; handleType: 'source' | 'target' | null },
     ) => {
       connectStartRef.current = params
+      // v7.9.128 — Reset flag fuer neue Drag-Session. Wird in onConnect
+      // gesetzt wenn der Drop auf einem gueltigen Handle landet.
+      connectMadeRef.current = false
     },
     [],
   )
@@ -1228,10 +1241,26 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       connectStartRef.current = null
       if (!start || !start.nodeId || !start.handleId || !start.handleType) return
 
-      // Only act when dropped on the pane (not on a node/handle).
+      // v7.9.128 — Wenn onConnect schon eine Verbindung gemacht hat,
+      // KEIN Open-End-Stub mehr drueber legen. Der frueher hier
+      // verwendete strict 'react-flow__pane'-Check hatte das Problem,
+      // dass Drops auf Cable-Edge-Labels, Grid-Pattern-SVG, Layer-
+      // Overlay-Buttons, Location-Frame-Labels usw. ALLE als
+      // "nicht auf der Pane" galten und der Drag-To-Open-End
+      // schweigend nichts tat — obwohl der User klar einen Stub
+      // wollte. Stattdessen: Drop auf einen Port (handle) -> hat
+      // onConnect schon gemacht. Sonst (egal wo auf der Canvas) ->
+      // Open-End-Stub.
+      if (connectMadeRef.current) {
+        connectMadeRef.current = false
+        return
+      }
+      // Sicherheitscheck: trotzdem nicht stub'en, wenn das Mouse-Up
+      // direkt auf einem Handle landete (ReactFlow konnte's evtl.
+      // nicht als Connect interpretieren, soll aber auch kein Stub
+      // erzeugen — z.B. Drop auf inkompatiblen Handle-Typ).
       const target = event.target as HTMLElement | null
-      const targetIsPane = target?.classList.contains('react-flow__pane')
-      if (!targetIsPane) return
+      if (target?.closest('.react-flow__handle')) return
 
       // Resolve clientX/Y for mouse or touch.
       const pt =
