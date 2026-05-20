@@ -433,6 +433,39 @@ export const CableProperties = () => {
         })()}
       </div>
 
+      {/* v7.9.127 — Per-Kabel Override fuer Endpoint-Labels (Pfeile
+          ans andere Kabel-Ende). Default 'Auto' folgt dem Global-
+          Toggle in Settings -> Editing. */}
+      <div className="rounded border border-slate-800 bg-slate-950/40 p-1.5">
+        <div className="mb-1 flex items-center justify-between">
+          <span className="text-slate-300">Endpoint-Labels (→ zum anderen Ende)</span>
+        </div>
+        <div className="flex gap-1">
+          {[
+            { id: undefined, label: 'Auto', title: 'Folgt Settings → Editing → Endpoint-Labels einblenden' },
+            { id: 'show' as const, label: '✓ Anzeigen', title: 'Immer anzeigen, unabhaengig vom Settings-Toggle' },
+            { id: 'hide' as const, label: '✕ Ausblenden', title: 'Immer ausblenden, unabhaengig vom Settings-Toggle' },
+          ].map((opt) => {
+            const active = (cable.endpointLabels ?? undefined) === opt.id
+            return (
+              <button
+                key={opt.label}
+                type="button"
+                title={opt.title}
+                onClick={() => updateCable(cable.id, { endpointLabels: opt.id })}
+                className={`flex-1 rounded px-1.5 py-1 text-[11px] ${
+                  active
+                    ? 'bg-emerald-700/40 text-emerald-100 ring-1 ring-emerald-500'
+                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                {opt.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
       <div className="grid grid-cols-3 gap-1">
         <label className="flex items-center gap-1">
           <input

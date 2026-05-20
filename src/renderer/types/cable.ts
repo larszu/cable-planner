@@ -71,6 +71,12 @@ export interface Cable {
    *  re-import correlate the same cable across runs. Set by the GraphML
    *  import flow only. */
   graphmlEdgeId?: string
+  /** v7.9.127 — per-cable Override fuer den globalen Endpoint-Labels-
+   *  Toggle (Settings -> Editing -> "Endpoint-Labels einblenden").
+   *  undefined = global folgen, 'show' = immer zeigen,
+   *  'hide' = immer ausblenden. Greift in CableEdge unabhaengig vom
+   *  Global-Toggle. */
+  endpointLabels?: 'show' | 'hide'
   /** v7.8.7 — per-cable override for the global cable-bumps setting.
    *  v7.9.5: 'auto' wurde entfernt — undefined bedeutet jetzt
    *  "Global folgen", 'on' / 'off' überschreibt explizit für DIESES

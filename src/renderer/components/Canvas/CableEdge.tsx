@@ -697,14 +697,21 @@ export const CableEdge = ({
       )}
       {/* v7.9.127 — Endpoint-Labels: an jedem Kabelende ein kleines
           Mini-Label das anzeigt zu welchem Geraet/Port das ANDERE
-          Ende geht. Greift nur wenn der Settings-Toggle an ist und
-          alle anderen Hide-Bedingungen (globaler Hide, per-Kabel
-          'none', layerHidden) nicht zuschlagen. Pfeile (→ ←)
+          Ende geht. Greift wenn:
+          - cable.endpointLabels === 'show' (explizites Per-Kabel-An)
+          - ODER global an UND per-Kabel nicht 'hide'
+          Plus respektiert die globalen Hide-Bedingungen (alle Labels
+          aus, labelPosition='none', layerHidden). Pfeile (→ ←)
           markieren die Lese-Richtung "fuehrt zu". */}
-      {showCableEndpointLabels &&
-        !hideAllCableLabels &&
-        cable?.labelPosition !== 'none' &&
-        !cable?.labelHidden &&
+      {(() => {
+        if (!cable) return false
+        if (cable.endpointLabels === 'hide') return false
+        if (cable.endpointLabels !== 'show' && !showCableEndpointLabels) return false
+        if (hideAllCableLabels) return false
+        if (cable.labelPosition === 'none') return false
+        if (cable.labelHidden) return false
+        return true
+      })() &&
         cable && (() => {
           const fromEq = equipment.find((e) => e.id === cable.fromEquipmentId)
           const toEq = equipment.find((e) => e.id === cable.toEquipmentId)
