@@ -1,6 +1,7 @@
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { cableCatalog } from '../../types/cableSpec'
 import { useUiStore } from '../../store/uiStore'
+import { cableTypePatchFromPorts } from '../../lib/cableInheritance'
 import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
 import { ColorField } from '../shared/ColorField'
@@ -104,6 +105,32 @@ export const CableProperties = () => {
           ✎ Kabeltyp / Standard festlegen
         </button>
       )}
+      {(() => {
+        // v7.9.125 — Kabel-Typ vs. Port-Connector-Mismatch.
+        // Greift nur wenn beide Ports existieren und das Kabel
+        // kein Konverter-Kabel ist. Klick laesst den User den
+        // Typ aus den aktuellen Ports uebernehmen ohne den
+        // globalen Inheritance-Toggle zu touchen.
+        if (!fromPort || !toPort || cable.needsConverter) return null
+        const typePatch = cableTypePatchFromPorts(cable, equipment)
+        if (!typePatch) return null
+        return (
+          <div className="flex items-center gap-2 rounded border border-amber-700/50 bg-amber-950/30 px-2 py-1 text-[11px] text-amber-200">
+            <span className="flex-1 leading-snug">
+              Kabel-Typ <strong>{cable.type}</strong> passt nicht zu den Ports
+              ({fromPort.connectorType} ↔ {toPort.connectorType}).
+            </span>
+            <button
+              type="button"
+              onClick={() => updateCable(cable.id, typePatch)}
+              className="shrink-0 rounded bg-amber-700/40 px-1.5 py-0.5 font-medium hover:bg-amber-600/60"
+              title={`Kabel-Typ auf ${typePatch.type} setzen`}
+            >
+              → {typePatch.type}
+            </button>
+          </div>
+        )
+      })()}
       <label className="block">
         <span className="mb-1 block text-slate-300">Name</span>
         <input
