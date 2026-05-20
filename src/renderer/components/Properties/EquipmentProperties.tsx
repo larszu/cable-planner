@@ -1842,19 +1842,17 @@ export const EquipmentProperties = () => {
             Blackmagic Videohub erkannt
           </div>
           <div className="flex flex-col gap-1">
-            <button
-              type="button"
-              onClick={() => openVideohubExport(equipment.id)}
-              className="w-full rounded bg-purple-700 px-2 py-1 text-xs hover:bg-purple-600"
-            >
-              Labels / Routing exportieren →
-            </button>
+            {/* v7.9.128 — Vereinheitlicht: ein einziger Eintrag zum
+                Videohub-Tool. Im Dialog selber kann der User offline
+                Labels + Routing aufbauen und das Hub-Push (Labels,
+                Routing, Beides, oder gar nicht) als separate Aktion
+                ausloesen wenn er im Netz ist. */}
             <button
               type="button"
               onClick={() => openVideohubExport(equipment.id, true)}
-              className="w-full rounded bg-purple-800 px-2 py-1 text-xs hover:bg-purple-700"
+              className="w-full rounded bg-purple-700 px-2 py-1 text-xs font-semibold hover:bg-purple-600"
             >
-              Routing-Matrix / An Videohub senden →
+              🎚 Videohub konfigurieren · Labels + Routing →
             </button>
           </div>
         </div>
