@@ -1126,8 +1126,41 @@ const EditingTab = () => {
 
       <CableReconnectOptionsCard />
       <CableInheritTypeCard />
+      <CableEndpointLabelsCard />
       <CableVisualOptionsCard />
     </div>
+  )
+}
+
+/** v7.9.127 — Endpoint-Labels: an jedem Kabelende ein kleines Label
+ *  das zeigt, zu welchem Geraet/Port das ANDERE Ende des Kabels geht.
+ *  Hilft beim Verfolgen von Kabeln in dichten Plaenen. */
+const CableEndpointLabelsCard = () => {
+  const t = useTranslation()
+  const showCableEndpointLabels = useUiStore((s) => s.showCableEndpointLabels)
+  const setShowCableEndpointLabels = useUiStore((s) => s.setShowCableEndpointLabels)
+  return (
+    <SettingsCard
+      title={t('settings.editing.endpointLabels', 'Endpoint-Labels an Kabelenden')}
+      description={t(
+        'settings.editing.endpointLabelsDesc',
+        'Zeigt an jedem Kabelende ein kleines Label das anzeigt, wohin das andere Ende geht — am Source-Ende "→ Ziel-Geraet · Ziel-Port", am Target-Ende "← Quell-Geraet · Quell-Port". Hilft beim Verfolgen von Kabeln ohne ihnen visuell folgen zu muessen.',
+      )}
+    >
+      <label className="flex items-center gap-2 text-sm text-slate-200">
+        <input
+          type="checkbox"
+          checked={showCableEndpointLabels}
+          onChange={(e) => setShowCableEndpointLabels(e.target.checked)}
+        />
+        {t('settings.editing.endpointLabelsLabel', 'Endpoint-Labels einblenden')}
+      </label>
+      <p className="mt-2 text-[11px] text-slate-500">
+        Default aus — gibt zusaetzlichen Visual-Noise. Wirkt
+        zusammen mit dem globalen "Alle Labels ausblenden"-Toggle
+        und respektiert per-Kabel labelPosition='none'.
+      </p>
+    </SettingsCard>
   )
 }
 

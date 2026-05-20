@@ -197,6 +197,13 @@ interface PersistedUiState {
    *  fuer aufgeraeumte Plan-Ansicht beim Praesentieren ohne dass jedes
    *  Kabel einzeln umgestellt werden muss. */
   hideAllCableLabels: boolean
+  /** v7.9.127 — Endpoint-Labels: an jedem Kabelende ein kleines Label
+   *  das zeigt zu welchem Geraet/Port das ANDERE Ende des Kabels geht.
+   *  Am Source-Ende steht "→ Target-Device · Target-Port", am Target-
+   *  Ende "← Source-Device · Source-Port". Nuetzlich um auf einen
+   *  Blick zu sehen wohin ein Kabel zieht, ohne ihm visuell folgen
+   *  zu muessen. Default off — gibt zusaetzliches Visual-Noise. */
+  showCableEndpointLabels: boolean
   /** v7.9.113 / Issue #232 — Wenn aktiv, wird beim Cable-Reconnect der
    *  vom User vergebene Port-Name mit dem Kabel mitgenommen: alter Port
    *  bekommt seinen Template-default-Namen zurueck, neuer Port bekommt
@@ -283,6 +290,7 @@ const defaults: PersistedUiState = {
   deviceConfigLibrary: [],
   cableBumps: false,
   hideAllCableLabels: false,
+  showCableEndpointLabels: false,
   swapLabelsOnReconnect: false,
   inheritCableTypeFromPort: true,
   orthogonalCollisionShift: false,
@@ -586,6 +594,7 @@ interface UiState extends PersistedUiState {
   replaceDeviceConfigLibrary: (entries: DeviceConfigEntry[]) => void
   setCableBumps: (value: boolean) => void
   setHideAllCableLabels: (value: boolean) => void
+  setShowCableEndpointLabels: (value: boolean) => void
   setSwapLabelsOnReconnect: (value: boolean) => void
   setInheritCableTypeFromPort: (value: boolean) => void
   setOrthogonalCollisionShift: (value: boolean) => void
@@ -797,6 +806,7 @@ const applyPatch =
       deviceConfigLibrary: state.deviceConfigLibrary,
       cableBumps: state.cableBumps,
       inheritCableTypeFromPort: state.inheritCableTypeFromPort,
+      showCableEndpointLabels: state.showCableEndpointLabels,
       orthogonalCollisionShift: state.orthogonalCollisionShift,
       hotkeys: state.hotkeys,
       libraryFloating: state.libraryFloating,
@@ -982,6 +992,7 @@ export const useUiStore = create<UiState>((set) => ({
     set((state) => applyPatch({ deviceConfigLibrary: entries })(state)),
   setCableBumps: (value) => set(applyPatch({ cableBumps: value })),
   setHideAllCableLabels: (value) => set(applyPatch({ hideAllCableLabels: value })),
+  setShowCableEndpointLabels: (value) => set(applyPatch({ showCableEndpointLabels: value })),
   setSwapLabelsOnReconnect: (value) => set(applyPatch({ swapLabelsOnReconnect: value })),
   setInheritCableTypeFromPort: (value) => set(applyPatch({ inheritCableTypeFromPort: value })),
   setOrthogonalCollisionShift: (value) => set(applyPatch({ orthogonalCollisionShift: value })),
