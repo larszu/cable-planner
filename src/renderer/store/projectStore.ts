@@ -7,6 +7,7 @@ import type { LocationFrame } from '../types/location'
 import type { CablePlannerProject } from '../types/project'
 import { useUiStore } from './uiStore'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
+import { cableTypePatchFromPorts, inheritedCableType, isBidirectionalCableType } from '../lib/cableInheritance'
 import { detectLayerForConnector } from '../lib/cableLayers'
 import { cableCatalog } from '../types/cableSpec'
 import { ubiquitiTemplates } from '../lib/ubiquitiCatalog'
@@ -445,17 +446,6 @@ export interface ProjectState {
 }
 
 const now = () => new Date().toISOString()
-
-/** Cable types that physically carry signal in both directions. Newly
- *  created cables of these types get cable.bidirectional = true by
- *  default so CableEdge draws arrow markers on both ends (issue #67). */
-const BIDIRECTIONAL_CABLE_TYPES = new Set<Cable['type']>([
-  'Ethernet/RJ45',
-  'Fiber',
-  'SFP',
-  'SFP+',
-  'USB-C',
-])
 
 const defaultProject = (): CablePlannerProject => ({
   metadata: {
@@ -1155,6 +1145,30 @@ const buildProjectStore = (
         upsertCachedRentmanTemplateFromEquipment(updatedItem)
       }
 
+      // v7.9.125 — propagate port ConnectorType changes to connected
+      // cables (Cable Connector Type Inheritance). Only kicks in when
+      // ports actually changed connector type on THIS equipment.
+      if (prev && updatedItem && useUiStore.getState().inheritCableTypeFromPort) {
+        const oldPorts = new Map<string, string>(
+          [...prev.inputs, ...prev.outputs].map((p) => [p.id, p.connectorType]),
+        )
+        const changedPortIds = new Set<string>()
+        for (const p of [...updatedItem.inputs, ...updatedItem.outputs]) {
+          const old = oldPorts.get(p.id)
+          if (old !== undefined && old !== p.connectorType) changedPortIds.add(p.id)
+        }
+        if (changedPortIds.size > 0) {
+          nextCables = nextCables.map((c) => {
+            const touches =
+              (c.fromEquipmentId === id && changedPortIds.has(c.fromPortId)) ||
+              (c.toEquipmentId === id && changedPortIds.has(c.toPortId))
+            if (!touches) return c
+            const cableTypePatch = cableTypePatchFromPorts(c, nextEquipment)
+            return cableTypePatch ? { ...c, ...cableTypePatch } : c
+          })
+        }
+      }
+
       return {
         project: touchProject({
           ...state.project,
@@ -1182,9 +1196,21 @@ const buildProjectStore = (
             }
           : item,
       )
+      // v7.9.125 — mode switching replaces ports wholesale; matching
+      // port-ids may now expose a different ConnectorType, so feed
+      // affected cables through the inheritance helper too.
+      let nextCables = state.project.cables
+      if (mode && useUiStore.getState().inheritCableTypeFromPort) {
+        nextCables = state.project.cables.map((c) => {
+          if (c.fromEquipmentId !== equipmentId && c.toEquipmentId !== equipmentId) return c
+          const cableTypePatch = cableTypePatchFromPorts(c, nextEquipment)
+          return cableTypePatch ? { ...c, ...cableTypePatch } : c
+        })
+      }
       const updated = touchProject({
         ...state.project,
         equipment: nextEquipment,
+        cables: nextCables,
       })
       scheduleProjectAutosave(updated)
       return { project: updated }
@@ -1395,7 +1421,7 @@ const buildProjectStore = (
         // Inherently two-way cable types get the bidirectional flag set
         // by default (issue #67). The user can still untick it in
         // CableProperties if they want to show a one-way arrow anyway.
-        bidirectional: BIDIRECTIONAL_CABLE_TYPES.has(draft.type),
+        bidirectional: isBidirectionalCableType(draft.type),
         strokeWidth: 2.5,
         waypoints: state.pendingWaypoints,
         layer: autoLayer,
@@ -1415,10 +1441,27 @@ const buildProjectStore = (
   updateCable: (id, patch) =>
     set((state) => {
       if (isProjectLocked(state)) return state
+      // v7.9.125 — wenn CableProperties einen Endpoint umsetzt (eq/port-id),
+      // muss die Connector-Type-Inheritance auch hier greifen.
+      // updateCable wird sonst nur fuer Name/Color/Notes/etc. genutzt
+      // — die brauchen kein Typ-Update.
+      const endpointChanged =
+        patch.fromEquipmentId !== undefined ||
+        patch.fromPortId !== undefined ||
+        patch.toEquipmentId !== undefined ||
+        patch.toPortId !== undefined
+      const inheritType =
+        endpointChanged && useUiStore.getState().inheritCableTypeFromPort
       return {
         project: touchProject({
           ...state.project,
-          cables: state.project.cables.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+          cables: state.project.cables.map((item) => {
+            if (item.id !== id) return item
+            const merged = { ...item, ...patch }
+            if (!inheritType) return merged
+            const typePatch = cableTypePatchFromPorts(merged, state.project.equipment)
+            return typePatch ? { ...merged, ...typePatch } : merged
+          }),
         }),
       }
     }),
@@ -1562,17 +1605,23 @@ const buildProjectStore = (
         }
       }
 
+      const inheritType = useUiStore.getState().inheritCableTypeFromPort
+      const cables = state.project.cables.map((c) => {
+        if (c.id !== cableId) return c
+        const moved =
+          endpoint === 'source'
+            ? { ...c, fromEquipmentId: equipmentId, fromPortId: portId }
+            : { ...c, toEquipmentId: equipmentId, toPortId: portId }
+        if (!inheritType) return moved
+        const patch = cableTypePatchFromPorts(moved, equipment)
+        return patch ? { ...moved, ...patch } : moved
+      })
+
       return {
         project: touchProject({
           ...state.project,
           equipment,
-          cables: state.project.cables.map((c) => {
-            if (c.id !== cableId) return c
-            if (endpoint === 'source') {
-              return { ...c, fromEquipmentId: equipmentId, fromPortId: portId }
-            }
-            return { ...c, toEquipmentId: equipmentId, toPortId: portId }
-          }),
+          cables,
         }),
       }
     }),
@@ -2027,6 +2076,7 @@ const buildProjectStore = (
         }
       })
       // Recreate cables between the newly placed items.
+      const inheritType = useUiStore.getState().inheritCableTypeFromPort
       const newCables = preset.cables
         .map((stub): Cable | null => {
           const fromEqId = newEquipment[stub.fromItemIndex]?.id
@@ -2034,7 +2084,7 @@ const buildProjectStore = (
           const fromPortId = portIdMap.get(`${stub.fromItemIndex}:${stub.fromPortName}`)
           const toPortId = portIdMap.get(`${stub.toItemIndex}:${stub.toPortName}`)
           if (!fromEqId || !toEqId || !fromPortId || !toPortId) return null
-          return {
+          const cable: Cable = {
             id: uuidv4(),
             name: stub.name,
             type: stub.type as Cable['type'],
@@ -2047,6 +2097,15 @@ const buildProjectStore = (
             notes: '',
             standard: stub.standard as Cable['standard'],
           }
+          // v7.9.125 — Snapshot-erzeugte Presets tragen oft type='unbekannt'
+          // weil zum Snapshot-Zeitpunkt kein Typ verfuegbar war (siehe
+          // LibraryPanel.tsx:786). Inheritance leitet den Typ frisch aus
+          // den neuen Ports ab.
+          if (inheritType) {
+            const typePatch = cableTypePatchFromPorts(cable, newEquipment)
+            if (typePatch) Object.assign(cable, typePatch)
+          }
+          return cable
         })
         .filter((c): c is Cable => c !== null)
       const updated = touchProject({
@@ -2300,10 +2359,24 @@ const buildProjectStore = (
         }
       }
       const autoLayer = detectLayerForConnector(typeStr as Cable['type'])
+      // v7.9.125 — wenn das Mobile keinen Type liefert, leiten wir
+      // ihn aus den Ports ab statt 'unbekannt' zu stempeln (nur wenn
+      // der Inheritance-Toggle an ist; sonst Legacy-Fallback).
+      const fallbackType: Cable['type'] = useUiStore.getState().inheritCableTypeFromPort
+        ? inheritedCableType(
+            {
+              fromEquipmentId: input.fromEquipmentId,
+              fromPortId: input.fromPortId,
+              toEquipmentId: input.toEquipmentId,
+              toPortId: input.toPortId,
+            },
+            state.project.equipment,
+          ) ?? ('unbekannt' as Cable['type'])
+        : ('unbekannt' as Cable['type'])
       const cable: Cable = {
         id: uuidv4(),
         name: input.name?.trim() || `${fromEq.name} → ${toEq.name}`,
-        type: (input.type as Cable['type']) || 'unbekannt',
+        type: (input.type as Cable['type']) || fallbackType,
         length: input.length ?? 0,
         color: resolvedColor ?? '#64748b',
         fromEquipmentId: input.fromEquipmentId,
