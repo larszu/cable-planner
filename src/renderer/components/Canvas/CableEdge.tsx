@@ -15,6 +15,7 @@ import { CableWaypoints } from './CableWaypoints'
 import { computeObstacleAwareWaypoints, type Rect } from '../../lib/cableRouting'
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
 import { isCableVisibleByLayer } from '../../lib/cableLayers'
+import { effectiveShortName } from '../../lib/shortName'
 
 interface CableEdgeData {
   cable: Cable
@@ -722,8 +723,11 @@ export const CableEdge = ({
             toEq?.outputs.find((p) => p.id === cable.toPortId) ??
             toEq?.inputs.find((p) => p.id === cable.toPortId)
           if (!fromEq || !toEq || !fromPort || !toPort) return null
-          const sourceEndLabel = `→ ${toEq.name} · ${toPort.name}`
-          const targetEndLabel = `← ${fromEq.name} · ${fromPort.name}`
+          // v7.9.127 — Statt eq.name den Short-Form-Namen verwenden
+          // (User-Override oder auto-generiert). So heisst's nicht
+          // "→ ATEM Constellation 8K · In 8" sondern "→ ATEM8K · In 8".
+          const sourceEndLabel = `→ ${effectiveShortName(toEq)} · ${toPort.name}`
+          const targetEndLabel = `← ${effectiveShortName(fromEq)} · ${fromPort.name}`
           const endpointStyle = {
             position: 'absolute' as const,
             background: isLight ? 'rgba(241,245,249,0.85)' : 'rgba(15,23,42,0.78)',
