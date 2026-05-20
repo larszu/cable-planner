@@ -4,16 +4,14 @@ Liste aller Code-Änderungen die der User noch live verifizieren muss.
 Wenn ein Punkt bestätigt funktioniert → nach unten zu "Bestätigt
 funktioniert" verschieben oder ganz raus.
 
-Branch-Hinweis: Manche Features liegen auf separaten Branches —
-ggf. erst checkouten + `npm run dev` neu starten.
-
 ---
 
 ## Aktuell offen
 
-### v7.9.125 — Cable Connector Type Inheritance (DIESER Branch)
+### v7.9.125 — Cable Connector Type Inheritance
 
 Branch: `claude/cable-connector-type-inheritance-V5VZu`
+(noch nicht in main gemergt)
 
 **Symptom vorher**: Cable.type wurde nur bei der Cable-Creation
 aus dem Start-Port abgeleitet und blieb dann eingefroren. Wenn der
@@ -105,9 +103,9 @@ Plus:
 
 ---
 
-### v7.9.124 — ATEM-Source-IDs aus Live-State (anderer Branch)
+### v7.9.124 — ATEM-Source-IDs aus Live-State (Bug-2 + Bug-3)
 
-Branch: `claude/night-issue-cleanup` (noch nicht in main gemergt)
+Jetzt in main.
 
 **Symptom vorher**:
 - Bug-2: Input-Liste war "1 verschoben" — IDs kamen aus
@@ -129,12 +127,11 @@ Branch: `claude/night-issue-cleanup` (noch nicht in main gemergt)
   sich ändert (z.B. user benennt Inputs in anderem Dialog um)
 
 **Test**:
-1. `git checkout claude/night-issue-cleanup`
-2. `npm install && npm run dev` komplett neu starten
-3. ATEM via AtemDialog verbinden
-4. MV-Config-Dialog öffnen
-5. Source-Picker an einem MV-Window öffnen (Klick auf Cell)
-6. **Erwartet**:
+1. `git pull && npm run dev` komplett neu starten
+2. ATEM via AtemDialog verbinden
+3. MV-Config-Dialog öffnen
+4. Source-Picker an einem MV-Window öffnen (Klick auf Cell)
+5. **Erwartet**:
    - Liste zeigt die ECHTEN ATEM-Source-Labels (z.B. wenn Input 1 am
      ATEM "Cam Main" heißt, steht das hier — nicht "Input 1")
    - Gruppen oben: "Inputs", weiter unten "AUX" (1, 2, 3, ...), "ME
@@ -144,9 +141,9 @@ Branch: `claude/night-issue-cleanup` (noch nicht in main gemergt)
 
 ---
 
-### v7.9.123 — ATEM-MV-Window-Index-Mapping (anderer Branch)
+### v7.9.123 — ATEM-MV-Window-Index-Mapping (Bug-1)
 
-Branch: `claude/night-issue-cleanup`
+Jetzt in main.
 
 **Symptom vorher**: 16-Kachel-Multiview wird am ATEM falsch (z.B.
 4 Kacheln).
@@ -154,15 +151,14 @@ Branch: `claude/night-issue-cleanup`
 `setMultiViewerWindowSource()`.
 
 **Test**:
-1. `git checkout claude/night-issue-cleanup`
-2. `npm run dev` (komplett neu starten — Main-Prozess muss frisch
-   laden)
-3. ATEM Constellation verbinden via AtemDialog
-4. MV-Config-Dialog öffnen
-5. Alle 4 Quadranten auf "small" klicken (= 16 Kacheln)
-6. Sources zuweisen (auch in den kleinen Cells, damit Window-Mapping
+1. `git pull && npm run dev` (komplett neu starten — Main-Prozess muss
+   frisch laden)
+2. ATEM Constellation verbinden via AtemDialog
+3. MV-Config-Dialog öffnen
+4. Alle 4 Quadranten auf "small" klicken (= 16 Kacheln)
+5. Sources zuweisen (auch in den kleinen Cells, damit Window-Mapping
    greift)
-7. "An ATEM übertragen" klicken
+6. "An ATEM übertragen" klicken
 
 **Erwartet**:
 - ATEM zeigt physisch alle 16 Kacheln
@@ -179,9 +175,9 @@ Branch: `claude/night-issue-cleanup`
 
 ---
 
-### v7.9.120 / v7.9.121 / v7.9.122 — Rentman-Token & Body-Format (anderer Branch)
+### v7.9.120 / v7.9.121 / v7.9.122 — Rentman-Token & Body-Format
 
-Branch: `claude/night-issue-cleanup` (teilweise schon in main)
+Jetzt in main.
 
 **Symptom vorher**: Export → "Token hat keine Schreibrechte" → 403
 mit "Invalid key=value pair in Authorization header"
@@ -211,9 +207,9 @@ zum Testen kann das nur der User mit echten Daten verifizieren.
 
 ---
 
-### v7.9.115 / v7.9.118 — Rack-internes Routing (anderer Branch)
+### v7.9.115 / v7.9.118 — Rack-internes Routing
 
-Branch: `claude/night-issue-cleanup`
+Jetzt in main.
 
 **Symptom vorher** (Issue #223):
 - A*-Routing-Modal "Kein Pfad gefunden"
@@ -250,8 +246,7 @@ Schritt geplant, aber durch Branch-Wechsel auf
 - Fullscreen-Toggle neben "Routing-Matrix"-Toggle — soll für ALLE
   Hub-Größen funktionieren (12 / 20 / 40 / 72 / 288), nicht nur 72/288
 
-Sag Bescheid, ob das auf diesem Branch oder `night-issue-cleanup`
-weitergeht.
+Sag Bescheid, ob das auf diesem Branch oder einem neuen weitergeht.
 
 ---
 
