@@ -385,7 +385,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
+      <div className="flex max-h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-base font-semibold">🎚 Videohub konfigurieren · Labels + Routing</h3>
           <button
