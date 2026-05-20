@@ -1,7 +1,7 @@
 {
     "name": "cable-planner",
     "private": true,
-    "version": "7.9.125",
+    "version": "7.9.126",
     "description": "Electron desktop app for planning and visualizing broadcast equipment cabling",
     "author": {
         "name": "Lars Zumpe",

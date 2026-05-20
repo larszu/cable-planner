@@ -203,10 +203,14 @@ const DEFAULT_SOURCES: { id: number; label: string; group: string }[] = [
   { id: 10031, label: 'ME 3 Preview', group: 'M/E' },
   { id: 10040, label: 'ME 4 Program', group: 'M/E' },
   { id: 10041, label: 'ME 4 Preview', group: 'M/E' },
-  { id: 8001, label: 'AUX 1', group: 'AUX' },
-  { id: 8002, label: 'AUX 2', group: 'AUX' },
-  { id: 8003, label: 'AUX 3', group: 'AUX' },
-  { id: 8004, label: 'AUX 4', group: 'AUX' },
+  // v7.9.126 — AUX 1–24 (Constellation 8K hat bis zu 24 AUXes).
+  // Wenn der ATEM live verbunden ist gewinnt die echte liveInputs-
+  // Liste, sonst dienen diese als Offline-Default.
+  ...Array.from({ length: 24 }, (_, i) => ({
+    id: 8001 + i,
+    label: `AUX ${i + 1}`,
+    group: 'AUX',
+  })),
 ]
 
 /** v7.9.4 — Frische MV-Definition mit dem neuen Quadranten-Indexing.
@@ -653,16 +657,28 @@ export const AtemMvConfigDialog = () => {
         group: groupForPortType(inp.portType, inp.inputId),
       }))
     }
-    // Offline-Fallback: equipment.inputs durchgehen. atemSourceId
-    // ueberschreibt idx+1 wenn vom User gesetzt.
+    // Offline-Fallback: equipment.inputs UND equipment.outputs durchgehen.
+    // - Inputs: atemSourceId ueberschreibt idx+1 wenn vom User gesetzt.
+    // - Outputs (v7.9.126 / Bug-3 offline): nur wenn atemSourceId
+    //   explizit gesetzt — fuer AUX/PGM/PVW kann CP die Source-ID nicht
+    //   raten. User muss sie in den Port-Eigenschaften eintragen
+    //   (Properties-Panel → Outputs → "ATEM Source-ID").
     if (!equipment || !Array.isArray(equipment.inputs)) return []
-    return equipment.inputs.map((p, idx) => ({
+    const fromInputs = equipment.inputs.map((p, idx) => ({
       id: typeof p?.atemSourceId === 'number' ? p.atemSourceId : idx + 1,
       label: (p && typeof p.name === 'string' && p.name.trim()) || `Input ${idx + 1}`,
       group: typeof p?.atemSourceId === 'number'
         ? groupForPortType(undefined, p.atemSourceId)
         : 'Inputs',
     }))
+    const fromOutputs = (Array.isArray(equipment.outputs) ? equipment.outputs : [])
+      .filter((p) => typeof p?.atemSourceId === 'number')
+      .map((p) => ({
+        id: p.atemSourceId as number,
+        label: (p && typeof p.name === 'string' && p.name.trim()) || `Output (ID ${p.atemSourceId})`,
+        group: groupForPortType(undefined, p.atemSourceId as number),
+      }))
+    return [...fromInputs, ...fromOutputs]
   }, [equipment, liveInputs])
 
   if (!slot.open || !equipment) return null
