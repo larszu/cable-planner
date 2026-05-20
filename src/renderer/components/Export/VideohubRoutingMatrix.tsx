@@ -98,14 +98,14 @@ export const VideohubRoutingMatrix = ({
           {outputLabels.map((outLabel, oi) => (
             <div key={oi} className="flex items-center gap-2 text-sm">
               <span className="w-10 shrink-0 font-mono text-right text-slate-500">{oi + 1}</span>
-              <span className="w-40 shrink-0 truncate text-right font-medium text-red-300">
+              <span className="w-40 shrink-0 truncate text-right font-medium text-slate-200">
                 {outLabel}
               </span>
               <span className="text-slate-500">←</span>
               <select
                 value={routing[oi] ?? 0}
                 onChange={(e) => onRoute(oi, parseInt(e.target.value, 10))}
-                className="flex-1 rounded border border-slate-700 bg-slate-900 p-1 text-sm text-emerald-200"
+                className="flex-1 rounded border border-slate-700 bg-slate-900 p-1 text-sm text-sky-200"
               >
                 {inputLabels.map((inLabel, ii) => (
                   <option key={ii} value={ii}>
@@ -303,7 +303,7 @@ export const VideohubRoutingMatrix = ({
                 #
               </th>
               <th
-                className="sticky top-0 z-20 border-b border-slate-700 bg-slate-800/80 px-3 text-left uppercase tracking-wide text-emerald-300"
+                className="sticky top-0 z-20 border-b border-slate-700 bg-slate-800/80 px-3 text-left uppercase tracking-wide text-slate-300"
                 colSpan={totalInputs}
                 style={{ fontSize: 12, fontWeight: 600 }}
               >
@@ -333,7 +333,7 @@ export const VideohubRoutingMatrix = ({
                     key={`lbl-${i}`}
                     className={`sticky z-10 bg-slate-900 ${
                       isGroupBreak(i) ? 'border-l border-slate-700' : ''
-                    } ${colHighlight === i ? 'bg-emerald-900/60' : ''}`}
+                    } ${colHighlight === i ? 'bg-sky-900/40' : ''}`}
                     style={{
                       top: 32,
                       width: cw,
@@ -346,7 +346,7 @@ export const VideohubRoutingMatrix = ({
                       {useHorizontalLabels ? (
                         <div
                           className={`flex h-full items-center justify-center px-2 text-center ${
-                            colHighlight === i ? 'text-emerald-100' : 'text-emerald-300'
+                            colHighlight === i ? 'text-slate-100' : 'text-slate-300'
                           }`}
                           style={{
                             fontSize: labelFontPx,
@@ -370,7 +370,7 @@ export const VideohubRoutingMatrix = ({
                       ) : (
                         <div
                           className={`overflow-hidden text-center ${
-                            colHighlight === i ? 'text-emerald-100' : 'text-emerald-300'
+                            colHighlight === i ? 'text-slate-100' : 'text-slate-300'
                           }`}
                           style={{
                             writingMode: 'vertical-lr',
@@ -432,7 +432,7 @@ export const VideohubRoutingMatrix = ({
                     key={`idx-${i}`}
                     className={`sticky z-10 border-b border-slate-700 bg-slate-900 font-mono text-slate-400 ${
                       isGroupBreak(i) ? 'border-l border-slate-700' : ''
-                    } ${colHighlight === i ? 'bg-emerald-900/60 text-emerald-200' : ''}`}
+                    } ${colHighlight === i ? 'bg-sky-900/40 text-sky-200' : ''}`}
                     style={{
                       top: 32 + labelRowHeightPx,
                       width: cw,
@@ -460,14 +460,14 @@ export const VideohubRoutingMatrix = ({
                 <tr
                   key={oi}
                   ref={(el) => { rowRefs.current[oi] = el }}
-                  className={`${rowOn ? 'bg-red-950/40' : 'hover:bg-slate-800/40'} ${
+                  className={`${rowOn ? 'bg-slate-800/50' : 'hover:bg-slate-800/40'} ${
                     groupRowBreak ? 'border-t border-slate-700' : ''
                   }`}
                   style={{ height: rh }}
                 >
                   <td
                     className={`sticky left-0 z-10 truncate border-r border-slate-800 px-3 text-left ${
-                      rowOn ? 'bg-red-950/70 text-red-100' : 'bg-slate-950 text-red-300'
+                      rowOn ? 'bg-slate-800/80 text-slate-100' : 'bg-slate-950 text-slate-200'
                     }`}
                     style={{
                       width: labelColW,
@@ -487,7 +487,7 @@ export const VideohubRoutingMatrix = ({
                   </td>
                   <td
                     className={`sticky z-10 border-r border-slate-800 text-center font-mono ${
-                      rowOn ? 'bg-red-950/70 text-red-200' : 'bg-slate-900 text-slate-500'
+                      rowOn ? 'bg-slate-800/80 text-slate-200' : 'bg-slate-900 text-slate-500'
                     }`}
                     style={{
                       left: labelColW,
@@ -501,7 +501,7 @@ export const VideohubRoutingMatrix = ({
                       <button
                         type="button"
                         onClick={() => focusRow(oi)}
-                        className="block w-full hover:text-emerald-300"
+                        className="block w-full hover:text-slate-300"
                         title={`Output ${oi + 1} fokussieren`}
                       >
                         {oi + 1}
@@ -519,8 +519,8 @@ export const VideohubRoutingMatrix = ({
                     const inCol = colHighlight === ii
                     const groupBreak = isGroupBreak(ii)
                     let tdBg = ''
-                    if (rowOn && inCol) tdBg = 'bg-amber-900/30'
-                    else if (inCol) tdBg = 'bg-emerald-900/30'
+                    if (rowOn && inCol) tdBg = 'bg-sky-700/40'
+                    else if (inCol) tdBg = 'bg-sky-900/30'
                     const cw = colWidth(ii)
                     return (
                       <td
@@ -545,11 +545,11 @@ export const VideohubRoutingMatrix = ({
                             active
                               ? 'mx-auto block rounded-sm bg-emerald-400 shadow-[0_0_8px_rgba(74,222,128,0.85)] ring-1 ring-emerald-200/70'
                               : rowOn && inCol
-                                ? 'mx-auto block rounded-sm bg-amber-400/70 hover:bg-amber-300'
+                                ? 'mx-auto block rounded-sm bg-sky-400/80 hover:bg-sky-300'
                                 : rowOn
-                                  ? 'mx-auto block rounded-sm bg-red-400/60 hover:bg-red-300'
+                                  ? 'mx-auto block rounded-sm bg-slate-400/50 hover:bg-slate-300'
                                   : inCol
-                                    ? 'mx-auto block rounded-sm bg-emerald-500/60 hover:bg-emerald-400'
+                                    ? 'mx-auto block rounded-sm bg-sky-500/50 hover:bg-sky-400'
                                     : 'mx-auto block rounded-sm bg-slate-700/80 hover:bg-slate-500'
                           }
                           style={{
