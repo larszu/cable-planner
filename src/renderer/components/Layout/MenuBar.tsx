@@ -213,12 +213,10 @@ export const MenuBar = ({
         </Menu>
 
         <Menu label={t('app.menu.tools', 'Werkzeuge')}>
-          <MenuItem
-            onClick={() => useUiStore.getState().openPatchList()}
-            icon="🪢"
-          >
-            {t('app.menu.tools.patchList', 'Patchliste…')}
-          </MenuItem>
+          {/* v7.9.126 — Patchliste-Eintrag entfernt — ist jetzt unter
+              Datei → Exportieren & Drucken → Patch-Sheets erreichbar
+              (User-Request: passt thematisch besser zu den
+              Export-/Druck-Funktionen). */}
           <MenuItem
             onClick={() => useUiStore.getState().openCalculators('bandwidth')}
             icon="📡"
