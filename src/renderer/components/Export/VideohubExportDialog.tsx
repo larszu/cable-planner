@@ -14,7 +14,6 @@ import {
 import { VideohubRoutingMatrix } from './VideohubRoutingMatrix'
 import { VideohubRoutingList } from './VideohubRoutingList'
 import { cablePlannerApi, hasDesktopBridge, type VideohubState } from '../../lib/bridge'
-import { effectiveShortName } from '../../lib/shortName'
 
 interface Props {
   onClose: () => void
@@ -239,11 +238,10 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           const sourceEq = equipment.find((e) => e.id === c.fromEquipmentId)
           const sourcePort = sourceEq?.outputs.find((p) => p.id === c.fromPortId)
           inputConn.set(idx, {
-            // Issue #251 / readability — Short-Form-Name wenn der User
-            // einen gesetzt hat, sonst auto-generiert aus name.
-            // Macht "Telecast Basestation Rack" zu "TBR" o.ae. damit
-            // die Spalten-Header im Routing-Matrix lesbar bleiben.
-            sourceName: sourceEq ? effectiveShortName(sourceEq) : '?',
+            // User-Request: volle Geraete-Namen in Videohub-Labels,
+            // nicht die Short-Form-Variante. ShortName ist
+            // weiterhin fuer Endpoint-Labels (Cable-Edge) reserviert.
+            sourceName: sourceEq?.name ?? '?',
             portName: sourcePort?.name ?? '?',
           })
         }
@@ -255,7 +253,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           const destEq = equipment.find((e) => e.id === c.toEquipmentId)
           const destPort = destEq?.inputs.find((p) => p.id === c.toPortId)
           outputConn.set(idx, {
-            destName: destEq ? effectiveShortName(destEq) : '?',
+            destName: destEq?.name ?? '?',
             portName: destPort?.name ?? '?',
           })
         }
