@@ -126,6 +126,46 @@ export const buildVideohubRoutingCommand = (
 }
 
 /**
+ * v7.9.128 — Build the INPUT LABELS / OUTPUT LABELS command blocks to
+ * push to a Videohub via TCP. Pattern wie bei VIDEO OUTPUT ROUTING:
+ * Header-Zeile, Datenzeilen, Leerzeile am Ende. Beide Blocks koennen
+ * in einem einzigen Send konkateniert werden.
+ *
+ *   INPUT LABELS:\n
+ *   0 SDI In 1\n
+ *   1 Cam Stage\n
+ *   \n
+ *
+ * Labels werden default-gefuellt mit "Input N" / "Output N" wenn der
+ * Aufrufer fuer einen Slot keinen eigenen Eintrag liefert.
+ */
+export const buildVideohubInputLabelsCommand = (
+  labels: string[],
+  totalInputs: number,
+): string => {
+  const lines = ['INPUT LABELS:']
+  for (let i = 0; i < totalInputs; i++) {
+    const lbl = (labels[i] ?? '').trim() || `Input ${i + 1}`
+    lines.push(`${i} ${lbl}`)
+  }
+  lines.push('')
+  return lines.join('\n') + '\n'
+}
+
+export const buildVideohubOutputLabelsCommand = (
+  labels: string[],
+  totalOutputs: number,
+): string => {
+  const lines = ['OUTPUT LABELS:']
+  for (let i = 0; i < totalOutputs; i++) {
+    const lbl = (labels[i] ?? '').trim() || `Output ${i + 1}`
+    lines.push(`${i} ${lbl}`)
+  }
+  lines.push('')
+  return lines.join('\n') + '\n'
+}
+
+/**
  * Known Videohub model presets. Used by the export dialog to pre-fill the
  * model name field — user can still override.
  */
