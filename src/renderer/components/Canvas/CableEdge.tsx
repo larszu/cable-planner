@@ -363,6 +363,7 @@ export const CableEdge = ({
   // aus. Wirkt zusammen mit dem per-Kabel labelPosition='none' / legacy
   // labelHidden=true (zwei Wege zum gleichen Ziel waehrend der Migration).
   const hideAllCableLabels = useUiStore((s) => s.hideAllCableLabels)
+  const showCableEndpointLabels = useUiStore((s) => s.showCableEndpointLabels)
   const collisionShiftOn = useUiStore((s) => s.orthogonalCollisionShift)
   // v7.9.85 / #123 — Layer-Filter. Wenn das Kabel einen Layer hat
   // (z.B. 'network') und der Layer-Toggle in der Toolbar AUS ist,
@@ -694,6 +695,68 @@ export const CableEdge = ({
           </div>
         </EdgeLabelRenderer>
       )}
+      {/* v7.9.127 — Endpoint-Labels: an jedem Kabelende ein kleines
+          Mini-Label das anzeigt zu welchem Geraet/Port das ANDERE
+          Ende geht. Greift nur wenn der Settings-Toggle an ist und
+          alle anderen Hide-Bedingungen (globaler Hide, per-Kabel
+          'none', layerHidden) nicht zuschlagen. Pfeile (→ ←)
+          markieren die Lese-Richtung "fuehrt zu". */}
+      {showCableEndpointLabels &&
+        !hideAllCableLabels &&
+        cable?.labelPosition !== 'none' &&
+        !cable?.labelHidden &&
+        cable && (() => {
+          const fromEq = equipment.find((e) => e.id === cable.fromEquipmentId)
+          const toEq = equipment.find((e) => e.id === cable.toEquipmentId)
+          const fromPort =
+            fromEq?.outputs.find((p) => p.id === cable.fromPortId) ??
+            fromEq?.inputs.find((p) => p.id === cable.fromPortId)
+          const toPort =
+            toEq?.outputs.find((p) => p.id === cable.toPortId) ??
+            toEq?.inputs.find((p) => p.id === cable.toPortId)
+          if (!fromEq || !toEq || !fromPort || !toPort) return null
+          const sourceEndLabel = `→ ${toEq.name} · ${toPort.name}`
+          const targetEndLabel = `← ${fromEq.name} · ${fromPort.name}`
+          const endpointStyle = {
+            position: 'absolute' as const,
+            background: isLight ? 'rgba(241,245,249,0.85)' : 'rgba(15,23,42,0.78)',
+            color: isLight ? '#475569' : '#94a3b8',
+            border: `1px dashed ${isLight ? '#cbd5e1' : '#475569'}`,
+            padding: '1px 4px',
+            borderRadius: 3,
+            fontSize: 9,
+            lineHeight: 1.2,
+            pointerEvents: 'none' as const,
+            whiteSpace: 'nowrap' as const,
+            maxWidth: 180,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }
+          return (
+            <EdgeLabelRenderer>
+              <div
+                style={{
+                  ...endpointStyle,
+                  transform: `translate(-50%, -130%) translate(${sourceX}px, ${sourceY}px)`,
+                }}
+                className="nodrag nopan"
+                title={sourceEndLabel}
+              >
+                {sourceEndLabel}
+              </div>
+              <div
+                style={{
+                  ...endpointStyle,
+                  transform: `translate(-50%, -130%) translate(${targetX}px, ${targetY}px)`,
+                }}
+                className="nodrag nopan"
+                title={targetEndLabel}
+              >
+                {targetEndLabel}
+              </div>
+            </EdgeLabelRenderer>
+          )
+        })()}
     </>
   )
 }
