@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useProjectStore } from '../../store/projectStore'
 import { guessVideohubPresetKey } from '../../lib/deviceKind'
 import { downloadBlob } from '../../lib/downloadBlob'
@@ -10,7 +10,7 @@ import {
   videohubPresets,
 } from '../../lib/exportVideohub'
 import { VideohubRoutingMatrix } from './VideohubRoutingMatrix'
-import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
+import { cablePlannerApi, hasDesktopBridge, type VideohubState } from '../../lib/bridge'
 
 interface Props {
   onClose: () => void
@@ -59,6 +59,137 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   const [vhPort, setVhPort] = useState('9990')
   const [sendStatus, setSendStatus] = useState<SendStatus>('idle')
   const [sendMessage, setSendMessage] = useState('')
+
+  // v7.9.128 — VideoHubSim-inspired UI-Features:
+  //
+  // 1) Activity-Log: jede Sende-Aktion (Routing-Push, Salvo-Apply,
+  //    Verbindungs-Versuch) wird zeit-gestempelt protokolliert.
+  //    State only — wird nicht persistiert, frisch pro Dialog-Open.
+  type LogEntry = { ts: number; text: string; ok: boolean }
+  const [activityLog, setActivityLog] = useState<LogEntry[]>([])
+  const logEvent = (text: string, ok = true) =>
+    setActivityLog((prev) => [{ ts: Date.now(), text, ok }, ...prev].slice(0, 50))
+
+  // 2) Connection-History: zuletzt benutzte IP/Port-Kombinationen.
+  //    LocalStorage, max 8 Eintraege, frischeste oben.
+  type ConnEntry = { host: string; port: string; lastUsed: number }
+  const CONN_HISTORY_KEY = 'cable-planner.videohub.connections'
+  const [connHistory, setConnHistory] = useState<ConnEntry[]>(() => {
+    try {
+      const raw = localStorage.getItem(CONN_HISTORY_KEY)
+      if (!raw) return []
+      const parsed = JSON.parse(raw) as ConnEntry[]
+      if (!Array.isArray(parsed)) return []
+      return parsed.slice(0, 8)
+    } catch {
+      return []
+    }
+  })
+  const persistConnHistory = (list: ConnEntry[]) => {
+    try {
+      localStorage.setItem(CONN_HISTORY_KEY, JSON.stringify(list.slice(0, 8)))
+    } catch {
+      /* ignore quota */
+    }
+  }
+  const recordConnection = (host: string, port: string) => {
+    setConnHistory((prev) => {
+      const filtered = prev.filter((c) => !(c.host === host && c.port === port))
+      const next = [{ host, port, lastUsed: Date.now() }, ...filtered].slice(0, 8)
+      persistConnHistory(next)
+      return next
+    })
+  }
+
+  // 3) Salvos: benannte Routing-Snapshots zum spaeteren Wiederherstellen.
+  //    Pro Device gespeichert (key: deviceId), in localStorage.
+  type Salvo = { id: string; name: string; routing: Record<number, number>; createdAt: number }
+  const salvoKey = `cable-planner.videohub.salvos.${deviceId || '_'}`
+  const [salvos, setSalvos] = useState<Salvo[]>([])
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(salvoKey)
+      const parsed = raw ? (JSON.parse(raw) as Salvo[]) : []
+      setSalvos(Array.isArray(parsed) ? parsed : [])
+    } catch {
+      setSalvos([])
+    }
+  }, [salvoKey])
+  const persistSalvos = (list: Salvo[]) => {
+    try {
+      localStorage.setItem(salvoKey, JSON.stringify(list))
+    } catch {
+      /* ignore quota */
+    }
+  }
+  const saveSalvo = () => {
+    const name = window.prompt('Salvo-Name (= Routing-Snapshot speichern):')?.trim()
+    if (!name) return
+    const next: Salvo[] = [
+      { id: crypto.randomUUID(), name, routing: { ...routing }, createdAt: Date.now() },
+      ...salvos.filter((s) => s.name !== name),
+    ]
+    setSalvos(next)
+    persistSalvos(next)
+    logEvent(`Salvo gespeichert: "${name}" (${Object.keys(routing).length} Routen)`)
+  }
+  const recallSalvo = (s: Salvo) => {
+    setRouting({ ...s.routing })
+    logEvent(`Salvo geladen: "${s.name}"`)
+  }
+  const deleteSalvo = (id: string) => {
+    const next = salvos.filter((s) => s.id !== id)
+    setSalvos(next)
+    persistSalvos(next)
+  }
+
+  // v7.9.128 — Live-State vom Hub (Labels + Routing + Locks). Wird per
+  // "Status laden"-Button gefuellt. Wenn vorhanden, gewinnen die echten
+  // Hub-Labels gegenueber den Canvas-Defaults.
+  const [hubState, setHubState] = useState<VideohubState | null>(null)
+  const [readingState, setReadingState] = useState(false)
+
+  const handleReadState = async () => {
+    if (!device) return
+    const port = parseInt(vhPort, 10)
+    if (!vhHost.trim() || isNaN(port)) {
+      logEvent('Status-Read abgebrochen: ungueltige IP/Port', false)
+      return
+    }
+    setReadingState(true)
+    logEvent(`Status-Read von ${vhHost.trim()}:${port} …`)
+    try {
+      const result = await cablePlannerApi.videohub.readState({
+        host: vhHost.trim(),
+        port,
+      })
+      if (result.ok && result.state) {
+        setHubState(result.state)
+        // Aktuelles Routing vom Hub uebernehmen
+        if (Object.keys(result.state.routing).length > 0) {
+          setRouting({ ...result.state.routing })
+        }
+        const labels = Object.keys(result.state.inputLabels).length
+        const locks = Object.values(result.state.outputLocks).filter(
+          (v) => v !== 'unlocked',
+        ).length
+        logEvent(
+          `Status geladen: ${result.state.modelName ?? 'Unbekannt'} · ` +
+            `${labels} Labels · ${locks} Locks · Routing ${Object.keys(result.state.routing).length}`,
+        )
+        recordConnection(vhHost.trim(), String(port))
+      } else {
+        logEvent(`Status-Read Fehler: ${result.message}`, false)
+      }
+    } catch (e) {
+      logEvent(
+        `Exception bei Status-Read: ${e instanceof Error ? e.message : String(e)}`,
+        false,
+      )
+    } finally {
+      setReadingState(false)
+    }
+  }
 
   const device = equipment.find((e) => e.id === deviceId)
   const preset = videohubPresets.find((p) => p.key === presetKey) ?? videohubPresets[0]
@@ -178,10 +309,12 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     if (!vhHost.trim() || isNaN(port)) {
       setSendStatus('error')
       setSendMessage('Bitte gültige IP und Port angeben.')
+      logEvent('Send abgebrochen: ungueltige IP/Port', false)
       return
     }
     setSendStatus('sending')
     setSendMessage('')
+    logEvent(`Senden an ${vhHost.trim()}:${port} …`)
     const block = buildVideohubRoutingCommand(routing, preset.outputs)
     try {
       const result = await cablePlannerApi.videohub.sendRouting({
@@ -191,9 +324,16 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
       })
       setSendStatus(result.ok ? 'ok' : 'error')
       setSendMessage(result.message)
+      logEvent(
+        `${result.ok ? 'OK' : 'Fehler'}: ${result.message}`,
+        result.ok,
+      )
+      if (result.ok) recordConnection(vhHost.trim(), String(port))
     } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unbekannter Fehler'
       setSendStatus('error')
-      setSendMessage(e instanceof Error ? e.message : 'Unbekannter Fehler')
+      setSendMessage(msg)
+      logEvent(`Exception: ${msg}`, false)
     }
   }
 
@@ -318,23 +458,89 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 totalInputs={preset.inputs}
                 totalOutputs={preset.outputs}
                 inputLabels={Array.from({ length: preset.inputs }, (_, i) => {
+                  // v7.9.128 — Hub-Labels gewinnen wenn vom Hub geladen
+                  // ("Status laden"). Sonst Canvas-Port-Name + (wenn
+                  // verkabelt) die Source aus dem Canvas (v7.9.119).
+                  const hubLabel = hubState?.inputLabels?.[i]
+                  if (hubLabel) return hubLabel
                   const portName = device?.inputs[i]?.name ?? `In ${i + 1}`
-                  // v7.9.119 — Label um die Source aus dem Canvas ergaenzen.
                   const conn = connections.inputConn.get(i)
                   return conn
                     ? `${portName} ← ${conn.sourceName}`
                     : portName
                 })}
                 outputLabels={Array.from({ length: preset.outputs }, (_, i) => {
+                  const hubLabel = hubState?.outputLabels?.[i]
+                  const lockState = hubState?.outputLocks?.[i]
+                  const lockBadge =
+                    lockState === 'locked-self'
+                      ? ' 🔒'
+                      : lockState === 'locked-other'
+                        ? ' 🔒❗'
+                        : ''
+                  if (hubLabel) return `${hubLabel}${lockBadge}`
                   const portName = device?.outputs[i]?.name ?? `Out ${i + 1}`
                   const conn = connections.outputConn.get(i)
                   return conn
-                    ? `${portName} → ${conn.destName}`
-                    : portName
+                    ? `${portName} → ${conn.destName}${lockBadge}`
+                    : `${portName}${lockBadge}`
                 })}
                 routing={routing}
                 onRoute={(output, input) => setRouting((r) => ({ ...r, [output]: input }))}
               />
+            )}
+          </div>
+        )}
+
+        {/* v7.9.128 — Salvos: benannte Routing-Snapshots speichern/laden.
+            Inspiriert von VideoHubSim. Pro Device + Preset gespeichert in
+            localStorage. */}
+        {format === 'routing' && showMatrix && (
+          <div className="mb-3 rounded border border-cyan-700/40 bg-cyan-950/20 p-2">
+            <div className="mb-2 flex items-center justify-between">
+              <div className="text-[10px] uppercase tracking-wide text-cyan-300">
+                Salvos (Routing-Snapshots)
+              </div>
+              <button
+                type="button"
+                onClick={saveSalvo}
+                className="rounded bg-cyan-700 px-2 py-0.5 text-[11px] text-white hover:bg-cyan-600"
+                title="Aktuelles Routing als benannten Snapshot speichern"
+              >
+                + Aktuelles Routing speichern
+              </button>
+            </div>
+            {salvos.length === 0 ? (
+              <div className="text-[11px] text-slate-500">
+                Noch keine Salvos. Speichere die aktuelle Crosspoint-Verteilung
+                und ruf sie spaeter mit einem Klick zurueck.
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-1">
+                {salvos.map((s) => (
+                  <div
+                    key={s.id}
+                    className="flex items-center gap-1 rounded border border-cyan-800/60 bg-cyan-950/40 px-1.5 py-0.5 text-[11px]"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => recallSalvo(s)}
+                      className="text-cyan-100 hover:text-white"
+                      title={`Salvo "${s.name}" laden (${Object.keys(s.routing).length} Routen, ${new Date(s.createdAt).toLocaleString('de-DE')})`}
+                    >
+                      📋 {s.name}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteSalvo(s.id)}
+                      className="text-slate-500 hover:text-red-400"
+                      title="Salvo loeschen"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
@@ -351,15 +557,44 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <div className="flex items-end gap-2">
               <label className="block flex-1 text-xs">
                 IP-Adresse
-                <input
-                  value={vhHost}
-                  onChange={(e) => {
-                    setVhHost(e.target.value)
-                    setSendStatus('idle')
-                  }}
-                  placeholder="192.168.1.1"
-                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-xs"
-                />
+                <div className="mt-1 flex items-stretch gap-1">
+                  <input
+                    value={vhHost}
+                    onChange={(e) => {
+                      setVhHost(e.target.value)
+                      setSendStatus('idle')
+                    }}
+                    placeholder="192.168.1.1"
+                    className="flex-1 rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-xs"
+                  />
+                  {/* v7.9.128 — Connection-History: zuletzt benutzte
+                      IP/Port-Kombinationen. Wird beim erfolgreichen Send
+                      automatisch gepflegt. */}
+                  {connHistory.length > 0 && (
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        const idx = parseInt(e.target.value, 10)
+                        if (isNaN(idx)) return
+                        const pick = connHistory[idx]
+                        if (pick) {
+                          setVhHost(pick.host)
+                          setVhPort(pick.port)
+                          setSendStatus('idle')
+                        }
+                      }}
+                      title="Zuletzt benutzte Verbindungen"
+                      className="w-10 rounded border border-slate-700 bg-slate-950 px-1 text-xs"
+                    >
+                      <option value="">▼</option>
+                      {connHistory.map((c, i) => (
+                        <option key={`${c.host}-${c.port}-${c.lastUsed}`} value={i}>
+                          {c.host}:{c.port}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
               </label>
               <label className="block w-20 text-xs">
                 Port
@@ -375,6 +610,15 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               </label>
               <button
                 type="button"
+                onClick={() => { void handleReadState() }}
+                disabled={!device || !hasDesktopBridge || readingState}
+                title="Aktuellen Hub-Status holen: Labels + Routing + Locks. Routing wird in die Matrix uebernommen, Labels in den Spalten/Zeilen angezeigt."
+                className="rounded bg-sky-700 px-3 py-1.5 text-xs hover:bg-sky-600 disabled:opacity-40"
+              >
+                {readingState ? '⏳ Laden…' : '⬇ Status laden'}
+              </button>
+              <button
+                type="button"
                 onClick={() => { void handleSend() }}
                 disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
                 className="rounded bg-purple-700 px-3 py-1.5 text-xs hover:bg-purple-600 disabled:opacity-40"
@@ -382,6 +626,28 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 {sendStatus === 'sending' ? '⏳ Senden…' : '⬆ Routing übertragen'}
               </button>
             </div>
+            {hubState && (
+              <div className="mt-1.5 rounded border border-sky-700/40 bg-sky-950/30 p-1.5 text-[11px] text-sky-100">
+                <span className="font-semibold">Hub-Status:</span>{' '}
+                {hubState.modelName ?? 'Unbekannt'}{' '}
+                {hubState.friendlyName && `("${hubState.friendlyName}")`}
+                {hubState.videoInputs && hubState.videoOutputs && (
+                  <span className="ml-1 text-sky-300">
+                    {' '}· {hubState.videoInputs}×{hubState.videoOutputs}
+                  </span>
+                )}
+                {(() => {
+                  const lockedCount = Object.values(hubState.outputLocks).filter(
+                    (v) => v !== 'unlocked',
+                  ).length
+                  return lockedCount > 0 ? (
+                    <span className="ml-2 rounded bg-amber-900/40 px-1 py-0.5 text-amber-200">
+                      🔒 {lockedCount} Output{lockedCount !== 1 ? 's' : ''} gesperrt
+                    </span>
+                  ) : null
+                })()}
+              </div>
+            )}
             {sendStatus !== 'idle' && (
               <div
                 className={`mt-1.5 rounded p-1.5 text-xs ${
@@ -396,6 +662,32 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 {sendStatus === 'error' && '✗ '}
                 {sendMessage}
               </div>
+            )}
+            {/* v7.9.128 — Activity-Log (VideoHubSim-Style): rolling list
+                der letzten 50 Events (Sende-Versuche, Salvos, Connection-
+                Wechsel). Hilft beim Debuggen ("warum sagt Hub jetzt
+                NAK"). Wird beim Dialog-Close vergessen. */}
+            {activityLog.length > 0 && (
+              <details className="mt-2 text-[11px]">
+                <summary className="cursor-pointer text-slate-400 hover:text-slate-200">
+                  Activity-Log ({activityLog.length})
+                </summary>
+                <div className="mt-1 max-h-32 space-y-0.5 overflow-auto rounded border border-slate-800 bg-slate-950/60 p-1.5 font-mono">
+                  {activityLog.map((e, i) => (
+                    <div
+                      key={`${e.ts}-${i}`}
+                      className={`whitespace-nowrap ${
+                        e.ok ? 'text-slate-300' : 'text-red-300'
+                      }`}
+                    >
+                      <span className="text-slate-500">
+                        {new Date(e.ts).toLocaleTimeString('de-DE')}
+                      </span>{' '}
+                      {e.text}
+                    </div>
+                  ))}
+                </div>
+              </details>
             )}
           </div>
         )}
