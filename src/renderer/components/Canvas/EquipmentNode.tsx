@@ -768,6 +768,16 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               type="source"
               id={port.id}
               position={pos}
+              // v7.9.128 — Overlay-Handle NICHT connectable. Vorher waren
+              // beide Stacked-Handles fuer ReactFlow connectable und
+              // teilten dieselbe handleId — die (nodeId, handleId)-
+              // Registry konnte den Drop nicht eindeutig aufloesen,
+              // onConnect feuerte mal nicht. Mit ConnectionMode.Loose
+              // genuegt das real-Handle alleine fuer beide Richtungen,
+              // das Overlay ist nur noch da damit Klicks UND Drags
+              // ueber den ganzen Port-Hit-Bereich gehen (onClick laeuft
+              // weiterhin unabhaengig vom isConnectable-Flag).
+              isConnectable={false}
               onClick={handlePortClick(port.id, 'input')}
               style={{
                 top: rowCenter(placement.slot),
@@ -893,6 +903,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               type="target"
               id={port.id}
               position={pos}
+              // v7.9.128 — siehe Input-Overlay oben: nicht-connectable
+              // damit ReactFlow's Drag-Detection eindeutig auf das
+              // real-Handle faellt. Click-Handler bleibt aktiv.
+              isConnectable={false}
               onClick={handlePortClick(port.id, 'output')}
               style={{
                 top: rowCenter(placement.slot),
