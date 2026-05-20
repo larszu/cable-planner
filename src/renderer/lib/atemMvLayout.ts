@@ -345,6 +345,129 @@ export const mvWindowIndex = (quadIdx: 0 | 1 | 2 | 3, cellIdx?: 0 | 1 | 2 | 3): 
   return (quadIdx + 1) * 10 + cellIdx
 }
 
+/**
+ * v7.9.123 / Bug #ATEM-MV — Mapping CP-internes Quadranten-Schema →
+ * ATEM-native Window-Indexes vor dem Senden.
+ *
+ * CP intern: 0/1/2/3 (groß) + 10-13/20-23/30-33/40-43 (klein).
+ * ATEM extern erwartet:
+ *   - Standard 10-Tile-Layout (Default, ProgramTop/Bottom/Left/Right,
+ *     TopLeft/Right/BottomLeft/BottomRight-Small): 0..9.
+ *       0 = PGM/PRV-Slot 1 (groß), 1 = PGM/PRV-Slot 2 (groß),
+ *       2..9 = kleine Tiles in row-major-Reihenfolge im Small-Bereich.
+ *   - Grid16Small: 0..15, row-major im 4×4-Grid.
+ *   - Quad4Big: 0..3, row-major im 2×2-Grid.
+ *
+ * Diese Funktion kennt die Mapping-Regeln pro Layout und liefert -1
+ * wenn der CP-Index im aktuellen Layout keine Entsprechung hat
+ * (Caller skipt diesen Window-Update-Befehl dann).
+ */
+export const mapCpWindowIndexToAtem = (
+  cpWindowIndex: number,
+  layout: number,
+): number => {
+  // CP-Index < 10 → großer Slot (Quadrant-ID 0/1/2/3)
+  if (cpWindowIndex < 10) {
+    const quadIdx = cpWindowIndex
+    return mapBigQuadrantToAtem(quadIdx, layout)
+  }
+  // CP-Index ≥ 10 → kleine Zelle: 10-13 = Quad0 cells 0-3, 20-23 = Quad1 cells 0-3, ...
+  const quadIdx = (Math.floor(cpWindowIndex / 10) - 1) as 0 | 1 | 2 | 3
+  const cellIdx = (cpWindowIndex % 10) as 0 | 1 | 2 | 3
+  return mapSmallCellToAtem(quadIdx, cellIdx, layout)
+}
+
+/** Großer Quadrant → ATEM-Window-Index. Welcher Quadrant zu welchem
+ *  ATEM-Big-Slot (0 oder 1) gehört, hängt vom Layout ab. Wenn der
+ *  Quadrant im gewählten Layout KEIN großer Slot ist (z.B. Quad 2 bei
+ *  Default-Layout, der ist da klein), liefert die Funktion -1. */
+const mapBigQuadrantToAtem = (
+  quadIdx: 0 | 1 | 2 | 3,
+  layout: number,
+): number => {
+  if (layout === MV_LAYOUT.Quad4Big) {
+    // 2×2 große Tiles, alle vier sind big, row-major.
+    // ATEM-Indices: TL=0, TR=1, BL=2, BR=3 → Quad-IDs gehen direkt durch.
+    return quadIdx
+  }
+  if (layout === MV_LAYOUT.Grid16Small) {
+    // Hat keine big-Slots — der User hat im Quadranten-Modell aber
+    // einen 'big' eingestellt. Im Grid16-Layout existiert das nicht;
+    // der Caller skipt den Window-Set.
+    return -1
+  }
+  // Standard-10-Tile: Big-Slots sind 0 und 1, in der Reihenfolge ihrer
+  // Position. MV_GRID_4X4[layout].big[] hat sie sortiert.
+  const spec = MV_GRID_4X4[layout]
+  if (!spec) return -1
+  // Welcher Quadrant entspricht welchem ATEM-Big-Slot? Dazu schauen wir
+  // wo in MV_GRID_4X4[layout].big[] die big-Cells positioniert sind und
+  // mappen anhand der colStart/rowStart auf die Quadrant-IDs (TL/TR/BL/BR).
+  for (let i = 0; i < spec.big.length; i++) {
+    const big = spec.big[i]
+    const bigQuadrant = quadrantOfCell(big.colStart, big.rowStart)
+    if (bigQuadrant === quadIdx) {
+      // ATEM-Slot fuer dieses Quad = spec.big[i].window (typischerweise 0 oder 1)
+      return big.window
+    }
+  }
+  return -1
+}
+
+/** Kleine Zelle (Quadrant + Cell 0/1/2/3) → ATEM-Window-Index. */
+const mapSmallCellToAtem = (
+  quadIdx: 0 | 1 | 2 | 3,
+  cellIdx: 0 | 1 | 2 | 3,
+  layout: number,
+): number => {
+  if (layout === MV_LAYOUT.Grid16Small) {
+    // 4×4-Grid, row-major über alle 16 Zellen.
+    // Quadrant 0 (TL) cells 0,1,2,3 → ATEM-windows 0,1,4,5
+    // Quadrant 1 (TR) cells 0,1,2,3 → ATEM-windows 2,3,6,7
+    // Quadrant 2 (BL) cells 0,1,2,3 → ATEM-windows 8,9,12,13
+    // Quadrant 3 (BR) cells 0,1,2,3 → ATEM-windows 10,11,14,15
+    const qRow = Math.floor(quadIdx / 2)
+    const qCol = quadIdx % 2
+    const cRow = Math.floor(cellIdx / 2)
+    const cCol = cellIdx % 2
+    return qRow * 8 + cRow * 4 + qCol * 2 + cCol
+  }
+  if (layout === MV_LAYOUT.Quad4Big) {
+    // Keine kleinen Zellen in diesem Layout — User wechselte vom Big-
+    // zum Small-Modus, der Window-Set wird vom Caller geskipt.
+    return -1
+  }
+  // Standard-10-Tile-Layout: Kleine Tiles sind 2..9, in MV_GRID_4X4[
+  // layout].small[] in row-major-Reihenfolge gelistet. Wir suchen die
+  // Position dieser Quadrant-Cell in spec.small[] und mappen auf
+  // (smallWindowOffset ?? 2) + index.
+  const spec = MV_GRID_4X4[layout]
+  if (!spec) return -1
+  // Position der Cell in CP-Koordinaten:
+  //   col innerhalb des Quadranten = cellIdx % 2
+  //   row innerhalb des Quadranten = Math.floor(cellIdx / 2)
+  // Plus Quadrant-Offset:
+  const qCol = quadIdx % 2  // 0 oder 1 → linke oder rechte Quadrant-Spalte
+  const qRow = Math.floor(quadIdx / 2)  // 0 oder 1
+  const targetCol = qCol * 2 + (cellIdx % 2) + 1  // 1..4
+  const targetRow = qRow * 2 + Math.floor(cellIdx / 2) + 1  // 1..4
+  const offset = spec.smallWindowOffset ?? 2
+  for (let i = 0; i < spec.small.length; i++) {
+    if (spec.small[i].colStart === targetCol && spec.small[i].rowStart === targetRow) {
+      return offset + i
+    }
+  }
+  return -1
+}
+
+/** Helper: welche Quadrant-ID (0/1/2/3) entspricht einer (col,row)-Position
+ *  im 4×4-Grid? col/row sind 1-basiert. */
+const quadrantOfCell = (col: number, row: number): 0 | 1 | 2 | 3 => {
+  const qCol = col <= 2 ? 0 : 1
+  const qRow = row <= 2 ? 0 : 1
+  return (qRow * 2 + qCol) as 0 | 1 | 2 | 3
+}
+
 /** Findet das nächstgelegene unterstützte ATEM-Layout für eine
  *  Quadranten-Konfiguration. Wird beim Senden an die ATEM benutzt
  *  damit das Modell den Befehl überhaupt versteht. */

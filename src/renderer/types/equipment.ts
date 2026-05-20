@@ -37,6 +37,14 @@ export interface Port {
    *  seinen originalName zurueckgesetzt, der vom User vergebene Name
    *  wandert mit dem Kabel auf den neuen Port. */
   originalName?: string
+  /** v7.9.124 / Bug-2 + Bug-3 — Optionale ATEM-Source-ID-Ueberschreibung.
+   *  Wenn gesetzt: dieser CP-Port wird im MV-Config-Dialog mit dieser
+   *  Source-ID adressiert (statt idx+1). Ermoeglicht offline-Setup
+   *  fuer AUX (8001+), Color-Gens (2001+), Media-Player (3010/3020),
+   *  PGM (10011) und PVW (10010) — also alles was nicht ein physischer
+   *  ATEM-Input ist. Wird ignoriert wenn der ATEM live verbunden ist
+   *  (dann gewinnt die echte state.inputs-Liste). */
+  atemSourceId?: number
   type: string
   connectorType: ConnectorType
   /** Optional side override on the node (default comes from input/output + mirror). */
