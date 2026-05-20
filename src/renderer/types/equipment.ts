@@ -145,6 +145,12 @@ export interface DeviceMode {
 export interface EquipmentItem {
   id: string
   name: string
+  /** v7.9.127 — Optional Short-Form-Name fuer platzbegrenzte Kontexte
+   *  wie Cable-Endpoint-Labels und Patchlisten. Wenn nicht gesetzt,
+   *  wird er bei Bedarf aus `name` per `generateShortName()` abgeleitet.
+   *  User kann ihn in den Properties ueberschreiben. Beispiel:
+   *  "ATEM Constellation 8K" -> Auto "ATEM8K", User-Override frei. */
+  shortName?: string
   /** Optional subtitle shown below the device name (e.g. "PGM Monitor", "Cam 1"). */
   subtitle?: string
   /** Optional background/accent color for the node header (CSS hex, e.g. "#0f4c81"). */
