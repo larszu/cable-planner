@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 interface Props {
   totalInputs: number
@@ -12,28 +12,59 @@ interface Props {
 /**
  * Interactive routing crosspoint matrix for Blackmagic Videohub.
  *
- * v7.9.129 — Lesbarkeit-Fokus. User-Pain: "die input und output namen
- * kann ich nicht richtig lesen". Maßnahmen:
+ * v7.9.129 — Lesbarkeit + Resize:
  *
- * 1) **Deutlich groessere Schrift** — Input-Header bei 14px (statt 11),
- *    Output-Labels bei 14px (statt 12), Index bei 12px.
- * 2) **Mehr vertikaler Raum** fuer rotierte Input-Labels (8-12rem
- *    Hoehe) — bis zu ~16 Zeichen pro Label gut lesbar bevor truncated.
- * 3) **Breitere Cells** fuer kleine/mittlere Hubs — 32px statt 28
- *    bei <=20er, damit auch der Active-Crosspoint groesseren Touch-
- *    Target hat.
- * 4) **VideoHubSim-Farbsprache** (Inspiration von
- *    github.com/videojedi/VideoHubSim):
- *    - Outputs in CORAL/ROT (#fca5a5) — visuell von Inputs getrennt
- *    - Inputs in EMERALD/GRUEN (#86efac) — folgt dem aktiven Signal
- *    - Active-Crosspoint: gleiches Emerald wie Inputs, mit Glow
- *    - Row-Hover (Output): coral-tint
- *    - Col-Hover (Input): emerald-tint
- *    Damit ist die Lese-Richtung "Output (rot) <- Input (gruen)"
- *    farblich kodiert und sofort intuitiv.
+ * 1) **Horizontale Input-Labels** bei <=80 Ports — kein Vertikal-
+ *    Text mehr. Default-Cell-Breite 100/72/40 px je Hub-Groesse,
+ *    Labels stehen normal lesbar nebeneinander, horizontaler Scroll
+ *    bei breiteren Matrizen.
  *
- * Drag-to-Route + Crosshair + Group-Stripes alle 8 unveraendert.
+ * 2) **Excel-style Resize**: jede Input-Spalte hat einen Drag-Handle
+ *    an der rechten Kante, jede Output-Zeile einen unten. User
+ *    kann individuelle Spalten / Zeilen beliebig breit/hoch ziehen.
+ *    Auch die Label-Spalte links ist resizable. Persistiert in
+ *    sessionStorage damit Reload den User-Layout nicht plaettet.
+ *
+ * 3) **Symmetrische 8er-Trenner** — vorher waren die 8er-Bloecke
+ *    alternierend gefaerbt, was Port 16->17 anders aussehen liess
+ *    als Port 24->25. Jetzt: nur 1-px Trennlinie alle 8, sonst
+ *    durchgehend gleiche Hintergrund-Farbe.
+ *
+ * 4) **VideoHubSim-Farbsprache**: Outputs in Coral/Rot, Inputs in
+ *    Emerald/Gruen, Active-Crosspoint emerald mit Glow.
  */
+
+const STORAGE_KEY = 'cable-planner.videohub.matrix-layout'
+
+interface PersistedLayout {
+  colWidths: Record<number, number>
+  rowHeights: Record<number, number>
+  labelColWidth?: number
+}
+
+const loadLayout = (): PersistedLayout => {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY)
+    if (!raw) return { colWidths: {}, rowHeights: {} }
+    const parsed = JSON.parse(raw) as PersistedLayout
+    return {
+      colWidths: parsed.colWidths ?? {},
+      rowHeights: parsed.rowHeights ?? {},
+      labelColWidth: parsed.labelColWidth,
+    }
+  } catch {
+    return { colWidths: {}, rowHeights: {} }
+  }
+}
+
+const saveLayout = (l: PersistedLayout) => {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(l))
+  } catch {
+    /* ignore quota */
+  }
+}
+
 export const VideohubRoutingMatrix = ({
   totalInputs,
   totalOutputs,
@@ -48,6 +79,12 @@ export const VideohubRoutingMatrix = ({
   const [hover, setHover] = useState<{ row: number; col: number } | null>(null)
   const [dragging, setDragging] = useState(false)
   const rowRefs = useRef<Array<HTMLTableRowElement | null>>([])
+
+  // Persistierte Spalten-/Zeilen-Overrides (Excel-style Resize).
+  const [layout, setLayout] = useState<PersistedLayout>(() => loadLayout())
+  useEffect(() => {
+    saveLayout(layout)
+  }, [layout])
 
   if (!useGrid) {
     return (
@@ -83,9 +120,10 @@ export const VideohubRoutingMatrix = ({
     )
   }
 
-  // Dynamische Cell-Groesse. Bei kleinen Hubs DEUTLICH groesser fuer
-  // Lesbarkeit. Schrift bleibt fix relativ gross — wir akzeptieren
-  // hoehere Header-Reihen damit die rotierten Labels lesbar sind.
+  // Tier-basierte Defaults. Bei <=80 Ports → HORIZONTALE Labels mit
+  // breiten Cells (Default 100/72/40 px). Bei groesseren Hubs fallen
+  // wir auf rotierten Text + schmale Cells zurueck damit's noch
+  // scrollbar bleibt.
   const tier =
     totalInputs <= 20 && totalOutputs <= 20
       ? 'xl'
@@ -97,22 +135,27 @@ export const VideohubRoutingMatrix = ({
             ? 'sm'
             : 'xs'
 
-  const cellPx = tier === 'xl' ? 32 : tier === 'lg' ? 24 : tier === 'md' ? 16 : tier === 'sm' ? 11 : 8
-  // Schrift-Groessen bewusst hoch — Lesbarkeit ist das User-Issue.
-  const labelFontPx = tier === 'xl' ? 14 : tier === 'lg' ? 13 : tier === 'md' ? 11 : tier === 'sm' ? 9 : 8
+  const useHorizontalLabels = tier === 'xl' || tier === 'lg' || tier === 'md'
+  const defaultCellW =
+    tier === 'xl' ? 110 : tier === 'lg' ? 90 : tier === 'md' ? 60 : tier === 'sm' ? 14 : 10
+  const defaultRowH =
+    tier === 'xl' ? 36 : tier === 'lg' ? 32 : tier === 'md' ? 28 : tier === 'sm' ? 16 : 12
+  const labelFontPx = tier === 'xl' ? 14 : tier === 'lg' ? 13 : tier === 'md' ? 12 : tier === 'sm' ? 9 : 8
   const indexFontPx = Math.max(labelFontPx - 1, 8)
-  const labelColPx = tier === 'xl' ? 220 : tier === 'lg' ? 180 : tier === 'md' ? 140 : 110
-  const indexColPx = tier === 'xl' ? 40 : tier === 'lg' ? 34 : 26
-  // Hoehe der Input-Header-Row in rem — viel Platz fuer rotierte
-  // Labels. Vorher 7rem, jetzt 11rem bei XL damit ~16-Zeichen-Labels
-  // ohne Truncation Platz haben.
-  const labelRowHeightRem =
-    tier === 'xl' ? '11rem' : tier === 'lg' ? '10rem' : tier === 'md' ? '8rem' : '6rem'
+  const defaultLabelColW =
+    tier === 'xl' ? 240 : tier === 'lg' ? 200 : tier === 'md' ? 160 : 120
+  const indexColPx = tier === 'xl' ? 42 : tier === 'lg' ? 36 : 28
+  const labelColW = layout.labelColWidth ?? defaultLabelColW
+  // Hoehe der Header-Reihe fuer Input-Labels. Horizontal → klein
+  // (eine Zeile). Rotiert → groesser.
+  const labelRowHeightPx = useHorizontalLabels ? 40 : tier === 'sm' ? 110 : 80
+
+  const colWidth = (i: number) => layout.colWidths[i] ?? defaultCellW
+  const rowHeight = (i: number) => layout.rowHeights[i] ?? defaultRowH
 
   const colHighlight = hover?.col
   const rowHighlight = hover?.row
 
-  const isGroupStripe = (index: number) => Math.floor(index / 8) % 2 === 1
   const isGroupBreak = (index: number) => index > 0 && index % 8 === 0
 
   const focusRow = (oi: number) => {
@@ -129,247 +172,389 @@ export const VideohubRoutingMatrix = ({
     [outputLabels],
   )
 
-  const maxHeight = tier === 'xl' || tier === 'lg' ? '34rem' : '38rem'
+  // Excel-style Drag-Resize. State im Ref damit window-handler stable
+  // bleibt ueber re-renders.
+  const resizeRef = useRef<
+    | { kind: 'col'; index: number; startX: number; startW: number }
+    | { kind: 'row'; index: number; startY: number; startH: number }
+    | { kind: 'label'; startX: number; startW: number }
+    | null
+  >(null)
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      const s = resizeRef.current
+      if (!s) return
+      if (s.kind === 'col') {
+        const w = Math.max(24, Math.round(s.startW + (e.clientX - s.startX)))
+        setLayout((prev) => ({ ...prev, colWidths: { ...prev.colWidths, [s.index]: w } }))
+      } else if (s.kind === 'row') {
+        const h = Math.max(20, Math.round(s.startH + (e.clientY - s.startY)))
+        setLayout((prev) => ({ ...prev, rowHeights: { ...prev.rowHeights, [s.index]: h } }))
+      } else {
+        const w = Math.max(80, Math.round(s.startW + (e.clientX - s.startX)))
+        setLayout((prev) => ({ ...prev, labelColWidth: w }))
+      }
+    }
+    const onUp = () => {
+      if (resizeRef.current) {
+        resizeRef.current = null
+        document.body.style.cursor = ''
+      }
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+  }, [])
+
+  const startColResize = (index: number) => (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    resizeRef.current = {
+      kind: 'col',
+      index,
+      startX: e.clientX,
+      startW: colWidth(index),
+    }
+    document.body.style.cursor = 'col-resize'
+  }
+  const startRowResize = (index: number) => (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    resizeRef.current = {
+      kind: 'row',
+      index,
+      startY: e.clientY,
+      startH: rowHeight(index),
+    }
+    document.body.style.cursor = 'row-resize'
+  }
+  const startLabelResize = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    resizeRef.current = {
+      kind: 'label',
+      startX: e.clientX,
+      startW: labelColW,
+    }
+    document.body.style.cursor = 'col-resize'
+  }
+
+  const resetLayout = () => setLayout({ colWidths: {}, rowHeights: {} })
+
+  const maxHeight = tier === 'xl' || tier === 'lg' ? '36rem' : '40rem'
 
   return (
-    <div
-      className="overflow-auto rounded-md border border-slate-700 bg-slate-950"
-      style={{ maxHeight }}
-      onMouseLeave={() => setHover(null)}
-      onMouseUp={() => setDragging(false)}
-    >
-      <table className="border-collapse" style={{ minWidth: '100%' }}>
-        <thead>
-          {/* Reihe 1: Achsen-Beschriftungen ("Outputs ↓" + "Inputs →") */}
-          <tr>
-            <th
-              className="sticky left-0 top-0 z-30 border-b border-r border-slate-700 bg-slate-900 px-3 py-2 text-left uppercase tracking-wide text-slate-400"
-              style={{ width: labelColPx, minWidth: labelColPx, fontSize: 12, fontWeight: 600 }}
-            >
-              Outputs ↓
-            </th>
-            <th
-              className="sticky top-0 z-20 border-b border-r border-slate-700 bg-slate-900 text-center font-mono text-slate-500"
-              style={{ width: indexColPx, minWidth: indexColPx, fontSize: 11 }}
-              title="Output-Nummer"
-            >
-              #
-            </th>
-            <th
-              className="sticky top-0 z-20 border-b border-slate-700 bg-slate-800/80 px-3 py-2 text-left uppercase tracking-wide text-emerald-300"
-              colSpan={totalInputs}
-              style={{ fontSize: 12, fontWeight: 600 }}
-            >
-              Inputs →
-            </th>
-          </tr>
-
-          {/* Reihe 2: Input-Labels (rotiert, GRUEN) */}
-          <tr>
-            <th
-              className="sticky left-0 top-[2.5rem] z-30 border-r border-slate-700 bg-slate-900"
-              style={{ width: labelColPx, minWidth: labelColPx }}
-            />
-            <th
-              className="sticky top-[2.5rem] z-20 border-r border-slate-700 bg-slate-900"
-              style={{
-                left: labelColPx,
-                width: indexColPx,
-                minWidth: indexColPx,
-              }}
-            />
-            {inputLabels.map((label, i) => (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between text-[11px] text-slate-400">
+        <span>
+          Tipp: rechte Kante einer Spalte / untere Kante einer Zeile ziehen wie in Excel.
+        </span>
+        {(Object.keys(layout.colWidths).length > 0 ||
+          Object.keys(layout.rowHeights).length > 0 ||
+          layout.labelColWidth) && (
+          <button
+            type="button"
+            onClick={resetLayout}
+            className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700"
+          >
+            ↺ Layout zuruecksetzen
+          </button>
+        )}
+      </div>
+      <div
+        className="overflow-auto rounded-md border border-slate-700 bg-slate-950"
+        style={{ maxHeight }}
+        onMouseLeave={() => setHover(null)}
+        onMouseUp={() => setDragging(false)}
+      >
+        <table className="border-collapse" style={{ minWidth: '100%' }}>
+          <thead>
+            {/* Achsenbeschriftungs-Bar */}
+            <tr style={{ height: 32 }}>
               <th
-                key={`lbl-${i}`}
-                className={`sticky top-[2.5rem] z-10 p-0 ${
-                  isGroupStripe(i) ? 'bg-slate-900/80' : 'bg-slate-900'
-                } ${isGroupBreak(i) ? 'border-l border-slate-700' : ''} ${
-                  colHighlight === i ? 'bg-emerald-900/60' : ''
-                }`}
-                style={{ width: cellPx, minWidth: cellPx, height: labelRowHeightRem }}
+                className="sticky left-0 top-0 z-30 border-b border-r border-slate-700 bg-slate-900 px-3 text-left uppercase tracking-wide text-slate-400"
+                style={{ width: labelColW, minWidth: labelColW, fontSize: 12, fontWeight: 600, position: 'relative' }}
               >
+                Outputs ↓
+                {/* Resize-Handle fuer Label-Spalte */}
                 <div
-                  className={`overflow-hidden text-center ${
-                    colHighlight === i ? 'text-emerald-100' : 'text-emerald-300'
-                  }`}
-                  style={{
-                    writingMode: 'vertical-lr',
-                    transform: 'rotate(180deg)',
-                    height: '100%',
-                    padding: '6px 0',
-                    fontSize: labelFontPx,
-                    fontWeight: 500,
-                    letterSpacing: 0.2,
-                    lineHeight: 1.2,
-                  }}
-                  title={inLabelTip[i]}
-                >
-                  {label}
-                </div>
+                  onMouseDown={startLabelResize}
+                  className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize hover:bg-sky-400/60"
+                  title="Label-Spalte breiter/schmaler ziehen"
+                />
               </th>
-            ))}
-          </tr>
-
-          {/* Reihe 3: Input-Index-Nummern (mono, schaerfer) */}
-          <tr>
-            <th
-              className="sticky left-0 z-30 border-b border-r border-slate-700 bg-slate-900 px-3 py-1 text-left uppercase text-slate-500"
-              style={{
-                top: `calc(2.5rem + ${labelRowHeightRem})`,
-                width: labelColPx,
-                minWidth: labelColPx,
-                fontSize: 11,
-              }}
-            >
-              Label
-            </th>
-            <th
-              className="sticky z-20 border-b border-r border-slate-700 bg-slate-900 text-center font-mono text-slate-500"
-              style={{
-                left: labelColPx,
-                top: `calc(2.5rem + ${labelRowHeightRem})`,
-                width: indexColPx,
-                minWidth: indexColPx,
-                fontSize: 11,
-              }}
-            >
-              #
-            </th>
-            {inputLabels.map((_, i) => (
               <th
-                key={`idx-${i}`}
-                className={`sticky z-10 border-b border-slate-700 font-mono text-slate-400 ${
-                  isGroupStripe(i) ? 'bg-slate-900/80' : 'bg-slate-900'
-                } ${isGroupBreak(i) ? 'border-l border-slate-700' : ''} ${
-                  colHighlight === i ? 'bg-emerald-900/60 text-emerald-200' : ''
-                }`}
+                className="sticky top-0 z-20 border-b border-r border-slate-700 bg-slate-900 text-center font-mono text-slate-500"
                 style={{
-                  top: `calc(2.5rem + ${labelRowHeightRem})`,
-                  width: cellPx,
-                  minWidth: cellPx,
-                  textAlign: 'center',
-                  fontSize: indexFontPx,
-                  padding: '2px 0',
+                  left: labelColW,
+                  width: indexColPx,
+                  minWidth: indexColPx,
+                  fontSize: 11,
                 }}
               >
-                {i + 1}
+                #
               </th>
-            ))}
-          </tr>
-        </thead>
-
-        <tbody>
-          {outputLabels.map((outLabel, oi) => {
-            const rowOn = rowHighlight === oi
-            const rowStripe = isGroupStripe(oi)
-            const routedIdx = routing[oi]
-            const groupRowBreak = isGroupBreak(oi)
-            return (
-              <tr
-                key={oi}
-                ref={(el) => { rowRefs.current[oi] = el }}
-                className={`${
-                  rowOn
-                    ? 'bg-red-950/40'
-                    : rowStripe
-                      ? 'bg-slate-900/60 hover:bg-slate-800/60'
-                      : 'hover:bg-slate-800/40'
-                } ${groupRowBreak ? 'border-t border-slate-700' : ''}`}
+              <th
+                className="sticky top-0 z-20 border-b border-slate-700 bg-slate-800/80 px-3 text-left uppercase tracking-wide text-emerald-300"
+                colSpan={totalInputs}
+                style={{ fontSize: 12, fontWeight: 600 }}
               >
-                {/* Output-Label-Zelle: CORAL/ROT, deutlich groesser */}
-                <td
-                  className={`sticky left-0 z-10 truncate border-r border-slate-800 px-3 py-1.5 text-left ${
-                    rowOn
-                      ? 'bg-red-950/70 text-red-100'
-                      : rowStripe
-                        ? 'bg-slate-900/90 text-red-300'
-                        : 'bg-slate-950 text-red-300'
-                  }`}
-                  style={{
-                    maxWidth: labelColPx,
-                    minWidth: labelColPx,
-                    fontSize: labelFontPx,
-                    fontWeight: 500,
-                    letterSpacing: 0.2,
-                  }}
-                  title={outLabelTip[oi]}
-                >
-                  {outLabel}
-                </td>
-                <td
-                  className={`sticky z-10 border-r border-slate-800 text-center font-mono ${
-                    rowOn
-                      ? 'bg-red-950/70 text-red-200'
-                      : rowStripe
-                        ? 'bg-slate-900/95 text-slate-400'
-                        : 'bg-slate-900 text-slate-500'
-                  }`}
-                  style={{
-                    left: labelColPx,
-                    width: indexColPx,
-                    minWidth: indexColPx,
-                    fontSize: indexFontPx,
-                  }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => focusRow(oi)}
-                    className="block w-full py-1 hover:text-emerald-300"
-                    title={`Output ${oi + 1} fokussieren`}
+                Inputs →
+              </th>
+            </tr>
+
+            {/* Input-Label-Reihe — horizontal bei kleinen Hubs, rotiert sonst */}
+            <tr style={{ height: labelRowHeightPx }}>
+              <th
+                className="sticky left-0 z-30 border-r border-slate-700 bg-slate-900"
+                style={{ top: 32, width: labelColW, minWidth: labelColW }}
+              />
+              <th
+                className="sticky z-20 border-r border-slate-700 bg-slate-900"
+                style={{
+                  top: 32,
+                  left: labelColW,
+                  width: indexColPx,
+                  minWidth: indexColPx,
+                }}
+              />
+              {inputLabels.map((label, i) => {
+                const cw = colWidth(i)
+                return (
+                  <th
+                    key={`lbl-${i}`}
+                    className={`sticky z-10 bg-slate-900 ${
+                      isGroupBreak(i) ? 'border-l border-slate-700' : ''
+                    } ${colHighlight === i ? 'bg-emerald-900/60' : ''}`}
+                    style={{
+                      top: 32,
+                      width: cw,
+                      minWidth: cw,
+                      maxWidth: cw,
+                      position: 'sticky',
+                    }}
                   >
-                    {oi + 1}
-                  </button>
-                </td>
-                {inputLabels.map((inLabel, ii) => {
-                  const active = routedIdx === ii
-                  const inCol = colHighlight === ii
-                  const colStripe = isGroupStripe(ii)
-                  const groupBreak = isGroupBreak(ii)
-                  // Hintergrund je nach Crosshair / Group-Stripe.
-                  let tdBg = ''
-                  if (rowOn && inCol) tdBg = 'bg-amber-900/30'
-                  else if (rowOn) tdBg = '' // Row-Tint kommt vom <tr>
-                  else if (inCol) tdBg = 'bg-emerald-900/30'
-                  else if (colStripe) tdBg = 'bg-slate-900/40'
-                  return (
-                    <td
-                      key={ii}
-                      className={`p-0 text-center ${groupBreak ? 'border-l border-slate-800' : ''} ${tdBg}`}
-                      onMouseEnter={() => {
-                        setHover({ row: oi, col: ii })
-                        if (dragging) onRoute(oi, ii)
-                      }}
-                    >
+                    <div style={{ position: 'relative', height: '100%' }}>
+                      {useHorizontalLabels ? (
+                        <div
+                          className={`flex h-full items-center justify-center px-2 text-center ${
+                            colHighlight === i ? 'text-emerald-100' : 'text-emerald-300'
+                          }`}
+                          style={{
+                            fontSize: labelFontPx,
+                            fontWeight: 500,
+                            letterSpacing: 0.2,
+                            lineHeight: 1.2,
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                          title={inLabelTip[i]}
+                        >
+                          {label}
+                        </div>
+                      ) : (
+                        <div
+                          className={`overflow-hidden text-center ${
+                            colHighlight === i ? 'text-emerald-100' : 'text-emerald-300'
+                          }`}
+                          style={{
+                            writingMode: 'vertical-lr',
+                            transform: 'rotate(180deg)',
+                            height: '100%',
+                            padding: '6px 0',
+                            fontSize: labelFontPx,
+                            fontWeight: 500,
+                            letterSpacing: 0.2,
+                            lineHeight: 1.2,
+                          }}
+                          title={inLabelTip[i]}
+                        >
+                          {label}
+                        </div>
+                      )}
+                      {/* Resize-Handle rechts */}
+                      <div
+                        onMouseDown={startColResize(i)}
+                        className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize hover:bg-sky-400/60"
+                        title={`Spalte ${i + 1} breiter/schmaler ziehen`}
+                        style={{ zIndex: 5 }}
+                      />
+                    </div>
+                  </th>
+                )
+              })}
+            </tr>
+
+            {/* Input-Index-Reihe */}
+            <tr style={{ height: 24 }}>
+              <th
+                className="sticky left-0 z-30 border-b border-r border-slate-700 bg-slate-900 px-3 text-left uppercase text-slate-500"
+                style={{
+                  top: 32 + labelRowHeightPx,
+                  width: labelColW,
+                  minWidth: labelColW,
+                  fontSize: 11,
+                }}
+              >
+                Label
+              </th>
+              <th
+                className="sticky z-20 border-b border-r border-slate-700 bg-slate-900 text-center font-mono text-slate-500"
+                style={{
+                  top: 32 + labelRowHeightPx,
+                  left: labelColW,
+                  width: indexColPx,
+                  minWidth: indexColPx,
+                  fontSize: 11,
+                }}
+              >
+                #
+              </th>
+              {inputLabels.map((_, i) => {
+                const cw = colWidth(i)
+                return (
+                  <th
+                    key={`idx-${i}`}
+                    className={`sticky z-10 border-b border-slate-700 bg-slate-900 font-mono text-slate-400 ${
+                      isGroupBreak(i) ? 'border-l border-slate-700' : ''
+                    } ${colHighlight === i ? 'bg-emerald-900/60 text-emerald-200' : ''}`}
+                    style={{
+                      top: 32 + labelRowHeightPx,
+                      width: cw,
+                      minWidth: cw,
+                      maxWidth: cw,
+                      textAlign: 'center',
+                      fontSize: indexFontPx,
+                      padding: '2px 0',
+                    }}
+                  >
+                    {i + 1}
+                  </th>
+                )
+              })}
+            </tr>
+          </thead>
+
+          <tbody>
+            {outputLabels.map((outLabel, oi) => {
+              const rowOn = rowHighlight === oi
+              const routedIdx = routing[oi]
+              const groupRowBreak = isGroupBreak(oi)
+              const rh = rowHeight(oi)
+              return (
+                <tr
+                  key={oi}
+                  ref={(el) => { rowRefs.current[oi] = el }}
+                  className={`${rowOn ? 'bg-red-950/40' : 'hover:bg-slate-800/40'} ${
+                    groupRowBreak ? 'border-t border-slate-700' : ''
+                  }`}
+                  style={{ height: rh }}
+                >
+                  <td
+                    className={`sticky left-0 z-10 truncate border-r border-slate-800 px-3 text-left ${
+                      rowOn ? 'bg-red-950/70 text-red-100' : 'bg-slate-950 text-red-300'
+                    }`}
+                    style={{
+                      width: labelColW,
+                      maxWidth: labelColW,
+                      minWidth: labelColW,
+                      fontSize: labelFontPx,
+                      fontWeight: 500,
+                      letterSpacing: 0.2,
+                      position: 'sticky',
+                    }}
+                    title={outLabelTip[oi]}
+                  >
+                    <div style={{ position: 'relative' }}>
+                      <div className="truncate">{outLabel}</div>
+                      {/* Resize-Handle unten (verschoben weiter unten am tr) */}
+                    </div>
+                  </td>
+                  <td
+                    className={`sticky z-10 border-r border-slate-800 text-center font-mono ${
+                      rowOn ? 'bg-red-950/70 text-red-200' : 'bg-slate-900 text-slate-500'
+                    }`}
+                    style={{
+                      left: labelColW,
+                      width: indexColPx,
+                      minWidth: indexColPx,
+                      fontSize: indexFontPx,
+                      position: 'sticky',
+                    }}
+                  >
+                    <div style={{ position: 'relative', height: '100%' }}>
                       <button
                         type="button"
-                        onMouseDown={(e) => {
-                          e.preventDefault()
-                          setDragging(true)
-                          onRoute(oi, ii)
-                        }}
-                        title={`${outLabelTip[oi]} ← ${inLabelTip[ii]} (klick + ziehen fuer 1:1-Routing)`}
-                        aria-label={`Set Output ${oi + 1} (${outLabel}) to Input ${ii + 1} (${inLabel})`}
-                        className={
-                          active
-                            ? 'mx-auto my-1 block rounded-sm bg-emerald-400 shadow-[0_0_8px_rgba(74,222,128,0.85)] ring-1 ring-emerald-200/70'
-                            : rowOn && inCol
-                              ? 'mx-auto my-1 block rounded-sm bg-amber-400/70 hover:bg-amber-300'
-                              : rowOn
-                                ? 'mx-auto my-1 block rounded-sm bg-red-400/60 hover:bg-red-300'
-                                : inCol
-                                  ? 'mx-auto my-1 block rounded-sm bg-emerald-500/60 hover:bg-emerald-400'
-                                  : 'mx-auto my-1 block rounded-sm bg-slate-700/80 hover:bg-slate-500'
-                        }
-                        style={{ width: cellPx - 6, height: cellPx - 6 }}
+                        onClick={() => focusRow(oi)}
+                        className="block w-full hover:text-emerald-300"
+                        title={`Output ${oi + 1} fokussieren`}
+                      >
+                        {oi + 1}
+                      </button>
+                      {/* Resize-Handle unten — auf der Index-Cell weil sie immer da ist */}
+                      <div
+                        onMouseDown={startRowResize(oi)}
+                        className="absolute bottom-0 left-0 h-1.5 w-full cursor-row-resize hover:bg-sky-400/60"
+                        title={`Zeile ${oi + 1} hoeher/niedriger ziehen`}
                       />
-                    </td>
-                  )
-                })}
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+                    </div>
+                  </td>
+                  {inputLabels.map((inLabel, ii) => {
+                    const active = routedIdx === ii
+                    const inCol = colHighlight === ii
+                    const groupBreak = isGroupBreak(ii)
+                    let tdBg = ''
+                    if (rowOn && inCol) tdBg = 'bg-amber-900/30'
+                    else if (inCol) tdBg = 'bg-emerald-900/30'
+                    const cw = colWidth(ii)
+                    return (
+                      <td
+                        key={ii}
+                        className={`p-0 text-center ${groupBreak ? 'border-l border-slate-800' : ''} ${tdBg}`}
+                        style={{ width: cw, minWidth: cw, maxWidth: cw }}
+                        onMouseEnter={() => {
+                          setHover({ row: oi, col: ii })
+                          if (dragging) onRoute(oi, ii)
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onMouseDown={(e) => {
+                            e.preventDefault()
+                            setDragging(true)
+                            onRoute(oi, ii)
+                          }}
+                          title={`${outLabelTip[oi]} ← ${inLabelTip[ii]} (klick + ziehen fuer 1:1-Routing)`}
+                          aria-label={`Set Output ${oi + 1} (${outLabel}) to Input ${ii + 1} (${inLabel})`}
+                          className={
+                            active
+                              ? 'mx-auto block rounded-sm bg-emerald-400 shadow-[0_0_8px_rgba(74,222,128,0.85)] ring-1 ring-emerald-200/70'
+                              : rowOn && inCol
+                                ? 'mx-auto block rounded-sm bg-amber-400/70 hover:bg-amber-300'
+                                : rowOn
+                                  ? 'mx-auto block rounded-sm bg-red-400/60 hover:bg-red-300'
+                                  : inCol
+                                    ? 'mx-auto block rounded-sm bg-emerald-500/60 hover:bg-emerald-400'
+                                    : 'mx-auto block rounded-sm bg-slate-700/80 hover:bg-slate-500'
+                          }
+                          style={{
+                            width: Math.min(cw - 8, rh - 10),
+                            height: Math.min(cw - 8, rh - 10),
+                          }}
+                        />
+                      </td>
+                    )
+                  })}
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
