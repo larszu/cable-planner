@@ -67,20 +67,20 @@ export const LocationFrameNode = memo(({ id, data, selected }: NodeProps<Locatio
       <div
         style={{
           position: 'absolute',
-          top: -11,
+          top: -22,
           left: 12,
-          padding: '0 6px',
+          padding: '0 12px',
           background: isLight ? '#dde4ee' : '#0f172a',
           color,
-          fontSize: 12,
+          fontSize: 24,
           fontStyle: 'italic',
           fontWeight: 600,
-          letterSpacing: 0.3,
+          letterSpacing: 0.6,
           userSelect: 'none',
           pointerEvents: 'all',
           display: 'inline-flex',
           alignItems: 'center',
-          gap: 4,
+          gap: 8,
           cursor: 'pointer',
           opacity: locked ? 0.7 : 1,
         }}
@@ -112,16 +112,16 @@ export const LocationFrameNode = memo(({ id, data, selected }: NodeProps<Locatio
             display: 'inline-flex',
             alignItems: 'center',
             lineHeight: 1,
-            fontSize: 12,
+            fontSize: 24,
           }}
         >
           {locked ? (
-            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="3" y="7" width="10" height="7" rx="1" fill="currentColor" fillOpacity="0.25" />
               <path d="M5 7V4.5a3 3 0 0 1 6 0V7" />
             </svg>
           ) : (
-            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.6">
+            <svg width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.6">
               <rect x="3" y="7" width="10" height="7" rx="1" />
               <path d="M5 7V4.5a3 3 0 0 1 6 0V6" />
             </svg>
