@@ -46,6 +46,7 @@ import { exportCanvasToPdfVector } from './lib/exportPdfVector'
 import { printPdfBlob } from './lib/printPdfBlob'
 import { exportCanvasToImage } from './lib/exportImage'
 import { connectorToCableType } from './lib/cableInheritance'
+import { routeCable } from './lib/canvasViewport'
 import { useProjectStore } from './store/projectStore'
 import {
   scanLibraryFolder,
@@ -717,7 +718,31 @@ export default function App() {
         }
       }
     }
+    // v7.9.128 — Snapshot der Waypoints VOR createCableFromPending,
+    // weil die Action pendingWaypoints sofort zurueck auf undefined
+    // setzt. Wir brauchen den Vorher-Stand um zu entscheiden ob das
+    // Kabel auto-A*-geroutet werden soll oder ob der User schon manuell
+    // Wegpunkte gesetzt hat.
+    const hadManualWaypoints =
+      (stateBefore.pendingWaypoints?.length ?? 0) > 0
     createCableFromPending(draft)
+    // v7.9.128 — Auto-A*-Routing fuer einfaches Cable-Erstellen
+    // (Drag oder Click-Click ohne Wegpunkte) gemaess User-Request:
+    // "Wenn man nur Start und Ziel anklickt, soll automatisch mit A*
+    //  geroutet werden". Doppelter rAF damit ReactFlow den neuen Edge
+    // gemessen hat und die Equipment-Bounding-Boxes stabil sind — sonst
+    // hat A* keine validen Obstacle-Rects (Pattern aus
+    // RackInternalCanvas.tsx v7.9.118).
+    if (!hadManualWaypoints) {
+      const newCable = useProjectStore.getState().project.cables.slice(-1)[0]
+      if (newCable) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            routeCable(newCable.id)
+          })
+        })
+      }
+    }
     const plan = useProjectStore.getState().project.metadata.rentmanCablePlan
     if (!plan) return
     const key = `${draft.type}|${draft.length}`
