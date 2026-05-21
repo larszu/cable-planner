@@ -1058,7 +1058,7 @@ const PdfExportDialog = ({
                 onChange={() => onVectorChange(true)}
               />
               <span>
-                Vektor (Beta)
+                Vektor
                 <span className="block text-[10px] text-slate-500">
                   Chromium printToPDF. Text bleibt selektierbar &amp; scharf bei
                   jedem Zoom. Kleinere Dateigröße.
