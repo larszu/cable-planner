@@ -25,18 +25,38 @@ interface Props {
   outputLabelParts?: LabelPart[]
 }
 
-/** Rendert einen LabelPart mit Farb-Kodierung der Suffixe. */
-const renderLabelPart = (part: LabelPart) => (
-  <>
-    <span>{part.port}</span>
+/** Strippt die fuehrende Port-Nummer ("1 SDI In CAM 1" -> "SDI In
+ *  CAM 1"). Die Nummer wird in der Matrix sowieso schon in der
+ *  separaten Index-Zeile/-Spalte angezeigt — im Label-Text waere sie
+ *  Dopplung. Canvas + andere Anzeigen behalten weiter den vollen
+ *  Namen, das passiert nur fuer die Matrix-Darstellung. */
+const stripLeadingNumber = (s: string): string => s.replace(/^\d+\s+/, '')
+
+/** Rendert einen LabelPart als 3-zeiligen Stack:
+ *    Zeile 1: Port-Name (ohne fuehrende Nummer)        — slate
+ *    Zeile 2: ← / → Verbundenes Geraet (Verkabelung)   — sky
+ *    Zeile 3: · Port-Name am anderen Ende (Input-Label) — emerald
+ *  Die drei Zeilen entsprechen 1:1 den drei Daten-Quellen: Port-Name,
+ *  Verkabelung-Toggle, Input-Label-Toggle. Color-Konvention identisch
+ *  zu den Toggle-Buttons damit der User auf einen Blick sieht welche
+ *  Zeile zu welchem Toggle gehoert.
+ *  `arrow` ist '→' fuer Outputs (Output -> Destination), '←' fuer
+ *  Inputs (Input <- Source). */
+const renderLabelPart = (part: LabelPart, arrow: '←' | '→' = '←') => (
+  <div className="flex w-full flex-col items-center text-center leading-tight">
+    <span className="block truncate w-full">{stripLeadingNumber(part.port)}</span>
     {part.connDevice && (
-      <span className="text-sky-300"> ← {part.connDevice}</span>
+      <span className="block truncate w-full text-sky-300 text-[0.92em]">
+        {arrow} {part.connDevice}
+      </span>
     )}
     {part.connPort && (
-      <span className="text-emerald-300"> · {part.connPort}</span>
+      <span className="block truncate w-full text-emerald-300 text-[0.85em]">
+        · {part.connPort}
+      </span>
     )}
     {part.lockBadge && <span>{part.lockBadge}</span>}
-  </>
+  </div>
 )
 
 /**
@@ -175,17 +195,24 @@ export const VideohubRoutingMatrix = ({
   // passen ohne Mid-Word-Truncation.
   const defaultCellW =
     tier === 'xl' ? 150 : tier === 'lg' ? 120 : tier === 'md' ? 80 : tier === 'sm' ? 14 : 10
+  // v7.9.131 — Default-Hoehe der Output-Zeilen anhoeben damit 3-zeilige
+  // Labels (Port-Name / Verbundenes-Geraet / Verbundener-Port) ohne
+  // Overflow reinpassen. Bei Sm/Xs-Tiers (sehr grosse Hubs) bleibt
+  // es klein, da werden die Labels rotiert/verkleinert ohnehin nicht
+  // 3-zeilig.
   const defaultRowH =
-    tier === 'xl' ? 36 : tier === 'lg' ? 32 : tier === 'md' ? 28 : tier === 'sm' ? 16 : 12
+    tier === 'xl' ? 64 : tier === 'lg' ? 56 : tier === 'md' ? 44 : tier === 'sm' ? 16 : 12
   const labelFontPx = tier === 'xl' ? 13 : tier === 'lg' ? 12 : tier === 'md' ? 11 : tier === 'sm' ? 9 : 8
   const indexFontPx = Math.max(labelFontPx - 1, 8)
   const defaultLabelColW =
     tier === 'xl' ? 240 : tier === 'lg' ? 200 : tier === 'md' ? 160 : 120
   const indexColPx = tier === 'xl' ? 42 : tier === 'lg' ? 36 : 28
   const labelColW = layout.labelColWidth ?? defaultLabelColW
-  // Hoehe der Header-Reihe fuer Input-Labels — bei horizontalem
-  // Layout etwas mehr Hoehe damit 2-Zeilen-Labels (wrap) Platz haben.
-  const labelRowHeightPx = useHorizontalLabels ? 56 : tier === 'sm' ? 110 : 80
+  // Hoehe der Header-Reihe fuer Input-Labels. Horizontal-Layout:
+  // 3-zeilige Labels (Port / ← Geraet / · Port-Name). Brauche genug
+  // Vertikalraum dafuer. Rotated: weniger (eine logische Zeile, dafuer
+  // Wrap und vertikal).
+  const labelRowHeightPx = useHorizontalLabels ? 84 : tier === 'sm' ? 110 : 80
 
   const colWidth = (i: number) => layout.colWidths[i] ?? defaultCellW
   const rowHeight = (i: number) => layout.rowHeights[i] ?? defaultRowH
@@ -515,7 +542,7 @@ export const VideohubRoutingMatrix = ({
                     <div style={{ position: 'relative' }}>
                       <div className="truncate">
                         {outputLabelParts?.[oi]
-                          ? renderLabelPart(outputLabelParts[oi])
+                          ? renderLabelPart(outputLabelParts[oi], '→')
                           : outLabel}
                       </div>
                     </div>
