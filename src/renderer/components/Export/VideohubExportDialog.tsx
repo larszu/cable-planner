@@ -161,6 +161,27 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   const [sendStatus, setSendStatus] = useState<SendStatus>('idle')
   const [sendMessage, setSendMessage] = useState('')
 
+  // Issue #248 — mDNS-Auto-Discovery (Bonjour). User klickt "Suchen",
+  // wir scannen 3 s lang auf _blackmagic._tcp und filtern auf Videohubs.
+  type DiscoveredVh = { name: string; ip: string; port: number; model?: string }
+  const [discovering, setDiscovering] = useState(false)
+  const [discovered, setDiscovered] = useState<DiscoveredVh[] | null>(null)
+  const handleDiscover = async () => {
+    if (!hasDesktopBridge) return
+    setDiscovering(true)
+    setDiscovered(null)
+    try {
+      const list = await cablePlannerApi.videohub.discover({ timeoutMs: 3000 })
+      setDiscovered(list)
+      logEvent(`Discovery: ${list.length} Videohub(s) gefunden`, list.length > 0)
+    } catch (err) {
+      logEvent(`Discovery: Fehler — ${err instanceof Error ? err.message : String(err)}`, false)
+      setDiscovered([])
+    } finally {
+      setDiscovering(false)
+    }
+  }
+
   // v7.9.128 — VideoHubSim-inspired UI-Features:
   //
   // 1) Activity-Log: jede Sende-Aktion (Routing-Push, Salvo-Apply,
@@ -935,6 +956,15 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               </label>
               <button
                 type="button"
+                onClick={() => { void handleDiscover() }}
+                disabled={!hasDesktopBridge || discovering}
+                title="Videohubs im lokalen Netz via mDNS/Bonjour suchen (3 s Scan)."
+                className="rounded bg-teal-700 px-3 py-1.5 text-xs hover:bg-teal-600 disabled:opacity-40"
+              >
+                {discovering ? '🔍 Suche…' : '🔍 Suchen'}
+              </button>
+              <button
+                type="button"
                 onClick={() => { void handleReadState() }}
                 disabled={!device || !hasDesktopBridge || readingState}
                 title="Aktuellen Hub-Status holen: Labels + Routing + Locks. Routing wird in die Matrix uebernommen, Labels in den Spalten/Zeilen angezeigt."
@@ -943,6 +973,48 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 {readingState ? '⏳ Laden…' : '⬇ Status laden'}
               </button>
             </div>
+            {/* Issue #248 — Ergebnisliste der Discovery. Klick auf einen
+                Eintrag uebernimmt IP+Port in die Eingabefelder. */}
+            {discovered !== null && (
+              <div className="mt-2 rounded border border-teal-800 bg-teal-950/30 p-2 text-xs">
+                {discovered.length === 0 ? (
+                  <div className="text-slate-400">
+                    Kein Videohub per mDNS gefunden. (Firewalls oder andere Subnetze
+                    blocken Bonjour — dann IP manuell eintragen.)
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    <div className="mb-1 text-[10px] uppercase tracking-wide text-teal-300">
+                      Gefunden ({discovered.length}) — Klick uebernimmt IP/Port
+                    </div>
+                    {discovered.map((d) => (
+                      <button
+                        key={`${d.ip}:${d.port}`}
+                        type="button"
+                        onClick={() => {
+                          setVhHost(d.ip)
+                          setVhPort(String(d.port))
+                          setSendStatus('idle')
+                        }}
+                        className="flex items-center justify-between gap-2 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-left hover:border-teal-500 hover:bg-slate-800"
+                      >
+                        <span className="truncate font-semibold text-slate-100">
+                          {d.name}
+                          {d.model && (
+                            <span className="ml-1 text-[10px] font-normal text-slate-400">
+                              · {d.model}
+                            </span>
+                          )}
+                        </span>
+                        <span className="shrink-0 font-mono text-slate-300">
+                          {d.ip}:{d.port}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             {/* v7.9.128 — Drei getrennte Push-Buttons. User kann nur
                 Labels oder nur Routing oder beides zusammen pushen. */}
             <div className="mt-2 flex flex-wrap gap-2">
