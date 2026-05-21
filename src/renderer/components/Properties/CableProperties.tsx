@@ -339,41 +339,44 @@ export const CableProperties = () => {
           <span className="text-slate-300">Label Position</span>
         </div>
         {(() => {
+          // Issue #234 — kein extra "Aus"-Button mehr. Wenn keine
+          // der drei Positionen aktiv ist, ist das Label ausgeblendet
+          // (labelPosition='none'). Klick auf aktiven Toggle deaktiviert
+          // ihn → Label verschwindet.
           const isHidden = cable.labelPosition === 'none'
           const activePos = cable.labelPosition ?? 'center'
           const positions = [
             { id: 'source' as const, label: '← Start' },
             { id: 'center' as const, label: 'Mitte' },
             { id: 'target' as const, label: 'End →' },
-            { id: 'none' as const, label: '∅ Aus' },
           ]
           return (
             <>
               <div className="flex gap-1">
                 {positions.map((p) => {
                   const isActive =
-                    p.id === 'none'
-                      ? isHidden
-                      : !isHidden && cable.labelT === undefined && activePos === p.id
+                    !isHidden && cable.labelT === undefined && activePos === p.id
                   return (
                     <button
                       key={p.id}
                       type="button"
                       onClick={() =>
                         updateCable(cable.id, {
-                          labelPosition: p.id,
-                          // labelT reset wenn explizite Position gewaehlt
-                          // wird; 'none' braucht's auch nicht.
+                          // Toggle: wenn schon aktiv → deaktivieren
+                          // (labelPosition='none' = Label aus).
+                          labelPosition: isActive ? 'none' : p.id,
                           labelT: undefined,
-                          // Legacy labelHidden raeumen
                           labelHidden: undefined,
                         })
                       }
+                      title={
+                        isActive
+                          ? `${p.label} — Klick zum Ausblenden des Labels`
+                          : `${p.label}`
+                      }
                       className={`flex-1 rounded border px-2 py-1 text-xs ${
                         isActive
-                          ? p.id === 'none'
-                            ? 'border-slate-500 bg-slate-700 text-slate-100'
-                            : 'border-sky-500 bg-sky-800 text-white'
+                          ? 'border-sky-500 bg-sky-800 text-white'
                           : 'border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800'
                       }`}
                     >
@@ -382,6 +385,12 @@ export const CableProperties = () => {
                   )
                 })}
               </div>
+              {isHidden && (
+                <p className="mt-1 text-[10px] text-slate-500">
+                  Label ausgeblendet — Klick auf eine der drei Positionen
+                  zeigt es wieder an.
+                </p>
+              )}
               <div className={`mt-2 flex items-center gap-2 text-[11px] ${isHidden ? 'opacity-40' : ''}`}>
                 <span className="text-slate-500">Slider:</span>
                 <input
