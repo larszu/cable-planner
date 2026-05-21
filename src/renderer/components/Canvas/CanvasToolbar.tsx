@@ -394,6 +394,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         setDefaultArrow={setDefaultArrow}
         cableBumps={cableBumps}
         setCableBumps={setCableBumps}
+        hideAllCableLabels={hideAllCableLabels}
+        setHideAllCableLabels={setHideAllCableLabels}
         colorPortsByType={colorPortsByType}
         setColorPortsByType={setColorPortsByType}
         cableColorMode={cableColorMode}
@@ -938,6 +940,8 @@ const DefaultsMenu = ({
   setDefaultArrow,
   cableBumps,
   setCableBumps,
+  hideAllCableLabels,
+  setHideAllCableLabels,
   colorPortsByType,
   setColorPortsByType,
   cableColorMode,
@@ -964,6 +968,8 @@ const DefaultsMenu = ({
   setDefaultArrow: (v: boolean) => void
   cableBumps: boolean
   setCableBumps: (v: boolean) => void
+  hideAllCableLabels: boolean
+  setHideAllCableLabels: (v: boolean) => void
   colorPortsByType: boolean
   setColorPortsByType: (v: boolean) => void
   cableColorMode: 'manual' | 'byLength'
