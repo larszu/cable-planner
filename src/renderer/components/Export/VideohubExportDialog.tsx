@@ -91,6 +91,30 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
       /* ignore */
     }
   }
+  // v7.9.130 — Zusatztoggle "Input-Label" (nur wirksam wenn Verkabelung
+  // an). Wenn an: zeigt zusaetzlich den Port-Namen am angeschlossenen
+  // Geraet, also "PortName ← DeviceName · DeviceInPort" statt nur
+  // "PortName ← DeviceName". Hilft bei Geraeten mit vielen
+  // gleichartigen Ports (z.B. ATEM-Outputs) das richtige zu finden.
+  const [showConnectionPorts, setShowConnectionPorts] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('cable-planner.videohub.show-connection-ports') === 'on'
+    } catch {
+      return false
+    }
+  })
+  const toggleShowConnectionPorts = () => {
+    const next = !showConnectionPorts
+    setShowConnectionPorts(next)
+    try {
+      sessionStorage.setItem(
+        'cable-planner.videohub.show-connection-ports',
+        next ? 'on' : 'off',
+      )
+    } catch {
+      /* ignore */
+    }
+  }
   const setAndPersistRoutingView = (v: 'matrix' | 'list') => {
     setRoutingView(v)
     try {
@@ -579,6 +603,28 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               >
                 {showConnections ? '🔗 Verkabelung an' : '🔗 Verkabelung aus'}
               </button>
+              {/* v7.9.130 — Zusatztoggle "Input-Label" (Port-Name am
+                  angeschlossenen Geraet). Nur sichtbar wenn
+                  Verkabelung-Toggle an ist — ohne Connection-Info gibt
+                  es keinen Port am anderen Ende zum Anzeigen. */}
+              {showConnections && (
+                <button
+                  type="button"
+                  onClick={toggleShowConnectionPorts}
+                  title={
+                    showConnectionPorts
+                      ? 'Port-Namen der angeschlossenen Geraete ausblenden'
+                      : 'Port-Namen der angeschlossenen Geraete einblenden'
+                  }
+                  className={`rounded border px-2 py-1 text-xs ${
+                    showConnectionPorts
+                      ? 'border-sky-700 bg-sky-900/40 text-sky-200'
+                      : 'border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800'
+                  }`}
+                >
+                  {showConnectionPorts ? '· Input-Label an' : '· Input-Label aus'}
+                </button>
+              )}
               {/* v7.9.119 / Issue #237 — Smart-Routing Vorschlag aus
                   Canvas-Verbindungen. Heuristik: pro Output das beste
                   Token-Match in den Input-Sources. Fallback: Diagonal. */}
@@ -604,14 +650,28 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               // Liste durchreichen. Hub-Labels gewinnen wenn vom Hub
               // geladen ("Status laden"). Sonst Canvas-Port-Name +
               // (wenn verkabelt) die Source/Dest aus dem Canvas.
+              // v7.9.130 — Connection-Suffix-Builder:
+              //   showConnections=off → kein Suffix (nur Port-Name)
+              //   showConnections=on, showConnectionPorts=off → "← DeviceName"
+              //   showConnections=on, showConnectionPorts=on  → "← DeviceName · DevicePort"
+              const connSuffix = (
+                arrow: '←' | '→',
+                deviceName: string,
+                devicePort: string,
+              ) => {
+                if (!showConnections) return ''
+                if (showConnectionPorts && devicePort && devicePort !== '?') {
+                  return ` ${arrow} ${deviceName} · ${devicePort}`
+                }
+                return ` ${arrow} ${deviceName}`
+              }
               const inputLabelArr = Array.from({ length: preset.inputs }, (_, i) => {
                 const hubLabel = hubState?.inputLabels?.[i]
                 if (hubLabel) return hubLabel
                 const portName = device?.inputs[i]?.name ?? `In ${i + 1}`
                 const conn = connections.inputConn.get(i)
-                // v7.9.130 — Connection-Suffix nur wenn Toggle an.
-                return conn && showConnections
-                  ? `${portName} ← ${conn.sourceName}`
+                return conn
+                  ? `${portName}${connSuffix('←', conn.sourceName, conn.portName)}`
                   : portName
               })
               const outputLabelArr = Array.from({ length: preset.outputs }, (_, i) => {
@@ -626,8 +686,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 if (hubLabel) return `${hubLabel}${lockBadge}`
                 const portName = device?.outputs[i]?.name ?? `Out ${i + 1}`
                 const conn = connections.outputConn.get(i)
-                return conn && showConnections
-                  ? `${portName} → ${conn.destName}${lockBadge}`
+                return conn
+                  ? `${portName}${connSuffix('→', conn.destName, conn.portName)}${lockBadge}`
                   : `${portName}${lockBadge}`
               })
               const onRoute = (output: number, input: number) =>
