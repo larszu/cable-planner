@@ -86,6 +86,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const canvasBgImageLight = useUiStore((state) => state.canvasBgImageLight)
   const canvasBgImageFit = useUiStore((state) => state.canvasBgImageFit)
   const cableColorMode = useUiStore((state) => state.cableColorMode)
+  const cableLabelShortForm = useUiStore((state) => state.cableLabelShortForm)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
   const pendingCable = useUiStore((state) => state.pendingCable)
@@ -538,22 +539,24 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           style: { stroke: strokeColor, strokeWidth: item.strokeWidth ?? 2.5, strokeDasharray: dashArray },
           data: { cable: item, exportThemeOverride: pdfExportThemeOverride },
           label: (() => {
-            // Issue #240 — kuerzere Kabel-Label-Texte:
-            // "SDI 3G (1080p50/60) (1m)" -> "SDI 3G (1m)". Format-
-            // Suffix in Klammern (Pattern (NNNpNN[/NN]) o.ae.) wird
-            // aus dem Anzeige-Namen entfernt, weil's eher um's Kabel
-            // geht als um's Signal. Voller Name + Standard sieht der
-            // User weiter in den Eigenschaften.
-            const shortName = item.name.replace(
-              /\s*\(\d{2,4}[pi]\d{2,3}(?:\/\d{2,3})?\)/gi,
-              '',
-            ).trim()
-            const base = `${shortName} (${item.length}m)`
+            // Issue #240 — Kabel-Label-Anzeige, kurz oder lang.
+            // ShortForm (Default an): Format-Suffix in Klammern
+            // (Pattern (NNNpNN[/NN]) o.ae.) wird aus dem Anzeige-Namen
+            // entfernt, "SDI 3G (1080p50/60) (1m)" -> "SDI 3G (1m)".
+            // Toggle ueber Toolbar (Defaults-Menue). Voller Name +
+            // Standard sieht der User weiter in den Eigenschaften.
+            const displayName = cableLabelShortForm
+              ? item.name.replace(
+                  /\s*\(\d{2,4}[pi]\d{2,3}(?:\/\d{2,3})?\)/gi,
+                  '',
+                ).trim()
+              : item.name
+            const base = `${displayName} (${item.length}m)`
             return item.needsConverter ? `${base} ⚠ converter` : base
           })(),
         }
       }),
-    [project.cables, cableColorMode, pdfExportThemeOverride],
+    [project.cables, cableColorMode, cableLabelShortForm, pdfExportThemeOverride],
   )
 
   // Helper: check if equipment position overlaps with others.

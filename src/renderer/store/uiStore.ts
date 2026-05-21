@@ -147,6 +147,11 @@ interface PersistedUiState {
    *  Leerer Eintrag = kein Override, Theme-Default greift. Stored als
    *  sparses Mapping damit localStorage nicht aufgeblaeht wird. */
   categoryColors: Record<string, string>
+  /** Issue #240 — Kuerzere Kabel-Label-Darstellung. true (Default) entfernt
+   *  beim Render aus dem Anzeige-Namen Format-Suffixe wie "(1080p50/60)";
+   *  false zeigt den vollen Namen wieder.
+   *  Wirkt rein visuell — gespeicherter Kabel.name bleibt unangetastet. */
+  cableLabelShortForm: boolean
   /** v7.9.59 — Geräte-Karten-Farben pro Theme. User-anpassbar in
    *  Settings → Geräte-Darstellung. Defaults sind so gewählt dass die
    *  Karten optisch klar vom Canvas-Hintergrund abstehen (kontrastreich)
@@ -285,6 +290,7 @@ const defaults: PersistedUiState = {
   annotationAuthor: '',
   connectorTypeColors: {},
   categoryColors: {},
+  cableLabelShortForm: true,
   equipmentColors: {
     light: { ...DEFAULT_EQUIPMENT_COLORS_LIGHT },
     dark: { ...DEFAULT_EQUIPMENT_COLORS_DARK },
@@ -568,6 +574,7 @@ interface UiState extends PersistedUiState {
   resetConnectorTypeColors: () => void
   setCategoryColor: (category: string, color: string | null) => void
   resetCategoryColors: () => void
+  setCableLabelShortForm: (value: boolean) => void
   setEquipmentColors: (theme: 'light' | 'dark', patch: Partial<EquipmentColorTokens>) => void
   resetEquipmentColors: (theme?: 'light' | 'dark') => void
   setDefaultDeviceColor: (color: string | undefined) => void
@@ -809,6 +816,7 @@ const applyPatch =
       annotationAuthor: state.annotationAuthor,
       connectorTypeColors: state.connectorTypeColors,
       categoryColors: state.categoryColors,
+      cableLabelShortForm: state.cableLabelShortForm,
       equipmentColors: state.equipmentColors,
       defaultDeviceColor: state.defaultDeviceColor,
       bgVariant: state.bgVariant,
@@ -878,6 +886,7 @@ export const useUiStore = create<UiState>((set) => ({
       return applyPatch({ categoryColors: next })(state)
     }),
   resetCategoryColors: () => set(applyPatch({ categoryColors: {} })),
+  setCableLabelShortForm: (value) => set(applyPatch({ cableLabelShortForm: value })),
   setEquipmentColors: (theme, patch) =>
     set((state) => {
       const next = {
