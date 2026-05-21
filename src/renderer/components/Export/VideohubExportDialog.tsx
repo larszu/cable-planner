@@ -386,11 +386,26 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
    *  2. Wenn kein Match: Diagonal (Output N → Input N % totalInputs).
    *  Trifft nicht perfekt aber gibt einen sinnvollen Startpunkt — der
    *  User justiert per Matrix nach. */
-  const tokensOf = (name: string): string[] =>
-    name
+  // #237 — Token-Extraction. Wir splitten zusaetzlich an Letter/Digit-
+  // Grenzen damit "DSM1, DSM2, DSM3" alle das Token "dsm" + "1/2/3"
+  // produzieren — dann matched ATEM-Input "DSM" auf alle drei Outputs.
+  // Sonst waeren "dsm1" und "dsm" gar nicht als Treffer erkannt.
+  const tokensOf = (name: string): string[] => {
+    const raw = name
       .toLowerCase()
       .split(/[^a-z0-9äöüß]+/)
-      .filter((t) => t.length >= 2)
+      .filter((t) => t.length >= 1)
+    const out = new Set<string>()
+    for (const t of raw) {
+      if (t.length >= 2) out.add(t)
+      // Letter-Cluster trennen ("dsm1" -> "dsm" + "1").
+      const parts = t.match(/[a-zäöüß]+|\d+/gi) ?? []
+      for (const p of parts) {
+        if (p.length >= 2) out.add(p.toLowerCase())
+      }
+    }
+    return [...out]
+  }
   const generateSmartRouting = () => {
     const next: Record<number, number> = {}
     for (let outIdx = 0; outIdx < preset.outputs; outIdx++) {
