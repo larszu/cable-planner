@@ -318,6 +318,14 @@ export interface EquipmentItem {
   resolution?: string
   /** Display diagonal size in inches (monitors / displays). */
   displaySizeInch?: number
+  /** v7.9.131 / Issue #216 — Physische Geraete-Dimensionen in mm
+   *  (Hoehe × Breite × Tiefe). Optional, nur zur Information / fuer
+   *  spaetere 3D-Rack-Layouts. Bei Rack-Geraeten ist rackUnits die
+   *  autoritative Hoehen-Quelle; dimensionHmm ist da redundant aber
+   *  erlaubt eine genauere Angabe (z.B. fuer halb-HE Geraete). */
+  dimensionHmm?: number
+  dimensionWmm?: number
+  dimensionDmm?: number
   /**
    * Optional single emoji or 1-2 character glyph rendered in the top-left
    * corner of the equipment node (issue #46). Lets users tag categories of
