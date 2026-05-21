@@ -37,6 +37,17 @@ export interface Port {
    *  seinen originalName zurueckgesetzt, der vom User vergebene Name
    *  wandert mit dem Kabel auf den neuen Port. */
   originalName?: string
+  /** v7.9.130 / Issue #251 — Anzeige-Nummer unabhaengig vom Label.
+   *  Default ist die Position im Array (1-basiert), kann aber pro
+   *  Port ueberschrieben werden. Anwendungsfaelle:
+   *  - User loescht Port 3 — die uebrigen behalten ihre Original-
+   *    Nummern (4 wird nicht zu 3).
+   *  - Videohub-Hardware ist anders nummeriert als unser Slot-Array.
+   *  - Doppelte Nummern werden vermeidbar weil der User explizit
+   *    festlegt, was angezeigt wird.
+   *  WICHTIG: Das Wire-Protokoll (Videohub, ATEM) nutzt weiter den
+   *  Array-Index — `portNumber` ist nur fuer die ANZEIGE. */
+  portNumber?: number
   /** v7.9.124 / Bug-2 + Bug-3 — Optionale ATEM-Source-ID-Ueberschreibung.
    *  Wenn gesetzt: dieser CP-Port wird im MV-Config-Dialog mit dieser
    *  Source-ID adressiert (statt idx+1). Ermoeglicht offline-Setup
