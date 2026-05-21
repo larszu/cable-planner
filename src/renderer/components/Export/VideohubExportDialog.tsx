@@ -604,9 +604,10 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 {showConnections ? '🔗 Verkabelung an' : '🔗 Verkabelung aus'}
               </button>
               {/* v7.9.130 — Zusatztoggle "Input-Label" (Port-Name am
-                  angeschlossenen Geraet). Nur sichtbar wenn
-                  Verkabelung-Toggle an ist — ohne Connection-Info gibt
-                  es keinen Port am anderen Ende zum Anzeigen. */}
+                  angeschlossenen Geraet). Andere Farb-Palette als
+                  Verkabelung-Toggle damit User auf einen Blick sieht
+                  dass das zwei unabhaengige Toggles sind: Verkabelung
+                  -> sky, Input-Label -> emerald. */}
               {showConnections && (
                 <button
                   type="button"
@@ -618,7 +619,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   }
                   className={`rounded border px-2 py-1 text-xs ${
                     showConnectionPorts
-                      ? 'border-sky-700 bg-sky-900/40 text-sky-200'
+                      ? 'border-emerald-700 bg-emerald-900/40 text-emerald-200'
                       : 'border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800'
                   }`}
                 >
@@ -650,31 +651,24 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               // Liste durchreichen. Hub-Labels gewinnen wenn vom Hub
               // geladen ("Status laden"). Sonst Canvas-Port-Name +
               // (wenn verkabelt) die Source/Dest aus dem Canvas.
-              // v7.9.130 — Connection-Suffix-Builder:
-              //   showConnections=off → kein Suffix (nur Port-Name)
-              //   showConnections=on, showConnectionPorts=off → "← DeviceName"
-              //   showConnections=on, showConnectionPorts=on  → "← DeviceName · DevicePort"
-              const connSuffix = (
-                arrow: '←' | '→',
-                deviceName: string,
-                devicePort: string,
-              ) => {
-                if (!showConnections) return ''
-                if (showConnectionPorts && devicePort && devicePort !== '?') {
-                  return ` ${arrow} ${deviceName} · ${devicePort}`
-                }
-                return ` ${arrow} ${deviceName}`
-              }
-              const inputLabelArr = Array.from({ length: preset.inputs }, (_, i) => {
+              // v7.9.130 — Connection-Suffix-Builder + parallel
+              // strukturierte Parts fuer farb-kodierte Anzeige.
+              const inputLabelParts = Array.from({ length: preset.inputs }, (_, i) => {
                 const hubLabel = hubState?.inputLabels?.[i]
-                if (hubLabel) return hubLabel
+                if (hubLabel) return { port: hubLabel }
                 const portName = device?.inputs[i]?.name ?? `In ${i + 1}`
                 const conn = connections.inputConn.get(i)
-                return conn
-                  ? `${portName}${connSuffix('←', conn.sourceName, conn.portName)}`
-                  : portName
+                if (!conn || !showConnections) return { port: portName }
+                return {
+                  port: portName,
+                  connDevice: conn.sourceName,
+                  connPort:
+                    showConnectionPorts && conn.portName && conn.portName !== '?'
+                      ? conn.portName
+                      : undefined,
+                }
               })
-              const outputLabelArr = Array.from({ length: preset.outputs }, (_, i) => {
+              const outputLabelParts = Array.from({ length: preset.outputs }, (_, i) => {
                 const hubLabel = hubState?.outputLabels?.[i]
                 const lockState = hubState?.outputLocks?.[i]
                 const lockBadge =
@@ -683,13 +677,36 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                     : lockState === 'locked-other'
                       ? ' 🔒❗'
                       : ''
-                if (hubLabel) return `${hubLabel}${lockBadge}`
+                if (hubLabel) return { port: hubLabel, lockBadge }
                 const portName = device?.outputs[i]?.name ?? `Out ${i + 1}`
                 const conn = connections.outputConn.get(i)
-                return conn
-                  ? `${portName}${connSuffix('→', conn.destName, conn.portName)}${lockBadge}`
-                  : `${portName}${lockBadge}`
+                if (!conn || !showConnections) return { port: portName, lockBadge }
+                return {
+                  port: portName,
+                  connDevice: conn.destName,
+                  connPort:
+                    showConnectionPorts && conn.portName && conn.portName !== '?'
+                      ? conn.portName
+                      : undefined,
+                  lockBadge,
+                }
               })
+              // Plain-Text-Variante fuer Tooltips / List-Mode-Fallback /
+              // Export-Filenamen.
+              const inputLabelArr = inputLabelParts.map((p) =>
+                p.connPort
+                  ? `${p.port} ← ${p.connDevice} · ${p.connPort}`
+                  : p.connDevice
+                    ? `${p.port} ← ${p.connDevice}`
+                    : p.port,
+              )
+              const outputLabelArr = outputLabelParts.map((p) =>
+                (p.connPort
+                  ? `${p.port} → ${p.connDevice} · ${p.connPort}`
+                  : p.connDevice
+                    ? `${p.port} → ${p.connDevice}`
+                    : p.port) + (p.lockBadge ?? ''),
+              )
               const onRoute = (output: number, input: number) =>
                 setRouting((r) => ({ ...r, [output]: input }))
               if (routingView === 'list') {
@@ -710,6 +727,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   totalOutputs={preset.outputs}
                   inputLabels={inputLabelArr}
                   outputLabels={outputLabelArr}
+                  inputLabelParts={inputLabelParts}
+                  outputLabelParts={outputLabelParts}
                   routing={routing}
                   onRoute={onRoute}
                 />
