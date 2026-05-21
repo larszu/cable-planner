@@ -56,9 +56,18 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // The override map is sparse — empty/missing entries fall back to
   // the built-in palette inside colorForConnector().
   const connectorTypeColors = useUiStore((s) => s.connectorTypeColors)
+  // Issue #274 — Kategorie-Farben. Wenn ein Geraet keinen eigenen
+  // `nodeColor` hat aber die Kategorie eine Default-Farbe definiert
+  // (z.B. "Monitor" = blau), nutzt der Node die Kategorie-Farbe.
+  // Per-Geraet-`nodeColor` gewinnt weiter — der User kann immer einzeln
+  // ueberschreiben.
+  const categoryColors = useUiStore((s) => s.categoryColors)
   const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
   const isLight = (data.exportThemeOverride ?? canvasTheme) === 'light'
   const tokens = isLight ? equipmentColors.light : equipmentColors.dark
+  // Effektive Geraete-Farbe: per-Geraet > Kategorie > undefined (= Theme-Default).
+  const effectiveNodeColor: string | undefined =
+    data.nodeColor ?? categoryColors[data.category] ?? undefined
   const queueConnection = useProjectStore((s) => s.queueConnection)
   // Issue #56: GreenGo beltpack name is the canvas-visible identifier
   // for intercom devices. Reads from project.greengoConfig.users —
@@ -388,10 +397,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           position: 'relative',
           width: cWidth,
           height: cHeight,
-          background: data.nodeColor
-            ? `${data.nodeColor}${isLight ? '22' : '33'}`
+          background: effectiveNodeColor
+            ? `${effectiveNodeColor}${isLight ? '22' : '33'}`
             : tokens.body,
-          border: `1px solid ${selected ? '#38bdf8' : (data.nodeColor ?? tokens.border)}`,
+          border: `1px solid ${selected ? '#38bdf8' : (effectiveNodeColor ?? tokens.border)}`,
           borderRadius: 6,
           color: tokens.text,
           fontSize: 11,
@@ -489,10 +498,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         position: 'relative',
         width,
         height,
-        background: data.nodeColor
-          ? `${data.nodeColor}${isLight ? '18' : '22'}`
+        background: effectiveNodeColor
+          ? `${effectiveNodeColor}${isLight ? '18' : '22'}`
           : tokens.body,
-        border: `1px solid ${selected ? '#38bdf8' : (data.nodeColor ?? tokens.border)}`,
+        border: `1px solid ${selected ? '#38bdf8' : (effectiveNodeColor ?? tokens.border)}`,
         borderRadius: 6,
         color: tokens.text,
         fontSize: 12,
@@ -504,9 +513,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
       {/* Header */}
       <div style={{
         padding: `${PADDING}px ${PADDING}px 0 ${PADDING}px`,
-        borderBottom: `1px solid ${data.nodeColor ?? tokens.border}`,
-        background: data.nodeColor
-          ? `${data.nodeColor}${isLight ? '18' : '33'}`
+        borderBottom: `1px solid ${effectiveNodeColor ?? tokens.border}`,
+        background: effectiveNodeColor
+          ? `${effectiveNodeColor}${isLight ? '18' : '33'}`
           : tokens.header,
         borderRadius: '5px 5px 0 0',
       }}>
