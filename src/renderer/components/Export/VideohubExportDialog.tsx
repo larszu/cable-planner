@@ -66,6 +66,31 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
       return 'matrix'
     }
   })
+  // v7.9.130 — Toggle "Verkabelung anzeigen". Wenn an (Default), wird
+  // an jedes Input/Output-Label das angeschlossene Geraet aus den
+  // Canvas-Kabeln angehaengt (z.B. "1 SDI In ← Sony PMW-F5").
+  // Wenn aus, sieht der User nur die nackten Port-Namen — sinnvoll
+  // wenn die Connection-Info schon redundant ist (Hub-Labels eh
+  // gleich beschriftet) oder die Spalten zu voll werden.
+  const [showConnections, setShowConnections] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('cable-planner.videohub.show-connections') !== 'off'
+    } catch {
+      return true
+    }
+  })
+  const toggleShowConnections = () => {
+    const next = !showConnections
+    setShowConnections(next)
+    try {
+      sessionStorage.setItem(
+        'cable-planner.videohub.show-connections',
+        next ? 'on' : 'off',
+      )
+    } catch {
+      /* ignore */
+    }
+  }
   const setAndPersistRoutingView = (v: 'matrix' | 'list') => {
     setRoutingView(v)
     try {
@@ -536,6 +561,24 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               <span className="text-xs text-slate-500">
                 {preset.inputs} Eing. × {preset.outputs} Ausg.
               </span>
+              {/* v7.9.130 — Verkabelung-Toggle. Zeigt/versteckt das
+                  "← Verbundenes Geraet"-Suffix in den Labels. */}
+              <button
+                type="button"
+                onClick={toggleShowConnections}
+                title={
+                  showConnections
+                    ? 'Connection-Info ausblenden (nur Port-Name)'
+                    : 'Connection-Info einblenden (← angeschlossenes Geraet)'
+                }
+                className={`rounded border px-2 py-1 text-xs ${
+                  showConnections
+                    ? 'border-sky-700 bg-sky-900/40 text-sky-200'
+                    : 'border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800'
+                }`}
+              >
+                {showConnections ? '🔗 Verkabelung an' : '🔗 Verkabelung aus'}
+              </button>
               {/* v7.9.119 / Issue #237 — Smart-Routing Vorschlag aus
                   Canvas-Verbindungen. Heuristik: pro Output das beste
                   Token-Match in den Input-Sources. Fallback: Diagonal. */}
@@ -566,7 +609,10 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 if (hubLabel) return hubLabel
                 const portName = device?.inputs[i]?.name ?? `In ${i + 1}`
                 const conn = connections.inputConn.get(i)
-                return conn ? `${portName} ← ${conn.sourceName}` : portName
+                // v7.9.130 — Connection-Suffix nur wenn Toggle an.
+                return conn && showConnections
+                  ? `${portName} ← ${conn.sourceName}`
+                  : portName
               })
               const outputLabelArr = Array.from({ length: preset.outputs }, (_, i) => {
                 const hubLabel = hubState?.outputLabels?.[i]
@@ -580,7 +626,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 if (hubLabel) return `${hubLabel}${lockBadge}`
                 const portName = device?.outputs[i]?.name ?? `Out ${i + 1}`
                 const conn = connections.outputConn.get(i)
-                return conn
+                return conn && showConnections
                   ? `${portName} → ${conn.destName}${lockBadge}`
                   : `${portName}${lockBadge}`
               })
