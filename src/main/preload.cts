@@ -135,6 +135,10 @@ contextBridge.exposeInMainWorld('cablePlanner', {
           takeMode?: boolean
         } | null
       }>,
+    discover: (params?: { timeoutMs?: number }) =>
+      ipcRenderer.invoke('videohub:discover', params) as Promise<
+        Array<{ name: string; ip: string; port: number; model?: string }>
+      >,
   },
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) =>
