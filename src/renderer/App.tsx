@@ -18,6 +18,7 @@ import { AtemAudioRouterDialog } from './components/Atem/AtemAudioRouterDialog'
 import { LocationBomDialog } from './components/Project/LocationBomDialog'
 import { RackEditorDialog } from './components/Rack/RackEditorDialog'
 import { CableContextMenu } from './components/Canvas/CableContextMenu'
+import { LayerVisibilityChips } from './components/Canvas/LayerVisibilityChips'
 import { ExportDialog } from './components/Export/ExportDialog'
 import { AnnotationsPanel } from './components/Annotations/AnnotationsPanel'
 
@@ -986,6 +987,23 @@ const PdfExportDialog = ({
       <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-4 shadow-2xl">
         <h2 className="mb-3 text-sm font-semibold text-slate-100">Plan als PDF exportieren</h2>
         <div className="space-y-3">
+          {/* Layer-Sichtbarkeit — uebernimmt die Chip-Komponente aus
+              der Canvas-Toolbar. Same store, daher synchronisiert sich
+              die Auswahl bidirektional mit dem Canvas. Damit kann der
+              User z.B. nur die Video-Ebene drucken indem er alle
+              anderen Chips deaktiviert. */}
+          <fieldset className="rounded border border-slate-700 p-3">
+            <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
+              Ebenen (im PDF enthalten)
+            </legend>
+            <div className="-mx-1 flex flex-wrap gap-1">
+              <LayerVisibilityChips />
+            </div>
+            <p className="mt-2 text-[10px] text-slate-500">
+              Klick auf einen Chip schaltet die Ebene fuer Canvas UND PDF um.
+              Beispiel: nur Video drucken ⇒ alle anderen Chips ausschalten.
+            </p>
+          </fieldset>
           <fieldset className="rounded border border-slate-700 p-3">
             <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
               Hintergrund
