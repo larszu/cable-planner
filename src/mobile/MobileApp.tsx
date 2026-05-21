@@ -247,12 +247,17 @@ const DeviceCard = ({
   cables,
   checks,
   onTogglePort,
+  onOpenChange,
   allEquipment,
 }: {
   device: CablePlannerProject['equipment'][number]
   cables: CablePlannerProject['cables']
   checks: CheckState
   onTogglePort: (deviceId: string, portId: string) => void
+  /** User-Request: AddCableModal soll das gerade aufgeklappte Geraet
+   *  als "Von Geraet" vorbelegen — der Parent merkt sich die letzte
+   *  Open-Aktion via diesem Callback. */
+  onOpenChange?: (deviceId: string, open: boolean) => void
   allEquipment: CablePlannerProject['equipment']
 }) => {
   const inputCables = useMemo(
@@ -269,7 +274,10 @@ const DeviceCard = ({
   ).length
 
   return (
-    <details className="rounded border border-slate-800 bg-slate-900 open:bg-slate-900/80">
+    <details
+      className="rounded border border-slate-800 bg-slate-900 open:bg-slate-900/80"
+      onToggle={(e) => onOpenChange?.(device.id, (e.target as HTMLDetailsElement).open)}
+    >
       <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm">
         <span className="flex-1 truncate font-medium text-slate-100">{device.name}</span>
         <span className="text-[10px] text-slate-400">
@@ -487,6 +495,12 @@ const ProjectView = ({
   }, [online, checks])
 
   const [showAddCable, setShowAddCable] = useState(false)
+  // User-Request: wenn schon eine Geraete-Karte aufgeklappt ist, soll
+  // "+Von Geraet" beim Oeffnen von "+Kabel" auf das offene Geraet
+  // vorausgewaehlt sein. Wir merken uns die zuletzt aufgeklappte
+  // Karte (Last-Open-Wins) — beim Toggle einer Karte wird die ID hier
+  // gesetzt (oder geloescht wenn die selbe wieder geschlossen wird).
+  const [lastOpenedDeviceId, setLastOpenedDeviceId] = useState<string | null>(null)
 
   // v7.7.3 — Toggling a port toggles BOTH endpoints of the cable that's
   // plugged into it (and the cable itself), because physically plugging
@@ -616,6 +630,7 @@ const ProjectView = ({
       {showAddCable && (
         <AddCableModal
           project={project}
+          initialFromEquipmentId={lastOpenedDeviceId ?? undefined}
           onClose={() => setShowAddCable(false)}
         />
       )}
@@ -632,6 +647,16 @@ const ProjectView = ({
               cables={project.cables}
               checks={checks}
               onTogglePort={togglePort}
+              onOpenChange={(deviceId, open) => {
+                setLastOpenedDeviceId((prev) => {
+                  if (open) return deviceId
+                  // Beim Schliessen nur die ID raeumen wenn es genau die
+                  // war die als letzte offen markiert wurde — sonst koennte
+                  // ein gerade-geschlossenes Geraet das gerade-geoeffnete
+                  // ueberschreiben (Reihenfolge der onToggle-Events).
+                  return prev === deviceId ? null : prev
+                })
+              }}
               allEquipment={project.equipment}
             />
           ))
@@ -760,12 +785,16 @@ export const MobileApp = () => {
 // Länge. POST /cables → Renderer fügt es mit addedFromMobile=true ein.
 const AddCableModal = ({
   project,
+  initialFromEquipmentId,
   onClose,
 }: {
   project: CablePlannerProject
+  /** Vorbelegung fuer "Von Geraet". Wird gesetzt wenn beim Oeffnen des
+   *  Dialogs bereits eine Geraete-Karte aufgeklappt war (User-Request). */
+  initialFromEquipmentId?: string
   onClose: () => void
 }) => {
-  const [fromEqId, setFromEqId] = useState('')
+  const [fromEqId, setFromEqId] = useState(initialFromEquipmentId ?? '')
   const [fromPortId, setFromPortId] = useState('')
   const [toEqId, setToEqId] = useState('')
   const [toPortId, setToPortId] = useState('')
