@@ -1854,6 +1854,12 @@ export const EquipmentProperties = () => {
   const equipment = useProjectStore((state) =>
     state.project.equipment.find((item) => item.id === selectedEquipmentId),
   )
+  // Reactive selector statt useProjectStore.getState() (das gibt's auf der
+  // Context-Variante nicht). Werden in den Patch-Sheet-Druck-Buttons unten
+  // benoetigt; durch Selector aktualisieren sich die PDFs automatisch wenn
+  // sich Verkabelung aendert.
+  const allEquipment = useProjectStore((state) => state.project.equipment)
+  const allCables = useProjectStore((state) => state.project.cables)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const knownCategories = useProjectStore((state) => state.knownCategories)
   const customLibrary = useProjectStore((state) => state.customLibrary)
@@ -2667,12 +2673,9 @@ export const EquipmentProperties = () => {
           <button
             type="button"
             onClick={() =>
-              void exportDevicePatchSheet(
-                equipment,
-                useProjectStore.getState().project.equipment,
-                useProjectStore.getState().project.cables,
-                { format: 'a4' },
-              )
+              void exportDevicePatchSheet(equipment, allEquipment, allCables, {
+                format: 'a4',
+              })
             }
             className="w-full rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
             title="Erzeugt eine einseitige A4-Patch-Liste mit allen Ports + verbundenen Kabeln — zum Aufkleben am Gerät."
@@ -2682,12 +2685,9 @@ export const EquipmentProperties = () => {
           <button
             type="button"
             onClick={() =>
-              void exportDevicePatchSheet(
-                equipment,
-                useProjectStore.getState().project.equipment,
-                useProjectStore.getState().project.cables,
-                { format: 'a3' },
-              )
+              void exportDevicePatchSheet(equipment, allEquipment, allCables, {
+                format: 'a3',
+              })
             }
             className="w-full rounded bg-sky-800 px-2 py-1 text-xs text-white hover:bg-sky-700"
             title="A3-Variante für Geräte mit vielen Ports."
