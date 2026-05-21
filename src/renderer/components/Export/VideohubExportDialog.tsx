@@ -752,28 +752,58 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               )
               const onRoute = (output: number, input: number) =>
                 setRouting((r) => ({ ...r, [output]: input }))
+              // v7.9.131 — Bei isSwapped tauschen wir die Label-/
+              // Parts-Arrays + transponieren die Routing-Map damit das
+              // Visual transpose ohne Matrix-Refactor funktioniert.
+              // Multicast-Verlust: routing[output]=input ist one-to-one
+              // pro Output, aber many-Outputs-pro-Input. In "inputs-rows"
+              // bilden wir input->erstesOutput ab (verliert weitere
+              // Outputs die auf den gleichen Input gehen — siehe Plan
+              // fuer Multicast-Anzeige im Folge-Commit).
+              const isSwap = axisOrientation === 'inputs-rows'
+              const matrixInputLabels = isSwap ? outputLabelArr : inputLabelArr
+              const matrixOutputLabels = isSwap ? inputLabelArr : outputLabelArr
+              const matrixInputParts = isSwap ? outputLabelParts : inputLabelParts
+              const matrixOutputParts = isSwap ? inputLabelParts : outputLabelParts
+              const matrixRouting = isSwap
+                ? (() => {
+                    const r: Record<number, number> = {}
+                    for (const [outStr, inIdx] of Object.entries(routing)) {
+                      const inputIdx = inIdx as number
+                      if (r[inputIdx] === undefined) {
+                        r[inputIdx] = parseInt(outStr, 10)
+                      }
+                    }
+                    return r
+                  })()
+                : routing
+              const matrixOnRoute = isSwap
+                ? (rowIdx: number, colIdx: number) => onRoute(colIdx, rowIdx)
+                : onRoute
+              const matrixTotalIn = isSwap ? preset.outputs : preset.inputs
+              const matrixTotalOut = isSwap ? preset.inputs : preset.outputs
               if (routingView === 'list') {
                 return (
                   <VideohubRoutingList
-                    totalInputs={preset.inputs}
-                    totalOutputs={preset.outputs}
-                    inputLabels={inputLabelArr}
-                    outputLabels={outputLabelArr}
-                    routing={routing}
-                    onRoute={onRoute}
+                    totalInputs={matrixTotalIn}
+                    totalOutputs={matrixTotalOut}
+                    inputLabels={matrixInputLabels}
+                    outputLabels={matrixOutputLabels}
+                    routing={matrixRouting}
+                    onRoute={matrixOnRoute}
                   />
                 )
               }
               return (
                 <VideohubRoutingMatrix
-                  totalInputs={preset.inputs}
-                  totalOutputs={preset.outputs}
-                  inputLabels={inputLabelArr}
-                  outputLabels={outputLabelArr}
-                  inputLabelParts={inputLabelParts}
-                  outputLabelParts={outputLabelParts}
-                  routing={routing}
-                  onRoute={onRoute}
+                  totalInputs={matrixTotalIn}
+                  totalOutputs={matrixTotalOut}
+                  inputLabels={matrixInputLabels}
+                  outputLabels={matrixOutputLabels}
+                  inputLabelParts={matrixInputParts}
+                  outputLabelParts={matrixOutputParts}
+                  routing={matrixRouting}
+                  onRoute={matrixOnRoute}
                   axisOrientation={axisOrientation}
                 />
               )
