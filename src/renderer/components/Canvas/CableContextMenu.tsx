@@ -238,6 +238,18 @@ export const CableContextMenu = () => {
         Kabel: <span className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>{cable.name}</span>
       </div>
       <Item onClick={renameLabel} icon="✎">Bezeichnung ändern…</Item>
+      {/* Issue #238 — Handy-Vorschlag-Kabel in Plan uebernehmen.
+          Nur sichtbar bei Kabeln die aus dem Mobile-Viewer kamen
+          (addedFromMobile=true). Klick raeumt den Flag, lila Border
+          + 📱-Praefix verschwinden auf dem Canvas. */}
+      {cable.addedFromMobile && (
+        <Item
+          onClick={() => doUpdate({ addedFromMobile: undefined })}
+          icon="📌"
+        >
+          In Plan übernehmen (Handy-Vorschlag akzeptieren)
+        </Item>
+      )}
       <Separator />
       <Item onClick={addWaypointHere} icon="＋">Wegpunkt hier hinzufügen</Item>
       <Item
