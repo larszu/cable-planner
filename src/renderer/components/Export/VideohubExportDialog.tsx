@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { useProjectStore } from '../../store/projectStore'
 import { guessVideohubPresetKey } from '../../lib/deviceKind'
 import { downloadBlob } from '../../lib/downloadBlob'
@@ -156,10 +156,33 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   })
 
   // TCP send state
-  const [vhHost, setVhHost] = useState('192.168.1.1')
+  // #250 Comment: Wenn das Geraet in den Eigenschaften eine IP hat,
+  // soll das IP-Feld hier vorausgefuellt sein.
+  const [vhHost, setVhHost] = useState(() => initialDevice?.ipAddress?.trim() || '192.168.1.1')
   const [vhPort, setVhPort] = useState('9990')
   const [sendStatus, setSendStatus] = useState<SendStatus>('idle')
   const [sendMessage, setSendMessage] = useState('')
+
+  // Issue #248 — mDNS-Auto-Discovery (Bonjour). User klickt "Suchen",
+  // wir scannen 3 s lang auf _blackmagic._tcp und filtern auf Videohubs.
+  type DiscoveredVh = { name: string; ip: string; port: number; model?: string }
+  const [discovering, setDiscovering] = useState(false)
+  const [discovered, setDiscovered] = useState<DiscoveredVh[] | null>(null)
+  const handleDiscover = async () => {
+    if (!hasDesktopBridge) return
+    setDiscovering(true)
+    setDiscovered(null)
+    try {
+      const list = await cablePlannerApi.videohub.discover({ timeoutMs: 3000 })
+      setDiscovered(list)
+      logEvent(`Discovery: ${list.length} Videohub(s) gefunden`, list.length > 0)
+    } catch (err) {
+      logEvent(`Discovery: Fehler — ${err instanceof Error ? err.message : String(err)}`, false)
+      setDiscovered([])
+    } finally {
+      setDiscovering(false)
+    }
+  }
 
   // v7.9.128 — VideoHubSim-inspired UI-Features:
   //
@@ -295,6 +318,23 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   const device = equipment.find((e) => e.id === deviceId)
   const preset = videohubPresets.find((p) => p.key === presetKey) ?? videohubPresets[0]
 
+  // #250 Comment: Bei Geraete-Wechsel die IP aus den Geraete-Eigenschaften
+  // ins TCP-Host-Feld uebernehmen. Nur wenn der User noch nicht selbst
+  // editiert hat (= das Feld auf einem Default oder einer vorigen
+  // Geraete-IP steht) und das neue Geraet eine IP hat. Wir lassen also
+  // dem User die Moeglichkeit, manuell zu uebersteuern und dann nicht
+  // beim Geraete-Switch wieder ueberschrieben zu werden.
+  const lastDeviceIpRef = useRef<string | null>(initialDevice?.ipAddress?.trim() || null)
+  useEffect(() => {
+    const newIp = device?.ipAddress?.trim()
+    if (!newIp) return
+    if (vhHost === '192.168.1.1' || vhHost === lastDeviceIpRef.current) {
+      setVhHost(newIp)
+    }
+    lastDeviceIpRef.current = newIp
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deviceId])
+
   // v7.9.119 / Issue #237 — XP Smart Routing.
   // Analysiert die Canvas-Kabel des selektierten Videohub-Devices:
   //   inputConn[i]  → was haengt am Input i (Source-Device + Port)
@@ -346,11 +386,26 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
    *  2. Wenn kein Match: Diagonal (Output N → Input N % totalInputs).
    *  Trifft nicht perfekt aber gibt einen sinnvollen Startpunkt — der
    *  User justiert per Matrix nach. */
-  const tokensOf = (name: string): string[] =>
-    name
+  // #237 — Token-Extraction. Wir splitten zusaetzlich an Letter/Digit-
+  // Grenzen damit "DSM1, DSM2, DSM3" alle das Token "dsm" + "1/2/3"
+  // produzieren — dann matched ATEM-Input "DSM" auf alle drei Outputs.
+  // Sonst waeren "dsm1" und "dsm" gar nicht als Treffer erkannt.
+  const tokensOf = (name: string): string[] => {
+    const raw = name
       .toLowerCase()
       .split(/[^a-z0-9äöüß]+/)
-      .filter((t) => t.length >= 2)
+      .filter((t) => t.length >= 1)
+    const out = new Set<string>()
+    for (const t of raw) {
+      if (t.length >= 2) out.add(t)
+      // Letter-Cluster trennen ("dsm1" -> "dsm" + "1").
+      const parts = t.match(/[a-zäöüß]+|\d+/gi) ?? []
+      for (const p of parts) {
+        if (p.length >= 2) out.add(p.toLowerCase())
+      }
+    }
+    return [...out]
+  }
   const generateSmartRouting = () => {
     const next: Record<number, number> = {}
     for (let outIdx = 0; outIdx < preset.outputs; outIdx++) {
@@ -752,28 +807,58 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               )
               const onRoute = (output: number, input: number) =>
                 setRouting((r) => ({ ...r, [output]: input }))
+              // v7.9.131 — Bei isSwapped tauschen wir die Label-/
+              // Parts-Arrays + transponieren die Routing-Map damit das
+              // Visual transpose ohne Matrix-Refactor funktioniert.
+              // Multicast-Verlust: routing[output]=input ist one-to-one
+              // pro Output, aber many-Outputs-pro-Input. In "inputs-rows"
+              // bilden wir input->erstesOutput ab (verliert weitere
+              // Outputs die auf den gleichen Input gehen — siehe Plan
+              // fuer Multicast-Anzeige im Folge-Commit).
+              const isSwap = axisOrientation === 'inputs-rows'
+              const matrixInputLabels = isSwap ? outputLabelArr : inputLabelArr
+              const matrixOutputLabels = isSwap ? inputLabelArr : outputLabelArr
+              const matrixInputParts = isSwap ? outputLabelParts : inputLabelParts
+              const matrixOutputParts = isSwap ? inputLabelParts : outputLabelParts
+              const matrixRouting = isSwap
+                ? (() => {
+                    const r: Record<number, number> = {}
+                    for (const [outStr, inIdx] of Object.entries(routing)) {
+                      const inputIdx = inIdx as number
+                      if (r[inputIdx] === undefined) {
+                        r[inputIdx] = parseInt(outStr, 10)
+                      }
+                    }
+                    return r
+                  })()
+                : routing
+              const matrixOnRoute = isSwap
+                ? (rowIdx: number, colIdx: number) => onRoute(colIdx, rowIdx)
+                : onRoute
+              const matrixTotalIn = isSwap ? preset.outputs : preset.inputs
+              const matrixTotalOut = isSwap ? preset.inputs : preset.outputs
               if (routingView === 'list') {
                 return (
                   <VideohubRoutingList
-                    totalInputs={preset.inputs}
-                    totalOutputs={preset.outputs}
-                    inputLabels={inputLabelArr}
-                    outputLabels={outputLabelArr}
-                    routing={routing}
-                    onRoute={onRoute}
+                    totalInputs={matrixTotalIn}
+                    totalOutputs={matrixTotalOut}
+                    inputLabels={matrixInputLabels}
+                    outputLabels={matrixOutputLabels}
+                    routing={matrixRouting}
+                    onRoute={matrixOnRoute}
                   />
                 )
               }
               return (
                 <VideohubRoutingMatrix
-                  totalInputs={preset.inputs}
-                  totalOutputs={preset.outputs}
-                  inputLabels={inputLabelArr}
-                  outputLabels={outputLabelArr}
-                  inputLabelParts={inputLabelParts}
-                  outputLabelParts={outputLabelParts}
-                  routing={routing}
-                  onRoute={onRoute}
+                  totalInputs={matrixTotalIn}
+                  totalOutputs={matrixTotalOut}
+                  inputLabels={matrixInputLabels}
+                  outputLabels={matrixOutputLabels}
+                  inputLabelParts={matrixInputParts}
+                  outputLabelParts={matrixOutputParts}
+                  routing={matrixRouting}
+                  onRoute={matrixOnRoute}
                   axisOrientation={axisOrientation}
                 />
               )
@@ -905,6 +990,15 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               </label>
               <button
                 type="button"
+                onClick={() => { void handleDiscover() }}
+                disabled={!hasDesktopBridge || discovering}
+                title="Videohubs im lokalen Netz via mDNS/Bonjour suchen (3 s Scan)."
+                className="rounded bg-teal-700 px-3 py-1.5 text-xs hover:bg-teal-600 disabled:opacity-40"
+              >
+                {discovering ? '🔍 Suche…' : '🔍 Suchen'}
+              </button>
+              <button
+                type="button"
                 onClick={() => { void handleReadState() }}
                 disabled={!device || !hasDesktopBridge || readingState}
                 title="Aktuellen Hub-Status holen: Labels + Routing + Locks. Routing wird in die Matrix uebernommen, Labels in den Spalten/Zeilen angezeigt."
@@ -913,6 +1007,48 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 {readingState ? '⏳ Laden…' : '⬇ Status laden'}
               </button>
             </div>
+            {/* Issue #248 — Ergebnisliste der Discovery. Klick auf einen
+                Eintrag uebernimmt IP+Port in die Eingabefelder. */}
+            {discovered !== null && (
+              <div className="mt-2 rounded border border-teal-800 bg-teal-950/30 p-2 text-xs">
+                {discovered.length === 0 ? (
+                  <div className="text-slate-400">
+                    Kein Videohub per mDNS gefunden. (Firewalls oder andere Subnetze
+                    blocken Bonjour — dann IP manuell eintragen.)
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    <div className="mb-1 text-[10px] uppercase tracking-wide text-teal-300">
+                      Gefunden ({discovered.length}) — Klick uebernimmt IP/Port
+                    </div>
+                    {discovered.map((d) => (
+                      <button
+                        key={`${d.ip}:${d.port}`}
+                        type="button"
+                        onClick={() => {
+                          setVhHost(d.ip)
+                          setVhPort(String(d.port))
+                          setSendStatus('idle')
+                        }}
+                        className="flex items-center justify-between gap-2 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-left hover:border-teal-500 hover:bg-slate-800"
+                      >
+                        <span className="truncate font-semibold text-slate-100">
+                          {d.name}
+                          {d.model && (
+                            <span className="ml-1 text-[10px] font-normal text-slate-400">
+                              · {d.model}
+                            </span>
+                          )}
+                        </span>
+                        <span className="shrink-0 font-mono text-slate-300">
+                          {d.ip}:{d.port}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             {/* v7.9.128 — Drei getrennte Push-Buttons. User kann nur
                 Labels oder nur Routing oder beides zusammen pushen. */}
             <div className="mt-2 flex flex-wrap gap-2">

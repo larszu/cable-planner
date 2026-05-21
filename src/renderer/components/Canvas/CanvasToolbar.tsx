@@ -36,6 +36,9 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   // v7.9.112 / Issue #234 — Global Cable-Labels ausblenden.
   const hideAllCableLabels = useUiStore((state) => state.hideAllCableLabels)
   const setHideAllCableLabels = useUiStore((state) => state.setHideAllCableLabels)
+  // Issue #240 — Toggle fuer Kurz-Label (Format-Suffix stripping).
+  const cableLabelShortForm = useUiStore((state) => state.cableLabelShortForm)
+  const setCableLabelShortForm = useUiStore((state) => state.setCableLabelShortForm)
   const cableColorMode = useUiStore((state) => state.cableColorMode)
   const setCableColorMode = useUiStore((state) => state.setCableColorMode)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
@@ -394,6 +397,10 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         setDefaultArrow={setDefaultArrow}
         cableBumps={cableBumps}
         setCableBumps={setCableBumps}
+        hideAllCableLabels={hideAllCableLabels}
+        setHideAllCableLabels={setHideAllCableLabels}
+        cableLabelShortForm={cableLabelShortForm}
+        setCableLabelShortForm={setCableLabelShortForm}
         colorPortsByType={colorPortsByType}
         setColorPortsByType={setColorPortsByType}
         cableColorMode={cableColorMode}
@@ -938,6 +945,10 @@ const DefaultsMenu = ({
   setDefaultArrow,
   cableBumps,
   setCableBumps,
+  hideAllCableLabels,
+  setHideAllCableLabels,
+  cableLabelShortForm,
+  setCableLabelShortForm,
   colorPortsByType,
   setColorPortsByType,
   cableColorMode,
@@ -964,6 +975,10 @@ const DefaultsMenu = ({
   setDefaultArrow: (v: boolean) => void
   cableBumps: boolean
   setCableBumps: (v: boolean) => void
+  hideAllCableLabels: boolean
+  setHideAllCableLabels: (v: boolean) => void
+  cableLabelShortForm: boolean
+  setCableLabelShortForm: (v: boolean) => void
   colorPortsByType: boolean
   setColorPortsByType: (v: boolean) => void
   cableColorMode: 'manual' | 'byLength'
@@ -1157,6 +1172,13 @@ const DefaultsMenu = ({
                 value: hideAllCableLabels,
                 set: setHideAllCableLabels,
                 hint: 'Globaler Toggle. Per-Kabel-Position bleibt erhalten — beim Ausschalten kommen die Labels wieder.',
+              },
+              {
+                // Issue #240 — Kabel-Label Kurzform vs. Voller Name.
+                label: 'Kabel-Labels: Kurzform',
+                value: cableLabelShortForm,
+                set: setCableLabelShortForm,
+                hint: 'Format-Suffix (z.B. "(1080p50/60)") aus dem Anzeige-Label entfernen. Voller Name bleibt in den Kabel-Eigenschaften gespeichert.',
               },
               {
                 label: 'Ports nach Connector-Typ einfärben',

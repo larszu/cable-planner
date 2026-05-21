@@ -31,6 +31,7 @@ import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 // v7.9.108 / Issue #225 — AI-Port-Vorschlag fuer den PortAiSuggestButton.
 import { suggestFromAI } from '../../lib/aiSuggestions'
 import { buildTemplateFromHints, type PortGroupHint } from '../../lib/portSuggestions'
+import { effectivePortNumber, findDuplicatePortNumbers } from '../../lib/portNumbering'
 import type { ConnectorType, EquipmentItem, Port, VlanDef, PortVlanAssignment } from '../../types/equipment'
 import { ALL_SIGNAL_STANDARDS } from '../../types/cableSpec'
 import type { SignalStandard } from '../../types/cableSpec'
@@ -343,6 +344,18 @@ const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }: PortL
     onChange(arrayMove(ports, oldIndex, newIndex))
   }
 
+  // Issue #251 — Doppelte Anzeige-Nummern erkennen damit der User
+  // sich nicht versehentlich zwei "Port 3" anlegt (passiert leicht wenn
+  // er manuell ueberschreibt). Anzeige als Warnbox oben in der Liste.
+  const duplicatePortNumbers = useMemo(
+    () => findDuplicatePortNumbers(ports),
+    [ports],
+  )
+  // Touch-Use damit der Linter effectivePortNumber-Import nicht weg-shaket
+  // (wird im JSX nicht direkt referenziert da wir den Array-Index als
+  // Placeholder zeigen — die Effektiv-Nummer fliesst in andere Module).
+  void effectivePortNumber
+
   return (
     <div className="rounded border border-slate-700 p-2">
       <div className="mb-2 flex items-center justify-between">
@@ -360,12 +373,32 @@ const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }: PortL
         </button>
       </div>
       {ports.length === 0 && <div className="text-[11px] text-slate-500">None</div>}
+      {duplicatePortNumbers.length > 0 && (
+        <div className="mb-2 rounded border border-amber-700 bg-amber-950/40 px-2 py-1 text-[11px] text-amber-200">
+          Doppelte Port-Nummern: {duplicatePortNumbers.join(', ')} — fuer Beschriftung/Patchliste mehrdeutig.
+        </div>
+      )}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={ports.map((port) => port.id)} strategy={verticalListSortingStrategy}>
           <ul className="space-y-2">
-        {ports.map((port) => (
+        {ports.map((port, portIdx) => (
           <SortablePortItem key={port.id} port={port}>
             <div className="flex items-center gap-1">
+              <input
+                type="number"
+                min={1}
+                value={port.portNumber ?? ''}
+                onChange={(event) => {
+                  const raw = event.target.value.trim()
+                  const n = raw === '' ? undefined : Math.max(1, Math.floor(Number(raw)))
+                  updatePort(port.id, {
+                    portNumber: Number.isFinite(n as number) ? (n as number) : undefined,
+                  })
+                }}
+                placeholder={String(portIdx + 1)}
+                title={`Anzeige-Nummer (Default ${portIdx + 1}). Leer = automatisch.`}
+                className="w-12 shrink-0 rounded border border-slate-700 bg-slate-950 p-1 text-center text-xs tabular-nums"
+              />
               <input
                 value={port.name}
                 onChange={(event) => updatePort(port.id, { name: event.target.value })}
@@ -977,6 +1010,72 @@ const RESOLUTION_PRESETS = [
  * Shown when the device looks like a display based on category, name, or
  * when the user has already set one of these fields.
  */
+/**
+ * v7.9.131 / Issue #216 — Physische Geraete-Dimensionen (Hoehe x Breite x Tiefe).
+ * Optional, nur zur Information / fuer spaetere 3D-Rack-Layouts. Schritt
+ * waehlbar in mm. Tab-Reihenfolge: H -> B -> T.
+ */
+const DimensionsBlock = ({ equipment }: { equipment: import('../../types/equipment').EquipmentItem }) => {
+  const updateEquipment = useProjectStore((state) => state.updateEquipment)
+  const numberInputClass = 'w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono'
+  const setDim = (field: 'dimensionHmm' | 'dimensionWmm' | 'dimensionDmm') => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value
+    updateEquipment(equipment.id, { [field]: v === '' ? undefined : Number(v) })
+  }
+  return (
+    <fieldset className="rounded border border-slate-700 p-2">
+      <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
+        Abmessungen (mm)
+      </legend>
+      <div className="grid grid-cols-3 gap-2">
+        <label className="block">
+          <span className="mb-1 block text-slate-300">Hoehe</span>
+          <input
+            type="number"
+            min={0}
+            step="1"
+            value={equipment.dimensionHmm ?? ''}
+            onChange={setDim('dimensionHmm')}
+            placeholder="44"
+            className={numberInputClass}
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-slate-300">Breite</span>
+          <input
+            type="number"
+            min={0}
+            step="1"
+            value={equipment.dimensionWmm ?? ''}
+            onChange={setDim('dimensionWmm')}
+            placeholder="482"
+            className={numberInputClass}
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-slate-300">Tiefe</span>
+          <input
+            type="number"
+            min={0}
+            step="1"
+            value={equipment.dimensionDmm ?? ''}
+            onChange={setDim('dimensionDmm')}
+            placeholder="305"
+            className={numberInputClass}
+          />
+        </label>
+      </div>
+      {equipment.isRackDevice && equipment.rackUnits && (
+        <p className="mt-1 text-[10px] text-slate-500">
+          Rack-Geraet · {equipment.rackUnits} HE. Wenn Hoehe leer, wird
+          {' '}{equipment.rackUnits * 44}{' '}mm als physische Hoehe angenommen
+          (1 HE ≈ 44,45 mm).
+        </p>
+      )}
+    </fieldset>
+  )
+}
+
 const DisplayPropertiesBlock = ({ equipment }: { equipment: import('../../types/equipment').EquipmentItem }) => {
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const category = equipment.category.toLowerCase()
@@ -2184,6 +2283,7 @@ export const EquipmentProperties = () => {
       </label>
 
       <DisplayPropertiesBlock equipment={equipment} />
+      <DimensionsBlock equipment={equipment} />
 
       <SortableSection
         id="network"

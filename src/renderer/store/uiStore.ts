@@ -138,6 +138,20 @@ interface PersistedUiState {
    *  default from DEFAULT_CONNECTOR_TYPE_COLORS applies. Stored sparsely
    *  so we don't bloat localStorage with the full default palette. */
   connectorTypeColors: Record<string, string>
+  /** Issue #274 — Geraete-Farben pro Kategorie. Wenn ein Geraet keine
+   *  eigene `color`/`nodeColor` gesetzt hat, faellt EquipmentNode auf
+   *  `categoryColors[category]` zurueck. Damit kriegt der User "alle
+   *  Monitore blau" indem er einmal in Settings die Kategorie-Farbe
+   *  setzt. Eigene per-Geraet-Farbe gewinnt weiter.
+   *
+   *  Leerer Eintrag = kein Override, Theme-Default greift. Stored als
+   *  sparses Mapping damit localStorage nicht aufgeblaeht wird. */
+  categoryColors: Record<string, string>
+  /** Issue #240 — Kuerzere Kabel-Label-Darstellung. true (Default) entfernt
+   *  beim Render aus dem Anzeige-Namen Format-Suffixe wie "(1080p50/60)";
+   *  false zeigt den vollen Namen wieder.
+   *  Wirkt rein visuell — gespeicherter Kabel.name bleibt unangetastet. */
+  cableLabelShortForm: boolean
   /** v7.9.59 — Geräte-Karten-Farben pro Theme. User-anpassbar in
    *  Settings → Geräte-Darstellung. Defaults sind so gewählt dass die
    *  Karten optisch klar vom Canvas-Hintergrund abstehen (kontrastreich)
@@ -275,6 +289,8 @@ const defaults: PersistedUiState = {
   librarySortMode: 'manual',
   annotationAuthor: '',
   connectorTypeColors: {},
+  categoryColors: {},
+  cableLabelShortForm: true,
   equipmentColors: {
     light: { ...DEFAULT_EQUIPMENT_COLORS_LIGHT },
     dark: { ...DEFAULT_EQUIPMENT_COLORS_DARK },
@@ -428,6 +444,8 @@ const load = (): PersistedUiState => {
     }
     if (merged.connectorTypeColors === null || typeof merged.connectorTypeColors !== 'object')
       merged.connectorTypeColors = {}
+    if (merged.categoryColors === null || typeof merged.categoryColors !== 'object')
+      merged.categoryColors = {}
     // v7.9.59 — Equipment-Karten-Farben mergen.
     // v7.9.60 — Defaults wurden überarbeitet. Wenn ein User noch die
     // v7.9.59-Old-Defaults im localStorage hat (Body=#ffffff/header=
@@ -554,6 +572,9 @@ interface UiState extends PersistedUiState {
   setAnnotationAuthor: (name: string) => void
   setConnectorTypeColor: (connectorType: string, color: string | null) => void
   resetConnectorTypeColors: () => void
+  setCategoryColor: (category: string, color: string | null) => void
+  resetCategoryColors: () => void
+  setCableLabelShortForm: (value: boolean) => void
   setEquipmentColors: (theme: 'light' | 'dark', patch: Partial<EquipmentColorTokens>) => void
   resetEquipmentColors: (theme?: 'light' | 'dark') => void
   setDefaultDeviceColor: (color: string | undefined) => void
@@ -794,6 +815,8 @@ const applyPatch =
       librarySortMode: state.librarySortMode,
       annotationAuthor: state.annotationAuthor,
       connectorTypeColors: state.connectorTypeColors,
+      categoryColors: state.categoryColors,
+      cableLabelShortForm: state.cableLabelShortForm,
       equipmentColors: state.equipmentColors,
       defaultDeviceColor: state.defaultDeviceColor,
       bgVariant: state.bgVariant,
@@ -855,6 +878,15 @@ export const useUiStore = create<UiState>((set) => ({
       return applyPatch({ connectorTypeColors: next })(state)
     }),
   resetConnectorTypeColors: () => set(applyPatch({ connectorTypeColors: {} })),
+  setCategoryColor: (category, color) =>
+    set((state) => {
+      const next = { ...state.categoryColors }
+      if (!color) delete next[category]
+      else next[category] = color
+      return applyPatch({ categoryColors: next })(state)
+    }),
+  resetCategoryColors: () => set(applyPatch({ categoryColors: {} })),
+  setCableLabelShortForm: (value) => set(applyPatch({ cableLabelShortForm: value })),
   setEquipmentColors: (theme, patch) =>
     set((state) => {
       const next = {
