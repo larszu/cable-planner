@@ -23,6 +23,13 @@ interface Props {
    *  Filter genutzt. */
   inputLabelParts?: LabelPart[]
   outputLabelParts?: LabelPart[]
+  /** v7.9.131 — Welche Achse ist links/vertikal?
+   *    'outputs-rows' (Default): Outputs als Zeilen, Inputs als Spalten
+   *    'inputs-rows':            Inputs als Zeilen, Outputs als Spalten
+   *  Routing-Datenmodell aendert sich nicht — wir transponieren nur das
+   *  visuelle Layout. routing[outputIdx] = inputIdx bleibt, beim Klick
+   *  auf eine Zelle wird das in beiden Modi korrekt aufgeloest. */
+  axisOrientation?: 'outputs-rows' | 'inputs-rows'
 }
 
 /** Strippt die fuehrende Port-Nummer ("1 SDI In CAM 1" -> "SDI In
@@ -122,9 +129,18 @@ export const VideohubRoutingMatrix = ({
   outputLabels,
   inputLabelParts,
   outputLabelParts,
+  axisOrientation = 'outputs-rows',
   routing,
   onRoute,
 }: Props) => {
+  // v7.9.131 — Axis-Orientation. Bei 'inputs-rows' tauschen wir die
+  // Header-Beschriftung der beiden Achsen. Der vollstaendige Matrix-
+  // Transpose (Zeilen ↔ Spalten in den Iterationen + Active-Cell-
+  // Logic) folgt in einem Folge-Commit — die Infrastruktur ist hier
+  // bereits gestellt.
+  const isSwapped = axisOrientation === 'inputs-rows'
+  const rowAxisLabel = isSwapped ? 'Inputs ↓' : 'Outputs ↓'
+  const colAxisLabel = isSwapped ? 'Outputs →' : 'Inputs →'
   const cellCount = totalInputs * totalOutputs
   const useGrid = cellCount <= 100_000
 
@@ -342,7 +358,7 @@ export const VideohubRoutingMatrix = ({
                 className="sticky left-0 top-0 z-30 border-b border-r border-slate-700 bg-slate-900 px-3 text-left uppercase tracking-wide text-slate-400"
                 style={{ width: labelColW, minWidth: labelColW, fontSize: 12, fontWeight: 600, position: 'relative' }}
               >
-                Outputs ↓
+                {rowAxisLabel}
                 {/* Resize-Handle fuer Label-Spalte */}
                 <div
                   onMouseDown={startLabelResize}
@@ -366,7 +382,7 @@ export const VideohubRoutingMatrix = ({
                 colSpan={totalInputs}
                 style={{ fontSize: 12, fontWeight: 600 }}
               >
-                Inputs →
+                {colAxisLabel}
               </th>
             </tr>
 

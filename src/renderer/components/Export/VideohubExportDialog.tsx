@@ -58,6 +58,32 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   // Ansicht mit Dropdowns. User-Wunsch: "ergaenze zusaetzlich auch
   // diese dropdown moeglichkeit". Default = Matrix, persistiert in
   // sessionStorage damit Tab-Wechsel die Auswahl behaelt.
+  // v7.9.131 — Achsen-Orientierung: wer ist links/oben?
+  // 'outputs-rows' (Default): Outputs auf der vertikalen Achse, Inputs
+  //                            auf der horizontalen — wie heute.
+  // 'inputs-rows':            Inputs auf der vertikalen Achse, Outputs
+  //                            auf der horizontalen.
+  // Persistiert in sessionStorage; gilt fuer Matrix UND List.
+  // ROUTING-DATEN bleiben gleich: routing[outputIdx] = inputIdx.
+  // Wir aendern nur die visuelle Darstellung.
+  const [axisOrientation, setAxisOrientation] = useState<'outputs-rows' | 'inputs-rows'>(() => {
+    try {
+      return sessionStorage.getItem('cable-planner.videohub.axis') === 'inputs-rows'
+        ? 'inputs-rows'
+        : 'outputs-rows'
+    } catch {
+      return 'outputs-rows'
+    }
+  })
+  const toggleAxis = () => {
+    const next = axisOrientation === 'outputs-rows' ? 'inputs-rows' : 'outputs-rows'
+    setAxisOrientation(next)
+    try {
+      sessionStorage.setItem('cable-planner.videohub.axis', next)
+    } catch {
+      /* ignore */
+    }
+  }
   const [routingView, setRoutingView] = useState<'matrix' | 'list'>(() => {
     try {
       const raw = sessionStorage.getItem('cable-planner.videohub.routing-view')
@@ -585,6 +611,23 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               <span className="text-xs text-slate-500">
                 {preset.inputs} Eing. × {preset.outputs} Ausg.
               </span>
+              {/* v7.9.131 — Achsen-Swap. Toggle zwischen "Outputs links/
+                  Inputs oben" und "Inputs links/Outputs oben". Wirkt
+                  fuer Matrix UND List. */}
+              <button
+                type="button"
+                onClick={toggleAxis}
+                title={
+                  axisOrientation === 'outputs-rows'
+                    ? 'Achsen tauschen: Inputs links, Outputs oben/als Picker'
+                    : 'Achsen tauschen: Outputs links, Inputs oben/als Picker'
+                }
+                className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-700"
+              >
+                {axisOrientation === 'outputs-rows'
+                  ? '⇅ Out·In tauschen'
+                  : '⇅ In·Out tauschen'}
+              </button>
               {/* v7.9.130 — Verkabelung-Toggle. Zeigt/versteckt das
                   "← Verbundenes Geraet"-Suffix in den Labels. */}
               <button
@@ -731,6 +774,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   outputLabelParts={outputLabelParts}
                   routing={routing}
                   onRoute={onRoute}
+                  axisOrientation={axisOrientation}
                 />
               )
             })()}
