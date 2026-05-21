@@ -18,6 +18,33 @@ interface RowDraft {
 }
 
 /**
+ * Issue #248 (Comment): ATEM Long-Name ist 20 Chars, Short 4. Canvas-
+ * Port-Namen sind oft viel laenger und voller fuer ATEM redundanter
+ * Infos: Stecker-Typ ("SDI"), Signal-Standard ("3G", "12G"), Format
+ * ("(1080p50/60)"), fuehrende Port-Nummern ("1 ", "2 "). Diese
+ * Stripping-Regeln machen aus "1 SDI 3G PGM (1080p50/60)" -> "PGM",
+ * was deutlich nuetzlicher in der ATEM-UI angezeigt wird.
+ */
+const shortenForAtem = (raw: string): string => {
+  let out = raw.trim()
+  // Fuehrende Port-Nummer mit Leerzeichen ("1 ", "12 ").
+  out = out.replace(/^\d+\s+/, '')
+  // Format-Suffix in Klammern: (1080p50/60), (4Kp50) etc.
+  out = out.replace(/\s*\(\d{2,4}[pi]\d{2,3}(?:\/\d{2,3})?\)/gi, '')
+  // Stecker-Token (SDI/HDMI/BNC/XLR) wenn die Restzeichenkette laenger
+  // als ein Wort ist — sonst wuerde "SDI 1" zu "1" verstuemmelt.
+  const tokens = out.split(/\s+/)
+  if (tokens.length > 1) {
+    const stripKeywords = /^(SDI|HDMI|BNC|XLR|RJ45|Fiber|SFP\+?|DIN|USB|USB-C|3G|6G|12G)$/i
+    while (tokens.length > 1 && stripKeywords.test(tokens[0])) {
+      tokens.shift()
+    }
+    out = tokens.join(' ').trim()
+  }
+  return out || raw.trim()
+}
+
+/**
  * ATEM live integration. Uses the `atem-connection` UDP protocol
  * implementation in the main process (matching the protocol documented by
  * peschuster/LibAtem and the SuperFlyTV reverse-engineering work) to talk
@@ -95,13 +122,21 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
       setStatus('connected')
       setState(result.summary)
       // Pre-fill drafts from live names so the user only edits what they want to change.
+      // Issue #248 comment: ATEM zeigt Labels nur sehr kurz an. Die meisten
+      // Infos aus dem Canvas-Port-Namen (Stecker, Signal-Standard, Format-
+      // Suffix, fuehrende Port-Nummer) sind in der ATEM-UI unnoetig. Wir
+      // strippen die hier aggressiv damit der Long-Name (20 chars) nicht
+      // schon nach 3 Worten abgehackt ist.
       if (result.summary) {
         const next: Record<number, { long: string; short: string }> = {}
         result.summary.inputs.forEach((input, index) => {
-          const suggestion = projectInputNames[index]
+          const raw = projectInputNames[index]
+          const cleaned = raw ? shortenForAtem(raw) : ''
           next[input.inputId] = {
-            long: suggestion ? suggestion.slice(0, 20) : input.longName,
-            short: suggestion ? suggestion.replace(/\s+/g, '').slice(0, 4).toUpperCase() : input.shortName,
+            long: cleaned ? cleaned.slice(0, 20) : input.longName,
+            short: cleaned
+              ? cleaned.replace(/\s+/g, '').slice(0, 4).toUpperCase()
+              : input.shortName,
           }
         })
         setDrafts(next)
