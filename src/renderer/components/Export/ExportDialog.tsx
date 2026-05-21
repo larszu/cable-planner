@@ -302,9 +302,7 @@ const PlanSection = ({
                 className="mt-0.5"
               />
               <span>
-                <span className="block">
-                  ✨ Vektor <span className="rounded bg-sky-700 px-1 py-0.5 text-[9px] font-semibold text-white">Beta</span>
-                </span>
+                <span className="block">✨ Vektor</span>
                 <span className="block text-[10px] text-slate-400">
                   Chromium printToPDF. Text bleibt selektierbar &amp; scharf bei
                   jedem Zoom. Kleinere Dateigröße.
