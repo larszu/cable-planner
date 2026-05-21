@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+/** Struktur fuer farb-kodierte Label-Rendering. Wenn ein Eintrag
+ *  mehr als nur `port` enthaelt, rendert der Matrix-Header die Teile
+ *  farblich getrennt (Verkabelung = sky, Input-Label = emerald). */
+export interface LabelPart {
+  port: string
+  connDevice?: string
+  connPort?: string
+  lockBadge?: string
+}
+
 interface Props {
   totalInputs: number
   totalOutputs: number
@@ -7,7 +17,27 @@ interface Props {
   outputLabels: string[]
   routing: Record<number, number>
   onRoute: (output: number, input: number) => void
+  /** Optional: strukturierte Label-Teile fuer farb-kodierte Anzeige.
+   *  Wenn gesetzt, gewinnt's gegenueber inputLabels/outputLabels fuer
+   *  die Darstellung — der String wird nur noch fuer Tooltip/Title und
+   *  Filter genutzt. */
+  inputLabelParts?: LabelPart[]
+  outputLabelParts?: LabelPart[]
 }
+
+/** Rendert einen LabelPart mit Farb-Kodierung der Suffixe. */
+const renderLabelPart = (part: LabelPart) => (
+  <>
+    <span>{part.port}</span>
+    {part.connDevice && (
+      <span className="text-sky-300"> ← {part.connDevice}</span>
+    )}
+    {part.connPort && (
+      <span className="text-emerald-300"> · {part.connPort}</span>
+    )}
+    {part.lockBadge && <span>{part.lockBadge}</span>}
+  </>
+)
 
 /**
  * Interactive routing crosspoint matrix for Blackmagic Videohub.
@@ -70,6 +100,8 @@ export const VideohubRoutingMatrix = ({
   totalOutputs,
   inputLabels,
   outputLabels,
+  inputLabelParts,
+  outputLabelParts,
   routing,
   onRoute,
 }: Props) => {
@@ -353,10 +385,6 @@ export const VideohubRoutingMatrix = ({
                             fontWeight: 500,
                             letterSpacing: 0.2,
                             lineHeight: 1.15,
-                            // 2-Zeilen-Wrap statt Mid-Word-Truncation,
-                            // damit Labels wie "TBR ← SDI Out 1" voll
-                            // lesbar sind. Fallback Ellipsis nur wenn
-                            // die zweite Zeile auch nicht reicht.
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
@@ -365,7 +393,9 @@ export const VideohubRoutingMatrix = ({
                           }}
                           title={inLabelTip[i]}
                         >
-                          {label}
+                          {inputLabelParts?.[i]
+                            ? renderLabelPart(inputLabelParts[i])
+                            : label}
                         </div>
                       ) : (
                         <div
@@ -384,7 +414,9 @@ export const VideohubRoutingMatrix = ({
                           }}
                           title={inLabelTip[i]}
                         >
-                          {label}
+                          {inputLabelParts?.[i]
+                            ? renderLabelPart(inputLabelParts[i])
+                            : label}
                         </div>
                       )}
                       {/* Resize-Handle rechts */}
@@ -481,8 +513,11 @@ export const VideohubRoutingMatrix = ({
                     title={outLabelTip[oi]}
                   >
                     <div style={{ position: 'relative' }}>
-                      <div className="truncate">{outLabel}</div>
-                      {/* Resize-Handle unten (verschoben weiter unten am tr) */}
+                      <div className="truncate">
+                        {outputLabelParts?.[oi]
+                          ? renderLabelPart(outputLabelParts[oi])
+                          : outLabel}
+                      </div>
                     </div>
                   </td>
                   <td
