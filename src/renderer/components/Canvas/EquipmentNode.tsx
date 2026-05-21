@@ -69,6 +69,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   const effectiveNodeColor: string | undefined =
     data.nodeColor ?? categoryColors[data.category] ?? undefined
   const queueConnection = useProjectStore((s) => s.queueConnection)
+  // Mobile-Haken-Entfernung (User-Request: "im normalen canvas auch wieder
+  // loeschen koennen"). Klick aufs ✓ entfernt den Check fuer diesen Port.
+  const clearPortCheck = useProjectStore((s) => s.clearPortCheck)
   // Issue #56: GreenGo beltpack name is the canvas-visible identifier
   // for intercom devices. Reads from project.greengoConfig.users —
   // same source the EquipmentProperties beltpack section and the GG
@@ -714,12 +717,21 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             >
               {isPlugged && (
                 <span
+                  role="button"
+                  tabIndex={0}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    clearPortCheck(id, port.id)
+                  }}
                   style={{
                     marginRight: 3,
                     color: '#10b981',
                     fontWeight: 700,
+                    cursor: 'pointer',
+                    pointerEvents: 'auto',
                   }}
-                  title="Vor Ort gesteckt (vom Mobile-Viewer markiert)"
+                  title="Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken"
                 >
                   ✓
                 </span>
@@ -854,8 +866,21 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             >
               {isPlugged && (
                 <span
-                  style={{ marginRight: 3, color: '#10b981', fontWeight: 700 }}
-                  title="Vor Ort gesteckt (vom Mobile-Viewer markiert)"
+                  role="button"
+                  tabIndex={0}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    clearPortCheck(id, port.id)
+                  }}
+                  style={{
+                    marginRight: 3,
+                    color: '#10b981',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    pointerEvents: 'auto',
+                  }}
+                  title="Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken"
                 >
                   ✓
                 </span>

@@ -419,6 +419,14 @@ export interface ProjectState {
    *  Komplettes Objekt-Replace damit gelöschte Checks (false → kein
    *  key) auch übernommen werden. */
   setCheckState: (checks: { ports: Record<string, boolean>; cables: Record<string, boolean> }) => void
+  /** Einzelnen Port-Check (Mobile-Haeckchen) im Canvas entfernen.
+   *  User-Request: "man muss die haken an den ports die man mobil
+   *  gemacht hat im normalen canvas auch wieder loeschen koennen". */
+  clearPortCheck: (deviceId: string, portId: string) => void
+  /** Einzelnen Cable-Check (Mobile-Haeckchen) im Canvas entfernen. */
+  clearCableCheck: (cableId: string) => void
+  /** Alle Mobile-Haeckchen (Ports + Kabel) auf einmal zuruecksetzen. */
+  clearAllMobileChecks: () => void
   /** v7.9.54 — Vom Mobile-Viewer hinzugefügtes Kabel ins Projekt. Wird
    *  mit addedFromMobile=true markiert (Canvas zeigt 📱-Badge). */
   addCableFromMobile: (input: {
@@ -2307,6 +2315,52 @@ const buildProjectStore = (
   setCheckState: (checks) =>
     set((state) => {
       const updated = { ...state.project, checkState: checks }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  clearPortCheck: (deviceId, portId) =>
+    set((state) => {
+      const cur = state.project.checkState
+      if (!cur) return state
+      const key = `${deviceId}|${portId}`
+      if (!cur.ports[key]) return state
+      const nextPorts = { ...cur.ports }
+      delete nextPorts[key]
+      const updated = {
+        ...state.project,
+        checkState: { ports: nextPorts, cables: cur.cables },
+      }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  clearCableCheck: (cableId) =>
+    set((state) => {
+      const cur = state.project.checkState
+      if (!cur) return state
+      if (!cur.cables[cableId]) return state
+      const nextCables = { ...cur.cables }
+      delete nextCables[cableId]
+      const updated = {
+        ...state.project,
+        checkState: { ports: cur.ports, cables: nextCables },
+      }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  clearAllMobileChecks: () =>
+    set((state) => {
+      const cur = state.project.checkState
+      if (!cur) return state
+      if (
+        Object.keys(cur.ports).length === 0 &&
+        Object.keys(cur.cables).length === 0
+      ) {
+        return state
+      }
+      const updated = {
+        ...state.project,
+        checkState: { ports: {}, cables: {} },
+      }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
