@@ -22,6 +22,7 @@ import { printPdfBlob } from '../../lib/printPdfBlob'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
+import { LayerVisibilityChips } from '../Canvas/LayerVisibilityChips'
 import type { Cable } from '../../types/cable'
 
 export type ExportFormat = 'pdf' | 'png' | 'jpeg'
@@ -339,6 +340,21 @@ const PlanSection = ({
               </p>
             </fieldset>
           )}
+          {/* Ebenen-Filter — uebernimmt die Chip-Komponente aus der
+              Canvas-Toolbar. Same store, daher synchronisiert sich die
+              Auswahl bidirektional. "Nur Video drucken" = alle anderen
+              Chips ausschalten, exportieren, Chips wieder einschalten. */}
+          <fieldset className="space-y-1">
+            <legend className="mb-1 text-xs font-semibold text-slate-300">
+              Ebenen (im PDF enthalten)
+            </legend>
+            <div className="-mx-1 flex flex-wrap gap-1">
+              <LayerVisibilityChips />
+            </div>
+            <p className="text-[10px] text-slate-500">
+              Klick auf einen Chip schaltet die Ebene fuer Canvas UND PDF um.
+            </p>
+          </fieldset>
         </>
       )}
 
