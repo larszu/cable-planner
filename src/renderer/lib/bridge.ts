@@ -182,6 +182,10 @@ type CablePlannerApi = {
       message: string
       state: VideohubState | null
     }>
+    /** Issue #248 — mDNS-Auto-Discovery fuer Videohubs (Bonjour). */
+    discover: (params?: { timeoutMs?: number }) => Promise<
+      Array<{ name: string; ip: string; port: number; model?: string }>
+    >
   }
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) => void
@@ -632,6 +636,7 @@ const webFallbackApi: CablePlannerApi = {
       message: 'TCP-Lese-Zugriff erfordert die Desktop-App.',
       state: null,
     }),
+    discover: async () => [],
   },
   logs: {
     rendererError: () => {},

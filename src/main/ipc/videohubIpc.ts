@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron'
 import net from 'net'
+import { Bonjour, type Service } from 'bonjour-service'
 
 /**
  * v7.9.128 — Parser fuer Videohub-Protokoll-State-Dumps.
@@ -302,6 +303,63 @@ export function registerVideohubIpc() {
           })
         },
       )
+    },
+  )
+
+  // Issue #248 — mDNS-Auto-Discovery fuer Videohubs.
+  //
+  // Blackmagic Videohubs broadcasten sich als "_blackmagic._tcp.local"
+  // mit TXT-Record class=videohub o.ae. Wir nutzen denselben Bonjour-
+  // Service-Type wie ATEM-Discovery (#248: "bei Atem live Integration
+  // findet er den Videohub in der Suche") und filtern client-seitig
+  // auf videohub-typische Modellnamen/TXT-Records aus.
+  ipcMain.handle(
+    'videohub:discover',
+    async (
+      _event,
+      params?: { timeoutMs?: number },
+    ): Promise<Array<{ name: string; ip: string; port: number; model?: string }>> => {
+      const timeoutMs = Math.max(500, Math.min(15000, params?.timeoutMs ?? 3000))
+      const bonjour = new Bonjour()
+      const found = new Map<string, { name: string; ip: string; port: number; model?: string }>()
+      const browser = bonjour.find({ type: 'blackmagic' })
+      const looksLikeVideohub = (svc: Service): boolean => {
+        const haystack = [
+          svc.name,
+          svc.fqdn,
+          // TXT-Records koennen "class=videohub" oder "model=..." tragen.
+          ...(svc.txt && typeof svc.txt === 'object'
+            ? Object.values(svc.txt as Record<string, unknown>).map((v) => String(v))
+            : []),
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase()
+        return /videohub|video hub|smart.?videohub/.test(haystack)
+      }
+      const onUp = (svc: Service) => {
+        const ip = svc.referer?.address ?? svc.addresses?.[0]
+        if (!ip) return
+        if (!looksLikeVideohub(svc)) return
+        const key = svc.fqdn || svc.name || ip
+        if (found.has(key)) return
+        const model =
+          svc.txt && typeof svc.txt === 'object' && 'model' in (svc.txt as Record<string, unknown>)
+            ? String((svc.txt as Record<string, unknown>).model)
+            : undefined
+        found.set(key, {
+          name: svc.name || svc.fqdn || ip,
+          ip,
+          // Videohub-Protokoll ist immer Port 9990.
+          port: 9990,
+          model,
+        })
+      }
+      browser.on('up', onUp)
+      await new Promise<void>((resolve) => setTimeout(resolve, timeoutMs))
+      browser.stop()
+      bonjour.destroy()
+      return [...found.values()].sort((a, b) => a.name.localeCompare(b.name))
     },
   )
 }

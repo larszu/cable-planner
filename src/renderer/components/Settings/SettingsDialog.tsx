@@ -599,6 +599,23 @@ const AppearanceTab = () => {
   const connectorTypeColors = useUiStore((s) => s.connectorTypeColors)
   const setConnectorTypeColor = useUiStore((s) => s.setConnectorTypeColor)
   const resetConnectorTypeColors = useUiStore((s) => s.resetConnectorTypeColors)
+  // Issue #274 — Kategorie-Farben. Sammelt alle Kategorien aus dem aktuellen
+  // Projekt + Custom-Library + Rentman-Catalog damit der User fuer jede
+  // existierende Kategorie eine Farbe vergeben kann (z.B. Monitore=blau).
+  const categoryColors = useUiStore((s) => s.categoryColors)
+  const setCategoryColor = useUiStore((s) => s.setCategoryColor)
+  const resetCategoryColors = useUiStore((s) => s.resetCategoryColors)
+  const projectEquipment = useProjectStore((s) => s.project.equipment)
+  const knownCategories = useProjectStore((s) => s.knownCategories)
+  const customLibrary = useProjectStore((s) => s.customLibrary)
+  const allKnownCategories = useMemo(() => {
+    const set = new Set<string>()
+    knownCategories.forEach((c) => c && set.add(c))
+    customLibrary.forEach((t) => t.category && set.add(t.category))
+    projectEquipment.forEach((eq) => eq.category && set.add(eq.category))
+    Object.keys(categoryColors).forEach((c) => c && set.add(c))
+    return Array.from(set).sort((a, b) => a.localeCompare(b))
+  }, [knownCategories, customLibrary, projectEquipment, categoryColors])
   // User-defined connector types (from the cable-type editor) are merged
   // into the colour grid so a newly added type immediately gets its own
   // colour picker without a reload.
@@ -980,6 +997,59 @@ const AppearanceTab = () => {
             {t('settings.connectorColors.resetAll', 'Alle zurücksetzen')}
           </button>
         </div>
+      </SettingsCard>
+
+      <SettingsCard
+        title={t('settings.categoryColors.title', 'Geräte-Farben pro Kategorie')}
+        description={t(
+          'settings.categoryColors.desc',
+          'Default-Farbe je Kategorie (z.B. Monitore=blau). Gilt fuer alle Geraete dieser Kategorie ohne eigene Farbe. Eine pro Geraet gesetzte Farbe gewinnt weiterhin.',
+        )}
+      >
+        {allKnownCategories.length === 0 ? (
+          <div className="text-[11px] text-slate-500">
+            Noch keine Kategorien bekannt. Wird gefuellt sobald Geraete im Plan oder in der Library Kategorien haben.
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm md:grid-cols-3">
+            {allKnownCategories.map((cat) => {
+              const override = categoryColors[cat] ?? ''
+              const effective = override || '#94a3b8'
+              return (
+                <label key={cat} className="flex items-center gap-2 text-slate-200">
+                  <input
+                    type="color"
+                    value={effective}
+                    onChange={(e) => setCategoryColor(cat, e.target.value)}
+                    className="h-6 w-8 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
+                  />
+                  <span className="flex-1 truncate text-xs" title={cat}>{cat}</span>
+                  {override && (
+                    <button
+                      type="button"
+                      onClick={() => setCategoryColor(cat, null)}
+                      className="rounded bg-slate-700 px-1 py-0.5 text-[10px] text-slate-300 hover:bg-slate-600"
+                      title="Auf Default zuruecksetzen"
+                    >
+                      ↺
+                    </button>
+                  )}
+                </label>
+              )
+            })}
+          </div>
+        )}
+        {allKnownCategories.length > 0 && (
+          <div className="mt-3 flex justify-end">
+            <button
+              type="button"
+              onClick={() => resetCategoryColors()}
+              className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-300 hover:bg-slate-700"
+            >
+              {t('settings.categoryColors.resetAll', 'Alle zuruecksetzen')}
+            </button>
+          </div>
+        )}
       </SettingsCard>
     </div>
   )
