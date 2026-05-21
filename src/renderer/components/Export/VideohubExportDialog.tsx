@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { useProjectStore } from '../../store/projectStore'
 import { guessVideohubPresetKey } from '../../lib/deviceKind'
 import { downloadBlob } from '../../lib/downloadBlob'
@@ -156,7 +156,9 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   })
 
   // TCP send state
-  const [vhHost, setVhHost] = useState('192.168.1.1')
+  // #250 Comment: Wenn das Geraet in den Eigenschaften eine IP hat,
+  // soll das IP-Feld hier vorausgefuellt sein.
+  const [vhHost, setVhHost] = useState(() => initialDevice?.ipAddress?.trim() || '192.168.1.1')
   const [vhPort, setVhPort] = useState('9990')
   const [sendStatus, setSendStatus] = useState<SendStatus>('idle')
   const [sendMessage, setSendMessage] = useState('')
@@ -315,6 +317,23 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
 
   const device = equipment.find((e) => e.id === deviceId)
   const preset = videohubPresets.find((p) => p.key === presetKey) ?? videohubPresets[0]
+
+  // #250 Comment: Bei Geraete-Wechsel die IP aus den Geraete-Eigenschaften
+  // ins TCP-Host-Feld uebernehmen. Nur wenn der User noch nicht selbst
+  // editiert hat (= das Feld auf einem Default oder einer vorigen
+  // Geraete-IP steht) und das neue Geraet eine IP hat. Wir lassen also
+  // dem User die Moeglichkeit, manuell zu uebersteuern und dann nicht
+  // beim Geraete-Switch wieder ueberschrieben zu werden.
+  const lastDeviceIpRef = useRef<string | null>(initialDevice?.ipAddress?.trim() || null)
+  useEffect(() => {
+    const newIp = device?.ipAddress?.trim()
+    if (!newIp) return
+    if (vhHost === '192.168.1.1' || vhHost === lastDeviceIpRef.current) {
+      setVhHost(newIp)
+    }
+    lastDeviceIpRef.current = newIp
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deviceId])
 
   // v7.9.119 / Issue #237 — XP Smart Routing.
   // Analysiert die Canvas-Kabel des selektierten Videohub-Devices:
