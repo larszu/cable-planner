@@ -98,8 +98,12 @@ export const CableContextMenu = () => {
   const globalCableBumps = useUiStore((s) => s.cableBumps)
   const updateCable = useProjectStore((s) => s.updateCable)
   const deleteCable = useProjectStore((s) => s.deleteCable)
+  const clearCableCheck = useProjectStore((s) => s.clearCableCheck)
   const cable = useProjectStore((s) =>
     menu.open ? s.project.cables.find((c) => c.id === menu.cableId) : undefined,
+  )
+  const cableIsChecked = useProjectStore(
+    (s) => (cable ? !!s.project.checkState?.cables[cable.id] : false),
   )
   const [submenu, setSubmenu] = useState<'routing' | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -248,6 +252,20 @@ export const CableContextMenu = () => {
           icon="📌"
         >
           In Plan übernehmen (Handy-Vorschlag akzeptieren)
+        </Item>
+      )}
+      {/* Mobile-Haken am Kabel entfernen — User-Request: "im normalen
+          canvas auch wieder loeschen koennen". Nur sichtbar wenn das
+          Kabel im Mobile-Viewer als gesteckt markiert wurde. */}
+      {cableIsChecked && (
+        <Item
+          onClick={() => {
+            clearCableCheck(cable.id)
+            close()
+          }}
+          icon="✗"
+        >
+          Mobile-Haken entfernen
         </Item>
       )}
       <Separator />
