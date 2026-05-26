@@ -16,6 +16,7 @@ import { VideohubRoutingList } from './VideohubRoutingList'
 import { cablePlannerApi, hasDesktopBridge, type VideohubState } from '../../lib/bridge'
 import { portDisplayLabel } from '../../lib/portLabel'
 import { isWithinDistance } from '../../lib/levenshtein'
+import { promptDialog } from '../../lib/promptDialog'
 
 // #237 — Stop-Words die im Smart-Routing nicht zum Score beitragen.
 // "out"/"in" matched sonst auf praktisch jeden Port-Namen weil beide
@@ -276,8 +277,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
       /* ignore quota */
     }
   }
-  const saveSalvo = () => {
-    const name = window.prompt('Salvo-Name (= Routing-Snapshot speichern):')?.trim()
+  const saveSalvo = async () => {
+    const name = (await promptDialog('Salvo-Name (= Routing-Snapshot speichern):'))?.trim()
     if (!name) return
     const next: Salvo[] = [
       { id: crypto.randomUUID(), name, routing: { ...routing }, createdAt: Date.now() },
@@ -943,7 +944,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               </div>
               <button
                 type="button"
-                onClick={saveSalvo}
+                onClick={() => void saveSalvo()}
                 className="rounded bg-cyan-700 px-2 py-0.5 text-[11px] text-white hover:bg-cyan-600"
                 title="Aktuelles Routing als benannten Snapshot speichern"
               >

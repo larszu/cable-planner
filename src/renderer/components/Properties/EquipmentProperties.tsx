@@ -1632,14 +1632,11 @@ const PortAiSuggestButton = ({
             {hasExisting && (
               <button
                 type="button"
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      `Bestehende ${equipment.inputs.length} In / ${equipment.outputs.length} Out durch AI-Vorschlag ueberschreiben?`,
-                    )
-                  ) {
-                    apply('replace')
-                  }
+                onClick={async () => {
+                  const ok = await confirmDialog(
+                    `Bestehende ${equipment.inputs.length} In / ${equipment.outputs.length} Out durch AI-Vorschlag ueberschreiben?`,
+                  )
+                  if (ok) apply('replace')
                 }}
                 className="rounded bg-amber-700 px-2 py-0.5 text-[10px] text-amber-100 hover:bg-amber-600"
                 title="Loescht aktuelle Ports und nimmt die AI-Vorschlaege"
