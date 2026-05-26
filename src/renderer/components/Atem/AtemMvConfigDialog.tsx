@@ -3,6 +3,7 @@ import { toPng } from 'html-to-image'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, type AtemInputSummary } from '../../lib/bridge'
+import { confirmDialog } from '../../lib/confirmDialog'
 import type {
   AtemMvConfig,
   AtemMvDefinition,
@@ -861,9 +862,9 @@ export const AtemMvConfigDialog = () => {
       // versehentlich seine offline geplante MV-Anordnung verliert.
       const hasLocalData = config.multiViewers.some((mv) => (mv.windows ?? []).some((w) => w.sourceId !== 0))
       if (hasLocalData) {
-        const ok = window.confirm(
+        const ok = await confirmDialog(
           `Aktuelle MV-Konfiguration (${config.multiViewers.length} MV) mit ATEM-Live-Stand ` +
-            `überschreiben?\n\nVom ATEM: ${incoming.length} MV mit ${totalWindows} Fenster-Zuweisungen.`,
+            `überschreiben? Vom ATEM: ${incoming.length} MV mit ${totalWindows} Fenster-Zuweisungen.`,
         )
         if (!ok) {
           setStatus('Übernahme abgebrochen.')
