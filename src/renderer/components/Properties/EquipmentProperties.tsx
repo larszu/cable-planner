@@ -476,6 +476,24 @@ const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }: PortL
                 </select>
               </div>
             </div>
+            {/* #286 — Inhaltliches Label fuer das gefuehrte Signal (PGM,
+                PVW, MV1, Cam1, Slot 3). Optional; bleibt leer wenn der
+                Port kein semantisch fixes Signal traegt. Wenn gesetzt
+                wird es auf dem Canvas als Haupt-Label gerendert und im
+                ATEM-/Videohub-Export bevorzugt. */}
+            <div className="mt-1">
+              <input
+                aria-label="Inhalt / Funktion"
+                value={port.contentLabel ?? ''}
+                onChange={(event) => {
+                  const v = event.target.value
+                  updatePort(port.id, { contentLabel: v ? v : undefined })
+                }}
+                placeholder="Inhalt / Funktion (z.B. PGM, PVW, MV1, Cam1) — optional"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                title="Was geht durch diesen Port? Trennt 'Inhalt' (PGM/PVW) vom Hardware-Standard (SDI 3G/12G)."
+              />
+            </div>
             <div className="mt-1 grid grid-cols-2 gap-1">
               <select
                 aria-label="Port direction"

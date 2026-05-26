@@ -7,6 +7,7 @@ import { colorForConnector } from '../../lib/cableColors'
 import { defaultIconForEquipment } from '../../lib/deviceKind'
 import { findGreenGoUserForEquipment } from '../../lib/greengoSync'
 import { rackBandColor } from '../../lib/rackBandColors'
+import { portDisplayLabel } from '../../lib/portLabel'
 import {
   RackBandsOverlay,
   RackInternalCablesOverlay,
@@ -754,9 +755,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               )}
               {isRackInternal && <span style={{ marginRight: 3 }}>🔒</span>}
               {isLeft ? (
-                <>{port.name}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
+                <>{portDisplayLabel(port)}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
               ) : (
-                <><span style={{ color: isLight ? '#94a3b8' : '#64748b' }}>{port.connectorType} · </span>{port.name}</>
+                <><span style={{ color: isLight ? '#94a3b8' : '#64748b' }}>{port.connectorType} · </span>{portDisplayLabel(port)}</>
               )}
             </span>
           </div>
@@ -903,9 +904,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               )}
               {isRackInternal && <span style={{ marginRight: 3 }}>🔒</span>}
               {isLeft ? (
-                <>{port.name}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
+                <>{portDisplayLabel(port)}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
               ) : (
-                <><span style={{ color: isLight ? '#94a3b8' : '#64748b' }}>{port.connectorType} · </span>{port.name}</>
+                <><span style={{ color: isLight ? '#94a3b8' : '#64748b' }}>{port.connectorType} · </span>{portDisplayLabel(port)}</>
               )}
             </span>
           </div>

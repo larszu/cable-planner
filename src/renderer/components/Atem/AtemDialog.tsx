@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { cablePlannerApi, type AtemStateSummary, type AtemInputSummary } from '../../lib/bridge'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
+import { portDisplayLabel } from '../../lib/portLabel'
 
 interface AtemDialogProps {
   onClose: () => void
@@ -143,13 +144,17 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
 
   // Default-name suggestions derived from the project's port names.
   // #290 — equipment.outputs werden gegen ME-Outputs / AUX / MV gemappt.
+  // #286 — contentLabel ("PGM", "Cam1") gewinnt gegen port.name. Der
+  //  Long-/Short-Name auf dem ATEM ist eh nur 20/4 Zeichen — die kompakte
+  //  inhaltliche Bezeichnung passt da besser rein als der ausgeschriebene
+  //  Canvas-Port-Name ("1 SDI 3G PGM (1080p50/60)" → "PGM").
   const projectInputNames = useMemo(() => {
     if (!equipment) return [] as string[]
-    return equipment.inputs.map((p) => p.name)
+    return equipment.inputs.map((p) => portDisplayLabel(p))
   }, [equipment])
   const projectOutputNames = useMemo(() => {
     if (!equipment) return [] as string[]
-    return equipment.outputs.map((p) => p.name)
+    return equipment.outputs.map((p) => portDisplayLabel(p))
   }, [equipment])
 
   useEffect(() => {

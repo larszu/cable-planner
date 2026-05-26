@@ -1,4 +1,5 @@
 import type { EquipmentItem } from '../types/equipment'
+import { portDisplayLabel } from './portLabel'
 
 /**
  * Build the simple Videohub label-import .txt used by older tooling:
@@ -20,12 +21,15 @@ export const buildVideohubLabelTxt = (
   const lines: string[] = []
   for (let i = 0; i < totalIn; i++) {
     const port = device.inputs[i]
-    const label = port?.name ? `${i + 1} ${port.name}`.trim() : `${i + 1}`
+    // #286 — contentLabel ("PGM", "Cam1") gewinnt gegen port.name wenn gesetzt.
+    const display = port ? portDisplayLabel(port) : ''
+    const label = display ? `${i + 1} ${display}`.trim() : `${i + 1}`
     lines.push(`Input, ${i + 1}, ${label}`)
   }
   for (let i = 0; i < totalOut; i++) {
     const port = device.outputs[i]
-    const label = port?.name ? `${i + 1} ${port.name}`.trim() : `${i + 1}`
+    const display = port ? portDisplayLabel(port) : ''
+    const label = display ? `${i + 1} ${display}`.trim() : `${i + 1}`
     lines.push(`Output, ${i + 1}, ${label}`)
   }
   return lines.join('\r\n') + '\r\n'
@@ -83,14 +87,17 @@ export const buildVideohubRoutingDump = (
   out.push('INPUT LABELS:')
   for (let i = 0; i < totalIn; i++) {
     const port = device.inputs[i]
-    const label = port?.name ? `${i + 1} ${port.name}`.trim() : `${i + 1}`
+    // #286 — bevorzugt contentLabel (PGM/PVW) vor port.name.
+    const display = port ? portDisplayLabel(port) : ''
+    const label = display ? `${i + 1} ${display}`.trim() : `${i + 1}`
     out.push(`${i} ${label}`)
   }
   out.push('')
   out.push('OUTPUT LABELS:')
   for (let i = 0; i < totalOut; i++) {
     const port = device.outputs[i]
-    const label = port?.name ? `${i + 1} ${port.name}`.trim() : `${i + 1}`
+    const display = port ? portDisplayLabel(port) : ''
+    const label = display ? `${i + 1} ${display}`.trim() : `${i + 1}`
     out.push(`${i} ${label}`)
   }
   out.push('')

@@ -14,6 +14,7 @@ import {
 import { VideohubRoutingMatrix } from './VideohubRoutingMatrix'
 import { VideohubRoutingList } from './VideohubRoutingList'
 import { cablePlannerApi, hasDesktopBridge, type VideohubState } from '../../lib/bridge'
+import { portDisplayLabel } from '../../lib/portLabel'
 
 interface Props {
   onClose: () => void
@@ -471,13 +472,16 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   // (folgt in einem spaeteren Commit), wuerde der Override hier eingreifen.
   const computeEffectiveInputLabels = (): string[] =>
     Array.from({ length: preset.inputs }, (_, i) => {
-      const portName = device?.inputs[i]?.name ?? `In ${i + 1}`
+      // #286 — contentLabel (PGM/PVW/Cam1) gewinnt vor port.name.
+      const port = device?.inputs[i]
+      const portName = port ? portDisplayLabel(port) || `In ${i + 1}` : `In ${i + 1}`
       const conn = connections.inputConn.get(i)
       return conn ? `${portName} <- ${conn.sourceName}` : portName
     })
   const computeEffectiveOutputLabels = (): string[] =>
     Array.from({ length: preset.outputs }, (_, i) => {
-      const portName = device?.outputs[i]?.name ?? `Out ${i + 1}`
+      const port = device?.outputs[i]
+      const portName = port ? portDisplayLabel(port) || `Out ${i + 1}` : `Out ${i + 1}`
       const conn = connections.outputConn.get(i)
       return conn ? `${portName} -> ${conn.destName}` : portName
     })
@@ -754,7 +758,9 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               const inputLabelParts = Array.from({ length: preset.inputs }, (_, i) => {
                 const hubLabel = hubState?.inputLabels?.[i]
                 if (hubLabel) return { port: hubLabel }
-                const portName = device?.inputs[i]?.name ?? `In ${i + 1}`
+                // #286 — Canvas-Port: contentLabel bevorzugt vor port.name.
+                const p = device?.inputs[i]
+                const portName = p ? portDisplayLabel(p) || `In ${i + 1}` : `In ${i + 1}`
                 const conn = connections.inputConn.get(i)
                 if (!conn || !showConnections) return { port: portName }
                 return {
@@ -776,7 +782,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                       ? ' 🔒❗'
                       : ''
                 if (hubLabel) return { port: hubLabel, lockBadge }
-                const portName = device?.outputs[i]?.name ?? `Out ${i + 1}`
+                const p = device?.outputs[i]
+                const portName = p ? portDisplayLabel(p) || `Out ${i + 1}` : `Out ${i + 1}`
                 const conn = connections.outputConn.get(i)
                 if (!conn || !showConnections) return { port: portName, lockBadge }
                 return {
