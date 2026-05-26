@@ -2275,6 +2275,26 @@ export const EquipmentProperties = () => {
             />
             Gepackt / Pack-Status
           </label>
+          {/* #285 — Wandler-Flag. Wenn aktiv, "ueberspringt" die
+              Patchliste dieses Geraet und zeigt direkt das naechste
+              echte Ziel ("Kamera -> [Konverter] -> ATEM"). Nur fuer
+              eindeutige 1-In/1-Out-Wandler relevant; bei mehrdeutigen
+              Geraeten wird trotzdem ohne Pass-Through angezeigt. */}
+          <label
+            className="flex items-center gap-2 text-[11px] text-slate-300"
+            title="Wandler-Marker: in der Patchliste wird dieses Gerät übersprungen und das nächste echte Ziel direkt angezeigt. Sinnvoll für SDI-HDMI-Konverter, Format-Wandler, Embedder/De-Embedder etc."
+          >
+            <input
+              type="checkbox"
+              checked={!!equipment.isConverter}
+              onChange={(event) =>
+                updateEquipment(equipment.id, {
+                  isConverter: event.target.checked || undefined,
+                })
+              }
+            />
+            Wandler (Patchliste folgt Durchgangskabel)
+          </label>
         </div>
       </SortableSection>
 
