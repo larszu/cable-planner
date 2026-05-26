@@ -844,6 +844,54 @@ export const AtemMvConfigDialog = () => {
     }
   }
 
+  /**
+   * #288 — MV-Setup vom verbundenen ATEM lesen und in die lokale Konfig
+   * uebernehmen. Holt sich die Daten via atem:read-mv-config (Main-Process
+   * macht das Window-Index-Mapping ATEM → CP fuer uns) und ueberschreibt
+   * `config` nach Bestaetigung.
+   */
+  const handleReadFromAtem = async () => {
+    try {
+      setStatus('Lese vom ATEM …')
+      const result = await cablePlannerApi.atem.readMvConfig()
+      const incoming = result.multiViewers
+      if (!incoming || incoming.length === 0) {
+        setStatus('ATEM hat keine MV-Konfiguration geliefert.')
+        return
+      }
+      const totalWindows = incoming.reduce((s, m) => s + m.windows.length, 0)
+      // Confirm bei nicht-leerer Bestands-Config damit der User nicht
+      // versehentlich seine offline geplante MV-Anordnung verliert.
+      const hasLocalData = config.multiViewers.some((mv) => (mv.windows ?? []).some((w) => w.sourceId !== 0))
+      if (hasLocalData) {
+        const ok = window.confirm(
+          `Aktuelle MV-Konfiguration (${config.multiViewers.length} MV) mit ATEM-Live-Stand ` +
+            `überschreiben?\n\nVom ATEM: ${incoming.length} MV mit ${totalWindows} Fenster-Zuweisungen.`,
+        )
+        if (!ok) {
+          setStatus('Übernahme abgebrochen.')
+          return
+        }
+      }
+      // Lokale Quadranten-Defaults sicherstellen wenn der ATEM nur Layout +
+      // Windows liefert (kein quadrants-Field aus Hardware). `closestAtemLayout`
+      // wird beim Senden zurueck berechnet — fuer die Anzeige reicht ein
+      // Standard-Quadranten-Tupel das zum Layout passt; wir lassen das aktuell
+      // weg und vertrauen dem getMvQuadrants()-Helper.
+      setConfig({
+        multiViewers: incoming.map((mv) => ({
+          index: mv.index,
+          layout: mv.layout,
+          programPreviewSwapped: mv.programPreviewSwapped,
+          windows: mv.windows,
+        })),
+      })
+      setStatus(`Vom ATEM geladen: ${incoming.length} MV, ${totalWindows} Fenster.`)
+    } catch (err) {
+      setStatus(`Fehler: ${(err as Error).message}`)
+    }
+  }
+
   const mv = config.multiViewers[activeMv]
   const quadrants: AtemMvQuadrants = mv
     ? getMvQuadrants(mv)
@@ -1086,6 +1134,20 @@ export const AtemMvConfigDialog = () => {
               className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
             >
               Zwischenspeichern
+            </button>
+            {/* #288 — Live-MV-Setup vom ATEM holen. */}
+            <button
+              type="button"
+              onClick={() => void handleReadFromAtem()}
+              disabled={!connected}
+              className="rounded bg-sky-700 px-3 py-1 text-xs enabled:hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
+              title={
+                connected
+                  ? 'Multiviewer-Setup vom verbundenen ATEM auslesen und in die Anzeige uebernehmen.'
+                  : 'ATEM nicht verbunden — erst im ATEM-Dialog verbinden.'
+              }
+            >
+              ⬇ Vom ATEM laden
             </button>
             <button
               type="button"

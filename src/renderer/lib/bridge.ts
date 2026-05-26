@@ -144,6 +144,17 @@ type CablePlannerApi = {
         windows: { windowIndex: number; sourceId: number }[]
       }[]
     }) => Promise<{ applied: number }>
+    /** #288 — Live-MV-Setup vom verbundenen ATEM auslesen. Liefert die
+     *  Konfiguration im CP-Quadranten-Schema (windowIndex 0..3 + 10..43),
+     *  passt also direkt in AtemMvConfig.multiViewers. */
+    readMvConfig: () => Promise<{
+      multiViewers: Array<{
+        index: number
+        layout: number
+        programPreviewSwapped: boolean
+        windows: Array<{ windowIndex: number; sourceId: number }>
+      }>
+    }>
     /** v7.9.52 — OpenSwitcher-style Live-Audio-State lesen. */
     readAudioConfig: () => Promise<{
       matrix?: {
@@ -628,6 +639,9 @@ const webFallbackApi: CablePlannerApi = {
     getEvents: async () => [],
     getStatus: async () => ({ connected: false, ip: null }),
     applyMvConfig: async () => {
+      throw new Error('ATEM control requires the desktop app.')
+    },
+    readMvConfig: async () => {
       throw new Error('ATEM control requires the desktop app.')
     },
     readAudioConfig: async () => null,

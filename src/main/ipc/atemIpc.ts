@@ -1,7 +1,7 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import { Atem, AtemConnectionStatus } from 'atem-connection'
 import { Bonjour, type Service } from 'bonjour-service'
-import { mapCpWindowIndexToAtem } from '../util/mvWindowMapping.js'
+import { mapAtemWindowIndexToCp, mapCpWindowIndexToAtem } from '../util/mvWindowMapping.js'
 
 /**
  * Singleton ATEM session. Only one device at a time is supported - matches the
@@ -245,6 +245,58 @@ export const registerAtemIpc = () => {
     connected: !!atem && atem.status === AtemConnectionStatus.CONNECTED,
     ip: connectedIp,
   }))
+
+  // #288 — MV-Setup vom live verbundenen ATEM auslesen und in das
+  // CP-Quadranten-Schema konvertieren. Spiegel zu atem:apply-mv-config:
+  // dort schickt der Renderer CP-Indices an die Hardware, hier lesen wir
+  // die Hardware-Indices zurueck und uebersetzen sie zur CP-Form damit
+  // sie 1:1 in den AtemMvConfig-State passen.
+  ipcMain.handle(
+    'atem:read-mv-config',
+    async (): Promise<{
+      multiViewers: Array<{
+        index: number
+        layout: number
+        programPreviewSwapped: boolean
+        windows: Array<{ windowIndex: number; sourceId: number }>
+      }>
+    }> => {
+      if (!atem || atem.status !== AtemConnectionStatus.CONNECTED) {
+        throw new Error('ATEM not connected')
+      }
+      const state = atem.state
+      const mvSettings = state?.settings?.multiViewers ?? []
+      const result = mvSettings.map((mv, mvIndex) => {
+        if (!mv) {
+          return {
+            index: mvIndex,
+            layout: 0,
+            programPreviewSwapped: false,
+            windows: [] as Array<{ windowIndex: number; sourceId: number }>,
+          }
+        }
+        const layout = mv.properties?.layout ?? 0
+        const windows: Array<{ windowIndex: number; sourceId: number }> = []
+        mv.windows.forEach((window, atemWindowIndex) => {
+          if (!window) return
+          const cpIndex = mapAtemWindowIndexToCp(atemWindowIndex, layout)
+          if (cpIndex === undefined) return
+          windows.push({ windowIndex: cpIndex, sourceId: window.source ?? 0 })
+        })
+        return {
+          index: mvIndex,
+          layout,
+          programPreviewSwapped: mv.properties?.programPreviewSwapped ?? false,
+          windows,
+        }
+      })
+      pushEvent(
+        `Read MV config: ${result.length} multi-viewer(s), ` +
+          `${result.reduce((s, m) => s + m.windows.length, 0)} window-assignments`,
+      )
+      return { multiViewers: result }
+    },
+  )
 
   ipcMain.handle(
     'atem:apply-mv-config',
