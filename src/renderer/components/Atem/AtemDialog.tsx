@@ -4,6 +4,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { portDisplayLabel, shortenForAtem } from '../../lib/portLabel'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
+import { ModalShell } from '../shared/ModalShell'
 
 interface AtemDialogProps {
   onClose: () => void
@@ -293,19 +294,14 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
     }))
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded border border-sky-700 bg-slate-900 text-slate-100">
-        <header className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
-          <h2 className="text-base font-semibold text-sky-300">ATEM Live Integration</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded bg-slate-700 px-2 py-0.5 text-xs hover:bg-slate-600"
-          >
-            ✕ Schließen
-          </button>
-        </header>
-
+    <ModalShell
+      open
+      onClose={onClose}
+      title="ATEM Live Integration"
+      maxWidth="3xl"
+      scrollBody={false}
+    >
+      <div className="flex max-h-[80vh] flex-col text-slate-100">
         <div className="border-b border-slate-700 px-4 py-3">
           <div className="flex items-end gap-2">
             <label className="flex-1 text-xs">
@@ -520,6 +516,6 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
           </pre>
         </details>
       </div>
-    </div>
+    </ModalShell>
   )
 }
