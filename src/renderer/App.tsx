@@ -98,6 +98,10 @@ export default function App() {
   const pendingConnection = useProjectStore((state) => state.pendingConnection)
   const createCableFromPending = useProjectStore((state) => state.createCableFromPending)
   const closeCableDialog = useProjectStore((state) => state.closeCableDialog)
+  // #294 — Port-Konflikt-Dialog.
+  const portConflict = useProjectStore((state) => state.portConflict)
+  const resolvePortConflictByReplace = useProjectStore((state) => state.resolvePortConflictByReplace)
+  const cancelPortConflict = useProjectStore((state) => state.cancelPortConflict)
   const hasToken = useSettingsStore((state) => state.hasToken)
   const setHasToken = useSettingsStore((state) => state.setHasToken)
   const propertiesCollapsed = useUiStore((state) => state.propertiesCollapsed)
@@ -938,6 +942,84 @@ export default function App() {
           onCreate={createCableWithPlanCheck}
         />
       )}
+      {/* #294 — Port-Konflikt-Dialog: erscheint wenn der User auf einen
+          bereits belegten Ziel-Port zieht. Default-Action: Abbrechen, damit
+          eine versehentliche Enter-Taste den Konflikt nicht still ersetzt. */}
+      {portConflict && (() => {
+        const conflictingCables = project.cables.filter((c) =>
+          portConflict.conflictingCableIds.includes(c.id),
+        )
+        const targetEqId = portConflict.connection.target ?? ''
+        const targetEq = project.equipment.find((e) => e.id === targetEqId)
+        const targetPort = targetEq
+          ? [...targetEq.inputs, ...targetEq.outputs].find(
+              (p) => p.id === portConflict.connection.targetHandle,
+            )
+          : undefined
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+            <div className="w-full max-w-md rounded border border-amber-700 bg-slate-900 text-slate-100 shadow-2xl">
+              <header className="border-b border-slate-700 px-4 py-2">
+                <h2 className="text-sm font-semibold text-amber-300">
+                  Port bereits belegt
+                </h2>
+              </header>
+              <div className="px-4 py-3 text-sm">
+                <p className="mb-2">
+                  Der Ziel-Port{' '}
+                  <span className="font-mono text-amber-200">
+                    {targetEq?.name ?? '?'} · {targetPort?.name ?? '?'}
+                  </span>{' '}
+                  ist bereits über{' '}
+                  <strong>
+                    {conflictingCables.length === 1
+                      ? '1 Kabel'
+                      : `${conflictingCables.length} Kabel`}
+                  </strong>{' '}
+                  belegt:
+                </p>
+                <ul className="mb-3 max-h-32 space-y-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-2 text-xs">
+                  {conflictingCables.map((c) => {
+                    const srcEq = project.equipment.find((e) => e.id === c.fromEquipmentId)
+                    const srcPort = srcEq
+                      ? [...srcEq.inputs, ...srcEq.outputs].find((p) => p.id === c.fromPortId)
+                      : undefined
+                    return (
+                      <li key={c.id} className="font-mono text-slate-300">
+                        {srcEq?.name ?? '?'} · {srcPort?.name ?? '?'} →{' '}
+                        {targetEq?.name ?? '?'} · {targetPort?.name ?? '?'}
+                        {c.name ? (
+                          <span className="ml-1 text-slate-500">({c.name})</span>
+                        ) : null}
+                      </li>
+                    )
+                  })}
+                </ul>
+                <p className="text-[12px] text-slate-400">
+                  „Ersetzen" entfernt die obige(n) Verbindung(en) und legt das
+                  neue Kabel an. „Abbrechen" verwirft den Connect-Versuch.
+                </p>
+              </div>
+              <footer className="flex justify-end gap-2 border-t border-slate-700 px-4 py-2">
+                <button
+                  type="button"
+                  onClick={cancelPortConflict}
+                  className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  type="button"
+                  onClick={resolvePortConflictByReplace}
+                  className="rounded bg-amber-700 px-3 py-1 text-xs font-semibold hover:bg-amber-600"
+                >
+                  Ersetzen
+                </button>
+              </footer>
+            </div>
+          </div>
+        )
+      })()}
       {pdfProgress.active && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="w-[420px] max-w-[90vw] rounded-lg border border-slate-700 bg-slate-900 p-5 text-slate-100 shadow-2xl">

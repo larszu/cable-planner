@@ -63,12 +63,20 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // ueberschreiben.
   const categoryColors = useUiStore((s) => s.categoryColors)
   const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
+  // #291 — User-konfigurierbare Port-Label-Schriftgroesse. Skaliert
+  // beide Port-Spalten + die Collapsed-View. Header bleibt fix damit
+  // headerHeight nicht recomputet werden muss.
+  const portLabelFontSize = useUiStore((s) => s.portLabelFontSize)
   const isLight = (data.exportThemeOverride ?? canvasTheme) === 'light'
   const tokens = isLight ? equipmentColors.light : equipmentColors.dark
   // Effektive Geraete-Farbe: per-Geraet > Kategorie > undefined (= Theme-Default).
   const effectiveNodeColor: string | undefined =
     data.nodeColor ?? categoryColors[data.category] ?? undefined
   const queueConnection = useProjectStore((s) => s.queueConnection)
+  // #295 — Plan-Lock-Status. Bei finalized/viewer-Modus duerfen User keine
+  // neuen Kabel mehr ziehen, auch nicht das visuelle Open-End-Pending.
+  const projectMode = useProjectStore((s) => s.project.mode)
+  const isProjectLocked = projectMode === 'finalized' || projectMode === 'viewer'
   // Mobile-Haken-Entfernung (User-Request: "im normalen canvas auch wieder
   // loeschen koennen"). Klick aufs ✓ entfernt den Check fuer diesen Port.
   const clearPortCheck = useProjectStore((s) => s.clearPortCheck)
@@ -189,6 +197,14 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
     side: 'input' | 'output',
   ) => (event: React.MouseEvent) => {
     event.stopPropagation()
+    // #295 — Bei abgeschlossenem Plan oder im Viewer ist Click-to-Connect
+    // komplett blockiert. Vorher konnte der User trotz "Plan abgeschlossen"
+    // ein pendingCable starten + Open-End-Waypoints klicken — wurde zwar
+    // nie als echtes Kabel angelegt (queueConnection prueft den Lock), aber
+    // das visuelle Dangle-Verhalten war irritierend.
+    if (isProjectLocked) {
+      return
+    }
     // v7.9.1 — Rack-intern verkabelte Ports sind "belegt" — kein externes
     // Click-to-Connect erlaubt. Sowohl als Startpunkt als auch als
     // Endpunkt einer pending-Cable verboten.
@@ -406,7 +422,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           border: `1px solid ${selected ? '#38bdf8' : (effectiveNodeColor ?? tokens.border)}`,
           borderRadius: 6,
           color: tokens.text,
-          fontSize: 11,
+          fontSize: portLabelFontSize,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -693,7 +709,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               alignItems: 'center',
               justifyContent: isLeft ? 'flex-start' : 'flex-end',
               textAlign: isLeft ? 'left' : 'right',
-              fontSize: 11,
+              fontSize: portLabelFontSize,
               cursor: isRackInternal ? 'not-allowed' : 'crosshair',
               opacity: isRackInternal ? 0.55 : 1,
               borderRadius: 3,
@@ -842,7 +858,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               alignItems: 'center',
               justifyContent: isLeft ? 'flex-start' : 'flex-end',
               textAlign: isLeft ? 'left' : 'right',
-              fontSize: 11,
+              fontSize: portLabelFontSize,
               cursor: isRackInternal ? 'not-allowed' : 'crosshair',
               opacity: isRackInternal ? 0.55 : 1,
               borderRadius: 3,
