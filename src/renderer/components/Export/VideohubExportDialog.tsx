@@ -15,6 +15,35 @@ import { VideohubRoutingMatrix } from './VideohubRoutingMatrix'
 import { VideohubRoutingList } from './VideohubRoutingList'
 import { cablePlannerApi, hasDesktopBridge, type VideohubState } from '../../lib/bridge'
 import { portDisplayLabel } from '../../lib/portLabel'
+import { isWithinDistance } from '../../lib/levenshtein'
+
+// #237 — Stop-Words die im Smart-Routing nicht zum Score beitragen.
+// "out"/"in" matched sonst auf praktisch jeden Port-Namen weil beide
+// Seiten so heissen; "pgm"/"pvw" matchen ATEM-Outputs faelschlich
+// gegen alles was den String enthaelt (z.B. "Program Monitor").
+// Hardware-Standard-Token kommen weg weil die nichts ueber das
+// _Routing_ aussagen — z.B. ein SDI-Cam-Output und ein SDI-Hub-Output
+// haben "sdi" gemeinsam ohne dass sie verbunden sein muessen.
+const SMART_ROUTING_STOP_WORDS = new Set<string>([
+  'out',
+  'output',
+  'in',
+  'input',
+  'video',
+  'audio',
+  'signal',
+  'port',
+  'sdi',
+  'hdmi',
+  'bnc',
+  'rj45',
+  'xlr',
+  'fiber',
+  'pgm',
+  'pvw',
+  'program',
+  'preview',
+])
 
 interface Props {
   onClose: () => void
@@ -391,6 +420,9 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   // Grenzen damit "DSM1, DSM2, DSM3" alle das Token "dsm" + "1/2/3"
   // produzieren — dann matched ATEM-Input "DSM" auf alle drei Outputs.
   // Sonst waeren "dsm1" und "dsm" gar nicht als Treffer erkannt.
+  // Stop-Words (out/in/sdi/pgm/...) werden hier rausgefiltert, sodass
+  // sie weder im Source- noch im Dest-Token-Set landen — sonst matchen
+  // sie jeden Port faelschlich gegen jeden.
   const tokensOf = (name: string): string[] => {
     const raw = name
       .toLowerCase()
@@ -398,14 +430,40 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
       .filter((t) => t.length >= 1)
     const out = new Set<string>()
     for (const t of raw) {
-      if (t.length >= 2) out.add(t)
+      if (t.length >= 2 && !SMART_ROUTING_STOP_WORDS.has(t)) out.add(t)
       // Letter-Cluster trennen ("dsm1" -> "dsm" + "1").
       const parts = t.match(/[a-zäöüß]+|\d+/gi) ?? []
       for (const p of parts) {
-        if (p.length >= 2) out.add(p.toLowerCase())
+        const pLow = p.toLowerCase()
+        if (p.length >= 2 && !SMART_ROUTING_STOP_WORDS.has(pLow)) out.add(pLow)
       }
     }
     return [...out]
+  }
+  // #237 — Fuzzy-Token-Overlap: ein dest-Token zaehlt als Treffer wenn
+  // exakt in srcTokens vorhanden ODER ein srcToken mit Edit-Distanz <= 1
+  // existiert (1 Tippfehler erlaubt). Edit-Distanz nur auf Tokens >= 4
+  // Zeichen anwenden — sonst matched "in" auf "im"/"an" und das ist
+  // nicht hilfreich. Exact-Matches wiegen 1.0, Fuzzy-Matches 0.7 damit
+  // ein exakter Treffer einen 1-Char-Tippfehler-Treffer immer schlaegt.
+  const fuzzyOverlapScore = (destTokens: string[], srcTokens: string[]): number => {
+    let score = 0
+    const srcSet = new Set(srcTokens)
+    for (const d of destTokens) {
+      if (srcSet.has(d)) {
+        score += 1
+        continue
+      }
+      if (d.length >= 4) {
+        for (const s of srcTokens) {
+          if (s.length >= 4 && isWithinDistance(d, s, 1)) {
+            score += 0.7
+            break
+          }
+        }
+      }
+    }
+    return score
   }
   const generateSmartRouting = () => {
     const next: Record<number, number> = {}
@@ -418,7 +476,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
         for (const [inIdx, src] of connections.inputConn) {
           if (inIdx >= preset.inputs) continue
           const srcTokens = tokensOf(src.sourceName + ' ' + src.portName)
-          const overlap = destTokens.filter((t) => srcTokens.includes(t)).length
+          const overlap = fuzzyOverlapScore(destTokens, srcTokens)
           if (overlap > bestScore) {
             bestScore = overlap
             bestInput = inIdx
