@@ -54,6 +54,14 @@ const summarizeState = () => {
     longName: input?.longName ?? '',
     shortName: input?.shortName ?? '',
     portType: input?.internalPortType,
+    // #289/#293 — externalPortType (Bitmask: SDI=1, HDMI=2, ..., XLR=32,
+    // RCA=128, ...) und areNamesDefault brauchen wir im Renderer um beim
+    // Bulk-Pre-Fill Audio-Quellen (XLR/RJ45-Talkback) und Mediaplayer
+    // nicht aus Versehen zu ueberschreiben. internalPortType klassifiziert
+    // die Source-Kategorie (External=0, MediaPlayer=4/5, MEOutput=128,
+    // Auxiliary=129, MultiViewer=131).
+    externalPortType: input?.externalPortType,
+    areNamesDefault: input?.areNamesDefault ?? false,
     sourceAvailability: input?.sourceAvailability,
   }))
 

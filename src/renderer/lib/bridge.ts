@@ -10,7 +10,18 @@ export interface AtemInputSummary {
   inputId: number
   longName: string
   shortName: string
+  /** InternalPortType: External=0, Black=1, ColorBars=2, ColorGenerator=3,
+   *  MediaPlayerFill=4, MediaPlayerKey=5, SuperSource=6, ExternalDirect=7,
+   *  MEOutput=128, Auxiliary=129, Mask=130, MultiViewer=131. */
   portType?: number
+  /** ExternalPortType bitmask: SDI=1, HDMI=2, Component=4, Composite=8,
+   *  SVideo=16, XLR=32, AESEBU=64, RCA=128, Internal=256, TSJack=512,
+   *  MADI=1024, TRSJack=2048, RJ45=4096. */
+  externalPortType?: number
+  /** true wenn der ATEM noch seine Werks-Default-Labels traegt. Wir
+   *  pre-fillen aus dem Canvas nur wenn entweder default oder leer,
+   *  damit eine bestehende User-Beschriftung nicht ueberschrieben wird. */
+  areNamesDefault?: boolean
   sourceAvailability?: number
 }
 
