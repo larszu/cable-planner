@@ -413,6 +413,14 @@ export interface EquipmentItem {
    *  werden. Die HE-Höhe bleibt die volle Höhe (1HU = klassisches Single-
    *  Shelf), die echte Plattform liegt oben in dieser HE-Range. */
   isRackShelf?: boolean
+  /** #285 — Wandler-Marker. Geraete mit diesem Flag werden in der
+   *  Patchliste "durchgereicht": statt Kabel-A endet-bei-Wandler zu
+   *  zeigen, folgt die Patchliste dem Output-Kabel des Wandlers und
+   *  zeigt das naechste echte Gerät an ("Kamera -> Konverter -> ATEM").
+   *  Heuristik: nur eindeutige 1-In/1-Out-Wandler werden auto-verfolgt;
+   *  bei mehrdeutigen Out-Kabeln zeigt die Patchliste den Wandler weiter
+   *  als normales Ziel. Optional — bleibt undefined fuer normale Geraete. */
+  isConverter?: boolean
 }
 
 /**
