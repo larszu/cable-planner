@@ -84,6 +84,16 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.invoke('atem:get-status') as Promise<{ connected: boolean; ip: string | null }>,
     applyMvConfig: (config: unknown) =>
       ipcRenderer.invoke('atem:apply-mv-config', config) as Promise<{ applied: number }>,
+    /** #288 — Live-MV-Setup vom verbundenen ATEM lesen. */
+    readMvConfig: () =>
+      ipcRenderer.invoke('atem:read-mv-config') as Promise<{
+        multiViewers: Array<{
+          index: number
+          layout: number
+          programPreviewSwapped: boolean
+          windows: Array<{ windowIndex: number; sourceId: number }>
+        }>
+      }>,
     /** v7.9.52 — Liest Live-Audio-State (Fairlight Matrix + Classic Mixer
      *  + Input-Labels) als AtemAudioConfig vom verbundenen ATEM. */
     readAudioConfig: () =>
