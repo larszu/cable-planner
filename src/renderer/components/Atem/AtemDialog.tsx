@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { cablePlannerApi, type AtemStateSummary, type AtemInputSummary } from '../../lib/bridge'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
-import { portDisplayLabel } from '../../lib/portLabel'
+import { portDisplayLabel, shortenForAtem } from '../../lib/portLabel'
 
 interface AtemDialogProps {
   onClose: () => void
@@ -82,33 +82,6 @@ const classifyInput = (input: AtemInputSummary): InputCategory => {
     return 'audio-input'
   }
   return 'video-input'
-}
-
-/**
- * Issue #248 (Comment): ATEM Long-Name ist 20 Chars, Short 4. Canvas-
- * Port-Namen sind oft viel laenger und voller fuer ATEM redundanter
- * Infos: Stecker-Typ ("SDI"), Signal-Standard ("3G", "12G"), Format
- * ("(1080p50/60)"), fuehrende Port-Nummern ("1 ", "2 "). Diese
- * Stripping-Regeln machen aus "1 SDI 3G PGM (1080p50/60)" -> "PGM",
- * was deutlich nuetzlicher in der ATEM-UI angezeigt wird.
- */
-const shortenForAtem = (raw: string): string => {
-  let out = raw.trim()
-  // Fuehrende Port-Nummer mit Leerzeichen ("1 ", "12 ").
-  out = out.replace(/^\d+\s+/, '')
-  // Format-Suffix in Klammern: (1080p50/60), (4Kp50) etc.
-  out = out.replace(/\s*\(\d{2,4}[pi]\d{2,3}(?:\/\d{2,3})?\)/gi, '')
-  // Stecker-Token (SDI/HDMI/BNC/XLR) wenn die Restzeichenkette laenger
-  // als ein Wort ist — sonst wuerde "SDI 1" zu "1" verstuemmelt.
-  const tokens = out.split(/\s+/)
-  if (tokens.length > 1) {
-    const stripKeywords = /^(SDI|HDMI|BNC|XLR|RJ45|Fiber|SFP\+?|DIN|USB|USB-C|3G|6G|12G)$/i
-    while (tokens.length > 1 && stripKeywords.test(tokens[0])) {
-      tokens.shift()
-    }
-    out = tokens.join(' ').trim()
-  }
-  return out || raw.trim()
 }
 
 /**
