@@ -25,6 +25,7 @@ import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
 import { pdfText } from './pdfHelpers'
 import { buildExportFilename, buildExportFilenameWithSuffix } from './exportFilename'
+import { portLabelPair } from './portLabel'
 
 interface CableEndpointSummary {
   /** Human-readable label for the cable (name OR fallback to type+length). */
@@ -132,9 +133,13 @@ const drawColumn = (
     // "%" and "!'" respectively, and any non-Latin char downstream
     // got individually space-padded ("S D I I n 1") because jsPDF
     // can't lay out unmapped glyphs. Switch to ASCII-safe markers.
-    const portLine = `> ${row.port.name || row.port.id}`
+    // #286 — contentLabel ("PGM") gewinnt als Haupt-Label; port.name
+    // landet als kleiner Suffix dahinter wenn beide unterschiedlich sind.
+    const pair = portLabelPair(row.port)
+    const portLine = `> ${pair.main || row.port.id}`
     const portType = row.port.connectorType ? `  [${row.port.connectorType}]` : ''
-    pdf.text(`${portLine}${portType}`, x, y, { maxWidth: colWidth - 4 })
+    const subSuffix = pair.subline ? `  (${pair.subline})` : ''
+    pdf.text(`${portLine}${portType}${subSuffix}`, x, y, { maxWidth: colWidth - 4 })
     pdf.setFont('helvetica', 'normal')
     y += 12
 
@@ -241,9 +246,12 @@ const drawPortRowPair = (
     let cy = y
     pdf.setTextColor(15)
     pdf.setFont('helvetica', 'bold')
-    const portLine = `> ${row.port.name || row.port.id}`
+    // #286 — contentLabel als Haupt-Label, port.name als Subline.
+    const pair = portLabelPair(row.port)
+    const portLine = `> ${pair.main || row.port.id}`
     const portType = row.port.connectorType ? `  [${row.port.connectorType}]` : ''
-    const portLines = pdfText(pdf, `${portLine}${portType}`, x, cy, { maxWidth: colWidth - 4 })
+    const subSuffix = pair.subline ? `  (${pair.subline})` : ''
+    const portLines = pdfText(pdf, `${portLine}${portType}${subSuffix}`, x, cy, { maxWidth: colWidth - 4 })
     pdf.setFont('helvetica', 'normal')
     cy += 12 * portLines
 
