@@ -16,6 +16,7 @@ import { computeObstacleAwareWaypoints, type Rect } from '../../lib/cableRouting
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
 import { isCableVisibleByLayer } from '../../lib/cableLayers'
 import { effectiveShortName } from '../../lib/shortName'
+import { getEquipmentById } from '../../lib/equipmentSelectors'
 
 interface CableEdgeData {
   cable: Cable
@@ -714,8 +715,8 @@ export const CableEdge = ({
         return true
       })() &&
         cable && (() => {
-          const fromEq = equipment.find((e) => e.id === cable.fromEquipmentId)
-          const toEq = equipment.find((e) => e.id === cable.toEquipmentId)
+          const fromEq = getEquipmentById(equipment, cable.fromEquipmentId)
+          const toEq = getEquipmentById(equipment, cable.toEquipmentId)
           const fromPort =
             fromEq?.outputs.find((p) => p.id === cable.fromPortId) ??
             fromEq?.inputs.find((p) => p.id === cable.fromPortId)

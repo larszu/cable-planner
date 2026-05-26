@@ -3,6 +3,7 @@ import { cablePlannerApi, type AtemStateSummary, type AtemInputSummary } from '.
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { portDisplayLabel, shortenForAtem } from '../../lib/portLabel'
+import { getEquipmentById } from '../../lib/equipmentSelectors'
 
 interface AtemDialogProps {
   onClose: () => void
@@ -97,7 +98,7 @@ const classifyInput = (input: AtemInputSummary): InputCategory => {
  */
 export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) => {
   const equipment = useProjectStore((state) =>
-    preselectedDeviceId ? state.project.equipment.find((e) => e.id === preselectedDeviceId) : undefined,
+    preselectedDeviceId ? getEquipmentById(state.project.equipment, preselectedDeviceId) : undefined,
   )
   const openAtemMvLayout = useUiStore((state) => state.openAtemMvLayout)
 

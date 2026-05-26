@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CanvasArea } from './components/Canvas/CanvasArea'
 import { CableDialog, CUSTOM_CABLE_SPEC_ID, makeCustomCableSpec } from './components/Cable/CableDialog'
+import { getEquipmentById } from './lib/equipmentSelectors'
 import { LibraryPanel } from './components/Library/LibraryPanel'
 import { MenuBar } from './components/Layout/MenuBar'
 import { StatusBar } from './components/Layout/StatusBar'
@@ -769,8 +770,8 @@ export default function App() {
   const { fromPort, toPort, fromDev, toDev } = useMemo(() => {
     if (!pendingConnection)
       return { fromPort: undefined, toPort: undefined, fromDev: undefined, toDev: undefined }
-    const fromDev = project.equipment.find((e) => e.id === pendingConnection.source)
-    const toDev = project.equipment.find((e) => e.id === pendingConnection.target)
+    const fromDev = getEquipmentById(project.equipment, pendingConnection.source)
+    const toDev = getEquipmentById(project.equipment, pendingConnection.target)
     const fromPort = fromDev?.outputs.find((p) => p.id === pendingConnection.sourceHandle)
     const toPort = toDev?.inputs.find((p) => p.id === pendingConnection.targetHandle)
     return { fromPort, toPort, fromDev, toDev }
@@ -942,7 +943,7 @@ export default function App() {
           portConflict.conflictingCableIds.includes(c.id),
         )
         const targetEqId = portConflict.connection.target ?? ''
-        const targetEq = project.equipment.find((e) => e.id === targetEqId)
+        const targetEq = getEquipmentById(project.equipment, targetEqId)
         const targetPort = targetEq
           ? [...targetEq.inputs, ...targetEq.outputs].find(
               (p) => p.id === portConflict.connection.targetHandle,
@@ -972,7 +973,7 @@ export default function App() {
                 </p>
                 <ul className="mb-3 max-h-32 space-y-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-2 text-xs">
                   {conflictingCables.map((c) => {
-                    const srcEq = project.equipment.find((e) => e.id === c.fromEquipmentId)
+                    const srcEq = getEquipmentById(project.equipment, c.fromEquipmentId)
                     const srcPort = srcEq
                       ? [...srcEq.inputs, ...srcEq.outputs].find((p) => p.id === c.fromPortId)
                       : undefined
@@ -1243,8 +1244,8 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
     return eq?.outputs.find((p) => p.id === portId) ?? eq?.inputs.find((p) => p.id === portId)
   }
 
-  const fromDev = equipment.find((e) => e.id === fromEquipmentId)
-  const toDev = equipment.find((e) => e.id === toEquipmentId)
+  const fromDev = getEquipmentById(equipment, fromEquipmentId)
+  const toDev = getEquipmentById(equipment, toEquipmentId)
   const fromPort = findPort(fromEquipmentId, fromPortId)
   const toPort = findPort(toEquipmentId, toPortId)
 

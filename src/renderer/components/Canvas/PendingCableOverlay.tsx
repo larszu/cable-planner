@@ -4,6 +4,7 @@ import { useReactFlow, useViewport } from 'reactflow'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
+import { getEquipmentById } from '../../lib/equipmentSelectors'
 
 /**
  * Visual overlay that renders the in-progress cable while the user is
@@ -34,7 +35,7 @@ export const PendingCableOverlay = () => {
   // Reference viewport so we refresh when the user pans/zooms.
   void viewport
 
-  const node = project.equipment.find((e) => e.id === pendingCable.nodeId)
+  const node = getEquipmentById(project.equipment, pendingCable.nodeId)
   if (!node) return null
   const port =
     pendingCable.handleType === 'source'

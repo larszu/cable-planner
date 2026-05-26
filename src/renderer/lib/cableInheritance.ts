@@ -1,5 +1,6 @@
 import type { Cable, CableType } from '../types/cable'
 import type { ConnectorType, EquipmentItem, Port } from '../types/equipment'
+import { getEquipmentById } from './equipmentSelectors'
 
 /** Connector types that have no direct CableType equivalent. The Cable
  *  model collapses these to 'Custom' because the CableType enum is a
@@ -31,7 +32,7 @@ const findPort = (
   equipmentId: string,
   portId: string,
 ): Port | undefined => {
-  const eq = equipment.find((e) => e.id === equipmentId)
+  const eq = getEquipmentById(equipment, equipmentId)
   if (!eq) return undefined
   return eq.inputs.find((p) => p.id === portId) ?? eq.outputs.find((p) => p.id === portId)
 }
