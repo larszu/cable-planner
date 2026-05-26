@@ -57,7 +57,6 @@ export const NewRentmanDeviceWizard = ({
   const [index, setIndex] = useState(0)
   const current = items[index]
 
-  const customLibrary = useProjectStore((state) => state.customLibrary)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
 
   const [name, setName] = useState('')

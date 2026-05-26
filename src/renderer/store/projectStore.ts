@@ -750,7 +750,7 @@ const checkProjectSetRate = () => {
  *  für die langlebige Default-Instanz. */
 const buildProjectStore = (
   opts: { initialProject?: CablePlannerProject } = {},
-): StateCreator<ProjectState> => (set, get) => ({
+): StateCreator<ProjectState> => (set, _get) => ({
   project:
     opts.initialProject ??
     (() => {
