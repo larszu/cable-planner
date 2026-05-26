@@ -645,6 +645,9 @@ const AppearanceTab = () => {
   const canvasBgImageFit = useUiStore((s) => s.canvasBgImageFit)
   const setCanvasBgImage = useUiStore((s) => s.setCanvasBgImage)
   const setCanvasBgImageFit = useUiStore((s) => s.setCanvasBgImageFit)
+  // #291 — Port-Label-Schriftgroesse.
+  const portLabelFontSize = useUiStore((s) => s.portLabelFontSize)
+  const setPortLabelFontSize = useUiStore((s) => s.setPortLabelFontSize)
   const setDefaultArrow = useUiStore((s) => s.setDefaultArrow)
   const language = useUiStore((s) => s.language)
   const setLanguage = useUiStore((s) => s.setLanguage)
@@ -716,6 +719,42 @@ const AppearanceTab = () => {
       </SettingsCard>
 
       <EquipmentColorsSection />
+
+      {/* #291 — Globaler Slider fuer Port-Label-Schriftgroessen. Skaliert
+          die Input-/Output-Labels in den Geraete-Karten + die Collapsed-
+          View. Header (Geraete-Name + Kategorie) bleibt fix damit das
+          Auto-Layout (headerHeight) nicht recomputed werden muss. */}
+      <SettingsCard
+        title={t('settings.appearance.portLabelSize', 'Port-Label-Schriftgröße')}
+        description={t(
+          'settings.appearance.portLabelSizeDesc',
+          'Schriftgröße der Input-/Output-Beschriftungen auf den Geräte-Karten. Default 11 px. Größer = besser lesbar beim Heraus-Zoomen, aber Geräte werden breiter.',
+        )}
+      >
+        <label className="flex items-center gap-3">
+          <input
+            type="range"
+            min={8}
+            max={18}
+            step={1}
+            value={portLabelFontSize}
+            onChange={(e) => setPortLabelFontSize(parseInt(e.target.value, 10))}
+            className="flex-1"
+          />
+          <span className="w-10 text-right font-mono text-xs text-slate-300">
+            {portLabelFontSize}px
+          </span>
+          <button
+            type="button"
+            onClick={() => setPortLabelFontSize(11)}
+            disabled={portLabelFontSize === 11}
+            className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700 disabled:opacity-40"
+            title="Auf Default 11 px zuruecksetzen"
+          >
+            ↺
+          </button>
+        </label>
+      </SettingsCard>
 
       <SettingsCard
         title={t('settings.appearance.ports', 'Port-Farben')}

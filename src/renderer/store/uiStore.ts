@@ -268,6 +268,11 @@ interface PersistedUiState {
   canvasBgImageLight: string | null
   /** How the custom image is sized on the canvas. */
   canvasBgImageFit: 'cover' | 'contain' | 'tile'
+  /** #291 — Port-Label-Schriftgroesse in Pixel. Skaliert die in
+   *  EquipmentNode gerenderten Input-/Output-Port-Beschriftungen.
+   *  Default 11 entspricht dem historischen Hardcoded-Wert. Range
+   *  8–18 ist durch den Slider in SettingsDialog limitiert. */
+  portLabelFontSize: number
 }
 
 const defaults: PersistedUiState = {
@@ -334,6 +339,7 @@ const defaults: PersistedUiState = {
   canvasBgImageDark: null,
   canvasBgImageLight: null,
   canvasBgImageFit: 'cover',
+  portLabelFontSize: 11,
   equipmentSectionOrder: [
     'modes',
     'ports',
@@ -629,6 +635,7 @@ interface UiState extends PersistedUiState {
   setEquipmentSectionOrder: (order: string[]) => void
   setCanvasBgImage: (theme: 'dark' | 'light', dataUri: string | null) => void
   setCanvasBgImageFit: (fit: 'cover' | 'contain' | 'tile') => void
+  setPortLabelFontSize: (value: number) => void
   pdfExportThemeOverride: 'dark' | 'light' | null
   setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
   cableEdit: { open: boolean; cableId?: string }
@@ -840,6 +847,7 @@ const applyPatch =
       canvasBgImageDark: state.canvasBgImageDark,
       canvasBgImageLight: state.canvasBgImageLight,
       canvasBgImageFit: state.canvasBgImageFit,
+      portLabelFontSize: state.portLabelFontSize,
       equipmentSectionOrder: state.equipmentSectionOrder,
       ...patch,
     }
@@ -1044,6 +1052,8 @@ export const useUiStore = create<UiState>((set) => ({
         : { canvasBgImageLight: dataUri },
     )),
   setCanvasBgImageFit: (fit) => set(applyPatch({ canvasBgImageFit: fit })),
+  setPortLabelFontSize: (value) =>
+    set(applyPatch({ portLabelFontSize: Math.max(8, Math.min(18, Math.round(value))) })),
   pdfExportThemeOverride: null,
   setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
   cableEdit: { open: false },
