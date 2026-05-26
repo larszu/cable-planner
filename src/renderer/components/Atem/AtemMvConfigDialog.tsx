@@ -4,6 +4,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, type AtemInputSummary } from '../../lib/bridge'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { getEquipmentById } from '../../lib/equipmentSelectors'
 import type {
   AtemMvConfig,
   AtemMvDefinition,
@@ -628,7 +629,7 @@ export const AtemMvConfigDialog = () => {
   const slot = useUiStore((s) => s.atemMvConfig)
   const close = useUiStore((s) => s.closeAtemMvConfig)
   const equipment = useProjectStore((state) =>
-    state.project.equipment.find((e) => e.id === slot.deviceId),
+    getEquipmentById(state.project.equipment, slot.deviceId),
   )
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
 

@@ -11,6 +11,7 @@ import { useReactFlow, useViewport } from 'reactflow'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
+import { getEquipmentById } from '../../lib/equipmentSelectors'
 import type { ProjectAnnotation } from '../../types/project'
 
 const STATUS_COLOR: Record<ProjectAnnotation['status'], string> = {
@@ -77,7 +78,7 @@ export const AnnotationCanvasOverlay = () => {
           return { annotation: a, flow: { x: anchor.x, y: anchor.y } }
         }
         if (anchor.type === 'device') {
-          const eq = equipment.find((e) => e.id === anchor.deviceId)
+          const eq = getEquipmentById(equipment, anchor.deviceId)
           if (!eq) return null
           const layout = computeEquipmentLayout(eq, greengoConfig)
           return {
@@ -86,7 +87,7 @@ export const AnnotationCanvasOverlay = () => {
           }
         }
         if (anchor.type === 'port') {
-          const eq = equipment.find((e) => e.id === anchor.deviceId)
+          const eq = getEquipmentById(equipment, anchor.deviceId)
           if (!eq) return null
           const layout = computeEquipmentLayout(eq, greengoConfig)
           const pos =

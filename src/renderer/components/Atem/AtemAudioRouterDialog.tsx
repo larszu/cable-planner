@@ -18,6 +18,7 @@ import {
 } from '../../lib/atemAudioMappingXml'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { format, useTranslation } from '../../lib/i18n'
+import { getEquipmentById } from '../../lib/equipmentSelectors'
 
 /**
  * Issue #45 — ATEM Audio editor.
@@ -40,7 +41,7 @@ export const AtemAudioRouterDialog = () => {
   const { open, deviceId } = useUiStore((s) => s.atemAudioConfig)
   const close = useUiStore((s) => s.closeAtemAudioConfig)
   const equipment = useProjectStore((s) =>
-    s.project.equipment.find((e) => e.id === deviceId),
+    getEquipmentById(s.project.equipment, deviceId),
   )
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const drag = useDraggablePosition('cable-planner:modal-pos:atem-audio', open)
