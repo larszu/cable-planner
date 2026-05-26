@@ -2,10 +2,15 @@ import { useMemo, useState } from 'react'
 import jsPDF from 'jspdf'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { useProjectStore } from '../../store/projectStore'
+import { useUiStore } from '../../store/uiStore'
 import type { Cable } from '../../types/cable'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
+import {
+  formatDeviceAtLocation,
+  locationNameForEquipment,
+} from '../../lib/equipmentLocation'
 
 export interface CableBomDialogProps {
   open: boolean
@@ -25,6 +30,9 @@ interface BomRow {
    *  unter ganz anderem Namen fuehrt als der Cable-Planner-Type. */
   rentmanName?: string
   rentmanId?: string
+  /** #292 — Sample-Pfade dieses Buckets ("Cam1@Bühne → Mischer@FOH").
+   *  Bis zu 3 sichtbar in der Spalte, der Rest als Tooltip. */
+  paths: string[]
 }
 
 const keyOf = (c: Pick<Cable, 'type' | 'length'>): string => `${c.type}|${c.length}`
@@ -45,17 +53,33 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
   const project = useProjectStore((s) => s.project)
   const customLibrary = useProjectStore((s) => s.customLibrary)
   const updateMeta = useProjectStore((s) => s.updateProjectMetadata)
+  // #252 — Rentman-Cable-Export aus dem BOM heraus oeffnen.
+  const openRentmanCableExport = useUiStore((s) => s.openRentmanCableExport)
   const [draftPlan, setDraftPlan] = useState<Record<string, number> | null>(null)
   const drag = useDraggablePosition('cable-planner:modal-pos:cable-bom', open)
 
   const rows: BomRow[] = useMemo(() => {
     if (!open) return []
-    const built = new Map<string, { count: number; sample: Cable }>()
+    // #292 — Pro Bucket sammeln wir alle Kabel statt nur eines Samples
+    // damit wir die Wege-Spalte ("Cam1@Bühne → Mischer@FOH") fuellen
+    // koennen. Equipment + Location bleiben in Maps fuer O(1)-Lookups.
+    const eqById = new Map(project.equipment.map((e) => [e.id, e]))
+    const locations = project.locations ?? []
+    const formatEndpoint = (eqId: string): string => {
+      const eq = eqById.get(eqId)
+      const locName = eq ? locationNameForEquipment(eq, locations) : undefined
+      return formatDeviceAtLocation(eq?.name, locName)
+    }
+    const built = new Map<string, { count: number; sample: Cable; cables: Cable[] }>()
     for (const c of project.cables) {
       const k = keyOf(c)
       const entry = built.get(k)
-      if (entry) entry.count += 1
-      else built.set(k, { count: 1, sample: c })
+      if (entry) {
+        entry.count += 1
+        entry.cables.push(c)
+      } else {
+        built.set(k, { count: 1, sample: c, cables: [c] })
+      }
     }
     const planned = draftPlan ?? project.metadata.rentmanCablePlan ?? {}
     const cableMap = project.metadata.rentmanCableMap ?? {}
@@ -69,11 +93,22 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
     const keys = new Set<string>([...built.keys(), ...Object.keys(planned)])
     const list: BomRow[] = []
     for (const k of keys) {
-      const b = built.get(k)?.count ?? 0
+      const bucket = built.get(k)
+      const b = bucket?.count ?? 0
       const p = planned[k] ?? 0
       const parsed = parseKey(k)
       const mapping = cableMap[k]
       const rentmanId = mapping?.rentmanEquipmentId
+      // #292 — Stabile, deduplizierte Pfad-Liste fuer diesen Bucket.
+      const paths: string[] = bucket
+        ? Array.from(
+            new Set(
+              bucket.cables.map(
+                (c) => `${formatEndpoint(c.fromEquipmentId)} → ${formatEndpoint(c.toEquipmentId)}`,
+              ),
+            ),
+          )
+        : []
       list.push({
         key: k,
         type: parsed.type,
@@ -81,9 +116,10 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
         built: b,
         planned: p,
         diff: b - p,
-        sample: built.get(k)?.sample,
+        sample: bucket?.sample,
         rentmanId,
         rentmanName: rentmanId ? rentmanNameById.get(String(rentmanId)) : undefined,
+        paths,
       })
     }
     list.sort((a, b) =>
@@ -93,6 +129,8 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
   }, [
     open,
     project.cables,
+    project.equipment,
+    project.locations,
     project.metadata.rentmanCablePlan,
     project.metadata.rentmanCableMap,
     customLibrary,
@@ -120,8 +158,10 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
 
   const exportCsv = () => {
     // v7.9.117 — Rentman-Name als eigene Spalte fuer den Abgleich.
+    // #292 — Wege als zusaetzliche Spalte. "|" als interner Separator,
+    // damit das ";"-Feld-Trennzeichen nicht greift.
     const lines = [
-      ['Typ', 'Rentman-Name', 'Länge (m)', 'Verbaut', 'Rentman geplant', 'Differenz'].join(';'),
+      ['Typ', 'Rentman-Name', 'Länge (m)', 'Verbaut', 'Rentman geplant', 'Differenz', 'Wege'].join(';'),
     ]
     for (const r of rows) {
       lines.push(
@@ -132,6 +172,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
           String(r.built),
           String(r.planned),
           fmtSignFixed(r.diff),
+          `"${r.paths.join(' | ').replace(/"/g, '""')}"`,
         ].join(';'),
       )
     }
@@ -272,19 +313,21 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                 <th className="px-3 py-2 text-right">Verbaut</th>
                 <th className="px-3 py-2 text-right">Rentman geplant</th>
                 <th className="px-3 py-2 text-right">Differenz</th>
+                {/* #292 — Pfade dieses Buckets (Cam1@Bühne → Mischer@FOH). */}
+                <th className="px-3 py-2 text-left">Wege</th>
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 && (
                 <tr>
-                  <td className="px-3 py-4 text-center text-slate-500" colSpan={5}>
+                  <td className="px-3 py-4 text-center text-slate-500" colSpan={6}>
                     Keine Kabel im Projekt.
                   </td>
                 </tr>
               )}
               {rows.map((r) => (
                 <tr key={r.key} className={`border-t border-slate-800 ${r.diff < 0 ? 'bg-red-950/30' : ''}`}>
-                  <td className="px-3 py-1">
+                  <td className="px-3 py-1 align-top">
                     <div className="font-medium text-slate-100">
                       {r.type}
                       {r.sample && (
@@ -316,9 +359,9 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                       </div>
                     )}
                   </td>
-                  <td className="px-3 py-1 text-right font-mono">{r.length}</td>
-                  <td className="px-3 py-1 text-right font-mono">{r.built}</td>
-                  <td className="px-3 py-1 text-right">
+                  <td className="px-3 py-1 text-right align-top font-mono">{r.length}</td>
+                  <td className="px-3 py-1 text-right align-top font-mono">{r.built}</td>
+                  <td className="px-3 py-1 text-right align-top">
                     <input
                       type="number"
                       min={0}
@@ -328,7 +371,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                     />
                   </td>
                   <td
-                    className={`px-3 py-1 text-right font-mono ${
+                    className={`px-3 py-1 text-right align-top font-mono ${
                       r.diff === 0
                         ? 'text-emerald-400'
                         : r.diff > 0
@@ -344,6 +387,29 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                     }
                   >
                     {fmtSignFixed(r.diff)}
+                  </td>
+                  {/* #292 — Wege-Spalte: max 3 Pfade sichtbar, alle weiteren
+                      als Tooltip ("+N weitere"). */}
+                  <td className="px-3 py-1 align-top text-[11px] text-slate-300">
+                    {r.paths.length === 0 ? (
+                      <span className="text-slate-600">—</span>
+                    ) : (
+                      <div className="flex flex-col gap-0.5">
+                        {r.paths.slice(0, 3).map((p, i) => (
+                          <div key={i} className="font-mono text-[10px]">
+                            {p}
+                          </div>
+                        ))}
+                        {r.paths.length > 3 && (
+                          <div
+                            className="cursor-help text-[10px] text-slate-500"
+                            title={r.paths.slice(3).join('\n')}
+                          >
+                            +{r.paths.length - 3} weitere
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -374,6 +440,27 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
               className="rounded bg-emerald-700 px-3 py-1 text-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Rentman-Planung speichern
+            </button>
+            {/* #252 — Direkt aus dem BOM in den Rentman-Cable-Export
+                springen. Vorher musste der User den BOM schliessen und
+                den Rentman-Cable-Export separat ueber das Menue oeffnen. */}
+            <button
+              type="button"
+              onClick={() => {
+                // Bei offenen Aenderungen erst speichern damit der Rentman-
+                // Dialog mit aktuellem Stand startet (sonst sieht er noch
+                // die alten Planungs-Mengen).
+                if (draftPlan) {
+                  updateMeta({ rentmanCablePlan: draftPlan })
+                  setDraftPlan(null)
+                }
+                onClose()
+                openRentmanCableExport()
+              }}
+              title="Schliesst diesen Dialog und oeffnet den Rentman-Cable-Export mit den aktuellen Buckets vorbefuellt."
+              className="rounded bg-orange-700 px-3 py-1 text-xs font-semibold hover:bg-orange-600"
+            >
+              📦 Mit Rentman synchronisieren →
             </button>
           </div>
         </div>
