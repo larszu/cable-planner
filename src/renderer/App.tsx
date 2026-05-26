@@ -807,8 +807,6 @@ export default function App() {
         videoFormat={project.metadata.defaultVideoFormat ?? DEFAULT_VIDEO_FORMAT}
         onChangeVideoFormat={(id) => useProjectStore.getState().setDefaultVideoFormat(id)}
         projectName={project.metadata.name}
-        rentmanProjectName={project.metadata.rentmanProjectName}
-        hasToken={hasToken}
       />
 
       <main

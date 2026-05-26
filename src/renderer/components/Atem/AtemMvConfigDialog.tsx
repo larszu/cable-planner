@@ -47,7 +47,6 @@ const QuadrantBlock = ({
   cellSize,
   fontBig,
   fontIdBig,
-  onToggle,
   canvasPortNames,
 }: {
   quad: QuadDef
@@ -57,7 +56,6 @@ const QuadrantBlock = ({
   cellSize: number
   fontBig: number
   fontIdBig: number
-  onToggle: () => void
   canvasPortNames?: Map<number, string>
 }) => {
   const renderBig = () => {
@@ -151,7 +149,6 @@ const MvLayoutPicker = ({
             cellSize={28}
             fontBig={9}
             fontIdBig={8}
-            onToggle={() => onToggleQuadrant(q.idx)}
             canvasPortNames={canvasPortNames}
           />
         ))}

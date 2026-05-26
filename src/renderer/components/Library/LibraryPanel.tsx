@@ -19,7 +19,6 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
-import { triggerCanvasFitView } from '../../lib/canvasViewport'
 import { useRentman } from '../../hooks/useRentman'
 import { promptDialog } from '../../lib/promptDialog'
 import { CategorySelect } from '../shared/CategorySelect'
@@ -600,7 +599,6 @@ export const LibraryPanel = () => {
   const openRentmanImport = useUiStore((state) => state.openRentmanImport)
   const toggleTemplateHidden = useProjectStore((state) => state.toggleTemplateHidden)
   const setCustomTemplateCategory = useProjectStore((state) => state.setCustomTemplateCategory)
-  const updateCustomTemplate = useProjectStore((state) => state.updateCustomTemplate)
   const setSelectedTemplateName = useProjectStore((state) => state.setSelectedTemplateName)
   const knownCategories = useProjectStore((state) => state.knownCategories)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
@@ -626,7 +624,6 @@ export const LibraryPanel = () => {
     (state) => state.replaceCanvasRackWithPreset,
   )
   const reorderGroupPresets = useProjectStore((state) => state.reorderGroupPresets)
-  const renameGroupPreset = useProjectStore((state) => state.renameGroupPreset)
   const renameCustomCategory = useProjectStore((state) => state.renameCustomCategory)
   const canvasState = useProjectStore((state) => state.project.canvasState)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
@@ -894,7 +891,6 @@ export const LibraryPanel = () => {
   const {
     loadEquipment: loadRentmanEquipment,
     loadFolders: loadRentmanFolders,
-    addProjectEquipment,
     exportToCablePlannerGroup,
   } = useRentman()
   const [rentmanCatalog, setRentmanCatalog] = useState<
@@ -1763,7 +1759,7 @@ export const LibraryPanel = () => {
                     )}
                   </SortableCategorySection>
                 )
-              }).filter(Boolean) as JSX.Element[]
+              }).filter(Boolean) as ReactNode[]
               // v7.9.5 — Manuelle Sortierung: DnD-Wrapper drumherum.
               // Sonst direkt rendern.
               if (librarySortMode === 'manual') {

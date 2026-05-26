@@ -9,7 +9,6 @@ import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { infoDialog } from '../../lib/infoDialog'
 import type {
   AtemAudioConfig,
-  AtemClassicAudioInput,
 } from '../../types/equipment'
 import {
   isLegacyAudioConfig,

@@ -7,7 +7,8 @@
 // so the overlay's stub-width left the pending line starting at the
 // "middle" of wide devices instead of at the actual handle.
 
-import type { EquipmentItem, GreenGoConfig, Port } from '../types/equipment'
+import type { EquipmentItem, Port } from '../types/equipment'
+import type { GreenGoConfig } from '../types/greengo'
 import { findGreenGoUserForEquipment } from './greengoSync'
 import { EQUIPMENT_LAYOUT } from './layoutConstants'
 

@@ -38,7 +38,7 @@ import type { SignalStandard } from '../../types/cableSpec'
 import { RackImageCropDialog } from '../Rack/RackImageCropDialog'
 import { CategorySelect } from '../shared/CategorySelect'
 import { ColorField } from '../shared/ColorField'
-import { pickImageAsDataUri, readImageAsDataUri } from '../../lib/readImageAsDataUri'
+import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { useTranslation } from '../../lib/i18n'
 
 /** Module-level sensor options so re-renders don't churn the sensor
@@ -1879,9 +1879,7 @@ export const EquipmentProperties = () => {
   const allEquipment = useProjectStore((state) => state.project.equipment)
   const allCables = useProjectStore((state) => state.project.cables)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
-  const knownCategories = useProjectStore((state) => state.knownCategories)
   const customLibrary = useProjectStore((state) => state.customLibrary)
-  const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
   const rentmanEnabled = useUiStore((state) => state.rentmanEnabled)
   const openVideohubExport = useUiStore((state) => state.openVideohubExport)
   const openGreenGoExport = useUiStore((state) => state.openGreenGoExport)
