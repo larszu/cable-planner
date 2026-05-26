@@ -793,66 +793,28 @@ interface UiState extends PersistedUiState {
   clearPendingCable: () => void
 }
 
+// #296 — Persistenz-Schluessel werden aus `defaults` abgeleitet, sodass
+// jedes neue Feld in PersistedUiState automatisch durchgereicht wird.
+// Vorher war hier eine manuelle Zeilenliste die schon viermal vergessen
+// wurde (language, overrideConnectionWarnings, hideAllCableLabels,
+// swapLabelsOnReconnect) — User-sichtbare Toggle-Resets waren die Folge.
+const PERSISTED_KEYS = Object.keys(defaults) as (keyof PersistedUiState)[]
+
 const applyPatch =
   (patch: Partial<PersistedUiState>) =>
   (state: UiState): Partial<UiState> => {
     checkSetRate(Object.keys(patch).join(','))
-    const next: PersistedUiState = {
-      propertiesCollapsed: state.propertiesCollapsed,
-      libraryCollapsed: state.libraryCollapsed,
-      snapToGrid: state.snapToGrid,
-      gridSize: state.gridSize,
-      defaultRouting: state.defaultRouting,
-      defaultArrow: state.defaultArrow,
-      libraryWidth: state.libraryWidth,
-      propertiesWidth: state.propertiesWidth,
-      cableColorMode: state.cableColorMode,
-      canvasTheme: state.canvasTheme,
-      colorPortsByType: state.colorPortsByType,
-      // The two fields below were missing from the explicit list — any
-      // call through applyPatch was silently dropping them when writing
-      // to localStorage. Result: the next time the user toggled a
-      // different setting their language / override choice got reset to
-      // the default. (Fixed as part of issue #70 which added the
-      // override toggle.)
-      language: state.language,
-      overrideConnectionWarnings: state.overrideConnectionWarnings,
-      rentmanEnabled: state.rentmanEnabled,
-      libraryViewMode: state.libraryViewMode,
-      librarySortMode: state.librarySortMode,
-      annotationAuthor: state.annotationAuthor,
-      connectorTypeColors: state.connectorTypeColors,
-      categoryColors: state.categoryColors,
-      cableLabelShortForm: state.cableLabelShortForm,
-      equipmentColors: state.equipmentColors,
-      defaultDeviceColor: state.defaultDeviceColor,
-      bgVariant: state.bgVariant,
-      bgOpacity: state.bgOpacity,
-      customCableSpecs: state.customCableSpecs,
-      customConnectorTypes: state.customConnectorTypes,
-      customSignalStandards: state.customSignalStandards,
-      cableGroupOrder: state.cableGroupOrder,
-      cableSpecOverrides: state.cableSpecOverrides,
-      deviceConfigLibrary: state.deviceConfigLibrary,
-      cableBumps: state.cableBumps,
-      inheritCableTypeFromPort: state.inheritCableTypeFromPort,
-      showCableEndpointLabels: state.showCableEndpointLabels,
-      orthogonalCollisionShift: state.orthogonalCollisionShift,
-      hotkeys: state.hotkeys,
-      libraryFloating: state.libraryFloating,
-      libraryFloatingPos: state.libraryFloatingPos,
-      propertiesFloating: state.propertiesFloating,
-      propertiesFloatingPos: state.propertiesFloatingPos,
-      customPalette: state.customPalette,
-      canvasBgImageDark: state.canvasBgImageDark,
-      canvasBgImageLight: state.canvasBgImageLight,
-      canvasBgImageFit: state.canvasBgImageFit,
-      portLabelFontSize: state.portLabelFontSize,
-      equipmentSectionOrder: state.equipmentSectionOrder,
-      ...patch,
+    // Two-step cast (via unknown) damit TS die dynamische Index-
+    // Zuweisung unten erlaubt — direkter Cast PersistedUiState ⇄
+    // Record<string, unknown> verlangt strukturelle Kompatibilitaet.
+    const next = {} as unknown as Record<string, unknown>
+    for (const key of PERSISTED_KEYS) {
+      next[key] = state[key]
     }
-    persist(next)
-    return next
+    Object.assign(next, patch)
+    const result = next as unknown as PersistedUiState
+    persist(result)
+    return result
   }
 
 export const useUiStore = create<UiState>((set) => ({
