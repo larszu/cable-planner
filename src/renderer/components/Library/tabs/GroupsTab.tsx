@@ -1,0 +1,121 @@
+import { useProjectStore } from '../../../store/projectStore'
+import { confirmDialog } from '../../../lib/confirmDialog'
+import { exportPresetToFile } from '../../../lib/itemExport'
+import { MIME_GROUP_PRESET } from '../../../lib/dragDropMimes'
+import { PresetDndWrapper } from '../LibraryDndWrappers'
+import { SortablePresetCard } from '../LibrarySortables'
+
+/**
+ * #305 — GroupsTab aus LibraryPanel ausgelagert. Zeigt nicht-Rack-
+ * Gruppen-Presets (Items + Cables-Bündel) mit Drag&Drop-Sortierung,
+ * Klick-zum-Platzieren und Export/Loeschen-Aktionen.
+ */
+export const GroupsTab = () => {
+  const groupPresets = useProjectStore((s) => s.groupPresets)
+  const reorderGroupPresets = useProjectStore((s) => s.reorderGroupPresets)
+  const placeGroupPreset = useProjectStore((s) => s.placeGroupPreset)
+  const deleteGroupPreset = useProjectStore((s) => s.deleteGroupPreset)
+  const canvasState = useProjectStore((s) => s.project.canvasState)
+
+  return (
+    <div className="flex flex-1 min-h-0 flex-col">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
+        <h2 className="text-sm font-semibold">Gerätegruppen</h2>
+        <span className="text-[10px] text-slate-500">Mehrere Geräte + Kabel als Vorlage</span>
+      </div>
+      {groupPresets.length === 0 ? (
+        <div className="flex-1 flex flex-col items-center justify-center gap-2 text-xs text-slate-500 text-center p-4">
+          <span className="text-2xl">⧉</span>
+          <span>Noch keine Gruppen gespeichert.</span>
+          <span>
+            Wähle auf dem Canvas ≥ 2 Geräte aus und klicke <b>Als Gruppe</b> in der Canvas-Toolbar.
+          </span>
+        </div>
+      ) : (
+        (() => {
+          const nonRackPresets = groupPresets.filter((p) => !p.rack)
+          const nonRackIds = nonRackPresets.map((p) => p.id)
+          return (
+            <div className="flex-1 min-h-0 space-y-2 overflow-auto">
+              <PresetDndWrapper
+                ids={nonRackIds}
+                onReorder={(newIds) => {
+                  const rackIds = groupPresets.filter((p) => !!p.rack).map((p) => p.id)
+                  reorderGroupPresets([...newIds, ...rackIds])
+                }}
+              >
+                {nonRackPresets.map((preset) => {
+                  const zoom = canvasState.zoom || 1
+                  const cx = (-canvasState.x + 400) / zoom
+                  const cy = (-canvasState.y + 250) / zoom
+                  const totalRackUnits = preset.items.reduce(
+                    (sum, item) => sum + (item.rackUnits ?? 0),
+                    0,
+                  )
+                  return (
+                    <SortablePresetCard
+                      key={preset.id}
+                      id={preset.id}
+                      nativeDragData={{
+                        mime: MIME_GROUP_PRESET,
+                        data: preset.id,
+                      }}
+                      onCardClick={() => placeGroupPreset(preset.id, cx, cy)}
+                      clickTitle="Klick = auf Canvas platzieren · Drag&Drop = an Drop-Position platzieren"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate font-medium text-slate-100">{preset.name}</div>
+                          <div className="mt-0.5 text-[10px] text-slate-500">
+                            {preset.items.length} Geräte · {preset.cables.length} Kabel
+                            {totalRackUnits > 0 ? ` · ${totalRackUnits} HE` : ''}
+                          </div>
+                          <div className="mt-0.5 truncate text-[10px] text-slate-600">
+                            {preset.items.map((i) => i.name).join(', ')}
+                          </div>
+                        </div>
+                        <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              exportPresetToFile(preset)
+                            }}
+                            className="rounded bg-slate-700 px-1 text-[11px] text-slate-300 hover:bg-slate-600"
+                            title="Als Datei exportieren (Kopie in den Downloads-Ordner)"
+                            aria-label="Exportieren"
+                          >
+                            ⬇
+                          </button>
+                          <button
+                            type="button"
+                            onClick={async (event) => {
+                              event.stopPropagation()
+                              if (
+                                await confirmDialog(`Gruppe "${preset.name}" löschen?`, {
+                                  destructive: true,
+                                  okLabel: 'Löschen',
+                                })
+                              ) {
+                                deleteGroupPreset(preset.id)
+                              }
+                            }}
+                            className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
+                            title="Gruppe aus Library entfernen"
+                            aria-label="Löschen"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    </SortablePresetCard>
+                  )
+                })}
+              </PresetDndWrapper>
+            </div>
+          )
+        })()
+      )}
+    </div>
+  )
+}
