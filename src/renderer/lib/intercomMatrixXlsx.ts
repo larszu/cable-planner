@@ -340,7 +340,6 @@ export const parseIntercomMatrixXlsx = (
  * GreenGo, not a 1:1 copy of any uploaded source.
  */
 export const exportIntercomMatrixXlsx = (config: GreenGoConfig): ArrayBuffer => {
-  const SPACER_COL = 0
   const ID_COL = 1
   const FN_COL = 2
   const NAME_COL = 3

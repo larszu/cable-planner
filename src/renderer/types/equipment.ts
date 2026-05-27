@@ -62,6 +62,13 @@ export interface Port {
   side?: 'left' | 'right'
   /** Optional signal standard declared for this port (e.g. SDI-12G on a camera out). */
   standard?: SignalStandard
+  /** #286 — Inhaltliches Label fuer das gefuehrte Signal: "PGM", "PVW",
+   *  "MV1", "Cam1" etc. Trennt die Information "WAS geht hier durch?"
+   *  vom Hardware-Standard (SDI 3G/12G) und vom Hauptnamen. Wenn gesetzt,
+   *  wird es auf dem Canvas als Haupt-Label gerendert und in ATEM-/
+   *  Videohub-Exports bevorzugt (vor `port.name`). Bleibt undefined wenn
+   *  der Port nur einen Standard / Hardware-Anschluss repraesentiert. */
+  contentLabel?: string
   /** v7.5.0 — per-port SDI capabilities. A device with a mixed SDI port
    *  layout (e.g. some BNC are 12G level A, others 6G only, others
    *  HD-SDI) can declare each port's spec individually here. The
@@ -406,6 +413,14 @@ export interface EquipmentItem {
    *  werden. Die HE-Höhe bleibt die volle Höhe (1HU = klassisches Single-
    *  Shelf), die echte Plattform liegt oben in dieser HE-Range. */
   isRackShelf?: boolean
+  /** #285 — Wandler-Marker. Geraete mit diesem Flag werden in der
+   *  Patchliste "durchgereicht": statt Kabel-A endet-bei-Wandler zu
+   *  zeigen, folgt die Patchliste dem Output-Kabel des Wandlers und
+   *  zeigt das naechste echte Gerät an ("Kamera -> Konverter -> ATEM").
+   *  Heuristik: nur eindeutige 1-In/1-Out-Wandler werden auto-verfolgt;
+   *  bei mehrdeutigen Out-Kabeln zeigt die Patchliste den Wandler weiter
+   *  als normales Ziel. Optional — bleibt undefined fuer normale Geraete. */
+  isConverter?: boolean
 }
 
 /**

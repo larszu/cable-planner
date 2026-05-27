@@ -43,8 +43,6 @@ interface MenuBarProps {
   videoFormat?: string
   onChangeVideoFormat?: (id: string) => void
   projectName?: string
-  rentmanProjectName?: string
-  hasToken?: boolean
 }
 
 /**
@@ -79,8 +77,6 @@ export const MenuBar = ({
   videoFormat,
   onChangeVideoFormat,
   projectName,
-  rentmanProjectName,
-  hasToken = false,
 }: MenuBarProps) => {
   const t = useTranslation()
   const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)

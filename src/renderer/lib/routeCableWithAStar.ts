@@ -63,7 +63,6 @@ export interface RouteCableArgs {
 
 /** v7.9.32 — Sichtbare Lücke um jedes Hindernis. 2 Grid-Cells = 40 px. */
 const OBSTACLE_PAD_CELLS = 2
-const OBSTACLE_PAD_PX = OBSTACLE_PAD_CELLS * CELL_SIZE
 
 // ReactFlow side → outward direction in pixel space (dx, dy).
 const handleOutwardDelta = (side: HandleSide): { dx: number; dy: number } => {

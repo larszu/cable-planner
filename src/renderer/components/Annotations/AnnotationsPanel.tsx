@@ -18,7 +18,8 @@ import type { ProjectAnnotation } from '../../types/project'
 
 // v7.9.41 — Re-export für Backward-Kompatibilität. Source-of-Truth ist
 // jetzt lib/dragDropMimes.ts (alle Canvas-Drag-MIMEs zentral).
-export { MIME_ANNOTATION as ANNOTATION_DRAG_MIME } from '../../lib/dragDropMimes'
+import { MIME_ANNOTATION as ANNOTATION_DRAG_MIME } from '../../lib/dragDropMimes'
+export { ANNOTATION_DRAG_MIME }
 
 /** v7.9.5 — Liefert den effektiven Author-Namen für neue Annotations.
  *  Promptet den User wenn noch keiner gesetzt ist (kein 'Anonym'!).

@@ -37,7 +37,6 @@ const MIN_MARGIN = 40
 const clamp = (
   pos: { x: number; y: number },
   width: number,
-  height: number,
 ): { x: number; y: number } => {
   const maxX = window.innerWidth - MIN_MARGIN
   const maxY = window.innerHeight - MIN_MARGIN
@@ -79,7 +78,7 @@ export const FloatingPanelShell = ({
   // viewport bounds.
   useEffect(() => {
     setPos((current) => {
-      const clamped = clamp(position, width, typeof height === 'number' ? height : 400)
+      const clamped = clamp(position, width)
       if (
         current.x === clamped.x &&
         current.y === clamped.y
@@ -95,7 +94,7 @@ export const FloatingPanelShell = ({
   useEffect(() => {
     const onResize = () => {
       setPos((current) => {
-        const next = clamp(current, width, typeof height === 'number' ? height : 400)
+        const next = clamp(current, width)
         if (next.x === current.x && next.y === current.y) return current
         onMove(next)
         return next
@@ -133,7 +132,6 @@ export const FloatingPanelShell = ({
           y: drag.offsetY + (event.clientY - drag.startY),
         },
         width,
-        typeof height === 'number' ? height : 400,
       )
       setPos(next)
     },

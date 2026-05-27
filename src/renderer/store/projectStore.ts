@@ -262,6 +262,16 @@ export interface ProjectState {
   pendingConnection?: Connection
   pendingWaypoints?: { x: number; y: number }[]
   showCableDialog: boolean
+  /** #294 — Port-Konflikt-Dialog. Wird gesetzt wenn queueConnection einen
+   *  bereits belegten Ziel-Port erkennt; UI rendert PortConflictDialog
+   *  statt direkt den CableDialog zu oeffnen. User entscheidet:
+   *  - Ersetzen: conflicting cables loeschen + normaler Cable-Create-Flow.
+   *  - Abbrechen: nichts machen, neuer Connect verworfen. */
+  portConflict?: {
+    connection: Connection
+    waypoints?: { x: number; y: number }[]
+    conflictingCableIds: string[]
+  }
   recentProjects: string[]
   customLibrary: EquipmentTemplate[]
   setRecentProjects: (items: string[]) => void
@@ -341,6 +351,11 @@ export interface ProjectState {
   queueConnection: (connection: Connection, waypoints?: { x: number; y: number }[]) => void
   closeCableDialog: () => void
   createCableFromPending: (draft: CableDraft) => void
+  /** #294 — Port-Konflikt: bestehendes Kabel(n) auf dem Ziel-Port loeschen
+   *  und dann den normalen Cable-Create-Flow (CableDialog) starten. */
+  resolvePortConflictByReplace: () => void
+  /** #294 — Port-Konflikt verwerfen, kein neues Kabel anlegen. */
+  cancelPortConflict: () => void
   updateCable: (id: string, patch: Partial<Cable>) => void
   deleteEquipment: (id: string) => void
   deleteCable: (id: string) => void
@@ -735,7 +750,7 @@ const checkProjectSetRate = () => {
  *  für die langlebige Default-Instanz. */
 const buildProjectStore = (
   opts: { initialProject?: CablePlannerProject } = {},
-): StateCreator<ProjectState> => (set, get) => ({
+): StateCreator<ProjectState> => (set, _get) => ({
   project:
     opts.initialProject ??
     (() => {
@@ -1392,16 +1407,58 @@ const buildProjectStore = (
   queueConnection: (connection, waypoints) =>
     set((state) => {
       if (isProjectLocked(state)) return state
+      // #294 — Port-Konflikt-Check. Wenn der ZIEL-Port (targetHandle)
+      // bereits in einem anderen Kabel als toPortId verwendet wird, oeffnen
+      // wir den PortConflictDialog statt direkt den CableDialog. Source-
+      // Ports werden bewusst NICHT geprueft — Outputs koennen sinnvoll
+      // mehrere parallel Kabel speisen (1-to-many Distribution).
+      const targetHandle = connection.targetHandle
+      const conflictingCables = targetHandle
+        ? state.project.cables.filter((c) => c.toPortId === targetHandle)
+        : []
+      if (conflictingCables.length > 0) {
+        return {
+          portConflict: {
+            connection,
+            waypoints,
+            conflictingCableIds: conflictingCables.map((c) => c.id),
+          },
+        }
+      }
       return {
         pendingConnection: connection,
         pendingWaypoints: waypoints && waypoints.length > 0 ? waypoints : undefined,
         showCableDialog: true,
       }
     }),
+  resolvePortConflictByReplace: () =>
+    set((state) => {
+      if (!state.portConflict) return state
+      const { connection, waypoints, conflictingCableIds } = state.portConflict
+      const conflictSet = new Set(conflictingCableIds)
+      return {
+        project: touchProject({
+          ...state.project,
+          cables: state.project.cables.filter((c) => !conflictSet.has(c.id)),
+        }),
+        pendingConnection: connection,
+        pendingWaypoints: waypoints && waypoints.length > 0 ? waypoints : undefined,
+        showCableDialog: true,
+        portConflict: undefined,
+      }
+    }),
+  cancelPortConflict: () => set({ portConflict: undefined }),
   closeCableDialog: () =>
     set({ pendingConnection: undefined, pendingWaypoints: undefined, showCableDialog: false }),
   createCableFromPending: (draft) =>
     set((state) => {
+      // #295 — Hard-Block bei finalized/viewer-Mode. queueConnection blockt
+      // schon das Setzen von pendingConnection, aber falls der Lock zwischen
+      // den beiden Calls hineinkommt (Race) oder pendingConnection von
+      // anderem Pfad gesetzt wurde, fangen wir das hier nochmal.
+      if (isProjectLocked(state)) {
+        return { pendingConnection: undefined, pendingWaypoints: undefined, showCableDialog: false }
+      }
       if (!state.pendingConnection || !state.pendingConnection.source || !state.pendingConnection.target) {
         return { pendingConnection: undefined, pendingWaypoints: undefined, showCableDialog: false }
       }
@@ -2366,6 +2423,11 @@ const buildProjectStore = (
     }),
   addCableFromMobile: (input) =>
     set((state) => {
+      // #295 — Auch der Mobile-Pfad darf bei finalized/viewer-Mode keine
+      // Kabel mehr einspielen. Der Mobile-Viewer sollte das eigentlich
+      // bereits clientseitig unterbinden (read-only beim finalized Plan),
+      // aber wir validieren server-side als Defense-in-Depth.
+      if (isProjectLocked(state)) return {}
       // v7.9.54 — Kabel-Add vom Mobile-Viewer. Validiert dass beide
       // Endpoints (Equipment+Port-Pair) im aktuellen Projekt existieren;
       // sonst silently skip (Mobile zeigt eh nur das was im Projekt war).

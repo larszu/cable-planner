@@ -228,3 +228,30 @@ export const mapCpWindowIndexToAtem = (
   }
   return -1
 }
+
+/**
+ * #288 — Reverse-Lookup: ATEM-Window-Index → CP-Quadranten-Schema.
+ *
+ * Implementiert durch Vorwaerts-Iteration ueber alle moeglichen CP-Indices
+ * (0..3 fuer big-Slots + 10..13/20..23/30..33/40..43 fuer small-Cells),
+ * sodass wir keine zweite Layout-Spec parallel pflegen muessen. Liefert
+ * undefined wenn der ATEM-Index im aktuellen Layout keine CP-Entsprechung
+ * hat (sollte nicht passieren wenn der ATEM die Daten gerade selbst
+ * gesendet hat, defensiver Fallback).
+ */
+export const mapAtemWindowIndexToCp = (
+  atemWindowIndex: number,
+  layout: number,
+): number | undefined => {
+  const candidates = [
+    0, 1, 2, 3,
+    10, 11, 12, 13,
+    20, 21, 22, 23,
+    30, 31, 32, 33,
+    40, 41, 42, 43,
+  ]
+  for (const cp of candidates) {
+    if (mapCpWindowIndexToAtem(cp, layout) === atemWindowIndex) return cp
+  }
+  return undefined
+}

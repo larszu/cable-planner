@@ -38,7 +38,7 @@ import type { SignalStandard } from '../../types/cableSpec'
 import { RackImageCropDialog } from '../Rack/RackImageCropDialog'
 import { CategorySelect } from '../shared/CategorySelect'
 import { ColorField } from '../shared/ColorField'
-import { pickImageAsDataUri, readImageAsDataUri } from '../../lib/readImageAsDataUri'
+import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { useTranslation } from '../../lib/i18n'
 
 /** Module-level sensor options so re-renders don't churn the sensor
@@ -475,6 +475,24 @@ const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }: PortL
                   <option value="__new__">+ Neuer Standard…</option>
                 </select>
               </div>
+            </div>
+            {/* #286 — Inhaltliches Label fuer das gefuehrte Signal (PGM,
+                PVW, MV1, Cam1, Slot 3). Optional; bleibt leer wenn der
+                Port kein semantisch fixes Signal traegt. Wenn gesetzt
+                wird es auf dem Canvas als Haupt-Label gerendert und im
+                ATEM-/Videohub-Export bevorzugt. */}
+            <div className="mt-1">
+              <input
+                aria-label="Inhalt / Funktion"
+                value={port.contentLabel ?? ''}
+                onChange={(event) => {
+                  const v = event.target.value
+                  updatePort(port.id, { contentLabel: v ? v : undefined })
+                }}
+                placeholder="Inhalt / Funktion (z.B. PGM, PVW, MV1, Cam1) — optional"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                title="Was geht durch diesen Port? Trennt 'Inhalt' (PGM/PVW) vom Hardware-Standard (SDI 3G/12G)."
+              />
             </div>
             <div className="mt-1 grid grid-cols-2 gap-1">
               <select
@@ -1614,14 +1632,11 @@ const PortAiSuggestButton = ({
             {hasExisting && (
               <button
                 type="button"
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      `Bestehende ${equipment.inputs.length} In / ${equipment.outputs.length} Out durch AI-Vorschlag ueberschreiben?`,
-                    )
-                  ) {
-                    apply('replace')
-                  }
+                onClick={async () => {
+                  const ok = await confirmDialog(
+                    `Bestehende ${equipment.inputs.length} In / ${equipment.outputs.length} Out durch AI-Vorschlag ueberschreiben?`,
+                  )
+                  if (ok) apply('replace')
                 }}
                 className="rounded bg-amber-700 px-2 py-0.5 text-[10px] text-amber-100 hover:bg-amber-600"
                 title="Loescht aktuelle Ports und nimmt die AI-Vorschlaege"
@@ -1861,9 +1876,7 @@ export const EquipmentProperties = () => {
   const allEquipment = useProjectStore((state) => state.project.equipment)
   const allCables = useProjectStore((state) => state.project.cables)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
-  const knownCategories = useProjectStore((state) => state.knownCategories)
   const customLibrary = useProjectStore((state) => state.customLibrary)
-  const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
   const rentmanEnabled = useUiStore((state) => state.rentmanEnabled)
   const openVideohubExport = useUiStore((state) => state.openVideohubExport)
   const openGreenGoExport = useUiStore((state) => state.openGreenGoExport)
@@ -2256,6 +2269,26 @@ export const EquipmentProperties = () => {
               onChange={(event) => updateEquipment(equipment.id, { packed: event.target.checked || undefined })}
             />
             Gepackt / Pack-Status
+          </label>
+          {/* #285 — Wandler-Flag. Wenn aktiv, "ueberspringt" die
+              Patchliste dieses Geraet und zeigt direkt das naechste
+              echte Ziel ("Kamera -> [Konverter] -> ATEM"). Nur fuer
+              eindeutige 1-In/1-Out-Wandler relevant; bei mehrdeutigen
+              Geraeten wird trotzdem ohne Pass-Through angezeigt. */}
+          <label
+            className="flex items-center gap-2 text-[11px] text-slate-300"
+            title="Wandler-Marker: in der Patchliste wird dieses Gerät übersprungen und das nächste echte Ziel direkt angezeigt. Sinnvoll für SDI-HDMI-Konverter, Format-Wandler, Embedder/De-Embedder etc."
+          >
+            <input
+              type="checkbox"
+              checked={!!equipment.isConverter}
+              onChange={(event) =>
+                updateEquipment(equipment.id, {
+                  isConverter: event.target.checked || undefined,
+                })
+              }
+            />
+            Wandler (Patchliste folgt Durchgangskabel)
           </label>
         </div>
       </SortableSection>

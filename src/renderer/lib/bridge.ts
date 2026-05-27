@@ -10,7 +10,18 @@ export interface AtemInputSummary {
   inputId: number
   longName: string
   shortName: string
+  /** InternalPortType: External=0, Black=1, ColorBars=2, ColorGenerator=3,
+   *  MediaPlayerFill=4, MediaPlayerKey=5, SuperSource=6, ExternalDirect=7,
+   *  MEOutput=128, Auxiliary=129, Mask=130, MultiViewer=131. */
   portType?: number
+  /** ExternalPortType bitmask: SDI=1, HDMI=2, Component=4, Composite=8,
+   *  SVideo=16, XLR=32, AESEBU=64, RCA=128, Internal=256, TSJack=512,
+   *  MADI=1024, TRSJack=2048, RJ45=4096. */
+  externalPortType?: number
+  /** true wenn der ATEM noch seine Werks-Default-Labels traegt. Wir
+   *  pre-fillen aus dem Canvas nur wenn entweder default oder leer,
+   *  damit eine bestehende User-Beschriftung nicht ueberschrieben wird. */
+  areNamesDefault?: boolean
   sourceAvailability?: number
 }
 
@@ -133,6 +144,17 @@ type CablePlannerApi = {
         windows: { windowIndex: number; sourceId: number }[]
       }[]
     }) => Promise<{ applied: number }>
+    /** #288 — Live-MV-Setup vom verbundenen ATEM auslesen. Liefert die
+     *  Konfiguration im CP-Quadranten-Schema (windowIndex 0..3 + 10..43),
+     *  passt also direkt in AtemMvConfig.multiViewers. */
+    readMvConfig: () => Promise<{
+      multiViewers: Array<{
+        index: number
+        layout: number
+        programPreviewSwapped: boolean
+        windows: Array<{ windowIndex: number; sourceId: number }>
+      }>
+    }>
     /** v7.9.52 — OpenSwitcher-style Live-Audio-State lesen. */
     readAudioConfig: () => Promise<{
       matrix?: {
@@ -617,6 +639,9 @@ const webFallbackApi: CablePlannerApi = {
     getEvents: async () => [],
     getStatus: async () => ({ connected: false, ip: null }),
     applyMvConfig: async () => {
+      throw new Error('ATEM control requires the desktop app.')
+    },
+    readMvConfig: async () => {
       throw new Error('ATEM control requires the desktop app.')
     },
     readAudioConfig: async () => null,

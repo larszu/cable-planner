@@ -3,6 +3,8 @@ import { toPng } from 'html-to-image'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, type AtemInputSummary } from '../../lib/bridge'
+import { confirmDialog } from '../../lib/confirmDialog'
+import { getEquipmentById } from '../../lib/equipmentSelectors'
 import type {
   AtemMvConfig,
   AtemMvDefinition,
@@ -47,7 +49,6 @@ const QuadrantBlock = ({
   cellSize,
   fontBig,
   fontIdBig,
-  onToggle,
   canvasPortNames,
 }: {
   quad: QuadDef
@@ -57,7 +58,6 @@ const QuadrantBlock = ({
   cellSize: number
   fontBig: number
   fontIdBig: number
-  onToggle: () => void
   canvasPortNames?: Map<number, string>
 }) => {
   const renderBig = () => {
@@ -151,7 +151,6 @@ const MvLayoutPicker = ({
             cellSize={28}
             fontBig={9}
             fontIdBig={8}
-            onToggle={() => onToggleQuadrant(q.idx)}
             canvasPortNames={canvasPortNames}
           />
         ))}
@@ -630,7 +629,7 @@ export const AtemMvConfigDialog = () => {
   const slot = useUiStore((s) => s.atemMvConfig)
   const close = useUiStore((s) => s.closeAtemMvConfig)
   const equipment = useProjectStore((state) =>
-    state.project.equipment.find((e) => e.id === slot.deviceId),
+    getEquipmentById(state.project.equipment, slot.deviceId),
   )
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
 
@@ -839,6 +838,54 @@ export const AtemMvConfigDialog = () => {
       const result = await cablePlannerApi.atem.applyMvConfig(config)
       setStatus(`An ATEM übertragen (${result.applied} Fenster).`)
       updateEquipment(equipment.id, { atemMvConfig: config })
+    } catch (err) {
+      setStatus(`Fehler: ${(err as Error).message}`)
+    }
+  }
+
+  /**
+   * #288 — MV-Setup vom verbundenen ATEM lesen und in die lokale Konfig
+   * uebernehmen. Holt sich die Daten via atem:read-mv-config (Main-Process
+   * macht das Window-Index-Mapping ATEM → CP fuer uns) und ueberschreibt
+   * `config` nach Bestaetigung.
+   */
+  const handleReadFromAtem = async () => {
+    try {
+      setStatus('Lese vom ATEM …')
+      const result = await cablePlannerApi.atem.readMvConfig()
+      const incoming = result.multiViewers
+      if (!incoming || incoming.length === 0) {
+        setStatus('ATEM hat keine MV-Konfiguration geliefert.')
+        return
+      }
+      const totalWindows = incoming.reduce((s, m) => s + m.windows.length, 0)
+      // Confirm bei nicht-leerer Bestands-Config damit der User nicht
+      // versehentlich seine offline geplante MV-Anordnung verliert.
+      const hasLocalData = config.multiViewers.some((mv) => (mv.windows ?? []).some((w) => w.sourceId !== 0))
+      if (hasLocalData) {
+        const ok = await confirmDialog(
+          `Aktuelle MV-Konfiguration (${config.multiViewers.length} MV) mit ATEM-Live-Stand ` +
+            `überschreiben? Vom ATEM: ${incoming.length} MV mit ${totalWindows} Fenster-Zuweisungen.`,
+        )
+        if (!ok) {
+          setStatus('Übernahme abgebrochen.')
+          return
+        }
+      }
+      // Lokale Quadranten-Defaults sicherstellen wenn der ATEM nur Layout +
+      // Windows liefert (kein quadrants-Field aus Hardware). `closestAtemLayout`
+      // wird beim Senden zurueck berechnet — fuer die Anzeige reicht ein
+      // Standard-Quadranten-Tupel das zum Layout passt; wir lassen das aktuell
+      // weg und vertrauen dem getMvQuadrants()-Helper.
+      setConfig({
+        multiViewers: incoming.map((mv) => ({
+          index: mv.index,
+          layout: mv.layout,
+          programPreviewSwapped: mv.programPreviewSwapped,
+          windows: mv.windows,
+        })),
+      })
+      setStatus(`Vom ATEM geladen: ${incoming.length} MV, ${totalWindows} Fenster.`)
     } catch (err) {
       setStatus(`Fehler: ${(err as Error).message}`)
     }
@@ -1086,6 +1133,20 @@ export const AtemMvConfigDialog = () => {
               className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
             >
               Zwischenspeichern
+            </button>
+            {/* #288 — Live-MV-Setup vom ATEM holen. */}
+            <button
+              type="button"
+              onClick={() => void handleReadFromAtem()}
+              disabled={!connected}
+              className="rounded bg-sky-700 px-3 py-1 text-xs enabled:hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
+              title={
+                connected
+                  ? 'Multiviewer-Setup vom verbundenen ATEM auslesen und in die Anzeige uebernehmen.'
+                  : 'ATEM nicht verbunden — erst im ATEM-Dialog verbinden.'
+              }
+            >
+              ⬇ Vom ATEM laden
             </button>
             <button
               type="button"
