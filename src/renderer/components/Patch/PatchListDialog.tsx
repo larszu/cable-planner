@@ -12,7 +12,10 @@ import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
+import { portLabelPair } from '../../lib/portLabel'
 import { ModalShell } from '../shared/ModalShell'
+import type { Cable } from '../../types/cable'
+import type { EquipmentItem, Port } from '../../types/equipment'
 
 type SortKey = 'fromDevice' | 'toDevice' | 'type' | 'length' | 'color'
 
@@ -20,8 +23,13 @@ interface PatchRow {
   cableId: string
   fromDevice: string
   fromPort: string
+  /** #286 — Zweite Zeile unter dem Hauptport-Label. Gesetzt wenn ein
+   *  contentLabel (z.B. "PGM") vom port.name (z.B. "1 SDI 3G PGM") ab-
+   *  weicht, sodass beide Infos sichtbar bleiben. */
+  fromPortSub?: string
   toDevice: string
   toPort: string
+  toPortSub?: string
   type: string
   length: number
   color: string
@@ -41,21 +49,122 @@ export const PatchListDialog = () => {
   const rows = useMemo<PatchRow[]>(() => {
     if (!open) return []
     const eqById = new Map(equipment.map((e) => [e.id, e]))
-    const list = cables.map<PatchRow>((c) => {
+    // #285 — Output-Index: pro Quellgerät die abgehenden Kabel. Wird fuer
+    // die Wandler-Verfolgung gebraucht ("einziges Folge-Kabel?").
+    const cablesFromEq = new Map<string, Cable[]>()
+    for (const c of cables) {
+      const arr = cablesFromEq.get(c.fromEquipmentId) ?? []
+      arr.push(c)
+      cablesFromEq.set(c.fromEquipmentId, arr)
+    }
+
+    // #285 — Wandler-Verfolgung: wenn das Ziel-Gerät als Konverter
+    // markiert ist UND genau ein Output-Kabel hat, folge dem rekursiv
+    // bis ein nicht-Wandler-Gerät erreicht ist. Liefert das Endziel +
+    // die Liste der Bridge-Gerätenamen ("via X → Y").
+    const resolveThroughConverter = (
+      startEqId: string,
+      startPortId: string,
+    ): {
+      finalEq?: EquipmentItem
+      finalPort?: Port
+      bridgeNames: string[]
+    } => {
+      let currentEq = eqById.get(startEqId)
+      let currentPortId = startPortId
+      const bridges: string[] = []
+      const visited = new Set<string>()
+      // Maximal 10 Hops um pathologische Konfigurationen zu cappen.
+      for (let depth = 0; depth < 10; depth++) {
+        if (!currentEq || !currentEq.isConverter) break
+        if (visited.has(currentEq.id)) break
+        visited.add(currentEq.id)
+        const outs = cablesFromEq.get(currentEq.id) ?? []
+        if (outs.length !== 1) {
+          // Mehrdeutig oder kein Folge-Kabel — keine Auto-Verfolgung,
+          // Wandler wird selber als Ziel angezeigt.
+          break
+        }
+        bridges.push(currentEq.name)
+        const nextCable = outs[0]
+        currentEq = eqById.get(nextCable.toEquipmentId)
+        currentPortId = nextCable.toPortId
+      }
+      const finalPort = currentEq
+        ? currentEq.inputs.find((p) => p.id === currentPortId) ??
+          currentEq.outputs.find((p) => p.id === currentPortId)
+        : undefined
+      return { finalEq: currentEq, finalPort, bridgeNames: bridges }
+    }
+
+    // #285 — Output-Kabel die zu einer Wandler-Folge-Kette gehoeren in
+    // der Patchliste skippen — sonst wuerde der gleiche End-Patch zweimal
+    // erscheinen (einmal als Wandler-Eingang mit Pass-Through, einmal als
+    // separates Output-Kabel des Wandlers).
+    const consumedAsFollow = new Set<string>()
+    for (const c of cables) {
+      const target = eqById.get(c.toEquipmentId)
+      if (!target?.isConverter) continue
+      const outs = cablesFromEq.get(target.id) ?? []
+      if (outs.length !== 1) continue
+      let chain: Cable | undefined = outs[0]
+      const visited = new Set<string>([target.id])
+      while (chain) {
+        consumedAsFollow.add(chain.id)
+        const nextTarget = eqById.get(chain.toEquipmentId)
+        if (!nextTarget?.isConverter || visited.has(nextTarget.id)) break
+        const nextOuts = cablesFromEq.get(nextTarget.id) ?? []
+        if (nextOuts.length !== 1) break
+        visited.add(nextTarget.id)
+        chain = nextOuts[0]
+      }
+    }
+
+    const list = cables
+      .filter((c) => !consumedAsFollow.has(c.id))
+      .map<PatchRow>((c) => {
       const from = eqById.get(c.fromEquipmentId)
       const to = eqById.get(c.toEquipmentId)
       const fromPort =
         from?.outputs.find((p) => p.id === c.fromPortId) ??
         from?.inputs.find((p) => p.id === c.fromPortId)
-      const toPort =
+      // #285 — Wenn Ziel ein Wandler ist, das End-Geraet verfolgen.
+      let finalToEq: EquipmentItem | undefined = to
+      let finalToPort: Port | undefined =
         to?.inputs.find((p) => p.id === c.toPortId) ??
         to?.outputs.find((p) => p.id === c.toPortId)
+      let bridgeNames: string[] = []
+      if (to?.isConverter) {
+        const resolved = resolveThroughConverter(to.id, c.toPortId)
+        // Nur uebernehmen wenn wir tatsaechlich an einem Nicht-Wandler-
+        // Gerät angekommen sind (sonst hat resolveThroughConverter den
+        // Wandler selber zurueckgegeben → kein Vorteil gegenueber default).
+        if (
+          resolved.finalEq &&
+          resolved.finalEq.id !== to.id &&
+          !resolved.finalEq.isConverter
+        ) {
+          finalToEq = resolved.finalEq
+          finalToPort = resolved.finalPort
+          bridgeNames = resolved.bridgeNames
+        }
+      }
+      // #286 — contentLabel/port.name kombinieren: wenn beide gesetzt und
+      // unterschiedlich, dann main=contentLabel + sub=port.name.
+      const fromPair = fromPort ? portLabelPair(fromPort) : { main: c.fromPortId }
+      const toPair = finalToPort ? portLabelPair(finalToPort) : { main: c.toPortId }
+      const toDeviceLabel =
+        bridgeNames.length > 0
+          ? `${finalToEq?.name ?? '?'}  ⟵ via ${bridgeNames.join(' → ')}`
+          : finalToEq?.name ?? '?'
       return {
         cableId: c.id,
         fromDevice: from?.name ?? '?',
-        fromPort: fromPort?.name ?? c.fromPortId,
-        toDevice: to?.name ?? '?',
-        toPort: toPort?.name ?? c.toPortId,
+        fromPort: fromPair.main,
+        fromPortSub: fromPair.subline,
+        toDevice: toDeviceLabel,
+        toPort: toPair.main,
+        toPortSub: toPair.subline,
         type: c.type,
         length: c.length,
         color: c.color || '#64748b',
@@ -84,9 +193,17 @@ export const PatchListDialog = () => {
     const q = filter.trim().toLowerCase()
     if (!q) return rows
     return rows.filter((r) =>
-      [r.fromDevice, r.fromPort, r.toDevice, r.toPort, r.type, r.cableName, r.notes].some(
-        (v) => v.toLowerCase().includes(q),
-      ),
+      [
+        r.fromDevice,
+        r.fromPort,
+        r.fromPortSub ?? '',
+        r.toDevice,
+        r.toPort,
+        r.toPortSub ?? '',
+        r.type,
+        r.cableName,
+        r.notes,
+      ].some((v) => v.toLowerCase().includes(q)),
     )
   }, [rows, filter])
 
@@ -94,6 +211,10 @@ export const PatchListDialog = () => {
   if (!open) return null
 
   const exportCsv = () => {
+    // #286 — Wenn ein Port einen contentLabel hat, kombinieren wir in der
+    // CSV beides als "PGM (1 SDI 3G PGM)". CSV ist eine einzelne Spalte,
+    // deshalb zusammengefuegt; die UI hat dafuer eine zweite Zeile.
+    const csvPort = (main: string, sub?: string) => (sub ? `${main} (${sub})` : main)
     const header = ['Von Gerät', 'Von Port', 'Nach Gerät', 'Nach Port', 'Typ', 'Länge (m)', 'Farbe', 'Kabelname', 'Notizen']
     const escape = (v: string) => `"${v.replace(/"/g, '""')}"`
     const lines = [
@@ -101,9 +222,9 @@ export const PatchListDialog = () => {
       ...filtered.map((r) =>
         [
           escape(r.fromDevice),
-          escape(r.fromPort),
+          escape(csvPort(r.fromPort, r.fromPortSub)),
           escape(r.toDevice),
-          escape(r.toPort),
+          escape(csvPort(r.toPort, r.toPortSub)),
           escape(r.type),
           String(r.length),
           escape(r.color),
@@ -186,9 +307,19 @@ export const PatchListDialog = () => {
               {filtered.map((r) => (
                 <tr key={r.cableId} className="border-t border-slate-800 hover:bg-slate-900">
                   <td className="px-2 py-1 font-medium text-slate-100">{r.fromDevice}</td>
-                  <td className="px-2 py-1 text-slate-300">{r.fromPort}</td>
+                  <td className="px-2 py-1 text-slate-300">
+                    {r.fromPort}
+                    {r.fromPortSub && (
+                      <div className="text-[10px] text-slate-500">{r.fromPortSub}</div>
+                    )}
+                  </td>
                   <td className="px-2 py-1 font-medium text-slate-100">{r.toDevice}</td>
-                  <td className="px-2 py-1 text-slate-300">{r.toPort}</td>
+                  <td className="px-2 py-1 text-slate-300">
+                    {r.toPort}
+                    {r.toPortSub && (
+                      <div className="text-[10px] text-slate-500">{r.toPortSub}</div>
+                    )}
+                  </td>
                   <td className="px-2 py-1 text-slate-300">{r.type}</td>
                   <td className="px-2 py-1 text-right text-slate-300">{r.length}</td>
                   <td className="px-2 py-1">

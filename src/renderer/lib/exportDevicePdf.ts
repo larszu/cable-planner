@@ -25,6 +25,7 @@ import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
 import { pdfText } from './pdfHelpers'
 import { buildExportFilename, buildExportFilenameWithSuffix } from './exportFilename'
+import { portLabelPair } from './portLabel'
 
 interface CableEndpointSummary {
   /** Human-readable label for the cable (name OR fallback to type+length). */
@@ -99,71 +100,6 @@ const collectPortRows = (
   })
 }
 
-const drawColumn = (
-  pdf: jsPDF,
-  title: string,
-  rows: Array<{ port: Port; cables: CableEndpointSummary[] }>,
-  xStart: number,
-  yStart: number,
-  colWidth: number,
-  pageBottom: number,
-  margin: number,
-) => {
-  const x = xStart
-  let y = yStart
-  pdf.setFontSize(11)
-  pdf.setTextColor(20)
-  pdf.text(title, x, y)
-  y += 14
-  pdf.setFontSize(9)
-
-  for (const row of rows) {
-    // Page-break: if a port row wouldn't fit fully in the current page,
-    // start a fresh page. The drawColumn caller resets x/y when it
-    // detects we wrapped, but for the per-port renderer we play safe.
-    if (y > pageBottom - 30) {
-      pdf.addPage()
-      y = margin + 4
-    }
-    pdf.setTextColor(15)
-    pdf.setFont('helvetica', 'bold')
-    // Helvetica (jsPDF's built-in font) only ships ISO-8859-1 glyphs.
-    // The bullet ■ (U+25A0) and arrow → (U+2192) used to print as
-    // "%" and "!'" respectively, and any non-Latin char downstream
-    // got individually space-padded ("S D I I n 1") because jsPDF
-    // can't lay out unmapped glyphs. Switch to ASCII-safe markers.
-    const portLine = `> ${row.port.name || row.port.id}`
-    const portType = row.port.connectorType ? `  [${row.port.connectorType}]` : ''
-    pdf.text(`${portLine}${portType}`, x, y, { maxWidth: colWidth - 4 })
-    pdf.setFont('helvetica', 'normal')
-    y += 12
-
-    if (row.cables.length === 0) {
-      pdf.setTextColor(140)
-      pdf.text('  -- frei --', x, y)
-      y += 11
-      pdf.setTextColor(15)
-      continue
-    }
-    for (const c of row.cables) {
-      pdf.setTextColor(15)
-      pdf.text(`  -> ${c.cableLabel}`, x, y, { maxWidth: colWidth - 6 })
-      y += 11
-      pdf.setTextColor(80)
-      // Mirror the mobile viewer's "Camera 1 · SDI Out 3 (BNC)"
-      // line — device name + port name + connector type — so the
-      // printed sheet and the phone match exactly.
-      const otherSuffix = c.otherPortConnectorType ? ` [${c.otherPortConnectorType}]` : ''
-      const tgt = c.otherPortName
-        ? `       an ${c.otherDeviceName} - ${c.otherPortName}${otherSuffix}`
-        : `       an ${c.otherDeviceName}`
-      pdf.text(tgt, x, y, { maxWidth: colWidth - 6 })
-      y += 11
-    }
-    y += 4 // small gap between port rows
-  }
-  return y
-}
 
 /**
  * Render a single device's patch sheet onto the CURRENT page of `pdf`.
@@ -241,9 +177,12 @@ const drawPortRowPair = (
     let cy = y
     pdf.setTextColor(15)
     pdf.setFont('helvetica', 'bold')
-    const portLine = `> ${row.port.name || row.port.id}`
+    // #286 — contentLabel als Haupt-Label, port.name als Subline.
+    const pair = portLabelPair(row.port)
+    const portLine = `> ${pair.main || row.port.id}`
     const portType = row.port.connectorType ? `  [${row.port.connectorType}]` : ''
-    const portLines = pdfText(pdf, `${portLine}${portType}`, x, cy, { maxWidth: colWidth - 4 })
+    const subSuffix = pair.subline ? `  (${pair.subline})` : ''
+    const portLines = pdfText(pdf, `${portLine}${portType}${subSuffix}`, x, cy, { maxWidth: colWidth - 4 })
     pdf.setFont('helvetica', 'normal')
     cy += 12 * portLines
 

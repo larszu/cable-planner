@@ -1,25 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core'
-import {
-  SortableContext,
-  arrayMove,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
-import { triggerCanvasFitView } from '../../lib/canvasViewport'
 import { useRentman } from '../../hooks/useRentman'
 import { promptDialog } from '../../lib/promptDialog'
 import { CategorySelect } from '../shared/CategorySelect'
@@ -44,6 +26,10 @@ import {
 } from '../../lib/netboxImport'
 import { RackBuilderDialog } from '../Rack/RackBuilderDialog'
 import { TemplateMergeDialog } from './TemplateMergeDialog'
+import { TabButton } from './TabButton'
+import { CategoryDndWrapper, PresetDndWrapper } from './LibraryDndWrappers'
+import { SortableCategorySection, SortablePresetCard } from './LibrarySortables'
+import { PlusMenu, LibraryFiltersMenu } from './LibraryMenus'
 import { LibraryItem } from './LibraryItem'
 import {
   exportTemplateToFile,
@@ -90,484 +76,11 @@ const buildPorts = (groups: PortGroupDraft[], direction: 'in' | 'out'): Port[] =
   )
 }
 
-// v7.9.5 — Plus-Dropdown: ein einziger "+"-Button statt zwei separater
-// "+ Kategorie" / "+ Gerät" Knöpfe. Click toggles dropdown, Klick außen
-// schließt es. Items: Neues Gerät / Neue Kategorie.
-const PlusMenu = ({
-  onNewDevice,
-  onNewCategory,
-  onImportFile,
-  onOpenFolder,
-  hasFolder,
-}: {
-  onNewDevice: () => void
-  onNewCategory: () => void
-  onImportFile: () => void
-  onOpenFolder: () => void
-  hasFolder: boolean
-}) => {
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (!open) return
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [open])
-  return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex h-7 items-center gap-0.5 rounded bg-emerald-700 px-2 text-xs hover:bg-emerald-600"
-        title="Neues Gerät oder neue Kategorie anlegen"
-        aria-haspopup="menu"
-        aria-expanded={open}
-      >
-        <span className="text-sm leading-none">+</span>
-        <span className="text-[9px] leading-none">▾</span>
-      </button>
-      {open && (
-        <div
-          role="menu"
-          className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded border border-slate-700 bg-slate-900 py-1 text-xs shadow-xl"
-        >
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false)
-              onNewDevice()
-            }}
-            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
-          >
-            Neues Gerät…
-          </button>
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false)
-              onNewCategory()
-            }}
-            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
-          >
-            Neue Kategorie…
-          </button>
-          <div className="my-1 border-t border-slate-800" />
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false)
-              onImportFile()
-            }}
-            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
-            title=".cpdevice oder .cpgroup-Datei importieren"
-          >
-            Datei importieren…
-          </button>
-          {hasFolder && (
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setOpen(false)
-                onOpenFolder()
-              }}
-              className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
-              title="Library-Ordner im Datei-Manager öffnen"
-            >
-              Bibliotheks-Ordner öffnen…
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
 
-// v7.9.5 — Listen-/Kachel-View-Toggle entfernt auf User-Wunsch.
-// libraryViewMode bleibt im uiStore (Backwards-Compat persistierter
-// State), wird aber nicht mehr ausgewertet.
 
-// v7.9.5 — Filter-Overflow-Menü. Ersetzt drei unterstrichene Text-Links
-// (Alle ein/aus, Versteckte zeigen, Leere zeigen). Drei-Punkt-Icon als
-// Trigger, Dropdown mit Checkmark-Toggles.
-const LibraryFiltersMenu = ({
-  showHidden,
-  setShowHidden,
-  showEmpty,
-  setShowEmpty,
-  hiddenCount,
-  allCollapsed,
-  onToggleAllCats,
-  sortMode,
-  setSortMode,
-}: {
-  showHidden: boolean
-  setShowHidden: (v: boolean) => void
-  showEmpty: boolean
-  setShowEmpty: (v: boolean) => void
-  hiddenCount: number
-  allCollapsed: boolean
-  onToggleAllCats: (allCollapsed: boolean) => void
-  sortMode: 'manual' | 'asc' | 'desc'
-  setSortMode: (m: 'manual' | 'asc' | 'desc') => void
-}) => {
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (!open) return
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [open])
-  return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        title="Filter und Ansichtsoptionen"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        className="flex h-7 w-7 items-center justify-center rounded border border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-      >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-          <circle cx="3" cy="8" r="1.4" />
-          <circle cx="8" cy="8" r="1.4" />
-          <circle cx="13" cy="8" r="1.4" />
-        </svg>
-      </button>
-      {open && (
-        <div
-          role="menu"
-          className="absolute right-0 top-full z-10 mt-1 min-w-[210px] rounded border border-slate-700 bg-slate-900 py-1 text-xs shadow-xl"
-        >
-          <button
-            type="button"
-            role="menuitemcheckbox"
-            aria-checked={!allCollapsed}
-            onClick={() => onToggleAllCats(allCollapsed)}
-            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
-          >
-            <span className="mr-2 inline-block w-4 text-center text-slate-400">
-              {allCollapsed ? '▸' : '▾'}
-            </span>
-            {allCollapsed ? 'Alle Kategorien ausklappen' : 'Alle Kategorien einklappen'}
-          </button>
-          <div className="my-1 border-t border-slate-800" />
-          <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-slate-500">
-            Sortierung
-          </div>
-          {(
-            [
-              { value: 'manual' as const, label: 'Manuell (Drag&Drop)' },
-              { value: 'asc' as const, label: 'Alphabetisch A → Z' },
-              { value: 'desc' as const, label: 'Alphabetisch Z → A' },
-            ]
-          ).map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              role="menuitemradio"
-              aria-checked={sortMode === opt.value}
-              onClick={() => setSortMode(opt.value)}
-              className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
-            >
-              <span className="mr-2 inline-block w-4 text-center">
-                {sortMode === opt.value ? '●' : '○'}
-              </span>
-              {opt.label}
-            </button>
-          ))}
-          <div className="my-1 border-t border-slate-800" />
-          <button
-            type="button"
-            role="menuitemcheckbox"
-            aria-checked={showHidden}
-            onClick={() => setShowHidden(!showHidden)}
-            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
-          >
-            <span className="mr-2 inline-block w-4 text-center">
-              {showHidden ? '☑' : '☐'}
-            </span>
-            Versteckte zeigen{hiddenCount > 0 ? ` (${hiddenCount})` : ''}
-          </button>
-          <button
-            type="button"
-            role="menuitemcheckbox"
-            aria-checked={showEmpty}
-            onClick={() => setShowEmpty(!showEmpty)}
-            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
-          >
-            <span className="mr-2 inline-block w-4 text-center">
-              {showEmpty ? '☑' : '☐'}
-            </span>
-            Leere Kategorien zeigen
-          </button>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// v7.9.5 — Sortable-Kategorie-Section. Wenn manualSort aktiv, hängt es
-// einen Drag-Grip an die obere linke Ecke (greift via Pointer-Listener);
-// useSortable übernimmt Transform/Transition. Im 'asc'/'desc' Sort-Mode
-// ist DnD disabled.
-const SortableCategorySection = ({
-  cat,
-  manualSort,
-  onDragOverTemplate,
-  onDropTemplate,
-  children,
-}: {
-  cat: string
-  manualSort: boolean
-  onDragOverTemplate: (event: React.DragEvent<HTMLElement>) => void
-  onDropTemplate: (event: React.DragEvent<HTMLElement>) => void
-  children: ReactNode
-}) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: cat,
-    disabled: !manualSort,
-  })
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.6 : 1,
-    position: 'relative',
-  }
-  return (
-    <section
-      ref={setNodeRef}
-      style={style}
-      onDragOver={onDragOverTemplate}
-      onDrop={onDropTemplate}
-      className="rounded border border-slate-800"
-    >
-      {manualSort && (
-        <span
-          {...attributes}
-          {...listeners}
-          aria-label="Kategorie verschieben"
-          title="Per Drag&Drop verschieben"
-          role="button"
-          tabIndex={0}
-          className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-slate-500 hover:text-slate-200 active:cursor-grabbing"
-        >
-          <svg width="6" height="12" viewBox="0 0 6 12" fill="currentColor">
-            <circle cx="1.5" cy="2" r="1" />
-            <circle cx="4.5" cy="2" r="1" />
-            <circle cx="1.5" cy="6" r="1" />
-            <circle cx="4.5" cy="6" r="1" />
-            <circle cx="1.5" cy="10" r="1" />
-            <circle cx="4.5" cy="10" r="1" />
-          </svg>
-        </span>
-      )}
-      {children}
-    </section>
-  )
-}
-
-// v7.9.6 — Reusable sortable wrapper for group / rack preset cards.
-// Provides a 6×12 dotted drag handle in the top-left corner; the
-// content (action buttons) keeps full pointer-events. Disabling is
-// handled by *not* wrapping in a DndContext rather than per-item.
-const SortablePresetCard = ({
-  id,
-  children,
-  nativeDragData,
-  onCardClick,
-  clickTitle,
-}: {
-  id: string
-  children: ReactNode
-  /** v7.9.15 — Optional: HTML5-native drag-Daten, damit die Karte zusätzlich
-   *  zum dnd-kit-Sort-Drag auf den Canvas gezogen werden kann. Der dnd-kit-
-   *  Drag-Handle nutzt PointerEvents, der HTML5-Drag-Path nutzt
-   *  dragstart/dragend — Konflikte gibt es keine. */
-  nativeDragData?: { mime: string; data: string }
-  /** v7.9.16 — Klick auf die Karte (außerhalb von Action-Buttons)
-   *  triggert diesen Callback. Analog zu LibraryItem.onAdd — Click
-   *  platziert, Drag-Drop platziert an der Drop-Position. */
-  onCardClick?: () => void
-  clickTitle?: string
-}) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.6 : 1,
-    position: 'relative',
-  }
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`group rounded border border-slate-700 bg-slate-900 p-2 pl-5 text-xs ${
-        onCardClick ? 'cursor-grab hover:bg-slate-800 active:cursor-grabbing' : ''
-      }`}
-      draggable={!!nativeDragData}
-      onDragStart={(event) => {
-        if (!nativeDragData) return
-        event.dataTransfer.effectAllowed = 'copy'
-        event.dataTransfer.setData(nativeDragData.mime, nativeDragData.data)
-      }}
-      onClick={
-        onCardClick
-          ? (event) => {
-              // Klicks auf Action-Buttons (mit stopPropagation darin)
-              // werden NICHT durchgereicht. Reine Klicks auf Card-Body
-              // landen hier.
-              if (event.defaultPrevented) return
-              onCardClick()
-            }
-          : undefined
-      }
-      role={onCardClick ? 'button' : undefined}
-      tabIndex={onCardClick ? 0 : undefined}
-      onKeyDown={
-        onCardClick
-          ? (event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault()
-                onCardClick()
-              }
-            }
-          : undefined
-      }
-      title={onCardClick ? clickTitle : undefined}
-    >
-      <span
-        {...attributes}
-        {...listeners}
-        aria-label="Verschieben"
-        title="Per Drag&Drop verschieben"
-        role="button"
-        tabIndex={0}
-        className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-slate-500 hover:text-slate-200 active:cursor-grabbing"
-      >
-        <svg width="6" height="12" viewBox="0 0 6 12" fill="currentColor">
-          <circle cx="1.5" cy="2" r="1" />
-          <circle cx="4.5" cy="2" r="1" />
-          <circle cx="1.5" cy="6" r="1" />
-          <circle cx="4.5" cy="6" r="1" />
-          <circle cx="1.5" cy="10" r="1" />
-          <circle cx="4.5" cy="10" r="1" />
-        </svg>
-      </span>
-      {children}
-    </div>
-  )
-}
-
-const PresetDndWrapper = ({
-  ids,
-  onReorder,
-  children,
-}: {
-  ids: string[]
-  onReorder: (newOrder: string[]) => void
-  children: ReactNode
-}) => {
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  )
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    const oldIndex = ids.indexOf(active.id as string)
-    const newIndex = ids.indexOf(over.id as string)
-    if (oldIndex < 0 || newIndex < 0) return
-    onReorder(arrayMove(ids, oldIndex, newIndex))
-  }
-  return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={ids} strategy={verticalListSortingStrategy}>
-        {children}
-      </SortableContext>
-    </DndContext>
-  )
-}
-
-// v7.9.5 — Wrapper mit DnD-Context+SortableContext nur wenn manueller
-// Sort-Modus aktiv ist. Sonst transparent durchreichen.
-const CategoryDndWrapper = ({
-  cats,
-  onReorder,
-  children,
-}: {
-  cats: string[]
-  onReorder: (newOrder: string[]) => void
-  children: ReactNode
-}) => {
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  )
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    const oldIndex = cats.indexOf(active.id as string)
-    const newIndex = cats.indexOf(over.id as string)
-    if (oldIndex < 0 || newIndex < 0) return
-    onReorder(arrayMove(cats, oldIndex, newIndex))
-  }
-  return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={cats} strategy={verticalListSortingStrategy}>
-        {children}
-      </SortableContext>
-    </DndContext>
-  )
-}
 
 // v7.9.5 — Tab-Button-Helper. SVG-Icon links, Label rechts, optionaler
 // count-Badge. Aktiv-Style: sky-700-bg, weiße Schrift, kein Hover.
-const TabButton = ({
-  active,
-  onClick,
-  label,
-  icon,
-  count,
-  title,
-}: {
-  active: boolean
-  onClick: () => void
-  label: string
-  icon: ReactNode
-  count?: number
-  title?: string
-}) => (
-  <button
-    type="button"
-    onClick={onClick}
-    title={title}
-    className={`flex items-center gap-1 rounded px-2 py-1 ${
-      active ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-    }`}
-  >
-    <span className={active ? 'text-white' : 'text-slate-400'}>{icon}</span>
-    <span>{label}</span>
-    {count != null && count > 0 && (
-      <span
-        className={`ml-1 rounded-full px-1 text-[10px] ${
-          active ? 'bg-sky-900/70 text-sky-100' : 'bg-slate-900 text-slate-400'
-        }`}
-      >
-        {count}
-      </span>
-    )}
-  </button>
-)
 
 export const LibraryPanel = () => {
   const t = useTranslation()
@@ -600,7 +113,6 @@ export const LibraryPanel = () => {
   const openRentmanImport = useUiStore((state) => state.openRentmanImport)
   const toggleTemplateHidden = useProjectStore((state) => state.toggleTemplateHidden)
   const setCustomTemplateCategory = useProjectStore((state) => state.setCustomTemplateCategory)
-  const updateCustomTemplate = useProjectStore((state) => state.updateCustomTemplate)
   const setSelectedTemplateName = useProjectStore((state) => state.setSelectedTemplateName)
   const knownCategories = useProjectStore((state) => state.knownCategories)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
@@ -626,7 +138,6 @@ export const LibraryPanel = () => {
     (state) => state.replaceCanvasRackWithPreset,
   )
   const reorderGroupPresets = useProjectStore((state) => state.reorderGroupPresets)
-  const renameGroupPreset = useProjectStore((state) => state.renameGroupPreset)
   const renameCustomCategory = useProjectStore((state) => state.renameCustomCategory)
   const canvasState = useProjectStore((state) => state.project.canvasState)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
@@ -894,7 +405,6 @@ export const LibraryPanel = () => {
   const {
     loadEquipment: loadRentmanEquipment,
     loadFolders: loadRentmanFolders,
-    addProjectEquipment,
     exportToCablePlannerGroup,
   } = useRentman()
   const [rentmanCatalog, setRentmanCatalog] = useState<
@@ -1763,7 +1273,7 @@ export const LibraryPanel = () => {
                     )}
                   </SortableCategorySection>
                 )
-              }).filter(Boolean) as JSX.Element[]
+              }).filter(Boolean) as ReactNode[]
               // v7.9.5 — Manuelle Sortierung: DnD-Wrapper drumherum.
               // Sonst direkt rendern.
               if (librarySortMode === 'manual') {

@@ -1,6 +1,5 @@
 import type {
   AtemAudioConfig,
-  AtemAudioMatrix,
   AtemAudioOutput,
   AtemAudioSource,
   AtemClassicAudioInput,

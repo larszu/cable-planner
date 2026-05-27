@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { cablePlannerApi, type AtemStateSummary } from '../../lib/bridge'
+import { cablePlannerApi, type AtemStateSummary, type AtemInputSummary } from '../../lib/bridge'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
+import { portDisplayLabel, shortenForAtem } from '../../lib/portLabel'
+import { getEquipmentById } from '../../lib/equipmentSelectors'
+import { ModalShell } from '../shared/ModalShell'
 
 interface AtemDialogProps {
   onClose: () => void
@@ -15,33 +18,72 @@ interface RowDraft {
   newLong: string
   newShort: string
   changed: boolean
+  category: InputCategory
+  /** Wenn true: read-only Zeile (Mediaplayer / Audio-Quelle / interne
+   *  Quelle wie Black/Bars/Color). Beim Push wird sie uebersprungen. */
+  locked: boolean
+  /** Erklaerungs-Hint warum diese Zeile gesperrt ist (UI-Anzeige). */
+  lockReason?: string
 }
 
-/**
- * Issue #248 (Comment): ATEM Long-Name ist 20 Chars, Short 4. Canvas-
- * Port-Namen sind oft viel laenger und voller fuer ATEM redundanter
- * Infos: Stecker-Typ ("SDI"), Signal-Standard ("3G", "12G"), Format
- * ("(1080p50/60)"), fuehrende Port-Nummern ("1 ", "2 "). Diese
- * Stripping-Regeln machen aus "1 SDI 3G PGM (1080p50/60)" -> "PGM",
- * was deutlich nuetzlicher in der ATEM-UI angezeigt wird.
- */
-const shortenForAtem = (raw: string): string => {
-  let out = raw.trim()
-  // Fuehrende Port-Nummer mit Leerzeichen ("1 ", "12 ").
-  out = out.replace(/^\d+\s+/, '')
-  // Format-Suffix in Klammern: (1080p50/60), (4Kp50) etc.
-  out = out.replace(/\s*\(\d{2,4}[pi]\d{2,3}(?:\/\d{2,3})?\)/gi, '')
-  // Stecker-Token (SDI/HDMI/BNC/XLR) wenn die Restzeichenkette laenger
-  // als ein Wort ist — sonst wuerde "SDI 1" zu "1" verstuemmelt.
-  const tokens = out.split(/\s+/)
-  if (tokens.length > 1) {
-    const stripKeywords = /^(SDI|HDMI|BNC|XLR|RJ45|Fiber|SFP\+?|DIN|USB|USB-C|3G|6G|12G)$/i
-    while (tokens.length > 1 && stripKeywords.test(tokens[0])) {
-      tokens.shift()
-    }
-    out = tokens.join(' ').trim()
+// #289 / #293 — ATEM-Source-Klassifikation. Jeder Eintrag in
+// `state.inputs` ist eine Source-ID; Pre-Fill und Push muessen die nach
+// Kategorie unterscheiden, sonst ueberschreiben wir die Werks-Labels
+// von Mediaplayer / Talkback / interne Generatoren.
+//
+//  - video-input:  externer Video-Input (SDI/HDMI/Component/Composite/
+//                  SVideo). Wird gegen equipment.inputs[i].name gemappt.
+//  - audio-input:  externer Audio-Input (XLR/RCA/TSJack/TRSJack/MADI/
+//                  AESEBU oder RJ45 mit Talkback-Hinweis). NICHT pre-
+//                  fillen — ATEM hat eigene Default-Labels die der
+//                  Anwender sehen will.
+//  - mediaplayer:  MediaPlayerFill/Key. Hat dynamische Default-Labels
+//                  basierend auf Clip-/Still-Namen — nicht ueberschreiben.
+//  - me-output:    PGM/PVW (ME-Output). Wird gegen equipment.outputs[i]
+//                  gemappt — falls vorhanden.
+//  - aux:          AUX-Output. equipment.outputs[i].
+//  - multiviewer:  MV-Output. equipment.outputs[i].
+//  - internal:     Black/ColorBars/ColorGenerator/SuperSource/Mask.
+//                  Default-Labels behalten.
+type InputCategory =
+  | 'video-input'
+  | 'audio-input'
+  | 'mediaplayer'
+  | 'me-output'
+  | 'aux'
+  | 'multiviewer'
+  | 'internal'
+
+// ExternalPortType-Bitmaske (siehe bridge.ts).
+const EXT_VIDEO_BITS = 1 /*SDI*/ | 2 /*HDMI*/ | 4 /*Component*/ | 8 /*Composite*/ | 16 /*SVideo*/
+const EXT_AUDIO_BITS =
+  32 /*XLR*/ | 64 /*AESEBU*/ | 128 /*RCA*/ | 512 /*TSJack*/ | 1024 /*MADI*/ | 2048 /*TRSJack*/
+const EXT_RJ45 = 4096
+
+// InternalPortType-Werte (siehe enums in atem-connection):
+const INT_EXTERNAL = 0
+const INT_MEDIAPLAYER_FILL = 4
+const INT_MEDIAPLAYER_KEY = 5
+const INT_ME_OUTPUT = 128
+const INT_AUXILIARY = 129
+const INT_MULTIVIEWER = 131
+
+const classifyInput = (input: AtemInputSummary): InputCategory => {
+  const ipt = input.portType
+  if (ipt === INT_ME_OUTPUT) return 'me-output'
+  if (ipt === INT_AUXILIARY) return 'aux'
+  if (ipt === INT_MULTIVIEWER) return 'multiviewer'
+  if (ipt === INT_MEDIAPLAYER_FILL || ipt === INT_MEDIAPLAYER_KEY) return 'mediaplayer'
+  if (ipt !== INT_EXTERNAL) return 'internal'
+  // External — externalPortType entscheidet ob Video oder Audio.
+  const ept = input.externalPortType ?? 0
+  if ((ept & EXT_AUDIO_BITS) !== 0 && (ept & EXT_VIDEO_BITS) === 0) return 'audio-input'
+  // RJ45 mit Talkback-Hinweis im Label = Audio. ATEM Constellation
+  // benennt diese standardmaessig "Talkback" / "TB1" / "TLBK".
+  if (ept === EXT_RJ45 && /talkback|talk back|^tlbk|^tb\s*\d/i.test(`${input.longName} ${input.shortName}`)) {
+    return 'audio-input'
   }
-  return out || raw.trim()
+  return 'video-input'
 }
 
 /**
@@ -57,7 +99,7 @@ const shortenForAtem = (raw: string): string => {
  */
 export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) => {
   const equipment = useProjectStore((state) =>
-    preselectedDeviceId ? state.project.equipment.find((e) => e.id === preselectedDeviceId) : undefined,
+    preselectedDeviceId ? getEquipmentById(state.project.equipment, preselectedDeviceId) : undefined,
   )
   const openAtemMvLayout = useUiStore((state) => state.openAtemMvLayout)
 
@@ -76,9 +118,18 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
   const [pushing, setPushing] = useState(false)
 
   // Default-name suggestions derived from the project's port names.
+  // #290 — equipment.outputs werden gegen ME-Outputs / AUX / MV gemappt.
+  // #286 — contentLabel ("PGM", "Cam1") gewinnt gegen port.name. Der
+  //  Long-/Short-Name auf dem ATEM ist eh nur 20/4 Zeichen — die kompakte
+  //  inhaltliche Bezeichnung passt da besser rein als der ausgeschriebene
+  //  Canvas-Port-Name ("1 SDI 3G PGM (1080p50/60)" → "PGM").
   const projectInputNames = useMemo(() => {
     if (!equipment) return [] as string[]
-    return equipment.inputs.map((p) => p.name)
+    return equipment.inputs.map((p) => portDisplayLabel(p))
+  }, [equipment])
+  const projectOutputNames = useMemo(() => {
+    if (!equipment) return [] as string[]
+    return equipment.outputs.map((p) => portDisplayLabel(p))
   }, [equipment])
 
   useEffect(() => {
@@ -127,18 +178,37 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
       // Suffix, fuehrende Port-Nummer) sind in der ATEM-UI unnoetig. Wir
       // strippen die hier aggressiv damit der Long-Name (20 chars) nicht
       // schon nach 3 Worten abgehackt ist.
+      //
+      // #289 — Off-by-One Fix: vorher haben wir blind nach state.inputs-
+      // Index gemappt, sodass Black (inputId=0) den Canvas-In1-Namen
+      // bekommen hat und SDI 1 (inputId=1) den von Canvas-In2 usw. — alles
+      // um 1 verschoben. Jetzt filtern wir nach Kategorie und mappen
+      // gefiltert-Index → Canvas-Position.
+      //
+      // #293 — Mediaplayer-/Audio-Quellen-Fix: gefiltert wird so dass
+      // Mediaplayer (z.B. "MP1 Stinger") und Audio-Inputs (XLR, RCA,
+      // RJ45-Talkback) NICHT mit Canvas-Port-Namen ueberschrieben werden.
       if (result.summary) {
         const next: Record<number, { long: string; short: string }> = {}
-        result.summary.inputs.forEach((input, index) => {
-          const raw = projectInputNames[index]
-          const cleaned = raw ? shortenForAtem(raw) : ''
-          next[input.inputId] = {
-            long: cleaned ? cleaned.slice(0, 20) : input.longName,
+        const videoInputs = result.summary.inputs.filter((i) => classifyInput(i) === 'video-input')
+        const outputSources = result.summary.inputs.filter((i) => {
+          const c = classifyInput(i)
+          return c === 'me-output' || c === 'aux' || c === 'multiviewer'
+        })
+        const fillFrom = (
+          source: AtemInputSummary,
+          rawName: string | undefined,
+        ) => {
+          const cleaned = rawName ? shortenForAtem(rawName) : ''
+          next[source.inputId] = {
+            long: cleaned ? cleaned.slice(0, 20) : source.longName,
             short: cleaned
               ? cleaned.replace(/\s+/g, '').slice(0, 4).toUpperCase()
-              : input.shortName,
+              : source.shortName,
           }
-        })
+        }
+        videoInputs.forEach((input, idx) => fillFrom(input, projectInputNames[idx]))
+        outputSources.forEach((output, idx) => fillFrom(output, projectOutputNames[idx]))
         setDrafts(next)
       }
     } catch (err) {
@@ -157,6 +227,22 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
     if (!state) return []
     return state.inputs.map((input) => {
       const draft = drafts[input.inputId] ?? { long: input.longName, short: input.shortName }
+      const category = classifyInput(input)
+      // #293 — Mediaplayer + Audio-Inputs + interne Generatoren sind
+      // gegen Bulk-Pre-Fill geschuetzt. User kann sie nicht versehentlich
+      // (z.B. "rj45 talkback" → "Out 1") umbenennen.
+      const locked =
+        category === 'mediaplayer' ||
+        category === 'audio-input' ||
+        category === 'internal'
+      const lockReason =
+        category === 'mediaplayer'
+          ? 'Mediaplayer-Slot — Default-Label vom ATEM (zeigt Clip-/Still-Name)'
+          : category === 'audio-input'
+            ? 'Audio-Input — wird nicht aus Canvas-Port-Namen ueberschrieben'
+            : category === 'internal'
+              ? 'Interne Quelle (Black/Bars/Color/SuperSource) — Default-Label behalten'
+              : undefined
       return {
         inputId: input.inputId,
         liveLong: input.longName,
@@ -164,17 +250,23 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
         newLong: draft.long,
         newShort: draft.short,
         changed: draft.long !== input.longName || draft.short !== input.shortName,
+        category,
+        locked,
+        lockReason,
       }
     })
   }, [state, drafts])
 
-  const dirtyCount = rows.filter((r) => r.changed).length
+  const dirtyCount = rows.filter((r) => r.changed && !r.locked).length
 
   const pushAll = async () => {
     setPushing(true)
     setError(null)
     try {
-      const dirty = rows.filter((r) => r.changed)
+      // #293 — locked rows nie pushen, auch wenn sie versehentlich
+      // einen draft haben (z.B. bei Re-Connect kommt anderer ATEM mit
+      // anderem Port-Mapping rein).
+      const dirty = rows.filter((r) => r.changed && !r.locked)
       const result = await cablePlannerApi.atem.bulkSetInputNames({
         entries: dirty.map((r) => ({
           inputId: r.inputId,
@@ -202,19 +294,14 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
     }))
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded border border-sky-700 bg-slate-900 text-slate-100">
-        <header className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
-          <h2 className="text-base font-semibold text-sky-300">ATEM Live Integration</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded bg-slate-700 px-2 py-0.5 text-xs hover:bg-slate-600"
-          >
-            ✕ Schließen
-          </button>
-        </header>
-
+    <ModalShell
+      open
+      onClose={onClose}
+      title="ATEM Live Integration"
+      maxWidth="3xl"
+      scrollBody={false}
+    >
+      <div className="flex max-h-[80vh] flex-col text-slate-100">
         <div className="border-b border-slate-700 px-4 py-3">
           <div className="flex items-end gap-2">
             <label className="flex-1 text-xs">
@@ -336,8 +423,9 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               <thead className="text-left text-slate-400">
                 <tr>
                   <th className="w-12 py-1">ID</th>
-                  <th className="w-1/3 py-1">Live (long / short)</th>
-                  <th className="w-1/3 py-1">Neu Long (max 20)</th>
+                  <th className="w-20 py-1">Typ</th>
+                  <th className="w-1/4 py-1">Live (long / short)</th>
+                  <th className="py-1">Neu Long (max 20)</th>
                   <th className="w-24 py-1">Neu Short (4)</th>
                 </tr>
               </thead>
@@ -345,9 +433,45 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 {rows.map((row) => (
                   <tr
                     key={row.inputId}
-                    className={`border-t border-slate-800 ${row.changed ? 'bg-amber-950/30' : ''}`}
+                    title={row.lockReason}
+                    className={`border-t border-slate-800 ${
+                      row.locked ? 'opacity-60' : row.changed ? 'bg-amber-950/30' : ''
+                    }`}
                   >
                     <td className="py-1 font-mono text-slate-400">{row.inputId}</td>
+                    <td className="py-1 text-[10px] uppercase tracking-wide">
+                      <span
+                        className={
+                          row.category === 'video-input'
+                            ? 'text-emerald-300'
+                            : row.category === 'me-output'
+                              ? 'text-sky-300'
+                              : row.category === 'aux'
+                                ? 'text-cyan-300'
+                                : row.category === 'multiviewer'
+                                  ? 'text-violet-300'
+                                  : row.category === 'audio-input'
+                                    ? 'text-amber-400'
+                                    : row.category === 'mediaplayer'
+                                      ? 'text-pink-400'
+                                      : 'text-slate-500'
+                        }
+                      >
+                        {row.category === 'video-input'
+                          ? 'In'
+                          : row.category === 'me-output'
+                            ? 'ME-Out'
+                            : row.category === 'aux'
+                              ? 'AUX'
+                              : row.category === 'multiviewer'
+                                ? 'MV'
+                                : row.category === 'audio-input'
+                                  ? '🔒 Audio'
+                                  : row.category === 'mediaplayer'
+                                    ? '🔒 MP'
+                                    : '🔒 int.'}
+                      </span>
+                    </td>
                     <td className="py-1 text-slate-300">
                       <span className="font-mono">{row.liveLong}</span>{' '}
                       <span className="text-slate-500">({row.liveShort})</span>
@@ -356,18 +480,20 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                       <input
                         value={row.newLong}
                         maxLength={20}
+                        disabled={row.locked}
                         onChange={(event) => setDraft(row.inputId, { long: event.target.value })}
-                        className="w-full rounded border border-slate-700 bg-slate-950 p-1 font-mono"
+                        className="w-full rounded border border-slate-700 bg-slate-950 p-1 font-mono disabled:cursor-not-allowed disabled:bg-slate-900 disabled:text-slate-500"
                       />
                     </td>
                     <td className="py-1">
                       <input
                         value={row.newShort}
                         maxLength={4}
+                        disabled={row.locked}
                         onChange={(event) =>
                           setDraft(row.inputId, { short: event.target.value.toUpperCase() })
                         }
-                        className="w-full rounded border border-slate-700 bg-slate-950 p-1 font-mono uppercase"
+                        className="w-full rounded border border-slate-700 bg-slate-950 p-1 font-mono uppercase disabled:cursor-not-allowed disabled:bg-slate-900 disabled:text-slate-500"
                       />
                     </td>
                   </tr>
@@ -377,6 +503,8 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
             <p className="mt-3 text-[11px] text-slate-500">
               Hinweis: Änderungen gehen direkt an den Switcher (RAM). Damit sie einen Reboot
               überleben, in der Blackmagic ATEM Software „Save Startup State" auslösen.
+              Audio-Eingaenge (XLR/RJ45-Talkback), Mediaplayer und interne Quellen sind
+              gesperrt — der ATEM verwaltet die selbst.
             </p>
           </div>
         )}
@@ -388,6 +516,6 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
           </pre>
         </details>
       </div>
-    </div>
+    </ModalShell>
   )
 }

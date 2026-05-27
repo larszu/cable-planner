@@ -176,10 +176,25 @@ export function registerVideohubIpc() {
           return
         }
 
+        // Issue #287 — "Labels + Routing senden" hat nur Labels gesendet:
+        // wir haben beim ERSTEN ACK den Socket geschlossen. Bei einem
+        // Multi-Block-Push (INPUT LABELS + OUTPUT LABELS + VIDEO OUTPUT
+        // ROUTING) schickt der Hub aber pro Block ein ACK\n\n zurueck.
+        // Loesung: pro Block-Header (uppercase Zeile mit ":") einmal ACK
+        // erwarten; erst wenn alle eingetroffen sind, done(true).
+        const blockHeaderCount = (block.match(/^[A-Z][A-Z 0-9]*:\s*$/gm) ?? []).length
+        const expectedAcks = Math.max(1, blockHeaderCount)
+
         const socket = new net.Socket()
         let buffer = ''
         let preambleSeen = false
         let settled = false
+        let receivedAcks = 0
+        // Wir tracken die laenge des Buffers bis zum letzten gezaehlten
+        // ACK damit wir bei wachsendem Buffer nur das neue Stueck nach
+        // weiteren ACKs durchsuchen — und nicht den gleichen ACK mehrfach
+        // zaehlen.
+        let scannedTo = 0
 
         const done = (ok: boolean, message: string) => {
           if (settled) return
@@ -190,7 +205,12 @@ export function registerVideohubIpc() {
         }
 
         const timer = setTimeout(() => {
-          done(false, 'Timeout: keine Antwort vom Videohub (5 s)')
+          done(
+            false,
+            receivedAcks > 0
+              ? `Timeout nach ${receivedAcks}/${expectedAcks} ACKs — Hub hat nicht alle Blocks bestaetigt`
+              : 'Timeout: keine Antwort vom Videohub (5 s)',
+          )
         }, 5000)
 
         socket.connect(port, host)
@@ -207,15 +227,39 @@ export function registerVideohubIpc() {
             // Ensure block ends with double newline
             const cmd = block.endsWith('\n\n') ? block : block.trimEnd() + '\n\n'
             socket.write(cmd)
+            // Nachdem wir geschrieben haben, ist alles bis hier "Hub-Hello".
+            // Erst die Bytes DANACH gehoeren zur Antwort auf unseren Push —
+            // also setzen wir scannedTo auf das aktuelle Buffer-Ende, damit
+            // ein potenzielles "ACK" das schon in der Preamble vorkommt
+            // (z.B. in einem Modellnamen wie "...Smart-ACK 40x40 12G")
+            // nicht faelschlich gezaehlt wird.
+            scannedTo = buffer.length
           }
 
-          if (preambleSeen && buffer.includes('ACK')) {
-            done(true, 'Routing erfolgreich übertragen')
-          }
+          if (preambleSeen && buffer.length > scannedTo) {
+            const fresh = buffer.slice(scannedTo)
+            scannedTo = buffer.length
 
-          // NAK means the hub rejected the command (e.g. locked outputs)
-          if (preambleSeen && buffer.includes('NAK')) {
-            done(false, 'Videohub hat den Befehl abgelehnt (NAK) — Output gesperrt?')
+            // NAK means the hub rejected the command (e.g. locked outputs)
+            if (/\bNAK\b/.test(fresh)) {
+              done(false, 'Videohub hat den Befehl abgelehnt (NAK) — Output gesperrt?')
+              return
+            }
+
+            // ACK pro Block — exakt match auf ACK gefolgt von Whitespace
+            // damit wir nicht "ACKnowledge" o.ae. in einem Label-Text mit-
+            // zaehlen.
+            const acksInFresh = (fresh.match(/\bACK\b/g) ?? []).length
+            receivedAcks += acksInFresh
+
+            if (receivedAcks >= expectedAcks) {
+              done(
+                true,
+                expectedAcks === 1
+                  ? 'Erfolgreich übertragen'
+                  : `Erfolgreich übertragen (${receivedAcks} Blocks bestaetigt)`,
+              )
+            }
           }
         })
       })

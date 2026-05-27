@@ -354,14 +354,41 @@ const PortList = ({
           // wasn't useful when racking the gear.
           let otherDevice: CablePlannerProject['equipment'][number] | undefined
           let otherPort: CablePlannerProject['equipment'][number]['inputs'][number] | undefined
+          // #285 — Wandler-Verfolgung: wenn das direkte Other-Geraet als
+          // Konverter markiert ist, folgen wir der Kette weiter bis ein
+          // nicht-Wandler-Geraet erreicht ist. Sammelt die durchlaufenen
+          // Wandler-Namen fuer ein "via X"-Suffix.
+          const bridgeNames: string[] = []
           if (cable) {
             const isFromMe = cable.fromEquipmentId === deviceId
-            const otherEqId = isFromMe ? cable.toEquipmentId : cable.fromEquipmentId
-            const otherPortId = isFromMe ? cable.toPortId : cable.fromPortId
+            let otherEqId = isFromMe ? cable.toEquipmentId : cable.fromEquipmentId
+            let otherPortId = isFromMe ? cable.toPortId : cable.fromPortId
             otherDevice = allEquipment.find((e) => e.id === otherEqId)
             otherPort =
               otherDevice?.inputs?.find((q) => q.id === otherPortId) ??
               otherDevice?.outputs?.find((q) => q.id === otherPortId)
+            // Pass-Through fuer Wandler. Heuristik: genau 1 Folge-Kabel
+            // (vorwaerts wenn wir mode='out' sind, rueckwaerts bei 'in').
+            const visited = new Set<string>()
+            for (let depth = 0; depth < 10; depth++) {
+              if (!otherDevice || !otherDevice.isConverter) break
+              if (visited.has(otherDevice.id)) break
+              visited.add(otherDevice.id)
+              const followCables = cables.filter((c2) =>
+                mode === 'out'
+                  ? c2.fromEquipmentId === otherDevice!.id
+                  : c2.toEquipmentId === otherDevice!.id,
+              )
+              if (followCables.length !== 1) break
+              const fc = followCables[0]
+              bridgeNames.push(otherDevice.name)
+              otherEqId = mode === 'out' ? fc.toEquipmentId : fc.fromEquipmentId
+              otherPortId = mode === 'out' ? fc.toPortId : fc.fromPortId
+              otherDevice = allEquipment.find((e) => e.id === otherEqId)
+              otherPort =
+                otherDevice?.inputs?.find((q) => q.id === otherPortId) ??
+                otherDevice?.outputs?.find((q) => q.id === otherPortId)
+            }
           }
           const checked = !!checks.ports[portKey(deviceId, p.id)]
           return (
@@ -416,6 +443,11 @@ const PortList = ({
                             </span>
                           )}
                         </>
+                      )}
+                      {bridgeNames.length > 0 && (
+                        <span className="mt-0.5 block text-[10px] text-sky-400/80">
+                          via {bridgeNames.join(' → ')}
+                        </span>
                       )}
                     </span>
                   )}
