@@ -25,7 +25,6 @@ import { ModeEditorDialog } from './ModeEditorDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
-import { useGreenGoBeltpack } from '../../lib/greengoSync'
 import { exportDevicePatchSheet } from '../../lib/exportDevicePdf'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 // v7.9.108 / Issue #225 — AI-Port-Vorschlag fuer den PortAiSuggestButton.
@@ -43,6 +42,9 @@ import { useTranslation } from '../../lib/i18n'
 import { SortableSection } from './SortableSection'
 import { DimensionsSection } from './sections/DimensionsSection'
 import { PowerConsumptionSection } from './sections/PowerConsumptionSection'
+import { DisplayPropertiesBlock } from './sections/DisplayPropertiesBlock'
+import { GreenGoBeltpackSection } from './sections/GreenGoBeltpackSection'
+import { DeviceConfigsBlock } from './sections/DeviceConfigsBlock'
 
 /** Module-level sensor options so re-renders don't churn the sensor
  *  instances. Stable references are critical for DnDContext's
@@ -969,15 +971,6 @@ const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConfigProps
   )
 }
 
-const RESOLUTION_PRESETS = [
-  '1280x720',
-  '1920x1080',
-  '2560x1440',
-  '3840x2160',
-  '4096x2160',
-  '5120x2880',
-  '7680x4320',
-]
 
 /**
  * Monitor/display properties block (resolution + size).
@@ -1050,207 +1043,6 @@ const DimensionsBlock = ({ equipment }: { equipment: import('../../types/equipme
   )
 }
 
-const DisplayPropertiesBlock = ({ equipment }: { equipment: import('../../types/equipment').EquipmentItem }) => {
-  const updateEquipment = useProjectStore((state) => state.updateEquipment)
-  const category = equipment.category.toLowerCase()
-  const name = equipment.name.toLowerCase()
-  const looksLikeDisplay =
-    /monitor|display|screen|tv|oled|lcd|led|multiviewer|projector|beamer/.test(category) ||
-    /monitor|display|screen|tv|oled|lcd|led\b|projector|beamer/.test(name) ||
-    equipment.resolution !== undefined ||
-    equipment.displaySizeInch !== undefined
-  if (!looksLikeDisplay) return null
-  return (
-    <fieldset className="rounded border border-slate-700 p-2">
-      <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-        Display
-      </legend>
-      <div className="grid grid-cols-2 gap-2">
-        <label className="block">
-          <span className="mb-1 block text-slate-300">Auflösung</span>
-          <input
-            list="display-resolution-options"
-            value={equipment.resolution ?? ''}
-            onChange={(event) =>
-              updateEquipment(equipment.id, { resolution: event.target.value || undefined })
-            }
-            placeholder="1920x1080"
-            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
-          />
-          <datalist id="display-resolution-options">
-            {RESOLUTION_PRESETS.map((r) => (
-              <option key={r} value={r} />
-            ))}
-          </datalist>
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-slate-300">Diagonale (Zoll)</span>
-          <input
-            type="number"
-            min={1}
-            step="0.1"
-            value={equipment.displaySizeInch ?? ''}
-            onChange={(event) => {
-              const value = event.target.value
-              updateEquipment(equipment.id, {
-                displaySizeInch: value === '' ? undefined : Number(value),
-              })
-            }}
-            placeholder="27"
-            className="w-full rounded border border-slate-700 bg-slate-900 p-2"
-          />
-        </label>
-      </div>
-    </fieldset>
-  )
-}
-
-/**
- * GreenGo beltpack section embedded in EquipmentProperties for any
- * device whose deviceKind === 'greengo'. The data flows from
- * `project.greengoConfig.users` — same source the GreenGo Intercom
- * dialog uses — so renaming the beltpack here updates it everywhere
- * (canvas label, the GreenGo dialog, the .gg5 export). Issue #56.
- */
-const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string }) => {
-  const { config, info, rename, assignUser } = useGreenGoBeltpack(equipmentId)
-  if (!config || config.users.length === 0) {
-    return (
-      <div className="mb-2 text-[10px] text-emerald-300/60">
-        Keine GreenGo-Konfiguration im Projekt. Öffne den Intercom-Planer oder lade ein
-        Preset, um Beltpacks zu definieren.
-      </div>
-    )
-  }
-  // List of all users for the assignment dropdown. We label them by name
-  // and decorate with the linked equipment id if any (so the user can
-  // see at a glance which slots are already taken).
-  return (
-    <div className="mb-2 rounded bg-emerald-950/40 p-2">
-      <div className="mb-1 flex items-center justify-between text-[10px] uppercase tracking-wide text-emerald-300">
-        <span>Beltpack</span>
-        {info?.groupNames && info.groupNames.length > 0 && (
-          <span
-            className="font-normal normal-case text-emerald-400/80"
-            title={`Gruppen: ${info.groupNames.join(', ')}`}
-          >
-            {info.groupNames.length} Gruppe{info.groupNames.length === 1 ? '' : 'n'}
-          </span>
-        )}
-      </div>
-      <label className="block">
-        <span className="mb-1 block text-emerald-200/70">Name</span>
-        <input
-          type="text"
-          value={info?.user.name ?? ''}
-          disabled={!info}
-          placeholder={info ? '' : 'Erst zuordnen ↓'}
-          onChange={(event) => rename(event.target.value)}
-          className="w-full rounded border border-emerald-700 bg-emerald-950 p-1 text-xs text-emerald-50 disabled:opacity-50"
-          title="Änderungen werden sofort in den Intercom-Plan und das .gg5-Export geschrieben"
-        />
-      </label>
-      <label className="mt-2 block">
-        <span className="mb-1 block text-emerald-200/70">Zugewiesener User-Slot</span>
-        <select
-          value={info?.user.id ?? ''}
-          onChange={(event) => {
-            const v = event.target.value
-            assignUser(v === '' ? null : Number(v))
-          }}
-          className="w-full rounded border border-emerald-700 bg-emerald-950 p-1 text-xs text-emerald-50"
-        >
-          <option value="">(kein Slot zugewiesen)</option>
-          {config.users.map((u) => {
-            const takenBy = u.equipmentId && u.equipmentId !== equipmentId
-            return (
-              <option key={u.id} value={u.id}>
-                {u.id}. {u.name}
-                {takenBy ? ' (anderem Gerät zugewiesen)' : ''}
-              </option>
-            )
-          })}
-        </select>
-      </label>
-      {info?.groupNames && info.groupNames.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1 text-[10px]">
-          {info.groupNames.map((g) => (
-            <span
-              key={g}
-              className="rounded bg-emerald-700/40 px-1.5 py-0.5 text-emerald-100"
-              title="Gruppen werden im Intercom-Planer bearbeitet"
-            >
-              {g}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
-/**
- * Issue #80: Per-device view of the global device-config library
- * (uiStore.deviceConfigLibrary). Lists configs already assigned to
- * this equipment, plus a dropdown to assign an existing unassigned
- * config to it. Upload/management of the library itself lives in
- * Settings → Konfigurationen.
- */
-const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => {
-  const library = useUiStore((s) => s.deviceConfigLibrary)
-  const updateDeviceConfig = useUiStore((s) => s.updateDeviceConfig)
-  const assigned = library.filter((e) => e.equipmentId === equipmentId)
-  const unassigned = library.filter((e) => !e.equipmentId)
-  if (library.length === 0) return null
-  return (
-    <div className="rounded border border-slate-700 bg-slate-900/40 p-2">
-      <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
-        Konfigurationen
-      </div>
-      {assigned.length === 0 ? (
-        <div className="text-[11px] text-slate-500">Keine Konfiguration zugeordnet.</div>
-      ) : (
-        <ul className="mb-2 space-y-1">
-          {assigned.map((e) => (
-            <li key={e.id} className="flex items-center gap-2 rounded bg-slate-950 px-2 py-1 text-[11px]">
-              <span className="flex-1 truncate" title={`${e.fileName} (${e.kind})`}>
-                {e.name}
-              </span>
-              <span className="shrink-0 text-[10px] text-slate-500">{e.kind}</span>
-              <button
-                type="button"
-                onClick={() => updateDeviceConfig(e.id, { equipmentId: undefined })}
-                className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-300 hover:bg-red-700 hover:text-white"
-                title="Zuordnung lösen (Datei bleibt in der Bibliothek)"
-              >
-                Lösen
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-      {unassigned.length > 0 && (
-        <select
-          value=""
-          onChange={(e) => {
-            if (e.target.value) updateDeviceConfig(e.target.value, { equipmentId })
-          }}
-          className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-[11px]"
-        >
-          <option value="">+ Vorhandene Konfiguration zuordnen…</option>
-          {unassigned.map((e) => (
-            <option key={e.id} value={e.id}>
-              {e.kind} · {e.name}
-            </option>
-          ))}
-        </select>
-      )}
-      <div className="mt-1 text-[10px] text-slate-500">
-        Neue Konfigurationen über Einstellungen → Konfigurationen hochladen.
-      </div>
-    </div>
-  )
-}
 
 /**
  * v7.5.0 / v7.6.0 — Operating-mode picker + inline editor for multi-mode
