@@ -27,22 +27,19 @@ import {
 import { RackBuilderDialog } from '../Rack/RackBuilderDialog'
 import { TemplateMergeDialog } from './TemplateMergeDialog'
 import { TabButton } from './TabButton'
-import { CategoryDndWrapper, PresetDndWrapper } from './LibraryDndWrappers'
-import { SortableCategorySection, SortablePresetCard } from './LibrarySortables'
+import { CategoryDndWrapper } from './LibraryDndWrappers'
+import { SortableCategorySection } from './LibrarySortables'
 import { PlusMenu, LibraryFiltersMenu } from './LibraryMenus'
+import { GroupsTab } from './tabs/GroupsTab'
+import { RacksTab } from './tabs/RacksTab'
 import { LibraryItem } from './LibraryItem'
 import {
   exportTemplateToFile,
-  exportPresetToFile,
   parseLibraryItemFile,
 } from '../../lib/itemExport'
 import { openLibraryFolder, stampDeviceLibraryRef } from '../../lib/librarySync'
 import { hasDesktopBridge } from '../../lib/bridge'
-import {
-  MIME_EQUIPMENT,
-  MIME_GROUP_PRESET,
-  MIME_RACK_PRESET,
-} from '../../lib/dragDropMimes'
+import { MIME_EQUIPMENT } from '../../lib/dragDropMimes'
 import { pickTextFile } from '../../lib/pickFile'
 import { CableLibraryPanel } from './CableLibraryPanel'
 
@@ -130,16 +127,11 @@ export const LibraryPanel = () => {
   }, [customLibraryForInit, knownCategories])
   const groupPresets = useProjectStore((state) => state.groupPresets)
   const addGroupPreset = useProjectStore((state) => state.addGroupPreset)
-  const deleteGroupPreset = useProjectStore((state) => state.deleteGroupPreset)
-  const placeGroupPreset = useProjectStore((state) => state.placeGroupPreset)
-  const insertBlackBoxRack = useProjectStore((state) => state.insertBlackBoxRack)
   // v7.9.105 / Issue #224 — In-Place-Edit fuer Canvas-Racks.
   const replaceCanvasRackWithPreset = useProjectStore(
     (state) => state.replaceCanvasRackWithPreset,
   )
-  const reorderGroupPresets = useProjectStore((state) => state.reorderGroupPresets)
   const renameCustomCategory = useProjectStore((state) => state.renameCustomCategory)
-  const canvasState = useProjectStore((state) => state.project.canvasState)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   // v7.9.108 / Issue #225 — Wenn der User ein Equipment OHNE Ports auf
   // den Canvas zieht, kommt es hier rein. Beim Speichern legen wir das
@@ -1943,214 +1935,16 @@ export const LibraryPanel = () => {
         )
       })()}
 
-      {tab === 'groups' && (
-        <div className="flex flex-1 min-h-0 flex-col">
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
-            <h2 className="text-sm font-semibold">Gerätegruppen</h2>
-            <span className="text-[10px] text-slate-500">Mehrere Geräte + Kabel als Vorlage</span>
-          </div>
-          {groupPresets.length === 0 ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-2 text-xs text-slate-500 text-center p-4">
-              <span className="text-2xl">⧉</span>
-              <span>Noch keine Gruppen gespeichert.</span>
-              <span>Wähle auf dem Canvas ≥ 2 Geräte aus und klicke <b>Als Gruppe</b> in der Canvas-Toolbar.</span>
-            </div>
-          ) : (
-            (() => {
-              const nonRackPresets = groupPresets.filter((p) => !p.rack)
-              const nonRackIds = nonRackPresets.map((p) => p.id)
-              return (
-                <div className="flex-1 min-h-0 space-y-2 overflow-auto">
-                  <PresetDndWrapper
-                    ids={nonRackIds}
-                    onReorder={(newIds) => {
-                      const rackIds = groupPresets.filter((p) => !!p.rack).map((p) => p.id)
-                      reorderGroupPresets([...newIds, ...rackIds])
-                    }}
-                  >
-                    {nonRackPresets.map((preset) => {
-                      const zoom = canvasState.zoom || 1
-                      const cx = (-canvasState.x + 400) / zoom
-                      const cy = (-canvasState.y + 250) / zoom
-                      const totalRackUnits = preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 0), 0)
-                      return (
-                        <SortablePresetCard
-                          key={preset.id}
-                          id={preset.id}
-                          nativeDragData={{
-                            mime: MIME_GROUP_PRESET,
-                            data: preset.id,
-                          }}
-                          onCardClick={() => placeGroupPreset(preset.id, cx, cy)}
-                          clickTitle="Klick = auf Canvas platzieren · Drag&Drop = an Drop-Position platzieren"
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0 flex-1">
-                              <div className="truncate font-medium text-slate-100">{preset.name}</div>
-                              <div className="mt-0.5 text-[10px] text-slate-500">
-                                {preset.items.length} Geräte · {preset.cables.length} Kabel
-                                {totalRackUnits > 0 ? ` · ${totalRackUnits} HE` : ''}
-                              </div>
-                              <div className="mt-0.5 truncate text-[10px] text-slate-600">
-                                {preset.items.map((i) => i.name).join(', ')}
-                              </div>
-                            </div>
-                            <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
-                              <button
-                                type="button"
-                                onClick={(event) => {
-                                  event.stopPropagation()
-                                  exportPresetToFile(preset)
-                                }}
-                                className="rounded bg-slate-700 px-1 text-[11px] text-slate-300 hover:bg-slate-600"
-                                title="Als Datei exportieren (Kopie in den Downloads-Ordner)"
-                                aria-label="Exportieren"
-                              >
-                                ⬇
-                              </button>
-                              <button
-                                type="button"
-                                onClick={async (event) => {
-                                  event.stopPropagation()
-                                  if (await confirmDialog(`Gruppe "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
-                                    deleteGroupPreset(preset.id)
-                                  }
-                                }}
-                                className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
-                                title="Gruppe aus Library entfernen"
-                                aria-label="Löschen"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          </div>
-                        </SortablePresetCard>
-                      )
-                    })}
-                  </PresetDndWrapper>
-                </div>
-              )
-            })()
-          )}
-        </div>
-      )}
+      {tab === 'groups' && <GroupsTab />}
 
       {tab === 'racks' && (
-        <div className="flex flex-1 min-h-0 flex-col">
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
-            <div className="min-w-0">
-              <h2 className="text-sm font-semibold">2D Rack Builder</h2>
-              <div className="text-[10px] text-slate-500">Rack-Slots in HE, als platzierbare Gruppe gespeichert</div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowRackBuilderDialog(true)}
-              className="rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
-            >
-              + Neues Rack
-            </button>
-          </div>
-
-          {groupPresets.filter((preset) => !!preset.rack).length === 0 ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-2 text-xs text-slate-500 text-center p-4">
-              <span className="text-2xl">▥</span>
-              <span>Noch kein Rack-Layout gespeichert.</span>
-            </div>
-          ) : (
-            (() => {
-              const rackPresets = groupPresets.filter((preset) => !!preset.rack)
-              const rackIds = rackPresets.map((p) => p.id)
-              return (
-                <div className="flex-1 min-h-0 space-y-2 overflow-auto">
-                  <PresetDndWrapper
-                    ids={rackIds}
-                    onReorder={(newIds) => {
-                      const nonRackIds = groupPresets.filter((p) => !p.rack).map((p) => p.id)
-                      reorderGroupPresets([...nonRackIds, ...newIds])
-                    }}
-                  >
-              {rackPresets
-                .map((preset) => {
-                  const zoom = canvasState.zoom || 1
-                  const cx = (-canvasState.x + 400) / zoom
-                  const cy = (-canvasState.y + 250) / zoom
-                  const totalUnits = preset.rack?.totalUnits ?? preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 1), 0)
-                  return (
-                    <SortablePresetCard
-                      key={preset.id}
-                      id={preset.id}
-                      nativeDragData={{
-                        mime: MIME_RACK_PRESET,
-                        data: preset.id,
-                      }}
-                      onCardClick={() => insertBlackBoxRack(preset.id, cx, cy)}
-                      clickTitle="Klick = als Black-Box auf Canvas platzieren · Drag&Drop = an Drop-Position platzieren"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate font-medium text-slate-100">{preset.name}</div>
-                          <div className="mt-0.5 text-[10px] text-slate-500">
-                            {preset.items.length} Geräte · {totalUnits} HE · {preset.cables.length} Kabel
-                          </div>
-                          <div className="mt-0.5 truncate text-[10px] text-slate-600">
-                            {preset.items.map((i) => i.name).join(', ')}
-                          </div>
-                        </div>
-                        {/* v7.9.16 — Hover-Actions wie bei LibraryItem:
-                            Edit (✎) und Delete (×) als kleine Icon-Buttons,
-                            erscheinen erst beim Hover. Platzieren passiert
-                            durch Click auf den Card-Body. */}
-                        <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              event.stopPropagation()
-                              setEditingRackPresetId(preset.id)
-                              setShowRackBuilderDialog(true)
-                            }}
-                            className="rounded bg-slate-700 px-1 py-0.5 text-[11px] hover:bg-slate-600"
-                            title="Im 2D-Rack-Builder bearbeiten"
-                            aria-label="Bearbeiten"
-                          >
-                            ✎
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              event.stopPropagation()
-                              exportPresetToFile(preset)
-                            }}
-                            className="rounded bg-slate-700 px-1 py-0.5 text-[11px] text-slate-300 hover:bg-slate-600"
-                            title="Als Datei exportieren (Kopie in den Downloads-Ordner)"
-                            aria-label="Exportieren"
-                          >
-                            ⬇
-                          </button>
-                          <button
-                            type="button"
-                            onClick={async (event) => {
-                              event.stopPropagation()
-                              if (await confirmDialog(`Rack "${preset.name}" löschen?`, { destructive: true, okLabel: 'Löschen' })) {
-                                deleteGroupPreset(preset.id)
-                              }
-                            }}
-                            className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
-                            title="Rack aus Library entfernen"
-                            aria-label="Löschen"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      </div>
-                    </SortablePresetCard>
-                  )
-                })}
-                  </PresetDndWrapper>
-                </div>
-              )
-            })()
-          )}
-        </div>
+        <RacksTab
+          onCreateRack={() => setShowRackBuilderDialog(true)}
+          onEditRack={(presetId) => {
+            setEditingRackPresetId(presetId)
+            setShowRackBuilderDialog(true)
+          }}
+        />
       )}
 
       {showNetBoxDialog && (
