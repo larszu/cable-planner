@@ -1020,7 +1020,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 }))
               }
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-sm font-normal text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-              title="Rack-Tiefe in mm. Standard: 800 mm. Gängige Werte: 350/450/600/800/1000/1200."
+              title={t('rack.depthTitle', 'Rack-Tiefe in mm. Standard: 800 mm. Gängige Werte: 350/450/600/800/1000/1200.')}
             />
           </label>
           {/* v7.9.80 / #170 — "Ansicht" (Front/Rear/Both) ist nach
@@ -1257,7 +1257,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           {!isRack && (
                             <span
                               className="shrink-0 rounded bg-amber-800/60 px-1 text-[8px] font-semibold uppercase text-amber-200"
-                              title="Nicht als 19”-Rack-Gerät markiert — wird beim Hinzufügen abgefragt."
+                              title={t('rack.notRackTitle', 'Nicht als 19"-Rack-Gerät markiert — wird beim Hinzufügen abgefragt.')}
                             >
                               No-HE
                             </span>
@@ -1337,7 +1337,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 <div className="mb-1 font-semibold text-slate-300">Rack ist leer</div>
                 <div>Geräte aus der Library links hinzufügen (Button "+ Rack").</div>
                 <div className="mt-2 text-[10px]">
-                  Tipp: <span className="text-slate-400">"Auch Nicht-Rack-Geräte"</span> aktivieren wenn das Wunschgerät fehlt.
+                  {t('rack.tipPrefix', 'Tipp:')}{' '}
+                  <span className="text-slate-400">"{t('rack.showNonRack', 'Auch Nicht-Rack-Geräte')}"</span>{' '}
+                  {t('rack.tipBody', 'aktivieren wenn das Wunschgerät fehlt.')}
                 </div>
               </div>
             )}
@@ -1650,8 +1652,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           )
                         })}
                         {/* Front + Rear Rail-Markierungen */}
-                        <div className="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-green-700/60" title="Front-Rail" />
-                        <div className="pointer-events-none absolute inset-y-0 right-0 w-0.5 bg-purple-700/60" title="Rear-Rail" />
+                        <div className="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-green-700/60" title={t('rack.frontRail', 'Front-Rail')} />
+                        <div className="pointer-events-none absolute inset-y-0 right-0 w-0.5 bg-purple-700/60" title={t('rack.rearRail', 'Rear-Rail')} />
                         {/* Placements als horizontale Streifen (Front-of-Box bis Rear-of-Box) */}
                         {draft.placements.map((item) => {
                           const top = (item.startUnit - 1) * rowHeight
@@ -2091,7 +2093,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
                   />
                 </label>
-                <label className="flex items-center gap-2 opacity-60" title="Im Builder schreibgeschützt — wurde beim Hinzufügen gesetzt.">
+                <label className="flex items-center gap-2 opacity-60" title={t('rack.readonlyInBuilder', 'Im Builder schreibgeschützt — wurde beim Hinzufügen gesetzt.')}>
                   <input type="checkbox" checked={selectedPlacement.isRackDevice} disabled readOnly />
                   <span>Ist Rack-Gerät (im Builder fix)</span>
                 </label>
@@ -2162,7 +2164,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         })
                       }}
                       className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
-                      title="Geräte-Tiefe in mm. Leer = 400 mm Standard. Wird vom 3D-Tab visualisiert."
+                      title={t('rack.deviceDepthTitle', 'Geräte-Tiefe in mm. Leer = 400 mm Standard. Wird vom 3D-Tab visualisiert.')}
                     />
                   </label>
                   <label className="block">
@@ -2196,7 +2198,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   <div className="mt-1 flex items-center gap-2">
                     <label
                       className="inline-flex cursor-pointer items-center gap-1 rounded border border-slate-600 bg-sky-700 px-3 py-1 text-[11px] font-semibold text-white hover:bg-sky-600"
-                      title="STL-Datei (.stl, max 5 MB) zum Gerät hochladen"
+                      title={t('rack.stlUploadTitle', 'STL-Datei (.stl, max 5 MB) zum Gerät hochladen')}
                     >
                       <span>📁</span>
                       <span>{selectedPlacement.stlDataUri ? 'STL ersetzen…' : 'STL auswählen…'}</span>
@@ -2247,7 +2249,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           }
                         }}
                         className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-600"
-                        title="STL entfernen — Gerät wird wieder als Box gerendert"
+                        title={t('rack.stlRemoveTitle', 'STL entfernen — Gerät wird wieder als Box gerendert')}
                       >
                         ✕ Entfernen
                       </button>
@@ -2354,7 +2356,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         })
                       }}
                       className="rounded bg-purple-900/40 px-2 py-1 text-purple-200 hover:bg-purple-900/60"
-                      title="Alle Ports nach hinten (Default für klassische Server-Geräte)"
+                      title={t('rack.portsAllRear', 'Alle Ports nach hinten (Default für klassische Server-Geräte)')}
                     >
                       ⏬ alle nach hinten
                     </button>
@@ -2373,7 +2375,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         })
                       }}
                       className="rounded bg-slate-700 px-2 py-1 text-slate-100 hover:bg-slate-600"
-                      title="Front-Ports werden zu Rear-Ports und umgekehrt"
+                      title={t('rack.portsSwap', 'Front-Ports werden zu Rear-Ports und umgekehrt')}
                     >
                       ↔ spiegeln
                     </button>
@@ -2386,7 +2388,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         })
                       }}
                       className="rounded bg-green-900/40 px-2 py-1 text-green-200 hover:bg-green-900/60"
-                      title="Alle Ports nach vorne (z.B. Frontpanel-Geräte)"
+                      title={t('rack.portsAllFront', 'Alle Ports nach vorne (z.B. Frontpanel-Geräte)')}
                     >
                       ⏫ alle nach vorne
                     </button>
@@ -2466,7 +2468,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           })
                         }
                         className="rounded bg-slate-700 px-2 py-0.5 text-[10px] text-slate-200 hover:bg-slate-600"
-                        title="Front- und Rear-Foto vertauschen (falls die Zuordnung falsch ist)"
+                        title={t('rack.swapPhotos', 'Front- und Rear-Foto vertauschen (falls die Zuordnung falsch ist)')}
                       >
                         ↔ Front/Rear tauschen
                       </button>
@@ -2498,7 +2500,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                                 type="button"
                                 onClick={() => updatePlacement(selectedPlacement.id, { [urlKey]: undefined, [side === 'front' ? 'frontPanelCrop' : 'rearPanelCrop']: undefined })}
                                 className="rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-900/40 hover:text-red-300"
-                                title="Bild entfernen"
+                                title={t('rack.removeImage', 'Bild entfernen')}
                               >
                                 ✕
                               </button>
@@ -2534,7 +2536,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             {draft.internalCables.length > 0 && (
               <span
                 className="inline-flex items-center gap-1 rounded bg-sky-900/60 px-2 py-0.5 text-sky-200"
-                title="Interne Verkabelungen im Rack"
+                title={t('rack.internalCablingTitle', 'Interne Verkabelungen im Rack')}
               >
                 <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M3 8 H13 M3 8 L6 5 M3 8 L6 11 M13 8 L10 5 M13 8 L10 11" />
@@ -2570,7 +2572,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               onClick={() => setWireDialogOpen(true)}
               disabled={draft.placements.length < 1}
               className="inline-flex items-center gap-1.5 rounded border border-sky-600/50 bg-sky-800/40 px-3 py-1.5 text-xs font-medium text-sky-100 hover:bg-sky-700/60 disabled:opacity-40"
-              title="Geräte des Racks intern verkabeln — vollständige Canvas-Ansicht"
+              title={t('rack.openInternalCanvas', 'Geräte des Racks intern verkabeln — vollständige Canvas-Ansicht')}
             >
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 8 H13 M3 8 L6 5 M3 8 L6 11 M13 8 L10 5 M13 8 L10 11" />
