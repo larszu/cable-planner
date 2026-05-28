@@ -27,6 +27,7 @@ import { OrbitControls, Edges, Html } from '@react-three/drei'
 import { STLLoader } from 'three-stdlib'
 import * as THREE from 'three'
 import { useUiStore } from '../../store/uiStore'
+import { useTranslation } from '../../lib/i18n'
 
 const HE_HEIGHT_MM = 44.45
 const RACK_OUTER_WIDTH_MM = 482.6
@@ -957,6 +958,7 @@ export const Rack3DView = ({
   onCanvasRefsReady,
   internalCables,
 }: Rack3DViewProps) => {
+  const t = useTranslation()
   // v7.9.81 — Theme-Awareness: 3D-Hintergrund + Help-Overlay-Farben
   // folgen jetzt dem globalen canvasTheme.
   const canvasTheme = useUiStore((s) => s.canvasTheme)
@@ -1085,16 +1087,16 @@ export const Rack3DView = ({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ width: 10, height: 10, background: '#64748b', display: 'inline-block' }} /> Full-Depth
+          <span style={{ width: 10, height: 10, background: '#64748b', display: 'inline-block' }} /> {t('rack3d.legend.fullDepth', 'Full-Depth')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ width: 10, height: 10, background: '#22c55e', display: 'inline-block' }} /> Front-Mount
+          <span style={{ width: 10, height: 10, background: '#22c55e', display: 'inline-block' }} /> {t('rack3d.legend.frontMount', 'Front-Mount')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ width: 10, height: 10, background: '#a855f7', display: 'inline-block' }} /> Rear-Mount
+          <span style={{ width: 10, height: 10, background: '#a855f7', display: 'inline-block' }} /> {t('rack3d.legend.rearMount', 'Rear-Mount')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ width: 10, height: 10, background: '#38bdf8', display: 'inline-block' }} /> Ausgewählt
+          <span style={{ width: 10, height: 10, background: '#38bdf8', display: 'inline-block' }} /> {t('rack3d.legend.selected', 'Ausgewählt')}
         </div>
       </div>
       <div
@@ -1111,8 +1113,8 @@ export const Rack3DView = ({
           lineHeight: 1.4,
         }}
       >
-        🖱 Drehen: links · Pannen: rechts · Zoom: scroll<br />
-        ⌨ Höhe: <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Shift</kbd> hoch · <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Space</kbd> runter
+        🖱 {t('rack3d.help.mouse', 'Drehen: links · Pannen: rechts · Zoom: scroll')}<br />
+        ⌨ {t('rack3d.help.heightLabel', 'Höhe:')} <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Shift</kbd> {t('rack3d.help.up', 'hoch')} · <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Space</kbd> {t('rack3d.help.down', 'runter')}
       </div>
     </div>
   )
