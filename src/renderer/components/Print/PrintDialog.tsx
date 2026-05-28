@@ -215,11 +215,11 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
             <div className="mb-3 max-h-[42vh] overflow-y-auto rounded border border-slate-800 bg-slate-950/40 p-1">
               {sortedEquipment.length === 0 ? (
                 <div className="px-3 py-6 text-center text-[11px] text-slate-500">
-                  Keine Geräte im Projekt.
+                  {t('print.devices.noneInProject', 'Keine Geräte im Projekt.')}
                 </div>
               ) : filteredEquipment.length === 0 ? (
                 <div className="px-3 py-6 text-center text-[11px] text-slate-500">
-                  Kein Gerät passt zum Suchbegriff „{filter}".
+                  {formatStr(t('print.devices.noMatch', 'Kein Gerät passt zum Suchbegriff „{q}".'), { q: filter })}
                 </div>
               ) : (
                 <ul className="space-y-0.5">
@@ -281,10 +281,12 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
               </div>
               <div className="rounded border border-slate-700 p-2 text-[10px] text-slate-400">
                 <div className="mb-1 uppercase tracking-wide text-slate-400">
-                  Hinweis
+                  {t('print.dialogHint.tag', 'Hinweis')}
                 </div>
-                Im Drucker-Dialog wählst du Drucker, Papierformat + Anzahl der Kopien.
-                Bei „Einzelne PDFs" werden mehrere Druckjobs ausgelöst (einer pro Gerät).
+                {t(
+                  'print.dialogHint.body',
+                  'Im Drucker-Dialog wählst du Drucker, Papierformat + Anzahl der Kopien. Bei „Einzelne PDFs" werden mehrere Druckjobs ausgelöst (einer pro Gerät).',
+                )}
               </div>
             </div>
 
@@ -292,7 +294,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded border border-slate-700 p-2">
                 <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
-                  Format
+                  {t('print.format.label', 'Format')}
                 </div>
                 <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
                   <input
@@ -301,7 +303,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     checked={format === 'a4'}
                     onChange={() => setFormat('a4')}
                   />
-                  A4 (Standard)
+                  {t('print.format.a4', 'A4 (Standard)')}
                 </label>
                 <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
                   <input
@@ -310,12 +312,12 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     checked={format === 'a3'}
                     onChange={() => setFormat('a3')}
                   />
-                  A3 (mehr Ports / Seite)
+                  {t('print.format.a3', 'A3 (mehr Ports / Seite)')}
                 </label>
               </div>
               <div className="rounded border border-slate-700 p-2">
                 <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
-                  Ausgabe
+                  {t('print.output.label', 'Ausgabe')}
                 </div>
                 <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
                   <input
@@ -324,7 +326,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     checked={mode === 'combined'}
                     onChange={() => setMode('combined')}
                   />
-                  Eine Sammel-PDF
+                  {t('print.output.combined', 'Eine Sammel-PDF')}
                 </label>
                 <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
                   <input
@@ -333,7 +335,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     checked={mode === 'individual'}
                     onChange={() => setMode('individual')}
                   />
-                  Einzelne PDFs pro Gerät
+                  {t('print.output.individual', 'Einzelne PDFs pro Gerät')}
                 </label>
               </div>
             </div>

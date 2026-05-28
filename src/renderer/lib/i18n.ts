@@ -805,6 +805,9 @@ const en: Dict = {
   'print.devices.body':
     'Select individual devices and generate an A4/A3 patch list with all ports + connected cables — to stick on the device.',
   'print.devices.searchPlaceholder': 'Search (name, category, subtitle)…',
+  'print.devices.selectAll': 'Select all',
+  'print.devices.deselectAll': 'Deselect all',
+  'print.devices.filtered': '(filtered)',
 
   // Device mode picker (multi-mode devices, e.g. ATEM, Pixelhue, Tessera)
   'modes.intro':
@@ -2408,6 +2411,56 @@ const en: Dict = {
   'atem.audio.renderAnyway': 'Render anyway',
   // Cable dialog – save-as-custom prompt
   'cable.dialog.newTypeNamePrompt': 'Name for the new cable type:',
+  // App.tsx PDF progress overlay
+  'app.pdfProgress.title': 'PDF is being created…',
+  'app.pdfProgress.hint':
+    'Large plans may take a few seconds. Please do not cancel.',
+  // App.tsx PdfExportDialog
+  'pdfExport.title': 'Export plan as PDF',
+  'pdfExport.layers.title': 'Layers (included in PDF)',
+  'pdfExport.layers.hint':
+    'Click on a chip to toggle the layer for canvas AND PDF. Example: only print video ⇒ disable all other chips.',
+  'pdfExport.bg.title': 'Background',
+  'pdfExport.bg.light': 'Light',
+  'pdfExport.bg.dark': 'Dark',
+  'pdfExport.render.title': 'Render mode',
+  'pdfExport.render.raster': 'Raster (classic)',
+  'pdfExport.render.rasterHint':
+    'JPEG snapshot of the canvas. Reliable, but blurry at high zoom in the PDF.',
+  'pdfExport.render.vector': 'Vector',
+  'pdfExport.render.vectorHint':
+    'Chromium printToPDF. Text stays selectable & sharp at any zoom. Smaller file size.',
+  'pdfExport.exportBtn': 'Export PDF',
+  // CableEditDialog field labels
+  'cable.field.lengthM': 'Length (m)',
+  // ATEM dialog (mDNS discovery + edit-hint)
+  'atem.dialog.noneFound':
+    'No ATEM switcher found via mDNS on the local network. (Some models / firewall setups block mDNS — enter the IP manually then.)',
+  'atem.dialog.foundCount': 'Found ({n}) — click to take the IP:',
+  'atem.dialog.changesNote':
+    'Heads-up: changes go directly to the switcher (RAM). To survive a reboot, trigger "Save Startup State" in the Blackmagic ATEM Software. Audio inputs (XLR/RJ45 talkback), media players and internal sources are locked — the ATEM manages those itself.',
+  // RackInstanceCard
+  'rackInstance.label': 'Rack instance',
+  'rackInstance.fallback': 'Rack',
+  'rackInstance.intro':
+    'This device belongs to a rack instance. The rack editor shows a filtered sub-canvas with this rack only — position changes are rounded to whole U on release.',
+  'rackInstance.openEditor': 'Open rack editor',
+  'rackInstance.position': 'Position: from U {start}',
+  'rackInstance.heShort': 'U',
+  // PortList SDI caps title
+  'ports.sdi.caps': 'SDI capabilities (port-specific)',
+  // Print dialog body details
+  'print.dialogHint.tag': 'Note',
+  'print.dialogHint.body':
+    'In the printer dialog you choose printer, paper format + number of copies. With "Individual PDFs" multiple print jobs are triggered (one per device).',
+  'print.format.label': 'Format',
+  'print.format.a4': 'A4 (default)',
+  'print.format.a3': 'A3 (more ports / page)',
+  'print.output.label': 'Output',
+  'print.output.combined': 'One combined PDF',
+  'print.output.individual': 'Individual PDFs per device',
+  'print.devices.noneInProject': 'No devices in the project.',
+  'print.devices.noMatch': 'No device matches the search "{q}".',
   // ExportDialog – section descriptions, format hints, BOM strings
   'export.desc.plan':
     'Download or print the canvas plan as PDF. PDF with title block — print-ready. Also PNG/JPEG for email/Slack.',

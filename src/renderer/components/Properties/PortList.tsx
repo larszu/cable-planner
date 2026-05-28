@@ -552,7 +552,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
             {port.connectorType === 'BNC' && (
               <div className="mt-1 rounded border border-amber-900/60 bg-amber-950/20 p-1.5">
                 <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-amber-300">
-                  SDI-Fähigkeiten (port-spezifisch)
+                  {t('ports.sdi.caps', 'SDI-Fähigkeiten (port-spezifisch)')}
                 </div>
                 <div className="grid grid-cols-2 gap-1 text-[10px]">
                   {/* v7.9.63 / #176 — 3G Level A/B nur anzeigen wenn das

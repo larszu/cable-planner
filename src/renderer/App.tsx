@@ -1037,7 +1037,7 @@ export default function App() {
           <div className="w-[420px] max-w-[90vw] rounded-lg border border-slate-700 bg-slate-900 p-5 text-slate-100 shadow-2xl">
             <div className="mb-3 flex items-center gap-3">
               <div className="h-3 w-3 animate-pulse rounded-full bg-sky-400" />
-              <h2 className="text-sm font-semibold">PDF wird erstellt…</h2>
+              <h2 className="text-sm font-semibold">{t('app.pdfProgress.title', 'PDF wird erstellt…')}</h2>
             </div>
             <div className="mb-3 h-1.5 w-full overflow-hidden rounded bg-slate-800">
               <div className="h-full w-full origin-left animate-pulse bg-sky-500" />
@@ -1047,7 +1047,7 @@ export default function App() {
               <div className="mt-1 text-[11px] text-slate-500">{pdfProgress.detail}</div>
             )}
             <div className="mt-3 text-[10px] text-slate-600">
-              Bei großen Plänen können einige Sekunden vergehen. Bitte nicht abbrechen.
+              {t('app.pdfProgress.hint', 'Bei großen Plänen können einige Sekunden vergehen. Bitte nicht abbrechen.')}
             </div>
           </div>
         </div>
@@ -1075,11 +1075,12 @@ const PdfExportDialog = ({
   onClose,
   onExport,
 }: PdfExportDialogProps) => {
+  const t = useTranslation()
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4">
       <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-4 shadow-2xl">
-        <h2 className="mb-3 text-sm font-semibold text-slate-100">Plan als PDF exportieren</h2>
+        <h2 className="mb-3 text-sm font-semibold text-slate-100">{t('pdfExport.title', 'Plan als PDF exportieren')}</h2>
         <div className="space-y-3">
           {/* Layer-Sichtbarkeit — uebernimmt die Chip-Komponente aus
               der Canvas-Toolbar. Same store, daher synchronisiert sich
@@ -1088,19 +1089,21 @@ const PdfExportDialog = ({
               anderen Chips deaktiviert. */}
           <fieldset className="rounded border border-slate-700 p-3">
             <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-              Ebenen (im PDF enthalten)
+              {t('pdfExport.layers.title', 'Ebenen (im PDF enthalten)')}
             </legend>
             <div className="-mx-1 flex flex-wrap gap-1">
               <LayerVisibilityChips />
             </div>
             <p className="mt-2 text-[10px] text-slate-500">
-              Klick auf einen Chip schaltet die Ebene fuer Canvas UND PDF um.
-              Beispiel: nur Video drucken ⇒ alle anderen Chips ausschalten.
+              {t(
+                'pdfExport.layers.hint',
+                'Klick auf einen Chip schaltet die Ebene fuer Canvas UND PDF um. Beispiel: nur Video drucken ⇒ alle anderen Chips ausschalten.',
+              )}
             </p>
           </fieldset>
           <fieldset className="rounded border border-slate-700 p-3">
             <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-              Hintergrund
+              {t('pdfExport.bg.title', 'Hintergrund')}
             </legend>
             <label className="mb-2 flex cursor-pointer items-center gap-2 text-xs text-slate-200">
               <input
@@ -1109,7 +1112,7 @@ const PdfExportDialog = ({
                 checked={theme === 'light'}
                 onChange={() => onThemeChange('light')}
               />
-              Hell
+              {t('pdfExport.bg.light', 'Hell')}
             </label>
             <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
               <input
@@ -1118,7 +1121,7 @@ const PdfExportDialog = ({
                 checked={theme === 'dark'}
                 onChange={() => onThemeChange('dark')}
               />
-              Dunkel
+              {t('pdfExport.bg.dark', 'Dunkel')}
             </label>
           </fieldset>
           {/* v7.9.97 — Vektor-PDF Beta. Default aus, damit alle
@@ -1127,7 +1130,7 @@ const PdfExportDialog = ({
               keine Pixelung beim Zoom. */}
           <fieldset className="rounded border border-slate-700 p-3">
             <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-              Render-Modus
+              {t('pdfExport.render.title', 'Render-Modus')}
             </legend>
             <label className="mb-2 flex cursor-pointer items-start gap-2 text-xs text-slate-200">
               <input
@@ -1137,10 +1140,12 @@ const PdfExportDialog = ({
                 onChange={() => onVectorChange(false)}
               />
               <span>
-                Raster (klassisch)
+                {t('pdfExport.render.raster', 'Raster (klassisch)')}
                 <span className="block text-[10px] text-slate-500">
-                  JPEG-Snapshot des Canvas. Zuverlässig, aber unscharf bei großem
-                  Zoom in der PDF.
+                  {t(
+                    'pdfExport.render.rasterHint',
+                    'JPEG-Snapshot des Canvas. Zuverlässig, aber unscharf bei großem Zoom in der PDF.',
+                  )}
                 </span>
               </span>
             </label>
@@ -1152,10 +1157,12 @@ const PdfExportDialog = ({
                 onChange={() => onVectorChange(true)}
               />
               <span>
-                Vektor
+                {t('pdfExport.render.vector', 'Vektor')}
                 <span className="block text-[10px] text-slate-500">
-                  Chromium printToPDF. Text bleibt selektierbar &amp; scharf bei
-                  jedem Zoom. Kleinere Dateigröße.
+                  {t(
+                    'pdfExport.render.vectorHint',
+                    'Chromium printToPDF. Text bleibt selektierbar & scharf bei jedem Zoom. Kleinere Dateigröße.',
+                  )}
                 </span>
               </span>
             </label>
@@ -1167,14 +1174,14 @@ const PdfExportDialog = ({
             onClick={onClose}
             className="rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-700"
           >
-            Abbrechen
+            {t('common.cancel', 'Abbrechen')}
           </button>
           <button
             type="button"
             onClick={onExport}
             className="rounded bg-sky-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-600"
           >
-            PDF exportieren
+            {t('pdfExport.exportBtn', 'PDF exportieren')}
           </button>
         </div>
       </div>
@@ -1479,7 +1486,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               </label>
             ) : (
               <label className="block">
-                Länge (m)
+                {t('cable.field.lengthM', 'Länge (m)')}
                 <input
                   type="number"
                   min={0}
@@ -1490,7 +1497,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               </label>
             )}
             <label className="block">
-              Farbe
+              {t('cable.field.color', 'Farbe')}
               <input
                 type="color"
                 value={color}
