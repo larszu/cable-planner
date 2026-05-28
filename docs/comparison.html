@@ -443,8 +443,8 @@
 <h3>4.2 · Wo strukturelle Risiken liegen</h3>
 <ul>
   <li><strong>Renderer-Größe</strong> (2.6 MB src/, 19 Komponenten-Subdomänen): ohne klare Schnittstellen-Verträge zwischen Subdomänen können Imports kreuz und quer wachsen. Empfehlung: eine ESLint-Regel für allowed-imports pro Subdomäne (z. B. <code>eslint-plugin-boundaries</code>) oder ein explizites <code>renderer/api</code>-Layer als Single Source of Truth.</li>
-  <li><strong>Store-Monolith</strong>: <code>projectStore.ts</code> hält das gesamte Projekt-Model. Bei weiterer Skalierung würde sich ein Split lohnen (z. B. <code>cableSlice</code>, <code>locationSlice</code>, <code>rackSlice</code>) mit Zustand's <code>combine</code> oder einem Slice-Pattern.</li>
-  <li><strong>Bus-Faktor 1</strong>: ein Maintainer + viel Domäne-Wissen im Kopf. Risiko bei Personenausfall. Empfehlung: ein <code>ARCHITECTURE.md</code> mit den 7–10 wichtigsten Invarianten (z. B. Schema-Migration-Regeln, IPC-Channels, Heal-Logic).</li>
+  <li><strong>Store-Monolith</strong> <em>(adressiert ✓ #308)</em>: <code>projectStore.ts</code> wurde inzwischen via Slice-Pattern auf 11 Slices unter <code>store/slices/</code> aufgeteilt — der Haupt-Store ist von 2178 auf ~985 LOC geschrumpft.</li>
+  <li><strong>Bus-Faktor 1</strong> <em>(adressiert ✓)</em>: <a href="./architecture.md"><code>docs/architecture.md</code></a> hält die nicht-verhandelbaren Invarianten (Schema-Migration, IPC-Channels, Heal-Logic, Atomic Writes, Slice-Komposition, i18n-Konventionen).</li>
   <li><strong>Keine Plugin-API</strong>: Erweiterungen brauchen Code-Forks. Wenn Drittnutzer eigene Connector-Typen, Reports oder Hardware-Integrationen brauchen, müssten sie patchen. Eine schmale Plugin-API (z. B. nur Reports und Library-Loader) wäre eine günstige Investition.</li>
   <li><strong>Keine kollaborative Bearbeitung</strong>: Single-File-Modell. Wenn zwei Teams parallel am Plan arbeiten wollen, brauchen sie Merge per Hand. CRDT (z. B. Yjs) wäre architektonisch addable, aber nicht trivial.</li>
   <li><strong>Mobile als zweiter Renderer</strong> ist eine Read-View. Wenn Mobile-Edit kommen soll, braucht's eine ernsthaftere API-Schicht statt nur Static-File-Share.</li>
@@ -463,7 +463,7 @@
 
 <h2>5 · Fazit &amp; Positionierung</h2>
 
-<p>Architektonisch sitzt Cable-Planner in einer Lücke: modernes Tech-Stack-Niveau wie tldraw/draw.io kombiniert mit Domänen-Tiefe wie WireCAD und Live-Hardware-Integration, die <em>keiner</em> der Konkurrenten anbietet. Der Bus-Faktor und das Fehlen einer Plugin-API sind die größten strukturellen Risiken — beides ist mit überschaubarem Aufwand adressierbar (ARCHITECTURE.md, schmale Reports-/Library-Plugin-Schnittstelle, Tests).</p>
+<p>Architektonisch sitzt Cable-Planner in einer Lücke: modernes Tech-Stack-Niveau wie tldraw/draw.io kombiniert mit Domänen-Tiefe wie WireCAD und Live-Hardware-Integration, die <em>keiner</em> der Konkurrenten anbietet. Bus-Faktor und Store-Monolith sind inzwischen adressiert (<a href="./architecture.md">architecture.md</a>, Slice-Pattern in <code>store/slices/</code>). Fehlende Plugin-API und Tests bleiben als günstige Investitionen offen.</p>
 
 <p>Klassische Positionierung gegenüber den Wettbewerbern:</p>
 <ul>
