@@ -6,7 +6,7 @@ import type { EquipmentItem, EquipmentTemplate, GroupPreset, Port } from '../typ
 import type { LocationFrame } from '../types/location'
 import type { CablePlannerProject } from '../types/project'
 import { useUiStore } from './uiStore'
-import { isProjectLocked, sanitizePort, touchProject } from './projectStoreHelpers'
+import { defaultProject, isProjectLocked, sanitizePort, touchProject } from './projectStoreHelpers'
 import { createLocationSlice } from './slices/locationSlice'
 import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
@@ -17,6 +17,7 @@ import { createMetaSlice } from './slices/metaSlice'
 import { createCategorySlice } from './slices/categorySlice'
 import { createEquipmentSlice } from './slices/equipmentSlice'
 import { createGroupPresetSpawnSlice } from './slices/groupPresetSpawnSlice'
+import { createSelectionLifecycleSlice } from './slices/selectionLifecycleSlice'
 import {
   loadCustomLibrary,
   persistCustomLibrary,
@@ -345,21 +346,6 @@ export interface ProjectState {
   setViewerSession: (session: { author: string; startedAt: string } | undefined) => void
 }
 
-const now = () => new Date().toISOString()
-
-const defaultProject = (): CablePlannerProject => ({
-  metadata: {
-    name: 'Untitled Project',
-    description: '',
-    createdAt: now(),
-    updatedAt: now(),
-    defaultVideoFormat: '1080p50',
-  },
-  equipment: [],
-  cables: [],
-  locations: [],
-  canvasState: { x: 0, y: 0, zoom: 1 },
-})
 
 /**
  * Heal a project loaded from disk: round every equipment / location position
@@ -593,6 +579,7 @@ const buildProjectStore = (
   ...createCategorySlice(set, get, store),
   ...createEquipmentSlice(set, get, store),
   ...createGroupPresetSpawnSlice(set, get, store),
+  ...createSelectionLifecycleSlice(set, get, store),
   project:
     opts.initialProject ??
     (() => {
@@ -841,64 +828,6 @@ const buildProjectStore = (
       }),
     }))
     return newItems.map((item) => item.id)
-  },
-  deleteSelected: () =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      if (state.selectedCableId) {
-        return {
-          project: touchProject({
-            ...state.project,
-            cables: state.project.cables.filter((item) => item.id !== state.selectedCableId),
-          }),
-          selectedCableId: undefined,
-        }
-      }
-      if (state.selectedLocationId) {
-        return {
-          project: touchProject({
-            ...state.project,
-            locations: (state.project.locations ?? []).filter(
-              (l) => l.id !== state.selectedLocationId,
-            ),
-          }),
-          selectedLocationId: undefined,
-        }
-      }
-      if (state.selectedEquipmentId) {
-        return {
-          project: touchProject({
-            ...state.project,
-            equipment: state.project.equipment.filter(
-              (item) => item.id !== state.selectedEquipmentId,
-            ),
-            cables: state.project.cables.filter(
-              (cable) =>
-                cable.fromEquipmentId !== state.selectedEquipmentId &&
-                cable.toEquipmentId !== state.selectedEquipmentId,
-            ),
-          }),
-          selectedEquipmentId: undefined,
-        }
-      }
-      return {}
-    }),
-  clear: () => {
-    // Also drop the persisted autosave copy — otherwise the old project
-    // would come back on the next app launch, which is surprising when the
-    // user explicitly started a fresh project.
-    try {
-      localStorage.removeItem(PROJECT_AUTOSAVE_KEY)
-    } catch {
-      /* ignore */
-    }
-    set((state) => ({
-      project: defaultProject(),
-      filePath: undefined,
-      projectVersion: state.projectVersion + 1,
-      selectedEquipmentId: undefined,
-      selectedCableId: undefined,
-    }))
   },
   resyncRentmanLibraryFromCanvas: () => {
     let addedOrPatched = 0
