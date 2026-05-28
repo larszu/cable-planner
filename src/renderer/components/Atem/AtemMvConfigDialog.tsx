@@ -5,6 +5,7 @@ import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, type AtemInputSummary } from '../../lib/bridge'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
+import { useTranslation } from '../../lib/i18n'
 import type {
   AtemMvConfig,
   AtemMvDefinition,
@@ -382,6 +383,7 @@ const SourcePicker = ({
   hasLiveState,
   canvasPortNames,
 }: SourcePickerProps) => {
+  const t = useTranslation()
   const [filter, setFilter] = useState('')
   const [custom, setCustom] = useState<string>(String(currentId))
   const ref = useRef<HTMLDivElement>(null)
@@ -448,7 +450,7 @@ const SourcePicker = ({
           autoFocus
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder="Suche…"
+          placeholder={t('common.search', 'Suche…')}
           className="mb-1 w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs"
         />
         <div className="flex gap-1">
@@ -456,7 +458,7 @@ const SourcePicker = ({
             type="number"
             value={custom}
             onChange={(e) => setCustom(e.target.value)}
-            placeholder="ID"
+            placeholder={t('atem.mv.idPlaceholder', 'ID')}
             className="w-20 rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs"
           />
           <button
@@ -511,6 +513,7 @@ const CapabilitiesPanel = ({
   hasOverride: boolean
   onOverride: (next: AtemMvCapabilities | undefined) => void
 }) => {
+  const t = useTranslation()
   const [open, setOpen] = useState(false)
   const allLayouts: { value: number; label: string }[] = [
     { value: 0, label: 'Default' },
@@ -593,7 +596,7 @@ const CapabilitiesPanel = ({
               />
             </label>
             <label className="flex items-center gap-1">
-              <span>Max Fenster:</span>
+              <span>{t('atem.mv.maxWindows', 'Max Fenster:')}</span>
               <input
                 type="number"
                 min={0}
@@ -613,7 +616,7 @@ const CapabilitiesPanel = ({
                 type="button"
                 onClick={() => onOverride(undefined)}
                 className="ml-auto rounded bg-amber-900/60 px-2 py-0.5 text-amber-200 hover:bg-amber-800/70"
-                title="Override entfernen — wieder Auto-Erkennung verwenden"
+                title={t('atem.mv.removeOverride', 'Override entfernen — wieder Auto-Erkennung verwenden')}
               >
                 Override zurücksetzen
               </button>
@@ -626,6 +629,7 @@ const CapabilitiesPanel = ({
 }
 
 export const AtemMvConfigDialog = () => {
+  const t = useTranslation()
   const slot = useUiStore((s) => s.atemMvConfig)
   const close = useUiStore((s) => s.closeAtemMvConfig)
   const equipment = useProjectStore((state) =>
@@ -1029,7 +1033,7 @@ export const AtemMvConfigDialog = () => {
               onClick={addMv}
               disabled={config.multiViewers.length >= 4}
               className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600 disabled:opacity-40"
-              title="Multiviewer hinzufügen"
+              title={t('atem.mv.addMv', 'Multiviewer hinzufügen')}
             >
               +
             </button>
@@ -1038,7 +1042,7 @@ export const AtemMvConfigDialog = () => {
               onClick={removeMv}
               disabled={config.multiViewers.length <= 1}
               className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600 disabled:opacity-40"
-              title="Letzten Multiviewer entfernen"
+              title={t('atem.mv.removeMv', 'Letzten Multiviewer entfernen')}
             >
               −
             </button>
@@ -1058,7 +1062,7 @@ export const AtemMvConfigDialog = () => {
         {mv && (
           <div className="flex flex-wrap items-center gap-4 border-b border-slate-800 px-3 py-2">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-slate-300">Layout</span>
+              <span className="text-[11px] text-slate-300">{t('atem.mv.layoutLabel', 'Layout')}</span>
               <MvLayoutPicker
                 quadrants={quadrants}
                 windows={Array.isArray(mv.windows) ? mv.windows : []}
@@ -1123,7 +1127,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={() => void handleExportPng()}
               className="rounded bg-indigo-700 px-3 py-1 text-xs hover:bg-indigo-600"
-              title="Aktuelles MV-Layout als PNG speichern"
+              title={t('atem.mv.savePng', 'Aktuelles MV-Layout als PNG speichern')}
             >
               Als PNG
             </button>

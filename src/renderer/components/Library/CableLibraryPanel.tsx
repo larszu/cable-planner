@@ -25,6 +25,7 @@ import { useUiStore } from '../../store/uiStore'
 import { videoFormatById, pickCableStandardForFormat } from '../../types/videoFormat'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
+import { useTranslation } from '../../lib/i18n'
 
 /** v7.8.6 — Editor dialog for creating / editing custom cable specs.
  *  Lives at the bottom of this file. Pure controlled form, no store
@@ -46,6 +47,7 @@ const CableTypeEditor = ({
   onCancel,
   onSave,
 }: CableTypeEditorProps) => {
+  const t = useTranslation()
   const [name, setName] = useState(initial?.name ?? '')
   const [connectorType, setConnectorType] = useState<ConnectorType>(
     initial?.connectorType ?? 'Custom',
@@ -114,19 +116,19 @@ const CableTypeEditor = ({
             type="button"
             onClick={onCancel}
             className="text-slate-500 hover:text-slate-200"
-            aria-label="Schließen"
+            aria-label={t('common.close', 'Schließen')}
           >
             ✕
           </button>
         </div>
         <div className="space-y-2 text-xs">
           <label className="block">
-            <span className="text-slate-400">Name</span>
+            <span className="text-slate-400">{t('common.name', 'Name')}</span>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="z.B. CAT6a Patch 5m"
+              placeholder={t('cableLib.namePlaceholder', 'z.B. CAT6a Patch 5m')}
               autoFocus
               className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-slate-100"
             />
@@ -139,18 +141,18 @@ const CableTypeEditor = ({
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
               <span className="flex items-center justify-between text-slate-400">
-                <span>Stecker-Typ</span>
+                <span>{t('cableLib.connectorType', 'Stecker-Typ')}</span>
                 <button
                   type="button"
                   onClick={async () => {
-                    const n = (await promptDialog('Neuer Stecker-Typ (z.B. "Speakon NL4"):'))?.trim()
+                    const n = (await promptDialog(t('cableLib.newConnectorTypePrompt', 'Neuer Stecker-Typ (z.B. "Speakon NL4"):')))?.trim()
                     if (n) {
                       addCustomConnectorType(n)
                       setConnectorType(n as ConnectorType)
                     }
                   }}
                   className="rounded bg-emerald-700 px-1.5 text-[9px] text-emerald-100 hover:bg-emerald-600"
-                  title="Neuen Stecker-Typ anlegen"
+                  title={t('cableLib.addConnectorTitle', 'Neuen Stecker-Typ anlegen')}
                 >
                   +
                 </button>
@@ -169,7 +171,7 @@ const CableTypeEditor = ({
               </select>
             </label>
             <label className="block">
-              <span className="text-slate-400">Kabel-Farbe</span>
+              <span className="text-slate-400">{t('cableLib.color', 'Kabel-Farbe')}</span>
               <input
                 type="color"
                 value={color}
@@ -179,7 +181,7 @@ const CableTypeEditor = ({
             </label>
           </div>
           <div>
-            <span className="text-slate-400">Auch kompatibel mit (optional)</span>
+            <span className="text-slate-400">{t('cableLib.compatibleWith', 'Auch kompatibel mit (optional)')}</span>
             <div className="mt-1 flex max-h-24 flex-wrap gap-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-1.5">
               {allConnectorTypeOptions.filter((c) => c !== connectorType).map((c) => {
                 const on = compatible.includes(c)
@@ -206,18 +208,18 @@ const CableTypeEditor = ({
           </div>
           <div>
             <span className="flex items-center justify-between text-slate-400">
-              <span>Signal-Standards</span>
+              <span>{t('cableLib.signalStandards', 'Signal-Standards')}</span>
               <button
                 type="button"
                 onClick={async () => {
-                  const n = (await promptDialog('Neuer Signal-Standard (z.B. "Dante Primary"):'))?.trim()
+                  const n = (await promptDialog(t('cableLib.newSignalStandardPrompt', 'Neuer Signal-Standard (z.B. "Dante Primary"):')))?.trim()
                   if (n) {
                     addCustomSignalStandard(n)
                     setStandards((prev) => [...prev, n as SignalStandard])
                   }
                 }}
                 className="rounded bg-sky-700 px-1.5 text-[9px] text-sky-100 hover:bg-sky-600"
-                title="Neuen Signal-Standard anlegen"
+                title={t('cableLib.addSignalStandardTitle', 'Neuen Signal-Standard anlegen')}
               >
                 + Standard
               </button>
@@ -252,7 +254,7 @@ const CableTypeEditor = ({
             )}
           </div>
           <label className="block">
-            <span className="text-slate-400">Max. Länge (m) – optional</span>
+            <span className="text-slate-400">{t('cableLib.maxLength', 'Max. Länge (m) – optional')}</span>
             <input
               type="number"
               min={0}
@@ -262,17 +264,17 @@ const CableTypeEditor = ({
                 const v = e.target.value
                 setMaxLength(v === '' ? '' : Math.max(0, Number(v)))
               }}
-              placeholder="z.B. 100"
+              placeholder={t('cable.field.maxReachPlaceholder', 'z.B. 100')}
               className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
             />
           </label>
           <label className="block">
-            <span className="text-slate-400">Notiz (optional)</span>
+            <span className="text-slate-400">{t('cableLib.note', 'Notiz (optional)')}</span>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-              placeholder="z.B. nur für indoor, geschirmt, …"
+              placeholder={t('cableLib.notePlaceholder', 'z.B. nur für indoor, geschirmt, …')}
               className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
             />
           </label>
@@ -332,6 +334,7 @@ const SortableCableGroup = ({
   group: string
   children: ReactNode
 }) => {
+  const t = useTranslation()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: group,
   })
@@ -346,8 +349,8 @@ const SortableCableGroup = ({
       <span
         {...attributes}
         {...listeners}
-        aria-label="Gruppe verschieben"
-        title="Per Drag&Drop verschieben"
+        aria-label={t('cableLib.groupReorder', 'Gruppe verschieben')}
+        title={t('cableLib.groupReorderTitle', 'Per Drag&Drop verschieben')}
         role="button"
         tabIndex={0}
         className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-slate-500 hover:text-slate-200 active:cursor-grabbing"
@@ -367,6 +370,7 @@ const SortableCableGroup = ({
 }
 
 export const CableLibraryPanel = () => {
+  const t = useTranslation()
   const defaultVideoFormat = useProjectStore(
     (s) => s.project.metadata.defaultVideoFormat,
   )
@@ -488,14 +492,14 @@ export const CableLibraryPanel = () => {
     <div className="flex h-full min-h-0 flex-col">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold">Kabel-Library</h2>
+          <h2 className="text-sm font-semibold">{t('cableLib.title', 'Kabel-Library')}</h2>
           <span className="text-[10px] text-slate-500">{cables.length} verbaut</span>
         </div>
         <button
           type="button"
           onClick={() => setEditing(undefined)}
           className="rounded bg-emerald-700 px-2 py-1 text-[11px] text-white hover:bg-emerald-600"
-          title="Neuen Kabeltyp anlegen (eigenes Preset für die Library)"
+          title={t('cableLib.newSpecTitle', 'Neuen Kabeltyp anlegen (eigenes Preset für die Library)')}
         >
           + Neuer Kabeltyp
         </button>
@@ -575,7 +579,7 @@ export const CableLibraryPanel = () => {
                           {isCustom && (
                             <span
                               className="rounded bg-violet-700/80 px-1 text-[9px] font-semibold uppercase text-violet-100"
-                              title="Eigener Kabeltyp (lokal angelegt)"
+                              title={t('cableLib.customBadge', 'Eigener Kabeltyp (lokal angelegt)')}
                             >
                               Eigen
                             </span>
@@ -583,7 +587,7 @@ export const CableLibraryPanel = () => {
                           {!isCustom && cableSpecOverrides[cable.id] && (
                             <span
                               className="rounded bg-amber-700/70 px-1 text-[9px] font-semibold uppercase text-amber-100"
-                              title="Built-in Spec mit lokalem Override (Reset über Bearbeiten-Dialog)"
+                              title={t('cableLib.overrideBadge', 'Built-in Spec mit lokalem Override (Reset über Bearbeiten-Dialog)')}
                             >
                               Angepasst
                             </span>
@@ -628,7 +632,7 @@ export const CableLibraryPanel = () => {
                                 if (ok) clearCableSpecOverride(cable.id)
                               }}
                               className="rounded bg-amber-800/70 px-1.5 py-0.5 text-[10px] text-amber-100 hover:bg-amber-700"
-                              title="Override entfernen (auf Default zurücksetzen)"
+                              title={t('cableLib.removeOverride', 'Override entfernen (auf Default zurücksetzen)')}
                             >
                               ↺
                             </button>
@@ -651,7 +655,7 @@ export const CableLibraryPanel = () => {
                                 if (ok) removeCustomCableSpec(cable.id)
                               }}
                               className="rounded bg-red-900/60 px-1.5 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
-                              title="Kabeltyp löschen"
+                              title={t('cableLib.deleteSpec', 'Kabeltyp löschen')}
                             >
                               ✕
                             </button>

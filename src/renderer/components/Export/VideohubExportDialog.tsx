@@ -1,5 +1,6 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { useProjectStore } from '../../store/projectStore'
+import { useTranslation } from '../../lib/i18n'
 import { guessVideohubPresetKey } from '../../lib/deviceKind'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
@@ -65,6 +66,7 @@ const downloadTextFile = (filename: string, content: string) =>
   downloadBlob(filename, content, 'text/plain;charset=utf-8')
 
 export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShowMatrix }: Props) => {
+  const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
   const cables = useProjectStore((s) => s.project.cables)
   const [deviceId, setDeviceId] = useState<string>(() => {
@@ -657,10 +659,10 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               value={format}
               onChange={(e) => setFormat(e.target.value as Format)}
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
-              title="Bestimmt nur das Format der Vorschau-/Datei-Ausgabe unten. Der direkte TCP-Push (Labels/Routing-Buttons) ist davon unabhaengig."
+              title={t('videohub.formatTitle', 'Bestimmt nur das Format der Vorschau-/Datei-Ausgabe unten. Der direkte TCP-Push (Labels/Routing-Buttons) ist davon unabhängig.')}
             >
-              <option value="routing">Voller Routing-Dump (Protokoll 2.5)</option>
-              <option value="labels">Nur Labels (Input, n, Name)</option>
+              <option value="routing">{t('videohub.optFullRouting', 'Voller Routing-Dump (Protokoll 2.5)')}</option>
+              <option value="labels">{t('videohub.optLabelsOnly', 'Nur Labels (Input, n, Name)')}</option>
             </select>
           </label>
 
@@ -708,7 +710,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                         ? 'bg-sky-700 text-white'
                         : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                     }`}
-                    title="Crosspoint-Matrix"
+                    title={t('videohub.matrixView', 'Crosspoint-Matrix')}
                   >
                     ▦ Matrix
                   </button>
@@ -720,7 +722,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                         ? 'bg-sky-700 text-white'
                         : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                     }`}
-                    title="Listen-Ansicht mit Dropdown pro Output"
+                    title={t('videohub.listView', 'Listen-Ansicht mit Dropdown pro Output')}
                   >
                     ☰ Liste
                   </button>
@@ -794,7 +796,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 type="button"
                 onClick={generateSmartRouting}
                 className="ml-auto rounded bg-purple-700 px-2 py-1 text-xs text-purple-50 hover:bg-purple-600"
-                title="Schlaegt ein Routing vor, basierend auf den Kabeln im Canvas. Best-Match per Geraete-Namens-Aehnlichkeit; Fallback Diagonal. Per Matrix anpassbar."
+                title={t('videohub.suggestTitle', 'Schlägt ein Routing vor, basierend auf den Kabeln im Canvas. Best-Match per Geräte-Namens-Ähnlichkeit; Fallback Diagonal. Per Matrix anpassbar.')}
               >
                 🪄 Smart-Routing
               </button>
@@ -802,7 +804,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 type="button"
                 onClick={() => setRouting(buildDefaultRouting(preset.inputs, preset.outputs))}
                 className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
-                title="Diagonal-Routing zurücksetzen (Ausgang N → Eingang N)"
+                title={t('videohub.resetDiag', 'Diagonal-Routing zurücksetzen (Ausgang N → Eingang N)')}
               >
                 ↺ Reset
               </button>
@@ -946,7 +948,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 type="button"
                 onClick={() => void saveSalvo()}
                 className="rounded bg-cyan-700 px-2 py-0.5 text-[11px] text-white hover:bg-cyan-600"
-                title="Aktuelles Routing als benannten Snapshot speichern"
+                title={t('videohub.saveSalvo', 'Aktuelles Routing als benannten Snapshot speichern')}
               >
                 + Aktuelles Routing speichern
               </button>
@@ -975,7 +977,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                       type="button"
                       onClick={() => deleteSalvo(s.id)}
                       className="text-slate-500 hover:text-red-400"
-                      title="Salvo loeschen"
+                      title={t('videohub.deleteSalvo', 'Salvo löschen')}
                     >
                       ×
                     </button>
@@ -1029,7 +1031,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                           setSendStatus('idle')
                         }
                       }}
-                      title="Zuletzt benutzte Verbindungen"
+                      title={t('videohub.recentConns', 'Zuletzt benutzte Verbindungen')}
                       className="w-10 rounded border border-slate-700 bg-slate-950 px-1 text-xs"
                     >
                       <option value="">▼</option>
@@ -1058,7 +1060,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 type="button"
                 onClick={() => { void handleDiscover() }}
                 disabled={!hasDesktopBridge || discovering}
-                title="Videohubs im lokalen Netz via mDNS/Bonjour suchen (3 s Scan)."
+                title={t('videohub.mdnsTitle', 'Videohubs im lokalen Netz via mDNS/Bonjour suchen (3 s Scan).')}
                 className="rounded bg-teal-700 px-3 py-1.5 text-xs hover:bg-teal-600 disabled:opacity-40"
               >
                 {discovering ? '🔍 Suche…' : '🔍 Suchen'}
@@ -1067,7 +1069,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 type="button"
                 onClick={() => { void handleReadState() }}
                 disabled={!device || !hasDesktopBridge || readingState}
-                title="Aktuellen Hub-Status holen: Labels + Routing + Locks. Routing wird in die Matrix uebernommen, Labels in den Spalten/Zeilen angezeigt."
+                title={t('videohub.loadStatus', 'Aktuellen Hub-Status holen: Labels + Routing + Locks. Routing wird in die Matrix übernommen, Labels in den Spalten/Zeilen angezeigt.')}
                 className="rounded bg-sky-700 px-3 py-1.5 text-xs hover:bg-sky-600 disabled:opacity-40"
               >
                 {readingState ? '⏳ Laden…' : '⬇ Status laden'}
@@ -1122,7 +1124,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 type="button"
                 onClick={() => { void handleSendLabels() }}
                 disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
-                title="Nur INPUT LABELS + OUTPUT LABELS senden. Routing bleibt am Hub unangetastet."
+                title={t('videohub.sendLabelsTitle', 'Nur INPUT LABELS + OUTPUT LABELS senden. Routing bleibt am Hub unangetastet.')}
                 className="rounded bg-purple-600 px-3 py-1.5 text-xs hover:bg-purple-500 disabled:opacity-40"
               >
                 {sendStatus === 'sending' ? '⏳ …' : '⬆ Labels senden'}
@@ -1131,7 +1133,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 type="button"
                 onClick={() => { void handleSendRouting() }}
                 disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
-                title="Nur VIDEO OUTPUT ROUTING senden. Labels am Hub unveraendert."
+                title={t('videohub.sendRoutingTitle', 'Nur VIDEO OUTPUT ROUTING senden. Labels am Hub unverändert.')}
                 className="rounded bg-purple-600 px-3 py-1.5 text-xs hover:bg-purple-500 disabled:opacity-40"
               >
                 {sendStatus === 'sending' ? '⏳ …' : '⬆ Routing senden'}
@@ -1140,7 +1142,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 type="button"
                 onClick={() => { void handleSendBoth() }}
                 disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
-                title="Labels + Routing in EINEM Push (drei Bloecke hintereinander)."
+                title={t('videohub.sendBothTitle', 'Labels + Routing in EINEM Push (drei Blöcke hintereinander).')}
                 className="rounded bg-purple-800 px-3 py-1.5 text-xs font-semibold hover:bg-purple-700 disabled:opacity-40"
               >
                 {sendStatus === 'sending' ? '⏳ …' : '⬆ Labels + Routing senden'}
@@ -1148,7 +1150,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             </div>
             {hubState && (
               <div className="mt-1.5 rounded border border-sky-700/40 bg-sky-950/30 p-1.5 text-[11px] text-sky-100">
-                <span className="font-semibold">Hub-Status:</span>{' '}
+                <span className="font-semibold">{t('videohub.hubStatus', 'Hub-Status:')}</span>{' '}
                 {hubState.modelName ?? 'Unbekannt'}{' '}
                 {hubState.friendlyName && `("${hubState.friendlyName}")`}
                 {hubState.videoInputs && hubState.videoOutputs && (
@@ -1212,7 +1214,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           </div>
         )}
 
-        <div className="mb-2 text-xs text-slate-400">Vorschau</div>
+        <div className="mb-2 text-xs text-slate-400">{t('videohub.preview', 'Vorschau')}</div>
         <textarea
           readOnly
           value={preview}
