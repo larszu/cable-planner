@@ -9,6 +9,8 @@ import { useUiStore } from './uiStore'
 import { isProjectLocked, sanitizePort, touchProject } from './projectStoreHelpers'
 import { createLocationSlice } from './slices/locationSlice'
 import { createCableSlice } from './slices/cableSlice'
+import { createAnnotationSlice } from './slices/annotationSlice'
+import { scheduleProjectAutosave } from './projectAutosave'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
 import { cableTypePatchFromPorts, inheritedCableType } from '../lib/cableInheritance'
 import { detectLayerForConnector } from '../lib/cableLayers'
@@ -23,7 +25,6 @@ import {
   upsertCachedRentmanTemplateFromEquipment,
 } from '../lib/rentmanTemplateCache'
 import type { GreenGoConfig } from '../types/greengo'
-import { useSettingsStore } from './settingsStore'
 
 type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
   Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>
@@ -174,19 +175,6 @@ const loadAutosavedProject = (): CablePlannerProject | null => {
   } catch {
     return null
   }
-}
-
-let autosaveTimer: ReturnType<typeof setTimeout> | null = null
-const scheduleProjectAutosave = (project: CablePlannerProject) => {
-  if (autosaveTimer) clearTimeout(autosaveTimer)
-  const delay = useSettingsStore.getState().autosaveIntervalMs || 400
-  autosaveTimer = setTimeout(() => {
-    try {
-      localStorage.setItem(PROJECT_AUTOSAVE_KEY, JSON.stringify(project))
-    } catch {
-      /* quota errors are non-fatal */
-    }
-  }, delay)
 }
 
 // v7.9.13 — Heal-on-Load für GroupPresets. Alte Presets aus früheren
@@ -717,6 +705,7 @@ const buildProjectStore = (
 ): StateCreator<ProjectState> => (set, get, store) => ({
   ...createLocationSlice(set, get, store),
   ...createCableSlice(set, get, store),
+  ...createAnnotationSlice(set, get, store),
   project:
     opts.initialProject ??
     (() => {
@@ -2094,43 +2083,6 @@ const buildProjectStore = (
       })
       scheduleProjectAutosave(updated)
       return { project: updated, projectVersion: state.projectVersion + 1 }
-    }),
-  setProjectMode: (mode) =>
-    set((state) => {
-      const updated = { ...state.project, mode }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  addAnnotation: (annotation) =>
-    set((state) => {
-      const existing = state.project.annotations ?? []
-      const updated = { ...state.project, annotations: [...existing, annotation] }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  updateAnnotation: (id, patch) =>
-    set((state) => {
-      const existing = state.project.annotations ?? []
-      const next = existing.map((a) => (a.id === id ? { ...a, ...patch } : a))
-      const updated = { ...state.project, annotations: next }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  removeAnnotation: (id) =>
-    set((state) => {
-      const existing = state.project.annotations ?? []
-      const updated = {
-        ...state.project,
-        annotations: existing.filter((a) => a.id !== id),
-      }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  setViewerSession: (session) =>
-    set((state) => {
-      const updated = { ...state.project, viewerSession: session }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
     }),
 })
 
