@@ -15,15 +15,12 @@ import {
 } from '@dnd-kit/sortable'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
-import { detectNetworkDevice } from '../../lib/deviceKind'
 import { CategorySelect } from '../shared/CategorySelect'
 import { useTranslation } from '../../lib/i18n'
-import { SortableSection } from './SortableSection'
 import { DimensionsSection } from './sections/DimensionsSection'
 import { PowerConsumptionSection } from './sections/PowerConsumptionSection'
 import { DisplayPropertiesBlock } from './sections/DisplayPropertiesBlock'
 import { DeviceConfigsBlock } from './sections/DeviceConfigsBlock'
-import { NetworkConfig } from './sections/NetworkConfig'
 import { NetworkAccessSection } from './sections/NetworkAccessSection'
 import { DeviceKindCards } from './sections/DeviceKindCards'
 import { OptionalFieldsSection } from './sections/OptionalFieldsSection'
@@ -34,8 +31,10 @@ import { LibrarySaveSection } from './sections/LibrarySaveSection'
 import { PrintSection } from './sections/PrintSection'
 import { RackSection } from './sections/RackSection'
 import { IdentityBlock } from './sections/IdentityBlock'
+import { NetworkConfigSection } from './sections/NetworkConfigSection'
+import { ModesSection } from './sections/ModesSection'
+import { RackInstanceCard } from './sections/RackInstanceCard'
 import { DimensionsBlock } from './sections/DimensionsBlock'
-import { DeviceModePicker } from './sections/DeviceModePicker'
 
 /** Module-level sensor options so re-renders don't churn the sensor
  *  instances. Stable references are critical for DnDContext's
@@ -139,7 +138,6 @@ export const EquipmentProperties = () => {
     return <div className="text-xs text-slate-400">Select an equipment node.</div>
   }
 
-  const networkKind = detectNetworkDevice(equipment)
 
   // v7.4.0 — sortable accordion sections. The parent is `flex flex-col`
   // so CSS `order` works. Non-movable elements (device-kind cards,
@@ -210,33 +208,9 @@ export const EquipmentProperties = () => {
       {/* v7.9.105 / Issue #216 — Physische Dimensionen (Breite/Höhe/Tiefe). */}
       <DimensionsSection equipment={equipment} />
 
-      {networkKind && (
-        <SortableSection
-          id="network-config"
-          title={networkKind === 'router' ? 'Router Config' : 'Switch Config'}
-          subtitle="VLAN · Port-Map · Gateway"
-        >
-          <NetworkConfig
-            equipmentId={equipment.id}
-            item={equipment}
-            allPorts={[...equipment.inputs, ...equipment.outputs]}
-            kind={networkKind}
-          />
-        </SortableSection>
-      )}
+      <NetworkConfigSection equipment={equipment} />
 
-      <SortableSection
-        id="modes"
-        title="Betriebsmodi"
-        subtitle={
-          (equipment.modes ?? []).length === 0
-            ? 'keiner — anlegen unten'
-            : (equipment.modes?.find((m) => m.id === equipment.activeModeId)?.name ??
-              `${equipment.modes?.length} definiert`)
-        }
-      >
-        <DeviceModePicker equipment={equipment} />
-      </SortableSection>
+      <ModesSection equipment={equipment} />
 
       <PortsSection equipment={equipment} />
 
@@ -244,31 +218,7 @@ export const EquipmentProperties = () => {
 
       <LibrarySaveSection equipment={equipment} />
 
-      {equipment.rackInstanceId && (
-        <div className="rounded border border-cyan-700 bg-cyan-950/30 p-2">
-          <div className="mb-1 text-[10px] uppercase tracking-wide text-cyan-300">
-            Rack-Instanz · {equipment.rackInstanceLabel ?? 'Rack'}
-          </div>
-          <p className="mb-2 text-[10px] text-slate-400">
-            Dieses Gerät gehört zu einer Rack-Instanz. Der Rack-Editor zeigt eine
-            gefilterte Sub-Canvas mit nur diesem Rack — Änderungen an der Position werden
-            beim Loslassen auf ganze HU gerundet.
-          </p>
-          <button
-            type="button"
-            onClick={() => useUiStore.getState().openRackEditor(equipment.rackInstanceId!)}
-            className="w-full rounded bg-cyan-700 px-2 py-1 text-xs text-white hover:bg-cyan-600"
-          >
-            🗄 Rack-Editor öffnen
-          </button>
-          {typeof equipment.rackInstanceStartUnit === 'number' && (
-            <div className="mt-1 text-[10px] text-slate-500">
-              Position: ab HU {equipment.rackInstanceStartUnit + 1}
-              {equipment.rackUnits ? ` (${equipment.rackUnits} HE)` : ''}
-            </div>
-          )}
-        </div>
-      )}
+      <RackInstanceCard equipment={equipment} />
 
       <DeviceConfigsBlock equipmentId={equipment.id} />
 
