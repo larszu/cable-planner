@@ -2434,6 +2434,17 @@ const en: Dict = {
   'export.patch.compactSub': 'One line per cable, sorted by source device',
   'export.bom.rentmanDirty': 'Unsaved changes to the Rentman plan.',
   'export.bom.rentmanClean': 'Rentman plan is saved with the project.',
+  // ATEM MV config dialog – layout labels + buttons
+  'atem.mv.layout.grid16Small': 'Grid (16 small)',
+  'atem.mv.layout.quad4Big': 'Quad (4 big)',
+  'atem.mv.asPng': 'As PNG',
+  'atem.mv.saveDraft': 'Save draft',
+  'atem.mv.readFromTitle':
+    'Read the multiviewer setup from the connected ATEM and use it in this view.',
+  'atem.mv.notConnectedTitle': 'ATEM not connected — connect in the ATEM dialog first.',
+  'atem.mv.readFromBtn': 'Load from ATEM',
+  'atem.mv.applyTitle': 'Push configuration to ATEM',
+  'atem.mv.applyBtn': 'Push to ATEM',
   'rack.stlPreviewTitle': 'STL preview (auto-rotates)',
   'rack.addFromLibraryHint':
     'Add devices from the library on the left (button "+ Rack").',
