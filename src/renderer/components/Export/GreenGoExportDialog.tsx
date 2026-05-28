@@ -16,7 +16,7 @@ import {
 } from '../../lib/intercomMatrixXlsx'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
-import { useTranslation } from '../../lib/i18n'
+import { useTranslation, format } from '../../lib/i18n'
 
 interface Props {
   onClose: () => void
@@ -100,7 +100,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
     reader.onload = (ev) => {
       const buffer = ev.target?.result
       if (!(buffer instanceof ArrayBuffer)) {
-        setImportError('Konnte XLSX nicht als Binärdaten lesen.')
+        setImportError(t('greengo.importXlsxBinaryError', 'Konnte XLSX nicht als Binärdaten lesen.'))
         return
       }
       const result = parseIntercomMatrixXlsx(buffer)
@@ -121,23 +121,38 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
       setActiveTab('matrix')
       const lines: string[] = []
       lines.push(
-        `✓ ${result.config.users.length} Benutzer · ${result.config.groups.length} Gruppen aus Excel übernommen.`,
+        format(
+          t('greengo.import.usersAndGroups', '✓ {users} Benutzer · {groups} Gruppen aus Excel übernommen.'),
+          { users: result.config.users.length, groups: result.config.groups.length },
+        ),
       )
       if (result.directTalkPairs.length > 0) {
         lines.push(
-          `${result.directTalkPairs.length} Direkt-Linien (User↔User) wurden ignoriert — GreenGo speichert Mitgliedschaften, keine 1:1-Routen.`,
+          format(
+            t(
+              'greengo.import.directIgnored',
+              '{n} Direkt-Linien (User↔User) wurden ignoriert — GreenGo speichert Mitgliedschaften, keine 1:1-Routen.',
+            ),
+            { n: result.directTalkPairs.length },
+          ),
         )
       }
       if (result.equipmentMarks.length > 0) {
         lines.push(
-          `${result.equipmentMarks.length} Equipment-Markierungen sind nur Audit — ordne die Beltpacks auf dem Canvas zu.`,
+          format(
+            t(
+              'greengo.import.equipmentAudit',
+              '{n} Equipment-Markierungen sind nur Audit — ordne die Beltpacks auf dem Canvas zu.',
+            ),
+            { n: result.equipmentMarks.length },
+          ),
         )
       }
       for (const w of result.warnings) lines.push(`⚠ ${w}`)
       setXlsxImportNotice(lines.join('\n'))
       setImportError(null)
     }
-    reader.onerror = () => setImportError('XLSX konnte nicht gelesen werden.')
+    reader.onerror = () => setImportError(t('greengo.import.readError', 'XLSX konnte nicht gelesen werden.'))
     reader.readAsArrayBuffer(file)
     e.target.value = ''
   }
