@@ -3,30 +3,38 @@ import { useUiStore, type Language } from '../store/uiStore'
 /**
  * Cable Planner i18n.
  *
- * Coverage today (intentional, incremental):
+ * Coverage status:
  *   ✓ Settings dialog (all 6 tabs)
  *   ✓ Top-level menu / chrome (App header, MenuBar, StatusBar)
  *   ✓ Canvas toolbar (Defaults menu, alignment, locks, plan-finalise,
  *     annotations, length legend)
  *   ✓ Properties panel chrome + Equipment / Cable / Location panels
+ *   ✓ All sections under EquipmentProperties (Network*, Power*, Dims*,
+ *     Display, Ports, Print, LibrarySave, etc.)
  *   ✓ PortList (incl. SFP details, ATEM source IDs, content labels)
  *   ✓ DeviceModePicker + ModeEditorDialog (multi-mode devices, #113)
  *   ✓ Common buttons (OK / Cancel / Save / Close / Delete / …)
  *   ✓ promptDialog + confirmDialog default labels
  *   ✓ CategorySelect "+ New category…" entry
  *   ✓ Library panel chrome (show/hide, tab tooltips, search)
+ *   ✓ Library cable editor (CableLibraryPanel)
  *   ✓ Layout chrome (FloatingPanelShell dock, Splitter, ModalShell close)
  *   ✓ Shared widgets (ColorField, RoutingToggle)
  *   ✓ PrintDialog frame + actions
- *   ✓ CableDialog — title + Create/Cancel + From/To labels
- *   ✓ Rentman import — top-level chrome (title, close, cancel)
- *   ✓ ATEM audio router — empty state, action buttons, tabs
- *   ◯ Library panel — per-template detail buttons still DE
- *   ◯ Properties panels — long-tail tooltips still DE
- *   ◯ Rentman import — per-row tooltips, conflict resolution UI still DE
- *   ◯ ATEM dialogs — channel-strip table headers still DE
- *   ◯ Rack builder — DE only
- *   ◯ Export dialogs (Plan/PatchSheets/BOM body, Videohub, GreenGo, Location BOM) — DE only
+ *   ✓ CableDialog
+ *   ✓ AboutDialog, AnnotationsPanel, PatchListDialog, CalculatorsDialog
+ *   ✓ OnboardingTour (all 7 steps + chrome)
+ *   ✓ Export dialogs: ExportDialog body (Plan/Patch-Sheets/BOM),
+ *     VideohubExportDialog, GreenGoExportDialog, GraphmlImportDialog,
+ *     LocationBomDialog, CableBomDialog, MobileShareDialog
+ *   ✓ Rentman: import (chrome + body), wizard, cable export,
+ *     project selector, equipment checklist
+ *   ✓ ATEM dialogs: AtemDialog, AtemMvConfigDialog, AtemAudioRouterDialog
+ *   ✓ RackBuilderDialog (chrome + library + zoom + save flow),
+ *     PatchPanelCreateDialog, RackShelfCreateDialog, NonRackAddDialog
+ *
+ *   ◯ Long-tail deeply-nested tooltips in LibraryPanel + RackBuilder body
+ *     still German (per-template detail buttons in equipment list)
  *
  * Strings without a translation fall through to the German source string,
  * so a partially-translated UI stays readable rather than showing missing-
@@ -119,7 +127,7 @@ const en: Dict = {
   'settings.appearance.languageDesc':
     'UI language. Switching is instant. Some deeply nested dialogs are still German-only — see the i18n coverage note.',
   'settings.appearance.coverage':
-    'Currently translated: Settings, menu bar, status bar, canvas toolbar, properties panels (Equipment / Cable / Location / Ports incl. device modes), library chrome, cable dialog, print dialog, modals and shared widgets. Long-tail tooltips, export dialogs and rack builder still appear in German.',
+    'Translation coverage: Settings, menu/status bar, canvas toolbar, all properties panels, library chrome + cable editor, all dialogs (Cable, Cable BOM, ATEM, Videohub, GreenGo, Rentman, Rack builder, Print, Export, Mobile share, GraphML, Onboarding, About). Only a few deeply-nested per-row tooltips in library/rack body still show German.',
   'settings.appearance.theme': 'Theme',
   'settings.appearance.themeDesc':
     'Canvas background colour. Optimised for dark; light is intended for PDF export or bright environments.',
