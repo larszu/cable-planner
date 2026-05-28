@@ -1,6 +1,8 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { cablePlannerApi } from './lib/bridge'
 import { confirmDialog } from './lib/confirmDialog'
+import { translate } from './lib/i18n'
+import { useUiStore } from './store/uiStore'
 
 interface State {
   error: Error | null
@@ -351,13 +353,15 @@ export class ErrorBoundary extends Component<Props, State> {
             <button
               type="button"
               onClick={async () => {
+                const lang = useUiStore.getState().language
                 if (
-                  !(await confirmDialog('Lokale Daten zurücksetzen?', {
-                    body:
-                      'Eine Sicherheitskopie deines Projekts wird vorher angelegt ' +
-                      '(cable-planner:projectBackup:<Zeit> in localStorage).\n\n' +
-                      'Soll wirklich zurückgesetzt und neu geladen werden?',
-                    okLabel: 'Zurücksetzen',
+                  !(await confirmDialog(translate(lang, 'errorBoundary.resetTitle', 'Lokale Daten zurücksetzen?'), {
+                    body: translate(
+                      lang,
+                      'errorBoundary.resetBody',
+                      'Eine Sicherheitskopie deines Projekts wird vorher angelegt (cable-planner:projectBackup:<Zeit> in localStorage).\n\nSoll wirklich zurückgesetzt und neu geladen werden?',
+                    ),
+                    okLabel: translate(lang, 'common.reset', 'Zurücksetzen'),
                     destructive: true,
                   }))
                 ) {
