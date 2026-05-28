@@ -1233,17 +1233,6 @@ const buildProjectStore = (
         state.selectedEquipmentId === id ? undefined : state.selectedEquipmentId,
       }
     }),
-  deleteCable: (id) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      return {
-        project: touchProject({
-          ...state.project,
-          cables: state.project.cables.filter((item) => item.id !== id),
-        }),
-        selectedCableId: state.selectedCableId === id ? undefined : state.selectedCableId,
-      }
-    }),
   deleteSelected: () =>
     set((state) => {
       if (isProjectLocked(state)) return state
@@ -1284,99 +1273,6 @@ const buildProjectStore = (
         }
       }
       return {}
-    }),
-  reconnectCable: (cableId, endpoint, equipmentId, portId) =>
-    set((state) => {
-      const cable = state.project.cables.find((c) => c.id === cableId)
-      if (!cable) return state
-
-      // v7.9.113 / Issue #232 — Label-Swap-Feature.
-      // Wenn swapLabelsOnReconnect aktiv:
-      //   - Alter Port (von dem das Kabel weg-gesteckt wird) bekommt
-      //     seinen originalName zurueck.
-      //   - Neuer Port (auf den das Kabel gesteckt wird) bekommt den
-      //     User-Namen des alten Ports.
-      // Spart dem User Copy/Paste beim Umstecken.
-      const swap = useUiStore.getState().swapLabelsOnReconnect
-      const oldEquipmentId = endpoint === 'source' ? cable.fromEquipmentId : cable.toEquipmentId
-      const oldPortId = endpoint === 'source' ? cable.fromPortId : cable.toPortId
-
-      let equipment = state.project.equipment
-      if (swap && oldPortId && (oldEquipmentId !== equipmentId || oldPortId !== portId)) {
-        // Lokale Lookups: alter Port + neuer Port.
-        const findPort = (eqId: string, pId: string) => {
-          const eq = state.project.equipment.find((e) => e.id === eqId)
-          if (!eq) return null
-          const isInput = eq.inputs.some((p) => p.id === pId)
-          const list = isInput ? eq.inputs : eq.outputs
-          const port = list.find((p) => p.id === pId)
-          return port ? { eq, port, isInput } : null
-        }
-        const oldHit = findPort(oldEquipmentId, oldPortId)
-        const newHit = findPort(equipmentId, portId)
-        if (oldHit && newHit) {
-          const userName = oldHit.port.name
-          const oldRevert = oldHit.port.originalName ?? oldHit.port.name
-          // Nur swappen wenn der alte Port tatsaechlich einen vom User
-          // veraenderten Namen hat (sonst gibt's nichts zu uebernehmen).
-          if (userName !== oldRevert) {
-            equipment = state.project.equipment.map((eq) => {
-              const isOldEq = eq.id === oldHit.eq.id
-              const isNewEq = eq.id === newHit.eq.id
-              if (!isOldEq && !isNewEq) return eq
-              const patchList = (
-                ports: Port[],
-                portIdToMatch: string,
-                newName: string,
-              ): Port[] => ports.map((p) => (p.id === portIdToMatch ? { ...p, name: newName } : p))
-              let next = eq
-              if (isOldEq) {
-                next = {
-                  ...next,
-                  inputs: oldHit.isInput
-                    ? patchList(next.inputs, oldHit.port.id, oldRevert)
-                    : next.inputs,
-                  outputs: !oldHit.isInput
-                    ? patchList(next.outputs, oldHit.port.id, oldRevert)
-                    : next.outputs,
-                }
-              }
-              if (isNewEq) {
-                next = {
-                  ...next,
-                  inputs: newHit.isInput
-                    ? patchList(next.inputs, newHit.port.id, userName)
-                    : next.inputs,
-                  outputs: !newHit.isInput
-                    ? patchList(next.outputs, newHit.port.id, userName)
-                    : next.outputs,
-                }
-              }
-              return next
-            })
-          }
-        }
-      }
-
-      const inheritType = useUiStore.getState().inheritCableTypeFromPort
-      const cables = state.project.cables.map((c) => {
-        if (c.id !== cableId) return c
-        const moved =
-          endpoint === 'source'
-            ? { ...c, fromEquipmentId: equipmentId, fromPortId: portId }
-            : { ...c, toEquipmentId: equipmentId, toPortId: portId }
-        if (!inheritType) return moved
-        const patch = cableTypePatchFromPorts(moved, equipment)
-        return patch ? { ...moved, ...patch } : moved
-      })
-
-      return {
-        project: touchProject({
-          ...state.project,
-          equipment,
-          cables,
-        }),
-      }
     }),
   addOpenEndStub: (at, connectorType, side) => {
     const id = uuidv4()
