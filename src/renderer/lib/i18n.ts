@@ -1174,6 +1174,37 @@ const en: Dict = {
 
   // CalculatorsDialog
   'calc.title': 'Tools / calculators',
+
+  // OnboardingTour
+  'onboarding.header': 'Getting-started tour · step {step} / {total}',
+  'onboarding.end': 'End tour',
+  'onboarding.back': 'Back',
+  'onboarding.next': 'Next',
+  'onboarding.start': "Let's go",
+  'onboarding.tip': 'Tip:',
+  'onboarding.steps.welcome.title': 'Welcome to Cable Planner',
+  'onboarding.steps.welcome.body':
+    'A short tour shows where the main features live. You can re-open it any time from the Help menu in the top right.',
+  'onboarding.steps.file.title': 'File menu (top left)',
+  'onboarding.steps.file.body':
+    'Use "File" to create projects, open saved files and persist changes. Project metadata is editable from "Project properties" there.',
+  'onboarding.steps.export.title': 'Export menu',
+  'onboarding.steps.export.body':
+    'The "Export" menu hosts PDF plan export, the cable BOM and two Rentman actions: attach PDF to Rentman and send cables to Rentman.',
+  'onboarding.steps.export.hint':
+    'The Rentman entries are only active if a Rentman project is linked.',
+  'onboarding.steps.settings.title': 'Settings → Rentman',
+  'onboarding.steps.settings.body':
+    'Save the token, test the connection and link/switch Rentman projects from the "Rentman API" tab in Settings.',
+  'onboarding.steps.library.title': 'Library on the left',
+  'onboarding.steps.library.body':
+    'The left column holds equipment, cable library and groups. In the Equipment tab you can switch between local and Rentman-imported devices.',
+  'onboarding.steps.properties.title': 'Properties on the right',
+  'onboarding.steps.properties.body':
+    'Selecting an item on the canvas opens its details and editing tools on the right.',
+  'onboarding.steps.cablePlan.title': 'Cable plan & warnings',
+  'onboarding.steps.cablePlan.body':
+    'If you import cable quantities from Rentman, Cable Planner warns when you wire more cables than available. "Send cables to Rentman" syncs back the assembled totals.',
 }
 
 const translations: Record<Language, Dict> = {
