@@ -16,7 +16,7 @@ import {
 } from '@dnd-kit/sortable'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
-import { detectDeviceKind, detectNetworkDevice } from '../../lib/deviceKind'
+import { detectNetworkDevice } from '../../lib/deviceKind'
 import { generateShortName } from '../../lib/shortName'
 import { promptDialog } from '../../lib/promptDialog'
 import { confirmDialog } from '../../lib/confirmDialog'
@@ -37,11 +37,10 @@ import { DeviceKindCards } from './sections/DeviceKindCards'
 import { OptionalFieldsSection } from './sections/OptionalFieldsSection'
 import { DisplayFlagsSection } from './sections/DisplayFlagsSection'
 import { RentmanSyncBadge } from './sections/RentmanSyncBadge'
+import { PortsSection } from './sections/PortsSection'
 import { RackFacePreview } from './sections/RackFacePreview'
 import { DimensionsBlock } from './sections/DimensionsBlock'
-import { PortAiSuggestButton } from './sections/PortAiSuggestButton'
 import { DeviceModePicker } from './sections/DeviceModePicker'
-import { PortList } from './PortList'
 
 /** Module-level sensor options so re-renders don't churn the sensor
  *  instances. Stable references are critical for DnDContext's
@@ -154,7 +153,6 @@ export const EquipmentProperties = () => {
     return <div className="text-xs text-slate-400">Select an equipment node.</div>
   }
 
-  const deviceKind = detectDeviceKind(equipment)
   const networkKind = detectNetworkDevice(equipment)
 
   // v7.4.0 — sortable accordion sections. The parent is `flex flex-col`
@@ -331,53 +329,7 @@ export const EquipmentProperties = () => {
         <DeviceModePicker equipment={equipment} />
       </SortableSection>
 
-      <SortableSection
-        id="ports"
-        title="Inputs & Outputs"
-        subtitle={`${equipment.inputs.length} In · ${equipment.outputs.length} Out`}
-        defaultOpen
-      >
-        <div className="space-y-2">
-          {/* v7.9.108 / Issue #225 — AI-Suggest-Button fuer Ports. Fragt
-              Gemini (oder den im Settings konfigurierten Provider) was
-              ein Geraet mit diesem Namen + Kategorie ueblicherweise
-              fuer Ports hat. Mit Confirm-Step weil's existing Ports
-              ersetzt — User koennte sonst aus Versehen alles ueberbuegeln. */}
-          <PortAiSuggestButton equipment={equipment} />
-          {/* v7.9.63 / #185 — Inputs und Outputs unabhängig collapsible.
-              Vorher musste der User immer durch alle Inputs scrollen um
-              die Outputs zu erreichen. Beide Defaults auf open damit
-              alte UX nicht plötzlich anders aussieht. */}
-          <details open className="rounded border border-slate-800 bg-slate-950/30">
-            <summary className="cursor-pointer select-none px-2 py-1 text-xs font-semibold text-slate-300 hover:text-slate-100">
-              Inputs <span className="text-slate-500">({equipment.inputs.length})</span>
-            </summary>
-            <div className="px-2 pb-2">
-              <PortList
-                title="Inputs"
-                ports={equipment.inputs}
-                onChange={(inputs) => updateEquipment(equipment.id, { inputs })}
-                hideTitle
-                showAtemSourceId={deviceKind === 'atem'}
-              />
-            </div>
-          </details>
-          <details open className="rounded border border-slate-800 bg-slate-950/30">
-            <summary className="cursor-pointer select-none px-2 py-1 text-xs font-semibold text-slate-300 hover:text-slate-100">
-              Outputs <span className="text-slate-500">({equipment.outputs.length})</span>
-            </summary>
-            <div className="px-2 pb-2">
-              <PortList
-                title="Outputs"
-                ports={equipment.outputs}
-                onChange={(outputs) => updateEquipment(equipment.id, { outputs })}
-                hideTitle
-                showAtemSourceId={deviceKind === 'atem'}
-              />
-            </div>
-          </details>
-        </div>
-      </SortableSection>
+      <PortsSection equipment={equipment} />
 
       <SortableSection
         id="rack"
