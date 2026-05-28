@@ -18,6 +18,7 @@ import {
   loadKnownCategories,
   persistKnownCategories,
 } from './libraryPersist'
+import { loadGroupPresets, persistGroupPresets } from './groupPresetsPersist'
 import { scheduleProjectAutosave } from './projectAutosave'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
 import { cableTypePatchFromPorts } from '../lib/cableInheritance'
@@ -38,15 +39,10 @@ type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
 
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import { VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
-import {
-  syncPresetsToFolder,
-  seedLibrarySyncCache,
-  stampGroupLibraryRef,
-} from '../lib/librarySync'
+import { seedLibrarySyncCache, stampGroupLibraryRef } from '../lib/librarySync'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
-const GROUP_PRESETS_KEY = STORAGE_KEYS.groupPresets
 const LIB_MIGRATION_KEY = STORAGE_KEYS.libMigration
 const LIB_MIGRATION_VERSION = '2026-04-greengo-catalog-v2'
 
@@ -128,68 +124,6 @@ const loadAutosavedProject = (): CablePlannerProject | null => {
   }
 }
 
-// v7.9.13 — Heal-on-Load für GroupPresets. Alte Presets aus früheren
-// Versionen können Ports mit `id: ''` enthalten (catalogue-Templates
-// hatten leere IDs, vor dem sanitize-Fix wurde das ungeprüft persistiert).
-// Beim Laden geben wir jedem Port der noch keine valide eindeutige ID
-// hat einen frischen UUID, damit ReactFlow / EquipmentNode keine Key-
-// Kollisionen mehr haben. Idempotent — bei bereits sauberen Presets
-// passiert nichts.
-const healGroupPresetPorts = (presets: GroupPreset[]): GroupPreset[] => {
-  let needsRewrite = false
-  const out = presets.map((preset) => {
-    const items = preset.items.map((item) => {
-      const sanitizePortList = <T extends { id?: string }>(ports: T[]): T[] => {
-        const seen = new Set<string>()
-        return ports.map((p) => {
-          let id = p.id ?? ''
-          if (!id || seen.has(id)) {
-            needsRewrite = true
-            id = typeof crypto !== 'undefined' && crypto.randomUUID
-              ? crypto.randomUUID()
-              : `port-${Math.random().toString(36).slice(2, 11)}`
-          }
-          seen.add(id)
-          return { ...p, id }
-        })
-      }
-      return {
-        ...item,
-        inputs: sanitizePortList(item.inputs),
-        outputs: sanitizePortList(item.outputs),
-      }
-    })
-    return { ...preset, items }
-  })
-  if (needsRewrite) {
-    try {
-      localStorage.setItem(GROUP_PRESETS_KEY, JSON.stringify(out))
-    } catch {
-      /* ignore */
-    }
-  }
-  return out
-}
-
-const loadGroupPresets = (): GroupPreset[] => {
-  try {
-    const raw = localStorage.getItem(GROUP_PRESETS_KEY)
-    if (!raw) return []
-    const parsed = JSON.parse(raw) as GroupPreset[]
-    return healGroupPresetPorts(parsed)
-  } catch {
-    return []
-  }
-}
-
-const persistGroupPresets = (presets: GroupPreset[]) => {
-  try {
-    localStorage.setItem(GROUP_PRESETS_KEY, JSON.stringify(presets))
-  } catch {
-    /* ignore */
-  }
-  syncPresetsToFolder(presets)
-}
 
 export interface ProjectState {
   project: CablePlannerProject
