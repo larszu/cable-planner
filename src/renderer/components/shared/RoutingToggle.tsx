@@ -1,5 +1,8 @@
 import type { EdgeRouting } from '../../store/uiStore'
+import { useTranslation } from '../../lib/i18n'
 
+/** Default labels — used as both fallback for `t()` and for callers that
+ *  read the array directly (e.g. legacy SettingsDialog). */
 export const ROUTING_OPTIONS: { value: EdgeRouting; label: string; hint: string }[] = [
   { value: 'orthogonal', label: 'Ortho', hint: 'Rechtwinkliges Routing (draw.io Standard)' },
   { value: 'straight', label: 'Linie', hint: 'Gerade Linie' },
@@ -28,10 +31,16 @@ export const RoutingToggle = ({
   isLight = false,
   className,
 }: RoutingToggleProps) => {
+  const t = useTranslation()
+  const options = ROUTING_OPTIONS.map((opt) => ({
+    ...opt,
+    label: t(`routing.${opt.value}.label`, opt.label),
+    hint: t(`routing.${opt.value}.hint`, opt.hint),
+  }))
   if (variant === 'toolbar') {
     return (
       <div className={className} style={{ display: 'flex', gap: 4 }}>
-        {ROUTING_OPTIONS.map((opt) => (
+        {options.map((opt) => (
           <button
             key={opt.value}
             type="button"

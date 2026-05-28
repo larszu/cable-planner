@@ -5,20 +5,24 @@ import { useUiStore, type Language } from '../store/uiStore'
  *
  * Coverage today (intentional, incremental):
  *   ✓ Settings dialog (all 6 tabs)
- *   ✓ Top-level menu / chrome (App header, MenuBar)
- *   ✓ Common buttons (OK / Abbrechen / Speichern / Schließen / Löschen / …)
+ *   ✓ Top-level menu / chrome (App header, MenuBar, StatusBar)
+ *   ✓ Canvas toolbar (Defaults menu, alignment, locks, plan-finalise,
+ *     annotations, length legend)
+ *   ✓ Properties panel chrome + Equipment / Cable / Location panels
+ *   ✓ PortList (incl. SFP details, ATEM source IDs, content labels)
+ *   ✓ Common buttons (OK / Cancel / Save / Close / Delete / …)
  *   ✓ promptDialog + confirmDialog default labels
- *   ✓ CategorySelect "+ Neue Kategorie…" entry
+ *   ✓ CategorySelect "+ New category…" entry
  *   ✓ Library panel — chrome (header buttons, search, tab labels)
- *   ✓ Properties panels — section titles + most common labels
  *   ✓ Rentman import — top-level chrome (title, close, cancel)
  *   ✓ ATEM audio router — empty state, action buttons, tabs
+ *   ✓ CableDialog — title + Create/Cancel + From/To labels
  *   ◯ Library panel — per-template detail buttons still DE
  *   ◯ Properties panels — long-tail tooltips still DE
  *   ◯ Rentman import — per-row tooltips, conflict resolution UI still DE
  *   ◯ ATEM dialogs — channel-strip table headers still DE
  *   ◯ Rack builder — DE only
- *   ◯ Export dialogs (Videohub, GreenGo, BOM, Location BOM) — DE only
+ *   ◯ Export dialogs (Plan/PatchSheets/BOM, Videohub, GreenGo, Location BOM) — DE only
  *
  * Strings without a translation fall through to the German source string,
  * so a partially-translated UI stays readable rather than showing missing-
@@ -111,7 +115,7 @@ const en: Dict = {
   'settings.appearance.languageDesc':
     'UI language. Switching is instant. Some deeply nested dialogs are still German-only — see the i18n coverage note.',
   'settings.appearance.coverage':
-    'Currently translated: Settings, top-level chrome and common buttons. Properties panels, Library, Rentman, ATEM and export dialogs remain in German for now.',
+    'Currently translated: Settings, menu bar, status bar, canvas toolbar, properties panels (Equipment / Cable / Location / Ports), library chrome, cable dialog. Long-tail tooltips, export dialogs and rack builder still appear in German.',
   'settings.appearance.theme': 'Theme',
   'settings.appearance.themeDesc':
     'Canvas background colour. Optimised for dark; light is intended for PDF export or bright environments.',
@@ -589,6 +593,8 @@ const en: Dict = {
 
   // Cable / CableDialog
   'cable.dialog.title': 'New cable',
+  'cable.dialog.from': 'From:',
+  'cable.dialog.to': 'To:',
   'cable.dialog.cancel': 'Cancel',
   'cable.dialog.create': 'Create',
   'cable.dialog.connectionPreview': 'Connection:',
@@ -712,6 +718,42 @@ const en: Dict = {
   'location.field.takeContents': 'Take devices along',
   'location.field.takeContentsHint':
     'When the frame moves, devices inside follow. Without this, the frame moves independently.',
+
+  // FloatingPanelShell
+  'panel.dock': 'Dock',
+  'panel.dockTitle': 'Dock (back to side column)',
+  'splitter.resize': 'Resize column',
+
+  // Routing toggle (shared across toolbar, properties, settings)
+  'routing.orthogonal.label': 'Ortho',
+  'routing.orthogonal.hint': 'Right-angled routing (draw.io default)',
+  'routing.straight.label': 'Straight',
+  'routing.straight.hint': 'Straight line',
+  'routing.curved.label': 'Curved',
+  'routing.curved.hint': 'Bézier curve',
+
+  // ColorField (shared color picker)
+  'colorField.resetTitle': 'Reset colour',
+  'colorField.resetBtn': '✕ Reset',
+
+  // PrintDialog
+  'print.title': 'Print',
+  'print.noneSelected': 'No device selected',
+  'print.selectionCount': '{count} device(s) selected',
+  'print.busy': 'Generating PDF…',
+  'print.startJobs': '🖨 Start {count} print jobs',
+  'print.openDialog': '🖨 Open printer dialog',
+  'print.downloadMany': '⬇ Download {count} PDFs',
+  'print.downloadOne': '⬇ Download patch-sheet PDF',
+  'print.osHint.title': 'OS printer hint',
+  'print.osHint.body':
+    "When printing, your operating system's print dialog opens — there you can pick the printer, paper size (A4 / A3 / Letter), orientation and copy count.",
+  'print.osHint.exports': 'Plan exports as PDF / PNG / JPEG are now under',
+  'print.osHint.exportsPath': 'File → Export plan',
+  'print.devices.title': 'Per device (patch sheet)',
+  'print.devices.body':
+    'Select individual devices and generate an A4/A3 patch list with all ports + connected cables — to stick on the device.',
+  'print.devices.searchPlaceholder': 'Search (name, category, subtitle)…',
 }
 
 const translations: Record<Language, Dict> = {
