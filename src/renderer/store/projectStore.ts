@@ -6,6 +6,7 @@ import type { EquipmentItem, EquipmentTemplate, GroupPreset, Port } from '../typ
 import type { LocationFrame } from '../types/location'
 import type { CablePlannerProject } from '../types/project'
 import { useUiStore } from './uiStore'
+import { isProjectLocked, sanitizePort, touchProject } from './projectStoreHelpers'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
 import { cableTypePatchFromPorts, inheritedCableType, isBidirectionalCableType } from '../lib/cableInheritance'
 import { detectLayerForConnector } from '../lib/cableLayers'
@@ -483,45 +484,6 @@ const defaultProject = (): CablePlannerProject => ({
   locations: [],
   canvasState: { x: 0, y: 0, zoom: 1 },
 })
-
-const touchProject = (project: CablePlannerProject): CablePlannerProject => ({
-  ...project,
-  metadata: {
-    ...project.metadata,
-    updatedAt: now(),
-  },
-})
-
-/** v7.9.5 — Zentrale Lock-Check für Plan-Mutationen. Wenn der User
- *  den Plan als "abgeschlossen" markiert hat oder eine Viewer-Datei
- *  geöffnet ist, dürfen Geräte/Kabel/Layout NICHT mehr verändert
- *  werden. Annotations + Mobile-Check-State + Mode-Switch sind
- *  davon ausgenommen (für viewer/finalized explizit erlaubt). */
-const isProjectLocked = (state: { project: CablePlannerProject }): boolean => {
-  const mode = state.project.mode
-  return mode === 'finalized' || mode === 'viewer'
-}
-
-const sanitizePort = (port: Partial<Port>, fallbackName: string): Port => {
-  const name = port.name ?? fallbackName
-  return {
-    // Spread first so optional fields like `direction`, `sfpType`, `sfpStandard`,
-    // `sfpWavelength`, `sfpVendor` survive the trip through addEquipment /
-    // importEquipment. Without this they were silently dropped, which broke
-    // bidirectional handles and SFP module metadata for catalog/NetBox imports.
-    ...port,
-    id: port.id && port.id.length > 0 ? port.id : uuidv4(),
-    name,
-    // v7.9.113 / Issue #232 — originalName festschreiben fuer den
-    // Label-Swap-Feature beim Cable-Reconnect. Wenn das Template selber
-    // schon einen originalName mitbringt (z.B. aus einem alten Save),
-    // den behalten. Sonst nehmen wir den aktuellen name als Baseline —
-    // das ist der Template-Default zum Anlegezeitpunkt.
-    originalName: port.originalName ?? name,
-    type: port.type ?? 'Custom',
-    connectorType: port.connectorType ?? 'Custom',
-  }
-}
 
 /**
  * Heal a project loaded from disk: round every equipment / location position
