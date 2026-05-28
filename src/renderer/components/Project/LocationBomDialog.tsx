@@ -78,6 +78,26 @@ export const LocationBomDialog = () => {
     count: number
     examples: string[] // up to 3 cable names for tooltip
   }
+  // #320 — Verbindungs-Beschreibung "Device · Port → Device · Port"
+  // fuer die Detail-Ansicht der Kabel-Tabellen. Wenn ein Endpunkt
+  // ausserhalb der Location liegt, wird "(extern)" angehaengt damit
+  // der Empfaenger sofort sieht wo er den Kabel-Endpunkt suchen muss.
+  const equipmentById = useMemo(
+    () => new Map(project.equipment.map((e) => [e.id, e])),
+    [project.equipment],
+  )
+  const insideIds = new Set(devices.map((d) => d.id))
+  const portOf = (eqId: string, portId: string): string => {
+    const eq = equipmentById.get(eqId)
+    if (!eq) return '?'
+    const p = [...eq.inputs, ...eq.outputs].find((p) => p.id === portId)
+    const portName = p?.contentLabel || p?.name || p?.id || '?'
+    const externalTag = !insideIds.has(eqId) ? ' (extern)' : ''
+    return `${eq.name} · ${portName}${externalTag}`
+  }
+  const connectionDesc = (cable: { fromEquipmentId: string; fromPortId: string; toEquipmentId: string; toPortId: string }) =>
+    `${portOf(cable.fromEquipmentId, cable.fromPortId)} → ${portOf(cable.toEquipmentId, cable.toPortId)}`
+
   const aggregateCables = (cables: typeof internalCables): CableGroup[] => {
     const map = new Map<string, CableGroup>()
     for (const c of cables) {
@@ -205,9 +225,10 @@ export const LocationBomDialog = () => {
           pdf.addPage()
           y = margin
         }
+        const conn = connectionDesc(c)
         pdf.text(
           sanitizeForPdf(
-            `* ${c.name ?? c.type ?? 'Kabel'}  ${c.length ? `(${c.length} m)` : ''}`,
+            `* ${c.name ?? c.type ?? 'Kabel'}  ${c.length ? `(${c.length} m)  ` : ''}${conn}`,
           ),
           margin,
           y,
@@ -237,8 +258,9 @@ export const LocationBomDialog = () => {
               ? ` (${c.length} m)`
               : ''
           const typeLabel = c.type ? ` [${c.type}]` : ''
+          const conn = connectionDesc(c)
           pdf.text(
-            sanitizeForPdf(`* ${c.name ?? c.type ?? 'Kabel'}${typeLabel}${lengthLabel}`),
+            sanitizeForPdf(`* ${c.name ?? c.type ?? 'Kabel'}${typeLabel}${lengthLabel}  ${conn}`),
             margin,
             y,
           )
@@ -381,6 +403,7 @@ export const LocationBomDialog = () => {
                 <tr className="border-b border-slate-700">
                   <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>
                   <th className="px-2 py-1 text-left">{t('locbom.col.type', 'Typ')}</th>
+                  <th className="px-2 py-1 text-left">{t('locbom.col.connection', 'Verbindung')}</th>
                   <th className="px-2 py-1 text-right">{t('locbom.col.lengthM', 'Länge (m)')}</th>
                 </tr>
               </thead>
@@ -389,6 +412,7 @@ export const LocationBomDialog = () => {
                   <tr key={c.id} className="border-b border-slate-800">
                     <td className="px-2 py-1">{c.name ?? '—'}</td>
                     <td className="px-2 py-1 text-slate-400">{c.type ?? '—'}</td>
+                    <td className="px-2 py-1 text-slate-300">{connectionDesc(c)}</td>
                     <td className="px-2 py-1 text-right font-mono text-slate-400">
                       {c.length ?? '—'}
                     </td>
@@ -436,6 +460,7 @@ export const LocationBomDialog = () => {
                     <tr className="border-b border-slate-700">
                       <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>
                       <th className="px-2 py-1 text-left">{t('locbom.col.type', 'Typ')}</th>
+                      <th className="px-2 py-1 text-left">{t('locbom.col.connection', 'Verbindung')}</th>
                       <th className="px-2 py-1 text-right">{t('locbom.col.lengthM', 'Länge (m)')}</th>
                     </tr>
                   </thead>
@@ -444,6 +469,7 @@ export const LocationBomDialog = () => {
                       <tr key={c.id} className="border-b border-slate-800">
                         <td className="px-2 py-1">{c.name ?? '—'}</td>
                         <td className="px-2 py-1 text-slate-400">{c.type ?? '—'}</td>
+                        <td className="px-2 py-1 text-slate-300">{connectionDesc(c)}</td>
                         <td className="px-2 py-1 text-right font-mono text-slate-400">
                           {/* v7.9.93 — Wireless zeigt maxRange statt length (#182). */}
                           {c.wireless

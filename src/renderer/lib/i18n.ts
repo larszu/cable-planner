@@ -1251,6 +1251,7 @@ const en: Dict = {
   'locbom.col.qty': 'Qty',
   'locbom.col.type': 'Type',
   'locbom.col.lengthM': 'Length (m)',
+  'locbom.col.connection': 'Connection',
   'locbom.noInternalCables': 'No internal cables.',
   'locbom.examples': 'Examples:',
 
