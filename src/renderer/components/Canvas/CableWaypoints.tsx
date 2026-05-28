@@ -3,6 +3,7 @@ import { useReactFlow } from 'reactflow'
 import type { Cable, CableWaypoint } from '../../types/cable'
 import { useCanvasProjectStore as useProjectStore, useCanvasProjectStoreInstance } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
+import { useTranslation } from '../../lib/i18n'
 
 interface Props {
   cable: Cable
@@ -94,6 +95,7 @@ export const CableWaypoints = ({
   renderWaypoints,
   exportThemeOverride,
 }: Props) => {
+  const t = useTranslation()
   const updateCable = useProjectStore((state) => state.updateCable)
   const setSelection = useProjectStore((state) => state.setSelection)
   const projectStoreInstance = useCanvasProjectStoreInstance()
@@ -391,7 +393,7 @@ export const CableWaypoints = ({
             updateCable(cable.id, { waypoints: next.length ? next : undefined })
           }}
         >
-          <title>Ziehen zum Verschieben · Alt+Klick oder Rechtsklick zum Entfernen</title>
+          <title>{t('cable.waypoint.tooltip', 'Ziehen zum Verschieben · Alt+Klick oder Rechtsklick zum Entfernen')}</title>
         </circle>
       ))}
     </g>

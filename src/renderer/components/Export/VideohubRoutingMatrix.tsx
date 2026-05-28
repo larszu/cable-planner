@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from '../../lib/i18n'
 
 /** Struktur fuer farb-kodierte Label-Rendering. Wenn ein Eintrag
  *  mehr als nur `port` enthaelt, rendert der Matrix-Header die Teile
@@ -133,6 +134,7 @@ export const VideohubRoutingMatrix = ({
   routing,
   onRoute,
 }: Props) => {
+  const t = useTranslation()
   // v7.9.131 — Axis-Orientation. Bei 'inputs-rows' tauschen wir die
   // Header-Beschriftung der beiden Achsen. Der vollstaendige Matrix-
   // Transpose (Zeilen ↔ Spalten in den Iterationen + Active-Cell-
@@ -363,7 +365,7 @@ export const VideohubRoutingMatrix = ({
                 <div
                   onMouseDown={startLabelResize}
                   className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize hover:bg-sky-400/60"
-                  title="Label-Spalte breiter/schmaler ziehen"
+                  title={t('videohub.resizeLabelCol', 'Label-Spalte breiter/schmaler ziehen')}
                 />
               </th>
               <th

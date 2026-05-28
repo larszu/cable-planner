@@ -136,7 +136,7 @@ const AiProvidersCard = () => {
                     type="button"
                     onClick={() => handleClear(id)}
                     className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
-                    title="Key löschen"
+                    title={t('settings.integrations.gemini.deleteTitle', 'Key löschen')}
                   >
                     ✕
                   </button>
@@ -353,8 +353,11 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           Integration mit einem Klick aus-/anschalten — dann verschwinden
           alle Rentman-Buttons, Tabs, Status-Badges und Library-Spalten. */}
       <SettingsCard
-        title="Rentman-Integration"
-        description="Wenn aktiv: Library-Tab, Menü-Einträge und Status-Anzeigen für Rentman erscheinen. Ausgeschaltet zeigt der Cable Planner nur lokale Geräte/Kabel — alle Rentman-Funktionen werden ausgeblendet."
+        title={t('settings.integrations.rentmanToggle.title', 'Rentman-Integration')}
+        description={t(
+          'settings.integrations.rentmanToggle.desc',
+          'Wenn aktiv: Library-Tab, Menü-Einträge und Status-Anzeigen für Rentman erscheinen. Ausgeschaltet zeigt der Cable Planner nur lokale Geräte/Kabel — alle Rentman-Funktionen werden ausgeblendet.',
+        )}
       >
         <label className="flex items-center gap-2 text-sm">
           <input

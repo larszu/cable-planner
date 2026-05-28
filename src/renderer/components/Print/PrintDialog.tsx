@@ -204,8 +204,8 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {allChecked
-                      ? '☐ Alle abwählen'
-                      : `☑ Alle wählen${filter.trim() ? ' (gefiltert)' : ''}`}
+                      ? '☐ ' + t('print.devices.deselectAll', 'Alle abwählen')
+                      : `☑ ${t('print.devices.selectAll', 'Alle wählen')}${filter.trim() ? ' ' + t('print.devices.filtered', '(gefiltert)') : ''}`}
                   </button>
                 )
               })()}

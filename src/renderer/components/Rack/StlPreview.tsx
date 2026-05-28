@@ -14,6 +14,7 @@ import { useMemo, useRef, Suspense } from 'react'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import { STLLoader } from 'three-stdlib'
 import * as THREE from 'three'
+import { useTranslation } from '../../lib/i18n'
 
 interface Props {
   stlDataUri: string
@@ -56,6 +57,7 @@ const SpinningMesh = ({ stlDataUri }: { stlDataUri: string }) => {
 }
 
 export const StlPreview = ({ stlDataUri, size = 96 }: Props) => {
+  const t = useTranslation()
   return (
     <div
       style={{
@@ -66,7 +68,7 @@ export const StlPreview = ({ stlDataUri, size = 96 }: Props) => {
         background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
         border: '1px solid #334155',
       }}
-      title="STL-Vorschau (rotiert automatisch)"
+      title={t('rack.stlPreviewTitle', 'STL-Vorschau (rotiert automatisch)')}
     >
       <Canvas
         camera={{ position: [1.5, 1.2, 1.8], fov: 45 }}

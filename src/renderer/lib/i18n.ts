@@ -67,6 +67,7 @@ const en: Dict = {
   'common.no': 'No',
   'common.optional': 'optional',
   'common.loading': 'Loading…',
+  'common.overwrite': 'Overwrite',
 
   // App / window chrome
   'app.title': 'Cable Planner',
@@ -96,13 +97,17 @@ const en: Dict = {
   'settings.tab.project': 'Project',
   'settings.tab.appearance': 'Appearance',
   'settings.tab.editing': 'Editing',
+  'settings.tab.hotkeys': 'Hotkeys',
   'settings.tab.integrations': 'Integrations',
+  'settings.tab.configs': 'Device configs',
   'settings.tab.sync': 'Network sync',
   'settings.tab.advanced': 'Advanced',
   'settings.tabTitle.project': 'Project settings',
   'settings.tabTitle.appearance': 'Appearance',
   'settings.tabTitle.editing': 'Editing',
+  'settings.tabTitle.hotkeys': 'Keyboard shortcuts',
   'settings.tabTitle.integrations': 'Integrations',
+  'settings.tabTitle.configs': 'Device configurations',
   'settings.tabTitle.sync': 'Network sync',
   'settings.tabTitle.advanced': 'Advanced',
 
@@ -127,6 +132,24 @@ const en: Dict = {
   'settings.project.linkedRentman': 'Linked Rentman project',
   'settings.project.notLinked':
     'No Rentman project linked. Link via the “Integrations” tab.',
+  // Project → Library Export / Import (#122)
+  'settings.project.libExport.title': 'Library Export / Import (#122)',
+  'settings.project.libExport.desc':
+    'Save your own device templates, groups and rack presets as a JSON file. On import, existing entries with the same name are NOT overwritten (merge-by-name).',
+  'settings.project.libExport.exportBtn': 'Export library',
+  'settings.project.libExport.importBtn': 'Import library…',
+  'settings.project.libExport.importing': 'Importing…',
+  'settings.project.libExport.devicesWord': 'devices',
+  'settings.project.libExport.groupsWord': 'groups',
+  'settings.project.libExport.exportVerb': 'export',
+  'settings.project.libImport.badFormatTitle': 'Wrong file format',
+  'settings.project.libImport.badFormatBody': 'This file is not a cable-planner library.',
+  'settings.project.libImport.okTitle': 'Library imported',
+  'settings.project.libImport.okBody':
+    'Only new entries were added — existing templates remain unchanged.',
+  'settings.project.libImport.templatesWord': 'device templates',
+  'settings.project.libImport.presetsWord': 'group presets',
+  'settings.project.libImport.failTitle': 'Import failed',
 
   // Settings → Appearance
   'settings.appearance.language': 'Language',
@@ -835,6 +858,90 @@ const en: Dict = {
   'rack.badge.new': 'New',
   'rack.unsavedTitle': 'Unsaved changes',
   'rack.unsavedLabel': 'Unsaved',
+  'rack.confirmDiscard.title': 'Discard unsaved rack changes?',
+  'rack.confirmDiscard.body': 'The changes to the rack layout will be lost.',
+  'rack.confirmRemoveDevice.title': 'Remove device "{name}" from rack?',
+  'rack.confirmRemoveDevice.body':
+    'Position and height will be lost. Internal cables on this device will also be removed.',
+  'rack.save.errNameRequired': 'Please enter a rack name.',
+  'rack.save.errEmptyRack': 'Please add at least one device to the rack.',
+  'rack.empty': 'Rack is empty',
+  'rack.cables': 'cables',
+  'rack.conflictsWord': 'Conflicts',
+  'rack.heOccupied': 'U occupied:',
+  'rack.autosaveActive': 'Autosave runs every few seconds',
+  'rack.noUnsaved': 'No unsaved changes',
+  'rack.mountLabel': 'Mount',
+  'rack.mount.full': 'Full-depth',
+  'rack.view.label': 'View:',
+  'rack.view.allTitle': 'All devices + free ports + patch panels',
+  'rack.view.freeTitle': 'Only devices with free ports + patch panels',
+  'rack.view.releasedTitle': 'Only released: patch panels + externally cablable devices',
+  'rack.view.all': 'All',
+  'rack.view.free': 'Free ports',
+  'rack.view.released': 'Released',
+  'rack.viewMode.front': 'Front only',
+  'rack.viewMode.both': 'Both',
+  'rack.viewMode.rear': 'Rear only',
+  'rack.viewMode.side': 'Side (depth)',
+  'rack.stl.header': '3D model (STL, optional)',
+  'rack.stl.replace': 'Replace STL…',
+  'rack.stl.pick': 'Pick STL…',
+  'rack.stl.tooBigTitle': 'File too large',
+  'rack.stl.tooBigBody':
+    'STL files larger than 5 MB are rejected, otherwise project save explodes.',
+  'rack.stl.loaded':
+    '✓ STL loaded — rendered in the 3D tab and saved permanently with the device (library + project).',
+  'rack.stl.noStl': 'Without STL the device is rendered as a box with front/rear photo.',
+  'rack.panelImages.header': 'Panel images (import + crop)',
+  'rack.portSide.toggleTitle': 'Toggle port side (currently: {side})',
+  'rack.portSide.front': 'front',
+  'rack.portSide.rear': 'rear',
+  'rack.wire.title': 'Rack cabling',
+  'rack.unnamed': '(unnamed)',
+  'rack.wire.intro':
+    'Drag lines output → input. Right-click cable = menu, double-click = properties, Del = delete. Now uses the real canvas component — toolbar, routing, waypoints, A* routing all like in the main canvas.',
+  'rack.conflict.notRackDevice': '{name}: not marked as a rack device.',
+  'rack.conflict.startHe': '{name}: start U must be >= 1.',
+  'rack.conflict.doesNotFit': '{name}: {units} does not fit starting at U {start} in {total}.',
+  'rack.conflict.overlaps': '{a} overlaps with {b}.',
+  'rack.export.png2d': '2D as PNG',
+  'rack.export.png2dDesc': 'Current front/rear/both view as image',
+  'rack.export.png3d': '3D from 4 perspectives',
+  'rack.export.png3dDesc': 'PNG: front · rear · iso · top (1× per file)',
+  'rack.export.no3dInit':
+    '3D tab must be opened first to initialise the 3D scene.',
+  'rack.export.stl': '3D as STL',
+  'rack.export.stlDesc': 'Complete rack as binary STL (3D printing, CAD)',
+  'rack.export.cpgroup': 'Download .cpgroup',
+  'rack.export.cpgroupDesc': 'Complete rack incl. STL + photos for cross-PC transfer',
+  // RackEditorDialog (sub-canvas)
+  'rackEditor.title': 'Rack editor',
+  'rackEditor.intro':
+    'Sub-canvas per rack — devices live in the main project, the editor only shows this rack instance. Vertical dragging snaps to U lines.',
+  'rackEditor.footer':
+    'Tip: U position is rounded to the next whole U on release. Changes apply to the main canvas instantly.',
+  // Rack 3D view legend & help
+  'rack3d.legend.fullDepth': 'Full-depth',
+  'rack3d.legend.frontMount': 'Front mount',
+  'rack3d.legend.rearMount': 'Rear mount',
+  'rack3d.legend.selected': 'Selected',
+  'rack3d.help.mouse': 'Rotate: left · Pan: right · Zoom: scroll',
+  'rack3d.help.heightLabel': 'Height:',
+  'rack3d.help.up': 'up',
+  'rack3d.help.down': 'down',
+  // Library panel tab title
+  'library.tab.racksTitle': '2D rack builder and saved rack layouts',
+  // Common verbs missing earlier
+  'common.discard': 'Discard',
+  'common.done': 'Done',
+  // Export dialog – Page-Size fieldset
+  'export.pageSize': 'Page size',
+  'export.page.auto': 'Auto — A0 landscape (compatible with all viewers)',
+  'export.page.original': 'Original — full canvas size for plotter',
+  'export.page.originalHint':
+    'Heads-up: Edge / Preview sometimes display pages above A0 as white. Acrobat + plotter software print them anyway.',
+  'export.page.scaleHint': 'Canvas is scaled vectorially to the page size. Text stays sharp.',
   'rack.subtitle':
     '2D rack builder · Add devices from the library, drag for U position, internal cabling',
   'rack.closeShortcut': 'close',
@@ -2069,6 +2176,32 @@ const en: Dict = {
   'calc.current3phase': 'Symmetric (3-phase)',
   'calc.col.device': 'Device',
   'calc.col.phase': 'Phase',
+  'calc.tab.bandwidth': '📡 Bandwidth',
+  'calc.tab.power': '⚡ Power consumption',
+  'calc.bandwidth.intro':
+    'Gross data rate of a video stream (before compression) and the smallest SDI tier that carries it. Pixels × lines × fps × bits-per-pixel.',
+  'calc.bandwidth.fitsIn': 'Fits in {tier} ({mbps} Mbps).',
+  'calc.bandwidth.exceeds':
+    'Exceeds 12G-SDI — only IP transport (ST 2110, NDI, JPEG-XS …) will carry it.',
+  'calc.power.intro1': 'Sum of the consumption values in the device properties',
+  'calc.power.wattsField': 'Power (W)',
+  'calc.power.intro2':
+    'Devices without a value are not counted; add them in the Properties so the distribution is correct.',
+  'calc.outOf': 'of',
+  'calc.withoutValue': 'without value',
+  'calc.reserve': 'reserve',
+  'calc.perPhase': 'per phase',
+  'calc.phaseDistribution': 'Phase distribution',
+  'calc.imbalance': 'Imbalance',
+  'calc.phaseOverload': 'Phase overloaded',
+  'calc.euColor': 'EU colour code',
+  'calc.phaseLabel': 'Phase',
+  'calc.load': 'load',
+  'calc.devicesToPhase': 'Devices → Phase',
+  'calc.euColorTitle': 'EU colour code (DIN VDE 0293-308)',
+  'calc.greedyExplain':
+    'Greedy distribution: sorted by power, each device on the currently least-loaded phase. With symmetric loads three-phase draws only {amps} A per phase; imbalance raises the highest phase current. Target: every phase < 85% load + imbalance < 20%.',
+  'calc.topConsumers': 'Top consumers',
 
   // RackAddSplitButton
   'rackAdd.primaryLabel': '+ To rack',
@@ -2119,6 +2252,28 @@ const en: Dict = {
   'ports.aria.contentLabel': 'Content / function',
   'ports.aria.direction': 'Port direction',
   'ports.aria.side': 'Port side',
+  'ports.newConnectorType': 'New connector type…',
+  'ports.newConnectorPrompt': 'New connector type (e.g. "Speakon NL4"):',
+  'ports.newStandard': 'New standard…',
+  'ports.newStandardPrompt': 'New signal standard (e.g. "Dante Primary"):',
+  'ports.sdi.deviceDefault': 'Device default',
+  'ports.sdi.overrideHint':
+    'Overrides the device SDI capabilities for this port. Empty = device default.',
+  'quadLink.incompleteTitle': 'Quad-Link set {g} incomplete',
+  'quadLink.incompleteBody':
+    'Only has {have}/4 ports. No more free BNC ports available — please add BNC ports first or free up existing ones.',
+  'quadLink.fillTitle': 'Fill quad-link set {g}?',
+  'quadLink.fillBody':
+    'Currently {have}/4 ports. Assign {add} more free BNC ports automatically to the set?',
+  'quadLink.createTitle': 'Create quad-link set {id}?',
+  'quadLink.createBody':
+    '1/4 ports set. Assign {add} more free BNC ports automatically to the set?',
+  'quadLink.createdTitle': 'Quad-link set {id} created',
+  'quadLink.createdBody':
+    'Currently has {have}/4 ports. Please add more BNC ports and assign them to the set.',
+  'quadLink.okFill': 'Yes, fill',
+  'quadLink.complete': 'Set complete',
+  'quadLink.incomplete': 'Set incomplete — 4 ports required',
 
   // LibraryPanel rentman section + netbox + create
   'library.rentman.noProjectLinked': 'No Rentman project linked.',
@@ -2135,6 +2290,207 @@ const en: Dict = {
   'library.netbox.pickCategory': 'Please pick…',
   'library.create.isRack': 'Is a rack device',
   'library.create.aiKey.label': 'Gemini API key',
+
+  // CustomPaletteCard (Settings → Appearance)
+  'settings.customPalette.enable': 'Enable custom palette',
+  'settings.customPalette.bg': 'Background',
+  'settings.customPalette.grid': 'Grid stroke',
+  'settings.customPalette.accent': 'Accent',
+  'settings.canvasBg.darkImage': '🌙 Dark-mode image',
+  'settings.canvasBg.lightImage': '☀ Light-mode image',
+
+  // Settings → Integrations (Rentman toggle card)
+  'settings.integrations.rentmanToggle.title': 'Rentman integration',
+  'settings.integrations.rentmanToggle.desc':
+    'When active, the Library tab, menu entries and status badges for Rentman appear. When off, Cable Planner only shows local devices/cables — all Rentman features are hidden.',
+
+  // Inspector lock banners + empty state
+  'inspector.selectEquipment': 'Select an equipment node.',
+  'inspector.viewerLocked': 'Viewer mode — fields cannot be edited.',
+  'inspector.finalizedLocked':
+    'Plan finalised — fields locked. Click "Re-enable editing" in the canvas banner.',
+
+  // Template properties additional
+  'template.rentmanIdLabel': 'Rentman ID',
+
+  // New strings — wave 2 (App.tsx CableEditDialog, dialogs, panels, settings)
+  'cable.dialog.saveCustomTitle':
+    'Stores this custom definition as a reusable cable type in the library.',
+  'graphml.dialog.toggleCableAria': 'Toggle cable',
+  'videohub.lockSoon': 'Lock (coming in a later iteration)',
+  'videohub.resizeLabelCol': 'Drag to widen / narrow the label column',
+  'library.netbox.searchPlaceholder':
+    'e.g. blackmagic atem, cisco catalyst, yamaha ql5',
+  'library.duplicate.title': 'Device already exists',
+  // Library import (.cpdevice / .cpgroup file imports)
+  'library.import.unknownFileTitle': 'File not recognised',
+  'library.import.unknownFileBody': 'This file is not a valid .cpdevice or .cpgroup export.',
+  'library.import.deviceExists': 'A device named "{name}" already exists.\n\nOverwrite?',
+  'library.import.deviceOkTitle': 'Device imported',
+  'library.import.deviceOkBody': '"{name}" was added to the library.',
+  'library.import.groupExists': 'A group named "{name}" already exists.\n\nOverwrite?',
+  'library.import.kindRack': 'Rack',
+  'library.import.kindGroup': 'Group',
+  'library.import.kindOkTitle': '{kind} imported',
+  'library.import.kindOkBody':
+    '"{name}" was added to the library ({devices} devices, {cables} internal cables).',
+  // NetBox import duplicate dialog
+  'library.netbox.pickCategoryError': 'Please pick an existing category for this import.',
+  'library.netbox.duplicateIntro':
+    '{name} is already in the local library. Choose how to import.',
+  'library.netbox.localCount': 'Local',
+  'library.netbox.keepLocalTitle': 'Kept local version',
+  'library.netbox.keepLocalBody': 'The existing library version stays unchanged.',
+  'library.netbox.keepLocalBtn': 'Keep local',
+  'library.netbox.replacedTitle': 'Replaced with NetBox version',
+  'library.netbox.replacedBody': 'The local version was replaced by the NetBox version.',
+  'library.netbox.mergePortsBtn': 'Merge Ports',
+  // Cable dialog – connector compatibility prompt
+  'cable.connector.compatTitle': 'Connector compatibility',
+  'cable.connector.createAnywayBody':
+    'Create the connection anyway (marked as "needs adapter")?',
+  'cable.connector.createAnywayOk': 'Create anyway',
+  // Annotations panel – status + delete confirm
+  'annotations.status.open': 'open',
+  'annotations.status.built': 'built',
+  'annotations.status.resolved': 'resolved',
+  'annotations.deleteConfirm': 'Delete annotation?',
+  // App.tsx Rentman PDF + image export dialogs
+  'app.rentman.notLinkedTitle': 'No Rentman project linked',
+  'app.rentman.notLinkedBody': 'Please link one in the settings first.',
+  'app.rentman.fallbackProject': 'Project #{id}',
+  'app.rentman.attachPdfConfirm':
+    'Attach the current plan as PDF to the Rentman project "{name}"?',
+  'app.rentman.attachedTitle': 'Attached to Rentman',
+  'app.rentman.attachedBody': '{file} was attached to project "{name}".',
+  'app.rentman.uploadFailedTitle': 'PDF upload failed',
+  'app.export.imageFailedTitle': '{fmt} export failed',
+  'app.error.unknown': 'Unknown error',
+  // ErrorBoundary recover-reset confirm
+  'errorBoundary.resetTitle': 'Reset local data?',
+  'errorBoundary.resetBody':
+    'A safety backup of your project will be created first (cable-planner:projectBackup:<time> in localStorage).\n\nReally reset and reload?',
+  // AtemAudioRouterDialog
+  'atem.audio.notConnectedTitle': 'ATEM not connected',
+  'atem.audio.notConnectedBody':
+    'Connect to the ATEM first (main dialog "ATEM mixer").',
+  'atem.audio.sendConfirmTitle': 'Send audio configuration to ATEM?',
+  'atem.audio.sendConfirmBody':
+    'The loaded routing matrix / classic-mixer values are sent directly to the connected switcher. Changes take effect immediately and are NOT persisted as startup state — for that you must call "Save Startup State" in ATEM Software Control.',
+  'atem.audio.sendOk': 'Send',
+  'atem.audio.classicOnly':
+    'This XML only contains a classic AudioMixer section, no routing matrix. The section is written back unchanged on save (round trip), but is not editable in the editor. If needed, create a fresh crosspoint matrix via "🎚 Matrix manual" above — both sections coexist in the XML.',
+  'atem.audio.createMatrixManual': 'Create matrix manually',
+  'atem.audio.noSection':
+    'No {section} in the loaded profile. Switch the tab or load a profile that has this section.',
+  'atem.audio.sectionRouting': 'routing',
+  'atem.audio.sectionClassicMixer': 'classic mixer',
+  'atem.audio.welcomeTitle': 'ATEM audio routing',
+  'atem.audio.welcomeIntro':
+    'Load an existing ATEM profile XML — or start manually with the crosspoint matrix. On save we produce a valid profile XML you can import straight into ATEM Software Control.',
+  'atem.audio.loadProfileXml': 'Load profile XML',
+  'atem.audio.matrixManual': 'Matrix manual',
+  'atem.audio.welcomeFooter':
+    'For {name}. 24 standard sources × 8 output buses; sources + outputs + mappings can be edited freely afterwards.',
+  'atem.audio.currentDevice': 'the current device',
+  'atem.audio.picker.toggleLabel':
+    '{label} show / hide — deselected entries drop from the filter, list and matrix.',
+  'atem.audio.picker.showAll': 'Show all',
+  'atem.audio.picker.hideAll': 'Hide all',
+  'atem.audio.sourcePicker': 'Source picker',
+  'atem.audio.outputPicker': 'Output picker',
+  'atem.audio.hidden': 'hidden',
+  'atem.audio.resetAllBtn': 'Reset all routings',
+  'atem.audio.visible': 'visible',
+  'atem.audio.crosspoints': 'crosspoints',
+  'atem.audio.tooLargeWarn':
+    '{count} visible crosspoints may slow down the rendering. Narrow down via the source/output pickers or render anyway — the warning then stays off for this session.',
+  'atem.audio.renderAnyway': 'Render anyway',
+  // Cable dialog – save-as-custom prompt
+  'cable.dialog.newTypeNamePrompt': 'Name for the new cable type:',
+  // ExportDialog – section descriptions, format hints, BOM strings
+  'export.desc.plan':
+    'Download or print the canvas plan as PDF. PDF with title block — print-ready. Also PNG/JPEG for email/Slack.',
+  'export.desc.patch':
+    'One port-assignment list per device — ideal for sticking on the device. Pick devices, then single PDF, combined PDF or direct print. Paper format asked after the click. Alternatively: compact patch list (one line per cable, sorted by source device) for the technician in the field.',
+  'export.desc.bom':
+    'BOM of all cables in the project (type + length aggregated). Editable Rentman plan next to it. Export as CSV or PDF.',
+  'export.format.pdfHint': 'Vector with title block, printable',
+  'export.format.pngHint': 'Transparent possible, sharp',
+  'export.format.jpegHint': 'Smaller, good for email',
+  'export.printPdfTitle': 'Open plan PDF in OS print dialog',
+  'export.printOnlyPdf':
+    'Printing only works with the PDF format — for PNG/JPEG just download.',
+  'export.printBtn': 'Print',
+  'export.theme.lightLabel': 'Light theme (recommended for print)',
+  'export.render.raster': 'Raster (classic)',
+  'export.render.rasterHint': 'JPEG snapshot. Reliable, but text blurs at high zoom in the PDF.',
+  'export.render.vector': 'Vector',
+  'export.render.vectorHint':
+    'Chromium printToPDF. Text stays selectable & sharp at any zoom. Smaller file size.',
+  'export.patch.perDeviceHint': '— or create one patch sheet per device:',
+  'export.patch.devicesCount': 'Devices',
+  'export.patch.selectAll': 'Select all',
+  'export.patch.deselectAll': 'Deselect all',
+  'export.patch.noDevices': 'No devices in the project.',
+  'export.patch.pickPaper': 'Pick paper format:',
+  'export.patch.openPatchList': 'Open patch list…',
+  'export.patch.compactSub': 'One line per cable, sorted by source device',
+  'export.bom.rentmanDirty': 'Unsaved changes to the Rentman plan.',
+  'export.bom.rentmanClean': 'Rentman plan is saved with the project.',
+  // ATEM MV config dialog – layout labels + buttons
+  'atem.mv.layout.grid16Small': 'Grid (16 small)',
+  'atem.mv.layout.quad4Big': 'Quad (4 big)',
+  'atem.mv.asPng': 'As PNG',
+  'atem.mv.saveDraft': 'Save draft',
+  'atem.mv.readFromTitle':
+    'Read the multiviewer setup from the connected ATEM and use it in this view.',
+  'atem.mv.notConnectedTitle': 'ATEM not connected — connect in the ATEM dialog first.',
+  'atem.mv.readFromBtn': 'Load from ATEM',
+  'atem.mv.applyTitle': 'Push configuration to ATEM',
+  'atem.mv.applyBtn': 'Push to ATEM',
+  'atem.mv.status.transmitting': 'Transmitting to ATEM…',
+  'atem.mv.status.transmitted': 'Transmitted to ATEM ({n} windows).',
+  'atem.mv.status.error': 'Error: {msg}',
+  'atem.mv.status.reading': 'Reading from ATEM…',
+  'atem.mv.status.empty': 'ATEM returned no MV configuration.',
+  'atem.mv.status.cancelled': 'Pull cancelled.',
+  'atem.mv.confirmOverwrite':
+    'Overwrite current MV configuration ({local} MV) with ATEM live state? From ATEM: {incoming} MV with {windows} window assignments.',
+  'atem.mv.saved': 'Saved',
+  'atem.mv.connectedReady': 'ATEM connected — ready to push.',
+  'atem.mv.notConnected': 'ATEM not connected.',
+  // GreenGo XLSX import
+  'greengo.importXlsxBinaryError': 'Could not read XLSX as binary data.',
+  'greengo.import.usersAndGroups': '✓ {users} users · {groups} groups imported from Excel.',
+  'greengo.import.directIgnored':
+    '{n} direct lines (user↔user) ignored — GreenGo stores memberships, not 1:1 routes.',
+  'greengo.import.equipmentAudit':
+    '{n} equipment marks are audit-only — assign the beltpacks on the canvas.',
+  'greengo.import.readError': 'XLSX could not be read.',
+  'rack.stlPreviewTitle': 'STL preview (auto-rotates)',
+  'rack.addFromLibraryHint':
+    'Add devices from the library on the left (button "+ Rack").',
+  'rack.isRackInBuilder': 'Is a rack device (fixed in the builder)',
+  'rack.mountTitle':
+    'full = full rack depth. front = front only. rear = rear only (e.g. blank panel).',
+  'rack.devicesLabel': 'Devices:',
+  'netCfg.subtitle': 'VLAN · Port map · Gateway',
+  'opt.iconPlaceholder': 'auto',
+  'opt.iconLabel': 'Icon',
+  'opt.iconHint': 'Glyph or emoji, max 2 characters — empty = automatic',
+  'eq.field.refImageFullsize': 'Open at full size',
+  'eq.field.manufacturerUrlOpenTitle': 'Open in external browser',
+  'settings.hotkeys.clear': 'Clear hotkey',
+  'settings.fontSize.reset': 'Reset to default 11 px',
+  'settings.colors.resetDefault': 'Reset to default',
+  'settings.sync.pathPlaceholder':
+    'Z:\\Projekte\\CablePlanner or \\\\server\\share\\cable-planner',
+  'settings.advanced.actionsAria': 'Actions',
+  'settings.integrations.gemini.deleteTitle': 'Delete key',
+  'rentman.wizard.aiKeyPlaceholder': 'AIzaSy...',
+  'cable.waypoint.tooltip':
+    'Drag to move · Alt-click or right-click to remove',
 }
 
 const translations: Record<Language, Dict> = {

@@ -547,7 +547,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                           type="checkbox"
                           checked={!skipped}
                           onChange={() => toggleCable(c.importKey)}
-                          aria-label="Toggle cable"
+                          aria-label={t('graphml.dialog.toggleCableAria', 'Toggle cable')}
                         />
                       </td>
                       <td className="px-3 py-1 text-slate-300">{src?.name ?? c.sourceDeviceImportKey}</td>
