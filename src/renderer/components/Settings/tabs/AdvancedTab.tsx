@@ -91,7 +91,7 @@ export const AdvancedTab = () => {
           { label },
         ),
         {
-          body: 'Beim nächsten Start wird neu geladen.',
+          body: t('settings.advanced.caches.cleared.body', 'Beim nächsten Start wird neu geladen.'),
           tone: 'success',
         },
       )

@@ -19,7 +19,7 @@ const HotkeyRow = ({
 }) => {
   const t = useTranslation()
   const [capturing, setCapturing] = useState(false)
-  const label = HOTKEY_ACTION_LABEL[action] ?? action
+  const label = t(`hotkeys.action.${action}`, HOTKEY_ACTION_LABEL[action] ?? action)
   return (
     <li className="flex items-center gap-2 rounded border border-slate-800 bg-slate-950 px-2 py-1.5 text-xs">
       <span className="flex-1 truncate text-slate-200">{label}</span>
@@ -41,9 +41,13 @@ const HotkeyRow = ({
             ? 'border-sky-500 bg-sky-950/60 text-sky-200'
             : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-600'
         }`}
-        title={capturing ? 'Taste oder Tasten-Kombination drücken…' : 'Klicken und Taste(n) drücken'}
+        title={
+          capturing
+            ? t('settings.hotkeys.captureTitle', 'Taste oder Tasten-Kombination drücken…')
+            : t('settings.hotkeys.clickToCapture', 'Klicken und Taste(n) drücken')
+        }
       >
-        {capturing ? 'Taste drücken…' : combo || '—'}
+        {capturing ? t('settings.hotkeys.pressKey', 'Taste drücken…') : combo || '—'}
       </button>
       <button
         type="button"
