@@ -915,7 +915,7 @@ export const LibraryPanel = () => {
           onClick={() => setTab('racks')}
           label={t('library.tab.racks', 'Racks')}
           count={groupPresets.filter((preset) => !!preset.rack).length}
-          title="2D Rack Builder und gespeicherte Rack-Layouts"
+          title={t('library.tab.racksTitle', '2D Rack Builder und gespeicherte Rack-Layouts')}
           icon={
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="3" y="2" width="10" height="12" rx="0.8" />

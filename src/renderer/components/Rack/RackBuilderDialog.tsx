@@ -457,14 +457,26 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     const issues: string[] = []
     for (const placement of draft.placements) {
       if (!placement.isRackDevice) {
-        issues.push(`${placement.name}: ist nicht als Rack-Gerät markiert.`)
+        issues.push(
+          format(t('rack.conflict.notRackDevice', '{name}: ist nicht als Rack-Gerät markiert.'), { name: placement.name }),
+        )
       }
       if (placement.startUnit < 1) {
-        issues.push(`${placement.name}: Start-HE muss >= 1 sein.`)
+        issues.push(
+          format(t('rack.conflict.startHe', '{name}: Start-HE muss >= 1 sein.'), { name: placement.name }),
+        )
       }
       if (placement.startUnit + placement.rackUnits - 1 > draft.totalUnits) {
         issues.push(
-          `${placement.name}: ${formatRackUnits(placement.rackUnits)} passt nicht ab HE ${placement.startUnit} in ${formatRackUnits(draft.totalUnits)}.`,
+          format(
+            t('rack.conflict.doesNotFit', '{name}: {units} passt nicht ab HE {start} in {total}.'),
+            {
+              name: placement.name,
+              units: formatRackUnits(placement.rackUnits),
+              start: String(placement.startUnit),
+              total: formatRackUnits(draft.totalUnits),
+            },
+          ),
         )
       }
     }
@@ -480,12 +492,14 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             b.startUnit + b.rackUnits - 1,
           )
         ) {
-          issues.push(`${a.name} überlappt mit ${b.name}.`)
+          issues.push(
+            format(t('rack.conflict.overlaps', '{a} überlappt mit {b}.'), { a: a.name, b: b.name }),
+          )
         }
       }
     }
     return issues
-  }, [draft])
+  }, [draft, t])
 
   useEffect(() => {
     if (!open) return
@@ -533,9 +547,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   const closeWithConfirm = async () => {
     if (
       dirty &&
-      !(await confirmDialog('Ungespeicherte Rack-Änderungen verwerfen?', {
-        body: 'Die Änderungen am Rack-Layout gehen verloren.',
-        okLabel: 'Verwerfen',
+      !(await confirmDialog(t('rack.confirmDiscard.title', 'Ungespeicherte Rack-Änderungen verwerfen?'), {
+        body: t('rack.confirmDiscard.body', 'Die Änderungen am Rack-Layout gehen verloren.'),
+        okLabel: t('common.discard', 'Verwerfen'),
         destructive: true,
       }))
     )
@@ -627,11 +641,17 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   const removePlacement = async (id: string) => {
     const item = draft.placements.find((p) => p.id === id)
     if (!item) return
-    const ok = await confirmDialog(`Gerät "${item.name}" aus Rack entfernen?`, {
-      body: 'Position + Höhe gehen verloren. Internal-Cables an diesem Gerät werden ebenfalls entfernt.',
-      okLabel: 'Entfernen',
-      destructive: true,
-    })
+    const ok = await confirmDialog(
+      format(t('rack.confirmRemoveDevice.title', 'Gerät "{name}" aus Rack entfernen?'), { name: item.name }),
+      {
+        body: t(
+          'rack.confirmRemoveDevice.body',
+          'Position + Höhe gehen verloren. Internal-Cables an diesem Gerät werden ebenfalls entfernt.',
+        ),
+        okLabel: t('common.remove', 'Entfernen'),
+        destructive: true,
+      },
+    )
     if (!ok) return
     setDraft((current) => ({
       ...current,
@@ -645,12 +665,12 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
 
   const saveRack = () => {
     if (!draft.rackName.trim()) {
-      setSaveError('Bitte Rack-Name angeben.')
+      setSaveError(t('rack.save.errNameRequired', 'Bitte Rack-Name angeben.'))
       rackNameInputRef.current?.focus()
       return
     }
     if (draft.placements.length === 0) {
-      setSaveError('Bitte mindestens ein Gerät ins Rack legen.')
+      setSaveError(t('rack.save.errEmptyRack', 'Bitte mindestens ein Gerät ins Rack legen.'))
       return
     }
     // v7.9.73 / #170 (comment 2) — Konflikte (überlappende HE-Bereiche etc.)
@@ -848,9 +868,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   }}
                   className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
                 >
-                  <span className="font-semibold">📷 2D als PNG</span>
+                  <span className="font-semibold">📷 {t('rack.export.png2d', '2D als PNG')}</span>
                   <span className="text-[10px] text-slate-500">
-                    Aktuelle Front/Rear/Both-Ansicht als Bild
+                    {t('rack.export.png2dDesc', 'Aktuelle Front/Rear/Both-Ansicht als Bild')}
                   </span>
                 </button>
                 <button
@@ -859,7 +879,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     setExportMenuOpen(false)
                     const refs = canvas3DRefs.current
                     if (!refs) {
-                      alert('3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.')
+                      alert(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'))
                       return
                     }
                     await exportRack3DAsPngs(refs.gl, refs.scene, refs.camera, {
@@ -871,9 +891,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   }}
                   className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
                 >
-                  <span className="font-semibold">📸 3D aus 4 Perspektiven</span>
+                  <span className="font-semibold">📸 {t('rack.export.png3d', '3D aus 4 Perspektiven')}</span>
                   <span className="text-[10px] text-slate-500">
-                    PNG: Front · Rear · Iso · Top (1× pro Datei)
+                    {t('rack.export.png3dDesc', 'PNG: Front · Rear · Iso · Top (1× pro Datei)')}
                   </span>
                 </button>
                 <button
@@ -882,16 +902,16 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     setExportMenuOpen(false)
                     const refs = canvas3DRefs.current
                     if (!refs) {
-                      alert('3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.')
+                      alert(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'))
                       return
                     }
                     exportRackAsStl(refs.scene, draft.rackName || 'rack')
                   }}
                   className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
                 >
-                  <span className="font-semibold">🧊 3D als STL</span>
+                  <span className="font-semibold">🧊 {t('rack.export.stl', '3D als STL')}</span>
                   <span className="text-[10px] text-slate-500">
-                    Komplettes Rack als binäres STL (3D-Druck, CAD)
+                    {t('rack.export.stlDesc', 'Komplettes Rack als binäres STL (3D-Druck, CAD)')}
                   </span>
                 </button>
                 <button
@@ -943,9 +963,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   }}
                   className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
                 >
-                  <span className="font-semibold">💾 .cpgroup herunterladen</span>
+                  <span className="font-semibold">💾 {t('rack.export.cpgroup', '.cpgroup herunterladen')}</span>
                   <span className="text-[10px] text-slate-500">
-                    Komplettes Rack inkl. STL + Fotos zum Cross-PC-Transfer
+                    {t('rack.export.cpgroupDesc', 'Komplettes Rack inkl. STL + Fotos zum Cross-PC-Transfer')}
                   </span>
                 </button>
               </div>
@@ -1334,7 +1354,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             {draft.placements.length === 0 && (
               <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center text-xs text-slate-500">
                 <div className="mb-2 text-3xl">▥</div>
-                <div className="mb-1 font-semibold text-slate-300">Rack ist leer</div>
+                <div className="mb-1 font-semibold text-slate-300">{t('rack.empty', 'Rack ist leer')}</div>
                 <div>{t('rack.addFromLibraryHint', 'Geräte aus der Library links hinzufügen (Button "+ Rack").')}</div>
                 <div className="mt-2 text-[10px]">
                   {t('rack.tipPrefix', 'Tipp:')}{' '}
@@ -1351,7 +1371,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             {viewTab === '3d' && (
               <>
                 <div className="mb-2 flex items-center gap-1 text-[10px]">
-                  <span className="text-slate-500">Ansicht:</span>
+                  <span className="text-slate-500">{t('rack.view.label', 'Ansicht:')}</span>
                   {(['all', 'free', 'released'] as const).map((m) => (
                     <button
                       key={m}
@@ -1364,13 +1384,17 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       }`}
                       title={
                         m === 'all'
-                          ? 'Alle Geräte + freie Ports + Patchblenden'
+                          ? t('rack.view.allTitle', 'Alle Geräte + freie Ports + Patchblenden')
                           : m === 'free'
-                            ? 'Nur Geräte mit freien Ports + Patchblenden'
-                            : 'Nur freigegebene: Patchblenden + extern verkabelbare Geräte'
+                            ? t('rack.view.freeTitle', 'Nur Geräte mit freien Ports + Patchblenden')
+                            : t('rack.view.releasedTitle', 'Nur freigegebene: Patchblenden + extern verkabelbare Geräte')
                       }
                     >
-                      {m === 'all' ? 'Alle' : m === 'free' ? 'Freie Ports' : 'Released'}
+                      {m === 'all'
+                        ? t('rack.view.all', 'Alle')
+                        : m === 'free'
+                          ? t('rack.view.free', 'Freie Ports')
+                          : t('rack.view.released', 'Released')}
                     </button>
                   ))}
                 </div>
@@ -1580,10 +1604,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             {viewTab === '2d' && (
               <div className="mb-2 flex overflow-hidden rounded-md border border-slate-700 text-[11px]">
                 {([
-                  ['front', 'Nur vorne', '#22c55e'],
-                  ['both', 'Beide', '#64748b'],
-                  ['rear', 'Nur hinten', '#a855f7'],
-                  ['side', 'Seite (Tiefe)', '#0ea5e9'],
+                  ['front', t('rack.viewMode.front', 'Nur vorne'), '#22c55e'],
+                  ['both', t('rack.viewMode.both', 'Beide'), '#64748b'],
+                  ['rear', t('rack.viewMode.rear', 'Nur hinten'), '#a855f7'],
+                  ['side', t('rack.viewMode.side', 'Seite (Tiefe)'), '#0ea5e9'],
                 ] as const).map(([mode, label, color]) => (
                   <button
                     key={mode}
@@ -2168,7 +2192,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     />
                   </label>
                   <label className="block">
-                    Montage
+                    {t('rack.mountLabel', 'Montage')}
                     <select
                       value={selectedPlacement.mountSide ?? 'full'}
                       onChange={(event) =>
@@ -2179,7 +2203,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
                       title={t('rack.mountTitle', 'full = volle Rack-Tiefe. front = nur vorne. rear = nur hinten (z.B. Patchblende).')}
                     >
-                      <option value="full">Full-Depth</option>
+                      <option value="full">{t('rack.mount.full', 'Full-Depth')}</option>
                       <option value="front">{t('props.rack.frontOnly', 'Nur vorne')}</option>
                       <option value="rear">{t('props.rack.rearOnly', 'Nur hinten')}</option>
                     </select>
@@ -2194,14 +2218,16 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     landet und beim nächsten Mal aus der Library schon
                     mit STL kommt. */}
                 <div className="block">
-                  <div className="mb-1 text-xs text-slate-300">3D-Modell (STL, optional)</div>
+                  <div className="mb-1 text-xs text-slate-300">{t('rack.stl.header', '3D-Modell (STL, optional)')}</div>
                   <div className="mt-1 flex items-center gap-2">
                     <label
                       className="inline-flex cursor-pointer items-center gap-1 rounded border border-slate-600 bg-sky-700 px-3 py-1 text-[11px] font-semibold text-white hover:bg-sky-600"
                       title={t('rack.stlUploadTitle', 'STL-Datei (.stl, max 5 MB) zum Gerät hochladen')}
                     >
                       <span>📁</span>
-                      <span>{selectedPlacement.stlDataUri ? 'STL ersetzen…' : 'STL auswählen…'}</span>
+                      <span>{selectedPlacement.stlDataUri
+                        ? t('rack.stl.replace', 'STL ersetzen…')
+                        : t('rack.stl.pick', 'STL auswählen…')}</span>
                       <input
                         type="file"
                         accept=".stl,application/octet-stream"
@@ -2209,8 +2235,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           const file = event.target.files?.[0]
                           if (!file) return
                           if (file.size > 5 * 1024 * 1024) {
-                            await confirmDialog('Datei zu groß', {
-                              body: 'STL-Dateien über 5 MB werden nicht angenommen, sonst explodiert der Projekt-Save.',
+                            await confirmDialog(t('rack.stl.tooBigTitle', 'Datei zu groß'), {
+                              body: t('rack.stl.tooBigBody', 'STL-Dateien über 5 MB werden nicht angenommen, sonst explodiert der Projekt-Save.'),
                               okLabel: 'OK',
                             })
                             event.target.value = ''
@@ -2251,7 +2277,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-600"
                         title={t('rack.stlRemoveTitle', 'STL entfernen — Gerät wird wieder als Box gerendert')}
                       >
-                        ✕ Entfernen
+                        ✕ {t('common.remove', 'Entfernen')}
                       </button>
                     )}
                   </div>
@@ -2264,8 +2290,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   )}
                   <span className="mt-1 block text-[10px] text-slate-500">
                     {selectedPlacement.stlDataUri
-                      ? '✓ STL geladen — wird im 3D-Tab gerendert und permanent am Gerät gespeichert (Library + Projekt).'
-                      : 'Ohne STL wird das Gerät als Box mit Front-/Rear-Foto dargestellt.'}
+                      ? t('rack.stl.loaded', '✓ STL geladen — wird im 3D-Tab gerendert und permanent am Gerät gespeichert (Library + Projekt).')
+                      : t('rack.stl.noStl', 'Ohne STL wird das Gerät als Box mit Front-/Rear-Foto dargestellt.')}
                   </span>
                 </div>
                 {/* v7.9.82 / #170 — Shelf-Device-Position-Editor.
@@ -2440,9 +2466,14 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                                 ? 'border-green-700 bg-green-900/40 text-green-200 hover:bg-green-900/60'
                                 : 'border-purple-700 bg-purple-900/40 text-purple-200 hover:bg-purple-900/60'
                             }`}
-                            title={`Port-Seite umschalten (aktuell: ${side === 'front' ? 'vorne' : 'hinten'})`}
+                            title={format(
+                              t('rack.portSide.toggleTitle', 'Port-Seite umschalten (aktuell: {side})'),
+                              { side: side === 'front' ? t('rack.portSide.front', 'vorne') : t('rack.portSide.rear', 'hinten') },
+                            )}
                           >
-                            {side === 'front' ? '⏫ vorne' : '⏬ hinten'}
+                            {side === 'front'
+                              ? '⏫ ' + t('rack.portSide.front', 'vorne')
+                              : '⏬ ' + t('rack.portSide.rear', 'hinten')}
                           </button>
                         </div>
                       )
@@ -2451,7 +2482,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 </details>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <div className="text-[11px] font-semibold text-slate-400">Panel-Bilder (Import + Zuschneiden)</div>
+                    <div className="text-[11px] font-semibold text-slate-400">{t('rack.panelImages.header', 'Panel-Bilder (Import + Zuschneiden)')}</div>
                     {/* v7.9.76 / #170 — Swap-Button: vertauscht Front- und
                         Rear-Foto, falls der User sie versehentlich falsch
                         zugeordnet hat. Tauscht sowohl URL als auch Crop-
@@ -2527,7 +2558,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               <strong className="text-slate-100">{draft.placements.length}</strong>
             </span>
             <span className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-0.5 text-slate-300">
-              <span className="text-slate-500">HE belegt:</span>
+              <span className="text-slate-500">{t('rack.heOccupied', 'HE belegt:')}</span>
               <strong className="text-slate-100">
                 {draft.placements.reduce((sum, p) => sum + p.rackUnits, 0)}
               </strong>
@@ -2542,21 +2573,25 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   <path d="M3 8 H13 M3 8 L6 5 M3 8 L6 11 M13 8 L10 5 M13 8 L10 11" />
                 </svg>
                 <strong>{draft.internalCables.length}</strong>
-                <span>Kabel</span>
+                <span>{t('rack.cables', 'Kabel')}</span>
               </span>
             )}
             {conflicts.length > 0 && (
               <span className="inline-flex items-center gap-1 rounded bg-red-900/60 px-2 py-0.5 text-red-200">
                 <span>⚠</span>
                 <strong>{conflicts.length}</strong>
-                <span>Konflikte</span>
+                <span>{t('rack.conflictsWord', 'Konflikte')}</span>
               </span>
             )}
           </div>
 
           <div
             className="flex items-center gap-1.5 text-[10px] text-slate-500"
-            title={dirty ? 'Autosave läuft alle paar Sekunden' : 'Keine ungespeicherten Änderungen'}
+            title={
+              dirty
+                ? t('rack.autosaveActive', 'Autosave läuft alle paar Sekunden')
+                : t('rack.noUnsaved', 'Keine ungespeicherten Änderungen')
+            }
           >
             <span
               className={`inline-block h-1.5 w-1.5 rounded-full ${
@@ -2610,10 +2645,12 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           <div className="flex h-[92vh] w-[min(1500px,calc(100vw-1rem))] flex-col rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl">
             <div className="mb-2 flex items-center justify-between gap-3">
               <div>
-                <h3 className="text-base font-semibold">Rack-Verkabelung: {draft.rackName || '(unbenannt)'}</h3>
+                <h3 className="text-base font-semibold">{t('rack.wire.title', 'Rack-Verkabelung')}: {draft.rackName || t('rack.unnamed', '(unbenannt)')}</h3>
                 <p className="mt-1 text-xs text-slate-400">
-                  Ziehe Linien Output → Input. Rechtsklick auf Kabel = Menü, Doppelklick = Eigenschaften, Entf = Löschen.
-                  Verwendet jetzt die echte Canvas-Komponente — Toolbar, Routing, Waypoints, A*-Routing alles wie im Hauptcanvas.
+                  {t(
+                    'rack.wire.intro',
+                    'Ziehe Linien Output → Input. Rechtsklick auf Kabel = Menü, Doppelklick = Eigenschaften, Entf = Löschen. Verwendet jetzt die echte Canvas-Komponente — Toolbar, Routing, Waypoints, A*-Routing alles wie im Hauptcanvas.',
+                  )}
                 </p>
               </div>
               <button
@@ -2621,7 +2658,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 onClick={() => setWireDialogOpen(false)}
                 className="rounded bg-emerald-700 px-3 py-1.5 text-xs hover:bg-emerald-600"
               >
-                Fertig
+                {t('common.done', 'Fertig')}
               </button>
             </div>
             <div className="min-h-0 flex-1 overflow-hidden rounded border border-slate-700">

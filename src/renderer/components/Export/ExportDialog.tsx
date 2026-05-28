@@ -318,26 +318,26 @@ const PlanSection = ({
           {pdfVector && (
             <fieldset className="space-y-1">
               <legend className="mb-1 text-xs font-semibold text-slate-300">
-                Page-Size
+                {t('export.pageSize', 'Page-Size')}
               </legend>
               <select
                 value={pdfPageSize}
                 onChange={(e) => setPdfPageSize(e.target.value as PdfPageSizeOpt)}
                 className="w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100"
               >
-                <option value="auto">Auto — A0 Landscape (kompatibel mit allen Viewern)</option>
+                <option value="auto">{t('export.page.auto', 'Auto — A0 Landscape (kompatibel mit allen Viewern)')}</option>
                 <option value="a4">A4 Landscape (297×210 mm)</option>
                 <option value="a3">A3 Landscape (420×297 mm)</option>
                 <option value="a2">A2 Landscape (594×420 mm)</option>
                 <option value="a1">A1 Landscape (841×594 mm)</option>
                 <option value="a0">A0 Landscape (1189×841 mm)</option>
                 <option value="a0plus">A0+ Plotter (1682×1189 mm)</option>
-                <option value="original">Original — volle Canvas-Groesse fuer Plotter</option>
+                <option value="original">{t('export.page.original', 'Original — volle Canvas-Groesse fuer Plotter')}</option>
               </select>
               <p className="text-[10px] text-slate-500">
                 {pdfPageSize === 'original'
-                  ? 'Achtung: Edge / Preview zeigen Pages über A0 manchmal weiss an. Acrobat + Plotter-Software drucken trotzdem.'
-                  : 'Canvas wird vektoriell auf die Page-Groesse skaliert. Text bleibt scharf.'}
+                  ? t('export.page.originalHint', 'Achtung: Edge / Preview zeigen Pages über A0 manchmal weiss an. Acrobat + Plotter-Software drucken trotzdem.')
+                  : t('export.page.scaleHint', 'Canvas wird vektoriell auf die Page-Groesse skaliert. Text bleibt scharf.')}
               </p>
             </fieldset>
           )}
