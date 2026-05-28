@@ -113,7 +113,7 @@ export const TemplateProperties = () => {
         </div>
         {template.rentmanId && (
           <div className="flex justify-between">
-            <span className="text-slate-400">Rentman-ID</span>
+            <span className="text-slate-400">{t('template.rentmanIdLabel', 'Rentman-ID')}</span>
             <span className="text-slate-400 truncate max-w-[120px]" title={template.rentmanId}>
               {template.rentmanId}
             </span>

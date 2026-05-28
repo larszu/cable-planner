@@ -79,6 +79,7 @@ import { DEFAULT_VIDEO_FORMAT } from './types/videoFormat'
 import { confirmDialog } from './lib/confirmDialog'
 import { promptDialog } from './lib/promptDialog'
 import { infoDialog } from './lib/infoDialog'
+import { useTranslation } from './lib/i18n'
 
 export default function App() {
   const project = useProjectStore((state) => state.project)
@@ -1170,6 +1171,7 @@ interface CableEditDialogProps {
 }
 
 const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
+  const t = useTranslation()
   const equipment = useProjectStore((state) => state.project.equipment)
   const cables = useProjectStore((state) => state.project.cables)
   // Issue #64: include user-defined custom cable specs in the dropdown
@@ -1449,7 +1451,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   type="number"
                   min={0}
                   value={maxRange ?? ''}
-                  placeholder="z.B. 100"
+                  placeholder={t('cable.field.maxReachPlaceholder', 'z.B. 100')}
                   onChange={(e) => {
                     const v = e.target.value
                     setMaxRange(v === '' ? undefined : Number(v))
@@ -1495,9 +1497,9 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             <div className="border-t border-slate-700 p-2">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <div className="mb-0.5 text-[10px] text-slate-500">Von Gerät</div>
+                  <div className="mb-0.5 text-[10px] text-slate-500">{t('cable.fromDeviceShort', 'Von Gerät')}</div>
                   <select
-                    aria-label="Quell-Gerät"
+                    aria-label={t('cable.aria.fromDevice', 'Quell-Gerät')}
                     value={fromEquipmentId}
                     onChange={(e) => onSelectFromEquipment(e.target.value)}
                     className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
@@ -1510,7 +1512,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   </select>
                   <div className="mt-1 text-[10px] text-slate-500">Port</div>
                   <select
-                    aria-label="Quell-Port"
+                    aria-label={t('cable.aria.fromPort', 'Quell-Port')}
                     value={fromPortId}
                     onChange={(e) => setFromPortId(e.target.value)}
                     className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
@@ -1527,9 +1529,9 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   </select>
                 </div>
                 <div>
-                  <div className="mb-0.5 text-[10px] text-slate-500">Nach Gerät</div>
+                  <div className="mb-0.5 text-[10px] text-slate-500">{t('cable.toDeviceShort', 'Nach Gerät')}</div>
                   <select
-                    aria-label="Ziel-Gerät"
+                    aria-label={t('cable.aria.toDevice', 'Ziel-Gerät')}
                     value={toEquipmentId}
                     onChange={(e) => onSelectToEquipment(e.target.value)}
                     className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
@@ -1542,7 +1544,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   </select>
                   <div className="mt-1 text-[10px] text-slate-500">Port</div>
                   <select
-                    aria-label="Ziel-Port"
+                    aria-label={t('cable.aria.toPort', 'Ziel-Port')}
                     value={toPortId}
                     onChange={(e) => setToPortId(e.target.value)}
                     className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"

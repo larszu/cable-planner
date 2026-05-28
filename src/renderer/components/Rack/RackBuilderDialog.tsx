@@ -1335,7 +1335,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center text-xs text-slate-500">
                 <div className="mb-2 text-3xl">▥</div>
                 <div className="mb-1 font-semibold text-slate-300">Rack ist leer</div>
-                <div>Geräte aus der Library links hinzufügen (Button "+ Rack").</div>
+                <div>{t('rack.addFromLibraryHint', 'Geräte aus der Library links hinzufügen (Button "+ Rack").')}</div>
                 <div className="mt-2 text-[10px]">
                   {t('rack.tipPrefix', 'Tipp:')}{' '}
                   <span className="text-slate-400">"{t('rack.showNonRack', 'Auch Nicht-Rack-Geräte')}"</span>{' '}
@@ -2095,7 +2095,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 </label>
                 <label className="flex items-center gap-2 opacity-60" title={t('rack.readonlyInBuilder', 'Im Builder schreibgeschützt — wurde beim Hinzufügen gesetzt.')}>
                   <input type="checkbox" checked={selectedPlacement.isRackDevice} disabled readOnly />
-                  <span>Ist Rack-Gerät (im Builder fix)</span>
+                  <span>{t('rack.isRackInBuilder', 'Ist Rack-Gerät (im Builder fix)')}</span>
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <label className="block">

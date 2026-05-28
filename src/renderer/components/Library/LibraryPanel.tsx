@@ -1979,7 +1979,7 @@ export const LibraryPanel = () => {
                     void handleSearchNetBox()
                   }
                 }}
-                placeholder="z.B. blackmagic atem, cisco catalyst, yamaha ql5"
+                placeholder={t('library.netbox.searchPlaceholder', 'z.B. blackmagic atem, cisco catalyst, yamaha ql5')}
                 className="flex-1 rounded border border-slate-700 bg-slate-950 p-2 text-sm"
               />
               <button
@@ -2381,7 +2381,7 @@ export const LibraryPanel = () => {
       {netBoxConflict && (
         <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/70 p-6">
           <div className="w-full max-w-xl rounded border border-amber-600 bg-slate-900 p-4 text-slate-100">
-            <h3 className="mb-2 text-base font-semibold text-amber-300">Gerät existiert bereits</h3>
+            <h3 className="mb-2 text-base font-semibold text-amber-300">{t('library.duplicate.title', 'Gerät existiert bereits')}</h3>
             <p className="mb-3 text-sm text-slate-300">
               {netBoxConflict.incoming.name} ist bereits in der lokalen Library. Wahlen, wie importiert werden soll.
             </p>
