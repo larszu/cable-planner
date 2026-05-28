@@ -754,6 +754,37 @@ const en: Dict = {
   'print.devices.body':
     'Select individual devices and generate an A4/A3 patch list with all ports + connected cables — to stick on the device.',
   'print.devices.searchPlaceholder': 'Search (name, category, subtitle)…',
+
+  // Device mode picker (multi-mode devices, e.g. ATEM, Pixelhue, Tessera)
+  'modes.intro':
+    "Switches the device's port layout. Cables on ports that don't exist in the new mode stay in the project but need to be re-plugged.",
+  'modes.emptyState':
+    'No modes defined yet. Edit ports above, then save the current layout via "+ from current layout".',
+  'modes.newPrompt':
+    'Name of the new mode (e.g. "12G Single-Link" / "HDMI Output Mode"):',
+  'modes.newDefaultName': 'Mode {n}',
+  'modes.renamePrompt': 'Mode name:',
+  'modes.descPrompt': 'Short description (e.g. "1x 12G IN, 4x HDMI OUT"):',
+  'modes.deleteConfirm': 'Delete mode "{name}"?',
+  'modes.deleteConfirmBody': 'The corresponding ports stay on the device.',
+  'modes.captureConfirm': 'Save current port layout as definition for "{name}"?',
+  'modes.active': 'Active',
+  'modes.activate': 'Activate',
+  'modes.editor': 'Editor',
+  'modes.editorTitle': 'Open mode in editor (name, description, ports in one place)',
+  'modes.name': 'Name',
+  'modes.renameTitle': 'Rename mode',
+  'modes.desc': 'Description',
+  'modes.descTitle': 'Edit description',
+  'modes.capture': 'Capture ports',
+  'modes.captureTitle': 'Adopt current port layout into this mode',
+  'modes.deleteTitle': 'Delete mode',
+  'modes.newEditor': '+ New mode (editor)',
+  'modes.newEditorTitle':
+    'Opens an editor where name, description and ports of the new mode can be configured (Issue #113).',
+  'modes.quickSave': '+ Save from current layout',
+  'modes.quickSaveTitle':
+    "Saves the device's current port layout as a new mode (quick-save).",
 }
 
 const translations: Record<Language, Dict> = {
