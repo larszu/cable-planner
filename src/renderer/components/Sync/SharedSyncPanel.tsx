@@ -18,6 +18,7 @@ import { useSettingsStore } from '../../store/settingsStore'
 import { useProjectStore } from '../../store/projectStore'
 import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import type { CablePlannerProject } from '../../types/project'
+import { format, useTranslation } from '../../lib/i18n'
 
 const PROJECT_FILE = 'cable-planner.project.json'
 const LIBRARY_FILE = 'cable-planner.library.json'
@@ -39,6 +40,7 @@ function joinPath(dir: string, file: string): string {
 }
 
 export function SharedSyncPanel() {
+  const t = useTranslation()
   const syncPath = useSettingsStore((s) => s.sharedSyncPath)
   const syncUser = useSettingsStore((s) => s.sharedSyncUser)
   const [status, setStatus] = useState<SyncStatus>({ kind: 'idle', message: '' })
@@ -171,23 +173,23 @@ export function SharedSyncPanel() {
     <div className="flex items-center gap-1">
       <button
         type="button"
-        title={`Push auf: ${syncPath}`}
+        title={format(t('sync.pushTitle', 'Push auf: {path}'), { path: syncPath })}
         disabled={busy}
         onClick={() => { void handlePush() }}
         className="flex items-center gap-1 rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600 disabled:opacity-50"
       >
         <span>⬆</span>
-        <span>Push</span>
+        <span>{t('sync.push', 'Push')}</span>
       </button>
       <button
         type="button"
-        title={`Pull von: ${syncPath}`}
+        title={format(t('sync.pullTitle', 'Pull von: {path}'), { path: syncPath })}
         disabled={busy}
         onClick={() => { void handlePull() }}
         className="flex items-center gap-1 rounded bg-slate-700 px-2 py-1 text-xs text-white hover:bg-slate-600 disabled:opacity-50"
       >
         <span>⬇</span>
-        <span>Pull</span>
+        <span>{t('sync.pull', 'Pull')}</span>
       </button>
       {status.message ? (
         <span className={`text-xs ${statusColor}`} title={status.message}>

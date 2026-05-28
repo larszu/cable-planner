@@ -2028,6 +2028,13 @@ const en: Dict = {
   // RackImageCropDialog
   'rackCrop.scrollHint': 'Scroll wheel or + / - do the same',
   'rackCrop.resetTitle': 'Reset crop and zoom (R)',
+
+  // PortList aria-labels
+  'ports.aria.connector': 'Connector type',
+  'ports.aria.signal': 'Signal standard',
+  'ports.aria.contentLabel': 'Content / function',
+  'ports.aria.direction': 'Port direction',
+  'ports.aria.side': 'Port side',
 }
 
 const translations: Record<Language, Dict> = {
