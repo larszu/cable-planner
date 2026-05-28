@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
+import { useTranslation } from '../../lib/i18n'
 import { connectorToCableType } from '../../lib/cableInheritance'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, EquipmentItem, Port } from '../../types/equipment'
@@ -47,6 +48,7 @@ export const makeCustomCableSpec = (connectorType: ConnectorType, color: string)
 })
 
 export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onCancel, onCreate }: CableDialogProps) => {
+  const t = useTranslation()
   // Issue #70: optional global override of connector-mismatch warnings.
   // When enabled, the dialog still SHOWS the warning banner so the user
   // sees what's happening, but the submit path skips the modal confirm
@@ -222,16 +224,16 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
       <div className="w-full max-w-lg rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
-        <h3 className="mb-2 text-lg font-semibold">Create Cable</h3>
+        <h3 className="mb-2 text-lg font-semibold">{t('cable.dialog.title', 'Neues Kabel')}</h3>
 
         {fromPort && toPort && (
           <div className="mb-3 rounded bg-slate-950 p-2 text-xs">
             <div>
-              From: <span className="font-medium">{fromPort.name}</span> ({fromPort.connectorType}
+              {t('cable.dialog.from', 'Von:')} <span className="font-medium">{fromPort.name}</span> ({fromPort.connectorType}
               {fromPort.standard ? `, ${fromPort.standard}` : ''})
             </div>
             <div>
-              To: <span className="font-medium">{toPort.name}</span> ({toPort.connectorType}
+              {t('cable.dialog.to', 'Nach:')} <span className="font-medium">{toPort.name}</span> ({toPort.connectorType}
               {toPort.standard ? `, ${toPort.standard}` : ''})
             </div>
           </div>
@@ -328,7 +330,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                   min={0}
                   value={customMaxLength}
                   onChange={(e) => setCustomMaxLength(e.target.value ? Number(e.target.value) : '')}
-                  placeholder="Optional"
+                  placeholder={t('common.optional', 'Optional')}
                   className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
                 />
               </label>
@@ -449,14 +451,14 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
             onClick={onCancel}
             className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
           >
-            Abbrechen
+            {t('common.cancel', 'Abbrechen')}
           </button>
           <button
             type="button"
             onClick={submit}
             className="rounded bg-emerald-600 px-3 py-1 hover:bg-emerald-500"
           >
-            Create
+            {t('cable.dialog.create', 'Erstellen')}
           </button>
         </div>
       </div>
