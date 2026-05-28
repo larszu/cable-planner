@@ -29,6 +29,7 @@ interface LibraryExportFile {
 }
 
 const LibraryExportSection = () => {
+  const t = useTranslation()
   const customLibrary = useProjectStore((s) => s.customLibrary)
   const groupPresets = useProjectStore((s) => s.groupPresets)
   const knownCategories = useProjectStore((s) => s.knownCategories)
@@ -69,8 +70,8 @@ const LibraryExportSection = () => {
       const text = await file.text()
       const data = JSON.parse(text) as LibraryExportFile
       if (data?.type !== 'cable-planner-library') {
-        await infoDialog('Falsches Dateiformat', {
-          body: 'Diese Datei ist keine cable-planner-Library.',
+        await infoDialog(t('settings.project.libImport.badFormatTitle', 'Falsches Dateiformat'), {
+          body: t('settings.project.libImport.badFormatBody', 'Diese Datei ist keine cable-planner-Library.'),
           tone: 'error',
         })
         return
@@ -93,15 +94,15 @@ const LibraryExportSection = () => {
         }
         setGroupPresets(Array.from(byId.values()))
       }
-      await infoDialog('Library importiert', {
+      await infoDialog(t('settings.project.libImport.okTitle', 'Library importiert'), {
         body:
-          `${data.customLibrary?.length ?? 0} Geräte-Templates · ` +
-          `${data.groupPresets?.length ?? 0} Gruppen-Presets\n\n` +
-          'Nur neue Einträge wurden hinzugefügt — vorhandene Templates bleiben unverändert.',
+          `${data.customLibrary?.length ?? 0} ${t('settings.project.libImport.templatesWord', 'Geräte-Templates')} · ` +
+          `${data.groupPresets?.length ?? 0} ${t('settings.project.libImport.presetsWord', 'Gruppen-Presets')}\n\n` +
+          t('settings.project.libImport.okBody', 'Nur neue Einträge wurden hinzugefügt — vorhandene Templates bleiben unverändert.'),
         tone: 'success',
       })
     } catch (err) {
-      await infoDialog('Import fehlgeschlagen', {
+      await infoDialog(t('settings.project.libImport.failTitle', 'Import fehlgeschlagen'), {
         body: err instanceof Error ? err.message : String(err),
         tone: 'error',
       })
@@ -112,20 +113,25 @@ const LibraryExportSection = () => {
 
   return (
     <SettingsCard
-      title="Library Export / Import (#122)"
-      description="Sichere deine eigenen Geräte-Templates, Gruppen und Rack-Presets als JSON-Datei. Beim Import werden bestehende Einträge mit gleichem Namen NICHT überschrieben (merge-by-name)."
+      title={t('settings.project.libExport.title', 'Library Export / Import (#122)')}
+      description={t(
+        'settings.project.libExport.desc',
+        'Sichere deine eigenen Geräte-Templates, Gruppen und Rack-Presets als JSON-Datei. Beim Import werden bestehende Einträge mit gleichem Namen NICHT überschrieben (merge-by-name).',
+      )}
     >
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-200">
         <button
           type="button"
           onClick={handleExport}
           className="rounded bg-emerald-700 px-3 py-1.5 hover:bg-emerald-600"
-          title={`${customLibrary.length} Geräte + ${groupPresets.length} Gruppen exportieren`}
+          title={`${customLibrary.length} ${t('settings.project.libExport.devicesWord', 'Geräte')} + ${groupPresets.length} ${t('settings.project.libExport.groupsWord', 'Gruppen')} ${t('settings.project.libExport.exportVerb', 'exportieren')}`}
         >
-          ⬇ Library exportieren ({customLibrary.length} Geräte, {groupPresets.length} Gruppen)
+          ⬇ {t('settings.project.libExport.exportBtn', 'Library exportieren')} ({customLibrary.length} {t('settings.project.libExport.devicesWord', 'Geräte')}, {groupPresets.length} {t('settings.project.libExport.groupsWord', 'Gruppen')})
         </button>
         <label className="rounded bg-sky-700 px-3 py-1.5 cursor-pointer hover:bg-sky-600">
-          {importBusy ? 'Importiere…' : '⬆ Library importieren…'}
+          {importBusy
+            ? t('settings.project.libExport.importing', 'Importiere…')
+            : '⬆ ' + t('settings.project.libExport.importBtn', 'Library importieren…')}
           <input
             type="file"
             accept="application/json,.json"

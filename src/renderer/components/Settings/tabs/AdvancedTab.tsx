@@ -142,7 +142,7 @@ export const AdvancedTab = () => {
                 <th className="px-2 py-1 text-right">
                   {t('settings.advanced.categories.col.count', 'Vorlagen')}
                 </th>
-                <th className="px-2 py-1" aria-label="Aktionen" />
+                <th className="px-2 py-1" aria-label={t('settings.advanced.actionsAria', 'Aktionen')} />
               </tr>
             </thead>
             <tbody>

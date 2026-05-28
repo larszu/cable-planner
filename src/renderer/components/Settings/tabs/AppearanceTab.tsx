@@ -238,7 +238,7 @@ export const AppearanceTab = () => {
             onClick={() => setPortLabelFontSize(11)}
             disabled={portLabelFontSize === 11}
             className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700 disabled:opacity-40"
-            title="Auf Default 11 px zuruecksetzen"
+            title={t('settings.fontSize.reset', 'Auf Default 11 px zurücksetzen')}
           >
             ↺
           </button>
@@ -507,7 +507,7 @@ export const AppearanceTab = () => {
                     type="button"
                     onClick={() => setConnectorTypeColor(name, null)}
                     className="rounded bg-slate-700 px-1 py-0.5 text-[10px] text-slate-300 hover:bg-slate-600"
-                    title="Auf Default zurücksetzen"
+                    title={t('settings.colors.resetDefault', 'Auf Default zurücksetzen')}
                   >
                     ↺
                   </button>
@@ -557,7 +557,7 @@ export const AppearanceTab = () => {
                       type="button"
                       onClick={() => setCategoryColor(cat, null)}
                       className="rounded bg-slate-700 px-1 py-0.5 text-[10px] text-slate-300 hover:bg-slate-600"
-                      title="Auf Default zuruecksetzen"
+                      title={t('settings.colors.resetDefault', 'Auf Default zurücksetzen')}
                     >
                       ↺
                     </button>
