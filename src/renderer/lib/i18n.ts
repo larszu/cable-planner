@@ -1724,6 +1724,162 @@ const en: Dict = {
   'library.menus.showHidden': 'Show hidden',
   'library.menus.showEmpty': 'Show empty categories',
 
+  // Project — ProjectMetaDialog
+  'project.meta.titleNew': 'New project',
+  'project.meta.titleEdit': 'Edit project metadata',
+  'project.meta.create': 'Create project',
+  'project.meta.name': 'Project name',
+  'project.meta.namePh': 'e.g. ProSieben Studio refit',
+  'project.meta.contractor': 'Contractor (company)',
+  'project.meta.contractorPh': 'Your Company Ltd',
+  'project.meta.client': 'Client',
+  'project.meta.clientPh': 'End customer',
+  'project.meta.author': 'Planner / author',
+  'project.meta.authorPh': 'First name Last name',
+  'project.meta.projectNumber': 'Project / job no.',
+  'project.meta.projectNumberPh': 'e.g. 2026-042',
+  'project.meta.description': 'Description',
+  'project.meta.companyLogo': 'Company logo',
+  'project.meta.clientLogo': 'Client logo',
+  'project.meta.removeLogo': 'Remove',
+  'project.meta.chooseLogo': 'Choose logo…',
+  'project.meta.footnote':
+    'These fields appear in the plan footer when exporting to PDF. Every save updates the "last modified" date automatically.',
+
+  // Project — WelcomeDialog
+  'project.welcome.title': 'Welcome to Cable Planner',
+  'project.welcome.later': 'Decide later',
+  'project.welcome.laterTitle': 'Continue without choosing — remember to save manually.',
+  'project.welcome.intro':
+    'Create a new project or open an existing one so your work is saved reliably.',
+  'project.welcome.newTitle': 'New project',
+  'project.welcome.newSubtitle': 'Start with project name, client and planner.',
+  'project.welcome.openTitle': 'Open project…',
+  'project.welcome.openSubtitle1': 'Load an existing',
+  'project.welcome.openSubtitle2': ' file.',
+  'project.welcome.recents': 'Recently used',
+  'project.welcome.recentsHint':
+    'Click "Open project…" and choose one of the files in the file picker.',
+
+  // Properties — GreenGo beltpack section
+  'props.greengo.noConfig':
+    'No GreenGo configuration in the project. Open the Intercom planner or load a preset to define beltpacks.',
+  'props.greengo.beltpack': 'Beltpack',
+  'props.greengo.groupsTitle': 'Groups: {names}',
+  'props.greengo.groupCountOne': '{n} group',
+  'props.greengo.groupCountMany': '{n} groups',
+  'props.greengo.name': 'Name',
+  'props.greengo.assignFirst': 'Assign first ↓',
+  'props.greengo.nameTitle':
+    'Changes are written immediately to the intercom plan and .gg5 export',
+  'props.greengo.userSlot': 'Assigned user slot',
+  'props.greengo.noSlot': '(no slot assigned)',
+  'props.greengo.assignedOther': ' (assigned to another device)',
+  'props.greengo.groupChipTitle': 'Groups are edited in the intercom planner',
+
+  // Properties — Rack section
+  'props.rack.title': 'Rack / 19" settings',
+  'props.rack.units': '{n} RU',
+  'props.rack.inactive': 'inactive',
+  'props.rack.isRack': 'Is a 19" rack device',
+  'props.rack.disabledHint':
+    'Rack fields only appear when the device is marked as a 19" rack device.',
+  'props.rack.height': 'Height (RU)',
+  'props.rack.view': 'View',
+  'props.rack.frontOnly': 'Front only',
+  'props.rack.rearOnly': 'Rear only',
+  'props.rack.frontRear': 'Front + rear',
+  'props.rack.importFront': 'Import front graphic + crop',
+  'props.rack.importRear': 'Import rear graphic + crop',
+  'props.rack.swap': '↔ Swap front/rear photo',
+  'props.rack.swapTitle': 'Swap front and rear photos (including crop metadata)',
+  'props.rack.netboxSource': 'Source: NetBox device-type-library · {path}',
+
+  // Properties — DeviceKindCards
+  'props.deviceKind.greengo': 'GreenGo Intercom detected',
+  'props.deviceKind.greengoExport': 'Intercom planning / export .gg5 →',
+  'props.deviceKind.videohub': 'Blackmagic Videohub detected',
+  'props.deviceKind.videohubConfigure': '🎚 Configure Videohub · Labels + Routing →',
+  'props.deviceKind.atem': 'Blackmagic ATEM detected',
+  'props.deviceKind.atemConnect': 'Connect ATEM / push setup →',
+  'props.deviceKind.atemConnectTitle': 'Connects via UDP to the ATEM and transfers input names.',
+  'props.deviceKind.atemMv': 'Configure multiviewer layout →',
+  'props.deviceKind.atemMvTitle':
+    'Configure multiviewer layout offline. Pushed on next connect.',
+  'props.deviceKind.atemAudio': 'Configure audio router →',
+  'props.deviceKind.atemAudioTitle':
+    'Plan ATEM audio router offline (matrix routing or classic mixer).',
+  'props.deviceKind.multiviewer': 'Multiviewer detected',
+  'props.deviceKind.mvExport': 'Multiviewer layout export (v0.4.0)',
+  'props.deviceKind.mvExportTitle': 'Multiviewer layout export coming in v0.4.0',
+
+  // Properties — RentmanSyncBadge
+  'props.rentmanBadge.removed': 'No longer present in Rentman!',
+  'props.rentmanBadge.id': 'Rentman ID: {id}',
+  'props.rentmanBadge.notTracked': 'Not tracked in Rentman plan',
+
+  // Properties — PortAiSuggestButton
+  'props.aiPorts.noSuggestion': 'AI could not suggest any ports. Try a more specific device name.',
+  'props.aiPorts.requestFailed': 'AI request failed',
+  'props.aiPorts.label': '✨ AI port suggestion',
+  'props.aiPorts.btnTitle':
+    'Asks the provider selected in Settings → AI what "{name}" typically has for ports',
+  'props.aiPorts.asking': 'Asking AI…',
+  'props.aiPorts.suggest': 'Suggest ports',
+  'props.aiPorts.summary': '{groups} group(s) / {ports} ports suggested:',
+  'props.aiPorts.input': 'Input',
+  'props.aiPorts.output': 'Output',
+  'props.aiPorts.confirmReplace':
+    'Replace existing {in} In / {out} Out with the AI suggestion?',
+  'props.aiPorts.replaceTitle': 'Removes current ports and applies the AI suggestion',
+  'props.aiPorts.replace': 'Replace',
+  'props.aiPorts.appendTitle': 'Appends the AI suggestion to the existing ports',
+  'props.aiPorts.append': 'Append',
+  'props.aiPorts.adopt': 'Adopt',
+  'props.aiPorts.discard': 'Discard',
+
+  // Properties — ModesSection
+  'props.modes.title': 'Operating modes',
+  'props.modes.empty': 'none — create below',
+  'props.modes.defined': '{n} defined',
+
+  // Properties — DeviceConfigsBlock
+  'props.deviceConfigs.title': 'Configurations',
+  'props.deviceConfigs.none': 'No configuration assigned.',
+  'props.deviceConfigs.unassign': 'Detach',
+  'props.deviceConfigs.unassignTitle': 'Detach assignment (file remains in library)',
+  'props.deviceConfigs.assignExisting': '+ Assign existing configuration…',
+  'props.deviceConfigs.hint': 'Upload new configurations in Settings → Configurations.',
+
+  // Properties — SortableSection
+  'props.section.dragTitle': 'Drag section to change order',
+  'props.section.dragAria': 'Move section',
+
+  // Settings — EquipmentColorsSection
+  'settings.eqColors.title': 'Device card colors',
+  'settings.eqColors.description':
+    'Background/text/border for equipment nodes — adjustable per theme. Defaults are chosen so the cards stand out from the canvas background. Individual devices can have their own color in Properties.',
+  'settings.eqColors.themeLight': '☀ Light',
+  'settings.eqColors.themeDark': '🌙 Dark',
+  'settings.eqColors.reset': '↺ Reset',
+  'settings.eqColors.resetTitle': 'Reset to default',
+  'settings.eqColors.body': 'Card body',
+  'settings.eqColors.bodyHint': 'Background of the device card',
+  'settings.eqColors.header': 'Header strip',
+  'settings.eqColors.headerHint': 'Top strip with name + IP',
+  'settings.eqColors.border': 'Border',
+  'settings.eqColors.borderHint': '1px border around the card',
+  'settings.eqColors.text': 'Main text',
+  'settings.eqColors.textHint': 'Device name + port labels',
+  'settings.eqColors.subtext': 'Secondary text',
+  'settings.eqColors.subtextHint': 'Category, IP, connector types',
+  'settings.eqColors.note':
+    'Note: Devices with their own color (Properties → device color) still override the body value individually.',
+  'settings.eqColors.defaultDeviceColor': 'Default device color',
+  'settings.eqColors.defaultDeviceColorHint':
+    'Newly added devices start with this color (Properties → device color can change it individually). Empty: uses the theme body color.',
+  'settings.eqColors.resetX': '✕ Reset',
+
   // RackBuilderDialog body
   'rack.depthTitle':
     'Rack depth in mm. Default: 800 mm. Common values: 350/450/600/800/1000/1200.',
@@ -1746,6 +1902,30 @@ const en: Dict = {
   'rack.internalCablingTitle': 'Internal cabling in the rack',
   'rack.openInternalCanvas':
     'Wire the rack devices internally — full canvas view',
+
+  // CalculatorsDialog
+  'calc.resolution': 'Resolution',
+  'calc.sampling': 'Sampling / depth',
+  'calc.dataRate': 'Data rate',
+  'calc.connectionType': 'Connection type',
+  'calc.safetyReserve': 'Safety margin (%)',
+  'calc.devicesCounted': 'Devices counted',
+  'calc.totalUsage': 'Total usage',
+  'calc.current1phase': 'Current (single-phase)',
+  'calc.current3phase': 'Symmetric (3-phase)',
+  'calc.col.device': 'Device',
+  'calc.col.phase': 'Phase',
+
+  // RackAddSplitButton
+  'rackAdd.primaryLabel': '+ To rack',
+  'rackAdd.fullDepthTitle': 'Add device full-depth (front + rear) to the rack',
+  'rackAdd.mountOptionsTitle': 'Mount options (front / rear)',
+  'rackAdd.frontOnly': 'Front only',
+  'rackAdd.frontMount': 'Front-mount',
+  'rackAdd.fullDepth': 'Full-depth',
+  'rackAdd.fullDepthSub': 'front + rear (default)',
+  'rackAdd.rearOnly': 'Rear only',
+  'rackAdd.rearMount': 'Rear-mount (e.g. patch panel)',
 }
 
 const translations: Record<Language, Dict> = {
