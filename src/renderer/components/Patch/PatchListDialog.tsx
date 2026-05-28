@@ -14,6 +14,7 @@ import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { portLabelPair } from '../../lib/portLabel'
 import { ModalShell } from '../shared/ModalShell'
+import { useTranslation } from '../../lib/i18n'
 import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
 
@@ -38,6 +39,7 @@ interface PatchRow {
 }
 
 export const PatchListDialog = () => {
+  const t = useTranslation()
   const open = useUiStore((s) => s.patchList.open)
   const close = useUiStore((s) => s.closePatchList)
   const equipment = useProjectStore((s) => s.project.equipment)
@@ -245,7 +247,7 @@ export const PatchListDialog = () => {
     <ModalShell
       open={open}
       onClose={close}
-      title="Patchliste"
+      title={t('patchList.title', 'Patchliste')}
       titleIcon="🪢"
       maxWidth="5xl"
       draggableKey="cable-planner:modal-pos:patchlist"
@@ -272,7 +274,7 @@ export const PatchListDialog = () => {
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Suchen (Gerät, Port, Typ, Farbe, Notiz …)"
+            placeholder={t('patchList.searchPlaceholder', 'Suchen (Gerät, Port, Typ, Farbe, Notiz …)')}
             className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
           />
           <span className="text-[11px] text-slate-400">

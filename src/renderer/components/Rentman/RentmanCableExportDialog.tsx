@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useProjectStore } from '../../store/projectStore'
 import { useRentman } from '../../hooks/useRentman'
+import { format, useTranslation } from '../../lib/i18n'
 import type { Cable } from '../../types/cable'
 
 interface RentmanCableExportDialogProps {
@@ -44,6 +45,7 @@ const keyOf = (c: Pick<Cable, 'type' | 'length'>): string => `${c.type}|${c.leng
  * delete endpoint exposed via our IPC bridge.
  */
 export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDialogProps) => {
+  const t = useTranslation()
   const project = useProjectStore((state) => state.project)
   const updateMeta = useProjectStore((state) => state.updateProjectMetadata)
   const { loadEquipment, loadFolders, exportToCablePlannerGroup } = useRentman()
@@ -101,7 +103,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
       setCatalog(items)
       setCatalogLoaded(true)
     } catch (err) {
-      setCatalogError(err instanceof Error ? err.message : 'Konnte Rentman-Katalog nicht laden')
+      setCatalogError(err instanceof Error ? err.message : t('rentman.cableExport.catalogError', 'Konnte Rentman-Katalog nicht laden'))
     } finally {
       setCatalogLoading(false)
     }
@@ -185,7 +187,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
     if (!bucket.mappedId) return
     if (bucket.delta <= 0) return
     setBusyKey(bucket.key)
-    setStatusByKey((prev) => ({ ...prev, [bucket.key]: 'Sende an Rentman…' }))
+    setStatusByKey((prev) => ({ ...prev, [bucket.key]: t('rentman.cableExport.sending', 'Sende an Rentman…') }))
     try {
       // v7.9.110 — Nutzt die neue Batch-Export-Action. Landet in der
       // 'CablePlanner'-EquipmentGroup im Subproject (wird angelegt
@@ -196,8 +198,8 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
         { equipmentId: bucket.mappedId, quantity: bucket.delta },
       ])
       if (result.failed.length > 0) {
-        const msg = result.failed[0]?.error ?? 'Unbekannter Fehler'
-        setStatusByKey((prev) => ({ ...prev, [bucket.key]: `Fehler: ${msg}` }))
+        const msg = result.failed[0]?.error ?? t('rentman.cableExport.unknownError', 'Unbekannter Fehler')
+        setStatusByKey((prev) => ({ ...prev, [bucket.key]: format(t('rentman.cableExport.errorFormat', 'Fehler: {msg}'), { msg }) }))
         return
       }
       const current = project.metadata.rentmanCableMap ?? {}
@@ -212,17 +214,17 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
       })
       // v7.9.117 — Drei Faelle (siehe rentmanApiClient).
       const groupNote = result.groupCreated
-        ? ' (Gruppe angelegt)'
+        ? t('rentman.cableExport.groupCreated', ' (Gruppe angelegt)')
         : result.groupId
           ? ''
-          : ' (ohne Gruppe — Plan-Restriction)'
+          : t('rentman.cableExport.groupRestricted', ' (ohne Gruppe — Plan-Restriction)')
       setStatusByKey((prev) => ({
         ...prev,
-        [bucket.key]: `✓ ${bucket.delta} an Rentman gesendet${groupNote}.`,
+        [bucket.key]: format(t('rentman.cableExport.sentSuccess', '✓ {count} an Rentman gesendet{note}.'), { count: bucket.delta, note: groupNote }),
       }))
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      setStatusByKey((prev) => ({ ...prev, [bucket.key]: `Fehler: ${msg}` }))
+      setStatusByKey((prev) => ({ ...prev, [bucket.key]: format(t('rentman.cableExport.errorFormat', 'Fehler: {msg}'), { msg }) }))
     } finally {
       setBusyKey(null)
     }
@@ -268,11 +270,11 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
       <div className="flex max-h-[90vh] w-[920px] max-w-[95vw] flex-col rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
         <header className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
           <div>
-            <h2 className="text-sm font-semibold">Kabel an Rentman senden</h2>
+            <h2 className="text-sm font-semibold">{t('rentman.cableExport.title', 'Kabel an Rentman senden')}</h2>
             <div className="text-[10px] text-slate-500">
               {linkedProjectName
-                ? `Ziel: ${linkedProjectName}`
-                : 'Kein Rentman-Projekt verknüpft.'}
+                ? format(t('rentman.cableExport.target', 'Ziel: {name}'), { name: linkedProjectName })
+                : t('rentman.cableExport.noLink', 'Kein Rentman-Projekt verknüpft.')}
             </div>
           </div>
           <button
@@ -280,7 +282,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
             onClick={onClose}
             className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
           >
-            Schließen
+            {t('common.close', 'Schließen')}
           </button>
         </header>
 
@@ -296,17 +298,17 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
             return (
               <>
                 <span>
-                  <span className="font-mono text-slate-200">{totalBuilt}</span> Kabel verbaut ·{' '}
-                  <span className="font-mono text-slate-200">{totalSynced}</span> bereits gesendet
+                  <span className="font-mono text-slate-200">{totalBuilt}</span> {t('rentman.cableExport.cablesBuilt', 'Kabel verbaut')} ·{' '}
+                  <span className="font-mono text-slate-200">{totalSynced}</span> {t('rentman.cableExport.alreadySent', 'bereits gesendet')}
                 </span>
                 {sendableCount > 0 && (
                   <span className="text-amber-300">
-                    · <span className="font-mono">+{sendableCount}</span> bereit
+                    · <span className="font-mono">+{sendableCount}</span> {t('rentman.cableExport.ready', 'bereit')}
                   </span>
                 )}
                 {unmappedWithDelta > 0 && (
                   <span className="text-red-400">
-                    · {unmappedWithDelta} ohne Zuordnung
+                    · {format(t('rentman.cableExport.withoutMapping', '{count} ohne Zuordnung'), { count: unmappedWithDelta })}
                   </span>
                 )}
                 <button
@@ -316,13 +318,13 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                   className="ml-auto rounded bg-emerald-700 px-3 py-1 text-[11px] font-semibold text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
                   title={
                     !linkedProjectId
-                      ? 'Kein Rentman-Projekt verknüpft.'
+                      ? t('rentman.cableExport.noLink', 'Kein Rentman-Projekt verknüpft.')
                       : sendableCount === 0
-                        ? 'Nichts zu senden — alle Deltas null oder ohne Zuordnung.'
-                        : `${sendableCount} Kabel an Rentman senden`
+                        ? t('rentman.cableExport.nothingToSend', 'Nichts zu senden — alle Deltas null oder ohne Zuordnung.')
+                        : format(t('rentman.cableExport.sendNCablesTitle', '{count} Kabel an Rentman senden'), { count: sendableCount })
                   }
                 >
-                  {busyKey ? 'Sende…' : `Alle senden (+${sendableCount})`}
+                  {busyKey ? t('rentman.cableExport.sendingShort', 'Sende…') : format(t('rentman.cableExport.sendAll', 'Alle senden (+{count})'), { count: sendableCount })}
                 </button>
                 <button
                   type="button"
@@ -331,10 +333,10 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                   className="rounded bg-orange-700 px-2 py-1 text-[11px] font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
                 >
                   {catalogLoading
-                    ? 'Lädt…'
+                    ? t('rentman.cableExport.loading', 'Lädt…')
                     : catalogLoaded
-                      ? 'Katalog aktualisieren'
-                      : 'Rentman-Katalog laden'}
+                      ? t('rentman.cableExport.refreshCatalog', 'Katalog aktualisieren')
+                      : t('rentman.cableExport.loadCatalog', 'Rentman-Katalog laden')}
                 </button>
               </>
             )
@@ -351,20 +353,20 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
           <table className="w-full text-xs">
             <thead className="sticky top-0 bg-slate-950 text-slate-300">
               <tr>
-                <th className="px-3 py-2 text-left">Typ / Länge</th>
-                <th className="px-3 py-2 text-right">Verbaut</th>
-                <th className="px-3 py-2 text-right">Geplant</th>
-                <th className="px-3 py-2 text-right">Bereits gesendet</th>
+                <th className="px-3 py-2 text-left">{t('rentman.cableExport.col.typeLength', 'Typ / Länge')}</th>
+                <th className="px-3 py-2 text-right">{t('rentman.cableExport.col.built', 'Verbaut')}</th>
+                <th className="px-3 py-2 text-right">{t('rentman.cableExport.col.planned', 'Geplant')}</th>
+                <th className="px-3 py-2 text-right">{t('rentman.cableExport.col.synced', 'Bereits gesendet')}</th>
                 <th className="px-3 py-2 text-right">Δ</th>
-                <th className="px-3 py-2 text-left">Rentman-Zuordnung</th>
-                <th className="px-3 py-2 text-right">Aktion</th>
+                <th className="px-3 py-2 text-left">{t('rentman.cableExport.col.mapping', 'Rentman-Zuordnung')}</th>
+                <th className="px-3 py-2 text-right">{t('rentman.cableExport.col.action', 'Aktion')}</th>
               </tr>
             </thead>
             <tbody>
               {buckets.length === 0 && (
                 <tr>
                   <td className="px-3 py-4 text-center text-slate-500" colSpan={7}>
-                    Keine Kabel im Projekt.
+                    {t('rentman.cableExport.noCables', 'Keine Kabel im Projekt.')}
                   </td>
                 </tr>
               )}
@@ -397,10 +399,10 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                       }`}
                       title={
                         bucket.delta > 0
-                          ? 'So viele Kabel werden zusätzlich an Rentman gesendet.'
+                          ? t('rentman.cableExport.deltaPositiveTitle', 'So viele Kabel werden zusätzlich an Rentman gesendet.')
                           : bucket.delta < 0
-                            ? 'Es sind weniger Kabel verbaut als zuletzt gesendet — manuell in Rentman korrigieren.'
-                            : 'Verbaut = bereits an Rentman gesendet.'
+                            ? t('rentman.cableExport.deltaNegativeTitle', 'Es sind weniger Kabel verbaut als zuletzt gesendet — manuell in Rentman korrigieren.')
+                            : t('rentman.cableExport.deltaZeroTitle', 'Verbaut = bereits an Rentman gesendet.')
                       }
                     >
                       {bucket.delta > 0 ? `+${bucket.delta}` : bucket.delta}
@@ -410,7 +412,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                         <div className="flex items-center gap-2">
                           <div className="min-w-0 flex-1">
                             <div className="truncate text-slate-200">
-                              {bucket.mappedName ?? `Rentman-ID ${bucket.mappedId}`}
+                              {bucket.mappedName ?? format(t('rentman.cableExport.rentmanId', 'Rentman-ID {id}'), { id: bucket.mappedId })}
                             </div>
                             <div className="text-[10px] text-slate-500">
                               ID {bucket.mappedId}
@@ -420,7 +422,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                             type="button"
                             onClick={() => clearMapping(bucket.key)}
                             className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
-                            title="Zuordnung entfernen"
+                            title={t('rentman.cableExport.removeMapping', 'Zuordnung entfernen')}
                           >
                             ✕
                           </button>
@@ -435,7 +437,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                           }}
                           className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
                         >
-                          Rentman-Equipment wählen…
+                          {t('rentman.cableExport.pickEquipment', 'Rentman-Equipment wählen…')}
                         </button>
                       )}
                       {pickerKey === bucket.key && (
@@ -444,18 +446,18 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                             type="text"
                             value={pickerQuery}
                             onChange={(event) => setPickerQuery(event.target.value)}
-                            placeholder="Suchen…"
+                            placeholder={t('rentman.cableExport.searchPlaceholder', 'Suchen…')}
                             className="mb-1 w-full rounded border border-slate-700 bg-slate-900 px-2 py-0.5 text-[11px]"
                           />
                           <div className="max-h-40 space-y-0.5 overflow-auto">
                             {!catalogLoaded && !catalogLoading && (
                               <div className="px-1 py-0.5 text-[10px] italic text-slate-500">
-                                Bitte zuerst Katalog laden.
+                                {t('rentman.cableExport.loadCatalogFirst', 'Bitte zuerst Katalog laden.')}
                               </div>
                             )}
                             {catalogLoading && (
                               <div className="px-1 py-0.5 text-[10px] italic text-slate-500">
-                                Lädt…
+                                {t('rentman.cableExport.loading', 'Lädt…')}
                               </div>
                             )}
                             {filteredCatalog.map((item) => (
@@ -483,7 +485,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                               onClick={() => setPickerKey(null)}
                               className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
                             >
-                              Abbrechen
+                              {t('common.cancel', 'Abbrechen')}
                             </button>
                           </div>
                         </div>
@@ -506,15 +508,15 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                         className="rounded bg-orange-700 px-2 py-1 text-[11px] font-semibold text-white hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
                         title={
                           !linkedProjectId
-                            ? 'Kein Rentman-Projekt verknüpft.'
+                            ? t('rentman.cableExport.noLink', 'Kein Rentman-Projekt verknüpft.')
                             : !bucket.mappedId
-                              ? 'Bitte erst Rentman-Equipment zuordnen.'
+                              ? t('rentman.cableExport.mapFirst', 'Bitte erst Rentman-Equipment zuordnen.')
                               : bucket.delta <= 0
-                                ? 'Nichts zu senden.'
-                                : `${bucket.delta} an Rentman senden.`
+                                ? t('rentman.cableExport.nothingShort', 'Nichts zu senden.')
+                                : format(t('rentman.cableExport.sendNCables', '{count} an Rentman senden.'), { count: bucket.delta })
                         }
                       >
-                        {busyKey === bucket.key ? '…' : 'Senden'}
+                        {busyKey === bucket.key ? '…' : t('rentman.cableExport.send', 'Senden')}
                       </button>
                     </td>
                   </tr>
@@ -530,7 +532,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
             onClick={onClose}
             className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
           >
-            Schließen
+            {t('common.close', 'Schließen')}
           </button>
         </footer>
       </div>
