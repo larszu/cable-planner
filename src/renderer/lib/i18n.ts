@@ -67,6 +67,7 @@ const en: Dict = {
   'common.no': 'No',
   'common.optional': 'optional',
   'common.loading': 'Loading…',
+  'common.overwrite': 'Overwrite',
 
   // App / window chrome
   'app.title': 'Cable Planner',
@@ -2317,6 +2318,39 @@ const en: Dict = {
   'library.netbox.searchPlaceholder':
     'e.g. blackmagic atem, cisco catalyst, yamaha ql5',
   'library.duplicate.title': 'Device already exists',
+  // Library import (.cpdevice / .cpgroup file imports)
+  'library.import.unknownFileTitle': 'File not recognised',
+  'library.import.unknownFileBody': 'This file is not a valid .cpdevice or .cpgroup export.',
+  'library.import.deviceExists': 'A device named "{name}" already exists.\n\nOverwrite?',
+  'library.import.deviceOkTitle': 'Device imported',
+  'library.import.deviceOkBody': '"{name}" was added to the library.',
+  'library.import.groupExists': 'A group named "{name}" already exists.\n\nOverwrite?',
+  'library.import.kindRack': 'Rack',
+  'library.import.kindGroup': 'Group',
+  'library.import.kindOkTitle': '{kind} imported',
+  'library.import.kindOkBody':
+    '"{name}" was added to the library ({devices} devices, {cables} internal cables).',
+  // NetBox import duplicate dialog
+  'library.netbox.pickCategoryError': 'Please pick an existing category for this import.',
+  'library.netbox.duplicateIntro':
+    '{name} is already in the local library. Choose how to import.',
+  'library.netbox.localCount': 'Local',
+  'library.netbox.keepLocalTitle': 'Kept local version',
+  'library.netbox.keepLocalBody': 'The existing library version stays unchanged.',
+  'library.netbox.keepLocalBtn': 'Keep local',
+  'library.netbox.replacedTitle': 'Replaced with NetBox version',
+  'library.netbox.replacedBody': 'The local version was replaced by the NetBox version.',
+  'library.netbox.mergePortsBtn': 'Merge Ports',
+  // Cable dialog – connector compatibility prompt
+  'cable.connector.compatTitle': 'Connector compatibility',
+  'cable.connector.createAnywayBody':
+    'Create the connection anyway (marked as "needs adapter")?',
+  'cable.connector.createAnywayOk': 'Create anyway',
+  // Annotations panel – status + delete confirm
+  'annotations.status.open': 'open',
+  'annotations.status.built': 'built',
+  'annotations.status.resolved': 'resolved',
+  'annotations.deleteConfirm': 'Delete annotation?',
   'rack.stlPreviewTitle': 'STL preview (auto-rotates)',
   'rack.addFromLibraryHint':
     'Add devices from the library on the left (button "+ Rack").',
