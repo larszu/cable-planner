@@ -13,6 +13,7 @@ import { createAnnotationSlice } from './slices/annotationSlice'
 import { createMobileSyncSlice } from './slices/mobileSyncSlice'
 import { createTemplateSlice } from './slices/templateSlice'
 import { createGroupPresetSlice } from './slices/groupPresetSlice'
+import { createMetaSlice } from './slices/metaSlice'
 import {
   loadCustomLibrary,
   persistCustomLibrary,
@@ -595,6 +596,7 @@ const buildProjectStore = (
   ...createMobileSyncSlice(set, get, store),
   ...createTemplateSlice(set, get, store),
   ...createGroupPresetSlice(set, get, store),
+  ...createMetaSlice(set, get, store),
   project:
     opts.initialProject ??
     (() => {
@@ -606,8 +608,6 @@ const buildProjectStore = (
   recentProjects: [],
   customLibrary: loadCustomLibrary(),
   knownCategories: loadKnownCategories(),
-  setRecentProjects: (items) => set({ recentProjects: items }),
-  setFilePath: (path) => set({ filePath: path }),
   loadProject: (project, filePath) =>
     set((state) => {
       // v7.9.70 / #171 — Rentman-Sync-Heal beim Project-Load.
@@ -629,44 +629,6 @@ const buildProjectStore = (
         customLibrary: healedLibrary,
       }
     }),
-  setProjectMeta: (name, description) =>
-    set((state) => ({
-      project: touchProject({
-        ...state.project,
-        metadata: {
-          ...state.project.metadata,
-          name,
-          description,
-        },
-      }),
-    })),
-  updateProjectMetadata: (patch) =>
-    set((state) => ({
-      project: touchProject({
-        ...state.project,
-        metadata: {
-          ...state.project.metadata,
-          ...patch,
-        },
-      }),
-    })),
-  setDefaultVideoFormat: (id) =>
-    set((state) => ({
-      project: touchProject({
-        ...state.project,
-        metadata: {
-          ...state.project.metadata,
-          defaultVideoFormat: id as CablePlannerProject['metadata']['defaultVideoFormat'],
-        },
-      }),
-    })),
-  setCanvasState: (x, y, zoom) =>
-    set((state) => ({
-      project: {
-        ...state.project,
-        canvasState: { x, y, zoom },
-      },
-    })),
   addEquipment: (equipment) =>
     set((state) => {
       if (isProjectLocked(state)) return state
@@ -1081,20 +1043,6 @@ const buildProjectStore = (
       })
       scheduleProjectAutosave(updated)
       return { project: updated }
-    }),
-  setSelection: (equipmentId, cableId, locationId) =>
-    set({
-      selectedEquipmentId: equipmentId,
-      selectedCableId: cableId,
-      selectedLocationId: locationId,
-      selectedTemplateName: undefined,
-    }),
-  setSelectedTemplateName: (name) =>
-    set({
-      selectedTemplateName: name,
-      selectedEquipmentId: undefined,
-      selectedCableId: undefined,
-      selectedLocationId: undefined,
     }),
   deleteEquipment: (id) =>
     set((state) => {
@@ -1557,12 +1505,6 @@ const buildProjectStore = (
           : e,
       )
       const updated = touchProject({ ...state.project, equipment: updatedEquipment })
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  updateGreenGoConfig: (config) =>
-    set((state) => {
-      const updated = { ...state.project, greengoConfig: config }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
