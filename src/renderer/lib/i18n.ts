@@ -1950,6 +1950,84 @@ const en: Dict = {
   'canvas.area.lockPosition': 'Lock position',
   'canvas.area.unlockPosition': 'Unlock position',
 
+  // Atem — MultiviewerLayoutView
+  'atem.mvLayout.title': 'Multiviewer layout (live)',
+  'atem.mvLayout.refresh': '↻ Refresh',
+  'atem.mvLayout.close': '✕ Close',
+  'atem.mvLayout.notConnected':
+    'Not connected to an ATEM. Connect in the ATEM dialog first, then open this view.',
+  'atem.mvLayout.noMv': 'The connected ATEM reports no multiviewers.',
+  'atem.mvLayout.legend': 'Legend',
+  'atem.mvLayout.camera': 'Camera',
+  'atem.mvLayout.gfx': 'GFX',
+  'atem.mvLayout.support': 'Support',
+  'atem.mvLayout.aux': 'AUX',
+  'atem.mvLayout.pgmPrv': 'PGM/PRV',
+
+  // Rack — RackImageCropDialog
+  'rackCrop.titleFront': 'Crop front graphic ({units} RU)',
+  'rackCrop.titleRear': 'Crop rear graphic ({units} RU)',
+  'rackCrop.hint':
+    'Mouse wheel zooms · Drag corners & edges to resize · Shift = keep aspect · Arrow keys nudge · R = reset',
+  'rackCrop.close': 'Close',
+  'rackCrop.zoom': 'Zoom',
+  'rackCrop.lockAspect': 'Lock aspect',
+  'rackCrop.presets': 'Crop presets',
+  'rackCrop.reset': '⟲ Reset',
+  'rackCrop.presetTitle': 'Template {n} RU aspect',
+  'rackCrop.manualValues': 'Manual values (0–1)',
+  'rackCrop.width': 'Width',
+  'rackCrop.height': 'Height',
+  'rackCrop.targetAspect': 'Target aspect:',
+  'rackCrop.currentAspect': 'Current crop aspect:',
+  'rackCrop.liveHe': 'Live RU:',
+  'rackCrop.confirm': 'Apply crop',
+
+  // Rack — RackLivePreview
+  'rackPreview.cableTooltip': 'Internal: {from}:{fromPort} ↔ {to}:{toPort}',
+  'rackPreview.empty': 'No devices in rack — preview appears once the first device is assigned.',
+  'rackPreview.headerLabel': 'Black box on canvas',
+  'rackPreview.counts': '{devices} devices · {cables} internal cables',
+
+  // Import — GraphmlViewer
+  'graphmlViewer.zoomIn': 'Zoom in',
+  'graphmlViewer.zoomOut': 'Zoom out',
+  'graphmlViewer.reset': 'Reset',
+  'graphmlViewer.statusBar': 'Mouse wheel zooms · Drag pans · {nodes} nodes · {edges} edges',
+
+  // Sync — SharedSyncPanel
+  'sync.pushTitle': 'Push to: {path}',
+  'sync.pullTitle': 'Pull from: {path}',
+  'sync.push': 'Push',
+  'sync.pull': 'Pull',
+
+  // Settings — ConfigsTab additional
+  'settings.configs.invalidBundleTitle': 'Invalid configuration bundle',
+  'settings.configs.invalidBundleBody':
+    'The file does not contain a cable-planner configuration bundle.',
+  'settings.configs.loadCount': 'Load {n} configurations',
+  'settings.configs.replaceOrAppend':
+    '"Replace" = existing library is overwritten.\n"Append" = new configurations are added, existing ones kept.',
+  'settings.configs.replace': 'Replace',
+  'settings.configs.append': 'Append',
+  'settings.configs.importErrorTitle': 'Import error',
+  'settings.configs.pickFile': '📤 Choose file…',
+  'settings.configs.exportBundle': '💾 Export library as JSON',
+  'settings.configs.importBundle': '⤵ Import JSON library…',
+  'settings.configs.entriesCount': '{n} entries',
+  'settings.configs.filterAll': 'All ({n})',
+  'settings.configs.emptyHint':
+    'Upload your first configuration file — it will be listed here and can then be assigned to a device on the canvas.',
+  'settings.configs.noFilterMatch': 'No entry matches the selected filter.',
+  'settings.configs.assignTitle': 'Device on the canvas this configuration is assigned to',
+  'settings.configs.unassigned': '(unassigned)',
+  'settings.configs.fileMeta':
+    'Original file: {fileName}\nUploaded: {savedAt}\n{chars} characters',
+  'settings.configs.downloadTitle': 'Download original file',
+  'settings.configs.confirmDelete': 'Delete configuration "{name}"?',
+  'settings.configs.deleteHint': 'The file on disk is not modified.',
+  'settings.configs.removeTitle': 'Remove from library',
+
   // RackBuilderDialog body
   'rack.depthTitle':
     'Rack depth in mm. Default: 800 mm. Common values: 350/450/600/800/1000/1200.',
@@ -2035,6 +2113,22 @@ const en: Dict = {
   'ports.aria.contentLabel': 'Content / function',
   'ports.aria.direction': 'Port direction',
   'ports.aria.side': 'Port side',
+
+  // LibraryPanel rentman section + netbox + create
+  'library.rentman.noProjectLinked': 'No Rentman project linked.',
+  'library.rentman.imported': 'Imported Rentman devices',
+  'library.rentman.noneImported': 'No Rentman devices imported yet.',
+  'library.rentman.noMatches': 'No matches for "{query}".',
+  'library.rentman.noneInCategory': 'No devices imported.',
+  'library.rentman.accountAll': 'All Rentman equipment (account catalog)',
+  'library.rentman.idLine': 'Rentman ID {id}',
+  'library.rentman.reconcile': 'Reconcile canvas ↔ Rentman',
+  'library.rentman.removed': 'No longer in Rentman:',
+  'library.netbox.title': 'NetBox import',
+  'library.netbox.categoryLabel': 'Category:',
+  'library.netbox.pickCategory': 'Please pick…',
+  'library.create.isRack': 'Is a rack device',
+  'library.create.aiKey.label': 'Gemini API key',
 }
 
 const translations: Record<Language, Dict> = {

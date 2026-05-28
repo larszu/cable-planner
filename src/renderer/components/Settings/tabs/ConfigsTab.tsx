@@ -220,12 +220,14 @@ export const ConfigsTab = () => {
 
         {library.length === 0 ? (
           <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-500">
-            Lade die erste Konfigurationsdatei hoch — sie wird hier gelistet und kann anschließend
-            einem Gerät auf dem Canvas zugeordnet werden.
+            {t(
+              'settings.configs.emptyHint',
+              'Lade die erste Konfigurationsdatei hoch — sie wird hier gelistet und kann anschließend einem Gerät auf dem Canvas zugeordnet werden.',
+            )}
           </div>
         ) : grouped.size === 0 ? (
           <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-500">
-            Kein Eintrag passt zum gewählten Filter.
+            {t('settings.configs.noFilterMatch', 'Kein Eintrag passt zum gewählten Filter.')}
           </div>
         ) : (
           <ul className="space-y-2">
@@ -273,9 +275,12 @@ export const ConfigsTab = () => {
                             })
                           }
                           className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[11px] text-slate-200"
-                          title="Gerät auf dem Canvas, dem diese Konfiguration zugeordnet ist"
+                          title={t(
+                            'settings.configs.assignTitle',
+                            'Gerät auf dem Canvas, dem diese Konfiguration zugeordnet ist',
+                          )}
                         >
-                          <option value="">(unzugeordnet)</option>
+                          <option value="">{t('settings.configs.unassigned', '(unzugeordnet)')}</option>
                           {equipment.map((eq) => (
                             <option key={eq.id} value={eq.id}>
                               {eq.name}
@@ -284,9 +289,17 @@ export const ConfigsTab = () => {
                         </select>
                         <span
                           className="hidden text-[10px] text-slate-500 sm:inline"
-                          title={`Originaldatei: ${entry.fileName}\nHochgeladen: ${new Date(
-                            entry.savedAt,
-                          ).toLocaleString()}\n${entry.content.length.toLocaleString()} Zeichen`}
+                          title={format(
+                            t(
+                              'settings.configs.fileMeta',
+                              'Originaldatei: {fileName}\nHochgeladen: {savedAt}\n{chars} Zeichen',
+                            ),
+                            {
+                              fileName: entry.fileName,
+                              savedAt: new Date(entry.savedAt).toLocaleString(),
+                              chars: entry.content.length.toLocaleString(),
+                            },
+                          )}
                         >
                           {entry.fileName}{linked ? ' · ✓' : ''}
                         </span>
@@ -295,7 +308,7 @@ export const ConfigsTab = () => {
                             type="button"
                             onClick={() => downloadConfig(entry)}
                             className="rounded bg-slate-700 px-2 py-0.5 text-[11px] text-slate-100 hover:bg-slate-600"
-                            title="Originaldatei herunterladen"
+                            title={t('settings.configs.downloadTitle', 'Originaldatei herunterladen')}
                           >
                             ⬇
                           </button>
@@ -303,17 +316,25 @@ export const ConfigsTab = () => {
                             type="button"
                             onClick={async () => {
                               if (
-                                await confirmDialog(`Konfiguration "${entry.name}" löschen?`, {
-                                  body: 'Die Datei selbst auf der Festplatte bleibt unverändert.',
-                                  okLabel: 'Löschen',
-                                  destructive: true,
-                                })
+                                await confirmDialog(
+                                  format(t('settings.configs.confirmDelete', 'Konfiguration "{name}" löschen?'), {
+                                    name: entry.name,
+                                  }),
+                                  {
+                                    body: t(
+                                      'settings.configs.deleteHint',
+                                      'Die Datei selbst auf der Festplatte bleibt unverändert.',
+                                    ),
+                                    okLabel: t('common.delete', 'Löschen'),
+                                    destructive: true,
+                                  },
+                                )
                               ) {
                                 removeDeviceConfig(entry.id)
                               }
                             }}
                             className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-red-700 hover:text-white"
-                            title="Aus Bibliothek entfernen"
+                            title={t('settings.configs.removeTitle', 'Aus Bibliothek entfernen')}
                           >
                             ✕
                           </button>
