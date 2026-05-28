@@ -2247,6 +2247,28 @@ const en: Dict = {
   'ports.aria.contentLabel': 'Content / function',
   'ports.aria.direction': 'Port direction',
   'ports.aria.side': 'Port side',
+  'ports.newConnectorType': 'New connector type…',
+  'ports.newConnectorPrompt': 'New connector type (e.g. "Speakon NL4"):',
+  'ports.newStandard': 'New standard…',
+  'ports.newStandardPrompt': 'New signal standard (e.g. "Dante Primary"):',
+  'ports.sdi.deviceDefault': 'Device default',
+  'ports.sdi.overrideHint':
+    'Overrides the device SDI capabilities for this port. Empty = device default.',
+  'quadLink.incompleteTitle': 'Quad-Link set {g} incomplete',
+  'quadLink.incompleteBody':
+    'Only has {have}/4 ports. No more free BNC ports available — please add BNC ports first or free up existing ones.',
+  'quadLink.fillTitle': 'Fill quad-link set {g}?',
+  'quadLink.fillBody':
+    'Currently {have}/4 ports. Assign {add} more free BNC ports automatically to the set?',
+  'quadLink.createTitle': 'Create quad-link set {id}?',
+  'quadLink.createBody':
+    '1/4 ports set. Assign {add} more free BNC ports automatically to the set?',
+  'quadLink.createdTitle': 'Quad-link set {id} created',
+  'quadLink.createdBody':
+    'Currently has {have}/4 ports. Please add more BNC ports and assign them to the set.',
+  'quadLink.okFill': 'Yes, fill',
+  'quadLink.complete': 'Set complete',
+  'quadLink.incomplete': 'Set incomplete — 4 ports required',
 
   // LibraryPanel rentman section + netbox + create
   'library.rentman.noProjectLinked': 'No Rentman project linked.',
