@@ -2720,6 +2720,17 @@ const en: Dict = {
   'library.suggest.heading': 'Auto-suggest from device name',
   // CableLibraryPanel
   'cableLib.pickAtLeastOneStandard': 'Select at least one standard.',
+  // AnnotationCanvasOverlay status (full form)
+  'annotations.statusFull.open': 'Open',
+  'annotations.statusFull.built': 'Built',
+  'annotations.statusFull.resolved': 'Resolved',
+  // ConfigsTab kinds
+  'settings.configs.kind.atem-mv': 'ATEM multiviewer layout',
+  'settings.configs.kind.atem-audio': 'ATEM audio routing',
+  'settings.configs.kind.videohub-labels': 'Videohub labels',
+  'settings.configs.kind.videohub-routing': 'Videohub routing',
+  'settings.configs.kind.greengo': 'GreenGo intercom (.gg5)',
+  'settings.configs.kind.other': 'Other',
 }
 
 const translations: Record<Language, Dict> = {
