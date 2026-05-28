@@ -1,6 +1,7 @@
 import React, { type ReactNode } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { useTranslation } from '../../lib/i18n'
 
 /**
  * #305 — Sortable-Wrapper aus LibraryPanel ausgelagert. Beide Komponenten
@@ -26,6 +27,7 @@ export const SortableCategorySection = ({
   onDropTemplate: (event: React.DragEvent<HTMLElement>) => void
   children: ReactNode
 }) => {
+  const t = useTranslation()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: cat,
     disabled: !manualSort,
@@ -48,8 +50,8 @@ export const SortableCategorySection = ({
         <span
           {...attributes}
           {...listeners}
-          aria-label="Kategorie verschieben"
-          title="Per Drag&Drop verschieben"
+          aria-label={t('library.sortables.categoryAria', 'Kategorie verschieben')}
+          title={t('library.sortables.dragTitle', 'Per Drag&Drop verschieben')}
           role="button"
           tabIndex={0}
           className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-slate-500 hover:text-slate-200 active:cursor-grabbing"
@@ -93,6 +95,7 @@ export const SortablePresetCard = ({
   onCardClick?: () => void
   clickTitle?: string
 }) => {
+  const t = useTranslation()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -141,8 +144,8 @@ export const SortablePresetCard = ({
       <span
         {...attributes}
         {...listeners}
-        aria-label="Verschieben"
-        title="Per Drag&Drop verschieben"
+        aria-label={t('library.sortables.moveAria', 'Verschieben')}
+        title={t('library.sortables.dragTitle', 'Per Drag&Drop verschieben')}
         role="button"
         tabIndex={0}
         className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-slate-500 hover:text-slate-200 active:cursor-grabbing"

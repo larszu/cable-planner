@@ -194,7 +194,7 @@ export const CableProperties = () => {
             </option>
           ))}
           {cableLayersFromStore.length > 0 && (
-            <optgroup label="Custom">
+            <optgroup label={t('cable.optgroup.custom', 'Custom')}>
               {cableLayersFromStore.map((l) => (
                 <option key={l} value={l}>
                   ◆ {l}
@@ -223,7 +223,7 @@ export const CableProperties = () => {
             <div>
               <div className="mb-0.5 text-[10px] text-slate-500">{t('cable.fromDeviceShort', 'Von Gerät')}</div>
               <select
-                aria-label="Quell-Gerät"
+                aria-label={t('cable.aria.fromDevice', 'Quell-Gerät')}
                 value={cable.fromEquipmentId}
                 onChange={(e) => onSelectFromEquipment(e.target.value)}
                 className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
@@ -236,7 +236,7 @@ export const CableProperties = () => {
               </select>
               <div className="mt-1 text-[10px] text-slate-500">{t('cable.portShort', 'Port')}</div>
               <select
-                aria-label="Quell-Port"
+                aria-label={t('cable.aria.fromPort', 'Quell-Port')}
                 value={cable.fromPortId}
                 onChange={(e) => updateCable(cable.id, { fromPortId: e.target.value })}
                 className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
@@ -255,7 +255,7 @@ export const CableProperties = () => {
             <div>
               <div className="mb-0.5 text-[10px] text-slate-500">{t('cable.toDeviceShort', 'Nach Gerät')}</div>
               <select
-                aria-label="Ziel-Gerät"
+                aria-label={t('cable.aria.toDevice', 'Ziel-Gerät')}
                 value={cable.toEquipmentId}
                 onChange={(e) => onSelectToEquipment(e.target.value)}
                 className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
@@ -268,7 +268,7 @@ export const CableProperties = () => {
               </select>
               <div className="mt-1 text-[10px] text-slate-500">{t('cable.portShort', 'Port')}</div>
               <select
-                aria-label="Ziel-Port"
+                aria-label={t('cable.aria.toPort', 'Ziel-Port')}
                 value={cable.toPortId}
                 onChange={(e) => updateCable(cable.id, { toPortId: e.target.value })}
                 className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"

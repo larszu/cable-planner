@@ -25,7 +25,7 @@ import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { effectivePortNumber, findDuplicatePortNumbers } from '../../lib/portNumbering'
-import { useTranslation } from '../../lib/i18n'
+import { format, useTranslation } from '../../lib/i18n'
 
 /**
  * #306 — PortList + SortablePortItem + makePort aus EquipmentProperties
@@ -297,13 +297,15 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
           onClick={addPort}
           className="rounded bg-slate-700 px-2 py-0.5 text-[11px] hover:bg-slate-600"
         >
-          + Add
+          {t('ports.add', '+ Hinzufügen')}
         </button>
       </div>
-      {ports.length === 0 && <div className="text-[11px] text-slate-500">None</div>}
+      {ports.length === 0 && <div className="text-[11px] text-slate-500">{t('ports.none', 'Keine')}</div>}
       {duplicatePortNumbers.length > 0 && (
         <div className="mb-2 rounded border border-amber-700 bg-amber-950/40 px-2 py-1 text-[11px] text-amber-200">
-          Doppelte Port-Nummern: {duplicatePortNumbers.join(', ')} — fuer Beschriftung/Patchliste mehrdeutig.
+          {format(t('ports.duplicateNumbers', 'Doppelte Port-Nummern: {nums} — für Beschriftung/Patchliste mehrdeutig.'), {
+            nums: duplicatePortNumbers.join(', '),
+          })}
         </div>
       )}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -330,13 +332,13 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
               <input
                 value={port.name}
                 onChange={(event) => updatePort(port.id, { name: event.target.value })}
-                placeholder="Port name"
+                placeholder={t('ports.namePlaceholder', 'Port-Name')}
                 className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-xs"
               />
               <button
                 type="button"
                 onClick={() => removePort(port.id)}
-                title="Remove port"
+                title={t('ports.remove', 'Port entfernen')}
                 className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
               >
                 ×
@@ -436,10 +438,10 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                 className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
                 title={t('ports.directionTitle', 'Richtung - bidirektional ist z.B. für Netzwerk-/RJ45-Ports sinnvoll')}
               >
-                <option value="">Richtung (auto)</option>
-                <option value="in">Nur Input</option>
-                <option value="out">Nur Output</option>
-                <option value="bidirectional">Bidirektional (z.B. Netzwerk)</option>
+                <option value="">{t('ports.direction.auto', 'Richtung (auto)')}</option>
+                <option value="in">{t('ports.direction.in', 'Nur Input')}</option>
+                <option value="out">{t('ports.direction.out', 'Nur Output')}</option>
+                <option value="bidirectional">{t('ports.direction.bi', 'Bidirektional (z.B. Netzwerk)')}</option>
               </select>
               <select
                 aria-label="Port side"
@@ -452,9 +454,9 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                 className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
                 title={t('ports.sideTitle', 'Port-Seite am Gerät: Auto nutzt Input/Output + globale Spiegelung')}
               >
-                <option value="">Seite (auto)</option>
-                <option value="left">Links</option>
-                <option value="right">Rechts</option>
+                <option value="">{t('ports.side.auto', 'Seite (auto)')}</option>
+                <option value="left">{t('ports.side.left', 'Links')}</option>
+                <option value="right">{t('ports.side.right', 'Rechts')}</option>
               </select>
             </div>
             {showAtemSourceId && (
@@ -561,7 +563,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     </>
                   )}
                   <label className="col-span-2 block">
-                    <span className="text-slate-400">Max Single-Link</span>
+                    <span className="text-slate-400">{t('ports.sdi.maxSingleLink', 'Max Single-Link')}</span>
                     <select
                       value={port.sdiCaps?.maxSingleLink ?? ''}
                       onChange={(e) =>
@@ -594,7 +596,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   const ok = count === 4
                   return (
                     <div className="mt-1.5 flex items-center gap-1 text-[10px]">
-                      <span className="text-slate-400">Quad-Link Set:</span>
+                      <span className="text-slate-400">{t('ports.sdi.quadSet', 'Quad-Link Set:')}</span>
                       <select
                         value={g ?? ''}
                         onChange={(e) => void assignQuadGroup(port.id, e.target.value)}

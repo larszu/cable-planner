@@ -1589,6 +1589,80 @@ const en: Dict = {
 
   // ExportDialog additional
   'export.patch.filterPlaceholder': 'Filter…',
+
+  // Library — Groups tab
+  'library.tabs.groups.title': 'Device groups',
+  'library.tabs.groups.subtitle': 'Multiple devices + cables as a template',
+  'library.tabs.groups.empty': 'No groups saved yet.',
+  'library.tabs.groups.hint1': 'Select ≥ 2 devices on the canvas and click',
+  'library.tabs.groups.hintBtn': 'As group',
+  'library.tabs.groups.hint2': 'in the canvas toolbar.',
+  'library.tabs.groups.clickTitle':
+    'Click = place on canvas · Drag&Drop = place at drop position',
+  'library.tabs.groups.counts': '{items} devices · {cables} cables',
+  'library.tabs.groups.rackUnits': ' · {n} RU',
+  'library.tabs.groups.exportTitle': 'Export as file (copy to Downloads folder)',
+  'library.tabs.groups.exportAria': 'Export',
+  'library.tabs.groups.confirmDelete': 'Delete group "{name}"?',
+  'library.tabs.groups.deleteTitle': 'Remove group from library',
+
+  // Library — Racks tab
+  'library.tabs.racks.title': '2D Rack Builder',
+  'library.tabs.racks.subtitle': 'Rack slots in RU, saved as a placeable group',
+  'library.tabs.racks.new': '+ New rack',
+  'library.tabs.racks.empty': 'No rack layout saved yet.',
+  'library.tabs.racks.clickTitle':
+    'Click = place as black box on canvas · Drag&Drop = place at drop position',
+  'library.tabs.racks.counts': '{items} devices · {units} RU · {cables} cables',
+  'library.tabs.racks.editTitle': 'Edit in the 2D rack builder',
+  'library.tabs.racks.editAria': 'Edit',
+  'library.tabs.racks.exportTitle': 'Export as file (copy to Downloads folder)',
+  'library.tabs.racks.exportAria': 'Export',
+  'library.tabs.racks.confirmDelete': 'Delete rack "{name}"?',
+  'library.tabs.racks.deleteTitle': 'Remove rack from library',
+
+  // PortList additional
+  'ports.none': 'None',
+  'ports.duplicateNumbers':
+    'Duplicate port numbers: {nums} — ambiguous for labels / patch list.',
+  'ports.remove': 'Remove port',
+  'ports.direction.auto': 'Direction (auto)',
+  'ports.direction.in': 'Input only',
+  'ports.direction.out': 'Output only',
+  'ports.direction.bi': 'Bidirectional (e.g. network)',
+  'ports.side.auto': 'Side (auto)',
+  'ports.side.left': 'Left',
+  'ports.side.right': 'Right',
+  'ports.sdi.maxSingleLink': 'Max single-link',
+  'ports.sdi.quadSet': 'Quad-link set:',
+
+  // Shortcut keys (Strg/Ctrl + …)
+  'shortcut.ctrlN': 'Ctrl+N',
+  'shortcut.ctrlO': 'Ctrl+O',
+  'shortcut.ctrlS': 'Ctrl+S',
+  'shortcut.ctrlShiftS': 'Ctrl+Shift+S',
+
+  // CableProperties additional
+  'cable.optgroup.custom': 'Custom',
+  'cable.aria.fromDevice': 'Source device',
+  'cable.aria.fromPort': 'Source port',
+  'cable.aria.toDevice': 'Target device',
+  'cable.aria.toPort': 'Target port',
+
+  // Section labels (NetworkAccess, Flags, Optional)
+  'netAccess.title': 'Network & access',
+  'netAccess.subtitle': 'IP · S/N · login',
+  'netAccess.notesPlaceholder': 'Web UI URL, firmware version, wiring notes, …',
+  'flags.title': 'Display & flags',
+  'flags.subtitle': 'compact · colour · mirror ports · packed',
+  'flags.colorTitle': 'Device node colour',
+  'flags.packedTitle':
+    'Marks the device as packed. Shown as ✓ on the canvas and as a column in the device BOM.',
+  'flags.converterTitle':
+    'Converter marker: the patch list skips this device and shows the next real target directly. Useful for SDI-HDMI converters, format converters, embedders/de-embedders.',
+  'opt.title': 'Optional fields',
+  'opt.subtitle': 'Manufacturer link, reference image, icon',
+  'opt.iconAutoTitle': 'Reset to automatic',
 }
 
 const translations: Record<Language, Dict> = {

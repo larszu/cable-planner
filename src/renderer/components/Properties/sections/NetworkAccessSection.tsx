@@ -21,8 +21,8 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
   return (
     <SortableSection
       id="network"
-      title="Network & Access"
-      subtitle="IP · S/N · Login"
+      title={t('netAccess.title', 'Network & Access')}
+      subtitle={t('netAccess.subtitle', 'IP · S/N · Login')}
       defaultOpen
     >
       <div className="grid grid-cols-2 gap-2">
@@ -98,12 +98,12 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
         </label>
       </div>
       <label className="mt-2 block">
-        <span className="mb-1 block text-slate-300">Notes</span>
+        <span className="mb-1 block text-slate-300">{t('cable.field.notes', 'Notes')}</span>
         <textarea
           value={equipment.notes ?? ''}
           onChange={(event) => updateEquipment(equipment.id, { notes: event.target.value })}
           rows={3}
-          placeholder="Web UI URL, firmware version, wiring notes, …"
+          placeholder={t('netAccess.notesPlaceholder', 'Web UI URL, firmware version, wiring notes, …')}
           className="w-full rounded border border-slate-700 bg-slate-900 p-2"
         />
       </label>

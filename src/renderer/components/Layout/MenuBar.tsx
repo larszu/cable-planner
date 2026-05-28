@@ -106,17 +106,17 @@ export const MenuBar = ({
         <span className="text-slate-700">│</span>
 
         <Menu label={t('app.menu.file', 'Datei')}>
-          <MenuItem onClick={onNewProject} icon="📄" shortcut="Strg+N">
+          <MenuItem onClick={onNewProject} icon="📄" shortcut={t('shortcut.ctrlN', 'Strg+N')}>
             {t('app.menu.file.new', 'Neues Projekt')}
           </MenuItem>
-          <MenuItem onClick={onOpenProject} icon="📂" shortcut="Strg+O">
+          <MenuItem onClick={onOpenProject} icon="📂" shortcut={t('shortcut.ctrlO', 'Strg+O')}>
             {t('app.menu.file.open', 'Öffnen…')}
           </MenuItem>
           <MenuSep />
-          <MenuItem onClick={onSaveProject} icon="💾" shortcut="Strg+S">
+          <MenuItem onClick={onSaveProject} icon="💾" shortcut={t('shortcut.ctrlS', 'Strg+S')}>
             {t('app.menu.file.save', 'Speichern')}
           </MenuItem>
-          <MenuItem onClick={onSaveProjectAs} icon="💾" shortcut="Strg+Umsch+S">
+          <MenuItem onClick={onSaveProjectAs} icon="💾" shortcut={t('shortcut.ctrlShiftS', 'Strg+Umsch+S')}>
             {t('app.menu.file.saveAs', 'Speichern unter…')}
           </MenuItem>
           {onOpenGraphmlImport && (
