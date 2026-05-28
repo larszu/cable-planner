@@ -2366,6 +2366,44 @@ const en: Dict = {
   'errorBoundary.resetTitle': 'Reset local data?',
   'errorBoundary.resetBody':
     'A safety backup of your project will be created first (cable-planner:projectBackup:<time> in localStorage).\n\nReally reset and reload?',
+  // AtemAudioRouterDialog
+  'atem.audio.notConnectedTitle': 'ATEM not connected',
+  'atem.audio.notConnectedBody':
+    'Connect to the ATEM first (main dialog "ATEM mixer").',
+  'atem.audio.sendConfirmTitle': 'Send audio configuration to ATEM?',
+  'atem.audio.sendConfirmBody':
+    'The loaded routing matrix / classic-mixer values are sent directly to the connected switcher. Changes take effect immediately and are NOT persisted as startup state — for that you must call "Save Startup State" in ATEM Software Control.',
+  'atem.audio.sendOk': 'Send',
+  'atem.audio.classicOnly':
+    'This XML only contains a classic AudioMixer section, no routing matrix. The section is written back unchanged on save (round trip), but is not editable in the editor. If needed, create a fresh crosspoint matrix via "🎚 Matrix manual" above — both sections coexist in the XML.',
+  'atem.audio.createMatrixManual': 'Create matrix manually',
+  'atem.audio.noSection':
+    'No {section} in the loaded profile. Switch the tab or load a profile that has this section.',
+  'atem.audio.sectionRouting': 'routing',
+  'atem.audio.sectionClassicMixer': 'classic mixer',
+  'atem.audio.welcomeTitle': 'ATEM audio routing',
+  'atem.audio.welcomeIntro':
+    'Load an existing ATEM profile XML — or start manually with the crosspoint matrix. On save we produce a valid profile XML you can import straight into ATEM Software Control.',
+  'atem.audio.loadProfileXml': 'Load profile XML',
+  'atem.audio.matrixManual': 'Matrix manual',
+  'atem.audio.welcomeFooter':
+    'For {name}. 24 standard sources × 8 output buses; sources + outputs + mappings can be edited freely afterwards.',
+  'atem.audio.currentDevice': 'the current device',
+  'atem.audio.picker.toggleLabel':
+    '{label} show / hide — deselected entries drop from the filter, list and matrix.',
+  'atem.audio.picker.showAll': 'Show all',
+  'atem.audio.picker.hideAll': 'Hide all',
+  'atem.audio.sourcePicker': 'Source picker',
+  'atem.audio.outputPicker': 'Output picker',
+  'atem.audio.hidden': 'hidden',
+  'atem.audio.resetAllBtn': 'Reset all routings',
+  'atem.audio.visible': 'visible',
+  'atem.audio.crosspoints': 'crosspoints',
+  'atem.audio.tooLargeWarn':
+    '{count} visible crosspoints may slow down the rendering. Narrow down via the source/output pickers or render anyway — the warning then stays off for this session.',
+  'atem.audio.renderAnyway': 'Render anyway',
+  // Cable dialog – save-as-custom prompt
+  'cable.dialog.newTypeNamePrompt': 'Name for the new cable type:',
   'rack.stlPreviewTitle': 'STL preview (auto-rotates)',
   'rack.addFromLibraryHint':
     'Add devices from the library on the left (button "+ Rack").',

@@ -347,7 +347,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                   // can see it landed in the dropdown.
                   const proposedName = name.trim() || `${customConnectorType} Custom`
                   const finalName = (await promptDialog(
-                    'Name für den neuen Kabel-Typ:',
+                    t('cable.dialog.newTypeNamePrompt', 'Name für den neuen Kabel-Typ:'),
                     proposedName,
                   ))?.trim()
                   if (!finalName) return
