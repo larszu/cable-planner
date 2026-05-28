@@ -1013,7 +1013,6 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
       {/* ── Confirmation: switch linked Rentman project ── */}
-                            ['merge', 'Ports mergen (Inputs/Outputs auswählen)'],
       {pendingProjectSwitch && (
         <div className="w-full max-w-md rounded border border-amber-600 bg-slate-900 p-5 text-slate-100 shadow-xl">
           <h3 className="mb-2 text-base font-semibold text-amber-400">{t('rentman.import.switch.title', 'Rentman-Projekt wechseln?')}</h3>

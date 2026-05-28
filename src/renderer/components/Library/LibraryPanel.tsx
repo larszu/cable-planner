@@ -753,25 +753,33 @@ export const LibraryPanel = () => {
     if (!picked) return
     const parsed = parseLibraryItemFile(picked.content)
     if (!parsed) {
-      await infoDialog('Datei nicht erkannt', {
-        body: 'Diese Datei ist kein gültiger .cpdevice- oder .cpgroup-Export.',
+      await infoDialog(t('library.import.unknownFileTitle', 'Datei nicht erkannt'), {
+        body: t(
+          'library.import.unknownFileBody',
+          'Diese Datei ist kein gültiger .cpdevice- oder .cpgroup-Export.',
+        ),
         tone: 'error',
       })
       return
     }
     if (parsed.kind === 'device') {
       const template = parsed.template
-      const conflict = customLibrary.some((t) => t.name === template.name)
+      const conflict = customLibrary.some((tpl) => tpl.name === template.name)
       if (conflict) {
         const overwrite = await confirmDialog(
-          `Ein Gerät mit dem Namen "${template.name}" existiert bereits.\n\nÜberschreiben?`,
-          { okLabel: 'Überschreiben', destructive: true },
+          format(
+            t('library.import.deviceExists', 'Ein Gerät mit dem Namen "{name}" existiert bereits.\n\nÜberschreiben?'),
+            { name: template.name },
+          ),
+          { okLabel: t('common.overwrite', 'Überschreiben'), destructive: true },
         )
         if (!overwrite) return
       }
       addCustomTemplate(template)
-      await infoDialog('Gerät importiert', {
-        body: `"${template.name}" wurde der Library hinzugefügt.`,
+      await infoDialog(t('library.import.deviceOkTitle', 'Gerät importiert'), {
+        body: format(t('library.import.deviceOkBody', '"{name}" wurde der Library hinzugefügt.'), {
+          name: template.name,
+        }),
         tone: 'success',
       })
       return
@@ -781,8 +789,11 @@ export const LibraryPanel = () => {
     const nameConflict = groupPresets.find((p) => p.name === preset.name)
     if (nameConflict) {
       const overwrite = await confirmDialog(
-        `Eine Gruppe mit dem Namen "${preset.name}" existiert bereits.\n\nÜberschreiben?`,
-        { okLabel: 'Überschreiben', destructive: true },
+        format(
+          t('library.import.groupExists', 'Eine Gruppe mit dem Namen "{name}" existiert bereits.\n\nÜberschreiben?'),
+          { name: preset.name },
+        ),
+        { okLabel: t('common.overwrite', 'Überschreiben'), destructive: true },
       )
       if (!overwrite) return
       addGroupPreset({ ...preset, id: nameConflict.id })
@@ -792,9 +803,21 @@ export const LibraryPanel = () => {
       // überschreibt.
       addGroupPreset({ ...preset, id: uuidv4() })
     }
-    const kind = preset.rack ? 'Rack' : 'Gruppe'
-    await infoDialog(`${kind} importiert`, {
-      body: `"${preset.name}" wurde der Library hinzugefügt (${preset.items.length} Geräte, ${preset.cables.length} interne Kabel).`,
+    const kindLabel = preset.rack
+      ? t('library.import.kindRack', 'Rack')
+      : t('library.import.kindGroup', 'Gruppe')
+    await infoDialog(format(t('library.import.kindOkTitle', '{kind} importiert'), { kind: kindLabel }), {
+      body: format(
+        t(
+          'library.import.kindOkBody',
+          '"{name}" wurde der Library hinzugefügt ({devices} Geräte, {cables} interne Kabel).',
+        ),
+        {
+          name: preset.name,
+          devices: String(preset.items.length),
+          cables: String(preset.cables.length),
+        },
+      ),
       tone: 'success',
     })
   }
@@ -802,7 +825,12 @@ export const LibraryPanel = () => {
   const handleImportNetBox = async (item: NetBoxDeviceTypeSearchResult) => {
     const selectedCategory = (netBoxCategoryByPath[item.path] ?? '').trim()
     if (!selectedCategory) {
-      setNetBoxError('Bitte eine bestehende Kategorie für diesen Import auswählen.')
+      setNetBoxError(
+        t(
+          'library.netbox.pickCategoryError',
+          'Bitte eine bestehende Kategorie für diesen Import auswählen.',
+        ),
+      )
       return
     }
     setNetBoxImportBusy(item.path)
@@ -915,7 +943,7 @@ export const LibraryPanel = () => {
           onClick={() => setTab('racks')}
           label={t('library.tab.racks', 'Racks')}
           count={groupPresets.filter((preset) => !!preset.rack).length}
-          title="2D Rack Builder und gespeicherte Rack-Layouts"
+          title={t('library.tab.racksTitle', '2D Rack Builder und gespeicherte Rack-Layouts')}
           icon={
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="3" y="2" width="10" height="12" rx="0.8" />
@@ -1979,7 +2007,7 @@ export const LibraryPanel = () => {
                     void handleSearchNetBox()
                   }
                 }}
-                placeholder="z.B. blackmagic atem, cisco catalyst, yamaha ql5"
+                placeholder={t('library.netbox.searchPlaceholder', 'z.B. blackmagic atem, cisco catalyst, yamaha ql5')}
                 className="flex-1 rounded border border-slate-700 bg-slate-950 p-2 text-sm"
               />
               <button
@@ -2381,12 +2409,15 @@ export const LibraryPanel = () => {
       {netBoxConflict && (
         <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/70 p-6">
           <div className="w-full max-w-xl rounded border border-amber-600 bg-slate-900 p-4 text-slate-100">
-            <h3 className="mb-2 text-base font-semibold text-amber-300">Gerät existiert bereits</h3>
+            <h3 className="mb-2 text-base font-semibold text-amber-300">{t('library.duplicate.title', 'Gerät existiert bereits')}</h3>
             <p className="mb-3 text-sm text-slate-300">
-              {netBoxConflict.incoming.name} ist bereits in der lokalen Library. Wahlen, wie importiert werden soll.
+              {format(
+                t('library.netbox.duplicateIntro', '{name} ist bereits in der lokalen Library. Wahlen, wie importiert werden soll.'),
+                { name: netBoxConflict.incoming.name },
+              )}
             </p>
             <div className="mb-3 rounded border border-slate-700 bg-slate-950/40 p-2 text-xs text-slate-400">
-              Lokal: {netBoxConflict.existing.inputs.length} In / {netBoxConflict.existing.outputs.length} Out
+              {t('library.netbox.localCount', 'Lokal')}: {netBoxConflict.existing.inputs.length} In / {netBoxConflict.existing.outputs.length} Out
               <br />
               NetBox: {netBoxConflict.incoming.inputs.length} In / {netBoxConflict.incoming.outputs.length} Out
             </div>
@@ -2396,34 +2427,34 @@ export const LibraryPanel = () => {
                 onClick={() => setNetBoxConflict(null)}
                 className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
               >
-                Abbrechen
+                {t('common.cancel', 'Abbrechen')}
               </button>
               <button
                 type="button"
                 onClick={async () => {
                   setNetBoxConflict(null)
-                  await infoDialog('Lokale Version beibehalten', {
-                    body: 'Die bestehende Library-Version bleibt unverändert.',
+                  await infoDialog(t('library.netbox.keepLocalTitle', 'Lokale Version beibehalten'), {
+                    body: t('library.netbox.keepLocalBody', 'Die bestehende Library-Version bleibt unverändert.'),
                     tone: 'info',
                   })
                 }}
                 className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
               >
-                Lokal behalten
+                {t('library.netbox.keepLocalBtn', 'Lokal behalten')}
               </button>
               <button
                 type="button"
                 onClick={async () => {
                   addCustomTemplate(netBoxConflict.incoming)
                   setNetBoxConflict(null)
-                  await infoDialog('NetBox-Version übernommen', {
-                    body: 'Die lokale Version wurde durch die NetBox-Version ersetzt.',
+                  await infoDialog(t('library.netbox.replacedTitle', 'NetBox-Version übernommen'), {
+                    body: t('library.netbox.replacedBody', 'Die lokale Version wurde durch die NetBox-Version ersetzt.'),
                     tone: 'success',
                   })
                 }}
                 className="rounded bg-amber-700 px-3 py-1 text-sm hover:bg-amber-600"
               >
-                Uberschreiben
+                {t('common.overwrite', 'Überschreiben')}
               </button>
               <button
                 type="button"
@@ -2433,7 +2464,7 @@ export const LibraryPanel = () => {
                 }}
                 className="rounded bg-emerald-700 px-3 py-1 text-sm hover:bg-emerald-600"
               >
-                Merge Ports
+                {t('library.netbox.mergePortsBtn', 'Merge Ports')}
               </button>
             </div>
           </div>

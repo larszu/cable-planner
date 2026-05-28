@@ -196,17 +196,32 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
       (p) => p.id !== sourcePortId && p.connectorType === 'BNC' && !p.quadLinkGroup,
     )
     if (freeBncPorts.length === 0) {
-      await infoDialog(`Quad-Link Set ${g} unvollständig`, {
-        body: `Hat nur ${haveCount}/4 Ports. Keine weiteren freien BNC-Ports verfügbar — bitte zuerst BNC-Ports hinzufügen oder bestehende freigeben.`,
-        tone: 'warning',
-      })
+      await infoDialog(
+        format(t('quadLink.incompleteTitle', 'Quad-Link Set {g} unvollständig'), { g }),
+        {
+          body: format(
+            t(
+              'quadLink.incompleteBody',
+              'Hat nur {have}/4 Ports. Keine weiteren freien BNC-Ports verfügbar — bitte zuerst BNC-Ports hinzufügen oder bestehende freigeben.',
+            ),
+            { have: String(haveCount) },
+          ),
+          tone: 'warning',
+        },
+      )
       return
     }
     const ok = await confirmDialog(
-      `Quad-Link Set ${g} ergänzen?`,
+      format(t('quadLink.fillTitle', 'Quad-Link Set {g} ergänzen?'), { g }),
       {
-        body: `Aktuell ${haveCount}/4 Ports. ${Math.min(needed, freeBncPorts.length)} weitere freie BNC-Ports automatisch dem Set zuweisen?`,
-        okLabel: 'Ja, ergänzen',
+        body: format(
+          t(
+            'quadLink.fillBody',
+            'Aktuell {have}/4 Ports. {add} weitere freie BNC-Ports automatisch dem Set zuweisen?',
+          ),
+          { have: String(haveCount), add: String(Math.min(needed, freeBncPorts.length)) },
+        ),
+        okLabel: t('quadLink.okFill', 'Ja, ergänzen'),
       },
     )
     if (!ok) return
@@ -238,10 +253,16 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
       const needed = 4 - haveCount
       if (needed > 0 && freeBncPorts.length > 0) {
         const ok = await confirmDialog(
-          `Quad-Link Set ${newId} anlegen?`,
+          format(t('quadLink.createTitle', 'Quad-Link Set {id} anlegen?'), { id: newId }),
           {
-            body: `1/4 Ports gesetzt. ${Math.min(needed, freeBncPorts.length)} weitere freie BNC-Ports automatisch dem Set zuweisen?`,
-            okLabel: 'Ja, ergänzen',
+            body: format(
+              t(
+                'quadLink.createBody',
+                '1/4 Ports gesetzt. {add} weitere freie BNC-Ports automatisch dem Set zuweisen?',
+              ),
+              { add: String(Math.min(needed, freeBncPorts.length)) },
+            ),
+            okLabel: t('quadLink.okFill', 'Ja, ergänzen'),
           },
         )
         if (ok) {
@@ -253,10 +274,19 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
           )
         }
       } else if (needed > 0) {
-        await infoDialog(`Quad-Link Set ${newId} angelegt`, {
-          body: `Hat aktuell ${haveCount}/4 Ports. Bitte weitere BNC-Ports anlegen und ebenfalls dem Set zuweisen.`,
-          tone: 'info',
-        })
+        await infoDialog(
+          format(t('quadLink.createdTitle', 'Quad-Link Set {id} angelegt'), { id: newId }),
+          {
+            body: format(
+              t(
+                'quadLink.createdBody',
+                'Hat aktuell {have}/4 Ports. Bitte weitere BNC-Ports anlegen und ebenfalls dem Set zuweisen.',
+              ),
+              { have: String(haveCount) },
+            ),
+            tone: 'info',
+          },
+        )
       }
       return
     }
@@ -352,7 +382,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   onChange={async (event) => {
                     const v = event.target.value
                     if (v === '__new__') {
-                      const name = (await promptDialog('Neuer Stecker-Typ (z.B. "Speakon NL4"):'))?.trim()
+                      const name = (await promptDialog(t('ports.newConnectorPrompt', 'Neuer Stecker-Typ (z.B. "Speakon NL4"):')))?.trim()
                       if (name) {
                         addCustomConnectorType(name)
                         updatePort(port.id, { connectorType: name as ConnectorType, type: name })
@@ -372,7 +402,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       {customConnectorTypes.includes(type as string) ? ' (custom)' : ''}
                     </option>
                   ))}
-                  <option value="__new__">+ Neuer Stecker-Typ…</option>
+                  <option value="__new__">+ {t('ports.newConnectorType', 'Neuer Stecker-Typ…')}</option>
                 </select>
               </div>
               <div className="flex items-stretch gap-0.5">
@@ -382,7 +412,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   onChange={async (event) => {
                     const v = event.target.value
                     if (v === '__new__') {
-                      const name = (await promptDialog('Neuer Signal-Standard (z.B. "Dante Primary"):'))?.trim()
+                      const name = (await promptDialog(t('ports.newStandardPrompt', 'Neuer Signal-Standard (z.B. "Dante Primary"):')))?.trim()
                       if (name) {
                         addCustomSignalStandard(name)
                         updatePort(port.id, { standard: name as SignalStandard })
@@ -402,7 +432,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       {customSignalStandards.includes(std as string) ? ' (custom)' : ''}
                     </option>
                   ))}
-                  <option value="__new__">+ Neuer Standard…</option>
+                  <option value="__new__">+ {t('ports.newStandard', 'Neuer Standard…')}</option>
                 </select>
               </div>
             </div>
@@ -578,7 +608,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       }
                       className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
                     >
-                      <option value="">(Geräte-Default)</option>
+                      <option value="">({t('ports.sdi.deviceDefault', 'Geräte-Default')})</option>
                       <option value="SDI-HD">SDI-HD (1.5G)</option>
                       <option value="SDI-3G">SDI-3G</option>
                       <option value="SDI-6G">SDI-6G</option>
@@ -587,8 +617,10 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   </label>
                 </div>
                 <div className="mt-1 text-[9px] text-slate-500">
-                  Überschreibt die Geräte-SDI-Fähigkeiten für diesen Port.
-                  Leer = Default vom Gerät.
+                  {t(
+                    'ports.sdi.overrideHint',
+                    'Überschreibt die Geräte-SDI-Fähigkeiten für diesen Port. Leer = Default vom Gerät.',
+                  )}
                 </div>
                 {(() => {
                   const g = port.quadLinkGroup
@@ -616,7 +648,9 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                                 ? 'bg-emerald-900/60 text-emerald-300'
                                 : 'bg-amber-900/60 text-amber-300'
                             }`}
-                            title={ok ? 'Set komplett' : 'Set unvollständig — 4 Ports nötig'}
+                            title={ok
+                              ? t('quadLink.complete', 'Set komplett')
+                              : t('quadLink.incomplete', 'Set unvollständig — 4 Ports nötig')}
                           >
                             {count}/4
                           </span>

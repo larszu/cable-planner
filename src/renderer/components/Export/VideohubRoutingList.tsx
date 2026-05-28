@@ -1,3 +1,5 @@
+import { useTranslation } from '../../lib/i18n'
+
 interface Props {
   totalInputs: number
   totalOutputs: number
@@ -35,6 +37,7 @@ export const VideohubRoutingList = ({
   routing,
   onRoute,
 }: Props) => {
+  const t = useTranslation()
   return (
     <div className="rounded-md border border-slate-700 bg-slate-950">
       <div className="border-b border-slate-800 bg-slate-900 px-3 py-2 text-[11px] uppercase tracking-wide text-slate-400">
@@ -87,7 +90,7 @@ export const VideohubRoutingList = ({
               <span
                 className="w-7 shrink-0 text-center text-slate-700"
                 aria-hidden
-                title="Lock (folgt in spaeterer Iteration)"
+                title={t('videohub.lockSoon', 'Lock (folgt in spaeterer Iteration)')}
               >
                 ⬚
               </span>

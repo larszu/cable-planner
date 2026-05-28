@@ -98,12 +98,15 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
 
         <label className="block">
           <span className="mb-1 block text-slate-300">
-            Icon <span className="text-slate-500">(Glyph oder Emoji, max 2 Zeichen — leer = automatisch)</span>
+            {t('opt.iconLabel', 'Icon')}{' '}
+            <span className="text-slate-500">
+              ({t('opt.iconHint', 'Glyph oder Emoji, max 2 Zeichen — leer = automatisch')})
+            </span>
           </span>
           <div className="flex flex-wrap items-center gap-1">
             <input
               value={equipment.icon ?? ''}
-              placeholder="auto"
+              placeholder={t('opt.iconPlaceholder', 'auto')}
               onChange={(event) => {
                 const v = event.target.value
                 updateEquipment(equipment.id, { icon: v.length === 0 ? undefined : v.slice(0, 2) })

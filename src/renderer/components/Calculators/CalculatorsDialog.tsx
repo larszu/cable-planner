@@ -27,7 +27,7 @@ import { useTranslation } from '../../lib/i18n'
 // the truth the user knows best.
 type Tab = 'bandwidth' | 'power'
 
-const TAB_LABEL: Record<Tab, string> = {
+const TAB_LABEL_DE: Record<Tab, string> = {
   bandwidth: '📡 Bandbreite',
   power: '⚡ Stromverbrauch',
 }
@@ -38,24 +38,31 @@ const TabBar = ({
 }: {
   active: Tab
   onChange: (next: Tab) => void
-}) => (
-  <div className="flex gap-1 border-b border-slate-800 px-4 py-2">
-    {(Object.keys(TAB_LABEL) as Tab[]).map((t) => (
-      <button
-        key={t}
-        type="button"
-        onClick={() => onChange(t)}
-        className={`rounded px-3 py-1 text-xs ${
-          active === t
-            ? 'bg-sky-700 text-white'
-            : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-        }`}
-      >
-        {TAB_LABEL[t]}
-      </button>
-    ))}
-  </div>
-)
+}) => {
+  const t = useTranslation()
+  const TAB_LABEL: Record<Tab, string> = {
+    bandwidth: t('calc.tab.bandwidth', TAB_LABEL_DE.bandwidth),
+    power: t('calc.tab.power', TAB_LABEL_DE.power),
+  }
+  return (
+    <div className="flex gap-1 border-b border-slate-800 px-4 py-2">
+      {(Object.keys(TAB_LABEL) as Tab[]).map((tabId) => (
+        <button
+          key={tabId}
+          type="button"
+          onClick={() => onChange(tabId)}
+          className={`rounded px-3 py-1 text-xs ${
+            active === tabId
+              ? 'bg-sky-700 text-white'
+              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+          }`}
+        >
+          {TAB_LABEL[tabId]}
+        </button>
+      ))}
+    </div>
+  )
+}
 
 // ─── Bandwidth ─────────────────────────────────────────────────────────────
 
@@ -97,8 +104,10 @@ const BandwidthTab = () => {
   return (
     <div className="space-y-3 p-4 text-sm">
       <p className="text-[11px] text-slate-400">
-        Brutto-Datenrate eines Video-Streams (vor Kompression) und der kleinste SDI-Tier der
-        sie tragen kann. Pixel × Zeilen × fps × Bits-pro-Pixel.
+        {t(
+          'calc.bandwidth.intro',
+          'Brutto-Datenrate eines Video-Streams (vor Kompression) und der kleinste SDI-Tier der sie tragen kann. Pixel × Zeilen × fps × Bits-pro-Pixel.',
+        )}
       </p>
       <div className="grid grid-cols-3 gap-3">
         <label className="block">
@@ -157,8 +166,13 @@ const BandwidthTab = () => {
         <div className="font-mono text-lg text-amber-100">{mbps.toLocaleString(undefined, { maximumFractionDigits: 1 })} Mbps</div>
         <div className="mt-1 text-xs text-amber-200">
           {fittingTier
-            ? `Passt in ${fittingTier.label} (${fittingTier.mbps} Mbps).`
-            : `Überschreitet 12G-SDI — nur über IP-Transport (ST 2110, NDI, JPEG-XS …) möglich.`}
+            ? t('calc.bandwidth.fitsIn', 'Passt in {tier} ({mbps} Mbps).')
+                .replace('{tier}', fittingTier.label)
+                .replace('{mbps}', String(fittingTier.mbps))
+            : t(
+                'calc.bandwidth.exceeds',
+                'Überschreitet 12G-SDI — nur über IP-Transport (ST 2110, NDI, JPEG-XS …) möglich.',
+              )}
         </div>
       </div>
       <details className="rounded border border-slate-800 bg-slate-950/40">
@@ -318,9 +332,15 @@ const PowerTab = () => {
   return (
     <div className="space-y-3 p-4 text-sm">
       <p className="text-[11px] text-slate-400">
-        Summe der Verbrauchsangaben aus den Geräte-Eigenschaften
-        (<code className="rounded bg-slate-800 px-1">Leistung (W)</code>). Geräte ohne
-        Wert zählen nicht mit; in den Properties nachtragen damit die Verteilung stimmt.
+        {t(
+          'calc.power.intro1',
+          'Summe der Verbrauchsangaben aus den Geräte-Eigenschaften',
+        )}{' '}
+        (<code className="rounded bg-slate-800 px-1">{t('calc.power.wattsField', 'Leistung (W)')}</code>).{' '}
+        {t(
+          'calc.power.intro2',
+          'Geräte ohne Wert zählen nicht mit; in den Properties nachtragen damit die Verteilung stimmt.',
+        )}
       </p>
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
@@ -353,14 +373,14 @@ const PowerTab = () => {
         <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-xs">
           <dt className="text-slate-500">{t('calc.devicesCounted', 'Erfasste Geräte')}</dt>
           <dd className="font-mono text-slate-200">
-            {totals.countedDevices} von {totals.countedDevices + totals.missingDevices}
+            {totals.countedDevices} {t('calc.outOf', 'von')} {totals.countedDevices + totals.missingDevices}
             {totals.missingDevices > 0 && (
-              <span className="ml-2 text-amber-300">({totals.missingDevices} ohne Wert)</span>
+              <span className="ml-2 text-amber-300">({totals.missingDevices} {t('calc.withoutValue', 'ohne Wert')})</span>
             )}
           </dd>
           <dt className="text-slate-500">{t('calc.totalUsage', 'Gesamtverbrauch')}</dt>
           <dd className="font-mono text-slate-200">{totals.totalW.toFixed(0)} W</dd>
-          <dt className="text-slate-500">+ Reserve ({marginPercent}%)</dt>
+          <dt className="text-slate-500">+ {t('calc.reserve', 'Reserve')} ({marginPercent}%)</dt>
           <dd className="font-mono text-emerald-200 text-lg">
             {totalWithMargin.toFixed(0)} W · {(totalWithMargin / 1000).toFixed(2)} kW
           </dd>
@@ -375,7 +395,7 @@ const PowerTab = () => {
             <>
               <dt className="text-slate-500">{t('calc.current3phase', 'Symmetrisch (3-phasig)')}</dt>
               <dd className="font-mono text-slate-200">
-                {ampsThreePhase.toFixed(1)} A · max {supply.perPhaseAmps} A je Phase
+                {ampsThreePhase.toFixed(1)} A · max {supply.perPhaseAmps} A {t('calc.perPhase', 'je Phase')}
               </dd>
             </>
           )}
@@ -390,13 +410,13 @@ const PowerTab = () => {
         >
           <div className="mb-2 flex items-center justify-between">
             <div className="text-[11px] uppercase tracking-wide text-slate-300">
-              Phasen-Verteilung ({supply.label})
+              {t('calc.phaseDistribution', 'Phasen-Verteilung')} ({supply.label})
             </div>
             <div className="text-[10px] text-slate-500">
-              Unwucht: {maxImbalancePct}%
+              {t('calc.imbalance', 'Unwucht')}: {maxImbalancePct}%
               {overloaded && (
                 <span className="ml-2 rounded bg-red-700 px-1.5 py-0.5 text-[10px] text-white">
-                  ⚠ Phase überlastet
+                  ⚠ {t('calc.phaseOverload', 'Phase überlastet')}
                 </span>
               )}
             </div>
@@ -416,9 +436,9 @@ const PowerTab = () => {
                     <span
                       className="inline-block h-2 w-2 rounded-full"
                       style={{ background: PHASE_COLORS[PHASE_KEYS[idx]].dot }}
-                      title={`EU-Farbcode L${idx + 1}`}
+                      title={`${t('calc.euColor', 'EU-Farbcode')} L${idx + 1}`}
                     />
-                    Phase L{idx + 1}
+                    {t('calc.phaseLabel', 'Phase')} L{idx + 1}
                   </div>
                   <div className="font-mono text-base text-slate-100">
                     {watts.toFixed(0)} W
@@ -439,7 +459,7 @@ const PowerTab = () => {
                     />
                   </div>
                   <div className="mt-0.5 text-[10px] text-slate-400">
-                    {Math.round(fraction * 100)}% Last
+                    {Math.round(fraction * 100)}% {t('calc.load', 'Last')}
                   </div>
                 </div>
               )
@@ -447,7 +467,7 @@ const PowerTab = () => {
           </div>
           <details className="mt-2">
             <summary className="cursor-pointer text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
-              Geräte → Phase ({distribution.assignments.length})
+              {t('calc.devicesToPhase', 'Geräte → Phase')} ({distribution.assignments.length})
             </summary>
             <table className="mt-1 w-full text-xs">
               <thead className="text-slate-500">
@@ -474,7 +494,7 @@ const PowerTab = () => {
           </details>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-slate-400">
             <span className="font-semibold uppercase tracking-wide text-slate-500">
-              EU-Farbcode (DIN VDE 0293-308):
+              {t('calc.euColorTitle', 'EU-Farbcode (DIN VDE 0293-308)')}:
             </span>
             {(['L1', 'L2', 'L3', 'N', 'PE'] as const).map((key) => (
               <span key={key} className="flex items-center gap-1">
@@ -487,10 +507,10 @@ const PowerTab = () => {
             ))}
           </div>
           <p className="mt-2 text-[10px] text-slate-500">
-            Greedy-Verteilung: sortiert nach Leistung, jedes Gerät auf die aktuell am
-            schwächsten belastete Phase. Bei symmetrischen Lasten zieht der Drehstrom
-            nur {ampsThreePhase.toFixed(1)} A je Phase; Unwucht erhöht den höchsten
-            Phasenstrom. Ziel: jede Phase &lt; 85% Last + Unwucht &lt; 20%.
+            {t(
+              'calc.greedyExplain',
+              'Greedy-Verteilung: sortiert nach Leistung, jedes Gerät auf die aktuell am schwächsten belastete Phase. Bei symmetrischen Lasten zieht der Drehstrom nur {amps} A je Phase; Unwucht erhöht den höchsten Phasenstrom. Ziel: jede Phase < 85% Last + Unwucht < 20%.',
+            ).replace('{amps}', ampsThreePhase.toFixed(1))}
           </p>
         </div>
       )}
@@ -498,7 +518,7 @@ const PowerTab = () => {
       {totals.devices.length > 0 && (
         <details className="rounded border border-slate-800 bg-slate-950/40">
           <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
-            Top-Verbraucher
+            {t('calc.topConsumers', 'Top-Verbraucher')}
           </summary>
           <ul className="px-3 py-2 text-xs">
             {totals.devices.slice(0, 12).map((d) => (

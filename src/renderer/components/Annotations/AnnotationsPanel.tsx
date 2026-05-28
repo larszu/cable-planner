@@ -327,15 +327,15 @@ export const AnnotationsPanel = ({
                           }
                           className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[10px]"
                         >
-                          <option value="open">offen</option>
-                          <option value="built">gebaut</option>
-                          <option value="resolved">erledigt</option>
+                          <option value="open">{t('annotations.status.open', 'offen')}</option>
+                          <option value="built">{t('annotations.status.built', 'gebaut')}</option>
+                          <option value="resolved">{t('annotations.status.resolved', 'erledigt')}</option>
                         </select>
                         <button
                           type="button"
                           onClick={async () => {
-                            if (await confirmDialog('Anmerkung löschen?', {
-                              okLabel: 'Löschen',
+                            if (await confirmDialog(t('annotations.deleteConfirm', 'Anmerkung löschen?'), {
+                              okLabel: t('common.delete', 'Löschen'),
                               destructive: true,
                             })) removeAnnotation(a.id)
                           }}

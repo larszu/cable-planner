@@ -295,7 +295,7 @@ export const NewRentmanDeviceWizard = ({
               type="password"
               value={apiKeyDraft}
               onChange={(event) => setApiKeyDraft(event.target.value)}
-              placeholder="AIzaSy..."
+              placeholder={t('rentman.wizard.aiKeyPlaceholder', 'AIzaSy...')}
               className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-xs"
               autoFocus
             />

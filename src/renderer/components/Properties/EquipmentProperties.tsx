@@ -68,7 +68,7 @@ export const EquipmentProperties = () => {
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
 
   if (!equipment) {
-    return <div className="text-xs text-slate-400">Select an equipment node.</div>
+    return <div className="text-xs text-slate-400">{t('inspector.selectEquipment', 'Wähle ein Gerät auf dem Canvas.')}</div>
   }
 
 
@@ -109,8 +109,8 @@ export const EquipmentProperties = () => {
       {projectIsLocked && (
         <div className="rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1.5 text-[11px] text-amber-200">
           {projectMode === 'viewer'
-            ? 'Viewer-Modus — Felder können nicht bearbeitet werden.'
-            : 'Plan abgeschlossen — Felder gesperrt. Im Canvas-Banner „Bearbeitung freigeben" klicken.'}
+            ? t('inspector.viewerLocked', 'Viewer-Modus — Felder können nicht bearbeitet werden.')
+            : t('inspector.finalizedLocked', 'Plan abgeschlossen — Felder gesperrt. Im Canvas-Banner „Bearbeitung freigeben" klicken.')}
         </div>
       )}
       <DeviceKindCards equipment={equipment} />

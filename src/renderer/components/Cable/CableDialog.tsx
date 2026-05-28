@@ -198,9 +198,12 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
 
   const submit = async () => {
     if (connectorMismatch === 'error' && !overrideWarnings) {
-      const proceed = await confirmDialog('Stecker-Kompatibilität', {
-        body: `${connectorMessage}\n\nVerbindung trotzdem anlegen (markiert als "braucht Konverter")?`,
-        okLabel: 'Trotzdem anlegen',
+      const proceed = await confirmDialog(t('cable.connector.compatTitle', 'Stecker-Kompatibilität'), {
+        body: `${connectorMessage}\n\n${t(
+          'cable.connector.createAnywayBody',
+          'Verbindung trotzdem anlegen (markiert als "braucht Konverter")?',
+        )}`,
+        okLabel: t('cable.connector.createAnywayOk', 'Trotzdem anlegen'),
         destructive: true,
       })
       if (!proceed) {
@@ -344,7 +347,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                   // can see it landed in the dropdown.
                   const proposedName = name.trim() || `${customConnectorType} Custom`
                   const finalName = (await promptDialog(
-                    'Name für den neuen Kabel-Typ:',
+                    t('cable.dialog.newTypeNamePrompt', 'Name für den neuen Kabel-Typ:'),
                     proposedName,
                   ))?.trim()
                   if (!finalName) return
@@ -360,7 +363,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                   setName(created.name)
                 }}
                 className="mt-2 w-full rounded bg-sky-700 px-2 py-1 text-xs font-medium text-white hover:bg-sky-600"
-                title="Speichert diese Custom-Definition als wiederverwendbaren Kabeltyp in der Bibliothek."
+                title={t('cable.dialog.saveCustomTitle', 'Speichert diese Custom-Definition als wiederverwendbaren Kabeltyp in der Bibliothek.')}
               >
                 💾 Als Kabel-Typ speichern…
               </button>

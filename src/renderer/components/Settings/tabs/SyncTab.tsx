@@ -44,7 +44,7 @@ export const SyncTab = () => {
           value={draftSyncPath}
           onChange={(e) => setDraftSyncPath(e.target.value)}
           className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-xs"
-          placeholder="Z:\Projekte\CablePlanner oder \\server\share\cable-planner"
+          placeholder={t('settings.sync.pathPlaceholder', 'Z:\\Projekte\\CablePlanner oder \\\\server\\share\\cable-planner')}
         />
       </label>
       <label className="block text-sm text-slate-300">
