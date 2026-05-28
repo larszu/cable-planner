@@ -2445,6 +2445,25 @@ const en: Dict = {
   'atem.mv.readFromBtn': 'Load from ATEM',
   'atem.mv.applyTitle': 'Push configuration to ATEM',
   'atem.mv.applyBtn': 'Push to ATEM',
+  'atem.mv.status.transmitting': 'Transmitting to ATEM…',
+  'atem.mv.status.transmitted': 'Transmitted to ATEM ({n} windows).',
+  'atem.mv.status.error': 'Error: {msg}',
+  'atem.mv.status.reading': 'Reading from ATEM…',
+  'atem.mv.status.empty': 'ATEM returned no MV configuration.',
+  'atem.mv.status.cancelled': 'Pull cancelled.',
+  'atem.mv.confirmOverwrite':
+    'Overwrite current MV configuration ({local} MV) with ATEM live state? From ATEM: {incoming} MV with {windows} window assignments.',
+  'atem.mv.saved': 'Saved',
+  'atem.mv.connectedReady': 'ATEM connected — ready to push.',
+  'atem.mv.notConnected': 'ATEM not connected.',
+  // GreenGo XLSX import
+  'greengo.importXlsxBinaryError': 'Could not read XLSX as binary data.',
+  'greengo.import.usersAndGroups': '✓ {users} users · {groups} groups imported from Excel.',
+  'greengo.import.directIgnored':
+    '{n} direct lines (user↔user) ignored — GreenGo stores memberships, not 1:1 routes.',
+  'greengo.import.equipmentAudit':
+    '{n} equipment marks are audit-only — assign the beltpacks on the canvas.',
+  'greengo.import.readError': 'XLSX could not be read.',
   'rack.stlPreviewTitle': 'STL preview (auto-rotates)',
   'rack.addFromLibraryHint':
     'Add devices from the library on the left (button "+ Rack").',

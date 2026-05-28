@@ -5,7 +5,7 @@ import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, type AtemInputSummary } from '../../lib/bridge'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
-import { useTranslation } from '../../lib/i18n'
+import { useTranslation, format } from '../../lib/i18n'
 import type {
   AtemMvConfig,
   AtemMvDefinition,
@@ -838,12 +838,18 @@ export const AtemMvConfigDialog = () => {
 
   const handleApply = async () => {
     try {
-      setStatus('Übertrage an ATEM…')
+      setStatus(t('atem.mv.status.transmitting', 'Übertrage an ATEM…'))
       const result = await cablePlannerApi.atem.applyMvConfig(config)
-      setStatus(`An ATEM übertragen (${result.applied} Fenster).`)
+      setStatus(
+        format(t('atem.mv.status.transmitted', 'An ATEM übertragen ({n} Fenster).'), {
+          n: result.applied,
+        }),
+      )
       updateEquipment(equipment.id, { atemMvConfig: config })
     } catch (err) {
-      setStatus(`Fehler: ${(err as Error).message}`)
+      setStatus(
+        format(t('atem.mv.status.error', 'Fehler: {msg}'), { msg: (err as Error).message }),
+      )
     }
   }
 
@@ -855,11 +861,11 @@ export const AtemMvConfigDialog = () => {
    */
   const handleReadFromAtem = async () => {
     try {
-      setStatus('Lese vom ATEM …')
+      setStatus(t('atem.mv.status.reading', 'Lese vom ATEM …'))
       const result = await cablePlannerApi.atem.readMvConfig()
       const incoming = result.multiViewers
       if (!incoming || incoming.length === 0) {
-        setStatus('ATEM hat keine MV-Konfiguration geliefert.')
+        setStatus(t('atem.mv.status.empty', 'ATEM hat keine MV-Konfiguration geliefert.'))
         return
       }
       const totalWindows = incoming.reduce((s, m) => s + m.windows.length, 0)
@@ -868,11 +874,20 @@ export const AtemMvConfigDialog = () => {
       const hasLocalData = config.multiViewers.some((mv) => (mv.windows ?? []).some((w) => w.sourceId !== 0))
       if (hasLocalData) {
         const ok = await confirmDialog(
-          `Aktuelle MV-Konfiguration (${config.multiViewers.length} MV) mit ATEM-Live-Stand ` +
-            `überschreiben? Vom ATEM: ${incoming.length} MV mit ${totalWindows} Fenster-Zuweisungen.`,
+          format(
+            t(
+              'atem.mv.confirmOverwrite',
+              'Aktuelle MV-Konfiguration ({local} MV) mit ATEM-Live-Stand überschreiben? Vom ATEM: {incoming} MV mit {windows} Fenster-Zuweisungen.',
+            ),
+            {
+              local: config.multiViewers.length,
+              incoming: incoming.length,
+              windows: totalWindows,
+            },
+          ),
         )
         if (!ok) {
-          setStatus('Übernahme abgebrochen.')
+          setStatus(t('atem.mv.status.cancelled', 'Übernahme abgebrochen.'))
           return
         }
       }
@@ -1117,9 +1132,12 @@ export const AtemMvConfigDialog = () => {
         <div className="flex items-center justify-between border-t border-slate-700 px-4 py-2">
           <span className="text-[11px] text-slate-400">
             {savedFlash ? (
-              <span className="font-semibold text-emerald-400">✓ Gespeichert</span>
+              <span className="font-semibold text-emerald-400">✓ {t('atem.mv.saved', 'Gespeichert')}</span>
             ) : (
-              status || (connected ? 'ATEM verbunden — direkt übertragbar.' : 'ATEM nicht verbunden.')
+              status ||
+              (connected
+                ? t('atem.mv.connectedReady', 'ATEM verbunden — direkt übertragbar.')
+                : t('atem.mv.notConnected', 'ATEM nicht verbunden.'))
             )}
           </span>
           <div className="flex gap-2">
