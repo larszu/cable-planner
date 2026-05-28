@@ -136,7 +136,7 @@ const AiProvidersCard = () => {
                     type="button"
                     onClick={() => handleClear(id)}
                     className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
-                    title="Key löschen"
+                    title={t('settings.integrations.gemini.deleteTitle', 'Key löschen')}
                   >
                     ✕
                   </button>

@@ -127,6 +127,24 @@ const en: Dict = {
   'settings.project.linkedRentman': 'Linked Rentman project',
   'settings.project.notLinked':
     'No Rentman project linked. Link via the “Integrations” tab.',
+  // Project → Library Export / Import (#122)
+  'settings.project.libExport.title': 'Library Export / Import (#122)',
+  'settings.project.libExport.desc':
+    'Save your own device templates, groups and rack presets as a JSON file. On import, existing entries with the same name are NOT overwritten (merge-by-name).',
+  'settings.project.libExport.exportBtn': 'Export library',
+  'settings.project.libExport.importBtn': 'Import library…',
+  'settings.project.libExport.importing': 'Importing…',
+  'settings.project.libExport.devicesWord': 'devices',
+  'settings.project.libExport.groupsWord': 'groups',
+  'settings.project.libExport.exportVerb': 'export',
+  'settings.project.libImport.badFormatTitle': 'Wrong file format',
+  'settings.project.libImport.badFormatBody': 'This file is not a cable-planner library.',
+  'settings.project.libImport.okTitle': 'Library imported',
+  'settings.project.libImport.okBody':
+    'Only new entries were added — existing templates remain unchanged.',
+  'settings.project.libImport.templatesWord': 'device templates',
+  'settings.project.libImport.presetsWord': 'group presets',
+  'settings.project.libImport.failTitle': 'Import failed',
 
   // Settings → Appearance
   'settings.appearance.language': 'Language',
@@ -2069,6 +2087,32 @@ const en: Dict = {
   'calc.current3phase': 'Symmetric (3-phase)',
   'calc.col.device': 'Device',
   'calc.col.phase': 'Phase',
+  'calc.tab.bandwidth': '📡 Bandwidth',
+  'calc.tab.power': '⚡ Power consumption',
+  'calc.bandwidth.intro':
+    'Gross data rate of a video stream (before compression) and the smallest SDI tier that carries it. Pixels × lines × fps × bits-per-pixel.',
+  'calc.bandwidth.fitsIn': 'Fits in {tier} ({mbps} Mbps).',
+  'calc.bandwidth.exceeds':
+    'Exceeds 12G-SDI — only IP transport (ST 2110, NDI, JPEG-XS …) will carry it.',
+  'calc.power.intro1': 'Sum of the consumption values in the device properties',
+  'calc.power.wattsField': 'Power (W)',
+  'calc.power.intro2':
+    'Devices without a value are not counted; add them in the Properties so the distribution is correct.',
+  'calc.outOf': 'of',
+  'calc.withoutValue': 'without value',
+  'calc.reserve': 'reserve',
+  'calc.perPhase': 'per phase',
+  'calc.phaseDistribution': 'Phase distribution',
+  'calc.imbalance': 'Imbalance',
+  'calc.phaseOverload': 'Phase overloaded',
+  'calc.euColor': 'EU colour code',
+  'calc.phaseLabel': 'Phase',
+  'calc.load': 'load',
+  'calc.devicesToPhase': 'Devices → Phase',
+  'calc.euColorTitle': 'EU colour code (DIN VDE 0293-308)',
+  'calc.greedyExplain':
+    'Greedy distribution: sorted by power, each device on the currently least-loaded phase. With symmetric loads three-phase draws only {amps} A per phase; imbalance raises the highest phase current. Target: every phase < 85% load + imbalance < 20%.',
+  'calc.topConsumers': 'Top consumers',
 
   // RackAddSplitButton
   'rackAdd.primaryLabel': '+ To rack',
@@ -2157,6 +2201,39 @@ const en: Dict = {
 
   // Template properties additional
   'template.rentmanIdLabel': 'Rentman ID',
+
+  // New strings — wave 2 (App.tsx CableEditDialog, dialogs, panels, settings)
+  'cable.dialog.saveCustomTitle':
+    'Stores this custom definition as a reusable cable type in the library.',
+  'graphml.dialog.toggleCableAria': 'Toggle cable',
+  'videohub.lockSoon': 'Lock (coming in a later iteration)',
+  'videohub.resizeLabelCol': 'Drag to widen / narrow the label column',
+  'library.netbox.searchPlaceholder':
+    'e.g. blackmagic atem, cisco catalyst, yamaha ql5',
+  'library.duplicate.title': 'Device already exists',
+  'rack.stlPreviewTitle': 'STL preview (auto-rotates)',
+  'rack.addFromLibraryHint':
+    'Add devices from the library on the left (button "+ Rack").',
+  'rack.isRackInBuilder': 'Is a rack device (fixed in the builder)',
+  'rack.mountTitle':
+    'full = full rack depth. front = front only. rear = rear only (e.g. blank panel).',
+  'rack.devicesLabel': 'Devices:',
+  'netCfg.subtitle': 'VLAN · Port map · Gateway',
+  'opt.iconPlaceholder': 'auto',
+  'opt.iconLabel': 'Icon',
+  'opt.iconHint': 'Glyph or emoji, max 2 characters — empty = automatic',
+  'eq.field.refImageFullsize': 'Open at full size',
+  'eq.field.manufacturerUrlOpenTitle': 'Open in external browser',
+  'settings.hotkeys.clear': 'Clear hotkey',
+  'settings.fontSize.reset': 'Reset to default 11 px',
+  'settings.colors.resetDefault': 'Reset to default',
+  'settings.sync.pathPlaceholder':
+    'Z:\\Projekte\\CablePlanner or \\\\server\\share\\cable-planner',
+  'settings.advanced.actionsAria': 'Actions',
+  'settings.integrations.gemini.deleteTitle': 'Delete key',
+  'rentman.wizard.aiKeyPlaceholder': 'AIzaSy...',
+  'cable.waypoint.tooltip':
+    'Drag to move · Alt-click or right-click to remove',
 }
 
 const translations: Record<Language, Dict> = {

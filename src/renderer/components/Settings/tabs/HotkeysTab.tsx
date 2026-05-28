@@ -17,6 +17,7 @@ const HotkeyRow = ({
   combo: string
   onChange: (combo: string) => void
 }) => {
+  const t = useTranslation()
   const [capturing, setCapturing] = useState(false)
   const label = HOTKEY_ACTION_LABEL[action] ?? action
   return (
@@ -48,7 +49,7 @@ const HotkeyRow = ({
         type="button"
         onClick={() => onChange('')}
         className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-400 hover:bg-red-700 hover:text-white"
-        title="Hotkey leeren"
+        title={t('settings.hotkeys.clear', 'Hotkey leeren')}
       >
         ✕
       </button>

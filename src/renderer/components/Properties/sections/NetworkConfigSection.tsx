@@ -1,6 +1,7 @@
 import { detectNetworkDevice } from '../../../lib/deviceKind'
 import { SortableSection } from '../SortableSection'
 import { NetworkConfig } from './NetworkConfig'
+import { useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
 
 /**
@@ -9,6 +10,7 @@ import type { EquipmentItem } from '../../../types/equipment'
  * — sonst null.
  */
 export const NetworkConfigSection = ({ equipment }: { equipment: EquipmentItem }) => {
+  const t = useTranslation()
   const networkKind = detectNetworkDevice(equipment)
   if (!networkKind) return null
 
@@ -16,7 +18,7 @@ export const NetworkConfigSection = ({ equipment }: { equipment: EquipmentItem }
     <SortableSection
       id="network-config"
       title={networkKind === 'router' ? 'Router Config' : 'Switch Config'}
-      subtitle="VLAN · Port-Map · Gateway"
+      subtitle={t('netCfg.subtitle', 'VLAN · Port-Map · Gateway')}
     >
       <NetworkConfig
         equipmentId={equipment.id}

@@ -2177,11 +2177,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         })
                       }
                       className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
-                      title="full = volle Rack-Tiefe. front = nur vorne. rear = nur hinten (z.B. Patchblende)."
+                      title={t('rack.mountTitle', 'full = volle Rack-Tiefe. front = nur vorne. rear = nur hinten (z.B. Patchblende).')}
                     >
                       <option value="full">Full-Depth</option>
-                      <option value="front">Nur vorne</option>
-                      <option value="rear">Nur hinten</option>
+                      <option value="front">{t('props.rack.frontOnly', 'Nur vorne')}</option>
+                      <option value="rear">{t('props.rack.rearOnly', 'Nur hinten')}</option>
                     </select>
                   </label>
                 </div>
@@ -2523,7 +2523,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-3">
           <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
             <span className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-0.5 text-slate-300">
-              <span className="text-slate-500">Geräte:</span>
+              <span className="text-slate-500">{t('rack.devicesLabel', 'Geräte:')}</span>
               <strong className="text-slate-100">{draft.placements.length}</strong>
             </span>
             <span className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-0.5 text-slate-300">

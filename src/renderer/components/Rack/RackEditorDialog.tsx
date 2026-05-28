@@ -29,6 +29,7 @@ import ReactFlow, {
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { useTranslation } from '../../lib/i18n'
 import { EquipmentNode } from '../Canvas/EquipmentNode'
 import { CableEdge } from '../Canvas/CableEdge'
 
@@ -204,6 +205,7 @@ const RackEditorContent = ({ rackInstanceId }: { rackInstanceId: string }) => {
 }
 
 export const RackEditorDialog = () => {
+  const t = useTranslation()
   const slot = useUiStore((s) => s.rackEditor)
   const close = useUiStore((s) => s.closeRackEditor)
   const drag = useDraggablePosition('cable-planner:modal-pos:rack-editor', slot.open)
@@ -224,10 +226,12 @@ export const RackEditorDialog = () => {
           className="flex items-center justify-between border-b border-slate-700 px-4 py-2 select-none"
         >
           <div>
-            <h2 className="text-sm font-semibold">Rack-Editor</h2>
+            <h2 className="text-sm font-semibold">{t('rackEditor.title', 'Rack-Editor')}</h2>
             <p className="text-[10px] text-slate-400">
-              Sub-Canvas pro Rack — Geräte sind im Hauptprojekt gespeichert, der Editor zeigt
-              nur diese Rack-Instanz. Vertikal ziehen rastet auf HU-Linien ein.
+              {t(
+                'rackEditor.intro',
+                'Sub-Canvas pro Rack — Geräte sind im Hauptprojekt gespeichert, der Editor zeigt nur diese Rack-Instanz. Vertikal ziehen rastet auf HU-Linien ein.',
+              )}
             </p>
           </div>
           <button
@@ -235,7 +239,7 @@ export const RackEditorDialog = () => {
             onClick={close}
             className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
           >
-            Schließen
+            {t('common.close', 'Schließen')}
           </button>
         </header>
         <div className="flex-1 min-h-0 bg-slate-950">
@@ -244,8 +248,10 @@ export const RackEditorDialog = () => {
           </ReactFlowProvider>
         </div>
         <footer className="border-t border-slate-700 px-4 py-2 text-[11px] text-slate-400">
-          Tipp: HU-Position wird beim Loslassen automatisch auf die nächste ganze HU gerundet.
-          Änderungen wirken sofort auf die Haupt-Canvas.
+          {t(
+            'rackEditor.footer',
+            'Tipp: HU-Position wird beim Loslassen automatisch auf die nächste ganze HU gerundet. Änderungen wirken sofort auf die Haupt-Canvas.',
+          )}
         </footer>
       </div>
     </div>
