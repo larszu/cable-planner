@@ -6,8 +6,11 @@ import type { EquipmentItem, EquipmentTemplate, GroupPreset, Port } from '../typ
 import type { LocationFrame } from '../types/location'
 import type { CablePlannerProject } from '../types/project'
 import { useUiStore } from './uiStore'
+import { isProjectLocked, sanitizePort, touchProject } from './projectStoreHelpers'
+import { createLocationSlice } from './slices/locationSlice'
+import { createCableSlice } from './slices/cableSlice'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
-import { cableTypePatchFromPorts, inheritedCableType, isBidirectionalCableType } from '../lib/cableInheritance'
+import { cableTypePatchFromPorts, inheritedCableType } from '../lib/cableInheritance'
 import { detectLayerForConnector } from '../lib/cableLayers'
 import { cableCatalog } from '../types/cableSpec'
 import { ubiquitiTemplates } from '../lib/ubiquitiCatalog'
@@ -26,7 +29,7 @@ type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
   Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>
 
 import { STORAGE_KEYS } from '../lib/storageKeys'
-import { EQUIPMENT_LAYOUT, LIMITS, VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
+import { LIMITS, VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
 import {
   syncDevicesToFolder,
   syncPresetsToFolder,
@@ -484,45 +487,6 @@ const defaultProject = (): CablePlannerProject => ({
   canvasState: { x: 0, y: 0, zoom: 1 },
 })
 
-const touchProject = (project: CablePlannerProject): CablePlannerProject => ({
-  ...project,
-  metadata: {
-    ...project.metadata,
-    updatedAt: now(),
-  },
-})
-
-/** v7.9.5 — Zentrale Lock-Check für Plan-Mutationen. Wenn der User
- *  den Plan als "abgeschlossen" markiert hat oder eine Viewer-Datei
- *  geöffnet ist, dürfen Geräte/Kabel/Layout NICHT mehr verändert
- *  werden. Annotations + Mobile-Check-State + Mode-Switch sind
- *  davon ausgenommen (für viewer/finalized explizit erlaubt). */
-const isProjectLocked = (state: { project: CablePlannerProject }): boolean => {
-  const mode = state.project.mode
-  return mode === 'finalized' || mode === 'viewer'
-}
-
-const sanitizePort = (port: Partial<Port>, fallbackName: string): Port => {
-  const name = port.name ?? fallbackName
-  return {
-    // Spread first so optional fields like `direction`, `sfpType`, `sfpStandard`,
-    // `sfpWavelength`, `sfpVendor` survive the trip through addEquipment /
-    // importEquipment. Without this they were silently dropped, which broke
-    // bidirectional handles and SFP module metadata for catalog/NetBox imports.
-    ...port,
-    id: port.id && port.id.length > 0 ? port.id : uuidv4(),
-    name,
-    // v7.9.113 / Issue #232 — originalName festschreiben fuer den
-    // Label-Swap-Feature beim Cable-Reconnect. Wenn das Template selber
-    // schon einen originalName mitbringt (z.B. aus einem alten Save),
-    // den behalten. Sonst nehmen wir den aktuellen name als Baseline —
-    // das ist der Template-Default zum Anlegezeitpunkt.
-    originalName: port.originalName ?? name,
-    type: port.type ?? 'Custom',
-    connectorType: port.connectorType ?? 'Custom',
-  }
-}
-
 /**
  * Heal a project loaded from disk: round every equipment / location position
  * (and width/height where applicable) to an integer. Older project files
@@ -750,7 +714,9 @@ const checkProjectSetRate = () => {
  *  für die langlebige Default-Instanz. */
 const buildProjectStore = (
   opts: { initialProject?: CablePlannerProject } = {},
-): StateCreator<ProjectState> => (set, _get) => ({
+): StateCreator<ProjectState> => (set, get, store) => ({
+  ...createLocationSlice(set, get, store),
+  ...createCableSlice(set, get, store),
   project:
     opts.initialProject ??
     (() => {
@@ -1251,284 +1217,6 @@ const buildProjectStore = (
       selectedEquipmentId: undefined,
       selectedCableId: undefined,
       selectedLocationId: undefined,
-    }),
-  addLocation: (partial) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      const loc: LocationFrame = {
-        id: uuidv4(),
-        name: partial?.name ?? 'Location',
-        x: partial?.x ?? 100,
-        y: partial?.y ?? 100,
-        width: partial?.width ?? 360,
-        height: partial?.height ?? 240,
-        color: partial?.color ?? '#38bdf8',
-        // v7.9.81 / #194 — Default ist jetzt 'Inhalt mitbewegen' = true.
-        // Erwartung: wenn ich eine Location verschiebe, geht der Inhalt
-        // mit (Equipment, Cable-Waypoints). User kann das pro Location
-        // in den Properties wieder ausschalten falls gewünscht. Resize
-        // ist davon unberührt — der zieht nur den Rahmen.
-        moveContents: partial?.moveContents ?? true,
-      }
-      return {
-        project: touchProject({
-          ...state.project,
-          locations: [...(state.project.locations ?? []), loc],
-        }),
-        selectedLocationId: loc.id,
-      }
-    }),
-  addLocationAroundEquipment: (equipmentIds, partial) =>
-    set((state) => {
-      const ids = new Set(equipmentIds)
-      const items = state.project.equipment.filter((e) => ids.has(e.id))
-      if (items.length === 0) return {}
-      const PAD = 40
-      const TITLE_PAD = 24
-      let minX = Infinity
-      let minY = Infinity
-      let maxX = -Infinity
-      let maxY = -Infinity
-      for (const e of items) {
-        const w = e.width ?? EQUIPMENT_LAYOUT.DEFAULT_WIDTH
-        const h = e.height ?? 140
-        if (e.x < minX) minX = e.x
-        if (e.y < minY) minY = e.y
-        if (e.x + w > maxX) maxX = e.x + w
-        if (e.y + h > maxY) maxY = e.y + h
-      }
-      const loc: LocationFrame = {
-        id: uuidv4(),
-        name: partial?.name ?? 'Neue Location',
-        x: minX - PAD,
-        y: minY - TITLE_PAD - PAD,
-        width: maxX - minX + PAD * 2,
-        height: maxY - minY + TITLE_PAD + PAD * 2,
-        color: partial?.color ?? '#38bdf8',
-        ...(partial?.width ? { width: partial.width } : {}),
-        ...(partial?.height ? { height: partial.height } : {}),
-        // v7.9.81 / #194 — Default Move-Contents = true (siehe addLocation).
-        moveContents: partial?.moveContents ?? true,
-      }
-      return {
-        project: touchProject({
-          ...state.project,
-          locations: [...(state.project.locations ?? []), loc],
-        }),
-        selectedLocationId: loc.id,
-      }
-    }),
-  updateLocation: (id, patch) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      return {
-      project: touchProject({
-        ...state.project,
-        locations: (state.project.locations ?? []).map((l) =>
-          l.id === id ? { ...l, ...patch } : l,
-        ),
-      }),
-      }
-    }),
-  deleteLocation: (id) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      return {
-      project: touchProject({
-        ...state.project,
-        locations: (state.project.locations ?? []).filter((l) => l.id !== id),
-      }),
-      selectedLocationId:
-        state.selectedLocationId === id ? undefined : state.selectedLocationId,
-      }
-    }),
-  deleteLocationWithContents: (id) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      const loc = (state.project.locations ?? []).find((l) => l.id === id)
-      if (!loc) return {}
-      const containedIds = new Set(
-        state.project.equipment
-          .filter((e) => {
-            const cx = e.x + (e.width ?? 0) / 2
-            const cy = e.y + (e.height ?? 0) / 2
-            return (
-              cx >= loc.x &&
-              cx <= loc.x + loc.width &&
-              cy >= loc.y &&
-              cy <= loc.y + loc.height
-            )
-          })
-          .map((e) => e.id),
-      )
-      return {
-        project: touchProject({
-          ...state.project,
-          locations: (state.project.locations ?? []).filter((l) => l.id !== id),
-          equipment: state.project.equipment.filter((e) => !containedIds.has(e.id)),
-          cables: state.project.cables.filter(
-            (c) =>
-              !containedIds.has(c.fromEquipmentId) && !containedIds.has(c.toEquipmentId),
-          ),
-        }),
-        selectedLocationId:
-          state.selectedLocationId === id ? undefined : state.selectedLocationId,
-      }
-    }),
-  moveLocationWithContents: (id, dx, dy, containedEquipmentIds) =>
-    set((state) => {
-      if (!dx && !dy) return {}
-      const containedSet = new Set(containedEquipmentIds)
-      // Shift waypoints of any cable where at least one endpoint is a contained
-      // equipment item - keeps the cable aligned with the moved device.
-      const nextCables = state.project.cables.map((c) => {
-        if (!c.waypoints || c.waypoints.length === 0) return c
-        if (!containedSet.has(c.fromEquipmentId) && !containedSet.has(c.toEquipmentId)) {
-          return c
-        }
-        return {
-          ...c,
-          waypoints: c.waypoints.map((w) => ({ x: w.x + dx, y: w.y + dy })),
-        }
-      })
-      return {
-        project: touchProject({
-          ...state.project,
-          locations: (state.project.locations ?? []).map((l) =>
-            l.id === id ? { ...l, x: l.x + dx, y: l.y + dy } : l,
-          ),
-          equipment: state.project.equipment.map((e) =>
-            containedSet.has(e.id) ? { ...e, x: e.x + dx, y: e.y + dy } : e,
-          ),
-          cables: nextCables,
-        }),
-      }
-    }),
-  queueConnection: (connection, waypoints) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      // #294 — Port-Konflikt-Check. Wenn der ZIEL-Port (targetHandle)
-      // bereits in einem anderen Kabel als toPortId verwendet wird, oeffnen
-      // wir den PortConflictDialog statt direkt den CableDialog. Source-
-      // Ports werden bewusst NICHT geprueft — Outputs koennen sinnvoll
-      // mehrere parallel Kabel speisen (1-to-many Distribution).
-      const targetHandle = connection.targetHandle
-      const conflictingCables = targetHandle
-        ? state.project.cables.filter((c) => c.toPortId === targetHandle)
-        : []
-      if (conflictingCables.length > 0) {
-        return {
-          portConflict: {
-            connection,
-            waypoints,
-            conflictingCableIds: conflictingCables.map((c) => c.id),
-          },
-        }
-      }
-      return {
-        pendingConnection: connection,
-        pendingWaypoints: waypoints && waypoints.length > 0 ? waypoints : undefined,
-        showCableDialog: true,
-      }
-    }),
-  resolvePortConflictByReplace: () =>
-    set((state) => {
-      if (!state.portConflict) return state
-      const { connection, waypoints, conflictingCableIds } = state.portConflict
-      const conflictSet = new Set(conflictingCableIds)
-      return {
-        project: touchProject({
-          ...state.project,
-          cables: state.project.cables.filter((c) => !conflictSet.has(c.id)),
-        }),
-        pendingConnection: connection,
-        pendingWaypoints: waypoints && waypoints.length > 0 ? waypoints : undefined,
-        showCableDialog: true,
-        portConflict: undefined,
-      }
-    }),
-  cancelPortConflict: () => set({ portConflict: undefined }),
-  closeCableDialog: () =>
-    set({ pendingConnection: undefined, pendingWaypoints: undefined, showCableDialog: false }),
-  createCableFromPending: (draft) =>
-    set((state) => {
-      // #295 — Hard-Block bei finalized/viewer-Mode. queueConnection blockt
-      // schon das Setzen von pendingConnection, aber falls der Lock zwischen
-      // den beiden Calls hineinkommt (Race) oder pendingConnection von
-      // anderem Pfad gesetzt wurde, fangen wir das hier nochmal.
-      if (isProjectLocked(state)) {
-        return { pendingConnection: undefined, pendingWaypoints: undefined, showCableDialog: false }
-      }
-      if (!state.pendingConnection || !state.pendingConnection.source || !state.pendingConnection.target) {
-        return { pendingConnection: undefined, pendingWaypoints: undefined, showCableDialog: false }
-      }
-
-      const ui = useUiStore.getState()
-      // v7.9.85 / #123 — Layer-Auto-Detect aus dem Cable-Type.
-      // v7.9.95: Fallback ist 'other', also nie undefined.
-      const autoLayer = detectLayerForConnector(draft.type)
-      const cable: Cable = {
-        id: uuidv4(),
-        name: draft.name,
-        type: draft.type,
-        length: draft.length,
-        color: draft.color,
-        fromEquipmentId: state.pendingConnection.source,
-        fromPortId: state.pendingConnection.sourceHandle ?? '',
-        toEquipmentId: state.pendingConnection.target,
-        toPortId: state.pendingConnection.targetHandle ?? '',
-        notes: draft.notes,
-        cableSpecId: draft.cableSpecId,
-        standard: draft.standard,
-        needsConverter: draft.needsConverter,
-        routing: ui.defaultRouting,
-        arrowEnd: ui.defaultArrow,
-        // Inherently two-way cable types get the bidirectional flag set
-        // by default (issue #67). The user can still untick it in
-        // CableProperties if they want to show a one-way arrow anyway.
-        bidirectional: isBidirectionalCableType(draft.type),
-        strokeWidth: 2.5,
-        waypoints: state.pendingWaypoints,
-        layer: autoLayer,
-      }
-
-      return {
-        project: touchProject({
-          ...state.project,
-          cables: [...state.project.cables, cable],
-        }),
-        pendingConnection: undefined,
-        pendingWaypoints: undefined,
-        showCableDialog: false,
-        selectedCableId: cable.id,
-      }
-    }),
-  updateCable: (id, patch) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      // v7.9.125 — wenn CableProperties einen Endpoint umsetzt (eq/port-id),
-      // muss die Connector-Type-Inheritance auch hier greifen.
-      // updateCable wird sonst nur fuer Name/Color/Notes/etc. genutzt
-      // — die brauchen kein Typ-Update.
-      const endpointChanged =
-        patch.fromEquipmentId !== undefined ||
-        patch.fromPortId !== undefined ||
-        patch.toEquipmentId !== undefined ||
-        patch.toPortId !== undefined
-      const inheritType =
-        endpointChanged && useUiStore.getState().inheritCableTypeFromPort
-      return {
-        project: touchProject({
-          ...state.project,
-          cables: state.project.cables.map((item) => {
-            if (item.id !== id) return item
-            const merged = { ...item, ...patch }
-            if (!inheritType) return merged
-            const typePatch = cableTypePatchFromPorts(merged, state.project.equipment)
-            return typePatch ? { ...merged, ...typePatch } : merged
-          }),
-        }),
-      }
     }),
   deleteEquipment: (id) =>
     set((state) => {
