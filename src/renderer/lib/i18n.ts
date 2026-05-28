@@ -1880,6 +1880,76 @@ const en: Dict = {
     'Newly added devices start with this color (Properties → device color can change it individually). Empty: uses the theme body color.',
   'settings.eqColors.resetX': '✕ Reset',
 
+  // Canvas — TitleBlock
+  'canvas.titleBlock.unnamed': 'Untitled project',
+  'canvas.titleBlock.projectNo': 'Project no.',
+  'canvas.titleBlock.client': 'Client',
+  'canvas.titleBlock.contractor': 'Contractor',
+  'canvas.titleBlock.planner': 'Planner',
+  'canvas.titleBlock.created': 'Created',
+  'canvas.titleBlock.modified': 'Modified',
+  'canvas.titleBlock.showTitle': 'Show plan signature',
+  'canvas.titleBlock.signatureBtn': 'Signature',
+  'canvas.titleBlock.collapseTitle': 'Collapse signature',
+  'canvas.titleBlock.noLogo': 'no logo',
+
+  // Canvas — LayerVisibilityChips
+  'canvas.layerChips.layerStripTitle':
+    'Layer visibility (only cables are filtered, devices stay)',
+  'canvas.layerChips.layers': 'Layers',
+  'canvas.layerChips.chipTitle': '{label} — {count} cables · {state}',
+  'canvas.layerChips.visibleHide': 'visible (click to hide)',
+  'canvas.layerChips.hiddenShow': 'hidden (click to show)',
+  'canvas.layerChips.customLayerPrompt': 'Create custom layer (e.g. "intercom", "lighting")',
+  'canvas.layerChips.removeCustom': 'Remove custom layer "{layer}"?',
+  'canvas.layerChips.customTitle': '{layer} (custom) — right-click to remove',
+  'canvas.layerChips.menuTitle': 'Layer management (create custom / reset all)',
+  'canvas.layerChips.addCustom': 'Create custom layer…',
+  'canvas.layerChips.resetAll': 'Show all layers again',
+
+  // Canvas — CableContextMenu
+  'canvas.cableMenu.renameTitle': 'Cable label',
+  'canvas.cableMenu.confirmDelete': 'Delete cable "{name}"?',
+  'canvas.cableMenu.headerLabel': 'Cable:',
+  'canvas.cableMenu.rename': 'Change label…',
+  'canvas.cableMenu.acceptMobile': 'Accept into plan (mobile suggestion)',
+  'canvas.cableMenu.removeMobileCheck': 'Remove mobile check',
+  'canvas.cableMenu.addWaypoint': 'Add waypoint here',
+  'canvas.cableMenu.removeNearestWaypoint': 'Remove nearest waypoint',
+  'canvas.cableMenu.clearWaypoints': 'Clear all waypoints ({n})',
+  'canvas.cableMenu.reroute': 'Auto-reroute',
+  'canvas.cableMenu.routing': 'Routing:',
+  'canvas.cableMenu.routingOrth': 'Orthogonal',
+  'canvas.cableMenu.routingStraight': 'Direct',
+  'canvas.cableMenu.routingCurved': 'Curved',
+  'canvas.cableMenu.bumps': 'Cable jumps for this cable',
+  'canvas.cableMenu.global': 'global',
+  'canvas.cableMenu.removeOverride': 'Remove override (follow global)',
+  'canvas.cableMenu.arrowEnd': 'Arrow at end',
+  'canvas.cableMenu.arrowStart': 'Arrow at start',
+  'canvas.cableMenu.bidi': 'Bidirectional',
+  'canvas.cableMenu.show': 'show',
+  'canvas.cableMenu.hide': 'hide',
+  'canvas.cableMenu.on': 'turn on',
+  'canvas.cableMenu.off': 'turn off',
+  'canvas.cableMenu.delete': 'Delete cable',
+
+  // Canvas — CableEdge
+  'canvas.cableEdge.deleteTitle': 'Delete cable',
+
+  // Canvas — CanvasArea
+  'canvas.area.newDevicePromptTitle': 'New device',
+  'canvas.area.newDevicePromptDefault': 'New device',
+  'canvas.area.viewerMode': 'Viewer mode — plan is read-only. Changes are not possible.',
+  'canvas.area.finalizedMode': 'Plan is finalized — changes are locked.',
+  'canvas.area.releaseConfirm': 'Re-open the plan for editing?',
+  'canvas.area.releaseBody': 'Devices, cables and layout can then be changed again.',
+  'canvas.area.release': 'Release',
+  'canvas.area.releaseBtn': 'Release for editing',
+  'canvas.area.renameLocation': 'Rename location:',
+  'canvas.area.lockPosition': 'Lock position',
+  'canvas.area.unlockPosition': 'Unlock position',
+
   // RackBuilderDialog body
   'rack.depthTitle':
     'Rack depth in mm. Default: 800 mm. Common values: 350/450/600/800/1000/1200.',
@@ -1940,6 +2010,24 @@ const en: Dict = {
   'eqNode.packed': 'Packed — ready to ship',
   'eqNode.mobileChecked':
     'Checked on site (mobile viewer) — click removes the check',
+
+  // Library rentman add to project (info dialogs)
+  'library.rentman.groupCreated': '(new "CablePlanner" group created)',
+  'library.rentman.groupReused': '(added to existing "CablePlanner" group)',
+  'library.rentman.noGroups':
+    '(no group — your Rentman plan disallows API groups)',
+  'library.rentman.addedTitle': '"{name}" added',
+  'library.rentman.addedBody': 'Added to Rentman project "{project}"{note}.',
+  'library.rentman.addError': 'Error adding to Rentman',
+
+  // Library create dialog (HE-Picker + group label)
+  'library.create.hePlaceholder': 'U',
+  'library.create.groupLabelPrefix': 'Label prefix',
+  'library.create.removeGroup': 'Remove group',
+
+  // RackImageCropDialog
+  'rackCrop.scrollHint': 'Scroll wheel or + / - do the same',
+  'rackCrop.resetTitle': 'Reset crop and zoom (R)',
 }
 
 const translations: Record<Language, Dict> = {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { cablePlannerApi, type AtemStateSummary, type AtemMultiviewer } from '../../lib/bridge'
+import { useTranslation } from '../../lib/i18n'
 
 interface MultiviewerLayoutViewProps {
   onClose: () => void
@@ -243,6 +244,7 @@ const MultiviewerPanel = ({ mv }: { mv: AtemMultiviewer }) => {
 }
 
 export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) => {
+  const t = useTranslation()
   const [state, setState] = useState<AtemStateSummary | null>(null)
   const [connected, setConnected] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -282,7 +284,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
         <header className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
           <div>
             <h2 className="text-base font-semibold text-sky-300">
-              Multiviewer Layout (Live)
+              {t('atem.mvLayout.title', 'Multiviewer Layout (Live)')}
             </h2>
             {state && (
               <p className="text-[11px] text-slate-400">
@@ -297,14 +299,14 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
               onClick={() => void refresh()}
               className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
             >
-              ↻ Aktualisieren
+              {t('atem.mvLayout.refresh', '↻ Aktualisieren')}
             </button>
             <button
               type="button"
               onClick={onClose}
               className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
             >
-              ✕ Schließen
+              {t('atem.mvLayout.close', '✕ Schließen')}
             </button>
           </div>
         </header>
@@ -312,8 +314,10 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
         <div className="flex-1 overflow-auto p-4">
           {!connected && (
             <div className="rounded border border-amber-700 bg-amber-900/30 p-3 text-xs text-amber-200">
-              Keine Verbindung zu einem ATEM. Zuerst im ATEM-Dialog verbinden, dann diese Ansicht
-              öffnen.
+              {t(
+                'atem.mvLayout.notConnected',
+                'Keine Verbindung zu einem ATEM. Zuerst im ATEM-Dialog verbinden, dann diese Ansicht öffnen.',
+              )}
             </div>
           )}
           {error && (
@@ -322,7 +326,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
 
           {connected && mvs.length === 0 && (
             <div className="text-xs text-slate-400">
-              Der verbundene ATEM meldet keine Multiviewer.
+              {t('atem.mvLayout.noMv', 'Der verbundene ATEM meldet keine Multiviewer.')}
             </div>
           )}
 
@@ -341,12 +345,14 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
         </div>
 
         <footer className="flex flex-wrap items-center gap-4 border-t border-slate-700 px-4 py-2 text-[11px] text-slate-300">
-          <span className="font-semibold uppercase tracking-wider text-slate-400">Legende</span>
-          <LegendSwatch label="Kamera" category="camera" />
-          <LegendSwatch label="GFX" category="gfx" />
-          <LegendSwatch label="Support" category="support" />
-          <LegendSwatch label="AUX" category="aux" />
-          <LegendSwatch label="PGM/PRV" category="pgm" />
+          <span className="font-semibold uppercase tracking-wider text-slate-400">
+            {t('atem.mvLayout.legend', 'Legende')}
+          </span>
+          <LegendSwatch label={t('atem.mvLayout.camera', 'Kamera')} category="camera" />
+          <LegendSwatch label={t('atem.mvLayout.gfx', 'GFX')} category="gfx" />
+          <LegendSwatch label={t('atem.mvLayout.support', 'Support')} category="support" />
+          <LegendSwatch label={t('atem.mvLayout.aux', 'AUX')} category="aux" />
+          <LegendSwatch label={t('atem.mvLayout.pgmPrv', 'PGM/PRV')} category="pgm" />
         </footer>
       </div>
     </div>
