@@ -525,8 +525,8 @@ const CapabilitiesPanel = ({
     { value: 2, label: 'Top-Right Small' },
     { value: 4, label: 'Bottom-Left Small' },
     { value: 8, label: 'Bottom-Right Small' },
-    { value: MV_LAYOUT.Grid16Small, label: 'Grid (16 klein)' },
-    { value: MV_LAYOUT.Quad4Big, label: 'Quad (4 groß)' },
+    { value: MV_LAYOUT.Grid16Small, label: t('atem.mv.layout.grid16Small', 'Grid (16 klein)') },
+    { value: MV_LAYOUT.Quad4Big, label: t('atem.mv.layout.quad4Big', 'Quad (4 groß)') },
   ]
   const toggleLayout = (val: number) => {
     const set = new Set(caps.supportedLayouts)
@@ -1129,14 +1129,14 @@ export const AtemMvConfigDialog = () => {
               className="rounded bg-indigo-700 px-3 py-1 text-xs hover:bg-indigo-600"
               title={t('atem.mv.savePng', 'Aktuelles MV-Layout als PNG speichern')}
             >
-              Als PNG
+              {t('atem.mv.asPng', 'Als PNG')}
             </button>
             <button
               type="button"
               onClick={handleSave}
               className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
             >
-              Zwischenspeichern
+              {t('atem.mv.saveDraft', 'Zwischenspeichern')}
             </button>
             {/* #288 — Live-MV-Setup vom ATEM holen. */}
             <button
@@ -1146,11 +1146,11 @@ export const AtemMvConfigDialog = () => {
               className="rounded bg-sky-700 px-3 py-1 text-xs enabled:hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
-                  ? 'Multiviewer-Setup vom verbundenen ATEM auslesen und in die Anzeige uebernehmen.'
-                  : 'ATEM nicht verbunden — erst im ATEM-Dialog verbinden.'
+                  ? t('atem.mv.readFromTitle', 'Multiviewer-Setup vom verbundenen ATEM auslesen und in die Anzeige uebernehmen.')
+                  : t('atem.mv.notConnectedTitle', 'ATEM nicht verbunden — erst im ATEM-Dialog verbinden.')
               }
             >
-              ⬇ Vom ATEM laden
+              ⬇ {t('atem.mv.readFromBtn', 'Vom ATEM laden')}
             </button>
             <button
               type="button"
@@ -1159,11 +1159,11 @@ export const AtemMvConfigDialog = () => {
               className="rounded bg-emerald-700 px-3 py-1 text-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
-                  ? 'Konfiguration an ATEM übertragen'
-                  : 'ATEM nicht verbunden — erst im ATEM-Dialog verbinden.'
+                  ? t('atem.mv.applyTitle', 'Konfiguration an ATEM übertragen')
+                  : t('atem.mv.notConnectedTitle', 'ATEM nicht verbunden — erst im ATEM-Dialog verbinden.')
               }
             >
-              An ATEM übertragen
+              {t('atem.mv.applyBtn', 'An ATEM übertragen')}
             </button>
           </div>
         </div>
