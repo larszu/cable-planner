@@ -3,6 +3,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { clearCanvasSelection } from '../../lib/canvasViewport'
 import { stampDeviceLibraryRef } from '../../lib/librarySync'
 import { MIME_EQUIPMENT } from '../../lib/dragDropMimes'
+import { format, useTranslation } from '../../lib/i18n'
 
 interface LibraryItemProps {
   item: EquipmentTemplate
@@ -29,6 +30,7 @@ export const LibraryItem = ({
   onLinkPorts,
   linkTargetName,
 }: LibraryItemProps) => {
+  const t = useTranslation()
   // Currently linked Rentman project — used to colour-code rentman badges
   // so users can distinguish "from active Rentman project" vs "from another
   // Rentman project" vs "purely local" at a glance.
@@ -88,10 +90,22 @@ export const LibraryItem = ({
       }`}
       title={
         isFromActiveRentman
-          ? `Aus aktivem Rentman-Projekt${item.rentmanProjectName ? ` "${item.rentmanProjectName}"` : ''} — Klick oder Drag & Drop auf den Canvas`
+          ? format(
+              t(
+                'library.item.titleActiveRentman',
+                'Aus aktivem Rentman-Projekt{suffix} — Klick oder Drag & Drop auf den Canvas',
+              ),
+              { suffix: item.rentmanProjectName ? ` "${item.rentmanProjectName}"` : '' },
+            )
           : isFromOtherRentman
-            ? `Aus Rentman-Projekt${item.rentmanProjectName ? ` "${item.rentmanProjectName}"` : ''} — Klick oder Drag & Drop auf den Canvas`
-            : 'Lokales Gerät — Klick oder Drag & Drop auf den Canvas'
+            ? format(
+                t(
+                  'library.item.titleOtherRentman',
+                  'Aus Rentman-Projekt{suffix} — Klick oder Drag & Drop auf den Canvas',
+                ),
+                { suffix: item.rentmanProjectName ? ` "${item.rentmanProjectName}"` : '' },
+              )
+            : t('library.item.titleLocal', 'Lokales Gerät — Klick oder Drag & Drop auf den Canvas')
       }
     >
       <div className="min-w-0 flex-1">
@@ -100,7 +114,10 @@ export const LibraryItem = ({
           {isFromActiveRentman && (
             <span
               className="mr-1 rounded bg-orange-600 px-1 text-[9px] font-bold text-white"
-              title={`Aus aktivem Rentman-Projekt${item.rentmanProjectName ? `: ${item.rentmanProjectName}` : ''}`}
+              title={format(
+                t('library.item.badgeActiveRentman', 'Aus aktivem Rentman-Projekt{suffix}'),
+                { suffix: item.rentmanProjectName ? `: ${item.rentmanProjectName}` : '' },
+              )}
             >
               R
             </span>
@@ -108,7 +125,10 @@ export const LibraryItem = ({
           {isFromOtherRentman && (
             <span
               className="mr-1 rounded bg-slate-600 px-1 text-[9px] font-bold text-slate-200"
-              title={`Aus Rentman-Projekt${item.rentmanProjectName ? `: ${item.rentmanProjectName}` : ''}`}
+              title={format(
+                t('library.item.badgeOtherRentman', 'Aus Rentman-Projekt{suffix}'),
+                { suffix: item.rentmanProjectName ? `: ${item.rentmanProjectName}` : '' },
+              )}
             >
               R
             </span>
@@ -116,7 +136,7 @@ export const LibraryItem = ({
           {!item.rentmanSource && (
             <span
               className="mr-1 rounded bg-sky-800/80 px-1 text-[9px] font-bold text-sky-100"
-              title="Lokales Gerät (nicht aus Rentman)"
+              title={t('library.item.badgeLocal', 'Lokales Gerät (nicht aus Rentman)')}
             >
               L
             </span>
@@ -143,7 +163,11 @@ export const LibraryItem = ({
                 ? 'bg-amber-700 text-amber-100 hover:bg-amber-600'
                 : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
             }`}
-            title={item.favorite ? 'Favorit entfernen' : 'Als Favorit markieren'}
+            title={
+              item.favorite
+                ? t('library.item.unfavorite', 'Favorit entfernen')
+                : t('library.item.favorite', 'Als Favorit markieren')
+            }
           >
             ★
           </button>
@@ -160,7 +184,11 @@ export const LibraryItem = ({
                 ? 'bg-slate-600 text-slate-200 hover:bg-slate-500'
                 : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
             }`}
-            title={item.hidden ? 'Wieder anzeigen' : 'Ausblenden'}
+            title={
+              item.hidden
+                ? t('library.item.show', 'Wieder anzeigen')
+                : t('library.item.hide', 'Ausblenden')
+            }
           >
             {item.hidden ? '◎' : '⦸'}
           </button>
@@ -173,8 +201,11 @@ export const LibraryItem = ({
               onExport()
             }}
             className="rounded bg-slate-700 px-1 text-[11px] text-slate-300 hover:bg-slate-600"
-            title="Als Datei exportieren (Kopie in den Downloads-Ordner)"
-            aria-label="Exportieren"
+            title={t(
+              'library.item.exportTitle',
+              'Als Datei exportieren (Kopie in den Downloads-Ordner)',
+            )}
+            aria-label={t('library.item.exportAria', 'Exportieren')}
           >
             ⬇
           </button>
@@ -189,10 +220,19 @@ export const LibraryItem = ({
             className="rounded bg-emerald-700 px-1 text-[11px] text-emerald-100 hover:bg-emerald-600"
             title={
               linkTargetName
-                ? `Mit lokalem Geraet "${linkTargetName}" verknuepfen (Ports uebernehmen)`
-                : 'Mit gleichnamigem lokalem Geraet verknuepfen (Ports uebernehmen)'
+                ? format(
+                    t(
+                      'library.item.linkNamed',
+                      'Mit lokalem Geraet "{name}" verknuepfen (Ports uebernehmen)',
+                    ),
+                    { name: linkTargetName },
+                  )
+                : t(
+                    'library.item.linkSameName',
+                    'Mit gleichnamigem lokalem Geraet verknuepfen (Ports uebernehmen)',
+                  )
             }
-            aria-label="Verknuepfen"
+            aria-label={t('library.item.linkAria', 'Verknuepfen')}
           >
             🔗
           </button>
@@ -205,7 +245,7 @@ export const LibraryItem = ({
               onRemove()
             }}
             className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
-            title="Remove from library"
+            title={t('library.item.removeTitle', 'Remove from library')}
           >
             ×
           </button>
