@@ -172,13 +172,13 @@ export const MobileShareDialog = () => {
             <div className="space-y-3">
               <div className="flex flex-col items-center gap-2 rounded border border-emerald-700 bg-emerald-950/30 p-3">
                 {qrDataUrl ? (
-                  <img src={qrDataUrl} alt="QR-Code" className="rounded bg-white p-2" />
+                  <img src={qrDataUrl} alt={t('mobile.dialog.qrAlt', 'QR-Code')} className="rounded bg-white p-2" />
                 ) : (
                   <div className="h-[240px] w-[240px] animate-pulse rounded bg-slate-800" />
                 )}
                 <div className="w-full">
                   <div className="text-[10px] uppercase tracking-wide text-emerald-300">
-                    Aktive URL
+                    {t('mobile.dialog.activeUrl', 'Aktive URL')}
                   </div>
                   <div className="flex items-center gap-1">
                     <input
@@ -191,7 +191,7 @@ export const MobileShareDialog = () => {
                       type="button"
                       onClick={() => void copyUrl()}
                       className="rounded bg-slate-700 px-2 py-1 text-[10px] hover:bg-slate-600"
-                      title="In die Zwischenablage kopieren"
+                      title={t('mobile.dialog.copyToClipboard', 'In die Zwischenablage kopieren')}
                     >
                       {copied ? '✓' : '📋'}
                     </button>
@@ -201,7 +201,7 @@ export const MobileShareDialog = () => {
               {status.urls.length > 1 && (
                 <div>
                   <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
-                    Alternative LAN-Adressen (falls eine nicht erreichbar ist)
+                    {t('mobile.dialog.altUrls', 'Alternative LAN-Adressen (falls eine nicht erreichbar ist)')}
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {status.urls.map((u) => (
@@ -223,11 +223,11 @@ export const MobileShareDialog = () => {
               )}
               <div className="flex items-center justify-between">
                 <span className="text-[11px] text-slate-400">
-                  Port {status.port} ·{' '}
+                  {t('mobile.dialog.portLabel', 'Port')} {status.port} ·{' '}
                   {status.hasProject ? (
-                    <span className="text-emerald-300">Projekt synchronisiert</span>
+                    <span className="text-emerald-300">{t('mobile.dialog.projectSynced', 'Projekt synchronisiert')}</span>
                   ) : (
-                    <span className="text-amber-300">Kein Projekt geladen</span>
+                    <span className="text-amber-300">{t('mobile.dialog.noProject', 'Kein Projekt geladen')}</span>
                   )}
                 </span>
                 <button
@@ -236,7 +236,7 @@ export const MobileShareDialog = () => {
                   disabled={busy}
                   className="rounded bg-red-700 px-3 py-1 text-xs text-white hover:bg-red-600 disabled:opacity-50"
                 >
-                  Stop
+                  {t('mobile.dialog.stop', 'Stop')}
                 </button>
               </div>
             </div>
@@ -244,7 +244,7 @@ export const MobileShareDialog = () => {
             <div className="flex flex-col items-center gap-3 rounded border border-slate-700 bg-slate-950/40 p-6 text-center">
               <div className="text-3xl">📡</div>
               <p className="text-xs text-slate-400">
-                Server ist gestoppt. Klicke unten, um den LAN-Server zu starten.
+                {t('mobile.dialog.stopped', 'Server ist gestoppt. Klicke unten, um den LAN-Server zu starten.')}
               </p>
               <button
                 type="button"
@@ -252,18 +252,17 @@ export const MobileShareDialog = () => {
                 disabled={busy || !hasDesktopBridge}
                 className="rounded bg-sky-700 px-4 py-2 text-sm text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {busy ? 'Starte…' : 'LAN-Server starten'}
+                {busy ? t('mobile.dialog.starting', 'Starte…') : t('mobile.dialog.startServer', 'LAN-Server starten')}
               </button>
             </div>
           )}
 
           <details className="text-[11px] text-slate-500">
-            <summary className="cursor-pointer hover:text-slate-300">Hinweise zur Sicherheit</summary>
+            <summary className="cursor-pointer hover:text-slate-300">{t('mobile.dialog.securityHeading', 'Hinweise zur Sicherheit')}</summary>
             <ul className="mt-1 list-inside list-disc space-y-1">
-              <li>Read-only: das Handy kann nur lesen, nichts schreiben.</li>
-              <li>Der Server bindet auf das lokale Netzwerk (0.0.0.0). Wenn unklar ist, wer
-                  im Netz hängt, lieber stoppen.</li>
-              <li>Beim Schließen der Desktop-App stoppt auch der Server automatisch.</li>
+              <li>{t('mobile.dialog.security.readOnly', 'Read-only: das Handy kann nur lesen, nichts schreiben.')}</li>
+              <li>{t('mobile.dialog.security.bind', 'Der Server bindet auf das lokale Netzwerk (0.0.0.0). Wenn unklar ist, wer im Netz hängt, lieber stoppen.')}</li>
+              <li>{t('mobile.dialog.security.autostop', 'Beim Schließen der Desktop-App stoppt auch der Server automatisch.')}</li>
             </ul>
           </details>
         </div>

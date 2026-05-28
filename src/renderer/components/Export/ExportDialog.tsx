@@ -12,6 +12,7 @@ import { useMemo, useState } from 'react'
 import jsPDF from 'jspdf'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
+import { useTranslation } from '../../lib/i18n'
 import {
   buildDevicePatchSheetBlob,
   buildDevicesPatchSheetsBatchBlob,
@@ -81,6 +82,7 @@ export const ExportDialog = ({
   onPrintPdf,
   onExportImage,
 }: ExportDialogProps) => {
+  const t = useTranslation()
   const [section, setSection] = useState<Section>('plan')
 
   if (!open) return null
@@ -95,7 +97,7 @@ export const ExportDialog = ({
       <div className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl sm:flex-row">
         <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-slate-800 bg-slate-950/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
           <h3 className="mb-2 hidden px-2 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
-            Exportieren & Drucken
+            {t('export.title', 'Exportieren & Drucken')}
           </h3>
           {(Object.keys(SECTION_LABEL) as Section[]).map((id) => (
             <button
@@ -109,7 +111,7 @@ export const ExportDialog = ({
               }`}
             >
               <span className="text-base">{SECTION_ICON[id]}</span>
-              <span>{SECTION_LABEL[id]}</span>
+              <span>{t(`export.section.${id}`, SECTION_LABEL[id])}</span>
             </button>
           ))}
         </aside>
@@ -117,14 +119,14 @@ export const ExportDialog = ({
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2">
             <h2 className="text-base font-semibold">
-              {SECTION_ICON[section]} {SECTION_LABEL[section]}
+              {SECTION_ICON[section]} {t(`export.section.${section}`, SECTION_LABEL[section])}
             </h2>
             <button
               type="button"
               onClick={onClose}
               className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
             >
-              Schließen
+              {t('common.close', 'Schließen')}
             </button>
           </header>
           {/* v7.9.4 — Body als flex-col OHNE eigenes overflow-auto.

@@ -4,6 +4,7 @@ import { buildTemplateFromHints, suggestPortGroups, type PortGroupHint } from '.
 import { getGeminiApiKey, setGeminiApiKey, suggestFromAI } from '../../lib/aiSuggestions'
 import { suggestFromWeb } from '../../lib/webPortSuggestions'
 import { useProjectStore } from '../../store/projectStore'
+import { format, useTranslation } from '../../lib/i18n'
 import { CategorySelect } from '../shared/CategorySelect'
 
 const connectorOptions: ConnectorType[] = [
@@ -54,6 +55,7 @@ export const NewRentmanDeviceWizard = ({
   onSave,
   onCancel,
 }: NewRentmanDeviceWizardProps) => {
+  const t = useTranslation()
   const [index, setIndex] = useState(0)
   const current = items[index]
 
@@ -103,19 +105,19 @@ export const NewRentmanDeviceWizard = ({
       // No key — open the settings panel inline instead of throwing.
       setApiKeyDraft('')
       setAiSettingsOpen(true)
-      setAiError('Kein Gemini-API-Key hinterlegt. Trage einen ein oder nutze "Web-Suche (frei)".')
+      setAiError(t('rentman.wizard.noGeminiKey', 'Kein Gemini-API-Key hinterlegt. Trage einen ein oder nutze "Web-Suche (frei)".'))
       return
     }
     setAiLoading(true)
     try {
       const hints = await suggestFromAI(name, category)
       if (hints.length === 0) {
-        setAiError('AI returned no ports. Try refining the name.')
+        setAiError(t('rentman.wizard.aiNoPorts', 'AI returned no ports. Try refining the name.'))
         return
       }
       setGroups(hintsToDrafts(hints))
     } catch (err) {
-      setAiError(err instanceof Error ? err.message : 'AI request failed')
+      setAiError(err instanceof Error ? err.message : t('rentman.wizard.aiFailed', 'AI request failed'))
     } finally {
       setAiLoading(false)
     }
@@ -130,15 +132,15 @@ export const NewRentmanDeviceWizard = ({
       if (hints.length === 0) {
         setWebInfo(
           snippet
-            ? `Keine Stecker im ${source}-Snippet erkannt. Manuell ergänzen oder anderen Namen versuchen.`
-            : 'Kein Treffer im Web. Geräte-Name präzisieren (Hersteller + Modell).',
+            ? format(t('rentman.wizard.webNoConnectors', 'Keine Stecker im {source}-Snippet erkannt. Manuell ergänzen oder anderen Namen versuchen.'), { source })
+            : t('rentman.wizard.webNoHit', 'Kein Treffer im Web. Geräte-Name präzisieren (Hersteller + Modell).'),
         )
         return
       }
       setGroups(hintsToDrafts(hints))
-      setWebInfo(`${hints.length} Port-Gruppe(n) aus ${source} übernommen.`)
+      setWebInfo(format(t('rentman.wizard.webHints', '{count} Port-Gruppe(n) aus {source} übernommen.'), { count: hints.length, source }))
     } catch (err) {
-      setAiError(err instanceof Error ? err.message : 'Web search failed')
+      setAiError(err instanceof Error ? err.message : t('rentman.wizard.webFailed', 'Web search failed'))
     } finally {
       setWebLoading(false)
     }
@@ -179,10 +181,13 @@ export const NewRentmanDeviceWizard = ({
       <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <h3 className="text-base font-semibold">New Rentman Device ({progress})</h3>
+            <h3 className="text-base font-semibold">
+              {format(t('rentman.wizard.title', 'New Rentman Device ({progress})'), { progress })}
+            </h3>
             <p className="mt-1 text-xs text-slate-400">
-              First time we see <span className="text-slate-200">{current.name}</span>. Confirm inputs/outputs — they&rsquo;ll be
-              remembered in your custom library.
+              {t('rentman.wizard.introPre', 'First time we see')}{' '}
+              <span className="text-slate-200">{current.name}</span>
+              {t('rentman.wizard.introPost', '. Confirm inputs/outputs — they’ll be remembered in your custom library.')}
             </p>
           </div>
           <button
@@ -190,13 +195,13 @@ export const NewRentmanDeviceWizard = ({
             onClick={onCancel}
             className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
           >
-            Import abbrechen
+            {t('rentman.wizard.cancelImport', 'Import abbrechen')}
           </button>
         </div>
 
         <div className="mb-3 grid grid-cols-2 gap-2 text-sm">
           <label className="block">
-            Name
+            {t('rentman.wizard.name', 'Name')}
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
@@ -204,7 +209,7 @@ export const NewRentmanDeviceWizard = ({
             />
           </label>
           <label className="block">
-            Kategorie
+            {t('rentman.wizard.category', 'Kategorie')}
             <div className="mt-1 flex gap-1">
               <CategorySelect
                 value={category}
@@ -217,57 +222,57 @@ export const NewRentmanDeviceWizard = ({
                   const cat = category.trim()
                   if (cat) addKnownCategories([cat])
                 }}
-                title="Save as new category"
+                title={t('rentman.wizard.saveAsCategoryTitle', 'Save as new category')}
                 className="rounded bg-slate-700 px-2 text-xs hover:bg-slate-600"
               >
-                + Add
+                {t('rentman.wizard.addCategory', '+ Add')}
               </button>
             </div>
           </label>
         </div>
 
         <div className="mb-2 flex items-center justify-between">
-          <div className="text-sm font-semibold">Suggested Port Groups</div>
+          <div className="text-sm font-semibold">{t('rentman.wizard.suggestedPortGroups', 'Suggested Port Groups')}</div>
           <div className="flex flex-wrap gap-2 text-xs">
             <button
               type="button"
               onClick={handleWebSuggest}
               disabled={webLoading}
               className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
-              title="Wikipedia + DuckDuckGo durchsuchen (kein Key nötig)"
+              title={t('rentman.wizard.webSearchTitle', 'Wikipedia + DuckDuckGo durchsuchen (kein Key nötig)')}
             >
-              {webLoading ? 'Suche…' : '🌐 Web-Suche (frei)'}
+              {webLoading ? t('rentman.wizard.webBusy', 'Suche…') : t('rentman.wizard.webSearch', '🌐 Web-Suche (frei)')}
             </button>
             <button
               type="button"
               onClick={handleAiSuggest}
               disabled={aiLoading}
               className="rounded bg-purple-700 px-2 py-1 hover:bg-purple-600 disabled:opacity-50"
-              title="Gemini AI (benötigt API-Key)"
+              title={t('rentman.wizard.aiTitle', 'Gemini AI (benötigt API-Key)')}
             >
-              {aiLoading ? 'Asking AI…' : '✨ AI (Gemini)'}
+              {aiLoading ? t('rentman.wizard.aiBusy', 'Asking AI…') : t('rentman.wizard.aiButton', '✨ AI (Gemini)')}
             </button>
             <button
               type="button"
               onClick={handleOpenAiSettings}
               className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
-              title="Gemini API-Key konfigurieren"
+              title={t('rentman.wizard.aiSettingsTitle', 'Gemini API-Key konfigurieren')}
             >
-              AI settings
+              {t('rentman.wizard.aiSettings', 'AI settings')}
             </button>
             <button
               type="button"
               onClick={() => addGroup('in')}
               className="rounded bg-sky-700 px-2 py-1 hover:bg-sky-600"
             >
-              + Input Group
+              {t('rentman.wizard.addInputGroup', '+ Input Group')}
             </button>
             <button
               type="button"
               onClick={() => addGroup('out')}
               className="rounded bg-green-700 px-2 py-1 hover:bg-green-600"
             >
-              + Output Group
+              {t('rentman.wizard.addOutputGroup', '+ Output Group')}
             </button>
           </div>
         </div>
@@ -280,11 +285,11 @@ export const NewRentmanDeviceWizard = ({
 
         {aiSettingsOpen && (
           <div className="mb-3 rounded border border-purple-700 bg-purple-950/40 p-3">
-            <div className="mb-2 text-xs font-semibold text-purple-200">Gemini API-Key</div>
+            <div className="mb-2 text-xs font-semibold text-purple-200">{t('rentman.wizard.geminiKeyHeading', 'Gemini API-Key')}</div>
             <p className="mb-2 text-[11px] text-slate-300">
-              Kostenlos unter{' '}
+              {t('rentman.wizard.geminiKeyHintPre', 'Kostenlos unter')}{' '}
               <span className="font-mono text-slate-200">aistudio.google.com/apikey</span>{' '}
-              (15 Anfragen/Min). Wird lokal im Browser-Storage gespeichert.
+              {t('rentman.wizard.geminiKeyHintPost', '(15 Anfragen/Min). Wird lokal im Browser-Storage gespeichert.')}
             </p>
             <input
               type="password"
@@ -300,7 +305,7 @@ export const NewRentmanDeviceWizard = ({
                 onClick={() => setAiSettingsOpen(false)}
                 className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
               >
-                Abbrechen
+                {t('common.cancel', 'Abbrechen')}
               </button>
               <button
                 type="button"
@@ -311,14 +316,14 @@ export const NewRentmanDeviceWizard = ({
                 }}
                 className="rounded bg-red-700 px-2 py-1 text-xs hover:bg-red-600"
               >
-                Löschen
+                {t('common.delete', 'Löschen')}
               </button>
               <button
                 type="button"
                 onClick={handleSaveAiSettings}
                 className="rounded bg-emerald-600 px-2 py-1 text-xs hover:bg-emerald-500"
               >
-                Speichern
+                {t('common.save', 'Speichern')}
               </button>
             </div>
           </div>
@@ -331,16 +336,16 @@ export const NewRentmanDeviceWizard = ({
               className="grid grid-cols-[80px_70px_1fr_1fr_40px] items-center gap-2 rounded border border-slate-700 bg-slate-950 p-2 text-xs"
             >
               <select
-                aria-label="Direction"
+                aria-label={t('rentman.wizard.directionAria', 'Direction')}
                 value={group.direction}
                 onChange={(event) => updateGroup(group.id, { direction: event.target.value as 'in' | 'out' })}
                 className="rounded border border-slate-700 bg-slate-900 p-1"
               >
-                <option value="in">Input</option>
-                <option value="out">Output</option>
+                <option value="in">{t('rentman.wizard.directionIn', 'Input')}</option>
+                <option value="out">{t('rentman.wizard.directionOut', 'Output')}</option>
               </select>
               <input
-                aria-label="Count"
+                aria-label={t('rentman.wizard.countAria', 'Count')}
                 type="number"
                 min={1}
                 value={group.count}
@@ -348,7 +353,7 @@ export const NewRentmanDeviceWizard = ({
                 className="rounded border border-slate-700 bg-slate-900 p-1"
               />
               <select
-                aria-label="Connector type"
+                aria-label={t('rentman.wizard.connectorTypeAria', 'Connector type')}
                 value={group.connectorType}
                 onChange={(event) => updateGroup(group.id, { connectorType: event.target.value as ConnectorType })}
                 className="rounded border border-slate-700 bg-slate-900 p-1"
@@ -362,21 +367,21 @@ export const NewRentmanDeviceWizard = ({
               <input
                 value={group.label}
                 onChange={(event) => updateGroup(group.id, { label: event.target.value })}
-                placeholder="Label prefix"
+                placeholder={t('rentman.wizard.labelPrefixPlaceholder', 'Label prefix')}
                 className="rounded border border-slate-700 bg-slate-900 p-1"
               />
               <button
                 type="button"
                 onClick={() => removeGroup(group.id)}
                 className="rounded bg-red-700 px-2 py-1 hover:bg-red-600"
-                title="Remove group"
+                title={t('rentman.wizard.removeGroupTitle', 'Remove group')}
               >
                 ×
               </button>
             </div>
           ))}
           {groups.length === 0 && (
-            <div className="text-xs text-slate-400">No port groups. Add one above, or skip this device.</div>
+            <div className="text-xs text-slate-400">{t('rentman.wizard.noGroups', 'No port groups. Add one above, or skip this device.')}</div>
           )}
         </div>
 
@@ -385,24 +390,24 @@ export const NewRentmanDeviceWizard = ({
             type="button"
             onClick={handleExclude}
             className="rounded bg-red-700 px-3 py-1 hover:bg-red-600"
-            title="Dieses Gerät überspringen und NICHT importieren"
+            title={t('rentman.wizard.excludeTitle', 'Dieses Gerät überspringen und NICHT importieren')}
           >
-            Nicht importieren
+            {t('rentman.wizard.exclude', 'Nicht importieren')}
           </button>
           <button
             type="button"
             onClick={handleSkip}
             className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
-            title="Import without creating a library entry (1 generic input + output)"
+            title={t('rentman.wizard.skipTitle', 'Import without creating a library entry (1 generic input + output)')}
           >
-            Skip (generic)
+            {t('rentman.wizard.skip', 'Skip (generic)')}
           </button>
           <button
             type="button"
             onClick={handleSave}
             className="rounded bg-emerald-600 px-3 py-1 hover:bg-emerald-500"
           >
-            {isLast ? 'Save & Finish' : 'Save & Next'}
+            {isLast ? t('rentman.wizard.saveFinish', 'Save & Finish') : t('rentman.wizard.saveNext', 'Save & Next')}
           </button>
         </div>
       </div>
