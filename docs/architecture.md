@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v8.0.10 · ~235 TS/TSX-Module · ~73.5k LOC
+Stand: v8.1.0 · ~235 TS/TSX-Module · ~73.5k LOC
 
 ---
 

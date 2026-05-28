@@ -22,6 +22,8 @@
 import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { buildExportFilename } from './exportFilename'
+import { translate } from './i18n'
+import { useUiStore } from '../store/uiStore'
 
 /** v7.9.103 — Standard-Page-Sizes fuer Plotter-/Print-Workflows. 'auto'
  *  kappt auf A0-Landscape (Default, max. Viewer-Kompatibilitaet). 'original'
@@ -100,7 +102,13 @@ const computeNaturalBbox = (viewportEl: HTMLElement): BoundingBox => {
     viewportEl.querySelectorAll<HTMLElement>('.react-flow__node'),
   )
   if (nodeEls.length === 0) {
-    throw new Error('Keine Geräte zum Exportieren vorhanden')
+    throw new Error(
+      translate(
+        useUiStore.getState().language,
+        'export.pdf.errNoDevices',
+        'Keine Geräte zum Exportieren vorhanden',
+      ),
+    )
   }
   const parseTranslate = (el: HTMLElement): { x: number; y: number } => {
     const transform = getComputedStyle(el).transform

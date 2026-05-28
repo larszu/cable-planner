@@ -2683,6 +2683,13 @@ const en: Dict = {
   'project.viewerName.missingTitle': 'Name missing',
   'project.viewerName.missingBody':
     'Without a name no annotations can be made. The file will not be loaded.',
+  // PDF export errors
+  'export.pdf.errNoDevices': 'No devices to export.',
+  // ATEM MV config dialog (additional layout hints)
+  'atem.mv.layoutsHint':
+    'Heuristic based on device name. If your model supports a layout the heuristic does not detect (or vice-versa), check the boxes here — the selection overrides the default and is kept with the project.',
+  'atem.mv.quadrantHint1': 'Click on a quadrant:',
+  'atem.mv.quadrantHint2': 'big ↔ 4 small',
 }
 
 const translations: Record<Language, Dict> = {
