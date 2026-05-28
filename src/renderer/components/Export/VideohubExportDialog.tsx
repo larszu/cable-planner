@@ -618,13 +618,13 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
 
         <div className="mb-3 grid grid-cols-2 gap-3 text-sm">
           <label className="block">
-            Gerät auf dem Canvas
+            {t('videohub.deviceOnCanvas', 'Gerät auf dem Canvas')}
             <select
               value={deviceId}
               onChange={(e) => setDeviceId(e.target.value)}
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
             >
-              <option value="">— Gerät wählen —</option>
+              <option value="">— {t('videohub.pickDevice', 'Gerät wählen')} —</option>
               {equipment.map((e) => (
                 <option key={e.id} value={e.id}>
                   {e.name} ({e.inputs.length}/{e.outputs.length})
