@@ -10,19 +10,23 @@ import { useUiStore, type Language } from '../store/uiStore'
  *     annotations, length legend)
  *   ✓ Properties panel chrome + Equipment / Cable / Location panels
  *   ✓ PortList (incl. SFP details, ATEM source IDs, content labels)
+ *   ✓ DeviceModePicker + ModeEditorDialog (multi-mode devices, #113)
  *   ✓ Common buttons (OK / Cancel / Save / Close / Delete / …)
  *   ✓ promptDialog + confirmDialog default labels
  *   ✓ CategorySelect "+ New category…" entry
- *   ✓ Library panel — chrome (header buttons, search, tab labels)
+ *   ✓ Library panel chrome (show/hide, tab tooltips, search)
+ *   ✓ Layout chrome (FloatingPanelShell dock, Splitter, ModalShell close)
+ *   ✓ Shared widgets (ColorField, RoutingToggle)
+ *   ✓ PrintDialog frame + actions
+ *   ✓ CableDialog — title + Create/Cancel + From/To labels
  *   ✓ Rentman import — top-level chrome (title, close, cancel)
  *   ✓ ATEM audio router — empty state, action buttons, tabs
- *   ✓ CableDialog — title + Create/Cancel + From/To labels
  *   ◯ Library panel — per-template detail buttons still DE
  *   ◯ Properties panels — long-tail tooltips still DE
  *   ◯ Rentman import — per-row tooltips, conflict resolution UI still DE
  *   ◯ ATEM dialogs — channel-strip table headers still DE
  *   ◯ Rack builder — DE only
- *   ◯ Export dialogs (Plan/PatchSheets/BOM, Videohub, GreenGo, Location BOM) — DE only
+ *   ◯ Export dialogs (Plan/PatchSheets/BOM body, Videohub, GreenGo, Location BOM) — DE only
  *
  * Strings without a translation fall through to the German source string,
  * so a partially-translated UI stays readable rather than showing missing-
@@ -115,7 +119,7 @@ const en: Dict = {
   'settings.appearance.languageDesc':
     'UI language. Switching is instant. Some deeply nested dialogs are still German-only — see the i18n coverage note.',
   'settings.appearance.coverage':
-    'Currently translated: Settings, menu bar, status bar, canvas toolbar, properties panels (Equipment / Cable / Location / Ports), library chrome, cable dialog. Long-tail tooltips, export dialogs and rack builder still appear in German.',
+    'Currently translated: Settings, menu bar, status bar, canvas toolbar, properties panels (Equipment / Cable / Location / Ports incl. device modes), library chrome, cable dialog, print dialog, modals and shared widgets. Long-tail tooltips, export dialogs and rack builder still appear in German.',
   'settings.appearance.theme': 'Theme',
   'settings.appearance.themeDesc':
     'Canvas background colour. Optimised for dark; light is intended for PDF export or bright environments.',
