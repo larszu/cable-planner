@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ProjectMetadata } from '../../types/project'
 import { readImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { ModalShell } from '../shared/ModalShell'
+import { useTranslation } from '../../lib/i18n'
 
 /**
  * Dialog used both when starting a new project and when editing metadata
@@ -24,6 +25,7 @@ export const ProjectMetaDialog = ({
   onCancel,
   onConfirm,
 }: ProjectMetaDialogProps) => {
+  const t = useTranslation()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [author, setAuthor] = useState('')
@@ -74,7 +76,11 @@ export const ProjectMetaDialog = ({
     <ModalShell
       open={open}
       onClose={onCancel}
-      title={mode === 'new' ? 'Neues Projekt' : 'Projektdaten bearbeiten'}
+      title={
+        mode === 'new'
+          ? t('project.meta.titleNew', 'Neues Projekt')
+          : t('project.meta.titleEdit', 'Projektdaten bearbeiten')
+      }
       maxWidth="2xl"
       footer={
         <div className="flex items-center justify-end gap-2">
@@ -83,7 +89,7 @@ export const ProjectMetaDialog = ({
             onClick={onCancel}
             className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
           >
-            Abbrechen
+            {t('common.cancel', 'Abbrechen')}
           </button>
           <button
             type="button"
@@ -91,64 +97,66 @@ export const ProjectMetaDialog = ({
             onClick={handleConfirm}
             className="rounded bg-emerald-700 px-3 py-1 text-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {mode === 'new' ? 'Projekt anlegen' : 'Speichern'}
+            {mode === 'new'
+              ? t('project.meta.create', 'Projekt anlegen')
+              : t('common.save', 'Speichern')}
           </button>
         </div>
       }
     >
       <div className="space-y-3 text-xs">
           <label className="block">
-            Projektname <span className="text-red-400">*</span>
+            {t('project.meta.name', 'Projektname')} <span className="text-red-400">*</span>
             <input
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="z.B. ProSieben Studio Umbau"
+              placeholder={t('project.meta.namePh', 'z.B. ProSieben Studio Umbau')}
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
             />
           </label>
 
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
-              Auftragnehmer (Firma)
+              {t('project.meta.contractor', 'Auftragnehmer (Firma)')}
               <input
                 value={contractor}
                 onChange={(e) => setContractor(e.target.value)}
-                placeholder="Deine Firma GmbH"
+                placeholder={t('project.meta.contractorPh', 'Deine Firma GmbH')}
                 className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
               />
             </label>
             <label className="block">
-              Kunde
+              {t('project.meta.client', 'Kunde')}
               <input
                 value={client}
                 onChange={(e) => setClient(e.target.value)}
-                placeholder="Endkunde"
+                placeholder={t('project.meta.clientPh', 'Endkunde')}
                 className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
               />
             </label>
             <label className="block">
-              Planer / Autor
+              {t('project.meta.author', 'Planer / Autor')}
               <input
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
-                placeholder="Vorname Nachname"
+                placeholder={t('project.meta.authorPh', 'Vorname Nachname')}
                 className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
               />
             </label>
             <label className="block">
-              Projekt-/Job-Nr.
+              {t('project.meta.projectNumber', 'Projekt-/Job-Nr.')}
               <input
                 value={projectNumber}
                 onChange={(e) => setProjectNumber(e.target.value)}
-                placeholder="z.B. 2026-042"
+                placeholder={t('project.meta.projectNumberPh', 'z.B. 2026-042')}
                 className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
               />
             </label>
           </div>
 
           <label className="block">
-            Beschreibung
+            {t('project.meta.description', 'Beschreibung')}
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -159,12 +167,14 @@ export const ProjectMetaDialog = ({
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <div className="mb-1 text-[11px] text-slate-400">Firmenlogo</div>
+              <div className="mb-1 text-[11px] text-slate-400">
+                {t('project.meta.companyLogo', 'Firmenlogo')}
+              </div>
               {companyLogo ? (
                 <div className="flex items-center gap-2">
                   <img
                     src={companyLogo}
-                    alt="Firmenlogo"
+                    alt={t('project.meta.companyLogo', 'Firmenlogo')}
                     className="h-12 w-auto rounded border border-slate-700 bg-white p-1"
                   />
                   <button
@@ -172,7 +182,7 @@ export const ProjectMetaDialog = ({
                     onClick={() => setCompanyLogo(undefined)}
                     className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
                   >
-                    Entfernen
+                    {t('project.meta.removeLogo', 'Entfernen')}
                   </button>
                 </div>
               ) : null}
@@ -193,16 +203,18 @@ export const ProjectMetaDialog = ({
                 onClick={() => companyInputRef.current?.click()}
                 className="mt-1 rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
               >
-                Logo auswählen…
+                {t('project.meta.chooseLogo', 'Logo auswählen…')}
               </button>
             </div>
             <div>
-              <div className="mb-1 text-[11px] text-slate-400">Kundenlogo</div>
+              <div className="mb-1 text-[11px] text-slate-400">
+                {t('project.meta.clientLogo', 'Kundenlogo')}
+              </div>
               {clientLogo ? (
                 <div className="flex items-center gap-2">
                   <img
                     src={clientLogo}
-                    alt="Kundenlogo"
+                    alt={t('project.meta.clientLogo', 'Kundenlogo')}
                     className="h-12 w-auto rounded border border-slate-700 bg-white p-1"
                   />
                   <button
@@ -210,7 +222,7 @@ export const ProjectMetaDialog = ({
                     onClick={() => setClientLogo(undefined)}
                     className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
                   >
-                    Entfernen
+                    {t('project.meta.removeLogo', 'Entfernen')}
                   </button>
                 </div>
               ) : null}
@@ -231,14 +243,16 @@ export const ProjectMetaDialog = ({
                 onClick={() => clientInputRef.current?.click()}
                 className="mt-1 rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
               >
-                Logo auswählen…
+                {t('project.meta.chooseLogo', 'Logo auswählen…')}
               </button>
             </div>
           </div>
 
           <p className="text-[10px] italic text-slate-500">
-            Diese Daten erscheinen im Planköpfchen unten rechts beim PDF-Export.
-            Jeder Speichervorgang aktualisiert das „zuletzt geändert"-Datum automatisch.
+            {t(
+              'project.meta.footnote',
+              'Diese Daten erscheinen im Planköpfchen unten rechts beim PDF-Export. Jeder Speichervorgang aktualisiert das „zuletzt geändert"-Datum automatisch.',
+            )}
           </p>
       </div>
     </ModalShell>

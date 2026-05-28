@@ -1663,6 +1663,89 @@ const en: Dict = {
   'opt.title': 'Optional fields',
   'opt.subtitle': 'Manufacturer link, reference image, icon',
   'opt.iconAutoTitle': 'Reset to automatic',
+
+  // Library — TemplateMergeDialog
+  'templateMerge.title': 'Merge devices',
+  'templateMerge.needCategoryTitle': 'Choose category',
+  'templateMerge.needCategoryBody': 'Please select a target category.',
+  'templateMerge.needPortTitle': 'Choose port',
+  'templateMerge.needPortBody': 'Please select at least one port.',
+  'templateMerge.save': 'Save merge',
+  'templateMerge.intro': 'Pick which inputs/outputs to take from Local and {label}.',
+  'templateMerge.targetCategory': 'Target category',
+  'templateMerge.pleaseSelect': 'Please select…',
+  'templateMerge.selectedPorts': 'Selected ports',
+  'templateMerge.preview': 'Preview',
+  'templateMerge.previewCounts': '{in} In / {out} Out',
+  'templateMerge.local': 'Local',
+  'templateMerge.inputs': 'Inputs',
+  'templateMerge.outputs': 'Outputs',
+
+  // Library — LibraryItem
+  'library.item.titleActiveRentman':
+    'From active Rentman project{suffix} — click or drag & drop onto canvas',
+  'library.item.titleOtherRentman':
+    'From Rentman project{suffix} — click or drag & drop onto canvas',
+  'library.item.titleLocal': 'Local device — click or drag & drop onto canvas',
+  'library.item.badgeActiveRentman': 'From active Rentman project{suffix}',
+  'library.item.badgeOtherRentman': 'From Rentman project{suffix}',
+  'library.item.badgeLocal': 'Local device (not from Rentman)',
+  'library.item.unfavorite': 'Remove favorite',
+  'library.item.favorite': 'Mark as favorite',
+  'library.item.show': 'Show again',
+  'library.item.hide': 'Hide',
+  'library.item.exportTitle': 'Export as file (copy to Downloads folder)',
+  'library.item.exportAria': 'Export',
+  'library.item.linkNamed': 'Link with local device "{name}" (take over ports)',
+  'library.item.linkSameName': 'Link with same-named local device (take over ports)',
+  'library.item.linkAria': 'Link',
+  'library.item.removeTitle': 'Remove from library',
+
+  // Library — LibrarySortables
+  'library.sortables.categoryAria': 'Move category',
+  'library.sortables.dragTitle': 'Move via drag & drop',
+  'library.sortables.moveAria': 'Move',
+
+  // Library — LibraryMenus
+  'library.menus.plusTitle': 'Create new device or category',
+  'library.menus.newDevice': 'New device…',
+  'library.menus.newCategory': 'New category…',
+  'library.menus.importFile': 'Import file…',
+  'library.menus.importFileTitle': 'Import .cpdevice or .cpgroup file',
+  'library.menus.openFolder': 'Open library folder…',
+  'library.menus.openFolderTitle': 'Open library folder in file manager',
+  'library.menus.filterTitle': 'Filter and view options',
+  'library.menus.expandAll': 'Expand all categories',
+  'library.menus.collapseAll': 'Collapse all categories',
+  'library.menus.sorting': 'Sorting',
+  'library.menus.sortManual': 'Manual (drag & drop)',
+  'library.menus.sortAsc': 'Alphabetical A → Z',
+  'library.menus.sortDesc': 'Alphabetical Z → A',
+  'library.menus.showHidden': 'Show hidden',
+  'library.menus.showEmpty': 'Show empty categories',
+
+  // RackBuilderDialog body
+  'rack.depthTitle':
+    'Rack depth in mm. Default: 800 mm. Common values: 350/450/600/800/1000/1200.',
+  'rack.notRackTitle':
+    'Not marked as 19" rack device — height will be asked on add.',
+  'rack.tipPrefix': 'Tip:',
+  'rack.tipBody': 'enable when the desired device is missing.',
+  'rack.frontRail': 'Front rail',
+  'rack.rearRail': 'Rear rail',
+  'rack.readonlyInBuilder': 'Read-only in the builder — was set on add.',
+  'rack.deviceDepthTitle':
+    'Device depth in mm. Empty = 400 mm default. Visualised by the 3D tab.',
+  'rack.stlUploadTitle': 'Upload STL file (.stl, max 5 MB) for this device',
+  'rack.stlRemoveTitle': 'Remove STL — device renders as a box again',
+  'rack.portsAllRear': 'All ports to the rear (default for classic server gear)',
+  'rack.portsSwap': 'Front ports become rear ports and vice versa',
+  'rack.portsAllFront': 'All ports to the front (e.g. front-panel devices)',
+  'rack.swapPhotos': 'Swap front and rear photo (if the mapping is wrong)',
+  'rack.removeImage': 'Remove image',
+  'rack.internalCablingTitle': 'Internal cabling in the rack',
+  'rack.openInternalCanvas':
+    'Wire the rack devices internally — full canvas view',
 }
 
 const translations: Record<Language, Dict> = {

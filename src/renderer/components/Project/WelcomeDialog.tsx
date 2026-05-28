@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { cablePlannerApi } from '../../lib/bridge'
 import { ModalShell } from '../shared/ModalShell'
+import { useTranslation } from '../../lib/i18n'
 
 interface WelcomeDialogProps {
   open: boolean
@@ -20,6 +21,7 @@ interface WelcomeDialogProps {
  * v7.9.44 — Migrated to <ModalShell>.
  */
 export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogProps) => {
+  const t = useTranslation()
   const [recents, setRecents] = useState<string[]>([])
 
   useEffect(() => {
