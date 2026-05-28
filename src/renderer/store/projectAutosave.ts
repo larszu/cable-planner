@@ -23,3 +23,17 @@ export const scheduleProjectAutosave = (project: CablePlannerProject) => {
     }
   }, delay)
 }
+
+/** Used by clear() — verhindert dass beim naechsten Tab-Open das
+ *  alte Projekt wieder auftaucht obwohl der User "Neu" geklickt hat. */
+export const clearProjectAutosave = () => {
+  if (autosaveTimer) {
+    clearTimeout(autosaveTimer)
+    autosaveTimer = null
+  }
+  try {
+    localStorage.removeItem(PROJECT_AUTOSAVE_KEY)
+  } catch {
+    /* ignore */
+  }
+}
