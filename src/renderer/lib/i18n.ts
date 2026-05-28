@@ -2415,6 +2415,45 @@ const en: Dict = {
   'app.pdfProgress.title': 'PDF is being created…',
   'app.pdfProgress.hint':
     'Large plans may take a few seconds. Please do not cancel.',
+  // App.tsx Library update prompt
+  'app.libUpdate.kindDevice': 'Device',
+  'app.libUpdate.kindGroup': 'Rack/Group',
+  'app.libUpdate.moreLines': '…and {n} more',
+  'app.libUpdate.title': '{n} library item(s) in this project are out of date:',
+  'app.libUpdate.body':
+    'A newer version is in the library folder. Update to the current library state?\n\n(Device names + notes are kept. Rack/group updates currently have to be replaced manually.)',
+  'app.libUpdate.okBtn': 'Update',
+  'app.libUpdate.doneTitle': 'Update done',
+  'app.libUpdate.doneAppliedBody': '{n} device(s) updated.',
+  'app.libUpdate.doneSkippedBody': '{n} rack/group item(s) skipped — please re-place manually if needed.',
+  // App.tsx New project confirm
+  'app.newProject.confirm':
+    'Discard current project and create a new one?\n\nUnsaved changes will be lost.',
+  // App.tsx Viewer export
+  'app.viewerExport.okTitle': 'Viewer file saved',
+  'app.viewerExport.okBody':
+    'Send it to your freelancers/helpers. On opening they are asked for their name — annotations are then auto-attributed.',
+  'app.viewerExport.failTitle': 'Viewer export failed',
+  // App.tsx Annotations import
+  'app.annotationsImport.needDesktop': 'Annotations re-import requires the desktop app.',
+  'app.annotationsImport.okTitle': 'Annotations imported',
+  'app.annotationsImport.okBodyImported': '{n} new annotation(s) imported.',
+  'app.annotationsImport.okBodySkipped': '{n} already present — skipped.',
+  // App.tsx Port-conflict confirmDialog + modal
+  'app.portConflict.title': 'Port already in use',
+  'app.portConflict.intro': 'At least one of the ports already has a cable connected:',
+  'app.portConflict.body':
+    '"Replace" = remove the existing cable and create the new connection.\n"Cancel" = discard the new connection, everything stays as it is.',
+  'app.portConflict.okReplace': 'Replace',
+  'app.portConflict.targetPortLabel': 'The target port',
+  'app.portConflict.alreadyConnectedBy': 'is already connected by',
+  'app.portConflict.oneCable': '1 cable',
+  'app.portConflict.nCables': '{n} cables',
+  'app.portConflict.connected': 'in use:',
+  'app.portConflict.hint':
+    '"Replace" removes the above connection(s) and creates the new cable. "Cancel" discards the connect attempt.',
+  // CableEditDialog length warning
+  'cable.lengthWarning': 'Length exceeds recommended maximum of {max} m for {name}.',
   // App.tsx PdfExportDialog
   'pdfExport.title': 'Export plan as PDF',
   'pdfExport.layers.title': 'Layers (included in PDF)',
