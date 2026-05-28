@@ -136,7 +136,7 @@ export const ExportDialog = ({
               "Standard-Viewport von Kabel-Stückliste ist so groß
               dass man scrollen muss um Drucken-Button zu sehen". */}
           <div className="flex min-h-0 flex-1 flex-col p-4">
-            <p className="mb-3 shrink-0 text-xs text-slate-400">{SECTION_DESC[section]}</p>
+            <p className="mb-3 shrink-0 text-xs text-slate-400">{t(`export.desc.${section}`, SECTION_DESC[section])}</p>
             <div className="flex min-h-0 flex-1 flex-col">
               {section === 'plan' && (
                 <PlanSection
@@ -213,9 +213,9 @@ const PlanSection = ({
   }
 
   const FORMAT_OPTIONS = [
-    { value: 'pdf' as const, icon: '📑', label: 'PDF', hint: 'Vektor mit Titelblock, druckbar' },
-    { value: 'png' as const, icon: '🖼', label: 'PNG', hint: 'Transparent möglich, scharf' },
-    { value: 'jpeg' as const, icon: '🖼', label: 'JPEG', hint: 'Kleiner, gut für E-Mail' },
+    { value: 'pdf' as const, icon: '📑', label: 'PDF', hint: t('export.format.pdfHint', 'Vektor mit Titelblock, druckbar') },
+    { value: 'png' as const, icon: '🖼', label: 'PNG', hint: t('export.format.pngHint', 'Transparent möglich, scharf') },
+    { value: 'jpeg' as const, icon: '🖼', label: 'JPEG', hint: t('export.format.jpegHint', 'Kleiner, gut für E-Mail') },
   ]
 
   return (
@@ -271,7 +271,7 @@ const PlanSection = ({
                 checked={pdfTheme === 'light'}
                 onChange={() => setPdfTheme('light')}
               />
-              <span>☀ Helles Thema (für Ausdruck empfohlen)</span>
+              <span>☀ {t('export.theme.lightLabel', 'Helles Thema (für Ausdruck empfohlen)')}</span>
             </label>
           </fieldset>
           {/* v7.9.97 — Render-Modus: Raster (klassisch) vs Vektor (Beta).
@@ -289,10 +289,12 @@ const PlanSection = ({
                 className="mt-0.5"
               />
               <span>
-                <span className="block">📷 Raster (klassisch)</span>
+                <span className="block">📷 {t('export.render.raster', 'Raster (klassisch)')}</span>
                 <span className="block text-[10px] text-slate-400">
-                  JPEG-Snapshot. Zuverlässig, aber Text wird unscharf bei großem
-                  Zoom in der PDF.
+                  {t(
+                    'export.render.rasterHint',
+                    'JPEG-Snapshot. Zuverlässig, aber Text wird unscharf bei großem Zoom in der PDF.',
+                  )}
                 </span>
               </span>
             </label>
@@ -305,10 +307,12 @@ const PlanSection = ({
                 className="mt-0.5"
               />
               <span>
-                <span className="block">✨ Vektor</span>
+                <span className="block">✨ {t('export.render.vector', 'Vektor')}</span>
                 <span className="block text-[10px] text-slate-400">
-                  Chromium printToPDF. Text bleibt selektierbar &amp; scharf bei
-                  jedem Zoom. Kleinere Dateigröße.
+                  {t(
+                    'export.render.vectorHint',
+                    'Chromium printToPDF. Text bleibt selektierbar & scharf bei jedem Zoom. Kleinere Dateigröße.',
+                  )}
                 </span>
               </span>
             </label>
@@ -373,12 +377,15 @@ const PlanSection = ({
           disabled={busy || format !== 'pdf'}
           title={
             format === 'pdf'
-              ? 'Plan-PDF im OS-Druckdialog öffnen'
-              : 'Drucken funktioniert nur mit Format PDF — bei PNG/JPEG einfach herunterladen.'
+              ? t('export.printPdfTitle', 'Plan-PDF im OS-Druckdialog öffnen')
+              : t(
+                  'export.printOnlyPdf',
+                  'Drucken funktioniert nur mit Format PDF — bei PNG/JPEG einfach herunterladen.',
+                )
           }
           className="rounded bg-indigo-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-40"
         >
-          🖨 Drucken
+          🖨 {t('export.printBtn', 'Drucken')}
         </button>
         <button
           type="button"
@@ -475,29 +482,31 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
         title={t('export.patch.compactTitle', 'Kompakte Patchliste: alle Kabel auf einer Liste, sortiert nach Quell-Gerät — zum Ausdrucken für den Techniker im Feld.')}
       >
         <span>
-          <span className="font-semibold">🪢 Patchliste öffnen…</span>
+          <span className="font-semibold">🪢 {t('export.patch.openPatchList', 'Patchliste öffnen…')}</span>
           <span className="ml-2 text-emerald-300/70">
-            Eine Zeile pro Kabel, sortiert nach Quell-Gerät
+            {t('export.patch.compactSub', 'Eine Zeile pro Kabel, sortiert nach Quell-Gerät')}
           </span>
         </span>
         <span className="text-emerald-300">→</span>
       </button>
 
       <div className="mb-1 text-[11px] text-slate-500">
-        — oder pro-Gerät Patch-Sheet erzeugen:
+        {t('export.patch.perDeviceHint', '— oder pro-Gerät Patch-Sheet erzeugen:')}
       </div>
 
       <div>
         <div className="mb-1 flex items-center justify-between">
           <span className="text-xs font-semibold text-slate-300">
-            Geräte ({selectedIds.size} / {filtered.length})
+            {t('export.patch.devicesCount', 'Geräte')} ({selectedIds.size} / {filtered.length})
           </span>
           <button
             type="button"
             onClick={toggleAll}
             className="rounded bg-slate-800 px-2 py-0.5 text-[10px] hover:bg-slate-700"
           >
-            {selectedIds.size === filtered.length ? 'Alle abwählen' : 'Alle wählen'}
+            {selectedIds.size === filtered.length
+              ? t('export.patch.deselectAll', 'Alle abwählen')
+              : t('export.patch.selectAll', 'Alle wählen')}
           </button>
         </div>
         <input
@@ -534,7 +543,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           })}
           {filtered.length === 0 && (
             <div className="px-2 py-3 text-center text-[11px] text-slate-500">
-              Keine Geräte im Projekt.
+              {t('export.patch.noDevices', 'Keine Geräte im Projekt.')}
             </div>
           )}
         </div>
@@ -569,14 +578,14 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             className="rounded bg-indigo-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-40"
             title={t('export.patch.osPrint', 'Patch-Sheet(s) im OS-Druckdialog öffnen')}
           >
-            🖨 Drucken
+            🖨 {t('export.printBtn', 'Drucken')}
           </button>
         </div>
       ) : (
         <div className="flex flex-wrap items-center justify-end gap-2 rounded border border-sky-700/60 bg-sky-950/40 px-3 py-2">
           <span className="mr-auto text-xs text-slate-300">
             <span className="font-semibold text-sky-200">{actionLabel[pendingAction]}</span>
-            {' '}— Papier-Format wählen:
+            {' '}— {t('export.patch.pickPaper', 'Papier-Format wählen:')}
           </span>
           <button
             type="button"
@@ -932,8 +941,8 @@ const BomSection = () => {
       <div className="flex shrink-0 items-center justify-between text-[11px]">
         <span className="text-slate-400">
           {draftPlan
-            ? 'Nicht gespeicherte Änderungen an der Rentman-Planung.'
-            : 'Rentman-Planung wird im Projekt gespeichert.'}
+            ? t('export.bom.rentmanDirty', 'Nicht gespeicherte Änderungen an der Rentman-Planung.')
+            : t('export.bom.rentmanClean', 'Rentman-Planung wird im Projekt gespeichert.')}
         </span>
         <div className="flex gap-2">
           {draftPlan && (
@@ -942,7 +951,7 @@ const BomSection = () => {
               onClick={discardPlan}
               className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
             >
-              Verwerfen
+              {t('common.discard', 'Verwerfen')}
             </button>
           )}
           <button
