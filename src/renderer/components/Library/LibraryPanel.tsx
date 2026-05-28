@@ -1397,7 +1397,7 @@ export const LibraryPanel = () => {
               </div>
             ) : (
               <div className="rounded border border-slate-700 bg-slate-900/50 p-2 text-xs text-slate-400">
-                <div className="mb-2">Kein Rentman-Projekt verknüpft.</div>
+                <div className="mb-2">{t('library.rentman.noProjectLinked', 'Kein Rentman-Projekt verknüpft.')}</div>
                 <button
                   type="button"
                   onClick={openRentmanImport}
@@ -1433,7 +1433,7 @@ export const LibraryPanel = () => {
             {rentmanView === 'imported' && (
               <div>
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-1">
-                  <h2 className="text-sm font-semibold">Importierte Rentman-Geräte</h2>
+                  <h2 className="text-sm font-semibold">{t('library.rentman.imported', 'Importierte Rentman-Geräte')}</h2>
                   <div className="flex items-center gap-2 text-[10px] text-slate-500">
                     {(() => {
                       const projectIds = new Set(projectGroups.map((group) => group.id))
@@ -1524,7 +1524,7 @@ export const LibraryPanel = () => {
                     return (
                       <div className="flex flex-col items-center gap-2 p-3 text-center text-xs text-slate-500">
                         <span className="text-2xl">📦</span>
-                        <span>Noch keine Rentman-Geräte importiert.</span>
+                        <span>{t('library.rentman.noneImported', 'Noch keine Rentman-Geräte importiert.')}</span>
                       </div>
                     )
                   }
@@ -1532,7 +1532,7 @@ export const LibraryPanel = () => {
                     return (
                       <div className="flex flex-col items-center gap-2 p-3 text-center text-xs text-slate-500">
                         <span className="text-2xl">🔍</span>
-                        <span>Keine Treffer für &quot;{rentmanSearch}&quot;.</span>
+                        <span>{format(t('library.rentman.noMatches', 'Keine Treffer für "{query}".'), { query: rentmanSearch })}</span>
                       </div>
                     )
                   }
@@ -1574,7 +1574,7 @@ export const LibraryPanel = () => {
                           {!projectCollapsed && (
                             <div className="space-y-1 border-t border-slate-800 px-1 py-1">
                               {categories.length === 0 ? (
-                                <div className="px-2 py-1 text-[11px] italic text-slate-500">Keine Geräte importiert.</div>
+                                <div className="px-2 py-1 text-[11px] italic text-slate-500">{t('library.rentman.noneInCategory', 'Keine Geräte importiert.')}</div>
                               ) : (
                                 categories.map((category) => {
                                   const categoryKey = `${group.id}::${category}`
@@ -1672,7 +1672,7 @@ export const LibraryPanel = () => {
                     title={t('library.rentman.accountTitle', 'Alle in deinem Rentman-Account angelegten Equipments (Account-Katalog), gegliedert nach der Rentman-Ordnerstruktur')}
                   >
                     <span className="text-xs">{rentmanCatalogCollapsed ? '▶' : '▼'}</span>
-                    <span>Alle Rentman-Equipments (Account-Katalog)</span>
+                    <span>{t('library.rentman.accountAll', 'Alle Rentman-Equipments (Account-Katalog)')}</span>
                     {rentmanCatalogLoaded && (
                       <span className="ml-1 rounded-full bg-slate-800 px-1.5 text-[10px] text-slate-400">{rentmanCatalog.length}</span>
                     )}
@@ -1748,7 +1748,7 @@ export const LibraryPanel = () => {
                               >
                                 <div className="min-w-0 flex-1">
                                   <div className="truncate font-medium text-slate-200">{item.name}</div>
-                                  <div className="truncate text-[10px] text-slate-500">Rentman-ID {item.id}</div>
+                                  <div className="truncate text-[10px] text-slate-500">{format(t('library.rentman.idLine', 'Rentman-ID {id}'), { id: item.id })}</div>
                                 </div>
                                 {/* Pro User-Request: per-Geraete AI-Button im
                                     Rentman-Katalog entfernt. AI-Port-Vorschlag
@@ -1884,7 +1884,7 @@ export const LibraryPanel = () => {
             {rentmanView === 'sync' && (
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-amber-300">Abgleich Canvas ↔ Rentman</h2>
+                  <h2 className="text-sm font-semibold text-amber-300">{t('library.rentman.reconcile', 'Abgleich Canvas ↔ Rentman')}</h2>
                   <span className="text-[10px] text-slate-500">{untracked.length} nicht erfasst</span>
                 </div>
                 {/* v7.9.128 — Auch im Sync-View ein prominenter Fetch-Knopf.
@@ -1903,7 +1903,7 @@ export const LibraryPanel = () => {
                 )}
                 {removed.length > 0 && (
                   <div className="mb-2 space-y-1">
-                    <div className="mb-1 text-[10px] text-red-400">Nicht mehr in Rentman vorhanden:</div>
+                    <div className="mb-1 text-[10px] text-red-400">{t('library.rentman.removed', 'Nicht mehr in Rentman vorhanden:')}</div>
                     {removed.map((equipment) => (
                       <div key={equipment.id} className="flex items-center justify-between rounded border border-red-700/50 bg-red-900/20 px-2 py-1 text-xs">
                         <div>
@@ -1955,7 +1955,7 @@ export const LibraryPanel = () => {
           <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-base font-semibold">NetBox Import</h3>
+                <h3 className="text-base font-semibold">{t('library.netbox.title', 'NetBox Import')}</h3>
                 <p className="mt-1 text-xs text-slate-400">
                   Importiert Geräte aus der NetBox device-type-library in die lokale Library. Nicht-destruktiv: bestehende Geräte auf dem Canvas bleiben unverändert.
                 </p>
@@ -2031,7 +2031,7 @@ export const LibraryPanel = () => {
                         </div>
                         <div className="truncate text-[11px] text-slate-500">{item.path}</div>
                         <div className="mt-2 flex max-w-[340px] items-center gap-2">
-                          <span className="text-[11px] text-slate-400">Kategorie:</span>
+                          <span className="text-[11px] text-slate-400">{t('library.netbox.categoryLabel', 'Kategorie:')}</span>
                           <select
                             value={netBoxCategoryByPath[item.path] ?? ''}
                             onChange={(event) =>
@@ -2042,7 +2042,7 @@ export const LibraryPanel = () => {
                             }
                             className="min-w-0 flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs"
                           >
-                            <option value="">Bitte auswählen...</option>
+                            <option value="">{t('library.netbox.pickCategory', 'Bitte auswählen...')}</option>
                             {existingCategoryOptions.map((cat) => (
                               <option key={cat} value={cat}>
                                 {cat}
@@ -2099,7 +2099,7 @@ export const LibraryPanel = () => {
                     checked={isRackDeviceDraft}
                     onChange={(event) => setIsRackDeviceDraft(event.target.checked)}
                   />
-                  <span>Ist Rack-Gerät</span>
+                  <span>{t('library.create.isRack', 'Ist Rack-Gerät')}</span>
                 </label>
                 {isRackDeviceDraft && (
                   <input
@@ -2170,13 +2170,13 @@ export const LibraryPanel = () => {
 
             {aiSettingsOpen && (
               <div className="mb-2 rounded border border-slate-700 bg-slate-950 p-2 text-xs">
-                <div className="mb-1 font-semibold text-slate-200">Gemini API-Key</div>
+                <div className="mb-1 font-semibold text-slate-200">{t('library.create.aiKey.label', 'Gemini API-Key')}</div>
                 <div className="flex gap-1">
                   <input
                     type="password"
                     value={aiKeyDraft}
                     onChange={(e) => setAiKeyDraft(e.target.value)}
-                    placeholder="AIza…"
+                    placeholder={t('library.create.aiKey.placeholder', 'AIza…')}
                     className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 font-mono"
                   />
                   <button
