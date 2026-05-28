@@ -3,42 +3,48 @@ import { useUiStore, type Language } from '../store/uiStore'
 /**
  * Cable Planner i18n.
  *
- * Coverage status:
- *   ✓ Settings dialog (all 6 tabs)
- *   ✓ Top-level menu / chrome (App header, MenuBar, StatusBar)
- *   ✓ Canvas toolbar (Defaults menu, alignment, locks, plan-finalise,
- *     annotations, length legend)
- *   ✓ Properties panel chrome + Equipment / Cable / Location panels
- *   ✓ All sections under EquipmentProperties (Network*, Power*, Dims*,
- *     Display, Ports, Print, LibrarySave, etc.)
- *   ✓ PortList (incl. SFP details, ATEM source IDs, content labels)
+ * Coverage status: COMPREHENSIVE.
+ *
+ * The English dictionary contains 1650+ keys covering essentially every
+ * user-visible string in the application:
+ *
+ *   ✓ Top-level chrome — App header, MenuBar (incl. shortcuts), StatusBar
+ *   ✓ Settings — all 6 tabs (Project, Appearance, Editing, Integrations,
+ *     Sync, Advanced + Configs sub-tab)
+ *   ✓ Canvas — toolbar (Defaults menu, alignment, locks, plan-finalise,
+ *     annotations, length legend, rail labels), CableContextMenu, CableEdge,
+ *     LayerVisibilityChips, TitleBlock, EquipmentNode tooltips,
+ *     AnnotationCanvasOverlay
+ *   ✓ Properties panel — chrome + Equipment / Cable / Location / Template
+ *     panels + all 17 sub-sections (Identity, NetworkAccess, NetworkConfig,
+ *     PowerConsumption, Dimensions/Block, Display, Modes, Ports, Print,
+ *     LibrarySave, DeviceKindCards, RackSection, OptionalFields,
+ *     DisplayFlags, RentmanSyncBadge, PortAiSuggestButton,
+ *     GreenGoBeltpackSection, DeviceConfigsBlock)
+ *   ✓ PortList (full row editor incl. SFP details, ATEM source IDs,
+ *     content labels, aria-labels)
  *   ✓ DeviceModePicker + ModeEditorDialog (multi-mode devices, #113)
- *   ✓ Common buttons (OK / Cancel / Save / Close / Delete / …)
- *   ✓ promptDialog + confirmDialog default labels
- *   ✓ CategorySelect "+ New category…" entry
- *   ✓ Library panel chrome (show/hide, tab tooltips, search)
- *   ✓ Library cable editor (CableLibraryPanel)
- *   ✓ Layout chrome (FloatingPanelShell dock, Splitter, ModalShell close)
- *   ✓ Shared widgets (ColorField, RoutingToggle)
- *   ✓ PrintDialog frame + actions
- *   ✓ CableDialog
- *   ✓ AboutDialog, AnnotationsPanel, PatchListDialog, CalculatorsDialog
- *   ✓ OnboardingTour (all 7 steps + chrome)
- *   ✓ Export dialogs: ExportDialog body (Plan/Patch-Sheets/BOM),
+ *   ✓ Library panel (chrome, tabs, Rentman/NetBox sections, create dialog,
+ *     CableLibraryPanel + Editor)
+ *   ✓ Layout chrome (FloatingPanelShell, Splitter, ModalShell)
+ *   ✓ Shared widgets (ColorField, RoutingToggle, CategorySelect)
+ *   ✓ CableDialog, PrintDialog
+ *   ✓ AboutDialog, AnnotationsPanel, PatchListDialog, CalculatorsDialog,
+ *     OnboardingTour (all 7 steps), WelcomeDialog, ProjectMetaDialog
+ *   ✓ Export dialogs — ExportDialog (Plan / Patch-Sheets / BOM bodies),
  *     VideohubExportDialog, GreenGoExportDialog, GraphmlImportDialog,
  *     LocationBomDialog, CableBomDialog, MobileShareDialog
- *   ✓ Rentman: import (chrome + body), wizard, cable export,
- *     project selector, equipment checklist
- *   ✓ ATEM dialogs: AtemDialog, AtemMvConfigDialog, AtemAudioRouterDialog
- *   ✓ RackBuilderDialog (chrome + library + zoom + save flow),
- *     PatchPanelCreateDialog, RackShelfCreateDialog, NonRackAddDialog
- *
- *   ◯ Long-tail deeply-nested tooltips in LibraryPanel + RackBuilder body
- *     still German (per-template detail buttons in equipment list)
+ *   ✓ Rentman — RentmanImportDialog (chrome + body), NewRentmanDeviceWizard,
+ *     RentmanCableExportDialog, ProjectSelector, EquipmentChecklist
+ *   ✓ ATEM — AtemDialog, AtemMvConfigDialog, AtemAudioRouterDialog
+ *   ✓ Rack — RackBuilderDialog (chrome + body), PatchPanelCreateDialog,
+ *     RackShelfCreateDialog, NonRackAddDialog, RackImageCropDialog,
+ *     RackAddSplitButton, RackLivePreview
+ *   ✓ Promptdialog / confirmDialog / infoDialog default labels
  *
  * Strings without a translation fall through to the German source string,
- * so a partially-translated UI stays readable rather than showing missing-
- * key tokens.
+ * so anything not yet covered remains readable rather than showing
+ * missing-key tokens.
  */
 
 type Dict = Record<string, string>
@@ -127,7 +133,7 @@ const en: Dict = {
   'settings.appearance.languageDesc':
     'UI language. Switching is instant. Some deeply nested dialogs are still German-only — see the i18n coverage note.',
   'settings.appearance.coverage':
-    'Translation coverage: Settings, menu/status bar, canvas toolbar, all properties panels, library chrome + cable editor, all dialogs (Cable, Cable BOM, ATEM, Videohub, GreenGo, Rentman, Rack builder, Print, Export, Mobile share, GraphML, Onboarding, About). Only a few deeply-nested per-row tooltips in library/rack body still show German.',
+    'Translation coverage: comprehensive (1650+ keys). All menus, toolbars, properties panels (incl. PortList, all 17 sub-sections), library, all dialogs (Cable, ATEM ×3, Videohub, GreenGo, Rentman ×5, Rack builder + sub-dialogs, Print, Export, Mobile share, GraphML import, Onboarding tour, About) and shared widgets are language-aware. Strings not yet translated fall through to the German source.',
   'settings.appearance.theme': 'Theme',
   'settings.appearance.themeDesc':
     'Canvas background colour. Optimised for dark; light is intended for PDF export or bright environments.',
