@@ -15,6 +15,7 @@ import { createTemplateSlice } from './slices/templateSlice'
 import { createGroupPresetSlice } from './slices/groupPresetSlice'
 import { createMetaSlice } from './slices/metaSlice'
 import { createCategorySlice } from './slices/categorySlice'
+import { createEquipmentSlice } from './slices/equipmentSlice'
 import {
   loadCustomLibrary,
   persistCustomLibrary,
@@ -31,10 +32,7 @@ import { monitorTemplates } from '../lib/monitorCatalog'
 import { cameraTemplates } from '../lib/cameraCatalog'
 import { miscTemplates } from '../lib/miscCatalog'
 import { greengoTemplates } from '../lib/greengoCatalog'
-import {
-  upsertCachedRentmanTemplate,
-  upsertCachedRentmanTemplateFromEquipment,
-} from '../lib/rentmanTemplateCache'
+import { upsertCachedRentmanTemplate } from '../lib/rentmanTemplateCache'
 import type { GreenGoConfig } from '../types/greengo'
 
 type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
@@ -551,12 +549,6 @@ const healRentmanLibraryFromProject = (
     )
 }
 
-const shouldSyncRentmanTemplateCache = (patch: Partial<EquipmentItem>): boolean => {
-  const keys = Object.keys(patch) as Array<keyof EquipmentItem>
-  // Ignore pure position updates to avoid excessive localStorage writes while dragging.
-  return keys.some((key) => key !== 'x' && key !== 'y')
-}
-
 /** v7.8.4 — set-rate guard. When the store mutates more than
  *  PROJECT_RATE_THRESHOLD times within PROJECT_RATE_WINDOW_MS, throw
  *  so the React error boundary captures the stack with a real
@@ -599,6 +591,7 @@ const buildProjectStore = (
   ...createGroupPresetSlice(set, get, store),
   ...createMetaSlice(set, get, store),
   ...createCategorySlice(set, get, store),
+  ...createEquipmentSlice(set, get, store),
   project:
     opts.initialProject ??
     (() => {
@@ -629,72 +622,6 @@ const buildProjectStore = (
         pendingConnection: undefined,
         showCableDialog: false,
         customLibrary: healedLibrary,
-      }
-    }),
-  addEquipment: (equipment) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      return {
-      // Adding from the Library (click / drag-drop) must NOT keep any prior
-      // selection live, because React Flow's internal multi-select would
-      // otherwise cause the next pointer-down on the canvas to start a
-      // group-drag that visibly moves the previously selected device(s).
-      selectedEquipmentId: undefined,
-      selectedCableId: undefined,
-      selectedLocationId: undefined,
-      project: touchProject({
-        ...state.project,
-        equipment: [
-          ...state.project.equipment,
-          {
-            ...equipment,
-            id: uuidv4(),
-            // v7.9.63 / #172 — Default-Gerätefarbe aus uiStore wenn der
-            // Caller selber keine nodeColor mitschickt. So kann der User
-            // in Settings einmal eine Standardfarbe wählen, die für alle
-            // neu hinzugefügten Geräte gilt.
-            nodeColor: equipment.nodeColor ?? useUiStore.getState().defaultDeviceColor,
-            // CRITICAL: Ensure x/y are valid numbers. If somehow they're undefined/NaN,
-            // default to (0, 0) so equipment doesn't disappear.
-            x: equipment.x !== undefined && !Number.isNaN(equipment.x) ? equipment.x : 0,
-            y: equipment.y !== undefined && !Number.isNaN(equipment.y) ? equipment.y : 0,
-            // Ensure every port gets a unique id. Some library helpers seed
-            // templates with `id: ''` and rely on the store to assign ids on
-            // placement — without this, all handles on the node would share
-            // the empty string and ReactFlow would always snap new cables to
-            // the first handle.
-            inputs: equipment.inputs.map((p) =>
-              sanitizePort(p, p.name ?? 'Input'),
-            ),
-            outputs: equipment.outputs.map((p) =>
-              sanitizePort(p, p.name ?? 'Output'),
-            ),
-          },
-        ],
-      }),
-      }
-    }),
-  importEquipment: (equipment) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      return {
-      project: touchProject({
-        ...state.project,
-        equipment: [
-          ...state.project.equipment,
-          ...equipment.map((item) => ({
-            ...item,
-            id: item.id || uuidv4(),
-            // CRITICAL: Ensure x/y are valid numbers. Equipment being imported
-            // should have positions, but if somehow they don't, default to (0, 0)
-            // to prevent disappearing equipment.
-            x: item.x !== undefined && !Number.isNaN(item.x) ? item.x : 0,
-            y: item.y !== undefined && !Number.isNaN(item.y) ? item.y : 0,
-            inputs: item.inputs.map((p, index) => sanitizePort(p, `In ${index + 1}`)),
-            outputs: item.outputs.map((p, index) => sanitizePort(p, `Out ${index + 1}`)),
-          })),
-        ],
-      }),
       }
     }),
   importGraphml: (payload) => {
@@ -914,153 +841,6 @@ const buildProjectStore = (
     }))
     return newItems.map((item) => item.id)
   },
-  updateEquipment: (id, patch) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      const prev = state.project.equipment.find((e) => e.id === id)
-      let updatedItem: EquipmentItem | undefined
-      const nextEquipment = state.project.equipment.map((item) =>
-        item.id === id
-          ? ((updatedItem = { 
-              ...item, 
-              ...patch,
-              // CRITICAL: Never allow position to become undefined or NaN. 
-              // If patch accidentally omits x/y or sets them to undefined,
-              // preserve the previous values to prevent equipment from disappearing.
-              x: patch.x !== undefined && !Number.isNaN(patch.x) ? patch.x : item.x,
-              y: patch.y !== undefined && !Number.isNaN(patch.y) ? patch.y : item.y,
-            }), updatedItem)
-          : item,
-      )
-      // If the equipment moved, also shift waypoints of cables attached to it
-      // so the cable visually travels with the device (draw.io-style). When
-      // only ONE endpoint moves, shifting *all* waypoints by the full delta
-      // would break the path on the *other* (still-anchored) side and produce
-      // an erratic, "spinning" orthogonal route. So we only shift the single
-      // waypoint adjacent to the moving port (first for source, last for
-      // target). When both endpoints sit on the same device we translate the
-      // whole path.
-      let nextCables = state.project.cables
-      if (
-        prev &&
-        patch.x !== undefined &&
-        patch.y !== undefined &&
-        (patch.x !== prev.x || patch.y !== prev.y)
-      ) {
-        const dx = patch.x - prev.x
-        const dy = patch.y - prev.y
-        nextCables = state.project.cables.map((c) => {
-          if (!c.waypoints || c.waypoints.length === 0) return c
-          const touchesSource = c.fromEquipmentId === id
-          const touchesTarget = c.toEquipmentId === id
-          if (!touchesSource && !touchesTarget) return c
-          if (touchesSource && touchesTarget) {
-            return {
-              ...c,
-              waypoints: c.waypoints.map((w) => ({ x: w.x + dx, y: w.y + dy })),
-            }
-          }
-          const next = c.waypoints.slice()
-          if (touchesSource) {
-            const w = next[0]
-            next[0] = { x: w.x + dx, y: w.y + dy }
-          } else {
-            const lastIdx = next.length - 1
-            const w = next[lastIdx]
-            next[lastIdx] = { x: w.x + dx, y: w.y + dy }
-          }
-          return { ...c, waypoints: next }
-        })
-      }
-      if (updatedItem?.rentmanId && shouldSyncRentmanTemplateCache(patch)) {
-        upsertCachedRentmanTemplateFromEquipment(updatedItem)
-      }
-
-      // v7.9.125 — propagate port ConnectorType changes to connected
-      // cables (Cable Connector Type Inheritance). Only kicks in when
-      // ports actually changed connector type on THIS equipment.
-      if (prev && updatedItem && useUiStore.getState().inheritCableTypeFromPort) {
-        const oldPorts = new Map<string, string>(
-          [...prev.inputs, ...prev.outputs].map((p) => [p.id, p.connectorType]),
-        )
-        const changedPortIds = new Set<string>()
-        for (const p of [...updatedItem.inputs, ...updatedItem.outputs]) {
-          const old = oldPorts.get(p.id)
-          if (old !== undefined && old !== p.connectorType) changedPortIds.add(p.id)
-        }
-        if (changedPortIds.size > 0) {
-          nextCables = nextCables.map((c) => {
-            const touches =
-              (c.fromEquipmentId === id && changedPortIds.has(c.fromPortId)) ||
-              (c.toEquipmentId === id && changedPortIds.has(c.toPortId))
-            if (!touches) return c
-            const cableTypePatch = cableTypePatchFromPorts(c, nextEquipment)
-            return cableTypePatch ? { ...c, ...cableTypePatch } : c
-          })
-        }
-      }
-
-      return {
-        project: touchProject({
-          ...state.project,
-          equipment: nextEquipment,
-          cables: nextCables,
-        }),
-      }
-    }),
-  setActiveDeviceMode: (equipmentId, modeId) =>
-    set((state) => {
-      const eq = state.project.equipment.find((e) => e.id === equipmentId)
-      if (!eq || !eq.modes || eq.modes.length === 0) return {}
-      const mode = modeId ? eq.modes.find((m) => m.id === modeId) : null
-      if (modeId && !mode) return {}
-      // Replace the live port arrays with the mode's snapshot (or
-      // leave them as-is when clearing the active mode — the user can
-      // still edit ports manually).
-      const nextEquipment = state.project.equipment.map((item) =>
-        item.id === equipmentId
-          ? {
-              ...item,
-              activeModeId: mode?.id,
-              inputs: mode ? mode.inputs.map((p) => ({ ...p })) : item.inputs,
-              outputs: mode ? mode.outputs.map((p) => ({ ...p })) : item.outputs,
-            }
-          : item,
-      )
-      // v7.9.125 — mode switching replaces ports wholesale; matching
-      // port-ids may now expose a different ConnectorType, so feed
-      // affected cables through the inheritance helper too.
-      let nextCables = state.project.cables
-      if (mode && useUiStore.getState().inheritCableTypeFromPort) {
-        nextCables = state.project.cables.map((c) => {
-          if (c.fromEquipmentId !== equipmentId && c.toEquipmentId !== equipmentId) return c
-          const cableTypePatch = cableTypePatchFromPorts(c, nextEquipment)
-          return cableTypePatch ? { ...c, ...cableTypePatch } : c
-        })
-      }
-      const updated = touchProject({
-        ...state.project,
-        equipment: nextEquipment,
-        cables: nextCables,
-      })
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  deleteEquipment: (id) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      return {
-      project: touchProject({
-        ...state.project,
-        equipment: state.project.equipment.filter((item) => item.id !== id),
-        cables: state.project.cables.filter(
-          (cable) => cable.fromEquipmentId !== id && cable.toEquipmentId !== id,
-        ),
-      }),
-      selectedEquipmentId:
-        state.selectedEquipmentId === id ? undefined : state.selectedEquipmentId,
-      }
-    }),
   deleteSelected: () =>
     set((state) => {
       if (isProjectLocked(state)) return state
@@ -1102,36 +882,6 @@ const buildProjectStore = (
       }
       return {}
     }),
-  addOpenEndStub: (at, connectorType, side) => {
-    const id = uuidv4()
-    const portId = uuidv4()
-    const stubPort: Port = {
-      id: portId,
-      name: 'Open End',
-      type: connectorType,
-      connectorType,
-    }
-    const stub: EquipmentItem = {
-      id,
-      name: `Open ${connectorType}`,
-      category: 'Open End',
-      inputs: side === 'input' ? [stubPort] : [],
-      outputs: side === 'output' ? [stubPort] : [],
-      x: at.x,
-      y: at.y,
-      width: 140,
-      height: 60,
-    }
-    set((state) => ({
-      project: touchProject({
-        ...state.project,
-        equipment: [...state.project.equipment, stub],
-      }),
-    }))
-    // expose port id via returned stub id lookup — caller knows portId is first port
-    // Actually caller needs the portId — we encode as `${id}|${portId}` for simplicity.
-    return `${id}|${portId}`
-  },
   clear: () => {
     // Also drop the persisted autosave copy — otherwise the old project
     // would come back on the next app launch, which is surprising when the
