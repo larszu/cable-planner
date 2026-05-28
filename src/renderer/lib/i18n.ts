@@ -1926,6 +1926,20 @@ const en: Dict = {
   'rackAdd.fullDepthSub': 'front + rear (default)',
   'rackAdd.rearOnly': 'Rear only',
   'rackAdd.rearMount': 'Rear-mount (e.g. patch panel)',
+
+  // AtemDialog table columns
+  'atem.col.type': 'Type',
+  'atem.col.live': 'Live (long / short)',
+  'atem.col.newLong': 'New long (max 20)',
+  'atem.col.newShort': 'New short (4)',
+  'atem.eventLog': 'Event log',
+
+  // EquipmentNode (canvas device tile)
+  'eqNode.rentmanRemoved': 'No longer in Rentman!',
+  'eqNode.noRentman': 'No Rentman entry',
+  'eqNode.packed': 'Packed — ready to ship',
+  'eqNode.mobileChecked':
+    'Checked on site (mobile viewer) — click removes the check',
 }
 
 const translations: Record<Language, Dict> = {

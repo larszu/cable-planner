@@ -30,6 +30,7 @@ import { promptDialog } from '../../lib/promptDialog'
 // v7.9.115: infoDialog wird nicht mehr genutzt seit der A*-Fail nicht
 // mehr modal blockt — Fallback auf Standard-Routing ist still.
 import type { Cable, CableRouting } from '../../types/cable'
+import { format, useTranslation } from '../../lib/i18n'
 
 /** Distance from a point to the nearest existing waypoint. Returns the
  *  index of that waypoint along with the distance. */
@@ -90,6 +91,7 @@ const insertWaypointAt = (cable: Cable, px: number, py: number): Cable['waypoint
 const MENU_WIDTH = 240
 
 export const CableContextMenu = () => {
+  const t = useTranslation()
   const menu = useUiStore((s) => s.cableContextMenu)
   const close = useUiStore((s) => s.closeCableContextMenu)
   // v7.9.81 — Theme-Awareness: Menu folgt jetzt canvasTheme.
@@ -152,7 +154,7 @@ export const CableContextMenu = () => {
   }
 
   const renameLabel = async () => {
-    const next = await promptDialog('Kabel-Bezeichnung', cable.name)
+    const next = await promptDialog(t('canvas.cableMenu.renameTitle', 'Kabel-Bezeichnung'), cable.name)
     if (next != null && next.trim() !== cable.name) {
       doUpdate({ name: next.trim() })
     } else {
@@ -208,10 +210,15 @@ export const CableContextMenu = () => {
   const toggleBidirectional = () => doUpdate({ bidirectional: !cable.bidirectional })
 
   const removeCable = async () => {
-    if (await confirmDialog(`Kabel "${cable.name}" löschen?`, {
-      okLabel: 'Löschen',
-      destructive: true,
-    })) {
+    if (
+      await confirmDialog(
+        format(t('canvas.cableMenu.confirmDelete', 'Kabel "{name}" löschen?'), { name: cable.name }),
+        {
+          okLabel: t('common.delete', 'Löschen'),
+          destructive: true,
+        },
+      )
+    ) {
       deleteCable(cable.id)
     }
     close()
@@ -239,9 +246,12 @@ export const CableContextMenu = () => {
           isLight ? 'border-slate-200 text-slate-500' : 'border-slate-800 text-slate-400'
         }`}
       >
-        Kabel: <span className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>{cable.name}</span>
+        {t('canvas.cableMenu.headerLabel', 'Kabel:')}{' '}
+        <span className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>{cable.name}</span>
       </div>
-      <Item onClick={renameLabel} icon="✎">Bezeichnung ändern…</Item>
+      <Item onClick={renameLabel} icon="✎">
+        {t('canvas.cableMenu.rename', 'Bezeichnung ändern…')}
+      </Item>
       {/* Issue #238 — Handy-Vorschlag-Kabel in Plan uebernehmen.
           Nur sichtbar bei Kabeln die aus dem Mobile-Viewer kamen
           (addedFromMobile=true). Klick raeumt den Flag, lila Border
@@ -251,7 +261,7 @@ export const CableContextMenu = () => {
           onClick={() => doUpdate({ addedFromMobile: undefined })}
           icon="📌"
         >
-          In Plan übernehmen (Handy-Vorschlag akzeptieren)
+          {t('canvas.cableMenu.acceptMobile', 'In Plan übernehmen (Handy-Vorschlag akzeptieren)')}
         </Item>
       )}
       {/* Mobile-Haken am Kabel entfernen — User-Request: "im normalen
@@ -265,27 +275,29 @@ export const CableContextMenu = () => {
           }}
           icon="✗"
         >
-          Mobile-Haken entfernen
+          {t('canvas.cableMenu.removeMobileCheck', 'Mobile-Haken entfernen')}
         </Item>
       )}
       <Separator />
-      <Item onClick={addWaypointHere} icon="＋">Wegpunkt hier hinzufügen</Item>
+      <Item onClick={addWaypointHere} icon="＋">
+        {t('canvas.cableMenu.addWaypoint', 'Wegpunkt hier hinzufügen')}
+      </Item>
       <Item
         onClick={removeNearestWaypoint}
         icon="−"
         disabled={waypointCount === 0}
       >
-        Nächsten Wegpunkt entfernen
+        {t('canvas.cableMenu.removeNearestWaypoint', 'Nächsten Wegpunkt entfernen')}
       </Item>
       <Item
         onClick={clearWaypoints}
         icon="↺"
         disabled={waypointCount === 0}
       >
-        Alle Wegpunkte löschen ({waypointCount})
+        {format(t('canvas.cableMenu.clearWaypoints', 'Alle Wegpunkte löschen ({n})'), { n: waypointCount })}
       </Item>
       <Item onClick={rerouteWithAStar} icon="🧭">
-        Automatisch neu routen
+        {t('canvas.cableMenu.reroute', 'Automatisch neu routen')}
       </Item>
       <Separator />
       {/* Routing submenu */}
@@ -293,7 +305,8 @@ export const CableContextMenu = () => {
         onClick={() => setSubmenu(submenu === 'routing' ? null : 'routing')}
         icon="↳"
       >
-        Routing: <strong className="ml-1">{routingLabel(routing)}</strong>
+        {t('canvas.cableMenu.routing', 'Routing:')}{' '}
+        <strong className="ml-1">{routingLabel(routing, t)}</strong>
         <span className="ml-auto text-slate-500">{submenu === 'routing' ? '▾' : '▸'}</span>
       </Item>
       {submenu === 'routing' && (
@@ -304,7 +317,7 @@ export const CableContextMenu = () => {
               onClick={() => setRouting(r)}
               icon={r === routing ? '✓' : ' '}
             >
-              {routingLabel(r)}
+              {routingLabel(r, t)}
             </Item>
           ))}
         </div>
@@ -313,9 +326,11 @@ export const CableContextMenu = () => {
           Aktueller Effektiv-Zustand (entweder per-cable override oder
           global) bestimmt was der Toggle-Klick macht. */}
       <Item onClick={toggleBumpForThisCable} icon={effectiveBumps ? '✓' : ' '}>
-        Kabelbrücken für dieses Kabel
+        {t('canvas.cableMenu.bumps', 'Kabelbrücken für dieses Kabel')}
         {bumpStyle == null && (
-          <span className="ml-auto text-[10px] text-slate-500">global</span>
+          <span className="ml-auto text-[10px] text-slate-500">
+            {t('canvas.cableMenu.global', 'global')}
+          </span>
         )}
       </Item>
       {bumpStyle != null && (
@@ -323,32 +338,47 @@ export const CableContextMenu = () => {
           onClick={() => doUpdate({ bumpStyle: undefined })}
           icon=" "
         >
-          <span className="text-[11px] text-slate-400">Override entfernen (global folgen)</span>
+          <span className="text-[11px] text-slate-400">
+            {t('canvas.cableMenu.removeOverride', 'Override entfernen (global folgen)')}
+          </span>
         </Item>
       )}
       <Separator />
       <Item onClick={toggleArrowEnd} icon={cable.arrowEnd === false ? ' ' : '→'}>
-        Pfeil am Ende {cable.arrowEnd === false ? 'einblenden' : 'ausblenden'}
+        {t('canvas.cableMenu.arrowEnd', 'Pfeil am Ende')}{' '}
+        {cable.arrowEnd === false
+          ? t('canvas.cableMenu.show', 'einblenden')
+          : t('canvas.cableMenu.hide', 'ausblenden')}
       </Item>
       <Item onClick={toggleArrowStart} icon={cable.arrowStart ? '←' : ' '}>
-        Pfeil am Anfang {cable.arrowStart ? 'ausblenden' : 'einblenden'}
+        {t('canvas.cableMenu.arrowStart', 'Pfeil am Anfang')}{' '}
+        {cable.arrowStart
+          ? t('canvas.cableMenu.hide', 'ausblenden')
+          : t('canvas.cableMenu.show', 'einblenden')}
       </Item>
       <Item
         onClick={toggleBidirectional}
         icon={cable.bidirectional ? '↔' : ' '}
       >
-        Bidirektional {cable.bidirectional ? 'ausschalten' : 'einschalten'}
+        {t('canvas.cableMenu.bidi', 'Bidirektional')}{' '}
+        {cable.bidirectional
+          ? t('canvas.cableMenu.off', 'ausschalten')
+          : t('canvas.cableMenu.on', 'einschalten')}
       </Item>
       <Separator />
       <Item onClick={removeCable} icon="✕" destructive>
-        Kabel löschen
+        {t('canvas.cableMenu.delete', 'Kabel löschen')}
       </Item>
     </div>
   )
 }
 
-const routingLabel = (r: CableRouting): string =>
-  r === 'orthogonal' ? 'Orthogonal' : r === 'straight' ? 'Direkt' : 'Geschwungen'
+const routingLabel = (r: CableRouting, t: (k: string, f?: string) => string): string =>
+  r === 'orthogonal'
+    ? t('canvas.cableMenu.routingOrth', 'Orthogonal')
+    : r === 'straight'
+      ? t('canvas.cableMenu.routingStraight', 'Direkt')
+      : t('canvas.cableMenu.routingCurved', 'Geschwungen')
 
 
 const Item = ({

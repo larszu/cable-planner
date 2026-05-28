@@ -17,6 +17,7 @@ import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
 import { isCableVisibleByLayer } from '../../lib/cableLayers'
 import { effectiveShortName } from '../../lib/shortName'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
+import { useTranslation } from '../../lib/i18n'
 
 interface CableEdgeData {
   cable: Cable
@@ -353,6 +354,7 @@ export const CableEdge = ({
   selected,
   label,
 }: EdgeProps<CableEdgeData>) => {
+  const t = useTranslation()
   const cable = data?.cable
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const equipment = useProjectStore((state) => state.project.equipment)
@@ -689,7 +691,7 @@ export const CableEdge = ({
                   padding: '0 4px',
                   cursor: 'pointer',
                 }}
-                title="Delete cable"
+                title={t('canvas.cableEdge.deleteTitle', 'Delete cable')}
               >
                 ×
               </button>
