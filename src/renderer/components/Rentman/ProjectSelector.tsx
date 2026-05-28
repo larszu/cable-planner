@@ -1,3 +1,5 @@
+import { useTranslation } from '../../lib/i18n'
+
 interface RentmanProject {
   id: string
   name: string
@@ -33,14 +35,15 @@ const formatLabel = (project: RentmanProject): string => {
 }
 
 export const ProjectSelector = ({ projects, selectedProjectId, onSelect }: ProjectSelectorProps) => {
+  const t = useTranslation()
   return (
     <select
-      aria-label="Rentman project"
+      aria-label={t('rentman.projectSelector.aria', 'Rentman project')}
       className="w-full rounded border border-slate-700 bg-slate-900 p-2 text-sm"
       value={selectedProjectId}
       onChange={(event) => onSelect(event.target.value)}
     >
-      <option value="">Select project</option>
+      <option value="">{t('rentman.projectSelector.placeholder', 'Select project')}</option>
       {projects.map((project) => (
         <option key={project.id} value={project.id}>
           {formatLabel(project)}
