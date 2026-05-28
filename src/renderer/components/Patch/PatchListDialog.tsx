@@ -217,7 +217,17 @@ export const PatchListDialog = () => {
     // CSV beides als "PGM (1 SDI 3G PGM)". CSV ist eine einzelne Spalte,
     // deshalb zusammengefuegt; die UI hat dafuer eine zweite Zeile.
     const csvPort = (main: string, sub?: string) => (sub ? `${main} (${sub})` : main)
-    const header = ['Von Gerät', 'Von Port', 'Nach Gerät', 'Nach Port', 'Typ', 'Länge (m)', 'Farbe', 'Kabelname', 'Notizen']
+    const header = [
+      t('patchList.col.fromDevice', 'Von Gerät'),
+      t('patchList.col.fromPort', 'Von Port'),
+      t('patchList.col.toDevice', 'Nach Gerät'),
+      t('patchList.col.toPort', 'Nach Port'),
+      t('export.bom.csv.type', 'Typ'),
+      t('export.bom.csv.lengthM', 'Länge (m)'),
+      t('patchList.col.color', 'Farbe'),
+      t('patchList.col.cableName', 'Kabelname'),
+      t('patchList.col.notes', 'Notizen'),
+    ]
     const escape = (v: string) => `"${v.replace(/"/g, '""')}"`
     const lines = [
       header.join(';'),
@@ -255,8 +265,10 @@ export const PatchListDialog = () => {
       footer={
         <div className="flex items-center justify-between">
           <p className="text-[10px] text-slate-400">
-            Jedes Kabel als eigene Zeile, sortiert für die Patch-Reihenfolge auf dem Set.
-            CSV-Export für Excel/Druck enthält die aktuell gefilterten Zeilen.
+            {t(
+              'patchList.footerHint',
+              'Jedes Kabel als eigene Zeile, sortiert für die Patch-Reihenfolge auf dem Set. CSV-Export für Excel/Druck enthält die aktuell gefilterten Zeilen.',
+            )}
           </p>
           <button
             type="button"
@@ -264,7 +276,7 @@ export const PatchListDialog = () => {
             disabled={filtered.length === 0}
             className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
           >
-            ⬇ CSV exportieren
+            {t('patchList.exportCsv', '⬇ CSV exportieren')}
           </button>
         </div>
       }
@@ -286,13 +298,13 @@ export const PatchListDialog = () => {
             <thead className="sticky top-0 bg-slate-950 text-slate-400">
               <tr>
                 {[
-                  { k: 'fromDevice' as const, label: 'Von Gerät' },
-                  { k: 'fromDevice' as const, label: 'Port' },
-                  { k: 'toDevice' as const, label: 'Nach Gerät' },
-                  { k: 'toDevice' as const, label: 'Port' },
-                  { k: 'type' as const, label: 'Typ' },
-                  { k: 'length' as const, label: 'Länge (m)' },
-                  { k: 'color' as const, label: 'Farbe' },
+                  { k: 'fromDevice' as const, label: t('patchList.col.fromDevice', 'Von Gerät') },
+                  { k: 'fromDevice' as const, label: t('patchList.col.port', 'Port') },
+                  { k: 'toDevice' as const, label: t('patchList.col.toDevice', 'Nach Gerät') },
+                  { k: 'toDevice' as const, label: t('patchList.col.port', 'Port') },
+                  { k: 'type' as const, label: t('export.bom.csv.type', 'Typ') },
+                  { k: 'length' as const, label: t('export.bom.csv.lengthM', 'Länge (m)') },
+                  { k: 'color' as const, label: t('patchList.col.color', 'Farbe') },
                 ].map((col, i) => (
                   <th
                     key={`${col.k}-${i}`}

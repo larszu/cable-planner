@@ -1,6 +1,8 @@
 import { useProjectStore } from '../../store/projectStore'
-import { promptDialog } from '../../lib/promptDialog'
+import { useUiStore } from '../../store/uiStore'
 import { useTranslation } from '../../lib/i18n'
+import { bilingualCategoryDialog } from '../../lib/bilingualCategoryDialog'
+import { buildCategoryOptions } from '../../lib/categoryTranslations'
 
 interface CategorySelectProps {
   value: string
@@ -29,8 +31,11 @@ interface CategorySelectProps {
  * LibraryPanel — each had its own option-list assembly, sentinel-value
  * onChange handler, prompt-call and addKnownCategories side-effect.
  *
- * Uses the project store directly so callers don't need to wire up the
- * known-categories list and addKnownCategories action themselves.
+ * #309 — Auto-bilingual: das "+ Neue Kategorie…"-Item öffnet jetzt
+ * `bilingualCategoryDialog` statt eines einsprachigen Prompts. Die
+ * canonical-Sprache (= UI-Sprache) wandert in `knownCategories[]`,
+ * die andere Sprache wird in `categoryTranslations` gespeichert.
+ * Anzeige im Dropdown erfolgt in der aktiven UI-Sprache.
  */
 export const CategorySelect = ({
   value,
@@ -43,19 +48,23 @@ export const CategorySelect = ({
   const knownCategories = useProjectStore((s) => s.knownCategories)
   const customLibrary = useProjectStore((s) => s.customLibrary)
   const addKnownCategories = useProjectStore((s) => s.addKnownCategories)
+  const setCategoryTranslation = useProjectStore((s) => s.setCategoryTranslation)
+  const categoryTranslations = useProjectStore((s) => s.categoryTranslations)
+  const lang = useUiStore((s) => s.language)
   const t = useTranslation()
   const resolvedPromptTitle = promptTitle ?? t('category.newPrompt', 'Neue Kategorie')
 
-  const options = Array.from(
+  const canonicals = Array.from(
     new Set(
       [
         ...knownCategories,
-        ...customLibrary.map((t) => t.category).filter(Boolean),
+        ...customLibrary.map((tpl) => tpl.category).filter(Boolean),
         ...(extraOptions ?? []),
         value,
       ].filter(Boolean),
     ),
-  ).sort((a, b) => a.localeCompare(b))
+  )
+  const options = buildCategoryOptions(canonicals, lang, categoryTranslations)
 
   return (
     <select
@@ -63,10 +72,13 @@ export const CategorySelect = ({
       onChange={async (event) => {
         const next = event.target.value
         if (next === '__new__') {
-          const entered = (await promptDialog(resolvedPromptTitle))?.trim()
-          if (entered) {
-            onChange(entered)
-            addKnownCategories([entered])
+          const result = await bilingualCategoryDialog(resolvedPromptTitle)
+          if (result && result.canonical) {
+            onChange(result.canonical)
+            addKnownCategories([result.canonical])
+            if (result.de || result.en) {
+              setCategoryTranslation(result.canonical, { de: result.de, en: result.en })
+            }
           }
           return
         }
@@ -75,9 +87,9 @@ export const CategorySelect = ({
       className={className}
     >
       {options.length === 0 && <option value="">—</option>}
-      {options.map((cat) => (
-        <option key={cat} value={cat}>
-          {cat}
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
         </option>
       ))}
       {!noCreate && <option value="__new__">{t('category.new', '+ Neue Kategorie…')}</option>}
