@@ -90,7 +90,7 @@ export const CableProperties = () => {
             type="button"
             onClick={() => openCableEdit(cable.id)}
             className="shrink-0 rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
-            title="Kabeltyp / Standard bearbeiten"
+            title={t('cable.edit.typeStandard', 'Kabeltyp / Standard bearbeiten')}
           >
             ✎
           </button>
@@ -132,7 +132,7 @@ export const CableProperties = () => {
         )
       })()}
       <label className="block">
-        <span className="mb-1 block text-slate-300">Name</span>
+        <span className="mb-1 block text-slate-300">{t('cable.field.name', 'Name')}</span>
         <input
           value={cable.name}
           onChange={(event) => updateCable(cable.id, { name: event.target.value })}
@@ -143,12 +143,12 @@ export const CableProperties = () => {
           stattdessen "Max. Reichweite" eintragen. */}
       {cable.wireless ? (
         <label className="block">
-          <span className="mb-1 block text-slate-300">Max. Reichweite (m)</span>
+          <span className="mb-1 block text-slate-300">{t('cable.field.maxReach', 'Max. Reichweite (m)')}</span>
           <input
             type="number"
             min={0}
             value={cable.maxRange ?? ''}
-            placeholder="z.B. 100"
+            placeholder={t('cable.field.maxReachPlaceholder', 'z.B. 100')}
             onChange={(event) => {
               const v = event.target.value
               updateCable(cable.id, { maxRange: v === '' ? undefined : Number(v) })
@@ -158,7 +158,7 @@ export const CableProperties = () => {
         </label>
       ) : (
         <label className="block">
-          <span className="mb-1 block text-slate-300">Länge (m)</span>
+          <span className="mb-1 block text-slate-300">{t('cable.field.length', 'Länge (m)')}</span>
           <input
             type="number"
             min={0}
@@ -179,14 +179,14 @@ export const CableProperties = () => {
           kein leerer "ungrouped"-Eintrag mehr. Wenn das Feld doch leer ist
           (legacy), behandelt isCableVisibleByLayer es wie 'other'. */}
       <label className="block">
-        <span className="mb-1 block text-slate-300">Ebene (Layer)</span>
+        <span className="mb-1 block text-slate-300">{t('cable.field.layer', 'Ebene (Layer)')}</span>
         <select
           value={cable.layer ?? 'other'}
           onChange={(event) =>
             updateCable(cable.id, { layer: event.target.value || undefined })
           }
           className="w-full rounded border border-slate-700 bg-slate-900 p-2"
-          title="Wirkt mit dem Layer-Filter in der Toolbar (Ebenen-Chips)"
+          title={t('cable.field.layerTitle', 'Wirkt mit dem Layer-Filter in der Toolbar (Ebenen-Chips)')}
         >
           {STANDARD_LAYERS.map((l) => (
             <option key={l} value={l}>
@@ -221,7 +221,7 @@ export const CableProperties = () => {
         <div className="border-t border-slate-700 p-2">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <div className="mb-0.5 text-[10px] text-slate-500">Von Gerät</div>
+              <div className="mb-0.5 text-[10px] text-slate-500">{t('cable.fromDeviceShort', 'Von Gerät')}</div>
               <select
                 aria-label="Quell-Gerät"
                 value={cable.fromEquipmentId}
@@ -234,7 +234,7 @@ export const CableProperties = () => {
                   </option>
                 ))}
               </select>
-              <div className="mt-1 text-[10px] text-slate-500">Port</div>
+              <div className="mt-1 text-[10px] text-slate-500">{t('cable.portShort', 'Port')}</div>
               <select
                 aria-label="Quell-Port"
                 value={cable.fromPortId}
@@ -253,7 +253,7 @@ export const CableProperties = () => {
               </select>
             </div>
             <div>
-              <div className="mb-0.5 text-[10px] text-slate-500">Nach Gerät</div>
+              <div className="mb-0.5 text-[10px] text-slate-500">{t('cable.toDeviceShort', 'Nach Gerät')}</div>
               <select
                 aria-label="Ziel-Gerät"
                 value={cable.toEquipmentId}
@@ -266,7 +266,7 @@ export const CableProperties = () => {
                   </option>
                 ))}
               </select>
-              <div className="mt-1 text-[10px] text-slate-500">Port</div>
+              <div className="mt-1 text-[10px] text-slate-500">{t('cable.portShort', 'Port')}</div>
               <select
                 aria-label="Ziel-Port"
                 value={cable.toPortId}
@@ -318,7 +318,7 @@ export const CableProperties = () => {
       </div>
 
       <label className="block">
-        <span className="mb-1 block text-slate-300">Stroke width ({cable.strokeWidth ?? 2.5}px)</span>
+        <span className="mb-1 block text-slate-300">{format(t('cable.field.strokeWidth', 'Stroke width ({width}px)'), { width: cable.strokeWidth ?? 2.5 })}</span>
         <input
           type="range"
           min={1}
@@ -336,7 +336,7 @@ export const CableProperties = () => {
             blendet das Label aus, kein 'ausblenden'-Toggle mehr noetig.
             Globaler Hide-Toggle gibt's zusaetzlich in der Toolbar. */}
         <div className="mb-1 flex items-center justify-between">
-          <span className="text-slate-300">Label Position</span>
+          <span className="text-slate-300">{t('cable.field.labelPosition', 'Label Position')}</span>
         </div>
         {(() => {
           // Issue #234 — kein extra "Aus"-Button mehr. Wenn keine
@@ -392,7 +392,7 @@ export const CableProperties = () => {
                 </p>
               )}
               <div className={`mt-2 flex items-center gap-2 text-[11px] ${isHidden ? 'opacity-40' : ''}`}>
-                <span className="text-slate-500">Slider:</span>
+                <span className="text-slate-500">{t('cable.field.labelSlider', 'Slider:')}</span>
                 <input
                   type="range"
                   min={0}
@@ -412,7 +412,7 @@ export const CableProperties = () => {
                     updateCable(cable.id, { labelT: Number(e.target.value) })
                   }
                   className="flex-1 accent-sky-500"
-                  title="Feinjustierung des Labels entlang des Kabels (0=Start, 1=Ende)"
+                  title={t('cable.field.labelSliderTitle', 'Feinjustierung des Labels entlang des Kabels (0=Start, 1=Ende)')}
                 />
                 <span className="w-10 text-right font-mono text-slate-400">
                   {Math.round(
@@ -431,7 +431,7 @@ export const CableProperties = () => {
                     type="button"
                     onClick={() => updateCable(cable.id, { labelT: undefined })}
                     className="rounded bg-slate-800 px-1 py-0.5 text-[10px] text-slate-500 hover:bg-slate-700"
-                    title="Slider zurücksetzen — Preset wieder aktiv"
+                    title={t('cable.field.labelSliderReset', 'Slider zurücksetzen — Preset wieder aktiv')}
                   >
                     reset
                   </button>
@@ -447,7 +447,7 @@ export const CableProperties = () => {
           Toggle in Settings -> Editing. */}
       <div className="rounded border border-slate-800 bg-slate-950/40 p-1.5">
         <div className="mb-1 flex items-center justify-between">
-          <span className="text-slate-300">Endpoint-Labels (→ zum anderen Ende)</span>
+          <span className="text-slate-300">{t('cable.field.endpointLabels', 'Endpoint-Labels (→ zum anderen Ende)')}</span>
         </div>
         <div className="flex gap-1">
           {[
@@ -502,7 +502,7 @@ export const CableProperties = () => {
         </label>
         <label
           className="flex items-center gap-1"
-          title="Bidirektionales Kabel (z.B. USB, Ethernet, LWL) — Pfeile auf beiden Seiten"
+          title={t('cable.field.bidirectionalTitle', 'Bidirektionales Kabel (z.B. USB, Ethernet, LWL) — Pfeile auf beiden Seiten')}
         >
           <input
             type="checkbox"
@@ -520,25 +520,25 @@ export const CableProperties = () => {
             checked={cable.wireless ?? false}
             onChange={(event) => updateCable(cable.id, { wireless: event.target.checked, dashed: event.target.checked ? true : cable.dashed })}
           />
-          <span className="font-semibold">Wireless Verbindung (kein Kabel)</span>
+          <span className="font-semibold">{t('cable.field.wireless', 'Wireless Verbindung (kein Kabel)')}</span>
         </label>
         {cable.wireless && (
           <div className="grid grid-cols-2 gap-2 pl-5">
             <label className="block">
-              <span className="mb-0.5 block text-[10px] text-slate-400">Frequenz (z.B. 5.8 GHz)</span>
+              <span className="mb-0.5 block text-[10px] text-slate-400">{t('cable.field.frequencyLabel', 'Frequenz (z.B. 5.8 GHz)')}</span>
               <input
                 value={cable.frequency ?? ''}
                 onChange={(event) => updateCable(cable.id, { frequency: event.target.value || undefined })}
-                placeholder="z.B. 5.8 GHz, 600 MHz"
+                placeholder={t('cable.field.frequencyPlaceholder', 'z.B. 5.8 GHz, 600 MHz')}
                 className="w-full rounded border border-slate-700 bg-slate-900 p-1.5 text-xs"
               />
             </label>
             <label className="block">
-              <span className="mb-0.5 block text-[10px] text-slate-400">Kanal / Channel</span>
+              <span className="mb-0.5 block text-[10px] text-slate-400">{t('cable.field.channelLabel', 'Kanal / Channel')}</span>
               <input
                 value={cable.wifiChannel ?? ''}
                 onChange={(event) => updateCable(cable.id, { wifiChannel: event.target.value || undefined })}
-                placeholder="z.B. 36, 6, 149"
+                placeholder={t('cable.field.channelPlaceholder', 'z.B. 36, 6, 149')}
                 className="w-full rounded border border-slate-700 bg-slate-900 p-1.5 text-xs"
               />
             </label>
@@ -547,7 +547,7 @@ export const CableProperties = () => {
       </div>
 
       <label className="block">
-        <span className="mb-1 block text-slate-300">Notes</span>
+        <span className="mb-1 block text-slate-300">{t('cable.field.notes', 'Notes')}</span>
         <textarea
           value={cable.notes}
           onChange={(event) => updateCable(cable.id, { notes: event.target.value })}

@@ -661,6 +661,57 @@ const en: Dict = {
   'statusbar.rentman.standalone': 'Standalone',
   'statusbar.zoom': 'Zoom:',
   'statusbar.aboutTitle': 'About Cable Planner',
+
+  // Properties panel chrome
+  'inspector.title': 'Inspector',
+  'inspector.subtitle': 'Properties',
+  'inspector.title.equipment': 'Device: {name}',
+  'inspector.title.cable': 'Cable: {name}',
+  'inspector.title.location': 'Frame: {name}',
+  'inspector.title.template': 'Template: {name}',
+  'inspector.collapse.show': 'Show properties',
+  'inspector.collapse.hide': 'Hide properties',
+  'inspector.float.title': 'Undock properties (free-floating)',
+  'inspector.float.aria': 'Undock properties',
+  'inspector.nothingSelected': 'Nothing selected',
+  'inspector.nothingSelectedBody':
+    'Pick a device, cable, frame or library template.',
+  'inspector.hints.title': 'Quick orientation',
+  'inspector.hints.placeFromLibrary': 'Drop devices from the library on the canvas.',
+  'inspector.hints.connectPorts': 'Connect ports to create cables.',
+  'inspector.hints.saveGroup': 'Select multiple devices and save them as a group from the canvas.',
+  'inspector.hints.rentmanLocation': 'Rentman actions live in the Equipment tab under Rentman.',
+
+  // Cable properties (placeholders + titles still missing)
+  'cable.field.maxReach': 'Max. reach (m)',
+  'cable.field.maxReachPlaceholder': 'e.g. 100',
+  'cable.field.layer': 'Layer',
+  'cable.field.layerTitle': 'Works with the layer filter in the toolbar (layer chips)',
+  'cable.field.strokeWidth': 'Stroke width ({width}px)',
+  'cable.field.labelPosition': 'Label position',
+  'cable.field.labelSlider': 'Slider:',
+  'cable.field.labelSliderTitle': 'Fine-tune label along the cable (0 = start, 1 = end)',
+  'cable.field.labelSliderReset': 'Reset slider — preset becomes active again',
+  'cable.field.endpointLabels': 'Endpoint labels (→ pointing to the other end)',
+  'cable.field.bidirectional': 'Bidirectional cable',
+  'cable.field.bidirectionalTitle':
+    'Bidirectional cable (e.g. USB, Ethernet, fibre) — arrows on both sides',
+  'cable.field.wireless': 'Wireless connection (no cable)',
+  'cable.field.frequencyLabel': 'Frequency (e.g. 5.8 GHz)',
+  'cable.field.frequencyPlaceholder': 'e.g. 5.8 GHz, 600 MHz',
+  'cable.field.channelLabel': 'Channel',
+  'cable.field.channelPlaceholder': 'e.g. 36, 6, 149',
+  'cable.field.notes': 'Notes',
+  'cable.edit.typeStandard': 'Edit cable type / standard',
+  'cable.fromDeviceShort': 'From device',
+  'cable.toDeviceShort': 'To device',
+  'cable.portShort': 'Port',
+
+  // Location properties (extra fields)
+  'location.field.notesPlaceholder': 'Notes about this frame',
+  'location.field.takeContents': 'Take devices along',
+  'location.field.takeContentsHint':
+    'When the frame moves, devices inside follow. Without this, the frame moves independently.',
 }
 
 const translations: Record<Language, Dict> = {
