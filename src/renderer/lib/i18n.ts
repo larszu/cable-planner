@@ -785,6 +785,21 @@ const en: Dict = {
   'modes.quickSave': '+ Save from current layout',
   'modes.quickSaveTitle':
     "Saves the device's current port layout as a new mode (quick-save).",
+
+  // ModeEditorDialog
+  'modeEditor.titleEdit': 'Edit mode',
+  'modeEditor.titleNew': 'New operating mode',
+  'modeEditor.createBtn': 'Create mode',
+  'modeEditor.namePlaceholder': 'e.g. "12G Single-Link", "4K mode", "Workshop layout"',
+  'modeEditor.nameConflict': 'A mode with this name already exists.',
+  'modeEditor.descLabel': 'Description (optional)',
+  'modeEditor.descPlaceholder': 'e.g. limits outputs to 2 in 4K mode (lower resource use)',
+  'modeEditor.portCount': '{count} port(s) in this mode',
+  'modeEditor.seedTitle': "Adopt the device's CURRENT port layout as a starting point.",
+  'modeEditor.seedBtn': '⬇ Adopt current device layout',
+  'modeEditor.emptySide': 'No {kind} in this mode.',
+  'modeEditor.removePort': 'Remove port',
+  'common.name': 'Name',
 }
 
 const translations: Record<Language, Dict> = {
