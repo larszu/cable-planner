@@ -9,10 +9,23 @@ import { useUiStore } from './uiStore'
 import { isProjectLocked, sanitizePort, touchProject } from './projectStoreHelpers'
 import { createLocationSlice } from './slices/locationSlice'
 import { createCableSlice } from './slices/cableSlice'
+import { createAnnotationSlice } from './slices/annotationSlice'
+import { createMobileSyncSlice } from './slices/mobileSyncSlice'
+import { createTemplateSlice } from './slices/templateSlice'
+import { createGroupPresetSlice } from './slices/groupPresetSlice'
+import { createMetaSlice } from './slices/metaSlice'
+import { createCategorySlice } from './slices/categorySlice'
+import {
+  loadCustomLibrary,
+  persistCustomLibrary,
+  loadKnownCategories,
+  persistKnownCategories,
+} from './libraryPersist'
+import { loadGroupPresets } from './groupPresetsPersist'
+import { scheduleProjectAutosave } from './projectAutosave'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
-import { cableTypePatchFromPorts, inheritedCableType } from '../lib/cableInheritance'
+import { cableTypePatchFromPorts } from '../lib/cableInheritance'
 import { detectLayerForConnector } from '../lib/cableLayers'
-import { cableCatalog } from '../types/cableSpec'
 import { ubiquitiTemplates } from '../lib/ubiquitiCatalog'
 import { monitorTemplates } from '../lib/monitorCatalog'
 import { cameraTemplates } from '../lib/cameraCatalog'
@@ -23,42 +36,18 @@ import {
   upsertCachedRentmanTemplateFromEquipment,
 } from '../lib/rentmanTemplateCache'
 import type { GreenGoConfig } from '../types/greengo'
-import { useSettingsStore } from './settingsStore'
 
 type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
   Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>
 
 import { STORAGE_KEYS } from '../lib/storageKeys'
-import { LIMITS, VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
-import {
-  syncDevicesToFolder,
-  syncPresetsToFolder,
-  seedLibrarySyncCache,
-  stampGroupLibraryRef,
-} from '../lib/librarySync'
+import { VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
+import { seedLibrarySyncCache, stampGroupLibraryRef } from '../lib/librarySync'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
-const KNOWN_CATEGORIES_KEY = STORAGE_KEYS.knownCategories
-const GROUP_PRESETS_KEY = STORAGE_KEYS.groupPresets
 const LIB_MIGRATION_KEY = STORAGE_KEYS.libMigration
 const LIB_MIGRATION_VERSION = '2026-04-greengo-catalog-v2'
-
-const DEFAULT_CATEGORIES = [
-  'Kameras',
-  'Objektive',
-  'Stative',
-  'Licht',
-  'Audio',
-  'Video',
-  'Monitore',
-  'PC',
-  'Netzwerk',
-  'Kabel',
-  'Strom',
-  'Rigging',
-  'Sonstiges',
-]
 
 const runLibraryMigration = () => {
   try {
@@ -92,44 +81,6 @@ const runLibraryMigration = () => {
   }
 }
 runLibraryMigration()
-
-const loadCustomLibrary = (): EquipmentTemplate[] => {
-  try {
-    const raw = localStorage.getItem(CUSTOM_LIB_KEY)
-    return raw ? (JSON.parse(raw) as EquipmentTemplate[]) : []
-  } catch {
-    return []
-  }
-}
-
-const persistCustomLibrary = (items: EquipmentTemplate[]) => {
-  try {
-    localStorage.setItem(CUSTOM_LIB_KEY, JSON.stringify(items))
-  } catch {
-    /* ignore */
-  }
-  syncDevicesToFolder(items)
-}
-
-const loadKnownCategories = (): string[] => {
-  try {
-    const raw = localStorage.getItem(KNOWN_CATEGORIES_KEY)
-    const stored = raw ? (JSON.parse(raw) as string[]) : []
-    // Merge in defaults so dropdowns always have sensible options.
-    const set_ = new Set<string>([...DEFAULT_CATEGORIES, ...stored])
-    return Array.from(set_).sort((a, b) => a.localeCompare(b))
-  } catch {
-    return [...DEFAULT_CATEGORIES]
-  }
-}
-
-const persistKnownCategories = (items: string[]) => {
-  try {
-    localStorage.setItem(KNOWN_CATEGORIES_KEY, JSON.stringify(items))
-  } catch {
-    /* ignore */
-  }
-}
 
 const loadAutosavedProject = (): CablePlannerProject | null => {
   try {
@@ -176,81 +127,6 @@ const loadAutosavedProject = (): CablePlannerProject | null => {
   }
 }
 
-let autosaveTimer: ReturnType<typeof setTimeout> | null = null
-const scheduleProjectAutosave = (project: CablePlannerProject) => {
-  if (autosaveTimer) clearTimeout(autosaveTimer)
-  const delay = useSettingsStore.getState().autosaveIntervalMs || 400
-  autosaveTimer = setTimeout(() => {
-    try {
-      localStorage.setItem(PROJECT_AUTOSAVE_KEY, JSON.stringify(project))
-    } catch {
-      /* quota errors are non-fatal */
-    }
-  }, delay)
-}
-
-// v7.9.13 — Heal-on-Load für GroupPresets. Alte Presets aus früheren
-// Versionen können Ports mit `id: ''` enthalten (catalogue-Templates
-// hatten leere IDs, vor dem sanitize-Fix wurde das ungeprüft persistiert).
-// Beim Laden geben wir jedem Port der noch keine valide eindeutige ID
-// hat einen frischen UUID, damit ReactFlow / EquipmentNode keine Key-
-// Kollisionen mehr haben. Idempotent — bei bereits sauberen Presets
-// passiert nichts.
-const healGroupPresetPorts = (presets: GroupPreset[]): GroupPreset[] => {
-  let needsRewrite = false
-  const out = presets.map((preset) => {
-    const items = preset.items.map((item) => {
-      const sanitizePortList = <T extends { id?: string }>(ports: T[]): T[] => {
-        const seen = new Set<string>()
-        return ports.map((p) => {
-          let id = p.id ?? ''
-          if (!id || seen.has(id)) {
-            needsRewrite = true
-            id = typeof crypto !== 'undefined' && crypto.randomUUID
-              ? crypto.randomUUID()
-              : `port-${Math.random().toString(36).slice(2, 11)}`
-          }
-          seen.add(id)
-          return { ...p, id }
-        })
-      }
-      return {
-        ...item,
-        inputs: sanitizePortList(item.inputs),
-        outputs: sanitizePortList(item.outputs),
-      }
-    })
-    return { ...preset, items }
-  })
-  if (needsRewrite) {
-    try {
-      localStorage.setItem(GROUP_PRESETS_KEY, JSON.stringify(out))
-    } catch {
-      /* ignore */
-    }
-  }
-  return out
-}
-
-const loadGroupPresets = (): GroupPreset[] => {
-  try {
-    const raw = localStorage.getItem(GROUP_PRESETS_KEY)
-    if (!raw) return []
-    const parsed = JSON.parse(raw) as GroupPreset[]
-    return healGroupPresetPorts(parsed)
-  } catch {
-    return []
-  }
-}
-
-const persistGroupPresets = (presets: GroupPreset[]) => {
-  try {
-    localStorage.setItem(GROUP_PRESETS_KEY, JSON.stringify(presets))
-  } catch {
-    /* ignore */
-  }
-  syncPresetsToFolder(presets)
-}
 
 export interface ProjectState {
   project: CablePlannerProject
@@ -717,6 +593,12 @@ const buildProjectStore = (
 ): StateCreator<ProjectState> => (set, get, store) => ({
   ...createLocationSlice(set, get, store),
   ...createCableSlice(set, get, store),
+  ...createAnnotationSlice(set, get, store),
+  ...createMobileSyncSlice(set, get, store),
+  ...createTemplateSlice(set, get, store),
+  ...createGroupPresetSlice(set, get, store),
+  ...createMetaSlice(set, get, store),
+  ...createCategorySlice(set, get, store),
   project:
     opts.initialProject ??
     (() => {
@@ -728,8 +610,6 @@ const buildProjectStore = (
   recentProjects: [],
   customLibrary: loadCustomLibrary(),
   knownCategories: loadKnownCategories(),
-  setRecentProjects: (items) => set({ recentProjects: items }),
-  setFilePath: (path) => set({ filePath: path }),
   loadProject: (project, filePath) =>
     set((state) => {
       // v7.9.70 / #171 — Rentman-Sync-Heal beim Project-Load.
@@ -751,44 +631,6 @@ const buildProjectStore = (
         customLibrary: healedLibrary,
       }
     }),
-  setProjectMeta: (name, description) =>
-    set((state) => ({
-      project: touchProject({
-        ...state.project,
-        metadata: {
-          ...state.project.metadata,
-          name,
-          description,
-        },
-      }),
-    })),
-  updateProjectMetadata: (patch) =>
-    set((state) => ({
-      project: touchProject({
-        ...state.project,
-        metadata: {
-          ...state.project.metadata,
-          ...patch,
-        },
-      }),
-    })),
-  setDefaultVideoFormat: (id) =>
-    set((state) => ({
-      project: touchProject({
-        ...state.project,
-        metadata: {
-          ...state.project.metadata,
-          defaultVideoFormat: id as CablePlannerProject['metadata']['defaultVideoFormat'],
-        },
-      }),
-    })),
-  setCanvasState: (x, y, zoom) =>
-    set((state) => ({
-      project: {
-        ...state.project,
-        canvasState: { x, y, zoom },
-      },
-    })),
   addEquipment: (equipment) =>
     set((state) => {
       if (isProjectLocked(state)) return state
@@ -1204,20 +1046,6 @@ const buildProjectStore = (
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
-  setSelection: (equipmentId, cableId, locationId) =>
-    set({
-      selectedEquipmentId: equipmentId,
-      selectedCableId: cableId,
-      selectedLocationId: locationId,
-      selectedTemplateName: undefined,
-    }),
-  setSelectedTemplateName: (name) =>
-    set({
-      selectedTemplateName: name,
-      selectedEquipmentId: undefined,
-      selectedCableId: undefined,
-      selectedLocationId: undefined,
-    }),
   deleteEquipment: (id) =>
     set((state) => {
       if (isProjectLocked(state)) return state
@@ -1321,27 +1149,6 @@ const buildProjectStore = (
       selectedCableId: undefined,
     }))
   },
-  addCustomTemplate: (template) =>
-    set((state) => {
-      const next = [...state.customLibrary.filter((t) => t.name !== template.name), template]
-      persistCustomLibrary(next)
-      if (template.rentmanId) upsertCachedRentmanTemplate(template)
-      return { customLibrary: next }
-    }),
-  addCustomTemplates: (templates) =>
-    set((state) => {
-      const byName = new Map(state.customLibrary.map((t) => [t.name, t]))
-      // Only add templates that don't already exist (don't overwrite user edits).
-      templates.forEach((t) => {
-        if (!byName.has(t.name)) byName.set(t.name, t)
-      })
-      const next = Array.from(byName.values())
-      persistCustomLibrary(next)
-      templates.forEach((template) => {
-        if (template.rentmanId) upsertCachedRentmanTemplate(template)
-      })
-      return { customLibrary: next }
-    }),
   resyncRentmanLibraryFromCanvas: () => {
     let addedOrPatched = 0
     set((state) => {
@@ -1364,51 +1171,6 @@ const buildProjectStore = (
     })
     return addedOrPatched
   },
-  removeCustomTemplate: (name) =>
-    set((state) => {
-      const next = state.customLibrary.filter((t) => t.name !== name)
-      persistCustomLibrary(next)
-      return { customLibrary: next }
-    }),
-  setCustomTemplateCategory: (name, category) =>
-    set((state) => {
-      const cat = category.trim() || 'Sonstiges'
-      const next = state.customLibrary.map((t) =>
-        t.name === name ? { ...t, category: cat } : t,
-      )
-      persistCustomLibrary(next)
-      return { customLibrary: next }
-    }),
-  updateCustomTemplate: (currentName, patch) =>
-    set((state) => {
-      const newName = patch.name?.trim() || currentName
-      const newCat = patch.category?.trim() || undefined
-      const next = state.customLibrary.map((t) => {
-        if (t.name !== currentName) return t
-        return {
-          ...t,
-          name: newName,
-          ...(newCat ? { category: newCat } : {}),
-        }
-      })
-      persistCustomLibrary(next)
-      const cats = new Set(state.knownCategories)
-      if (newCat) cats.add(newCat)
-      const catsSorted = Array.from(cats).sort((a, b) => a.localeCompare(b))
-      persistKnownCategories(catsSorted)
-      return { customLibrary: next, knownCategories: catsSorted }
-    }),
-  markTemplateAsRack: (name, rackUnits) =>
-    set((state) => {
-      const heightHE = Math.max(1, Math.min(LIMITS.MAX_RACK_HEIGHT_HE, Math.round(rackUnits)))
-      const next = state.customLibrary.map((t) =>
-        t.name === name
-          ? { ...t, isRackDevice: true, rackUnits: heightHE }
-          : t,
-      )
-      persistCustomLibrary(next)
-      return { customLibrary: next }
-    }),
   renameCustomCategory: (oldCategory, newCategory) =>
     set((state) => {
       if (isProjectLocked(state)) return state
@@ -1443,246 +1205,7 @@ const buildProjectStore = (
         project: { ...state.project, equipment: nextEquipment },
       }
     }),
-  addKnownCategories: (categories) =>
-    set((state) => {
-      const set_ = new Set(state.knownCategories)
-      categories.forEach((c) => {
-        const trimmed = c.trim()
-        if (trimmed) set_.add(trimmed)
-      })
-      // v7.9.5 — Append NEU statt komplett zu sortieren, damit der User
-      // seine manuelle Drag&Drop-Reihenfolge nicht verliert. Existing
-      // categories behalten ihre Position; nur neue kommen ans Ende.
-      const existing = state.knownCategories.filter((c) => set_.has(c))
-      const added: string[] = []
-      for (const c of set_) {
-        if (!existing.includes(c)) added.push(c)
-      }
-      added.sort((a, b) => a.localeCompare(b))
-      const next = [...existing, ...added]
-      persistKnownCategories(next)
-      return { knownCategories: next }
-    }),
-  reorderCategories: (newOrder) =>
-    set((state) => {
-      // Nur Kategorien akzeptieren die wir bereits kennen, in der
-      // gegebenen Reihenfolge. Unbekannte werden ignoriert; ausgelassene
-      // werden ans Ende gehängt um nichts zu verlieren.
-      const known = new Set(state.knownCategories)
-      const ordered: string[] = []
-      const seen = new Set<string>()
-      for (const c of newOrder) {
-        if (known.has(c) && !seen.has(c)) {
-          ordered.push(c)
-          seen.add(c)
-        }
-      }
-      for (const c of state.knownCategories) {
-        if (!seen.has(c)) ordered.push(c)
-      }
-      persistKnownCategories(ordered)
-      return { knownCategories: ordered }
-    }),
-  saveEquipmentAsTemplate: (equipmentId) =>
-    set((state) => {
-      const item = state.project.equipment.find((e) => e.id === equipmentId)
-      if (!item) return {}
-      // Build a template from the live equipment item (strip placement fields).
-      const template: EquipmentTemplate = {
-        name: item.name,
-        category: item.category || 'Sonstiges',
-        inputs: item.inputs,
-        outputs: item.outputs,
-        width: item.width,
-        height: item.height,
-        rentmanId: item.rentmanId,
-        ipAddress: item.ipAddress,
-        subnetMask: item.subnetMask,
-        macAddress: item.macAddress,
-        username: item.username,
-        password: item.password,
-        notes: item.notes,
-        vlans: item.vlans,
-        managementVlanId: item.managementVlanId,
-        gateway: item.gateway,
-        dnsServers: item.dnsServers,
-        mgmtUrl: item.mgmtUrl,
-        firmware: item.firmware,
-        portVlans: item.portVlans,
-        sdiCaps: item.sdiCaps,
-        atemMvConfig: item.atemMvConfig,
-        favorite: state.customLibrary.find((t) => t.name === item.name)?.favorite,
-        hidden: state.customLibrary.find((t) => t.name === item.name)?.hidden,
-      }
-      const next = [
-        ...state.customLibrary.filter((t) => t.name !== template.name),
-        template,
-      ]
-      persistCustomLibrary(next)
-      if (template.rentmanId) upsertCachedRentmanTemplate(template)
-      return { customLibrary: next }
-    }),
-  saveEquipmentAsNewTemplate: (equipmentId, newName, category) =>
-    set((state) => {
-      const item = state.project.equipment.find((e) => e.id === equipmentId)
-      if (!item) return {}
-      const trimmed = newName.trim()
-      if (!trimmed) return {}
-      // If the target name already exists we treat the whole operation as a
-      // no-op so we never accidentally overwrite a different template.
-      if (state.customLibrary.some((t) => t.name === trimmed)) return {}
-      const template: EquipmentTemplate = {
-        name: trimmed,
-        category: (category || item.category || 'Sonstiges').trim() || 'Sonstiges',
-        inputs: item.inputs,
-        outputs: item.outputs,
-        width: item.width,
-        height: item.height,
-        rentmanId: item.rentmanId,
-        ipAddress: item.ipAddress,
-        subnetMask: item.subnetMask,
-        macAddress: item.macAddress,
-        username: item.username,
-        password: item.password,
-        notes: item.notes,
-        vlans: item.vlans,
-        managementVlanId: item.managementVlanId,
-        gateway: item.gateway,
-        dnsServers: item.dnsServers,
-        mgmtUrl: item.mgmtUrl,
-        firmware: item.firmware,
-        portVlans: item.portVlans,
-        sdiCaps: item.sdiCaps,
-        atemMvConfig: item.atemMvConfig,
-      }
-      const next = [...state.customLibrary, template]
-      persistCustomLibrary(next)
-      if (template.rentmanId) upsertCachedRentmanTemplate(template)
-      return { customLibrary: next }
-    }),
-  toggleTemplateFavorite: (name) =>
-    set((state) => {
-      const next = state.customLibrary.map((t) =>
-        t.name === name ? { ...t, favorite: !t.favorite } : t,
-      )
-      persistCustomLibrary(next)
-      return { customLibrary: next }
-    }),
-  toggleTemplateHidden: (name) =>
-    set((state) => {
-      const next = state.customLibrary.map((t) =>
-        t.name === name ? { ...t, hidden: !t.hidden } : t,
-      )
-      persistCustomLibrary(next)
-      return { customLibrary: next }
-    }),
-  setCustomLibrary: (templates) =>
-    set(() => {
-      persistCustomLibrary(templates)
-      return { customLibrary: templates }
-    }),
   groupPresets: loadGroupPresets(),
-  addGroupPreset: (preset) =>
-    set((state) => {
-      const next = [...state.groupPresets.filter((p) => p.id !== preset.id), preset]
-      persistGroupPresets(next)
-      return { groupPresets: next }
-    }),
-  saveGroupPreset: (name, equipmentIds) =>
-    set((state) => {
-      const items = state.project.equipment.filter((e) => equipmentIds.includes(e.id))
-      if (items.length < 2) return {}
-      const minX = Math.min(...items.map((e) => e.x))
-      const minY = Math.min(...items.map((e) => e.y))
-      const idToIndex = new Map(items.map((e, i) => [e.id, i]))
-      const idSet = new Set(equipmentIds)
-      const internalCables = state.project.cables.filter(
-        (c) => idSet.has(c.fromEquipmentId) && idSet.has(c.toEquipmentId),
-      )
-      const cableStubs = internalCables.map((c) => {
-        const fromIdx = idToIndex.get(c.fromEquipmentId)!
-        const toIdx = idToIndex.get(c.toEquipmentId)!
-        const fromItem = items[fromIdx]
-        const toItem = items[toIdx]
-        const fromPort = [...fromItem.outputs, ...fromItem.inputs].find((p) => p.id === c.fromPortId)
-        const toPort = [...toItem.inputs, ...toItem.outputs].find((p) => p.id === c.toPortId)
-        return {
-          fromItemIndex: fromIdx,
-          fromPortName: fromPort?.name ?? '',
-          toItemIndex: toIdx,
-          toPortName: toPort?.name ?? '',
-          name: c.name,
-          type: c.type,
-          length: c.length,
-          color: c.color,
-          standard: c.standard,
-        }
-      })
-      const preset: GroupPreset = {
-        id: uuidv4(),
-        name,
-        items: items.map((e) => ({
-          name: e.name,
-          category: e.category,
-          inputs: e.inputs,
-          outputs: e.outputs,
-          width: e.width,
-          height: e.height,
-          notes: e.notes,
-          ipAddress: e.ipAddress,
-          resolution: e.resolution,
-          displaySizeInch: e.displaySizeInch,
-          offsetX: e.x - minX,
-          offsetY: e.y - minY,
-        })),
-        cables: cableStubs,
-      }
-      const next = [...state.groupPresets, preset]
-      persistGroupPresets(next)
-      return { groupPresets: next }
-    }),
-  deleteGroupPreset: (id) =>
-    set((state) => {
-      const next = state.groupPresets.filter((p) => p.id !== id)
-      persistGroupPresets(next)
-      return { groupPresets: next }
-    }),
-  renameGroupPreset: (id, newName) =>
-    set((state) => {
-      const trimmed = newName.trim()
-      if (!trimmed) return state
-      const next = state.groupPresets.map((p) =>
-        p.id === id ? { ...p, name: trimmed } : p,
-      )
-      persistGroupPresets(next)
-      return { groupPresets: next }
-    }),
-  setGroupPresets: (presets) =>
-    set(() => {
-      persistGroupPresets(presets)
-      return { groupPresets: presets }
-    }),
-  /** v7.9.6 — Reorder groupPresets. Accepts the desired ID order;
-   *  anything not in the list is appended at the end so partial
-   *  reorders (e.g. only racks, only non-racks) don't lose entries. */
-  reorderGroupPresets: (newOrder) =>
-    set((state) => {
-      const idToPreset = new Map(state.groupPresets.map((p) => [p.id, p]))
-      const ordered: GroupPreset[] = []
-      const seen = new Set<string>()
-      for (const id of newOrder) {
-        const p = idToPreset.get(id)
-        if (p && !seen.has(id)) {
-          ordered.push(p)
-          seen.add(id)
-        }
-      }
-      for (const p of state.groupPresets) {
-        if (!seen.has(p.id)) ordered.push(p)
-      }
-      persistGroupPresets(ordered)
-      return { groupPresets: ordered }
-    }),
   placeGroupPreset: (presetId, x, y) =>
     set((state) => {
       const preset = state.groupPresets.find((p) => p.id === presetId)
@@ -1944,191 +1467,6 @@ const buildProjectStore = (
           : e,
       )
       const updated = touchProject({ ...state.project, equipment: updatedEquipment })
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  updateGreenGoConfig: (config) =>
-    set((state) => {
-      const updated = { ...state.project, greengoConfig: config }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  setCheckState: (checks) =>
-    set((state) => {
-      const updated = { ...state.project, checkState: checks }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  clearPortCheck: (deviceId, portId) =>
-    set((state) => {
-      const cur = state.project.checkState
-      if (!cur) return state
-      const key = `${deviceId}|${portId}`
-      if (!cur.ports[key]) return state
-      const nextPorts = { ...cur.ports }
-      delete nextPorts[key]
-      const updated = {
-        ...state.project,
-        checkState: { ports: nextPorts, cables: cur.cables },
-      }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  clearCableCheck: (cableId) =>
-    set((state) => {
-      const cur = state.project.checkState
-      if (!cur) return state
-      if (!cur.cables[cableId]) return state
-      const nextCables = { ...cur.cables }
-      delete nextCables[cableId]
-      const updated = {
-        ...state.project,
-        checkState: { ports: cur.ports, cables: nextCables },
-      }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  clearAllMobileChecks: () =>
-    set((state) => {
-      const cur = state.project.checkState
-      if (!cur) return state
-      if (
-        Object.keys(cur.ports).length === 0 &&
-        Object.keys(cur.cables).length === 0
-      ) {
-        return state
-      }
-      const updated = {
-        ...state.project,
-        checkState: { ports: {}, cables: {} },
-      }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  addCableFromMobile: (input) =>
-    set((state) => {
-      // #295 — Auch der Mobile-Pfad darf bei finalized/viewer-Mode keine
-      // Kabel mehr einspielen. Der Mobile-Viewer sollte das eigentlich
-      // bereits clientseitig unterbinden (read-only beim finalized Plan),
-      // aber wir validieren server-side als Defense-in-Depth.
-      if (isProjectLocked(state)) return {}
-      // v7.9.54 — Kabel-Add vom Mobile-Viewer. Validiert dass beide
-      // Endpoints (Equipment+Port-Pair) im aktuellen Projekt existieren;
-      // sonst silently skip (Mobile zeigt eh nur das was im Projekt war).
-      const fromEq = state.project.equipment.find((e) => e.id === input.fromEquipmentId)
-      const toEq = state.project.equipment.find((e) => e.id === input.toEquipmentId)
-      if (!fromEq || !toEq) return {}
-      const fromPort =
-        [...fromEq.inputs, ...fromEq.outputs].find((p) => p.id === input.fromPortId) ?? null
-      const toPort =
-        [...toEq.inputs, ...toEq.outputs].find((p) => p.id === input.toPortId) ?? null
-      if (!fromPort || !toPort) return {}
-      // Doppelte verhindern: gleiche Port-Combo schon mal verbunden? skip.
-      const dupe = state.project.cables.some(
-        (c) =>
-          (c.fromPortId === input.fromPortId && c.toPortId === input.toPortId) ||
-          (c.fromPortId === input.toPortId && c.toPortId === input.fromPortId),
-      )
-      if (dupe) return {}
-      // v7.9.88 / #210 — Cable-Type-String → cableSpecId Lookup. Vorher
-      // wurde nur `type` als Connector-String gesetzt; cableSpecId blieb
-      // undefined → das Properties-Panel in der Hauptapp zeigte das
-      // Kabel als "Custom" weil es keinen Spec-Eintrag gefunden hat.
-      // Jetzt suchen wir im cableCatalog (+ uiStore.customCableSpecs)
-      // einen Spec, dessen Name oder connectorType zum Input passt, und
-      // setzen ihn. Plus Layer-Auto-Detect aus dem Connector-Typ.
-      let resolvedSpecId: string | undefined
-      let resolvedColor = input.color
-      const typeStr = (input.type ?? '').trim()
-      if (typeStr) {
-        const ui = useUiStore.getState()
-        const allSpecs = [
-          ...cableCatalog,
-          ...(ui.customCableSpecs ?? []),
-        ]
-        // Exakter Name-Match first, dann Substring-Fallback auf
-        // connectorType, dann gar nichts.
-        const exact = allSpecs.find((s) => s.name.toLowerCase() === typeStr.toLowerCase())
-        const byConnector = !exact && allSpecs.find(
-          (s) => String(s.connectorType).toLowerCase() === typeStr.toLowerCase(),
-        )
-        const match = exact ?? byConnector
-        if (match) {
-          resolvedSpecId = match.id
-          if (!resolvedColor) resolvedColor = match.color
-        }
-      }
-      const autoLayer = detectLayerForConnector(typeStr as Cable['type'])
-      // v7.9.125 — wenn das Mobile keinen Type liefert, leiten wir
-      // ihn aus den Ports ab statt 'unbekannt' zu stempeln (nur wenn
-      // der Inheritance-Toggle an ist; sonst Legacy-Fallback).
-      const fallbackType: Cable['type'] = useUiStore.getState().inheritCableTypeFromPort
-        ? inheritedCableType(
-            {
-              fromEquipmentId: input.fromEquipmentId,
-              fromPortId: input.fromPortId,
-              toEquipmentId: input.toEquipmentId,
-              toPortId: input.toPortId,
-            },
-            state.project.equipment,
-          ) ?? ('unbekannt' as Cable['type'])
-        : ('unbekannt' as Cable['type'])
-      const cable: Cable = {
-        id: uuidv4(),
-        name: input.name?.trim() || `${fromEq.name} → ${toEq.name}`,
-        type: (input.type as Cable['type']) || fallbackType,
-        length: input.length ?? 0,
-        color: resolvedColor ?? '#64748b',
-        fromEquipmentId: input.fromEquipmentId,
-        fromPortId: input.fromPortId,
-        toEquipmentId: input.toEquipmentId,
-        toPortId: input.toPortId,
-        notes: input.notes ?? '',
-        addedFromMobile: true,
-        layer: autoLayer,
-        ...(resolvedSpecId ? { cableSpecId: resolvedSpecId } : {}),
-      }
-      const updated = touchProject({
-        ...state.project,
-        cables: [...state.project.cables, cable],
-      })
-      scheduleProjectAutosave(updated)
-      return { project: updated, projectVersion: state.projectVersion + 1 }
-    }),
-  setProjectMode: (mode) =>
-    set((state) => {
-      const updated = { ...state.project, mode }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  addAnnotation: (annotation) =>
-    set((state) => {
-      const existing = state.project.annotations ?? []
-      const updated = { ...state.project, annotations: [...existing, annotation] }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  updateAnnotation: (id, patch) =>
-    set((state) => {
-      const existing = state.project.annotations ?? []
-      const next = existing.map((a) => (a.id === id ? { ...a, ...patch } : a))
-      const updated = { ...state.project, annotations: next }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  removeAnnotation: (id) =>
-    set((state) => {
-      const existing = state.project.annotations ?? []
-      const updated = {
-        ...state.project,
-        annotations: existing.filter((a) => a.id !== id),
-      }
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  setViewerSession: (session) =>
-    set((state) => {
-      const updated = { ...state.project, viewerSession: session }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
