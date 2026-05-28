@@ -805,6 +805,9 @@ const en: Dict = {
   'print.devices.body':
     'Select individual devices and generate an A4/A3 patch list with all ports + connected cables — to stick on the device.',
   'print.devices.searchPlaceholder': 'Search (name, category, subtitle)…',
+  'print.devices.selectAll': 'Select all',
+  'print.devices.deselectAll': 'Deselect all',
+  'print.devices.filtered': '(filtered)',
 
   // Device mode picker (multi-mode devices, e.g. ATEM, Pixelhue, Tessera)
   'modes.intro':
@@ -2408,6 +2411,106 @@ const en: Dict = {
   'atem.audio.renderAnyway': 'Render anyway',
   // Cable dialog – save-as-custom prompt
   'cable.dialog.newTypeNamePrompt': 'Name for the new cable type:',
+  // App.tsx PDF progress overlay
+  'app.pdfProgress.title': 'PDF is being created…',
+  'app.pdfProgress.hint':
+    'Large plans may take a few seconds. Please do not cancel.',
+  // App.tsx Library update prompt
+  'app.libUpdate.kindDevice': 'Device',
+  'app.libUpdate.kindGroup': 'Rack/Group',
+  'app.libUpdate.moreLines': '…and {n} more',
+  'app.libUpdate.title': '{n} library item(s) in this project are out of date:',
+  'app.libUpdate.body':
+    'A newer version is in the library folder. Update to the current library state?\n\n(Device names + notes are kept. Rack/group updates currently have to be replaced manually.)',
+  'app.libUpdate.okBtn': 'Update',
+  'app.libUpdate.doneTitle': 'Update done',
+  'app.libUpdate.doneAppliedBody': '{n} device(s) updated.',
+  'app.libUpdate.doneSkippedBody': '{n} rack/group item(s) skipped — please re-place manually if needed.',
+  // App.tsx New project confirm
+  'app.newProject.confirm':
+    'Discard current project and create a new one?\n\nUnsaved changes will be lost.',
+  // App.tsx Viewer export
+  'app.viewerExport.okTitle': 'Viewer file saved',
+  'app.viewerExport.okBody':
+    'Send it to your freelancers/helpers. On opening they are asked for their name — annotations are then auto-attributed.',
+  'app.viewerExport.failTitle': 'Viewer export failed',
+  // App.tsx Annotations import
+  'app.annotationsImport.needDesktop': 'Annotations re-import requires the desktop app.',
+  'app.annotationsImport.okTitle': 'Annotations imported',
+  'app.annotationsImport.okBodyImported': '{n} new annotation(s) imported.',
+  'app.annotationsImport.okBodySkipped': '{n} already present — skipped.',
+  // App.tsx Port-conflict confirmDialog + modal
+  'app.portConflict.title': 'Port already in use',
+  'app.portConflict.intro': 'At least one of the ports already has a cable connected:',
+  'app.portConflict.body':
+    '"Replace" = remove the existing cable and create the new connection.\n"Cancel" = discard the new connection, everything stays as it is.',
+  'app.portConflict.okReplace': 'Replace',
+  'app.portConflict.targetPortLabel': 'The target port',
+  'app.portConflict.alreadyConnectedBy': 'is already connected by',
+  'app.portConflict.oneCable': '1 cable',
+  'app.portConflict.nCables': '{n} cables',
+  'app.portConflict.connected': 'in use:',
+  'app.portConflict.hint':
+    '"Replace" removes the above connection(s) and creates the new cable. "Cancel" discards the connect attempt.',
+  // CableEditDialog length warning
+  'cable.lengthWarning': 'Length exceeds recommended maximum of {max} m for {name}.',
+  // Annotations overlay – anchor pin chip
+  'annotations.pinnedTo': 'pinned to',
+  'annotations.anchor.device': 'device',
+  'annotations.anchor.port': 'port',
+  // LibraryPanel rentman expand/collapse + devices count
+  'library.rentman.expandAll': 'Expand all',
+  'library.rentman.collapseAll': 'Collapse all',
+  'library.rentman.devicesCount': '{n} devices',
+  // VideohubExportDialog – device picker
+  'videohub.deviceOnCanvas': 'Device on the canvas',
+  'videohub.pickDevice': 'Pick device',
+  // App.tsx PdfExportDialog
+  'pdfExport.title': 'Export plan as PDF',
+  'pdfExport.layers.title': 'Layers (included in PDF)',
+  'pdfExport.layers.hint':
+    'Click on a chip to toggle the layer for canvas AND PDF. Example: only print video ⇒ disable all other chips.',
+  'pdfExport.bg.title': 'Background',
+  'pdfExport.bg.light': 'Light',
+  'pdfExport.bg.dark': 'Dark',
+  'pdfExport.render.title': 'Render mode',
+  'pdfExport.render.raster': 'Raster (classic)',
+  'pdfExport.render.rasterHint':
+    'JPEG snapshot of the canvas. Reliable, but blurry at high zoom in the PDF.',
+  'pdfExport.render.vector': 'Vector',
+  'pdfExport.render.vectorHint':
+    'Chromium printToPDF. Text stays selectable & sharp at any zoom. Smaller file size.',
+  'pdfExport.exportBtn': 'Export PDF',
+  // CableEditDialog field labels
+  'cable.field.lengthM': 'Length (m)',
+  // ATEM dialog (mDNS discovery + edit-hint)
+  'atem.dialog.noneFound':
+    'No ATEM switcher found via mDNS on the local network. (Some models / firewall setups block mDNS — enter the IP manually then.)',
+  'atem.dialog.foundCount': 'Found ({n}) — click to take the IP:',
+  'atem.dialog.changesNote':
+    'Heads-up: changes go directly to the switcher (RAM). To survive a reboot, trigger "Save Startup State" in the Blackmagic ATEM Software. Audio inputs (XLR/RJ45 talkback), media players and internal sources are locked — the ATEM manages those itself.',
+  // RackInstanceCard
+  'rackInstance.label': 'Rack instance',
+  'rackInstance.fallback': 'Rack',
+  'rackInstance.intro':
+    'This device belongs to a rack instance. The rack editor shows a filtered sub-canvas with this rack only — position changes are rounded to whole U on release.',
+  'rackInstance.openEditor': 'Open rack editor',
+  'rackInstance.position': 'Position: from U {start}',
+  'rackInstance.heShort': 'U',
+  // PortList SDI caps title
+  'ports.sdi.caps': 'SDI capabilities (port-specific)',
+  // Print dialog body details
+  'print.dialogHint.tag': 'Note',
+  'print.dialogHint.body':
+    'In the printer dialog you choose printer, paper format + number of copies. With "Individual PDFs" multiple print jobs are triggered (one per device).',
+  'print.format.label': 'Format',
+  'print.format.a4': 'A4 (default)',
+  'print.format.a3': 'A3 (more ports / page)',
+  'print.output.label': 'Output',
+  'print.output.combined': 'One combined PDF',
+  'print.output.individual': 'Individual PDFs per device',
+  'print.devices.noneInProject': 'No devices in the project.',
+  'print.devices.noMatch': 'No device matches the search "{q}".',
   // ExportDialog – section descriptions, format hints, BOM strings
   'export.desc.plan':
     'Download or print the canvas plan as PDF. PDF with title block — print-ready. Also PNG/JPEG for email/Slack.',

@@ -318,7 +318,7 @@ export const AnnotationCanvasOverlay = () => {
                 >
                   {new Date(annotation.createdAt).toLocaleString()}
                   {annotation.anchor.type !== 'free' && (
-                    <span> · gepinnt an {annotation.anchor.type === 'device' ? 'Gerät' : 'Port'}</span>
+                    <span> · {t('annotations.pinnedTo', 'gepinnt an')} {annotation.anchor.type === 'device' ? t('annotations.anchor.device', 'Gerät') : t('annotations.anchor.port', 'Port')}</span>
                   )}
                 </div>
               </div>

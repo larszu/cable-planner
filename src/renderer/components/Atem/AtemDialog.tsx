@@ -5,7 +5,7 @@ import { useUiStore } from '../../store/uiStore'
 import { portDisplayLabel, shortenForAtem } from '../../lib/portLabel'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { ModalShell } from '../shared/ModalShell'
-import { useTranslation } from '../../lib/i18n'
+import { useTranslation, format } from '../../lib/i18n'
 
 interface AtemDialogProps {
   onClose: () => void
@@ -363,13 +363,17 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
             <div className="mt-2">
               {discovered.length === 0 ? (
                 <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-2 text-[11px] text-slate-500">
-                  Kein ATEM-Switcher per mDNS im lokalen Netzwerk gefunden. (Manche
-                  Modelle / Firewall-Setups blocken mDNS — dann IP manuell eingeben.)
+                  {t(
+                    'atem.dialog.noneFound',
+                    'Kein ATEM-Switcher per mDNS im lokalen Netzwerk gefunden. (Manche Modelle / Firewall-Setups blocken mDNS — dann IP manuell eingeben.)',
+                  )}
                 </div>
               ) : (
                 <div className="space-y-1">
                   <div className="text-[10px] uppercase tracking-wide text-slate-500">
-                    Gefunden ({discovered.length}) — Klick übernimmt die IP:
+                    {format(t('atem.dialog.foundCount', 'Gefunden ({n}) — Klick übernimmt die IP:'), {
+                      n: discovered.length,
+                    })}
                   </div>
                   {discovered.map((dev) => (
                     <button
@@ -503,10 +507,10 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               </tbody>
             </table>
             <p className="mt-3 text-[11px] text-slate-500">
-              Hinweis: Änderungen gehen direkt an den Switcher (RAM). Damit sie einen Reboot
-              überleben, in der Blackmagic ATEM Software „Save Startup State" auslösen.
-              Audio-Eingaenge (XLR/RJ45-Talkback), Mediaplayer und interne Quellen sind
-              gesperrt — der ATEM verwaltet die selbst.
+              {t(
+                'atem.dialog.changesNote',
+                'Hinweis: Änderungen gehen direkt an den Switcher (RAM). Damit sie einen Reboot überleben, in der Blackmagic ATEM Software „Save Startup State" auslösen. Audio-Eingaenge (XLR/RJ45-Talkback), Mediaplayer und interne Quellen sind gesperrt — der ATEM verwaltet die selbst.',
+              )}
             </p>
           </div>
         )}
