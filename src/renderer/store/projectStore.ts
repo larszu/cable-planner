@@ -11,6 +11,7 @@ import { createLocationSlice } from './slices/locationSlice'
 import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
 import { createMobileSyncSlice } from './slices/mobileSyncSlice'
+import { createTemplateSlice } from './slices/templateSlice'
 import {
   loadCustomLibrary,
   persistCustomLibrary,
@@ -36,7 +37,7 @@ type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
   Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>
 
 import { STORAGE_KEYS } from '../lib/storageKeys'
-import { LIMITS, VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
+import { VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
 import {
   syncPresetsToFolder,
   seedLibrarySyncCache,
@@ -657,6 +658,7 @@ const buildProjectStore = (
   ...createCableSlice(set, get, store),
   ...createAnnotationSlice(set, get, store),
   ...createMobileSyncSlice(set, get, store),
+  ...createTemplateSlice(set, get, store),
   project:
     opts.initialProject ??
     (() => {
@@ -1261,27 +1263,6 @@ const buildProjectStore = (
       selectedCableId: undefined,
     }))
   },
-  addCustomTemplate: (template) =>
-    set((state) => {
-      const next = [...state.customLibrary.filter((t) => t.name !== template.name), template]
-      persistCustomLibrary(next)
-      if (template.rentmanId) upsertCachedRentmanTemplate(template)
-      return { customLibrary: next }
-    }),
-  addCustomTemplates: (templates) =>
-    set((state) => {
-      const byName = new Map(state.customLibrary.map((t) => [t.name, t]))
-      // Only add templates that don't already exist (don't overwrite user edits).
-      templates.forEach((t) => {
-        if (!byName.has(t.name)) byName.set(t.name, t)
-      })
-      const next = Array.from(byName.values())
-      persistCustomLibrary(next)
-      templates.forEach((template) => {
-        if (template.rentmanId) upsertCachedRentmanTemplate(template)
-      })
-      return { customLibrary: next }
-    }),
   resyncRentmanLibraryFromCanvas: () => {
     let addedOrPatched = 0
     set((state) => {
@@ -1304,51 +1285,6 @@ const buildProjectStore = (
     })
     return addedOrPatched
   },
-  removeCustomTemplate: (name) =>
-    set((state) => {
-      const next = state.customLibrary.filter((t) => t.name !== name)
-      persistCustomLibrary(next)
-      return { customLibrary: next }
-    }),
-  setCustomTemplateCategory: (name, category) =>
-    set((state) => {
-      const cat = category.trim() || 'Sonstiges'
-      const next = state.customLibrary.map((t) =>
-        t.name === name ? { ...t, category: cat } : t,
-      )
-      persistCustomLibrary(next)
-      return { customLibrary: next }
-    }),
-  updateCustomTemplate: (currentName, patch) =>
-    set((state) => {
-      const newName = patch.name?.trim() || currentName
-      const newCat = patch.category?.trim() || undefined
-      const next = state.customLibrary.map((t) => {
-        if (t.name !== currentName) return t
-        return {
-          ...t,
-          name: newName,
-          ...(newCat ? { category: newCat } : {}),
-        }
-      })
-      persistCustomLibrary(next)
-      const cats = new Set(state.knownCategories)
-      if (newCat) cats.add(newCat)
-      const catsSorted = Array.from(cats).sort((a, b) => a.localeCompare(b))
-      persistKnownCategories(catsSorted)
-      return { customLibrary: next, knownCategories: catsSorted }
-    }),
-  markTemplateAsRack: (name, rackUnits) =>
-    set((state) => {
-      const heightHE = Math.max(1, Math.min(LIMITS.MAX_RACK_HEIGHT_HE, Math.round(rackUnits)))
-      const next = state.customLibrary.map((t) =>
-        t.name === name
-          ? { ...t, isRackDevice: true, rackUnits: heightHE }
-          : t,
-      )
-      persistCustomLibrary(next)
-      return { customLibrary: next }
-    }),
   renameCustomCategory: (oldCategory, newCategory) =>
     set((state) => {
       if (isProjectLocked(state)) return state
@@ -1422,104 +1358,6 @@ const buildProjectStore = (
       }
       persistKnownCategories(ordered)
       return { knownCategories: ordered }
-    }),
-  saveEquipmentAsTemplate: (equipmentId) =>
-    set((state) => {
-      const item = state.project.equipment.find((e) => e.id === equipmentId)
-      if (!item) return {}
-      // Build a template from the live equipment item (strip placement fields).
-      const template: EquipmentTemplate = {
-        name: item.name,
-        category: item.category || 'Sonstiges',
-        inputs: item.inputs,
-        outputs: item.outputs,
-        width: item.width,
-        height: item.height,
-        rentmanId: item.rentmanId,
-        ipAddress: item.ipAddress,
-        subnetMask: item.subnetMask,
-        macAddress: item.macAddress,
-        username: item.username,
-        password: item.password,
-        notes: item.notes,
-        vlans: item.vlans,
-        managementVlanId: item.managementVlanId,
-        gateway: item.gateway,
-        dnsServers: item.dnsServers,
-        mgmtUrl: item.mgmtUrl,
-        firmware: item.firmware,
-        portVlans: item.portVlans,
-        sdiCaps: item.sdiCaps,
-        atemMvConfig: item.atemMvConfig,
-        favorite: state.customLibrary.find((t) => t.name === item.name)?.favorite,
-        hidden: state.customLibrary.find((t) => t.name === item.name)?.hidden,
-      }
-      const next = [
-        ...state.customLibrary.filter((t) => t.name !== template.name),
-        template,
-      ]
-      persistCustomLibrary(next)
-      if (template.rentmanId) upsertCachedRentmanTemplate(template)
-      return { customLibrary: next }
-    }),
-  saveEquipmentAsNewTemplate: (equipmentId, newName, category) =>
-    set((state) => {
-      const item = state.project.equipment.find((e) => e.id === equipmentId)
-      if (!item) return {}
-      const trimmed = newName.trim()
-      if (!trimmed) return {}
-      // If the target name already exists we treat the whole operation as a
-      // no-op so we never accidentally overwrite a different template.
-      if (state.customLibrary.some((t) => t.name === trimmed)) return {}
-      const template: EquipmentTemplate = {
-        name: trimmed,
-        category: (category || item.category || 'Sonstiges').trim() || 'Sonstiges',
-        inputs: item.inputs,
-        outputs: item.outputs,
-        width: item.width,
-        height: item.height,
-        rentmanId: item.rentmanId,
-        ipAddress: item.ipAddress,
-        subnetMask: item.subnetMask,
-        macAddress: item.macAddress,
-        username: item.username,
-        password: item.password,
-        notes: item.notes,
-        vlans: item.vlans,
-        managementVlanId: item.managementVlanId,
-        gateway: item.gateway,
-        dnsServers: item.dnsServers,
-        mgmtUrl: item.mgmtUrl,
-        firmware: item.firmware,
-        portVlans: item.portVlans,
-        sdiCaps: item.sdiCaps,
-        atemMvConfig: item.atemMvConfig,
-      }
-      const next = [...state.customLibrary, template]
-      persistCustomLibrary(next)
-      if (template.rentmanId) upsertCachedRentmanTemplate(template)
-      return { customLibrary: next }
-    }),
-  toggleTemplateFavorite: (name) =>
-    set((state) => {
-      const next = state.customLibrary.map((t) =>
-        t.name === name ? { ...t, favorite: !t.favorite } : t,
-      )
-      persistCustomLibrary(next)
-      return { customLibrary: next }
-    }),
-  toggleTemplateHidden: (name) =>
-    set((state) => {
-      const next = state.customLibrary.map((t) =>
-        t.name === name ? { ...t, hidden: !t.hidden } : t,
-      )
-      persistCustomLibrary(next)
-      return { customLibrary: next }
-    }),
-  setCustomLibrary: (templates) =>
-    set(() => {
-      persistCustomLibrary(templates)
-      return { customLibrary: templates }
     }),
   groupPresets: loadGroupPresets(),
   addGroupPreset: (preset) =>
