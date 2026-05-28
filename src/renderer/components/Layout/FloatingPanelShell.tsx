@@ -14,6 +14,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useTranslation } from '../../lib/i18n'
 
 interface FloatingPanelShellProps {
   /** Stored position; we clamp it to the viewport on mount + window resize. */
@@ -57,6 +58,7 @@ export const FloatingPanelShell = ({
   height = '70vh',
   children,
 }: FloatingPanelShellProps) => {
+  const t = useTranslation()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [pos, setPos] = useState(position)
   const dragStateRef = useRef<{
@@ -178,11 +180,11 @@ export const FloatingPanelShell = ({
         <button
           type="button"
           onClick={onDock}
-          title="Andocken (zurück zur Seiten-Spalte)"
-          aria-label="Andocken"
+          title={t('panel.dockTitle', 'Andocken (zurück zur Seiten-Spalte)')}
+          aria-label={t('panel.dock', 'Andocken')}
           className="rounded border border-slate-700 bg-slate-900 px-2 py-0.5 text-[10px] text-slate-300 transition-colors hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
-          📌 Andocken
+          📌 {t('panel.dock', 'Andocken')}
         </button>
       </header>
       <div className="min-h-0 flex-1 overflow-hidden">{children}</div>

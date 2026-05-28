@@ -11,6 +11,7 @@
  */
 import { useState } from 'react'
 import type { EquipmentTemplate } from '../../types/equipment'
+import { useTranslation } from '../../lib/i18n'
 
 interface Props {
   open: boolean
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
+  const t = useTranslation()
   const [name, setName] = useState('Rack-Shelf')
   const [heightUnits, setHeightUnits] = useState(1)
   const [depthMm, setDepthMm] = useState(450)
@@ -53,19 +55,19 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
         className="w-[420px] max-w-[95vw] rounded-lg border border-slate-700 bg-slate-900 p-4 text-sm text-slate-100 shadow-2xl"
       >
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-semibold">Rack-Shelf anlegen</h2>
+          <h2 className="text-base font-semibold">{t('rack.shelf.title', 'Rack-Shelf anlegen')}</h2>
           <button
             type="button"
             onClick={onClose}
             className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
-            aria-label="Schließen"
+            aria-label={t('common.close', 'Schließen')}
           >
             ✕
           </button>
         </div>
         <div className="space-y-3">
           <label className="block">
-            <span className="mb-1 block text-xs text-slate-400">Name</span>
+            <span className="mb-1 block text-xs text-slate-400">{t('rack.shelf.name', 'Name')}</span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -74,7 +76,7 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
           </label>
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
-              <span className="mb-1 block text-xs text-slate-400">Höhe (HE)</span>
+              <span className="mb-1 block text-xs text-slate-400">{t('rack.shelf.heightUnits', 'Höhe (HE)')}</span>
               <input
                 type="number"
                 min={1}
@@ -85,7 +87,7 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-xs text-slate-400">Tiefe (mm)</span>
+              <span className="mb-1 block text-xs text-slate-400">{t('rack.shelf.depth', 'Tiefe (mm)')}</span>
               <input
                 type="number"
                 min={150}
@@ -100,9 +102,7 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
             </label>
           </div>
           <div className="rounded border border-slate-800 bg-slate-950/50 p-2 text-[11px] text-slate-400">
-            Tipp: Lege das Shelf auf den gewünschten HE-Slot, danach platziere
-            beliebige Non-19&quot;-Items mit demselben Start-HE — sie erscheinen
-            optisch auf dem Shelf.
+            {t('rack.shelf.tip', 'Tipp: Lege das Shelf auf den gewünschten HE-Slot, danach platziere beliebige Non-19"-Items mit demselben Start-HE — sie erscheinen optisch auf dem Shelf.')}
           </div>
         </div>
         <div className="mt-4 flex justify-end gap-2">
@@ -111,14 +111,14 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
             onClick={onClose}
             className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600"
           >
-            Abbrechen
+            {t('common.cancel', 'Abbrechen')}
           </button>
           <button
             type="button"
             onClick={handleCreate}
             className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold hover:bg-emerald-600"
           >
-            Shelf erstellen
+            {t('rack.shelf.create', 'Shelf erstellen')}
           </button>
         </div>
       </div>

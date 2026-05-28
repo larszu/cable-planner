@@ -4,6 +4,7 @@ import { exportPresetToFile } from '../../../lib/itemExport'
 import { MIME_GROUP_PRESET } from '../../../lib/dragDropMimes'
 import { PresetDndWrapper } from '../LibraryDndWrappers'
 import { SortablePresetCard } from '../LibrarySortables'
+import { format, useTranslation } from '../../../lib/i18n'
 
 /**
  * #305 — GroupsTab aus LibraryPanel ausgelagert. Zeigt nicht-Rack-
@@ -11,6 +12,7 @@ import { SortablePresetCard } from '../LibrarySortables'
  * Klick-zum-Platzieren und Export/Loeschen-Aktionen.
  */
 export const GroupsTab = () => {
+  const t = useTranslation()
   const groupPresets = useProjectStore((s) => s.groupPresets)
   const reorderGroupPresets = useProjectStore((s) => s.reorderGroupPresets)
   const placeGroupPreset = useProjectStore((s) => s.placeGroupPreset)
@@ -20,15 +22,19 @@ export const GroupsTab = () => {
   return (
     <div className="flex flex-1 min-h-0 flex-col">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
-        <h2 className="text-sm font-semibold">Gerätegruppen</h2>
-        <span className="text-[10px] text-slate-500">Mehrere Geräte + Kabel als Vorlage</span>
+        <h2 className="text-sm font-semibold">{t('library.tabs.groups.title', 'Gerätegruppen')}</h2>
+        <span className="text-[10px] text-slate-500">
+          {t('library.tabs.groups.subtitle', 'Mehrere Geräte + Kabel als Vorlage')}
+        </span>
       </div>
       {groupPresets.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center gap-2 text-xs text-slate-500 text-center p-4">
           <span className="text-2xl">⧉</span>
-          <span>Noch keine Gruppen gespeichert.</span>
+          <span>{t('library.tabs.groups.empty', 'Noch keine Gruppen gespeichert.')}</span>
           <span>
-            Wähle auf dem Canvas ≥ 2 Geräte aus und klicke <b>Als Gruppe</b> in der Canvas-Toolbar.
+            {t('library.tabs.groups.hint1', 'Wähle auf dem Canvas ≥ 2 Geräte aus und klicke')}{' '}
+            <b>{t('library.tabs.groups.hintBtn', 'Als Gruppe')}</b>{' '}
+            {t('library.tabs.groups.hint2', 'in der Canvas-Toolbar.')}
           </span>
         </div>
       ) : (
@@ -61,14 +67,24 @@ export const GroupsTab = () => {
                         data: preset.id,
                       }}
                       onCardClick={() => placeGroupPreset(preset.id, cx, cy)}
-                      clickTitle="Klick = auf Canvas platzieren · Drag&Drop = an Drop-Position platzieren"
+                      clickTitle={t(
+                        'library.tabs.groups.clickTitle',
+                        'Klick = auf Canvas platzieren · Drag&Drop = an Drop-Position platzieren',
+                      )}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
                           <div className="truncate font-medium text-slate-100">{preset.name}</div>
                           <div className="mt-0.5 text-[10px] text-slate-500">
-                            {preset.items.length} Geräte · {preset.cables.length} Kabel
-                            {totalRackUnits > 0 ? ` · ${totalRackUnits} HE` : ''}
+                            {format(t('library.tabs.groups.counts', '{items} Geräte · {cables} Kabel'), {
+                              items: preset.items.length,
+                              cables: preset.cables.length,
+                            })}
+                            {totalRackUnits > 0
+                              ? format(t('library.tabs.groups.rackUnits', ' · {n} HE'), {
+                                  n: totalRackUnits,
+                                })
+                              : ''}
                           </div>
                           <div className="mt-0.5 truncate text-[10px] text-slate-600">
                             {preset.items.map((i) => i.name).join(', ')}
@@ -82,8 +98,11 @@ export const GroupsTab = () => {
                               exportPresetToFile(preset)
                             }}
                             className="rounded bg-slate-700 px-1 text-[11px] text-slate-300 hover:bg-slate-600"
-                            title="Als Datei exportieren (Kopie in den Downloads-Ordner)"
-                            aria-label="Exportieren"
+                            title={t(
+                              'library.tabs.groups.exportTitle',
+                              'Als Datei exportieren (Kopie in den Downloads-Ordner)',
+                            )}
+                            aria-label={t('library.tabs.groups.exportAria', 'Exportieren')}
                           >
                             ⬇
                           </button>
@@ -92,17 +111,22 @@ export const GroupsTab = () => {
                             onClick={async (event) => {
                               event.stopPropagation()
                               if (
-                                await confirmDialog(`Gruppe "${preset.name}" löschen?`, {
-                                  destructive: true,
-                                  okLabel: 'Löschen',
-                                })
+                                await confirmDialog(
+                                  format(t('library.tabs.groups.confirmDelete', 'Gruppe "{name}" löschen?'), {
+                                    name: preset.name,
+                                  }),
+                                  {
+                                    destructive: true,
+                                    okLabel: t('common.delete', 'Löschen'),
+                                  },
+                                )
                               ) {
                                 deleteGroupPreset(preset.id)
                               }
                             }}
                             className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
-                            title="Gruppe aus Library entfernen"
-                            aria-label="Löschen"
+                            title={t('library.tabs.groups.deleteTitle', 'Gruppe aus Library entfernen')}
+                            aria-label={t('common.delete', 'Löschen')}
                           >
                             ×
                           </button>

@@ -382,7 +382,7 @@ export const AtemAudioRouterDialog = () => {
               {draft.classicMixer && (
                 <span
                   className="text-[10px] text-slate-500"
-                  title="Das geladene XML enthält zusätzlich eine klassische AudioMixer-Sektion. Sie wird beim Speichern unverändert mit zurück ins XML geschrieben, ist aber hier nicht editierbar."
+                  title={t('atem.audio.classicReadOnly', 'Das geladene XML enthält zusätzlich eine klassische AudioMixer-Sektion. Sie wird beim Speichern unverändert mit zurück ins XML geschrieben, ist aber hier nicht editierbar.')}
                 >
                   + AudioMixer-Sektion (read-only, round-trip)
                 </span>
@@ -512,7 +512,9 @@ const EmptyState = ({
   onLoad: () => void
   onCreateMatrix: () => void
   equipmentName: string
-}) => (
+}) => {
+  const t = useTranslation()
+  return (
   <div className="m-auto max-w-md text-center text-sm text-slate-400">
     <div className="mb-2 text-3xl">🎚</div>
     <div className="mb-3 text-base font-semibold text-slate-200">
@@ -534,7 +536,7 @@ const EmptyState = ({
       <button
         type="button"
         onClick={onCreateMatrix}
-        title="Frische Crosspoint-Matrix mit den ATEM-Standard-Eingängen + 8 Output-Bussen."
+        title={t('atem.audio.freshMatrix', 'Frische Crosspoint-Matrix mit den ATEM-Standard-Eingängen + 8 Output-Bussen.')}
         className="rounded border border-slate-700 bg-slate-800 px-4 py-2 text-sm text-slate-100 hover:border-sky-600 hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
         🎚 Matrix manuell
@@ -545,7 +547,8 @@ const EmptyState = ({
       Quellen + Outputs + Mappings danach frei bearbeiten.
     </p>
   </div>
-)
+  )
+}
 
 // --- Matrix view --------------------------------------------------------
 
@@ -676,6 +679,7 @@ const ChannelPicker = ({
 }
 
 const MatrixView = ({ config, setConfig }: ViewProps) => {
+  const t = useTranslation()
   const matrix = config.matrix!
   const [filterSources, setFilterSources] = useState('')
   const [filterOutputs, setFilterOutputs] = useState('')
@@ -747,7 +751,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
 
   const clearAllOutputs = async () => {
     if (
-      !(await confirmDialog('Alle Routings auf "No Audio" zurücksetzen?', {
+      !(await confirmDialog(t('atem.audio.resetAllConfirm', 'Alle Routings auf "No Audio" zurücksetzen?'), {
         destructive: true,
         okLabel: 'Zurücksetzen',
       }))
@@ -769,24 +773,24 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           type="text"
           value={filterSources}
           onChange={(e) => setFilterSources(e.target.value)}
-          placeholder="Quellen filtern…"
-          title="Substring-Filter für Audio-Quellen (Zeilen)"
-          aria-label="Quellen filtern"
+          placeholder={t('atem.audio.filterSourcesPlaceholder', 'Quellen filtern…')}
+          title={t('atem.audio.filterSourcesTitle', 'Substring-Filter für Audio-Quellen (Zeilen)')}
+          aria-label={t('atem.audio.filterSourcesAria', 'Quellen filtern')}
           className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs"
         />
         <input
           type="text"
           value={filterOutputs}
           onChange={(e) => setFilterOutputs(e.target.value)}
-          placeholder="Outputs filtern…"
-          title="Substring-Filter für Audio-Outputs (Spalten)"
-          aria-label="Outputs filtern"
+          placeholder={t('atem.audio.filterOutputsPlaceholder', 'Outputs filtern…')}
+          title={t('atem.audio.filterOutputsTitle', 'Substring-Filter für Audio-Outputs (Spalten)')}
+          aria-label={t('atem.audio.filterOutputsAria', 'Outputs filtern')}
           className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs"
         />
         <button
           type="button"
           onClick={() => setShowSourcePicker((v) => !v)}
-          title="Quellen einzeln an-/abhaken (z. B. MADI, Mic, Tape …)"
+          title={t('atem.audio.sourcesCheckTitle', 'Quellen einzeln an-/abhaken (z. B. MADI, Mic, Tape …)')}
           className={`rounded border px-3 py-1 ${
             excludedSourceIds.size > 0
               ? 'border-sky-600 bg-sky-900/40 text-sky-200'
@@ -803,7 +807,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
         <button
           type="button"
           onClick={() => setShowOutputPicker((v) => !v)}
-          title="Outputs einzeln an-/abhaken (z. B. Out 5/6, 7/8 weglassen)"
+          title={t('atem.audio.outputsCheckTitle', 'Outputs einzeln an-/abhaken (z. B. Out 5/6, 7/8 weglassen)')}
           className={`rounded border px-3 py-1 ${
             excludedOutputIds.size > 0
               ? 'border-sky-600 bg-sky-900/40 text-sky-200'
@@ -834,7 +838,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
 
       {showSourcePicker && (
         <ChannelPicker
-          label="Quellen"
+          label={t('atem.audio.sourcesLabel', 'Quellen')}
           items={matrix.sources}
           excluded={excludedSourceIds}
           onToggle={(id) => toggleSetMember(setExcludedSourceIds, excludedSourceIds, id)}
@@ -845,7 +849,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
       )}
       {showOutputPicker && (
         <ChannelPicker
-          label="Outputs"
+          label={t('atem.audio.outputsLabel', 'Outputs')}
           items={matrix.outputs}
           excluded={excludedOutputIds}
           onToggle={(id) => toggleSetMember(setExcludedOutputIds, excludedOutputIds, id)}

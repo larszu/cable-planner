@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useTranslation } from '../../lib/i18n'
 
 interface SplitterProps {
   /**
@@ -16,6 +17,7 @@ interface SplitterProps {
  * pointer, streams deltas, and applies them via the supplied callback.
  */
 export const Splitter = ({ side, onResize }: SplitterProps) => {
+  const t = useTranslation()
   const startX = useRef<number | null>(null)
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export const Splitter = ({ side, onResize }: SplitterProps) => {
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       className="h-full w-1 cursor-col-resize bg-slate-800 hover:bg-sky-600"
-      title="Spalte verbreitern"
+      title={t('splitter.resize', 'Spalte verbreitern')}
     />
   )
 }

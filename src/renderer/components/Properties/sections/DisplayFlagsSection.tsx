@@ -18,7 +18,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
 
   return (
-    <SortableSection id="flags" title="Darstellung & Flags" subtitle="kompakt · Farbe · Ports spiegeln · gepackt">
+    <SortableSection id="flags" title={t('flags.title', 'Darstellung & Flags')} subtitle={t('flags.subtitle', 'kompakt · Farbe · Ports spiegeln · gepackt')}>
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-[12px] text-slate-300">
           <input
@@ -38,7 +38,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
           value={equipment.nodeColor ?? '#475569'}
           onChange={(nodeColor) => updateEquipment(equipment.id, { nodeColor })}
           onReset={equipment.nodeColor ? () => updateEquipment(equipment.id, { nodeColor: undefined }) : undefined}
-          title="Farbe des Geräte-Knotens"
+          title={t('flags.colorTitle', 'Farbe des Geräte-Knotens')}
         />
 
         <label className="flex items-center gap-2 text-[11px] text-slate-300">
@@ -51,7 +51,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
         </label>
         <label
           className="flex items-center gap-2 text-[11px] text-slate-300"
-          title="Markiert das Gerät als gepackt. Erscheint als ✓ auf dem Canvas und als eigene Spalte in der Geräte-BOM."
+          title={t('flags.packedTitle', 'Markiert das Gerät als gepackt. Erscheint als ✓ auf dem Canvas und als eigene Spalte in der Geräte-BOM.')}
         >
           <input
             type="checkbox"
@@ -67,7 +67,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
             Geraeten wird trotzdem ohne Pass-Through angezeigt. */}
         <label
           className="flex items-center gap-2 text-[11px] text-slate-300"
-          title="Wandler-Marker: in der Patchliste wird dieses Gerät übersprungen und das nächste echte Ziel direkt angezeigt. Sinnvoll für SDI-HDMI-Konverter, Format-Wandler, Embedder/De-Embedder etc."
+          title={t('flags.converterTitle', 'Wandler-Marker: in der Patchliste wird dieses Gerät übersprungen und das nächste echte Ziel direkt angezeigt. Sinnvoll für SDI-HDMI-Konverter, Format-Wandler, Embedder/De-Embedder etc.')}
         >
           <input
             type="checkbox"

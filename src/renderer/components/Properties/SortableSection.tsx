@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { useTranslation } from '../../lib/i18n'
 
 /**
  * #306 — SortableSection-Wrapper aus EquipmentProperties ausgelagert.
@@ -21,6 +22,7 @@ export const SortableSection = ({
   defaultOpen?: boolean
   children: ReactNode
 }) => {
+  const t = useTranslation()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging, index } =
     useSortable({ id })
   return (
@@ -40,9 +42,9 @@ export const SortableSection = ({
         <span
           {...attributes}
           {...listeners}
-          title="Sektion ziehen, um Reihenfolge zu ändern"
+          title={t('props.section.dragTitle', 'Sektion ziehen, um Reihenfolge zu ändern')}
           className="cursor-grab text-slate-500 hover:text-slate-300 active:cursor-grabbing"
-          aria-label="Sektion verschieben"
+          aria-label={t('props.section.dragAria', 'Sektion verschieben')}
           role="button"
         >
           ⋮⋮

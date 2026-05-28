@@ -16,7 +16,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
 
   return (
-    <SortableSection id="optional" title="Optionale Felder" subtitle="Hersteller-Link, Referenzbild, Icon">
+    <SortableSection id="optional" title={t('opt.title', 'Optionale Felder')} subtitle={t('opt.subtitle', 'Hersteller-Link, Referenzbild, Icon')}>
       <div className="space-y-3">
         <label className="block">
           <span className="mb-1 block text-slate-300">
@@ -131,7 +131,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 type="button"
                 onClick={() => updateEquipment(equipment.id, { icon: undefined })}
                 className="rounded bg-slate-700 px-1.5 py-1 text-[10px] hover:bg-slate-600"
-                title="Auf automatisch zurücksetzen"
+                title={t('opt.iconAutoTitle', 'Auf automatisch zurücksetzen')}
               >
                 auto
               </button>

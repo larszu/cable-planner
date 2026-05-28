@@ -12,6 +12,7 @@ import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
+import { useTranslation } from '../../lib/i18n'
 
 // v7.5.0 — Cable-Length tab removed. The standalone calculator
 // can't produce meaningful estimates without inter-location distances
@@ -512,6 +513,7 @@ const PowerTab = () => {
 }
 
 export const CalculatorsDialog = () => {
+  const t = useTranslation()
   const open = useUiStore((s) => s.calculators.open)
   const close = useUiStore((s) => s.closeCalculators)
   // v7.5.0 — older shortcuts may still pass 'length'; coerce to bandwidth
@@ -525,7 +527,7 @@ export const CalculatorsDialog = () => {
     <ModalShell
       open={open}
       onClose={close}
-      title="Werkzeuge / Rechner"
+      title={t('calc.title', 'Werkzeuge / Rechner')}
       titleIcon="🧮"
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:calculators"

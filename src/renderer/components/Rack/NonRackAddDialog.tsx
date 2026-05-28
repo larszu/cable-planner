@@ -16,6 +16,7 @@
  */
 import { useState } from 'react'
 import type { EquipmentTemplate } from '../../types/equipment'
+import { format, useTranslation } from '../../lib/i18n'
 
 interface Props {
   open: boolean
@@ -42,6 +43,7 @@ export const NonRackAddDialog = ({
   onCancel,
   onConfirm,
 }: Props) => {
+  const t = useTranslation()
   const [mode, setMode] = useState<'rack' | 'shelf'>('rack')
   const [rackUnits, setRackUnits] = useState(1)
   const [widthMm, setWidthMm] = useState(initialDimensions?.widthMm ?? DEFAULT_SHELF_DEVICE.widthMm)
@@ -81,20 +83,19 @@ export const NonRackAddDialog = ({
       >
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold">
-            "{templateName}" hinzufügen
+            {format(t('rack.nonRack.title', '"{name}" hinzufügen'), { name: templateName })}
           </h2>
           <button
             type="button"
             onClick={onCancel}
             className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
-            aria-label="Schließen"
+            aria-label={t('common.close', 'Schließen')}
           >
             ✕
           </button>
         </div>
         <div className="mb-3 text-[11px] text-slate-400">
-          Das Gerät ist nicht als 19″-Rack-Gerät markiert. Wähle wie es im Rack
-          platziert werden soll:
+          {t('rack.nonRack.intro', 'Das Gerät ist nicht als 19″-Rack-Gerät markiert. Wähle wie es im Rack platziert werden soll:')}
         </div>
 
         <div className="mb-3 grid grid-cols-2 gap-2">
@@ -107,9 +108,9 @@ export const NonRackAddDialog = ({
                 : 'border-slate-700 bg-slate-950/50 text-slate-400 hover:bg-slate-900'
             }`}
           >
-            <div className="font-semibold">📏 Als 19″-Gerät</div>
+            <div className="font-semibold">{t('rack.nonRack.option.rack', '📏 Als 19″-Gerät')}</div>
             <div className="mt-0.5 text-[10px] text-slate-500">
-              Belegt N HE auf den Rack-Schienen
+              {t('rack.nonRack.option.rackHint', 'Belegt N HE auf den Rack-Schienen')}
             </div>
           </button>
           <button
@@ -121,9 +122,9 @@ export const NonRackAddDialog = ({
                 : 'border-slate-700 bg-slate-950/50 text-slate-400 hover:bg-slate-900'
             }`}
           >
-            <div className="font-semibold">🪑 Auf Shelf</div>
+            <div className="font-semibold">{t('rack.nonRack.option.shelf', '🪑 Auf Shelf')}</div>
             <div className="mt-0.5 text-[10px] text-slate-500">
-              Eigene Maße in mm, sitzt auf einem Rack-Shelf
+              {t('rack.nonRack.option.shelfHint', 'Eigene Maße in mm, sitzt auf einem Rack-Shelf')}
             </div>
           </button>
         </div>
@@ -131,7 +132,7 @@ export const NonRackAddDialog = ({
         {mode === 'rack' && (
           <div className="mb-3 space-y-2">
             <label className="block">
-              <span className="mb-1 block text-xs text-slate-400">HE-Höhe</span>
+              <span className="mb-1 block text-xs text-slate-400">{t('rack.nonRack.rackUnits', 'HE-Höhe')}</span>
               <input
                 type="number"
                 min={1}
@@ -149,7 +150,7 @@ export const NonRackAddDialog = ({
           <div className="mb-3 space-y-2">
             <div className="grid grid-cols-3 gap-2">
               <label className="block">
-                <span className="mb-1 block text-xs text-slate-400">Breite (mm)</span>
+                <span className="mb-1 block text-xs text-slate-400">{t('rack.nonRack.widthMm', 'Breite (mm)')}</span>
                 <input
                   type="number"
                   min={20}
@@ -167,7 +168,7 @@ export const NonRackAddDialog = ({
                     type="button"
                     onClick={() => setWidthMm(150)}
                     className="flex-1 rounded bg-slate-800 px-1 py-0.5 text-[10px] text-slate-400 hover:bg-slate-700"
-                    title="1/3 Rack-Mount-Breite ≈ 150 mm"
+                    title={t('rack.nonRack.widthPreset.third', '1/3 Rack-Mount-Breite ≈ 150 mm')}
                   >
                     1/3
                   </button>
@@ -175,7 +176,7 @@ export const NonRackAddDialog = ({
                     type="button"
                     onClick={() => setWidthMm(225)}
                     className="flex-1 rounded bg-slate-800 px-1 py-0.5 text-[10px] text-slate-400 hover:bg-slate-700"
-                    title="1/2 Rack-Mount-Breite ≈ 225 mm"
+                    title={t('rack.nonRack.widthPreset.half', '1/2 Rack-Mount-Breite ≈ 225 mm')}
                   >
                     1/2
                   </button>
@@ -183,14 +184,14 @@ export const NonRackAddDialog = ({
                     type="button"
                     onClick={() => setWidthMm(300)}
                     className="flex-1 rounded bg-slate-800 px-1 py-0.5 text-[10px] text-slate-400 hover:bg-slate-700"
-                    title="2/3 Rack-Mount-Breite ≈ 300 mm"
+                    title={t('rack.nonRack.widthPreset.twoThirds', '2/3 Rack-Mount-Breite ≈ 300 mm')}
                   >
                     2/3
                   </button>
                 </div>
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs text-slate-400">Höhe (mm)</span>
+                <span className="mb-1 block text-xs text-slate-400">{t('rack.nonRack.heightMm', 'Höhe (mm)')}</span>
                 <input
                   type="number"
                   min={10}
@@ -202,7 +203,7 @@ export const NonRackAddDialog = ({
                 />
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs text-slate-400">Tiefe (mm)</span>
+                <span className="mb-1 block text-xs text-slate-400">{t('rack.nonRack.depthMm', 'Tiefe (mm)')}</span>
                 <input
                   type="number"
                   min={20}
@@ -215,9 +216,7 @@ export const NonRackAddDialog = ({
               </label>
             </div>
             <div className="rounded border border-slate-800 bg-slate-950/50 p-2 text-[10px] text-slate-400">
-              Lege das Gerät auf ein vorhandenes Rack-Shelf, indem du es auf
-              derselben Start-HE einfügst. Maße werden im 3D-Tab als reale
-              Boxen-Größe visualisiert.
+              {t('rack.nonRack.shelfTip', 'Lege das Gerät auf ein vorhandenes Rack-Shelf, indem du es auf derselben Start-HE einfügst. Maße werden im 3D-Tab als reale Boxen-Größe visualisiert.')}
             </div>
           </div>
         )}
@@ -230,9 +229,9 @@ export const NonRackAddDialog = ({
             className="mt-0.5 accent-sky-500"
           />
           <span className="flex-1">
-            <span className="font-medium text-slate-200">Maße permanent ans Template speichern</span>
+            <span className="font-medium text-slate-200">{t('rack.nonRack.persist', 'Maße permanent ans Template speichern')}</span>
             <span className="ml-1 text-slate-500">
-              (beim nächsten Hinzufügen wird nicht mehr gefragt)
+              {t('rack.nonRack.persistHint', '(beim nächsten Hinzufügen wird nicht mehr gefragt)')}
             </span>
           </span>
         </label>
@@ -243,14 +242,14 @@ export const NonRackAddDialog = ({
             onClick={onCancel}
             className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600"
           >
-            Abbrechen
+            {t('common.cancel', 'Abbrechen')}
           </button>
           <button
             type="button"
             onClick={submit}
             className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold hover:bg-emerald-600"
           >
-            Hinzufügen
+            {t('rack.nonRack.add', 'Hinzufügen')}
           </button>
         </div>
       </div>

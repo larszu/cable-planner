@@ -6,7 +6,7 @@ import type { EquipmentItem, EquipmentTemplate, GroupPreset, Port } from '../typ
 import type { LocationFrame } from '../types/location'
 import type { CablePlannerProject } from '../types/project'
 import { useUiStore } from './uiStore'
-import { isProjectLocked, sanitizePort, touchProject } from './projectStoreHelpers'
+import { defaultProject, isProjectLocked, sanitizePort, touchProject } from './projectStoreHelpers'
 import { createLocationSlice } from './slices/locationSlice'
 import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
@@ -15,6 +15,9 @@ import { createTemplateSlice } from './slices/templateSlice'
 import { createGroupPresetSlice } from './slices/groupPresetSlice'
 import { createMetaSlice } from './slices/metaSlice'
 import { createCategorySlice } from './slices/categorySlice'
+import { createEquipmentSlice } from './slices/equipmentSlice'
+import { createGroupPresetSpawnSlice } from './slices/groupPresetSpawnSlice'
+import { createSelectionLifecycleSlice } from './slices/selectionLifecycleSlice'
 import {
   loadCustomLibrary,
   persistCustomLibrary,
@@ -24,17 +27,13 @@ import {
 import { loadGroupPresets } from './groupPresetsPersist'
 import { scheduleProjectAutosave } from './projectAutosave'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
-import { cableTypePatchFromPorts } from '../lib/cableInheritance'
 import { detectLayerForConnector } from '../lib/cableLayers'
 import { ubiquitiTemplates } from '../lib/ubiquitiCatalog'
 import { monitorTemplates } from '../lib/monitorCatalog'
 import { cameraTemplates } from '../lib/cameraCatalog'
 import { miscTemplates } from '../lib/miscCatalog'
 import { greengoTemplates } from '../lib/greengoCatalog'
-import {
-  upsertCachedRentmanTemplate,
-  upsertCachedRentmanTemplateFromEquipment,
-} from '../lib/rentmanTemplateCache'
+import { upsertCachedRentmanTemplate } from '../lib/rentmanTemplateCache'
 import type { GreenGoConfig } from '../types/greengo'
 
 type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
@@ -42,7 +41,7 @@ type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
 
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import { VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
-import { seedLibrarySyncCache, stampGroupLibraryRef } from '../lib/librarySync'
+import { seedLibrarySyncCache } from '../lib/librarySync'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -347,21 +346,6 @@ export interface ProjectState {
   setViewerSession: (session: { author: string; startedAt: string } | undefined) => void
 }
 
-const now = () => new Date().toISOString()
-
-const defaultProject = (): CablePlannerProject => ({
-  metadata: {
-    name: 'Untitled Project',
-    description: '',
-    createdAt: now(),
-    updatedAt: now(),
-    defaultVideoFormat: '1080p50',
-  },
-  equipment: [],
-  cables: [],
-  locations: [],
-  canvasState: { x: 0, y: 0, zoom: 1 },
-})
 
 /**
  * Heal a project loaded from disk: round every equipment / location position
@@ -551,12 +535,6 @@ const healRentmanLibraryFromProject = (
     )
 }
 
-const shouldSyncRentmanTemplateCache = (patch: Partial<EquipmentItem>): boolean => {
-  const keys = Object.keys(patch) as Array<keyof EquipmentItem>
-  // Ignore pure position updates to avoid excessive localStorage writes while dragging.
-  return keys.some((key) => key !== 'x' && key !== 'y')
-}
-
 /** v7.8.4 — set-rate guard. When the store mutates more than
  *  PROJECT_RATE_THRESHOLD times within PROJECT_RATE_WINDOW_MS, throw
  *  so the React error boundary captures the stack with a real
@@ -599,6 +577,9 @@ const buildProjectStore = (
   ...createGroupPresetSlice(set, get, store),
   ...createMetaSlice(set, get, store),
   ...createCategorySlice(set, get, store),
+  ...createEquipmentSlice(set, get, store),
+  ...createGroupPresetSpawnSlice(set, get, store),
+  ...createSelectionLifecycleSlice(set, get, store),
   project:
     opts.initialProject ??
     (() => {
@@ -629,72 +610,6 @@ const buildProjectStore = (
         pendingConnection: undefined,
         showCableDialog: false,
         customLibrary: healedLibrary,
-      }
-    }),
-  addEquipment: (equipment) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      return {
-      // Adding from the Library (click / drag-drop) must NOT keep any prior
-      // selection live, because React Flow's internal multi-select would
-      // otherwise cause the next pointer-down on the canvas to start a
-      // group-drag that visibly moves the previously selected device(s).
-      selectedEquipmentId: undefined,
-      selectedCableId: undefined,
-      selectedLocationId: undefined,
-      project: touchProject({
-        ...state.project,
-        equipment: [
-          ...state.project.equipment,
-          {
-            ...equipment,
-            id: uuidv4(),
-            // v7.9.63 / #172 — Default-Gerätefarbe aus uiStore wenn der
-            // Caller selber keine nodeColor mitschickt. So kann der User
-            // in Settings einmal eine Standardfarbe wählen, die für alle
-            // neu hinzugefügten Geräte gilt.
-            nodeColor: equipment.nodeColor ?? useUiStore.getState().defaultDeviceColor,
-            // CRITICAL: Ensure x/y are valid numbers. If somehow they're undefined/NaN,
-            // default to (0, 0) so equipment doesn't disappear.
-            x: equipment.x !== undefined && !Number.isNaN(equipment.x) ? equipment.x : 0,
-            y: equipment.y !== undefined && !Number.isNaN(equipment.y) ? equipment.y : 0,
-            // Ensure every port gets a unique id. Some library helpers seed
-            // templates with `id: ''` and rely on the store to assign ids on
-            // placement — without this, all handles on the node would share
-            // the empty string and ReactFlow would always snap new cables to
-            // the first handle.
-            inputs: equipment.inputs.map((p) =>
-              sanitizePort(p, p.name ?? 'Input'),
-            ),
-            outputs: equipment.outputs.map((p) =>
-              sanitizePort(p, p.name ?? 'Output'),
-            ),
-          },
-        ],
-      }),
-      }
-    }),
-  importEquipment: (equipment) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      return {
-      project: touchProject({
-        ...state.project,
-        equipment: [
-          ...state.project.equipment,
-          ...equipment.map((item) => ({
-            ...item,
-            id: item.id || uuidv4(),
-            // CRITICAL: Ensure x/y are valid numbers. Equipment being imported
-            // should have positions, but if somehow they don't, default to (0, 0)
-            // to prevent disappearing equipment.
-            x: item.x !== undefined && !Number.isNaN(item.x) ? item.x : 0,
-            y: item.y !== undefined && !Number.isNaN(item.y) ? item.y : 0,
-            inputs: item.inputs.map((p, index) => sanitizePort(p, `In ${index + 1}`)),
-            outputs: item.outputs.map((p, index) => sanitizePort(p, `Out ${index + 1}`)),
-          })),
-        ],
-      }),
       }
     }),
   importGraphml: (payload) => {
@@ -914,241 +829,6 @@ const buildProjectStore = (
     }))
     return newItems.map((item) => item.id)
   },
-  updateEquipment: (id, patch) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      const prev = state.project.equipment.find((e) => e.id === id)
-      let updatedItem: EquipmentItem | undefined
-      const nextEquipment = state.project.equipment.map((item) =>
-        item.id === id
-          ? ((updatedItem = { 
-              ...item, 
-              ...patch,
-              // CRITICAL: Never allow position to become undefined or NaN. 
-              // If patch accidentally omits x/y or sets them to undefined,
-              // preserve the previous values to prevent equipment from disappearing.
-              x: patch.x !== undefined && !Number.isNaN(patch.x) ? patch.x : item.x,
-              y: patch.y !== undefined && !Number.isNaN(patch.y) ? patch.y : item.y,
-            }), updatedItem)
-          : item,
-      )
-      // If the equipment moved, also shift waypoints of cables attached to it
-      // so the cable visually travels with the device (draw.io-style). When
-      // only ONE endpoint moves, shifting *all* waypoints by the full delta
-      // would break the path on the *other* (still-anchored) side and produce
-      // an erratic, "spinning" orthogonal route. So we only shift the single
-      // waypoint adjacent to the moving port (first for source, last for
-      // target). When both endpoints sit on the same device we translate the
-      // whole path.
-      let nextCables = state.project.cables
-      if (
-        prev &&
-        patch.x !== undefined &&
-        patch.y !== undefined &&
-        (patch.x !== prev.x || patch.y !== prev.y)
-      ) {
-        const dx = patch.x - prev.x
-        const dy = patch.y - prev.y
-        nextCables = state.project.cables.map((c) => {
-          if (!c.waypoints || c.waypoints.length === 0) return c
-          const touchesSource = c.fromEquipmentId === id
-          const touchesTarget = c.toEquipmentId === id
-          if (!touchesSource && !touchesTarget) return c
-          if (touchesSource && touchesTarget) {
-            return {
-              ...c,
-              waypoints: c.waypoints.map((w) => ({ x: w.x + dx, y: w.y + dy })),
-            }
-          }
-          const next = c.waypoints.slice()
-          if (touchesSource) {
-            const w = next[0]
-            next[0] = { x: w.x + dx, y: w.y + dy }
-          } else {
-            const lastIdx = next.length - 1
-            const w = next[lastIdx]
-            next[lastIdx] = { x: w.x + dx, y: w.y + dy }
-          }
-          return { ...c, waypoints: next }
-        })
-      }
-      if (updatedItem?.rentmanId && shouldSyncRentmanTemplateCache(patch)) {
-        upsertCachedRentmanTemplateFromEquipment(updatedItem)
-      }
-
-      // v7.9.125 — propagate port ConnectorType changes to connected
-      // cables (Cable Connector Type Inheritance). Only kicks in when
-      // ports actually changed connector type on THIS equipment.
-      if (prev && updatedItem && useUiStore.getState().inheritCableTypeFromPort) {
-        const oldPorts = new Map<string, string>(
-          [...prev.inputs, ...prev.outputs].map((p) => [p.id, p.connectorType]),
-        )
-        const changedPortIds = new Set<string>()
-        for (const p of [...updatedItem.inputs, ...updatedItem.outputs]) {
-          const old = oldPorts.get(p.id)
-          if (old !== undefined && old !== p.connectorType) changedPortIds.add(p.id)
-        }
-        if (changedPortIds.size > 0) {
-          nextCables = nextCables.map((c) => {
-            const touches =
-              (c.fromEquipmentId === id && changedPortIds.has(c.fromPortId)) ||
-              (c.toEquipmentId === id && changedPortIds.has(c.toPortId))
-            if (!touches) return c
-            const cableTypePatch = cableTypePatchFromPorts(c, nextEquipment)
-            return cableTypePatch ? { ...c, ...cableTypePatch } : c
-          })
-        }
-      }
-
-      return {
-        project: touchProject({
-          ...state.project,
-          equipment: nextEquipment,
-          cables: nextCables,
-        }),
-      }
-    }),
-  setActiveDeviceMode: (equipmentId, modeId) =>
-    set((state) => {
-      const eq = state.project.equipment.find((e) => e.id === equipmentId)
-      if (!eq || !eq.modes || eq.modes.length === 0) return {}
-      const mode = modeId ? eq.modes.find((m) => m.id === modeId) : null
-      if (modeId && !mode) return {}
-      // Replace the live port arrays with the mode's snapshot (or
-      // leave them as-is when clearing the active mode — the user can
-      // still edit ports manually).
-      const nextEquipment = state.project.equipment.map((item) =>
-        item.id === equipmentId
-          ? {
-              ...item,
-              activeModeId: mode?.id,
-              inputs: mode ? mode.inputs.map((p) => ({ ...p })) : item.inputs,
-              outputs: mode ? mode.outputs.map((p) => ({ ...p })) : item.outputs,
-            }
-          : item,
-      )
-      // v7.9.125 — mode switching replaces ports wholesale; matching
-      // port-ids may now expose a different ConnectorType, so feed
-      // affected cables through the inheritance helper too.
-      let nextCables = state.project.cables
-      if (mode && useUiStore.getState().inheritCableTypeFromPort) {
-        nextCables = state.project.cables.map((c) => {
-          if (c.fromEquipmentId !== equipmentId && c.toEquipmentId !== equipmentId) return c
-          const cableTypePatch = cableTypePatchFromPorts(c, nextEquipment)
-          return cableTypePatch ? { ...c, ...cableTypePatch } : c
-        })
-      }
-      const updated = touchProject({
-        ...state.project,
-        equipment: nextEquipment,
-        cables: nextCables,
-      })
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  deleteEquipment: (id) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      return {
-      project: touchProject({
-        ...state.project,
-        equipment: state.project.equipment.filter((item) => item.id !== id),
-        cables: state.project.cables.filter(
-          (cable) => cable.fromEquipmentId !== id && cable.toEquipmentId !== id,
-        ),
-      }),
-      selectedEquipmentId:
-        state.selectedEquipmentId === id ? undefined : state.selectedEquipmentId,
-      }
-    }),
-  deleteSelected: () =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      if (state.selectedCableId) {
-        return {
-          project: touchProject({
-            ...state.project,
-            cables: state.project.cables.filter((item) => item.id !== state.selectedCableId),
-          }),
-          selectedCableId: undefined,
-        }
-      }
-      if (state.selectedLocationId) {
-        return {
-          project: touchProject({
-            ...state.project,
-            locations: (state.project.locations ?? []).filter(
-              (l) => l.id !== state.selectedLocationId,
-            ),
-          }),
-          selectedLocationId: undefined,
-        }
-      }
-      if (state.selectedEquipmentId) {
-        return {
-          project: touchProject({
-            ...state.project,
-            equipment: state.project.equipment.filter(
-              (item) => item.id !== state.selectedEquipmentId,
-            ),
-            cables: state.project.cables.filter(
-              (cable) =>
-                cable.fromEquipmentId !== state.selectedEquipmentId &&
-                cable.toEquipmentId !== state.selectedEquipmentId,
-            ),
-          }),
-          selectedEquipmentId: undefined,
-        }
-      }
-      return {}
-    }),
-  addOpenEndStub: (at, connectorType, side) => {
-    const id = uuidv4()
-    const portId = uuidv4()
-    const stubPort: Port = {
-      id: portId,
-      name: 'Open End',
-      type: connectorType,
-      connectorType,
-    }
-    const stub: EquipmentItem = {
-      id,
-      name: `Open ${connectorType}`,
-      category: 'Open End',
-      inputs: side === 'input' ? [stubPort] : [],
-      outputs: side === 'output' ? [stubPort] : [],
-      x: at.x,
-      y: at.y,
-      width: 140,
-      height: 60,
-    }
-    set((state) => ({
-      project: touchProject({
-        ...state.project,
-        equipment: [...state.project.equipment, stub],
-      }),
-    }))
-    // expose port id via returned stub id lookup — caller knows portId is first port
-    // Actually caller needs the portId — we encode as `${id}|${portId}` for simplicity.
-    return `${id}|${portId}`
-  },
-  clear: () => {
-    // Also drop the persisted autosave copy — otherwise the old project
-    // would come back on the next app launch, which is surprising when the
-    // user explicitly started a fresh project.
-    try {
-      localStorage.removeItem(PROJECT_AUTOSAVE_KEY)
-    } catch {
-      /* ignore */
-    }
-    set((state) => ({
-      project: defaultProject(),
-      filePath: undefined,
-      projectVersion: state.projectVersion + 1,
-      selectedEquipmentId: undefined,
-      selectedCableId: undefined,
-    }))
-  },
   resyncRentmanLibraryFromCanvas: () => {
     let addedOrPatched = 0
     set((state) => {
@@ -1206,270 +886,6 @@ const buildProjectStore = (
       }
     }),
   groupPresets: loadGroupPresets(),
-  placeGroupPreset: (presetId, x, y) =>
-    set((state) => {
-      const preset = state.groupPresets.find((p) => p.id === presetId)
-      if (!preset) return {}
-      // Issue #61: when the preset carries `rack` metadata it represents
-      // a 19" rack layout. Tag every spawned equipment item with a fresh
-      // `rackInstanceId` + the preset name so the Rack-Editor can later
-      // filter the canvas down to "just this rack" without us needing a
-      // dedicated rack entity in the data model.
-      const rackInstanceId = preset.rack ? `rack:${uuidv4()}` : undefined
-      const rackInstanceLabel = preset.rack ? preset.name : undefined
-      const placementByIndex = new Map<number, { startUnit: number; heightUnits: number }>()
-      if (preset.rack) {
-        for (const p of preset.rack.placements) {
-          placementByIndex.set(p.itemIndex, { startUnit: p.startUnit, heightUnits: p.heightUnits })
-        }
-      }
-      // v7.9.33 — Stempelt jedes platzierte Gerät mit dem aktuellen
-      // Group-File-Stand damit Update-Prompt beim Projekt-Öffnen erkennt
-      // wenn die Gruppe in der Library aktualisiert wurde.
-      const groupRef = stampGroupLibraryRef(preset.name)
-      // Create new equipment items with fresh IDs and port IDs.
-      const newEquipment: EquipmentItem[] = preset.items.map((item, idx) => ({
-        ...item,
-        id: uuidv4(),
-        x: x + item.offsetX,
-        y: y + item.offsetY,
-        inputs: item.inputs.map((p) => ({ ...p, id: uuidv4() })),
-        outputs: item.outputs.map((p) => ({ ...p, id: uuidv4() })),
-        rackInstanceId,
-        rackInstanceLabel,
-        rackInstanceStartUnit: placementByIndex.get(idx)?.startUnit,
-        libraryRef: groupRef,
-      }))
-      // Build (itemIndex:portName) → new port ID lookup
-      const portIdMap = new Map<string, string>()
-      newEquipment.forEach((eq, idx) => {
-        for (const p of [...eq.inputs, ...eq.outputs]) {
-          portIdMap.set(`${idx}:${p.name}`, p.id)
-        }
-      })
-      // Recreate cables between the newly placed items.
-      const inheritType = useUiStore.getState().inheritCableTypeFromPort
-      const newCables = preset.cables
-        .map((stub): Cable | null => {
-          const fromEqId = newEquipment[stub.fromItemIndex]?.id
-          const toEqId = newEquipment[stub.toItemIndex]?.id
-          const fromPortId = portIdMap.get(`${stub.fromItemIndex}:${stub.fromPortName}`)
-          const toPortId = portIdMap.get(`${stub.toItemIndex}:${stub.toPortName}`)
-          if (!fromEqId || !toEqId || !fromPortId || !toPortId) return null
-          const cable: Cable = {
-            id: uuidv4(),
-            name: stub.name,
-            type: stub.type as Cable['type'],
-            length: stub.length,
-            color: stub.color ?? '#64748b',
-            fromEquipmentId: fromEqId,
-            fromPortId,
-            toEquipmentId: toEqId,
-            toPortId,
-            notes: '',
-            standard: stub.standard as Cable['standard'],
-          }
-          // v7.9.125 — Snapshot-erzeugte Presets tragen oft type='unbekannt'
-          // weil zum Snapshot-Zeitpunkt kein Typ verfuegbar war (siehe
-          // LibraryPanel.tsx:786). Inheritance leitet den Typ frisch aus
-          // den neuen Ports ab.
-          if (inheritType) {
-            const typePatch = cableTypePatchFromPorts(cable, newEquipment)
-            if (typePatch) Object.assign(cable, typePatch)
-          }
-          return cable
-        })
-        .filter((c): c is Cable => c !== null)
-      const updated = touchProject({
-        ...state.project,
-        equipment: [...state.project.equipment, ...newEquipment],
-        cables: [...state.project.cables, ...newCables],
-      })
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  insertBlackBoxRack: (presetId, x, y) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      const preset = state.groupPresets.find((p) => p.id === presetId)
-      if (!preset) return state
-      // v7.9.17 — ALLE Ports werden jetzt exponiert (vorher wurden
-      // intern verkabelte Ports rausgefiltert). Internal-Ports tragen
-      // rackInternallyConnected=true → EquipmentNode rendert sie
-      // ausgegraut + non-connectable, damit der User sieht welche Ports
-      // intern belegt sind. Die internen Kabel-Linien können dann
-      // direkt zwischen den realen Port-Positionen gezeichnet werden.
-      const usedPortNames = new Set<string>()
-      for (const stub of preset.cables) {
-        usedPortNames.add(`${stub.fromItemIndex}:${stub.fromPortName}`)
-        usedPortNames.add(`${stub.toItemIndex}:${stub.toPortName}`)
-      }
-      const externalIns: import('../types/equipment').Port[] = []
-      const externalOuts: import('../types/equipment').Port[] = []
-      preset.items.forEach((item, idx) => {
-        for (const p of item.inputs) {
-          const isInternal = usedPortNames.has(`${idx}:${p.name}`)
-          externalIns.push({
-            ...p,
-            id: uuidv4(),
-            name: `${item.name} · ${p.name}`,
-            rackOriginDeviceIndex: idx,
-            rackOriginDeviceName: item.name,
-            rackOriginPortName: p.name,
-            rackInternallyConnected: isInternal,
-          })
-        }
-        for (const p of item.outputs) {
-          const isInternal = usedPortNames.has(`${idx}:${p.name}`)
-          externalOuts.push({
-            ...p,
-            id: uuidv4(),
-            name: `${item.name} · ${p.name}`,
-            rackOriginDeviceIndex: idx,
-            rackOriginDeviceName: item.name,
-            rackOriginPortName: p.name,
-            rackInternallyConnected: isInternal,
-          })
-        }
-      })
-      const totalUnits =
-        preset.rack?.totalUnits ??
-        preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 1), 0)
-      const newItem: EquipmentItem = {
-        id: uuidv4(),
-        name: `${preset.name} (Rack)`,
-        category: 'Rack',
-        inputs: externalIns,
-        outputs: externalOuts,
-        x,
-        y,
-        width: 280,
-        height: 0,
-        icon: '🗄',
-        notes: `Black-Box-Rack: ${preset.items.length} Geräte, ${preset.cables.length} interne Verbindungen.`,
-        rackInternalSnapshot: {
-          items: preset.items.map((item, idx) => ({
-            name: item.name,
-            startUnit:
-              preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.startUnit ??
-              idx + 1,
-            rackUnits:
-              preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.heightUnits ??
-              item.rackUnits ?? 1,
-          })),
-          cables: preset.cables.map((c) => ({
-            fromItemIndex: c.fromItemIndex,
-            fromPortName: c.fromPortName,
-            toItemIndex: c.toItemIndex,
-            toPortName: c.toPortName,
-            color: c.color,
-          })),
-          totalUnits,
-        },
-      }
-      const updated = touchProject({
-        ...state.project,
-        equipment: [...state.project.equipment, newItem],
-      })
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
-  // v7.9.105 / Issue #224 — Toolbar 'Rack bearbeiten' soll das im Canvas
-  // selektierte Rack bearbeiten, nicht die Library-Preset. Diese Action
-  // wendet die im RackBuilder editierten Aenderungen auf das konkrete
-  // Equipment im Canvas an — Library bleibt unangetastet.
-  replaceCanvasRackWithPreset: (equipmentId, preset) =>
-    set((state) => {
-      if (isProjectLocked(state)) return state
-      const target = state.project.equipment.find((e) => e.id === equipmentId)
-      if (!target) return state
-      // Identische Logic wie insertBlackBoxRack — Ports synthesieren aus
-      // dem Preset, dann aber Port-IDs aus dem existing Equipment uebernehmen
-      // wo (rackOriginDeviceIndex, rackOriginPortName) matcht, damit externe
-      // Kabel ihre Verbindungen behalten.
-      const portIdLookup = new Map<string, string>()
-      for (const p of target.inputs) {
-        if (typeof p.rackOriginDeviceIndex === 'number' && p.rackOriginPortName) {
-          portIdLookup.set(`in:${p.rackOriginDeviceIndex}:${p.rackOriginPortName}`, p.id)
-        }
-      }
-      for (const p of target.outputs) {
-        if (typeof p.rackOriginDeviceIndex === 'number' && p.rackOriginPortName) {
-          portIdLookup.set(`out:${p.rackOriginDeviceIndex}:${p.rackOriginPortName}`, p.id)
-        }
-      }
-      const usedPortNames = new Set<string>()
-      for (const stub of preset.cables) {
-        usedPortNames.add(`${stub.fromItemIndex}:${stub.fromPortName}`)
-        usedPortNames.add(`${stub.toItemIndex}:${stub.toPortName}`)
-      }
-      const externalIns: import('../types/equipment').Port[] = []
-      const externalOuts: import('../types/equipment').Port[] = []
-      preset.items.forEach((item, idx) => {
-        for (const p of item.inputs) {
-          const isInternal = usedPortNames.has(`${idx}:${p.name}`)
-          const reusedId = portIdLookup.get(`in:${idx}:${p.name}`)
-          externalIns.push({
-            ...p,
-            id: reusedId ?? uuidv4(),
-            name: `${item.name} · ${p.name}`,
-            rackOriginDeviceIndex: idx,
-            rackOriginDeviceName: item.name,
-            rackOriginPortName: p.name,
-            rackInternallyConnected: isInternal,
-          })
-        }
-        for (const p of item.outputs) {
-          const isInternal = usedPortNames.has(`${idx}:${p.name}`)
-          const reusedId = portIdLookup.get(`out:${idx}:${p.name}`)
-          externalOuts.push({
-            ...p,
-            id: reusedId ?? uuidv4(),
-            name: `${item.name} · ${p.name}`,
-            rackOriginDeviceIndex: idx,
-            rackOriginDeviceName: item.name,
-            rackOriginPortName: p.name,
-            rackInternallyConnected: isInternal,
-          })
-        }
-      })
-      const totalUnits =
-        preset.rack?.totalUnits ??
-        preset.items.reduce((sum, item) => sum + (item.rackUnits ?? 1), 0)
-      const updatedEquipment = state.project.equipment.map((e) =>
-        e.id === equipmentId
-          ? {
-              ...e,
-              inputs: externalIns,
-              outputs: externalOuts,
-              rackInternalSnapshot: {
-                items: preset.items.map((item, idx) => ({
-                  name: item.name,
-                  startUnit:
-                    preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.startUnit ??
-                    idx + 1,
-                  rackUnits:
-                    preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.heightUnits ??
-                    item.rackUnits ??
-                    1,
-                })),
-                cables: preset.cables.map((c) => ({
-                  fromItemIndex: c.fromItemIndex,
-                  fromPortName: c.fromPortName,
-                  toItemIndex: c.toItemIndex,
-                  toPortName: c.toPortName,
-                  color: c.color,
-                })),
-                totalUnits,
-              },
-              notes: `Black-Box-Rack: ${preset.items.length} Geräte, ${preset.cables.length} interne Verbindungen.`,
-            }
-          : e,
-      )
-      const updated = touchProject({ ...state.project, equipment: updatedEquipment })
-      scheduleProjectAutosave(updated)
-      return { project: updated }
-    }),
 })
 
 // Default singleton — used everywhere via the existing `useProjectStore`

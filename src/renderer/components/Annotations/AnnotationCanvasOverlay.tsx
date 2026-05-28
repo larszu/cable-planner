@@ -11,6 +11,7 @@ import { useReactFlow, useViewport } from 'reactflow'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
+import { useTranslation } from '../../lib/i18n'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 import type { ProjectAnnotation } from '../../types/project'
 
@@ -54,6 +55,7 @@ type DragState = {
 }
 
 export const AnnotationCanvasOverlay = () => {
+  const t = useTranslation()
   const annotations = useProjectStore((s) => s.project.annotations) ?? EMPTY
   const equipment = useProjectStore((s) => s.project.equipment)
   const greengoConfig = useProjectStore((s) => s.project.greengoConfig)
@@ -282,7 +284,7 @@ export const AnnotationCanvasOverlay = () => {
                   <button
                     type="button"
                     onClick={() => setExpandedId(null)}
-                    title="Schließen"
+                    title={t('common.close', 'Schließen')}
                     style={{
                       background: '#334155',
                       color: '#e2e8f0',

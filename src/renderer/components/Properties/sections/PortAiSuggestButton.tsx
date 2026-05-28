@@ -4,6 +4,7 @@ import { confirmDialog } from '../../../lib/confirmDialog'
 import { suggestFromAI } from '../../../lib/aiSuggestions'
 import { buildTemplateFromHints, type PortGroupHint } from '../../../lib/portSuggestions'
 import type { EquipmentItem } from '../../../types/equipment'
+import { format, useTranslation } from '../../../lib/i18n'
 
 /**
  * #306 — AI-Port-Vorschlag-Button aus EquipmentProperties ausgelagert.
@@ -16,6 +17,7 @@ export const PortAiSuggestButton = ({
 }: {
   equipment: EquipmentItem
 }) => {
+  const t = useTranslation()
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -28,12 +30,12 @@ export const PortAiSuggestButton = ({
     try {
       const result = await suggestFromAI(equipment.name ?? '', equipment.category ?? '')
       if (result.length === 0) {
-        setError('AI konnte keine Ports vorschlagen. Geraete-Name praeziseren?')
+        setError(t('props.aiPorts.noSuggestion', 'AI konnte keine Ports vorschlagen. Geraete-Name praeziseren?'))
       } else {
         setHints(result)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'AI-Request fehlgeschlagen')
+      setError(err instanceof Error ? err.message : t('props.aiPorts.requestFailed', 'AI-Request fehlgeschlagen'))
     } finally {
       setBusy(false)
     }
@@ -60,15 +62,23 @@ export const PortAiSuggestButton = ({
   return (
     <div className="rounded border border-purple-700/50 bg-purple-950/20 p-2">
       <div className="flex items-center justify-between gap-2">
-        <div className="text-[11px] font-semibold text-purple-200">✨ AI-Port-Vorschlag</div>
+        <div className="text-[11px] font-semibold text-purple-200">
+          {t('props.aiPorts.label', '✨ AI-Port-Vorschlag')}
+        </div>
         <button
           type="button"
           onClick={handleAsk}
           disabled={busy}
           className="rounded bg-purple-700 px-2 py-0.5 text-[11px] font-medium text-white hover:bg-purple-600 disabled:opacity-50"
-          title={`Fragt den im Einstellungen → AI gewaehlten Provider was "${equipment.name}" ueblicherweise fuer Ports hat`}
+          title={format(
+            t(
+              'props.aiPorts.btnTitle',
+              'Fragt den im Einstellungen → AI gewaehlten Provider was "{name}" ueblicherweise fuer Ports hat',
+            ),
+            { name: equipment.name },
+          )}
         >
-          {busy ? 'Asking AI…' : 'Ports vorschlagen'}
+          {busy ? t('props.aiPorts.asking', 'Asking AI…') : t('props.aiPorts.suggest', 'Ports vorschlagen')}
         </button>
       </div>
       {error && (
@@ -77,13 +87,17 @@ export const PortAiSuggestButton = ({
       {hints && hints.length > 0 && (
         <div className="mt-2 space-y-1">
           <div className="text-[10px] text-purple-100/80">
-            {hints.length} Gruppe(n) / {totalSuggested} Ports vorgeschlagen:
+            {format(t('props.aiPorts.summary', '{groups} Gruppe(n) / {ports} Ports vorgeschlagen:'), {
+              groups: hints.length,
+              ports: totalSuggested,
+            })}
           </div>
           <ul className="ml-3 list-disc text-[10px] text-purple-100">
             {hints.map((h, idx) => (
               <li key={idx}>
-                {h.count}× {h.connectorType} ({h.direction === 'in' ? 'Input' : 'Output'})
-                {h.label ? ` — ${h.label}` : ''}
+                {h.count}× {h.connectorType} (
+                {h.direction === 'in' ? t('props.aiPorts.input', 'Input') : t('props.aiPorts.output', 'Output')}
+                ){h.label ? ` — ${h.label}` : ''}
               </li>
             ))}
           </ul>
@@ -93,30 +107,38 @@ export const PortAiSuggestButton = ({
                 type="button"
                 onClick={async () => {
                   const ok = await confirmDialog(
-                    `Bestehende ${equipment.inputs.length} In / ${equipment.outputs.length} Out durch AI-Vorschlag ueberschreiben?`,
+                    format(
+                      t(
+                        'props.aiPorts.confirmReplace',
+                        'Bestehende {in} In / {out} Out durch AI-Vorschlag ueberschreiben?',
+                      ),
+                      { in: equipment.inputs.length, out: equipment.outputs.length },
+                    ),
                   )
                   if (ok) apply('replace')
                 }}
                 className="rounded bg-amber-700 px-2 py-0.5 text-[10px] text-amber-100 hover:bg-amber-600"
-                title="Loescht aktuelle Ports und nimmt die AI-Vorschlaege"
+                title={t('props.aiPorts.replaceTitle', 'Loescht aktuelle Ports und nimmt die AI-Vorschlaege')}
               >
-                Ersetzen
+                {t('props.aiPorts.replace', 'Ersetzen')}
               </button>
             )}
             <button
               type="button"
               onClick={() => apply('append')}
               className="rounded bg-emerald-700 px-2 py-0.5 text-[10px] text-emerald-100 hover:bg-emerald-600"
-              title="Haengt die AI-Vorschlaege an die bestehenden Ports an"
+              title={t('props.aiPorts.appendTitle', 'Haengt die AI-Vorschlaege an die bestehenden Ports an')}
             >
-              {hasExisting ? 'Anhaengen' : 'Uebernehmen'}
+              {hasExisting
+                ? t('props.aiPorts.append', 'Anhaengen')
+                : t('props.aiPorts.adopt', 'Uebernehmen')}
             </button>
             <button
               type="button"
               onClick={() => setHints(null)}
               className="rounded bg-slate-700 px-2 py-0.5 text-[10px] text-slate-200 hover:bg-slate-600"
             >
-              Verwerfen
+              {t('props.aiPorts.discard', 'Verwerfen')}
             </button>
           </div>
         </div>

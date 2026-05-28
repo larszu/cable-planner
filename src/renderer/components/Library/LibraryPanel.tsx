@@ -831,8 +831,8 @@ export const LibraryPanel = () => {
         <button
           type="button"
           onClick={toggleCollapsed}
-          title="Library einblenden"
-          aria-label="Library einblenden"
+          title={t('library.show', 'Library einblenden')}
+          aria-label={t('library.show', 'Library einblenden')}
           className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
           <span className="text-base leading-none">›</span>
@@ -840,11 +840,11 @@ export const LibraryPanel = () => {
         <button
           type="button"
           onClick={toggleCollapsed}
-          aria-label="Library einblenden"
+          aria-label={t('library.show', 'Library einblenden')}
           className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:text-slate-300 focus-visible:outline-none focus-visible:text-sky-300"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
-          Library
+          {t('library.title', 'Library')}
         </button>
       </aside>
     )
@@ -861,8 +861,8 @@ export const LibraryPanel = () => {
           <button
             type="button"
             onClick={toggleCollapsed}
-            title="Library ausblenden"
-            aria-label="Library ausblenden"
+            title={t('library.hide', 'Library ausblenden')}
+            aria-label={t('library.hide', 'Library ausblenden')}
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-base leading-none">‹</span>
@@ -871,7 +871,7 @@ export const LibraryPanel = () => {
         <TabButton
           active={tab === 'equipment'}
           onClick={() => setTab('equipment')}
-          label="Geräte"
+          label={t('library.tab.equipment', 'Geräte')}
           icon={
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="2" y="3" width="12" height="10" rx="1.5" />
@@ -884,7 +884,7 @@ export const LibraryPanel = () => {
         <TabButton
           active={tab === 'cables'}
           onClick={() => setTab('cables')}
-          label="Kabel"
+          label={t('library.tab.cables', 'Kabel')}
           icon={
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M2 11 Q 5 5, 8 8 T 14 5" strokeLinecap="round" />
@@ -896,9 +896,9 @@ export const LibraryPanel = () => {
         <TabButton
           active={tab === 'groups'}
           onClick={() => setTab('groups')}
-          label="Gruppen"
+          label={t('library.tab.groups', 'Gruppen')}
           count={groupPresets.length}
-          title="Gespeicherte Gerätegruppen (mehrere Geräte + Kabel als Vorlage)"
+          title={t('library.tab.groupsTitle', 'Gespeicherte Gerätegruppen (mehrere Geräte + Kabel als Vorlage)')}
           icon={
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="2" y="2" width="6" height="5" rx="0.8" />
@@ -910,7 +910,7 @@ export const LibraryPanel = () => {
         <TabButton
           active={tab === 'racks'}
           onClick={() => setTab('racks')}
-          label="Racks"
+          label={t('library.tab.racks', 'Racks')}
           count={groupPresets.filter((preset) => !!preset.rack).length}
           title="2D Rack Builder und gespeicherte Rack-Layouts"
           icon={
@@ -937,7 +937,7 @@ export const LibraryPanel = () => {
                   ? 'bg-sky-700 text-white'
                   : 'text-slate-300 hover:bg-slate-800'
               }`}
-              title="Eigene und importierte Vorlagen, lokal in dieser Installation"
+              title={t('library.section.localTitle', 'Eigene und importierte Vorlagen, lokal in dieser Installation')}
             >
               <span className="mr-1 rounded bg-sky-900/80 px-1 text-[9px] font-bold text-sky-100">L</span>
               Lokal
@@ -953,7 +953,7 @@ export const LibraryPanel = () => {
                   ? 'bg-orange-600 text-white'
                   : 'text-slate-300 hover:bg-slate-800'
               }`}
-              title="Aus Rentman importierte Geräte und Account-Katalog"
+              title={t('library.section.rentmanTitle', 'Aus Rentman importierte Geräte und Account-Katalog')}
             >
               <span className="mr-1 rounded bg-orange-900/80 px-1 text-[9px] font-bold text-orange-100">R</span>
               Rentman
@@ -1072,7 +1072,7 @@ export const LibraryPanel = () => {
                 ref={newGroupInputRef}
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
-                placeholder="Kategoriename…"
+                placeholder={t('library.newCategoryPlaceholder', 'Kategoriename…')}
                 className="flex-1 rounded border border-slate-600 bg-slate-900 p-1.5 text-xs"
               />
               <button
@@ -1212,7 +1212,7 @@ export const LibraryPanel = () => {
                           }
                         }}
                         className="hidden rounded bg-slate-700/80 px-1.5 py-0.5 text-[10px] font-normal normal-case text-slate-200 hover:bg-slate-600 group-hover/cat:block"
-                        title="Kategorie umbenennen"
+                        title={t('library.renameCategory', 'Kategorie umbenennen')}
                       >
                         ✎
                       </button>
@@ -1254,7 +1254,7 @@ export const LibraryPanel = () => {
                                 type="button"
                                 onClick={() => setSelectedTemplateName(item.name)}
                                 className="absolute right-7 top-1 hidden rounded bg-slate-600 px-1 py-0.5 text-[10px] hover:bg-slate-500 group-hover/item:block"
-                                title="Vorlage bearbeiten (Name, Kategorie)"
+                                title={t('library.template.editTitle', 'Vorlage bearbeiten (Name, Kategorie)')}
                               >
                                 ✎
                               </button>
@@ -1357,7 +1357,7 @@ export const LibraryPanel = () => {
                   type="button"
                   onClick={openRentmanImport}
                   className="mt-2 w-full rounded bg-orange-600 px-2 py-1.5 text-xs font-semibold text-white hover:bg-orange-500"
-                  title="Aktuelle Equipment-Liste aus dem verknuepften Rentman-Projekt holen — neue oder geaenderte Items werden im Dialog angezeigt."
+                  title={t('library.rentman.refreshTitle', 'Aktuelle Equipment-Liste aus dem verknüpften Rentman-Projekt holen — neue oder geänderte Items werden im Dialog angezeigt.')}
                 >
                   🔄 Aus Rentman aktualisieren / neue Items importieren
                 </button>
@@ -1399,7 +1399,7 @@ export const LibraryPanel = () => {
                   type="button"
                   onClick={openRentmanImport}
                   className="w-full rounded bg-orange-700 px-2 py-1.5 text-xs font-semibold text-white hover:bg-orange-600"
-                  title="Rentman-Projekt auswählen und mit dieser Plan-Datei verknüpfen"
+                  title={t('library.rentman.linkTitle', 'Rentman-Projekt auswählen und mit dieser Plan-Datei verknüpfen')}
                 >
                   Rentman-Projekt verknüpfen…
                 </button>
@@ -1487,14 +1487,14 @@ export const LibraryPanel = () => {
                       onKeyDown={(e) => {
                         if (e.key === 'Escape') setRentmanSearch('')
                       }}
-                      placeholder="In Rentman-Geraeten suchen…"
+                      placeholder={t('library.rentmanSearchPlaceholder', 'In Rentman-Geraeten suchen…')}
                       className="w-full rounded border border-slate-700 bg-slate-900 py-1 pl-7 pr-7 text-xs text-slate-100 placeholder-slate-500"
                     />
                     {rentmanSearch && (
                       <button
                         type="button"
                         onClick={() => setRentmanSearch('')}
-                        title="Suche loeschen"
+                        title={t('library.search.clear', 'Suche löschen')}
                         className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
                       >
                         ✕
@@ -1666,7 +1666,7 @@ export const LibraryPanel = () => {
                     type="button"
                     onClick={() => setRentmanCatalogCollapsed((value) => !value)}
                     className="flex flex-1 items-center gap-1 text-left text-sm font-semibold text-slate-200 hover:text-white"
-                    title="Alle in deinem Rentman-Account angelegten Equipments (Account-Katalog), gegliedert nach der Rentman-Ordnerstruktur"
+                    title={t('library.rentman.accountTitle', 'Alle in deinem Rentman-Account angelegten Equipments (Account-Katalog), gegliedert nach der Rentman-Ordnerstruktur')}
                   >
                     <span className="text-xs">{rentmanCatalogCollapsed ? '▶' : '▼'}</span>
                     <span>Alle Rentman-Equipments (Account-Katalog)</span>
@@ -1700,7 +1700,7 @@ export const LibraryPanel = () => {
                           type="text"
                           value={rentmanCatalogQuery}
                           onChange={(event) => setRentmanCatalogQuery(event.target.value)}
-                          placeholder="Suchen…"
+                          placeholder={t('common.search', 'Suchen…')}
                           className="mb-2 w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 placeholder-slate-500"
                         />
                         {(() => {
@@ -1893,7 +1893,7 @@ export const LibraryPanel = () => {
                     type="button"
                     onClick={openRentmanImport}
                     className="mb-3 w-full rounded bg-orange-600 px-2 py-1.5 text-xs font-semibold text-white hover:bg-orange-500"
-                    title="Equipment-Liste aus dem verknuepften Rentman-Projekt jetzt laden. Neue Items koennen direkt importiert werden."
+                    title={t('library.rentman.loadProjectTitle', 'Equipment-Liste aus dem verknüpften Rentman-Projekt jetzt laden. Neue Items können direkt importiert werden.')}
                   >
                     🔄 Aus Rentman aktualisieren / neue Items importieren
                   </button>
@@ -1994,7 +1994,7 @@ export const LibraryPanel = () => {
                   setNetBoxResults([])
                 }}
                 className="rounded bg-slate-700 px-3 py-2 text-sm hover:bg-slate-600"
-                title="GitHub-Index neu laden"
+                title={t('library.netbox.refreshTitle', 'GitHub-Index neu laden')}
               >
                 Cache leeren
               </button>
@@ -2124,7 +2124,7 @@ export const LibraryPanel = () => {
                     setAiSettingsOpen(true)
                   }}
                   className="text-[10px] text-violet-300 hover:underline"
-                  title="Gemini-API-Key konfigurieren"
+                  title={t('library.create.aiSettings', 'Gemini-API-Key konfigurieren')}
                 >
                   ⚙ AI-Settings
                 </button>
@@ -2134,7 +2134,7 @@ export const LibraryPanel = () => {
                   type="button"
                   onClick={handleHeuristicSuggest}
                   className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
-                  title="Aus eingebauten Heuristik-Mustern (Camera, ATEM, Konverter, ...)"
+                  title={t('library.create.suggest.heuristicTitle', 'Aus eingebauten Heuristik-Mustern (Camera, ATEM, Konverter, ...)')}
                 >
                   📐 Heuristik
                 </button>
@@ -2143,7 +2143,7 @@ export const LibraryPanel = () => {
                   disabled={webLoading}
                   onClick={handleWebSuggest}
                   className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
-                  title="Wikipedia + DuckDuckGo Snippet (kein API-Key nötig)"
+                  title={t('library.create.suggest.webTitle', 'Wikipedia + DuckDuckGo Snippet (kein API-Key nötig)')}
                 >
                   {webLoading ? 'Suche…' : '🌐 Web'}
                 </button>
@@ -2152,7 +2152,7 @@ export const LibraryPanel = () => {
                   disabled={aiLoading}
                   onClick={handleAiSuggest}
                   className="rounded bg-violet-700 px-2 py-1 hover:bg-violet-600 disabled:opacity-50"
-                  title="Gemini AI — braucht einen API-Key"
+                  title={t('library.create.suggest.geminiTitle', 'Gemini AI — braucht einen API-Key')}
                 >
                   {aiLoading ? 'Frage…' : '✨ Gemini'}
                 </button>

@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useProjectStore } from '../../store/projectStore'
+import { useTranslation, format } from '../../lib/i18n'
 import { RackImageCropDialog } from './RackImageCropDialog'
 import { RackInternalCanvas } from './RackInternalCanvas'
 import { RackLivePreview } from './RackLivePreview'
@@ -288,6 +289,7 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
 }
 
 export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onSave }: RackBuilderDialogProps) => {
+  const t = useTranslation()
   // v7.9.13 — Permanent-Mark-As-Rack-Device action.
   const markTemplateAsRack = useProjectStore((s) => s.markTemplateAsRack)
   const addCustomTemplate = useProjectStore((s) => s.addCustomTemplate)
@@ -794,22 +796,26 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     : 'bg-emerald-900/60 text-emerald-200'
                 }`}
               >
-                {editingId ? 'Bearbeiten' : 'Neu'}
+                {editingId ? t('rack.badge.edit', 'Bearbeiten') : t('rack.badge.new', 'Neu')}
               </span>
               {dirty && (
                 <span
                   className="flex shrink-0 items-center gap-1 rounded bg-amber-900/40 px-1.5 py-0.5 text-[9px] font-semibold text-amber-200"
-                  title="Ungespeicherte Änderungen"
+                  title={t('rack.unsavedTitle', 'Ungespeicherte Änderungen')}
                 >
                   <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" />
-                  Ungespeichert
+                  {t('rack.unsavedLabel', 'Ungespeichert')}
                 </span>
               )}
             </div>
             <p className="mt-0.5 text-[11px] text-slate-500">
-              2D Rack Builder · Geräte aus Library hinzufügen, HE-Position per Drag, Verkabelung intern
+              {t(
+                'rack.subtitle',
+                '2D Rack Builder · Geräte aus Library hinzufügen, HE-Position per Drag, Verkabelung intern',
+              )}
               <span className="ml-2 hidden sm:inline">
-                <kbd className="rounded border border-slate-700 bg-slate-800 px-1 text-[10px]">Esc</kbd> schließen
+                <kbd className="rounded border border-slate-700 bg-slate-800 px-1 text-[10px]">Esc</kbd>{' '}
+                {t('rack.closeShortcut', 'schließen')}
               </span>
             </p>
           </div>
@@ -819,13 +825,13 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             <button
               type="button"
               onClick={() => setExportMenuOpen((v) => !v)}
-              title="Rack exportieren (PNG / STL / .cpgroup)"
+              title={t('rack.exportTitle', 'Rack exportieren (PNG / STL / .cpgroup)')}
               className="flex h-8 items-center gap-1 rounded border border-slate-700 bg-slate-800 px-3 text-xs text-slate-300 hover:border-sky-500/50 hover:bg-sky-900/30 hover:text-sky-200"
             >
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M8 1 L8 10 M4 7 L8 11 L12 7 M2 13 L14 13" />
               </svg>
-              Exportieren ▾
+              {t('rack.exportBtn', 'Exportieren')} ▾
             </button>
             {exportMenuOpen && (
               <div
@@ -948,8 +954,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           <button
             type="button"
             onClick={closeWithConfirm}
-            aria-label="Schließen"
-            title="Schließen (Esc)"
+            aria-label={t('common.close', 'Schließen')}
+            title={t('rack.closeTitle', 'Schließen (Esc)')}
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-slate-300 transition-colors hover:border-red-500/50 hover:bg-red-900/30 hover:text-red-300"
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
@@ -963,7 +969,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             Zoom hat jetzt explizite +/- Buttons für Tastatur/Maus-User. */}
         <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           <label className="block text-xs font-medium text-slate-300 lg:col-span-2">
-            Rack-Name *
+            {t('rack.field.name', 'Rack-Name')} *
             <input
               ref={rackNameInputRef}
               value={draft.rackName}
@@ -973,7 +979,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               }}
               aria-required="true"
               aria-invalid={!draft.rackName.trim() && !!saveError}
-              placeholder='z.B. "Power Rack A" oder "Main Video Rack"'
+              placeholder={t('rack.field.namePlaceholder', 'z.B. "Power Rack A" oder "Main Video Rack"')}
               className={`mt-1 w-full rounded border bg-slate-950 px-2.5 py-1.5 text-sm font-normal text-slate-100 placeholder-slate-600 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 ${
                 !draft.rackName.trim() && saveError
                   ? 'border-red-600 ring-1 ring-red-600/40'
@@ -982,7 +988,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             />
           </label>
           <label className="block text-xs font-medium text-slate-300">
-            Höhe <span className="text-slate-500">(HE)</span>
+            {t('rack.field.height', 'Höhe')} <span className="text-slate-500">(HE)</span>
             <input
               type="number"
               min={1}
@@ -1000,7 +1006,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           {/* v7.9.73 / #170 — Rack-Tiefe in mm. Wird vom 3D-Builder genutzt
               um zu prüfen ob hinten noch Platz für Patchblenden ist. */}
           <label className="block text-xs font-medium text-slate-300">
-            Tiefe <span className="text-slate-500">(mm)</span>
+            {t('rack.field.depth', 'Tiefe')} <span className="text-slate-500">(mm)</span>
             <input
               type="number"
               min={200}
@@ -1014,7 +1020,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 }))
               }
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-sm font-normal text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-              title="Rack-Tiefe in mm. Standard: 800 mm. Gängige Werte: 350/450/600/800/1000/1200."
+              title={t('rack.depthTitle', 'Rack-Tiefe in mm. Standard: 800 mm. Gängige Werte: 350/450/600/800/1000/1200.')}
             />
           </label>
           {/* v7.9.80 / #170 — "Ansicht" (Front/Rear/Both) ist nach
@@ -1023,7 +1029,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               Tiefe, Zoom). */}
           <div className="block text-xs font-medium text-slate-300">
             <div className="flex items-baseline justify-between">
-              <span>Zoom</span>
+              <span>{t('rack.zoom', 'Zoom')}</span>
               <span className="text-[10px] font-normal text-slate-500">
                 {Math.round(zoom * 100)}% · {Math.round(rowHeight)} px/HE
               </span>
@@ -1033,7 +1039,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 type="button"
                 onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))}
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700 bg-slate-900 text-sm text-slate-300 hover:bg-slate-800"
-                title="Verkleinern"
+                title={t('rack.zoomOut', 'Verkleinern')}
               >
                 −
               </button>
@@ -1045,13 +1051,13 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 value={zoom}
                 onChange={(event) => setZoom(Number(event.target.value) || 1)}
                 className="flex-1 accent-sky-500"
-                title="Skaliert die HE-Höhe. Auto-Fit passt das Rack in den sichtbaren Bereich."
+                title={t('rack.zoomSliderTitle', 'Skaliert die HE-Höhe. Auto-Fit passt das Rack in den sichtbaren Bereich.')}
               />
               <button
                 type="button"
                 onClick={() => setZoom((z) => Math.min(2, +(z + 0.1).toFixed(2)))}
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700 bg-slate-900 text-sm text-slate-300 hover:bg-slate-800"
-                title="Vergrößern"
+                title={t('rack.zoomIn', 'Vergrößern')}
               >
                 +
               </button>
@@ -1059,9 +1065,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 type="button"
                 onClick={() => setZoom(1)}
                 className="flex h-7 shrink-0 items-center justify-center rounded border border-slate-700 bg-slate-900 px-2 text-[10px] text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-                title="Auf 100 % zurück (Auto-Fit)"
+                title={t('rack.zoomFitTitle', 'Auf 100 % zurück (Auto-Fit)')}
               >
-                Fit
+                {t('rack.zoomFit', 'Fit')}
               </button>
             </div>
           </div>
@@ -1076,13 +1082,13 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           >
             {saveError && (
               <div className="mb-2 flex items-start gap-2">
-                <span className="font-semibold">Speichern blockiert:</span>
+                <span className="font-semibold">{t('rack.saveBlocked', 'Speichern blockiert:')}</span>
                 <span className="whitespace-pre-wrap flex-1">{saveError}</span>
                 <button
                   type="button"
                   onClick={() => setSaveError(null)}
                   className="rounded bg-red-800/80 px-1.5 text-[10px] hover:bg-red-700"
-                  title="Ausblenden"
+                  title={t('common.hide', 'Ausblenden')}
                 >
                   ×
                 </button>
@@ -1090,7 +1096,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             )}
             {conflicts.length > 0 && (
               <>
-                <div className="font-semibold">Konflikte ({conflicts.length})</div>
+                <div className="font-semibold">
+                  {format(t('rack.conflicts', 'Konflikte ({count})'), { count: conflicts.length })}
+                </div>
                 <ul className="mt-1 list-disc space-y-1 pl-4">
                   {conflicts.map((issue, index) => (
                     <li key={`${issue}-${index}`}>{issue}</li>
@@ -1109,7 +1117,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 mit Magnifier-Icon + Clear-Button für bessere Affordance. */}
             <div className="mb-2 flex items-center justify-between">
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Library
+                {t('library.title', 'Library')}
               </div>
               <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-400">
                 {filteredTemplates.length} / {templates.length}
@@ -1125,17 +1133,17 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 type="button"
                 onClick={() => setPatchPanelDialogOpen(true)}
                 className="rounded border border-amber-700 bg-amber-900/30 px-2 py-1.5 text-[11px] font-semibold text-amber-200 hover:bg-amber-900/50"
-                title="Neue Patchblende anlegen: Höhe, Port-Count, Connector-Typ"
+                title={t('rack.patchPanelTitle', 'Neue Patchblende anlegen: Höhe, Port-Count, Connector-Typ')}
               >
-                + Patchblende
+                {t('rack.patchPanelBtn', '+ Patchblende')}
               </button>
               <button
                 type="button"
                 onClick={() => setShelfDialogOpen(true)}
                 className="rounded border border-emerald-700 bg-emerald-900/30 px-2 py-1.5 text-[11px] font-semibold text-emerald-200 hover:bg-emerald-900/50"
-                title="Rack-Shelf für Non-19&quot;-Gear anlegen"
+                title={t('rack.shelfTitle', 'Rack-Shelf für Non-19"-Gear anlegen')}
               >
-                + Rack-Shelf
+                {t('rack.shelfBtn', '+ Rack-Shelf')}
               </button>
             </div>
             <div className="relative mb-2">
@@ -1154,15 +1162,15 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Gerät suchen…"
+                placeholder={t('rack.searchDevicesPlaceholder', 'Gerät suchen…')}
                 className="w-full rounded border border-slate-700 bg-slate-950 pl-7 pr-7 py-1.5 text-xs placeholder-slate-600 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
               />
               {query && (
                 <button
                   type="button"
                   onClick={() => setQuery('')}
-                  title="Suche löschen"
-                  aria-label="Suche löschen"
+                  title={t('library.search.clear', 'Suche löschen')}
+                  aria-label={t('library.search.clear', 'Suche löschen')}
                   className="absolute right-1.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded text-slate-500 hover:bg-slate-800 hover:text-slate-200"
                 >
                   ×
@@ -1171,7 +1179,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             </div>
             <label
               className="mb-2 flex items-center gap-1.5 text-[10px] text-slate-400"
-              title="Wenn aktiv, werden auch Templates angezeigt die nicht als 19”-Rack-Gerät markiert sind. Beim Hinzufügen wirst du nach der HE-Höhe gefragt."
+              title={t(
+                'rack.showNonRackTitle',
+                'Wenn aktiv, werden auch Templates angezeigt die nicht als 19"-Rack-Gerät markiert sind. Beim Hinzufügen wirst du nach der HE-Höhe gefragt.',
+              )}
             >
               <input
                 type="checkbox"
@@ -1179,15 +1190,24 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 onChange={(e) => setShowNonRack(e.target.checked)}
                 className="accent-sky-500"
               />
-              <span>Auch Nicht-Rack-Geräte</span>
+              <span>{t('rack.showNonRack', 'Auch Nicht-Rack-Geräte')}</span>
             </label>
             <div className="max-h-[58vh] space-y-1 overflow-auto">
               {filteredTemplates.length === 0 && (
                 <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-4 text-center text-[11px] text-slate-500">
                   {query ? (
-                    <>Keine Treffer für <strong className="text-slate-300">"{query}"</strong>.</>
+                    <>
+                      {t('rack.noMatchesPre', 'Keine Treffer für')}{' '}
+                      <strong className="text-slate-300">"{query}"</strong>.
+                    </>
                   ) : (
-                    <>Keine Rack-Geräte verfügbar. <span className="text-slate-400">"Auch Nicht-Rack-Geräte"</span> aktivieren?</>
+                    <>
+                      {t('rack.noRackDevices', 'Keine Rack-Geräte verfügbar.')}{' '}
+                      <span className="text-slate-400">
+                        "{t('rack.showNonRack', 'Auch Nicht-Rack-Geräte')}"
+                      </span>{' '}
+                      {t('rack.activatePrompt', 'aktivieren?')}
+                    </>
                   )}
                 </div>
               )}
@@ -1237,7 +1257,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           {!isRack && (
                             <span
                               className="shrink-0 rounded bg-amber-800/60 px-1 text-[8px] font-semibold uppercase text-amber-200"
-                              title="Nicht als 19”-Rack-Gerät markiert — wird beim Hinzufügen abgefragt."
+                              title={t('rack.notRackTitle', 'Nicht als 19"-Rack-Gerät markiert — wird beim Hinzufügen abgefragt.')}
                             >
                               No-HE
                             </span>
@@ -1272,7 +1292,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             <div className="mb-2 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Rack-Layout
+                  {t('rack.layout', 'Rack-Layout')}
                 </div>
                 {/* v7.9.73 / #170 — 2D/3D Tab-Toggle. 2D ist der bestehende
                     Front/Rear-Panel-Editor; 3D ist die neue Orbit-Ansicht
@@ -1286,7 +1306,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         ? 'bg-sky-700 text-white'
                         : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
                     }`}
-                    title="2D-Editor: Vorderseite/Rückseite als Panel-Ansichten"
+                    title={t('rack.tab2dTitle', '2D-Editor: Vorderseite/Rückseite als Panel-Ansichten')}
                   >
                     2D
                   </button>
@@ -1298,7 +1318,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         ? 'bg-purple-700 text-white'
                         : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
                     }`}
-                    title="3D-Visualisierung mit Front/Rear-Tiefe und Rotation. Nur-Lesen — bearbeitet wird im 2D-Tab."
+                    title={t('rack.tab3dTitle', '3D-Visualisierung mit Front/Rear-Tiefe und Rotation. Nur-Lesen — bearbeitet wird im 2D-Tab.')}
                   >
                     3D
                   </button>
@@ -1317,7 +1337,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 <div className="mb-1 font-semibold text-slate-300">Rack ist leer</div>
                 <div>Geräte aus der Library links hinzufügen (Button "+ Rack").</div>
                 <div className="mt-2 text-[10px]">
-                  Tipp: <span className="text-slate-400">"Auch Nicht-Rack-Geräte"</span> aktivieren wenn das Wunschgerät fehlt.
+                  {t('rack.tipPrefix', 'Tipp:')}{' '}
+                  <span className="text-slate-400">"{t('rack.showNonRack', 'Auch Nicht-Rack-Geräte')}"</span>{' '}
+                  {t('rack.tipBody', 'aktivieren wenn das Wunschgerät fehlt.')}
                 </div>
               </div>
             )}
@@ -1630,8 +1652,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           )
                         })}
                         {/* Front + Rear Rail-Markierungen */}
-                        <div className="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-green-700/60" title="Front-Rail" />
-                        <div className="pointer-events-none absolute inset-y-0 right-0 w-0.5 bg-purple-700/60" title="Rear-Rail" />
+                        <div className="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-green-700/60" title={t('rack.frontRail', 'Front-Rail')} />
+                        <div className="pointer-events-none absolute inset-y-0 right-0 w-0.5 bg-purple-700/60" title={t('rack.rearRail', 'Rear-Rail')} />
                         {/* Placements als horizontale Streifen (Front-of-Box bis Rear-of-Box) */}
                         {draft.placements.map((item) => {
                           const top = (item.startUnit - 1) * rowHeight
@@ -2071,7 +2093,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
                   />
                 </label>
-                <label className="flex items-center gap-2 opacity-60" title="Im Builder schreibgeschützt — wurde beim Hinzufügen gesetzt.">
+                <label className="flex items-center gap-2 opacity-60" title={t('rack.readonlyInBuilder', 'Im Builder schreibgeschützt — wurde beim Hinzufügen gesetzt.')}>
                   <input type="checkbox" checked={selectedPlacement.isRackDevice} disabled readOnly />
                   <span>Ist Rack-Gerät (im Builder fix)</span>
                 </label>
@@ -2142,7 +2164,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         })
                       }}
                       className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
-                      title="Geräte-Tiefe in mm. Leer = 400 mm Standard. Wird vom 3D-Tab visualisiert."
+                      title={t('rack.deviceDepthTitle', 'Geräte-Tiefe in mm. Leer = 400 mm Standard. Wird vom 3D-Tab visualisiert.')}
                     />
                   </label>
                   <label className="block">
@@ -2176,7 +2198,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   <div className="mt-1 flex items-center gap-2">
                     <label
                       className="inline-flex cursor-pointer items-center gap-1 rounded border border-slate-600 bg-sky-700 px-3 py-1 text-[11px] font-semibold text-white hover:bg-sky-600"
-                      title="STL-Datei (.stl, max 5 MB) zum Gerät hochladen"
+                      title={t('rack.stlUploadTitle', 'STL-Datei (.stl, max 5 MB) zum Gerät hochladen')}
                     >
                       <span>📁</span>
                       <span>{selectedPlacement.stlDataUri ? 'STL ersetzen…' : 'STL auswählen…'}</span>
@@ -2227,7 +2249,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           }
                         }}
                         className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-600"
-                        title="STL entfernen — Gerät wird wieder als Box gerendert"
+                        title={t('rack.stlRemoveTitle', 'STL entfernen — Gerät wird wieder als Box gerendert')}
                       >
                         ✕ Entfernen
                       </button>
@@ -2334,7 +2356,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         })
                       }}
                       className="rounded bg-purple-900/40 px-2 py-1 text-purple-200 hover:bg-purple-900/60"
-                      title="Alle Ports nach hinten (Default für klassische Server-Geräte)"
+                      title={t('rack.portsAllRear', 'Alle Ports nach hinten (Default für klassische Server-Geräte)')}
                     >
                       ⏬ alle nach hinten
                     </button>
@@ -2353,7 +2375,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         })
                       }}
                       className="rounded bg-slate-700 px-2 py-1 text-slate-100 hover:bg-slate-600"
-                      title="Front-Ports werden zu Rear-Ports und umgekehrt"
+                      title={t('rack.portsSwap', 'Front-Ports werden zu Rear-Ports und umgekehrt')}
                     >
                       ↔ spiegeln
                     </button>
@@ -2366,7 +2388,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         })
                       }}
                       className="rounded bg-green-900/40 px-2 py-1 text-green-200 hover:bg-green-900/60"
-                      title="Alle Ports nach vorne (z.B. Frontpanel-Geräte)"
+                      title={t('rack.portsAllFront', 'Alle Ports nach vorne (z.B. Frontpanel-Geräte)')}
                     >
                       ⏫ alle nach vorne
                     </button>
@@ -2446,7 +2468,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           })
                         }
                         className="rounded bg-slate-700 px-2 py-0.5 text-[10px] text-slate-200 hover:bg-slate-600"
-                        title="Front- und Rear-Foto vertauschen (falls die Zuordnung falsch ist)"
+                        title={t('rack.swapPhotos', 'Front- und Rear-Foto vertauschen (falls die Zuordnung falsch ist)')}
                       >
                         ↔ Front/Rear tauschen
                       </button>
@@ -2478,7 +2500,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                                 type="button"
                                 onClick={() => updatePlacement(selectedPlacement.id, { [urlKey]: undefined, [side === 'front' ? 'frontPanelCrop' : 'rearPanelCrop']: undefined })}
                                 className="rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-900/40 hover:text-red-300"
-                                title="Bild entfernen"
+                                title={t('rack.removeImage', 'Bild entfernen')}
                               >
                                 ✕
                               </button>
@@ -2514,7 +2536,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             {draft.internalCables.length > 0 && (
               <span
                 className="inline-flex items-center gap-1 rounded bg-sky-900/60 px-2 py-0.5 text-sky-200"
-                title="Interne Verkabelungen im Rack"
+                title={t('rack.internalCablingTitle', 'Interne Verkabelungen im Rack')}
               >
                 <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M3 8 H13 M3 8 L6 5 M3 8 L6 11 M13 8 L10 5 M13 8 L10 11" />
@@ -2550,7 +2572,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               onClick={() => setWireDialogOpen(true)}
               disabled={draft.placements.length < 1}
               className="inline-flex items-center gap-1.5 rounded border border-sky-600/50 bg-sky-800/40 px-3 py-1.5 text-xs font-medium text-sky-100 hover:bg-sky-700/60 disabled:opacity-40"
-              title="Geräte des Racks intern verkabeln — vollständige Canvas-Ansicht"
+              title={t('rack.openInternalCanvas', 'Geräte des Racks intern verkabeln — vollständige Canvas-Ansicht')}
             >
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 8 H13 M3 8 L6 5 M3 8 L6 11 M13 8 L10 5 M13 8 L10 11" />
@@ -2562,18 +2584,22 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               onClick={closeWithConfirm}
               className="rounded px-3 py-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-200"
             >
-              Abbrechen
+              {t('common.cancel', 'Abbrechen')}
             </button>
             <button
               type="button"
               onClick={saveRack}
               className="inline-flex items-center gap-1.5 rounded bg-emerald-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 active:bg-emerald-700"
-              title={editingId ? 'Änderungen am Rack speichern' : 'Rack als neue Gruppe in der Library speichern'}
+              title={
+                editingId
+                  ? t('rack.saveEditTitle', 'Änderungen am Rack speichern')
+                  : t('rack.saveNewTitle', 'Rack als neue Gruppe in der Library speichern')
+              }
             >
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 4 a1 1 0 0 1 1-1 h7 l3 3 v6 a1 1 0 0 1-1 1 H4 a1 1 0 0 1-1-1 z M5 3 v3 h5 v-3 M5 13 v-4 h6 v4" />
               </svg>
-              {editingId ? 'Speichern' : 'Rack speichern'}
+              {editingId ? t('common.save', 'Speichern') : t('rack.saveNewBtn', 'Rack speichern')}
             </button>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
+import { useTranslation } from '../../lib/i18n'
 
 /**
  * Issue #39 — Frame-scoped Bill of Materials. For a selected location/frame
@@ -19,6 +20,7 @@ import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
  * tech sees what they need to route into/out of the frame.
  */
 export const LocationBomDialog = () => {
+  const t = useTranslation()
   const { open, locationId } = useUiStore((s) => s.locationBom)
   const close = useUiStore((s) => s.closeLocationBom)
   const project = useProjectStore((s) => s.project)
@@ -262,50 +264,50 @@ export const LocationBomDialog = () => {
           {...drag.headerProps}
           className="flex items-center justify-between border-b border-slate-700 px-4 py-2 select-none"
         >
-          <h2 className="text-sm font-semibold">Stückliste — {location.name}</h2>
+          <h2 className="text-sm font-semibold">{t('locbom.title', 'Stückliste')} — {location.name}</h2>
           <button
             type="button"
             onClick={close}
             className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
           >
-            Schließen
+            {t('locbom.close', 'Schließen')}
           </button>
         </header>
 
         <main className="flex-1 overflow-auto p-4 text-xs">
           <div className="mb-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
             <span>
-              Geräte: <b className="text-slate-200">{devices.length}</b>
+              {t('locbom.devices', 'Geräte')}: <b className="text-slate-200">{devices.length}</b>
             </span>
             <span>
-              Interne Kabel: <b className="text-slate-200">{internalCables.length}</b>
+              {t('locbom.internalCables', 'Interne Kabel')}: <b className="text-slate-200">{internalCables.length}</b>
             </span>
             {externalCables.length > 0 && (
               <span>
-                Externe Verbindungen: <b className="text-slate-200">{externalCables.length}</b>
+                {t('locbom.externalConnections', 'Externe Verbindungen')}: <b className="text-slate-200">{externalCables.length}</b>
               </span>
             )}
             <label
               className="ml-auto flex items-center gap-1.5 text-[11px] text-slate-300"
-              title="Gruppiert gleiche Kabel (selber Typ + Länge) in einer Zeile mit Stückzahl — Standard für Stückliste."
+              title={t('locbom.groupTitle', 'Gruppiert gleiche Kabel (selber Typ + Länge) in einer Zeile mit Stückzahl — Standard für Stückliste.')}
             >
               <input
                 type="checkbox"
                 checked={grouped}
                 onChange={(e) => setGrouped(e.target.checked)}
               />
-              Kabel zusammenfassen
+              {t('locbom.groupCables', 'Kabel zusammenfassen')}
             </label>
             <label
               className="flex items-center gap-1.5 text-[11px] text-slate-300"
-              title="Hängt einen Plan-Ausschnitt der Location als JPEG vor die Geräteliste — die Empfänger bekommen Stückliste + Plan in einem Dokument."
+              title={t('locbom.includePlanTitle', 'Hängt einen Plan-Ausschnitt der Location als JPEG vor die Geräteliste — die Empfänger bekommen Stückliste + Plan in einem Dokument.')}
             >
               <input
                 type="checkbox"
                 checked={includePlan}
                 onChange={(e) => setIncludePlan(e.target.checked)}
               />
-              Plan einbetten
+              {t('locbom.includePlan', 'Plan einbetten')}
             </label>
             <button
               type="button"
@@ -313,18 +315,18 @@ export const LocationBomDialog = () => {
               disabled={busy}
               className="rounded bg-amber-700 px-3 py-1 text-xs hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {busy ? 'Rendere…' : 'PDF exportieren'}
+              {busy ? t('locbom.rendering', 'Rendere…') : t('locbom.exportPdf', 'PDF exportieren')}
             </button>
           </div>
 
-          <h3 className="mb-1 text-sm font-semibold text-slate-200">Geräte</h3>
+          <h3 className="mb-1 text-sm font-semibold text-slate-200">{t('locbom.section.devices', 'Geräte')}</h3>
           <table className="mb-4 w-full text-xs">
             <thead className="text-slate-400">
               <tr className="border-b border-slate-700">
-                <th className="px-2 py-1 text-left">Name</th>
-                <th className="px-2 py-1 text-left">Kategorie</th>
-                <th className="px-2 py-1 text-left">S/N</th>
-                <th className="px-2 py-1 text-left">IP</th>
+                <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>
+                <th className="px-2 py-1 text-left">{t('locbom.col.category', 'Kategorie')}</th>
+                <th className="px-2 py-1 text-left">{t('locbom.col.sn', 'S/N')}</th>
+                <th className="px-2 py-1 text-left">{t('locbom.col.ip', 'IP')}</th>
               </tr>
             </thead>
             <tbody>
@@ -343,16 +345,16 @@ export const LocationBomDialog = () => {
             </tbody>
           </table>
 
-          <h3 className="mb-1 text-sm font-semibold text-slate-200">Interne Kabel</h3>
+          <h3 className="mb-1 text-sm font-semibold text-slate-200">{t('locbom.section.internalCables', 'Interne Kabel')}</h3>
           {internalCables.length === 0 ? (
-            <div className="mb-3 text-slate-500">Keine internen Kabel.</div>
+            <div className="mb-3 text-slate-500">{t('locbom.noInternalCables', 'Keine internen Kabel.')}</div>
           ) : grouped ? (
             <table className="mb-4 w-full text-xs">
               <thead className="text-slate-400">
                 <tr className="border-b border-slate-700">
-                  <th className="px-2 py-1 text-right w-12">Stk.</th>
-                  <th className="px-2 py-1 text-left">Typ</th>
-                  <th className="px-2 py-1 text-right">Länge (m)</th>
+                  <th className="px-2 py-1 text-right w-12">{t('locbom.col.qty', 'Stk.')}</th>
+                  <th className="px-2 py-1 text-left">{t('locbom.col.type', 'Typ')}</th>
+                  <th className="px-2 py-1 text-right">{t('locbom.col.lengthM', 'Länge (m)')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -360,7 +362,7 @@ export const LocationBomDialog = () => {
                   <tr
                     key={g.key}
                     className="border-b border-slate-800"
-                    title={g.examples.length > 0 ? `Beispiele: ${g.examples.join(', ')}` : undefined}
+                    title={g.examples.length > 0 ? `${t('locbom.examples', 'Beispiele:')} ${g.examples.join(', ')}` : undefined}
                   >
                     <td className="px-2 py-1 text-right font-mono font-semibold text-emerald-300">
                       {g.count}×
@@ -377,9 +379,9 @@ export const LocationBomDialog = () => {
             <table className="mb-4 w-full text-xs">
               <thead className="text-slate-400">
                 <tr className="border-b border-slate-700">
-                  <th className="px-2 py-1 text-left">Name</th>
-                  <th className="px-2 py-1 text-left">Typ</th>
-                  <th className="px-2 py-1 text-right">Länge (m)</th>
+                  <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>
+                  <th className="px-2 py-1 text-left">{t('locbom.col.type', 'Typ')}</th>
+                  <th className="px-2 py-1 text-right">{t('locbom.col.lengthM', 'Länge (m)')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -399,15 +401,15 @@ export const LocationBomDialog = () => {
           {externalCables.length > 0 && (
             <>
               <h3 className="mb-1 text-sm font-semibold text-amber-200">
-                Externe Verbindungen
+                {t('locbom.section.externalConnections', 'Externe Verbindungen')}
               </h3>
               {grouped ? (
                 <table className="w-full text-xs">
                   <thead className="text-slate-400">
                     <tr className="border-b border-slate-700">
-                      <th className="px-2 py-1 text-right w-12">Stk.</th>
-                      <th className="px-2 py-1 text-left">Typ</th>
-                      <th className="px-2 py-1 text-right">Länge (m)</th>
+                      <th className="px-2 py-1 text-right w-12">{t('locbom.col.qty', 'Stk.')}</th>
+                      <th className="px-2 py-1 text-left">{t('locbom.col.type', 'Typ')}</th>
+                      <th className="px-2 py-1 text-right">{t('locbom.col.lengthM', 'Länge (m)')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -415,7 +417,7 @@ export const LocationBomDialog = () => {
                       <tr
                         key={g.key}
                         className="border-b border-slate-800"
-                        title={g.examples.length > 0 ? `Beispiele: ${g.examples.join(', ')}` : undefined}
+                        title={g.examples.length > 0 ? `${t('locbom.examples', 'Beispiele:')} ${g.examples.join(', ')}` : undefined}
                       >
                         <td className="px-2 py-1 text-right font-mono font-semibold text-amber-300">
                           {g.count}×
@@ -432,9 +434,9 @@ export const LocationBomDialog = () => {
                 <table className="w-full text-xs">
                   <thead className="text-slate-400">
                     <tr className="border-b border-slate-700">
-                      <th className="px-2 py-1 text-left">Name</th>
-                      <th className="px-2 py-1 text-left">Typ</th>
-                      <th className="px-2 py-1 text-right">Länge (m)</th>
+                      <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>
+                      <th className="px-2 py-1 text-left">{t('locbom.col.type', 'Typ')}</th>
+                      <th className="px-2 py-1 text-right">{t('locbom.col.lengthM', 'Länge (m)')}</th>
                     </tr>
                   </thead>
                   <tbody>

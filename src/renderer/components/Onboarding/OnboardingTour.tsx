@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { STORAGE_KEYS } from '../../lib/storageKeys'
 import { ModalShell } from '../shared/ModalShell'
+import { format, useTranslation } from '../../lib/i18n'
 
 const TOUR_STORAGE_KEY = STORAGE_KEYS.tourSeenV1
 
@@ -37,42 +38,61 @@ interface TourStep {
   hint?: string
 }
 
-const STEPS: TourStep[] = [
+const stepsForLang = (
+  t: (key: string, fallback?: string) => string,
+): TourStep[] => [
   {
-    title: 'Willkommen im Cable Planner',
-    body:
+    title: t('onboarding.steps.welcome.title', 'Willkommen im Cable Planner'),
+    body: t(
+      'onboarding.steps.welcome.body',
       'Eine kurze Tour zeigt dir, wo du die wichtigsten Funktionen findest. Du kannst sie jederzeit über das Hilfe-Menü oben rechts wieder öffnen.',
+    ),
   },
   {
-    title: 'Datei-Menü oben links',
-    body:
+    title: t('onboarding.steps.file.title', 'Datei-Menü oben links'),
+    body: t(
+      'onboarding.steps.file.body',
       'Über „Datei" legst du Projekte an, öffnest gespeicherte Dateien und sicherst Änderungen. Die Projekt-Metadaten bearbeitest du dort über „Projekt-Eigenschaften".',
+    ),
   },
   {
-    title: 'Export-Menü',
-    body:
+    title: t('onboarding.steps.export.title', 'Export-Menü'),
+    body: t(
+      'onboarding.steps.export.body',
       'Im „Export"-Menü findest du den PDF-Plan-Export, die Kabel-Stückliste sowie zwei Rentman-Aktionen: PDF an Rentman anhängen und Kabel an Rentman senden.',
-    hint: 'Die Rentman-Einträge sind nur aktiv, wenn ein Rentman-Projekt verknüpft ist.',
+    ),
+    hint: t(
+      'onboarding.steps.export.hint',
+      'Die Rentman-Einträge sind nur aktiv, wenn ein Rentman-Projekt verknüpft ist.',
+    ),
   },
   {
-    title: 'Einstellungen → Rentman',
-    body:
+    title: t('onboarding.steps.settings.title', 'Einstellungen → Rentman'),
+    body: t(
+      'onboarding.steps.settings.body',
       'Token speichern, Verbindung testen und Rentman-Projekt verknüpfen oder wechseln machst du in den Einstellungen im Tab „Rentman API".',
+    ),
   },
   {
-    title: 'Bibliothek links',
-    body:
+    title: t('onboarding.steps.library.title', 'Bibliothek links'),
+    body: t(
+      'onboarding.steps.library.body',
       'Die linke Spalte enthält Equipment, Kabel-Library und Gruppen. Im Equipment-Tab kannst du zwischen lokalen und aus Rentman importierten Geräten umschalten.',
+    ),
   },
   {
-    title: 'Eigenschaften rechts',
-    body:
+    title: t('onboarding.steps.properties.title', 'Eigenschaften rechts'),
+    body: t(
+      'onboarding.steps.properties.body',
       'Wenn du ein Element auf der Canvas auswählst, erscheinen rechts die Details und Werkzeuge zur Bearbeitung.',
+    ),
   },
   {
-    title: 'Kabel-Plan & Warnung',
-    body:
+    title: t('onboarding.steps.cablePlan.title', 'Kabel-Plan & Warnung'),
+    body: t(
+      'onboarding.steps.cablePlan.body',
       'Importierst du Kabelmengen aus Rentman, warnt der Cable Planner beim Verkabeln, sobald du mehr Kabel verbaust als vorhanden sind. Über „Kabel an Rentman senden" gleichst du fertige Mengen zurück.',
+    ),
   },
 ]
 
@@ -82,7 +102,9 @@ interface OnboardingTourProps {
 }
 
 export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
+  const t = useTranslation()
   const [step, setStep] = useState(0)
+  const STEPS = stepsForLang(t)
 
   useEffect(() => {
     if (open) setStep(0)
@@ -103,7 +125,10 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
       onClose={finish}
       title={
         <span className="text-[11px] uppercase tracking-wider text-slate-500">
-          Erste-Schritte-Tour · Schritt {step + 1} / {STEPS.length}
+          {format(t('onboarding.header', 'Erste-Schritte-Tour · Schritt {step} / {total}'), {
+            step: step + 1,
+            total: STEPS.length,
+          })}
         </span>
       }
       maxWidth="lg"
@@ -114,7 +139,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
             onClick={finish}
             className="text-xs text-slate-500 hover:text-slate-300"
           >
-            Tour beenden
+            {t('onboarding.end', 'Tour beenden')}
           </button>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
@@ -137,7 +162,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
               disabled={step === 0}
               className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Zurück
+              {t('onboarding.back', 'Zurück')}
             </button>
             {isLast ? (
               <button
@@ -145,7 +170,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
                 onClick={finish}
                 className="rounded bg-orange-600 px-3 py-1 text-xs font-semibold text-white hover:bg-orange-500"
               >
-                Los geht's
+                {t('onboarding.start', "Los geht's")}
               </button>
             ) : (
               <button
@@ -153,7 +178,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
                 onClick={() => setStep((index) => Math.min(STEPS.length - 1, index + 1))}
                 className="rounded bg-orange-600 px-3 py-1 text-xs font-semibold text-white hover:bg-orange-500"
               >
-                Weiter
+                {t('onboarding.next', 'Weiter')}
               </button>
             )}
           </div>
@@ -165,7 +190,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
         <p className="text-sm leading-relaxed text-slate-300">{current.body}</p>
         {current.hint && (
           <div className="rounded border border-slate-800 bg-slate-950/40 px-2 py-1 text-[11px] text-slate-400">
-            Tipp: {current.hint}
+            {t('onboarding.tip', 'Tipp:')} {current.hint}
           </div>
         )}
       </div>
