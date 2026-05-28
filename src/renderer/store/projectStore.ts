@@ -11,6 +11,12 @@ import { createLocationSlice } from './slices/locationSlice'
 import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
 import { createMobileSyncSlice } from './slices/mobileSyncSlice'
+import {
+  loadCustomLibrary,
+  persistCustomLibrary,
+  loadKnownCategories,
+  persistKnownCategories,
+} from './libraryPersist'
 import { scheduleProjectAutosave } from './projectAutosave'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
 import { cableTypePatchFromPorts } from '../lib/cableInheritance'
@@ -32,7 +38,6 @@ type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import { LIMITS, VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
 import {
-  syncDevicesToFolder,
   syncPresetsToFolder,
   seedLibrarySyncCache,
   stampGroupLibraryRef,
@@ -40,26 +45,9 @@ import {
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
-const KNOWN_CATEGORIES_KEY = STORAGE_KEYS.knownCategories
 const GROUP_PRESETS_KEY = STORAGE_KEYS.groupPresets
 const LIB_MIGRATION_KEY = STORAGE_KEYS.libMigration
 const LIB_MIGRATION_VERSION = '2026-04-greengo-catalog-v2'
-
-const DEFAULT_CATEGORIES = [
-  'Kameras',
-  'Objektive',
-  'Stative',
-  'Licht',
-  'Audio',
-  'Video',
-  'Monitore',
-  'PC',
-  'Netzwerk',
-  'Kabel',
-  'Strom',
-  'Rigging',
-  'Sonstiges',
-]
 
 const runLibraryMigration = () => {
   try {
@@ -93,44 +81,6 @@ const runLibraryMigration = () => {
   }
 }
 runLibraryMigration()
-
-const loadCustomLibrary = (): EquipmentTemplate[] => {
-  try {
-    const raw = localStorage.getItem(CUSTOM_LIB_KEY)
-    return raw ? (JSON.parse(raw) as EquipmentTemplate[]) : []
-  } catch {
-    return []
-  }
-}
-
-const persistCustomLibrary = (items: EquipmentTemplate[]) => {
-  try {
-    localStorage.setItem(CUSTOM_LIB_KEY, JSON.stringify(items))
-  } catch {
-    /* ignore */
-  }
-  syncDevicesToFolder(items)
-}
-
-const loadKnownCategories = (): string[] => {
-  try {
-    const raw = localStorage.getItem(KNOWN_CATEGORIES_KEY)
-    const stored = raw ? (JSON.parse(raw) as string[]) : []
-    // Merge in defaults so dropdowns always have sensible options.
-    const set_ = new Set<string>([...DEFAULT_CATEGORIES, ...stored])
-    return Array.from(set_).sort((a, b) => a.localeCompare(b))
-  } catch {
-    return [...DEFAULT_CATEGORIES]
-  }
-}
-
-const persistKnownCategories = (items: string[]) => {
-  try {
-    localStorage.setItem(KNOWN_CATEGORIES_KEY, JSON.stringify(items))
-  } catch {
-    /* ignore */
-  }
-}
 
 const loadAutosavedProject = (): CablePlannerProject | null => {
   try {
