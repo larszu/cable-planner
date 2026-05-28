@@ -534,17 +534,20 @@ export const LibraryPanel = () => {
         //   groupId set + !groupCreated → bestehende Group wiederverwendet
         //   groupId=null       → Plan erlaubt keine Groups → ohne Gruppe geadded
         const groupNote = result.groupCreated
-          ? ' (neue Gruppe "CablePlanner" angelegt)'
+          ? ' ' + t('library.rentman.groupCreated', '(neue Gruppe "CablePlanner" angelegt)')
           : result.groupId
-            ? ' (zur bestehenden Gruppe "CablePlanner" hinzugefuegt)'
-            : ' (ohne Gruppe — dein Rentman-Plan erlaubt keine API-Gruppen)'
-        await infoDialog(`"${item.name}" hinzugefügt`, {
-          body: `Wurde dem Rentman-Projekt "${projectName}" hinzugefügt${groupNote}.`,
+            ? ' ' + t('library.rentman.groupReused', '(zur bestehenden Gruppe "CablePlanner" hinzugefügt)')
+            : ' ' + t('library.rentman.noGroups', '(ohne Gruppe — dein Rentman-Plan erlaubt keine API-Gruppen)')
+        await infoDialog(format(t('library.rentman.addedTitle', '"{name}" hinzugefügt'), { name: item.name }), {
+          body: format(t('library.rentman.addedBody', 'Wurde dem Rentman-Projekt "{project}" hinzugefügt{note}.'), {
+            project: projectName,
+            note: groupNote,
+          }),
           tone: 'success',
         })
       }
     } catch (err) {
-      await infoDialog('Fehler beim Hinzufügen zu Rentman', {
+      await infoDialog(t('library.rentman.addError', 'Fehler beim Hinzufügen zu Rentman'), {
         body: err instanceof Error ? err.message : String(err),
         tone: 'error',
       })
@@ -2105,7 +2108,7 @@ export const LibraryPanel = () => {
                     step={1}
                     value={rackUnitsDraft}
                     onChange={(event) => setRackUnitsDraft(event.target.value ? Number(event.target.value) : '')}
-                    placeholder="HE"
+                    placeholder={t('library.create.hePlaceholder', 'HE')}
                     className="mt-2 w-full rounded border border-slate-700 bg-slate-950 p-2"
                   />
                 )}
@@ -2275,14 +2278,14 @@ export const LibraryPanel = () => {
                   <input
                     value={group.label}
                     onChange={(event) => updateGroup(group.id, { label: event.target.value })}
-                    placeholder="Label prefix"
+                    placeholder={t('library.create.groupLabelPrefix', 'Label prefix')}
                     className="rounded border border-slate-700 bg-slate-900 p-1"
                   />
                   <button
                     type="button"
                     onClick={() => removeGroup(group.id)}
                     className="rounded bg-red-700 px-2 py-1 hover:bg-red-600"
-                    title="Remove group"
+                    title={t('library.create.removeGroup', 'Gruppe entfernen')}
                   >
                     ×
                   </button>
