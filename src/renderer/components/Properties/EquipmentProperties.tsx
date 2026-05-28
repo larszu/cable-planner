@@ -24,7 +24,6 @@ import { infoDialog } from '../../lib/infoDialog'
 import { exportDevicePatchSheet } from '../../lib/exportDevicePdf'
 import { RackImageCropDialog } from '../Rack/RackImageCropDialog'
 import { CategorySelect } from '../shared/CategorySelect'
-import { ColorField } from '../shared/ColorField'
 import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { useTranslation } from '../../lib/i18n'
 import { SortableSection } from './SortableSection'
@@ -36,6 +35,8 @@ import { NetworkConfig } from './sections/NetworkConfig'
 import { NetworkAccessSection } from './sections/NetworkAccessSection'
 import { DeviceKindCards } from './sections/DeviceKindCards'
 import { OptionalFieldsSection } from './sections/OptionalFieldsSection'
+import { DisplayFlagsSection } from './sections/DisplayFlagsSection'
+import { RentmanSyncBadge } from './sections/RentmanSyncBadge'
 import { RackFacePreview } from './sections/RackFacePreview'
 import { DimensionsBlock } from './sections/DimensionsBlock'
 import { PortAiSuggestButton } from './sections/PortAiSuggestButton'
@@ -142,7 +143,6 @@ export const EquipmentProperties = () => {
   const allCables = useProjectStore((state) => state.project.cables)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const customLibrary = useProjectStore((state) => state.customLibrary)
-  const rentmanEnabled = useUiStore((state) => state.rentmanEnabled)
   const saveEquipmentAsTemplate = useProjectStore((state) => state.saveEquipmentAsTemplate)
   const saveEquipmentAsNewTemplate = useProjectStore((state) => state.saveEquipmentAsNewTemplate)
   const [rackViewMode, setRackViewMode] = useState<'front' | 'rear' | 'both'>('front')
@@ -281,90 +281,9 @@ export const EquipmentProperties = () => {
 
       <OptionalFieldsSection equipment={equipment} />
 
-      <SortableSection id="flags" title="Darstellung & Flags" subtitle="kompakt · Farbe · Ports spiegeln · gepackt">
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 text-[12px] text-slate-300">
-            <input
-              type="checkbox"
-              checked={!!equipment.collapsed}
-              onChange={(event) =>
-                updateEquipment(equipment.id, { collapsed: event.target.checked || undefined })
-              }
-            />
-            {t('eq.field.compact', 'Kompakte Darstellung')}{' '}
-            <span className="text-slate-500">({t('eq.field.compactHint', 'nur Icon + Name, Ports als Punkte')})</span>
-          </label>
+      <DisplayFlagsSection equipment={equipment} />
 
-          <ColorField
-            layout="inline"
-            label={t('eq.field.color', 'Gerätefarbe')}
-            value={equipment.nodeColor ?? '#475569'}
-            onChange={(nodeColor) => updateEquipment(equipment.id, { nodeColor })}
-            onReset={equipment.nodeColor ? () => updateEquipment(equipment.id, { nodeColor: undefined }) : undefined}
-            title="Farbe des Geräte-Knotens"
-          />
-
-          <label className="flex items-center gap-2 text-[11px] text-slate-300">
-            <input
-              type="checkbox"
-              checked={!!equipment.portsFlipped}
-              onChange={(event) => updateEquipment(equipment.id, { portsFlipped: event.target.checked || undefined })}
-            />
-            Ports spiegeln (Inputs rechts, Outputs links)
-          </label>
-          <label
-            className="flex items-center gap-2 text-[11px] text-slate-300"
-            title="Markiert das Gerät als gepackt. Erscheint als ✓ auf dem Canvas und als eigene Spalte in der Geräte-BOM."
-          >
-            <input
-              type="checkbox"
-              checked={!!equipment.packed}
-              onChange={(event) => updateEquipment(equipment.id, { packed: event.target.checked || undefined })}
-            />
-            Gepackt / Pack-Status
-          </label>
-          {/* #285 — Wandler-Flag. Wenn aktiv, "ueberspringt" die
-              Patchliste dieses Geraet und zeigt direkt das naechste
-              echte Ziel ("Kamera -> [Konverter] -> ATEM"). Nur fuer
-              eindeutige 1-In/1-Out-Wandler relevant; bei mehrdeutigen
-              Geraeten wird trotzdem ohne Pass-Through angezeigt. */}
-          <label
-            className="flex items-center gap-2 text-[11px] text-slate-300"
-            title="Wandler-Marker: in der Patchliste wird dieses Gerät übersprungen und das nächste echte Ziel direkt angezeigt. Sinnvoll für SDI-HDMI-Konverter, Format-Wandler, Embedder/De-Embedder etc."
-          >
-            <input
-              type="checkbox"
-              checked={!!equipment.isConverter}
-              onChange={(event) =>
-                updateEquipment(equipment.id, {
-                  isConverter: event.target.checked || undefined,
-                })
-              }
-            />
-            Wandler (Patchliste folgt Durchgangskabel)
-          </label>
-        </div>
-      </SortableSection>
-
-      {/* Rentman sync status — komplett ausgeblendet wenn Integration global aus */}
-      {rentmanEnabled && (
-        equipment.rentmanRemoved ? (
-          <div className="flex items-center gap-1.5 rounded border border-red-700/50 bg-red-900/20 px-2 py-1 text-[11px] text-red-300">
-            <span>⚠</span>
-            <span>In Rentman nicht mehr vorhanden!</span>
-          </div>
-        ) : equipment.rentmanId ? (
-          <div className="flex items-center gap-1.5 rounded border border-orange-700/50 bg-orange-900/20 px-2 py-1 text-[11px] text-orange-300">
-            <span className="rounded bg-orange-700 px-1 font-bold text-white">R</span>
-            Rentman-ID: {equipment.rentmanId}
-          </div>
-        ) : (
-          <div className="flex items-center gap-1.5 rounded border border-amber-700/40 bg-amber-900/10 px-2 py-1 text-[11px] text-amber-400">
-            <span>⚠</span>
-            <span>Nicht im Rentman-Plan erfasst</span>
-          </div>
-        )
-      )}
+      <RentmanSyncBadge equipment={equipment} />
       <label className="block">
         <span className="mb-1 block text-slate-300">{t('eq.field.category', 'Kategorie')}</span>
         <CategorySelect
