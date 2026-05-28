@@ -34,6 +34,7 @@ import { DisplayPropertiesBlock } from './sections/DisplayPropertiesBlock'
 import { GreenGoBeltpackSection } from './sections/GreenGoBeltpackSection'
 import { DeviceConfigsBlock } from './sections/DeviceConfigsBlock'
 import { NetworkConfig } from './sections/NetworkConfig'
+import { NetworkAccessSection } from './sections/NetworkAccessSection'
 import { RackFacePreview } from './sections/RackFacePreview'
 import { DimensionsBlock } from './sections/DimensionsBlock'
 import { PortAiSuggestButton } from './sections/PortAiSuggestButton'
@@ -149,7 +150,6 @@ export const EquipmentProperties = () => {
   const saveEquipmentAsTemplate = useProjectStore((state) => state.saveEquipmentAsTemplate)
   const saveEquipmentAsNewTemplate = useProjectStore((state) => state.saveEquipmentAsNewTemplate)
   const [rackViewMode, setRackViewMode] = useState<'front' | 'rear' | 'both'>('front')
-  const [showPassword, setShowPassword] = useState(false)
   const [cropDialog, setCropDialog] = useState<
     { side: 'front' | 'rear'; src: string } | null
   >(null)
@@ -587,95 +587,7 @@ export const EquipmentProperties = () => {
       <DisplayPropertiesBlock equipment={equipment} />
       <DimensionsBlock equipment={equipment} />
 
-      <SortableSection
-        id="network"
-        title="Network & Access"
-        subtitle="IP · S/N · Login"
-        defaultOpen
-      >
-        <div className="grid grid-cols-2 gap-2">
-          <label className="block">
-            <span className="mb-1 block text-slate-300">IP Address</span>
-            <input
-              value={equipment.ipAddress ?? ''}
-              onChange={(event) =>
-                updateEquipment(equipment.id, { ipAddress: event.target.value })
-              }
-              placeholder="192.168.1.10"
-              className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-slate-300">{t('eq.field.serial', 'Seriennummer')}</span>
-            <input
-              value={equipment.serialNumber ?? ''}
-              onChange={(event) =>
-                updateEquipment(equipment.id, { serialNumber: event.target.value || undefined })
-              }
-              placeholder={t('eq.field.serialPlaceholder', 'S/N')}
-              className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-slate-300">{t('eq.field.subnet', 'Subnet Mask')}</span>
-            <input
-              value={equipment.subnetMask ?? ''}
-              onChange={(event) =>
-                updateEquipment(equipment.id, { subnetMask: event.target.value })
-              }
-              placeholder={t('eq.field.subnetPlaceholder', '255.255.255.0 oder /24')}
-              className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-slate-300">{t('eq.field.username', 'Username')}</span>
-            <input
-              value={equipment.username ?? ''}
-              onChange={(event) =>
-                updateEquipment(equipment.id, { username: event.target.value })
-              }
-              autoComplete="off"
-              className="w-full rounded border border-slate-700 bg-slate-900 p-2"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-slate-300">{t('eq.field.password', 'Password')}</span>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={equipment.password ?? ''}
-                onChange={(event) =>
-                  updateEquipment(equipment.id, { password: event.target.value })
-                }
-                autoComplete="new-password"
-                className="w-full rounded border border-slate-700 bg-slate-900 p-2 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                title={
-                  showPassword
-                    ? t('eq.field.passwordHide', 'Passwort verbergen')
-                    : t('eq.field.passwordShow', 'Passwort anzeigen')
-                }
-                className="absolute inset-y-0 right-0 flex items-center px-2 text-xs text-slate-400 hover:text-slate-200"
-              >
-                {showPassword ? '🙈' : '👁'}
-              </button>
-            </div>
-          </label>
-        </div>
-        <label className="mt-2 block">
-          <span className="mb-1 block text-slate-300">Notes</span>
-          <textarea
-            value={equipment.notes ?? ''}
-            onChange={(event) => updateEquipment(equipment.id, { notes: event.target.value })}
-            rows={3}
-            placeholder="Web UI URL, firmware version, wiring notes, …"
-            className="w-full rounded border border-slate-700 bg-slate-900 p-2"
-          />
-        </label>
-      </SortableSection>
+      <NetworkAccessSection equipment={equipment} />
 
       <PowerConsumptionSection equipment={equipment} />
 
