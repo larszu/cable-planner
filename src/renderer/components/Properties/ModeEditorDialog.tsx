@@ -18,6 +18,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import { ModalShell } from '../shared/ModalShell'
+import { format, useTranslation } from '../../lib/i18n'
 import type { ConnectorType, DeviceMode, EquipmentItem, Port } from '../../types/equipment'
 
 export interface ModeEditorDialogProps {
@@ -55,6 +56,7 @@ export const ModeEditorDialog = ({
   onCancel,
   onSave,
 }: ModeEditorDialogProps) => {
+  const t = useTranslation()
   const isEditing = !!editingMode
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -138,7 +140,7 @@ export const ModeEditorDialog = ({
     <ModalShell
       open={open}
       onClose={onCancel}
-      title={isEditing ? 'Modus bearbeiten' : 'Neuer Betriebsmodus'}
+      title={isEditing ? t('modeEditor.titleEdit', 'Modus bearbeiten') : t('modeEditor.titleNew', 'Neuer Betriebsmodus')}
       maxWidth="2xl"
       zIndex={60}
       footer={
@@ -148,7 +150,7 @@ export const ModeEditorDialog = ({
             onClick={onCancel}
             className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
           >
-            Abbrechen
+            {t('common.cancel', 'Abbrechen')}
           </button>
           <button
             type="button"
@@ -156,7 +158,7 @@ export const ModeEditorDialog = ({
             disabled={!canSave}
             className="rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
           >
-            {isEditing ? 'Speichern' : 'Modus anlegen'}
+            {isEditing ? t('common.save', 'Speichern') : t('modeEditor.createBtn', 'Modus anlegen')}
           </button>
         </div>
       }
@@ -165,28 +167,28 @@ export const ModeEditorDialog = ({
         {/* Name & description */}
         <div className="space-y-2">
           <label className="block">
-            <span className="text-slate-400">Name</span>
+            <span className="text-slate-400">{t('common.name', 'Name')}</span>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder='z.B. "12G Single-Link", "4K-Modus", "Workshop-Layout"'
+                placeholder={t('modeEditor.namePlaceholder', 'z.B. "12G Single-Link", "4K-Modus", "Workshop-Layout"')}
                 autoFocus
                 className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-slate-100"
               />
               {nameConflict && (
                 <span className="mt-0.5 block text-[10px] text-amber-400">
-                  ⚠ Modus mit diesem Namen existiert bereits.
+                  ⚠ {t('modeEditor.nameConflict', 'Modus mit diesem Namen existiert bereits.')}
                 </span>
               )}
             </label>
             <label className="block">
-              <span className="text-slate-400">Beschreibung (optional)</span>
+              <span className="text-slate-400">{t('modeEditor.descLabel', 'Beschreibung (optional)')}</span>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
-                placeholder="z.B. Begrenzt Outputs auf 2 für 4K-Modus (weniger Ressourcen)"
+                placeholder={t('modeEditor.descPlaceholder', 'z.B. Begrenzt Outputs auf 2 für 4K-Modus (weniger Ressourcen)')}
                 className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-slate-100"
               />
             </label>
@@ -194,15 +196,18 @@ export const ModeEditorDialog = ({
 
           <div className="mt-4 flex items-center justify-between">
             <div className="text-[10px] text-slate-500">
-              {totalPortCount} {totalPortCount === 1 ? 'Port' : 'Ports'} in diesem Modus
+              {format(
+                t('modeEditor.portCount', '{count} Port(s) in diesem Modus'),
+                { count: totalPortCount },
+              )}
             </div>
             <button
               type="button"
               onClick={seedFromCurrent}
               className="rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
-              title="Übernimmt das AKTUELLE Port-Layout des Geräts als Startpunkt."
+              title={t('modeEditor.seedTitle', 'Übernimmt das AKTUELLE Port-Layout des Geräts als Startpunkt.')}
             >
-              ⬇ Aus aktuellem Geräte-Layout übernehmen
+              {t('modeEditor.seedBtn', '⬇ Aus aktuellem Geräte-Layout übernehmen')}
             </button>
           </div>
 
@@ -210,8 +215,8 @@ export const ModeEditorDialog = ({
           <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
             {(
               [
-                { side: 'in', label: 'Inputs', list: inputs, accent: 'cyan' },
-                { side: 'out', label: 'Outputs', list: outputs, accent: 'emerald' },
+                { side: 'in', label: t('ports.title.inputs', 'Inputs'), list: inputs, accent: 'cyan' },
+                { side: 'out', label: t('ports.title.outputs', 'Outputs'), list: outputs, accent: 'emerald' },
               ] as const
             ).map(({ side, label, list, accent }) => (
               <div
@@ -234,7 +239,7 @@ export const ModeEditorDialog = ({
                 </div>
                 {list.length === 0 ? (
                   <div className="rounded border border-dashed border-slate-700 p-3 text-center text-[10px] text-slate-500">
-                    Keine {label.toLowerCase()} in diesem Modus.
+                    {format(t('modeEditor.emptySide', 'Keine {kind} in diesem Modus.'), { kind: label.toLowerCase() })}
                   </div>
                 ) : (
                   <ul className="space-y-1">
@@ -247,7 +252,7 @@ export const ModeEditorDialog = ({
                           type="text"
                           value={p.name}
                           onChange={(e) => updatePort(side, p.id, { name: e.target.value })}
-                          placeholder="Port-Name"
+                          placeholder={t('ports.namePlaceholder', 'Port-Name')}
                           className="flex-1 rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-[11px]"
                         />
                         <select
@@ -269,7 +274,7 @@ export const ModeEditorDialog = ({
                           type="button"
                           onClick={() => removePort(side, p.id)}
                           className="rounded px-1 py-0.5 text-[11px] text-red-400 hover:bg-red-900/40"
-                          title="Port entfernen"
+                          title={t('modeEditor.removePort', 'Port entfernen')}
                         >
                           ✕
                         </button>
