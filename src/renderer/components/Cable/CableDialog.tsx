@@ -360,7 +360,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                   setName(created.name)
                 }}
                 className="mt-2 w-full rounded bg-sky-700 px-2 py-1 text-xs font-medium text-white hover:bg-sky-600"
-                title="Speichert diese Custom-Definition als wiederverwendbaren Kabeltyp in der Bibliothek."
+                title={t('cable.dialog.saveCustomTitle', 'Speichert diese Custom-Definition als wiederverwendbaren Kabeltyp in der Bibliothek.')}
               >
                 💾 Als Kabel-Typ speichern…
               </button>

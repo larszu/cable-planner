@@ -2135,6 +2135,28 @@ const en: Dict = {
   'library.netbox.pickCategory': 'Please pick…',
   'library.create.isRack': 'Is a rack device',
   'library.create.aiKey.label': 'Gemini API key',
+
+  // CustomPaletteCard (Settings → Appearance)
+  'settings.customPalette.enable': 'Enable custom palette',
+  'settings.customPalette.bg': 'Background',
+  'settings.customPalette.grid': 'Grid stroke',
+  'settings.customPalette.accent': 'Accent',
+  'settings.canvasBg.darkImage': '🌙 Dark-mode image',
+  'settings.canvasBg.lightImage': '☀ Light-mode image',
+
+  // Settings → Integrations (Rentman toggle card)
+  'settings.integrations.rentmanToggle.title': 'Rentman integration',
+  'settings.integrations.rentmanToggle.desc':
+    'When active, the Library tab, menu entries and status badges for Rentman appear. When off, Cable Planner only shows local devices/cables — all Rentman features are hidden.',
+
+  // Inspector lock banners + empty state
+  'inspector.selectEquipment': 'Select an equipment node.',
+  'inspector.viewerLocked': 'Viewer mode — fields cannot be edited.',
+  'inspector.finalizedLocked':
+    'Plan finalised — fields locked. Click "Re-enable editing" in the canvas banner.',
+
+  // Template properties additional
+  'template.rentmanIdLabel': 'Rentman ID',
 }
 
 const translations: Record<Language, Dict> = {

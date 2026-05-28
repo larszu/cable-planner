@@ -46,15 +46,15 @@ const CustomPaletteCard = () => {
           checked={enabled}
           onChange={(e) => setPalette(e.target.checked ? current : null)}
         />
-        Eigene Palette aktivieren
+        {t('settings.customPalette.enable', 'Eigene Palette aktivieren')}
       </label>
       {enabled && (
         <div className="grid grid-cols-3 gap-3 text-xs">
           {(
             [
-              { key: 'canvasBg', label: 'Hintergrund' },
-              { key: 'gridColor', label: 'Raster-Strich' },
-              { key: 'accent', label: 'Akzent' },
+              { key: 'canvasBg', label: t('settings.customPalette.bg', 'Hintergrund') },
+              { key: 'gridColor', label: t('settings.customPalette.grid', 'Raster-Strich') },
+              { key: 'accent', label: t('settings.customPalette.accent', 'Akzent') },
             ] as const
           ).map((field) => (
             <label key={field.key} className="block">
@@ -410,8 +410,8 @@ export const AppearanceTab = () => {
           </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {([
-              ['dark', '🌙 Dark-Mode-Bild', canvasBgImageDark] as const,
-              ['light', '☀ Light-Mode-Bild', canvasBgImageLight] as const,
+              ['dark', t('settings.canvasBg.darkImage', '🌙 Dark-Mode-Bild'), canvasBgImageDark] as const,
+              ['light', t('settings.canvasBg.lightImage', '☀ Light-Mode-Bild'), canvasBgImageLight] as const,
             ]).map(([theme, label, current]) => (
               <div key={theme} className="rounded border border-slate-800 bg-slate-950/40 p-2">
                 <div className="mb-1 text-[11px] font-semibold text-slate-300">{label}</div>
