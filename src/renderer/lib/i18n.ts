@@ -1151,6 +1151,29 @@ const en: Dict = {
     'The server binds to the local network (0.0.0.0). If it is unclear who is on the network, prefer stopping it.',
   'mobile.dialog.security.autostop':
     'When the desktop app closes the server stops automatically.',
+
+  // AboutDialog
+  'about.title': 'About Cable Planner',
+  'about.version': 'Version',
+  'about.build': 'Build',
+  'about.author': 'Author',
+  'about.repository': 'Repository',
+  'about.platform': 'Platform',
+  'about.issueHint': 'Please report issues + feature requests directly on GitHub.',
+
+  // AnnotationsPanel
+  'annotations.reviewer': 'Reviewer: {name}',
+  'annotations.dragTitle':
+    'Drag to place this annotation on the canvas or attach it to a device',
+  'annotations.clickToEdit': 'Click to edit',
+  'annotations.delete': 'Delete annotation',
+
+  // PatchListDialog
+  'patchList.title': 'Patch list',
+  'patchList.searchPlaceholder': 'Search (device, port, type, colour, note …)',
+
+  // CalculatorsDialog
+  'calc.title': 'Tools / calculators',
 }
 
 const translations: Record<Language, Dict> = {

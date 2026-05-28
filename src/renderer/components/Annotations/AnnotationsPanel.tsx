@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { promptDialog } from '../../lib/promptDialog'
+import { format, useTranslation } from '../../lib/i18n'
 import { confirmDialog } from '../../lib/confirmDialog'
 import type { ProjectAnnotation } from '../../types/project'
 
@@ -71,6 +72,7 @@ export const AnnotationsPanel = ({
   open: boolean
   onClose: () => void
 }) => {
+  const t = useTranslation()
   // v7.9.3-fix — `?? []` INSIDE der Selector-Funktion erzeugte ein
   // neues Array bei jedem getSnapshot(); useSyncExternalStore sah
   // jedes Mal "change" und triggerte Render-Loop (React-Error #185,
@@ -135,7 +137,7 @@ export const AnnotationsPanel = ({
         <div className="flex flex-col">
           <h3 className="text-sm font-semibold">💬 Anmerkungen ({annotations.length})</h3>
           {viewerSession && (
-            <span className="text-[10px] text-slate-500">Reviewer: {viewerSession.author}</span>
+            <span className="text-[10px] text-slate-500">{format(t('annotations.reviewer', 'Reviewer: {name}'), { name: viewerSession.author })}</span>
           )}
         </div>
         <button
@@ -281,7 +283,7 @@ export const AnnotationsPanel = ({
                         }
                       }}
                       className="cursor-grab rounded border border-slate-700 bg-slate-950/40 p-2 text-xs active:cursor-grabbing"
-                      title="Ziehen, um diese Anmerkung auf dem Canvas zu platzieren oder einem Gerät zuzuweisen"
+                      title={t('annotations.dragTitle', 'Ziehen, um diese Anmerkung auf dem Canvas zu platzieren oder einem Gerät zuzuweisen')}
                     >
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <span
@@ -307,7 +309,7 @@ export const AnnotationsPanel = ({
                         <p
                           className="cursor-text whitespace-pre-wrap break-words"
                           onClick={() => setEditingId(a.id)}
-                          title="Klicken zum Bearbeiten"
+                          title={t('annotations.clickToEdit', 'Klicken zum Bearbeiten')}
                         >
                           {a.text}
                         </p>
@@ -338,7 +340,7 @@ export const AnnotationsPanel = ({
                             })) removeAnnotation(a.id)
                           }}
                           className="rounded bg-red-900/60 px-1 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
-                          title="Anmerkung löschen"
+                          title={t('annotations.delete', 'Anmerkung löschen')}
                         >
                           ×
                         </button>

@@ -9,6 +9,7 @@
 
 import { useUiStore } from '../../store/uiStore'
 import { ModalShell } from '../shared/ModalShell'
+import { useTranslation } from '../../lib/i18n'
 import {
   APP_AUTHOR,
   APP_BUILD_DATE,
@@ -26,13 +27,14 @@ const buildDateLocal = (() => {
 })()
 
 export const AboutDialog = () => {
+  const t = useTranslation()
   const open = useUiStore((s) => s.aboutDialog.open)
   const close = useUiStore((s) => s.closeAboutDialog)
   return (
     <ModalShell
       open={open}
       onClose={close}
-      title="Über Cable Planner"
+      title={t('about.title', 'Über Cable Planner')}
       titleIcon="ⓘ"
       maxWidth="md"
       draggableKey="cable-planner:modal-pos:about"
@@ -41,7 +43,7 @@ export const AboutDialog = () => {
         <div className="flex items-center gap-3 rounded border border-slate-800 bg-slate-950/40 p-3">
           <div className="text-3xl">🔌</div>
           <div className="min-w-0">
-            <div className="font-semibold text-slate-100">Cable Planner</div>
+            <div className="font-semibold text-slate-100">{t('app.title', 'Cable Planner')}</div>
             <div className="text-[11px] text-slate-400">{APP_DESCRIPTION}</div>
           </div>
           <div className="ml-auto shrink-0 rounded bg-emerald-700 px-2 py-1 font-mono text-xs text-white">
@@ -50,17 +52,17 @@ export const AboutDialog = () => {
         </div>
 
         <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-xs">
-          <dt className="text-slate-500">Version</dt>
+          <dt className="text-slate-500">{t('about.version', 'Version')}</dt>
           <dd className="font-mono text-slate-100">{APP_VERSION}</dd>
-          <dt className="text-slate-500">Build</dt>
+          <dt className="text-slate-500">{t('about.build', 'Build')}</dt>
           <dd className="font-mono text-slate-100">{buildDateLocal}</dd>
           {APP_AUTHOR && (
             <>
-              <dt className="text-slate-500">Autor</dt>
+              <dt className="text-slate-500">{t('about.author', 'Autor')}</dt>
               <dd className="text-slate-100">{APP_AUTHOR}</dd>
             </>
           )}
-          <dt className="text-slate-500">Repository</dt>
+          <dt className="text-slate-500">{t('about.repository', 'Repository')}</dt>
           <dd>
             <a
               href={APP_REPO_URL}
@@ -71,14 +73,14 @@ export const AboutDialog = () => {
               {APP_REPO_URL.replace(/^https?:\/\//, '')}
             </a>
           </dd>
-          <dt className="text-slate-500">Plattform</dt>
+          <dt className="text-slate-500">{t('about.platform', 'Plattform')}</dt>
           <dd className="text-slate-100">
             Electron + React + ReactFlow + Vite + Tailwind
           </dd>
         </dl>
 
         <div className="rounded border border-slate-800 bg-slate-950/40 p-3 text-[11px] text-slate-400">
-          Issues + Feature-Wünsche bitte direkt auf GitHub melden.
+          {t('about.issueHint', 'Issues + Feature-Wünsche bitte direkt auf GitHub melden.')}
         </div>
       </div>
     </ModalShell>

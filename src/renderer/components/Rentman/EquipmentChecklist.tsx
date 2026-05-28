@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { format, useTranslation } from '../../lib/i18n'
 
 interface ChecklistItem {
   id: string
@@ -52,6 +53,7 @@ export const EquipmentChecklist = ({
   onLinkExisting,
   linkedMap,
 }: EquipmentChecklistProps) => {
+  const t = useTranslation()
   // Build parent -> children map. Children whose parent is not in the visible list
   // are promoted to root level so they remain reachable.
   const { roots, childrenByParent } = useMemo(() => {
@@ -91,6 +93,7 @@ export const EquipmentChecklist = ({
   const collapseAll = () => setExpanded(new Set())
 
   const QtyBadge = ({ item }: { item: ChecklistItem }) => {
+    const tBadge = useTranslation()
     if (!item.qty || item.qty <= 1) return null
     if (onQtyChange && item.checked) {
       return (
@@ -101,13 +104,13 @@ export const EquipmentChecklist = ({
           value={item.qty}
           onChange={(event) => onQtyChange(item.id, Number(event.target.value))}
           className="w-14 rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-right text-xs"
-          aria-label="Quantity"
-          title="How many to add"
+          aria-label={tBadge('rentman.checklist.qtyAria', 'Quantity')}
+          title={tBadge('rentman.checklist.qtyTitle', 'How many to add')}
         />
       )
     }
     return (
-      <span className="rounded bg-slate-700/60 px-1.5 py-0.5 text-[10px] text-slate-400" title="Stückzahl im Rentman-Projekt">
+      <span className="rounded bg-slate-700/60 px-1.5 py-0.5 text-[10px] text-slate-400" title={tBadge('rentman.checklist.qtyInProject', 'Stückzahl im Rentman-Projekt')}>
         ×{item.qty}
       </span>
     )
@@ -124,14 +127,14 @@ export const EquipmentChecklist = ({
                 onClick={() => onSetAll(true)}
                 className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
               >
-                Alle auswählen
+                {t('rentman.checklist.selectAll', 'Alle auswählen')}
               </button>
               <button
                 type="button"
                 onClick={() => onSetAll(false)}
                 className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
               >
-                Alle abwählen
+                {t('rentman.checklist.deselectAll', 'Alle abwählen')}
               </button>
             </>
           )}
@@ -142,14 +145,14 @@ export const EquipmentChecklist = ({
                 onClick={expandAll}
                 className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
               >
-                Alle Sets ausklappen
+                {t('rentman.checklist.expandAll', 'Alle Sets ausklappen')}
               </button>
               <button
                 type="button"
                 onClick={collapseAll}
                 className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
               >
-                Alle Sets einklappen
+                {t('rentman.checklist.collapseAll', 'Alle Sets einklappen')}
               </button>
             </>
           )}
@@ -172,8 +175,8 @@ export const EquipmentChecklist = ({
                         type="button"
                         onClick={() => toggleExpand(item.id)}
                         className="w-5 rounded bg-slate-800 text-[10px] leading-none hover:bg-slate-700"
-                        aria-label={isOpen ? 'Set einklappen' : 'Set ausklappen'}
-                        title={isOpen ? 'Set einklappen' : 'Set ausklappen'}
+                        aria-label={isOpen ? t('rentman.checklist.setCollapse', 'Set einklappen') : t('rentman.checklist.setExpand', 'Set ausklappen')}
+                        title={isOpen ? t('rentman.checklist.setCollapse', 'Set einklappen') : t('rentman.checklist.setExpand', 'Set ausklappen')}
                       >
                         {isOpen ? '▾' : '▸'}
                       </button>
@@ -208,9 +211,9 @@ export const EquipmentChecklist = ({
                             return (
                               <span
                                 className="ml-2 rounded bg-emerald-800/60 px-1.5 py-0.5 text-[10px] font-medium text-emerald-200"
-                                title={`Bereits in lokaler Bibliothek per Rentman-ID verknuepft mit "${item.templateMatch}". Re-Import aktualisiert nur Metadaten (Kategorie, Projekt-Link) — die lokale Port-Konfiguration bleibt erhalten.`}
+                                title={format(t('rentman.checklist.badge.linkedTitle', 'Bereits in lokaler Bibliothek per Rentman-ID verknuepft mit "{name}". Re-Import aktualisiert nur Metadaten (Kategorie, Projekt-Link) — die lokale Port-Konfiguration bleibt erhalten.'), { name: item.templateMatch })}
                               >
-                                ✓ Bereits verknuepft: {item.templateMatch}
+                                {format(t('rentman.checklist.badge.linked', '✓ Bereits verknuepft: {name}'), { name: item.templateMatch })}
                               </span>
                             )
                           }
@@ -218,9 +221,9 @@ export const EquipmentChecklist = ({
                             return (
                               <span
                                 className="ml-2 rounded bg-amber-800/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-100"
-                                title={`Lokales Template "${item.templateMatch}" hat denselben Namen aber keinen Rentman-ID. Beim Import erscheint ein Konflikt-Dialog — Default ist die lokale Version (mit Ports) zu behalten und nur die Rentman-ID anzuhaengen.`}
+                                title={format(t('rentman.checklist.badge.nameOnlyTitle', 'Lokales Template "{name}" hat denselben Namen aber keinen Rentman-ID. Beim Import erscheint ein Konflikt-Dialog — Default ist die lokale Version (mit Ports) zu behalten und nur die Rentman-ID anzuhaengen.'), { name: item.templateMatch })}
                               >
-                                ⚡ Lokal vorhanden: {item.templateMatch} — Konflikt-Dialog
+                                {format(t('rentman.checklist.badge.nameOnly', '⚡ Lokal vorhanden: {name} — Konflikt-Dialog'), { name: item.templateMatch })}
                               </span>
                             )
                           }
@@ -228,9 +231,9 @@ export const EquipmentChecklist = ({
                             return (
                               <span
                                 className="ml-2 rounded bg-slate-700/60 px-1.5 py-0.5 text-[10px] font-medium text-slate-200"
-                                title={`Match aus eingebautem Katalog ("${item.templateMatch}"). Wird beim Import automatisch als Template uebernommen.`}
+                                title={format(t('rentman.checklist.badge.catalogTitle', 'Match aus eingebautem Katalog ("{name}"). Wird beim Import automatisch als Template uebernommen.'), { name: item.templateMatch })}
                               >
-                                ⊕ Katalog: {item.templateMatch}
+                                {format(t('rentman.checklist.badge.catalog', '⊕ Katalog: {name}'), { name: item.templateMatch })}
                               </span>
                             )
                           }
@@ -238,7 +241,7 @@ export const EquipmentChecklist = ({
                           return (
                             <span
                               className="ml-2 rounded bg-emerald-800/60 px-1.5 py-0.5 text-[10px] font-medium text-emerald-200"
-                              title={`Wird automatisch mit Vorlage "${item.templateMatch}" befuellt`}
+                              title={format(t('rentman.checklist.badge.fallbackTitle', 'Wird automatisch mit Vorlage "{name}" befuellt'), { name: item.templateMatch })}
                             >
                               ✓ {item.templateMatch}
                             </span>
@@ -257,7 +260,7 @@ export const EquipmentChecklist = ({
                           return (
                             <span
                               className="rounded bg-sky-800/60 px-1.5 py-0.5 text-[10px] text-sky-100"
-                              title="Verknüpft mit lokalem Gerät — wird beim Import nicht doppelt angelegt"
+                              title={t('rentman.checklist.linkedTitle', 'Verknüpft mit lokalem Gerät — wird beim Import nicht doppelt angelegt')}
                             >
                               🔗 {linkedDevice.name}
                             </span>
@@ -270,9 +273,9 @@ export const EquipmentChecklist = ({
                               if (e.target.value) onLinkExisting(item.id, e.target.value)
                             }}
                             className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[10px] text-slate-300"
-                            title="Mit existierendem Gerät verknüpfen"
+                            title={t('rentman.checklist.linkSelectTitle', 'Mit existierendem Gerät verknüpfen')}
                           >
-                            <option value="">🔗 Verknüpfen…</option>
+                            <option value="">{t('rentman.checklist.linkPlaceholder', '🔗 Verknüpfen…')}</option>
                             {linkableEquipment.map((e) => (
                               <option key={e.id} value={e.id}>{e.name}</option>
                             ))}
@@ -285,9 +288,9 @@ export const EquipmentChecklist = ({
                         type="button"
                         onClick={() => onSetAllChildren(item.id, !allChildrenChecked)}
                         className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
-                        title={allChildrenChecked ? 'Alle Kinder abwählen' : 'Alle Kinder auswählen'}
+                        title={allChildrenChecked ? t('rentman.checklist.deselectChildren', 'Alle Kinder abwählen') : t('rentman.checklist.selectChildren', 'Alle Kinder auswählen')}
                       >
-                        {allChildrenChecked ? '☐ alle' : '☑ alle'}
+                        {allChildrenChecked ? t('rentman.checklist.childrenAllOff', '☐ alle') : t('rentman.checklist.childrenAllOn', '☑ alle')}
                       </button>
                     )}
                   </div>
