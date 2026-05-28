@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useProjectStore } from '../../../store/projectStore'
 import { confirmDialog } from '../../../lib/confirmDialog'
 import { promptDialog } from '../../../lib/promptDialog'
+import { format, useTranslation } from '../../../lib/i18n'
 import { ModeEditorDialog } from '../ModeEditorDialog'
 import type { DeviceMode, EquipmentItem } from '../../../types/equipment'
 
@@ -22,6 +23,7 @@ export const DeviceModePicker = ({
 }: {
   equipment: EquipmentItem
 }) => {
+  const t = useTranslation()
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const setActiveDeviceMode = useProjectStore((s) => s.setActiveDeviceMode)
   const modes = equipment.modes ?? []
@@ -55,8 +57,8 @@ export const DeviceModePicker = ({
 
   const createModeFromPorts = async () => {
     const name = (await promptDialog(
-      'Name des neuen Modus (z. B. "12G Single-Link" / "HDMI Output Mode"):',
-      `Modus ${modes.length + 1}`,
+      t('modes.newPrompt', 'Name des neuen Modus (z. B. "12G Single-Link" / "HDMI Output Mode"):'),
+      format(t('modes.newDefaultName', 'Modus {n}'), { n: modes.length + 1 }),
     ))?.trim()
     if (!name) return
     const newMode = {
@@ -74,7 +76,7 @@ export const DeviceModePicker = ({
   const renameMode = async (modeId: string) => {
     const mode = modes.find((m) => m.id === modeId)
     if (!mode) return
-    const name = (await promptDialog('Modus-Name:', mode.name))?.trim()
+    const name = (await promptDialog(t('modes.renamePrompt', 'Modus-Name:'), mode.name))?.trim()
     if (!name) return
     updateEquipment(equipment.id, {
       modes: modes.map((m) => (m.id === modeId ? { ...m, name } : m)),
@@ -85,7 +87,7 @@ export const DeviceModePicker = ({
     const mode = modes.find((m) => m.id === modeId)
     if (!mode) return
     const desc = await promptDialog(
-      'Kurze Beschreibung (z. B. "1x 12G IN, 4x HDMI OUT"):',
+      t('modes.descPrompt', 'Kurze Beschreibung (z. B. "1x 12G IN, 4x HDMI OUT"):'),
       mode.description ?? '',
     )
     if (desc === null) return
@@ -97,11 +99,14 @@ export const DeviceModePicker = ({
   const deleteMode = async (modeId: string) => {
     const mode = modes.find((m) => m.id === modeId)
     if (!mode) return
-    if (!(await confirmDialog(`Modus "${mode.name}" löschen?`, {
-      body: 'Die zugehörigen Ports bleiben am Gerät erhalten.',
-      okLabel: 'Löschen',
-      destructive: true,
-    }))) return
+    if (
+      !(await confirmDialog(format(t('modes.deleteConfirm', 'Modus "{name}" löschen?'), { name: mode.name }), {
+        body: t('modes.deleteConfirmBody', 'Die zugehörigen Ports bleiben am Gerät erhalten.'),
+        okLabel: t('common.delete', 'Löschen'),
+        destructive: true,
+      }))
+    )
+      return
     updateEquipment(equipment.id, {
       modes: modes.filter((m) => m.id !== modeId),
       activeModeId: active === modeId ? undefined : active,
@@ -112,7 +117,7 @@ export const DeviceModePicker = ({
     const mode = modes.find((m) => m.id === modeId)
     if (!mode) return
     if (
-      !(await confirmDialog(`Aktuelles Port-Layout als Definition für "${mode.name}" speichern?`, {
+      !(await confirmDialog(format(t('modes.captureConfirm', 'Aktuelles Port-Layout als Definition für "{name}" speichern?'), { name: mode.name }), {
         body: `${equipment.inputs.length} Inputs · ${equipment.outputs.length} Outputs`,
       }))
     )
@@ -133,15 +138,18 @@ export const DeviceModePicker = ({
   return (
     <div className="space-y-2 text-xs">
       <p className="text-[10px] text-slate-500">
-        Wechselt das Port-Layout des Geräts. Bestehende Kabel an Ports, die im neuen
-        Modus nicht existieren, bleiben im Projekt, müssen aber neu gesteckt werden.
+        {t(
+          'modes.intro',
+          'Wechselt das Port-Layout des Geräts. Bestehende Kabel an Ports, die im neuen Modus nicht existieren, bleiben im Projekt, müssen aber neu gesteckt werden.',
+        )}
       </p>
       <div className="grid grid-cols-1 gap-1">
         {modes.length === 0 && (
           <div className="rounded border border-dashed border-slate-700 p-3 text-center text-[11px] text-slate-500">
-            Keine Modi definiert. Ports oben bearbeiten und anschließend mit
-            <strong className="text-slate-300"> + aus aktuellem Layout </strong>
-            als Modus speichern.
+            {t(
+              'modes.emptyState',
+              'Keine Modi definiert. Ports oben bearbeiten und anschließend mit "+ aus aktuellem Layout" als Modus speichern.',
+            )}
           </div>
         )}
         {modes.map((m) => (
@@ -155,7 +163,7 @@ export const DeviceModePicker = ({
               type="button"
               onClick={() => setActiveDeviceMode(equipment.id, m.id)}
               className="flex w-full flex-col items-start px-2 py-1.5 text-left text-slate-100"
-              title={active === m.id ? 'Aktiv' : 'Aktivieren'}
+              title={active === m.id ? t('modes.active', 'Aktiv') : t('modes.activate', 'Aktivieren')}
             >
               <span className="font-medium">
                 {active === m.id && <span className="mr-1 text-sky-300">●</span>}
@@ -173,41 +181,41 @@ export const DeviceModePicker = ({
                 type="button"
                 onClick={() => setEditorState({ mode: 'edit', modeId: m.id })}
                 className="rounded px-1.5 py-0.5 text-sky-300 hover:bg-sky-900/30"
-                title="Modus im Editor öffnen (Name, Beschreibung, Ports auf einmal)"
+                title={t('modes.editorTitle', 'Modus im Editor öffnen (Name, Beschreibung, Ports auf einmal)')}
               >
-                ✎ Editor
+                ✎ {t('modes.editor', 'Editor')}
               </button>
               <button
                 type="button"
                 onClick={() => renameMode(m.id)}
                 className="rounded px-1.5 py-0.5 text-slate-300 hover:bg-slate-800"
-                title="Namen ändern"
+                title={t('modes.renameTitle', 'Namen ändern')}
               >
-                ✎ Name
+                ✎ {t('modes.name', 'Name')}
               </button>
               <button
                 type="button"
                 onClick={() => editDescription(m.id)}
                 className="rounded px-1.5 py-0.5 text-slate-300 hover:bg-slate-800"
-                title="Beschreibung ändern"
+                title={t('modes.descTitle', 'Beschreibung ändern')}
               >
-                ✎ Beschreibung
+                ✎ {t('modes.desc', 'Beschreibung')}
               </button>
               {active === m.id && (
                 <button
                   type="button"
                   onClick={() => captureCurrentPortsToMode(m.id)}
                   className="rounded px-1.5 py-0.5 text-emerald-300 hover:bg-emerald-900/30"
-                  title="Aktuelles Port-Layout in diesen Modus übernehmen"
+                  title={t('modes.captureTitle', 'Aktuelles Port-Layout in diesen Modus übernehmen')}
                 >
-                  ⬆ Ports übernehmen
+                  ⬆ {t('modes.capture', 'Ports übernehmen')}
                 </button>
               )}
               <button
                 type="button"
                 onClick={() => deleteMode(m.id)}
                 className="ml-auto rounded px-1.5 py-0.5 text-slate-400 hover:bg-red-700 hover:text-white"
-                title="Modus löschen"
+                title={t('modes.deleteTitle', 'Modus löschen')}
               >
                 🗑
               </button>
@@ -220,17 +228,23 @@ export const DeviceModePicker = ({
           type="button"
           onClick={() => setEditorState({ mode: 'create' })}
           className="w-full rounded border border-sky-700 bg-sky-900/30 px-2 py-1 text-[11px] text-sky-100 hover:bg-sky-800/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-          title="Öffnet einen Editor in dem Name, Beschreibung und Ports des neuen Modus konfiguriert werden können (Issue #113)."
+          title={t(
+            'modes.newEditorTitle',
+            'Öffnet einen Editor in dem Name, Beschreibung und Ports des neuen Modus konfiguriert werden können (Issue #113).',
+          )}
         >
-          + Neuer Modus (Editor)
+          {t('modes.newEditor', '+ Neuer Modus (Editor)')}
         </button>
         <button
           type="button"
           onClick={createModeFromPorts}
           className="w-full rounded border border-dashed border-emerald-700 bg-emerald-950/30 px-2 py-1 text-[11px] text-emerald-200 hover:bg-emerald-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-          title="Speichert das aktuelle Port-Layout des Geräts als neuen Modus (Quick-Save)."
+          title={t(
+            'modes.quickSaveTitle',
+            'Speichert das aktuelle Port-Layout des Geräts als neuen Modus (Quick-Save).',
+          )}
         >
-          + aus aktuellem Layout speichern
+          {t('modes.quickSave', '+ aus aktuellem Layout speichern')}
         </button>
       </div>
       <ModeEditorDialog
