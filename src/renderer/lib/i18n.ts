@@ -2731,6 +2731,16 @@ const en: Dict = {
   'settings.configs.kind.videohub-routing': 'Videohub routing',
   'settings.configs.kind.greengo': 'GreenGo intercom (.gg5)',
   'settings.configs.kind.other': 'Other',
+  // Length-color legend (cableColors.ts labels)
+  'toolbar.lengthLegend.1': '1 m – red',
+  'toolbar.lengthLegend.2': '2 m – yellow',
+  'toolbar.lengthLegend.3': '3 m – green',
+  'toolbar.lengthLegend.5': '5 m – white',
+  'toolbar.lengthLegend.10': '10 m – red',
+  'toolbar.lengthLegend.20': '20 m – yellow',
+  'toolbar.lengthLegend.25': '25 m – yellow/white dashed',
+  'toolbar.lengthLegend.50': '50 m – white',
+  'toolbar.lengthLegend.100': '100 m – red',
 }
 
 const translations: Record<Language, Dict> = {
