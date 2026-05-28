@@ -2351,6 +2351,21 @@ const en: Dict = {
   'annotations.status.built': 'built',
   'annotations.status.resolved': 'resolved',
   'annotations.deleteConfirm': 'Delete annotation?',
+  // App.tsx Rentman PDF + image export dialogs
+  'app.rentman.notLinkedTitle': 'No Rentman project linked',
+  'app.rentman.notLinkedBody': 'Please link one in the settings first.',
+  'app.rentman.fallbackProject': 'Project #{id}',
+  'app.rentman.attachPdfConfirm':
+    'Attach the current plan as PDF to the Rentman project "{name}"?',
+  'app.rentman.attachedTitle': 'Attached to Rentman',
+  'app.rentman.attachedBody': '{file} was attached to project "{name}".',
+  'app.rentman.uploadFailedTitle': 'PDF upload failed',
+  'app.export.imageFailedTitle': '{fmt} export failed',
+  'app.error.unknown': 'Unknown error',
+  // ErrorBoundary recover-reset confirm
+  'errorBoundary.resetTitle': 'Reset local data?',
+  'errorBoundary.resetBody':
+    'A safety backup of your project will be created first (cable-planner:projectBackup:<time> in localStorage).\n\nReally reset and reload?',
   'rack.stlPreviewTitle': 'STL preview (auto-rotates)',
   'rack.addFromLibraryHint':
     'Add devices from the library on the left (button "+ Rack").',

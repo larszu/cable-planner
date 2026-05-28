@@ -79,9 +79,10 @@ import { DEFAULT_VIDEO_FORMAT } from './types/videoFormat'
 import { confirmDialog } from './lib/confirmDialog'
 import { promptDialog } from './lib/promptDialog'
 import { infoDialog } from './lib/infoDialog'
-import { useTranslation } from './lib/i18n'
+import { useTranslation, format } from './lib/i18n'
 
 export default function App() {
+  const t = useTranslation()
   const project = useProjectStore((state) => state.project)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
   // v7.7.1 — exporters now read the live canvas-background settings so the
@@ -469,9 +470,9 @@ export default function App() {
   }
 
   // v7.7.1 — PNG / JPEG export (canvas only, no header / title block).
-  const handleExportImage = async (format: 'png' | 'jpeg') => {
+  const handleExportImage = async (imgFormat: 'png' | 'jpeg') => {
     try {
-      await exportCanvasToImage(project.metadata.name, format, {
+      await exportCanvasToImage(project.metadata.name, imgFormat, {
         backgroundTheme: canvasTheme,
         bgVariant: exportBgVariant,
         gridSize: exportGridSize,
@@ -479,11 +480,16 @@ export default function App() {
         customPalette: exportCustomPalette,
       })
     } catch (error) {
-      console.error(`${format.toUpperCase()} export failed:`, error)
-      await infoDialog(`${format.toUpperCase()}-Export fehlgeschlagen`, {
-        body: error instanceof Error ? error.message : 'Unbekannter Fehler',
-        tone: 'error',
-      })
+      console.error(`${imgFormat.toUpperCase()} export failed:`, error)
+      await infoDialog(
+        format(t('app.export.imageFailedTitle', '{fmt}-Export fehlgeschlagen'), {
+          fmt: imgFormat.toUpperCase(),
+        }),
+        {
+          body: error instanceof Error ? error.message : t('app.error.unknown', 'Unbekannter Fehler'),
+          tone: 'error',
+        },
+      )
     }
   }
 
@@ -637,14 +643,23 @@ export default function App() {
     const meta = project.metadata
     const linkedId = meta.rentmanProjectId
     if (!linkedId) {
-      await infoDialog('Kein Rentman-Projekt verknüpft', {
-        body: 'Bitte zuerst in den Einstellungen verknüpfen.',
+      await infoDialog(t('app.rentman.notLinkedTitle', 'Kein Rentman-Projekt verknüpft'), {
+        body: t('app.rentman.notLinkedBody', 'Bitte zuerst in den Einstellungen verknüpfen.'),
         tone: 'warning',
       })
       return
     }
-    const targetName = meta.rentmanProjectName ?? `Projekt #${linkedId}`
-    if (!(await confirmDialog(`Aktuellen Plan als PDF an Rentman-Projekt "${targetName}" anhängen?`))) {
+    const targetName =
+      meta.rentmanProjectName ??
+      format(t('app.rentman.fallbackProject', 'Projekt #{id}'), { id: String(linkedId) })
+    if (
+      !(await confirmDialog(
+        format(
+          t('app.rentman.attachPdfConfirm', 'Aktuellen Plan als PDF an Rentman-Projekt "{name}" anhängen?'),
+          { name: targetName },
+        ),
+      ))
+    ) {
       return
     }
     try {
@@ -659,14 +674,17 @@ export default function App() {
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
       const fileName = `${baseName}_${stamp}.pdf`
       await addProjectFile(linkedId, fileName, bytes, 'application/pdf')
-      await infoDialog('An Rentman angehängt', {
-        body: `${fileName} wurde dem Projekt "${targetName}" als Anhang hinzugefügt.`,
+      await infoDialog(t('app.rentman.attachedTitle', 'An Rentman angehängt'), {
+        body: format(
+          t('app.rentman.attachedBody', '{file} wurde dem Projekt "{name}" als Anhang hinzugefügt.'),
+          { file: fileName, name: targetName },
+        ),
         tone: 'success',
       })
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error('PDF upload to Rentman failed:', err)
-      await infoDialog('Fehler beim PDF-Upload', { body: msg, tone: 'error' })
+      await infoDialog(t('app.rentman.uploadFailedTitle', 'Fehler beim PDF-Upload'), { body: msg, tone: 'error' })
     }
   }
 
