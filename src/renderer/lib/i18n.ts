@@ -1219,6 +1219,331 @@ const en: Dict = {
     'Datasheet value. V × A is suggested; can be overridden here.',
   'power.formulaHint':
     'When voltage and current are set, power is computed automatically (P = U × I). Tools → power consumption sums the power field across all devices.',
+
+  // Rentman — NewRentmanDeviceWizard
+  'rentman.wizard.title': 'New Rentman device ({progress})',
+  'rentman.wizard.introPre': 'First time we see',
+  'rentman.wizard.introPost':
+    '. Confirm inputs/outputs — they’ll be remembered in your custom library.',
+  'rentman.wizard.cancelImport': 'Cancel import',
+  'rentman.wizard.name': 'Name',
+  'rentman.wizard.category': 'Category',
+  'rentman.wizard.saveAsCategoryTitle': 'Save as new category',
+  'rentman.wizard.addCategory': '+ Add',
+  'rentman.wizard.suggestedPortGroups': 'Suggested port groups',
+  'rentman.wizard.webSearch': '🌐 Web search (free)',
+  'rentman.wizard.webBusy': 'Searching…',
+  'rentman.wizard.webSearchTitle': 'Search Wikipedia + DuckDuckGo (no key required)',
+  'rentman.wizard.aiButton': '✨ AI (Gemini)',
+  'rentman.wizard.aiBusy': 'Asking AI…',
+  'rentman.wizard.aiTitle': 'Gemini AI (requires API key)',
+  'rentman.wizard.aiSettings': 'AI settings',
+  'rentman.wizard.aiSettingsTitle': 'Configure Gemini API key',
+  'rentman.wizard.addInputGroup': '+ Input group',
+  'rentman.wizard.addOutputGroup': '+ Output group',
+  'rentman.wizard.noGeminiKey':
+    'No Gemini API key configured. Enter one or use the free web search.',
+  'rentman.wizard.aiNoPorts': 'AI returned no ports. Try refining the name.',
+  'rentman.wizard.aiFailed': 'AI request failed',
+  'rentman.wizard.webNoConnectors':
+    'No connectors detected in the {source} snippet. Add them manually or try a different name.',
+  'rentman.wizard.webNoHit':
+    'No web hit. Refine the device name (manufacturer + model).',
+  'rentman.wizard.webHints': 'Adopted {count} port group(s) from {source}.',
+  'rentman.wizard.webFailed': 'Web search failed',
+  'rentman.wizard.geminiKeyHeading': 'Gemini API key',
+  'rentman.wizard.geminiKeyHintPre': 'Free at',
+  'rentman.wizard.geminiKeyHintPost':
+    '(15 requests/min). Stored locally in browser storage.',
+  'rentman.wizard.directionAria': 'Direction',
+  'rentman.wizard.directionIn': 'Input',
+  'rentman.wizard.directionOut': 'Output',
+  'rentman.wizard.countAria': 'Count',
+  'rentman.wizard.connectorTypeAria': 'Connector type',
+  'rentman.wizard.labelPrefixPlaceholder': 'Label prefix',
+  'rentman.wizard.removeGroupTitle': 'Remove group',
+  'rentman.wizard.noGroups': 'No port groups. Add one above, or skip this device.',
+  'rentman.wizard.excludeTitle': 'Skip this device and do NOT import',
+  'rentman.wizard.exclude': 'Do not import',
+  'rentman.wizard.skipTitle':
+    'Import without creating a library entry (1 generic input + output)',
+  'rentman.wizard.skip': 'Skip (generic)',
+  'rentman.wizard.saveFinish': 'Save & finish',
+  'rentman.wizard.saveNext': 'Save & next',
+
+  // Rentman — ProjectSelector
+  'rentman.projectSelector.aria': 'Rentman project',
+  'rentman.projectSelector.placeholder': 'Select project',
+
+  // Rentman — EquipmentChecklist
+  'rentman.checklist.qtyAria': 'Quantity',
+  'rentman.checklist.qtyTitle': 'How many to add',
+  'rentman.checklist.qtyInProject': 'Quantity in the Rentman project',
+  'rentman.checklist.selectAll': 'Select all',
+  'rentman.checklist.deselectAll': 'Deselect all',
+  'rentman.checklist.expandAll': 'Expand all sets',
+  'rentman.checklist.collapseAll': 'Collapse all sets',
+  'rentman.checklist.setExpand': 'Expand set',
+  'rentman.checklist.setCollapse': 'Collapse set',
+  'rentman.checklist.badge.linkedTitle':
+    'Already linked in the local library via Rentman ID to "{name}". Re-import only refreshes metadata (category, project link) — the local port configuration is preserved.',
+  'rentman.checklist.badge.linked': '✓ Already linked: {name}',
+  'rentman.checklist.badge.nameOnlyTitle':
+    'Local template "{name}" has the same name but no Rentman ID. On import a conflict dialog appears — default is to keep the local version (with ports) and only attach the Rentman ID.',
+  'rentman.checklist.badge.nameOnly': '⚡ Local exists: {name} — conflict dialog',
+  'rentman.checklist.badge.catalogTitle':
+    'Match from built-in catalog ("{name}"). Will be adopted as a template automatically on import.',
+  'rentman.checklist.badge.catalog': '⊕ Catalog: {name}',
+  'rentman.checklist.badge.fallbackTitle': 'Auto-filled with template "{name}"',
+  'rentman.checklist.linkedTitle':
+    'Linked to a local device — will not be created as a duplicate on import',
+  'rentman.checklist.linkSelectTitle': 'Link to an existing local device',
+  'rentman.checklist.linkPlaceholder': '🔗 Link…',
+  'rentman.checklist.selectChildren': 'Select all children',
+  'rentman.checklist.deselectChildren': 'Deselect all children',
+  'rentman.checklist.childrenAllOff': '☐ all',
+  'rentman.checklist.childrenAllOn': '☑ all',
+
+  // Rentman — RentmanImportDialog body
+  'rentman.import.busyTitle': 'Import operations still running',
+  'rentman.import.busyBody': 'Please wait for them to finish.',
+  'rentman.import.noCategories':
+    'No categories available. Please create local categories first.',
+  'rentman.import.switch.title': 'Switch Rentman project?',
+  'rentman.import.switch.alreadyLinkedPre':
+    'This project is already linked to the Rentman project',
+  'rentman.import.switch.alreadyLinkedPost': 'linked.',
+  'rentman.import.switch.askLoadInsteadPre': 'Load',
+  'rentman.import.switch.askLoadInsteadPost':
+    'instead? Already imported devices on the canvas keep their link.',
+  'rentman.import.switch.confirm': 'Yes, switch project',
+  'rentman.import.conflict.titleOne': 'Device already in local library',
+  'rentman.import.conflict.titleMany':
+    '{count} devices already in local library',
+  'rentman.import.conflict.intro':
+    'The following devices picked from Rentman already exist in your local library. By default the local definition is kept — so your own port configurations are not lost. You can decide per device:',
+  'rentman.import.col.device': 'Device',
+  'rentman.import.col.action': 'Action',
+  'rentman.import.col.rentman': 'Rentman',
+  'rentman.import.col.targetCategory': 'Target category',
+  'rentman.import.action.keep': 'Keep local version (recommended)',
+  'rentman.import.action.link': 'Link to another local device',
+  'rentman.import.action.overwrite': 'Overwrite with Rentman version',
+  'rentman.import.action.merge': 'Merge ports',
+  'rentman.import.action.skip': 'Skip (do not import)',
+  'rentman.import.link.placeholder': '-- Pick device --',
+  'rentman.import.setAll': 'Set all:',
+  'rentman.import.bulk.keep': 'Keep local',
+  'rentman.import.bulk.overwrite': 'Take Rentman',
+  'rentman.import.bulk.skip': 'Skip',
+  'rentman.import.next': 'Next',
+  'rentman.import.catMap.title': 'Category mapping before import',
+  'rentman.import.catMap.intro':
+    'Every import must be mapped to an existing category.',
+  'rentman.import.catMap.pickPlaceholder': 'Please select…',
+  'rentman.import.catMap.missingTitle': 'Category missing',
+  'rentman.import.catMap.missingBody':
+    'Please pick an existing category for every device.',
+  'rentman.import.loadProjects': 'Load projects',
+  'rentman.import.refresh': '↺ Refresh Rentman',
+  'rentman.import.refreshTitle': 'Reload quantities and devices for "{name}"',
+  'rentman.import.projectsCount': '{visible} / {total} projects',
+  'rentman.import.noneLoaded': 'No projects loaded yet',
+  'rentman.import.sort': 'Sort:',
+  'rentman.import.sortDateDesc': 'Date ↓',
+  'rentman.import.sortDateAsc': 'Date ↑',
+  'rentman.import.searchPlaceholder': 'Search by name, number or status…',
+  'rentman.import.clearSearch': 'Clear',
+  'rentman.import.loadingShort': 'Loading…',
+  'rentman.import.reloadSync': '↻ Reload & sync',
+  'rentman.import.categories': 'Categories:',
+  'rentman.import.categoriesAll': 'All',
+  'rentman.import.status.linkedTitle':
+    'Items with identical Rentman equipment ID in the local library — silent re-import, ports + custom data are preserved.',
+  'rentman.import.status.linked': '✓ {count} already linked',
+  'rentman.import.status.conflictsTitle':
+    'Items with the same name as a local template but without a Rentman ID. On import a conflict dialog appears per item (default: keep local version + attach Rentman ID).',
+  'rentman.import.status.conflicts':
+    '⚡ {count} conflict dialog (same name, not linked)',
+  'rentman.import.status.freshTitle':
+    'Items without a match in the local library — imported fresh as templates.',
+  'rentman.import.status.fresh': '+ {count} new',
+  'rentman.import.cablePlan.heading': 'Adopt cable quantities from Rentman',
+  'rentman.import.cablePlan.selectAll': 'Select all',
+  'rentman.import.cablePlan.deselectAll': 'Deselect all',
+  'rentman.import.cablePlan.entryCount': '{count} entries',
+  'rentman.import.cablePlan.detected': '{count} cable type(s) detected',
+  'rentman.import.cablePlan.apply': 'Adopt cable quantities',
+  'rentman.import.cablePlan.pickAtLeastOne':
+    'Please pick at least one cable type.',
+  'rentman.import.cablePlan.planSaved':
+    '✓ {count} cable type(s) adopted as plan.',
+  'rentman.import.resultOne': '✓ {count} device added to the library',
+  'rentman.import.resultMany': '✓ {count} devices added to the library',
+  'rentman.import.resultHint':
+    'Devices are added to the equipment library, not placed directly on the canvas.',
+  'rentman.import.addToLibrary': 'Add to library',
+
+  // Rentman — RentmanCableExportDialog
+  'rentman.cableExport.title': 'Send cables to Rentman',
+  'rentman.cableExport.target': 'Target: {name}',
+  'rentman.cableExport.noLink': 'No Rentman project linked.',
+  'rentman.cableExport.catalogError': 'Could not load the Rentman catalog',
+  'rentman.cableExport.sending': 'Sending to Rentman…',
+  'rentman.cableExport.unknownError': 'Unknown error',
+  'rentman.cableExport.errorFormat': 'Error: {msg}',
+  'rentman.cableExport.groupCreated': ' (group created)',
+  'rentman.cableExport.groupRestricted': ' (no group — plan restriction)',
+  'rentman.cableExport.sentSuccess': '✓ {count} sent to Rentman{note}.',
+  'rentman.cableExport.cablesBuilt': 'cables built',
+  'rentman.cableExport.alreadySent': 'already sent',
+  'rentman.cableExport.ready': 'ready',
+  'rentman.cableExport.withoutMapping': '{count} without mapping',
+  'rentman.cableExport.nothingToSend':
+    'Nothing to send — all deltas zero or unmapped.',
+  'rentman.cableExport.sendNCablesTitle': 'Send {count} cables to Rentman',
+  'rentman.cableExport.sendingShort': 'Sending…',
+  'rentman.cableExport.sendAll': 'Send all (+{count})',
+  'rentman.cableExport.loading': 'Loading…',
+  'rentman.cableExport.refreshCatalog': 'Refresh catalog',
+  'rentman.cableExport.loadCatalog': 'Load Rentman catalog',
+  'rentman.cableExport.col.typeLength': 'Type / length',
+  'rentman.cableExport.col.built': 'Built',
+  'rentman.cableExport.col.planned': 'Planned',
+  'rentman.cableExport.col.synced': 'Already sent',
+  'rentman.cableExport.col.mapping': 'Rentman mapping',
+  'rentman.cableExport.col.action': 'Action',
+  'rentman.cableExport.noCables': 'No cables in the project.',
+  'rentman.cableExport.deltaPositiveTitle':
+    'This many cables will be additionally sent to Rentman.',
+  'rentman.cableExport.deltaNegativeTitle':
+    'Fewer cables built than last sent — correct manually in Rentman.',
+  'rentman.cableExport.deltaZeroTitle': 'Built = already sent to Rentman.',
+  'rentman.cableExport.rentmanId': 'Rentman ID {id}',
+  'rentman.cableExport.removeMapping': 'Remove mapping',
+  'rentman.cableExport.pickEquipment': 'Pick Rentman equipment…',
+  'rentman.cableExport.searchPlaceholder': 'Search…',
+  'rentman.cableExport.loadCatalogFirst': 'Please load the catalog first.',
+  'rentman.cableExport.mapFirst': 'Please map Rentman equipment first.',
+  'rentman.cableExport.nothingShort': 'Nothing to send.',
+  'rentman.cableExport.sendNCables': 'Send {count} to Rentman.',
+  'rentman.cableExport.send': 'Send',
+
+  // Rack — PatchPanelCreateDialog
+  'rack.patchPanel.title': 'Create patch panel',
+  'rack.patchPanel.tab.basics': 'Basics',
+  'rack.patchPanel.tab.perPort': 'Per-port detail ({count})',
+  'rack.patchPanel.name': 'Name',
+  'rack.patchPanel.heightUnits': 'Height (U)',
+  'rack.patchPanel.mount': 'Mount',
+  'rack.patchPanel.mountTitle':
+    'Patch panels are often rear-mounted behind front devices.',
+  'rack.patchPanel.mount.full': 'Full-depth (front)',
+  'rack.patchPanel.mount.front': 'Front only',
+  'rack.patchPanel.mount.rear': 'Rear only',
+  'rack.patchPanel.portCount': 'Port count',
+  'rack.patchPanel.adapter': 'Adapter patch panel',
+  'rack.patchPanel.adapterHint':
+    '(front ≠ rear connector, with internal adapter cable)',
+  'rack.patchPanel.frontConnector': 'Front connector',
+  'rack.patchPanel.rearConnector': 'Rear connector',
+  'rack.patchPanel.bothConnector': 'Connector type (both sides)',
+  'rack.patchPanel.appliesToAllPorts':
+    'Applies to all {count} ports. Adjust individually in the "Per-port detail" tab.',
+  'rack.patchPanel.adapterCouplingNote':
+    'Each front port couples internally via an adapter cable to the matching rear port.',
+  'rack.patchPanel.perPortNote':
+    'Per port label and connector type are overridable. Leave empty for default.',
+  'rack.patchPanel.perPortAdapterNote':
+    'In adapter mode the front and rear connectors are chosen independently.',
+  'rack.patchPanel.col.label': 'Label',
+  'rack.patchPanel.col.front': 'Front',
+  'rack.patchPanel.col.rear': 'Rear',
+  'rack.patchPanel.create': 'Create patch panel',
+
+  // Rack — RackShelfCreateDialog
+  'rack.shelf.title': 'Create rack shelf',
+  'rack.shelf.name': 'Name',
+  'rack.shelf.heightUnits': 'Height (U)',
+  'rack.shelf.depth': 'Depth (mm)',
+  'rack.shelf.tip':
+    'Tip: place the shelf at the desired U slot, then put non-19" items at the same starting U — they appear visually on the shelf.',
+  'rack.shelf.create': 'Create shelf',
+
+  // Rack — NonRackAddDialog
+  'rack.nonRack.title': 'Add "{name}"',
+  'rack.nonRack.intro':
+    'The device is not marked as a 19″ rack device. Pick how it should be placed in the rack:',
+  'rack.nonRack.option.rack': '📏 As 19″ device',
+  'rack.nonRack.option.rackHint': 'Occupies N U on the rack rails',
+  'rack.nonRack.option.shelf': '🪑 On a shelf',
+  'rack.nonRack.option.shelfHint': 'Custom dimensions in mm, sits on a rack shelf',
+  'rack.nonRack.rackUnits': 'U height',
+  'rack.nonRack.widthMm': 'Width (mm)',
+  'rack.nonRack.heightMm': 'Height (mm)',
+  'rack.nonRack.depthMm': 'Depth (mm)',
+  'rack.nonRack.widthPreset.third': '1/3 rack-mount width ≈ 150 mm',
+  'rack.nonRack.widthPreset.half': '1/2 rack-mount width ≈ 225 mm',
+  'rack.nonRack.widthPreset.twoThirds': '2/3 rack-mount width ≈ 300 mm',
+  'rack.nonRack.shelfTip':
+    'Place the device on an existing rack shelf by adding it at the same starting U. Dimensions are visualized in the 3D tab as real box size.',
+  'rack.nonRack.persist': 'Save dimensions to template permanently',
+  'rack.nonRack.persistHint': '(next time the dialog will not ask again)',
+  'rack.nonRack.add': 'Add',
+
+  // Project — CableBomDialog
+  'bom.cable.title': 'Cable bill of materials',
+  'bom.cable.groupedNote': 'Grouped by type & length.',
+  'bom.cable.builtCables': 'Built cables:',
+  'bom.cable.missingTypes': '⚠ {count} cable type(s) missing',
+  'bom.cable.allCovered': '✓ All planned quantities covered',
+  'bom.cable.csv': 'CSV',
+  'bom.cable.pdf': 'PDF',
+  'bom.cable.col.type': 'Type',
+  'bom.cable.col.length': 'Length (m)',
+  'bom.cable.col.built': 'Built',
+  'bom.cable.col.planned': 'Rentman planned',
+  'bom.cable.col.diff': 'Difference',
+  'bom.cable.col.paths': 'Paths',
+  'bom.cable.noCables': 'No cables in the project.',
+  'bom.cable.rentmanLinkedTitle': 'Linked Rentman equipment name',
+  'bom.cable.rentmanMissingTitle':
+    'Linked, but Rentman template not found locally',
+  'bom.cable.diff.zeroTitle': 'Built = planned',
+  'bom.cable.diff.posTitle': 'More built than planned',
+  'bom.cable.diff.negTitle': 'Fewer built than planned',
+  'bom.cable.morePaths': '+{count} more',
+  'bom.cable.draftPending': 'Unsaved changes to the Rentman plan.',
+  'bom.cable.draftSaved': 'Rentman plan is saved in the project.',
+  'bom.cable.discard': 'Discard',
+  'bom.cable.savePlan': 'Save Rentman plan',
+  'bom.cable.syncRentman': '📦 Sync with Rentman →',
+  'bom.cable.syncRentmanTitle':
+    'Closes this dialog and opens the Rentman cable export prefilled with the current buckets.',
+
+  // DimensionsSection
+  'dims.title': 'Dimensions',
+  'dims.width': 'Width (mm)',
+  'dims.widthPlaceholder': 'e.g. 482',
+  'dims.height': 'Height (mm)',
+  'dims.heightPlaceholder': 'e.g. 44',
+  'dims.depth': 'Depth (mm)',
+  'dims.depthPlaceholder': 'e.g. 400',
+  'dims.hint':
+    'Physical outer dimensions. 19" rack device: 1 U = 44.45 mm, standard width 482 mm, typical depth 400-600 mm. Used by the 3D rack renderer + logistics tools.',
+
+  // DimensionsBlock (legacy fieldset variant)
+  'dimsBlock.title': 'Dimensions (mm)',
+  'dimsBlock.height': 'Height',
+  'dimsBlock.width': 'Width',
+  'dimsBlock.depth': 'Depth',
+  'dimsBlock.rackHint':
+    'Rack device · {he} U. If height is empty, {mm} mm is assumed as physical height (1 U ≈ 44.45 mm).',
+
+  // DisplayPropertiesBlock
+  'display.title': 'Display',
+  'display.resolution': 'Resolution',
+  'display.diagonal': 'Diagonal (inches)',
 }
 
 const translations: Record<Language, Dict> = {
