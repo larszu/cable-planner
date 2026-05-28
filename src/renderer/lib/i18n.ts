@@ -1544,6 +1544,40 @@ const en: Dict = {
   'display.title': 'Display',
   'display.resolution': 'Resolution',
   'display.diagonal': 'Diagonal (inches)',
+
+  // PortsSection
+  'portsSection.title': 'Inputs & outputs',
+  'portsSection.in': 'In',
+  'portsSection.out': 'Out',
+
+  // PrintSection
+  'printSection.title': 'Print / documentation',
+  'printSection.subtitle': 'Patch sheet A4/A3',
+  'printSection.a4Title':
+    'Generates a single-page A4 patch list with all ports + connected cables — to stick on the device.',
+  'printSection.a4Btn': '🖨 Print patch sheet (A4 PDF)',
+  'printSection.a3Title': 'A3 variant for devices with many ports.',
+  'printSection.a3Btn': '🖨 Print patch sheet (A3 PDF)',
+
+  // LibrarySaveSection
+  'libSave.title': 'Library',
+  'libSave.subtitle': 'save as template',
+  'libSave.overwriteConfirm': 'Overwrite "{name}"?',
+  'libSave.overwriteBody':
+    "Already exists in the library. Overwrite with the current device's settings?",
+  'libSave.overwriteOk': 'Overwrite',
+  'libSave.saveConfirm': 'Save "{name}"?',
+  'libSave.saveBody': 'Save as a new default template in the library.',
+  'libSave.btnTitle':
+    'Saves the current device (ports, network, SDI caps, MV config …) as a library template.',
+  'libSave.btnOverwrite': 'Overwrite default template ↺',
+  'libSave.btnSave': 'Save as new default template ✚',
+  'libSave.newPrompt': 'Save as a new device in the library.\nName:',
+  'libSave.exists': '"{name}" already exists',
+  'libSave.existsBody': 'Please choose a different name or overwrite the existing template.',
+  'libSave.newBtnTitle':
+    'Creates a new template under a different name — the existing one stays unchanged.',
+  'libSave.newBtn': 'Save as new device in library ✚',
 }
 
 const translations: Record<Language, Dict> = {
