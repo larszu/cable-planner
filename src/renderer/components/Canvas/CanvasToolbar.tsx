@@ -7,10 +7,12 @@ import { LayerVisibilityChips } from './LayerVisibilityChips'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import { useTranslation, format } from '../../lib/i18n'
 
 type CanvasToolbarMode = 'main' | 'rack'
 
 export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = {}) => {
+  const t = useTranslation()
   // v7.9.5 — Toolbar frei verschiebbar (User-Request: "Mache die
   // toolbar im canvas frei verschiebbar"). useDraggablePosition liefert
   // den persistierten Offset relativ zur Default-Position top:8 left:8.
@@ -358,8 +360,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
       {/* ── Drag-Grip (verschiebt die Toolbar) ─────────────────────── */}
       <span
         {...drag.headerProps}
-        title="Toolbar verschieben"
-        aria-label="Toolbar verschieben"
+        title={t('toolbar.dragHandle', 'Toolbar verschieben')}
+        aria-label={t('toolbar.dragHandle', 'Toolbar verschieben')}
         style={{
           ...drag.headerProps.style,
           display: 'inline-flex',
@@ -425,8 +427,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           <IconButton
             title={
               hasSelection
-                ? `Rahmen um die ${selectedEquipmentIds.length} markierten Geräte`
-                : 'Neuen Location-Rahmen einfügen'
+                ? format(t('toolbar.location.addAround', 'Rahmen um die {count} markierten Geräte'), { count: selectedEquipmentIds.length })
+                : t('toolbar.location.add', 'Neuen Location-Rahmen einfügen')
             }
             onClick={() => {
               if (hasSelection) {
@@ -437,7 +439,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               const viewportCenterX = (-canvasState.x + 400) / zoom
               const viewportCenterY = (-canvasState.y + 250) / zoom
               addLocation({
-                name: 'Neue Location',
+                name: t('toolbar.location.defaultName', 'Neue Location'),
                 x: viewportCenterX - 180,
                 y: viewportCenterY - 120,
                 width: 360,
@@ -451,7 +453,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           </IconButton>
           {hasSelection && (
             <IconButton
-              title={`${selectedEquipmentIds.length} markierte Geräte als Gruppe speichern`}
+              title={format(t('toolbar.group.save', '{count} markierte Geräte als Gruppe speichern'), { count: selectedEquipmentIds.length })}
               onClick={() => setNamingGroup(true)}
             >
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -463,7 +465,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           )}
           {hasSelection && !selectionContainsRack && (
             <IconButton
-              title={`${selectedEquipmentIds.length} markierte Geräte im 2D-Rack-Builder anordnen`}
+              title={format(t('toolbar.rack.arrange', '{count} markierte Geräte im 2D-Rack-Builder anordnen'), { count: selectedEquipmentIds.length })}
               onClick={() => triggerRackBuilderFromSelection(selectedEquipmentIds)}
             >
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -479,7 +481,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               Öffnet den 2D-Rack-Builder mit dem Source-Preset des Racks. */}
           {selectedEquipmentIds.length === 1 && selectionContainsRack && (
             <IconButton
-              title="Dieses Rack im 2D-Rack-Builder bearbeiten"
+              title={t('toolbar.rack.edit', 'Dieses Rack im 2D-Rack-Builder bearbeiten')}
               onClick={() => triggerRackBuilderEditFromBlackBox(selectedEquipmentIds[0])}
             >
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -499,7 +501,11 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           style={{ display: 'flex', gap: 2, alignItems: 'center', marginLeft: 4 }}
           onSubmit={(e) => {
             e.preventDefault()
-            const trimmed = groupName.trim() || `Gruppe ${new Date().toLocaleTimeString()}`
+            const trimmed =
+              groupName.trim() ||
+              format(t('toolbar.group.defaultName', 'Gruppe {time}'), {
+                time: new Date().toLocaleTimeString(),
+              })
             saveGroupPreset(trimmed, selectedEquipmentIds)
             setNamingGroup(false)
             setGroupName('')
@@ -512,7 +518,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
             onChange={(e) => setGroupName(e.target.value)}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
-            placeholder="Gruppenname…"
+            placeholder={t('toolbar.groupName.placeholder', 'Gruppenname…')}
             style={{
               width: 140,
               height: T.iconBtnSize - 4,
@@ -526,7 +532,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           />
           <button
             type="submit"
-            title="Gruppe speichern"
+            title={t('toolbar.groupName.save', 'Gruppe speichern')}
             style={{
               width: T.iconBtnSize,
               height: T.iconBtnSize,
@@ -540,7 +546,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           >
             ✓
           </button>
-          <IconButton title="Abbrechen" onClick={() => setNamingGroup(false)}>
+          <IconButton title={t('toolbar.groupName.cancel', 'Abbrechen')} onClick={() => setNamingGroup(false)}>
             <span style={{ fontSize: 11 }}>✕</span>
           </IconButton>
         </form>
@@ -554,7 +560,11 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         <>
           <span style={dividerStyle} />
           <IconButton
-            title={selectedEquipmentIds.length === 1 ? 'An linkem Viewport-Rand ausrichten' : 'Linksbündig'}
+            title={
+              selectedEquipmentIds.length === 1
+                ? t('toolbar.align.leftViewport', 'An linkem Viewport-Rand ausrichten')
+                : t('toolbar.align.left', 'Linksbündig')
+            }
             onClick={() => alignSelected('left')}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -564,7 +574,11 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
             </svg>
           </IconButton>
           <IconButton
-            title={selectedEquipmentIds.length === 1 ? 'Horizontal in Viewport zentrieren' : 'Horizontal zentrieren'}
+            title={
+              selectedEquipmentIds.length === 1
+                ? t('toolbar.align.centerHViewport', 'Horizontal in Viewport zentrieren')
+                : t('toolbar.align.centerH', 'Horizontal zentrieren')
+            }
             onClick={() => alignSelected('center-h')}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -574,7 +588,11 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
             </svg>
           </IconButton>
           <IconButton
-            title={selectedEquipmentIds.length === 1 ? 'An rechtem Viewport-Rand ausrichten' : 'Rechtsbündig'}
+            title={
+              selectedEquipmentIds.length === 1
+                ? t('toolbar.align.rightViewport', 'An rechtem Viewport-Rand ausrichten')
+                : t('toolbar.align.right', 'Rechtsbündig')
+            }
             onClick={() => alignSelected('right')}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -584,7 +602,11 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
             </svg>
           </IconButton>
           <IconButton
-            title={selectedEquipmentIds.length === 1 ? 'An oberem Viewport-Rand ausrichten' : 'Oben ausrichten'}
+            title={
+              selectedEquipmentIds.length === 1
+                ? t('toolbar.align.topViewport', 'An oberem Viewport-Rand ausrichten')
+                : t('toolbar.align.top', 'Oben ausrichten')
+            }
             onClick={() => alignSelected('top')}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -594,7 +616,11 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
             </svg>
           </IconButton>
           <IconButton
-            title={selectedEquipmentIds.length === 1 ? 'Vertikal in Viewport zentrieren' : 'Vertikal zentrieren'}
+            title={
+              selectedEquipmentIds.length === 1
+                ? t('toolbar.align.centerVViewport', 'Vertikal in Viewport zentrieren')
+                : t('toolbar.align.centerV', 'Vertikal zentrieren')
+            }
             onClick={() => alignSelected('center-v')}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -604,7 +630,11 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
             </svg>
           </IconButton>
           <IconButton
-            title={selectedEquipmentIds.length === 1 ? 'An unterem Viewport-Rand ausrichten' : 'Unten ausrichten'}
+            title={
+              selectedEquipmentIds.length === 1
+                ? t('toolbar.align.bottomViewport', 'An unterem Viewport-Rand ausrichten')
+                : t('toolbar.align.bottom', 'Unten ausrichten')
+            }
             onClick={() => alignSelected('bottom')}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -616,7 +646,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           {distributeEnabled && (
             <>
               <IconButton
-                title="Horizontal gleichmäßig verteilen"
+                title={t('toolbar.align.distH', 'Horizontal gleichmäßig verteilen')}
                 onClick={() => alignSelected('distribute-h')}
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -626,7 +656,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
                 </svg>
               </IconButton>
               <IconButton
-                title="Vertikal gleichmäßig verteilen"
+                title={t('toolbar.align.distV', 'Vertikal gleichmäßig verteilen')}
                 onClick={() => alignSelected('distribute-v')}
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -659,7 +689,9 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           key: 'frames',
           active: lockFrames,
           toggle: () => setLockFrames(!lockFrames),
-          title: lockFrames ? 'Rahmen entsperren' : 'Rahmen sperren (keine Frame-Verschiebung)',
+          title: lockFrames
+            ? t('toolbar.lock.frames.locked', 'Rahmen entsperren')
+            : t('toolbar.lock.frames.unlocked', 'Rahmen sperren (keine Frame-Verschiebung)'),
           icon: (
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="2" y="2" width="12" height="12" rx="1" />
@@ -671,8 +703,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           active: lockEquipment,
           toggle: () => setLockEquipment(!lockEquipment),
           title: lockEquipment
-            ? 'Geräte entsperren'
-            : 'Geräte sperren (keine Geräte-Verschiebung)',
+            ? t('toolbar.lock.equipment.locked', 'Geräte entsperren')
+            : t('toolbar.lock.equipment.unlocked', 'Geräte sperren (keine Geräte-Verschiebung)'),
           icon: (
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="2" y="4" width="12" height="8" rx="1" />
@@ -686,8 +718,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           active: lockCables,
           toggle: () => setLockCables(!lockCables),
           title: lockCables
-            ? 'Kabel entsperren'
-            : 'Kabel sperren (keine Waypoint-Bearbeitung)',
+            ? t('toolbar.lock.cables.locked', 'Kabel entsperren')
+            : t('toolbar.lock.cables.unlocked', 'Kabel sperren (keine Waypoint-Bearbeitung)'),
           icon: (
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M2 12c2 0 2-8 6-8s4 8 6 8" />
@@ -735,17 +767,24 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         onClick={async () => {
           if (projectMode === 'viewer') return
           if (projectMode === 'finalized') {
-            const ok = await confirmDialog('Planung wieder zur Bearbeitung freigeben?', {
-              body: 'Geräte, Kabel und Layout können dann wieder verändert werden.',
-              okLabel: 'Freigeben',
-            })
+            const ok = await confirmDialog(
+              t('toolbar.planLock.unlock.title', 'Planung wieder zur Bearbeitung freigeben?'),
+              {
+                body: t(
+                  'toolbar.planLock.unlock.body',
+                  'Geräte, Kabel und Layout können dann wieder verändert werden.',
+                ),
+                okLabel: t('toolbar.planLock.unlock.ok', 'Freigeben'),
+              },
+            )
             if (ok) setProjectMode('editing')
           } else {
-            const ok = await confirmDialog('Planung abschließen?', {
-              body:
-                'Das Canvas wird gesperrt — keine Verschiebungen, neue Verbindungen ' +
-                'oder Löschungen möglich. Du kannst die Sperre jederzeit wieder aufheben.',
-              okLabel: 'Abschließen',
+            const ok = await confirmDialog(t('toolbar.planLock.finalize.title', 'Planung abschließen?'), {
+              body: t(
+                'toolbar.planLock.finalize.body',
+                'Das Canvas wird gesperrt — keine Verschiebungen, neue Verbindungen oder Löschungen möglich. Du kannst die Sperre jederzeit wieder aufheben.',
+              ),
+              okLabel: t('toolbar.planLock.finalize.ok', 'Abschließen'),
             })
             if (ok) setProjectMode('finalized')
           }
@@ -753,10 +792,10 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         disabled={projectMode === 'viewer'}
         title={
           projectMode === 'viewer'
-            ? 'Viewer-Datei — read-only'
+            ? t('toolbar.planLock.viewer', 'Viewer-Datei — read-only')
             : projectMode === 'finalized'
-              ? 'Planung ist abgeschlossen (Klick: Bearbeitung freigeben)'
-              : 'Planung als abgeschlossen markieren'
+              ? t('toolbar.planLock.finalized', 'Planung ist abgeschlossen (Klick: Bearbeitung freigeben)')
+              : t('toolbar.planLock.editing', 'Planung als abgeschlossen markieren')
         }
         style={{
           display: 'inline-flex',
@@ -789,10 +828,10 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         </svg>
         <span>
           {projectMode === 'viewer'
-            ? 'Viewer'
+            ? t('toolbar.planLock.label.viewer', 'Viewer')
             : projectMode === 'finalized'
-              ? 'Abgeschlossen'
-              : 'Abschließen'}
+              ? t('toolbar.planLock.label.finalized', 'Abgeschlossen')
+              : t('toolbar.planLock.label.editing', 'Abschließen')}
         </span>
       </button>
       {/* v7.9.8 — Sichtbarkeits-Toggle für Canvas-Annotations. Versteckt
@@ -802,8 +841,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         onClick={() => setAnnotationsVisible(!annotationsVisible)}
         title={
           annotationsVisible
-            ? 'Anmerkungen-Badges auf dem Canvas ausblenden (Daten bleiben erhalten)'
-            : 'Anmerkungen-Badges auf dem Canvas wieder einblenden'
+            ? t('toolbar.annotations.hide', 'Anmerkungen-Badges auf dem Canvas ausblenden (Daten bleiben erhalten)')
+            : t('toolbar.annotations.show', 'Anmerkungen-Badges auf dem Canvas wieder einblenden')
         }
         style={{
           display: 'inline-flex',
@@ -835,8 +874,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         onClick={() => setAnnotationsPanelOpen(!annotationsPanelOpen)}
         title={
           projectMode === 'viewer'
-            ? 'Anmerkungen — als Reviewer Notizen hinterlassen'
-            : 'Anmerkungen anzeigen / verwalten'
+            ? t('toolbar.annotations.openViewer', 'Anmerkungen — als Reviewer Notizen hinterlassen')
+            : t('toolbar.annotations.open', 'Anmerkungen anzeigen / verwalten')
         }
         style={{
           display: 'inline-flex',
@@ -866,7 +905,10 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M2 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H6.5L4 13.5V11H3a1 1 0 0 1-1-1V4z" />
         </svg>
-        <span>Anmerkungen{annotationsCount > 0 ? ` (${annotationsCount})` : ''}</span>
+        <span>
+          {t('toolbar.annotations.label', 'Anmerkungen')}
+          {annotationsCount > 0 ? ` (${annotationsCount})` : ''}
+        </span>
       </button>
       </>}
 
@@ -887,7 +929,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           }}
         >
           <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 11, color: T.text }}>
-            Längenfarben
+            {t('toolbar.lengthLegend.title', 'Längenfarben')}
           </div>
           {LENGTH_COLOR_RULES.map((r) => (
             <div
@@ -922,7 +964,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               cursor: 'pointer',
             }}
           >
-            Schließen
+            {t('toolbar.lengthLegend.close', 'Schließen')}
           </button>
         </div>
       )}
@@ -986,6 +1028,7 @@ const DefaultsMenu = ({
   setShowLengthLegend: (v: boolean) => void
   isLight: boolean
 }) => {
+  const t = useTranslation()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -1009,7 +1052,7 @@ const DefaultsMenu = ({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        title="Standard-Verhalten für neue Kabel + Darstellung"
+        title={t('toolbar.defaults.title', 'Standard-Verhalten für neue Kabel + Darstellung')}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -1028,7 +1071,7 @@ const DefaultsMenu = ({
           <circle cx="8" cy="8" r="2" />
           <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3" />
         </svg>
-        <span>Defaults</span>
+        <span>{t('toolbar.defaults.button', 'Defaults')}</span>
         {anyNonDefault && (
           <span
             style={{
@@ -1038,7 +1081,7 @@ const DefaultsMenu = ({
               background: '#f59e0b',
               marginLeft: 1,
             }}
-            title="Mindestens ein Default wurde verändert"
+            title={t('toolbar.defaults.modified', 'Mindestens ein Default wurde verändert')}
           />
         )}
         <span style={{ fontSize: 9 }}>{open ? '▴' : '▾'}</span>
@@ -1062,14 +1105,14 @@ const DefaultsMenu = ({
           }}
         >
           <div style={{ marginBottom: 6, fontWeight: 600, color: T.textMuted, textTransform: 'uppercase', fontSize: 9 }}>
-            Kabel-Routing
+            {t('toolbar.defaults.routing', 'Kabel-Routing')}
           </div>
           <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
             {(
               [
-                { value: 'orthogonal' as const, label: 'Ortho' },
-                { value: 'straight' as const, label: 'Direkt' },
-                { value: 'curved' as const, label: 'Kurve' },
+                { value: 'orthogonal' as const, label: t('toolbar.defaults.routing.ortho', 'Ortho') },
+                { value: 'straight' as const, label: t('toolbar.defaults.routing.straight', 'Direkt') },
+                { value: 'curved' as const, label: t('toolbar.defaults.routing.curved', 'Kurve') },
               ]
             ).map((opt) => (
               <button
@@ -1093,7 +1136,7 @@ const DefaultsMenu = ({
           </div>
 
           <div style={{ marginBottom: 6, fontWeight: 600, color: T.textMuted, textTransform: 'uppercase', fontSize: 9 }}>
-            Kabelfarbe
+            {t('toolbar.defaults.cableColor', 'Kabelfarbe')}
           </div>
           <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
             <button
@@ -1110,7 +1153,7 @@ const DefaultsMenu = ({
                 fontSize: 11,
               }}
             >
-              Nach Typ
+              {t('toolbar.defaults.cableColor.byType', 'Nach Typ')}
             </button>
             <button
               type="button"
@@ -1126,13 +1169,13 @@ const DefaultsMenu = ({
                 fontSize: 11,
               }}
             >
-              Nach Länge
+              {t('toolbar.defaults.cableColor.byLength', 'Nach Länge')}
             </button>
             {cableColorMode === 'byLength' && (
               <button
                 type="button"
                 onClick={() => setShowLengthLegend(!showLengthLegend)}
-                title="Legende der Längenfarben"
+                title={t('toolbar.defaults.cableColor.legend', 'Legende der Längenfarben')}
                 style={{
                   padding: '4px 6px',
                   background: isLight ? '#f1f5f9' : '#1e293b',
@@ -1149,41 +1192,47 @@ const DefaultsMenu = ({
           </div>
 
           <div style={{ marginBottom: 6, fontWeight: 600, color: T.textMuted, textTransform: 'uppercase', fontSize: 9 }}>
-            Sonstiges
+            {t('toolbar.defaults.misc', 'Sonstiges')}
           </div>
           {(
             [
               {
-                label: 'Pfeil am Kabel-Ende',
+                label: t('toolbar.defaults.arrowEnd', 'Pfeil am Kabel-Ende'),
                 value: defaultArrow,
                 set: setDefaultArrow,
-                hint: 'Frisch gezogene Kabel bekommen einen Pfeil',
+                hint: t('toolbar.defaults.arrowEndHint', 'Frisch gezogene Kabel bekommen einen Pfeil'),
               },
               {
-                label: 'Kabelbrücken bei Kreuzungen',
+                label: t('toolbar.defaults.bumps', 'Kabelbrücken bei Kreuzungen'),
                 value: cableBumps,
                 set: setCableBumps,
-                hint: 'Globaler Default — pro Kabel via Rechtsklick überschreibbar',
+                hint: t('toolbar.defaults.bumpsHint', 'Globaler Default — pro Kabel via Rechtsklick überschreibbar'),
               },
               {
                 // v7.9.112 / Issue #234 — globaler Kabel-Label-Hide.
-                label: 'Alle Kabel-Labels ausblenden',
+                label: t('toolbar.defaults.hideLabels', 'Alle Kabel-Labels ausblenden'),
                 value: hideAllCableLabels,
                 set: setHideAllCableLabels,
-                hint: 'Globaler Toggle. Per-Kabel-Position bleibt erhalten — beim Ausschalten kommen die Labels wieder.',
+                hint: t(
+                  'toolbar.defaults.hideLabelsHint',
+                  'Globaler Toggle. Per-Kabel-Position bleibt erhalten — beim Ausschalten kommen die Labels wieder.',
+                ),
               },
               {
                 // Issue #240 — Kabel-Label Kurzform vs. Voller Name.
-                label: 'Kabel-Labels: Kurzform',
+                label: t('toolbar.defaults.shortLabel', 'Kabel-Labels: Kurzform'),
                 value: cableLabelShortForm,
                 set: setCableLabelShortForm,
-                hint: 'Format-Suffix (z.B. "(1080p50/60)") aus dem Anzeige-Label entfernen. Voller Name bleibt in den Kabel-Eigenschaften gespeichert.',
+                hint: t(
+                  'toolbar.defaults.shortLabelHint',
+                  'Format-Suffix (z.B. "(1080p50/60)") aus dem Anzeige-Label entfernen. Voller Name bleibt in den Kabel-Eigenschaften gespeichert.',
+                ),
               },
               {
-                label: 'Ports nach Connector-Typ einfärben',
+                label: t('toolbar.defaults.portsByType', 'Ports nach Connector-Typ einfärben'),
                 value: colorPortsByType,
                 set: setColorPortsByType,
-                hint: 'SDI = bernstein, HDMI = violett, Ethernet = grün, …',
+                hint: t('toolbar.defaults.portsByTypeHint', 'SDI = bernstein, HDMI = violett, Ethernet = grün, …'),
               },
             ]
           ).map((opt) => (

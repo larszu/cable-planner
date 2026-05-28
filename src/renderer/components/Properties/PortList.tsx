@@ -25,6 +25,7 @@ import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { effectivePortNumber, findDuplicatePortNumbers } from '../../lib/portNumbering'
+import { useTranslation } from '../../lib/i18n'
 
 /**
  * #306 — PortList + SortablePortItem + makePort aus EquipmentProperties
@@ -66,6 +67,7 @@ interface SortablePortItemProps {
 }
 
 const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
+  const t = useTranslation()
   const {
     attributes,
     listeners,
@@ -88,7 +90,7 @@ const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
         <button
           type="button"
           className="mt-1 cursor-grab rounded border border-slate-700 bg-slate-950 px-1.5 py-1 text-[11px] text-slate-400 hover:bg-slate-900 active:cursor-grabbing"
-          title="Port-Reihenfolge ändern"
+          title={t('ports.dragHandle', 'Port-Reihenfolge ändern')}
           aria-label={`Reorder ${port.name}`}
           {...attributes}
           {...listeners}
@@ -102,6 +104,7 @@ const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
 }
 
 export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }: PortListProps) => {
+  const t = useTranslation()
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -414,9 +417,9 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   const v = event.target.value
                   updatePort(port.id, { contentLabel: v ? v : undefined })
                 }}
-                placeholder="Inhalt / Funktion (z.B. PGM, PVW, MV1, Cam1) — optional"
+                placeholder={t('ports.contentLabelPlaceholder', 'Inhalt / Funktion (z.B. PGM, PVW, MV1, Cam1) — optional')}
                 className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
-                title="Was geht durch diesen Port? Trennt 'Inhalt' (PGM/PVW) vom Hardware-Standard (SDI 3G/12G)."
+                title={t('ports.contentLabelTitle', "Was geht durch diesen Port? Trennt 'Inhalt' (PGM/PVW) vom Hardware-Standard (SDI 3G/12G).")}
               />
             </div>
             <div className="mt-1 grid grid-cols-2 gap-1">
@@ -431,7 +434,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   })
                 }
                 className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
-                title="Richtung - bidirektional ist z.B. für Netzwerk-/RJ45-Ports sinnvoll"
+                title={t('ports.directionTitle', 'Richtung - bidirektional ist z.B. für Netzwerk-/RJ45-Ports sinnvoll')}
               >
                 <option value="">Richtung (auto)</option>
                 <option value="in">Nur Input</option>
@@ -447,7 +450,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   })
                 }
                 className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
-                title="Port-Seite am Gerät: Auto nutzt Input/Output + globale Spiegelung"
+                title={t('ports.sideTitle', 'Port-Seite am Gerät: Auto nutzt Input/Output + globale Spiegelung')}
               >
                 <option value="">Seite (auto)</option>
                 <option value="left">Links</option>
@@ -470,8 +473,8 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       atemSourceId: v === '' ? undefined : Math.max(0, Number(v) || 0),
                     })
                   }}
-                  placeholder="z.B. 8001 für AUX 1"
-                  title="Source-ID die im MV-Config-Dialog adressiert wird. AUX = 8001+, PGM = 10010, PVW = 10011, ME 2 PGM = 10020 …. Bei Inputs leer lassen für idx+1-Default."
+                  placeholder={t('ports.atemSourceIdPlaceholder', 'z.B. 8001 für AUX 1')}
+                  title={t('ports.atemSourceIdTitle', 'Source-ID die im MV-Config-Dialog adressiert wird. AUX = 8001+, PGM = 10010, PVW = 10011, ME 2 PGM = 10020 …. Bei Inputs leer lassen für idx+1-Default.')}
                   className="w-32 rounded border border-slate-700 bg-slate-950 p-1 text-xs"
                 />
                 <span className="text-[10px] text-slate-400">
@@ -486,30 +489,30 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   <input
                     value={port.sfpType ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpType: event.target.value || undefined })}
-                    placeholder="Formfaktor (SFP+)"
+                    placeholder={t('ports.sfp.typePlaceholder', 'Formfaktor (SFP+)')}
                     className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
-                    title="SFP-Formfaktor: SFP, SFP+, SFP28, QSFP+"
+                    title={t('ports.sfp.typeTitle', 'SFP-Formfaktor: SFP, SFP+, SFP28, QSFP+')}
                   />
                   <input
                     value={port.sfpStandard ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpStandard: event.target.value || undefined })}
-                    placeholder="Standard (10G-LR)"
+                    placeholder={t('ports.sfp.standardPlaceholder', 'Standard (10G-LR)')}
                     className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
-                    title="Transceiver-Standard: 1G-SX, 1G-LX, 10G-SR, 10G-LR, 25G-SR …"
+                    title={t('ports.sfp.standardTitle', 'Transceiver-Standard: 1G-SX, 1G-LX, 10G-SR, 10G-LR, 25G-SR …')}
                   />
                   <input
                     value={port.sfpWavelength ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpWavelength: event.target.value || undefined })}
-                    placeholder="Wellenlänge nm (1310)"
+                    placeholder={t('ports.sfp.wavelengthPlaceholder', 'Wellenlänge nm (1310)')}
                     className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
-                    title="Wellenlänge in nm: 850, 1310, 1550"
+                    title={t('ports.sfp.wavelengthTitle', 'Wellenlänge in nm: 850, 1310, 1550')}
                   />
                   <input
                     value={port.sfpVendor ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpVendor: event.target.value || undefined })}
-                    placeholder="Hersteller (Cisco)"
+                    placeholder={t('ports.sfp.vendorPlaceholder', 'Hersteller (Cisco)')}
                     className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
-                    title="Modulhersteller: Cisco, Aruba, Ubiquiti, FS.com …"
+                    title={t('ports.sfp.vendorTitle', 'Modulhersteller: Cisco, Aruba, Ubiquiti, FS.com …')}
                   />
                 </div>
               </div>
@@ -620,7 +623,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                               type="button"
                               onClick={() => void autoFillQuadGroup(g, port.id)}
                               className="rounded bg-sky-800 px-1 py-0.5 text-[9px] text-sky-100 hover:bg-sky-700"
-                              title="Freie BNC-Ports automatisch dem Set zuweisen"
+                              title={t('ports.quadAuto', 'Freie BNC-Ports automatisch dem Set zuweisen')}
                             >
                               auto-fill
                             </button>
