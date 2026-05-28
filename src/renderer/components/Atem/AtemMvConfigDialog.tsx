@@ -554,9 +554,10 @@ const CapabilitiesPanel = ({
       {open && (
         <div className="mt-1 space-y-1.5 pl-4">
           <p className="text-slate-500">
-            Heuristik basierend auf dem Geräte-Namen. Falls dein Modell ein Layout unterstützt
-            das die Heuristik nicht erkennt (oder umgekehrt), Häkchen hier setzen — die
-            Auswahl überschreibt das Default und bleibt beim Projekt.
+            {t(
+              'atem.mv.layoutsHint',
+              'Heuristik basierend auf dem Geräte-Namen. Falls dein Modell ein Layout unterstützt das die Heuristik nicht erkennt (oder umgekehrt), Häkchen hier setzen — die Auswahl überschreibt das Default und bleibt beim Projekt.',
+            )}
           </p>
           <div className="flex flex-wrap gap-1">
             {allLayouts.map((l) => {
@@ -1086,8 +1087,8 @@ export const AtemMvConfigDialog = () => {
                 canvasPortNames={canvasPortNames}
               />
               <span className="text-[10px] text-slate-500">
-                Klick auf einen Quadranten:<br />
-                groß ↔ 4 kleine
+                {t('atem.mv.quadrantHint1', 'Klick auf einen Quadranten:')}<br />
+                {t('atem.mv.quadrantHint2', 'groß ↔ 4 kleine')}
               </span>
             </div>
           </div>

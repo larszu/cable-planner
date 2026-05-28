@@ -5,6 +5,8 @@ import { composeExportBackground, type ExportBgVariant } from './exportBackgroun
 import { pdfText } from './pdfHelpers'
 import { hexToRgb, drawVectorBackground } from './pdfBackground'
 import { buildExportFilename } from './exportFilename'
+import { translate } from './i18n'
+import { useUiStore } from '../store/uiStore'
 
 // Helper: aus composed-Background-Optionen den Grid-Hex extrahieren.
 // composeExportBackground hat keinen public `gridColor` Output (nur
@@ -175,7 +177,13 @@ const buildCanvasPdf = async (
     viewportEl.querySelectorAll<HTMLElement>('.react-flow__node'),
   )
   if (nodeEls.length === 0) {
-    throw new Error('Keine Geräte zum Exportieren vorhanden')
+    throw new Error(
+      translate(
+        useUiStore.getState().language,
+        'export.pdf.errNoDevices',
+        'Keine Geräte zum Exportieren vorhanden',
+      ),
+    )
   }
 
   const parseTranslate = (el: HTMLElement): { x: number; y: number } => {
