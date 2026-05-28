@@ -174,6 +174,7 @@ const PlanSection = ({
   onExportImage: (format: 'png' | 'jpeg') => Promise<void> | void
   onClose: () => void
 }) => {
+  const t = useTranslation()
   const [format, setFormat] = useState<ExportFormat>('pdf')
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const [pdfTheme, setPdfTheme] = useState<'dark' | 'light'>(canvasTheme)
@@ -220,7 +221,7 @@ const PlanSection = ({
   return (
     <div className="space-y-4">
       <fieldset className="space-y-2">
-        <legend className="mb-1 text-xs font-semibold text-slate-300">Format</legend>
+        <legend className="mb-1 text-xs font-semibold text-slate-300">{t('export.format', 'Format')}</legend>
         {FORMAT_OPTIONS.map((opt) => {
           const selected = format === opt.value
           return (
@@ -278,7 +279,7 @@ const PlanSection = ({
               Text, scharf bei jedem Zoom, kleinere Dateigröße. Default
               ist Raster damit nichts am bestehenden Workflow bricht. */}
           <fieldset className="space-y-1">
-            <legend className="mb-1 text-xs font-semibold text-slate-300">Render-Modus</legend>
+            <legend className="mb-1 text-xs font-semibold text-slate-300">{t('export.renderMode', 'Render-Modus')}</legend>
             <label className="flex cursor-pointer items-start gap-2 text-xs">
               <input
                 type="radio"
@@ -399,6 +400,7 @@ type PatchAction = 'individual' | 'batch' | 'print'
 type PaperFormat = 'a4' | 'a3'
 
 const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
+  const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
   const cables = useProjectStore((s) => s.project.cables)
   const openPatchList = useUiStore((s) => s.openPatchList)
@@ -470,7 +472,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           onClose()
         }}
         className="flex w-full items-center justify-between rounded border border-emerald-700/60 bg-emerald-950/30 px-3 py-2 text-left text-xs text-emerald-100 hover:border-emerald-500 hover:bg-emerald-900/40"
-        title="Kompakte Patchliste: alle Kabel auf einer Liste, sortiert nach Quell-Gerät — zum Ausdrucken für den Techniker im Feld."
+        title={t('export.patch.compactTitle', 'Kompakte Patchliste: alle Kabel auf einer Liste, sortiert nach Quell-Gerät — zum Ausdrucken für den Techniker im Feld.')}
       >
         <span>
           <span className="font-semibold">🪢 Patchliste öffnen…</span>
@@ -502,7 +504,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           type="text"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder="Filtern…"
+          placeholder={t('export.patch.filterPlaceholder', 'Filtern…')}
           className="mb-2 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
         />
         <div className="max-h-64 space-y-0.5 overflow-y-auto rounded border border-slate-800 bg-slate-950/50 p-1">
@@ -547,7 +549,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             onClick={() => setPendingAction('individual')}
             disabled={busy || selectedIds.size === 0}
             className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600 disabled:opacity-40"
-            title="Eine PDF pro selektiertem Gerät"
+            title={t('export.patch.perDevice', 'Eine PDF pro selektiertem Gerät')}
           >
             Einzel PDF ({selectedIds.size} Datei{selectedIds.size === 1 ? '' : 'en'})
           </button>
@@ -556,7 +558,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             onClick={() => setPendingAction('batch')}
             disabled={busy || selectedIds.size === 0}
             className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600 disabled:opacity-40"
-            title="Eine Sammel-PDF — ein Gerät pro Seite"
+            title={t('export.patch.batchPdf', 'Eine Sammel-PDF — ein Gerät pro Seite')}
           >
             Sammel-PDF ({selectedIds.size} Seite{selectedIds.size === 1 ? '' : 'n'})
           </button>
@@ -565,7 +567,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             onClick={() => setPendingAction('print')}
             disabled={busy || selectedIds.size === 0}
             className="rounded bg-indigo-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-40"
-            title="Patch-Sheet(s) im OS-Druckdialog öffnen"
+            title={t('export.patch.osPrint', 'Patch-Sheet(s) im OS-Druckdialog öffnen')}
           >
             🖨 Drucken
           </button>
@@ -633,6 +635,7 @@ const parseBomKey = (key: string): { type: string; length: number } => {
 const fmtSignFixed = (n: number): string => (n > 0 ? `+${n}` : String(n))
 
 const BomSection = () => {
+  const t = useTranslation()
   const project = useProjectStore((s) => s.project)
   const customLibrary = useProjectStore((s) => s.customLibrary)
   const updateMeta = useProjectStore((s) => s.updateProjectMetadata)
@@ -864,11 +867,11 @@ const BomSection = () => {
         <table className="w-full text-xs">
           <thead className="sticky top-0 bg-slate-950 text-slate-300">
             <tr>
-              <th className="px-3 py-2 text-left">Typ</th>
-              <th className="px-3 py-2 text-right">Länge (m)</th>
-              <th className="px-3 py-2 text-right">Verbaut</th>
-              <th className="px-3 py-2 text-right">Rentman geplant</th>
-              <th className="px-3 py-2 text-right">Differenz</th>
+              <th className="px-3 py-2 text-left">{t('export.bom.col.type', 'Typ')}</th>
+              <th className="px-3 py-2 text-right">{t('export.bom.col.length', 'Länge (m)')}</th>
+              <th className="px-3 py-2 text-right">{t('export.bom.col.installed', 'Verbaut')}</th>
+              <th className="px-3 py-2 text-right">{t('export.bom.col.rentmanPlanned', 'Rentman geplant')}</th>
+              <th className="px-3 py-2 text-right">{t('export.bom.col.diff', 'Differenz')}</th>
             </tr>
           </thead>
           <tbody>
@@ -962,7 +965,7 @@ const BomSection = () => {
           type="button"
           onClick={exportCsv}
           className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600"
-          title="Tabelle als CSV (UTF-8 mit BOM für Excel) herunterladen"
+          title={t('export.bom.csvTitle', 'Tabelle als CSV (UTF-8 mit BOM für Excel) herunterladen')}
         >
           Als CSV herunterladen
         </button>
@@ -970,7 +973,7 @@ const BomSection = () => {
           type="button"
           onClick={exportPdf}
           className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500"
-          title="Tabelle als PDF herunterladen"
+          title={t('export.bom.pdfTitle', 'Tabelle als PDF herunterladen')}
         >
           Als PDF herunterladen
         </button>
@@ -978,7 +981,7 @@ const BomSection = () => {
           type="button"
           onClick={printPdf}
           className="rounded bg-indigo-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600"
-          title="Kabel-Stückliste im OS-Druckdialog öffnen"
+          title={t('export.bom.osPrint', 'Kabel-Stückliste im OS-Druckdialog öffnen')}
         >
           🖨 Drucken
         </button>
