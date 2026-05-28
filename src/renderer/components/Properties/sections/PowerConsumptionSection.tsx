@@ -1,4 +1,5 @@
 import { useProjectStore } from '../../../store/projectStore'
+import { useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
 import { SortableSection } from '../SortableSection'
 
@@ -12,6 +13,7 @@ import { SortableSection } from '../SortableSection'
  * the field tech sees the original specification next time.
  */
 export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentItem }) => {
+  const t = useTranslation()
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const v = equipment.voltage
   const a = equipment.currentAmps
@@ -24,16 +26,16 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
         ? `~${Math.round(computedW)} W`
         : '–'
   return (
-    <SortableSection id="power" title="Stromverbrauch" subtitle={summary}>
+    <SortableSection id="power" title={t('power.title', 'Stromverbrauch')} subtitle={summary}>
       <div className="grid grid-cols-3 gap-2 text-xs">
         <label className="block">
-          <span className="mb-1 block text-slate-400">Spannung (V)</span>
+          <span className="mb-1 block text-slate-400">{t('power.voltage', 'Spannung (V)')}</span>
           <input
             type="number"
             min={0}
             step={1}
             value={v ?? ''}
-            placeholder="z. B. 230"
+            placeholder={t('power.voltagePlaceholder', 'z. B. 230')}
             onChange={(e) => {
               const nextV = e.target.value ? Math.max(0, Number(e.target.value)) : undefined
               // Recompute W only when both V and A are present AND
@@ -56,13 +58,13 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-slate-400">Stromstärke (A)</span>
+          <span className="mb-1 block text-slate-400">{t('power.current', 'Stromstärke (A)')}</span>
           <input
             type="number"
             min={0}
             step={0.01}
             value={a ?? ''}
-            placeholder="z. B. 1.5"
+            placeholder={t('power.currentPlaceholder', 'z. B. 1.5')}
             onChange={(e) => {
               const nextA = e.target.value ? Math.max(0, Number(e.target.value)) : undefined
               const oldProduct =
@@ -81,9 +83,9 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
         </label>
         <label className="block">
           <span className="mb-1 block text-slate-400">
-            Leistung (W)
+            {t('power.watts', 'Leistung (W)')}
             {computedW !== undefined && (
-              <span className="ml-1 text-emerald-400/70" title="Aus V × A berechnet">
+              <span className="ml-1 text-emerald-400/70" title={t('power.wattsComputed', 'Aus V × A berechnet')}>
                 ⚡
               </span>
             )}
@@ -94,7 +96,9 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
             step={1}
             value={w ?? ''}
             placeholder={
-              computedW !== undefined ? `auto: ${Math.round(computedW)}` : 'optional'
+              computedW !== undefined
+                ? `${t('power.auto', 'auto')}: ${Math.round(computedW)}`
+                : t('common.optional', 'optional')
             }
             onChange={(e) =>
               updateEquipment(equipment.id, {
@@ -104,13 +108,15 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
               })
             }
             className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
-            title="Datenblatt-Wert. V × A wird vorgeschlagen, kann hier überschrieben werden."
+            title={t('power.wattsTitle', 'Datenblatt-Wert. V × A wird vorgeschlagen, kann hier überschrieben werden.')}
           />
         </label>
       </div>
       <p className="mt-2 text-[10px] text-slate-500">
-        Wenn Spannung und Stromstärke gesetzt sind, wird die Leistung automatisch berechnet
-        (P = U × I). Werkzeuge → Stromverbrauch summiert das Leistungs-Feld über alle Geräte.
+        {t(
+          'power.formulaHint',
+          'Wenn Spannung und Stromstärke gesetzt sind, wird die Leistung automatisch berechnet (P = U × I). Werkzeuge → Stromverbrauch summiert das Leistungs-Feld über alle Geräte.',
+        )}
       </p>
     </SortableSection>
   )

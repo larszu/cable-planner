@@ -1205,6 +1205,20 @@ const en: Dict = {
   'onboarding.steps.cablePlan.title': 'Cable plan & warnings',
   'onboarding.steps.cablePlan.body':
     'If you import cable quantities from Rentman, Cable Planner warns when you wire more cables than available. "Send cables to Rentman" syncs back the assembled totals.',
+
+  // PowerConsumptionSection
+  'power.title': 'Power consumption',
+  'power.voltage': 'Voltage (V)',
+  'power.voltagePlaceholder': 'e.g. 230',
+  'power.current': 'Current (A)',
+  'power.currentPlaceholder': 'e.g. 1.5',
+  'power.watts': 'Power (W)',
+  'power.wattsComputed': 'Computed from V × A',
+  'power.auto': 'auto',
+  'power.wattsTitle':
+    'Datasheet value. V × A is suggested; can be overridden here.',
+  'power.formulaHint':
+    'When voltage and current are set, power is computed automatically (P = U × I). Tools → power consumption sums the power field across all devices.',
 }
 
 const translations: Record<Language, Dict> = {
