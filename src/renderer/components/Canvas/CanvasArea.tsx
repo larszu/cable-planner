@@ -1256,6 +1256,12 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       const start = connectStartRef.current
       connectStartRef.current = null
       if (!start || !start.nodeId || !start.handleId || !start.handleType) return
+      // #295 — Im finalized/viewer-Modus keine Open-End-Stubs anlegen.
+      // ReactFlow's `nodesConnectable={!projectIsLocked}` blockiert den
+      // Connect-Start schon, aber Touch-/Mouse-Events koennen den Drag
+      // dennoch aufmachen wenn der User waehrend des Drags den Lock
+      // umschaltet; dieser Guard ist die zweite Verteidigungslinie.
+      if (projectIsLocked) return
 
       // v7.9.128 — Wenn onConnect schon eine Verbindung gemacht hat,
       // KEIN Open-End-Stub mehr drueber legen. Der frueher hier
@@ -1328,7 +1334,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         })
       }
     },
-    [addOpenEndStub, project.equipment, queueConnection, screenToFlowPosition, snapToGrid, gridSize],
+    [addOpenEndStub, project.equipment, queueConnection, screenToFlowPosition, snapToGrid, gridSize, projectIsLocked],
   )
 
   const onDragOver = useCallback((event: React.DragEvent) => {
