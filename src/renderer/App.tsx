@@ -229,15 +229,26 @@ export default function App() {
       const outdated = findOutdatedEquipment(state.project.equipment)
       if (outdated.length === 0) return
       const lines = outdated.slice(0, 12).map((o) => {
-        const kindLabel = o.refKind === 'device' ? 'Gerät' : 'Rack/Gruppe'
+        const kindLabel = o.refKind === 'device'
+          ? t('app.libUpdate.kindDevice', 'Gerät')
+          : t('app.libUpdate.kindGroup', 'Rack/Gruppe')
         return `• ${o.equipmentName} (${kindLabel}: ${o.refName}) — v${o.storedFileVersion} → v${o.currentFileVersion}`
       })
-      const more = outdated.length > lines.length ? `\n…und ${outdated.length - lines.length} weitere` : ''
+      const more = outdated.length > lines.length
+        ? '\n' + format(t('app.libUpdate.moreLines', '…und {n} weitere'), { n: outdated.length - lines.length })
+        : ''
       const ok = await confirmDialog(
-        `${outdated.length} Library-Item${outdated.length === 1 ? '' : 's'} im Projekt sind veraltet:`,
+        format(t('app.libUpdate.title', '{n} Library-Item(s) im Projekt sind veraltet:'), {
+          n: outdated.length,
+        }),
         {
-          body: `${lines.join('\n')}${more}\n\nIm Bibliotheks-Ordner liegt eine neuere Version. Auf die aktuellen Library-Stände aktualisieren?\n\n(Geräte-Namen + Notizen bleiben erhalten. Rack/Gruppen-Updates müssen aktuell manuell neu platziert werden.)`,
-          okLabel: 'Aktualisieren',
+          body:
+            `${lines.join('\n')}${more}\n\n` +
+            t(
+              'app.libUpdate.body',
+              'Im Bibliotheks-Ordner liegt eine neuere Version. Auf die aktuellen Library-Stände aktualisieren?\n\n(Geräte-Namen + Notizen bleiben erhalten. Rack/Gruppen-Updates müssen aktuell manuell neu platziert werden.)',
+            ),
+          okLabel: t('app.libUpdate.okBtn', 'Aktualisieren'),
         },
       )
       if (!ok) return
@@ -255,12 +266,19 @@ export default function App() {
       }
       const skipped = outdated.length - applied
       if (applied > 0 || skipped > 0) {
-        await infoDialog('Update fertig', {
-          body: `${applied} Gerät${applied === 1 ? '' : 'e'} aktualisiert.${
-            skipped > 0
-              ? `\n${skipped} Rack/Gruppen-Item${skipped === 1 ? '' : 's'} übersprungen — bitte manuell neu platzieren wenn nötig.`
-              : ''
-          }`,
+        await infoDialog(t('app.libUpdate.doneTitle', 'Update fertig'), {
+          body:
+            format(t('app.libUpdate.doneAppliedBody', '{n} device(s) updated.'), { n: applied }) +
+            (skipped > 0
+              ? '\n' +
+                format(
+                  t(
+                    'app.libUpdate.doneSkippedBody',
+                    '{n} rack/group item(s) skipped — please re-place manually if needed.',
+                  ),
+                  { n: skipped },
+                )
+              : ''),
           tone: 'success',
         })
       }
@@ -443,7 +461,10 @@ export default function App() {
       (project.locations?.length ?? 0) > 0
     if (hasContent) {
       const ok = confirm(
-        'Aktuelles Projekt verwerfen und neues Projekt anlegen?\n\nUngespeicherte Änderungen gehen verloren.',
+        t(
+          'app.newProject.confirm',
+          'Aktuelles Projekt verwerfen und neues Projekt anlegen?\n\nUngespeicherte Änderungen gehen verloren.',
+        ),
       )
       if (!ok) return
     }
@@ -504,17 +525,19 @@ export default function App() {
     try {
       const path = await cablePlannerApi.project.exportViewer(project)
       if (path) {
-        await infoDialog('Viewer-Datei gespeichert', {
+        await infoDialog(t('app.viewerExport.okTitle', 'Viewer-Datei gespeichert'), {
           body:
             `${path}\n\n` +
-            'Sende sie an deine Freelancer/Helfer. Beim Öffnen werden sie nach ' +
-            'ihrem Namen gefragt — Anmerkungen sind dann automatisch attributiert.',
+            t(
+              'app.viewerExport.okBody',
+              'Sende sie an deine Freelancer/Helfer. Beim Öffnen werden sie nach ihrem Namen gefragt — Anmerkungen sind dann automatisch attributiert.',
+            ),
           tone: 'success',
         })
       }
     } catch (error) {
       console.error('Viewer export failed:', error)
-      await infoDialog('Viewer-Export fehlgeschlagen', {
+      await infoDialog(t('app.viewerExport.failTitle', 'Viewer-Export fehlgeschlagen'), {
         body: (error as Error).message,
         tone: 'error',
       })
@@ -526,7 +549,10 @@ export default function App() {
   // project.annotations[] hinzu (ID-basierte De-Duplikation).
   const handleImportAnnotations = async () => {
     if (!hasDesktopBridge) {
-      await infoDialog('Annotations-Re-Import erfordert die Desktop-App.', { tone: 'warning' })
+      await infoDialog(
+        t('app.annotationsImport.needDesktop', 'Annotations-Re-Import erfordert die Desktop-App.'),
+        { tone: 'warning' },
+      )
       return
     }
     const result = await cablePlannerApi.project.importAnnotations()
@@ -542,10 +568,15 @@ export default function App() {
       addAnnotation(a as import('./types/project').ProjectAnnotation)
       imported++
     }
-    await infoDialog('Annotations importiert', {
+    await infoDialog(t('app.annotationsImport.okTitle', 'Annotations importiert'), {
       body:
-        `${imported} neue Anmerkung${imported === 1 ? '' : 'en'} importiert.\n` +
-        `${incoming.length - imported} bereits vorhanden — übersprungen.`,
+        format(t('app.annotationsImport.okBodyImported', '{n} new annotation(s) imported.'), {
+          n: imported,
+        }) +
+        '\n' +
+        format(t('app.annotationsImport.okBodySkipped', '{n} already present — skipped.'), {
+          n: incoming.length - imported,
+        }),
       tone: 'success',
     })
   }
@@ -720,12 +751,15 @@ export default function App() {
         const list = conflicts
           .map((c) => `• ${c.name || `${c.type} ${c.length} m`}`)
           .join('\n')
-        const replace = await confirmDialog('Port bereits belegt', {
+        const replace = await confirmDialog(t('app.portConflict.title', 'Port bereits belegt'), {
           body:
-            `An mindestens einem der Ports steckt bereits ein Kabel:\n\n${list}\n\n` +
-            `"Ersetzen" = bestehendes Kabel löschen und neue Verbindung anlegen.\n` +
-            `"Abbrechen" = neue Verbindung verwerfen, alles bleibt wie es ist.`,
-          okLabel: 'Ersetzen',
+            t('app.portConflict.intro', 'An mindestens einem der Ports steckt bereits ein Kabel:') +
+            `\n\n${list}\n\n` +
+            t(
+              'app.portConflict.body',
+              '"Ersetzen" = bestehendes Kabel löschen und neue Verbindung anlegen.\n"Abbrechen" = neue Verbindung verwerfen, alles bleibt wie es ist.',
+            ),
+          okLabel: t('app.portConflict.okReplace', 'Ersetzen'),
           destructive: true,
         })
         if (!replace) {
@@ -973,22 +1007,24 @@ export default function App() {
             <div className="w-full max-w-md rounded border border-amber-700 bg-slate-900 text-slate-100 shadow-2xl">
               <header className="border-b border-slate-700 px-4 py-2">
                 <h2 className="text-sm font-semibold text-amber-300">
-                  Port bereits belegt
+                  {t('app.portConflict.title', 'Port bereits belegt')}
                 </h2>
               </header>
               <div className="px-4 py-3 text-sm">
                 <p className="mb-2">
-                  Der Ziel-Port{' '}
+                  {t('app.portConflict.targetPortLabel', 'Der Ziel-Port')}{' '}
                   <span className="font-mono text-amber-200">
                     {targetEq?.name ?? '?'} · {targetPort?.name ?? '?'}
                   </span>{' '}
-                  ist bereits über{' '}
+                  {t('app.portConflict.alreadyConnectedBy', 'ist bereits über')}{' '}
                   <strong>
                     {conflictingCables.length === 1
-                      ? '1 Kabel'
-                      : `${conflictingCables.length} Kabel`}
+                      ? t('app.portConflict.oneCable', '1 Kabel')
+                      : format(t('app.portConflict.nCables', '{n} Kabel'), {
+                          n: conflictingCables.length,
+                        })}
                   </strong>{' '}
-                  belegt:
+                  {t('app.portConflict.connected', 'belegt:')}
                 </p>
                 <ul className="mb-3 max-h-32 space-y-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-2 text-xs">
                   {conflictingCables.map((c) => {
@@ -1008,8 +1044,10 @@ export default function App() {
                   })}
                 </ul>
                 <p className="text-[12px] text-slate-400">
-                  „Ersetzen" entfernt die obige(n) Verbindung(en) und legt das
-                  neue Kabel an. „Abbrechen" verwirft den Connect-Versuch.
+                  {t(
+                    'app.portConflict.hint',
+                    '„Ersetzen" entfernt die obige(n) Verbindung(en) und legt das neue Kabel an. „Abbrechen" verwirft den Connect-Versuch.',
+                  )}
                 </p>
               </div>
               <footer className="flex justify-end gap-2 border-t border-slate-700 px-4 py-2">
@@ -1018,14 +1056,14 @@ export default function App() {
                   onClick={cancelPortConflict}
                   className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
                 >
-                  Abbrechen
+                  {t('common.cancel', 'Abbrechen')}
                 </button>
                 <button
                   type="button"
                   onClick={resolvePortConflictByReplace}
                   className="rounded bg-amber-700 px-3 py-1 text-xs font-semibold hover:bg-amber-600"
                 >
-                  Ersetzen
+                  {t('app.portConflict.okReplace', 'Ersetzen')}
                 </button>
               </footer>
             </div>
@@ -1326,7 +1364,13 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
   // Längen-Warnung anzeigen.
   const lengthWarning =
     !cable.wireless && selected.maxLengthMeters && length > selected.maxLengthMeters
-      ? `Länge überschreitet empfohlenes Maximum von ${selected.maxLengthMeters} m für ${selected.name}.`
+      ? format(
+          t(
+            'cable.lengthWarning',
+            'Länge überschreitet empfohlenes Maximum von {max} m für {name}.',
+          ),
+          { max: selected.maxLengthMeters, name: selected.name },
+        )
       : null
 
   const submit = () => {
