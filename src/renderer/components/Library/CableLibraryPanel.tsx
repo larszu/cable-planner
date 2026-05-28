@@ -249,7 +249,7 @@ const CableTypeEditor = ({
             </div>
             {standards.length === 0 && (
               <span className="mt-0.5 block text-[10px] text-red-400">
-                Mindestens einen Standard auswählen.
+                {t('cableLib.pickAtLeastOneStandard', 'Mindestens einen Standard auswählen.')}
               </span>
             )}
           </div>

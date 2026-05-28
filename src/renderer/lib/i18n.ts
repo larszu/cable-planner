@@ -2690,6 +2690,36 @@ const en: Dict = {
     'Heuristic based on device name. If your model supports a layout the heuristic does not detect (or vice-versa), check the boxes here — the selection overrides the default and is kept with the project.',
   'atem.mv.quadrantHint1': 'Click on a quadrant:',
   'atem.mv.quadrantHint2': 'big ↔ 4 small',
+  // AnnotationsPanel additional
+  'annotations.status.all': 'all',
+  'annotations.placeholderAs': 'Annotation as {name}…',
+  'annotations.placeholderEmpty': 'Annotation… (name will be asked once)',
+  'annotations.add': 'Add',
+  'annotations.cancel': 'Cancel',
+  // RackBuilderDialog placement properties dialog
+  'rack.props.title': 'Properties · {name}',
+  'rack.props.removeFromRack': 'Remove from rack',
+  'rack.props.name': 'Name',
+  'rack.props.category': 'Category',
+  'rack.props.heightHe': 'Height (RU)',
+  'rack.props.startHe': 'Start RU',
+  'rack.props.heightOverflow': 'Height + start RU exceeds rack ({total} RU).',
+  'rack.props.maxHint': 'max {max} (height {he} RU)',
+  'rack.props.depthMm': 'Depth (mm)',
+  // ATEM MV reset override + dialog title
+  'atem.mv.resetOverride': 'Reset override',
+  'atem.mv.dialogTitle': 'Multiviewer layout · {name}',
+  // LibraryPanel empty + netbox dialog + rentman
+  'library.empty.title': 'No devices found',
+  'library.empty.body':
+    'No match for "{q}". Try a different search term or clear the search field.',
+  'library.empty.clearSearch': 'Clear search',
+  'library.rentman.currentLinkedProject': 'Currently linked Rentman project',
+  'library.netbox.intro':
+    'Imports devices from the NetBox device-type-library into the local library. Non-destructive: existing devices on the canvas remain unchanged.',
+  'library.suggest.heading': 'Auto-suggest from device name',
+  // CableLibraryPanel
+  'cableLib.pickAtLeastOneStandard': 'Select at least one standard.',
 }
 
 const translations: Record<Language, Dict> = {

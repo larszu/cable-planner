@@ -145,7 +145,7 @@ export const AnnotationsPanel = ({
           onClick={onClose}
           className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
         >
-          Schließen
+          {t('common.close', 'Schließen')}
         </button>
       </header>
 
@@ -162,7 +162,9 @@ export const AnnotationsPanel = ({
                   : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
               }`}
             >
-              {s === 'all' ? 'alle' : STATUS_LABEL[s]}
+              {s === 'all'
+                ? t('annotations.status.all', 'alle')
+                : t(`annotations.status.${s}`, STATUS_LABEL[s])}
             </button>
           ))}
         </div>
@@ -175,8 +177,8 @@ export const AnnotationsPanel = ({
               rows={3}
               placeholder={
                 currentAuthor
-                  ? `Anmerkung als ${currentAuthor}…`
-                  : 'Anmerkung… (Name wird einmalig abgefragt)'
+                  ? format(t('annotations.placeholderAs', 'Anmerkung als {name}…'), { name: currentAuthor })
+                  : t('annotations.placeholderEmpty', 'Anmerkung… (Name wird einmalig abgefragt)')
               }
               className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
             />
@@ -202,7 +204,7 @@ export const AnnotationsPanel = ({
                 }}
                 className="flex-1 rounded bg-emerald-600 px-2 py-1 text-xs hover:bg-emerald-500"
               >
-                Hinzufügen
+                {t('annotations.add', 'Hinzufügen')}
               </button>
               <button
                 type="button"
@@ -212,7 +214,7 @@ export const AnnotationsPanel = ({
                 }}
                 className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
               >
-                Abbruch
+                {t('annotations.cancel', 'Abbruch')}
               </button>
             </div>
           </div>
@@ -290,7 +292,7 @@ export const AnnotationsPanel = ({
                           className="rounded px-1 py-0.5 text-[9px] font-semibold"
                           style={{ background: STATUS_COLOR[a.status], color: '#0f172a' }}
                         >
-                          {STATUS_LABEL[a.status]}
+                          {t(`annotations.status.${a.status}`, STATUS_LABEL[a.status])}
                         </span>
                         <span className="truncate text-[10px] text-slate-500" title={a.createdAt}>
                           {new Date(a.createdAt).toLocaleString()}
