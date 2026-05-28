@@ -425,10 +425,10 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               <thead className="text-left text-slate-400">
                 <tr>
                   <th className="w-12 py-1">ID</th>
-                  <th className="w-20 py-1">Typ</th>
-                  <th className="w-1/4 py-1">Live (long / short)</th>
-                  <th className="py-1">Neu Long (max 20)</th>
-                  <th className="w-24 py-1">Neu Short (4)</th>
+                  <th className="w-20 py-1">{t('atem.col.type', 'Typ')}</th>
+                  <th className="w-1/4 py-1">{t('atem.col.live', 'Live (long / short)')}</th>
+                  <th className="py-1">{t('atem.col.newLong', 'Neu Long (max 20)')}</th>
+                  <th className="w-24 py-1">{t('atem.col.newShort', 'Neu Short (4)')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -512,7 +512,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
         )}
 
         <details className="border-t border-slate-700 px-4 py-2 text-[11px]">
-          <summary className="cursor-pointer text-slate-400">Event-Log ({events.length})</summary>
+          <summary className="cursor-pointer text-slate-400">{t('atem.eventLog', 'Event-Log')} ({events.length})</summary>
           <pre className="mt-2 max-h-40 overflow-auto rounded bg-slate-950 p-2 font-mono text-[10px] text-slate-300">
             {events.join('\n') || '(noch keine Events)'}
           </pre>
