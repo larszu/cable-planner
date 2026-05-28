@@ -46,82 +46,15 @@ const KEYBOARD_SENSOR_OPTIONS = {
 } as const
 
 /**
- * v7.4.0 / v7.6.0 — drag-reorderable accordion section. Each section
- * lives in its own `<details>` for independent collapse, and uses
- * dnd-kit's `useSortable` to participate in the parent's drag
- * context. We rely on `useSortable`'s `index` (the position in the
- * SortableContext items array) for CSS `order` so that ALL sections
- * don't need to subscribe to the uiStore order array — that was
- * causing every section to re-render on every reorder and possibly
- * trigping React #185 during heavy drag activity.
+ * #306 — God-Component-Reduktion. Vorher 2758 LOC mit allen Sektionen
+ * inline. Jetzt nur noch DnD-Setup + die Section-Reihenfolge. Alle
+ * Sektionen liegen in `sections/`, der gemeinsame `<details>`-Wrapper
+ * `SortableSection` ist eine eigene Datei.
  *
- * The `⋮⋮` handle on the summary triggers drag via spread attributes
- * + listeners (dnd-kit's contract); the rest of the summary keeps
- * the click-to-toggle behaviour for the accordion.
+ * Order-Persistenz laeuft via uiStore.equipmentSectionOrder; jede
+ * SortableSection liest sie selbstaendig — der Parent-Component
+ * mutiert sie nur beim DragEnd.
  */
-// SortableSection lebt in eigener Datei (#306).
-
-
-
-// v7.9.7 — Device-Level "SDI Fähigkeiten" Block entfernt. Quad-Link
-// passiert jetzt pro Port via `port.quadLinkGroup`. Level A/B + Max
-// Single-Link bleiben pro BNC-Port erhalten. Falls die Device-Level
-// API noch von Importern / Exportern gelesen wird (z.B. Rentman-
-// Templates), bleibt das Datenmodell-Feld `equipment.sdiCaps`
-// vorerst bestehen — nur die UI ist weg.
-
-
-
-/**
- * Monitor/display properties block (resolution + size).
- * Shown when the device looks like a display based on category, name, or
- * when the user has already set one of these fields.
- */
-/**
- * v7.9.131 / Issue #216 — Physische Geraete-Dimensionen (Hoehe x Breite x Tiefe).
- * Optional, nur zur Information / fuer spaetere 3D-Rack-Layouts. Schritt
- * waehlbar in mm. Tab-Reihenfolge: H -> B -> T.
- */
-
-
-/**
- * v7.5.0 / v7.6.0 — Operating-mode picker + inline editor for multi-mode
- * devices (media servers, modular processors like Pixelhue P20, Parco
- * S3, Brompton Tessera).
- *
- * Workflow:
- *   1. Edit ports normally with the PortList accordion → layout A.
- *   2. Click "+ aus aktuellem Layout" → name it "Layout A". Now the
- *      current ports are captured as a mode, and that mode is active.
- *   3. Edit ports → layout B → "+ aus aktuellem Layout" → "Layout B".
- *   4. Switch modes via the cards. Each card has rename + delete.
- *
- * Switching activates the mode and copies its snapshot to the live
- * inputs/outputs (via setActiveDeviceMode in the store). Editing the
- * ports later doesn't automatically sync back to the mode — there's
- * an "Aktuelle Ports in Modus übernehmen" button per active mode for
- * that, so the user controls when a mode definition is updated.
- */
-
-/**
- * v7.9.108 / Issue #225 — AI-Suggest-Button im Ports-Panel.
- *
- * Sitzt oben im Inputs/Outputs-Bereich der EquipmentProperties-Sidebar.
- * Klick → ruft suggestFromAI(equipment.name, equipment.category) via
- * den im Settings → AI konfigurierten Provider (Gemini / Claude /
- * OpenAI). Wenn die KI Port-Vorschlaege liefert, kann der User:
- *  - Vorhandene Ports ERSETZEN (zerstoerende Aktion, mit Confirm)
- *  - Vorschlaege ANHAENGEN an die bestehenden Ports (additive Aktion)
- * Fehler werden inline ausgegeben.
- */
-
-/**
- * v7.9.105 / Issue #216 — Physische Dimensionen (Hoehe / Breite / Tiefe
- * in mm). Bisher waren widthMm/heightMm/depthMm im Schema definiert,
- * aber nur ueber den Rack-Builder editierbar. Jetzt auch im
- * Eigenschaften-Panel — sinnvoll fuer Rack-Planung, Logistik, Platzbedarf.
- */
-
 export const EquipmentProperties = () => {
   const t = useTranslation()
   const selectedEquipmentId = useProjectStore((state) => state.selectedEquipmentId)
