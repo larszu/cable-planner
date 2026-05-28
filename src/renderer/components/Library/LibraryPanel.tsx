@@ -831,8 +831,8 @@ export const LibraryPanel = () => {
         <button
           type="button"
           onClick={toggleCollapsed}
-          title="Library einblenden"
-          aria-label="Library einblenden"
+          title={t('library.show', 'Library einblenden')}
+          aria-label={t('library.show', 'Library einblenden')}
           className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
           <span className="text-base leading-none">›</span>
@@ -840,11 +840,11 @@ export const LibraryPanel = () => {
         <button
           type="button"
           onClick={toggleCollapsed}
-          aria-label="Library einblenden"
+          aria-label={t('library.show', 'Library einblenden')}
           className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:text-slate-300 focus-visible:outline-none focus-visible:text-sky-300"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
-          Library
+          {t('library.title', 'Library')}
         </button>
       </aside>
     )
@@ -861,8 +861,8 @@ export const LibraryPanel = () => {
           <button
             type="button"
             onClick={toggleCollapsed}
-            title="Library ausblenden"
-            aria-label="Library ausblenden"
+            title={t('library.hide', 'Library ausblenden')}
+            aria-label={t('library.hide', 'Library ausblenden')}
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-base leading-none">‹</span>
@@ -898,7 +898,7 @@ export const LibraryPanel = () => {
           onClick={() => setTab('groups')}
           label="Gruppen"
           count={groupPresets.length}
-          title="Gespeicherte Gerätegruppen (mehrere Geräte + Kabel als Vorlage)"
+          title={t('library.tab.groupsTitle', 'Gespeicherte Gerätegruppen (mehrere Geräte + Kabel als Vorlage)')}
           icon={
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="2" y="2" width="6" height="5" rx="0.8" />
@@ -937,7 +937,7 @@ export const LibraryPanel = () => {
                   ? 'bg-sky-700 text-white'
                   : 'text-slate-300 hover:bg-slate-800'
               }`}
-              title="Eigene und importierte Vorlagen, lokal in dieser Installation"
+              title={t('library.section.localTitle', 'Eigene und importierte Vorlagen, lokal in dieser Installation')}
             >
               <span className="mr-1 rounded bg-sky-900/80 px-1 text-[9px] font-bold text-sky-100">L</span>
               Lokal
@@ -953,7 +953,7 @@ export const LibraryPanel = () => {
                   ? 'bg-orange-600 text-white'
                   : 'text-slate-300 hover:bg-slate-800'
               }`}
-              title="Aus Rentman importierte Geräte und Account-Katalog"
+              title={t('library.section.rentmanTitle', 'Aus Rentman importierte Geräte und Account-Katalog')}
             >
               <span className="mr-1 rounded bg-orange-900/80 px-1 text-[9px] font-bold text-orange-100">R</span>
               Rentman
@@ -1072,7 +1072,7 @@ export const LibraryPanel = () => {
                 ref={newGroupInputRef}
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
-                placeholder="Kategoriename…"
+                placeholder={t('library.newCategoryPlaceholder', 'Kategoriename…')}
                 className="flex-1 rounded border border-slate-600 bg-slate-900 p-1.5 text-xs"
               />
               <button
@@ -1212,7 +1212,7 @@ export const LibraryPanel = () => {
                           }
                         }}
                         className="hidden rounded bg-slate-700/80 px-1.5 py-0.5 text-[10px] font-normal normal-case text-slate-200 hover:bg-slate-600 group-hover/cat:block"
-                        title="Kategorie umbenennen"
+                        title={t('library.renameCategory', 'Kategorie umbenennen')}
                       >
                         ✎
                       </button>
@@ -1487,14 +1487,14 @@ export const LibraryPanel = () => {
                       onKeyDown={(e) => {
                         if (e.key === 'Escape') setRentmanSearch('')
                       }}
-                      placeholder="In Rentman-Geraeten suchen…"
+                      placeholder={t('library.rentmanSearchPlaceholder', 'In Rentman-Geraeten suchen…')}
                       className="w-full rounded border border-slate-700 bg-slate-900 py-1 pl-7 pr-7 text-xs text-slate-100 placeholder-slate-500"
                     />
                     {rentmanSearch && (
                       <button
                         type="button"
                         onClick={() => setRentmanSearch('')}
-                        title="Suche loeschen"
+                        title={t('library.search.clear', 'Suche löschen')}
                         className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
                       >
                         ✕
@@ -1700,7 +1700,7 @@ export const LibraryPanel = () => {
                           type="text"
                           value={rentmanCatalogQuery}
                           onChange={(event) => setRentmanCatalogQuery(event.target.value)}
-                          placeholder="Suchen…"
+                          placeholder={t('common.search', 'Suchen…')}
                           className="mb-2 w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 placeholder-slate-500"
                         />
                         {(() => {

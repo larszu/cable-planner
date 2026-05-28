@@ -238,6 +238,16 @@ const en: Dict = {
 
   // Library panel
   'library.title': 'Library',
+  'library.show': 'Show library',
+  'library.hide': 'Hide library',
+  'library.tab.groupsTitle':
+    'Saved device groups (multiple devices + cables as a template)',
+  'library.section.localTitle':
+    'Custom and imported templates, local to this installation',
+  'library.section.rentmanTitle': 'Rentman-imported devices and account catalog',
+  'library.newCategoryPlaceholder': 'Category name…',
+  'library.renameCategory': 'Rename category',
+  'library.rentmanSearchPlaceholder': 'Search Rentman devices…',
   'library.tab.equipment': 'Equipment',
   'library.tab.cables': 'Cables',
   'library.tab.groups': 'Groups',
