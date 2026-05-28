@@ -23,6 +23,7 @@ import QRCode from 'qrcode'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { useTranslation } from '../../lib/i18n'
 
 interface ShareStatus {
   running: boolean
@@ -56,6 +57,7 @@ const scoreAddress = (url: string): number => {
 }
 
 export const MobileShareDialog = () => {
+  const t = useTranslation()
   const open = useUiStore((s) => s.mobileShare.open)
   const close = useUiStore((s) => s.closeMobileShare)
   const [status, setStatus] = useState<ShareStatus>({
@@ -143,7 +145,7 @@ export const MobileShareDialog = () => {
           className="flex items-center justify-between border-b border-slate-700 px-4 py-3 select-none"
         >
           <h2 className="text-sm font-semibold">
-            <span className="mr-2">📱</span>Handy-Zugriff
+            <span className="mr-2">📱</span>{t('mobile.dialog.heading', 'Handy-Zugriff')}
           </h2>
           <button
             type="button"
@@ -156,17 +158,14 @@ export const MobileShareDialog = () => {
         <div className="space-y-3 p-4 text-sm">
           {!hasDesktopBridge && (
             <div className="rounded border border-amber-700 bg-amber-950/40 p-3 text-xs text-amber-200">
-              Diese Funktion benötigt die Desktop-App (Electron). Im Web-Browser ist der
-              Mobile-Viewer als statisches HTML im{' '}
+              {t('mobile.dialog.desktopOnly1', 'Diese Funktion benötigt die Desktop-App (Electron). Im Web-Browser ist der Mobile-Viewer als statisches HTML im')}{' '}
               <code className="rounded bg-slate-800 px-1">dist/renderer/mobile.html</code>{' '}
-              erreichbar.
+              {t('mobile.dialog.desktopOnly2', 'erreichbar.')}
             </div>
           )}
 
           <p className="text-xs text-slate-400">
-            Startet einen kleinen Web-Server im lokalen Netzwerk. Scanne den QR-Code mit dem
-            Handy → der Mobile-Viewer öffnet sich im Browser und lädt das aktuelle Projekt.
-            Der Server stoppt automatisch beim Schließen der App oder über den Stop-Button.
+            {t('mobile.dialog.description', 'Startet einen kleinen Web-Server im lokalen Netzwerk. Scanne den QR-Code mit dem Handy → der Mobile-Viewer öffnet sich im Browser und lädt das aktuelle Projekt. Der Server stoppt automatisch beim Schließen der App oder über den Stop-Button.')}
           </p>
 
           {status.running ? (

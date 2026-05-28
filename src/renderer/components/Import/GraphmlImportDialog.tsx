@@ -25,6 +25,7 @@ import {
   type ResolvedDevice,
 } from '../../lib/graphml/semantics'
 import { useProjectStore } from '../../store/projectStore'
+import { useTranslation } from '../../lib/i18n'
 
 export interface GraphmlImportDialogProps {
   open: boolean
@@ -72,6 +73,7 @@ const formatBytes = (n: number) => {
 }
 
 export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps) => {
+  const t = useTranslation()
   const [stage, setStage] = useState<Stage>({ kind: 'empty' })
   const [tab, setTab] = useState<'preview' | 'devices' | 'cables' | 'skipped'>('preview')
   const [mode, setMode] = useState<'append' | 'replace'>('append')
@@ -250,12 +252,9 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
     <div className="flex flex-1 flex-col items-center justify-center gap-4 p-12 text-center text-slate-300">
       <div className="text-5xl">📐</div>
       <div className="max-w-md text-sm">
-        <p className="mb-2 font-semibold text-slate-100">yEd / GraphML Importer</p>
+        <p className="mb-2 font-semibold text-slate-100">{t('graphml.dialog.importerTitle', 'yEd / GraphML Importer')}</p>
         <p>
-          Wähle eine <code className="text-slate-200">.graphml</code> Datei. Cable Planner
-          erkennt Geräte, Ports und Kabel automatisch — du bekommst eine Vorschau und
-          kannst einzelne Einträge ein- oder ausschließen, bevor sie ins Projekt übernommen
-          werden.
+          {t('graphml.dialog.empty.intro1', 'Wähle eine')} <code className="text-slate-200">.graphml</code> {t('graphml.dialog.empty.intro2', 'Datei. Cable Planner erkennt Geräte, Ports und Kabel automatisch — du bekommst eine Vorschau und kannst einzelne Einträge ein- oder ausschließen, bevor sie ins Projekt übernommen werden.')}
         </p>
       </div>
       <button
@@ -264,7 +263,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         onClick={handlePickFile}
         className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-60"
       >
-        Datei auswählen…
+        {t('graphml.dialog.pickFile', 'Datei auswählen…')}
       </button>
     </div>
   )
@@ -274,7 +273,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-600 border-t-sky-400" />
       <div className="text-sm">
         <p className="font-medium">{fileName}</p>
-        <p className="text-slate-500">Parser läuft (~ 250 ms pro MB)…</p>
+        <p className="text-slate-500">{t('graphml.dialog.parsing', 'Parser läuft (~ 250 ms pro MB)…')}</p>
       </div>
     </div>
   )
@@ -282,7 +281,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
   const renderError = (fileName: string | null, message: string) => (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 p-12 text-center">
       <div className="text-3xl">⚠</div>
-      <p className="text-sm font-medium text-red-300">Import fehlgeschlagen</p>
+      <p className="text-sm font-medium text-red-300">{t('graphml.dialog.importFailed', 'Import fehlgeschlagen')}</p>
       {fileName && <p className="text-xs text-slate-400">{fileName}</p>}
       <pre className="max-w-full whitespace-pre-wrap rounded bg-slate-950 p-3 text-xs text-red-200">
         {message}
@@ -292,7 +291,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         onClick={reset}
         className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
       >
-        Andere Datei wählen
+        {t('graphml.dialog.pickOther', 'Andere Datei wählen')}
       </button>
     </div>
   )
@@ -309,41 +308,41 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         <div className="border-b border-slate-700 px-4 py-2">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div>
-              <span className="text-xs uppercase tracking-wide text-slate-400">Datei</span>{' '}
+              <span className="text-xs uppercase tracking-wide text-slate-400">{t('graphml.dialog.file', 'Datei')}</span>{' '}
               <span className="font-medium text-slate-100">{s.fileName}</span>
               <span className="ml-2 text-xs text-slate-500">
-                {formatBytes(preview.meta.fileSize)} • {preview.meta.nodeCount} Nodes •{' '}
-                {preview.meta.edgeCount} Edges
+                {formatBytes(preview.meta.fileSize)} • {preview.meta.nodeCount} {t('graphml.dialog.nodes', 'Nodes')} •{' '}
+                {preview.meta.edgeCount} {t('graphml.dialog.edges', 'Edges')}
               </span>
             </div>
             <button
               type="button"
               onClick={reset}
               className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
-              title="Andere Datei wählen"
+              title={t('graphml.dialog.pickOther', 'Andere Datei wählen')}
             >
-              ↻ Andere Datei
+              {t('graphml.dialog.otherFile', '↻ Andere Datei')}
             </button>
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-300">
             <span>
-              Geräte: <strong>{includedDevices}/{totalDevices}</strong>
+              {t('graphml.dialog.devices', 'Geräte')}: <strong>{includedDevices}/{totalDevices}</strong>
             </span>
             <span>
-              Kabel: <strong>{includedCables}/{totalCables}</strong>
+              {t('graphml.dialog.cables', 'Kabel')}: <strong>{includedCables}/{totalCables}</strong>
             </span>
             {preview.skippedNodes.length > 0 && (
               <span className="text-slate-500">
-                Übersprungen: {preview.skippedNodes.length}
+                {t('graphml.dialog.skipped', 'Übersprungen')}: {preview.skippedNodes.length}
               </span>
             )}
             {preview.unresolvedEdges.length > 0 && (
               <span className="text-amber-400">
-                Edges ohne Ziel: {preview.unresolvedEdges.length}
+                {t('graphml.dialog.edgesNoTarget', 'Edges ohne Ziel')}: {preview.unresolvedEdges.length}
               </span>
             )}
             {s.warningsCount > 0 && (
-              <span className="text-amber-400">Parser-Warnungen: {s.warningsCount}</span>
+              <span className="text-amber-400">{t('graphml.dialog.parserWarnings', 'Parser-Warnungen')}: {s.warningsCount}</span>
             )}
           </div>
         </div>
@@ -352,41 +351,41 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-slate-950/70 px-4 py-2 text-xs">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-1">
-              <span className="text-slate-400">Ziel:</span>
+              <span className="text-slate-400">{t('graphml.dialog.target', 'Ziel:')}</span>
               <button
                 type="button"
                 onClick={() => setDestination('canvas')}
                 className={`rounded px-2 py-0.5 ${destination === 'canvas' ? 'bg-emerald-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
-                title="Geräte direkt auf dem Canvas platzieren (inkl. Kabel)."
+                title={t('graphml.dialog.canvasTitle', 'Geräte direkt auf dem Canvas platzieren (inkl. Kabel).')}
               >
-                🗺 Canvas
+                {t('graphml.dialog.canvas', '🗺 Canvas')}
               </button>
               <button
                 type="button"
                 onClick={() => setDestination('library')}
                 className={`rounded px-2 py-0.5 ${destination === 'library' ? 'bg-violet-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
-                title="Nur als wiederverwendbare Geräte-Vorlagen in die Library übernehmen (ohne Kabel, ohne Canvas-Platzierung)."
+                title={t('graphml.dialog.libraryTitle', 'Nur als wiederverwendbare Geräte-Vorlagen in die Library übernehmen (ohne Kabel, ohne Canvas-Platzierung).')}
               >
-                📚 Library
+                {t('graphml.dialog.library', '📚 Library')}
               </button>
             </div>
             {destination === 'canvas' && (
               <div className="flex items-center gap-1">
-                <span className="text-slate-400">Modus:</span>
+                <span className="text-slate-400">{t('graphml.dialog.mode', 'Modus:')}</span>
                 <button
                   type="button"
                   onClick={() => setMode('append')}
                   className={`rounded px-2 py-0.5 ${mode === 'append' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
                 >
-                  An Projekt anhängen
+                  {t('graphml.dialog.appendProject', 'An Projekt anhängen')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setMode('replace')}
                   className={`rounded px-2 py-0.5 ${mode === 'replace' ? 'bg-amber-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
-                  title="Ersetzt nur GraphML-importierte Geräte; manuell hinzugefügte bleiben unangetastet."
+                  title={t('graphml.dialog.replaceTitle', 'Ersetzt nur GraphML-importierte Geräte; manuell hinzugefügte bleiben unangetastet.')}
                 >
-                  GraphML-Import ersetzen
+                  {t('graphml.dialog.replaceImport', 'GraphML-Import ersetzen')}
                 </button>
               </div>
             )}
@@ -395,7 +394,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             type="text"
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}
-            placeholder="Filter: Name / IP / Kategorie / Kabeltyp"
+            placeholder={t('graphml.dialog.filterPlaceholder', 'Filter: Name / IP / Kategorie / Kabeltyp')}
             className="w-64 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100"
           />
         </div>
@@ -403,19 +402,17 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         {/* Library-mode hint: cables are dropped (templates carry no cabling). */}
         {destination === 'library' && (
           <div className="border-b border-violet-800/60 bg-violet-950/40 px-4 py-2 text-[11px] text-violet-200">
-            📚 Library-Modus: Geräte werden als wiederverwendbare Vorlagen
-            in die lokale Library gespeichert. Kabel werden nicht
-            mit übernommen (Templates enthalten keine Verkabelung).
+            {t('graphml.dialog.libraryHint', '📚 Library-Modus: Geräte werden als wiederverwendbare Vorlagen in die lokale Library gespeichert. Kabel werden nicht mit übernommen (Templates enthalten keine Verkabelung).')}
           </div>
         )}
 
         {/* Tabs */}
         <div className="flex border-b border-slate-800 text-xs">
           {([
-            ['preview', 'yEd-Vorschau'],
-            ['devices', `Geräte (${totalDevices})`],
-            ['cables', `Kabel (${totalCables})`],
-            ['skipped', `Übersprungen (${preview.skippedNodes.length + preview.unresolvedEdges.length})`],
+            ['preview', t('graphml.dialog.tab.preview', 'yEd-Vorschau')],
+            ['devices', `${t('graphml.dialog.tab.devices', 'Geräte')} (${totalDevices})`],
+            ['cables', `${t('graphml.dialog.tab.cables', 'Kabel')} (${totalCables})`],
+            ['skipped', `${t('graphml.dialog.tab.skipped', 'Übersprungen')} (${preview.skippedNodes.length + preview.unresolvedEdges.length})`],
           ] as const).map(([key, label]) => (
             <button
               key={key}
@@ -454,11 +451,11 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               <thead className="sticky top-0 bg-slate-900 text-slate-400">
                 <tr>
                   <th className="px-3 py-2 text-left w-6"></th>
-                  <th className="px-3 py-2 text-left">Name</th>
-                  <th className="px-3 py-2 text-left">Kategorie</th>
-                  <th className="px-3 py-2 text-left">IP</th>
-                  <th className="px-3 py-2 text-right">In/Out</th>
-                  <th className="px-3 py-2 text-left">Status</th>
+                  <th className="px-3 py-2 text-left">{t('graphml.dialog.col.name', 'Name')}</th>
+                  <th className="px-3 py-2 text-left">{t('graphml.dialog.col.category', 'Kategorie')}</th>
+                  <th className="px-3 py-2 text-left">{t('graphml.dialog.col.ip', 'IP')}</th>
+                  <th className="px-3 py-2 text-right">{t('graphml.dialog.col.inOut', 'In/Out')}</th>
+                  <th className="px-3 py-2 text-left">{t('graphml.dialog.col.status', 'Status')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -524,11 +521,11 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               <thead className="sticky top-0 bg-slate-900 text-slate-400">
                 <tr>
                   <th className="px-3 py-2 text-left w-6"></th>
-                  <th className="px-3 py-2 text-left">Quelle</th>
-                  <th className="px-3 py-2 text-left">Ziel</th>
-                  <th className="px-3 py-2 text-left">Typ</th>
-                  <th className="px-3 py-2 text-left">Standard</th>
-                  <th className="px-3 py-2 text-right">Länge</th>
+                  <th className="px-3 py-2 text-left">{t('graphml.dialog.col.source', 'Quelle')}</th>
+                  <th className="px-3 py-2 text-left">{t('graphml.dialog.col.target', 'Ziel')}</th>
+                  <th className="px-3 py-2 text-left">{t('graphml.dialog.col.type', 'Typ')}</th>
+                  <th className="px-3 py-2 text-left">{t('graphml.dialog.col.standard', 'Standard')}</th>
+                  <th className="px-3 py-2 text-right">{t('graphml.dialog.col.length', 'Länge')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -571,7 +568,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             <div className="space-y-4 p-3 text-xs">
               <div>
                 <h4 className="mb-1 font-semibold text-slate-300">
-                  Nodes übersprungen ({preview.skippedNodes.length})
+                  {t('graphml.dialog.nodesSkipped', 'Nodes übersprungen')} ({preview.skippedNodes.length})
                 </h4>
                 <ul className="space-y-0.5 text-slate-400">
                   {preview.skippedNodes.slice(0, 50).map((s) => (
@@ -580,13 +577,13 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                     </li>
                   ))}
                   {preview.skippedNodes.length > 50 && (
-                    <li className="text-slate-500">… ({preview.skippedNodes.length - 50} weitere)</li>
+                    <li className="text-slate-500">{t('graphml.dialog.moreEllipsis', '… ({count} weitere)').replace('{count}', String(preview.skippedNodes.length - 50))}</li>
                   )}
                 </ul>
               </div>
               <div>
                 <h4 className="mb-1 font-semibold text-slate-300">
-                  Edges ohne aufgelöste Ports ({preview.unresolvedEdges.length})
+                  {t('graphml.dialog.unresolvedEdges', 'Edges ohne aufgelöste Ports')} ({preview.unresolvedEdges.length})
                 </h4>
                 <ul className="space-y-0.5 text-slate-400">
                   {preview.unresolvedEdges.slice(0, 50).map((e) => (
@@ -600,7 +597,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                     </li>
                   ))}
                   {preview.unresolvedEdges.length > 50 && (
-                    <li className="text-slate-500">… ({preview.unresolvedEdges.length - 50} weitere)</li>
+                    <li className="text-slate-500">{t('graphml.dialog.moreEllipsis', '… ({count} weitere)').replace('{count}', String(preview.unresolvedEdges.length - 50))}</li>
                   )}
                 </ul>
               </div>
@@ -618,7 +615,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             }}
             className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
           >
-            Abbrechen
+            {t('graphml.dialog.cancel', 'Abbrechen')}
           </button>
           <button
             type="button"
@@ -627,8 +624,8 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             className={`rounded px-4 py-1.5 text-xs font-medium text-white disabled:opacity-50 ${destination === 'library' ? 'bg-violet-600 hover:bg-violet-500' : 'bg-emerald-600 hover:bg-emerald-500'}`}
           >
             {destination === 'library'
-              ? `${includedDevices} ${includedDevices === 1 ? 'Gerät' : 'Geräte'} in Library übernehmen`
-              : `${includedDevices} ${includedDevices === 1 ? 'Gerät' : 'Geräte'} & ${includedCables} ${includedCables === 1 ? 'Kabel' : 'Kabel'} auf Canvas importieren`}
+              ? `${includedDevices} ${includedDevices === 1 ? t('graphml.dialog.deviceSingular', 'Gerät') : t('graphml.dialog.devicePlural', 'Geräte')} ${t('graphml.dialog.toLibrary', 'in Library übernehmen')}`
+              : `${includedDevices} ${includedDevices === 1 ? t('graphml.dialog.deviceSingular', 'Gerät') : t('graphml.dialog.devicePlural', 'Geräte')} & ${includedCables} ${includedCables === 1 ? t('graphml.dialog.cableSingular', 'Kabel') : t('graphml.dialog.cablePlural', 'Kabel')} ${t('graphml.dialog.toCanvas', 'auf Canvas importieren')}`}
           </button>
         </div>
       </div>
@@ -639,7 +636,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
       <div className="flex h-[80vh] w-[min(1100px,95vw)] flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100">
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
-          <h3 className="text-sm font-semibold">yEd / GraphML importieren</h3>
+          <h3 className="text-sm font-semibold">{t('graphml.dialog.heading', 'yEd / GraphML importieren')}</h3>
           <button
             type="button"
             onClick={() => {
@@ -647,7 +644,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               onClose()
             }}
             className="text-slate-500 hover:text-slate-200"
-            aria-label="Schließen"
+            aria-label={t('graphml.dialog.closeAria', 'Schließen')}
           >
             ✕
           </button>

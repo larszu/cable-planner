@@ -874,6 +874,79 @@ const en: Dict = {
   'net.col.port': 'Port',
   'net.col.untagged': 'Untagged',
   'net.col.tagged': 'Tagged',
+
+  // Videohub export dialog
+  'videohub.formatTitle':
+    'Determines only the format of the preview / file output below. The direct TCP push (Labels/Routing buttons) is independent.',
+  'videohub.optFullRouting': 'Full routing dump (Protocol 2.5)',
+  'videohub.optLabelsOnly': 'Labels only (Input, n, name)',
+  'videohub.matrixView': 'Crosspoint matrix',
+  'videohub.listView': 'List view with dropdown per output',
+  'videohub.suggestTitle':
+    'Suggests a routing based on the cables on the canvas. Best-match by device-name similarity; falls back to diagonal. Editable in the matrix.',
+  'videohub.resetDiag': 'Reset diagonal routing (output N → input N)',
+  'videohub.saveSalvo': 'Save current routing as named snapshot',
+  'videohub.deleteSalvo': 'Delete salvo',
+  'videohub.recentConns': 'Recent connections',
+  'videohub.mdnsTitle': 'Discover Videohubs on the local network via mDNS/Bonjour (3 s scan).',
+  'videohub.loadStatus':
+    'Pull current hub state: labels + routing + locks. Routing flows into the matrix, labels appear in columns/rows.',
+  'videohub.sendLabelsTitle':
+    'Send INPUT LABELS + OUTPUT LABELS only. Routing on the hub stays untouched.',
+  'videohub.sendRoutingTitle': 'Send VIDEO OUTPUT ROUTING only. Labels on the hub unchanged.',
+  'videohub.sendBothTitle': 'Labels + routing in ONE push (three blocks back-to-back).',
+  'videohub.hubStatus': 'Hub status:',
+  'videohub.preview': 'Preview',
+
+  // CableLibraryPanel
+  'cableLib.title': 'Cable library',
+  'cableLib.namePlaceholder': 'e.g. CAT6a patch 5 m',
+  'cableLib.connectorType': 'Connector type',
+  'cableLib.newConnectorTypePrompt': 'New connector type (e.g. "Speakon NL4"):',
+  'cableLib.addConnectorTitle': 'Add new connector type',
+  'cableLib.color': 'Cable colour',
+  'cableLib.compatibleWith': 'Also compatible with (optional)',
+  'cableLib.signalStandards': 'Signal standards',
+  'cableLib.newSignalStandardPrompt': 'New signal standard (e.g. "Dante Primary"):',
+  'cableLib.addSignalStandardTitle': 'Add new signal standard',
+  'cableLib.maxLength': 'Max. length (m) — optional',
+  'cableLib.note': 'Note (optional)',
+  'cableLib.notePlaceholder': 'e.g. indoor only, shielded, …',
+  'cableLib.newSpecTitle': 'Create new cable type (custom library preset)',
+  'cableLib.customBadge': 'Custom cable type (created locally)',
+  'cableLib.overrideBadge': 'Built-in spec with local override (reset via edit dialog)',
+  'cableLib.removeOverride': 'Remove override (reset to default)',
+  'cableLib.deleteSpec': 'Delete cable type',
+  'cableLib.groupReorder': 'Move group',
+  'cableLib.groupReorderTitle': 'Drag & drop to reorder',
+
+  // ATEM dialogs
+  'atem.dialog.title': 'ATEM live integration',
+  'atem.dialog.discoverTitle': 'Discover ATEM switchers on the local network via mDNS (Bonjour)',
+  'atem.dialog.mvLive': 'Show multiviewer layout live',
+  'atem.mv.idPlaceholder': 'ID',
+  'atem.mv.maxWindows': 'Max windows:',
+  'atem.mv.removeOverride': 'Remove override — back to auto-detection',
+  'atem.mv.addMv': 'Add multiviewer',
+  'atem.mv.removeMv': 'Remove last multiviewer',
+  'atem.mv.layoutLabel': 'Layout',
+  'atem.mv.savePng': 'Save current MV layout as PNG',
+  'atem.audio.classicReadOnly':
+    'The loaded XML also contains a classic AudioMixer section. It is round-tripped on save but is not editable here.',
+  'atem.audio.freshMatrix': 'Fresh crosspoint matrix with the ATEM default inputs + 8 output busses.',
+  'atem.audio.resetAllConfirm': 'Reset all routings to "No Audio"?',
+  'atem.audio.filterSourcesPlaceholder': 'Filter sources…',
+  'atem.audio.filterSourcesTitle': 'Substring filter for audio sources (rows)',
+  'atem.audio.filterSourcesAria': 'Filter sources',
+  'atem.audio.filterOutputsPlaceholder': 'Filter outputs…',
+  'atem.audio.filterOutputsTitle': 'Substring filter for audio outputs (columns)',
+  'atem.audio.filterOutputsAria': 'Filter outputs',
+  'atem.audio.sourcesCheckTitle':
+    'Check sources individually (e.g. MADI, Mic, Tape …)',
+  'atem.audio.outputsCheckTitle':
+    'Check outputs individually (e.g. skip Out 5/6, 7/8)',
+  'atem.audio.sourcesLabel': 'Sources',
+  'atem.audio.outputsLabel': 'Outputs',
 }
 
 const translations: Record<Language, Dict> = {
