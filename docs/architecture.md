@@ -2,10 +2,10 @@
 
 Diese Datei beschreibt die zentrale Architektur und die nicht-verhandelbaren
 Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderungen
-gemacht werden. Für die interaktive Modul-Übersicht siehe `docs/app-structure.html`,
-für einen Wettbewerber-Vergleich `docs/comparison.html`.
+gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
+für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v7.9.94 · ~166 TS/TSX-Module · ~61.5k LOC
+Stand: v8.0.10 · ~235 TS/TSX-Module · ~73.5k LOC
 
 ---
 
@@ -54,7 +54,7 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `project:*` | `projectIpc.ts` | `new`, `open`, `save`, `save-as`, `get-recent`, `export-viewer`, `import-annotations` |
 | `library:*` | `libraryIpc.ts` | `get-folder-path`, `reveal-folder`, `scan`, `write`, `delete` |
 | `rentman:*` | `rentmanIpc.ts` | `get-projects`, `get-project-equipment`, `get-equipment`, `add-project-equipment`, `add-project-file` |
-| `atem:*` | `atemIpc.ts` | `connect`, `disconnect`, `state`, `get-status`, `get-events`, `set-input-name`, `bulk-set-input-names`, `apply-mv-config`, `read-audio-config`, `apply-audio-config`, `discover`, plus `atem:event` (broadcast) |
+| `atem:*` | `atemIpc.ts` | `connect`, `disconnect`, `state`, `get-status`, `get-events`, `set-input-name`, `bulk-set-input-names`, `apply-mv-config`, `read-mv-config`, `apply-audio-config`, `discover`, plus `atem:event` (broadcast) |
 | `videohub:*` | `videohubIpc.ts` | `send` (TCP zu Blackmagic Videohub) |
 | `sync:*` | `syncIpc.ts` | `read-file`, `write-file`, `exists`, `acquire-lock`, `release-lock` |
 | `mobileShare:*` | `mobileShareIpc.ts` | `start`, `stop`, `status`, `setProject`, Events: `checksUpdate`, `cableAdded` |
@@ -81,10 +81,27 @@ Vier Stores in `src/renderer/store/`. Jeder hat einen klar abgegrenzten Concern.
 
 | Store | LOC | Concern | Persist |
 |---|---|---|---|
-| `projectStore.ts` | 2178 | Projekt-Daten (Equipment, Cables, Locations, Annotations, Mode), Autosave, Healing, Rentman-Sync | `localStorage[STORAGE_KEYS.projectAutosave]` + Disk via `project:save` |
-| `uiStore.ts` | 1084 | Canvas-Viewport, Panel-Breiten, Edge-Routing-Defaults, Grid/Snap, Geräte-Farben, Device-Config-Library | `localStorage[STORAGE_KEYS.ui]` |
-| `projectHistory.ts` | 200 | Undo/Redo-Stack (max 100), Transactions, 200ms-Coalesce | **Nicht persistiert** — geht beim Reload verloren |
-| `settingsStore.ts` | 86 | Autosave-Intervall, Sync-Pfad/User, Token-Status | `localStorage[STORAGE_KEYS.settings]` |
+| `projectStore.ts` | ~985 | Projekt-Daten + composeite slices (siehe §3.1.1), Autosave, Healing, Rentman-Sync | `localStorage[STORAGE_KEYS.projectAutosave]` + Disk via `project:save` |
+| `uiStore.ts` | ~1150 | Canvas-Viewport, Panel-Breiten, Edge-Routing-Defaults, Grid/Snap, Geräte-Farben, Device-Config-Library | `localStorage[STORAGE_KEYS.ui]` |
+| `projectHistory.ts` | ~200 | Undo/Redo-Stack (max 100), Transactions, 200ms-Coalesce | **Nicht persistiert** — geht beim Reload verloren |
+| `settingsStore.ts` | ~90 | Autosave-Intervall, Sync-Pfad/User, Token-Status | `localStorage[STORAGE_KEYS.settings]` |
+
+#### 3.1.1 · Slice-Komposition (#308)
+
+`projectStore.ts` ist intern in **11 Slices** unter `src/renderer/store/slices/`
+zerlegt, die alle in den Haupt-Store komponiert werden:
+
+```
+annotationSlice          cableSlice          categorySlice
+equipmentSlice           groupPresetSlice    groupPresetSpawnSlice
+locationSlice            metaSlice           mobileSyncSlice
+selectionLifecycleSlice  templateSlice
+```
+
+Jeder Slice ist ein `StateCreator<ProjectState, [], [], Slice>` und bekommt
+das `set`/`get`/`store`-Tripel vom Haupt-Store. So bleibt `projectStore.ts`
+selbst klein (~985 LOC, war 2178), während die Domain-spezifische Logik
+isoliert testbar ist.
 
 **Invarianten**:
 1. **`projectStore` ist Single Source of Truth** für alle Projekt-Daten.
@@ -96,6 +113,8 @@ Vier Stores in `src/renderer/store/`. Jeder hat einen klar abgegrenzten Concern.
 4. **Coalesce-Window 200ms**: schnelle Bursts (z. B. Drag-Updates) werden zu
    einer Undo-Stufe zusammengefasst. Für explizit größere Operationen
    (Multi-Delete, Paste, Drag-End-Batch) gibt es `projectHistory.transact(fn)`.
+5. **Slices mutieren über `set(state => ...)`** — niemals lokal cachen oder
+   Side-Effects am Render-Pfad triggern.
 
 ### 3.2 · Komponenten
 
@@ -112,10 +131,18 @@ Jede Subdomäne ist ein Feature-Cluster. **Cross-Subdomain-Imports sind
 erlaubt, aber bewusst halten** — bevor ein neuer Cross-Import kommt, kurz
 prüfen, ob das gemeinsame Konzept nach `shared/` gehört.
 
-**Top-Files (>1000 LOC, Refactor-Kandidaten)**:
-- `LibraryPanel.tsx` (3020), `RackBuilderDialog.tsx` (2720),
-  `SettingsDialog.tsx` (2392), `EquipmentProperties.tsx` (2314),
-  `App.tsx` (1874), `CanvasArea.tsx` (1862), `RentmanImportDialog.tsx` (1614)
+**Komponenten-Splits abgeschlossen** (#306/#307):
+- `EquipmentProperties.tsx` (2314 → 164 LOC) zerlegt in 22 Sub-Sections
+  unter `Properties/sections/` — DragSortable, jede Section eigen-
+  ständig persisited Reihenfolge.
+- `SettingsDialog.tsx` (2392 → 140 LOC) zerlegt in 8 Tab-Komponenten
+  unter `Settings/tabs/` — ProjectTab, AppearanceTab, EditingTab,
+  HotkeysTab, IntegrationsTab, ConfigsTab, SyncTab, AdvancedTab.
+
+**Top-Files heute (>1500 LOC, weitere Refactor-Kandidaten)**:
+- `RackBuilderDialog.tsx` (~2850), `LibraryPanel.tsx` (~2550),
+  `CanvasArea.tsx` (~1970), `RentmanImportDialog.tsx` (~1730),
+  `App.tsx` (~1690)
 
 ### 3.3 · Canvas
 
@@ -131,6 +158,32 @@ prüfen, ob das gemeinsame Konzept nach `shared/` gehört.
 `@react-three/fiber` (R3F) + `three.js` für die 3D-Rack-Ansicht in `Rack/`.
 STL-Export via `three-stdlib`. **Keine Three-Imports außerhalb von `Rack/`**
 — sonst zieht es die ~600 KB Three-Library in den Hauptbundle.
+
+### 3.5 · Internationalisierung
+
+Zentral in `src/renderer/lib/i18n.ts`. Hook `useTranslation()` gibt
+`t(key, fallback)`, `format(template, values)` interpoliert `{name}`.
+
+**Konventionen**:
+- **Deutsche Strings sind die Quell-Sprache** — Fallback in jedem `t()`-Call
+  ist deutsch. Englisch-Übersetzungen liegen im `en`-Dict.
+- **~2000 Keys** decken die UI ab (Settings, Dialoge, Properties, Export,
+  Patch-Liste, ATEM/Videohub, Rentman-Sync, Onboarding, Inspector).
+- Class-Komponenten (ErrorBoundary) nutzen `translate(lang, key, fallback)`
+  mit `useUiStore.getState().language` statt Hook.
+- Sub-Komponenten innerhalb einer Datei brauchen eigene `const t =
+  useTranslation()`-Zeile.
+
+**Bilinguale Kategorien (#309)**:
+- `lib/categoryTranslations.ts` verwaltet eine Map vom canonical-
+  Kategorie-Key (= `knownCategories[]`-Eintrag) auf `{de, en}` Anzeige-
+  Labels.
+- `lib/bilingualCategoryDialog.tsx` ist der Prompt mit zwei Sprach-Feldern
+  (aktive UI-Sprache oben), wird in `CategorySelect.tsx` und
+  `AdvancedTab.tsx` / `LibraryPanel.tsx` als Rename-Dialog genutzt.
+- `categoryDisplay(canonical, lang, map)` resolved den Anzeigenamen — mit
+  Built-in-Übersetzungen für die 13 DEFAULT_CATEGORIES als Out-of-the-
+  Box-Fallback.
 
 ---
 
@@ -157,12 +210,16 @@ CablePlannerProject
 - `inputs[], outputs[]` als `Port[]` mit `connectorType`
   (XLR, BNC, HDMI, Fiber, SFP+, Ethernet, ...)
 - `position`, `size`, `nodeColor?`, `rackMode?`, `rackInternalSnapshot?`
+- `modes?: DeviceMode[]` (#113) — verschiedene Port-Layouts pro Gerät
+- `atemMvConfig?`, `atemAudioConfig?` (ATEM-Mischer spezifisch)
 
 **Cable** (Auszug):
 - `from/toEquipmentId`, `from/toPortId`, `type` (Connector-Typ)
 - `length`, `routing`, `waypoints[]`, `arrow*`, `bidirectional`
 - `layer` (auto-detected aus `type` falls leer), `labelT`, `labelHidden`
 - `wireless`, `frequency`, `maxRange` (für Funk-Strecken)
+- `cableSpecId?` (Verweis auf eine eindeutige Kabel-Definition aus der
+  Library für BOM-Aggregation)
 
 **LocationFrame**:
 - `id`, `name`, `x`, `y`, `width`, `height`, `color`
@@ -212,6 +269,7 @@ gehören hier rein, nicht in einzelne Komponenten.
 | Window-Geometrie | `userData/window-geometry.json` | JSON |
 | Rentman-Token | OS-Credential-Store via `keytar` | OS-eigen |
 | Sync-Lock | `<shared-pfad>/.cable-planner-sync.lock` | JSON (TTL 2h) |
+| Kategorie-Übersetzungen | `localStorage[categoryTranslations]` | JSON-Map |
 
 ---
 
@@ -227,6 +285,13 @@ gehören hier rein, nicht in einzelne Komponenten.
 2. **`removeAllListeners()` vor `disconnect()`** in `ensureDisconnected`.
 3. **Promise-Handshake** mit 5s-Timeout statt Polling-Schleife.
 
+**Audio-Routing (#258)**: Profile-XML in/out + Direct-Send via
+`atem:apply-audio-config`. Crosspoint-Matrix oder klassischer Mixer im
+gleichen XML; Mixer-Sektion wird Round-Trip-erhalten.
+
+**Multiviewer (#288)**: `atem:read-mv-config` holt den Live-Stand vom
+verbundenen Switcher, `apply-mv-config` schreibt zurück.
+
 ### 6.2 · Rentman (Mietsoftware)
 
 HTTP-API in `services/rentmanApiClient.ts`. Token im OS-Credential-Store.
@@ -237,7 +302,21 @@ HTTP-API in `services/rentmanApiClient.ts`. Token im OS-Credential-Store.
 `fast-xml-parser` parst yEd-XML. **Sicher gegen XXE** —
 fast-xml-parser ignoriert DTDs/external entities per default.
 
-### 6.4 · Mobile-Share
+### 6.4 · Videohub (Blackmagic Router)
+
+`videohubIpc.ts` öffnet eine TCP-Verbindung zum Videohub und sendet
+plain-text Routing-/Label-Blöcke. Smart-Routing erkennt Quellen anhand
+ihrer Namen (Fuzzy-Match mit AI-Provider-Fallback bei niedriger
+Score-Schwelle).
+
+### 6.5 · NetBox / DCIM
+
+`library.netbox.*`-Endpunkte importieren Device-Types aus einer NetBox-
+Instanz (oder dem öffentlichen device-type-library-Repo). Konflikt-
+Resolution bei vorhandenen Library-Einträgen über einen merge/replace/
+keep-local Dialog.
+
+### 6.6 · Mobile-Share
 
 `mobileShareServer.ts` startet Express auf ephemerem Port,
 liefert `src/mobile/` an Smartphones im LAN. Bidirektional:
@@ -246,6 +325,12 @@ liefert `src/mobile/` an Smartphones im LAN. Bidirektional:
 
 **Mobile ist heute Read/Check-only, kein Editor.** Wenn das mal Editor wird,
 braucht es eine richtige API-Schicht statt File-Push.
+
+### 6.7 · AI-Provider (optional)
+
+`lib/aiSuggestions.ts` unterstützt **Gemini**, **Claude** und **OpenAI**
+Keys (user-supplied, persistiert pro-Provider in localStorage). Wird für
+Port-Vorschläge bei neuen Geräten und Smart-Routing-Fuzzy-Matching genutzt.
 
 ---
 
@@ -256,10 +341,20 @@ braucht es eine richtige API-Schicht statt File-Push.
 - `build` — `tsc -p tsconfig.main.json && tsc -p tsconfig.preload.json && vite build`.
 - `dist` — `build` + `electron-builder` → Installer in `release/`.
 
+**Versions-Quelle**: einziger Eintrag in `package.json` → `version`.
+Vite injiziert ihn build-time als `__APP_VERSION__` in den Renderer.
+About-Dialog, StatusBar, ErrorBoundary, main.tsx lesen alle daraus —
+nirgendwo hardcoded.
+
 **`electron-builder.js`**:
 - macOS: Universal DMG (x64 + arm64), ad-hoc signiert.
 - Windows: NSIS-Installer + portable EXE (x64).
 - `npmRebuild: true` rebuildet `keytar` und `@julusian/freetype2` für Electron-ABI.
+
+**Release-Workflow** (manuell):
+1. `package.json` `version` bumpen.
+2. Commit + Tag `vX.Y.Z` + Push (Tag triggert CI-Build).
+3. GitHub Release mit Auto-Generated Notes + Installer-Artefakte.
 
 **Native Deps** (achten!):
 - `keytar` — OS-Credentials (Rentman-Token).
@@ -282,32 +377,37 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
 8. **Connection-Locks bei externen Services** (ATEM `connectInFlight`).
 9. **Patch-Versionen bevorzugt** — keine großen Sprünge (Standing User Directive).
 10. **Keine Emojis im Code** außer auf expliziten Wunsch.
+11. **Version lebt nur in `package.json`** — überall sonst gelesen via
+    `__APP_VERSION__` (Vite-Define).
+12. **Deutsche Strings sind Quell-Sprache** — Fallback in `t(key, fallback)`
+    immer deutsch, EN-Übersetzungen im `en`-Dict.
 
 ---
 
 ## 9 · Offene Architektur-Pfade
 
-Diese Themen sind diskutiert (siehe `docs/comparison.html` §4.2), aber noch
-nicht entschieden / umgesetzt:
+Diese Themen sind diskutiert, aber noch nicht entschieden / umgesetzt.
 
-### 9.1 · Store-Slicing
-`projectStore.ts` mit 2178 LOC ist zu groß. Plan: per-Concern-Slices
-(`equipmentSlice`, `cableSlice`, `locationSlice`, `metadataSlice`)
-via `combine()`-Pattern. Nicht trivial wegen Heal/Migrations-Logic, die
-quer durch alle Daten geht.
+### 9.1 · Store-Slicing — **erledigt** ✓ (#308)
 
-### 9.2 · Komponenten-Splits
-Top-Kandidaten (>2000 LOC) sind klare Multi-Tab-/Multi-Bereich-Files:
-- `LibraryPanel` → Equipment-Liste, Cable-Liste, Filter, Drag-Source, Connector-Inheritance.
-- `RackBuilderDialog` → Geräte-Auswahl, Slot-Layout, Ports, Power, 3D-Preview.
-- `SettingsDialog` → General, Network, ATEM, AI, Mobile, About.
+Implementiert. `projectStore.ts` von 2178 LOC auf ~985 reduziert durch
+11 Slices unter `store/slices/`. Siehe §3.1.1.
+
+### 9.2 · Komponenten-Splits — **teilweise** ✓ (#306, #307)
+
+- `EquipmentProperties` → 22 Sub-Sections ✓
+- `SettingsDialog` → 8 Tabs ✓
+- **Noch offen**: `LibraryPanel`, `RackBuilderDialog`, `CanvasArea`,
+  `RentmanImportDialog`.
 
 ### 9.3 · Plugin-API
+
 Heute: Erweiterungen brauchen Code-Fork. Ein schmaler Plugin-Slot für
 Reports und Library-Loader wäre eine günstige Investition gegen
 Bus-Faktor-1.
 
 ### 9.4 · Kollaborative Bearbeitung
+
 Drei Optionen mit sehr unterschiedlichem Aufwand:
 - **Multi-Mobile-View**: bestehende Mobile-Share-View für mehrere Clients
   ausbauen, Editor bleibt single-user. 1–2 Tage, niedrige Risiken.
@@ -317,17 +417,23 @@ Drei Optionen mit sehr unterschiedlichem Aufwand:
 - **Cloud-Backend mit `y-websocket`**: Yjs-Server, Auth, Permissions.
   Mehrere Wochen plus dauerhafte Betriebskosten.
 
-Empfohlene Vorbereitung **ohne** Kollab-Implementation: Store-Slicing
-so gestalten, dass jeder Slice immutable Updates macht — dann ist
-Yjs-Mapping später ein Adapter, nicht eine Umschreibung.
+Slice-Architektur (#308) ist die Vorbereitung — jeder Slice macht
+immutable Updates, Yjs-Mapping wäre ein Adapter.
 
 ### 9.5 · Tests
-Heute: kein Test-Skript in `package.json`. Bei 61k LOC ist das ein
+
+Heute: kein Test-Skript in `package.json`. Bei 73k LOC ist das ein
 Regressions-Risiko. Empfohlene Erst-Suite:
 - `vitest` + Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.
 - Property-Tests auf `projectHistory` (Undo-Redo-Invarianten).
 - Smoke-Tests auf IPC-Channels (Mock-`fs`).
+
+### 9.6 · Web-Viewer (Issue #143)
+
+Read-only Web-Renderer (separate Vite-Entry `viewer.html`) für
+Reviewer ohne Desktop-App. Annotations-only, keine Edits. Phase 1
+geplant ~2-3 Tage.
 
 ---
 
@@ -338,10 +444,13 @@ Regressions-Risiko. Empfohlene Erst-Suite:
 | Neue IPC-Funktion | `src/main/ipc/<domain>Ipc.ts` + `src/main/preload.cts` |
 | Neuer Service (HTTP, DB, Native) | `src/main/services/` |
 | File-I/O-Helper | `src/main/util/` |
-| Neuer Renderer-State-Concern | eigener Slice in `src/renderer/store/` |
+| Neuer Renderer-State-Concern | eigener Slice in `src/renderer/store/slices/` |
 | Neuer Canvas-Knoten/-Edge | `src/renderer/components/Canvas/` |
 | Neue 3D-Visualisierung | `src/renderer/components/Rack/` (Three.js-Grenze) |
 | Neuer Domänen-Typ | `src/renderer/types/<thema>.ts` |
 | Neue Schema-Migration | `healProjectPositions` in `projectStore.ts` |
-| Neue Export-Format | `src/renderer/components/Export/` |
+| Neues Export-Format | `src/renderer/components/Export/` |
 | Neue Berechnung (Length, Power, ...) | `src/renderer/lib/` |
+| Neue UI-Texte | `t('domain.key', 'Deutsche Fallback')` + EN-Entry in `lib/i18n.ts` |
+| Neue Property-Section | `src/renderer/components/Properties/sections/` + Eintrag in `EquipmentProperties.tsx` Reihenfolge |
+| Neuer Settings-Tab | `src/renderer/components/Settings/tabs/` + Eintrag in `SettingsDialog.tsx` Sidebar |

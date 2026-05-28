@@ -2655,6 +2655,34 @@ const en: Dict = {
   'patchList.footerHint':
     'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
   'patchList.exportCsv': '⬇ Export CSV',
+  // Hotkeys action labels (used in HotkeysTab)
+  'hotkeys.action.undo': 'Undo',
+  'hotkeys.action.redo': 'Redo',
+  'hotkeys.action.save': 'Save project',
+  'hotkeys.action.saveAs': 'Save project as…',
+  'hotkeys.action.newProject': 'New project',
+  'hotkeys.action.openProject': 'Open project',
+  'hotkeys.action.deleteSelected': 'Delete selection',
+  'hotkeys.action.clearSelection': 'Clear selection',
+  'hotkeys.action.toggleLibrary': 'Show/hide library',
+  'hotkeys.action.toggleProperties': 'Show/hide properties',
+  'hotkeys.action.showLegend': 'Show length legend',
+  'hotkeys.action.jumpToPatches': 'Jump to patches',
+  'hotkeys.action.toggleArrows': 'Toggle arrow display',
+  'hotkeys.action.toggleRouting': 'Toggle routing',
+  // HotkeysTab capture states
+  'settings.hotkeys.captureTitle': 'Press a key or key combination…',
+  'settings.hotkeys.clickToCapture': 'Click and press key(s)',
+  'settings.hotkeys.pressKey': 'Press key…',
+  // AdvancedTab cache reset body
+  'settings.advanced.caches.cleared.body':
+    'The next start will reload from scratch.',
+  // useProject viewer name prompt (translate() from hook)
+  'project.viewerName.prompt':
+    'Viewer file — enter name\n\nYou are opening a viewer file for review. Please enter your name — it will be attached to all annotations you create in this session.',
+  'project.viewerName.missingTitle': 'Name missing',
+  'project.viewerName.missingBody':
+    'Without a name no annotations can be made. The file will not be loaded.',
 }
 
 const translations: Record<Language, Dict> = {
