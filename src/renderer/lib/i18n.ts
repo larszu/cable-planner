@@ -2404,6 +2404,36 @@ const en: Dict = {
   'atem.audio.renderAnyway': 'Render anyway',
   // Cable dialog – save-as-custom prompt
   'cable.dialog.newTypeNamePrompt': 'Name for the new cable type:',
+  // ExportDialog – section descriptions, format hints, BOM strings
+  'export.desc.plan':
+    'Download or print the canvas plan as PDF. PDF with title block — print-ready. Also PNG/JPEG for email/Slack.',
+  'export.desc.patch':
+    'One port-assignment list per device — ideal for sticking on the device. Pick devices, then single PDF, combined PDF or direct print. Paper format asked after the click. Alternatively: compact patch list (one line per cable, sorted by source device) for the technician in the field.',
+  'export.desc.bom':
+    'BOM of all cables in the project (type + length aggregated). Editable Rentman plan next to it. Export as CSV or PDF.',
+  'export.format.pdfHint': 'Vector with title block, printable',
+  'export.format.pngHint': 'Transparent possible, sharp',
+  'export.format.jpegHint': 'Smaller, good for email',
+  'export.printPdfTitle': 'Open plan PDF in OS print dialog',
+  'export.printOnlyPdf':
+    'Printing only works with the PDF format — for PNG/JPEG just download.',
+  'export.printBtn': 'Print',
+  'export.theme.lightLabel': 'Light theme (recommended for print)',
+  'export.render.raster': 'Raster (classic)',
+  'export.render.rasterHint': 'JPEG snapshot. Reliable, but text blurs at high zoom in the PDF.',
+  'export.render.vector': 'Vector',
+  'export.render.vectorHint':
+    'Chromium printToPDF. Text stays selectable & sharp at any zoom. Smaller file size.',
+  'export.patch.perDeviceHint': '— or create one patch sheet per device:',
+  'export.patch.devicesCount': 'Devices',
+  'export.patch.selectAll': 'Select all',
+  'export.patch.deselectAll': 'Deselect all',
+  'export.patch.noDevices': 'No devices in the project.',
+  'export.patch.pickPaper': 'Pick paper format:',
+  'export.patch.openPatchList': 'Open patch list…',
+  'export.patch.compactSub': 'One line per cable, sorted by source device',
+  'export.bom.rentmanDirty': 'Unsaved changes to the Rentman plan.',
+  'export.bom.rentmanClean': 'Rentman plan is saved with the project.',
   'rack.stlPreviewTitle': 'STL preview (auto-rotates)',
   'rack.addFromLibraryHint':
     'Add devices from the library on the left (button "+ Rack").',
