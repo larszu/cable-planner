@@ -1578,6 +1578,9 @@ const en: Dict = {
   'libSave.newBtnTitle':
     'Creates a new template under a different name — the existing one stays unchanged.',
   'libSave.newBtn': 'Save as new device in library ✚',
+
+  // ExportDialog additional
+  'export.patch.filterPlaceholder': 'Filter…',
 }
 
 const translations: Record<Language, Dict> = {
