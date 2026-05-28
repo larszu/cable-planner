@@ -201,17 +201,23 @@ export const AtemAudioRouterDialog = () => {
   const handlePushToAtem = async () => {
     if (!draft) return
     if (!atemConnected) {
-      await infoDialog('ATEM nicht verbunden', {
-        body: 'Verbinde dich zuerst mit dem ATEM (Hauptdialog "ATEM Mischer").',
+      await infoDialog(t('atem.audio.notConnectedTitle', 'ATEM nicht verbunden'), {
+        body: t(
+          'atem.audio.notConnectedBody',
+          'Verbinde dich zuerst mit dem ATEM (Hauptdialog "ATEM Mischer").',
+        ),
         tone: 'warning',
       })
       return
     }
     const confirmed = await confirmDialog(
-      'Audio-Konfiguration an ATEM senden?',
+      t('atem.audio.sendConfirmTitle', 'Audio-Konfiguration an ATEM senden?'),
       {
-        body: 'Die geladene Routing-Matrix / Classic-Mixer-Werte werden direkt an den verbundenen Switcher geschickt. Änderungen sind sofort wirksam und werden NICHT als Startup-State persistiert — dazu musst du in ATEM Software Control "Save Startup State" aufrufen.',
-        okLabel: 'Senden',
+        body: t(
+          'atem.audio.sendConfirmBody',
+          'Die geladene Routing-Matrix / Classic-Mixer-Werte werden direkt an den verbundenen Switcher geschickt. Änderungen sind sofort wirksam und werden NICHT als Startup-State persistiert — dazu musst du in ATEM Software Control "Save Startup State" aufrufen.',
+        ),
+        okLabel: t('atem.audio.sendOk', 'Senden'),
       },
     )
     if (!confirmed) return
@@ -409,25 +415,30 @@ export const AtemAudioRouterDialog = () => {
           ) : draft.classicMixer && !draft.matrix ? (
             <div className="m-auto max-w-md text-center text-sm text-slate-400">
               <p>
-                Dieses XML enthält nur eine klassische AudioMixer-Sektion und keine
-                Routing-Matrix. Die Sektion wird beim Speichern unverändert
-                zurückgeschrieben (Round-Trip), ist aber im Editor nicht editierbar.
-                Lege bei Bedarf via <strong>🎚 Matrix manuell</strong> oben eine
-                neue Crosspoint-Matrix an — beide Sektionen koexistieren dann im XML.
+                {t(
+                  'atem.audio.classicOnly',
+                  'Dieses XML enthält nur eine klassische AudioMixer-Sektion und keine Routing-Matrix. Die Sektion wird beim Speichern unverändert zurückgeschrieben (Round-Trip), ist aber im Editor nicht editierbar. Lege bei Bedarf via "🎚 Matrix manuell" oben eine neue Crosspoint-Matrix an — beide Sektionen koexistieren dann im XML.',
+                )}
               </p>
               <button
                 type="button"
                 onClick={handleCreateMatrix}
                 className="mt-3 rounded bg-sky-700 px-3 py-1 text-xs text-white hover:bg-sky-600"
               >
-                🎚 Matrix manuell anlegen
+                🎚 {t('atem.audio.createMatrixManual', 'Matrix manuell anlegen')}
               </button>
             </div>
           ) : (
             <div className="m-auto text-sm text-slate-400">
-              Kein {activeTab === 'matrix' ? 'Routing' : 'Klassischer Mixer'} im
-              geladenen Profil. Wechsel den Tab oder lade ein Profil mit dieser
-              Sektion.
+              {format(
+                t('atem.audio.noSection', 'Kein {section} im geladenen Profil. Wechsel den Tab oder lade ein Profil mit dieser Sektion.'),
+                {
+                  section:
+                    activeTab === 'matrix'
+                      ? t('atem.audio.sectionRouting', 'Routing')
+                      : t('atem.audio.sectionClassicMixer', 'Klassischer Mixer'),
+                },
+              )}
             </div>
           )}
         </main>
@@ -518,12 +529,13 @@ const EmptyState = ({
   <div className="m-auto max-w-md text-center text-sm text-slate-400">
     <div className="mb-2 text-3xl">🎚</div>
     <div className="mb-3 text-base font-semibold text-slate-200">
-      ATEM Audio-Routing
+      {t('atem.audio.welcomeTitle', 'ATEM Audio-Routing')}
     </div>
     <p className="mb-3">
-      Lade ein bestehendes ATEM Profile-XML — oder fang manuell mit der Crosspoint-Matrix
-      an. Beim Speichern erzeugen wir ein gültiges Profile-XML, das du direkt im ATEM
-      Software Control importieren kannst.
+      {t(
+        'atem.audio.welcomeIntro',
+        'Lade ein bestehendes ATEM Profile-XML — oder fang manuell mit der Crosspoint-Matrix an. Beim Speichern erzeugen wir ein gültiges Profile-XML, das du direkt im ATEM Software Control importieren kannst.',
+      )}
     </p>
     <div className="flex flex-wrap items-center justify-center gap-2">
       <button
@@ -531,7 +543,7 @@ const EmptyState = ({
         onClick={onLoad}
         className="rounded bg-sky-700 px-4 py-2 text-sm hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
-        📂 Profile-XML laden
+        📂 {t('atem.audio.loadProfileXml', 'Profile-XML laden')}
       </button>
       <button
         type="button"
@@ -539,12 +551,17 @@ const EmptyState = ({
         title={t('atem.audio.freshMatrix', 'Frische Crosspoint-Matrix mit den ATEM-Standard-Eingängen + 8 Output-Bussen.')}
         className="rounded border border-slate-700 bg-slate-800 px-4 py-2 text-sm text-slate-100 hover:border-sky-600 hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
-        🎚 Matrix manuell
+        🎚 {t('atem.audio.matrixManual', 'Matrix manuell')}
       </button>
     </div>
     <p className="mt-3 text-[10px] text-slate-500">
-      Für {equipmentName || 'das aktuelle Gerät'}. 24 Standard-Quellen × 8 Output-Busse;
-      Quellen + Outputs + Mappings danach frei bearbeiten.
+      {format(
+        t(
+          'atem.audio.welcomeFooter',
+          'Für {name}. 24 Standard-Quellen × 8 Output-Busse; Quellen + Outputs + Mappings danach frei bearbeiten.',
+        ),
+        { name: equipmentName || t('atem.audio.currentDevice', 'das aktuelle Gerät') },
+      )}
     </p>
   </div>
   )
@@ -584,6 +601,7 @@ const ChannelPicker = ({
   groupKey,
   onClose,
 }: ChannelPickerProps) => {
+  const t = useTranslation()
   const groups = useMemo(() => {
     const map = new Map<string, { id: number; name: string }[]>()
     for (const it of items) {
@@ -600,7 +618,13 @@ const ChannelPicker = ({
     <div className="border-b border-slate-800 bg-slate-950/60 px-4 py-2 text-xs">
       <div className="mb-1 flex items-center justify-between">
         <span className="text-slate-300">
-          {label} ein-/ausblenden — abgewählte Einträge fallen aus Filter, Liste und Matrix.
+          {format(
+            t(
+              'atem.audio.picker.toggleLabel',
+              '{label} ein-/ausblenden — abgewählte Einträge fallen aus Filter, Liste und Matrix.',
+            ),
+            { label },
+          )}
         </span>
         <div className="flex gap-1">
           <button
@@ -608,7 +632,7 @@ const ChannelPicker = ({
             onClick={() => onSetAll([])}
             className="rounded bg-slate-800 px-2 py-0.5 text-[11px] hover:bg-slate-700"
           >
-            Alle zeigen
+            {t('atem.audio.picker.showAll', 'Alle zeigen')}
           </button>
           <button
             type="button"
@@ -616,14 +640,14 @@ const ChannelPicker = ({
             className="rounded bg-slate-800 px-2 py-0.5 text-[11px] hover:bg-slate-700"
             disabled={allExcluded}
           >
-            Alle ausblenden
+            {t('atem.audio.picker.hideAll', 'Alle ausblenden')}
           </button>
           <button
             type="button"
             onClick={onClose}
             className="rounded bg-slate-800 px-2 py-0.5 text-[11px] hover:bg-slate-700"
           >
-            Schließen
+            {t('common.close', 'Schließen')}
           </button>
         </div>
       </div>
@@ -753,7 +777,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
     if (
       !(await confirmDialog(t('atem.audio.resetAllConfirm', 'Alle Routings auf "No Audio" zurücksetzen?'), {
         destructive: true,
-        okLabel: 'Zurücksetzen',
+        okLabel: t('common.reset', 'Zurücksetzen'),
       }))
     )
       return
@@ -797,10 +821,10 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
               : 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700'
           }`}
         >
-          Quellen-Auswahl
+          {t('atem.audio.sourcePicker', 'Quellen-Auswahl')}
           {excludedSourceIds.size > 0 && (
             <span className="ml-1 text-[10px] text-sky-300">
-              ({excludedSourceIds.size} versteckt)
+              ({excludedSourceIds.size} {t('atem.audio.hidden', 'versteckt')})
             </span>
           )}
         </button>
@@ -814,10 +838,10 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
               : 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700'
           }`}
         >
-          Outputs-Auswahl
+          {t('atem.audio.outputPicker', 'Outputs-Auswahl')}
           {excludedOutputIds.size > 0 && (
             <span className="ml-1 text-[10px] text-sky-300">
-              ({excludedOutputIds.size} versteckt)
+              ({excludedOutputIds.size} {t('atem.audio.hidden', 'versteckt')})
             </span>
           )}
         </button>
@@ -826,12 +850,12 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           onClick={clearAllOutputs}
           className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
         >
-          Alle Routings zurücksetzen
+          {t('atem.audio.resetAllBtn', 'Alle Routings zurücksetzen')}
         </button>
         <span className="ml-2 text-slate-500">
-          {visibleSources.length} × {visibleOutputs.length} sichtbar
+          {visibleSources.length} × {visibleOutputs.length} {t('atem.audio.visible', 'sichtbar')}
           {cellCount.toLocaleString() !== ''
-            ? ` · ${cellCount.toLocaleString()} Crosspoints`
+            ? ` · ${cellCount.toLocaleString()} ${t('atem.audio.crosspoints', 'Crosspoints')}`
             : ''}
         </span>
       </div>
@@ -863,16 +887,20 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
         <div className="m-auto max-w-md text-center text-sm text-amber-200">
           <div className="mb-2 text-2xl">⚠</div>
           <p>
-            {cellCount.toLocaleString()} sichtbare Crosspoints können das Rendering
-            verlangsamen. Über die Quellen-/Outputs-Auswahl eingrenzen oder trotzdem
-            anzeigen lassen — die Warnung bleibt dann für diese Sitzung aus.
+            {format(
+              t(
+                'atem.audio.tooLargeWarn',
+                '{count} sichtbare Crosspoints können das Rendering verlangsamen. Über die Quellen-/Outputs-Auswahl eingrenzen oder trotzdem anzeigen lassen — die Warnung bleibt dann für diese Sitzung aus.',
+              ),
+              { count: cellCount.toLocaleString() },
+            )}
           </p>
           <button
             type="button"
             onClick={() => setRenderAnyway(true)}
             className="mt-3 rounded bg-amber-700 px-3 py-1 text-xs text-amber-50 hover:bg-amber-600"
           >
-            Trotzdem anzeigen
+            {t('atem.audio.renderAnyway', 'Trotzdem anzeigen')}
           </button>
         </div>
       ) : (
