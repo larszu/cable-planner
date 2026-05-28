@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { format, useTranslation } from '../../lib/i18n'
 
 interface CropRect {
   x: number
@@ -69,6 +70,7 @@ export const RackImageCropDialog = ({
   onCancel,
   onConfirm,
 }: RackImageCropDialogProps) => {
+  const t = useTranslation()
   const [crop, setCrop] = useState<CropRect>(defaultCrop(rackUnits, 1))
   const [zoom, setZoom] = useState(1)
   const [aspectLock, setAspectLock] = useState(true)
@@ -304,9 +306,19 @@ export const RackImageCropDialog = ({
           className="mb-3 flex items-start justify-between gap-3 select-none"
         >
           <div>
-            <h3 className="text-base font-semibold">{side === 'front' ? 'Front' : 'Rear'} Grafik zuschneiden ({rackUnits} HE)</h3>
+            <h3 className="text-base font-semibold">
+              {format(
+                side === 'front'
+                  ? t('rackCrop.titleFront', 'Front Grafik zuschneiden ({units} HE)')
+                  : t('rackCrop.titleRear', 'Rear Grafik zuschneiden ({units} HE)'),
+                { units: rackUnits },
+              )}
+            </h3>
             <p className="mt-0.5 text-xs text-slate-400">
-              Mausrad zoomt · Ecken &amp; Kanten ziehen zum Skalieren · Shift = Aspekt halten · Pfeiltasten nudgen · R = Reset
+              {t(
+                'rackCrop.hint',
+                'Mausrad zoomt · Ecken & Kanten ziehen zum Skalieren · Shift = Aspekt halten · Pfeiltasten nudgen · R = Reset',
+              )}
             </p>
           </div>
           <button
@@ -314,14 +326,14 @@ export const RackImageCropDialog = ({
             onClick={onCancel}
             className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
           >
-            Schliessen
+            {t('rackCrop.close', 'Schliessen')}
           </button>
         </div>
 
         <div className="mb-3 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_280px]">
           <div className="rounded border border-slate-700 bg-slate-950/40 p-2">
             <div className="mb-2 flex items-center gap-2 text-xs text-slate-400">
-              <span>Zoom</span>
+              <span>{t('rackCrop.zoom', 'Zoom')}</span>
               <input
                 type="range"
                 min={0.5}
@@ -330,7 +342,7 @@ export const RackImageCropDialog = ({
                 value={zoom}
                 onChange={(event) => setZoom(Number(event.target.value) || 1)}
                 className="flex-1"
-                title="Mausrad oder + / - tut dasselbe"
+                title={t('rackCrop.scrollHint', 'Mausrad oder + / - tut dasselbe')}
               />
               <span className="w-12 text-right tabular-nums">{zoom.toFixed(2)}x</span>
               <label className="ml-2 flex items-center gap-1 text-[11px]">
@@ -339,7 +351,7 @@ export const RackImageCropDialog = ({
                   checked={aspectLock}
                   onChange={(event) => setAspectLock(event.target.checked)}
                 />
-                Aspekt fixieren
+                {t('rackCrop.lockAspect', 'Aspekt fixieren')}
               </label>
             </div>
             <div
@@ -414,7 +426,9 @@ export const RackImageCropDialog = ({
 
           <div className="space-y-2 rounded border border-slate-700 bg-slate-950/40 p-2 text-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] uppercase tracking-wide text-slate-500">Schnittvorlagen</span>
+              <span className="text-[11px] uppercase tracking-wide text-slate-500">
+                {t('rackCrop.presets', 'Schnittvorlagen')}
+              </span>
               <button
                 type="button"
                 onClick={() => {
@@ -422,9 +436,9 @@ export const RackImageCropDialog = ({
                   setZoom(1)
                 }}
                 className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
-                title="Crop und Zoom zurücksetzen (R)"
+                title={t('rackCrop.resetTitle', 'Crop und Zoom zurücksetzen (R)')}
               >
-                ⟲ Reset
+                {t('rackCrop.reset', '⟲ Reset')}
               </button>
             </div>
             <div className="grid grid-cols-4 gap-1">
@@ -434,7 +448,7 @@ export const RackImageCropDialog = ({
                   type="button"
                   onClick={() => setCrop(defaultCrop(he, imgAspect))}
                   className={`rounded px-2 py-1 ${he === rackUnits ? 'bg-cyan-700 hover:bg-cyan-600' : 'bg-slate-700 hover:bg-slate-600'}`}
-                  title={`Vorlage ${he} HE Aspekt`}
+                  title={format(t('rackCrop.presetTitle', 'Vorlage {n} HE Aspekt'), { n: he })}
                 >
                   {he}HE
                 </button>
@@ -442,7 +456,9 @@ export const RackImageCropDialog = ({
             </div>
 
             <div className="mt-3 rounded border border-slate-800 bg-slate-900/60 p-2">
-              <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">Manuelle Werte (0–1)</div>
+              <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
+                {t('rackCrop.manualValues', 'Manuelle Werte (0–1)')}
+              </div>
               <div className="grid grid-cols-2 gap-1.5">
                 <label className="block text-[11px]">
                   X
@@ -475,7 +491,7 @@ export const RackImageCropDialog = ({
                   />
                 </label>
                 <label className="block text-[11px]">
-                  Breite
+                  {t('rackCrop.width', 'Breite')}
                   <input
                     type="number"
                     step="0.01"
@@ -490,7 +506,7 @@ export const RackImageCropDialog = ({
                   />
                 </label>
                 <label className="block text-[11px]">
-                  Höhe
+                  {t('rackCrop.height', 'Höhe')}
                   <input
                     type="number"
                     step="0.01"
@@ -508,19 +524,30 @@ export const RackImageCropDialog = ({
             </div>
 
             <div className="rounded border border-slate-800 bg-slate-900/60 p-2 text-[11px] text-slate-400">
-              <div>Ziel-Aspekt: <span className="tabular-nums text-slate-200">{targetAspect.toFixed(2)}:1</span></div>
-              <div>Aktueller Crop-Aspekt: <span className="tabular-nums text-slate-200">{(crop.width / Math.max(0.001, crop.height)).toFixed(2)}:1</span></div>
-              <div>Live HE: <span className="tabular-nums text-slate-200">{liveHe.toFixed(2)}</span></div>
+              <div>
+                {t('rackCrop.targetAspect', 'Ziel-Aspekt:')}{' '}
+                <span className="tabular-nums text-slate-200">{targetAspect.toFixed(2)}:1</span>
+              </div>
+              <div>
+                {t('rackCrop.currentAspect', 'Aktueller Crop-Aspekt:')}{' '}
+                <span className="tabular-nums text-slate-200">
+                  {(crop.width / Math.max(0.001, crop.height)).toFixed(2)}:1
+                </span>
+              </div>
+              <div>
+                {t('rackCrop.liveHe', 'Live HE:')}{' '}
+                <span className="tabular-nums text-slate-200">{liveHe.toFixed(2)}</span>
+              </div>
             </div>
           </div>
         </div>
 
         <div className="flex justify-end gap-2">
           <button type="button" onClick={onCancel} className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600">
-            Abbrechen
+            {t('common.cancel', 'Abbrechen')}
           </button>
           <button type="button" onClick={finalizeCrop} className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500">
-            Zuschnitt übernehmen
+            {t('rackCrop.confirm', 'Zuschnitt übernehmen')}
           </button>
         </div>
       </div>

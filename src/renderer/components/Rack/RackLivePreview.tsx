@@ -21,6 +21,7 @@ import {
   type BlackBoxBand,
   type BlackBoxCable,
 } from './blackBoxShared'
+import { format, useTranslation } from '../../lib/i18n'
 
 interface PreviewPlacement {
   id: string
@@ -67,6 +68,7 @@ export const RackLivePreview = ({
   placements,
   cables,
 }: RackLivePreviewProps) => {
+  const t = useTranslation()
   void _totalUnits
 
   // Ports die in internen Kabeln verwendet werden = "intern" und tauchen
@@ -170,7 +172,10 @@ export const RackLivePreview = ({
         by: b.y,
         bSide: b.side,
         color: c.color ?? '#94a3b8',
-        label: `Intern: ${fromName}:${c.fromPortName} ↔ ${toName}:${c.toPortName}`,
+        label: format(
+          t('rackPreview.cableTooltip', 'Intern: {from}:{fromPort} ↔ {to}:{toPort}'),
+          { from: fromName, fromPort: c.fromPortName, to: toName, toPort: c.toPortName },
+        ),
       })
     }
     return list
@@ -179,7 +184,10 @@ export const RackLivePreview = ({
   if (placements.length === 0) {
     return (
       <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-3 text-center text-[10px] text-slate-500">
-        Keine Geräte im Rack — Preview erscheint sobald das erste Gerät zugewiesen ist.
+        {t(
+          'rackPreview.empty',
+          'Keine Geräte im Rack — Preview erscheint sobald das erste Gerät zugewiesen ist.',
+        )}
       </div>
     )
   }
@@ -195,10 +203,13 @@ export const RackLivePreview = ({
     <div>
       <div className="mb-1 flex items-center justify-between">
         <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-          Black-Box auf Canvas
+          {t('rackPreview.headerLabel', 'Black-Box auf Canvas')}
         </div>
         <div className="text-[10px] text-slate-500">
-          {placements.length} Geräte · {cables.length} interne Kabel
+          {format(t('rackPreview.counts', '{devices} Geräte · {cables} interne Kabel'), {
+            devices: placements.length,
+            cables: cables.length,
+          })}
         </div>
       </div>
       <div className="flex items-start justify-center rounded border border-slate-700 bg-slate-950/60 p-3">

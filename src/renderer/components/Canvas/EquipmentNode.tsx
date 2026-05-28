@@ -3,6 +3,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import type { EquipmentItem } from '../../types/equipment'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
+import { useTranslation } from '../../lib/i18n'
 import { colorForConnector } from '../../lib/cableColors'
 import { defaultIconForEquipment } from '../../lib/deviceKind'
 import { findGreenGoUserForEquipment } from '../../lib/greengoSync'
@@ -44,6 +45,7 @@ const resolvePortSide = (
 }
 
 export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeData>) => {
+  const t = useTranslation()
   const pendingCable = useUiStore((s) => s.pendingCable)
   const startPendingCable = useUiStore((s) => s.startPendingCable)
   const clearPendingCable = useUiStore((s) => s.clearPendingCable)
@@ -569,7 +571,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                   lineHeight: '13px',
                   flexShrink: 0,
                 }}
-                title="In Rentman nicht mehr vorhanden!"
+                title={t('eqNode.rentmanRemoved', 'In Rentman nicht mehr vorhanden!')}
               >
                 ⚠
               </span>
@@ -583,7 +585,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                   flexShrink: 0,
                   opacity: 0.7,
                 }}
-                title="Kein Rentman-Eintrag"
+                title={t('eqNode.noRentman', 'Kein Rentman-Eintrag')}
               />
             )
           )}
@@ -611,7 +613,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 padding: '0 4px',
                 lineHeight: '14px',
               }}
-              title="Gepackt — bereit zum Versand"
+              title={t('eqNode.packed', 'Gepackt — bereit zum Versand')}
             >
               ✓
             </span>
@@ -748,7 +750,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                     cursor: 'pointer',
                     pointerEvents: 'auto',
                   }}
-                  title="Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken"
+                  title={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
                 >
                   ✓
                 </span>
@@ -897,7 +899,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                     cursor: 'pointer',
                     pointerEvents: 'auto',
                   }}
-                  title="Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken"
+                  title={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
                 >
                   ✓
                 </span>
