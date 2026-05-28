@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useUiStore } from '../../../store/uiStore'
 import { useProjectStore } from '../../../store/projectStore'
-import { useTranslation } from '../../../lib/i18n'
+import { format, useTranslation } from '../../../lib/i18n'
 import { confirmDialog } from '../../../lib/confirmDialog'
 import { infoDialog } from '../../../lib/infoDialog'
 import { downloadBlob } from '../../../lib/downloadBlob'
@@ -100,20 +100,29 @@ export const ConfigsTab = () => {
     try {
       const parsed = JSON.parse(file.content) as { version?: number; library?: DeviceConfigEntry[] }
       if (!parsed.library || !Array.isArray(parsed.library)) {
-        await infoDialog('Ungültiges Konfigurations-Bundle', {
-          body: 'Die Datei enthält kein cable-planner-Konfigurations-Bundle.',
+        await infoDialog(t('settings.configs.invalidBundleTitle', 'Ungültiges Konfigurations-Bundle'), {
+          body: t(
+            'settings.configs.invalidBundleBody',
+            'Die Datei enthält kein cable-planner-Konfigurations-Bundle.',
+          ),
           tone: 'error',
         })
         return
       }
-      const replace = await confirmDialog(`${parsed.library.length} Konfigurationen laden`, {
-        body:
-          '"Ersetzen" = bestehende Bibliothek wird überschrieben.\n' +
-          '"Anhängen" = neue Konfigurationen werden hinzugefügt, bestehende bleiben.',
-        okLabel: 'Ersetzen',
-        cancelLabel: 'Anhängen',
-        destructive: true,
-      })
+      const replace = await confirmDialog(
+        format(t('settings.configs.loadCount', '{n} Konfigurationen laden'), {
+          n: parsed.library.length,
+        }),
+        {
+          body: t(
+            'settings.configs.replaceOrAppend',
+            '"Ersetzen" = bestehende Bibliothek wird überschrieben.\n"Anhängen" = neue Konfigurationen werden hinzugefügt, bestehende bleiben.',
+          ),
+          okLabel: t('settings.configs.replace', 'Ersetzen'),
+          cancelLabel: t('settings.configs.append', 'Anhängen'),
+          destructive: true,
+        },
+      )
       if (replace) {
         replaceDeviceConfigLibrary(parsed.library)
       } else {
@@ -126,7 +135,7 @@ export const ConfigsTab = () => {
         }
       }
     } catch (err) {
-      await infoDialog('Fehler beim Import', {
+      await infoDialog(t('settings.configs.importErrorTitle', 'Fehler beim Import'), {
         body: err instanceof Error ? err.message : String(err),
         tone: 'error',
       })
@@ -155,7 +164,7 @@ export const ConfigsTab = () => {
             onClick={() => void handleUpload()}
             className="rounded bg-sky-700 px-3 py-1 text-xs text-white hover:bg-sky-600"
           >
-            📤 Datei wählen…
+            {t('settings.configs.pickFile', '📤 Datei wählen…')}
           </button>
           <button
             type="button"
@@ -163,14 +172,14 @@ export const ConfigsTab = () => {
             disabled={library.length === 0}
             className="rounded bg-emerald-700 px-3 py-1 text-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            💾 Bibliothek als JSON exportieren
+            {t('settings.configs.exportBundle', '💾 Bibliothek als JSON exportieren')}
           </button>
           <button
             type="button"
             onClick={() => void handleImportBundle()}
             className="rounded bg-amber-700 px-3 py-1 text-xs text-white hover:bg-amber-600"
           >
-            ⤵ JSON-Bibliothek importieren…
+            {t('settings.configs.importBundle', '⤵ JSON-Bibliothek importieren…')}
           </button>
         </div>
       </SettingsCard>
@@ -183,7 +192,7 @@ export const ConfigsTab = () => {
                 'settings.configs.library.empty',
                 'Noch keine Konfigurationen hochgeladen.',
               )
-            : `${library.length} Einträge`
+            : format(t('settings.configs.entriesCount', '{n} Einträge'), { n: library.length })
         }
       >
         <div className="mb-2 flex flex-wrap gap-1">
@@ -200,7 +209,7 @@ export const ConfigsTab = () => {
                 }`}
               >
                 {k === 'all'
-                  ? `Alle (${library.length})`
+                  ? format(t('settings.configs.filterAll', 'Alle ({n})'), { n: library.length })
                   : `${CONFIG_KIND_ICON[k]} ${CONFIG_KIND_LABEL[k]} (${
                       library.filter((e) => e.kind === k).length
                     })`}
@@ -211,12 +220,14 @@ export const ConfigsTab = () => {
 
         {library.length === 0 ? (
           <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-500">
-            Lade die erste Konfigurationsdatei hoch — sie wird hier gelistet und kann anschließend
-            einem Gerät auf dem Canvas zugeordnet werden.
+            {t(
+              'settings.configs.emptyHint',
+              'Lade die erste Konfigurationsdatei hoch — sie wird hier gelistet und kann anschließend einem Gerät auf dem Canvas zugeordnet werden.',
+            )}
           </div>
         ) : grouped.size === 0 ? (
           <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-500">
-            Kein Eintrag passt zum gewählten Filter.
+            {t('settings.configs.noFilterMatch', 'Kein Eintrag passt zum gewählten Filter.')}
           </div>
         ) : (
           <ul className="space-y-2">
@@ -264,9 +275,12 @@ export const ConfigsTab = () => {
                             })
                           }
                           className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[11px] text-slate-200"
-                          title="Gerät auf dem Canvas, dem diese Konfiguration zugeordnet ist"
+                          title={t(
+                            'settings.configs.assignTitle',
+                            'Gerät auf dem Canvas, dem diese Konfiguration zugeordnet ist',
+                          )}
                         >
-                          <option value="">(unzugeordnet)</option>
+                          <option value="">{t('settings.configs.unassigned', '(unzugeordnet)')}</option>
                           {equipment.map((eq) => (
                             <option key={eq.id} value={eq.id}>
                               {eq.name}
@@ -275,9 +289,17 @@ export const ConfigsTab = () => {
                         </select>
                         <span
                           className="hidden text-[10px] text-slate-500 sm:inline"
-                          title={`Originaldatei: ${entry.fileName}\nHochgeladen: ${new Date(
-                            entry.savedAt,
-                          ).toLocaleString()}\n${entry.content.length.toLocaleString()} Zeichen`}
+                          title={format(
+                            t(
+                              'settings.configs.fileMeta',
+                              'Originaldatei: {fileName}\nHochgeladen: {savedAt}\n{chars} Zeichen',
+                            ),
+                            {
+                              fileName: entry.fileName,
+                              savedAt: new Date(entry.savedAt).toLocaleString(),
+                              chars: entry.content.length.toLocaleString(),
+                            },
+                          )}
                         >
                           {entry.fileName}{linked ? ' · ✓' : ''}
                         </span>
@@ -286,7 +308,7 @@ export const ConfigsTab = () => {
                             type="button"
                             onClick={() => downloadConfig(entry)}
                             className="rounded bg-slate-700 px-2 py-0.5 text-[11px] text-slate-100 hover:bg-slate-600"
-                            title="Originaldatei herunterladen"
+                            title={t('settings.configs.downloadTitle', 'Originaldatei herunterladen')}
                           >
                             ⬇
                           </button>
@@ -294,17 +316,25 @@ export const ConfigsTab = () => {
                             type="button"
                             onClick={async () => {
                               if (
-                                await confirmDialog(`Konfiguration "${entry.name}" löschen?`, {
-                                  body: 'Die Datei selbst auf der Festplatte bleibt unverändert.',
-                                  okLabel: 'Löschen',
-                                  destructive: true,
-                                })
+                                await confirmDialog(
+                                  format(t('settings.configs.confirmDelete', 'Konfiguration "{name}" löschen?'), {
+                                    name: entry.name,
+                                  }),
+                                  {
+                                    body: t(
+                                      'settings.configs.deleteHint',
+                                      'Die Datei selbst auf der Festplatte bleibt unverändert.',
+                                    ),
+                                    okLabel: t('common.delete', 'Löschen'),
+                                    destructive: true,
+                                  },
+                                )
                               ) {
                                 removeDeviceConfig(entry.id)
                               }
                             }}
                             className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-red-700 hover:text-white"
-                            title="Aus Bibliothek entfernen"
+                            title={t('settings.configs.removeTitle', 'Aus Bibliothek entfernen')}
                           >
                             ✕
                           </button>

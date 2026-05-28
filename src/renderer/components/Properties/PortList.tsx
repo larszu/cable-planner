@@ -347,7 +347,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
             <div className="mt-1 grid grid-cols-2 gap-1">
               <div className="flex items-stretch gap-0.5">
                 <select
-                  aria-label="Connector type"
+                  aria-label={t('ports.aria.connector', 'Connector type')}
                   value={port.connectorType}
                   onChange={async (event) => {
                     const v = event.target.value
@@ -377,7 +377,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
               </div>
               <div className="flex items-stretch gap-0.5">
                 <select
-                  aria-label="Signal standard"
+                  aria-label={t('ports.aria.signal', 'Signal standard')}
                   value={port.standard ?? ''}
                   onChange={async (event) => {
                     const v = event.target.value
@@ -413,7 +413,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                 ATEM-/Videohub-Export bevorzugt. */}
             <div className="mt-1">
               <input
-                aria-label="Inhalt / Funktion"
+                aria-label={t('ports.aria.contentLabel', 'Inhalt / Funktion')}
                 value={port.contentLabel ?? ''}
                 onChange={(event) => {
                   const v = event.target.value
@@ -426,7 +426,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
             </div>
             <div className="mt-1 grid grid-cols-2 gap-1">
               <select
-                aria-label="Port direction"
+                aria-label={t('ports.aria.direction', 'Port direction')}
                 value={port.direction ?? ''}
                 onChange={(event) =>
                   updatePort(port.id, {
@@ -444,7 +444,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                 <option value="bidirectional">{t('ports.direction.bi', 'Bidirektional (z.B. Netzwerk)')}</option>
               </select>
               <select
-                aria-label="Port side"
+                aria-label={t('ports.aria.side', 'Port side')}
                 value={port.side ?? ''}
                 onChange={(event) =>
                   updatePort(port.id, {

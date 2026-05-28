@@ -51,6 +51,7 @@ import {
   setCanvasFitViewHandler,
 } from '../../lib/canvasViewport'
 import { routeCableWithAStar, type HandleSide, type PixelRect } from '../../lib/routeCableWithAStar'
+import { useTranslation } from '../../lib/i18n'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
 const edgeTypes = { cable: CableEdge }
@@ -58,6 +59,7 @@ const edgeTypes = { cable: CableEdge }
 type CanvasMode = 'main' | 'rack'
 
 const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
+  const t = useTranslation()
   // v7.9.9 — context-aware project store instance. Default = main store,
   // override = scratch store (z.B. RackInternalCanvas).
   const projectStoreInstance = useCanvasProjectStoreInstance()
@@ -1529,7 +1531,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         if (event.key === '+' || event.key === '=') {
           event.preventDefault()
           ;(async () => {
-            const name = (await promptDialog('Neues Gerät', 'Neues Gerät'))?.trim()
+            const name = (await promptDialog(
+              t('canvas.area.newDevicePromptTitle', 'Neues Gerät'),
+              t('canvas.area.newDevicePromptDefault', 'Neues Gerät'),
+            ))?.trim()
             if (!name) return
             const pos = lastMousePosRef.current
             const flow = pos
@@ -1663,18 +1668,30 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         >
           <span>
             {projectMode === 'viewer'
-              ? 'Viewer-Modus — Plan ist read-only. Änderungen nicht möglich.'
-              : 'Plan ist abgeschlossen — Änderungen sind gesperrt.'}
+              ? t(
+                  'canvas.area.viewerMode',
+                  'Viewer-Modus — Plan ist read-only. Änderungen nicht möglich.',
+                )
+              : t(
+                  'canvas.area.finalizedMode',
+                  'Plan ist abgeschlossen — Änderungen sind gesperrt.',
+                )}
           </span>
           {projectMode === 'finalized' && (
             <button
               type="button"
               onClick={async () => {
                 if (
-                  await confirmDialog('Planung wieder zur Bearbeitung freigeben?', {
-                    body: 'Geräte, Kabel und Layout können dann wieder verändert werden.',
-                    okLabel: 'Freigeben',
-                  })
+                  await confirmDialog(
+                    t('canvas.area.releaseConfirm', 'Planung wieder zur Bearbeitung freigeben?'),
+                    {
+                      body: t(
+                        'canvas.area.releaseBody',
+                        'Geräte, Kabel und Layout können dann wieder verändert werden.',
+                      ),
+                      okLabel: t('canvas.area.release', 'Freigeben'),
+                    },
+                  )
                 ) {
                   projectStoreInstance.getState().setProjectMode('editing')
                 }
@@ -1689,7 +1706,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                 cursor: 'pointer',
               }}
             >
-              Bearbeitung freigeben
+              {t('canvas.area.releaseBtn', 'Bearbeitung freigeben')}
             </button>
           )}
         </div>
@@ -1795,7 +1812,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         onNodeDoubleClick={async (_event, node) => {
           if (node.type === 'location') {
             const current = (node.data as { name?: string }).name ?? ''
-            const newName = await promptDialog('Location umbenennen:', current)
+            const newName = await promptDialog(
+              t('canvas.area.renameLocation', 'Location umbenennen:'),
+              current,
+            )
             if (newName !== null && newName.trim()) {
               updateLocation(node.id, { name: newName.trim() })
             }
@@ -1931,7 +1951,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                 <rect x="3" y="7" width="10" height="7" rx="1" />
                 <path d={isLocked ? 'M5 7V4.5a3 3 0 0 1 6 0V7' : 'M5 7V4.5a3 3 0 0 1 6 0V6'} />
               </svg>
-              <span>{isLocked ? 'Position entsperren' : 'Position sperren'}</span>
+              <span>
+                {isLocked
+                  ? t('canvas.area.unlockPosition', 'Position entsperren')
+                  : t('canvas.area.lockPosition', 'Position sperren')}
+              </span>
             </button>
           </div>
         )

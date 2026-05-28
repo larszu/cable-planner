@@ -18,6 +18,7 @@
 
 import { useMemo, useRef, useState } from 'react'
 import type { GraphmlDocument, GraphmlEdge, GraphmlNode } from '../../lib/graphml/types'
+import { format, useTranslation } from '../../lib/i18n'
 
 export interface GraphmlViewerProps {
   document: GraphmlDocument
@@ -88,6 +89,7 @@ const edgePoints = (
 }
 
 export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlViewerProps) => {
+  const t = useTranslation()
   const nodeById = useMemo(
     () => new Map(document.nodes.map((n) => [n.id, n])),
     [document.nodes],
@@ -260,7 +262,7 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
           type="button"
           onClick={() => setView((v) => ({ ...v, zoom: Math.min(20, v.zoom * 1.4) }))}
           className="rounded px-1.5 hover:bg-slate-700"
-          aria-label="Zoom in"
+          aria-label={t('graphmlViewer.zoomIn', 'Zoom in')}
         >
           ＋
         </button>
@@ -268,7 +270,7 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
           type="button"
           onClick={() => setView((v) => ({ ...v, zoom: Math.max(0.05, v.zoom / 1.4) }))}
           className="rounded px-1.5 hover:bg-slate-700"
-          aria-label="Zoom out"
+          aria-label={t('graphmlViewer.zoomOut', 'Zoom out')}
         >
           −
         </button>
@@ -276,14 +278,20 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
           type="button"
           onClick={resetView}
           className="rounded px-1.5 text-[10px] hover:bg-slate-700"
-          aria-label="Reset"
+          aria-label={t('graphmlViewer.reset', 'Reset')}
         >
-          Reset
+          {t('graphmlViewer.reset', 'Reset')}
         </button>
         <span className="ml-1 text-[10px] text-slate-500">{Math.round(view.zoom * 100)}%</span>
       </div>
       <div className="pointer-events-none absolute bottom-2 left-3 text-[10px] text-slate-500">
-        Mausrad zoomt · Ziehen verschiebt · {document.nodes.length} Nodes · {document.edges.length} Edges
+        {format(
+          t(
+            'graphmlViewer.statusBar',
+            'Mausrad zoomt · Ziehen verschiebt · {nodes} Nodes · {edges} Edges',
+          ),
+          { nodes: document.nodes.length, edges: document.edges.length },
+        )}
       </div>
     </div>
   )

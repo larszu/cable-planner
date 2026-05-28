@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
+import { useTranslation } from '../../lib/i18n'
 
 const fmtDate = (iso?: string): string => {
   if (!iso) return '—'
@@ -22,17 +23,18 @@ const fmtDate = (iso?: string): string => {
  * the way of fine drawing work, and the collapsed state is local-only.
  */
 export const TitleBlock = () => {
+  const t = useTranslation()
   const metadata = useProjectStore((state) => state.project.metadata)
   const [collapsed, setCollapsed] = useState(false)
 
-  const projectName = metadata.name?.trim() || 'Unbenanntes Projekt'
+  const projectName = metadata.name?.trim() || t('canvas.titleBlock.unnamed', 'Unbenanntes Projekt')
   const rows: { label: string; value?: string }[] = [
-    { label: 'Projekt-Nr.', value: metadata.projectNumber },
-    { label: 'Kunde', value: metadata.client },
-    { label: 'Auftragnehmer', value: metadata.contractor },
-    { label: 'Planer', value: metadata.author },
-    { label: 'Erstellt', value: fmtDate(metadata.createdAt) },
-    { label: 'Geändert', value: fmtDate(metadata.updatedAt) },
+    { label: t('canvas.titleBlock.projectNo', 'Projekt-Nr.'), value: metadata.projectNumber },
+    { label: t('canvas.titleBlock.client', 'Kunde'), value: metadata.client },
+    { label: t('canvas.titleBlock.contractor', 'Auftragnehmer'), value: metadata.contractor },
+    { label: t('canvas.titleBlock.planner', 'Planer'), value: metadata.author },
+    { label: t('canvas.titleBlock.created', 'Erstellt'), value: fmtDate(metadata.createdAt) },
+    { label: t('canvas.titleBlock.modified', 'Geändert'), value: fmtDate(metadata.updatedAt) },
   ]
 
   const hasLogo = !!(metadata.companyLogo || metadata.clientLogo)
@@ -42,10 +44,10 @@ export const TitleBlock = () => {
       <button
         type="button"
         onClick={() => setCollapsed(false)}
-        title="Bauplan-Signatur einblenden"
+        title={t('canvas.titleBlock.showTitle', 'Bauplan-Signatur einblenden')}
         className="nodrag nopan absolute bottom-2 right-2 z-10 rounded border border-slate-700 bg-slate-900/90 px-2 py-1 text-[11px] font-semibold text-slate-200 shadow hover:bg-slate-800"
       >
-        Signatur
+        {t('canvas.titleBlock.signatureBtn', 'Signatur')}
       </button>
     )
   }
@@ -62,7 +64,7 @@ export const TitleBlock = () => {
         <button
           type="button"
           onClick={() => setCollapsed(true)}
-          title="Signatur einklappen"
+          title={t('canvas.titleBlock.collapseTitle', 'Signatur einklappen')}
           className="ml-2 rounded px-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
         >
           –
@@ -74,22 +76,26 @@ export const TitleBlock = () => {
             {metadata.companyLogo ? (
               <img
                 src={metadata.companyLogo}
-                alt="Auftragnehmer"
+                alt={t('canvas.titleBlock.contractor', 'Auftragnehmer')}
                 className="max-h-10 max-w-full object-contain"
               />
             ) : (
-              <span className="text-[9px] text-slate-600">kein Logo</span>
+              <span className="text-[9px] text-slate-600">
+                {t('canvas.titleBlock.noLogo', 'kein Logo')}
+              </span>
             )}
           </div>
           <div className="flex h-10 flex-1 items-center justify-center overflow-hidden rounded bg-white/5">
             {metadata.clientLogo ? (
               <img
                 src={metadata.clientLogo}
-                alt="Kunde"
+                alt={t('canvas.titleBlock.client', 'Kunde')}
                 className="max-h-10 max-w-full object-contain"
               />
             ) : (
-              <span className="text-[9px] text-slate-600">kein Logo</span>
+              <span className="text-[9px] text-slate-600">
+                {t('canvas.titleBlock.noLogo', 'kein Logo')}
+              </span>
             )}
           </div>
         </div>

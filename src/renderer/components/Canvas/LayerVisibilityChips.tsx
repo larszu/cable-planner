@@ -22,8 +22,10 @@ import { useUiStore } from '../../store/uiStore'
 import { LAYER_STYLES, STANDARD_LAYERS, topLayer, type StandardLayer } from '../../lib/cableLayers'
 import { promptDialog } from '../../lib/promptDialog'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
+import { format, useTranslation } from '../../lib/i18n'
 
 export const LayerVisibilityChips = () => {
+  const t = useTranslation()
   const layerVisibility = useUiStore((s) => s.layerVisibility)
   const setLayerVisibility = useUiStore((s) => s.setLayerVisibility)
   const resetLayerVisibility = useUiStore((s) => s.resetLayerVisibility)
@@ -53,7 +55,10 @@ export const LayerVisibilityChips = () => {
     customLayers.every((l) => layerVisibility[l] !== false)
 
   const handleAddCustom = async () => {
-    const name = (await promptDialog('Custom-Layer anlegen (z.B. "intercom", "lighting")', ''))?.trim()
+    const name = (await promptDialog(
+      t('canvas.layerChips.customLayerPrompt', 'Custom-Layer anlegen (z.B. "intercom", "lighting")'),
+      '',
+    ))?.trim()
     if (!name) return
     addCustomLayer(name)
   }
@@ -62,9 +67,12 @@ export const LayerVisibilityChips = () => {
     <div className="relative flex items-center gap-1">
       <span
         className={`select-none text-[9px] uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-500'}`}
-        title="Layer-Sichtbarkeit (nur Kabel werden gefiltert, Geräte bleiben)"
+        title={t(
+          'canvas.layerChips.layerStripTitle',
+          'Layer-Sichtbarkeit (nur Kabel werden gefiltert, Geräte bleiben)',
+        )}
       >
-        Ebenen
+        {t('canvas.layerChips.layers', 'Ebenen')}
       </span>
       {(STANDARD_LAYERS as readonly StandardLayer[]).map((layer) => {
         const style = LAYER_STYLES[layer]
@@ -75,7 +83,19 @@ export const LayerVisibilityChips = () => {
             key={layer}
             type="button"
             onClick={() => setLayerVisibility(layer, !visible)}
-            title={`${style.label} — ${count} Kabel · ${visible ? 'sichtbar (klick: ausblenden)' : 'ausgeblendet (klick: einblenden)'}`}
+            title={format(
+              t(
+                'canvas.layerChips.chipTitle',
+                '{label} — {count} Kabel · {state}',
+              ),
+              {
+                label: style.label,
+                count,
+                state: visible
+                  ? t('canvas.layerChips.visibleHide', 'sichtbar (klick: ausblenden)')
+                  : t('canvas.layerChips.hiddenShow', 'ausgeblendet (klick: einblenden)'),
+              },
+            )}
             className="inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[10px] font-medium transition"
             style={{
               borderColor: visible ? style.color : isLight ? '#cbd5e1' : '#334155',
@@ -114,9 +134,19 @@ export const LayerVisibilityChips = () => {
             onClick={() => setLayerVisibility(layer, !visible)}
             onContextMenu={(e) => {
               e.preventDefault()
-              if (confirm(`Custom-Layer "${layer}" entfernen?`)) removeCustomLayer(layer)
+              if (
+                confirm(
+                  format(t('canvas.layerChips.removeCustom', 'Custom-Layer "{layer}" entfernen?'), {
+                    layer,
+                  }),
+                )
+              )
+                removeCustomLayer(layer)
             }}
-            title={`${layer} (custom) — Rechtsklick zum Entfernen`}
+            title={format(
+              t('canvas.layerChips.customTitle', '{layer} (custom) — Rechtsklick zum Entfernen'),
+              { layer },
+            )}
             className="inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[10px] font-medium transition"
             style={{
               borderColor: visible ? '#94a3b8' : isLight ? '#cbd5e1' : '#334155',
@@ -138,7 +168,7 @@ export const LayerVisibilityChips = () => {
       <button
         type="button"
         onClick={() => setMenuOpen((v) => !v)}
-        title="Layer-Verwaltung (Custom anlegen / alle zurücksetzen)"
+        title={t('canvas.layerChips.menuTitle', 'Layer-Verwaltung (Custom anlegen / alle zurücksetzen)')}
         className={`inline-flex h-6 w-6 items-center justify-center rounded-full border text-[11px] transition ${
           isLight
             ? 'border-slate-300 bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -165,7 +195,7 @@ export const LayerVisibilityChips = () => {
             }`}
           >
             <span>➕</span>
-            <span>Custom-Layer anlegen…</span>
+            <span>{t('canvas.layerChips.addCustom', 'Custom-Layer anlegen…')}</span>
           </button>
           <button
             type="button"
@@ -180,7 +210,7 @@ export const LayerVisibilityChips = () => {
             style={{ opacity: allOn ? 0.5 : 1 }}
           >
             <span>👁</span>
-            <span>Alle Ebenen wieder einblenden</span>
+            <span>{t('canvas.layerChips.resetAll', 'Alle Ebenen wieder einblenden')}</span>
           </button>
         </div>
       )}

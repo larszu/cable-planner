@@ -87,6 +87,7 @@ const SAMPLING_PRESETS: { label: string; factor: number }[] = [
 ]
 
 const BandwidthTab = () => {
+  const t = useTranslation()
   const [resolution, setResolution] = useState(RESOLUTION_PRESETS[1])
   const [fps, setFps] = useState(50)
   const [sampling, setSampling] = useState(SAMPLING_PRESETS[2])
@@ -101,7 +102,7 @@ const BandwidthTab = () => {
       </p>
       <div className="grid grid-cols-3 gap-3">
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">Auflösung</span>
+          <span className="mb-1 block text-xs text-slate-400">{t('calc.resolution', 'Auflösung')}</span>
           <select
             value={resolution.label}
             onChange={(e) =>
@@ -133,7 +134,7 @@ const BandwidthTab = () => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">Sampling / Tiefe</span>
+          <span className="mb-1 block text-xs text-slate-400">{t('calc.sampling', 'Sampling / Tiefe')}</span>
           <select
             value={sampling.label}
             onChange={(e) =>
@@ -152,7 +153,7 @@ const BandwidthTab = () => {
         </label>
       </div>
       <div className="rounded border border-amber-700 bg-amber-950/30 p-3">
-        <div className="text-[10px] uppercase tracking-wide text-amber-300">Datenrate</div>
+        <div className="text-[10px] uppercase tracking-wide text-amber-300">{t('calc.dataRate', 'Datenrate')}</div>
         <div className="font-mono text-lg text-amber-100">{mbps.toLocaleString(undefined, { maximumFractionDigits: 1 })} Mbps</div>
         <div className="mt-1 text-xs text-amber-200">
           {fittingTier
@@ -265,6 +266,7 @@ const balancePhases = (
 // Use the PHASE_COLORS map directly via PHASE_KEYS[idx].
 
 const PowerTab = () => {
+  const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
   const [supplyId, setSupplyId] = useState<SupplyPresetId>('cee32')
   const [marginPercent, setMarginPercent] = useState(20)
@@ -322,7 +324,7 @@ const PowerTab = () => {
       </p>
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">Anschluss-Typ</span>
+          <span className="mb-1 block text-xs text-slate-400">{t('calc.connectionType', 'Anschluss-Typ')}</span>
           <select
             value={supplyId}
             onChange={(e) => setSupplyId(e.target.value as SupplyPresetId)}
@@ -336,7 +338,7 @@ const PowerTab = () => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">Sicherheits-Reserve (%)</span>
+          <span className="mb-1 block text-xs text-slate-400">{t('calc.safetyReserve', 'Sicherheits-Reserve (%)')}</span>
           <input
             type="number"
             min={0}
@@ -349,14 +351,14 @@ const PowerTab = () => {
 
       <div className="rounded border border-emerald-700 bg-emerald-950/30 p-3">
         <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-xs">
-          <dt className="text-slate-500">Erfasste Geräte</dt>
+          <dt className="text-slate-500">{t('calc.devicesCounted', 'Erfasste Geräte')}</dt>
           <dd className="font-mono text-slate-200">
             {totals.countedDevices} von {totals.countedDevices + totals.missingDevices}
             {totals.missingDevices > 0 && (
               <span className="ml-2 text-amber-300">({totals.missingDevices} ohne Wert)</span>
             )}
           </dd>
-          <dt className="text-slate-500">Gesamtverbrauch</dt>
+          <dt className="text-slate-500">{t('calc.totalUsage', 'Gesamtverbrauch')}</dt>
           <dd className="font-mono text-slate-200">{totals.totalW.toFixed(0)} W</dd>
           <dt className="text-slate-500">+ Reserve ({marginPercent}%)</dt>
           <dd className="font-mono text-emerald-200 text-lg">
@@ -364,14 +366,14 @@ const PowerTab = () => {
           </dd>
           {supply.phases === 1 ? (
             <>
-              <dt className="text-slate-500">Stromstärke (1-phasig)</dt>
+              <dt className="text-slate-500">{t('calc.current1phase', 'Stromstärke (1-phasig)')}</dt>
               <dd className="font-mono text-slate-200">
                 {ampsSinglePhase.toFixed(1)} A · max {supply.perPhaseAmps} A
               </dd>
             </>
           ) : (
             <>
-              <dt className="text-slate-500">Symmetrisch (3-phasig)</dt>
+              <dt className="text-slate-500">{t('calc.current3phase', 'Symmetrisch (3-phasig)')}</dt>
               <dd className="font-mono text-slate-200">
                 {ampsThreePhase.toFixed(1)} A · max {supply.perPhaseAmps} A je Phase
               </dd>
@@ -450,9 +452,9 @@ const PowerTab = () => {
             <table className="mt-1 w-full text-xs">
               <thead className="text-slate-500">
                 <tr>
-                  <th className="text-left">Gerät</th>
+                  <th className="text-left">{t('calc.col.device', 'Gerät')}</th>
                   <th className="text-right">W</th>
-                  <th className="text-right pr-2">Phase</th>
+                  <th className="text-right pr-2">{t('calc.col.phase', 'Phase')}</th>
                 </tr>
               </thead>
               <tbody>

@@ -3,42 +3,48 @@ import { useUiStore, type Language } from '../store/uiStore'
 /**
  * Cable Planner i18n.
  *
- * Coverage status:
- *   ✓ Settings dialog (all 6 tabs)
- *   ✓ Top-level menu / chrome (App header, MenuBar, StatusBar)
- *   ✓ Canvas toolbar (Defaults menu, alignment, locks, plan-finalise,
- *     annotations, length legend)
- *   ✓ Properties panel chrome + Equipment / Cable / Location panels
- *   ✓ All sections under EquipmentProperties (Network*, Power*, Dims*,
- *     Display, Ports, Print, LibrarySave, etc.)
- *   ✓ PortList (incl. SFP details, ATEM source IDs, content labels)
+ * Coverage status: COMPREHENSIVE.
+ *
+ * The English dictionary contains 1650+ keys covering essentially every
+ * user-visible string in the application:
+ *
+ *   ✓ Top-level chrome — App header, MenuBar (incl. shortcuts), StatusBar
+ *   ✓ Settings — all 6 tabs (Project, Appearance, Editing, Integrations,
+ *     Sync, Advanced + Configs sub-tab)
+ *   ✓ Canvas — toolbar (Defaults menu, alignment, locks, plan-finalise,
+ *     annotations, length legend, rail labels), CableContextMenu, CableEdge,
+ *     LayerVisibilityChips, TitleBlock, EquipmentNode tooltips,
+ *     AnnotationCanvasOverlay
+ *   ✓ Properties panel — chrome + Equipment / Cable / Location / Template
+ *     panels + all 17 sub-sections (Identity, NetworkAccess, NetworkConfig,
+ *     PowerConsumption, Dimensions/Block, Display, Modes, Ports, Print,
+ *     LibrarySave, DeviceKindCards, RackSection, OptionalFields,
+ *     DisplayFlags, RentmanSyncBadge, PortAiSuggestButton,
+ *     GreenGoBeltpackSection, DeviceConfigsBlock)
+ *   ✓ PortList (full row editor incl. SFP details, ATEM source IDs,
+ *     content labels, aria-labels)
  *   ✓ DeviceModePicker + ModeEditorDialog (multi-mode devices, #113)
- *   ✓ Common buttons (OK / Cancel / Save / Close / Delete / …)
- *   ✓ promptDialog + confirmDialog default labels
- *   ✓ CategorySelect "+ New category…" entry
- *   ✓ Library panel chrome (show/hide, tab tooltips, search)
- *   ✓ Library cable editor (CableLibraryPanel)
- *   ✓ Layout chrome (FloatingPanelShell dock, Splitter, ModalShell close)
- *   ✓ Shared widgets (ColorField, RoutingToggle)
- *   ✓ PrintDialog frame + actions
- *   ✓ CableDialog
- *   ✓ AboutDialog, AnnotationsPanel, PatchListDialog, CalculatorsDialog
- *   ✓ OnboardingTour (all 7 steps + chrome)
- *   ✓ Export dialogs: ExportDialog body (Plan/Patch-Sheets/BOM),
+ *   ✓ Library panel (chrome, tabs, Rentman/NetBox sections, create dialog,
+ *     CableLibraryPanel + Editor)
+ *   ✓ Layout chrome (FloatingPanelShell, Splitter, ModalShell)
+ *   ✓ Shared widgets (ColorField, RoutingToggle, CategorySelect)
+ *   ✓ CableDialog, PrintDialog
+ *   ✓ AboutDialog, AnnotationsPanel, PatchListDialog, CalculatorsDialog,
+ *     OnboardingTour (all 7 steps), WelcomeDialog, ProjectMetaDialog
+ *   ✓ Export dialogs — ExportDialog (Plan / Patch-Sheets / BOM bodies),
  *     VideohubExportDialog, GreenGoExportDialog, GraphmlImportDialog,
  *     LocationBomDialog, CableBomDialog, MobileShareDialog
- *   ✓ Rentman: import (chrome + body), wizard, cable export,
- *     project selector, equipment checklist
- *   ✓ ATEM dialogs: AtemDialog, AtemMvConfigDialog, AtemAudioRouterDialog
- *   ✓ RackBuilderDialog (chrome + library + zoom + save flow),
- *     PatchPanelCreateDialog, RackShelfCreateDialog, NonRackAddDialog
- *
- *   ◯ Long-tail deeply-nested tooltips in LibraryPanel + RackBuilder body
- *     still German (per-template detail buttons in equipment list)
+ *   ✓ Rentman — RentmanImportDialog (chrome + body), NewRentmanDeviceWizard,
+ *     RentmanCableExportDialog, ProjectSelector, EquipmentChecklist
+ *   ✓ ATEM — AtemDialog, AtemMvConfigDialog, AtemAudioRouterDialog
+ *   ✓ Rack — RackBuilderDialog (chrome + body), PatchPanelCreateDialog,
+ *     RackShelfCreateDialog, NonRackAddDialog, RackImageCropDialog,
+ *     RackAddSplitButton, RackLivePreview
+ *   ✓ Promptdialog / confirmDialog / infoDialog default labels
  *
  * Strings without a translation fall through to the German source string,
- * so a partially-translated UI stays readable rather than showing missing-
- * key tokens.
+ * so anything not yet covered remains readable rather than showing
+ * missing-key tokens.
  */
 
 type Dict = Record<string, string>
@@ -127,7 +133,7 @@ const en: Dict = {
   'settings.appearance.languageDesc':
     'UI language. Switching is instant. Some deeply nested dialogs are still German-only — see the i18n coverage note.',
   'settings.appearance.coverage':
-    'Translation coverage: Settings, menu/status bar, canvas toolbar, all properties panels, library chrome + cable editor, all dialogs (Cable, Cable BOM, ATEM, Videohub, GreenGo, Rentman, Rack builder, Print, Export, Mobile share, GraphML, Onboarding, About). Only a few deeply-nested per-row tooltips in library/rack body still show German.',
+    'Translation coverage: comprehensive (1650+ keys). All menus, toolbars, properties panels (incl. PortList, all 17 sub-sections), library, all dialogs (Cable, ATEM ×3, Videohub, GreenGo, Rentman ×5, Rack builder + sub-dialogs, Print, Export, Mobile share, GraphML import, Onboarding tour, About) and shared widgets are language-aware. Strings not yet translated fall through to the German source.',
   'settings.appearance.theme': 'Theme',
   'settings.appearance.themeDesc':
     'Canvas background colour. Optimised for dark; light is intended for PDF export or bright environments.',
@@ -1724,6 +1730,310 @@ const en: Dict = {
   'library.menus.showHidden': 'Show hidden',
   'library.menus.showEmpty': 'Show empty categories',
 
+  // Project — ProjectMetaDialog
+  'project.meta.titleNew': 'New project',
+  'project.meta.titleEdit': 'Edit project metadata',
+  'project.meta.create': 'Create project',
+  'project.meta.name': 'Project name',
+  'project.meta.namePh': 'e.g. ProSieben Studio refit',
+  'project.meta.contractor': 'Contractor (company)',
+  'project.meta.contractorPh': 'Your Company Ltd',
+  'project.meta.client': 'Client',
+  'project.meta.clientPh': 'End customer',
+  'project.meta.author': 'Planner / author',
+  'project.meta.authorPh': 'First name Last name',
+  'project.meta.projectNumber': 'Project / job no.',
+  'project.meta.projectNumberPh': 'e.g. 2026-042',
+  'project.meta.description': 'Description',
+  'project.meta.companyLogo': 'Company logo',
+  'project.meta.clientLogo': 'Client logo',
+  'project.meta.removeLogo': 'Remove',
+  'project.meta.chooseLogo': 'Choose logo…',
+  'project.meta.footnote':
+    'These fields appear in the plan footer when exporting to PDF. Every save updates the "last modified" date automatically.',
+
+  // Project — WelcomeDialog
+  'project.welcome.title': 'Welcome to Cable Planner',
+  'project.welcome.later': 'Decide later',
+  'project.welcome.laterTitle': 'Continue without choosing — remember to save manually.',
+  'project.welcome.intro':
+    'Create a new project or open an existing one so your work is saved reliably.',
+  'project.welcome.newTitle': 'New project',
+  'project.welcome.newSubtitle': 'Start with project name, client and planner.',
+  'project.welcome.openTitle': 'Open project…',
+  'project.welcome.openSubtitle1': 'Load an existing',
+  'project.welcome.openSubtitle2': ' file.',
+  'project.welcome.recents': 'Recently used',
+  'project.welcome.recentsHint':
+    'Click "Open project…" and choose one of the files in the file picker.',
+
+  // Properties — GreenGo beltpack section
+  'props.greengo.noConfig':
+    'No GreenGo configuration in the project. Open the Intercom planner or load a preset to define beltpacks.',
+  'props.greengo.beltpack': 'Beltpack',
+  'props.greengo.groupsTitle': 'Groups: {names}',
+  'props.greengo.groupCountOne': '{n} group',
+  'props.greengo.groupCountMany': '{n} groups',
+  'props.greengo.name': 'Name',
+  'props.greengo.assignFirst': 'Assign first ↓',
+  'props.greengo.nameTitle':
+    'Changes are written immediately to the intercom plan and .gg5 export',
+  'props.greengo.userSlot': 'Assigned user slot',
+  'props.greengo.noSlot': '(no slot assigned)',
+  'props.greengo.assignedOther': ' (assigned to another device)',
+  'props.greengo.groupChipTitle': 'Groups are edited in the intercom planner',
+
+  // Properties — Rack section
+  'props.rack.title': 'Rack / 19" settings',
+  'props.rack.units': '{n} RU',
+  'props.rack.inactive': 'inactive',
+  'props.rack.isRack': 'Is a 19" rack device',
+  'props.rack.disabledHint':
+    'Rack fields only appear when the device is marked as a 19" rack device.',
+  'props.rack.height': 'Height (RU)',
+  'props.rack.view': 'View',
+  'props.rack.frontOnly': 'Front only',
+  'props.rack.rearOnly': 'Rear only',
+  'props.rack.frontRear': 'Front + rear',
+  'props.rack.importFront': 'Import front graphic + crop',
+  'props.rack.importRear': 'Import rear graphic + crop',
+  'props.rack.swap': '↔ Swap front/rear photo',
+  'props.rack.swapTitle': 'Swap front and rear photos (including crop metadata)',
+  'props.rack.netboxSource': 'Source: NetBox device-type-library · {path}',
+
+  // Properties — DeviceKindCards
+  'props.deviceKind.greengo': 'GreenGo Intercom detected',
+  'props.deviceKind.greengoExport': 'Intercom planning / export .gg5 →',
+  'props.deviceKind.videohub': 'Blackmagic Videohub detected',
+  'props.deviceKind.videohubConfigure': '🎚 Configure Videohub · Labels + Routing →',
+  'props.deviceKind.atem': 'Blackmagic ATEM detected',
+  'props.deviceKind.atemConnect': 'Connect ATEM / push setup →',
+  'props.deviceKind.atemConnectTitle': 'Connects via UDP to the ATEM and transfers input names.',
+  'props.deviceKind.atemMv': 'Configure multiviewer layout →',
+  'props.deviceKind.atemMvTitle':
+    'Configure multiviewer layout offline. Pushed on next connect.',
+  'props.deviceKind.atemAudio': 'Configure audio router →',
+  'props.deviceKind.atemAudioTitle':
+    'Plan ATEM audio router offline (matrix routing or classic mixer).',
+  'props.deviceKind.multiviewer': 'Multiviewer detected',
+  'props.deviceKind.mvExport': 'Multiviewer layout export (v0.4.0)',
+  'props.deviceKind.mvExportTitle': 'Multiviewer layout export coming in v0.4.0',
+
+  // Properties — RentmanSyncBadge
+  'props.rentmanBadge.removed': 'No longer present in Rentman!',
+  'props.rentmanBadge.id': 'Rentman ID: {id}',
+  'props.rentmanBadge.notTracked': 'Not tracked in Rentman plan',
+
+  // Properties — PortAiSuggestButton
+  'props.aiPorts.noSuggestion': 'AI could not suggest any ports. Try a more specific device name.',
+  'props.aiPorts.requestFailed': 'AI request failed',
+  'props.aiPorts.label': '✨ AI port suggestion',
+  'props.aiPorts.btnTitle':
+    'Asks the provider selected in Settings → AI what "{name}" typically has for ports',
+  'props.aiPorts.asking': 'Asking AI…',
+  'props.aiPorts.suggest': 'Suggest ports',
+  'props.aiPorts.summary': '{groups} group(s) / {ports} ports suggested:',
+  'props.aiPorts.input': 'Input',
+  'props.aiPorts.output': 'Output',
+  'props.aiPorts.confirmReplace':
+    'Replace existing {in} In / {out} Out with the AI suggestion?',
+  'props.aiPorts.replaceTitle': 'Removes current ports and applies the AI suggestion',
+  'props.aiPorts.replace': 'Replace',
+  'props.aiPorts.appendTitle': 'Appends the AI suggestion to the existing ports',
+  'props.aiPorts.append': 'Append',
+  'props.aiPorts.adopt': 'Adopt',
+  'props.aiPorts.discard': 'Discard',
+
+  // Properties — ModesSection
+  'props.modes.title': 'Operating modes',
+  'props.modes.empty': 'none — create below',
+  'props.modes.defined': '{n} defined',
+
+  // Properties — DeviceConfigsBlock
+  'props.deviceConfigs.title': 'Configurations',
+  'props.deviceConfigs.none': 'No configuration assigned.',
+  'props.deviceConfigs.unassign': 'Detach',
+  'props.deviceConfigs.unassignTitle': 'Detach assignment (file remains in library)',
+  'props.deviceConfigs.assignExisting': '+ Assign existing configuration…',
+  'props.deviceConfigs.hint': 'Upload new configurations in Settings → Configurations.',
+
+  // Properties — SortableSection
+  'props.section.dragTitle': 'Drag section to change order',
+  'props.section.dragAria': 'Move section',
+
+  // Settings — EquipmentColorsSection
+  'settings.eqColors.title': 'Device card colors',
+  'settings.eqColors.description':
+    'Background/text/border for equipment nodes — adjustable per theme. Defaults are chosen so the cards stand out from the canvas background. Individual devices can have their own color in Properties.',
+  'settings.eqColors.themeLight': '☀ Light',
+  'settings.eqColors.themeDark': '🌙 Dark',
+  'settings.eqColors.reset': '↺ Reset',
+  'settings.eqColors.resetTitle': 'Reset to default',
+  'settings.eqColors.body': 'Card body',
+  'settings.eqColors.bodyHint': 'Background of the device card',
+  'settings.eqColors.header': 'Header strip',
+  'settings.eqColors.headerHint': 'Top strip with name + IP',
+  'settings.eqColors.border': 'Border',
+  'settings.eqColors.borderHint': '1px border around the card',
+  'settings.eqColors.text': 'Main text',
+  'settings.eqColors.textHint': 'Device name + port labels',
+  'settings.eqColors.subtext': 'Secondary text',
+  'settings.eqColors.subtextHint': 'Category, IP, connector types',
+  'settings.eqColors.note':
+    'Note: Devices with their own color (Properties → device color) still override the body value individually.',
+  'settings.eqColors.defaultDeviceColor': 'Default device color',
+  'settings.eqColors.defaultDeviceColorHint':
+    'Newly added devices start with this color (Properties → device color can change it individually). Empty: uses the theme body color.',
+  'settings.eqColors.resetX': '✕ Reset',
+
+  // Canvas — TitleBlock
+  'canvas.titleBlock.unnamed': 'Untitled project',
+  'canvas.titleBlock.projectNo': 'Project no.',
+  'canvas.titleBlock.client': 'Client',
+  'canvas.titleBlock.contractor': 'Contractor',
+  'canvas.titleBlock.planner': 'Planner',
+  'canvas.titleBlock.created': 'Created',
+  'canvas.titleBlock.modified': 'Modified',
+  'canvas.titleBlock.showTitle': 'Show plan signature',
+  'canvas.titleBlock.signatureBtn': 'Signature',
+  'canvas.titleBlock.collapseTitle': 'Collapse signature',
+  'canvas.titleBlock.noLogo': 'no logo',
+
+  // Canvas — LayerVisibilityChips
+  'canvas.layerChips.layerStripTitle':
+    'Layer visibility (only cables are filtered, devices stay)',
+  'canvas.layerChips.layers': 'Layers',
+  'canvas.layerChips.chipTitle': '{label} — {count} cables · {state}',
+  'canvas.layerChips.visibleHide': 'visible (click to hide)',
+  'canvas.layerChips.hiddenShow': 'hidden (click to show)',
+  'canvas.layerChips.customLayerPrompt': 'Create custom layer (e.g. "intercom", "lighting")',
+  'canvas.layerChips.removeCustom': 'Remove custom layer "{layer}"?',
+  'canvas.layerChips.customTitle': '{layer} (custom) — right-click to remove',
+  'canvas.layerChips.menuTitle': 'Layer management (create custom / reset all)',
+  'canvas.layerChips.addCustom': 'Create custom layer…',
+  'canvas.layerChips.resetAll': 'Show all layers again',
+
+  // Canvas — CableContextMenu
+  'canvas.cableMenu.renameTitle': 'Cable label',
+  'canvas.cableMenu.confirmDelete': 'Delete cable "{name}"?',
+  'canvas.cableMenu.headerLabel': 'Cable:',
+  'canvas.cableMenu.rename': 'Change label…',
+  'canvas.cableMenu.acceptMobile': 'Accept into plan (mobile suggestion)',
+  'canvas.cableMenu.removeMobileCheck': 'Remove mobile check',
+  'canvas.cableMenu.addWaypoint': 'Add waypoint here',
+  'canvas.cableMenu.removeNearestWaypoint': 'Remove nearest waypoint',
+  'canvas.cableMenu.clearWaypoints': 'Clear all waypoints ({n})',
+  'canvas.cableMenu.reroute': 'Auto-reroute',
+  'canvas.cableMenu.routing': 'Routing:',
+  'canvas.cableMenu.routingOrth': 'Orthogonal',
+  'canvas.cableMenu.routingStraight': 'Direct',
+  'canvas.cableMenu.routingCurved': 'Curved',
+  'canvas.cableMenu.bumps': 'Cable jumps for this cable',
+  'canvas.cableMenu.global': 'global',
+  'canvas.cableMenu.removeOverride': 'Remove override (follow global)',
+  'canvas.cableMenu.arrowEnd': 'Arrow at end',
+  'canvas.cableMenu.arrowStart': 'Arrow at start',
+  'canvas.cableMenu.bidi': 'Bidirectional',
+  'canvas.cableMenu.show': 'show',
+  'canvas.cableMenu.hide': 'hide',
+  'canvas.cableMenu.on': 'turn on',
+  'canvas.cableMenu.off': 'turn off',
+  'canvas.cableMenu.delete': 'Delete cable',
+
+  // Canvas — CableEdge
+  'canvas.cableEdge.deleteTitle': 'Delete cable',
+
+  // Canvas — CanvasArea
+  'canvas.area.newDevicePromptTitle': 'New device',
+  'canvas.area.newDevicePromptDefault': 'New device',
+  'canvas.area.viewerMode': 'Viewer mode — plan is read-only. Changes are not possible.',
+  'canvas.area.finalizedMode': 'Plan is finalized — changes are locked.',
+  'canvas.area.releaseConfirm': 'Re-open the plan for editing?',
+  'canvas.area.releaseBody': 'Devices, cables and layout can then be changed again.',
+  'canvas.area.release': 'Release',
+  'canvas.area.releaseBtn': 'Release for editing',
+  'canvas.area.renameLocation': 'Rename location:',
+  'canvas.area.lockPosition': 'Lock position',
+  'canvas.area.unlockPosition': 'Unlock position',
+
+  // Atem — MultiviewerLayoutView
+  'atem.mvLayout.title': 'Multiviewer layout (live)',
+  'atem.mvLayout.refresh': '↻ Refresh',
+  'atem.mvLayout.close': '✕ Close',
+  'atem.mvLayout.notConnected':
+    'Not connected to an ATEM. Connect in the ATEM dialog first, then open this view.',
+  'atem.mvLayout.noMv': 'The connected ATEM reports no multiviewers.',
+  'atem.mvLayout.legend': 'Legend',
+  'atem.mvLayout.camera': 'Camera',
+  'atem.mvLayout.gfx': 'GFX',
+  'atem.mvLayout.support': 'Support',
+  'atem.mvLayout.aux': 'AUX',
+  'atem.mvLayout.pgmPrv': 'PGM/PRV',
+
+  // Rack — RackImageCropDialog
+  'rackCrop.titleFront': 'Crop front graphic ({units} RU)',
+  'rackCrop.titleRear': 'Crop rear graphic ({units} RU)',
+  'rackCrop.hint':
+    'Mouse wheel zooms · Drag corners & edges to resize · Shift = keep aspect · Arrow keys nudge · R = reset',
+  'rackCrop.close': 'Close',
+  'rackCrop.zoom': 'Zoom',
+  'rackCrop.lockAspect': 'Lock aspect',
+  'rackCrop.presets': 'Crop presets',
+  'rackCrop.reset': '⟲ Reset',
+  'rackCrop.presetTitle': 'Template {n} RU aspect',
+  'rackCrop.manualValues': 'Manual values (0–1)',
+  'rackCrop.width': 'Width',
+  'rackCrop.height': 'Height',
+  'rackCrop.targetAspect': 'Target aspect:',
+  'rackCrop.currentAspect': 'Current crop aspect:',
+  'rackCrop.liveHe': 'Live RU:',
+  'rackCrop.confirm': 'Apply crop',
+
+  // Rack — RackLivePreview
+  'rackPreview.cableTooltip': 'Internal: {from}:{fromPort} ↔ {to}:{toPort}',
+  'rackPreview.empty': 'No devices in rack — preview appears once the first device is assigned.',
+  'rackPreview.headerLabel': 'Black box on canvas',
+  'rackPreview.counts': '{devices} devices · {cables} internal cables',
+
+  // Import — GraphmlViewer
+  'graphmlViewer.zoomIn': 'Zoom in',
+  'graphmlViewer.zoomOut': 'Zoom out',
+  'graphmlViewer.reset': 'Reset',
+  'graphmlViewer.statusBar': 'Mouse wheel zooms · Drag pans · {nodes} nodes · {edges} edges',
+
+  // Sync — SharedSyncPanel
+  'sync.pushTitle': 'Push to: {path}',
+  'sync.pullTitle': 'Pull from: {path}',
+  'sync.push': 'Push',
+  'sync.pull': 'Pull',
+
+  // Settings — ConfigsTab additional
+  'settings.configs.invalidBundleTitle': 'Invalid configuration bundle',
+  'settings.configs.invalidBundleBody':
+    'The file does not contain a cable-planner configuration bundle.',
+  'settings.configs.loadCount': 'Load {n} configurations',
+  'settings.configs.replaceOrAppend':
+    '"Replace" = existing library is overwritten.\n"Append" = new configurations are added, existing ones kept.',
+  'settings.configs.replace': 'Replace',
+  'settings.configs.append': 'Append',
+  'settings.configs.importErrorTitle': 'Import error',
+  'settings.configs.pickFile': '📤 Choose file…',
+  'settings.configs.exportBundle': '💾 Export library as JSON',
+  'settings.configs.importBundle': '⤵ Import JSON library…',
+  'settings.configs.entriesCount': '{n} entries',
+  'settings.configs.filterAll': 'All ({n})',
+  'settings.configs.emptyHint':
+    'Upload your first configuration file — it will be listed here and can then be assigned to a device on the canvas.',
+  'settings.configs.noFilterMatch': 'No entry matches the selected filter.',
+  'settings.configs.assignTitle': 'Device on the canvas this configuration is assigned to',
+  'settings.configs.unassigned': '(unassigned)',
+  'settings.configs.fileMeta':
+    'Original file: {fileName}\nUploaded: {savedAt}\n{chars} characters',
+  'settings.configs.downloadTitle': 'Download original file',
+  'settings.configs.confirmDelete': 'Delete configuration "{name}"?',
+  'settings.configs.deleteHint': 'The file on disk is not modified.',
+  'settings.configs.removeTitle': 'Remove from library',
+
   // RackBuilderDialog body
   'rack.depthTitle':
     'Rack depth in mm. Default: 800 mm. Common values: 350/450/600/800/1000/1200.',
@@ -1746,6 +2056,85 @@ const en: Dict = {
   'rack.internalCablingTitle': 'Internal cabling in the rack',
   'rack.openInternalCanvas':
     'Wire the rack devices internally — full canvas view',
+
+  // CalculatorsDialog
+  'calc.resolution': 'Resolution',
+  'calc.sampling': 'Sampling / depth',
+  'calc.dataRate': 'Data rate',
+  'calc.connectionType': 'Connection type',
+  'calc.safetyReserve': 'Safety margin (%)',
+  'calc.devicesCounted': 'Devices counted',
+  'calc.totalUsage': 'Total usage',
+  'calc.current1phase': 'Current (single-phase)',
+  'calc.current3phase': 'Symmetric (3-phase)',
+  'calc.col.device': 'Device',
+  'calc.col.phase': 'Phase',
+
+  // RackAddSplitButton
+  'rackAdd.primaryLabel': '+ To rack',
+  'rackAdd.fullDepthTitle': 'Add device full-depth (front + rear) to the rack',
+  'rackAdd.mountOptionsTitle': 'Mount options (front / rear)',
+  'rackAdd.frontOnly': 'Front only',
+  'rackAdd.frontMount': 'Front-mount',
+  'rackAdd.fullDepth': 'Full-depth',
+  'rackAdd.fullDepthSub': 'front + rear (default)',
+  'rackAdd.rearOnly': 'Rear only',
+  'rackAdd.rearMount': 'Rear-mount (e.g. patch panel)',
+
+  // AtemDialog table columns
+  'atem.col.type': 'Type',
+  'atem.col.live': 'Live (long / short)',
+  'atem.col.newLong': 'New long (max 20)',
+  'atem.col.newShort': 'New short (4)',
+  'atem.eventLog': 'Event log',
+
+  // EquipmentNode (canvas device tile)
+  'eqNode.rentmanRemoved': 'No longer in Rentman!',
+  'eqNode.noRentman': 'No Rentman entry',
+  'eqNode.packed': 'Packed — ready to ship',
+  'eqNode.mobileChecked':
+    'Checked on site (mobile viewer) — click removes the check',
+
+  // Library rentman add to project (info dialogs)
+  'library.rentman.groupCreated': '(new "CablePlanner" group created)',
+  'library.rentman.groupReused': '(added to existing "CablePlanner" group)',
+  'library.rentman.noGroups':
+    '(no group — your Rentman plan disallows API groups)',
+  'library.rentman.addedTitle': '"{name}" added',
+  'library.rentman.addedBody': 'Added to Rentman project "{project}"{note}.',
+  'library.rentman.addError': 'Error adding to Rentman',
+
+  // Library create dialog (HE-Picker + group label)
+  'library.create.hePlaceholder': 'U',
+  'library.create.groupLabelPrefix': 'Label prefix',
+  'library.create.removeGroup': 'Remove group',
+
+  // RackImageCropDialog
+  'rackCrop.scrollHint': 'Scroll wheel or + / - do the same',
+  'rackCrop.resetTitle': 'Reset crop and zoom (R)',
+
+  // PortList aria-labels
+  'ports.aria.connector': 'Connector type',
+  'ports.aria.signal': 'Signal standard',
+  'ports.aria.contentLabel': 'Content / function',
+  'ports.aria.direction': 'Port direction',
+  'ports.aria.side': 'Port side',
+
+  // LibraryPanel rentman section + netbox + create
+  'library.rentman.noProjectLinked': 'No Rentman project linked.',
+  'library.rentman.imported': 'Imported Rentman devices',
+  'library.rentman.noneImported': 'No Rentman devices imported yet.',
+  'library.rentman.noMatches': 'No matches for "{query}".',
+  'library.rentman.noneInCategory': 'No devices imported.',
+  'library.rentman.accountAll': 'All Rentman equipment (account catalog)',
+  'library.rentman.idLine': 'Rentman ID {id}',
+  'library.rentman.reconcile': 'Reconcile canvas ↔ Rentman',
+  'library.rentman.removed': 'No longer in Rentman:',
+  'library.netbox.title': 'NetBox import',
+  'library.netbox.categoryLabel': 'Category:',
+  'library.netbox.pickCategory': 'Please pick…',
+  'library.create.isRack': 'Is a rack device',
+  'library.create.aiKey.label': 'Gemini API key',
 }
 
 const translations: Record<Language, Dict> = {
