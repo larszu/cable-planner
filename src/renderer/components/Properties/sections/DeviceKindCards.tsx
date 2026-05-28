@@ -2,6 +2,7 @@ import { useUiStore } from '../../../store/uiStore'
 import { GreenGoBeltpackSection } from './GreenGoBeltpackSection'
 import { detectDeviceKind } from '../../../lib/deviceKind'
 import type { EquipmentItem } from '../../../types/equipment'
+import { useTranslation } from '../../../lib/i18n'
 
 /**
  * #306 — Device-Kind-Karten (GreenGo / Videohub / ATEM / Multiviewer)
@@ -13,6 +14,7 @@ import type { EquipmentItem } from '../../../types/equipment'
  * Karte gezeigt wird — pro Equipment wird maximal eine sichtbar.
  */
 export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => {
+  const t = useTranslation()
   const openVideohubExport = useUiStore((state) => state.openVideohubExport)
   const openGreenGoExport = useUiStore((state) => state.openGreenGoExport)
   const openAtemDialog = useUiStore((state) => state.openAtemDialog)
@@ -24,7 +26,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
     return (
       <div className="rounded border border-emerald-700 bg-emerald-900/30 p-2">
         <div className="mb-1 text-[10px] uppercase tracking-wide text-emerald-300">
-          GreenGo Intercom erkannt
+          {t('props.deviceKind.greengo', 'GreenGo Intercom erkannt')}
         </div>
         <GreenGoBeltpackSection equipmentId={equipment.id} />
         <button
@@ -32,7 +34,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           onClick={() => openGreenGoExport()}
           className="w-full rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
         >
-          Intercom-Planung / .gg5 exportieren →
+          {t('props.deviceKind.greengoExport', 'Intercom-Planung / .gg5 exportieren →')}
         </button>
       </div>
     )
@@ -42,7 +44,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
     return (
       <div className="rounded border border-purple-700 bg-purple-900/30 p-2">
         <div className="mb-1 text-[10px] uppercase tracking-wide text-purple-300">
-          Blackmagic Videohub erkannt
+          {t('props.deviceKind.videohub', 'Blackmagic Videohub erkannt')}
         </div>
         <div className="flex flex-col gap-1">
           {/* v7.9.128 — Vereinheitlicht: ein einziger Eintrag zum
@@ -55,7 +57,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
             onClick={() => openVideohubExport(equipment.id, true)}
             className="w-full rounded bg-purple-700 px-2 py-1 text-xs font-semibold hover:bg-purple-600"
           >
-            🎚 Videohub konfigurieren · Labels + Routing →
+            {t('props.deviceKind.videohubConfigure', '🎚 Videohub konfigurieren · Labels + Routing →')}
           </button>
         </div>
       </div>
@@ -66,32 +68,38 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
     return (
       <div className="rounded border border-sky-700 bg-sky-900/30 p-2">
         <div className="mb-1 text-[10px] uppercase tracking-wide text-sky-300">
-          Blackmagic ATEM erkannt
+          {t('props.deviceKind.atem', 'Blackmagic ATEM erkannt')}
         </div>
         <div className="flex flex-col gap-1">
           <button
             type="button"
             onClick={() => openAtemDialog(equipment.id)}
             className="w-full rounded bg-sky-700 px-2 py-1 text-xs hover:bg-sky-600"
-            title="Verbindet per UDP mit dem ATEM und überträgt Input-Namen."
+            title={t('props.deviceKind.atemConnectTitle', 'Verbindet per UDP mit dem ATEM und überträgt Input-Namen.')}
           >
-            ATEM verbinden / Setup übertragen →
+            {t('props.deviceKind.atemConnect', 'ATEM verbinden / Setup übertragen →')}
           </button>
           <button
             type="button"
             onClick={() => openAtemMvConfig(equipment.id)}
             className="w-full rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
-            title="Multiviewer-Layout offline konfigurieren. Wird beim nächsten Connect übertragen."
+            title={t(
+              'props.deviceKind.atemMvTitle',
+              'Multiviewer-Layout offline konfigurieren. Wird beim nächsten Connect übertragen.',
+            )}
           >
-            Multiviewer-Layout konfigurieren →
+            {t('props.deviceKind.atemMv', 'Multiviewer-Layout konfigurieren →')}
           </button>
           <button
             type="button"
             onClick={() => openAtemAudioConfig(equipment.id)}
             className="w-full rounded bg-fuchsia-700 px-2 py-1 text-xs hover:bg-fuchsia-600"
-            title="ATEM Audio-Router offline planen (Routing-Matrix oder klassischer Mixer)."
+            title={t(
+              'props.deviceKind.atemAudioTitle',
+              'ATEM Audio-Router offline planen (Routing-Matrix oder klassischer Mixer).',
+            )}
           >
-            Audio-Router konfigurieren →
+            {t('props.deviceKind.atemAudio', 'Audio-Router konfigurieren →')}
           </button>
         </div>
       </div>
@@ -102,15 +110,15 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
     return (
       <div className="rounded border border-emerald-700 bg-emerald-900/30 p-2">
         <div className="mb-1 text-[10px] uppercase tracking-wide text-emerald-300">
-          Multiviewer erkannt
+          {t('props.deviceKind.multiviewer', 'Multiviewer erkannt')}
         </div>
         <button
           type="button"
           disabled
           className="w-full cursor-not-allowed rounded bg-slate-700 px-2 py-1 text-xs opacity-60"
-          title="Multiviewer-Layout Export kommt in v0.4.0"
+          title={t('props.deviceKind.mvExportTitle', 'Multiviewer-Layout Export kommt in v0.4.0')}
         >
-          Multiviewer Layout Export (v0.4.0)
+          {t('props.deviceKind.mvExport', 'Multiviewer Layout Export (v0.4.0)')}
         </button>
       </div>
     )
