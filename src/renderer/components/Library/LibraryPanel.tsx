@@ -1187,18 +1187,23 @@ export const LibraryPanel = () => {
                   return (
                     <div className="mt-4 rounded border border-slate-800 bg-slate-950/60 p-4 text-center text-xs text-slate-400">
                       <div className="mb-2 font-semibold text-slate-300">
-                        Keine Geräte gefunden
+                        {t('library.empty.title', 'Keine Geräte gefunden')}
                       </div>
                       <div className="mb-3 text-[11px] text-slate-500">
-                        Kein Treffer für „{librarySearch}". Versuche einen anderen Suchbegriff
-                        oder lösche das Suchfeld.
+                        {format(
+                          t(
+                            'library.empty.body',
+                            'Kein Treffer für „{q}". Versuche einen anderen Suchbegriff oder lösche das Suchfeld.',
+                          ),
+                          { q: librarySearch },
+                        )}
                       </div>
                       <button
                         type="button"
                         onClick={() => setLibrarySearch('')}
                         className="rounded bg-slate-700 px-3 py-1 text-[11px] text-slate-100 hover:bg-slate-600"
                       >
-                        Suche zurücksetzen
+                        {t('library.empty.clearSearch', 'Suche zurücksetzen')}
                       </button>
                     </div>
                   )
@@ -1415,7 +1420,7 @@ export const LibraryPanel = () => {
             {linkedRentmanProjectId ? (
               <div className="rounded border border-orange-600/60 bg-orange-900/20 p-2">
                 <div className="text-[10px] uppercase tracking-wider text-orange-300/80">
-                  Aktuell verknüpftes Rentman-Projekt
+                  {t('library.rentman.currentLinkedProject', 'Aktuell verknüpftes Rentman-Projekt')}
                 </div>
                 <div className="mt-0.5 truncate text-sm font-semibold text-orange-200">
                   {linkedRentmanProjectName ?? `Projekt #${linkedRentmanProjectId}`}
@@ -2035,7 +2040,10 @@ export const LibraryPanel = () => {
               <div>
                 <h3 className="text-base font-semibold">{t('library.netbox.title', 'NetBox Import')}</h3>
                 <p className="mt-1 text-xs text-slate-400">
-                  Importiert Geräte aus der NetBox device-type-library in die lokale Library. Nicht-destruktiv: bestehende Geräte auf dem Canvas bleiben unverändert.
+                  {t(
+                    'library.netbox.intro',
+                    'Importiert Geräte aus der NetBox device-type-library in die lokale Library. Nicht-destruktiv: bestehende Geräte auf dem Canvas bleiben unverändert.',
+                  )}
                 </p>
               </div>
               <button
@@ -2043,7 +2051,7 @@ export const LibraryPanel = () => {
                 onClick={() => setShowNetBoxDialog(false)}
                 className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
               >
-                Schließen
+                {t('common.close', 'Schließen')}
               </button>
             </div>
 
@@ -2196,7 +2204,7 @@ export const LibraryPanel = () => {
             <div className="mb-2 rounded border border-violet-800/60 bg-violet-950/30 p-2 text-xs">
               <div className="mb-1 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
                 <span className="font-semibold text-violet-200">
-                  Auto-Vorschlag aus Geräte-Name
+                  {t('library.suggest.heading', 'Auto-Vorschlag aus Geräte-Name')}
                 </span>
                 <button
                   type="button"

@@ -619,7 +619,7 @@ const CapabilitiesPanel = ({
                 className="ml-auto rounded bg-amber-900/60 px-2 py-0.5 text-amber-200 hover:bg-amber-800/70"
                 title={t('atem.mv.removeOverride', 'Override entfernen — wieder Auto-Erkennung verwenden')}
               >
-                Override zurücksetzen
+                {t('atem.mv.resetOverride', 'Override zurücksetzen')}
               </button>
             )}
           </div>
@@ -1017,14 +1017,14 @@ export const AtemMvConfigDialog = () => {
       >
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
           <h2 className="text-sm font-semibold text-slate-100">
-            Multiviewer-Layout · {equipment.name}
+            {format(t('atem.mv.dialogTitle', 'Multiviewer-Layout · {name}'), { name: equipment.name })}
           </h2>
           <button
             type="button"
             onClick={close}
             className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
           >
-            Schließen
+            {t('common.close', 'Schließen')}
           </button>
         </div>
 
