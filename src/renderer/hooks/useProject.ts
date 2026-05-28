@@ -83,11 +83,11 @@ export const useProject = () => {
           oldAuthor,
         ))?.trim()
         if (author) {
-          ;(incoming as Record<string, unknown>).viewerSession = {
+          ;(incoming as unknown as Record<string, unknown>).viewerSession = {
             author,
             startedAt: new Date().toISOString(),
           }
-          ;(incoming as Record<string, unknown>).mode = 'viewer'
+          ;(incoming as unknown as Record<string, unknown>).mode = 'viewer'
         } else {
           await infoDialog(translate(lang, 'project.viewerName.missingTitle', 'Name fehlt'), {
             body: translate(

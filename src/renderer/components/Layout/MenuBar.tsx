@@ -22,8 +22,6 @@ interface MenuBarProps {
   onExportPdf: () => void
   onExportPng?: () => void
   onExportJpeg?: () => void
-  /** Open the consolidated "Drucken" hub (Plan + per-device patch-sheets, Issue #74). */
-  onOpenPrintDialog?: () => void
   /** Open the GraphML / yEd import dialog. */
   onOpenGraphmlImport?: () => void
   onEditProjectMeta?: () => void
@@ -66,7 +64,6 @@ export const MenuBar = ({
   onExportPdf,
   onExportPng,
   onExportJpeg,
-  onOpenPrintDialog,
   onOpenGraphmlImport,
   onEditProjectMeta,
   onOpenCableBom,
