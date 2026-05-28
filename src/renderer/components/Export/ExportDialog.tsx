@@ -715,7 +715,14 @@ const BomSection = () => {
   const exportCsv = () => {
     // v7.9.117 — Rentman-Name als eigene Spalte fuer den Abgleich.
     const lines = [
-      ['Typ', 'Rentman-Name', 'Länge (m)', 'Verbaut', 'Rentman geplant', 'Differenz'].join(';'),
+      [
+        t('export.bom.csv.type', 'Typ'),
+        t('export.bom.csv.rentmanName', 'Rentman-Name'),
+        t('export.bom.csv.lengthM', 'Länge (m)'),
+        t('export.bom.csv.built', 'Verbaut'),
+        t('export.bom.csv.rentmanPlanned', 'Rentman geplant'),
+        t('export.bom.csv.diff', 'Differenz'),
+      ].join(';'),
     ]
     for (const r of rows) {
       lines.push(
@@ -743,7 +750,7 @@ const BomSection = () => {
     const margin = 32
     pdf.setFontSize(14)
     pdf.setTextColor(15)
-    pdf.text(sanitizeForPdf('Kabel-Stückliste'), margin, margin + 4)
+    pdf.text(sanitizeForPdf(t('export.bom.pdfHeading', 'Kabel-Stückliste')), margin, margin + 4)
     pdf.setFontSize(10)
     pdf.setTextColor(60)
     pdf.text(sanitizeForPdf(project.metadata.name || '-'), margin, margin + 22)
@@ -757,7 +764,13 @@ const BomSection = () => {
     pdf.rect(margin, headerY - 10, pageWidth - margin * 2, 14, 'F')
     pdf.setTextColor(15)
     pdf.setFontSize(9)
-    ;['Typ', 'Länge (m)', 'Verbaut', 'Rentman', 'Differenz'].forEach((h, i) => {
+    ;[
+      t('export.bom.csv.type', 'Typ'),
+      t('export.bom.csv.lengthM', 'Länge (m)'),
+      t('export.bom.csv.built', 'Verbaut'),
+      t('export.bom.col.rentman', 'Rentman'),
+      t('export.bom.csv.diff', 'Differenz'),
+    ].forEach((h, i) => {
       pdf.text(sanitizeForPdf(h), colX[i] + 2, headerY)
     })
     let y = headerY + 14
@@ -800,7 +813,7 @@ const BomSection = () => {
     const pageWidth = pdf.internal.pageSize.getWidth()
     const margin = 32
     pdf.setFontSize(14)
-    pdf.text(sanitizeForPdf('Kabel-Stückliste'), margin, margin + 4)
+    pdf.text(sanitizeForPdf(t('export.bom.pdfHeading', 'Kabel-Stückliste')), margin, margin + 4)
     pdf.setFontSize(10)
     pdf.setTextColor(60)
     pdf.text(sanitizeForPdf(project.metadata.name || '-'), margin, margin + 22)
@@ -814,7 +827,13 @@ const BomSection = () => {
     pdf.rect(margin, headerY - 10, pageWidth - margin * 2, 14, 'F')
     pdf.setTextColor(15)
     pdf.setFontSize(9)
-    ;['Typ', 'Länge (m)', 'Verbaut', 'Rentman', 'Differenz'].forEach((h, i) => {
+    ;[
+      t('export.bom.csv.type', 'Typ'),
+      t('export.bom.csv.lengthM', 'Länge (m)'),
+      t('export.bom.csv.built', 'Verbaut'),
+      t('export.bom.col.rentman', 'Rentman'),
+      t('export.bom.csv.diff', 'Differenz'),
+    ].forEach((h, i) => {
       pdf.text(sanitizeForPdf(h), colX[i] + 2, headerY)
     })
     let y = headerY + 14

@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useRentman } from '../../hooks/useRentman'
-import { promptDialog } from '../../lib/promptDialog'
+import { bilingualCategoryDialog } from '../../lib/bilingualCategoryDialog'
+import { categoryDisplay } from '../../lib/categoryTranslations'
 import { CategorySelect } from '../shared/CategorySelect'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
@@ -132,6 +133,9 @@ export const LibraryPanel = () => {
     (state) => state.replaceCanvasRackWithPreset,
   )
   const renameCustomCategory = useProjectStore((state) => state.renameCustomCategory)
+  const categoryTranslations = useProjectStore((state) => state.categoryTranslations)
+  const setCategoryTranslation = useProjectStore((state) => state.setCategoryTranslation)
+  const lang = useUiStore((state) => state.language)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   // v7.9.108 / Issue #225 — Wenn der User ein Equipment OHNE Ports auf
   // den Canvas zieht, kommt es hier rein. Beim Speichern legen wir das
@@ -313,7 +317,7 @@ export const LibraryPanel = () => {
   const clearEmptyDeviceDrop = useUiStore((s) => s.clearEmptyDeviceDrop)
   useEffect(() => {
     if (!pendingEmptyDeviceDrop) return
-    setName(pendingEmptyDeviceDrop.name || 'Neues Gerät')
+    setName(pendingEmptyDeviceDrop.name || t('library.create.defaultName', 'Neues Gerät'))
     if (pendingEmptyDeviceDrop.category) setCategory(pendingEmptyDeviceDrop.category)
     setPendingDropOnSave({ x: pendingEmptyDeviceDrop.x, y: pendingEmptyDeviceDrop.y })
     setShowCreateDialog(true)
@@ -502,12 +506,18 @@ export const LibraryPanel = () => {
     category: string
   }) => {
     if (!linkedRentmanProjectId) return
-    const projectName = linkedRentmanProjectName ?? 'aktivem Rentman-Projekt'
+    const projectName = linkedRentmanProjectName ?? t('library.rentman.activeProjectFallback', 'aktivem Rentman-Projekt')
     if (
-      !(await confirmDialog(`"${item.name}" zu Rentman hinzufügen?`, {
-        body: `Das ändert dein ${projectName} und ist nicht automatisch reversibel.`,
-        okLabel: 'Hinzufügen',
-      }))
+      !(await confirmDialog(
+        format(t('library.rentman.confirmAdd', '"{name}" zu Rentman hinzufügen?'), { name: item.name }),
+        {
+          body: format(
+            t('library.rentman.confirmAddBody', 'Das ändert dein {project} und ist nicht automatisch reversibel.'),
+            { project: projectName },
+          ),
+          okLabel: t('library.rentman.confirmAddOk', 'Hinzufügen'),
+        },
+      ))
     ) {
       return
     }
@@ -600,11 +610,15 @@ export const LibraryPanel = () => {
     setSuggestInfo('')
     const hints = suggestPortGroups(name, category)
     if (hints.length === 0) {
-      setSuggestError('Keine Heuristik-Treffer für diesen Namen.')
+      setSuggestError(t('library.suggest.heuristic.noMatch', 'Keine Heuristik-Treffer für diesen Namen.'))
       return
     }
     setGroups(hintsToLocalDrafts(hints))
-    setSuggestInfo(`${hints.length} Port-Gruppe(n) per Heuristik vorgeschlagen.`)
+    setSuggestInfo(
+      format(t('library.suggest.heuristic.ok', '{n} Port-Gruppe(n) per Heuristik vorgeschlagen.'), {
+        n: hints.length,
+      }),
+    )
   }
 
   const handleAiSuggest = async () => {
@@ -613,20 +627,24 @@ export const LibraryPanel = () => {
     if (!getGeminiApiKey()) {
       setAiKeyDraft('')
       setAiSettingsOpen(true)
-      setSuggestError('Kein Gemini-API-Key. Trage einen ein oder nutze Web/Heuristik.')
+      setSuggestError(t('library.suggest.ai.noKey', 'Kein Gemini-API-Key. Trage einen ein oder nutze Web/Heuristik.'))
       return
     }
     setAiLoading(true)
     try {
       const hints = await suggestFromAI(name, category)
       if (hints.length === 0) {
-        setSuggestError('Gemini lieferte keine Ports zurück.')
+        setSuggestError(t('library.suggest.ai.noPorts', 'Gemini lieferte keine Ports zurück.'))
         return
       }
       setGroups(hintsToLocalDrafts(hints))
-      setSuggestInfo(`${hints.length} Port-Gruppe(n) von Gemini übernommen.`)
+      setSuggestInfo(
+        format(t('library.suggest.ai.ok', '{n} Port-Gruppe(n) von Gemini übernommen.'), {
+          n: hints.length,
+        }),
+      )
     } catch (err) {
-      setSuggestError(err instanceof Error ? err.message : 'Gemini-Aufruf fehlgeschlagen')
+      setSuggestError(err instanceof Error ? err.message : t('library.suggest.ai.error', 'Gemini-Aufruf fehlgeschlagen'))
     } finally {
       setAiLoading(false)
     }
@@ -641,13 +659,24 @@ export const LibraryPanel = () => {
       if (hints.length === 0) {
         setSuggestInfo(
           snippet
-            ? `Keine Stecker im ${source}-Snippet erkannt. Hersteller + Modell präzisieren.`
-            : 'Kein Treffer im Web. Hersteller + Modell präzisieren.',
+            ? format(
+                t(
+                  'library.suggest.web.noPlugs',
+                  'Keine Stecker im {source}-Snippet erkannt. Hersteller + Modell präzisieren.',
+                ),
+                { source },
+              )
+            : t('library.suggest.web.noHit', 'Kein Treffer im Web. Hersteller + Modell präzisieren.'),
         )
         return
       }
       setGroups(hintsToLocalDrafts(hints))
-      setSuggestInfo(`${hints.length} Port-Gruppe(n) aus ${source} übernommen.`)
+      setSuggestInfo(
+        format(t('library.suggest.web.ok', '{n} Port-Gruppe(n) aus {source} übernommen.'), {
+          n: hints.length,
+          source,
+        }),
+      )
     } catch (err) {
       setSuggestError(err instanceof Error ? err.message : 'Web-Suche fehlgeschlagen')
     } finally {
@@ -845,10 +874,13 @@ export const LibraryPanel = () => {
       persistCategory(template)
       addCustomTemplate(template)
       setNetBoxResults((current) => current.filter((entry) => entry.path !== item.path))
-      await infoDialog(`${template.name} importiert`, {
-        body: 'Aus NetBox in die Library übernommen.',
-        tone: 'success',
-      })
+      await infoDialog(
+        format(t('library.netbox.importedTitle', '{name} importiert'), { name: template.name }),
+        {
+          body: t('library.netbox.importedBody', 'Aus NetBox in die Library übernommen.'),
+          tone: 'success',
+        },
+      )
     } catch (error) {
       setNetBoxError(error instanceof Error ? error.message : String(error))
     } finally {
@@ -1231,15 +1263,31 @@ export const LibraryPanel = () => {
                         <span className="inline-block w-3 text-center text-slate-500">
                           {collapsed ? '▸' : '▾'}
                         </span>
-                        <span className="flex-1 truncate normal-case tracking-normal">{cat}</span>
+                        <span className="flex-1 truncate normal-case tracking-normal">
+                          {categoryDisplay(cat, lang, categoryTranslations)}
+                        </span>
                       </button>
                       <button
                         type="button"
                         onClick={async (e) => {
                           e.stopPropagation()
-                          const next = await promptDialog(`Kategorie umbenennen:`, cat)
-                          if (next && next.trim() && next.trim() !== cat) {
-                            renameCustomCategory(cat, next.trim())
+                          // #309 — Bilinguale Bearbeitung: aus dem Translations-
+                          // Map vorbefüllt, sonst canonical in der aktiven UI-
+                          // Sprache als Default.
+                          const existing = categoryTranslations[cat] ?? {}
+                          const result = await bilingualCategoryDialog(
+                            t('library.renameCategory', 'Kategorie umbenennen'),
+                            {
+                              de: existing.de ?? (lang === 'de' ? cat : undefined),
+                              en: existing.en ?? (lang === 'en' ? cat : undefined),
+                            },
+                          )
+                          if (!result || !result.canonical) return
+                          if (result.canonical !== cat) {
+                            renameCustomCategory(cat, result.canonical)
+                            setCategoryTranslation(result.canonical, { de: result.de, en: result.en })
+                          } else {
+                            setCategoryTranslation(cat, { de: result.de, en: result.en })
                           }
                         }}
                         className="hidden rounded bg-slate-700/80 px-1.5 py-0.5 text-[10px] font-normal normal-case text-slate-200 hover:bg-slate-600 group-hover/cat:block"
@@ -2484,8 +2532,11 @@ export const LibraryPanel = () => {
         onConfirm={async (merged) => {
           addCustomTemplate(merged)
           setNetBoxMergePair(null)
-          await infoDialog('Merge gespeichert', {
-            body: 'Die zusammengeführte Version wurde in der Library gespeichert.',
+          await infoDialog(t('library.netbox.mergeSavedTitle', 'Merge gespeichert'), {
+            body: t(
+              'library.netbox.mergeSavedBody',
+              'Die zusammengeführte Version wurde in der Library gespeichert.',
+            ),
             tone: 'success',
           })
         }}

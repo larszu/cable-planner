@@ -24,6 +24,10 @@ import {
   loadKnownCategories,
   persistKnownCategories,
 } from './libraryPersist'
+import {
+  loadCategoryTranslations,
+  persistCategoryTranslations,
+} from '../lib/categoryTranslations'
 import { loadGroupPresets } from './groupPresetsPersist'
 import { scheduleProjectAutosave } from './projectAutosave'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
@@ -281,6 +285,20 @@ export interface ProjectState {
   /** v7.9.5 — Kategorien-Reihenfolge per Drag&Drop ändern.
    *  Übernimmt den exakten gegebenen Order ohne Re-Sortieren. */
   reorderCategories: (newOrder: string[]) => void
+  /**
+   * #309 — Bilinguale Kategorie-Anzeige. Map vom canonical
+   * Kategorie-Key auf {de, en} Anzeige-Labels. Optional; ohne Eintrag
+   * fällt die UI auf den canonical-String zurück (oder die built-in
+   * Default-Übersetzung in categoryTranslations.ts).
+   */
+  categoryTranslations: import('../lib/categoryTranslations').CategoryTranslationsMap
+  /** Setzt/Updated den Übersetzungs-Eintrag einer Kategorie. */
+  setCategoryTranslation: (
+    canonical: string,
+    pair: { de?: string; en?: string },
+  ) => void
+  /** Entfernt einen Übersetzungs-Eintrag (z. B. nach Rename). */
+  removeCategoryTranslation: (canonical: string) => void
   groupPresets: GroupPreset[]
   addGroupPreset: (preset: GroupPreset) => void
   saveGroupPreset: (name: string, equipmentIds: string[]) => void
@@ -591,6 +609,33 @@ const buildProjectStore = (
   recentProjects: [],
   customLibrary: loadCustomLibrary(),
   knownCategories: loadKnownCategories(),
+  categoryTranslations: loadCategoryTranslations(),
+  setCategoryTranslation: (canonical, pair) =>
+    set((state) => {
+      const trimmed = canonical.trim()
+      if (!trimmed) return {}
+      const existing = state.categoryTranslations[trimmed] ?? {}
+      const merged = {
+        ...existing,
+        ...(pair.de !== undefined ? { de: pair.de.trim() || undefined } : {}),
+        ...(pair.en !== undefined ? { en: pair.en.trim() || undefined } : {}),
+      }
+      const next = { ...state.categoryTranslations, [trimmed]: merged }
+      // Wenn beide Sprachen leer sind, Eintrag wieder löschen.
+      if (!merged.de && !merged.en) {
+        delete next[trimmed]
+      }
+      persistCategoryTranslations(next)
+      return { categoryTranslations: next }
+    }),
+  removeCategoryTranslation: (canonical) =>
+    set((state) => {
+      if (!(canonical in state.categoryTranslations)) return {}
+      const next = { ...state.categoryTranslations }
+      delete next[canonical]
+      persistCategoryTranslations(next)
+      return { categoryTranslations: next }
+    }),
   loadProject: (project, filePath) =>
     set((state) => {
       // v7.9.70 / #171 — Rentman-Sync-Heal beim Project-Load.
@@ -879,9 +924,22 @@ const buildProjectStore = (
       }
       if (!seen.has(to)) orderedCats.push(to)
       persistKnownCategories(orderedCats)
+      // #309 — Übersetzungs-Map mit-migrieren: alten Key umbenennen damit
+      // der neue Name (= to) den gleichen Eintrag behält. Falls schon
+      // ein Eintrag unter `to` existiert, gewinnt der bestehende.
+      const nextTranslations = { ...state.categoryTranslations }
+      if (from in nextTranslations) {
+        const oldEntry = nextTranslations[from]
+        delete nextTranslations[from]
+        if (!(to in nextTranslations)) {
+          nextTranslations[to] = oldEntry
+        }
+        persistCategoryTranslations(nextTranslations)
+      }
       return {
         customLibrary: nextLib,
         knownCategories: orderedCats,
+        categoryTranslations: nextTranslations,
         project: { ...state.project, equipment: nextEquipment },
       }
     }),

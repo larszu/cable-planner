@@ -276,6 +276,11 @@ const en: Dict = {
   // CategorySelect
   'category.new': '+ New category…',
   'category.newPrompt': 'New category',
+  // #309 — Bilingual category dialog
+  'category.bilingual.de': 'German',
+  'category.bilingual.en': 'English',
+  'category.bilingual.hint':
+    'Fill in both languages — when switching the UI language the matching label is shown. Leaving one empty is fine; the display falls back to the other language then.',
 
   // Library panel
   'library.title': 'Library',
@@ -2594,6 +2599,62 @@ const en: Dict = {
   'rentman.wizard.aiKeyPlaceholder': 'AIzaSy...',
   'cable.waypoint.tooltip':
     'Drag to move · Alt-click or right-click to remove',
+  // LibraryPanel (additional)
+  'library.create.defaultName': 'New device',
+  'library.rentman.activeProjectFallback': 'active Rentman project',
+  'library.rentman.confirmAdd': 'Add "{name}" to Rentman?',
+  'library.rentman.confirmAddBody':
+    'This changes your {project} and is not automatically reversible.',
+  'library.rentman.confirmAddOk': 'Add',
+  'library.suggest.heuristic.noMatch': 'No heuristic match for this name.',
+  'library.suggest.heuristic.ok': '{n} port group(s) suggested via heuristic.',
+  'library.suggest.ai.noKey':
+    'No Gemini API key. Enter one or use web/heuristic.',
+  'library.suggest.ai.noPorts': 'Gemini returned no ports.',
+  'library.suggest.ai.ok': '{n} port group(s) accepted from Gemini.',
+  'library.suggest.ai.error': 'Gemini call failed',
+  'library.suggest.web.noPlugs':
+    'No connectors detected in the {source} snippet. Refine manufacturer + model.',
+  'library.suggest.web.noHit': 'No hit on the web. Refine manufacturer + model.',
+  'library.suggest.web.ok': '{n} port group(s) accepted from {source}.',
+  'library.netbox.importedTitle': '{name} imported',
+  'library.netbox.importedBody': 'Imported from NetBox into the library.',
+  'library.netbox.mergeSavedTitle': 'Merge saved',
+  'library.netbox.mergeSavedBody':
+    'The merged version was saved in the library.',
+  // CableLibraryPanel (additional)
+  'cableLib.edit': 'Edit cable type',
+  'cableLib.editOverride': 'Adjust cable type locally (override)',
+  'cableLib.resetOverride.confirm': 'Reset override for "{name}"?',
+  'cableLib.resetOverride.body':
+    'The original built-in values will be restored.',
+  'cableLib.resetOverride.ok': 'Reset',
+  'cableLib.deleteSpec.confirm': 'Delete cable type "{name}"?',
+  'cableLib.deleteSpec.bodyInUse':
+    'Warning: {n} installed cables reference this type. They keep their connector/standard but lose the spec link.',
+  'cableLib.deleteSpec.bodyUnused': 'Installed cables are not affected.',
+  // BOM / CSV column headers (shared)
+  'export.bom.csv.type': 'Type',
+  'export.bom.csv.rentmanName': 'Rentman name',
+  'export.bom.csv.lengthM': 'Length (m)',
+  'export.bom.csv.built': 'Installed',
+  'export.bom.csv.rentmanPlanned': 'Rentman planned',
+  'export.bom.csv.diff': 'Difference',
+  'export.bom.csv.paths': 'Paths',
+  'export.bom.col.rentman': 'Rentman',
+  'export.bom.pdfHeading': 'Cable BOM',
+  // Patch list dialog (additional)
+  'patchList.col.fromDevice': 'From device',
+  'patchList.col.fromPort': 'From port',
+  'patchList.col.toDevice': 'To device',
+  'patchList.col.toPort': 'To port',
+  'patchList.col.port': 'Port',
+  'patchList.col.color': 'Colour',
+  'patchList.col.cableName': 'Cable name',
+  'patchList.col.notes': 'Notes',
+  'patchList.footerHint':
+    'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
+  'patchList.exportCsv': '⬇ Export CSV',
 }
 
 const translations: Record<Language, Dict> = {

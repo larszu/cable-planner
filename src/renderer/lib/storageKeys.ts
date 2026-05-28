@@ -54,6 +54,8 @@ export const STORAGE_KEYS = {
   canvasToolbarPos: 'cable-planner:canvas-toolbar-pos',
   /** Electron-Window-Geometrie (persistiert über Sessions). */
   windowGeometry: 'cable-planner:window-geometry',
+  /** #309 — Bilinguale Kategorie-Anzeigenamen (de/en Map). */
+  categoryTranslations: 'cable-planner:categoryTranslations',
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]
