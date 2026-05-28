@@ -14,6 +14,7 @@ import { createMobileSyncSlice } from './slices/mobileSyncSlice'
 import { createTemplateSlice } from './slices/templateSlice'
 import { createGroupPresetSlice } from './slices/groupPresetSlice'
 import { createMetaSlice } from './slices/metaSlice'
+import { createCategorySlice } from './slices/categorySlice'
 import {
   loadCustomLibrary,
   persistCustomLibrary,
@@ -597,6 +598,7 @@ const buildProjectStore = (
   ...createTemplateSlice(set, get, store),
   ...createGroupPresetSlice(set, get, store),
   ...createMetaSlice(set, get, store),
+  ...createCategorySlice(set, get, store),
   project:
     opts.initialProject ??
     (() => {
@@ -1202,46 +1204,6 @@ const buildProjectStore = (
         knownCategories: orderedCats,
         project: { ...state.project, equipment: nextEquipment },
       }
-    }),
-  addKnownCategories: (categories) =>
-    set((state) => {
-      const set_ = new Set(state.knownCategories)
-      categories.forEach((c) => {
-        const trimmed = c.trim()
-        if (trimmed) set_.add(trimmed)
-      })
-      // v7.9.5 — Append NEU statt komplett zu sortieren, damit der User
-      // seine manuelle Drag&Drop-Reihenfolge nicht verliert. Existing
-      // categories behalten ihre Position; nur neue kommen ans Ende.
-      const existing = state.knownCategories.filter((c) => set_.has(c))
-      const added: string[] = []
-      for (const c of set_) {
-        if (!existing.includes(c)) added.push(c)
-      }
-      added.sort((a, b) => a.localeCompare(b))
-      const next = [...existing, ...added]
-      persistKnownCategories(next)
-      return { knownCategories: next }
-    }),
-  reorderCategories: (newOrder) =>
-    set((state) => {
-      // Nur Kategorien akzeptieren die wir bereits kennen, in der
-      // gegebenen Reihenfolge. Unbekannte werden ignoriert; ausgelassene
-      // werden ans Ende gehängt um nichts zu verlieren.
-      const known = new Set(state.knownCategories)
-      const ordered: string[] = []
-      const seen = new Set<string>()
-      for (const c of newOrder) {
-        if (known.has(c) && !seen.has(c)) {
-          ordered.push(c)
-          seen.add(c)
-        }
-      }
-      for (const c of state.knownCategories) {
-        if (!seen.has(c)) ordered.push(c)
-      }
-      persistKnownCategories(ordered)
-      return { knownCategories: ordered }
     }),
   groupPresets: loadGroupPresets(),
   placeGroupPreset: (presetId, x, y) =>
