@@ -12,13 +12,14 @@ import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
 import { createMobileSyncSlice } from './slices/mobileSyncSlice'
 import { createTemplateSlice } from './slices/templateSlice'
+import { createGroupPresetSlice } from './slices/groupPresetSlice'
 import {
   loadCustomLibrary,
   persistCustomLibrary,
   loadKnownCategories,
   persistKnownCategories,
 } from './libraryPersist'
-import { loadGroupPresets, persistGroupPresets } from './groupPresetsPersist'
+import { loadGroupPresets } from './groupPresetsPersist'
 import { scheduleProjectAutosave } from './projectAutosave'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
 import { cableTypePatchFromPorts } from '../lib/cableInheritance'
@@ -593,6 +594,7 @@ const buildProjectStore = (
   ...createAnnotationSlice(set, get, store),
   ...createMobileSyncSlice(set, get, store),
   ...createTemplateSlice(set, get, store),
+  ...createGroupPresetSlice(set, get, store),
   project:
     opts.initialProject ??
     (() => {
@@ -1294,107 +1296,6 @@ const buildProjectStore = (
       return { knownCategories: ordered }
     }),
   groupPresets: loadGroupPresets(),
-  addGroupPreset: (preset) =>
-    set((state) => {
-      const next = [...state.groupPresets.filter((p) => p.id !== preset.id), preset]
-      persistGroupPresets(next)
-      return { groupPresets: next }
-    }),
-  saveGroupPreset: (name, equipmentIds) =>
-    set((state) => {
-      const items = state.project.equipment.filter((e) => equipmentIds.includes(e.id))
-      if (items.length < 2) return {}
-      const minX = Math.min(...items.map((e) => e.x))
-      const minY = Math.min(...items.map((e) => e.y))
-      const idToIndex = new Map(items.map((e, i) => [e.id, i]))
-      const idSet = new Set(equipmentIds)
-      const internalCables = state.project.cables.filter(
-        (c) => idSet.has(c.fromEquipmentId) && idSet.has(c.toEquipmentId),
-      )
-      const cableStubs = internalCables.map((c) => {
-        const fromIdx = idToIndex.get(c.fromEquipmentId)!
-        const toIdx = idToIndex.get(c.toEquipmentId)!
-        const fromItem = items[fromIdx]
-        const toItem = items[toIdx]
-        const fromPort = [...fromItem.outputs, ...fromItem.inputs].find((p) => p.id === c.fromPortId)
-        const toPort = [...toItem.inputs, ...toItem.outputs].find((p) => p.id === c.toPortId)
-        return {
-          fromItemIndex: fromIdx,
-          fromPortName: fromPort?.name ?? '',
-          toItemIndex: toIdx,
-          toPortName: toPort?.name ?? '',
-          name: c.name,
-          type: c.type,
-          length: c.length,
-          color: c.color,
-          standard: c.standard,
-        }
-      })
-      const preset: GroupPreset = {
-        id: uuidv4(),
-        name,
-        items: items.map((e) => ({
-          name: e.name,
-          category: e.category,
-          inputs: e.inputs,
-          outputs: e.outputs,
-          width: e.width,
-          height: e.height,
-          notes: e.notes,
-          ipAddress: e.ipAddress,
-          resolution: e.resolution,
-          displaySizeInch: e.displaySizeInch,
-          offsetX: e.x - minX,
-          offsetY: e.y - minY,
-        })),
-        cables: cableStubs,
-      }
-      const next = [...state.groupPresets, preset]
-      persistGroupPresets(next)
-      return { groupPresets: next }
-    }),
-  deleteGroupPreset: (id) =>
-    set((state) => {
-      const next = state.groupPresets.filter((p) => p.id !== id)
-      persistGroupPresets(next)
-      return { groupPresets: next }
-    }),
-  renameGroupPreset: (id, newName) =>
-    set((state) => {
-      const trimmed = newName.trim()
-      if (!trimmed) return state
-      const next = state.groupPresets.map((p) =>
-        p.id === id ? { ...p, name: trimmed } : p,
-      )
-      persistGroupPresets(next)
-      return { groupPresets: next }
-    }),
-  setGroupPresets: (presets) =>
-    set(() => {
-      persistGroupPresets(presets)
-      return { groupPresets: presets }
-    }),
-  /** v7.9.6 — Reorder groupPresets. Accepts the desired ID order;
-   *  anything not in the list is appended at the end so partial
-   *  reorders (e.g. only racks, only non-racks) don't lose entries. */
-  reorderGroupPresets: (newOrder) =>
-    set((state) => {
-      const idToPreset = new Map(state.groupPresets.map((p) => [p.id, p]))
-      const ordered: GroupPreset[] = []
-      const seen = new Set<string>()
-      for (const id of newOrder) {
-        const p = idToPreset.get(id)
-        if (p && !seen.has(id)) {
-          ordered.push(p)
-          seen.add(id)
-        }
-      }
-      for (const p of state.groupPresets) {
-        if (!seen.has(p.id)) ordered.push(p)
-      }
-      persistGroupPresets(ordered)
-      return { groupPresets: ordered }
-    }),
   placeGroupPreset: (presetId, x, y) =>
     set((state) => {
       const preset = state.groupPresets.find((p) => p.id === presetId)
