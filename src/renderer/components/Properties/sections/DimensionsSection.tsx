@@ -1,4 +1,5 @@
 import { useProjectStore } from '../../../store/projectStore'
+import { useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
 import { SortableSection } from '../SortableSection'
 
@@ -8,6 +9,7 @@ import { SortableSection } from '../SortableSection'
  * (Breite × Höhe × Tiefe in mm). Verwendet vom 3D-Rack-Renderer.
  */
 export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) => {
+  const t = useTranslation()
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const wMm = equipment.widthMm
   const hMm = equipment.heightMm
@@ -23,16 +25,16 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
     return Math.round(n)
   }
   return (
-    <SortableSection id="dimensions" title="Dimensionen" subtitle={summary}>
+    <SortableSection id="dimensions" title={t('dims.title', 'Dimensionen')} subtitle={summary}>
       <div className="grid grid-cols-3 gap-2 text-xs">
         <label className="block">
-          <span className="mb-1 block text-slate-400">Breite (mm)</span>
+          <span className="mb-1 block text-slate-400">{t('dims.width', 'Breite (mm)')}</span>
           <input
             type="number"
             min={0}
             step={1}
             value={wMm ?? ''}
-            placeholder="z. B. 482"
+            placeholder={t('dims.widthPlaceholder', 'z. B. 482')}
             onChange={(e) =>
               updateEquipment(equipment.id, { widthMm: parseMm(e.target.value) })
             }
@@ -40,13 +42,13 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-slate-400">Höhe (mm)</span>
+          <span className="mb-1 block text-slate-400">{t('dims.height', 'Höhe (mm)')}</span>
           <input
             type="number"
             min={0}
             step={1}
             value={hMm ?? ''}
-            placeholder="z. B. 44"
+            placeholder={t('dims.heightPlaceholder', 'z. B. 44')}
             onChange={(e) =>
               updateEquipment(equipment.id, { heightMm: parseMm(e.target.value) })
             }
@@ -54,13 +56,13 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-slate-400">Tiefe (mm)</span>
+          <span className="mb-1 block text-slate-400">{t('dims.depth', 'Tiefe (mm)')}</span>
           <input
             type="number"
             min={0}
             step={1}
             value={dMm ?? ''}
-            placeholder="z. B. 400"
+            placeholder={t('dims.depthPlaceholder', 'z. B. 400')}
             onChange={(e) =>
               updateEquipment(equipment.id, { depthMm: parseMm(e.target.value) })
             }
@@ -69,8 +71,10 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
         </label>
       </div>
       <p className="mt-2 text-[10px] text-slate-500">
-        Physische Aussenmaße. 19" Rack-Geraet: 1 HE = 44.45 mm, Standard-Breite 482 mm,
-        typische Tiefe 400-600 mm. Wird vom 3D-Rack-Renderer + Logistik-Tools genutzt.
+        {t(
+          'dims.hint',
+          'Physische Aussenmaße. 19" Rack-Gerät: 1 HE = 44.45 mm, Standard-Breite 482 mm, typische Tiefe 400-600 mm. Wird vom 3D-Rack-Renderer + Logistik-Tools genutzt.',
+        )}
       </p>
     </SortableSection>
   )
