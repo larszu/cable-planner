@@ -3,10 +3,9 @@ import { useUiStore, type Language } from '../store/uiStore'
 /**
  * Cable Planner i18n.
  *
- * Coverage status: COMPREHENSIVE.
+ * Coverage status: COMPREHENSIVE (~2050+ keys).
  *
- * The English dictionary contains 1650+ keys covering essentially every
- * user-visible string in the application:
+ * The English dictionary contains all user-visible strings in the application:
  *
  *   ✓ Top-level chrome — App header, MenuBar (incl. shortcuts), StatusBar
  *   ✓ Settings — all 6 tabs (Project, Appearance, Editing, Integrations,
