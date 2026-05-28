@@ -1,5 +1,6 @@
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { exportDevicePatchSheet } from '../../../lib/exportDevicePdf'
+import { useTranslation } from '../../../lib/i18n'
 import { SortableSection } from '../SortableSection'
 import type { EquipmentItem } from '../../../types/equipment'
 
@@ -10,14 +11,15 @@ import type { EquipmentItem } from '../../../types/equipment'
  * Verkabelungs-Stand spiegelt.
  */
 export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
+  const t = useTranslation()
   const allEquipment = useProjectStore((state) => state.project.equipment)
   const allCables = useProjectStore((state) => state.project.cables)
 
   return (
     <SortableSection
       id="print"
-      title="Druck / Dokumentation"
-      subtitle="Patch-Sheet A4/A3"
+      title={t('printSection.title', 'Druck / Dokumentation')}
+      subtitle={t('printSection.subtitle', 'Patch-Sheet A4/A3')}
     >
       <div className="flex flex-col gap-1">
         <button
@@ -28,9 +30,12 @@ export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
             })
           }
           className="w-full rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-          title="Erzeugt eine einseitige A4-Patch-Liste mit allen Ports + verbundenen Kabeln — zum Aufkleben am Gerät."
+          title={t(
+            'printSection.a4Title',
+            'Erzeugt eine einseitige A4-Patch-Liste mit allen Ports + verbundenen Kabeln — zum Aufkleben am Gerät.',
+          )}
         >
-          🖨 Patch-Sheet (A4 PDF) drucken
+          {t('printSection.a4Btn', '🖨 Patch-Sheet (A4 PDF) drucken')}
         </button>
         <button
           type="button"
@@ -40,9 +45,9 @@ export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
             })
           }
           className="w-full rounded bg-sky-800 px-2 py-1 text-xs text-white hover:bg-sky-700"
-          title="A3-Variante für Geräte mit vielen Ports."
+          title={t('printSection.a3Title', 'A3-Variante für Geräte mit vielen Ports.')}
         >
-          🖨 Patch-Sheet (A3 PDF) drucken
+          {t('printSection.a3Btn', '🖨 Patch-Sheet (A3 PDF) drucken')}
         </button>
       </div>
     </SortableSection>
