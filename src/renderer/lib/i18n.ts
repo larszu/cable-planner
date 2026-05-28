@@ -2454,6 +2454,17 @@ const en: Dict = {
     '"Replace" removes the above connection(s) and creates the new cable. "Cancel" discards the connect attempt.',
   // CableEditDialog length warning
   'cable.lengthWarning': 'Length exceeds recommended maximum of {max} m for {name}.',
+  // Annotations overlay – anchor pin chip
+  'annotations.pinnedTo': 'pinned to',
+  'annotations.anchor.device': 'device',
+  'annotations.anchor.port': 'port',
+  // LibraryPanel rentman expand/collapse + devices count
+  'library.rentman.expandAll': 'Expand all',
+  'library.rentman.collapseAll': 'Collapse all',
+  'library.rentman.devicesCount': '{n} devices',
+  // VideohubExportDialog – device picker
+  'videohub.deviceOnCanvas': 'Device on the canvas',
+  'videohub.pickDevice': 'Pick device',
   // App.tsx PdfExportDialog
   'pdfExport.title': 'Export plan as PDF',
   'pdfExport.layers.title': 'Layers (included in PDF)',

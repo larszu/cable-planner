@@ -1487,11 +1487,13 @@ export const LibraryPanel = () => {
                           }}
                           className="underline hover:text-slate-300"
                         >
-                          {allCollapsed ? 'Alle ausklappen' : 'Alle einklappen'}
+                          {allCollapsed
+                            ? t('library.rentman.expandAll', 'Alle ausklappen')
+                            : t('library.rentman.collapseAll', 'Alle einklappen')}
                         </button>
                       )
                     })()}
-                    <span>{rentmanItems.length} Geräte</span>
+                    <span>{format(t('library.rentman.devicesCount', '{n} Geräte'), { n: rentmanItems.length })}</span>
                   </div>
                 </div>
                 {/* v7.9.106 / Issue #226 — Suchfeld fuer die Rentman-Liste,
