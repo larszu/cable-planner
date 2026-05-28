@@ -10,6 +10,8 @@
 // vertikal+fullwidth, "inline" für die horizontale Variante mit
 // optionalem Reset-Button.
 
+import { useTranslation } from '../../lib/i18n'
+
 interface ColorFieldProps {
   label: string
   value: string
@@ -33,6 +35,7 @@ export const ColorField = ({
   layout = 'block',
   title,
 }: ColorFieldProps) => {
+  const t = useTranslation()
   if (layout === 'inline') {
     return (
       <label className="flex items-center justify-between gap-2">
@@ -50,9 +53,9 @@ export const ColorField = ({
               type="button"
               onClick={onReset}
               className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
-              title="Farbe zurücksetzen"
+              title={t('colorField.resetTitle', 'Farbe zurücksetzen')}
             >
-              ✕ Reset
+              {t('colorField.resetBtn', '✕ Reset')}
             </button>
           )}
         </div>

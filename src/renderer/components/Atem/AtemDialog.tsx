@@ -5,6 +5,7 @@ import { useUiStore } from '../../store/uiStore'
 import { portDisplayLabel, shortenForAtem } from '../../lib/portLabel'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { ModalShell } from '../shared/ModalShell'
+import { useTranslation } from '../../lib/i18n'
 
 interface AtemDialogProps {
   onClose: () => void
@@ -98,6 +99,7 @@ const classifyInput = (input: AtemInputSummary): InputCategory => {
  * Software → Save Startup State).
  */
 export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) => {
+  const t = useTranslation()
   const equipment = useProjectStore((state) =>
     preselectedDeviceId ? getEquipmentById(state.project.equipment, preselectedDeviceId) : undefined,
   )
@@ -297,7 +299,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
     <ModalShell
       open
       onClose={onClose}
-      title="ATEM Live Integration"
+      title={t('atem.dialog.title', 'ATEM Live Integration')}
       maxWidth="3xl"
       scrollBody={false}
     >
@@ -320,7 +322,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 onClick={discover}
                 disabled={discovering || status === 'connecting'}
                 className="rounded bg-purple-700 px-3 py-2 text-sm hover:bg-purple-600 disabled:opacity-50"
-                title="ATEM-Switcher per mDNS (Bonjour) im lokalen Netzwerk suchen"
+                title={t('atem.dialog.discoverTitle', 'ATEM-Switcher per mDNS (Bonjour) im lokalen Netzwerk suchen')}
               >
                 {discovering ? '🔍 Suche…' : '🔍 Suchen'}
               </button>
@@ -349,7 +351,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 type="button"
                 onClick={openAtemMvLayout}
                 className="rounded bg-emerald-700 px-3 py-2 text-sm hover:bg-emerald-600"
-                title="Multiviewer-Layout live anzeigen"
+                title={t('atem.dialog.mvLive', 'Multiviewer-Layout live anzeigen')}
               >
                 MV Layout →
               </button>

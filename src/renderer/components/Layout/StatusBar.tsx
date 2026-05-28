@@ -1,5 +1,6 @@
 import { APP_VERSION } from '../../lib/appInfo'
 import { useUiStore } from '../../store/uiStore'
+import { useTranslation, format } from '../../lib/i18n'
 
 interface StatusBarProps {
   projectName: string
@@ -18,13 +19,14 @@ interface StatusBarProps {
 const complexityFor = (
   devices: number,
   cables: number,
+  t: (key: string, fallback?: string) => string,
 ): { label: string; tone: string } => {
   const score = devices + cables
-  if (score >= 200) return { label: 'XL', tone: 'bg-purple-700 text-purple-100' }
-  if (score >= 80) return { label: 'Groß', tone: 'bg-amber-600 text-amber-50' }
-  if (score >= 30) return { label: 'Mittel', tone: 'bg-sky-700 text-sky-50' }
-  if (score >= 8) return { label: 'Klein', tone: 'bg-emerald-700 text-emerald-50' }
-  return { label: 'Neu', tone: 'bg-slate-700 text-slate-200' }
+  if (score >= 200) return { label: t('statusbar.complexity.xl', 'XL'), tone: 'bg-purple-700 text-purple-100' }
+  if (score >= 80) return { label: t('statusbar.complexity.large', 'Groß'), tone: 'bg-amber-600 text-amber-50' }
+  if (score >= 30) return { label: t('statusbar.complexity.medium', 'Mittel'), tone: 'bg-sky-700 text-sky-50' }
+  if (score >= 8) return { label: t('statusbar.complexity.small', 'Klein'), tone: 'bg-emerald-700 text-emerald-50' }
+  return { label: t('statusbar.complexity.new', 'Neu'), tone: 'bg-slate-700 text-slate-200' }
 }
 
 export const StatusBar = ({
@@ -37,15 +39,16 @@ export const StatusBar = ({
   packedCount,
   rentmanProjectName,
 }: StatusBarProps) => {
-  const complexity = complexityFor(equipmentCount, cableCount)
+  const t = useTranslation()
+  const complexity = complexityFor(equipmentCount, cableCount, t)
   return (
     <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-slate-700 bg-slate-950 px-3 py-1 text-xs text-slate-300">
       <div className="flex min-w-0 items-center gap-3">
         <span className="truncate font-medium text-slate-200">{projectName}</span>
         <span className="text-slate-600">|</span>
-        <span>{equipmentCount} Geräte</span>
-        <span>{cableCount} Kabel</span>
-        <span>{locationCount} Rahmen</span>
+        <span>{format(t('statusbar.equipment', '{count} Geräte'), { count: equipmentCount })}</span>
+        <span>{format(t('statusbar.cables', '{count} Kabel'), { count: cableCount })}</span>
+        <span>{format(t('statusbar.locations', '{count} Rahmen'), { count: locationCount })}</span>
         {packedCount !== undefined && equipmentCount > 0 && (
           <span
             className={
@@ -55,14 +58,20 @@ export const StatusBar = ({
                   ? 'text-amber-300'
                   : 'text-slate-500'
             }
-            title="Geräte, die in den Eigenschaften als 'gepackt' markiert sind"
+            title={t('statusbar.packedTitle', "Geräte, die in den Eigenschaften als 'gepackt' markiert sind")}
           >
-            ✓ {packedCount}/{equipmentCount} gepackt
+            {format(t('statusbar.packed', '✓ {packed}/{total} gepackt'), {
+              packed: packedCount,
+              total: equipmentCount,
+            })}
           </span>
         )}
         <span
           className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${complexity.tone}`}
-          title="Komplexität: heuristisch aus (Geräte + Kabel)-Anzahl. Hilft beim Einschätzen von Übersichtlichkeit + Performance."
+          title={t(
+            'statusbar.complexity.title',
+            'Komplexität: heuristisch aus (Geräte + Kabel)-Anzahl. Hilft beim Einschätzen von Übersichtlichkeit + Performance.',
+          )}
         >
           {complexity.label}
         </span>
@@ -72,15 +81,21 @@ export const StatusBar = ({
             in den Einstellungen aktiviert ist. */}
         {useUiStore((s) => s.rentmanEnabled) && (
           <span className={rentmanProjectName ? 'text-orange-300' : hasToken ? 'text-slate-400' : 'text-slate-500'}>
-            Rentman: {rentmanProjectName ?? (hasToken ? 'Token bereit' : 'Standalone')}
+            {t('statusbar.rentman.label', 'Rentman:')}{' '}
+            {rentmanProjectName ??
+              (hasToken
+                ? t('statusbar.rentman.tokenReady', 'Token bereit')
+                : t('statusbar.rentman.standalone', 'Standalone'))}
           </span>
         )}
-        <span>Zoom: {(zoom * 100).toFixed(0)}%</span>
+        <span>
+          {t('statusbar.zoom', 'Zoom:')} {(zoom * 100).toFixed(0)}%
+        </span>
         <button
           type="button"
           onClick={() => useUiStore.getState().openAboutDialog()}
           className="rounded bg-slate-800 px-1.5 py-0.5 font-mono text-[10px] text-slate-400 hover:bg-slate-700 hover:text-slate-200"
-          title="Über Cable Planner"
+          title={t('statusbar.aboutTitle', 'Über Cable Planner')}
         >
           v{APP_VERSION}
         </button>

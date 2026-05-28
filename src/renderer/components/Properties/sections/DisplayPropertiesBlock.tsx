@@ -1,4 +1,5 @@
 import { useProjectStore } from '../../../store/projectStore'
+import { useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
 
 const RESOLUTION_PRESETS = [
@@ -18,6 +19,7 @@ const RESOLUTION_PRESETS = [
  * keines der Heuristik-Kriterien greift.
  */
 export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem }) => {
+  const t = useTranslation()
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const category = equipment.category.toLowerCase()
   const name = equipment.name.toLowerCase()
@@ -30,11 +32,11 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
   return (
     <fieldset className="rounded border border-slate-700 p-2">
       <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-        Display
+        {t('display.title', 'Display')}
       </legend>
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
-          <span className="mb-1 block text-slate-300">Auflösung</span>
+          <span className="mb-1 block text-slate-300">{t('display.resolution', 'Auflösung')}</span>
           <input
             list="display-resolution-options"
             value={equipment.resolution ?? ''}
@@ -51,7 +53,7 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
           </datalist>
         </label>
         <label className="block">
-          <span className="mb-1 block text-slate-300">Diagonale (Zoll)</span>
+          <span className="mb-1 block text-slate-300">{t('display.diagonal', 'Diagonale (Zoll)')}</span>
           <input
             type="number"
             min={1}

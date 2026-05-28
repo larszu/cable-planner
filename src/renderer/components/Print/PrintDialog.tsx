@@ -10,6 +10,7 @@
 import { useMemo, useState } from 'react'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
+import { useTranslation, format as formatStr } from '../../lib/i18n'
 import {
   buildDevicePatchSheetBlob,
   buildDevicesPatchSheetsBatchBlob,
@@ -28,6 +29,7 @@ type DeviceMode = 'combined' | 'individual'
 type PaperFormat = 'a4' | 'a3'
 
 export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
+  const t = useTranslation()
   const equipment = useProjectStore((state) => state.project.equipment)
   const cables = useProjectStore((state) => state.project.cables)
 
@@ -107,7 +109,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
     <ModalShell
       open={open}
       onClose={onClose}
-      title="Drucken"
+      title={t('print.title', 'Drucken')}
       titleIcon="🖨"
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:print"
@@ -115,8 +117,8 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
         <div className="flex items-center justify-between gap-2">
           <div className="text-[11px] text-slate-400">
             {selectionCount === 0
-              ? 'Kein Gerät ausgewählt'
-              : `${selectionCount} Gerät${selectionCount === 1 ? '' : 'e'} ausgewählt`}
+              ? t('print.noneSelected', 'Kein Gerät ausgewählt')
+              : formatStr(t('print.selectionCount', '{count} Geräte ausgewählt'), { count: selectionCount })}
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -124,7 +126,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
               onClick={onClose}
               className="rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-700"
             >
-              Schließen
+              {t('common.close', 'Schließen')}
             </button>
             <button
               type="button"
@@ -133,14 +135,14 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
               className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {busy
-                ? 'Erzeuge PDF…'
+                ? t('print.busy', 'Erzeuge PDF…')
                 : action === 'print'
                   ? selectionCount > 1 && mode === 'individual'
-                    ? `🖨 ${selectionCount} Druckjobs starten`
-                    : '🖨 Drucker-Dialog öffnen'
+                    ? formatStr(t('print.startJobs', '🖨 {count} Druckjobs starten'), { count: selectionCount })
+                    : t('print.openDialog', '🖨 Drucker-Dialog öffnen')
                   : selectionCount > 1 && mode === 'individual'
-                    ? `⬇ ${selectionCount} PDFs herunterladen`
-                    : '⬇ Patch-Sheet PDF herunterladen'}
+                    ? formatStr(t('print.downloadMany', '⬇ {count} PDFs herunterladen'), { count: selectionCount })
+                    : t('print.downloadOne', '⬇ Patch-Sheet PDF herunterladen')}
             </button>
           </div>
         </div>
@@ -155,25 +157,28 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
               native dialog — matches what you'd get from any browser. */}
           <fieldset className="mb-4 rounded border border-slate-700 p-3">
             <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-              Drucker-Hinweis
+              {t('print.osHint.title', 'Drucker-Hinweis')}
             </legend>
             <p className="text-[11px] text-slate-400">
-              Beim Drucken öffnet sich der Drucker-Dialog deines Betriebssystems — dort
-              kannst du Drucker, Papierformat (A4 / A3 / Letter), Ausrichtung und
-              Kopienzahl einstellen.
-              Plan-Exporte als PDF / PNG / JPEG findest du jetzt unter{' '}
-              <strong>Datei → Plan exportieren</strong>.
+              {t(
+                'print.osHint.body',
+                'Beim Drucken öffnet sich der Drucker-Dialog deines Betriebssystems — dort kannst du Drucker, Papierformat (A4 / A3 / Letter), Ausrichtung und Kopienzahl einstellen.',
+              )}{' '}
+              {t('print.osHint.exports', 'Plan-Exporte als PDF / PNG / JPEG findest du jetzt unter')}{' '}
+              <strong>{t('print.osHint.exportsPath', 'Datei → Plan exportieren')}</strong>.
             </p>
           </fieldset>
 
           {/* Per-device section */}
           <fieldset className="rounded border border-slate-700 p-3">
             <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-              Einzelgeräte (Patch-Sheet)
+              {t('print.devices.title', 'Einzelgeräte (Patch-Sheet)')}
             </legend>
             <p className="mb-2 text-[11px] text-slate-400">
-              Wählt einzelne Geräte aus und erzeugt eine A4/A3-Patch-Liste mit allen Ports +
-              verbundenen Kabeln — zum Aufkleben am Gerät.
+              {t(
+                'print.devices.body',
+                'Wählt einzelne Geräte aus und erzeugt eine A4/A3-Patch-Liste mit allen Ports + verbundenen Kabeln — zum Aufkleben am Gerät.',
+              )}
             </p>
 
             {/* Toolbar: search + single-button select-all toggle + counters */}
@@ -181,7 +186,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
               <input
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                placeholder="Suchen (Name, Kategorie, Untertitel)…"
+                placeholder={t('print.devices.searchPlaceholder', 'Suchen (Name, Kategorie, Untertitel)…')}
                 className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100 placeholder:text-slate-500"
               />
               {(() => {

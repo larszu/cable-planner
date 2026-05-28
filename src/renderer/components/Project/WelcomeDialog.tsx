@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { cablePlannerApi } from '../../lib/bridge'
 import { ModalShell } from '../shared/ModalShell'
+import { useTranslation } from '../../lib/i18n'
 
 interface WelcomeDialogProps {
   open: boolean
@@ -20,6 +21,7 @@ interface WelcomeDialogProps {
  * v7.9.44 — Migrated to <ModalShell>.
  */
 export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogProps) => {
+  const t = useTranslation()
   const [recents, setRecents] = useState<string[]>([])
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
     <ModalShell
       open={open}
       onClose={onClose}
-      title="Willkommen beim Cable Planner"
+      title={t('project.welcome.title', 'Willkommen beim Cable Planner')}
       maxWidth="lg"
       zIndex={60}
       closeOnBackdrop={false}
@@ -49,16 +51,21 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
             type="button"
             onClick={onClose}
             className="rounded bg-slate-800 px-3 py-1 text-xs text-slate-400 hover:bg-slate-700 hover:text-slate-200"
-            title="Ohne Auswahl fortfahren — bitte denke daran, manuell zu speichern."
+            title={t(
+              'project.welcome.laterTitle',
+              'Ohne Auswahl fortfahren — bitte denke daran, manuell zu speichern.',
+            )}
           >
-            Später entscheiden
+            {t('project.welcome.later', 'Später entscheiden')}
           </button>
         </div>
       }
     >
       <p className="mb-3 text-xs text-slate-400">
-        Lege ein neues Projekt an oder öffne ein bestehendes, damit deine Arbeit
-        zuverlässig gespeichert wird.
+        {t(
+          'project.welcome.intro',
+          'Lege ein neues Projekt an oder öffne ein bestehendes, damit deine Arbeit zuverlässig gespeichert wird.',
+        )}
       </p>
 
       <div className="space-y-2">
@@ -72,9 +79,11 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
         >
           <span className="text-xl">📄</span>
           <span className="flex-1">
-            <span className="block text-sm font-semibold">Neues Projekt</span>
+            <span className="block text-sm font-semibold">
+              {t('project.welcome.newTitle', 'Neues Projekt')}
+            </span>
             <span className="block text-[11px] text-slate-400">
-              Mit Projektname, Auftraggeber und Planer starten.
+              {t('project.welcome.newSubtitle', 'Mit Projektname, Auftraggeber und Planer starten.')}
             </span>
           </span>
         </button>
@@ -89,9 +98,13 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
         >
           <span className="text-xl">📂</span>
           <span className="flex-1">
-            <span className="block text-sm font-semibold">Projekt öffnen…</span>
+            <span className="block text-sm font-semibold">
+              {t('project.welcome.openTitle', 'Projekt öffnen…')}
+            </span>
             <span className="block text-[11px] text-slate-400">
-              Eine vorhandene <code className="rounded bg-slate-950 px-1">.cableplan</code>-Datei laden.
+              {t('project.welcome.openSubtitle1', 'Eine vorhandene')}{' '}
+              <code className="rounded bg-slate-950 px-1">.cableplan</code>
+              {t('project.welcome.openSubtitle2', '-Datei laden.')}
             </span>
           </span>
         </button>
@@ -99,7 +112,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
         {recents.length > 0 && (
           <div className="pt-2">
             <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-              Zuletzt verwendet
+              {t('project.welcome.recents', 'Zuletzt verwendet')}
             </div>
             <div className="max-h-32 space-y-1 overflow-auto">
               {recents.slice(0, 6).map((path) => (
@@ -114,7 +127,10 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
               ))}
             </div>
             <p className="mt-1 text-[10px] text-slate-500">
-              Klick „Projekt öffnen…“ und wähle eine der Dateien im Datei-Dialog.
+              {t(
+                'project.welcome.recentsHint',
+                'Klick „Projekt öffnen…“ und wähle eine der Dateien im Datei-Dialog.',
+              )}
             </p>
           </div>
         )}

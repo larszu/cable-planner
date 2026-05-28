@@ -12,6 +12,7 @@
 
 import type { ReactNode } from 'react'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { useTranslation } from '../../lib/i18n'
 
 type MaxWidth = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | 'full'
 
@@ -66,6 +67,7 @@ export const ModalShell = ({
   closeOnBackdrop = true,
   children,
 }: ModalShellProps) => {
+  const t = useTranslation()
   // Hook MUST be called unconditionally (Rules of Hooks). Wenn nicht
   // draggable, geben wir einen Dummy-Key — useDraggablePosition no-ops
   // bei `open=false`.
@@ -100,7 +102,7 @@ export const ModalShell = ({
             type="button"
             onClick={onClose}
             className="rounded px-2 py-1 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100"
-            aria-label="Schließen"
+            aria-label={t('common.close', 'Schließen')}
           >
             ✕
           </button>

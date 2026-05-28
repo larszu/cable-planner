@@ -1,4 +1,5 @@
 import { useProjectStore } from '../../../store/projectStore'
+import { format, useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
 
 /**
@@ -13,6 +14,7 @@ import type { EquipmentItem } from '../../../types/equipment'
  *    widthMm/heightMm/depthMm — neuere Variante.
  */
 export const DimensionsBlock = ({ equipment }: { equipment: EquipmentItem }) => {
+  const t = useTranslation()
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const numberInputClass = 'w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono'
   const setDim = (field: 'dimensionHmm' | 'dimensionWmm' | 'dimensionDmm') => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,11 +24,11 @@ export const DimensionsBlock = ({ equipment }: { equipment: EquipmentItem }) => 
   return (
     <fieldset className="rounded border border-slate-700 p-2">
       <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-        Abmessungen (mm)
+        {t('dimsBlock.title', 'Abmessungen (mm)')}
       </legend>
       <div className="grid grid-cols-3 gap-2">
         <label className="block">
-          <span className="mb-1 block text-slate-300">Hoehe</span>
+          <span className="mb-1 block text-slate-300">{t('dimsBlock.height', 'Höhe')}</span>
           <input
             type="number"
             min={0}
@@ -38,7 +40,7 @@ export const DimensionsBlock = ({ equipment }: { equipment: EquipmentItem }) => 
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-slate-300">Breite</span>
+          <span className="mb-1 block text-slate-300">{t('dimsBlock.width', 'Breite')}</span>
           <input
             type="number"
             min={0}
@@ -50,7 +52,7 @@ export const DimensionsBlock = ({ equipment }: { equipment: EquipmentItem }) => 
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-slate-300">Tiefe</span>
+          <span className="mb-1 block text-slate-300">{t('dimsBlock.depth', 'Tiefe')}</span>
           <input
             type="number"
             min={0}
@@ -64,9 +66,13 @@ export const DimensionsBlock = ({ equipment }: { equipment: EquipmentItem }) => 
       </div>
       {equipment.isRackDevice && equipment.rackUnits && (
         <p className="mt-1 text-[10px] text-slate-500">
-          Rack-Geraet · {equipment.rackUnits} HE. Wenn Hoehe leer, wird
-          {' '}{equipment.rackUnits * 44}{' '}mm als physische Hoehe angenommen
-          (1 HE ≈ 44,45 mm).
+          {format(
+            t(
+              'dimsBlock.rackHint',
+              'Rack-Gerät · {he} HE. Wenn Höhe leer, wird {mm} mm als physische Höhe angenommen (1 HE ≈ 44,45 mm).',
+            ),
+            { he: equipment.rackUnits, mm: equipment.rackUnits * 44 },
+          )}
         </p>
       )}
     </fieldset>

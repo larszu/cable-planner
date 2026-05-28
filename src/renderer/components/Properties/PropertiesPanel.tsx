@@ -6,8 +6,10 @@ import { LocationProperties } from './LocationProperties'
 import { TemplateProperties } from './TemplateProperties'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
 import { triggerCanvasFitView } from '../../lib/canvasViewport'
+import { format, useTranslation } from '../../lib/i18n'
 
 export const PropertiesPanel = () => {
+  const t = useTranslation()
   const selectedEquipmentId = useProjectStore((state) => state.selectedEquipmentId)
   const selectedCableId = useProjectStore((state) => state.selectedCableId)
   const selectedLocationId = useProjectStore((state) => state.selectedLocationId)
@@ -30,14 +32,14 @@ export const PropertiesPanel = () => {
     ? project.locations?.find((item) => item.id === selectedLocationId)
     : undefined
   const title = selectedEquipment
-    ? `Gerät: ${selectedEquipment.name}`
+    ? format(t('inspector.title.equipment', 'Gerät: {name}'), { name: selectedEquipment.name })
     : selectedCable
-      ? `Kabel: ${selectedCable.name}`
+      ? format(t('inspector.title.cable', 'Kabel: {name}'), { name: selectedCable.name })
       : selectedLocation
-        ? `Rahmen: ${selectedLocation.name}`
+        ? format(t('inspector.title.location', 'Rahmen: {name}'), { name: selectedLocation.name })
         : selectedTemplateName
-          ? `Vorlage: ${selectedTemplateName}`
-          : 'Inspector'
+          ? format(t('inspector.title.template', 'Vorlage: {name}'), { name: selectedTemplateName })
+          : t('inspector.title', 'Inspector')
 
   const body = (
     <div className="flex h-full min-h-0 flex-col">
@@ -49,18 +51,45 @@ export const PropertiesPanel = () => {
         {!selectedEquipmentId && !selectedCableId && !selectedLocationId && !selectedTemplateName && (
           <div className="space-y-3 text-xs text-slate-400">
             <div className="rounded border border-slate-800 bg-slate-900/50 p-3">
-              <div className="mb-1 font-semibold text-slate-200">Nichts ausgewählt</div>
-              <div>Wähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.</div>
+              <div className="mb-1 font-semibold text-slate-200">
+                {t('inspector.nothingSelected', 'Nichts ausgewählt')}
+              </div>
+              <div>
+                {t(
+                  'inspector.nothingSelectedBody',
+                  'Wähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.',
+                )}
+              </div>
             </div>
             <div className="rounded border border-slate-800 bg-slate-900/40 p-3">
               <div className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                Schnelle Orientierung
+                {t('inspector.hints.title', 'Schnelle Orientierung')}
               </div>
               <div className="space-y-1">
-                <div>• Geräte links aus der Library auf den Canvas setzen.</div>
-                <div>• Ports verbinden, um Kabel zu erstellen.</div>
-                <div>• Mehrere Geräte auswählen und im Canvas als Gruppe speichern.</div>
-                <div>• Rentman-Aktionen findest du im Equipment-Tab unter Rentman.</div>
+                <div>
+                  •{' '}
+                  {t(
+                    'inspector.hints.placeFromLibrary',
+                    'Geräte links aus der Library auf den Canvas setzen.',
+                  )}
+                </div>
+                <div>
+                  • {t('inspector.hints.connectPorts', 'Ports verbinden, um Kabel zu erstellen.')}
+                </div>
+                <div>
+                  •{' '}
+                  {t(
+                    'inspector.hints.saveGroup',
+                    'Mehrere Geräte auswählen und im Canvas als Gruppe speichern.',
+                  )}
+                </div>
+                <div>
+                  •{' '}
+                  {t(
+                    'inspector.hints.rentmanLocation',
+                    'Rentman-Aktionen findest du im Equipment-Tab unter Rentman.',
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -76,7 +105,7 @@ export const PropertiesPanel = () => {
           <span className="flex flex-col">
             <span className="text-sm font-semibold text-slate-100">{title}</span>
             <span className="text-[10px] uppercase tracking-wide text-slate-500">
-              Eigenschaften
+              {t('inspector.subtitle', 'Eigenschaften')}
             </span>
           </span>
         }
@@ -99,8 +128,8 @@ export const PropertiesPanel = () => {
         <button
           type="button"
           onClick={toggle}
-          title="Eigenschaften einblenden"
-          aria-label="Eigenschaften einblenden"
+          title={t('inspector.collapse.show', 'Eigenschaften einblenden')}
+          aria-label={t('inspector.collapse.show', 'Eigenschaften einblenden')}
           className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
           <span className="text-base leading-none">‹</span>
@@ -108,11 +137,11 @@ export const PropertiesPanel = () => {
         <button
           type="button"
           onClick={toggle}
-          aria-label="Eigenschaften einblenden"
+          aria-label={t('inspector.collapse.show', 'Eigenschaften einblenden')}
           className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:text-slate-300 focus-visible:outline-none focus-visible:text-sky-300"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
-          Eigenschaften
+          {t('inspector.subtitle', 'Eigenschaften')}
         </button>
       </aside>
     )
@@ -124,7 +153,7 @@ export const PropertiesPanel = () => {
         <div className="min-w-0">
           <h2 className="truncate text-sm font-semibold">{title}</h2>
           <div className="mt-0.5 text-[10px] uppercase tracking-wide text-slate-500">
-            Eigenschaften
+            {t('inspector.subtitle', 'Eigenschaften')}
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
@@ -134,8 +163,8 @@ export const PropertiesPanel = () => {
               setFloating(true)
               window.setTimeout(triggerCanvasFitView, 60)
             }}
-            title="Eigenschaften abdocken (frei verschiebbar)"
-            aria-label="Eigenschaften abdocken"
+            title={t('inspector.float.title', 'Eigenschaften abdocken (frei verschiebbar)')}
+            aria-label={t('inspector.float.aria', 'Eigenschaften abdocken')}
             className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-[11px] leading-none">⤢</span>
@@ -143,8 +172,8 @@ export const PropertiesPanel = () => {
           <button
             type="button"
             onClick={toggle}
-            title="Eigenschaften ausblenden"
-            aria-label="Eigenschaften ausblenden"
+            title={t('inspector.collapse.hide', 'Eigenschaften ausblenden')}
+            aria-label={t('inspector.collapse.hide', 'Eigenschaften ausblenden')}
             className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-base leading-none">›</span>

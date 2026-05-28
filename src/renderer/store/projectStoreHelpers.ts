@@ -11,6 +11,25 @@ import type { Port } from '../types/equipment'
 export const nowIso = (): string => new Date().toISOString()
 
 /**
+ * Frisches leeres Projekt — Start-Stand fuer den initialen Store
+ * sowie nach `clear()`. Setzt sinnvolle Default-Metadaten und einen
+ * neutralen Viewport.
+ */
+export const defaultProject = (): CablePlannerProject => ({
+  metadata: {
+    name: 'Untitled Project',
+    description: '',
+    createdAt: nowIso(),
+    updatedAt: nowIso(),
+    defaultVideoFormat: '1080p50',
+  },
+  equipment: [],
+  cables: [],
+  locations: [],
+  canvasState: { x: 0, y: 0, zoom: 1 },
+})
+
+/**
  * Berührt `updatedAt` im Metadaten-Block. Wird in fast jedem
  * Store-Mutator aufgerufen, damit der File-Save-Indikator und die
  * Recents-Liste korrekt aktualisiert werden.
