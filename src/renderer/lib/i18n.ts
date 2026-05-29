@@ -1204,9 +1204,9 @@ const en: Dict = {
   'graphml.dialog.edgesNoTarget': 'Edges without target',
   'graphml.dialog.parserWarnings': 'Parser warnings',
   'graphml.dialog.target': 'Target:',
-  'graphml.dialog.canvas': '🗺 Canvas',
+  'graphml.dialog.canvas': 'Canvas',
   'graphml.dialog.canvasTitle': 'Place devices directly on the canvas (incl. cables).',
-  'graphml.dialog.library': '📚 Library',
+  'graphml.dialog.library': 'Library',
   'graphml.dialog.libraryTitle':
     'Only adopt as reusable device templates into the library (no cables, no canvas placement).',
   'graphml.dialog.mode': 'Mode:',
@@ -1216,7 +1216,7 @@ const en: Dict = {
     'Replaces only GraphML-imported devices; manually added ones stay untouched.',
   'graphml.dialog.filterPlaceholder': 'Filter: name / IP / category / cable type',
   'graphml.dialog.libraryHint':
-    '📚 Library mode: devices are saved as reusable templates into the local library. Cables are not adopted (templates carry no cabling).',
+    'Library mode: devices are saved as reusable templates into the local library. Cables are not adopted (templates carry no cabling).',
   'graphml.dialog.tab.preview': 'yEd preview',
   'graphml.dialog.tab.devices': 'Devices',
   'graphml.dialog.tab.cables': 'Cables',
@@ -1651,9 +1651,9 @@ const en: Dict = {
   'rack.nonRack.title': 'Add "{name}"',
   'rack.nonRack.intro':
     'The device is not marked as a 19″ rack device. Pick how it should be placed in the rack:',
-  'rack.nonRack.option.rack': '📏 As 19″ device',
+  'rack.nonRack.option.rack': 'As 19″ device',
   'rack.nonRack.option.rackHint': 'Occupies N U on the rack rails',
-  'rack.nonRack.option.shelf': '🪑 On a shelf',
+  'rack.nonRack.option.shelf': 'On a shelf',
   'rack.nonRack.option.shelfHint': 'Custom dimensions in mm, sits on a rack shelf',
   'rack.nonRack.rackUnits': 'U height',
   'rack.nonRack.widthMm': 'Width (mm)',

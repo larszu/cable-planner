@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, X } from 'lucide-react'
+import { AlertTriangle, X, Camera, Box, Save, Upload, Armchair } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '../shared/Icon'
 import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
@@ -637,7 +637,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   }}
                   className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
                 >
-                  <span className="font-semibold">📷 {t('rack.export.png2d', '2D als PNG')}</span>
+                  <span className="font-semibold"><Icon icon={Camera} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.png2d', '2D als PNG')}</span>
                   <span className="text-[10px] text-slate-500">
                     {t('rack.export.png2dDesc', 'Aktuelle Front/Rear/Both-Ansicht als Bild')}
                   </span>
@@ -663,7 +663,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   }}
                   className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
                 >
-                  <span className="font-semibold">📸 {t('rack.export.png3d', '3D aus 4 Perspektiven')}</span>
+                  <span className="font-semibold"><Icon icon={Camera} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.png3d', '3D aus 4 Perspektiven')}</span>
                   <span className="text-[10px] text-slate-500">
                     {t('rack.export.png3dDesc', 'PNG: Front · Rear · Iso · Top (1× pro Datei)')}
                   </span>
@@ -684,7 +684,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   }}
                   className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
                 >
-                  <span className="font-semibold">🧊 {t('rack.export.stl', '3D als STL')}</span>
+                  <span className="font-semibold"><Icon icon={Box} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.stl', '3D als STL')}</span>
                   <span className="text-[10px] text-slate-500">
                     {t('rack.export.stlDesc', 'Komplettes Rack als binäres STL (3D-Druck, CAD)')}
                   </span>
@@ -738,7 +738,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   }}
                   className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
                 >
-                  <span className="font-semibold">💾 {t('rack.export.cpgroup', '.cpgroup herunterladen')}</span>
+                  <span className="font-semibold"><Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.cpgroup', '.cpgroup herunterladen')}</span>
                   <span className="text-[10px] text-slate-500">
                     {t('rack.export.cpgroupDesc', 'Komplettes Rack inkl. STL + Fotos zum Cross-PC-Transfer')}
                   </span>
@@ -2008,7 +2008,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       className="inline-flex cursor-pointer items-center gap-1 rounded border border-slate-600 bg-sky-700 px-3 py-1 text-[11px] font-semibold text-white hover:bg-sky-600"
                       title={t('rack.stlUploadTitle', 'STL-Datei (.stl, max 5 MB) zum Gerät hochladen')}
                     >
-                      <span>📁</span>
+                      <Icon icon={Upload} size="xs" />
                       <span>{selectedPlacement.stlDataUri
                         ? t('rack.stl.replace', 'STL ersetzen…')
                         : t('rack.stl.pick', 'STL auswählen…')}</span>
@@ -2092,7 +2092,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   return (
                     <details className="rounded border border-emerald-800 bg-emerald-900/20 p-2" open>
                       <summary className="cursor-pointer text-[11px] font-semibold text-emerald-200">
-                        🪑 Shelf-Position
+                        <Icon icon={Armchair} size="xs" className="mr-1 inline-block align-text-bottom" />Shelf-Position
                         <span className="ml-1 text-emerald-400">
                           ({tpl.widthMm}×{tpl.heightMm}×{tpl.depthMm ?? 400} mm)
                         </span>

@@ -15,7 +15,7 @@
  * (Phase B+1) als kleinere Box innerhalb der HE gerendert.
  */
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { X, Ruler, Armchair } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import type { EquipmentTemplate } from '../../types/equipment'
 import { format, useTranslation } from '../../lib/i18n'
@@ -110,7 +110,7 @@ export const NonRackAddDialog = ({
                 : 'border-slate-700 bg-slate-950/50 text-slate-400 hover:bg-slate-900'
             }`}
           >
-            <div className="font-semibold">{t('rack.nonRack.option.rack', '📏 Als 19″-Gerät')}</div>
+            <div className="flex items-center gap-1.5 font-semibold"><Icon icon={Ruler} size="xs" /> {t('rack.nonRack.option.rack', 'Als 19″-Gerät')}</div>
             <div className="mt-0.5 text-[10px] text-slate-500">
               {t('rack.nonRack.option.rackHint', 'Belegt N HE auf den Rack-Schienen')}
             </div>
@@ -124,7 +124,7 @@ export const NonRackAddDialog = ({
                 : 'border-slate-700 bg-slate-950/50 text-slate-400 hover:bg-slate-900'
             }`}
           >
-            <div className="font-semibold">{t('rack.nonRack.option.shelf', '🪑 Auf Shelf')}</div>
+            <div className="flex items-center gap-1.5 font-semibold"><Icon icon={Armchair} size="xs" /> {t('rack.nonRack.option.shelf', 'Auf Shelf')}</div>
             <div className="mt-0.5 text-[10px] text-slate-500">
               {t('rack.nonRack.option.shelfHint', 'Eigene Maße in mm, sitzt auf einem Rack-Shelf')}
             </div>
