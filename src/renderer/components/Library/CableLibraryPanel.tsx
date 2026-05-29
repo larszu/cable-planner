@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { AlertTriangle, X } from 'lucide-react'
+import { AlertTriangle, X, Pencil } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
   DndContext,
@@ -620,8 +620,11 @@ export const CableLibraryPanel = () => {
                             title={isCustom
                               ? t('cableLib.edit', 'Kabeltyp bearbeiten')
                               : t('cableLib.editOverride', 'Kabeltyp lokal anpassen (Override)')}
+                            aria-label={isCustom
+                              ? t('cableLib.edit', 'Kabeltyp bearbeiten')
+                              : t('cableLib.editOverride', 'Kabeltyp lokal anpassen (Override)')}
                           >
-                            ✎
+                            <Icon icon={Pencil} size="xs" />
                           </button>
                           {!isCustom && cableSpecOverrides[cable.id] && (
                             <button

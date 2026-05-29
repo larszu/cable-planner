@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { Pencil, ArrowUp, Trash2 } from 'lucide-react'
 import { useProjectStore } from '../../../store/projectStore'
+import { Icon } from '../../shared/Icon'
 import { confirmDialog } from '../../../lib/confirmDialog'
 import { promptDialog } from '../../../lib/promptDialog'
 import { format, useTranslation } from '../../../lib/i18n'
@@ -180,35 +182,35 @@ export const DeviceModePicker = ({
               <button
                 type="button"
                 onClick={() => setEditorState({ mode: 'edit', modeId: m.id })}
-                className="rounded px-1.5 py-0.5 text-sky-300 hover:bg-sky-900/30"
+                className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-sky-300 hover:bg-sky-900/30"
                 title={t('modes.editorTitle', 'Modus im Editor öffnen (Name, Beschreibung, Ports auf einmal)')}
               >
-                ✎ {t('modes.editor', 'Editor')}
+                <Icon icon={Pencil} size="xs" /> {t('modes.editor', 'Editor')}
               </button>
               <button
                 type="button"
                 onClick={() => renameMode(m.id)}
-                className="rounded px-1.5 py-0.5 text-slate-300 hover:bg-slate-800"
+                className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-slate-300 hover:bg-slate-800"
                 title={t('modes.renameTitle', 'Namen ändern')}
               >
-                ✎ {t('modes.name', 'Name')}
+                <Icon icon={Pencil} size="xs" /> {t('modes.name', 'Name')}
               </button>
               <button
                 type="button"
                 onClick={() => editDescription(m.id)}
-                className="rounded px-1.5 py-0.5 text-slate-300 hover:bg-slate-800"
+                className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-slate-300 hover:bg-slate-800"
                 title={t('modes.descTitle', 'Beschreibung ändern')}
               >
-                ✎ {t('modes.desc', 'Beschreibung')}
+                <Icon icon={Pencil} size="xs" /> {t('modes.desc', 'Beschreibung')}
               </button>
               {active === m.id && (
                 <button
                   type="button"
                   onClick={() => captureCurrentPortsToMode(m.id)}
-                  className="rounded px-1.5 py-0.5 text-emerald-300 hover:bg-emerald-900/30"
+                  className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-emerald-300 hover:bg-emerald-900/30"
                   title={t('modes.captureTitle', 'Aktuelles Port-Layout in diesen Modus übernehmen')}
                 >
-                  ⬆ {t('modes.capture', 'Ports übernehmen')}
+                  <Icon icon={ArrowUp} size="xs" /> {t('modes.capture', 'Ports übernehmen')}
                 </button>
               )}
               <button
@@ -216,8 +218,9 @@ export const DeviceModePicker = ({
                 onClick={() => deleteMode(m.id)}
                 className="ml-auto rounded px-1.5 py-0.5 text-slate-400 hover:bg-red-700 hover:text-white"
                 title={t('modes.deleteTitle', 'Modus löschen')}
+                aria-label={t('modes.deleteTitle', 'Modus löschen')}
               >
-                🗑
+                <Icon icon={Trash2} size="xs" />
               </button>
             </div>
           </div>

@@ -1,4 +1,6 @@
 import type { EquipmentTemplate } from '../../types/equipment'
+import { Star, Link } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { clearCanvasSelection } from '../../lib/canvasViewport'
 import { stampDeviceLibraryRef } from '../../lib/librarySync'
@@ -110,7 +112,11 @@ export const LibraryItem = ({
     >
       <div className="min-w-0 flex-1">
         <div className="truncate font-medium">
-          {item.favorite && <span className="mr-1 text-amber-300">★</span>}
+          {item.favorite && (
+            <span className="mr-1 inline-flex text-amber-300">
+              <Icon icon={Star} size="xs" className="fill-current" />
+            </span>
+          )}
           {isFromActiveRentman && (
             <span
               className="mr-1 rounded bg-orange-600 px-1 text-[9px] font-bold text-white"
@@ -168,8 +174,13 @@ export const LibraryItem = ({
                 ? t('library.item.unfavorite', 'Favorit entfernen')
                 : t('library.item.favorite', 'Als Favorit markieren')
             }
+            aria-label={
+              item.favorite
+                ? t('library.item.unfavorite', 'Favorit entfernen')
+                : t('library.item.favorite', 'Als Favorit markieren')
+            }
           >
-            ★
+            <Icon icon={Star} size="xs" className={item.favorite ? 'fill-current' : ''} />
           </button>
         )}
         {onToggleHidden && (
@@ -234,7 +245,7 @@ export const LibraryItem = ({
             }
             aria-label={t('library.item.linkAria', 'Verknuepfen')}
           >
-            🔗
+            <Icon icon={Link} size="xs" />
           </button>
         )}
         {onRemove && (

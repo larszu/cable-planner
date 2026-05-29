@@ -1,7 +1,9 @@
+import { Zap } from 'lucide-react'
 import { useProjectStore } from '../../../store/projectStore'
 import { useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
 import { SortableSection } from '../SortableSection'
+import { Icon } from '../../shared/Icon'
 
 /**
  * v7.4.0 / #306 — Stromverbrauch accordion. Two entry paths:
@@ -85,8 +87,8 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
           <span className="mb-1 block text-slate-400">
             {t('power.watts', 'Leistung (W)')}
             {computedW !== undefined && (
-              <span className="ml-1 text-emerald-400/70" title={t('power.wattsComputed', 'Aus V × A berechnet')}>
-                ⚡
+              <span className="ml-1 inline-flex text-emerald-400/70" title={t('power.wattsComputed', 'Aus V × A berechnet')}>
+                <Icon icon={Zap} size="xs" />
               </span>
             )}
           </span>
