@@ -15,6 +15,7 @@ import { RackAddSplitButton } from './RackAddSplitButton'
 import { NonRackAddDialog } from './NonRackAddDialog'
 import { StlPreview } from './StlPreview'
 import { RackBuilderDialogExportMenu } from './RackBuilderDialogExportMenu'
+import { RackConflictBadges } from './RackConflictBadges'
 import * as THREE from 'three'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { CategorySelect } from '../shared/CategorySelect'
@@ -965,41 +966,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           </div>
         </div>
 
-        {/* v7.9.9 — Sticky-Konflikt+Save-Error-Banner. Bleibt beim
-            Scrollen im Properties-Panel oben sichtbar, damit der User
-            sieht ob sein Edit den Konflikt aufgelöst hat. */}
-        {(conflicts.length > 0 || saveError) && (
-          <div
-            className="sticky top-0 z-20 mb-3 rounded border border-red-700/60 bg-red-900/40 px-3 py-2 text-xs text-red-100 shadow-lg backdrop-blur-sm"
-          >
-            {saveError && (
-              <div className="mb-2 flex items-start gap-2">
-                <span className="font-semibold">{t('rack.saveBlocked', 'Speichern blockiert:')}</span>
-                <span className="whitespace-pre-wrap flex-1">{saveError}</span>
-                <button
-                  type="button"
-                  onClick={() => setSaveError(null)}
-                  className="rounded bg-red-800/80 px-1.5 text-[10px] hover:bg-red-700"
-                  title={t('common.hide', 'Ausblenden')}
-                >
-                  ×
-                </button>
-              </div>
-            )}
-            {conflicts.length > 0 && (
-              <>
-                <div className="font-semibold">
-                  {format(t('rack.conflicts', 'Konflikte ({count})'), { count: conflicts.length })}
-                </div>
-                <ul className="mt-1 list-disc space-y-1 pl-4">
-                  {conflicts.map((issue, index) => (
-                    <li key={`${issue}-${index}`}>{issue}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
-        )}
+        <RackConflictBadges
+          conflicts={conflicts}
+          saveError={saveError}
+          onDismissSaveError={() => setSaveError(null)}
+        />
 
         {/* v7.9.2 — responsiver: 1-Spalter bis md, 2-Spalter md (Library
             + Rack), 3-Spalter ab xl. Verhindert horizontal-Overflow. */}
