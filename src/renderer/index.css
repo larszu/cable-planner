@@ -14,6 +14,14 @@
   --text-cp-base--line-height: 1.3rem;
   --text-cp-lg: 1rem; /* 16px */
   --text-cp-lg--line-height: 1.5rem;
+  /* Heading / display steps (UX audit #27/#30) — gives titles a consistent
+   * hierarchy above body text instead of ad-hoc text-lg/xl/2xl. */
+  --text-cp-xl: 1.125rem; /* 18px — section / panel headings */
+  --text-cp-xl--line-height: 1.6rem;
+  --text-cp-2xl: 1.375rem; /* 22px — dialog / view titles */
+  --text-cp-2xl--line-height: 1.85rem;
+  --text-cp-3xl: 1.75rem; /* 28px — display / welcome */
+  --text-cp-3xl--line-height: 2.15rem;
 }
 
 :root {
