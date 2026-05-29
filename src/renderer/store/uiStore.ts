@@ -762,6 +762,11 @@ interface UiState extends PersistedUiState {
   calculators: { open: boolean; tab?: 'bandwidth' | 'power' }
   openCalculators: (tab?: 'bandwidth' | 'power') => void
   closeCalculators: () => void
+  /** Projekt-Analysen (read-only Reports): Strom/Phasen, Netzwerk, Gewicht/
+   *  Wärme, Redundanz. Issues #345/#346/#351/#352. */
+  analysis: { open: boolean }
+  openAnalysis: () => void
+  closeAnalysis: () => void
   /** Rentman equipment import dialog (cross-component trigger). */
   rentmanImport: { open: boolean }
   openRentmanImport: () => void
@@ -1127,6 +1132,9 @@ export const useUiStore = create<UiState>((set) => ({
   calculators: { open: false },
   openCalculators: (tab) => set({ calculators: { open: true, tab } }),
   closeCalculators: () => set({ calculators: { open: false } }),
+  analysis: { open: false },
+  openAnalysis: () => set({ analysis: { open: true } }),
+  closeAnalysis: () => set({ analysis: { open: false } }),
   rentmanImport: { open: false },
   openRentmanImport: () => set({ rentmanImport: { open: true } }),
   closeRentmanImport: () => set({ rentmanImport: { open: false } }),

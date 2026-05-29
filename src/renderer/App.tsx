@@ -36,6 +36,7 @@ import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
 import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
 import { CalculatorsDialog } from './components/Calculators/CalculatorsDialog'
+import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
 import { WelcomeDialog } from './components/Project/WelcomeDialog'
@@ -928,6 +929,7 @@ export default function App() {
       <AboutDialog />
       <PatchListDialog />
       <CalculatorsDialog />
+      <AnalysisDialog />
       <CableContextMenu />
       <AnnotationsPanelHost />
       <ExportDialog
