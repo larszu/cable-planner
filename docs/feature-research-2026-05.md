@@ -144,6 +144,107 @@ Connect-Tool-Bugs (Arrow-Style-Override, verlorene Verbindungen nach
 Copy/Paste); Project-Sharing-Dateigröße (66 MB → Commit-Fehler);
 2026-DB→Symbol-Migration als Übergangs-Reibung.
 
+### A.4 · WireCAD (Holbrook Enterprises)
+
+Etablierter **Windows-only .NET-Desktop**-Standard für Broadcast-/AV-Signaldoku
+seit 2000; **standalone** (kein AutoCAD/Visio nötig) — der direkteste
+Funktions-Konkurrent zu Cable-Planner.
+
+- **Kern:** Single-Line-Blockdiagramme mit DB dahinter, „keine CAD-Kenntnisse
+  nötig"; 1:1 / 1:n / n:1 / n:m-Kabel; v10 brachte Multi-Relational-Cables +
+  Split/Pointer.
+- **Stärken (genau unsere Themen):** **Auto-Kabelnummerierung** mit „next number +
+  DB-Error-Check" (= unser neues #3-Feature), **Auto-Rack-Layouts** (Rack-Builder,
+  location-aware „ripple"), Kabel-Etiketten, **Cable-Schedules/BOM/Reports**,
+  **Excel-Round-Trip** (Grid→Excel→Reimport), **Community-Library 100.000+ Geräte**,
+  **Plugin-/Scripting-SDK**, Visio-/DWG-/DXF-Export. Backend **VistaDB** (lokal,
+  nicht SQLite) oder **SQL Server** (Multi-User, nur PRO+).
+- **Editionen:** XLT (Single-User) / PRO (Multi-User + SQL) / CMS (formular-
+  getriebenes Fiber-Management); separate Cloud-App **Simple Wires**; das alte
+  freie **XL (2.000-Kabel-Cap)** ist faktisch eingestellt.
+- **Preise (Snippet-Quellen, Ranges):** ~**$220/Mo** (XLT) bzw. **$440/Mo** (PRO);
+  Perpetual bis ~**$2.400** (Standard), **CMS $4.800–$7.500**; Wartung „Assurance"
+  = **60 % vom Listenpreis/Jahr**.
+- **Schwächen/Wishlist:** historische Instabilität (älter, „much improved"),
+  **kein Mac/Cloud/Mobile** im Desktop (Mac nur via CrossOver), **Library-Aufbau
+  arbeitsintensiv** wenn ein Gerät fehlt, Preis-/„Convince-your-boss"-Hürde,
+  **praktisch kein unabhängiger Review-Footprint** (nicht auf Capterra/G2/
+  TrustRadius). „Dated UI / Lernkurve" plausibel, aber **in Quellen nicht belegt**.
+- **Cable-Planner-Bezug:** WireCADs Vorzeige-Features (Auto-Nummer, Rack-Auto-
+  Layout, Schedules, Library) sind genau unser Spielfeld; unsere Vorteile bleiben
+  offenes Format, Cross-Platform, ATEM-Live-Control, 3D, kostenlos.
+
+### A.5 · XTEN-AV — X-DRAW + XAVIA (KI)
+
+**Cloud/Web-natives** AV-Design-Tool mit aggressivem KI-Marketing; positioniert
+sich als D-Tools-Alternative. (Vendor-Domains blockten den Abruf → Snippet-basiert;
+Capability-Zahlen sind Marketing, sofern nicht unabhängig markiert.)
+
+- **Features:** Auto-Signalfluss + **Rack-Elevations** + Patch-Panel-Layouts,
+  **Auto-Cable-Schedules/IO-Matrizen**, **BOM/Angebote**, **Auto-Power + Wärme +
+  PDU-Platzierung/Load-Balancing**, Equipment-DB („1,5 Mio. Produkte" [VENDOR]),
+  2D/3D-Floorplans, **Cloud-Kollaboration** (Team-Features ab Business), iOS-App,
+  **CAD/Visio-Im-/Export** (DWG/DXF/VSD/SVG). **XAVIA**: Text-Prompt → Rack +
+  Signalfluss + BOM.
+- **Preise (mehrfach bestätigt):** **$139 / $149 / $169 pro User/Monat**
+  (Basic/Business/Enterprise), ~25 % Jahresrabatt; **XAVIA-KI in allen Tiers
+  inklusive**; PM-Add-on X-PRO **+$15/User/Mo**; 15-Tage-Trial. Capterra
+  **4,7/5 (45 Reviews)**.
+- **Schwächen (unabhängig — Capterra/Software Advice/Medium):** „**keine echten
+  Linien/Maße** in X-Draw", neuer Tab bei jedem Klick, **Duplikate nach Reopen**,
+  **Cable-Schedule-/eindeutige-Gerätenamen-Probleme**, „**viele Produkte ohne
+  hinterlegte Connections**", Doku nicht auf Französisch, Lernkurve. **XAVIA-
+  Praxistest:** „sehr beeindruckend" als Startpunkt, aber **fehlerhafte/ungewollte
+  Stücklisten** → „in 12–24 Monaten" ernstzunehmen. Wishlist: BOM↔Areas live
+  koppeln, schnellere Library-Updates.
+- **Cable-Planner-Bezug:** X-DRAW vermarktet **Power/Wärme + PDU** und **Auto-
+  Schedules** als Premium — Power/Wärme **haben wir schon**, Auto-Cable-Schedule-CSV
+  **jetzt auch** (#4); PDU/Airflow ist Opportunity #7/E6, KI-Generierung #17/E14.
+
+### A.6 · D-Tools — System Integrator (SI) + Cloud
+
+**Business-Lifecycle**-Plattform (Sales → Design → Procurement → Install →
+Service), kein reines Plan-Tool — **komplementär** statt direkter Konkurrent.
+
+- **SI (Windows-Desktop + SQL Server):** Estimation/Angebote, **native Visio-/
+  AutoCAD-Zeichnungen** (Line-Diagrams, Rack-Elevations, Schematics, mit BOM
+  verlinkt), Procurement, PM (Gantt), Field/Service + **Mobile-App (offline)**,
+  Accounting (QuickBooks/NetSuite/Sage/Solutions360).
+- **Cloud (SaaS):** CRM + **Visual Quoting**, Multimedia-Angebote, E-Sign,
+  Payments, Service-Management, **KI-Suche + Scope-Generierung** — **aber kein
+  Visio/AutoCAD**; Line-/Plan-/Rack-Zeichnungen sind **Roadmap**.
+- **Geteilt:** **Integrated Product Library ~1,6 Mio. Produkte / 1.200+ Marken**
+  mit **Händler-Preisen**, täglich aktualisiert.
+- **Preise:** **Cloud** transparent — **Solo $0**, **Single $89/Mo** (jährl.),
+  **Duo $161/Mo**; Setup-Fee **$250**; Accounting-Add-on **+$50/Mo**. **SI**
+  quote-basiert — ~**$150/User/Mo**, **Hosting $149/Mo**, **Services $200/h**,
+  jährliche „Software Assurance".
+- **Schwächen/Wishlist:** SI **steile Lernkurve** („wie eine neue Sprache lernen"),
+  schwaches **Service/CRM + Scheduling** vs. starkem Estimation, Mobile internet-
+  abhängig, **Windows+SQL**-Zwang, teuer für kleine Firmen. **Cloud:** **kein
+  AutoCAD/Visio** („AutoCAD is a must"), Visual-Quoting „slow & clunky", Daten
+  **nicht modulübergreifend zentralisiert**, Capability-Decke für komplexe Projekte
+  (→ Migration zu SI).
+- **Cable-Planner-Bezug:** D-Tools-Cloud-User vermissen genau **CAD-Zeichnungen/
+  Cable-Schedules/Rack-Elevations** — Cable-Planners Kernstärke. D-Tools' Stärke
+  (Procurement/Preise/CRM) ist bewusst **out of scope**; ein minimaler
+  Brückenschlag wäre der Quoting-Layer #16/E11.
+
+### A.7 · Preis-Übersicht (Richtwerte 2025/26)
+
+| Tool | Modell | Richtpreis | Plattform | Offenes Format |
+|---|---|---|---|---|
+| **Cable-Planner** | selbst-gehostet | **0 €** | Win/macOS/Linux | **JSON, offen** |
+| H2R Gear | Cloud-Abo | Free (2 Pläne) → Paid (Tier nicht öffentlich) | Web/Tablet | nein |
+| ConnectCAD | Add-on-Abo | ~$153–183/Mo **+** Vectorworks-Basislizenz | Win/macOS (VW) | nein |
+| WireCAD | Perpetual/Abo | ~$220–440/Mo · ~$2.400 perp. · CMS $4.800–7.500 | Windows | nein |
+| XTEN-AV X-DRAW | Cloud-Abo | $139–169/User/Mo (XAVIA inkl.) | Web/iOS | nein |
+| D-Tools Cloud | Cloud-Abo | $0 / $89 / $161 pro Mo (+ Setup $250) | Web/Mobile | nein |
+| D-Tools SI | Abo/Quote | ~$150/User/Mo + $149/Mo Hosting + $200/h | Windows+SQL | nein |
+
+> Wettbewerber-Preise sind Snippet-/Aggregator-Richtwerte (mehrere Vendor-Seiten
+> blockten den direkten Abruf) — vor Entscheidungen live verifizieren.
+
 ---
 
 ## Teil B — Abgleich gegen Cable-Planner
@@ -414,6 +515,22 @@ forums.prosoundweb.com (Patch-Sheet/Stage-Plot), forum.vectorworks.net
 (ConnectCAD-Board), forum.blackmagicdesign.com (Flypack), wirecad.com,
 patchcad.com, getdante.com/blog (Naming), Capterra/G2/SourceForge/Slashdot
 (Reviews), avixa.org + chroma.fm (Commissioning/As-Built).
+
+**WireCAD:** wirecad.com (+ /help100 Licensing-FAQ, Change-Log v10, Rack-Builder,
+Export-to-Visio, System Requirements, Assurance-Beispiel), av-iq.com,
+gearspace.com + discussions.apple.com + codeweavers.com (Stabilität/Mac),
+soft112.com (Rating), hackaday.com (WireViz als Open-Source-Alternative).
+
+**XTEN-AV / X-DRAW / XAVIA:** xtenav.com (/x-draw, /xavia, /pricing — [VENDOR]),
+knowledgebase.xtenav.com, Capterra + softwareadvice.com (unabhängige Reviews
+4,7/5), waxlyrical.medium.com (XAVIA-Hands-on), commercialintegrator.com,
+softwarefinder.com + saasworthy.com (Preis-Korroboration).
+
+**D-Tools (SI + Cloud):** d-tools.com (/system-integrator*, /cloud*,
+/integrated-product-library, /system-integrator-pricing, /cloud-pricing),
+docs.d-tools.com, dt.canny.io + portal.productboard.com (Cloud-Roadmap),
+Capterra/G2/SoftwareAdvice/SourceForge/Slashdot (Kritik), commercialintegrator.com
++ cepro.com (Solo-Plan, SI v23).
 
 > Caveat: Mehrere Vendor-/Reddit-/Forum-Seiten blockten den direkten Abruf im
 > Recherche-Umfeld; Zitate teils aus Such-Zusammenfassungen paraphrasiert. Für
