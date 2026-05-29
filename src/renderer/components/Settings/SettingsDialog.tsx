@@ -1,4 +1,9 @@
 import { useState } from 'react'
+import {
+  ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings,
+  type LucideIcon,
+} from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { HotkeysTab } from './tabs/HotkeysTab'
@@ -26,15 +31,15 @@ type SettingsSection =
   | 'sync'
   | 'advanced'
 
-const TAB_ICONS: Record<SettingsSection, string> = {
-  project: '📋',
-  appearance: '🎨',
-  editing: '✏️',
-  hotkeys: '⌨',
-  integrations: '🔌',
-  configs: '🗄',
-  sync: '🔄',
-  advanced: '⚙',
+const TAB_ICONS: Record<SettingsSection, LucideIcon> = {
+  project: ClipboardList,
+  appearance: Palette,
+  editing: Pencil,
+  hotkeys: Keyboard,
+  integrations: Plug,
+  configs: Database,
+  sync: RefreshCw,
+  advanced: Settings,
 }
 
 const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
@@ -80,7 +85,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
           : 'text-slate-300 hover:bg-slate-800'
       }`}
     >
-      <span className="text-base">{TAB_ICONS[id]}</span>
+      <Icon icon={TAB_ICONS[id]} size="sm" />
       <span>{t(`settings.tab.${id}`, TAB_FALLBACK_LABEL[id])}</span>
     </button>
   )
