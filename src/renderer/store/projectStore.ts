@@ -216,6 +216,17 @@ export interface ProjectState {
     offset: { dx: number; dy: number },
   ) => string[]
   updateEquipment: (id: string, patch: Partial<EquipmentItem>) => void
+  /**
+   * #314 — Geraet auf dem Canvas durch ein anderes Library-Template
+   * ersetzen. Ports werden anhand (connectorType, contentLabel/name,
+   * dann positional) gemappt; Kabel die kein Mapping bekommen werden
+   * verworfen. Position, nodeColor und Original-Name bleiben am
+   * Equipment.
+   */
+  replaceEquipmentWithTemplate: (
+    equipmentId: string,
+    template: EquipmentTemplate,
+  ) => void
   /** v7.5.0 — activate a named DeviceMode on the given equipment.
    *  Replaces the live `inputs`/`outputs` arrays with snapshots from
    *  the mode definition so the canvas re-renders with the new port

@@ -1099,6 +1099,18 @@ const en: Dict = {
 
   // GreenGo export dialog
   'greengo.title': 'GreenGo Intercom planning',
+  // .gg5 import parser errors
+  'importGg5.invalidJson': 'Not a valid JSON file.',
+  'importGg5.invalidFormat': 'Invalid .gg5 format (not an object).',
+  'importGg5.emptyFile':
+    'No users or groups found in the file. Is this a valid GreenGo 5.x .gg5 file?',
+  // XLSX intercom matrix parser
+  'intercomXlsx.noMatrixDetected':
+    'No intercom matrix detected — missing a row with the column headers "Equipment", "Groups" and "User".',
+  'intercomXlsx.noGroups': 'No groups detected — check the "Groups" columns in the sheet.',
+  'intercomXlsx.noUsers': 'No users detected — check the user rows below the column headers.',
+  'intercomXlsx.noUserGroups':
+    'No user is assigned to a group — please verify the matrix "x" marks were recognised.',
   'greengo.tab.matrix': 'Overview',
   'greengo.tab.users': 'Stations',
   'greengo.tab.groups': 'Groups',
@@ -2655,6 +2667,24 @@ const en: Dict = {
   'patchList.footerHint':
     'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
   'patchList.exportCsv': '⬇ Export CSV',
+  'patchList.exportXlsx': '⬇ Export XLSX',
+  // #314 Replace device section
+  'replaceDevice.title': 'Replace device',
+  'replaceDevice.subtitle': 'Preserve cabling',
+  'replaceDevice.btn': 'Choose another device…',
+  'replaceDevice.btnTitle':
+    'Swap the current device for another library template — ports are mapped by connector type + label, cables are preserved where possible.',
+  'replaceDevice.searchPlaceholder': 'Search (name, category, manufacturer)…',
+  'replaceDevice.allCategories': '— All categories —',
+  'replaceDevice.noMatches': 'No matches.',
+  'replaceDevice.lostBadgeTitle': '{n} connection(s) would be lost',
+  'replaceDevice.confirm.title': 'Replace {from} with {to}?',
+  'replaceDevice.confirm.body':
+    'Currently {connected} cable connection(s). When replacing:',
+  'replaceDevice.confirm.inMapped': '{n} input port(s) mapped',
+  'replaceDevice.confirm.outMapped': '{n} output port(s) mapped',
+  'replaceDevice.confirm.lost': '{n} cable(s) lose their port and will be deleted',
+  'replaceDevice.confirm.ok': 'Replace',
   // Hotkeys action labels (used in HotkeysTab)
   'hotkeys.action.undo': 'Undo',
   'hotkeys.action.redo': 'Redo',
@@ -2858,14 +2888,100 @@ const en: Dict = {
   'export.installedCables': 'Installed cables:',
   'export.missingTypes': '{count} cable type(s) missing',
   'export.allCovered': 'All planned quantities covered',
+
+  // Cable catalog notes (EN versions of the catalog.cable.* keys in the de dict)
+  'catalog.cable.xlr-3pin-audio.notes':
+    'Balanced analog audio or AES3 (digital). Gender: male → female.',
+  'catalog.cable.sdi-3g.notes':
+    'Works for SD/HD/3G. Use 75Ω coax (Belden 1694A or similar).',
+  'catalog.cable.sdi-6g.notes':
+    '6G needs higher-quality coax; mix with 3G only via down-converter.',
+  'catalog.cable.sdi-12g.notes':
+    'Use 4K-rated 12G coax (e.g. Belden 4694R). Downscale to 3G requires a scaler/converter.',
+  'catalog.cable.hdmi-2.0.notes':
+    'Passive copper limited to ~10 m; use optical HDMI for longer runs.',
+  'catalog.cable.hdmi-2.1.notes':
+    'Ultra-high speed cables required; pairing with HDMI 1.4 device limits to 1.4.',
+  'catalog.cable.cat6a.notes': 'Required for 10GBASE-T over full 100 m runs.',
+  'catalog.cable.fiber-sm-lc.notes':
+    'Single-mode (yellow jacket). Long distance (>300 m).',
+  'catalog.cable.fiber-mm-lc.notes':
+    'Multi-mode (aqua jacket). Short haul in racks/venue.',
+  'catalog.cable.iec-230v.notes': 'Standard device power cable ("kettle lead").',
+  'catalog.cable.powercon-tru1.notes':
+    'Locking, touring-grade power. Do not mix with classic powerCON (grey/blue).',
+  'catalog.cable.thunderbolt-3.notes':
+    'USB-C connector, passive up to 2 m. Active TB3 cable up to ~50 cm. Forward-compatible with Thunderbolt 4.',
+  'catalog.cable.thunderbolt-4.notes':
+    'Same bandwidth as TB3 but stricter certification (2× DP 1.4, 40 Gbps, 100 W PD).',
+  'catalog.cable.madi-bnc.notes':
+    'MADI AES10 over 75Ω coax. Up to 64 ch at 48 kHz or 56 ch at 96 kHz.',
+  'catalog.cable.madi-optical.notes':
+    'MADI AES10 over optical fibre. Long reach, galvanically isolated.',
+  'catalog.cable.smpte-297.notes':
+    'Hybrid cable with optical SDI link + copper for talkback and power. Camera connection for ENG/studio.',
+  'catalog.cable.smpte-304m.notes':
+    'Triaxial cable for studio cameras (HDTV). Carries video, intercom, talkback and power in one cable.',
+  // Video format catalog notes
+  'catalog.videoFormat.1080p50.notes':
+    'Main standard. Level A recommended; Level B for older equipment.',
+  'catalog.videoFormat.2160p50.notes':
+    'UHD standard. 12G-SDI preferred, Quad-Link 3G as alternative (4 cables).',
+}
+
+/**
+ * German entries — kept minimal because German is the source language
+ * (`t(key, 'Deutsche Form')` patterns supply the German fallback inline).
+ *
+ * The exception is **catalog-content keys** (`catalog.cable.*.notes`,
+ * `catalog.videoFormat.*.notes`): they are referenced from data files
+ * where no inline German fallback is reachable, so the German text
+ * lives here. EN counterparts in the `en` dict below override per
+ * language.
+ */
+const de: Dict = {
+  // Cable catalog notes
+  'catalog.cable.xlr-3pin-audio.notes':
+    'Balanced analog audio or AES3 (digital). Gender: male → female.',
+  'catalog.cable.sdi-3g.notes':
+    'Works for SD/HD/3G. Use 75Ω coax (Belden 1694A or similar).',
+  'catalog.cable.sdi-6g.notes':
+    '6G needs higher-quality coax; mix with 3G only via down-converter.',
+  'catalog.cable.sdi-12g.notes':
+    'Use 4K-rated 12G coax (e.g. Belden 4694R). Downscale to 3G requires a scaler/converter.',
+  'catalog.cable.hdmi-2.0.notes':
+    'Passive copper limited to ~10 m; use optical HDMI for longer runs.',
+  'catalog.cable.hdmi-2.1.notes':
+    'Ultra-high speed cables required; pairing with HDMI 1.4 device limits to 1.4.',
+  'catalog.cable.cat6a.notes': 'Required for 10GBASE-T over full 100 m runs.',
+  'catalog.cable.fiber-sm-lc.notes':
+    'Single-mode (yellow jacket). Long distance (>300 m).',
+  'catalog.cable.fiber-mm-lc.notes':
+    'Multi-mode (aqua jacket). Short haul in racks/venue.',
+  'catalog.cable.iec-230v.notes': 'Standard device power cable ("kettle lead").',
+  'catalog.cable.powercon-tru1.notes':
+    'Locking, touring-grade power. Do not mix with classic powerCON (grey/blue).',
+  'catalog.cable.thunderbolt-3.notes':
+    'USB-C Stecker, passiv bis 2 m. Aktives TB3-Kabel bis ~50 cm. Vorwärtskompatibel mit Thunderbolt 4.',
+  'catalog.cable.thunderbolt-4.notes':
+    'Gleiche Bandbreite wie TB3, aber striktere Zertifizierung (2× DP 1.4, 40Gbps, 100W PD).',
+  'catalog.cable.madi-bnc.notes':
+    'MADI AES10 über 75Ω-Koax. Bis 64 ch bei 48 kHz oder 56 ch bei 96 kHz.',
+  'catalog.cable.madi-optical.notes':
+    'MADI AES10 über optische Faser. Lange Reichweite, galvanisch getrennt.',
+  'catalog.cable.smpte-297.notes':
+    'Hybridkabel mit optischer SDI-Strecke + Kupfer für Talkback und Stromversorgung. Kameraanschluss bei ENG/Studio.',
+  'catalog.cable.smpte-304m.notes':
+    'Triaxialkabel für Studio-Kameras (HDTV). Überträgt Video, Interkom, Talkback und Strom in einem Kabel.',
+  // Video format catalog notes
+  'catalog.videoFormat.1080p50.notes':
+    'Hauptstandard. Level A empfohlen; Level B bei älteren Geräten.',
+  'catalog.videoFormat.2160p50.notes':
+    'UHD-Standard. 12G-SDI bevorzugt, Quad-Link 3G als Alternative (4 Kabel).',
 }
 
 const translations: Record<Language, Dict> = {
-  de: {
-    // German is the source language; only entries that need a different
-    // *display* text from the key go here. Most strings stay as their
-    // original German source.
-  },
+  de,
   en,
 }
 
