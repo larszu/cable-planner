@@ -99,13 +99,13 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       const buffer = ev.target?.result
       if (!(buffer instanceof ArrayBuffer)) {
         setImportError(t('greengo.importXlsxBinaryError', 'Konnte XLSX nicht als Binärdaten lesen.'))
         return
       }
-      const result = parseIntercomMatrixXlsx(buffer)
+      const result = await parseIntercomMatrixXlsx(buffer)
       if ('error' in result) {
         setImportError(result.error)
         return
@@ -159,8 +159,8 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
     e.target.value = ''
   }
 
-  const handleXlsxExport = () => {
-    const buffer = exportIntercomMatrixXlsx(config)
+  const handleXlsxExport = async () => {
+    const buffer = await exportIntercomMatrixXlsx(config)
     downloadBlob(
       // v7.9.116 — Einheitlicher Stempel.
       buildExportFilenameWithSuffix(config.systemName || 'intercom', 'IntercomMatrix', 'xlsx'),
