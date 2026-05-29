@@ -268,6 +268,22 @@ Z. 49–84) als nächsten einfachen Kandidaten.
 
 ## Phase 6 — README
 
-- README zeigt **kein einziges Bild** der App. → Hero + Galerie mit
-  TODO-Platzhaltern + Capture-Anleitung.
-</content>
+### Erledigt
+
+- **Hero-Bild-Sektion** im README (`docs/screenshots/hero.png`) + **Feature-
+  Galerie** (2-spaltige Tabelle): `canvas.gif`, `rack-3d.png`,
+  `atem-multiview.png`, `export.png`, `patch-sheets.png`, `patch-pdf.png`,
+  `bom.png`, `properties.png` — alle Slots klar als **„TODO: capture"**
+  markiert.
+- **`docs/screenshots/README.md`**: Aufnahme-Anleitung (welcher Slot, welche
+  Auflösung/Format) **+ verpflichtende Schwärzungs-Checkliste** (Pfijuko 2026,
+  FORUM WIEDENEST/Rentman-Zeile, Personennamen) + Liefer-Workflow
+  (`_raw/`-Push → Schwärzung, oder fertig geliefert) + GIF-Tipps.
+
+### TODO (manueller Mensch-Schritt)
+
+- [ ] Echte Screenshots/GIF aufnehmen (laufende GUI nötig), Kundennamen
+      schwärzen, unter den Zieldateinamen in `docs/screenshots/` ablegen.
+      Bereits gelieferte Chat-Screenshots: Mapping in
+      `docs/screenshots/README.md`. Roh-Bilder können nach
+      `docs/screenshots/_raw/` gepusht werden → werden dann geschwärzt.
