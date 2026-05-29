@@ -27,7 +27,7 @@ per-component.
 3. 🔴 `[ ]` **`CanvasToolbar.tsx:346`** — `maxWidth: 'min(880px, calc(100vw - 420px))'` reserves a **fixed 420px** for sidebars ⇒ effective **minimum window width ~1300px**.
 4. 🔴 `[ ]` **22 dialogs with hardcoded pixel widths** instead of `ModalShell`'s responsive `max-w-*`: e.g. `RentmanCableExportDialog.tsx:272` `w-[920px]`, `AtemMvConfigDialog.tsx:1015` `w-[960px]`, `CableBomDialog.tsx:273` `w-[820px]`, `LocationBomDialog.tsx:283` `w-[760px]`, `PatchPanelCreateDialog.tsx:298` `w-[520px]`.
 5. 🟠 `[ ]` **`StatusBar.tsx:47–81`** — counter row (devices/cables/frames/packed/complexity) has no `flex-wrap`/`truncate` → collides/overflows on narrow windows.
-6. 🟠 `[ ]` **`Splitter.tsx`** — 4px resize handle with no min width: Library/Properties can be dragged to 0px, hiding the canvas.
+6. ⚪ `[x]` **`Splitter.tsx`** — ~~no min width, panels draggable to 0px~~ **Not an issue (verified):** `uiStore.setLibraryWidth/setPropertiesWidth` already clamp to `PANEL_LIMITS` (library MIN 180px, properties MIN 220px, MAX 600px). Corrected after review.
 7. 🟠 `[ ]` **`MenuBar.tsx:366`** — menu bar (menus + undo/redo + project name `flex-1` + settings) has no overflow strategy → uncontrolled wrapping when narrow.
 8. 🟠 `[ ]` **`RackBuilderDialog.tsx`** — 3-column layout (list + canvas + rack) with no stacking fallback; assumes ~1200px.
 9. 🟠 `[ ]` **`AnnotationsPanel.tsx:135`** — `fixed right-0 top-0 h-screen w-96` (384px) covers almost everything on narrow windows.
