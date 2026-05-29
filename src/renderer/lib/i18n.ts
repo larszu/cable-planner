@@ -2668,6 +2668,23 @@ const en: Dict = {
     'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
   'patchList.exportCsv': '⬇ Export CSV',
   'patchList.exportXlsx': '⬇ Export XLSX',
+  // #314 Replace device section
+  'replaceDevice.title': 'Replace device',
+  'replaceDevice.subtitle': 'Preserve cabling',
+  'replaceDevice.btn': 'Choose another device…',
+  'replaceDevice.btnTitle':
+    'Swap the current device for another library template — ports are mapped by connector type + label, cables are preserved where possible.',
+  'replaceDevice.searchPlaceholder': 'Search (name, category, manufacturer)…',
+  'replaceDevice.allCategories': '— All categories —',
+  'replaceDevice.noMatches': 'No matches.',
+  'replaceDevice.lostBadgeTitle': '{n} connection(s) would be lost',
+  'replaceDevice.confirm.title': 'Replace {from} with {to}?',
+  'replaceDevice.confirm.body':
+    'Currently {connected} cable connection(s). When replacing:',
+  'replaceDevice.confirm.inMapped': '{n} input port(s) mapped',
+  'replaceDevice.confirm.outMapped': '{n} output port(s) mapped',
+  'replaceDevice.confirm.lost': '{n} cable(s) lose their port and will be deleted',
+  'replaceDevice.confirm.ok': 'Replace',
   // Hotkeys action labels (used in HotkeysTab)
   'hotkeys.action.undo': 'Undo',
   'hotkeys.action.redo': 'Redo',
