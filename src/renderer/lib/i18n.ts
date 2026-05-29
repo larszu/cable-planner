@@ -1554,7 +1554,7 @@ const en: Dict = {
   'rentman.import.cablePlan.pickAtLeastOne':
     'Please pick at least one cable type.',
   'rentman.import.cablePlan.planSaved':
-    '✓ {count} cable type(s) adopted as plan.',
+    '{count} cable type(s) adopted as plan.',
   'rentman.import.resultOne': '✓ {count} device added to the library',
   'rentman.import.resultMany': '✓ {count} devices added to the library',
   'rentman.import.resultHint':
