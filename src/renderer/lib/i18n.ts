@@ -160,8 +160,8 @@ const en: Dict = {
   'settings.appearance.theme': 'Theme',
   'settings.appearance.themeDesc':
     'Canvas background colour. Optimised for dark; light is intended for PDF export or bright environments.',
-  'settings.appearance.theme.dark': '🌙 Dark',
-  'settings.appearance.theme.light': '☀ Light',
+  'settings.appearance.theme.dark': 'Dark',
+  'settings.appearance.theme.light': 'Light',
   'settings.appearance.ports': 'Port colours',
   'settings.appearance.portsDesc': 'Controls how port handles on equipment are coloured.',
   'settings.appearance.ports.byDirection': 'By direction (default)',
@@ -2028,8 +2028,8 @@ const en: Dict = {
   'settings.eqColors.title': 'Device card colors',
   'settings.eqColors.description':
     'Background/text/border for equipment nodes — adjustable per theme. Defaults are chosen so the cards stand out from the canvas background. Individual devices can have their own color in Properties.',
-  'settings.eqColors.themeLight': '☀ Light',
-  'settings.eqColors.themeDark': '🌙 Dark',
+  'settings.eqColors.themeLight': 'Light',
+  'settings.eqColors.themeDark': 'Dark',
   'settings.eqColors.reset': '↺ Reset',
   'settings.eqColors.resetTitle': 'Reset to default',
   'settings.eqColors.body': 'Card body',
@@ -2354,8 +2354,8 @@ const en: Dict = {
   'settings.customPalette.bg': 'Background',
   'settings.customPalette.grid': 'Grid stroke',
   'settings.customPalette.accent': 'Accent',
-  'settings.canvasBg.darkImage': '🌙 Dark-mode image',
-  'settings.canvasBg.lightImage': '☀ Light-mode image',
+  'settings.canvasBg.darkImage': 'Dark-mode image',
+  'settings.canvasBg.lightImage': 'Light-mode image',
 
   // Settings → Integrations (Rentman toggle card)
   'settings.integrations.rentmanToggle.title': 'Rentman integration',
