@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { toPng } from 'html-to-image'
-import { Square, SquareCheck } from 'lucide-react'
+import { Download, Square, SquareCheck } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
@@ -1171,7 +1171,7 @@ export const AtemMvConfigDialog = () => {
                   : t('atem.mv.notConnectedTitle', 'ATEM nicht verbunden — erst im ATEM-Dialog verbinden.')
               }
             >
-              ⬇ {t('atem.mv.readFromBtn', 'Vom ATEM laden')}
+              <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.mv.readFromBtn', 'Vom ATEM laden')}
             </button>
             <button
               type="button"

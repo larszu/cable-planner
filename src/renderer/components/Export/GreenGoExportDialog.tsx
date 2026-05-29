@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { X, FileSpreadsheet } from 'lucide-react'
+import { Download, Upload, X, FileSpreadsheet } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../../types/greengo'
@@ -683,7 +683,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
               className="rounded border border-slate-600 px-3 py-1.5 text-xs text-slate-400 hover:border-emerald-700 hover:text-emerald-300"
               title={t('greengo.import.gg5Title', '.gg5 Datei importieren und mit Canvas-Geräten verknüpfen')}
             >
-              {t('greengo.import.gg5', '⬆ .gg5 importieren')}
+              <Icon icon={Upload} size="xs" className="mr-1 inline-block align-text-bottom" />{t('greengo.import.gg5', '.gg5 importieren')}
             </button>
             <button
               type="button"
@@ -715,7 +715,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
               onClick={handleExport}
               className="rounded bg-emerald-600 px-3 py-1.5 text-xs hover:bg-emerald-500"
             >
-              {t('greengo.export.gg5', '⬇ Als .gg5 exportieren')}
+              <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('greengo.export.gg5', 'Als .gg5 exportieren')}
             </button>
           </div>
         </div>

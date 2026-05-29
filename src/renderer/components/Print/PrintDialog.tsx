@@ -279,7 +279,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     checked={action === 'download'}
                     onChange={() => setAction('download')}
                   />
-                  ⬇ Als PDF herunterladen
+                  Als PDF herunterladen
                 </label>
               </div>
               <div className="rounded border border-slate-700 p-2 text-[10px] text-slate-400">

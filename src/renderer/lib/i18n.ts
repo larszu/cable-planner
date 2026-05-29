@@ -855,7 +855,7 @@ const en: Dict = {
   'modeEditor.descPlaceholder': 'e.g. limits outputs to 2 in 4K mode (lower resource use)',
   'modeEditor.portCount': '{count} port(s) in this mode',
   'modeEditor.seedTitle': "Adopt the device's CURRENT port layout as a starting point.",
-  'modeEditor.seedBtn': '⬇ Adopt current device layout',
+  'modeEditor.seedBtn': 'Adopt current device layout',
   'modeEditor.emptySide': 'No {kind} in this mode.',
   'modeEditor.removePort': 'Remove port',
   'common.name': 'Name',
@@ -1158,7 +1158,7 @@ const en: Dict = {
   'greengo.footer.devicesOnCanvas': 'devices on canvas',
   'greengo.import.gg5Title':
     'Import .gg5 file and link to canvas devices',
-  'greengo.import.gg5': '⬆ Import .gg5',
+  'greengo.import.gg5': 'Import .gg5',
   'greengo.import.xlsxTitle':
     'Upload intercom-matrix Excel — users + groups will be merged into the GreenGo configuration.',
   'greengo.import.xlsx': 'Import Excel matrix',
@@ -1166,7 +1166,7 @@ const en: Dict = {
     'Download current GreenGo configuration as an intercom-matrix Excel (for print / hand-off).',
   'greengo.export.xlsx': 'Export Excel matrix',
   'greengo.saveProject': 'Save in project',
-  'greengo.export.gg5': '⬇ Export as .gg5',
+  'greengo.export.gg5': 'Export as .gg5',
   'greengo.importOverlay.title': 'Import .gg5 — link devices',
   'greengo.importOverlay.system': 'System:',
   'greengo.importOverlay.importedGroups': 'Imported groups',
