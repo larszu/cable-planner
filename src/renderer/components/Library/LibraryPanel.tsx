@@ -1,10 +1,8 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useRentman } from '../../hooks/useRentman'
-import { bilingualCategoryDialog } from '../../lib/bilingualCategoryDialog'
-import { categoryDisplay } from '../../lib/categoryTranslations'
 import { CategorySelect } from '../shared/CategorySelect'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
@@ -28,18 +26,15 @@ import {
 import { RackBuilderDialog } from '../Rack/RackBuilderDialog'
 import { TemplateMergeDialog } from './TemplateMergeDialog'
 import { TabButton } from './TabButton'
-import { CategoryDndWrapper } from './LibraryDndWrappers'
-import { SortableCategorySection } from './LibrarySortables'
-import { PlusMenu, LibraryFiltersMenu } from './LibraryMenus'
 import { GroupsTab } from './tabs/GroupsTab'
 import { RacksTab } from './tabs/RacksTab'
+import { LocalEquipmentTab } from './tabs/LocalEquipmentTab'
 import { LibraryItem } from './LibraryItem'
 import {
   exportTemplateToFile,
   parseLibraryItemFile,
 } from '../../lib/itemExport'
-import { openLibraryFolder, stampDeviceLibraryRef } from '../../lib/librarySync'
-import { hasDesktopBridge } from '../../lib/bridge'
+import { stampDeviceLibraryRef } from '../../lib/librarySync'
 import { MIME_EQUIPMENT } from '../../lib/dragDropMimes'
 import { pickTextFile } from '../../lib/pickFile'
 import { CableLibraryPanel } from './CableLibraryPanel'
@@ -88,16 +83,10 @@ export const LibraryPanel = () => {
   const customLibrary = useProjectStore((state) => state.customLibrary)
   const setCustomLibrary = useProjectStore((state) => state.setCustomLibrary)
   const addCustomTemplate = useProjectStore((state) => state.addCustomTemplate)
-  const removeCustomTemplate = useProjectStore((state) => state.removeCustomTemplate)
   const resyncRentmanLibraryFromCanvas = useProjectStore((state) => state.resyncRentmanLibraryFromCanvas)
-  const toggleTemplateFavorite = useProjectStore((state) => state.toggleTemplateFavorite)
   const collapsed = useUiStore((state) => state.libraryCollapsed)
   // v7.9.4 — Rentman-Tabs ausblenden wenn die Integration deaktiviert ist.
   const rentmanEnabled = useUiStore((state) => state.rentmanEnabled)
-  // v7.9.5 — Kategorien-Sortierung: manual (Drag&Drop), asc, desc
-  const librarySortMode = useUiStore((state) => state.librarySortMode)
-  const setLibrarySortMode = useUiStore((state) => state.setLibrarySortMode)
-  const reorderCategories = useProjectStore((state) => state.reorderCategories)
   const toggleCollapsed = useUiStore((state) => state.toggleLibraryCollapsed)
   // v7.9.2 — Library nicht mehr abdockbar. Falls ein User-Zustand
   // noch `floating: true` aus alten Versionen mitbringt, wird er hier
@@ -109,33 +98,14 @@ export const LibraryPanel = () => {
   }, [floatingRaw, setFloating])
   const floating = false
   const openRentmanImport = useUiStore((state) => state.openRentmanImport)
-  const toggleTemplateHidden = useProjectStore((state) => state.toggleTemplateHidden)
-  const setCustomTemplateCategory = useProjectStore((state) => state.setCustomTemplateCategory)
-  const setSelectedTemplateName = useProjectStore((state) => state.setSelectedTemplateName)
   const knownCategories = useProjectStore((state) => state.knownCategories)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
-  const customLibraryForInit = useProjectStore((state) => state.customLibrary)
-  // v7.9.5 — Beim ersten Mount alle aktuell vorhandenen Kategorien
-  // einklappen (Default-collapsed). Läuft nur einmal, danach wird
-  // collapsedCats vom User selbst gesteuert.
-  useEffect(() => {
-    if (collapsedInitRef.current) return
-    const usedCats = new Set(customLibraryForInit.map((t) => t.category || 'Sonstiges'))
-    const allCats = new Set([...knownCategories, ...usedCats])
-    if (allCats.size === 0) return
-    collapsedInitRef.current = true
-    setCollapsedCats(allCats)
-  }, [customLibraryForInit, knownCategories])
   const groupPresets = useProjectStore((state) => state.groupPresets)
   const addGroupPreset = useProjectStore((state) => state.addGroupPreset)
   // v7.9.105 / Issue #224 — In-Place-Edit fuer Canvas-Racks.
   const replaceCanvasRackWithPreset = useProjectStore(
     (state) => state.replaceCanvasRackWithPreset,
   )
-  const renameCustomCategory = useProjectStore((state) => state.renameCustomCategory)
-  const categoryTranslations = useProjectStore((state) => state.categoryTranslations)
-  const setCategoryTranslation = useProjectStore((state) => state.setCategoryTranslation)
-  const lang = useUiStore((state) => state.language)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   // v7.9.108 / Issue #225 — Wenn der User ein Equipment OHNE Ports auf
   // den Canvas zieht, kommt es hier rein. Beim Speichern legen wir das
@@ -338,24 +308,10 @@ export const LibraryPanel = () => {
   // toggles the source.
   const [equipmentSection, setEquipmentSection] = useState<'local' | 'rentman'>('rentman')
   const [rentmanView, setRentmanView] = useState<'imported' | 'catalog' | 'sync'>('imported')
-  // Category management state
-  const [newGroupName, setNewGroupName] = useState('')
-  const [showNewGroup, setShowNewGroup] = useState(false)
-  // v7.9.5 — Standard: ALLES eingeklappt (User-Request). Initial-Set
-  // wird beim ersten Mount mit den aktuellen Kategorien gefüllt; danach
-  // verwaltet der User selber per Klick was offen oder zu ist (Component-
-  // State, kein persist).
-  const [collapsedCats, setCollapsedCats] = useState<Set<string>>(new Set())
-  const collapsedInitRef = useRef(false)
   const [collapsedRentmanProjects, setCollapsedRentmanProjects] = useState<Set<string>>(new Set())
   const [collapsedRentmanCats, setCollapsedRentmanCats] = useState<Set<string>>(new Set())
   // v7.9.106 / Issue #226 — Suchfeld in der Rentman-Projekt-Liste.
   const [rentmanSearch, setRentmanSearch] = useState('')
-  const [showEmpty, setShowEmpty] = useState(false)
-  const [showHidden, setShowHidden] = useState(false)
-  // Global library search (Strg+F). Filters customLibrary by name/category
-  // across all categories. When non-empty, all categories are auto-expanded.
-  const [librarySearch, setLibrarySearch] = useState('')
   // Local-device-create dialog: same Gemini-AI / Web-search auto-fill the
   // Rentman wizard already offers (user request, parallels NewRentmanDeviceWizard).
   const [aiLoading, setAiLoading] = useState(false)
@@ -364,28 +320,6 @@ export const LibraryPanel = () => {
   const [suggestInfo, setSuggestInfo] = useState('')
   const [aiSettingsOpen, setAiSettingsOpen] = useState(false)
   const [aiKeyDraft, setAiKeyDraft] = useState('')
-  const newGroupInputRef = useRef<HTMLInputElement>(null)
-  const librarySearchRef = useRef<HTMLInputElement>(null)
-
-  // Strg+F focuses the library search box, matching the shortcut common in
-  // editors and browsers. Listen on window so the shortcut works regardless
-  // of which canvas/dialog has focus.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
-        // Don't hijack if the user is in a textarea/contenteditable — that
-        // would make in-app text editing surprising.
-        const target = e.target as HTMLElement | null
-        const tag = target?.tagName
-        if (tag === 'TEXTAREA' || target?.isContentEditable) return
-        e.preventDefault()
-        librarySearchRef.current?.focus()
-        librarySearchRef.current?.select()
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
 
   // Currently linked Rentman project (from project metadata).
   const linkedRentmanProjectId = useProjectStore(
@@ -1028,344 +962,10 @@ export const LibraryPanel = () => {
         </>
       )}
       {tab === 'equipment' && (equipmentSection === 'local' || !rentmanEnabled) && (
-        <>
-          {/* v7.9.5 — Such-Zeile mit "+"-Dropdown rechts (statt zwei
-              getrennten "+ Kategorie" / "+ Gerät" Buttons) und View-Mode-
-              Toggle. Strg+F-Hint bleibt als grauer Suffix sichtbar auch
-              nach Eingabe. Der redundante "Lokale Library / Lokal"-Header
-              ist raus — der Sub-Toggle oberhalb sagt schon was Sache ist. */}
-          <div className="mb-2 flex items-center gap-1">
-            <div className="relative flex-1">
-              <svg
-                width="11"
-                height="11"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-slate-500"
-              >
-                <circle cx="7" cy="7" r="4.5" />
-                <line x1="10.3" y1="10.3" x2="13" y2="13" strokeLinecap="round" />
-              </svg>
-              <input
-                ref={librarySearchRef}
-                type="text"
-                value={librarySearch}
-                onChange={(e) => setLibrarySearch(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Escape') setLibrarySearch('')
-                }}
-                placeholder={t('library.search.placeholder', 'Suchen…')}
-                className="w-full rounded border border-slate-700 bg-slate-900 py-1 pl-7 pr-12 text-xs text-slate-100 placeholder-slate-500"
-              />
-              {librarySearch ? (
-                <button
-                  type="button"
-                  onClick={() => setLibrarySearch('')}
-                  title={t('library.search.clear', 'Suche löschen')}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
-                >
-                  ✕
-                </button>
-              ) : (
-                <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[9px] uppercase tracking-wider text-slate-600">
-                  Strg+F
-                </span>
-              )}
-            </div>
-            {/* Einziger "+"-Button als Menu */}
-            <PlusMenu
-              onNewDevice={() => setShowCreateDialog(true)}
-              onNewCategory={() => {
-                setShowNewGroup((v) => !v)
-                setTimeout(() => newGroupInputRef.current?.focus(), 50)
-              }}
-              onImportFile={handleImportLibraryFile}
-              onOpenFolder={() => void openLibraryFolder()}
-              hasFolder={hasDesktopBridge}
-            />
-            {/* Overflow-Menü für selten genutzte Filter (Leere/Versteckte/Alle ein-aus) */}
-            <LibraryFiltersMenu
-              showHidden={showHidden}
-              setShowHidden={setShowHidden}
-              showEmpty={showEmpty}
-              setShowEmpty={setShowEmpty}
-              hiddenCount={customLibrary.filter((t) => t.hidden).length}
-              sortMode={librarySortMode}
-              setSortMode={setLibrarySortMode}
-              onToggleAllCats={(allCollapsed) => {
-                if (allCollapsed) {
-                  setCollapsedCats(new Set())
-                } else {
-                  const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
-                  const allCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
-                  setCollapsedCats(new Set(allCats))
-                }
-              }}
-              allCollapsed={(() => {
-                const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
-                const allCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
-                return allCats.length > 0 && allCats.every((cat) => collapsedCats.has(cat))
-              })()}
-            />
-          </div>
-
-          {showNewGroup && (
-            <form
-              className="mb-2 flex gap-1"
-              onSubmit={(e) => {
-                e.preventDefault()
-                const cat = newGroupName.trim()
-                if (cat) {
-                  addKnownCategories([cat])
-                  setShowEmpty(true)
-                  setCollapsedCats((prev) => {
-                    if (!prev.has(cat)) return prev
-                    const next = new Set(prev)
-                    next.delete(cat)
-                    return next
-                  })
-                  setNewGroupName('')
-                  setShowNewGroup(false)
-                }
-              }}
-            >
-              <input
-                ref={newGroupInputRef}
-                value={newGroupName}
-                onChange={(e) => setNewGroupName(e.target.value)}
-                placeholder={t('library.newCategoryPlaceholder', 'Kategoriename…')}
-                className="flex-1 rounded border border-slate-600 bg-slate-900 p-1.5 text-xs"
-              />
-              <button
-                type="submit"
-                className="rounded bg-emerald-700 px-2 text-xs hover:bg-emerald-600"
-              >
-                OK
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowNewGroup(false)}
-                className="rounded bg-slate-700 px-2 text-xs hover:bg-slate-600"
-              >
-                ✕
-              </button>
-            </form>
-          )}
-
-          <div className="flex-1 min-h-0 space-y-1 overflow-auto">
-            {(() => {
-              const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
-              // v7.9.5 — Kategorien-Order respektiert jetzt den User-
-              // gewählten Sort-Modus. 'manual' = knownCategories-Order
-              // (Drag&Drop-Reihenfolge), 'asc' / 'desc' = alphabetisch.
-              const baseCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
-              const allCats =
-                librarySortMode === 'asc'
-                  ? [...baseCats].sort((a, b) => a.localeCompare(b))
-                  : librarySortMode === 'desc'
-                    ? [...baseCats].sort((a, b) => b.localeCompare(a))
-                    : // manual: knownCategories-Order zuerst, dann genutzte
-                      // Kategorien die nicht in knownCategories sind ans Ende
-                      (() => {
-                        const knownSet = new Set(knownCategories)
-                        const head = knownCategories.filter((c) => baseCats.includes(c))
-                        const tail = baseCats
-                          .filter((c) => !knownSet.has(c))
-                          .sort((a, b) => a.localeCompare(b))
-                        return [...head, ...tail]
-                      })()
-              if (allCats.length === 0) allCats.push('Sonstiges')
-              const searchQuery = librarySearch.trim().toLowerCase()
-              // v7.9.5 — Globaler Empty-State wenn Suche projektweit nichts trifft.
-              if (searchQuery) {
-                const anyMatch = customLibrary.some((t) =>
-                  t.name.toLowerCase().includes(searchQuery),
-                )
-                if (!anyMatch) {
-                  return (
-                    <div className="mt-4 rounded border border-slate-800 bg-slate-950/60 p-4 text-center text-xs text-slate-400">
-                      <div className="mb-2 font-semibold text-slate-300">
-                        {t('library.empty.title', 'Keine Geräte gefunden')}
-                      </div>
-                      <div className="mb-3 text-[11px] text-slate-500">
-                        {format(
-                          t(
-                            'library.empty.body',
-                            'Kein Treffer für „{q}". Versuche einen anderen Suchbegriff oder lösche das Suchfeld.',
-                          ),
-                          { q: librarySearch },
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setLibrarySearch('')}
-                        className="rounded bg-slate-700 px-3 py-1 text-[11px] text-slate-100 hover:bg-slate-600"
-                      >
-                        {t('library.empty.clearSearch', 'Suche zurücksetzen')}
-                      </button>
-                    </div>
-                  )
-                }
-              }
-              // v7.9.5 — Im 'manual' Sort-Modus wrappen wir die Sections
-              // in DndContext+SortableContext so dass jeder Header per
-              // Drag&Drop sortierbar ist. Im 'asc'/'desc' Modus ist die
-              // Reihenfolge fest alphabetisch → kein DnD nötig.
-              const sectionsList = allCats.map((cat) => {
-                const items = customLibrary.filter(
-                  (t) => (t.category || 'Sonstiges') === cat,
-                )
-                const visibleItems = items
-                  .filter((t) => showHidden || !t.hidden)
-                  .filter((t) =>
-                    !searchQuery
-                      ? true
-                      : t.name.toLowerCase().includes(searchQuery) ||
-                        (t.category ?? '').toLowerCase().includes(searchQuery),
-                  )
-                if (!showEmpty && visibleItems.length === 0) return null
-                // Force-expand categories during a search so matches are
-                // visible immediately without manual category clicks.
-                const collapsed = !searchQuery && collapsedCats.has(cat)
-                return (
-                  <SortableCategorySection
-                    key={cat}
-                    cat={cat}
-                    manualSort={librarySortMode === 'manual'}
-                    onDragOverTemplate={(event) => {
-                      if (event.dataTransfer.types.includes(MIME_EQUIPMENT)) {
-                        event.preventDefault()
-                        event.dataTransfer.dropEffect = 'move'
-                      }
-                    }}
-                    onDropTemplate={(event) => {
-                      const raw = event.dataTransfer.getData(MIME_EQUIPMENT)
-                      if (!raw) return
-                      try {
-                        const tpl = JSON.parse(raw) as EquipmentTemplate
-                        if (tpl.name) { event.preventDefault(); setCustomTemplateCategory(tpl.name, cat) }
-                      } catch { /* ignore */ }
-                    }}
-                  >
-                    {/* v7.9.7 — Header-Zeile als flex-Container damit
-                        der ✎-Rename-Button neben Collapse-Button platz
-                        bekommt. Klick auf Caret/Name togglet, Klick auf
-                        ✎ ruft promptDialog für Umbenennung. */}
-                    <div className="group/cat flex items-center gap-1.5 rounded-t bg-slate-900/60 px-2 py-1.5 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-300 hover:bg-slate-800/80 hover:text-slate-100">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setCollapsedCats((prev) => {
-                            const next = new Set(prev)
-                            collapsed ? next.delete(cat) : next.add(cat)
-                            return next
-                          })
-                        }
-                        className="flex flex-1 min-w-0 items-center gap-1.5 text-left"
-                      >
-                        <span className="inline-block w-3 text-center text-slate-500">
-                          {collapsed ? '▸' : '▾'}
-                        </span>
-                        <span className="flex-1 truncate normal-case tracking-normal">
-                          {categoryDisplay(cat, lang, categoryTranslations)}
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={async (e) => {
-                          e.stopPropagation()
-                          // #309 — Bilinguale Bearbeitung: aus dem Translations-
-                          // Map vorbefüllt, sonst canonical in der aktiven UI-
-                          // Sprache als Default.
-                          const existing = categoryTranslations[cat] ?? {}
-                          const result = await bilingualCategoryDialog(
-                            t('library.renameCategory', 'Kategorie umbenennen'),
-                            {
-                              de: existing.de ?? (lang === 'de' ? cat : undefined),
-                              en: existing.en ?? (lang === 'en' ? cat : undefined),
-                            },
-                          )
-                          if (!result || !result.canonical) return
-                          if (result.canonical !== cat) {
-                            renameCustomCategory(cat, result.canonical)
-                            setCategoryTranslation(result.canonical, { de: result.de, en: result.en })
-                          } else {
-                            setCategoryTranslation(cat, { de: result.de, en: result.en })
-                          }
-                        }}
-                        className="hidden rounded bg-slate-700/80 px-1.5 py-0.5 text-[10px] font-normal normal-case text-slate-200 hover:bg-slate-600 group-hover/cat:block"
-                        title={t('library.renameCategory', 'Kategorie umbenennen')}
-                      >
-                        ✎
-                      </button>
-                      <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-normal text-slate-400">
-                        {items.length}
-                      </span>
-                    </div>
-
-                    {/* Items */}
-                    {!collapsed && (
-                      <div className="space-y-1 px-1 pb-1">
-                        {visibleItems.length === 0 ? (
-                          <div className="px-1 py-1 text-[11px] italic text-slate-600">
-                            {searchQuery
-                              ? format(t('library.empty.search', 'Keine Treffer für "{query}"'), { query: librarySearch })
-                              : t('library.empty.dragHere', 'Gerät hierher ziehen zum Verschieben')}
-                          </div>
-                        ) : (
-                          visibleItems
-                            .slice()
-                            .sort((a, b) => {
-                              const af = a.favorite ? 0 : 1
-                              const bf = b.favorite ? 0 : 1
-                              if (af !== bf) return af - bf
-                              return a.name.localeCompare(b.name)
-                            })
-                            .map((item) => (
-                            <div key={item.name} className="group/item relative">
-                              <LibraryItem
-                                item={item}
-                                onAdd={() => addEquipment({ ...stampDeviceLibraryRef(item), ...nextPosition })}
-                                onRemove={() => removeCustomTemplate(item.name)}
-                                onToggleFavorite={() => toggleTemplateFavorite(item.name)}
-                                onToggleHidden={() => toggleTemplateHidden(item.name)}
-                                onExport={() => exportTemplateToFile(item)}
-                              />
-                              {/* Edit button — appears on hover */}
-                              <button
-                                type="button"
-                                onClick={() => setSelectedTemplateName(item.name)}
-                                className="absolute right-7 top-1 hidden rounded bg-slate-600 px-1 py-0.5 text-[10px] hover:bg-slate-500 group-hover/item:block"
-                                title={t('library.template.editTitle', 'Vorlage bearbeiten (Name, Kategorie)')}
-                              >
-                                ✎
-                              </button>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </SortableCategorySection>
-                )
-              }).filter(Boolean) as ReactNode[]
-              // v7.9.5 — Manuelle Sortierung: DnD-Wrapper drumherum.
-              // Sonst direkt rendern.
-              if (librarySortMode === 'manual') {
-                return (
-                  <CategoryDndWrapper
-                    cats={allCats}
-                    onReorder={(newOrder) => reorderCategories(newOrder)}
-                  >
-                    {sectionsList}
-                  </CategoryDndWrapper>
-                )
-              }
-              return sectionsList
-            })()}
-          </div>
-        </>
+        <LocalEquipmentTab
+          onOpenCreateDialog={() => setShowCreateDialog(true)}
+          onImportLibraryFile={handleImportLibraryFile}
+        />
       )}
 
       {tab === 'cables' && <CableLibraryPanel />}
