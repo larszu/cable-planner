@@ -307,3 +307,28 @@ Z. 49–84) als nächsten einfachen Kandidaten.
       Rohbilder in der Branch-History (`a670c71`) — bei öffentlichem Repo ggf.
       History scrubben (die ungeschwärzten Bilder sind sonst über alte
       Commits abrufbar).
+
+## Abschluss — Gesamtstatus
+
+Alle 6 Phasen abgeschlossen, je ein Commit, gepusht auf
+`claude/busy-gates-efLNh` (Phasen 0–3 via PR #333/#334 bereits in `main`).
+
+| Phase | Ergebnis | Status |
+| ----- | -------- | ------ |
+| 0 Recon/Baseline | `ui-audit.md` + Baseline festgehalten | ✅ |
+| 1 Icon-System | `lucide-react` + `Icon`-Wrapper; Close/Warn/Status-Emojis ersetzt | ✅ (Long-tail-Glyphen als TODO) |
+| 2 Design-Tokens | `@theme`-Typo-Skala + `--cp-*`-Farb-Tokens; 5 Shells migriert | ✅ (Flächen-Rest als TODO) |
+| 3 Accessibility | `useDialogA11y` (role/aria-modal/Escape/Focus-Trap/Rückgabe); ModalShell + 3 Standalone + modalRoot + MenuBar | ✅ (restl. Dialoge als TODO) |
+| 4 i18n | `i18n-check.mjs` + 105 fehlende EN-Keys + String-Migration; DE/EN deckungsgleich | ✅ |
+| 5 Dekomposition | `RackBuilderDialog`-Modell → `rackBuilderModel.ts` (−250 Zeilen) | ✅ (tiefere JSX-Zerlegung als verifizierter Folgeschritt) |
+| 6 README | Hero + Galerie (6/9 Slots mit echten, geschwärzten Bildern) + Capture-/Redact-Tooling | ✅ (canvas.gif/rack-3d/patch-pdf offen) |
+
+**Verifikations-Endstand:** `npx tsc -p tsconfig.app.json --noEmit` = 0,
+`npm run build` grün, `npm run lint` = 124 Fehler / 18 Warnungen
+(**3 Fehler unter** dem 127er-Baseline, **0 neu eingeführt**),
+`node docs/i18n-check.mjs` = 0 fehlende Keys.
+
+**Offene Hauptpunkte (manuell):** restliche Screenshots (`canvas.gif`,
+`rack-3d.png`, `patch-pdf.png`), History-Scrub der Rohbilder, sowie die je
+Phase dokumentierten großflächigen Migrations-TODOs (Typo/Token-Rest,
+restliche Dialog-a11y, in-`t()`-Glyphen).
