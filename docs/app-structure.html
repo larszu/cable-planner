@@ -239,7 +239,10 @@
 <div id="app">
   <aside>
     <h1>Cable-Planner</h1>
-    <div class="subtitle">App-Struktur · v7.9.92 · ~61 Module</div>
+    <div class="subtitle">
+      App-Struktur · v8.1.0 · ~235 Module · ~73.5k LOC<br>
+      <small style="color:#64748b">Diese Übersicht zeigt nur die ~62 wichtigsten Module. Für die vollständige Architektur siehe <a href="./architecture.md" style="color:#94a3b8">architecture.md</a>.</small>
+    </div>
 
     <h2>Layer-Filter</h2>
     <button class="layer-btn active" data-layer="all">Alle anzeigen</button>
@@ -314,7 +317,7 @@ const DATA = {
     { "id": "status-bar",        "label": "Status Bar",      "layer": "renderer", "group": "Layout",     "purpose": "Zoom, Device-Count, Online-Status", "file": "src/renderer/components/Layout/StatusBar.tsx" },
 
     // ── Renderer: Canvas ───────────────────────────────────
-    { "id": "canvas-area",       "label": "Canvas Area",     "layer": "renderer", "group": "Canvas",     "purpose": "ReactFlow Wrapper, Drag/Drop, Selection, Routing-API. ~1800 LOC", "file": "src/renderer/components/Canvas/CanvasArea.tsx" },
+    { "id": "canvas-area",       "label": "Canvas Area",     "layer": "renderer", "group": "Canvas",     "purpose": "ReactFlow Wrapper, Drag/Drop, Selection, Routing-API, finalized-Lock (#295). ~1970 LOC", "file": "src/renderer/components/Canvas/CanvasArea.tsx" },
     { "id": "equipment-node",    "label": "Equipment Node",  "layer": "renderer", "group": "Canvas",     "purpose": "Gerät mit Ports, Connectors, Drag-Handles", "file": "src/renderer/components/Canvas/EquipmentNode.tsx" },
     { "id": "cable-edge",        "label": "Cable Edge",      "layer": "renderer", "group": "Canvas",     "purpose": "Kabel-Linie mit Waypoints, Layer-Filter, Auto-Routing-Persist", "file": "src/renderer/components/Canvas/CableEdge.tsx" },
     { "id": "cable-waypoints",   "label": "Cable Waypoints", "layer": "renderer", "group": "Canvas",     "purpose": "Drag-Handles für manuelle Kabelpfad-Anpassung", "file": "src/renderer/components/Canvas/CableWaypoints.tsx" },
@@ -327,7 +330,7 @@ const DATA = {
     // ── Renderer: Properties ───────────────────────────────
     { "id": "properties-panel",  "label": "Properties Panel","layer": "renderer", "group": "Properties", "purpose": "Dispatcher für Cable/Equipment/Location/Template Editor", "file": "src/renderer/components/Properties/PropertiesPanel.tsx" },
     { "id": "cable-properties",  "label": "Cable Properties","layer": "renderer", "group": "Properties", "purpose": "Edit Name, Type, Länge, Farbe, Layer, Endpoints", "file": "src/renderer/components/Properties/CableProperties.tsx" },
-    { "id": "equipment-props",   "label": "Equipment Props", "layer": "renderer", "group": "Properties", "purpose": "Edit Name, Kategorie, IP, Ports, Auto-Rename (#175)", "file": "src/renderer/components/Properties/EquipmentProperties.tsx" },
+    { "id": "equipment-props",   "label": "Equipment Props", "layer": "renderer", "group": "Properties", "purpose": "v8.x #306: Hauptdatei nur noch ~164 LOC (war 2314), Inhalt aufgeteilt in 22 SortableSections unter Properties/sections/ (PortsSection, DimensionsSection, RackSection, NetworkConfigSection, GreenGoBeltpackSection, …).", "file": "src/renderer/components/Properties/EquipmentProperties.tsx" },
     { "id": "location-props",    "label": "Location Props",  "layer": "renderer", "group": "Properties", "purpose": "Edit Location Name, Move-Contents, Position-Lock", "file": "src/renderer/components/Properties/LocationProperties.tsx" },
     { "id": "template-props",    "label": "Template Props",  "layer": "renderer", "group": "Properties", "purpose": "Edit Library-Template (Name, Ports, Modes)", "file": "src/renderer/components/Properties/TemplateProperties.tsx" },
 
@@ -350,12 +353,12 @@ const DATA = {
     { "id": "atem-dialog",       "label": "ATEM Dialog",     "layer": "renderer", "group": "Atem",       "purpose": "Connect to ATEM, browse Inputs/MV", "file": "src/renderer/components/Atem/AtemDialog.tsx" },
 
     // ── Renderer: Settings + Export + Annotations ─────────
-    { "id": "settings-dialog",   "label": "Settings Dialog", "layer": "renderer", "group": "Settings",   "purpose": "Theme, Sprache, Multi-AI-Provider Keys (#197)", "file": "src/renderer/components/Settings/SettingsDialog.tsx" },
+    { "id": "settings-dialog",   "label": "Settings Dialog", "layer": "renderer", "group": "Settings",   "purpose": "v8.x #307: Hauptdatei nur noch ~140 LOC (war 2392), Inhalt aufgeteilt in 8 Tab-Komponenten unter Settings/tabs/ (ProjectTab, AppearanceTab, EditingTab, HotkeysTab, IntegrationsTab, ConfigsTab, SyncTab, AdvancedTab). Sprache + bilinguale Kategorien (#309) via uiStore.language.", "file": "src/renderer/components/Settings/SettingsDialog.tsx" },
     { "id": "export-dialog",     "label": "Export Dialog",   "layer": "renderer", "group": "Export",     "purpose": "PDF/PNG/JSON/XLSX Export", "file": "src/renderer/components/Export/ExportDialog.tsx" },
     { "id": "annotations",       "label": "Annotations",     "layer": "renderer", "group": "Annotations","purpose": "Reviewer-Kommentare, Overlay auf Canvas", "file": "src/renderer/components/Annotations/AnnotationsPanel.tsx" },
 
     // ── Renderer: Stores (zustand) ─────────────────────────
-    { "id": "project-store",     "label": "Project Store",   "layer": "renderer", "group": "Store",      "purpose": "zustand: equipment, cables, locations, library, metadata. ~2000 LOC", "file": "src/renderer/store/projectStore.ts" },
+    { "id": "project-store",     "label": "Project Store",   "layer": "renderer", "group": "Store",      "purpose": "v8.x #308: aufgeteilt in 11 Slices unter store/slices/. Hauptdatei nur noch ~985 LOC (war 2589). Slices: equipment, cable, location, annotation, template, groupPreset, groupPresetSpawn, meta, category, mobileSync, selectionLifecycle.", "file": "src/renderer/store/projectStore.ts" },
     { "id": "ui-store",          "label": "UI Store",        "layer": "renderer", "group": "Store",      "purpose": "zustand: Selection, Panels, Layers, Theme, persistent settings", "file": "src/renderer/store/uiStore.ts" },
     { "id": "settings-store",    "label": "Settings Store",  "layer": "renderer", "group": "Store",      "purpose": "zustand: Persisted Window-Settings (Position, Size)", "file": "src/renderer/store/settingsStore.ts" },
     { "id": "project-history",   "label": "Project History", "layer": "renderer", "group": "Store",      "purpose": "Undo/Redo. v7.9.92: Transactions + 200ms Coalesce-Window (draw.io-style)", "file": "src/renderer/store/projectHistory.ts" },
@@ -369,6 +372,9 @@ const DATA = {
     { "id": "lib-ai-suggest",    "label": "AI Suggestions",  "layer": "renderer", "group": "Lib",        "purpose": "Multi-Provider: Gemini/Claude/OpenAI (#197)", "file": "src/renderer/lib/aiSuggestions.ts" },
     { "id": "lib-cable-layers",  "label": "Cable Layers",    "layer": "renderer", "group": "Lib",        "purpose": "AV-Industry Standard-Layer + Auto-Detect (#123)", "file": "src/renderer/lib/cableLayers.ts" },
     { "id": "lib-catalogs",      "label": "Device Catalogs", "layer": "renderer", "group": "Lib",        "purpose": "Built-in Templates (Blackmagic, Decimator, Sonnet...)", "file": "src/renderer/lib/*Catalog.ts" },
+    { "id": "lib-i18n",          "label": "i18n",            "layer": "renderer", "group": "Lib",        "purpose": "v8.x: useTranslation()-Hook + de/en Dicts (~2140 EN-Keys). Deutsche Strings = Quell-Sprache, Fallback in t(key, 'Deutsche Form'). Issue #321.", "file": "src/renderer/lib/i18n.ts" },
+    { "id": "lib-category-i18n", "label": "Category i18n",   "layer": "renderer", "group": "Lib",        "purpose": "v8.x #309: Bilinguale Geraete-Kategorien. categoryDisplay() + Map fuer DE/EN-Anzeigenamen, persisted in localStorage.", "file": "src/renderer/lib/categoryTranslations.ts" },
+    { "id": "lib-bilingual-cat", "label": "Bilingual Cat Dialog","layer": "renderer", "group": "Lib",   "purpose": "v8.x #309: Prompt mit zwei Sprach-Feldern (DE/EN) beim Anlegen oder Umbenennen einer Kategorie.", "file": "src/renderer/lib/bilingualCategoryDialog.tsx" },
 
     // ── Renderer: Types ────────────────────────────────────
     { "id": "types-cable",       "label": "Cable Types",     "layer": "renderer", "group": "Types",      "purpose": "Cable, CableSpec, Routing, Layer, Wireless", "file": "src/renderer/types/cable.ts" },

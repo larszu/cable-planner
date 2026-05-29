@@ -51,7 +51,11 @@ export interface VideoFormat {
   carriers: SdiCarrier[]
   /** Matching cable categories in `cableCatalog` that can transport this format. */
   preferredCable: SignalStandard
+  /** Free-text notes (legacy / user-supplied). Built-in entries use `notesKey`. */
   notes?: string
+  /** Translation key for the built-in catalog. Resolved via `t(notesKey, '')`
+   *  so the description follows the active UI language. */
+  notesKey?: string
 }
 
 export const VIDEO_FORMATS: VideoFormat[] = [
@@ -68,7 +72,7 @@ export const VIDEO_FORMATS: VideoFormat[] = [
     label: '1080p50 (3G)',
     carriers: ['SDI-3G-A', 'SDI-3G-B'],
     preferredCable: 'SDI-3G',
-    notes: 'Hauptstandard. Level A empfohlen; Level B bei älteren Geräten.',
+    notesKey: 'catalog.videoFormat.1080p50.notes',
   },
   {
     id: '1080p60',
@@ -99,7 +103,7 @@ export const VIDEO_FORMATS: VideoFormat[] = [
     label: '2160p50 (12G oder Quad 3G)',
     carriers: ['SDI-12G', 'QuadLink-3G-2SI', 'QuadLink-3G-SquareDivision'],
     preferredCable: 'SDI-12G',
-    notes: 'UHD-Standard. 12G-SDI bevorzugt, Quad-Link 3G als Alternative (4 Kabel).',
+    notesKey: 'catalog.videoFormat.2160p50.notes',
   },
   {
     id: '2160p60',
@@ -139,13 +143,6 @@ export interface SdiCapabilities {
 }
 
 export type QuadLinkMode = 'none' | '2SI' | 'SquareDivision' | 'both'
-
-export const QUAD_LINK_LABEL: Record<QuadLinkMode, string> = {
-  none: 'nicht unterstützt',
-  '2SI': '2 Sample Interleave (ST 425-5)',
-  SquareDivision: 'Square Division (ST 425-3 legacy)',
-  both: '2SI oder Square Division',
-}
 
 /**
  * Pick the best cable SignalStandard to carry `format` given the SDI

@@ -35,6 +35,7 @@ import { NetworkConfigSection } from './sections/NetworkConfigSection'
 import { ModesSection } from './sections/ModesSection'
 import { RackInstanceCard } from './sections/RackInstanceCard'
 import { DimensionsBlock } from './sections/DimensionsBlock'
+import { ReplaceDeviceSection } from './sections/ReplaceDeviceSection'
 
 /** Module-level sensor options so re-renders don't churn the sensor
  *  instances. Stable references are critical for DnDContext's
@@ -150,6 +151,8 @@ export const EquipmentProperties = () => {
       <RackSection equipment={equipment} />
 
       <LibrarySaveSection equipment={equipment} />
+
+      <ReplaceDeviceSection equipment={equipment} />
 
       <RackInstanceCard equipment={equipment} />
 
