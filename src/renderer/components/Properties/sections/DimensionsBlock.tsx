@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useProjectStore } from '../../../store/projectStore'
 import { format, useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
@@ -21,11 +22,21 @@ export const DimensionsBlock = ({ equipment }: { equipment: EquipmentItem }) => 
     const v = e.target.value
     updateEquipment(equipment.id, { [field]: v === '' ? undefined : Number(v) })
   }
+  // Ein-/ausklappbar wie die übrigen Properties-Sektionen. <details>/<summary>
+  // statt <fieldset>, damit das Toggle auch im gesperrten (viewer/finalized)
+  // Properties-Fieldset bedienbar bleibt — ein <summary> ist kein Form-Control.
+  const [open, setOpen] = useState(false)
   return (
-    <fieldset className="rounded border border-slate-700 p-2">
-      <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-        {t('dimsBlock.title', 'Abmessungen (mm)')}
-      </legend>
+    <details
+      open={open}
+      onToggle={(e) => setOpen(e.currentTarget.open)}
+      className="rounded border border-slate-700 [&_summary]:cursor-pointer"
+    >
+      <summary className="flex items-center gap-1 px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200 [&::-webkit-details-marker]:hidden">
+        <span className="text-slate-500">{open ? '▾' : '▸'}</span>
+        <span className="flex-1">{t('dimsBlock.title', 'Abmessungen (mm)')}</span>
+      </summary>
+      <div className="px-2 pb-2">
       <div className="grid grid-cols-3 gap-2">
         <label className="block">
           <span className="mb-1 block text-slate-300">{t('dimsBlock.height', 'Höhe')}</span>
@@ -75,6 +86,7 @@ export const DimensionsBlock = ({ equipment }: { equipment: EquipmentItem }) => 
           )}
         </p>
       )}
-    </fieldset>
+      </div>
+    </details>
   )
 }
