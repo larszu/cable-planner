@@ -89,7 +89,7 @@ per-component.
 
 48. 🔴 `[~]` **No shared `<Button>`** — **~510 hand-styled `<button>`**, 0 `Button.tsx`. Primary action is sometimes `emerald-700`, sometimes `emerald-600`, sometimes `sky-700`; padding `py-0.5`–`py-1.5` for semantically identical buttons. **Shared `Button` created; migration of call sites pending.**
 49. 🔴 `[ ]` **`ModalShell` exists but ~22/24 large dialogs ignore it** (hand-rolled chrome, differing `max-w`, close button, drag, a11y).
-50. 🟠 `[ ]` **280 emoji used as UI icons** (✓×37, ✕×9, ⚠×9, 🔌🎚💾⚡🖼…) despite `lucide-react` + the `Icon` wrapper → mixed iconography, inconsistent size/look. Worst clusters: `MenuBar.tsx`, `SettingsDialog.tsx`, `ExportDialog.tsx`, `ConfigsTab.tsx`, `NetworkAccessSection.tsx:106` (🙈/👁 password toggle).
+50. 🟠 `[~]` **Emoji used as UI icons.** **Converted to lucide:** MenuBar (all 31 menu icons incl. view-menu checkmarks), SettingsDialog tab rail (8), ExportDialog (section + format + print icons), NetworkAccessSection password toggle (🙈/👁 → Eye/EyeOff, #23). Remaining scattered emoji (ConfigsTab color dots, AtemDialog, PrintDialog, AboutDialog, MobileShare, some Properties sections) pending.
 51. 🟠 `[x]` **Z-index free-for-all with no scale**: `z-50`×25, `z-[60/70/75/80/90]`, `z-[200]`, `zIndex:9999` (`CableContextMenu`), `10000` (`modalRoot`). **CSS z-index scale tokens added in `index.css`; migration of call sites pending.**
 52. 🟠 `[ ]` **Inconsistent border-radius** — `rounded`×1031 vs `rounded-lg`×10, `-md`×5, `-sm`×7, no radius scale; `ModalShell` uses `rounded-lg`, hand-rolled modals use bare `rounded`.
 53. 🟡 `[ ]` **Ad-hoc spacing** — `px-2/3/4`, `gap-1/2/3` and half-steps (`.5`) with no rhythm; `--cp-space-*` tokens (`index.css:44`) unused in components.
