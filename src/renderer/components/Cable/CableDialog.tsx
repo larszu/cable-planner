@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { useUiStore } from '../../store/uiStore'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
@@ -51,6 +52,8 @@ export const makeCustomCableSpec = (connectorType: ConnectorType, color: string)
 
 export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onCancel, onCreate }: CableDialogProps) => {
   const t = useTranslation()
+  // Dialog ist gemountet == offen → open=true. Escape/Tab-Trap/Fokus-Rückgabe.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(true, onCancel)
   // Issue #70: optional global override of connector-mismatch warnings.
   // When enabled, the dialog still SHOWS the warning banner so the user
   // sees what's happening, but the submit path skips the modal confirm
@@ -228,8 +231,13 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-      <div className="w-full max-w-lg rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
-        <h3 className="mb-2 text-lg font-semibold">{t('cable.dialog.title', 'Neues Kabel')}</h3>
+      <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
+        className="w-full max-w-lg rounded border border-slate-700 bg-slate-900 p-4 text-slate-100 outline-none"
+      >
+        <h3 id={titleId} className="mb-2 text-lg font-semibold">{t('cable.dialog.title', 'Neues Kabel')}</h3>
 
         {fromPort && toPort && (
           <div className="mb-3 rounded bg-slate-950 p-2 text-xs">

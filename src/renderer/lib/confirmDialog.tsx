@@ -66,7 +66,7 @@ const ConfirmDialog = ({ title, options, onDone }: Props) => {
 
   return (
     <div style={MODAL_BACKDROP} onMouseDown={backdropMouseDown(() => onDone(false))}>
-      <div style={MODAL_CARD}>
+      <div style={MODAL_CARD} role="dialog" aria-modal="true" aria-label={title}>
         <div style={{ marginBottom: options.body ? 8 : 16, fontSize: 14, fontWeight: 600 }}>
           {title}
         </div>

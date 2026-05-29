@@ -9,6 +9,7 @@
 //   - Print-Tab entfernt — Drucken passiert jetzt pro Sektion
 
 import { useMemo, useState } from 'react'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 import jsPDF from 'jspdf'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
@@ -86,6 +87,7 @@ export const ExportDialog = ({
 }: ExportDialogProps) => {
   const t = useTranslation()
   const [section, setSection] = useState<Section>('plan')
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, onClose)
 
   if (!open) return null
 
@@ -96,7 +98,12 @@ export const ExportDialog = ({
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl sm:flex-row">
+      <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
+        className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl outline-none sm:flex-row"
+      >
         <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-slate-800 bg-slate-950/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
           <h3 className="mb-2 hidden px-2 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
             {t('export.title', 'Exportieren & Drucken')}
@@ -120,7 +127,7 @@ export const ExportDialog = ({
 
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2">
-            <h2 className="text-base font-semibold">
+            <h2 id={titleId} className="text-base font-semibold">
               {SECTION_ICON[section]} {t(`export.section.${section}`, SECTION_LABEL[section])}
             </h2>
             <button

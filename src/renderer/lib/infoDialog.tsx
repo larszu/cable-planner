@@ -64,6 +64,9 @@ const InfoDialog = ({ title, options, onDone }: Props) => {
   return (
     <div style={MODAL_BACKDROP} onMouseDown={backdropMouseDown(onDone)}>
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
         style={{
           ...MODAL_CARD,
           border: `1px solid ${accent.border}`,
