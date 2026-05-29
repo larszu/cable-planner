@@ -366,10 +366,12 @@ const Menu = ({ label, children }: MenuProps) => {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
         className={`rounded px-2 py-1 text-slate-200 hover:bg-slate-800 ${open ? 'bg-slate-800' : ''}`}
       >
         {label}
-        <span className="ml-1 text-[9px] text-slate-500">▾</span>
+        <span className="ml-1 text-[9px] text-slate-500" aria-hidden="true">▾</span>
       </button>
       {open && (
         <div

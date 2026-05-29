@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { HotkeysTab } from './tabs/HotkeysTab'
 import { SyncTab } from './tabs/SyncTab'
 import { AdvancedTab } from './tabs/AdvancedTab'
@@ -62,6 +63,9 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const [section, setSection] = useState<SettingsSection>('project')
   const drag = useDraggablePosition('cable-planner:modal-pos:settings', open)
   const t = useTranslation()
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, onClose, {
+    ref: drag.containerRef,
+  })
 
   if (!open) return null
 
@@ -84,11 +88,13 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6">
       <div
-        ref={drag.containerRef}
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
         style={drag.containerStyle}
         // v7.9.2 — Fix-große Höhe statt max-h, damit der Viewport nicht
         // pro Tab variabel groß ist. Inner-Scroll greift immer.
-        className="flex h-[85vh] min-h-0 w-full max-w-4xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl sm:flex-row"
+        className="flex h-[85vh] min-h-0 w-full max-w-4xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl outline-none sm:flex-row"
       >
         <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-slate-800 bg-slate-950/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
           <h3 className="mb-2 hidden px-2 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
@@ -102,7 +108,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
             {...drag.headerProps}
             className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2 select-none"
           >
-            <h2 className="text-base font-semibold">
+            <h2 id={titleId} className="text-base font-semibold">
               {t(`settings.tabTitle.${section}`, TAB_FALLBACK_TITLE[section])}
             </h2>
             <button

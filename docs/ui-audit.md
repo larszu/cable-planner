@@ -176,6 +176,37 @@ Inline-Fallback in `ErrorBoundary`). → Token-Schicht einführen.
 - Dialog-artige Container (`fixed inset-0`): ~26 Dateien; 11 davon nutzen
   `ModalShell`, der Rest hat eigenes Boilerplate.
 
+### Phase 3 — erledigt
+
+- **`hooks/useDialogA11y.ts`** (wiederverwendbar): `role="dialog"` +
+  `aria-modal`, Escape-schließt (optional/`closeOnEscape`), **Focus-Trap**
+  (Tab/Shift+Tab zyklisch), Fokus auf erstes Element beim Öffnen,
+  **Fokus-Rückgabe** an den Auslöser beim Schließen. Optionale externe
+  Ref (für Drag-Container) ohne Ref-Mutation.
+- **`ModalShell`** nutzt den Hook → alle **11** ModalShell-Dialoge sind
+  jetzt voll tastaturbedienbar (Titel via `aria-labelledby`).
+- **Standalone-Dialoge** auf den Hook umgestellt: `SettingsDialog`,
+  `ExportDialog`, `CableDialog`.
+- **Imperative Dialoge** (`confirmDialog`/`promptDialog`/`infoDialog`):
+  `role="dialog"`+`aria-modal`+`aria-label`; Fokus-Rückgabe zentral in
+  `mountModal` (Escape war bereits via `useModalKeyboard` da).
+- **`MenuBar`**-Dropdowns: `aria-haspopup`+`aria-expanded`, Caret
+  `aria-hidden`.
+- Globaler `:focus-visible`-Ring war bereits vorhanden (`index.css`).
+- Lint dadurch sogar verbessert (124 statt 127 Fehler).
+
+### TODO (restliche Standalone-Dialoge → useDialogA11y adоptieren)
+
+Diese rollen noch eigenes `fixed inset-0`-Boilerplate ohne Focus-Trap/
+Escape — Hook analog `SettingsDialog`/`ExportDialog` anwenden:
+`RentmanImportDialog`, `RentmanCableExportDialog`, `NewRentmanDeviceWizard`,
+`AtemMvConfigDialog`, `AtemAudioRouterDialog`, `MultiviewerLayoutView`,
+`VideohubExportDialog`, `GreenGoExportDialog`, `GraphmlImportDialog`,
+`RackEditorDialog`, `RackImageCropDialog`, `NonRackAddDialog`,
+`PatchPanelCreateDialog`, `RackShelfCreateDialog`, `MobileShareDialog`,
+`LocationBomDialog`, `CableBomDialog`. (Panels `LibraryPanel`/
+`CableLibraryPanel` sind keine Modals — separat behandeln.)
+
 ## Phase 4 — i18n
 
 - Vollständiges `en`-Dict existiert in `lib/i18n.ts` (2781 Zeilen).
