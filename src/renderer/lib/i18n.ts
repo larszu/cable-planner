@@ -1313,6 +1313,8 @@ const en: Dict = {
 
   // PatchListDialog
   'patchList.title': 'Patch list',
+  'patchList.empty.noCables': 'This project has no cables yet. Connect devices on the canvas to build a patch list.',
+  'patchList.empty.noMatch': 'No cables match the filter.',
   'patchList.searchPlaceholder': 'Search (device, port, type, colour, note …)',
   'patchList.layerFilter': 'Filter by layer/discipline',
   'patchList.allLayers': 'All layers',

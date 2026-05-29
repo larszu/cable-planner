@@ -472,9 +472,14 @@ export const PatchListDialog = () => {
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-2 py-6 text-center text-[11px] text-slate-500"
+                    className="px-2 py-8 text-center text-cp-xs text-[var(--cp-text-faint)]"
                   >
-                    Keine Kabel passen zum Filter.
+                    {rows.length === 0
+                      ? t(
+                          'patchList.empty.noCables',
+                          'Dieses Projekt hat noch keine Kabel. Verbinde Geräte auf dem Canvas, um eine Patchliste zu erzeugen.',
+                        )
+                      : t('patchList.empty.noMatch', 'Keine Kabel passen zum Filter.')}
                   </td>
                 </tr>
               )}
