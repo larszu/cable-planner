@@ -492,7 +492,7 @@ export default function App() {
   }
 
   // v7.7.1 — PNG / JPEG export (canvas only, no header / title block).
-  const handleExportImage = async (imgFormat: 'png' | 'jpeg') => {
+  const handleExportImage = async (imgFormat: 'png' | 'jpeg' | 'svg') => {
     try {
       await exportCanvasToImage(project.metadata.name, imgFormat, {
         backgroundTheme: canvasTheme,

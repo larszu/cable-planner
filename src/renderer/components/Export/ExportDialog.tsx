@@ -29,7 +29,7 @@ import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { LayerVisibilityChips } from '../Canvas/LayerVisibilityChips'
 import type { Cable } from '../../types/cable'
 
-export type ExportFormat = 'pdf' | 'png' | 'jpeg'
+export type ExportFormat = 'pdf' | 'png' | 'jpeg' | 'svg'
 type Section = 'plan' | 'patch' | 'bom'
 
 /** v7.9.103 — Page-Size-Optionen fuer den Vektor-PDF-Pfad. */
@@ -57,7 +57,7 @@ interface ExportDialogProps {
   /** Triggert OS-Druckdialog mit dem Plan-PDF. */
   onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
   /** Triggert PNG/JPEG-Download des Plans. */
-  onExportImage: (format: 'png' | 'jpeg') => Promise<void> | void
+  onExportImage: (format: 'png' | 'jpeg' | 'svg') => Promise<void> | void
 }
 
 const SECTION_LABEL: Record<Section, string> = {
@@ -180,7 +180,7 @@ const PlanSection = ({
     pageSize?: PdfPageSizeOpt,
   ) => Promise<void> | void
   onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
-  onExportImage: (format: 'png' | 'jpeg') => Promise<void> | void
+  onExportImage: (format: 'png' | 'jpeg' | 'svg') => Promise<void> | void
   onClose: () => void
 }) => {
   const t = useTranslation()
@@ -225,6 +225,7 @@ const PlanSection = ({
     { value: 'pdf' as const, icon: '📑', label: 'PDF', hint: t('export.format.pdfHint', 'Vektor mit Titelblock, druckbar') },
     { value: 'png' as const, icon: '🖼', label: 'PNG', hint: t('export.format.pngHint', 'Transparent möglich, scharf') },
     { value: 'jpeg' as const, icon: '🖼', label: 'JPEG', hint: t('export.format.jpegHint', 'Kleiner, gut für E-Mail') },
+    { value: 'svg' as const, icon: '🖼', label: 'SVG', hint: t('export.format.svgHint', 'Skalierbar, für Web/Weiterverarbeitung') },
   ]
 
   return (
