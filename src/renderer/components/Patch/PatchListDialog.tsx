@@ -8,10 +8,12 @@
  */
 
 import { useMemo, useState } from 'react'
+import jsPDF from 'jspdf'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
+import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { portLabelPair } from '../../lib/portLabel'
 import { ModalShell } from '../shared/ModalShell'
 import { useTranslation } from '../../lib/i18n'
@@ -264,6 +266,58 @@ export const PatchListDialog = () => {
     )
   }
 
+  // #349 — Kabel-Etiketten als druckbarer A4-Bogen (2 Spalten). Pro Kabel
+  // zwei Labels (beide Enden), jeweils mit Ziel-/Quell-Richtung, Typ, Länge
+  // und Farb-Swatch. Nutzt die aktuell gefilterten Zeilen.
+  const exportLabels = () => {
+    const hexToRgb = (hex: string): [number, number, number] => {
+      const h = (hex || '#888888').replace('#', '')
+      const n = h.length === 3 ? h.split('').map((c) => c + c).join('') : h.padEnd(6, '8')
+      return [parseInt(n.slice(0, 2), 16) || 136, parseInt(n.slice(2, 4), 16) || 136, parseInt(n.slice(4, 6), 16) || 136]
+    }
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+    const pageW = 210, pageH = 297, cols = 2, rowsPerPage = 9, mL = 8, mT = 10, gap = 3
+    const lw = (pageW - 2 * mL - (cols - 1) * gap) / cols
+    const lh = (pageH - 2 * mT - (rowsPerPage - 1) * gap) / rowsPerPage
+    const labels = filtered.flatMap((r) => {
+      const title = `${r.type}${r.cableName && r.cableName !== r.type ? ' · ' + r.cableName : ''}`
+      const meta = r.length ? `${r.length} m` : ''
+      return [
+        { title, dest: `${r.fromDevice} · ${r.fromPort}  →  ${r.toDevice} · ${r.toPort}`, meta, color: r.color },
+        { title, dest: `${r.toDevice} · ${r.toPort}  →  ${r.fromDevice} · ${r.fromPort}`, meta, color: r.color },
+      ]
+    })
+    const perPage = cols * rowsPerPage
+    labels.forEach((lbl, i) => {
+      const idx = i % perPage
+      if (i > 0 && idx === 0) doc.addPage()
+      const col = idx % cols
+      const row = Math.floor(idx / cols)
+      const x = mL + col * (lw + gap)
+      const y = mT + row * (lh + gap)
+      doc.setDrawColor(190)
+      doc.roundedRect(x, y, lw, lh, 1.5, 1.5)
+      const [cr, cg, cb] = hexToRgb(lbl.color)
+      doc.setFillColor(cr, cg, cb)
+      doc.rect(x + 1.5, y + 1.5, 3, lh - 3, 'F')
+      doc.setTextColor(20)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(9)
+      doc.text(sanitizeForPdf(lbl.title).slice(0, 42), x + 7, y + 7)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(8)
+      doc.text(sanitizeForPdf(lbl.dest).slice(0, 64), x + 7, y + 14)
+      doc.setTextColor(110)
+      doc.setFontSize(7)
+      doc.text(lbl.meta, x + 7, y + lh - 3)
+    })
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName || 'cable-planner', 'etiketten', 'pdf'),
+      doc.output('blob'),
+      'application/pdf',
+    )
+  }
+
   const exportCsv = () => {
     const { header, data } = buildExportRows()
     const escape = (v: unknown) => `"${String(v).replace(/"/g, '""')}"`
@@ -312,6 +366,14 @@ export const PatchListDialog = () => {
               className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
             >
               {t('patchList.exportXlsx', '⬇ XLSX exportieren')}
+            </button>
+            <button
+              type="button"
+              onClick={exportLabels}
+              disabled={filtered.length === 0}
+              className="rounded bg-sky-700 px-3 py-1 text-xs hover:bg-sky-600 disabled:opacity-40"
+            >
+              {t('patchList.exportLabels', '🏷 Etiketten (PDF)')}
             </button>
           </div>
         </div>
