@@ -26,7 +26,14 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
       defaultOpen
     >
       <div className="space-y-2">
-        <PortAiSuggestButton equipment={equipment} />
+        {/* #317 — Wenn das Gerät bereits Ports hat (was bei Canvas-
+            platzierten Geräten der Normalfall ist), brauchen wir den
+            AI-Vorschlag-Button hier nicht. Er bleibt für den
+            initialen Drop-Wizard-Flow nutzbar, wo Equipment noch
+            keine Ports hat (z.B. aus Rentman ohne Port-Daten). */}
+        {equipment.inputs.length === 0 && equipment.outputs.length === 0 && (
+          <PortAiSuggestButton equipment={equipment} />
+        )}
         <details open className="rounded border border-slate-800 bg-slate-950/30">
           <summary className="cursor-pointer select-none px-2 py-1 text-xs font-semibold text-slate-300 hover:text-slate-100">
             {t('ports.title.inputs', 'Inputs')}{' '}

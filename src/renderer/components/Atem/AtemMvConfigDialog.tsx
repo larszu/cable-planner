@@ -554,9 +554,10 @@ const CapabilitiesPanel = ({
       {open && (
         <div className="mt-1 space-y-1.5 pl-4">
           <p className="text-slate-500">
-            Heuristik basierend auf dem Geräte-Namen. Falls dein Modell ein Layout unterstützt
-            das die Heuristik nicht erkennt (oder umgekehrt), Häkchen hier setzen — die
-            Auswahl überschreibt das Default und bleibt beim Projekt.
+            {t(
+              'atem.mv.layoutsHint',
+              'Heuristik basierend auf dem Geräte-Namen. Falls dein Modell ein Layout unterstützt das die Heuristik nicht erkennt (oder umgekehrt), Häkchen hier setzen — die Auswahl überschreibt das Default und bleibt beim Projekt.',
+            )}
           </p>
           <div className="flex flex-wrap gap-1">
             {allLayouts.map((l) => {
@@ -618,7 +619,7 @@ const CapabilitiesPanel = ({
                 className="ml-auto rounded bg-amber-900/60 px-2 py-0.5 text-amber-200 hover:bg-amber-800/70"
                 title={t('atem.mv.removeOverride', 'Override entfernen — wieder Auto-Erkennung verwenden')}
               >
-                Override zurücksetzen
+                {t('atem.mv.resetOverride', 'Override zurücksetzen')}
               </button>
             )}
           </div>
@@ -1016,14 +1017,14 @@ export const AtemMvConfigDialog = () => {
       >
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
           <h2 className="text-sm font-semibold text-slate-100">
-            Multiviewer-Layout · {equipment.name}
+            {format(t('atem.mv.dialogTitle', 'Multiviewer-Layout · {name}'), { name: equipment.name })}
           </h2>
           <button
             type="button"
             onClick={close}
             className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
           >
-            Schließen
+            {t('common.close', 'Schließen')}
           </button>
         </div>
 
@@ -1086,8 +1087,8 @@ export const AtemMvConfigDialog = () => {
                 canvasPortNames={canvasPortNames}
               />
               <span className="text-[10px] text-slate-500">
-                Klick auf einen Quadranten:<br />
-                groß ↔ 4 kleine
+                {t('atem.mv.quadrantHint1', 'Klick auf einen Quadranten:')}<br />
+                {t('atem.mv.quadrantHint2', 'groß ↔ 4 kleine')}
               </span>
             </div>
           </div>

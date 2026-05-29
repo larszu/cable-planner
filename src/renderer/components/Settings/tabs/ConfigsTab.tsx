@@ -210,7 +210,7 @@ export const ConfigsTab = () => {
               >
                 {k === 'all'
                   ? format(t('settings.configs.filterAll', 'Alle ({n})'), { n: library.length })
-                  : `${CONFIG_KIND_ICON[k]} ${CONFIG_KIND_LABEL[k]} (${
+                  : `${CONFIG_KIND_ICON[k]} ${t(`settings.configs.kind.${k}`, CONFIG_KIND_LABEL[k])} (${
                       library.filter((e) => e.kind === k).length
                     })`}
               </button>
@@ -234,7 +234,7 @@ export const ConfigsTab = () => {
             {Array.from(grouped.entries()).map(([kind, entries]) => (
               <li key={kind}>
                 <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
-                  {CONFIG_KIND_ICON[kind]} {CONFIG_KIND_LABEL[kind]}
+                  {CONFIG_KIND_ICON[kind]} {t(`settings.configs.kind.${kind}`, CONFIG_KIND_LABEL[kind])}
                 </div>
                 <ul className="space-y-1">
                   {entries.map((entry) => {
@@ -263,7 +263,7 @@ export const ConfigsTab = () => {
                         >
                           {(Object.keys(CONFIG_KIND_LABEL) as DeviceConfigKind[]).map((k) => (
                             <option key={k} value={k}>
-                              {CONFIG_KIND_LABEL[k]}
+                              {t(`settings.configs.kind.${k}`, CONFIG_KIND_LABEL[k])}
                             </option>
                           ))}
                         </select>

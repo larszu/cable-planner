@@ -442,7 +442,11 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         {/* Port dots — left side */}
         {leftPorts.map((port, i) => {
           const isInput = data.inputs.includes(port)
-          const y = (i + 0.5) * (cHeight / leftPorts.length)
+          // #241 — Float-Y zu Sub-Pixel-Werten wie 22.5 — Browser
+          // runden uneinheitlich, das Linien-Ende landet 1 px off.
+          // Math.round zwingt die Mitte des Handle-Dots auf einen
+          // ganzen Pixel.
+          const y = Math.round((i + 0.5) * (cHeight / leftPorts.length))
           return (
             <Handle
               key={port.id}
@@ -464,7 +468,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         {/* Port dots — right side */}
         {rightPorts.map((port, i) => {
           const isInput = data.inputs.includes(port)
-          const y = (i + 0.5) * (cHeight / rightPorts.length)
+          const y = Math.round((i + 0.5) * (cHeight / rightPorts.length))
           return (
             <Handle
               key={port.id}

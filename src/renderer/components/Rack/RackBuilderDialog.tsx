@@ -2069,7 +2069,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             <ModalShell
               open={placementPropsOpen}
               onClose={() => setPlacementPropsOpen(false)}
-              title={`Eigenschaften · ${selectedPlacement.name}`}
+              title={format(t('rack.props.title', 'Eigenschaften · {name}'), { name: selectedPlacement.name })}
               titleIcon={
                 <span className="rounded bg-amber-900/60 px-1.5 py-0.5 text-[9px] font-semibold text-amber-200">
                   {heRange}
@@ -2087,21 +2087,21 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     }}
                     className="rounded bg-red-900/60 px-3 py-1 text-xs hover:bg-red-800"
                   >
-                    Aus Rack entfernen
+                    {t('rack.props.removeFromRack', 'Aus Rack entfernen')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setPlacementPropsOpen(false)}
                     className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
                   >
-                    Schließen
+                    {t('common.close', 'Schließen')}
                   </button>
                 </div>
               }
             >
               <div className="space-y-2 text-xs">
                 <label className="block">
-                  Name
+                  {t('rack.props.name', 'Name')}
                   <input
                     value={selectedPlacement.name}
                     onChange={(event) => updatePlacement(selectedPlacement.id, { name: event.target.value })}
@@ -2109,7 +2109,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   />
                 </label>
                 <label className="block">
-                  Kategorie
+                  {t('rack.props.category', 'Kategorie')}
                   <CategorySelect
                     value={selectedPlacement.category}
                     onChange={(category) => updatePlacement(selectedPlacement.id, { category })}
@@ -2123,7 +2123,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <label className="block">
-                    Höhe (HE)
+                    {t('rack.props.heightHe', 'Höhe (HE)')}
                     <input
                       type="number"
                       min={1}
@@ -2144,12 +2144,18 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     />
                     {heightInvalid && (
                       <span className="mt-0.5 block text-[10px] text-red-400">
-                        Höhe + Start-HE überschreitet Rack ({draft.totalUnits} HE).
+                        {format(
+                          t(
+                            'rack.props.heightOverflow',
+                            'Höhe + Start-HE überschreitet Rack ({total} HE).',
+                          ),
+                          { total: draft.totalUnits },
+                        )}
                       </span>
                     )}
                   </label>
                   <label className="block">
-                    Start-HE
+                    {t('rack.props.startHe', 'Start-HE')}
                     <input
                       type="number"
                       min={1}
@@ -2166,14 +2172,17 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       }`}
                     />
                     <span className="mt-0.5 block text-[10px] text-slate-500">
-                      max {startMax} (Höhe {selectedPlacement.rackUnits} HE)
+                      {format(
+                        t('rack.props.maxHint', 'max {max} (Höhe {he} HE)'),
+                        { max: startMax, he: selectedPlacement.rackUnits },
+                      )}
                     </span>
                   </label>
                 </div>
                 {/* v7.9.73 / #170 — 3D-Felder: Tiefe + Mount-Side + STL. */}
                 <div className="grid grid-cols-2 gap-2">
                   <label className="block">
-                    Tiefe (mm)
+                    {t('rack.props.depthMm', 'Tiefe (mm)')}
                     <input
                       type="number"
                       min={20}

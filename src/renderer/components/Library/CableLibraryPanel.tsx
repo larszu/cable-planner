@@ -25,7 +25,7 @@ import { useUiStore } from '../../store/uiStore'
 import { videoFormatById, pickCableStandardForFormat } from '../../types/videoFormat'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
-import { useTranslation } from '../../lib/i18n'
+import { format, useTranslation } from '../../lib/i18n'
 
 /** v7.8.6 — Editor dialog for creating / editing custom cable specs.
  *  Lives at the bottom of this file. Pure controlled form, no store
@@ -249,7 +249,7 @@ const CableTypeEditor = ({
             </div>
             {standards.length === 0 && (
               <span className="mt-0.5 block text-[10px] text-red-400">
-                Mindestens einen Standard auswählen.
+                {t('cableLib.pickAtLeastOneStandard', 'Mindestens einen Standard auswählen.')}
               </span>
             )}
           </div>
@@ -614,7 +614,9 @@ export const CableLibraryPanel = () => {
                             type="button"
                             onClick={() => setEditing(cable)}
                             className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] text-slate-200 hover:bg-slate-600"
-                            title={isCustom ? 'Kabeltyp bearbeiten' : 'Kabeltyp lokal anpassen (Override)'}
+                            title={isCustom
+                              ? t('cableLib.edit', 'Kabeltyp bearbeiten')
+                              : t('cableLib.editOverride', 'Kabeltyp lokal anpassen (Override)')}
                           >
                             ✎
                           </button>
@@ -623,10 +625,16 @@ export const CableLibraryPanel = () => {
                               type="button"
                               onClick={async () => {
                                 const ok = await confirmDialog(
-                                  `Override für "${cable.name}" zurücksetzen?`,
+                                  format(
+                                    t('cableLib.resetOverride.confirm', 'Override für "{name}" zurücksetzen?'),
+                                    { name: cable.name },
+                                  ),
                                   {
-                                    body: 'Die ursprünglichen Built-in-Werte werden wiederhergestellt.',
-                                    okLabel: 'Zurücksetzen',
+                                    body: t(
+                                      'cableLib.resetOverride.body',
+                                      'Die ursprünglichen Built-in-Werte werden wiederhergestellt.',
+                                    ),
+                                    okLabel: t('cableLib.resetOverride.ok', 'Zurücksetzen'),
                                   },
                                 )
                                 if (ok) clearCableSpecOverride(cable.id)
@@ -642,13 +650,25 @@ export const CableLibraryPanel = () => {
                               type="button"
                               onClick={async () => {
                                 const ok = await confirmDialog(
-                                  `Kabeltyp "${cable.name}" löschen?`,
+                                  format(
+                                    t('cableLib.deleteSpec.confirm', 'Kabeltyp "{name}" löschen?'),
+                                    { name: cable.name },
+                                  ),
                                   {
                                     body:
                                       built > 0
-                                        ? `Achtung: ${built} verbaute Kabel referenzieren diesen Typ. Sie behalten ihren Stecker/Standard, verlieren aber die Spec-Verknüpfung.`
-                                        : 'Verbaute Kabel sind nicht betroffen.',
-                                    okLabel: 'Löschen',
+                                        ? format(
+                                            t(
+                                              'cableLib.deleteSpec.bodyInUse',
+                                              'Achtung: {n} verbaute Kabel referenzieren diesen Typ. Sie behalten ihren Stecker/Standard, verlieren aber die Spec-Verknüpfung.',
+                                            ),
+                                            { n: built },
+                                          )
+                                        : t(
+                                            'cableLib.deleteSpec.bodyUnused',
+                                            'Verbaute Kabel sind nicht betroffen.',
+                                          ),
+                                    okLabel: t('common.delete', 'Löschen'),
                                     destructive: true,
                                   },
                                 )

@@ -368,7 +368,7 @@ export const mapCpWindowIndexToAtem = (
 ): number => {
   // CP-Index < 10 → großer Slot (Quadrant-ID 0/1/2/3)
   if (cpWindowIndex < 10) {
-    const quadIdx = cpWindowIndex
+    const quadIdx = cpWindowIndex as 0 | 1 | 2 | 3
     return mapBigQuadrantToAtem(quadIdx, layout)
   }
   // CP-Index ≥ 10 → kleine Zelle: 10-13 = Quad0 cells 0-3, 20-23 = Quad1 cells 0-3, ...

@@ -38,7 +38,6 @@ import { PatchListDialog } from './components/Patch/PatchListDialog'
 import { CalculatorsDialog } from './components/Calculators/CalculatorsDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
-import { PrintDialog } from './components/Print/PrintDialog'
 import { WelcomeDialog } from './components/Project/WelcomeDialog'
 import { Splitter } from './components/Layout/Splitter'
 import { useProject } from './hooks/useProject'
@@ -139,7 +138,6 @@ export default function App() {
   const [pdfVectorMode, setPdfVectorMode] = useState(false)
   // v7.9.0 / Issue #110 — unified export dialog
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
-  const [printDialogOpen, setPrintDialogOpen] = useState(false)
   const [graphmlImportOpen, setGraphmlImportOpen] = useState(false)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
   const setPdfExportThemeOverride = useUiStore((state) => state.setPdfExportThemeOverride)
@@ -565,7 +563,7 @@ export default function App() {
     for (const a of incoming) {
       if (!a.id || typeof a.id !== 'string') continue
       if (existingIds.has(a.id)) continue
-      addAnnotation(a as import('./types/project').ProjectAnnotation)
+      addAnnotation(a as unknown as import('./types/project').ProjectAnnotation)
       imported++
     }
     await infoDialog(t('app.annotationsImport.okTitle', 'Annotations importiert'), {
@@ -842,7 +840,6 @@ export default function App() {
         onExportPdf={() => setPdfExportOpen(true)}
         onExportPng={() => void handleExportImage('png')}
         onExportJpeg={() => void handleExportImage('jpeg')}
-        onOpenPrintDialog={() => setPrintDialogOpen(true)}
         onExportViewer={() => void handleExportViewer()}
         onImportAnnotations={() => void handleImportAnnotations()}
         onOpenGraphmlImport={() => setGraphmlImportOpen(true)}
@@ -950,11 +947,6 @@ export default function App() {
       />
 
       <CableBomDialog open={cableBomOpen} onClose={() => setCableBomOpen(false)} />
-
-      <PrintDialog
-        open={printDialogOpen}
-        onClose={() => setPrintDialogOpen(false)}
-      />
 
       <PdfExportDialog
         open={pdfExportOpen}

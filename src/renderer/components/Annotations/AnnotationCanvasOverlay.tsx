@@ -276,7 +276,7 @@ export const AnnotationCanvasOverlay = () => {
                       letterSpacing: 0.2,
                     }}
                   >
-                    {STATUS_LABEL[annotation.status]}
+                    {t(`annotations.statusFull.${annotation.status}`, STATUS_LABEL[annotation.status])}
                   </span>
                   <span style={{ flex: 1, fontWeight: 600, fontSize: 11 }}>
                     {annotation.author}
