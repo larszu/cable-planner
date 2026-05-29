@@ -16,6 +16,7 @@ import { NonRackAddDialog } from './NonRackAddDialog'
 import { StlPreview } from './StlPreview'
 import { RackBuilderDialogExportMenu } from './RackBuilderDialogExportMenu'
 import { RackBuilderFooter } from './RackBuilderFooter'
+import { RackBuilderHeader } from './RackBuilderHeader'
 import { RackConflictBadges } from './RackConflictBadges'
 import * as THREE from 'three'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
@@ -795,68 +796,24 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         // 100vw mit Padding. Verhindert horizontal-Scroll auf Laptops.
         className="max-h-[96vh] w-[min(1400px,calc(100vw-1rem))] overflow-auto rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl sm:p-4"
       >
-        {/* v7.9.11 — Cleaner Header: deutlicher Titel, State-Pill
-            (Neu/Bearbeiten/Dirty), Esc-Hint, X-Close. */}
-        <div
-          {...drag.headerProps}
-          className="mb-3 flex items-start justify-between gap-3 select-none"
-        >
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <h3 className="truncate text-lg font-semibold text-slate-100">
-                {editingId ? draft.rackName || '(unbenanntes Rack)' : 'Neues Rack'}
-              </h3>
-              <span
-                className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${
-                  editingId
-                    ? 'bg-sky-900/60 text-sky-200'
-                    : 'bg-emerald-900/60 text-emerald-200'
-                }`}
-              >
-                {editingId ? t('rack.badge.edit', 'Bearbeiten') : t('rack.badge.new', 'Neu')}
-              </span>
-              {dirty && (
-                <span
-                  className="flex shrink-0 items-center gap-1 rounded bg-amber-900/40 px-1.5 py-0.5 text-[9px] font-semibold text-amber-200"
-                  title={t('rack.unsavedTitle', 'Ungespeicherte Änderungen')}
-                >
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" />
-                  {t('rack.unsavedLabel', 'Ungespeichert')}
-                </span>
-              )}
-            </div>
-            <p className="mt-0.5 text-[11px] text-slate-500">
-              {t(
-                'rack.subtitle',
-                '2D Rack Builder · Geräte aus Library hinzufügen, HE-Position per Drag, Verkabelung intern',
-              )}
-              <span className="ml-2 hidden sm:inline">
-                <kbd className="rounded border border-slate-700 bg-slate-800 px-1 text-[10px]">Esc</kbd>{' '}
-                {t('rack.closeShortcut', 'schließen')}
-              </span>
-            </p>
-          </div>
-          <RackBuilderDialogExportMenu
-            rackName={draft.rackName}
-            totalUnits={draft.totalUnits}
-            depthMm={draft.depthMm}
-            placements={draft.placements}
-            editingId={editingId}
-            rackCanvasEl={rackCanvasRef.current}
-            canvas3DRefs={canvas3DRefs.current}
-          />
-          <button
-            type="button"
-            onClick={closeWithConfirm}
-            aria-label={t('common.close', 'Schließen')}
-            title={t('rack.closeTitle', 'Schließen (Esc)')}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-slate-300 transition-colors hover:border-red-500/50 hover:bg-red-900/30 hover:text-red-300"
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 4 L12 12 M12 4 L4 12" />
-            </svg>
-          </button>
-        </div>
+        <RackBuilderHeader
+          editingId={editingId}
+          rackName={draft.rackName}
+          dirty={dirty}
+          headerProps={drag.headerProps}
+          onClose={closeWithConfirm}
+          exportMenuSlot={
+            <RackBuilderDialogExportMenu
+              rackName={draft.rackName}
+              totalUnits={draft.totalUnits}
+              depthMm={draft.depthMm}
+              placements={draft.placements}
+              editingId={editingId}
+              rackCanvasEl={rackCanvasRef.current}
+              canvas3DRefs={canvas3DRefs.current}
+            />
+          }
+        />
 
         {/* v7.9.11 — Control-Bar mit gewichteten Spalten. Name (Pflichtfeld
             + längster Inhalt) bekommt 2 Spalten, Höhe + Ansicht + Zoom je 1.
