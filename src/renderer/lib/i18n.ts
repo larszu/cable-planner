@@ -1819,7 +1819,7 @@ const en: Dict = {
 
   // Section labels (NetworkAccess, Flags, Optional)
   'netAccess.title': 'Network & access',
-  'netAccess.subtitle': 'IP · S/N · login',
+  'netAccess.subtitle': 'IP · MAC · S/N · login',
   'netAccess.notesPlaceholder': 'Web UI URL, firmware version, wiring notes, …',
   'flags.title': 'Display & flags',
   'flags.subtitle': 'compact · colour · mirror ports · packed',

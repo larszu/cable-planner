@@ -22,7 +22,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
     <SortableSection
       id="network"
       title={t('netAccess.title', 'Network & Access')}
-      subtitle={t('netAccess.subtitle', 'IP · S/N · Login')}
+      subtitle={t('netAccess.subtitle', 'IP · MAC · S/N · Login')}
       defaultOpen
     >
       <div className="grid grid-cols-2 gap-2">
@@ -56,6 +56,17 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
               updateEquipment(equipment.id, { subnetMask: event.target.value })
             }
             placeholder={t('eq.field.subnetPlaceholder', '255.255.255.0 oder /24')}
+            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-slate-300">{t('eq.field.mac', 'MAC-Adresse')}</span>
+          <input
+            value={equipment.macAddress ?? ''}
+            onChange={(event) =>
+              updateEquipment(equipment.id, { macAddress: event.target.value || undefined })
+            }
+            placeholder="00:1A:2B:3C:4D:5E"
             className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
           />
         </label>
