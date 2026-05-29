@@ -2922,6 +2922,12 @@ const en: Dict = {
     'Hybrid cable with optical SDI link + copper for talkback and power. Camera connection for ENG/studio.',
   'catalog.cable.smpte-304m.notes':
     'Triaxial cable for studio cameras (HDTV). Carries video, intercom, talkback and power in one cable.',
+  'catalog.cable.ndi-cat6a.notes':
+    'NDI / NDI-HX over standard Gigabit Ethernet. Keep NDI and Dante on separate VLANs/links to avoid congestion.',
+  'catalog.cable.dante-cat6.notes':
+    'Dante / AES67 audio-over-IP. Requires PTP clocking; QoS/DSCP recommended on managed switches.',
+  'catalog.cable.st2110-fiber.notes':
+    'SMPTE ST 2110 (-20 video / -30 audio / -40 ANC) over fiber. Needs a PTP grandmaster; typically 10/25/100 GbE.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Main standard. Level A recommended; Level B for older equipment.',
@@ -2973,6 +2979,12 @@ const de: Dict = {
     'Hybridkabel mit optischer SDI-Strecke + Kupfer für Talkback und Stromversorgung. Kameraanschluss bei ENG/Studio.',
   'catalog.cable.smpte-304m.notes':
     'Triaxialkabel für Studio-Kameras (HDTV). Überträgt Video, Interkom, Talkback und Strom in einem Kabel.',
+  'catalog.cable.ndi-cat6a.notes':
+    'NDI / NDI-HX über normales Gigabit-Ethernet. NDI und Dante auf getrennten VLANs/Links halten, um Überlast zu vermeiden.',
+  'catalog.cable.dante-cat6.notes':
+    'Dante / AES67 Audio-over-IP. Benötigt PTP-Clocking; QoS/DSCP auf Managed Switches empfohlen.',
+  'catalog.cable.st2110-fiber.notes':
+    'SMPTE ST 2110 (-20 Video / -30 Audio / -40 ANC) über Faser. Benötigt PTP-Grandmaster; typ. 10/25/100 GbE.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Hauptstandard. Level A empfohlen; Level B bei älteren Geräten.',
