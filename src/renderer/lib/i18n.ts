@@ -476,10 +476,10 @@ const en: Dict = {
   'atem.audio.empty.classic':
     'Production Studio / Television Studio open with the classic channel strip (Off/On/AFV + gain).',
   'atem.audio.empty.both': 'Devices with both sections get both tabs.',
-  'atem.audio.action.loadXml': '📂 Load XML',
+  'atem.audio.action.loadXml': 'Load XML',
   'atem.audio.action.loadXmlTitle':
     'Load ATEM Profile XML — the audio section(s) will be imported into the editor',
-  'atem.audio.action.saveXml': '💾 Save XML',
+  'atem.audio.action.saveXml': 'Save XML',
   'atem.audio.action.saveXmlTitle':
     'Download patched Profile XML (all non-audio sections stay unchanged)',
   'atem.audio.action.clearAll': 'Reset all routings',
@@ -489,8 +489,8 @@ const en: Dict = {
   'atem.audio.action.saveProjectTitle':
     'Persist routing in the project (survives reload).',
   'atem.audio.action.cancel': 'Cancel',
-  'atem.audio.tab.matrix': '🎚 Routing matrix',
-  'atem.audio.tab.classic': '🎛 Classic mixer',
+  'atem.audio.tab.matrix': 'Routing matrix',
+  'atem.audio.tab.classic': 'Classic mixer',
   'atem.audio.matrix.tooLarge':
     '{count} visible crosspoints is too many for smooth display. Please narrow down via the filters above (target: under 12,000 cells).',
   'atem.audio.matrix.filterSources': 'Filter sources…',
