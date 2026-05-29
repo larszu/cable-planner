@@ -10,7 +10,8 @@
 
 import { useMemo, useState } from 'react'
 import {
-  FileText, Cable as CableIcon, Calculator, Image as ImageIcon, Printer, type LucideIcon,
+  FileText, Cable as CableIcon, Calculator, Image as ImageIcon, Printer,
+  Moon, Sun, Camera, Sparkles, type LucideIcon,
 } from 'lucide-react'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import jsPDF from 'jspdf'
@@ -276,7 +277,7 @@ const PlanSection = ({
                 checked={pdfTheme === 'dark'}
                 onChange={() => setPdfTheme('dark')}
               />
-              <span>🌙 Dunkles Thema (wie Canvas)</span>
+              <span className="inline-flex items-center gap-1"><Icon icon={Moon} size="xs" /> Dunkles Thema (wie Canvas)</span>
             </label>
             <label className="flex items-center gap-2 text-xs">
               <input
@@ -285,7 +286,7 @@ const PlanSection = ({
                 checked={pdfTheme === 'light'}
                 onChange={() => setPdfTheme('light')}
               />
-              <span>☀ {t('export.theme.lightLabel', 'Helles Thema (für Ausdruck empfohlen)')}</span>
+              <span className="inline-flex items-center gap-1"><Icon icon={Sun} size="xs" /> {t('export.theme.lightLabel', 'Helles Thema (für Ausdruck empfohlen)')}</span>
             </label>
           </fieldset>
           {/* v7.9.97 — Render-Modus: Raster (klassisch) vs Vektor (Beta).
@@ -303,7 +304,7 @@ const PlanSection = ({
                 className="mt-0.5"
               />
               <span>
-                <span className="block">📷 {t('export.render.raster', 'Raster (klassisch)')}</span>
+                <span className="flex items-center gap-1"><Icon icon={Camera} size="xs" /> {t('export.render.raster', 'Raster (klassisch)')}</span>
                 <span className="block text-[10px] text-slate-400">
                   {t(
                     'export.render.rasterHint',
@@ -321,7 +322,7 @@ const PlanSection = ({
                 className="mt-0.5"
               />
               <span>
-                <span className="block">✨ {t('export.render.vector', 'Vektor')}</span>
+                <span className="flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('export.render.vector', 'Vektor')}</span>
                 <span className="block text-[10px] text-slate-400">
                   {t(
                     'export.render.vectorHint',
@@ -496,7 +497,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
         title={t('export.patch.compactTitle', 'Kompakte Patchliste: alle Kabel auf einer Liste, sortiert nach Quell-Gerät — zum Ausdrucken für den Techniker im Feld.')}
       >
         <span>
-          <span className="font-semibold">🪢 {t('export.patch.openPatchList', 'Patchliste öffnen…')}</span>
+          <span className="inline-flex items-center gap-1 font-semibold"><Icon icon={CableIcon} size="xs" /> {t('export.patch.openPatchList', 'Patchliste öffnen…')}</span>
           <span className="ml-2 text-emerald-300/70">
             {t('export.patch.compactSub', 'Eine Zeile pro Kabel, sortiert nach Quell-Gerät')}
           </span>
