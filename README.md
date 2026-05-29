@@ -21,7 +21,7 @@
 <p align="center">
   <img src="docs/screenshots/hero.png" alt="CablePlanner — node-based broadcast cabling canvas" width="860" />
   <br />
-  <sub><i>TODO: capture — full canvas overview (dark theme). See <a href="docs/screenshots/README.md">docs/screenshots/README.md</a>.</i></sub>
+  <sub><i>The node-based canvas — equipment nodes, ports and routed signal cabling.</i></sub>
 </p>
 
 ---
@@ -66,13 +66,13 @@ It is designed for real-world production environments such as studios, OB vans, 
     </td>
     <td width="50%" align="center">
       <img src="docs/screenshots/export.png" alt="Export and print hub with PDF / PNG / JPEG options" width="420" /><br />
-      <b>Export &amp; print hub</b><br /><sub><i>TODO: capture</i></sub>
+      <b>Export &amp; print hub</b>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
       <img src="docs/screenshots/patch-sheets.png" alt="Per-device patch sheet generator" width="420" /><br />
-      <b>Per-device patch sheets</b><br /><sub><i>TODO: capture</i></sub>
+      <b>Per-device patch sheets</b>
     </td>
     <td width="50%" align="center">
       <img src="docs/screenshots/patch-pdf.png" alt="Generated patch-list PDF with inputs and outputs" width="420" /><br />
@@ -82,11 +82,11 @@ It is designed for real-world production environments such as studios, OB vans, 
   <tr>
     <td width="50%" align="center">
       <img src="docs/screenshots/bom.png" alt="Location bill of materials with cable and device totals" width="420" /><br />
-      <b>Bill of materials (BOM)</b><br /><sub><i>TODO: capture</i></sub>
+      <b>Bill of materials (BOM)</b>
     </td>
     <td width="50%" align="center">
       <img src="docs/screenshots/properties.png" alt="Device and location properties panel" width="420" /><br />
-      <b>Properties panel</b><br /><sub><i>TODO: capture</i></sub>
+      <b>Properties panel</b>
     </td>
   </tr>
 </table>

@@ -281,20 +281,29 @@ Z. 49–84) als nächsten einfachen Kandidaten.
   Show-Namen (App-Kopfzeile) schwärzt und Statusleiste + OS-Taskleiste unten
   abschneidet — auflösungsunabhängig (Bruchteil-Koordinaten), pro Datei
   justierbar.
-- **`atem-multiview.png` fertig**: erster echter Screenshot (ATEM-Multiviewer)
-  geschwärzt (Name in der Kopfzeile entfernt, untere Leisten abgeschnitten)
-  und in die Galerie eingesetzt; Rohbild aus dem Tree entfernt.
-- Kundennamen aus allen Doku-/Quelltexten entfernt (dieser Audit, Screenshot-
-  Guide, `exportFilename`-JSDoc-Beispiel) — generische Platzhalter.
+- **6 Slots mit echten, geschwärzten/gecroppten Screenshots gefüllt**:
+  `hero.png` (Canvas-Gesamtüberblick), `atem-multiview.png`,
+  `export.png` (Export-Hub), `patch-sheets.png`, `bom.png` (Stückliste),
+  `properties.png` (Rahmen-Eigenschaften). Schwärzung: Projektname in der
+  Kopfzeile übermalt, Statusleiste + OS-Taskleiste / Download-Hinweis
+  weggeschnitten; Dialoge sinnvoll auf ihren Inhalt gecroppt.
+- **Kundennamen aus allen Doku-/Quelltexten entfernt** (dieser Audit,
+  Screenshot-Guide, `exportFilename`-JSDoc-Beispiel) — generische Platzhalter.
+  Repo-weiter Grep nach Klarnamen = 0.
+- Alle gelieferten Roh-Screenshots (`Screenshot (NNN).png`) nach der
+  Verarbeitung aus dem Branch-Tree entfernt.
 
 ### TODO (manueller Mensch-Schritt)
 
-- [ ] Restliche Slots mit echten Bildern füllen: `hero.png` (Canvas),
-      `export.png`, `patch-sheets.png`, `patch-pdf.png`, `bom.png`,
-      `properties.png`, `rack-3d.png`, `canvas.gif`.
-- [ ] Roh-PNGs nach `docs/screenshots/_raw/` legen + `node
+- [ ] Restliche 3 Slots: `canvas.gif` (animierte Canvas-Demo), `rack-3d.png`
+      (3D-Rack-Ansicht), `patch-pdf.png` (Patch-Listen-PDF — der gelieferte
+      Shot enthält einen Personennamen im Routing-Text, daher offen gelassen;
+      neutral neu erzeugen oder die Namen schwärzen).
+- [ ] Für neue Bilder: Roh-PNGs nach `docs/screenshots/_raw/` legen + `node
       docs/redact-screenshots.mjs` laufen lassen (oder aus neutralem
       Demo-Projekt ohne Kundennamen frisch aufnehmen → keine Schwärzung nötig).
-- [ ] **Rohbild aus `main` entfernen**: `docs/screenshots/Screenshot (573).png`
-      liegt noch in der `main`-History (Commit `f5279e9`) — auf `main` löschen
-      (bei öffentlichem Repo ggf. History bereinigen).
+- [ ] **Rohbilder aus `main`/Branch-History bereinigen**:
+      `Screenshot (573).png` liegt in `main` (Commit `f5279e9`), die übrigen
+      Rohbilder in der Branch-History (`a670c71`) — bei öffentlichem Repo ggf.
+      History scrubben (die ungeschwärzten Bilder sind sonst über alte
+      Commits abrufbar).
