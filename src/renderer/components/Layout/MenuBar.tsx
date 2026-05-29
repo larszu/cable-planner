@@ -77,6 +77,12 @@ export const MenuBar = ({
 }: MenuBarProps) => {
   const t = useTranslation()
   const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
+  // #341 — View-Menü spiegelt Toolbar-Toggles; Status für Häkchen lesen.
+  const canvasTheme = useUiStore((s) => s.canvasTheme)
+  const snapToGrid = useUiStore((s) => s.snapToGrid)
+  const hideAllCableLabels = useUiStore((s) => s.hideAllCableLabels)
+  const cableColorMode = useUiStore((s) => s.cableColorMode)
+  const annotationsPanelOpen = useUiStore((s) => s.annotationsPanelOpen)
   // Re-render whenever the projectHistory store changes so the undo/redo
   // buttons reflect the current canUndo/canRedo state. Keyboard shortcuts
   // (Strg+Z / Strg+Umsch+Z / Strg+Y) live in useUndoRedoShortcuts; these
@@ -257,6 +263,44 @@ export const MenuBar = ({
               {t('app.menu.tools.rentmanImport', 'Rentman-Import…')}
             </MenuItem>
           )}
+        </Menu>
+
+        <Menu label={t('app.menu.view', 'Ansicht')}>
+          {/* #341 — View-Toggles redundant zum Toolbar-Zugang; Häkchen
+              zeigt den aktuellen Zustand (beim erneuten Öffnen). */}
+          <MenuItem
+            onClick={() => useUiStore.getState().setCanvasTheme(canvasTheme === 'dark' ? 'light' : 'dark')}
+            icon={canvasTheme === 'light' ? '✓' : ''}
+          >
+            {t('app.menu.view.light', 'Helles Design')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().setSnapToGrid(!snapToGrid)}
+            icon={snapToGrid ? '✓' : ''}
+          >
+            {t('app.menu.view.snap', 'Am Raster ausrichten')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().setHideAllCableLabels(!hideAllCableLabels)}
+            icon={hideAllCableLabels ? '✓' : ''}
+          >
+            {t('app.menu.view.hideLabels', 'Kabel-Labels ausblenden')}
+          </MenuItem>
+          <MenuItem
+            onClick={() =>
+              useUiStore.getState().setCableColorMode(cableColorMode === 'byLength' ? 'manual' : 'byLength')
+            }
+            icon={cableColorMode === 'byLength' ? '✓' : ''}
+          >
+            {t('app.menu.view.colorByLength', 'Kabelfarbe nach Länge')}
+          </MenuItem>
+          <MenuSep />
+          <MenuItem
+            onClick={() => useUiStore.getState().setAnnotationsPanelOpen(!annotationsPanelOpen)}
+            icon={annotationsPanelOpen ? '✓' : ''}
+          >
+            {t('app.menu.view.annotations', 'Anmerkungen-Panel')}
+          </MenuItem>
         </Menu>
 
         <Menu label={t('app.menu.help', 'Hilfe')}>
