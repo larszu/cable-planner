@@ -9,6 +9,7 @@
 
 import { useMemo, useState } from 'react'
 import jsPDF from 'jspdf'
+import QRCode from 'qrcode'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { downloadBlob } from '../../lib/downloadBlob'
@@ -285,7 +286,7 @@ export const PatchListDialog = () => {
   // #349 — Kabel-Etiketten als druckbarer A4-Bogen (2 Spalten). Pro Kabel
   // zwei Labels (beide Enden), jeweils mit Ziel-/Quell-Richtung, Typ, Länge
   // und Farb-Swatch. Nutzt die aktuell gefilterten Zeilen.
-  const exportLabels = () => {
+  const exportLabels = async () => {
     const hexToRgb = (hex: string): [number, number, number] => {
       const h = (hex || '#888888').replace('#', '')
       const n = h.length === 3 ? h.split('').map((c) => c + c).join('') : h.padEnd(6, '8')
@@ -295,14 +296,32 @@ export const PatchListDialog = () => {
     const pageW = 210, pageH = 297, cols = 2, rowsPerPage = 9, mL = 8, mT = 10, gap = 3
     const lw = (pageW - 2 * mL - (cols - 1) * gap) / cols
     const lh = (pageH - 2 * mT - (rowsPerPage - 1) * gap) / rowsPerPage
+    // Pro Kabel zwei Etiketten (beide Enden) plus ein QR-Code, der die
+    // Kabel-Identitaet (Nummer/Name) + Strecke kodiert — ein Scan vor Ort
+    // identifiziert das Kabel eindeutig. Beide Enden teilen denselben QR.
     const labels = filtered.flatMap((r) => {
-      const title = `${r.type}${r.cableName && r.cableName !== r.type ? ' · ' + r.cableName : ''}`
+      const numPrefix = r.cableNumber ? `${r.cableNumber} · ` : ''
+      const title = `${numPrefix}${r.type}${r.cableName && r.cableName !== r.type ? ' · ' + r.cableName : ''}`
       const meta = r.length ? `${r.length} m` : ''
+      const qrText = `${r.cableNumber || r.cableName || r.type} | ${r.fromDevice} ${r.fromPort} > ${r.toDevice} ${r.toPort}`
       return [
-        { title, dest: `${r.fromDevice} · ${r.fromPort}  →  ${r.toDevice} · ${r.toPort}`, meta, color: r.color },
-        { title, dest: `${r.toDevice} · ${r.toPort}  →  ${r.fromDevice} · ${r.fromPort}`, meta, color: r.color },
+        { title, dest: `${r.fromDevice} · ${r.fromPort}  →  ${r.toDevice} · ${r.toPort}`, meta, color: r.color, qrText },
+        { title, dest: `${r.toDevice} · ${r.toPort}  →  ${r.fromDevice} · ${r.fromPort}`, meta, color: r.color, qrText },
       ]
     })
+    // QR-Data-URLs vorab erzeugen (toDataURL ist async). Fehlerhafte QR
+    // werden uebersprungen — der Export bricht nie deshalb ab.
+    const qrCache = new Map<string, string>()
+    await Promise.all(
+      [...new Set(labels.map((l) => l.qrText))].map(async (text) => {
+        try {
+          qrCache.set(text, await QRCode.toDataURL(text, { margin: 0, width: 128 }))
+        } catch {
+          // ohne QR zeichnen
+        }
+      }),
+    )
+    const qrSize = Math.min(lh - 6, 16)
     const perPage = cols * rowsPerPage
     labels.forEach((lbl, i) => {
       const idx = i % perPage
@@ -316,13 +335,15 @@ export const PatchListDialog = () => {
       const [cr, cg, cb] = hexToRgb(lbl.color)
       doc.setFillColor(cr, cg, cb)
       doc.rect(x + 1.5, y + 1.5, 3, lh - 3, 'F')
+      const qr = qrCache.get(lbl.qrText)
+      if (qr) doc.addImage(qr, 'PNG', x + lw - qrSize - 2.5, y + (lh - qrSize) / 2, qrSize, qrSize)
       doc.setTextColor(20)
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(9)
-      doc.text(sanitizeForPdf(lbl.title).slice(0, 42), x + 7, y + 7)
+      doc.text(sanitizeForPdf(lbl.title).slice(0, qr ? 34 : 42), x + 7, y + 7)
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(8)
-      doc.text(sanitizeForPdf(lbl.dest).slice(0, 64), x + 7, y + 14)
+      doc.text(sanitizeForPdf(lbl.dest).slice(0, qr ? 48 : 64), x + 7, y + 14)
       doc.setTextColor(110)
       doc.setFontSize(7)
       doc.text(lbl.meta, x + 7, y + lh - 3)
@@ -385,11 +406,11 @@ export const PatchListDialog = () => {
             </button>
             <button
               type="button"
-              onClick={exportLabels}
+              onClick={() => void exportLabels()}
               disabled={filtered.length === 0}
               className="rounded bg-sky-700 px-3 py-1 text-xs hover:bg-sky-600 disabled:opacity-40"
             >
-              {t('patchList.exportLabels', '🏷 Etiketten (PDF)')}
+              {t('patchList.exportLabels', '🏷 Etiketten + QR (PDF)')}
             </button>
           </div>
         </div>
