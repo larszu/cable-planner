@@ -222,6 +222,41 @@ export const MenuBar = ({
           >
             {t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
           </MenuItem>
+          <MenuSep />
+          {/* #342 — Editoren direkt aus dem Werkzeuge-Menü erreichbar machen
+              (vorher nur über Toolbar bzw. verknüpftes Gerät in den
+              Properties). Dialoge öffnen geräteneutral und bieten ggf.
+              eigene Geräteauswahl. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().triggerRackBuilderFromSelection([])}
+            icon="🗄"
+          >
+            {t('app.menu.tools.rackBuilder', 'Rack-Builder…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAtemMvConfig()} icon="🖥">
+            {t('app.menu.tools.atemMv', 'ATEM Multiviewer-Layout…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAtemAudioConfig()} icon="🎚">
+            {t('app.menu.tools.atemAudio', 'ATEM Audio-Routing…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAtemDialog()} icon="🏷">
+            {t('app.menu.tools.atemLabels', 'ATEM Input-Labels…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openVideohubExport()} icon="🔀">
+            {t('app.menu.tools.videohub', 'Videohub-Routing/Labels…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openGreenGoExport()} icon="🎧">
+            {t('app.menu.tools.greengo', 'GreenGo-Intercom…')}
+          </MenuItem>
+          <MenuSep />
+          <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon="🔌">
+            {t('app.menu.tools.patchList', 'Patch-Liste…')}
+          </MenuItem>
+          {rentmanEnabled && (
+            <MenuItem onClick={() => useUiStore.getState().openRentmanImport()} icon="👥">
+              {t('app.menu.tools.rentmanImport', 'Rentman-Import…')}
+            </MenuItem>
+          )}
         </Menu>
 
         <Menu label={t('app.menu.help', 'Hilfe')}>
