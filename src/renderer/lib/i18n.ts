@@ -1082,6 +1082,8 @@ const en: Dict = {
   'export.title': 'Export & print',
   'export.format': 'Format',
   'export.renderMode': 'Render mode',
+  'export.processing': 'Processing…',
+  'export.downloadAs': 'Download as {fmt}',
   'export.section.plan': 'Plan',
   'export.section.patch': 'Patch sheets',
   'export.section.bom': 'Cable BOM',

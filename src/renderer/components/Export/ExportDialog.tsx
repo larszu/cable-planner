@@ -20,6 +20,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { AlertTriangle, Check } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
+import { Spinner } from '../shared/Spinner'
 import {
   buildDevicePatchSheetBlob,
   buildDevicesPatchSheetsBatchBlob,
@@ -406,9 +407,12 @@ const PlanSection = ({
           type="button"
           onClick={handleExport}
           disabled={busy}
-          className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
         >
-          {busy ? 'Verarbeite…' : `Als ${format.toUpperCase()} herunterladen`}
+          {busy && <Spinner size="xs" />}
+          {busy
+            ? t('export.processing', 'Verarbeite…')
+            : t('export.downloadAs', 'Als {fmt} herunterladen').replace('{fmt}', format.toUpperCase())}
         </button>
       </div>
     </div>
