@@ -2667,6 +2667,7 @@ const en: Dict = {
   'patchList.footerHint':
     'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
   'patchList.exportCsv': '⬇ Export CSV',
+  'patchList.exportXlsx': '⬇ Export XLSX',
   // Hotkeys action labels (used in HotkeysTab)
   'hotkeys.action.undo': 'Undo',
   'hotkeys.action.redo': 'Redo',
