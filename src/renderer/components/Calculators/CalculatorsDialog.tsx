@@ -12,7 +12,7 @@ import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
-import { AlertTriangle, Download } from 'lucide-react'
+import { AlertTriangle, Download, Calculator, Radio, Zap, type LucideIcon } from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
@@ -32,8 +32,13 @@ import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 type Tab = 'bandwidth' | 'power'
 
 const TAB_LABEL_DE: Record<Tab, string> = {
-  bandwidth: '📡 Bandbreite',
-  power: '⚡ Stromverbrauch',
+  bandwidth: 'Bandbreite',
+  power: 'Stromverbrauch',
+}
+
+const TAB_ICON: Record<Tab, LucideIcon> = {
+  bandwidth: Radio,
+  power: Zap,
 }
 
 const TabBar = ({
@@ -55,12 +60,13 @@ const TabBar = ({
           key={tabId}
           type="button"
           onClick={() => onChange(tabId)}
-          className={`rounded px-3 py-1 text-xs ${
+          className={`inline-flex items-center gap-1.5 rounded px-3 py-1 text-xs ${
             active === tabId
               ? 'bg-sky-700 text-white'
               : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
           }`}
         >
+          <Icon icon={TAB_ICON[tabId]} size="xs" />
           {TAB_LABEL[tabId]}
         </button>
       ))}
@@ -585,7 +591,7 @@ export const CalculatorsDialog = () => {
       open={open}
       onClose={close}
       title={t('calc.title', 'Werkzeuge / Rechner')}
-      titleIcon="🧮"
+      titleIcon={<Icon icon={Calculator} size="sm" />}
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:calculators"
     >
