@@ -297,6 +297,9 @@ export const MenuBar = ({
           <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon="🔌">
             {t('app.menu.tools.patchList', 'Patch-Liste…')}
           </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openCsvImport()} icon="📥">
+            {t('app.menu.tools.csvImport', 'Equipment aus CSV importieren…')}
+          </MenuItem>
           {rentmanEnabled && (
             <MenuItem onClick={() => useUiStore.getState().openRentmanImport()} icon="👥">
               {t('app.menu.tools.rentmanImport', 'Rentman-Import…')}

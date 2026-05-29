@@ -767,6 +767,10 @@ interface UiState extends PersistedUiState {
   analysis: { open: boolean }
   openAnalysis: () => void
   closeAnalysis: () => void
+  /** Generischer Equipment-CSV-Import in die Library (#354). */
+  csvImport: { open: boolean }
+  openCsvImport: () => void
+  closeCsvImport: () => void
   /** Rentman equipment import dialog (cross-component trigger). */
   rentmanImport: { open: boolean }
   openRentmanImport: () => void
@@ -1135,6 +1139,9 @@ export const useUiStore = create<UiState>((set) => ({
   analysis: { open: false },
   openAnalysis: () => set({ analysis: { open: true } }),
   closeAnalysis: () => set({ analysis: { open: false } }),
+  csvImport: { open: false },
+  openCsvImport: () => set({ csvImport: { open: true } }),
+  closeCsvImport: () => set({ csvImport: { open: false } }),
   rentmanImport: { open: false },
   openRentmanImport: () => set({ rentmanImport: { open: true } }),
   closeRentmanImport: () => set({ rentmanImport: { open: false } }),
