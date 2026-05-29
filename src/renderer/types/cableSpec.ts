@@ -31,6 +31,7 @@ export type SignalStandard =
   | 'MADI'
   | 'SMPTE-297'
   | 'SMPTE-304M'
+  | 'SMPTE-311M'
   | 'NDI'
   | 'NDI-HX'
   | 'Dante'
@@ -56,7 +57,7 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
   'Eth-100', 'Eth-1G', 'Eth-10G',
   'Analog-Audio', 'AES3', 'USB-2.0', 'USB-3.x',
   'Thunderbolt-3', 'Thunderbolt-4',
-  'MADI', 'SMPTE-297', 'SMPTE-304M',
+  'MADI', 'SMPTE-297', 'SMPTE-304M', 'SMPTE-311M',
   'NDI', 'NDI-HX', 'Dante', 'AES67', 'ST2110-20', 'ST2110-30', 'ST2110-40',
   'Blackburst', 'Tri-Level', 'Word-Clock', 'PTP',
   'RF-UHF', 'RF-VHF', 'RF-2.4G', 'RF-5G',
@@ -327,21 +328,30 @@ export const cableCatalog: CableSpec[] = [
   },
   {
     id: 'smpte-297',
-    name: 'SMPTE 297M Hybrid Fiber (SDI+Power)',
+    name: 'SMPTE ST 297 — Optisches SDI (Glasfaser)',
     connectorType: 'Fiber',
-    standards: ['SMPTE-297', 'SDI-3G', 'SDI-HD', 'Fiber-SM'],
-    maxLengthMeters: 1000,
+    standards: ['SMPTE-297', 'SDI-HD', 'SDI-3G', 'Fiber-SM'],
+    maxLengthMeters: 10000,
     color: '#f59e0b',
     notesKey: 'catalog.cable.smpte-297.notes',
   },
   {
     id: 'smpte-304m',
-    name: 'SMPTE 304M Triax (Kamerakabel)',
-    connectorType: 'Triax',
-    standards: ['SMPTE-304M', 'SDI-HD'],
-    maxLengthMeters: 300,
+    name: 'SMPTE 311M Hybrid-Kamerakabel (LWL + Power + Steuerung)',
+    connectorType: 'Fiber',
+    standards: ['SMPTE-311M', 'SMPTE-304M', 'SDI-HD', 'SDI-3G', 'Fiber-SM'],
+    maxLengthMeters: 1000,
     color: '#d97706',
     notesKey: 'catalog.cable.smpte-304m.notes',
+  },
+  {
+    id: 'triax-camera',
+    name: 'Triax-Kamerakabel (analog/koaxial)',
+    connectorType: 'Triax',
+    standards: ['Generic'],
+    maxLengthMeters: 300,
+    color: '#b45309',
+    notesKey: 'catalog.cable.triax-camera.notes',
   },
 ]
 
