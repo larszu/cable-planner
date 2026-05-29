@@ -209,10 +209,38 @@ Escape — Hook analog `SettingsDialog`/`ExportDialog` anwenden:
 
 ## Phase 4 — i18n
 
-- Vollständiges `en`-Dict existiert in `lib/i18n.ts` (2781 Zeilen).
-- Inline-Fallbacks sind deutsch (`t('key', 'Deutsche Form')`).
-- TODO: hartkodierte Strings finden (JSX-Text, `placeholder`, `title`,
-  `aria-label` ohne `t()`), DE/EN-Parität prüfen, Report-Skript ablegen.
+- Vollständiges `en`-Dict in `lib/i18n.ts`; Inline-Fallbacks deutsch
+  (`t('key', 'Deutsche Form')`), `translations.de` bewusst leer.
+
+### Fallback-Sprache (Entscheidung)
+
+Die Aufgabe empfahl **Englisch** als Fallback, aber **CLAUDE.md** legt
+verbindlich fest: *„Deutsche Strings = Quell-Sprache, immer als Fallback in
+`t(key, 'Deutsche Form')`. EN-Übersetzung im `en`-Dict."* CLAUDE.md
+überschreibt Defaults → **Deutsch bleibt einheitliche Fallback-Sprache**.
+Ein Umstellen aller `t()`-Fallbacks auf Englisch wäre zudem ein massiver,
+risikoreicher Eingriff entgegen der dokumentierten Projektkonvention.
+
+### Phase 4 — erledigt
+
+- **Report-Skript** `docs/i18n-check.mjs`: meldet (a) im Code benutzte,
+  aber im `en`-Dict fehlende Keys (EN-Lücken) und (b) verwaiste/dynamische
+  en-Keys. Exit 1 bei Lücken (CI-tauglich). `node docs/i18n-check.mjs`.
+- **DE/EN-Parität hergestellt**: 105 fehlende EN-Keys ergänzt (Menü,
+  Settings-Tabs Canvas-BG/Kategorien/Connector/Editing/GreenGo/Hotkeys/…,
+  Short-Name-Feld, Rentman-/NetBox-Titles, ATEM-Audio). Report meldet jetzt
+  **0** fehlende Keys.
+- **Hartkodierte Strings migriert** in den berührten Bereichen:
+  App-CableDialog-Warnungen (`cable.create.warn.*`), ExportDialog-Status
+  (`export.installedCables/missingTypes/allCovered`).
+
+### TODO (großflächiger Rest)
+
+- [ ] Flächendeckende Suche nach restlichen hartkodierten JSX-Texten /
+      `placeholder` / `title` ohne `t()` (z. B. Teile von App-CableDialog,
+      CableDialog-Labels „Connector Type"/„Notizen", RackBuilder-Interna).
+- [ ] In-`t()`-String-Glyphen aus Phase 1 (`⚠`/`✓`/`✕` in `cable.warn.*`,
+      `bom.cable.missingTypes`, „✕ Reset" etc.) extrahieren + Icon im JSX.
 
 ## Phase 6 — README
 
