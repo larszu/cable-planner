@@ -12,6 +12,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { projectHistory } from '../../store/projectHistory'
 import { ModalShell } from '../shared/ModalShell'
 import { Icon } from '../shared/Icon'
+import { Button } from '../shared/Button'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { infoDialog } from '../../lib/infoDialog'
@@ -120,22 +121,19 @@ export const TemplatesDialog = () => {
       </div>
       <div className="text-[10px] text-[var(--cp-text-faint)]">{stats(tpl)}</div>
       <div className="mt-auto flex items-center justify-between gap-2 pt-1">
-        <button
-          type="button"
-          onClick={() => void applyTemplate(tpl)}
-          className="rounded bg-emerald-700 px-3 py-1 text-cp-xs font-medium text-white hover:bg-emerald-600"
-        >
+        <Button variant="success" size="sm" onClick={() => void applyTemplate(tpl)}>
           {t('templates.use', 'Verwenden')}
-        </button>
+        </Button>
         {!tpl.builtin && (
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => void removeTemplate(tpl)}
+            aria-label={t('common.delete', 'Löschen')}
             title={t('common.delete', 'Löschen')}
-            className="rounded p-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-3)] hover:text-red-400"
-          >
-            <Icon icon={Trash2} size="xs" />
-          </button>
+            leftIcon={Trash2}
+            className="!px-1.5 hover:text-red-400"
+          />
         )}
       </div>
     </div>
@@ -157,13 +155,15 @@ export const TemplatesDialog = () => {
               'Mitgelieferte Show-Setups oder eigene gespeicherte Vorlagen als Startpunkt. Lädt eine Kopie — das bestehende Projekt wird erst nach Bestätigung ersetzt.',
             )}
           </p>
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => void saveCurrent()}
-            className="inline-flex shrink-0 items-center gap-1 rounded bg-[var(--cp-surface-2)] px-2 py-1 text-cp-xs hover:bg-[var(--cp-surface-3)]"
+            leftIcon={Save}
+            className="shrink-0"
           >
-            <Icon icon={Save} size="xs" /> {t('templates.saveCurrent', 'Aktuelles Projekt als Vorlage')}
-          </button>
+            {t('templates.saveCurrent', 'Aktuelles Projekt als Vorlage')}
+          </Button>
         </div>
 
         <div>
