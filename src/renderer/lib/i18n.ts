@@ -2981,6 +2981,12 @@ const en: Dict = {
     'Dante / AES67 audio-over-IP. Requires PTP clocking; QoS/DSCP recommended on managed switches.',
   'catalog.cable.st2110-fiber.notes':
     'SMPTE ST 2110 (-20 video / -30 audio / -40 ANC) over fiber. Needs a PTP grandmaster; typically 10/25/100 GbE.',
+  'catalog.cable.blackburst-bnc.notes':
+    'Reference sync (black burst / tri-level) over 75Ω coax. Distribute from one sync generator; feed every genlock-capable device.',
+  'catalog.cable.wordclock-bnc.notes':
+    'Word clock for digital audio. Daisy-chain with 75Ω termination at the end; one master clock per domain.',
+  'catalog.cable.ptp-cat6.notes':
+    'PTP (IEEE 1588) timing for ST 2110 / AES67. One grandmaster per PTP domain; enable boundary clocks on switches.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Main standard. Level A recommended; Level B for older equipment.',
@@ -3038,6 +3044,12 @@ const de: Dict = {
     'Dante / AES67 Audio-over-IP. Benötigt PTP-Clocking; QoS/DSCP auf Managed Switches empfohlen.',
   'catalog.cable.st2110-fiber.notes':
     'SMPTE ST 2110 (-20 Video / -30 Audio / -40 ANC) über Faser. Benötigt PTP-Grandmaster; typ. 10/25/100 GbE.',
+  'catalog.cable.blackburst-bnc.notes':
+    'Referenz-Sync (Black Burst / Tri-Level) über 75Ω-Koax. Von einem Sync-Generator verteilen; jedes genlock-fähige Gerät versorgen.',
+  'catalog.cable.wordclock-bnc.notes':
+    'Word Clock für Digital-Audio. Daisy-Chain mit 75Ω-Abschluss am Ende; ein Master-Clock pro Domäne.',
+  'catalog.cable.ptp-cat6.notes':
+    'PTP (IEEE 1588) Timing für ST 2110 / AES67. Ein Grandmaster je PTP-Domäne; Boundary-Clocks auf Switches aktivieren.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Hauptstandard. Level A empfohlen; Level B bei älteren Geräten.',
