@@ -144,7 +144,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     : t('print.openDialog', 'Drucker-Dialog öffnen')
                   : selectionCount > 1 && mode === 'individual'
                     ? formatStr(t('print.downloadMany', '{count} PDFs herunterladen'), { count: selectionCount })
-                    : t('print.downloadOne', '⬇ Patch-Sheet PDF herunterladen')}
+                    : t('print.downloadOne', 'Patch-Sheet PDF herunterladen')}
             </button>
           </div>
         </div>
