@@ -3,6 +3,7 @@ import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
 import { useTranslation } from '../../lib/i18n'
 import { projectHistory } from '../../store/projectHistory'
 import { useUiStore } from '../../store/uiStore'
+import { useProjectStore } from '../../store/projectStore'
 import { hasDesktopBridge } from '../../lib/bridge'
 
 interface MenuBarProps {
@@ -77,6 +78,12 @@ export const MenuBar = ({
 }: MenuBarProps) => {
   const t = useTranslation()
   const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
+  // #341 — View-Menü spiegelt Toolbar-Toggles; Status für Häkchen lesen.
+  const canvasTheme = useUiStore((s) => s.canvasTheme)
+  const snapToGrid = useUiStore((s) => s.snapToGrid)
+  const hideAllCableLabels = useUiStore((s) => s.hideAllCableLabels)
+  const cableColorMode = useUiStore((s) => s.cableColorMode)
+  const annotationsPanelOpen = useUiStore((s) => s.annotationsPanelOpen)
   // Re-render whenever the projectHistory store changes so the undo/redo
   // buttons reflect the current canUndo/canRedo state. Keyboard shortcuts
   // (Strg+Z / Strg+Umsch+Z / Strg+Y) live in useUndoRedoShortcuts; these
@@ -105,6 +112,9 @@ export const MenuBar = ({
         <Menu label={t('app.menu.file', 'Datei')}>
           <MenuItem onClick={onNewProject} icon="📄" shortcut={t('shortcut.ctrlN', 'Strg+N')}>
             {t('app.menu.file.new', 'Neues Projekt')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openTemplates()} icon="🎬">
+            {t('app.menu.file.newFromTemplate', 'Neu aus Vorlage…')}
           </MenuItem>
           <MenuItem onClick={onOpenProject} icon="📂" shortcut={t('shortcut.ctrlO', 'Strg+O')}>
             {t('app.menu.file.open', 'Öffnen…')}
@@ -205,6 +215,41 @@ export const MenuBar = ({
           )}
         </Menu>
 
+        <Menu label={t('app.menu.edit', 'Bearbeiten')}>
+          {/* #340 — Standard-Edit-Aktionen auch im Menü (vorher nur Icon-
+              Buttons/Shortcuts). Undo/Redo über projectHistory, Löschen/
+              Auswahl-aufheben über die (globale) Projekt-Store-Selection. */}
+          <MenuItem
+            onClick={() => projectHistory.undo()}
+            disabled={!canUndo}
+            icon="⟲"
+            shortcut={t('shortcut.ctrlZ', 'Strg+Z')}
+          >
+            {t('app.menu.edit.undo', 'Rückgängig')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => projectHistory.redo()}
+            disabled={!canRedo}
+            icon="⟳"
+            shortcut={t('shortcut.ctrlY', 'Strg+Y')}
+          >
+            {t('app.menu.edit.redo', 'Wiederherstellen')}
+          </MenuItem>
+          <MenuSep />
+          <MenuItem
+            onClick={() => useProjectStore.getState().deleteSelected()}
+            shortcut={t('shortcut.del', 'Entf')}
+          >
+            {t('app.menu.edit.delete', 'Auswahl löschen')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useProjectStore.getState().setSelection()}
+            shortcut={t('shortcut.esc', 'Esc')}
+          >
+            {t('app.menu.edit.clearSelection', 'Auswahl aufheben')}
+          </MenuItem>
+        </Menu>
+
         <Menu label={t('app.menu.tools', 'Werkzeuge')}>
           {/* v7.9.126 — Patchliste-Eintrag entfernt — ist jetzt unter
               Datei → Exportieren & Drucken → Patch-Sheets erreichbar
@@ -221,6 +266,85 @@ export const MenuBar = ({
             icon="⚡"
           >
             {t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAnalysis()} icon="📊">
+            {t('app.menu.tools.analysis', 'Analysen (Gewicht/Netzwerk/Redundanz)…')}
+          </MenuItem>
+          <MenuSep />
+          {/* #342 — Editoren direkt aus dem Werkzeuge-Menü erreichbar machen
+              (vorher nur über Toolbar bzw. verknüpftes Gerät in den
+              Properties). Dialoge öffnen geräteneutral und bieten ggf.
+              eigene Geräteauswahl. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().triggerRackBuilderFromSelection([])}
+            icon="🗄"
+          >
+            {t('app.menu.tools.rackBuilder', 'Rack-Builder…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAtemMvConfig()} icon="🖥">
+            {t('app.menu.tools.atemMv', 'ATEM Multiviewer-Layout…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAtemAudioConfig()} icon="🎚">
+            {t('app.menu.tools.atemAudio', 'ATEM Audio-Routing…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAtemDialog()} icon="🏷">
+            {t('app.menu.tools.atemLabels', 'ATEM Input-Labels…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openVideohubExport()} icon="🔀">
+            {t('app.menu.tools.videohub', 'Videohub-Routing/Labels…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openGreenGoExport()} icon="🎧">
+            {t('app.menu.tools.greengo', 'GreenGo-Intercom…')}
+          </MenuItem>
+          <MenuSep />
+          <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon="🔌">
+            {t('app.menu.tools.patchList', 'Patch-Liste…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openCsvImport()} icon="📥">
+            {t('app.menu.tools.csvImport', 'Equipment aus CSV importieren…')}
+          </MenuItem>
+          {rentmanEnabled && (
+            <MenuItem onClick={() => useUiStore.getState().openRentmanImport()} icon="👥">
+              {t('app.menu.tools.rentmanImport', 'Rentman-Import…')}
+            </MenuItem>
+          )}
+        </Menu>
+
+        <Menu label={t('app.menu.view', 'Ansicht')}>
+          {/* #341 — View-Toggles redundant zum Toolbar-Zugang; Häkchen
+              zeigt den aktuellen Zustand (beim erneuten Öffnen). */}
+          <MenuItem
+            onClick={() => useUiStore.getState().setCanvasTheme(canvasTheme === 'dark' ? 'light' : 'dark')}
+            icon={canvasTheme === 'light' ? '✓' : ''}
+          >
+            {t('app.menu.view.light', 'Helles Design')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().setSnapToGrid(!snapToGrid)}
+            icon={snapToGrid ? '✓' : ''}
+          >
+            {t('app.menu.view.snap', 'Am Raster ausrichten')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().setHideAllCableLabels(!hideAllCableLabels)}
+            icon={hideAllCableLabels ? '✓' : ''}
+          >
+            {t('app.menu.view.hideLabels', 'Kabel-Labels ausblenden')}
+          </MenuItem>
+          <MenuItem
+            onClick={() =>
+              useUiStore.getState().setCableColorMode(cableColorMode === 'byLength' ? 'manual' : 'byLength')
+            }
+            icon={cableColorMode === 'byLength' ? '✓' : ''}
+          >
+            {t('app.menu.view.colorByLength', 'Kabelfarbe nach Länge')}
+          </MenuItem>
+          <MenuSep />
+          <MenuItem
+            onClick={() => useUiStore.getState().setAnnotationsPanelOpen(!annotationsPanelOpen)}
+            icon={annotationsPanelOpen ? '✓' : ''}
+          >
+            {t('app.menu.view.annotations', 'Anmerkungen-Panel')}
           </MenuItem>
         </Menu>
 
@@ -390,15 +514,17 @@ interface MenuItemProps {
   onClick?: () => void
   icon?: string
   shortcut?: string
+  disabled?: boolean
   children: React.ReactNode
 }
 
-const MenuItem = ({ onClick, icon, shortcut, children }: MenuItemProps) => {
+const MenuItem = ({ onClick, icon, shortcut, disabled, children }: MenuItemProps) => {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-cp-xs text-slate-200 hover:bg-slate-700/70"
+      disabled={disabled}
+      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-cp-xs text-slate-200 hover:bg-slate-700/70 disabled:cursor-not-allowed disabled:text-[var(--cp-text-faint)] disabled:hover:bg-transparent"
       role="menuitem"
     >
       <span className="w-4 shrink-0 text-center text-[12px]">{icon ?? ''}</span>

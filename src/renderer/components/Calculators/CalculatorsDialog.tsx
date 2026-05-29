@@ -12,9 +12,11 @@ import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Download } from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
+import { downloadBlob } from '../../lib/downloadBlob'
+import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 
 // v7.5.0 — Cable-Length tab removed. The standalone calculator
 // can't produce meaningful estimates without inter-location distances
@@ -284,6 +286,7 @@ const balancePhases = (
 const PowerTab = () => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
+  const projectName = useProjectStore((s) => s.project.metadata.name)
   const [supplyId, setSupplyId] = useState<SupplyPresetId>('cee32')
   const [marginPercent, setMarginPercent] = useState(20)
   const supply = SUPPLY_PRESETS.find((s) => s.id === supplyId) ?? SUPPLY_PRESETS[0]
@@ -330,6 +333,22 @@ const PowerTab = () => {
             100,
         )
       : 0
+
+  // #345 — Wärmelast + CSV-Export der Phasen-Verteilung.
+  const totalBtu = Math.round(totals.totalW * 3.412)
+  const exportCsv = () => {
+    const rows: (string | number)[][] = [
+      [t('calc.col.device', 'Gerät'), 'W', t('calc.col.phase', 'Phase')],
+      ...distribution.assignments.map((a) => [a.name, a.watts, `L${a.phase}`]),
+      [],
+      [t('calc.phaseLabel', 'Phase'), 'W', 'A'],
+      ...distribution.perPhaseWatts.map((w, i) => [`L${i + 1}`, Math.round(w), (w / supply.voltage).toFixed(1)]),
+      [t('calc.power.total', 'Gesamt'), Math.round(totals.totalW), ''],
+      [t('calc.power.heat', 'Wärme (BTU/h)'), totalBtu, ''],
+    ]
+    const csv = '\u{FEFF}' + rows.map((r) => r.map((c) => String(c ?? '')).join(';')).join('\r\n')
+    downloadBlob(buildExportFilenameWithSuffix(projectName, 'strom-phasen', 'csv'), csv, 'text/csv')
+  }
 
   return (
     <div className="space-y-3 p-4 text-sm">
@@ -515,6 +534,19 @@ const PowerTab = () => {
               'Greedy-Verteilung: sortiert nach Leistung, jedes Gerät auf die aktuell am schwächsten belastete Phase. Bei symmetrischen Lasten zieht der Drehstrom nur {amps} A je Phase; Unwucht erhöht den höchsten Phasenstrom. Ziel: jede Phase < 85% Last + Unwucht < 20%.',
             ).replace('{amps}', ampsThreePhase.toFixed(1))}
           </p>
+          <div className="mt-3 flex items-center justify-between text-[11px]">
+            <span className="text-slate-400">
+              {t('calc.power.heat', 'Wärme (BTU/h)')}:{' '}
+              <span className="font-mono text-slate-200">{totalBtu}</span>
+            </span>
+            <button
+              type="button"
+              onClick={exportCsv}
+              className="inline-flex items-center gap-1 rounded bg-emerald-700 px-2 py-1 text-[11px] font-medium text-white hover:bg-emerald-600"
+            >
+              <Icon icon={Download} size="xs" /> {t('analysis.exportCsv', 'CSV exportieren')}
+            </button>
+          </div>
         </div>
       )}
 

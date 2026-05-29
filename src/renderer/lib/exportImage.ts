@@ -7,11 +7,11 @@
 // want to maintain in two places. The capture is done with html-to-image
 // directly so the output skips jsPDF entirely.
 
-import { toJpeg, toPng } from 'html-to-image'
+import { toJpeg, toPng, toSvg } from 'html-to-image'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { buildExportFilename } from './exportFilename'
 
-export type ImageExportFormat = 'png' | 'jpeg'
+export type ImageExportFormat = 'png' | 'jpeg' | 'svg'
 
 export interface ImageExportBackgroundOptions {
   /** Canvas grid variant. Defaults to 'dots'. */
@@ -157,9 +157,11 @@ const captureViewport = async (
     },
   }
 
-  return format === 'png'
-    ? toPng(viewportEl, captureOptions)
-    : toJpeg(viewportEl, { ...captureOptions, quality: jpegQuality })
+  return format === 'svg'
+    ? toSvg(viewportEl, captureOptions)
+    : format === 'png'
+      ? toPng(viewportEl, captureOptions)
+      : toJpeg(viewportEl, { ...captureOptions, quality: jpegQuality })
 }
 
 const triggerDownload = (dataUrl: string, fileName: string) => {
@@ -196,5 +198,5 @@ export const exportCanvasToImage = async (
     },
   )
   // v7.9.116 — Einheitlicher Stempel: YYYYMMDD_<name>_NNN.{png|jpg}
-  triggerDownload(dataUrl, buildExportFilename(projectName, format === 'png' ? 'png' : 'jpg'))
+  triggerDownload(dataUrl, buildExportFilename(projectName, format === 'png' ? 'png' : format === 'svg' ? 'svg' : 'jpg'))
 }

@@ -762,6 +762,19 @@ interface UiState extends PersistedUiState {
   calculators: { open: boolean; tab?: 'bandwidth' | 'power' }
   openCalculators: (tab?: 'bandwidth' | 'power') => void
   closeCalculators: () => void
+  /** Projekt-Analysen (read-only Reports): Strom/Phasen, Netzwerk, Gewicht/
+   *  Wärme, Redundanz. Issues #345/#346/#351/#352. */
+  analysis: { open: boolean }
+  openAnalysis: () => void
+  closeAnalysis: () => void
+  /** Generischer Equipment-CSV-Import in die Library (#354). */
+  csvImport: { open: boolean }
+  openCsvImport: () => void
+  closeCsvImport: () => void
+  /** "Neu aus Vorlage" — Projekt-Vorlagen-Galerie (#343). */
+  templates: { open: boolean }
+  openTemplates: () => void
+  closeTemplates: () => void
   /** Rentman equipment import dialog (cross-component trigger). */
   rentmanImport: { open: boolean }
   openRentmanImport: () => void
@@ -1127,6 +1140,15 @@ export const useUiStore = create<UiState>((set) => ({
   calculators: { open: false },
   openCalculators: (tab) => set({ calculators: { open: true, tab } }),
   closeCalculators: () => set({ calculators: { open: false } }),
+  analysis: { open: false },
+  openAnalysis: () => set({ analysis: { open: true } }),
+  closeAnalysis: () => set({ analysis: { open: false } }),
+  csvImport: { open: false },
+  openCsvImport: () => set({ csvImport: { open: true } }),
+  closeCsvImport: () => set({ csvImport: { open: false } }),
+  templates: { open: false },
+  openTemplates: () => set({ templates: { open: true } }),
+  closeTemplates: () => set({ templates: { open: false } }),
   rentmanImport: { open: false },
   openRentmanImport: () => set({ rentmanImport: { open: true } }),
   closeRentmanImport: () => set({ rentmanImport: { open: false } }),
