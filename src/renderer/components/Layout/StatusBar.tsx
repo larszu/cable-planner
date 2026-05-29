@@ -44,7 +44,7 @@ export const StatusBar = ({
   const t = useTranslation()
   const complexity = complexityFor(equipmentCount, cableCount, t)
   return (
-    <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-slate-700 bg-slate-950 px-3 py-1 text-xs text-slate-300">
+    <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1 text-cp-xs text-[var(--cp-text-secondary)]">
       <div className="flex min-w-0 items-center gap-3">
         <span className="truncate font-medium text-slate-200">{projectName}</span>
         <span className="text-slate-600">|</span>
@@ -70,7 +70,7 @@ export const StatusBar = ({
           </span>
         )}
         <span
-          className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${complexity.tone}`}
+          className={`rounded px-1.5 py-0.5 text-cp-xs font-bold ${complexity.tone}`}
           title={t(
             'statusbar.complexity.title',
             'Komplexität: heuristisch aus (Geräte + Kabel)-Anzahl. Hilft beim Einschätzen von Übersichtlichkeit + Performance.',
@@ -97,7 +97,7 @@ export const StatusBar = ({
         <button
           type="button"
           onClick={() => useUiStore.getState().openAboutDialog()}
-          className="rounded bg-slate-800 px-1.5 py-0.5 font-mono text-[10px] text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+          className="rounded bg-[var(--cp-surface-2)] px-1.5 py-0.5 font-mono text-cp-xs text-[var(--cp-text-muted)] hover:bg-slate-700 hover:text-slate-200"
           title={t('statusbar.aboutTitle', 'Über Cable Planner')}
         >
           v{APP_VERSION}
