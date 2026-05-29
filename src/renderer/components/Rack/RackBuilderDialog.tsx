@@ -1098,12 +1098,50 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 </div>
               </div>
             )}
-            {/* v7.9.73 / #170 — 3D-Tab: nur lesende Orbit-Ansicht.
-                Bearbeitung geht weiter im 2D-Tab.
-                v7.9.75 / #170 — View-Mode-Filter über den Placements:
-                'all' / 'free' / 'released' ausgewertet anhand
-                draft.internalCables. */}
             {viewTab === '3d' && (
+              <RackBuilder3DTab
+                totalUnits={draft.totalUnits}
+                rackDepthMm={draft.depthMm}
+                placements={draft.placements}
+                internalCables={draft.internalCables}
+                templates={templates}
+                selectedPlacementId={selectedPlacementId}
+                renderMode={renderMode}
+                onSelectPlacement={setSelectedPlacementId}
+                onSetRenderMode={setRenderMode}
+                onCanvasRefsReady={(refs) => {
+                  canvas3DRefs.current = refs
+                }}
+                onShelfDeviceMoved={(placementId, offset) => {
+                  updatePlacement(placementId, {
+                    shelfOffsetX: offset.x,
+                    shelfOffsetZ: offset.z,
+                  })
+                }}
+                onPortMoved={(placementId, portId, side, pos) => {
+                  setDraft((current) => ({
+                    ...current,
+                    placements: current.placements.map((p) => {
+                      if (p.id !== placementId) return p
+                      const key = side === 'front' ? 'inputs' : 'outputs'
+                      return {
+                        ...p,
+                        [key]: p[key].map((port) =>
+                          port.id === portId
+                            ? { ...port, panelPosX: pos.x, panelPosY: pos.y }
+                            : port,
+                        ),
+                      }
+                    }),
+                  }))
+                }}
+                onTemplateDropped={(template, mount) => {
+                  void addTemplate(template, { mountSide: mount })
+                }}
+              />
+            )}
+            {/* DEAD CODE — wird gleich abgeschnitten */}
+            {viewTab === '__never__' && (
               <>
                 <div className="mb-2 flex items-center gap-1 text-[10px]">
                   <span className="text-slate-500">{t('rack.view.label', 'Ansicht:')}</span>
