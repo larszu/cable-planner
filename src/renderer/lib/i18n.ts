@@ -1161,10 +1161,10 @@ const en: Dict = {
   'greengo.import.gg5': '⬆ Import .gg5',
   'greengo.import.xlsxTitle':
     'Upload intercom-matrix Excel — users + groups will be merged into the GreenGo configuration.',
-  'greengo.import.xlsx': '📊 Import Excel matrix',
+  'greengo.import.xlsx': 'Import Excel matrix',
   'greengo.export.xlsxTitle':
     'Download current GreenGo configuration as an intercom-matrix Excel (for print / hand-off).',
-  'greengo.export.xlsx': '📊 Export Excel matrix',
+  'greengo.export.xlsx': 'Export Excel matrix',
   'greengo.saveProject': 'Save in project',
   'greengo.export.gg5': '⬇ Export as .gg5',
   'greengo.importOverlay.title': 'Import .gg5 — link devices',
