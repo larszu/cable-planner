@@ -1313,6 +1313,19 @@ const en: Dict = {
 
   // PatchListDialog
   'patchList.title': 'Patch list',
+  'patchList.col.number': 'No.',
+  'settings.project.numbering.title': 'Cable numbering',
+  'settings.project.numbering.desc':
+    'Automatic, collision-free cable IDs from a fixed scheme — shown on the canvas, in the patch list and on the labels.',
+  'settings.project.numbering.enabled': 'Auto-assign a number to new cables',
+  'settings.project.numbering.prefix': 'Prefix',
+  'settings.project.numbering.separator': 'Separator',
+  'settings.project.numbering.padding': 'Digits',
+  'settings.project.numbering.start': 'Start number',
+  'settings.project.numbering.perLayer': 'Separate counter per layer (V/A/N/P …)',
+  'settings.project.numbering.example': 'Example',
+  'settings.project.numbering.renumber': 'Renumber all cables',
+  'settings.project.numbering.done': '{n} cables renumbered.',
   'patchList.searchPlaceholder': 'Search (device, port, type, colour, note …)',
   'patchList.layerFilter': 'Filter by layer/discipline',
   'patchList.allLayers': 'All layers',
@@ -2703,13 +2716,14 @@ const en: Dict = {
   'patchList.col.toPort': 'To port',
   'patchList.col.port': 'Port',
   'patchList.col.color': 'Colour',
+  'patchList.col.layer': 'Layer',
   'patchList.col.cableName': 'Cable name',
   'patchList.col.notes': 'Notes',
   'patchList.footerHint':
     'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
   'patchList.exportCsv': '⬇ Export CSV',
   'patchList.exportXlsx': '⬇ Export XLSX',
-  'patchList.exportLabels': 'Labels (PDF)',
+  'patchList.exportLabels': 'Labels + QR (PDF)',
   // #314 Replace device section
   'replaceDevice.title': 'Replace device',
   'replaceDevice.subtitle': 'Preserve cabling',
