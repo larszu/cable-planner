@@ -46,6 +46,16 @@
   --cp-space-3: 0.75rem;
   --cp-space-4: 1rem;
   --cp-space-6: 1.5rem;
+
+  /* z-index scale — single source of truth for stacking order. Replaces the
+   * scattered z-[60]/z-[200]/zIndex:9999 ad-hoc values (UX audit #51). Use as
+   * z-[var(--cp-z-modal)] etc. Higher layer = on top. */
+  --cp-z-canvas-overlay: 100;
+  --cp-z-panel: 200;
+  --cp-z-modal: 1000;
+  --cp-z-menu: 1100;
+  --cp-z-popover: 1200;
+  --cp-z-toast: 1300;
 }
 
 * {
@@ -477,14 +487,14 @@ a:focus-visible,
 [role="menuitem"]:focus-visible,
 [role="checkbox"]:focus-visible,
 [role="tab"]:focus-visible {
-  outline: 2px solid #38bdf8;
+  outline: 2px solid var(--cp-accent);
   outline-offset: 1px;
   border-radius: 4px;
 }
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #38bdf8;
+  outline: 2px solid var(--cp-accent);
   outline-offset: -1px;
 }
 [data-theme="light"] button:focus-visible,
@@ -492,5 +502,47 @@ textarea:focus-visible {
 [data-theme="light"] input:focus-visible,
 [data-theme="light"] select:focus-visible,
 [data-theme="light"] textarea:focus-visible {
-  outline-color: #0284c7;
+  outline-color: var(--cp-accent);
+}
+
+/* ── Themed scrollbars (UX audit #54) ───────────────────────────────────────
+ * Previously the app shipped default OS scrollbars, which look out of place on
+ * the dark canvas and differ per platform. These are theme-aware via the
+ * --cp-* tokens, so they also adapt in light mode. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cp-border) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--cp-border);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--cp-text-faint);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ── Respect prefers-reduced-motion (UX audit #46) ──────────────────────────
+ * Motion-sensitive users get animations/transitions effectively disabled
+ * (incl. the overlap-flash keyframe and any spinners). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -89,6 +89,7 @@ export default function App() {
   const t = useTranslation()
   const project = useProjectStore((state) => state.project)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
+  const language = useUiStore((state) => state.language)
   // v7.7.1 — exporters now read the live canvas-background settings so the
   // exported PDF / PNG / JPEG matches what the user sees on the canvas.
   const exportBgVariant = useUiStore((state) => state.bgVariant)
@@ -157,6 +158,12 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = pdfExportThemeOverride ?? canvasTheme
   }, [canvasTheme, pdfExportThemeOverride])
+
+  // Keep the <html lang> attribute in sync with the selected UI language so
+  // screen readers pronounce content correctly (was hardcoded lang="en").
+  useEffect(() => {
+    document.documentElement.lang = language
+  }, [language])
 
   const projectVersion = useProjectStore((s) => s.projectVersion)
   const [libraryReady, setLibraryReady] = useState(false)
@@ -463,11 +470,16 @@ export default function App() {
       project.cables.length > 0 ||
       (project.locations?.length ?? 0) > 0
     if (hasContent) {
-      const ok = confirm(
-        t(
-          'app.newProject.confirm',
-          'Aktuelles Projekt verwerfen und neues Projekt anlegen?\n\nUngespeicherte Änderungen gehen verloren.',
-        ),
+      const ok = await confirmDialog(
+        t('app.newProject.confirmTitle', 'Neues Projekt anlegen?'),
+        {
+          body: t(
+            'app.newProject.confirm',
+            'Aktuelles Projekt verwerfen und neues Projekt anlegen?\n\nUngespeicherte Änderungen gehen verloren.',
+          ),
+          okLabel: t('app.newProject.confirmOk', 'Neues Projekt'),
+          destructive: true,
+        },
       )
       if (!ok) return
     }
@@ -866,12 +878,23 @@ export default function App() {
           // (no chip, no splitter spacing) so the canvas reclaims the
           // space. The panel itself renders as an overlay via
           // FloatingPanelShell.
+          //
+          // Responsive (UX audit #2/#3): expanded panel columns are capped at
+          // a viewport fraction via min(<width>px, 33vw). On normal desktop
+          // widths the stored width wins (defaults 260/280px stay untouched
+          // for viewports ≳850px); only on narrow windows do the panels shrink
+          // so the canvas always keeps usable room. Stateless + reversible —
+          // the stored preference is never mutated.
           gridTemplateColumns: `${
-            libraryFloating ? '0px' : libraryCollapsed ? '32px' : `${libraryWidth}px`
-          } ${libraryFloating ? '0px' : '4px'} 1fr ${
+            libraryFloating ? '0px' : libraryCollapsed ? '32px' : `min(${libraryWidth}px, 33vw)`
+          } ${libraryFloating ? '0px' : '4px'} minmax(0, 1fr) ${
             propertiesFloating ? '0px' : '4px'
           } ${
-            propertiesFloating ? '0px' : propertiesCollapsed ? '32px' : `${propertiesWidth}px`
+            propertiesFloating
+              ? '0px'
+              : propertiesCollapsed
+                ? '32px'
+                : `min(${propertiesWidth}px, 33vw)`
           }`,
         }}
       >

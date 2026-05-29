@@ -919,6 +919,7 @@ const en: Dict = {
   'rack.export.png3dDesc': 'PNG: front · rear · iso · top (1× per file)',
   'rack.export.no3dInit':
     '3D tab must be opened first to initialise the 3D scene.',
+  'rack.export.no3dInitTitle': '3D scene not ready',
   'rack.export.stl': '3D as STL',
   'rack.export.stlDesc': 'Complete rack as binary STL (3D printing, CAD)',
   'rack.export.cpgroup': 'Download .cpgroup',
@@ -2483,6 +2484,8 @@ const en: Dict = {
   // App.tsx New project confirm
   'app.newProject.confirm':
     'Discard current project and create a new one?\n\nUnsaved changes will be lost.',
+  'app.newProject.confirmTitle': 'Create new project?',
+  'app.newProject.confirmOk': 'New project',
   // App.tsx Viewer export
   'app.viewerExport.okTitle': 'Viewer file saved',
   'app.viewerExport.okBody':
@@ -2904,6 +2907,7 @@ const en: Dict = {
   'csvImport.doneTitle': 'CSV imported',
   'csvImport.doneBody': 'Added {n} device(s) as library templates (existing names unchanged).',
   'app.mobileShare.title': 'Phone access: a small LAN server + QR code so a phone can open the mobile viewer.',
+  'app.mobileShare.ariaLabel': 'Phone access',
   'app.redo': 'Redo (Ctrl+Y)',
   'app.undo': 'Undo (Ctrl+Z)',
   'atem.audio.detected': 'Audio section detected.',
