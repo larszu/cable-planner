@@ -1,0 +1,202 @@
+import { useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+import * as THREE from 'three'
+import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
+import { useTranslation } from '../../lib/i18n'
+import {
+  exportRack2DAsPng,
+  exportRack3DAsPngs,
+  exportRackAsStl,
+  exportRackAsCpgroup,
+} from '../../lib/exportRack'
+
+/** v7.9.83 / #170 — Export-Menu: 2D-PNG, 3D-PNG (alle 4 Perspektiven),
+ *  3D-STL, .cpgroup mit allen Assets.
+ *
+ *  Issue #310 — aus RackBuilderDialog ausgelagert. Die vier Buttons
+ *  konsumieren je drei Schnittstellen:
+ *    1. das aktuell sichtbare 2D-Rack-DOM-Element (rackCanvasRef)
+ *    2. die 3D-Renderer-Refs (gl/scene/camera) sobald der 3D-Tab
+ *       initialisiert wurde
+ *    3. den aktuellen Draft + ggf. die editingId fuer den
+ *       .cpgroup-Snapshot. Snapshot-Logik bleibt 1:1 wie vorher. */
+
+export interface RackPlacementSnapshot {
+  name: string
+  category: string
+  inputs: EquipmentTemplate['inputs']
+  outputs: EquipmentTemplate['outputs']
+  isRackDevice: boolean
+  rackUnits: number
+  startUnit: number
+  frontPanelImageUrl?: string
+  rearPanelImageUrl?: string
+  frontPanelCrop?: EquipmentTemplate['frontPanelCrop']
+  rearPanelCrop?: EquipmentTemplate['rearPanelCrop']
+  depthMm?: number
+  stlDataUri?: string
+  isPatchPanel?: boolean
+  isRackShelf?: boolean
+  mountSide?: 'front' | 'rear' | 'full'
+  shelfOffsetX?: number
+  shelfOffsetZ?: number
+}
+
+export interface RackBuilderDialogExportMenuProps {
+  rackName: string
+  totalUnits: number
+  depthMm?: number
+  placements: RackPlacementSnapshot[]
+  editingId?: string
+  /** DOM des aktuellen 2D-Rack-Canvas (fuer PNG-Export). */
+  rackCanvasEl: HTMLDivElement | null
+  /** Three.js-Renderer-Refs (sobald 3D-Tab initialisiert wurde). */
+  canvas3DRefs: {
+    gl: THREE.WebGLRenderer
+    scene: THREE.Scene
+    camera: THREE.PerspectiveCamera
+  } | null
+}
+
+export const RackBuilderDialogExportMenu = ({
+  rackName,
+  totalUnits,
+  depthMm,
+  placements,
+  editingId,
+  rackCanvasEl,
+  canvas3DRefs,
+}: RackBuilderDialogExportMenuProps) => {
+  const t = useTranslation()
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        title={t('rack.exportTitle', 'Rack exportieren (PNG / STL / .cpgroup)')}
+        className="flex h-8 items-center gap-1 rounded border border-slate-700 bg-slate-800 px-3 text-xs text-slate-300 hover:border-sky-500/50 hover:bg-sky-900/30 hover:text-sky-200"
+      >
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M8 1 L8 10 M4 7 L8 11 L12 7 M2 13 L14 13" />
+        </svg>
+        {t('rack.exportBtn', 'Exportieren')} ▾
+      </button>
+      {open && (
+        <div
+          onMouseLeave={() => setOpen(false)}
+          className="absolute right-0 top-9 z-50 w-64 overflow-hidden rounded border border-slate-700 bg-slate-900 text-xs shadow-2xl"
+        >
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false)
+              if (!rackCanvasEl) return
+              void exportRack2DAsPng(rackCanvasEl, rackName || 'rack')
+            }}
+            className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
+          >
+            <span className="font-semibold">📷 {t('rack.export.png2d', '2D als PNG')}</span>
+            <span className="text-[10px] text-slate-500">
+              {t('rack.export.png2dDesc', 'Aktuelle Front/Rear/Both-Ansicht als Bild')}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={async () => {
+              setOpen(false)
+              if (!canvas3DRefs) {
+                alert(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'))
+                return
+              }
+              await exportRack3DAsPngs(canvas3DRefs.gl, canvas3DRefs.scene, canvas3DRefs.camera, {
+                rackName: rackName || 'rack',
+                rackWidthMm: 482.6,
+                rackHeightMm: totalUnits * 44.45,
+                rackDepthMm: depthMm ?? 800,
+              })
+            }}
+            className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
+          >
+            <span className="font-semibold">📸 {t('rack.export.png3d', '3D aus 4 Perspektiven')}</span>
+            <span className="text-[10px] text-slate-500">
+              {t('rack.export.png3dDesc', 'PNG: Front · Rear · Iso · Top (1× pro Datei)')}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false)
+              if (!canvas3DRefs) {
+                alert(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'))
+                return
+              }
+              exportRackAsStl(canvas3DRefs.scene, rackName || 'rack')
+            }}
+            className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
+          >
+            <span className="font-semibold">🧊 {t('rack.export.stl', '3D als STL')}</span>
+            <span className="text-[10px] text-slate-500">
+              {t('rack.export.stlDesc', 'Komplettes Rack als binäres STL (3D-Druck, CAD)')}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false)
+              // Build the current preset snapshot ohne Save-Side-Effects.
+              const sorted = placements.slice().sort((a, b) => a.startUnit - b.startUnit)
+              const items: GroupPreset['items'] = sorted.map((p) => ({
+                name: p.name,
+                category: p.category,
+                inputs: p.inputs,
+                outputs: p.outputs,
+                isRackDevice: p.isRackDevice,
+                rackUnits: p.rackUnits,
+                frontPanelImageUrl: p.frontPanelImageUrl,
+                rearPanelImageUrl: p.rearPanelImageUrl,
+                frontPanelCrop: p.frontPanelCrop,
+                rearPanelCrop: p.rearPanelCrop,
+                depthMm: p.depthMm,
+                stlDataUri: p.stlDataUri,
+                isPatchPanel: p.isPatchPanel,
+                isRackShelf: p.isRackShelf,
+                width: 240,
+                height: 80 + Math.max(p.inputs.length, p.outputs.length, 3) * 22,
+                offsetX: 0,
+                offsetY: (p.startUnit - 1) * 44,
+              }))
+              const rackPlacements = sorted.map((p, i) => ({
+                itemIndex: i,
+                startUnit: p.startUnit,
+                heightUnits: p.rackUnits,
+                ...(p.mountSide ? { mountSide: p.mountSide } : {}),
+                ...(p.shelfOffsetX ? { shelfOffsetX: p.shelfOffsetX } : {}),
+                ...(p.shelfOffsetZ ? { shelfOffsetZ: p.shelfOffsetZ } : {}),
+              }))
+              const preset: GroupPreset = {
+                id: editingId ?? uuidv4(),
+                name: rackName.trim() || 'rack',
+                rack: {
+                  totalUnits,
+                  ...(depthMm ? { depthMm } : {}),
+                  placements: rackPlacements,
+                },
+                items,
+                cables: [],
+              }
+              exportRackAsCpgroup(preset)
+            }}
+            className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
+          >
+            <span className="font-semibold">💾 {t('rack.export.cpgroup', '.cpgroup herunterladen')}</span>
+            <span className="text-[10px] text-slate-500">
+              {t('rack.export.cpgroupDesc', 'Komplettes Rack inkl. STL + Fotos zum Cross-PC-Transfer')}
+            </span>
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
