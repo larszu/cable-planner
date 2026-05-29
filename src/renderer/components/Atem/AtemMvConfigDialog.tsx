@@ -1012,7 +1012,7 @@ export const AtemMvConfigDialog = () => {
       onClick={close}
     >
       <div
-        className="flex max-h-[95vh] w-[960px] flex-col rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
+        className="flex max-h-[95vh] w-[960px] max-w-[95vw] flex-col rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
