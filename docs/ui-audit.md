@@ -134,11 +134,32 @@ weil jede neue Opacity-Stufe manuell nachgezogen werden muss. `--cp-*`
 existiert bisher nur als `--cp-bg`/`--cp-text` (nur im Light-Block + als
 Inline-Fallback in `ErrorBoundary`). → Token-Schicht einführen.
 
+### Phase 2 — erledigt
+
+- **Token-Schicht** in `index.css`: `@theme`-Typo-Skala (`text-cp-xs`=12px,
+  `-sm`=13px, `-base`=14px, `-lg`=16px) + Farb-Tokens (`--cp-surface-1/2/3`,
+  `--cp-border`, `--cp-border-muted`, `--cp-text`, `--cp-text-secondary`,
+  `--cp-text-muted`, `--cp-text-faint`, `--cp-accent`, `--cp-warn`,
+  `--cp-danger`) + Spacing-Referenz (`--cp-space-*`). Dark = `:root`,
+  Light-Overrides in `[data-theme="light"]` — **Werte exakt = bisheriger
+  Slate-Remap**, daher appearance-neutral & keine dunklen Rest-Flächen.
+- **Migrierte Shells** (Flächen/Border/Text auf `var(--cp-*)`, Schrift auf
+  Typo-Skala, kleinste Fließtext-Größe jetzt 12px):
+  `ModalShell`, `SettingsCard`, `StatusBar`, `FloatingPanelShell` (inkl.
+  `📌`→`Pin`, `⋮⋮`→`GripVertical`), `MenuBar` (Header + Dropdown + Body-Typo).
+- Verifiziert: `text-cp-*`-Utilities + `var(--cp-*)`-Utilities kompilieren;
+  keine `<12px`-Fließtext-Klassen mehr in den migrierten Shells.
+
 ### TODO (großflächiger Rest, NICHT Big-Bang)
 
 - [ ] `text-[10px]`/`text-[11px]`/`text-[9px]` flächendeckend auf
       Typo-Skala migrieren (zentrale Shells in Phase 2 erledigt, Rest
-      offen). Fließtext-Mindestgröße 12px.
+      offen — v. a. RackBuilderDialog/LibraryPanel/Export-Dialoge).
+      Fließtext-Mindestgröße 12px. (Rein dekorative Micro-Glyphen wie
+      MenuBar-Caret `▾` bleiben.)
+- [ ] Translucente Glas-Flächen (`bg-slate-950/95`, `bg-slate-900/80`,
+      `bg-slate-950/40`) auf Alpha-Tokens (z. B. `color-mix`) heben —
+      aktuell bewusst als slate-Klassen belassen (Remap deckt Light ab).
 - [ ] Slate-Remapping in `index.css` schrittweise durch `--cp-*`-Tokens
       ersetzen; Ziel: Opacity-Varianten-Liste schrumpfen.
 - [ ] Inline-Style-Komponenten (`CableEdge`, `CanvasToolbar`,
