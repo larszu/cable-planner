@@ -47,6 +47,7 @@ export type EquipmentSlice = Pick<
   | 'deleteEquipment'
   | 'setActiveDeviceMode'
   | 'addOpenEndStub'
+  | 'replaceEquipmentWithTemplate'
 >
 
 export const createEquipmentSlice: StateCreator<ProjectState, [], [], EquipmentSlice> = (set) => ({
@@ -294,4 +295,124 @@ export const createEquipmentSlice: StateCreator<ProjectState, [], [], EquipmentS
     // Actually caller needs the portId — we encode as `${id}|${portId}` for simplicity.
     return `${id}|${portId}`
   },
+
+  // #314 — Geraet auf dem Canvas durch ein anderes Template ersetzen,
+  // ohne die Kabel zu verlieren. Ports werden gematcht nach
+  //  1. (connectorType, contentLabel||name)  — beste Uebereinstimmung
+  //  2. (connectorType, positional) fuer noch nicht zugeordnete Ports
+  // Cables die kein Mapping kriegen werden geloescht (sonst zeigt
+  // ReactFlow ein "broken edge" auf einen nicht-existenten Port).
+  // Caller (UI) bestaetigt vorher in einem Summary-Dialog.
+  replaceEquipmentWithTemplate: (equipmentId, template) =>
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      const oldEq = state.project.equipment.find((e) => e.id === equipmentId)
+      if (!oldEq) return state
+
+      // Fresh port ids fuer die Template-Ports (Templates kommen oft mit '' als id).
+      const newInputs = template.inputs.map((p, idx) =>
+        sanitizePort({ ...p, id: uuidv4() }, p.name ?? `In ${idx + 1}`),
+      )
+      const newOutputs = template.outputs.map((p, idx) =>
+        sanitizePort({ ...p, id: uuidv4() }, p.name ?? `Out ${idx + 1}`),
+      )
+
+      // Mapping bauen — getrennt fuer Inputs/Outputs damit ein BNC-In nie
+      // mit einem BNC-Out gemappt wird.
+      const buildMap = (oldPorts: Port[], newPorts: Port[]): Map<string, string> => {
+        const map = new Map<string, string>()
+        const used = new Set<string>()
+        const oldKey = (p: Port) => (p.contentLabel || p.name || '').trim().toLowerCase()
+        // Pass 1: exact (connectorType, contentLabel||name) match
+        for (const op of oldPorts) {
+          const ok = oldKey(op)
+          const m = newPorts.find(
+            (np) =>
+              !used.has(np.id) &&
+              np.connectorType === op.connectorType &&
+              ok &&
+              oldKey(np) === ok,
+          )
+          if (m) {
+            map.set(op.id, m.id)
+            used.add(m.id)
+          }
+        }
+        // Pass 2: positional within connectorType
+        for (const op of oldPorts) {
+          if (map.has(op.id)) continue
+          const m = newPorts.find(
+            (np) => !used.has(np.id) && np.connectorType === op.connectorType,
+          )
+          if (m) {
+            map.set(op.id, m.id)
+            used.add(m.id)
+          }
+        }
+        return map
+      }
+      const inMap = buildMap(oldEq.inputs, newInputs)
+      const outMap = buildMap(oldEq.outputs, newOutputs)
+
+      // Cables migrieren — wenn ein Endpunkt am alten Equipment haengt
+      // und kein Mapping existiert, faellt das Kabel raus.
+      const nextCables: Cable[] = []
+      for (const c of state.project.cables) {
+        let drop = false
+        let nextC = { ...c }
+        if (c.fromEquipmentId === equipmentId) {
+          const mapped = inMap.get(c.fromPortId) ?? outMap.get(c.fromPortId)
+          if (mapped) {
+            nextC = { ...nextC, fromPortId: mapped }
+          } else {
+            drop = true
+          }
+        }
+        if (c.toEquipmentId === equipmentId) {
+          const mapped = inMap.get(c.toPortId) ?? outMap.get(c.toPortId)
+          if (mapped) {
+            nextC = { ...nextC, toPortId: mapped }
+          } else {
+            drop = true
+          }
+        }
+        if (!drop) nextCables.push(nextC)
+      }
+
+      const nextEq: EquipmentItem = {
+        ...oldEq,
+        // Template-Identitaet uebernehmen — Categorie, Inputs/Outputs,
+        // physische Maße, Hersteller. Position + nodeColor + manuelle
+        // Name-Edits bleiben am Equipment. libraryRef.name updaten damit
+        // Library-Sync den neuen Template-Namen kennt.
+        libraryRef: template.libraryRef
+          ? template.libraryRef
+          : oldEq.libraryRef
+            ? { ...oldEq.libraryRef, name: template.name }
+            : undefined,
+        category: template.category,
+        inputs: newInputs,
+        outputs: newOutputs,
+        rackUnits: template.rackUnits ?? oldEq.rackUnits,
+        isRackDevice: template.isRackDevice ?? oldEq.isRackDevice,
+        manufacturerUrl: template.manufacturerUrl ?? oldEq.manufacturerUrl,
+        imageUrl: template.imageUrl ?? oldEq.imageUrl,
+        icon: template.icon ?? oldEq.icon,
+        depthMm: template.depthMm ?? oldEq.depthMm,
+        powerWatts: template.powerWatts ?? oldEq.powerWatts,
+        weightKg: template.weightKg ?? oldEq.weightKg,
+      }
+
+      const nextEquipment = state.project.equipment.map((e) =>
+        e.id === equipmentId ? nextEq : e,
+      )
+
+      const updatedProject = touchProject({
+        ...state.project,
+        equipment: nextEquipment,
+        cables: nextCables,
+      })
+      scheduleProjectAutosave(updatedProject)
+      return { project: updatedProject }
+    }),
 })
