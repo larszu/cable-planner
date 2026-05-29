@@ -70,7 +70,19 @@ export interface CableSpec {
   /** Typical maximum cable length in meters (signal integrity). */
   maxLengthMeters?: number
   color: string
+  /**
+   * User-supplied notes (free text). Used for custom CableSpec definitions the
+   * user adds via the catalog UI — they own this string and it stays in
+   * whatever language they typed it.
+   */
   notes?: string
+  /**
+   * Built-in catalog entries use a translation key instead of an inline
+   * `notes` string. Consumers should resolve it via `t(spec.notesKey, '')`
+   * so the description follows the active UI language without changing the
+   * underlying portable spec definition.
+   */
+  notesKey?: string
 }
 
 /**
@@ -86,7 +98,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['Analog-Audio', 'AES3'],
     maxLengthMeters: 100,
     color: '#38bdf8',
-    notes: 'Balanced analog audio or AES3 (digital). Gender: male → female.',
+    notesKey: 'catalog.cable.xlr-3pin-audio.notes',
   },
   {
     id: 'sdi-3g',
@@ -95,7 +107,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['SDI-SD', 'SDI-HD', 'SDI-3G'],
     maxLengthMeters: 100,
     color: '#f59e0b',
-    notes: 'Works for SD/HD/3G. Use 75Ω coax (Belden 1694A or similar).',
+    notesKey: 'catalog.cable.sdi-3g.notes',
   },
   {
     id: 'sdi-6g',
@@ -104,7 +116,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['SDI-SD', 'SDI-HD', 'SDI-3G', 'SDI-6G'],
     maxLengthMeters: 70,
     color: '#f97316',
-    notes: '6G needs higher-quality coax; mix with 3G only via down-converter.',
+    notesKey: 'catalog.cable.sdi-6g.notes',
   },
   {
     id: 'sdi-12g',
@@ -113,7 +125,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['SDI-SD', 'SDI-HD', 'SDI-3G', 'SDI-6G', 'SDI-12G'],
     maxLengthMeters: 50,
     color: '#ef4444',
-    notes: 'Use 4K-rated 12G coax (e.g. Belden 4694R). Downscale to 3G requires a scaler/converter.',
+    notesKey: 'catalog.cable.sdi-12g.notes',
   },
   {
     id: 'hdmi-2.0',
@@ -122,7 +134,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['HDMI-1.4', 'HDMI-2.0'],
     maxLengthMeters: 10,
     color: '#a855f7',
-    notes: 'Passive copper limited to ~10 m; use optical HDMI for longer runs.',
+    notesKey: 'catalog.cable.hdmi-2.0.notes',
   },
   {
     id: 'hdmi-2.1',
@@ -131,7 +143,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['HDMI-1.4', 'HDMI-2.0', 'HDMI-2.1'],
     maxLengthMeters: 5,
     color: '#c084fc',
-    notes: 'Ultra-high speed cables required; pairing with HDMI 1.4 device limits to 1.4.',
+    notesKey: 'catalog.cable.hdmi-2.1.notes',
   },
   {
     id: 'dp-1.4',
@@ -156,7 +168,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['Eth-100', 'Eth-1G', 'Eth-10G'],
     maxLengthMeters: 100,
     color: '#16a34a',
-    notes: 'Required for 10GBASE-T over full 100 m runs.',
+    notesKey: 'catalog.cable.cat6a.notes',
   },
   {
     id: 'fiber-sm-lc',
@@ -165,7 +177,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['Fiber-SM'],
     maxLengthMeters: 10000,
     color: '#eab308',
-    notes: 'Single-mode (yellow jacket). Long distance (>300 m).',
+    notesKey: 'catalog.cable.fiber-sm-lc.notes',
   },
   {
     id: 'fiber-mm-lc',
@@ -174,7 +186,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['Fiber-MM'],
     maxLengthMeters: 400,
     color: '#facc15',
-    notes: 'Multi-mode (aqua jacket). Short haul in racks/venue.',
+    notesKey: 'catalog.cable.fiber-mm-lc.notes',
   },
   {
     id: 'usb3',
@@ -191,7 +203,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['Power-230V'],
     maxLengthMeters: 5,
     color: '#475569',
-    notes: 'Standard device power cable ("kettle lead").',
+    notesKey: 'catalog.cable.iec-230v.notes',
   },
   {
     id: 'powercon-tru1',
@@ -200,7 +212,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['Power-230V'],
     maxLengthMeters: 25,
     color: '#0ea5e9',
-    notes: 'Locking, touring-grade power. Do not mix with classic powerCON (grey/blue).',
+    notesKey: 'catalog.cable.powercon-tru1.notes',
   },
   {
     id: 'schuko-230v',
@@ -217,7 +229,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['Thunderbolt-3', 'USB-2.0', 'USB-3.x'],
     maxLengthMeters: 2,
     color: '#7c3aed',
-    notes: 'USB-C Stecker, passiv bis 2 m. Aktives TB3-Kabel bis ~50 cm. Vorwärtskompatibel mit Thunderbolt 4.',
+    notesKey: 'catalog.cable.thunderbolt-3.notes',
   },
   {
     id: 'thunderbolt-4',
@@ -226,7 +238,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['Thunderbolt-4', 'Thunderbolt-3', 'USB-2.0', 'USB-3.x'],
     maxLengthMeters: 2,
     color: '#6d28d9',
-    notes: 'Gleiche Bandbreite wie TB3, aber striktere Zertifizierung (2× DP 1.4, 40Gbps, 100W PD).',
+    notesKey: 'catalog.cable.thunderbolt-4.notes',
   },
   {
     id: 'madi-bnc',
@@ -235,7 +247,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['MADI', 'AES3'],
     maxLengthMeters: 200,
     color: '#0891b2',
-    notes: 'MADI AES10 über 75Ω-Koax. Bis 64 ch bei 48 kHz oder 56 ch bei 96 kHz.',
+    notesKey: 'catalog.cable.madi-bnc.notes',
   },
   {
     id: 'madi-optical',
@@ -244,7 +256,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['MADI', 'Fiber-MM'],
     maxLengthMeters: 2000,
     color: '#06b6d4',
-    notes: 'MADI AES10 über optische Faser. Lange Reichweite, galvanisch getrennt.',
+    notesKey: 'catalog.cable.madi-optical.notes',
   },
   {
     id: 'smpte-297',
@@ -253,7 +265,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['SMPTE-297', 'SDI-3G', 'SDI-HD', 'Fiber-SM'],
     maxLengthMeters: 1000,
     color: '#f59e0b',
-    notes: 'Hybridkabel mit optischer SDI-Strecke + Kupfer für Talkback und Stromversorgung. Kameraanschluss bei ENG/Studio.',
+    notesKey: 'catalog.cable.smpte-297.notes',
   },
   {
     id: 'smpte-304m',
@@ -262,7 +274,7 @@ export const cableCatalog: CableSpec[] = [
     standards: ['SMPTE-304M', 'SDI-HD'],
     maxLengthMeters: 300,
     color: '#d97706',
-    notes: 'Triaxialkabel für Studio-Kameras (HDTV). Überträgt Video, Interkom, Talkback und Strom in einem Kabel.',
+    notesKey: 'catalog.cable.smpte-304m.notes',
   },
 ]
 
