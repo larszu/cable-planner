@@ -4,6 +4,7 @@ import {
   Image as ImageIcon, Calculator, Eye, MessageSquare, Paperclip, Plug, Cable,
   Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, SlidersHorizontal, Tag,
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
+  Pencil, Smartphone, Settings,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
@@ -381,8 +382,8 @@ export const MenuBar = ({
           >
             <span className="truncate font-medium">{projectName}</span>
             {onEditProjectMeta && (
-              <span className="text-[10px] text-slate-500 opacity-0 transition-opacity group-hover:opacity-100">
-                ✎
+              <span className="text-slate-500 opacity-0 transition-opacity group-hover:opacity-100">
+                <Icon icon={Pencil} size="xs" />
               </span>
             )}
           </button>
@@ -400,7 +401,7 @@ export const MenuBar = ({
             aria-label={t('app.undo', 'Rückgängig (Strg+Z)')}
             className="px-2 py-1 text-slate-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
           >
-            ⟲
+            <Icon icon={Undo2} size="sm" />
           </button>
           <span className="h-4 w-px bg-slate-700" aria-hidden="true" />
           <button
@@ -411,7 +412,7 @@ export const MenuBar = ({
             aria-label={t('app.redo', 'Wiederherstellen (Strg+Y)')}
             className="px-2 py-1 text-slate-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
           >
-            ⟳
+            <Icon icon={Redo2} size="sm" />
           </button>
         </div>
         <SharedSyncPanel />
@@ -446,16 +447,16 @@ export const MenuBar = ({
               'Handy-Zugriff: kleiner LAN-Server + QR-Code, damit das Handy den Mobile-Viewer öffnen kann.',
             )}
           >
-            📱
+            <Icon icon={Smartphone} size="sm" />
           </button>
         )}
         <button
           type="button"
           onClick={onOpenSettings}
-          className="rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
+          className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
           title={t('settings.title', 'Einstellungen')}
         >
-          ⚙ {t('settings.title', 'Einstellungen')}
+          <Icon icon={Settings} size="sm" /> {t('settings.title', 'Einstellungen')}
         </button>
       </div>
     </header>
