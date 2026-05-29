@@ -495,8 +495,20 @@ export const CableEdge = ({
     // Collect orthogonal segments from every OTHER cable's path in the
     // DOM. Parse only M and L commands — anything else (arcs, curves)
     // means the path is already bumped or non-orthogonal.
+    //
+    // #223 — Bug: vorher hat das ein document-weites querySelectorAll
+    // gemacht. Im Sub-Canvas (RackInternalCanvas, RackEditorDialog) hat
+    // das auch Pfade vom Haupt-Canvas dahinter aufgesammelt und das
+    // Bridge-Rendering hat Kabel über "nicht existierende" Kabel
+    // springen lassen. Jetzt scopen wir auf die naechste
+    // .react-flow__container vom myPath aus, damit nur Kabel im
+    // gleichen ReactFlow-Viewport beruecksichtigt werden.
     const otherSegments: Array<{ a: { x: number; y: number }; b: { x: number; y: number } }> = []
-    const allPaths = document.querySelectorAll<SVGPathElement>('path.react-flow__edge-path')
+    const scope =
+      myPath.closest<HTMLElement>('.react-flow') ??
+      myPath.closest<HTMLElement>('.react-flow__container') ??
+      document
+    const allPaths = scope.querySelectorAll<SVGPathElement>('path.react-flow__edge-path')
     allPaths.forEach((p) => {
       if (p === myPath) return
       const d = p.getAttribute('d')
