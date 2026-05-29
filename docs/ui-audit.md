@@ -242,6 +242,30 @@ risikoreicher Eingriff entgegen der dokumentierten Projektkonvention.
 - [ ] In-`t()`-String-Glyphen aus Phase 1 (`⚠`/`✓`/`✕` in `cable.warn.*`,
       `bom.cable.missingTypes`, „✕ Reset" etc.) extrahieren + Icon im JSX.
 
+## Phase 5 — Komponenten-Dekomposition (RISIKO)
+
+### Erledigt
+
+- **`RackBuilderDialog`** (2864 → 2614 Zeilen): Datenmodell + reine Helfer
+  nach **`rackBuilderModel.ts`** ausgelagert — Draft-Typen
+  (`RackPlacementDraft`/`RackDraft`/`InternalCableDraft`), 19″-Konstanten
+  und die puren Transform-Funktionen (`parseUnits`, `sanitizeTemplatePorts`,
+  `toPlacement`, `normalizeDraft`, `formatRackUnits`, `draftFromPreset`).
+  **Reines Verschieben — Markup & Verhalten unverändert** (tsc verifiziert,
+  build grün). Das Modell ist jetzt framework-frei und isoliert testbar.
+
+### TODO (bewusst NICHT ohne Laufzeit-Verifikation)
+
+Die eigentliche **JSX-/Hook-Zerlegung** der Mega-Komponenten (präsentationale
+Sub-Komponenten aus `RackBuilderDialog` carven, Draft-State-Hook
+`useRackBuilderDraft`, dann `LibraryPanel`/`CanvasArea`/`App.tsx`) ist hier
+**bewusst aufgeschoben**: Sie verschiebt Closures über lokalen State/Handler
+und ist ohne interaktives Durchklicken regressionsträchtig — das verletzt
+die Hart-Regel „keine ungewollten Regressionen". Empfohlen als eigener,
+mit laufender GUI verifizierter Schritt. `LibraryPanel` hat einen kleinen
+sicheren Modell-Block (`PortGroupDraft`/`defaultGroup`/`buildPorts`,
+Z. 49–84) als nächsten einfachen Kandidaten.
+
 ## Phase 6 — README
 
 - README zeigt **kein einziges Bild** der App. → Hero + Galerie mit
