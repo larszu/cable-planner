@@ -1069,6 +1069,7 @@ export const LibraryPanel = () => {
                   type="button"
                   onClick={() => setLibrarySearch('')}
                   title={t('library.search.clear', 'Suche löschen')}
+                  aria-label={t('library.search.clear', 'Suche löschen')}
                   className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
                 >
                   <Icon icon={X} size="sm" />
@@ -1589,6 +1590,7 @@ export const LibraryPanel = () => {
                         type="button"
                         onClick={() => setRentmanSearch('')}
                         title={t('library.search.clear', 'Suche löschen')}
+                        aria-label={t('library.search.clear', 'Suche löschen')}
                         className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
                       >
                         <Icon icon={X} size="sm" />

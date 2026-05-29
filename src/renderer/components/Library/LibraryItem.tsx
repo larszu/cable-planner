@@ -1,5 +1,5 @@
 import type { EquipmentTemplate } from '../../types/equipment'
-import { Star, Link } from 'lucide-react'
+import { Star, Link, Eye, EyeOff } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { clearCanvasSelection } from '../../lib/canvasViewport'
@@ -200,8 +200,13 @@ export const LibraryItem = ({
                 ? t('library.item.show', 'Wieder anzeigen')
                 : t('library.item.hide', 'Ausblenden')
             }
+            aria-label={
+              item.hidden
+                ? t('library.item.show', 'Wieder anzeigen')
+                : t('library.item.hide', 'Ausblenden')
+            }
           >
-            {item.hidden ? '◎' : '⦸'}
+            <Icon icon={item.hidden ? Eye : EyeOff} size="xs" />
           </button>
         )}
         {onExport && (

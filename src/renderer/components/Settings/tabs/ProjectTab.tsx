@@ -283,6 +283,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
                       type="button"
                       onClick={() => setDraftMeta((prev) => ({ ...prev, [field]: undefined }))}
                       title={t('common.remove', 'Entfernen')}
+                      aria-label={t('common.remove', 'Entfernen')}
                       className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
                     >
                       <Icon icon={X} size="sm" />
