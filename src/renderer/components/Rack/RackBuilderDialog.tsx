@@ -5,7 +5,6 @@ import { useSettingsStore } from '../../store/settingsStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
 import { RackImageCropDialog } from './RackImageCropDialog'
-import { RackInternalCanvas } from './RackInternalCanvas'
 import { RackLivePreview } from './RackLivePreview'
 import { Rack3DView } from './Rack3DView'
 import { PatchPanelCreateDialog } from './PatchPanelCreateDialog'
@@ -17,6 +16,7 @@ import { RackBuilderDialogExportMenu } from './RackBuilderDialogExportMenu'
 import { RackBuilderFooter } from './RackBuilderFooter'
 import { RackBuilderHeader } from './RackBuilderHeader'
 import { RackConflictBadges } from './RackConflictBadges'
+import { RackInternalWireOverlay } from './RackInternalWireOverlay'
 import { RackPlacementProperties } from './RackPlacementProperties'
 import type {
   InternalCableDraft,
@@ -1789,15 +1789,22 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           <RackPlacementProperties
             open={placementPropsOpen}
             selectedPlacement={selectedPlacement}
-            rackTotalUnits={draft.totalUnits}
+            totalUnits={draft.totalUnits}
             rackDepthMm={draft.depthMm}
             templates={templates}
             categoryOptions={categoryOptions}
             onClose={() => setPlacementPropsOpen(false)}
-            onUpdatePlacement={updatePlacement}
-            onRemovePlacement={removePlacement}
-            onOpenCrop={(data) => setCropDialog(data)}
-            onAddCustomTemplate={addCustomTemplate}
+            onUpdate={updatePlacement}
+            onRemove={removePlacement}
+            onPickPanelImage={(placementId, side, src) =>
+              setCropDialog({ placementId, side, src })
+            }
+            onSyncStlToTemplate={(templateName, stlDataUri) => {
+              const tpl = templates.find((tpl2) => tpl2.name === templateName)
+              if (!tpl) return
+              if (stlDataUri === undefined && !tpl.stlDataUri) return
+              addCustomTemplate({ ...tpl, stlDataUri })
+            }}
           />
         )}
 
@@ -1816,108 +1823,25 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         />
       </div>
 
-      {wireDialogOpen && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-2 sm:p-6">
-          <div className="flex h-[92vh] w-[min(1500px,calc(100vw-1rem))] flex-col rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl">
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <div>
-                <h3 className="text-base font-semibold">{t('rack.wire.title', 'Rack-Verkabelung')}: {draft.rackName || t('rack.unnamed', '(unbenannt)')}</h3>
-                <p className="mt-1 text-xs text-slate-400">
-                  {t(
-                    'rack.wire.intro',
-                    'Ziehe Linien Output → Input. Rechtsklick auf Kabel = Menü, Doppelklick = Eigenschaften, Entf = Löschen. Verwendet jetzt die echte Canvas-Komponente — Toolbar, Routing, Waypoints, A*-Routing alles wie im Hauptcanvas.',
-                  )}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setWireDialogOpen(false)}
-                className="rounded bg-emerald-700 px-3 py-1.5 text-xs hover:bg-emerald-600"
-              >
-                {t('common.done', 'Fertig')}
-              </button>
-            </div>
-            <div className="min-h-0 flex-1 overflow-hidden rounded border border-slate-700">
-              <RackInternalCanvas
-                rackName={draft.rackName}
-                placements={draft.placements.map((p) => ({
-                  id: p.id,
-                  name: p.name,
-                  category: p.category,
-                  startUnit: p.startUnit,
-                  rackUnits: p.rackUnits,
-                  inputs: p.inputs,
-                  outputs: p.outputs,
-                  isRackDevice: p.isRackDevice,
-                  canvasX: p.canvasX,
-                  canvasY: p.canvasY,
-                }))}
-                initialCables={(() => {
-                  // draft.internalCables (per-id) → GroupPreset.cables (per-index)
-                  const result: GroupPreset['cables'] = []
-                  for (const c of draft.internalCables) {
-                    const fromIdx = draft.placements.findIndex((p) => p.id === c.fromPlacementId)
-                    const toIdx = draft.placements.findIndex((p) => p.id === c.toPlacementId)
-                    if (fromIdx < 0 || toIdx < 0) continue
-                    const entry: GroupPreset['cables'][number] = {
-                      fromItemIndex: fromIdx,
-                      fromPortName: c.fromPortName,
-                      toItemIndex: toIdx,
-                      toPortName: c.toPortName,
-                      name: c.name,
-                      type: c.type,
-                      length: c.length,
-                    }
-                    if (c.color != null) entry.color = c.color
-                    if (c.standard != null) entry.standard = c.standard
-                    // v7.9.115 / Issue #223 — Waypoints durchreichen.
-                    if (c.waypoints && c.waypoints.length > 0) {
-                      entry.waypoints = c.waypoints.map((wp) => ({ x: wp.x, y: wp.y }))
-                    }
-                    result.push(entry)
-                  }
-                  return result
-                })()}
-                onCablesChanged={(cables) => {
-                  // GroupPreset.cables (per-index) → draft.internalCables (per-id)
-                  const next: InternalCableDraft[] = []
-                  for (const c of cables) {
-                    const fromId = draft.placements[c.fromItemIndex]?.id
-                    const toId = draft.placements[c.toItemIndex]?.id
-                    if (!fromId || !toId) continue
-                    const entry: InternalCableDraft = {
-                      fromPlacementId: fromId,
-                      fromPortName: c.fromPortName,
-                      toPlacementId: toId,
-                      toPortName: c.toPortName,
-                      name: c.name,
-                      type: c.type,
-                      length: c.length,
-                    }
-                    if (c.color != null) entry.color = c.color
-                    if (c.standard != null) entry.standard = c.standard
-                    // v7.9.115 / Issue #223 — Waypoints durchreichen.
-                    if (c.waypoints && c.waypoints.length > 0) {
-                      entry.waypoints = c.waypoints.map((wp) => ({ x: wp.x, y: wp.y }))
-                    }
-                    next.push(entry)
-                  }
-                  setDraft((current) => ({ ...current, internalCables: next }))
-                }}
-                onPlacementRenamed={(placementId, newName) => {
-                  updatePlacement(placementId, { name: newName })
-                }}
-                onPlacementMoved={(placementId, x, y) => {
-                  // v7.9.14 — Canvas-Position des Geräts im Internal-
-                  // Canvas in den Draft persistieren. Beim Save landet
-                  // sie in GroupPreset.rack.internalCanvasPositions.
-                  updatePlacement(placementId, { canvasX: x, canvasY: y })
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      <RackInternalWireOverlay
+        open={wireDialogOpen}
+        rackName={draft.rackName}
+        placements={draft.placements}
+        internalCables={draft.internalCables}
+        onClose={() => setWireDialogOpen(false)}
+        onCablesChanged={(next) =>
+          setDraft((current) => ({ ...current, internalCables: next }))
+        }
+        onPlacementRenamed={(placementId, newName) => {
+          updatePlacement(placementId, { name: newName })
+        }}
+        onPlacementMoved={(placementId, x, y) => {
+          // v7.9.14 — Canvas-Position des Geräts im Internal-Canvas in den
+          // Draft persistieren. Beim Save landet sie in
+          // GroupPreset.rack.internalCanvasPositions.
+          updatePlacement(placementId, { canvasX: x, canvasY: y })
+        }}
+      />
 
       <RackImageCropDialog
         open={!!cropDialog}
