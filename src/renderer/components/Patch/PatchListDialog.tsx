@@ -16,7 +16,7 @@ import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { portLabelPair } from '../../lib/portLabel'
-import { Cable as CableIcon, Tag } from 'lucide-react'
+import { Cable as CableIcon, Tag, Download } from 'lucide-react'
 import { ModalShell } from '../shared/ModalShell'
 import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
@@ -394,17 +394,19 @@ export const PatchListDialog = () => {
               type="button"
               onClick={exportCsv}
               disabled={filtered.length === 0}
-              className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
             >
-              {t('patchList.exportCsv', '⬇ CSV exportieren')}
+              <Icon icon={Download} size="xs" />
+              {t('patchList.exportCsv', 'CSV exportieren')}
             </button>
             <button
               type="button"
               onClick={() => void exportXlsx()}
               disabled={filtered.length === 0}
-              className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
             >
-              {t('patchList.exportXlsx', '⬇ XLSX exportieren')}
+              <Icon icon={Download} size="xs" />
+              {t('patchList.exportXlsx', 'XLSX exportieren')}
             </button>
             <button
               type="button"
