@@ -68,7 +68,7 @@ per-component.
 32. 🔴 `[ ]` **15 hand-rolled `fixed inset-0` modals without `useDialogA11y`** (no focus trap, Escape, or focus return): `RackEditorDialog`, `GraphmlImportDialog`, `VideohubExportDialog`, `RentmanImportDialog`, `RentmanCableExportDialog`, `AtemAudioRouterDialog`, `AtemMvConfigDialog`, `LocationBomDialog`, `CableBomDialog`, `NonRackAddDialog`, `PatchPanelCreateDialog`, `RackShelfCreateDialog`, `RackImageCropDialog`, `MobileShareDialog`, `GreenGoExportDialog`.
 33. 🔴 `[ ]` **`CanvasToolbar.tsx:262–264`** — local `IconButton` sets only `title=`, **no `aria-label`** → all icon-only toolbar buttons are nameless for SR. Project-wide **~472 `title=` vs ~70 `aria-label`**.
 34. 🔴 `[ ]` **Canvas is mouse-only**: cables are created only by handle-drag (`CanvasArea.tsx` `onConnect…`), devices moved only by drag (no arrow-key handler). A core task has no keyboard path.
-35. 🟠 `[ ]` **`LayerVisibilityChips.tsx:135`** — deleting a custom layer is **right-click only** (hidden in `title`) + native `confirm()` → undiscoverable, no keyboard/touch path.
+35. 🟠 `[~]` **`LayerVisibilityChips.tsx:135`** — deleting a custom layer is **right-click only** (hidden in `title`). Native `confirm()` now replaced with themed `confirmDialog` (#41); the right-click-only discoverability/keyboard-path gap remains open.
 36. 🟠 `[ ]` **`MenuBar.tsx` dropdowns** — correct `role="menu"`/`aria-expanded`, but **no arrow-key navigation** between items.
 37. 🟠 `[ ]` **`ColorField.tsx:44/68`** — `<input type="color">` labeled only by `title`, no `<label>`/`aria-label`.
 38. 🟠 `[ ]` **`EquipmentNode.tsx:745`** — `<span role="button">` with a `✓` glyph, only `title`, no `aria-label`, tiny target.
@@ -77,8 +77,8 @@ per-component.
 
 ## F. Interaction, affordance & feedback
 
-41. 🔴 `[ ]` **Native browser dialogs despite a custom system**: `App.tsx:466` `confirm()`, `LayerVisibilityChips.tsx:138` `confirm()`, `RackBuilderDialog.tsx:650/673` `alert()` → break the dark theme, inconsistent (`confirmDialog`/`infoDialog` exist).
-42. 🔴 `[ ]` **Hover-only actions with no keyboard/touch fallback**: `LibraryItem.tsx:153`, `RacksTab.tsx:103`, `GroupsTab.tsx:93` use `opacity-0 group-hover:opacity-100` **without** `group-focus-within:` → edit/export/delete invisible to touch & keyboard.
+41. 🔴 `[x]` **Native browser dialogs despite a custom system**: `App.tsx` `confirm()`, `LayerVisibilityChips.tsx` `confirm()`, `RackBuilderDialog.tsx` ×2 `alert()` → **all replaced** with `confirmDialog`/`infoDialog` (themed, a11y, consistent). No native `confirm/alert/prompt` left in components.
+42. 🔴 `[x]` **Hover-only actions with no keyboard/touch fallback**: `LibraryItem.tsx:153`, `RacksTab.tsx:103`, `GroupsTab.tsx:93` — added `group-focus-within:opacity-100` so keyboard focus reveals edit/export/delete.
 43. 🟠 `[ ]` **Touch/click targets too small**: `CanvasToolbar.tsx:226` `iconBtnSize:28`; **~181 buttons with `py-0.5`** (~20px); many often-destructive mini-buttons `PortList.tsx:368`, `ColorField.tsx:55`, `LibraryItem.tsx:161/182`.
 44. 🟠 `[ ]` **Little loading/busy feedback**: only **1 file** uses `animate-spin` (`GraphmlImportDialog`). Export/Rentman-sync/AI/Videohub have no spinner; `ExportDialog.tsx:406` shows a hardcoded, untranslated `'Verarbeite…'`.
 45. 🟠 `[ ]` **Disabled = opacity only**: **~78 buttons** with `disabled:opacity-40/50` (some inline `opacity:0.4`), no consistent disabled token/`cursor-not-allowed`.

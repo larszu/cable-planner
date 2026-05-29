@@ -90,7 +90,7 @@ export const GroupsTab = () => {
                             {preset.items.map((i) => i.name).join(', ')}
                           </div>
                         </div>
-                        <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
+                        <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
                           <button
                             type="button"
                             onClick={(event) => {

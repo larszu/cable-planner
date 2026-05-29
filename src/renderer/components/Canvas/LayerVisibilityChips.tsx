@@ -21,6 +21,7 @@ import { useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { LAYER_STYLES, STANDARD_LAYERS, topLayer, type StandardLayer } from '../../lib/cableLayers'
 import { promptDialog } from '../../lib/promptDialog'
+import { confirmDialog } from '../../lib/confirmDialog'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { format, useTranslation } from '../../lib/i18n'
 
@@ -134,14 +135,15 @@ export const LayerVisibilityChips = () => {
             onClick={() => setLayerVisibility(layer, !visible)}
             onContextMenu={(e) => {
               e.preventDefault()
-              if (
-                confirm(
+              void (async () => {
+                const ok = await confirmDialog(
                   format(t('canvas.layerChips.removeCustom', 'Custom-Layer "{layer}" entfernen?'), {
                     layer,
                   }),
+                  { destructive: true, okLabel: t('common.delete', 'Löschen') },
                 )
-              )
-                removeCustomLayer(layer)
+                if (ok) removeCustomLayer(layer)
+              })()
             }}
             title={format(
               t('canvas.layerChips.customTitle', '{layer} (custom) — Rechtsklick zum Entfernen'),
