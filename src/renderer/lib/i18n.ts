@@ -218,7 +218,7 @@ const en: Dict = {
   'settings.integrations.linkedRentman.titleSelect': 'Pick Rentman project',
   'settings.integrations.gemini': 'Gemini API (AI port suggestions)',
   'settings.integrations.geminiDesc':
-    'API key from aistudio.google.com. Stored in the browser localStorage. Required for the “✨ Gemini” buttons in the device wizard and library.',
+    'API key from aistudio.google.com. Stored in the browser localStorage. Required for the “Gemini” buttons in the device wizard and library.',
   'settings.integrations.gemini.save': 'Save key',
   'settings.integrations.gemini.saved': '✓ saved',
   'settings.integrations.gemini.delete': 'Delete',
@@ -318,17 +318,17 @@ const en: Dict = {
   'library.create.name': 'Name',
   'library.create.category': 'Category',
   'library.create.suggest': 'Auto-suggest from device name',
-  'library.create.suggest.heuristic': '📐 Heuristic',
+  'library.create.suggest.heuristic': 'Heuristic',
   'library.create.suggest.heuristicTitle':
     'Built-in heuristic patterns (camera, ATEM, converter…)',
-  'library.create.suggest.web': '🌐 Web',
+  'library.create.suggest.web': 'Web',
   'library.create.suggest.webBusy': 'Searching…',
   'library.create.suggest.webTitle':
     'Wikipedia + DuckDuckGo snippet (no API key required)',
-  'library.create.suggest.gemini': '✨ Gemini',
+  'library.create.suggest.gemini': 'Gemini',
   'library.create.suggest.geminiBusy': 'Asking…',
   'library.create.suggest.geminiTitle': 'Gemini AI — needs an API key',
-  'library.create.aiSettings': '⚙ AI settings',
+  'library.create.aiSettings': 'AI settings',
   'library.create.aiKey.title': 'Gemini API key',
   'library.create.aiKey.placeholder': 'AIza…',
   'library.create.aiKey.save': 'Save',
@@ -461,7 +461,7 @@ const en: Dict = {
   'rentman.import.shown': '{visible} of {total} shown',
   'rentman.import.selected': '{count} selected',
   'rentman.import.inSets': '· {count} in sets (expand to view)',
-  'rentman.import.linkable': '🔗 Link…',
+  'rentman.import.linkable': 'Link…',
   'rentman.import.linkableTitle': 'Link to existing local device',
   'rentman.import.unlinked':
     'Save token first to be able to fetch projects.',
@@ -1475,7 +1475,7 @@ const en: Dict = {
   'rentman.checklist.linkedTitle':
     'Linked to a local device — will not be created as a duplicate on import',
   'rentman.checklist.linkSelectTitle': 'Link to an existing local device',
-  'rentman.checklist.linkPlaceholder': '🔗 Link…',
+  'rentman.checklist.linkPlaceholder': 'Link…',
   'rentman.checklist.selectChildren': 'Select all children',
   'rentman.checklist.deselectChildren': 'Deselect all children',
   'rentman.checklist.childrenAllOff': 'all',
@@ -2437,7 +2437,7 @@ const en: Dict = {
     'The loaded routing matrix / classic-mixer values are sent directly to the connected switcher. Changes take effect immediately and are NOT persisted as startup state — for that you must call "Save Startup State" in ATEM Software Control.',
   'atem.audio.sendOk': 'Send',
   'atem.audio.classicOnly':
-    'This XML only contains a classic AudioMixer section, no routing matrix. The section is written back unchanged on save (round trip), but is not editable in the editor. If needed, create a fresh crosspoint matrix via "🎚 Matrix manual" above — both sections coexist in the XML.',
+    'This XML only contains a classic AudioMixer section, no routing matrix. The section is written back unchanged on save (round trip), but is not editable in the editor. If needed, create a fresh crosspoint matrix via "Matrix manual" above — both sections coexist in the XML.',
   'atem.audio.createMatrixManual': 'Create matrix manually',
   'atem.audio.noSection':
     'No {section} in the loaded profile. Switch the tab or load a profile that has this section.',
@@ -2994,7 +2994,7 @@ const en: Dict = {
   'settings.hotkeys.reset': 'Reset to default',
   'settings.hotkeys.title': 'Active keyboard shortcuts',
   'settings.integrations.ai': 'AI provider (AI port suggestions)',
-  'settings.integrations.aiDesc': 'Active provider for the ✨ AI buttons in the device wizard and the Rentman library. Each provider has its own API key. All keys are stored only locally in the browser localStorage.',
+  'settings.integrations.aiDesc': 'Active provider for the AI buttons in the device wizard and the Rentman library. Each provider has its own API key. All keys are stored only locally in the browser localStorage.',
   'template.noneSelected': 'No template selected.',
 
   // Phase 4 — vormals hartkodierte Strings (App-CableDialog, ExportDialog)

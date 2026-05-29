@@ -67,7 +67,7 @@ const AiProvidersCard = () => {
       title={t('settings.integrations.ai', 'AI-Provider (KI-Port-Vorschläge)')}
       description={t(
         'settings.integrations.aiDesc',
-        'Aktiver Provider für die ✨-AI-Buttons im Geräte-Wizard und in der Rentman-Library. Jeder Provider hat seinen eigenen API-Key. Alle Keys werden nur lokal im Browser-localStorage gespeichert.',
+        'Aktiver Provider für die AI-Buttons im Geräte-Wizard und in der Rentman-Library. Jeder Provider hat seinen eigenen API-Key. Alle Keys werden nur lokal im Browser-localStorage gespeichert.',
       )}
     >
       <div className="space-y-3">
