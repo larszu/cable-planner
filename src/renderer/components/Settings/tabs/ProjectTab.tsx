@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { X } from 'lucide-react'
+import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
 import { useTranslation } from '../../../lib/i18n'
 import { infoDialog } from '../../../lib/infoDialog'
@@ -283,7 +285,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
                       title={t('common.remove', 'Entfernen')}
                       className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
                     >
-                      ✕
+                      <Icon icon={X} size="sm" />
                     </button>
                   )}
                 </div>

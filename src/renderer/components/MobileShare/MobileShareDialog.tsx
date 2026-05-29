@@ -19,7 +19,9 @@
  */
 
 import { useEffect, useState } from 'react'
+import { X } from 'lucide-react'
 import QRCode from 'qrcode'
+import { Icon } from '../shared/Icon'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
@@ -151,8 +153,9 @@ export const MobileShareDialog = () => {
             type="button"
             onClick={close}
             className="rounded px-2 py-1 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+            aria-label={t('common.close', 'Schließen')}
           >
-            ✕
+            <Icon icon={X} size="sm" />
           </button>
         </header>
         <div className="space-y-3 p-4 text-sm">

@@ -15,6 +15,8 @@
 //      Then click "Importieren" to commit.
 
 import { useMemo, useState } from 'react'
+import { AlertTriangle, X } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { cablePlannerApi } from '../../lib/bridge'
 import { parseGraphmlText } from '../../lib/graphml/parser'
 import {
@@ -280,7 +282,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
 
   const renderError = (fileName: string | null, message: string) => (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 p-12 text-center">
-      <div className="text-3xl">⚠</div>
+      <div className="flex justify-center text-red-300"><Icon icon={AlertTriangle} size={32} /></div>
       <p className="text-sm font-medium text-red-300">{t('graphml.dialog.importFailed', 'Import fehlgeschlagen')}</p>
       {fileName && <p className="text-xs text-slate-400">{fileName}</p>}
       <pre className="max-w-full whitespace-pre-wrap rounded bg-slate-950 p-3 text-xs text-red-200">
@@ -646,7 +648,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             className="text-slate-500 hover:text-slate-200"
             aria-label={t('graphml.dialog.closeAria', 'Schließen')}
           >
-            ✕
+            <Icon icon={X} size="sm" />
           </button>
         </div>
         {stage.kind === 'empty' && renderEmpty()}

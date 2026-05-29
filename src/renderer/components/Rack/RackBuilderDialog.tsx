@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { AlertTriangle, X } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
+import { Icon } from '../shared/Icon'
 import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useProjectStore } from '../../store/projectStore'
@@ -2542,7 +2544,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                                 className="rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-900/40 hover:text-red-300"
                                 title={t('rack.removeImage', 'Bild entfernen')}
                               >
-                                ✕
+                                <Icon icon={X} size="sm" />
                               </button>
                             </div>
                           )}
@@ -2587,7 +2589,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             )}
             {conflicts.length > 0 && (
               <span className="inline-flex items-center gap-1 rounded bg-red-900/60 px-2 py-0.5 text-red-200">
-                <span>⚠</span>
+                <Icon icon={AlertTriangle} size="xs" />
                 <strong>{conflicts.length}</strong>
                 <span>{t('rack.conflictsWord', 'Konflikte')}</span>
               </span>

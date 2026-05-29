@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react'
+import { X } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../../types/greengo'
 import { defaultGreenGoConfig } from '../../types/greengo'
@@ -272,8 +274,9 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
             type="button"
             onClick={onClose}
             className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+            aria-label={t('common.close', 'Schließen')}
           >
-            ✕
+            <Icon icon={X} size="sm" />
           </button>
         </div>
 
@@ -757,7 +760,8 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                 </p>
               </div>
               <button type="button" onClick={cancelImport}
-                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600">✕</button>
+                aria-label={t('common.close', 'Schließen')}
+                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"><Icon icon={X} size="sm" /></button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">

@@ -15,6 +15,8 @@
  * (Phase B+1) als kleinere Box innerhalb der HE gerendert.
  */
 import { useState } from 'react'
+import { X } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import type { EquipmentTemplate } from '../../types/equipment'
 import { format, useTranslation } from '../../lib/i18n'
 
@@ -91,7 +93,7 @@ export const NonRackAddDialog = ({
             className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
             aria-label={t('common.close', 'Schließen')}
           >
-            ✕
+            <Icon icon={X} size="sm" />
           </button>
         </div>
         <div className="mb-3 text-[11px] text-slate-400">

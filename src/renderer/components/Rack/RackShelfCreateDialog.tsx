@@ -10,6 +10,8 @@
  * Felder: Name, HU-Höhe (Standard 1), Tiefe (mm).
  */
 import { useState } from 'react'
+import { X } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import type { EquipmentTemplate } from '../../types/equipment'
 import { useTranslation } from '../../lib/i18n'
 
@@ -62,7 +64,7 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
             className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
             aria-label={t('common.close', 'Schließen')}
           >
-            ✕
+            <Icon icon={X} size="sm" />
           </button>
         </div>
         <div className="space-y-3">
