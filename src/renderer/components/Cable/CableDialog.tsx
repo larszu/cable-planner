@@ -170,7 +170,9 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
     if (!spec) return
     setName(spec.name)
     setColor(spec.color)
-    setNotes(spec.notes ?? '')
+    // Catalog entries use notesKey (language-aware via i18n). User-supplied
+    // custom CableSpecs use the legacy `notes` literal which stays as-is.
+    setNotes(spec.notesKey ? t(spec.notesKey, '') : (spec.notes ?? ''))
     setStandard(pickHighestSdiStandard(spec.standards))
   }
 
