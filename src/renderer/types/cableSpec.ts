@@ -38,6 +38,10 @@ export type SignalStandard =
   | 'ST2110-20'
   | 'ST2110-30'
   | 'ST2110-40'
+  | 'Blackburst'
+  | 'Tri-Level'
+  | 'Word-Clock'
+  | 'PTP'
   | 'RF-UHF'
   | 'RF-VHF'
   | 'RF-2.4G'
@@ -54,6 +58,7 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
   'Thunderbolt-3', 'Thunderbolt-4',
   'MADI', 'SMPTE-297', 'SMPTE-304M',
   'NDI', 'NDI-HX', 'Dante', 'AES67', 'ST2110-20', 'ST2110-30', 'ST2110-40',
+  'Blackburst', 'Tri-Level', 'Word-Clock', 'PTP',
   'RF-UHF', 'RF-VHF', 'RF-2.4G', 'RF-5G',
   'Power-230V', 'Fiber-SM', 'Fiber-MM', 'Generic',
 ]
@@ -204,6 +209,33 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 300,
     color: '#0ea5e9',
     notesKey: 'catalog.cable.st2110-fiber.notes',
+  },
+  {
+    id: 'blackburst-bnc',
+    name: 'Referenz Blackburst / Tri-Level (BNC)',
+    connectorType: 'BNC',
+    standards: ['Blackburst', 'Tri-Level'],
+    maxLengthMeters: 100,
+    color: '#64748b',
+    notesKey: 'catalog.cable.blackburst-bnc.notes',
+  },
+  {
+    id: 'wordclock-bnc',
+    name: 'Word Clock (BNC)',
+    connectorType: 'BNC',
+    standards: ['Word-Clock'],
+    maxLengthMeters: 50,
+    color: '#94a3b8',
+    notesKey: 'catalog.cable.wordclock-bnc.notes',
+  },
+  {
+    id: 'ptp-cat6',
+    name: 'PTP / Referenz (Ethernet)',
+    connectorType: 'Ethernet/RJ45',
+    standards: ['Eth-1G', 'PTP'],
+    maxLengthMeters: 100,
+    color: '#0891b2',
+    notesKey: 'catalog.cable.ptp-cat6.notes',
   },
   {
     id: 'fiber-sm-lc',
