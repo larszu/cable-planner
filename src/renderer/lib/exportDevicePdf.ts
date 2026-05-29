@@ -24,6 +24,7 @@ import jsPDF from 'jspdf'
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
 import { pdfText } from './pdfHelpers'
+import { sanitizeForPdf } from './sanitizeForPdf'
 import { buildExportFilename, buildExportFilenameWithSuffix } from './exportFilename'
 import { portLabelPair } from './portLabel'
 
@@ -130,10 +131,22 @@ const drawPageHeader = (pdf: jsPDF, device: EquipmentItem): number => {
   pdfText(pdf, metaParts.join('  -'), margin, margin + 20)
   pdfText(pdf, new Date().toLocaleString(), pageWidth - margin, margin + 20, { align: 'right' })
 
+  // Hersteller-/Datenblatt-Link als klickbare Zeile. Das manufacturerUrl-
+  // Feld existierte schon (Properties), tauchte aber in keinem Report auf.
+  let dividerY = margin + 28
+  if (device.manufacturerUrl) {
+    const url = device.manufacturerUrl
+    const safe = sanitizeForPdf(url)
+    const shown = safe.length > 88 ? safe.slice(0, 87) + '...' : safe
+    pdf.setFontSize(8)
+    pdf.setTextColor(40, 90, 180)
+    pdf.textWithLink(`Datenblatt: ${shown}`, margin, margin + 27, { url })
+    dividerY = margin + 34
+  }
   pdf.setDrawColor(180)
-  pdf.line(margin, margin + 28, pageWidth - margin, margin + 28)
+  pdf.line(margin, dividerY, pageWidth - margin, dividerY)
   // Return the y-position where content can start.
-  return margin + 48
+  return dividerY + 20
 }
 
 /** v7.9.0 / Issue #109 — Draws ONE port row in BOTH columns so they

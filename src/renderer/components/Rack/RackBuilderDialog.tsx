@@ -2316,6 +2316,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                                 onClick={() => updatePlacement(selectedPlacement.id, { [urlKey]: undefined, [side === 'front' ? 'frontPanelCrop' : 'rearPanelCrop']: undefined })}
                                 className="rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-900/40 hover:text-red-300"
                                 title={t('rack.removeImage', 'Bild entfernen')}
+                                aria-label={t('rack.removeImage', 'Bild entfernen')}
                               >
                                 <Icon icon={X} size="sm" />
                               </button>

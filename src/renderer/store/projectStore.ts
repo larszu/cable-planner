@@ -250,6 +250,9 @@ export interface ProjectState {
   /** #294 — Port-Konflikt verwerfen, kein neues Kabel anlegen. */
   cancelPortConflict: () => void
   updateCable: (id: string, patch: Partial<Cable>) => void
+  /** Vergibt allen Kabeln gemaess `metadata.cableNumbering` eine neue
+   *  `cableNumber`. No-op wenn kein Schema gesetzt ist. */
+  renumberCables: () => void
   deleteEquipment: (id: string) => void
   deleteCable: (id: string) => void
   deleteSelected: () => void
