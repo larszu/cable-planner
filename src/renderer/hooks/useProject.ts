@@ -1,10 +1,12 @@
 import { useCallback } from 'react'
 import { cablePlannerApi } from '../lib/bridge'
 import { useProjectStore } from '../store/projectStore'
+import { useUiStore } from '../store/uiStore'
 import { projectHistory } from '../store/projectHistory'
 import type { CablePlannerProject } from '../types/project'
 import { promptDialog } from '../lib/promptDialog'
 import { infoDialog } from '../lib/infoDialog'
+import { translate } from '../lib/i18n'
 
 interface OpenProjectResponse {
   filePath: string
@@ -67,23 +69,32 @@ export const useProject = () => {
         result.filePath.toLowerCase().endsWith('.cpviewer') ||
         (incoming as { mode?: string })?.mode === 'viewer'
       if (isViewer) {
+        const lang = useUiStore.getState().language
         const oldAuthor =
           (incoming as { viewerSession?: { author?: string } })?.viewerSession?.author ?? ''
         const author = (await promptDialog(
-          'Viewer-Datei — Name eingeben\n\n' +
-            'Du öffnest eine Viewer-Datei zum Begutachten. Bitte gib deinen Namen ' +
-            'ein — er wird allen Anmerkungen angeheftet, die du in dieser Session erstellst.',
+          translate(
+            lang,
+            'project.viewerName.prompt',
+            'Viewer-Datei — Name eingeben\n\n' +
+              'Du öffnest eine Viewer-Datei zum Begutachten. Bitte gib deinen Namen ' +
+              'ein — er wird allen Anmerkungen angeheftet, die du in dieser Session erstellst.',
+          ),
           oldAuthor,
         ))?.trim()
         if (author) {
-          ;(incoming as Record<string, unknown>).viewerSession = {
+          ;(incoming as unknown as Record<string, unknown>).viewerSession = {
             author,
             startedAt: new Date().toISOString(),
           }
-          ;(incoming as Record<string, unknown>).mode = 'viewer'
+          ;(incoming as unknown as Record<string, unknown>).mode = 'viewer'
         } else {
-          await infoDialog('Name fehlt', {
-            body: 'Ohne Namen können keine Anmerkungen gemacht werden. Die Datei wird nicht geladen.',
+          await infoDialog(translate(lang, 'project.viewerName.missingTitle', 'Name fehlt'), {
+            body: translate(
+              lang,
+              'project.viewerName.missingBody',
+              'Ohne Namen können keine Anmerkungen gemacht werden. Die Datei wird nicht geladen.',
+            ),
             tone: 'warning',
           })
           return

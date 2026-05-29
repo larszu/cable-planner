@@ -949,7 +949,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
                     : {}),
                 }}
               />
-              <span style={{ color: T.textMuted }}>{r.label}</span>
+              <span style={{ color: T.textMuted }}>{t(`toolbar.lengthLegend.${r.length}`, r.label)}</span>
             </div>
           ))}
           <button

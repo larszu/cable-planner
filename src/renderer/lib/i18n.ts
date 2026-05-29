@@ -3,10 +3,9 @@ import { useUiStore, type Language } from '../store/uiStore'
 /**
  * Cable Planner i18n.
  *
- * Coverage status: COMPREHENSIVE.
+ * Coverage status: COMPREHENSIVE (~2050+ keys).
  *
- * The English dictionary contains 1650+ keys covering essentially every
- * user-visible string in the application:
+ * The English dictionary contains all user-visible strings in the application:
  *
  *   ✓ Top-level chrome — App header, MenuBar (incl. shortcuts), StatusBar
  *   ✓ Settings — all 6 tabs (Project, Appearance, Editing, Integrations,
@@ -276,6 +275,11 @@ const en: Dict = {
   // CategorySelect
   'category.new': '+ New category…',
   'category.newPrompt': 'New category',
+  // #309 — Bilingual category dialog
+  'category.bilingual.de': 'German',
+  'category.bilingual.en': 'English',
+  'category.bilingual.hint':
+    'Fill in both languages — when switching the UI language the matching label is shown. Leaving one empty is fine; the display falls back to the other language then.',
 
   // Library panel
   'library.title': 'Library',
@@ -1247,6 +1251,7 @@ const en: Dict = {
   'locbom.col.qty': 'Qty',
   'locbom.col.type': 'Type',
   'locbom.col.lengthM': 'Length (m)',
+  'locbom.col.connection': 'Connection',
   'locbom.noInternalCables': 'No internal cables.',
   'locbom.examples': 'Examples:',
 
@@ -2594,6 +2599,148 @@ const en: Dict = {
   'rentman.wizard.aiKeyPlaceholder': 'AIzaSy...',
   'cable.waypoint.tooltip':
     'Drag to move · Alt-click or right-click to remove',
+  // LibraryPanel (additional)
+  'library.create.defaultName': 'New device',
+  'library.rentman.activeProjectFallback': 'active Rentman project',
+  'library.rentman.confirmAdd': 'Add "{name}" to Rentman?',
+  'library.rentman.confirmAddBody':
+    'This changes your {project} and is not automatically reversible.',
+  'library.rentman.confirmAddOk': 'Add',
+  'library.suggest.heuristic.noMatch': 'No heuristic match for this name.',
+  'library.suggest.heuristic.ok': '{n} port group(s) suggested via heuristic.',
+  'library.suggest.ai.noKey':
+    'No Gemini API key. Enter one or use web/heuristic.',
+  'library.suggest.ai.noPorts': 'Gemini returned no ports.',
+  'library.suggest.ai.ok': '{n} port group(s) accepted from Gemini.',
+  'library.suggest.ai.error': 'Gemini call failed',
+  'library.suggest.web.noPlugs':
+    'No connectors detected in the {source} snippet. Refine manufacturer + model.',
+  'library.suggest.web.noHit': 'No hit on the web. Refine manufacturer + model.',
+  'library.suggest.web.ok': '{n} port group(s) accepted from {source}.',
+  'library.netbox.importedTitle': '{name} imported',
+  'library.netbox.importedBody': 'Imported from NetBox into the library.',
+  'library.netbox.mergeSavedTitle': 'Merge saved',
+  'library.netbox.mergeSavedBody':
+    'The merged version was saved in the library.',
+  // CableLibraryPanel (additional)
+  'cableLib.edit': 'Edit cable type',
+  'cableLib.editOverride': 'Adjust cable type locally (override)',
+  'cableLib.resetOverride.confirm': 'Reset override for "{name}"?',
+  'cableLib.resetOverride.body':
+    'The original built-in values will be restored.',
+  'cableLib.resetOverride.ok': 'Reset',
+  'cableLib.deleteSpec.confirm': 'Delete cable type "{name}"?',
+  'cableLib.deleteSpec.bodyInUse':
+    'Warning: {n} installed cables reference this type. They keep their connector/standard but lose the spec link.',
+  'cableLib.deleteSpec.bodyUnused': 'Installed cables are not affected.',
+  // BOM / CSV column headers (shared)
+  'export.bom.csv.type': 'Type',
+  'export.bom.csv.rentmanName': 'Rentman name',
+  'export.bom.csv.lengthM': 'Length (m)',
+  'export.bom.csv.built': 'Installed',
+  'export.bom.csv.rentmanPlanned': 'Rentman planned',
+  'export.bom.csv.diff': 'Difference',
+  'export.bom.csv.paths': 'Paths',
+  'export.bom.col.rentman': 'Rentman',
+  'export.bom.pdfHeading': 'Cable BOM',
+  // Patch list dialog (additional)
+  'patchList.col.fromDevice': 'From device',
+  'patchList.col.fromPort': 'From port',
+  'patchList.col.toDevice': 'To device',
+  'patchList.col.toPort': 'To port',
+  'patchList.col.port': 'Port',
+  'patchList.col.color': 'Colour',
+  'patchList.col.cableName': 'Cable name',
+  'patchList.col.notes': 'Notes',
+  'patchList.footerHint':
+    'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
+  'patchList.exportCsv': '⬇ Export CSV',
+  // Hotkeys action labels (used in HotkeysTab)
+  'hotkeys.action.undo': 'Undo',
+  'hotkeys.action.redo': 'Redo',
+  'hotkeys.action.save': 'Save project',
+  'hotkeys.action.saveAs': 'Save project as…',
+  'hotkeys.action.newProject': 'New project',
+  'hotkeys.action.openProject': 'Open project',
+  'hotkeys.action.deleteSelected': 'Delete selection',
+  'hotkeys.action.clearSelection': 'Clear selection',
+  'hotkeys.action.toggleLibrary': 'Show/hide library',
+  'hotkeys.action.toggleProperties': 'Show/hide properties',
+  'hotkeys.action.showLegend': 'Show length legend',
+  'hotkeys.action.jumpToPatches': 'Jump to patches',
+  'hotkeys.action.toggleArrows': 'Toggle arrow display',
+  'hotkeys.action.toggleRouting': 'Toggle routing',
+  // HotkeysTab capture states
+  'settings.hotkeys.captureTitle': 'Press a key or key combination…',
+  'settings.hotkeys.clickToCapture': 'Click and press key(s)',
+  'settings.hotkeys.pressKey': 'Press key…',
+  // AdvancedTab cache reset body
+  'settings.advanced.caches.cleared.body':
+    'The next start will reload from scratch.',
+  // useProject viewer name prompt (translate() from hook)
+  'project.viewerName.prompt':
+    'Viewer file — enter name\n\nYou are opening a viewer file for review. Please enter your name — it will be attached to all annotations you create in this session.',
+  'project.viewerName.missingTitle': 'Name missing',
+  'project.viewerName.missingBody':
+    'Without a name no annotations can be made. The file will not be loaded.',
+  // PDF export errors
+  'export.pdf.errNoDevices': 'No devices to export.',
+  // ATEM MV config dialog (additional layout hints)
+  'atem.mv.layoutsHint':
+    'Heuristic based on device name. If your model supports a layout the heuristic does not detect (or vice-versa), check the boxes here — the selection overrides the default and is kept with the project.',
+  'atem.mv.quadrantHint1': 'Click on a quadrant:',
+  'atem.mv.quadrantHint2': 'big ↔ 4 small',
+  // AnnotationsPanel additional
+  'annotations.status.all': 'all',
+  'annotations.placeholderAs': 'Annotation as {name}…',
+  'annotations.placeholderEmpty': 'Annotation… (name will be asked once)',
+  'annotations.add': 'Add',
+  'annotations.cancel': 'Cancel',
+  // RackBuilderDialog placement properties dialog
+  'rack.props.title': 'Properties · {name}',
+  'rack.props.removeFromRack': 'Remove from rack',
+  'rack.props.name': 'Name',
+  'rack.props.category': 'Category',
+  'rack.props.heightHe': 'Height (RU)',
+  'rack.props.startHe': 'Start RU',
+  'rack.props.heightOverflow': 'Height + start RU exceeds rack ({total} RU).',
+  'rack.props.maxHint': 'max {max} (height {he} RU)',
+  'rack.props.depthMm': 'Depth (mm)',
+  // ATEM MV reset override + dialog title
+  'atem.mv.resetOverride': 'Reset override',
+  'atem.mv.dialogTitle': 'Multiviewer layout · {name}',
+  // LibraryPanel empty + netbox dialog + rentman
+  'library.empty.title': 'No devices found',
+  'library.empty.body':
+    'No match for "{q}". Try a different search term or clear the search field.',
+  'library.empty.clearSearch': 'Clear search',
+  'library.rentman.currentLinkedProject': 'Currently linked Rentman project',
+  'library.netbox.intro':
+    'Imports devices from the NetBox device-type-library into the local library. Non-destructive: existing devices on the canvas remain unchanged.',
+  'library.suggest.heading': 'Auto-suggest from device name',
+  // CableLibraryPanel
+  'cableLib.pickAtLeastOneStandard': 'Select at least one standard.',
+  // AnnotationCanvasOverlay status (full form)
+  'annotations.statusFull.open': 'Open',
+  'annotations.statusFull.built': 'Built',
+  'annotations.statusFull.resolved': 'Resolved',
+  // ConfigsTab kinds
+  'settings.configs.kind.atem-mv': 'ATEM multiviewer layout',
+  'settings.configs.kind.atem-audio': 'ATEM audio routing',
+  'settings.configs.kind.videohub-labels': 'Videohub labels',
+  'settings.configs.kind.videohub-routing': 'Videohub routing',
+  'settings.configs.kind.greengo': 'GreenGo intercom (.gg5)',
+  'settings.configs.kind.other': 'Other',
+  // Length-color legend (cableColors.ts labels)
+  'toolbar.lengthLegend.1': '1 m – red',
+  'toolbar.lengthLegend.2': '2 m – yellow',
+  'toolbar.lengthLegend.3': '3 m – green',
+  'toolbar.lengthLegend.5': '5 m – white',
+  'toolbar.lengthLegend.10': '10 m – red',
+  'toolbar.lengthLegend.20': '20 m – yellow',
+  'toolbar.lengthLegend.25': '25 m – yellow/white dashed',
+  'toolbar.lengthLegend.50': '50 m – white',
+  'toolbar.lengthLegend.100': '100 m – red',
 }
 
 const translations: Record<Language, Dict> = {

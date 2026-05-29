@@ -115,6 +115,16 @@ Designed for Blackmagic Videohub infrastructure.
 
 ---
 
+## 📚 Documentation
+
+- [`docs/architecture.md`](docs/architecture.md) — Process model, IPC, store
+  architecture, build & release workflow, non-negotiable invariants.
+- [`docs/app-structure.html`](docs/app-structure.html) — interactive module
+  overview (open in a browser).
+- [`docs/comparison.html`](docs/comparison.html) — competitor comparison.
+
+---
+
 ## 👤 Author
 
 Built and maintained by **Lars Zumpe**

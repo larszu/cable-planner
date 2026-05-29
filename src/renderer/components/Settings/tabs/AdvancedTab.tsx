@@ -1,10 +1,12 @@
 import { useMemo } from 'react'
 import { useSettingsStore } from '../../../store/settingsStore'
 import { useProjectStore } from '../../../store/projectStore'
+import { useUiStore } from '../../../store/uiStore'
 import { useTranslation, format } from '../../../lib/i18n'
 import { confirmDialog } from '../../../lib/confirmDialog'
 import { infoDialog } from '../../../lib/infoDialog'
-import { promptDialog } from '../../../lib/promptDialog'
+import { bilingualCategoryDialog } from '../../../lib/bilingualCategoryDialog'
+import { categoryDisplay } from '../../../lib/categoryTranslations'
 import { downloadBlob } from '../../../lib/downloadBlob'
 import { SettingsCard } from '../SettingsCard'
 
@@ -19,6 +21,9 @@ export const AdvancedTab = () => {
   const customLibrary = useProjectStore((s) => s.customLibrary)
   const renameCustomCategory = useProjectStore((s) => s.renameCustomCategory)
   const addKnownCategories = useProjectStore((s) => s.addKnownCategories)
+  const categoryTranslations = useProjectStore((s) => s.categoryTranslations)
+  const setCategoryTranslation = useProjectStore((s) => s.setCategoryTranslation)
+  const lang = useUiStore((s) => s.language)
   const t = useTranslation()
 
   const allCategories = useMemo(
@@ -36,18 +41,38 @@ export const AdvancedTab = () => {
     customLibrary.filter((tpl) => tpl.category === cat).length
 
   const handleRename = async (cat: string) => {
-    const next = (
-      await promptDialog(t('settings.advanced.categories.renamePrompt', 'Kategorie umbenennen'), cat)
-    )?.trim()
-    if (!next || next === cat) return
-    renameCustomCategory(cat, next)
+    // #309 — Bilinguale Bearbeitung: zeigt beide Sprachen, vorbefüllt
+    // mit dem aktuellen Map-Eintrag (oder canonical als Fallback in der
+    // aktiven UI-Sprache).
+    const existing = categoryTranslations[cat] ?? {}
+    const initial: { de?: string; en?: string } = {
+      de: existing.de ?? (lang === 'de' ? cat : undefined),
+      en: existing.en ?? (lang === 'en' ? cat : undefined),
+    }
+    const result = await bilingualCategoryDialog(
+      t('settings.advanced.categories.renamePrompt', 'Kategorie umbenennen'),
+      initial,
+    )
+    if (!result || !result.canonical) return
+    // Wenn der canonical-Name sich geändert hat, klassisches Rename
+    // (migriert auch Templates + verbaute Equipment).
+    if (result.canonical !== cat) {
+      renameCustomCategory(cat, result.canonical)
+      setCategoryTranslation(result.canonical, { de: result.de, en: result.en })
+    } else {
+      setCategoryTranslation(cat, { de: result.de, en: result.en })
+    }
   }
 
   const handleAdd = async () => {
-    const next = (
-      await promptDialog(t('settings.advanced.categories.addPrompt', 'Neue Kategorie'))
-    )?.trim()
-    if (next) addKnownCategories([next])
+    const result = await bilingualCategoryDialog(
+      t('settings.advanced.categories.addPrompt', 'Neue Kategorie'),
+    )
+    if (!result || !result.canonical) return
+    addKnownCategories([result.canonical])
+    if (result.de || result.en) {
+      setCategoryTranslation(result.canonical, { de: result.de, en: result.en })
+    }
   }
 
   const clearCache = async (key: string, label: string) => {
@@ -66,7 +91,7 @@ export const AdvancedTab = () => {
           { label },
         ),
         {
-          body: 'Beim nächsten Start wird neu geladen.',
+          body: t('settings.advanced.caches.cleared.body', 'Beim nächsten Start wird neu geladen.'),
           tone: 'success',
         },
       )
@@ -146,21 +171,30 @@ export const AdvancedTab = () => {
               </tr>
             </thead>
             <tbody>
-              {allCategories.map((cat) => (
-                <tr key={cat} className="border-t border-slate-800">
-                  <td className="px-2 py-1 text-slate-100">{cat}</td>
-                  <td className="px-2 py-1 text-right text-slate-400">{usageCount(cat)}</td>
-                  <td className="px-2 py-1 text-right">
-                    <button
-                      type="button"
-                      onClick={() => handleRename(cat)}
-                      className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
-                    >
-                      {t('common.rename', 'Umbenennen')}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {allCategories.map((cat) => {
+                const display = categoryDisplay(cat, lang, categoryTranslations)
+                const showCanonical = display !== cat
+                return (
+                  <tr key={cat} className="border-t border-slate-800">
+                    <td className="px-2 py-1 text-slate-100">
+                      {display}
+                      {showCanonical && (
+                        <span className="ml-1 text-[10px] text-slate-500">({cat})</span>
+                      )}
+                    </td>
+                    <td className="px-2 py-1 text-right text-slate-400">{usageCount(cat)}</td>
+                    <td className="px-2 py-1 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleRename(cat)}
+                        className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
+                      >
+                        {t('common.rename', 'Umbenennen')}
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })}
               {allCategories.length === 0 && (
                 <tr>
                   <td colSpan={3} className="px-2 py-3 text-center text-slate-500">
