@@ -18,6 +18,12 @@ import { RackBuilderDialogExportMenu } from './RackBuilderDialogExportMenu'
 import { RackBuilderFooter } from './RackBuilderFooter'
 import { RackBuilderHeader } from './RackBuilderHeader'
 import { RackConflictBadges } from './RackConflictBadges'
+import type {
+  InternalCableDraft,
+  RackDraft,
+  RackPlacementDraft,
+} from './rackBuilderTypes'
+import { RACK_MOUNT_WIDTH_MM } from './rackBuilderTypes'
 import * as THREE from 'three'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { CategorySelect } from '../shared/CategorySelect'
