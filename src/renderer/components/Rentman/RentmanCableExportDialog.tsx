@@ -425,6 +425,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                             onClick={() => clearMapping(bucket.key)}
                             className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
                             title={t('rentman.cableExport.removeMapping', 'Zuordnung entfernen')}
+                            aria-label={t('rentman.cableExport.removeMapping', 'Zuordnung entfernen')}
                           >
                             <Icon icon={X} size="sm" />
                           </button>

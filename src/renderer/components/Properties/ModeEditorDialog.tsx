@@ -278,6 +278,7 @@ export const ModeEditorDialog = ({
                           onClick={() => removePort(side, p.id)}
                           className="rounded px-1 py-0.5 text-[11px] text-red-400 hover:bg-red-900/40"
                           title={t('modeEditor.removePort', 'Port entfernen')}
+                          aria-label={t('modeEditor.removePort', 'Port entfernen')}
                         >
                           <Icon icon={X} size="sm" />
                         </button>
