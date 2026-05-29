@@ -14,7 +14,7 @@ import jsPDF from 'jspdf'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { AlertTriangle, Check } from 'lucide-react'
-import { useTranslation } from '../../lib/i18n'
+import { useTranslation, format } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import {
   buildDevicePatchSheetBlob,
@@ -886,18 +886,21 @@ const BomSection = () => {
           → bleiben IMMER sichtbar, egal wie groß der Dialog ist. */}
       <div className="flex shrink-0 flex-wrap items-center gap-2 text-[11px] text-slate-400">
         <span>
-          Verbaute Kabel: <b className="text-slate-200">{project.cables.length}</b>
+          {t('export.installedCables', 'Verbaute Kabel:')}{' '}
+          <b className="text-slate-200">{project.cables.length}</b>
         </span>
         {rows.some((r) => r.diff < 0) && (
           <span className="inline-flex items-center gap-1 rounded bg-red-900/50 px-2 py-0.5 font-semibold text-red-300">
             <Icon icon={AlertTriangle} size="sm" />
-            {rows.filter((r) => r.diff < 0).length} Kabeltype(n) fehlen
+            {format(t('export.missingTypes', '{count} Kabeltype(n) fehlen'), {
+              count: rows.filter((r) => r.diff < 0).length,
+            })}
           </span>
         )}
         {rows.length > 0 && rows.every((r) => r.diff >= 0) && rows.some((r) => r.planned > 0) && (
           <span className="inline-flex items-center gap-1 rounded bg-emerald-900/50 px-2 py-0.5 font-semibold text-emerald-300">
             <Icon icon={Check} size="sm" />
-            Alle geplanten Mengen abgedeckt
+            {t('export.allCovered', 'Alle geplanten Mengen abgedeckt')}
           </span>
         )}
       </div>
