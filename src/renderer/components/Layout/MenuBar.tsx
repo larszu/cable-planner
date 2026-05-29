@@ -3,6 +3,7 @@ import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
 import { useTranslation } from '../../lib/i18n'
 import { projectHistory } from '../../store/projectHistory'
 import { useUiStore } from '../../store/uiStore'
+import { useProjectStore } from '../../store/projectStore'
 import { hasDesktopBridge } from '../../lib/bridge'
 
 interface MenuBarProps {
@@ -209,6 +210,41 @@ export const MenuBar = ({
                   )}
             </MenuItem>
           )}
+        </Menu>
+
+        <Menu label={t('app.menu.edit', 'Bearbeiten')}>
+          {/* #340 — Standard-Edit-Aktionen auch im Menü (vorher nur Icon-
+              Buttons/Shortcuts). Undo/Redo über projectHistory, Löschen/
+              Auswahl-aufheben über die (globale) Projekt-Store-Selection. */}
+          <MenuItem
+            onClick={() => projectHistory.undo()}
+            disabled={!canUndo}
+            icon="⟲"
+            shortcut={t('shortcut.ctrlZ', 'Strg+Z')}
+          >
+            {t('app.menu.edit.undo', 'Rückgängig')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => projectHistory.redo()}
+            disabled={!canRedo}
+            icon="⟳"
+            shortcut={t('shortcut.ctrlY', 'Strg+Y')}
+          >
+            {t('app.menu.edit.redo', 'Wiederherstellen')}
+          </MenuItem>
+          <MenuSep />
+          <MenuItem
+            onClick={() => useProjectStore.getState().deleteSelected()}
+            shortcut={t('shortcut.del', 'Entf')}
+          >
+            {t('app.menu.edit.delete', 'Auswahl löschen')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useProjectStore.getState().setSelection()}
+            shortcut={t('shortcut.esc', 'Esc')}
+          >
+            {t('app.menu.edit.clearSelection', 'Auswahl aufheben')}
+          </MenuItem>
         </Menu>
 
         <Menu label={t('app.menu.tools', 'Werkzeuge')}>
@@ -469,15 +505,17 @@ interface MenuItemProps {
   onClick?: () => void
   icon?: string
   shortcut?: string
+  disabled?: boolean
   children: React.ReactNode
 }
 
-const MenuItem = ({ onClick, icon, shortcut, children }: MenuItemProps) => {
+const MenuItem = ({ onClick, icon, shortcut, disabled, children }: MenuItemProps) => {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-cp-xs text-slate-200 hover:bg-slate-700/70"
+      disabled={disabled}
+      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-cp-xs text-slate-200 hover:bg-slate-700/70 disabled:cursor-not-allowed disabled:text-[var(--cp-text-faint)] disabled:hover:bg-transparent"
       role="menuitem"
     >
       <span className="w-4 shrink-0 text-center text-[12px]">{icon ?? ''}</span>
