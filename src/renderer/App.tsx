@@ -89,6 +89,7 @@ export default function App() {
   const t = useTranslation()
   const project = useProjectStore((state) => state.project)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
+  const language = useUiStore((state) => state.language)
   // v7.7.1 — exporters now read the live canvas-background settings so the
   // exported PDF / PNG / JPEG matches what the user sees on the canvas.
   const exportBgVariant = useUiStore((state) => state.bgVariant)
@@ -157,6 +158,12 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = pdfExportThemeOverride ?? canvasTheme
   }, [canvasTheme, pdfExportThemeOverride])
+
+  // Keep the <html lang> attribute in sync with the selected UI language so
+  // screen readers pronounce content correctly (was hardcoded lang="en").
+  useEffect(() => {
+    document.documentElement.lang = language
+  }, [language])
 
   const projectVersion = useProjectStore((s) => s.projectVersion)
   const [libraryReady, setLibraryReady] = useState(false)
