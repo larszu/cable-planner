@@ -873,12 +873,23 @@ export default function App() {
           // (no chip, no splitter spacing) so the canvas reclaims the
           // space. The panel itself renders as an overlay via
           // FloatingPanelShell.
+          //
+          // Responsive (UX audit #2/#3): expanded panel columns are capped at
+          // a viewport fraction via min(<width>px, 33vw). On normal desktop
+          // widths the stored width wins (defaults 260/280px stay untouched
+          // for viewports ≳850px); only on narrow windows do the panels shrink
+          // so the canvas always keeps usable room. Stateless + reversible —
+          // the stored preference is never mutated.
           gridTemplateColumns: `${
-            libraryFloating ? '0px' : libraryCollapsed ? '32px' : `${libraryWidth}px`
-          } ${libraryFloating ? '0px' : '4px'} 1fr ${
+            libraryFloating ? '0px' : libraryCollapsed ? '32px' : `min(${libraryWidth}px, 33vw)`
+          } ${libraryFloating ? '0px' : '4px'} minmax(0, 1fr) ${
             propertiesFloating ? '0px' : '4px'
           } ${
-            propertiesFloating ? '0px' : propertiesCollapsed ? '32px' : `${propertiesWidth}px`
+            propertiesFloating
+              ? '0px'
+              : propertiesCollapsed
+                ? '32px'
+                : `min(${propertiesWidth}px, 33vw)`
           }`,
         }}
       >
