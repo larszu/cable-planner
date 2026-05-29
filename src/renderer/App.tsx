@@ -78,7 +78,9 @@ import { DEFAULT_VIDEO_FORMAT } from './types/videoFormat'
 import { confirmDialog } from './lib/confirmDialog'
 import { promptDialog } from './lib/promptDialog'
 import { infoDialog } from './lib/infoDialog'
+import { AlertTriangle } from 'lucide-react'
 import { useTranslation, format } from './lib/i18n'
+import { Icon } from './components/shared/Icon'
 
 export default function App() {
   const t = useTranslation()
@@ -1624,18 +1626,21 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               </div>
 
               {fromConflict && (
-                <div className="mt-2 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
-                  ⚠ Quell-Port ist bereits durch Kabel „{fromConflict.name}" belegt.
+                <div className="mt-2 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+                  <Icon icon={AlertTriangle} size="xs" />
+                  Quell-Port ist bereits durch Kabel „{fromConflict.name}" belegt.
                 </div>
               )}
               {toConflict && (
-                <div className="mt-1 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
-                  ⚠ Ziel-Port ist bereits durch Kabel „{toConflict.name}" belegt.
+                <div className="mt-1 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+                  <Icon icon={AlertTriangle} size="xs" />
+                  Ziel-Port ist bereits durch Kabel „{toConflict.name}" belegt.
                 </div>
               )}
               {sameEndpoints && (
-                <div className="mt-1 rounded bg-red-900/50 px-2 py-1 text-[11px] text-red-100">
-                  ⚠ Quelle und Ziel zeigen auf denselben Port.
+                <div className="mt-1 flex items-center gap-1.5 rounded bg-red-900/50 px-2 py-1 text-[11px] text-red-100">
+                  <Icon icon={AlertTriangle} size="xs" />
+                  Quelle und Ziel zeigen auf denselben Port.
                 </div>
               )}
             </div>
@@ -1653,7 +1658,10 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
         </div>
 
         {lengthWarning && (
-          <div className="mt-3 rounded bg-amber-900/50 p-2 text-xs text-amber-100">⚠ {lengthWarning}</div>
+          <div className="mt-3 flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-xs text-amber-100">
+            <Icon icon={AlertTriangle} size="sm" />
+            {lengthWarning}
+          </div>
         )}
 
         <div className="mt-3 flex justify-end gap-2 text-sm">

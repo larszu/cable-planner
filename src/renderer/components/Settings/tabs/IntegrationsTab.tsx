@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { X } from 'lucide-react'
+import { Icon } from '../../shared/Icon'
 import { cablePlannerApi } from '../../../lib/bridge'
 import { useSettingsStore } from '../../../store/settingsStore'
 import { useProjectStore } from '../../../store/projectStore'
@@ -138,7 +140,7 @@ const AiProvidersCard = () => {
                     className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
                     title={t('settings.integrations.gemini.deleteTitle', 'Key löschen')}
                   >
-                    ✕
+                    <Icon icon={X} size="sm" />
                   </button>
                 )}
               </div>

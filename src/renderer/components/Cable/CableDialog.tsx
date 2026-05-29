@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
+import { AlertTriangle, Check, XCircle } from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 import { connectorToCableType } from '../../lib/cableInheritance'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, EquipmentItem, Port } from '../../types/equipment'
@@ -432,19 +434,34 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
         {/* Status/warning area */}
         <div className="mt-3 space-y-1 text-xs">
           {connectorMismatch === 'error' && (
-            <div className="rounded bg-red-900/50 p-2 text-red-100">✕ {connectorMessage}</div>
+            <div className="flex items-center gap-1.5 rounded bg-red-900/50 p-2 text-red-100">
+              <Icon icon={XCircle} size="sm" />
+              {connectorMessage}
+            </div>
           )}
           {connectorMismatch === 'warn' && (
-            <div className="rounded bg-amber-900/50 p-2 text-amber-100">⚠ {connectorMessage}</div>
+            <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
+              <Icon icon={AlertTriangle} size="sm" />
+              {connectorMessage}
+            </div>
           )}
           {connectorMismatch === 'ok' && connectorMessage && (
-            <div className="rounded bg-emerald-900/40 p-2 text-emerald-100">✓ {connectorMessage}</div>
+            <div className="flex items-center gap-1.5 rounded bg-emerald-900/40 p-2 text-emerald-100">
+              <Icon icon={Check} size="sm" />
+              {connectorMessage}
+            </div>
           )}
           {sdiMismatch?.level === 'warn' && (
-            <div className="rounded bg-amber-900/50 p-2 text-amber-100">⚠ {sdiMismatch.message}</div>
+            <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
+              <Icon icon={AlertTriangle} size="sm" />
+              {sdiMismatch.message}
+            </div>
           )}
           {lengthWarning && (
-            <div className="rounded bg-amber-900/50 p-2 text-amber-100">⚠ {lengthWarning}</div>
+            <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
+              <Icon icon={AlertTriangle} size="sm" />
+              {lengthWarning}
+            </div>
           )}
         </div>
 

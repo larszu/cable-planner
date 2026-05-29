@@ -17,7 +17,9 @@ import {
   serializeAudioConfigXml,
 } from '../../lib/atemAudioMappingXml'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { AlertTriangle } from 'lucide-react'
 import { format, useTranslation } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 
 /**
@@ -398,8 +400,9 @@ export const AtemAudioRouterDialog = () => {
         </div>
 
         {errorMsg && (
-          <div className="border-b border-red-700/50 bg-red-900/30 px-4 py-2 text-xs text-red-200">
-            ⚠ {errorMsg}
+          <div className="flex items-center gap-1.5 border-b border-red-700/50 bg-red-900/30 px-4 py-2 text-xs text-red-200">
+            <Icon icon={AlertTriangle} size="sm" />
+            {errorMsg}
           </div>
         )}
 
@@ -885,7 +888,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
 
       {tooLarge ? (
         <div className="m-auto max-w-md text-center text-sm text-amber-200">
-          <div className="mb-2 text-2xl">⚠</div>
+          <div className="mb-2 flex justify-center"><Icon icon={AlertTriangle} size={28} /></div>
           <p>
             {format(
               t(

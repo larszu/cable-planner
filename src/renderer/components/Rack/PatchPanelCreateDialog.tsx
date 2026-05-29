@@ -14,7 +14,9 @@
  * gewöhnliches 19"-Gerät durch alle nachgelagerten Mechaniken läuft.
  */
 import { useMemo, useState } from 'react'
+import { X } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
+import { Icon } from '../shared/Icon'
 import { ALL_CONNECTOR_TYPES, type ConnectorType, type EquipmentTemplate } from '../../types/equipment'
 import { useUiStore } from '../../store/uiStore'
 import { format, useTranslation } from '../../lib/i18n'
@@ -135,7 +137,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
             className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
             aria-label={t('common.close', 'Schließen')}
           >
-            ✕
+            <Icon icon={X} size="sm" />
           </button>
         </div>
 

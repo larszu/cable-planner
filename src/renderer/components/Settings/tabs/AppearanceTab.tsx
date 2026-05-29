@@ -1,4 +1,6 @@
 import { useMemo } from 'react'
+import { X } from 'lucide-react'
+import { Icon } from '../../shared/Icon'
 import { useUiStore } from '../../../store/uiStore'
 import { useProjectStore } from '../../../store/projectStore'
 import { useTranslation } from '../../../lib/i18n'
@@ -439,7 +441,7 @@ export const AppearanceTab = () => {
                         className="rounded bg-red-900/60 px-2 py-1 text-[11px] text-red-200 hover:bg-red-800"
                         title={t('settings.canvasBg.remove', 'Bild entfernen')}
                       >
-                        ✕
+                        <Icon icon={X} size="sm" />
                       </button>
                     </div>
                   </>

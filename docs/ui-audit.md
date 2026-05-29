@@ -73,6 +73,43 @@ bleiben (`ArrowRight` für out, `ArrowLeft` für in).
 Gesamtzahl Unicode-Icon-Treffer im Scan: ~136 Dateien (inkl. Daten-Pfeile
 `→` in Typ-Labels, die *keine* UI-Icons sind und bleiben dürfen).
 
+### Phase 1 — erledigt
+
+- `lucide-react` als Dependency + `components/shared/Icon.tsx` (Wrapper mit
+  Größen-Tokens `xs..xl`, `strokeWidth`, `currentColor`, Default `aria-hidden`).
+- **Close `✕` → `X`**: `ModalShell` (deckt 11 Dialoge ab) + 21 Icon-only
+  Close-Buttons in 18 Dateien.
+- **Warnung `⚠` → `AlertTriangle`** (JSX-Glyphen): App.tsx (×4), CableDialog
+  (×3 inkl. SDI/Length), CalculatorsDialog, ExportDialog, AtemAudioRouterDialog
+  (×2), EquipmentNode, ModeEditorDialog, RentmanSyncBadge (×2), CanvasToolbar,
+  RackBuilderDialog, CableLibraryPanel, GraphmlImportDialog, MobileApp (×3).
+- **Status `✓` → `Check`**: StatusBar (gepackt), ExportDialog, CableDialog,
+  CanvasToolbar (Gruppen-Speichern).
+- **`infoDialog`-Tones → echte Icons** (Info/Check/AlertTriangle/XCircle) —
+  zieht durch alle Info/Success/Warning/Error-Dialoge.
+- **ErrorBoundary**-Aktions-Buttons (📋/↻/🗑) → `ClipboardCopy`/`RotateCcw`/`Trash2`.
+
+### Phase 1 — bewusst verschoben (TODO)
+
+- **Glyphen in `<option>`** (technisch unmöglich, SVG rendert dort nicht —
+  als Text mit erhaltener Semantik belassen):
+  - Port-Richtung `⇢`/`⇠` (out/in) in `App.tsx` (×2) + `CableProperties` (×2).
+  - `CableDialog` Status-Ternary `✓/⚠/✕` (Z. 257) + `★ Custom Cable` (Z. 253).
+- **Glyphen in `t()`-Fallback-Strings** → in **Phase 4** mit der i18n-Arbeit
+  extrahieren (Glyph aus DE-Fallback **und** EN-Dict ziehen, Icon im JSX):
+  `CableProperties` ⚠ (cable.warn.fromBusy/toBusy/connectorMismatch),
+  `CableBomDialog` ⚠ (bom.cable.missingTypes), `ColorField`/`EquipmentColorsSection`
+  „✕ Reset", `MultiviewerLayoutView` „✕ Schließen"/„↻ Aktualisieren",
+  `RackBuilderDialog` „✕ Entfernen"-Label, `CableProperties` „✕ Ausblenden"-Label.
+- **`CableContextMenu`**: internes String-`icon`-Menü (✎/📌/✗/＋/−/↺/🧭/↳/✓/→/←/↔/✕)
+  braucht `Item`-API-Refactor (`icon: string` → `ReactNode`) — eigener Schritt.
+- **String-gebaute Warnungen** (kein JSX, bleiben Text): `GreenGoExportDialog:153`
+  (Export-Log-Zeile), `CanvasArea:557` (Node-Label-Konkatenation).
+- **Long-Tail `✎`/`✓`** (Edit-Stifte / Häkchen) in `LibraryPanel`, `MenuBar`,
+  `RacksTab`, `DeviceModePicker` u. a. — niedrigere Priorität.
+- **ErrorBoundary-Banner `⚙`/`✅`**: dekorativer Schmuck im Recovery-Hinweis —
+  bleibt (Task erlaubt dekorative Emojis).
+
 ## Phase 2 — Typo-/Spacing-Skala & Tokens
 
 Hartkodierte Pixel-Schriftgrößen (Tailwind-Arbitrary-Values):

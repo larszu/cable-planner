@@ -12,7 +12,10 @@
 // nicht 100% das MODAL_CARD-Style aus modalRoot.
 
 import { useRef } from 'react'
+import type { LucideIcon } from 'lucide-react'
+import { AlertTriangle, Check, Info, XCircle } from 'lucide-react'
 import { useTranslation } from './i18n'
+import { Icon } from '../components/shared/Icon'
 import {
   MODAL_BACKDROP,
   MODAL_CARD,
@@ -31,11 +34,11 @@ export interface InfoDialogOptions {
   tone?: InfoDialogTone
 }
 
-const TONE_ACCENT: Record<InfoDialogTone, { bg: string; border: string; icon: string }> = {
-  info: { bg: '#0ea5e9', border: '#0369a1', icon: 'ℹ' },
-  success: { bg: '#10b981', border: '#059669', icon: '✓' },
-  warning: { bg: '#f59e0b', border: '#b45309', icon: '⚠' },
-  error: { bg: '#dc2626', border: '#991b1b', icon: '⛌' },
+const TONE_ACCENT: Record<InfoDialogTone, { bg: string; border: string; icon: LucideIcon }> = {
+  info: { bg: '#0ea5e9', border: '#0369a1', icon: Info },
+  success: { bg: '#10b981', border: '#059669', icon: Check },
+  warning: { bg: '#f59e0b', border: '#b45309', icon: AlertTriangle },
+  error: { bg: '#dc2626', border: '#991b1b', icon: XCircle },
 }
 
 export function infoDialog(title: string, options: InfoDialogOptions = {}): Promise<void> {
@@ -86,12 +89,10 @@ const InfoDialog = ({ title, options, onDone }: Props) => {
               borderRadius: '50%',
               background: accent.bg,
               color: '#0f172a',
-              fontWeight: 700,
-              fontSize: 12,
               flexShrink: 0,
             }}
           >
-            {accent.icon}
+            <Icon icon={accent.icon} size={14} />
           </span>
           <div style={{ fontSize: 14, fontWeight: 600, lineHeight: '22px' }}>{title}</div>
         </div>
