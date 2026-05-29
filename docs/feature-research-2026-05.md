@@ -187,25 +187,28 @@ Legende: ✅ vorhanden · 🟡 teilweise · ❌ fehlt. Aufwand grob: niedrig
 
 ## Teil C — Priorisierte Einbau-Empfehlungen
 
-### Quick Wins (niedriger Aufwand, sofortiger Nutzen)
-- **#23 Device-Datenblatt-URL-Feld** — trivial, deckt einen konkreten ConnectCAD-Wunsch
-- **#5 + #12 Barcode/QR auf Etiketten-Bogen** — `qrcode`-Dep ist schon da; QR/Barcode pro Etikett, QR linkt zu Spec/Mobile-View
-- **#5 Label-Printer-CSV** (Brother P-touch / Dymo / Brady) aus den vorhandenen Etiketten-Daten
-- **#4 Dedizierter Cable-Schedule-CSV** (from-Gerät/Port → to-Gerät/Port, Typ, Länge, Label) — baut auf Patchliste/Export auf
+### ✓ Umgesetzt (Branch `claude/clever-pasteur-L3JNC`, 2026-05)
+- **#3 Auto-Kabelnummerierung mit Schema** — `c78eeaf` (Metadaten-Schema, Renumber-Action + Auto-Vergabe beim Anlegen, Anzeige auf Canvas + Patchliste)
+- **#4 Cable-Schedule-CSV** — `e9855ad` (Kabelnummer + Layer als Spalten in Patchlisten-CSV/XLSX)
+- **#5/#12 QR auf Etiketten-Bogen** — `5e807f5` (QR pro Kabel, kodiert Nummer + Strecke)
+- **#23 Datenblatt-Link im Report** — `b6d1bb9` (klickbare Zeile im Geräte-PDF; das Feld gab es schon, fehlte nur im Export)
+
+### Quick Wins (verbleibend)
+- **#5 Label-Printer-CSV** — herstellerspezifisches Spaltenformat (Brother P-touch / Dymo / Brady) aus den vorhandenen Etiketten-Daten
 - **#25 Connector-Gender-Flag** an den Connector-Typen
 
 ### Mittelfristig (hoher Differenzierungswert)
-- **#3 Auto-Kabelnummerierung mit Schema** — *die* Nr.-1-Community-Anforderung und ConnectCAD/WireCAD-Stärke, die Cable-Planner komplett fehlt. Regelbasiert (Präfix + Layer + laufende Nr.), kollisionsfrei, im Settings-Tab konfigurierbar.
-- **#19 Vereinte „Plan-Check"-Palette** — bündelt die schon vorhandenen Heuristiken (Doppel-IP, RF-Konflikt, Redundanz) + neue Checks (inkompatible Connectoren, offene/unverbundene Ports, doppelte Labels, fehlende Längen) zu einem Live-Status-Panel à la „ConnectCAD Status". Hoher Nutzen, nutzt vorhandene Bausteine.
+- **#19 Vereinte „Plan-Check"-Palette** — bündelt die schon vorhandenen Heuristiken (Doppel-IP, RF-Konflikt, Redundanz) + neue Checks (inkompatible Connectoren, offene/unverbundene Ports, doppelte Labels/Nummern, fehlende Längen) zu einem Live-Status-Panel à la „ConnectCAD Status". Hoher Nutzen, nutzt vorhandene Bausteine.
 - **#18 Workgroup-/Shared-Library** über die **bereits existierenden `sync:*`-Primitive** (read/write/lock auf shared-Ordner) — schließt ConnectCADs größte Lücke mit überschaubarem Aufwand.
 - **#13/#28 Revisions-/Snapshot-Verwaltung** — benannte Projekt-Stände + Revision-Clouds (über Annotations) adressieren Revision- *und* As-Built-Wünsche.
 - **#7 PDU/Airflow im Rack**, **#26 Packlist pro Case/Location** — beides erweitert vorhandene Power-Calc bzw. BOM.
+- **#9 Stage-Plot/Eingangslisten-Generator** (Live-Audio) und **#15 AV-over-IP-Topologie + Dante-Naming-Helper**.
 
 ### Strategisch / groß
 - **#10 Echtzeit-Kollaboration (Yjs)** — der **größte strukturelle Wunsch über *alle* Quellen** (Reddit, H2Rs USP, ConnectCADs #2). Architektur ist mit dem Slice-Pattern (#308) vorbereitet; Pfad in arch.md §9.4.
 - **#11 Mobile-Editor** statt nur Read-View
 - **#17 KI-Plan-Generierung** (Text → Rack + Signalfluss + BOM) — baut auf aiSuggestions.ts auf
-- **#27 Maßstäbliche Kabelweg-/Conduit-Längen**
+- **#27 Maßstäbliche Kabelweg-/Conduit-Längen**; **#16 Quoting/Pricing-Layer**; **#24 Vektor-(SVG)-Import**
 
 ---
 
@@ -227,6 +230,167 @@ schon** — das ist die Positionierung:
 - **Mobile-Share-Feldansicht** (read/check) — erfüllt den „Plan auf der
   Baustelle"-Wunsch (#11) bereits teilweise
 - **Undo mit Transactions + Coalesce** — UX-Niveau über WireCAD/Visio
+
+---
+
+## Teil E — Konkrete GitHub-Issue-Vorschläge
+
+Fertig formulierte Issues für die noch offenen Opportunities. Aufwand grob:
+S = < 1 Tag, M = 2–5 Tage, L = Woche+/strukturell. Andockpunkt = Datei(en)
+laut [`architecture.md`](architecture.md).
+
+### E1 · `feat(patchlist): Etiketten-Export im Label-Printer-Format (CSV)` — S
+- **Problem / Quelle:** Community Nr. 5 — Etiketten sollen an Brady/Dymo/Brother
+  (P-touch / Cable Label Tool) gehen; gewünscht ist serialisierter CSV-Import.
+  Cable-Planner hat den PDF-Bogen (+ QR), aber kein Drucker-CSV.
+- **Lösung:** Zweiter Export-Knopf „Etiketten-CSV" neben „Etiketten + QR".
+  Spaltenschema wählbar (Brother P-touch / Dymo / generisch): je Kabel zwei
+  Zeilen (beide Enden) mit Nummer, Quell-/Ziel-Text, Typ, Länge, Farbe.
+- **Akzeptanz:** CSV öffnet in P-touch Editor / Dymo Connect; Umlaute via
+  `sanitizeForPdf`-Pendant ASCII-sicher; nutzt aktuelle Filter.
+- **Andockpunkt:** `components/Patch/PatchListDialog.tsx` (neben `exportLabels`),
+  `lib/exportFilename.ts`, i18n.
+- **Labels:** `enhancement`, `export`, `patchlist`.
+
+### E2 · `feat(ports): Connector-Gender (male/female) pro Port` — S
+- **Problem / Quelle:** ConnectCAD-Wunsch #13 (Connector-Gender/-Richtung);
+  Patchfeld-/Kabel-Konfektion braucht m/f-Info.
+- **Lösung:** `Port.gender?: 'male' | 'female'` (+ optional am Kabelende).
+  Anzeige als kleines ♂/♀ am Port-Handle; in Patchliste/CSV/Etikett.
+- **Akzeptanz:** optional, heilt zu undefined; sichtbar in Properties +
+  Patchliste; kein Bruch alter Projekte.
+- **Andockpunkt:** `types/equipment.ts` (Port), `Properties/sections/PortList.tsx`,
+  `Canvas/EquipmentNode.tsx`, Patch-Export.
+- **Labels:** `enhancement`, `domain-model`.
+
+### E3 · `feat(analysis): vereinte „Plan-Check"-Palette` — M
+- **Problem / Quelle:** ConnectCAD-Stärke „Status"-Palette; Community-Pain
+  „undokumentiert/fehlerträchtig". Cable-Planner hat Heuristiken verstreut
+  (Doppel-IP, RF-Konflikt, Redundanz), aber kein Live-Gesamt-Status.
+- **Lösung:** `lib/drawingChecks.ts` sammelt Findings (Severity error/warn/info):
+  offene/unverbundene Ports, inkompatible Connector-Paare, doppelte
+  Labels/Kabelnummern, fehlende Längen, Doppel-IP, RF-Konflikt, Single-Power.
+  Panel mit Klick → Element selektieren/zentrieren; Badge in der StatusBar.
+- **Akzeptanz:** Findings live aus dem Store; Klick selektiert; vorhandene
+  Analysen werden wiederverwendet, nicht dupliziert.
+- **Andockpunkt:** neu `lib/drawingChecks.ts`, `components/Analysis/`,
+  StatusBar; Selektion über `setSelection`.
+- **Labels:** `enhancement`, `analysis`, `differentiator`.
+
+### E4 · `feat(library): Workgroup-/Shared-Library über sync-Ordner` — M
+- **Problem / Quelle:** ConnectCADs **größte** Lücke (#1): Teams wollen geteilte
+  Geräte-/Gruppen-Library statt manuellem Kopieren; H2R löst das per Cloud.
+- **Lösung:** Library optional auf einen gemeinsamen Ordner (Dropbox/SMB)
+  spiegeln — nutzt die vorhandenen `sync:*`-IPC (read/write/exists/lock).
+  Beim Start mergen (merge-by-name, vorhandener `TemplateMergeDialog`),
+  Konflikte über bestehende `librarySync`-Logik.
+- **Akzeptanz:** Pfad in SyncTab konfigurierbar; zwei Instanzen sehen dieselben
+  Templates; Lock verhindert Write-Races; lokale Edits werden nicht überschrieben.
+- **Andockpunkt:** `store/libraryPersist.ts`, `lib/librarySync.ts`,
+  `main/ipc/syncIpc.ts`, `Settings/tabs/SyncTab.tsx`, `Library/TemplateMergeDialog.tsx`.
+- **Labels:** `enhancement`, `library`, `collaboration`.
+
+### E5 · `feat(project): Revisionen/Snapshots + As-Built-Markierung` — M
+- **Problem / Quelle:** Community #13/#28 — Rev-Schema (A/B/C, As-Built 0/1/2),
+  Revision-Clouds, eine autoritative Ausgabe; As-Builts driften sonst weg.
+- **Lösung:** `project.revisions: { id, label, note, createdAt, snapshot }[]`;
+  „Revision festschreiben" speichert Snapshot + Label; Diff/Restore;
+  Revision-Clouds als Annotation-Typ; Rev-Stempel im PDF-Titelblock.
+- **Akzeptanz:** Snapshot wiederherstellbar; Heal-kompatibel; Rev erscheint im Export.
+- **Andockpunkt:** `types/project.ts`, neuer Slice `store/slices/revisionSlice.ts`,
+  `healProjectPositions`, `Annotations/`, PDF-Titelblock.
+- **Labels:** `enhancement`, `project`, `as-built`.
+
+### E6 · `feat(rack): PDU-Platzierung + Airflow-/Wärme-Check im Rack` — M
+- **Problem / Quelle:** Community #7 / X-DRAW vermarktet Auto-Power+Heat+PDU.
+  Cable-Planner rechnet Last/Wärme schon, aber ohne PDU-Objekt/Airflow-Abstände.
+- **Lösung:** Geräte-Flag `isPdu` + Outlet-Zahl; Rack-Check „Last je PDU",
+  „HE-Lücken für Airflow", Wärme-Summe je Rack (BTU/h, vorhanden) im 3D/2D-Rack.
+- **Akzeptanz:** Überlast/zu wenig Airflow wird im Rack markiert; nutzt
+  vorhandene `powerWatts`/Wärme-Berechnung.
+- **Andockpunkt:** `components/Rack/`, `components/Calculators/`, `types/equipment.ts`.
+- **Labels:** `enhancement`, `rack`, `power`.
+
+### E7 · `feat(export): Packlist / Pull-Liste je Case & Location` — S/M
+- **Problem / Quelle:** H2R-Feature „Packlist"; Feld-Workflow „im Shop packen".
+  Cable-Planner hat BOM, aber keine Case-/Location-gruppierte Pull-Liste.
+- **Lösung:** Gruppierte Geräte-/Kabel-Liste je Location bzw. `rackInstance`,
+  mit Pack-Status (`packed` existiert) als PDF/CSV.
+- **Akzeptanz:** eine Seite je Location/Case; Pack-Haken sichtbar; nutzt BOM-Logik.
+- **Andokpunkt:** `components/Export/`, `lib/itemExport.ts`, `LocationBomDialog.tsx`.
+- **Labels:** `enhancement`, `export`.
+
+### E8 · `feat(patch): Stage-Plot- & Eingangslisten-Generator (Live-Audio)` — M
+- **Problem / Quelle:** Community #9 — Eingangsliste + Patch-Sheet + Stage-Plot
+  sind die Kern-Artefakte im Live-Sound (ProSoundWeb/Gearspace).
+- **Lösung:** Aus Audio-Layer-Kabeln eine Eingangsliste (Kanal, Quelle, Mikro/DI,
+  Stand, Phantom) ableiten; einfacher Bühnenplan mit Positions-Markern.
+- **Akzeptanz:** Eingangsliste als PDF/CSV; Bühnenplan exportierbar.
+- **Andockpunkt:** neu unter `components/Patch/` bzw. `Export/`; Audio-Layer-Filter vorhanden.
+- **Labels:** `enhancement`, `audio`, `patchlist`.
+
+### E9 · `feat(analysis): AV-over-IP-Topologie + Dante-Naming-Helper` — M
+- **Problem / Quelle:** Community #15 — VLAN/Switch-Maps für Dante/NDI/ST2110,
+  Dante-Naming (≤31 Zeichen, DNS-safe, `channel@device`).
+- **Lösung:** Switch-/VLAN-Topologie-View (VLANs liegen schon am Gerät);
+  Dante-Naming-Validator + Auto-Vorschläge.
+- **Akzeptanz:** Topologie zeigt VLAN-Zugehörigkeit; Namensregeln werden geprüft.
+- **Andockpunkt:** `components/Analysis/` (Netzwerk-Tab erweitern), `types/equipment.ts` (`vlans`).
+- **Labels:** `enhancement`, `network`, `analysis`.
+
+### E10 · `feat(cables): Multicore/Fiber-Bündel + Breakouts` — M
+- **Problem / Quelle:** ConnectCAD-Wünsche #5/#6 — Multicore/Fiber mit Breakouts,
+  beidseitigen Steckern, Strands.
+- **Lösung:** `Cable.multicoreId` gruppiert Adern; Breakout-/Squid-Darstellung;
+  Strand-Anzahl + beidseitige Connector-Typen.
+- **Akzeptanz:** Bündel als ein Kabel führbar, Adern einzeln adressierbar; BOM zählt korrekt.
+- **Andockpunkt:** `types/cable.ts`, `Canvas/CableEdge.tsx`, BOM.
+- **Labels:** `enhancement`, `domain-model`, `fiber`.
+
+### E11 · `feat(export): Quoting-/Preis-Layer (BOM → Angebot)` — M
+- **Problem / Quelle:** Community #16 / ConnectCAD #10 — Diagramm → Geräteliste →
+  Angebot; ConnectCAD lagert das an Jetbuilt aus.
+- **Lösung:** Optionales `priceEUR`/`rentalRate` am Gerät/Kabel-Spec; Angebots-PDF
+  aus BOM (Mengen × Preis, Summen, optional Rentman-Katalogpreise).
+- **Akzeptanz:** Angebots-PDF mit Positionen + Summe; Preise optional, kein Pflichtfeld.
+- **Andockpunkt:** `types/equipment.ts`/`cableSpec.ts`, `components/Export/`, Rentman-Client.
+- **Labels:** `enhancement`, `export`, `bom`.
+
+### E12 · `feat(routing): maßstäbliche Kabelweg-/Conduit-Längen` — L
+- **Problem / Quelle:** ConnectCAD-Stärke (Cable-Path + Auto-Länge + Conduit).
+  Cable-Planner hat Längen-Feld + A*-Canvas-Routing, aber keine reale Bauweg-Länge.
+- **Lösung:** Maßstab je Location (mm/px) + Kabelweg-Pfade; Längen daraus +
+  Reserve; optional Conduit-Füllgrad.
+- **Akzeptanz:** Länge aus maßstäblichem Pfad statt manuell; Reserve-Aufschlag konfigurierbar.
+- **Andockpunkt:** `lib/cableRouting.ts`, `types/project.ts` (Maßstab), `types/location.ts`.
+- **Labels:** `enhancement`, `routing`.
+
+### E13 · `feat(sync): Echtzeit-Kollaboration (Yjs) im LAN` — L
+- **Problem / Quelle:** **Größter** struktureller Wunsch über alle Quellen
+  (Community #10, H2R-USP, ConnectCAD #2).
+- **Lösung:** Projekt-Daten als `Y.Doc`; Slice-Updates als CRDT-Adapter
+  (Slice-Architektur #308 ist die Vorbereitung); `y-webrtc`/`y-websocket`.
+- **Akzeptanz:** zwei Instanzen editieren live denselben Plan; Undo bleibt nutzbar.
+- **Andockpunkt:** `store/slices/*`, neuer `main/services/`-Sync, arch.md §9.4.
+- **Labels:** `enhancement`, `collaboration`, `architecture`.
+
+### E14 · `feat(ai): KI-Plan-Generierung aus Text-Prompt` — L
+- **Problem / Quelle:** Community #17 / X-DRAW „XAVIA": Raum/System in Klartext →
+  Rack + Signalfluss + BOM.
+- **Lösung:** `lib/aiSuggestions.ts` erweitern (Provider sind schon angebunden):
+  Prompt → Geräte + Verbindungen + Auto-Layout; Review vor dem Einfügen.
+- **Akzeptanz:** Prompt erzeugt platzierbare Geräte + Kabel; nichts wird ohne
+  Bestätigung geschrieben.
+- **Andockpunkt:** `lib/aiSuggestions.ts`, neuer Generator-Dialog, `equipmentLayout.ts`.
+- **Labels:** `enhancement`, `ai`.
+
+### E15 · `feat(import): Vektor-Grafik-(SVG)-Import` — S/M
+- **Problem / Quelle:** ConnectCAD-Wunsch #11 (nur Raster importierbar).
+- **Lösung:** SVG als Annotation/Hintergrund importieren (GraphML-Import existiert
+  als Muster).
+- **Akzeptanz:** SVG erscheint als Layer/Annotation; skaliert sauber.
+- **Andockpunkt:** `components/Import/`, `Annotations/`.
+- **Labels:** `enhancement`, `import`.
 
 ---
 
