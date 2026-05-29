@@ -13,6 +13,7 @@
 import type { ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from './Icon'
 
@@ -77,6 +78,14 @@ export const ModalShell = ({
     draggableKey ?? 'cable-planner:modal-pos:__nodrag__',
     open && !!draggableKey,
   )
+  // a11y: role/aria-modal, Escape-to-close (analog closeOnBackdrop),
+  // Focus-Trap + Fokus-Rückgabe. Die Drag-Container-Ref wird direkt
+  // mitgenutzt, damit Focus-Trap und Draggen denselben Knoten teilen.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, onClose, {
+    closeOnEscape: closeOnBackdrop,
+    ref: draggableKey ? drag.containerRef : undefined,
+  })
+
   if (!open) return null
 
   return (
@@ -88,22 +97,24 @@ export const ModalShell = ({
       }}
     >
       <div
-        ref={draggableKey ? drag.containerRef : undefined}
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
         style={draggableKey ? drag.containerStyle : undefined}
-        className={`flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl`}
+        className={`flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-lg border border-[var(--cp-border)] bg-[var(--cp-surface-1)] text-[var(--cp-text)] shadow-2xl outline-none`}
       >
         <header
           {...(draggableKey ? drag.headerProps : {})}
-          className="flex items-center justify-between border-b border-slate-700 px-4 py-3 select-none"
+          className="flex items-center justify-between border-b border-[var(--cp-border)] px-4 py-3 select-none"
         >
-          <h2 className="flex items-center text-sm font-semibold">
+          <h2 id={titleId} className="flex items-center text-cp-base font-semibold">
             {titleIcon && <span className="mr-2">{titleIcon}</span>}
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+            className="inline-flex items-center justify-center rounded px-2 py-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-[var(--cp-text)]"
             aria-label={t('common.close', 'Schließen')}
           >
             <Icon icon={X} size="md" />
@@ -113,7 +124,7 @@ export const ModalShell = ({
           {children}
         </div>
         {footer && (
-          <footer className="border-t border-slate-700 px-4 py-3">
+          <footer className="border-t border-[var(--cp-border)] px-4 py-3">
             {footer}
           </footer>
         )}

@@ -95,7 +95,7 @@ export const MenuBar = ({
     projectHistory.canRedo,
   )
   return (
-    <header className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-700 bg-slate-950 px-3 py-1.5 text-xs shadow-sm">
+    <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1.5 text-cp-xs shadow-sm">
       <div className="flex items-center gap-2">
         <span className="select-none font-semibold tracking-wide text-slate-300">
           {t('app.title', 'Cable Planner')}
@@ -285,7 +285,7 @@ export const MenuBar = ({
         </div>
         <SharedSyncPanel />
         {onChangeVideoFormat && (
-          <label className="flex items-center gap-1 text-[11px] text-slate-400">
+          <label className="flex items-center gap-1 text-cp-xs text-[var(--cp-text-muted)]">
             <span>{t('app.videoFormat', 'Format:')}</span>
             <select
               value={videoFormat ?? '1080p50'}
@@ -366,15 +366,17 @@ const Menu = ({ label, children }: MenuProps) => {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
         className={`rounded px-2 py-1 text-slate-200 hover:bg-slate-800 ${open ? 'bg-slate-800' : ''}`}
       >
         {label}
-        <span className="ml-1 text-[9px] text-slate-500">▾</span>
+        <span className="ml-1 text-[9px] text-slate-500" aria-hidden="true">▾</span>
       </button>
       {open && (
         <div
           onClick={() => setOpen(false)}
-          className="absolute left-0 top-full z-50 mt-1 min-w-[14rem] rounded border border-slate-700 bg-slate-900 py-1 shadow-2xl"
+          className="absolute left-0 top-full z-50 mt-1 min-w-[14rem] rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] py-1 shadow-2xl"
           role="menu"
         >
           {children}
@@ -396,13 +398,13 @@ const MenuItem = ({ onClick, icon, shortcut, children }: MenuItemProps) => {
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-700/70"
+      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-cp-xs text-slate-200 hover:bg-slate-700/70"
       role="menuitem"
     >
       <span className="w-4 shrink-0 text-center text-[12px]">{icon ?? ''}</span>
       <span className="flex-1 truncate">{children}</span>
       {shortcut && (
-        <span className="ml-3 shrink-0 text-[10px] tracking-wide text-slate-500">
+        <span className="ml-3 shrink-0 text-cp-xs tracking-wide text-[var(--cp-text-faint)]">
           {shortcut}
         </span>
       )}

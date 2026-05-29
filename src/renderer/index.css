@@ -1,8 +1,51 @@
 @import 'tailwindcss';
 
+/* ── Phase 2: Typo-Skala als Tailwind-Theme-Tokens ──────────────────────────
+ * Erzeugt die Utilities text-cp-xs / -sm / -base / -lg. Kleinster Wert
+ * 12px = absolute Mindestgröße für Fließtext (ersetzt die bisherigen
+ * Ad-hoc text-[10px]/text-[11px]). Theme-unabhängig (Schriftgröße ändert
+ * sich nicht zwischen Dark/Light). */
+@theme {
+  --text-cp-xs: 0.75rem; /* 12px */
+  --text-cp-xs--line-height: 1.1rem;
+  --text-cp-sm: 0.8125rem; /* 13px */
+  --text-cp-sm--line-height: 1.2rem;
+  --text-cp-base: 0.875rem; /* 14px */
+  --text-cp-base--line-height: 1.3rem;
+  --text-cp-lg: 1rem; /* 16px */
+  --text-cp-lg--line-height: 1.5rem;
+}
+
 :root {
   color-scheme: dark;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  /* ── Phase 2: Farb-Token-Schicht (Dark = Default) ────────────────────────
+   * Theme-aware via Override im [data-theme="light"]-Block weiter unten.
+   * Die Werte spiegeln exakt die bisher in den Shells genutzten slate-
+   * Töne (bzw. deren Light-Remap), damit die Migration der zentralen
+   * Shells auf var(--cp-*) appearance-neutral ist. Neue Komponenten
+   * sollten diese Tokens statt roher slate-Klassen verwenden. */
+  --cp-bg: #0f172a; /* App-Hintergrund */
+  --cp-surface-1: #0f172a; /* slate-900 — Panels/Modals */
+  --cp-surface-2: #1e293b; /* slate-800 — raised/hover */
+  --cp-surface-3: #020617; /* slate-950 — sunken/Leisten/Inputs */
+  --cp-border: #334155; /* slate-700 */
+  --cp-border-muted: #1e293b; /* slate-800 */
+  --cp-text: #f1f5f9; /* slate-100 */
+  --cp-text-secondary: #cbd5e1; /* slate-300 */
+  --cp-text-muted: #94a3b8; /* slate-400 */
+  --cp-text-faint: #64748b; /* slate-500 */
+  --cp-accent: #38bdf8; /* sky-400 */
+  --cp-warn: #f59e0b; /* amber-500 */
+  --cp-danger: #ef4444; /* red-500 */
+
+  /* Spacing-Skala (Referenz; schrittweise Migration der Shells) */
+  --cp-space-1: 0.25rem;
+  --cp-space-2: 0.5rem;
+  --cp-space-3: 0.75rem;
+  --cp-space-4: 1rem;
+  --cp-space-6: 1.5rem;
 }
 
 * {
@@ -84,8 +127,21 @@ body,
  * avoid that.
  * ─────────────────────────────────────────────────────────── */
 [data-theme="light"] {
+  /* Phase 2: Light-Overrides der Farb-Tokens. Werte = bisheriger
+   * Slate-Remap, damit migrierte Shells im Light-Mode identisch aussehen
+   * und keine dunklen Rest-Flächen entstehen. */
   --cp-bg: #f0f4f8;
-  --cp-text: #1e293b;
+  --cp-surface-1: #eaeff5; /* = .bg-slate-900 light remap */
+  --cp-surface-2: #dde4ee; /* = .bg-slate-800 */
+  --cp-surface-3: #f0f4f8; /* = .bg-slate-950 */
+  --cp-border: #94a3b8; /* = .border-slate-700 */
+  --cp-border-muted: #b8c4d0; /* = .border-slate-800 */
+  --cp-text: #0f172a; /* = .text-slate-100 */
+  --cp-text-muted: #334155; /* = .text-slate-400 */
+  --cp-text-faint: #475569; /* = .text-slate-500 */
+  --cp-accent: #0284c7; /* sky-600 */
+  --cp-warn: #d97706; /* amber-600 */
+  --cp-danger: #dc2626; /* red-600 */
   /* Render native form elements (selects, checkboxes, inputs) in light mode */
   color-scheme: light;
 }
