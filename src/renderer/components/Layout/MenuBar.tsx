@@ -433,6 +433,7 @@ export const MenuBar = ({
             type="button"
             onClick={() => useUiStore.getState().openMobileShare()}
             className="rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
+            aria-label={t('app.mobileShare.ariaLabel', 'Handy-Zugriff')}
             title={t(
               'app.mobileShare.title',
               'Handy-Zugriff: kleiner LAN-Server + QR-Code, damit das Handy den Mobile-Viewer öffnen kann.',

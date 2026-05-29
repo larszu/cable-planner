@@ -45,7 +45,7 @@ export const StatusBar = ({
   const complexity = complexityFor(equipmentCount, cableCount, t)
   return (
     <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1 text-cp-xs text-[var(--cp-text-secondary)]">
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3 overflow-hidden">
         <span className="truncate font-medium text-slate-200">{projectName}</span>
         <span className="text-slate-600">|</span>
         <span>{format(t('statusbar.equipment', '{count} Geräte'), { count: equipmentCount })}</span>
@@ -79,7 +79,7 @@ export const StatusBar = ({
           {complexity.label}
         </span>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
         {/* v7.9.4 — Rentman-Badge nur sichtbar wenn die Integration
             in den Einstellungen aktiviert ist. */}
         {useUiStore((s) => s.rentmanEnabled) && (

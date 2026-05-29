@@ -6,6 +6,7 @@ import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
+import { infoDialog } from '../../lib/infoDialog'
 import { RackImageCropDialog } from './RackImageCropDialog'
 import { RackInternalCanvas } from './RackInternalCanvas'
 import { RackLivePreview } from './RackLivePreview'
@@ -647,7 +648,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     setExportMenuOpen(false)
                     const refs = canvas3DRefs.current
                     if (!refs) {
-                      alert(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'))
+                      void infoDialog(t('rack.export.no3dInitTitle', '3D-Szene nicht bereit'), {
+                        body: t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'),
+                        tone: 'warning',
+                      })
                       return
                     }
                     await exportRack3DAsPngs(refs.gl, refs.scene, refs.camera, {
@@ -670,7 +674,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     setExportMenuOpen(false)
                     const refs = canvas3DRefs.current
                     if (!refs) {
-                      alert(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'))
+                      void infoDialog(t('rack.export.no3dInitTitle', '3D-Szene nicht bereit'), {
+                        body: t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'),
+                        tone: 'warning',
+                      })
                       return
                     }
                     exportRackAsStl(refs.scene, draft.rackName || 'rack')

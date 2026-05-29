@@ -100,7 +100,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                             Edit (✎) und Delete (×) als kleine Icon-Buttons,
                             erscheinen erst beim Hover. Platzieren passiert
                             durch Click auf den Card-Body. */}
-                        <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
+                        <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
                           <button
                             type="button"
                             onClick={(event) => {

@@ -262,6 +262,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     <button
       type="button"
       title={title}
+      aria-label={title}
+      aria-pressed={active}
       onClick={onClick}
       disabled={disabled}
       style={{
