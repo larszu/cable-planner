@@ -38,6 +38,7 @@ interface PatchRow {
   color: string
   cableName: string
   notes: string
+  layer: string
 }
 
 export const PatchListDialog = () => {
@@ -48,6 +49,7 @@ export const PatchListDialog = () => {
   const cables = useProjectStore((s) => s.project.cables)
   const projectName = useProjectStore((s) => s.project.metadata.name)
   const [filter, setFilter] = useState('')
+  const [layerFilter, setLayerFilter] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('fromDevice')
 
   const rows = useMemo<PatchRow[]>(() => {
@@ -174,6 +176,7 @@ export const PatchListDialog = () => {
         color: c.color || '#64748b',
         cableName: c.name,
         notes: c.notes ?? '',
+        layer: c.layer ?? '',
       }
     })
     const cmp = (a: PatchRow, b: PatchRow): number => {
@@ -193,11 +196,15 @@ export const PatchListDialog = () => {
     return list.sort(cmp)
   }, [cables, equipment, open, sortKey])
 
+  // #353 — vorhandene Cable-Layer (z.B. audio/video/network) für den Filter.
+  const layers = useMemo(() => [...new Set(rows.map((r) => r.layer).filter(Boolean))].sort(), [rows])
+
   const filtered = useMemo(() => {
     const q = filter.trim().toLowerCase()
-    if (!q) return rows
-    return rows.filter((r) =>
-      [
+    return rows.filter((r) => {
+      if (layerFilter && r.layer !== layerFilter) return false
+      if (!q) return true
+      return [
         r.fromDevice,
         r.fromPort,
         r.fromPortSub ?? '',
@@ -207,9 +214,9 @@ export const PatchListDialog = () => {
         r.type,
         r.cableName,
         r.notes,
-      ].some((v) => v.toLowerCase().includes(q)),
-    )
-  }, [rows, filter])
+      ].some((v) => v.toLowerCase().includes(q))
+    })
+  }, [rows, filter, layerFilter])
 
 
   if (!open) return null
@@ -387,6 +394,21 @@ export const PatchListDialog = () => {
             placeholder={t('patchList.searchPlaceholder', 'Suchen (Gerät, Port, Typ, Farbe, Notiz …)')}
             className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
           />
+          {layers.length > 0 && (
+            <select
+              value={layerFilter}
+              onChange={(e) => setLayerFilter(e.target.value)}
+              title={t('patchList.layerFilter', 'Nach Layer/Gewerk filtern')}
+              className="rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+            >
+              <option value="">{t('patchList.allLayers', 'Alle Layer')}</option>
+              {layers.map((l) => (
+                <option key={l} value={l}>
+                  {l}
+                </option>
+              ))}
+            </select>
+          )}
           <span className="text-[11px] text-slate-400">
             {filtered.length} / {rows.length}
           </span>

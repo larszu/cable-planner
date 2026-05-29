@@ -1312,6 +1312,8 @@ const en: Dict = {
   // PatchListDialog
   'patchList.title': 'Patch list',
   'patchList.searchPlaceholder': 'Search (device, port, type, colour, note …)',
+  'patchList.layerFilter': 'Filter by layer/discipline',
+  'patchList.allLayers': 'All layers',
 
   // CalculatorsDialog
   'calc.title': 'Tools / calculators',
