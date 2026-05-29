@@ -31,6 +31,13 @@ export type SignalStandard =
   | 'MADI'
   | 'SMPTE-297'
   | 'SMPTE-304M'
+  | 'NDI'
+  | 'NDI-HX'
+  | 'Dante'
+  | 'AES67'
+  | 'ST2110-20'
+  | 'ST2110-30'
+  | 'ST2110-40'
   | 'RF-UHF'
   | 'RF-VHF'
   | 'RF-2.4G'
@@ -46,6 +53,7 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
   'Analog-Audio', 'AES3', 'USB-2.0', 'USB-3.x',
   'Thunderbolt-3', 'Thunderbolt-4',
   'MADI', 'SMPTE-297', 'SMPTE-304M',
+  'NDI', 'NDI-HX', 'Dante', 'AES67', 'ST2110-20', 'ST2110-30', 'ST2110-40',
   'RF-UHF', 'RF-VHF', 'RF-2.4G', 'RF-5G',
   'Power-230V', 'Fiber-SM', 'Fiber-MM', 'Generic',
 ]
@@ -169,6 +177,33 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#16a34a',
     notesKey: 'catalog.cable.cat6a.notes',
+  },
+  {
+    id: 'ndi-cat6a',
+    name: 'NDI über Cat6a (1G/10G)',
+    connectorType: 'Ethernet/RJ45',
+    standards: ['Eth-1G', 'Eth-10G', 'NDI', 'NDI-HX'],
+    maxLengthMeters: 100,
+    color: '#22c55e',
+    notesKey: 'catalog.cable.ndi-cat6a.notes',
+  },
+  {
+    id: 'dante-cat6',
+    name: 'Dante / AES67 (Cat6)',
+    connectorType: 'Ethernet/RJ45',
+    standards: ['Eth-100', 'Eth-1G', 'Dante', 'AES67'],
+    maxLengthMeters: 100,
+    color: '#14b8a6',
+    notesKey: 'catalog.cable.dante-cat6.notes',
+  },
+  {
+    id: 'st2110-fiber',
+    name: 'SMPTE ST 2110 (Fiber)',
+    connectorType: 'Fiber',
+    standards: ['Fiber-SM', 'Fiber-MM', 'ST2110-20', 'ST2110-30', 'ST2110-40'],
+    maxLengthMeters: 300,
+    color: '#0ea5e9',
+    notesKey: 'catalog.cable.st2110-fiber.notes',
   },
   {
     id: 'fiber-sm-lc',
