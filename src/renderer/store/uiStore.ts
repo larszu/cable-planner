@@ -771,6 +771,10 @@ interface UiState extends PersistedUiState {
   csvImport: { open: boolean }
   openCsvImport: () => void
   closeCsvImport: () => void
+  /** "Neu aus Vorlage" — Projekt-Vorlagen-Galerie (#343). */
+  templates: { open: boolean }
+  openTemplates: () => void
+  closeTemplates: () => void
   /** Rentman equipment import dialog (cross-component trigger). */
   rentmanImport: { open: boolean }
   openRentmanImport: () => void
@@ -1142,6 +1146,9 @@ export const useUiStore = create<UiState>((set) => ({
   csvImport: { open: false },
   openCsvImport: () => set({ csvImport: { open: true } }),
   closeCsvImport: () => set({ csvImport: { open: false } }),
+  templates: { open: false },
+  openTemplates: () => set({ templates: { open: true } }),
+  closeTemplates: () => set({ templates: { open: false } }),
   rentmanImport: { open: false },
   openRentmanImport: () => set({ rentmanImport: { open: true } }),
   closeRentmanImport: () => set({ rentmanImport: { open: false } }),
