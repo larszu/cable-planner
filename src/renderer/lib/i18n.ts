@@ -2907,6 +2907,7 @@ const en: Dict = {
   'csvImport.doneTitle': 'CSV imported',
   'csvImport.doneBody': 'Added {n} device(s) as library templates (existing names unchanged).',
   'app.mobileShare.title': 'Phone access: a small LAN server + QR code so a phone can open the mobile viewer.',
+  'app.mobileShare.ariaLabel': 'Phone access',
   'app.redo': 'Redo (Ctrl+Y)',
   'app.undo': 'Undo (Ctrl+Z)',
   'atem.audio.detected': 'Audio section detected.',
