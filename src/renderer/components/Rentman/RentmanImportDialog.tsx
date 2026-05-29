@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Zap } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
+import { Icon } from '../shared/Icon'
 import { format, useTranslation } from '../../lib/i18n'
 import { infoDialog } from '../../lib/infoDialog'
 import { useRentman } from '../../hooks/useRentman'
@@ -1494,7 +1496,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                       className="rounded bg-amber-900/40 px-1.5 py-0.5 text-amber-100"
                       title={t('rentman.import.status.conflictsTitle', 'Items mit gleichem Namen wie ein lokales Template, aber ohne Rentman-ID. Beim Import faellt pro Item der Konflikt-Dialog (Default: lokale Version behalten + Rentman-ID anhaengen).')}
                     >
-                      {format(t('rentman.import.status.conflicts', '⚡ {count} Konflikt-Dialog (gleicher Name, nicht verknuepft)'), { count: conflicts })}
+                      <><Icon icon={Zap} size="xs" className="mr-1 inline-block align-text-bottom" />{format(t('rentman.import.status.conflicts', '{count} Konflikt-Dialog (gleicher Name, nicht verknuepft)'), { count: conflicts })}</>
                     </span>
                   )}
                   {fresh > 0 && (

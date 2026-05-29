@@ -1,4 +1,6 @@
+import { SlidersHorizontal } from 'lucide-react'
 import { useUiStore } from '../../../store/uiStore'
+import { Icon } from '../../shared/Icon'
 import { GreenGoBeltpackSection } from './GreenGoBeltpackSection'
 import { detectDeviceKind } from '../../../lib/deviceKind'
 import type { EquipmentItem } from '../../../types/equipment'
@@ -55,9 +57,10 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           <button
             type="button"
             onClick={() => openVideohubExport(equipment.id, true)}
-            className="w-full rounded bg-purple-700 px-2 py-1 text-xs font-semibold hover:bg-purple-600"
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded bg-purple-700 px-2 py-1 text-xs font-semibold hover:bg-purple-600"
           >
-            {t('props.deviceKind.videohubConfigure', '🎚 Videohub konfigurieren · Labels + Routing →')}
+            <Icon icon={SlidersHorizontal} size="xs" />
+            {t('props.deviceKind.videohubConfigure', 'Videohub konfigurieren · Labels + Routing →')}
           </button>
         </div>
       </div>

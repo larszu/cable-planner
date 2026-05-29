@@ -1,4 +1,6 @@
+import { Pencil, AlertTriangle } from 'lucide-react'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
+import { Icon } from '../shared/Icon'
 import { cableCatalog } from '../../types/cableSpec'
 import { useUiStore } from '../../store/uiStore'
 import { cableTypePatchFromPorts } from '../../lib/cableInheritance'
@@ -91,8 +93,9 @@ export const CableProperties = () => {
             onClick={() => openCableEdit(cable.id)}
             className="shrink-0 rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
             title={t('cable.edit.typeStandard', 'Kabeltyp / Standard bearbeiten')}
+            aria-label={t('cable.edit.typeStandard', 'Kabeltyp / Standard bearbeiten')}
           >
-            ✎
+            <Icon icon={Pencil} size="xs" />
           </button>
         </div>
       )}
@@ -100,9 +103,9 @@ export const CableProperties = () => {
         <button
           type="button"
           onClick={() => openCableEdit(cable.id)}
-          className="w-full rounded border border-dashed border-slate-600 px-2 py-1 text-slate-400 hover:border-slate-400 hover:text-slate-200"
+          className="inline-flex w-full items-center justify-center gap-1.5 rounded border border-dashed border-slate-600 px-2 py-1 text-slate-400 hover:border-slate-400 hover:text-slate-200"
         >
-          ✎ Kabeltyp / Standard festlegen
+          <Icon icon={Pencil} size="xs" /> Kabeltyp / Standard festlegen
         </button>
       )}
       {(() => {
@@ -286,13 +289,15 @@ export const CableProperties = () => {
             </div>
           </div>
           {fromConflict && (
-            <div className="mt-2 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
-              {format(t('cable.warn.fromBusy', '⚠ Quell-Port bereits durch „{name}" belegt.'), { name: fromConflict.name })}
+            <div className="mt-2 flex items-center gap-1 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+              <Icon icon={AlertTriangle} size="xs" className="shrink-0" />
+              {format(t('cable.warn.fromBusy', 'Quell-Port bereits durch „{name}" belegt.'), { name: fromConflict.name })}
             </div>
           )}
           {toConflict && (
-            <div className="mt-1 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
-              {format(t('cable.warn.toBusy', '⚠ Ziel-Port bereits durch „{name}" belegt.'), { name: toConflict.name })}
+            <div className="mt-1 flex items-center gap-1 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+              <Icon icon={AlertTriangle} size="xs" className="shrink-0" />
+              {format(t('cable.warn.toBusy', 'Ziel-Port bereits durch „{name}" belegt.'), { name: toConflict.name })}
             </div>
           )}
           {/* #48 Converter-Vorschlag: Connector-Typ-Mismatch erkennen und passende
@@ -611,9 +616,10 @@ const ConnectorMismatchHint = ({
 
   return (
     <div className="mt-2 rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1.5 text-[11px] text-amber-100">
-      <div>
+      <div className="flex items-center gap-1">
+        <Icon icon={AlertTriangle} size="xs" className="shrink-0" />
         {format(
-          t('cable.warn.connectorMismatch', '⚠ Connector-Typen passen nicht: {from} ↔ {to}'),
+          t('cable.warn.connectorMismatch', 'Connector-Typen passen nicht: {from} ↔ {to}'),
           { from: fromPort.connectorType, to: toPort.connectorType },
         )}
       </div>

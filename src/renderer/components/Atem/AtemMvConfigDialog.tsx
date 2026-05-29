@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { toPng } from 'html-to-image'
+import { Square, SquareCheck } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, type AtemInputSummary } from '../../lib/bridge'
@@ -574,7 +576,7 @@ const CapabilitiesPanel = ({
                   }`}
                   title={`${l.label} (${l.value})`}
                 >
-                  {on ? '☑' : '☐'} {l.label}
+                  <span className="inline-flex items-center gap-1"><Icon icon={on ? SquareCheck : Square} size="xs" /> {l.label}</span>
                 </button>
               )
             })}

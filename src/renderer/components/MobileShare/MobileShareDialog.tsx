@@ -19,7 +19,7 @@
  */
 
 import { useEffect, useState } from 'react'
-import { X } from 'lucide-react'
+import { X, Smartphone, Clipboard, Check, Radio } from 'lucide-react'
 import QRCode from 'qrcode'
 import { Icon } from '../shared/Icon'
 import { useUiStore } from '../../store/uiStore'
@@ -147,7 +147,7 @@ export const MobileShareDialog = () => {
           className="flex items-center justify-between border-b border-slate-700 px-4 py-3 select-none"
         >
           <h2 className="text-sm font-semibold">
-            <span className="mr-2">📱</span>{t('mobile.dialog.heading', 'Handy-Zugriff')}
+            <Icon icon={Smartphone} size="sm" className="mr-2 inline-block align-text-bottom" />{t('mobile.dialog.heading', 'Handy-Zugriff')}
           </h2>
           <button
             type="button"
@@ -196,7 +196,7 @@ export const MobileShareDialog = () => {
                       className="rounded bg-slate-700 px-2 py-1 text-[10px] hover:bg-slate-600"
                       title={t('mobile.dialog.copyToClipboard', 'In die Zwischenablage kopieren')}
                     >
-                      {copied ? '✓' : '📋'}
+                      <Icon icon={copied ? Check : Clipboard} size="xs" />
                     </button>
                   </div>
                 </div>
@@ -245,7 +245,7 @@ export const MobileShareDialog = () => {
             </div>
           ) : (
             <div className="flex flex-col items-center gap-3 rounded border border-slate-700 bg-slate-950/40 p-6 text-center">
-              <div className="text-3xl">📡</div>
+              <Icon icon={Radio} size={28} className="text-slate-500" />
               <p className="text-xs text-slate-400">
                 {t('mobile.dialog.stopped', 'Server ist gestoppt. Klicke unten, um den LAN-Server zu starten.')}
               </p>
