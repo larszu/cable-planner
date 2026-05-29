@@ -36,6 +36,9 @@ import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
 import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
 import { CalculatorsDialog } from './components/Calculators/CalculatorsDialog'
+import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
+import { CsvImportDialog } from './components/Import/CsvImportDialog'
+import { TemplatesDialog } from './components/Project/TemplatesDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
 import { WelcomeDialog } from './components/Project/WelcomeDialog'
@@ -491,7 +494,7 @@ export default function App() {
   }
 
   // v7.7.1 — PNG / JPEG export (canvas only, no header / title block).
-  const handleExportImage = async (imgFormat: 'png' | 'jpeg') => {
+  const handleExportImage = async (imgFormat: 'png' | 'jpeg' | 'svg') => {
     try {
       await exportCanvasToImage(project.metadata.name, imgFormat, {
         backgroundTheme: canvasTheme,
@@ -928,6 +931,9 @@ export default function App() {
       <AboutDialog />
       <PatchListDialog />
       <CalculatorsDialog />
+      <AnalysisDialog />
+      <CsvImportDialog />
+      <TemplatesDialog />
       <CableContextMenu />
       <AnnotationsPanelHost />
       <ExportDialog

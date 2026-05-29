@@ -72,6 +72,7 @@ const en: Dict = {
   'app.title': 'Cable Planner',
   'app.menu.file': 'File',
   'app.menu.file.new': 'New project',
+  'app.menu.file.newFromTemplate': 'New from template…',
   'app.menu.file.open': 'Open…',
   'app.menu.file.save': 'Save',
   'app.menu.file.saveAs': 'Save as…',
@@ -1312,6 +1313,40 @@ const en: Dict = {
   // PatchListDialog
   'patchList.title': 'Patch list',
   'patchList.searchPlaceholder': 'Search (device, port, type, colour, note …)',
+  'patchList.layerFilter': 'Filter by layer/discipline',
+  'patchList.allLayers': 'All layers',
+
+  // TemplatesDialog (#343)
+  'templates.title': 'New from template',
+  'templates.intro':
+    'Bundled show setups or your own saved templates as a starting point. Loads a copy — the existing project is only replaced after you confirm.',
+  'templates.saveCurrent': 'Save current project as template',
+  'templates.builtinHeading': 'Bundled templates',
+  'templates.userHeading': 'My templates',
+  'templates.userEmpty': 'No templates yet. Save a project via “Save current project as template”.',
+  'templates.use': 'Use',
+  'templates.stats': '{eq} devices · {cab} cables · {loc} locations',
+  'templates.namePrompt': 'Name of the new project',
+  'templates.saveNamePrompt': 'Template name',
+  'templates.confirmReplace.title': 'Discard current project?',
+  'templates.confirmReplace.body':
+    'The template replaces the current project. Unsaved changes will be lost.',
+  'templates.confirmReplace.ok': 'Load template',
+  'templates.confirmDelete': 'Delete template “{name}”?',
+  'templates.loadedTitle': 'Template loaded',
+  'templates.loadedBody': 'New project “{name}” created from template.',
+  'templates.savedTitle': 'Saved as template',
+  'templates.savedBody': 'Template “{name}” saved.',
+  'templates.builtin.obVan.name': 'OB Van',
+  'templates.builtin.obVan.desc': 'Outside broadcast van with separate stage and FOH location frames.',
+  'templates.builtin.studio.name': 'TV studio',
+  'templates.builtin.studio.desc': 'Studio with control room and studio floor.',
+  'templates.builtin.liveStage.name': 'Live stage',
+  'templates.builtin.liveStage.desc': 'Stage, FOH and monitor world for live events.',
+  'templates.builtin.corporate.name': 'Conference / corporate',
+  'templates.builtin.corporate.desc': 'Hall and control room for conferences and corporate events.',
+  'templates.builtin.worship.name': 'Houses of worship',
+  'templates.builtin.worship.desc': 'Chancel/stage and tech gallery for worship services.',
 
   // CalculatorsDialog
   'calc.title': 'Tools / calculators',
@@ -1784,7 +1819,7 @@ const en: Dict = {
 
   // Section labels (NetworkAccess, Flags, Optional)
   'netAccess.title': 'Network & access',
-  'netAccess.subtitle': 'IP · S/N · login',
+  'netAccess.subtitle': 'IP · MAC · S/N · login',
   'netAccess.notesPlaceholder': 'Web UI URL, firmware version, wiring notes, …',
   'flags.title': 'Display & flags',
   'flags.subtitle': 'compact · colour · mirror ports · packed',
@@ -2217,6 +2252,8 @@ const en: Dict = {
   'calc.euColor': 'EU colour code',
   'calc.phaseLabel': 'Phase',
   'calc.load': 'load',
+  'calc.power.heat': 'Heat (BTU/h)',
+  'calc.power.total': 'Total',
   'calc.devicesToPhase': 'Devices → Phase',
   'calc.euColorTitle': 'EU colour code (DIN VDE 0293-308)',
   'calc.greedyExplain':
@@ -2538,6 +2575,7 @@ const en: Dict = {
   'export.format.pdfHint': 'Vector with title block, printable',
   'export.format.pngHint': 'Transparent possible, sharp',
   'export.format.jpegHint': 'Smaller, good for email',
+  'export.format.svgHint': 'Scalable, for web / further processing',
   'export.printPdfTitle': 'Open plan PDF in OS print dialog',
   'export.printOnlyPdf':
     'Printing only works with the PDF format — for PNG/JPEG just download.',
@@ -2668,6 +2706,7 @@ const en: Dict = {
     'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
   'patchList.exportCsv': '⬇ Export CSV',
   'patchList.exportXlsx': '⬇ Export XLSX',
+  'patchList.exportLabels': '🏷 Labels (PDF)',
   // #314 Replace device section
   'replaceDevice.title': 'Replace device',
   'replaceDevice.subtitle': 'Preserve cabling',
@@ -2790,6 +2829,80 @@ const en: Dict = {
   'app.menu.tools': 'Tools',
   'app.menu.tools.bandwidth': 'Calculate bandwidth…',
   'app.menu.tools.power': 'Calculate power consumption…',
+  'app.menu.tools.rackBuilder': 'Rack builder…',
+  'app.menu.tools.atemMv': 'ATEM multiviewer layout…',
+  'app.menu.tools.atemAudio': 'ATEM audio routing…',
+  'app.menu.tools.atemLabels': 'ATEM input labels…',
+  'app.menu.tools.videohub': 'Videohub routing / labels…',
+  'app.menu.tools.greengo': 'GreenGo intercom…',
+  'app.menu.tools.patchList': 'Patch list…',
+  'app.menu.tools.rentmanImport': 'Rentman import…',
+  'app.menu.tools.analysis': 'Analyses (weight/network/redundancy)…',
+  'app.menu.tools.csvImport': 'Import equipment from CSV…',
+  'app.menu.view': 'View',
+  'app.menu.view.light': 'Light theme',
+  'app.menu.view.snap': 'Snap to grid',
+  'app.menu.view.hideLabels': 'Hide cable labels',
+  'app.menu.view.colorByLength': 'Color cables by length',
+  'app.menu.view.annotations': 'Annotations panel',
+  'app.menu.edit': 'Edit',
+  'app.menu.edit.undo': 'Undo',
+  'app.menu.edit.redo': 'Redo',
+  'app.menu.edit.delete': 'Delete selection',
+  'app.menu.edit.clearSelection': 'Clear selection',
+  'shortcut.ctrlZ': 'Ctrl+Z',
+  'shortcut.ctrlY': 'Ctrl+Y',
+  'shortcut.del': 'Del',
+  'shortcut.esc': 'Esc',
+  // Analysen-Dialog (#346/#351/#352)
+  'analysis.title': 'Analyses',
+  'analysis.exportCsv': 'Export CSV',
+  'analysis.uncategorized': 'Uncategorized',
+  'analysis.total': 'Total',
+  'analysis.tab.weight': 'Weight & heat',
+  'analysis.tab.network': 'Network',
+  'analysis.tab.redundancy': 'Redundancy',
+  'analysis.weight.intro': 'Weight (kg) and heat load per category from device properties. Heat ≈ power × 3.412 BTU/h.',
+  'analysis.weight.category': 'Category',
+  'analysis.weight.count': 'Count',
+  'analysis.weight.kg': 'Weight (kg)',
+  'analysis.weight.watts': 'Power (W)',
+  'analysis.weight.btu': 'Heat (BTU/h)',
+  'analysis.weight.missing': '{n} device(s) without a weight value — add it in the properties.',
+  'analysis.network.intro': 'IP/VLAN overview of all network-capable devices with duplicate-IP detection.',
+  'analysis.network.device': 'Device',
+  'analysis.network.mgmtVlan': 'Mgmt VLAN',
+  'analysis.network.dupTitle': 'Duplicate IP addresses',
+  'analysis.network.empty': 'No devices with network data.',
+  'analysis.network.vlanSummary': 'Devices per VLAN',
+  'analysis.redundancy.intro': 'Heuristic for potential single points of failure: devices that draw power but have at most one power connection (layer "Power").',
+  'analysis.redundancy.device': 'Device',
+  'analysis.redundancy.finding': 'Finding',
+  'analysis.redundancy.noPower': 'no power connection in the plan',
+  'analysis.redundancy.singlePower': 'only one power connection (no PSU redundancy)',
+  'analysis.redundancy.none': 'No obvious single power feeds found.',
+  'analysis.tab.rf': 'RF / wireless',
+  'analysis.rf.intro': 'Wireless links (wireless cables) with frequency/channel. Conflict heuristic: frequency spacing < 0.4 MHz or same channel. Full intermod coordination is planned separately.',
+  'analysis.rf.link': 'Wireless link',
+  'analysis.rf.freq': 'Frequency',
+  'analysis.rf.channel': 'Channel',
+  'analysis.rf.from': 'From',
+  'analysis.rf.to': 'To',
+  'analysis.rf.empty': 'No wireless links in the plan.',
+  'analysis.rf.conflictTitle': 'Possible RF conflicts',
+  'analysis.rf.conflictClose': '{a} ↔ {b}: frequencies less than {mhz} MHz apart',
+  'analysis.rf.conflictChannel': '{a} ↔ {b}: same channel {ch}',
+  // CSV-Import (#354)
+  'csvImport.title': 'Import equipment from CSV',
+  'csvImport.intro': 'Paste CSV or pick a file. First row = column headers. Recognized columns: name, category, power (W), weight (kg), serial number, IP, RU, subtitle/manufacturer. Import creates library templates (no overwrite).',
+  'csvImport.pickFile': 'Choose CSV file…',
+  'csvImport.detected': 'Detected: {rows} row(s), mapped columns: {fields}',
+  'csvImport.fallbackCategory': 'Imported',
+  'csvImport.col.name': 'Name',
+  'csvImport.col.category': 'Category',
+  'csvImport.importBtn': 'Import {n}',
+  'csvImport.doneTitle': 'CSV imported',
+  'csvImport.doneBody': 'Added {n} device(s) as library templates (existing names unchanged).',
   'app.mobileShare.title': 'Phone access: a small LAN server + QR code so a phone can open the mobile viewer.',
   'app.redo': 'Redo (Ctrl+Y)',
   'app.undo': 'Undo (Ctrl+Z)',
@@ -2922,6 +3035,18 @@ const en: Dict = {
     'Hybrid cable with optical SDI link + copper for talkback and power. Camera connection for ENG/studio.',
   'catalog.cable.smpte-304m.notes':
     'Triaxial cable for studio cameras (HDTV). Carries video, intercom, talkback and power in one cable.',
+  'catalog.cable.ndi-cat6a.notes':
+    'NDI / NDI-HX over standard Gigabit Ethernet. Keep NDI and Dante on separate VLANs/links to avoid congestion.',
+  'catalog.cable.dante-cat6.notes':
+    'Dante / AES67 audio-over-IP. Requires PTP clocking; QoS/DSCP recommended on managed switches.',
+  'catalog.cable.st2110-fiber.notes':
+    'SMPTE ST 2110 (-20 video / -30 audio / -40 ANC) over fiber. Needs a PTP grandmaster; typically 10/25/100 GbE.',
+  'catalog.cable.blackburst-bnc.notes':
+    'Reference sync (black burst / tri-level) over 75Ω coax. Distribute from one sync generator; feed every genlock-capable device.',
+  'catalog.cable.wordclock-bnc.notes':
+    'Word clock for digital audio. Daisy-chain with 75Ω termination at the end; one master clock per domain.',
+  'catalog.cable.ptp-cat6.notes':
+    'PTP (IEEE 1588) timing for ST 2110 / AES67. One grandmaster per PTP domain; enable boundary clocks on switches.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Main standard. Level A recommended; Level B for older equipment.',
@@ -2973,6 +3098,18 @@ const de: Dict = {
     'Hybridkabel mit optischer SDI-Strecke + Kupfer für Talkback und Stromversorgung. Kameraanschluss bei ENG/Studio.',
   'catalog.cable.smpte-304m.notes':
     'Triaxialkabel für Studio-Kameras (HDTV). Überträgt Video, Interkom, Talkback und Strom in einem Kabel.',
+  'catalog.cable.ndi-cat6a.notes':
+    'NDI / NDI-HX über normales Gigabit-Ethernet. NDI und Dante auf getrennten VLANs/Links halten, um Überlast zu vermeiden.',
+  'catalog.cable.dante-cat6.notes':
+    'Dante / AES67 Audio-over-IP. Benötigt PTP-Clocking; QoS/DSCP auf Managed Switches empfohlen.',
+  'catalog.cable.st2110-fiber.notes':
+    'SMPTE ST 2110 (-20 Video / -30 Audio / -40 ANC) über Faser. Benötigt PTP-Grandmaster; typ. 10/25/100 GbE.',
+  'catalog.cable.blackburst-bnc.notes':
+    'Referenz-Sync (Black Burst / Tri-Level) über 75Ω-Koax. Von einem Sync-Generator verteilen; jedes genlock-fähige Gerät versorgen.',
+  'catalog.cable.wordclock-bnc.notes':
+    'Word Clock für Digital-Audio. Daisy-Chain mit 75Ω-Abschluss am Ende; ein Master-Clock pro Domäne.',
+  'catalog.cable.ptp-cat6.notes':
+    'PTP (IEEE 1588) Timing für ST 2110 / AES67. Ein Grandmaster je PTP-Domäne; Boundary-Clocks auf Switches aktivieren.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Hauptstandard. Level A empfohlen; Level B bei älteren Geräten.',
