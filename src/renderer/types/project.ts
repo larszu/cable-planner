@@ -4,6 +4,33 @@ import type { GreenGoConfig } from './greengo'
 import type { LocationFrame } from './location'
 import type { VideoFormatId } from './videoFormat'
 
+/**
+ * Auto-Kabelnummerierung — Schema fuer automatisch vergebene Kabel-IDs.
+ * Wandert mit dem Projekt (in `ProjectMetadata`), damit "Neu nummerieren"
+ * reproduzierbar bleibt und ein erneutes Oeffnen die gleiche Logik nutzt.
+ *
+ * Format der erzeugten Nummer:
+ *   - ohne `perLayer`: `{prefix}{separator}{NNN}`  (z.B. "C-001")
+ *   - mit `perLayer`:  `{prefix}{layerCode}{separator}{NNN}` (z.B. "V-001")
+ * Bei leerem `prefix` faellt der Separator vor der Zahl weg.
+ */
+export interface CableNumberingScheme {
+  /** Master-Schalter. Wenn false, werden beim Anlegen keine Nummern
+   *  automatisch vergeben (manuelles "Neu nummerieren" geht trotzdem). */
+  enabled: boolean
+  /** Festes Praefix vor der Nummer, z.B. "C" oder "CBL". Leer erlaubt. */
+  prefix: string
+  /** Eigener, bei `start` beginnender Zaehler je Top-Level-Layer
+   *  (video/audio/control/network/power) plus Layer-Kuerzel im Code. */
+  perLayer: boolean
+  /** Trennzeichen zwischen Praefix/Layer und laufender Nummer. Default "-". */
+  separator: string
+  /** Nullstellen-Breite der laufenden Nummer (3 -> 001). Default 3. */
+  padding: number
+  /** Start-Nummer des Zaehlers. Default 1. */
+  start: number
+}
+
 export interface ProjectMetadata {
   name: string
   description: string
@@ -41,6 +68,9 @@ export interface ProjectMetadata {
   rentmanProjectId?: string
   /** Human-readable name of the linked Rentman project. */
   rentmanProjectName?: string
+  /** Auto-Kabelnummerierungs-Schema. Undefined = noch nie konfiguriert
+   *  (Defaults siehe `DEFAULT_CABLE_NUMBERING` in `lib/cableNumbering`). */
+  cableNumbering?: CableNumberingScheme
 }
 
 export interface CanvasState {

@@ -110,12 +110,12 @@ export const MenuBar = ({
     projectHistory.canRedo,
   )
   return (
-    <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1.5 text-cp-xs shadow-sm">
-      <div className="flex items-center gap-2">
-        <span className="select-none font-semibold tracking-wide text-slate-300">
+    <header className="flex shrink-0 items-center justify-between gap-3 overflow-hidden border-b border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1.5 text-cp-xs shadow-sm">
+      <div className="flex shrink-0 items-center gap-2">
+        <span className="hidden select-none font-semibold tracking-wide text-slate-300 lg:inline">
           {t('app.title', 'Cable Planner')}
         </span>
-        <span className="text-slate-700">│</span>
+        <span className="hidden text-slate-700 lg:inline">│</span>
 
         <Menu label={t('app.menu.file', 'Datei')}>
           <MenuItem onClick={onNewProject} icon={<Icon icon={FileText} size="sm" />} shortcut={t('shortcut.ctrlN', 'Strg+N')}>
@@ -391,7 +391,7 @@ export const MenuBar = ({
 
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <div className="flex items-center rounded border border-slate-700 bg-slate-900">
           <button
             type="button"
@@ -417,7 +417,7 @@ export const MenuBar = ({
         </div>
         <SharedSyncPanel />
         {onChangeVideoFormat && (
-          <label className="flex items-center gap-1 text-cp-xs text-[var(--cp-text-muted)]">
+          <label className="hidden items-center gap-1 text-cp-xs text-[var(--cp-text-muted)] xl:flex">
             <span>{t('app.videoFormat', 'Format:')}</span>
             <select
               value={videoFormat ?? '1080p50'}
@@ -456,7 +456,8 @@ export const MenuBar = ({
           className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
           title={t('settings.title', 'Einstellungen')}
         >
-          <Icon icon={Settings} size="sm" /> {t('settings.title', 'Einstellungen')}
+          <Icon icon={Settings} size="sm" />
+          <span className="hidden lg:inline">{t('settings.title', 'Einstellungen')}</span>
         </button>
       </div>
     </header>

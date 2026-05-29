@@ -95,4 +95,9 @@ export interface Cable {
    *  Sub-Layer werden als freier String erlaubt (z.B. "video.primary",
    *  "audio.foh"). Undefined = ungrouped / immer sichtbar. */
   layer?: string
+  /** Auto-Kabelnummerierung — eindeutige Kabel-ID aus dem Projekt-Schema
+   *  (`ProjectMetadata.cableNumbering`). Wird beim Anlegen automatisch
+   *  vergeben (wenn das Schema aktiv ist) oder per "Alle Kabel neu
+   *  nummerieren" gesetzt. Frei editierbar; undefined = keine Nummer. */
+  cableNumber?: string
 }

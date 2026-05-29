@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
-import { useTranslation } from '../../../lib/i18n'
+import { useTranslation, format } from '../../../lib/i18n'
 import { infoDialog } from '../../../lib/infoDialog'
 import { pickImageAsDataUri } from '../../../lib/readImageAsDataUri'
 import { SettingsCard } from '../SettingsCard'
+import { DEFAULT_CABLE_NUMBERING, cableNumberExample } from '../../../lib/cableNumbering'
+import type { CableNumberingScheme } from '../../../types/project'
 
 /**
  * #307 — Project-Tab aus SettingsDialog ausgelagert. Enthaelt
@@ -147,6 +149,123 @@ const LibraryExportSection = () => {
   )
 }
 
+/**
+ * Auto-Kabelnummerierung — Schema-Konfiguration + "Neu nummerieren".
+ * Eigene Section (wie LibraryExportSection), schreibt direkt in die
+ * Projekt-Metadaten statt ueber das draftMeta-Pattern des Tabs.
+ */
+const CableNumberingSection = () => {
+  const t = useTranslation()
+  const scheme = useProjectStore((s) => s.project.metadata.cableNumbering)
+  const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
+  const renumberCables = useProjectStore((s) => s.renumberCables)
+  const cableCount = useProjectStore((s) => s.project.cables.length)
+  const eff: CableNumberingScheme = scheme ?? DEFAULT_CABLE_NUMBERING
+  const [doneCount, setDoneCount] = useState<number | null>(null)
+
+  const patch = (p: Partial<CableNumberingScheme>) =>
+    updateProjectMetadata({ cableNumbering: { ...eff, ...p } })
+
+  const handleRenumber = () => {
+    // Schema sicher in den Metadaten verankern, falls noch nie gesetzt.
+    if (!scheme) updateProjectMetadata({ cableNumbering: eff })
+    renumberCables()
+    setDoneCount(cableCount)
+  }
+
+  return (
+    <SettingsCard
+      title={t('settings.project.numbering.title', 'Kabelnummerierung')}
+      description={t(
+        'settings.project.numbering.desc',
+        'Automatische, kollisionsfreie Kabel-IDs nach festem Schema — sichtbar auf dem Canvas, in der Patchliste und auf den Etiketten.',
+      )}
+    >
+      <div className="space-y-2 text-xs text-slate-200">
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={eff.enabled}
+            onChange={(e) => patch({ enabled: e.target.checked })}
+          />
+          {t('settings.project.numbering.enabled', 'Neuen Kabeln automatisch eine Nummer geben')}
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          <label className="block">
+            <span className="mb-1 block text-slate-400">{t('settings.project.numbering.prefix', 'Präfix')}</span>
+            <input
+              type="text"
+              value={eff.prefix}
+              onChange={(e) => patch({ prefix: e.target.value })}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+              placeholder="C"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-slate-400">{t('settings.project.numbering.separator', 'Trennzeichen')}</span>
+            <input
+              type="text"
+              value={eff.separator}
+              maxLength={2}
+              onChange={(e) => patch({ separator: e.target.value })}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+              placeholder="-"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-slate-400">{t('settings.project.numbering.padding', 'Stellen')}</span>
+            <input
+              type="number"
+              min={1}
+              max={6}
+              value={eff.padding}
+              onChange={(e) => patch({ padding: Math.max(1, Math.min(6, Number(e.target.value) || 1)) })}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-slate-400">{t('settings.project.numbering.start', 'Start-Nummer')}</span>
+            <input
+              type="number"
+              min={0}
+              value={eff.start}
+              onChange={(e) => patch({ start: Math.max(0, Number(e.target.value) || 0) })}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            />
+          </label>
+        </div>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={eff.perLayer}
+            onChange={(e) => patch({ perLayer: e.target.checked })}
+          />
+          {t('settings.project.numbering.perLayer', 'Eigener Zähler je Layer (V/A/N/P …)')}
+        </label>
+        <div className="flex items-center justify-between gap-2 pt-1">
+          <span className="text-slate-400">
+            {t('settings.project.numbering.example', 'Beispiel')}:{' '}
+            <span className="font-mono text-sky-300">{cableNumberExample(eff)}</span>
+          </span>
+          <button
+            type="button"
+            onClick={handleRenumber}
+            disabled={cableCount === 0}
+            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-40"
+          >
+            {t('settings.project.numbering.renumber', 'Alle Kabel neu nummerieren')} ({cableCount})
+          </button>
+        </div>
+        {doneCount !== null && (
+          <p className="text-[11px] text-emerald-400">
+            {format(t('settings.project.numbering.done', '{n} Kabel neu nummeriert.'), { n: doneCount })}
+          </p>
+        )}
+      </div>
+    </SettingsCard>
+  )
+}
+
 export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
   const metadata = useProjectStore((s) => s.project.metadata)
   const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
@@ -283,6 +402,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
                       type="button"
                       onClick={() => setDraftMeta((prev) => ({ ...prev, [field]: undefined }))}
                       title={t('common.remove', 'Entfernen')}
+                      aria-label={t('common.remove', 'Entfernen')}
                       className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
                     >
                       <Icon icon={X} size="sm" />
@@ -312,6 +432,8 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           </div>
         )}
       </SettingsCard>
+
+      <CableNumberingSection />
 
       <LibraryExportSection />
 

@@ -446,6 +446,7 @@ export const AppearanceTab = () => {
                         onClick={() => setCanvasBgImage(theme, null)}
                         className="rounded bg-red-900/60 px-2 py-1 text-[11px] text-red-200 hover:bg-red-800"
                         title={t('settings.canvasBg.remove', 'Bild entfernen')}
+                        aria-label={t('settings.canvasBg.remove', 'Bild entfernen')}
                       >
                         <Icon icon={X} size="sm" />
                       </button>

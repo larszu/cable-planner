@@ -20,6 +20,7 @@ import { useTranslation } from '../../lib/i18n'
 import { DimensionsSection } from './sections/DimensionsSection'
 import { PowerConsumptionSection } from './sections/PowerConsumptionSection'
 import { DisplayPropertiesBlock } from './sections/DisplayPropertiesBlock'
+import { CategoryPropsSection } from './sections/CategoryPropsSection'
 import { DeviceConfigsBlock } from './sections/DeviceConfigsBlock'
 import { NetworkAccessSection } from './sections/NetworkAccessSection'
 import { DeviceKindCards } from './sections/DeviceKindCards'
@@ -133,6 +134,7 @@ export const EquipmentProperties = () => {
       </label>
 
       <DisplayPropertiesBlock equipment={equipment} />
+      <CategoryPropsSection equipment={equipment} />
       <DimensionsBlock equipment={equipment} />
 
       <NetworkAccessSection equipment={equipment} />
