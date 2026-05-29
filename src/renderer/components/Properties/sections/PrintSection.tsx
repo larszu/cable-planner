@@ -1,7 +1,9 @@
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { exportDevicePatchSheet } from '../../../lib/exportDevicePdf'
+import { Printer } from 'lucide-react'
 import { useTranslation } from '../../../lib/i18n'
 import { SortableSection } from '../SortableSection'
+import { Icon } from '../../shared/Icon'
 import type { EquipmentItem } from '../../../types/equipment'
 
 /**
@@ -35,7 +37,8 @@ export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
             'Erzeugt eine einseitige A4-Patch-Liste mit allen Ports + verbundenen Kabeln — zum Aufkleben am Gerät.',
           )}
         >
-          {t('printSection.a4Btn', '🖨 Patch-Sheet (A4 PDF) drucken')}
+          <Icon icon={Printer} size="xs" className="mr-1 inline-block align-text-bottom" />
+          {t('printSection.a4Btn', 'Patch-Sheet (A4 PDF) drucken')}
         </button>
         <button
           type="button"
@@ -47,7 +50,8 @@ export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
           className="w-full rounded bg-sky-800 px-2 py-1 text-xs text-white hover:bg-sky-700"
           title={t('printSection.a3Title', 'A3-Variante für Geräte mit vielen Ports.')}
         >
-          {t('printSection.a3Btn', '🖨 Patch-Sheet (A3 PDF) drucken')}
+          <Icon icon={Printer} size="xs" className="mr-1 inline-block align-text-bottom" />
+          {t('printSection.a3Btn', 'Patch-Sheet (A3 PDF) drucken')}
         </button>
       </div>
     </SortableSection>
