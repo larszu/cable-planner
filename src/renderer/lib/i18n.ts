@@ -1408,10 +1408,10 @@ const en: Dict = {
   'rentman.wizard.saveAsCategoryTitle': 'Save as new category',
   'rentman.wizard.addCategory': '+ Add',
   'rentman.wizard.suggestedPortGroups': 'Suggested port groups',
-  'rentman.wizard.webSearch': '🌐 Web search (free)',
+  'rentman.wizard.webSearch': 'Web search (free)',
   'rentman.wizard.webBusy': 'Searching…',
   'rentman.wizard.webSearchTitle': 'Search Wikipedia + DuckDuckGo (no key required)',
-  'rentman.wizard.aiButton': '✨ AI (Gemini)',
+  'rentman.wizard.aiButton': 'AI (Gemini)',
   'rentman.wizard.aiBusy': 'Asking AI…',
   'rentman.wizard.aiTitle': 'Gemini AI (requires API key)',
   'rentman.wizard.aiSettings': 'AI settings',
@@ -1467,7 +1467,7 @@ const en: Dict = {
   'rentman.checklist.badge.linked': '✓ Already linked: {name}',
   'rentman.checklist.badge.nameOnlyTitle':
     'Local template "{name}" has the same name but no Rentman ID. On import a conflict dialog appears — default is to keep the local version (with ports) and only attach the Rentman ID.',
-  'rentman.checklist.badge.nameOnly': '⚡ Local exists: {name} — conflict dialog',
+  'rentman.checklist.badge.nameOnly': 'Local exists: {name} — conflict dialog',
   'rentman.checklist.badge.catalogTitle':
     'Match from built-in catalog ("{name}"). Will be adopted as a template automatically on import.',
   'rentman.checklist.badge.catalog': '⊕ Catalog: {name}',
@@ -1478,8 +1478,8 @@ const en: Dict = {
   'rentman.checklist.linkPlaceholder': '🔗 Link…',
   'rentman.checklist.selectChildren': 'Select all children',
   'rentman.checklist.deselectChildren': 'Deselect all children',
-  'rentman.checklist.childrenAllOff': '☐ all',
-  'rentman.checklist.childrenAllOn': '☑ all',
+  'rentman.checklist.childrenAllOff': 'all',
+  'rentman.checklist.childrenAllOn': 'all',
 
   // Rentman — RentmanImportDialog body
   'rentman.import.busyTitle': 'Import operations still running',
@@ -1541,7 +1541,7 @@ const en: Dict = {
   'rentman.import.status.conflictsTitle':
     'Items with the same name as a local template but without a Rentman ID. On import a conflict dialog appears per item (default: keep local version + attach Rentman ID).',
   'rentman.import.status.conflicts':
-    '⚡ {count} conflict dialog (same name, not linked)',
+    '{count} conflict dialog (same name, not linked)',
   'rentman.import.status.freshTitle':
     'Items without a match in the local library — imported fresh as templates.',
   'rentman.import.status.fresh': '+ {count} new',

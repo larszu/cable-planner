@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Globe, Sparkles } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import type { ConnectorType, EquipmentTemplate } from '../../types/equipment'
 import { buildTemplateFromHints, suggestPortGroups, type PortGroupHint } from '../../lib/portSuggestions'
 import { getGeminiApiKey, setGeminiApiKey, suggestFromAI } from '../../lib/aiSuggestions'
@@ -241,7 +243,7 @@ export const NewRentmanDeviceWizard = ({
               className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
               title={t('rentman.wizard.webSearchTitle', 'Wikipedia + DuckDuckGo durchsuchen (kein Key nötig)')}
             >
-              {webLoading ? t('rentman.wizard.webBusy', 'Suche…') : t('rentman.wizard.webSearch', '🌐 Web-Suche (frei)')}
+              {webLoading ? t('rentman.wizard.webBusy', 'Suche…') : <span className="inline-flex items-center gap-1"><Icon icon={Globe} size="xs" /> {t('rentman.wizard.webSearch', 'Web-Suche (frei)')}</span>}
             </button>
             <button
               type="button"
@@ -250,7 +252,7 @@ export const NewRentmanDeviceWizard = ({
               className="rounded bg-purple-700 px-2 py-1 hover:bg-purple-600 disabled:opacity-50"
               title={t('rentman.wizard.aiTitle', 'Gemini AI (benötigt API-Key)')}
             >
-              {aiLoading ? t('rentman.wizard.aiBusy', 'Asking AI…') : t('rentman.wizard.aiButton', '✨ AI (Gemini)')}
+              {aiLoading ? t('rentman.wizard.aiBusy', 'Asking AI…') : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('rentman.wizard.aiButton', 'AI (Gemini)')}</span>}
             </button>
             <button
               type="button"
