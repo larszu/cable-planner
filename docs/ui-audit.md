@@ -273,17 +273,28 @@ Z. 49–84) als nächsten einfachen Kandidaten.
 - **Hero-Bild-Sektion** im README (`docs/screenshots/hero.png`) + **Feature-
   Galerie** (2-spaltige Tabelle): `canvas.gif`, `rack-3d.png`,
   `atem-multiview.png`, `export.png`, `patch-sheets.png`, `patch-pdf.png`,
-  `bom.png`, `properties.png` — alle Slots klar als **„TODO: capture"**
-  markiert.
-- **`docs/screenshots/README.md`**: Aufnahme-Anleitung (welcher Slot, welche
-  Auflösung/Format) **+ verpflichtende Schwärzungs-Checkliste** (Pfijuko 2026,
-  FORUM WIEDENEST/Rentman-Zeile, Personennamen) + Liefer-Workflow
-  (`_raw/`-Push → Schwärzung, oder fertig geliefert) + GIF-Tipps.
+  `bom.png`, `properties.png`.
+- **`docs/screenshots/README.md`**: Aufnahme-Anleitung (Slot, Auflösung,
+  Format) + verpflichtende Kundendaten-Schwärzungs-Checkliste + Liefer-
+  Workflow + GIF-Tipps.
+- **`docs/redact-screenshots.mjs`**: lokales sharp-Skript, das den Projekt-/
+  Show-Namen (App-Kopfzeile) schwärzt und Statusleiste + OS-Taskleiste unten
+  abschneidet — auflösungsunabhängig (Bruchteil-Koordinaten), pro Datei
+  justierbar.
+- **`atem-multiview.png` fertig**: erster echter Screenshot (ATEM-Multiviewer)
+  geschwärzt (Name in der Kopfzeile entfernt, untere Leisten abgeschnitten)
+  und in die Galerie eingesetzt; Rohbild aus dem Tree entfernt.
+- Kundennamen aus allen Doku-/Quelltexten entfernt (dieser Audit, Screenshot-
+  Guide, `exportFilename`-JSDoc-Beispiel) — generische Platzhalter.
 
 ### TODO (manueller Mensch-Schritt)
 
-- [ ] Echte Screenshots/GIF aufnehmen (laufende GUI nötig), Kundennamen
-      schwärzen, unter den Zieldateinamen in `docs/screenshots/` ablegen.
-      Bereits gelieferte Chat-Screenshots: Mapping in
-      `docs/screenshots/README.md`. Roh-Bilder können nach
-      `docs/screenshots/_raw/` gepusht werden → werden dann geschwärzt.
+- [ ] Restliche Slots mit echten Bildern füllen: `hero.png` (Canvas),
+      `export.png`, `patch-sheets.png`, `patch-pdf.png`, `bom.png`,
+      `properties.png`, `rack-3d.png`, `canvas.gif`.
+- [ ] Roh-PNGs nach `docs/screenshots/_raw/` legen + `node
+      docs/redact-screenshots.mjs` laufen lassen (oder aus neutralem
+      Demo-Projekt ohne Kundennamen frisch aufnehmen → keine Schwärzung nötig).
+- [ ] **Rohbild aus `main` entfernen**: `docs/screenshots/Screenshot (573).png`
+      liegt noch in der `main`-History (Commit `f5279e9`) — auf `main` löschen
+      (bei öffentlichem Repo ggf. History bereinigen).
