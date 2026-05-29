@@ -233,23 +233,27 @@ export const PatchListDialog = () => {
     // bundlen.
     const fmtPort = (main: string, sub?: string) => (sub ? `${main} (${sub})` : main)
     const header = [
+      t('patchList.col.number', 'Nr.'),
       t('patchList.col.fromDevice', 'Von Gerät'),
       t('patchList.col.fromPort', 'Von Port'),
       t('patchList.col.toDevice', 'Nach Gerät'),
       t('patchList.col.toPort', 'Nach Port'),
       t('export.bom.csv.type', 'Typ'),
       t('export.bom.csv.lengthM', 'Länge (m)'),
+      t('patchList.col.layer', 'Layer'),
       t('patchList.col.color', 'Farbe'),
       t('patchList.col.cableName', 'Kabelname'),
       t('patchList.col.notes', 'Notizen'),
     ]
     const data = filtered.map((r) => [
+      r.cableNumber,
       r.fromDevice,
       fmtPort(r.fromPort, r.fromPortSub),
       r.toDevice,
       fmtPort(r.toPort, r.toPortSub),
       r.type,
       r.length,
+      r.layer,
       r.color,
       r.cableName,
       r.notes,

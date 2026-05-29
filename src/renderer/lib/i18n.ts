@@ -2713,6 +2713,7 @@ const en: Dict = {
   'patchList.col.toPort': 'To port',
   'patchList.col.port': 'Port',
   'patchList.col.color': 'Colour',
+  'patchList.col.layer': 'Layer',
   'patchList.col.cableName': 'Cable name',
   'patchList.col.notes': 'Notes',
   'patchList.footerHint':
