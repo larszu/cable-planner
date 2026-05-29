@@ -23,6 +23,8 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { AlertTriangle, X } from 'lucide-react'
+import { Icon } from '../renderer/components/shared/Icon'
 import type { CablePlannerProject } from '../renderer/types/project'
 
 const CHECK_KEY = (projectName: string) => `cable-planner-mobile:checks:${projectName}`
@@ -190,8 +192,9 @@ const ProjectPicker = ({
             : '↻ Projekt vom Desktop laden'}
       </button>
       {reloadError && (
-        <div className="rounded border border-amber-700 bg-amber-900/30 p-2 text-[11px] text-amber-200">
-          ⚠ {reloadError}
+        <div className="flex items-center gap-1.5 rounded border border-amber-700 bg-amber-900/30 p-2 text-[11px] text-amber-200">
+          <Icon icon={AlertTriangle} size="xs" />
+          {reloadError}
         </div>
       )}
       <div className="text-center text-[10px] uppercase tracking-wider text-slate-600">
@@ -653,9 +656,12 @@ const ProjectView = ({
             Amber, damit der User weiß dass seine Checks gerade nur
             lokal sind und beim Re-Connect automatisch syncen. */}
         {online === false && (
-          <div className="mt-2 rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1 text-[10px] text-amber-200">
-            ⚠ Offline · Cache vom {cachedAt ? new Date(cachedAt).toLocaleString() : '?'} · Checks
-            werden bei Re-Connect synchronisiert
+          <div className="mt-2 flex items-start gap-1.5 rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1 text-[10px] text-amber-200">
+            <Icon icon={AlertTriangle} size="xs" className="mt-0.5 shrink-0" />
+            <span>
+              Offline · Cache vom {cachedAt ? new Date(cachedAt).toLocaleString() : '?'} · Checks
+              werden bei Re-Connect synchronisiert
+            </span>
           </div>
         )}
       </header>
@@ -951,7 +957,7 @@ const AddCableModal = ({
             onClick={onClose}
             className="rounded px-2 py-0.5 text-xs text-slate-400 hover:bg-slate-800"
           >
-            ✕
+            <Icon icon={X} size="sm" />
           </button>
         </header>
         <div className="space-y-3 p-3 text-xs">
@@ -1100,8 +1106,9 @@ const AddCableModal = ({
                 />
               </label>
               {err && (
-                <div className="rounded border border-red-700/60 bg-red-900/30 p-2 text-[11px] text-red-200">
-                  ⚠ {err}
+                <div className="flex items-center gap-1.5 rounded border border-red-700/60 bg-red-900/30 p-2 text-[11px] text-red-200">
+                  <Icon icon={AlertTriangle} size="xs" />
+                  {err}
                 </div>
               )}
               <div className="flex justify-end gap-2 pt-1">

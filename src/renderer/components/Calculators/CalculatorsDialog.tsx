@@ -12,7 +12,9 @@ import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
+import { AlertTriangle } from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 
 // v7.5.0 — Cable-Length tab removed. The standalone calculator
 // can't produce meaningful estimates without inter-location distances
@@ -415,8 +417,9 @@ const PowerTab = () => {
             <div className="text-[10px] text-slate-500">
               {t('calc.imbalance', 'Unwucht')}: {maxImbalancePct}%
               {overloaded && (
-                <span className="ml-2 rounded bg-red-700 px-1.5 py-0.5 text-[10px] text-white">
-                  ⚠ {t('calc.phaseOverload', 'Phase überlastet')}
+                <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-[10px] text-white">
+                  <Icon icon={AlertTriangle} size="xs" />
+                  {t('calc.phaseOverload', 'Phase überlastet')}
                 </span>
               )}
             </div>

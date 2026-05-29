@@ -1,7 +1,9 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { ClipboardCopy, RotateCcw, Trash2 } from 'lucide-react'
 import { cablePlannerApi } from './lib/bridge'
 import { confirmDialog } from './lib/confirmDialog'
 import { translate } from './lib/i18n'
+import { Icon } from './components/shared/Icon'
 import { useUiStore } from './store/uiStore'
 
 interface State {
@@ -332,9 +334,12 @@ export class ErrorBoundary extends Component<Props, State> {
                 border: 'none',
                 borderRadius: 4,
                 cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
               }}
             >
-              📋 Diagnose kopieren
+              <Icon icon={ClipboardCopy} size="sm" /> Diagnose kopieren
             </button>
             <button
               type="button"
@@ -346,9 +351,12 @@ export class ErrorBoundary extends Component<Props, State> {
                 border: 'none',
                 borderRadius: 4,
                 cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
               }}
             >
-              ↻ Nur neu laden (nichts löschen)
+              <Icon icon={RotateCcw} size="sm" /> Nur neu laden (nichts löschen)
             </button>
             <button
               type="button"
@@ -377,9 +385,12 @@ export class ErrorBoundary extends Component<Props, State> {
                 border: 'none',
                 borderRadius: 4,
                 cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
               }}
             >
-              🗑 Lokale Daten zurücksetzen (mit Backup)
+              <Icon icon={Trash2} size="sm" /> Lokale Daten zurücksetzen (mit Backup)
             </button>
           </div>
         </div>

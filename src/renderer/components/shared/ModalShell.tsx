@@ -11,8 +11,10 @@
 // und Footer-Slot.
 
 import type { ReactNode } from 'react'
+import { X } from 'lucide-react'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { useTranslation } from '../../lib/i18n'
+import { Icon } from './Icon'
 
 type MaxWidth = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | 'full'
 
@@ -101,10 +103,10 @@ export const ModalShell = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded px-2 py-1 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+            className="inline-flex items-center justify-center rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-100"
             aria-label={t('common.close', 'Schließen')}
           >
-            ✕
+            <Icon icon={X} size="md" />
           </button>
         </header>
         <div className={`flex-1 ${scrollBody ? 'overflow-y-auto' : 'overflow-hidden'} px-4 py-3`}>

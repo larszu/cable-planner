@@ -3,7 +3,9 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import type { EquipmentItem } from '../../types/equipment'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
+import { AlertTriangle } from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 import { colorForConnector } from '../../lib/cableColors'
 import { defaultIconForEquipment } from '../../lib/deviceKind'
 import { findGreenGoUserForEquipment } from '../../lib/greengoSync'
@@ -574,10 +576,12 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                   padding: '0 3px',
                   lineHeight: '13px',
                   flexShrink: 0,
+                  display: 'inline-flex',
+                  alignItems: 'center',
                 }}
                 title={t('eqNode.rentmanRemoved', 'In Rentman nicht mehr vorhanden!')}
               >
-                ⚠
+                <Icon icon={AlertTriangle} size={12} />
               </span>
             ) : (
               <span
