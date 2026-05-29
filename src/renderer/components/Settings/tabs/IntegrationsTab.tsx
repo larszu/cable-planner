@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { X } from 'lucide-react'
+import { X, Eye, EyeOff } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { cablePlannerApi } from '../../../lib/bridge'
 import { useSettingsStore } from '../../../store/settingsStore'
@@ -121,10 +121,11 @@ const AiProvidersCard = () => {
                 <button
                   type="button"
                   onClick={() => setRevealed((r) => ({ ...r, [id]: !r[id] }))}
-                  className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-slate-700"
+                  className="rounded bg-slate-800 px-2 py-1 text-slate-400 hover:bg-slate-700"
                   title={revealed[id] ? 'Verbergen' : 'Anzeigen'}
+                  aria-label={revealed[id] ? 'Verbergen' : 'Anzeigen'}
                 >
-                  {revealed[id] ? '👁' : '🔒'}
+                  <Icon icon={revealed[id] ? Eye : EyeOff} size="sm" />
                 </button>
                 <button
                   type="button"

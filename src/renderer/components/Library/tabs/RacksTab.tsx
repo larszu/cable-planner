@@ -1,4 +1,6 @@
+import { Pencil, Download, X } from 'lucide-react'
 import { useProjectStore } from '../../../store/projectStore'
+import { Icon } from '../../shared/Icon'
 import { confirmDialog } from '../../../lib/confirmDialog'
 import { exportPresetToFile } from '../../../lib/itemExport'
 import { MIME_RACK_PRESET } from '../../../lib/dragDropMimes'
@@ -111,7 +113,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                             title={t('library.tabs.racks.editTitle', 'Im 2D-Rack-Builder bearbeiten')}
                             aria-label={t('library.tabs.racks.editAria', 'Bearbeiten')}
                           >
-                            ✎
+                            <Icon icon={Pencil} size="xs" />
                           </button>
                           <button
                             type="button"
@@ -126,7 +128,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                             )}
                             aria-label={t('library.tabs.racks.exportAria', 'Exportieren')}
                           >
-                            ⬇
+                            <Icon icon={Download} size="xs" />
                           </button>
                           <button
                             type="button"
@@ -150,7 +152,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                             title={t('library.tabs.racks.deleteTitle', 'Rack aus Library entfernen')}
                             aria-label={t('common.delete', 'Löschen')}
                           >
-                            ×
+                            <Icon icon={X} size="xs" />
                           </button>
                         </div>
                       </div>

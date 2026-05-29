@@ -13,6 +13,8 @@
  */
 
 import { useState } from 'react'
+import { Check, X, Lock } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useProjectStore } from '../../store/projectStore'
@@ -192,10 +194,10 @@ export function SharedSyncPanel() {
         <span>{t('sync.pull', 'Pull')}</span>
       </button>
       {status.message ? (
-        <span className={`text-xs ${statusColor}`} title={status.message}>
-          {status.kind === 'ok' && '✓ '}
-          {status.kind === 'error' && '✗ '}
-          {status.kind === 'locked' && '🔒 '}
+        <span className={`inline-flex items-center gap-1 text-xs ${statusColor}`} title={status.message}>
+          {status.kind === 'ok' && <Icon icon={Check} size="xs" />}
+          {status.kind === 'error' && <Icon icon={X} size="xs" />}
+          {status.kind === 'locked' && <Icon icon={Lock} size="xs" />}
           {status.message.length > 40 ? status.message.slice(0, 40) + '…' : status.message}
         </span>
       ) : null}
