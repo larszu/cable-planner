@@ -66,7 +66,7 @@ per-component.
 
 31. 🔴 `[x]` **`index.html:2`** — `lang="en"` was hardcoded while the UI was German-first (the PDF export correctly uses `lang="de"`). `document.documentElement.lang` was never updated. **Fixed (now English default + synced to the language toggle).** `htmlFor` is still used 0× in the renderer.
 32. 🔴 `[ ]` **15 hand-rolled `fixed inset-0` modals without `useDialogA11y`** (no focus trap, Escape, or focus return): `RackEditorDialog`, `GraphmlImportDialog`, `VideohubExportDialog`, `RentmanImportDialog`, `RentmanCableExportDialog`, `AtemAudioRouterDialog`, `AtemMvConfigDialog`, `LocationBomDialog`, `CableBomDialog`, `NonRackAddDialog`, `PatchPanelCreateDialog`, `RackShelfCreateDialog`, `RackImageCropDialog`, `MobileShareDialog`, `GreenGoExportDialog`.
-33. 🔴 `[ ]` **`CanvasToolbar.tsx:262–264`** — local `IconButton` sets only `title=`, **no `aria-label`** → all icon-only toolbar buttons are nameless for SR. Project-wide **~472 `title=` vs ~70 `aria-label`**.
+33. 🔴 `[~]` **`CanvasToolbar.tsx:262`** — the shared `IconButton` now sets `aria-label={title}` + `aria-pressed={active}`, naming **all** main toolbar buttons for SR in one place. Broader sweep of other icon-only buttons app-wide (the ~472 `title=` vs ~70 `aria-label` gap) still pending.
 34. 🔴 `[ ]` **Canvas is mouse-only**: cables are created only by handle-drag (`CanvasArea.tsx` `onConnect…`), devices moved only by drag (no arrow-key handler). A core task has no keyboard path.
 35. 🟠 `[~]` **`LayerVisibilityChips.tsx:135`** — deleting a custom layer is **right-click only** (hidden in `title`). Native `confirm()` now replaced with themed `confirmDialog` (#41); the right-click-only discoverability/keyboard-path gap remains open.
 36. 🟠 `[ ]` **`MenuBar.tsx` dropdowns** — correct `role="menu"`/`aria-expanded`, but **no arrow-key navigation** between items.
@@ -83,7 +83,7 @@ per-component.
 44. 🟠 `[ ]` **Little loading/busy feedback**: only **1 file** uses `animate-spin` (`GraphmlImportDialog`). Export/Rentman-sync/AI/Videohub have no spinner; `ExportDialog.tsx:406` shows a hardcoded, untranslated `'Verarbeite…'`.
 45. 🟠 `[ ]` **Disabled = opacity only**: **~78 buttons** with `disabled:opacity-40/50` (some inline `opacity:0.4`), no consistent disabled token/`cursor-not-allowed`.
 46. 🟡 `[x]` **Only 46 `transition` utilities across 647 `onClick`** → most interactions have no hover/press transition; **no `prefers-reduced-motion`** for the `overlap-flash` animation (`index.css:103`). **Reduced-motion fixed; transition rollout pending.**
-47. 🟡 `[ ]` **`MenuBar.tsx:432`** — mobile-share button is emoji `📱` with only `title=`, no visible label/`aria-label`.
+47. 🟡 `[x]` **`MenuBar.tsx:432`** — mobile-share emoji button now has `aria-label` ("Phone access").
 
 ## G. Component consistency & design-system gaps
 
