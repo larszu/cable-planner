@@ -2217,6 +2217,8 @@ const en: Dict = {
   'calc.euColor': 'EU colour code',
   'calc.phaseLabel': 'Phase',
   'calc.load': 'load',
+  'calc.power.heat': 'Heat (BTU/h)',
+  'calc.power.total': 'Total',
   'calc.devicesToPhase': 'Devices → Phase',
   'calc.euColorTitle': 'EU colour code (DIN VDE 0293-308)',
   'calc.greedyExplain':
