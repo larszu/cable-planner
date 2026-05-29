@@ -20,10 +20,12 @@ import { useTranslation } from '../../lib/i18n'
 import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
 
-type SortKey = 'fromDevice' | 'toDevice' | 'type' | 'length' | 'color'
+type SortKey = 'number' | 'fromDevice' | 'toDevice' | 'type' | 'length' | 'color'
 
 interface PatchRow {
   cableId: string
+  /** Auto-Kabelnummer (leer wenn keine vergeben). */
+  cableNumber: string
   fromDevice: string
   fromPort: string
   /** #286 — Zweite Zeile unter dem Hauptport-Label. Gesetzt wenn ein
@@ -165,6 +167,7 @@ export const PatchListDialog = () => {
           : finalToEq?.name ?? '?'
       return {
         cableId: c.id,
+        cableNumber: c.cableNumber ?? '',
         fromDevice: from?.name ?? '?',
         fromPort: fromPair.main,
         fromPortSub: fromPair.subline,
@@ -181,6 +184,8 @@ export const PatchListDialog = () => {
     })
     const cmp = (a: PatchRow, b: PatchRow): number => {
       switch (sortKey) {
+        case 'number':
+          return a.cableNumber.localeCompare(b.cableNumber, undefined, { numeric: true })
         case 'fromDevice':
           return a.fromDevice.localeCompare(b.fromDevice) || a.fromPort.localeCompare(b.fromPort)
         case 'toDevice':
@@ -418,6 +423,7 @@ export const PatchListDialog = () => {
             <thead className="sticky top-0 bg-slate-950 text-slate-400">
               <tr>
                 {[
+                  { k: 'number' as const, label: t('patchList.col.number', 'Nr.') },
                   { k: 'fromDevice' as const, label: t('patchList.col.fromDevice', 'Von Gerät') },
                   { k: 'fromDevice' as const, label: t('patchList.col.port', 'Port') },
                   { k: 'toDevice' as const, label: t('patchList.col.toDevice', 'Nach Gerät') },
@@ -440,6 +446,7 @@ export const PatchListDialog = () => {
             <tbody>
               {filtered.map((r) => (
                 <tr key={r.cableId} className="border-t border-slate-800 hover:bg-slate-900">
+                  <td className="px-2 py-1 font-mono text-[11px] text-sky-300">{r.cableNumber}</td>
                   <td className="px-2 py-1 font-medium text-slate-100">{r.fromDevice}</td>
                   <td className="px-2 py-1 text-slate-300">
                     {r.fromPort}
@@ -468,7 +475,7 @@ export const PatchListDialog = () => {
               {filtered.length === 0 && (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-2 py-6 text-center text-[11px] text-slate-500"
                   >
                     Keine Kabel passen zum Filter.

@@ -8,6 +8,7 @@ import {
   isBidirectionalCableType,
 } from '../../lib/cableInheritance'
 import { detectLayerForConnector } from '../../lib/cableLayers'
+import { computeCableNumbers, nextCableNumber } from '../../lib/cableNumbering'
 import { isProjectLocked, touchProject } from '../projectStoreHelpers'
 import type { ProjectState } from '../projectStore'
 
@@ -32,6 +33,7 @@ export type CableSlice = Pick<
   | 'closeCableDialog'
   | 'createCableFromPending'
   | 'updateCable'
+  | 'renumberCables'
   | 'deleteCable'
   | 'reconnectCable'
 >
@@ -125,6 +127,13 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
         layer: autoLayer,
       }
 
+      // Auto-Kabelnummerierung: naechste freie Nummer vergeben wenn das
+      // Projekt-Schema aktiv ist. Bestehende Kabel bleiben unveraendert.
+      const numbering = state.project.metadata.cableNumbering
+      if (numbering?.enabled) {
+        cable.cableNumber = nextCableNumber(state.project.cables, numbering, autoLayer)
+      }
+
       return {
         project: touchProject({
           ...state.project,
@@ -160,6 +169,26 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
             const typePatch = cableTypePatchFromPorts(merged, state.project.equipment)
             return typePatch ? { ...merged, ...typePatch } : merged
           }),
+        }),
+      }
+    }),
+  renumberCables: () =>
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      const scheme = state.project.metadata.cableNumbering
+      if (!scheme) return state
+      const numbers = computeCableNumbers(
+        state.project.cables,
+        state.project.equipment,
+        scheme,
+      )
+      return {
+        project: touchProject({
+          ...state.project,
+          cables: state.project.cables.map((c) => ({
+            ...c,
+            cableNumber: numbers[c.id] ?? c.cableNumber,
+          })),
         }),
       }
     }),
