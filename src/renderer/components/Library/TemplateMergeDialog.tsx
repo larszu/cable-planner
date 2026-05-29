@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import type { EquipmentTemplate, Port } from '../../types/equipment'
 import { infoDialog } from '../../lib/infoDialog'
 import { ModalShell } from '../shared/ModalShell'
+import { Button } from '../shared/Button'
 import { format, useTranslation } from '../../lib/i18n'
 
 interface TemplateMergeDialogProps {
@@ -120,15 +121,11 @@ export const TemplateMergeDialog = ({
       zIndex={80}
       footer={
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
-          >
+          <Button variant="secondary" onClick={onCancel}>
             {t('common.cancel', 'Abbrechen')}
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="success"
             onClick={() => {
               const merged = buildMergedTemplate()
               if (!merged) return
@@ -148,10 +145,9 @@ export const TemplateMergeDialog = ({
               }
               onConfirm(merged)
             }}
-            className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500"
           >
             {t('templateMerge.save', 'Merge speichern')}
-          </button>
+          </Button>
         </div>
       }
     >
