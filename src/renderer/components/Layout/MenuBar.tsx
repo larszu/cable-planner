@@ -113,6 +113,9 @@ export const MenuBar = ({
           <MenuItem onClick={onNewProject} icon="📄" shortcut={t('shortcut.ctrlN', 'Strg+N')}>
             {t('app.menu.file.new', 'Neues Projekt')}
           </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openTemplates()} icon="🎬">
+            {t('app.menu.file.newFromTemplate', 'Neu aus Vorlage…')}
+          </MenuItem>
           <MenuItem onClick={onOpenProject} icon="📂" shortcut={t('shortcut.ctrlO', 'Strg+O')}>
             {t('app.menu.file.open', 'Öffnen…')}
           </MenuItem>
