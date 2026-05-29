@@ -3037,6 +3037,7 @@ const en: Dict = {
     'SMPTE 311M hybrid fibre camera cable (304M connector, e.g. LEMO 3K.93C): 2 single-mode fibres + power and control conductors. This is fibre, NOT triax.',
   'catalog.cable.triax-camera.notes':
     'Triaxial (coaxial) camera cable for studio/OB cameras: carries video, return, intercom/talkback, genlock and power over one triax — analogue, distinct from the SMPTE fibre camera cables.',
+  'catprops.title': 'Specs',
   'catalog.cable.ndi-cat6a.notes':
     'NDI / NDI-HX over standard Gigabit Ethernet. Keep NDI and Dante on separate VLANs/links to avoid congestion.',
   'catalog.cable.dante-cat6.notes':
@@ -3102,6 +3103,7 @@ const de: Dict = {
     'SMPTE 311M Hybrid-Glasfaser-Kamerakabel (304M-Stecker, z. B. LEMO 3K.93C): 2 Singlemode-Fasern + Power- und Steueradern. Das ist Glasfaser, KEIN Triax.',
   'catalog.cable.triax-camera.notes':
     'Triaxiales (koaxiales) Kamerakabel für Studio-/EB-Kameras: überträgt Video, Rückweg, Interkom/Talkback, Genlock und Strom über ein Triax — analog, getrennt von den SMPTE-Glasfaser-Kamerakabeln.',
+  'catprops.title': 'Fachdaten',
   'catalog.cable.ndi-cat6a.notes':
     'NDI / NDI-HX über normales Gigabit-Ethernet. NDI und Dante auf getrennten VLANs/Links halten, um Überlast zu vermeiden.',
   'catalog.cable.dante-cat6.notes':
