@@ -9,6 +9,11 @@
  */
 
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../types/greengo'
+import { translate } from './i18n'
+import { useUiStore } from '../store/uiStore'
+
+const tr = (key: string, fallback: string) =>
+  translate(useUiStore.getState().language, key, fallback)
 
 // ── Result types ─────────────────────────────────────────────────────────────
 
@@ -125,11 +130,11 @@ export const parseGg5File = (jsonText: string): Gg5ParseOutcome => {
   try {
     raw = JSON.parse(jsonText)
   } catch {
-    return { error: 'Keine gültige JSON-Datei.' }
+    return { error: tr('importGg5.invalidJson', 'Keine gültige JSON-Datei.') }
   }
 
   if (typeof raw !== 'object' || raw === null) {
-    return { error: 'Ungültiges .gg5-Format (kein Objekt).' }
+    return { error: tr('importGg5.invalidFormat', 'Ungültiges .gg5-Format (kein Objekt).') }
   }
 
   // ── Settings ────────────────────────────────────────────────────────────────
@@ -236,8 +241,10 @@ export const parseGg5File = (jsonText: string): Gg5ParseOutcome => {
 
   if (users.length === 0 && groups.length === 0) {
     return {
-      error:
+      error: tr(
+        'importGg5.emptyFile',
         'Keine Benutzer oder Gruppen in der Datei gefunden. Ist es eine gültige GreenGo 5.x .gg5-Datei?',
+      ),
     }
   }
 

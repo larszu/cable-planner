@@ -33,6 +33,11 @@
 // mit identischer API + bewussten Patches gegen die CVEs.
 import * as XLSX from 'xlsx-js-style'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../types/greengo'
+import { translate } from './i18n'
+import { useUiStore } from '../store/uiStore'
+
+const tr = (key: string, fallback: string) =>
+  translate(useUiStore.getState().language, key, fallback)
 
 /** What a single cell can contain after we've stringified it. */
 type Cell = string
@@ -106,8 +111,10 @@ const detectLayout = (rows: Cell[][]): MatrixLayout | { error: string } => {
   const sectionHeaderRow = findSectionHeaderRow(rows)
   if (sectionHeaderRow < 0) {
     return {
-      error:
+      error: tr(
+        'intercomXlsx.noMatrixDetected',
         'Konnte keine Intercom-Matrix erkennen — es fehlt eine Zeile mit den Spaltenüberschriften "Equipment", "Gruppen" und "User".',
+      ),
     }
   }
   const headerCells = rows[sectionHeaderRow] ?? []
@@ -281,14 +288,17 @@ export const parseIntercomMatrixXlsx = (
 
   // Sanity warnings
   if (groups.length === 0) {
-    warnings.push('Keine Gruppen erkannt — prüfe die "Gruppen"-Spalten im Sheet.')
+    warnings.push(tr('intercomXlsx.noGroups', 'Keine Gruppen erkannt — prüfe die "Gruppen"-Spalten im Sheet.'))
   }
   if (users.length === 0) {
-    warnings.push('Keine Benutzer erkannt — prüfe die Benutzer-Zeilen unterhalb der Spaltenköpfe.')
+    warnings.push(tr('intercomXlsx.noUsers', 'Keine Benutzer erkannt — prüfe die Benutzer-Zeilen unterhalb der Spaltenköpfe.'))
   }
   if (users.length > 0 && users.every((u) => u.groupIds.length === 0)) {
     warnings.push(
-      'Kein Benutzer ist einer Gruppe zugeordnet — bitte prüfen ob die Matrix-Markierungen ("x") korrekt erkannt wurden.',
+      tr(
+        'intercomXlsx.noUserGroups',
+        'Kein Benutzer ist einer Gruppe zugeordnet — bitte prüfen ob die Matrix-Markierungen ("x") korrekt erkannt wurden.',
+      ),
     )
   }
 
