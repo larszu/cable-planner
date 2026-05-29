@@ -209,13 +209,81 @@ Escape — Hook analog `SettingsDialog`/`ExportDialog` anwenden:
 
 ## Phase 4 — i18n
 
-- Vollständiges `en`-Dict existiert in `lib/i18n.ts` (2781 Zeilen).
-- Inline-Fallbacks sind deutsch (`t('key', 'Deutsche Form')`).
-- TODO: hartkodierte Strings finden (JSX-Text, `placeholder`, `title`,
-  `aria-label` ohne `t()`), DE/EN-Parität prüfen, Report-Skript ablegen.
+- Vollständiges `en`-Dict in `lib/i18n.ts`; Inline-Fallbacks deutsch
+  (`t('key', 'Deutsche Form')`), `translations.de` bewusst leer.
+
+### Fallback-Sprache (Entscheidung)
+
+Die Aufgabe empfahl **Englisch** als Fallback, aber **CLAUDE.md** legt
+verbindlich fest: *„Deutsche Strings = Quell-Sprache, immer als Fallback in
+`t(key, 'Deutsche Form')`. EN-Übersetzung im `en`-Dict."* CLAUDE.md
+überschreibt Defaults → **Deutsch bleibt einheitliche Fallback-Sprache**.
+Ein Umstellen aller `t()`-Fallbacks auf Englisch wäre zudem ein massiver,
+risikoreicher Eingriff entgegen der dokumentierten Projektkonvention.
+
+### Phase 4 — erledigt
+
+- **Report-Skript** `docs/i18n-check.mjs`: meldet (a) im Code benutzte,
+  aber im `en`-Dict fehlende Keys (EN-Lücken) und (b) verwaiste/dynamische
+  en-Keys. Exit 1 bei Lücken (CI-tauglich). `node docs/i18n-check.mjs`.
+- **DE/EN-Parität hergestellt**: 105 fehlende EN-Keys ergänzt (Menü,
+  Settings-Tabs Canvas-BG/Kategorien/Connector/Editing/GreenGo/Hotkeys/…,
+  Short-Name-Feld, Rentman-/NetBox-Titles, ATEM-Audio). Report meldet jetzt
+  **0** fehlende Keys.
+- **Hartkodierte Strings migriert** in den berührten Bereichen:
+  App-CableDialog-Warnungen (`cable.create.warn.*`), ExportDialog-Status
+  (`export.installedCables/missingTypes/allCovered`).
+
+### TODO (großflächiger Rest)
+
+- [ ] Flächendeckende Suche nach restlichen hartkodierten JSX-Texten /
+      `placeholder` / `title` ohne `t()` (z. B. Teile von App-CableDialog,
+      CableDialog-Labels „Connector Type"/„Notizen", RackBuilder-Interna).
+- [ ] In-`t()`-String-Glyphen aus Phase 1 (`⚠`/`✓`/`✕` in `cable.warn.*`,
+      `bom.cable.missingTypes`, „✕ Reset" etc.) extrahieren + Icon im JSX.
+
+## Phase 5 — Komponenten-Dekomposition (RISIKO)
+
+### Erledigt
+
+- **`RackBuilderDialog`** (2864 → 2614 Zeilen): Datenmodell + reine Helfer
+  nach **`rackBuilderModel.ts`** ausgelagert — Draft-Typen
+  (`RackPlacementDraft`/`RackDraft`/`InternalCableDraft`), 19″-Konstanten
+  und die puren Transform-Funktionen (`parseUnits`, `sanitizeTemplatePorts`,
+  `toPlacement`, `normalizeDraft`, `formatRackUnits`, `draftFromPreset`).
+  **Reines Verschieben — Markup & Verhalten unverändert** (tsc verifiziert,
+  build grün). Das Modell ist jetzt framework-frei und isoliert testbar.
+
+### TODO (bewusst NICHT ohne Laufzeit-Verifikation)
+
+Die eigentliche **JSX-/Hook-Zerlegung** der Mega-Komponenten (präsentationale
+Sub-Komponenten aus `RackBuilderDialog` carven, Draft-State-Hook
+`useRackBuilderDraft`, dann `LibraryPanel`/`CanvasArea`/`App.tsx`) ist hier
+**bewusst aufgeschoben**: Sie verschiebt Closures über lokalen State/Handler
+und ist ohne interaktives Durchklicken regressionsträchtig — das verletzt
+die Hart-Regel „keine ungewollten Regressionen". Empfohlen als eigener,
+mit laufender GUI verifizierter Schritt. `LibraryPanel` hat einen kleinen
+sicheren Modell-Block (`PortGroupDraft`/`defaultGroup`/`buildPorts`,
+Z. 49–84) als nächsten einfachen Kandidaten.
 
 ## Phase 6 — README
 
-- README zeigt **kein einziges Bild** der App. → Hero + Galerie mit
-  TODO-Platzhaltern + Capture-Anleitung.
-</content>
+### Erledigt
+
+- **Hero-Bild-Sektion** im README (`docs/screenshots/hero.png`) + **Feature-
+  Galerie** (2-spaltige Tabelle): `canvas.gif`, `rack-3d.png`,
+  `atem-multiview.png`, `export.png`, `patch-sheets.png`, `patch-pdf.png`,
+  `bom.png`, `properties.png` — alle Slots klar als **„TODO: capture"**
+  markiert.
+- **`docs/screenshots/README.md`**: Aufnahme-Anleitung (welcher Slot, welche
+  Auflösung/Format) **+ verpflichtende Schwärzungs-Checkliste** (Pfijuko 2026,
+  FORUM WIEDENEST/Rentman-Zeile, Personennamen) + Liefer-Workflow
+  (`_raw/`-Push → Schwärzung, oder fertig geliefert) + GIF-Tipps.
+
+### TODO (manueller Mensch-Schritt)
+
+- [ ] Echte Screenshots/GIF aufnehmen (laufende GUI nötig), Kundennamen
+      schwärzen, unter den Zieldateinamen in `docs/screenshots/` ablegen.
+      Bereits gelieferte Chat-Screenshots: Mapping in
+      `docs/screenshots/README.md`. Roh-Bilder können nach
+      `docs/screenshots/_raw/` gepusht werden → werden dann geschwärzt.

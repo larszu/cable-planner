@@ -1628,19 +1628,19 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               {fromConflict && (
                 <div className="mt-2 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
                   <Icon icon={AlertTriangle} size="xs" />
-                  Quell-Port ist bereits durch Kabel „{fromConflict.name}" belegt.
+                  {format(t('cable.create.warn.fromBusy', 'Quell-Port ist bereits durch Kabel „{name}" belegt.'), { name: fromConflict.name })}
                 </div>
               )}
               {toConflict && (
                 <div className="mt-1 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
                   <Icon icon={AlertTriangle} size="xs" />
-                  Ziel-Port ist bereits durch Kabel „{toConflict.name}" belegt.
+                  {format(t('cable.create.warn.toBusy', 'Ziel-Port ist bereits durch Kabel „{name}" belegt.'), { name: toConflict.name })}
                 </div>
               )}
               {sameEndpoints && (
                 <div className="mt-1 flex items-center gap-1.5 rounded bg-red-900/50 px-2 py-1 text-[11px] text-red-100">
                   <Icon icon={AlertTriangle} size="xs" />
-                  Quelle und Ziel zeigen auf denselben Port.
+                  {t('cable.create.warn.samePort', 'Quelle und Ziel zeigen auf denselben Port.')}
                 </div>
               )}
             </div>
