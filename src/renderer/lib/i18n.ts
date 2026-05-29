@@ -708,7 +708,7 @@ const en: Dict = {
   'statusbar.equipment': '{count} devices',
   'statusbar.cables': '{count} cables',
   'statusbar.locations': '{count} frames',
-  'statusbar.packed': '✓ {packed}/{total} packed',
+  'statusbar.packed': '{packed}/{total} packed',
   'statusbar.packedTitle': 'Devices marked as "packed" in their properties',
   'statusbar.complexity.title':
     'Complexity: heuristic from (devices + cables) count. Helps gauge readability + performance.',

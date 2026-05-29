@@ -1,4 +1,6 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react'
+import { X } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation } from '../../lib/i18n'
 import { guessVideohubPresetKey } from '../../lib/deviceKind'
@@ -611,8 +613,9 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             type="button"
             onClick={onClose}
             className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+            aria-label={t('common.close', 'Schließen')}
           >
-            ✕
+            <Icon icon={X} size="sm" />
           </button>
         </div>
 

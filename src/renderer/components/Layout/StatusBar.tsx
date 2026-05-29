@@ -1,6 +1,8 @@
+import { Check } from 'lucide-react'
 import { APP_VERSION } from '../../lib/appInfo'
 import { useUiStore } from '../../store/uiStore'
 import { useTranslation, format } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 
 interface StatusBarProps {
   projectName: string
@@ -51,16 +53,17 @@ export const StatusBar = ({
         <span>{format(t('statusbar.locations', '{count} Rahmen'), { count: locationCount })}</span>
         {packedCount !== undefined && equipmentCount > 0 && (
           <span
-            className={
+            className={`inline-flex items-center gap-1 ${
               packedCount === equipmentCount
                 ? 'text-emerald-300'
                 : packedCount > 0
                   ? 'text-amber-300'
                   : 'text-slate-500'
-            }
+            }`}
             title={t('statusbar.packedTitle', "Geräte, die in den Eigenschaften als 'gepackt' markiert sind")}
           >
-            {format(t('statusbar.packed', '✓ {packed}/{total} gepackt'), {
+            <Icon icon={Check} size="xs" />
+            {format(t('statusbar.packed', '{packed}/{total} gepackt'), {
               packed: packedCount,
               total: equipmentCount,
             })}

@@ -15,7 +15,9 @@
 // für Edit + Create wiederverwendbar.
 
 import { useEffect, useMemo, useState } from 'react'
+import { AlertTriangle, X } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
+import { Icon } from '../shared/Icon'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import { ModalShell } from '../shared/ModalShell'
 import { format, useTranslation } from '../../lib/i18n'
@@ -177,8 +179,9 @@ export const ModeEditorDialog = ({
                 className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-slate-100"
               />
               {nameConflict && (
-                <span className="mt-0.5 block text-[10px] text-amber-400">
-                  ⚠ {t('modeEditor.nameConflict', 'Modus mit diesem Namen existiert bereits.')}
+                <span className="mt-0.5 flex items-center gap-1 text-[10px] text-amber-400">
+                  <Icon icon={AlertTriangle} size="xs" />
+                  {t('modeEditor.nameConflict', 'Modus mit diesem Namen existiert bereits.')}
                 </span>
               )}
             </label>
@@ -276,7 +279,7 @@ export const ModeEditorDialog = ({
                           className="rounded px-1 py-0.5 text-[11px] text-red-400 hover:bg-red-900/40"
                           title={t('modeEditor.removePort', 'Port entfernen')}
                         >
-                          ✕
+                          <Icon icon={X} size="sm" />
                         </button>
                       </li>
                     ))}

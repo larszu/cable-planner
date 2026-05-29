@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { X } from 'lucide-react'
+import { Icon } from '../../shared/Icon'
 import { useUiStore } from '../../../store/uiStore'
 import { useProjectStore } from '../../../store/projectStore'
 import { format, useTranslation } from '../../../lib/i18n'
@@ -336,7 +338,7 @@ export const ConfigsTab = () => {
                             className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-red-700 hover:text-white"
                             title={t('settings.configs.removeTitle', 'Aus Bibliothek entfernen')}
                           >
-                            ✕
+                            <Icon icon={X} size="sm" />
                           </button>
                         </div>
                       </li>

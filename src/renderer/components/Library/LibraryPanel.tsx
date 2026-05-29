@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { X } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
+import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useRentman } from '../../hooks/useRentman'
@@ -1066,7 +1068,7 @@ export const LibraryPanel = () => {
                   title={t('library.search.clear', 'Suche löschen')}
                   className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
                 >
-                  ✕
+                  <Icon icon={X} size="sm" />
                 </button>
               ) : (
                 <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[9px] uppercase tracking-wider text-slate-600">
@@ -1148,8 +1150,9 @@ export const LibraryPanel = () => {
                 type="button"
                 onClick={() => setShowNewGroup(false)}
                 className="rounded bg-slate-700 px-2 text-xs hover:bg-slate-600"
+                aria-label={t('common.close', 'Schließen')}
               >
-                ✕
+                <Icon icon={X} size="sm" />
               </button>
             </form>
           )}
@@ -1583,7 +1586,7 @@ export const LibraryPanel = () => {
                         title={t('library.search.clear', 'Suche löschen')}
                         className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
                       >
-                        ✕
+                        <Icon icon={X} size="sm" />
                       </button>
                     )}
                   </div>
