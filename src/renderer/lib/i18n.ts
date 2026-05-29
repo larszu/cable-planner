@@ -1099,6 +1099,18 @@ const en: Dict = {
 
   // GreenGo export dialog
   'greengo.title': 'GreenGo Intercom planning',
+  // .gg5 import parser errors
+  'importGg5.invalidJson': 'Not a valid JSON file.',
+  'importGg5.invalidFormat': 'Invalid .gg5 format (not an object).',
+  'importGg5.emptyFile':
+    'No users or groups found in the file. Is this a valid GreenGo 5.x .gg5 file?',
+  // XLSX intercom matrix parser
+  'intercomXlsx.noMatrixDetected':
+    'No intercom matrix detected — missing a row with the column headers "Equipment", "Groups" and "User".',
+  'intercomXlsx.noGroups': 'No groups detected — check the "Groups" columns in the sheet.',
+  'intercomXlsx.noUsers': 'No users detected — check the user rows below the column headers.',
+  'intercomXlsx.noUserGroups':
+    'No user is assigned to a group — please verify the matrix "x" marks were recognised.',
   'greengo.tab.matrix': 'Overview',
   'greengo.tab.users': 'Stations',
   'greengo.tab.groups': 'Groups',
