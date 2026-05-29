@@ -212,11 +212,12 @@ export const PatchListDialog = () => {
 
   if (!open) return null
 
-  const exportCsv = () => {
-    // #286 — Wenn ein Port einen contentLabel hat, kombinieren wir in der
-    // CSV beides als "PGM (1 SDI 3G PGM)". CSV ist eine einzelne Spalte,
-    // deshalb zusammengefuegt; die UI hat dafuer eine zweite Zeile.
-    const csvPort = (main: string, sub?: string) => (sub ? `${main} (${sub})` : main)
+  const buildExportRows = () => {
+    // #286 — Wenn ein Port einen contentLabel hat, kombinieren wir die
+    // Anzeige als "PGM (1 SDI 3G PGM)" in der einzigen Spalte. Die Tabelle
+    // hat dafuer eine zweite Zeile, der Export muss alles in einer Zelle
+    // bundlen.
+    const fmtPort = (main: string, sub?: string) => (sub ? `${main} (${sub})` : main)
     const header = [
       t('patchList.col.fromDevice', 'Von Gerät'),
       t('patchList.col.fromPort', 'Von Port'),
@@ -228,22 +229,47 @@ export const PatchListDialog = () => {
       t('patchList.col.cableName', 'Kabelname'),
       t('patchList.col.notes', 'Notizen'),
     ]
-    const escape = (v: string) => `"${v.replace(/"/g, '""')}"`
+    const data = filtered.map((r) => [
+      r.fromDevice,
+      fmtPort(r.fromPort, r.fromPortSub),
+      r.toDevice,
+      fmtPort(r.toPort, r.toPortSub),
+      r.type,
+      r.length,
+      r.color,
+      r.cableName,
+      r.notes,
+    ])
+    return { header, data }
+  }
+
+  const exportXlsx = async () => {
+    const { header, data } = buildExportRows()
+    // Lazy-load XLSX — keep ~500 KB out of the main bundle.
+    const XLSX = await import('xlsx-js-style')
+    const sheet = XLSX.utils.aoa_to_sheet([header, ...data])
+    // Bold header row.
+    for (let c = 0; c < header.length; c++) {
+      const addr = XLSX.utils.encode_cell({ r: 0, c })
+      const cell = sheet[addr]
+      if (cell) cell.s = { font: { bold: true } }
+    }
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, sheet, 'Patchliste')
+    const buf = XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName || 'cable-planner', 'patchliste', 'xlsx'),
+      buf,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+  }
+
+  const exportCsv = () => {
+    const { header, data } = buildExportRows()
+    const escape = (v: unknown) => `"${String(v).replace(/"/g, '""')}"`
     const lines = [
       header.join(';'),
-      ...filtered.map((r) =>
-        [
-          escape(r.fromDevice),
-          escape(csvPort(r.fromPort, r.fromPortSub)),
-          escape(r.toDevice),
-          escape(csvPort(r.toPort, r.toPortSub)),
-          escape(r.type),
-          String(r.length),
-          escape(r.color),
-          escape(r.cableName),
-          escape(r.notes),
-        ].join(';'),
-      ),
+      ...data.map((row) => row.map(escape).join(';')),
     ]
     downloadBlob(
       // v7.9.116 — Einheitlicher Stempel.
@@ -270,14 +296,24 @@ export const PatchListDialog = () => {
               'Jedes Kabel als eigene Zeile, sortiert für die Patch-Reihenfolge auf dem Set. CSV-Export für Excel/Druck enthält die aktuell gefilterten Zeilen.',
             )}
           </p>
-          <button
-            type="button"
-            onClick={exportCsv}
-            disabled={filtered.length === 0}
-            className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
-          >
-            {t('patchList.exportCsv', '⬇ CSV exportieren')}
-          </button>
+          <div className="flex gap-1">
+            <button
+              type="button"
+              onClick={exportCsv}
+              disabled={filtered.length === 0}
+              className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
+            >
+              {t('patchList.exportCsv', '⬇ CSV exportieren')}
+            </button>
+            <button
+              type="button"
+              onClick={() => void exportXlsx()}
+              disabled={filtered.length === 0}
+              className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
+            >
+              {t('patchList.exportXlsx', '⬇ XLSX exportieren')}
+            </button>
+          </div>
         </div>
       }
     >
