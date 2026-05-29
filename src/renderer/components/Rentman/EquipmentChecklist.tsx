@@ -277,7 +277,7 @@ export const EquipmentChecklist = ({
                             className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[10px] text-slate-300"
                             title={t('rentman.checklist.linkSelectTitle', 'Mit existierendem Gerät verknüpfen')}
                           >
-                            <option value="">{t('rentman.checklist.linkPlaceholder', '🔗 Verknüpfen…')}</option>
+                            <option value="">{t('rentman.checklist.linkPlaceholder', 'Verknüpfen…')}</option>
                             {linkableEquipment.map((e) => (
                               <option key={e.id} value={e.id}>{e.name}</option>
                             ))}
