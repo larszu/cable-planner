@@ -13,12 +13,12 @@ rendern erst, sobald die passend benannten Dateien hier liegen.
 Die Demo-Pläne enthalten reale Kunden-/Show-Daten. **Vor dem Commit** aus
 JEDEM Bild entfernen (schwärzen/zuschneiden):
 
-- **Projekt-/Show-Name** (z. B. „Pfijuko 2026") — erscheint in der
+- **Projekt-/Show-Name**  — erscheint in der
   **Titelleiste** (oben mittig), der **Statusleiste** (unten links) und im
   **Download-Hinweis** des Export-Dialogs.
 - **Kunde/Veranstaltungsort** — die **Rentman-Zeile** unten rechts
-  (z. B. „Rentman: FORUM WIEDENEST …").
-- **Personennamen** in Geräte-Labels (z. B. „… (Josch)").
+  (z. B. „Rentman:  …").
+- **Personennamen** in Geräte-Labels 
 
 Tipp für eine saubere Aufnahme: vorher ein **Demo-Projekt mit neutralen
 Namen** anlegen (Projektname z. B. „Demo Show", Rentman-Integration in den
