@@ -264,6 +264,9 @@ export const MenuBar = ({
           >
             {t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
           </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAnalysis()} icon="📊">
+            {t('app.menu.tools.analysis', 'Analysen (Gewicht/Netzwerk/Redundanz)…')}
+          </MenuItem>
           <MenuSep />
           {/* #342 — Editoren direkt aus dem Werkzeuge-Menü erreichbar machen
               (vorher nur über Toolbar bzw. verknüpftes Gerät in den
