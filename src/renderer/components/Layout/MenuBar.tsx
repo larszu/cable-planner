@@ -1,4 +1,12 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import {
+  FileText, Clapperboard, FolderOpen, Save, SaveAll, Ruler, Upload, FileDown,
+  Image as ImageIcon, Calculator, Eye, MessageSquare, Paperclip, Plug, Cable,
+  Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, SlidersHorizontal, Tag,
+  Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
+  Pencil, Smartphone, Settings,
+} from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
 import { useTranslation } from '../../lib/i18n'
 import { projectHistory } from '../../store/projectHistory'
@@ -110,26 +118,26 @@ export const MenuBar = ({
         <span className="text-slate-700">│</span>
 
         <Menu label={t('app.menu.file', 'Datei')}>
-          <MenuItem onClick={onNewProject} icon="📄" shortcut={t('shortcut.ctrlN', 'Strg+N')}>
+          <MenuItem onClick={onNewProject} icon={<Icon icon={FileText} size="sm" />} shortcut={t('shortcut.ctrlN', 'Strg+N')}>
             {t('app.menu.file.new', 'Neues Projekt')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openTemplates()} icon="🎬">
+          <MenuItem onClick={() => useUiStore.getState().openTemplates()} icon={<Icon icon={Clapperboard} size="sm" />}>
             {t('app.menu.file.newFromTemplate', 'Neu aus Vorlage…')}
           </MenuItem>
-          <MenuItem onClick={onOpenProject} icon="📂" shortcut={t('shortcut.ctrlO', 'Strg+O')}>
+          <MenuItem onClick={onOpenProject} icon={<Icon icon={FolderOpen} size="sm" />} shortcut={t('shortcut.ctrlO', 'Strg+O')}>
             {t('app.menu.file.open', 'Öffnen…')}
           </MenuItem>
           <MenuSep />
-          <MenuItem onClick={onSaveProject} icon="💾" shortcut={t('shortcut.ctrlS', 'Strg+S')}>
+          <MenuItem onClick={onSaveProject} icon={<Icon icon={Save} size="sm" />} shortcut={t('shortcut.ctrlS', 'Strg+S')}>
             {t('app.menu.file.save', 'Speichern')}
           </MenuItem>
-          <MenuItem onClick={onSaveProjectAs} icon="💾" shortcut={t('shortcut.ctrlShiftS', 'Strg+Umsch+S')}>
+          <MenuItem onClick={onSaveProjectAs} icon={<Icon icon={SaveAll} size="sm" />} shortcut={t('shortcut.ctrlShiftS', 'Strg+Umsch+S')}>
             {t('app.menu.file.saveAs', 'Speichern unter…')}
           </MenuItem>
           {onOpenGraphmlImport && (
             <>
               <MenuSep />
-              <MenuItem onClick={onOpenGraphmlImport} icon="📐">
+              <MenuItem onClick={onOpenGraphmlImport} icon={<Icon icon={Ruler} size="sm" />}>
                 {t('app.menu.file.importGraphml', 'yEd / GraphML importieren…')}
               </MenuItem>
             </>
@@ -142,26 +150,26 @@ export const MenuBar = ({
               User-Request: "Vereinheitliche zu einer Großen funktion".
               Strg+P bleibt als direkter Shortcut für den OS-Druckdialog. */}
           {onOpenExportDialog ? (
-            <MenuItem onClick={onOpenExportDialog} icon="📤">
+            <MenuItem onClick={onOpenExportDialog} icon={<Icon icon={Upload} size="sm" />}>
               {t('app.menu.file.export', 'Exportieren & Drucken…')}
             </MenuItem>
           ) : (
             <>
-              <MenuItem onClick={onExportPdf} icon="📑">
+              <MenuItem onClick={onExportPdf} icon={<Icon icon={FileDown} size="sm" />}>
                 {t('app.menu.file.exportPdf', 'Plan als PDF exportieren…')}
               </MenuItem>
               {onExportPng && (
-                <MenuItem onClick={onExportPng} icon="🖼">
+                <MenuItem onClick={onExportPng} icon={<Icon icon={ImageIcon} size="sm" />}>
                   {t('app.menu.file.exportPng', 'Plan als PNG exportieren…')}
                 </MenuItem>
               )}
               {onExportJpeg && (
-                <MenuItem onClick={onExportJpeg} icon="🖼">
+                <MenuItem onClick={onExportJpeg} icon={<Icon icon={ImageIcon} size="sm" />}>
                   {t('app.menu.file.exportJpeg', 'Plan als JPEG exportieren…')}
                 </MenuItem>
               )}
               {onOpenCableBom && (
-                <MenuItem onClick={onOpenCableBom} icon="🧮">
+                <MenuItem onClick={onOpenCableBom} icon={<Icon icon={Calculator} size="sm" />}>
                   {t('app.menu.file.cableBom', 'Kabel-Stückliste (BOM) exportieren…')}
                 </MenuItem>
               )}
@@ -175,12 +183,12 @@ export const MenuBar = ({
               exportieren, später deren Anmerkungen zurück mergen. */}
           {(onExportViewer || onImportAnnotations) && <MenuSep />}
           {onExportViewer && (
-            <MenuItem onClick={onExportViewer} icon="👁">
+            <MenuItem onClick={onExportViewer} icon={<Icon icon={Eye} size="sm" />}>
               {t('app.menu.file.exportViewer', 'Als Viewer-Datei für Freelancer exportieren…')}
             </MenuItem>
           )}
           {onImportAnnotations && (
-            <MenuItem onClick={onImportAnnotations} icon="💬">
+            <MenuItem onClick={onImportAnnotations} icon={<Icon icon={MessageSquare} size="sm" />}>
               {t('app.menu.file.importAnnotations', 'Anmerkungen aus Viewer-Datei importieren…')}
             </MenuItem>
           )}
@@ -190,7 +198,7 @@ export const MenuBar = ({
           {rentmanEnabled && onAttachPdfToRentman && (
             <MenuItem
               onClick={hasRentmanLink ? onAttachPdfToRentman : undefined}
-              icon="📎"
+              icon={<Icon icon={Paperclip} size="sm" />}
             >
               {hasRentmanLink
                 ? t('app.menu.file.attachRentman', 'Plan an Rentman anhängen…')
@@ -203,7 +211,7 @@ export const MenuBar = ({
           {rentmanEnabled && onOpenRentmanCableExport && (
             <MenuItem
               onClick={hasRentmanLink ? onOpenRentmanCableExport : undefined}
-              icon="🔌"
+              icon={<Icon icon={Plug} size="sm" />}
             >
               {hasRentmanLink
                 ? t('app.menu.file.cablesRentman', 'Kabel an Rentman senden…')
@@ -222,7 +230,7 @@ export const MenuBar = ({
           <MenuItem
             onClick={() => projectHistory.undo()}
             disabled={!canUndo}
-            icon="⟲"
+            icon={<Icon icon={Undo2} size="sm" />}
             shortcut={t('shortcut.ctrlZ', 'Strg+Z')}
           >
             {t('app.menu.edit.undo', 'Rückgängig')}
@@ -230,7 +238,7 @@ export const MenuBar = ({
           <MenuItem
             onClick={() => projectHistory.redo()}
             disabled={!canRedo}
-            icon="⟳"
+            icon={<Icon icon={Redo2} size="sm" />}
             shortcut={t('shortcut.ctrlY', 'Strg+Y')}
           >
             {t('app.menu.edit.redo', 'Wiederherstellen')}
@@ -257,17 +265,17 @@ export const MenuBar = ({
               Export-/Druck-Funktionen). */}
           <MenuItem
             onClick={() => useUiStore.getState().openCalculators('bandwidth')}
-            icon="📡"
+            icon={<Icon icon={Radio} size="sm" />}
           >
             {t('app.menu.tools.bandwidth', 'Bandbreite berechnen…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().openCalculators('power')}
-            icon="⚡"
+            icon={<Icon icon={Zap} size="sm" />}
           >
             {t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openAnalysis()} icon="📊">
+          <MenuItem onClick={() => useUiStore.getState().openAnalysis()} icon={<Icon icon={BarChart3} size="sm" />}>
             {t('app.menu.tools.analysis', 'Analysen (Gewicht/Netzwerk/Redundanz)…')}
           </MenuItem>
           <MenuSep />
@@ -277,34 +285,34 @@ export const MenuBar = ({
               eigene Geräteauswahl. */}
           <MenuItem
             onClick={() => useUiStore.getState().triggerRackBuilderFromSelection([])}
-            icon="🗄"
+            icon={<Icon icon={Server} size="sm" />}
           >
             {t('app.menu.tools.rackBuilder', 'Rack-Builder…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openAtemMvConfig()} icon="🖥">
+          <MenuItem onClick={() => useUiStore.getState().openAtemMvConfig()} icon={<Icon icon={Monitor} size="sm" />}>
             {t('app.menu.tools.atemMv', 'ATEM Multiviewer-Layout…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openAtemAudioConfig()} icon="🎚">
+          <MenuItem onClick={() => useUiStore.getState().openAtemAudioConfig()} icon={<Icon icon={SlidersHorizontal} size="sm" />}>
             {t('app.menu.tools.atemAudio', 'ATEM Audio-Routing…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openAtemDialog()} icon="🏷">
+          <MenuItem onClick={() => useUiStore.getState().openAtemDialog()} icon={<Icon icon={Tag} size="sm" />}>
             {t('app.menu.tools.atemLabels', 'ATEM Input-Labels…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openVideohubExport()} icon="🔀">
+          <MenuItem onClick={() => useUiStore.getState().openVideohubExport()} icon={<Icon icon={Shuffle} size="sm" />}>
             {t('app.menu.tools.videohub', 'Videohub-Routing/Labels…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openGreenGoExport()} icon="🎧">
+          <MenuItem onClick={() => useUiStore.getState().openGreenGoExport()} icon={<Icon icon={Headphones} size="sm" />}>
             {t('app.menu.tools.greengo', 'GreenGo-Intercom…')}
           </MenuItem>
           <MenuSep />
-          <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon="🔌">
+          <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon={<Icon icon={Cable} size="sm" />}>
             {t('app.menu.tools.patchList', 'Patch-Liste…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openCsvImport()} icon="📥">
+          <MenuItem onClick={() => useUiStore.getState().openCsvImport()} icon={<Icon icon={ImportIcon} size="sm" />}>
             {t('app.menu.tools.csvImport', 'Equipment aus CSV importieren…')}
           </MenuItem>
           {rentmanEnabled && (
-            <MenuItem onClick={() => useUiStore.getState().openRentmanImport()} icon="👥">
+            <MenuItem onClick={() => useUiStore.getState().openRentmanImport()} icon={<Icon icon={Users} size="sm" />}>
               {t('app.menu.tools.rentmanImport', 'Rentman-Import…')}
             </MenuItem>
           )}
@@ -315,19 +323,19 @@ export const MenuBar = ({
               zeigt den aktuellen Zustand (beim erneuten Öffnen). */}
           <MenuItem
             onClick={() => useUiStore.getState().setCanvasTheme(canvasTheme === 'dark' ? 'light' : 'dark')}
-            icon={canvasTheme === 'light' ? '✓' : ''}
+            icon={canvasTheme === 'light' ? <Icon icon={Check} size="sm" /> : null}
           >
             {t('app.menu.view.light', 'Helles Design')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setSnapToGrid(!snapToGrid)}
-            icon={snapToGrid ? '✓' : ''}
+            icon={snapToGrid ? <Icon icon={Check} size="sm" /> : null}
           >
             {t('app.menu.view.snap', 'Am Raster ausrichten')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setHideAllCableLabels(!hideAllCableLabels)}
-            icon={hideAllCableLabels ? '✓' : ''}
+            icon={hideAllCableLabels ? <Icon icon={Check} size="sm" /> : null}
           >
             {t('app.menu.view.hideLabels', 'Kabel-Labels ausblenden')}
           </MenuItem>
@@ -335,14 +343,14 @@ export const MenuBar = ({
             onClick={() =>
               useUiStore.getState().setCableColorMode(cableColorMode === 'byLength' ? 'manual' : 'byLength')
             }
-            icon={cableColorMode === 'byLength' ? '✓' : ''}
+            icon={cableColorMode === 'byLength' ? <Icon icon={Check} size="sm" /> : null}
           >
             {t('app.menu.view.colorByLength', 'Kabelfarbe nach Länge')}
           </MenuItem>
           <MenuSep />
           <MenuItem
             onClick={() => useUiStore.getState().setAnnotationsPanelOpen(!annotationsPanelOpen)}
-            icon={annotationsPanelOpen ? '✓' : ''}
+            icon={annotationsPanelOpen ? <Icon icon={Check} size="sm" /> : null}
           >
             {t('app.menu.view.annotations', 'Anmerkungen-Panel')}
           </MenuItem>
@@ -350,13 +358,13 @@ export const MenuBar = ({
 
         <Menu label={t('app.menu.help', 'Hilfe')}>
           {onOpenTour && (
-            <MenuItem onClick={onOpenTour} icon="💡">
+            <MenuItem onClick={onOpenTour} icon={<Icon icon={Lightbulb} size="sm" />}>
               {t('app.menu.help.tour', 'Erste-Schritte-Tour…')}
             </MenuItem>
           )}
           <MenuItem
             onClick={() => useUiStore.getState().openAboutDialog()}
-            icon="ⓘ"
+            icon={<Icon icon={Info} size="sm" />}
           >
             {t('app.menu.help.about', 'Über Cable Planner…')}
           </MenuItem>
@@ -374,8 +382,8 @@ export const MenuBar = ({
           >
             <span className="truncate font-medium">{projectName}</span>
             {onEditProjectMeta && (
-              <span className="text-[10px] text-slate-500 opacity-0 transition-opacity group-hover:opacity-100">
-                ✎
+              <span className="text-slate-500 opacity-0 transition-opacity group-hover:opacity-100">
+                <Icon icon={Pencil} size="xs" />
               </span>
             )}
           </button>
@@ -393,7 +401,7 @@ export const MenuBar = ({
             aria-label={t('app.undo', 'Rückgängig (Strg+Z)')}
             className="px-2 py-1 text-slate-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
           >
-            ⟲
+            <Icon icon={Undo2} size="sm" />
           </button>
           <span className="h-4 w-px bg-slate-700" aria-hidden="true" />
           <button
@@ -404,7 +412,7 @@ export const MenuBar = ({
             aria-label={t('app.redo', 'Wiederherstellen (Strg+Y)')}
             className="px-2 py-1 text-slate-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
           >
-            ⟳
+            <Icon icon={Redo2} size="sm" />
           </button>
         </div>
         <SharedSyncPanel />
@@ -439,16 +447,16 @@ export const MenuBar = ({
               'Handy-Zugriff: kleiner LAN-Server + QR-Code, damit das Handy den Mobile-Viewer öffnen kann.',
             )}
           >
-            📱
+            <Icon icon={Smartphone} size="sm" />
           </button>
         )}
         <button
           type="button"
           onClick={onOpenSettings}
-          className="rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
+          className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
           title={t('settings.title', 'Einstellungen')}
         >
-          ⚙ {t('settings.title', 'Einstellungen')}
+          <Icon icon={Settings} size="sm" /> {t('settings.title', 'Einstellungen')}
         </button>
       </div>
     </header>
@@ -513,7 +521,7 @@ const Menu = ({ label, children }: MenuProps) => {
 
 interface MenuItemProps {
   onClick?: () => void
-  icon?: string
+  icon?: React.ReactNode
   shortcut?: string
   disabled?: boolean
   children: React.ReactNode
@@ -528,7 +536,7 @@ const MenuItem = ({ onClick, icon, shortcut, disabled, children }: MenuItemProps
       className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-cp-xs text-slate-200 hover:bg-slate-700/70 disabled:cursor-not-allowed disabled:text-[var(--cp-text-faint)] disabled:hover:bg-transparent"
       role="menuitem"
     >
-      <span className="w-4 shrink-0 text-center text-[12px]">{icon ?? ''}</span>
+      <span className="inline-flex w-4 shrink-0 items-center justify-center text-[var(--cp-text-muted)]">{icon}</span>
       <span className="flex-1 truncate">{children}</span>
       {shortcut && (
         <span className="ml-3 shrink-0 text-cp-xs tracking-wide text-[var(--cp-text-faint)]">

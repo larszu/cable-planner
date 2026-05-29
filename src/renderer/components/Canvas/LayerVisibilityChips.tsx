@@ -18,7 +18,9 @@
  *  - Tooltip erklärt was passiert
  */
 import { useState } from 'react'
+import { Eye } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
+import { Icon } from '../shared/Icon'
 import { LAYER_STYLES, STANDARD_LAYERS, topLayer, type StandardLayer } from '../../lib/cableLayers'
 import { promptDialog } from '../../lib/promptDialog'
 import { confirmDialog } from '../../lib/confirmDialog'
@@ -211,7 +213,7 @@ export const LayerVisibilityChips = () => {
             disabled={allOn}
             style={{ opacity: allOn ? 0.5 : 1 }}
           >
-            <span>👁</span>
+            <Icon icon={Eye} size="xs" />
             <span>{t('canvas.layerChips.resetAll', 'Alle Ebenen wieder einblenden')}</span>
           </button>
         </div>

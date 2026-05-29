@@ -9,6 +9,10 @@
 //   - Print-Tab entfernt — Drucken passiert jetzt pro Sektion
 
 import { useMemo, useState } from 'react'
+import {
+  FileText, Cable as CableIcon, Calculator, Image as ImageIcon, Printer,
+  Moon, Sun, Camera, Sparkles, type LucideIcon,
+} from 'lucide-react'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import jsPDF from 'jspdf'
 import { useUiStore } from '../../store/uiStore'
@@ -66,10 +70,10 @@ const SECTION_LABEL: Record<Section, string> = {
   bom: 'Kabel-Stückliste',
 }
 
-const SECTION_ICON: Record<Section, string> = {
-  plan: '📑',
-  patch: '🔌',
-  bom: '🧮',
+const SECTION_ICON: Record<Section, LucideIcon> = {
+  plan: FileText,
+  patch: CableIcon,
+  bom: Calculator,
 }
 
 const SECTION_DESC: Record<Section, string> = {
@@ -119,7 +123,7 @@ export const ExportDialog = ({
                   : 'text-slate-300 hover:bg-slate-800'
               }`}
             >
-              <span className="text-base">{SECTION_ICON[id]}</span>
+              <Icon icon={SECTION_ICON[id]} size="sm" />
               <span>{t(`export.section.${id}`, SECTION_LABEL[id])}</span>
             </button>
           ))}
@@ -127,8 +131,9 @@ export const ExportDialog = ({
 
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2">
-            <h2 id={titleId} className="text-base font-semibold">
-              {SECTION_ICON[section]} {t(`export.section.${section}`, SECTION_LABEL[section])}
+            <h2 id={titleId} className="flex items-center gap-2 text-base font-semibold">
+              <Icon icon={SECTION_ICON[section]} size="sm" />{' '}
+              {t(`export.section.${section}`, SECTION_LABEL[section])}
             </h2>
             <button
               type="button"
@@ -222,10 +227,10 @@ const PlanSection = ({
   }
 
   const FORMAT_OPTIONS = [
-    { value: 'pdf' as const, icon: '📑', label: 'PDF', hint: t('export.format.pdfHint', 'Vektor mit Titelblock, druckbar') },
-    { value: 'png' as const, icon: '🖼', label: 'PNG', hint: t('export.format.pngHint', 'Transparent möglich, scharf') },
-    { value: 'jpeg' as const, icon: '🖼', label: 'JPEG', hint: t('export.format.jpegHint', 'Kleiner, gut für E-Mail') },
-    { value: 'svg' as const, icon: '🖼', label: 'SVG', hint: t('export.format.svgHint', 'Skalierbar, für Web/Weiterverarbeitung') },
+    { value: 'pdf' as const, icon: FileText, label: 'PDF', hint: t('export.format.pdfHint', 'Vektor mit Titelblock, druckbar') },
+    { value: 'png' as const, icon: ImageIcon, label: 'PNG', hint: t('export.format.pngHint', 'Transparent möglich, scharf') },
+    { value: 'jpeg' as const, icon: ImageIcon, label: 'JPEG', hint: t('export.format.jpegHint', 'Kleiner, gut für E-Mail') },
+    { value: 'svg' as const, icon: ImageIcon, label: 'SVG', hint: t('export.format.svgHint', 'Skalierbar, für Web/Weiterverarbeitung') },
   ]
 
   return (
@@ -251,7 +256,7 @@ const PlanSection = ({
                 onChange={() => setFormat(opt.value)}
                 className="mt-0.5"
               />
-              <span className="text-base">{opt.icon}</span>
+              <Icon icon={opt.icon} size="sm" />
               <span className="flex-1">
                 <span className="block font-semibold text-slate-100">{opt.label}</span>
                 <span className="block text-[10px] text-slate-400">{opt.hint}</span>
@@ -272,7 +277,7 @@ const PlanSection = ({
                 checked={pdfTheme === 'dark'}
                 onChange={() => setPdfTheme('dark')}
               />
-              <span>🌙 Dunkles Thema (wie Canvas)</span>
+              <span className="inline-flex items-center gap-1"><Icon icon={Moon} size="xs" /> Dunkles Thema (wie Canvas)</span>
             </label>
             <label className="flex items-center gap-2 text-xs">
               <input
@@ -281,7 +286,7 @@ const PlanSection = ({
                 checked={pdfTheme === 'light'}
                 onChange={() => setPdfTheme('light')}
               />
-              <span>☀ {t('export.theme.lightLabel', 'Helles Thema (für Ausdruck empfohlen)')}</span>
+              <span className="inline-flex items-center gap-1"><Icon icon={Sun} size="xs" /> {t('export.theme.lightLabel', 'Helles Thema (für Ausdruck empfohlen)')}</span>
             </label>
           </fieldset>
           {/* v7.9.97 — Render-Modus: Raster (klassisch) vs Vektor (Beta).
@@ -299,7 +304,7 @@ const PlanSection = ({
                 className="mt-0.5"
               />
               <span>
-                <span className="block">📷 {t('export.render.raster', 'Raster (klassisch)')}</span>
+                <span className="flex items-center gap-1"><Icon icon={Camera} size="xs" /> {t('export.render.raster', 'Raster (klassisch)')}</span>
                 <span className="block text-[10px] text-slate-400">
                   {t(
                     'export.render.rasterHint',
@@ -317,7 +322,7 @@ const PlanSection = ({
                 className="mt-0.5"
               />
               <span>
-                <span className="block">✨ {t('export.render.vector', 'Vektor')}</span>
+                <span className="flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('export.render.vector', 'Vektor')}</span>
                 <span className="block text-[10px] text-slate-400">
                   {t(
                     'export.render.vectorHint',
@@ -395,7 +400,7 @@ const PlanSection = ({
           }
           className="rounded bg-indigo-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-40"
         >
-          🖨 {t('export.printBtn', 'Drucken')}
+          <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Drucken')}</span>
         </button>
         <button
           type="button"
@@ -492,7 +497,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
         title={t('export.patch.compactTitle', 'Kompakte Patchliste: alle Kabel auf einer Liste, sortiert nach Quell-Gerät — zum Ausdrucken für den Techniker im Feld.')}
       >
         <span>
-          <span className="font-semibold">🪢 {t('export.patch.openPatchList', 'Patchliste öffnen…')}</span>
+          <span className="inline-flex items-center gap-1 font-semibold"><Icon icon={CableIcon} size="xs" /> {t('export.patch.openPatchList', 'Patchliste öffnen…')}</span>
           <span className="ml-2 text-emerald-300/70">
             {t('export.patch.compactSub', 'Eine Zeile pro Kabel, sortiert nach Quell-Gerät')}
           </span>
@@ -588,7 +593,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             className="rounded bg-indigo-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-40"
             title={t('export.patch.osPrint', 'Patch-Sheet(s) im OS-Druckdialog öffnen')}
           >
-            🖨 {t('export.printBtn', 'Drucken')}
+            <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Drucken')}</span>
           </button>
         </div>
       ) : (
@@ -1026,7 +1031,7 @@ const BomSection = () => {
           className="rounded bg-indigo-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600"
           title={t('export.bom.osPrint', 'Kabel-Stückliste im OS-Druckdialog öffnen')}
         >
-          🖨 Drucken
+          <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Drucken')}</span>
         </button>
       </div>
     </div>

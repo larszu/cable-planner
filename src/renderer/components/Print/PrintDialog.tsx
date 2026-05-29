@@ -8,8 +8,10 @@
 //     and a choice between one combined PDF or individual PDFs per device.
 
 import { useMemo, useState } from 'react'
+import { Printer } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
+import { Icon } from '../shared/Icon'
 import { useTranslation, format as formatStr } from '../../lib/i18n'
 import {
   buildDevicePatchSheetBlob,
@@ -110,7 +112,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
       open={open}
       onClose={onClose}
       title={t('print.title', 'Drucken')}
-      titleIcon="🖨"
+      titleIcon={<Icon icon={Printer} size="sm" />}
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:print"
       footer={
@@ -138,11 +140,11 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                 ? t('print.busy', 'Erzeuge PDF…')
                 : action === 'print'
                   ? selectionCount > 1 && mode === 'individual'
-                    ? formatStr(t('print.startJobs', '🖨 {count} Druckjobs starten'), { count: selectionCount })
-                    : t('print.openDialog', '🖨 Drucker-Dialog öffnen')
+                    ? formatStr(t('print.startJobs', '{count} Druckjobs starten'), { count: selectionCount })
+                    : t('print.openDialog', 'Drucker-Dialog öffnen')
                   : selectionCount > 1 && mode === 'individual'
-                    ? formatStr(t('print.downloadMany', '⬇ {count} PDFs herunterladen'), { count: selectionCount })
-                    : t('print.downloadOne', '⬇ Patch-Sheet PDF herunterladen')}
+                    ? formatStr(t('print.downloadMany', '{count} PDFs herunterladen'), { count: selectionCount })
+                    : t('print.downloadOne', 'Patch-Sheet PDF herunterladen')}
             </button>
           </div>
         </div>
@@ -204,8 +206,8 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {allChecked
-                      ? '☐ ' + t('print.devices.deselectAll', 'Alle abwählen')
-                      : `☑ ${t('print.devices.selectAll', 'Alle wählen')}${filter.trim() ? ' ' + t('print.devices.filtered', '(gefiltert)') : ''}`}
+                      ? t('print.devices.deselectAll', 'Alle abwählen')
+                      : `${t('print.devices.selectAll', 'Alle wählen')}${filter.trim() ? ' ' + t('print.devices.filtered', '(gefiltert)') : ''}`}
                   </button>
                 )
               })()}
@@ -267,7 +269,8 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     checked={action === 'print'}
                     onChange={() => setAction('print')}
                   />
-                  🖨 Auf Drucker drucken (Systemdialog)
+                  <Icon icon={Printer} size="xs" className="mr-1 inline-block align-text-bottom" />
+                  Auf Drucker drucken (Systemdialog)
                 </label>
                 <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
                   <input

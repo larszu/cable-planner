@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { Square, SquareCheck } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
 
 /**
@@ -210,9 +212,7 @@ export const LibraryFiltersMenu = ({
             onClick={() => setShowHidden(!showHidden)}
             className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
           >
-            <span className="mr-2 inline-block w-4 text-center">
-              {showHidden ? '☑' : '☐'}
-            </span>
+            <span className="mr-2 inline-flex w-4 justify-center"><Icon icon={showHidden ? SquareCheck : Square} size="xs" /></span>
             {t('library.menus.showHidden', 'Versteckte zeigen')}
             {hiddenCount > 0 ? ` (${hiddenCount})` : ''}
           </button>
@@ -223,9 +223,7 @@ export const LibraryFiltersMenu = ({
             onClick={() => setShowEmpty(!showEmpty)}
             className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
           >
-            <span className="mr-2 inline-block w-4 text-center">
-              {showEmpty ? '☑' : '☐'}
-            </span>
+            <span className="mr-2 inline-flex w-4 justify-center"><Icon icon={showEmpty ? SquareCheck : Square} size="xs" /></span>
             {t('library.menus.showEmpty', 'Leere Kategorien zeigen')}
           </button>
         </div>

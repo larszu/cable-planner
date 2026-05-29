@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { X } from 'lucide-react'
+import { X, FileSpreadsheet } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../../types/greengo'
@@ -691,7 +691,8 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
               className="rounded border border-slate-600 px-3 py-1.5 text-xs text-slate-400 hover:border-cyan-700 hover:text-cyan-300"
               title={t('greengo.import.xlsxTitle', 'Intercom-Matrix-Excel hochladen — die Users + Gruppen werden in die GreenGo-Konfiguration übernommen.')}
             >
-              {t('greengo.import.xlsx', '📊 Excel-Matrix importieren')}
+              <Icon icon={FileSpreadsheet} size="xs" className="mr-1 inline-block align-text-bottom" />
+              {t('greengo.import.xlsx', 'Excel-Matrix importieren')}
             </button>
             <button
               type="button"
@@ -699,7 +700,8 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
               className="rounded border border-slate-600 px-3 py-1.5 text-xs text-slate-400 hover:border-cyan-700 hover:text-cyan-300"
               title={t('greengo.export.xlsxTitle', 'Aktuelle GreenGo-Konfiguration als Intercom-Matrix-Excel herunterladen (für Druck / Weitergabe).')}
             >
-              {t('greengo.export.xlsx', '📊 Excel-Matrix exportieren')}
+              <Icon icon={FileSpreadsheet} size="xs" className="mr-1 inline-block align-text-bottom" />
+              {t('greengo.export.xlsx', 'Excel-Matrix exportieren')}
             </button>
             <button
               type="button"

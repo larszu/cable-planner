@@ -113,7 +113,7 @@ export const TemplatesDialog = () => {
       className="flex flex-col gap-2 rounded border border-[var(--cp-border)] bg-[var(--cp-surface-2)] p-3"
     >
       <div className="flex items-start gap-2">
-        <span className="text-lg leading-none">🎬</span>
+        <Icon icon={LayoutTemplate} size="md" className="mt-0.5 text-violet-400" />
         <div className="min-w-0 flex-1">
           <div className="truncate text-sm font-semibold">{label(tpl)}</div>
           <div className="text-cp-xs text-[var(--cp-text-muted)]">{desc(tpl)}</div>

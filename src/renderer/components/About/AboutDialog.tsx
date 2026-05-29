@@ -8,7 +8,9 @@
  */
 
 import { useUiStore } from '../../store/uiStore'
+import { Cable, Info } from 'lucide-react'
 import { ModalShell } from '../shared/ModalShell'
+import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
 import {
   APP_AUTHOR,
@@ -35,13 +37,13 @@ export const AboutDialog = () => {
       open={open}
       onClose={close}
       title={t('about.title', 'Über Cable Planner')}
-      titleIcon="ⓘ"
+      titleIcon={<Icon icon={Info} size="sm" />}
       maxWidth="md"
       draggableKey="cable-planner:modal-pos:about"
     >
       <div className="space-y-3 text-sm">
         <div className="flex items-center gap-3 rounded border border-slate-800 bg-slate-950/40 p-3">
-          <div className="text-3xl">🔌</div>
+          <Icon icon={Cable} size={28} className="text-sky-400" />
           <div className="min-w-0">
             <div className="font-semibold text-slate-100">{t('app.title', 'Cable Planner')}</div>
             <div className="text-[11px] text-slate-400">{APP_DESCRIPTION}</div>

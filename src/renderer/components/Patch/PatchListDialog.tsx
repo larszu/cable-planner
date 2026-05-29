@@ -15,7 +15,9 @@ import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { portLabelPair } from '../../lib/portLabel'
+import { Cable as CableIcon, Tag } from 'lucide-react'
 import { ModalShell } from '../shared/ModalShell'
+import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
 import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
@@ -345,7 +347,7 @@ export const PatchListDialog = () => {
       open={open}
       onClose={close}
       title={t('patchList.title', 'Patchliste')}
-      titleIcon="🪢"
+      titleIcon={<Icon icon={CableIcon} size="sm" />}
       maxWidth="5xl"
       draggableKey="cable-planner:modal-pos:patchlist"
       scrollBody={false}
@@ -378,9 +380,10 @@ export const PatchListDialog = () => {
               type="button"
               onClick={exportLabels}
               disabled={filtered.length === 0}
-              className="rounded bg-sky-700 px-3 py-1 text-xs hover:bg-sky-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-sky-700 px-3 py-1 text-xs hover:bg-sky-600 disabled:opacity-40"
             >
-              {t('patchList.exportLabels', '🏷 Etiketten (PDF)')}
+              <Icon icon={Tag} size="xs" />
+              {t('patchList.exportLabels', 'Etiketten (PDF)')}
             </button>
           </div>
         </div>

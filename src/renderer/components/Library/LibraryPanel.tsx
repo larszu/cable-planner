@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { X } from 'lucide-react'
+import {
+  X, Pencil, RefreshCw, Package, Search, Folder, Settings, Ruler, Globe, Sparkles,
+  ChevronRight, ChevronDown,
+} from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
@@ -1300,8 +1303,9 @@ export const LibraryPanel = () => {
                         }}
                         className="hidden rounded bg-slate-700/80 px-1.5 py-0.5 text-[10px] font-normal normal-case text-slate-200 hover:bg-slate-600 group-hover/cat:block"
                         title={t('library.renameCategory', 'Kategorie umbenennen')}
+                        aria-label={t('library.renameCategory', 'Kategorie umbenennen')}
                       >
-                        ✎
+                        <Icon icon={Pencil} size="xs" />
                       </button>
                       <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-normal text-slate-400">
                         {items.length}
@@ -1342,8 +1346,9 @@ export const LibraryPanel = () => {
                                 onClick={() => setSelectedTemplateName(item.name)}
                                 className="absolute right-7 top-1 hidden rounded bg-slate-600 px-1 py-0.5 text-[10px] hover:bg-slate-500 group-hover/item:block"
                                 title={t('library.template.editTitle', 'Vorlage bearbeiten (Name, Kategorie)')}
+                                aria-label={t('library.template.editTitle', 'Vorlage bearbeiten (Name, Kategorie)')}
                               >
-                                ✎
+                                <Icon icon={Pencil} size="xs" />
                               </button>
                             </div>
                           ))
@@ -1446,7 +1451,7 @@ export const LibraryPanel = () => {
                   className="mt-2 w-full rounded bg-orange-600 px-2 py-1.5 text-xs font-semibold text-white hover:bg-orange-500"
                   title={t('library.rentman.refreshTitle', 'Aktuelle Equipment-Liste aus dem verknüpften Rentman-Projekt holen — neue oder geänderte Items werden im Dialog angezeigt.')}
                 >
-                  🔄 Aus Rentman aktualisieren / neue Items importieren
+                  <Icon icon={RefreshCw} size="xs" className="mr-1 inline-block align-text-bottom" />Aus Rentman aktualisieren / neue Items importieren
                 </button>
                 {(() => {
                   // v7.9.70 / #171 — Re-Sync Button: zeige nur wenn Canvas
@@ -1474,7 +1479,7 @@ export const LibraryPanel = () => {
                       className="mt-2 w-full rounded bg-orange-700/60 px-2 py-1 text-[11px] text-orange-100 hover:bg-orange-700"
                       title={`${missing} Rentman-Geräte auf dem Canvas sind nicht mit Library-Templates verknüpft. Klick rekonstruiert die fehlenden Templates aus den Canvas-Daten.`}
                     >
-                      🔄 {missing} fehlende Library-Einträge nachbauen
+                      <Icon icon={RefreshCw} size="xs" className="mr-1 inline-block align-text-bottom" />{missing} fehlende Library-Einträge nachbauen
                     </button>
                   )
                 })()}
@@ -1609,7 +1614,7 @@ export const LibraryPanel = () => {
                   if (projectGroups.length === 0) {
                     return (
                       <div className="flex flex-col items-center gap-2 p-3 text-center text-xs text-slate-500">
-                        <span className="text-2xl">📦</span>
+                        <Icon icon={Package} size={24} />
                         <span>{t('library.rentman.noneImported', 'Noch keine Rentman-Geräte importiert.')}</span>
                       </div>
                     )
@@ -1617,7 +1622,7 @@ export const LibraryPanel = () => {
                   if (visibleProjectGroups.length === 0) {
                     return (
                       <div className="flex flex-col items-center gap-2 p-3 text-center text-xs text-slate-500">
-                        <span className="text-2xl">🔍</span>
+                        <Icon icon={Search} size={24} />
                         <span>{format(t('library.rentman.noMatches', 'Keine Treffer für "{query}".'), { query: rentmanSearch })}</span>
                       </div>
                     )
@@ -1921,8 +1926,8 @@ export const LibraryPanel = () => {
                                   style={{ paddingLeft: `${0.5 + depth * 0.75}rem` }}
                                 >
                                   <span className="flex items-center gap-1">
-                                    <span>{collapsed ? '▶' : '▼'}</span>
-                                    <span>📁</span>
+                                    <Icon icon={collapsed ? ChevronRight : ChevronDown} size="xs" />
+                                    <Icon icon={Folder} size="xs" />
                                     <span>{folder.name}</span>
                                   </span>
                                   <span className="font-normal text-slate-500">({total})</span>
@@ -1984,7 +1989,7 @@ export const LibraryPanel = () => {
                     className="mb-3 w-full rounded bg-orange-600 px-2 py-1.5 text-xs font-semibold text-white hover:bg-orange-500"
                     title={t('library.rentman.loadProjectTitle', 'Equipment-Liste aus dem verknüpften Rentman-Projekt jetzt laden. Neue Items können direkt importiert werden.')}
                   >
-                    🔄 Aus Rentman aktualisieren / neue Items importieren
+                    <Icon icon={RefreshCw} size="xs" className="mr-1 inline-block align-text-bottom" />Aus Rentman aktualisieren / neue Items importieren
                   </button>
                 )}
                 {removed.length > 0 && (
@@ -2218,7 +2223,7 @@ export const LibraryPanel = () => {
                   className="text-[10px] text-violet-300 hover:underline"
                   title={t('library.create.aiSettings', 'Gemini-API-Key konfigurieren')}
                 >
-                  ⚙ AI-Settings
+                  <Icon icon={Settings} size="xs" className="mr-1 inline-block align-text-bottom" />AI-Settings
                 </button>
               </div>
               <div className="flex flex-wrap gap-1">
@@ -2228,7 +2233,7 @@ export const LibraryPanel = () => {
                   className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
                   title={t('library.create.suggest.heuristicTitle', 'Aus eingebauten Heuristik-Mustern (Camera, ATEM, Konverter, ...)')}
                 >
-                  📐 Heuristik
+                  <Icon icon={Ruler} size="xs" className="mr-1 inline-block align-text-bottom" />Heuristik
                 </button>
                 <button
                   type="button"
@@ -2237,7 +2242,7 @@ export const LibraryPanel = () => {
                   className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
                   title={t('library.create.suggest.webTitle', 'Wikipedia + DuckDuckGo Snippet (kein API-Key nötig)')}
                 >
-                  {webLoading ? 'Suche…' : '🌐 Web'}
+                  {webLoading ? 'Suche…' : <span className="inline-flex items-center gap-1"><Icon icon={Globe} size="xs" /> Web</span>}
                 </button>
                 <button
                   type="button"
@@ -2246,7 +2251,7 @@ export const LibraryPanel = () => {
                   className="rounded bg-violet-700 px-2 py-1 hover:bg-violet-600 disabled:opacity-50"
                   title={t('library.create.suggest.geminiTitle', 'Gemini AI — braucht einen API-Key')}
                 >
-                  {aiLoading ? 'Frage…' : '✨ Gemini'}
+                  {aiLoading ? 'Frage…' : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> Gemini</span>}
                 </button>
               </div>
               {suggestError && (
