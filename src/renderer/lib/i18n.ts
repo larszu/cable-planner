@@ -2670,6 +2670,7 @@ const en: Dict = {
     'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
   'patchList.exportCsv': '⬇ Export CSV',
   'patchList.exportXlsx': '⬇ Export XLSX',
+  'patchList.exportLabels': '🏷 Labels (PDF)',
   // #314 Replace device section
   'replaceDevice.title': 'Replace device',
   'replaceDevice.subtitle': 'Preserve cabling',
