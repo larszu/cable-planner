@@ -70,7 +70,7 @@ const sanitize = (name: string): string => {
  *
  * @param baseName  Z.B. Projekt-Name. Wird sanitized.
  * @param ext       Datei-Endung OHNE fuehrenden Punkt, z.B. 'pdf', 'csv'.
- * @returns         Z.B. '20260519_Pfijuko_2026_007.pdf'
+ * @returns         Z.B. '20260519_Demo-Show_007.pdf'
  */
 export const buildExportFilename = (baseName: string, ext: string): string => {
   const date = today()

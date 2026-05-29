@@ -1,0 +1,4 @@
+# Rohe, ungeschwärzte Screenshots — werden lokal via
+# `node docs/redact-screenshots.mjs` zu sauberen Bildern verarbeitet.
+# Niemals committen (enthalten Kundendaten).
+_raw/

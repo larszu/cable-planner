@@ -62,7 +62,7 @@ It is designed for real-world production environments such as studios, OB vans, 
   <tr>
     <td width="50%" align="center">
       <img src="docs/screenshots/atem-multiview.png" alt="ATEM multiviewer layout editor" width="420" /><br />
-      <b>ATEM multiview editor</b><br /><sub><i>TODO: capture</i></sub>
+      <b>ATEM multiview editor</b>
     </td>
     <td width="50%" align="center">
       <img src="docs/screenshots/export.png" alt="Export and print hub with PDF / PNG / JPEG options" width="420" /><br />
