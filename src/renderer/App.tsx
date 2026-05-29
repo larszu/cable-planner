@@ -470,11 +470,16 @@ export default function App() {
       project.cables.length > 0 ||
       (project.locations?.length ?? 0) > 0
     if (hasContent) {
-      const ok = confirm(
-        t(
-          'app.newProject.confirm',
-          'Aktuelles Projekt verwerfen und neues Projekt anlegen?\n\nUngespeicherte Änderungen gehen verloren.',
-        ),
+      const ok = await confirmDialog(
+        t('app.newProject.confirmTitle', 'Neues Projekt anlegen?'),
+        {
+          body: t(
+            'app.newProject.confirm',
+            'Aktuelles Projekt verwerfen und neues Projekt anlegen?\n\nUngespeicherte Änderungen gehen verloren.',
+          ),
+          okLabel: t('app.newProject.confirmOk', 'Neues Projekt'),
+          destructive: true,
+        },
       )
       if (!ok) return
     }
