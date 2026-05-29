@@ -1672,7 +1672,7 @@ const en: Dict = {
   'bom.cable.title': 'Cable bill of materials',
   'bom.cable.groupedNote': 'Grouped by type & length.',
   'bom.cable.builtCables': 'Built cables:',
-  'bom.cable.missingTypes': '⚠ {count} cable type(s) missing',
+  'bom.cable.missingTypes': '{count} cable type(s) missing',
   'bom.cable.allCovered': '✓ All planned quantities covered',
   'bom.cable.csv': 'CSV',
   'bom.cable.pdf': 'PDF',
@@ -1694,7 +1694,7 @@ const en: Dict = {
   'bom.cable.draftSaved': 'Rentman plan is saved in the project.',
   'bom.cable.discard': 'Discard',
   'bom.cable.savePlan': 'Save Rentman plan',
-  'bom.cable.syncRentman': '📦 Sync with Rentman →',
+  'bom.cable.syncRentman': 'Sync with Rentman →',
   'bom.cable.syncRentmanTitle':
     'Closes this dialog and opens the Rentman cable export prefilled with the current buckets.',
 
@@ -1732,9 +1732,9 @@ const en: Dict = {
   'printSection.subtitle': 'Patch sheet A4/A3',
   'printSection.a4Title':
     'Generates a single-page A4 patch list with all ports + connected cables — to stick on the device.',
-  'printSection.a4Btn': '🖨 Print patch sheet (A4 PDF)',
+  'printSection.a4Btn': 'Print patch sheet (A4 PDF)',
   'printSection.a3Title': 'A3 variant for devices with many ports.',
-  'printSection.a3Btn': '🖨 Print patch sheet (A3 PDF)',
+  'printSection.a3Btn': 'Print patch sheet (A3 PDF)',
 
   // LibrarySaveSection
   'libSave.title': 'Library',
@@ -1968,7 +1968,7 @@ const en: Dict = {
   'props.deviceKind.greengo': 'GreenGo Intercom detected',
   'props.deviceKind.greengoExport': 'Intercom planning / export .gg5 →',
   'props.deviceKind.videohub': 'Blackmagic Videohub detected',
-  'props.deviceKind.videohubConfigure': '🎚 Configure Videohub · Labels + Routing →',
+  'props.deviceKind.videohubConfigure': 'Configure Videohub · Labels + Routing →',
   'props.deviceKind.atem': 'Blackmagic ATEM detected',
   'props.deviceKind.atemConnect': 'Connect ATEM / push setup →',
   'props.deviceKind.atemConnectTitle': 'Connects via UDP to the ATEM and transfers input names.',
@@ -1990,7 +1990,7 @@ const en: Dict = {
   // Properties — PortAiSuggestButton
   'props.aiPorts.noSuggestion': 'AI could not suggest any ports. Try a more specific device name.',
   'props.aiPorts.requestFailed': 'AI request failed',
-  'props.aiPorts.label': '✨ AI port suggestion',
+  'props.aiPorts.label': 'AI port suggestion',
   'props.aiPorts.btnTitle':
     'Asks the provider selected in Settings → AI what "{name}" typically has for ports',
   'props.aiPorts.asking': 'Asking AI…',
