@@ -522,6 +522,14 @@ textarea:focus-visible {
   outline-color: var(--cp-accent);
 }
 
+/* ── Consistent disabled affordance (UX audit #45) ──────────────────────────
+ * Many buttons fade via disabled:opacity-* but only some also set the cursor.
+ * This guarantees every disabled control shows not-allowed, app-wide. */
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
 /* ── Themed scrollbars (UX audit #54) ───────────────────────────────────────
  * Previously the app shipped default OS scrollbars, which look out of place on
  * the dark canvas and differ per platform. These are theme-aware via the
