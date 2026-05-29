@@ -21,13 +21,27 @@ import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { useTranslation, format } from '../../lib/i18n'
 import type { EquipmentItem } from '../../types/equipment'
 
-type Tab = 'weight' | 'network' | 'redundancy'
+type Tab = 'weight' | 'network' | 'redundancy' | 'rf'
 
 /** Effektive Leistung eines Geräts: explizite Watt, sonst V×A. */
 const effectiveWatts = (e: EquipmentItem): number =>
   e.powerConsumptionWatts ?? (e.voltage && e.currentAmps ? e.voltage * e.currentAmps : 0)
 
 const WATT_TO_BTU = 3.412
+
+/** Frequenz-String („5.8 GHz", „600 MHz", „614") → MHz (oder null). */
+const parseFreqMHz = (s: string | undefined): number | null => {
+  if (!s) return null
+  const m = s.match(/([\d.]+)\s*(g|m|k)?hz/i) ?? s.match(/^([\d.]+)$/)
+  if (!m) return null
+  const value = parseFloat(m[1])
+  if (Number.isNaN(value)) return null
+  const unit = (m[2] ?? 'm').toLowerCase()
+  return unit === 'g' ? value * 1000 : unit === 'k' ? value / 1000 : value
+}
+
+/** Mindestabstand (MHz) unter dem zwei Funkstrecken als Konflikt gelten. */
+const RF_MIN_SPACING_MHZ = 0.4
 
 /** Rows → CSV (Semikolon-getrennt, Excel-DE-freundlich, mit UTF-8-BOM). */
 const toCsv = (rows: (string | number)[][]): string =>
@@ -341,12 +355,126 @@ const RedundancyTab = ({ projectName }: { projectName: string }) => {
   )
 }
 
+/* --------------------------------------------------------------------- RF -- */
+
+const RfTab = ({ projectName }: { projectName: string }) => {
+  const t = useTranslation()
+  const project = useProjectStore((s) => s.project)
+
+  const { links, conflicts } = useMemo(() => {
+    const nameOf = new Map(project.equipment.map((e) => [e.id, e.name]))
+    const links = project.cables
+      .filter((c) => c.wireless || parseFreqMHz(c.frequency) != null)
+      .map((c) => ({
+        name: c.name || '—',
+        frequency: c.frequency ?? '',
+        mhz: parseFreqMHz(c.frequency),
+        channel: c.wifiChannel ?? '',
+        from: nameOf.get(c.fromEquipmentId) ?? '?',
+        to: nameOf.get(c.toEquipmentId) ?? '?',
+      }))
+    const conflicts: string[] = []
+    for (let i = 0; i < links.length; i++) {
+      for (let j = i + 1; j < links.length; j++) {
+        const a = links[i]
+        const b = links[j]
+        if (a.mhz != null && b.mhz != null && Math.abs(a.mhz - b.mhz) < RF_MIN_SPACING_MHZ) {
+          conflicts.push(
+            format(t('analysis.rf.conflictClose', '{a} ↔ {b}: Frequenzen < {mhz} MHz auseinander'), {
+              a: a.name,
+              b: b.name,
+              mhz: RF_MIN_SPACING_MHZ,
+            }),
+          )
+        } else if (a.channel && a.channel === b.channel) {
+          conflicts.push(
+            format(t('analysis.rf.conflictChannel', '{a} ↔ {b}: gleicher Kanal {ch}'), {
+              a: a.name,
+              b: b.name,
+              ch: a.channel,
+            }),
+          )
+        }
+      }
+    }
+    return { links, conflicts }
+  }, [project, t])
+
+  const exportCsv = () => {
+    const rows: (string | number)[][] = [
+      [
+        t('analysis.rf.link', 'Funkstrecke'),
+        t('analysis.rf.freq', 'Frequenz'),
+        t('analysis.rf.channel', 'Kanal'),
+        t('analysis.rf.from', 'Von'),
+        t('analysis.rf.to', 'Nach'),
+      ],
+      ...links.map((l) => [l.name, l.frequency, l.channel, l.from, l.to]),
+    ]
+    downloadBlob(buildExportFilenameWithSuffix(projectName, 'rf-plan', 'csv'), toCsv(rows), 'text/csv')
+  }
+
+  return (
+    <div className="space-y-3 p-4 text-sm">
+      <p className="text-cp-xs text-[var(--cp-text-muted)]">
+        {t(
+          'analysis.rf.intro',
+          'Funkstrecken (Wireless-Kabel) mit Frequenz/Kanal. Konflikt-Heuristik: Frequenzabstand < 0,4 MHz oder gleicher Kanal. Volle Intermod-Koordination ist separat geplant.',
+        )}
+      </p>
+      {conflicts.length > 0 && (
+        <div className="rounded border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200">
+          <div className="mb-1 font-semibold">{t('analysis.rf.conflictTitle', 'Mögliche RF-Konflikte')}</div>
+          <ul className="list-inside list-disc">
+            {conflicts.map((c, i) => (
+              <li key={i}>{c}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <table className="w-full text-cp-xs">
+        <thead>
+          <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-muted)]">
+            <th className="py-1 pr-2">{t('analysis.rf.link', 'Funkstrecke')}</th>
+            <th className="py-1 pr-2">{t('analysis.rf.freq', 'Frequenz')}</th>
+            <th className="py-1 pr-2">{t('analysis.rf.channel', 'Kanal')}</th>
+            <th className="py-1 pr-2">{t('analysis.rf.from', 'Von')}</th>
+            <th className="py-1">{t('analysis.rf.to', 'Nach')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {links.map((l, i) => (
+            <tr key={`${l.name}-${i}`} className="border-b border-[var(--cp-border-muted)]">
+              <td className="py-1 pr-2">{l.name}</td>
+              <td className="py-1 pr-2 font-mono">{l.frequency}</td>
+              <td className="py-1 pr-2">{l.channel}</td>
+              <td className="py-1 pr-2">{l.from}</td>
+              <td className="py-1">{l.to}</td>
+            </tr>
+          ))}
+          {links.length === 0 && (
+            <tr>
+              <td colSpan={5} className="py-2 text-[var(--cp-text-faint)]">
+                {t('analysis.rf.empty', 'Keine Funkstrecken im Plan.')}
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+      <div className="flex justify-end">
+        <CsvButton onClick={exportCsv} />
+      </div>
+    </div>
+  )
+}
+
 /* ------------------------------------------------------------- Container -- */
 
 const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
   { id: 'weight', labelKey: 'analysis.tab.weight', fallback: 'Gewicht & Wärme' },
   { id: 'network', labelKey: 'analysis.tab.network', fallback: 'Netzwerk' },
   { id: 'redundancy', labelKey: 'analysis.tab.redundancy', fallback: 'Redundanz' },
+  { id: 'rf', labelKey: 'analysis.tab.rf', fallback: 'RF / Funk' },
 ]
 
 export const AnalysisDialog = () => {
@@ -385,6 +513,7 @@ export const AnalysisDialog = () => {
       {active === 'weight' && <WeightTab projectName={projectName} />}
       {active === 'network' && <NetworkTab projectName={projectName} />}
       {active === 'redundancy' && <RedundancyTab projectName={projectName} />}
+      {active === 'rf' && <RfTab projectName={projectName} />}
     </ModalShell>
   )
 }
