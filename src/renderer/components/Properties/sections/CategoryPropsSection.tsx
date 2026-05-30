@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
 import { useTranslation } from '../../../lib/i18n'
@@ -114,16 +115,28 @@ export const CategoryPropsSection = ({ equipment }: { equipment: EquipmentItem }
     })
   }
 
+  // Ein-/ausklappbar (wie SDI-Caps / Abmessungen). Default offen, wenn schon
+  // Fachdaten gesetzt sind, sonst eingeklappt. <summary> statt Form-Control,
+  // damit das Toggle auch im gesperrten (viewer/finalized) Fieldset geht.
+  const [open, setOpen] = useState(Object.keys(props).length > 0)
+
   return (
-    <fieldset className="rounded border border-slate-700 p-2">
-      <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-        {t('catprops.title', 'Fachdaten')} — {equipment.category}
-      </legend>
-      <div className="grid grid-cols-2 gap-2">
+    <details
+      open={open}
+      onToggle={(e) => setOpen(e.currentTarget.open)}
+      className="rounded border border-slate-700 [&_summary]:cursor-pointer"
+    >
+      <summary className="flex items-center gap-1 px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200 [&::-webkit-details-marker]:hidden">
+        <span className="text-slate-500">{open ? '▾' : '▸'}</span>
+        <span className="flex-1">
+          {t('catprops.title', 'Fachdaten')} — {equipment.category}
+        </span>
+      </summary>
+      <div className="grid grid-cols-2 gap-2 px-2 pb-2">
         {fields.map((f) => (
           <Field key={f.key} field={f} lang={lang} value={props[f.key]} onChange={(v) => setProp(f.key, v)} />
         ))}
       </div>
-    </fieldset>
+    </details>
   )
 }
