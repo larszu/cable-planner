@@ -59,7 +59,14 @@ export const DEFAULT_CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
   DisplayPort: '#8b5cf6',
   USB: '#64748b',
   'USB-C': '#7c3aed',
+  // #376 — Triax (analog) und SMPTE 304M (Hybrid-Fiber) sind getrennte
+  // Familien. Triax-Subtypes in warmen Brauntoenen, SMPTE 304M in
+  // Burnt-Orange/Amber damit sie in der Legende klar unterscheidbar sind.
   Triax: '#d97706',
+  'Triax (Damar & Hagen)': '#a16207',
+  'Triax (Fischer)': '#854d0e',
+  'LEMO 3K.93C (SMPTE 304M)': '#ea580c',
+  'Neutrik Dragonfly (SMPTE 304M)': '#b45309',
   'Wireless/RF': '#ec4899',
   'IEC 230V': '#475569',
   PowerCON: '#0ea5e9',

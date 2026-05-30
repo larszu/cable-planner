@@ -34,6 +34,25 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
         {equipment.inputs.length === 0 && equipment.outputs.length === 0 && (
           <PortAiSuggestButton equipment={equipment} />
         )}
+        {/* #419 — "Ports spiegeln" gehoert thematisch zu In/Outputs (und nicht
+            mehr zu "Darstellung & Flags"), weil es die Seiten-Zuordnung der
+            Inputs/Outputs am Canvas-Knoten umdreht. */}
+        <label
+          className="flex items-center gap-2 px-1 text-[11px] text-slate-300"
+          title={t(
+            'ports.flipTitle',
+            'Inputs werden rechts, Outputs werden links am Geräte-Knoten gerendert.',
+          )}
+        >
+          <input
+            type="checkbox"
+            checked={!!equipment.portsFlipped}
+            onChange={(event) =>
+              updateEquipment(equipment.id, { portsFlipped: event.target.checked || undefined })
+            }
+          />
+          {t('ports.flip', 'Ports spiegeln (Inputs rechts, Outputs links)')}
+        </label>
         <details open className="rounded border border-slate-800 bg-slate-950/30">
           <summary className="cursor-pointer select-none px-2 py-1 text-xs font-semibold text-slate-300 hover:text-slate-100">
             {t('ports.title.inputs', 'Inputs')}{' '}

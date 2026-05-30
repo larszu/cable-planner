@@ -4,7 +4,7 @@ import {
   Image as ImageIcon, Calculator, Eye, MessageSquare, Paperclip, Plug, Cable,
   Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, SlidersHorizontal, Tag,
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
-  Pencil, Smartphone, Settings,
+  Pencil, Smartphone, Settings, HardDrive,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
@@ -179,12 +179,14 @@ export const MenuBar = ({
               entfernt — war doppelt zur "Drucken"-Sektion im
               Exportieren-&-Drucken-Hub (User-Bug: "Datei → Drucken
               ist doppelt"). */}
-          {/* v7.9.3 — Viewer-Workflow: Plan als .cpviewer für Freelancer
-              exportieren, später deren Anmerkungen zurück mergen. */}
+          {/* v7.9.3 — Viewer-Workflow: Plan als .cpviewer für externe
+              Reviewer exportieren, später deren Anmerkungen zurück
+              mergen. v8.x: Wort "Freelancer" entfernt (#405/#406 —
+              Workflow ist nicht freelancer-spezifisch). */}
           {(onExportViewer || onImportAnnotations) && <MenuSep />}
           {onExportViewer && (
             <MenuItem onClick={onExportViewer} icon={<Icon icon={Eye} size="sm" />}>
-              {t('app.menu.file.exportViewer', 'Als Viewer-Datei für Freelancer exportieren…')}
+              {t('app.menu.file.exportViewer', 'Als Viewer-Datei exportieren…')}
             </MenuItem>
           )}
           {onImportAnnotations && (
@@ -264,16 +266,37 @@ export const MenuBar = ({
               (User-Request: passt thematisch besser zu den
               Export-/Druck-Funktionen). */}
           <MenuItem
-            onClick={() => useUiStore.getState().openCalculators('bandwidth')}
+            onClick={() => useUiStore.getState().openBandwidthCalc()}
             icon={<Icon icon={Radio} size="sm" />}
           >
             {t('app.menu.tools.bandwidth', 'Bandbreite berechnen…')}
           </MenuItem>
           <MenuItem
-            onClick={() => useUiStore.getState().openCalculators('power')}
+            onClick={() => useUiStore.getState().openPowerCalc()}
             icon={<Icon icon={Zap} size="sm" />}
           >
             {t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().openRecordingStorageCalc()}
+            icon={<Icon icon={HardDrive} size="sm" />}
+          >
+            {t('app.menu.tools.recStorage', 'Recording-Speicherplatz berechnen…')}
+          </MenuItem>
+          {/* #378 — Bulk-Cable-Connect-Dialog. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().openBulkConnect()}
+            icon={<Icon icon={Cable} size="sm" />}
+          >
+            {t('app.menu.tools.bulkConnect', 'Mehrere Kabel verbinden…')}
+          </MenuItem>
+          {/* #401 — Rack Builder im Werkzeuge-Menü. Triggert einen leeren
+              Builder; LibraryPanel switched auf Racks-Tab + öffnet Dialog. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().triggerNewRackBuilder()}
+            icon={<Icon icon={Server} size="sm" />}
+          >
+            {t('app.menu.tools.newRack', 'Neues Rack erstellen…')}
           </MenuItem>
           <MenuItem onClick={() => useUiStore.getState().openAnalysis()} icon={<Icon icon={BarChart3} size="sm" />}>
             {t('app.menu.tools.analysis', 'Analysen (Gewicht/Netzwerk/Redundanz)…')}

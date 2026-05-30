@@ -2,6 +2,57 @@ import type { EquipmentItem } from '../types/equipment'
 import { portDisplayLabel } from './portLabel'
 
 /**
+ * #389 — Parse a Videohub Labels.txt file (the format Blackmagic's
+ * Videohub Setup uses) back into `{inputs, outputs}` label arrays.
+ *
+ * Tolerant parser — accepts:
+ *   "Input, 1, 1 Cam 1"
+ *   "Input 1: Cam 1"
+ *   "INPUT 1 Cam 1"
+ * Strips a leading numeric prefix that matches the index (the
+ * exporter writes "1 Cam 1" for slot 1 — the user shouldn't see
+ * the double "1 1 Cam 1" after re-import).
+ *
+ * Returns sparse arrays — entries can be `undefined` when a slot
+ * is missing from the file, so the caller can preserve the
+ * existing port name for those slots.
+ */
+export interface ParsedVideohubLabels {
+  inputs: (string | undefined)[]
+  outputs: (string | undefined)[]
+  warnings: string[]
+}
+
+export const parseVideohubLabelsTxt = (text: string): ParsedVideohubLabels => {
+  const inputs: (string | undefined)[] = []
+  const outputs: (string | undefined)[] = []
+  const warnings: string[] = []
+  const lineRegex = /^\s*(input|output)\s*[,\s:]\s*(\d+)\s*[,\s:]?\s*(.*?)\s*$/i
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim()
+    if (!line || line.startsWith('#')) continue
+    const m = lineRegex.exec(line)
+    if (!m) {
+      warnings.push(`Unrecognised: "${line.slice(0, 60)}"`)
+      continue
+    }
+    const direction = m[1].toLowerCase() === 'input' ? 'inputs' : 'outputs'
+    const idx = parseInt(m[2], 10)
+    if (!Number.isFinite(idx) || idx < 1) continue
+    let label = m[3] ?? ''
+    // Strip leading "N " prefix when N matches the slot index (exporter
+    // emits "1 Cam 1" — we don't want "1 1 Cam 1" on re-import).
+    const prefixMatch = /^(\d+)\s+(.+)$/.exec(label)
+    if (prefixMatch && parseInt(prefixMatch[1], 10) === idx) {
+      label = prefixMatch[2]
+    }
+    const target = direction === 'inputs' ? inputs : outputs
+    target[idx - 1] = label || undefined
+  }
+  return { inputs, outputs, warnings }
+}
+
+/**
  * Build the simple Videohub label-import .txt used by older tooling:
  *   Input, 1, 1 Cam 1
  *   Input, 2, 2 Cam 2
@@ -182,10 +233,20 @@ export const videohubPresets: {
   inputs: number
   outputs: number
 }[] = [
-  { key: 'compact-40x40', model: 'Blackmagic Compact Videohub', inputs: 40, outputs: 40 },
-  { key: 'smart-40x40-12g', model: 'Blackmagic Smart Videohub 40x40 12G', inputs: 40, outputs: 40 },
-  { key: 'smart-20x20', model: 'Blackmagic Smart Videohub 20x20', inputs: 20, outputs: 20 },
+  { key: 'micro-16x16', model: 'Blackmagic Micro Videohub 16x16', inputs: 16, outputs: 16 },
   { key: 'smart-12x12', model: 'Blackmagic Smart Videohub 12x12', inputs: 12, outputs: 12 },
+  { key: 'smart-12g-12x12', model: 'Blackmagic Smart Videohub 12G 12x12', inputs: 12, outputs: 12 },
+  { key: 'smart-20x20', model: 'Blackmagic Smart Videohub 20x20', inputs: 20, outputs: 20 },
+  { key: 'compact-40x40', model: 'Blackmagic Compact Videohub 40x40', inputs: 40, outputs: 40 },
+  { key: 'smart-40x40-12g', model: 'Blackmagic Smart Videohub 40x40 12G', inputs: 40, outputs: 40 },
+  { key: 'cleanswitch-12x12', model: 'Blackmagic CleanSwitch 12x12', inputs: 12, outputs: 12 },
   { key: 'universal-72x72', model: 'Blackmagic Videohub 72x72', inputs: 72, outputs: 72 },
-  { key: 'universal-288x288', model: 'Blackmagic Universal Videohub 288', inputs: 288, outputs: 288 },
+  { key: 'universal-master-80x80', model: 'Blackmagic Universal Videohub 80', inputs: 80, outputs: 80 },
+  { key: 'universal-master-120x120', model: 'Blackmagic Universal Videohub 120', inputs: 120, outputs: 120 },
+  { key: 'universal-master-160x160', model: 'Blackmagic Universal Videohub 160', inputs: 160, outputs: 160 },
+  { key: 'universal-master-288x288', model: 'Blackmagic Universal Videohub 288', inputs: 288, outputs: 288 },
+  // #387 — Custom: User legt Inputs/Outputs selber fest. Wird im Dialog ueber
+  // zwei zusaetzliche Zahlen-Inputs (sichtbar wenn presetKey==='custom')
+  // eingegeben. Defaults sind 16/16 — der User kann beliebig erhoehen.
+  { key: 'custom', model: 'Custom (eigene Größe)', inputs: 16, outputs: 16 },
 ]

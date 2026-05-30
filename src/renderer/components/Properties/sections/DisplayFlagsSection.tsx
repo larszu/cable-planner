@@ -18,7 +18,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
 
   return (
-    <SortableSection id="flags" title={t('flags.title', 'Darstellung & Flags')} subtitle={t('flags.subtitle', 'kompakt · Farbe · Ports spiegeln · gepackt')}>
+    <SortableSection id="flags" title={t('flags.title', 'Darstellung & Flags')} subtitle={t('flags.subtitle', 'kompakt · Farbe · gepackt')}>
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-[12px] text-slate-300">
           <input
@@ -41,14 +41,8 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
           title={t('flags.colorTitle', 'Farbe des Geräte-Knotens')}
         />
 
-        <label className="flex items-center gap-2 text-[11px] text-slate-300">
-          <input
-            type="checkbox"
-            checked={!!equipment.portsFlipped}
-            onChange={(event) => updateEquipment(equipment.id, { portsFlipped: event.target.checked || undefined })}
-          />
-          Ports spiegeln (Inputs rechts, Outputs links)
-        </label>
+        {/* #419 — "Ports spiegeln" gehoert zur Inputs-&-Outputs-Sektion
+            (siehe PortsSection); nicht mehr hier. */}
         <label
           className="flex items-center gap-2 text-[11px] text-slate-300"
           title={t('flags.packedTitle', 'Markiert das Gerät als gepackt. Erscheint als ✓ auf dem Canvas und als eigene Spalte in der Geräte-BOM.')}
