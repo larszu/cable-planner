@@ -12,7 +12,11 @@ import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
+import { AlertTriangle, Download, Calculator, Radio, Zap, type LucideIcon } from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
+import { downloadBlob } from '../../lib/downloadBlob'
+import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 
 // v7.5.0 — Cable-Length tab removed. The standalone calculator
 // can't produce meaningful estimates without inter-location distances
@@ -28,8 +32,13 @@ import { useTranslation } from '../../lib/i18n'
 type Tab = 'bandwidth' | 'power'
 
 const TAB_LABEL_DE: Record<Tab, string> = {
-  bandwidth: '📡 Bandbreite',
-  power: '⚡ Stromverbrauch',
+  bandwidth: 'Bandbreite',
+  power: 'Stromverbrauch',
+}
+
+const TAB_ICON: Record<Tab, LucideIcon> = {
+  bandwidth: Radio,
+  power: Zap,
 }
 
 const TabBar = ({
@@ -51,12 +60,13 @@ const TabBar = ({
           key={tabId}
           type="button"
           onClick={() => onChange(tabId)}
-          className={`rounded px-3 py-1 text-xs ${
+          className={`inline-flex items-center gap-1.5 rounded px-3 py-1 text-xs ${
             active === tabId
               ? 'bg-sky-700 text-white'
               : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
           }`}
         >
+          <Icon icon={TAB_ICON[tabId]} size="xs" />
           {TAB_LABEL[tabId]}
         </button>
       ))}
@@ -282,6 +292,7 @@ const balancePhases = (
 const PowerTab = () => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
+  const projectName = useProjectStore((s) => s.project.metadata.name)
   const [supplyId, setSupplyId] = useState<SupplyPresetId>('cee32')
   const [marginPercent, setMarginPercent] = useState(20)
   const supply = SUPPLY_PRESETS.find((s) => s.id === supplyId) ?? SUPPLY_PRESETS[0]
@@ -328,6 +339,22 @@ const PowerTab = () => {
             100,
         )
       : 0
+
+  // #345 — Wärmelast + CSV-Export der Phasen-Verteilung.
+  const totalBtu = Math.round(totals.totalW * 3.412)
+  const exportCsv = () => {
+    const rows: (string | number)[][] = [
+      [t('calc.col.device', 'Gerät'), 'W', t('calc.col.phase', 'Phase')],
+      ...distribution.assignments.map((a) => [a.name, a.watts, `L${a.phase}`]),
+      [],
+      [t('calc.phaseLabel', 'Phase'), 'W', 'A'],
+      ...distribution.perPhaseWatts.map((w, i) => [`L${i + 1}`, Math.round(w), (w / supply.voltage).toFixed(1)]),
+      [t('calc.power.total', 'Gesamt'), Math.round(totals.totalW), ''],
+      [t('calc.power.heat', 'Wärme (BTU/h)'), totalBtu, ''],
+    ]
+    const csv = '\u{FEFF}' + rows.map((r) => r.map((c) => String(c ?? '')).join(';')).join('\r\n')
+    downloadBlob(buildExportFilenameWithSuffix(projectName, 'strom-phasen', 'csv'), csv, 'text/csv')
+  }
 
   return (
     <div className="space-y-3 p-4 text-sm">
@@ -415,8 +442,9 @@ const PowerTab = () => {
             <div className="text-[10px] text-slate-500">
               {t('calc.imbalance', 'Unwucht')}: {maxImbalancePct}%
               {overloaded && (
-                <span className="ml-2 rounded bg-red-700 px-1.5 py-0.5 text-[10px] text-white">
-                  ⚠ {t('calc.phaseOverload', 'Phase überlastet')}
+                <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-[10px] text-white">
+                  <Icon icon={AlertTriangle} size="xs" />
+                  {t('calc.phaseOverload', 'Phase überlastet')}
                 </span>
               )}
             </div>
@@ -512,6 +540,19 @@ const PowerTab = () => {
               'Greedy-Verteilung: sortiert nach Leistung, jedes Gerät auf die aktuell am schwächsten belastete Phase. Bei symmetrischen Lasten zieht der Drehstrom nur {amps} A je Phase; Unwucht erhöht den höchsten Phasenstrom. Ziel: jede Phase < 85% Last + Unwucht < 20%.',
             ).replace('{amps}', ampsThreePhase.toFixed(1))}
           </p>
+          <div className="mt-3 flex items-center justify-between text-[11px]">
+            <span className="text-slate-400">
+              {t('calc.power.heat', 'Wärme (BTU/h)')}:{' '}
+              <span className="font-mono text-slate-200">{totalBtu}</span>
+            </span>
+            <button
+              type="button"
+              onClick={exportCsv}
+              className="inline-flex items-center gap-1 rounded bg-emerald-700 px-2 py-1 text-[11px] font-medium text-white hover:bg-emerald-600"
+            >
+              <Icon icon={Download} size="xs" /> {t('analysis.exportCsv', 'CSV exportieren')}
+            </button>
+          </div>
         </div>
       )}
 
@@ -550,7 +591,7 @@ export const CalculatorsDialog = () => {
       open={open}
       onClose={close}
       title={t('calc.title', 'Werkzeuge / Rechner')}
-      titleIcon="🧮"
+      titleIcon={<Icon icon={Calculator} size="sm" />}
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:calculators"
     >

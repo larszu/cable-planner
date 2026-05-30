@@ -1,6 +1,8 @@
+import { Check } from 'lucide-react'
 import { APP_VERSION } from '../../lib/appInfo'
 import { useUiStore } from '../../store/uiStore'
 import { useTranslation, format } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 
 interface StatusBarProps {
   projectName: string
@@ -42,32 +44,33 @@ export const StatusBar = ({
   const t = useTranslation()
   const complexity = complexityFor(equipmentCount, cableCount, t)
   return (
-    <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-slate-700 bg-slate-950 px-3 py-1 text-xs text-slate-300">
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="truncate font-medium text-slate-200">{projectName}</span>
-        <span className="text-slate-600">|</span>
-        <span>{format(t('statusbar.equipment', '{count} Geräte'), { count: equipmentCount })}</span>
-        <span>{format(t('statusbar.cables', '{count} Kabel'), { count: cableCount })}</span>
-        <span>{format(t('statusbar.locations', '{count} Rahmen'), { count: locationCount })}</span>
+    <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1 text-cp-xs text-[var(--cp-text-secondary)]">
+      <div className="flex min-w-0 items-center gap-3 overflow-hidden">
+        <span className="truncate font-medium text-[var(--cp-text)]">{projectName}</span>
+        <span className="text-[var(--cp-text-faint)]" aria-hidden="true">|</span>
+        <span className="whitespace-nowrap">{format(t('statusbar.equipment', '{count} Geräte'), { count: equipmentCount })}</span>
+        <span className="whitespace-nowrap">{format(t('statusbar.cables', '{count} Kabel'), { count: cableCount })}</span>
+        <span className="hidden whitespace-nowrap lg:inline">{format(t('statusbar.locations', '{count} Rahmen'), { count: locationCount })}</span>
         {packedCount !== undefined && equipmentCount > 0 && (
           <span
-            className={
+            className={`hidden shrink-0 items-center gap-1 whitespace-nowrap xl:inline-flex ${
               packedCount === equipmentCount
                 ? 'text-emerald-300'
                 : packedCount > 0
                   ? 'text-amber-300'
                   : 'text-slate-500'
-            }
+            }`}
             title={t('statusbar.packedTitle', "Geräte, die in den Eigenschaften als 'gepackt' markiert sind")}
           >
-            {format(t('statusbar.packed', '✓ {packed}/{total} gepackt'), {
+            <Icon icon={Check} size="xs" />
+            {format(t('statusbar.packed', '{packed}/{total} gepackt'), {
               packed: packedCount,
               total: equipmentCount,
             })}
           </span>
         )}
         <span
-          className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${complexity.tone}`}
+          className={`shrink-0 rounded px-1.5 py-0.5 text-cp-xs font-bold ${complexity.tone}`}
           title={t(
             'statusbar.complexity.title',
             'Komplexität: heuristisch aus (Geräte + Kabel)-Anzahl. Hilft beim Einschätzen von Übersichtlichkeit + Performance.',
@@ -76,11 +79,11 @@ export const StatusBar = ({
           {complexity.label}
         </span>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
         {/* v7.9.4 — Rentman-Badge nur sichtbar wenn die Integration
             in den Einstellungen aktiviert ist. */}
         {useUiStore((s) => s.rentmanEnabled) && (
-          <span className={rentmanProjectName ? 'text-orange-300' : hasToken ? 'text-slate-400' : 'text-slate-500'}>
+          <span className={`hidden whitespace-nowrap lg:inline ${rentmanProjectName ? 'text-orange-300' : hasToken ? 'text-[var(--cp-text-muted)]' : 'text-[var(--cp-text-faint)]'}`}>
             {t('statusbar.rentman.label', 'Rentman:')}{' '}
             {rentmanProjectName ??
               (hasToken
@@ -94,7 +97,7 @@ export const StatusBar = ({
         <button
           type="button"
           onClick={() => useUiStore.getState().openAboutDialog()}
-          className="rounded bg-slate-800 px-1.5 py-0.5 font-mono text-[10px] text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+          className="rounded bg-[var(--cp-surface-2)] px-1.5 py-0.5 font-mono text-cp-xs text-[var(--cp-text-muted)] hover:bg-[var(--cp-border)] hover:text-[var(--cp-text)]"
           title={t('statusbar.aboutTitle', 'Über Cable Planner')}
         >
           v{APP_VERSION}

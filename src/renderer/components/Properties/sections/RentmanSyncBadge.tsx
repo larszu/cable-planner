@@ -1,6 +1,8 @@
+import { AlertTriangle } from 'lucide-react'
 import { useUiStore } from '../../../store/uiStore'
 import type { EquipmentItem } from '../../../types/equipment'
 import { format, useTranslation } from '../../../lib/i18n'
+import { Icon } from '../../shared/Icon'
 
 /**
  * #306 — Rentman-Sync-Status-Badge aus EquipmentProperties.tsx
@@ -20,7 +22,7 @@ export const RentmanSyncBadge = ({ equipment }: { equipment: EquipmentItem }) =>
   if (equipment.rentmanRemoved) {
     return (
       <div className="flex items-center gap-1.5 rounded border border-red-700/50 bg-red-900/20 px-2 py-1 text-[11px] text-red-300">
-        <span>⚠</span>
+        <Icon icon={AlertTriangle} size="sm" />
         <span>{t('props.rentmanBadge.removed', 'In Rentman nicht mehr vorhanden!')}</span>
       </div>
     )
@@ -35,7 +37,7 @@ export const RentmanSyncBadge = ({ equipment }: { equipment: EquipmentItem }) =>
   }
   return (
     <div className="flex items-center gap-1.5 rounded border border-amber-700/40 bg-amber-900/10 px-2 py-1 text-[11px] text-amber-400">
-      <span>⚠</span>
+      <Icon icon={AlertTriangle} size="sm" />
       <span>{t('props.rentmanBadge.notTracked', 'Nicht im Rentman-Plan erfasst')}</span>
     </div>
   )

@@ -17,7 +17,12 @@ import {
   serializeAudioConfigXml,
 } from '../../lib/atemAudioMappingXml'
 import { confirmDialog } from '../../lib/confirmDialog'
+import {
+  AlertTriangle, FolderOpen, Save, Plug, Upload, SlidersHorizontal,
+  Square, SquareCheck, SquareMinus,
+} from 'lucide-react'
 import { format, useTranslation } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 
 /**
@@ -330,7 +335,7 @@ export const AtemAudioRouterDialog = () => {
               'ATEM Profile-XML laden — die Audio-Sektion(en) werden in den Editor übernommen',
             )}
           >
-            {t('atem.audio.action.loadXml', '📂 XML laden')}
+            <Icon icon={FolderOpen} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.action.loadXml', 'XML laden')}
           </button>
           <button
             type="button"
@@ -342,7 +347,7 @@ export const AtemAudioRouterDialog = () => {
               'Patched Profile-XML herunterladen (alle Nicht-Audio-Sektionen bleiben unverändert)',
             )}
           >
-            {t('atem.audio.action.saveXml', '💾 XML speichern')}
+            <Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.action.saveXml', 'XML speichern')}
           </button>
           {/* v7.9.52 — OpenSwitcher-style Live-Direct-Pfad. Sichtbar nur
               wenn Desktop-Bridge verfügbar; Aktiv nur wenn ATEM gerade
@@ -362,7 +367,7 @@ export const AtemAudioRouterDialog = () => {
                     : 'ATEM nicht verbunden — im Haupt-Dialog "ATEM Mischer" verbinden'
                 }
               >
-                {atemConnected ? '🔌 Vom ATEM lesen' : '🔌 Lesen (offline)'}
+                <Icon icon={Plug} size="xs" className="mr-1 inline-block align-text-bottom" />{atemConnected ? 'Vom ATEM lesen' : 'Lesen (offline)'}
               </button>
               <button
                 type="button"
@@ -375,7 +380,7 @@ export const AtemAudioRouterDialog = () => {
                     : 'ATEM nicht verbunden — im Haupt-Dialog "ATEM Mischer" verbinden'
                 }
               >
-                {atemConnected ? '📤 An ATEM senden' : '📤 Senden (offline)'}
+                <Icon icon={Upload} size="xs" className="mr-1 inline-block align-text-bottom" />{atemConnected ? 'An ATEM senden' : 'Senden (offline)'}
               </button>
             </>
           )}
@@ -383,7 +388,7 @@ export const AtemAudioRouterDialog = () => {
             <>
               <span className="ml-2 text-slate-500">|</span>
               <span className="rounded bg-sky-800 px-3 py-1 text-white">
-                {t('atem.audio.tab.matrix', '🎚 Routing-Matrix')} ({draft.matrix.outputs.length}×{draft.matrix.sources.length})
+                <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.tab.matrix', 'Routing-Matrix')} ({draft.matrix.outputs.length}×{draft.matrix.sources.length})
               </span>
               {draft.classicMixer && (
                 <span
@@ -398,8 +403,9 @@ export const AtemAudioRouterDialog = () => {
         </div>
 
         {errorMsg && (
-          <div className="border-b border-red-700/50 bg-red-900/30 px-4 py-2 text-xs text-red-200">
-            ⚠ {errorMsg}
+          <div className="flex items-center gap-1.5 border-b border-red-700/50 bg-red-900/30 px-4 py-2 text-xs text-red-200">
+            <Icon icon={AlertTriangle} size="sm" />
+            {errorMsg}
           </div>
         )}
 
@@ -417,7 +423,7 @@ export const AtemAudioRouterDialog = () => {
               <p>
                 {t(
                   'atem.audio.classicOnly',
-                  'Dieses XML enthält nur eine klassische AudioMixer-Sektion und keine Routing-Matrix. Die Sektion wird beim Speichern unverändert zurückgeschrieben (Round-Trip), ist aber im Editor nicht editierbar. Lege bei Bedarf via "🎚 Matrix manuell" oben eine neue Crosspoint-Matrix an — beide Sektionen koexistieren dann im XML.',
+                  'Dieses XML enthält nur eine klassische AudioMixer-Sektion und keine Routing-Matrix. Die Sektion wird beim Speichern unverändert zurückgeschrieben (Round-Trip), ist aber im Editor nicht editierbar. Lege bei Bedarf via "Matrix manuell" oben eine neue Crosspoint-Matrix an — beide Sektionen koexistieren dann im XML.',
                 )}
               </p>
               <button
@@ -425,7 +431,7 @@ export const AtemAudioRouterDialog = () => {
                 onClick={handleCreateMatrix}
                 className="mt-3 rounded bg-sky-700 px-3 py-1 text-xs text-white hover:bg-sky-600"
               >
-                🎚 {t('atem.audio.createMatrixManual', 'Matrix manuell anlegen')}
+                <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.createMatrixManual', 'Matrix manuell anlegen')}
               </button>
             </div>
           ) : (
@@ -527,7 +533,7 @@ const EmptyState = ({
   const t = useTranslation()
   return (
   <div className="m-auto max-w-md text-center text-sm text-slate-400">
-    <div className="mb-2 text-3xl">🎚</div>
+    <div className="mb-2 flex justify-center"><Icon icon={SlidersHorizontal} size={28} /></div>
     <div className="mb-3 text-base font-semibold text-slate-200">
       {t('atem.audio.welcomeTitle', 'ATEM Audio-Routing')}
     </div>
@@ -543,7 +549,7 @@ const EmptyState = ({
         onClick={onLoad}
         className="rounded bg-sky-700 px-4 py-2 text-sm hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
-        📂 {t('atem.audio.loadProfileXml', 'Profile-XML laden')}
+        <Icon icon={FolderOpen} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.loadProfileXml', 'Profile-XML laden')}
       </button>
       <button
         type="button"
@@ -551,7 +557,7 @@ const EmptyState = ({
         title={t('atem.audio.freshMatrix', 'Frische Crosspoint-Matrix mit den ATEM-Standard-Eingängen + 8 Output-Bussen.')}
         className="rounded border border-slate-700 bg-slate-800 px-4 py-2 text-sm text-slate-100 hover:border-sky-600 hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
-        🎚 {t('atem.audio.matrixManual', 'Matrix manuell')}
+        <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.matrixManual', 'Matrix manuell')}
       </button>
     </div>
     <p className="mt-3 text-[10px] text-slate-500">
@@ -677,7 +683,7 @@ const ChannelPicker = ({
                 }`}
                 title={`${key} — komplette Gruppe an-/abhaken`}
               >
-                {allHidden ? '☐' : someHidden ? '◐' : '☑'} {key}
+                <Icon icon={allHidden ? Square : someHidden ? SquareMinus : SquareCheck} size="xs" className="mr-1 inline-block align-text-bottom" />{key}
               </button>
               {members.map((m) => (
                 <label
@@ -885,7 +891,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
 
       {tooLarge ? (
         <div className="m-auto max-w-md text-center text-sm text-amber-200">
-          <div className="mb-2 text-2xl">⚠</div>
+          <div className="mb-2 flex justify-center"><Icon icon={AlertTriangle} size={28} /></div>
           <p>
             {format(
               t(

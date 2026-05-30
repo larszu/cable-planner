@@ -7,7 +7,9 @@ import { LayerVisibilityChips } from './LayerVisibilityChips'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import { Check, X } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 
 type CanvasToolbarMode = 'main' | 'rack'
 
@@ -260,6 +262,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     <button
       type="button"
       title={title}
+      aria-label={title}
+      aria-pressed={active}
       onClick={onClick}
       disabled={disabled}
       style={{
@@ -341,7 +345,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         display: 'flex',
         flexWrap: 'wrap',
         gap: 2,
-        maxWidth: 'min(880px, calc(100vw - 420px))',
+        maxWidth: 'min(880px, calc(100% - 16px))',
         padding: '4px 6px',
         background: T.bg,
         border: `1px solid ${T.border}`,
@@ -541,13 +545,15 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               border: 'none',
               borderRadius: 4,
               cursor: 'pointer',
-              fontSize: 13,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            ✓
+            <Icon icon={Check} size="sm" />
           </button>
           <IconButton title={t('toolbar.groupName.cancel', 'Abbrechen')} onClick={() => setNamingGroup(false)}>
-            <span style={{ fontSize: 11 }}>✕</span>
+            <Icon icon={X} size="sm" />
           </IconButton>
         </form>
       )}

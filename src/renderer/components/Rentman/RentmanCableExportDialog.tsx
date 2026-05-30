@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import { X } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useRentman } from '../../hooks/useRentman'
 import { format, useTranslation } from '../../lib/i18n'
@@ -423,8 +425,9 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                             onClick={() => clearMapping(bucket.key)}
                             className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
                             title={t('rentman.cableExport.removeMapping', 'Zuordnung entfernen')}
+                            aria-label={t('rentman.cableExport.removeMapping', 'Zuordnung entfernen')}
                           >
-                            ✕
+                            <Icon icon={X} size="sm" />
                           </button>
                         </div>
                       ) : (

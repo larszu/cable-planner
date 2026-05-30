@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Settings, Ruler, Globe, Sparkles } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
+import { Icon } from '../shared/Icon'
+import { Spinner } from '../shared/Spinner'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { CategorySelect } from '../shared/CategorySelect'
@@ -1000,7 +1003,7 @@ export const LibraryPanel = () => {
                   className="text-[10px] text-violet-300 hover:underline"
                   title={t('library.create.aiSettings', 'Gemini-API-Key konfigurieren')}
                 >
-                  ⚙ AI-Settings
+                  <Icon icon={Settings} size="xs" className="mr-1 inline-block align-text-bottom" />AI-Settings
                 </button>
               </div>
               <div className="flex flex-wrap gap-1">
@@ -1010,7 +1013,7 @@ export const LibraryPanel = () => {
                   className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
                   title={t('library.create.suggest.heuristicTitle', 'Aus eingebauten Heuristik-Mustern (Camera, ATEM, Konverter, ...)')}
                 >
-                  📐 Heuristik
+                  <Icon icon={Ruler} size="xs" className="mr-1 inline-block align-text-bottom" />Heuristik
                 </button>
                 <button
                   type="button"
@@ -1019,7 +1022,7 @@ export const LibraryPanel = () => {
                   className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
                   title={t('library.create.suggest.webTitle', 'Wikipedia + DuckDuckGo Snippet (kein API-Key nötig)')}
                 >
-                  {webLoading ? 'Suche…' : '🌐 Web'}
+                  {webLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> Suche…</span> : <span className="inline-flex items-center gap-1"><Icon icon={Globe} size="xs" /> Web</span>}
                 </button>
                 <button
                   type="button"
@@ -1028,7 +1031,7 @@ export const LibraryPanel = () => {
                   className="rounded bg-violet-700 px-2 py-1 hover:bg-violet-600 disabled:opacity-50"
                   title={t('library.create.suggest.geminiTitle', 'Gemini AI — braucht einen API-Key')}
                 >
-                  {aiLoading ? 'Frage…' : '✨ Gemini'}
+                  {aiLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> Frage…</span> : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> Gemini</span>}
                 </button>
               </div>
               {suggestError && (

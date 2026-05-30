@@ -14,7 +14,9 @@
  */
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { GripVertical, Pin } from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 
 interface FloatingPanelShellProps {
   /** Stored position; we clamp it to the viewport on mount + window resize. */
@@ -155,7 +157,7 @@ export const FloatingPanelShell = ({
   return (
     <aside
       ref={containerRef}
-      className="pointer-events-auto fixed z-40 flex flex-col rounded-lg border border-slate-700 bg-slate-950/95 text-slate-100 shadow-2xl backdrop-blur-md"
+      className="pointer-events-auto fixed z-40 flex flex-col rounded-lg border border-[var(--cp-border)] bg-slate-950/95 text-[var(--cp-text)] shadow-2xl backdrop-blur-md"
       style={{
         left: pos.x,
         top: pos.y,
@@ -166,7 +168,7 @@ export const FloatingPanelShell = ({
       }}
     >
       <header
-        className="flex shrink-0 items-center justify-between border-b border-slate-800 bg-slate-900/80 px-2 py-1.5 text-xs"
+        className="flex shrink-0 items-center justify-between border-b border-[var(--cp-border-muted)] bg-slate-900/80 px-2 py-1.5 text-cp-xs"
         style={{ cursor: 'move', touchAction: 'none' }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -174,7 +176,7 @@ export const FloatingPanelShell = ({
         onPointerCancel={onPointerUp}
       >
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <span className="text-[10px] text-slate-500">⋮⋮</span>
+          <Icon icon={GripVertical} size="sm" className="shrink-0 text-[var(--cp-text-faint)]" />
           <span className="truncate font-medium text-slate-200">{title}</span>
         </div>
         <button
@@ -182,9 +184,9 @@ export const FloatingPanelShell = ({
           onClick={onDock}
           title={t('panel.dockTitle', 'Andocken (zurück zur Seiten-Spalte)')}
           aria-label={t('panel.dock', 'Andocken')}
-          className="rounded border border-slate-700 bg-slate-900 px-2 py-0.5 text-[10px] text-slate-300 transition-colors hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-0.5 text-cp-xs text-[var(--cp-text-secondary)] transition-colors hover:border-sky-500 hover:bg-[var(--cp-surface-2)] hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
-          📌 {t('panel.dock', 'Andocken')}
+          <Icon icon={Pin} size="xs" /> {t('panel.dock', 'Andocken')}
         </button>
       </header>
       <div className="min-h-0 flex-1 overflow-hidden">{children}</div>

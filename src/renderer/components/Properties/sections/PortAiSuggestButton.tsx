@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { Sparkles } from 'lucide-react'
 import { useProjectStore } from '../../../store/projectStore'
+import { Icon } from '../../shared/Icon'
 import { confirmDialog } from '../../../lib/confirmDialog'
 import { suggestFromAI } from '../../../lib/aiSuggestions'
 import { buildTemplateFromHints, type PortGroupHint } from '../../../lib/portSuggestions'
@@ -62,8 +64,8 @@ export const PortAiSuggestButton = ({
   return (
     <div className="rounded border border-purple-700/50 bg-purple-950/20 p-2">
       <div className="flex items-center justify-between gap-2">
-        <div className="text-[11px] font-semibold text-purple-200">
-          {t('props.aiPorts.label', '✨ AI-Port-Vorschlag')}
+        <div className="flex items-center gap-1 text-[11px] font-semibold text-purple-200">
+          <Icon icon={Sparkles} size="xs" /> {t('props.aiPorts.label', 'AI-Port-Vorschlag')}
         </div>
         <button
           type="button"

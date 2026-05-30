@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { toPng } from 'html-to-image'
+import { Download, Square, SquareCheck } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, type AtemInputSummary } from '../../lib/bridge'
@@ -574,7 +576,7 @@ const CapabilitiesPanel = ({
                   }`}
                   title={`${l.label} (${l.value})`}
                 >
-                  {on ? '☑' : '☐'} {l.label}
+                  <span className="inline-flex items-center gap-1"><Icon icon={on ? SquareCheck : Square} size="xs" /> {l.label}</span>
                 </button>
               )
             })}
@@ -1012,7 +1014,7 @@ export const AtemMvConfigDialog = () => {
       onClick={close}
     >
       <div
-        className="flex max-h-[95vh] w-[960px] flex-col rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
+        className="flex max-h-[95vh] w-[960px] max-w-[95vw] flex-col rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
@@ -1169,7 +1171,7 @@ export const AtemMvConfigDialog = () => {
                   : t('atem.mv.notConnectedTitle', 'ATEM nicht verbunden — erst im ATEM-Dialog verbinden.')
               }
             >
-              ⬇ {t('atem.mv.readFromBtn', 'Vom ATEM laden')}
+              <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.mv.readFromBtn', 'Vom ATEM laden')}
             </button>
             <button
               type="button"

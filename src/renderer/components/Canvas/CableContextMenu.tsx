@@ -22,6 +22,8 @@
 //   • Kabel löschen
 
 import { useEffect, useRef, useState } from 'react'
+import { Pencil, Pin, X, Plus, Minus, RotateCcw, Navigation, CornerDownRight, Check } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { routeCable } from '../../lib/canvasViewport'
@@ -249,7 +251,7 @@ export const CableContextMenu = () => {
         {t('canvas.cableMenu.headerLabel', 'Kabel:')}{' '}
         <span className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>{cable.name}</span>
       </div>
-      <Item onClick={renameLabel} icon="✎">
+      <Item onClick={renameLabel} icon={<Icon icon={Pencil} size="xs" />}>
         {t('canvas.cableMenu.rename', 'Bezeichnung ändern…')}
       </Item>
       {/* Issue #238 — Handy-Vorschlag-Kabel in Plan uebernehmen.
@@ -259,7 +261,7 @@ export const CableContextMenu = () => {
       {cable.addedFromMobile && (
         <Item
           onClick={() => doUpdate({ addedFromMobile: undefined })}
-          icon="📌"
+          icon={<Icon icon={Pin} size="xs" />}
         >
           {t('canvas.cableMenu.acceptMobile', 'In Plan übernehmen (Handy-Vorschlag akzeptieren)')}
         </Item>
@@ -273,37 +275,37 @@ export const CableContextMenu = () => {
             clearCableCheck(cable.id)
             close()
           }}
-          icon="✗"
+          icon={<Icon icon={X} size="xs" />}
         >
           {t('canvas.cableMenu.removeMobileCheck', 'Mobile-Haken entfernen')}
         </Item>
       )}
       <Separator />
-      <Item onClick={addWaypointHere} icon="＋">
+      <Item onClick={addWaypointHere} icon={<Icon icon={Plus} size="xs" />}>
         {t('canvas.cableMenu.addWaypoint', 'Wegpunkt hier hinzufügen')}
       </Item>
       <Item
         onClick={removeNearestWaypoint}
-        icon="−"
+        icon={<Icon icon={Minus} size="xs" />}
         disabled={waypointCount === 0}
       >
         {t('canvas.cableMenu.removeNearestWaypoint', 'Nächsten Wegpunkt entfernen')}
       </Item>
       <Item
         onClick={clearWaypoints}
-        icon="↺"
+        icon={<Icon icon={RotateCcw} size="xs" />}
         disabled={waypointCount === 0}
       >
         {format(t('canvas.cableMenu.clearWaypoints', 'Alle Wegpunkte löschen ({n})'), { n: waypointCount })}
       </Item>
-      <Item onClick={rerouteWithAStar} icon="🧭">
+      <Item onClick={rerouteWithAStar} icon={<Icon icon={Navigation} size="xs" />}>
         {t('canvas.cableMenu.reroute', 'Automatisch neu routen')}
       </Item>
       <Separator />
       {/* Routing submenu */}
       <Item
         onClick={() => setSubmenu(submenu === 'routing' ? null : 'routing')}
-        icon="↳"
+        icon={<Icon icon={CornerDownRight} size="xs" />}
       >
         {t('canvas.cableMenu.routing', 'Routing:')}{' '}
         <strong className="ml-1">{routingLabel(routing, t)}</strong>
@@ -315,7 +317,7 @@ export const CableContextMenu = () => {
             <Item
               key={r}
               onClick={() => setRouting(r)}
-              icon={r === routing ? '✓' : ' '}
+              icon={r === routing ? <Icon icon={Check} size="xs" /> : null}
             >
               {routingLabel(r, t)}
             </Item>
@@ -325,7 +327,7 @@ export const CableContextMenu = () => {
       {/* v7.9.5 — Kabelbrücken-Toggle pro Kabel — kein Submenu mehr.
           Aktueller Effektiv-Zustand (entweder per-cable override oder
           global) bestimmt was der Toggle-Klick macht. */}
-      <Item onClick={toggleBumpForThisCable} icon={effectiveBumps ? '✓' : ' '}>
+      <Item onClick={toggleBumpForThisCable} icon={effectiveBumps ? <Icon icon={Check} size="xs" /> : null}>
         {t('canvas.cableMenu.bumps', 'Kabelbrücken für dieses Kabel')}
         {bumpStyle == null && (
           <span className="ml-auto text-[10px] text-slate-500">
@@ -366,7 +368,7 @@ export const CableContextMenu = () => {
           : t('canvas.cableMenu.on', 'einschalten')}
       </Item>
       <Separator />
-      <Item onClick={removeCable} icon="✕" destructive>
+      <Item onClick={removeCable} icon={<Icon icon={X} size="xs" />} destructive>
         {t('canvas.cableMenu.delete', 'Kabel löschen')}
       </Item>
     </div>
@@ -389,7 +391,7 @@ const Item = ({
   destructive,
 }: {
   onClick: () => void
-  icon?: string
+  icon?: React.ReactNode
   children: React.ReactNode
   disabled?: boolean
   destructive?: boolean
@@ -406,7 +408,7 @@ const Item = ({
           : 'text-slate-200 hover:bg-slate-800'
     }`}
   >
-    <span className="inline-block w-4 shrink-0 text-center text-slate-500">{icon}</span>
+    <span className="inline-flex w-4 shrink-0 items-center justify-center text-slate-500">{icon}</span>
     <span className="flex-1">{children}</span>
   </button>
 )
