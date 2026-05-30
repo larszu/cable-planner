@@ -16,6 +16,13 @@ export type ConnectorType =
   | 'DVI'
   | 'DB9'
   | 'DB25'
+  | 'Klinke'
+  | 'Mini-XLR'
+  | 'HD-BNC'
+  | 'Mini-HDMI'
+  | 'F-Connector'
+  | 'GG45'
+  | 'Kleeblatt'
   | 'IEC 230V'
   | 'PowerCON'
   | 'Schuko 230V'
@@ -30,10 +37,10 @@ export type ConnectorType =
 
 /** All valid connector type values in display order. */
 export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
-  'XLR', 'BNC', 'HDMI', 'Ethernet/RJ45', 'Fiber', 'SFP', 'SFP+', 'DIN',
-  'DisplayPort', 'VGA', 'DVI', 'USB', 'USB-C', 'Triax', 'DB9', 'DB25', 'Wireless/RF',
+  'XLR', 'Mini-XLR', 'Klinke', 'BNC', 'HD-BNC', 'HDMI', 'Mini-HDMI', 'Ethernet/RJ45', 'GG45', 'Fiber', 'SFP', 'SFP+', 'DIN',
+  'DisplayPort', 'VGA', 'DVI', 'USB', 'USB-C', 'Triax', 'F-Connector', 'DB9', 'DB25', 'Wireless/RF',
   'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker',
-  'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Custom',
+  'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Kleeblatt', 'Custom',
 ]
 
 import type { SignalStandard } from './cableSpec'
