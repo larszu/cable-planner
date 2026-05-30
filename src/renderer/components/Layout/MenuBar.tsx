@@ -4,9 +4,10 @@ import {
   Image as ImageIcon, Calculator, Eye, MessageSquare, Paperclip, Plug, Cable,
   Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, SlidersHorizontal, Tag,
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
-  Pencil, Smartphone, Settings, HardDrive,
+  Pencil, Smartphone, Settings, HardDrive, Copy,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
+import { triggerCanvasDuplicate } from '../../lib/canvasViewport'
 import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
 import { useTranslation } from '../../lib/i18n'
 import { projectHistory } from '../../store/projectHistory'
@@ -246,6 +247,13 @@ export const MenuBar = ({
             {t('app.menu.edit.redo', 'Wiederherstellen')}
           </MenuItem>
           <MenuSep />
+          <MenuItem
+            onClick={() => triggerCanvasDuplicate()}
+            icon={<Icon icon={Copy} size="sm" />}
+            shortcut={t('shortcut.ctrlD', 'Strg+D')}
+          >
+            {t('app.menu.edit.duplicate', 'Duplizieren')}
+          </MenuItem>
           <MenuItem
             onClick={() => useProjectStore.getState().deleteSelected()}
             shortcut={t('shortcut.del', 'Entf')}
