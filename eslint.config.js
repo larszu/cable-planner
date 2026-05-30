@@ -49,6 +49,31 @@ export default defineConfig([
           message:
             'Possible mojibake in JSX text. Re-save the file as UTF-8.',
         },
+        // zustand v5 footgun — a store selector that returns a NEW reference on
+        // every call makes useSyncExternalStore see a changed snapshot each
+        // render → "Maximum update depth exceeded" (see #435 CanvasToolbar,
+        // #412 RevisionsDialog; AnnotationsPanel documents the canonical fix).
+        // Keep selectors returning a stable store ref; apply `?? []` / `.map()`
+        // OUTSIDE the hook, or derive with useMemo. Matches expression-body
+        // selectors (the common case); block-body returns aren't covered.
+        {
+          selector:
+            "CallExpression[callee.name=/^use\\w+Store$/] > ArrowFunctionExpression > LogicalExpression[operator=/^(\\?\\?|\\|\\|)$/] > :matches(ArrayExpression, ObjectExpression)",
+          message:
+            'Unstable zustand selector: `?? []` / `?? {}` inside the selector returns a new reference every render → infinite-loop risk. Move the fallback OUTSIDE the hook, e.g. `useStore(s => s.x) ?? EMPTY`.',
+        },
+        {
+          selector:
+            "CallExpression[callee.name=/^use\\w+Store$/] > ArrowFunctionExpression > :matches(ArrayExpression, ObjectExpression)",
+          message:
+            'Unstable zustand selector: returning an array/object literal creates a new reference every render → infinite-loop risk. Return a stable store value and derive with useMemo in the component.',
+        },
+        {
+          selector:
+            "CallExpression[callee.name=/^use\\w+Store$/] > ArrowFunctionExpression > CallExpression[callee.property.name=/^(map|filter|slice|concat|flatMap)$/]",
+          message:
+            'Unstable zustand selector: `.map()/.filter()/.slice()` returns a new array every render → infinite-loop risk. Select the raw value and derive with useMemo.',
+        },
       ],
     },
   },
