@@ -248,7 +248,6 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
       // sendBucket guards on busyKey === bucket.key inside its own state,
       // and updates project metadata after each push so the next iteration
       // sees the fresh syncedQty value.
-      // eslint-disable-next-line no-await-in-loop
       await sendBucket(bucket)
     }
   }

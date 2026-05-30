@@ -108,6 +108,7 @@ export const registerPrintIpc = (): void => {
               `${isLandscape ? 'landscape' : 'portrait'}).\n` +
               `Debug-HTML: ${debugPath}\n` +
               `Tipp: HTML im Browser oeffnen — wenn sauber aussieht, ist der Bug in printToPDF; wenn leer, im HTML-Build.`,
+            { cause: printErr },
           )
         }
         if (!buffer || buffer.byteLength < 1000) {

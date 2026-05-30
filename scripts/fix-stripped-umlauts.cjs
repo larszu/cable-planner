@@ -1,4 +1,3 @@
-/* eslint-disable */
 // Fix words where the original umlaut got stripped to ASCII (e.g. "Gerat"
 // instead of "Gerät", "Anderungen" instead of "Änderungen"). Uses word
 // boundaries so we don't touch substrings inside other words.
