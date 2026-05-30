@@ -2940,6 +2940,7 @@ const en: Dict = {
   'analysis.network.device': 'Device',
   'analysis.network.mgmtVlan': 'Mgmt VLAN',
   'analysis.network.dupTitle': 'Duplicate IP addresses',
+  'analysis.network.danteTitle': 'Check Dante/AES67 names (≤31 chars, a–z/0–9/-)',
   'analysis.network.empty': 'No devices with network data.',
   'analysis.network.vlanSummary': 'Devices per VLAN',
   'analysis.redundancy.intro': 'Heuristic for potential single points of failure: devices that draw power but have at most one power connection (layer "Power").',
