@@ -14,7 +14,7 @@
 // CanvasArea mit einem Scratch-Store füttert anstatt einen
 // stripped-down separaten Canvas zu pflegen.
 
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, useContext } from 'react'
 import { useStore } from 'zustand'
 import type { StoreApi } from 'zustand/vanilla'
 import { useProjectStore } from './projectStore'
@@ -25,17 +25,7 @@ import type { ProjectState } from './projectStore'
 // angeheftet, lässt sich daher als StoreApi durchreichen.
 const defaultStoreApi = useProjectStore as unknown as StoreApi<ProjectState>
 
-const ProjectStoreContext = createContext<StoreApi<ProjectState>>(defaultStoreApi)
-
-export const ProjectStoreProvider = ({
-  store,
-  children,
-}: {
-  store: StoreApi<ProjectState>
-  children: ReactNode
-}) => (
-  <ProjectStoreContext.Provider value={store}>{children}</ProjectStoreContext.Provider>
-)
+export const ProjectStoreContext = createContext<StoreApi<ProjectState>>(defaultStoreApi)
 
 /** Context-aware selector hook. In normalem Canvas-Tree (kein
  *  Provider drumherum) liest aus dem Default-Store; im
