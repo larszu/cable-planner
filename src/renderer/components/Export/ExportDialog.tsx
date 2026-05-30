@@ -270,7 +270,7 @@ const PlanSection = ({
       {format === 'pdf' && (
         <>
           <fieldset className="space-y-1">
-            <legend className="mb-1 text-xs font-semibold text-slate-300">PDF-Thema</legend>
+            <legend className="mb-1 text-xs font-semibold text-slate-300">{t('export.pdfTheme', 'PDF-Thema')}</legend>
             <label className="flex items-center gap-2 text-xs">
               <input
                 type="radio"
@@ -278,7 +278,7 @@ const PlanSection = ({
                 checked={pdfTheme === 'dark'}
                 onChange={() => setPdfTheme('dark')}
               />
-              <span className="inline-flex items-center gap-1"><Icon icon={Moon} size="xs" /> Dunkles Thema (wie Canvas)</span>
+              <span className="inline-flex items-center gap-1"><Icon icon={Moon} size="xs" /> {t('export.theme.darkLabel', 'Dunkles Thema (wie Canvas)')}</span>
             </label>
             <label className="flex items-center gap-2 text-xs">
               <input
@@ -367,20 +367,20 @@ const PlanSection = ({
               Chips ausschalten, exportieren, Chips wieder einschalten. */}
           <fieldset className="space-y-1">
             <legend className="mb-1 text-xs font-semibold text-slate-300">
-              Ebenen (im PDF enthalten)
+              {t('export.layersInPdf', 'Ebenen (im PDF enthalten)')}
             </legend>
             <div className="-mx-1 flex flex-wrap gap-1">
               <LayerVisibilityChips />
             </div>
             <p className="text-[10px] text-slate-500">
-              Klick auf einen Chip schaltet die Ebene fuer Canvas UND PDF um.
+              {t('export.layersHint', 'Klick auf einen Chip schaltet die Ebene für Canvas UND PDF um.')}
             </p>
           </fieldset>
         </>
       )}
 
       <div className="rounded border border-slate-800 bg-slate-950/40 p-2 text-[11px] text-slate-400">
-        Datei wird unter <code className="rounded bg-slate-800 px-1 py-0.5">{projectName || 'cable-planner'}</code> heruntergeladen.
+        {t('export.savedAs', 'Wird gespeichert als')} <code className="rounded bg-slate-800 px-1 py-0.5">{projectName || 'cable-planner'}</code>
       </div>
 
       <div className="flex justify-end gap-2">
@@ -579,7 +579,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600 disabled:opacity-40"
             title={t('export.patch.perDevice', 'Eine PDF pro selektiertem Gerät')}
           >
-            Einzel PDF ({selectedIds.size} Datei{selectedIds.size === 1 ? '' : 'en'})
+            {t('export.patch.individualPdf', 'Einzel-PDF ({n})').replace('{n}', String(selectedIds.size))}
           </button>
           <button
             type="button"
@@ -588,7 +588,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600 disabled:opacity-40"
             title={t('export.patch.batchPdf', 'Eine Sammel-PDF — ein Gerät pro Seite')}
           >
-            Sammel-PDF ({selectedIds.size} Seite{selectedIds.size === 1 ? '' : 'n'})
+            {t('export.patch.combinedPdf', 'Sammel-PDF ({n})').replace('{n}', String(selectedIds.size))}
           </button>
           <button
             type="button"
@@ -1003,7 +1003,7 @@ const BomSection = () => {
             disabled={!draftPlan}
             className="rounded bg-emerald-700 px-3 py-1 text-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Rentman-Planung speichern
+            {t('export.bom.savePlan', 'Rentman-Planung speichern')}
           </button>
         </div>
       </div>
@@ -1019,7 +1019,7 @@ const BomSection = () => {
           className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600"
           title={t('export.bom.csvTitle', 'Tabelle als CSV (UTF-8 mit BOM für Excel) herunterladen')}
         >
-          Als CSV herunterladen
+          {t('export.bom.csv', 'Als CSV herunterladen')}
         </button>
         <button
           type="button"
@@ -1027,7 +1027,7 @@ const BomSection = () => {
           className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500"
           title={t('export.bom.pdfTitle', 'Tabelle als PDF herunterladen')}
         >
-          Als PDF herunterladen
+          {t('export.bom.pdf', 'Als PDF herunterladen')}
         </button>
         <button
           type="button"
