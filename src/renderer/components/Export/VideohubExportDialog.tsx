@@ -10,8 +10,11 @@ import {
   buildVideohubRoutingCommand,
   buildVideohubInputLabelsCommand,
   buildVideohubOutputLabelsCommand,
+  parseVideohubLabelsTxt,
   videohubPresets,
 } from '../../lib/exportVideohub'
+import { pickTextFile } from '../../lib/pickFile'
+import { infoDialog } from '../../lib/infoDialog'
 import { VideohubRoutingMatrix } from './VideohubRoutingMatrix'
 import { VideohubRoutingList } from './VideohubRoutingList'
 import { cablePlannerApi, hasDesktopBridge, type VideohubState } from '../../lib/bridge'
@@ -522,6 +525,39 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
 
   const handleCopy = () => {
     navigator.clipboard.writeText(preview).catch(() => {})
+  }
+
+  /**
+   * #389 — Labels.txt re-import. Liest eine Standard-Videohub-Labels-
+   * Datei und schreibt die Port-Namen zurueck auf das aktuelle Canvas-
+   * Geraet. Existierende Port-Definitionen (connectorType, contentLabel,
+   * etc.) bleiben erhalten — nur `name` wird ueberschrieben.
+   */
+  const handleImportLabels = async () => {
+    if (!device) return
+    const picked = await pickTextFile('.txt,text/plain')
+    if (!picked) return
+    const parsed = parseVideohubLabelsTxt(picked.content)
+    const setEquipment = useProjectStore.getState().updateEquipment
+    const nextInputs = device.inputs.map((p, idx) => {
+      const lbl = parsed.inputs[idx]
+      return lbl ? { ...p, name: lbl } : p
+    })
+    const nextOutputs = device.outputs.map((p, idx) => {
+      const lbl = parsed.outputs[idx]
+      return lbl ? { ...p, name: lbl } : p
+    })
+    setEquipment(device.id, { inputs: nextInputs, outputs: nextOutputs })
+    const updatedIn = parsed.inputs.filter((x) => x).length
+    const updatedOut = parsed.outputs.filter((x) => x).length
+    const warningSummary =
+      parsed.warnings.length > 0
+        ? `\n\n⚠ ${parsed.warnings.length} Zeilen nicht erkannt:\n${parsed.warnings.slice(0, 5).join('\n')}`
+        : ''
+    await infoDialog('Labels.txt importiert', {
+      body: `${updatedIn} Inputs · ${updatedOut} Outputs neu beschriftet.${warningSummary}`,
+      tone: 'success',
+    })
   }
 
   // v7.9.128 — Effektive Labels die zum Hub gepusht werden. Reihenfolge:
@@ -1238,6 +1274,19 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           >
             Als Datei speichern
           </button>
+          {/* #389 — Labels.txt re-import: liest die Standard-Labels.txt
+              (wie Videohub Setup sie exportiert) und schreibt die Port-
+              Namen zurueck auf das aktuelle Canvas-Geraet. */}
+          {format === 'labels' && device && (
+            <button
+              type="button"
+              onClick={() => void handleImportLabels()}
+              className="rounded bg-sky-700 px-3 py-1 text-sm hover:bg-sky-600"
+              title="Labels.txt importieren — Port-Namen aus einer Datei (z.B. von Videohub Setup) auf dieses Gerät schreiben."
+            >
+              ⬆ Labels.txt importieren
+            </button>
+          )}
         </div>
       </div>
     </div>
