@@ -14,9 +14,9 @@
  * gewöhnliches 19"-Gerät durch alle nachgelagerten Mechaniken läuft.
  */
 import { useMemo, useState } from 'react'
-import { X } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
-import { Icon } from '../shared/Icon'
+import { Button } from '../shared/Button'
+import { ModalShell } from '../shared/ModalShell'
 import { ALL_CONNECTOR_TYPES, type ConnectorType, type EquipmentTemplate } from '../../types/equipment'
 import { useUiStore } from '../../store/uiStore'
 import { format, useTranslation } from '../../lib/i18n'
@@ -75,8 +75,6 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
     [portCount, frontConnector, rearConnector, adapterMode, perPortOverrides],
   )
 
-  if (!open) return null
-
   const handleCreate = () => {
     // v7.9.77 / #170 — Adapter-Patchblende: inputs (Front-Seite) und
     // outputs (Rear-Seite) bekommen unabhängige Connector-Typen.
@@ -121,26 +119,23 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-[520px] max-w-[95vw] rounded-lg border border-slate-700 bg-slate-900 p-4 text-sm text-slate-100 shadow-2xl"
-      >
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-semibold">{t('rack.patchPanel.title', 'Patchblende anlegen')}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
-            aria-label={t('common.close', 'Schließen')}
-          >
-            <Icon icon={X} size="sm" />
-          </button>
+    <ModalShell
+      open={open}
+      onClose={onClose}
+      title={t('rack.patchPanel.title', 'Patchblende anlegen')}
+      maxWidth="xl"
+      zIndex={200}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={onClose}>
+            {t('common.cancel', 'Abbrechen')}
+          </Button>
+          <Button variant="primary" onClick={handleCreate}>
+            {t('rack.patchPanel.create', 'Patchblende erstellen')}
+          </Button>
         </div>
-
+      }
+    >
         <div className="mb-3 flex overflow-hidden rounded border border-slate-700 text-xs">
           <button
             type="button"
@@ -357,23 +352,6 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
           </div>
         )}
 
-        <div className="mt-4 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600"
-          >
-            {t('common.cancel', 'Abbrechen')}
-          </button>
-          <button
-            type="button"
-            onClick={handleCreate}
-            className="rounded bg-sky-700 px-3 py-1.5 text-xs font-semibold hover:bg-sky-600"
-          >
-            {t('rack.patchPanel.create', 'Patchblende erstellen')}
-          </button>
-        </div>
-      </div>
-    </div>
+    </ModalShell>
   )
 }

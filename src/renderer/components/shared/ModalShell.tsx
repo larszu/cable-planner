@@ -107,7 +107,7 @@ export const ModalShell = ({
           {...(draggableKey ? drag.headerProps : {})}
           className="flex items-center justify-between border-b border-[var(--cp-border)] px-4 py-3 select-none"
         >
-          <h2 id={titleId} className="flex items-center text-cp-base font-semibold">
+          <h2 id={titleId} className="flex items-center text-cp-xl font-semibold">
             {titleIcon && <span className="mr-2">{titleIcon}</span>}
             {title}
           </h2>

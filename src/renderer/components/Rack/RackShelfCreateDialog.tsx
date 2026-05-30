@@ -10,8 +10,8 @@
  * Felder: Name, HU-Höhe (Standard 1), Tiefe (mm).
  */
 import { useState } from 'react'
-import { X } from 'lucide-react'
-import { Icon } from '../shared/Icon'
+import { Button } from '../shared/Button'
+import { ModalShell } from '../shared/ModalShell'
 import type { EquipmentTemplate } from '../../types/equipment'
 import { useTranslation } from '../../lib/i18n'
 
@@ -26,8 +26,6 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
   const [name, setName] = useState('Rack-Shelf')
   const [heightUnits, setHeightUnits] = useState(1)
   const [depthMm, setDepthMm] = useState(450)
-
-  if (!open) return null
 
   const handleCreate = () => {
     const template: EquipmentTemplate = {
@@ -48,25 +46,23 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-[420px] max-w-[95vw] rounded-lg border border-slate-700 bg-slate-900 p-4 text-sm text-slate-100 shadow-2xl"
-      >
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-semibold">{t('rack.shelf.title', 'Rack-Shelf anlegen')}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
-            aria-label={t('common.close', 'Schließen')}
-          >
-            <Icon icon={X} size="sm" />
-          </button>
+    <ModalShell
+      open={open}
+      onClose={onClose}
+      title={t('rack.shelf.title', 'Rack-Shelf anlegen')}
+      maxWidth="md"
+      zIndex={200}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={onClose}>
+            {t('common.cancel', 'Abbrechen')}
+          </Button>
+          <Button variant="success" onClick={handleCreate}>
+            {t('rack.shelf.create', 'Shelf erstellen')}
+          </Button>
         </div>
+      }
+    >
         <div className="space-y-3">
           <label className="block">
             <span className="mb-1 block text-xs text-slate-400">{t('rack.shelf.name', 'Name')}</span>
@@ -107,23 +103,6 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
             {t('rack.shelf.tip', 'Tipp: Lege das Shelf auf den gewünschten HE-Slot, danach platziere beliebige Non-19"-Items mit demselben Start-HE — sie erscheinen optisch auf dem Shelf.')}
           </div>
         </div>
-        <div className="mt-4 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600"
-          >
-            {t('common.cancel', 'Abbrechen')}
-          </button>
-          <button
-            type="button"
-            onClick={handleCreate}
-            className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold hover:bg-emerald-600"
-          >
-            {t('rack.shelf.create', 'Shelf erstellen')}
-          </button>
-        </div>
-      </div>
-    </div>
+    </ModalShell>
   )
 }

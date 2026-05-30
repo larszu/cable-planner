@@ -12,6 +12,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
 import { Icon } from '../shared/Icon'
+import { Button } from '../shared/Button'
 import { infoDialog } from '../../lib/infoDialog'
 import { useTranslation, format } from '../../lib/i18n'
 import type { EquipmentTemplate } from '../../types/equipment'
@@ -226,21 +227,17 @@ export const CsvImportDialog = () => {
           </>
         )}
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={close}
-            className="rounded bg-[var(--cp-surface-2)] px-3 py-1 text-cp-xs hover:bg-[var(--cp-surface-3)]"
-          >
+          <Button variant="secondary" size="sm" onClick={close}>
             {t('common.cancel', 'Abbrechen')}
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="success"
+            size="sm"
             onClick={doImport}
             disabled={templates.length === 0}
-            className="rounded bg-emerald-700 px-3 py-1 text-cp-xs font-medium text-white hover:bg-emerald-600 disabled:opacity-40"
           >
             {format(t('csvImport.importBtn', '{n} importieren'), { n: templates.length })}
-          </button>
+          </Button>
         </div>
       </div>
     </ModalShell>

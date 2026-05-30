@@ -1,5 +1,7 @@
+import { Moon, Sun } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { SettingsCard } from './SettingsCard'
+import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
 
 /**
@@ -32,10 +34,11 @@ export const EquipmentColorsSection = () => {
         {(['light', 'dark'] as const).map((theme) => (
           <div key={theme} className="rounded border border-slate-700 bg-slate-950/40 p-2">
             <div className="mb-2 flex items-center justify-between">
-              <h4 className="text-xs font-semibold text-slate-200">
+              <h4 className="flex items-center gap-1 text-xs font-semibold text-slate-200">
+                <Icon icon={theme === 'light' ? Sun : Moon} size="xs" />
                 {theme === 'light'
-                  ? t('settings.eqColors.themeLight', '☀ Hell')
-                  : t('settings.eqColors.themeDark', '🌙 Dunkel')}
+                  ? t('settings.eqColors.themeLight', 'Hell')
+                  : t('settings.eqColors.themeDark', 'Dunkel')}
               </h4>
               <button
                 type="button"

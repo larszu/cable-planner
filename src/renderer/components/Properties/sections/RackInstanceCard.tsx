@@ -1,6 +1,8 @@
+import { Server } from 'lucide-react'
 import { useUiStore } from '../../../store/uiStore'
 import { useTranslation, format } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
+import { Icon } from '../../shared/Icon'
 
 /**
  * #306 — Karte fuer Geraete die zu einer Rack-Instanz gehoeren.
@@ -27,9 +29,9 @@ export const RackInstanceCard = ({ equipment }: { equipment: EquipmentItem }) =>
       <button
         type="button"
         onClick={() => openRackEditor(equipment.rackInstanceId!)}
-        className="w-full rounded bg-cyan-700 px-2 py-1 text-xs text-white hover:bg-cyan-600"
+        className="inline-flex w-full items-center justify-center gap-1.5 rounded bg-cyan-700 px-2 py-1 text-xs text-white hover:bg-cyan-600"
       >
-        🗄 {t('rackInstance.openEditor', 'Rack-Editor öffnen')}
+        <Icon icon={Server} size="xs" /> {t('rackInstance.openEditor', 'Rack-Editor öffnen')}
       </button>
       {typeof equipment.rackInstanceStartUnit === 'number' && (
         <div className="mt-1 text-[10px] text-slate-500">

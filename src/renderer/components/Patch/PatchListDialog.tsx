@@ -16,7 +16,9 @@ import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { portLabelPair, genderSymbol } from '../../lib/portLabel'
+import { Cable as CableIcon, Tag, Download } from 'lucide-react'
 import { ModalShell } from '../shared/ModalShell'
+import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
 import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
@@ -470,7 +472,7 @@ export const PatchListDialog = () => {
       open={open}
       onClose={close}
       title={t('patchList.title', 'Patchliste')}
-      titleIcon="🪢"
+      titleIcon={<Icon icon={CableIcon} size="sm" />}
       maxWidth="5xl"
       draggableKey="cable-planner:modal-pos:patchlist"
       scrollBody={false}
@@ -487,25 +489,28 @@ export const PatchListDialog = () => {
               type="button"
               onClick={exportCsv}
               disabled={filtered.length === 0}
-              className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
             >
-              {t('patchList.exportCsv', '⬇ CSV exportieren')}
+              <Icon icon={Download} size="xs" />
+              {t('patchList.exportCsv', 'CSV exportieren')}
             </button>
             <button
               type="button"
               onClick={() => void exportXlsx()}
               disabled={filtered.length === 0}
-              className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
             >
-              {t('patchList.exportXlsx', '⬇ XLSX exportieren')}
+              <Icon icon={Download} size="xs" />
+              {t('patchList.exportXlsx', 'XLSX exportieren')}
             </button>
             <button
               type="button"
               onClick={() => void exportLabels()}
               disabled={filtered.length === 0}
-              className="rounded bg-sky-700 px-3 py-1 text-xs hover:bg-sky-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-sky-700 px-3 py-1 text-xs hover:bg-sky-600 disabled:opacity-40"
             >
-              {t('patchList.exportLabels', '🏷 Etiketten + QR (PDF)')}
+              <Icon icon={Tag} size="xs" />
+              {t('patchList.exportLabels', 'Etiketten + QR (PDF)')}
             </button>
             {/* #349 — Label-Drucker-CSV: Format waehlen, dann exportieren. */}
             <select
@@ -625,9 +630,14 @@ export const PatchListDialog = () => {
                 <tr>
                   <td
                     colSpan={8}
-                    className="px-2 py-6 text-center text-[11px] text-slate-500"
+                    className="px-2 py-8 text-center text-cp-xs text-[var(--cp-text-faint)]"
                   >
-                    Keine Kabel passen zum Filter.
+                    {rows.length === 0
+                      ? t(
+                          'patchList.empty.noCables',
+                          'Dieses Projekt hat noch keine Kabel. Verbinde Geräte auf dem Canvas, um eine Patchliste zu erzeugen.',
+                        )
+                      : t('patchList.empty.noMatch', 'Keine Kabel passen zum Filter.')}
                   </td>
                 </tr>
               )}

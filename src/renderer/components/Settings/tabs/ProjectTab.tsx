@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { X } from 'lucide-react'
+import { Download, Upload, Loader2, X } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
 import { useTranslation, format } from '../../../lib/i18n'
@@ -131,12 +131,14 @@ const LibraryExportSection = () => {
           className="rounded bg-emerald-700 px-3 py-1.5 hover:bg-emerald-600"
           title={`${customLibrary.length} ${t('settings.project.libExport.devicesWord', 'Geräte')} + ${groupPresets.length} ${t('settings.project.libExport.groupsWord', 'Gruppen')} ${t('settings.project.libExport.exportVerb', 'exportieren')}`}
         >
-          ⬇ {t('settings.project.libExport.exportBtn', 'Library exportieren')} ({customLibrary.length} {t('settings.project.libExport.devicesWord', 'Geräte')}, {groupPresets.length} {t('settings.project.libExport.groupsWord', 'Gruppen')})
+          <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('settings.project.libExport.exportBtn', 'Library exportieren')} ({customLibrary.length} {t('settings.project.libExport.devicesWord', 'Geräte')}, {groupPresets.length} {t('settings.project.libExport.groupsWord', 'Gruppen')})
         </button>
         <label className="rounded bg-sky-700 px-3 py-1.5 cursor-pointer hover:bg-sky-600">
-          {importBusy
-            ? t('settings.project.libExport.importing', 'Importiere…')
-            : '⬆ ' + t('settings.project.libExport.importBtn', 'Library importieren…')}
+          {importBusy ? (
+            <><Icon icon={Loader2} size="xs" className="mr-1 inline-block align-text-bottom animate-spin" />{t('settings.project.libExport.importing', 'Importiere…')}</>
+          ) : (
+            <><Icon icon={Upload} size="xs" className="mr-1 inline-block align-text-bottom" />{t('settings.project.libExport.importBtn', 'Library importieren…')}</>
+          )}
           <input
             type="file"
             accept="application/json,.json"
@@ -491,6 +493,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
                       type="button"
                       onClick={() => setDraftMeta((prev) => ({ ...prev, [field]: undefined }))}
                       title={t('common.remove', 'Entfernen')}
+                      aria-label={t('common.remove', 'Entfernen')}
                       className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
                     >
                       <Icon icon={X} size="sm" />

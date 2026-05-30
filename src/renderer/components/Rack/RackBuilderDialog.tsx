@@ -1,51 +1,34 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, X } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
-import { Icon } from '../shared/Icon'
 import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
 import { RackImageCropDialog } from './RackImageCropDialog'
-import { RackInternalCanvas } from './RackInternalCanvas'
 import { RackLivePreview } from './RackLivePreview'
-import { Rack3DView } from './Rack3DView'
+import { RackBuilder3DTab } from './RackBuilder3DTab'
 import { PatchPanelCreateDialog } from './PatchPanelCreateDialog'
 import { RackShelfCreateDialog } from './RackShelfCreateDialog'
 import { PortDots2D } from './PortDots2D'
 import { RackAddSplitButton } from './RackAddSplitButton'
 import { NonRackAddDialog } from './NonRackAddDialog'
-import { StlPreview } from './StlPreview'
+import { RackBuilderDialogExportMenu } from './RackBuilderDialogExportMenu'
+import { RackBuilderFooter } from './RackBuilderFooter'
+import { RackBuilderHeader } from './RackBuilderHeader'
+import { RackConflictBadges } from './RackConflictBadges'
+import { RackInternalWireOverlay } from './RackInternalWireOverlay'
+import { RackPlacementProperties } from './RackPlacementProperties'
+import type {
+  InternalCableDraft,
+  RackDraft,
+  RackPlacementDraft,
+} from './rackBuilderTypes'
+import { RACK_MOUNT_WIDTH_MM } from './rackBuilderTypes'
 import * as THREE from 'three'
-import {
-  exportRack2DAsPng,
-  exportRack3DAsPngs,
-  exportRackAsStl,
-  exportRackAsCpgroup,
-} from '../../lib/exportRack'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
-import { CategorySelect } from '../shared/CategorySelect'
-import { ModalShell } from '../shared/ModalShell'
-import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { LIMITS } from '../../lib/layoutConstants'
-import {
-  DEFAULT_ROW_HEIGHT,
-  DRAFT_KEY,
-  MAX_ROW_HEIGHT,
-  MIN_ROW_HEIGHT,
-  RACK_MOUNT_WIDTH_MM,
-  RACK_OUTER_WIDTH_MM,
-  RACK_PANEL_ASPECT_PER_1HE,
-  draftFromPreset,
-  formatRackUnits,
-  normalizeDraft,
-  parseUnits,
-  toPlacement,
-  type InternalCableDraft,
-  type RackDraft,
-  type RackPlacementDraft,
-} from './rackBuilderModel'
+import { STORAGE_KEYS } from '../../lib/storageKeys'
 
 interface RackBuilderDialogProps {
   open: boolean
@@ -54,6 +37,187 @@ interface RackBuilderDialogProps {
   initialPreset?: GroupPreset | null
   onClose: () => void
   onSave: (preset: GroupPreset) => void
+}
+
+// 19" rack standard: outer width 482.6 mm, 1U height 44.45 mm.
+// width / height ratio per 1 HE = 482.6 / 44.45 ≈ 10.857 — used to derive
+// rowHeight in pixels from the measured panel width so the on-screen rack is
+// proportional to a real 19" rack, regardless of available screen space.
+const RACK_PANEL_ASPECT_PER_1HE = 10.857
+// v7.9.82 / #170 — geteilt mit Rack3DView.tsx: 19″ standardisierte
+// Außenbreite. RACK_MOUNT_WIDTH_MM kommt aus rackBuilderTypes (auch von
+// Sub-Komponenten geteilt).
+const RACK_OUTER_WIDTH_MM = 482.6
+// v7.9.10 — MIN auf 6 px gesenkt damit bei kleinem Dialog + vielen HE
+// (42 HE) der Rack noch in den sichtbaren Bereich passt. Wer Details
+// sehen will dreht den Zoom hoch.
+const MIN_ROW_HEIGHT = 6
+const MAX_ROW_HEIGHT = 56
+const DEFAULT_ROW_HEIGHT = 22
+const DRAFT_KEY = STORAGE_KEYS.rackBuilderDraftV2
+
+const parseUnits = (template?: EquipmentTemplate): number => {
+  const raw = template?.rackUnits
+  if (!raw || Number.isNaN(raw)) return 1
+  return Math.max(1, Math.round(raw))
+}
+
+// v7.9.13 — Port-IDs sanitisieren. Die Catalog-Templates (Blackmagic,
+// Misc, Camera, …) emittieren ihre Ports mit `id: ''`. Wenn die Ports
+// hier mit leerem ID in den RackPlacementDraft kopiert werden, sind die
+// Internal-Cable-Refs (per Port-NAME) zwar stabil — aber bei Render-
+// Wiederverwendung als ReactFlow-Nodes (z.B. im RackInternalCanvas)
+// kollidieren die leeren IDs als React-Keys → "Ports gestapelt". Bonus:
+// Old presets die schon mit leeren IDs in localStorage liegen, werden
+// beim Laden ebenfalls über sanitizeTemplatePorts (s.u.) geheilt.
+const sanitizeTemplatePorts = <T extends { id?: string }>(ports: T[]): T[] => {
+  const seen = new Set<string>()
+  return ports.map((p) => {
+    let id = p.id ?? ''
+    if (!id || seen.has(id)) {
+      id = typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `port-${Math.random().toString(36).slice(2, 11)}`
+    }
+    seen.add(id)
+    return { ...p, id }
+  })
+}
+
+const toPlacement = (template: EquipmentTemplate, startUnit: number): RackPlacementDraft => ({
+  id: uuidv4(),
+  templateName: template.name,
+  name: template.name,
+  category: template.category,
+  startUnit,
+  rackUnits: parseUnits(template),
+  inputs: sanitizeTemplatePorts(template.inputs),
+  outputs: sanitizeTemplatePorts(template.outputs),
+  isRackDevice: template.isRackDevice ?? !!template.rackUnits,
+  frontPanelImageUrl: template.frontPanelImageUrl,
+  rearPanelImageUrl: template.rearPanelImageUrl,
+  frontPanelCrop: template.frontPanelCrop,
+  rearPanelCrop: template.rearPanelCrop,
+  // v7.9.75 / #170 — Tiefe + STL aus dem Template (Patchblende kommt
+  // bereits mit depthMm=50 aus dem Create-Dialog).
+  depthMm: template.depthMm,
+  stlDataUri: template.stlDataUri,
+  isPatchPanel: template.isPatchPanel,
+  isRackShelf: template.isRackShelf,
+  // v7.9.82 / #170 — Shelf-Offsets initial 0 (= linke vordere Ecke der HE).
+  shelfOffsetX: 0,
+  shelfOffsetZ: 0,
+})
+
+const normalizeDraft = (draft: RackDraft): RackDraft => {
+  const normalizedPlacements = draft.placements.map((p) => ({
+    ...p,
+    startUnit: Math.max(1, Math.round(p.startUnit) || 1),
+    rackUnits: Math.max(1, Math.round(p.rackUnits) || 1),
+  }))
+  // Drop internal cables that point at placements that no longer exist
+  // (user removed a device after wiring it).
+  const livePlacementIds = new Set(normalizedPlacements.map((p) => p.id))
+  const normalizedCables = (draft.internalCables ?? []).filter(
+    (c) => livePlacementIds.has(c.fromPlacementId) && livePlacementIds.has(c.toPlacementId),
+  )
+  return {
+    ...draft,
+    rackName: draft.rackName.trim() || 'Neues Rack',
+    totalUnits: Math.max(1, Math.min(LIMITS.MAX_RACK_HEIGHT_HE, Math.round(draft.totalUnits) || 42)),
+    placements: normalizedPlacements,
+    internalCables: normalizedCables,
+  }
+}
+
+const formatRackUnits = (value: number): string => `${value} HE`
+
+// Reverse of saveRack: rebuild a draft from a previously stored GroupPreset.
+// Used when opening the dialog in edit mode so the user can refine an existing
+// rack instead of starting empty.
+const draftFromPreset = (preset: GroupPreset): RackDraft => {
+  const placementsByIndex = new Map<number, { startUnit: number; heightUnits: number }>()
+  for (const placement of preset.rack?.placements ?? []) {
+    placementsByIndex.set(placement.itemIndex, {
+      startUnit: placement.startUnit,
+      heightUnits: placement.heightUnits,
+    })
+  }
+  // v7.9.14 — Hydrate Canvas-Positionen aus gespeichertem Preset.
+  const savedPositions = preset.rack?.internalCanvasPositions ?? {}
+  // v7.9.73 / #170 — mountSide aus preset.rack.placements[].mountSide hydraten
+  const mountSideByIndex = new Map<number, 'front' | 'rear' | 'full' | undefined>()
+  // v7.9.82 / #170 — Shelf-Offsets dito.
+  const shelfOffsetByIndex = new Map<number, { x?: number; z?: number }>()
+  for (const p of preset.rack?.placements ?? []) {
+    if (p.mountSide) mountSideByIndex.set(p.itemIndex, p.mountSide)
+    if (p.shelfOffsetX != null || p.shelfOffsetZ != null) {
+      shelfOffsetByIndex.set(p.itemIndex, { x: p.shelfOffsetX, z: p.shelfOffsetZ })
+    }
+  }
+  const placements: RackPlacementDraft[] = preset.items.map((item, index) => {
+    const meta = placementsByIndex.get(index)
+    const pos = savedPositions[index]
+    return {
+      id: uuidv4(),
+      templateName: item.name,
+      name: item.name,
+      category: item.category,
+      startUnit: meta?.startUnit ?? 1,
+      rackUnits: meta?.heightUnits ?? Math.max(1, item.rackUnits ?? 1),
+      inputs: item.inputs,
+      outputs: item.outputs,
+      isRackDevice: item.isRackDevice ?? !!item.rackUnits,
+      canvasX: pos?.x,
+      canvasY: pos?.y,
+      frontPanelImageUrl: item.frontPanelImageUrl,
+      rearPanelImageUrl: item.rearPanelImageUrl,
+      frontPanelCrop: item.frontPanelCrop,
+      rearPanelCrop: item.rearPanelCrop,
+      // v7.9.73 / #170 — Engineering-/3D-Felder.
+      depthMm: item.depthMm,
+      mountSide: mountSideByIndex.get(index),
+      stlDataUri: item.stlDataUri,
+      isPatchPanel: item.isPatchPanel,
+      isRackShelf: item.isRackShelf,
+      shelfOffsetX: shelfOffsetByIndex.get(index)?.x,
+      shelfOffsetZ: shelfOffsetByIndex.get(index)?.z,
+    }
+  })
+  // Hydrate internal cables: cables in the stored preset reference items
+  // by INDEX; the new placements have fresh ids, so we map index → id.
+  const indexToPlacementId = new Map<number, string>()
+  placements.forEach((p, idx) => indexToPlacementId.set(idx, p.id))
+  const internalCables: InternalCableDraft[] = []
+  for (const c of preset.cables ?? []) {
+    const fromId = indexToPlacementId.get(c.fromItemIndex)
+    const toId = indexToPlacementId.get(c.toItemIndex)
+    if (!fromId || !toId) continue
+    const entry: InternalCableDraft = {
+      fromPlacementId: fromId,
+      fromPortName: c.fromPortName,
+      toPlacementId: toId,
+      toPortName: c.toPortName,
+      name: c.name,
+      type: c.type,
+      length: c.length,
+    }
+    if (c.color != null) entry.color = c.color
+    if (c.standard != null) entry.standard = c.standard
+    // v7.9.115 / Issue #223 — Waypoints aus dem Preset wieder herstellen.
+    if (c.waypoints && c.waypoints.length > 0) {
+      entry.waypoints = c.waypoints.map((wp) => ({ x: wp.x, y: wp.y }))
+    }
+    internalCables.push(entry)
+  }
+  return {
+    rackName: preset.name,
+    totalUnits: preset.rack?.totalUnits ?? 42,
+    depthMm: preset.rack?.depthMm,
+    viewMode: 'front',
+    placements,
+    internalCables,
+  }
 }
 
 export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onSave }: RackBuilderDialogProps) => {
@@ -98,8 +262,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     template: EquipmentTemplate
     options?: { mountSide?: 'front' | 'rear' | 'full'; preferStartUnit?: number }
   } | null>(null)
-  // v7.9.83 / #170 — Export-Menu + WebGL-Refs vom 3D-Viewer für 3D/STL-Export.
-  const [exportMenuOpen, setExportMenuOpen] = useState(false)
+  // v7.9.83 / #170 — WebGL-Refs vom 3D-Viewer für 3D/STL-Export (Export-Menu
+  // selbst lebt in RackBuilderDialogExportMenu, #310).
   const canvas3DRefs = useRef<{
     gl: THREE.WebGLRenderer
     scene: THREE.Scene
@@ -566,191 +730,24 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         // 100vw mit Padding. Verhindert horizontal-Scroll auf Laptops.
         className="max-h-[96vh] w-[min(1400px,calc(100vw-1rem))] overflow-auto rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl sm:p-4"
       >
-        {/* v7.9.11 — Cleaner Header: deutlicher Titel, State-Pill
-            (Neu/Bearbeiten/Dirty), Esc-Hint, X-Close. */}
-        <div
-          {...drag.headerProps}
-          className="mb-3 flex items-start justify-between gap-3 select-none"
-        >
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <h3 className="truncate text-lg font-semibold text-slate-100">
-                {editingId ? draft.rackName || '(unbenanntes Rack)' : 'Neues Rack'}
-              </h3>
-              <span
-                className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${
-                  editingId
-                    ? 'bg-sky-900/60 text-sky-200'
-                    : 'bg-emerald-900/60 text-emerald-200'
-                }`}
-              >
-                {editingId ? t('rack.badge.edit', 'Bearbeiten') : t('rack.badge.new', 'Neu')}
-              </span>
-              {dirty && (
-                <span
-                  className="flex shrink-0 items-center gap-1 rounded bg-amber-900/40 px-1.5 py-0.5 text-[9px] font-semibold text-amber-200"
-                  title={t('rack.unsavedTitle', 'Ungespeicherte Änderungen')}
-                >
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" />
-                  {t('rack.unsavedLabel', 'Ungespeichert')}
-                </span>
-              )}
-            </div>
-            <p className="mt-0.5 text-[11px] text-slate-500">
-              {t(
-                'rack.subtitle',
-                '2D Rack Builder · Geräte aus Library hinzufügen, HE-Position per Drag, Verkabelung intern',
-              )}
-              <span className="ml-2 hidden sm:inline">
-                <kbd className="rounded border border-slate-700 bg-slate-800 px-1 text-[10px]">Esc</kbd>{' '}
-                {t('rack.closeShortcut', 'schließen')}
-              </span>
-            </p>
-          </div>
-          {/* v7.9.83 / #170 — Export-Menu: 2D-PNG, 3D-PNG (alle 4 Perspektiven),
-              3D-STL, .cpgroup mit allen Assets. */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setExportMenuOpen((v) => !v)}
-              title={t('rack.exportTitle', 'Rack exportieren (PNG / STL / .cpgroup)')}
-              className="flex h-8 items-center gap-1 rounded border border-slate-700 bg-slate-800 px-3 text-xs text-slate-300 hover:border-sky-500/50 hover:bg-sky-900/30 hover:text-sky-200"
-            >
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M8 1 L8 10 M4 7 L8 11 L12 7 M2 13 L14 13" />
-              </svg>
-              {t('rack.exportBtn', 'Exportieren')} ▾
-            </button>
-            {exportMenuOpen && (
-              <div
-                onMouseLeave={() => setExportMenuOpen(false)}
-                className="absolute right-0 top-9 z-50 w-64 overflow-hidden rounded border border-slate-700 bg-slate-900 text-xs shadow-2xl"
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    setExportMenuOpen(false)
-                    const el = rackCanvasRef.current
-                    if (!el) return
-                    void exportRack2DAsPng(el, draft.rackName || 'rack')
-                  }}
-                  className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
-                >
-                  <span className="font-semibold">📷 {t('rack.export.png2d', '2D als PNG')}</span>
-                  <span className="text-[10px] text-slate-500">
-                    {t('rack.export.png2dDesc', 'Aktuelle Front/Rear/Both-Ansicht als Bild')}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    setExportMenuOpen(false)
-                    const refs = canvas3DRefs.current
-                    if (!refs) {
-                      alert(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'))
-                      return
-                    }
-                    await exportRack3DAsPngs(refs.gl, refs.scene, refs.camera, {
-                      rackName: draft.rackName || 'rack',
-                      rackWidthMm: 482.6,
-                      rackHeightMm: draft.totalUnits * 44.45,
-                      rackDepthMm: draft.depthMm ?? 800,
-                    })
-                  }}
-                  className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
-                >
-                  <span className="font-semibold">📸 {t('rack.export.png3d', '3D aus 4 Perspektiven')}</span>
-                  <span className="text-[10px] text-slate-500">
-                    {t('rack.export.png3dDesc', 'PNG: Front · Rear · Iso · Top (1× pro Datei)')}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setExportMenuOpen(false)
-                    const refs = canvas3DRefs.current
-                    if (!refs) {
-                      alert(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'))
-                      return
-                    }
-                    exportRackAsStl(refs.scene, draft.rackName || 'rack')
-                  }}
-                  className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
-                >
-                  <span className="font-semibold">🧊 {t('rack.export.stl', '3D als STL')}</span>
-                  <span className="text-[10px] text-slate-500">
-                    {t('rack.export.stlDesc', 'Komplettes Rack als binäres STL (3D-Druck, CAD)')}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setExportMenuOpen(false)
-                    // Build the current preset snapshot ohne Save-Side-Effects.
-                    const sorted = draft.placements.slice().sort((a, b) => a.startUnit - b.startUnit)
-                    const items: GroupPreset['items'] = sorted.map((p) => ({
-                      name: p.name,
-                      category: p.category,
-                      inputs: p.inputs,
-                      outputs: p.outputs,
-                      isRackDevice: p.isRackDevice,
-                      rackUnits: p.rackUnits,
-                      frontPanelImageUrl: p.frontPanelImageUrl,
-                      rearPanelImageUrl: p.rearPanelImageUrl,
-                      frontPanelCrop: p.frontPanelCrop,
-                      rearPanelCrop: p.rearPanelCrop,
-                      depthMm: p.depthMm,
-                      stlDataUri: p.stlDataUri,
-                      isPatchPanel: p.isPatchPanel,
-                      isRackShelf: p.isRackShelf,
-                      width: 240,
-                      height: 80 + Math.max(p.inputs.length, p.outputs.length, 3) * 22,
-                      offsetX: 0,
-                      offsetY: (p.startUnit - 1) * 44,
-                    }))
-                    const rackPlacements = sorted.map((p, i) => ({
-                      itemIndex: i,
-                      startUnit: p.startUnit,
-                      heightUnits: p.rackUnits,
-                      ...(p.mountSide ? { mountSide: p.mountSide } : {}),
-                      ...(p.shelfOffsetX ? { shelfOffsetX: p.shelfOffsetX } : {}),
-                      ...(p.shelfOffsetZ ? { shelfOffsetZ: p.shelfOffsetZ } : {}),
-                    }))
-                    const preset: GroupPreset = {
-                      id: editingId ?? uuidv4(),
-                      name: draft.rackName.trim() || 'rack',
-                      rack: {
-                        totalUnits: draft.totalUnits,
-                        ...(draft.depthMm ? { depthMm: draft.depthMm } : {}),
-                        placements: rackPlacements,
-                      },
-                      items,
-                      cables: [],
-                    }
-                    exportRackAsCpgroup(preset)
-                  }}
-                  className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
-                >
-                  <span className="font-semibold">💾 {t('rack.export.cpgroup', '.cpgroup herunterladen')}</span>
-                  <span className="text-[10px] text-slate-500">
-                    {t('rack.export.cpgroupDesc', 'Komplettes Rack inkl. STL + Fotos zum Cross-PC-Transfer')}
-                  </span>
-                </button>
-              </div>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={closeWithConfirm}
-            aria-label={t('common.close', 'Schließen')}
-            title={t('rack.closeTitle', 'Schließen (Esc)')}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-slate-300 transition-colors hover:border-red-500/50 hover:bg-red-900/30 hover:text-red-300"
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 4 L12 12 M12 4 L4 12" />
-            </svg>
-          </button>
-        </div>
+        <RackBuilderHeader
+          editingId={editingId}
+          rackName={draft.rackName}
+          dirty={dirty}
+          headerProps={drag.headerProps}
+          onClose={closeWithConfirm}
+          exportMenuSlot={
+            <RackBuilderDialogExportMenu
+              rackName={draft.rackName}
+              totalUnits={draft.totalUnits}
+              depthMm={draft.depthMm}
+              placements={draft.placements}
+              editingId={editingId}
+              rackCanvasEl={rackCanvasRef.current}
+              canvas3DRefs={canvas3DRefs.current}
+            />
+          }
+        />
 
         {/* v7.9.11 — Control-Bar mit gewichteten Spalten. Name (Pflichtfeld
             + längster Inhalt) bekommt 2 Spalten, Höhe + Ansicht + Zoom je 1.
@@ -861,41 +858,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           </div>
         </div>
 
-        {/* v7.9.9 — Sticky-Konflikt+Save-Error-Banner. Bleibt beim
-            Scrollen im Properties-Panel oben sichtbar, damit der User
-            sieht ob sein Edit den Konflikt aufgelöst hat. */}
-        {(conflicts.length > 0 || saveError) && (
-          <div
-            className="sticky top-0 z-20 mb-3 rounded border border-red-700/60 bg-red-900/40 px-3 py-2 text-xs text-red-100 shadow-lg backdrop-blur-sm"
-          >
-            {saveError && (
-              <div className="mb-2 flex items-start gap-2">
-                <span className="font-semibold">{t('rack.saveBlocked', 'Speichern blockiert:')}</span>
-                <span className="whitespace-pre-wrap flex-1">{saveError}</span>
-                <button
-                  type="button"
-                  onClick={() => setSaveError(null)}
-                  className="rounded bg-red-800/80 px-1.5 text-[10px] hover:bg-red-700"
-                  title={t('common.hide', 'Ausblenden')}
-                >
-                  ×
-                </button>
-              </div>
-            )}
-            {conflicts.length > 0 && (
-              <>
-                <div className="font-semibold">
-                  {format(t('rack.conflicts', 'Konflikte ({count})'), { count: conflicts.length })}
-                </div>
-                <ul className="mt-1 list-disc space-y-1 pl-4">
-                  {conflicts.map((issue, index) => (
-                    <li key={`${issue}-${index}`}>{issue}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
-        )}
+        <RackConflictBadges
+          conflicts={conflicts}
+          saveError={saveError}
+          onDismissSaveError={() => setSaveError(null)}
+        />
 
         {/* v7.9.2 — responsiver: 1-Spalter bis md, 2-Spalter md (Library
             + Rack), 3-Spalter ab xl. Verhindert horizontal-Overflow. */}
@@ -1131,241 +1098,47 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 </div>
               </div>
             )}
-            {/* v7.9.73 / #170 — 3D-Tab: nur lesende Orbit-Ansicht.
-                Bearbeitung geht weiter im 2D-Tab.
-                v7.9.75 / #170 — View-Mode-Filter über den Placements:
-                'all' / 'free' / 'released' ausgewertet anhand
-                draft.internalCables. */}
             {viewTab === '3d' && (
-              <>
-                <div className="mb-2 flex items-center gap-1 text-[10px]">
-                  <span className="text-slate-500">{t('rack.view.label', 'Ansicht:')}</span>
-                  {(['all', 'free', 'released'] as const).map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setRenderMode(m)}
-                      className={`rounded px-2 py-0.5 ${
-                        renderMode === m
-                          ? 'bg-purple-700 text-white'
-                          : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                      }`}
-                      title={
-                        m === 'all'
-                          ? t('rack.view.allTitle', 'Alle Geräte + freie Ports + Patchblenden')
-                          : m === 'free'
-                            ? t('rack.view.freeTitle', 'Nur Geräte mit freien Ports + Patchblenden')
-                            : t('rack.view.releasedTitle', 'Nur freigegebene: Patchblenden + extern verkabelbare Geräte')
+              <RackBuilder3DTab
+                totalUnits={draft.totalUnits}
+                rackDepthMm={draft.depthMm}
+                placements={draft.placements}
+                internalCables={draft.internalCables}
+                templates={templates}
+                selectedPlacementId={selectedPlacementId}
+                renderMode={renderMode}
+                onSelectPlacement={setSelectedPlacementId}
+                onSetRenderMode={setRenderMode}
+                onCanvasRefsReady={(refs) => {
+                  canvas3DRefs.current = refs
+                }}
+                onShelfDeviceMoved={(placementId, offset) => {
+                  updatePlacement(placementId, {
+                    shelfOffsetX: offset.x,
+                    shelfOffsetZ: offset.z,
+                  })
+                }}
+                onPortMoved={(placementId, portId, side, pos) => {
+                  setDraft((current) => ({
+                    ...current,
+                    placements: current.placements.map((p) => {
+                      if (p.id !== placementId) return p
+                      const key = side === 'front' ? 'inputs' : 'outputs'
+                      return {
+                        ...p,
+                        [key]: p[key].map((port) =>
+                          port.id === portId
+                            ? { ...port, panelPosX: pos.x, panelPosY: pos.y }
+                            : port,
+                        ),
                       }
-                    >
-                      {m === 'all'
-                        ? t('rack.view.all', 'Alle')
-                        : m === 'free'
-                          ? t('rack.view.free', 'Freie Ports')
-                          : t('rack.view.released', 'Released')}
-                    </button>
-                  ))}
-                </div>
-                {draft.placements.length > 0 ? (
-                  <div
-                    style={{ height: 'min(75vh, 800px)' }}
-                    className="rounded border border-slate-800 bg-slate-950"
-                    // v7.9.76 / #170 — Drag&Drop von Library-Cards auf
-                    // die 3D-Canvas. Da Raycast hier overkill wäre,
-                    // nutzen wir smart-Placement: Drop fügt das Gerät
-                    // in den nächsten freien HE-Block ein. Mount-Side
-                    // wird aus dem Drop-Y-Verhältnis abgeleitet:
-                    // oberer Bereich = front, untere Hälfte = rear,
-                    // Mitte = full. Pragmatisch und intuitiv für 3D-
-                    // Drops, wo präzise HE-Auswahl schwierig ist.
-                    onDragOver={(event) => {
-                      if (event.dataTransfer.types.includes(
-                        'application/x-cable-planner-rack-template',
-                      )) {
-                        event.preventDefault()
-                        event.dataTransfer.dropEffect = 'copy'
-                      }
-                    }}
-                    onDrop={(event) => {
-                      const raw = event.dataTransfer.getData(
-                        'application/x-cable-planner-rack-template',
-                      )
-                      if (!raw) return
-                      event.preventDefault()
-                      try {
-                        const parsed = JSON.parse(raw) as { name: string }
-                        const template = templates.find((t) => t.name === parsed.name)
-                        if (!template) return
-                        // Drop-X-Verhältnis: linkes Drittel = front,
-                        // rechtes Drittel = rear, Mitte = full.
-                        const host = event.currentTarget.getBoundingClientRect()
-                        const fracX = (event.clientX - host.left) / host.width
-                        const mount: 'front' | 'rear' | 'full' =
-                          fracX < 0.33 ? 'front' : fracX > 0.66 ? 'rear' : 'full'
-                        void addTemplate(template, { mountSide: mount })
-                      } catch {
-                        /* ignore */
-                      }
-                    }}
-                  >
-                    <Rack3DView
-                      totalUnits={draft.totalUnits}
-                      rackDepthMm={draft.depthMm}
-                      placements={(() => {
-                        // Berechne pro Placement wie viele Ports schon
-                        // intern verkabelt sind. Patchblenden sind
-                        // immer sichtbar (sie ZEIGEN die freien Ports).
-                        const usedPortsByPlacement = new Map<string, Set<string>>()
-                        for (const c of draft.internalCables) {
-                          if (!usedPortsByPlacement.has(c.fromPlacementId)) {
-                            usedPortsByPlacement.set(c.fromPlacementId, new Set())
-                          }
-                          if (!usedPortsByPlacement.has(c.toPlacementId)) {
-                            usedPortsByPlacement.set(c.toPlacementId, new Set())
-                          }
-                          usedPortsByPlacement.get(c.fromPlacementId)!.add(c.fromPortName)
-                          usedPortsByPlacement.get(c.toPlacementId)!.add(c.toPortName)
-                        }
-                        return draft.placements
-                          .filter((p) => {
-                            if (renderMode === 'all') return true
-                            if (p.isPatchPanel || p.isRackShelf) return true
-                            const usedSet = usedPortsByPlacement.get(p.id) ?? new Set()
-                            const totalPorts = (p.inputs?.length ?? 0) + (p.outputs?.length ?? 0)
-                            const hasFreePort = usedSet.size < totalPorts
-                            if (renderMode === 'free') return hasFreePort
-                            return hasFreePort
-                          })
-                          .map((p) => {
-                            // v7.9.80 / #170 — Shelf-Device-Maße aus dem
-                            // Template ziehen (sind im Builder nicht im
-                            // RackPlacementDraft, sondern auf dem Library-
-                            // Template gespeichert).
-                            const tpl = templates.find((t) => t.name === p.templateName)
-                            return {
-                            id: p.id,
-                            name: p.name,
-                            startUnit: p.startUnit,
-                            rackUnits: p.rackUnits,
-                            depthMm: p.depthMm ?? tpl?.depthMm,
-                            widthMm: tpl?.widthMm,
-                            heightMm: tpl?.heightMm,
-                            mountSide: p.mountSide,
-                            stlDataUri: p.stlDataUri,
-                            frontPanelImageUrl: p.frontPanelImageUrl,
-                            rearPanelImageUrl: p.rearPanelImageUrl,
-                            portCount: (p.inputs?.length ?? 0) + (p.outputs?.length ?? 0),
-                            isPatchPanel: p.isPatchPanel,
-                            isRackShelf: p.isRackShelf,
-                            shelfOffsetX: p.shelfOffsetX,
-                            shelfOffsetZ: p.shelfOffsetZ,
-                            // v7.9.81 / #170 — Port-Side aus port.rackSide
-                            // (Default 'rear' wenn nicht gesetzt). Inputs UND
-                            // Outputs werden in einen Topf geworfen und nach
-                            // rackSide aufgesplittet. Patchblenden sind die
-                            // Ausnahme: dort wandert input → front, output →
-                            // rear (klassisches Crossfield-Layout).
-                            frontPorts: [...(p.inputs ?? []), ...(p.outputs ?? [])]
-                              .filter((port) => {
-                                if (p.isPatchPanel) {
-                                  // Patchblende: inputs = front, outputs = rear
-                                  return (p.inputs ?? []).some((i) => i.id === port.id)
-                                }
-                                return (port.rackSide ?? 'rear') === 'front'
-                              })
-                              .map((port) => ({
-                                id: port.id,
-                                name: port.name,
-                                connectorType: port.connectorType,
-                                panelPosX: port.panelPosX,
-                                panelPosY: port.panelPosY,
-                              })),
-                            rearPorts: [...(p.inputs ?? []), ...(p.outputs ?? [])]
-                              .filter((port) => {
-                                if (p.isPatchPanel) {
-                                  return (p.outputs ?? []).some((o) => o.id === port.id)
-                                }
-                                return (port.rackSide ?? 'rear') === 'rear'
-                              })
-                              .map((port) => ({
-                                id: port.id,
-                                name: port.name,
-                                connectorType: port.connectorType,
-                                panelPosX: port.panelPosX,
-                                panelPosY: port.panelPosY,
-                              })),
-                          }
-                          })
-                      })()}
-                      selectedPlacementId={selectedPlacementId}
-                      onSelectPlacement={(id) => setSelectedPlacementId(id)}
-                      // v7.9.83 / #170 — Canvas-Refs für den Export
-                      // (PNG aus N Perspektiven, STL).
-                      onCanvasRefsReady={(refs) => {
-                        canvas3DRefs.current = refs
-                      }}
-                      // v7.9.82 / #170 — Shelf-Device-Drag im 3D-Tab
-                      // persistieren.
-                      onShelfDeviceMoved={(placementId, offset) => {
-                        updatePlacement(placementId, {
-                          shelfOffsetX: offset.x,
-                          shelfOffsetZ: offset.z,
-                        })
-                      }}
-                      // v7.9.77 / #170 — Port-Dot-Drag persistieren: setzt
-                      // panelPosX/Y am Port (in inputs ODER outputs je
-                      // nach side) im Draft.
-                      onPortMoved={(placementId, portId, side, pos) => {
-                        setDraft((current) => ({
-                          ...current,
-                          placements: current.placements.map((p) => {
-                            if (p.id !== placementId) return p
-                            const key = side === 'front' ? 'inputs' : 'outputs'
-                            return {
-                              ...p,
-                              [key]: p[key].map((port) =>
-                                port.id === portId
-                                  ? { ...port, panelPosX: pos.x, panelPosY: pos.y }
-                                  : port,
-                              ),
-                            }
-                          }),
-                        }))
-                      }}
-                      // v7.9.78 / #170 — Internal cables: portName aus
-                      // dem Cable-Eintrag → portId-Lookup + side-Ableitung
-                      // (im input → Front, im output → Rear).
-                      internalCables={draft.internalCables
-                        .map((c) => {
-                          const fromP = draft.placements.find((x) => x.id === c.fromPlacementId)
-                          const toP = draft.placements.find((x) => x.id === c.toPlacementId)
-                          if (!fromP || !toP) return null
-                          const fromInput = fromP.inputs.find((p) => p.name === c.fromPortName)
-                          const fromOutput = fromP.outputs.find((p) => p.name === c.fromPortName)
-                          const toInput = toP.inputs.find((p) => p.name === c.toPortName)
-                          const toOutput = toP.outputs.find((p) => p.name === c.toPortName)
-                          const fromPort = fromInput ?? fromOutput
-                          const toPort = toInput ?? toOutput
-                          if (!fromPort || !toPort) return null
-                          return {
-                            fromPlacementId: c.fromPlacementId,
-                            fromPortId: fromPort.id,
-                            fromSide: (fromInput ? 'front' : 'rear') as 'front' | 'rear',
-                            toPlacementId: c.toPlacementId,
-                            toPortId: toPort.id,
-                            toSide: (toInput ? 'front' : 'rear') as 'front' | 'rear',
-                            color: c.color,
-                          }
-                        })
-                        .filter((c): c is NonNullable<typeof c> => c !== null)}
-                    />
-                  </div>
-                ) : (
-                  <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center text-xs text-slate-500">
-                    Erst Geräte ins Rack legen, dann erscheint die 3D-Ansicht.
-                  </div>
-                )}
-              </>
+                    }),
+                  }))
+                }}
+                onTemplateDropped={(template, mount) => {
+                  void addTemplate(template, { mountSide: mount })
+                }}
+              />
             )}
             {/* v7.9.80 / #170 — Front/Rear/Both-Toggle ist jetzt Teil der
                 2D-Rack-Spalte (war vorher als Select im Header). */}
@@ -1818,707 +1591,63 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           </div>
         </div>
 
-        {/* v7.9.49 — Eigenschaften-Popup für ein einzelnes Rack-Gerät.
-            Vorher als immer-sichtbares Side-Panel im Builder; jetzt nur
-            bei Doppelklick auf ein Gerät. */}
-        {selectedPlacement && placementPropsOpen && (() => {
-          const heightInvalid =
-            selectedPlacement.rackUnits + selectedPlacement.startUnit - 1 >
-            draft.totalUnits
-          const startMax = Math.max(
-            1,
-            draft.totalUnits - selectedPlacement.rackUnits + 1,
-          )
-          const heRange =
-            selectedPlacement.rackUnits > 1
-              ? `HE${selectedPlacement.startUnit}–${selectedPlacement.startUnit + selectedPlacement.rackUnits - 1}`
-              : `HE${selectedPlacement.startUnit}`
-          return (
-            <ModalShell
-              open={placementPropsOpen}
-              onClose={() => setPlacementPropsOpen(false)}
-              title={format(t('rack.props.title', 'Eigenschaften · {name}'), { name: selectedPlacement.name })}
-              titleIcon={
-                <span className="rounded bg-amber-900/60 px-1.5 py-0.5 text-[9px] font-semibold text-amber-200">
-                  {heRange}
-                </span>
-              }
-              maxWidth="lg"
-              zIndex={70}
-              footer={
-                <div className="flex items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      removePlacement(selectedPlacement.id)
-                      setPlacementPropsOpen(false)
-                    }}
-                    className="rounded bg-red-900/60 px-3 py-1 text-xs hover:bg-red-800"
-                  >
-                    {t('rack.props.removeFromRack', 'Aus Rack entfernen')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPlacementPropsOpen(false)}
-                    className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
-                  >
-                    {t('common.close', 'Schließen')}
-                  </button>
-                </div>
-              }
-            >
-              <div className="space-y-2 text-xs">
-                <label className="block">
-                  {t('rack.props.name', 'Name')}
-                  <input
-                    value={selectedPlacement.name}
-                    onChange={(event) => updatePlacement(selectedPlacement.id, { name: event.target.value })}
-                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
-                  />
-                </label>
-                <label className="block">
-                  {t('rack.props.category', 'Kategorie')}
-                  <CategorySelect
-                    value={selectedPlacement.category}
-                    onChange={(category) => updatePlacement(selectedPlacement.id, { category })}
-                    extraOptions={[...categoryOptions, selectedPlacement.category]}
-                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
-                  />
-                </label>
-                <label className="flex items-center gap-2 opacity-60" title={t('rack.readonlyInBuilder', 'Im Builder schreibgeschützt — wurde beim Hinzufügen gesetzt.')}>
-                  <input type="checkbox" checked={selectedPlacement.isRackDevice} disabled readOnly />
-                  <span>{t('rack.isRackInBuilder', 'Ist Rack-Gerät (im Builder fix)')}</span>
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <label className="block">
-                    {t('rack.props.heightHe', 'Höhe (HE)')}
-                    <input
-                      type="number"
-                      min={1}
-                      max={draft.totalUnits}
-                      value={selectedPlacement.rackUnits}
-                      aria-invalid={heightInvalid}
-                      onChange={(event) => {
-                        const raw = Math.max(1, Number(event.target.value) || 1)
-                        const clamped = Math.min(
-                          raw,
-                          draft.totalUnits - selectedPlacement.startUnit + 1,
-                        )
-                        updatePlacement(selectedPlacement.id, { rackUnits: clamped })
-                      }}
-                      className={`mt-1 w-full rounded border bg-slate-950 p-1.5 ${
-                        heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-slate-700'
-                      }`}
-                    />
-                    {heightInvalid && (
-                      <span className="mt-0.5 block text-[10px] text-red-400">
-                        {format(
-                          t(
-                            'rack.props.heightOverflow',
-                            'Höhe + Start-HE überschreitet Rack ({total} HE).',
-                          ),
-                          { total: draft.totalUnits },
-                        )}
-                      </span>
-                    )}
-                  </label>
-                  <label className="block">
-                    {t('rack.props.startHe', 'Start-HE')}
-                    <input
-                      type="number"
-                      min={1}
-                      max={startMax}
-                      value={selectedPlacement.startUnit}
-                      aria-invalid={heightInvalid}
-                      onChange={(event) => {
-                        const raw = Math.max(1, Number(event.target.value) || 1)
-                        const clamped = Math.min(raw, startMax)
-                        updatePlacement(selectedPlacement.id, { startUnit: clamped })
-                      }}
-                      className={`mt-1 w-full rounded border bg-slate-950 p-1.5 ${
-                        heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-slate-700'
-                      }`}
-                    />
-                    <span className="mt-0.5 block text-[10px] text-slate-500">
-                      {format(
-                        t('rack.props.maxHint', 'max {max} (Höhe {he} HE)'),
-                        { max: startMax, he: selectedPlacement.rackUnits },
-                      )}
-                    </span>
-                  </label>
-                </div>
-                {/* v7.9.73 / #170 — 3D-Felder: Tiefe + Mount-Side + STL. */}
-                <div className="grid grid-cols-2 gap-2">
-                  <label className="block">
-                    {t('rack.props.depthMm', 'Tiefe (mm)')}
-                    <input
-                      type="number"
-                      min={20}
-                      max={1500}
-                      step={10}
-                      value={selectedPlacement.depthMm ?? ''}
-                      placeholder="400"
-                      onChange={(event) => {
-                        const v = event.target.value
-                        updatePlacement(selectedPlacement.id, {
-                          depthMm: v === '' ? undefined : Math.max(20, Math.min(1500, Number(v))),
-                        })
-                      }}
-                      className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
-                      title={t('rack.deviceDepthTitle', 'Geräte-Tiefe in mm. Leer = 400 mm Standard. Wird vom 3D-Tab visualisiert.')}
-                    />
-                  </label>
-                  <label className="block">
-                    {t('rack.mountLabel', 'Montage')}
-                    <select
-                      value={selectedPlacement.mountSide ?? 'full'}
-                      onChange={(event) =>
-                        updatePlacement(selectedPlacement.id, {
-                          mountSide: event.target.value as 'front' | 'rear' | 'full',
-                        })
-                      }
-                      className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
-                      title={t('rack.mountTitle', 'full = volle Rack-Tiefe. front = nur vorne. rear = nur hinten (z.B. Patchblende).')}
-                    >
-                      <option value="full">{t('rack.mount.full', 'Full-Depth')}</option>
-                      <option value="front">{t('props.rack.frontOnly', 'Nur vorne')}</option>
-                      <option value="rear">{t('props.rack.rearOnly', 'Nur hinten')}</option>
-                    </select>
-                  </label>
-                </div>
-                {/* STL-Upload für 3D-Modell.
-                    v7.9.80 / #170 — Eigener gestylter "Datei wählen…"-
-                    Button (statt nacktem <input type="file">, der je nach
-                    OS nur "Keine ausgewählt" zeigt). Speichert die STL
-                    zusätzlich aufs Template via addCustomTemplate, damit
-                    sie über librarySync in die zentrale .cpdevice-Datei
-                    landet und beim nächsten Mal aus der Library schon
-                    mit STL kommt. */}
-                <div className="block">
-                  <div className="mb-1 text-xs text-slate-300">{t('rack.stl.header', '3D-Modell (STL, optional)')}</div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <label
-                      className="inline-flex cursor-pointer items-center gap-1 rounded border border-slate-600 bg-sky-700 px-3 py-1 text-[11px] font-semibold text-white hover:bg-sky-600"
-                      title={t('rack.stlUploadTitle', 'STL-Datei (.stl, max 5 MB) zum Gerät hochladen')}
-                    >
-                      <span>📁</span>
-                      <span>{selectedPlacement.stlDataUri
-                        ? t('rack.stl.replace', 'STL ersetzen…')
-                        : t('rack.stl.pick', 'STL auswählen…')}</span>
-                      <input
-                        type="file"
-                        accept=".stl,application/octet-stream"
-                        onChange={async (event) => {
-                          const file = event.target.files?.[0]
-                          if (!file) return
-                          if (file.size > 5 * 1024 * 1024) {
-                            await confirmDialog(t('rack.stl.tooBigTitle', 'Datei zu groß'), {
-                              body: t('rack.stl.tooBigBody', 'STL-Dateien über 5 MB werden nicht angenommen, sonst explodiert der Projekt-Save.'),
-                              okLabel: 'OK',
-                            })
-                            event.target.value = ''
-                            return
-                          }
-                          const buf = await file.arrayBuffer()
-                          const b64 = btoa(String.fromCharCode(...new Uint8Array(buf)))
-                          const dataUri = `data:application/octet-stream;base64,${b64}`
-                          updatePlacement(selectedPlacement.id, { stlDataUri: dataUri })
-                          // Auch ins Template heften: librarySync schreibt
-                          // das .cpdevice (mit STL inline base64) in den
-                          // zentralen Library-Ordner — damit ist die STL
-                          // permanent ans Gerät gebunden.
-                          const tpl = templates.find(
-                            (t) => t.name === selectedPlacement.templateName,
-                          )
-                          if (tpl) {
-                            addCustomTemplate({ ...tpl, stlDataUri: dataUri })
-                          }
-                          event.target.value = '' // reset so user can re-upload same file
-                        }}
-                        className="hidden"
-                      />
-                    </label>
-                    {selectedPlacement.stlDataUri && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          updatePlacement(selectedPlacement.id, { stlDataUri: undefined })
-                          // Auch im Template entfernen, falls dort gespeichert
-                          const tpl = templates.find(
-                            (t) => t.name === selectedPlacement.templateName,
-                          )
-                          if (tpl && tpl.stlDataUri) {
-                            addCustomTemplate({ ...tpl, stlDataUri: undefined })
-                          }
-                        }}
-                        className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-600"
-                        title={t('rack.stlRemoveTitle', 'STL entfernen — Gerät wird wieder als Box gerendert')}
-                      >
-                        ✕ {t('common.remove', 'Entfernen')}
-                      </button>
-                    )}
-                  </div>
-                  {/* v7.9.87 / #205 — STL-Mini-Vorschau wenn ein Model
-                      hinterlegt ist. Analog zu Front/Rear-Foto-Thumbnails. */}
-                  {selectedPlacement.stlDataUri && (
-                    <div className="mt-2">
-                      <StlPreview stlDataUri={selectedPlacement.stlDataUri} size={120} />
-                    </div>
-                  )}
-                  <span className="mt-1 block text-[10px] text-slate-500">
-                    {selectedPlacement.stlDataUri
-                      ? t('rack.stl.loaded', '✓ STL geladen — wird im 3D-Tab gerendert und permanent am Gerät gespeichert (Library + Projekt).')
-                      : t('rack.stl.noStl', 'Ohne STL wird das Gerät als Box mit Front-/Rear-Foto dargestellt.')}
-                  </span>
-                </div>
-                {/* v7.9.82 / #170 — Shelf-Device-Position-Editor.
-                    Nur sichtbar wenn das Template echte mm-Maße hat
-                    (Shelf-Device). Erlaubt präzises Eingeben der
-                    horizontal- + Tiefen-Position innerhalb des Racks. */}
-                {(() => {
-                  const tpl = templates.find((t) => t.name === selectedPlacement.templateName)
-                  if (!tpl?.widthMm || !tpl?.heightMm) return null
-                  const maxX = Math.max(0, RACK_MOUNT_WIDTH_MM - tpl.widthMm)
-                  const rackDepthRender = draft.depthMm ?? 800
-                  const devDepth = tpl.depthMm ?? 400
-                  const maxZ = Math.max(0, rackDepthRender - devDepth)
-                  return (
-                    <details className="rounded border border-emerald-800 bg-emerald-900/20 p-2" open>
-                      <summary className="cursor-pointer text-[11px] font-semibold text-emerald-200">
-                        🪑 Shelf-Position
-                        <span className="ml-1 text-emerald-400">
-                          ({tpl.widthMm}×{tpl.heightMm}×{tpl.depthMm ?? 400} mm)
-                        </span>
-                      </summary>
-                      <div className="mt-2 grid grid-cols-2 gap-2">
-                        <label className="block text-[10px]">
-                          <span className="mb-0.5 block text-emerald-300/80">
-                            Horizontal (mm vom linken Rail)
-                          </span>
-                          <input
-                            type="number"
-                            min={0}
-                            max={maxX}
-                            step={5}
-                            value={Math.round(selectedPlacement.shelfOffsetX ?? 0)}
-                            onChange={(e) =>
-                              updatePlacement(selectedPlacement.id, {
-                                shelfOffsetX: Math.max(0, Math.min(maxX, Number(e.target.value) || 0)),
-                              })
-                            }
-                            className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
-                          />
-                          <span className="text-[9px] text-slate-500">max {Math.round(maxX)} mm</span>
-                        </label>
-                        <label className="block text-[10px]">
-                          <span className="mb-0.5 block text-emerald-300/80">
-                            Tiefe (mm von vorne)
-                          </span>
-                          <input
-                            type="number"
-                            min={0}
-                            max={maxZ}
-                            step={10}
-                            value={Math.round(selectedPlacement.shelfOffsetZ ?? 0)}
-                            onChange={(e) =>
-                              updatePlacement(selectedPlacement.id, {
-                                shelfOffsetZ: Math.max(0, Math.min(maxZ, Number(e.target.value) || 0)),
-                              })
-                            }
-                            className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
-                          />
-                          <span className="text-[9px] text-slate-500">max {Math.round(maxZ)} mm</span>
-                        </label>
-                      </div>
-                      <div className="mt-1 text-[10px] text-slate-500">
-                        Tipp: Im 2D-Tab kannst du das Gerät auch horizontal per Maus
-                        verschieben. Tiefen-Position nur hier oder im 3D-Tab editierbar.
-                      </div>
-                    </details>
-                  )
-                })()}
-                {/* v7.9.81 / #170 — Port-Side-Editor.
-                    Default-Annahme: alle Ports hinten. User kann einzelne
-                    Ports auf vorne flippen oder alle in einer Aktion
-                    spiegeln. */}
-                <details className="rounded border border-slate-800 bg-slate-900/40 p-2" open>
-                  <summary className="cursor-pointer text-[11px] font-semibold text-slate-300">
-                    Port-Seite (Front/Rear)
-                    <span className="ml-1 text-slate-500">
-                      ({selectedPlacement.inputs.length} Inputs / {selectedPlacement.outputs.length} Outputs)
-                    </span>
-                  </summary>
-                  {/* Bulk-Buttons */}
-                  <div className="mt-2 grid grid-cols-3 gap-1 text-[10px]">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        updatePlacement(selectedPlacement.id, {
-                          inputs: selectedPlacement.inputs.map((p) => ({ ...p, rackSide: 'rear' as const })),
-                          outputs: selectedPlacement.outputs.map((p) => ({ ...p, rackSide: 'rear' as const })),
-                        })
-                      }}
-                      className="rounded bg-purple-900/40 px-2 py-1 text-purple-200 hover:bg-purple-900/60"
-                      title={t('rack.portsAllRear', 'Alle Ports nach hinten (Default für klassische Server-Geräte)')}
-                    >
-                      ⏬ alle nach hinten
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        updatePlacement(selectedPlacement.id, {
-                          inputs: selectedPlacement.inputs.map((p) => ({
-                            ...p,
-                            rackSide: (p.rackSide ?? 'rear') === 'front' ? ('rear' as const) : ('front' as const),
-                          })),
-                          outputs: selectedPlacement.outputs.map((p) => ({
-                            ...p,
-                            rackSide: (p.rackSide ?? 'rear') === 'front' ? ('rear' as const) : ('front' as const),
-                          })),
-                        })
-                      }}
-                      className="rounded bg-slate-700 px-2 py-1 text-slate-100 hover:bg-slate-600"
-                      title={t('rack.portsSwap', 'Front-Ports werden zu Rear-Ports und umgekehrt')}
-                    >
-                      ↔ spiegeln
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        updatePlacement(selectedPlacement.id, {
-                          inputs: selectedPlacement.inputs.map((p) => ({ ...p, rackSide: 'front' as const })),
-                          outputs: selectedPlacement.outputs.map((p) => ({ ...p, rackSide: 'front' as const })),
-                        })
-                      }}
-                      className="rounded bg-green-900/40 px-2 py-1 text-green-200 hover:bg-green-900/60"
-                      title={t('rack.portsAllFront', 'Alle Ports nach vorne (z.B. Frontpanel-Geräte)')}
-                    >
-                      ⏫ alle nach vorne
-                    </button>
-                  </div>
-                  {/* Per-Port-Toggle-Liste */}
-                  <div className="mt-2 max-h-48 overflow-y-auto rounded border border-slate-800">
-                    {[
-                      ...selectedPlacement.inputs.map((p) => ({ port: p, dir: 'in' as const })),
-                      ...selectedPlacement.outputs.map((p) => ({ port: p, dir: 'out' as const })),
-                    ].map(({ port, dir }) => {
-                      const side: 'front' | 'rear' = port.rackSide ?? 'rear'
-                      return (
-                        <div
-                          key={port.id}
-                          className="flex items-center justify-between gap-2 border-t border-slate-800/60 px-2 py-0.5 text-[10px] first:border-t-0"
-                        >
-                          <span className="flex min-w-0 items-center gap-1">
-                            <span
-                              className={`shrink-0 rounded px-1 text-[8px] font-bold uppercase ${
-                                dir === 'in' ? 'bg-cyan-900/60 text-cyan-200' : 'bg-emerald-900/60 text-emerald-200'
-                              }`}
-                              title={dir === 'in' ? 'Input (Signal-Eingang)' : 'Output (Signal-Ausgang)'}
-                            >
-                              {dir}
-                            </span>
-                            <span className="truncate text-slate-300">{port.name}</span>
-                            <span className="shrink-0 text-slate-500">· {port.connectorType}</span>
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const newSide: 'front' | 'rear' = side === 'front' ? 'rear' : 'front'
-                              if (dir === 'in') {
-                                updatePlacement(selectedPlacement.id, {
-                                  inputs: selectedPlacement.inputs.map((p) =>
-                                    p.id === port.id ? { ...p, rackSide: newSide } : p,
-                                  ),
-                                })
-                              } else {
-                                updatePlacement(selectedPlacement.id, {
-                                  outputs: selectedPlacement.outputs.map((p) =>
-                                    p.id === port.id ? { ...p, rackSide: newSide } : p,
-                                  ),
-                                })
-                              }
-                            }}
-                            className={`shrink-0 rounded border px-1.5 py-0.5 font-semibold transition ${
-                              side === 'front'
-                                ? 'border-green-700 bg-green-900/40 text-green-200 hover:bg-green-900/60'
-                                : 'border-purple-700 bg-purple-900/40 text-purple-200 hover:bg-purple-900/60'
-                            }`}
-                            title={format(
-                              t('rack.portSide.toggleTitle', 'Port-Seite umschalten (aktuell: {side})'),
-                              { side: side === 'front' ? t('rack.portSide.front', 'vorne') : t('rack.portSide.rear', 'hinten') },
-                            )}
-                          >
-                            {side === 'front'
-                              ? '⏫ ' + t('rack.portSide.front', 'vorne')
-                              : '⏬ ' + t('rack.portSide.rear', 'hinten')}
-                          </button>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </details>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="text-[11px] font-semibold text-slate-400">{t('rack.panelImages.header', 'Panel-Bilder (Import + Zuschneiden)')}</div>
-                    {/* v7.9.76 / #170 — Swap-Button: vertauscht Front- und
-                        Rear-Foto, falls der User sie versehentlich falsch
-                        zugeordnet hat. Tauscht sowohl URL als auch Crop-
-                        Meta-Daten, damit der Crop nicht verzerrt. */}
-                    {(selectedPlacement.frontPanelImageUrl || selectedPlacement.rearPanelImageUrl) && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          updatePlacement(selectedPlacement.id, {
-                            frontPanelImageUrl: selectedPlacement.rearPanelImageUrl,
-                            rearPanelImageUrl: selectedPlacement.frontPanelImageUrl,
-                            frontPanelCrop: selectedPlacement.rearPanelCrop,
-                            rearPanelCrop: selectedPlacement.frontPanelCrop,
-                          })
-                        }
-                        className="rounded bg-slate-700 px-2 py-0.5 text-[10px] text-slate-200 hover:bg-slate-600"
-                        title={t('rack.swapPhotos', 'Front- und Rear-Foto vertauschen (falls die Zuordnung falsch ist)')}
-                      >
-                        ↔ Front/Rear tauschen
-                      </button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(['front', 'rear'] as const).map((side) => {
-                      const urlKey = side === 'front' ? 'frontPanelImageUrl' : 'rearPanelImageUrl'
-                      const currentUrl = selectedPlacement[urlKey]
-                      const label = side === 'front' ? 'Vorne' : 'Hinten'
-                      const btnColor = side === 'front' ? 'bg-sky-700 hover:bg-sky-600' : 'bg-purple-700 hover:bg-purple-600'
-                      return (
-                        <div key={side} className="space-y-1">
-                          <button
-                            type="button"
-                            className={`w-full rounded ${btnColor} px-2 py-1 text-[11px]`}
-                            onClick={async () => {
-                              const dataUri = await pickImageAsDataUri('image/png,image/jpeg,image/webp')
-                              if (dataUri)
-                                setCropDialog({ placementId: selectedPlacement.id, side, src: dataUri })
-                            }}
-                          >
-                            {currentUrl ? `${label} ersetzen…` : `${label} importieren…`}
-                          </button>
-                          {currentUrl && (
-                            <div className="flex items-center gap-1">
-                              <img src={currentUrl} alt={`${side} panel`} className="h-7 flex-1 rounded border border-slate-700 object-contain" />
-                              <button
-                                type="button"
-                                onClick={() => updatePlacement(selectedPlacement.id, { [urlKey]: undefined, [side === 'front' ? 'frontPanelCrop' : 'rearPanelCrop']: undefined })}
-                                className="rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-900/40 hover:text-red-300"
-                                title={t('rack.removeImage', 'Bild entfernen')}
-                              >
-                                <Icon icon={X} size="sm" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              </div>
-            </ModalShell>
-          )
-        })()}
-
-        {/* v7.9.11 — Status-Footer mit drei klaren Zonen:
-            Links = Stats-Badges (Devices · HE · Cables),
-            Mitte = Autosave-Indikator,
-            Rechts = Actions (Secondary text + Primary CTA) */}
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-3">
-          <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-            <span className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-0.5 text-slate-300">
-              <span className="text-slate-500">{t('rack.devicesLabel', 'Geräte:')}</span>
-              <strong className="text-slate-100">{draft.placements.length}</strong>
-            </span>
-            <span className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-0.5 text-slate-300">
-              <span className="text-slate-500">{t('rack.heOccupied', 'HE belegt:')}</span>
-              <strong className="text-slate-100">
-                {draft.placements.reduce((sum, p) => sum + p.rackUnits, 0)}
-              </strong>
-              <span className="text-slate-500">/ {draft.totalUnits}</span>
-            </span>
-            {draft.internalCables.length > 0 && (
-              <span
-                className="inline-flex items-center gap-1 rounded bg-sky-900/60 px-2 py-0.5 text-sky-200"
-                title={t('rack.internalCablingTitle', 'Interne Verkabelungen im Rack')}
-              >
-                <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 8 H13 M3 8 L6 5 M3 8 L6 11 M13 8 L10 5 M13 8 L10 11" />
-                </svg>
-                <strong>{draft.internalCables.length}</strong>
-                <span>{t('rack.cables', 'Kabel')}</span>
-              </span>
-            )}
-            {conflicts.length > 0 && (
-              <span className="inline-flex items-center gap-1 rounded bg-red-900/60 px-2 py-0.5 text-red-200">
-                <Icon icon={AlertTriangle} size="xs" />
-                <strong>{conflicts.length}</strong>
-                <span>{t('rack.conflictsWord', 'Konflikte')}</span>
-              </span>
-            )}
-          </div>
-
-          <div
-            className="flex items-center gap-1.5 text-[10px] text-slate-500"
-            title={
-              dirty
-                ? t('rack.autosaveActive', 'Autosave läuft alle paar Sekunden')
-                : t('rack.noUnsaved', 'Keine ungespeicherten Änderungen')
+        {selectedPlacement && (
+          <RackPlacementProperties
+            open={placementPropsOpen}
+            selectedPlacement={selectedPlacement}
+            totalUnits={draft.totalUnits}
+            rackDepthMm={draft.depthMm}
+            templates={templates}
+            categoryOptions={categoryOptions}
+            onClose={() => setPlacementPropsOpen(false)}
+            onUpdate={updatePlacement}
+            onRemove={removePlacement}
+            onPickPanelImage={(placementId, side, src) =>
+              setCropDialog({ placementId, side, src })
             }
-          >
-            <span
-              className={`inline-block h-1.5 w-1.5 rounded-full ${
-                dirty ? 'animate-pulse bg-amber-400' : 'bg-emerald-500'
-              }`}
-            />
-            <span>{dirty ? 'Autosave aktiv' : 'Gespeichert'}</span>
-          </div>
+            onSyncStlToTemplate={(templateName, stlDataUri) => {
+              const tpl = templates.find((tpl2) => tpl2.name === templateName)
+              if (!tpl) return
+              if (stlDataUri === undefined && !tpl.stlDataUri) return
+              addCustomTemplate({ ...tpl, stlDataUri })
+            }}
+          />
+        )}
 
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setWireDialogOpen(true)}
-              disabled={draft.placements.length < 1}
-              className="inline-flex items-center gap-1.5 rounded border border-sky-600/50 bg-sky-800/40 px-3 py-1.5 text-xs font-medium text-sky-100 hover:bg-sky-700/60 disabled:opacity-40"
-              title={t('rack.openInternalCanvas', 'Geräte des Racks intern verkabeln — vollständige Canvas-Ansicht')}
-            >
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 8 H13 M3 8 L6 5 M3 8 L6 11 M13 8 L10 5 M13 8 L10 11" />
-              </svg>
-              Intern verkabeln
-            </button>
-            <button
-              type="button"
-              onClick={closeWithConfirm}
-              className="rounded px-3 py-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-            >
-              {t('common.cancel', 'Abbrechen')}
-            </button>
-            <button
-              type="button"
-              onClick={saveRack}
-              className="inline-flex items-center gap-1.5 rounded bg-emerald-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 active:bg-emerald-700"
-              title={
-                editingId
-                  ? t('rack.saveEditTitle', 'Änderungen am Rack speichern')
-                  : t('rack.saveNewTitle', 'Rack als neue Gruppe in der Library speichern')
-              }
-            >
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 4 a1 1 0 0 1 1-1 h7 l3 3 v6 a1 1 0 0 1-1 1 H4 a1 1 0 0 1-1-1 z M5 3 v3 h5 v-3 M5 13 v-4 h6 v4" />
-              </svg>
-              {editingId ? t('common.save', 'Speichern') : t('rack.saveNewBtn', 'Rack speichern')}
-            </button>
-          </div>
-        </div>
+        <RackBuilderFooter
+          devicesCount={draft.placements.length}
+          occupiedUnits={draft.placements.reduce((sum, p) => sum + p.rackUnits, 0)}
+          totalUnits={draft.totalUnits}
+          internalCablesCount={draft.internalCables.length}
+          conflictsCount={conflicts.length}
+          dirty={dirty}
+          editingId={editingId}
+          internWireDisabled={draft.placements.length < 1}
+          onOpenInternalCanvas={() => setWireDialogOpen(true)}
+          onCancel={closeWithConfirm}
+          onSave={saveRack}
+        />
       </div>
 
-      {wireDialogOpen && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-2 sm:p-6">
-          <div className="flex h-[92vh] w-[min(1500px,calc(100vw-1rem))] flex-col rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl">
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <div>
-                <h3 className="text-base font-semibold">{t('rack.wire.title', 'Rack-Verkabelung')}: {draft.rackName || t('rack.unnamed', '(unbenannt)')}</h3>
-                <p className="mt-1 text-xs text-slate-400">
-                  {t(
-                    'rack.wire.intro',
-                    'Ziehe Linien Output → Input. Rechtsklick auf Kabel = Menü, Doppelklick = Eigenschaften, Entf = Löschen. Verwendet jetzt die echte Canvas-Komponente — Toolbar, Routing, Waypoints, A*-Routing alles wie im Hauptcanvas.',
-                  )}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setWireDialogOpen(false)}
-                className="rounded bg-emerald-700 px-3 py-1.5 text-xs hover:bg-emerald-600"
-              >
-                {t('common.done', 'Fertig')}
-              </button>
-            </div>
-            <div className="min-h-0 flex-1 overflow-hidden rounded border border-slate-700">
-              <RackInternalCanvas
-                rackName={draft.rackName}
-                placements={draft.placements.map((p) => ({
-                  id: p.id,
-                  name: p.name,
-                  category: p.category,
-                  startUnit: p.startUnit,
-                  rackUnits: p.rackUnits,
-                  inputs: p.inputs,
-                  outputs: p.outputs,
-                  isRackDevice: p.isRackDevice,
-                  canvasX: p.canvasX,
-                  canvasY: p.canvasY,
-                }))}
-                initialCables={(() => {
-                  // draft.internalCables (per-id) → GroupPreset.cables (per-index)
-                  const result: GroupPreset['cables'] = []
-                  for (const c of draft.internalCables) {
-                    const fromIdx = draft.placements.findIndex((p) => p.id === c.fromPlacementId)
-                    const toIdx = draft.placements.findIndex((p) => p.id === c.toPlacementId)
-                    if (fromIdx < 0 || toIdx < 0) continue
-                    const entry: GroupPreset['cables'][number] = {
-                      fromItemIndex: fromIdx,
-                      fromPortName: c.fromPortName,
-                      toItemIndex: toIdx,
-                      toPortName: c.toPortName,
-                      name: c.name,
-                      type: c.type,
-                      length: c.length,
-                    }
-                    if (c.color != null) entry.color = c.color
-                    if (c.standard != null) entry.standard = c.standard
-                    // v7.9.115 / Issue #223 — Waypoints durchreichen.
-                    if (c.waypoints && c.waypoints.length > 0) {
-                      entry.waypoints = c.waypoints.map((wp) => ({ x: wp.x, y: wp.y }))
-                    }
-                    result.push(entry)
-                  }
-                  return result
-                })()}
-                onCablesChanged={(cables) => {
-                  // GroupPreset.cables (per-index) → draft.internalCables (per-id)
-                  const next: InternalCableDraft[] = []
-                  for (const c of cables) {
-                    const fromId = draft.placements[c.fromItemIndex]?.id
-                    const toId = draft.placements[c.toItemIndex]?.id
-                    if (!fromId || !toId) continue
-                    const entry: InternalCableDraft = {
-                      fromPlacementId: fromId,
-                      fromPortName: c.fromPortName,
-                      toPlacementId: toId,
-                      toPortName: c.toPortName,
-                      name: c.name,
-                      type: c.type,
-                      length: c.length,
-                    }
-                    if (c.color != null) entry.color = c.color
-                    if (c.standard != null) entry.standard = c.standard
-                    // v7.9.115 / Issue #223 — Waypoints durchreichen.
-                    if (c.waypoints && c.waypoints.length > 0) {
-                      entry.waypoints = c.waypoints.map((wp) => ({ x: wp.x, y: wp.y }))
-                    }
-                    next.push(entry)
-                  }
-                  setDraft((current) => ({ ...current, internalCables: next }))
-                }}
-                onPlacementRenamed={(placementId, newName) => {
-                  updatePlacement(placementId, { name: newName })
-                }}
-                onPlacementMoved={(placementId, x, y) => {
-                  // v7.9.14 — Canvas-Position des Geräts im Internal-
-                  // Canvas in den Draft persistieren. Beim Save landet
-                  // sie in GroupPreset.rack.internalCanvasPositions.
-                  updatePlacement(placementId, { canvasX: x, canvasY: y })
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      <RackInternalWireOverlay
+        open={wireDialogOpen}
+        rackName={draft.rackName}
+        placements={draft.placements}
+        internalCables={draft.internalCables}
+        onClose={() => setWireDialogOpen(false)}
+        onCablesChanged={(next) =>
+          setDraft((current) => ({ ...current, internalCables: next }))
+        }
+        onPlacementRenamed={(placementId, newName) => {
+          updatePlacement(placementId, { name: newName })
+        }}
+        onPlacementMoved={(placementId, x, y) => {
+          // v7.9.14 — Canvas-Position des Geräts im Internal-Canvas in den
+          // Draft persistieren. Beim Save landet sie in
+          // GroupPreset.rack.internalCanvasPositions.
+          updatePlacement(placementId, { canvasX: x, canvasY: y })
+        }}
+      />
 
       <RackImageCropDialog
         open={!!cropDialog}

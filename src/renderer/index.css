@@ -14,6 +14,14 @@
   --text-cp-base--line-height: 1.3rem;
   --text-cp-lg: 1rem; /* 16px */
   --text-cp-lg--line-height: 1.5rem;
+  /* Heading / display steps (UX audit #27/#30) — gives titles a consistent
+   * hierarchy above body text instead of ad-hoc text-lg/xl/2xl. */
+  --text-cp-xl: 1.125rem; /* 18px — section / panel headings */
+  --text-cp-xl--line-height: 1.6rem;
+  --text-cp-2xl: 1.375rem; /* 22px — dialog / view titles */
+  --text-cp-2xl--line-height: 1.85rem;
+  --text-cp-3xl: 1.75rem; /* 28px — display / welcome */
+  --text-cp-3xl--line-height: 2.15rem;
 }
 
 :root {
@@ -46,6 +54,16 @@
   --cp-space-3: 0.75rem;
   --cp-space-4: 1rem;
   --cp-space-6: 1.5rem;
+
+  /* z-index scale — single source of truth for stacking order. Replaces the
+   * scattered z-[60]/z-[200]/zIndex:9999 ad-hoc values (UX audit #51). Use as
+   * z-[var(--cp-z-modal)] etc. Higher layer = on top. */
+  --cp-z-canvas-overlay: 100;
+  --cp-z-panel: 200;
+  --cp-z-modal: 1000;
+  --cp-z-menu: 1100;
+  --cp-z-popover: 1200;
+  --cp-z-toast: 1300;
 }
 
 * {
@@ -229,6 +247,15 @@ body,
 [data-theme="light"] .text-purple-300   { color: #7e22ce; }
 [data-theme="light"] .text-red-400      { color: #dc2626; }
 [data-theme="light"] .text-red-500      { color: #b91c1c; }
+/* UX audit #14 — teal + pink had no light remap (Videohub teal accents,
+ * AtemDialog text-pink-400) → were light-on-light / dark-on-dark. */
+[data-theme="light"] .text-teal-300     { color: #0f766e; }
+[data-theme="light"] .text-pink-400     { color: #be185d; }
+[data-theme="light"] .bg-teal-600       { background-color: #0d9488; }
+[data-theme="light"] .bg-teal-700       { background-color: #0f766e; }
+[data-theme="light"] .bg-teal-950\/30   { background-color: rgba(204,251,241,0.6); }
+[data-theme="light"] .border-teal-500   { border-color: #0d9488; }
+[data-theme="light"] .border-teal-800   { border-color: #5eead4; }
 
 /* ── Active / accent button backgrounds (sky/emerald/amber/red etc. 5xx-7xx) ──
  * These stay vivid for active states, contrast against the light theme is
@@ -477,14 +504,14 @@ a:focus-visible,
 [role="menuitem"]:focus-visible,
 [role="checkbox"]:focus-visible,
 [role="tab"]:focus-visible {
-  outline: 2px solid #38bdf8;
+  outline: 2px solid var(--cp-accent);
   outline-offset: 1px;
   border-radius: 4px;
 }
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #38bdf8;
+  outline: 2px solid var(--cp-accent);
   outline-offset: -1px;
 }
 [data-theme="light"] button:focus-visible,
@@ -492,5 +519,55 @@ textarea:focus-visible {
 [data-theme="light"] input:focus-visible,
 [data-theme="light"] select:focus-visible,
 [data-theme="light"] textarea:focus-visible {
-  outline-color: #0284c7;
+  outline-color: var(--cp-accent);
+}
+
+/* ── Consistent disabled affordance (UX audit #45) ──────────────────────────
+ * Many buttons fade via disabled:opacity-* but only some also set the cursor.
+ * This guarantees every disabled control shows not-allowed, app-wide. */
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* ── Themed scrollbars (UX audit #54) ───────────────────────────────────────
+ * Previously the app shipped default OS scrollbars, which look out of place on
+ * the dark canvas and differ per platform. These are theme-aware via the
+ * --cp-* tokens, so they also adapt in light mode. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cp-border) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--cp-border);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--cp-text-faint);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ── Respect prefers-reduced-motion (UX audit #46) ──────────────────────────
+ * Motion-sensitive users get animations/transitions effectively disabled
+ * (incl. the overlap-flash keyframe and any spinners). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { Package, AlertTriangle } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import jsPDF from 'jspdf'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { useProjectStore } from '../../store/projectStore'
@@ -293,8 +295,9 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
             {t('bom.cable.builtCables', 'Verbaute Kabel:')} <b className="text-slate-200">{project.cables.length}</b>
           </span>
           {rows.some((r) => r.diff < 0) && (
-            <span className="ml-2 rounded bg-red-900/50 px-2 py-0.5 font-semibold text-red-300">
-              {format(t('bom.cable.missingTypes', '⚠ {count} Kabeltype(n) fehlen'), { count: rows.filter((r) => r.diff < 0).length })}
+            <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-900/50 px-2 py-0.5 font-semibold text-red-300">
+              <Icon icon={AlertTriangle} size="xs" />
+              {format(t('bom.cable.missingTypes', '{count} Kabeltype(n) fehlen'), { count: rows.filter((r) => r.diff < 0).length })}
             </span>
           )}
           {rows.length > 0 && rows.every((r) => r.diff >= 0) && rows.some((r) => r.planned > 0) && (
@@ -474,9 +477,10 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                 openRentmanCableExport()
               }}
               title={t('bom.cable.syncRentmanTitle', 'Schliesst diesen Dialog und oeffnet den Rentman-Cable-Export mit den aktuellen Buckets vorbefuellt.')}
-              className="rounded bg-orange-700 px-3 py-1 text-xs font-semibold hover:bg-orange-600"
+              className="inline-flex items-center gap-1.5 rounded bg-orange-700 px-3 py-1 text-xs font-semibold hover:bg-orange-600"
             >
-              {t('bom.cable.syncRentman', '📦 Mit Rentman synchronisieren →')}
+              <Icon icon={Package} size="xs" />
+              {t('bom.cable.syncRentman', 'Mit Rentman synchronisieren →')}
             </button>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import {
   DndContext,
@@ -100,6 +100,53 @@ const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
         <div className="min-w-0 flex-1">{children}</div>
       </div>
     </li>
+  )
+}
+
+/**
+ * Per-Port SDI-Fähigkeiten ein-/ausklappbar. Der Block war bisher immer
+ * offen, sobald ein Port BNC war; bei Geräten mit vielen BNC-Ports
+ * (Kameras, Quad-Link-Router) blähte das die Port-Liste stark auf. Jetzt
+ * als <details> mit dem gleichen ▾/▸-Muster wie sonst im UI.
+ *
+ * Default offen, wenn der Port bereits SDI-Caps oder eine Quad-Gruppe
+ * gesetzt hat (defaultOpen), sonst eingeklappt — beim Einklappen zeigt das
+ * Summary eine kurze Badge (z. B. „SDI-12G · QL-1") damit gesetzte Werte
+ * nicht unsichtbar verschwinden.
+ *
+ * <details>/<summary> statt Button: ein <summary> ist kein Form-Control,
+ * deshalb bleibt das Auf-/Zuklappen auch im gesperrten Properties-Fieldset
+ * (viewer/finalized) bedienbar, während die Eingabefelder darin korrekt
+ * deaktiviert sind.
+ */
+const CollapsibleSdiCaps = ({
+  defaultOpen,
+  badge,
+  children,
+}: {
+  defaultOpen: boolean
+  badge?: string
+  children: ReactNode
+}) => {
+  const t = useTranslation()
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <details
+      open={open}
+      onToggle={(e) => setOpen(e.currentTarget.open)}
+      className="mt-1 rounded border border-amber-900/60 bg-amber-950/20 [&_summary]:cursor-pointer"
+    >
+      <summary className="flex items-center gap-1 p-1.5 text-[10px] font-semibold uppercase tracking-wide text-amber-300 hover:text-amber-200 [&::-webkit-details-marker]:hidden">
+        <span className="text-amber-400/70">{open ? '▾' : '▸'}</span>
+        <span className="flex-1">{t('ports.sdi.caps', 'SDI-Fähigkeiten (port-spezifisch)')}</span>
+        {!open && badge && (
+          <span className="rounded bg-amber-900/50 px-1 text-[9px] normal-case text-amber-200">
+            {badge}
+          </span>
+        )}
+      </summary>
+      <div className="px-1.5 pb-1.5">{children}</div>
+    </details>
   )
 }
 
@@ -570,10 +617,19 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
               </div>
             )}
             {port.connectorType === 'BNC' && (
-              <div className="mt-1 rounded border border-amber-900/60 bg-amber-950/20 p-1.5">
-                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-amber-300">
-                  {t('ports.sdi.caps', 'SDI-Fähigkeiten (port-spezifisch)')}
-                </div>
+              <CollapsibleSdiCaps
+                defaultOpen={
+                  !!(
+                    port.sdiCaps?.maxSingleLink ||
+                    port.sdiCaps?.levelA ||
+                    port.sdiCaps?.levelB ||
+                    port.quadLinkGroup
+                  )
+                }
+                badge={[port.sdiCaps?.maxSingleLink, port.quadLinkGroup]
+                  .filter(Boolean)
+                  .join(' · ')}
+              >
                 <div className="grid grid-cols-2 gap-1 text-[10px]">
                   {/* v7.9.63 / #176 — 3G Level A/B nur anzeigen wenn das
                       Port-Max tatsächlich SDI-3G ist. Für 6G/12G/HD sind die
@@ -689,7 +745,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     </div>
                   )
                 })()}
-              </div>
+              </CollapsibleSdiCaps>
             )}
           </SortablePortItem>
         ))}

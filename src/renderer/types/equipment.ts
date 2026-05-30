@@ -268,6 +268,11 @@ export interface EquipmentItem {
   username?: string
   password?: string
   notes?: string
+  /** #373 — Kategorie-spezifische Fachdaten (Brennweite, PoE-Budget,
+   *  Lichtstrom, Phasen, …). Schema je Kategorie in `lib/categorySchemas.ts`;
+   *  hier nur die rohen Werte, damit sie mit Projekt-Datei und Library-Template
+   *  mitwandern. Optional — Bestands-Geräte haben es nicht. */
+  categoryProps?: Record<string, string | number | boolean>
   /** Optional network-device config (switches, routers). */
   vlans?: VlanDef[]
   managementVlanId?: number

@@ -13,6 +13,8 @@
  */
 
 import { useState } from 'react'
+import { Check, X, Lock, Upload, Download } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useProjectStore } from '../../store/projectStore'
@@ -178,7 +180,7 @@ export function SharedSyncPanel() {
         onClick={() => { void handlePush() }}
         className="flex items-center gap-1 rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600 disabled:opacity-50"
       >
-        <span>⬆</span>
+        <Icon icon={Upload} size="xs" />
         <span>{t('sync.push', 'Push')}</span>
       </button>
       <button
@@ -188,14 +190,14 @@ export function SharedSyncPanel() {
         onClick={() => { void handlePull() }}
         className="flex items-center gap-1 rounded bg-slate-700 px-2 py-1 text-xs text-white hover:bg-slate-600 disabled:opacity-50"
       >
-        <span>⬇</span>
+        <Icon icon={Download} size="xs" />
         <span>{t('sync.pull', 'Pull')}</span>
       </button>
       {status.message ? (
-        <span className={`text-xs ${statusColor}`} title={status.message}>
-          {status.kind === 'ok' && '✓ '}
-          {status.kind === 'error' && '✗ '}
-          {status.kind === 'locked' && '🔒 '}
+        <span className={`inline-flex items-center gap-1 text-xs ${statusColor}`} title={status.message}>
+          {status.kind === 'ok' && <Icon icon={Check} size="xs" />}
+          {status.kind === 'error' && <Icon icon={X} size="xs" />}
+          {status.kind === 'locked' && <Icon icon={Lock} size="xs" />}
           {status.message.length > 40 ? status.message.slice(0, 40) + '…' : status.message}
         </span>
       ) : null}
