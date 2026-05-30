@@ -381,6 +381,10 @@ export interface ProjectState {
   commitRevision: (label: string, note: string, asBuilt: boolean) => void
   restoreRevision: (id: string) => void
   deleteRevision: (id: string) => void
+  /** #350 — Schätzt die Längen aller Kabel aus der Canvas-Geometrie und
+   *  schreibt sie in `cable.length`. Liefert die Anzahl aktualisierter
+   *  Kabel. */
+  estimateCableLengths: () => number
 }
 
 

@@ -74,6 +74,18 @@ export interface ProjectMetadata {
   /** #412 — Label der zuletzt festgeschriebenen Revision. Wird beim
    *  Festschreiben gesetzt und im PDF-Titelblock als „Revision" gestempelt. */
   revision?: string
+  /** #350 — Längen-Schätzung aus Canvas-Geometrie. */
+  lengthEstimation?: LengthEstimationScheme
+}
+
+/** #350 — Konfiguration für die geometrische Kabellängen-Schätzung. */
+export interface LengthEstimationScheme {
+  /** Maßstab: wie viele Meter entsprechen 100 px Canvas-Distanz. */
+  metersPer100px: number
+  /** Reserve-/Slack-Aufschlag in Prozent (z.B. 15 = +15 %). */
+  slackPercent: number
+  /** Auf ganze Meter aufrunden (true) oder eine Nachkommastelle (false). */
+  roundUp: boolean
 }
 
 export interface CanvasState {
