@@ -213,13 +213,13 @@ export const MenuBar = ({
               (User-Request: passt thematisch besser zu den
               Export-/Druck-Funktionen). */}
           <MenuItem
-            onClick={() => useUiStore.getState().openCalculators('bandwidth')}
+            onClick={() => useUiStore.getState().openBandwidthCalc()}
             icon="📡"
           >
             {t('app.menu.tools.bandwidth', 'Bandbreite berechnen…')}
           </MenuItem>
           <MenuItem
-            onClick={() => useUiStore.getState().openCalculators('power')}
+            onClick={() => useUiStore.getState().openPowerCalc()}
             icon="⚡"
           >
             {t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
