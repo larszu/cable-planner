@@ -164,6 +164,7 @@ export const registerAtemIpc = () => {
         if (atem === localAtem) await ensureDisconnected()
         throw new Error(
           `Could not connect to ATEM at ${ip}: ${err instanceof Error ? err.message : String(err)}`,
+          { cause: err },
         )
       }
 
