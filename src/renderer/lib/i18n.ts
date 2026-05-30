@@ -718,6 +718,16 @@ const en: Dict = {
   'statusbar.complexity.medium': 'Medium',
   'statusbar.complexity.small': 'Small',
   'statusbar.complexity.new': 'New',
+  // #411 Plan-check badge
+  'statusbar.planCheck.title': 'Open plan check: live validation (errors/warnings)',
+  'statusbar.planCheck.counts': '{errors}⚠',
+  'statusbar.planCheck.ok': 'OK',
+  // #411 Plan-check panel
+  'planCheck.title': 'Plan check',
+  'planCheck.summary': '{count} findings',
+  'planCheck.allClear': 'No issues found.',
+  'planCheck.footerHint':
+    'Live plan validation. Click a finding to select the affected element.',
   'statusbar.rentman.label': 'Rentman:',
   'statusbar.rentman.tokenReady': 'Token ready',
   'statusbar.rentman.standalone': 'Standalone',
