@@ -44,6 +44,7 @@ export type SignalStandard =
   | 'Tri-Level'
   | 'Word-Clock'
   | 'PTP'
+  | 'LTC'
   | 'RF-UHF'
   | 'RF-VHF'
   | 'RF-2.4G'
@@ -60,7 +61,7 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
   'Thunderbolt-3', 'Thunderbolt-4',
   'MADI', 'DVB-ASI', 'SMPTE-297', 'SMPTE-304M', 'SMPTE-311M',
   'NDI', 'NDI-HX', 'Dante', 'AES67', 'ST2110-20', 'ST2110-30', 'ST2110-40',
-  'Blackburst', 'Tri-Level', 'Word-Clock', 'PTP',
+  'Blackburst', 'Tri-Level', 'Word-Clock', 'PTP', 'LTC',
   'RF-UHF', 'RF-VHF', 'RF-2.4G', 'RF-5G',
   'Power-230V', 'Fiber-SM', 'Fiber-MM', 'Generic',
 ]
@@ -229,6 +230,15 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 50,
     color: '#94a3b8',
     notesKey: 'catalog.cable.wordclock-bnc.notes',
+  },
+  {
+    id: 'ltc-bnc',
+    name: 'LTC Timecode (BNC)',
+    connectorType: 'BNC',
+    standards: ['LTC'],
+    maxLengthMeters: 100,
+    color: '#94a3b8',
+    notesKey: 'catalog.cable.ltc-bnc.notes',
   },
   {
     id: 'ptp-cat6',
