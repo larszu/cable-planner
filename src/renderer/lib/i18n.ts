@@ -2721,6 +2721,12 @@ const en: Dict = {
   'patchList.exportCsv': '⬇ Export CSV',
   'patchList.exportXlsx': '⬇ Export XLSX',
   'patchList.exportLabels': '🏷 Labels + QR (PDF)',
+  // #349 Label-printer CSV export
+  'patchList.exportLabelCsv': '🏷 Label CSV',
+  'patchList.labelCsvFormat': 'Label-printer format',
+  'patchList.labelCsv.generic': 'Generic (CSV)',
+  'patchList.labelCsv.brother': 'Brother P-touch (TXT)',
+  'patchList.labelCsv.dymo': 'Dymo (CSV)',
   // #314 Replace device section
   'replaceDevice.title': 'Replace device',
   'replaceDevice.subtitle': 'Preserve cabling',
