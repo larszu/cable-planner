@@ -89,6 +89,17 @@ export default defineConfig([
     },
   },
   {
+    // Imperative modal factories: a one-shot view component co-located with
+    // its `xDialog()` entry point and mounted via lib/modalRoot's mountModal
+    // (outside React's render tree). Fast Refresh doesn't track imperatively
+    // mounted modals, so the only-export-components boundary is moot — splitting
+    // each into a second file would be pure boilerplate.
+    files: ['src/renderer/lib/*Dialog.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  {
     files: ['src/main/**/*.ts', '*.config.{js,ts}', '*.js', '*.ts'],
     extends: [js.configs.recommended, tseslint.configs.recommended],
     languageOptions: {

@@ -1,9 +1,8 @@
 import type { EdgeRouting } from '../../store/uiStore'
 import { useTranslation } from '../../lib/i18n'
 
-/** Default labels — used as both fallback for `t()` and for callers that
- *  read the array directly (e.g. legacy SettingsDialog). */
-export const ROUTING_OPTIONS: { value: EdgeRouting; label: string; hint: string }[] = [
+/** Default labels — fallback for `t()` and the source list rendered below. */
+const ROUTING_OPTIONS: { value: EdgeRouting; label: string; hint: string }[] = [
   { value: 'orthogonal', label: 'Ortho', hint: 'Rechtwinkliges Routing (draw.io Standard)' },
   { value: 'straight', label: 'Linie', hint: 'Gerade Linie' },
   { value: 'curved', label: 'Kurve', hint: 'Bézier-Kurve' },
