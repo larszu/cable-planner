@@ -2903,6 +2903,18 @@ const en: Dict = {
   'app.menu.tools.analysis': 'Analyses (weight/network/redundancy)…',
   'app.menu.tools.planCheck': 'Plan check…',
   'app.menu.tools.revisions': 'Revisions & snapshots…',
+  'app.menu.tools.aiPlanGen': 'Generate AI plan…',
+  // #414 AI plan generation
+  'aiPlan.title': 'AI plan generation',
+  'aiPlan.noKey': 'No AI API key set. Add a provider key under Settings → AI.',
+  'aiPlan.promptLabel': 'Describe the system in plain language',
+  'aiPlan.promptPlaceholder':
+    'e.g. "2 cameras over SDI into a switcher, PGM out to a recorder and a multiviewer monitor"',
+  'aiPlan.reviewHint': 'A preview is shown — nothing is inserted without confirmation.',
+  'aiPlan.generate': 'Generate',
+  'aiPlan.generating': 'Generating…',
+  'aiPlan.preview': 'Preview: {d} devices, {c} cables',
+  'aiPlan.insert': 'Insert into plan',
   'app.menu.tools.csvImport': 'Import equipment from CSV…',
   // #412 Revisions dialog
   'revisions.title': 'Revisions & snapshots',

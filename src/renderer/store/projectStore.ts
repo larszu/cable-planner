@@ -168,6 +168,9 @@ export interface ProjectState {
   setCanvasState: (x: number, y: number, zoom: number) => void
   addEquipment: (equipment: Omit<EquipmentItem, 'id'>) => void
   importEquipment: (equipment: EquipmentItem[]) => void
+  /** #414 — Fügt KI-generierte Geräte + Kabel atomar ein, ohne IDs neu zu
+   *  vergeben (die Kabel referenzieren die mitgelieferten IDs). */
+  insertGeneratedPlan: (equipment: EquipmentItem[], cables: import('../types/cable').Cable[]) => void
   /**
    * Insert devices and cables coming from a yEd / GraphML import. Each
    * device carries an optional `graphmlId` so a re-import (`mode:
