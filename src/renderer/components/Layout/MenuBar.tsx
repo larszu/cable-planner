@@ -110,7 +110,7 @@ export const MenuBar = ({
     projectHistory.canRedo,
   )
   return (
-    <header className="flex shrink-0 items-center justify-between gap-3 overflow-hidden border-b border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1.5 text-cp-xs shadow-sm">
+    <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1.5 text-cp-xs shadow-sm">
       <div className="flex shrink-0 items-center gap-2">
         <span className="hidden select-none font-semibold tracking-wide text-slate-300 lg:inline">
           {t('app.title', 'Cable Planner')}
