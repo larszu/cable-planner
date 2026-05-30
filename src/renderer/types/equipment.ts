@@ -16,13 +16,52 @@ export type ConnectorType =
   | 'PowerCON'
   | 'Schuko 230V'
   | 'C7 Eurostecker'
+  // #371 — D-Sub / DVI / VGA
+  | 'VGA (DE-15)'
+  | 'DVI'
+  | 'D-Sub DB9'
+  | 'D-Sub DB25'
+  // #361 — Licht-Steuerung (DMX über XLR)
+  | 'DMX 5-pol (XLR)'
+  | 'DMX 3-pol (XLR)'
+  // #369 — analoge / Consumer-Video-Stecker
+  | 'Cinch/RCA'
+  | 'SCART'
+  | 'S-Video'
+  // #384 — Audio-/Video-Steckverbinder Runde 2
+  | 'Klinke 6.3mm'
+  | 'Klinke 3.5mm'
+  | 'TT/Bantam'
+  | 'Mini-XLR'
+  | 'Mini-BNC'
+  | 'Micro-BNC'
+  | 'HD-BNC'
+  | 'F-Stecker'
+  | 'GG45'
+  | 'Mini-HDMI'
+  | 'Kleeblatt C5'
+  // #364 — Strom-Steckverbinder Event/Touring
+  | 'CEE16'
+  | 'CEE32'
+  | 'CEE63'
+  | 'Powerlock'
+  | 'Socapex'
+  | 'Harting'
   | 'Custom'
 
 /** All valid connector type values in display order. */
 export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
   'XLR', 'BNC', 'HDMI', 'Ethernet/RJ45', 'Fiber', 'SFP', 'SFP+', 'DIN',
   'DisplayPort', 'USB', 'USB-C', 'Triax', 'Wireless/RF',
-  'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker', 'Custom',
+  'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker',
+  // #371 / #361 / #369 / #384 / #364 — erweiterter Steckverbinder-Katalog
+  'VGA (DE-15)', 'DVI', 'D-Sub DB9', 'D-Sub DB25',
+  'DMX 5-pol (XLR)', 'DMX 3-pol (XLR)',
+  'Cinch/RCA', 'SCART', 'S-Video',
+  'Klinke 6.3mm', 'Klinke 3.5mm', 'TT/Bantam', 'Mini-XLR',
+  'Mini-BNC', 'Micro-BNC', 'HD-BNC', 'F-Stecker', 'GG45', 'Mini-HDMI', 'Kleeblatt C5',
+  'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting',
+  'Custom',
 ]
 
 import type { SignalStandard } from './cableSpec'

@@ -52,18 +52,40 @@ export const detectLayerForConnector = (
 ): StandardLayer => {
   if (!connectorType) return 'other'
   const ct = String(connectorType).toLowerCase()
-  if (ct === 'bnc' || ct === 'hdmi' || ct === 'displayport' || ct === 'triax') return 'video'
-  if (ct === 'xlr' || ct === 'din') return 'audio'
-  if (ct === 'ethernet/rj45') return 'network'
+  // #369/#371/#384 — analoge/digitale Video-Stecker zusätzlich zu BNC/HDMI.
+  if (
+    ct === 'bnc' || ct === 'hdmi' || ct === 'displayport' || ct === 'triax' ||
+    ct === 'vga (de-15)' || ct === 'dvi' || ct === 'cinch/rca' || ct === 'scart' ||
+    ct === 's-video' || ct === 'mini-bnc' || ct === 'micro-bnc' || ct === 'hd-bnc' ||
+    ct === 'f-stecker' || ct === 'mini-hdmi'
+  )
+    return 'video'
+  // #384 — Klinke/Mini-XLR/TT-Bantam sind Audio; #371 DB25 = AES59/TASCAM-Audio.
+  if (
+    ct === 'xlr' || ct === 'din' || ct === 'klinke 6.3mm' || ct === 'klinke 3.5mm' ||
+    ct === 'tt/bantam' || ct === 'mini-xlr' || ct === 'd-sub db25'
+  )
+    return 'audio'
+  // #384 — GG45 (Cat7) ist Netzwerk.
+  if (ct === 'ethernet/rj45' || ct === 'gg45') return 'network'
   // Fiber kann Video ODER Network sein — ohne weiteren Kontext: Video
   // (für 2110/SDI-Fiber häufiger als reines IT-LAN-Fiber).
   if (ct === 'fiber' || ct === 'sfp' || ct === 'sfp+') return 'video'
-  if (ct === 'usb' || ct === 'usb-c') return 'control'
+  // #371 DB9 = serielle Steuerung, #361 DMX-XLR = Licht-Steuerung.
+  if (
+    ct === 'usb' || ct === 'usb-c' || ct === 'd-sub db9' ||
+    ct === 'dmx 5-pol (xlr)' || ct === 'dmx 3-pol (xlr)'
+  )
+    return 'control'
+  // #364 — Event/Touring-Strom + Kleeblatt zusätzlich zu IEC/PowerCON/Schuko.
   if (
     ct === 'iec 230v' ||
     ct === 'powercon' ||
     ct === 'schuko 230v' ||
-    ct === 'c7 eurostecker'
+    ct === 'c7 eurostecker' ||
+    ct === 'kleeblatt c5' ||
+    ct === 'cee16' || ct === 'cee32' || ct === 'cee63' ||
+    ct === 'powerlock' || ct === 'socapex' || ct === 'harting'
   )
     return 'power'
   if (ct === 'wireless/rf') return 'control'

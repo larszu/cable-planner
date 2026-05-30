@@ -65,6 +65,37 @@ export const DEFAULT_CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
   PowerCON: '#0ea5e9',
   'Schuko 230V': '#334155',
   'C7 Eurostecker': '#64748b',
+  // #371 — D-Sub / DVI / VGA
+  'VGA (DE-15)': '#6366f1',
+  DVI: '#818cf8',
+  'D-Sub DB9': '#fbbf24',
+  'D-Sub DB25': '#fb7185',
+  // #361 — DMX
+  'DMX 5-pol (XLR)': '#fb923c',
+  'DMX 3-pol (XLR)': '#fdba74',
+  // #369 — analoge / Consumer-Video-Stecker
+  'Cinch/RCA': '#eab308',
+  SCART: '#a16207',
+  'S-Video': '#ca8a04',
+  // #384 — Steckverbinder Runde 2
+  'Klinke 6.3mm': '#0ea5e9',
+  'Klinke 3.5mm': '#38bdf8',
+  'TT/Bantam': '#0891b2',
+  'Mini-XLR': '#22d3ee',
+  'Mini-BNC': '#f97316',
+  'Micro-BNC': '#ea580c',
+  'HD-BNC': '#c2410c',
+  'F-Stecker': '#b45309',
+  GG45: '#16a34a',
+  'Mini-HDMI': '#c084fc',
+  'Kleeblatt C5': '#475569',
+  // #364 — Strom-Steckverbinder Event/Touring
+  CEE16: '#2563eb',
+  CEE32: '#1d4ed8',
+  CEE63: '#dc2626',
+  Powerlock: '#991b1b',
+  Socapex: '#7c2d12',
+  Harting: '#52525b',
   Custom: '#94a3b8',
 }
 
