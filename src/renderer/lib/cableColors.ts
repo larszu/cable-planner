@@ -89,6 +89,16 @@ export const DEFAULT_CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
   'F-Connector': '#a16207',
   GG45: '#15803d',
   Kleeblatt: '#1e293b',
+  // Licht/DMX in Orange, Legacy-Analog-Video in warmen Gelb-/Brauntoenen,
+  // Patchbay-Audio (TT/Bantam) in Cyan, kompakte BNC-Varianten in Amber.
+  'DMX 5-pol (XLR)': '#fb923c',
+  'DMX 3-pol (XLR)': '#f97316',
+  'Cinch/RCA': '#eab308',
+  SCART: '#ca8a04',
+  'S-Video': '#a16207',
+  'TT/Bantam': '#06b6d4',
+  'Mini-BNC': '#fbbf24',
+  'Micro-BNC': '#fcd34d',
   Custom: '#94a3b8',
 }
 

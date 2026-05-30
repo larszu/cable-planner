@@ -45,6 +45,15 @@ export type ConnectorType =
   | 'Powerlock'
   | 'Socapex'
   | 'Harting'
+  /** Licht (DMX), Legacy-Analog-Video und Patchbay/Coax-Varianten. */
+  | 'DMX 5-pol (XLR)'
+  | 'DMX 3-pol (XLR)'
+  | 'Cinch/RCA'
+  | 'SCART'
+  | 'S-Video'
+  | 'TT/Bantam'
+  | 'Mini-BNC'
+  | 'Micro-BNC'
   | 'Custom'
 
 /** All valid connector type values in display order. */
@@ -54,6 +63,7 @@ export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
   'Triax', 'Triax (Damar & Hagen)', 'Triax (Fischer)',
   'LEMO 3K.93C (SMPTE 304M)', 'Neutrik Dragonfly (SMPTE 304M)',
   'F-Connector', 'DB9', 'DB25', 'Wireless/RF',
+  'DMX 5-pol (XLR)', 'DMX 3-pol (XLR)', 'Cinch/RCA', 'SCART', 'S-Video', 'TT/Bantam', 'Mini-BNC', 'Micro-BNC',
   'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker',
   'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Kleeblatt', 'Custom',
 ]
