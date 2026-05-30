@@ -1996,7 +1996,7 @@ const en: Dict = {
   'props.deviceConfigs.hint': 'Upload new configurations in Settings → Configurations.',
 
   // Properties — SortableSection
-  'props.section.dragTitle': 'Drag section to change order',
+  'props.section.dragTitle': 'Drag section to change order (persists across devices).',
   'props.section.dragAria': 'Move section',
 
   // Settings — EquipmentColorsSection
