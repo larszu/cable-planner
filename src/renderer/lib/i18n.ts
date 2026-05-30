@@ -1719,7 +1719,7 @@ const en: Dict = {
   'bom.cable.groupedNote': 'Grouped by type & length.',
   'bom.cable.builtCables': 'Built cables:',
   'bom.cable.missingTypes': '{count} cable type(s) missing',
-  'bom.cable.allCovered': '✓ All planned quantities covered',
+  'bom.cable.allCovered': 'All planned quantities covered',
   'bom.cable.csv': 'CSV',
   'bom.cable.pdf': 'PDF',
   'bom.cable.col.type': 'Type',

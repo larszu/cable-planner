@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react'
-import { Package, AlertTriangle } from 'lucide-react'
+import { Package, AlertTriangle, Check } from 'lucide-react'
 import { Icon } from '../shared/Icon'
+import { ModalShell } from '../shared/ModalShell'
 import jsPDF from 'jspdf'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import type { Cable } from '../../types/cable'
-import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import {
@@ -60,7 +60,6 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
   // #252 — Rentman-Cable-Export aus dem BOM heraus oeffnen.
   const openRentmanCableExport = useUiStore((s) => s.openRentmanCableExport)
   const [draftPlan, setDraftPlan] = useState<Record<string, number> | null>(null)
-  const drag = useDraggablePosition('cable-planner:modal-pos:cable-bom', open)
 
   const rows: BomRow[] = useMemo(() => {
     if (!open) return []
@@ -265,30 +264,59 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={onClose}
-    >
-      <div
-        ref={drag.containerRef}
-        style={drag.containerStyle}
-        className="flex max-h-[90vh] w-[820px] max-w-[95vw] flex-col rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div
-          {...drag.headerProps}
-          className="flex items-center justify-between border-b border-slate-700 px-4 py-2 select-none"
-        >
-          <h2 className="text-sm font-semibold">{t('bom.cable.title', 'Kabel-Stückliste')}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
-          >
-            {t('common.close', 'Schließen')}
-          </button>
+    <ModalShell
+      open={open}
+      onClose={onClose}
+      title={t('bom.cable.title', 'Kabel-Stückliste')}
+      maxWidth="4xl"
+      draggableKey="cable-planner:modal-pos:cable-bom"
+      scrollBody={false}
+      footer={
+        <div className="flex items-center justify-between text-[11px]">
+          <span className="text-slate-400">
+            {draftPlan
+              ? t('bom.cable.draftPending', 'Nicht gespeicherte Änderungen an der Rentman-Planung.')
+              : t('bom.cable.draftSaved', 'Rentman-Planung wird im Projekt gespeichert.')}
+          </span>
+          <div className="flex gap-2">
+            {draftPlan && (
+              <button
+                type="button"
+                onClick={discardPlan}
+                className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+              >
+                {t('bom.cable.discard', 'Verwerfen')}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={savePlan}
+              disabled={!draftPlan}
+              className="rounded bg-emerald-700 px-3 py-1 text-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {t('bom.cable.savePlan', 'Rentman-Planung speichern')}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (draftPlan) {
+                  updateMeta({ rentmanCablePlan: draftPlan })
+                  setDraftPlan(null)
+                }
+                onClose()
+                openRentmanCableExport()
+              }}
+              title={t('bom.cable.syncRentmanTitle', 'Schliesst diesen Dialog und oeffnet den Rentman-Cable-Export mit den aktuellen Buckets vorbefuellt.')}
+              className="inline-flex items-center gap-1.5 rounded bg-orange-700 px-3 py-1 text-xs font-semibold hover:bg-orange-600"
+            >
+              <Icon icon={Package} size="xs" />
+              {t('bom.cable.syncRentman', 'Mit Rentman synchronisieren →')}
+            </button>
+          </div>
         </div>
-
+      }
+    >
+      <div className="flex h-full min-h-0 flex-col -mx-4 -my-3">
         <div className="flex items-center gap-2 border-b border-slate-800 px-4 py-2 text-[11px] text-slate-400">
           <span>{t('bom.cable.groupedNote', 'Gruppiert nach Typ & Länge.')}</span>
           <span>
@@ -301,8 +329,9 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
             </span>
           )}
           {rows.length > 0 && rows.every((r) => r.diff >= 0) && rows.some((r) => r.planned > 0) && (
-            <span className="ml-2 rounded bg-emerald-900/50 px-2 py-0.5 font-semibold text-emerald-300">
-              {t('bom.cable.allCovered', '✓ Alle geplanten Mengen abgedeckt')}
+            <span className="ml-2 inline-flex items-center gap-1 rounded bg-emerald-900/50 px-2 py-0.5 font-semibold text-emerald-300">
+              <Icon icon={Check} size="xs" />
+              {t('bom.cable.allCovered', 'Alle geplanten Mengen abgedeckt')}
             </span>
           )}
           <div className="ml-auto flex gap-2">
@@ -323,7 +352,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto">
+        <div className="min-h-0 flex-1 overflow-auto px-4">
           <table className="w-full text-xs">
             <thead className="sticky top-0 bg-slate-950 text-slate-300">
               <tr>
@@ -436,55 +465,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
           </table>
         </div>
 
-        <div className="flex items-center justify-between border-t border-slate-700 px-4 py-2 text-[11px]">
-          <span className="text-slate-400">
-            {draftPlan
-              ? t('bom.cable.draftPending', 'Nicht gespeicherte Änderungen an der Rentman-Planung.')
-              : t('bom.cable.draftSaved', 'Rentman-Planung wird im Projekt gespeichert.')}
-          </span>
-          <div className="flex gap-2">
-            {draftPlan && (
-              <button
-                type="button"
-                onClick={discardPlan}
-                className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
-              >
-                {t('bom.cable.discard', 'Verwerfen')}
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={savePlan}
-              disabled={!draftPlan}
-              className="rounded bg-emerald-700 px-3 py-1 text-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {t('bom.cable.savePlan', 'Rentman-Planung speichern')}
-            </button>
-            {/* #252 — Direkt aus dem BOM in den Rentman-Cable-Export
-                springen. Vorher musste der User den BOM schliessen und
-                den Rentman-Cable-Export separat ueber das Menue oeffnen. */}
-            <button
-              type="button"
-              onClick={() => {
-                // Bei offenen Aenderungen erst speichern damit der Rentman-
-                // Dialog mit aktuellem Stand startet (sonst sieht er noch
-                // die alten Planungs-Mengen).
-                if (draftPlan) {
-                  updateMeta({ rentmanCablePlan: draftPlan })
-                  setDraftPlan(null)
-                }
-                onClose()
-                openRentmanCableExport()
-              }}
-              title={t('bom.cable.syncRentmanTitle', 'Schliesst diesen Dialog und oeffnet den Rentman-Cable-Export mit den aktuellen Buckets vorbefuellt.')}
-              className="inline-flex items-center gap-1.5 rounded bg-orange-700 px-3 py-1 text-xs font-semibold hover:bg-orange-600"
-            >
-              <Icon icon={Package} size="xs" />
-              {t('bom.cable.syncRentman', 'Mit Rentman synchronisieren →')}
-            </button>
-          </div>
-        </div>
       </div>
-    </div>
+    </ModalShell>
   )
 }
