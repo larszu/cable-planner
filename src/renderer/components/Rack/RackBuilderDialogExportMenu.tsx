@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Box, Camera, ChevronDown, Save } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { v4 as uuidv4 } from 'uuid'
 import * as THREE from 'three'
 import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
@@ -81,7 +83,7 @@ export const RackBuilderDialogExportMenu = ({
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M8 1 L8 10 M4 7 L8 11 L12 7 M2 13 L14 13" />
         </svg>
-        {t('rack.exportBtn', 'Exportieren')} ▾
+        {t('rack.exportBtn', 'Exportieren')}<Icon icon={ChevronDown} size="xs" className="ml-1 inline-block align-text-bottom" />
       </button>
       {open && (
         <div
@@ -97,7 +99,7 @@ export const RackBuilderDialogExportMenu = ({
             }}
             className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
           >
-            <span className="font-semibold">📷 {t('rack.export.png2d', '2D als PNG')}</span>
+            <span className="font-semibold"><Icon icon={Camera} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.png2d', '2D als PNG')}</span>
             <span className="text-[10px] text-slate-500">
               {t('rack.export.png2dDesc', 'Aktuelle Front/Rear/Both-Ansicht als Bild')}
             </span>
@@ -119,7 +121,7 @@ export const RackBuilderDialogExportMenu = ({
             }}
             className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
           >
-            <span className="font-semibold">📸 {t('rack.export.png3d', '3D aus 4 Perspektiven')}</span>
+            <span className="font-semibold"><Icon icon={Camera} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.png3d', '3D aus 4 Perspektiven')}</span>
             <span className="text-[10px] text-slate-500">
               {t('rack.export.png3dDesc', 'PNG: Front · Rear · Iso · Top (1× pro Datei)')}
             </span>
@@ -136,7 +138,7 @@ export const RackBuilderDialogExportMenu = ({
             }}
             className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
           >
-            <span className="font-semibold">🧊 {t('rack.export.stl', '3D als STL')}</span>
+            <span className="font-semibold"><Icon icon={Box} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.stl', '3D als STL')}</span>
             <span className="text-[10px] text-slate-500">
               {t('rack.export.stlDesc', 'Komplettes Rack als binäres STL (3D-Druck, CAD)')}
             </span>
@@ -190,7 +192,7 @@ export const RackBuilderDialogExportMenu = ({
             }}
             className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
           >
-            <span className="font-semibold">💾 {t('rack.export.cpgroup', '.cpgroup herunterladen')}</span>
+            <span className="font-semibold"><Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.cpgroup', '.cpgroup herunterladen')}</span>
             <span className="text-[10px] text-slate-500">
               {t('rack.export.cpgroupDesc', 'Komplettes Rack inkl. STL + Fotos zum Cross-PC-Transfer')}
             </span>
