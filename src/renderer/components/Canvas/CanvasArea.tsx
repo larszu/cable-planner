@@ -49,6 +49,7 @@ import {
   setCanvasInteractionLockHandlers,
   setCableRouter,
   setCanvasFitViewHandler,
+  setCanvasDuplicateHandler,
 } from '../../lib/canvasViewport'
 import { routeCableWithAStar, type HandleSide, type PixelRect } from '../../lib/routeCableWithAStar'
 import { useTranslation } from '../../lib/i18n'
@@ -1500,6 +1501,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     if (!copySelectionToClipboard()) return
     pasteFromClipboard()
   }, [copySelectionToClipboard, pasteFromClipboard])
+
+  // #340 — Bearbeiten→Duplizieren in der MenuBar triggert dieselbe
+  // Logik wie Strg+D. Handler registrieren (analog zu Fit-View).
+  useEffect(() => {
+    setCanvasDuplicateHandler(duplicateSelection)
+    return () => setCanvasDuplicateHandler(null)
+  }, [duplicateSelection])
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {

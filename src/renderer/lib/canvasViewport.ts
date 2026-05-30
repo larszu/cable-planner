@@ -83,6 +83,24 @@ export const triggerCanvasFitView = () => {
   }
 }
 
+// #340 — Duplizieren aus dem Bearbeiten-Menü. Die eigentliche Logik
+// (copy→paste der Auswahl) lebt in CanvasArea als duplicateSelection;
+// die MenuBar triggert sie ueber diesen registrierten Handler, analog
+// zu Fit-View. Strg+D funktioniert weiterhin direkt im Canvas.
+let duplicateHandler: (() => void) | null = null
+
+export const setCanvasDuplicateHandler = (fn: (() => void) | null) => {
+  duplicateHandler = fn
+}
+
+export const triggerCanvasDuplicate = () => {
+  try {
+    duplicateHandler?.()
+  } catch {
+    /* no-op */
+  }
+}
+
 // v7.8.8 — A*-router callback registered by CanvasArea. The context
 // menu and any other non-canvas caller can ask "please re-route cable
 // X using A*" without needing to live inside the React Flow context.
