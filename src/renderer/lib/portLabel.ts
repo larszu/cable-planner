@@ -21,6 +21,16 @@ export const portDisplayLabel = (port: Pick<Port, 'name' | 'contentLabel'>): str
 }
 
 /**
+ * #410 — Kompaktes Symbol fuer das Steckverbinder-Geschlecht. Leerer
+ * String wenn nicht gesetzt, damit Caller bedingungslos anhaengen koennen.
+ */
+export const genderSymbol = (gender?: Port['gender']): string => {
+  if (gender === 'male') return '♂'
+  if (gender === 'female') return '♀'
+  return ''
+}
+
+/**
  * Zwei-Zeilen-Variante fuer Stellen die sowohl die Funktion als auch den
  * traditionellen Port-Namen zeigen wollen (Patchliste, Device-PDF).
  * Liefert beide Strings; falls `contentLabel` leer ist, ist `subline`

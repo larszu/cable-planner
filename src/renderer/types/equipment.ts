@@ -106,6 +106,14 @@ export interface Port {
    */
   direction?: 'in' | 'out' | 'bidirectional'
   /**
+   * #410 — Steckverbinder-Geschlecht (male/female). Optional; alte Projekte
+   * heilen zu undefined. Wird als ♂/♀ am Port-Handle gezeigt und in
+   * Patchliste/Etiketten durchgereicht — relevant fuer die Kabel-Konfektion
+   * (welches Kabelende braucht welchen Stecker). Unabhaengig von `direction`
+   * (Signal-Richtung) und `connectorType` (Bauform).
+   */
+  gender?: 'male' | 'female'
+  /**
    * For Fiber ports: SFP module form-factor (e.g. "SFP", "SFP+", "QSFP+", "SFP28").
    * Only shown in the UI when connectorType === 'Fiber'.
    */
