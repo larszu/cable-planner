@@ -37,6 +37,7 @@ import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
 import { BandwidthCalculatorDialog, PowerCalculatorDialog } from './components/Calculators/CalculatorsDialog'
 import { RecordingStorageCalculatorDialog } from './components/Calculators/RecordingStorageCalculatorDialog'
+import { BulkConnectDialog } from './components/Canvas/BulkConnectDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
 import { WelcomeDialog } from './components/Project/WelcomeDialog'
@@ -929,6 +930,7 @@ export default function App() {
       <BandwidthCalculatorDialog />
       <PowerCalculatorDialog />
       <RecordingStorageCalculatorDialog />
+      <BulkConnectDialog />
       <CableContextMenu />
       <AnnotationsPanelHost />
       <ExportDialog

@@ -230,6 +230,13 @@ export const MenuBar = ({
           >
             {t('app.menu.tools.recStorage', 'Recording-Speicherplatz berechnen…')}
           </MenuItem>
+          {/* #378 — Bulk-Cable-Connect-Dialog. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().openBulkConnect()}
+            icon="🔗"
+          >
+            {t('app.menu.tools.bulkConnect', 'Mehrere Kabel verbinden…')}
+          </MenuItem>
           {/* #401 — Rack Builder im Werkzeuge-Menü. Triggert einen leeren
               Builder; LibraryPanel switched auf Racks-Tab + öffnet Dialog. */}
           <MenuItem
