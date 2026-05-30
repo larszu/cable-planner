@@ -767,6 +767,19 @@ interface UiState extends PersistedUiState {
   analysis: { open: boolean }
   openAnalysis: () => void
   closeAnalysis: () => void
+  /** Vereinte „Plan-Check"-Palette: Live-Validierung des Plans (#411). */
+  planCheck: { open: boolean }
+  openPlanCheck: () => void
+  closePlanCheck: () => void
+  togglePlanCheck: () => void
+  /** Revisionen/Snapshots-Verwaltung (#412). */
+  revisions: { open: boolean }
+  openRevisions: () => void
+  closeRevisions: () => void
+  /** KI-Plan-Generierung aus Text-Prompt (#414). */
+  aiPlanGen: { open: boolean }
+  openAiPlanGen: () => void
+  closeAiPlanGen: () => void
   /** Generischer Equipment-CSV-Import in die Library (#354). */
   csvImport: { open: boolean }
   openCsvImport: () => void
@@ -1143,6 +1156,16 @@ export const useUiStore = create<UiState>((set) => ({
   analysis: { open: false },
   openAnalysis: () => set({ analysis: { open: true } }),
   closeAnalysis: () => set({ analysis: { open: false } }),
+  planCheck: { open: false },
+  openPlanCheck: () => set({ planCheck: { open: true } }),
+  closePlanCheck: () => set({ planCheck: { open: false } }),
+  togglePlanCheck: () => set((s) => ({ planCheck: { open: !s.planCheck.open } })),
+  revisions: { open: false },
+  openRevisions: () => set({ revisions: { open: true } }),
+  closeRevisions: () => set({ revisions: { open: false } }),
+  aiPlanGen: { open: false },
+  openAiPlanGen: () => set({ aiPlanGen: { open: true } }),
+  closeAiPlanGen: () => set({ aiPlanGen: { open: false } }),
   csvImport: { open: false },
   openCsvImport: () => set({ csvImport: { open: true } }),
   closeCsvImport: () => set({ csvImport: { open: false } }),

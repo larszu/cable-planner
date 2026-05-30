@@ -51,6 +51,28 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
 
         <label className="block">
           <span className="mb-1 block text-slate-300">
+            {t('eq.field.priceEUR', 'Preis / Miete (€)')}{' '}
+            <span className="text-slate-500">
+              ({t('common.optional', 'optional')}, {t('eq.field.priceEURHint', 'für Angebots-Export')})
+            </span>
+          </span>
+          <input
+            type="number"
+            min={0}
+            step={0.01}
+            value={equipment.priceEUR ?? ''}
+            placeholder={t('eq.field.priceEURPlaceholder', 'z. B. 1200')}
+            onChange={(event) =>
+              updateEquipment(equipment.id, {
+                priceEUR: event.target.value ? Math.max(0, Number(event.target.value)) : undefined,
+              })
+            }
+            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+          />
+        </label>
+
+        <label className="block">
+          <span className="mb-1 block text-slate-300">
             {t('eq.field.refImage', 'Referenzbild')}{' '}
             <span className="text-slate-500">({t('eq.field.refImageHint', 'z. B. Port-Belegung')})</span>
           </span>

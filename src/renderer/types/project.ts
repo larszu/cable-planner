@@ -71,6 +71,21 @@ export interface ProjectMetadata {
   /** Auto-Kabelnummerierungs-Schema. Undefined = noch nie konfiguriert
    *  (Defaults siehe `DEFAULT_CABLE_NUMBERING` in `lib/cableNumbering`). */
   cableNumbering?: CableNumberingScheme
+  /** #412 — Label der zuletzt festgeschriebenen Revision. Wird beim
+   *  Festschreiben gesetzt und im PDF-Titelblock als „Revision" gestempelt. */
+  revision?: string
+  /** #350 — Längen-Schätzung aus Canvas-Geometrie. */
+  lengthEstimation?: LengthEstimationScheme
+}
+
+/** #350 — Konfiguration für die geometrische Kabellängen-Schätzung. */
+export interface LengthEstimationScheme {
+  /** Maßstab: wie viele Meter entsprechen 100 px Canvas-Distanz. */
+  metersPer100px: number
+  /** Reserve-/Slack-Aufschlag in Prozent (z.B. 15 = +15 %). */
+  slackPercent: number
+  /** Auf ganze Meter aufrunden (true) oder eine Nachkommastelle (false). */
+  roundUp: boolean
 }
 
 export interface CanvasState {
@@ -114,7 +129,29 @@ export interface CablePlannerProject {
     author: string
     startedAt: string
   }
+  /** #412 — Benannte Projekt-Stände (Revisionen/Snapshots). Jede Revision
+   *  hält einen vollständigen Snapshot des Plans, sodass ein früherer Stand
+   *  wiederhergestellt werden kann. Optional → alte Projekte laden sauber. */
+  revisions?: ProjectRevision[]
 }
+
+/** #412 — Ein festgeschriebener Projekt-Stand. */
+export interface ProjectRevision {
+  id: string
+  /** Kurzes Label wie "A", "B", "Rev 2" oder "As-Built". */
+  label: string
+  /** Freitext-Notiz: was sich gegenüber dem vorigen Stand geändert hat. */
+  note: string
+  createdAt: string
+  /** Markiert diese Revision als As-Built (gebauter Endzustand). */
+  asBuilt: boolean
+  /** Vollständiger Snapshot des Plans zum Zeitpunkt des Festschreibens.
+   *  Enthält selbst KEINE `revisions` (kein rekursives Wachstum). */
+  snapshot: RevisionSnapshot
+}
+
+/** Der in einer Revision gespeicherte Plan-Stand (Project ohne `revisions`). */
+export type RevisionSnapshot = Omit<CablePlannerProject, 'revisions'>
 
 /** v7.9.3 — Anmerkung eines Reviewers an einem Canvas-Element. */
 export interface ProjectAnnotation {

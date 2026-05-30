@@ -106,6 +106,14 @@ export interface Port {
    */
   direction?: 'in' | 'out' | 'bidirectional'
   /**
+   * #410 — Steckverbinder-Geschlecht (male/female). Optional; alte Projekte
+   * heilen zu undefined. Wird als ♂/♀ am Port-Handle gezeigt und in
+   * Patchliste/Etiketten durchgereicht — relevant fuer die Kabel-Konfektion
+   * (welches Kabelende braucht welchen Stecker). Unabhaengig von `direction`
+   * (Signal-Richtung) und `connectorType` (Bauform).
+   */
+  gender?: 'male' | 'female'
+  /**
    * For Fiber ports: SFP module form-factor (e.g. "SFP", "SFP+", "QSFP+", "SFP28").
    * Only shown in the UI when connectorType === 'Fiber'.
    */
@@ -394,6 +402,10 @@ export interface EquipmentItem {
    *  Alle Werte sind optional, damit alte Datenstände kompatibel bleiben. */
   powerWatts?: number
   weightKg?: number
+  /** #354 — Optionaler Stückpreis bzw. Tagesmietpreis in EUR. Wird im
+   *  Angebots-Export (BOM × Preis) genutzt. Kein Pflichtfeld — alte
+   *  Projekte und Geräte ohne Preis bleiben gültig. */
+  priceEUR?: number
   /** Tiefe in mm. Wird vom 3D-Rack genutzt um zu prüfen ob ein Patchblende
    *  noch hinter das Gerät passt. Default beim Rendering: 400 mm. */
   depthMm?: number

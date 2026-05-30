@@ -1,7 +1,9 @@
-import { Check } from 'lucide-react'
+import { Check, AlertCircle, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { APP_VERSION } from '../../lib/appInfo'
 import { useUiStore } from '../../store/uiStore'
+import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
+import { runDrawingChecks } from '../../lib/drawingChecks'
 import { Icon } from '../shared/Icon'
 
 interface StatusBarProps {
@@ -43,6 +45,19 @@ export const StatusBar = ({
 }: StatusBarProps) => {
   const t = useTranslation()
   const complexity = complexityFor(equipmentCount, cableCount, t)
+  // #411 — Live-Plan-Check-Badge. Findings direkt aus dem Store (Equipment +
+  // Cables); ein Klick oeffnet/schliesst die Plan-Check-Palette.
+  const equipment = useProjectStore((s) => s.project.equipment)
+  const cables = useProjectStore((s) => s.project.cables)
+  const togglePlanCheck = useUiStore((s) => s.togglePlanCheck)
+  const { errorCount, warningCount } = runDrawingChecks({ equipment, cables })
+  const checkTone =
+    errorCount > 0
+      ? 'bg-red-700 text-red-50'
+      : warningCount > 0
+        ? 'bg-amber-600 text-amber-50'
+        : 'bg-emerald-700 text-emerald-50'
+  const checkIcon = errorCount > 0 ? AlertCircle : warningCount > 0 ? AlertTriangle : CheckCircle2
   return (
     <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1 text-cp-xs text-[var(--cp-text-secondary)]">
       <div className="flex min-w-0 items-center gap-3 overflow-hidden">
@@ -78,6 +93,17 @@ export const StatusBar = ({
         >
           {complexity.label}
         </span>
+        <button
+          type="button"
+          onClick={() => togglePlanCheck()}
+          className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-cp-xs font-bold ${checkTone}`}
+          title={t('statusbar.planCheck.title', 'Plan-Check öffnen: Live-Validierung (Fehler/Warnungen)')}
+        >
+          <Icon icon={checkIcon} size="xs" />
+          {errorCount > 0 || warningCount > 0
+            ? format(t('statusbar.planCheck.counts', '{errors}⚠'), { errors: errorCount + warningCount })
+            : t('statusbar.planCheck.ok', 'OK')}
+        </button>
       </div>
       <div className="flex shrink-0 items-center gap-3">
         {/* v7.9.4 — Rentman-Badge nur sichtbar wenn die Integration
