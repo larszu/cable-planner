@@ -763,6 +763,11 @@ const en: Dict = {
   'cable.field.maxReachPlaceholder': 'e.g. 100',
   'cable.field.layer': 'Layer',
   'cable.field.layerTitle': 'Works with the layer filter in the toolbar (layer chips)',
+  // #363 Multicore / snake grouping
+  'cable.field.multicore': 'Multicore / snake',
+  'cable.field.multicorePlaceholder': 'e.g. "Snake-1", "FOH-Loom"',
+  'cable.field.multicoreTitle':
+    'Cables sharing a name form one physical bundle — the BOM counts it as one item.',
   'cable.field.strokeWidth': 'Stroke width ({width}px)',
   'cable.field.labelPosition': 'Label position',
   'cable.field.labelSlider': 'Slider:',
@@ -2734,6 +2739,7 @@ const en: Dict = {
   'patchList.col.port': 'Port',
   'patchList.col.color': 'Colour',
   'patchList.col.layer': 'Layer',
+  'patchList.col.multicore': 'Multicore',
   'patchList.col.cableName': 'Cable name',
   'patchList.col.notes': 'Notes',
   'patchList.footerHint':
