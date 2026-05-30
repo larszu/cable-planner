@@ -85,6 +85,10 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   const [presetKey, setPresetKey] = useState<string>(() =>
     initialDevice ? guessVideohubPresetKey(initialDevice) : 'smart-40x40-12g',
   )
+  // #387 — Wenn presetKey === 'custom', steuern customInputs/customOutputs
+  // die Routing-Matrix-Groesse statt den Preset-Werten.
+  const [customInputs, setCustomInputs] = useState<number>(16)
+  const [customOutputs, setCustomOutputs] = useState<number>(16)
   const [friendlyName, setFriendlyName] = useState<string>('')
   // v7.9.128 — Default: Matrix offen. Vorher war's default zu — User
   // musste extra klicken, deshalb hat er die Salvos/Activity-Log-
@@ -352,7 +356,13 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   }
 
   const device = equipment.find((e) => e.id === deviceId)
-  const preset = videohubPresets.find((p) => p.key === presetKey) ?? videohubPresets[0]
+  const rawPreset = videohubPresets.find((p) => p.key === presetKey) ?? videohubPresets[0]
+  // #387 — Custom-Mode: User-spezifische Inputs/Outputs Anzahl ueberschreibt
+  // die Preset-Defaults; das spaeter abgeleitete preset-Objekt wird so
+  // dimensioniert.
+  const preset = presetKey === 'custom'
+    ? { ...rawPreset, inputs: customInputs, outputs: customOutputs }
+    : rawPreset
 
   // #250 Comment: Bei Geraete-Wechsel die IP aus den Geraete-Eigenschaften
   // ins TCP-Host-Feld uebernehmen. Nur wenn der User noch nicht selbst
@@ -677,17 +687,57 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 const key = e.target.value
                 setPresetKey(key)
                 const p = videohubPresets.find((x) => x.key === key) ?? videohubPresets[0]
-                setRouting(buildDefaultRouting(p.inputs, p.outputs))
+                if (key === 'custom') {
+                  setRouting(buildDefaultRouting(customInputs, customOutputs))
+                } else {
+                  setRouting(buildDefaultRouting(p.inputs, p.outputs))
+                }
               }}
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
             >
               {videohubPresets.map((p) => (
                 <option key={p.key} value={p.key}>
-                  {p.model} ({p.inputs}×{p.outputs})
+                  {p.model}{p.key === 'custom' ? '' : ` (${p.inputs}×${p.outputs})`}
                 </option>
               ))}
             </select>
           </label>
+
+          {/* #387 — Custom-Mode: User-spezifische Inputs/Outputs Anzahl. */}
+          {presetKey === 'custom' && (
+            <div className="col-span-2 grid grid-cols-2 gap-2 rounded border border-sky-700/40 bg-sky-950/20 p-2">
+              <label className="block text-xs text-slate-300">
+                Inputs
+                <input
+                  type="number"
+                  min={1}
+                  max={1024}
+                  value={customInputs}
+                  onChange={(e) => {
+                    const v = Math.max(1, Math.min(1024, Number(e.target.value) || 1))
+                    setCustomInputs(v)
+                    setRouting(buildDefaultRouting(v, customOutputs))
+                  }}
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+                />
+              </label>
+              <label className="block text-xs text-slate-300">
+                Outputs
+                <input
+                  type="number"
+                  min={1}
+                  max={1024}
+                  value={customOutputs}
+                  onChange={(e) => {
+                    const v = Math.max(1, Math.min(1024, Number(e.target.value) || 1))
+                    setCustomOutputs(v)
+                    setRouting(buildDefaultRouting(customInputs, v))
+                  }}
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+                />
+              </label>
+            </div>
+          )}
 
           <label className="block">
             Datei-Export-Format
