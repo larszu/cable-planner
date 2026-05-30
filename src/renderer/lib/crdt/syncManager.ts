@@ -28,6 +28,7 @@ export class SyncManager {
   private readonly transport: SyncTransport
   private unsubDoc: (() => void) | null = null
   private unsubTransport: (() => void) | null = null
+  private unsubResync: (() => void) | null = null
   private started = false
 
   constructor(crdt: ProjectCrdt, transport: SyncTransport) {
@@ -50,18 +51,32 @@ export class SyncManager {
       this.crdt.applyRemoteUpdate(update)
     })
 
+    // Resync-Anfragen beantworten (Transports ohne Join-Handshake): vollen
+    // Stand senden, damit der anfragende Peer aufholt. Idempotent.
+    if (this.transport.onResyncRequest) {
+      this.unsubResync = this.transport.onResyncRequest(() => {
+        this.transport.send(this.crdt.encodeState())
+      })
+    }
+
     // Initial-State anbieten, damit ein beitretender Peer aufholt.
     if (opts.sendInitialState !== false) {
       this.transport.send(this.crdt.encodeState())
     }
+
+    // Verbindung aktiv anstoßen (z. B. „hello" broadcasten) — NACH allen
+    // Listenern, damit keine Antwort verloren geht.
+    this.transport.connect?.()
   }
 
   /** Trennt die Schleife (Listener ab); Doc + Transport bleiben bestehen. */
   stop(): void {
     this.unsubDoc?.()
     this.unsubTransport?.()
+    this.unsubResync?.()
     this.unsubDoc = null
     this.unsubTransport = null
+    this.unsubResync = null
     this.started = false
   }
 }

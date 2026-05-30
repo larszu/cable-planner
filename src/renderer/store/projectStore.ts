@@ -160,6 +160,17 @@ export interface ProjectState {
   setRecentProjects: (items: string[]) => void
   setFilePath: (path?: string) => void
   loadProject: (project: CablePlannerProject, filePath?: string) => void
+  /** #413 — Wendet einen remote (CRDT-)Stand von equipment/cables/locations
+   *  auf das aktuelle Projekt an. Anders als loadProject: ersetzt NUR diese
+   *  drei Collections (Metadaten, canvasState, Annotationen etc. bleiben),
+   *  bumpt projectVersion NICHT (kein Viewport-Reset beim Mit-Editieren) und
+   *  lässt die Selektion stehen. Wird ausschließlich von der CRDT-Binding-
+   *  Schicht aufgerufen, nie aus der UI. */
+  applyRemoteProject: (slice: {
+    equipment: EquipmentItem[]
+    cables: Cable[]
+    locations: LocationFrame[]
+  }) => void
   setProjectMeta: (name: string, description: string) => void
   updateProjectMetadata: (
     patch: Partial<import('../types/project').ProjectMetadata>,
@@ -686,6 +697,20 @@ const buildProjectStore = (
         customLibrary: healedLibrary,
       }
     }),
+  applyRemoteProject: (slice) =>
+    set((state) => ({
+      // Nur die drei kollaborativen Collections ersetzen; alles andere am
+      // Projekt (Metadaten, canvasState, Annotationen, Revisionen …) bleibt
+      // unangetastet. KEIN touchProject (updatedAt würde sonst bei jedem
+      // empfangenen Remote-Update springen) und KEIN projectVersion-Bump
+      // (sonst würde der Canvas-Viewport beim Mit-Editieren zurückgesetzt).
+      project: {
+        ...state.project,
+        equipment: slice.equipment,
+        cables: slice.cables,
+        locations: slice.locations,
+      },
+    })),
   importGraphml: (payload) => {
     const newIds: string[] = []
     set((state) => {

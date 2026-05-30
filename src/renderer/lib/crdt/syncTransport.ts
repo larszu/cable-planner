@@ -13,6 +13,18 @@ export interface SyncTransport {
   send(update: Uint8Array): void
   /** Registriert einen Empfangs-Handler. Rückgabe: Unsubscribe. */
   onReceive(cb: (update: Uint8Array) => void): () => void
+  /** Optional: Manche Transports (z. B. BroadcastChannel ohne Join-
+   *  Handshake) können nicht garantieren, dass ein spät hinzukommender
+   *  Peer den bisherigen Stand sieht. Sie signalisieren über diesen Hook
+   *  „bitte vollen Stand erneut senden"; der SyncManager antwortet dann mit
+   *  `encodeState()`. Transports mit eigenem Initial-Sync (Loopback,
+   *  y-websocket) lassen das weg. Rückgabe: Unsubscribe. */
+  onResyncRequest?(cb: () => void): () => void
+  /** Optional: Aktiviert die Verbindung / fordert den Initial-Stand der
+   *  Peers an (z. B. „hello" broadcasten). Wird vom Orchestrator NACH dem
+   *  Registrieren aller Listener aufgerufen, damit keine Antwort verloren
+   *  geht. */
+  connect?(): void
   /** Räumt Ressourcen/Listener auf. */
   dispose(): void
 }
