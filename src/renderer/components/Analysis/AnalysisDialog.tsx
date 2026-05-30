@@ -19,6 +19,7 @@ import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { useTranslation, format } from '../../lib/i18n'
+import { checkDanteName } from '../../lib/danteNaming'
 import type { EquipmentItem } from '../../types/equipment'
 
 type Tab = 'weight' | 'network' | 'redundancy' | 'rf'
@@ -201,7 +202,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
 
-  const { rows, duplicates, vlanCounts } = useMemo(() => {
+  const { rows, duplicates, vlanCounts, danteIssues } = useMemo(() => {
     const rows = equipment
       .filter((e) => e.ipAddress || e.managementVlanId != null || (e.vlans?.length ?? 0) > 0)
       .map((e) => ({
@@ -222,7 +223,12 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
       for (const v of e.vlans ?? []) vlanMap.set(v.id, (vlanMap.get(v.id) ?? 0) + 1)
     }
     const vlanCounts = [...vlanMap.entries()].map(([id, count]) => ({ id, count })).sort((a, b) => a.id - b.id)
-    return { rows, duplicates, vlanCounts }
+    // #346 — Dante-/AES67-Naming-Check fuer netzwerkfaehige Geraete: Namen
+    // muessen DNS-safe sein (<=31 Zeichen, a-z/0-9/-). Verstoesse + Vorschlag.
+    const danteIssues = rows
+      .map((r) => ({ name: r.name, check: checkDanteName(r.name) }))
+      .filter((x) => !x.check.valid)
+    return { rows, duplicates, vlanCounts, danteIssues }
   }, [equipment])
 
   const exportCsv = () => {
@@ -245,6 +251,21 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
             {duplicates.map(([ip, names]) => (
               <li key={ip}>
                 <span className="font-mono">{ip}</span>: {names.join(', ')}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {danteIssues.length > 0 && (
+        <div className="rounded border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
+          <div className="mb-1 font-semibold">
+            {t('analysis.network.danteTitle', 'Dante-/AES67-Namen prüfen (≤31 Zeichen, a–z/0–9/-)')}
+          </div>
+          <ul className="list-inside list-disc">
+            {danteIssues.map((x) => (
+              <li key={x.name}>
+                <span className="font-mono">{x.name || '∅'}</span>: {x.check.issues.join(', ')} →{' '}
+                <span className="font-mono text-amber-100">{x.check.suggestion}</span>
               </li>
             ))}
           </ul>
