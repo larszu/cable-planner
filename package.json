@@ -48,6 +48,7 @@
         "three-stdlib": "^2.36.1",
         "uuid": "^14.0.0",
         "xlsx-js-style": "^1.2.0",
+        "y-webrtc": "^10.3.0",
         "yaml": "^2.8.3",
         "yjs": "^13.6.31",
         "zustand": "^5.0.8"
