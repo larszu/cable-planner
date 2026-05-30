@@ -340,6 +340,26 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
     updatePort(portId, { quadLinkGroup: raw || undefined })
   }
 
+  // #370 — Dual-Link Set Helpers: zwei BNC-Ports mit gleichem
+  // dualLinkGroup-ID bilden ein Dual-Link-SDI-Paar (2× 1.5G / 2× 3G).
+  const existingDualGroups = useMemo(() => {
+    const set = new Set<string>()
+    for (const p of ports) if (p.dualLinkGroup) set.add(p.dualLinkGroup)
+    return Array.from(set).sort()
+  }, [ports])
+  const dualGroupCount = (g: string): number =>
+    ports.filter((p) => p.dualLinkGroup === g).length
+  const nextDualGroupId = (): string => {
+    let i = 1
+    while (existingDualGroups.includes(`DL-${i}`)) i++
+    return `DL-${i}`
+  }
+  const assignDualGroup = (portId: string, raw: string) => {
+    updatePort(portId, {
+      dualLinkGroup: raw === '__new__' ? nextDualGroupId() : raw || undefined,
+    })
+  }
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
@@ -623,10 +643,11 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     port.sdiCaps?.maxSingleLink ||
                     port.sdiCaps?.levelA ||
                     port.sdiCaps?.levelB ||
-                    port.quadLinkGroup
+                    port.quadLinkGroup ||
+                    port.dualLinkGroup
                   )
                 }
-                badge={[port.sdiCaps?.maxSingleLink, port.quadLinkGroup]
+                badge={[port.sdiCaps?.maxSingleLink, port.quadLinkGroup, port.dualLinkGroup]
                   .filter(Boolean)
                   .join(' · ')}
               >
@@ -741,6 +762,41 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                             </button>
                           )}
                         </>
+                      )}
+                    </div>
+                  )
+                })()}
+                {(() => {
+                  const dg = port.dualLinkGroup
+                  const dcount = dg ? dualGroupCount(dg) : 0
+                  const dok = dcount === 2
+                  return (
+                    <div className="mt-1.5 flex items-center gap-1 text-[10px]">
+                      <span className="text-slate-400">{t('ports.sdi.dualSet', 'Dual-Link Set:')}</span>
+                      <select
+                        value={dg ?? ''}
+                        onChange={(e) => assignDualGroup(port.id, e.target.value)}
+                        className="rounded border border-slate-700 bg-slate-950 px-1 py-0.5 text-[10px]"
+                      >
+                        <option value="">— Kein —</option>
+                        {existingDualGroups.map((gid) => (
+                          <option key={gid} value={gid}>{gid}</option>
+                        ))}
+                        <option value="__new__">+ Neues Set…</option>
+                      </select>
+                      {dg && (
+                        <span
+                          className={`rounded px-1 py-0.5 text-[9px] font-bold ${
+                            dok
+                              ? 'bg-emerald-900/60 text-emerald-300'
+                              : 'bg-amber-900/60 text-amber-300'
+                          }`}
+                          title={dok
+                            ? t('dualLink.complete', 'Set komplett')
+                            : t('dualLink.incomplete', 'Set unvollständig — 2 Ports nötig')}
+                        >
+                          {dcount}/2
+                        </span>
                       )}
                     </div>
                   )

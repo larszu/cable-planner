@@ -1849,6 +1849,7 @@ const en: Dict = {
   'ports.gender.female': '♀ Female / socket',
   'ports.sdi.maxSingleLink': 'Max single-link',
   'ports.sdi.quadSet': 'Quad-link set:',
+  'ports.sdi.dualSet': 'Dual-link set:',
 
   // Shortcut keys (Strg/Ctrl + …)
   'shortcut.ctrlN': 'Ctrl+N',
@@ -2377,6 +2378,8 @@ const en: Dict = {
   'quadLink.okFill': 'Yes, fill',
   'quadLink.complete': 'Set complete',
   'quadLink.incomplete': 'Set incomplete — 4 ports required',
+  'dualLink.complete': 'Set complete',
+  'dualLink.incomplete': 'Set incomplete — 2 ports required',
 
   // LibraryPanel rentman section + netbox + create
   'library.rentman.noProjectLinked': 'No Rentman project linked.',

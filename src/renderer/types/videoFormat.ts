@@ -43,6 +43,8 @@ export type SdiCarrier =
   | 'SDI-12G'
   | 'QuadLink-3G-2SI'
   | 'QuadLink-3G-SquareDivision'
+  | 'DualLink-HD' // #370 — Dual-Link HD-SDI (2× 1.5G, SMPTE 372M): 1080p50/60 oder 4:4:4
+  | 'DualLink-3G' // #370 — Dual-Link 3G-SDI (2× 3G)
 
 export interface VideoFormat {
   id: VideoFormatId
@@ -70,14 +72,14 @@ export const VIDEO_FORMATS: VideoFormat[] = [
   {
     id: '1080p50',
     label: '1080p50 (3G)',
-    carriers: ['SDI-3G-A', 'SDI-3G-B'],
+    carriers: ['SDI-3G-A', 'SDI-3G-B', 'DualLink-HD'],
     preferredCable: 'SDI-3G',
     notesKey: 'catalog.videoFormat.1080p50.notes',
   },
   {
     id: '1080p60',
     label: '1080p59.94 / 1080p60 (3G)',
-    carriers: ['SDI-3G-A', 'SDI-3G-B'],
+    carriers: ['SDI-3G-A', 'SDI-3G-B', 'DualLink-HD'],
     preferredCable: 'SDI-3G',
   },
   {
@@ -140,6 +142,10 @@ export interface SdiCapabilities {
   maxSingleLink?: 'SDI-HD' | 'SDI-3G' | 'SDI-6G' | 'SDI-12G'
   /** Quad Link 3G-SDI support (for 2160p50/60 over four BNC cables). */
   quadLink3G?: QuadLinkMode
+  /** #370 — Dual-Link SDI support (two BNC: 2× 1.5G for 1080p50/60 or
+   *  4:4:4, SMPTE 372M; or 2× 3G). Pairs are grouped via `dualLinkGroup`
+   *  on the ports. */
+  dualLink?: boolean
 }
 
 export type QuadLinkMode = 'none' | '2SI' | 'SquareDivision' | 'both'
