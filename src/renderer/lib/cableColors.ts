@@ -65,6 +65,12 @@ export const DEFAULT_CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
   PowerCON: '#0ea5e9',
   'Schuko 230V': '#334155',
   'C7 Eurostecker': '#64748b',
+  CEE16: '#2563eb',
+  CEE32: '#dc2626',
+  CEE63: '#b91c1c',
+  Powerlock: '#1e293b',
+  Socapex: '#475569',
+  Harting: '#334155',
   Custom: '#94a3b8',
 }
 
