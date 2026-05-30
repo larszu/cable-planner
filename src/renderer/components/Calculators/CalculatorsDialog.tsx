@@ -25,44 +25,8 @@ import { useTranslation } from '../../lib/i18n'
 //      plus per-cable slack.
 // Until that lands, the existing per-cable `length` field captures
 // the truth the user knows best.
-type Tab = 'bandwidth' | 'power'
-
-const TAB_LABEL_DE: Record<Tab, string> = {
-  bandwidth: '📡 Bandbreite',
-  power: '⚡ Stromverbrauch',
-}
-
-const TabBar = ({
-  active,
-  onChange,
-}: {
-  active: Tab
-  onChange: (next: Tab) => void
-}) => {
-  const t = useTranslation()
-  const TAB_LABEL: Record<Tab, string> = {
-    bandwidth: t('calc.tab.bandwidth', TAB_LABEL_DE.bandwidth),
-    power: t('calc.tab.power', TAB_LABEL_DE.power),
-  }
-  return (
-    <div className="flex gap-1 border-b border-slate-800 px-4 py-2">
-      {(Object.keys(TAB_LABEL) as Tab[]).map((tabId) => (
-        <button
-          key={tabId}
-          type="button"
-          onClick={() => onChange(tabId)}
-          className={`rounded px-3 py-1 text-xs ${
-            active === tabId
-              ? 'bg-sky-700 text-white'
-              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-          }`}
-        >
-          {TAB_LABEL[tabId]}
-        </button>
-      ))}
-    </div>
-  )
-}
+// #403 — TabBar entfernt: Bandwidth + Power sind jetzt zwei
+// separate Dialoge (siehe Export-Block am Dateiende).
 
 // ─── Bandwidth ─────────────────────────────────────────────────────────────
 
@@ -534,29 +498,44 @@ const PowerTab = () => {
   )
 }
 
-export const CalculatorsDialog = () => {
+/**
+ * #403 — Bandbreite und Stromverbrauch sind jetzt ZWEI getrennte
+ * Dialoge. Vorher tabten sie sich gemeinsam, was bedeutete: der User
+ * konnte nicht beide gleichzeitig offen halten. Jetzt sind sie
+ * unabhaengige Fenster mit eigenem uiStore-State.
+ */
+export const BandwidthCalculatorDialog = () => {
   const t = useTranslation()
-  const open = useUiStore((s) => s.calculators.open)
-  const close = useUiStore((s) => s.closeCalculators)
-  // v7.5.0 — older shortcuts may still pass 'length'; coerce to bandwidth
-  // since the cable-length calculator was removed (no meaningful estimate
-  // without an inter-location distance graph).
-  const initialTab = useUiStore((s) => s.calculators.tab)
-  const [tab, setTab] = useState<Tab>(
-    initialTab === 'bandwidth' || initialTab === 'power' ? initialTab : 'bandwidth',
-  )
+  const open = useUiStore((s) => s.bandwidthCalc.open)
+  const close = useUiStore((s) => s.closeBandwidthCalc)
   return (
     <ModalShell
       open={open}
       onClose={close}
-      title={t('calc.title', 'Werkzeuge / Rechner')}
+      title={t('calc.bandwidth.title', '📡 Bandbreite berechnen')}
       titleIcon="🧮"
       maxWidth="2xl"
-      draggableKey="cable-planner:modal-pos:calculators"
+      draggableKey="cable-planner:modal-pos:bandwidth-calc"
     >
-      <TabBar active={tab} onChange={setTab} />
-      {tab === 'bandwidth' && <BandwidthTab />}
-      {tab === 'power' && <PowerTab />}
+      <BandwidthTab />
+    </ModalShell>
+  )
+}
+
+export const PowerCalculatorDialog = () => {
+  const t = useTranslation()
+  const open = useUiStore((s) => s.powerCalc.open)
+  const close = useUiStore((s) => s.closePowerCalc)
+  return (
+    <ModalShell
+      open={open}
+      onClose={close}
+      title={t('calc.power.title', '⚡ Stromverbrauch')}
+      titleIcon="🧮"
+      maxWidth="2xl"
+      draggableKey="cable-planner:modal-pos:power-calc"
+    >
+      <PowerTab />
     </ModalShell>
   )
 }

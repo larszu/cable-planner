@@ -769,6 +769,17 @@ interface UiState extends PersistedUiState {
   calculators: { open: boolean; tab?: 'bandwidth' | 'power' }
   openCalculators: (tab?: 'bandwidth' | 'power') => void
   closeCalculators: () => void
+  /** #403 — Bandbreite und Stromverbrauch sind jetzt zwei getrennte
+   *  Dialoge mit eigenem Open-State, damit der User beide gleichzeitig
+   *  offen halten kann. Der alte `calculators`-State bleibt als
+   *  Fallback fuer Backwards-Kompatibilitaet (Shortcuts/Hotkeys); die
+   *  MenuBar nutzt jetzt openBandwidthCalc / openPowerCalc. */
+  bandwidthCalc: { open: boolean }
+  openBandwidthCalc: () => void
+  closeBandwidthCalc: () => void
+  powerCalc: { open: boolean }
+  openPowerCalc: () => void
+  closePowerCalc: () => void
   /** Rentman equipment import dialog (cross-component trigger). */
   rentmanImport: { open: boolean }
   openRentmanImport: () => void
@@ -1136,6 +1147,12 @@ export const useUiStore = create<UiState>((set) => ({
   calculators: { open: false },
   openCalculators: (tab) => set({ calculators: { open: true, tab } }),
   closeCalculators: () => set({ calculators: { open: false } }),
+  bandwidthCalc: { open: false },
+  openBandwidthCalc: () => set({ bandwidthCalc: { open: true } }),
+  closeBandwidthCalc: () => set({ bandwidthCalc: { open: false } }),
+  powerCalc: { open: false },
+  openPowerCalc: () => set({ powerCalc: { open: true } }),
+  closePowerCalc: () => set({ powerCalc: { open: false } }),
   rentmanImport: { open: false },
   openRentmanImport: () => set({ rentmanImport: { open: true } }),
   closeRentmanImport: () => set({ rentmanImport: { open: false } }),
