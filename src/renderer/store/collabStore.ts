@@ -7,6 +7,7 @@
 import { create } from 'zustand'
 import { startCollaboration, type CollabMode, type CollabSession } from '../lib/crdt/collab'
 
+export type { CollabMode } from '../lib/crdt/collab'
 export type CollabStatus = 'off' | 'connecting' | 'on' | 'error'
 
 interface PersistedCollab {
