@@ -56,6 +56,7 @@ const HotkeyRow = ({
         onClick={() => onChange('')}
         className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-400 hover:bg-red-700 hover:text-white"
         title={t('settings.hotkeys.clear', 'Hotkey leeren')}
+        aria-label={t('settings.hotkeys.clear', 'Hotkey leeren')}
       >
         <Icon icon={X} size="sm" />
       </button>

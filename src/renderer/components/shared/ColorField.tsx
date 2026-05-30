@@ -47,6 +47,7 @@ export const ColorField = ({
             onChange={(event) => onChange(event.target.value)}
             className="h-7 w-12 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
             title={title}
+            aria-label={label}
           />
           {onReset && (
             <button
@@ -71,6 +72,7 @@ export const ColorField = ({
         onChange={(event) => onChange(event.target.value)}
         className="h-9 w-full cursor-pointer rounded border border-slate-700 bg-slate-900 p-1"
         title={title}
+        aria-label={label}
       />
     </label>
   )

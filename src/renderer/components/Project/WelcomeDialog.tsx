@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { FileText, FolderOpen, Clock } from 'lucide-react'
 import { cablePlannerApi } from '../../lib/bridge'
 import { ModalShell } from '../shared/ModalShell'
+import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
 
 interface WelcomeDialogProps {
@@ -77,7 +79,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
           }}
           className="flex w-full items-start gap-3 rounded border border-slate-700 bg-slate-800 px-3 py-2.5 text-left hover:border-emerald-500 hover:bg-slate-700"
         >
-          <span className="text-xl">📄</span>
+          <Icon icon={FileText} size="lg" className="mt-0.5 text-emerald-400" />
           <span className="flex-1">
             <span className="block text-sm font-semibold">
               {t('project.welcome.newTitle', 'Neues Projekt')}
@@ -96,7 +98,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
           }}
           className="flex w-full items-start gap-3 rounded border border-slate-700 bg-slate-800 px-3 py-2.5 text-left hover:border-sky-500 hover:bg-slate-700"
         >
-          <span className="text-xl">📂</span>
+          <Icon icon={FolderOpen} size="lg" className="mt-0.5 text-sky-400" />
           <span className="flex-1">
             <span className="block text-sm font-semibold">
               {t('project.welcome.openTitle', 'Projekt öffnen…')}
@@ -121,7 +123,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
                   className="flex items-center gap-2 rounded border border-slate-800 bg-slate-950/40 px-2 py-1 text-[11px] text-slate-400"
                   title={path}
                 >
-                  <span>🕘</span>
+                  <Icon icon={Clock} size="sm" />
                   <span className="min-w-0 flex-1 truncate">{fileNameOf(path)}</span>
                 </div>
               ))}

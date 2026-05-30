@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { Zap, Link, Square, SquareCheck } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { format, useTranslation } from '../../lib/i18n'
 
 interface ChecklistItem {
@@ -223,7 +225,7 @@ export const EquipmentChecklist = ({
                                 className="ml-2 rounded bg-amber-800/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-100"
                                 title={format(t('rentman.checklist.badge.nameOnlyTitle', 'Lokales Template "{name}" hat denselben Namen aber keinen Rentman-ID. Beim Import erscheint ein Konflikt-Dialog — Default ist die lokale Version (mit Ports) zu behalten und nur die Rentman-ID anzuhaengen.'), { name: item.templateMatch })}
                               >
-                                {format(t('rentman.checklist.badge.nameOnly', '⚡ Lokal vorhanden: {name} — Konflikt-Dialog'), { name: item.templateMatch })}
+                                <><Icon icon={Zap} size="xs" className="mr-1 inline-block align-text-bottom" />{format(t('rentman.checklist.badge.nameOnly', 'Lokal vorhanden: {name} — Konflikt-Dialog'), { name: item.templateMatch })}</>
                               </span>
                             )
                           }
@@ -262,7 +264,7 @@ export const EquipmentChecklist = ({
                               className="rounded bg-sky-800/60 px-1.5 py-0.5 text-[10px] text-sky-100"
                               title={t('rentman.checklist.linkedTitle', 'Verknüpft mit lokalem Gerät — wird beim Import nicht doppelt angelegt')}
                             >
-                              🔗 {linkedDevice.name}
+                              <Icon icon={Link} size="xs" className="mr-1 inline-block align-text-bottom" />{linkedDevice.name}
                             </span>
                           )
                         }
@@ -275,7 +277,7 @@ export const EquipmentChecklist = ({
                             className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[10px] text-slate-300"
                             title={t('rentman.checklist.linkSelectTitle', 'Mit existierendem Gerät verknüpfen')}
                           >
-                            <option value="">{t('rentman.checklist.linkPlaceholder', '🔗 Verknüpfen…')}</option>
+                            <option value="">{t('rentman.checklist.linkPlaceholder', 'Verknüpfen…')}</option>
                             {linkableEquipment.map((e) => (
                               <option key={e.id} value={e.id}>{e.name}</option>
                             ))}
@@ -290,7 +292,7 @@ export const EquipmentChecklist = ({
                         className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
                         title={allChildrenChecked ? t('rentman.checklist.deselectChildren', 'Alle Kinder abwählen') : t('rentman.checklist.selectChildren', 'Alle Kinder auswählen')}
                       >
-                        {allChildrenChecked ? t('rentman.checklist.childrenAllOff', '☐ alle') : t('rentman.checklist.childrenAllOn', '☑ alle')}
+                        <span className="inline-flex items-center gap-1"><Icon icon={allChildrenChecked ? Square : SquareCheck} size="xs" />{allChildrenChecked ? t('rentman.checklist.childrenAllOff', 'alle') : t('rentman.checklist.childrenAllOn', 'alle')}</span>
                       </button>
                     )}
                   </div>

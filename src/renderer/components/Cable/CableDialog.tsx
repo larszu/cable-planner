@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Save } from 'lucide-react'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { useUiStore } from '../../store/uiStore'
 import { confirmDialog } from '../../lib/confirmDialog'
@@ -377,7 +378,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                 className="mt-2 w-full rounded bg-sky-700 px-2 py-1 text-xs font-medium text-white hover:bg-sky-600"
                 title={t('cable.dialog.saveCustomTitle', 'Speichert diese Custom-Definition als wiederverwendbaren Kabeltyp in der Bibliothek.')}
               >
-                💾 Als Kabel-Typ speichern…
+                <Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />Als Kabel-Typ speichern…
               </button>
             </div>
           )}

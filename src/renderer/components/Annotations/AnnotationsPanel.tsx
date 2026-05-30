@@ -10,8 +10,10 @@
 
 import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { MessageSquare } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
+import { Icon } from '../shared/Icon'
 import { promptDialog } from '../../lib/promptDialog'
 import { format, useTranslation } from '../../lib/i18n'
 import { confirmDialog } from '../../lib/confirmDialog'
@@ -135,7 +137,9 @@ export const AnnotationsPanel = ({
     <div className="fixed right-0 top-0 z-40 flex h-screen w-96 max-w-[95vw] flex-col border-l border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
       <header className="flex items-center justify-between border-b border-slate-800 px-3 py-2">
         <div className="flex flex-col">
-          <h3 className="text-sm font-semibold">💬 Anmerkungen ({annotations.length})</h3>
+          <h3 className="flex items-center gap-1.5 text-sm font-semibold">
+            <Icon icon={MessageSquare} size="sm" /> Anmerkungen ({annotations.length})
+          </h3>
           {viewerSession && (
             <span className="text-[10px] text-slate-500">{format(t('annotations.reviewer', 'Reviewer: {name}'), { name: viewerSession.author })}</span>
           )}

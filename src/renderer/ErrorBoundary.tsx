@@ -283,7 +283,7 @@ export class ErrorBoundary extends Component<Props, State> {
               color: '#a7f3d0',
             }}>
               <div style={{ fontWeight: 600, marginBottom: 6 }}>
-                ⚙ Boot-Loop erkannt — UI-Einstellungen wurden automatisch zurückgesetzt.
+                Boot-Loop erkannt — UI-Einstellungen wurden automatisch zurückgesetzt.
               </div>
               <div style={{ fontSize: 13, lineHeight: 1.5 }}>
                 ✅ <strong>Deine Projekt-Daten sind sicher</strong>: das Autosave,

@@ -1,5 +1,8 @@
 import { useMemo, useState } from 'react'
-import { X } from 'lucide-react'
+import {
+  Download, X, Monitor, SlidersHorizontal, Tag, Shuffle, Headphones, FileText, Upload, Save,
+  type LucideIcon,
+} from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useUiStore } from '../../../store/uiStore'
 import { useProjectStore } from '../../../store/projectStore'
@@ -26,13 +29,13 @@ const CONFIG_KIND_LABEL: Record<DeviceConfigKind, string> = {
   other: 'Sonstige',
 }
 
-const CONFIG_KIND_ICON: Record<DeviceConfigKind, string> = {
-  'atem-mv': '🟦',
-  'atem-audio': '🟪',
-  'videohub-labels': '🟣',
-  'videohub-routing': '🟣',
-  greengo: '🟢',
-  other: '📄',
+const CONFIG_KIND_ICON: Record<DeviceConfigKind, LucideIcon> = {
+  'atem-mv': Monitor,
+  'atem-audio': SlidersHorizontal,
+  'videohub-labels': Tag,
+  'videohub-routing': Shuffle,
+  greengo: Headphones,
+  other: FileText,
 }
 
 const guessKindFromFileName = (fileName: string): DeviceConfigKind => {
@@ -164,17 +167,19 @@ export const ConfigsTab = () => {
           <button
             type="button"
             onClick={() => void handleUpload()}
-            className="rounded bg-sky-700 px-3 py-1 text-xs text-white hover:bg-sky-600"
+            className="inline-flex items-center gap-1.5 rounded bg-sky-700 px-3 py-1 text-xs text-white hover:bg-sky-600"
           >
-            {t('settings.configs.pickFile', '📤 Datei wählen…')}
+            <Icon icon={Upload} size="xs" />
+            {t('settings.configs.pickFile', 'Datei wählen…')}
           </button>
           <button
             type="button"
             onClick={handleExportBundle}
             disabled={library.length === 0}
-            className="rounded bg-emerald-700 px-3 py-1 text-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {t('settings.configs.exportBundle', '💾 Bibliothek als JSON exportieren')}
+            <Icon icon={Save} size="xs" />
+            {t('settings.configs.exportBundle', 'Bibliothek als JSON exportieren')}
           </button>
           <button
             type="button"
@@ -204,17 +209,21 @@ export const ConfigsTab = () => {
                 key={k}
                 type="button"
                 onClick={() => setFilter(k)}
-                className={`rounded px-2 py-0.5 text-[11px] ${
+                className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] ${
                   filter === k
                     ? 'bg-sky-700 text-white'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                 }`}
               >
-                {k === 'all'
-                  ? format(t('settings.configs.filterAll', 'Alle ({n})'), { n: library.length })
-                  : `${CONFIG_KIND_ICON[k]} ${t(`settings.configs.kind.${k}`, CONFIG_KIND_LABEL[k])} (${
-                      library.filter((e) => e.kind === k).length
-                    })`}
+                {k === 'all' ? (
+                  format(t('settings.configs.filterAll', 'Alle ({n})'), { n: library.length })
+                ) : (
+                  <>
+                    <Icon icon={CONFIG_KIND_ICON[k]} size="xs" />
+                    {t(`settings.configs.kind.${k}`, CONFIG_KIND_LABEL[k])} (
+                    {library.filter((e) => e.kind === k).length})
+                  </>
+                )}
               </button>
             ),
           )}
@@ -235,8 +244,9 @@ export const ConfigsTab = () => {
           <ul className="space-y-2">
             {Array.from(grouped.entries()).map(([kind, entries]) => (
               <li key={kind}>
-                <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
-                  {CONFIG_KIND_ICON[kind]} {t(`settings.configs.kind.${kind}`, CONFIG_KIND_LABEL[kind])}
+                <div className="mb-1 flex items-center gap-1 text-[10px] uppercase tracking-wide text-slate-500">
+                  <Icon icon={CONFIG_KIND_ICON[kind]} size="xs" />
+                  {t(`settings.configs.kind.${kind}`, CONFIG_KIND_LABEL[kind])}
                 </div>
                 <ul className="space-y-1">
                   {entries.map((entry) => {
@@ -312,7 +322,7 @@ export const ConfigsTab = () => {
                             className="rounded bg-slate-700 px-2 py-0.5 text-[11px] text-slate-100 hover:bg-slate-600"
                             title={t('settings.configs.downloadTitle', 'Originaldatei herunterladen')}
                           >
-                            ⬇
+                            <Icon icon={Download} size="xs" />
                           </button>
                           <button
                             type="button"

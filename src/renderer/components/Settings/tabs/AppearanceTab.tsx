@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { X } from 'lucide-react'
+import { X, Moon, Sun } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useUiStore } from '../../../store/uiStore'
 import { useProjectStore } from '../../../store/projectStore'
@@ -198,15 +198,21 @@ export const AppearanceTab = () => {
               key={mode}
               type="button"
               onClick={() => setCanvasTheme(mode)}
-              className={`flex-1 rounded px-3 py-1 text-xs ${
+              className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded px-3 py-1 text-xs ${
                 canvasTheme === mode
                   ? 'bg-sky-700 text-white'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
             >
-              {mode === 'dark'
-                ? t('settings.appearance.theme.dark', '🌙 Dunkel')
-                : t('settings.appearance.theme.light', '☀ Hell')}
+              {mode === 'dark' ? (
+                <>
+                  <Icon icon={Moon} size="xs" /> {t('settings.appearance.theme.dark', 'Dunkel')}
+                </>
+              ) : (
+                <>
+                  <Icon icon={Sun} size="xs" /> {t('settings.appearance.theme.light', 'Hell')}
+                </>
+              )}
             </button>
           ))}
         </div>
@@ -412,8 +418,8 @@ export const AppearanceTab = () => {
           </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {([
-              ['dark', t('settings.canvasBg.darkImage', '🌙 Dark-Mode-Bild'), canvasBgImageDark] as const,
-              ['light', t('settings.canvasBg.lightImage', '☀ Light-Mode-Bild'), canvasBgImageLight] as const,
+              ['dark', t('settings.canvasBg.darkImage', 'Dark-Mode-Bild'), canvasBgImageDark] as const,
+              ['light', t('settings.canvasBg.lightImage', 'Light-Mode-Bild'), canvasBgImageLight] as const,
             ]).map(([theme, label, current]) => (
               <div key={theme} className="rounded border border-slate-800 bg-slate-950/40 p-2">
                 <div className="mb-1 text-[11px] font-semibold text-slate-300">{label}</div>
@@ -440,6 +446,7 @@ export const AppearanceTab = () => {
                         onClick={() => setCanvasBgImage(theme, null)}
                         className="rounded bg-red-900/60 px-2 py-1 text-[11px] text-red-200 hover:bg-red-800"
                         title={t('settings.canvasBg.remove', 'Bild entfernen')}
+                        aria-label={t('settings.canvasBg.remove', 'Bild entfernen')}
                       >
                         <Icon icon={X} size="sm" />
                       </button>

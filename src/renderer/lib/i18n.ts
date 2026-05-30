@@ -160,8 +160,8 @@ const en: Dict = {
   'settings.appearance.theme': 'Theme',
   'settings.appearance.themeDesc':
     'Canvas background colour. Optimised for dark; light is intended for PDF export or bright environments.',
-  'settings.appearance.theme.dark': '🌙 Dark',
-  'settings.appearance.theme.light': '☀ Light',
+  'settings.appearance.theme.dark': 'Dark',
+  'settings.appearance.theme.light': 'Light',
   'settings.appearance.ports': 'Port colours',
   'settings.appearance.portsDesc': 'Controls how port handles on equipment are coloured.',
   'settings.appearance.ports.byDirection': 'By direction (default)',
@@ -218,7 +218,7 @@ const en: Dict = {
   'settings.integrations.linkedRentman.titleSelect': 'Pick Rentman project',
   'settings.integrations.gemini': 'Gemini API (AI port suggestions)',
   'settings.integrations.geminiDesc':
-    'API key from aistudio.google.com. Stored in the browser localStorage. Required for the “✨ Gemini” buttons in the device wizard and library.',
+    'API key from aistudio.google.com. Stored in the browser localStorage. Required for the “Gemini” buttons in the device wizard and library.',
   'settings.integrations.gemini.save': 'Save key',
   'settings.integrations.gemini.saved': '✓ saved',
   'settings.integrations.gemini.delete': 'Delete',
@@ -318,17 +318,17 @@ const en: Dict = {
   'library.create.name': 'Name',
   'library.create.category': 'Category',
   'library.create.suggest': 'Auto-suggest from device name',
-  'library.create.suggest.heuristic': '📐 Heuristic',
+  'library.create.suggest.heuristic': 'Heuristic',
   'library.create.suggest.heuristicTitle':
     'Built-in heuristic patterns (camera, ATEM, converter…)',
-  'library.create.suggest.web': '🌐 Web',
+  'library.create.suggest.web': 'Web',
   'library.create.suggest.webBusy': 'Searching…',
   'library.create.suggest.webTitle':
     'Wikipedia + DuckDuckGo snippet (no API key required)',
-  'library.create.suggest.gemini': '✨ Gemini',
+  'library.create.suggest.gemini': 'Gemini',
   'library.create.suggest.geminiBusy': 'Asking…',
   'library.create.suggest.geminiTitle': 'Gemini AI — needs an API key',
-  'library.create.aiSettings': '⚙ AI settings',
+  'library.create.aiSettings': 'AI settings',
   'library.create.aiKey.title': 'Gemini API key',
   'library.create.aiKey.placeholder': 'AIza…',
   'library.create.aiKey.save': 'Save',
@@ -411,10 +411,10 @@ const en: Dict = {
   'cable.field.toPort': 'Port',
   'cable.action.delete': 'Delete cable',
   'cable.action.openEdit': 'Open editor…',
-  'cable.warn.fromBusy': '⚠ Source port already in use by "{name}".',
-  'cable.warn.toBusy': '⚠ Target port already in use by "{name}".',
+  'cable.warn.fromBusy': 'Source port already in use by "{name}".',
+  'cable.warn.toBusy': 'Target port already in use by "{name}".',
   'cable.warn.connectorMismatch':
-    '⚠ Connector types differ: {from} ↔ {to}',
+    'Connector types differ: {from} ↔ {to}',
   'cable.warn.converterSuggest': 'Matching converters from your library:',
   'cable.warn.converterNone':
     'No matching converter in the library. Add one via "+ Device" or Rentman import.',
@@ -429,7 +429,7 @@ const en: Dict = {
   'location.field.floorPlaceholder': 'e.g. ground floor, 1st',
   'location.field.color': 'Colour',
   'location.field.notes': 'Notes',
-  'location.action.bom': '📋 Export BOM',
+  'location.action.bom': 'Export BOM',
   'location.action.bomTitle':
     'List of devices and cables in the frame — exportable as PDF',
   'location.action.deleteFrame': 'Delete frame only',
@@ -465,7 +465,7 @@ const en: Dict = {
   'rentman.import.shown': '{visible} of {total} shown',
   'rentman.import.selected': '{count} selected',
   'rentman.import.inSets': '· {count} in sets (expand to view)',
-  'rentman.import.linkable': '🔗 Link…',
+  'rentman.import.linkable': 'Link…',
   'rentman.import.linkableTitle': 'Link to existing local device',
   'rentman.import.unlinked':
     'Save token first to be able to fetch projects.',
@@ -480,10 +480,10 @@ const en: Dict = {
   'atem.audio.empty.classic':
     'Production Studio / Television Studio open with the classic channel strip (Off/On/AFV + gain).',
   'atem.audio.empty.both': 'Devices with both sections get both tabs.',
-  'atem.audio.action.loadXml': '📂 Load XML',
+  'atem.audio.action.loadXml': 'Load XML',
   'atem.audio.action.loadXmlTitle':
     'Load ATEM Profile XML — the audio section(s) will be imported into the editor',
-  'atem.audio.action.saveXml': '💾 Save XML',
+  'atem.audio.action.saveXml': 'Save XML',
   'atem.audio.action.saveXmlTitle':
     'Download patched Profile XML (all non-audio sections stay unchanged)',
   'atem.audio.action.clearAll': 'Reset all routings',
@@ -493,8 +493,8 @@ const en: Dict = {
   'atem.audio.action.saveProjectTitle':
     'Persist routing in the project (survives reload).',
   'atem.audio.action.cancel': 'Cancel',
-  'atem.audio.tab.matrix': '🎚 Routing matrix',
-  'atem.audio.tab.classic': '🎛 Classic mixer',
+  'atem.audio.tab.matrix': 'Routing matrix',
+  'atem.audio.tab.classic': 'Classic mixer',
   'atem.audio.matrix.tooLarge':
     '{count} visible crosspoints is too many for smooth display. Please narrow down via the filters above (target: under 12,000 cells).',
   'atem.audio.matrix.filterSources': 'Filter sources…',
@@ -816,10 +816,10 @@ const en: Dict = {
   'print.noneSelected': 'No device selected',
   'print.selectionCount': '{count} device(s) selected',
   'print.busy': 'Generating PDF…',
-  'print.startJobs': '🖨 Start {count} print jobs',
-  'print.openDialog': '🖨 Open printer dialog',
-  'print.downloadMany': '⬇ Download {count} PDFs',
-  'print.downloadOne': '⬇ Download patch-sheet PDF',
+  'print.startJobs': 'Start {count} print jobs',
+  'print.openDialog': 'Open printer dialog',
+  'print.downloadMany': 'Download {count} PDFs',
+  'print.downloadOne': 'Download patch-sheet PDF',
   'print.osHint.title': 'OS printer hint',
   'print.osHint.body':
     "When printing, your operating system's print dialog opens — there you can pick the printer, paper size (A4 / A3 / Letter), orientation and copy count.",
@@ -874,7 +874,7 @@ const en: Dict = {
   'modeEditor.descPlaceholder': 'e.g. limits outputs to 2 in 4K mode (lower resource use)',
   'modeEditor.portCount': '{count} port(s) in this mode',
   'modeEditor.seedTitle': "Adopt the device's CURRENT port layout as a starting point.",
-  'modeEditor.seedBtn': '⬇ Adopt current device layout',
+  'modeEditor.seedBtn': 'Adopt current device layout',
   'modeEditor.emptySide': 'No {kind} in this mode.',
   'modeEditor.removePort': 'Remove port',
   'common.name': 'Name',
@@ -938,6 +938,7 @@ const en: Dict = {
   'rack.export.png3dDesc': 'PNG: front · rear · iso · top (1× per file)',
   'rack.export.no3dInit':
     '3D tab must be opened first to initialise the 3D scene.',
+  'rack.export.no3dInitTitle': '3D scene not ready',
   'rack.export.stl': '3D as STL',
   'rack.export.stlDesc': 'Complete rack as binary STL (3D printing, CAD)',
   'rack.export.cpgroup': 'Download .cpgroup',
@@ -1100,6 +1101,8 @@ const en: Dict = {
   'export.title': 'Export & print',
   'export.format': 'Format',
   'export.renderMode': 'Render mode',
+  'export.processing': 'Processing…',
+  'export.downloadAs': 'Download as {fmt}',
   'export.section.plan': 'Plan',
   'export.section.patch': 'Patch sheets',
   'export.section.bom': 'Cable BOM',
@@ -1176,15 +1179,15 @@ const en: Dict = {
   'greengo.footer.devicesOnCanvas': 'devices on canvas',
   'greengo.import.gg5Title':
     'Import .gg5 file and link to canvas devices',
-  'greengo.import.gg5': '⬆ Import .gg5',
+  'greengo.import.gg5': 'Import .gg5',
   'greengo.import.xlsxTitle':
     'Upload intercom-matrix Excel — users + groups will be merged into the GreenGo configuration.',
-  'greengo.import.xlsx': '📊 Import Excel matrix',
+  'greengo.import.xlsx': 'Import Excel matrix',
   'greengo.export.xlsxTitle':
     'Download current GreenGo configuration as an intercom-matrix Excel (for print / hand-off).',
-  'greengo.export.xlsx': '📊 Export Excel matrix',
+  'greengo.export.xlsx': 'Export Excel matrix',
   'greengo.saveProject': 'Save in project',
-  'greengo.export.gg5': '⬇ Export as .gg5',
+  'greengo.export.gg5': 'Export as .gg5',
   'greengo.importOverlay.title': 'Import .gg5 — link devices',
   'greengo.importOverlay.system': 'System:',
   'greengo.importOverlay.importedGroups': 'Imported groups',
@@ -1222,9 +1225,9 @@ const en: Dict = {
   'graphml.dialog.edgesNoTarget': 'Edges without target',
   'graphml.dialog.parserWarnings': 'Parser warnings',
   'graphml.dialog.target': 'Target:',
-  'graphml.dialog.canvas': '🗺 Canvas',
+  'graphml.dialog.canvas': 'Canvas',
   'graphml.dialog.canvasTitle': 'Place devices directly on the canvas (incl. cables).',
-  'graphml.dialog.library': '📚 Library',
+  'graphml.dialog.library': 'Library',
   'graphml.dialog.libraryTitle':
     'Only adopt as reusable device templates into the library (no cables, no canvas placement).',
   'graphml.dialog.mode': 'Mode:',
@@ -1234,7 +1237,7 @@ const en: Dict = {
     'Replaces only GraphML-imported devices; manually added ones stay untouched.',
   'graphml.dialog.filterPlaceholder': 'Filter: name / IP / category / cable type',
   'graphml.dialog.libraryHint':
-    '📚 Library mode: devices are saved as reusable templates into the local library. Cables are not adopted (templates carry no cabling).',
+    'Library mode: devices are saved as reusable templates into the local library. Cables are not adopted (templates carry no cabling).',
   'graphml.dialog.tab.preview': 'yEd preview',
   'graphml.dialog.tab.devices': 'Devices',
   'graphml.dialog.tab.cables': 'Cables',
@@ -1332,6 +1335,8 @@ const en: Dict = {
 
   // PatchListDialog
   'patchList.title': 'Patch list',
+  'patchList.empty.noCables': 'This project has no cables yet. Connect devices on the canvas to build a patch list.',
+  'patchList.empty.noMatch': 'No cables match the filter.',
   'patchList.col.number': 'No.',
   'settings.project.numbering.title': 'Cable numbering',
   'settings.project.numbering.desc':
@@ -1449,10 +1454,10 @@ const en: Dict = {
   'rentman.wizard.saveAsCategoryTitle': 'Save as new category',
   'rentman.wizard.addCategory': '+ Add',
   'rentman.wizard.suggestedPortGroups': 'Suggested port groups',
-  'rentman.wizard.webSearch': '🌐 Web search (free)',
+  'rentman.wizard.webSearch': 'Web search (free)',
   'rentman.wizard.webBusy': 'Searching…',
   'rentman.wizard.webSearchTitle': 'Search Wikipedia + DuckDuckGo (no key required)',
-  'rentman.wizard.aiButton': '✨ AI (Gemini)',
+  'rentman.wizard.aiButton': 'AI (Gemini)',
   'rentman.wizard.aiBusy': 'Asking AI…',
   'rentman.wizard.aiTitle': 'Gemini AI (requires API key)',
   'rentman.wizard.aiSettings': 'AI settings',
@@ -1508,7 +1513,7 @@ const en: Dict = {
   'rentman.checklist.badge.linked': '✓ Already linked: {name}',
   'rentman.checklist.badge.nameOnlyTitle':
     'Local template "{name}" has the same name but no Rentman ID. On import a conflict dialog appears — default is to keep the local version (with ports) and only attach the Rentman ID.',
-  'rentman.checklist.badge.nameOnly': '⚡ Local exists: {name} — conflict dialog',
+  'rentman.checklist.badge.nameOnly': 'Local exists: {name} — conflict dialog',
   'rentman.checklist.badge.catalogTitle':
     'Match from built-in catalog ("{name}"). Will be adopted as a template automatically on import.',
   'rentman.checklist.badge.catalog': '⊕ Catalog: {name}',
@@ -1516,11 +1521,11 @@ const en: Dict = {
   'rentman.checklist.linkedTitle':
     'Linked to a local device — will not be created as a duplicate on import',
   'rentman.checklist.linkSelectTitle': 'Link to an existing local device',
-  'rentman.checklist.linkPlaceholder': '🔗 Link…',
+  'rentman.checklist.linkPlaceholder': 'Link…',
   'rentman.checklist.selectChildren': 'Select all children',
   'rentman.checklist.deselectChildren': 'Deselect all children',
-  'rentman.checklist.childrenAllOff': '☐ all',
-  'rentman.checklist.childrenAllOn': '☑ all',
+  'rentman.checklist.childrenAllOff': 'all',
+  'rentman.checklist.childrenAllOn': 'all',
 
   // Rentman — RentmanImportDialog body
   'rentman.import.busyTitle': 'Import operations still running',
@@ -1582,7 +1587,7 @@ const en: Dict = {
   'rentman.import.status.conflictsTitle':
     'Items with the same name as a local template but without a Rentman ID. On import a conflict dialog appears per item (default: keep local version + attach Rentman ID).',
   'rentman.import.status.conflicts':
-    '⚡ {count} conflict dialog (same name, not linked)',
+    '{count} conflict dialog (same name, not linked)',
   'rentman.import.status.freshTitle':
     'Items without a match in the local library — imported fresh as templates.',
   'rentman.import.status.fresh': '+ {count} new',
@@ -1595,7 +1600,7 @@ const en: Dict = {
   'rentman.import.cablePlan.pickAtLeastOne':
     'Please pick at least one cable type.',
   'rentman.import.cablePlan.planSaved':
-    '✓ {count} cable type(s) adopted as plan.',
+    '{count} cable type(s) adopted as plan.',
   'rentman.import.resultOne': '✓ {count} device added to the library',
   'rentman.import.resultMany': '✓ {count} devices added to the library',
   'rentman.import.resultHint':
@@ -1692,9 +1697,9 @@ const en: Dict = {
   'rack.nonRack.title': 'Add "{name}"',
   'rack.nonRack.intro':
     'The device is not marked as a 19″ rack device. Pick how it should be placed in the rack:',
-  'rack.nonRack.option.rack': '📏 As 19″ device',
+  'rack.nonRack.option.rack': 'As 19″ device',
   'rack.nonRack.option.rackHint': 'Occupies N U on the rack rails',
-  'rack.nonRack.option.shelf': '🪑 On a shelf',
+  'rack.nonRack.option.shelf': 'On a shelf',
   'rack.nonRack.option.shelfHint': 'Custom dimensions in mm, sits on a rack shelf',
   'rack.nonRack.rackUnits': 'U height',
   'rack.nonRack.widthMm': 'Width (mm)',
@@ -1713,7 +1718,7 @@ const en: Dict = {
   'bom.cable.title': 'Cable bill of materials',
   'bom.cable.groupedNote': 'Grouped by type & length.',
   'bom.cable.builtCables': 'Built cables:',
-  'bom.cable.missingTypes': '⚠ {count} cable type(s) missing',
+  'bom.cable.missingTypes': '{count} cable type(s) missing',
   'bom.cable.allCovered': '✓ All planned quantities covered',
   'bom.cable.csv': 'CSV',
   'bom.cable.pdf': 'PDF',
@@ -1735,7 +1740,7 @@ const en: Dict = {
   'bom.cable.draftSaved': 'Rentman plan is saved in the project.',
   'bom.cable.discard': 'Discard',
   'bom.cable.savePlan': 'Save Rentman plan',
-  'bom.cable.syncRentman': '📦 Sync with Rentman →',
+  'bom.cable.syncRentman': 'Sync with Rentman →',
   'bom.cable.syncRentmanTitle':
     'Closes this dialog and opens the Rentman cable export prefilled with the current buckets.',
 
@@ -1773,9 +1778,9 @@ const en: Dict = {
   'printSection.subtitle': 'Patch sheet A4/A3',
   'printSection.a4Title':
     'Generates a single-page A4 patch list with all ports + connected cables — to stick on the device.',
-  'printSection.a4Btn': '🖨 Print patch sheet (A4 PDF)',
+  'printSection.a4Btn': 'Print patch sheet (A4 PDF)',
   'printSection.a3Title': 'A3 variant for devices with many ports.',
-  'printSection.a3Btn': '🖨 Print patch sheet (A3 PDF)',
+  'printSection.a3Btn': 'Print patch sheet (A3 PDF)',
 
   // LibrarySaveSection
   'libSave.title': 'Library',
@@ -2015,7 +2020,7 @@ const en: Dict = {
   'props.deviceKind.greengo': 'GreenGo Intercom detected',
   'props.deviceKind.greengoExport': 'Intercom planning / export .gg5 →',
   'props.deviceKind.videohub': 'Blackmagic Videohub detected',
-  'props.deviceKind.videohubConfigure': '🎚 Configure Videohub · Labels + Routing →',
+  'props.deviceKind.videohubConfigure': 'Configure Videohub · Labels + Routing →',
   'props.deviceKind.atem': 'Blackmagic ATEM detected',
   'props.deviceKind.atemConnect': 'Connect ATEM / push setup →',
   'props.deviceKind.atemConnectTitle': 'Connects via UDP to the ATEM and transfers input names.',
@@ -2037,7 +2042,7 @@ const en: Dict = {
   // Properties — PortAiSuggestButton
   'props.aiPorts.noSuggestion': 'AI could not suggest any ports. Try a more specific device name.',
   'props.aiPorts.requestFailed': 'AI request failed',
-  'props.aiPorts.label': '✨ AI port suggestion',
+  'props.aiPorts.label': 'AI port suggestion',
   'props.aiPorts.btnTitle':
     'Asks the provider selected in Settings → AI what "{name}" typically has for ports',
   'props.aiPorts.asking': 'Asking AI…',
@@ -2075,8 +2080,8 @@ const en: Dict = {
   'settings.eqColors.title': 'Device card colors',
   'settings.eqColors.description':
     'Background/text/border for equipment nodes — adjustable per theme. Defaults are chosen so the cards stand out from the canvas background. Individual devices can have their own color in Properties.',
-  'settings.eqColors.themeLight': '☀ Light',
-  'settings.eqColors.themeDark': '🌙 Dark',
+  'settings.eqColors.themeLight': 'Light',
+  'settings.eqColors.themeDark': 'Dark',
   'settings.eqColors.reset': '↺ Reset',
   'settings.eqColors.resetTitle': 'Reset to default',
   'settings.eqColors.body': 'Card body',
@@ -2227,8 +2232,8 @@ const en: Dict = {
   'settings.configs.replace': 'Replace',
   'settings.configs.append': 'Append',
   'settings.configs.importErrorTitle': 'Import error',
-  'settings.configs.pickFile': '📤 Choose file…',
-  'settings.configs.exportBundle': '💾 Export library as JSON',
+  'settings.configs.pickFile': 'Choose file…',
+  'settings.configs.exportBundle': 'Export library as JSON',
   'settings.configs.importBundle': '⤵ Import JSON library…',
   'settings.configs.entriesCount': '{n} entries',
   'settings.configs.filterAll': 'All ({n})',
@@ -2279,8 +2284,8 @@ const en: Dict = {
   'calc.current3phase': 'Symmetric (3-phase)',
   'calc.col.device': 'Device',
   'calc.col.phase': 'Phase',
-  'calc.tab.bandwidth': '📡 Bandwidth',
-  'calc.tab.power': '⚡ Power consumption',
+  'calc.tab.bandwidth': 'Bandwidth',
+  'calc.tab.power': 'Power consumption',
   'calc.bandwidth.intro':
     'Gross data rate of a video stream (before compression) and the smallest SDI tier that carries it. Pixels × lines × fps × bits-per-pixel.',
   'calc.bandwidth.fitsIn': 'Fits in {tier} ({mbps} Mbps).',
@@ -2401,8 +2406,8 @@ const en: Dict = {
   'settings.customPalette.bg': 'Background',
   'settings.customPalette.grid': 'Grid stroke',
   'settings.customPalette.accent': 'Accent',
-  'settings.canvasBg.darkImage': '🌙 Dark-mode image',
-  'settings.canvasBg.lightImage': '☀ Light-mode image',
+  'settings.canvasBg.darkImage': 'Dark-mode image',
+  'settings.canvasBg.lightImage': 'Light-mode image',
 
   // Settings → Integrations (Rentman toggle card)
   'settings.integrations.rentmanToggle.title': 'Rentman integration',
@@ -2484,7 +2489,7 @@ const en: Dict = {
     'The loaded routing matrix / classic-mixer values are sent directly to the connected switcher. Changes take effect immediately and are NOT persisted as startup state — for that you must call "Save Startup State" in ATEM Software Control.',
   'atem.audio.sendOk': 'Send',
   'atem.audio.classicOnly':
-    'This XML only contains a classic AudioMixer section, no routing matrix. The section is written back unchanged on save (round trip), but is not editable in the editor. If needed, create a fresh crosspoint matrix via "🎚 Matrix manual" above — both sections coexist in the XML.',
+    'This XML only contains a classic AudioMixer section, no routing matrix. The section is written back unchanged on save (round trip), but is not editable in the editor. If needed, create a fresh crosspoint matrix via "Matrix manual" above — both sections coexist in the XML.',
   'atem.audio.createMatrixManual': 'Create matrix manually',
   'atem.audio.noSection':
     'No {section} in the loaded profile. Switch the tab or load a profile that has this section.',
@@ -2531,6 +2536,8 @@ const en: Dict = {
   // App.tsx New project confirm
   'app.newProject.confirm':
     'Discard current project and create a new one?\n\nUnsaved changes will be lost.',
+  'app.newProject.confirmTitle': 'Create new project?',
+  'app.newProject.confirmOk': 'New project',
   // App.tsx Viewer export
   'app.viewerExport.okTitle': 'Viewer file saved',
   'app.viewerExport.okBody':
@@ -2754,9 +2761,9 @@ const en: Dict = {
   'patchList.col.notes': 'Notes',
   'patchList.footerHint':
     'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
-  'patchList.exportCsv': '⬇ Export CSV',
-  'patchList.exportXlsx': '⬇ Export XLSX',
-  'patchList.exportLabels': '🏷 Labels + QR (PDF)',
+  'patchList.exportCsv': 'Export CSV',
+  'patchList.exportXlsx': 'Export XLSX',
+  'patchList.exportLabels': 'Labels + QR (PDF)',
   // #349 Label-printer CSV export
   'patchList.exportLabelCsv': '🏷 Label CSV',
   'patchList.labelCsvFormat': 'Label-printer format',
@@ -3001,6 +3008,7 @@ const en: Dict = {
   'csvImport.doneTitle': 'CSV imported',
   'csvImport.doneBody': 'Added {n} device(s) as library templates (existing names unchanged).',
   'app.mobileShare.title': 'Phone access: a small LAN server + QR code so a phone can open the mobile viewer.',
+  'app.mobileShare.ariaLabel': 'Phone access',
   'app.redo': 'Redo (Ctrl+Y)',
   'app.undo': 'Undo (Ctrl+Z)',
   'atem.audio.detected': 'Audio section detected.',
@@ -3087,7 +3095,7 @@ const en: Dict = {
   'settings.hotkeys.reset': 'Reset to default',
   'settings.hotkeys.title': 'Active keyboard shortcuts',
   'settings.integrations.ai': 'AI provider (AI port suggestions)',
-  'settings.integrations.aiDesc': 'Active provider for the ✨ AI buttons in the device wizard and the Rentman library. Each provider has its own API key. All keys are stored only locally in the browser localStorage.',
+  'settings.integrations.aiDesc': 'Active provider for the AI buttons in the device wizard and the Rentman library. Each provider has its own API key. All keys are stored only locally in the browser localStorage.',
   'template.noneSelected': 'No template selected.',
 
   // Phase 4 — vormals hartkodierte Strings (App-CableDialog, ExportDialog)
@@ -3126,12 +3134,17 @@ const en: Dict = {
     'Same bandwidth as TB3 but stricter certification (2× DP 1.4, 40 Gbps, 100 W PD).',
   'catalog.cable.madi-bnc.notes':
     'MADI AES10 over 75Ω coax. Up to 64 ch at 48 kHz or 56 ch at 96 kHz.',
+  'catalog.cable.dvb-asi.notes':
+    'DVB-ASI: MPEG transport stream over 75Ω coax (BNC), up to 270 Mbit/s. Encoder/mux/modulator/playout interconnect in headends and OB trucks.',
   'catalog.cable.madi-optical.notes':
     'MADI AES10 over optical fibre. Long reach, galvanically isolated.',
   'catalog.cable.smpte-297.notes':
-    'Hybrid cable with optical SDI link + copper for talkback and power. Camera connection for ENG/studio.',
+    'SMPTE ST 297: serial digital video (SDI) transported optically over fibre. No power — a pure optical SDI link with long reach.',
   'catalog.cable.smpte-304m.notes':
-    'Triaxial cable for studio cameras (HDTV). Carries video, intercom, talkback and power in one cable.',
+    'SMPTE 311M hybrid fibre camera cable (304M connector, e.g. LEMO 3K.93C): 2 single-mode fibres + power and control conductors. This is fibre, NOT triax.',
+  'catalog.cable.triax-camera.notes':
+    'Triaxial (coaxial) camera cable for studio/OB cameras: carries video, return, intercom/talkback, genlock and power over one triax — analogue, distinct from the SMPTE fibre camera cables.',
+  'catprops.title': 'Specs',
   'catalog.cable.ndi-cat6a.notes':
     'NDI / NDI-HX over standard Gigabit Ethernet. Keep NDI and Dante on separate VLANs/links to avoid congestion.',
   'catalog.cable.dante-cat6.notes':
@@ -3189,12 +3202,17 @@ const de: Dict = {
     'Gleiche Bandbreite wie TB3, aber striktere Zertifizierung (2× DP 1.4, 40Gbps, 100W PD).',
   'catalog.cable.madi-bnc.notes':
     'MADI AES10 über 75Ω-Koax. Bis 64 ch bei 48 kHz oder 56 ch bei 96 kHz.',
+  'catalog.cable.dvb-asi.notes':
+    'DVB-ASI: MPEG-Transportstrom über 75Ω-Koax (BNC), bis 270 Mbit/s. Verbindung zwischen Encoder/Mux/Modulator/Playout in Kopfstellen und Ü-Wagen.',
   'catalog.cable.madi-optical.notes':
     'MADI AES10 über optische Faser. Lange Reichweite, galvanisch getrennt.',
   'catalog.cable.smpte-297.notes':
-    'Hybridkabel mit optischer SDI-Strecke + Kupfer für Talkback und Stromversorgung. Kameraanschluss bei ENG/Studio.',
+    'SMPTE ST 297: serielles digitales Video (SDI) optisch über Glasfaser übertragen. Kein Strom — eine reine optische SDI-Strecke mit großer Reichweite.',
   'catalog.cable.smpte-304m.notes':
-    'Triaxialkabel für Studio-Kameras (HDTV). Überträgt Video, Interkom, Talkback und Strom in einem Kabel.',
+    'SMPTE 311M Hybrid-Glasfaser-Kamerakabel (304M-Stecker, z. B. LEMO 3K.93C): 2 Singlemode-Fasern + Power- und Steueradern. Das ist Glasfaser, KEIN Triax.',
+  'catalog.cable.triax-camera.notes':
+    'Triaxiales (koaxiales) Kamerakabel für Studio-/EB-Kameras: überträgt Video, Rückweg, Interkom/Talkback, Genlock und Strom über ein Triax — analog, getrennt von den SMPTE-Glasfaser-Kamerakabeln.',
+  'catprops.title': 'Fachdaten',
   'catalog.cable.ndi-cat6a.notes':
     'NDI / NDI-HX über normales Gigabit-Ethernet. NDI und Dante auf getrennten VLANs/Links halten, um Überlast zu vermeiden.',
   'catalog.cable.dante-cat6.notes':

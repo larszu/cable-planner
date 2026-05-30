@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Search } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { cablePlannerApi, type AtemStateSummary, type AtemInputSummary } from '../../lib/bridge'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
@@ -324,7 +326,8 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 className="rounded bg-purple-700 px-3 py-2 text-sm hover:bg-purple-600 disabled:opacity-50"
                 title={t('atem.dialog.discoverTitle', 'ATEM-Switcher per mDNS (Bonjour) im lokalen Netzwerk suchen')}
               >
-                {discovering ? '🔍 Suche…' : '🔍 Suchen'}
+                <Icon icon={Search} size="xs" className="mr-1 inline-block align-text-bottom" />
+                {discovering ? 'Suche…' : 'Suchen'}
               </button>
             )}
             {status !== 'connected' && (
@@ -472,10 +475,10 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                               : row.category === 'multiviewer'
                                 ? 'MV'
                                 : row.category === 'audio-input'
-                                  ? '🔒 Audio'
+                                  ? 'Audio'
                                   : row.category === 'mediaplayer'
-                                    ? '🔒 MP'
-                                    : '🔒 int.'}
+                                    ? 'MP'
+                                    : 'int.'}
                       </span>
                     </td>
                     <td className="py-1 text-slate-300">

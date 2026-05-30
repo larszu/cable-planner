@@ -108,8 +108,8 @@ interface PersistedUiState {
    * Ethernet = green, …). When false, the input/output dichotomy palette
    * is used (cyan for inputs, green for outputs, purple for bidirectional). */
   colorPortsByType: boolean
-  /** UI language. Coverage is partial today — see lib/i18n.ts. Defaults to
-   *  German because that's the historical UI language of the codebase. */
+  /** UI language. English is the default (full EN coverage in the `en`
+   *  dict); German remains selectable and is the inline source/fallback. */
   language: Language
   /** Issue #70: When true the cable dialog will not block creation on
    *  connector-type incompatibilities — the user can connect any input
@@ -287,7 +287,7 @@ const defaults: PersistedUiState = {
   cableColorMode: 'manual',
   canvasTheme: 'dark',
   colorPortsByType: false,
-  language: 'de',
+  language: 'en',
   overrideConnectionWarnings: false,
   rentmanEnabled: true,
   libraryViewMode: 'list',
