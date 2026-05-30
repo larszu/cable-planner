@@ -1317,11 +1317,14 @@ const en: Dict = {
   'about.issueHint': 'Please report issues + feature requests directly on GitHub.',
 
   // AnnotationsPanel
+  'annotations.title': 'Annotations',
   'annotations.reviewer': 'Reviewer: {name}',
   'annotations.dragTitle':
     'Drag to place this annotation on the canvas or attach it to a device',
   'annotations.clickToEdit': 'Click to edit',
   'annotations.delete': 'Delete annotation',
+  'annotations.float.title': 'Detach (free-floating window)',
+  'annotations.float.aria': 'Detach annotations panel',
 
   // PatchListDialog
   'patchList.title': 'Patch list',
