@@ -31,7 +31,12 @@
 // Pollution + ReDoS beim Parsen), und beim Intercom-Matrix-Import
 // parsen wir User-Files. 'xlsx-js-style' ist ein maintained Fork
 // mit identischer API + bewussten Patches gegen die CVEs.
-import * as XLSX from 'xlsx-js-style'
+// Nur als Typ importieren (wird beim Build entfernt) — so landet SheetJS'
+// top-level require('stream') NICHT im Startup-Bundle. Der Laufzeit-Wert
+// wird in den beiden Funktionen unten per dynamischem import() lazy geladen:
+// hält die schwere Lib aus dem Initial-Chunk und beseitigt Vites
+// "stream has been externalized"-Dev-Warnung.
+import type * as XLSXNs from 'xlsx-js-style'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../types/greengo'
 import { translate } from './i18n'
 import { useUiStore } from '../store/uiStore'
@@ -169,10 +174,11 @@ export interface IntercomXlsxImportResult {
  * Throws on malformed files; returns `{ error }` for unrecognised
  * layouts.
  */
-export const parseIntercomMatrixXlsx = (
+export const parseIntercomMatrixXlsx = async (
   data: ArrayBuffer | Uint8Array,
-): IntercomXlsxImportResult | { error: string } => {
-  let workbook: XLSX.WorkBook
+): Promise<IntercomXlsxImportResult | { error: string }> => {
+  const XLSX = await import('xlsx-js-style')
+  let workbook: XLSXNs.WorkBook
   try {
     workbook = XLSX.read(data, { type: 'array' })
   } catch (err) {
@@ -349,7 +355,8 @@ export const parseIntercomMatrixXlsx = (
  * the Excel file is a faithful representation of what's stored in
  * GreenGo, not a 1:1 copy of any uploaded source.
  */
-export const exportIntercomMatrixXlsx = (config: GreenGoConfig): ArrayBuffer => {
+export const exportIntercomMatrixXlsx = async (config: GreenGoConfig): Promise<ArrayBuffer> => {
+  const XLSX = await import('xlsx-js-style')
   const ID_COL = 1
   const FN_COL = 2
   const NAME_COL = 3

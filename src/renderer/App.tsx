@@ -36,6 +36,9 @@ import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
 import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
 import { CalculatorsDialog } from './components/Calculators/CalculatorsDialog'
+import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
+import { CsvImportDialog } from './components/Import/CsvImportDialog'
+import { TemplatesDialog } from './components/Project/TemplatesDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
 import { WelcomeDialog } from './components/Project/WelcomeDialog'
@@ -78,12 +81,15 @@ import { DEFAULT_VIDEO_FORMAT } from './types/videoFormat'
 import { confirmDialog } from './lib/confirmDialog'
 import { promptDialog } from './lib/promptDialog'
 import { infoDialog } from './lib/infoDialog'
+import { AlertTriangle } from 'lucide-react'
 import { useTranslation, format } from './lib/i18n'
+import { Icon } from './components/shared/Icon'
 
 export default function App() {
   const t = useTranslation()
   const project = useProjectStore((state) => state.project)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
+  const language = useUiStore((state) => state.language)
   // v7.7.1 — exporters now read the live canvas-background settings so the
   // exported PDF / PNG / JPEG matches what the user sees on the canvas.
   const exportBgVariant = useUiStore((state) => state.bgVariant)
@@ -152,6 +158,12 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = pdfExportThemeOverride ?? canvasTheme
   }, [canvasTheme, pdfExportThemeOverride])
+
+  // Keep the <html lang> attribute in sync with the selected UI language so
+  // screen readers pronounce content correctly (was hardcoded lang="en").
+  useEffect(() => {
+    document.documentElement.lang = language
+  }, [language])
 
   const projectVersion = useProjectStore((s) => s.projectVersion)
   const [libraryReady, setLibraryReady] = useState(false)
@@ -458,11 +470,16 @@ export default function App() {
       project.cables.length > 0 ||
       (project.locations?.length ?? 0) > 0
     if (hasContent) {
-      const ok = confirm(
-        t(
-          'app.newProject.confirm',
-          'Aktuelles Projekt verwerfen und neues Projekt anlegen?\n\nUngespeicherte Änderungen gehen verloren.',
-        ),
+      const ok = await confirmDialog(
+        t('app.newProject.confirmTitle', 'Neues Projekt anlegen?'),
+        {
+          body: t(
+            'app.newProject.confirm',
+            'Aktuelles Projekt verwerfen und neues Projekt anlegen?\n\nUngespeicherte Änderungen gehen verloren.',
+          ),
+          okLabel: t('app.newProject.confirmOk', 'Neues Projekt'),
+          destructive: true,
+        },
       )
       if (!ok) return
     }
@@ -489,7 +506,7 @@ export default function App() {
   }
 
   // v7.7.1 — PNG / JPEG export (canvas only, no header / title block).
-  const handleExportImage = async (imgFormat: 'png' | 'jpeg') => {
+  const handleExportImage = async (imgFormat: 'png' | 'jpeg' | 'svg') => {
     try {
       await exportCanvasToImage(project.metadata.name, imgFormat, {
         backgroundTheme: canvasTheme,
@@ -861,12 +878,23 @@ export default function App() {
           // (no chip, no splitter spacing) so the canvas reclaims the
           // space. The panel itself renders as an overlay via
           // FloatingPanelShell.
+          //
+          // Responsive (UX audit #2/#3): expanded panel columns are capped at
+          // a viewport fraction via min(<width>px, 33vw). On normal desktop
+          // widths the stored width wins (defaults 260/280px stay untouched
+          // for viewports ≳850px); only on narrow windows do the panels shrink
+          // so the canvas always keeps usable room. Stateless + reversible —
+          // the stored preference is never mutated.
           gridTemplateColumns: `${
-            libraryFloating ? '0px' : libraryCollapsed ? '32px' : `${libraryWidth}px`
-          } ${libraryFloating ? '0px' : '4px'} 1fr ${
+            libraryFloating ? '0px' : libraryCollapsed ? '32px' : `min(${libraryWidth}px, 33vw)`
+          } ${libraryFloating ? '0px' : '4px'} minmax(0, 1fr) ${
             propertiesFloating ? '0px' : '4px'
           } ${
-            propertiesFloating ? '0px' : propertiesCollapsed ? '32px' : `${propertiesWidth}px`
+            propertiesFloating
+              ? '0px'
+              : propertiesCollapsed
+                ? '32px'
+                : `min(${propertiesWidth}px, 33vw)`
           }`,
         }}
       >
@@ -926,6 +954,9 @@ export default function App() {
       <AboutDialog />
       <PatchListDialog />
       <CalculatorsDialog />
+      <AnalysisDialog />
+      <CsvImportDialog />
+      <TemplatesDialog />
       <CableContextMenu />
       <AnnotationsPanelHost />
       <ExportDialog
@@ -1624,18 +1655,21 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               </div>
 
               {fromConflict && (
-                <div className="mt-2 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
-                  ⚠ Quell-Port ist bereits durch Kabel „{fromConflict.name}" belegt.
+                <div className="mt-2 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+                  <Icon icon={AlertTriangle} size="xs" />
+                  {format(t('cable.create.warn.fromBusy', 'Quell-Port ist bereits durch Kabel „{name}" belegt.'), { name: fromConflict.name })}
                 </div>
               )}
               {toConflict && (
-                <div className="mt-1 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
-                  ⚠ Ziel-Port ist bereits durch Kabel „{toConflict.name}" belegt.
+                <div className="mt-1 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+                  <Icon icon={AlertTriangle} size="xs" />
+                  {format(t('cable.create.warn.toBusy', 'Ziel-Port ist bereits durch Kabel „{name}" belegt.'), { name: toConflict.name })}
                 </div>
               )}
               {sameEndpoints && (
-                <div className="mt-1 rounded bg-red-900/50 px-2 py-1 text-[11px] text-red-100">
-                  ⚠ Quelle und Ziel zeigen auf denselben Port.
+                <div className="mt-1 flex items-center gap-1.5 rounded bg-red-900/50 px-2 py-1 text-[11px] text-red-100">
+                  <Icon icon={AlertTriangle} size="xs" />
+                  {t('cable.create.warn.samePort', 'Quelle und Ziel zeigen auf denselben Port.')}
                 </div>
               )}
             </div>
@@ -1653,7 +1687,10 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
         </div>
 
         {lengthWarning && (
-          <div className="mt-3 rounded bg-amber-900/50 p-2 text-xs text-amber-100">⚠ {lengthWarning}</div>
+          <div className="mt-3 flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-xs text-amber-100">
+            <Icon icon={AlertTriangle} size="sm" />
+            {lengthWarning}
+          </div>
         )}
 
         <div className="mt-3 flex justify-end gap-2 text-sm">

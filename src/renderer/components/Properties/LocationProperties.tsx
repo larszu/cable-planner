@@ -1,8 +1,10 @@
+import { ClipboardList } from 'lucide-react'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { format, useTranslation } from '../../lib/i18n'
 import { ColorField } from '../shared/ColorField'
+import { Icon } from '../shared/Icon'
 
 export const LocationProperties = () => {
   const t = useTranslation()
@@ -103,7 +105,8 @@ export const LocationProperties = () => {
             'Stückliste der Geräte und Kabel im Rahmen — als PDF exportierbar',
           )}
         >
-          {t('location.action.bom', '📋 Stückliste exportieren')}
+          <Icon icon={ClipboardList} size="xs" className="mr-1 inline-block align-text-bottom" />
+          {t('location.action.bom', 'Stückliste exportieren')}
         </button>
         <button
           type="button"

@@ -15,6 +15,9 @@
  * (Phase B+1) als kleinere Box innerhalb der HE gerendert.
  */
 import { useState } from 'react'
+import { X, Ruler, Armchair } from 'lucide-react'
+import { Icon } from '../shared/Icon'
+import { Button } from '../shared/Button'
 import type { EquipmentTemplate } from '../../types/equipment'
 import { format, useTranslation } from '../../lib/i18n'
 
@@ -91,7 +94,7 @@ export const NonRackAddDialog = ({
             className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
             aria-label={t('common.close', 'Schließen')}
           >
-            ✕
+            <Icon icon={X} size="sm" />
           </button>
         </div>
         <div className="mb-3 text-[11px] text-slate-400">
@@ -108,7 +111,7 @@ export const NonRackAddDialog = ({
                 : 'border-slate-700 bg-slate-950/50 text-slate-400 hover:bg-slate-900'
             }`}
           >
-            <div className="font-semibold">{t('rack.nonRack.option.rack', '📏 Als 19″-Gerät')}</div>
+            <div className="flex items-center gap-1.5 font-semibold"><Icon icon={Ruler} size="xs" /> {t('rack.nonRack.option.rack', 'Als 19″-Gerät')}</div>
             <div className="mt-0.5 text-[10px] text-slate-500">
               {t('rack.nonRack.option.rackHint', 'Belegt N HE auf den Rack-Schienen')}
             </div>
@@ -122,7 +125,7 @@ export const NonRackAddDialog = ({
                 : 'border-slate-700 bg-slate-950/50 text-slate-400 hover:bg-slate-900'
             }`}
           >
-            <div className="font-semibold">{t('rack.nonRack.option.shelf', '🪑 Auf Shelf')}</div>
+            <div className="flex items-center gap-1.5 font-semibold"><Icon icon={Armchair} size="xs" /> {t('rack.nonRack.option.shelf', 'Auf Shelf')}</div>
             <div className="mt-0.5 text-[10px] text-slate-500">
               {t('rack.nonRack.option.shelfHint', 'Eigene Maße in mm, sitzt auf einem Rack-Shelf')}
             </div>
@@ -237,20 +240,12 @@ export const NonRackAddDialog = ({
         </label>
 
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600"
-          >
+          <Button variant="secondary" onClick={onCancel}>
             {t('common.cancel', 'Abbrechen')}
-          </button>
-          <button
-            type="button"
-            onClick={submit}
-            className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold hover:bg-emerald-600"
-          >
+          </Button>
+          <Button variant="success" onClick={submit}>
             {t('rack.nonRack.add', 'Hinzufügen')}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

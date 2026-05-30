@@ -17,6 +17,13 @@
   Plan, visualize, and manage complex broadcast cabling systems with real-world production integrations.
 </p>
 
+<!-- HERO IMAGE — see docs/screenshots/README.md for capture + redaction guide -->
+<p align="center">
+  <img src="docs/screenshots/hero.png" alt="CablePlanner — node-based broadcast cabling canvas" width="860" />
+  <br />
+  <sub><i>The node-based canvas — equipment nodes, ports and routed signal cabling.</i></sub>
+</p>
+
 ---
 
 ## ✨ Overview
@@ -30,6 +37,59 @@ It is designed for real-world production environments such as studios, OB vans, 
 ✔ macOS & Windows support  
 ✔ Production-focused broadcast tooling  
 ✔ Extensible integration system  
+
+---
+
+## 📸 Screenshots
+
+> Images live in [`docs/screenshots/`](docs/screenshots/). Slots marked
+> **TODO: capture** still need a real screen grab — see the capture **and
+> redaction** guide in [`docs/screenshots/README.md`](docs/screenshots/README.md).
+> ⚠️ Every screenshot must be scrubbed of customer-identifying data before
+> it is committed (project/client names, personal names).
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/canvas.gif" alt="Node-based cable canvas with equipment nodes and routed connections" width="420" /><br />
+      <b>Visual cable canvas</b><br /><sub><i>TODO: capture (animated)</i></sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/rack-3d.png" alt="3D rack builder showing rack-mounted devices" width="420" /><br />
+      <b>3D rack builder</b><br /><sub><i>TODO: capture</i></sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/atem-multiview.png" alt="ATEM multiviewer layout editor" width="420" /><br />
+      <b>ATEM multiview editor</b>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/export.png" alt="Export and print hub with PDF / PNG / JPEG options" width="420" /><br />
+      <b>Export &amp; print hub</b>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/patch-sheets.png" alt="Per-device patch sheet generator" width="420" /><br />
+      <b>Per-device patch sheets</b>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/patch-pdf.png" alt="Generated patch-list PDF with inputs and outputs" width="420" /><br />
+      <b>Generated patch-list PDF</b><br /><sub><i>TODO: capture</i></sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/bom.png" alt="Location bill of materials with cable and device totals" width="420" /><br />
+      <b>Bill of materials (BOM)</b>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/properties.png" alt="Device and location properties panel" width="420" /><br />
+      <b>Properties panel</b>
+    </td>
+  </tr>
+</table>
 
 ---
 

@@ -554,7 +554,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                 ).trim()
               : item.name
             const base = `${displayName} (${item.length}m)`
-            return item.needsConverter ? `${base} ⚠ converter` : base
+            // Auto-Kabelnummerierung: Nummer als [Nr]-Praefix voranstellen.
+            const numbered = item.cableNumber ? `[${item.cableNumber}] ${base}` : base
+            return item.needsConverter ? `${numbered} ⚠ converter` : numbered
           })(),
         }
       }),

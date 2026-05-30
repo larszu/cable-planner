@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react'
+import { Download, Upload, X, FileSpreadsheet } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../../types/greengo'
 import { defaultGreenGoConfig } from '../../types/greengo'
@@ -97,13 +99,13 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       const buffer = ev.target?.result
       if (!(buffer instanceof ArrayBuffer)) {
         setImportError(t('greengo.importXlsxBinaryError', 'Konnte XLSX nicht als Binärdaten lesen.'))
         return
       }
-      const result = parseIntercomMatrixXlsx(buffer)
+      const result = await parseIntercomMatrixXlsx(buffer)
       if ('error' in result) {
         setImportError(result.error)
         return
@@ -157,8 +159,8 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
     e.target.value = ''
   }
 
-  const handleXlsxExport = () => {
-    const buffer = exportIntercomMatrixXlsx(config)
+  const handleXlsxExport = async () => {
+    const buffer = await exportIntercomMatrixXlsx(config)
     downloadBlob(
       // v7.9.116 — Einheitlicher Stempel.
       buildExportFilenameWithSuffix(config.systemName || 'intercom', 'IntercomMatrix', 'xlsx'),
@@ -272,8 +274,9 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
             type="button"
             onClick={onClose}
             className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+            aria-label={t('common.close', 'Schließen')}
           >
-            ✕
+            <Icon icon={X} size="sm" />
           </button>
         </div>
 
@@ -680,7 +683,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
               className="rounded border border-slate-600 px-3 py-1.5 text-xs text-slate-400 hover:border-emerald-700 hover:text-emerald-300"
               title={t('greengo.import.gg5Title', '.gg5 Datei importieren und mit Canvas-Geräten verknüpfen')}
             >
-              {t('greengo.import.gg5', '⬆ .gg5 importieren')}
+              <Icon icon={Upload} size="xs" className="mr-1 inline-block align-text-bottom" />{t('greengo.import.gg5', '.gg5 importieren')}
             </button>
             <button
               type="button"
@@ -688,7 +691,8 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
               className="rounded border border-slate-600 px-3 py-1.5 text-xs text-slate-400 hover:border-cyan-700 hover:text-cyan-300"
               title={t('greengo.import.xlsxTitle', 'Intercom-Matrix-Excel hochladen — die Users + Gruppen werden in die GreenGo-Konfiguration übernommen.')}
             >
-              {t('greengo.import.xlsx', '📊 Excel-Matrix importieren')}
+              <Icon icon={FileSpreadsheet} size="xs" className="mr-1 inline-block align-text-bottom" />
+              {t('greengo.import.xlsx', 'Excel-Matrix importieren')}
             </button>
             <button
               type="button"
@@ -696,7 +700,8 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
               className="rounded border border-slate-600 px-3 py-1.5 text-xs text-slate-400 hover:border-cyan-700 hover:text-cyan-300"
               title={t('greengo.export.xlsxTitle', 'Aktuelle GreenGo-Konfiguration als Intercom-Matrix-Excel herunterladen (für Druck / Weitergabe).')}
             >
-              {t('greengo.export.xlsx', '📊 Excel-Matrix exportieren')}
+              <Icon icon={FileSpreadsheet} size="xs" className="mr-1 inline-block align-text-bottom" />
+              {t('greengo.export.xlsx', 'Excel-Matrix exportieren')}
             </button>
             <button
               type="button"
@@ -710,7 +715,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
               onClick={handleExport}
               className="rounded bg-emerald-600 px-3 py-1.5 text-xs hover:bg-emerald-500"
             >
-              {t('greengo.export.gg5', '⬇ Als .gg5 exportieren')}
+              <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('greengo.export.gg5', 'Als .gg5 exportieren')}
             </button>
           </div>
         </div>
@@ -757,7 +762,8 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                 </p>
               </div>
               <button type="button" onClick={cancelImport}
-                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600">✕</button>
+                aria-label={t('common.close', 'Schließen')}
+                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"><Icon icon={X} size="sm" /></button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
