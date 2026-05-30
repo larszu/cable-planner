@@ -43,6 +43,8 @@ export type SdiCarrier =
   | 'SDI-12G'
   | 'QuadLink-3G-2SI'
   | 'QuadLink-3G-SquareDivision'
+  | 'DualLink-HD' // 2× 1.5G HD-SDI (SMPTE 372M)
+  | 'DualLink-3G' // 2× 3G-SDI (z.B. 1080p / 4:4:4)
 
 export interface VideoFormat {
   id: VideoFormatId
@@ -70,14 +72,14 @@ export const VIDEO_FORMATS: VideoFormat[] = [
   {
     id: '1080p50',
     label: '1080p50 (3G)',
-    carriers: ['SDI-3G-A', 'SDI-3G-B'],
+    carriers: ['SDI-3G-A', 'SDI-3G-B', 'DualLink-HD'],
     preferredCable: 'SDI-3G',
     notesKey: 'catalog.videoFormat.1080p50.notes',
   },
   {
     id: '1080p60',
     label: '1080p59.94 / 1080p60 (3G)',
-    carriers: ['SDI-3G-A', 'SDI-3G-B'],
+    carriers: ['SDI-3G-A', 'SDI-3G-B', 'DualLink-HD'],
     preferredCable: 'SDI-3G',
   },
   {
@@ -140,6 +142,9 @@ export interface SdiCapabilities {
   maxSingleLink?: 'SDI-HD' | 'SDI-3G' | 'SDI-6G' | 'SDI-12G'
   /** Quad Link 3G-SDI support (for 2160p50/60 over four BNC cables). */
   quadLink3G?: QuadLinkMode
+  /** #370 — Dual-Link SDI support: 2× HD-SDI (SMPTE 372M) or 2× 3G for
+   *  1080p50/60 / 4:4:4. The pair is modelled per-port via `dualLinkGroup`. */
+  dualLink?: boolean
 }
 
 export type QuadLinkMode = 'none' | '2SI' | 'SquareDivision' | 'both'
@@ -166,6 +171,17 @@ export const pickCableStandardForFormat = (
   }
   if (format.preferredCable === 'SDI-6G' && !maxBothAtLeast('SDI-6G')) {
     return 'SDI-3G'
+  }
+  // #370 — Dual-Link fallback: a 3G format (1080p50/60) can also travel over
+  // 2× HD-SDI (Dual-Link HD, SMPTE 372M) when both endpoints are HD-only but
+  // advertise Dual-Link support. The per-cable type is then HD-SDI.
+  if (
+    format.preferredCable === 'SDI-3G' &&
+    !maxBothAtLeast('SDI-3G') &&
+    caps.length > 0 &&
+    caps.every((c) => c.dualLink)
+  ) {
+    return 'SDI-HD'
   }
   return format.preferredCable
 }

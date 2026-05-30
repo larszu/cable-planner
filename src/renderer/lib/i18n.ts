@@ -650,6 +650,7 @@ const en: Dict = {
   'ports.sfp.vendorPlaceholder': 'Vendor (Cisco)',
   'ports.sfp.vendorTitle': 'Module vendor: Cisco, Aruba, Ubiquiti, FS.com …',
   'ports.quadAuto': 'Auto-assign free BNC ports to this set',
+  'ports.dualAuto': 'Auto-assign free BNC ports to this set',
 
   // Cable / CableDialog
   'cable.dialog.title': 'New cable',
@@ -1856,6 +1857,7 @@ const en: Dict = {
   'ports.gender.female': '♀ Female / socket',
   'ports.sdi.maxSingleLink': 'Max single-link',
   'ports.sdi.quadSet': 'Quad-link set:',
+  'ports.sdi.dualSet': 'Dual-link set:',
 
   // Shortcut keys (Strg/Ctrl + …)
   'shortcut.ctrlN': 'Ctrl+N',
@@ -2384,6 +2386,21 @@ const en: Dict = {
   'quadLink.okFill': 'Yes, fill',
   'quadLink.complete': 'Set complete',
   'quadLink.incomplete': 'Set incomplete — 4 ports required',
+  'dualLink.incompleteTitle': 'Dual-link set {g} incomplete',
+  'dualLink.incompleteBody':
+    'Only has {have}/2 ports. No more free BNC ports available — add BNC ports first or free up existing ones.',
+  'dualLink.fillTitle': 'Fill dual-link set {g}?',
+  'dualLink.fillBody':
+    'Currently {have}/2 ports. Automatically assign {add} more free BNC port to the set?',
+  'dualLink.createTitle': 'Create dual-link set {id}?',
+  'dualLink.createBody':
+    '1/2 ports set. Automatically assign {add} more free BNC port to the set?',
+  'dualLink.createdTitle': 'Dual-link set {id} created',
+  'dualLink.createdBody':
+    'Currently has {have}/2 ports. Please add another BNC port and assign it to the set too.',
+  'dualLink.okFill': 'Yes, fill',
+  'dualLink.complete': 'Set complete',
+  'dualLink.incomplete': 'Set incomplete — 2 ports required',
 
   // LibraryPanel rentman section + netbox + create
   'library.rentman.noProjectLinked': 'No Rentman project linked.',
