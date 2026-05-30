@@ -16,13 +16,20 @@ export type ConnectorType =
   | 'PowerCON'
   | 'Schuko 230V'
   | 'C7 Eurostecker'
+  | 'CEE16'
+  | 'CEE32'
+  | 'CEE63'
+  | 'Powerlock'
+  | 'Socapex'
+  | 'Harting'
   | 'Custom'
 
 /** All valid connector type values in display order. */
 export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
   'XLR', 'BNC', 'HDMI', 'Ethernet/RJ45', 'Fiber', 'SFP', 'SFP+', 'DIN',
   'DisplayPort', 'USB', 'USB-C', 'Triax', 'Wireless/RF',
-  'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker', 'Custom',
+  'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker',
+  'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Custom',
 ]
 
 import type { SignalStandard } from './cableSpec'

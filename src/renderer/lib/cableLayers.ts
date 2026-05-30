@@ -63,7 +63,13 @@ export const detectLayerForConnector = (
     ct === 'iec 230v' ||
     ct === 'powercon' ||
     ct === 'schuko 230v' ||
-    ct === 'c7 eurostecker'
+    ct === 'c7 eurostecker' ||
+    ct === 'cee16' ||
+    ct === 'cee32' ||
+    ct === 'cee63' ||
+    ct === 'powerlock' ||
+    ct === 'socapex' ||
+    ct === 'harting'
   )
     return 'power'
   if (ct === 'wireless/rf') return 'control'
