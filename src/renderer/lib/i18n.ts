@@ -548,6 +548,9 @@ const en: Dict = {
   'toolbar.location.defaultName': 'New location',
   'toolbar.group.save': 'Save {count} selected devices as a group',
   'toolbar.group.defaultName': 'Group {time}',
+  'toolbar.group.overwriteConfirm':
+    'A template named "{name}" already exists. Overwrite?',
+  'toolbar.group.overwrite': 'Overwrite',
   'toolbar.rack.arrange': 'Arrange the {count} selected devices in the 2D rack builder',
   'toolbar.rack.edit': 'Edit this rack in the 2D rack builder',
   'toolbar.align.left': 'Left align',
@@ -1737,6 +1740,11 @@ const en: Dict = {
   'library.tabs.groups.exportAria': 'Export',
   'library.tabs.groups.confirmDelete': 'Delete group "{name}"?',
   'library.tabs.groups.deleteTitle': 'Remove group from library',
+  'library.tabs.groups.renamePrompt': 'New template name:',
+  'library.tabs.groups.renameTitle': 'Rename template',
+  'library.tabs.groups.renameAria': 'Rename',
+  'library.tabs.groups.renameConflict':
+    'A template named "{name}" already exists. Please choose a different name.',
 
   // Library — Racks tab
   'library.tabs.racks.title': '2D Rack Builder',
