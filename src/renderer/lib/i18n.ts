@@ -2753,6 +2753,13 @@ const en: Dict = {
   'patchList.labelCsv.generic': 'Generic (CSV)',
   'patchList.labelCsv.brother': 'Brother P-touch (TXT)',
   'patchList.labelCsv.dymo': 'Dymo (CSV)',
+  // #353 Audio input list
+  'patchList.exportInputList': '🎚 Input list',
+  'inputList.col.ch': 'Ch',
+  'inputList.col.source': 'Source',
+  'inputList.col.port': 'Port',
+  'inputList.col.connector': 'Connector',
+  'inputList.col.toDevice': 'To device',
   // #314 Replace device section
   'replaceDevice.title': 'Replace device',
   'replaceDevice.subtitle': 'Preserve cabling',
