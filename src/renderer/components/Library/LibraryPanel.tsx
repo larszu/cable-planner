@@ -127,6 +127,8 @@ export const LibraryPanel = () => {
   // Watch the global trigger fired by the CanvasToolbar button.
   const rackBuilderSeedTrigger = useUiStore((s) => s.rackBuilderSeedTrigger)
   const clearRackBuilderSeedTrigger = useUiStore((s) => s.clearRackBuilderSeedTrigger)
+  const rackBuilderNewTrigger = useUiStore((s) => s.rackBuilderNewTrigger)
+  const clearRackBuilderNewTrigger = useUiStore((s) => s.clearRackBuilderNewTrigger)
   const rackBuilderEditFromBlackBoxTrigger = useUiStore(
     (s) => s.rackBuilderEditFromBlackBoxTrigger,
   )
@@ -184,6 +186,20 @@ export const LibraryPanel = () => {
     setTab('racks')
     clearRackBuilderSeedTrigger()
   }, [rackBuilderSeedTrigger, equipmentItems, clearRackBuilderSeedTrigger])
+
+  // #401 — Werkzeuge-Menue "Rack-Builder": neues leeres Rack anlegen
+  // (wie der "Neues Rack"-Button), statt aus einer Auswahl zu seeden.
+  // Vorher rief das Menue triggerRackBuilderFromSelection([]) auf, was
+  // bei leerer Auswahl auf null fiel und gar nichts oeffnete.
+  useEffect(() => {
+    if (!rackBuilderNewTrigger) return
+    setSeedPreset(null)
+    setEditingRackPresetId(null)
+    setEditingCanvasRackEquipmentId(null)
+    setShowRackBuilderDialog(true)
+    setTab('racks')
+    clearRackBuilderNewTrigger()
+  }, [rackBuilderNewTrigger, clearRackBuilderNewTrigger])
 
   // v7.9.51 — Edit-Trigger vom Canvas-Toolbar-Button für ein bereits
   // platziertes Black-Box-Rack.

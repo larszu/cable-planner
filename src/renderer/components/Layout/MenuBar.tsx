@@ -308,7 +308,7 @@ export const MenuBar = ({
               Properties). Dialoge öffnen geräteneutral und bieten ggf.
               eigene Geräteauswahl. */}
           <MenuItem
-            onClick={() => useUiStore.getState().triggerRackBuilderFromSelection([])}
+            onClick={() => useUiStore.getState().triggerNewRack()}
             icon={<Icon icon={Server} size="sm" />}
           >
             {t('app.menu.tools.rackBuilder', 'Rack-Builder…')}

@@ -2280,6 +2280,8 @@ const en: Dict = {
   'calc.col.phase': 'Phase',
   'calc.tab.bandwidth': 'Bandwidth',
   'calc.tab.power': 'Power consumption',
+  'calc.bandwidth.windowTitle': 'Bandwidth calculator',
+  'calc.power.windowTitle': 'Power consumption calculator',
   'calc.bandwidth.intro':
     'Gross data rate of a video stream (before compression) and the smallest SDI tier that carries it. Pixels × lines × fps × bits-per-pixel.',
   'calc.bandwidth.fitsIn': 'Fits in {tier} ({mbps} Mbps).',

@@ -709,6 +709,13 @@ interface UiState extends PersistedUiState {
   rackBuilderSeedTrigger: string[] | null
   triggerRackBuilderFromSelection: (equipmentIds: string[]) => void
   clearRackBuilderSeedTrigger: () => void
+  /** #401 — Trigger zum Oeffnen des RackBuilders fuer ein NEUES leeres
+   *  Rack (Werkzeuge-Menue "Rack-Builder"). Anders als der Seed-Trigger
+   *  wird hier ohne Auswahl ein frisches Rack erzeugt — wie der
+   *  "Neues Rack"-Button in der Library. */
+  rackBuilderNewTrigger: boolean
+  triggerNewRack: () => void
+  clearRackBuilderNewTrigger: () => void
   /** v7.9.51 — Trigger zum Bearbeiten eines bereits platzierten Black-
    *  Box-Racks auf dem Canvas. Anders als rackBuilderSeedTrigger geht
    *  es hier nicht um eine neue Rack-Erzeugung aus Auswahl, sondern
@@ -1129,6 +1136,9 @@ export const useUiStore = create<UiState>((set) => ({
   triggerRackBuilderFromSelection: (equipmentIds) =>
     set({ rackBuilderSeedTrigger: equipmentIds.length > 0 ? equipmentIds : null }),
   clearRackBuilderSeedTrigger: () => set({ rackBuilderSeedTrigger: null }),
+  rackBuilderNewTrigger: false,
+  triggerNewRack: () => set({ rackBuilderNewTrigger: true }),
+  clearRackBuilderNewTrigger: () => set({ rackBuilderNewTrigger: false }),
   rackBuilderEditFromBlackBoxTrigger: null,
   triggerRackBuilderEditFromBlackBox: (equipmentId) =>
     set({ rackBuilderEditFromBlackBoxTrigger: equipmentId }),
