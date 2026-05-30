@@ -536,6 +536,26 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                 <option value="right">{t('ports.side.right', 'Rechts')}</option>
               </select>
             </div>
+            {/* #410 — Steckverbinder-Geschlecht (male/female). Optional. */}
+            <div className="mt-1">
+              <select
+                aria-label={t('ports.aria.gender', 'Connector gender')}
+                value={port.gender ?? ''}
+                onChange={(event) =>
+                  updatePort(port.id, {
+                    gender: event.target.value
+                      ? (event.target.value as 'male' | 'female')
+                      : undefined,
+                  })
+                }
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                title={t('ports.genderTitle', 'Steckverbinder-Geschlecht (für die Kabel-Konfektion)')}
+              >
+                <option value="">{t('ports.gender.none', 'Geschlecht (–)')}</option>
+                <option value="male">{t('ports.gender.male', '♂ Male / Stecker')}</option>
+                <option value="female">{t('ports.gender.female', '♀ Female / Buchse')}</option>
+              </select>
+            </div>
             {showAtemSourceId && (
               <div className="mt-1 flex items-center gap-1.5 rounded border border-emerald-900/60 bg-emerald-950/30 px-1.5 py-1">
                 <span className="text-[10px] font-semibold uppercase tracking-wide text-emerald-300">

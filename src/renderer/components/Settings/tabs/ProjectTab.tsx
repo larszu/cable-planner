@@ -7,7 +7,8 @@ import { infoDialog } from '../../../lib/infoDialog'
 import { pickImageAsDataUri } from '../../../lib/readImageAsDataUri'
 import { SettingsCard } from '../SettingsCard'
 import { DEFAULT_CABLE_NUMBERING, cableNumberExample } from '../../../lib/cableNumbering'
-import type { CableNumberingScheme } from '../../../types/project'
+import { DEFAULT_LENGTH_ESTIMATION } from '../../../lib/cableLengthEstimate'
+import type { CableNumberingScheme, LengthEstimationScheme } from '../../../types/project'
 
 /**
  * #307 — Project-Tab aus SettingsDialog ausgelagert. Enthaelt
@@ -268,6 +269,94 @@ const CableNumberingSection = () => {
   )
 }
 
+/**
+ * #350 — Kabellängen-Schätzung aus der Canvas-Geometrie (Luftlinie ×
+ * Maßstab × Slack). Erste Ausbaustufe; überschreibt die Längen aller
+ * nicht-wireless Kabel.
+ */
+const LengthEstimationSection = () => {
+  const t = useTranslation()
+  const scheme = useProjectStore((s) => s.project.metadata.lengthEstimation)
+  const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
+  const estimateCableLengths = useProjectStore((s) => s.estimateCableLengths)
+  const cableCount = useProjectStore((s) => s.project.cables.length)
+  const eff: LengthEstimationScheme = scheme ?? DEFAULT_LENGTH_ESTIMATION
+  const [doneCount, setDoneCount] = useState<number | null>(null)
+
+  const patch = (p: Partial<LengthEstimationScheme>) =>
+    updateProjectMetadata({ lengthEstimation: { ...eff, ...p } })
+
+  const handleEstimate = () => {
+    if (!scheme) updateProjectMetadata({ lengthEstimation: eff })
+    const n = estimateCableLengths()
+    setDoneCount(n)
+  }
+
+  return (
+    <SettingsCard
+      title={t('settings.project.lengthEst.title', 'Kabellängen schätzen')}
+      description={t(
+        'settings.project.lengthEst.desc',
+        'Schätzt die Kabellängen aus der Canvas-Distanz der Geräte (Luftlinie × Maßstab + Reserve). Überschreibt vorhandene Längen.',
+      )}
+    >
+      <div className="space-y-2 text-xs text-slate-200">
+        <div className="grid grid-cols-2 gap-2">
+          <label className="block">
+            <span className="mb-1 block text-slate-400">
+              {t('settings.project.lengthEst.scale', 'Meter pro 100 px')}
+            </span>
+            <input
+              type="number"
+              min={0.1}
+              step={0.1}
+              value={eff.metersPer100px}
+              onChange={(e) => patch({ metersPer100px: Math.max(0.1, Number(e.target.value) || 0.1) })}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-slate-400">
+              {t('settings.project.lengthEst.slack', 'Reserve (%)')}
+            </span>
+            <input
+              type="number"
+              min={0}
+              max={200}
+              value={eff.slackPercent}
+              onChange={(e) => patch({ slackPercent: Math.max(0, Number(e.target.value) || 0) })}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            />
+          </label>
+        </div>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={eff.roundUp}
+            onChange={(e) => patch({ roundUp: e.target.checked })}
+          />
+          {t('settings.project.lengthEst.roundUp', 'Auf ganze Meter aufrunden')}
+        </label>
+        <div className="flex items-center justify-end pt-1">
+          <button
+            type="button"
+            onClick={handleEstimate}
+            disabled={cableCount === 0}
+            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-40"
+          >
+            {t('settings.project.lengthEst.run', 'Längen jetzt schätzen')} ({cableCount})
+          </button>
+        </div>
+        {doneCount !== null && (
+          <p className="text-[11px] text-emerald-400">
+            {format(t('settings.project.lengthEst.done', '{n} Kabellängen aktualisiert.'), { n: doneCount })}
+          </p>
+        )}
+      </div>
+    </SettingsCard>
+  )
+}
+
 export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
   const metadata = useProjectStore((s) => s.project.metadata)
   const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
@@ -436,6 +525,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
       </SettingsCard>
 
       <CableNumberingSection />
+      <LengthEstimationSection />
 
       <LibraryExportSection />
 

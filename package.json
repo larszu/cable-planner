@@ -21,6 +21,7 @@
         "build:renderer": "vite build",
         "lint": "eslint .",
         "preview": "vite preview",
+        "test:crdt": "node scripts/crdt-convergence-check.mjs",
         "dist": "npm run build && electron-builder"
     },
     "dependencies": {
@@ -48,6 +49,7 @@
         "uuid": "^14.0.0",
         "xlsx-js-style": "^1.2.0",
         "yaml": "^2.8.3",
+        "yjs": "^13.6.31",
         "zustand": "^5.0.8"
     },
     "devDependencies": {

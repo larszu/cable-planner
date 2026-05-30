@@ -278,6 +278,15 @@ export const MenuBar = ({
           <MenuItem onClick={() => useUiStore.getState().openAnalysis()} icon={<Icon icon={BarChart3} size="sm" />}>
             {t('app.menu.tools.analysis', 'Analysen (Gewicht/Netzwerk/Redundanz)…')}
           </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openPlanCheck()} icon="🩺">
+            {t('app.menu.tools.planCheck', 'Plan-Check…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openRevisions()} icon="🕑">
+            {t('app.menu.tools.revisions', 'Revisionen & Snapshots…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAiPlanGen()} icon="✨">
+            {t('app.menu.tools.aiPlanGen', 'KI-Plan generieren…')}
+          </MenuItem>
           <MenuSep />
           {/* #342 — Editoren direkt aus dem Werkzeuge-Menü erreichbar machen
               (vorher nur über Toolbar bzw. verknüpftes Gerät in den

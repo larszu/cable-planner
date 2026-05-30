@@ -420,6 +420,18 @@ Drei Optionen mit sehr unterschiedlichem Aufwand:
 Slice-Architektur (#308) ist die Vorbereitung — jeder Slice macht
 immutable Updates, Yjs-Mapping wäre ein Adapter.
 
+**Stand (#413, erste Stufe):** Das CRDT-*Fundament* steht — `yjs` ist
+Dependency, `src/renderer/lib/crdt/projectCrdt.ts` spiegelt die
+`cables`-Collection als `Y.Doc` (`Y.Map<Cable>`) und bietet
+`loadFromCables`/`toCables`/`encodeState`/`encodeDiff`/`applyUpdate`/
+`onUpdate`. Konvergenz ist bewiesen (`npm run test:crdt`,
+`scripts/crdt-convergence-check.mjs`): konkurrierende Edits an
+verschiedenen Kabeln mergen, Konflikte am selben Kabel lösen
+deterministisch auf (kein Split-Brain), Updates sind idempotent +
+reihenfolge-unabhängig. **Noch offen:** Transport (`y-webrtc`/
+`y-websocket`), Store-⇄-Y.Doc-Bindung im Live-Betrieb, Presence/Cursor,
+Erweiterung auf `equipment`/`locations`, Undo-Integration.
+
 ### 9.5 · Tests
 
 Heute: kein Test-Skript in `package.json`. Bei 73k LOC ist das ein
