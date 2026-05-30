@@ -1280,6 +1280,7 @@ const en: Dict = {
   'locbom.col.category': 'Category',
   'locbom.col.sn': 'S/N',
   'locbom.col.ip': 'IP',
+  'locbom.col.packed': 'Pack',
   'locbom.col.qty': 'Qty',
   'locbom.col.type': 'Type',
   'locbom.col.lengthM': 'Length (m)',
