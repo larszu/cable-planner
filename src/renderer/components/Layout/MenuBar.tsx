@@ -270,6 +270,12 @@ export const MenuBar = ({
           <MenuItem onClick={() => useUiStore.getState().openAnalysis()} icon="📊">
             {t('app.menu.tools.analysis', 'Analysen (Gewicht/Netzwerk/Redundanz)…')}
           </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openPlanCheck()} icon="🩺">
+            {t('app.menu.tools.planCheck', 'Plan-Check…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openRevisions()} icon="🕑">
+            {t('app.menu.tools.revisions', 'Revisionen & Snapshots…')}
+          </MenuItem>
           <MenuSep />
           {/* #342 — Editoren direkt aus dem Werkzeuge-Menü erreichbar machen
               (vorher nur über Toolbar bzw. verknüpftes Gerät in den

@@ -772,6 +772,10 @@ interface UiState extends PersistedUiState {
   openPlanCheck: () => void
   closePlanCheck: () => void
   togglePlanCheck: () => void
+  /** Revisionen/Snapshots-Verwaltung (#412). */
+  revisions: { open: boolean }
+  openRevisions: () => void
+  closeRevisions: () => void
   /** Generischer Equipment-CSV-Import in die Library (#354). */
   csvImport: { open: boolean }
   openCsvImport: () => void
@@ -1152,6 +1156,9 @@ export const useUiStore = create<UiState>((set) => ({
   openPlanCheck: () => set({ planCheck: { open: true } }),
   closePlanCheck: () => set({ planCheck: { open: false } }),
   togglePlanCheck: () => set((s) => ({ planCheck: { open: !s.planCheck.open } })),
+  revisions: { open: false },
+  openRevisions: () => set({ revisions: { open: true } }),
+  closeRevisions: () => set({ revisions: { open: false } }),
   csvImport: { open: false },
   openCsvImport: () => set({ csvImport: { open: true } }),
   closeCsvImport: () => set({ csvImport: { open: false } }),
