@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useGreenGoBeltpack } from '../../../lib/greengoSync'
 import { format, useTranslation } from '../../../lib/i18n'
 
@@ -22,10 +23,20 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
   // List of all users for the assignment dropdown. We label them by name
   // and decorate with the linked equipment id if any (so the user can
   // see at a glance which slots are already taken).
+  //
+  // Ein-/ausklappbar (wie die übrigen Properties-Blöcke). Default offen, wenn
+  // diesem Gerät ein Beltpack-Slot zugeordnet ist, sonst eingeklappt. <summary>
+  // statt Form-Control, damit das Toggle auch im gesperrten Fieldset geht.
+  const [open, setOpen] = useState(!!info)
   return (
-    <div className="mb-2 rounded bg-emerald-950/40 p-2">
-      <div className="mb-1 flex items-center justify-between text-[10px] uppercase tracking-wide text-emerald-300">
-        <span>{t('props.greengo.beltpack', 'Beltpack')}</span>
+    <details
+      open={open}
+      onToggle={(e) => setOpen(e.currentTarget.open)}
+      className="mb-2 rounded bg-emerald-950/40 [&_summary]:cursor-pointer"
+    >
+      <summary className="flex items-center gap-1 px-2 py-1.5 text-[10px] uppercase tracking-wide text-emerald-300 hover:text-emerald-200 [&::-webkit-details-marker]:hidden">
+        <span className="text-emerald-400/70">{open ? '▾' : '▸'}</span>
+        <span className="flex-1">{t('props.greengo.beltpack', 'Beltpack')}</span>
         {info?.groupNames && info.groupNames.length > 0 && (
           <span
             className="font-normal normal-case text-emerald-400/80"
@@ -41,7 +52,8 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
             )}
           </span>
         )}
-      </div>
+      </summary>
+      <div className="px-2 pb-2">
       <label className="block">
         <span className="mb-1 block text-emerald-200/70">{t('props.greengo.name', 'Name')}</span>
         <input
@@ -94,6 +106,7 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </details>
   )
 }

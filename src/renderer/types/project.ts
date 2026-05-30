@@ -4,6 +4,33 @@ import type { GreenGoConfig } from './greengo'
 import type { LocationFrame } from './location'
 import type { VideoFormatId } from './videoFormat'
 
+/**
+ * Auto-Kabelnummerierung — Schema fuer automatisch vergebene Kabel-IDs.
+ * Wandert mit dem Projekt (in `ProjectMetadata`), damit "Neu nummerieren"
+ * reproduzierbar bleibt und ein erneutes Oeffnen die gleiche Logik nutzt.
+ *
+ * Format der erzeugten Nummer:
+ *   - ohne `perLayer`: `{prefix}{separator}{NNN}`  (z.B. "C-001")
+ *   - mit `perLayer`:  `{prefix}{layerCode}{separator}{NNN}` (z.B. "V-001")
+ * Bei leerem `prefix` faellt der Separator vor der Zahl weg.
+ */
+export interface CableNumberingScheme {
+  /** Master-Schalter. Wenn false, werden beim Anlegen keine Nummern
+   *  automatisch vergeben (manuelles "Neu nummerieren" geht trotzdem). */
+  enabled: boolean
+  /** Festes Praefix vor der Nummer, z.B. "C" oder "CBL". Leer erlaubt. */
+  prefix: string
+  /** Eigener, bei `start` beginnender Zaehler je Top-Level-Layer
+   *  (video/audio/control/network/power) plus Layer-Kuerzel im Code. */
+  perLayer: boolean
+  /** Trennzeichen zwischen Praefix/Layer und laufender Nummer. Default "-". */
+  separator: string
+  /** Nullstellen-Breite der laufenden Nummer (3 -> 001). Default 3. */
+  padding: number
+  /** Start-Nummer des Zaehlers. Default 1. */
+  start: number
+}
+
 export interface ProjectMetadata {
   name: string
   description: string
@@ -41,6 +68,24 @@ export interface ProjectMetadata {
   rentmanProjectId?: string
   /** Human-readable name of the linked Rentman project. */
   rentmanProjectName?: string
+  /** Auto-Kabelnummerierungs-Schema. Undefined = noch nie konfiguriert
+   *  (Defaults siehe `DEFAULT_CABLE_NUMBERING` in `lib/cableNumbering`). */
+  cableNumbering?: CableNumberingScheme
+  /** #412 — Label der zuletzt festgeschriebenen Revision. Wird beim
+   *  Festschreiben gesetzt und im PDF-Titelblock als „Revision" gestempelt. */
+  revision?: string
+  /** #350 — Längen-Schätzung aus Canvas-Geometrie. */
+  lengthEstimation?: LengthEstimationScheme
+}
+
+/** #350 — Konfiguration für die geometrische Kabellängen-Schätzung. */
+export interface LengthEstimationScheme {
+  /** Maßstab: wie viele Meter entsprechen 100 px Canvas-Distanz. */
+  metersPer100px: number
+  /** Reserve-/Slack-Aufschlag in Prozent (z.B. 15 = +15 %). */
+  slackPercent: number
+  /** Auf ganze Meter aufrunden (true) oder eine Nachkommastelle (false). */
+  roundUp: boolean
 }
 
 export interface CanvasState {
@@ -84,7 +129,29 @@ export interface CablePlannerProject {
     author: string
     startedAt: string
   }
+  /** #412 — Benannte Projekt-Stände (Revisionen/Snapshots). Jede Revision
+   *  hält einen vollständigen Snapshot des Plans, sodass ein früherer Stand
+   *  wiederhergestellt werden kann. Optional → alte Projekte laden sauber. */
+  revisions?: ProjectRevision[]
 }
+
+/** #412 — Ein festgeschriebener Projekt-Stand. */
+export interface ProjectRevision {
+  id: string
+  /** Kurzes Label wie "A", "B", "Rev 2" oder "As-Built". */
+  label: string
+  /** Freitext-Notiz: was sich gegenüber dem vorigen Stand geändert hat. */
+  note: string
+  createdAt: string
+  /** Markiert diese Revision als As-Built (gebauter Endzustand). */
+  asBuilt: boolean
+  /** Vollständiger Snapshot des Plans zum Zeitpunkt des Festschreibens.
+   *  Enthält selbst KEINE `revisions` (kein rekursives Wachstum). */
+  snapshot: RevisionSnapshot
+}
+
+/** Der in einer Revision gespeicherte Plan-Stand (Project ohne `revisions`). */
+export type RevisionSnapshot = Omit<CablePlannerProject, 'revisions'>
 
 /** v7.9.3 — Anmerkung eines Reviewers an einem Canvas-Element. */
 export interface ProjectAnnotation {

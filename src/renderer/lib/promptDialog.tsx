@@ -52,6 +52,9 @@ const PromptDialog = ({ title, defaultValue, onDone }: Props) => {
           submit()
         }}
         style={{ ...MODAL_CARD, minWidth: 320 }}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
       >
         <div style={{ marginBottom: 8, fontSize: 14 }}>{title}</div>
         <input

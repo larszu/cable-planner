@@ -108,8 +108,8 @@ interface PersistedUiState {
    * Ethernet = green, …). When false, the input/output dichotomy palette
    * is used (cyan for inputs, green for outputs, purple for bidirectional). */
   colorPortsByType: boolean
-  /** UI language. Coverage is partial today — see lib/i18n.ts. Defaults to
-   *  German because that's the historical UI language of the codebase. */
+  /** UI language. English is the default (full EN coverage in the `en`
+   *  dict); German remains selectable and is the inline source/fallback. */
   language: Language
   /** Issue #70: When true the cable dialog will not block creation on
    *  connector-type incompatibilities — the user can connect any input
@@ -292,7 +292,7 @@ const defaults: PersistedUiState = {
   cableColorMode: 'manual',
   canvasTheme: 'dark',
   colorPortsByType: false,
-  language: 'de',
+  language: 'en',
   overrideConnectionWarnings: false,
   rentmanEnabled: true,
   libraryViewMode: 'list',
@@ -807,6 +807,32 @@ interface UiState extends PersistedUiState {
   bulkConnect: { open: boolean }
   openBulkConnect: () => void
   closeBulkConnect: () => void
+  /** Projekt-Analysen (read-only Reports): Strom/Phasen, Netzwerk, Gewicht/
+   *  Wärme, Redundanz. Issues #345/#346/#351/#352. */
+  analysis: { open: boolean }
+  openAnalysis: () => void
+  closeAnalysis: () => void
+  /** Vereinte „Plan-Check"-Palette: Live-Validierung des Plans (#411). */
+  planCheck: { open: boolean }
+  openPlanCheck: () => void
+  closePlanCheck: () => void
+  togglePlanCheck: () => void
+  /** Revisionen/Snapshots-Verwaltung (#412). */
+  revisions: { open: boolean }
+  openRevisions: () => void
+  closeRevisions: () => void
+  /** KI-Plan-Generierung aus Text-Prompt (#414). */
+  aiPlanGen: { open: boolean }
+  openAiPlanGen: () => void
+  closeAiPlanGen: () => void
+  /** Generischer Equipment-CSV-Import in die Library (#354). */
+  csvImport: { open: boolean }
+  openCsvImport: () => void
+  closeCsvImport: () => void
+  /** "Neu aus Vorlage" — Projekt-Vorlagen-Galerie (#343). */
+  templates: { open: boolean }
+  openTemplates: () => void
+  closeTemplates: () => void
   /** Rentman equipment import dialog (cross-component trigger). */
   rentmanImport: { open: boolean }
   openRentmanImport: () => void
@@ -1190,6 +1216,25 @@ export const useUiStore = create<UiState>((set) => ({
   bulkConnect: { open: false },
   openBulkConnect: () => set({ bulkConnect: { open: true } }),
   closeBulkConnect: () => set({ bulkConnect: { open: false } }),
+  analysis: { open: false },
+  openAnalysis: () => set({ analysis: { open: true } }),
+  closeAnalysis: () => set({ analysis: { open: false } }),
+  planCheck: { open: false },
+  openPlanCheck: () => set({ planCheck: { open: true } }),
+  closePlanCheck: () => set({ planCheck: { open: false } }),
+  togglePlanCheck: () => set((s) => ({ planCheck: { open: !s.planCheck.open } })),
+  revisions: { open: false },
+  openRevisions: () => set({ revisions: { open: true } }),
+  closeRevisions: () => set({ revisions: { open: false } }),
+  aiPlanGen: { open: false },
+  openAiPlanGen: () => set({ aiPlanGen: { open: true } }),
+  closeAiPlanGen: () => set({ aiPlanGen: { open: false } }),
+  csvImport: { open: false },
+  openCsvImport: () => set({ csvImport: { open: true } }),
+  closeCsvImport: () => set({ csvImport: { open: false } }),
+  templates: { open: false },
+  openTemplates: () => set({ templates: { open: true } }),
+  closeTemplates: () => set({ templates: { open: false } }),
   rentmanImport: { open: false },
   openRentmanImport: () => set({ rentmanImport: { open: true } }),
   closeRentmanImport: () => set({ rentmanImport: { open: false } }),

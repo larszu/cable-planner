@@ -1,8 +1,69 @@
 @import 'tailwindcss';
 
+/* ── Phase 2: Typo-Skala als Tailwind-Theme-Tokens ──────────────────────────
+ * Erzeugt die Utilities text-cp-xs / -sm / -base / -lg. Kleinster Wert
+ * 12px = absolute Mindestgröße für Fließtext (ersetzt die bisherigen
+ * Ad-hoc text-[10px]/text-[11px]). Theme-unabhängig (Schriftgröße ändert
+ * sich nicht zwischen Dark/Light). */
+@theme {
+  --text-cp-xs: 0.75rem; /* 12px */
+  --text-cp-xs--line-height: 1.1rem;
+  --text-cp-sm: 0.8125rem; /* 13px */
+  --text-cp-sm--line-height: 1.2rem;
+  --text-cp-base: 0.875rem; /* 14px */
+  --text-cp-base--line-height: 1.3rem;
+  --text-cp-lg: 1rem; /* 16px */
+  --text-cp-lg--line-height: 1.5rem;
+  /* Heading / display steps (UX audit #27/#30) — gives titles a consistent
+   * hierarchy above body text instead of ad-hoc text-lg/xl/2xl. */
+  --text-cp-xl: 1.125rem; /* 18px — section / panel headings */
+  --text-cp-xl--line-height: 1.6rem;
+  --text-cp-2xl: 1.375rem; /* 22px — dialog / view titles */
+  --text-cp-2xl--line-height: 1.85rem;
+  --text-cp-3xl: 1.75rem; /* 28px — display / welcome */
+  --text-cp-3xl--line-height: 2.15rem;
+}
+
 :root {
   color-scheme: dark;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  /* ── Phase 2: Farb-Token-Schicht (Dark = Default) ────────────────────────
+   * Theme-aware via Override im [data-theme="light"]-Block weiter unten.
+   * Die Werte spiegeln exakt die bisher in den Shells genutzten slate-
+   * Töne (bzw. deren Light-Remap), damit die Migration der zentralen
+   * Shells auf var(--cp-*) appearance-neutral ist. Neue Komponenten
+   * sollten diese Tokens statt roher slate-Klassen verwenden. */
+  --cp-bg: #0f172a; /* App-Hintergrund */
+  --cp-surface-1: #0f172a; /* slate-900 — Panels/Modals */
+  --cp-surface-2: #1e293b; /* slate-800 — raised/hover */
+  --cp-surface-3: #020617; /* slate-950 — sunken/Leisten/Inputs */
+  --cp-border: #334155; /* slate-700 */
+  --cp-border-muted: #1e293b; /* slate-800 */
+  --cp-text: #f1f5f9; /* slate-100 */
+  --cp-text-secondary: #cbd5e1; /* slate-300 */
+  --cp-text-muted: #94a3b8; /* slate-400 */
+  --cp-text-faint: #64748b; /* slate-500 */
+  --cp-accent: #38bdf8; /* sky-400 */
+  --cp-warn: #f59e0b; /* amber-500 */
+  --cp-danger: #ef4444; /* red-500 */
+
+  /* Spacing-Skala (Referenz; schrittweise Migration der Shells) */
+  --cp-space-1: 0.25rem;
+  --cp-space-2: 0.5rem;
+  --cp-space-3: 0.75rem;
+  --cp-space-4: 1rem;
+  --cp-space-6: 1.5rem;
+
+  /* z-index scale — single source of truth for stacking order. Replaces the
+   * scattered z-[60]/z-[200]/zIndex:9999 ad-hoc values (UX audit #51). Use as
+   * z-[var(--cp-z-modal)] etc. Higher layer = on top. */
+  --cp-z-canvas-overlay: 100;
+  --cp-z-panel: 200;
+  --cp-z-modal: 1000;
+  --cp-z-menu: 1100;
+  --cp-z-popover: 1200;
+  --cp-z-toast: 1300;
 }
 
 * {
@@ -84,8 +145,21 @@ body,
  * avoid that.
  * ─────────────────────────────────────────────────────────── */
 [data-theme="light"] {
+  /* Phase 2: Light-Overrides der Farb-Tokens. Werte = bisheriger
+   * Slate-Remap, damit migrierte Shells im Light-Mode identisch aussehen
+   * und keine dunklen Rest-Flächen entstehen. */
   --cp-bg: #f0f4f8;
-  --cp-text: #1e293b;
+  --cp-surface-1: #eaeff5; /* = .bg-slate-900 light remap */
+  --cp-surface-2: #dde4ee; /* = .bg-slate-800 */
+  --cp-surface-3: #f0f4f8; /* = .bg-slate-950 */
+  --cp-border: #94a3b8; /* = .border-slate-700 */
+  --cp-border-muted: #b8c4d0; /* = .border-slate-800 */
+  --cp-text: #0f172a; /* = .text-slate-100 */
+  --cp-text-muted: #334155; /* = .text-slate-400 */
+  --cp-text-faint: #475569; /* = .text-slate-500 */
+  --cp-accent: #0284c7; /* sky-600 */
+  --cp-warn: #d97706; /* amber-600 */
+  --cp-danger: #dc2626; /* red-600 */
   /* Render native form elements (selects, checkboxes, inputs) in light mode */
   color-scheme: light;
 }
@@ -173,6 +247,15 @@ body,
 [data-theme="light"] .text-purple-300   { color: #7e22ce; }
 [data-theme="light"] .text-red-400      { color: #dc2626; }
 [data-theme="light"] .text-red-500      { color: #b91c1c; }
+/* UX audit #14 — teal + pink had no light remap (Videohub teal accents,
+ * AtemDialog text-pink-400) → were light-on-light / dark-on-dark. */
+[data-theme="light"] .text-teal-300     { color: #0f766e; }
+[data-theme="light"] .text-pink-400     { color: #be185d; }
+[data-theme="light"] .bg-teal-600       { background-color: #0d9488; }
+[data-theme="light"] .bg-teal-700       { background-color: #0f766e; }
+[data-theme="light"] .bg-teal-950\/30   { background-color: rgba(204,251,241,0.6); }
+[data-theme="light"] .border-teal-500   { border-color: #0d9488; }
+[data-theme="light"] .border-teal-800   { border-color: #5eead4; }
 
 /* ── Active / accent button backgrounds (sky/emerald/amber/red etc. 5xx-7xx) ──
  * These stay vivid for active states, contrast against the light theme is
@@ -421,14 +504,14 @@ a:focus-visible,
 [role="menuitem"]:focus-visible,
 [role="checkbox"]:focus-visible,
 [role="tab"]:focus-visible {
-  outline: 2px solid #38bdf8;
+  outline: 2px solid var(--cp-accent);
   outline-offset: 1px;
   border-radius: 4px;
 }
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #38bdf8;
+  outline: 2px solid var(--cp-accent);
   outline-offset: -1px;
 }
 [data-theme="light"] button:focus-visible,
@@ -436,5 +519,55 @@ textarea:focus-visible {
 [data-theme="light"] input:focus-visible,
 [data-theme="light"] select:focus-visible,
 [data-theme="light"] textarea:focus-visible {
-  outline-color: #0284c7;
+  outline-color: var(--cp-accent);
+}
+
+/* ── Consistent disabled affordance (UX audit #45) ──────────────────────────
+ * Many buttons fade via disabled:opacity-* but only some also set the cursor.
+ * This guarantees every disabled control shows not-allowed, app-wide. */
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* ── Themed scrollbars (UX audit #54) ───────────────────────────────────────
+ * Previously the app shipped default OS scrollbars, which look out of place on
+ * the dark canvas and differ per platform. These are theme-aware via the
+ * --cp-* tokens, so they also adapt in light mode. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cp-border) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--cp-border);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--cp-text-faint);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ── Respect prefers-reduced-motion (UX audit #46) ──────────────────────────
+ * Motion-sensitive users get animations/transitions effectively disabled
+ * (incl. the overlap-flash keyframe and any spinners). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

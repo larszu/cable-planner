@@ -15,6 +15,8 @@
 //      Then click "Importieren" to commit.
 
 import { useMemo, useState } from 'react'
+import { AlertTriangle, X, Ruler, Map, Library } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { cablePlannerApi } from '../../lib/bridge'
 import { parseGraphmlText } from '../../lib/graphml/parser'
 import {
@@ -256,7 +258,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
 
   const renderEmpty = () => (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 p-12 text-center text-slate-300">
-      <div className="text-5xl">📐</div>
+      <Icon icon={Ruler} size={40} className="text-slate-400" />
       <div className="max-w-md text-sm">
         <p className="mb-2 font-semibold text-slate-100">{t('graphml.dialog.importerTitle', 'yEd / GraphML Importer')}</p>
         <p>
@@ -286,7 +288,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
 
   const renderError = (fileName: string | null, message: string) => (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 p-12 text-center">
-      <div className="text-3xl">⚠</div>
+      <div className="flex justify-center text-red-300"><Icon icon={AlertTriangle} size={32} /></div>
       <p className="text-sm font-medium text-red-300">{t('graphml.dialog.importFailed', 'Import fehlgeschlagen')}</p>
       {fileName && <p className="text-xs text-slate-400">{fileName}</p>}
       <pre className="max-w-full whitespace-pre-wrap rounded bg-slate-950 p-3 text-xs text-red-200">
@@ -364,7 +366,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                 className={`rounded px-2 py-0.5 ${destination === 'canvas' ? 'bg-emerald-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
                 title={t('graphml.dialog.canvasTitle', 'Geräte direkt auf dem Canvas platzieren (inkl. Kabel).')}
               >
-                {t('graphml.dialog.canvas', '🗺 Canvas')}
+                <Icon icon={Map} size="xs" className="mr-1 inline-block align-text-bottom" />{t('graphml.dialog.canvas', 'Canvas')}
               </button>
               <button
                 type="button"
@@ -372,7 +374,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                 className={`rounded px-2 py-0.5 ${destination === 'library' ? 'bg-violet-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
                 title={t('graphml.dialog.libraryTitle', 'Nur als wiederverwendbare Geräte-Vorlagen in die Library übernehmen (ohne Kabel, ohne Canvas-Platzierung).')}
               >
-                {t('graphml.dialog.library', '📚 Library')}
+                <Icon icon={Library} size="xs" className="mr-1 inline-block align-text-bottom" />{t('graphml.dialog.library', 'Library')}
               </button>
             </div>
             {destination === 'canvas' && (
@@ -408,7 +410,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         {/* Library-mode hint: cables are dropped (templates carry no cabling). */}
         {destination === 'library' && (
           <div className="border-b border-violet-800/60 bg-violet-950/40 px-4 py-2 text-[11px] text-violet-200">
-            {t('graphml.dialog.libraryHint', '📚 Library-Modus: Geräte werden als wiederverwendbare Vorlagen in die lokale Library gespeichert. Kabel werden nicht mit übernommen (Templates enthalten keine Verkabelung).')}
+            {t('graphml.dialog.libraryHint', 'Library-Modus: Geräte werden als wiederverwendbare Vorlagen in die lokale Library gespeichert. Kabel werden nicht mit übernommen (Templates enthalten keine Verkabelung).')}
           </div>
         )}
 
@@ -652,7 +654,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             className="text-slate-500 hover:text-slate-200"
             aria-label={t('graphml.dialog.closeAria', 'Schließen')}
           >
-            ✕
+            <Icon icon={X} size="sm" />
           </button>
         </div>
         {stage.kind === 'empty' && renderEmpty()}

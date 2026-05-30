@@ -19,12 +19,15 @@ export const mountModal = <T,>(
   render: (resolve: (value: T) => void) => ReactNode,
 ): Promise<T> => {
   return new Promise<T>((resolve) => {
+    // a11y: Fokus beim Schließen an das auslösende Element zurückgeben.
+    const prevFocus = document.activeElement as HTMLElement | null
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
     const done = (value: T) => {
       root.unmount()
       container.remove()
+      prevFocus?.focus?.()
       resolve(value)
     }
     root.render(render(done))

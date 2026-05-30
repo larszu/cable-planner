@@ -10,8 +10,10 @@
 
 import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { MessageSquare } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
+import { Icon } from '../shared/Icon'
 import { promptDialog } from '../../lib/promptDialog'
 import { format, useTranslation } from '../../lib/i18n'
 import { confirmDialog } from '../../lib/confirmDialog'
@@ -351,7 +353,7 @@ export const AnnotationsPanel = ({
   const headerTitle = (
     <span className="flex flex-col">
       <span className="text-sm font-semibold text-slate-100">
-        💬 {t('annotations.title', 'Anmerkungen')} ({annotations.length})
+        <Icon icon={MessageSquare} size="sm" /> {t('annotations.title', 'Anmerkungen')} ({annotations.length})
       </span>
       {viewerSession && (
         <span className="text-[10px] text-slate-500">
@@ -382,7 +384,7 @@ export const AnnotationsPanel = ({
       <header className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
         <div className="flex min-w-0 flex-col">
           <h3 className="truncate text-sm font-semibold">
-            💬 {t('annotations.title', 'Anmerkungen')} ({annotations.length})
+            <Icon icon={MessageSquare} size="sm" /> {t('annotations.title', 'Anmerkungen')} ({annotations.length})
           </h3>
           {viewerSession && (
             <span className="text-[10px] text-slate-500">

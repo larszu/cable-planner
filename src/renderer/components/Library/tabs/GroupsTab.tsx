@@ -6,6 +6,8 @@ import { PresetDndWrapper } from '../LibraryDndWrappers'
 import { SortablePresetCard } from '../LibrarySortables'
 import { format, useTranslation } from '../../../lib/i18n'
 import { promptDialog } from '../../../lib/promptDialog'
+import { Download, Pencil } from 'lucide-react'
+import { Icon } from '../../shared/Icon'
 
 /**
  * #305 — GroupsTab aus LibraryPanel ausgelagert. Zeigt nicht-Rack-
@@ -92,7 +94,7 @@ export const GroupsTab = () => {
                             {preset.items.map((i) => i.name).join(', ')}
                           </div>
                         </div>
-                        <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
+                        <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
                           {/* #425 — Inline-Rename. Duplikat-Check verhindert
                               dass zwei Vorlagen denselben Namen tragen. */}
                           <button
@@ -131,7 +133,7 @@ export const GroupsTab = () => {
                             title={t('library.tabs.groups.renameTitle', 'Vorlage umbenennen')}
                             aria-label={t('library.tabs.groups.renameAria', 'Umbenennen')}
                           >
-                            ✎
+                            <Icon icon={Pencil} size="xs" />
                           </button>
                           <button
                             type="button"
@@ -146,7 +148,7 @@ export const GroupsTab = () => {
                             )}
                             aria-label={t('library.tabs.groups.exportAria', 'Exportieren')}
                           >
-                            ⬇
+                            <Icon icon={Download} size="xs" />
                           </button>
                           <button
                             type="button"
