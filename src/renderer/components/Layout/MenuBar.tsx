@@ -1,8 +1,17 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import {
+  FileText, Clapperboard, FolderOpen, Save, SaveAll, Ruler, Upload, FileDown,
+  Image as ImageIcon, Calculator, Eye, MessageSquare, Paperclip, Plug, Cable,
+  Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, SlidersHorizontal, Tag,
+  Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
+  Pencil, Smartphone, Settings, HardDrive,
+} from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
 import { useTranslation } from '../../lib/i18n'
 import { projectHistory } from '../../store/projectHistory'
 import { useUiStore } from '../../store/uiStore'
+import { useProjectStore } from '../../store/projectStore'
 import { hasDesktopBridge } from '../../lib/bridge'
 
 interface MenuBarProps {
@@ -77,6 +86,12 @@ export const MenuBar = ({
 }: MenuBarProps) => {
   const t = useTranslation()
   const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
+  // #341 — View-Menü spiegelt Toolbar-Toggles; Status für Häkchen lesen.
+  const canvasTheme = useUiStore((s) => s.canvasTheme)
+  const snapToGrid = useUiStore((s) => s.snapToGrid)
+  const hideAllCableLabels = useUiStore((s) => s.hideAllCableLabels)
+  const cableColorMode = useUiStore((s) => s.cableColorMode)
+  const annotationsPanelOpen = useUiStore((s) => s.annotationsPanelOpen)
   // Re-render whenever the projectHistory store changes so the undo/redo
   // buttons reflect the current canUndo/canRedo state. Keyboard shortcuts
   // (Strg+Z / Strg+Umsch+Z / Strg+Y) live in useUndoRedoShortcuts; these
@@ -95,31 +110,34 @@ export const MenuBar = ({
     projectHistory.canRedo,
   )
   return (
-    <header className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-700 bg-slate-950 px-3 py-1.5 text-xs shadow-sm">
-      <div className="flex items-center gap-2">
-        <span className="select-none font-semibold tracking-wide text-slate-300">
+    <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1.5 text-cp-xs shadow-sm">
+      <div className="flex shrink-0 items-center gap-2">
+        <span className="hidden select-none font-semibold tracking-wide text-slate-300 lg:inline">
           {t('app.title', 'Cable Planner')}
         </span>
-        <span className="text-slate-700">│</span>
+        <span className="hidden text-slate-700 lg:inline">│</span>
 
         <Menu label={t('app.menu.file', 'Datei')}>
-          <MenuItem onClick={onNewProject} icon="📄" shortcut={t('shortcut.ctrlN', 'Strg+N')}>
+          <MenuItem onClick={onNewProject} icon={<Icon icon={FileText} size="sm" />} shortcut={t('shortcut.ctrlN', 'Strg+N')}>
             {t('app.menu.file.new', 'Neues Projekt')}
           </MenuItem>
-          <MenuItem onClick={onOpenProject} icon="📂" shortcut={t('shortcut.ctrlO', 'Strg+O')}>
+          <MenuItem onClick={() => useUiStore.getState().openTemplates()} icon={<Icon icon={Clapperboard} size="sm" />}>
+            {t('app.menu.file.newFromTemplate', 'Neu aus Vorlage…')}
+          </MenuItem>
+          <MenuItem onClick={onOpenProject} icon={<Icon icon={FolderOpen} size="sm" />} shortcut={t('shortcut.ctrlO', 'Strg+O')}>
             {t('app.menu.file.open', 'Öffnen…')}
           </MenuItem>
           <MenuSep />
-          <MenuItem onClick={onSaveProject} icon="💾" shortcut={t('shortcut.ctrlS', 'Strg+S')}>
+          <MenuItem onClick={onSaveProject} icon={<Icon icon={Save} size="sm" />} shortcut={t('shortcut.ctrlS', 'Strg+S')}>
             {t('app.menu.file.save', 'Speichern')}
           </MenuItem>
-          <MenuItem onClick={onSaveProjectAs} icon="💾" shortcut={t('shortcut.ctrlShiftS', 'Strg+Umsch+S')}>
+          <MenuItem onClick={onSaveProjectAs} icon={<Icon icon={SaveAll} size="sm" />} shortcut={t('shortcut.ctrlShiftS', 'Strg+Umsch+S')}>
             {t('app.menu.file.saveAs', 'Speichern unter…')}
           </MenuItem>
           {onOpenGraphmlImport && (
             <>
               <MenuSep />
-              <MenuItem onClick={onOpenGraphmlImport} icon="📐">
+              <MenuItem onClick={onOpenGraphmlImport} icon={<Icon icon={Ruler} size="sm" />}>
                 {t('app.menu.file.importGraphml', 'yEd / GraphML importieren…')}
               </MenuItem>
             </>
@@ -132,26 +150,26 @@ export const MenuBar = ({
               User-Request: "Vereinheitliche zu einer Großen funktion".
               Strg+P bleibt als direkter Shortcut für den OS-Druckdialog. */}
           {onOpenExportDialog ? (
-            <MenuItem onClick={onOpenExportDialog} icon="📤">
+            <MenuItem onClick={onOpenExportDialog} icon={<Icon icon={Upload} size="sm" />}>
               {t('app.menu.file.export', 'Exportieren & Drucken…')}
             </MenuItem>
           ) : (
             <>
-              <MenuItem onClick={onExportPdf} icon="📑">
+              <MenuItem onClick={onExportPdf} icon={<Icon icon={FileDown} size="sm" />}>
                 {t('app.menu.file.exportPdf', 'Plan als PDF exportieren…')}
               </MenuItem>
               {onExportPng && (
-                <MenuItem onClick={onExportPng} icon="🖼">
+                <MenuItem onClick={onExportPng} icon={<Icon icon={ImageIcon} size="sm" />}>
                   {t('app.menu.file.exportPng', 'Plan als PNG exportieren…')}
                 </MenuItem>
               )}
               {onExportJpeg && (
-                <MenuItem onClick={onExportJpeg} icon="🖼">
+                <MenuItem onClick={onExportJpeg} icon={<Icon icon={ImageIcon} size="sm" />}>
                   {t('app.menu.file.exportJpeg', 'Plan als JPEG exportieren…')}
                 </MenuItem>
               )}
               {onOpenCableBom && (
-                <MenuItem onClick={onOpenCableBom} icon="🧮">
+                <MenuItem onClick={onOpenCableBom} icon={<Icon icon={Calculator} size="sm" />}>
                   {t('app.menu.file.cableBom', 'Kabel-Stückliste (BOM) exportieren…')}
                 </MenuItem>
               )}
@@ -167,12 +185,12 @@ export const MenuBar = ({
               Workflow ist nicht freelancer-spezifisch). */}
           {(onExportViewer || onImportAnnotations) && <MenuSep />}
           {onExportViewer && (
-            <MenuItem onClick={onExportViewer} icon="👁">
+            <MenuItem onClick={onExportViewer} icon={<Icon icon={Eye} size="sm" />}>
               {t('app.menu.file.exportViewer', 'Als Viewer-Datei exportieren…')}
             </MenuItem>
           )}
           {onImportAnnotations && (
-            <MenuItem onClick={onImportAnnotations} icon="💬">
+            <MenuItem onClick={onImportAnnotations} icon={<Icon icon={MessageSquare} size="sm" />}>
               {t('app.menu.file.importAnnotations', 'Anmerkungen aus Viewer-Datei importieren…')}
             </MenuItem>
           )}
@@ -182,7 +200,7 @@ export const MenuBar = ({
           {rentmanEnabled && onAttachPdfToRentman && (
             <MenuItem
               onClick={hasRentmanLink ? onAttachPdfToRentman : undefined}
-              icon="📎"
+              icon={<Icon icon={Paperclip} size="sm" />}
             >
               {hasRentmanLink
                 ? t('app.menu.file.attachRentman', 'Plan an Rentman anhängen…')
@@ -195,7 +213,7 @@ export const MenuBar = ({
           {rentmanEnabled && onOpenRentmanCableExport && (
             <MenuItem
               onClick={hasRentmanLink ? onOpenRentmanCableExport : undefined}
-              icon="🔌"
+              icon={<Icon icon={Plug} size="sm" />}
             >
               {hasRentmanLink
                 ? t('app.menu.file.cablesRentman', 'Kabel an Rentman senden…')
@@ -207,6 +225,41 @@ export const MenuBar = ({
           )}
         </Menu>
 
+        <Menu label={t('app.menu.edit', 'Bearbeiten')}>
+          {/* #340 — Standard-Edit-Aktionen auch im Menü (vorher nur Icon-
+              Buttons/Shortcuts). Undo/Redo über projectHistory, Löschen/
+              Auswahl-aufheben über die (globale) Projekt-Store-Selection. */}
+          <MenuItem
+            onClick={() => projectHistory.undo()}
+            disabled={!canUndo}
+            icon={<Icon icon={Undo2} size="sm" />}
+            shortcut={t('shortcut.ctrlZ', 'Strg+Z')}
+          >
+            {t('app.menu.edit.undo', 'Rückgängig')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => projectHistory.redo()}
+            disabled={!canRedo}
+            icon={<Icon icon={Redo2} size="sm" />}
+            shortcut={t('shortcut.ctrlY', 'Strg+Y')}
+          >
+            {t('app.menu.edit.redo', 'Wiederherstellen')}
+          </MenuItem>
+          <MenuSep />
+          <MenuItem
+            onClick={() => useProjectStore.getState().deleteSelected()}
+            shortcut={t('shortcut.del', 'Entf')}
+          >
+            {t('app.menu.edit.delete', 'Auswahl löschen')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useProjectStore.getState().setSelection()}
+            shortcut={t('shortcut.esc', 'Esc')}
+          >
+            {t('app.menu.edit.clearSelection', 'Auswahl aufheben')}
+          </MenuItem>
+        </Menu>
+
         <Menu label={t('app.menu.tools', 'Werkzeuge')}>
           {/* v7.9.126 — Patchliste-Eintrag entfernt — ist jetzt unter
               Datei → Exportieren & Drucken → Patch-Sheets erreichbar
@@ -214,26 +267,26 @@ export const MenuBar = ({
               Export-/Druck-Funktionen). */}
           <MenuItem
             onClick={() => useUiStore.getState().openBandwidthCalc()}
-            icon="📡"
+            icon={<Icon icon={Radio} size="sm" />}
           >
             {t('app.menu.tools.bandwidth', 'Bandbreite berechnen…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().openPowerCalc()}
-            icon="⚡"
+            icon={<Icon icon={Zap} size="sm" />}
           >
             {t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().openRecordingStorageCalc()}
-            icon="💾"
+            icon={<Icon icon={HardDrive} size="sm" />}
           >
             {t('app.menu.tools.recStorage', 'Recording-Speicherplatz berechnen…')}
           </MenuItem>
           {/* #378 — Bulk-Cable-Connect-Dialog. */}
           <MenuItem
             onClick={() => useUiStore.getState().openBulkConnect()}
-            icon="🔗"
+            icon={<Icon icon={Cable} size="sm" />}
           >
             {t('app.menu.tools.bulkConnect', 'Mehrere Kabel verbinden…')}
           </MenuItem>
@@ -241,21 +294,109 @@ export const MenuBar = ({
               Builder; LibraryPanel switched auf Racks-Tab + öffnet Dialog. */}
           <MenuItem
             onClick={() => useUiStore.getState().triggerNewRackBuilder()}
-            icon="🗄"
+            icon={<Icon icon={Server} size="sm" />}
           >
             {t('app.menu.tools.newRack', 'Neues Rack erstellen…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAnalysis()} icon={<Icon icon={BarChart3} size="sm" />}>
+            {t('app.menu.tools.analysis', 'Analysen (Gewicht/Netzwerk/Redundanz)…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openPlanCheck()} icon="🩺">
+            {t('app.menu.tools.planCheck', 'Plan-Check…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openRevisions()} icon="🕑">
+            {t('app.menu.tools.revisions', 'Revisionen & Snapshots…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAiPlanGen()} icon="✨">
+            {t('app.menu.tools.aiPlanGen', 'KI-Plan generieren…')}
+          </MenuItem>
+          <MenuSep />
+          {/* #342 — Editoren direkt aus dem Werkzeuge-Menü erreichbar machen
+              (vorher nur über Toolbar bzw. verknüpftes Gerät in den
+              Properties). Dialoge öffnen geräteneutral und bieten ggf.
+              eigene Geräteauswahl. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().triggerRackBuilderFromSelection([])}
+            icon={<Icon icon={Server} size="sm" />}
+          >
+            {t('app.menu.tools.rackBuilder', 'Rack-Builder…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAtemMvConfig()} icon={<Icon icon={Monitor} size="sm" />}>
+            {t('app.menu.tools.atemMv', 'ATEM Multiviewer-Layout…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAtemAudioConfig()} icon={<Icon icon={SlidersHorizontal} size="sm" />}>
+            {t('app.menu.tools.atemAudio', 'ATEM Audio-Routing…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAtemDialog()} icon={<Icon icon={Tag} size="sm" />}>
+            {t('app.menu.tools.atemLabels', 'ATEM Input-Labels…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openVideohubExport()} icon={<Icon icon={Shuffle} size="sm" />}>
+            {t('app.menu.tools.videohub', 'Videohub-Routing/Labels…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openGreenGoExport()} icon={<Icon icon={Headphones} size="sm" />}>
+            {t('app.menu.tools.greengo', 'GreenGo-Intercom…')}
+          </MenuItem>
+          <MenuSep />
+          <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon={<Icon icon={Cable} size="sm" />}>
+            {t('app.menu.tools.patchList', 'Patch-Liste…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openCsvImport()} icon={<Icon icon={ImportIcon} size="sm" />}>
+            {t('app.menu.tools.csvImport', 'Equipment aus CSV importieren…')}
+          </MenuItem>
+          {rentmanEnabled && (
+            <MenuItem onClick={() => useUiStore.getState().openRentmanImport()} icon={<Icon icon={Users} size="sm" />}>
+              {t('app.menu.tools.rentmanImport', 'Rentman-Import…')}
+            </MenuItem>
+          )}
+        </Menu>
+
+        <Menu label={t('app.menu.view', 'Ansicht')}>
+          {/* #341 — View-Toggles redundant zum Toolbar-Zugang; Häkchen
+              zeigt den aktuellen Zustand (beim erneuten Öffnen). */}
+          <MenuItem
+            onClick={() => useUiStore.getState().setCanvasTheme(canvasTheme === 'dark' ? 'light' : 'dark')}
+            icon={canvasTheme === 'light' ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.view.light', 'Helles Design')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().setSnapToGrid(!snapToGrid)}
+            icon={snapToGrid ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.view.snap', 'Am Raster ausrichten')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().setHideAllCableLabels(!hideAllCableLabels)}
+            icon={hideAllCableLabels ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.view.hideLabels', 'Kabel-Labels ausblenden')}
+          </MenuItem>
+          <MenuItem
+            onClick={() =>
+              useUiStore.getState().setCableColorMode(cableColorMode === 'byLength' ? 'manual' : 'byLength')
+            }
+            icon={cableColorMode === 'byLength' ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.view.colorByLength', 'Kabelfarbe nach Länge')}
+          </MenuItem>
+          <MenuSep />
+          <MenuItem
+            onClick={() => useUiStore.getState().setAnnotationsPanelOpen(!annotationsPanelOpen)}
+            icon={annotationsPanelOpen ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.view.annotations', 'Anmerkungen-Panel')}
           </MenuItem>
         </Menu>
 
         <Menu label={t('app.menu.help', 'Hilfe')}>
           {onOpenTour && (
-            <MenuItem onClick={onOpenTour} icon="💡">
+            <MenuItem onClick={onOpenTour} icon={<Icon icon={Lightbulb} size="sm" />}>
               {t('app.menu.help.tour', 'Erste-Schritte-Tour…')}
             </MenuItem>
           )}
           <MenuItem
             onClick={() => useUiStore.getState().openAboutDialog()}
-            icon="ⓘ"
+            icon={<Icon icon={Info} size="sm" />}
           >
             {t('app.menu.help.about', 'Über Cable Planner…')}
           </MenuItem>
@@ -273,8 +414,8 @@ export const MenuBar = ({
           >
             <span className="truncate font-medium">{projectName}</span>
             {onEditProjectMeta && (
-              <span className="text-[10px] text-slate-500 opacity-0 transition-opacity group-hover:opacity-100">
-                ✎
+              <span className="text-slate-500 opacity-0 transition-opacity group-hover:opacity-100">
+                <Icon icon={Pencil} size="xs" />
               </span>
             )}
           </button>
@@ -282,7 +423,7 @@ export const MenuBar = ({
 
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <div className="flex items-center rounded border border-slate-700 bg-slate-900">
           <button
             type="button"
@@ -292,7 +433,7 @@ export const MenuBar = ({
             aria-label={t('app.undo', 'Rückgängig (Strg+Z)')}
             className="px-2 py-1 text-slate-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
           >
-            ⟲
+            <Icon icon={Undo2} size="sm" />
           </button>
           <span className="h-4 w-px bg-slate-700" aria-hidden="true" />
           <button
@@ -303,12 +444,12 @@ export const MenuBar = ({
             aria-label={t('app.redo', 'Wiederherstellen (Strg+Y)')}
             className="px-2 py-1 text-slate-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
           >
-            ⟳
+            <Icon icon={Redo2} size="sm" />
           </button>
         </div>
         <SharedSyncPanel />
         {onChangeVideoFormat && (
-          <label className="flex items-center gap-1 text-[11px] text-slate-400">
+          <label className="hidden items-center gap-1 text-cp-xs text-[var(--cp-text-muted)] xl:flex">
             <span>{t('app.videoFormat', 'Format:')}</span>
             <select
               value={videoFormat ?? '1080p50'}
@@ -332,21 +473,23 @@ export const MenuBar = ({
             type="button"
             onClick={() => useUiStore.getState().openMobileShare()}
             className="rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
+            aria-label={t('app.mobileShare.ariaLabel', 'Handy-Zugriff')}
             title={t(
               'app.mobileShare.title',
               'Handy-Zugriff: kleiner LAN-Server + QR-Code, damit das Handy den Mobile-Viewer öffnen kann.',
             )}
           >
-            📱
+            <Icon icon={Smartphone} size="sm" />
           </button>
         )}
         <button
           type="button"
           onClick={onOpenSettings}
-          className="rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
+          className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
           title={t('settings.title', 'Einstellungen')}
         >
-          ⚙ {t('settings.title', 'Einstellungen')}
+          <Icon icon={Settings} size="sm" />
+          <span className="hidden lg:inline">{t('settings.title', 'Einstellungen')}</span>
         </button>
       </div>
     </header>
@@ -389,15 +532,17 @@ const Menu = ({ label, children }: MenuProps) => {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
         className={`rounded px-2 py-1 text-slate-200 hover:bg-slate-800 ${open ? 'bg-slate-800' : ''}`}
       >
         {label}
-        <span className="ml-1 text-[9px] text-slate-500">▾</span>
+        <span className="ml-1 text-[9px] text-slate-500" aria-hidden="true">▾</span>
       </button>
       {open && (
         <div
           onClick={() => setOpen(false)}
-          className="absolute left-0 top-full z-50 mt-1 min-w-[14rem] rounded border border-slate-700 bg-slate-900 py-1 shadow-2xl"
+          className="absolute left-0 top-full z-50 mt-1 min-w-[14rem] rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] py-1 shadow-2xl"
           role="menu"
         >
           {children}
@@ -409,23 +554,25 @@ const Menu = ({ label, children }: MenuProps) => {
 
 interface MenuItemProps {
   onClick?: () => void
-  icon?: string
+  icon?: React.ReactNode
   shortcut?: string
+  disabled?: boolean
   children: React.ReactNode
 }
 
-const MenuItem = ({ onClick, icon, shortcut, children }: MenuItemProps) => {
+const MenuItem = ({ onClick, icon, shortcut, disabled, children }: MenuItemProps) => {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-700/70"
+      disabled={disabled}
+      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-cp-xs text-slate-200 hover:bg-slate-700/70 disabled:cursor-not-allowed disabled:text-[var(--cp-text-faint)] disabled:hover:bg-transparent"
       role="menuitem"
     >
-      <span className="w-4 shrink-0 text-center text-[12px]">{icon ?? ''}</span>
+      <span className="inline-flex w-4 shrink-0 items-center justify-center text-[var(--cp-text-muted)]">{icon}</span>
       <span className="flex-1 truncate">{children}</span>
       {shortcut && (
-        <span className="ml-3 shrink-0 text-[10px] tracking-wide text-slate-500">
+        <span className="ml-3 shrink-0 text-cp-xs tracking-wide text-[var(--cp-text-faint)]">
           {shortcut}
         </span>
       )}

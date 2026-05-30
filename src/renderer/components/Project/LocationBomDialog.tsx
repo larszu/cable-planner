@@ -3,7 +3,7 @@ import jsPDF from 'jspdf'
 import { toJpeg } from 'html-to-image'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
-import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { ModalShell } from '../shared/ModalShell'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { useTranslation } from '../../lib/i18n'
@@ -25,7 +25,6 @@ export const LocationBomDialog = () => {
   const close = useUiStore((s) => s.closeLocationBom)
   const project = useProjectStore((s) => s.project)
   const canvasTheme = useUiStore((s) => s.canvasTheme)
-  const drag = useDraggablePosition('cable-planner:modal-pos:location-bom', open)
   // Issue #54: optionally embed a snapshot of the canvas (cropped to the
   // location's bbox) as the first page so the recipient gets the plan +
   // the parts list in one document. Off by default — capturing a 2.4 MB
@@ -211,7 +210,9 @@ export const LocationBomDialog = () => {
         }
         const sn = d.serialNumber ? `  S/N: ${d.serialNumber}` : ''
         const ip = d.ipAddress ? `  IP: ${d.ipAddress}` : ''
-        pdf.text(sanitizeForPdf(`* ${d.name}  [${d.category}]${sn}${ip}`), margin, y)
+        // #351 — Pack-Status als Checkbox-Praefix fuer die Pull-/Packliste.
+        const box = d.packed ? '[x]' : '[ ]'
+        pdf.text(sanitizeForPdf(`${box} ${d.name}  [${d.category}]${sn}${ip}`), margin, y)
         y += 11
       }
 
@@ -276,27 +277,14 @@ export const LocationBomDialog = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div
-        ref={drag.containerRef}
-        style={drag.containerStyle}
-        className="flex max-h-[90vh] w-[760px] max-w-[95vw] flex-col rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
-      >
-        <header
-          {...drag.headerProps}
-          className="flex items-center justify-between border-b border-slate-700 px-4 py-2 select-none"
-        >
-          <h2 className="text-sm font-semibold">{t('locbom.title', 'Stückliste')} — {location.name}</h2>
-          <button
-            type="button"
-            onClick={close}
-            className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
-          >
-            {t('locbom.close', 'Schließen')}
-          </button>
-        </header>
-
-        <main className="flex-1 overflow-auto p-4 text-xs">
+    <ModalShell
+      open={open}
+      onClose={close}
+      title={`${t('locbom.title', 'Stückliste')} — ${location.name}`}
+      maxWidth="3xl"
+      draggableKey="cable-planner:modal-pos:location-bom"
+    >
+        <div className="text-xs">
           <div className="mb-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
             <span>
               {t('locbom.devices', 'Geräte')}: <b className="text-slate-200">{devices.length}</b>
@@ -345,6 +333,7 @@ export const LocationBomDialog = () => {
           <table className="mb-4 w-full text-xs">
             <thead className="text-slate-400">
               <tr className="border-b border-slate-700">
+                <th className="px-2 py-1 text-center w-10">{t('locbom.col.packed', 'Pack')}</th>
                 <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>
                 <th className="px-2 py-1 text-left">{t('locbom.col.category', 'Kategorie')}</th>
                 <th className="px-2 py-1 text-left">{t('locbom.col.sn', 'S/N')}</th>
@@ -354,6 +343,7 @@ export const LocationBomDialog = () => {
             <tbody>
               {devices.map((d) => (
                 <tr key={d.id} className="border-b border-slate-800">
+                  <td className="px-2 py-1 text-center">{d.packed ? '☑' : '☐'}</td>
                   <td className="px-2 py-1 text-slate-100">{d.name}</td>
                   <td className="px-2 py-1 text-slate-400">{d.category}</td>
                   <td className="px-2 py-1 font-mono text-slate-400">
@@ -485,8 +475,7 @@ export const LocationBomDialog = () => {
               )}
             </>
           )}
-        </main>
-      </div>
-    </div>
+        </div>
+    </ModalShell>
   )
 }

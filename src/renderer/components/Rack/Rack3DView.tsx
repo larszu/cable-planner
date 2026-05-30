@@ -26,7 +26,9 @@ import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber'
 import { OrbitControls, Edges, Html } from '@react-three/drei'
 import { STLLoader } from 'three-stdlib'
 import * as THREE from 'three'
+import { Mouse, Keyboard, Armchair } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
+import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
 
 const HE_HEIGHT_MM = 44.45
@@ -734,7 +736,7 @@ const Shelf = ({
         transform={false}
         distanceFactor={300}
       >
-        🪑 {placement.name}
+        <Icon icon={Armchair} size="xs" className="mr-1 inline-block align-text-bottom" />{placement.name}
       </Html>
     </group>
   )
@@ -1113,8 +1115,8 @@ export const Rack3DView = ({
           lineHeight: 1.4,
         }}
       >
-        🖱 {t('rack3d.help.mouse', 'Drehen: links · Pannen: rechts · Zoom: scroll')}<br />
-        ⌨ {t('rack3d.help.heightLabel', 'Höhe:')} <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Shift</kbd> {t('rack3d.help.up', 'hoch')} · <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Space</kbd> {t('rack3d.help.down', 'runter')}
+        <Icon icon={Mouse} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack3d.help.mouse', 'Drehen: links · Pannen: rechts · Zoom: scroll')}<br />
+        <Icon icon={Keyboard} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack3d.help.heightLabel', 'Höhe:')} <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Shift</kbd> {t('rack3d.help.up', 'hoch')} · <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Space</kbd> {t('rack3d.help.down', 'runter')}
       </div>
     </div>
   )

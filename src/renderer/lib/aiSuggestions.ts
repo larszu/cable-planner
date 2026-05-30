@@ -288,6 +288,19 @@ export const suggestFromAI = async (
   deviceName: string,
   category: string,
 ): Promise<PortGroupHint[]> => {
+  const prompt = PROMPT_TEMPLATE(deviceName, category)
+  const text = await completeWithAI(prompt)
+  const raw = parseJsonResponse(text)
+  return normalizeHints(raw)
+}
+
+/**
+ * #414 — Generische Text→Text-Completion über den ausgewählten Provider.
+ * Wird von der KI-Plan-Generierung (planGeneration.ts) genutzt. Wirft, wenn
+ * kein API-Key hinterlegt ist. Liefert den rohen Modell-Text (Caller parst
+ * JSON selbst via parseJsonResponse).
+ */
+export const completeWithAI = async (prompt: string): Promise<string> => {
   const provider = getSelectedAiProvider()
   const key = getApiKey(provider)
   if (!key) {
@@ -295,19 +308,12 @@ export const suggestFromAI = async (
       `Kein API-Key für ${PROVIDERS[provider].label}. Bitte in den Einstellungen → AI hinterlegen.`,
     )
   }
-  const prompt = PROMPT_TEMPLATE(deviceName, category)
-  let text = ''
   switch (provider) {
     case 'gemini':
-      text = await callGemini(key, prompt)
-      break
+      return callGemini(key, prompt)
     case 'claude':
-      text = await callClaude(key, prompt)
-      break
+      return callClaude(key, prompt)
     case 'openai':
-      text = await callOpenAI(key, prompt)
-      break
+      return callOpenAI(key, prompt)
   }
-  const raw = parseJsonResponse(text)
-  return normalizeHints(raw)
 }

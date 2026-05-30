@@ -1,8 +1,12 @@
 import { useMemo, useState } from 'react'
+import { Save } from 'lucide-react'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { useUiStore } from '../../store/uiStore'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
+import { AlertTriangle, Check, XCircle } from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 import { connectorToCableType } from '../../lib/cableInheritance'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, EquipmentItem, Port } from '../../types/equipment'
@@ -49,6 +53,8 @@ export const makeCustomCableSpec = (connectorType: ConnectorType, color: string)
 
 export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onCancel, onCreate }: CableDialogProps) => {
   const t = useTranslation()
+  // Dialog ist gemountet == offen → open=true. Escape/Tab-Trap/Fokus-Rückgabe.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(true, onCancel)
   // Issue #70: optional global override of connector-mismatch warnings.
   // When enabled, the dialog still SHOWS the warning banner so the user
   // sees what's happening, but the submit path skips the modal confirm
@@ -228,8 +234,13 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-      <div className="w-full max-w-lg rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
-        <h3 className="mb-2 text-lg font-semibold">{t('cable.dialog.title', 'Neues Kabel')}</h3>
+      <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
+        className="w-full max-w-lg rounded border border-slate-700 bg-slate-900 p-4 text-slate-100 outline-none"
+      >
+        <h3 id={titleId} className="mb-2 text-lg font-semibold">{t('cable.dialog.title', 'Neues Kabel')}</h3>
 
         {fromPort && toPort && (
           <div className="mb-3 rounded bg-slate-950 p-2 text-xs">
@@ -367,7 +378,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                 className="mt-2 w-full rounded bg-sky-700 px-2 py-1 text-xs font-medium text-white hover:bg-sky-600"
                 title={t('cable.dialog.saveCustomTitle', 'Speichert diese Custom-Definition als wiederverwendbaren Kabeltyp in der Bibliothek.')}
               >
-                💾 Als Kabel-Typ speichern…
+                <Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />Als Kabel-Typ speichern…
               </button>
             </div>
           )}
@@ -434,19 +445,34 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
         {/* Status/warning area */}
         <div className="mt-3 space-y-1 text-xs">
           {connectorMismatch === 'error' && (
-            <div className="rounded bg-red-900/50 p-2 text-red-100">✕ {connectorMessage}</div>
+            <div className="flex items-center gap-1.5 rounded bg-red-900/50 p-2 text-red-100">
+              <Icon icon={XCircle} size="sm" />
+              {connectorMessage}
+            </div>
           )}
           {connectorMismatch === 'warn' && (
-            <div className="rounded bg-amber-900/50 p-2 text-amber-100">⚠ {connectorMessage}</div>
+            <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
+              <Icon icon={AlertTriangle} size="sm" />
+              {connectorMessage}
+            </div>
           )}
           {connectorMismatch === 'ok' && connectorMessage && (
-            <div className="rounded bg-emerald-900/40 p-2 text-emerald-100">✓ {connectorMessage}</div>
+            <div className="flex items-center gap-1.5 rounded bg-emerald-900/40 p-2 text-emerald-100">
+              <Icon icon={Check} size="sm" />
+              {connectorMessage}
+            </div>
           )}
           {sdiMismatch?.level === 'warn' && (
-            <div className="rounded bg-amber-900/50 p-2 text-amber-100">⚠ {sdiMismatch.message}</div>
+            <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
+              <Icon icon={AlertTriangle} size="sm" />
+              {sdiMismatch.message}
+            </div>
           )}
           {lengthWarning && (
-            <div className="rounded bg-amber-900/50 p-2 text-amber-100">⚠ {lengthWarning}</div>
+            <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
+              <Icon icon={AlertTriangle} size="sm" />
+              {lengthWarning}
+            </div>
           )}
         </div>
 

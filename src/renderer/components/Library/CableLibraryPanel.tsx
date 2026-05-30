@@ -1,4 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react'
+import { AlertTriangle, X, Pencil } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import {
   DndContext,
   KeyboardSensor,
@@ -118,7 +120,7 @@ const CableTypeEditor = ({
             className="text-slate-500 hover:text-slate-200"
             aria-label={t('common.close', 'Schließen')}
           >
-            ✕
+            <Icon icon={X} size="sm" />
           </button>
         </div>
         <div className="space-y-2 text-xs">
@@ -133,8 +135,9 @@ const CableTypeEditor = ({
               className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-slate-100"
             />
             {conflictsWithExisting && (
-              <span className="mt-0.5 block text-[10px] text-amber-400">
-                ⚠ Name existiert bereits — Speichern überschreibt den vorhandenen Eintrag.
+              <span className="mt-0.5 flex items-center gap-1 text-[10px] text-amber-400">
+                <Icon icon={AlertTriangle} size="xs" className="shrink-0" />
+                Name existiert bereits — Speichern überschreibt den vorhandenen Eintrag.
               </span>
             )}
           </label>
@@ -617,8 +620,11 @@ export const CableLibraryPanel = () => {
                             title={isCustom
                               ? t('cableLib.edit', 'Kabeltyp bearbeiten')
                               : t('cableLib.editOverride', 'Kabeltyp lokal anpassen (Override)')}
+                            aria-label={isCustom
+                              ? t('cableLib.edit', 'Kabeltyp bearbeiten')
+                              : t('cableLib.editOverride', 'Kabeltyp lokal anpassen (Override)')}
                           >
-                            ✎
+                            <Icon icon={Pencil} size="xs" />
                           </button>
                           {!isCustom && cableSpecOverrides[cable.id] && (
                             <button
@@ -677,7 +683,7 @@ export const CableLibraryPanel = () => {
                               className="rounded bg-red-900/60 px-1.5 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
                               title={t('cableLib.deleteSpec', 'Kabeltyp löschen')}
                             >
-                              ✕
+                              <Icon icon={X} size="sm" />
                             </button>
                           )}
                         </div>

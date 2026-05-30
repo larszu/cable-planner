@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
+import { X } from 'lucide-react'
+import { Icon } from '../shared/Icon'
+import { ModalShell } from '../shared/ModalShell'
+import { Spinner } from '../shared/Spinner'
 import { useProjectStore } from '../../store/projectStore'
 import { useRentman } from '../../hooks/useRentman'
 import { format, useTranslation } from '../../lib/i18n'
@@ -263,29 +267,19 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
     .slice(0, 200)
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
-      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    <ModalShell
+      open={open}
+      onClose={onClose}
+      title={t('rentman.cableExport.title', 'Kabel an Rentman senden')}
+      maxWidth="4xl"
+      scrollBody={false}
     >
-      <div className="flex max-h-[90vh] w-[920px] max-w-[95vw] flex-col rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
-        <header className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
-          <div>
-            <h2 className="text-sm font-semibold">{t('rentman.cableExport.title', 'Kabel an Rentman senden')}</h2>
-            <div className="text-[10px] text-slate-500">
-              {linkedProjectName
-                ? format(t('rentman.cableExport.target', 'Ziel: {name}'), { name: linkedProjectName })
-                : t('rentman.cableExport.noLink', 'Kein Rentman-Projekt verknüpft.')}
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
-          >
-            {t('common.close', 'Schließen')}
-          </button>
-        </header>
-
+      <div className="flex h-full min-h-0 flex-col -mx-4 -my-3">
+        <div className="border-b border-slate-800 px-4 py-1.5 text-[10px] text-slate-500">
+          {linkedProjectName
+            ? format(t('rentman.cableExport.target', 'Ziel: {name}'), { name: linkedProjectName })
+            : t('rentman.cableExport.noLink', 'Kein Rentman-Projekt verknüpft.')}
+        </div>
         <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 px-4 py-2 text-[11px] text-slate-400">
           {(() => {
             const totalBuilt = buckets.reduce((sum, b) => sum + b.built, 0)
@@ -349,7 +343,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
           </div>
         )}
 
-        <div className="flex-1 overflow-auto">
+        <div className="min-h-0 flex-1 overflow-auto px-4">
           <table className="w-full text-xs">
             <thead className="sticky top-0 bg-slate-950 text-slate-300">
               <tr>
@@ -423,8 +417,9 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                             onClick={() => clearMapping(bucket.key)}
                             className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
                             title={t('rentman.cableExport.removeMapping', 'Zuordnung entfernen')}
+                            aria-label={t('rentman.cableExport.removeMapping', 'Zuordnung entfernen')}
                           >
-                            ✕
+                            <Icon icon={X} size="sm" />
                           </button>
                         </div>
                       ) : (
@@ -516,7 +511,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                                 : format(t('rentman.cableExport.sendNCables', '{count} an Rentman senden.'), { count: bucket.delta })
                         }
                       >
-                        {busyKey === bucket.key ? '…' : t('rentman.cableExport.send', 'Senden')}
+                        {busyKey === bucket.key ? <Spinner size="xs" /> : t('rentman.cableExport.send', 'Senden')}
                       </button>
                     </td>
                   </tr>
@@ -526,16 +521,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
           </table>
         </div>
 
-        <footer className="flex items-center justify-end border-t border-slate-700 px-4 py-2 text-[11px] text-slate-400">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
-          >
-            {t('common.close', 'Schließen')}
-          </button>
-        </footer>
       </div>
-    </div>
+    </ModalShell>
   )
 }

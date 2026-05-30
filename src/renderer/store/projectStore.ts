@@ -10,6 +10,7 @@ import { defaultProject, isProjectLocked, sanitizePort, touchProject } from './p
 import { createLocationSlice } from './slices/locationSlice'
 import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
+import { createRevisionSlice } from './slices/revisionSlice'
 import { createMobileSyncSlice } from './slices/mobileSyncSlice'
 import { createTemplateSlice } from './slices/templateSlice'
 import { createGroupPresetSlice } from './slices/groupPresetSlice'
@@ -167,6 +168,9 @@ export interface ProjectState {
   setCanvasState: (x: number, y: number, zoom: number) => void
   addEquipment: (equipment: Omit<EquipmentItem, 'id'>) => void
   importEquipment: (equipment: EquipmentItem[]) => void
+  /** #414 — Fügt KI-generierte Geräte + Kabel atomar ein, ohne IDs neu zu
+   *  vergeben (die Kabel referenzieren die mitgelieferten IDs). */
+  insertGeneratedPlan: (equipment: EquipmentItem[], cables: import('../types/cable').Cable[]) => void
   /**
    * Insert devices and cables coming from a yEd / GraphML import. Each
    * device carries an optional `graphmlId` so a re-import (`mode:
@@ -266,6 +270,9 @@ export interface ProjectState {
   /** #294 — Port-Konflikt verwerfen, kein neues Kabel anlegen. */
   cancelPortConflict: () => void
   updateCable: (id: string, patch: Partial<Cable>) => void
+  /** Vergibt allen Kabeln gemaess `metadata.cableNumbering` eine neue
+   *  `cableNumber`. No-op wenn kein Schema gesetzt ist. */
+  renumberCables: () => void
   deleteEquipment: (id: string) => void
   deleteCable: (id: string) => void
   deleteSelected: () => void
@@ -389,6 +396,14 @@ export interface ProjectState {
   /** v7.9.3 — Setzt Viewer-Session-Author (beim ersten Öffnen einer
    *  .cpviewer-Datei). */
   setViewerSession: (session: { author: string; startedAt: string } | undefined) => void
+  /** #412 — Revisionen/Snapshots. */
+  commitRevision: (label: string, note: string, asBuilt: boolean) => void
+  restoreRevision: (id: string) => void
+  deleteRevision: (id: string) => void
+  /** #350 — Schätzt die Längen aller Kabel aus der Canvas-Geometrie und
+   *  schreibt sie in `cable.length`. Liefert die Anzahl aktualisierter
+   *  Kabel. */
+  estimateCableLengths: () => number
 }
 
 
@@ -514,6 +529,8 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
       height: snap > 0 ? Math.ceil(loc.height / snap) * snap : Math.round(loc.height),
       moveContents: loc.moveContents !== false,
     })),
+    // #412 — Revisionen sind optional; alte Projekte heilen zu [].
+    revisions: project.revisions ?? [],
   }
 }
 
@@ -651,6 +668,7 @@ const buildProjectStore = (
   ...createLocationSlice(set, get, store),
   ...createCableSlice(set, get, store),
   ...createAnnotationSlice(set, get, store),
+  ...createRevisionSlice(set, get, store),
   ...createMobileSyncSlice(set, get, store),
   ...createTemplateSlice(set, get, store),
   ...createGroupPresetSlice(set, get, store),

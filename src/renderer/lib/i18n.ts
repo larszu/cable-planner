@@ -72,6 +72,7 @@ const en: Dict = {
   'app.title': 'Cable Planner',
   'app.menu.file': 'File',
   'app.menu.file.new': 'New project',
+  'app.menu.file.newFromTemplate': 'New from template…',
   'app.menu.file.open': 'Open…',
   'app.menu.file.save': 'Save',
   'app.menu.file.saveAs': 'Save as…',
@@ -164,8 +165,8 @@ const en: Dict = {
   'settings.appearance.theme': 'Theme',
   'settings.appearance.themeDesc':
     'Canvas background colour. Optimised for dark; light is intended for PDF export or bright environments.',
-  'settings.appearance.theme.dark': '🌙 Dark',
-  'settings.appearance.theme.light': '☀ Light',
+  'settings.appearance.theme.dark': 'Dark',
+  'settings.appearance.theme.light': 'Light',
   'settings.appearance.ports': 'Port colours',
   'settings.appearance.portsDesc': 'Controls how port handles on equipment are coloured.',
   'settings.appearance.ports.byDirection': 'By direction (default)',
@@ -222,7 +223,7 @@ const en: Dict = {
   'settings.integrations.linkedRentman.titleSelect': 'Pick Rentman project',
   'settings.integrations.gemini': 'Gemini API (AI port suggestions)',
   'settings.integrations.geminiDesc':
-    'API key from aistudio.google.com. Stored in the browser localStorage. Required for the “✨ Gemini” buttons in the device wizard and library.',
+    'API key from aistudio.google.com. Stored in the browser localStorage. Required for the “Gemini” buttons in the device wizard and library.',
   'settings.integrations.gemini.save': 'Save key',
   'settings.integrations.gemini.saved': '✓ saved',
   'settings.integrations.gemini.delete': 'Delete',
@@ -322,17 +323,17 @@ const en: Dict = {
   'library.create.name': 'Name',
   'library.create.category': 'Category',
   'library.create.suggest': 'Auto-suggest from device name',
-  'library.create.suggest.heuristic': '📐 Heuristic',
+  'library.create.suggest.heuristic': 'Heuristic',
   'library.create.suggest.heuristicTitle':
     'Built-in heuristic patterns (camera, ATEM, converter…)',
-  'library.create.suggest.web': '🌐 Web',
+  'library.create.suggest.web': 'Web',
   'library.create.suggest.webBusy': 'Searching…',
   'library.create.suggest.webTitle':
     'Wikipedia + DuckDuckGo snippet (no API key required)',
-  'library.create.suggest.gemini': '✨ Gemini',
+  'library.create.suggest.gemini': 'Gemini',
   'library.create.suggest.geminiBusy': 'Asking…',
   'library.create.suggest.geminiTitle': 'Gemini AI — needs an API key',
-  'library.create.aiSettings': '⚙ AI settings',
+  'library.create.aiSettings': 'AI settings',
   'library.create.aiKey.title': 'Gemini API key',
   'library.create.aiKey.placeholder': 'AIza…',
   'library.create.aiKey.save': 'Save',
@@ -387,6 +388,10 @@ const en: Dict = {
   'eq.field.notes': 'Notes',
   'eq.field.manufacturerUrl': 'Manufacturer link',
   'eq.field.manufacturerUrlHint': 'optional, for datasheet access',
+  // #354 Price / rental field
+  'eq.field.priceEUR': 'Price / rental (€)',
+  'eq.field.priceEURHint': 'for quote export',
+  'eq.field.priceEURPlaceholder': 'e.g. 1200',
   'eq.field.manufacturerUrlOpen': 'Open ↗',
   'eq.field.rentPrice': 'Rental price / day',
   'eq.field.rentPriceRentman': 'from Rentman',
@@ -415,10 +420,10 @@ const en: Dict = {
   'cable.field.toPort': 'Port',
   'cable.action.delete': 'Delete cable',
   'cable.action.openEdit': 'Open editor…',
-  'cable.warn.fromBusy': '⚠ Source port already in use by "{name}".',
-  'cable.warn.toBusy': '⚠ Target port already in use by "{name}".',
+  'cable.warn.fromBusy': 'Source port already in use by "{name}".',
+  'cable.warn.toBusy': 'Target port already in use by "{name}".',
   'cable.warn.connectorMismatch':
-    '⚠ Connector types differ: {from} ↔ {to}',
+    'Connector types differ: {from} ↔ {to}',
   'cable.warn.converterSuggest': 'Matching converters from your library:',
   'cable.warn.converterNone':
     'No matching converter in the library. Add one via "+ Device" or Rentman import.',
@@ -433,7 +438,7 @@ const en: Dict = {
   'location.field.floorPlaceholder': 'e.g. ground floor, 1st',
   'location.field.color': 'Colour',
   'location.field.notes': 'Notes',
-  'location.action.bom': '📋 Export BOM',
+  'location.action.bom': 'Export BOM',
   'location.action.bomTitle':
     'List of devices and cables in the frame — exportable as PDF',
   'location.action.deleteFrame': 'Delete frame only',
@@ -469,7 +474,7 @@ const en: Dict = {
   'rentman.import.shown': '{visible} of {total} shown',
   'rentman.import.selected': '{count} selected',
   'rentman.import.inSets': '· {count} in sets (expand to view)',
-  'rentman.import.linkable': '🔗 Link…',
+  'rentman.import.linkable': 'Link…',
   'rentman.import.linkableTitle': 'Link to existing local device',
   'rentman.import.unlinked':
     'Save token first to be able to fetch projects.',
@@ -484,10 +489,10 @@ const en: Dict = {
   'atem.audio.empty.classic':
     'Production Studio / Television Studio open with the classic channel strip (Off/On/AFV + gain).',
   'atem.audio.empty.both': 'Devices with both sections get both tabs.',
-  'atem.audio.action.loadXml': '📂 Load XML',
+  'atem.audio.action.loadXml': 'Load XML',
   'atem.audio.action.loadXmlTitle':
     'Load ATEM Profile XML — the audio section(s) will be imported into the editor',
-  'atem.audio.action.saveXml': '💾 Save XML',
+  'atem.audio.action.saveXml': 'Save XML',
   'atem.audio.action.saveXmlTitle':
     'Download patched Profile XML (all non-audio sections stay unchanged)',
   'atem.audio.action.clearAll': 'Reset all routings',
@@ -497,8 +502,8 @@ const en: Dict = {
   'atem.audio.action.saveProjectTitle':
     'Persist routing in the project (survives reload).',
   'atem.audio.action.cancel': 'Cancel',
-  'atem.audio.tab.matrix': '🎚 Routing matrix',
-  'atem.audio.tab.classic': '🎛 Classic mixer',
+  'atem.audio.tab.matrix': 'Routing matrix',
+  'atem.audio.tab.classic': 'Classic mixer',
   'atem.audio.matrix.tooLarge':
     '{count} visible crosspoints is too many for smooth display. Please narrow down via the filters above (target: under 12,000 cells).',
   'atem.audio.matrix.filterSources': 'Filter sources…',
@@ -660,6 +665,7 @@ const en: Dict = {
   'ports.sfp.vendorPlaceholder': 'Vendor (Cisco)',
   'ports.sfp.vendorTitle': 'Module vendor: Cisco, Aruba, Ubiquiti, FS.com …',
   'ports.quadAuto': 'Auto-assign free BNC ports to this set',
+  'ports.dualAuto': 'Auto-assign free BNC ports to this set',
 
   // Cable / CableDialog
   'cable.dialog.title': 'New cable',
@@ -723,7 +729,7 @@ const en: Dict = {
   'statusbar.equipment': '{count} devices',
   'statusbar.cables': '{count} cables',
   'statusbar.locations': '{count} frames',
-  'statusbar.packed': '✓ {packed}/{total} packed',
+  'statusbar.packed': '{packed}/{total} packed',
   'statusbar.packedTitle': 'Devices marked as "packed" in their properties',
   'statusbar.complexity.title':
     'Complexity: heuristic from (devices + cables) count. Helps gauge readability + performance.',
@@ -732,6 +738,16 @@ const en: Dict = {
   'statusbar.complexity.medium': 'Medium',
   'statusbar.complexity.small': 'Small',
   'statusbar.complexity.new': 'New',
+  // #411 Plan-check badge
+  'statusbar.planCheck.title': 'Open plan check: live validation (errors/warnings)',
+  'statusbar.planCheck.counts': '{errors}⚠',
+  'statusbar.planCheck.ok': 'OK',
+  // #411 Plan-check panel
+  'planCheck.title': 'Plan check',
+  'planCheck.summary': '{count} findings',
+  'planCheck.allClear': 'No issues found.',
+  'planCheck.footerHint':
+    'Live plan validation. Click a finding to select the affected element.',
   'statusbar.rentman.label': 'Rentman:',
   'statusbar.rentman.tokenReady': 'Token ready',
   'statusbar.rentman.standalone': 'Standalone',
@@ -763,6 +779,11 @@ const en: Dict = {
   'cable.field.maxReachPlaceholder': 'e.g. 100',
   'cable.field.layer': 'Layer',
   'cable.field.layerTitle': 'Works with the layer filter in the toolbar (layer chips)',
+  // #363 Multicore / snake grouping
+  'cable.field.multicore': 'Multicore / snake',
+  'cable.field.multicorePlaceholder': 'e.g. "Snake-1", "FOH-Loom"',
+  'cable.field.multicoreTitle':
+    'Cables sharing a name form one physical bundle — the BOM counts it as one item.',
   'cable.field.strokeWidth': 'Stroke width ({width}px)',
   'cable.field.labelPosition': 'Label position',
   'cable.field.labelSlider': 'Slider:',
@@ -811,10 +832,10 @@ const en: Dict = {
   'print.noneSelected': 'No device selected',
   'print.selectionCount': '{count} device(s) selected',
   'print.busy': 'Generating PDF…',
-  'print.startJobs': '🖨 Start {count} print jobs',
-  'print.openDialog': '🖨 Open printer dialog',
-  'print.downloadMany': '⬇ Download {count} PDFs',
-  'print.downloadOne': '⬇ Download patch-sheet PDF',
+  'print.startJobs': 'Start {count} print jobs',
+  'print.openDialog': 'Open printer dialog',
+  'print.downloadMany': 'Download {count} PDFs',
+  'print.downloadOne': 'Download patch-sheet PDF',
   'print.osHint.title': 'OS printer hint',
   'print.osHint.body':
     "When printing, your operating system's print dialog opens — there you can pick the printer, paper size (A4 / A3 / Letter), orientation and copy count.",
@@ -869,7 +890,7 @@ const en: Dict = {
   'modeEditor.descPlaceholder': 'e.g. limits outputs to 2 in 4K mode (lower resource use)',
   'modeEditor.portCount': '{count} port(s) in this mode',
   'modeEditor.seedTitle': "Adopt the device's CURRENT port layout as a starting point.",
-  'modeEditor.seedBtn': '⬇ Adopt current device layout',
+  'modeEditor.seedBtn': 'Adopt current device layout',
   'modeEditor.emptySide': 'No {kind} in this mode.',
   'modeEditor.removePort': 'Remove port',
   'common.name': 'Name',
@@ -933,6 +954,7 @@ const en: Dict = {
   'rack.export.png3dDesc': 'PNG: front · rear · iso · top (1× per file)',
   'rack.export.no3dInit':
     '3D tab must be opened first to initialise the 3D scene.',
+  'rack.export.no3dInitTitle': '3D scene not ready',
   'rack.export.stl': '3D as STL',
   'rack.export.stlDesc': 'Complete rack as binary STL (3D printing, CAD)',
   'rack.export.cpgroup': 'Download .cpgroup',
@@ -1095,6 +1117,8 @@ const en: Dict = {
   'export.title': 'Export & print',
   'export.format': 'Format',
   'export.renderMode': 'Render mode',
+  'export.processing': 'Processing…',
+  'export.downloadAs': 'Download as {fmt}',
   'export.section.plan': 'Plan',
   'export.section.patch': 'Patch sheets',
   'export.section.bom': 'Cable BOM',
@@ -1171,15 +1195,15 @@ const en: Dict = {
   'greengo.footer.devicesOnCanvas': 'devices on canvas',
   'greengo.import.gg5Title':
     'Import .gg5 file and link to canvas devices',
-  'greengo.import.gg5': '⬆ Import .gg5',
+  'greengo.import.gg5': 'Import .gg5',
   'greengo.import.xlsxTitle':
     'Upload intercom-matrix Excel — users + groups will be merged into the GreenGo configuration.',
-  'greengo.import.xlsx': '📊 Import Excel matrix',
+  'greengo.import.xlsx': 'Import Excel matrix',
   'greengo.export.xlsxTitle':
     'Download current GreenGo configuration as an intercom-matrix Excel (for print / hand-off).',
-  'greengo.export.xlsx': '📊 Export Excel matrix',
+  'greengo.export.xlsx': 'Export Excel matrix',
   'greengo.saveProject': 'Save in project',
-  'greengo.export.gg5': '⬇ Export as .gg5',
+  'greengo.export.gg5': 'Export as .gg5',
   'greengo.importOverlay.title': 'Import .gg5 — link devices',
   'greengo.importOverlay.system': 'System:',
   'greengo.importOverlay.importedGroups': 'Imported groups',
@@ -1217,9 +1241,9 @@ const en: Dict = {
   'graphml.dialog.edgesNoTarget': 'Edges without target',
   'graphml.dialog.parserWarnings': 'Parser warnings',
   'graphml.dialog.target': 'Target:',
-  'graphml.dialog.canvas': '🗺 Canvas',
+  'graphml.dialog.canvas': 'Canvas',
   'graphml.dialog.canvasTitle': 'Place devices directly on the canvas (incl. cables).',
-  'graphml.dialog.library': '📚 Library',
+  'graphml.dialog.library': 'Library',
   'graphml.dialog.libraryTitle':
     'Only adopt as reusable device templates into the library (no cables, no canvas placement).',
   'graphml.dialog.mode': 'Mode:',
@@ -1229,7 +1253,7 @@ const en: Dict = {
     'Replaces only GraphML-imported devices; manually added ones stay untouched.',
   'graphml.dialog.filterPlaceholder': 'Filter: name / IP / category / cable type',
   'graphml.dialog.libraryHint':
-    '📚 Library mode: devices are saved as reusable templates into the local library. Cables are not adopted (templates carry no cabling).',
+    'Library mode: devices are saved as reusable templates into the local library. Cables are not adopted (templates carry no cabling).',
   'graphml.dialog.tab.preview': 'yEd preview',
   'graphml.dialog.tab.devices': 'Devices',
   'graphml.dialog.tab.cables': 'Cables',
@@ -1275,6 +1299,7 @@ const en: Dict = {
   'locbom.col.category': 'Category',
   'locbom.col.sn': 'S/N',
   'locbom.col.ip': 'IP',
+  'locbom.col.packed': 'Pack',
   'locbom.col.qty': 'Qty',
   'locbom.col.type': 'Type',
   'locbom.col.lengthM': 'Length (m)',
@@ -1329,7 +1354,65 @@ const en: Dict = {
 
   // PatchListDialog
   'patchList.title': 'Patch list',
+  'patchList.empty.noCables': 'This project has no cables yet. Connect devices on the canvas to build a patch list.',
+  'patchList.empty.noMatch': 'No cables match the filter.',
+  'patchList.col.number': 'No.',
+  'settings.project.numbering.title': 'Cable numbering',
+  'settings.project.numbering.desc':
+    'Automatic, collision-free cable IDs from a fixed scheme — shown on the canvas, in the patch list and on the labels.',
+  'settings.project.numbering.enabled': 'Auto-assign a number to new cables',
+  'settings.project.numbering.prefix': 'Prefix',
+  'settings.project.numbering.separator': 'Separator',
+  'settings.project.numbering.padding': 'Digits',
+  'settings.project.numbering.start': 'Start number',
+  'settings.project.numbering.perLayer': 'Separate counter per layer (V/A/N/P …)',
+  'settings.project.numbering.example': 'Example',
+  'settings.project.numbering.renumber': 'Renumber all cables',
+  'settings.project.numbering.done': '{n} cables renumbered.',
+  // #350 Cable length estimation
+  'settings.project.lengthEst.title': 'Estimate cable lengths',
+  'settings.project.lengthEst.desc':
+    'Estimates cable lengths from the on-canvas distance between devices (straight line × scale + slack). Overwrites existing lengths.',
+  'settings.project.lengthEst.scale': 'Metres per 100 px',
+  'settings.project.lengthEst.slack': 'Slack (%)',
+  'settings.project.lengthEst.roundUp': 'Round up to whole metres',
+  'settings.project.lengthEst.run': 'Estimate lengths now',
+  'settings.project.lengthEst.done': '{n} cable lengths updated.',
   'patchList.searchPlaceholder': 'Search (device, port, type, colour, note …)',
+  'patchList.layerFilter': 'Filter by layer/discipline',
+  'patchList.allLayers': 'All layers',
+
+  // TemplatesDialog (#343)
+  'templates.title': 'New from template',
+  'templates.intro':
+    'Bundled show setups or your own saved templates as a starting point. Loads a copy — the existing project is only replaced after you confirm.',
+  'templates.saveCurrent': 'Save current project as template',
+  'templates.builtinHeading': 'Bundled templates',
+  'templates.userHeading': 'My templates',
+  'templates.userEmpty': 'No templates yet. Save a project via “Save current project as template”.',
+  'templates.use': 'Use',
+  'templates.stats': '{eq} devices · {cab} cables · {loc} locations',
+  'templates.namePrompt': 'Name of the new project',
+  'templates.saveNamePrompt': 'Template name',
+  'templates.confirmReplace.title': 'Discard current project?',
+  'templates.confirmReplace.body':
+    'The template replaces the current project. Unsaved changes will be lost.',
+  'templates.confirmReplace.ok': 'Load template',
+  'templates.confirmDelete': 'Delete template “{name}”?',
+  'templates.loadedTitle': 'Template loaded',
+  'templates.loadedBody': 'New project “{name}” created from template.',
+  'templates.savedTitle': 'Saved as template',
+  'templates.savedBody': 'Template “{name}” saved.',
+  'templates.builtin.obVan.name': 'OB Van',
+  'templates.builtin.obVan.desc': 'Outside broadcast van with separate stage and FOH location frames.',
+  'templates.builtin.studio.name': 'TV studio',
+  'templates.builtin.studio.desc': 'Studio with control room and studio floor.',
+  'templates.builtin.liveStage.name': 'Live stage',
+  'templates.builtin.liveStage.desc': 'Stage, FOH and monitor world for live events.',
+  'templates.builtin.corporate.name': 'Conference / corporate',
+  'templates.builtin.corporate.desc': 'Hall and control room for conferences and corporate events.',
+  'templates.builtin.worship.name': 'Houses of worship',
+  'templates.builtin.worship.desc': 'Chancel/stage and tech gallery for worship services.',
 
   // CalculatorsDialog
   'calc.title': 'Tools / calculators',
@@ -1390,10 +1473,10 @@ const en: Dict = {
   'rentman.wizard.saveAsCategoryTitle': 'Save as new category',
   'rentman.wizard.addCategory': '+ Add',
   'rentman.wizard.suggestedPortGroups': 'Suggested port groups',
-  'rentman.wizard.webSearch': '🌐 Web search (free)',
+  'rentman.wizard.webSearch': 'Web search (free)',
   'rentman.wizard.webBusy': 'Searching…',
   'rentman.wizard.webSearchTitle': 'Search Wikipedia + DuckDuckGo (no key required)',
-  'rentman.wizard.aiButton': '✨ AI (Gemini)',
+  'rentman.wizard.aiButton': 'AI (Gemini)',
   'rentman.wizard.aiBusy': 'Asking AI…',
   'rentman.wizard.aiTitle': 'Gemini AI (requires API key)',
   'rentman.wizard.aiSettings': 'AI settings',
@@ -1449,7 +1532,7 @@ const en: Dict = {
   'rentman.checklist.badge.linked': '✓ Already linked: {name}',
   'rentman.checklist.badge.nameOnlyTitle':
     'Local template "{name}" has the same name but no Rentman ID. On import a conflict dialog appears — default is to keep the local version (with ports) and only attach the Rentman ID.',
-  'rentman.checklist.badge.nameOnly': '⚡ Local exists: {name} — conflict dialog',
+  'rentman.checklist.badge.nameOnly': 'Local exists: {name} — conflict dialog',
   'rentman.checklist.badge.catalogTitle':
     'Match from built-in catalog ("{name}"). Will be adopted as a template automatically on import.',
   'rentman.checklist.badge.catalog': '⊕ Catalog: {name}',
@@ -1457,11 +1540,11 @@ const en: Dict = {
   'rentman.checklist.linkedTitle':
     'Linked to a local device — will not be created as a duplicate on import',
   'rentman.checklist.linkSelectTitle': 'Link to an existing local device',
-  'rentman.checklist.linkPlaceholder': '🔗 Link…',
+  'rentman.checklist.linkPlaceholder': 'Link…',
   'rentman.checklist.selectChildren': 'Select all children',
   'rentman.checklist.deselectChildren': 'Deselect all children',
-  'rentman.checklist.childrenAllOff': '☐ all',
-  'rentman.checklist.childrenAllOn': '☑ all',
+  'rentman.checklist.childrenAllOff': 'all',
+  'rentman.checklist.childrenAllOn': 'all',
 
   // Rentman — RentmanImportDialog body
   'rentman.import.busyTitle': 'Import operations still running',
@@ -1523,7 +1606,7 @@ const en: Dict = {
   'rentman.import.status.conflictsTitle':
     'Items with the same name as a local template but without a Rentman ID. On import a conflict dialog appears per item (default: keep local version + attach Rentman ID).',
   'rentman.import.status.conflicts':
-    '⚡ {count} conflict dialog (same name, not linked)',
+    '{count} conflict dialog (same name, not linked)',
   'rentman.import.status.freshTitle':
     'Items without a match in the local library — imported fresh as templates.',
   'rentman.import.status.fresh': '+ {count} new',
@@ -1536,7 +1619,7 @@ const en: Dict = {
   'rentman.import.cablePlan.pickAtLeastOne':
     'Please pick at least one cable type.',
   'rentman.import.cablePlan.planSaved':
-    '✓ {count} cable type(s) adopted as plan.',
+    '{count} cable type(s) adopted as plan.',
   'rentman.import.resultOne': '✓ {count} device added to the library',
   'rentman.import.resultMany': '✓ {count} devices added to the library',
   'rentman.import.resultHint':
@@ -1633,9 +1716,9 @@ const en: Dict = {
   'rack.nonRack.title': 'Add "{name}"',
   'rack.nonRack.intro':
     'The device is not marked as a 19″ rack device. Pick how it should be placed in the rack:',
-  'rack.nonRack.option.rack': '📏 As 19″ device',
+  'rack.nonRack.option.rack': 'As 19″ device',
   'rack.nonRack.option.rackHint': 'Occupies N U on the rack rails',
-  'rack.nonRack.option.shelf': '🪑 On a shelf',
+  'rack.nonRack.option.shelf': 'On a shelf',
   'rack.nonRack.option.shelfHint': 'Custom dimensions in mm, sits on a rack shelf',
   'rack.nonRack.rackUnits': 'U height',
   'rack.nonRack.widthMm': 'Width (mm)',
@@ -1654,8 +1737,8 @@ const en: Dict = {
   'bom.cable.title': 'Cable bill of materials',
   'bom.cable.groupedNote': 'Grouped by type & length.',
   'bom.cable.builtCables': 'Built cables:',
-  'bom.cable.missingTypes': '⚠ {count} cable type(s) missing',
-  'bom.cable.allCovered': '✓ All planned quantities covered',
+  'bom.cable.missingTypes': '{count} cable type(s) missing',
+  'bom.cable.allCovered': 'All planned quantities covered',
   'bom.cable.csv': 'CSV',
   'bom.cable.pdf': 'PDF',
   'bom.cable.col.type': 'Type',
@@ -1676,7 +1759,7 @@ const en: Dict = {
   'bom.cable.draftSaved': 'Rentman plan is saved in the project.',
   'bom.cable.discard': 'Discard',
   'bom.cable.savePlan': 'Save Rentman plan',
-  'bom.cable.syncRentman': '📦 Sync with Rentman →',
+  'bom.cable.syncRentman': 'Sync with Rentman →',
   'bom.cable.syncRentmanTitle':
     'Closes this dialog and opens the Rentman cable export prefilled with the current buckets.',
 
@@ -1706,9 +1789,9 @@ const en: Dict = {
   'printSection.subtitle': 'Patch sheet A4/A3',
   'printSection.a4Title':
     'Generates a single-page A4 patch list with all ports + connected cables — to stick on the device.',
-  'printSection.a4Btn': '🖨 Print patch sheet (A4 PDF)',
+  'printSection.a4Btn': 'Print patch sheet (A4 PDF)',
   'printSection.a3Title': 'A3 variant for devices with many ports.',
-  'printSection.a3Btn': '🖨 Print patch sheet (A3 PDF)',
+  'printSection.a3Btn': 'Print patch sheet (A3 PDF)',
 
   // LibrarySaveSection
   'libSave.title': 'Library',
@@ -1781,8 +1864,15 @@ const en: Dict = {
   'ports.side.auto': 'Side (auto)',
   'ports.side.left': 'Left',
   'ports.side.right': 'Right',
+  // #410 Connector gender
+  'ports.aria.gender': 'Connector gender',
+  'ports.genderTitle': 'Connector gender (for cable assembly)',
+  'ports.gender.none': 'Gender (–)',
+  'ports.gender.male': '♂ Male / plug',
+  'ports.gender.female': '♀ Female / socket',
   'ports.sdi.maxSingleLink': 'Max single-link',
   'ports.sdi.quadSet': 'Quad-link set:',
+  'ports.sdi.dualSet': 'Dual-link set:',
 
   // Shortcut keys (Strg/Ctrl + …)
   'shortcut.ctrlN': 'Ctrl+N',
@@ -1799,7 +1889,7 @@ const en: Dict = {
 
   // Section labels (NetworkAccess, Flags, Optional)
   'netAccess.title': 'Network & access',
-  'netAccess.subtitle': 'IP · S/N · login',
+  'netAccess.subtitle': 'IP · MAC · S/N · login',
   'netAccess.notesPlaceholder': 'Web UI URL, firmware version, wiring notes, …',
   'flags.title': 'Display & flags',
   'flags.subtitle': 'compact · colour · packed',
@@ -1947,7 +2037,7 @@ const en: Dict = {
   'props.deviceKind.greengo': 'GreenGo Intercom detected',
   'props.deviceKind.greengoExport': 'Intercom planning / export .gg5 →',
   'props.deviceKind.videohub': 'Blackmagic Videohub detected',
-  'props.deviceKind.videohubConfigure': '🎚 Configure Videohub · Labels + Routing →',
+  'props.deviceKind.videohubConfigure': 'Configure Videohub · Labels + Routing →',
   'props.deviceKind.atem': 'Blackmagic ATEM detected',
   'props.deviceKind.atemConnect': 'Connect ATEM / push setup →',
   'props.deviceKind.atemConnectTitle': 'Connects via UDP to the ATEM and transfers input names.',
@@ -1969,7 +2059,7 @@ const en: Dict = {
   // Properties — PortAiSuggestButton
   'props.aiPorts.noSuggestion': 'AI could not suggest any ports. Try a more specific device name.',
   'props.aiPorts.requestFailed': 'AI request failed',
-  'props.aiPorts.label': '✨ AI port suggestion',
+  'props.aiPorts.label': 'AI port suggestion',
   'props.aiPorts.btnTitle':
     'Asks the provider selected in Settings → AI what "{name}" typically has for ports',
   'props.aiPorts.asking': 'Asking AI…',
@@ -2007,8 +2097,8 @@ const en: Dict = {
   'settings.eqColors.title': 'Device card colors',
   'settings.eqColors.description':
     'Background/text/border for equipment nodes — adjustable per theme. Defaults are chosen so the cards stand out from the canvas background. Individual devices can have their own color in Properties.',
-  'settings.eqColors.themeLight': '☀ Light',
-  'settings.eqColors.themeDark': '🌙 Dark',
+  'settings.eqColors.themeLight': 'Light',
+  'settings.eqColors.themeDark': 'Dark',
   'settings.eqColors.reset': '↺ Reset',
   'settings.eqColors.resetTitle': 'Reset to default',
   'settings.eqColors.body': 'Card body',
@@ -2159,8 +2249,8 @@ const en: Dict = {
   'settings.configs.replace': 'Replace',
   'settings.configs.append': 'Append',
   'settings.configs.importErrorTitle': 'Import error',
-  'settings.configs.pickFile': '📤 Choose file…',
-  'settings.configs.exportBundle': '💾 Export library as JSON',
+  'settings.configs.pickFile': 'Choose file…',
+  'settings.configs.exportBundle': 'Export library as JSON',
   'settings.configs.importBundle': '⤵ Import JSON library…',
   'settings.configs.entriesCount': '{n} entries',
   'settings.configs.filterAll': 'All ({n})',
@@ -2211,8 +2301,8 @@ const en: Dict = {
   'calc.current3phase': 'Symmetric (3-phase)',
   'calc.col.device': 'Device',
   'calc.col.phase': 'Phase',
-  'calc.tab.bandwidth': '📡 Bandwidth',
-  'calc.tab.power': '⚡ Power consumption',
+  'calc.tab.bandwidth': 'Bandwidth',
+  'calc.tab.power': 'Power consumption',
   'calc.bandwidth.intro':
     'Gross data rate of a video stream (before compression) and the smallest SDI tier that carries it. Pixels × lines × fps × bits-per-pixel.',
   'calc.bandwidth.fitsIn': 'Fits in {tier} ({mbps} Mbps).',
@@ -2232,6 +2322,8 @@ const en: Dict = {
   'calc.euColor': 'EU colour code',
   'calc.phaseLabel': 'Phase',
   'calc.load': 'load',
+  'calc.power.heat': 'Heat (BTU/h)',
+  'calc.power.total': 'Total',
   'calc.devicesToPhase': 'Devices → Phase',
   'calc.euColorTitle': 'EU colour code (DIN VDE 0293-308)',
   'calc.greedyExplain':
@@ -2348,6 +2440,21 @@ const en: Dict = {
   'quadLink.okFill': 'Yes, fill',
   'quadLink.complete': 'Set complete',
   'quadLink.incomplete': 'Set incomplete — 4 ports required',
+  'dualLink.incompleteTitle': 'Dual-link set {g} incomplete',
+  'dualLink.incompleteBody':
+    'Only has {have}/2 ports. No more free BNC ports available — add BNC ports first or free up existing ones.',
+  'dualLink.fillTitle': 'Fill dual-link set {g}?',
+  'dualLink.fillBody':
+    'Currently {have}/2 ports. Automatically assign {add} more free BNC port to the set?',
+  'dualLink.createTitle': 'Create dual-link set {id}?',
+  'dualLink.createBody':
+    '1/2 ports set. Automatically assign {add} more free BNC port to the set?',
+  'dualLink.createdTitle': 'Dual-link set {id} created',
+  'dualLink.createdBody':
+    'Currently has {have}/2 ports. Please add another BNC port and assign it to the set too.',
+  'dualLink.okFill': 'Yes, fill',
+  'dualLink.complete': 'Set complete',
+  'dualLink.incomplete': 'Set incomplete — 2 ports required',
 
   // LibraryPanel rentman section + netbox + create
   'library.rentman.noProjectLinked': 'No Rentman project linked.',
@@ -2370,8 +2477,8 @@ const en: Dict = {
   'settings.customPalette.bg': 'Background',
   'settings.customPalette.grid': 'Grid stroke',
   'settings.customPalette.accent': 'Accent',
-  'settings.canvasBg.darkImage': '🌙 Dark-mode image',
-  'settings.canvasBg.lightImage': '☀ Light-mode image',
+  'settings.canvasBg.darkImage': 'Dark-mode image',
+  'settings.canvasBg.lightImage': 'Light-mode image',
 
   // Settings → Integrations (Rentman toggle card)
   'settings.integrations.rentmanToggle.title': 'Rentman integration',
@@ -2453,7 +2560,7 @@ const en: Dict = {
     'The loaded routing matrix / classic-mixer values are sent directly to the connected switcher. Changes take effect immediately and are NOT persisted as startup state — for that you must call "Save Startup State" in ATEM Software Control.',
   'atem.audio.sendOk': 'Send',
   'atem.audio.classicOnly':
-    'This XML only contains a classic AudioMixer section, no routing matrix. The section is written back unchanged on save (round trip), but is not editable in the editor. If needed, create a fresh crosspoint matrix via "🎚 Matrix manual" above — both sections coexist in the XML.',
+    'This XML only contains a classic AudioMixer section, no routing matrix. The section is written back unchanged on save (round trip), but is not editable in the editor. If needed, create a fresh crosspoint matrix via "Matrix manual" above — both sections coexist in the XML.',
   'atem.audio.createMatrixManual': 'Create matrix manually',
   'atem.audio.noSection':
     'No {section} in the loaded profile. Switch the tab or load a profile that has this section.',
@@ -2500,6 +2607,8 @@ const en: Dict = {
   // App.tsx New project confirm
   'app.newProject.confirm':
     'Discard current project and create a new one?\n\nUnsaved changes will be lost.',
+  'app.newProject.confirmTitle': 'Create new project?',
+  'app.newProject.confirmOk': 'New project',
   // App.tsx Viewer export
   'app.viewerExport.okTitle': 'Viewer file saved',
   'app.viewerExport.okBody':
@@ -2592,6 +2701,7 @@ const en: Dict = {
   'export.format.pdfHint': 'Vector with title block, printable',
   'export.format.pngHint': 'Transparent possible, sharp',
   'export.format.jpegHint': 'Smaller, good for email',
+  'export.format.svgHint': 'Scalable, for web / further processing',
   'export.printPdfTitle': 'Open plan PDF in OS print dialog',
   'export.printOnlyPdf':
     'Printing only works with the PDF format — for PNG/JPEG just download.',
@@ -2716,12 +2826,28 @@ const en: Dict = {
   'patchList.col.toPort': 'To port',
   'patchList.col.port': 'Port',
   'patchList.col.color': 'Colour',
+  'patchList.col.layer': 'Layer',
+  'patchList.col.multicore': 'Multicore',
   'patchList.col.cableName': 'Cable name',
   'patchList.col.notes': 'Notes',
   'patchList.footerHint':
     'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
-  'patchList.exportCsv': '⬇ Export CSV',
-  'patchList.exportXlsx': '⬇ Export XLSX',
+  'patchList.exportCsv': 'Export CSV',
+  'patchList.exportXlsx': 'Export XLSX',
+  'patchList.exportLabels': 'Labels + QR (PDF)',
+  // #349 Label-printer CSV export
+  'patchList.exportLabelCsv': '🏷 Label CSV',
+  'patchList.labelCsvFormat': 'Label-printer format',
+  'patchList.labelCsv.generic': 'Generic (CSV)',
+  'patchList.labelCsv.brother': 'Brother P-touch (TXT)',
+  'patchList.labelCsv.dymo': 'Dymo (CSV)',
+  // #353 Audio input list
+  'patchList.exportInputList': '🎚 Input list',
+  'inputList.col.ch': 'Ch',
+  'inputList.col.source': 'Source',
+  'inputList.col.port': 'Port',
+  'inputList.col.connector': 'Connector',
+  'inputList.col.toDevice': 'To device',
   // #314 Replace device section
   'replaceDevice.title': 'Replace device',
   'replaceDevice.subtitle': 'Preserve cabling',
@@ -2825,6 +2951,230 @@ const en: Dict = {
   'toolbar.lengthLegend.25': '25 m – yellow/white dashed',
   'toolbar.lengthLegend.50': '50 m – white',
   'toolbar.lengthLegend.100': '100 m – red',
+
+  // Phase 4 — DE/EN-Parität: fehlende EN-Übersetzungen ergänzt (siehe
+  // docs/i18n-check.mjs). Deutsch bleibt Quell-/Fallback-Sprache.
+  'app.menu.file.attachRentman': 'Attach plan to Rentman…',
+  'app.menu.file.attachRentmanDisabled': 'Attach plan to Rentman (no project linked)',
+  'app.menu.file.cableBom': 'Export cable list (BOM)…',
+  'app.menu.file.cablesRentman': 'Send cables to Rentman…',
+  'app.menu.file.cablesRentmanDisabled': 'Send cables to Rentman (no project linked)',
+  'app.menu.file.export': 'Export & Print…',
+  'app.menu.file.exportJpeg': 'Export plan as JPEG…',
+  'app.menu.file.exportPdf': 'Export plan as PDF…',
+  'app.menu.file.exportPng': 'Export plan as PNG…',
+  'app.menu.file.exportViewer': 'Export as viewer file for freelancers…',
+  'app.menu.file.importAnnotations': 'Import annotations from viewer file…',
+  'app.menu.file.importGraphml': 'Import yEd / GraphML…',
+  'app.menu.help.about': 'About Cable Planner…',
+  'app.menu.tools.rackBuilder': 'Rack builder…',
+  'app.menu.tools.atemMv': 'ATEM multiviewer layout…',
+  'app.menu.tools.atemAudio': 'ATEM audio routing…',
+  'app.menu.tools.atemLabels': 'ATEM input labels…',
+  'app.menu.tools.videohub': 'Videohub routing / labels…',
+  'app.menu.tools.greengo': 'GreenGo intercom…',
+  'app.menu.tools.patchList': 'Patch list…',
+  'app.menu.tools.rentmanImport': 'Rentman import…',
+  'app.menu.tools.analysis': 'Analyses (weight/network/redundancy)…',
+  'app.menu.tools.planCheck': 'Plan check…',
+  'app.menu.tools.revisions': 'Revisions & snapshots…',
+  'app.menu.tools.aiPlanGen': 'Generate AI plan…',
+  // #414 AI plan generation
+  'aiPlan.title': 'AI plan generation',
+  'aiPlan.noKey': 'No AI API key set. Add a provider key under Settings → AI.',
+  'aiPlan.promptLabel': 'Describe the system in plain language',
+  'aiPlan.promptPlaceholder':
+    'e.g. "2 cameras over SDI into a switcher, PGM out to a recorder and a multiviewer monitor"',
+  'aiPlan.reviewHint': 'A preview is shown — nothing is inserted without confirmation.',
+  'aiPlan.generate': 'Generate',
+  'aiPlan.generating': 'Generating…',
+  'aiPlan.preview': 'Preview: {d} devices, {c} cables',
+  'aiPlan.insert': 'Insert into plan',
+  'app.menu.tools.csvImport': 'Import equipment from CSV…',
+  // #412 Revisions dialog
+  'revisions.title': 'Revisions & snapshots',
+  'revisions.commitTitle': 'Commit current state',
+  'revisions.labelPlaceholder': 'Label (e.g. "A", "Rev 2")',
+  'revisions.notePlaceholder': 'Note: what changed?',
+  'revisions.asBuilt': 'As-built',
+  'revisions.asBuiltTag': 'As-built',
+  'revisions.commit': 'Commit',
+  'revisions.empty': 'No revisions committed yet.',
+  'revisions.restore': 'Restore',
+  'revisions.restoreConfirm': 'Restore this state?',
+  'revisions.restoreBody':
+    'The current plan will be replaced by revision "{label}". The revision history is kept.',
+  'revisions.delete': 'Delete',
+  'revisions.deleteConfirm': 'Delete revision?',
+  'revisions.deleteBody': 'Revision "{label}" will be removed permanently.',
+  'revisions.footerHint':
+    'A revision stores a full snapshot of the plan. Restoring keeps the history.',
+  'app.menu.view': 'View',
+  'app.menu.view.light': 'Light theme',
+  'app.menu.view.snap': 'Snap to grid',
+  'app.menu.view.hideLabels': 'Hide cable labels',
+  'app.menu.view.colorByLength': 'Color cables by length',
+  'app.menu.view.annotations': 'Annotations panel',
+  'app.menu.edit': 'Edit',
+  'app.menu.edit.undo': 'Undo',
+  'app.menu.edit.redo': 'Redo',
+  'app.menu.edit.delete': 'Delete selection',
+  'app.menu.edit.clearSelection': 'Clear selection',
+  'shortcut.ctrlZ': 'Ctrl+Z',
+  'shortcut.ctrlY': 'Ctrl+Y',
+  'shortcut.del': 'Del',
+  'shortcut.esc': 'Esc',
+  // Analysen-Dialog (#346/#351/#352)
+  'analysis.title': 'Analyses',
+  'analysis.exportCsv': 'Export CSV',
+  'analysis.uncategorized': 'Uncategorized',
+  'analysis.total': 'Total',
+  'analysis.tab.weight': 'Weight & heat',
+  'analysis.tab.network': 'Network',
+  'analysis.tab.redundancy': 'Redundancy',
+  'analysis.weight.intro': 'Weight (kg) and heat load per category from device properties. Heat ≈ power × 3.412 BTU/h.',
+  'analysis.weight.category': 'Category',
+  'analysis.weight.count': 'Count',
+  'analysis.weight.kg': 'Weight (kg)',
+  'analysis.weight.watts': 'Power (W)',
+  'analysis.weight.btu': 'Heat (BTU/h)',
+  'analysis.weight.eur': 'Value (€)',
+  'analysis.weight.missing': '{n} device(s) without a weight value — add it in the properties.',
+  'analysis.network.intro': 'IP/VLAN overview of all network-capable devices with duplicate-IP detection.',
+  'analysis.network.device': 'Device',
+  'analysis.network.mgmtVlan': 'Mgmt VLAN',
+  'analysis.network.dupTitle': 'Duplicate IP addresses',
+  'analysis.network.danteTitle': 'Check Dante/AES67 names (≤31 chars, a–z/0–9/-)',
+  'analysis.network.empty': 'No devices with network data.',
+  'analysis.network.vlanSummary': 'Devices per VLAN',
+  'analysis.redundancy.intro': 'Heuristic for potential single points of failure: devices that draw power but have at most one power connection (layer "Power").',
+  'analysis.redundancy.device': 'Device',
+  'analysis.redundancy.finding': 'Finding',
+  'analysis.redundancy.noPower': 'no power connection in the plan',
+  'analysis.redundancy.singlePower': 'only one power connection (no PSU redundancy)',
+  'analysis.redundancy.none': 'No obvious single power feeds found.',
+  'analysis.tab.rf': 'RF / wireless',
+  'analysis.rf.intro': 'Wireless links (wireless cables) with frequency/channel. Conflict heuristic: frequency spacing < 0.4 MHz or same channel. Full intermod coordination is planned separately.',
+  'analysis.rf.link': 'Wireless link',
+  'analysis.rf.freq': 'Frequency',
+  'analysis.rf.channel': 'Channel',
+  'analysis.rf.from': 'From',
+  'analysis.rf.to': 'To',
+  'analysis.rf.empty': 'No wireless links in the plan.',
+  'analysis.rf.conflictTitle': 'Possible RF conflicts',
+  'analysis.rf.conflictClose': '{a} ↔ {b}: frequencies less than {mhz} MHz apart',
+  'analysis.rf.conflictChannel': '{a} ↔ {b}: same channel {ch}',
+  // CSV-Import (#354)
+  'csvImport.title': 'Import equipment from CSV',
+  'csvImport.intro': 'Paste CSV or pick a file. First row = column headers. Recognized columns: name, category, power (W), weight (kg), serial number, IP, RU, subtitle/manufacturer. Import creates library templates (no overwrite).',
+  'csvImport.pickFile': 'Choose CSV file…',
+  'csvImport.detected': 'Detected: {rows} row(s), mapped columns: {fields}',
+  'csvImport.fallbackCategory': 'Imported',
+  'csvImport.col.name': 'Name',
+  'csvImport.col.category': 'Category',
+  'csvImport.importBtn': 'Import {n}',
+  'csvImport.doneTitle': 'CSV imported',
+  'csvImport.doneBody': 'Added {n} device(s) as library templates (existing names unchanged).',
+  'app.mobileShare.title': 'Phone access: a small LAN server + QR code so a phone can open the mobile viewer.',
+  'app.mobileShare.ariaLabel': 'Phone access',
+  'app.redo': 'Redo (Ctrl+Y)',
+  'app.undo': 'Undo (Ctrl+Z)',
+  'atem.audio.detected': 'Audio section detected.',
+  'atem.audio.empty.summary': 'Load an ATEM profile XML — the editor automatically detects whether it is a crosspoint matrix or a classic mixer.',
+  'cable.warn.converterInsertTitle': 'Insert {name} — automatically splits the cable',
+  'confirm.deleteAll': 'Delete all',
+  'eq.field.shortName': 'Short name',
+  'eq.field.shortNameAuto': 'Regenerate from name',
+  'eq.field.shortNameAutoBtn': '↻ auto',
+  'eq.field.shortNameAutoEmpty': 'No suggestion — please set a name.',
+  'eq.field.shortNameAutoUsed': 'Automatically using:',
+  'eq.field.shortNameHint': 'for port/endpoint labels — e.g. "ATEM8K" instead of "ATEM Constellation 8K"',
+  'eq.field.shortNamePlaceholder': 'Short form…',
+  'library.netbox.refreshTitle': 'Reload GitHub index',
+  'library.rentman.accountTitle': 'All equipment created in your Rentman account (account catalog), organized by the Rentman folder structure',
+  'library.rentman.linkTitle': 'Select a Rentman project and link it to this plan file',
+  'library.rentman.loadProjectTitle': 'Load the equipment list from the linked Rentman project now. New items can be imported directly.',
+  'library.rentman.refreshTitle': 'Fetch the current equipment list from the linked Rentman project — new or changed items are shown in the dialog.',
+  'settings.advanced.caches.confirmBtn': 'Clear',
+  'settings.appearance.portLabelSize': 'Port label font size',
+  'settings.appearance.portLabelSizeDesc': 'Font size of the input/output labels on the device cards. Default 11 px. Larger = easier to read when zoomed out, but devices get wider.',
+  'settings.canvasBg.desc': 'Pattern + opacity of the canvas grid. For large plans a low opacity reduces visual clutter. Grid size comes from the canvas toolbar at the top.',
+  'settings.canvasBg.fit': 'Scaling',
+  'settings.canvasBg.fit.contain': 'Contain (fully visible, with margin)',
+  'settings.canvasBg.fit.cover': 'Cover (fills completely, crops)',
+  'settings.canvasBg.fit.tile': 'Tile (repeated)',
+  'settings.canvasBg.imageDesc': 'Load your own image as the canvas background — separately for dark and light mode. The grid pattern (dots/lines/crosses) is drawn on top.',
+  'settings.canvasBg.imageTitle': 'Custom background image',
+  'settings.canvasBg.opacity': 'Opacity',
+  'settings.canvasBg.remove': 'Remove image',
+  'settings.canvasBg.replace': 'Replace…',
+  'settings.canvasBg.title': 'Canvas background',
+  'settings.canvasBg.upload': '+ Upload image…',
+  'settings.canvasBg.variant': 'Pattern',
+  'settings.canvasBg.variant.cross': 'Crosses',
+  'settings.canvasBg.variant.dots': 'Dots',
+  'settings.canvasBg.variant.lines': 'Lines',
+  'settings.canvasBg.variant.none': 'No grid',
+  'settings.categoryColors.desc': 'Default color per category (e.g. monitors=blue). Applies to all devices of that category without their own color. A color set per device still wins.',
+  'settings.categoryColors.resetAll': 'Reset all',
+  'settings.categoryColors.title': 'Device colors per category',
+  'settings.configs.intro': 'Global library of device configurations (ATEM, Videohub, GreenGo). Upload files here, download them again as a file, or assign the matching config to a canvas device (in the device properties panel).',
+  'settings.configs.library.empty': 'No configurations uploaded yet.',
+  'settings.configs.library.title': 'Configuration library',
+  'settings.configs.upload.desc': 'XML / JSON / TXT / .gg5 — the type is guessed from the file name and can be changed below.',
+  'settings.configs.upload.title': 'Upload new configuration',
+  'settings.connections.override.label': 'Connect any inputs and outputs without warning',
+  'settings.connections.overrideDesc': 'A connector-type conflict normally triggers a confirmation prompt. With override the connection is created anyway without asking (marked as adapter/converter).',
+  'settings.connections.title': 'Connection warnings',
+  'settings.connectorColors.desc': 'Custom color per connector type — only visible when "Ports by type" is active above. An empty field resets to default.',
+  'settings.connectorColors.resetAll': 'Reset all',
+  'settings.connectorColors.title': 'Connector-type colors',
+  'settings.customPalette.desc': 'Custom colors for canvas background, grid and accent — overrides the theme defaults (dark/light). Affects only the canvas; dialogs stay themed.',
+  'settings.customPalette.title': 'Custom palette',
+  'settings.editing.cableBumps': 'Crossing bridges on orthogonal cables',
+  'settings.editing.cableInherit': 'Cable type follows port connector',
+  'settings.editing.cableInheritDesc': 'When a port connector is changed (e.g. BNC -> XLR), connected cables automatically adopt the new type. Also applies when re-plugging to a port with a different connector. Cables with a converter hint (needsConverter) stay untouched.',
+  'settings.editing.cableInheritLabel': 'Derive cable type from port connector',
+  'settings.editing.cableVisuals': 'Cable rendering',
+  'settings.editing.cableVisualsDesc': 'Visual aids for orthogonally routed cables (yEd-like bridges at crossings and automatic offset of overlapping center lines).',
+  'settings.editing.collisionShift': 'Automatically offset center lines when cables overlap',
+  'settings.editing.endpointLabels': 'Endpoint labels at cable ends',
+  'settings.editing.endpointLabelsDesc': 'Shows a small label at each cable end indicating where the other end goes — at the source end "→ target device · target port", at the target end "← source device · source port". Helps trace cables without following them visually.',
+  'settings.editing.endpointLabelsLabel': 'Show endpoint labels',
+  'settings.editing.labelSwap': 'Label travels with the cable',
+  'settings.editing.labelSwapDesc': 'When re-plugging a cable, the new port adopts the user name from the old port. The old port falls back to its template default. Saves copy-pasting the label.',
+  'settings.editing.labelSwapLabel': 'Swap port labels on reconnect',
+  'settings.greengo.apply': 'Load',
+  'settings.greengo.applyBody': 'The current GreenGo configuration in the project will be replaced by the preset. Equipment assignments from the preset that do not exist in the current project are ignored.',
+  'settings.greengo.applyConfirm': 'Apply',
+  'settings.greengo.applyTitle': 'Apply preset?',
+  'settings.greengo.delete': 'Delete',
+  'settings.greengo.deleteBody': 'Really delete preset "{name}"?',
+  'settings.greengo.deleteConfirm': 'Delete',
+  'settings.greengo.deleteTitle': 'Delete preset?',
+  'settings.greengo.desc': 'Global library of reusable intercom configurations. Save the current project configuration as a named preset and load it later into any new project — beltpack names, groups and routing included.',
+  'settings.greengo.empty': 'No presets saved yet.',
+  'settings.greengo.save': 'Save current configuration as preset',
+  'settings.greengo.saveDisabled': 'Current project has no GreenGo configuration yet',
+  'settings.greengo.savePromptTitle': 'Preset name:',
+  'settings.greengo.title': 'GreenGo intercom presets',
+  'settings.hotkeys.desc': 'Format: Ctrl+Shift+S. Empty fields disable the hotkey. Duplicate assignments are allowed — the first matching hotkey wins.',
+  'settings.hotkeys.intro': 'Keyboard shortcuts can be freely assigned here. Click a combo cell and press the desired keys — Ctrl/Shift/Alt + letter or function key.',
+  'settings.hotkeys.reset': 'Reset to default',
+  'settings.hotkeys.title': 'Active keyboard shortcuts',
+  'settings.integrations.ai': 'AI provider (AI port suggestions)',
+  'settings.integrations.aiDesc': 'Active provider for the AI buttons in the device wizard and the Rentman library. Each provider has its own API key. All keys are stored only locally in the browser localStorage.',
+  'template.noneSelected': 'No template selected.',
+
+  // Phase 4 — vormals hartkodierte Strings (App-CableDialog, ExportDialog)
+  // auf t() umgestellt:
+  'cable.create.warn.fromBusy': 'Source port is already in use by cable "{name}".',
+  'cable.create.warn.toBusy': 'Target port is already in use by cable "{name}".',
+  'cable.create.warn.samePort': 'Source and target point to the same port.',
+  'export.installedCables': 'Installed cables:',
+  'export.missingTypes': '{count} cable type(s) missing',
+  'export.allCovered': 'All planned quantities covered',
+
   // Cable catalog notes (EN versions of the catalog.cable.* keys in the de dict)
   'catalog.cable.xlr-3pin-audio.notes':
     'Balanced analog audio or AES3 (digital). Gender: male → female.',
@@ -2850,12 +3200,18 @@ const en: Dict = {
     'USB-C connector, passive up to 2 m. Active TB3 cable up to ~50 cm. Forward-compatible with Thunderbolt 4.',
   'catalog.cable.thunderbolt-4.notes':
     'Same bandwidth as TB3 but stricter certification (2× DP 1.4, 40 Gbps, 100 W PD).',
+  'catalog.cable.ltc-bnc.notes':
+    'LTC longitudinal timecode (SMPTE 12M): an audio-band signal distributed over 75Ω coax (BNC), or via balanced XLR / LEMO into cameras and recorders. A master clock or sync generator typically feeds genlock and timecode together.',
   'catalog.cable.madi-bnc.notes':
     'MADI AES10 over 75Ω coax. Up to 64 ch at 48 kHz or 56 ch at 96 kHz.',
+  'catalog.cable.aes3id-bnc.notes':
+    'AES3id: AES3 digital audio over 75Ω unbalanced coax (BNC) — the BNC variant of AES/EBU. One stereo pair per coax, with longer reach than balanced AES3 over XLR. Common on routers and broadcast gear.',
+  'catalog.cable.dvb-asi.notes':
+    'DVB-ASI: MPEG transport stream over 75Ω coax (BNC), up to 270 Mbit/s. Encoder/mux/modulator/playout interconnect in headends and OB trucks.',
   'catalog.cable.madi-optical.notes':
     'MADI AES10 over optical fibre. Long reach, galvanically isolated.',
   'catalog.cable.smpte-297.notes':
-    'Hybrid cable with optical SDI link + copper for talkback and power. Camera connection for ENG/studio.',
+    'SMPTE ST 297: serial digital video (SDI) transported optically over fibre. No power — a pure optical SDI link with long reach.',
   'catalog.cable.smpte-304m-lemo.notes':
     'SMPTE 304M hybrid camera cable with LEMO 3K.93C (also called LEMO 311) connector — EBU/broadcast-standard fibre + copper hybrid for studio cameras.',
   'catalog.cable.smpte-304m-dragonfly.notes':
@@ -2864,6 +3220,23 @@ const en: Dict = {
     'Damar & Hagen triax — analog single-coax for HDTV cameras. Carries video, intercom, talkback, power. Mechanically incompatible with Fischer triax.',
   'catalog.cable.triax-fischer.notes':
     'Fischer triax — analog single-coax for HDTV cameras (alternative to Damar & Hagen). Same signals; different connector.',
+  'catalog.cable.smpte-304m.notes':
+    'SMPTE 311M hybrid fibre camera cable (304M connector, e.g. LEMO 3K.93C): 2 single-mode fibres + power and control conductors. This is fibre, NOT triax.',
+  'catalog.cable.triax-camera.notes':
+    'Triaxial (coaxial) camera cable for studio/OB cameras: carries video, return, intercom/talkback, genlock and power over one triax — analogue, distinct from the SMPTE fibre camera cables.',
+  'catprops.title': 'Specs',
+  'catalog.cable.ndi-cat6a.notes':
+    'NDI / NDI-HX over standard Gigabit Ethernet. Keep NDI and Dante on separate VLANs/links to avoid congestion.',
+  'catalog.cable.dante-cat6.notes':
+    'Dante / AES67 audio-over-IP. Requires PTP clocking; QoS/DSCP recommended on managed switches.',
+  'catalog.cable.st2110-fiber.notes':
+    'SMPTE ST 2110 (-20 video / -30 audio / -40 ANC) over fiber. Needs a PTP grandmaster; typically 10/25/100 GbE.',
+  'catalog.cable.blackburst-bnc.notes':
+    'Reference sync (black burst / tri-level) over 75Ω coax. Distribute from one sync generator; feed every genlock-capable device.',
+  'catalog.cable.wordclock-bnc.notes':
+    'Word clock for digital audio. Daisy-chain with 75Ω termination at the end; one master clock per domain.',
+  'catalog.cable.ptp-cat6.notes':
+    'PTP (IEEE 1588) timing for ST 2110 / AES67. One grandmaster per PTP domain; enable boundary clocks on switches.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Main standard. Level A recommended; Level B for older equipment.',
@@ -2907,12 +3280,18 @@ const de: Dict = {
     'USB-C Stecker, passiv bis 2 m. Aktives TB3-Kabel bis ~50 cm. Vorwärtskompatibel mit Thunderbolt 4.',
   'catalog.cable.thunderbolt-4.notes':
     'Gleiche Bandbreite wie TB3, aber striktere Zertifizierung (2× DP 1.4, 40Gbps, 100W PD).',
+  'catalog.cable.ltc-bnc.notes':
+    'LTC Longitudinal-Timecode (SMPTE 12M): ein Signal im Audioband, verteilt über 75Ω-Koax (BNC) oder symmetrisch per XLR / LEMO in Kameras und Recorder. Ein Master-Clock bzw. Sync-Generator liefert Genlock und Timecode meist gemeinsam.',
   'catalog.cable.madi-bnc.notes':
     'MADI AES10 über 75Ω-Koax. Bis 64 ch bei 48 kHz oder 56 ch bei 96 kHz.',
+  'catalog.cable.aes3id-bnc.notes':
+    'AES3id: AES3-Digitalaudio über 75Ω-Koax unsymmetrisch (BNC) — die BNC-Variante von AES/EBU. Ein Stereopaar pro Koax, größere Reichweite als symmetrisches AES3 über XLR. Verbreitet an Routern und Broadcast-Geräten.',
+  'catalog.cable.dvb-asi.notes':
+    'DVB-ASI: MPEG-Transportstrom über 75Ω-Koax (BNC), bis 270 Mbit/s. Verbindung zwischen Encoder/Mux/Modulator/Playout in Kopfstellen und Ü-Wagen.',
   'catalog.cable.madi-optical.notes':
     'MADI AES10 über optische Faser. Lange Reichweite, galvanisch getrennt.',
   'catalog.cable.smpte-297.notes':
-    'Hybridkabel mit optischer SDI-Strecke + Kupfer für Talkback und Stromversorgung. Kameraanschluss bei ENG/Studio.',
+    'SMPTE ST 297: serielles digitales Video (SDI) optisch über Glasfaser übertragen. Kein Strom — eine reine optische SDI-Strecke mit großer Reichweite.',
   'catalog.cable.smpte-304m-lemo.notes':
     'SMPTE-304M-Hybrid-Kamerakabel mit LEMO 3K.93C (auch LEMO 311) — EBU/Broadcast-Standard für Fiber-+-Kupfer-Hybrid an Studiokameras.',
   'catalog.cable.smpte-304m-dragonfly.notes':
@@ -2921,6 +3300,23 @@ const de: Dict = {
     'Damar & Hagen Triax — analoges Single-Coax für HDTV-Kameras (Video + Interkom + Talkback + Strom). Mechanisch NICHT mit Fischer-Triax kompatibel.',
   'catalog.cable.triax-fischer.notes':
     'Fischer Triax — analoges Single-Coax für HDTV-Kameras (Alternative zu Damar & Hagen). Gleiche Signale, anderer Stecker.',
+  'catalog.cable.smpte-304m.notes':
+    'SMPTE 311M Hybrid-Glasfaser-Kamerakabel (304M-Stecker, z. B. LEMO 3K.93C): 2 Singlemode-Fasern + Power- und Steueradern. Das ist Glasfaser, KEIN Triax.',
+  'catalog.cable.triax-camera.notes':
+    'Triaxiales (koaxiales) Kamerakabel für Studio-/EB-Kameras: überträgt Video, Rückweg, Interkom/Talkback, Genlock und Strom über ein Triax — analog, getrennt von den SMPTE-Glasfaser-Kamerakabeln.',
+  'catprops.title': 'Fachdaten',
+  'catalog.cable.ndi-cat6a.notes':
+    'NDI / NDI-HX über normales Gigabit-Ethernet. NDI und Dante auf getrennten VLANs/Links halten, um Überlast zu vermeiden.',
+  'catalog.cable.dante-cat6.notes':
+    'Dante / AES67 Audio-over-IP. Benötigt PTP-Clocking; QoS/DSCP auf Managed Switches empfohlen.',
+  'catalog.cable.st2110-fiber.notes':
+    'SMPTE ST 2110 (-20 Video / -30 Audio / -40 ANC) über Faser. Benötigt PTP-Grandmaster; typ. 10/25/100 GbE.',
+  'catalog.cable.blackburst-bnc.notes':
+    'Referenz-Sync (Black Burst / Tri-Level) über 75Ω-Koax. Von einem Sync-Generator verteilen; jedes genlock-fähige Gerät versorgen.',
+  'catalog.cable.wordclock-bnc.notes':
+    'Word Clock für Digital-Audio. Daisy-Chain mit 75Ω-Abschluss am Ende; ein Master-Clock pro Domäne.',
+  'catalog.cable.ptp-cat6.notes':
+    'PTP (IEEE 1588) Timing für ST 2110 / AES67. Ein Grandmaster je PTP-Domäne; Boundary-Clocks auf Switches aktivieren.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Hauptstandard. Level A empfohlen; Level B bei älteren Geräten.',

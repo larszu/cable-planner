@@ -27,8 +27,8 @@ import { RACK_MOUNT_WIDTH_MM } from './rackBuilderTypes'
 import * as THREE from 'three'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { confirmDialog } from '../../lib/confirmDialog'
-import { STORAGE_KEYS } from '../../lib/storageKeys'
 import { LIMITS } from '../../lib/layoutConstants'
+import { STORAGE_KEYS } from '../../lib/storageKeys'
 
 interface RackBuilderDialogProps {
   open: boolean

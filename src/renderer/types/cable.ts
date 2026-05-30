@@ -95,4 +95,16 @@ export interface Cable {
    *  Sub-Layer werden als freier String erlaubt (z.B. "video.primary",
    *  "audio.foh"). Undefined = ungrouped / immer sichtbar. */
   layer?: string
+  /** Auto-Kabelnummerierung — eindeutige Kabel-ID aus dem Projekt-Schema
+   *  (`ProjectMetadata.cableNumbering`). Wird beim Anlegen automatisch
+   *  vergeben (wenn das Schema aktiv ist) oder per "Alle Kabel neu
+   *  nummerieren" gesetzt. Frei editierbar; undefined = keine Nummer. */
+  cableNumber?: string
+  /** #363 — Multicore/Snake/Loom/Trunk: mehrere logische Kabel (Adern) teilen
+   *  sich ein physisches Bündel. Kabel mit demselben (nicht-leeren)
+   *  `multicoreName` gehören zum selben Bündel. Jede Ader bleibt einzeln
+   *  adressierbar (eigenes Kabel-Objekt), das Bündel wird in der Patchliste
+   *  als eigene Spalte geführt. Freier String (z.B. "Snake-1", "FOH-Loom").
+   *  Undefined = Einzelkabel. */
+  multicoreName?: string
 }

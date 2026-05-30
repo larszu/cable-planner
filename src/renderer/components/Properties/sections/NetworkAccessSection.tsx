@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { useTranslation } from '../../../lib/i18n'
 import { SortableSection } from '../SortableSection'
+import { Icon } from '../../shared/Icon'
 import type { EquipmentItem } from '../../../types/equipment'
 
 /**
@@ -22,7 +24,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
     <SortableSection
       id="network"
       title={t('netAccess.title', 'Network & Access')}
-      subtitle={t('netAccess.subtitle', 'IP · S/N · Login')}
+      subtitle={t('netAccess.subtitle', 'IP · MAC · S/N · Login')}
       defaultOpen
     >
       <div className="grid grid-cols-2 gap-2">
@@ -60,6 +62,17 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
           />
         </label>
         <label className="block">
+          <span className="mb-1 block text-slate-300">{t('eq.field.mac', 'MAC-Adresse')}</span>
+          <input
+            value={equipment.macAddress ?? ''}
+            onChange={(event) =>
+              updateEquipment(equipment.id, { macAddress: event.target.value || undefined })
+            }
+            placeholder="00:1A:2B:3C:4D:5E"
+            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+          />
+        </label>
+        <label className="block">
           <span className="mb-1 block text-slate-300">{t('eq.field.username', 'Username')}</span>
           <input
             value={equipment.username ?? ''}
@@ -85,14 +98,19 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
+              aria-label={
+                showPassword
+                  ? t('eq.field.passwordHide', 'Passwort verbergen')
+                  : t('eq.field.passwordShow', 'Passwort anzeigen')
+              }
               title={
                 showPassword
                   ? t('eq.field.passwordHide', 'Passwort verbergen')
                   : t('eq.field.passwordShow', 'Passwort anzeigen')
               }
-              className="absolute inset-y-0 right-0 flex items-center px-2 text-xs text-slate-400 hover:text-slate-200"
+              className="absolute inset-y-0 right-0 flex items-center px-2 text-slate-400 hover:text-slate-200"
             >
-              {showPassword ? '🙈' : '👁'}
+              <Icon icon={showPassword ? EyeOff : Eye} size="sm" />
             </button>
           </div>
         </label>

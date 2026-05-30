@@ -1,6 +1,13 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import 'reactflow/dist/style.css'
+// Self-hosted Inter (UX audit #26): index.css references "Inter" as the UI
+// font but it was never loaded → silent fallback to system-ui. Bundle the
+// weights we actually use (regular/medium/semibold/bold) so it ships offline.
+import '@fontsource/inter/400.css'
+import '@fontsource/inter/500.css'
+import '@fontsource/inter/600.css'
+import '@fontsource/inter/700.css'
 import './index.css'
 import App from './App'
 import { ErrorBoundary } from './ErrorBoundary'

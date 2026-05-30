@@ -1,14 +1,17 @@
 import { Handle, Position, useUpdateNodeInternals, type NodeProps } from 'reactflow'
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import { Headphones, Lock, Check } from 'lucide-react'
 import type { EquipmentItem } from '../../types/equipment'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
+import { AlertTriangle } from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 import { colorForConnector } from '../../lib/cableColors'
 import { defaultIconForEquipment } from '../../lib/deviceKind'
 import { findGreenGoUserForEquipment } from '../../lib/greengoSync'
 import { rackBandColor } from '../../lib/rackBandColors'
-import { portDisplayLabel } from '../../lib/portLabel'
+import { portDisplayLabel, genderSymbol } from '../../lib/portLabel'
 import {
   RackBandsOverlay,
   RackInternalCablesOverlay,
@@ -574,10 +577,12 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                   padding: '0 3px',
                   lineHeight: '13px',
                   flexShrink: 0,
+                  display: 'inline-flex',
+                  alignItems: 'center',
                 }}
                 title={t('eqNode.rentmanRemoved', 'In Rentman nicht mehr vorhanden!')}
               >
-                ⚠
+                <Icon icon={AlertTriangle} size={12} />
               </span>
             ) : (
               <span
@@ -619,7 +624,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               }}
               title={t('eqNode.packed', 'Gepackt — bereit zum Versand')}
             >
-              ✓
+              <Icon icon={Check} size={12} />
             </span>
           )}
         </div>
@@ -638,7 +643,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             }}
             title={`GreenGo Beltpack #${greengoUser.user.id}${greengoUser.groupNames.length > 0 ? ` · Gruppen: ${greengoUser.groupNames.join(', ')}` : ''}`}
           >
-            🎧 {greengoUser.user.name}
+            <Icon icon={Headphones} size="xs" className="mr-1 inline-block align-text-bottom" />{greengoUser.user.name}
           </div>
         )}
         {data.ipAddress && (
@@ -755,15 +760,16 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                     pointerEvents: 'auto',
                   }}
                   title={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
+                  aria-label={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
                 >
-                  ✓
+                  <Icon icon={Check} size="xs" />
                 </span>
               )}
-              {isRackInternal && <span style={{ marginRight: 3 }}>🔒</span>}
+              {isRackInternal && <span style={{ marginRight: 3 }} className="inline-flex align-middle"><Icon icon={Lock} size="xs" /></span>}
               {isLeft ? (
-                <>{portDisplayLabel(port)}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
+                <>{portDisplayLabel(port)}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}{genderSymbol(port.gender) && ` ${genderSymbol(port.gender)}`}</span></>
               ) : (
-                <><span style={{ color: isLight ? '#94a3b8' : '#64748b' }}>{port.connectorType} · </span>{portDisplayLabel(port)}</>
+                <><span style={{ color: isLight ? '#94a3b8' : '#64748b' }}>{genderSymbol(port.gender) && `${genderSymbol(port.gender)} `}{port.connectorType} · </span>{portDisplayLabel(port)}</>
               )}
             </span>
           </div>
@@ -904,15 +910,16 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                     pointerEvents: 'auto',
                   }}
                   title={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
+                  aria-label={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
                 >
-                  ✓
+                  <Icon icon={Check} size="xs" />
                 </span>
               )}
-              {isRackInternal && <span style={{ marginRight: 3 }}>🔒</span>}
+              {isRackInternal && <span style={{ marginRight: 3 }} className="inline-flex align-middle"><Icon icon={Lock} size="xs" /></span>}
               {isLeft ? (
-                <>{portDisplayLabel(port)}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
+                <>{portDisplayLabel(port)}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}{genderSymbol(port.gender) && ` ${genderSymbol(port.gender)}`}</span></>
               ) : (
-                <><span style={{ color: isLight ? '#94a3b8' : '#64748b' }}>{port.connectorType} · </span>{portDisplayLabel(port)}</>
+                <><span style={{ color: isLight ? '#94a3b8' : '#64748b' }}>{genderSymbol(port.gender) && `${genderSymbol(port.gender)} `}{port.connectorType} · </span>{portDisplayLabel(port)}</>
               )}
             </span>
           </div>

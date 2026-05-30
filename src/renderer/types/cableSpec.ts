@@ -21,6 +21,7 @@ export type SignalStandard =
   | 'Eth-10G'
   | 'Analog-Audio'
   | 'AES3'
+  | 'AES3id'
   | 'USB-2.0'
   | 'USB-3.x'
   | 'Power-230V'
@@ -29,8 +30,22 @@ export type SignalStandard =
   | 'Thunderbolt-3'
   | 'Thunderbolt-4'
   | 'MADI'
+  | 'DVB-ASI'
   | 'SMPTE-297'
   | 'SMPTE-304M'
+  | 'SMPTE-311M'
+  | 'NDI'
+  | 'NDI-HX'
+  | 'Dante'
+  | 'AES67'
+  | 'ST2110-20'
+  | 'ST2110-30'
+  | 'ST2110-40'
+  | 'Blackburst'
+  | 'Tri-Level'
+  | 'Word-Clock'
+  | 'PTP'
+  | 'LTC'
   | 'RF-UHF'
   | 'RF-VHF'
   | 'RF-2.4G'
@@ -43,9 +58,11 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
   'HDMI-1.4', 'HDMI-2.0', 'HDMI-2.1',
   'DP-1.2', 'DP-1.4', 'DP-2.0',
   'Eth-100', 'Eth-1G', 'Eth-10G',
-  'Analog-Audio', 'AES3', 'USB-2.0', 'USB-3.x',
+  'Analog-Audio', 'AES3', 'AES3id', 'USB-2.0', 'USB-3.x',
   'Thunderbolt-3', 'Thunderbolt-4',
-  'MADI', 'SMPTE-297', 'SMPTE-304M',
+  'MADI', 'DVB-ASI', 'SMPTE-297', 'SMPTE-304M', 'SMPTE-311M',
+  'NDI', 'NDI-HX', 'Dante', 'AES67', 'ST2110-20', 'ST2110-30', 'ST2110-40',
+  'Blackburst', 'Tri-Level', 'Word-Clock', 'PTP', 'LTC',
   'RF-UHF', 'RF-VHF', 'RF-2.4G', 'RF-5G',
   'Power-230V', 'Fiber-SM', 'Fiber-MM', 'Generic',
 ]
@@ -171,6 +188,69 @@ export const cableCatalog: CableSpec[] = [
     notesKey: 'catalog.cable.cat6a.notes',
   },
   {
+    id: 'ndi-cat6a',
+    name: 'NDI über Cat6a (1G/10G)',
+    connectorType: 'Ethernet/RJ45',
+    standards: ['Eth-1G', 'Eth-10G', 'NDI', 'NDI-HX'],
+    maxLengthMeters: 100,
+    color: '#22c55e',
+    notesKey: 'catalog.cable.ndi-cat6a.notes',
+  },
+  {
+    id: 'dante-cat6',
+    name: 'Dante / AES67 (Cat6)',
+    connectorType: 'Ethernet/RJ45',
+    standards: ['Eth-100', 'Eth-1G', 'Dante', 'AES67'],
+    maxLengthMeters: 100,
+    color: '#14b8a6',
+    notesKey: 'catalog.cable.dante-cat6.notes',
+  },
+  {
+    id: 'st2110-fiber',
+    name: 'SMPTE ST 2110 (Fiber)',
+    connectorType: 'Fiber',
+    standards: ['Fiber-SM', 'Fiber-MM', 'ST2110-20', 'ST2110-30', 'ST2110-40'],
+    maxLengthMeters: 300,
+    color: '#0ea5e9',
+    notesKey: 'catalog.cable.st2110-fiber.notes',
+  },
+  {
+    id: 'blackburst-bnc',
+    name: 'Referenz Blackburst / Tri-Level (BNC)',
+    connectorType: 'BNC',
+    standards: ['Blackburst', 'Tri-Level'],
+    maxLengthMeters: 100,
+    color: '#64748b',
+    notesKey: 'catalog.cable.blackburst-bnc.notes',
+  },
+  {
+    id: 'wordclock-bnc',
+    name: 'Word Clock (BNC)',
+    connectorType: 'BNC',
+    standards: ['Word-Clock'],
+    maxLengthMeters: 50,
+    color: '#94a3b8',
+    notesKey: 'catalog.cable.wordclock-bnc.notes',
+  },
+  {
+    id: 'ltc-bnc',
+    name: 'LTC Timecode (BNC)',
+    connectorType: 'BNC',
+    standards: ['LTC'],
+    maxLengthMeters: 100,
+    color: '#94a3b8',
+    notesKey: 'catalog.cable.ltc-bnc.notes',
+  },
+  {
+    id: 'ptp-cat6',
+    name: 'PTP / Referenz (Ethernet)',
+    connectorType: 'Ethernet/RJ45',
+    standards: ['Eth-1G', 'PTP'],
+    maxLengthMeters: 100,
+    color: '#0891b2',
+    notesKey: 'catalog.cable.ptp-cat6.notes',
+  },
+  {
     id: 'fiber-sm-lc',
     name: 'Fiber SM (LC)',
     connectorType: 'Fiber',
@@ -250,6 +330,24 @@ export const cableCatalog: CableSpec[] = [
     notesKey: 'catalog.cable.madi-bnc.notes',
   },
   {
+    id: 'aes3id-bnc',
+    name: 'AES3id (BNC, 75Ω)',
+    connectorType: 'BNC',
+    standards: ['AES3id'],
+    maxLengthMeters: 100,
+    color: '#0891b2',
+    notesKey: 'catalog.cable.aes3id-bnc.notes',
+  },
+  {
+    id: 'dvb-asi',
+    name: 'DVB-ASI (BNC, 75Ω)',
+    connectorType: 'BNC',
+    standards: ['DVB-ASI'],
+    maxLengthMeters: 100,
+    color: '#2563eb',
+    notesKey: 'catalog.cable.dvb-asi.notes',
+  },
+  {
     id: 'madi-optical',
     name: 'MADI Optisch (ST/SC Fiber)',
     connectorType: 'Fiber',
@@ -260,10 +358,10 @@ export const cableCatalog: CableSpec[] = [
   },
   {
     id: 'smpte-297',
-    name: 'SMPTE 297M Hybrid Fiber (SDI+Power)',
+    name: 'SMPTE ST 297 — Optisches SDI (Glasfaser)',
     connectorType: 'Fiber',
-    standards: ['SMPTE-297', 'SDI-3G', 'SDI-HD', 'Fiber-SM'],
-    maxLengthMeters: 1000,
+    standards: ['SMPTE-297', 'SDI-HD', 'SDI-3G', 'Fiber-SM'],
+    maxLengthMeters: 10000,
     color: '#f59e0b',
     notesKey: 'catalog.cable.smpte-297.notes',
   },
@@ -307,6 +405,15 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 1500,
     color: '#854d0e',
     notesKey: 'catalog.cable.triax-fischer.notes',
+  },
+  {
+    id: 'triax-camera',
+    name: 'Triax-Kamerakabel (analog/koaxial)',
+    connectorType: 'Triax',
+    standards: ['Generic'],
+    maxLengthMeters: 300,
+    color: '#b45309',
+    notesKey: 'catalog.cable.triax-camera.notes',
   },
 ]
 

@@ -13,9 +13,9 @@ export const SettingsCard = ({
   description?: string
   children: ReactNode
 }) => (
-  <div className="rounded border border-slate-800 bg-slate-950/40 p-3">
-    <div className="mb-2 text-xs font-semibold text-slate-300">{title}</div>
-    {description && <p className="mb-2 text-[11px] text-slate-500">{description}</p>}
+  <div className="rounded border border-[var(--cp-border-muted)] bg-slate-950/40 p-3">
+    <div className="mb-2 text-cp-xs font-semibold text-[var(--cp-text-secondary)]">{title}</div>
+    {description && <p className="mb-2 text-cp-xs text-[var(--cp-text-faint)]">{description}</p>}
     {children}
   </div>
 )

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useUiStore } from '../../../store/uiStore'
 import { useTranslation } from '../../../lib/i18n'
 
@@ -13,12 +14,27 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
   const updateDeviceConfig = useUiStore((s) => s.updateDeviceConfig)
   const assigned = library.filter((e) => e.equipmentId === equipmentId)
   const unassigned = library.filter((e) => !e.equipmentId)
+  // Ein-/ausklappbar (wie SDI-Caps / Abmessungen). Default offen, wenn dem
+  // Gerät schon Konfigurationen zugeordnet sind, sonst eingeklappt. <summary>
+  // statt Form-Control, damit das Toggle auch im gesperrten Fieldset geht.
+  const [open, setOpen] = useState(assigned.length > 0)
   if (library.length === 0) return null
   return (
-    <div className="rounded border border-slate-700 bg-slate-900/40 p-2">
-      <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
-        {t('props.deviceConfigs.title', 'Konfigurationen')}
-      </div>
+    <details
+      open={open}
+      onToggle={(e) => setOpen(e.currentTarget.open)}
+      className="rounded border border-slate-700 bg-slate-900/40 [&_summary]:cursor-pointer"
+    >
+      <summary className="flex items-center gap-1 px-2 py-1.5 text-[10px] uppercase tracking-wide text-slate-400 hover:text-slate-200 [&::-webkit-details-marker]:hidden">
+        <span className="text-slate-500">{open ? '▾' : '▸'}</span>
+        <span className="flex-1">{t('props.deviceConfigs.title', 'Konfigurationen')}</span>
+        {!open && assigned.length > 0 && (
+          <span className="rounded bg-slate-700/60 px-1 text-[9px] normal-case text-slate-200">
+            {assigned.length}
+          </span>
+        )}
+      </summary>
+      <div className="px-2 pb-2">
       {assigned.length === 0 ? (
         <div className="text-[11px] text-slate-500">
           {t('props.deviceConfigs.none', 'Keine Konfiguration zugeordnet.')}
@@ -67,6 +83,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
           'Neue Konfigurationen über Einstellungen → Konfigurationen hochladen.',
         )}
       </div>
-    </div>
+      </div>
+    </details>
   )
 }
