@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import {
   DndContext,
@@ -100,6 +100,53 @@ const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
         <div className="min-w-0 flex-1">{children}</div>
       </div>
     </li>
+  )
+}
+
+/**
+ * Per-Port SDI-Fähigkeiten ein-/ausklappbar. Der Block war bisher immer
+ * offen, sobald ein Port BNC war; bei Geräten mit vielen BNC-Ports
+ * (Kameras, Quad-Link-Router) blähte das die Port-Liste stark auf. Jetzt
+ * als <details> mit dem gleichen ▾/▸-Muster wie sonst im UI.
+ *
+ * Default offen, wenn der Port bereits SDI-Caps oder eine Quad-Gruppe
+ * gesetzt hat (defaultOpen), sonst eingeklappt — beim Einklappen zeigt das
+ * Summary eine kurze Badge (z. B. „SDI-12G · QL-1") damit gesetzte Werte
+ * nicht unsichtbar verschwinden.
+ *
+ * <details>/<summary> statt Button: ein <summary> ist kein Form-Control,
+ * deshalb bleibt das Auf-/Zuklappen auch im gesperrten Properties-Fieldset
+ * (viewer/finalized) bedienbar, während die Eingabefelder darin korrekt
+ * deaktiviert sind.
+ */
+const CollapsibleSdiCaps = ({
+  defaultOpen,
+  badge,
+  children,
+}: {
+  defaultOpen: boolean
+  badge?: string
+  children: ReactNode
+}) => {
+  const t = useTranslation()
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <details
+      open={open}
+      onToggle={(e) => setOpen(e.currentTarget.open)}
+      className="mt-1 rounded border border-amber-900/60 bg-amber-950/20 [&_summary]:cursor-pointer"
+    >
+      <summary className="flex items-center gap-1 p-1.5 text-[10px] font-semibold uppercase tracking-wide text-amber-300 hover:text-amber-200 [&::-webkit-details-marker]:hidden">
+        <span className="text-amber-400/70">{open ? '▾' : '▸'}</span>
+        <span className="flex-1">{t('ports.sdi.caps', 'SDI-Fähigkeiten (port-spezifisch)')}</span>
+        {!open && badge && (
+          <span className="rounded bg-amber-900/50 px-1 text-[9px] normal-case text-amber-200">
+            {badge}
+          </span>
+        )}
+      </summary>
+      <div className="px-1.5 pb-1.5">{children}</div>
+    </details>
   )
 }
 
@@ -291,6 +338,124 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
       return
     }
     updatePort(portId, { quadLinkGroup: raw || undefined })
+  }
+
+  // #370 — Dual-Link Set Helpers. Analog zu den Quad-Link-Helfern oben,
+  // aber ein Set besteht aus genau 2 BNC-Ports (Dual-Link HD/3G, SMPTE
+  // 372M) mit gleichem dualLinkGroup-ID auf derselben Seite.
+  const existingDualGroups = useMemo(() => {
+    const set = new Set<string>()
+    for (const p of ports) {
+      if (p.dualLinkGroup) set.add(p.dualLinkGroup)
+    }
+    return Array.from(set).sort()
+  }, [ports])
+  const dualGroupCount = (g: string): number =>
+    ports.filter((p) => p.dualLinkGroup === g).length
+  const nextDualGroupId = (): string => {
+    let i = 1
+    while (existingDualGroups.includes(`DL-${i}`)) i++
+    return `DL-${i}`
+  }
+  const autoFillDualGroup = async (g: string, sourcePortId: string) => {
+    const haveCount = dualGroupCount(g)
+    const needed = 2 - haveCount
+    if (needed <= 0) return
+    const freeBncPorts = ports.filter(
+      (p) => p.id !== sourcePortId && p.connectorType === 'BNC' && !p.dualLinkGroup,
+    )
+    if (freeBncPorts.length === 0) {
+      await infoDialog(
+        format(t('dualLink.incompleteTitle', 'Dual-Link Set {g} unvollständig'), { g }),
+        {
+          body: format(
+            t(
+              'dualLink.incompleteBody',
+              'Hat nur {have}/2 Ports. Keine weiteren freien BNC-Ports verfügbar — bitte zuerst BNC-Ports hinzufügen oder bestehende freigeben.',
+            ),
+            { have: String(haveCount) },
+          ),
+          tone: 'warning',
+        },
+      )
+      return
+    }
+    const ok = await confirmDialog(
+      format(t('dualLink.fillTitle', 'Dual-Link Set {g} ergänzen?'), { g }),
+      {
+        body: format(
+          t(
+            'dualLink.fillBody',
+            'Aktuell {have}/2 Ports. {add} weiteren freien BNC-Port automatisch dem Set zuweisen?',
+          ),
+          { have: String(haveCount), add: String(Math.min(needed, freeBncPorts.length)) },
+        ),
+        okLabel: t('dualLink.okFill', 'Ja, ergänzen'),
+      },
+    )
+    if (!ok) return
+    const toAdd = new Set(freeBncPorts.slice(0, needed).map((p) => p.id))
+    onChange(
+      ports.map((p) =>
+        toAdd.has(p.id) ? { ...p, dualLinkGroup: g } : p,
+      ),
+    )
+  }
+  const assignDualGroup = async (portId: string, raw: string) => {
+    if (raw === '__new__') {
+      const newId = nextDualGroupId()
+      const updated = ports.map((p) =>
+        p.id === portId ? { ...p, dualLinkGroup: newId } : p,
+      )
+      onChange(updated)
+      const haveCount = updated.filter((p) => p.dualLinkGroup === newId).length
+      const freeBncPorts = updated.filter(
+        (p) =>
+          p.id !== portId &&
+          p.connectorType === 'BNC' &&
+          !p.dualLinkGroup,
+      )
+      const needed = 2 - haveCount
+      if (needed > 0 && freeBncPorts.length > 0) {
+        const ok = await confirmDialog(
+          format(t('dualLink.createTitle', 'Dual-Link Set {id} anlegen?'), { id: newId }),
+          {
+            body: format(
+              t(
+                'dualLink.createBody',
+                '1/2 Ports gesetzt. {add} weiteren freien BNC-Port automatisch dem Set zuweisen?',
+              ),
+              { add: String(Math.min(needed, freeBncPorts.length)) },
+            ),
+            okLabel: t('dualLink.okFill', 'Ja, ergänzen'),
+          },
+        )
+        if (ok) {
+          const toAdd = new Set(freeBncPorts.slice(0, needed).map((p) => p.id))
+          onChange(
+            updated.map((p) =>
+              toAdd.has(p.id) ? { ...p, dualLinkGroup: newId } : p,
+            ),
+          )
+        }
+      } else if (needed > 0) {
+        await infoDialog(
+          format(t('dualLink.createdTitle', 'Dual-Link Set {id} angelegt'), { id: newId }),
+          {
+            body: format(
+              t(
+                'dualLink.createdBody',
+                'Hat aktuell {have}/2 Ports. Bitte einen weiteren BNC-Port anlegen und ebenfalls dem Set zuweisen.',
+              ),
+              { have: String(haveCount) },
+            ),
+            tone: 'info',
+          },
+        )
+      }
+      return
+    }
+    updatePort(portId, { dualLinkGroup: raw || undefined })
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -489,6 +654,26 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                 <option value="right">{t('ports.side.right', 'Rechts')}</option>
               </select>
             </div>
+            {/* #410 — Steckverbinder-Geschlecht (male/female). Optional. */}
+            <div className="mt-1">
+              <select
+                aria-label={t('ports.aria.gender', 'Connector gender')}
+                value={port.gender ?? ''}
+                onChange={(event) =>
+                  updatePort(port.id, {
+                    gender: event.target.value
+                      ? (event.target.value as 'male' | 'female')
+                      : undefined,
+                  })
+                }
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                title={t('ports.genderTitle', 'Steckverbinder-Geschlecht (für die Kabel-Konfektion)')}
+              >
+                <option value="">{t('ports.gender.none', 'Geschlecht (–)')}</option>
+                <option value="male">{t('ports.gender.male', '♂ Male / Stecker')}</option>
+                <option value="female">{t('ports.gender.female', '♀ Female / Buchse')}</option>
+              </select>
+            </div>
             {showAtemSourceId && (
               <div className="mt-1 flex items-center gap-1.5 rounded border border-emerald-900/60 bg-emerald-950/30 px-1.5 py-1">
                 <span className="text-[10px] font-semibold uppercase tracking-wide text-emerald-300">
@@ -550,10 +735,20 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
               </div>
             )}
             {port.connectorType === 'BNC' && (
-              <div className="mt-1 rounded border border-amber-900/60 bg-amber-950/20 p-1.5">
-                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-amber-300">
-                  {t('ports.sdi.caps', 'SDI-Fähigkeiten (port-spezifisch)')}
-                </div>
+              <CollapsibleSdiCaps
+                defaultOpen={
+                  !!(
+                    port.sdiCaps?.maxSingleLink ||
+                    port.sdiCaps?.levelA ||
+                    port.sdiCaps?.levelB ||
+                    port.quadLinkGroup ||
+                    port.dualLinkGroup
+                  )
+                }
+                badge={[port.sdiCaps?.maxSingleLink, port.quadLinkGroup, port.dualLinkGroup]
+                  .filter(Boolean)
+                  .join(' · ')}
+              >
                 <div className="grid grid-cols-2 gap-1 text-[10px]">
                   {/* v7.9.63 / #176 — 3G Level A/B nur anzeigen wenn das
                       Port-Max tatsächlich SDI-3G ist. Für 6G/12G/HD sind die
@@ -669,7 +864,54 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     </div>
                   )
                 })()}
-              </div>
+                {(() => {
+                  const g = port.dualLinkGroup
+                  const count = g ? dualGroupCount(g) : 0
+                  const ok = count === 2
+                  return (
+                    <div className="mt-1 flex items-center gap-1 text-[10px]">
+                      <span className="text-slate-400">{t('ports.sdi.dualSet', 'Dual-Link Set:')}</span>
+                      <select
+                        value={g ?? ''}
+                        onChange={(e) => void assignDualGroup(port.id, e.target.value)}
+                        className="rounded border border-slate-700 bg-slate-950 px-1 py-0.5 text-[10px]"
+                      >
+                        <option value="">— Kein —</option>
+                        {existingDualGroups.map((gid) => (
+                          <option key={gid} value={gid}>{gid}</option>
+                        ))}
+                        <option value="__new__">+ Neues Set…</option>
+                      </select>
+                      {g && (
+                        <>
+                          <span
+                            className={`rounded px-1 py-0.5 text-[9px] font-bold ${
+                              ok
+                                ? 'bg-emerald-900/60 text-emerald-300'
+                                : 'bg-amber-900/60 text-amber-300'
+                            }`}
+                            title={ok
+                              ? t('dualLink.complete', 'Set komplett')
+                              : t('dualLink.incomplete', 'Set unvollständig — 2 Ports nötig')}
+                          >
+                            {count}/2
+                          </span>
+                          {!ok && (
+                            <button
+                              type="button"
+                              onClick={() => void autoFillDualGroup(g, port.id)}
+                              className="rounded bg-sky-800 px-1 py-0.5 text-[9px] text-sky-100 hover:bg-sky-700"
+                              title={t('ports.dualAuto', 'Freie BNC-Ports automatisch dem Set zuweisen')}
+                            >
+                              auto-fill
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )
+                })()}
+              </CollapsibleSdiCaps>
             )}
           </SortablePortItem>
         ))}

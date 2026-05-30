@@ -208,6 +208,35 @@ export const CableProperties = () => {
         </select>
       </label>
 
+      {/* #363 — Multicore/Snake-Zuordnung: Kabel mit gleichem Namen bilden
+          ein Bündel. Datalist schlägt bereits vergebene Namen vor. */}
+      <label className="block">
+        <span className="mb-1 block text-slate-300">
+          {t('cable.field.multicore', 'Multicore / Snake')}{' '}
+          <span className="text-slate-500">({t('common.optional', 'optional')})</span>
+        </span>
+        <input
+          list="cp-multicore-names"
+          value={cable.multicoreName ?? ''}
+          placeholder={t('cable.field.multicorePlaceholder', 'z. B. "Snake-1", "FOH-Loom"')}
+          onChange={(event) =>
+            updateCable(cable.id, { multicoreName: event.target.value.trim() || undefined })
+          }
+          className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+          title={t(
+            'cable.field.multicoreTitle',
+            'Kabel mit gleichem Namen bilden ein physisches Bündel — die BOM zählt es als 1 Stück.',
+          )}
+        />
+        <datalist id="cp-multicore-names">
+          {[...new Set(cables.map((c) => c.multicoreName).filter((n): n is string => !!n))].map(
+            (n) => (
+              <option key={n} value={n} />
+            ),
+          )}
+        </datalist>
+      </label>
+
       {/* Endpoint editor — inline accordion (open by default) so users can
           re-route a cable from the properties panel without opening a dialog. */}
       <details open className="rounded border border-slate-700 bg-slate-950/50">

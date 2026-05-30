@@ -13,7 +13,7 @@
  */
 
 import { useState } from 'react'
-import { Check, X, Lock } from 'lucide-react'
+import { Check, X, Lock, Upload, Download } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { useSettingsStore } from '../../store/settingsStore'
@@ -180,7 +180,7 @@ export function SharedSyncPanel() {
         onClick={() => { void handlePush() }}
         className="flex items-center gap-1 rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600 disabled:opacity-50"
       >
-        <span>⬆</span>
+        <Icon icon={Upload} size="xs" />
         <span>{t('sync.push', 'Push')}</span>
       </button>
       <button
@@ -190,7 +190,7 @@ export function SharedSyncPanel() {
         onClick={() => { void handlePull() }}
         className="flex items-center gap-1 rounded bg-slate-700 px-2 py-1 text-xs text-white hover:bg-slate-600 disabled:opacity-50"
       >
-        <span>⬇</span>
+        <Icon icon={Download} size="xs" />
         <span>{t('sync.pull', 'Pull')}</span>
       </button>
       {status.message ? (

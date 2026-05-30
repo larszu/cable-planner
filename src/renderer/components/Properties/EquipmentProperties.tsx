@@ -20,6 +20,7 @@ import { useTranslation } from '../../lib/i18n'
 import { DimensionsSection } from './sections/DimensionsSection'
 import { PowerConsumptionSection } from './sections/PowerConsumptionSection'
 import { DisplayPropertiesBlock } from './sections/DisplayPropertiesBlock'
+import { CategoryPropsSection } from './sections/CategoryPropsSection'
 import { DeviceConfigsBlock } from './sections/DeviceConfigsBlock'
 import { NetworkAccessSection } from './sections/NetworkAccessSection'
 import { DeviceKindCards } from './sections/DeviceKindCards'
@@ -34,7 +35,6 @@ import { IdentityBlock } from './sections/IdentityBlock'
 import { NetworkConfigSection } from './sections/NetworkConfigSection'
 import { ModesSection } from './sections/ModesSection'
 import { RackInstanceCard } from './sections/RackInstanceCard'
-import { DimensionsBlock } from './sections/DimensionsBlock'
 import { ReplaceDeviceSection } from './sections/ReplaceDeviceSection'
 
 /** Module-level sensor options so re-renders don't churn the sensor
@@ -68,22 +68,31 @@ export const EquipmentProperties = () => {
   // sich Verkabelung aendert.
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
 
-  if (!equipment) {
-    return <div className="text-xs text-slate-400">{t('inspector.selectEquipment', 'Wähle ein Gerät auf dem Canvas.')}</div>
-  }
-
-
   // v7.4.0 — sortable accordion sections. The parent is `flex flex-col`
   // so CSS `order` works. Non-movable elements (device-kind cards,
   // Name, Category, Rentman badge) have no `order` declared → they
   // default to 0 → render first in JSX order. Each SortableSection
   // sets its own `order` based on the uiStore-persisted user order.
+  //
+  // WICHTIG: ALLE Hooks (sectionOrder/sensors/projectMode) MUESSEN vor dem
+  // `if (!equipment)`-Early-Return stehen (Rules of Hooks) — sonst aendert
+  // sich die Hook-Anzahl wenn die Auswahl zwischen "kein Geraet" und "Geraet"
+  // wechselt ("Rendered more hooks than during the previous render").
   const sectionOrder = useUiStore((s) => s.equipmentSectionOrder)
   const setSectionOrder = useUiStore((s) => s.setEquipmentSectionOrder)
   const dragSensors = useSensors(
     useSensor(PointerSensor, POINTER_SENSOR_OPTIONS),
     useSensor(KeyboardSensor, KEYBOARD_SENSOR_OPTIONS),
   )
+  // v7.9.5 — Property-Panel im Lock-Modus visuell + funktional sperren.
+  // fieldset/disabled blockiert ALLE Form-Controls darunter; das CSS
+  // greift dann mit grauerem Look (pointer-events:none + opacity).
+  const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
+
+  if (!equipment) {
+    return <div className="text-xs text-slate-400">{t('inspector.selectEquipment', 'Wähle ein Gerät auf dem Canvas.')}</div>
+  }
+
   const handleSectionDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
@@ -93,10 +102,6 @@ export const EquipmentProperties = () => {
     setSectionOrder(arrayMove(sectionOrder, oldIndex, newIndex))
   }
 
-  // v7.9.5 — Property-Panel im Lock-Modus visuell + funktional sperren.
-  // fieldset/disabled blockiert ALLE Form-Controls darunter; das CSS
-  // greift dann mit grauerem Look (pointer-events:none + opacity).
-  const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
   const projectIsLocked = projectMode === 'finalized' || projectMode === 'viewer'
 
   return (
@@ -133,13 +138,16 @@ export const EquipmentProperties = () => {
       </label>
 
       <DisplayPropertiesBlock equipment={equipment} />
-      <DimensionsBlock equipment={equipment} />
+      <CategoryPropsSection equipment={equipment} />
 
       <NetworkAccessSection equipment={equipment} />
 
       <PowerConsumptionSection equipment={equipment} />
 
-      {/* v7.9.105 / Issue #216 — Physische Dimensionen (Breite/Höhe/Tiefe). */}
+      {/* #216/#422 — Physische Dimensionen (Breite/Höhe/Tiefe in mm). Eine
+          einzige Sektion (frueher gab es zusaetzlich einen Inline-Block mit
+          Legacy-Feldern dimensionHmm/Wmm/Dmm — die werden beim Project-Load
+          in heightMm/widthMm/depthMm migriert, siehe healProjectPositions). */}
       <DimensionsSection equipment={equipment} />
 
       <NetworkConfigSection equipment={equipment} />

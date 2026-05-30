@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useProjectStore } from '../../../store/projectStore'
 import { useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
@@ -28,12 +29,27 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
     /monitor|display|screen|tv|oled|lcd|led\b|projector|beamer/.test(name) ||
     equipment.resolution !== undefined ||
     equipment.displaySizeInch !== undefined
+  // Ein-/ausklappbar (wie SDI-Caps / Abmessungen). Default offen, wenn schon
+  // Werte gesetzt sind, sonst eingeklappt. <summary> statt Form-Control, damit
+  // das Toggle auch im gesperrten (viewer/finalized) Fieldset bedienbar bleibt.
+  // WICHTIG: useState MUSS vor dem `return null` stehen (Rules of Hooks) —
+  // sonst aendert sich die Hook-Anzahl wenn `looksLikeDisplay` beim Wechsel
+  // des selektierten Geraets umschlaegt ("Rendered more hooks than...").
+  const [open, setOpen] = useState(
+    equipment.resolution !== undefined || equipment.displaySizeInch !== undefined,
+  )
   if (!looksLikeDisplay) return null
   return (
-    <fieldset className="rounded border border-slate-700 p-2">
-      <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
-        {t('display.title', 'Display')}
-      </legend>
+    <details
+      open={open}
+      onToggle={(e) => setOpen(e.currentTarget.open)}
+      className="rounded border border-slate-700 [&_summary]:cursor-pointer"
+    >
+      <summary className="flex items-center gap-1 px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200 [&::-webkit-details-marker]:hidden">
+        <span className="text-slate-500">{open ? '▾' : '▸'}</span>
+        <span className="flex-1">{t('display.title', 'Display')}</span>
+      </summary>
+      <div className="px-2 pb-2">
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
           <span className="mb-1 block text-slate-300">{t('display.resolution', 'Auflösung')}</span>
@@ -70,6 +86,7 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
           />
         </label>
       </div>
-    </fieldset>
+      </div>
+    </details>
   )
 }

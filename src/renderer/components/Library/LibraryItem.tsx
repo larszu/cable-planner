@@ -1,5 +1,5 @@
 import type { EquipmentTemplate } from '../../types/equipment'
-import { Star, Link, Eye, EyeOff } from 'lucide-react'
+import { Star, Link, Eye, EyeOff, Download } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { clearCanvasSelection } from '../../lib/canvasViewport'
@@ -223,7 +223,7 @@ export const LibraryItem = ({
             )}
             aria-label={t('library.item.exportAria', 'Exportieren')}
           >
-            ⬇
+            <Icon icon={Download} size="xs" />
           </button>
         )}
         {onLinkPorts && (
