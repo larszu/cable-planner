@@ -84,6 +84,10 @@ const en: Dict = {
   'app.menu.export.cablesRentman': 'Send cables to Rentman…',
   'app.menu.export.cablesRentmanDisabled':
     'Send cables to Rentman (no project linked)',
+  'app.menu.tools': 'Tools',
+  'app.menu.tools.bandwidth': 'Calculate bandwidth…',
+  'app.menu.tools.power': 'Calculate power consumption…',
+  'app.menu.tools.recStorage': 'Calculate recording storage…',
   'app.menu.help': 'Help',
   'app.menu.help.tour': 'Getting-started tour…',
   'app.editProjectMeta': 'Edit project metadata',
@@ -2222,6 +2226,22 @@ const en: Dict = {
   'calc.greedyExplain':
     'Greedy distribution: sorted by power, each device on the currently least-loaded phase. With symmetric loads three-phase draws only {amps} A per phase; imbalance raises the highest phase current. Target: every phase < 85% load + imbalance < 20%.',
   'calc.topConsumers': 'Top consumers',
+
+  // #404 — Recording-storage calculator
+  'recStorage.title': '💾 Recording storage calculator',
+  'recStorage.intro':
+    'Calculates the storage required for a recording: codec bitrate × duration × channels. Values are approximate without filesystem overhead.',
+  'recStorage.codec': 'Codec / bitrate preset',
+  'recStorage.customMbps': 'Custom bitrate (Mbps)',
+  'recStorage.hours': 'Hours',
+  'recStorage.minutes': 'Minutes',
+  'recStorage.channels': 'Channels',
+  'recStorage.fixedFromDevice': 'taken from device',
+  'recStorage.effectiveBitrate': 'Effective bitrate',
+  'recStorage.duration': 'Duration',
+  'recStorage.perChannel': 'Per channel',
+  'recStorage.total': 'Total',
+  'recStorage.formulaHeader': 'Formula',
 
   // RackAddSplitButton
   'rackAdd.primaryLabel': '+ To rack',
