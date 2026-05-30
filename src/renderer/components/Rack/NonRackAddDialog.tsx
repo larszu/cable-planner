@@ -17,6 +17,7 @@
 import { useState } from 'react'
 import { X, Ruler, Armchair } from 'lucide-react'
 import { Icon } from '../shared/Icon'
+import { Button } from '../shared/Button'
 import type { EquipmentTemplate } from '../../types/equipment'
 import { format, useTranslation } from '../../lib/i18n'
 
@@ -239,20 +240,12 @@ export const NonRackAddDialog = ({
         </label>
 
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600"
-          >
+          <Button variant="secondary" onClick={onCancel}>
             {t('common.cancel', 'Abbrechen')}
-          </button>
-          <button
-            type="button"
-            onClick={submit}
-            className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold hover:bg-emerald-600"
-          >
+          </Button>
+          <Button variant="success" onClick={submit}>
             {t('rack.nonRack.add', 'Hinzufügen')}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

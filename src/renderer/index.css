@@ -247,6 +247,15 @@ body,
 [data-theme="light"] .text-purple-300   { color: #7e22ce; }
 [data-theme="light"] .text-red-400      { color: #dc2626; }
 [data-theme="light"] .text-red-500      { color: #b91c1c; }
+/* UX audit #14 — teal + pink had no light remap (Videohub teal accents,
+ * AtemDialog text-pink-400) → were light-on-light / dark-on-dark. */
+[data-theme="light"] .text-teal-300     { color: #0f766e; }
+[data-theme="light"] .text-pink-400     { color: #be185d; }
+[data-theme="light"] .bg-teal-600       { background-color: #0d9488; }
+[data-theme="light"] .bg-teal-700       { background-color: #0f766e; }
+[data-theme="light"] .bg-teal-950\/30   { background-color: rgba(204,251,241,0.6); }
+[data-theme="light"] .border-teal-500   { border-color: #0d9488; }
+[data-theme="light"] .border-teal-800   { border-color: #5eead4; }
 
 /* ── Active / accent button backgrounds (sky/emerald/amber/red etc. 5xx-7xx) ──
  * These stay vivid for active states, contrast against the light theme is
@@ -511,6 +520,14 @@ textarea:focus-visible {
 [data-theme="light"] select:focus-visible,
 [data-theme="light"] textarea:focus-visible {
   outline-color: var(--cp-accent);
+}
+
+/* ── Consistent disabled affordance (UX audit #45) ──────────────────────────
+ * Many buttons fade via disabled:opacity-* but only some also set the cursor.
+ * This guarantees every disabled control shows not-allowed, app-wide. */
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
 }
 
 /* ── Themed scrollbars (UX audit #54) ───────────────────────────────────────

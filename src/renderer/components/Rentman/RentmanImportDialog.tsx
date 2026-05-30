@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Zap } from 'lucide-react'
+import { Zap, Check, AlertTriangle } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '../shared/Icon'
 import { format, useTranslation } from '../../lib/i18n'
@@ -319,7 +319,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   // `metadata.rentmanCableMap` (used by the export-to-Rentman dialog).
   const [cablePlanSelected, setCablePlanSelected] = useState<Set<string>>(new Set())
   const [cablePlanQty, setCablePlanQty] = useState<Record<string, number>>({})
-  const [cablePlanResult, setCablePlanResult] = useState<string | null>(null)
+  const [cablePlanResult, setCablePlanResult] = useState<{ kind: 'ok' | 'warn'; text: string } | null>(null)
 
   const allCategories = useMemo(() => {
     const set = new Set<string>()
@@ -624,7 +624,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     if (cableBuckets.length === 0) return
     const selectedRows = cableBuckets.filter((bucket) => cablePlanSelected.has(bucket.key))
     if (selectedRows.length === 0) {
-      setCablePlanResult(t('rentman.import.cablePlan.pickAtLeastOne', 'Bitte mindestens einen Kabeltyp auswählen.'))
+      setCablePlanResult({ kind: 'warn', text: t('rentman.import.cablePlan.pickAtLeastOne', 'Bitte mindestens einen Kabeltyp auswählen.') })
       return
     }
     const project = useProjectStore.getState().project
@@ -654,9 +654,10 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       rentmanCablePlan: planPatch,
       rentmanCableMap: mapPatch,
     })
-    setCablePlanResult(
-      format(t('rentman.import.cablePlan.planSaved', '✓ {count} Kabeltyp(en) als Plan übernommen.'), { count: selectedRows.length }),
-    )
+    setCablePlanResult({
+      kind: 'ok',
+      text: format(t('rentman.import.cablePlan.planSaved', '{count} Kabeltyp(en) als Plan übernommen.'), { count: selectedRows.length }),
+    })
   }
 
   const buildImportedBaseTemplate = (
@@ -1643,15 +1644,18 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 </div>
                 <div className="mt-2 flex items-center justify-between text-[11px]">
                   <span
-                    className={
-                      cablePlanResult?.startsWith('✓')
+                    className={`inline-flex items-center gap-1 ${
+                      cablePlanResult?.kind === 'ok'
                         ? 'text-emerald-400'
                         : cablePlanResult
                           ? 'text-amber-300'
                           : 'text-slate-500'
-                    }
+                    }`}
                   >
-                    {cablePlanResult ?? format(t('rentman.import.cablePlan.detected', '{count} Kabeltyp(en) erkannt'), { count: cableBuckets.length })}
+                    {cablePlanResult && (
+                      <Icon icon={cablePlanResult.kind === 'ok' ? Check : AlertTriangle} size="xs" />
+                    )}
+                    {cablePlanResult?.text ?? format(t('rentman.import.cablePlan.detected', '{count} Kabeltyp(en) erkannt'), { count: cableBuckets.length })}
                   </span>
                   <button
                     type="button"

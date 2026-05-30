@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '../shared/Icon'
+import { Spinner } from '../shared/Spinner'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useRentman } from '../../hooks/useRentman'
@@ -2244,7 +2245,7 @@ export const LibraryPanel = () => {
                   className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
                   title={t('library.create.suggest.webTitle', 'Wikipedia + DuckDuckGo Snippet (kein API-Key nötig)')}
                 >
-                  {webLoading ? 'Suche…' : <span className="inline-flex items-center gap-1"><Icon icon={Globe} size="xs" /> Web</span>}
+                  {webLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> Suche…</span> : <span className="inline-flex items-center gap-1"><Icon icon={Globe} size="xs" /> Web</span>}
                 </button>
                 <button
                   type="button"
@@ -2253,7 +2254,7 @@ export const LibraryPanel = () => {
                   className="rounded bg-violet-700 px-2 py-1 hover:bg-violet-600 disabled:opacity-50"
                   title={t('library.create.suggest.geminiTitle', 'Gemini AI — braucht einen API-Key')}
                 >
-                  {aiLoading ? 'Frage…' : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> Gemini</span>}
+                  {aiLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> Frage…</span> : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> Gemini</span>}
                 </button>
               </div>
               {suggestError && (
