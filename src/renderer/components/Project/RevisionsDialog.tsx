@@ -25,7 +25,11 @@ export const RevisionsDialog = () => {
   const t = useTranslation()
   const open = useUiStore((s) => s.revisions.open)
   const close = useUiStore((s) => s.closeRevisions)
-  const revisions = useProjectStore((s) => s.project.revisions ?? [])
+  // WICHTIG: `?? []` MUSS ausserhalb des Selectors stehen. Ein Selector der
+  // `s.project.revisions ?? []` zurueckgibt liefert bei fehlendem Feld bei
+  // JEDEM Render ein neues leeres Array → zustand v5 (useSyncExternalStore)
+  // sieht den Snapshot als geaendert → "Maximum update depth exceeded".
+  const revisions = useProjectStore((s) => s.project.revisions) ?? []
   const commitRevision = useProjectStore((s) => s.commitRevision)
   const restoreRevision = useProjectStore((s) => s.restoreRevision)
   const deleteRevision = useProjectStore((s) => s.deleteRevision)
