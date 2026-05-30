@@ -52,13 +52,13 @@ export const detectLayerForConnector = (
 ): StandardLayer => {
   if (!connectorType) return 'other'
   const ct = String(connectorType).toLowerCase()
-  if (ct === 'bnc' || ct === 'hdmi' || ct === 'displayport' || ct === 'triax' || ct === 'vga' || ct === 'dvi' || ct === 'hd-bnc' || ct === 'mini-hdmi' || ct === 'f-connector') return 'video'
-  if (ct === 'xlr' || ct === 'din' || ct === 'db25' || ct === 'klinke' || ct === 'mini-xlr') return 'audio'
+  if (ct === 'bnc' || ct === 'hdmi' || ct === 'displayport' || ct === 'triax' || ct === 'vga' || ct === 'dvi' || ct === 'hd-bnc' || ct === 'mini-hdmi' || ct === 'f-connector' || ct === 'cinch/rca' || ct === 'scart' || ct === 's-video' || ct === 'mini-bnc' || ct === 'micro-bnc') return 'video'
+  if (ct === 'xlr' || ct === 'din' || ct === 'db25' || ct === 'klinke' || ct === 'mini-xlr' || ct === 'tt/bantam') return 'audio'
   if (ct === 'ethernet/rj45' || ct === 'gg45') return 'network'
   // Fiber kann Video ODER Network sein — ohne weiteren Kontext: Video
   // (für 2110/SDI-Fiber häufiger als reines IT-LAN-Fiber).
   if (ct === 'fiber' || ct === 'sfp' || ct === 'sfp+') return 'video'
-  if (ct === 'usb' || ct === 'usb-c' || ct === 'db9') return 'control'
+  if (ct === 'usb' || ct === 'usb-c' || ct === 'db9' || ct === 'dmx 5-pol (xlr)' || ct === 'dmx 3-pol (xlr)') return 'control'
   if (
     ct === 'iec 230v' ||
     ct === 'powercon' ||

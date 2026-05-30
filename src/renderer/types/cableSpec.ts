@@ -50,6 +50,21 @@ export type SignalStandard =
   | 'RF-VHF'
   | 'RF-2.4G'
   | 'RF-5G'
+  | 'RS-232'
+  | 'RS-422'
+  | 'RS-485'
+  | 'DMX512'
+  | 'RDM'
+  | 'Art-Net'
+  | 'sACN'
+  | 'CVBS'
+  | 'Y/C'
+  | 'YPbPr'
+  | 'RGBHV'
+  | 'MTC'
+  | 'Tally'
+  | 'GPI/GPO'
+  | 'HDBaseT'
   | 'Generic'
 
 /** All valid signal standard values in display order. */
@@ -64,6 +79,8 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
   'NDI', 'NDI-HX', 'Dante', 'AES67', 'ST2110-20', 'ST2110-30', 'ST2110-40',
   'Blackburst', 'Tri-Level', 'Word-Clock', 'PTP', 'LTC',
   'RF-UHF', 'RF-VHF', 'RF-2.4G', 'RF-5G',
+  'RS-232', 'RS-422', 'RS-485', 'DMX512', 'RDM', 'Art-Net', 'sACN',
+  'CVBS', 'Y/C', 'YPbPr', 'RGBHV', 'MTC', 'Tally', 'GPI/GPO', 'HDBaseT',
   'Power-230V', 'Fiber-SM', 'Fiber-MM', 'Generic',
 ]
 
@@ -414,6 +431,108 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 300,
     color: '#b45309',
     notesKey: 'catalog.cable.triax-camera.notes',
+  },
+  {
+    id: 'serial-rs422',
+    name: 'Serielle Steuerung RS-232/422/485 (DB9)',
+    connectorType: 'DB9',
+    standards: ['RS-232', 'RS-422', 'RS-485'],
+    maxLengthMeters: 1200,
+    color: '#fbbf24',
+    notesKey: 'catalog.cable.serial-rs422.notes',
+  },
+  {
+    id: 'vga-de15',
+    name: 'VGA (DE-15)',
+    connectorType: 'VGA',
+    standards: ['RGBHV'],
+    maxLengthMeters: 15,
+    color: '#6366f1',
+    notesKey: 'catalog.cable.vga-de15.notes',
+  },
+  {
+    id: 'dvi-cable',
+    name: 'DVI (Single/Dual-Link)',
+    connectorType: 'DVI',
+    standards: ['RGBHV', 'Generic'],
+    maxLengthMeters: 5,
+    color: '#818cf8',
+    notesKey: 'catalog.cable.dvi-cable.notes',
+  },
+  {
+    id: 'dsub-db25-audio',
+    name: 'DB25 Mehrkanal-Audio (AES59 / TASCAM)',
+    connectorType: 'DB25',
+    standards: ['Analog-Audio', 'AES3'],
+    maxLengthMeters: 30,
+    color: '#fb7185',
+    notesKey: 'catalog.cable.dsub-db25-audio.notes',
+  },
+  {
+    id: 'dmx-5pin',
+    name: 'DMX512 / RDM (5-pol XLR)',
+    connectorType: 'DMX 5-pol (XLR)',
+    compatibleConnectors: ['DMX 3-pol (XLR)'],
+    standards: ['DMX512', 'RDM'],
+    maxLengthMeters: 300,
+    color: '#fb923c',
+    notesKey: 'catalog.cable.dmx-5pin.notes',
+  },
+  {
+    id: 'artnet-sacn',
+    name: 'Art-Net / sACN (Ethernet)',
+    connectorType: 'Ethernet/RJ45',
+    standards: ['Eth-100', 'Eth-1G', 'Art-Net', 'sACN'],
+    maxLengthMeters: 100,
+    color: '#fdba74',
+    notesKey: 'catalog.cable.artnet-sacn.notes',
+  },
+  {
+    id: 'composite-cinch',
+    name: 'Composite / FBAS (Cinch)',
+    connectorType: 'Cinch/RCA',
+    compatibleConnectors: ['BNC'],
+    standards: ['CVBS'],
+    maxLengthMeters: 50,
+    color: '#eab308',
+    notesKey: 'catalog.cable.composite-cinch.notes',
+  },
+  {
+    id: 's-video',
+    name: 'S-Video (Y/C)',
+    connectorType: 'S-Video',
+    standards: ['Y/C'],
+    maxLengthMeters: 10,
+    color: '#ca8a04',
+    notesKey: 'catalog.cable.s-video.notes',
+  },
+  {
+    id: 'component-ypbpr',
+    name: 'Component YPbPr (3× Cinch/BNC)',
+    connectorType: 'Cinch/RCA',
+    compatibleConnectors: ['BNC'],
+    standards: ['YPbPr'],
+    maxLengthMeters: 30,
+    color: '#a16207',
+    notesKey: 'catalog.cable.component-ypbpr.notes',
+  },
+  {
+    id: 'tally-gpi',
+    name: 'Tally / GPI-GPO (DB9 / Kontakt)',
+    connectorType: 'DB9',
+    standards: ['Tally', 'GPI/GPO'],
+    maxLengthMeters: 100,
+    color: '#f59e0b',
+    notesKey: 'catalog.cable.tally-gpi.notes',
+  },
+  {
+    id: 'hdbaset-cat6a',
+    name: 'HDBaseT (Video/Audio/Steuerung/PoH über Cat)',
+    connectorType: 'Ethernet/RJ45',
+    standards: ['HDBaseT', 'Eth-1G'],
+    maxLengthMeters: 100,
+    color: '#2dd4bf',
+    notesKey: 'catalog.cable.hdbaset-cat6a.notes',
   },
 ]
 
