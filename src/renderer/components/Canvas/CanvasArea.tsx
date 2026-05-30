@@ -49,6 +49,8 @@ import {
   setCanvasInteractionLockHandlers,
   setCableRouter,
   setCanvasFitViewHandler,
+  setCanvasDuplicateHandler,
+  setCanvasZoomHandlers,
 } from '../../lib/canvasViewport'
 import { routeCableWithAStar, type HandleSide, type PixelRect } from '../../lib/routeCableWithAStar'
 import { useTranslation } from '../../lib/i18n'
@@ -111,7 +113,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // (#44) so the new device lands where the user pointed instead of always at
   // the viewport origin.
   const lastMousePosRef = useRef<{ x: number; y: number } | null>(null)
-  const { screenToFlowPosition, setViewport, fitView, getEdges } = useReactFlow()
+  const { screenToFlowPosition, setViewport, fitView, getEdges, zoomIn, zoomOut, zoomTo } = useReactFlow()
   const updateCable = useProjectStore((state) => state.updateCable)
   const updateNodeInternals = useUpdateNodeInternals()
   const [interactionLocked, setInteractionLocked] = useState(false)
@@ -175,6 +177,17 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     setCanvasFitViewHandler(() => fitView({ padding: 0.1, duration: 250 }))
     return () => setCanvasFitViewHandler(null)
   }, [fitView])
+
+  // #341 — Zoom rein/raus/100% aus dem "Ansicht"-Menue (Bridge-Pattern
+  // wie fitView). "Einpassen" nutzt weiterhin triggerCanvasFitView.
+  useEffect(() => {
+    setCanvasZoomHandlers({
+      zoomIn: () => zoomIn({ duration: 200 }),
+      zoomOut: () => zoomOut({ duration: 200 }),
+      resetZoom: () => zoomTo(1, { duration: 200 }),
+    })
+    return () => setCanvasZoomHandlers(null)
+  }, [zoomIn, zoomOut, zoomTo])
 
   // v7.8.8 — Register the A*-based cable router. Caller is the cable
   // context menu (and a future Settings toggle for auto-route). We
@@ -1500,6 +1513,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     if (!copySelectionToClipboard()) return
     pasteFromClipboard()
   }, [copySelectionToClipboard, pasteFromClipboard])
+
+  // #340 — "Duplizieren" aus dem Bearbeiten-Menue an die bestehende
+  // Strg+D-Logik anbinden (Bridge, da die Selektion in ReactFlow lebt).
+  useEffect(() => {
+    setCanvasDuplicateHandler(duplicateSelection)
+    return () => setCanvasDuplicateHandler(null)
+  }, [duplicateSelection])
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {

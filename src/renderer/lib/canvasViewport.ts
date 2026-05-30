@@ -83,6 +83,51 @@ export const triggerCanvasFitView = () => {
   }
 }
 
+// #340 — Duplikat der aktuellen Canvas-Auswahl (Strg+D) auch aus dem
+// "Bearbeiten"-Menue ausloesbar. Die Selektion lebt in ReactFlow, also
+// registriert CanvasArea den Handler hier.
+let duplicateHandler: (() => void) | null = null
+export const setCanvasDuplicateHandler = (fn: (() => void) | null) => {
+  duplicateHandler = fn
+}
+export const triggerCanvasDuplicate = () => {
+  try {
+    duplicateHandler?.()
+  } catch {
+    /* no-op */
+  }
+}
+
+// #341 — Zoom-Steuerung (Einpassen via fitView oben; hier rein/raus/100%)
+// aus dem "Ansicht"-Menue. CanvasArea bindet ReactFlows zoomIn/Out/zoomTo.
+let zoomHandlers: { zoomIn: () => void; zoomOut: () => void; resetZoom: () => void } | null = null
+export const setCanvasZoomHandlers = (
+  fns: { zoomIn: () => void; zoomOut: () => void; resetZoom: () => void } | null,
+) => {
+  zoomHandlers = fns
+}
+export const triggerCanvasZoomIn = () => {
+  try {
+    zoomHandlers?.zoomIn()
+  } catch {
+    /* no-op */
+  }
+}
+export const triggerCanvasZoomOut = () => {
+  try {
+    zoomHandlers?.zoomOut()
+  } catch {
+    /* no-op */
+  }
+}
+export const triggerCanvasResetZoom = () => {
+  try {
+    zoomHandlers?.resetZoom()
+  } catch {
+    /* no-op */
+  }
+}
+
 // v7.8.8 — A*-router callback registered by CanvasArea. The context
 // menu and any other non-canvas caller can ask "please re-route cable
 // X using A*" without needing to live inside the React Flow context.
