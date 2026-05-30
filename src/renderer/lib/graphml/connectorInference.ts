@@ -15,6 +15,12 @@ const PATTERNS: Array<{ type: ConnectorType; rx: RegExp }> = [
   { type: 'XLR', rx: /\bXLR\b|\bAES\b|\bMIC\b/i },
   // Video — coax / BNC family
   { type: 'BNC', rx: /\bBNC\b|\bSDI\b|\bHD[-\s]?SDI\b|\b3G[-\s]?SDI\b|\b6G[-\s]?SDI\b|\b12G[-\s]?SDI\b|\bCOAX|\bKOAX/i },
+  // #376 — Reihenfolge: spezifische Triax-Subtypes + SMPTE 304M zuerst,
+  // damit z.B. "TRIAX FISCHER" nicht auf den generischen Triax-Pattern matched.
+  { type: 'Triax (Damar & Hagen)', rx: /\bTRIAX[-\s]+(D[&\s]?H|DAMAR)\b|\bD[&\s]?H[-\s]+TRIAX\b/i },
+  { type: 'Triax (Fischer)', rx: /\bTRIAX[-\s]+FISCHER\b|\bFISCHER[-\s]+TRIAX\b/i },
+  { type: 'LEMO 3K.93C (SMPTE 304M)', rx: /\bLEMO[-\s]?3K\.93C\b|\bLEMO\s+311\b|\b3K\.93C\b/i },
+  { type: 'Neutrik Dragonfly (SMPTE 304M)', rx: /\bDRAGONFLY\b|\bOPTICAL[-\s]?CON\s+DRAGONFLY\b/i },
   { type: 'Triax', rx: /\bTRIAX\b/i },
   // Video — digital
   { type: 'HDMI', rx: /\bHDMI\b/i },

@@ -2832,8 +2832,14 @@ const en: Dict = {
     'MADI AES10 over optical fibre. Long reach, galvanically isolated.',
   'catalog.cable.smpte-297.notes':
     'Hybrid cable with optical SDI link + copper for talkback and power. Camera connection for ENG/studio.',
-  'catalog.cable.smpte-304m.notes':
-    'Triaxial cable for studio cameras (HDTV). Carries video, intercom, talkback and power in one cable.',
+  'catalog.cable.smpte-304m-lemo.notes':
+    'SMPTE 304M hybrid camera cable with LEMO 3K.93C (also called LEMO 311) connector — EBU/broadcast-standard fibre + copper hybrid for studio cameras.',
+  'catalog.cable.smpte-304m-dragonfly.notes':
+    'SMPTE 304M hybrid camera cable with Neutrik opticalCON Dragonfly connector — ruggedised touring/stage variant compatible with LEMO 3K.93C via adapter.',
+  'catalog.cable.triax-dh.notes':
+    'Damar & Hagen triax — analog single-coax for HDTV cameras. Carries video, intercom, talkback, power. Mechanically incompatible with Fischer triax.',
+  'catalog.cable.triax-fischer.notes':
+    'Fischer triax — analog single-coax for HDTV cameras (alternative to Damar & Hagen). Same signals; different connector.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Main standard. Level A recommended; Level B for older equipment.',
@@ -2883,8 +2889,14 @@ const de: Dict = {
     'MADI AES10 über optische Faser. Lange Reichweite, galvanisch getrennt.',
   'catalog.cable.smpte-297.notes':
     'Hybridkabel mit optischer SDI-Strecke + Kupfer für Talkback und Stromversorgung. Kameraanschluss bei ENG/Studio.',
-  'catalog.cable.smpte-304m.notes':
-    'Triaxialkabel für Studio-Kameras (HDTV). Überträgt Video, Interkom, Talkback und Strom in einem Kabel.',
+  'catalog.cable.smpte-304m-lemo.notes':
+    'SMPTE-304M-Hybrid-Kamerakabel mit LEMO 3K.93C (auch LEMO 311) — EBU/Broadcast-Standard für Fiber-+-Kupfer-Hybrid an Studiokameras.',
+  'catalog.cable.smpte-304m-dragonfly.notes':
+    'SMPTE-304M-Hybrid-Kamerakabel mit Neutrik opticalCON Dragonfly — robuste Touring-/Stage-Variante, via Adapter kompatibel zu LEMO 3K.93C.',
+  'catalog.cable.triax-dh.notes':
+    'Damar & Hagen Triax — analoges Single-Coax für HDTV-Kameras (Video + Interkom + Talkback + Strom). Mechanisch NICHT mit Fischer-Triax kompatibel.',
+  'catalog.cable.triax-fischer.notes':
+    'Fischer Triax — analoges Single-Coax für HDTV-Kameras (Alternative zu Damar & Hagen). Gleiche Signale, anderer Stecker.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Hauptstandard. Level A empfohlen; Level B bei älteren Geräten.',
