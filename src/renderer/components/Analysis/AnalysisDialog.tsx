@@ -76,15 +76,21 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
 
-  const { byCategory, totals, missingWeight } = useMemo(() => {
-    const map = new Map<string, { count: number; kg: number; watts: number }>()
+  const { byCategory, totals, missingWeight, hasPrices } = useMemo(() => {
+    const map = new Map<string, { count: number; kg: number; watts: number; eur: number }>()
     let missing = 0
+    let anyPrice = false
     for (const e of equipment) {
       const cat = e.category || t('analysis.uncategorized', 'Ohne Kategorie')
-      const row = map.get(cat) ?? { count: 0, kg: 0, watts: 0 }
+      const row = map.get(cat) ?? { count: 0, kg: 0, watts: 0, eur: 0 }
       row.count += 1
       row.kg += e.weightKg ?? 0
       row.watts += effectiveWatts(e)
+      // #354 — Wert/Angebots-Summe: Stückpreis × 1 (pro Gerät).
+      if (typeof e.priceEUR === 'number') {
+        row.eur += e.priceEUR
+        anyPrice = true
+      }
       map.set(cat, row)
       if (e.weightKg == null) missing += 1
     }
@@ -92,13 +98,20 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
       .map(([category, v]) => ({ category, ...v }))
       .sort((a, b) => b.kg - a.kg)
     const totals = byCategory.reduce(
-      (acc, r) => ({ count: acc.count + r.count, kg: acc.kg + r.kg, watts: acc.watts + r.watts }),
-      { count: 0, kg: 0, watts: 0 },
+      (acc, r) => ({
+        count: acc.count + r.count,
+        kg: acc.kg + r.kg,
+        watts: acc.watts + r.watts,
+        eur: acc.eur + r.eur,
+      }),
+      { count: 0, kg: 0, watts: 0, eur: 0 },
     )
-    return { byCategory, totals, missingWeight: missing }
+    return { byCategory, totals, missingWeight: missing, hasPrices: anyPrice }
   }, [equipment, t])
 
   const exportCsv = () => {
+    const priceHead = hasPrices ? [t('analysis.weight.eur', 'Wert (€)')] : []
+    const priceCell = (eur: number) => (hasPrices ? [eur.toFixed(2)] : [])
     const rows: (string | number)[][] = [
       [
         t('analysis.weight.category', 'Kategorie'),
@@ -106,6 +119,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
         t('analysis.weight.kg', 'Gewicht (kg)'),
         t('analysis.weight.watts', 'Leistung (W)'),
         t('analysis.weight.btu', 'Wärme (BTU/h)'),
+        ...priceHead,
       ],
       ...byCategory.map((r) => [
         r.category,
@@ -113,6 +127,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
         r.kg.toFixed(1),
         Math.round(r.watts),
         Math.round(r.watts * WATT_TO_BTU),
+        ...priceCell(r.eur),
       ]),
       [
         t('analysis.total', 'Gesamt'),
@@ -120,6 +135,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
         totals.kg.toFixed(1),
         Math.round(totals.watts),
         Math.round(totals.watts * WATT_TO_BTU),
+        ...priceCell(totals.eur),
       ],
     ]
     downloadBlob(buildExportFilenameWithSuffix(projectName, 'gewicht-waerme', 'csv'), toCsv(rows), 'text/csv')
@@ -140,7 +156,8 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
             <th className="py-1 pr-2 text-right">{t('analysis.weight.count', 'Anzahl')}</th>
             <th className="py-1 pr-2 text-right">{t('analysis.weight.kg', 'Gewicht (kg)')}</th>
             <th className="py-1 pr-2 text-right">{t('analysis.weight.watts', 'Leistung (W)')}</th>
-            <th className="py-1 text-right">{t('analysis.weight.btu', 'Wärme (BTU/h)')}</th>
+            <th className={`py-1 text-right ${hasPrices ? 'pr-2' : ''}`}>{t('analysis.weight.btu', 'Wärme (BTU/h)')}</th>
+            {hasPrices && <th className="py-1 text-right">{t('analysis.weight.eur', 'Wert (€)')}</th>}
           </tr>
         </thead>
         <tbody>
@@ -150,7 +167,8 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
               <td className="py-1 pr-2 text-right">{r.count}</td>
               <td className="py-1 pr-2 text-right">{r.kg.toFixed(1)}</td>
               <td className="py-1 pr-2 text-right">{Math.round(r.watts)}</td>
-              <td className="py-1 text-right">{Math.round(r.watts * WATT_TO_BTU)}</td>
+              <td className={`py-1 text-right ${hasPrices ? 'pr-2' : ''}`}>{Math.round(r.watts * WATT_TO_BTU)}</td>
+              {hasPrices && <td className="py-1 text-right">{r.eur.toFixed(2)}</td>}
             </tr>
           ))}
           <tr className="font-semibold">
@@ -158,7 +176,8 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
             <td className="py-1 pr-2 text-right">{totals.count}</td>
             <td className="py-1 pr-2 text-right">{totals.kg.toFixed(1)}</td>
             <td className="py-1 pr-2 text-right">{Math.round(totals.watts)}</td>
-            <td className="py-1 text-right">{Math.round(totals.watts * WATT_TO_BTU)}</td>
+            <td className={`py-1 text-right ${hasPrices ? 'pr-2' : ''}`}>{Math.round(totals.watts * WATT_TO_BTU)}</td>
+            {hasPrices && <td className="py-1 text-right">{totals.eur.toFixed(2)}</td>}
           </tr>
         </tbody>
       </table>

@@ -383,6 +383,10 @@ const en: Dict = {
   'eq.field.notes': 'Notes',
   'eq.field.manufacturerUrl': 'Manufacturer link',
   'eq.field.manufacturerUrlHint': 'optional, for datasheet access',
+  // #354 Price / rental field
+  'eq.field.priceEUR': 'Price / rental (€)',
+  'eq.field.priceEURHint': 'for quote export',
+  'eq.field.priceEURPlaceholder': 'e.g. 1200',
   'eq.field.manufacturerUrlOpen': 'Open ↗',
   'eq.field.refImage': 'Reference image',
   'eq.field.refImageHint': 'e.g. port layout',
@@ -2924,6 +2928,7 @@ const en: Dict = {
   'analysis.weight.kg': 'Weight (kg)',
   'analysis.weight.watts': 'Power (W)',
   'analysis.weight.btu': 'Heat (BTU/h)',
+  'analysis.weight.eur': 'Value (€)',
   'analysis.weight.missing': '{n} device(s) without a weight value — add it in the properties.',
   'analysis.network.intro': 'IP/VLAN overview of all network-capable devices with duplicate-IP detection.',
   'analysis.network.device': 'Device',
