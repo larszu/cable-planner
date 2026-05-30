@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { ChevronDown, ChevronRight, Pencil, X } from 'lucide-react'
+import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
 import { bilingualCategoryDialog } from '../../../lib/bilingualCategoryDialog'
@@ -134,9 +136,10 @@ export const LocalEquipmentTab = ({
               type="button"
               onClick={() => setLibrarySearch('')}
               title={t('library.search.clear', 'Suche löschen')}
+              aria-label={t('library.search.clear', 'Suche löschen')}
               className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
             >
-              ✕
+              <Icon icon={X} size="sm" />
             </button>
           ) : (
             <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[9px] uppercase tracking-wider text-slate-600">
@@ -218,8 +221,9 @@ export const LocalEquipmentTab = ({
             type="button"
             onClick={() => setShowNewGroup(false)}
             className="rounded bg-slate-700 px-2 text-xs hover:bg-slate-600"
+            aria-label={t('common.close', 'Schließen')}
           >
-            ✕
+            <Icon icon={X} size="sm" />
           </button>
         </form>
       )}
@@ -324,7 +328,7 @@ export const LocalEquipmentTab = ({
                     className="flex flex-1 min-w-0 items-center gap-1.5 text-left"
                   >
                     <span className="inline-block w-3 text-center text-slate-500">
-                      {collapsed ? '▸' : '▾'}
+                      <Icon icon={collapsed ? ChevronRight : ChevronDown} size="xs" />
                     </span>
                     <span className="flex-1 truncate normal-case tracking-normal">
                       {categoryDisplay(cat, lang, categoryTranslations)}
@@ -353,8 +357,9 @@ export const LocalEquipmentTab = ({
                     }}
                     className="hidden rounded bg-slate-700/80 px-1.5 py-0.5 text-[10px] font-normal normal-case text-slate-200 hover:bg-slate-600 group-hover/cat:block"
                     title={t('library.renameCategory', 'Kategorie umbenennen')}
+                    aria-label={t('library.renameCategory', 'Kategorie umbenennen')}
                   >
-                    ✎
+                    <Icon icon={Pencil} size="xs" />
                   </button>
                   <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-normal text-slate-400">
                     {items.length}
@@ -395,8 +400,9 @@ export const LocalEquipmentTab = ({
                             onClick={() => setSelectedTemplateName(item.name)}
                             className="absolute right-7 top-1 hidden rounded bg-slate-600 px-1 py-0.5 text-[10px] hover:bg-slate-500 group-hover/item:block"
                             title={t('library.template.editTitle', 'Vorlage bearbeiten (Name, Kategorie)')}
+                            aria-label={t('library.template.editTitle', 'Vorlage bearbeiten (Name, Kategorie)')}
                           >
-                            ✎
+                            <Icon icon={Pencil} size="xs" />
                           </button>
                         </div>
                       ))
