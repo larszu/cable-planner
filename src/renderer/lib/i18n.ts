@@ -3132,6 +3132,8 @@ const en: Dict = {
     'USB-C connector, passive up to 2 m. Active TB3 cable up to ~50 cm. Forward-compatible with Thunderbolt 4.',
   'catalog.cable.thunderbolt-4.notes':
     'Same bandwidth as TB3 but stricter certification (2× DP 1.4, 40 Gbps, 100 W PD).',
+  'catalog.cable.ltc-bnc.notes':
+    'LTC longitudinal timecode (SMPTE 12M): an audio-band signal distributed over 75Ω coax (BNC), or via balanced XLR / LEMO into cameras and recorders. A master clock or sync generator typically feeds genlock and timecode together.',
   'catalog.cable.madi-bnc.notes':
     'MADI AES10 over 75Ω coax. Up to 64 ch at 48 kHz or 56 ch at 96 kHz.',
   'catalog.cable.dvb-asi.notes':
@@ -3200,6 +3202,8 @@ const de: Dict = {
     'USB-C Stecker, passiv bis 2 m. Aktives TB3-Kabel bis ~50 cm. Vorwärtskompatibel mit Thunderbolt 4.',
   'catalog.cable.thunderbolt-4.notes':
     'Gleiche Bandbreite wie TB3, aber striktere Zertifizierung (2× DP 1.4, 40Gbps, 100W PD).',
+  'catalog.cable.ltc-bnc.notes':
+    'LTC Longitudinal-Timecode (SMPTE 12M): ein Signal im Audioband, verteilt über 75Ω-Koax (BNC) oder symmetrisch per XLR / LEMO in Kameras und Recorder. Ein Master-Clock bzw. Sync-Generator liefert Genlock und Timecode meist gemeinsam.',
   'catalog.cable.madi-bnc.notes':
     'MADI AES10 über 75Ω-Koax. Bis 64 ch bei 48 kHz oder 56 ch bei 96 kHz.',
   'catalog.cable.dvb-asi.notes':
