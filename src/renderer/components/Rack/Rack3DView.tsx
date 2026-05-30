@@ -743,21 +743,32 @@ const Shelf = ({
 }
 
 /** STL-loaded device geometry. Auto-fits into the HE-box. */
-const DeviceSTL = ({
-  placement,
-  rackDepthMm,
-  totalUnits,
-  selected,
-  onClick,
-}: {
+type DeviceSTLProps = {
   placement: Rack3DPlacement
   rackDepthMm: number
   totalUnits: number
   selected: boolean
   onClick: () => void
-}) => {
-  if (!placement.stlDataUri) return null
-  const geometry = useLoader(STLLoader, placement.stlDataUri)
+}
+
+const DeviceSTL = (props: DeviceSTLProps) => {
+  // Guard at the wrapper level so the hook-driven mesh only mounts when there
+  // is actually an STL to load. useLoader/useMemo can't sit behind an early
+  // return inside one component (rules-of-hooks).
+  const { stlDataUri } = props.placement
+  if (!stlDataUri) return null
+  return <DeviceSTLMesh {...props} stlDataUri={stlDataUri} />
+}
+
+const DeviceSTLMesh = ({
+  placement,
+  rackDepthMm,
+  totalUnits,
+  selected,
+  onClick,
+  stlDataUri,
+}: DeviceSTLProps & { stlDataUri: string }) => {
+  const geometry = useLoader(STLLoader, stlDataUri)
   const yBottom = (totalUnits - placement.startUnit - placement.rackUnits + 1) * HE_HEIGHT_MM
   const heightMm = placement.rackUnits * HE_HEIGHT_MM
   const widthMm = RACK_MOUNT_WIDTH_MM

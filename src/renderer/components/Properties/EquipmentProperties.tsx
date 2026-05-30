@@ -68,22 +68,26 @@ export const EquipmentProperties = () => {
   // sich Verkabelung aendert.
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
 
-  if (!equipment) {
-    return <div className="text-xs text-slate-400">{t('inspector.selectEquipment', 'Wähle ein Gerät auf dem Canvas.')}</div>
-  }
-
-
-  // v7.4.0 — sortable accordion sections. The parent is `flex flex-col`
-  // so CSS `order` works. Non-movable elements (device-kind cards,
-  // Name, Category, Rentman badge) have no `order` declared → they
-  // default to 0 → render first in JSX order. Each SortableSection
-  // sets its own `order` based on the uiStore-persisted user order.
+  // v7.4.0 — sortable accordion sections (CSS `order`, in uiStore persistiert).
+  // Hooks müssen vor dem Early-Return stehen (rules-of-hooks).
   const sectionOrder = useUiStore((s) => s.equipmentSectionOrder)
   const setSectionOrder = useUiStore((s) => s.setEquipmentSectionOrder)
   const dragSensors = useSensors(
     useSensor(PointerSensor, POINTER_SENSOR_OPTIONS),
     useSensor(KeyboardSensor, KEYBOARD_SENSOR_OPTIONS),
   )
+  // v7.9.5 — Lock-Modus (viewer/finalized) sperrt das Property-Panel.
+  const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
+
+  if (!equipment) {
+    return <div className="text-xs text-slate-400">{t('inspector.selectEquipment', 'Wähle ein Gerät auf dem Canvas.')}</div>
+  }
+
+
+  // The parent is `flex flex-col` so CSS `order` works. Non-movable elements
+  // (device-kind cards, Name, Category, Rentman badge) have no `order`
+  // declared → default to 0 → render first. Each SortableSection sets its
+  // own `order` based on the uiStore-persisted user order.
   const handleSectionDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
@@ -93,10 +97,8 @@ export const EquipmentProperties = () => {
     setSectionOrder(arrayMove(sectionOrder, oldIndex, newIndex))
   }
 
-  // v7.9.5 — Property-Panel im Lock-Modus visuell + funktional sperren.
-  // fieldset/disabled blockiert ALLE Form-Controls darunter; das CSS
-  // greift dann mit grauerem Look (pointer-events:none + opacity).
-  const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
+  // Lock-Modus: fieldset/disabled blockiert ALLE Form-Controls darunter; das
+  // CSS greift dann mit grauerem Look (pointer-events:none + opacity).
   const projectIsLocked = projectMode === 'finalized' || projectMode === 'viewer'
 
   return (
