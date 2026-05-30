@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings,
+  ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings, X,
   type LucideIcon,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
@@ -113,15 +113,16 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
             {...drag.headerProps}
             className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2 select-none"
           >
-            <h2 id={titleId} className="text-base font-semibold">
+            <h2 id={titleId} className="text-cp-xl font-semibold">
               {t(`settings.tabTitle.${section}`, TAB_FALLBACK_TITLE[section])}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+              className="inline-flex items-center justify-center rounded px-2 py-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-[var(--cp-text)]"
+              aria-label={t('common.close', 'Schließen')}
             >
-              {t('common.close', 'Schließen')}
+              <Icon icon={X} size="md" />
             </button>
           </header>
 
