@@ -161,12 +161,14 @@ export const MenuBar = ({
               entfernt — war doppelt zur "Drucken"-Sektion im
               Exportieren-&-Drucken-Hub (User-Bug: "Datei → Drucken
               ist doppelt"). */}
-          {/* v7.9.3 — Viewer-Workflow: Plan als .cpviewer für Freelancer
-              exportieren, später deren Anmerkungen zurück mergen. */}
+          {/* v7.9.3 — Viewer-Workflow: Plan als .cpviewer für externe
+              Reviewer exportieren, später deren Anmerkungen zurück
+              mergen. v8.x: Wort "Freelancer" entfernt (#405/#406 —
+              Workflow ist nicht freelancer-spezifisch). */}
           {(onExportViewer || onImportAnnotations) && <MenuSep />}
           {onExportViewer && (
             <MenuItem onClick={onExportViewer} icon="👁">
-              {t('app.menu.file.exportViewer', 'Als Viewer-Datei für Freelancer exportieren…')}
+              {t('app.menu.file.exportViewer', 'Als Viewer-Datei exportieren…')}
             </MenuItem>
           )}
           {onImportAnnotations && (
@@ -221,6 +223,14 @@ export const MenuBar = ({
             icon="⚡"
           >
             {t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
+          </MenuItem>
+          {/* #401 — Rack Builder im Werkzeuge-Menü. Triggert einen leeren
+              Builder; LibraryPanel switched auf Racks-Tab + öffnet Dialog. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().triggerNewRackBuilder()}
+            icon="🗄"
+          >
+            {t('app.menu.tools.newRack', 'Neues Rack erstellen…')}
           </MenuItem>
         </Menu>
 

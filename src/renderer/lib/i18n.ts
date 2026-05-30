@@ -2449,7 +2449,7 @@ const en: Dict = {
   // App.tsx Viewer export
   'app.viewerExport.okTitle': 'Viewer file saved',
   'app.viewerExport.okBody':
-    'Send it to your freelancers/helpers. On opening they are asked for their name — annotations are then auto-attributed.',
+    'Send it to your reviewers/helpers. On opening they are asked for their name — annotations are then auto-attributed.',
   'app.viewerExport.failTitle': 'Viewer export failed',
   // App.tsx Annotations import
   'app.annotationsImport.needDesktop': 'Annotations re-import requires the desktop app.',

@@ -528,7 +528,7 @@ export default function App() {
             `${path}\n\n` +
             t(
               'app.viewerExport.okBody',
-              'Sende sie an deine Freelancer/Helfer. Beim Öffnen werden sie nach ihrem Namen gefragt — Anmerkungen sind dann automatisch attributiert.',
+              'Sende sie an deine Reviewer/Helfer. Beim Öffnen werden sie nach ihrem Namen gefragt — Anmerkungen sind dann automatisch attributiert.',
             ),
           tone: 'success',
         })
