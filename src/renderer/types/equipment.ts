@@ -12,6 +12,10 @@ export type ConnectorType =
   | 'USB-C'
   | 'Triax'
   | 'Wireless/RF'
+  | 'VGA'
+  | 'DVI'
+  | 'DB9'
+  | 'DB25'
   | 'IEC 230V'
   | 'PowerCON'
   | 'Schuko 230V'
@@ -27,7 +31,7 @@ export type ConnectorType =
 /** All valid connector type values in display order. */
 export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
   'XLR', 'BNC', 'HDMI', 'Ethernet/RJ45', 'Fiber', 'SFP', 'SFP+', 'DIN',
-  'DisplayPort', 'USB', 'USB-C', 'Triax', 'Wireless/RF',
+  'DisplayPort', 'VGA', 'DVI', 'USB', 'USB-C', 'Triax', 'DB9', 'DB25', 'Wireless/RF',
   'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker',
   'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Custom',
 ]
