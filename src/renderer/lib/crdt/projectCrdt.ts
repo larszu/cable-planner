@@ -1,81 +1,113 @@
-// #413 — Echtzeit-Kollaboration: CRDT-Fundament (erste Stufe).
+// #413 — Echtzeit-Kollaboration: CRDT-Datenschicht.
 //
-// Dies ist die *Datenschicht* für die spätere Live-Kollaboration: ein
-// Yjs-`Y.Doc`, das den Plan als CRDT spiegelt. Zwei Instanzen, die ihre
+// Ein Yjs-`Y.Doc`, das den Plan als CRDT spiegelt. Zwei Instanzen, die ihre
 // Updates austauschen, konvergieren garantiert auf denselben Stand — ohne
 // zentralen Server, auch bei gleichzeitigen Edits.
 //
-// BEWUSST erste Stufe: nur die `cables`-Collection ist gespiegelt (der am
-// häufigsten gleichzeitig editierte Teil), und es ist noch KEIN Transport
-// angebunden (`y-webrtc`/`y-websocket` kommt als nächster Schritt). Die
-// Slice-Integration (Store ⇄ Y.Doc) und Presence folgen darauf. Der Pfad
-// ist in docs/architecture.md §9.4 skizziert.
+// Stufe 1 (erledigt): nur `cables`. Stufe 2 (hier): das ganze Projekt —
+// `equipment`, `cables`, `locations` als je eigene `Y.Map` (Key = id).
+// Objekte werden als Ganzes gehalten (Konflikt-Granularität „pro Element"),
+// was für die Praxis (zwei Planer bearbeiten verschiedene Geräte/Kabel)
+// ausreicht; feld-granulares CRDT pro Element ist eine spätere Optimierung.
 //
-// Verifizierbar OHNE zweite App-Instanz: `mergeUpdateInto` + `encodeState`
-// erlauben einen Konvergenz-Beweis in einem Prozess (siehe
-// scripts/crdt-convergence-check.mjs).
+// Transport (LoopbackTransport für Tests, später y-webrtc/y-websocket) und
+// die Live-Bindung an den Store liegen in syncTransport.ts / syncManager.ts.
+// Pfad: docs/architecture.md §9.4.
 
 import * as Y from 'yjs'
 import type { Cable } from '../../types/cable'
+import type { EquipmentItem } from '../../types/equipment'
+import type { LocationFrame } from '../../types/location'
 
-/** Name der Yjs-Top-Level-Map, unter der die Kabel liegen. */
+const EQUIPMENT_MAP = 'equipment'
 const CABLES_MAP = 'cables'
+const LOCATIONS_MAP = 'locations'
+
+/** Minimaler Plan-Ausschnitt, den der CRDT spiegelt. */
+export interface CrdtProjectSlice {
+  equipment: EquipmentItem[]
+  cables: Cable[]
+  locations: LocationFrame[]
+}
 
 /**
- * Wrappt ein `Y.Doc` und bietet eine kleine, plan-spezifische API. Die
- * Kabel liegen als `Y.Map<Cable>` (Key = cable.id). Cables werden als ganze
- * Objekte gehalten (nicht feld-granular) — das ist die pragmatische erste
- * Stufe: Konflikt-Granularität ist „pro Kabel", was für die Praxis (zwei
- * Planer ziehen verschiedene Kabel) ausreicht. Feld-granulares CRDT pro
- * Kabel ist eine spätere Optimierung.
+ * Wrappt ein `Y.Doc` und bietet eine plan-spezifische API. Equipment, Kabel
+ * und Locations liegen je als `Y.Map<…>` (Key = element.id).
  */
 export class ProjectCrdt {
   readonly doc: Y.Doc
+  private readonly equipment: Y.Map<EquipmentItem>
   private readonly cables: Y.Map<Cable>
+  private readonly locations: Y.Map<LocationFrame>
 
   constructor(doc: Y.Doc = new Y.Doc()) {
     this.doc = doc
+    this.equipment = doc.getMap<EquipmentItem>(EQUIPMENT_MAP)
     this.cables = doc.getMap<Cable>(CABLES_MAP)
+    this.locations = doc.getMap<LocationFrame>(LOCATIONS_MAP)
   }
 
-  /** Spiegelt eine Kabel-Liste in das Y.Doc (Initial-Load). Bestehende
-   *  Einträge, die nicht mehr in der Liste sind, werden entfernt. Läuft in
-   *  einer Transaction, damit Observer nur ein Update sehen. */
-  loadFromCables(list: Cable[]): void {
+  // ── Voll-Projekt-Sync ────────────────────────────────────────────────
+
+  /** Spiegelt einen Plan-Ausschnitt in das Y.Doc (Initial-Load / Resync).
+   *  Entfernte Elemente werden gelöscht, neue/geänderte gesetzt — alles in
+   *  EINER Transaction, damit Observer nur ein Update sehen. */
+  loadFromProject(slice: CrdtProjectSlice): void {
     this.doc.transact(() => {
-      const incoming = new Set(list.map((c) => c.id))
-      // Entfernte Kabel löschen.
-      for (const id of [...this.cables.keys()]) {
-        if (!incoming.has(id)) this.cables.delete(id)
-      }
-      // Neue/aktualisierte setzen.
-      for (const c of list) this.cables.set(c.id, c)
+      syncMap(this.equipment, slice.equipment)
+      syncMap(this.cables, slice.cables)
+      syncMap(this.locations, slice.locations)
     })
   }
 
-  /** Setzt/aktualisiert ein einzelnes Kabel. */
+  /** Aktueller Plan-Stand aus dem Y.Doc. */
+  toProject(): CrdtProjectSlice {
+    return {
+      equipment: [...this.equipment.values()],
+      cables: [...this.cables.values()],
+      locations: [...this.locations.values()],
+    }
+  }
+
+  // ── Einzel-Mutationen ────────────────────────────────────────────────
+
+  upsertEquipment(item: EquipmentItem): void {
+    this.equipment.set(item.id, item)
+  }
+  removeEquipment(id: string): void {
+    this.equipment.delete(id)
+  }
   upsertCable(cable: Cable): void {
     this.cables.set(cable.id, cable)
   }
-
-  /** Entfernt ein Kabel. */
   removeCable(id: string): void {
     this.cables.delete(id)
   }
+  upsertLocation(loc: LocationFrame): void {
+    this.locations.set(loc.id, loc)
+  }
+  removeLocation(id: string): void {
+    this.locations.delete(id)
+  }
 
-  /** Aktueller Kabel-Stand aus dem Y.Doc als plain-Array. */
+  /** Aktueller Kabel-Stand (Stufe-1-Kompatibilität). */
   toCables(): Cable[] {
     return [...this.cables.values()]
   }
 
-  /** Encodiert den gesamten Doc-State als binäres Update (für Transport
-   *  oder Persistenz). */
+  /** Spiegelt nur die Kabel (Stufe-1-Kompatibilität). */
+  loadFromCables(list: Cable[]): void {
+    this.doc.transact(() => syncMap(this.cables, list))
+  }
+
+  // ── Transport-Primitive ──────────────────────────────────────────────
+
+  /** Gesamter Doc-State als binäres Update (für Transport/Persistenz). */
   encodeState(): Uint8Array {
     return Y.encodeStateAsUpdate(this.doc)
   }
 
-  /** State-Vector für inkrementelle Diffs (nur das senden, was der Peer
-   *  noch nicht hat). */
+  /** State-Vector für inkrementelle Diffs. */
   encodeStateVector(): Uint8Array {
     return Y.encodeStateVector(this.doc)
   }
@@ -85,27 +117,26 @@ export class ProjectCrdt {
     return Y.encodeStateAsUpdate(this.doc, remoteStateVector)
   }
 
-  /** Wendet ein eingehendes Update (von einem Peer) an. CRDT-Merge ist
-   *  kommutativ + idempotent — Reihenfolge und Doppel-Empfang sind egal. */
+  /** Wendet ein eingehendes Update an. CRDT-Merge ist kommutativ +
+   *  idempotent — Reihenfolge und Doppel-Empfang sind egal. */
   applyUpdate(update: Uint8Array): void {
     Y.applyUpdate(this.doc, update)
   }
 
-  /** Registriert einen Listener für lokale UND remote Updates. Liefert das
-   *  binäre Update + ob es vom lokalen Doc stammt (origin). Rückgabe:
-   *  Unsubscribe-Funktion. */
+  /** Wendet ein Remote-Update mit Origin-Markierung an, damit `onUpdate`-
+   *  Listener es als nicht-lokal erkennen (keine Echo-Schleife). */
+  applyRemoteUpdate(update: Uint8Array): void {
+    Y.applyUpdate(this.doc, update, REMOTE_ORIGIN)
+  }
+
+  /** Listener für lokale UND remote Updates. cb bekommt das binäre Update
+   *  + ob es lokal entstand. Rückgabe: Unsubscribe-Funktion. */
   onUpdate(cb: (update: Uint8Array, isLocal: boolean) => void): () => void {
     const handler = (update: Uint8Array, origin: unknown) => {
-      cb(update, origin !== 'remote')
+      cb(update, origin !== REMOTE_ORIGIN)
     }
     this.doc.on('update', handler)
     return () => this.doc.off('update', handler)
-  }
-
-  /** Wendet ein Remote-Update mit korrekter Origin-Markierung an, damit
-   *  `onUpdate`-Listener es als nicht-lokal erkennen (keine Echo-Schleife). */
-  applyRemoteUpdate(update: Uint8Array): void {
-    Y.applyUpdate(this.doc, update, 'remote')
   }
 
   destroy(): void {
@@ -113,10 +144,22 @@ export class ProjectCrdt {
   }
 }
 
+/** Origin-Marker für angewandte Remote-Updates (Echo-Schutz). */
+export const REMOTE_ORIGIN = 'remote'
+
+/** Setzt eine Y.Map auf den Stand einer id-Liste: fehlende löschen, Rest
+ *  setzen. Erwartet, in einer Transaction aufgerufen zu werden. */
+const syncMap = <T extends { id: string }>(map: Y.Map<T>, list: T[]): void => {
+  const incoming = new Set(list.map((x) => x.id))
+  for (const id of [...map.keys()]) {
+    if (!incoming.has(id)) map.delete(id)
+  }
+  for (const x of list) map.set(x.id, x)
+}
+
 /**
  * Konvenienz: führt das Update von `source` in `target` zusammen. Nur für
- * Tests/Proofs — Produktion nutzt den Transport. Liefert true, wenn beide
- * danach denselben Kabel-Stand haben.
+ * Tests/Proofs — Produktion nutzt den Transport.
  */
 export const mergeUpdateInto = (source: ProjectCrdt, target: ProjectCrdt): void => {
   target.applyUpdate(source.encodeState())
