@@ -52,13 +52,13 @@ export const detectLayerForConnector = (
 ): StandardLayer => {
   if (!connectorType) return 'other'
   const ct = String(connectorType).toLowerCase()
-  if (ct === 'bnc' || ct === 'hdmi' || ct === 'displayport' || ct === 'triax') return 'video'
-  if (ct === 'xlr' || ct === 'din') return 'audio'
+  if (ct === 'bnc' || ct === 'hdmi' || ct === 'displayport' || ct === 'triax' || ct === 'vga' || ct === 'dvi') return 'video'
+  if (ct === 'xlr' || ct === 'din' || ct === 'db25') return 'audio'
   if (ct === 'ethernet/rj45') return 'network'
   // Fiber kann Video ODER Network sein — ohne weiteren Kontext: Video
   // (für 2110/SDI-Fiber häufiger als reines IT-LAN-Fiber).
   if (ct === 'fiber' || ct === 'sfp' || ct === 'sfp+') return 'video'
-  if (ct === 'usb' || ct === 'usb-c') return 'control'
+  if (ct === 'usb' || ct === 'usb-c' || ct === 'db9') return 'control'
   if (
     ct === 'iec 230v' ||
     ct === 'powercon' ||

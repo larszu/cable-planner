@@ -71,6 +71,10 @@ export const DEFAULT_CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
   Powerlock: '#1e293b',
   Socapex: '#475569',
   Harting: '#334155',
+  VGA: '#3b82f6',
+  DVI: '#6366f1',
+  DB9: '#10b981',
+  DB25: '#14b8a6',
   Custom: '#94a3b8',
 }
 
