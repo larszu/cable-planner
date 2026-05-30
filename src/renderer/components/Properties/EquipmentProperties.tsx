@@ -35,7 +35,6 @@ import { IdentityBlock } from './sections/IdentityBlock'
 import { NetworkConfigSection } from './sections/NetworkConfigSection'
 import { ModesSection } from './sections/ModesSection'
 import { RackInstanceCard } from './sections/RackInstanceCard'
-import { DimensionsBlock } from './sections/DimensionsBlock'
 import { ReplaceDeviceSection } from './sections/ReplaceDeviceSection'
 
 /** Module-level sensor options so re-renders don't churn the sensor
@@ -135,7 +134,6 @@ export const EquipmentProperties = () => {
 
       <DisplayPropertiesBlock equipment={equipment} />
       <CategoryPropsSection equipment={equipment} />
-      <DimensionsBlock equipment={equipment} />
 
       <NetworkAccessSection equipment={equipment} />
 

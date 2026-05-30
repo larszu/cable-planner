@@ -118,7 +118,7 @@ export interface CablePlannerProject {
    *   - 'viewer': permanent read-only (entstanden durch Import einer
    *     .cpviewer-Datei); nur Annotations können hinzugefügt werden */
   mode?: 'editing' | 'finalized' | 'viewer'
-  /** v7.9.3 — Anmerkungen von externen Reviewern (z.B. Freelancer beim
+  /** v7.9.3 — Anmerkungen von externen Reviewern (z.B. Helfer beim
    *  Aufbau). Werden im Viewer-Modus erstellt und können vom Planer
    *  zurück ins Original gemerged werden. */
   annotations?: ProjectAnnotation[]

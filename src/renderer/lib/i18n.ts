@@ -614,6 +614,7 @@ const en: Dict = {
   // PortList
   'ports.title.inputs': 'Inputs',
   'ports.title.outputs': 'Outputs',
+  'ports.flip': 'Mirror ports (inputs right, outputs left)',
   'ports.add': '+ Port',
   'ports.add.title': 'Add a new port',
   'ports.empty': 'No {kind} yet. Use "+ Port" to add one.',
@@ -1755,14 +1756,6 @@ const en: Dict = {
   'dims.hint':
     'Physical outer dimensions. 19" rack device: 1 U = 44.45 mm, standard width 482 mm, typical depth 400-600 mm. Used by the 3D rack renderer + logistics tools.',
 
-  // DimensionsBlock (legacy fieldset variant)
-  'dimsBlock.title': 'Dimensions (mm)',
-  'dimsBlock.height': 'Height',
-  'dimsBlock.width': 'Width',
-  'dimsBlock.depth': 'Depth',
-  'dimsBlock.rackHint':
-    'Rack device · {he} U. If height is empty, {mm} mm is assumed as physical height (1 U ≈ 44.45 mm).',
-
   // DisplayPropertiesBlock
   'display.title': 'Display',
   'display.resolution': 'Resolution',
@@ -1875,7 +1868,7 @@ const en: Dict = {
   'netAccess.subtitle': 'IP · MAC · S/N · login',
   'netAccess.notesPlaceholder': 'Web UI URL, firmware version, wiring notes, …',
   'flags.title': 'Display & flags',
-  'flags.subtitle': 'compact · colour · mirror ports · packed',
+  'flags.subtitle': 'compact · colour · packed',
   'flags.colorTitle': 'Device node colour',
   'flags.packedTitle':
     'Marks the device as packed. Shown as ✓ on the canvas and as a column in the device BOM.',
@@ -2541,7 +2534,7 @@ const en: Dict = {
   // App.tsx Viewer export
   'app.viewerExport.okTitle': 'Viewer file saved',
   'app.viewerExport.okBody':
-    'Send it to your freelancers/helpers. On opening they are asked for their name — annotations are then auto-attributed.',
+    'Send it to your helpers. On opening they are asked for their name — annotations are then auto-attributed.',
   'app.viewerExport.failTitle': 'Viewer export failed',
   // App.tsx Annotations import
   'app.annotationsImport.needDesktop': 'Annotations re-import requires the desktop app.',
@@ -2892,7 +2885,7 @@ const en: Dict = {
   'app.menu.file.exportJpeg': 'Export plan as JPEG…',
   'app.menu.file.exportPdf': 'Export plan as PDF…',
   'app.menu.file.exportPng': 'Export plan as PNG…',
-  'app.menu.file.exportViewer': 'Export as viewer file for freelancers…',
+  'app.menu.file.exportViewer': 'Export as viewer file…',
   'app.menu.file.importAnnotations': 'Import annotations from viewer file…',
   'app.menu.file.importGraphml': 'Import yEd / GraphML…',
   'app.menu.help.about': 'About Cable Planner…',

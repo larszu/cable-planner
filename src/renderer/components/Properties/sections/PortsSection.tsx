@@ -26,6 +26,17 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
       defaultOpen
     >
       <div className="space-y-2">
+        {/* #419 — "Ports spiegeln" gehört zu den In-/Outputs, nicht in
+            "Darstellung & Flags". Tauscht die Canvas-Seiten von Inputs
+            (sonst links) und Outputs (sonst rechts). */}
+        <label className="flex items-center gap-2 text-[11px] text-slate-300">
+          <input
+            type="checkbox"
+            checked={!!equipment.portsFlipped}
+            onChange={(event) => updateEquipment(equipment.id, { portsFlipped: event.target.checked || undefined })}
+          />
+          {t('ports.flip', 'Ports spiegeln (Inputs rechts, Outputs links)')}
+        </label>
         {/* #317 — Wenn das Gerät bereits Ports hat (was bei Canvas-
             platzierten Geräten der Normalfall ist), brauchen wir den
             AI-Vorschlag-Button hier nicht. Er bleibt für den

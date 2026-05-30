@@ -338,11 +338,12 @@ export interface EquipmentItem {
   resolution?: string
   /** Display diagonal size in inches (monitors / displays). */
   displaySizeInch?: number
-  /** v7.9.131 / Issue #216 — Physische Geraete-Dimensionen in mm
-   *  (Hoehe × Breite × Tiefe). Optional, nur zur Information / fuer
-   *  spaetere 3D-Rack-Layouts. Bei Rack-Geraeten ist rackUnits die
-   *  autoritative Hoehen-Quelle; dimensionHmm ist da redundant aber
-   *  erlaubt eine genauere Angabe (z.B. fuer halb-HE Geraete). */
+  /** @deprecated #422 — Alt-Felder der ersten Dimensions-Sektion
+   *  ("Abmessungen"). Es gab zwei doppelte Dimensions-Sektionen im
+   *  Properties-Panel; die kanonischen Maße leben jetzt ausschließlich in
+   *  `widthMm`/`heightMm`/`depthMm`. `healProjectPositions` migriert vorhandene
+   *  Werte einmalig dorthin und leert diese Felder. Nur noch im Schema, damit
+   *  Alt-Projekte beim Laden migriert werden können — nicht mehr beschreiben. */
   dimensionHmm?: number
   dimensionWmm?: number
   dimensionDmm?: number

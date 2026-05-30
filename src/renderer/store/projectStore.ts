@@ -427,6 +427,16 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
     ...project,
     equipment: project.equipment.map((item) => ({
       ...item,
+      // #422 — Legacy-Abmessungen (dimensionH/W/Dmm) auf die kanonischen
+      // width/height/depthMm migrieren: kanonisch gewinnt, Legacy füllt nur
+      // Lücken. Danach Alt-Felder leeren. Vorher gab es zwei doppelte
+      // Dimensions-Sektionen im Properties-Panel.
+      widthMm: item.widthMm ?? item.dimensionWmm,
+      heightMm: item.heightMm ?? item.dimensionHmm,
+      depthMm: item.depthMm ?? item.dimensionDmm,
+      dimensionHmm: undefined,
+      dimensionWmm: undefined,
+      dimensionDmm: undefined,
       x: r(item.x),
       y: r(item.y),
       width:

@@ -121,7 +121,7 @@ export const registerProjectIpc = () => {
     const target = ensureViewerExtension(filePath)
     // mode='viewer' erzwingen; bestehende Annotations aber NICHT
     // wegwerfen (der Plan-Eigentümer kann auch Pre-Annotations setzen,
-    // z.B. "TODO: Cable XY checken" für die Freelancer).
+    // z.B. "TODO: Cable XY checken" für die Reviewer).
     const safe = JSON.parse(JSON.stringify(project)) as Record<string, unknown>
     safe.mode = 'viewer'
     // viewerSession beim Export leeren — der Reviewer setzt seinen
