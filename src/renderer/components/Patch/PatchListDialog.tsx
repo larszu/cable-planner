@@ -435,6 +435,36 @@ export const PatchListDialog = () => {
     )
   }
 
+  // #353 — Audio-Eingangsliste: die Audio-Layer-Kabel als nummerierte
+  // Kanal-Liste (Ch · Quelle · Port · Stecker · nach Gerät · Länge). Der
+  // klassische FOH-Deliverable; baut auf den vorhandenen Patch-Rows auf.
+  const exportInputList = () => {
+    const audioRows = filtered.filter((r) => r.layer === 'audio')
+    const escape = (v: unknown) => {
+      const s = sanitizeForPdf(String(v ?? ''))
+      return /[";\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+    }
+    const header = [
+      t('inputList.col.ch', 'Ch'),
+      t('inputList.col.source', 'Quelle'),
+      t('inputList.col.port', 'Port'),
+      t('inputList.col.connector', 'Stecker'),
+      t('inputList.col.toDevice', 'nach Gerät'),
+      t('export.bom.csv.lengthM', 'Länge (m)'),
+    ]
+    const lines = [
+      header.join(';'),
+      ...audioRows.map((r, i) =>
+        [String(i + 1), r.fromDevice, r.fromPort, r.type, r.toDevice, r.length || ''].map(escape).join(';'),
+      ),
+    ]
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName || 'cable-planner', 'eingangsliste', 'csv'),
+      '﻿' + lines.join('\r\n'),
+      'text/csv;charset=utf-8',
+    )
+  }
+
   return (
     <ModalShell
       open={open}
@@ -496,6 +526,16 @@ export const PatchListDialog = () => {
             >
               {t('patchList.exportLabelCsv', '🏷 Etiketten-CSV')}
             </button>
+            {/* #353 — Audio-Eingangsliste (nur sichtbar wenn Audio-Kabel da). */}
+            {filtered.some((r) => r.layer === 'audio') && (
+              <button
+                type="button"
+                onClick={exportInputList}
+                className="rounded bg-purple-700 px-3 py-1 text-xs hover:bg-purple-600"
+              >
+                {t('patchList.exportInputList', '🎚 Eingangsliste')}
+              </button>
+            )}
           </div>
         </div>
       }
