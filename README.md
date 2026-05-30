@@ -42,51 +42,36 @@ It is designed for real-world production environments such as studios, OB vans, 
 
 ## 📸 Screenshots
 
-> Images live in [`docs/screenshots/`](docs/screenshots/). Slots marked
-> **TODO: capture** still need a real screen grab — see the capture **and
-> redaction** guide in [`docs/screenshots/README.md`](docs/screenshots/README.md).
-> ⚠️ Every screenshot must be scrubbed of customer-identifying data before
-> it is committed (project/client names, personal names).
+> All images are captured from a **neutral demo project** (generic camera /
+> switcher / monitor names) — no customer data. Images live in
+> [`docs/screenshots/`](docs/screenshots/); see the capture guide in
+> [`docs/screenshots/README.md`](docs/screenshots/README.md).
 
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="docs/screenshots/canvas.gif" alt="Node-based cable canvas with equipment nodes and routed connections" width="420" /><br />
-      <b>Visual cable canvas</b><br /><sub><i>TODO: capture (animated)</i></sub>
+      <img src="docs/screenshots/properties.png" alt="Device properties panel showing ports, colour, dimensions and ATEM tools" width="420" /><br />
+      <b>Device &amp; location properties</b>
     </td>
     <td width="50%" align="center">
-      <img src="docs/screenshots/rack-3d.png" alt="3D rack builder showing rack-mounted devices" width="420" /><br />
-      <b>3D rack builder</b><br /><sub><i>TODO: capture</i></sub>
+      <img src="docs/screenshots/atem-multiview.png" alt="ATEM multiviewer layout editor with program and preview windows" width="420" /><br />
+      <b>ATEM multiviewer editor</b>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="docs/screenshots/atem-multiview.png" alt="ATEM multiviewer layout editor" width="420" /><br />
-      <b>ATEM multiview editor</b>
-    </td>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/export.png" alt="Export and print hub with PDF / PNG / JPEG options" width="420" /><br />
+      <img src="docs/screenshots/export.png" alt="Export and print hub with PDF, PNG, JPEG, SVG options and layer filter" width="420" /><br />
       <b>Export &amp; print hub</b>
     </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/bom.png" alt="Cable bill of materials aggregated by connector type and length" width="420" /><br />
+      <b>Cable bill of materials</b>
+    </td>
   </tr>
   <tr>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/patch-sheets.png" alt="Per-device patch sheet generator" width="420" /><br />
+    <td colspan="2" align="center">
+      <img src="docs/screenshots/patch-sheets.png" alt="Per-device patch sheet generator with device selection" width="420" /><br />
       <b>Per-device patch sheets</b>
-    </td>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/patch-pdf.png" alt="Generated patch-list PDF with inputs and outputs" width="420" /><br />
-      <b>Generated patch-list PDF</b><br /><sub><i>TODO: capture</i></sub>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/bom.png" alt="Location bill of materials with cable and device totals" width="420" /><br />
-      <b>Bill of materials (BOM)</b>
-    </td>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/properties.png" alt="Device and location properties panel" width="420" /><br />
-      <b>Properties panel</b>
     </td>
   </tr>
 </table>
@@ -125,7 +110,7 @@ It is designed for real-world production environments such as studios, OB vans, 
 - Preconfigured source mapping
 - Exportable production configs
 
-Compatible with Blackmagic ATEM Television Studio systems.
+Compatible with Blackmagic ATEM switchers (Television Studio, Constellation, and M/E models).
 
 ---
 
@@ -140,8 +125,8 @@ Designed for Blackmagic Videohub infrastructure.
 
 ---
 
-### 📡 Rentman Integration
-- Secure API integration with :contentReference[oaicite:2]{index=2}
+### 🔗 Rentman Integration
+- Secure API integration with the Rentman rental-management platform
 - Import projects, equipment, and categories
 - Token-based authentication (encrypted local storage)
 - No credentials stored in source code
@@ -168,10 +153,56 @@ Designed for Blackmagic Videohub infrastructure.
 ---
 
 ## ⚙️ Experimental Features
-- 📦 Cable Bill of Materials (BOM) generator *(in progress)*
-- 🌐 Network / Sync collaboration system *(planned)*
-- 🔌 Extended device integrations (ATEM, Videohub, etc.)
-- 🧪 Greengo configuration export *(experimental)*
+- 🌐 Shared network-drive sync for multi-planner collaboration *(experimental)*
+- 🗄️ 3D rack builder with STL export *(in progress)*
+- 🎧 GreenGo intercom configuration export *(experimental)*
+- 📱 Mobile build-day viewer (LAN + QR) for field technicians
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+| ----- | ---------- |
+| Desktop shell | **Electron** |
+| UI | **React 19** + **TypeScript** |
+| Canvas | **React Flow** (node graph) |
+| 3D rack view | **three.js** / react-three-fiber |
+| Styling | **Tailwind CSS** (token-based theming) |
+| State | **Zustand** stores with localStorage autosave |
+| Build | **Vite** |
+| Export | **jsPDF** (vector + raster PDF, PNG/JPEG/SVG) |
+
+The app is **offline-first**: every project is a local JSON file, all
+state lives on-device, and integrations (Rentman, ATEM, Videohub) are opt-in.
+
+---
+
+## 🚀 Getting Started
+
+**Prerequisites:** [Node.js](https://nodejs.org/) 20+ and npm.
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Run the desktop app in development (Vite + Electron, hot-reload)
+npm run dev
+
+# 3. Type-check, lint
+npx tsc -p tsconfig.app.json --noEmit
+npm run lint
+
+# 4. Production build (renderer + main + preload)
+npm run build
+
+# 5. Package distributable installers (macOS / Windows)
+npm run dist
+```
+
+> Tip: `npm run dev` launches the full Electron shell. The renderer also runs
+> in a plain browser (`npm run dev:renderer` → `localhost:5173`) for quick UI
+> work, though desktop-only features (file I/O, ATEM/LAN) are inert there.
 
 ---
 
