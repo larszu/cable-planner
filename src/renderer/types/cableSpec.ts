@@ -21,6 +21,7 @@ export type SignalStandard =
   | 'Eth-10G'
   | 'Analog-Audio'
   | 'AES3'
+  | 'AES3id'
   | 'USB-2.0'
   | 'USB-3.x'
   | 'Power-230V'
@@ -57,7 +58,7 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
   'HDMI-1.4', 'HDMI-2.0', 'HDMI-2.1',
   'DP-1.2', 'DP-1.4', 'DP-2.0',
   'Eth-100', 'Eth-1G', 'Eth-10G',
-  'Analog-Audio', 'AES3', 'USB-2.0', 'USB-3.x',
+  'Analog-Audio', 'AES3', 'AES3id', 'USB-2.0', 'USB-3.x',
   'Thunderbolt-3', 'Thunderbolt-4',
   'MADI', 'DVB-ASI', 'SMPTE-297', 'SMPTE-304M', 'SMPTE-311M',
   'NDI', 'NDI-HX', 'Dante', 'AES67', 'ST2110-20', 'ST2110-30', 'ST2110-40',
@@ -327,6 +328,15 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 200,
     color: '#0891b2',
     notesKey: 'catalog.cable.madi-bnc.notes',
+  },
+  {
+    id: 'aes3id-bnc',
+    name: 'AES3id (BNC, 75Ω)',
+    connectorType: 'BNC',
+    standards: ['AES3id'],
+    maxLengthMeters: 100,
+    color: '#0891b2',
+    notesKey: 'catalog.cable.aes3id-bnc.notes',
   },
   {
     id: 'dvb-asi',

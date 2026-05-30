@@ -3136,6 +3136,8 @@ const en: Dict = {
     'LTC longitudinal timecode (SMPTE 12M): an audio-band signal distributed over 75Ω coax (BNC), or via balanced XLR / LEMO into cameras and recorders. A master clock or sync generator typically feeds genlock and timecode together.',
   'catalog.cable.madi-bnc.notes':
     'MADI AES10 over 75Ω coax. Up to 64 ch at 48 kHz or 56 ch at 96 kHz.',
+  'catalog.cable.aes3id-bnc.notes':
+    'AES3id: AES3 digital audio over 75Ω unbalanced coax (BNC) — the BNC variant of AES/EBU. One stereo pair per coax, with longer reach than balanced AES3 over XLR. Common on routers and broadcast gear.',
   'catalog.cable.dvb-asi.notes':
     'DVB-ASI: MPEG transport stream over 75Ω coax (BNC), up to 270 Mbit/s. Encoder/mux/modulator/playout interconnect in headends and OB trucks.',
   'catalog.cable.madi-optical.notes':
@@ -3206,6 +3208,8 @@ const de: Dict = {
     'LTC Longitudinal-Timecode (SMPTE 12M): ein Signal im Audioband, verteilt über 75Ω-Koax (BNC) oder symmetrisch per XLR / LEMO in Kameras und Recorder. Ein Master-Clock bzw. Sync-Generator liefert Genlock und Timecode meist gemeinsam.',
   'catalog.cable.madi-bnc.notes':
     'MADI AES10 über 75Ω-Koax. Bis 64 ch bei 48 kHz oder 56 ch bei 96 kHz.',
+  'catalog.cable.aes3id-bnc.notes':
+    'AES3id: AES3-Digitalaudio über 75Ω-Koax unsymmetrisch (BNC) — die BNC-Variante von AES/EBU. Ein Stereopaar pro Koax, größere Reichweite als symmetrisches AES3 über XLR. Verbreitet an Routern und Broadcast-Geräten.',
   'catalog.cable.dvb-asi.notes':
     'DVB-ASI: MPEG-Transportstrom über 75Ω-Koax (BNC), bis 270 Mbit/s. Verbindung zwischen Encoder/Mux/Modulator/Playout in Kopfstellen und Ü-Wagen.',
   'catalog.cable.madi-optical.notes':
