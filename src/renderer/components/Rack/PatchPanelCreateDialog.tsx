@@ -20,6 +20,8 @@ import { ModalShell } from '../shared/ModalShell'
 import { ALL_CONNECTOR_TYPES, type ConnectorType, type EquipmentTemplate } from '../../types/equipment'
 import { useUiStore } from '../../store/uiStore'
 import { format, useTranslation } from '../../lib/i18n'
+import { ConnectorPicker } from '../shared/ConnectorPicker'
+import { connectorGender, connectorLabel } from '../../lib/connectorCatalog'
 
 interface PatchPanelCreateDialogProps {
   open: boolean
@@ -56,8 +58,11 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
   // hinterlegt und sollen im Patch-Builder ebenfalls verfügbar sein.
   const customConnectorTypes = useUiStore((s) => s.customConnectorTypes)
 
-  const allConnectors = useMemo<ConnectorType[]>(
-    () => [...ALL_CONNECTOR_TYPES, ...customConnectorTypes] as ConnectorType[],
+  // v7.9.75 — Legacy- + Custom-Typen, die der ConnectorPicker zusätzlich zum
+  // kategorisierten Katalog einblendet (unter "Allgemein"), damit nichts aus
+  // der bisherigen Auswahl verloren geht.
+  const extraConnectorTypes = useMemo<string[]>(
+    () => [...ALL_CONNECTOR_TYPES, ...customConnectorTypes],
     [customConnectorTypes],
   )
 
@@ -87,12 +92,16 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
         name: `${p.label} (Front)`,
         type: p.frontConnectorType,
         connectorType: p.frontConnectorType,
+        // #170 — Katalog-Stecker tragen ihr Geschlecht (XLR 3 Male/Female …);
+        // wird als ♂/♀ am Port gezeigt und in Patchliste/Etiketten genutzt.
+        gender: connectorGender(p.frontConnectorType),
       })),
       outputs: ports.map((p) => ({
         id: uuidv4(),
         name: `${p.label} (Rear)`,
         type: p.rearConnectorType,
         connectorType: p.rearConnectorType,
+        gender: connectorGender(p.rearConnectorType),
       })),
       isRackDevice: true,
       isPatchPanel: true,
@@ -101,8 +110,8 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
       width: 240,
       height: 80 + Math.max(heightUnits, 1) * 22,
       notes: adapterMode
-        ? `${portCount}-fach Adapter-Patchfeld: Front ${frontConnector} ↔ Rear ${rearConnector}.${mountSide !== 'full' ? ` Mount: ${mountSide}.` : ''}`
-        : `${portCount}-fach Patchfeld, ${frontConnector}.${mountSide !== 'full' ? ` Mount: ${mountSide}.` : ''}`,
+        ? `${portCount}-fach Adapter-Patchfeld: Front ${connectorLabel(frontConnector)} ↔ Rear ${connectorLabel(rearConnector)}.${mountSide !== 'full' ? ` Mount: ${mountSide}.` : ''}`
+        : `${portCount}-fach Patchfeld, ${connectorLabel(frontConnector)}.${mountSide !== 'full' ? ` Mount: ${mountSide}.` : ''}`,
     }
     onCreated(template)
     onClose()
@@ -246,32 +255,26 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                 <span className="mb-1 block text-xs text-slate-400">
                   {adapterMode ? t('rack.patchPanel.frontConnector', 'Front-Connector') : t('rack.patchPanel.bothConnector', 'Connector-Typ (beide Seiten)')}
                 </span>
-                <select
+                <ConnectorPicker
                   value={frontConnector}
-                  onChange={(e) => setFrontConnector(e.target.value as ConnectorType)}
-                  className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5"
-                >
-                  {allConnectors.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(id) => setFrontConnector(id as ConnectorType)}
+                  extraTypes={extraConnectorTypes}
+                  ariaLabel={
+                    adapterMode
+                      ? t('rack.patchPanel.frontConnector', 'Front-Connector')
+                      : t('rack.patchPanel.bothConnector', 'Connector-Typ (beide Seiten)')
+                  }
+                />
               </label>
               {adapterMode && (
                 <label className="block">
                   <span className="mb-1 block text-xs text-slate-400">{t('rack.patchPanel.rearConnector', 'Rear-Connector')}</span>
-                  <select
+                  <ConnectorPicker
                     value={rearConnector}
-                    onChange={(e) => setRearConnector(e.target.value as ConnectorType)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5"
-                  >
-                    {allConnectors.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(id) => setRearConnector(id as ConnectorType)}
+                    extraTypes={extraConnectorTypes}
+                    ariaLabel={t('rack.patchPanel.rearConnector', 'Rear-Connector')}
+                  />
                 </label>
               )}
             </div>
@@ -313,35 +316,23 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                         />
                       </td>
                       <td className="px-2 py-0.5">
-                        <select
+                        <ConnectorPicker
                           value={perPortOverrides[idx]?.front ?? frontConnector}
-                          onChange={(e) =>
-                            setOverride(idx, { front: e.target.value as ConnectorType })
-                          }
-                          className="w-full rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5"
-                        >
-                          {allConnectors.map((c) => (
-                            <option key={c} value={c}>
-                              {c}
-                            </option>
-                          ))}
-                        </select>
+                          onChange={(id) => setOverride(idx, { front: id as ConnectorType })}
+                          extraTypes={extraConnectorTypes}
+                          size="sm"
+                          ariaLabel={`${t('rack.patchPanel.col.front', 'Front')} ${idx + 1}`}
+                        />
                       </td>
                       {adapterMode && (
                         <td className="px-2 py-0.5">
-                          <select
+                          <ConnectorPicker
                             value={perPortOverrides[idx]?.rear ?? rearConnector}
-                            onChange={(e) =>
-                              setOverride(idx, { rear: e.target.value as ConnectorType })
-                            }
-                            className="w-full rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5"
-                          >
-                            {allConnectors.map((c) => (
-                              <option key={c} value={c}>
-                                {c}
-                              </option>
-                            ))}
-                          </select>
+                            onChange={(id) => setOverride(idx, { rear: id as ConnectorType })}
+                            extraTypes={extraConnectorTypes}
+                            size="sm"
+                            ariaLabel={`${t('rack.patchPanel.col.rear', 'Rear')} ${idx + 1}`}
+                          />
                         </td>
                       )}
                     </tr>

@@ -1713,6 +1713,18 @@ const en: Dict = {
   'rack.patchPanel.col.rear': 'Rear',
   'rack.patchPanel.create': 'Create patch panel',
 
+  // Connector catalog — categories + visual picker (#170)
+  'connector.cat.audio': 'Audio',
+  'connector.cat.midi': 'MIDI',
+  'connector.cat.video': 'Video',
+  'connector.cat.data': 'Data',
+  'connector.cat.fiber': 'Fibre',
+  'connector.cat.power': 'Power',
+  'connector.cat.multifunction': 'Multifunction',
+  'connector.cat.general': 'General',
+  'connector.picker.search': 'Search connector…',
+  'connector.picker.noResults': 'No connector found',
+
   // Rack — RackShelfCreateDialog
   'rack.shelf.title': 'Create rack shelf',
   'rack.shelf.name': 'Name',
