@@ -420,6 +420,7 @@ const buildCanvasPdf = async (
             }. Tiling-Fallback Kachel ${idx}/${tileCols * tileRows}: ${
               tileErr instanceof Error ? tileErr.message : 'unbekannt'
             }`,
+            { cause: tileErr },
           )
         }
       }

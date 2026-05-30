@@ -20,6 +20,17 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
+      // Honour the codebase-wide `_`-prefix convention for intentionally
+      // unused identifiers (params, vars, caught errors). Used pervasively
+      // (`_event`, `_item`, `_row`, `_onClose`, …).
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       // Guard against text-quality regressions:
       //  - "stripped umlauts" (e.g. "Gerat" instead of "Gerät") which used to
       //    sneak in via tools that ANSI-flatten our UTF-8 source files.
@@ -86,6 +97,14 @@ export default defineConfig([
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
     },
   },
 ])

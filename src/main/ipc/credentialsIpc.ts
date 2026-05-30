@@ -50,7 +50,6 @@ export const registerCredentialsIpc = () => {
         ).then((response) => {
           const status = response.status
           if (status === 401 || status === 403) {
-            // eslint-disable-next-line no-throw-literal
             throw { __probe: 'auth-denied', status }
           }
         })

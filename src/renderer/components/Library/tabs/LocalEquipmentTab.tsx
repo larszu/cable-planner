@@ -321,7 +321,8 @@ export const LocalEquipmentTab = ({
                     onClick={() =>
                       setCollapsedCats((prev) => {
                         const next = new Set(prev)
-                        collapsed ? next.delete(cat) : next.add(cat)
+                        if (collapsed) next.delete(cat)
+                        else next.add(cat)
                         return next
                       })
                     }

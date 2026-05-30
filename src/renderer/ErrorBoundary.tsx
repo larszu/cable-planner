@@ -181,7 +181,6 @@ export class ErrorBoundary extends Component<Props, State> {
     // Console too — DevTools users see the full picture even if the
     // bridge call dropped.
     try {
-      // eslint-disable-next-line no-console
       console.error('[Cable Planner ErrorBoundary]', error, info, '\nDIAGNOSTIC:\n', diagnostic)
     } catch {
       /* ignore */
