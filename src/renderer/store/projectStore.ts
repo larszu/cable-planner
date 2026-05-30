@@ -410,23 +410,57 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
   const r = (v: unknown): number => snapVal(v, 0)
   return {
     ...project,
-    equipment: project.equipment.map((item) => ({
-      ...item,
-      x: r(item.x),
-      y: r(item.y),
-      width:
-        typeof item.width === 'number'
-          ? snap > 0
-            ? Math.ceil(item.width / snap) * snap
-            : Math.round(item.width)
-          : item.width,
-      height:
-        typeof item.height === 'number'
-          ? snap > 0
-            ? Math.ceil(item.height / snap) * snap
-            : Math.round(item.height)
-          : item.height,
-    })),
+    equipment: project.equipment.map((item) => {
+      // #422 — Legacy-Dimensions-Migration: dimensionHmm/Wmm/Dmm waren das
+      // erste Schema (v7.9.131 / #216), wurden aber spaeter durch
+      // heightMm/widthMm/depthMm ersetzt. Beide Felder gleichzeitig zu
+      // editieren ist verwirrend (zwei "Dimensionen"-Sektionen). Beim Load
+      // kopieren wir die Legacy-Werte in die modernen Felder (wenn dort
+      // noch nichts steht) und entsorgen die Legacy-Felder.
+      const legacy = item as {
+        dimensionHmm?: number
+        dimensionWmm?: number
+        dimensionDmm?: number
+      }
+      let migrated: Record<string, unknown> | null = null
+      if (
+        legacy.dimensionHmm !== undefined ||
+        legacy.dimensionWmm !== undefined ||
+        legacy.dimensionDmm !== undefined
+      ) {
+        migrated = { ...item }
+        if (item.heightMm === undefined && typeof legacy.dimensionHmm === 'number') {
+          migrated.heightMm = legacy.dimensionHmm
+        }
+        if (item.widthMm === undefined && typeof legacy.dimensionWmm === 'number') {
+          migrated.widthMm = legacy.dimensionWmm
+        }
+        if (item.depthMm === undefined && typeof legacy.dimensionDmm === 'number') {
+          migrated.depthMm = legacy.dimensionDmm
+        }
+        delete migrated.dimensionHmm
+        delete migrated.dimensionWmm
+        delete migrated.dimensionDmm
+      }
+      const base = (migrated ?? item) as EquipmentItem
+      return {
+        ...base,
+        x: r(base.x),
+        y: r(base.y),
+        width:
+          typeof base.width === 'number'
+            ? snap > 0
+              ? Math.ceil(base.width / snap) * snap
+              : Math.round(base.width)
+            : base.width,
+        height:
+          typeof base.height === 'number'
+            ? snap > 0
+              ? Math.ceil(base.height / snap) * snap
+              : Math.round(base.height)
+            : base.height,
+      }
+    }),
     cables: project.cables.map((c) => {
       let patched = c
       if (c.waypoints && c.waypoints.length > 0) {

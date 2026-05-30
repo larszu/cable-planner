@@ -1677,14 +1677,6 @@ const en: Dict = {
   'dims.hint':
     'Physical outer dimensions. 19" rack device: 1 U = 44.45 mm, standard width 482 mm, typical depth 400-600 mm. Used by the 3D rack renderer + logistics tools.',
 
-  // DimensionsBlock (legacy fieldset variant)
-  'dimsBlock.title': 'Dimensions (mm)',
-  'dimsBlock.height': 'Height',
-  'dimsBlock.width': 'Width',
-  'dimsBlock.depth': 'Depth',
-  'dimsBlock.rackHint':
-    'Rack device · {he} U. If height is empty, {mm} mm is assumed as physical height (1 U ≈ 44.45 mm).',
-
   // DisplayPropertiesBlock
   'display.title': 'Display',
   'display.resolution': 'Resolution',
