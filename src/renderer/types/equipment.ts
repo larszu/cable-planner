@@ -10,7 +10,19 @@ export type ConnectorType =
   | 'DisplayPort'
   | 'USB'
   | 'USB-C'
+  /** Generic Triax-Single-Coax (analoge HDTV-Kamerakabel-Strecke). */
   | 'Triax'
+  /** #376 — Triax-Subtypes je System/Hersteller. Mechanisch teilweise
+   *  inkompatibel zueinander, deshalb separat gefuehrt damit die
+   *  BOM/Patch-Liste den richtigen Stecker zeigt. */
+  | 'Triax (Damar & Hagen)'
+  | 'Triax (Fischer)'
+  /** #376 — SMPTE 304M Hybrid-Fiber-Kamerakabel-Stecker. Mechanisch
+   *  unabhaengig vom (analogen) Triax. Lemo 3K.93C/311 ist der EBU-
+   *  Industrie-Standard; Neutrik OpticalCON Dragonfly ist eine
+   *  Touring/Stage-Variante. */
+  | 'LEMO 3K.93C (SMPTE 304M)'
+  | 'Neutrik Dragonfly (SMPTE 304M)'
   | 'Wireless/RF'
   | 'IEC 230V'
   | 'PowerCON'
@@ -21,7 +33,10 @@ export type ConnectorType =
 /** All valid connector type values in display order. */
 export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
   'XLR', 'BNC', 'HDMI', 'Ethernet/RJ45', 'Fiber', 'SFP', 'SFP+', 'DIN',
-  'DisplayPort', 'USB', 'USB-C', 'Triax', 'Wireless/RF',
+  'DisplayPort', 'USB', 'USB-C',
+  'Triax', 'Triax (Damar & Hagen)', 'Triax (Fischer)',
+  'LEMO 3K.93C (SMPTE 304M)', 'Neutrik Dragonfly (SMPTE 304M)',
+  'Wireless/RF',
   'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker', 'Custom',
 ]
 
