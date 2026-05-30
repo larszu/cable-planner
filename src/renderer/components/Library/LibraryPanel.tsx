@@ -130,6 +130,8 @@ export const LibraryPanel = () => {
   const clearRackBuilderEditFromBlackBoxTrigger = useUiStore(
     (s) => s.clearRackBuilderEditFromBlackBoxTrigger,
   )
+  // #401 — Werkzeuge → Rack Builder oeffnet einen leeren RackBuilder.
+  const newRackBuilderTrigger = useUiStore((s) => s.newRackBuilderTrigger)
   useEffect(() => {
     if (!rackBuilderSeedTrigger || rackBuilderSeedTrigger.length === 0) return
     // Resolve the selected equipment to a synthesized GroupPreset
@@ -181,6 +183,18 @@ export const LibraryPanel = () => {
     setTab('racks')
     clearRackBuilderSeedTrigger()
   }, [rackBuilderSeedTrigger, equipmentItems, clearRackBuilderSeedTrigger])
+
+  // #401 — Werkzeuge → Rack Builder: leerer Builder, Racks-Tab im Focus.
+  // Counter-Pattern (Date.now), damit jeder Klick einen neuen Trigger
+  // feuert auch wenn der vorherige schon abgewickelt ist.
+  useEffect(() => {
+    if (!newRackBuilderTrigger) return
+    setSeedPreset(null)
+    setEditingRackPresetId(null)
+    setEditingCanvasRackEquipmentId(null)
+    setShowRackBuilderDialog(true)
+    setTab('racks')
+  }, [newRackBuilderTrigger])
 
   // v7.9.51 — Edit-Trigger vom Canvas-Toolbar-Button für ein bereits
   // platziertes Black-Box-Rack.
