@@ -776,6 +776,10 @@ interface UiState extends PersistedUiState {
   revisions: { open: boolean }
   openRevisions: () => void
   closeRevisions: () => void
+  /** KI-Plan-Generierung aus Text-Prompt (#414). */
+  aiPlanGen: { open: boolean }
+  openAiPlanGen: () => void
+  closeAiPlanGen: () => void
   /** Generischer Equipment-CSV-Import in die Library (#354). */
   csvImport: { open: boolean }
   openCsvImport: () => void
@@ -1159,6 +1163,9 @@ export const useUiStore = create<UiState>((set) => ({
   revisions: { open: false },
   openRevisions: () => set({ revisions: { open: true } }),
   closeRevisions: () => set({ revisions: { open: false } }),
+  aiPlanGen: { open: false },
+  openAiPlanGen: () => set({ aiPlanGen: { open: true } }),
+  closeAiPlanGen: () => set({ aiPlanGen: { open: false } }),
   csvImport: { open: false },
   openCsvImport: () => set({ csvImport: { open: true } }),
   closeCsvImport: () => set({ csvImport: { open: false } }),

@@ -43,6 +43,7 @@ export type EquipmentSlice = Pick<
   ProjectState,
   | 'addEquipment'
   | 'importEquipment'
+  | 'insertGeneratedPlan'
   | 'updateEquipment'
   | 'deleteEquipment'
   | 'setActiveDeviceMode'
@@ -114,6 +115,20 @@ export const createEquipmentSlice: StateCreator<ProjectState, [], [], EquipmentS
               outputs: item.outputs.map((p, index) => sanitizePort(p, `Out ${index + 1}`)),
             })),
           ],
+        }),
+      }
+    }),
+  insertGeneratedPlan: (equipment, cables) =>
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      // #414 — Geräte UND Kabel atomar einfügen, OHNE die IDs neu zu
+      // vergeben (die Kabel referenzieren die mitgelieferten Equipment-/
+      // Port-IDs). Daher kein Re-ID wie in importEquipment.
+      return {
+        project: touchProject({
+          ...state.project,
+          equipment: [...state.project.equipment, ...equipment],
+          cables: [...state.project.cables, ...cables],
         }),
       }
     }),

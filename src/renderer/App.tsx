@@ -39,6 +39,7 @@ import { CalculatorsDialog } from './components/Calculators/CalculatorsDialog'
 import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
 import { PlanCheckPanel } from './components/Analysis/PlanCheckPanel'
 import { RevisionsDialog } from './components/Project/RevisionsDialog'
+import { AiPlanGenDialog } from './components/Project/AiPlanGenDialog'
 import { CsvImportDialog } from './components/Import/CsvImportDialog'
 import { TemplatesDialog } from './components/Project/TemplatesDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
@@ -936,6 +937,7 @@ export default function App() {
       <AnalysisDialog />
       <PlanCheckPanel />
       <RevisionsDialog />
+      <AiPlanGenDialog />
       <CsvImportDialog />
       <TemplatesDialog />
       <CableContextMenu />
