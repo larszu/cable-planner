@@ -52,9 +52,9 @@ export const detectLayerForConnector = (
 ): StandardLayer => {
   if (!connectorType) return 'other'
   const ct = String(connectorType).toLowerCase()
-  if (ct === 'bnc' || ct === 'hdmi' || ct === 'displayport' || ct === 'triax' || ct === 'vga' || ct === 'dvi') return 'video'
-  if (ct === 'xlr' || ct === 'din' || ct === 'db25') return 'audio'
-  if (ct === 'ethernet/rj45') return 'network'
+  if (ct === 'bnc' || ct === 'hdmi' || ct === 'displayport' || ct === 'triax' || ct === 'vga' || ct === 'dvi' || ct === 'hd-bnc' || ct === 'mini-hdmi' || ct === 'f-connector') return 'video'
+  if (ct === 'xlr' || ct === 'din' || ct === 'db25' || ct === 'klinke' || ct === 'mini-xlr') return 'audio'
+  if (ct === 'ethernet/rj45' || ct === 'gg45') return 'network'
   // Fiber kann Video ODER Network sein — ohne weiteren Kontext: Video
   // (für 2110/SDI-Fiber häufiger als reines IT-LAN-Fiber).
   if (ct === 'fiber' || ct === 'sfp' || ct === 'sfp+') return 'video'
@@ -69,7 +69,8 @@ export const detectLayerForConnector = (
     ct === 'cee63' ||
     ct === 'powerlock' ||
     ct === 'socapex' ||
-    ct === 'harting'
+    ct === 'harting' ||
+    ct === 'kleeblatt'
   )
     return 'power'
   if (ct === 'wireless/rf') return 'control'

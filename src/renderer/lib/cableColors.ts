@@ -75,6 +75,13 @@ export const DEFAULT_CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
   DVI: '#6366f1',
   DB9: '#10b981',
   DB25: '#14b8a6',
+  Klinke: '#22d3ee',
+  'Mini-XLR': '#0ea5e9',
+  'HD-BNC': '#fb923c',
+  'Mini-HDMI': '#c084fc',
+  'F-Connector': '#a16207',
+  GG45: '#15803d',
+  Kleeblatt: '#1e293b',
   Custom: '#94a3b8',
 }
 
