@@ -68,22 +68,31 @@ export const EquipmentProperties = () => {
   // sich Verkabelung aendert.
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
 
-  if (!equipment) {
-    return <div className="text-xs text-slate-400">{t('inspector.selectEquipment', 'Wähle ein Gerät auf dem Canvas.')}</div>
-  }
-
-
   // v7.4.0 — sortable accordion sections. The parent is `flex flex-col`
   // so CSS `order` works. Non-movable elements (device-kind cards,
   // Name, Category, Rentman badge) have no `order` declared → they
   // default to 0 → render first in JSX order. Each SortableSection
   // sets its own `order` based on the uiStore-persisted user order.
+  //
+  // WICHTIG: ALLE Hooks (sectionOrder/sensors/projectMode) MUESSEN vor dem
+  // `if (!equipment)`-Early-Return stehen (Rules of Hooks) — sonst aendert
+  // sich die Hook-Anzahl wenn die Auswahl zwischen "kein Geraet" und "Geraet"
+  // wechselt ("Rendered more hooks than during the previous render").
   const sectionOrder = useUiStore((s) => s.equipmentSectionOrder)
   const setSectionOrder = useUiStore((s) => s.setEquipmentSectionOrder)
   const dragSensors = useSensors(
     useSensor(PointerSensor, POINTER_SENSOR_OPTIONS),
     useSensor(KeyboardSensor, KEYBOARD_SENSOR_OPTIONS),
   )
+  // v7.9.5 — Property-Panel im Lock-Modus visuell + funktional sperren.
+  // fieldset/disabled blockiert ALLE Form-Controls darunter; das CSS
+  // greift dann mit grauerem Look (pointer-events:none + opacity).
+  const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
+
+  if (!equipment) {
+    return <div className="text-xs text-slate-400">{t('inspector.selectEquipment', 'Wähle ein Gerät auf dem Canvas.')}</div>
+  }
+
   const handleSectionDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
@@ -93,10 +102,6 @@ export const EquipmentProperties = () => {
     setSectionOrder(arrayMove(sectionOrder, oldIndex, newIndex))
   }
 
-  // v7.9.5 — Property-Panel im Lock-Modus visuell + funktional sperren.
-  // fieldset/disabled blockiert ALLE Form-Controls darunter; das CSS
-  // greift dann mit grauerem Look (pointer-events:none + opacity).
-  const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
   const projectIsLocked = projectMode === 'finalized' || projectMode === 'viewer'
 
   return (
