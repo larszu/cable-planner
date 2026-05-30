@@ -29,6 +29,7 @@ export type SignalStandard =
   | 'Thunderbolt-3'
   | 'Thunderbolt-4'
   | 'MADI'
+  | 'DVB-ASI'
   | 'SMPTE-297'
   | 'SMPTE-304M'
   | 'SMPTE-311M'
@@ -57,7 +58,7 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
   'Eth-100', 'Eth-1G', 'Eth-10G',
   'Analog-Audio', 'AES3', 'USB-2.0', 'USB-3.x',
   'Thunderbolt-3', 'Thunderbolt-4',
-  'MADI', 'SMPTE-297', 'SMPTE-304M', 'SMPTE-311M',
+  'MADI', 'DVB-ASI', 'SMPTE-297', 'SMPTE-304M', 'SMPTE-311M',
   'NDI', 'NDI-HX', 'Dante', 'AES67', 'ST2110-20', 'ST2110-30', 'ST2110-40',
   'Blackburst', 'Tri-Level', 'Word-Clock', 'PTP',
   'RF-UHF', 'RF-VHF', 'RF-2.4G', 'RF-5G',
@@ -316,6 +317,15 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 200,
     color: '#0891b2',
     notesKey: 'catalog.cable.madi-bnc.notes',
+  },
+  {
+    id: 'dvb-asi',
+    name: 'DVB-ASI (BNC, 75Ω)',
+    connectorType: 'BNC',
+    standards: ['DVB-ASI'],
+    maxLengthMeters: 100,
+    color: '#2563eb',
+    notesKey: 'catalog.cable.dvb-asi.notes',
   },
   {
     id: 'madi-optical',
