@@ -384,6 +384,13 @@ export interface EquipmentItem {
   /** Tiefe in mm. Wird vom 3D-Rack genutzt um zu prüfen ob ein Patchblende
    *  noch hinter das Gerät passt. Default beim Rendering: 400 mm. */
   depthMm?: number
+  /** #420 — Mietpreis (pro Tag). Wird beim Rentman-Import aus dem
+   *  Equipment-Endpoint gezogen (Felder `price`, `rentprice`,
+   *  `rental_price`, `price_per_day`) — kann manuell ueberschrieben
+   *  werden. Waehrung optional; Default ist EUR wenn aus Rentman ohne
+   *  Currency-Tag kommt. */
+  rentPricePerDay?: number
+  rentCurrency?: string
   /** v7.9.80 / #170 — Physische Breite in mm (für Non-19″-Geräte auf
    *  Rack-Shelves). Wird vom 3D-Renderer als reale Box-Breite genutzt.
    *  Unterscheidet sich von `width` (Pixel-Größe für Canvas-Rendering). */

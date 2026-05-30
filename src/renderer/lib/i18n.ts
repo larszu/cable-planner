@@ -387,6 +387,10 @@ const en: Dict = {
   'eq.field.manufacturerUrl': 'Manufacturer link',
   'eq.field.manufacturerUrlHint': 'optional, for datasheet access',
   'eq.field.manufacturerUrlOpen': 'Open ↗',
+  'eq.field.rentPrice': 'Rental price / day',
+  'eq.field.rentPriceRentman': 'from Rentman',
+  'eq.field.rentPricePlaceholder': 'e.g. 45.00',
+  'eq.field.rentCurrency': 'Cur.',
   'eq.field.refImage': 'Reference image',
   'eq.field.refImageHint': 'e.g. port layout',
   'eq.field.refImageNone': 'No image',
@@ -1801,7 +1805,7 @@ const en: Dict = {
   'flags.converterTitle':
     'Converter marker: the patch list skips this device and shows the next real target directly. Useful for SDI-HDMI converters, format converters, embedders/de-embedders.',
   'opt.title': 'Optional fields',
-  'opt.subtitle': 'Manufacturer link, reference image, icon',
+  'opt.subtitle': 'Manufacturer link, reference image, icon, rental price',
   'opt.iconAutoTitle': 'Reset to automatic',
 
   // Library — TemplateMergeDialog

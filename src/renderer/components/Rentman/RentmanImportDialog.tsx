@@ -41,6 +41,9 @@ interface RentmanEquipment {
   powerWatts?: number
   weightKg?: number
   depthMm?: number
+  /** #420 — Mietpreis pro Tag (aus Rentman gezogen). */
+  rentPricePerDay?: number
+  rentCurrency?: string
   raw: Record<string, unknown>
 }
 
@@ -136,6 +139,21 @@ const mapEquipment = (
     const weightKg = pickNumber(record, ['weight', 'weight_kg'])
     // Rentman nennt die Geräte-Tiefe meist "length" oder "depth" (mm).
     const depthMm = pickNumber(record, ['depth', 'length', 'depth_mm', 'length_mm'])
+    // #420 — Mietpreis pro Tag. Rentman's Equipment-Endpoint nutzt
+    // historisch unterschiedliche Feldnamen (price = rental rate,
+    // rentprice = legacy alias, price_per_day in neueren Schemas).
+    const rentPricePerDay = pickNumber(record, [
+      'price',
+      'rentprice',
+      'rental_price',
+      'price_per_day',
+      'daily_price',
+      'rentprice_per_day',
+    ])
+    const currencyRaw =
+      record.currency ?? record.pricecurrency ?? record.price_currency ?? record.currency_code
+    const rentCurrency =
+      typeof currencyRaw === 'string' && currencyRaw.trim() ? currencyRaw.trim() : undefined
 
     return {
       id: rowId,
@@ -149,6 +167,8 @@ const mapEquipment = (
       powerWatts,
       weightKg,
       depthMm,
+      rentPricePerDay,
+      rentCurrency,
       raw: record,
     } satisfies RentmanEquipment
   })
@@ -693,6 +713,9 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       powerWatts: base.powerWatts ?? item.powerWatts,
       weightKg: base.weightKg ?? item.weightKg,
       depthMm: base.depthMm ?? item.depthMm,
+      // #420 — Mietpreis aus Rentman uebernehmen (lokale Edits gewinnen).
+      rentPricePerDay: base.rentPricePerDay ?? item.rentPricePerDay,
+      rentCurrency: base.rentCurrency ?? item.rentCurrency,
     }
   }
 
