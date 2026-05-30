@@ -247,6 +247,11 @@ interface PersistedUiState {
   libraryFloatingPos: { x: number; y: number }
   propertiesFloating: boolean
   propertiesFloatingPos: { x: number; y: number }
+  /** #426 — Annotations-Panel kann genauso wie Library/Properties
+   *  abgedockt werden (frei verschiebbares Floating-Fenster). Default
+   *  ist Sidebar (rechts angedockt) wie bisher. */
+  annotationsPanelFloating: boolean
+  annotationsPanelFloatingPos: { x: number; y: number }
   /** v7.3.0 — Custom canvas/UI palette override. When set, the
    *  canvas chrome (background, edge colors) uses these instead of
    *  the dark/light defaults. `null` means follow theme. */
@@ -335,6 +340,8 @@ const defaults: PersistedUiState = {
   libraryFloatingPos: { x: 80, y: 80 },
   propertiesFloating: false,
   propertiesFloatingPos: { x: 80, y: 80 },
+  annotationsPanelFloating: false,
+  annotationsPanelFloatingPos: { x: 120, y: 80 },
   customPalette: null,
   canvasBgImageDark: null,
   canvasBgImageLight: null,
@@ -405,6 +412,8 @@ const load = (): PersistedUiState => {
     else merged.hotkeys = { ...defaults.hotkeys, ...merged.hotkeys }
     if (typeof merged.libraryFloating !== 'boolean') merged.libraryFloating = false
     if (typeof merged.propertiesFloating !== 'boolean') merged.propertiesFloating = false
+    if (typeof merged.annotationsPanelFloating !== 'boolean')
+      merged.annotationsPanelFloating = false
     if (
       !merged.libraryFloatingPos ||
       typeof merged.libraryFloatingPos.x !== 'number' ||
@@ -417,6 +426,12 @@ const load = (): PersistedUiState => {
       typeof merged.propertiesFloatingPos.y !== 'number'
     )
       merged.propertiesFloatingPos = defaults.propertiesFloatingPos
+    if (
+      !merged.annotationsPanelFloatingPos ||
+      typeof merged.annotationsPanelFloatingPos.x !== 'number' ||
+      typeof merged.annotationsPanelFloatingPos.y !== 'number'
+    )
+      merged.annotationsPanelFloatingPos = defaults.annotationsPanelFloatingPos
     if (
       merged.customPalette &&
       (typeof merged.customPalette.canvasBg !== 'string' ||
@@ -631,6 +646,8 @@ interface UiState extends PersistedUiState {
   setLibraryFloatingPos: (pos: { x: number; y: number }) => void
   setPropertiesFloating: (value: boolean) => void
   setPropertiesFloatingPos: (pos: { x: number; y: number }) => void
+  setAnnotationsPanelFloating: (value: boolean) => void
+  setAnnotationsPanelFloatingPos: (pos: { x: number; y: number }) => void
   setCustomPalette: (palette: { canvasBg: string; gridColor: string; accent: string } | null) => void
   setEquipmentSectionOrder: (order: string[]) => void
   setCanvasBgImage: (theme: 'dark' | 'light', dataUri: string | null) => void
@@ -1029,6 +1046,10 @@ export const useUiStore = create<UiState>((set) => ({
   setLibraryFloatingPos: (pos) => set(applyPatch({ libraryFloatingPos: pos })),
   setPropertiesFloating: (value) => set(applyPatch({ propertiesFloating: value })),
   setPropertiesFloatingPos: (pos) => set(applyPatch({ propertiesFloatingPos: pos })),
+  setAnnotationsPanelFloating: (value) =>
+    set(applyPatch({ annotationsPanelFloating: value })),
+  setAnnotationsPanelFloatingPos: (pos) =>
+    set(applyPatch({ annotationsPanelFloatingPos: pos })),
   setCustomPalette: (palette) => set(applyPatch({ customPalette: palette })),
   setEquipmentSectionOrder: (order) => set(applyPatch({ equipmentSectionOrder: order })),
   setCanvasBgImage: (theme, dataUri) =>

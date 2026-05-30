@@ -16,6 +16,7 @@ import { promptDialog } from '../../lib/promptDialog'
 import { format, useTranslation } from '../../lib/i18n'
 import { confirmDialog } from '../../lib/confirmDialog'
 import type { ProjectAnnotation } from '../../types/project'
+import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
 
 // v7.9.41 — Re-export für Backward-Kompatibilität. Source-of-Truth ist
 // jetzt lib/dragDropMimes.ts (alle Canvas-Drag-MIMEs zentral).
@@ -89,6 +90,11 @@ export const AnnotationsPanel = ({
   // v7.9.5 — Persistierter Author-Name für Annotations im
   // editing/finalized Modus (im viewer-Modus dominiert viewerSession).
   const annotationAuthorPref = useUiStore((s) => s.annotationAuthor)
+  // #426 — Floating/Docked-Toggle + persistierte Position.
+  const floating = useUiStore((s) => s.annotationsPanelFloating)
+  const setFloating = useUiStore((s) => s.setAnnotationsPanelFloating)
+  const floatingPos = useUiStore((s) => s.annotationsPanelFloatingPos)
+  const setFloatingPos = useUiStore((s) => s.setAnnotationsPanelFloatingPos)
   const [statusFilter, setStatusFilter] = useState<ProjectAnnotation['status'] | 'all'>('all')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [draftText, setDraftText] = useState('')
@@ -131,24 +137,8 @@ export const AnnotationsPanel = ({
   const canCreateFree =
     (projectMode === 'viewer' || projectMode === 'finalized' || projectMode === 'editing') && creating
 
-  return (
-    <div className="fixed right-0 top-0 z-40 flex h-screen w-96 max-w-[95vw] flex-col border-l border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
-      <header className="flex items-center justify-between border-b border-slate-800 px-3 py-2">
-        <div className="flex flex-col">
-          <h3 className="text-sm font-semibold">💬 Anmerkungen ({annotations.length})</h3>
-          {viewerSession && (
-            <span className="text-[10px] text-slate-500">{format(t('annotations.reviewer', 'Reviewer: {name}'), { name: viewerSession.author })}</span>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
-        >
-          {t('common.close', 'Schließen')}
-        </button>
-      </header>
-
+  const body = (
+    <div className="flex h-full min-h-0 flex-col">
       <div className="border-b border-slate-800 bg-slate-950/40 px-3 py-2">
         <div className="mb-2 flex gap-1">
           {(['all', 'open', 'built', 'resolved'] as const).map((s) => (
@@ -355,6 +345,74 @@ export const AnnotationsPanel = ({
           ))
         )}
       </div>
+    </div>
+  )
+
+  const headerTitle = (
+    <span className="flex flex-col">
+      <span className="text-sm font-semibold text-slate-100">
+        💬 {t('annotations.title', 'Anmerkungen')} ({annotations.length})
+      </span>
+      {viewerSession && (
+        <span className="text-[10px] text-slate-500">
+          {format(t('annotations.reviewer', 'Reviewer: {name}'), { name: viewerSession.author })}
+        </span>
+      )}
+    </span>
+  )
+
+  // #426 — Floating-Modus: voll abdockbares Fenster, dragbar, persistierte Position.
+  if (floating) {
+    return (
+      <FloatingPanelShell
+        title={headerTitle}
+        position={floatingPos}
+        onMove={setFloatingPos}
+        onDock={() => setFloating(false)}
+        width={384}
+        height="80vh"
+      >
+        {body}
+      </FloatingPanelShell>
+    )
+  }
+
+  return (
+    <div className="fixed right-0 top-0 z-40 flex h-screen w-96 max-w-[95vw] flex-col border-l border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
+      <header className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
+        <div className="flex min-w-0 flex-col">
+          <h3 className="truncate text-sm font-semibold">
+            💬 {t('annotations.title', 'Anmerkungen')} ({annotations.length})
+          </h3>
+          {viewerSession && (
+            <span className="text-[10px] text-slate-500">
+              {format(t('annotations.reviewer', 'Reviewer: {name}'), { name: viewerSession.author })}
+            </span>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          {/* #426 — Abdocken: macht das Panel zu einem freien Fenster, das
+              ueberall hinzogen werden kann. Position wird in uiStore
+              persistiert (auch ueber App-Restarts). */}
+          <button
+            type="button"
+            onClick={() => setFloating(true)}
+            title={t('annotations.float.title', 'Abdocken (frei verschiebbar)')}
+            aria-label={t('annotations.float.aria', 'Anmerkungen abdocken')}
+            className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+          >
+            ⤢
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+          >
+            {t('common.close', 'Schließen')}
+          </button>
+        </div>
+      </header>
+      {body}
     </div>
   )
 }
