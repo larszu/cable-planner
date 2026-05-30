@@ -855,7 +855,7 @@ const en: Dict = {
   'modeEditor.descPlaceholder': 'e.g. limits outputs to 2 in 4K mode (lower resource use)',
   'modeEditor.portCount': '{count} port(s) in this mode',
   'modeEditor.seedTitle': "Adopt the device's CURRENT port layout as a starting point.",
-  'modeEditor.seedBtn': '⬇ Adopt current device layout',
+  'modeEditor.seedBtn': 'Adopt current device layout',
   'modeEditor.emptySide': 'No {kind} in this mode.',
   'modeEditor.removePort': 'Remove port',
   'common.name': 'Name',
@@ -1160,7 +1160,7 @@ const en: Dict = {
   'greengo.footer.devicesOnCanvas': 'devices on canvas',
   'greengo.import.gg5Title':
     'Import .gg5 file and link to canvas devices',
-  'greengo.import.gg5': '⬆ Import .gg5',
+  'greengo.import.gg5': 'Import .gg5',
   'greengo.import.xlsxTitle':
     'Upload intercom-matrix Excel — users + groups will be merged into the GreenGo configuration.',
   'greengo.import.xlsx': 'Import Excel matrix',
@@ -1168,7 +1168,7 @@ const en: Dict = {
     'Download current GreenGo configuration as an intercom-matrix Excel (for print / hand-off).',
   'greengo.export.xlsx': 'Export Excel matrix',
   'greengo.saveProject': 'Save in project',
-  'greengo.export.gg5': '⬇ Export as .gg5',
+  'greengo.export.gg5': 'Export as .gg5',
   'greengo.importOverlay.title': 'Import .gg5 — link devices',
   'greengo.importOverlay.system': 'System:',
   'greengo.importOverlay.importedGroups': 'Imported groups',
@@ -1317,6 +1317,19 @@ const en: Dict = {
   'patchList.title': 'Patch list',
   'patchList.empty.noCables': 'This project has no cables yet. Connect devices on the canvas to build a patch list.',
   'patchList.empty.noMatch': 'No cables match the filter.',
+  'patchList.col.number': 'No.',
+  'settings.project.numbering.title': 'Cable numbering',
+  'settings.project.numbering.desc':
+    'Automatic, collision-free cable IDs from a fixed scheme — shown on the canvas, in the patch list and on the labels.',
+  'settings.project.numbering.enabled': 'Auto-assign a number to new cables',
+  'settings.project.numbering.prefix': 'Prefix',
+  'settings.project.numbering.separator': 'Separator',
+  'settings.project.numbering.padding': 'Digits',
+  'settings.project.numbering.start': 'Start number',
+  'settings.project.numbering.perLayer': 'Separate counter per layer (V/A/N/P …)',
+  'settings.project.numbering.example': 'Example',
+  'settings.project.numbering.renumber': 'Renumber all cables',
+  'settings.project.numbering.done': '{n} cables renumbered.',
   'patchList.searchPlaceholder': 'Search (device, port, type, colour, note …)',
   'patchList.layerFilter': 'Filter by layer/discipline',
   'patchList.allLayers': 'All layers',
@@ -2707,13 +2720,14 @@ const en: Dict = {
   'patchList.col.toPort': 'To port',
   'patchList.col.port': 'Port',
   'patchList.col.color': 'Colour',
+  'patchList.col.layer': 'Layer',
   'patchList.col.cableName': 'Cable name',
   'patchList.col.notes': 'Notes',
   'patchList.footerHint':
     'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
-  'patchList.exportCsv': '⬇ Export CSV',
-  'patchList.exportXlsx': '⬇ Export XLSX',
-  'patchList.exportLabels': 'Labels (PDF)',
+  'patchList.exportCsv': 'Export CSV',
+  'patchList.exportXlsx': 'Export XLSX',
+  'patchList.exportLabels': 'Labels + QR (PDF)',
   // #314 Replace device section
   'replaceDevice.title': 'Replace device',
   'replaceDevice.subtitle': 'Preserve cabling',
@@ -3037,12 +3051,17 @@ const en: Dict = {
     'Same bandwidth as TB3 but stricter certification (2× DP 1.4, 40 Gbps, 100 W PD).',
   'catalog.cable.madi-bnc.notes':
     'MADI AES10 over 75Ω coax. Up to 64 ch at 48 kHz or 56 ch at 96 kHz.',
+  'catalog.cable.dvb-asi.notes':
+    'DVB-ASI: MPEG transport stream over 75Ω coax (BNC), up to 270 Mbit/s. Encoder/mux/modulator/playout interconnect in headends and OB trucks.',
   'catalog.cable.madi-optical.notes':
     'MADI AES10 over optical fibre. Long reach, galvanically isolated.',
   'catalog.cable.smpte-297.notes':
-    'Hybrid cable with optical SDI link + copper for talkback and power. Camera connection for ENG/studio.',
+    'SMPTE ST 297: serial digital video (SDI) transported optically over fibre. No power — a pure optical SDI link with long reach.',
   'catalog.cable.smpte-304m.notes':
-    'Triaxial cable for studio cameras (HDTV). Carries video, intercom, talkback and power in one cable.',
+    'SMPTE 311M hybrid fibre camera cable (304M connector, e.g. LEMO 3K.93C): 2 single-mode fibres + power and control conductors. This is fibre, NOT triax.',
+  'catalog.cable.triax-camera.notes':
+    'Triaxial (coaxial) camera cable for studio/OB cameras: carries video, return, intercom/talkback, genlock and power over one triax — analogue, distinct from the SMPTE fibre camera cables.',
+  'catprops.title': 'Specs',
   'catalog.cable.ndi-cat6a.notes':
     'NDI / NDI-HX over standard Gigabit Ethernet. Keep NDI and Dante on separate VLANs/links to avoid congestion.',
   'catalog.cable.dante-cat6.notes':
@@ -3100,12 +3119,17 @@ const de: Dict = {
     'Gleiche Bandbreite wie TB3, aber striktere Zertifizierung (2× DP 1.4, 40Gbps, 100W PD).',
   'catalog.cable.madi-bnc.notes':
     'MADI AES10 über 75Ω-Koax. Bis 64 ch bei 48 kHz oder 56 ch bei 96 kHz.',
+  'catalog.cable.dvb-asi.notes':
+    'DVB-ASI: MPEG-Transportstrom über 75Ω-Koax (BNC), bis 270 Mbit/s. Verbindung zwischen Encoder/Mux/Modulator/Playout in Kopfstellen und Ü-Wagen.',
   'catalog.cable.madi-optical.notes':
     'MADI AES10 über optische Faser. Lange Reichweite, galvanisch getrennt.',
   'catalog.cable.smpte-297.notes':
-    'Hybridkabel mit optischer SDI-Strecke + Kupfer für Talkback und Stromversorgung. Kameraanschluss bei ENG/Studio.',
+    'SMPTE ST 297: serielles digitales Video (SDI) optisch über Glasfaser übertragen. Kein Strom — eine reine optische SDI-Strecke mit großer Reichweite.',
   'catalog.cable.smpte-304m.notes':
-    'Triaxialkabel für Studio-Kameras (HDTV). Überträgt Video, Interkom, Talkback und Strom in einem Kabel.',
+    'SMPTE 311M Hybrid-Glasfaser-Kamerakabel (304M-Stecker, z. B. LEMO 3K.93C): 2 Singlemode-Fasern + Power- und Steueradern. Das ist Glasfaser, KEIN Triax.',
+  'catalog.cable.triax-camera.notes':
+    'Triaxiales (koaxiales) Kamerakabel für Studio-/EB-Kameras: überträgt Video, Rückweg, Interkom/Talkback, Genlock und Strom über ein Triax — analog, getrennt von den SMPTE-Glasfaser-Kamerakabeln.',
+  'catprops.title': 'Fachdaten',
   'catalog.cable.ndi-cat6a.notes':
     'NDI / NDI-HX über normales Gigabit-Ethernet. NDI und Dante auf getrennten VLANs/Links halten, um Überlast zu vermeiden.',
   'catalog.cable.dante-cat6.notes':

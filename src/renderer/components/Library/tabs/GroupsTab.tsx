@@ -5,6 +5,8 @@ import { MIME_GROUP_PRESET } from '../../../lib/dragDropMimes'
 import { PresetDndWrapper } from '../LibraryDndWrappers'
 import { SortablePresetCard } from '../LibrarySortables'
 import { format, useTranslation } from '../../../lib/i18n'
+import { Download } from 'lucide-react'
+import { Icon } from '../../shared/Icon'
 
 /**
  * #305 — GroupsTab aus LibraryPanel ausgelagert. Zeigt nicht-Rack-
@@ -104,7 +106,7 @@ export const GroupsTab = () => {
                             )}
                             aria-label={t('library.tabs.groups.exportAria', 'Exportieren')}
                           >
-                            ⬇
+                            <Icon icon={Download} size="xs" />
                           </button>
                           <button
                             type="button"
