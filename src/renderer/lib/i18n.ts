@@ -1814,6 +1814,12 @@ const en: Dict = {
   'ports.side.auto': 'Side (auto)',
   'ports.side.left': 'Left',
   'ports.side.right': 'Right',
+  // #410 Connector gender
+  'ports.aria.gender': 'Connector gender',
+  'ports.genderTitle': 'Connector gender (for cable assembly)',
+  'ports.gender.none': 'Gender (–)',
+  'ports.gender.male': '♂ Male / plug',
+  'ports.gender.female': '♀ Female / socket',
   'ports.sdi.maxSingleLink': 'Max single-link',
   'ports.sdi.quadSet': 'Quad-link set:',
 

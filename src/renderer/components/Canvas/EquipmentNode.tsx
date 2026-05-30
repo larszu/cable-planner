@@ -10,7 +10,7 @@ import { colorForConnector } from '../../lib/cableColors'
 import { defaultIconForEquipment } from '../../lib/deviceKind'
 import { findGreenGoUserForEquipment } from '../../lib/greengoSync'
 import { rackBandColor } from '../../lib/rackBandColors'
-import { portDisplayLabel } from '../../lib/portLabel'
+import { portDisplayLabel, genderSymbol } from '../../lib/portLabel'
 import {
   RackBandsOverlay,
   RackInternalCablesOverlay,
@@ -765,9 +765,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               )}
               {isRackInternal && <span style={{ marginRight: 3 }}>🔒</span>}
               {isLeft ? (
-                <>{portDisplayLabel(port)}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
+                <>{portDisplayLabel(port)}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}{genderSymbol(port.gender) && ` ${genderSymbol(port.gender)}`}</span></>
               ) : (
-                <><span style={{ color: isLight ? '#94a3b8' : '#64748b' }}>{port.connectorType} · </span>{portDisplayLabel(port)}</>
+                <><span style={{ color: isLight ? '#94a3b8' : '#64748b' }}>{genderSymbol(port.gender) && `${genderSymbol(port.gender)} `}{port.connectorType} · </span>{portDisplayLabel(port)}</>
               )}
             </span>
           </div>
@@ -914,9 +914,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               )}
               {isRackInternal && <span style={{ marginRight: 3 }}>🔒</span>}
               {isLeft ? (
-                <>{portDisplayLabel(port)}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}</span></>
+                <>{portDisplayLabel(port)}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}{genderSymbol(port.gender) && ` ${genderSymbol(port.gender)}`}</span></>
               ) : (
-                <><span style={{ color: isLight ? '#94a3b8' : '#64748b' }}>{port.connectorType} · </span>{portDisplayLabel(port)}</>
+                <><span style={{ color: isLight ? '#94a3b8' : '#64748b' }}>{genderSymbol(port.gender) && `${genderSymbol(port.gender)} `}{port.connectorType} · </span>{portDisplayLabel(port)}</>
               )}
             </span>
           </div>

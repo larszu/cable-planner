@@ -15,7 +15,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
-import { portLabelPair } from '../../lib/portLabel'
+import { portLabelPair, genderSymbol } from '../../lib/portLabel'
 import { ModalShell } from '../shared/ModalShell'
 import { useTranslation } from '../../lib/i18n'
 import type { Cable } from '../../types/cable'
@@ -38,6 +38,9 @@ interface PatchRow {
   toDevice: string
   toPort: string
   toPortSub?: string
+  /** #410 — Steckverbinder-Geschlecht je Ende ('♂'/'♀'/''). */
+  fromGender: string
+  toGender: string
   type: string
   length: number
   color: string
@@ -179,6 +182,8 @@ export const PatchListDialog = () => {
         toDevice: toDeviceLabel,
         toPort: toPair.main,
         toPortSub: toPair.subline,
+        fromGender: genderSymbol(fromPort?.gender),
+        toGender: genderSymbol(finalToPort?.gender),
         type: c.type,
         length: c.length,
         color: c.color || '#64748b',
@@ -236,7 +241,11 @@ export const PatchListDialog = () => {
     // Anzeige als "PGM (1 SDI 3G PGM)" in der einzigen Spalte. Die Tabelle
     // hat dafuer eine zweite Zeile, der Export muss alles in einer Zelle
     // bundlen.
-    const fmtPort = (main: string, sub?: string) => (sub ? `${main} (${sub})` : main)
+    // #410 — Geschlecht ans Port-Label haengen wenn gesetzt: "1 (PGM) ♂".
+    const fmtPort = (main: string, sub?: string, gender?: string) => {
+      const base = sub ? `${main} (${sub})` : main
+      return gender ? `${base} ${gender}` : base
+    }
     const header = [
       t('patchList.col.number', 'Nr.'),
       t('patchList.col.fromDevice', 'Von Gerät'),
@@ -253,9 +262,9 @@ export const PatchListDialog = () => {
     const data = filtered.map((r) => [
       r.cableNumber,
       r.fromDevice,
-      fmtPort(r.fromPort, r.fromPortSub),
+      fmtPort(r.fromPort, r.fromPortSub, r.fromGender),
       r.toDevice,
-      fmtPort(r.toPort, r.toPortSub),
+      fmtPort(r.toPort, r.toPortSub, r.toGender),
       r.type,
       r.length,
       r.layer,
@@ -394,12 +403,16 @@ export const PatchListDialog = () => {
     // Ein "Etikett" = ein Kabelende. label1 = grosse Zeile (Nummer/Typ),
     // label2 = Strecke aus Sicht dieses Endes, meta = Laenge.
     type LabelRow = { label1: string; label2: string; meta: string; color: string }
+    // #410 — Geschlecht ASCII-tauglich (♂/♀ wuerde sanitizeForPdf strippen).
+    const g = (sym: string) => (sym === '♂' ? ' (M)' : sym === '♀' ? ' (F)' : '')
     const labelRows: LabelRow[] = filtered.flatMap((r) => {
       const num = r.cableNumber || r.cableName || r.type
       const meta = r.length ? `${r.length} m` : ''
+      const fromEnd = `${r.fromDevice} ${r.fromPort}${g(r.fromGender)}`
+      const toEnd = `${r.toDevice} ${r.toPort}${g(r.toGender)}`
       return [
-        { label1: num, label2: `${r.fromDevice} ${r.fromPort} -> ${r.toDevice} ${r.toPort}`, meta, color: r.color },
-        { label1: num, label2: `${r.toDevice} ${r.toPort} -> ${r.fromDevice} ${r.fromPort}`, meta, color: r.color },
+        { label1: num, label2: `${fromEnd} -> ${toEnd}`, meta, color: r.color },
+        { label1: num, label2: `${toEnd} -> ${fromEnd}`, meta, color: r.color },
       ]
     })
     const header = ['Label1', 'Label2', 'Length', 'Color']
