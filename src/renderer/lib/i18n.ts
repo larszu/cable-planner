@@ -1345,6 +1345,15 @@ const en: Dict = {
   'settings.project.numbering.example': 'Example',
   'settings.project.numbering.renumber': 'Renumber all cables',
   'settings.project.numbering.done': '{n} cables renumbered.',
+  // #350 Cable length estimation
+  'settings.project.lengthEst.title': 'Estimate cable lengths',
+  'settings.project.lengthEst.desc':
+    'Estimates cable lengths from the on-canvas distance between devices (straight line × scale + slack). Overwrites existing lengths.',
+  'settings.project.lengthEst.scale': 'Metres per 100 px',
+  'settings.project.lengthEst.slack': 'Slack (%)',
+  'settings.project.lengthEst.roundUp': 'Round up to whole metres',
+  'settings.project.lengthEst.run': 'Estimate lengths now',
+  'settings.project.lengthEst.done': '{n} cable lengths updated.',
   'patchList.searchPlaceholder': 'Search (device, port, type, colour, note …)',
   'patchList.layerFilter': 'Filter by layer/discipline',
   'patchList.allLayers': 'All layers',
