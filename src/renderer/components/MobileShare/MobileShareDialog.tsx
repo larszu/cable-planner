@@ -19,12 +19,12 @@
  */
 
 import { useEffect, useState } from 'react'
-import { X, Smartphone, Clipboard, Check, Radio } from 'lucide-react'
+import { Smartphone, Clipboard, Check, Radio } from 'lucide-react'
 import QRCode from 'qrcode'
 import { Icon } from '../shared/Icon'
+import { ModalShell } from '../shared/ModalShell'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
-import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { useTranslation } from '../../lib/i18n'
 
 interface ShareStatus {
@@ -97,10 +97,6 @@ export const MobileShareDialog = () => {
     void renderQrTo(primary).then(setQrDataUrl)
   }, [status.urls, selectedUrl])
 
-  const drag = useDraggablePosition('cable-planner:modal-pos:mobile-share', open)
-
-  if (!open) return null
-
   const handleStart = async () => {
     setBusy(true)
     try {
@@ -133,32 +129,15 @@ export const MobileShareDialog = () => {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-      onMouseDown={(e) => e.target === e.currentTarget && close()}
+    <ModalShell
+      open={open}
+      onClose={close}
+      title={t('mobile.dialog.heading', 'Handy-Zugriff')}
+      titleIcon={<Icon icon={Smartphone} size="sm" />}
+      maxWidth="md"
+      draggableKey="cable-planner:modal-pos:mobile-share"
     >
-      <div
-        ref={drag.containerRef}
-        style={drag.containerStyle}
-        className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
-      >
-        <header
-          {...drag.headerProps}
-          className="flex items-center justify-between border-b border-slate-700 px-4 py-3 select-none"
-        >
-          <h2 className="text-sm font-semibold">
-            <Icon icon={Smartphone} size="sm" className="mr-2 inline-block align-text-bottom" />{t('mobile.dialog.heading', 'Handy-Zugriff')}
-          </h2>
-          <button
-            type="button"
-            onClick={close}
-            className="rounded px-2 py-1 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100"
-            aria-label={t('common.close', 'Schließen')}
-          >
-            <Icon icon={X} size="sm" />
-          </button>
-        </header>
-        <div className="space-y-3 p-4 text-sm">
+        <div className="space-y-3 text-sm">
           {!hasDesktopBridge && (
             <div className="rounded border border-amber-700 bg-amber-950/40 p-3 text-xs text-amber-200">
               {t('mobile.dialog.desktopOnly1', 'Diese Funktion benötigt die Desktop-App (Electron). Im Web-Browser ist der Mobile-Viewer als statisches HTML im')}{' '}
@@ -269,7 +248,6 @@ export const MobileShareDialog = () => {
             </ul>
           </details>
         </div>
-      </div>
-    </div>
+    </ModalShell>
   )
 }
