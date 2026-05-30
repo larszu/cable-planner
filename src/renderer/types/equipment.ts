@@ -397,6 +397,10 @@ export interface EquipmentItem {
    *  Alle Werte sind optional, damit alte Datenstände kompatibel bleiben. */
   powerWatts?: number
   weightKg?: number
+  /** #354 — Optionaler Stückpreis bzw. Tagesmietpreis in EUR. Wird im
+   *  Angebots-Export (BOM × Preis) genutzt. Kein Pflichtfeld — alte
+   *  Projekte und Geräte ohne Preis bleiben gültig. */
+  priceEUR?: number
   /** Tiefe in mm. Wird vom 3D-Rack genutzt um zu prüfen ob ein Patchblende
    *  noch hinter das Gerät passt. Default beim Rendering: 400 mm. */
   depthMm?: number
