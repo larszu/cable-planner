@@ -82,7 +82,7 @@ const loadFolderTrackedItems = (): FolderTrackedItems => {
   }
 }
 
-let folderTracked = loadFolderTrackedItems()
+const folderTracked = loadFolderTrackedItems()
 
 const persistFolderTracked = (): void => {
   try {

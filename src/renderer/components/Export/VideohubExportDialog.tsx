@@ -778,304 +778,300 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
         {/* v7.9.128 — Matrix immer sichtbar (kein format='routing'-Gating
             mehr). Funktioniert offline, beim TCP-Push wird Routing UND/ODER
             Labels separat verschickt — siehe unten. */}
-        {true && (
-          <div className="mb-3">
-            <div className="mb-1 flex flex-wrap items-center gap-2">
+        <div className="mb-3">
+          <div className="mb-1 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowMatrix((m) => !m)}
+              className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+            >
+              {showMatrix ? '▼' : '▶'} Routing-Ansicht
+            </button>
+            {/* v7.9.129 — View-Mode-Switch: Matrix oder Liste */}
+            {showMatrix && (
+              <div className="flex overflow-hidden rounded border border-slate-700 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setAndPersistRoutingView('matrix')}
+                  className={`px-2 py-1 ${
+                    routingView === 'matrix'
+                      ? 'bg-sky-700 text-white'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  }`}
+                  title={t('videohub.matrixView', 'Crosspoint-Matrix')}
+                >
+                  ▦ Matrix
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAndPersistRoutingView('list')}
+                  className={`px-2 py-1 ${
+                    routingView === 'list'
+                      ? 'bg-sky-700 text-white'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  }`}
+                  title={t('videohub.listView', 'Listen-Ansicht mit Dropdown pro Output')}
+                >
+                  <Icon icon={List} size="xs" className="mr-1 inline-block align-text-bottom" />Liste
+                </button>
+              </div>
+            )}
+            <span className="text-xs text-slate-500">
+              {preset.inputs} Eing. × {preset.outputs} Ausg.
+            </span>
+            {/* v7.9.131 — Achsen-Swap. Toggle zwischen "Outputs links/
+                Inputs oben" und "Inputs links/Outputs oben". Wirkt
+                fuer Matrix UND List. */}
+            <button
+              type="button"
+              onClick={toggleAxis}
+              title={
+                axisOrientation === 'outputs-rows'
+                  ? 'Achsen tauschen: Inputs links, Outputs oben/als Picker'
+                  : 'Achsen tauschen: Outputs links, Inputs oben/als Picker'
+              }
+              className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-700"
+            >
+              {axisOrientation === 'outputs-rows'
+                ? '⇅ Out·In tauschen'
+                : '⇅ In·Out tauschen'}
+            </button>
+            {/* v7.9.130 — Verkabelung-Toggle. Zeigt/versteckt das
+                "← Verbundenes Geraet"-Suffix in den Labels. */}
+            <button
+              type="button"
+              onClick={toggleShowConnections}
+              title={
+                showConnections
+                  ? 'Connection-Info ausblenden (nur Port-Name)'
+                  : 'Connection-Info einblenden (← angeschlossenes Geraet)'
+              }
+              className={`rounded border px-2 py-1 text-xs ${
+                showConnections
+                  ? 'border-sky-700 bg-sky-900/40 text-sky-200'
+                  : 'border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800'
+              }`}
+            >
+              <Icon icon={Link} size="xs" className="mr-1 inline-block align-text-bottom" />{showConnections ? 'Verkabelung an' : 'Verkabelung aus'}
+            </button>
+            {/* v7.9.130 — Zusatztoggle "Input-Label" (Port-Name am
+                angeschlossenen Geraet). Andere Farb-Palette als
+                Verkabelung-Toggle damit User auf einen Blick sieht
+                dass das zwei unabhaengige Toggles sind: Verkabelung
+                -> sky, Input-Label -> emerald. */}
+            {showConnections && (
               <button
                 type="button"
-                onClick={() => setShowMatrix((m) => !m)}
-                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
-              >
-                {showMatrix ? '▼' : '▶'} Routing-Ansicht
-              </button>
-              {/* v7.9.129 — View-Mode-Switch: Matrix oder Liste */}
-              {showMatrix && (
-                <div className="flex overflow-hidden rounded border border-slate-700 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setAndPersistRoutingView('matrix')}
-                    className={`px-2 py-1 ${
-                      routingView === 'matrix'
-                        ? 'bg-sky-700 text-white'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                    }`}
-                    title={t('videohub.matrixView', 'Crosspoint-Matrix')}
-                  >
-                    ▦ Matrix
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAndPersistRoutingView('list')}
-                    className={`px-2 py-1 ${
-                      routingView === 'list'
-                        ? 'bg-sky-700 text-white'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                    }`}
-                    title={t('videohub.listView', 'Listen-Ansicht mit Dropdown pro Output')}
-                  >
-                    <Icon icon={List} size="xs" className="mr-1 inline-block align-text-bottom" />Liste
-                  </button>
-                </div>
-              )}
-              <span className="text-xs text-slate-500">
-                {preset.inputs} Eing. × {preset.outputs} Ausg.
-              </span>
-              {/* v7.9.131 — Achsen-Swap. Toggle zwischen "Outputs links/
-                  Inputs oben" und "Inputs links/Outputs oben". Wirkt
-                  fuer Matrix UND List. */}
-              <button
-                type="button"
-                onClick={toggleAxis}
+                onClick={toggleShowConnectionPorts}
                 title={
-                  axisOrientation === 'outputs-rows'
-                    ? 'Achsen tauschen: Inputs links, Outputs oben/als Picker'
-                    : 'Achsen tauschen: Outputs links, Inputs oben/als Picker'
-                }
-                className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-700"
-              >
-                {axisOrientation === 'outputs-rows'
-                  ? '⇅ Out·In tauschen'
-                  : '⇅ In·Out tauschen'}
-              </button>
-              {/* v7.9.130 — Verkabelung-Toggle. Zeigt/versteckt das
-                  "← Verbundenes Geraet"-Suffix in den Labels. */}
-              <button
-                type="button"
-                onClick={toggleShowConnections}
-                title={
-                  showConnections
-                    ? 'Connection-Info ausblenden (nur Port-Name)'
-                    : 'Connection-Info einblenden (← angeschlossenes Geraet)'
+                  showConnectionPorts
+                    ? 'Port-Namen der angeschlossenen Geraete ausblenden'
+                    : 'Port-Namen der angeschlossenen Geraete einblenden'
                 }
                 className={`rounded border px-2 py-1 text-xs ${
-                  showConnections
-                    ? 'border-sky-700 bg-sky-900/40 text-sky-200'
+                  showConnectionPorts
+                    ? 'border-emerald-700 bg-emerald-900/40 text-emerald-200'
                     : 'border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800'
                 }`}
               >
-                <Icon icon={Link} size="xs" className="mr-1 inline-block align-text-bottom" />{showConnections ? 'Verkabelung an' : 'Verkabelung aus'}
+                {showConnectionPorts ? '· Input-Label an' : '· Input-Label aus'}
               </button>
-              {/* v7.9.130 — Zusatztoggle "Input-Label" (Port-Name am
-                  angeschlossenen Geraet). Andere Farb-Palette als
-                  Verkabelung-Toggle damit User auf einen Blick sieht
-                  dass das zwei unabhaengige Toggles sind: Verkabelung
-                  -> sky, Input-Label -> emerald. */}
-              {showConnections && (
-                <button
-                  type="button"
-                  onClick={toggleShowConnectionPorts}
-                  title={
-                    showConnectionPorts
-                      ? 'Port-Namen der angeschlossenen Geraete ausblenden'
-                      : 'Port-Namen der angeschlossenen Geraete einblenden'
-                  }
-                  className={`rounded border px-2 py-1 text-xs ${
-                    showConnectionPorts
-                      ? 'border-emerald-700 bg-emerald-900/40 text-emerald-200'
-                      : 'border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800'
-                  }`}
-                >
-                  {showConnectionPorts ? '· Input-Label an' : '· Input-Label aus'}
-                </button>
-              )}
-              {/* v7.9.119 / Issue #237 — Smart-Routing Vorschlag aus
-                  Canvas-Verbindungen. Heuristik: pro Output das beste
-                  Token-Match in den Input-Sources. Fallback: Diagonal. */}
-              <button
-                type="button"
-                onClick={generateSmartRouting}
-                className="ml-auto rounded bg-purple-700 px-2 py-1 text-xs text-purple-50 hover:bg-purple-600"
-                title={t('videohub.suggestTitle', 'Schlägt ein Routing vor, basierend auf den Kabeln im Canvas. Best-Match per Geräte-Namens-Ähnlichkeit; Fallback Diagonal. Per Matrix anpassbar.')}
-              >
-                <Icon icon={Wand2} size="xs" className="mr-1 inline-block align-text-bottom" />Smart-Routing
-              </button>
-              <button
-                type="button"
-                onClick={() => setRouting(buildDefaultRouting(preset.inputs, preset.outputs))}
-                className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
-                title={t('videohub.resetDiag', 'Diagonal-Routing zurücksetzen (Ausgang N → Eingang N)')}
-              >
-                ↺ Reset
-              </button>
-            </div>
-            {showMatrix && (() => {
-              // v7.9.128/129 — Labels einmal berechnen, an Matrix ODER
-              // Liste durchreichen. Hub-Labels gewinnen wenn vom Hub
-              // geladen ("Status laden"). Sonst Canvas-Port-Name +
-              // (wenn verkabelt) die Source/Dest aus dem Canvas.
-              // v7.9.130 — Connection-Suffix-Builder + parallel
-              // strukturierte Parts fuer farb-kodierte Anzeige.
-              const inputLabelParts = Array.from({ length: preset.inputs }, (_, i) => {
-                const hubLabel = hubState?.inputLabels?.[i]
-                if (hubLabel) return { port: hubLabel }
-                // #286 — Canvas-Port: contentLabel bevorzugt vor port.name.
-                const p = device?.inputs[i]
-                const portName = p ? portDisplayLabel(p) || `In ${i + 1}` : `In ${i + 1}`
-                const conn = connections.inputConn.get(i)
-                if (!conn || !showConnections) return { port: portName }
-                return {
-                  port: portName,
-                  connDevice: conn.sourceName,
-                  connPort:
-                    showConnectionPorts && conn.portName && conn.portName !== '?'
-                      ? conn.portName
-                      : undefined,
-                }
-              })
-              const outputLabelParts = Array.from({ length: preset.outputs }, (_, i) => {
-                const hubLabel = hubState?.outputLabels?.[i]
-                const lockState = hubState?.outputLocks?.[i]
-                const lockBadge =
-                  lockState === 'locked-self'
-                    ? ' 🔒'
-                    : lockState === 'locked-other'
-                      ? ' 🔒❗'
-                      : ''
-                if (hubLabel) return { port: hubLabel, lockBadge }
-                const p = device?.outputs[i]
-                const portName = p ? portDisplayLabel(p) || `Out ${i + 1}` : `Out ${i + 1}`
-                const conn = connections.outputConn.get(i)
-                if (!conn || !showConnections) return { port: portName, lockBadge }
-                return {
-                  port: portName,
-                  connDevice: conn.destName,
-                  connPort:
-                    showConnectionPorts && conn.portName && conn.portName !== '?'
-                      ? conn.portName
-                      : undefined,
-                  lockBadge,
-                }
-              })
-              // Plain-Text-Variante fuer Tooltips / List-Mode-Fallback /
-              // Export-Filenamen.
-              const inputLabelArr = inputLabelParts.map((p) =>
-                p.connPort
-                  ? `${p.port} ← ${p.connDevice} · ${p.connPort}`
-                  : p.connDevice
-                    ? `${p.port} ← ${p.connDevice}`
-                    : p.port,
-              )
-              const outputLabelArr = outputLabelParts.map((p) =>
-                (p.connPort
-                  ? `${p.port} → ${p.connDevice} · ${p.connPort}`
-                  : p.connDevice
-                    ? `${p.port} → ${p.connDevice}`
-                    : p.port) + (p.lockBadge ?? ''),
-              )
-              const onRoute = (output: number, input: number) =>
-                setRouting((r) => ({ ...r, [output]: input }))
-              // v7.9.131 — Bei isSwapped tauschen wir die Label-/
-              // Parts-Arrays + transponieren die Routing-Map damit das
-              // Visual transpose ohne Matrix-Refactor funktioniert.
-              // Multicast-Verlust: routing[output]=input ist one-to-one
-              // pro Output, aber many-Outputs-pro-Input. In "inputs-rows"
-              // bilden wir input->erstesOutput ab (verliert weitere
-              // Outputs die auf den gleichen Input gehen — siehe Plan
-              // fuer Multicast-Anzeige im Folge-Commit).
-              const isSwap = axisOrientation === 'inputs-rows'
-              const matrixInputLabels = isSwap ? outputLabelArr : inputLabelArr
-              const matrixOutputLabels = isSwap ? inputLabelArr : outputLabelArr
-              const matrixInputParts = isSwap ? outputLabelParts : inputLabelParts
-              const matrixOutputParts = isSwap ? inputLabelParts : outputLabelParts
-              const matrixRouting = isSwap
-                ? (() => {
-                    const r: Record<number, number> = {}
-                    for (const [outStr, inIdx] of Object.entries(routing)) {
-                      const inputIdx = inIdx as number
-                      if (r[inputIdx] === undefined) {
-                        r[inputIdx] = parseInt(outStr, 10)
-                      }
-                    }
-                    return r
-                  })()
-                : routing
-              const matrixOnRoute = isSwap
-                ? (rowIdx: number, colIdx: number) => onRoute(colIdx, rowIdx)
-                : onRoute
-              const matrixTotalIn = isSwap ? preset.outputs : preset.inputs
-              const matrixTotalOut = isSwap ? preset.inputs : preset.outputs
-              if (routingView === 'list') {
-                return (
-                  <VideohubRoutingList
-                    totalInputs={matrixTotalIn}
-                    totalOutputs={matrixTotalOut}
-                    inputLabels={matrixInputLabels}
-                    outputLabels={matrixOutputLabels}
-                    routing={matrixRouting}
-                    onRoute={matrixOnRoute}
-                  />
-                )
+            )}
+            {/* v7.9.119 / Issue #237 — Smart-Routing Vorschlag aus
+                Canvas-Verbindungen. Heuristik: pro Output das beste
+                Token-Match in den Input-Sources. Fallback: Diagonal. */}
+            <button
+              type="button"
+              onClick={generateSmartRouting}
+              className="ml-auto rounded bg-purple-700 px-2 py-1 text-xs text-purple-50 hover:bg-purple-600"
+              title={t('videohub.suggestTitle', 'Schlägt ein Routing vor, basierend auf den Kabeln im Canvas. Best-Match per Geräte-Namens-Ähnlichkeit; Fallback Diagonal. Per Matrix anpassbar.')}
+            >
+              <Icon icon={Wand2} size="xs" className="mr-1 inline-block align-text-bottom" />Smart-Routing
+            </button>
+            <button
+              type="button"
+              onClick={() => setRouting(buildDefaultRouting(preset.inputs, preset.outputs))}
+              className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
+              title={t('videohub.resetDiag', 'Diagonal-Routing zurücksetzen (Ausgang N → Eingang N)')}
+            >
+              ↺ Reset
+            </button>
+          </div>
+          {showMatrix && (() => {
+            // v7.9.128/129 — Labels einmal berechnen, an Matrix ODER
+            // Liste durchreichen. Hub-Labels gewinnen wenn vom Hub
+            // geladen ("Status laden"). Sonst Canvas-Port-Name +
+            // (wenn verkabelt) die Source/Dest aus dem Canvas.
+            // v7.9.130 — Connection-Suffix-Builder + parallel
+            // strukturierte Parts fuer farb-kodierte Anzeige.
+            const inputLabelParts = Array.from({ length: preset.inputs }, (_, i) => {
+              const hubLabel = hubState?.inputLabels?.[i]
+              if (hubLabel) return { port: hubLabel }
+              // #286 — Canvas-Port: contentLabel bevorzugt vor port.name.
+              const p = device?.inputs[i]
+              const portName = p ? portDisplayLabel(p) || `In ${i + 1}` : `In ${i + 1}`
+              const conn = connections.inputConn.get(i)
+              if (!conn || !showConnections) return { port: portName }
+              return {
+                port: portName,
+                connDevice: conn.sourceName,
+                connPort:
+                  showConnectionPorts && conn.portName && conn.portName !== '?'
+                    ? conn.portName
+                    : undefined,
               }
+            })
+            const outputLabelParts = Array.from({ length: preset.outputs }, (_, i) => {
+              const hubLabel = hubState?.outputLabels?.[i]
+              const lockState = hubState?.outputLocks?.[i]
+              const lockBadge =
+                lockState === 'locked-self'
+                  ? ' 🔒'
+                  : lockState === 'locked-other'
+                    ? ' 🔒❗'
+                    : ''
+              if (hubLabel) return { port: hubLabel, lockBadge }
+              const p = device?.outputs[i]
+              const portName = p ? portDisplayLabel(p) || `Out ${i + 1}` : `Out ${i + 1}`
+              const conn = connections.outputConn.get(i)
+              if (!conn || !showConnections) return { port: portName, lockBadge }
+              return {
+                port: portName,
+                connDevice: conn.destName,
+                connPort:
+                  showConnectionPorts && conn.portName && conn.portName !== '?'
+                    ? conn.portName
+                    : undefined,
+                lockBadge,
+              }
+            })
+            // Plain-Text-Variante fuer Tooltips / List-Mode-Fallback /
+            // Export-Filenamen.
+            const inputLabelArr = inputLabelParts.map((p) =>
+              p.connPort
+                ? `${p.port} ← ${p.connDevice} · ${p.connPort}`
+                : p.connDevice
+                  ? `${p.port} ← ${p.connDevice}`
+                  : p.port,
+            )
+            const outputLabelArr = outputLabelParts.map((p) =>
+              (p.connPort
+                ? `${p.port} → ${p.connDevice} · ${p.connPort}`
+                : p.connDevice
+                  ? `${p.port} → ${p.connDevice}`
+                  : p.port) + (p.lockBadge ?? ''),
+            )
+            const onRoute = (output: number, input: number) =>
+              setRouting((r) => ({ ...r, [output]: input }))
+            // v7.9.131 — Bei isSwapped tauschen wir die Label-/
+            // Parts-Arrays + transponieren die Routing-Map damit das
+            // Visual transpose ohne Matrix-Refactor funktioniert.
+            // Multicast-Verlust: routing[output]=input ist one-to-one
+            // pro Output, aber many-Outputs-pro-Input. In "inputs-rows"
+            // bilden wir input->erstesOutput ab (verliert weitere
+            // Outputs die auf den gleichen Input gehen — siehe Plan
+            // fuer Multicast-Anzeige im Folge-Commit).
+            const isSwap = axisOrientation === 'inputs-rows'
+            const matrixInputLabels = isSwap ? outputLabelArr : inputLabelArr
+            const matrixOutputLabels = isSwap ? inputLabelArr : outputLabelArr
+            const matrixInputParts = isSwap ? outputLabelParts : inputLabelParts
+            const matrixOutputParts = isSwap ? inputLabelParts : outputLabelParts
+            const matrixRouting = isSwap
+              ? (() => {
+                  const r: Record<number, number> = {}
+                  for (const [outStr, inIdx] of Object.entries(routing)) {
+                    const inputIdx = inIdx as number
+                    if (r[inputIdx] === undefined) {
+                      r[inputIdx] = parseInt(outStr, 10)
+                    }
+                  }
+                  return r
+                })()
+              : routing
+            const matrixOnRoute = isSwap
+              ? (rowIdx: number, colIdx: number) => onRoute(colIdx, rowIdx)
+              : onRoute
+            const matrixTotalIn = isSwap ? preset.outputs : preset.inputs
+            const matrixTotalOut = isSwap ? preset.inputs : preset.outputs
+            if (routingView === 'list') {
               return (
-                <VideohubRoutingMatrix
+                <VideohubRoutingList
                   totalInputs={matrixTotalIn}
                   totalOutputs={matrixTotalOut}
                   inputLabels={matrixInputLabels}
                   outputLabels={matrixOutputLabels}
-                  inputLabelParts={matrixInputParts}
-                  outputLabelParts={matrixOutputParts}
                   routing={matrixRouting}
                   onRoute={matrixOnRoute}
-                  axisOrientation={axisOrientation}
                 />
               )
-            })()}
-          </div>
-        )}
+            }
+            return (
+              <VideohubRoutingMatrix
+                totalInputs={matrixTotalIn}
+                totalOutputs={matrixTotalOut}
+                inputLabels={matrixInputLabels}
+                outputLabels={matrixOutputLabels}
+                inputLabelParts={matrixInputParts}
+                outputLabelParts={matrixOutputParts}
+                routing={matrixRouting}
+                onRoute={matrixOnRoute}
+                axisOrientation={axisOrientation}
+              />
+            )
+          })()}
+        </div>
 
         {/* v7.9.128 — Salvos: benannte Routing-Snapshots speichern/laden.
             Inspiriert von VideoHubSim. Pro Device + Preset gespeichert in
             localStorage. Immer sichtbar (nicht mehr von showMatrix
             abhaengig). */}
-        {true && (
-          <div className="mb-3 rounded border border-cyan-700/40 bg-cyan-950/20 p-2">
-            <div className="mb-2 flex items-center justify-between">
-              <div className="text-[10px] uppercase tracking-wide text-cyan-300">
-                Salvos (Routing-Snapshots)
-              </div>
-              <button
-                type="button"
-                onClick={() => void saveSalvo()}
-                className="rounded bg-cyan-700 px-2 py-0.5 text-[11px] text-white hover:bg-cyan-600"
-                title={t('videohub.saveSalvo', 'Aktuelles Routing als benannten Snapshot speichern')}
-              >
-                + Aktuelles Routing speichern
-              </button>
+        <div className="mb-3 rounded border border-cyan-700/40 bg-cyan-950/20 p-2">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="text-[10px] uppercase tracking-wide text-cyan-300">
+              Salvos (Routing-Snapshots)
             </div>
-            {salvos.length === 0 ? (
-              <div className="text-[11px] text-slate-500">
-                Noch keine Salvos. Speichere die aktuelle Crosspoint-Verteilung
-                und ruf sie spaeter mit einem Klick zurueck.
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-1">
-                {salvos.map((s) => (
-                  <div
-                    key={s.id}
-                    className="flex items-center gap-1 rounded border border-cyan-800/60 bg-cyan-950/40 px-1.5 py-0.5 text-[11px]"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => recallSalvo(s)}
-                      className="text-cyan-100 hover:text-white"
-                      title={`Salvo "${s.name}" laden (${Object.keys(s.routing).length} Routen, ${new Date(s.createdAt).toLocaleString('de-DE')})`}
-                    >
-                      <Icon icon={ClipboardList} size="xs" className="mr-1 inline-block align-text-bottom" />{s.name}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => deleteSalvo(s.id)}
-                      className="text-slate-500 hover:text-red-400"
-                      title={t('videohub.deleteSalvo', 'Salvo löschen')}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={() => void saveSalvo()}
+              className="rounded bg-cyan-700 px-2 py-0.5 text-[11px] text-white hover:bg-cyan-600"
+              title={t('videohub.saveSalvo', 'Aktuelles Routing als benannten Snapshot speichern')}
+            >
+              + Aktuelles Routing speichern
+            </button>
           </div>
-        )}
+          {salvos.length === 0 ? (
+            <div className="text-[11px] text-slate-500">
+              Noch keine Salvos. Speichere die aktuelle Crosspoint-Verteilung
+              und ruf sie spaeter mit einem Klick zurueck.
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-1">
+              {salvos.map((s) => (
+                <div
+                  key={s.id}
+                  className="flex items-center gap-1 rounded border border-cyan-800/60 bg-cyan-950/40 px-1.5 py-0.5 text-[11px]"
+                >
+                  <button
+                    type="button"
+                    onClick={() => recallSalvo(s)}
+                    className="text-cyan-100 hover:text-white"
+                    title={`Salvo "${s.name}" laden (${Object.keys(s.routing).length} Routen, ${new Date(s.createdAt).toLocaleString('de-DE')})`}
+                  >
+                    <Icon icon={ClipboardList} size="xs" className="mr-1 inline-block align-text-bottom" />{s.name}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteSalvo(s.id)}
+                    className="text-slate-500 hover:text-red-400"
+                    title={t('videohub.deleteSalvo', 'Salvo löschen')}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* ── TCP Senden ─────────────────────────────────────────────── */}
         {/* v7.9.128 — Immer sichtbar. Separate Buttons fuer Labels-Push,
@@ -1083,225 +1079,223 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             pusht das ans Hub wenn er im richtigen Netz ist — ggf. nur
             Teilmengen (z.B. nur Labels nach Re-Labelling, ohne Routing
             zu touchen). */}
-        {true && (
-          <div className="mb-3 rounded border border-slate-600 bg-slate-800/60 p-2">
-            <div className="mb-2 text-[10px] uppercase tracking-wide text-slate-400">
-              An Videohub senden (TCP) — offline editieren, hier pushen wenn online
-              {!hasDesktopBridge && (
-                <span className="ml-2 text-amber-400">· nur in Desktop-App verfügbar</span>
-              )}
-            </div>
-            <div className="flex items-end gap-2">
-              <label className="block flex-1 text-xs">
-                IP-Adresse
-                <div className="mt-1 flex items-stretch gap-1">
-                  <input
-                    value={vhHost}
-                    onChange={(e) => {
-                      setVhHost(e.target.value)
-                      setSendStatus('idle')
-                    }}
-                    placeholder="192.168.1.1"
-                    className="flex-1 rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-xs"
-                  />
-                  {/* v7.9.128 — Connection-History: zuletzt benutzte
-                      IP/Port-Kombinationen. Wird beim erfolgreichen Send
-                      automatisch gepflegt. */}
-                  {connHistory.length > 0 && (
-                    <select
-                      value=""
-                      onChange={(e) => {
-                        const idx = parseInt(e.target.value, 10)
-                        if (isNaN(idx)) return
-                        const pick = connHistory[idx]
-                        if (pick) {
-                          setVhHost(pick.host)
-                          setVhPort(pick.port)
-                          setSendStatus('idle')
-                        }
-                      }}
-                      title={t('videohub.recentConns', 'Zuletzt benutzte Verbindungen')}
-                      className="w-10 rounded border border-slate-700 bg-slate-950 px-1 text-xs"
-                    >
-                      <option value="">▼</option>
-                      {connHistory.map((c, i) => (
-                        <option key={`${c.host}-${c.port}-${c.lastUsed}`} value={i}>
-                          {c.host}:{c.port}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
-              </label>
-              <label className="block w-20 text-xs">
-                Port
-                <input
-                  value={vhPort}
-                  onChange={(e) => {
-                    setVhPort(e.target.value)
-                    setSendStatus('idle')
-                  }}
-                  placeholder="9990"
-                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-xs"
-                />
-              </label>
-              <button
-                type="button"
-                onClick={() => { void handleDiscover() }}
-                disabled={!hasDesktopBridge || discovering}
-                title={t('videohub.mdnsTitle', 'Videohubs im lokalen Netz via mDNS/Bonjour suchen (3 s Scan).')}
-                className="rounded bg-teal-700 px-3 py-1.5 text-xs hover:bg-teal-600 disabled:opacity-40"
-              >
-                <Icon icon={Search} size="xs" className="mr-1 inline-block align-text-bottom" />{discovering ? 'Suche…' : 'Suchen'}
-              </button>
-              <button
-                type="button"
-                onClick={() => { void handleReadState() }}
-                disabled={!device || !hasDesktopBridge || readingState}
-                title={t('videohub.loadStatus', 'Aktuellen Hub-Status holen: Labels + Routing + Locks. Routing wird in die Matrix übernommen, Labels in den Spalten/Zeilen angezeigt.')}
-                className="rounded bg-sky-700 px-3 py-1.5 text-xs hover:bg-sky-600 disabled:opacity-40"
-              >
-                <Icon icon={readingState ? Loader2 : Download} size="xs" className={`mr-1 inline-block align-text-bottom ${readingState ? 'animate-spin' : ''}`} />{readingState ? 'Laden…' : 'Status laden'}
-              </button>
-            </div>
-            {/* Issue #248 — Ergebnisliste der Discovery. Klick auf einen
-                Eintrag uebernimmt IP+Port in die Eingabefelder. */}
-            {discovered !== null && (
-              <div className="mt-2 rounded border border-teal-800 bg-teal-950/30 p-2 text-xs">
-                {discovered.length === 0 ? (
-                  <div className="text-slate-400">
-                    Kein Videohub per mDNS gefunden. (Firewalls oder andere Subnetze
-                    blocken Bonjour — dann IP manuell eintragen.)
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-1">
-                    <div className="mb-1 text-[10px] uppercase tracking-wide text-teal-300">
-                      Gefunden ({discovered.length}) — Klick uebernimmt IP/Port
-                    </div>
-                    {discovered.map((d) => (
-                      <button
-                        key={`${d.ip}:${d.port}`}
-                        type="button"
-                        onClick={() => {
-                          setVhHost(d.ip)
-                          setVhPort(String(d.port))
-                          setSendStatus('idle')
-                        }}
-                        className="flex items-center justify-between gap-2 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-left hover:border-teal-500 hover:bg-slate-800"
-                      >
-                        <span className="truncate font-semibold text-slate-100">
-                          {d.name}
-                          {d.model && (
-                            <span className="ml-1 text-[10px] font-normal text-slate-400">
-                              · {d.model}
-                            </span>
-                          )}
-                        </span>
-                        <span className="shrink-0 font-mono text-slate-300">
-                          {d.ip}:{d.port}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-            {/* v7.9.128 — Drei getrennte Push-Buttons. User kann nur
-                Labels oder nur Routing oder beides zusammen pushen. */}
-            <div className="mt-2 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => { void handleSendLabels() }}
-                disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
-                title={t('videohub.sendLabelsTitle', 'Nur INPUT LABELS + OUTPUT LABELS senden. Routing bleibt am Hub unangetastet.')}
-                className="rounded bg-purple-600 px-3 py-1.5 text-xs hover:bg-purple-500 disabled:opacity-40"
-              >
-                <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Labels senden'}
-              </button>
-              <button
-                type="button"
-                onClick={() => { void handleSendRouting() }}
-                disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
-                title={t('videohub.sendRoutingTitle', 'Nur VIDEO OUTPUT ROUTING senden. Labels am Hub unverändert.')}
-                className="rounded bg-purple-600 px-3 py-1.5 text-xs hover:bg-purple-500 disabled:opacity-40"
-              >
-                <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Routing senden'}
-              </button>
-              <button
-                type="button"
-                onClick={() => { void handleSendBoth() }}
-                disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
-                title={t('videohub.sendBothTitle', 'Labels + Routing in EINEM Push (drei Blöcke hintereinander).')}
-                className="rounded bg-purple-800 px-3 py-1.5 text-xs font-semibold hover:bg-purple-700 disabled:opacity-40"
-              >
-                <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Labels + Routing senden'}
-              </button>
-            </div>
-            {hubState && (
-              <div className="mt-1.5 rounded border border-sky-700/40 bg-sky-950/30 p-1.5 text-[11px] text-sky-100">
-                <span className="font-semibold">{t('videohub.hubStatus', 'Hub-Status:')}</span>{' '}
-                {hubState.modelName ?? 'Unbekannt'}{' '}
-                {hubState.friendlyName && `("${hubState.friendlyName}")`}
-                {hubState.videoInputs && hubState.videoOutputs && (
-                  <span className="ml-1 text-sky-300">
-                    {' '}· {hubState.videoInputs}×{hubState.videoOutputs}
-                  </span>
-                )}
-                {(() => {
-                  const lockedCount = Object.values(hubState.outputLocks).filter(
-                    (v) => v !== 'unlocked',
-                  ).length
-                  return lockedCount > 0 ? (
-                    <span className="ml-2 rounded bg-amber-900/40 px-1 py-0.5 text-amber-200">
-                      <Icon icon={Lock} size="xs" className="mr-1 inline-block align-text-bottom" />{lockedCount} Output{lockedCount !== 1 ? 's' : ''} gesperrt
-                    </span>
-                  ) : null
-                })()}
-              </div>
-            )}
-            {sendStatus !== 'idle' && (
-              <div
-                className={`mt-1.5 rounded p-1.5 text-xs ${
-                  sendStatus === 'ok'
-                    ? 'bg-emerald-950 text-emerald-300'
-                    : sendStatus === 'error'
-                      ? 'bg-red-950 text-red-300'
-                      : 'bg-slate-700 text-slate-300'
-                }`}
-              >
-                {sendStatus === 'ok' && '✓ '}
-                {sendStatus === 'error' && '✗ '}
-                {sendMessage}
-              </div>
-            )}
-            {/* v7.9.128 — Activity-Log (VideoHubSim-Style): rolling list
-                der letzten 50 Events (Sende-Versuche, Salvos, Connection-
-                Wechsel). Hilft beim Debuggen ("warum sagt Hub jetzt
-                NAK"). Wird beim Dialog-Close vergessen. */}
-            {activityLog.length > 0 && (
-              <details className="mt-2 text-[11px]">
-                <summary className="cursor-pointer text-slate-400 hover:text-slate-200">
-                  Activity-Log ({activityLog.length})
-                </summary>
-                <div className="mt-1 max-h-32 space-y-0.5 overflow-auto rounded border border-slate-800 bg-slate-950/60 p-1.5 font-mono">
-                  {activityLog.map((e, i) => (
-                    <div
-                      key={`${e.ts}-${i}`}
-                      className={`whitespace-nowrap ${
-                        e.ok ? 'text-slate-300' : 'text-red-300'
-                      }`}
-                    >
-                      <span className="text-slate-500">
-                        {new Date(e.ts).toLocaleTimeString('de-DE')}
-                      </span>{' '}
-                      {e.text}
-                    </div>
-                  ))}
-                </div>
-              </details>
+        <div className="mb-3 rounded border border-slate-600 bg-slate-800/60 p-2">
+          <div className="mb-2 text-[10px] uppercase tracking-wide text-slate-400">
+            An Videohub senden (TCP) — offline editieren, hier pushen wenn online
+            {!hasDesktopBridge && (
+              <span className="ml-2 text-amber-400">· nur in Desktop-App verfügbar</span>
             )}
           </div>
-        )}
+          <div className="flex items-end gap-2">
+            <label className="block flex-1 text-xs">
+              IP-Adresse
+              <div className="mt-1 flex items-stretch gap-1">
+                <input
+                  value={vhHost}
+                  onChange={(e) => {
+                    setVhHost(e.target.value)
+                    setSendStatus('idle')
+                  }}
+                  placeholder="192.168.1.1"
+                  className="flex-1 rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-xs"
+                />
+                {/* v7.9.128 — Connection-History: zuletzt benutzte
+                    IP/Port-Kombinationen. Wird beim erfolgreichen Send
+                    automatisch gepflegt. */}
+                {connHistory.length > 0 && (
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const idx = parseInt(e.target.value, 10)
+                      if (isNaN(idx)) return
+                      const pick = connHistory[idx]
+                      if (pick) {
+                        setVhHost(pick.host)
+                        setVhPort(pick.port)
+                        setSendStatus('idle')
+                      }
+                    }}
+                    title={t('videohub.recentConns', 'Zuletzt benutzte Verbindungen')}
+                    className="w-10 rounded border border-slate-700 bg-slate-950 px-1 text-xs"
+                  >
+                    <option value="">▼</option>
+                    {connHistory.map((c, i) => (
+                      <option key={`${c.host}-${c.port}-${c.lastUsed}`} value={i}>
+                        {c.host}:{c.port}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            </label>
+            <label className="block w-20 text-xs">
+              Port
+              <input
+                value={vhPort}
+                onChange={(e) => {
+                  setVhPort(e.target.value)
+                  setSendStatus('idle')
+                }}
+                placeholder="9990"
+                className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-xs"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => { void handleDiscover() }}
+              disabled={!hasDesktopBridge || discovering}
+              title={t('videohub.mdnsTitle', 'Videohubs im lokalen Netz via mDNS/Bonjour suchen (3 s Scan).')}
+              className="rounded bg-teal-700 px-3 py-1.5 text-xs hover:bg-teal-600 disabled:opacity-40"
+            >
+              <Icon icon={Search} size="xs" className="mr-1 inline-block align-text-bottom" />{discovering ? 'Suche…' : 'Suchen'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { void handleReadState() }}
+              disabled={!device || !hasDesktopBridge || readingState}
+              title={t('videohub.loadStatus', 'Aktuellen Hub-Status holen: Labels + Routing + Locks. Routing wird in die Matrix übernommen, Labels in den Spalten/Zeilen angezeigt.')}
+              className="rounded bg-sky-700 px-3 py-1.5 text-xs hover:bg-sky-600 disabled:opacity-40"
+            >
+              <Icon icon={readingState ? Loader2 : Download} size="xs" className={`mr-1 inline-block align-text-bottom ${readingState ? 'animate-spin' : ''}`} />{readingState ? 'Laden…' : 'Status laden'}
+            </button>
+          </div>
+          {/* Issue #248 — Ergebnisliste der Discovery. Klick auf einen
+              Eintrag uebernimmt IP+Port in die Eingabefelder. */}
+          {discovered !== null && (
+            <div className="mt-2 rounded border border-teal-800 bg-teal-950/30 p-2 text-xs">
+              {discovered.length === 0 ? (
+                <div className="text-slate-400">
+                  Kein Videohub per mDNS gefunden. (Firewalls oder andere Subnetze
+                  blocken Bonjour — dann IP manuell eintragen.)
+                </div>
+              ) : (
+                <div className="flex flex-col gap-1">
+                  <div className="mb-1 text-[10px] uppercase tracking-wide text-teal-300">
+                    Gefunden ({discovered.length}) — Klick uebernimmt IP/Port
+                  </div>
+                  {discovered.map((d) => (
+                    <button
+                      key={`${d.ip}:${d.port}`}
+                      type="button"
+                      onClick={() => {
+                        setVhHost(d.ip)
+                        setVhPort(String(d.port))
+                        setSendStatus('idle')
+                      }}
+                      className="flex items-center justify-between gap-2 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-left hover:border-teal-500 hover:bg-slate-800"
+                    >
+                      <span className="truncate font-semibold text-slate-100">
+                        {d.name}
+                        {d.model && (
+                          <span className="ml-1 text-[10px] font-normal text-slate-400">
+                            · {d.model}
+                          </span>
+                        )}
+                      </span>
+                      <span className="shrink-0 font-mono text-slate-300">
+                        {d.ip}:{d.port}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          {/* v7.9.128 — Drei getrennte Push-Buttons. User kann nur
+              Labels oder nur Routing oder beides zusammen pushen. */}
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => { void handleSendLabels() }}
+              disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
+              title={t('videohub.sendLabelsTitle', 'Nur INPUT LABELS + OUTPUT LABELS senden. Routing bleibt am Hub unangetastet.')}
+              className="rounded bg-purple-600 px-3 py-1.5 text-xs hover:bg-purple-500 disabled:opacity-40"
+            >
+              <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Labels senden'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { void handleSendRouting() }}
+              disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
+              title={t('videohub.sendRoutingTitle', 'Nur VIDEO OUTPUT ROUTING senden. Labels am Hub unverändert.')}
+              className="rounded bg-purple-600 px-3 py-1.5 text-xs hover:bg-purple-500 disabled:opacity-40"
+            >
+              <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Routing senden'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { void handleSendBoth() }}
+              disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
+              title={t('videohub.sendBothTitle', 'Labels + Routing in EINEM Push (drei Blöcke hintereinander).')}
+              className="rounded bg-purple-800 px-3 py-1.5 text-xs font-semibold hover:bg-purple-700 disabled:opacity-40"
+            >
+              <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Labels + Routing senden'}
+            </button>
+          </div>
+          {hubState && (
+            <div className="mt-1.5 rounded border border-sky-700/40 bg-sky-950/30 p-1.5 text-[11px] text-sky-100">
+              <span className="font-semibold">{t('videohub.hubStatus', 'Hub-Status:')}</span>{' '}
+              {hubState.modelName ?? 'Unbekannt'}{' '}
+              {hubState.friendlyName && `("${hubState.friendlyName}")`}
+              {hubState.videoInputs && hubState.videoOutputs && (
+                <span className="ml-1 text-sky-300">
+                  {' '}· {hubState.videoInputs}×{hubState.videoOutputs}
+                </span>
+              )}
+              {(() => {
+                const lockedCount = Object.values(hubState.outputLocks).filter(
+                  (v) => v !== 'unlocked',
+                ).length
+                return lockedCount > 0 ? (
+                  <span className="ml-2 rounded bg-amber-900/40 px-1 py-0.5 text-amber-200">
+                    <Icon icon={Lock} size="xs" className="mr-1 inline-block align-text-bottom" />{lockedCount} Output{lockedCount !== 1 ? 's' : ''} gesperrt
+                  </span>
+                ) : null
+              })()}
+            </div>
+          )}
+          {sendStatus !== 'idle' && (
+            <div
+              className={`mt-1.5 rounded p-1.5 text-xs ${
+                sendStatus === 'ok'
+                  ? 'bg-emerald-950 text-emerald-300'
+                  : sendStatus === 'error'
+                    ? 'bg-red-950 text-red-300'
+                    : 'bg-slate-700 text-slate-300'
+              }`}
+            >
+              {sendStatus === 'ok' && '✓ '}
+              {sendStatus === 'error' && '✗ '}
+              {sendMessage}
+            </div>
+          )}
+          {/* v7.9.128 — Activity-Log (VideoHubSim-Style): rolling list
+              der letzten 50 Events (Sende-Versuche, Salvos, Connection-
+              Wechsel). Hilft beim Debuggen ("warum sagt Hub jetzt
+              NAK"). Wird beim Dialog-Close vergessen. */}
+          {activityLog.length > 0 && (
+            <details className="mt-2 text-[11px]">
+              <summary className="cursor-pointer text-slate-400 hover:text-slate-200">
+                Activity-Log ({activityLog.length})
+              </summary>
+              <div className="mt-1 max-h-32 space-y-0.5 overflow-auto rounded border border-slate-800 bg-slate-950/60 p-1.5 font-mono">
+                {activityLog.map((e, i) => (
+                  <div
+                    key={`${e.ts}-${i}`}
+                    className={`whitespace-nowrap ${
+                      e.ok ? 'text-slate-300' : 'text-red-300'
+                    }`}
+                  >
+                    <span className="text-slate-500">
+                      {new Date(e.ts).toLocaleTimeString('de-DE')}
+                    </span>{' '}
+                    {e.text}
+                  </div>
+                ))}
+              </div>
+            </details>
+          )}
+        </div>
 
         <div className="mb-2 text-xs text-slate-400">{t('videohub.preview', 'Vorschau')}</div>
         <textarea

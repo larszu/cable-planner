@@ -518,7 +518,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     // als Rack-Gerät markiert werden soll. Bei "Ja" greift
     // markTemplateAsRack und das Gerät erscheint künftig direkt unter
     // den Rack-Geräten ohne erneute HE-Abfrage.
-    let effectiveTemplate = template
+    const effectiveTemplate = template
     if (!template.isRackDevice && !template.rackUnits) {
       // v7.9.80 / #170 — Statt einer simplen HE-Promptbox jetzt ein
       // richtiger Dialog mit zwei Pfaden: 19″-Rack-Gerät (HE) oder

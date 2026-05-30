@@ -1,4 +1,3 @@
-/* eslint-disable */
 // One-shot fixer for double-encoded UTF-8 (mojibake) introduced when an
 // already-UTF-8 file was saved by an editor that interpreted the bytes as
 // Latin-1. Surgical: only replaces known mojibake tokens, never touches
