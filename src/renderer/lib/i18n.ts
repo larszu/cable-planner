@@ -613,6 +613,9 @@ const en: Dict = {
   // PortList
   'ports.title.inputs': 'Inputs',
   'ports.title.outputs': 'Outputs',
+  'ports.flip': 'Flip ports (inputs on right, outputs on left)',
+  'ports.flipTitle':
+    'Inputs render on the right, outputs on the left of the device node.',
   'ports.add': '+ Port',
   'ports.add.title': 'Add a new port',
   'ports.empty': 'No {kind} yet. Use "+ Port" to add one.',
@@ -1783,7 +1786,7 @@ const en: Dict = {
   'netAccess.subtitle': 'IP · S/N · login',
   'netAccess.notesPlaceholder': 'Web UI URL, firmware version, wiring notes, …',
   'flags.title': 'Display & flags',
-  'flags.subtitle': 'compact · colour · mirror ports · packed',
+  'flags.subtitle': 'compact · colour · packed',
   'flags.colorTitle': 'Device node colour',
   'flags.packedTitle':
     'Marks the device as packed. Shown as ✓ on the canvas and as a column in the device BOM.',
