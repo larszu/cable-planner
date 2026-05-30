@@ -47,6 +47,8 @@ interface PatchRow {
   cableName: string
   notes: string
   layer: string
+  /** #363 — Multicore-/Snake-Bündel-Name (leer = Einzelkabel). */
+  multicore: string
 }
 
 export const PatchListDialog = () => {
@@ -190,6 +192,7 @@ export const PatchListDialog = () => {
         cableName: c.name,
         notes: c.notes ?? '',
         layer: c.layer ?? '',
+        multicore: c.multicoreName ?? '',
       }
     })
     const cmp = (a: PatchRow, b: PatchRow): number => {
@@ -255,6 +258,7 @@ export const PatchListDialog = () => {
       t('export.bom.csv.type', 'Typ'),
       t('export.bom.csv.lengthM', 'Länge (m)'),
       t('patchList.col.layer', 'Layer'),
+      t('patchList.col.multicore', 'Multicore'),
       t('patchList.col.color', 'Farbe'),
       t('patchList.col.cableName', 'Kabelname'),
       t('patchList.col.notes', 'Notizen'),
@@ -268,6 +272,7 @@ export const PatchListDialog = () => {
       r.type,
       r.length,
       r.layer,
+      r.multicore,
       r.color,
       r.cableName,
       r.notes,
