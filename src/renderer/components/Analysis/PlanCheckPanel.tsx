@@ -1,0 +1,115 @@
+// #411 — Vereinte „Plan-Check"-Palette.
+//
+// Live-Validierung des aktuellen Plans in einem ziehbaren Panel (analog zu
+// ConnectCADs „Status"-Palette). Liest Equipment + Cables aus dem Store,
+// rechnet die Findings über lib/drawingChecks.ts und macht jeden Fund
+// klickbar → selektiert das betroffene Gerät/Kabel auf dem Canvas.
+
+import { useMemo } from 'react'
+import { AlertTriangle, AlertCircle, Info, CheckCircle2 } from 'lucide-react'
+import { useUiStore } from '../../store/uiStore'
+import { useProjectStore } from '../../store/projectStore'
+import { ModalShell } from '../shared/ModalShell'
+import { Icon } from '../shared/Icon'
+import { useTranslation, format } from '../../lib/i18n'
+import { runDrawingChecks, type CheckFinding, type CheckSeverity } from '../../lib/drawingChecks'
+
+const SEVERITY_META: Record<
+  CheckSeverity,
+  { icon: typeof AlertTriangle; tone: string; row: string }
+> = {
+  error: { icon: AlertCircle, tone: 'text-red-400', row: 'hover:bg-red-950/40' },
+  warning: { icon: AlertTriangle, tone: 'text-amber-400', row: 'hover:bg-amber-950/30' },
+  info: { icon: Info, tone: 'text-sky-400', row: 'hover:bg-sky-950/30' },
+}
+
+export const PlanCheckPanel = () => {
+  const t = useTranslation()
+  const open = useUiStore((s) => s.planCheck.open)
+  const close = useUiStore((s) => s.closePlanCheck)
+  const equipment = useProjectStore((s) => s.project.equipment)
+  const cables = useProjectStore((s) => s.project.cables)
+  const setSelection = useProjectStore((s) => s.setSelection)
+
+  const result = useMemo(
+    () => runDrawingChecks({ equipment, cables }),
+    [equipment, cables],
+  )
+
+  if (!open) return null
+
+  const focusFinding = (f: CheckFinding) => {
+    if (f.cableId) setSelection(undefined, f.cableId, undefined)
+    else if (f.equipmentId) setSelection(f.equipmentId, undefined, undefined)
+  }
+
+  const { findings, errorCount, warningCount, infoCount } = result
+
+  return (
+    <ModalShell
+      open={open}
+      onClose={close}
+      title={t('planCheck.title', 'Plan-Check')}
+      titleIcon="🩺"
+      maxWidth="2xl"
+      draggableKey="cable-planner:modal-pos:plancheck"
+      scrollBody={false}
+    >
+      <div className="flex h-full flex-col">
+        <div className="flex items-center gap-3 border-b border-slate-800 py-2 text-xs">
+          <span className="inline-flex items-center gap-1 text-red-400">
+            <Icon icon={AlertCircle} size="xs" /> {errorCount}
+          </span>
+          <span className="inline-flex items-center gap-1 text-amber-400">
+            <Icon icon={AlertTriangle} size="xs" /> {warningCount}
+          </span>
+          <span className="inline-flex items-center gap-1 text-sky-400">
+            <Icon icon={Info} size="xs" /> {infoCount}
+          </span>
+          <span className="ml-auto text-slate-500">
+            {format(t('planCheck.summary', '{count} Hinweise'), { count: findings.length })}
+          </span>
+        </div>
+        <div className="flex-1 overflow-auto py-1">
+          {findings.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-10 text-emerald-400">
+              <Icon icon={CheckCircle2} size="lg" />
+              <span className="text-sm">{t('planCheck.allClear', 'Keine Auffälligkeiten gefunden.')}</span>
+            </div>
+          ) : (
+            <ul className="divide-y divide-slate-800/60">
+              {findings.map((f) => {
+                const meta = SEVERITY_META[f.severity]
+                const clickable = !!(f.cableId || f.equipmentId)
+                return (
+                  <li key={f.id}>
+                    <button
+                      type="button"
+                      disabled={!clickable}
+                      onClick={() => focusFinding(f)}
+                      className={`flex w-full items-start gap-2 px-2 py-1.5 text-left text-xs ${meta.row} ${
+                        clickable ? 'cursor-pointer' : 'cursor-default'
+                      }`}
+                    >
+                      <Icon icon={meta.icon} size="xs" className={`mt-0.5 shrink-0 ${meta.tone}`} />
+                      <span className="min-w-0">
+                        <span className={`mr-1 font-semibold ${meta.tone}`}>{f.category}:</span>
+                        <span className="text-slate-300">{f.message}</span>
+                      </span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+        <p className="border-t border-slate-800 py-1.5 text-[10px] text-slate-500">
+          {t(
+            'planCheck.footerHint',
+            'Live-Validierung des Plans. Klick auf einen Hinweis selektiert das betroffene Element.',
+          )}
+        </p>
+      </div>
+    </ModalShell>
+  )
+}

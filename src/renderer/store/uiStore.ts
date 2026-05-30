@@ -767,6 +767,11 @@ interface UiState extends PersistedUiState {
   analysis: { open: boolean }
   openAnalysis: () => void
   closeAnalysis: () => void
+  /** Vereinte „Plan-Check"-Palette: Live-Validierung des Plans (#411). */
+  planCheck: { open: boolean }
+  openPlanCheck: () => void
+  closePlanCheck: () => void
+  togglePlanCheck: () => void
   /** Generischer Equipment-CSV-Import in die Library (#354). */
   csvImport: { open: boolean }
   openCsvImport: () => void
@@ -1143,6 +1148,10 @@ export const useUiStore = create<UiState>((set) => ({
   analysis: { open: false },
   openAnalysis: () => set({ analysis: { open: true } }),
   closeAnalysis: () => set({ analysis: { open: false } }),
+  planCheck: { open: false },
+  openPlanCheck: () => set({ planCheck: { open: true } }),
+  closePlanCheck: () => set({ planCheck: { open: false } }),
+  togglePlanCheck: () => set((s) => ({ planCheck: { open: !s.planCheck.open } })),
   csvImport: { open: false },
   openCsvImport: () => set({ csvImport: { open: true } }),
   closeCsvImport: () => set({ csvImport: { open: false } }),

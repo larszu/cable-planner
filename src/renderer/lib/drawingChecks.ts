@@ -1,0 +1,267 @@
+// #411 — Vereinte „Plan-Check"-Engine.
+//
+// Sammelt alle Plan-Validierungen an EINER Stelle, damit die UI (PlanCheckPanel
+// + StatusBar-Badge) einen Live-Gesamtstatus zeigen kann — analog zu ConnectCADs
+// „Status"-Palette. Rein lesend, non-destruktiv.
+//
+// Die Heuristiken sind bewusst die GLEICHEN wie im AnalysisDialog (Doppel-IP,
+// RF-Konflikt, Single-Power) plus neue, dort fehlende Checks (offene Ports,
+// inkompatible Connectoren, doppelte Kabelnummern, fehlende Längen). Wir
+// duplizieren nur die kleinen reinen Helfer (parseFreqMHz, effectiveWatts),
+// nicht die Report-UI.
+
+import type { Cable } from '../types/cable'
+import type { EquipmentItem, Port, ConnectorType } from '../types/equipment'
+
+export type CheckSeverity = 'error' | 'warning' | 'info'
+
+export interface CheckFinding {
+  /** Stabile ID (Check-Typ + betroffenes Element) — als React-key nutzbar. */
+  id: string
+  severity: CheckSeverity
+  /** Kurzer Check-Typ als Gruppen-Label, z.B. "Doppelte IP". */
+  category: string
+  /** Menschlich lesbare Beschreibung des konkreten Fundes. */
+  message: string
+  /** Klick-Ziel: selektiert dieses Gerät bzw. Kabel auf dem Canvas. */
+  equipmentId?: string
+  cableId?: string
+}
+
+/** Effektive Leistung eines Geräts: explizite Watt, sonst V×A. */
+const effectiveWatts = (e: EquipmentItem): number =>
+  e.powerConsumptionWatts ?? (e.voltage && e.currentAmps ? e.voltage * e.currentAmps : 0)
+
+/** Frequenz-String („5.8 GHz", „600 MHz", „614") → MHz (oder null). */
+const parseFreqMHz = (s: string | undefined): number | null => {
+  if (!s) return null
+  const m = s.match(/([\d.]+)\s*(g|m|k)?hz/i) ?? s.match(/^([\d.]+)$/)
+  if (!m) return null
+  const value = parseFloat(m[1])
+  if (Number.isNaN(value)) return null
+  const unit = (m[2] ?? 'm').toLowerCase()
+  return unit === 'g' ? value * 1000 : unit === 'k' ? value / 1000 : value
+}
+
+/** Mindestabstand (MHz) unter dem zwei Funkstrecken als Konflikt gelten. */
+const RF_MIN_SPACING_MHZ = 0.4
+
+/** Strom-Connectoren — für die Single-Power-Heuristik. */
+const POWER_CONNECTORS = new Set<ConnectorType>([
+  'IEC 230V',
+  'PowerCON',
+  'Schuko 230V',
+  'C7 Eurostecker',
+])
+
+const isPowerCable = (
+  cable: Cable,
+  portById: Map<string, Port>,
+): boolean => {
+  if (cable.layer === 'power') return true
+  const from = portById.get(cable.fromPortId)
+  const to = portById.get(cable.toPortId)
+  return (
+    (from != null && POWER_CONNECTORS.has(from.connectorType)) ||
+    (to != null && POWER_CONNECTORS.has(to.connectorType))
+  )
+}
+
+export interface DrawingCheckInput {
+  equipment: EquipmentItem[]
+  cables: Cable[]
+}
+
+export interface DrawingCheckResult {
+  findings: CheckFinding[]
+  errorCount: number
+  warningCount: number
+  infoCount: number
+}
+
+/**
+ * Führt alle Plan-Checks aus und liefert eine flache, sortierte Finding-Liste
+ * (errors zuerst). Pure function — leicht testbar, kein Store-Zugriff.
+ */
+export const runDrawingChecks = (
+  { equipment, cables }: DrawingCheckInput,
+): DrawingCheckResult => {
+  const findings: CheckFinding[] = []
+  const eqById = new Map(equipment.map((e) => [e.id, e]))
+  // Port-Lookup global (Port-IDs sind projektweit eindeutig).
+  const portById = new Map<string, Port>()
+  for (const e of equipment) {
+    for (const p of [...e.inputs, ...e.outputs]) portById.set(p.id, p)
+  }
+  // Welche Ports hängen an mindestens einem Kabel?
+  const connectedPorts = new Set<string>()
+  for (const c of cables) {
+    connectedPorts.add(c.fromPortId)
+    connectedPorts.add(c.toPortId)
+  }
+  const eqName = (id: string) => eqById.get(id)?.name ?? '?'
+
+  // — Check 1: offene/unverbundene Ports (info, pro Gerät gebündelt) ----------
+  for (const e of equipment) {
+    const all = [...e.inputs, ...e.outputs]
+    // Rack-intern verkabelte Ports zählen nicht als „offen".
+    const open = all.filter(
+      (p) => !connectedPorts.has(p.id) && !p.rackInternallyConnected,
+    )
+    if (open.length > 0 && all.length > 0) {
+      findings.push({
+        id: `open-ports:${e.id}`,
+        severity: 'info',
+        category: 'Offene Ports',
+        message: `${e.name}: ${open.length} unverbundene Ports (${open
+          .slice(0, 4)
+          .map((p) => p.name)
+          .join(', ')}${open.length > 4 ? ' …' : ''})`,
+        equipmentId: e.id,
+      })
+    }
+  }
+
+  // — Check 2: inkompatible Connector-Paare (warning) -------------------------
+  for (const c of cables) {
+    if (c.wireless || c.needsConverter) continue
+    const from = portById.get(c.fromPortId)
+    const to = portById.get(c.toPortId)
+    if (!from || !to) continue
+    if (from.connectorType === 'Custom' || to.connectorType === 'Custom') continue
+    if (from.connectorType !== to.connectorType) {
+      findings.push({
+        id: `connector-mismatch:${c.id}`,
+        severity: 'warning',
+        category: 'Connector-Mismatch',
+        message: `${c.cableNumber ? c.cableNumber + ' · ' : ''}${eqName(
+          c.fromEquipmentId,
+        )} (${from.connectorType}) → ${eqName(c.toEquipmentId)} (${to.connectorType})`,
+        cableId: c.id,
+      })
+    }
+  }
+
+  // — Check 3: doppelte Kabelnummern (error) ---------------------------------
+  const byNumber = new Map<string, Cable[]>()
+  for (const c of cables) {
+    const num = c.cableNumber?.trim()
+    if (!num) continue
+    const arr = byNumber.get(num) ?? []
+    arr.push(c)
+    byNumber.set(num, arr)
+  }
+  for (const [num, group] of byNumber) {
+    if (group.length > 1) {
+      for (const c of group) {
+        findings.push({
+          id: `dup-number:${c.id}`,
+          severity: 'error',
+          category: 'Doppelte Kabelnummer',
+          message: `Kabelnummer „${num}" ${group.length}× vergeben: ${eqName(
+            c.fromEquipmentId,
+          )} → ${eqName(c.toEquipmentId)}`,
+          cableId: c.id,
+        })
+      }
+    }
+  }
+
+  // — Check 4: fehlende Längen (warning, nur kabelgebunden) -------------------
+  for (const c of cables) {
+    if (c.wireless) continue
+    if (!c.length || c.length <= 0) {
+      findings.push({
+        id: `missing-length:${c.id}`,
+        severity: 'warning',
+        category: 'Fehlende Länge',
+        message: `${c.cableNumber ? c.cableNumber + ' · ' : ''}${eqName(
+          c.fromEquipmentId,
+        )} → ${eqName(c.toEquipmentId)}: keine Länge gesetzt`,
+        cableId: c.id,
+      })
+    }
+  }
+
+  // — Check 5: doppelte IP-Adressen (error) ----------------------------------
+  const byIp = new Map<string, EquipmentItem[]>()
+  for (const e of equipment) {
+    const ip = e.ipAddress?.trim()
+    if (!ip) continue
+    const arr = byIp.get(ip) ?? []
+    arr.push(e)
+    byIp.set(ip, arr)
+  }
+  for (const [ip, group] of byIp) {
+    if (group.length > 1) {
+      for (const e of group) {
+        findings.push({
+          id: `dup-ip:${e.id}`,
+          severity: 'error',
+          category: 'Doppelte IP',
+          message: `IP ${ip} mehrfach: ${group.map((g) => g.name).join(', ')}`,
+          equipmentId: e.id,
+        })
+      }
+    }
+  }
+
+  // — Check 6: RF-/Funk-Frequenzkonflikte (warning) --------------------------
+  const wireless = cables
+    .filter((c) => c.wireless)
+    .map((c) => ({ cable: c, mhz: parseFreqMHz(c.frequency), channel: c.wifiChannel?.trim() }))
+  for (let i = 0; i < wireless.length; i++) {
+    for (let j = i + 1; j < wireless.length; j++) {
+      const a = wireless[i]
+      const b = wireless[j]
+      const sameChannel = !!a.channel && a.channel === b.channel
+      const closeFreq =
+        a.mhz != null && b.mhz != null && Math.abs(a.mhz - b.mhz) < RF_MIN_SPACING_MHZ
+      if (sameChannel || closeFreq) {
+        const why = sameChannel
+          ? `gleicher Kanal ${a.channel}`
+          : `Frequenzabstand < ${RF_MIN_SPACING_MHZ} MHz`
+        findings.push({
+          id: `rf-conflict:${a.cable.id}:${b.cable.id}`,
+          severity: 'warning',
+          category: 'RF-Konflikt',
+          message: `${eqName(a.cable.fromEquipmentId)} ⟷ ${eqName(
+            b.cable.fromEquipmentId,
+          )}: ${why}`,
+          cableId: a.cable.id,
+        })
+      }
+    }
+  }
+
+  // — Check 7: Single-Power (info) -------------------------------------------
+  // Geräte die Strom ziehen, aber ≤1 Strom-Anbindung haben → kein A/B-Netzteil.
+  const powerCountByEq = new Map<string, number>()
+  for (const c of cables) {
+    if (!isPowerCable(c, portById)) continue
+    powerCountByEq.set(c.fromEquipmentId, (powerCountByEq.get(c.fromEquipmentId) ?? 0) + 1)
+    powerCountByEq.set(c.toEquipmentId, (powerCountByEq.get(c.toEquipmentId) ?? 0) + 1)
+  }
+  for (const e of equipment) {
+    if (effectiveWatts(e) > 0 && (powerCountByEq.get(e.id) ?? 0) <= 1) {
+      findings.push({
+        id: `single-power:${e.id}`,
+        severity: 'info',
+        category: 'Single-Power',
+        message: `${e.name}: nur eine Strom-Anbindung (kein redundantes Netzteil)`,
+        equipmentId: e.id,
+      })
+    }
+  }
+
+  // Sortierung: error → warning → info, innerhalb stabil nach category.
+  const rank: Record<CheckSeverity, number> = { error: 0, warning: 1, info: 2 }
+  findings.sort((a, b) => rank[a.severity] - rank[b.severity] || a.category.localeCompare(b.category))
+
+  return {
+    findings,
+    errorCount: findings.filter((f) => f.severity === 'error').length,
+    warningCount: findings.filter((f) => f.severity === 'warning').length,
+    infoCount: findings.filter((f) => f.severity === 'info').length,
+  }
+}
