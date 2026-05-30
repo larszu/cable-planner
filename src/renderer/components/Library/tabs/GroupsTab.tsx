@@ -5,6 +5,9 @@ import { MIME_GROUP_PRESET } from '../../../lib/dragDropMimes'
 import { PresetDndWrapper } from '../LibraryDndWrappers'
 import { SortablePresetCard } from '../LibrarySortables'
 import { format, useTranslation } from '../../../lib/i18n'
+import { promptDialog } from '../../../lib/promptDialog'
+import { Download, Pencil } from 'lucide-react'
+import { Icon } from '../../shared/Icon'
 
 /**
  * #305 — GroupsTab aus LibraryPanel ausgelagert. Zeigt nicht-Rack-
@@ -17,6 +20,7 @@ export const GroupsTab = () => {
   const reorderGroupPresets = useProjectStore((s) => s.reorderGroupPresets)
   const placeGroupPreset = useProjectStore((s) => s.placeGroupPreset)
   const deleteGroupPreset = useProjectStore((s) => s.deleteGroupPreset)
+  const renameGroupPreset = useProjectStore((s) => s.renameGroupPreset)
   const canvasState = useProjectStore((s) => s.project.canvasState)
 
   return (
@@ -91,6 +95,46 @@ export const GroupsTab = () => {
                           </div>
                         </div>
                         <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
+                          {/* #425 — Inline-Rename. Duplikat-Check verhindert
+                              dass zwei Vorlagen denselben Namen tragen. */}
+                          <button
+                            type="button"
+                            onClick={async (event) => {
+                              event.stopPropagation()
+                              const newName = await promptDialog(
+                                t('library.tabs.groups.renamePrompt', 'Neuer Name der Vorlage:'),
+                                preset.name,
+                              )
+                              if (!newName) return
+                              const trimmed = newName.trim()
+                              if (!trimmed || trimmed === preset.name) return
+                              const lower = trimmed.toLowerCase()
+                              const conflict = groupPresets.some(
+                                (p) =>
+                                  p.id !== preset.id &&
+                                  p.name.trim().toLowerCase() === lower,
+                              )
+                              if (conflict) {
+                                await confirmDialog(
+                                  format(
+                                    t(
+                                      'library.tabs.groups.renameConflict',
+                                      'Es existiert bereits eine Vorlage namens "{name}". Bitte einen anderen Namen waehlen.',
+                                    ),
+                                    { name: trimmed },
+                                  ),
+                                  { okLabel: t('common.ok', 'OK') },
+                                )
+                                return
+                              }
+                              renameGroupPreset(preset.id, trimmed)
+                            }}
+                            className="rounded bg-slate-700 px-1 text-[11px] text-slate-300 hover:bg-slate-600"
+                            title={t('library.tabs.groups.renameTitle', 'Vorlage umbenennen')}
+                            aria-label={t('library.tabs.groups.renameAria', 'Umbenennen')}
+                          >
+                            <Icon icon={Pencil} size="xs" />
+                          </button>
                           <button
                             type="button"
                             onClick={(event) => {
@@ -104,7 +148,7 @@ export const GroupsTab = () => {
                             )}
                             aria-label={t('library.tabs.groups.exportAria', 'Exportieren')}
                           >
-                            ⬇
+                            <Icon icon={Download} size="xs" />
                           </button>
                           <button
                             type="button"

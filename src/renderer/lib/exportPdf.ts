@@ -68,6 +68,8 @@ const drawTitleBlock = (
     ['Planer', meta.author],
     ['Erstellt', fmtDate(meta.createdAt)],
     ['Geändert', fmtDate(meta.updatedAt)],
+    // #412 — Revisions-Stempel (nur wenn eine Revision festgeschrieben ist).
+    ...(meta.revision ? ([['Revision', meta.revision]] as [string, string][]) : []),
   ]
   const visibleRows = rows.filter(([, v]) => !!v || true) // keep all rows, show "—" when missing
   const logoH = 36

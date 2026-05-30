@@ -27,6 +27,7 @@ import {
   type ResolvedDevice,
 } from '../../lib/graphml/semantics'
 import { useProjectStore } from '../../store/projectStore'
+import { projectHistory } from '../../store/projectHistory'
 import { useTranslation } from '../../lib/i18n'
 
 export interface GraphmlImportDialogProps {
@@ -240,7 +241,12 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
       onClose()
       return
     }
-    const newIds = importGraphml({ ...payload, mode })
+    // #382 — In eine Transaction wrappen damit der ganze Import (Equipment +
+    // Cables + Viewport-Pan) als EIN Undo-Step zaehlt. Vorher: jede einzelne
+    // Mutation der importGraphml-Action war ein separater Coalesce-Step, was
+    // dazu fuehrte dass Strg+Z nach einem yEd-Import nichts (oder Teile)
+    // rueckgaengig machte.
+    const newIds = projectHistory.transact(() => importGraphml({ ...payload, mode }))
     // Select the first imported device on the canvas to draw attention.
     // The store action also pans + zooms the viewport onto the imported
     // bounding box so the user actually sees them — yEd diagrams sit

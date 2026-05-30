@@ -10,6 +10,7 @@ import { defaultProject, isProjectLocked, sanitizePort, touchProject } from './p
 import { createLocationSlice } from './slices/locationSlice'
 import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
+import { createRevisionSlice } from './slices/revisionSlice'
 import { createMobileSyncSlice } from './slices/mobileSyncSlice'
 import { createTemplateSlice } from './slices/templateSlice'
 import { createGroupPresetSlice } from './slices/groupPresetSlice'
@@ -167,6 +168,9 @@ export interface ProjectState {
   setCanvasState: (x: number, y: number, zoom: number) => void
   addEquipment: (equipment: Omit<EquipmentItem, 'id'>) => void
   importEquipment: (equipment: EquipmentItem[]) => void
+  /** #414 — Fügt KI-generierte Geräte + Kabel atomar ein, ohne IDs neu zu
+   *  vergeben (die Kabel referenzieren die mitgelieferten IDs). */
+  insertGeneratedPlan: (equipment: EquipmentItem[], cables: import('../types/cable').Cable[]) => void
   /**
    * Insert devices and cables coming from a yEd / GraphML import. Each
    * device carries an optional `graphmlId` so a re-import (`mode:
@@ -244,12 +248,31 @@ export interface ProjectState {
   queueConnection: (connection: Connection, waypoints?: { x: number; y: number }[]) => void
   closeCableDialog: () => void
   createCableFromPending: (draft: CableDraft) => void
+  /** #378 — Bulk-Cable-Create. Fuer 'verbinde Outputs 1-N mit Inputs M-K'
+   *  in einem Rutsch. Atomar: alle Kabel werden in einer touchProject-
+   *  Mutation angefuegt, BOM-/Layer-Auto-Heal greift wie beim Single-Add.
+   *  Endpunkt-Konflikt-Check (Port belegt) wird je Kabel uebersprungen
+   *  und in result.failedPairs zurueckgeliefert — der Aufrufer kann den
+   *  User dann darueber informieren. */
+  addCablesBulk: (
+    drafts: Array<
+      CableDraft & {
+        fromEquipmentId: string
+        fromPortId: string
+        toEquipmentId: string
+        toPortId: string
+      }
+    >,
+  ) => { created: number; skipped: number; skippedReasons: string[] }
   /** #294 — Port-Konflikt: bestehendes Kabel(n) auf dem Ziel-Port loeschen
    *  und dann den normalen Cable-Create-Flow (CableDialog) starten. */
   resolvePortConflictByReplace: () => void
   /** #294 — Port-Konflikt verwerfen, kein neues Kabel anlegen. */
   cancelPortConflict: () => void
   updateCable: (id: string, patch: Partial<Cable>) => void
+  /** Vergibt allen Kabeln gemaess `metadata.cableNumbering` eine neue
+   *  `cableNumber`. No-op wenn kein Schema gesetzt ist. */
+  renumberCables: () => void
   deleteEquipment: (id: string) => void
   deleteCable: (id: string) => void
   deleteSelected: () => void
@@ -373,6 +396,14 @@ export interface ProjectState {
   /** v7.9.3 — Setzt Viewer-Session-Author (beim ersten Öffnen einer
    *  .cpviewer-Datei). */
   setViewerSession: (session: { author: string; startedAt: string } | undefined) => void
+  /** #412 — Revisionen/Snapshots. */
+  commitRevision: (label: string, note: string, asBuilt: boolean) => void
+  restoreRevision: (id: string) => void
+  deleteRevision: (id: string) => void
+  /** #350 — Schätzt die Längen aller Kabel aus der Canvas-Geometrie und
+   *  schreibt sie in `cable.length`. Liefert die Anzahl aktualisierter
+   *  Kabel. */
+  estimateCableLengths: () => number
 }
 
 
@@ -410,23 +441,57 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
   const r = (v: unknown): number => snapVal(v, 0)
   return {
     ...project,
-    equipment: project.equipment.map((item) => ({
-      ...item,
-      x: r(item.x),
-      y: r(item.y),
-      width:
-        typeof item.width === 'number'
-          ? snap > 0
-            ? Math.ceil(item.width / snap) * snap
-            : Math.round(item.width)
-          : item.width,
-      height:
-        typeof item.height === 'number'
-          ? snap > 0
-            ? Math.ceil(item.height / snap) * snap
-            : Math.round(item.height)
-          : item.height,
-    })),
+    equipment: project.equipment.map((item) => {
+      // #422 — Legacy-Dimensions-Migration: dimensionHmm/Wmm/Dmm waren das
+      // erste Schema (v7.9.131 / #216), wurden aber spaeter durch
+      // heightMm/widthMm/depthMm ersetzt. Beide Felder gleichzeitig zu
+      // editieren ist verwirrend (zwei "Dimensionen"-Sektionen). Beim Load
+      // kopieren wir die Legacy-Werte in die modernen Felder (wenn dort
+      // noch nichts steht) und entsorgen die Legacy-Felder.
+      const legacy = item as {
+        dimensionHmm?: number
+        dimensionWmm?: number
+        dimensionDmm?: number
+      }
+      let migrated: Record<string, unknown> | null = null
+      if (
+        legacy.dimensionHmm !== undefined ||
+        legacy.dimensionWmm !== undefined ||
+        legacy.dimensionDmm !== undefined
+      ) {
+        migrated = { ...item }
+        if (item.heightMm === undefined && typeof legacy.dimensionHmm === 'number') {
+          migrated.heightMm = legacy.dimensionHmm
+        }
+        if (item.widthMm === undefined && typeof legacy.dimensionWmm === 'number') {
+          migrated.widthMm = legacy.dimensionWmm
+        }
+        if (item.depthMm === undefined && typeof legacy.dimensionDmm === 'number') {
+          migrated.depthMm = legacy.dimensionDmm
+        }
+        delete migrated.dimensionHmm
+        delete migrated.dimensionWmm
+        delete migrated.dimensionDmm
+      }
+      const base = (migrated ?? item) as EquipmentItem
+      return {
+        ...base,
+        x: r(base.x),
+        y: r(base.y),
+        width:
+          typeof base.width === 'number'
+            ? snap > 0
+              ? Math.ceil(base.width / snap) * snap
+              : Math.round(base.width)
+            : base.width,
+        height:
+          typeof base.height === 'number'
+            ? snap > 0
+              ? Math.ceil(base.height / snap) * snap
+              : Math.round(base.height)
+            : base.height,
+      }
+    }),
     cables: project.cables.map((c) => {
       let patched = c
       if (c.waypoints && c.waypoints.length > 0) {
@@ -464,6 +529,8 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
       height: snap > 0 ? Math.ceil(loc.height / snap) * snap : Math.round(loc.height),
       moveContents: loc.moveContents !== false,
     })),
+    // #412 — Revisionen sind optional; alte Projekte heilen zu [].
+    revisions: project.revisions ?? [],
   }
 }
 
@@ -601,6 +668,7 @@ const buildProjectStore = (
   ...createLocationSlice(set, get, store),
   ...createCableSlice(set, get, store),
   ...createAnnotationSlice(set, get, store),
+  ...createRevisionSlice(set, get, store),
   ...createMobileSyncSlice(set, get, store),
   ...createTemplateSlice(set, get, store),
   ...createGroupPresetSlice(set, get, store),

@@ -9,23 +9,28 @@
 
 import { useMemo, useState } from 'react'
 import jsPDF from 'jspdf'
+import QRCode from 'qrcode'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
-import { portLabelPair } from '../../lib/portLabel'
-import { Cable as CableIcon, Tag } from 'lucide-react'
+import { portLabelPair, genderSymbol } from '../../lib/portLabel'
+import { Cable as CableIcon, Tag, Download } from 'lucide-react'
 import { ModalShell } from '../shared/ModalShell'
 import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
 import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
 
-type SortKey = 'fromDevice' | 'toDevice' | 'type' | 'length' | 'color'
+type SortKey = 'number' | 'fromDevice' | 'toDevice' | 'type' | 'length' | 'color'
+/** #349 — Spalten-/Trenner-Profil fuer gaengige Etiketten-Drucker-Software. */
+type LabelCsvFormat = 'generic' | 'brother' | 'dymo'
 
 interface PatchRow {
   cableId: string
+  /** Auto-Kabelnummer (leer wenn keine vergeben). */
+  cableNumber: string
   fromDevice: string
   fromPort: string
   /** #286 — Zweite Zeile unter dem Hauptport-Label. Gesetzt wenn ein
@@ -35,12 +40,17 @@ interface PatchRow {
   toDevice: string
   toPort: string
   toPortSub?: string
+  /** #410 — Steckverbinder-Geschlecht je Ende ('♂'/'♀'/''). */
+  fromGender: string
+  toGender: string
   type: string
   length: number
   color: string
   cableName: string
   notes: string
   layer: string
+  /** #363 — Multicore-/Snake-Bündel-Name (leer = Einzelkabel). */
+  multicore: string
 }
 
 export const PatchListDialog = () => {
@@ -53,6 +63,8 @@ export const PatchListDialog = () => {
   const [filter, setFilter] = useState('')
   const [layerFilter, setLayerFilter] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('fromDevice')
+  // #349 — Ziel-Format fuer den Label-Drucker-CSV-Export.
+  const [labelCsvFormat, setLabelCsvFormat] = useState<LabelCsvFormat>('generic')
 
   const rows = useMemo<PatchRow[]>(() => {
     if (!open) return []
@@ -167,22 +179,28 @@ export const PatchListDialog = () => {
           : finalToEq?.name ?? '?'
       return {
         cableId: c.id,
+        cableNumber: c.cableNumber ?? '',
         fromDevice: from?.name ?? '?',
         fromPort: fromPair.main,
         fromPortSub: fromPair.subline,
         toDevice: toDeviceLabel,
         toPort: toPair.main,
         toPortSub: toPair.subline,
+        fromGender: genderSymbol(fromPort?.gender),
+        toGender: genderSymbol(finalToPort?.gender),
         type: c.type,
         length: c.length,
         color: c.color || '#64748b',
         cableName: c.name,
         notes: c.notes ?? '',
         layer: c.layer ?? '',
+        multicore: c.multicoreName ?? '',
       }
     })
     const cmp = (a: PatchRow, b: PatchRow): number => {
       switch (sortKey) {
+        case 'number':
+          return a.cableNumber.localeCompare(b.cableNumber, undefined, { numeric: true })
         case 'fromDevice':
           return a.fromDevice.localeCompare(b.fromDevice) || a.fromPort.localeCompare(b.fromPort)
         case 'toDevice':
@@ -228,25 +246,35 @@ export const PatchListDialog = () => {
     // Anzeige als "PGM (1 SDI 3G PGM)" in der einzigen Spalte. Die Tabelle
     // hat dafuer eine zweite Zeile, der Export muss alles in einer Zelle
     // bundlen.
-    const fmtPort = (main: string, sub?: string) => (sub ? `${main} (${sub})` : main)
+    // #410 — Geschlecht ans Port-Label haengen wenn gesetzt: "1 (PGM) ♂".
+    const fmtPort = (main: string, sub?: string, gender?: string) => {
+      const base = sub ? `${main} (${sub})` : main
+      return gender ? `${base} ${gender}` : base
+    }
     const header = [
+      t('patchList.col.number', 'Nr.'),
       t('patchList.col.fromDevice', 'Von Gerät'),
       t('patchList.col.fromPort', 'Von Port'),
       t('patchList.col.toDevice', 'Nach Gerät'),
       t('patchList.col.toPort', 'Nach Port'),
       t('export.bom.csv.type', 'Typ'),
       t('export.bom.csv.lengthM', 'Länge (m)'),
+      t('patchList.col.layer', 'Layer'),
+      t('patchList.col.multicore', 'Multicore'),
       t('patchList.col.color', 'Farbe'),
       t('patchList.col.cableName', 'Kabelname'),
       t('patchList.col.notes', 'Notizen'),
     ]
     const data = filtered.map((r) => [
+      r.cableNumber,
       r.fromDevice,
-      fmtPort(r.fromPort, r.fromPortSub),
+      fmtPort(r.fromPort, r.fromPortSub, r.fromGender),
       r.toDevice,
-      fmtPort(r.toPort, r.toPortSub),
+      fmtPort(r.toPort, r.toPortSub, r.toGender),
       r.type,
       r.length,
+      r.layer,
+      r.multicore,
       r.color,
       r.cableName,
       r.notes,
@@ -278,7 +306,7 @@ export const PatchListDialog = () => {
   // #349 — Kabel-Etiketten als druckbarer A4-Bogen (2 Spalten). Pro Kabel
   // zwei Labels (beide Enden), jeweils mit Ziel-/Quell-Richtung, Typ, Länge
   // und Farb-Swatch. Nutzt die aktuell gefilterten Zeilen.
-  const exportLabels = () => {
+  const exportLabels = async () => {
     const hexToRgb = (hex: string): [number, number, number] => {
       const h = (hex || '#888888').replace('#', '')
       const n = h.length === 3 ? h.split('').map((c) => c + c).join('') : h.padEnd(6, '8')
@@ -288,14 +316,32 @@ export const PatchListDialog = () => {
     const pageW = 210, pageH = 297, cols = 2, rowsPerPage = 9, mL = 8, mT = 10, gap = 3
     const lw = (pageW - 2 * mL - (cols - 1) * gap) / cols
     const lh = (pageH - 2 * mT - (rowsPerPage - 1) * gap) / rowsPerPage
+    // Pro Kabel zwei Etiketten (beide Enden) plus ein QR-Code, der die
+    // Kabel-Identitaet (Nummer/Name) + Strecke kodiert — ein Scan vor Ort
+    // identifiziert das Kabel eindeutig. Beide Enden teilen denselben QR.
     const labels = filtered.flatMap((r) => {
-      const title = `${r.type}${r.cableName && r.cableName !== r.type ? ' · ' + r.cableName : ''}`
+      const numPrefix = r.cableNumber ? `${r.cableNumber} · ` : ''
+      const title = `${numPrefix}${r.type}${r.cableName && r.cableName !== r.type ? ' · ' + r.cableName : ''}`
       const meta = r.length ? `${r.length} m` : ''
+      const qrText = `${r.cableNumber || r.cableName || r.type} | ${r.fromDevice} ${r.fromPort} > ${r.toDevice} ${r.toPort}`
       return [
-        { title, dest: `${r.fromDevice} · ${r.fromPort}  →  ${r.toDevice} · ${r.toPort}`, meta, color: r.color },
-        { title, dest: `${r.toDevice} · ${r.toPort}  →  ${r.fromDevice} · ${r.fromPort}`, meta, color: r.color },
+        { title, dest: `${r.fromDevice} · ${r.fromPort}  →  ${r.toDevice} · ${r.toPort}`, meta, color: r.color, qrText },
+        { title, dest: `${r.toDevice} · ${r.toPort}  →  ${r.fromDevice} · ${r.fromPort}`, meta, color: r.color, qrText },
       ]
     })
+    // QR-Data-URLs vorab erzeugen (toDataURL ist async). Fehlerhafte QR
+    // werden uebersprungen — der Export bricht nie deshalb ab.
+    const qrCache = new Map<string, string>()
+    await Promise.all(
+      [...new Set(labels.map((l) => l.qrText))].map(async (text) => {
+        try {
+          qrCache.set(text, await QRCode.toDataURL(text, { margin: 0, width: 128 }))
+        } catch {
+          // ohne QR zeichnen
+        }
+      }),
+    )
+    const qrSize = Math.min(lh - 6, 16)
     const perPage = cols * rowsPerPage
     labels.forEach((lbl, i) => {
       const idx = i % perPage
@@ -309,13 +355,15 @@ export const PatchListDialog = () => {
       const [cr, cg, cb] = hexToRgb(lbl.color)
       doc.setFillColor(cr, cg, cb)
       doc.rect(x + 1.5, y + 1.5, 3, lh - 3, 'F')
+      const qr = qrCache.get(lbl.qrText)
+      if (qr) doc.addImage(qr, 'PNG', x + lw - qrSize - 2.5, y + (lh - qrSize) / 2, qrSize, qrSize)
       doc.setTextColor(20)
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(9)
-      doc.text(sanitizeForPdf(lbl.title).slice(0, 42), x + 7, y + 7)
+      doc.text(sanitizeForPdf(lbl.title).slice(0, qr ? 34 : 42), x + 7, y + 7)
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(8)
-      doc.text(sanitizeForPdf(lbl.dest).slice(0, 64), x + 7, y + 14)
+      doc.text(sanitizeForPdf(lbl.dest).slice(0, qr ? 48 : 64), x + 7, y + 14)
       doc.setTextColor(110)
       doc.setFontSize(7)
       doc.text(lbl.meta, x + 7, y + lh - 3)
@@ -337,6 +385,83 @@ export const PatchListDialog = () => {
     downloadBlob(
       // v7.9.116 — Einheitlicher Stempel.
       buildExportFilenameWithSuffix(projectName || 'cable-planner', 'patchliste', 'csv'),
+      '﻿' + lines.join('\r\n'),
+      'text/csv;charset=utf-8',
+    )
+  }
+
+  // #349 — Label-Drucker-CSV: serieller Import in Brother P-touch Editor,
+  // Dymo Connect/Stamps oder generische Etiketten-Software. Pro Kabel ZWEI
+  // Zeilen (beide Enden), damit jedes Kabelende ein eigenes Etikett bekommt.
+  // ASCII-sicher via sanitizeForPdf, weil viele Drucker-Tools UTF-8 nur
+  // halbherzig importieren. Trenner/Spalten je Ziel-Format.
+  const exportLabelCsv = (format: LabelCsvFormat) => {
+    const ascii = (v: unknown) => sanitizeForPdf(String(v ?? ''))
+    // Brother P-touch Editor erwartet historisch TAB-getrennt; Dymo + der
+    // generische Fall nutzen Komma. Excel-Kompat ist hier zweitrangig — die
+    // Datei geht in die Drucker-Software, nicht in Excel.
+    const sep = format === 'brother' ? '\t' : ','
+    const escape = (v: unknown) => {
+      const s = ascii(v)
+      // Bei Komma-Trennung quoten wenn noetig; TAB-Felder nie quoten.
+      if (sep === '\t') return s.replace(/\t/g, ' ')
+      return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+    }
+    // Ein "Etikett" = ein Kabelende. label1 = grosse Zeile (Nummer/Typ),
+    // label2 = Strecke aus Sicht dieses Endes, meta = Laenge.
+    type LabelRow = { label1: string; label2: string; meta: string; color: string }
+    // #410 — Geschlecht ASCII-tauglich (♂/♀ wuerde sanitizeForPdf strippen).
+    const g = (sym: string) => (sym === '♂' ? ' (M)' : sym === '♀' ? ' (F)' : '')
+    const labelRows: LabelRow[] = filtered.flatMap((r) => {
+      const num = r.cableNumber || r.cableName || r.type
+      const meta = r.length ? `${r.length} m` : ''
+      const fromEnd = `${r.fromDevice} ${r.fromPort}${g(r.fromGender)}`
+      const toEnd = `${r.toDevice} ${r.toPort}${g(r.toGender)}`
+      return [
+        { label1: num, label2: `${fromEnd} -> ${toEnd}`, meta, color: r.color },
+        { label1: num, label2: `${toEnd} -> ${fromEnd}`, meta, color: r.color },
+      ]
+    })
+    const header = ['Label1', 'Label2', 'Length', 'Color']
+    const lines = [
+      header.join(sep),
+      ...labelRows.map((l) => [l.label1, l.label2, l.meta, l.color].map(escape).join(sep)),
+    ]
+    // Brother bekommt eine .txt (TAB), sonst .csv. Komma-Variante mit BOM.
+    const ext = format === 'brother' ? 'txt' : 'csv'
+    const body = sep === ',' ? '﻿' + lines.join('\r\n') : lines.join('\r\n')
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName || 'cable-planner', `etiketten-${format}`, ext),
+      body,
+      ext === 'txt' ? 'text/plain;charset=utf-8' : 'text/csv;charset=utf-8',
+    )
+  }
+
+  // #353 — Audio-Eingangsliste: die Audio-Layer-Kabel als nummerierte
+  // Kanal-Liste (Ch · Quelle · Port · Stecker · nach Gerät · Länge). Der
+  // klassische FOH-Deliverable; baut auf den vorhandenen Patch-Rows auf.
+  const exportInputList = () => {
+    const audioRows = filtered.filter((r) => r.layer === 'audio')
+    const escape = (v: unknown) => {
+      const s = sanitizeForPdf(String(v ?? ''))
+      return /[";\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+    }
+    const header = [
+      t('inputList.col.ch', 'Ch'),
+      t('inputList.col.source', 'Quelle'),
+      t('inputList.col.port', 'Port'),
+      t('inputList.col.connector', 'Stecker'),
+      t('inputList.col.toDevice', 'nach Gerät'),
+      t('export.bom.csv.lengthM', 'Länge (m)'),
+    ]
+    const lines = [
+      header.join(';'),
+      ...audioRows.map((r, i) =>
+        [String(i + 1), r.fromDevice, r.fromPort, r.type, r.toDevice, r.length || ''].map(escape).join(';'),
+      ),
+    ]
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName || 'cable-planner', 'eingangsliste', 'csv'),
       '﻿' + lines.join('\r\n'),
       'text/csv;charset=utf-8',
     )
@@ -364,27 +489,58 @@ export const PatchListDialog = () => {
               type="button"
               onClick={exportCsv}
               disabled={filtered.length === 0}
-              className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
             >
-              {t('patchList.exportCsv', '⬇ CSV exportieren')}
+              <Icon icon={Download} size="xs" />
+              {t('patchList.exportCsv', 'CSV exportieren')}
             </button>
             <button
               type="button"
               onClick={() => void exportXlsx()}
               disabled={filtered.length === 0}
-              className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
             >
-              {t('patchList.exportXlsx', '⬇ XLSX exportieren')}
+              <Icon icon={Download} size="xs" />
+              {t('patchList.exportXlsx', 'XLSX exportieren')}
             </button>
             <button
               type="button"
-              onClick={exportLabels}
+              onClick={() => void exportLabels()}
               disabled={filtered.length === 0}
               className="inline-flex items-center gap-1.5 rounded bg-sky-700 px-3 py-1 text-xs hover:bg-sky-600 disabled:opacity-40"
             >
               <Icon icon={Tag} size="xs" />
-              {t('patchList.exportLabels', 'Etiketten (PDF)')}
+              {t('patchList.exportLabels', 'Etiketten + QR (PDF)')}
             </button>
+            {/* #349 — Label-Drucker-CSV: Format waehlen, dann exportieren. */}
+            <select
+              value={labelCsvFormat}
+              onChange={(e) => setLabelCsvFormat(e.target.value as LabelCsvFormat)}
+              title={t('patchList.labelCsvFormat', 'Etiketten-Drucker-Format')}
+              className="rounded border border-slate-700 bg-slate-950 px-1 py-1 text-xs"
+            >
+              <option value="generic">{t('patchList.labelCsv.generic', 'Generisch (CSV)')}</option>
+              <option value="brother">{t('patchList.labelCsv.brother', 'Brother P-touch (TXT)')}</option>
+              <option value="dymo">{t('patchList.labelCsv.dymo', 'Dymo (CSV)')}</option>
+            </select>
+            <button
+              type="button"
+              onClick={() => exportLabelCsv(labelCsvFormat)}
+              disabled={filtered.length === 0}
+              className="rounded bg-sky-700 px-3 py-1 text-xs hover:bg-sky-600 disabled:opacity-40"
+            >
+              {t('patchList.exportLabelCsv', '🏷 Etiketten-CSV')}
+            </button>
+            {/* #353 — Audio-Eingangsliste (nur sichtbar wenn Audio-Kabel da). */}
+            {filtered.some((r) => r.layer === 'audio') && (
+              <button
+                type="button"
+                onClick={exportInputList}
+                className="rounded bg-purple-700 px-3 py-1 text-xs hover:bg-purple-600"
+              >
+                {t('patchList.exportInputList', '🎚 Eingangsliste')}
+              </button>
+            )}
           </div>
         </div>
       }
@@ -421,6 +577,7 @@ export const PatchListDialog = () => {
             <thead className="sticky top-0 bg-slate-950 text-slate-400">
               <tr>
                 {[
+                  { k: 'number' as const, label: t('patchList.col.number', 'Nr.') },
                   { k: 'fromDevice' as const, label: t('patchList.col.fromDevice', 'Von Gerät') },
                   { k: 'fromDevice' as const, label: t('patchList.col.port', 'Port') },
                   { k: 'toDevice' as const, label: t('patchList.col.toDevice', 'Nach Gerät') },
@@ -443,6 +600,7 @@ export const PatchListDialog = () => {
             <tbody>
               {filtered.map((r) => (
                 <tr key={r.cableId} className="border-t border-slate-800 hover:bg-slate-900">
+                  <td className="px-2 py-1 font-mono text-[11px] text-sky-300">{r.cableNumber}</td>
                   <td className="px-2 py-1 font-medium text-slate-100">{r.fromDevice}</td>
                   <td className="px-2 py-1 text-slate-300">
                     {r.fromPort}
@@ -471,7 +629,7 @@ export const PatchListDialog = () => {
               {filtered.length === 0 && (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-2 py-8 text-center text-cp-xs text-[var(--cp-text-faint)]"
                   >
                     {rows.length === 0

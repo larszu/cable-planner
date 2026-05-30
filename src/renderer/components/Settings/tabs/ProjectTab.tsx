@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
-import { X } from 'lucide-react'
+import { Download, Upload, Loader2, X } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
-import { useTranslation } from '../../../lib/i18n'
+import { useTranslation, format } from '../../../lib/i18n'
 import { infoDialog } from '../../../lib/infoDialog'
 import { pickImageAsDataUri } from '../../../lib/readImageAsDataUri'
 import { SettingsCard } from '../SettingsCard'
+import { DEFAULT_CABLE_NUMBERING, cableNumberExample } from '../../../lib/cableNumbering'
+import { DEFAULT_LENGTH_ESTIMATION } from '../../../lib/cableLengthEstimate'
+import type { CableNumberingScheme, LengthEstimationScheme } from '../../../types/project'
 
 /**
  * #307 — Project-Tab aus SettingsDialog ausgelagert. Enthaelt
@@ -128,12 +131,14 @@ const LibraryExportSection = () => {
           className="rounded bg-emerald-700 px-3 py-1.5 hover:bg-emerald-600"
           title={`${customLibrary.length} ${t('settings.project.libExport.devicesWord', 'Geräte')} + ${groupPresets.length} ${t('settings.project.libExport.groupsWord', 'Gruppen')} ${t('settings.project.libExport.exportVerb', 'exportieren')}`}
         >
-          ⬇ {t('settings.project.libExport.exportBtn', 'Library exportieren')} ({customLibrary.length} {t('settings.project.libExport.devicesWord', 'Geräte')}, {groupPresets.length} {t('settings.project.libExport.groupsWord', 'Gruppen')})
+          <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('settings.project.libExport.exportBtn', 'Library exportieren')} ({customLibrary.length} {t('settings.project.libExport.devicesWord', 'Geräte')}, {groupPresets.length} {t('settings.project.libExport.groupsWord', 'Gruppen')})
         </button>
         <label className="rounded bg-sky-700 px-3 py-1.5 cursor-pointer hover:bg-sky-600">
-          {importBusy
-            ? t('settings.project.libExport.importing', 'Importiere…')
-            : '⬆ ' + t('settings.project.libExport.importBtn', 'Library importieren…')}
+          {importBusy ? (
+            <><Icon icon={Loader2} size="xs" className="mr-1 inline-block align-text-bottom animate-spin" />{t('settings.project.libExport.importing', 'Importiere…')}</>
+          ) : (
+            <><Icon icon={Upload} size="xs" className="mr-1 inline-block align-text-bottom" />{t('settings.project.libExport.importBtn', 'Library importieren…')}</>
+          )}
           <input
             type="file"
             accept="application/json,.json"
@@ -142,6 +147,211 @@ const LibraryExportSection = () => {
             disabled={importBusy}
           />
         </label>
+      </div>
+    </SettingsCard>
+  )
+}
+
+/**
+ * Auto-Kabelnummerierung — Schema-Konfiguration + "Neu nummerieren".
+ * Eigene Section (wie LibraryExportSection), schreibt direkt in die
+ * Projekt-Metadaten statt ueber das draftMeta-Pattern des Tabs.
+ */
+const CableNumberingSection = () => {
+  const t = useTranslation()
+  const scheme = useProjectStore((s) => s.project.metadata.cableNumbering)
+  const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
+  const renumberCables = useProjectStore((s) => s.renumberCables)
+  const cableCount = useProjectStore((s) => s.project.cables.length)
+  const eff: CableNumberingScheme = scheme ?? DEFAULT_CABLE_NUMBERING
+  const [doneCount, setDoneCount] = useState<number | null>(null)
+
+  const patch = (p: Partial<CableNumberingScheme>) =>
+    updateProjectMetadata({ cableNumbering: { ...eff, ...p } })
+
+  const handleRenumber = () => {
+    // Schema sicher in den Metadaten verankern, falls noch nie gesetzt.
+    if (!scheme) updateProjectMetadata({ cableNumbering: eff })
+    renumberCables()
+    setDoneCount(cableCount)
+  }
+
+  return (
+    <SettingsCard
+      title={t('settings.project.numbering.title', 'Kabelnummerierung')}
+      description={t(
+        'settings.project.numbering.desc',
+        'Automatische, kollisionsfreie Kabel-IDs nach festem Schema — sichtbar auf dem Canvas, in der Patchliste und auf den Etiketten.',
+      )}
+    >
+      <div className="space-y-2 text-xs text-slate-200">
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={eff.enabled}
+            onChange={(e) => patch({ enabled: e.target.checked })}
+          />
+          {t('settings.project.numbering.enabled', 'Neuen Kabeln automatisch eine Nummer geben')}
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          <label className="block">
+            <span className="mb-1 block text-slate-400">{t('settings.project.numbering.prefix', 'Präfix')}</span>
+            <input
+              type="text"
+              value={eff.prefix}
+              onChange={(e) => patch({ prefix: e.target.value })}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+              placeholder="C"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-slate-400">{t('settings.project.numbering.separator', 'Trennzeichen')}</span>
+            <input
+              type="text"
+              value={eff.separator}
+              maxLength={2}
+              onChange={(e) => patch({ separator: e.target.value })}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+              placeholder="-"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-slate-400">{t('settings.project.numbering.padding', 'Stellen')}</span>
+            <input
+              type="number"
+              min={1}
+              max={6}
+              value={eff.padding}
+              onChange={(e) => patch({ padding: Math.max(1, Math.min(6, Number(e.target.value) || 1)) })}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-slate-400">{t('settings.project.numbering.start', 'Start-Nummer')}</span>
+            <input
+              type="number"
+              min={0}
+              value={eff.start}
+              onChange={(e) => patch({ start: Math.max(0, Number(e.target.value) || 0) })}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            />
+          </label>
+        </div>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={eff.perLayer}
+            onChange={(e) => patch({ perLayer: e.target.checked })}
+          />
+          {t('settings.project.numbering.perLayer', 'Eigener Zähler je Layer (V/A/N/P …)')}
+        </label>
+        <div className="flex items-center justify-between gap-2 pt-1">
+          <span className="text-slate-400">
+            {t('settings.project.numbering.example', 'Beispiel')}:{' '}
+            <span className="font-mono text-sky-300">{cableNumberExample(eff)}</span>
+          </span>
+          <button
+            type="button"
+            onClick={handleRenumber}
+            disabled={cableCount === 0}
+            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-40"
+          >
+            {t('settings.project.numbering.renumber', 'Alle Kabel neu nummerieren')} ({cableCount})
+          </button>
+        </div>
+        {doneCount !== null && (
+          <p className="text-[11px] text-emerald-400">
+            {format(t('settings.project.numbering.done', '{n} Kabel neu nummeriert.'), { n: doneCount })}
+          </p>
+        )}
+      </div>
+    </SettingsCard>
+  )
+}
+
+/**
+ * #350 — Kabellängen-Schätzung aus der Canvas-Geometrie (Luftlinie ×
+ * Maßstab × Slack). Erste Ausbaustufe; überschreibt die Längen aller
+ * nicht-wireless Kabel.
+ */
+const LengthEstimationSection = () => {
+  const t = useTranslation()
+  const scheme = useProjectStore((s) => s.project.metadata.lengthEstimation)
+  const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
+  const estimateCableLengths = useProjectStore((s) => s.estimateCableLengths)
+  const cableCount = useProjectStore((s) => s.project.cables.length)
+  const eff: LengthEstimationScheme = scheme ?? DEFAULT_LENGTH_ESTIMATION
+  const [doneCount, setDoneCount] = useState<number | null>(null)
+
+  const patch = (p: Partial<LengthEstimationScheme>) =>
+    updateProjectMetadata({ lengthEstimation: { ...eff, ...p } })
+
+  const handleEstimate = () => {
+    if (!scheme) updateProjectMetadata({ lengthEstimation: eff })
+    const n = estimateCableLengths()
+    setDoneCount(n)
+  }
+
+  return (
+    <SettingsCard
+      title={t('settings.project.lengthEst.title', 'Kabellängen schätzen')}
+      description={t(
+        'settings.project.lengthEst.desc',
+        'Schätzt die Kabellängen aus der Canvas-Distanz der Geräte (Luftlinie × Maßstab + Reserve). Überschreibt vorhandene Längen.',
+      )}
+    >
+      <div className="space-y-2 text-xs text-slate-200">
+        <div className="grid grid-cols-2 gap-2">
+          <label className="block">
+            <span className="mb-1 block text-slate-400">
+              {t('settings.project.lengthEst.scale', 'Meter pro 100 px')}
+            </span>
+            <input
+              type="number"
+              min={0.1}
+              step={0.1}
+              value={eff.metersPer100px}
+              onChange={(e) => patch({ metersPer100px: Math.max(0.1, Number(e.target.value) || 0.1) })}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-slate-400">
+              {t('settings.project.lengthEst.slack', 'Reserve (%)')}
+            </span>
+            <input
+              type="number"
+              min={0}
+              max={200}
+              value={eff.slackPercent}
+              onChange={(e) => patch({ slackPercent: Math.max(0, Number(e.target.value) || 0) })}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            />
+          </label>
+        </div>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={eff.roundUp}
+            onChange={(e) => patch({ roundUp: e.target.checked })}
+          />
+          {t('settings.project.lengthEst.roundUp', 'Auf ganze Meter aufrunden')}
+        </label>
+        <div className="flex items-center justify-end pt-1">
+          <button
+            type="button"
+            onClick={handleEstimate}
+            disabled={cableCount === 0}
+            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-40"
+          >
+            {t('settings.project.lengthEst.run', 'Längen jetzt schätzen')} ({cableCount})
+          </button>
+        </div>
+        {doneCount !== null && (
+          <p className="text-[11px] text-emerald-400">
+            {format(t('settings.project.lengthEst.done', '{n} Kabellängen aktualisiert.'), { n: doneCount })}
+          </p>
+        )}
       </div>
     </SettingsCard>
   )
@@ -313,6 +523,9 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           </div>
         )}
       </SettingsCard>
+
+      <CableNumberingSection />
+      <LengthEstimationSection />
 
       <LibraryExportSection />
 

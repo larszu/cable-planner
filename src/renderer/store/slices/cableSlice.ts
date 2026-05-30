@@ -8,6 +8,8 @@ import {
   isBidirectionalCableType,
 } from '../../lib/cableInheritance'
 import { detectLayerForConnector } from '../../lib/cableLayers'
+import { computeCableNumbers, nextCableNumber } from '../../lib/cableNumbering'
+import { estimateAllCableLengths, DEFAULT_LENGTH_ESTIMATION } from '../../lib/cableLengthEstimate'
 import { isProjectLocked, touchProject } from '../projectStoreHelpers'
 import type { ProjectState } from '../projectStore'
 
@@ -31,12 +33,15 @@ export type CableSlice = Pick<
   | 'cancelPortConflict'
   | 'closeCableDialog'
   | 'createCableFromPending'
+  | 'addCablesBulk'
   | 'updateCable'
+  | 'renumberCables'
   | 'deleteCable'
   | 'reconnectCable'
+  | 'estimateCableLengths'
 >
 
-export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = (set) => ({
+export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = (set, get) => ({
   queueConnection: (connection, waypoints) =>
     set((state) => {
       if (isProjectLocked(state)) return state
@@ -125,6 +130,13 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
         layer: autoLayer,
       }
 
+      // Auto-Kabelnummerierung: naechste freie Nummer vergeben wenn das
+      // Projekt-Schema aktiv ist. Bestehende Kabel bleiben unveraendert.
+      const numbering = state.project.metadata.cableNumbering
+      if (numbering?.enabled) {
+        cable.cableNumber = nextCableNumber(state.project.cables, numbering, autoLayer)
+      }
+
       return {
         project: touchProject({
           ...state.project,
@@ -136,6 +148,76 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
         selectedCableId: cable.id,
       }
     }),
+  addCablesBulk: (drafts) => {
+    // #378 — Atomarer Bulk-Add. Returns Statistik fuer den Aufrufer
+    // (Dialog zeigt 'X Kabel angelegt, Y uebersprungen weil Ziel-Port belegt').
+    // Wir berechnen alles innerhalb des set()-Callbacks, sammeln die
+    // Stats in einer Closure-Variable und liefern sie nach set() zurueck.
+    let result = { created: 0, skipped: 0, skippedReasons: [] as string[] }
+    let updatedAny = false
+    set((state) => {
+      if (isProjectLocked(state)) {
+        result = { created: 0, skipped: drafts.length, skippedReasons: ['Projekt gesperrt.'] }
+        return state
+      }
+      const ui = useUiStore.getState()
+      // Aktueller Port-Belegungs-Snapshot: alle bestehenden toPortIds. Wir
+      // muessen das innerhalb der Schleife inkrementell aktualisieren, weil
+      // ein und derselbe Bulk-Aufruf zwei Kabel auf den gleichen Ziel-Port
+      // setzen koennte — das soll als 'skipped' gelten.
+      const occupiedTargets = new Set(state.project.cables.map((c) => c.toPortId))
+      const newCables: Cable[] = []
+      for (const draft of drafts) {
+        if (!draft.fromPortId || !draft.toPortId) {
+          result.skipped++
+          result.skippedReasons.push('Port-IDs fehlen.')
+          continue
+        }
+        if (occupiedTargets.has(draft.toPortId)) {
+          result.skipped++
+          result.skippedReasons.push(`Ziel-Port ${draft.toPortId} bereits belegt.`)
+          continue
+        }
+        const autoLayer = detectLayerForConnector(draft.type)
+        const cable: Cable = {
+          id: uuidv4(),
+          name: draft.name,
+          type: draft.type,
+          length: draft.length,
+          color: draft.color,
+          fromEquipmentId: draft.fromEquipmentId,
+          fromPortId: draft.fromPortId,
+          toEquipmentId: draft.toEquipmentId,
+          toPortId: draft.toPortId,
+          notes: draft.notes,
+          cableSpecId: draft.cableSpecId,
+          standard: draft.standard,
+          needsConverter: draft.needsConverter,
+          routing: ui.defaultRouting,
+          arrowEnd: ui.defaultArrow,
+          bidirectional: isBidirectionalCableType(draft.type),
+          strokeWidth: 2.5,
+          layer: autoLayer,
+        }
+        newCables.push(cable)
+        occupiedTargets.add(draft.toPortId)
+        result.created++
+      }
+      if (newCables.length === 0) return state
+      updatedAny = true
+      return {
+        project: touchProject({
+          ...state.project,
+          cables: [...state.project.cables, ...newCables],
+        }),
+      }
+    })
+    if (!updatedAny && result.created > 0) {
+      // Sollte nicht passieren — Safety: created>0 ohne updatedAny waere ein Bug.
+      result.created = 0
+    }
+    return result
+  },
   updateCable: (id, patch) =>
     set((state) => {
       if (isProjectLocked(state)) return state
@@ -163,6 +245,46 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
         }),
       }
     }),
+  renumberCables: () =>
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      const scheme = state.project.metadata.cableNumbering
+      if (!scheme) return state
+      const numbers = computeCableNumbers(
+        state.project.cables,
+        state.project.equipment,
+        scheme,
+      )
+      return {
+        project: touchProject({
+          ...state.project,
+          cables: state.project.cables.map((c) => ({
+            ...c,
+            cableNumber: numbers[c.id] ?? c.cableNumber,
+          })),
+        }),
+      }
+    }),
+  estimateCableLengths: () => {
+    const state = get()
+    if (isProjectLocked(state)) return 0
+    const scheme = state.project.metadata.lengthEstimation ?? DEFAULT_LENGTH_ESTIMATION
+    const { updates } = estimateAllCableLengths(
+      state.project.cables,
+      state.project.equipment,
+      scheme,
+    )
+    if (updates.size === 0) return 0
+    set((s) => ({
+      project: touchProject({
+        ...s.project,
+        cables: s.project.cables.map((c) =>
+          updates.has(c.id) ? { ...c, length: updates.get(c.id)! } : c,
+        ),
+      }),
+    }))
+    return updates.size
+  },
   deleteCable: (id) =>
     set((state) => {
       if (isProjectLocked(state)) return state

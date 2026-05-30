@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useOnSelectionChange, useReactFlow } from 'reactflow'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
@@ -54,6 +54,18 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     (state) => state.addLocationAroundEquipment,
   )
   const saveGroupPreset = useProjectStore((state) => state.saveGroupPreset)
+  const deleteGroupPreset = useProjectStore((state) => state.deleteGroupPreset)
+  const groupPresetsForOverwrite = useProjectStore((state) => state.groupPresets)
+  // #425 — Liste der bestehenden Preset-Namen fuer Duplikat-Check beim
+  // Speichern einer neuen Geraetegruppe (case-insensitive). WICHTIG: aus dem
+  // stabilen groupPresets-Array via useMemo ableiten. Ein Store-Selector der
+  // direkt `.map()` zurueckgibt liefert bei JEDEM Render eine neue Array-
+  // Referenz; unter zustand v5 (useSyncExternalStore) fuehrt das zu
+  // "Maximum update depth exceeded" — Endlos-Re-Render der CanvasToolbar.
+  const existingPresetNames = useMemo(
+    () => groupPresetsForOverwrite.map((p) => p.name.trim().toLowerCase()),
+    [groupPresetsForOverwrite],
+  )
   const canvasState = useProjectStore((state) => state.project.canvasState)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const equipmentList = useProjectStore((state) => state.project.equipment)
@@ -503,13 +515,38 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
       {namingGroup && hasSelection && (
         <form
           style={{ display: 'flex', gap: 2, alignItems: 'center', marginLeft: 4 }}
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault()
             const trimmed =
               groupName.trim() ||
               format(t('toolbar.group.defaultName', 'Gruppe {time}'), {
                 time: new Date().toLocaleTimeString(),
               })
+            // #425 — Bei Duplikat-Namen fragen ob die bestehende Vorlage
+            // ueberschrieben werden soll, statt zwei Eintraege mit
+            // demselben Namen zu erzeugen.
+            const lower = trimmed.toLowerCase()
+            if (existingPresetNames.includes(lower)) {
+              const ok = await confirmDialog(
+                format(
+                  t(
+                    'toolbar.group.overwriteConfirm',
+                    'Es existiert bereits eine Vorlage namens "{name}". Ueberschreiben?',
+                  ),
+                  { name: trimmed },
+                ),
+                {
+                  okLabel: t('toolbar.group.overwrite', 'Ueberschreiben'),
+                  cancelLabel: t('common.cancel', 'Abbrechen'),
+                  destructive: true,
+                },
+              )
+              if (!ok) return
+              const existing = groupPresetsForOverwrite.find(
+                (p) => p.name.trim().toLowerCase() === lower,
+              )
+              if (existing) deleteGroupPreset(existing.id)
+            }
             saveGroupPreset(trimmed, selectedEquipmentIds)
             setNamingGroup(false)
             setGroupName('')

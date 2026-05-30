@@ -85,6 +85,11 @@ const en: Dict = {
   'app.menu.export.cablesRentman': 'Send cables to Rentman…',
   'app.menu.export.cablesRentmanDisabled':
     'Send cables to Rentman (no project linked)',
+  'app.menu.tools': 'Tools',
+  'app.menu.tools.bandwidth': 'Calculate bandwidth…',
+  'app.menu.tools.power': 'Calculate power consumption…',
+  'app.menu.tools.recStorage': 'Calculate recording storage…',
+  'app.menu.tools.bulkConnect': 'Connect multiple cables…',
   'app.menu.help': 'Help',
   'app.menu.help.tour': 'Getting-started tour…',
   'app.editProjectMeta': 'Edit project metadata',
@@ -383,7 +388,15 @@ const en: Dict = {
   'eq.field.notes': 'Notes',
   'eq.field.manufacturerUrl': 'Manufacturer link',
   'eq.field.manufacturerUrlHint': 'optional, for datasheet access',
+  // #354 Price / rental field
+  'eq.field.priceEUR': 'Price / rental (€)',
+  'eq.field.priceEURHint': 'for quote export',
+  'eq.field.priceEURPlaceholder': 'e.g. 1200',
   'eq.field.manufacturerUrlOpen': 'Open ↗',
+  'eq.field.rentPrice': 'Rental price / day',
+  'eq.field.rentPriceRentman': 'from Rentman',
+  'eq.field.rentPricePlaceholder': 'e.g. 45.00',
+  'eq.field.rentCurrency': 'Cur.',
   'eq.field.refImage': 'Reference image',
   'eq.field.refImageHint': 'e.g. port layout',
   'eq.field.refImageNone': 'No image',
@@ -545,6 +558,9 @@ const en: Dict = {
   'toolbar.location.defaultName': 'New location',
   'toolbar.group.save': 'Save {count} selected devices as a group',
   'toolbar.group.defaultName': 'Group {time}',
+  'toolbar.group.overwriteConfirm':
+    'A template named "{name}" already exists. Overwrite?',
+  'toolbar.group.overwrite': 'Overwrite',
   'toolbar.rack.arrange': 'Arrange the {count} selected devices in the 2D rack builder',
   'toolbar.rack.edit': 'Edit this rack in the 2D rack builder',
   'toolbar.align.left': 'Left align',
@@ -610,6 +626,9 @@ const en: Dict = {
   // PortList
   'ports.title.inputs': 'Inputs',
   'ports.title.outputs': 'Outputs',
+  'ports.flip': 'Flip ports (inputs on right, outputs on left)',
+  'ports.flipTitle':
+    'Inputs render on the right, outputs on the left of the device node.',
   'ports.add': '+ Port',
   'ports.add.title': 'Add a new port',
   'ports.empty': 'No {kind} yet. Use "+ Port" to add one.',
@@ -646,6 +665,7 @@ const en: Dict = {
   'ports.sfp.vendorPlaceholder': 'Vendor (Cisco)',
   'ports.sfp.vendorTitle': 'Module vendor: Cisco, Aruba, Ubiquiti, FS.com …',
   'ports.quadAuto': 'Auto-assign free BNC ports to this set',
+  'ports.dualAuto': 'Auto-assign free BNC ports to this set',
 
   // Cable / CableDialog
   'cable.dialog.title': 'New cable',
@@ -718,6 +738,16 @@ const en: Dict = {
   'statusbar.complexity.medium': 'Medium',
   'statusbar.complexity.small': 'Small',
   'statusbar.complexity.new': 'New',
+  // #411 Plan-check badge
+  'statusbar.planCheck.title': 'Open plan check: live validation (errors/warnings)',
+  'statusbar.planCheck.counts': '{errors}⚠',
+  'statusbar.planCheck.ok': 'OK',
+  // #411 Plan-check panel
+  'planCheck.title': 'Plan check',
+  'planCheck.summary': '{count} findings',
+  'planCheck.allClear': 'No issues found.',
+  'planCheck.footerHint':
+    'Live plan validation. Click a finding to select the affected element.',
   'statusbar.rentman.label': 'Rentman:',
   'statusbar.rentman.tokenReady': 'Token ready',
   'statusbar.rentman.standalone': 'Standalone',
@@ -749,6 +779,11 @@ const en: Dict = {
   'cable.field.maxReachPlaceholder': 'e.g. 100',
   'cable.field.layer': 'Layer',
   'cable.field.layerTitle': 'Works with the layer filter in the toolbar (layer chips)',
+  // #363 Multicore / snake grouping
+  'cable.field.multicore': 'Multicore / snake',
+  'cable.field.multicorePlaceholder': 'e.g. "Snake-1", "FOH-Loom"',
+  'cable.field.multicoreTitle':
+    'Cables sharing a name form one physical bundle — the BOM counts it as one item.',
   'cable.field.strokeWidth': 'Stroke width ({width}px)',
   'cable.field.labelPosition': 'Label position',
   'cable.field.labelSlider': 'Slider:',
@@ -855,7 +890,7 @@ const en: Dict = {
   'modeEditor.descPlaceholder': 'e.g. limits outputs to 2 in 4K mode (lower resource use)',
   'modeEditor.portCount': '{count} port(s) in this mode',
   'modeEditor.seedTitle': "Adopt the device's CURRENT port layout as a starting point.",
-  'modeEditor.seedBtn': '⬇ Adopt current device layout',
+  'modeEditor.seedBtn': 'Adopt current device layout',
   'modeEditor.emptySide': 'No {kind} in this mode.',
   'modeEditor.removePort': 'Remove port',
   'common.name': 'Name',
@@ -1170,7 +1205,7 @@ const en: Dict = {
   'greengo.footer.devicesOnCanvas': 'devices on canvas',
   'greengo.import.gg5Title':
     'Import .gg5 file and link to canvas devices',
-  'greengo.import.gg5': '⬆ Import .gg5',
+  'greengo.import.gg5': 'Import .gg5',
   'greengo.import.xlsxTitle':
     'Upload intercom-matrix Excel — users + groups will be merged into the GreenGo configuration.',
   'greengo.import.xlsx': 'Import Excel matrix',
@@ -1178,7 +1213,7 @@ const en: Dict = {
     'Download current GreenGo configuration as an intercom-matrix Excel (for print / hand-off).',
   'greengo.export.xlsx': 'Export Excel matrix',
   'greengo.saveProject': 'Save in project',
-  'greengo.export.gg5': '⬇ Export as .gg5',
+  'greengo.export.gg5': 'Export as .gg5',
   'greengo.importOverlay.title': 'Import .gg5 — link devices',
   'greengo.importOverlay.system': 'System:',
   'greengo.importOverlay.importedGroups': 'Imported groups',
@@ -1274,6 +1309,7 @@ const en: Dict = {
   'locbom.col.category': 'Category',
   'locbom.col.sn': 'S/N',
   'locbom.col.ip': 'IP',
+  'locbom.col.packed': 'Pack',
   'locbom.col.qty': 'Qty',
   'locbom.col.type': 'Type',
   'locbom.col.lengthM': 'Length (m)',
@@ -1317,16 +1353,41 @@ const en: Dict = {
   'about.issueHint': 'Please report issues + feature requests directly on GitHub.',
 
   // AnnotationsPanel
+  'annotations.title': 'Annotations',
   'annotations.reviewer': 'Reviewer: {name}',
   'annotations.dragTitle':
     'Drag to place this annotation on the canvas or attach it to a device',
   'annotations.clickToEdit': 'Click to edit',
   'annotations.delete': 'Delete annotation',
+  'annotations.float.title': 'Detach (free-floating window)',
+  'annotations.float.aria': 'Detach annotations panel',
 
   // PatchListDialog
   'patchList.title': 'Patch list',
   'patchList.empty.noCables': 'This project has no cables yet. Connect devices on the canvas to build a patch list.',
   'patchList.empty.noMatch': 'No cables match the filter.',
+  'patchList.col.number': 'No.',
+  'settings.project.numbering.title': 'Cable numbering',
+  'settings.project.numbering.desc':
+    'Automatic, collision-free cable IDs from a fixed scheme — shown on the canvas, in the patch list and on the labels.',
+  'settings.project.numbering.enabled': 'Auto-assign a number to new cables',
+  'settings.project.numbering.prefix': 'Prefix',
+  'settings.project.numbering.separator': 'Separator',
+  'settings.project.numbering.padding': 'Digits',
+  'settings.project.numbering.start': 'Start number',
+  'settings.project.numbering.perLayer': 'Separate counter per layer (V/A/N/P …)',
+  'settings.project.numbering.example': 'Example',
+  'settings.project.numbering.renumber': 'Renumber all cables',
+  'settings.project.numbering.done': '{n} cables renumbered.',
+  // #350 Cable length estimation
+  'settings.project.lengthEst.title': 'Estimate cable lengths',
+  'settings.project.lengthEst.desc':
+    'Estimates cable lengths from the on-canvas distance between devices (straight line × scale + slack). Overwrites existing lengths.',
+  'settings.project.lengthEst.scale': 'Metres per 100 px',
+  'settings.project.lengthEst.slack': 'Slack (%)',
+  'settings.project.lengthEst.roundUp': 'Round up to whole metres',
+  'settings.project.lengthEst.run': 'Estimate lengths now',
+  'settings.project.lengthEst.done': '{n} cable lengths updated.',
   'patchList.searchPlaceholder': 'Search (device, port, type, colour, note …)',
   'patchList.layerFilter': 'Filter by layer/discipline',
   'patchList.allLayers': 'All layers',
@@ -1723,14 +1784,6 @@ const en: Dict = {
   'dims.hint':
     'Physical outer dimensions. 19" rack device: 1 U = 44.45 mm, standard width 482 mm, typical depth 400-600 mm. Used by the 3D rack renderer + logistics tools.',
 
-  // DimensionsBlock (legacy fieldset variant)
-  'dimsBlock.title': 'Dimensions (mm)',
-  'dimsBlock.height': 'Height',
-  'dimsBlock.width': 'Width',
-  'dimsBlock.depth': 'Depth',
-  'dimsBlock.rackHint':
-    'Rack device · {he} U. If height is empty, {mm} mm is assumed as physical height (1 U ≈ 44.45 mm).',
-
   // DisplayPropertiesBlock
   'display.title': 'Display',
   'display.resolution': 'Resolution',
@@ -1788,6 +1841,11 @@ const en: Dict = {
   'library.tabs.groups.exportAria': 'Export',
   'library.tabs.groups.confirmDelete': 'Delete group "{name}"?',
   'library.tabs.groups.deleteTitle': 'Remove group from library',
+  'library.tabs.groups.renamePrompt': 'New template name:',
+  'library.tabs.groups.renameTitle': 'Rename template',
+  'library.tabs.groups.renameAria': 'Rename',
+  'library.tabs.groups.renameConflict':
+    'A template named "{name}" already exists. Please choose a different name.',
 
   // Library — Racks tab
   'library.tabs.racks.title': '2D Rack Builder',
@@ -1816,8 +1874,15 @@ const en: Dict = {
   'ports.side.auto': 'Side (auto)',
   'ports.side.left': 'Left',
   'ports.side.right': 'Right',
+  // #410 Connector gender
+  'ports.aria.gender': 'Connector gender',
+  'ports.genderTitle': 'Connector gender (for cable assembly)',
+  'ports.gender.none': 'Gender (–)',
+  'ports.gender.male': '♂ Male / plug',
+  'ports.gender.female': '♀ Female / socket',
   'ports.sdi.maxSingleLink': 'Max single-link',
   'ports.sdi.quadSet': 'Quad-link set:',
+  'ports.sdi.dualSet': 'Dual-link set:',
 
   // Shortcut keys (Strg/Ctrl + …)
   'shortcut.ctrlN': 'Ctrl+N',
@@ -1837,14 +1902,14 @@ const en: Dict = {
   'netAccess.subtitle': 'IP · MAC · S/N · login',
   'netAccess.notesPlaceholder': 'Web UI URL, firmware version, wiring notes, …',
   'flags.title': 'Display & flags',
-  'flags.subtitle': 'compact · colour · mirror ports · packed',
+  'flags.subtitle': 'compact · colour · packed',
   'flags.colorTitle': 'Device node colour',
   'flags.packedTitle':
     'Marks the device as packed. Shown as ✓ on the canvas and as a column in the device BOM.',
   'flags.converterTitle':
     'Converter marker: the patch list skips this device and shows the next real target directly. Useful for SDI-HDMI converters, format converters, embedders/de-embedders.',
   'opt.title': 'Optional fields',
-  'opt.subtitle': 'Manufacturer link, reference image, icon',
+  'opt.subtitle': 'Manufacturer link, reference image, icon, rental price',
   'opt.iconAutoTitle': 'Reset to automatic',
 
   // Library — TemplateMergeDialog
@@ -2035,7 +2100,7 @@ const en: Dict = {
   'props.deviceConfigs.hint': 'Upload new configurations in Settings → Configurations.',
 
   // Properties — SortableSection
-  'props.section.dragTitle': 'Drag section to change order',
+  'props.section.dragTitle': 'Drag section to change order (persists across devices).',
   'props.section.dragAria': 'Move section',
 
   // Settings — EquipmentColorsSection
@@ -2275,6 +2340,45 @@ const en: Dict = {
     'Greedy distribution: sorted by power, each device on the currently least-loaded phase. With symmetric loads three-phase draws only {amps} A per phase; imbalance raises the highest phase current. Target: every phase < 85% load + imbalance < 20%.',
   'calc.topConsumers': 'Top consumers',
 
+  // #378 — Bulk cable connect dialog
+  'bulk.title': '🔗 Connect multiple cables',
+  'bulk.intro':
+    'Creates N cables at once: source port i → target port i. Occupied target ports are skipped.',
+  'bulk.source': 'Source',
+  'bulk.target': 'Target',
+  'bulk.device': 'Device',
+  'bulk.side': 'Side',
+  'bulk.outputs': 'Outputs',
+  'bulk.inputs': 'Inputs',
+  'bulk.startFrom': 'Start {side} (1..{total})',
+  'bulk.startTo': 'Start {side} (1..{total})',
+  'bulk.count': 'Cable count',
+  'bulk.spec': 'Cable type',
+  'bulk.length': 'Length per cable (m)',
+  'bulk.preview': 'Preview ({n}/{plan} cables)',
+  'bulk.previewEmpty': 'Pick source/target and port range.',
+  'bulk.willSkip': '⚠ Count exceeds available ports — extras are skipped.',
+  'bulk.create': 'Create {n} cables',
+  'bulk.cableName': '{from} → {to}',
+  'bulk.resultSkipped':
+    '{created} cables created, {skipped} skipped (target port occupied or invalid).',
+
+  // #404 — Recording-storage calculator
+  'recStorage.title': '💾 Recording storage calculator',
+  'recStorage.intro':
+    'Calculates the storage required for a recording: codec bitrate × duration × channels. Values are approximate without filesystem overhead.',
+  'recStorage.codec': 'Codec / bitrate preset',
+  'recStorage.customMbps': 'Custom bitrate (Mbps)',
+  'recStorage.hours': 'Hours',
+  'recStorage.minutes': 'Minutes',
+  'recStorage.channels': 'Channels',
+  'recStorage.fixedFromDevice': 'taken from device',
+  'recStorage.effectiveBitrate': 'Effective bitrate',
+  'recStorage.duration': 'Duration',
+  'recStorage.perChannel': 'Per channel',
+  'recStorage.total': 'Total',
+  'recStorage.formulaHeader': 'Formula',
+
   // RackAddSplitButton
   'rackAdd.primaryLabel': '+ To rack',
   'rackAdd.fullDepthTitle': 'Add device full-depth (front + rear) to the rack',
@@ -2346,6 +2450,21 @@ const en: Dict = {
   'quadLink.okFill': 'Yes, fill',
   'quadLink.complete': 'Set complete',
   'quadLink.incomplete': 'Set incomplete — 4 ports required',
+  'dualLink.incompleteTitle': 'Dual-link set {g} incomplete',
+  'dualLink.incompleteBody':
+    'Only has {have}/2 ports. No more free BNC ports available — add BNC ports first or free up existing ones.',
+  'dualLink.fillTitle': 'Fill dual-link set {g}?',
+  'dualLink.fillBody':
+    'Currently {have}/2 ports. Automatically assign {add} more free BNC port to the set?',
+  'dualLink.createTitle': 'Create dual-link set {id}?',
+  'dualLink.createBody':
+    '1/2 ports set. Automatically assign {add} more free BNC port to the set?',
+  'dualLink.createdTitle': 'Dual-link set {id} created',
+  'dualLink.createdBody':
+    'Currently has {have}/2 ports. Please add another BNC port and assign it to the set too.',
+  'dualLink.okFill': 'Yes, fill',
+  'dualLink.complete': 'Set complete',
+  'dualLink.incomplete': 'Set incomplete — 2 ports required',
 
   // LibraryPanel rentman section + netbox + create
   'library.rentman.noProjectLinked': 'No Rentman project linked.',
@@ -2503,7 +2622,7 @@ const en: Dict = {
   // App.tsx Viewer export
   'app.viewerExport.okTitle': 'Viewer file saved',
   'app.viewerExport.okBody':
-    'Send it to your freelancers/helpers. On opening they are asked for their name — annotations are then auto-attributed.',
+    'Send it to your reviewers/helpers. On opening they are asked for their name — annotations are then auto-attributed.',
   'app.viewerExport.failTitle': 'Viewer export failed',
   // App.tsx Annotations import
   'app.annotationsImport.needDesktop': 'Annotations re-import requires the desktop app.',
@@ -2717,13 +2836,28 @@ const en: Dict = {
   'patchList.col.toPort': 'To port',
   'patchList.col.port': 'Port',
   'patchList.col.color': 'Colour',
+  'patchList.col.layer': 'Layer',
+  'patchList.col.multicore': 'Multicore',
   'patchList.col.cableName': 'Cable name',
   'patchList.col.notes': 'Notes',
   'patchList.footerHint':
     'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
-  'patchList.exportCsv': '⬇ Export CSV',
-  'patchList.exportXlsx': '⬇ Export XLSX',
-  'patchList.exportLabels': 'Labels (PDF)',
+  'patchList.exportCsv': 'Export CSV',
+  'patchList.exportXlsx': 'Export XLSX',
+  'patchList.exportLabels': 'Labels + QR (PDF)',
+  // #349 Label-printer CSV export
+  'patchList.exportLabelCsv': '🏷 Label CSV',
+  'patchList.labelCsvFormat': 'Label-printer format',
+  'patchList.labelCsv.generic': 'Generic (CSV)',
+  'patchList.labelCsv.brother': 'Brother P-touch (TXT)',
+  'patchList.labelCsv.dymo': 'Dymo (CSV)',
+  // #353 Audio input list
+  'patchList.exportInputList': '🎚 Input list',
+  'inputList.col.ch': 'Ch',
+  'inputList.col.source': 'Source',
+  'inputList.col.port': 'Port',
+  'inputList.col.connector': 'Connector',
+  'inputList.col.toDevice': 'To device',
   // #314 Replace device section
   'replaceDevice.title': 'Replace device',
   'replaceDevice.subtitle': 'Preserve cabling',
@@ -2843,9 +2977,6 @@ const en: Dict = {
   'app.menu.file.importAnnotations': 'Import annotations from viewer file…',
   'app.menu.file.importGraphml': 'Import yEd / GraphML…',
   'app.menu.help.about': 'About Cable Planner…',
-  'app.menu.tools': 'Tools',
-  'app.menu.tools.bandwidth': 'Calculate bandwidth…',
-  'app.menu.tools.power': 'Calculate power consumption…',
   'app.menu.tools.rackBuilder': 'Rack builder…',
   'app.menu.tools.atemMv': 'ATEM multiviewer layout…',
   'app.menu.tools.atemAudio': 'ATEM audio routing…',
@@ -2855,7 +2986,39 @@ const en: Dict = {
   'app.menu.tools.patchList': 'Patch list…',
   'app.menu.tools.rentmanImport': 'Rentman import…',
   'app.menu.tools.analysis': 'Analyses (weight/network/redundancy)…',
+  'app.menu.tools.planCheck': 'Plan check…',
+  'app.menu.tools.revisions': 'Revisions & snapshots…',
+  'app.menu.tools.aiPlanGen': 'Generate AI plan…',
+  // #414 AI plan generation
+  'aiPlan.title': 'AI plan generation',
+  'aiPlan.noKey': 'No AI API key set. Add a provider key under Settings → AI.',
+  'aiPlan.promptLabel': 'Describe the system in plain language',
+  'aiPlan.promptPlaceholder':
+    'e.g. "2 cameras over SDI into a switcher, PGM out to a recorder and a multiviewer monitor"',
+  'aiPlan.reviewHint': 'A preview is shown — nothing is inserted without confirmation.',
+  'aiPlan.generate': 'Generate',
+  'aiPlan.generating': 'Generating…',
+  'aiPlan.preview': 'Preview: {d} devices, {c} cables',
+  'aiPlan.insert': 'Insert into plan',
   'app.menu.tools.csvImport': 'Import equipment from CSV…',
+  // #412 Revisions dialog
+  'revisions.title': 'Revisions & snapshots',
+  'revisions.commitTitle': 'Commit current state',
+  'revisions.labelPlaceholder': 'Label (e.g. "A", "Rev 2")',
+  'revisions.notePlaceholder': 'Note: what changed?',
+  'revisions.asBuilt': 'As-built',
+  'revisions.asBuiltTag': 'As-built',
+  'revisions.commit': 'Commit',
+  'revisions.empty': 'No revisions committed yet.',
+  'revisions.restore': 'Restore',
+  'revisions.restoreConfirm': 'Restore this state?',
+  'revisions.restoreBody':
+    'The current plan will be replaced by revision "{label}". The revision history is kept.',
+  'revisions.delete': 'Delete',
+  'revisions.deleteConfirm': 'Delete revision?',
+  'revisions.deleteBody': 'Revision "{label}" will be removed permanently.',
+  'revisions.footerHint':
+    'A revision stores a full snapshot of the plan. Restoring keeps the history.',
   'app.menu.view': 'View',
   'app.menu.view.light': 'Light theme',
   'app.menu.view.snap': 'Snap to grid',
@@ -2865,10 +3028,12 @@ const en: Dict = {
   'app.menu.edit': 'Edit',
   'app.menu.edit.undo': 'Undo',
   'app.menu.edit.redo': 'Redo',
+  'app.menu.edit.duplicate': 'Duplicate',
   'app.menu.edit.delete': 'Delete selection',
   'app.menu.edit.clearSelection': 'Clear selection',
   'shortcut.ctrlZ': 'Ctrl+Z',
   'shortcut.ctrlY': 'Ctrl+Y',
+  'shortcut.ctrlD': 'Ctrl+D',
   'shortcut.del': 'Del',
   'shortcut.esc': 'Esc',
   // Analysen-Dialog (#346/#351/#352)
@@ -2885,11 +3050,13 @@ const en: Dict = {
   'analysis.weight.kg': 'Weight (kg)',
   'analysis.weight.watts': 'Power (W)',
   'analysis.weight.btu': 'Heat (BTU/h)',
+  'analysis.weight.eur': 'Value (€)',
   'analysis.weight.missing': '{n} device(s) without a weight value — add it in the properties.',
   'analysis.network.intro': 'IP/VLAN overview of all network-capable devices with duplicate-IP detection.',
   'analysis.network.device': 'Device',
   'analysis.network.mgmtVlan': 'Mgmt VLAN',
   'analysis.network.dupTitle': 'Duplicate IP addresses',
+  'analysis.network.danteTitle': 'Check Dante/AES67 names (≤31 chars, a–z/0–9/-)',
   'analysis.network.empty': 'No devices with network data.',
   'analysis.network.vlanSummary': 'Devices per VLAN',
   'analysis.redundancy.intro': 'Heuristic for potential single points of failure: devices that draw power but have at most one power connection (layer "Power").',
@@ -3045,14 +3212,31 @@ const en: Dict = {
     'USB-C connector, passive up to 2 m. Active TB3 cable up to ~50 cm. Forward-compatible with Thunderbolt 4.',
   'catalog.cable.thunderbolt-4.notes':
     'Same bandwidth as TB3 but stricter certification (2× DP 1.4, 40 Gbps, 100 W PD).',
+  'catalog.cable.ltc-bnc.notes':
+    'LTC longitudinal timecode (SMPTE 12M): an audio-band signal distributed over 75Ω coax (BNC), or via balanced XLR / LEMO into cameras and recorders. A master clock or sync generator typically feeds genlock and timecode together.',
   'catalog.cable.madi-bnc.notes':
     'MADI AES10 over 75Ω coax. Up to 64 ch at 48 kHz or 56 ch at 96 kHz.',
+  'catalog.cable.aes3id-bnc.notes':
+    'AES3id: AES3 digital audio over 75Ω unbalanced coax (BNC) — the BNC variant of AES/EBU. One stereo pair per coax, with longer reach than balanced AES3 over XLR. Common on routers and broadcast gear.',
+  'catalog.cable.dvb-asi.notes':
+    'DVB-ASI: MPEG transport stream over 75Ω coax (BNC), up to 270 Mbit/s. Encoder/mux/modulator/playout interconnect in headends and OB trucks.',
   'catalog.cable.madi-optical.notes':
     'MADI AES10 over optical fibre. Long reach, galvanically isolated.',
   'catalog.cable.smpte-297.notes':
-    'Hybrid cable with optical SDI link + copper for talkback and power. Camera connection for ENG/studio.',
+    'SMPTE ST 297: serial digital video (SDI) transported optically over fibre. No power — a pure optical SDI link with long reach.',
+  'catalog.cable.smpte-304m-lemo.notes':
+    'SMPTE 304M hybrid camera cable with LEMO 3K.93C (also called LEMO 311) connector — EBU/broadcast-standard fibre + copper hybrid for studio cameras.',
+  'catalog.cable.smpte-304m-dragonfly.notes':
+    'SMPTE 304M hybrid camera cable with Neutrik opticalCON Dragonfly connector — ruggedised touring/stage variant compatible with LEMO 3K.93C via adapter.',
+  'catalog.cable.triax-dh.notes':
+    'Damar & Hagen triax — analog single-coax for HDTV cameras. Carries video, intercom, talkback, power. Mechanically incompatible with Fischer triax.',
+  'catalog.cable.triax-fischer.notes':
+    'Fischer triax — analog single-coax for HDTV cameras (alternative to Damar & Hagen). Same signals; different connector.',
   'catalog.cable.smpte-304m.notes':
-    'Triaxial cable for studio cameras (HDTV). Carries video, intercom, talkback and power in one cable.',
+    'SMPTE 311M hybrid fibre camera cable (304M connector, e.g. LEMO 3K.93C): 2 single-mode fibres + power and control conductors. This is fibre, NOT triax.',
+  'catalog.cable.triax-camera.notes':
+    'Triaxial (coaxial) camera cable for studio/OB cameras: carries video, return, intercom/talkback, genlock and power over one triax — analogue, distinct from the SMPTE fibre camera cables.',
+  'catprops.title': 'Specs',
   'catalog.cable.ndi-cat6a.notes':
     'NDI / NDI-HX over standard Gigabit Ethernet. Keep NDI and Dante on separate VLANs/links to avoid congestion.',
   'catalog.cable.dante-cat6.notes':
@@ -3065,6 +3249,28 @@ const en: Dict = {
     'Word clock for digital audio. Daisy-chain with 75Ω termination at the end; one master clock per domain.',
   'catalog.cable.ptp-cat6.notes':
     'PTP (IEEE 1588) timing for ST 2110 / AES67. One grandmaster per PTP domain; enable boundary clocks on switches.',
+  'catalog.cable.serial-rs422.notes':
+    'Serial device control. RS-232 ~15 m point-to-point; RS-422/485 differential up to ~1200 m (VTR Sony 9-pin, PTZ/VISCA, router/matrix control).',
+  'catalog.cable.vga-de15.notes':
+    'Analog RGBHV computer/projector video over 15-pin D-Sub. Keep runs short; quality drops past ~10-15 m.',
+  'catalog.cable.dvi-cable.notes':
+    'DVI-D (digital), DVI-A (analog) or DVI-I (both). Passive copper limited to ~5 m; single vs dual-link sets the max resolution.',
+  'catalog.cable.dsub-db25-audio.notes':
+    'DB25 multi-channel audio per AES59 ("TASCAM" pinout): 8 balanced analog or 4 AES3 pairs on one connector.',
+  'catalog.cable.dmx-5pin.notes':
+    'DMX512-A / RDM lighting control, 512 channels per universe. 5-pin XLR is the standard; terminate the last fixture with 120Ω.',
+  'catalog.cable.artnet-sacn.notes':
+    'Art-Net / sACN (E1.31): many DMX universes over Ethernet. Use a dedicated/managed network; multicast for sACN.',
+  'catalog.cable.composite-cinch.notes':
+    'Composite video (CVBS/FBAS) over one line — Cinch/RCA or 75Ω BNC. Legacy/consumer, single picture.',
+  'catalog.cable.s-video.notes':
+    'S-Video (Y/C): separate luma and chroma over a mini-DIN-4 — better than composite, legacy.',
+  'catalog.cable.component-ypbpr.notes':
+    'Analog component YPbPr over three lines (Cinch or BNC). Carries HD analog; legacy in modern plants.',
+  'catalog.cable.tally-gpi.notes':
+    'Tally (red = on-air/PGM, green = preview) and GPI/GPO contact closures for record triggers, cues, lamps. Often D-Sub or terminal blocks.',
+  'catalog.cable.hdbaset-cat6a.notes':
+    'HDBaseT: video (up to 4K), audio, control (RS-232/IR), Ethernet and power (PoH) over one Cat6/6a run up to ~100 m.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Main standard. Level A recommended; Level B for older equipment.',
@@ -3108,14 +3314,31 @@ const de: Dict = {
     'USB-C Stecker, passiv bis 2 m. Aktives TB3-Kabel bis ~50 cm. Vorwärtskompatibel mit Thunderbolt 4.',
   'catalog.cable.thunderbolt-4.notes':
     'Gleiche Bandbreite wie TB3, aber striktere Zertifizierung (2× DP 1.4, 40Gbps, 100W PD).',
+  'catalog.cable.ltc-bnc.notes':
+    'LTC Longitudinal-Timecode (SMPTE 12M): ein Signal im Audioband, verteilt über 75Ω-Koax (BNC) oder symmetrisch per XLR / LEMO in Kameras und Recorder. Ein Master-Clock bzw. Sync-Generator liefert Genlock und Timecode meist gemeinsam.',
   'catalog.cable.madi-bnc.notes':
     'MADI AES10 über 75Ω-Koax. Bis 64 ch bei 48 kHz oder 56 ch bei 96 kHz.',
+  'catalog.cable.aes3id-bnc.notes':
+    'AES3id: AES3-Digitalaudio über 75Ω-Koax unsymmetrisch (BNC) — die BNC-Variante von AES/EBU. Ein Stereopaar pro Koax, größere Reichweite als symmetrisches AES3 über XLR. Verbreitet an Routern und Broadcast-Geräten.',
+  'catalog.cable.dvb-asi.notes':
+    'DVB-ASI: MPEG-Transportstrom über 75Ω-Koax (BNC), bis 270 Mbit/s. Verbindung zwischen Encoder/Mux/Modulator/Playout in Kopfstellen und Ü-Wagen.',
   'catalog.cable.madi-optical.notes':
     'MADI AES10 über optische Faser. Lange Reichweite, galvanisch getrennt.',
   'catalog.cable.smpte-297.notes':
-    'Hybridkabel mit optischer SDI-Strecke + Kupfer für Talkback und Stromversorgung. Kameraanschluss bei ENG/Studio.',
+    'SMPTE ST 297: serielles digitales Video (SDI) optisch über Glasfaser übertragen. Kein Strom — eine reine optische SDI-Strecke mit großer Reichweite.',
+  'catalog.cable.smpte-304m-lemo.notes':
+    'SMPTE-304M-Hybrid-Kamerakabel mit LEMO 3K.93C (auch LEMO 311) — EBU/Broadcast-Standard für Fiber-+-Kupfer-Hybrid an Studiokameras.',
+  'catalog.cable.smpte-304m-dragonfly.notes':
+    'SMPTE-304M-Hybrid-Kamerakabel mit Neutrik opticalCON Dragonfly — robuste Touring-/Stage-Variante, via Adapter kompatibel zu LEMO 3K.93C.',
+  'catalog.cable.triax-dh.notes':
+    'Damar & Hagen Triax — analoges Single-Coax für HDTV-Kameras (Video + Interkom + Talkback + Strom). Mechanisch NICHT mit Fischer-Triax kompatibel.',
+  'catalog.cable.triax-fischer.notes':
+    'Fischer Triax — analoges Single-Coax für HDTV-Kameras (Alternative zu Damar & Hagen). Gleiche Signale, anderer Stecker.',
   'catalog.cable.smpte-304m.notes':
-    'Triaxialkabel für Studio-Kameras (HDTV). Überträgt Video, Interkom, Talkback und Strom in einem Kabel.',
+    'SMPTE 311M Hybrid-Glasfaser-Kamerakabel (304M-Stecker, z. B. LEMO 3K.93C): 2 Singlemode-Fasern + Power- und Steueradern. Das ist Glasfaser, KEIN Triax.',
+  'catalog.cable.triax-camera.notes':
+    'Triaxiales (koaxiales) Kamerakabel für Studio-/EB-Kameras: überträgt Video, Rückweg, Interkom/Talkback, Genlock und Strom über ein Triax — analog, getrennt von den SMPTE-Glasfaser-Kamerakabeln.',
+  'catprops.title': 'Fachdaten',
   'catalog.cable.ndi-cat6a.notes':
     'NDI / NDI-HX über normales Gigabit-Ethernet. NDI und Dante auf getrennten VLANs/Links halten, um Überlast zu vermeiden.',
   'catalog.cable.dante-cat6.notes':
@@ -3128,6 +3351,28 @@ const de: Dict = {
     'Word Clock für Digital-Audio. Daisy-Chain mit 75Ω-Abschluss am Ende; ein Master-Clock pro Domäne.',
   'catalog.cable.ptp-cat6.notes':
     'PTP (IEEE 1588) Timing für ST 2110 / AES67. Ein Grandmaster je PTP-Domäne; Boundary-Clocks auf Switches aktivieren.',
+  'catalog.cable.serial-rs422.notes':
+    'Serielle Gerätesteuerung. RS-232 ~15 m Punkt-zu-Punkt; RS-422/485 differenziell bis ~1200 m (VTR Sony 9-Pin, PTZ/VISCA, Router-/Matrix-Steuerung).',
+  'catalog.cable.vga-de15.notes':
+    'Analoges RGBHV-Computer-/Projektorbild über 15-pol D-Sub. Kurz halten; Qualität fällt jenseits ~10-15 m.',
+  'catalog.cable.dvi-cable.notes':
+    'DVI-D (digital), DVI-A (analog) oder DVI-I (beides). Passiv-Kupfer ~5 m; Single- vs. Dual-Link bestimmt die Maximalauflösung.',
+  'catalog.cable.dsub-db25-audio.notes':
+    'DB25-Mehrkanal-Audio nach AES59 ("TASCAM"-Belegung): 8 symmetrisch analog oder 4 AES3-Paare auf einem Stecker.',
+  'catalog.cable.dmx-5pin.notes':
+    'DMX512-A / RDM Licht-Steuerung, 512 Kanäle je Universum. 5-pol XLR ist Standard; letztes Gerät mit 120Ω terminieren.',
+  'catalog.cable.artnet-sacn.notes':
+    'Art-Net / sACN (E1.31): viele DMX-Universen über Ethernet. Dediziertes/Managed-Netz nutzen; sACN per Multicast.',
+  'catalog.cable.composite-cinch.notes':
+    'Composite-Video (CVBS/FBAS) über eine Leitung — Cinch/RCA oder 75Ω-BNC. Legacy/Consumer, ein Bild.',
+  'catalog.cable.s-video.notes':
+    'S-Video (Y/C): getrenntes Luma und Chroma über Mini-DIN-4 — besser als Composite, Legacy.',
+  'catalog.cable.component-ypbpr.notes':
+    'Analoges Component YPbPr über drei Leitungen (Cinch oder BNC). Überträgt HD analog; in modernen Anlagen Legacy.',
+  'catalog.cable.tally-gpi.notes':
+    'Tally (rot = On-Air/PGM, grün = Preview) und GPI/GPO-Kontaktschlüsse für Record-Trigger, Cues, Lampen. Oft D-Sub oder Klemmen.',
+  'catalog.cable.hdbaset-cat6a.notes':
+    'HDBaseT: Video (bis 4K), Audio, Steuerung (RS-232/IR), Ethernet und Strom (PoH) über ein Cat6/6a bis ~100 m.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Hauptstandard. Level A empfohlen; Level B bei älteren Geräten.',

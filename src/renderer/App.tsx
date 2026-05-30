@@ -35,8 +35,13 @@ const AnnotationsPanelHost = () => {
 import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
 import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
-import { CalculatorsDialog } from './components/Calculators/CalculatorsDialog'
+import { BandwidthCalculatorDialog, PowerCalculatorDialog } from './components/Calculators/CalculatorsDialog'
+import { RecordingStorageCalculatorDialog } from './components/Calculators/RecordingStorageCalculatorDialog'
+import { BulkConnectDialog } from './components/Canvas/BulkConnectDialog'
 import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
+import { PlanCheckPanel } from './components/Analysis/PlanCheckPanel'
+import { RevisionsDialog } from './components/Project/RevisionsDialog'
+import { AiPlanGenDialog } from './components/Project/AiPlanGenDialog'
 import { CsvImportDialog } from './components/Import/CsvImportDialog'
 import { TemplatesDialog } from './components/Project/TemplatesDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
@@ -545,7 +550,7 @@ export default function App() {
             `${path}\n\n` +
             t(
               'app.viewerExport.okBody',
-              'Sende sie an deine Freelancer/Helfer. Beim Öffnen werden sie nach ihrem Namen gefragt — Anmerkungen sind dann automatisch attributiert.',
+              'Sende sie an deine Reviewer/Helfer. Beim Öffnen werden sie nach ihrem Namen gefragt — Anmerkungen sind dann automatisch attributiert.',
             ),
           tone: 'success',
         })
@@ -953,8 +958,14 @@ export default function App() {
       <MobileShareDialog />
       <AboutDialog />
       <PatchListDialog />
-      <CalculatorsDialog />
+      <BandwidthCalculatorDialog />
+      <PowerCalculatorDialog />
+      <RecordingStorageCalculatorDialog />
+      <BulkConnectDialog />
       <AnalysisDialog />
+      <PlanCheckPanel />
+      <RevisionsDialog />
+      <AiPlanGenDialog />
       <CsvImportDialog />
       <TemplatesDialog />
       <CableContextMenu />

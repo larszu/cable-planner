@@ -42,10 +42,6 @@ It is designed for real-world production environments such as studios, OB vans, 
 
 ## 📸 Screenshots
 
-> All images are captured from a **neutral demo project** (generic camera /
-> switcher / monitor names) — no customer data. Images live in
-> [`docs/screenshots/`](docs/screenshots/); see the capture guide in
-> [`docs/screenshots/README.md`](docs/screenshots/README.md).
 
 <table>
   <tr>

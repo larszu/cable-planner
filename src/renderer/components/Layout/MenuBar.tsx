@@ -4,9 +4,10 @@ import {
   Image as ImageIcon, Calculator, Eye, MessageSquare, Paperclip, Plug, Cable,
   Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, SlidersHorizontal, Tag,
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
-  Pencil, Smartphone, Settings,
+  Pencil, Smartphone, Settings, HardDrive, Copy,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
+import { triggerCanvasDuplicate } from '../../lib/canvasViewport'
 import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
 import { useTranslation } from '../../lib/i18n'
 import { projectHistory } from '../../store/projectHistory'
@@ -110,7 +111,7 @@ export const MenuBar = ({
     projectHistory.canRedo,
   )
   return (
-    <header className="flex shrink-0 items-center justify-between gap-3 overflow-hidden border-b border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1.5 text-cp-xs shadow-sm">
+    <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1.5 text-cp-xs shadow-sm">
       <div className="flex shrink-0 items-center gap-2">
         <span className="hidden select-none font-semibold tracking-wide text-slate-300 lg:inline">
           {t('app.title', 'Cable Planner')}
@@ -179,12 +180,14 @@ export const MenuBar = ({
               entfernt — war doppelt zur "Drucken"-Sektion im
               Exportieren-&-Drucken-Hub (User-Bug: "Datei → Drucken
               ist doppelt"). */}
-          {/* v7.9.3 — Viewer-Workflow: Plan als .cpviewer für Freelancer
-              exportieren, später deren Anmerkungen zurück mergen. */}
+          {/* v7.9.3 — Viewer-Workflow: Plan als .cpviewer für externe
+              Reviewer exportieren, später deren Anmerkungen zurück
+              mergen. v8.x: Wort "Freelancer" entfernt (#405/#406 —
+              Workflow ist nicht freelancer-spezifisch). */}
           {(onExportViewer || onImportAnnotations) && <MenuSep />}
           {onExportViewer && (
             <MenuItem onClick={onExportViewer} icon={<Icon icon={Eye} size="sm" />}>
-              {t('app.menu.file.exportViewer', 'Als Viewer-Datei für Freelancer exportieren…')}
+              {t('app.menu.file.exportViewer', 'Als Viewer-Datei exportieren…')}
             </MenuItem>
           )}
           {onImportAnnotations && (
@@ -245,6 +248,13 @@ export const MenuBar = ({
           </MenuItem>
           <MenuSep />
           <MenuItem
+            onClick={() => triggerCanvasDuplicate()}
+            icon={<Icon icon={Copy} size="sm" />}
+            shortcut={t('shortcut.ctrlD', 'Strg+D')}
+          >
+            {t('app.menu.edit.duplicate', 'Duplizieren')}
+          </MenuItem>
+          <MenuItem
             onClick={() => useProjectStore.getState().deleteSelected()}
             shortcut={t('shortcut.del', 'Entf')}
           >
@@ -264,19 +274,49 @@ export const MenuBar = ({
               (User-Request: passt thematisch besser zu den
               Export-/Druck-Funktionen). */}
           <MenuItem
-            onClick={() => useUiStore.getState().openCalculators('bandwidth')}
+            onClick={() => useUiStore.getState().openBandwidthCalc()}
             icon={<Icon icon={Radio} size="sm" />}
           >
             {t('app.menu.tools.bandwidth', 'Bandbreite berechnen…')}
           </MenuItem>
           <MenuItem
-            onClick={() => useUiStore.getState().openCalculators('power')}
+            onClick={() => useUiStore.getState().openPowerCalc()}
             icon={<Icon icon={Zap} size="sm" />}
           >
             {t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
           </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().openRecordingStorageCalc()}
+            icon={<Icon icon={HardDrive} size="sm" />}
+          >
+            {t('app.menu.tools.recStorage', 'Recording-Speicherplatz berechnen…')}
+          </MenuItem>
+          {/* #378 — Bulk-Cable-Connect-Dialog. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().openBulkConnect()}
+            icon={<Icon icon={Cable} size="sm" />}
+          >
+            {t('app.menu.tools.bulkConnect', 'Mehrere Kabel verbinden…')}
+          </MenuItem>
+          {/* #401 — Rack Builder im Werkzeuge-Menü. Triggert einen leeren
+              Builder; LibraryPanel switched auf Racks-Tab + öffnet Dialog. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().triggerNewRackBuilder()}
+            icon={<Icon icon={Server} size="sm" />}
+          >
+            {t('app.menu.tools.newRack', 'Neues Rack erstellen…')}
+          </MenuItem>
           <MenuItem onClick={() => useUiStore.getState().openAnalysis()} icon={<Icon icon={BarChart3} size="sm" />}>
             {t('app.menu.tools.analysis', 'Analysen (Gewicht/Netzwerk/Redundanz)…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openPlanCheck()} icon="🩺">
+            {t('app.menu.tools.planCheck', 'Plan-Check…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openRevisions()} icon="🕑">
+            {t('app.menu.tools.revisions', 'Revisionen & Snapshots…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAiPlanGen()} icon="✨">
+            {t('app.menu.tools.aiPlanGen', 'KI-Plan generieren…')}
           </MenuItem>
           <MenuSep />
           {/* #342 — Editoren direkt aus dem Werkzeuge-Menü erreichbar machen

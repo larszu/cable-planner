@@ -247,6 +247,11 @@ interface PersistedUiState {
   libraryFloatingPos: { x: number; y: number }
   propertiesFloating: boolean
   propertiesFloatingPos: { x: number; y: number }
+  /** #426 — Annotations-Panel kann genauso wie Library/Properties
+   *  abgedockt werden (frei verschiebbares Floating-Fenster). Default
+   *  ist Sidebar (rechts angedockt) wie bisher. */
+  annotationsPanelFloating: boolean
+  annotationsPanelFloatingPos: { x: number; y: number }
   /** v7.3.0 — Custom canvas/UI palette override. When set, the
    *  canvas chrome (background, edge colors) uses these instead of
    *  the dark/light defaults. `null` means follow theme. */
@@ -335,6 +340,8 @@ const defaults: PersistedUiState = {
   libraryFloatingPos: { x: 80, y: 80 },
   propertiesFloating: false,
   propertiesFloatingPos: { x: 80, y: 80 },
+  annotationsPanelFloating: false,
+  annotationsPanelFloatingPos: { x: 120, y: 80 },
   customPalette: null,
   canvasBgImageDark: null,
   canvasBgImageLight: null,
@@ -405,6 +412,8 @@ const load = (): PersistedUiState => {
     else merged.hotkeys = { ...defaults.hotkeys, ...merged.hotkeys }
     if (typeof merged.libraryFloating !== 'boolean') merged.libraryFloating = false
     if (typeof merged.propertiesFloating !== 'boolean') merged.propertiesFloating = false
+    if (typeof merged.annotationsPanelFloating !== 'boolean')
+      merged.annotationsPanelFloating = false
     if (
       !merged.libraryFloatingPos ||
       typeof merged.libraryFloatingPos.x !== 'number' ||
@@ -417,6 +426,12 @@ const load = (): PersistedUiState => {
       typeof merged.propertiesFloatingPos.y !== 'number'
     )
       merged.propertiesFloatingPos = defaults.propertiesFloatingPos
+    if (
+      !merged.annotationsPanelFloatingPos ||
+      typeof merged.annotationsPanelFloatingPos.x !== 'number' ||
+      typeof merged.annotationsPanelFloatingPos.y !== 'number'
+    )
+      merged.annotationsPanelFloatingPos = defaults.annotationsPanelFloatingPos
     if (
       merged.customPalette &&
       (typeof merged.customPalette.canvasBg !== 'string' ||
@@ -631,6 +646,8 @@ interface UiState extends PersistedUiState {
   setLibraryFloatingPos: (pos: { x: number; y: number }) => void
   setPropertiesFloating: (value: boolean) => void
   setPropertiesFloatingPos: (pos: { x: number; y: number }) => void
+  setAnnotationsPanelFloating: (value: boolean) => void
+  setAnnotationsPanelFloatingPos: (pos: { x: number; y: number }) => void
   setCustomPalette: (palette: { canvasBg: string; gridColor: string; accent: string } | null) => void
   setEquipmentSectionOrder: (order: string[]) => void
   setCanvasBgImage: (theme: 'dark' | 'light', dataUri: string | null) => void
@@ -709,6 +726,13 @@ interface UiState extends PersistedUiState {
   rackBuilderSeedTrigger: string[] | null
   triggerRackBuilderFromSelection: (equipmentIds: string[]) => void
   clearRackBuilderSeedTrigger: () => void
+  /** #401 — Trigger fuer "Werkzeuge → Rack Builder": oeffnet einen
+   *  leeren RackBuilderDialog (kein Seed-Preset). LibraryPanel
+   *  switched auf Racks-Tab und oeffnet den Dialog. Wert ist ein
+   *  monotoner Counter (timestamp), damit jeder Klick den Trigger
+   *  neu feuert auch wenn der vorherige Open schon abgewickelt ist. */
+  newRackBuilderTrigger: number
+  triggerNewRackBuilder: () => void
   /** v7.9.51 — Trigger zum Bearbeiten eines bereits platzierten Black-
    *  Box-Racks auf dem Canvas. Anders als rackBuilderSeedTrigger geht
    *  es hier nicht um eine neue Rack-Erzeugung aus Auswahl, sondern
@@ -762,11 +786,45 @@ interface UiState extends PersistedUiState {
   calculators: { open: boolean; tab?: 'bandwidth' | 'power' }
   openCalculators: (tab?: 'bandwidth' | 'power') => void
   closeCalculators: () => void
+  /** #403 — Bandbreite und Stromverbrauch sind jetzt zwei getrennte
+   *  Dialoge mit eigenem Open-State, damit der User beide gleichzeitig
+   *  offen halten kann. Der alte `calculators`-State bleibt als
+   *  Fallback fuer Backwards-Kompatibilitaet (Shortcuts/Hotkeys); die
+   *  MenuBar nutzt jetzt openBandwidthCalc / openPowerCalc. */
+  bandwidthCalc: { open: boolean }
+  openBandwidthCalc: () => void
+  closeBandwidthCalc: () => void
+  powerCalc: { open: boolean }
+  openPowerCalc: () => void
+  closePowerCalc: () => void
+  /** #404 — Recording-Speicherplatz-Rechner. Eigenstaendiger Dialog im
+   *  Werkzeuge-Menue; wird zusaetzlich in der Properties-Sidebar
+   *  eingebettet wenn die Geraete-Kategorie ein Recorder ist. */
+  recordingStorageCalc: { open: boolean }
+  openRecordingStorageCalc: () => void
+  closeRecordingStorageCalc: () => void
+  /** #378 — Bulk-Cable-Connect-Dialog (mehrere Kabel auf einmal). */
+  bulkConnect: { open: boolean }
+  openBulkConnect: () => void
+  closeBulkConnect: () => void
   /** Projekt-Analysen (read-only Reports): Strom/Phasen, Netzwerk, Gewicht/
    *  Wärme, Redundanz. Issues #345/#346/#351/#352. */
   analysis: { open: boolean }
   openAnalysis: () => void
   closeAnalysis: () => void
+  /** Vereinte „Plan-Check"-Palette: Live-Validierung des Plans (#411). */
+  planCheck: { open: boolean }
+  openPlanCheck: () => void
+  closePlanCheck: () => void
+  togglePlanCheck: () => void
+  /** Revisionen/Snapshots-Verwaltung (#412). */
+  revisions: { open: boolean }
+  openRevisions: () => void
+  closeRevisions: () => void
+  /** KI-Plan-Generierung aus Text-Prompt (#414). */
+  aiPlanGen: { open: boolean }
+  openAiPlanGen: () => void
+  closeAiPlanGen: () => void
   /** Generischer Equipment-CSV-Import in die Library (#354). */
   csvImport: { open: boolean }
   openCsvImport: () => void
@@ -1018,6 +1076,10 @@ export const useUiStore = create<UiState>((set) => ({
   setLibraryFloatingPos: (pos) => set(applyPatch({ libraryFloatingPos: pos })),
   setPropertiesFloating: (value) => set(applyPatch({ propertiesFloating: value })),
   setPropertiesFloatingPos: (pos) => set(applyPatch({ propertiesFloatingPos: pos })),
+  setAnnotationsPanelFloating: (value) =>
+    set(applyPatch({ annotationsPanelFloating: value })),
+  setAnnotationsPanelFloatingPos: (pos) =>
+    set(applyPatch({ annotationsPanelFloatingPos: pos })),
   setCustomPalette: (palette) => set(applyPatch({ customPalette: palette })),
   setEquipmentSectionOrder: (order) => set(applyPatch({ equipmentSectionOrder: order })),
   setCanvasBgImage: (theme, dataUri) =>
@@ -1116,6 +1178,8 @@ export const useUiStore = create<UiState>((set) => ({
   triggerRackBuilderFromSelection: (equipmentIds) =>
     set({ rackBuilderSeedTrigger: equipmentIds.length > 0 ? equipmentIds : null }),
   clearRackBuilderSeedTrigger: () => set({ rackBuilderSeedTrigger: null }),
+  newRackBuilderTrigger: 0,
+  triggerNewRackBuilder: () => set({ newRackBuilderTrigger: Date.now() }),
   rackBuilderEditFromBlackBoxTrigger: null,
   triggerRackBuilderEditFromBlackBox: (equipmentId) =>
     set({ rackBuilderEditFromBlackBoxTrigger: equipmentId }),
@@ -1140,9 +1204,31 @@ export const useUiStore = create<UiState>((set) => ({
   calculators: { open: false },
   openCalculators: (tab) => set({ calculators: { open: true, tab } }),
   closeCalculators: () => set({ calculators: { open: false } }),
+  bandwidthCalc: { open: false },
+  openBandwidthCalc: () => set({ bandwidthCalc: { open: true } }),
+  closeBandwidthCalc: () => set({ bandwidthCalc: { open: false } }),
+  powerCalc: { open: false },
+  openPowerCalc: () => set({ powerCalc: { open: true } }),
+  closePowerCalc: () => set({ powerCalc: { open: false } }),
+  recordingStorageCalc: { open: false },
+  openRecordingStorageCalc: () => set({ recordingStorageCalc: { open: true } }),
+  closeRecordingStorageCalc: () => set({ recordingStorageCalc: { open: false } }),
+  bulkConnect: { open: false },
+  openBulkConnect: () => set({ bulkConnect: { open: true } }),
+  closeBulkConnect: () => set({ bulkConnect: { open: false } }),
   analysis: { open: false },
   openAnalysis: () => set({ analysis: { open: true } }),
   closeAnalysis: () => set({ analysis: { open: false } }),
+  planCheck: { open: false },
+  openPlanCheck: () => set({ planCheck: { open: true } }),
+  closePlanCheck: () => set({ planCheck: { open: false } }),
+  togglePlanCheck: () => set((s) => ({ planCheck: { open: !s.planCheck.open } })),
+  revisions: { open: false },
+  openRevisions: () => set({ revisions: { open: true } }),
+  closeRevisions: () => set({ revisions: { open: false } }),
+  aiPlanGen: { open: false },
+  openAiPlanGen: () => set({ aiPlanGen: { open: true } }),
+  closeAiPlanGen: () => set({ aiPlanGen: { open: false } }),
   csvImport: { open: false },
   openCsvImport: () => set({ csvImport: { open: true } }),
   closeCsvImport: () => set({ csvImport: { open: false } }),

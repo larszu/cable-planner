@@ -10,19 +10,62 @@ export type ConnectorType =
   | 'DisplayPort'
   | 'USB'
   | 'USB-C'
+  /** Generic Triax-Single-Coax (analoge HDTV-Kamerakabel-Strecke). */
   | 'Triax'
+  /** #376 — Triax-Subtypes je System/Hersteller. Mechanisch teilweise
+   *  inkompatibel zueinander, deshalb separat gefuehrt damit die
+   *  BOM/Patch-Liste den richtigen Stecker zeigt. */
+  | 'Triax (Damar & Hagen)'
+  | 'Triax (Fischer)'
+  /** #376 — SMPTE 304M Hybrid-Fiber-Kamerakabel-Stecker. Mechanisch
+   *  unabhaengig vom (analogen) Triax. Lemo 3K.93C/311 ist der EBU-
+   *  Industrie-Standard; Neutrik OpticalCON Dragonfly ist eine
+   *  Touring/Stage-Variante. */
+  | 'LEMO 3K.93C (SMPTE 304M)'
+  | 'Neutrik Dragonfly (SMPTE 304M)'
   | 'Wireless/RF'
+  | 'VGA'
+  | 'DVI'
+  | 'DB9'
+  | 'DB25'
+  | 'Klinke'
+  | 'Mini-XLR'
+  | 'HD-BNC'
+  | 'Mini-HDMI'
+  | 'F-Connector'
+  | 'GG45'
+  | 'Kleeblatt'
   | 'IEC 230V'
   | 'PowerCON'
   | 'Schuko 230V'
   | 'C7 Eurostecker'
+  | 'CEE16'
+  | 'CEE32'
+  | 'CEE63'
+  | 'Powerlock'
+  | 'Socapex'
+  | 'Harting'
+  /** Licht (DMX), Legacy-Analog-Video und Patchbay/Coax-Varianten. */
+  | 'DMX 5-pol (XLR)'
+  | 'DMX 3-pol (XLR)'
+  | 'Cinch/RCA'
+  | 'SCART'
+  | 'S-Video'
+  | 'TT/Bantam'
+  | 'Mini-BNC'
+  | 'Micro-BNC'
   | 'Custom'
 
 /** All valid connector type values in display order. */
 export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
-  'XLR', 'BNC', 'HDMI', 'Ethernet/RJ45', 'Fiber', 'SFP', 'SFP+', 'DIN',
-  'DisplayPort', 'USB', 'USB-C', 'Triax', 'Wireless/RF',
-  'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker', 'Custom',
+  'XLR', 'Mini-XLR', 'Klinke', 'BNC', 'HD-BNC', 'HDMI', 'Mini-HDMI', 'Ethernet/RJ45', 'GG45', 'Fiber', 'SFP', 'SFP+', 'DIN',
+  'DisplayPort', 'VGA', 'DVI', 'USB', 'USB-C',
+  'Triax', 'Triax (Damar & Hagen)', 'Triax (Fischer)',
+  'LEMO 3K.93C (SMPTE 304M)', 'Neutrik Dragonfly (SMPTE 304M)',
+  'F-Connector', 'DB9', 'DB25', 'Wireless/RF',
+  'DMX 5-pol (XLR)', 'DMX 3-pol (XLR)', 'Cinch/RCA', 'SCART', 'S-Video', 'TT/Bantam', 'Mini-BNC', 'Micro-BNC',
+  'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker',
+  'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Kleeblatt', 'Custom',
 ]
 
 import type { SignalStandard } from './cableSpec'
@@ -80,6 +123,11 @@ export interface Port {
    *  Free text ID (z.B. 'QL-1', 'QL-2'); pro Gerät beliebig viele
    *  Sets möglich. UI warnt wenn eine Gruppe nicht 4 Ports hat. */
   quadLinkGroup?: string
+  /** #370 — Dual-Link Set: zwei BNC-Ports mit gleichem `dualLinkGroup`-
+   *  String bilden zusammen ein Dual-Link-Paar (HD/3G, SMPTE 372M).
+   *  Free text ID (z.B. 'DL-1'); UI warnt wenn eine Gruppe nicht genau
+   *  2 Ports hat. Analog zu `quadLinkGroup`. */
+  dualLinkGroup?: string
   /** v7.9.14 — Wenn dieses Equipment ein Black-Box-Rack ist, markiert
    *  jeder externe Port aus welchem internen Rack-Gerät er stammt
    *  (Index in rackInternalSnapshot.items). EquipmentNode nutzt diese
@@ -105,6 +153,14 @@ export interface Port {
    * port) can be used as both source and target for cables.
    */
   direction?: 'in' | 'out' | 'bidirectional'
+  /**
+   * #410 — Steckverbinder-Geschlecht (male/female). Optional; alte Projekte
+   * heilen zu undefined. Wird als ♂/♀ am Port-Handle gezeigt und in
+   * Patchliste/Etiketten durchgereicht — relevant fuer die Kabel-Konfektion
+   * (welches Kabelende braucht welchen Stecker). Unabhaengig von `direction`
+   * (Signal-Richtung) und `connectorType` (Bauform).
+   */
+  gender?: 'male' | 'female'
   /**
    * For Fiber ports: SFP module form-factor (e.g. "SFP", "SFP+", "QSFP+", "SFP28").
    * Only shown in the UI when connectorType === 'Fiber'.
@@ -260,6 +316,11 @@ export interface EquipmentItem {
   username?: string
   password?: string
   notes?: string
+  /** #373 — Kategorie-spezifische Fachdaten (Brennweite, PoE-Budget,
+   *  Lichtstrom, Phasen, …). Schema je Kategorie in `lib/categorySchemas.ts`;
+   *  hier nur die rohen Werte, damit sie mit Projekt-Datei und Library-Template
+   *  mitwandern. Optional — Bestands-Geräte haben es nicht. */
+  categoryProps?: Record<string, string | number | boolean>
   /** Optional network-device config (switches, routers). */
   vlans?: VlanDef[]
   managementVlanId?: number
@@ -325,14 +386,6 @@ export interface EquipmentItem {
   resolution?: string
   /** Display diagonal size in inches (monitors / displays). */
   displaySizeInch?: number
-  /** v7.9.131 / Issue #216 — Physische Geraete-Dimensionen in mm
-   *  (Hoehe × Breite × Tiefe). Optional, nur zur Information / fuer
-   *  spaetere 3D-Rack-Layouts. Bei Rack-Geraeten ist rackUnits die
-   *  autoritative Hoehen-Quelle; dimensionHmm ist da redundant aber
-   *  erlaubt eine genauere Angabe (z.B. fuer halb-HE Geraete). */
-  dimensionHmm?: number
-  dimensionWmm?: number
-  dimensionDmm?: number
   /**
    * Optional single emoji or 1-2 character glyph rendered in the top-left
    * corner of the equipment node (issue #46). Lets users tag categories of
@@ -389,9 +442,20 @@ export interface EquipmentItem {
    *  Alle Werte sind optional, damit alte Datenstände kompatibel bleiben. */
   powerWatts?: number
   weightKg?: number
+  /** #354 — Optionaler Stückpreis bzw. Tagesmietpreis in EUR. Wird im
+   *  Angebots-Export (BOM × Preis) genutzt. Kein Pflichtfeld — alte
+   *  Projekte und Geräte ohne Preis bleiben gültig. */
+  priceEUR?: number
   /** Tiefe in mm. Wird vom 3D-Rack genutzt um zu prüfen ob ein Patchblende
    *  noch hinter das Gerät passt. Default beim Rendering: 400 mm. */
   depthMm?: number
+  /** #420 — Mietpreis (pro Tag). Wird beim Rentman-Import aus dem
+   *  Equipment-Endpoint gezogen (Felder `price`, `rentprice`,
+   *  `rental_price`, `price_per_day`) — kann manuell ueberschrieben
+   *  werden. Waehrung optional; Default ist EUR wenn aus Rentman ohne
+   *  Currency-Tag kommt. */
+  rentPricePerDay?: number
+  rentCurrency?: string
   /** v7.9.80 / #170 — Physische Breite in mm (für Non-19″-Geräte auf
    *  Rack-Shelves). Wird vom 3D-Renderer als reale Box-Breite genutzt.
    *  Unterscheidet sich von `width` (Pixel-Größe für Canvas-Rendering). */

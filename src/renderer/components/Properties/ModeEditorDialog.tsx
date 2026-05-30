@@ -15,7 +15,7 @@
 // für Edit + Create wiederverwendbar.
 
 import { useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, X } from 'lucide-react'
+import { AlertTriangle, Download, X } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '../shared/Icon'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
@@ -210,7 +210,7 @@ export const ModeEditorDialog = ({
               className="rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
               title={t('modeEditor.seedTitle', 'Übernimmt das AKTUELLE Port-Layout des Geräts als Startpunkt.')}
             >
-              {t('modeEditor.seedBtn', '⬇ Aus aktuellem Geräte-Layout übernehmen')}
+              <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('modeEditor.seedBtn', 'Aus aktuellem Geräte-Layout übernehmen')}
             </button>
           </div>
 
