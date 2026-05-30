@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import {
-  X, Monitor, SlidersHorizontal, Tag, Shuffle, Headphones, FileText, Upload, Save,
+  Download, X, Monitor, SlidersHorizontal, Tag, Shuffle, Headphones, FileText, Upload, Save,
   type LucideIcon,
 } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
@@ -322,7 +322,7 @@ export const ConfigsTab = () => {
                             className="rounded bg-slate-700 px-2 py-0.5 text-[11px] text-slate-100 hover:bg-slate-600"
                             title={t('settings.configs.downloadTitle', 'Originaldatei herunterladen')}
                           >
-                            ⬇
+                            <Icon icon={Download} size="xs" />
                           </button>
                           <button
                             type="button"

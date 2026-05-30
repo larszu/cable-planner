@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react'
-import { X, SlidersHorizontal, List, Link, Wand2, ClipboardList, Search, Lock } from 'lucide-react'
+import { X, SlidersHorizontal, List, Link, Wand2, ClipboardList, Search, Lock, Download, Loader2, Upload } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation } from '../../lib/i18n'
@@ -1075,7 +1075,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 title={t('videohub.loadStatus', 'Aktuellen Hub-Status holen: Labels + Routing + Locks. Routing wird in die Matrix übernommen, Labels in den Spalten/Zeilen angezeigt.')}
                 className="rounded bg-sky-700 px-3 py-1.5 text-xs hover:bg-sky-600 disabled:opacity-40"
               >
-                {readingState ? '⏳ Laden…' : '⬇ Status laden'}
+                <Icon icon={readingState ? Loader2 : Download} size="xs" className={`mr-1 inline-block align-text-bottom ${readingState ? 'animate-spin' : ''}`} />{readingState ? 'Laden…' : 'Status laden'}
               </button>
             </div>
             {/* Issue #248 — Ergebnisliste der Discovery. Klick auf einen
@@ -1130,7 +1130,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 title={t('videohub.sendLabelsTitle', 'Nur INPUT LABELS + OUTPUT LABELS senden. Routing bleibt am Hub unangetastet.')}
                 className="rounded bg-purple-600 px-3 py-1.5 text-xs hover:bg-purple-500 disabled:opacity-40"
               >
-                {sendStatus === 'sending' ? '⏳ …' : '⬆ Labels senden'}
+                <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Labels senden'}
               </button>
               <button
                 type="button"
@@ -1139,7 +1139,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 title={t('videohub.sendRoutingTitle', 'Nur VIDEO OUTPUT ROUTING senden. Labels am Hub unverändert.')}
                 className="rounded bg-purple-600 px-3 py-1.5 text-xs hover:bg-purple-500 disabled:opacity-40"
               >
-                {sendStatus === 'sending' ? '⏳ …' : '⬆ Routing senden'}
+                <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Routing senden'}
               </button>
               <button
                 type="button"
@@ -1148,7 +1148,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 title={t('videohub.sendBothTitle', 'Labels + Routing in EINEM Push (drei Blöcke hintereinander).')}
                 className="rounded bg-purple-800 px-3 py-1.5 text-xs font-semibold hover:bg-purple-700 disabled:opacity-40"
               >
-                {sendStatus === 'sending' ? '⏳ …' : '⬆ Labels + Routing senden'}
+                <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Labels + Routing senden'}
               </button>
             </div>
             {hubState && (
