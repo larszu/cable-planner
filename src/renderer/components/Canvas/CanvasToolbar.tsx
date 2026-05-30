@@ -345,7 +345,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         display: 'flex',
         flexWrap: 'wrap',
         gap: 2,
-        maxWidth: 'min(880px, calc(100vw - 420px))',
+        maxWidth: 'min(880px, calc(100% - 16px))',
         padding: '4px 6px',
         background: T.bg,
         border: `1px solid ${T.border}`,

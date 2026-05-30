@@ -1082,6 +1082,8 @@ const en: Dict = {
   'export.title': 'Export & print',
   'export.format': 'Format',
   'export.renderMode': 'Render mode',
+  'export.processing': 'Processing…',
+  'export.downloadAs': 'Download as {fmt}',
   'export.section.plan': 'Plan',
   'export.section.patch': 'Patch sheets',
   'export.section.bom': 'Cable BOM',
@@ -1313,6 +1315,8 @@ const en: Dict = {
 
   // PatchListDialog
   'patchList.title': 'Patch list',
+  'patchList.empty.noCables': 'This project has no cables yet. Connect devices on the canvas to build a patch list.',
+  'patchList.empty.noMatch': 'No cables match the filter.',
   'patchList.col.number': 'No.',
   'settings.project.numbering.title': 'Cable numbering',
   'settings.project.numbering.desc':
@@ -1567,7 +1571,7 @@ const en: Dict = {
   'rentman.import.cablePlan.pickAtLeastOne':
     'Please pick at least one cable type.',
   'rentman.import.cablePlan.planSaved':
-    '✓ {count} cable type(s) adopted as plan.',
+    '{count} cable type(s) adopted as plan.',
   'rentman.import.resultOne': '✓ {count} device added to the library',
   'rentman.import.resultMany': '✓ {count} devices added to the library',
   'rentman.import.resultHint':
