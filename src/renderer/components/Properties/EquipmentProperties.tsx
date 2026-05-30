@@ -35,7 +35,6 @@ import { IdentityBlock } from './sections/IdentityBlock'
 import { NetworkConfigSection } from './sections/NetworkConfigSection'
 import { ModesSection } from './sections/ModesSection'
 import { RackInstanceCard } from './sections/RackInstanceCard'
-import { DimensionsBlock } from './sections/DimensionsBlock'
 import { ReplaceDeviceSection } from './sections/ReplaceDeviceSection'
 
 /** Module-level sensor options so re-renders don't churn the sensor
@@ -135,13 +134,15 @@ export const EquipmentProperties = () => {
 
       <DisplayPropertiesBlock equipment={equipment} />
       <CategoryPropsSection equipment={equipment} />
-      <DimensionsBlock equipment={equipment} />
 
       <NetworkAccessSection equipment={equipment} />
 
       <PowerConsumptionSection equipment={equipment} />
 
-      {/* v7.9.105 / Issue #216 — Physische Dimensionen (Breite/Höhe/Tiefe). */}
+      {/* #216/#422 — Physische Dimensionen (Breite/Höhe/Tiefe in mm). Eine
+          einzige Sektion (frueher gab es zusaetzlich einen Inline-Block mit
+          Legacy-Feldern dimensionHmm/Wmm/Dmm — die werden beim Project-Load
+          in heightMm/widthMm/depthMm migriert, siehe healProjectPositions). */}
       <DimensionsSection equipment={equipment} />
 
       <NetworkConfigSection equipment={equipment} />

@@ -33,6 +33,7 @@ export type CableSlice = Pick<
   | 'cancelPortConflict'
   | 'closeCableDialog'
   | 'createCableFromPending'
+  | 'addCablesBulk'
   | 'updateCable'
   | 'renumberCables'
   | 'deleteCable'
@@ -147,6 +148,76 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
         selectedCableId: cable.id,
       }
     }),
+  addCablesBulk: (drafts) => {
+    // #378 — Atomarer Bulk-Add. Returns Statistik fuer den Aufrufer
+    // (Dialog zeigt 'X Kabel angelegt, Y uebersprungen weil Ziel-Port belegt').
+    // Wir berechnen alles innerhalb des set()-Callbacks, sammeln die
+    // Stats in einer Closure-Variable und liefern sie nach set() zurueck.
+    let result = { created: 0, skipped: 0, skippedReasons: [] as string[] }
+    let updatedAny = false
+    set((state) => {
+      if (isProjectLocked(state)) {
+        result = { created: 0, skipped: drafts.length, skippedReasons: ['Projekt gesperrt.'] }
+        return state
+      }
+      const ui = useUiStore.getState()
+      // Aktueller Port-Belegungs-Snapshot: alle bestehenden toPortIds. Wir
+      // muessen das innerhalb der Schleife inkrementell aktualisieren, weil
+      // ein und derselbe Bulk-Aufruf zwei Kabel auf den gleichen Ziel-Port
+      // setzen koennte — das soll als 'skipped' gelten.
+      const occupiedTargets = new Set(state.project.cables.map((c) => c.toPortId))
+      const newCables: Cable[] = []
+      for (const draft of drafts) {
+        if (!draft.fromPortId || !draft.toPortId) {
+          result.skipped++
+          result.skippedReasons.push('Port-IDs fehlen.')
+          continue
+        }
+        if (occupiedTargets.has(draft.toPortId)) {
+          result.skipped++
+          result.skippedReasons.push(`Ziel-Port ${draft.toPortId} bereits belegt.`)
+          continue
+        }
+        const autoLayer = detectLayerForConnector(draft.type)
+        const cable: Cable = {
+          id: uuidv4(),
+          name: draft.name,
+          type: draft.type,
+          length: draft.length,
+          color: draft.color,
+          fromEquipmentId: draft.fromEquipmentId,
+          fromPortId: draft.fromPortId,
+          toEquipmentId: draft.toEquipmentId,
+          toPortId: draft.toPortId,
+          notes: draft.notes,
+          cableSpecId: draft.cableSpecId,
+          standard: draft.standard,
+          needsConverter: draft.needsConverter,
+          routing: ui.defaultRouting,
+          arrowEnd: ui.defaultArrow,
+          bidirectional: isBidirectionalCableType(draft.type),
+          strokeWidth: 2.5,
+          layer: autoLayer,
+        }
+        newCables.push(cable)
+        occupiedTargets.add(draft.toPortId)
+        result.created++
+      }
+      if (newCables.length === 0) return state
+      updatedAny = true
+      return {
+        project: touchProject({
+          ...state.project,
+          cables: [...state.project.cables, ...newCables],
+        }),
+      }
+    })
+    if (!updatedAny && result.created > 0) {
+      // Sollte nicht passieren — Safety: created>0 ohne updatedAny waere ein Bug.
+      result.created = 0
+    }
+    return result
+  },
   updateCable: (id, patch) =>
     set((state) => {
       if (isProjectLocked(state)) return state

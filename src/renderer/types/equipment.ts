@@ -10,7 +10,19 @@ export type ConnectorType =
   | 'DisplayPort'
   | 'USB'
   | 'USB-C'
+  /** Generic Triax-Single-Coax (analoge HDTV-Kamerakabel-Strecke). */
   | 'Triax'
+  /** #376 — Triax-Subtypes je System/Hersteller. Mechanisch teilweise
+   *  inkompatibel zueinander, deshalb separat gefuehrt damit die
+   *  BOM/Patch-Liste den richtigen Stecker zeigt. */
+  | 'Triax (Damar & Hagen)'
+  | 'Triax (Fischer)'
+  /** #376 — SMPTE 304M Hybrid-Fiber-Kamerakabel-Stecker. Mechanisch
+   *  unabhaengig vom (analogen) Triax. Lemo 3K.93C/311 ist der EBU-
+   *  Industrie-Standard; Neutrik OpticalCON Dragonfly ist eine
+   *  Touring/Stage-Variante. */
+  | 'LEMO 3K.93C (SMPTE 304M)'
+  | 'Neutrik Dragonfly (SMPTE 304M)'
   | 'Wireless/RF'
   | 'VGA'
   | 'DVI'
@@ -38,7 +50,10 @@ export type ConnectorType =
 /** All valid connector type values in display order. */
 export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
   'XLR', 'Mini-XLR', 'Klinke', 'BNC', 'HD-BNC', 'HDMI', 'Mini-HDMI', 'Ethernet/RJ45', 'GG45', 'Fiber', 'SFP', 'SFP+', 'DIN',
-  'DisplayPort', 'VGA', 'DVI', 'USB', 'USB-C', 'Triax', 'F-Connector', 'DB9', 'DB25', 'Wireless/RF',
+  'DisplayPort', 'VGA', 'DVI', 'USB', 'USB-C',
+  'Triax', 'Triax (Damar & Hagen)', 'Triax (Fischer)',
+  'LEMO 3K.93C (SMPTE 304M)', 'Neutrik Dragonfly (SMPTE 304M)',
+  'F-Connector', 'DB9', 'DB25', 'Wireless/RF',
   'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker',
   'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Kleeblatt', 'Custom',
 ]
@@ -361,14 +376,6 @@ export interface EquipmentItem {
   resolution?: string
   /** Display diagonal size in inches (monitors / displays). */
   displaySizeInch?: number
-  /** v7.9.131 / Issue #216 — Physische Geraete-Dimensionen in mm
-   *  (Hoehe × Breite × Tiefe). Optional, nur zur Information / fuer
-   *  spaetere 3D-Rack-Layouts. Bei Rack-Geraeten ist rackUnits die
-   *  autoritative Hoehen-Quelle; dimensionHmm ist da redundant aber
-   *  erlaubt eine genauere Angabe (z.B. fuer halb-HE Geraete). */
-  dimensionHmm?: number
-  dimensionWmm?: number
-  dimensionDmm?: number
   /**
    * Optional single emoji or 1-2 character glyph rendered in the top-left
    * corner of the equipment node (issue #46). Lets users tag categories of
@@ -432,6 +439,13 @@ export interface EquipmentItem {
   /** Tiefe in mm. Wird vom 3D-Rack genutzt um zu prüfen ob ein Patchblende
    *  noch hinter das Gerät passt. Default beim Rendering: 400 mm. */
   depthMm?: number
+  /** #420 — Mietpreis (pro Tag). Wird beim Rentman-Import aus dem
+   *  Equipment-Endpoint gezogen (Felder `price`, `rentprice`,
+   *  `rental_price`, `price_per_day`) — kann manuell ueberschrieben
+   *  werden. Waehrung optional; Default ist EUR wenn aus Rentman ohne
+   *  Currency-Tag kommt. */
+  rentPricePerDay?: number
+  rentCurrency?: string
   /** v7.9.80 / #170 — Physische Breite in mm (für Non-19″-Geräte auf
    *  Rack-Shelves). Wird vom 3D-Renderer als reale Box-Breite genutzt.
    *  Unterscheidet sich von `width` (Pixel-Größe für Canvas-Rendering). */

@@ -39,15 +39,19 @@ export const SortableSection = ({
       }}
     >
       <summary className="flex items-center gap-2 px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
+        {/* #421 — Drag-Handle deutlicher: groesseres ⠿-Glyph, hellere Farbe,
+            breitere Klickflaeche; sichtbar auf jeder Sektion damit klar ist,
+            dass die Reihenfolge per Drag&Drop am Handle aenderbar ist. */}
         <span
           {...attributes}
           {...listeners}
-          title={t('props.section.dragTitle', 'Sektion ziehen, um Reihenfolge zu ändern')}
-          className="cursor-grab text-slate-500 hover:text-slate-300 active:cursor-grabbing"
+          title={t('props.section.dragTitle', 'Sektion ziehen, um Reihenfolge zu ändern (geräteübergreifend persistiert).')}
+          className="-my-1 inline-flex h-5 w-5 cursor-grab items-center justify-center rounded text-base leading-none text-slate-400 hover:bg-slate-700/40 hover:text-slate-200 active:cursor-grabbing"
           aria-label={t('props.section.dragAria', 'Sektion verschieben')}
           role="button"
+          onClick={(e) => e.preventDefault()}
         >
-          ⋮⋮
+          ⠿
         </span>
         <span className="flex-1">{title}</span>
         {subtitle && (

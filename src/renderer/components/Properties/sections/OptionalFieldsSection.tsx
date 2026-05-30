@@ -16,8 +16,51 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
 
   return (
-    <SortableSection id="optional" title={t('opt.title', 'Optionale Felder')} subtitle={t('opt.subtitle', 'Hersteller-Link, Referenzbild, Icon')}>
+    <SortableSection id="optional" title={t('opt.title', 'Optionale Felder')} subtitle={t('opt.subtitle', 'Hersteller-Link, Referenzbild, Icon, Mietpreis')}>
       <div className="space-y-3">
+        {/* #420 — Mietpreis pro Tag. Beim Rentman-Import automatisch
+            befuellt; manuell ueberschreibbar. */}
+        <div className="grid grid-cols-[1fr_70px] gap-2">
+          <label className="block">
+            <span className="mb-1 block text-slate-300">
+              {t('eq.field.rentPrice', 'Mietpreis / Tag')}
+              {equipment.rentmanId && (
+                <span className="ml-1 rounded bg-emerald-900/60 px-1 text-[10px] text-emerald-200">
+                  {t('eq.field.rentPriceRentman', 'aus Rentman')}
+                </span>
+              )}
+            </span>
+            <input
+              type="number"
+              min={0}
+              step="0.01"
+              value={equipment.rentPricePerDay ?? ''}
+              placeholder={t('eq.field.rentPricePlaceholder', 'z. B. 45.00')}
+              onChange={(event) => {
+                const v = event.target.value
+                updateEquipment(equipment.id, {
+                  rentPricePerDay: v === '' ? undefined : Math.max(0, Number(v) || 0),
+                })
+              }}
+              className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-slate-300">{t('eq.field.rentCurrency', 'Wäh.')}</span>
+            <input
+              type="text"
+              maxLength={6}
+              value={equipment.rentCurrency ?? ''}
+              placeholder="EUR"
+              onChange={(event) => {
+                const v = event.target.value.trim().toUpperCase().slice(0, 6)
+                updateEquipment(equipment.id, { rentCurrency: v || undefined })
+              }}
+              className="w-full rounded border border-slate-700 bg-slate-900 p-2 text-center font-mono uppercase"
+            />
+          </label>
+        </div>
+
         <label className="block">
           <span className="mb-1 block text-slate-300">
             {t('eq.field.manufacturerUrl', 'Hersteller-Link')}{' '}

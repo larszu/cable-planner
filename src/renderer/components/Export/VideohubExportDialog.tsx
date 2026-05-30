@@ -12,8 +12,11 @@ import {
   buildVideohubRoutingCommand,
   buildVideohubInputLabelsCommand,
   buildVideohubOutputLabelsCommand,
+  parseVideohubLabelsTxt,
   videohubPresets,
 } from '../../lib/exportVideohub'
+import { pickTextFile } from '../../lib/pickFile'
+import { infoDialog } from '../../lib/infoDialog'
 import { VideohubRoutingMatrix } from './VideohubRoutingMatrix'
 import { VideohubRoutingList } from './VideohubRoutingList'
 import { cablePlannerApi, hasDesktopBridge, type VideohubState } from '../../lib/bridge'
@@ -84,6 +87,10 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   const [presetKey, setPresetKey] = useState<string>(() =>
     initialDevice ? guessVideohubPresetKey(initialDevice) : 'smart-40x40-12g',
   )
+  // #387 — Wenn presetKey === 'custom', steuern customInputs/customOutputs
+  // die Routing-Matrix-Groesse statt den Preset-Werten.
+  const [customInputs, setCustomInputs] = useState<number>(16)
+  const [customOutputs, setCustomOutputs] = useState<number>(16)
   const [friendlyName, setFriendlyName] = useState<string>('')
   // v7.9.128 — Default: Matrix offen. Vorher war's default zu — User
   // musste extra klicken, deshalb hat er die Salvos/Activity-Log-
@@ -351,7 +358,13 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   }
 
   const device = equipment.find((e) => e.id === deviceId)
-  const preset = videohubPresets.find((p) => p.key === presetKey) ?? videohubPresets[0]
+  const rawPreset = videohubPresets.find((p) => p.key === presetKey) ?? videohubPresets[0]
+  // #387 — Custom-Mode: User-spezifische Inputs/Outputs Anzahl ueberschreibt
+  // die Preset-Defaults; das spaeter abgeleitete preset-Objekt wird so
+  // dimensioniert.
+  const preset = presetKey === 'custom'
+    ? { ...rawPreset, inputs: customInputs, outputs: customOutputs }
+    : rawPreset
 
   // #250 Comment: Bei Geraete-Wechsel die IP aus den Geraete-Eigenschaften
   // ins TCP-Host-Feld uebernehmen. Nur wenn der User noch nicht selbst
@@ -526,6 +539,39 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     navigator.clipboard.writeText(preview).catch(() => {})
   }
 
+  /**
+   * #389 — Labels.txt re-import. Liest eine Standard-Videohub-Labels-
+   * Datei und schreibt die Port-Namen zurueck auf das aktuelle Canvas-
+   * Geraet. Existierende Port-Definitionen (connectorType, contentLabel,
+   * etc.) bleiben erhalten — nur `name` wird ueberschrieben.
+   */
+  const handleImportLabels = async () => {
+    if (!device) return
+    const picked = await pickTextFile('.txt,text/plain')
+    if (!picked) return
+    const parsed = parseVideohubLabelsTxt(picked.content)
+    const setEquipment = useProjectStore.getState().updateEquipment
+    const nextInputs = device.inputs.map((p, idx) => {
+      const lbl = parsed.inputs[idx]
+      return lbl ? { ...p, name: lbl } : p
+    })
+    const nextOutputs = device.outputs.map((p, idx) => {
+      const lbl = parsed.outputs[idx]
+      return lbl ? { ...p, name: lbl } : p
+    })
+    setEquipment(device.id, { inputs: nextInputs, outputs: nextOutputs })
+    const updatedIn = parsed.inputs.filter((x) => x).length
+    const updatedOut = parsed.outputs.filter((x) => x).length
+    const warningSummary =
+      parsed.warnings.length > 0
+        ? `\n\n⚠ ${parsed.warnings.length} Zeilen nicht erkannt:\n${parsed.warnings.slice(0, 5).join('\n')}`
+        : ''
+    await infoDialog('Labels.txt importiert', {
+      body: `${updatedIn} Inputs · ${updatedOut} Outputs neu beschriftet.${warningSummary}`,
+      tone: 'success',
+    })
+  }
+
   // v7.9.128 — Effektive Labels die zum Hub gepusht werden. Reihenfolge:
   //   1. Hub-State-Label (wenn vom Hub geladen, dient aber NUR als Default-
   //      Anzeige; beim Send gewinnt Canvas damit der User nicht versehentlich
@@ -644,17 +690,57 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 const key = e.target.value
                 setPresetKey(key)
                 const p = videohubPresets.find((x) => x.key === key) ?? videohubPresets[0]
-                setRouting(buildDefaultRouting(p.inputs, p.outputs))
+                if (key === 'custom') {
+                  setRouting(buildDefaultRouting(customInputs, customOutputs))
+                } else {
+                  setRouting(buildDefaultRouting(p.inputs, p.outputs))
+                }
               }}
               className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
             >
               {videohubPresets.map((p) => (
                 <option key={p.key} value={p.key}>
-                  {p.model} ({p.inputs}×{p.outputs})
+                  {p.model}{p.key === 'custom' ? '' : ` (${p.inputs}×${p.outputs})`}
                 </option>
               ))}
             </select>
           </label>
+
+          {/* #387 — Custom-Mode: User-spezifische Inputs/Outputs Anzahl. */}
+          {presetKey === 'custom' && (
+            <div className="col-span-2 grid grid-cols-2 gap-2 rounded border border-sky-700/40 bg-sky-950/20 p-2">
+              <label className="block text-xs text-slate-300">
+                Inputs
+                <input
+                  type="number"
+                  min={1}
+                  max={1024}
+                  value={customInputs}
+                  onChange={(e) => {
+                    const v = Math.max(1, Math.min(1024, Number(e.target.value) || 1))
+                    setCustomInputs(v)
+                    setRouting(buildDefaultRouting(v, customOutputs))
+                  }}
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+                />
+              </label>
+              <label className="block text-xs text-slate-300">
+                Outputs
+                <input
+                  type="number"
+                  min={1}
+                  max={1024}
+                  value={customOutputs}
+                  onChange={(e) => {
+                    const v = Math.max(1, Math.min(1024, Number(e.target.value) || 1))
+                    setCustomOutputs(v)
+                    setRouting(buildDefaultRouting(customInputs, v))
+                  }}
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+                />
+              </label>
+            </div>
+          )}
 
           <label className="block">
             Datei-Export-Format
@@ -1241,6 +1327,19 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           >
             Als Datei speichern
           </button>
+          {/* #389 — Labels.txt re-import: liest die Standard-Labels.txt
+              (wie Videohub Setup sie exportiert) und schreibt die Port-
+              Namen zurueck auf das aktuelle Canvas-Geraet. */}
+          {format === 'labels' && device && (
+            <button
+              type="button"
+              onClick={() => void handleImportLabels()}
+              className="rounded bg-sky-700 px-3 py-1 text-sm hover:bg-sky-600"
+              title="Labels.txt importieren — Port-Namen aus einer Datei (z.B. von Videohub Setup) auf dieses Gerät schreiben."
+            >
+              ⬆ Labels.txt importieren
+            </button>
+          )}
         </div>
       </div>
     </div>

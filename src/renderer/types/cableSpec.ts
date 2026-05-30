@@ -365,14 +365,46 @@ export const cableCatalog: CableSpec[] = [
     color: '#f59e0b',
     notesKey: 'catalog.cable.smpte-297.notes',
   },
+  // #376 — SMPTE 304M (Hybrid-Fiber-Kamerakabel) ist KEIN Triax. Triax ist
+  // ein analog-orientiertes Single-Coax-System (Damar & Hagen, Fischer),
+  // SMPTE 304M traegt Fiber+Strom+Steuerung in einem genormten Stecker
+  // (LEMO 3K.93C/311 oder Neutrik Dragonfly). Beide werden jetzt separat
+  // gefuehrt.
   {
-    id: 'smpte-304m',
-    name: 'SMPTE 311M Hybrid-Kamerakabel (LWL + Power + Steuerung)',
-    connectorType: 'Fiber',
-    standards: ['SMPTE-311M', 'SMPTE-304M', 'SDI-HD', 'SDI-3G', 'Fiber-SM'],
-    maxLengthMeters: 1000,
+    id: 'smpte-304m-lemo',
+    name: 'SMPTE 304M Hybrid-Fiber (LEMO 3K.93C / 311)',
+    connectorType: 'LEMO 3K.93C (SMPTE 304M)',
+    standards: ['SMPTE-304M', 'SDI-HD', 'SDI-3G'],
+    maxLengthMeters: 2000,
     color: '#d97706',
-    notesKey: 'catalog.cable.smpte-304m.notes',
+    notesKey: 'catalog.cable.smpte-304m-lemo.notes',
+  },
+  {
+    id: 'smpte-304m-dragonfly',
+    name: 'SMPTE 304M Hybrid-Fiber (Neutrik Dragonfly)',
+    connectorType: 'Neutrik Dragonfly (SMPTE 304M)',
+    standards: ['SMPTE-304M', 'SDI-HD', 'SDI-3G'],
+    maxLengthMeters: 2000,
+    color: '#b45309',
+    notesKey: 'catalog.cable.smpte-304m-dragonfly.notes',
+  },
+  {
+    id: 'triax-dh',
+    name: 'Triax (Damar & Hagen)',
+    connectorType: 'Triax (Damar & Hagen)',
+    standards: ['SDI-HD', 'Analog-Audio'],
+    maxLengthMeters: 1500,
+    color: '#a16207',
+    notesKey: 'catalog.cable.triax-dh.notes',
+  },
+  {
+    id: 'triax-fischer',
+    name: 'Triax (Fischer)',
+    connectorType: 'Triax (Fischer)',
+    standards: ['SDI-HD', 'Analog-Audio'],
+    maxLengthMeters: 1500,
+    color: '#854d0e',
+    notesKey: 'catalog.cable.triax-fischer.notes',
   },
   {
     id: 'triax-camera',
