@@ -3150,6 +3150,32 @@ const en: Dict = {
     'Word clock for digital audio. Daisy-chain with 75Ω termination at the end; one master clock per domain.',
   'catalog.cable.ptp-cat6.notes':
     'PTP (IEEE 1588) timing for ST 2110 / AES67. One grandmaster per PTP domain; enable boundary clocks on switches.',
+  'catalog.cable.serial-rs422.notes':
+    'Serial device control. RS-232 ~15 m point-to-point; RS-422/485 differential up to ~1200 m (VTR Sony 9-pin, PTZ/VISCA, router/matrix control).',
+  'catalog.cable.vga-de15.notes':
+    'Analog RGBHV computer/projector video over 15-pin D-Sub. Keep runs short; quality drops past ~10-15 m.',
+  'catalog.cable.dvi-cable.notes':
+    'DVI-D (digital), DVI-A (analog) or DVI-I (both). Passive copper limited to ~5 m; single vs dual-link sets the max resolution.',
+  'catalog.cable.dsub-db25-audio.notes':
+    'DB25 multi-channel audio per AES59 ("TASCAM" pinout): 8 balanced analog or 4 AES3 pairs on one connector.',
+  'catalog.cable.dmx-5pin.notes':
+    'DMX512-A / RDM lighting control, 512 channels per universe. 5-pin XLR is the standard; terminate the last fixture with 120Ω.',
+  'catalog.cable.artnet-sacn.notes':
+    'Art-Net / sACN (E1.31): many DMX universes over Ethernet. Use a dedicated/managed network; multicast for sACN.',
+  'catalog.cable.composite-cinch.notes':
+    'Composite video (CVBS/FBAS) over one line — Cinch/RCA or 75Ω BNC. Legacy/consumer, single picture.',
+  'catalog.cable.s-video.notes':
+    'S-Video (Y/C): separate luma and chroma over a mini-DIN-4 — better than composite, legacy.',
+  'catalog.cable.component-ypbpr.notes':
+    'Analog component YPbPr over three lines (Cinch or BNC). Carries HD analog; legacy in modern plants.',
+  'catalog.cable.ltc-bnc.notes':
+    'LTC (Linear Timecode, SMPTE ST 12M): audio-band timecode over BNC or XLR from a TC generator to cameras/recorders/desks.',
+  'catalog.cable.aes3id-bnc.notes':
+    'AES3id: AES/EBU digital audio over 75Ω coax (BNC), unbalanced — vs the 110Ω XLR variant. Use video-grade 75Ω coax.',
+  'catalog.cable.tally-gpi.notes':
+    'Tally (red = on-air/PGM, green = preview) and GPI/GPO contact closures for record triggers, cues, lamps. Often D-Sub or terminal blocks.',
+  'catalog.cable.hdbaset-cat6a.notes':
+    'HDBaseT: video (up to 4K), audio, control (RS-232/IR), Ethernet and power (PoH) over one Cat6/6a run up to ~100 m.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Main standard. Level A recommended; Level B for older equipment.',
@@ -3218,6 +3244,32 @@ const de: Dict = {
     'Word Clock für Digital-Audio. Daisy-Chain mit 75Ω-Abschluss am Ende; ein Master-Clock pro Domäne.',
   'catalog.cable.ptp-cat6.notes':
     'PTP (IEEE 1588) Timing für ST 2110 / AES67. Ein Grandmaster je PTP-Domäne; Boundary-Clocks auf Switches aktivieren.',
+  'catalog.cable.serial-rs422.notes':
+    'Serielle Gerätesteuerung. RS-232 ~15 m Punkt-zu-Punkt; RS-422/485 differenziell bis ~1200 m (VTR Sony 9-Pin, PTZ/VISCA, Router-/Matrix-Steuerung).',
+  'catalog.cable.vga-de15.notes':
+    'Analoges RGBHV-Computer-/Projektorbild über 15-pol D-Sub. Kurz halten; Qualität fällt jenseits ~10-15 m.',
+  'catalog.cable.dvi-cable.notes':
+    'DVI-D (digital), DVI-A (analog) oder DVI-I (beides). Passiv-Kupfer ~5 m; Single- vs. Dual-Link bestimmt die Maximalauflösung.',
+  'catalog.cable.dsub-db25-audio.notes':
+    'DB25-Mehrkanal-Audio nach AES59 ("TASCAM"-Belegung): 8 symmetrisch analog oder 4 AES3-Paare auf einem Stecker.',
+  'catalog.cable.dmx-5pin.notes':
+    'DMX512-A / RDM Licht-Steuerung, 512 Kanäle je Universum. 5-pol XLR ist Standard; letztes Gerät mit 120Ω terminieren.',
+  'catalog.cable.artnet-sacn.notes':
+    'Art-Net / sACN (E1.31): viele DMX-Universen über Ethernet. Dediziertes/Managed-Netz nutzen; sACN per Multicast.',
+  'catalog.cable.composite-cinch.notes':
+    'Composite-Video (CVBS/FBAS) über eine Leitung — Cinch/RCA oder 75Ω-BNC. Legacy/Consumer, ein Bild.',
+  'catalog.cable.s-video.notes':
+    'S-Video (Y/C): getrenntes Luma und Chroma über Mini-DIN-4 — besser als Composite, Legacy.',
+  'catalog.cable.component-ypbpr.notes':
+    'Analoges Component YPbPr über drei Leitungen (Cinch oder BNC). Überträgt HD analog; in modernen Anlagen Legacy.',
+  'catalog.cable.ltc-bnc.notes':
+    'LTC (Linear Timecode, SMPTE ST 12M): audiobandiger Timecode über BNC oder XLR, vom TC-Generator zu Kameras/Recordern/Pulten.',
+  'catalog.cable.aes3id-bnc.notes':
+    'AES3id: AES/EBU-Digital-Audio über 75Ω-Koax (BNC), unsymmetrisch — vs. die 110Ω-XLR-Variante. 75Ω-Video-Koax verwenden.',
+  'catalog.cable.tally-gpi.notes':
+    'Tally (rot = On-Air/PGM, grün = Preview) und GPI/GPO-Kontaktschlüsse für Record-Trigger, Cues, Lampen. Oft D-Sub oder Klemmen.',
+  'catalog.cable.hdbaset-cat6a.notes':
+    'HDBaseT: Video (bis 4K), Audio, Steuerung (RS-232/IR), Ethernet und Strom (PoH) über ein Cat6/6a bis ~100 m.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Hauptstandard. Level A empfohlen; Level B bei älteren Geräten.',
