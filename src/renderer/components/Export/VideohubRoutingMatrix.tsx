@@ -156,6 +156,52 @@ export const VideohubRoutingMatrix = ({
     saveLayout(layout)
   }, [layout])
 
+  // Label-Tooltips + Excel-style Drag-Resize. Diese Hooks müssen vor dem
+  // Early-Return (!useGrid) stehen — sonst rules-of-hooks-Verletzung.
+  const inLabelTip = useMemo(
+    () => inputLabels.map((l, i) => `In ${i + 1} · ${l}`),
+    [inputLabels],
+  )
+  const outLabelTip = useMemo(
+    () => outputLabels.map((l, i) => `Out ${i + 1} · ${l}`),
+    [outputLabels],
+  )
+  // State im Ref damit window-handler stable bleibt über re-renders.
+  const resizeRef = useRef<
+    | { kind: 'col'; index: number; startX: number; startW: number }
+    | { kind: 'row'; index: number; startY: number; startH: number }
+    | { kind: 'label'; startX: number; startW: number }
+    | null
+  >(null)
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      const s = resizeRef.current
+      if (!s) return
+      if (s.kind === 'col') {
+        const w = Math.max(24, Math.round(s.startW + (e.clientX - s.startX)))
+        setLayout((prev) => ({ ...prev, colWidths: { ...prev.colWidths, [s.index]: w } }))
+      } else if (s.kind === 'row') {
+        const h = Math.max(20, Math.round(s.startH + (e.clientY - s.startY)))
+        setLayout((prev) => ({ ...prev, rowHeights: { ...prev.rowHeights, [s.index]: h } }))
+      } else {
+        const w = Math.max(80, Math.round(s.startW + (e.clientX - s.startX)))
+        setLayout((prev) => ({ ...prev, labelColWidth: w }))
+      }
+    }
+    const onUp = () => {
+      if (resizeRef.current) {
+        resizeRef.current = null
+        document.body.style.cursor = ''
+      }
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+  }, [])
+
   if (!useGrid) {
     return (
       <div className="overflow-auto max-h-64 rounded border border-slate-700 bg-slate-950 p-2">
@@ -244,52 +290,6 @@ export const VideohubRoutingMatrix = ({
     const el = rowRefs.current[oi]
     if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' })
   }
-
-  const inLabelTip = useMemo(
-    () => inputLabels.map((l, i) => `In ${i + 1} · ${l}`),
-    [inputLabels],
-  )
-  const outLabelTip = useMemo(
-    () => outputLabels.map((l, i) => `Out ${i + 1} · ${l}`),
-    [outputLabels],
-  )
-
-  // Excel-style Drag-Resize. State im Ref damit window-handler stable
-  // bleibt ueber re-renders.
-  const resizeRef = useRef<
-    | { kind: 'col'; index: number; startX: number; startW: number }
-    | { kind: 'row'; index: number; startY: number; startH: number }
-    | { kind: 'label'; startX: number; startW: number }
-    | null
-  >(null)
-  useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      const s = resizeRef.current
-      if (!s) return
-      if (s.kind === 'col') {
-        const w = Math.max(24, Math.round(s.startW + (e.clientX - s.startX)))
-        setLayout((prev) => ({ ...prev, colWidths: { ...prev.colWidths, [s.index]: w } }))
-      } else if (s.kind === 'row') {
-        const h = Math.max(20, Math.round(s.startH + (e.clientY - s.startY)))
-        setLayout((prev) => ({ ...prev, rowHeights: { ...prev.rowHeights, [s.index]: h } }))
-      } else {
-        const w = Math.max(80, Math.round(s.startW + (e.clientX - s.startX)))
-        setLayout((prev) => ({ ...prev, labelColWidth: w }))
-      }
-    }
-    const onUp = () => {
-      if (resizeRef.current) {
-        resizeRef.current = null
-        document.body.style.cursor = ''
-      }
-    }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', onUp)
-    return () => {
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup', onUp)
-    }
-  }, [])
 
   const startColResize = (index: number) => (e: React.MouseEvent) => {
     e.preventDefault()

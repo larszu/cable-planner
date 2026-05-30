@@ -10,6 +10,11 @@ import { format, useTranslation } from '../../../lib/i18n'
 export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string }) => {
   const t = useTranslation()
   const { config, info, rename, assignUser } = useGreenGoBeltpack(equipmentId)
+  // Ein-/ausklappbar (wie die übrigen Properties-Blöcke). Default offen, wenn
+  // diesem Gerät ein Beltpack-Slot zugeordnet ist, sonst eingeklappt. <summary>
+  // statt Form-Control, damit das Toggle auch im gesperrten Fieldset geht.
+  // Hook muss vor dem Early-Return stehen (rules-of-hooks).
+  const [open, setOpen] = useState(!!info)
   if (!config || config.users.length === 0) {
     return (
       <div className="mb-2 text-[10px] text-emerald-300/60">
@@ -23,11 +28,6 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
   // List of all users for the assignment dropdown. We label them by name
   // and decorate with the linked equipment id if any (so the user can
   // see at a glance which slots are already taken).
-  //
-  // Ein-/ausklappbar (wie die übrigen Properties-Blöcke). Default offen, wenn
-  // diesem Gerät ein Beltpack-Slot zugeordnet ist, sonst eingeklappt. <summary>
-  // statt Form-Control, damit das Toggle auch im gesperrten Fieldset geht.
-  const [open, setOpen] = useState(!!info)
   return (
     <details
       open={open}
