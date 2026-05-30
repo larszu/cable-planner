@@ -1,3 +1,5 @@
+import { AlertTriangle } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
 
 /** v7.9.11 — Status-Footer mit drei klaren Zonen:
@@ -62,7 +64,7 @@ export const RackBuilderFooter = ({
         )}
         {conflictsCount > 0 && (
           <span className="inline-flex items-center gap-1 rounded bg-red-900/60 px-2 py-0.5 text-red-200">
-            <span>⚠</span>
+            <Icon icon={AlertTriangle} size="xs" />
             <strong>{conflictsCount}</strong>
             <span>{t('rack.conflictsWord', 'Konflikte')}</span>
           </span>
