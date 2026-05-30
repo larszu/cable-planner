@@ -340,6 +340,124 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
     updatePort(portId, { quadLinkGroup: raw || undefined })
   }
 
+  // #370 — Dual-Link Set Helpers. Analog zu den Quad-Link-Helfern oben,
+  // aber ein Set besteht aus genau 2 BNC-Ports (Dual-Link HD/3G, SMPTE
+  // 372M) mit gleichem dualLinkGroup-ID auf derselben Seite.
+  const existingDualGroups = useMemo(() => {
+    const set = new Set<string>()
+    for (const p of ports) {
+      if (p.dualLinkGroup) set.add(p.dualLinkGroup)
+    }
+    return Array.from(set).sort()
+  }, [ports])
+  const dualGroupCount = (g: string): number =>
+    ports.filter((p) => p.dualLinkGroup === g).length
+  const nextDualGroupId = (): string => {
+    let i = 1
+    while (existingDualGroups.includes(`DL-${i}`)) i++
+    return `DL-${i}`
+  }
+  const autoFillDualGroup = async (g: string, sourcePortId: string) => {
+    const haveCount = dualGroupCount(g)
+    const needed = 2 - haveCount
+    if (needed <= 0) return
+    const freeBncPorts = ports.filter(
+      (p) => p.id !== sourcePortId && p.connectorType === 'BNC' && !p.dualLinkGroup,
+    )
+    if (freeBncPorts.length === 0) {
+      await infoDialog(
+        format(t('dualLink.incompleteTitle', 'Dual-Link Set {g} unvollständig'), { g }),
+        {
+          body: format(
+            t(
+              'dualLink.incompleteBody',
+              'Hat nur {have}/2 Ports. Keine weiteren freien BNC-Ports verfügbar — bitte zuerst BNC-Ports hinzufügen oder bestehende freigeben.',
+            ),
+            { have: String(haveCount) },
+          ),
+          tone: 'warning',
+        },
+      )
+      return
+    }
+    const ok = await confirmDialog(
+      format(t('dualLink.fillTitle', 'Dual-Link Set {g} ergänzen?'), { g }),
+      {
+        body: format(
+          t(
+            'dualLink.fillBody',
+            'Aktuell {have}/2 Ports. {add} weiteren freien BNC-Port automatisch dem Set zuweisen?',
+          ),
+          { have: String(haveCount), add: String(Math.min(needed, freeBncPorts.length)) },
+        ),
+        okLabel: t('dualLink.okFill', 'Ja, ergänzen'),
+      },
+    )
+    if (!ok) return
+    const toAdd = new Set(freeBncPorts.slice(0, needed).map((p) => p.id))
+    onChange(
+      ports.map((p) =>
+        toAdd.has(p.id) ? { ...p, dualLinkGroup: g } : p,
+      ),
+    )
+  }
+  const assignDualGroup = async (portId: string, raw: string) => {
+    if (raw === '__new__') {
+      const newId = nextDualGroupId()
+      const updated = ports.map((p) =>
+        p.id === portId ? { ...p, dualLinkGroup: newId } : p,
+      )
+      onChange(updated)
+      const haveCount = updated.filter((p) => p.dualLinkGroup === newId).length
+      const freeBncPorts = updated.filter(
+        (p) =>
+          p.id !== portId &&
+          p.connectorType === 'BNC' &&
+          !p.dualLinkGroup,
+      )
+      const needed = 2 - haveCount
+      if (needed > 0 && freeBncPorts.length > 0) {
+        const ok = await confirmDialog(
+          format(t('dualLink.createTitle', 'Dual-Link Set {id} anlegen?'), { id: newId }),
+          {
+            body: format(
+              t(
+                'dualLink.createBody',
+                '1/2 Ports gesetzt. {add} weiteren freien BNC-Port automatisch dem Set zuweisen?',
+              ),
+              { add: String(Math.min(needed, freeBncPorts.length)) },
+            ),
+            okLabel: t('dualLink.okFill', 'Ja, ergänzen'),
+          },
+        )
+        if (ok) {
+          const toAdd = new Set(freeBncPorts.slice(0, needed).map((p) => p.id))
+          onChange(
+            updated.map((p) =>
+              toAdd.has(p.id) ? { ...p, dualLinkGroup: newId } : p,
+            ),
+          )
+        }
+      } else if (needed > 0) {
+        await infoDialog(
+          format(t('dualLink.createdTitle', 'Dual-Link Set {id} angelegt'), { id: newId }),
+          {
+            body: format(
+              t(
+                'dualLink.createdBody',
+                'Hat aktuell {have}/2 Ports. Bitte einen weiteren BNC-Port anlegen und ebenfalls dem Set zuweisen.',
+              ),
+              { have: String(haveCount) },
+            ),
+            tone: 'info',
+          },
+        )
+      }
+      return
+    }
+    updatePort(portId, { dualLinkGroup: raw || undefined })
+  }
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
@@ -623,10 +741,11 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     port.sdiCaps?.maxSingleLink ||
                     port.sdiCaps?.levelA ||
                     port.sdiCaps?.levelB ||
-                    port.quadLinkGroup
+                    port.quadLinkGroup ||
+                    port.dualLinkGroup
                   )
                 }
-                badge={[port.sdiCaps?.maxSingleLink, port.quadLinkGroup]
+                badge={[port.sdiCaps?.maxSingleLink, port.quadLinkGroup, port.dualLinkGroup]
                   .filter(Boolean)
                   .join(' · ')}
               >
@@ -736,6 +855,53 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                               onClick={() => void autoFillQuadGroup(g, port.id)}
                               className="rounded bg-sky-800 px-1 py-0.5 text-[9px] text-sky-100 hover:bg-sky-700"
                               title={t('ports.quadAuto', 'Freie BNC-Ports automatisch dem Set zuweisen')}
+                            >
+                              auto-fill
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )
+                })()}
+                {(() => {
+                  const g = port.dualLinkGroup
+                  const count = g ? dualGroupCount(g) : 0
+                  const ok = count === 2
+                  return (
+                    <div className="mt-1 flex items-center gap-1 text-[10px]">
+                      <span className="text-slate-400">{t('ports.sdi.dualSet', 'Dual-Link Set:')}</span>
+                      <select
+                        value={g ?? ''}
+                        onChange={(e) => void assignDualGroup(port.id, e.target.value)}
+                        className="rounded border border-slate-700 bg-slate-950 px-1 py-0.5 text-[10px]"
+                      >
+                        <option value="">— Kein —</option>
+                        {existingDualGroups.map((gid) => (
+                          <option key={gid} value={gid}>{gid}</option>
+                        ))}
+                        <option value="__new__">+ Neues Set…</option>
+                      </select>
+                      {g && (
+                        <>
+                          <span
+                            className={`rounded px-1 py-0.5 text-[9px] font-bold ${
+                              ok
+                                ? 'bg-emerald-900/60 text-emerald-300'
+                                : 'bg-amber-900/60 text-amber-300'
+                            }`}
+                            title={ok
+                              ? t('dualLink.complete', 'Set komplett')
+                              : t('dualLink.incomplete', 'Set unvollständig — 2 Ports nötig')}
+                          >
+                            {count}/2
+                          </span>
+                          {!ok && (
+                            <button
+                              type="button"
+                              onClick={() => void autoFillDualGroup(g, port.id)}
+                              className="rounded bg-sky-800 px-1 py-0.5 text-[9px] text-sky-100 hover:bg-sky-700"
+                              title={t('ports.dualAuto', 'Freie BNC-Ports automatisch dem Set zuweisen')}
                             >
                               auto-fill
                             </button>

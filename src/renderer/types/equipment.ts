@@ -98,6 +98,11 @@ export interface Port {
    *  Free text ID (z.B. 'QL-1', 'QL-2'); pro Gerät beliebig viele
    *  Sets möglich. UI warnt wenn eine Gruppe nicht 4 Ports hat. */
   quadLinkGroup?: string
+  /** #370 — Dual-Link Set: zwei BNC-Ports mit gleichem `dualLinkGroup`-
+   *  String bilden zusammen ein Dual-Link-Paar (HD/3G, SMPTE 372M).
+   *  Free text ID (z.B. 'DL-1'); UI warnt wenn eine Gruppe nicht genau
+   *  2 Ports hat. Analog zu `quadLinkGroup`. */
+  dualLinkGroup?: string
   /** v7.9.14 — Wenn dieses Equipment ein Black-Box-Rack ist, markiert
    *  jeder externe Port aus welchem internen Rack-Gerät er stammt
    *  (Index in rackInternalSnapshot.items). EquipmentNode nutzt diese
