@@ -803,6 +803,10 @@ interface UiState extends PersistedUiState {
   recordingStorageCalc: { open: boolean }
   openRecordingStorageCalc: () => void
   closeRecordingStorageCalc: () => void
+  /** #378 — Bulk-Cable-Connect-Dialog (mehrere Kabel auf einmal). */
+  bulkConnect: { open: boolean }
+  openBulkConnect: () => void
+  closeBulkConnect: () => void
   /** Rentman equipment import dialog (cross-component trigger). */
   rentmanImport: { open: boolean }
   openRentmanImport: () => void
@@ -1183,6 +1187,9 @@ export const useUiStore = create<UiState>((set) => ({
   recordingStorageCalc: { open: false },
   openRecordingStorageCalc: () => set({ recordingStorageCalc: { open: true } }),
   closeRecordingStorageCalc: () => set({ recordingStorageCalc: { open: false } }),
+  bulkConnect: { open: false },
+  openBulkConnect: () => set({ bulkConnect: { open: true } }),
+  closeBulkConnect: () => set({ bulkConnect: { open: false } }),
   rentmanImport: { open: false },
   openRentmanImport: () => set({ rentmanImport: { open: true } }),
   closeRentmanImport: () => set({ rentmanImport: { open: false } }),

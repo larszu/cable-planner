@@ -244,6 +244,22 @@ export interface ProjectState {
   queueConnection: (connection: Connection, waypoints?: { x: number; y: number }[]) => void
   closeCableDialog: () => void
   createCableFromPending: (draft: CableDraft) => void
+  /** #378 — Bulk-Cable-Create. Fuer 'verbinde Outputs 1-N mit Inputs M-K'
+   *  in einem Rutsch. Atomar: alle Kabel werden in einer touchProject-
+   *  Mutation angefuegt, BOM-/Layer-Auto-Heal greift wie beim Single-Add.
+   *  Endpunkt-Konflikt-Check (Port belegt) wird je Kabel uebersprungen
+   *  und in result.failedPairs zurueckgeliefert — der Aufrufer kann den
+   *  User dann darueber informieren. */
+  addCablesBulk: (
+    drafts: Array<
+      CableDraft & {
+        fromEquipmentId: string
+        fromPortId: string
+        toEquipmentId: string
+        toPortId: string
+      }
+    >,
+  ) => { created: number; skipped: number; skippedReasons: string[] }
   /** #294 — Port-Konflikt: bestehendes Kabel(n) auf dem Ziel-Port loeschen
    *  und dann den normalen Cable-Create-Flow (CableDialog) starten. */
   resolvePortConflictByReplace: () => void

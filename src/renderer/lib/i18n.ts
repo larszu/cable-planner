@@ -88,6 +88,7 @@ const en: Dict = {
   'app.menu.tools.bandwidth': 'Calculate bandwidth…',
   'app.menu.tools.power': 'Calculate power consumption…',
   'app.menu.tools.recStorage': 'Calculate recording storage…',
+  'app.menu.tools.bulkConnect': 'Connect multiple cables…',
   'app.menu.help': 'Help',
   'app.menu.help.tour': 'Getting-started tour…',
   'app.editProjectMeta': 'Edit project metadata',
@@ -2236,6 +2237,29 @@ const en: Dict = {
   'calc.greedyExplain':
     'Greedy distribution: sorted by power, each device on the currently least-loaded phase. With symmetric loads three-phase draws only {amps} A per phase; imbalance raises the highest phase current. Target: every phase < 85% load + imbalance < 20%.',
   'calc.topConsumers': 'Top consumers',
+
+  // #378 — Bulk cable connect dialog
+  'bulk.title': '🔗 Connect multiple cables',
+  'bulk.intro':
+    'Creates N cables at once: source port i → target port i. Occupied target ports are skipped.',
+  'bulk.source': 'Source',
+  'bulk.target': 'Target',
+  'bulk.device': 'Device',
+  'bulk.side': 'Side',
+  'bulk.outputs': 'Outputs',
+  'bulk.inputs': 'Inputs',
+  'bulk.startFrom': 'Start {side} (1..{total})',
+  'bulk.startTo': 'Start {side} (1..{total})',
+  'bulk.count': 'Cable count',
+  'bulk.spec': 'Cable type',
+  'bulk.length': 'Length per cable (m)',
+  'bulk.preview': 'Preview ({n}/{plan} cables)',
+  'bulk.previewEmpty': 'Pick source/target and port range.',
+  'bulk.willSkip': '⚠ Count exceeds available ports — extras are skipped.',
+  'bulk.create': 'Create {n} cables',
+  'bulk.cableName': '{from} → {to}',
+  'bulk.resultSkipped':
+    '{created} cables created, {skipped} skipped (target port occupied or invalid).',
 
   // #404 — Recording-storage calculator
   'recStorage.title': '💾 Recording storage calculator',
