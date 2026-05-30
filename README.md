@@ -42,11 +42,6 @@ It is designed for real-world production environments such as studios, OB vans, 
 
 ## 📸 Screenshots
 
-> Images live in [`docs/screenshots/`](docs/screenshots/). Slots marked
-> **TODO: capture** still need a real screen grab — see the capture **and
-> redaction** guide in [`docs/screenshots/README.md`](docs/screenshots/README.md).
-> ⚠️ Every screenshot must be scrubbed of customer-identifying data before
-> it is committed (project/client names, personal names).
 
 <table>
   <tr>
