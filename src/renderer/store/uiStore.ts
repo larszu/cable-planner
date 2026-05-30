@@ -780,6 +780,12 @@ interface UiState extends PersistedUiState {
   powerCalc: { open: boolean }
   openPowerCalc: () => void
   closePowerCalc: () => void
+  /** #404 — Recording-Speicherplatz-Rechner. Eigenstaendiger Dialog im
+   *  Werkzeuge-Menue; wird zusaetzlich in der Properties-Sidebar
+   *  eingebettet wenn die Geraete-Kategorie ein Recorder ist. */
+  recordingStorageCalc: { open: boolean }
+  openRecordingStorageCalc: () => void
+  closeRecordingStorageCalc: () => void
   /** Rentman equipment import dialog (cross-component trigger). */
   rentmanImport: { open: boolean }
   openRentmanImport: () => void
@@ -1153,6 +1159,9 @@ export const useUiStore = create<UiState>((set) => ({
   powerCalc: { open: false },
   openPowerCalc: () => set({ powerCalc: { open: true } }),
   closePowerCalc: () => set({ powerCalc: { open: false } }),
+  recordingStorageCalc: { open: false },
+  openRecordingStorageCalc: () => set({ recordingStorageCalc: { open: true } }),
+  closeRecordingStorageCalc: () => set({ recordingStorageCalc: { open: false } }),
   rentmanImport: { open: false },
   openRentmanImport: () => set({ rentmanImport: { open: true } }),
   closeRentmanImport: () => set({ rentmanImport: { open: false } }),

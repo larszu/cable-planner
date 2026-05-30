@@ -224,6 +224,12 @@ export const MenuBar = ({
           >
             {t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
           </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().openRecordingStorageCalc()}
+            icon="💾"
+          >
+            {t('app.menu.tools.recStorage', 'Recording-Speicherplatz berechnen…')}
+          </MenuItem>
           {/* #401 — Rack Builder im Werkzeuge-Menü. Triggert einen leeren
               Builder; LibraryPanel switched auf Racks-Tab + öffnet Dialog. */}
           <MenuItem
