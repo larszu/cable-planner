@@ -664,6 +664,10 @@ const en: Dict = {
   'ports.sfp.wavelengthTitle': 'Wavelength in nm: 850, 1310, 1550',
   'ports.sfp.vendorPlaceholder': 'Vendor (Cisco)',
   'ports.sfp.vendorTitle': 'Module vendor: Cisco, Aruba, Ubiquiti, FS.com …',
+  'ports.fiber.connectorPlaceholder': 'Connector (LC/SC/…)',
+  'ports.fiber.connectorTitle': 'Optical connector type',
+  'ports.fiber.classPlaceholder': 'Fibre class (OM/OS)',
+  'ports.fiber.classTitle': 'Fibre class: OM1–OM5 (multimode), OS1/OS2 (singlemode)',
   'ports.quadAuto': 'Auto-assign free BNC ports to this set',
   'ports.dualAuto': 'Auto-assign free BNC ports to this set',
 

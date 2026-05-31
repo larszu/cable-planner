@@ -180,6 +180,17 @@ export interface Port {
    */
   sfpVendor?: string
   /**
+   * #362 — Optischer Steckverbinder-Subtyp eines Fiber-Ports/-Kabels
+   * (LC / SC / ST / FC / E2000 / MPO-MTP / opticalCON / LEMO). Unabhängig
+   * vom SFP-Formfaktor (`sfpType`). Erscheint in Properties + BOM/Etiketten.
+   */
+  fiberConnector?: string
+  /**
+   * #362 — Faserklasse: Multimode OM1–OM5 bzw. Singlemode OS1/OS2.
+   * Bestimmt die Default-Reichweite/Bandbreite der Faser.
+   */
+  fiberClass?: string
+  /**
    * v7.9.77 / #170 — Manual position override of the port-dot on the
    * device's rack-panel (front oder rear). Normalized 0..1 across the
    * panel face (0=links/oben, 1=rechts/unten). Wenn nicht gesetzt,
