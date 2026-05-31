@@ -105,19 +105,12 @@ export const CategoryPropsSection = ({ equipment }: { equipment: EquipmentItem }
   // Ein-/ausklappbar (wie SDI-Caps / Abmessungen). Default offen, wenn schon
   // Fachdaten gesetzt sind, sonst eingeklappt. <summary> statt Form-Control,
   // damit das Toggle auch im gesperrten (viewer/finalized) Fieldset geht.
-  // Hook muss vor dem Early-Return stehen (rules-of-hooks).
-  const [open, setOpen] = useState(Object.keys(props).length > 0)
-
-  const fields = schemaForCategory(equipment.category)
-  const props = equipment.categoryProps ?? {}
-
-  // Ein-/ausklappbar (wie SDI-Caps / Abmessungen). Default offen, wenn schon
-  // Fachdaten gesetzt sind, sonst eingeklappt. <summary> statt Form-Control,
-  // damit das Toggle auch im gesperrten (viewer/finalized) Fieldset geht.
   // WICHTIG: useState MUSS vor dem `return null` stehen (Rules of Hooks) —
   // sonst aendert sich die Hook-Anzahl wenn die Kategorie beim Geraetewechsel
   // von "kein Schema" zu "Schema" wechselt.
   const [open, setOpen] = useState(Object.keys(props).length > 0)
+
+  const fields = schemaForCategory(equipment.category)
   if (fields.length === 0) return null
 
   const setProp = (key: string, value: string | number | boolean | undefined) => {
