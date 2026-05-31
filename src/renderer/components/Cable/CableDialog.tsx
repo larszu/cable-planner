@@ -16,6 +16,7 @@ import {
   cableCatalog,
   checkCableCompatibility,
   checkSdiStandardMismatch,
+  checkImpedanceMismatch,
   pickHighestSdiStandard,
   type CableSpec,
   type SignalStandard,
@@ -178,6 +179,12 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
     // If user picked a specific SDI speed as the cable standard, check that both
     // ports' declared standards (if any) match or note a converter is needed.
     return checkSdiStandardMismatch(fromPort.standard ?? standard, toPort.standard ?? standard)
+  }, [fromPort, toPort, standard])
+
+  // #390 — Impedanz-Mismatch (75/50/110Ω) entlang der Verbindung warnen.
+  const impedanceMismatch = useMemo(() => {
+    if (!fromPort || !toPort) return null
+    return checkImpedanceMismatch(fromPort.standard ?? standard, toPort.standard ?? standard)
   }, [fromPort, toPort, standard])
 
   const connectorMismatch: 'ok' | 'warn' | 'error' =
@@ -456,6 +463,12 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
             <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
               <Icon icon={AlertTriangle} size="sm" />
               {sdiMismatch.message}
+            </div>
+          )}
+          {impedanceMismatch?.level === 'warn' && (
+            <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
+              <Icon icon={AlertTriangle} size="sm" />
+              {impedanceMismatch.message}
             </div>
           )}
           {lengthWarning && (
