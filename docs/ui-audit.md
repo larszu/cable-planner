@@ -41,6 +41,8 @@ lint-sauber.
 
 ## Größte Komponenten (Dekompositions-Kandidaten, Phase 5)
 
+> Als GitHub-Issue erfasst: **#468** (`refactor(tech-debt): decompose oversized components`).
+
 | Datei                                              | Zeilen |
 | -------------------------------------------------- | -----: |
 | `components/Rack/RackBuilderDialog.tsx`            |   2862 |
