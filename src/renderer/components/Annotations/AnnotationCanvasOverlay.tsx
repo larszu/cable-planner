@@ -6,7 +6,7 @@
 // verschiebbar (sie folgen ihrem Gerät) — aber Klick-Toggle gilt für
 // alle Anchor-Typen.
 
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useReactFlow, useViewport } from 'reactflow'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
@@ -70,7 +70,11 @@ export const AnnotationCanvasOverlay = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [dragState, setDragState] = useState<DragState | null>(null)
   const dragRef = useRef<DragState | null>(null)
-  dragRef.current = dragState
+  // Mirror the latest drag state into a ref for the window pointer handlers.
+  // Done in an effect (not during render) so render stays pure — react-hooks/refs.
+  useEffect(() => {
+    dragRef.current = dragState
+  })
 
   const positions = useMemo(() => {
     return annotations

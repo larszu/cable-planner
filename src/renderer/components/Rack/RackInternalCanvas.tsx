@@ -25,10 +25,8 @@ import { CanvasArea } from '../Canvas/CanvasArea'
 import { CableContextMenu } from '../Canvas/CableContextMenu'
 import { CableProperties } from '../Properties/CableProperties'
 import { EquipmentProperties } from '../Properties/EquipmentProperties'
-import {
-  ProjectStoreProvider,
-  useCanvasProjectStore,
-} from '../../store/projectStoreContext'
+import { useCanvasProjectStore } from '../../store/projectStoreContext'
+import { ProjectStoreProvider } from '../../store/ProjectStoreProvider'
 import { createProjectStoreInstance } from '../../store/projectStore'
 import { routeCable } from '../../lib/canvasViewport'
 import type {

@@ -26,6 +26,7 @@ import {
   videoFormatById,
   type VideoFormatId,
 } from '../../types/videoFormat'
+import { CUSTOM_CABLE_SPEC_ID, makeCustomCableSpec } from './customCableSpec'
 
 export interface CableDialogProps {
   fromPort?: Port
@@ -39,17 +40,6 @@ export interface CableDialogProps {
       Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>,
   ) => void
 }
-
-export const CUSTOM_CABLE_SPEC_ID = '__custom__'
-
-export const makeCustomCableSpec = (connectorType: ConnectorType, color: string): CableSpec => ({
-  id: CUSTOM_CABLE_SPEC_ID,
-  name: 'Custom Cable',
-  connectorType,
-  standards: ['Generic'],
-  color,
-  notes: 'Benutzerdefiniertes Kabel ohne Katalog-Preset.',
-})
 
 export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onCancel, onCreate }: CableDialogProps) => {
   const t = useTranslation()

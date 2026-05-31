@@ -117,6 +117,11 @@ export const LibraryPanel = () => {
   // "Als Rack speichern". Lives in component state because it's
   // ephemeral (only valid while the dialog is open).
   const [seedPreset, setSeedPreset] = useState<import('../../types/equipment').GroupPreset | null>(null)
+  // Hochgezogen über die Drop-/Seed-Effekte, damit der React-Compiler die
+  // Setter vor ihrem Gebrauch im useEffect sieht (react-hooks/immutability).
+  const [name, setName] = useState('Custom Device')
+  const [category, setCategory] = useState('Kameras')
+  const [tab, setTab] = useState<'equipment' | 'cables' | 'groups' | 'racks'>('equipment')
   // v7.9.105 / Issue #224 — Wenn der RackBuilder aus dem Canvas-Toolbar-
   // 'Rack bearbeiten'-Button geoeffnet wurde, merken wir uns die
   // Equipment-ID damit Save in-place ins Canvas zurueckgeht statt in
@@ -302,15 +307,12 @@ export const LibraryPanel = () => {
     clearEmptyDeviceDrop()
   }, [pendingEmptyDeviceDrop, clearEmptyDeviceDrop])
 
-  const [name, setName] = useState('Custom Device')
-  const [category, setCategory] = useState('Kameras')
   const [isRackDeviceDraft, setIsRackDeviceDraft] = useState(false)
   const [rackUnitsDraft, setRackUnitsDraft] = useState<number | ''>('')
   const [groups, setGroups] = useState<PortGroupDraft[]>([
     defaultGroup('in'),
     defaultGroup('out'),
   ])
-  const [tab, setTab] = useState<'equipment' | 'cables' | 'groups' | 'racks'>('equipment')
   // Equipment sub-section: separates local templates from Rentman-imported ones
   // inside one shared tab, so the user always lives in "Equipment" and just
   // toggles the source.

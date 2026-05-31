@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type RefObject } from 'react'
 import { Box, Camera, ChevronDown, Save } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { v4 as uuidv4 } from 'uuid'
@@ -50,14 +50,16 @@ export interface RackBuilderDialogExportMenuProps {
   depthMm?: number
   placements: RackPlacementSnapshot[]
   editingId?: string
-  /** DOM des aktuellen 2D-Rack-Canvas (fuer PNG-Export). */
-  rackCanvasEl: HTMLDivElement | null
-  /** Three.js-Renderer-Refs (sobald 3D-Tab initialisiert wurde). */
-  canvas3DRefs: {
+  /** Ref auf das 2D-Rack-Canvas-DOM (fuer PNG-Export). Als Ref statt Wert
+   *  uebergeben, damit der Parent .current nicht waehrend des Renders liest
+   *  (react-hooks/refs). */
+  rackCanvasRef: RefObject<HTMLDivElement | null>
+  /** Ref auf die Three.js-Renderer-Refs (sobald 3D-Tab initialisiert wurde). */
+  canvas3DRefs: RefObject<{
     gl: THREE.WebGLRenderer
     scene: THREE.Scene
     camera: THREE.PerspectiveCamera
-  } | null
+  } | null>
 }
 
 export const RackBuilderDialogExportMenu = ({
@@ -66,7 +68,7 @@ export const RackBuilderDialogExportMenu = ({
   depthMm,
   placements,
   editingId,
-  rackCanvasEl,
+  rackCanvasRef,
   canvas3DRefs,
 }: RackBuilderDialogExportMenuProps) => {
   const t = useTranslation()
@@ -94,6 +96,7 @@ export const RackBuilderDialogExportMenu = ({
             type="button"
             onClick={() => {
               setOpen(false)
+              const rackCanvasEl = rackCanvasRef.current
               if (!rackCanvasEl) return
               void exportRack2DAsPng(rackCanvasEl, rackName || 'rack')
             }}
@@ -108,11 +111,12 @@ export const RackBuilderDialogExportMenu = ({
             type="button"
             onClick={async () => {
               setOpen(false)
-              if (!canvas3DRefs) {
+              const refs = canvas3DRefs.current
+              if (!refs) {
                 alert(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'))
                 return
               }
-              await exportRack3DAsPngs(canvas3DRefs.gl, canvas3DRefs.scene, canvas3DRefs.camera, {
+              await exportRack3DAsPngs(refs.gl, refs.scene, refs.camera, {
                 rackName: rackName || 'rack',
                 rackWidthMm: 482.6,
                 rackHeightMm: totalUnits * 44.45,
@@ -130,11 +134,12 @@ export const RackBuilderDialogExportMenu = ({
             type="button"
             onClick={() => {
               setOpen(false)
-              if (!canvas3DRefs) {
+              const refs = canvas3DRefs.current
+              if (!refs) {
                 alert(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'))
                 return
               }
-              exportRackAsStl(canvas3DRefs.scene, rackName || 'rack')
+              exportRackAsStl(refs.scene, rackName || 'rack')
             }}
             className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
           >

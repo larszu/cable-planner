@@ -20,15 +20,13 @@ import { confirmDialog } from '../../lib/confirmDialog'
 import type { ProjectAnnotation } from '../../types/project'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
 
-// v7.9.41 — Re-export für Backward-Kompatibilität. Source-of-Truth ist
-// jetzt lib/dragDropMimes.ts (alle Canvas-Drag-MIMEs zentral).
+// Source-of-Truth für Canvas-Drag-MIMEs ist lib/dragDropMimes.ts.
 import { MIME_ANNOTATION as ANNOTATION_DRAG_MIME } from '../../lib/dragDropMimes'
-export { ANNOTATION_DRAG_MIME }
 
 /** v7.9.5 — Liefert den effektiven Author-Namen für neue Annotations.
  *  Promptet den User wenn noch keiner gesetzt ist (kein 'Anonym'!).
  *  Returns null wenn der User den Prompt cancelt. */
-export const ensureAnnotationAuthor = async (): Promise<string | null> => {
+const ensureAnnotationAuthor = async (): Promise<string | null> => {
   const uiState = useUiStore.getState()
   const projState = useProjectStore.getState()
   const fromViewer = projState.project.viewerSession?.author?.trim()
