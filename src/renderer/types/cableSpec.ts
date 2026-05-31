@@ -651,3 +651,44 @@ export const checkSdiStandardMismatch = (
   }
   return null
 }
+
+/**
+ * #390 — Nenn-Impedanz eines Signalstandards in Ω.
+ *  75  = SDI / DVB-ASI / Video-BNC / AES3id / optisches SDI (SMPTE-297)
+ *  50  = HF / Antenne (RF-*)
+ *  110 = AES3 (AES/EBU über XLR)
+ *  undefined = nicht impedanz-relevant (HDMI, Ethernet, Power, …).
+ */
+export const impedanceForStandard = (s: SignalStandard | undefined): 50 | 75 | 110 | undefined => {
+  if (!s) return undefined
+  if (
+    s.startsWith('SDI') ||
+    s === 'DVB-ASI' ||
+    s === 'AES3id' ||
+    s === 'CVBS' ||
+    s === 'Y/C' ||
+    s === 'YPbPr' ||
+    s === 'SMPTE-297'
+  )
+    return 75
+  if (s.startsWith('RF-')) return 50
+  if (s === 'AES3') return 110
+  return undefined
+}
+
+/**
+ * #390 — Warnung bei Impedanz-Mismatch entlang einer Verbindung
+ * (z. B. 50Ω-HF-Kabel an 75Ω-SDI → Reflexionen/Return-Loss).
+ */
+export const checkImpedanceMismatch = (
+  fromStandard: SignalStandard | undefined,
+  toStandard: SignalStandard | undefined,
+): CompatibilityResult | null => {
+  const a = impedanceForStandard(fromStandard)
+  const b = impedanceForStandard(toStandard)
+  if (a == null || b == null || a === b) return null
+  return {
+    level: 'warn',
+    message: `Impedance mismatch: ${a}Ω ↔ ${b}Ω. Reflections/return loss — use a matching cable/adapter.`,
+  }
+}
