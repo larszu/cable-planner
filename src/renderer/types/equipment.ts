@@ -513,6 +513,13 @@ export interface EquipmentItem {
    * eingebettet bzw. herausgelöst wird (Patch-/Audio-Input-Liste).
    */
   embedderRole?: 'embedder' | 'deembedder'
+  /**
+   * #372 — Verteilverstärker (Distribution Amplifier): 1 Eingang wird aktiv
+   * auf N Ausgänge derselben Quelle verteilt. Marker analog zu isConverter;
+   * der Plan-Check warnt, wenn ein als DA markiertes Gerät <2 Ausgänge hat
+   * (verteilt dann faktisch nichts).
+   */
+  isDistributionAmp?: boolean
 }
 
 /**

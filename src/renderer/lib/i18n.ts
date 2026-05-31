@@ -1946,6 +1946,8 @@ const en: Dict = {
   'flags.title': 'Display & flags',
   'flags.subtitle': 'compact · colour · packed',
   'flags.colorTitle': 'Device node colour',
+  'flags.da': 'Distribution amp (1→N)',
+  'flags.daTitle': 'Distribution amplifier: one input is actively split to several outputs of the same source (1→N).',
   'roles.tc': 'Timecode',
   'roles.tally': 'Tally',
   'roles.embed': 'Embedding',
