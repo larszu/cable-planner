@@ -54,6 +54,10 @@ const en: Dict = {
   'common.cancel': 'Cancel',
   'common.save': 'Save',
   'common.close': 'Close',
+  'atemMv.picker.title': 'ATEM multiviewer — pick device',
+  'atemMv.picker.empty':
+    'No ATEM mixer in the plan. Add an ATEM from the library first — its multiviewer config will then be selectable here.',
+  'atemMv.picker.intro': 'Which ATEM mixer multiviewer do you want to configure?',
   'common.delete': 'Delete',
   'common.reset': 'Reset',
   'common.apply': 'Apply',
