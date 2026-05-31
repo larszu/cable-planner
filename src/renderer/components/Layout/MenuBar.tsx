@@ -5,9 +5,17 @@ import {
   Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, SlidersHorizontal, Tag,
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
   Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles,
+  Maximize, ZoomIn, ZoomOut, Scan, BoxSelect,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
-import { triggerCanvasDuplicate } from '../../lib/canvasViewport'
+import {
+  triggerCanvasDuplicate,
+  triggerCanvasSelectAll,
+  triggerCanvasFitView,
+  triggerCanvasZoomIn,
+  triggerCanvasZoomOut,
+  triggerCanvasResetZoom,
+} from '../../lib/canvasViewport'
 import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
 import { useTranslation } from '../../lib/i18n'
 import { projectHistory } from '../../store/projectHistory'
@@ -261,6 +269,13 @@ export const MenuBar = ({
             {t('app.menu.edit.delete', 'Auswahl löschen')}
           </MenuItem>
           <MenuItem
+            onClick={() => triggerCanvasSelectAll()}
+            icon={<Icon icon={BoxSelect} size="sm" />}
+            shortcut={t('shortcut.ctrlA', 'Strg+A')}
+          >
+            {t('app.menu.edit.selectAll', 'Alles auswählen')}
+          </MenuItem>
+          <MenuItem
             onClick={() => useProjectStore.getState().setSelection()}
             shortcut={t('shortcut.esc', 'Esc')}
           >
@@ -359,8 +374,21 @@ export const MenuBar = ({
         </Menu>
 
         <Menu label={t('app.menu.view', 'Ansicht')}>
-          {/* #341 — View-Toggles redundant zum Toolbar-Zugang; Häkchen
-              zeigt den aktuellen Zustand (beim erneuten Öffnen). */}
+          {/* #341 — Zoom-Aktionen + View-Toggles (Toolbar-redundant);
+              Häkchen zeigt den aktuellen Zustand beim erneuten Öffnen. */}
+          <MenuItem onClick={() => triggerCanvasFitView()} icon={<Icon icon={Maximize} size="sm" />}>
+            {t('app.menu.view.fit', 'Einpassen')}
+          </MenuItem>
+          <MenuItem onClick={() => triggerCanvasResetZoom()} icon={<Icon icon={Scan} size="sm" />}>
+            {t('app.menu.view.zoom100', 'Zoom 100 %')}
+          </MenuItem>
+          <MenuItem onClick={() => triggerCanvasZoomIn()} icon={<Icon icon={ZoomIn} size="sm" />}>
+            {t('app.menu.view.zoomIn', 'Vergrößern')}
+          </MenuItem>
+          <MenuItem onClick={() => triggerCanvasZoomOut()} icon={<Icon icon={ZoomOut} size="sm" />}>
+            {t('app.menu.view.zoomOut', 'Verkleinern')}
+          </MenuItem>
+          <MenuSep />
           <MenuItem
             onClick={() => useUiStore.getState().setCanvasTheme(canvasTheme === 'dark' ? 'light' : 'dark')}
             icon={canvasTheme === 'light' ? <Icon icon={Check} size="sm" /> : null}

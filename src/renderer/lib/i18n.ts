@@ -1309,6 +1309,7 @@ const en: Dict = {
   'locbom.col.category': 'Category',
   'locbom.col.sn': 'S/N',
   'locbom.col.ip': 'IP',
+  'locbom.col.specs': 'Specs',
   'locbom.col.packed': 'Pack',
   'locbom.col.qty': 'Qty',
   'locbom.col.type': 'Type',
@@ -3037,15 +3038,21 @@ const en: Dict = {
   'app.menu.view.hideLabels': 'Hide cable labels',
   'app.menu.view.colorByLength': 'Color cables by length',
   'app.menu.view.annotations': 'Annotations panel',
+  'app.menu.view.fit': 'Fit to view',
+  'app.menu.view.zoom100': 'Zoom 100 %',
+  'app.menu.view.zoomIn': 'Zoom in',
+  'app.menu.view.zoomOut': 'Zoom out',
   'app.menu.edit': 'Edit',
   'app.menu.edit.undo': 'Undo',
   'app.menu.edit.redo': 'Redo',
   'app.menu.edit.duplicate': 'Duplicate',
   'app.menu.edit.delete': 'Delete selection',
+  'app.menu.edit.selectAll': 'Select all',
   'app.menu.edit.clearSelection': 'Clear selection',
   'shortcut.ctrlZ': 'Ctrl+Z',
   'shortcut.ctrlY': 'Ctrl+Y',
   'shortcut.ctrlD': 'Ctrl+D',
+  'shortcut.ctrlA': 'Ctrl+A',
   'shortcut.del': 'Del',
   'shortcut.esc': 'Esc',
   // Analysen-Dialog (#346/#351/#352)
@@ -3283,6 +3290,12 @@ const en: Dict = {
     'Tally (red = on-air/PGM, green = preview) and GPI/GPO contact closures for record triggers, cues, lamps. Often D-Sub or terminal blocks.',
   'catalog.cable.hdbaset-cat6a.notes':
     'HDBaseT: video (up to 4K), audio, control (RS-232/IR), Ethernet and power (PoH) over one Cat6/6a run up to ~100 m.',
+  'catalog.cable.hdmi-aoc.notes':
+    'Active Optical HDMI: integrated fibre carries HDMI far beyond passive copper (~100 m). Directional (source → sink); not bidirectional.',
+  'catalog.cable.dp-aoc.notes':
+    'Active Optical DisplayPort for long runs (~50 m) past the ~3 m passive limit. Directional, source → sink.',
+  'catalog.cable.usbc-aoc.notes':
+    'Active Optical USB-C (USB 3.x / DP-Alt-Mode video) for ~30 m runs. Directional; bus power is limited on AOC.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Main standard. Level A recommended; Level B for older equipment.',
@@ -3385,6 +3398,12 @@ const de: Dict = {
     'Tally (rot = On-Air/PGM, grün = Preview) und GPI/GPO-Kontaktschlüsse für Record-Trigger, Cues, Lampen. Oft D-Sub oder Klemmen.',
   'catalog.cable.hdbaset-cat6a.notes':
     'HDBaseT: Video (bis 4K), Audio, Steuerung (RS-232/IR), Ethernet und Strom (PoH) über ein Cat6/6a bis ~100 m.',
+  'catalog.cable.hdmi-aoc.notes':
+    'Active Optical HDMI: integrierte Glasfaser überträgt HDMI weit über Passiv-Kupfer hinaus (~100 m). Gerichtet (Quelle → Senke), nicht bidirektional.',
+  'catalog.cable.dp-aoc.notes':
+    'Active Optical DisplayPort für lange Strecken (~50 m) jenseits der ~3 m Passiv-Grenze. Gerichtet, Quelle → Senke.',
+  'catalog.cable.usbc-aoc.notes':
+    'Active Optical USB-C (USB 3.x / DP-Alt-Mode-Video) für ~30 m. Gerichtet; Bus-Power auf AOC eingeschränkt.',
   // Video format catalog notes
   'catalog.videoFormat.1080p50.notes':
     'Hauptstandard. Level A empfohlen; Level B bei älteren Geräten.',

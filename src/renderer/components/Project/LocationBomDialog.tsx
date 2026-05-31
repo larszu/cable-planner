@@ -7,6 +7,8 @@ import { ModalShell } from '../shared/ModalShell'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { useTranslation } from '../../lib/i18n'
+import { formatCategoryProps } from '../../lib/categorySchemas'
+import type { Lang } from '../../lib/categoryTranslations'
 
 /**
  * Issue #39 — Frame-scoped Bill of Materials. For a selected location/frame
@@ -25,6 +27,8 @@ export const LocationBomDialog = () => {
   const close = useUiStore((s) => s.closeLocationBom)
   const project = useProjectStore((s) => s.project)
   const canvasTheme = useUiStore((s) => s.canvasTheme)
+  // #373 — Fachdaten (categoryProps) sprach-aufgelöst in BOM/Export mitführen.
+  const lang: Lang = useUiStore((s) => s.language) === 'en' ? 'en' : 'de'
   // Issue #54: optionally embed a snapshot of the canvas (cropped to the
   // location's bbox) as the first page so the recipient gets the plan +
   // the parts list in one document. Off by default — capturing a 2.4 MB
@@ -214,6 +218,19 @@ export const LocationBomDialog = () => {
         const box = d.packed ? '[x]' : '[ ]'
         pdf.text(sanitizeForPdf(`${box} ${d.name}  [${d.category}]${sn}${ip}`), margin, y)
         y += 11
+        // #373 — Kategorie-Fachdaten als eingerückte Folgezeile(n).
+        const specs = formatCategoryProps(d.category, d.categoryProps, lang)
+        if (specs) {
+          const maxW = pdf.internal.pageSize.getWidth() - margin * 2
+          for (const ln of pdf.splitTextToSize(sanitizeForPdf(specs), maxW) as string[]) {
+            if (y > 780) {
+              pdf.addPage()
+              y = margin
+            }
+            pdf.text(`    ${ln}`, margin, y)
+            y += 10
+          }
+        }
       }
 
       y += 8
@@ -338,6 +355,7 @@ export const LocationBomDialog = () => {
                 <th className="px-2 py-1 text-left">{t('locbom.col.category', 'Kategorie')}</th>
                 <th className="px-2 py-1 text-left">{t('locbom.col.sn', 'S/N')}</th>
                 <th className="px-2 py-1 text-left">{t('locbom.col.ip', 'IP')}</th>
+                <th className="px-2 py-1 text-left">{t('locbom.col.specs', 'Fachdaten')}</th>
               </tr>
             </thead>
             <tbody>
@@ -351,6 +369,9 @@ export const LocationBomDialog = () => {
                   </td>
                   <td className="px-2 py-1 font-mono text-slate-400">
                     {d.ipAddress ?? '—'}
+                  </td>
+                  <td className="px-2 py-1 text-slate-400">
+                    {formatCategoryProps(d.category, d.categoryProps, lang) || '—'}
                   </td>
                 </tr>
               ))}
