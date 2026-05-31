@@ -17,7 +17,7 @@
  *
  * Quelle für die Fachfelder: BET-Fachwörterbuch (bet.de/lexikon) —
  * vgl. Issues #374 (Objektive), #375 (Kameras), #379 (Licht), #383 (Audio),
- * #391 (Netzwerk), #392 (Strom).
+ * #391 (Netzwerk), #392 (Strom), #393 (Monitore), #394 (Stative/Rigging).
  */
 import type { Lang } from './categoryTranslations'
 
@@ -170,6 +170,54 @@ export const CATEGORY_SCHEMAS: Record<string, CategoryFieldDef[]> = {
     { key: 'upsRuntimeMin', label: L('USV-Laufzeit', 'UPS runtime'), type: 'number', unit: 'min' },
     { key: 'powerFactor', label: L('Leistungsfaktor (cos φ)', 'Power factor (cos φ)'), type: 'number' },
   ],
+  // #393 — Monitor-Fachfelder zusätzlich zu Auflösung/Diagonale
+  // (die bleiben im DisplayPropertiesBlock).
+  Monitore: [
+    {
+      key: 'panelType',
+      label: L('Panel-Typ', 'Panel type'),
+      type: 'select',
+      options: [opt('oled', 'OLED', 'OLED'), opt('lcdips', 'LCD-IPS', 'LCD-IPS'), opt('ledwall', 'LED-Wall', 'LED wall'), opt('tft', 'LCD-TFT', 'LCD-TFT')],
+    },
+    {
+      key: 'hdr',
+      label: L('HDR', 'HDR'),
+      type: 'select',
+      options: [opt('none', 'keine', 'none'), opt('hdr10', 'HDR10', 'HDR10'), opt('hlg', 'HLG', 'HLG'), opt('pq', 'PQ', 'PQ'), opt('dolby', 'Dolby Vision', 'Dolby Vision')],
+    },
+    { key: 'brightnessNits', label: L('Helligkeit', 'Brightness'), type: 'number', unit: 'nits' },
+    { key: 'refreshHz', label: L('Bildrate', 'Refresh rate'), type: 'number', unit: 'Hz' },
+    {
+      key: 'colorSpace',
+      label: L('Farbraum / Kalibrierung', 'Colour space / calibration'),
+      type: 'select',
+      options: [opt('rec709', 'Rec.709', 'Rec.709'), opt('rec2020', 'Rec.2020', 'Rec.2020'), opt('dcip3', 'DCI-P3', 'DCI-P3'), opt('srgb', 'sRGB', 'sRGB')],
+    },
+    { key: 'reference', label: L('Class-1 / Referenz', 'Class-1 / reference'), type: 'boolean' },
+  ],
+  // #394 — Stativ-/Support-Mechanik (Traglast/WLL, Höhe, Kopf, Gewicht).
+  Stative: [
+    { key: 'payloadKg', label: L('Traglast / WLL', 'Payload / WLL'), type: 'number', unit: 'kg' },
+    { key: 'heightRange', label: L('Höhenbereich', 'Height range'), type: 'text', unit: 'm', placeholder: '0.7-2.1' },
+    {
+      key: 'headType',
+      label: L('Stativkopf-Typ', 'Head type'),
+      type: 'select',
+      options: [opt('fluid', 'Fluid', 'Fluid'), opt('bowl75', 'Schale 75 mm', 'Bowl 75 mm'), opt('bowl100', 'Schale 100 mm', 'Bowl 100 mm'), opt('flat', 'Flat-Base', 'Flat base')],
+    },
+    { key: 'weightKg', label: L('Eigengewicht', 'Weight'), type: 'number', unit: 'kg' },
+  ],
+  // #394 — Rigging/Traversen (WLL + Eigengewicht fliessen in #351).
+  Rigging: [
+    { key: 'wllKg', label: L('Traglast / WLL', 'WLL'), type: 'number', unit: 'kg' },
+    {
+      key: 'riggingType',
+      label: L('Typ', 'Type'),
+      type: 'select',
+      options: [opt('truss', 'Traverse', 'Truss'), opt('hoist', 'Motor/Kettenzug', 'Hoist'), opt('clamp', 'Schelle/Clamp', 'Clamp'), opt('bumper', 'Bumper/Frame', 'Bumper/frame'), opt('steel', 'Stahlseil/Schäkel', 'Steel/shackle')],
+    },
+    { key: 'weightKg', label: L('Eigengewicht', 'Weight'), type: 'number', unit: 'kg' },
+  ],
 }
 
 const norm = (s: string) => s.trim().toLowerCase()
@@ -185,6 +233,8 @@ const EN_ALIAS: Record<string, string> = {
   audio: 'audio',
   networking: 'netzwerk',
   power: 'strom',
+  monitors: 'monitore',
+  tripods: 'stative',
 }
 
 /** Feld-Schema für eine Kategorie (case-insensitiv, DE + EN). Leeres Array = keine Fachfelder. */

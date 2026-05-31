@@ -534,6 +534,33 @@ export const cableCatalog: CableSpec[] = [
     color: '#2dd4bf',
     notesKey: 'catalog.cable.hdbaset-cat6a.notes',
   },
+  {
+    id: 'hdmi-aoc',
+    name: 'HDMI AOC (Active Optical, bis ~100 m)',
+    connectorType: 'HDMI',
+    standards: ['HDMI-1.4', 'HDMI-2.0', 'HDMI-2.1'],
+    maxLengthMeters: 100,
+    color: '#a855f7',
+    notesKey: 'catalog.cable.hdmi-aoc.notes',
+  },
+  {
+    id: 'dp-aoc',
+    name: 'DisplayPort AOC (Active Optical, bis ~50 m)',
+    connectorType: 'DisplayPort',
+    standards: ['DP-1.2', 'DP-1.4', 'DP-2.0'],
+    maxLengthMeters: 50,
+    color: '#8b5cf6',
+    notesKey: 'catalog.cable.dp-aoc.notes',
+  },
+  {
+    id: 'usbc-aoc',
+    name: 'USB-C AOC (Active Optical, bis ~30 m)',
+    connectorType: 'USB-C',
+    standards: ['USB-3.x'],
+    maxLengthMeters: 30,
+    color: '#7c3aed',
+    notesKey: 'catalog.cable.usbc-aoc.notes',
+  },
 ]
 
 /** Same physical connector families that can be connected directly without an adapter. */
