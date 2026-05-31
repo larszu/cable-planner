@@ -303,6 +303,7 @@ export default function App() {
   }, [libraryReady, projectVersion])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- PDF-Export öffnet → Theme einmalig auf hell setzen
     if (pdfExportOpen) setPdfTheme('light')
   }, [pdfExportOpen])
 

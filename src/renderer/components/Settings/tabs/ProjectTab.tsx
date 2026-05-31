@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useSyncedState } from '../../../hooks/useSyncedState'
 import { Download, Upload, Loader2, X } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
@@ -360,9 +361,8 @@ const LengthEstimationSection = () => {
 export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
   const metadata = useProjectStore((s) => s.project.metadata)
   const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
-  const [draftMeta, setDraftMeta] = useState(metadata)
+  const [draftMeta, setDraftMeta] = useSyncedState(metadata)
   const t = useTranslation()
-  useEffect(() => setDraftMeta(metadata), [metadata])
 
   const persistMeta = () =>
     updateProjectMetadata({

@@ -117,6 +117,7 @@ export const CableContextMenu = () => {
   // strand the menu at the old coordinates).
   useEffect(() => {
     if (!menu.open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Submenu beim Schließen zurücksetzen (neben Outside-Click/Escape-Listener)
       setSubmenu(null)
       return
     }

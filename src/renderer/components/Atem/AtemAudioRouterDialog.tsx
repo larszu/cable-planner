@@ -69,6 +69,7 @@ export const AtemAudioRouterDialog = () => {
   // {sources,outputs} shape into the new {matrix:{...}} wrapper.
   useEffect(() => {
     if (!open) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Draft beim Dialog-Öffnen aus equipment seeden (keyed sync)
     setErrorMsg('')
     const stored = equipment?.atemAudioConfig
     if (!stored) {
