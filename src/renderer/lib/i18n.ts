@@ -2985,7 +2985,7 @@ const en: Dict = {
   'app.menu.file.exportJpeg': 'Export plan as JPEG…',
   'app.menu.file.exportPdf': 'Export plan as PDF…',
   'app.menu.file.exportPng': 'Export plan as PNG…',
-  'app.menu.file.exportViewer': 'Export as viewer file for freelancers…',
+  'app.menu.file.exportViewer': 'Export as viewer file…',
   'app.menu.file.importAnnotations': 'Import annotations from viewer file…',
   'app.menu.file.importGraphml': 'Import yEd / GraphML…',
   'app.menu.help.about': 'About Cable Planner…',
