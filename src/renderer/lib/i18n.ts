@@ -1921,6 +1921,13 @@ const en: Dict = {
   'flags.title': 'Display & flags',
   'flags.subtitle': 'compact · colour · packed',
   'flags.colorTitle': 'Device node colour',
+  'roles.tc': 'Timecode',
+  'roles.tally': 'Tally',
+  'roles.embed': 'Embedding',
+  'roles.source': 'Source',
+  'roles.sink': 'Sink',
+  'roles.embedder': 'Embedder',
+  'roles.deembedder': 'De-embedder',
   'flags.packedTitle':
     'Marks the device as packed. Shown as ✓ on the canvas and as a column in the device BOM.',
   'flags.converterTitle':
