@@ -17,5 +17,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/renderer", "src/vite-env.d.ts"]
+  "include": ["src/renderer", "src/viewer", "src/vite-env.d.ts"]
 }
