@@ -2331,6 +2331,7 @@ const en: Dict = {
   'calc.bandwidth.fitsIn': 'Fits in {tier} ({mbps} Mbps).',
   'calc.bandwidth.exceeds':
     'Exceeds 12G-SDI — only IP transport (ST 2110, NDI, JPEG-XS …) will carry it.',
+  'calc.bandwidth.signalStds': 'IP / digital signal standards',
   'calc.power.intro1': 'Sum of the consumption values in the device properties',
   'calc.power.wattsField': 'Power (W)',
   'calc.power.intro2':
