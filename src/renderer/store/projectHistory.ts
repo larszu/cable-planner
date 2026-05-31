@@ -51,6 +51,25 @@ const pushPast = (entry: CablePlannerProject): void => {
   future = []
 }
 
+/** #382 — True wenn sich `a`→`b` ausschliesslich im `canvasState`
+ *  (Viewport Pan/Zoom via setCanvasState) unterscheidet. Slices machen
+ *  immutable Updates, daher sind bei einer reinen Viewport-Aenderung alle
+ *  uebrigen Top-Level-Felder referenz-gleich. Solche Aenderungen sind keine
+ *  undobaren Daten-Edits — sonst frisst ein automatischer Viewport-Fit
+ *  (z.B. nach yEd-Import) einen Undo-Schritt, und das erste Strg+Z nimmt
+ *  nur den Viewport zurueck statt den Import. */
+const onlyViewportChanged = (a: CablePlannerProject, b: CablePlannerProject): boolean => {
+  if (a === b || a.canvasState === b.canvasState) return false
+  const ak = Object.keys(a) as (keyof CablePlannerProject)[]
+  const bk = Object.keys(b) as (keyof CablePlannerProject)[]
+  if (ak.length !== bk.length) return false
+  for (const k of ak) {
+    if (k === 'canvasState') continue
+    if (a[k] !== b[k]) return false
+  }
+  return true
+}
+
 useProjectStore.subscribe((state) => {
   if (state.project === lastProject) return
   if (suppress) {
@@ -61,6 +80,15 @@ useProjectStore.subscribe((state) => {
   // mit-tracken aber NICHT als History-Entry pushen. Der eine Entry wird
   // bei endTransaction() aus transactionStartProject erzeugt.
   if (transactionDepth > 0) {
+    lastProject = state.project
+    return
+  }
+  // #382 — Reine Viewport-Aenderungen (Pan/Zoom) erzeugen keinen Undo-
+  // Schritt. Der yEd-Import pant nach dem Einfuegen automatisch auf die
+  // neuen Geraete (setCanvasState ueber onMoveEnd); ohne diesen Filter
+  // landete dieser Pan als eigener History-Entry und das erste Strg+Z
+  // machte nur den Pan rueckgaengig statt den Import.
+  if (onlyViewportChanged(lastProject, state.project)) {
     lastProject = state.project
     return
   }

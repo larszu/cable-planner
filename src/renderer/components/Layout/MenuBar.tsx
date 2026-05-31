@@ -4,7 +4,7 @@ import {
   Image as ImageIcon, Calculator, Eye, MessageSquare, Paperclip, Plug, Cable,
   Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, SlidersHorizontal, Tag,
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
-  Pencil, Smartphone, Settings, HardDrive, Copy,
+  Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { triggerCanvasDuplicate } from '../../lib/canvasViewport'
@@ -309,13 +309,13 @@ export const MenuBar = ({
           <MenuItem onClick={() => useUiStore.getState().openAnalysis()} icon={<Icon icon={BarChart3} size="sm" />}>
             {t('app.menu.tools.analysis', 'Analysen (Gewicht/Netzwerk/Redundanz)…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openPlanCheck()} icon="🩺">
+          <MenuItem onClick={() => useUiStore.getState().openPlanCheck()} icon={<Icon icon={ClipboardCheck} size="sm" />}>
             {t('app.menu.tools.planCheck', 'Plan-Check…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openRevisions()} icon="🕑">
+          <MenuItem onClick={() => useUiStore.getState().openRevisions()} icon={<Icon icon={History} size="sm" />}>
             {t('app.menu.tools.revisions', 'Revisionen & Snapshots…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openAiPlanGen()} icon="✨">
+          <MenuItem onClick={() => useUiStore.getState().openAiPlanGen()} icon={<Icon icon={Sparkles} size="sm" />}>
             {t('app.menu.tools.aiPlanGen', 'KI-Plan generieren…')}
           </MenuItem>
           <MenuSep />
