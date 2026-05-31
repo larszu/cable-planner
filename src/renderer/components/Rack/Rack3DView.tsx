@@ -869,6 +869,10 @@ const CameraKeyboardController = ({
       window.removeEventListener('keyup', onKeyUp)
     }
   }, [])
+  // R3F runs useFrame in the three.js render loop, where mutating the camera /
+  // orbit target each frame is the idiomatic imperative pattern — the compiler's
+  // immutability model doesn't apply to that loop.
+  /* eslint-disable react-hooks/immutability */
   useFrame((_, delta) => {
     if (!keys.current.shift && !keys.current.space) return
     const speed = 800 * delta
@@ -879,6 +883,7 @@ const CameraKeyboardController = ({
       orbitTargetRef.current.update?.()
     }
   })
+  /* eslint-enable react-hooks/immutability */
   return null
 }
 
