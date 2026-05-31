@@ -84,7 +84,10 @@ export const RackImageCropDialog = ({
   const overlayRef = useRef<HTMLDivElement | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const dragStartRef = useRef<{ pointerNx: number; pointerNy: number; crop: CropRect } | null>(null)
-  const drag = useDraggablePosition('cable-planner:modal-pos:rack-crop', open)
+  const { containerRef, containerStyle, headerProps } = useDraggablePosition(
+    'cable-planner:modal-pos:rack-crop',
+    open,
+  )
 
   useEffect(() => {
     if (open) {
@@ -172,7 +175,11 @@ export const RackImageCropDialog = ({
     setCrop({ x: left, y: top, width: right - left, height: bottom - top })
   }
 
-  const onPointerDown = (handle: HandleId | 'move') => (event: React.PointerEvent<HTMLDivElement>) => {
+  // Not curried: a curried handler called as onPointerDown('move') during
+  // render makes the compiler treat the inner closure's ref access as
+  // render-reachable (react-hooks/refs). Plain (handle, event) + an inline
+  // arrow at the call site keeps the ref writes inside a real handler.
+  const handlePointerDown = (handle: HandleId | 'move', event: React.PointerEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
     const norm = pointerToNormalized(event)
@@ -297,12 +304,12 @@ export const RackImageCropDialog = ({
       onKeyDown={onKeyDown}
     >
       <div
-        ref={drag.containerRef}
-        style={drag.containerStyle}
+        ref={containerRef}
+        style={containerStyle}
         className="max-h-[94vh] w-full max-w-5xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4 text-slate-100 shadow-2xl"
       >
         <div
-          {...drag.headerProps}
+          {...headerProps}
           className="mb-3 flex items-start justify-between gap-3 select-none"
         >
           <div>
@@ -400,7 +407,7 @@ export const RackImageCropDialog = ({
                       boxShadow: cropGlow,
                       cursor: activeHandle === 'move' ? 'grabbing' : 'grab',
                     }}
-                    onPointerDown={onPointerDown('move')}
+                    onPointerDown={(e) => handlePointerDown('move', e)}
                   >
                     {/* Live HE badge inside the crop box */}
                     <div className="pointer-events-none absolute right-1 top-1 rounded bg-cyan-600/90 px-1.5 py-0.5 text-[10px] font-semibold text-white shadow">
@@ -412,7 +419,7 @@ export const RackImageCropDialog = ({
                       return (
                         <div
                           key={id}
-                          onPointerDown={onPointerDown(id)}
+                          onPointerDown={(e) => handlePointerDown(id, e)}
                           className="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-sm border border-cyan-200 bg-cyan-400 hover:bg-cyan-300"
                           style={{ left: def.left, top: def.top, cursor: def.cursor, touchAction: 'none' }}
                         />
