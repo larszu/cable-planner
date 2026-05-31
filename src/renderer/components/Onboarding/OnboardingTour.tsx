@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
-import { STORAGE_KEYS } from '../../lib/storageKeys'
 import { ModalShell } from '../shared/ModalShell'
 import { format, useTranslation } from '../../lib/i18n'
-
-const TOUR_STORAGE_KEY = STORAGE_KEYS.tourSeenV1
+import { markTourSeen } from './onboardingState'
 
 /**
  * One-time onboarding tour shown on first launch (and re-openable from the
@@ -12,25 +10,9 @@ const TOUR_STORAGE_KEY = STORAGE_KEYS.tourSeenV1
  * platform-specific scrollbars, and the slides describe relocations more
  * concisely as plain text.
  *
- * Persistence: a `localStorage` flag is written once the user finishes (or
- * dismisses) the tour. Use `markTourSeen` from outside to skip future
- * automatic openings; use `resetTour` to reset for testing.
+ * Persistence helpers (`hasSeenTour` / `markTourSeen`) live in
+ * `./onboardingState` so this module only exports the component.
  */
-export const hasSeenTour = (): boolean => {
-  try {
-    return window.localStorage.getItem(TOUR_STORAGE_KEY) === '1'
-  } catch {
-    return true
-  }
-}
-
-export const markTourSeen = (): void => {
-  try {
-    window.localStorage.setItem(TOUR_STORAGE_KEY, '1')
-  } catch {
-    /* storage unavailable — skip */
-  }
-}
 
 interface TourStep {
   title: string

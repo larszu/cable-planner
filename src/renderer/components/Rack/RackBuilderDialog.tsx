@@ -287,7 +287,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     { placementId: string; side: 'front' | 'rear'; src: string } | null
   >(null)
 
-  const drag = useDraggablePosition('cable-planner:modal-pos:rack-builder', open)
+  const { containerRef, containerStyle, headerProps } = useDraggablePosition(
+    'cable-planner:modal-pos:rack-builder',
+    open,
+  )
 
   // Zoom multiplier on top of the auto-fit row height (1 = fit-to-width).
   const [zoom, setZoom] = useState(1)
@@ -724,8 +727,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-2 sm:p-6">
       <div
-        ref={drag.containerRef}
-        style={drag.containerStyle}
+        ref={containerRef}
+        style={containerStyle}
         // v7.9.2 — responsive: kein fixes 1400px max-width, sondern
         // 100vw mit Padding. Verhindert horizontal-Scroll auf Laptops.
         className="max-h-[96vh] w-[min(1400px,calc(100vw-1rem))] overflow-auto rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl sm:p-4"
@@ -734,7 +737,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           editingId={editingId}
           rackName={draft.rackName}
           dirty={dirty}
-          headerProps={drag.headerProps}
+          headerProps={headerProps}
           onClose={closeWithConfirm}
           exportMenuSlot={
             <RackBuilderDialogExportMenu
@@ -743,8 +746,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               depthMm={draft.depthMm}
               placements={draft.placements}
               editingId={editingId}
-              rackCanvasEl={rackCanvasRef.current}
-              canvas3DRefs={canvas3DRefs.current}
+              rackCanvasRef={rackCanvasRef}
+              canvas3DRefs={canvas3DRefs}
             />
           }
         />

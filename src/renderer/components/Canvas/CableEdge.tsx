@@ -132,7 +132,7 @@ const buildPathWithBumps = (
  *  Any diagonal is replaced by an L-corner (horizontal-first). Already
  *  orthogonal segments are passed through unchanged so we don't introduce
  *  spurious bends that make the cable visually "jump". */
-export function normalizeOrthogonal(
+function normalizeOrthogonal(
   src: { x: number; y: number },
   wps: { x: number; y: number }[],
   tgt: { x: number; y: number },

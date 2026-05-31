@@ -66,20 +66,6 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
   const linkedProjectId = project.metadata.rentmanProjectId
   const linkedProjectName = project.metadata.rentmanProjectName
 
-  useEffect(() => {
-    if (!open) {
-      setStatusByKey({})
-      setPickerKey(null)
-      setPickerQuery('')
-      return
-    }
-    // Auto-load the Rentman catalogue the first time the dialog opens so the
-    // user can immediately see equipment names instead of bare IDs and the
-    // "Send all" button works without an extra click.
-    if (!catalogLoaded && !catalogLoading) void fetchCatalog()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open])
-
   const fetchCatalog = async () => {
     setCatalogLoading(true)
     setCatalogError(null)
@@ -112,6 +98,22 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
       setCatalogLoading(false)
     }
   }
+
+  // Nach fetchCatalog deklariert, damit der React-Compiler die Funktion vor
+  // dem Zugriff sieht (react-hooks/immutability).
+  useEffect(() => {
+    if (!open) {
+      setStatusByKey({})
+      setPickerKey(null)
+      setPickerQuery('')
+      return
+    }
+    // Auto-load the Rentman catalogue the first time the dialog opens so the
+    // user can immediately see equipment names instead of bare IDs and the
+    // "Send all" button works without an extra click.
+    if (!catalogLoaded && !catalogLoading) void fetchCatalog()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
 
   const buckets: CableBucket[] = useMemo(() => {
     if (!open) return []

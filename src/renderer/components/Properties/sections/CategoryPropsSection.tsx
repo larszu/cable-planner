@@ -101,6 +101,13 @@ export const CategoryPropsSection = ({ equipment }: { equipment: EquipmentItem }
   const lang: Lang = useUiStore((s) => s.language) === 'en' ? 'en' : 'de'
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
 
+  const props = equipment.categoryProps ?? {}
+  // Ein-/ausklappbar (wie SDI-Caps / Abmessungen). Default offen, wenn schon
+  // Fachdaten gesetzt sind, sonst eingeklappt. <summary> statt Form-Control,
+  // damit das Toggle auch im gesperrten (viewer/finalized) Fieldset geht.
+  // Hook muss vor dem Early-Return stehen (rules-of-hooks).
+  const [open, setOpen] = useState(Object.keys(props).length > 0)
+
   const fields = schemaForCategory(equipment.category)
   const props = equipment.categoryProps ?? {}
 

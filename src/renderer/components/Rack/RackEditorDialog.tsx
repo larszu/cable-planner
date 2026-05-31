@@ -208,7 +208,10 @@ export const RackEditorDialog = () => {
   const t = useTranslation()
   const slot = useUiStore((s) => s.rackEditor)
   const close = useUiStore((s) => s.closeRackEditor)
-  const drag = useDraggablePosition('cable-planner:modal-pos:rack-editor', slot.open)
+  const { containerRef, containerStyle, headerProps } = useDraggablePosition(
+    'cable-planner:modal-pos:rack-editor',
+    slot.open,
+  )
   if (!slot.open || !slot.rackInstanceId) return null
 
   return (
@@ -217,12 +220,12 @@ export const RackEditorDialog = () => {
       onMouseDown={(e) => e.target === e.currentTarget && close()}
     >
       <div
-        ref={drag.containerRef}
-        style={drag.containerStyle}
+        ref={containerRef}
+        style={containerStyle}
         className="flex h-[80vh] w-full max-w-5xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
       >
         <header
-          {...drag.headerProps}
+          {...headerProps}
           className="flex items-center justify-between border-b border-slate-700 px-4 py-2 select-none"
         >
           <div>

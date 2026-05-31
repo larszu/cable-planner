@@ -49,7 +49,10 @@ export const AtemAudioRouterDialog = () => {
     getEquipmentById(s.project.equipment, deviceId),
   )
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
-  const drag = useDraggablePosition('cable-planner:modal-pos:atem-audio', open)
+  const { containerRef, containerStyle, headerProps } = useDraggablePosition(
+    'cable-planner:modal-pos:atem-audio',
+    open,
+  )
 
   const [draft, setDraft] = useState<AtemAudioConfig | null>(null)
   // v7.5.0 — the classic-mixer view was removed. The router now
@@ -299,12 +302,12 @@ export const AtemAudioRouterDialog = () => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div
-        ref={drag.containerRef}
-        style={drag.containerStyle}
+        ref={containerRef}
+        style={containerStyle}
         className="flex h-full max-h-[92vh] w-full max-w-[95vw] flex-col rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
       >
         <header
-          {...drag.headerProps}
+          {...headerProps}
           className="flex items-center justify-between border-b border-slate-700 px-4 py-2 select-none"
         >
           <div>

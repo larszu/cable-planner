@@ -41,7 +41,9 @@ export const ProjectMetaDialog = ({
   // wipe user input every time the parent re-renders with a new metadata
   // reference (e.g. after an autosave tick), making the dialog feel "dead".
   const initialRef = useRef(initial)
-  initialRef.current = initial
+  useEffect(() => {
+    initialRef.current = initial
+  })
 
   useEffect(() => {
     if (!open) return
