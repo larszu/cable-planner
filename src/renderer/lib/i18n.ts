@@ -2762,6 +2762,7 @@ const en: Dict = {
   'export.format.pngHint': 'Transparent possible, sharp',
   'export.format.jpegHint': 'Smaller, good for email',
   'export.format.svgHint': 'Scalable, for web / further processing',
+  'export.format.dxfHint': 'CAD/plotter — devices, cables & text on layers',
   'export.printPdfTitle': 'Open plan PDF in OS print dialog',
   'export.printOnlyPdf':
     'Printing only works with the PDF format — for PNG/JPEG just download.',

@@ -57,6 +57,9 @@ import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
 import { exportCanvasToPdfVector } from './lib/exportPdfVector'
 import { printPdfBlob } from './lib/printPdfBlob'
 import { exportCanvasToImage } from './lib/exportImage'
+import { exportProjectToDxf } from './lib/exportDxf'
+import { downloadBlob } from './lib/downloadBlob'
+import { buildExportFilename } from './lib/exportFilename'
 import { connectorToCableType } from './lib/cableInheritance'
 import { routeCable } from './lib/canvasViewport'
 import { useProjectStore } from './store/projectStore'
@@ -514,8 +517,18 @@ export default function App() {
   }
 
   // v7.7.1 — PNG / JPEG export (canvas only, no header / title block).
-  const handleExportImage = async (imgFormat: 'png' | 'jpeg' | 'svg') => {
+  const handleExportImage = async (imgFormat: 'png' | 'jpeg' | 'svg' | 'dxf') => {
     try {
+      if (imgFormat === 'dxf') {
+        // #355 — DXF wird strukturiert aus den Projektdaten erzeugt (nicht
+        // aus dem DOM), daher eigener Pfad statt exportCanvasToImage.
+        downloadBlob(
+          buildExportFilename(project.metadata.name, 'dxf'),
+          exportProjectToDxf(project),
+          'application/dxf',
+        )
+        return
+      }
       await exportCanvasToImage(project.metadata.name, imgFormat, {
         backgroundTheme: canvasTheme,
         bgVariant: exportBgVariant,
