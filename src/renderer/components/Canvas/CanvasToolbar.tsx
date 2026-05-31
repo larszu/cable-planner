@@ -13,12 +13,86 @@ import { Icon } from '../shared/Icon'
 
 type CanvasToolbarMode = 'main' | 'rack'
 
+/** Shared design tokens for the toolbar; derived from the light/dark theme. */
+type ToolbarTokens = {
+  iconBtnSize: number
+  bg: string
+  border: string
+  text: string
+  textMuted: string
+  btnBg: string
+  btnBgHover: string
+  btnActiveBg: string
+  btnActiveText: string
+  dividerColor: string
+}
+
+// v7.9.5 — Compact icon button: 28×28, transparent default, hover-bg,
+// active-state in sky-blue. Disabled = 40% opacity, not-allowed cursor.
+// Module-level (not defined during render) so React keeps a stable type.
+const IconButton = ({
+  title,
+  onClick,
+  active,
+  disabled,
+  children,
+  color,
+  T,
+}: {
+  title: string
+  onClick?: () => void
+  active?: boolean
+  disabled?: boolean
+  children: React.ReactNode
+  color?: string
+  T: ToolbarTokens
+}) => (
+  <button
+    type="button"
+    title={title}
+    aria-label={title}
+    aria-pressed={active}
+    onClick={onClick}
+    disabled={disabled}
+    style={{
+      width: T.iconBtnSize,
+      height: T.iconBtnSize,
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 0,
+      background: active ? T.btnActiveBg : T.btnBg,
+      color: active ? T.btnActiveText : (color ?? T.text),
+      border: '1px solid transparent',
+      borderRadius: 6,
+      cursor: disabled ? 'not-allowed' : 'pointer',
+      opacity: disabled ? 0.4 : 1,
+      transition: 'background 0.12s',
+    }}
+    onMouseEnter={(e) => {
+      if (!disabled && !active)
+        (e.currentTarget as HTMLButtonElement).style.background = T.btnBgHover
+    }}
+    onMouseLeave={(e) => {
+      if (!active)
+        (e.currentTarget as HTMLButtonElement).style.background = T.btnBg
+    }}
+  >
+    {children}
+  </button>
+)
+
 export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = {}) => {
   const t = useTranslation()
   // v7.9.5 — Toolbar frei verschiebbar (User-Request: "Mache die
   // toolbar im canvas frei verschiebbar"). useDraggablePosition liefert
   // den persistierten Offset relativ zur Default-Position top:8 left:8.
-  const drag = useDraggablePosition('cable-planner:canvas-toolbar-pos', true)
+  // Destructured so the compiler sees the ref (`containerRef`, only attached
+  // via `ref={}`) separately from the plain derived values (react-hooks/refs).
+  const { containerRef, containerStyle, headerProps } = useDraggablePosition(
+    'cable-planner:canvas-toolbar-pos',
+    true,
+  )
   // v7.9.0 / Issue #120 — open RackBuilder seeded with current selection
   const triggerRackBuilderFromSelection = useUiStore((s) => s.triggerRackBuilderFromSelection)
   const triggerRackBuilderEditFromBlackBox = useUiStore(
@@ -234,7 +308,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   }
 
   // v7.9.5 — Unified design tokens für die Toolbar.
-  const T = {
+  const T: ToolbarTokens = {
     iconBtnSize: 28,
     bg: isLight ? 'rgba(248,250,252,0.92)' : 'rgba(15,23,42,0.92)',
     border: isLight ? '#cbd5e1' : '#1f2937',
@@ -254,58 +328,6 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     alignSelf: 'center',
   }
 
-  // v7.9.5 — Compact icon button: 28×28, transparent default, hover-bg,
-  // active-state in sky-blue. Disabled = 40% opacity, not-allowed cursor.
-  const IconButton = ({
-    title,
-    onClick,
-    active,
-    disabled,
-    children,
-    color,
-  }: {
-    title: string
-    onClick?: () => void
-    active?: boolean
-    disabled?: boolean
-    children: React.ReactNode
-    color?: string
-  }) => (
-    <button
-      type="button"
-      title={title}
-      aria-label={title}
-      aria-pressed={active}
-      onClick={onClick}
-      disabled={disabled}
-      style={{
-        width: T.iconBtnSize,
-        height: T.iconBtnSize,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 0,
-        background: active ? T.btnActiveBg : T.btnBg,
-        color: active ? T.btnActiveText : (color ?? T.text),
-        border: '1px solid transparent',
-        borderRadius: 6,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.4 : 1,
-        transition: 'background 0.12s',
-      }}
-      onMouseEnter={(e) => {
-        if (!disabled && !active)
-          (e.currentTarget as HTMLButtonElement).style.background = T.btnBgHover
-      }}
-      onMouseLeave={(e) => {
-        if (!active)
-          (e.currentTarget as HTMLButtonElement).style.background = T.btnBg
-      }}
-    >
-      {children}
-    </button>
-  )
-
   // v7.9.19 — Reaktive Selection-Anzeige. getNodes() von useReactFlow
   // ist nur ein Lookup auf den aktuellen ReactFlow-Store; ohne
   // useOnSelectionChange würde die Toolbar nicht zwingend re-rendern
@@ -320,9 +342,12 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
       )
     },
   })
-  // Initiale Hydration (z.B. nach Project-Load mit erhaltener
-  // Selection) — getNodes() ist live; einmal beim Mount lesen.
+  // Initiale Hydration (z.B. nach Project-Load mit erhaltener Selection).
+  // ReactFlows getNodes() ist ein imperativer External-Store, der erst nach
+  // dem Canvas-Mount befüllt ist — daher einmaliger Sync per Effect statt
+  // Lazy-useState-Initializer (der einen leeren Store läse).
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- external-store sync
     setSelectedEquipmentIds(
       getNodes()
         .filter((n) => n.selected && n.type === 'equipment')
@@ -347,7 +372,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
 
   return (
     <div
-      ref={drag.containerRef}
+      ref={containerRef}
       className="nodrag nopan"
       style={{
         position: 'absolute',
@@ -366,7 +391,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           ? '0 8px 24px rgba(15,23,42,0.10), 0 2px 6px rgba(15,23,42,0.06)'
           : '0 8px 24px rgba(0,0,0,0.40), 0 2px 6px rgba(0,0,0,0.30)',
         fontSize: 11,
-        ...drag.containerStyle,
+        ...containerStyle,
         color: T.text,
         alignItems: 'center',
         backdropFilter: 'blur(8px)',
@@ -375,11 +400,11 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     >
       {/* ── Drag-Grip (verschiebt die Toolbar) ─────────────────────── */}
       <span
-        {...drag.headerProps}
+        {...headerProps}
         title={t('toolbar.dragHandle', 'Toolbar verschieben')}
         aria-label={t('toolbar.dragHandle', 'Toolbar verschieben')}
         style={{
-          ...drag.headerProps.style,
+          ...headerProps.style,
           display: 'inline-flex',
           alignItems: 'center',
           padding: '0 4px',
@@ -440,7 +465,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           auch ohne Auswahl ein leeres Rahmen-Rechteck erstellt. */}
       {mode === 'main' && (
         <>
-          <IconButton
+          <IconButton T={T}
             title={
               hasSelection
                 ? format(t('toolbar.location.addAround', 'Rahmen um die {count} markierten Geräte'), { count: selectedEquipmentIds.length })
@@ -468,7 +493,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
             </svg>
           </IconButton>
           {hasSelection && (
-            <IconButton
+            <IconButton T={T}
               title={format(t('toolbar.group.save', '{count} markierte Geräte als Gruppe speichern'), { count: selectedEquipmentIds.length })}
               onClick={() => setNamingGroup(true)}
             >
@@ -480,7 +505,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
             </IconButton>
           )}
           {hasSelection && !selectionContainsRack && (
-            <IconButton
+            <IconButton T={T}
               title={format(t('toolbar.rack.arrange', '{count} markierte Geräte im 2D-Rack-Builder anordnen'), { count: selectedEquipmentIds.length })}
               onClick={() => triggerRackBuilderFromSelection(selectedEquipmentIds)}
             >
@@ -496,7 +521,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               Rack (Black-Box mit rackInternalSnapshot) selektiert ist.
               Öffnet den 2D-Rack-Builder mit dem Source-Preset des Racks. */}
           {selectedEquipmentIds.length === 1 && selectionContainsRack && (
-            <IconButton
+            <IconButton T={T}
               title={t('toolbar.rack.edit', 'Dieses Rack im 2D-Rack-Builder bearbeiten')}
               onClick={() => triggerRackBuilderEditFromBlackBox(selectedEquipmentIds[0])}
             >
@@ -589,7 +614,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           >
             <Icon icon={Check} size="sm" />
           </button>
-          <IconButton title={t('toolbar.groupName.cancel', 'Abbrechen')} onClick={() => setNamingGroup(false)}>
+          <IconButton T={T} title={t('toolbar.groupName.cancel', 'Abbrechen')} onClick={() => setNamingGroup(false)}>
             <Icon icon={X} size="sm" />
           </IconButton>
         </form>
@@ -602,7 +627,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
       {alignEnabled && (
         <>
           <span style={dividerStyle} />
-          <IconButton
+          <IconButton T={T}
             title={
               selectedEquipmentIds.length === 1
                 ? t('toolbar.align.leftViewport', 'An linkem Viewport-Rand ausrichten')
@@ -616,7 +641,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               <rect x="2.5" y="8" width="9" height="3" fill="currentColor" stroke="none" />
             </svg>
           </IconButton>
-          <IconButton
+          <IconButton T={T}
             title={
               selectedEquipmentIds.length === 1
                 ? t('toolbar.align.centerHViewport', 'Horizontal in Viewport zentrieren')
@@ -630,7 +655,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               <rect x="2.5" y="8" width="9" height="3" fill="currentColor" stroke="none" />
             </svg>
           </IconButton>
-          <IconButton
+          <IconButton T={T}
             title={
               selectedEquipmentIds.length === 1
                 ? t('toolbar.align.rightViewport', 'An rechtem Viewport-Rand ausrichten')
@@ -644,7 +669,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               <rect x="2.5" y="8" width="9" height="3" fill="currentColor" stroke="none" />
             </svg>
           </IconButton>
-          <IconButton
+          <IconButton T={T}
             title={
               selectedEquipmentIds.length === 1
                 ? t('toolbar.align.topViewport', 'An oberem Viewport-Rand ausrichten')
@@ -658,7 +683,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               <rect x="8" y="2.5" width="3" height="9" fill="currentColor" stroke="none" />
             </svg>
           </IconButton>
-          <IconButton
+          <IconButton T={T}
             title={
               selectedEquipmentIds.length === 1
                 ? t('toolbar.align.centerVViewport', 'Vertikal in Viewport zentrieren')
@@ -672,7 +697,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               <rect x="8" y="2.5" width="3" height="9" fill="currentColor" stroke="none" />
             </svg>
           </IconButton>
-          <IconButton
+          <IconButton T={T}
             title={
               selectedEquipmentIds.length === 1
                 ? t('toolbar.align.bottomViewport', 'An unterem Viewport-Rand ausrichten')
@@ -688,7 +713,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           </IconButton>
           {distributeEnabled && (
             <>
-              <IconButton
+              <IconButton T={T}
                 title={t('toolbar.align.distH', 'Horizontal gleichmäßig verteilen')}
                 onClick={() => alignSelected('distribute-h')}
               >
@@ -698,7 +723,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
                   <rect x="9.5" y="3" width="2.5" height="8" fill="currentColor" stroke="none" />
                 </svg>
               </IconButton>
-              <IconButton
+              <IconButton T={T}
                 title={t('toolbar.align.distV', 'Vertikal gleichmäßig verteilen')}
                 onClick={() => alignSelected('distribute-v')}
               >
