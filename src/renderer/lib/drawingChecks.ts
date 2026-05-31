@@ -254,6 +254,34 @@ export const runDrawingChecks = (
     }
   }
 
+  // — Check 8: Timecode-Senken ohne TC-Quelle (#359) -------------------------
+  const tcSinks = equipment.filter((e) => e.tcRole === 'sink')
+  if (tcSinks.length > 0 && !equipment.some((e) => e.tcRole === 'source')) {
+    for (const e of tcSinks) {
+      findings.push({
+        id: `tc-no-source:${e.id}`,
+        severity: 'warning',
+        category: 'Timecode',
+        message: `${e.name}: TC-Senke, aber keine TC-Quelle (Generator) im Plan`,
+        equipmentId: e.id,
+      })
+    }
+  }
+
+  // — Check 9: Tally-Senken ohne Tally-Quelle (#360) -------------------------
+  const tallySinks = equipment.filter((e) => e.tallyRole === 'sink')
+  if (tallySinks.length > 0 && !equipment.some((e) => e.tallyRole === 'source')) {
+    for (const e of tallySinks) {
+      findings.push({
+        id: `tally-no-source:${e.id}`,
+        severity: 'warning',
+        category: 'Tally',
+        message: `${e.name}: Tally-Senke, aber keine Tally-Quelle (Mischer/Tally-Hub) im Plan`,
+        equipmentId: e.id,
+      })
+    }
+  }
+
   // Sortierung: error → warning → info, innerhalb stabil nach category.
   const rank: Record<CheckSeverity, number> = { error: 0, warning: 1, info: 2 }
   findings.sort((a, b) => rank[a.severity] - rank[b.severity] || a.category.localeCompare(b.category))

@@ -496,6 +496,23 @@ export interface EquipmentItem {
    *  bei mehrdeutigen Out-Kabeln zeigt die Patchliste den Wandler weiter
    *  als normales Ziel. Optional — bleibt undefined fuer normale Geraete. */
   isConverter?: boolean
+  /**
+   * #359 — Timecode-Rolle: 'source' = TC-Generator/Master, 'sink' = Gerät
+   * das TC empfängt (Kamera/Recorder/Pult). Der Plan-Check warnt, wenn es
+   * TC-Senken, aber keine TC-Quelle im Projekt gibt.
+   */
+  tcRole?: 'source' | 'sink'
+  /**
+   * #360 — Tally-Rolle: 'source' = Mischer/Tally-Hub, 'sink' = Kamera/
+   * Monitor/CCU. Plan-Check warnt bei Tally-Senken ohne Tally-Quelle.
+   */
+  tallyRole?: 'source' | 'sink'
+  /**
+   * #366 — Embedder/De-Embedder-Rolle für in SDI eingebettetes Audio
+   * (SMPTE ST 299/272). Informativ — kennzeichnet, wo Audio ins SDI
+   * eingebettet bzw. herausgelöst wird (Patch-/Audio-Input-Liste).
+   */
+  embedderRole?: 'embedder' | 'deembedder'
 }
 
 /**

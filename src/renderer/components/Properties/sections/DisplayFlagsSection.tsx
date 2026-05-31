@@ -74,6 +74,60 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
           />
           Wandler (Patchliste folgt Durchgangskabel)
         </label>
+        {/* #359/#360/#366 — Signal-Flow-Rollen (Timecode / Tally / Embedding). */}
+        <div className="grid grid-cols-3 gap-1 border-t border-slate-800 pt-2">
+          <label className="block text-[10px]">
+            <span className="mb-0.5 block text-slate-400">{t('roles.tc', 'Timecode')}</span>
+            <select
+              value={equipment.tcRole ?? ''}
+              onChange={(event) =>
+                updateEquipment(equipment.id, {
+                  tcRole: (event.target.value || undefined) as 'source' | 'sink' | undefined,
+                })
+              }
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1"
+            >
+              <option value="">—</option>
+              <option value="source">{t('roles.source', 'Quelle')}</option>
+              <option value="sink">{t('roles.sink', 'Senke')}</option>
+            </select>
+          </label>
+          <label className="block text-[10px]">
+            <span className="mb-0.5 block text-slate-400">{t('roles.tally', 'Tally')}</span>
+            <select
+              value={equipment.tallyRole ?? ''}
+              onChange={(event) =>
+                updateEquipment(equipment.id, {
+                  tallyRole: (event.target.value || undefined) as 'source' | 'sink' | undefined,
+                })
+              }
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1"
+            >
+              <option value="">—</option>
+              <option value="source">{t('roles.source', 'Quelle')}</option>
+              <option value="sink">{t('roles.sink', 'Senke')}</option>
+            </select>
+          </label>
+          <label className="block text-[10px]">
+            <span className="mb-0.5 block text-slate-400">{t('roles.embed', 'Embedding')}</span>
+            <select
+              value={equipment.embedderRole ?? ''}
+              onChange={(event) =>
+                updateEquipment(equipment.id, {
+                  embedderRole: (event.target.value || undefined) as
+                    | 'embedder'
+                    | 'deembedder'
+                    | undefined,
+                })
+              }
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1"
+            >
+              <option value="">—</option>
+              <option value="embedder">{t('roles.embedder', 'Embedder')}</option>
+              <option value="deembedder">{t('roles.deembedder', 'De-Embedder')}</option>
+            </select>
+          </label>
+        </div>
       </div>
     </SortableSection>
   )
