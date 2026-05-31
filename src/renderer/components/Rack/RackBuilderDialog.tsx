@@ -442,6 +442,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     // so existing autosaves of an unrelated "new rack" don't leak in.
     if (initialPreset) {
       const seeded = normalizeDraft(draftFromPreset(initialPreset))
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Draft beim Dialog-Öffnen seeden (keyed sync)
       setDraft(seeded)
       setLastSavedSnapshot(JSON.stringify(seeded))
       setSelectedPlacementId(seeded.placements[0]?.id ?? null)

@@ -27,6 +27,7 @@ export const useDraggablePosition = (storageKey: string, open: boolean) => {
       if (!raw) return
       const parsed = JSON.parse(raw) as { x: number; y: number }
       if (typeof parsed?.x === 'number' && typeof parsed?.y === 'number') {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Persistierten Offset beim Öffnen aus localStorage hydrieren
         setOffset(parsed)
       }
     } catch {

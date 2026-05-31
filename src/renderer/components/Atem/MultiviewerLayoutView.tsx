@@ -266,6 +266,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Initial-Refresh + ATEM-Event-Subscription (externer Store)
     void refresh()
     // Live updates: the main process pushes ATEM state events; refresh on each.
     const unsubscribe = cablePlannerApi.atem.onEvent(() => {

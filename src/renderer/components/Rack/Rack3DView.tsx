@@ -215,6 +215,7 @@ const useImageTexture = (url?: string): THREE.Texture | null => {
   )
   useEffect(() => {
     if (!url) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Textur für die URL laden/leeren (asynchrone Ressource)
       setTex(null)
       return
     }

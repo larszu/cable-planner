@@ -48,6 +48,7 @@ export const TemplateMergeDialog = ({
     for (const port of localTemplate.outputs) {
       defaults.add(makePortKey('local', 'out', port.id))
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Auswahl/Kategorie beim Dialog-Öffnen seeden (keyed sync)
     setSelectedKeys(defaults)
     setCategory(initialCategory ?? localTemplate.category ?? categoryOptions[0] ?? '')
   }, [open, localTemplate, initialCategory, categoryOptions])

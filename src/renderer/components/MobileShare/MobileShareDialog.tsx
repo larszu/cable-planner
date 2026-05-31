@@ -87,6 +87,7 @@ export const MobileShareDialog = () => {
   // Pick + render the primary URL whenever the server state changes.
   useEffect(() => {
     if (status.urls.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- QR/URL aus dem asynchronen Server-Status ableiten/zurücksetzen
       setQrDataUrl('')
       setSelectedUrl('')
       return

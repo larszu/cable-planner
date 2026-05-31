@@ -75,6 +75,7 @@ export const NewRentmanDeviceWizard = ({
 
   useEffect(() => {
     if (!current) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Draft aus dem aktuellen Item seeden (keyed sync)
     setName(current.name)
     setCategory(current.category || 'Custom')
     setGroups(hintsToDrafts(suggestPortGroups(current.name, current.category)))
