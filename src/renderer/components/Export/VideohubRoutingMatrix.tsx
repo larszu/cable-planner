@@ -156,8 +156,9 @@ export const VideohubRoutingMatrix = ({
     saveLayout(layout)
   }, [layout])
 
-  // Label-Tooltips + Excel-style Drag-Resize. Diese Hooks müssen vor dem
-  // Early-Return (!useGrid) stehen — sonst rules-of-hooks-Verletzung.
+  // Rules of Hooks: diese Hooks MUESSEN vor dem `if (!useGrid)`-Early-Return
+  // laufen — sonst aendert sich die Hook-Anzahl wenn `useGrid` (Port-Anzahl)
+  // umschlaegt. Haengen nur an Props/fruehen Hooks, daher sicher vorzuziehen.
   const inLabelTip = useMemo(
     () => inputLabels.map((l, i) => `In ${i + 1} · ${l}`),
     [inputLabels],
@@ -166,7 +167,9 @@ export const VideohubRoutingMatrix = ({
     () => outputLabels.map((l, i) => `Out ${i + 1} · ${l}`),
     [outputLabels],
   )
-  // State im Ref damit window-handler stable bleibt über re-renders.
+
+  // Excel-style Drag-Resize. State im Ref damit window-handler stable
+  // bleibt ueber re-renders.
   const resizeRef = useRef<
     | { kind: 'col'; index: number; startX: number; startW: number }
     | { kind: 'row'; index: number; startY: number; startH: number }

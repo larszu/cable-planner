@@ -32,7 +32,9 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
   // Ein-/ausklappbar (wie SDI-Caps / Abmessungen). Default offen, wenn schon
   // Werte gesetzt sind, sonst eingeklappt. <summary> statt Form-Control, damit
   // das Toggle auch im gesperrten (viewer/finalized) Fieldset bedienbar bleibt.
-  // Hook muss vor dem Early-Return stehen (rules-of-hooks).
+  // WICHTIG: useState MUSS vor dem `return null` stehen (Rules of Hooks) —
+  // sonst aendert sich die Hook-Anzahl wenn `looksLikeDisplay` beim Wechsel
+  // des selektierten Geraets umschlaegt ("Rendered more hooks than...").
   const [open, setOpen] = useState(
     equipment.resolution !== undefined || equipment.displaySizeInch !== undefined,
   )

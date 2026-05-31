@@ -13,7 +13,9 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
   // Ein-/ausklappbar (wie die übrigen Properties-Blöcke). Default offen, wenn
   // diesem Gerät ein Beltpack-Slot zugeordnet ist, sonst eingeklappt. <summary>
   // statt Form-Control, damit das Toggle auch im gesperrten Fieldset geht.
-  // Hook muss vor dem Early-Return stehen (rules-of-hooks).
+  // WICHTIG: useState MUSS vor dem `return` stehen (Rules of Hooks) — sonst
+  // aendert sich die Hook-Anzahl wenn beim Geraetewechsel `config` von leer
+  // zu gesetzt wechselt ("Rendered more hooks than during the previous render").
   const [open, setOpen] = useState(!!info)
   if (!config || config.users.length === 0) {
     return (

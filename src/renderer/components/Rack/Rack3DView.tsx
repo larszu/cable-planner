@@ -751,13 +751,14 @@ type DeviceSTLProps = {
   onClick: () => void
 }
 
+// Rules of Hooks: useLoader/useMemo duerfen NICHT hinter dem `return null`
+// stehen — beim Umschalten von "kein STL" zu "STL" (oder Geraetewechsel)
+// aendert sich sonst die Hook-Anzahl ("Rendered more hooks than..."). Loesung:
+// die Hooks in eine innere Komponente, die nur gerendert wird wenn die
+// stlDataUri existiert. useLoader bekommt damit immer eine gueltige URL.
 const DeviceSTL = (props: DeviceSTLProps) => {
-  // Guard at the wrapper level so the hook-driven mesh only mounts when there
-  // is actually an STL to load. useLoader/useMemo can't sit behind an early
-  // return inside one component (rules-of-hooks).
-  const { stlDataUri } = props.placement
-  if (!stlDataUri) return null
-  return <DeviceSTLMesh {...props} stlDataUri={stlDataUri} />
+  if (!props.placement.stlDataUri) return null
+  return <DeviceSTLMesh {...props} stlDataUri={props.placement.stlDataUri} />
 }
 
 const DeviceSTLMesh = ({
