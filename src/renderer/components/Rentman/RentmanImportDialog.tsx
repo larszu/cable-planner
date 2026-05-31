@@ -473,6 +473,9 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     // Projekte noch nicht geladen? -> laden, dann auto-select.
     if (projects.length === 0) {
       void (async () => {
+        // fetchProjects ist unten deklariert; der Effect-Callback läuft erst nach
+        // Mount, wenn sie existiert — Compiler kann das nicht statisch sehen.
+        // eslint-disable-next-line react-hooks/immutability
         await fetchProjects()
       })()
       return
@@ -482,6 +485,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     if (!selectedProjectId) {
       const linked = projects.find((p) => p.id === linkedProjectId)
       if (linked) {
+        // eslint-disable-next-line react-hooks/immutability -- s.o., fetchEquipment unten deklariert
         void fetchEquipment(linked.id, linked.name)
       }
     }
