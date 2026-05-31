@@ -271,16 +271,24 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   //    Pro Device gespeichert (key: deviceId), in localStorage.
   type Salvo = { id: string; name: string; routing: Record<number, number>; createdAt: number }
   const salvoKey = `cable-planner.videohub.salvos.${deviceId || '_'}`
-  const [salvos, setSalvos] = useState<Salvo[]>([])
-  useEffect(() => {
+  const loadSalvos = (key: string): Salvo[] => {
     try {
-      const raw = localStorage.getItem(salvoKey)
+      const raw = localStorage.getItem(key)
       const parsed = raw ? (JSON.parse(raw) as Salvo[]) : []
-      setSalvos(Array.isArray(parsed) ? parsed : [])
+      return Array.isArray(parsed) ? parsed : []
     } catch {
-      setSalvos([])
+      return []
     }
-  }, [salvoKey])
+  }
+  // Lazy-Init + Render-Adjust statt Hydrations-Effect: lädt die Salvos direkt
+  // und neu, sobald sich salvoKey (= Device) ändert — kein setState im Effect,
+  // keine Kaskaden-Renders. (React-Doku: "storing info from previous renders".)
+  const [salvos, setSalvos] = useState<Salvo[]>(() => loadSalvos(salvoKey))
+  const [loadedSalvoKey, setLoadedSalvoKey] = useState(salvoKey)
+  if (loadedSalvoKey !== salvoKey) {
+    setLoadedSalvoKey(salvoKey)
+    setSalvos(loadSalvos(salvoKey))
+  }
   const persistSalvos = (list: Salvo[]) => {
     try {
       localStorage.setItem(salvoKey, JSON.stringify(list))
@@ -292,6 +300,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     const name = (await promptDialog('Salvo-Name (= Routing-Snapshot speichern):'))?.trim()
     if (!name) return
     const next: Salvo[] = [
+      // Läuft im saveSalvo-Click-Handler, nicht im Render — randomUUID/now sind hier korrekt.
+      // eslint-disable-next-line react-hooks/purity
       { id: crypto.randomUUID(), name, routing: { ...routing }, createdAt: Date.now() },
       ...salvos.filter((s) => s.name !== name),
     ]
@@ -389,6 +399,9 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   //   outputConn[i] → was haengt am Output i (Destination-Device + Port)
   // Wird in den Matrix-Labels angezeigt damit der User sieht 'aha
   // Output 12 versorgt Monitor Buhne' beim Routing setzen.
+  // Korrekte, aber vom React-Compiler nicht statisch preservierbare
+  // Memoisierung (komplexer Body, abgeleitete `device`-Dependency).
+  /* eslint-disable react-hooks/preserve-manual-memoization */
   const connections = useMemo(() => {
     const inputConn = new Map<number, { sourceName: string; portName: string }>()
     const outputConn = new Map<number, { destName: string; portName: string }>()
@@ -424,6 +437,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     }
     return { inputConn, outputConn }
   }, [device, cables, equipment])
+  /* eslint-enable react-hooks/preserve-manual-memoization */
 
   /** v7.9.119 / Issue #237 — Erzeugt einen Routing-Vorschlag basierend
    *  auf den Canvas-Verbindungen. Heuristik:
@@ -506,6 +520,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     setRouting(next)
   }
 
+  /* eslint-disable react-hooks/preserve-manual-memoization */
   const preview = useMemo(() => {
     if (!device) return ''
     if (format === 'labels') {
@@ -522,6 +537,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
       routing,
     })
   }, [device, format, preset, friendlyName, routing])
+  /* eslint-enable react-hooks/preserve-manual-memoization */
 
   const handleExport = () => {
     if (!device) return
