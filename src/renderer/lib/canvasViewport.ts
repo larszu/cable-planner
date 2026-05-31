@@ -101,6 +101,50 @@ export const triggerCanvasDuplicate = () => {
   }
 }
 
+// #340 — "Alles auswählen" aus dem Bearbeiten-Menü: CanvasArea markiert
+// alle Geräte-Nodes als selected (ReactFlow-Selektion).
+let selectAllHandler: (() => void) | null = null
+export const setCanvasSelectAllHandler = (fn: (() => void) | null) => {
+  selectAllHandler = fn
+}
+export const triggerCanvasSelectAll = () => {
+  try {
+    selectAllHandler?.()
+  } catch {
+    /* no-op */
+  }
+}
+
+// #341 — Zoom rein/raus/100% aus dem Ansicht-Menü (Einpassen nutzt
+// triggerCanvasFitView). CanvasArea bindet ReactFlows zoomIn/Out/zoomTo.
+let zoomHandlers: { zoomIn: () => void; zoomOut: () => void; resetZoom: () => void } | null = null
+export const setCanvasZoomHandlers = (
+  fns: { zoomIn: () => void; zoomOut: () => void; resetZoom: () => void } | null,
+) => {
+  zoomHandlers = fns
+}
+export const triggerCanvasZoomIn = () => {
+  try {
+    zoomHandlers?.zoomIn()
+  } catch {
+    /* no-op */
+  }
+}
+export const triggerCanvasZoomOut = () => {
+  try {
+    zoomHandlers?.zoomOut()
+  } catch {
+    /* no-op */
+  }
+}
+export const triggerCanvasResetZoom = () => {
+  try {
+    zoomHandlers?.resetZoom()
+  } catch {
+    /* no-op */
+  }
+}
+
 // v7.8.8 — A*-router callback registered by CanvasArea. The context
 // menu and any other non-canvas caller can ask "please re-route cable
 // X using A*" without needing to live inside the React Flow context.
