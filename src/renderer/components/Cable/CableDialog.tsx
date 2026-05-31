@@ -17,6 +17,8 @@ import {
   checkCableCompatibility,
   checkSdiStandardMismatch,
   checkImpedanceMismatch,
+  checkBalanceMismatch,
+  balanceForConnector,
   pickHighestSdiStandard,
   type CableSpec,
   type SignalStandard,
@@ -186,6 +188,24 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
     if (!fromPort || !toPort) return null
     return checkImpedanceMismatch(fromPort.standard ?? standard, toPort.standard ?? standard)
   }, [fromPort, toPort, standard])
+
+  // #380 — sym/unsym: Übergang warnen + lange unsymmetrische Analog-Strecke.
+  const balanceWarning = useMemo(() => {
+    if (!fromPort || !toPort) return null
+    const transition = checkBalanceMismatch(fromPort.connectorType, toPort.connectorType)
+    if (transition) return transition
+    if (
+      selected.standards.includes('Analog-Audio') &&
+      balanceForConnector(selected.connectorType) === 'unbalanced' &&
+      length > 10
+    ) {
+      return {
+        level: 'warn' as const,
+        message: `Long unbalanced analog audio run (${length} m). Hum/interference risk — prefer balanced (XLR) or keep under ~10 m.`,
+      }
+    }
+    return null
+  }, [fromPort, toPort, selected, length])
 
   const connectorMismatch: 'ok' | 'warn' | 'error' =
     specId === CUSTOM_CABLE_SPEC_ID ? 'ok' : selectedEntry.level
@@ -469,6 +489,12 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
             <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
               <Icon icon={AlertTriangle} size="sm" />
               {impedanceMismatch.message}
+            </div>
+          )}
+          {balanceWarning?.level === 'warn' && (
+            <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
+              <Icon icon={AlertTriangle} size="sm" />
+              {balanceWarning.message}
             </div>
           )}
           {lengthWarning && (

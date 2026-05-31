@@ -692,3 +692,34 @@ export const checkImpedanceMismatch = (
     message: `Impedance mismatch: ${a}Ω ↔ ${b}Ω. Reflections/return loss — use a matching cable/adapter.`,
   }
 }
+
+/**
+ * #380 — Symmetrie eines Audio-Anschlusses: balanced (XLR/Mini-XLR/TT-Bantam)
+ * vs. unbalanced (Cinch/SCART). Klinke ist bewusst undefined (TRS=symm. /
+ * TS=unsymm. mehrdeutig). undefined = nicht audio-symmetrie-relevant.
+ */
+export const balanceForConnector = (
+  c: ConnectorType | undefined,
+): 'balanced' | 'unbalanced' | undefined => {
+  if (!c) return undefined
+  if (c === 'XLR' || c === 'Mini-XLR' || c === 'TT/Bantam') return 'balanced'
+  if (c === 'Cinch/RCA' || c === 'SCART') return 'unbalanced'
+  return undefined
+}
+
+/**
+ * #380 — Warnung beim Übergang symmetrisch ↔ unsymmetrisch (Brumm-/Pegel-
+ * Probleme; ein DI/Übertrager wird empfohlen).
+ */
+export const checkBalanceMismatch = (
+  from: ConnectorType | undefined,
+  to: ConnectorType | undefined,
+): CompatibilityResult | null => {
+  const a = balanceForConnector(from)
+  const b = balanceForConnector(to)
+  if (!a || !b || a === b) return null
+  return {
+    level: 'warn',
+    message: `Balanced ↔ unbalanced transition (${from} ↔ ${to}). Use a DI box / transformer to avoid hum and level loss.`,
+  }
+}
