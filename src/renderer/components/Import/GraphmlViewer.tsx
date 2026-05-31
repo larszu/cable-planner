@@ -129,6 +129,9 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
 
   const svgRef = useRef<SVGSVGElement | null>(null)
   const dragRef = useRef<{ startX: number; startY: number; startCx: number; startCy: number } | null>(null)
+  // Render-visible drag flag for the cursor (reading dragRef.current during
+  // render would violate react-hooks/refs).
+  const [isDragging, setIsDragging] = useState(false)
 
   const onWheel = (event: React.WheelEvent<SVGSVGElement>) => {
     event.preventDefault()
@@ -148,6 +151,7 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
       startCx: view.cx,
       startCy: view.cy,
     }
+    setIsDragging(true)
   }
 
   const onPointerMove = (event: React.PointerEvent<SVGSVGElement>) => {
@@ -169,6 +173,7 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
 
   const onPointerUp = (event: React.PointerEvent<SVGSVGElement>) => {
     dragRef.current = null
+    setIsDragging(false)
     try {
       event.currentTarget.releasePointerCapture(event.pointerId)
     } catch {
@@ -196,7 +201,7 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
         className="h-full w-full select-none bg-slate-950"
-        style={{ touchAction: 'none', cursor: dragRef.current ? 'grabbing' : 'grab' }}
+        style={{ touchAction: 'none', cursor: isDragging ? 'grabbing' : 'grab' }}
       >
         {/* Edges first so node rects render on top of them where they
             cross — matches the way yEd composites the layers. */}
