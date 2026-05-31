@@ -180,6 +180,17 @@ export interface Port {
    */
   sfpVendor?: string
   /**
+   * #362 — Optischer Steckverbinder-Subtyp eines Fiber-Ports/-Kabels
+   * (LC / SC / ST / FC / E2000 / MPO-MTP / opticalCON / LEMO). Unabhängig
+   * vom SFP-Formfaktor (`sfpType`). Erscheint in Properties + BOM/Etiketten.
+   */
+  fiberConnector?: string
+  /**
+   * #362 — Faserklasse: Multimode OM1–OM5 bzw. Singlemode OS1/OS2.
+   * Bestimmt die Default-Reichweite/Bandbreite der Faser.
+   */
+  fiberClass?: string
+  /**
    * v7.9.77 / #170 — Manual position override of the port-dot on the
    * device's rack-panel (front oder rear). Normalized 0..1 across the
    * panel face (0=links/oben, 1=rechts/unten). Wenn nicht gesetzt,
@@ -485,6 +496,23 @@ export interface EquipmentItem {
    *  bei mehrdeutigen Out-Kabeln zeigt die Patchliste den Wandler weiter
    *  als normales Ziel. Optional — bleibt undefined fuer normale Geraete. */
   isConverter?: boolean
+  /**
+   * #359 — Timecode-Rolle: 'source' = TC-Generator/Master, 'sink' = Gerät
+   * das TC empfängt (Kamera/Recorder/Pult). Der Plan-Check warnt, wenn es
+   * TC-Senken, aber keine TC-Quelle im Projekt gibt.
+   */
+  tcRole?: 'source' | 'sink'
+  /**
+   * #360 — Tally-Rolle: 'source' = Mischer/Tally-Hub, 'sink' = Kamera/
+   * Monitor/CCU. Plan-Check warnt bei Tally-Senken ohne Tally-Quelle.
+   */
+  tallyRole?: 'source' | 'sink'
+  /**
+   * #366 — Embedder/De-Embedder-Rolle für in SDI eingebettetes Audio
+   * (SMPTE ST 299/272). Informativ — kennzeichnet, wo Audio ins SDI
+   * eingebettet bzw. herausgelöst wird (Patch-/Audio-Input-Liste).
+   */
+  embedderRole?: 'embedder' | 'deembedder'
 }
 
 /**

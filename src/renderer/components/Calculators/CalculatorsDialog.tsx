@@ -41,6 +41,19 @@ const SDI_TIERS: { label: string; mbps: number }[] = [
   { label: '12G-SDI', mbps: 11880 },
 ]
 
+// #347/#358 — typische Brutto-Bandbreiten der IP-/Digital-Signalstandards
+// als Referenz im Bandbreiten-Rechner. Werte sind format-/kanalabhängig;
+// hier gängige Richtwerte (1080p50/60, 48 kHz).
+const SIGNAL_STD_BANDWIDTH: { label: string; mbps: string }[] = [
+  { label: 'DVB-ASI', mbps: '≤ 270' },
+  { label: 'MADI (64ch @48k)', mbps: '~49 (Link 125)' },
+  { label: 'Dante / AES67 (64ch @48k)', mbps: '~49' },
+  { label: 'NDI Full (1080p)', mbps: '~125–250' },
+  { label: 'NDI HX', mbps: '~8–20' },
+  { label: 'ST 2110-20 (1080p, uncompr.)', mbps: '~3000' },
+  { label: 'ST 2110-20 (2160p, uncompr.)', mbps: '~12000' },
+]
+
 const RESOLUTION_PRESETS: { label: string; w: number; h: number }[] = [
   { label: '720p', w: 1280, h: 720 },
   { label: '1080p', w: 1920, h: 1080 },
@@ -152,6 +165,19 @@ const BandwidthTab = () => {
             <li key={t.label}>
               <span className="inline-block w-28">{t.label}</span>
               <span className="font-mono text-slate-400">≤ {t.mbps} Mbps</span>
+            </li>
+          ))}
+        </ul>
+      </details>
+      <details className="rounded border border-slate-800 bg-slate-950/40">
+        <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
+          {t('calc.bandwidth.signalStds', 'IP-/Digital-Signalstandards')}
+        </summary>
+        <ul className="space-y-0.5 px-3 py-2 text-xs">
+          {SIGNAL_STD_BANDWIDTH.map((s) => (
+            <li key={s.label}>
+              <span className="inline-block w-56">{s.label}</span>
+              <span className="font-mono text-slate-400">{s.mbps} Mbps</span>
             </li>
           ))}
         </ul>
