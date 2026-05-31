@@ -99,6 +99,7 @@ export const LocalEquipmentTab = ({
     const allCats = new Set([...knownCategories, ...usedCats])
     if (allCats.size === 0) return
     collapsedInitRef.current = true
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Einmalige Initialisierung der eingeklappten Kategorien
     setCollapsedCats(allCats)
   }, [customLibrary, knownCategories])
 

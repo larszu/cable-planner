@@ -81,6 +81,7 @@ export const FloatingPanelShell = ({
   // panel where the user can't see it. clamp() uses the current
   // viewport bounds.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Persistierte Position in den aktuellen Viewport clampen
     setPos((current) => {
       const clamped = clamp(position, width)
       if (

@@ -20,6 +20,7 @@ export const PendingCableOverlay = () => {
 
   useEffect(() => {
     if (!pendingCable) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset beim Clear neben dem window-mousemove-Listener
       setMouseFlow(null)
       return
     }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useSyncedState } from '../../../hooks/useSyncedState'
 import { useSettingsStore } from '../../../store/settingsStore'
 import { useTranslation } from '../../../lib/i18n'
 import { CollabPanel } from '../../Sync/CollabPanel'
@@ -13,14 +13,9 @@ export const SyncTab = () => {
   const sharedSyncUser = useSettingsStore((s) => s.sharedSyncUser)
   const setSyncPath = useSettingsStore((s) => s.setSyncPath)
   const setSyncUser = useSettingsStore((s) => s.setSyncUser)
-  const [draftSyncPath, setDraftSyncPath] = useState(sharedSyncPath)
-  const [draftSyncUser, setDraftSyncUser] = useState(sharedSyncUser)
+  const [draftSyncPath, setDraftSyncPath] = useSyncedState(sharedSyncPath)
+  const [draftSyncUser, setDraftSyncUser] = useSyncedState(sharedSyncUser)
   const t = useTranslation()
-
-  useEffect(() => {
-    setDraftSyncPath(sharedSyncPath)
-    setDraftSyncUser(sharedSyncUser)
-  }, [sharedSyncPath, sharedSyncUser])
 
   return (
     <div className="space-y-3 text-sm">

@@ -89,6 +89,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
   const STEPS = stepsForLang(t)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Beim Öffnen auf den ersten Schritt zurücksetzen
     if (open) setStep(0)
   }, [open])
 
