@@ -743,21 +743,33 @@ const Shelf = ({
 }
 
 /** STL-loaded device geometry. Auto-fits into the HE-box. */
-const DeviceSTL = ({
-  placement,
-  rackDepthMm,
-  totalUnits,
-  selected,
-  onClick,
-}: {
+type DeviceSTLProps = {
   placement: Rack3DPlacement
   rackDepthMm: number
   totalUnits: number
   selected: boolean
   onClick: () => void
-}) => {
-  if (!placement.stlDataUri) return null
-  const geometry = useLoader(STLLoader, placement.stlDataUri)
+}
+
+// Rules of Hooks: useLoader/useMemo duerfen NICHT hinter dem `return null`
+// stehen — beim Umschalten von "kein STL" zu "STL" (oder Geraetewechsel)
+// aendert sich sonst die Hook-Anzahl ("Rendered more hooks than..."). Loesung:
+// die Hooks in eine innere Komponente, die nur gerendert wird wenn die
+// stlDataUri existiert. useLoader bekommt damit immer eine gueltige URL.
+const DeviceSTL = (props: DeviceSTLProps) => {
+  if (!props.placement.stlDataUri) return null
+  return <DeviceSTLMesh {...props} stlDataUri={props.placement.stlDataUri} />
+}
+
+const DeviceSTLMesh = ({
+  placement,
+  rackDepthMm,
+  totalUnits,
+  selected,
+  onClick,
+  stlDataUri,
+}: DeviceSTLProps & { stlDataUri: string }) => {
+  const geometry = useLoader(STLLoader, stlDataUri)
   const yBottom = (totalUnits - placement.startUnit - placement.rackUnits + 1) * HE_HEIGHT_MM
   const heightMm = placement.rackUnits * HE_HEIGHT_MM
   const widthMm = RACK_MOUNT_WIDTH_MM
