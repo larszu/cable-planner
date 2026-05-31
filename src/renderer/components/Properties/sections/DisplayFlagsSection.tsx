@@ -74,6 +74,21 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
           />
           Wandler (Patchliste folgt Durchgangskabel)
         </label>
+        <label
+          className="flex items-center gap-2 text-[11px] text-slate-300"
+          title={t('flags.daTitle', 'Verteilverstärker: 1 Eingang wird aktiv auf mehrere Ausgänge derselben Quelle verteilt (1→N).')}
+        >
+          <input
+            type="checkbox"
+            checked={!!equipment.isDistributionAmp}
+            onChange={(event) =>
+              updateEquipment(equipment.id, {
+                isDistributionAmp: event.target.checked || undefined,
+              })
+            }
+          />
+          {t('flags.da', 'Verteilverstärker (1→N)')}
+        </label>
         {/* #359/#360/#366 — Signal-Flow-Rollen (Timecode / Tally / Embedding). */}
         <div className="grid grid-cols-3 gap-1 border-t border-slate-800 pt-2">
           <label className="block text-[10px]">

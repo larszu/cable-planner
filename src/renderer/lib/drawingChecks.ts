@@ -282,6 +282,19 @@ export const runDrawingChecks = (
     }
   }
 
+  // — Check 10: Verteilverstärker ohne Verteilung (#372) ---------------------
+  for (const e of equipment) {
+    if (e.isDistributionAmp && e.outputs.length < 2) {
+      findings.push({
+        id: `da-no-fanout:${e.id}`,
+        severity: 'info',
+        category: 'Verteilverstärker',
+        message: `${e.name}: als Verteilverstärker markiert, aber nur ${e.outputs.length} Ausgang/Ausgänge (1→N erwartet)`,
+        equipmentId: e.id,
+      })
+    }
+  }
+
   // Sortierung: error → warning → info, innerhalb stabil nach category.
   const rank: Record<CheckSeverity, number> = { error: 0, warning: 1, info: 2 }
   findings.sort((a, b) => rank[a.severity] - rank[b.severity] || a.category.localeCompare(b.category))
