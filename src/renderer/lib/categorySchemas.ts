@@ -243,3 +243,33 @@ export const schemaForCategory = (category: string | undefined): CategoryFieldDe
   const lc = norm(category)
   return BY_LC[lc] ?? BY_LC[EN_ALIAS[lc] ?? ''] ?? []
 }
+
+/**
+ * #373 — Fachdaten eines Geräts als lesbarer String fürs BOM/Export/Print
+ * ("Brennweite: 17-120 mm · Anschluss: PL"). Labels + Select-Optionen + Einheit
+ * sprach-aufgelöst, Schema-Reihenfolge. Leerer String, wenn keine Fachdaten
+ * gesetzt sind oder die Kategorie kein Schema hat.
+ */
+export const formatCategoryProps = (
+  category: string | undefined,
+  props: Record<string, string | number | boolean> | undefined,
+  lang: Lang,
+): string => {
+  if (!props || Object.keys(props).length === 0) return ''
+  const schema = schemaForCategory(category)
+  if (schema.length === 0) return ''
+  const parts: string[] = []
+  for (const f of schema) {
+    const v = props[f.key]
+    if (v === undefined || v === '' || v === false) continue
+    let val: string
+    if (f.type === 'boolean') val = lang === 'de' ? 'ja' : 'yes'
+    else if (f.type === 'select' && f.options) {
+      val = f.options.find((o) => o.value === String(v))?.label[lang] ?? String(v)
+    } else {
+      val = String(v)
+    }
+    parts.push(`${f.label[lang]}: ${val}${f.unit ? ' ' + f.unit : ''}`)
+  }
+  return parts.join(' · ')
+}
