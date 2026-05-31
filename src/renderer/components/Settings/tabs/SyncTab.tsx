@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSettingsStore } from '../../../store/settingsStore'
 import { useTranslation } from '../../../lib/i18n'
+import { CollabPanel } from '../../Sync/CollabPanel'
 import { hasDesktopBridge } from '../../../lib/bridge'
 import { SettingsCard } from '../SettingsCard'
 
@@ -23,6 +24,7 @@ export const SyncTab = () => {
 
   return (
     <div className="space-y-3 text-sm">
+      <CollabPanel />
       {!hasDesktopBridge && (
         <div className="rounded border border-amber-700/50 bg-amber-900/20 p-2 text-xs text-amber-300">
           {t(

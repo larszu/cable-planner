@@ -139,13 +139,39 @@ export class ProjectCrdt {
     return () => this.doc.off('update', handler)
   }
 
+  // ── Store-Binding (Stufe 3) ──────────────────────────────────────────
+
+  /** Führt `fn` in einer Transaction mit `LOCAL_ORIGIN` aus. Die Binding-
+   *  Schicht nutzt das für Store→Doc-Writes, damit ihr eigener `observe`-
+   *  Listener diese Änderungen als „selbst verursacht" erkennt und NICHT
+   *  zurück in den Store schreibt (kein Loop). */
+  transactLocal(fn: () => void): void {
+    this.doc.transact(fn, LOCAL_ORIGIN)
+  }
+
+  /** Beobachtet angewandte Doc-Änderungen samt Origin. Anders als
+   *  `onUpdate` (das auf den Transport zielt) bekommt der Callback den
+   *  rohen Origin — die Binding-Schicht filtert damit ihre eigenen
+   *  `LOCAL_ORIGIN`-Writes heraus und zieht nur fremde Änderungen
+   *  (Transport/Provider) in den Store. Rückgabe: Unsubscribe. */
+  observe(cb: (origin: unknown) => void): () => void {
+    const handler = (_update: Uint8Array, origin: unknown) => cb(origin)
+    this.doc.on('update', handler)
+    return () => this.doc.off('update', handler)
+  }
+
   destroy(): void {
     this.doc.destroy()
   }
 }
 
-/** Origin-Marker für angewandte Remote-Updates (Echo-Schutz). */
+/** Origin-Marker für angewandte Remote-Updates (Echo-Schutz im Transport). */
 export const REMOTE_ORIGIN = 'remote'
+
+/** Origin-Marker für Store→Doc-Writes der Binding-Schicht. Erlaubt dem
+ *  Binding-`observe`, die eigenen Writes von echten Remote-Änderungen
+ *  (Transport oder y-webrtc-Provider) zu unterscheiden. */
+export const LOCAL_ORIGIN = 'local'
 
 /** Setzt eine Y.Map auf den Stand einer id-Liste: fehlende löschen, Rest
  *  setzen. Erwartet, in einer Transaction aufgerufen zu werden. */
