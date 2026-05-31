@@ -664,6 +664,10 @@ const en: Dict = {
   'ports.sfp.wavelengthTitle': 'Wavelength in nm: 850, 1310, 1550',
   'ports.sfp.vendorPlaceholder': 'Vendor (Cisco)',
   'ports.sfp.vendorTitle': 'Module vendor: Cisco, Aruba, Ubiquiti, FS.com …',
+  'ports.fiber.connectorPlaceholder': 'Connector (LC/SC/…)',
+  'ports.fiber.connectorTitle': 'Optical connector type',
+  'ports.fiber.classPlaceholder': 'Fibre class (OM/OS)',
+  'ports.fiber.classTitle': 'Fibre class: OM1–OM5 (multimode), OS1/OS2 (singlemode)',
   'ports.quadAuto': 'Auto-assign free BNC ports to this set',
   'ports.dualAuto': 'Auto-assign free BNC ports to this set',
 
@@ -1917,6 +1921,13 @@ const en: Dict = {
   'flags.title': 'Display & flags',
   'flags.subtitle': 'compact · colour · packed',
   'flags.colorTitle': 'Device node colour',
+  'roles.tc': 'Timecode',
+  'roles.tally': 'Tally',
+  'roles.embed': 'Embedding',
+  'roles.source': 'Source',
+  'roles.sink': 'Sink',
+  'roles.embedder': 'Embedder',
+  'roles.deembedder': 'De-embedder',
   'flags.packedTitle':
     'Marks the device as packed. Shown as ✓ on the canvas and as a column in the device BOM.',
   'flags.converterTitle':
@@ -2331,6 +2342,7 @@ const en: Dict = {
   'calc.bandwidth.fitsIn': 'Fits in {tier} ({mbps} Mbps).',
   'calc.bandwidth.exceeds':
     'Exceeds 12G-SDI — only IP transport (ST 2110, NDI, JPEG-XS …) will carry it.',
+  'calc.bandwidth.signalStds': 'IP / digital signal standards',
   'calc.power.intro1': 'Sum of the consumption values in the device properties',
   'calc.power.wattsField': 'Power (W)',
   'calc.power.intro2':

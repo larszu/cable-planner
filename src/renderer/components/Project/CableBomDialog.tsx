@@ -74,7 +74,18 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
       return formatDeviceAtLocation(eq?.name, locName)
     }
     const built = new Map<string, { count: number; sample: Cable; cables: Cable[] }>()
+    // #363 — Multicore / Snake: alle Adern mit gleichem `multicoreName` sind
+    // EIN physisches Kabel und zaehlen in der BOM als 1 (nicht als N Einzel-
+    // kabel). Adern ohne multicoreName laufen unveraendert in die Typ|Laenge-
+    // Gruppierung.
+    const bundles = new Map<string, Cable[]>()
     for (const c of project.cables) {
+      if (c.multicoreName) {
+        const arr = bundles.get(c.multicoreName) ?? []
+        arr.push(c)
+        bundles.set(c.multicoreName, arr)
+        continue
+      }
       const k = keyOf(c)
       const entry = built.get(k)
       if (entry) {
@@ -83,6 +94,13 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
       } else {
         built.set(k, { count: 1, sample: c, cables: [c] })
       }
+    }
+    for (const [name, strands] of bundles) {
+      // Laenge = laengste Ader = physische Strecke des Strangs.
+      const length = Math.max(0, ...strands.map((c) => c.length ?? 0))
+      const safeName = name.replace(/\|/g, '/')
+      const k = `Multicore: ${safeName} (${strands.length} Adern)|${length}`
+      built.set(k, { count: 1, sample: strands[0], cables: strands })
     }
     const planned = draftPlan ?? project.metadata.rentmanCablePlan ?? {}
     const cableMap = project.metadata.rentmanCableMap ?? {}
