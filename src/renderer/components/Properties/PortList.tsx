@@ -731,6 +731,29 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
                     title={t('ports.sfp.vendorTitle', 'Modulhersteller: Cisco, Aruba, Ubiquiti, FS.com …')}
                   />
+                  {/* #362 — Optischer Steckverbinder + Faserklasse (LWL-Detail). */}
+                  <select
+                    value={port.fiberConnector ?? ''}
+                    onChange={(event) => updatePort(port.id, { fiberConnector: event.target.value || undefined })}
+                    className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                    title={t('ports.fiber.connectorTitle', 'Optischer Steckverbinder')}
+                  >
+                    <option value="">{t('ports.fiber.connectorPlaceholder', 'Stecker (LC/SC/…)')}</option>
+                    {['LC', 'SC', 'ST', 'FC', 'E2000', 'MPO-MTP', 'opticalCON', 'LEMO'].map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={port.fiberClass ?? ''}
+                    onChange={(event) => updatePort(port.id, { fiberClass: event.target.value || undefined })}
+                    className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                    title={t('ports.fiber.classTitle', 'Faserklasse: OM1–OM5 (Multimode), OS1/OS2 (Singlemode)')}
+                  >
+                    <option value="">{t('ports.fiber.classPlaceholder', 'Faserklasse (OM/OS)')}</option>
+                    {['OM1', 'OM2', 'OM3', 'OM4', 'OM5', 'OS1', 'OS2'].map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             )}
