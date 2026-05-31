@@ -70,6 +70,7 @@ export const ModeEditorDialog = ({
   useEffect(() => {
     if (!open) return
     if (editingMode) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Draft beim Dialog-Öffnen seeden (keyed sync)
       setName(editingMode.name)
       setDescription(editingMode.description ?? '')
       setInputs(editingMode.inputs.map(toDraft))

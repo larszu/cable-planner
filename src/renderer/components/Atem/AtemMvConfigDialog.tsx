@@ -658,6 +658,7 @@ export const AtemMvConfigDialog = () => {
 
   useEffect(() => {
     if (!slot.open || !equipment) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Draft beim Dialog-Öffnen seeden/zurücksetzen (keyed sync)
     setStatus('')
     setPicker(null)
     // v7.9.4 — Migration auf Quadranten-Modell. Falls ein MV noch das

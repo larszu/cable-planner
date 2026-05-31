@@ -185,6 +185,7 @@ export const LibraryPanel = () => {
       })),
       cables: [],
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- One-shot Store-Trigger (Rack-Builder seeden), danach Trigger clearen
     setSeedPreset(synthesized)
     setEditingRackPresetId(null)
     setShowRackBuilderDialog(true)
@@ -197,6 +198,7 @@ export const LibraryPanel = () => {
   // feuert auch wenn der vorherige schon abgewickelt ist.
   useEffect(() => {
     if (!newRackBuilderTrigger) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- One-shot Store-Trigger (leeren Rack-Builder öffnen), danach clearen
     setSeedPreset(null)
     setEditingRackPresetId(null)
     setEditingCanvasRackEquipmentId(null)
@@ -276,6 +278,7 @@ export const LibraryPanel = () => {
           standard: 'unbekannt',
         })),
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- One-shot Store-Trigger (Rack aus Black-Box editieren), danach clearen
       setSeedPreset(synth)
       setEditingRackPresetId(null)
       // Merken: Save geht in dieses Canvas-Equipment zurueck, nicht in
@@ -300,6 +303,7 @@ export const LibraryPanel = () => {
   const clearEmptyDeviceDrop = useUiStore((s) => s.clearEmptyDeviceDrop)
   useEffect(() => {
     if (!pendingEmptyDeviceDrop) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- One-shot Store-Trigger (Empty-Device-Drop), danach clearen
     setName(pendingEmptyDeviceDrop.name || t('library.create.defaultName', 'Neues Gerät'))
     if (pendingEmptyDeviceDrop.category) setCategory(pendingEmptyDeviceDrop.category)
     setPendingDropOnSave({ x: pendingEmptyDeviceDrop.x, y: pendingEmptyDeviceDrop.y })

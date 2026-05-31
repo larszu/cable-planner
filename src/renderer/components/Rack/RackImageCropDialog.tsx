@@ -91,6 +91,7 @@ export const RackImageCropDialog = ({
 
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Crop-Draft beim Dialog-Öffnen seeden (keyed sync)
       setCrop(defaultCrop(rackUnits, imgAspect))
       setZoom(1)
       setAspectLock(true)

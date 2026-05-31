@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useSyncedState } from '../../hooks/useSyncedState'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { nextPlacementPosition } from '../../lib/library'
 import { CategorySelect } from '../shared/CategorySelect'
@@ -18,14 +18,8 @@ export const TemplateProperties = () => {
 
   const template = customLibrary.find((tpl) => tpl.name === selectedTemplateName)
 
-  const [name, setName] = useState(template?.name ?? '')
-  const [category, setCategory] = useState(template?.category ?? '')
-
-  // Sync local state when selected template changes
-  useEffect(() => {
-    setName(template?.name ?? '')
-    setCategory(template?.category ?? '')
-  }, [template?.name, template?.category])
+  const [name, setName] = useSyncedState(template?.name ?? '')
+  const [category, setCategory] = useSyncedState(template?.category ?? '')
 
   if (!template) {
     return (

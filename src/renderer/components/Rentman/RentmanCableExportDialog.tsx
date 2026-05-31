@@ -103,6 +103,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
   // dem Zugriff sieht (react-hooks/immutability).
   useEffect(() => {
     if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- State beim Schließen zurücksetzen / Katalog beim Öffnen laden
       setStatusByKey({})
       setPickerKey(null)
       setPickerQuery('')
