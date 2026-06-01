@@ -3200,6 +3200,7 @@ const en: Dict = {
   'analysis.redundancy.finding': 'Finding',
   'analysis.redundancy.noPower': 'no power connection in the plan',
   'analysis.redundancy.singlePower': 'only one power connection (no PSU redundancy)',
+  'analysis.redundancy.st2110': 'ST 2110 without 2110-7 redundancy (only one network path)',
   'analysis.redundancy.none': 'No obvious single power feeds found.',
   'analysis.tab.rf': 'RF / wireless',
   'analysis.rf.intro': 'Wireless links (wireless cables) with frequency/channel. Conflict heuristic: frequency spacing < 0.4 MHz or same channel. Plus 3rd-order intermodulation (2·f₁−f₂) — the most common interference source for wireless mics/IEM.',
