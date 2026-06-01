@@ -390,6 +390,10 @@ export interface EquipmentItem {
   voltage?: number
   /** Nominal current draw in amperes (continuous, at the rated voltage). */
   currentAmps?: number
+  /** #345 — Feste Phasen-Zuordnung (L1/L2/L3) für die Stromverteilung.
+   *  Wenn gesetzt, wird das Gerät im Strom-Rechner auf diese Phase
+   *  fixiert; nicht gesetzte Geräte verteilt der Balancer automatisch. */
+  powerPhase?: 1 | 2 | 3
   /**
    * Native display resolution (for monitors, multiviewers, displays).
    * Format example: "1920x1080", "3840x2160".

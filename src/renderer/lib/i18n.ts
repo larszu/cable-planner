@@ -2439,6 +2439,9 @@ const en: Dict = {
   'calc.neutralHigh': 'high imbalance — rebalance phases',
   'calc.neutralMid': 'slight imbalance',
   'calc.devicesToPhase': 'Devices → Phase',
+  'calc.phaseAuto': 'Auto',
+  'calc.phasePinHint': 'Pick a phase to pin a device; "Auto" lets the balancer distribute it.',
+  'calc.phasePinned': 'Pinned',
   'calc.euColorTitle': 'EU colour code (DIN VDE 0293-308)',
   'calc.greedyExplain':
     'Greedy distribution: sorted by power, each device on the currently least-loaded phase. With symmetric loads three-phase draws only {amps} A per phase; imbalance raises the highest phase current. Target: every phase < 85% load + imbalance < 20%.',
