@@ -922,6 +922,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={t('rack.searchDevicesPlaceholder', 'Gerät suchen…')}
+                aria-label={t('rack.searchDevicesPlaceholder', 'Gerät suchen…')}
                 className="w-full rounded border border-slate-700 bg-slate-950 pl-7 pr-7 py-1.5 text-xs placeholder-slate-600 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
               />
               {query && (

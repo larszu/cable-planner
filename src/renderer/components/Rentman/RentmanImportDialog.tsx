@@ -1405,6 +1405,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               value={projectQuery}
               onChange={(e) => setProjectQuery(e.target.value)}
               placeholder={t('rentman.import.searchPlaceholder', 'Suche nach Name, Nummer oder Status…')}
+              aria-label={t('rentman.import.searchPlaceholder', 'Suche nach Name, Nummer oder Status…')}
               className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-sm"
             />
             {projectQuery && (
