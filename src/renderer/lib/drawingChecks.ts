@@ -12,7 +12,8 @@
 
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port, ConnectorType } from '../types/equipment'
-import { checkImpedanceMismatch, maxPassiveLengthM } from '../types/cableSpec'
+import { checkImpedanceMismatch, checkBalanceMismatch, maxPassiveLengthM } from '../types/cableSpec'
+import { networkAddress } from './subnet'
 
 export type CheckSeverity = 'error' | 'warning' | 'info'
 
@@ -362,6 +363,39 @@ export const runDrawingChecks = (
         'ST 2110 im Plan, aber kein PTP-Signal — PTP-Grandmaster (IEEE 1588) als Referenz nicht vergessen.',
     })
   }
+  // #365 — ST 2110 braucht eine NMOS-Registry (IS-04 Discovery + IS-05
+  // Connection Management). Erinnerung, sofern kein Gerät erkennbar diese
+  // Rolle übernimmt (Name enthält nmos/registry/controller/broadcast control).
+  if (hasSt2110) {
+    const hasController = equipment.some((e) =>
+      /nmos|registry|registr|broadcast.?controller|\bctrl\b|orchestrat|sdn.?control/i.test(e.name),
+    )
+    if (!hasController) {
+      findings.push({
+        id: 'st2110-no-nmos',
+        severity: 'info',
+        category: 'NMOS',
+        message:
+          'ST 2110 im Plan — NMOS-Registry (IS-04 Discovery / IS-05 Connection Management) für Auffindbarkeit + Routing einplanen.',
+      })
+    }
+  }
+
+  // — Check 13b: Mehrere SDI-Signale ohne Genlock-Referenz (#348) ------------
+  // Mehrere SDI-Quellen sollten auf eine gemeinsame Referenz (Blackburst/
+  // Tri-Level, bei IP PTP) gelockt sein. Info-Erinnerung.
+  const sdiCount = cables.filter((c) => (c.standard ?? '').startsWith('SDI')).length
+  const hasGenlock = cables.some(
+    (c) => c.standard === 'Blackburst' || c.standard === 'Tri-Level' || c.standard === 'Word-Clock',
+  )
+  if (sdiCount >= 2 && !hasGenlock && !hasPtp) {
+    findings.push({
+      id: 'sdi-no-genlock',
+      severity: 'info',
+      category: 'Sync / Genlock',
+      message: `${sdiCount} SDI-Signale, aber keine Genlock-/Referenz-Verteilung (Blackburst/Tri-Level) — Sync prüfen.`,
+    })
+  }
 
   // — Check 14: Kabel länger als passive Maximal-Länge (#367) ----------------
   // HDMI/USB/DP/Thunderbolt/12G-SDI haben praktische Kupfer-Längengrenzen.
@@ -407,6 +441,134 @@ export const runDrawingChecks = (
       category: 'Licht / DMX',
       message: parts.join(' · '),
     })
+  }
+
+  // — Check 16: PoE-Budget überschritten (#391) ------------------------------
+  // Netzwerk-Switch mit poeBudgetW (Fachdaten) gegen die Summe der per
+  // Ethernet angeschlossenen PoE-fähigen Verbraucher (≤ 90 W = 802.3bt Typ 4;
+  // größere Geräte haben eigene Stromversorgung und zählen nicht).
+  const POE_MAX_W = 90
+  for (const sw of equipment) {
+    const budgetRaw = sw.categoryProps?.poeBudgetW
+    const budget = typeof budgetRaw === 'number' ? budgetRaw : Number(budgetRaw)
+    if (!Number.isFinite(budget) || budget <= 0) continue
+    let load = 0
+    let count = 0
+    const seen = new Set<string>()
+    for (const c of cables) {
+      let swPortId: string | undefined
+      let otherId: string | undefined
+      if (c.fromEquipmentId === sw.id) {
+        swPortId = c.fromPortId
+        otherId = c.toEquipmentId
+      } else if (c.toEquipmentId === sw.id) {
+        swPortId = c.toPortId
+        otherId = c.fromEquipmentId
+      } else continue
+      const swPort = portById.get(swPortId)
+      if (!swPort || swPort.connectorType !== 'Ethernet/RJ45') continue
+      if (!otherId || seen.has(otherId)) continue
+      const consumer = eqById.get(otherId)
+      if (!consumer) continue
+      const w =
+        consumer.powerConsumptionWatts ??
+        (consumer.voltage && consumer.currentAmps ? consumer.voltage * consumer.currentAmps : 0)
+      if (w <= 0 || w > POE_MAX_W) continue
+      seen.add(otherId)
+      load += w
+      count += 1
+    }
+    if (load > budget) {
+      findings.push({
+        id: `poe-over:${sw.id}`,
+        severity: 'warning',
+        category: 'PoE-Budget',
+        message: `${sw.name}: PoE-Last ${Math.round(load)} W an ${count} Geräten übersteigt das Budget (${budget} W)`,
+        equipmentId: sw.id,
+      })
+    }
+  }
+
+  // — Check 15b: Symmetrisch↔Unsymmetrisch (Audio) (#380) --------------------
+  for (const c of cables) {
+    if (c.wireless || c.needsConverter) continue
+    const from = portById.get(c.fromPortId)
+    const to = portById.get(c.toPortId)
+    if (!from || !to) continue
+    const bal = checkBalanceMismatch(from.connectorType, to.connectorType)
+    if (bal) {
+      findings.push({
+        id: `balance-mismatch:${c.id}`,
+        severity: 'warning',
+        category: 'Audio sym/unsym',
+        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${bal.message}`,
+        cableId: c.id,
+      })
+    }
+  }
+
+  // — Check 16b: Dual-Link SDI unvollständig (#370) --------------------------
+  // Ports mit gleichem dualLinkGroup bilden ein Dual-Link-Set (Link A/B). Sind
+  // einige verbunden, andere nicht, fehlt ein Link → Bild unvollständig.
+  for (const e of equipment) {
+    const groups = new Map<string, { total: number; connected: number; names: string[] }>()
+    for (const p of [...e.inputs, ...e.outputs]) {
+      if (!p.dualLinkGroup) continue
+      const g = groups.get(p.dualLinkGroup) ?? { total: 0, connected: 0, names: [] }
+      g.total += 1
+      if (connectedPorts.has(p.id)) g.connected += 1
+      g.names.push(p.name)
+      groups.set(p.dualLinkGroup, g)
+    }
+    for (const [grp, g] of groups) {
+      if (g.total >= 2 && g.connected > 0 && g.connected < g.total) {
+        findings.push({
+          id: `dual-link:${e.id}:${grp}`,
+          severity: 'warning',
+          category: 'Dual-Link',
+          message: `${e.name}: Dual-Link-Set „${grp}" unvollständig — ${g.connected}/${g.total} Links verbunden (${g.names.join(', ')})`,
+          equipmentId: e.id,
+        })
+      }
+    }
+  }
+
+  // — Check 17b: LWL-Steckertyp-Mismatch (#362) ------------------------------
+  // Zwei unterschiedliche optische Stecker (z. B. LC ↔ SC) an einem Link →
+  // Adapter/Hybrid-Patch nötig.
+  for (const c of cables) {
+    const from = portById.get(c.fromPortId)
+    const to = portById.get(c.toPortId)
+    const a = from?.fiberConnector
+    const b = to?.fiberConnector
+    if (a && b && a !== b) {
+      findings.push({
+        id: `fiber-conn:${c.id}`,
+        severity: 'warning',
+        category: 'LWL-Stecker',
+        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${a} ↔ ${b} — optischer Steckertyp ungleich (Adapter/Hybrid-Patch nötig)`,
+        cableId: c.id,
+      })
+    }
+  }
+
+  // — Check 17: Gateway nicht im Geräte-Subnetz (#346) -----------------------
+  // Liegt das Default-Gateway nicht im selben Subnetz wie die Geräte-IP, ist
+  // es nicht erreichbar → Fehlkonfiguration.
+  for (const e of equipment) {
+    if (!e.ipAddress || !e.gateway) continue
+    const mask = e.subnetMask || '255.255.255.0'
+    const devNet = networkAddress(e.ipAddress, mask)
+    const gwNet = networkAddress(e.gateway, mask)
+    if (devNet && gwNet && devNet !== gwNet) {
+      findings.push({
+        id: `gw-subnet:${e.id}`,
+        severity: 'warning',
+        category: 'Gateway/Subnetz',
+        message: `${e.name}: Gateway ${e.gateway} liegt nicht im Subnetz von ${e.ipAddress} (${mask}) — nicht erreichbar`,
+        equipmentId: e.id,
+      })
+    }
   }
 
   // Sortierung: error → warning → info, innerhalb stabil nach category.

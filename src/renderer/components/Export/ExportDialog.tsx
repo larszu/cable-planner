@@ -19,6 +19,16 @@ import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { AlertTriangle, Check } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
+import { detectLayerForConnector, type StandardLayer } from '../../lib/cableLayers'
+
+const LAYER_LABEL_DE: Record<string, string> = {
+  video: 'Video',
+  audio: 'Audio',
+  control: 'Steuerung',
+  network: 'Netzwerk',
+  power: 'Strom',
+  other: 'Sonstiges',
+}
 import { Icon } from '../shared/Icon'
 import { Spinner } from '../shared/Spinner'
 import {
@@ -671,6 +681,34 @@ const BomSection = () => {
   const updateMeta = useProjectStore((s) => s.updateProjectMetadata)
   const [draftPlan, setDraftPlan] = useState<Record<string, number> | null>(null)
 
+  // Per-Gewerk-Zusammenfassung (Video/Audio/Control/Network/Power): Anzahl +
+  // Gesamtlänge. Effektiver Layer = cable.layer, sonst aus dem Connector.
+  // Plus Steckverbinder-Inventar über alle Kabel-Enden (für Loom/Adapter).
+  const { layerSummary, connectorSummary } = useMemo(() => {
+    const portById = new Map<string, { connectorType?: string }>()
+    for (const e of project.equipment) for (const p of [...e.inputs, ...e.outputs]) portById.set(p.id, p)
+    const m = new Map<string, { count: number; meters: number }>()
+    const conn = new Map<string, number>()
+    for (const c of project.cables) {
+      const explicit = (c.layer ?? '').toLowerCase()
+      const layer = ['video', 'audio', 'control', 'network', 'power'].includes(explicit)
+        ? (explicit as StandardLayer)
+        : detectLayerForConnector(portById.get(c.fromPortId)?.connectorType as never)
+      const e = m.get(layer) ?? { count: 0, meters: 0 }
+      e.count += 1
+      e.meters += c.length ?? 0
+      m.set(layer, e)
+      for (const pid of [c.fromPortId, c.toPortId]) {
+        const ct = portById.get(pid)?.connectorType
+        if (ct) conn.set(ct, (conn.get(ct) ?? 0) + 1)
+      }
+    }
+    return {
+      layerSummary: [...m.entries()].map(([layer, v]) => ({ layer, ...v })).sort((a, b) => b.meters - a.meters),
+      connectorSummary: [...conn.entries()].map(([type, count]) => ({ type, count })).sort((a, b) => b.count - a.count),
+    }
+  }, [project.cables, project.equipment])
+
   const rows: BomRow[] = useMemo(() => {
     const built = new Map<string, { count: number; sample: Cable }>()
     for (const c of project.cables) {
@@ -1010,6 +1048,34 @@ const BomSection = () => {
           )}
         </table>
       </div>
+
+      {/* Per-Gewerk-Zusammenfassung (Anzahl + Meter je Layer). */}
+      {layerSummary.length > 0 && (
+        <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
+          <span className="font-semibold uppercase tracking-wide text-slate-500">
+            {t('export.bom.byLayer', 'Je Gewerk')}:
+          </span>
+          {layerSummary.map((l) => (
+            <span key={l.layer}>
+              {t(`layer.${l.layer}`, LAYER_LABEL_DE[l.layer] ?? l.layer)}:{' '}
+              <b className="text-slate-200">{l.count}×</b>{' '}
+              <span className="font-mono">{Number(l.meters.toFixed(1))} m</span>
+            </span>
+          ))}
+        </div>
+      )}
+      {connectorSummary.length > 0 && (
+        <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
+          <span className="font-semibold uppercase tracking-wide text-slate-500">
+            {t('export.bom.connectors', 'Steckverbinder (Enden)')}:
+          </span>
+          {connectorSummary.map((c) => (
+            <span key={c.type}>
+              {c.type} <b className="text-slate-200">×{c.count}</b>
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Rentman-Planung-Save (shrink-0, pinned). */}
       <div className="flex shrink-0 items-center justify-between text-[11px]">
