@@ -150,8 +150,16 @@ export const CableWaypoints = ({
     el.setPointerCapture(event.pointerId)
 
     const handleMove = (moveEvent: PointerEvent) => {
-      const flow = screenToFlowPosition({ x: moveEvent.clientX, y: moveEvent.clientY })
-      const next = update(flow)
+      // #377 — auf ganze Flow-Einheiten runden. screenToFlowPosition liefert
+      // Sub-Pixel-Werte; durch die AXIS_TOL-Toleranz (3px) gelten knapp
+      // verschobene Segmente als achsparallel, werden aber leicht diagonal
+      // GERENDERT — über mehrere Drags akkumuliert das zu "unregelmäßigen"
+      // Pfaden. Gerundete Koordinaten halten geteilte Achsenwerte exakt gleich.
+      const raw = screenToFlowPosition({ x: moveEvent.clientX, y: moveEvent.clientY })
+      const next = update({ x: Math.round(raw.x), y: Math.round(raw.y) }).map((w) => ({
+        x: Math.round(w.x),
+        y: Math.round(w.y),
+      }))
       updateCable(cable.id, { waypoints: next.length ? next : undefined, ...extraPatch })
     }
     const handleUp = () => {
@@ -251,10 +259,14 @@ export const CableWaypoints = ({
     const needsRoutingSwitch = routing === 'straight'
 
     // For diagonal fallback only.
-    const startFlow = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+    const rawStart = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+    const startFlow = { x: Math.round(rawStart.x), y: Math.round(rawStart.y) }
 
     const handleMove = (moveEvent: PointerEvent) => {
-      const cursor = screenToFlowPosition({ x: moveEvent.clientX, y: moveEvent.clientY })
+      // #377 — auf ganze Einheiten runden, damit geteilte Achsenwerte exakt
+      // gleich bleiben und Segmente nicht sub-pixel-diagonal werden.
+      const raw = screenToFlowPosition({ x: moveEvent.clientX, y: moveEvent.clientY })
+      const cursor = { x: Math.round(raw.x), y: Math.round(raw.y) }
       const dx = cursor.x - startFlow.x
       const dy = cursor.y - startFlow.y
 
@@ -300,8 +312,12 @@ export const CableWaypoints = ({
         }
       }
 
+      // #377 — alle Waypoints auf ganze Einheiten runden: geteilte Achsenwerte
+      // (gleicher Bruchteil) runden auf denselben Integer → Segmente bleiben
+      // exakt achsparallel, keine akkumulierende Diagonale.
+      const nextRounded = next.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y) }))
       updateCable(cable.id, {
-        waypoints: next.length ? next : undefined,
+        waypoints: nextRounded.length ? nextRounded : undefined,
         ...(needsRoutingSwitch ? { routing: 'orthogonal' } : {}),
       })
     }
