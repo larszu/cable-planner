@@ -346,6 +346,23 @@ export const runDrawingChecks = (
     }
   }
 
+  // — Check 13: ST 2110 ohne PTP-Referenz (#347/#348) ------------------------
+  // SMPTE ST 2110 ist auf eine PTP-Grandmaster-Synchronisation (IEEE 1588)
+  // angewiesen. Wenn der Plan ST-2110-Signale, aber kein PTP-Signal enthält,
+  // erinnern wir an die Sync-Quelle (Info — PTP kommt oft aus dem Switch und
+  // ist evtl. nicht als Kabel gezeichnet).
+  const hasSt2110 = cables.some((c) => (c.standard ?? '').startsWith('ST2110'))
+  const hasPtp = cables.some((c) => c.standard === 'PTP')
+  if (hasSt2110 && !hasPtp) {
+    findings.push({
+      id: 'st2110-no-ptp',
+      severity: 'info',
+      category: 'Sync / PTP',
+      message:
+        'ST 2110 im Plan, aber kein PTP-Signal — PTP-Grandmaster (IEEE 1588) als Referenz nicht vergessen.',
+    })
+  }
+
   // Sortierung: error → warning → info, innerhalb stabil nach category.
   const rank: Record<CheckSeverity, number> = { error: 0, warning: 1, info: 2 }
   findings.sort((a, b) => rank[a.severity] - rank[b.severity] || a.category.localeCompare(b.category))
