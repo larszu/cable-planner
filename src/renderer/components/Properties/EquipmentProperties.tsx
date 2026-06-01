@@ -90,7 +90,7 @@ export const EquipmentProperties = () => {
   const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
 
   if (!equipment) {
-    return <div className="text-xs text-slate-400">{t('inspector.selectEquipment', 'Wähle ein Gerät auf dem Canvas.')}</div>
+    return <div className="text-cp-xs text-slate-400">{t('inspector.selectEquipment', 'Wähle ein Gerät auf dem Canvas.')}</div>
   }
 
   const handleSectionDragEnd = (event: DragEndEvent) => {
@@ -109,7 +109,7 @@ export const EquipmentProperties = () => {
     <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
     <fieldset
       disabled={projectIsLocked}
-      className="flex flex-col gap-3 text-xs disabled:cursor-default disabled:opacity-60"
+      className="flex flex-col gap-3 text-cp-xs disabled:cursor-default disabled:opacity-60"
       style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}
     >
       {projectIsLocked && (

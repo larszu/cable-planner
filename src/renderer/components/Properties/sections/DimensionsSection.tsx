@@ -26,7 +26,7 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
   }
   return (
     <SortableSection id="dimensions" title={t('dims.title', 'Dimensionen')} subtitle={summary}>
-      <div className="grid grid-cols-3 gap-2 text-xs">
+      <div className="grid grid-cols-3 gap-2 text-cp-xs">
         <label className="block">
           <span className="mb-1 block text-slate-400">{t('dims.width', 'Breite (mm)')}</span>
           <input

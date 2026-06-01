@@ -145,7 +145,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
         </div>
       }
     >
-        <div className="mb-3 flex overflow-hidden rounded border border-slate-700 text-xs">
+        <div className="mb-3 flex overflow-hidden rounded border border-slate-700 text-cp-xs">
           <button
             type="button"
             onClick={() => setTab('basics')}
@@ -169,7 +169,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
         {tab === 'basics' && (
           <div className="space-y-3">
             <label className="block">
-              <span className="mb-1 block text-xs text-slate-400">{t('rack.patchPanel.name', 'Name')}</span>
+              <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.patchPanel.name', 'Name')}</span>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -178,7 +178,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
             </label>
             <div className="grid grid-cols-2 gap-2">
               <label className="block">
-                <span className="mb-1 block text-xs text-slate-400">{t('rack.patchPanel.heightUnits', 'Höhe (HE)')}</span>
+                <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.patchPanel.heightUnits', 'Höhe (HE)')}</span>
                 <input
                   type="number"
                   min={1}
@@ -189,7 +189,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                 />
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs text-slate-400">{t('rack.patchPanel.mount', 'Montage')}</span>
+                <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.patchPanel.mount', 'Montage')}</span>
                 <select
                   value={mountSide}
                   onChange={(e) => setMountSide(e.target.value as 'front' | 'rear' | 'full')}
@@ -203,7 +203,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
               </label>
             </div>
             <label className="block">
-              <span className="mb-1 block text-xs text-slate-400">{t('rack.patchPanel.portCount', 'Anzahl Ports')}</span>
+              <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.patchPanel.portCount', 'Anzahl Ports')}</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -236,7 +236,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                 Selects (Front + Rear). Ohne Adapter-Mode wird der Rear-
                 Connector automatisch dem Front gleichgesetzt — klassische
                 Patchblende. */}
-            <label className="flex items-center gap-2 rounded border border-slate-700 bg-slate-950/40 px-2 py-1.5 text-xs">
+            <label className="flex items-center gap-2 rounded border border-slate-700 bg-slate-950/40 px-2 py-1.5 text-cp-xs">
               <input
                 type="checkbox"
                 checked={adapterMode}
@@ -252,7 +252,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
             </label>
             <div className={`grid gap-2 ${adapterMode ? 'grid-cols-2' : 'grid-cols-1'}`}>
               <label className="block">
-                <span className="mb-1 block text-xs text-slate-400">
+                <span className="mb-1 block text-cp-xs text-slate-400">
                   {adapterMode ? t('rack.patchPanel.frontConnector', 'Front-Connector') : t('rack.patchPanel.bothConnector', 'Connector-Typ (beide Seiten)')}
                 </span>
                 <ConnectorPicker
@@ -268,7 +268,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
               </label>
               {adapterMode && (
                 <label className="block">
-                  <span className="mb-1 block text-xs text-slate-400">{t('rack.patchPanel.rearConnector', 'Rear-Connector')}</span>
+                  <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.patchPanel.rearConnector', 'Rear-Connector')}</span>
                   <ConnectorPicker
                     value={rearConnector}
                     onChange={(id) => setRearConnector(id as ConnectorType)}
@@ -294,7 +294,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
               {adapterMode && ` ${t('rack.patchPanel.perPortAdapterNote', 'Bei Adapter-Patchblende sind Front- und Rear-Connector unabhängig wählbar.')}`}
             </div>
             <div className="max-h-[40vh] overflow-y-auto rounded border border-slate-800">
-              <table className="w-full text-xs">
+              <table className="w-full text-cp-xs">
                 <thead className="sticky top-0 bg-slate-800 text-slate-400">
                   <tr>
                     <th className="px-2 py-1 text-left">#</th>

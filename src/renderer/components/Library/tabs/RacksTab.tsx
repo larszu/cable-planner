@@ -39,14 +39,14 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
         <button
           type="button"
           onClick={onCreateRack}
-          className="rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
+          className="rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
         >
           {t('library.tabs.racks.new', '+ Neues Rack')}
         </button>
       </div>
 
       {groupPresets.filter((preset) => !!preset.rack).length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-2 text-xs text-slate-500 text-center p-4">
+        <div className="flex-1 flex flex-col items-center justify-center gap-2 text-cp-xs text-slate-500 text-center p-4">
           <span className="text-2xl">▥</span>
           <span>{t('library.tabs.racks.empty', 'Noch kein Rack-Layout gespeichert.')}</span>
         </div>

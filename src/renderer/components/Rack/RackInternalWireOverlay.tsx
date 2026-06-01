@@ -67,7 +67,7 @@ export const RackInternalWireOverlay = ({
         <div className="mb-2 flex items-center justify-between gap-3">
           <div>
             <h3 className="text-cp-xl font-semibold">{t('rack.wire.title', 'Rack-Verkabelung')}: {rackName || t('rack.unnamed', '(unbenannt)')}</h3>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-cp-xs text-slate-400">
               {t(
                 'rack.wire.intro',
                 'Ziehe Linien Output → Input. Rechtsklick auf Kabel = Menü, Doppelklick = Eigenschaften, Entf = Löschen. Verwendet jetzt die echte Canvas-Komponente — Toolbar, Routing, Waypoints, A*-Routing alles wie im Hauptcanvas.',
@@ -77,7 +77,7 @@ export const RackInternalWireOverlay = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-emerald-700 px-3 py-1.5 text-xs hover:bg-emerald-600"
+            className="rounded bg-emerald-700 px-3 py-1.5 text-cp-xs hover:bg-emerald-600"
           >
             {t('common.done', 'Fertig')}
           </button>

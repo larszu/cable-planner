@@ -52,7 +52,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-slate-800 px-3 py-1 text-xs text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+            className="rounded bg-slate-800 px-3 py-1 text-cp-xs text-slate-400 hover:bg-slate-700 hover:text-slate-200"
             title={t(
               'project.welcome.laterTitle',
               'Ohne Auswahl fortfahren — bitte denke daran, manuell zu speichern.',
@@ -63,7 +63,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
         </div>
       }
     >
-      <p className="mb-3 text-xs text-slate-400">
+      <p className="mb-3 text-cp-xs text-slate-400">
         {t(
           'project.welcome.intro',
           'Lege ein neues Projekt an oder öffne ein bestehendes, damit deine Arbeit zuverlässig gespeichert wird.',

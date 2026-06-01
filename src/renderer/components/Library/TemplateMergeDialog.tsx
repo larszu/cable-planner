@@ -152,7 +152,7 @@ export const TemplateMergeDialog = ({
         </div>
       }
     >
-      <p className="mb-3 text-xs text-slate-400">
+      <p className="mb-3 text-cp-xs text-slate-400">
         {format(
           t(
             'templateMerge.intro',
@@ -162,7 +162,7 @@ export const TemplateMergeDialog = ({
         )}
       </p>
 
-      <div className="mb-3 grid grid-cols-3 gap-2 text-xs">
+      <div className="mb-3 grid grid-cols-3 gap-2 text-cp-xs">
           <label className="block">
             {t('templateMerge.targetCategory', 'Zielkategorie')}
             <select
@@ -195,7 +195,7 @@ export const TemplateMergeDialog = ({
 
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-slate-400">
               {t('templateMerge.local', 'Lokal')}
             </div>
             <div className="mb-1 text-[11px] text-slate-400">{localTemplate.name}</div>
@@ -206,7 +206,7 @@ export const TemplateMergeDialog = ({
                   {localTemplate.inputs.map((port) => {
                     const key = makePortKey('local', 'in', port.id)
                     return (
-                      <label key={key} className="flex items-center gap-2 rounded px-1 py-0.5 text-xs hover:bg-slate-900">
+                      <label key={key} className="flex items-center gap-2 rounded px-1 py-0.5 text-cp-xs hover:bg-slate-900">
                         <input type="checkbox" checked={selectedKeys.has(key)} onChange={() => toggle(key)} />
                         <span className="truncate">{port.name}</span>
                         <span className="ml-auto text-[10px] text-slate-400">{port.connectorType}</span>
@@ -221,7 +221,7 @@ export const TemplateMergeDialog = ({
                   {localTemplate.outputs.map((port) => {
                     const key = makePortKey('local', 'out', port.id)
                     return (
-                      <label key={key} className="flex items-center gap-2 rounded px-1 py-0.5 text-xs hover:bg-slate-900">
+                      <label key={key} className="flex items-center gap-2 rounded px-1 py-0.5 text-cp-xs hover:bg-slate-900">
                         <input type="checkbox" checked={selectedKeys.has(key)} onChange={() => toggle(key)} />
                         <span className="truncate">{port.name}</span>
                         <span className="ml-auto text-[10px] text-slate-400">{port.connectorType}</span>
@@ -234,7 +234,7 @@ export const TemplateMergeDialog = ({
           </div>
 
           <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{incomingLabel}</div>
+            <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-slate-400">{incomingLabel}</div>
             <div className="mb-1 text-[11px] text-slate-400">{incomingTemplate.name}</div>
             <div className="space-y-2">
               <div>
@@ -243,7 +243,7 @@ export const TemplateMergeDialog = ({
                   {incomingTemplate.inputs.map((port) => {
                     const key = makePortKey('incoming', 'in', port.id)
                     return (
-                      <label key={key} className="flex items-center gap-2 rounded px-1 py-0.5 text-xs hover:bg-slate-900">
+                      <label key={key} className="flex items-center gap-2 rounded px-1 py-0.5 text-cp-xs hover:bg-slate-900">
                         <input type="checkbox" checked={selectedKeys.has(key)} onChange={() => toggle(key)} />
                         <span className="truncate">{port.name}</span>
                         <span className="ml-auto text-[10px] text-slate-400">{port.connectorType}</span>
@@ -258,7 +258,7 @@ export const TemplateMergeDialog = ({
                   {incomingTemplate.outputs.map((port) => {
                     const key = makePortKey('incoming', 'out', port.id)
                     return (
-                      <label key={key} className="flex items-center gap-2 rounded px-1 py-0.5 text-xs hover:bg-slate-900">
+                      <label key={key} className="flex items-center gap-2 rounded px-1 py-0.5 text-cp-xs hover:bg-slate-900">
                         <input type="checkbox" checked={selectedKeys.has(key)} onChange={() => toggle(key)} />
                         <span className="truncate">{port.name}</span>
                         <span className="ml-auto text-[10px] text-slate-400">{port.connectorType}</span>

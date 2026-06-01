@@ -457,7 +457,7 @@ const SourcePicker = ({
           onChange={(e) => setFilter(e.target.value)}
           placeholder={t('common.search', 'Suche…')}
           aria-label={t('common.search', 'Suche…')}
-          className="mb-1 w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs"
+          className="mb-1 w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-cp-xs"
         />
         <div className="flex gap-1">
           <input
@@ -465,7 +465,7 @@ const SourcePicker = ({
             value={custom}
             onChange={(e) => setCustom(e.target.value)}
             placeholder={t('atem.mv.idPlaceholder', 'ID')}
-            className="w-20 rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs"
+            className="w-20 rounded border border-slate-700 bg-slate-800 px-2 py-1 text-cp-xs"
           />
           <button
             type="button"
@@ -473,13 +473,13 @@ const SourcePicker = ({
               const n = Number(custom)
               if (!Number.isNaN(n)) onPick(n)
             }}
-            className="flex-1 rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
+            className="flex-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
           >
             Übernehmen
           </button>
         </div>
       </div>
-      <div className="p-1 text-xs">
+      <div className="p-1 text-cp-xs">
         {grouped.map(([group, items]) => (
           <div key={group} className="mb-1">
             <div className="px-1 py-0.5 text-[10px] uppercase tracking-wider text-slate-400">
@@ -1099,7 +1099,7 @@ export const AtemMvConfigDialog = () => {
           <button
             type="button"
             onClick={close}
-            className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
+            className="rounded bg-slate-800 px-2 py-1 text-cp-xs hover:bg-slate-700"
           >
             {t('common.close', 'Schließen')}
           </button>
@@ -1111,7 +1111,7 @@ export const AtemMvConfigDialog = () => {
               key={mvItem.index}
               type="button"
               onClick={() => setActiveMv(i)}
-              className={`rounded px-3 py-1 text-xs ${
+              className={`rounded px-3 py-1 text-cp-xs ${
                 i === activeMv
                   ? 'bg-sky-700 text-white'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -1125,7 +1125,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={addMv}
               disabled={config.multiViewers.length >= 4}
-              className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600 disabled:opacity-40"
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600 disabled:opacity-40"
               title={t('atem.mv.addMv', 'Multiviewer hinzufügen')}
             >
               +
@@ -1134,7 +1134,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={removeMv}
               disabled={config.multiViewers.length <= 1}
-              className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600 disabled:opacity-40"
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600 disabled:opacity-40"
               title={t('atem.mv.removeMv', 'Letzten Multiviewer entfernen')}
             >
               −
@@ -1222,7 +1222,7 @@ export const AtemMvConfigDialog = () => {
             <button
               type="button"
               onClick={() => void handleExportPng()}
-              className="rounded bg-indigo-700 px-3 py-1 text-xs hover:bg-indigo-600"
+              className="rounded bg-indigo-700 px-3 py-1 text-cp-xs hover:bg-indigo-600"
               title={t('atem.mv.savePng', 'Aktuelles MV-Layout als PNG speichern')}
             >
               {t('atem.mv.asPng', 'Als PNG')}
@@ -1230,7 +1230,7 @@ export const AtemMvConfigDialog = () => {
             <button
               type="button"
               onClick={handleSave}
-              className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+              className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
             >
               {t('atem.mv.saveDraft', 'Zwischenspeichern')}
             </button>
@@ -1239,7 +1239,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={() => void handleReadFromAtem()}
               disabled={!connected}
-              className="rounded bg-sky-700 px-3 py-1 text-xs enabled:hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded bg-sky-700 px-3 py-1 text-cp-xs enabled:hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
                   ? t('atem.mv.readFromTitle', 'Multiviewer-Setup vom verbundenen ATEM auslesen und in die Anzeige uebernehmen.')
@@ -1252,7 +1252,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={handleApply}
               disabled={!connected}
-              className="rounded bg-emerald-700 px-3 py-1 text-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
                   ? t('atem.mv.applyTitle', 'Konfiguration an ATEM übertragen')

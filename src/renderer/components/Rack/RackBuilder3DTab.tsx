@@ -254,7 +254,7 @@ export const RackBuilder3DTab = ({
           />
         </div>
       ) : (
-        <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center text-xs text-slate-500">
+        <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center text-cp-xs text-slate-500">
           Erst Geräte ins Rack legen, dann erscheint die 3D-Ansicht.
         </div>
       )}

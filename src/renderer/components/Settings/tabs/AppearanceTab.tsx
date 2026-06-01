@@ -51,7 +51,7 @@ const CustomPaletteCard = () => {
         {t('settings.customPalette.enable', 'Eigene Palette aktivieren')}
       </label>
       {enabled && (
-        <div className="grid grid-cols-3 gap-3 text-xs">
+        <div className="grid grid-cols-3 gap-3 text-cp-xs">
           {(
             [
               { key: 'canvasBg', label: t('settings.customPalette.bg', 'Hintergrund') },
@@ -167,7 +167,7 @@ export const AppearanceTab = () => {
               key={opt.value}
               type="button"
               onClick={() => setLanguage(opt.value)}
-              className={`flex-1 rounded px-3 py-1 text-xs ${
+              className={`flex-1 rounded px-3 py-1 text-cp-xs ${
                 language === opt.value
                   ? 'bg-sky-700 text-white'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -198,7 +198,7 @@ export const AppearanceTab = () => {
               key={mode}
               type="button"
               onClick={() => setCanvasTheme(mode)}
-              className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded px-3 py-1 text-xs ${
+              className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded px-3 py-1 text-cp-xs ${
                 canvasTheme === mode
                   ? 'bg-sky-700 text-white'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -238,7 +238,7 @@ export const AppearanceTab = () => {
             onChange={(e) => setPortLabelFontSize(parseInt(e.target.value, 10))}
             className="flex-1"
           />
-          <span className="w-10 text-right font-mono text-xs text-slate-300">
+          <span className="w-10 text-right font-mono text-cp-xs text-slate-300">
             {portLabelFontSize}px
           </span>
           <button
@@ -264,7 +264,7 @@ export const AppearanceTab = () => {
           <button
             type="button"
             onClick={() => setColorPortsByType(false)}
-            className={`flex-1 rounded px-3 py-1 text-xs ${
+            className={`flex-1 rounded px-3 py-1 text-cp-xs ${
               !colorPortsByType
                 ? 'bg-sky-700 text-white'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -279,7 +279,7 @@ export const AppearanceTab = () => {
           <button
             type="button"
             onClick={() => setColorPortsByType(true)}
-            className={`flex-1 rounded px-3 py-1 text-xs ${
+            className={`flex-1 rounded px-3 py-1 text-cp-xs ${
               colorPortsByType
                 ? 'bg-sky-700 text-white'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -305,7 +305,7 @@ export const AppearanceTab = () => {
           <button
             type="button"
             onClick={() => setCableColorMode('manual')}
-            className={`flex-1 rounded px-3 py-1 text-xs ${
+            className={`flex-1 rounded px-3 py-1 text-cp-xs ${
               cableColorMode === 'manual'
                 ? 'bg-sky-700 text-white'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -316,7 +316,7 @@ export const AppearanceTab = () => {
           <button
             type="button"
             onClick={() => setCableColorMode('byLength')}
-            className={`flex-1 rounded px-3 py-1 text-xs ${
+            className={`flex-1 rounded px-3 py-1 text-cp-xs ${
               cableColorMode === 'byLength'
                 ? 'bg-sky-700 text-white'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -376,11 +376,11 @@ export const AppearanceTab = () => {
       >
         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-200">
           <label className="flex items-center gap-2">
-            <span className="text-xs text-slate-400">{t('settings.canvasBg.variant', 'Muster')}</span>
+            <span className="text-cp-xs text-slate-400">{t('settings.canvasBg.variant', 'Muster')}</span>
             <select
               value={bgVariant}
               onChange={(e) => setBgVariant(e.target.value as 'dots' | 'lines' | 'cross' | 'none')}
-              className="rounded border border-slate-700 bg-slate-900 p-1 text-xs"
+              className="rounded border border-slate-700 bg-slate-900 p-1 text-cp-xs"
             >
               <option value="dots">{t('settings.canvasBg.variant.dots', 'Punkte')}</option>
               <option value="lines">{t('settings.canvasBg.variant.lines', 'Linien')}</option>
@@ -389,7 +389,7 @@ export const AppearanceTab = () => {
             </select>
           </label>
           <label className="flex items-center gap-2">
-            <span className="text-xs text-slate-400">{t('settings.canvasBg.opacity', 'Deckkraft')}</span>
+            <span className="text-cp-xs text-slate-400">{t('settings.canvasBg.opacity', 'Deckkraft')}</span>
             <input
               type="range"
               min={0}
@@ -400,14 +400,14 @@ export const AppearanceTab = () => {
               className="w-32"
               disabled={bgVariant === 'none'}
             />
-            <span className="w-10 text-right text-xs text-slate-400">
+            <span className="w-10 text-right text-cp-xs text-slate-400">
               {Math.round(bgOpacity * 100)}%
             </span>
           </label>
         </div>
         {/* v7.7.1 — Custom canvas background image upload (Issue #71). */}
         <div className="mt-4 border-t border-slate-800 pt-3">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-slate-400">
             {t('settings.canvasBg.imageTitle', 'Eigenes Hintergrundbild')}
           </div>
           <div className="mb-2 text-[11px] text-slate-400">
@@ -467,12 +467,12 @@ export const AppearanceTab = () => {
               </div>
             ))}
           </div>
-          <label className="mt-3 flex items-center gap-2 text-xs text-slate-300">
+          <label className="mt-3 flex items-center gap-2 text-cp-xs text-slate-300">
             <span className="text-slate-400">{t('settings.canvasBg.fit', 'Skalierung')}</span>
             <select
               value={canvasBgImageFit}
               onChange={(e) => setCanvasBgImageFit(e.target.value as 'cover' | 'contain' | 'tile')}
-              className="rounded border border-slate-700 bg-slate-900 p-1 text-xs"
+              className="rounded border border-slate-700 bg-slate-900 p-1 text-cp-xs"
             >
               <option value="cover">{t('settings.canvasBg.fit.cover', 'Cover (füllt komplett, beschneidet)')}</option>
               <option value="contain">{t('settings.canvasBg.fit.contain', 'Contain (vollständig sichtbar, mit Rand)')}</option>
@@ -507,7 +507,7 @@ export const AppearanceTab = () => {
                   onChange={(e) => setConnectorTypeColor(name, e.target.value)}
                   className="h-6 w-8 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
                 />
-                <span className="flex-1 truncate text-xs">
+                <span className="flex-1 truncate text-cp-xs">
                   {name}
                   {isCustom && <span className="ml-1 text-[9px] text-slate-400">(custom)</span>}
                 </span>
@@ -529,7 +529,7 @@ export const AppearanceTab = () => {
           <button
             type="button"
             onClick={() => resetConnectorTypeColors()}
-            className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-300 hover:bg-slate-700"
+            className="rounded bg-slate-800 px-2 py-1 text-cp-xs text-slate-300 hover:bg-slate-700"
           >
             {t('settings.connectorColors.resetAll', 'Alle zurücksetzen')}
           </button>
@@ -560,7 +560,7 @@ export const AppearanceTab = () => {
                     onChange={(e) => setCategoryColor(cat, e.target.value)}
                     className="h-6 w-8 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
                   />
-                  <span className="flex-1 truncate text-xs" title={cat}>{cat}</span>
+                  <span className="flex-1 truncate text-cp-xs" title={cat}>{cat}</span>
                   {override && (
                     <button
                       type="button"
@@ -581,7 +581,7 @@ export const AppearanceTab = () => {
             <button
               type="button"
               onClick={() => resetCategoryColors()}
-              className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-300 hover:bg-slate-700"
+              className="rounded bg-slate-800 px-2 py-1 text-cp-xs text-slate-300 hover:bg-slate-700"
             >
               {t('settings.categoryColors.resetAll', 'Alle zuruecksetzen')}
             </button>

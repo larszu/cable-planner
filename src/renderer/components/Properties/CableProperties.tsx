@@ -25,7 +25,7 @@ export const CableProperties = () => {
 
   if (!cable) {
     return (
-      <div className="text-xs text-slate-400">
+      <div className="text-cp-xs text-slate-400">
         {t('cable.click.placeholder', 'Kabel anklicken um Eigenschaften zu sehen.')}
       </div>
     )
@@ -74,7 +74,7 @@ export const CableProperties = () => {
   }
 
   return (
-    <div className="space-y-2 text-xs">
+    <div className="space-y-2 text-cp-xs">
       {/* Spec info bar */}
       {spec && (
         <div className="flex items-center gap-1.5 rounded border border-slate-700 bg-slate-900 px-2 py-1.5">
@@ -268,7 +268,7 @@ export const CableProperties = () => {
                 aria-label={t('cable.aria.fromDevice', 'Quell-Gerät')}
                 value={cable.fromEquipmentId}
                 onChange={(e) => onSelectFromEquipment(e.target.value)}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
               >
                 {sortedEquipment.map((eq) => (
                   <option key={eq.id} value={eq.id}>
@@ -281,7 +281,7 @@ export const CableProperties = () => {
                 aria-label={t('cable.aria.fromPort', 'Quell-Port')}
                 value={cable.fromPortId}
                 onChange={(e) => updateCable(cable.id, { fromPortId: e.target.value })}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
               >
                 {portsOf(fromDev).map((p) => {
                   const inUse = !!portConflict(cable.fromEquipmentId, p.id)
@@ -300,7 +300,7 @@ export const CableProperties = () => {
                 aria-label={t('cable.aria.toDevice', 'Ziel-Gerät')}
                 value={cable.toEquipmentId}
                 onChange={(e) => onSelectToEquipment(e.target.value)}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
               >
                 {sortedEquipment.map((eq) => (
                   <option key={eq.id} value={eq.id}>
@@ -313,7 +313,7 @@ export const CableProperties = () => {
                 aria-label={t('cable.aria.toPort', 'Ziel-Port')}
                 value={cable.toPortId}
                 onChange={(e) => updateCable(cable.id, { toPortId: e.target.value })}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
               >
                 {portsOf(toDev).map((p) => {
                   const inUse = !!portConflict(cable.toEquipmentId, p.id)
@@ -418,7 +418,7 @@ export const CableProperties = () => {
                           ? `${p.label} — Klick zum Ausblenden des Labels`
                           : `${p.label}`
                       }
-                      className={`flex-1 rounded border px-2 py-1 text-xs ${
+                      className={`flex-1 rounded border px-2 py-1 text-cp-xs ${
                         isActive
                           ? 'border-sky-500 bg-sky-800 text-white'
                           : 'border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800'
@@ -574,7 +574,7 @@ export const CableProperties = () => {
                 value={cable.frequency ?? ''}
                 onChange={(event) => updateCable(cable.id, { frequency: event.target.value || undefined })}
                 placeholder={t('cable.field.frequencyPlaceholder', 'z.B. 5.8 GHz, 600 MHz')}
-                className="w-full rounded border border-slate-700 bg-slate-900 p-1.5 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-900 p-1.5 text-cp-xs"
               />
             </label>
             <label className="block">
@@ -583,7 +583,7 @@ export const CableProperties = () => {
                 value={cable.wifiChannel ?? ''}
                 onChange={(event) => updateCable(cable.id, { wifiChannel: event.target.value || undefined })}
                 placeholder={t('cable.field.channelPlaceholder', 'z.B. 36, 6, 149')}
-                className="w-full rounded border border-slate-700 bg-slate-900 p-1.5 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-900 p-1.5 text-cp-xs"
               />
             </label>
           </div>

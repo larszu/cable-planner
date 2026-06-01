@@ -151,7 +151,7 @@ export const ModeEditorDialog = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
           >
             {t('common.cancel', 'Abbrechen')}
           </button>
@@ -159,14 +159,14 @@ export const ModeEditorDialog = ({
             type="button"
             onClick={handleSave}
             disabled={!canSave}
-            className="rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="rounded bg-emerald-600 px-3 py-1 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
           >
             {isEditing ? t('common.save', 'Speichern') : t('modeEditor.createBtn', 'Modus anlegen')}
           </button>
         </div>
       }
     >
-      <div className="text-xs">
+      <div className="text-cp-xs">
         {/* Name & description */}
         <div className="space-y-2">
           <label className="block">

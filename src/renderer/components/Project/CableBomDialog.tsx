@@ -301,7 +301,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
               <button
                 type="button"
                 onClick={discardPlan}
-                className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+                className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
               >
                 {t('bom.cable.discard', 'Verwerfen')}
               </button>
@@ -310,7 +310,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
               type="button"
               onClick={savePlan}
               disabled={!draftPlan}
-              className="rounded bg-emerald-700 px-3 py-1 text-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {t('bom.cable.savePlan', 'Rentman-Planung speichern')}
             </button>
@@ -325,7 +325,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                 openRentmanCableExport()
               }}
               title={t('bom.cable.syncRentmanTitle', 'Schliesst diesen Dialog und oeffnet den Rentman-Cable-Export mit den aktuellen Buckets vorbefuellt.')}
-              className="inline-flex items-center gap-1.5 rounded bg-orange-700 px-3 py-1 text-xs font-semibold hover:bg-orange-600"
+              className="inline-flex items-center gap-1.5 rounded bg-orange-700 px-3 py-1 text-cp-xs font-semibold hover:bg-orange-600"
             >
               <Icon icon={Package} size="xs" />
               {t('bom.cable.syncRentman', 'Mit Rentman synchronisieren →')}
@@ -356,14 +356,14 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
             <button
               type="button"
               onClick={exportCsv}
-              className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
             >
               {t('bom.cable.csv', 'CSV')}
             </button>
             <button
               type="button"
               onClick={exportPdf}
-              className="rounded bg-amber-700 px-2 py-1 text-xs hover:bg-amber-600"
+              className="rounded bg-amber-700 px-2 py-1 text-cp-xs hover:bg-amber-600"
             >
               {t('bom.cable.pdf', 'PDF')}
             </button>
@@ -371,7 +371,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
         </div>
 
         <div className="min-h-0 flex-1 overflow-auto px-4">
-          <table className="w-full text-xs">
+          <table className="w-full text-cp-xs">
             <thead className="sticky top-0 bg-slate-950 text-slate-300">
               <tr>
                 <th className="px-3 py-2 text-left">{t('bom.cable.col.type', 'Typ')}</th>

@@ -80,7 +80,7 @@ export const RackBuilderDialogExportMenu = ({
         type="button"
         onClick={() => setOpen((v) => !v)}
         title={t('rack.exportTitle', 'Rack exportieren (PNG / STL / .cpgroup)')}
-        className="flex h-8 items-center gap-1 rounded border border-slate-700 bg-slate-800 px-3 text-xs text-slate-300 hover:border-sky-500/50 hover:bg-sky-900/30 hover:text-sky-200"
+        className="flex h-8 items-center gap-1 rounded border border-slate-700 bg-slate-800 px-3 text-cp-xs text-slate-300 hover:border-sky-500/50 hover:bg-sky-900/30 hover:text-sky-200"
       >
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M8 1 L8 10 M4 7 L8 11 L12 7 M2 13 L14 13" />
@@ -90,7 +90,7 @@ export const RackBuilderDialogExportMenu = ({
       {open && (
         <div
           onMouseLeave={() => setOpen(false)}
-          className="absolute right-0 top-9 z-50 w-64 overflow-hidden rounded border border-slate-700 bg-slate-900 text-xs shadow-2xl"
+          className="absolute right-0 top-9 z-50 w-64 overflow-hidden rounded border border-slate-700 bg-slate-900 text-cp-xs shadow-2xl"
         >
           <button
             type="button"

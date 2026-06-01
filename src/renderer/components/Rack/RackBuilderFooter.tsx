@@ -92,7 +92,7 @@ export const RackBuilderFooter = ({
           type="button"
           onClick={onOpenInternalCanvas}
           disabled={internWireDisabled}
-          className="inline-flex items-center gap-1.5 rounded border border-sky-600/50 bg-sky-800/40 px-3 py-1.5 text-xs font-medium text-sky-100 hover:bg-sky-700/60 disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 rounded border border-sky-600/50 bg-sky-800/40 px-3 py-1.5 text-cp-xs font-medium text-sky-100 hover:bg-sky-700/60 disabled:opacity-40"
           title={t('rack.openInternalCanvas', 'Geräte des Racks intern verkabeln — vollständige Canvas-Ansicht')}
         >
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
@@ -103,7 +103,7 @@ export const RackBuilderFooter = ({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded px-3 py-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+          className="rounded px-3 py-1.5 text-cp-xs text-slate-400 hover:bg-slate-800 hover:text-slate-200"
         >
           {t('common.cancel', 'Abbrechen')}
         </button>

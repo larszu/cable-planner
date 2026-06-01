@@ -158,7 +158,7 @@ export const AdvancedTab = () => {
         )}
       >
         <div className="max-h-56 overflow-auto rounded border border-slate-800 bg-slate-950/50">
-          <table className="w-full text-xs">
+          <table className="w-full text-cp-xs">
             <thead className="sticky top-0 bg-slate-900 text-slate-400">
               <tr>
                 <th className="px-2 py-1 text-left">
@@ -208,7 +208,7 @@ export const AdvancedTab = () => {
         <button
           type="button"
           onClick={handleAdd}
-          className="mt-2 rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600"
+          className="mt-2 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600"
         >
           {t('settings.advanced.categories.addBtn', '+ Neue Kategorie')}
         </button>
@@ -227,7 +227,7 @@ export const AdvancedTab = () => {
             onClick={() =>
               clearCache('cable-planner:rentmanTemplateCache:v1', 'Rentman-Template-Cache')
             }
-            className="rounded bg-slate-700 px-3 py-1 text-xs text-left hover:bg-slate-600"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-xs text-left hover:bg-slate-600"
           >
             {t('settings.advanced.caches.rentman', 'Rentman-Template-Cache leeren')}
           </button>
@@ -235,14 +235,14 @@ export const AdvancedTab = () => {
           <button
             type="button"
             onClick={() => clearCache('cable-planner:web:recents', 'Web-Suchverlauf')}
-            className="rounded bg-slate-700 px-3 py-1 text-xs text-left hover:bg-slate-600"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-xs text-left hover:bg-slate-600"
           >
             {t('settings.advanced.caches.web', 'Web-Suchverlauf leeren')}
           </button>
           <button
             type="button"
             onClick={resetWelcome}
-            className="rounded bg-slate-700 px-3 py-1 text-xs text-left hover:bg-slate-600"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-xs text-left hover:bg-slate-600"
           >
             {t('settings.advanced.caches.welcome', 'Willkommens-Dialog beim nächsten Start zeigen')}
           </button>
@@ -259,7 +259,7 @@ export const AdvancedTab = () => {
         <button
           type="button"
           onClick={exportAllData}
-          className="rounded bg-amber-700 px-3 py-1 text-xs hover:bg-amber-600"
+          className="rounded bg-amber-700 px-3 py-1 text-cp-xs hover:bg-amber-600"
         >
           {t('settings.advanced.exportBtn', 'Alle localStorage-Daten exportieren')}
         </button>

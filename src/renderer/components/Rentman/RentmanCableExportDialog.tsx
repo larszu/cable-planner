@@ -346,7 +346,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
         )}
 
         <div className="min-h-0 flex-1 overflow-auto px-4">
-          <table className="w-full text-xs">
+          <table className="w-full text-cp-xs">
             <thead className="sticky top-0 bg-slate-950 text-slate-300">
               <tr>
                 <th className="px-3 py-2 text-left">{t('rentman.cableExport.col.typeLength', 'Typ / Länge')}</th>

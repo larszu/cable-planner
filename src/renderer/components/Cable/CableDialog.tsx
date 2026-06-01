@@ -260,7 +260,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
         <h3 id={titleId} className="mb-2 text-cp-2xl font-semibold">{t('cable.dialog.title', 'Neues Kabel')}</h3>
 
         {fromPort && toPort && (
-          <div className="mb-3 rounded bg-slate-950 p-2 text-xs">
+          <div className="mb-3 rounded bg-slate-950 p-2 text-cp-xs">
             <div>
               {t('cable.dialog.from', 'Von:')} <span className="font-medium">{fromPort.name}</span> ({fromPort.connectorType}
               {fromPort.standard ? `, ${fromPort.standard}` : ''})
@@ -392,7 +392,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                   setSpecId(created.id)
                   setName(created.name)
                 }}
-                className="mt-2 w-full rounded bg-sky-700 px-2 py-1 text-xs font-medium text-white hover:bg-sky-600"
+                className="mt-2 w-full rounded bg-sky-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-sky-600"
                 title={t('cable.dialog.saveCustomTitle', 'Speichert diese Custom-Definition als wiederverwendbaren Kabeltyp in der Bibliothek.')}
               >
                 <Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />Als Kabel-Typ speichern…
@@ -460,7 +460,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
         </div>
 
         {/* Status/warning area */}
-        <div className="mt-3 space-y-1 text-xs">
+        <div className="mt-3 space-y-1 text-cp-xs">
           {connectorMismatch === 'error' && (
             <div className="flex items-center gap-1.5 rounded bg-red-900/50 p-2 text-red-100">
               <Icon icon={XCircle} size="sm" />

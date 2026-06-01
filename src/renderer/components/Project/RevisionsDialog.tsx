@@ -91,7 +91,7 @@ export const RevisionsDialog = () => {
       <div className="flex flex-col gap-3">
         {/* Festschreiben */}
         <div className="rounded border border-slate-700 bg-slate-900/40 p-2">
-          <div className="mb-1.5 text-xs font-semibold text-slate-300">
+          <div className="mb-1.5 text-cp-xs font-semibold text-slate-300">
             {t('revisions.commitTitle', 'Aktuellen Stand festschreiben')}
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -99,15 +99,15 @@ export const RevisionsDialog = () => {
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               placeholder={t('revisions.labelPlaceholder', 'Label (z.B. "A", "Rev 2")')}
-              className="w-32 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+              className="w-32 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
             />
             <input
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder={t('revisions.notePlaceholder', 'Notiz: was hat sich geändert?')}
-              className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+              className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
             />
-            <label className="flex items-center gap-1 text-xs text-slate-300">
+            <label className="flex items-center gap-1 text-cp-xs text-slate-300">
               <input
                 type="checkbox"
                 checked={asBuilt}
@@ -118,7 +118,7 @@ export const RevisionsDialog = () => {
             <button
               type="button"
               onClick={commit}
-              className="inline-flex items-center gap-1 rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600"
+              className="inline-flex items-center gap-1 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600"
             >
               <Icon icon={Camera} size="xs" />
               {t('revisions.commit', 'Festschreiben')}
@@ -128,13 +128,13 @@ export const RevisionsDialog = () => {
 
         {/* Liste */}
         {sorted.length === 0 ? (
-          <p className="py-6 text-center text-xs text-slate-500">
+          <p className="py-6 text-center text-cp-xs text-slate-500">
             {t('revisions.empty', 'Noch keine Revisionen festgeschrieben.')}
           </p>
         ) : (
           <ul className="divide-y divide-slate-800/60">
             {sorted.map((rev) => (
-              <li key={rev.id} className="flex items-center gap-2 py-1.5 text-xs">
+              <li key={rev.id} className="flex items-center gap-2 py-1.5 text-cp-xs">
                 <span
                   className={`rounded px-1.5 py-0.5 font-bold ${
                     rev.asBuilt ? 'bg-amber-600 text-amber-50' : 'bg-slate-700 text-slate-200'

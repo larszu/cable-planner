@@ -1133,7 +1133,7 @@ export default function App() {
                   </strong>{' '}
                   {t('app.portConflict.connected', 'belegt:')}
                 </p>
-                <ul className="mb-3 max-h-32 space-y-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-2 text-xs">
+                <ul className="mb-3 max-h-32 space-y-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-2 text-cp-xs">
                   {conflictingCables.map((c) => {
                     const srcEq = getEquipmentById(project.equipment, c.fromEquipmentId)
                     const srcPort = srcEq
@@ -1161,14 +1161,14 @@ export default function App() {
                 <button
                   type="button"
                   onClick={cancelPortConflict}
-                  className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+                  className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
                 >
                   {t('common.cancel', 'Abbrechen')}
                 </button>
                 <button
                   type="button"
                   onClick={resolvePortConflictByReplace}
-                  className="rounded bg-amber-700 px-3 py-1 text-xs font-semibold hover:bg-amber-600"
+                  className="rounded bg-amber-700 px-3 py-1 text-cp-xs font-semibold hover:bg-amber-600"
                 >
                   {t('app.portConflict.okReplace', 'Ersetzen')}
                 </button>
@@ -1187,7 +1187,7 @@ export default function App() {
             <div className="mb-3 h-1.5 w-full overflow-hidden rounded bg-slate-800">
               <div className="h-full w-full origin-left animate-pulse bg-sky-500" />
             </div>
-            <div className="text-xs text-slate-300">{pdfProgress.phase}</div>
+            <div className="text-cp-xs text-slate-300">{pdfProgress.phase}</div>
             {pdfProgress.detail && (
               <div className="mt-1 text-[11px] text-slate-400">{pdfProgress.detail}</div>
             )}
@@ -1250,7 +1250,7 @@ const PdfExportDialog = ({
             <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
               {t('pdfExport.bg.title', 'Hintergrund')}
             </legend>
-            <label className="mb-2 flex cursor-pointer items-center gap-2 text-xs text-slate-200">
+            <label className="mb-2 flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
               <input
                 type="radio"
                 name="pdf-bg-theme"
@@ -1259,7 +1259,7 @@ const PdfExportDialog = ({
               />
               {t('pdfExport.bg.light', 'Hell')}
             </label>
-            <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
+            <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
               <input
                 type="radio"
                 name="pdf-bg-theme"
@@ -1277,7 +1277,7 @@ const PdfExportDialog = ({
             <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
               {t('pdfExport.render.title', 'Render-Modus')}
             </legend>
-            <label className="mb-2 flex cursor-pointer items-start gap-2 text-xs text-slate-200">
+            <label className="mb-2 flex cursor-pointer items-start gap-2 text-cp-xs text-slate-200">
               <input
                 type="radio"
                 name="pdf-render-mode"
@@ -1294,7 +1294,7 @@ const PdfExportDialog = ({
                 </span>
               </span>
             </label>
-            <label className="flex cursor-pointer items-start gap-2 text-xs text-slate-200">
+            <label className="flex cursor-pointer items-start gap-2 text-cp-xs text-slate-200">
               <input
                 type="radio"
                 name="pdf-render-mode"
@@ -1317,14 +1317,14 @@ const PdfExportDialog = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-700"
+            className="rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-cp-xs text-slate-100 hover:bg-slate-700"
           >
             {t('common.cancel', 'Abbrechen')}
           </button>
           <button
             type="button"
             onClick={onExport}
-            className="rounded bg-sky-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-600"
+            className="rounded bg-sky-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-sky-600"
           >
             {t('pdfExport.exportBtn', 'PDF exportieren')}
           </button>
@@ -1678,7 +1678,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     aria-label={t('cable.aria.fromDevice', 'Quell-Gerät')}
                     value={fromEquipmentId}
                     onChange={(e) => onSelectFromEquipment(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
                   >
                     {sortedEquipment.map((eq) => (
                       <option key={eq.id} value={eq.id}>
@@ -1691,7 +1691,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     aria-label={t('cable.aria.fromPort', 'Quell-Port')}
                     value={fromPortId}
                     onChange={(e) => setFromPortId(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
                   >
                     {portsOf(fromDev).map((p) => {
                       const inUse = !!portConflict(fromEquipmentId, p.id)
@@ -1710,7 +1710,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     aria-label={t('cable.aria.toDevice', 'Ziel-Gerät')}
                     value={toEquipmentId}
                     onChange={(e) => onSelectToEquipment(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
                   >
                     {sortedEquipment.map((eq) => (
                       <option key={eq.id} value={eq.id}>
@@ -1723,7 +1723,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     aria-label={t('cable.aria.toPort', 'Ziel-Port')}
                     value={toPortId}
                     onChange={(e) => setToPortId(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
                   >
                     {portsOf(toDev).map((p) => {
                       const inUse = !!portConflict(toEquipmentId, p.id)
@@ -1771,7 +1771,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
         </div>
 
         {lengthWarning && (
-          <div className="mt-3 flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-xs text-amber-100">
+          <div className="mt-3 flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-cp-xs text-amber-100">
             <Icon icon={AlertTriangle} size="sm" />
             {lengthWarning}
           </div>

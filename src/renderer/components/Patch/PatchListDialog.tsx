@@ -489,7 +489,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={exportCsv}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-40"
             >
               <Icon icon={Download} size="xs" />
               {t('patchList.exportCsv', 'CSV exportieren')}
@@ -498,7 +498,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => void exportXlsx()}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-40"
             >
               <Icon icon={Download} size="xs" />
               {t('patchList.exportXlsx', 'XLSX exportieren')}
@@ -507,7 +507,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => void exportLabels()}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1.5 rounded bg-sky-700 px-3 py-1 text-xs hover:bg-sky-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-40"
             >
               <Icon icon={Tag} size="xs" />
               {t('patchList.exportLabels', 'Etiketten + QR (PDF)')}
@@ -517,7 +517,7 @@ export const PatchListDialog = () => {
               value={labelCsvFormat}
               onChange={(e) => setLabelCsvFormat(e.target.value as LabelCsvFormat)}
               title={t('patchList.labelCsvFormat', 'Etiketten-Drucker-Format')}
-              className="rounded border border-slate-700 bg-slate-950 px-1 py-1 text-xs"
+              className="rounded border border-slate-700 bg-slate-950 px-1 py-1 text-cp-xs"
             >
               <option value="generic">{t('patchList.labelCsv.generic', 'Generisch (CSV)')}</option>
               <option value="brother">{t('patchList.labelCsv.brother', 'Brother P-touch (TXT)')}</option>
@@ -527,7 +527,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => exportLabelCsv(labelCsvFormat)}
               disabled={filtered.length === 0}
-              className="rounded bg-sky-700 px-3 py-1 text-xs hover:bg-sky-600 disabled:opacity-40"
+              className="rounded bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-40"
             >
               {t('patchList.exportLabelCsv', '🏷 Etiketten-CSV')}
             </button>
@@ -536,7 +536,7 @@ export const PatchListDialog = () => {
               <button
                 type="button"
                 onClick={exportInputList}
-                className="rounded bg-purple-700 px-3 py-1 text-xs hover:bg-purple-600"
+                className="rounded bg-purple-700 px-3 py-1 text-cp-xs hover:bg-purple-600"
               >
                 {t('patchList.exportInputList', '🎚 Eingangsliste')}
               </button>
@@ -552,14 +552,14 @@ export const PatchListDialog = () => {
             onChange={(e) => setFilter(e.target.value)}
             placeholder={t('patchList.searchPlaceholder', 'Suchen (Gerät, Port, Typ, Farbe, Notiz …)')}
             aria-label={t('patchList.searchPlaceholder', 'Suchen (Gerät, Port, Typ, Farbe, Notiz …)')}
-            className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+            className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
           />
           {layers.length > 0 && (
             <select
               value={layerFilter}
               onChange={(e) => setLayerFilter(e.target.value)}
               title={t('patchList.layerFilter', 'Nach Layer/Gewerk filtern')}
-              className="rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+              className="rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
             >
               <option value="">{t('patchList.allLayers', 'Alle Layer')}</option>
               {layers.map((l) => (
@@ -574,7 +574,7 @@ export const PatchListDialog = () => {
           </span>
         </div>
         <div className="flex-1 overflow-auto">
-          <table className="w-full text-xs">
+          <table className="w-full text-cp-xs">
             <thead className="sticky top-0 bg-slate-950 text-slate-400">
               <tr>
                 {[

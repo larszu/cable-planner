@@ -38,7 +38,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
         defaultOpen={!!equipment.isRackDevice}
       >
         <fieldset className="border-0 p-0">
-          <label className="mb-2 flex items-center gap-2 text-xs">
+          <label className="mb-2 flex items-center gap-2 text-cp-xs">
             <input
               type="checkbox"
               checked={!!equipment.isRackDevice}
@@ -100,7 +100,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
                     const dataUri = await pickImageAsDataUri('image/png,image/jpeg,image/webp')
                     if (dataUri) setCropDialog({ side: 'front', src: dataUri })
                   }}
-                  className="rounded bg-sky-700 px-2 py-1 text-xs hover:bg-sky-600"
+                  className="rounded bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
                 >
                   {t('props.rack.importFront', 'Frontgrafik importieren + zuschneiden')}
                 </button>
@@ -110,7 +110,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
                     const dataUri = await pickImageAsDataUri('image/png,image/jpeg,image/webp')
                     if (dataUri) setCropDialog({ side: 'rear', src: dataUri })
                   }}
-                  className="rounded bg-purple-700 px-2 py-1 text-xs hover:bg-purple-600"
+                  className="rounded bg-purple-700 px-2 py-1 text-cp-xs hover:bg-purple-600"
                 >
                   {t('props.rack.importRear', 'Reargrafik importieren + zuschneiden')}
                 </button>
@@ -131,7 +131,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
                       rearPanelCrop: equipment.frontPanelCrop,
                     })
                   }
-                  className="mt-2 w-full rounded border border-slate-600 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-700"
+                  className="mt-2 w-full rounded border border-slate-600 bg-slate-800 px-2 py-1 text-cp-xs text-slate-200 hover:bg-slate-700"
                   title={t('props.rack.swapTitle', 'Front- und Rear-Foto vertauschen (samt Crop-Meta)')}
                 >
                   {t('props.rack.swap', '↔ Front-/Rear-Foto vertauschen')}

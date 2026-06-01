@@ -443,12 +443,12 @@ const RackSidePropertiesPane = () => {
   return (
     <aside className="flex h-full min-h-0 flex-col rounded border border-slate-700 bg-slate-950">
       <div className="border-b border-slate-800 px-3 py-2">
-        <h3 className="truncate text-xs font-semibold text-slate-100">{title}</h3>
+        <h3 className="truncate text-cp-xs font-semibold text-slate-100">{title}</h3>
         <div className="mt-0.5 text-[9px] uppercase tracking-wide text-slate-400">
           Eigenschaften (Rack-Scope)
         </div>
       </div>
-      <div className="flex-1 min-h-0 overflow-auto p-2 text-xs">
+      <div className="flex-1 min-h-0 overflow-auto p-2 text-cp-xs">
         {selectedEquipmentId && <EquipmentProperties />}
         {selectedCableId && <CableProperties />}
         {!selectedEquipmentId && !selectedCableId && (

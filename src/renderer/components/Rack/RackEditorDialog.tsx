@@ -240,7 +240,7 @@ export const RackEditorDialog = () => {
           <button
             type="button"
             onClick={close}
-            className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
           >
             {t('common.close', 'Schließen')}
           </button>
