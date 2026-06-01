@@ -70,9 +70,10 @@ const CableInheritTypeCard = () => {
         {t('settings.editing.cableInheritLabel', 'Kabel-Typ aus Port-Connector ableiten')}
       </label>
       <p className="mt-2 text-[11px] text-slate-400">
-        Default an: meistens sollen Kabel den physischen Anschluss-Typ
-        ihrer Ports widerspiegeln. Abschalten, wenn Kabel-Typen
-        unabhaengig von Port-Typen verwaltet werden sollen.
+        {t(
+          'settings.editing.cableInheritNote',
+          'Default an: meistens sollen Kabel den physischen Anschluss-Typ ihrer Ports widerspiegeln. Abschalten, wenn Kabel-Typen unabhängig von Port-Typen verwaltet werden sollen.',
+        )}
       </p>
     </SettingsCard>
   )
@@ -103,9 +104,10 @@ const CableReconnectOptionsCard = () => {
         {t('settings.editing.labelSwapLabel', 'Beim Reconnect Port-Labels mit-tauschen')}
       </label>
       <p className="mt-2 text-[11px] text-slate-400">
-        Aus Sicherheit per default aus — sonst wuerden Test-Umsteckungen
-        ungewollt Labels umbenennen. Wirkt nur bei Ports, die einen
-        vom User editierten Namen haben (sonst gibts nichts zu tauschen).
+        {t(
+          'settings.editing.labelSwapNote',
+          'Aus Sicherheit per default aus — sonst würden Test-Umsteckungen ungewollt Labels umbenennen. Wirkt nur bei Ports, die einen vom User editierten Namen haben (sonst gibts nichts zu tauschen).',
+        )}
       </p>
     </SettingsCard>
   )
