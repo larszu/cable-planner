@@ -9,8 +9,20 @@
  * Bearbeiten im Popout wirkt sofort im Hauptfenster und umgekehrt.
  */
 import { useProjectStore } from '../store/projectStore'
+import { useUiStore } from '../store/uiStore'
 
-export type PopoutPanel = 'library' | 'properties' | 'annotations'
+export type PopoutPanel = 'library' | 'properties' | 'annotations' | 'settings'
+
+/** Dockable Panels, die im Hauptfenster verschwinden müssen wenn ausgelagert. */
+const DOCKABLE: ReadonlySet<PopoutPanel> = new Set(['library', 'properties', 'annotations'])
+
+/** Sinnvolle Startgröße je Panel (Settings braucht mehr Platz als ein Drawer). */
+const POPOUT_SIZE: Record<PopoutPanel, { w: number; h: number }> = {
+  library: { w: 440, h: 780 },
+  properties: { w: 460, h: 820 },
+  annotations: { w: 440, h: 780 },
+  settings: { w: 940, h: 760 },
+}
 
 const CHANNEL = 'cable-planner:panel-popout'
 let channel: BroadcastChannel | null = null
@@ -38,7 +50,9 @@ const sameSel = (a: Sel, b: Sel): boolean => a.e === b.e && a.c === b.c && a.l =
 export const popoutPanel = (): PopoutPanel | null => {
   try {
     const p = new URL(window.location.href).searchParams.get('popout')
-    return p === 'library' || p === 'properties' || p === 'annotations' ? p : null
+    return p === 'library' || p === 'properties' || p === 'annotations' || p === 'settings'
+      ? p
+      : null
   } catch {
     return null
   }
@@ -46,17 +60,52 @@ export const popoutPanel = (): PopoutPanel | null => {
 
 export const isPopout = (): boolean => popoutPanel() != null
 
-/** Öffnet ein Panel als separates Fenster (auf weitere Monitore ziehbar). */
+/** Offene Popout-Fenster pro Panel (verhindert Doppel-Öffnen). */
+const openWindows = new Map<PopoutPanel, Window>()
+
+/**
+ * Öffnet ein Panel als separates Fenster (auf weitere Monitore ziehbar).
+ * Ist das Panel ein gedocktes Seiten-Panel, wird es im Hauptfenster
+ * ausgeblendet (sonst doppelt offen) und beim Schließen des OS-Fensters
+ * automatisch wieder eingeblendet. Ein erneuter Klick fokussiert das schon
+ * offene Fenster statt ein zweites zu öffnen.
+ */
 export const openPanelPopout = (panel: PopoutPanel): void => {
   try {
+    // Bereits offen? → nur fokussieren.
+    const existing = openWindows.get(panel)
+    if (existing && !existing.closed) {
+      existing.focus()
+      return
+    }
+
     const url = new URL(window.location.href)
     url.searchParams.set('popout', panel)
     url.hash = ''
-    window.open(
+    const { w, h } = POPOUT_SIZE[panel]
+    const win = window.open(
       url.toString(),
       `cable-planner-${panel}`,
-      'width=440,height=780,menubar=no,toolbar=no,location=no,status=no',
+      `width=${w},height=${h},menubar=no,toolbar=no,location=no,status=no`,
     )
+    if (!win) return // Popup blockiert
+    openWindows.set(panel, win)
+
+    if (DOCKABLE.has(panel)) {
+      // Im Hauptfenster ausblenden.
+      const ui = useUiStore.getState()
+      ui.setPanelPoppedOut(panel as 'library' | 'properties' | 'annotations', true)
+      // Schließen des OS-Fensters erkennen → im Hauptfenster wieder einblenden.
+      const timer = window.setInterval(() => {
+        if (win.closed) {
+          window.clearInterval(timer)
+          openWindows.delete(panel)
+          useUiStore
+            .getState()
+            .setPanelPoppedOut(panel as 'library' | 'properties' | 'annotations', false)
+        }
+      }, 700)
+    }
   } catch {
     /* Popup blockiert o. Ä. — ignorieren */
   }

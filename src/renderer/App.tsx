@@ -123,6 +123,11 @@ export default function App() {
   const libraryCollapsed = useUiStore((state) => state.libraryCollapsed)
   const libraryFloating = useUiStore((state) => state.libraryFloating)
   const propertiesFloating = useUiStore((state) => state.propertiesFloating)
+  // #427 — Panels in separates OS-Fenster ausgelagert → Spalte verschwindet.
+  const libraryPoppedOut = useUiStore((state) => state.libraryPoppedOut)
+  const propertiesPoppedOut = useUiStore((state) => state.propertiesPoppedOut)
+  const libraryHidden = libraryFloating || libraryPoppedOut
+  const propertiesHidden = propertiesFloating || propertiesPoppedOut
   const libraryWidth = useUiStore((state) => state.libraryWidth)
   const propertiesWidth = useUiStore((state) => state.propertiesWidth)
   const setLibraryWidth = useUiStore((state) => state.setLibraryWidth)
@@ -964,11 +969,11 @@ export default function App() {
           // so the canvas always keeps usable room. Stateless + reversible —
           // the stored preference is never mutated.
           gridTemplateColumns: `${
-            libraryFloating ? '0px' : libraryCollapsed ? '32px' : `min(${libraryWidth}px, 33vw)`
-          } ${libraryFloating ? '0px' : '4px'} minmax(0, 1fr) ${
-            propertiesFloating ? '0px' : '4px'
+            libraryHidden ? '0px' : libraryCollapsed ? '32px' : `min(${libraryWidth}px, 33vw)`
+          } ${libraryHidden ? '0px' : '4px'} minmax(0, 1fr) ${
+            propertiesHidden ? '0px' : '4px'
           } ${
-            propertiesFloating
+            propertiesHidden
               ? '0px'
               : propertiesCollapsed
                 ? '32px'
