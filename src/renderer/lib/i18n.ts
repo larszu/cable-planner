@@ -2387,6 +2387,12 @@ const en: Dict = {
   'calc.load': 'load',
   'calc.power.heat': 'Heat (BTU/h)',
   'calc.power.total': 'Total',
+  'calc.generator': 'Generator (PF 0.8)',
+  'calc.generatorRec': 'rec.',
+  'calc.neutralCurrent': 'Neutral (estimated)',
+  'calc.neutralOk': 'well balanced',
+  'calc.neutralHigh': 'high imbalance — rebalance phases',
+  'calc.neutralMid': 'slight imbalance',
   'calc.devicesToPhase': 'Devices → Phase',
   'calc.euColorTitle': 'EU colour code (DIN VDE 0293-308)',
   'calc.greedyExplain':
