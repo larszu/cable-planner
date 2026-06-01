@@ -472,6 +472,25 @@ export const runDrawingChecks = (
     }
   }
 
+  // — Check 17b: LWL-Steckertyp-Mismatch (#362) ------------------------------
+  // Zwei unterschiedliche optische Stecker (z. B. LC ↔ SC) an einem Link →
+  // Adapter/Hybrid-Patch nötig.
+  for (const c of cables) {
+    const from = portById.get(c.fromPortId)
+    const to = portById.get(c.toPortId)
+    const a = from?.fiberConnector
+    const b = to?.fiberConnector
+    if (a && b && a !== b) {
+      findings.push({
+        id: `fiber-conn:${c.id}`,
+        severity: 'warning',
+        category: 'LWL-Stecker',
+        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${a} ↔ ${b} — optischer Steckertyp ungleich (Adapter/Hybrid-Patch nötig)`,
+        cableId: c.id,
+      })
+    }
+  }
+
   // — Check 17: Gateway nicht im Geräte-Subnetz (#346) -----------------------
   // Liegt das Default-Gateway nicht im selben Subnetz wie die Geräte-IP, ist
   // es nicht erreichbar → Fehlkonfiguration.
