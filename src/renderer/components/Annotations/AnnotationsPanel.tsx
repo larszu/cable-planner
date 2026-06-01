@@ -385,8 +385,10 @@ export const AnnotationsPanel = ({
     )
   }
 
+  // #446 — auf schmalen Fenstern als volle Sheet (w-full), ab sm wieder
+  // 384px-Drawer; max-w-[95vw] lässt immer einen Tap-Out-Streifen.
   return (
-    <div className="fixed right-0 top-0 z-40 flex h-screen w-96 max-w-[95vw] flex-col border-l border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
+    <div className="fixed right-0 top-0 z-40 flex h-screen w-full max-w-[95vw] flex-col border-l border-slate-700 bg-slate-900 text-slate-100 shadow-2xl sm:w-96">
       <header className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
         <div className="flex min-w-0 flex-col">
           <h3 className="truncate text-sm font-semibold">

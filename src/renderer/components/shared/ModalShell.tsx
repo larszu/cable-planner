@@ -90,7 +90,7 @@ export const ModalShell = ({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black/60 p-4"
+      className="cp-modal-backdrop fixed inset-0 flex items-center justify-center bg-black/60 p-4"
       style={{ zIndex }}
       onMouseDown={(e) => {
         if (closeOnBackdrop && e.target === e.currentTarget) onClose()
@@ -101,7 +101,7 @@ export const ModalShell = ({
         aria-labelledby={titleId}
         {...dialogProps}
         style={draggableKey ? drag.containerStyle : undefined}
-        className={`flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-cp-modal border border-[var(--cp-border)] bg-[var(--cp-surface-1)] text-[var(--cp-text)] shadow-2xl outline-none`}
+        className={`cp-modal-panel flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-cp-modal border border-[var(--cp-border)] bg-[var(--cp-surface-1)] text-[var(--cp-text)] shadow-2xl outline-none`}
       >
         <header
           {...(draggableKey ? drag.headerProps : {})}

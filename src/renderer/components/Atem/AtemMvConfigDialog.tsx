@@ -139,8 +139,10 @@ const MvLayoutPicker = ({
   onToggleQuadrant: (quadIdx: 0 | 1 | 2 | 3) => void
   canvasPortNames?: Map<number, string>
 }) => {
+  // #448 — feste 240px waren bei 320px Viewport 75% der Breite; jetzt
+  // flexibel (min aus 240px und 70vw), Seitenverhältnis bleibt 16:9.
   return (
-    <div className="relative" style={{ width: 240, aspectRatio: '16 / 9' }}>
+    <div className="relative" style={{ width: 'min(240px, 70vw)', aspectRatio: '16 / 9' }}>
       <div
         className="absolute inset-0 grid gap-[2px] rounded border border-slate-700 bg-slate-950 p-[2px]"
         style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(4, 1fr)' }}

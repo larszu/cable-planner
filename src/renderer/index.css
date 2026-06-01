@@ -577,6 +577,45 @@ button:disabled,
   background: transparent;
 }
 
+/* ── Breakpoint-Strategie (UX audit #1/#443) ────────────────────────────────
+ * Vorher: 0 @media-Queries im ganzen Projekt — die App war faktisch
+ * Desktop-only. Hier die *einzige* zentrale Definition der Breakpoints
+ * (deckungsgleich mit hooks/useBreakpoint.ts und Tailwinds Defaults), plus
+ * konkrete responsive Regeln für die Shells.
+ *
+ *   sm 640 · md 768 · lg 1024 · xl 1280 · 2xl 1536
+ *
+ * Die JS-Seite (useBreakpoint) übernimmt, was Inline-/Grid-Layout betrifft
+ * (z. B. Auto-Einklappen der Panels in App.tsx, #444). Reine
+ * Darstellungsanpassungen leben hier als @media-Regeln. */
+:root {
+  --cp-bp-sm: 640px;
+  --cp-bp-md: 768px;
+  --cp-bp-lg: 1024px;
+  --cp-bp-xl: 1280px;
+}
+
+/* Modal-/Panel-Shells: auf schmalen/kurzen Viewports den Rand-Abstand
+ * verkleinern und mehr Höhe zulassen, damit Dialoge nicht an einem dicken
+ * p-4-Rahmen ersticken. .cp-modal-backdrop sitzt auf dem ModalShell-Backdrop,
+ * .cp-modal-panel auf dem Panel selbst. */
+@media (max-width: 640px) {
+  .cp-modal-backdrop {
+    padding: 0.5rem;
+  }
+  .cp-modal-panel {
+    max-height: 95vh;
+    max-width: none;
+  }
+}
+
+/* Sehr niedrige (Querformat-)Viewports: Panels dürfen die volle Höhe nutzen. */
+@media (max-height: 560px) {
+  .cp-modal-panel {
+    max-height: 98vh;
+  }
+}
+
 /* ── Respect prefers-reduced-motion (UX audit #46) ──────────────────────────
  * Motion-sensitive users get animations/transitions effectively disabled
  * (incl. the overlap-flash keyframe and any spinners). */
