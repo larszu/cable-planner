@@ -400,7 +400,6 @@ export const AnnotationsPanel = ({
         onMove={setFloatingPos}
         onDock={() => setFloating(false)}
         width={384}
-        height="80vh"
       >
         {body}
       </FloatingPanelShell>
