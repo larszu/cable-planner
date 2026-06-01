@@ -234,7 +234,7 @@ export const AnnotationsPanel = ({
             onClick={() => setCreating(true)}
             className="w-full rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600"
           >
-            + Neue Anmerkung
+            {t('annotations.new', '+ Neue Anmerkung')}
           </button>
         )}
       </div>
@@ -242,8 +242,10 @@ export const AnnotationsPanel = ({
       <div className="flex-1 overflow-y-auto p-3">
         {grouped.length === 0 ? (
           <p className="text-[11px] text-slate-400">
-            Noch keine Anmerkungen. Klicke "+ Neue Anmerkung" oder mache einen
-            Rechtsklick auf ein Gerät / Kabel.
+            {t(
+              'annotations.empty',
+              'Noch keine Anmerkungen. Klicke „+ Neue Anmerkung" oder mache einen Rechtsklick auf ein Gerät / Kabel.',
+            )}
           </p>
         ) : (
           grouped.map(([authorName, items]) => (
