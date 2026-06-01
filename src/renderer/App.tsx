@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useIsNarrow } from './hooks/useBreakpoint'
 import { CanvasArea } from './components/Canvas/CanvasArea'
 import { CableDialog } from './components/Cable/CableDialog'
 import { CUSTOM_CABLE_SPEC_ID, makeCustomCableSpec } from './components/Cable/customCableSpec'
@@ -126,6 +127,8 @@ export default function App() {
   const propertiesWidth = useUiStore((state) => state.propertiesWidth)
   const setLibraryWidth = useUiStore((state) => state.setLibraryWidth)
   const setPropertiesWidth = useUiStore((state) => state.setPropertiesWidth)
+  const setLibraryCollapsed = useUiStore((state) => state.setLibraryCollapsed)
+  const setPropertiesCollapsed = useUiStore((state) => state.setPropertiesCollapsed)
   const videohubExport = useUiStore((state) => state.videohubExport)
   const closeVideohubExport = useUiStore((state) => state.closeVideohubExport)
   const greengoExport = useUiStore((state) => state.greengoExport)
@@ -181,6 +184,47 @@ export default function App() {
     mq.addEventListener('change', apply)
     return () => mq.removeEventListener('change', apply)
   }, [followSystemTheme, setCanvasTheme])
+
+  // #444 — Seiten-Panels auf schmalen Fenstern (< lg / 1024px) automatisch
+  // einklappen. Reagiert NUR auf das Überschreiten der Schwelle (nicht
+  // laufend), damit der manuelle Ein-/Ausklapp-Button im schmalen Modus
+  // weiter funktioniert. Beim Verbreitern klappen wir nur das wieder aus,
+  // was wir selbst eingeklappt haben — vom User manuell Eingeklapptes
+  // bleibt unangetastet. Floating-Panels sind nie betroffen.
+  const isNarrow = useIsNarrow()
+  const prevNarrowRef = useRef(isNarrow)
+  const autoCollapsedRef = useRef({ library: false, properties: false })
+  useEffect(() => {
+    if (isNarrow === prevNarrowRef.current) return
+    prevNarrowRef.current = isNarrow
+    if (isNarrow) {
+      if (!libraryCollapsed && !libraryFloating) {
+        autoCollapsedRef.current.library = true
+        setLibraryCollapsed(true)
+      }
+      if (!propertiesCollapsed && !propertiesFloating) {
+        autoCollapsedRef.current.properties = true
+        setPropertiesCollapsed(true)
+      }
+    } else {
+      if (autoCollapsedRef.current.library) {
+        autoCollapsedRef.current.library = false
+        setLibraryCollapsed(false)
+      }
+      if (autoCollapsedRef.current.properties) {
+        autoCollapsedRef.current.properties = false
+        setPropertiesCollapsed(false)
+      }
+    }
+  }, [
+    isNarrow,
+    libraryCollapsed,
+    propertiesCollapsed,
+    libraryFloating,
+    propertiesFloating,
+    setLibraryCollapsed,
+    setPropertiesCollapsed,
+  ])
 
   // Keep the <html lang> attribute in sync with the selected UI language so
   // screen readers pronounce content correctly (was hardcoded lang="en").

@@ -580,6 +580,10 @@ const persist = (state: PersistedUiState) => {
 interface UiState extends PersistedUiState {
   togglePropertiesCollapsed: () => void
   toggleLibraryCollapsed: () => void
+  // #444 — explizite Setter für die viewport-getriebene Auto-Einklappung
+  // (App.tsx klappt Seiten-Panels < lg-Breakpoint ein und wieder aus).
+  setPropertiesCollapsed: (value: boolean) => void
+  setLibraryCollapsed: (value: boolean) => void
   setSnapToGrid: (value: boolean) => void
   setGridSize: (value: number) => void
   setDefaultRouting: (value: EdgeRouting) => void
@@ -899,6 +903,8 @@ export const useUiStore = create<UiState>((set) => ({
     set((state) => applyPatch({ propertiesCollapsed: !state.propertiesCollapsed })(state)),
   toggleLibraryCollapsed: () =>
     set((state) => applyPatch({ libraryCollapsed: !state.libraryCollapsed })(state)),
+  setPropertiesCollapsed: (value) => set(applyPatch({ propertiesCollapsed: value })),
+  setLibraryCollapsed: (value) => set(applyPatch({ libraryCollapsed: value })),
   setSnapToGrid: (value) => set(applyPatch({ snapToGrid: value })),
   setGridSize: (value) => set(applyPatch({ gridSize: Math.max(PANEL_LIMITS.gridSize.MIN, Math.min(PANEL_LIMITS.gridSize.MAX, value)) })),
   setDefaultRouting: (value) => set(applyPatch({ defaultRouting: value })),
