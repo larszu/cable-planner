@@ -5,6 +5,8 @@ import { EquipmentProperties } from './EquipmentProperties'
 import { LocationProperties } from './LocationProperties'
 import { TemplateProperties } from './TemplateProperties'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
+import { openPanelPopout } from '../../lib/panelPopout'
+import { usePanelTearOff } from '../../lib/usePanelTearOff'
 import { triggerCanvasFitView } from '../../lib/canvasViewport'
 import { format, useTranslation } from '../../lib/i18n'
 
@@ -22,6 +24,16 @@ export const PropertiesPanel = () => {
   const floatingPos = useUiStore((state) => state.propertiesFloatingPos)
   const setFloatingPos = useUiStore((state) => state.setPropertiesFloatingPos)
   const propertiesWidth = useUiStore((state) => state.propertiesWidth)
+  const setPropertiesWidth = useUiStore((state) => state.setPropertiesWidth)
+  // #427 — Header herausziehen = abdocken; folgt danach dem Cursor.
+  const tearOff = usePanelTearOff({
+    onUndock: (p) => {
+      setFloatingPos(p)
+      setFloating(true)
+    },
+    onDragMove: setFloatingPos,
+    onDrop: () => window.setTimeout(triggerCanvasFitView, 60),
+  })
   const selectedEquipment = selectedEquipmentId
     ? project.equipment.find((item) => item.id === selectedEquipmentId)
     : undefined
@@ -115,6 +127,9 @@ export const PropertiesPanel = () => {
           setFloating(false)
           window.setTimeout(triggerCanvasFitView, 60)
         }}
+        onPopout={() => openPanelPopout('properties')}
+        dockEdge="right"
+        onResize={setPropertiesWidth}
         width={propertiesWidth}
       >
         {body}
@@ -159,15 +174,21 @@ export const PropertiesPanel = () => {
         <div className="flex shrink-0 items-center gap-1">
           <button
             type="button"
+            data-tearoff="handle"
+            onPointerDown={tearOff.onPointerDown}
             onClick={() => {
+              // Reiner Klick = an Ort und Stelle abdocken; ein Tear-off-Drag
+              // hat das bereits erledigt und unterdrückt hier das Doppel-Float.
+              if (tearOff.draggedRef.current) return
               setFloating(true)
               window.setTimeout(triggerCanvasFitView, 60)
             }}
-            title={t('inspector.float.title', 'Eigenschaften abdocken (frei verschiebbar)')}
+            title={t('inspector.float.title', 'Eigenschaften abdocken (klicken oder herausziehen)')}
             aria-label={t('inspector.float.aria', 'Eigenschaften abdocken')}
             className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            style={{ touchAction: 'none' }}
           >
-            <span className="text-[11px] leading-none">⤢</span>
+            <span className="pointer-events-none text-[11px] leading-none">⤢</span>
           </button>
           <button
             type="button"

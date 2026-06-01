@@ -845,6 +845,10 @@ const en: Dict = {
   // FloatingPanelShell
   'panel.dock': 'Dock',
   'panel.dockTitle': 'Dock (back to side column)',
+  'panel.popout': 'Pop out',
+  'panel.popoutTitle': 'Open in a separate window (other monitor)',
+  'panel.dropToDock': 'Release to dock',
+  'panel.resize': 'Resize',
   'splitter.resize': 'Resize column',
 
   // Routing toggle (shared across toolbar, properties, settings)

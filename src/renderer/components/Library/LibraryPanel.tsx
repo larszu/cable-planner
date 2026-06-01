@@ -29,6 +29,8 @@ import { RackBuilderDialog } from '../Rack/RackBuilderDialog'
 import { TemplateMergeDialog } from './TemplateMergeDialog'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
 import { triggerCanvasFitView } from '../../lib/canvasViewport'
+import { openPanelPopout } from '../../lib/panelPopout'
+import { usePanelTearOff } from '../../lib/usePanelTearOff'
 import { TabButton } from './TabButton'
 import { GroupsTab } from './tabs/GroupsTab'
 import { RacksTab } from './tabs/RacksTab'
@@ -92,6 +94,16 @@ export const LibraryPanel = () => {
   const floatingPos = useUiStore((state) => state.libraryFloatingPos)
   const setFloatingPos = useUiStore((state) => state.setLibraryFloatingPos)
   const libraryWidth = useUiStore((state) => state.libraryWidth)
+  const setLibraryWidth = useUiStore((state) => state.setLibraryWidth)
+  // #427 — Header herausziehen = abdocken; folgt danach dem Cursor.
+  const tearOff = usePanelTearOff({
+    onUndock: (p) => {
+      setFloatingPos(p)
+      setFloating(true)
+    },
+    onDragMove: setFloatingPos,
+    onDrop: () => window.setTimeout(triggerCanvasFitView, 60),
+  })
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
   const groupPresets = useProjectStore((state) => state.groupPresets)
   const addGroupPreset = useProjectStore((state) => state.addGroupPreset)
@@ -722,15 +734,21 @@ export const LibraryPanel = () => {
         {!floating && (
           <button
             type="button"
+            data-tearoff="handle"
+            onPointerDown={tearOff.onPointerDown}
             onClick={() => {
+              // Reiner Klick = an Ort und Stelle abdocken; ein Tear-off-Drag
+              // hat das bereits erledigt und unterdrückt hier das Doppel-Float.
+              if (tearOff.draggedRef.current) return
               setFloating(true)
               window.setTimeout(triggerCanvasFitView, 60)
             }}
-            title={t('library.float.title', 'Library abdocken (frei verschiebbar)')}
+            title={t('library.float.title', 'Library abdocken (klicken oder herausziehen)')}
             aria-label={t('library.float.aria', 'Library abdocken')}
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            style={{ touchAction: 'none' }}
           >
-            <span className="text-[11px] leading-none">⤢</span>
+            <span className="pointer-events-none text-[11px] leading-none">⤢</span>
           </button>
         )}
         <TabButton
@@ -1397,6 +1415,9 @@ export const LibraryPanel = () => {
             setFloating(false)
             window.setTimeout(triggerCanvasFitView, 60)
           }}
+          onPopout={() => openPanelPopout('library')}
+          dockEdge="left"
+          onResize={setLibraryWidth}
           width={libraryWidth}
         >
           {inner}
