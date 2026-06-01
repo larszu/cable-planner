@@ -187,6 +187,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
         t('export.bom.csv.rentmanName', 'Rentman-Name'),
         t('export.bom.csv.lengthM', 'Länge (m)'),
         t('export.bom.csv.built', 'Verbaut'),
+        t('export.bom.csv.totalM', 'Gesamt (m)'),
         t('export.bom.csv.rentmanPlanned', 'Rentman geplant'),
         t('export.bom.csv.diff', 'Differenz'),
         t('export.bom.csv.paths', 'Wege'),
@@ -199,12 +200,26 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
           r.rentmanName ?? '',
           String(r.length),
           String(r.built),
+          String(Number((r.built * r.length).toFixed(1))),
           String(r.planned),
           fmtSignFixed(r.diff),
           `"${r.paths.join(' | ').replace(/"/g, '""')}"`,
         ].join(';'),
       )
     }
+    // Schlusszeile: Gesamtlänge über alle Typen (Bestellmenge).
+    lines.push(
+      [
+        t('bom.cable.total', 'Gesamt'),
+        '',
+        '',
+        String(rows.reduce((s, r) => s + r.built, 0)),
+        String(Number(rows.reduce((s, r) => s + r.built * r.length, 0).toFixed(1))),
+        '',
+        '',
+        '',
+      ].join(';'),
+    )
     downloadBlob(
       // v7.9.116 — Einheitlicher Stempel: YYYYMMDD_<name>_NNN_kabel-bom.csv
       buildExportFilenameWithSuffix(project.metadata.name || 'cable-planner', 'kabel-bom', 'csv'),
@@ -377,6 +392,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                 <th className="px-3 py-2 text-left">{t('bom.cable.col.type', 'Typ')}</th>
                 <th className="px-3 py-2 text-right">{t('bom.cable.col.length', 'Länge (m)')}</th>
                 <th className="px-3 py-2 text-right">{t('bom.cable.col.built', 'Verbaut')}</th>
+                <th className="px-3 py-2 text-right">{t('bom.cable.col.totalM', 'Gesamt (m)')}</th>
                 <th className="px-3 py-2 text-right">{t('bom.cable.col.planned', 'Rentman geplant')}</th>
                 <th className="px-3 py-2 text-right">{t('bom.cable.col.diff', 'Differenz')}</th>
                 {/* #292 — Pfade dieses Buckets (Cam1@Bühne → Mischer@FOH). */}
@@ -386,7 +402,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
             <tbody>
               {rows.length === 0 && (
                 <tr>
-                  <td className="px-3 py-4 text-center text-slate-500" colSpan={6}>
+                  <td className="px-3 py-4 text-center text-slate-500" colSpan={7}>
                     {t('bom.cable.noCables', 'Keine Kabel im Projekt.')}
                   </td>
                 </tr>
@@ -427,6 +443,11 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                   </td>
                   <td className="px-3 py-1 text-right align-top font-mono">{r.length}</td>
                   <td className="px-3 py-1 text-right align-top font-mono">{r.built}</td>
+                  {/* Gesamtlänge dieses Bucket = Stückzahl × Einzellänge — fürs
+                      Bestellen nach Meter. */}
+                  <td className="px-3 py-1 text-right align-top font-mono text-slate-300">
+                    {Number((r.built * r.length).toFixed(1))}
+                  </td>
                   <td className="px-3 py-1 text-right align-top">
                     <input
                       type="number"
@@ -480,6 +501,22 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                 </tr>
               ))}
             </tbody>
+            {rows.length > 0 && (
+              <tfoot className="sticky bottom-0 bg-slate-950">
+                <tr className="border-t-2 border-slate-700 font-semibold text-slate-200">
+                  <td className="px-3 py-2 text-left" colSpan={2}>
+                    {t('bom.cable.total', 'Gesamt')}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono">
+                    {rows.reduce((s, r) => s + r.built, 0)}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono text-emerald-300">
+                    {Number(rows.reduce((s, r) => s + r.built * r.length, 0).toFixed(1))} m
+                  </td>
+                  <td colSpan={3} />
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
 
