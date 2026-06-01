@@ -709,6 +709,46 @@ export const bandwidthMbpsForStandard = (s: SignalStandard | undefined): number 
 }
 
 /**
+ * #367 — Praktische passive Maximal-Länge (m) je Signalstandard auf
+ * Kupfer/Standardkabel. Darüber drohen Ausfälle → aktive Lösung (AOC,
+ * HDBaseT, Extender, Glasfaser). undefined = keine relevante Längengrenze
+ * (z. B. Netzwerk/Glasfaser/Strom/Analog-Audio). Richtwerte aus der Praxis.
+ */
+export const maxPassiveLengthM = (s: SignalStandard | undefined): number | undefined => {
+  switch (s) {
+    case 'HDMI-1.4':
+      return 15
+    case 'HDMI-2.0':
+      return 10
+    case 'HDMI-2.1':
+      return 5
+    case 'DP-1.2':
+      return 5
+    case 'DP-1.4':
+      return 3
+    case 'DP-2.0':
+      return 2
+    case 'USB-2.0':
+      return 5
+    case 'USB-3.x':
+      return 3
+    case 'Thunderbolt-3':
+    case 'Thunderbolt-4':
+      return 2 // passiv ~0,8 m, aktiv bis ~2 m
+    case 'SDI-12G':
+      return 70
+    case 'SDI-6G':
+      return 90
+    case 'SDI-3G':
+      return 120
+    case 'SDI-HD':
+      return 140
+    default:
+      return undefined
+  }
+}
+
+/**
  * #390 — Warnung bei Impedanz-Mismatch entlang einer Verbindung
  * (z. B. 50Ω-HF-Kabel an 75Ω-SDI → Reflexionen/Return-Loss).
  */

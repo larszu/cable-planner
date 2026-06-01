@@ -12,7 +12,7 @@
 
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port, ConnectorType } from '../types/equipment'
-import { checkImpedanceMismatch } from '../types/cableSpec'
+import { checkImpedanceMismatch, maxPassiveLengthM } from '../types/cableSpec'
 
 export type CheckSeverity = 'error' | 'warning' | 'info'
 
@@ -361,6 +361,23 @@ export const runDrawingChecks = (
       message:
         'ST 2110 im Plan, aber kein PTP-Signal — PTP-Grandmaster (IEEE 1588) als Referenz nicht vergessen.',
     })
+  }
+
+  // — Check 14: Kabel länger als passive Maximal-Länge (#367) ----------------
+  // HDMI/USB/DP/Thunderbolt/12G-SDI haben praktische Kupfer-Längengrenzen.
+  // Darüber → aktive Lösung (AOC / HDBaseT / Extender / Glasfaser).
+  for (const c of cables) {
+    if (c.wireless) continue
+    const limit = maxPassiveLengthM(c.standard)
+    if (limit != null && typeof c.length === 'number' && c.length > limit) {
+      findings.push({
+        id: `cable-too-long:${c.id}`,
+        severity: 'warning',
+        category: 'Kabellänge',
+        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${c.length} m überschreitet die passive ${c.standard}-Grenze (~${limit} m) — aktive Lösung (AOC/HDBaseT/Extender/LWL) nötig`,
+        cableId: c.id,
+      })
+    }
   }
 
   // Sortierung: error → warning → info, innerhalb stabil nach category.
