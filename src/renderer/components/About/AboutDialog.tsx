@@ -48,12 +48,12 @@ export const AboutDialog = () => {
             <div className="font-semibold text-slate-100">{t('app.title', 'Cable Planner')}</div>
             <div className="text-[11px] text-slate-400">{APP_DESCRIPTION}</div>
           </div>
-          <div className="ml-auto shrink-0 rounded bg-emerald-700 px-2 py-1 font-mono text-xs text-white">
+          <div className="ml-auto shrink-0 rounded bg-emerald-700 px-2 py-1 font-mono text-cp-xs text-white">
             v{APP_VERSION}
           </div>
         </div>
 
-        <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-xs">
+        <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
           <dt className="text-slate-500">{t('about.version', 'Version')}</dt>
           <dd className="font-mono text-slate-100">{APP_VERSION}</dd>
           <dt className="text-slate-500">{t('about.build', 'Build')}</dt>

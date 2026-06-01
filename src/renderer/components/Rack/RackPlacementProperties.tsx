@@ -74,21 +74,21 @@ export const RackPlacementProperties = ({
               onRemove(selectedPlacement.id)
               onClose()
             }}
-            className="rounded bg-red-900/60 px-3 py-1 text-xs hover:bg-red-800"
+            className="rounded bg-red-900/60 px-3 py-1 text-cp-xs hover:bg-red-800"
           >
             {t('rack.props.removeFromRack', 'Aus Rack entfernen')}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
           >
             {t('common.close', 'Schließen')}
           </button>
         </div>
       }
     >
-      <div className="space-y-2 text-xs">
+      <div className="space-y-2 text-cp-xs">
         <label className="block">
           {t('rack.props.name', 'Name')}
           <input
@@ -209,7 +209,7 @@ export const RackPlacementProperties = ({
         </div>
         {/* STL-Upload für 3D-Modell. */}
         <div className="block">
-          <div className="mb-1 text-xs text-slate-300">{t('rack.stl.header', '3D-Modell (STL, optional)')}</div>
+          <div className="mb-1 text-cp-xs text-slate-300">{t('rack.stl.header', '3D-Modell (STL, optional)')}</div>
           <div className="mt-1 flex items-center gap-2">
             <label
               className="inline-flex cursor-pointer items-center gap-1 rounded border border-slate-600 bg-sky-700 px-3 py-1 text-[11px] font-semibold text-white hover:bg-sky-600"

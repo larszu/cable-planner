@@ -53,7 +53,7 @@ export const LibrarySaveSection = ({ equipment }: { equipment: EquipmentItem }) 
               saveEquipmentAsTemplate(equipment.id)
             }
           }}
-          className="w-full rounded bg-amber-700 px-2 py-1 text-xs hover:bg-amber-600"
+          className="w-full rounded bg-amber-700 px-2 py-1 text-cp-xs hover:bg-amber-600"
           title={t(
             'libSave.btnTitle',
             'Speichert das aktuelle Gerät (Ports, Netzwerk, SDI-Caps, MV-Config …) als Vorlage in der Bibliothek.',
@@ -86,7 +86,7 @@ export const LibrarySaveSection = ({ equipment }: { equipment: EquipmentItem }) 
             }
             saveEquipmentAsNewTemplate(equipment.id, trimmed, equipment.category)
           }}
-          className="w-full rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
+          className="w-full rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
           title={t(
             'libSave.newBtnTitle',
             'Erstellt eine neue Vorlage unter anderem Namen — bestehende bleibt unverändert.',

@@ -757,7 +757,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             + längster Inhalt) bekommt 2 Spalten, Höhe + Ansicht + Zoom je 1.
             Zoom hat jetzt explizite +/- Buttons für Tastatur/Maus-User. */}
         <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
-          <label className="block text-xs font-medium text-slate-300 lg:col-span-2">
+          <label className="block text-cp-xs font-medium text-slate-300 lg:col-span-2">
             {t('rack.field.name', 'Rack-Name')} *
             <input
               ref={rackNameInputRef}
@@ -776,7 +776,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               }`}
             />
           </label>
-          <label className="block text-xs font-medium text-slate-300">
+          <label className="block text-cp-xs font-medium text-slate-300">
             {t('rack.field.height', 'Höhe')} <span className="text-slate-500">(HE)</span>
             <input
               type="number"
@@ -794,7 +794,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           </label>
           {/* v7.9.73 / #170 — Rack-Tiefe in mm. Wird vom 3D-Builder genutzt
               um zu prüfen ob hinten noch Platz für Patchblenden ist. */}
-          <label className="block text-xs font-medium text-slate-300">
+          <label className="block text-cp-xs font-medium text-slate-300">
             {t('rack.field.depth', 'Tiefe')} <span className="text-slate-500">(mm)</span>
             <input
               type="number"
@@ -816,7 +816,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               unten in die 2D-Rack-Spalte gewandert (als Tab-Bar dort);
               Grid hier ist auf 4 Spalten reduziert (Name=2fr, Höhe,
               Tiefe, Zoom). */}
-          <div className="block text-xs font-medium text-slate-300">
+          <div className="block text-cp-xs font-medium text-slate-300">
             <div className="flex items-baseline justify-between">
               <span>{t('rack.zoom', 'Zoom')}</span>
               <span className="text-[10px] font-normal text-slate-400">
@@ -875,7 +875,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             {/* v7.9.11 — Library-Header mit Counter, dann Search-Input
                 mit Magnifier-Icon + Clear-Button für bessere Affordance. */}
             <div className="mb-2 flex items-center justify-between">
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              <div className="text-cp-xs font-semibold uppercase tracking-wide text-slate-400">
                 {t('library.title', 'Library')}
               </div>
               <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-400">
@@ -923,7 +923,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={t('rack.searchDevicesPlaceholder', 'Gerät suchen…')}
                 aria-label={t('rack.searchDevicesPlaceholder', 'Gerät suchen…')}
-                className="w-full rounded border border-slate-700 bg-slate-950 pl-7 pr-7 py-1.5 text-xs placeholder-slate-600 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                className="w-full rounded border border-slate-700 bg-slate-950 pl-7 pr-7 py-1.5 text-cp-xs placeholder-slate-600 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
               />
               {query && (
                 <button
@@ -996,7 +996,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         JSON.stringify({ name: template.name }),
                       )
                     }}
-                    className={`group rounded border p-2 text-xs transition-colors ${
+                    className={`group rounded border p-2 text-cp-xs transition-colors ${
                       isRack
                         ? 'cursor-grab border-slate-800 bg-slate-900/60 hover:border-slate-600 hover:bg-slate-900 active:cursor-grabbing'
                         : 'cursor-grab border-amber-800/40 bg-amber-950/20 hover:border-amber-700/60'
@@ -1051,7 +1051,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             {/* v7.9.11 — Rack-Header mit Live-HE-Belegung + Drag-Hint. */}
             <div className="mb-2 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <div className="text-cp-xs font-semibold uppercase tracking-wide text-slate-400">
                   {t('rack.layout', 'Rack-Layout')}
                 </div>
                 {/* v7.9.73 / #170 — 2D/3D Tab-Toggle. 2D ist der bestehende
@@ -1092,7 +1092,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               </div>
             </div>
             {draft.placements.length === 0 && (
-              <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center text-xs text-slate-500">
+              <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center text-cp-xs text-slate-500">
                 <div className="mb-2 text-3xl">▥</div>
                 <div className="mb-1 font-semibold text-slate-300">{t('rack.empty', 'Rack ist leer')}</div>
                 <div>{t('rack.addFromLibraryHint', 'Geräte aus der Library links hinzufügen (Button "+ Rack").')}</div>
@@ -1560,7 +1560,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           {/* v7.9.9 — Live-Preview-Pane: Black-Box auf Canvas + interne
               Verkabelung — Updates live mit jeder Draft-Änderung. */}
           <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-slate-400">
               Live-Preview
             </div>
             <RackLivePreview

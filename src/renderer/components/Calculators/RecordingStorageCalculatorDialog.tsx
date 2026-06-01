@@ -87,7 +87,7 @@ export const RecordingStorageCalcCore = ({
       </p>
 
       <label className="block">
-        <span className="mb-1 block text-xs text-slate-400">{t('recStorage.codec', 'Codec / Bitrate-Preset')}</span>
+        <span className="mb-1 block text-cp-xs text-slate-400">{t('recStorage.codec', 'Codec / Bitrate-Preset')}</span>
         <select
           value={codecId}
           onChange={(e) => setCodecId(e.target.value)}
@@ -103,7 +103,7 @@ export const RecordingStorageCalcCore = ({
 
       {codecId === 'custom' && (
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">{t('recStorage.customMbps', 'Eigene Bitrate (Mbps)')}</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">{t('recStorage.customMbps', 'Eigene Bitrate (Mbps)')}</span>
           <input
             type="number"
             min={1}
@@ -117,7 +117,7 @@ export const RecordingStorageCalcCore = ({
 
       <div className="grid grid-cols-3 gap-2">
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">{t('recStorage.hours', 'Stunden')}</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">{t('recStorage.hours', 'Stunden')}</span>
           <input
             type="number"
             min={0}
@@ -128,7 +128,7 @@ export const RecordingStorageCalcCore = ({
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">{t('recStorage.minutes', 'Minuten')}</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">{t('recStorage.minutes', 'Minuten')}</span>
           <input
             type="number"
             min={0}
@@ -139,7 +139,7 @@ export const RecordingStorageCalcCore = ({
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">{t('recStorage.channels', 'Kanäle')}</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">{t('recStorage.channels', 'Kanäle')}</span>
           <input
             type="number"
             min={1}
@@ -158,7 +158,7 @@ export const RecordingStorageCalcCore = ({
       </div>
 
       <div className="rounded border border-emerald-700 bg-emerald-950/30 p-3">
-        <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-xs">
+        <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
           <dt className="text-slate-500">{t('recStorage.effectiveBitrate', 'Effektive Bitrate')}</dt>
           <dd className="font-mono text-slate-200">{effectiveMbps} Mbps</dd>
           <dt className="text-slate-500">{t('recStorage.duration', 'Dauer')}</dt>

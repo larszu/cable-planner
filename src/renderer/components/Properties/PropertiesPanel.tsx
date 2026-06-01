@@ -49,7 +49,7 @@ export const PropertiesPanel = () => {
         {selectedLocationId && <LocationProperties />}
         {selectedTemplateName && <TemplateProperties />}
         {!selectedEquipmentId && !selectedCableId && !selectedLocationId && !selectedTemplateName && (
-          <div className="space-y-3 text-xs text-slate-400">
+          <div className="space-y-3 text-cp-xs text-slate-400">
             <div className="rounded border border-slate-800 bg-slate-900/50 p-3">
               <div className="mb-1 font-semibold text-slate-200">
                 {t('inspector.nothingSelected', 'Nichts ausgewählt')}

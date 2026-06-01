@@ -298,14 +298,14 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
             <button
               type="button"
               onClick={() => void refresh()}
-              className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
             >
               {t('atem.mvLayout.refresh', '↻ Aktualisieren')}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
             >
               {t('atem.mvLayout.close', '✕ Schließen')}
             </button>
@@ -314,7 +314,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
 
         <div className="flex-1 overflow-auto p-4">
           {!connected && (
-            <div className="rounded border border-amber-700 bg-amber-900/30 p-3 text-xs text-amber-200">
+            <div className="rounded border border-amber-700 bg-amber-900/30 p-3 text-cp-xs text-amber-200">
               {t(
                 'atem.mvLayout.notConnected',
                 'Keine Verbindung zu einem ATEM. Zuerst im ATEM-Dialog verbinden, dann diese Ansicht öffnen.',
@@ -322,11 +322,11 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
             </div>
           )}
           {error && (
-            <div className="mt-2 rounded bg-red-900/50 p-2 text-xs text-red-100">{error}</div>
+            <div className="mt-2 rounded bg-red-900/50 p-2 text-cp-xs text-red-100">{error}</div>
           )}
 
           {connected && mvs.length === 0 && (
-            <div className="text-xs text-slate-400">
+            <div className="text-cp-xs text-slate-400">
               {t('atem.mvLayout.noMv', 'Der verbundene ATEM meldet keine Multiviewer.')}
             </div>
           )}

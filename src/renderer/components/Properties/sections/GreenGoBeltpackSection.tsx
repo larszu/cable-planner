@@ -64,7 +64,7 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
           disabled={!info}
           placeholder={info ? '' : t('props.greengo.assignFirst', 'Erst zuordnen ↓')}
           onChange={(event) => rename(event.target.value)}
-          className="w-full rounded border border-emerald-700 bg-emerald-950 p-1 text-xs text-emerald-50 disabled:opacity-50"
+          className="w-full rounded border border-emerald-700 bg-emerald-950 p-1 text-cp-xs text-emerald-50 disabled:opacity-50"
           title={t(
             'props.greengo.nameTitle',
             'Änderungen werden sofort in den Intercom-Plan und das .gg5-Export geschrieben',
@@ -81,7 +81,7 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
             const v = event.target.value
             assignUser(v === '' ? null : Number(v))
           }}
-          className="w-full rounded border border-emerald-700 bg-emerald-950 p-1 text-xs text-emerald-50"
+          className="w-full rounded border border-emerald-700 bg-emerald-950 p-1 text-cp-xs text-emerald-50"
         >
           <option value="">{t('props.greengo.noSlot', '(kein Slot zugewiesen)')}</option>
           {config.users.map((u) => {

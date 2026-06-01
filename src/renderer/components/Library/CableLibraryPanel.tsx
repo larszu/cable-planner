@@ -123,7 +123,7 @@ const CableTypeEditor = ({
             <Icon icon={X} size="sm" />
           </button>
         </div>
-        <div className="space-y-2 text-xs">
+        <div className="space-y-2 text-cp-xs">
           <label className="block">
             <span className="text-slate-400">{t('common.name', 'Name')}</span>
             <input
@@ -286,7 +286,7 @@ const CableTypeEditor = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
           >
             Abbrechen
           </button>
@@ -294,7 +294,7 @@ const CableTypeEditor = ({
             type="button"
             onClick={submit}
             disabled={!canSave}
-            className="rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+            className="rounded bg-emerald-600 px-3 py-1 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
           >
             {isEditing ? 'Speichern' : 'Anlegen'}
           </button>
@@ -530,7 +530,7 @@ export const CableLibraryPanel = () => {
               <button
                 type="button"
                 onClick={() => toggle(group)}
-                className="flex w-full items-center justify-between px-2 py-1.5 pl-5 text-left text-xs font-semibold hover:bg-slate-800"
+                className="flex w-full items-center justify-between px-2 py-1.5 pl-5 text-left text-cp-xs font-semibold hover:bg-slate-800"
               >
                 <span className="flex items-center gap-1.5">
                   {group}
@@ -564,7 +564,7 @@ export const CableLibraryPanel = () => {
                     return (
                       <div
                         key={cable.id}
-                        className={`rounded border px-2 py-1.5 text-xs ${
+                        className={`rounded border px-2 py-1.5 text-cp-xs ${
                           isRecommended
                             ? 'border-emerald-500 bg-emerald-950/40'
                             : isCustom

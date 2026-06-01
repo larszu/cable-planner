@@ -178,7 +178,7 @@ export function SharedSyncPanel() {
         title={format(t('sync.pushTitle', 'Push auf: {path}'), { path: syncPath })}
         disabled={busy}
         onClick={() => { void handlePush() }}
-        className="flex items-center gap-1 rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600 disabled:opacity-50"
+        className="flex items-center gap-1 rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-50"
       >
         <Icon icon={Upload} size="xs" />
         <span>{t('sync.push', 'Push')}</span>
@@ -188,13 +188,13 @@ export function SharedSyncPanel() {
         title={format(t('sync.pullTitle', 'Pull von: {path}'), { path: syncPath })}
         disabled={busy}
         onClick={() => { void handlePull() }}
-        className="flex items-center gap-1 rounded bg-slate-700 px-2 py-1 text-xs text-white hover:bg-slate-600 disabled:opacity-50"
+        className="flex items-center gap-1 rounded bg-slate-700 px-2 py-1 text-cp-xs text-white hover:bg-slate-600 disabled:opacity-50"
       >
         <Icon icon={Download} size="xs" />
         <span>{t('sync.pull', 'Pull')}</span>
       </button>
       {status.message ? (
-        <span className={`inline-flex items-center gap-1 text-xs ${statusColor}`} title={status.message}>
+        <span className={`inline-flex items-center gap-1 text-cp-xs ${statusColor}`} title={status.message}>
           {status.kind === 'ok' && <Icon icon={Check} size="xs" />}
           {status.kind === 'error' && <Icon icon={X} size="xs" />}
           {status.kind === 'locked' && <Icon icon={Lock} size="xs" />}

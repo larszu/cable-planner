@@ -517,7 +517,7 @@ export const MenuBar = ({
             <select
               value={videoFormat ?? '1080p50'}
               onChange={(event) => onChangeVideoFormat(event.target.value)}
-              className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-xs text-slate-100"
+              className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-cp-xs text-slate-100"
               title={t('app.videoFormatTitle', 'Projekt-Standard-Videoformat (SDI)')}
             >
               <option value="1080i50">1080i50</option>

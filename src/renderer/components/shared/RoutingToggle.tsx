@@ -71,7 +71,7 @@ export const RoutingToggle = ({
           type="button"
           onClick={() => onChange(opt.value)}
           title={opt.hint}
-          className={`flex-1 rounded px-2 py-1 text-xs ${
+          className={`flex-1 rounded px-2 py-1 text-cp-xs ${
             value === opt.value
               ? 'bg-sky-700 text-white'
               : 'bg-slate-800 text-slate-300 hover:bg-slate-700'

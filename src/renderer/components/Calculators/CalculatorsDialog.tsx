@@ -92,7 +92,7 @@ const BandwidthTab = () => {
       </p>
       <div className="grid grid-cols-3 gap-3">
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">{t('calc.resolution', 'Auflösung')}</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">{t('calc.resolution', 'Auflösung')}</span>
           <select
             value={resolution.label}
             onChange={(e) =>
@@ -110,7 +110,7 @@ const BandwidthTab = () => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">FPS</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">FPS</span>
           <select
             value={fps}
             onChange={(e) => setFps(Number(e.target.value))}
@@ -124,7 +124,7 @@ const BandwidthTab = () => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">{t('calc.sampling', 'Sampling / Tiefe')}</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">{t('calc.sampling', 'Sampling / Tiefe')}</span>
           <select
             value={sampling.label}
             onChange={(e) =>
@@ -145,7 +145,7 @@ const BandwidthTab = () => {
       <div className="rounded border border-amber-700 bg-amber-950/30 p-3">
         <div className="text-[10px] uppercase tracking-wide text-amber-300">{t('calc.dataRate', 'Datenrate')}</div>
         <div className="font-mono text-lg text-amber-100">{mbps.toLocaleString(undefined, { maximumFractionDigits: 1 })} Mbps</div>
-        <div className="mt-1 text-xs text-amber-200">
+        <div className="mt-1 text-cp-xs text-amber-200">
           {fittingTier
             ? t('calc.bandwidth.fitsIn', 'Passt in {tier} ({mbps} Mbps).')
                 .replace('{tier}', fittingTier.label)
@@ -160,7 +160,7 @@ const BandwidthTab = () => {
         <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
           SDI-Tiers
         </summary>
-        <ul className="space-y-0.5 px-3 py-2 text-xs">
+        <ul className="space-y-0.5 px-3 py-2 text-cp-xs">
           {SDI_TIERS.map((t) => (
             <li key={t.label}>
               <span className="inline-block w-28">{t.label}</span>
@@ -173,7 +173,7 @@ const BandwidthTab = () => {
         <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
           {t('calc.bandwidth.signalStds', 'IP-/Digital-Signalstandards')}
         </summary>
-        <ul className="space-y-0.5 px-3 py-2 text-xs">
+        <ul className="space-y-0.5 px-3 py-2 text-cp-xs">
           {SIGNAL_STD_BANDWIDTH.map((s) => (
             <li key={s.label}>
               <span className="inline-block w-56">{s.label}</span>
@@ -412,7 +412,7 @@ const PowerTab = () => {
       </p>
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">{t('calc.connectionType', 'Anschluss-Typ')}</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">{t('calc.connectionType', 'Anschluss-Typ')}</span>
           <select
             value={supplyId}
             onChange={(e) => setSupplyId(e.target.value as SupplyPresetId)}
@@ -426,7 +426,7 @@ const PowerTab = () => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">{t('calc.safetyReserve', 'Sicherheits-Reserve (%)')}</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">{t('calc.safetyReserve', 'Sicherheits-Reserve (%)')}</span>
           <input
             type="number"
             min={0}
@@ -438,7 +438,7 @@ const PowerTab = () => {
       </div>
 
       <div className="rounded border border-emerald-700 bg-emerald-950/30 p-3">
-        <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-xs">
+        <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
           <dt className="text-slate-500">{t('calc.devicesCounted', 'Erfasste Geräte')}</dt>
           <dd className="font-mono text-slate-200">
             {totals.countedDevices} {t('calc.outOf', 'von')} {totals.countedDevices + totals.missingDevices}
@@ -563,7 +563,7 @@ const PowerTab = () => {
             <summary className="cursor-pointer text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
               {t('calc.devicesToPhase', 'Geräte → Phase')} ({distribution.assignments.length})
             </summary>
-            <table className="mt-1 w-full text-xs">
+            <table className="mt-1 w-full text-cp-xs">
               <thead className="text-slate-500">
                 <tr>
                   <th className="text-left">{t('calc.col.device', 'Gerät')}</th>
@@ -640,7 +640,7 @@ const PowerTab = () => {
                 min={0}
                 value={upsVa}
                 onChange={(e) => setUpsVa(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
@@ -650,7 +650,7 @@ const PowerTab = () => {
               <select
                 value={upsPf}
                 onChange={(e) => setUpsPf(Number(e.target.value))}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
               >
                 {[0.6, 0.7, 0.8, 0.9, 1.0].map((pf) => (
                   <option key={pf} value={pf}>
@@ -663,7 +663,7 @@ const PowerTab = () => {
               <span className="mb-1 block text-[10px] text-slate-400">
                 {t('calc.ups.capacity', 'Kapazität (W)')}
               </span>
-              <div className="rounded border border-slate-800 bg-slate-900 px-2 py-1 font-mono text-xs text-slate-200">
+              <div className="rounded border border-slate-800 bg-slate-900 px-2 py-1 font-mono text-cp-xs text-slate-200">
                 {Math.round(upsCapacityW)} W
               </div>
             </div>
@@ -679,7 +679,7 @@ const PowerTab = () => {
                 min={0}
                 value={battV}
                 onChange={(e) => setBattV(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
@@ -691,7 +691,7 @@ const PowerTab = () => {
                 min={0}
                 value={battAh}
                 onChange={(e) => setBattAh(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
@@ -703,7 +703,7 @@ const PowerTab = () => {
                 min={1}
                 value={battCount}
                 onChange={(e) => setBattCount(Math.max(1, Number(e.target.value) || 1))}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
@@ -718,7 +718,7 @@ const PowerTab = () => {
                 onChange={(e) =>
                   setUsablePercent(Math.min(100, Math.max(1, Number(e.target.value) || 1)))
                 }
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
               />
             </label>
           </div>
@@ -728,7 +728,7 @@ const PowerTab = () => {
               upsOverloaded ? 'border-red-700 bg-red-950/30' : 'border-sky-700 bg-sky-950/20'
             }`}
           >
-            <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-xs">
+            <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
               <dt className="text-slate-500">{t('calc.ups.load', 'Last (gemessen)')}</dt>
               <dd className="font-mono text-slate-200">{upsLoadW.toFixed(0)} W</dd>
               <dt className="text-slate-500">{t('calc.ups.utilization', 'USV-Auslastung')}</dt>
@@ -765,7 +765,7 @@ const PowerTab = () => {
                 min={1}
                 value={targetMinutes}
                 onChange={(e) => setTargetMinutes(Math.max(1, Number(e.target.value) || 1))}
-                className="w-16 rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-xs"
+                className="w-16 rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-cp-xs"
               />
               <span className="text-slate-400">min →</span>
               <span className="font-mono text-slate-200">
@@ -787,7 +787,7 @@ const PowerTab = () => {
           <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
             {t('calc.topConsumers', 'Top-Verbraucher')}
           </summary>
-          <ul className="px-3 py-2 text-xs">
+          <ul className="px-3 py-2 text-cp-xs">
             {totals.devices.slice(0, 12).map((d) => (
               <li key={d.name} className="flex justify-between border-b border-slate-800 py-0.5">
                 <span className="truncate">{d.name}</span>

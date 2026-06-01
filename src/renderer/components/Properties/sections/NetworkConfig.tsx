@@ -138,19 +138,19 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
                 type="number"
                 value={v.id}
                 onChange={(event) => updateVlan(i, { id: Number(event.target.value) })}
-                className="w-16 rounded border border-slate-700 bg-slate-950 p-1 text-xs font-mono"
+                className="w-16 rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs font-mono"
                 placeholder="ID"
               />
               <input
                 value={v.name}
                 onChange={(event) => updateVlan(i, { name: event.target.value })}
-                className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                 placeholder={t('net.vlanNamePlaceholder', 'Name (z.B. Production)')}
               />
               <input
                 value={v.notes ?? ''}
                 onChange={(event) => updateVlan(i, { notes: event.target.value })}
-                className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                 placeholder={t('net.vlanNotePlaceholder', 'Notiz')}
               />
               <button
@@ -191,13 +191,13 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
                         untagged: event.target.value ? Number(event.target.value) : undefined,
                       })
                     }
-                    className="rounded border border-slate-700 bg-slate-950 p-1 text-xs font-mono"
+                    className="rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs font-mono"
                     placeholder="—"
                   />
                   <input
                     value={assign.tagged ?? ''}
                     onChange={(event) => setPortVlan(p.id, { tagged: event.target.value })}
-                    className="rounded border border-slate-700 bg-slate-950 p-1 text-xs font-mono"
+                    className="rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs font-mono"
                     placeholder="10,20,30"
                   />
                 </li>

@@ -674,7 +674,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
             aria-label={t('common.close', 'Schließen')}
           >
             <Icon icon={X} size="sm" />
@@ -725,7 +725,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           {/* #387 — Custom-Mode: User-spezifische Inputs/Outputs Anzahl. */}
           {presetKey === 'custom' && (
             <div className="col-span-2 grid grid-cols-2 gap-2 rounded border border-sky-700/40 bg-sky-950/20 p-2">
-              <label className="block text-xs text-slate-300">
+              <label className="block text-cp-xs text-slate-300">
                 Inputs
                 <input
                   type="number"
@@ -740,7 +740,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
                 />
               </label>
-              <label className="block text-xs text-slate-300">
+              <label className="block text-cp-xs text-slate-300">
                 Outputs
                 <input
                   type="number"
@@ -783,7 +783,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
         </div>
 
         {device && (device.inputs.length > preset.inputs || device.outputs.length > preset.outputs) && (
-          <div className="mb-2 rounded bg-amber-950 p-2 text-xs text-amber-300">
+          <div className="mb-2 rounded bg-amber-950 p-2 text-cp-xs text-amber-300">
             Warnung: Das Gerät hat mehr Ports ({device.inputs.length} IN / {device.outputs.length} OUT)
             als das gewählte Modell ({preset.inputs}×{preset.outputs}). Überschüssige Ports werden
             abgeschnitten.
@@ -799,13 +799,13 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <button
               type="button"
               onClick={() => setShowMatrix((m) => !m)}
-              className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
             >
               {showMatrix ? '▼' : '▶'} Routing-Ansicht
             </button>
             {/* v7.9.129 — View-Mode-Switch: Matrix oder Liste */}
             {showMatrix && (
-              <div className="flex overflow-hidden rounded border border-slate-700 text-xs">
+              <div className="flex overflow-hidden rounded border border-slate-700 text-cp-xs">
                 <button
                   type="button"
                   onClick={() => setAndPersistRoutingView('matrix')}
@@ -832,7 +832,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 </button>
               </div>
             )}
-            <span className="text-xs text-slate-500">
+            <span className="text-cp-xs text-slate-500">
               {preset.inputs} Eing. × {preset.outputs} Ausg.
             </span>
             {/* v7.9.131 — Achsen-Swap. Toggle zwischen "Outputs links/
@@ -846,7 +846,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   ? 'Achsen tauschen: Inputs links, Outputs oben/als Picker'
                   : 'Achsen tauschen: Outputs links, Inputs oben/als Picker'
               }
-              className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-700"
+              className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-cp-xs text-slate-200 hover:bg-slate-700"
             >
               {axisOrientation === 'outputs-rows'
                 ? '⇅ Out·In tauschen'
@@ -862,7 +862,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   ? 'Connection-Info ausblenden (nur Port-Name)'
                   : 'Connection-Info einblenden (← angeschlossenes Geraet)'
               }
-              className={`rounded border px-2 py-1 text-xs ${
+              className={`rounded border px-2 py-1 text-cp-xs ${
                 showConnections
                   ? 'border-sky-700 bg-sky-900/40 text-sky-200'
                   : 'border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800'
@@ -884,7 +884,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                     ? 'Port-Namen der angeschlossenen Geraete ausblenden'
                     : 'Port-Namen der angeschlossenen Geraete einblenden'
                 }
-                className={`rounded border px-2 py-1 text-xs ${
+                className={`rounded border px-2 py-1 text-cp-xs ${
                   showConnectionPorts
                     ? 'border-emerald-700 bg-emerald-900/40 text-emerald-200'
                     : 'border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800'
@@ -899,7 +899,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <button
               type="button"
               onClick={generateSmartRouting}
-              className="ml-auto rounded bg-purple-700 px-2 py-1 text-xs text-purple-50 hover:bg-purple-600"
+              className="ml-auto rounded bg-purple-700 px-2 py-1 text-cp-xs text-purple-50 hover:bg-purple-600"
               title={t('videohub.suggestTitle', 'Schlägt ein Routing vor, basierend auf den Kabeln im Canvas. Best-Match per Geräte-Namens-Ähnlichkeit; Fallback Diagonal. Per Matrix anpassbar.')}
             >
               <Icon icon={Wand2} size="xs" className="mr-1 inline-block align-text-bottom" />Smart-Routing
@@ -907,7 +907,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <button
               type="button"
               onClick={() => setRouting(buildDefaultRouting(preset.inputs, preset.outputs))}
-              className="rounded bg-slate-800 px-2 py-1 text-xs hover:bg-slate-700"
+              className="rounded bg-slate-800 px-2 py-1 text-cp-xs hover:bg-slate-700"
               title={t('videohub.resetDiag', 'Diagonal-Routing zurücksetzen (Ausgang N → Eingang N)')}
             >
               ↺ Reset
@@ -1103,7 +1103,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             )}
           </div>
           <div className="flex items-end gap-2">
-            <label className="block flex-1 text-xs">
+            <label className="block flex-1 text-cp-xs">
               IP-Adresse
               <div className="mt-1 flex items-stretch gap-1">
                 <input
@@ -1113,7 +1113,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                     setSendStatus('idle')
                   }}
                   placeholder="192.168.1.1"
-                  className="flex-1 rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-xs"
+                  className="flex-1 rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-cp-xs"
                 />
                 {/* v7.9.128 — Connection-History: zuletzt benutzte
                     IP/Port-Kombinationen. Wird beim erfolgreichen Send
@@ -1132,7 +1132,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                       }
                     }}
                     title={t('videohub.recentConns', 'Zuletzt benutzte Verbindungen')}
-                    className="w-10 rounded border border-slate-700 bg-slate-950 px-1 text-xs"
+                    className="w-10 rounded border border-slate-700 bg-slate-950 px-1 text-cp-xs"
                   >
                     <option value="">▼</option>
                     {connHistory.map((c, i) => (
@@ -1144,7 +1144,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 )}
               </div>
             </label>
-            <label className="block w-20 text-xs">
+            <label className="block w-20 text-cp-xs">
               Port
               <input
                 value={vhPort}
@@ -1153,7 +1153,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   setSendStatus('idle')
                 }}
                 placeholder="9990"
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-xs"
+                className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-cp-xs"
               />
             </label>
             <button
@@ -1161,7 +1161,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               onClick={() => { void handleDiscover() }}
               disabled={!hasDesktopBridge || discovering}
               title={t('videohub.mdnsTitle', 'Videohubs im lokalen Netz via mDNS/Bonjour suchen (3 s Scan).')}
-              className="rounded bg-teal-700 px-3 py-1.5 text-xs hover:bg-teal-600 disabled:opacity-40"
+              className="rounded bg-teal-700 px-3 py-1.5 text-cp-xs hover:bg-teal-600 disabled:opacity-40"
             >
               <Icon icon={Search} size="xs" className="mr-1 inline-block align-text-bottom" />{discovering ? 'Suche…' : 'Suchen'}
             </button>
@@ -1170,7 +1170,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               onClick={() => { void handleReadState() }}
               disabled={!device || !hasDesktopBridge || readingState}
               title={t('videohub.loadStatus', 'Aktuellen Hub-Status holen: Labels + Routing + Locks. Routing wird in die Matrix übernommen, Labels in den Spalten/Zeilen angezeigt.')}
-              className="rounded bg-sky-700 px-3 py-1.5 text-xs hover:bg-sky-600 disabled:opacity-40"
+              className="rounded bg-sky-700 px-3 py-1.5 text-cp-xs hover:bg-sky-600 disabled:opacity-40"
             >
               <Icon icon={readingState ? Loader2 : Download} size="xs" className={`mr-1 inline-block align-text-bottom ${readingState ? 'animate-spin' : ''}`} />{readingState ? 'Laden…' : 'Status laden'}
             </button>
@@ -1178,7 +1178,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           {/* Issue #248 — Ergebnisliste der Discovery. Klick auf einen
               Eintrag uebernimmt IP+Port in die Eingabefelder. */}
           {discovered !== null && (
-            <div className="mt-2 rounded border border-teal-800 bg-teal-950/30 p-2 text-xs">
+            <div className="mt-2 rounded border border-teal-800 bg-teal-950/30 p-2 text-cp-xs">
               {discovered.length === 0 ? (
                 <div className="text-slate-400">
                   Kein Videohub per mDNS gefunden. (Firewalls oder andere Subnetze
@@ -1225,7 +1225,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               onClick={() => { void handleSendLabels() }}
               disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
               title={t('videohub.sendLabelsTitle', 'Nur INPUT LABELS + OUTPUT LABELS senden. Routing bleibt am Hub unangetastet.')}
-              className="rounded bg-purple-600 px-3 py-1.5 text-xs hover:bg-purple-500 disabled:opacity-40"
+              className="rounded bg-purple-600 px-3 py-1.5 text-cp-xs hover:bg-purple-500 disabled:opacity-40"
             >
               <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Labels senden'}
             </button>
@@ -1234,7 +1234,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               onClick={() => { void handleSendRouting() }}
               disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
               title={t('videohub.sendRoutingTitle', 'Nur VIDEO OUTPUT ROUTING senden. Labels am Hub unverändert.')}
-              className="rounded bg-purple-600 px-3 py-1.5 text-xs hover:bg-purple-500 disabled:opacity-40"
+              className="rounded bg-purple-600 px-3 py-1.5 text-cp-xs hover:bg-purple-500 disabled:opacity-40"
             >
               <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Routing senden'}
             </button>
@@ -1243,7 +1243,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               onClick={() => { void handleSendBoth() }}
               disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
               title={t('videohub.sendBothTitle', 'Labels + Routing in EINEM Push (drei Blöcke hintereinander).')}
-              className="rounded bg-purple-800 px-3 py-1.5 text-xs font-semibold hover:bg-purple-700 disabled:opacity-40"
+              className="rounded bg-purple-800 px-3 py-1.5 text-cp-xs font-semibold hover:bg-purple-700 disabled:opacity-40"
             >
               <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Labels + Routing senden'}
             </button>
@@ -1272,7 +1272,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           )}
           {sendStatus !== 'idle' && (
             <div
-              className={`mt-1.5 rounded p-1.5 text-xs ${
+              className={`mt-1.5 rounded p-1.5 text-cp-xs ${
                 sendStatus === 'ok'
                   ? 'bg-emerald-950 text-emerald-300'
                   : sendStatus === 'error'
@@ -1313,7 +1313,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           )}
         </div>
 
-        <div className="mb-2 text-xs text-slate-400">{t('videohub.preview', 'Vorschau')}</div>
+        <div className="mb-2 text-cp-xs text-slate-400">{t('videohub.preview', 'Vorschau')}</div>
         <textarea
           readOnly
           value={preview}

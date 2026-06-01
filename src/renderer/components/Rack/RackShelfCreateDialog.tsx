@@ -65,7 +65,7 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
     >
         <div className="space-y-3">
           <label className="block">
-            <span className="mb-1 block text-xs text-slate-400">{t('rack.shelf.name', 'Name')}</span>
+            <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.shelf.name', 'Name')}</span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -74,7 +74,7 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
           </label>
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
-              <span className="mb-1 block text-xs text-slate-400">{t('rack.shelf.heightUnits', 'Höhe (HE)')}</span>
+              <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.shelf.heightUnits', 'Höhe (HE)')}</span>
               <input
                 type="number"
                 min={1}
@@ -85,7 +85,7 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-xs text-slate-400">{t('rack.shelf.depth', 'Tiefe (mm)')}</span>
+              <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.shelf.depth', 'Tiefe (mm)')}</span>
               <input
                 type="number"
                 min={150}

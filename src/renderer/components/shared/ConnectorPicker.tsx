@@ -181,7 +181,7 @@ export const ConnectorPicker = ({
             </div>
             <div className="flex-1 overflow-y-auto p-2">
               {filteredGroups.length === 0 && (
-                <div className="px-2 py-6 text-center text-xs text-slate-500">
+                <div className="px-2 py-6 text-center text-cp-xs text-slate-500">
                   {t('connector.picker.noResults', 'Kein Stecker gefunden')}
                 </div>
               )}

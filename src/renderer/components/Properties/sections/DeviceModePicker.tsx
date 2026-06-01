@@ -138,7 +138,7 @@ export const DeviceModePicker = ({
   }
 
   return (
-    <div className="space-y-2 text-xs">
+    <div className="space-y-2 text-cp-xs">
       <p className="text-[10px] text-slate-400">
         {t(
           'modes.intro',

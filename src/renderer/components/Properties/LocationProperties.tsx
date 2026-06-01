@@ -22,7 +22,7 @@ export const LocationProperties = () => {
   if (!location) return null
 
   return (
-    <div className="space-y-3 text-xs">
+    <div className="space-y-3 text-cp-xs">
       <div>
         <div className="mb-1 text-[11px] uppercase tracking-wide text-slate-400">
           {t('location.title', 'Location')}
@@ -99,7 +99,7 @@ export const LocationProperties = () => {
         <button
           type="button"
           onClick={() => openLocationBom(location.id)}
-          className="w-full rounded bg-amber-700 px-2 py-1 text-xs hover:bg-amber-600"
+          className="w-full rounded bg-amber-700 px-2 py-1 text-cp-xs hover:bg-amber-600"
           title={t(
             'location.action.bomTitle',
             'Stückliste der Geräte und Kabel im Rahmen — als PDF exportierbar',
@@ -129,7 +129,7 @@ export const LocationProperties = () => {
               deleteLocation(location.id)
             }
           }}
-          className="w-full rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+          className="w-full rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
           title={t(
             'location.action.deleteFrameTitle',
             'Entfernt nur den Rahmen — Geräte darin bleiben auf dem Canvas.',
@@ -159,7 +159,7 @@ export const LocationProperties = () => {
               deleteLocationWithContents(location.id)
             }
           }}
-          className="w-full rounded bg-red-700 px-2 py-1 text-xs hover:bg-red-600"
+          className="w-full rounded bg-red-700 px-2 py-1 text-cp-xs hover:bg-red-600"
         >
           {t('location.action.deleteAll', 'Rahmen + Inhalt löschen')}
         </button>

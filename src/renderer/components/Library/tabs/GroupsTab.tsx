@@ -32,7 +32,7 @@ export const GroupsTab = () => {
         </span>
       </div>
       {groupPresets.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-2 text-xs text-slate-500 text-center p-4">
+        <div className="flex-1 flex flex-col items-center justify-center gap-2 text-cp-xs text-slate-500 text-center p-4">
           <span className="text-2xl">⧉</span>
           <span>{t('library.tabs.groups.empty', 'Noch keine Gruppen gespeichert.')}</span>
           <span>

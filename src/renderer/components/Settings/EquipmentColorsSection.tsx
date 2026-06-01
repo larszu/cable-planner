@@ -34,7 +34,7 @@ export const EquipmentColorsSection = () => {
         {(['light', 'dark'] as const).map((theme) => (
           <div key={theme} className="rounded border border-slate-700 bg-slate-950/40 p-2">
             <div className="mb-2 flex items-center justify-between">
-              <h4 className="flex items-center gap-1 text-xs font-semibold text-slate-200">
+              <h4 className="flex items-center gap-1 text-cp-xs font-semibold text-slate-200">
                 <Icon icon={theme === 'light' ? Sun : Moon} size="xs" />
                 {theme === 'light'
                   ? t('settings.eqColors.themeLight', 'Hell')
@@ -51,7 +51,7 @@ export const EquipmentColorsSection = () => {
             </div>
             <div className="space-y-1.5">
               {roles.map((r) => (
-                <label key={r.key} className="flex items-center justify-between gap-2 text-xs">
+                <label key={r.key} className="flex items-center justify-between gap-2 text-cp-xs">
                   <span className="text-slate-300" title={r.hint}>{r.label}</span>
                   <div className="flex items-center gap-1">
                     <input
@@ -80,7 +80,7 @@ export const EquipmentColorsSection = () => {
       {/* v7.9.63 / #172 — Default-Farbe für NEU hinzugefügte Geräte. */}
       <div className="mt-3 flex items-center justify-between gap-2 rounded border border-slate-700 bg-slate-950/40 p-2">
         <div>
-          <div className="text-xs font-semibold text-slate-200">
+          <div className="text-cp-xs font-semibold text-slate-200">
             {t('settings.eqColors.defaultDeviceColor', 'Standard-Gerätefarbe')}
           </div>
           <div className="text-[10px] text-slate-400">

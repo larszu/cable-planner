@@ -174,7 +174,7 @@ export const AnnotationsPanel = ({
                   ? format(t('annotations.placeholderAs', 'Anmerkung als {name}…'), { name: currentAuthor })
                   : t('annotations.placeholderEmpty', 'Anmerkung… (Name wird einmalig abgefragt)')
               }
-              className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+              className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
             />
             <div className="flex gap-1">
               <button
@@ -196,7 +196,7 @@ export const AnnotationsPanel = ({
                   setDraftText('')
                   setCreating(false)
                 }}
-                className="flex-1 rounded bg-emerald-600 px-2 py-1 text-xs hover:bg-emerald-500"
+                className="flex-1 rounded bg-emerald-600 px-2 py-1 text-cp-xs hover:bg-emerald-500"
               >
                 {t('annotations.add', 'Hinzufügen')}
               </button>
@@ -206,7 +206,7 @@ export const AnnotationsPanel = ({
                   setDraftText('')
                   setCreating(false)
                 }}
-                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+                className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
               >
                 {t('annotations.cancel', 'Abbruch')}
               </button>
@@ -216,7 +216,7 @@ export const AnnotationsPanel = ({
           <button
             type="button"
             onClick={() => setCreating(true)}
-            className="w-full rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600"
+            className="w-full rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600"
           >
             + Neue Anmerkung
           </button>
@@ -278,7 +278,7 @@ export const AnnotationsPanel = ({
                           /* setDragImage nicht supported — egal, Drop funktioniert trotzdem */
                         }
                       }}
-                      className="cursor-grab rounded border border-slate-700 bg-slate-950/40 p-2 text-xs active:cursor-grabbing"
+                      className="cursor-grab rounded border border-slate-700 bg-slate-950/40 p-2 text-cp-xs active:cursor-grabbing"
                       title={t('annotations.dragTitle', 'Ziehen, um diese Anmerkung auf dem Canvas zu platzieren oder einem Gerät zuzuweisen')}
                     >
                       <div className="mb-1 flex items-center justify-between gap-2">
@@ -304,7 +304,7 @@ export const AnnotationsPanel = ({
                           value={a.text}
                           onChange={(e) => updateAnnotation(a.id, { text: e.target.value })}
                           rows={3}
-                          className="w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs"
+                          className="w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
                           onBlur={() => setEditingId(null)}
                           autoFocus
                         />
@@ -431,14 +431,14 @@ export const AnnotationsPanel = ({
             onClick={() => setFloating(true)}
             title={t('annotations.float.title', 'Abdocken (frei verschiebbar)')}
             aria-label={t('annotations.float.aria', 'Anmerkungen abdocken')}
-            className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
           >
             ⤢
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
           >
             {t('common.close', 'Schließen')}
           </button>

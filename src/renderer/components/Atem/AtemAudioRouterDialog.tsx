@@ -322,13 +322,13 @@ export const AtemAudioRouterDialog = () => {
           <button
             type="button"
             onClick={close}
-            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
           >
             {t('common.close', 'Schließen')}
           </button>
         </header>
 
-        <div className="flex flex-wrap items-center gap-2 border-b border-slate-700 bg-slate-950/40 px-4 py-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2 border-b border-slate-700 bg-slate-950/40 px-4 py-2 text-cp-xs">
           <button
             type="button"
             onClick={handleLoadXml}
@@ -407,7 +407,7 @@ export const AtemAudioRouterDialog = () => {
         </div>
 
         {errorMsg && (
-          <div className="flex items-center gap-1.5 border-b border-red-700/50 bg-red-900/30 px-4 py-2 text-xs text-red-200">
+          <div className="flex items-center gap-1.5 border-b border-red-700/50 bg-red-900/30 px-4 py-2 text-cp-xs text-red-200">
             <Icon icon={AlertTriangle} size="sm" />
             {errorMsg}
           </div>
@@ -433,7 +433,7 @@ export const AtemAudioRouterDialog = () => {
               <button
                 type="button"
                 onClick={handleCreateMatrix}
-                className="mt-3 rounded bg-sky-700 px-3 py-1 text-xs text-white hover:bg-sky-600"
+                className="mt-3 rounded bg-sky-700 px-3 py-1 text-cp-xs text-white hover:bg-sky-600"
               >
                 <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.createMatrixManual', 'Matrix manuell anlegen')}
               </button>
@@ -453,7 +453,7 @@ export const AtemAudioRouterDialog = () => {
           )}
         </main>
 
-        <footer className="flex items-center justify-end gap-2 border-t border-slate-700 px-4 py-2 text-xs">
+        <footer className="flex items-center justify-end gap-2 border-t border-slate-700 px-4 py-2 text-cp-xs">
           <span className="mr-auto text-slate-500">
             {t(
               'atem.audio.footer',
@@ -625,7 +625,7 @@ const ChannelPicker = ({
 
   const allExcluded = items.length > 0 && items.every((it) => excluded.has(it.id))
   return (
-    <div className="border-b border-slate-800 bg-slate-950/60 px-4 py-2 text-xs">
+    <div className="border-b border-slate-800 bg-slate-950/60 px-4 py-2 text-cp-xs">
       <div className="mb-1 flex items-center justify-between">
         <span className="text-slate-300">
           {format(
@@ -802,7 +802,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 bg-slate-950/30 px-4 py-2 text-xs">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 bg-slate-950/30 px-4 py-2 text-cp-xs">
         <input
           type="text"
           value={filterSources}
@@ -810,7 +810,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           placeholder={t('atem.audio.filterSourcesPlaceholder', 'Quellen filtern…')}
           title={t('atem.audio.filterSourcesTitle', 'Substring-Filter für Audio-Quellen (Zeilen)')}
           aria-label={t('atem.audio.filterSourcesAria', 'Quellen filtern')}
-          className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs"
+          className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
         />
         <input
           type="text"
@@ -819,7 +819,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           placeholder={t('atem.audio.filterOutputsPlaceholder', 'Outputs filtern…')}
           title={t('atem.audio.filterOutputsTitle', 'Substring-Filter für Audio-Outputs (Spalten)')}
           aria-label={t('atem.audio.filterOutputsAria', 'Outputs filtern')}
-          className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs"
+          className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
         />
         <button
           type="button"
@@ -908,7 +908,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           <button
             type="button"
             onClick={() => setRenderAnyway(true)}
-            className="mt-3 rounded bg-amber-700 px-3 py-1 text-xs text-amber-50 hover:bg-amber-600"
+            className="mt-3 rounded bg-amber-700 px-3 py-1 text-cp-xs text-amber-50 hover:bg-amber-600"
           >
             {t('atem.audio.renderAnyway', 'Trotzdem anzeigen')}
           </button>

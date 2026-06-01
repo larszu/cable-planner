@@ -54,7 +54,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
           {t('ports.flip', 'Ports spiegeln (Inputs rechts, Outputs links)')}
         </label>
         <details open className="rounded border border-slate-800 bg-slate-950/30">
-          <summary className="cursor-pointer select-none px-2 py-1 text-xs font-semibold text-slate-300 hover:text-slate-100">
+          <summary className="cursor-pointer select-none px-2 py-1 text-cp-xs font-semibold text-slate-300 hover:text-slate-100">
             {t('ports.title.inputs', 'Inputs')}{' '}
             <span className="text-slate-500">({equipment.inputs.length})</span>
           </summary>
@@ -69,7 +69,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
           </div>
         </details>
         <details open className="rounded border border-slate-800 bg-slate-950/30">
-          <summary className="cursor-pointer select-none px-2 py-1 text-xs font-semibold text-slate-300 hover:text-slate-100">
+          <summary className="cursor-pointer select-none px-2 py-1 text-cp-xs font-semibold text-slate-300 hover:text-slate-100">
             {t('ports.title.outputs', 'Outputs')}{' '}
             <span className="text-slate-500">({equipment.outputs.length})</span>
           </summary>

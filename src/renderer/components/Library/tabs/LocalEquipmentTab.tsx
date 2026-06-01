@@ -131,7 +131,7 @@ export const LocalEquipmentTab = ({
             }}
             placeholder={t('library.search.placeholder', 'Suchen…')}
             aria-label={t('library.search.placeholder', 'Suchen…')}
-            className="w-full rounded border border-slate-700 bg-slate-900 py-1 pl-7 pr-12 text-xs text-slate-100 placeholder-slate-500"
+            className="w-full rounded border border-slate-700 bg-slate-900 py-1 pl-7 pr-12 text-cp-xs text-slate-100 placeholder-slate-500"
           />
           {librarySearch ? (
             <button
@@ -139,7 +139,7 @@ export const LocalEquipmentTab = ({
               onClick={() => setLibrarySearch('')}
               title={t('library.search.clear', 'Suche löschen')}
               aria-label={t('library.search.clear', 'Suche löschen')}
-              className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
+              className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-cp-xs text-slate-500 hover:bg-slate-700 hover:text-slate-200"
             >
               <Icon icon={X} size="sm" />
             </button>
@@ -211,18 +211,18 @@ export const LocalEquipmentTab = ({
             value={newGroupName}
             onChange={(e) => setNewGroupName(e.target.value)}
             placeholder={t('library.newCategoryPlaceholder', 'Kategoriename…')}
-            className="flex-1 rounded border border-slate-600 bg-slate-900 p-1.5 text-xs"
+            className="flex-1 rounded border border-slate-600 bg-slate-900 p-1.5 text-cp-xs"
           />
           <button
             type="submit"
-            className="rounded bg-emerald-700 px-2 text-xs hover:bg-emerald-600"
+            className="rounded bg-emerald-700 px-2 text-cp-xs hover:bg-emerald-600"
           >
             OK
           </button>
           <button
             type="button"
             onClick={() => setShowNewGroup(false)}
-            className="rounded bg-slate-700 px-2 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-2 text-cp-xs hover:bg-slate-600"
             aria-label={t('common.close', 'Schließen')}
           >
             <Icon icon={X} size="sm" />
@@ -257,7 +257,7 @@ export const LocalEquipmentTab = ({
             )
             if (!anyMatch) {
               return (
-                <div className="mt-4 rounded border border-slate-800 bg-slate-950/60 p-4 text-center text-xs text-slate-400">
+                <div className="mt-4 rounded border border-slate-800 bg-slate-950/60 p-4 text-center text-cp-xs text-slate-400">
                   <div className="mb-2 font-semibold text-slate-300">
                     {t('library.empty.title', 'Keine Geräte gefunden')}
                   </div>

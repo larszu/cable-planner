@@ -262,7 +262,7 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
           })}
         </g>
       </svg>
-      <div className="absolute right-3 top-3 flex items-center gap-1 rounded bg-slate-900/85 px-2 py-1 text-xs text-slate-300 backdrop-blur">
+      <div className="absolute right-3 top-3 flex items-center gap-1 rounded bg-slate-900/85 px-2 py-1 text-cp-xs text-slate-300 backdrop-blur">
         <button
           type="button"
           onClick={() => setView((v) => ({ ...v, zoom: Math.min(20, v.zoom * 1.4) }))}

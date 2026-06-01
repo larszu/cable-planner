@@ -301,7 +301,7 @@ export const LocationBomDialog = () => {
       maxWidth="3xl"
       draggableKey="cable-planner:modal-pos:location-bom"
     >
-        <div className="text-xs">
+        <div className="text-cp-xs">
           <div className="mb-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
             <span>
               {t('locbom.devices', 'Geräte')}: <b className="text-slate-200">{devices.length}</b>
@@ -340,14 +340,14 @@ export const LocationBomDialog = () => {
               type="button"
               onClick={() => { void exportPdf() }}
               disabled={busy}
-              className="rounded bg-amber-700 px-3 py-1 text-xs hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded bg-amber-700 px-3 py-1 text-cp-xs hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {busy ? t('locbom.rendering', 'Rendere…') : t('locbom.exportPdf', 'PDF exportieren')}
             </button>
           </div>
 
           <h3 className="mb-1 text-sm font-semibold text-slate-200">{t('locbom.section.devices', 'Geräte')}</h3>
-          <table className="mb-4 w-full text-xs">
+          <table className="mb-4 w-full text-cp-xs">
             <thead className="text-slate-400">
               <tr className="border-b border-slate-700">
                 <th className="px-2 py-1 text-center w-10">{t('locbom.col.packed', 'Pack')}</th>
@@ -382,7 +382,7 @@ export const LocationBomDialog = () => {
           {internalCables.length === 0 ? (
             <div className="mb-3 text-slate-500">{t('locbom.noInternalCables', 'Keine internen Kabel.')}</div>
           ) : grouped ? (
-            <table className="mb-4 w-full text-xs">
+            <table className="mb-4 w-full text-cp-xs">
               <thead className="text-slate-400">
                 <tr className="border-b border-slate-700">
                   <th className="px-2 py-1 text-right w-12">{t('locbom.col.qty', 'Stk.')}</th>
@@ -409,7 +409,7 @@ export const LocationBomDialog = () => {
               </tbody>
             </table>
           ) : (
-            <table className="mb-4 w-full text-xs">
+            <table className="mb-4 w-full text-cp-xs">
               <thead className="text-slate-400">
                 <tr className="border-b border-slate-700">
                   <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>
@@ -439,7 +439,7 @@ export const LocationBomDialog = () => {
                 {t('locbom.section.externalConnections', 'Externe Verbindungen')}
               </h3>
               {grouped ? (
-                <table className="w-full text-xs">
+                <table className="w-full text-cp-xs">
                   <thead className="text-slate-400">
                     <tr className="border-b border-slate-700">
                       <th className="px-2 py-1 text-right w-12">{t('locbom.col.qty', 'Stk.')}</th>
@@ -466,7 +466,7 @@ export const LocationBomDialog = () => {
                   </tbody>
                 </table>
               ) : (
-                <table className="w-full text-xs">
+                <table className="w-full text-cp-xs">
                   <thead className="text-slate-400">
                     <tr className="border-b border-slate-700">
                       <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>
