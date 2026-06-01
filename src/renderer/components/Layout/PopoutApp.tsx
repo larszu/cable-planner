@@ -10,7 +10,15 @@ import { useUiStore } from '../../store/uiStore'
 import { LibraryPanel } from '../Library/LibraryPanel'
 import { PropertiesPanel } from '../Properties/PropertiesPanel'
 import { AnnotationsPanel } from '../Annotations/AnnotationsPanel'
+import { SettingsBody } from '../Settings/SettingsBody'
 import type { PopoutPanel } from '../../lib/panelPopout'
+
+const TITLES: Record<PopoutPanel, string> = {
+  library: 'Library',
+  properties: 'Eigenschaften',
+  annotations: 'Anmerkungen',
+  settings: 'Einstellungen',
+}
 
 export const PopoutApp = ({ panel }: { panel: PopoutPanel }) => {
   const canvasTheme = useUiStore((s) => s.canvasTheme)
@@ -19,10 +27,18 @@ export const PopoutApp = ({ panel }: { panel: PopoutPanel }) => {
     document.documentElement.dataset.theme = canvasTheme
   }, [canvasTheme])
   useEffect(() => {
-    const title =
-      panel === 'library' ? 'Library' : panel === 'properties' ? 'Eigenschaften' : 'Anmerkungen'
-    document.title = `Cable Planner — ${title}`
+    document.title = `Cable Planner — ${TITLES[panel]}`
   }, [panel])
+
+  // #427 — Einstellungen füllen das Fenster (Sidebar + Tab), Schließen
+  // schließt das OS-Fenster. Layout entspricht dem Modal-Panel.
+  if (panel === 'settings') {
+    return (
+      <div className="flex h-full w-full min-h-0 flex-col overflow-hidden bg-slate-900 text-slate-100 sm:flex-row">
+        <SettingsBody onClose={() => window.close()} />
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden bg-[var(--cp-bg)] text-[var(--cp-text)]">

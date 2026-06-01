@@ -680,6 +680,15 @@ interface UiState extends PersistedUiState {
    *  Verschieben/Resize. Wirkt zusätzlich zur per-Device-Sperre (#178) und
    *  zum Plan-Lock. Session-only (nicht persistiert), weil das ein
    *  temporärer Schutz während des Editierens ist. */
+  /** #427 — Panel ist in ein separates OS-Fenster ausgelagert. Solange true
+   *  rendert das Hauptfenster das Panel NICHT (sonst doppelt offen). Beim
+   *  Schließen des OS-Fensters wird das Flag zurückgesetzt → Panel kommt
+   *  zurück. Session-only (nicht persistiert) — nach Reload sind etwaige
+   *  Popout-Fenster ohnehin weg. */
+  libraryPoppedOut: boolean
+  propertiesPoppedOut: boolean
+  annotationsPoppedOut: boolean
+  setPanelPoppedOut: (panel: 'library' | 'properties' | 'annotations', value: boolean) => void
   lockFrames: boolean
   lockEquipment: boolean
   lockCables: boolean
@@ -1112,6 +1121,17 @@ export const useUiStore = create<UiState>((set) => ({
   setAnnotationsPanelOpen: (open) => set({ annotationsPanelOpen: open }),
   annotationsVisible: true,
   setAnnotationsVisible: (visible) => set({ annotationsVisible: visible }),
+  libraryPoppedOut: false,
+  propertiesPoppedOut: false,
+  annotationsPoppedOut: false,
+  setPanelPoppedOut: (panel, value) =>
+    set(
+      panel === 'library'
+        ? { libraryPoppedOut: value }
+        : panel === 'properties'
+          ? { propertiesPoppedOut: value }
+          : { annotationsPoppedOut: value },
+    ),
   lockFrames: false,
   lockEquipment: false,
   lockCables: false,

@@ -1,71 +1,17 @@
-import { useState } from 'react'
-import {
-  ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings, X,
-  type LucideIcon,
-} from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
-import { HotkeysTab } from './tabs/HotkeysTab'
-import { SyncTab } from './tabs/SyncTab'
-import { AdvancedTab } from './tabs/AdvancedTab'
-import { ProjectTab } from './tabs/ProjectTab'
-import { ConfigsTab } from './tabs/ConfigsTab'
-import { EditingTab } from './tabs/EditingTab'
-import { AppearanceTab } from './tabs/AppearanceTab'
-import { IntegrationsTab } from './tabs/IntegrationsTab'
 import { useTranslation } from '../../lib/i18n'
+import { openPanelPopout } from '../../lib/panelPopout'
+import { SettingsBody } from './SettingsBody'
 
 interface SettingsDialogProps {
   open: boolean
   onClose: () => void
 }
 
-type SettingsSection =
-  | 'project'
-  | 'appearance'
-  | 'editing'
-  | 'hotkeys'
-  | 'integrations'
-  | 'configs'
-  | 'sync'
-  | 'advanced'
-
-const TAB_ICONS: Record<SettingsSection, LucideIcon> = {
-  project: ClipboardList,
-  appearance: Palette,
-  editing: Pencil,
-  hotkeys: Keyboard,
-  integrations: Plug,
-  configs: Database,
-  sync: RefreshCw,
-  advanced: Settings,
-}
-
-const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
-  project: 'Projekt',
-  appearance: 'Darstellung',
-  editing: 'Bearbeiten',
-  hotkeys: 'Hotkeys',
-  integrations: 'Integrationen',
-  configs: 'Konfigurationen',
-  sync: 'Netzwerk-Sync',
-  advanced: 'Erweitert',
-}
-
-const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
-  project: 'Projekt-Einstellungen',
-  appearance: 'Darstellung',
-  editing: 'Bearbeiten',
-  hotkeys: 'Tastenkürzel',
-  integrations: 'Integrationen',
-  configs: 'Geräte-Konfigurationen',
-  sync: 'Netzwerk-Sync',
-  advanced: 'Erweitert',
-}
-
 export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
-  const [section, setSection] = useState<SettingsSection>('project')
   const drag = useDraggablePosition('cable-planner:modal-pos:settings', open)
   const t = useTranslation()
   const { panelRef, titleId, dialogProps } = useDialogA11y(open, onClose, {
@@ -73,22 +19,6 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   })
 
   if (!open) return null
-
-  const navItem = (id: SettingsSection) => (
-    <button
-      key={id}
-      type="button"
-      onClick={() => setSection(id)}
-      className={`flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm ${
-        section === id
-          ? 'bg-sky-700 text-white'
-          : 'text-slate-300 hover:bg-slate-800'
-      }`}
-    >
-      <Icon icon={TAB_ICONS[id]} size="sm" />
-      <span>{t(`settings.tab.${id}`, TAB_FALLBACK_LABEL[id])}</span>
-    </button>
-  )
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6">
@@ -101,52 +31,27 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
         // pro Tab variabel groß ist. Inner-Scroll greift immer.
         className="flex h-[85vh] min-h-0 w-full max-w-4xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl outline-none sm:flex-row"
       >
-        <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-slate-800 bg-slate-950/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
-          <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
-            {t('settings.section', 'Einstellungen')}
-          </h3>
-          {(Object.keys(TAB_ICONS) as SettingsSection[]).map((id) => navItem(id))}
-        </aside>
-
-        <main className="flex min-w-0 min-h-0 flex-1 flex-col">
-          <header
-            {...drag.headerProps}
-            className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2 select-none"
-          >
-            <h2 id={titleId} className="text-cp-xl font-semibold">
-              {t(`settings.tabTitle.${section}`, TAB_FALLBACK_TITLE[section])}
-            </h2>
+        <SettingsBody
+          onClose={onClose}
+          headerProps={drag.headerProps}
+          titleId={titleId}
+          headerAction={
+            // #427 — In ein separates OS-Fenster auslagern (weiterer Monitor).
             <button
               type="button"
-              onClick={onClose}
-              className="inline-flex items-center justify-center rounded px-2 py-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-[var(--cp-text)]"
-              aria-label={t('common.close', 'Schließen')}
+              onClick={() => {
+                openPanelPopout('settings')
+                onClose()
+              }}
+              title={t('panel.popoutTitle', 'In separates Fenster auslagern (weiterer Monitor)')}
+              aria-label={t('panel.popout', 'Auslagern')}
+              className="inline-flex items-center justify-center rounded px-2 py-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-sky-300"
             >
-              <Icon icon={X} size="md" />
+              <Icon icon={ExternalLink} size="sm" />
             </button>
-          </header>
-
-          {/* v7.9.2 — min-h-0 + flex-1 + overflow-y-auto sorgt für
-              zuverlässiges Scrollen in JEDEM Tab (z.B. Datenexport
-              im langen Erweitert-Tab). */}
-          <div className="min-h-0 flex-1 overflow-y-auto p-4">
-            {section === 'project' && <ProjectTab onClose={onClose} />}
-            {section === 'appearance' && <AppearanceTab />}
-            {section === 'editing' && <EditingTab />}
-            {section === 'hotkeys' && <HotkeysTab />}
-            {section === 'integrations' && <IntegrationsTab onClose={onClose} />}
-            {section === 'configs' && <ConfigsTab />}
-            {section === 'sync' && <SyncTab />}
-            {section === 'advanced' && <AdvancedTab />}
-          </div>
-        </main>
+          }
+        />
       </div>
     </div>
   )
 }
-
-// --- Reusable card ---------------------------------------------------------
-
-// --- Tab: Project ----------------------------------------------------------
-
-
