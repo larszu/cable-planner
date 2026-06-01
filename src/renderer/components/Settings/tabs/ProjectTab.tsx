@@ -9,7 +9,10 @@ import { pickImageAsDataUri } from '../../../lib/readImageAsDataUri'
 import { SettingsCard } from '../SettingsCard'
 import { DEFAULT_CABLE_NUMBERING, cableNumberExample } from '../../../lib/cableNumbering'
 import { DEFAULT_LENGTH_ESTIMATION } from '../../../lib/cableLengthEstimate'
+import { VIDEO_FORMATS, DEFAULT_VIDEO_FORMAT } from '../../../types/videoFormat'
+import { POWER_STANDARDS, DEFAULT_POWER_STANDARD } from '../../../types/powerStandard'
 import type { CableNumberingScheme, LengthEstimationScheme } from '../../../types/project'
+import type { PowerStandardId } from '../../../types/powerStandard'
 
 /**
  * #307 — Project-Tab aus SettingsDialog ausgelagert. Enthaelt
@@ -358,6 +361,65 @@ const LengthEstimationSection = () => {
   )
 }
 
+/**
+ * Plan-Standards — technische Vorgaben für DIESEN Plan, je Gewerk. Der Cable
+ * Planner deckt mehr als Video ab; das frühere „Format"-Feld in der Kopfzeile
+ * ist hierher (und um den Strom-/Netz-Standard erweitert) gewandert.
+ */
+const PlanDefaultsSection = () => {
+  const t = useTranslation()
+  const videoFormat = useProjectStore((s) => s.project.metadata.defaultVideoFormat)
+  const powerStandard = useProjectStore((s) => s.project.metadata.defaultPowerStandard)
+  const setDefaultVideoFormat = useProjectStore((s) => s.setDefaultVideoFormat)
+  const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
+  return (
+    <SettingsCard
+      title={t('settings.project.defaults.title', 'Plan-Standards')}
+      description={t(
+        'settings.project.defaults.desc',
+        'Technische Vorgaben für diesen Plan, je nach Gewerk. Das Video-Format steuert die SDI-Standardverkabelung, der Strom-/Netz-Standard die Spannung im Stromrechner (Watt ↔ Ampere).',
+      )}
+    >
+      <div className="grid grid-cols-1 gap-3 text-cp-xs text-slate-200 sm:grid-cols-2">
+        <label className="block">
+          <span className="mb-1 block text-slate-400">
+            {t('settings.project.defaults.video', 'Video-Format (SDI)')}
+          </span>
+          <select
+            value={videoFormat ?? DEFAULT_VIDEO_FORMAT}
+            onChange={(e) => setDefaultVideoFormat(e.target.value)}
+            className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+          >
+            {VIDEO_FORMATS.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-slate-400">
+            {t('settings.project.defaults.power', 'Strom-/Netz-Standard')}
+          </span>
+          <select
+            value={powerStandard ?? DEFAULT_POWER_STANDARD}
+            onChange={(e) =>
+              updateProjectMetadata({ defaultPowerStandard: e.target.value as PowerStandardId })
+            }
+            className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+          >
+            {POWER_STANDARDS.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+    </SettingsCard>
+  )
+}
+
 export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
   const metadata = useProjectStore((s) => s.project.metadata)
   const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
@@ -456,6 +518,8 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           />
         </label>
       </div>
+
+      <PlanDefaultsSection />
 
       <SettingsCard
         title={t('settings.project.logos', 'Bauplan-Signatur (Logos)')}

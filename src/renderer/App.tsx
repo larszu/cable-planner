@@ -88,7 +88,6 @@ import {
   type CableSpec,
   type SignalStandard,
 } from './types/cableSpec'
-import { DEFAULT_VIDEO_FORMAT } from './types/videoFormat'
 import { confirmDialog } from './lib/confirmDialog'
 import { promptDialog } from './lib/promptDialog'
 import { infoDialog } from './lib/infoDialog'
@@ -949,8 +948,6 @@ export default function App() {
         onEditProjectMeta={() => setMetaDialog({ mode: 'edit' })}
         onOpenCableBom={() => setCableBomOpen(true)}
         onOpenTour={() => setTourOpen(true)}
-        videoFormat={project.metadata.defaultVideoFormat ?? DEFAULT_VIDEO_FORMAT}
-        onChangeVideoFormat={(id) => useProjectStore.getState().setDefaultVideoFormat(id)}
         projectName={project.metadata.name}
       />
 

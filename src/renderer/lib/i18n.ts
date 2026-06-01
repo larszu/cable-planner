@@ -118,8 +118,6 @@ const en: Dict = {
   'app.menu.help': 'Help',
   'app.menu.help.tour': 'Getting-started tour…',
   'app.editProjectMeta': 'Edit project metadata',
-  'app.videoFormat': 'Format:',
-  'app.videoFormatTitle': 'Default project video format (SDI)',
 
   // Settings dialog frame
   'settings.title': 'Settings',
@@ -1412,6 +1410,11 @@ const en: Dict = {
   'patchList.empty.noCables': 'This project has no cables yet. Connect devices on the canvas to build a patch list.',
   'patchList.empty.noMatch': 'No cables match the filter.',
   'patchList.col.number': 'No.',
+  'settings.project.defaults.title': 'Plan defaults',
+  'settings.project.defaults.desc':
+    'Technical defaults for this plan, by discipline. The video format drives the default SDI cabling; the power/mains standard sets the voltage used by the power calculator (watts ↔ amps).',
+  'settings.project.defaults.video': 'Video format (SDI)',
+  'settings.project.defaults.power': 'Power / mains standard',
   'settings.project.numbering.title': 'Cable numbering',
   'settings.project.numbering.desc':
     'Automatic, collision-free cable IDs from a fixed scheme — shown on the canvas, in the patch list and on the labels.',
@@ -3146,7 +3149,10 @@ const en: Dict = {
   'app.menu.tools.patchList': 'Patch list…',
   'app.menu.tools.stagePlot': 'Stage plot (SVG)…',
   'app.menu.tools.rentmanImport': 'Rentman import…',
-  'app.menu.tools.rentmanToggle': 'Rentman integration',
+  'app.menu.tools.group.calc': 'Calculate & analyze',
+  'app.menu.tools.group.build': 'Create & manage',
+  'app.menu.tools.group.deviceConfig': 'Device configuration',
+  'app.menu.tools.group.io': 'Import & export',
   'app.menu.tools.analysis': 'Analyses (weight/network/redundancy)…',
   'app.menu.tools.planCheck': 'Plan check…',
   'app.menu.tools.revisions': 'Revisions & snapshots…',

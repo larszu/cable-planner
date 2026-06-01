@@ -18,6 +18,7 @@ import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { bandwidthMbpsForStandard } from '../../types/cableSpec'
+import { powerStandardById } from '../../types/powerStandard'
 import jsPDF from 'jspdf'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 
@@ -391,7 +392,13 @@ const PowerTab = () => {
   // #345 ff. — Spannungsfall-Rechner für die Zuleitung (Distro-Strecke).
   const [runLength, setRunLength] = useState(25)
   const [crossSection, setCrossSection] = useState(2.5)
-  const supply = SUPPLY_PRESETS.find((s) => s.id === supplyId) ?? SUPPLY_PRESETS[0]
+  // Netzspannung aus dem projektweiten Strom-/Netz-Standard (Einstellungen →
+  // Projekt → Plan-Standards). EU 230 V, Nordamerika 120 V usw. Steuert alle
+  // Watt↔Ampere-Rechnungen unten (statt fix 230 V).
+  const powerStandardId = useProjectStore((s) => s.project.metadata.defaultPowerStandard)
+  const mainsVoltage = powerStandardById(powerStandardId)?.voltage ?? 230
+  const rawSupply = SUPPLY_PRESETS.find((s) => s.id === supplyId) ?? SUPPLY_PRESETS[0]
+  const supply = { ...rawSupply, voltage: mainsVoltage }
 
   const totals = useMemo(() => {
     let totalW = 0
@@ -676,7 +683,7 @@ const PowerTab = () => {
             {t('calc.power.fitsOn', 'Passt auf')}:
           </span>
           {SUPPLY_PRESETS.map((p) => {
-            const amps = p.phases === 1 ? totalWithMargin / p.voltage : totalWithMargin / (p.voltage * Math.sqrt(3))
+            const amps = p.phases === 1 ? totalWithMargin / mainsVoltage : totalWithMargin / (mainsVoltage * Math.sqrt(3))
             const fits = amps <= p.perPhaseAmps
             return (
               <span

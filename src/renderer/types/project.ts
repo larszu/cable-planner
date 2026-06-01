@@ -3,6 +3,7 @@ import type { EquipmentItem } from './equipment'
 import type { GreenGoConfig } from './greengo'
 import type { LocationFrame } from './location'
 import type { VideoFormatId } from './videoFormat'
+import type { PowerStandardId } from './powerStandard'
 
 /**
  * Auto-Kabelnummerierung — Schema fuer automatisch vergebene Kabel-IDs.
@@ -38,6 +39,9 @@ export interface ProjectMetadata {
   updatedAt: string
   /** Default SDI video format for the project (e.g. 1080p50). */
   defaultVideoFormat?: VideoFormatId
+  /** Default mains/power standard for the project (drives the power calculator
+   *  voltage — 230 V EU, 120 V North America, …). Default: EU 230 V. */
+  defaultPowerStandard?: PowerStandardId
   /** Planner / author of the project file. */
   author?: string
   /** Client name (end customer). */
