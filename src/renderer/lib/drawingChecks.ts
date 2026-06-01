@@ -380,6 +380,35 @@ export const runDrawingChecks = (
     }
   }
 
+  // — Check 15: Licht/DMX-Universen-Übersicht (#361) -------------------------
+  // DMX512 ist eine Linie = ein Universum (max. 512 Kanäle). Art-Net/sACN
+  // tragen mehrere Universen über Ethernet (Anzahl nicht modelliert → als
+  // Links gezählt). Info-Übersicht, kein Fehler.
+  const isDmxConn = (p: Port | undefined): boolean =>
+    !!p && (p.connectorType === 'DMX 5-pol (XLR)' || p.connectorType === 'DMX 3-pol (XLR)')
+  let dmxLines = 0
+  let artnetLinks = 0
+  for (const c of cables) {
+    const s = c.standard
+    // Expliziter Art-Net/sACN-Standard hat Vorrang vor der DMX-Connector-Heuristik.
+    if (s === 'Art-Net' || s === 'sACN') {
+      artnetLinks += 1
+    } else if (s === 'DMX512' || s === 'RDM' || isDmxConn(portById.get(c.fromPortId)) || isDmxConn(portById.get(c.toPortId))) {
+      dmxLines += 1
+    }
+  }
+  if (dmxLines > 0 || artnetLinks > 0) {
+    const parts: string[] = []
+    if (dmxLines > 0) parts.push(`${dmxLines} DMX-Linien (≈ ${dmxLines} Universen, ${dmxLines * 512} Kanäle)`)
+    if (artnetLinks > 0) parts.push(`${artnetLinks} Art-Net/sACN-Links (mehrere Universen je Link)`)
+    findings.push({
+      id: 'dmx-summary',
+      severity: 'info',
+      category: 'Licht / DMX',
+      message: parts.join(' · '),
+    })
+  }
+
   // Sortierung: error → warning → info, innerhalb stabil nach category.
   const rank: Record<CheckSeverity, number> = { error: 0, warning: 1, info: 2 }
   findings.sort((a, b) => rank[a.severity] - rank[b.severity] || a.category.localeCompare(b.category))
