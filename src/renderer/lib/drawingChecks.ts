@@ -363,6 +363,22 @@ export const runDrawingChecks = (
     })
   }
 
+  // — Check 13b: Mehrere SDI-Signale ohne Genlock-Referenz (#348) ------------
+  // Mehrere SDI-Quellen sollten auf eine gemeinsame Referenz (Blackburst/
+  // Tri-Level, bei IP PTP) gelockt sein. Info-Erinnerung.
+  const sdiCount = cables.filter((c) => (c.standard ?? '').startsWith('SDI')).length
+  const hasGenlock = cables.some(
+    (c) => c.standard === 'Blackburst' || c.standard === 'Tri-Level' || c.standard === 'Word-Clock',
+  )
+  if (sdiCount >= 2 && !hasGenlock && !hasPtp) {
+    findings.push({
+      id: 'sdi-no-genlock',
+      severity: 'info',
+      category: 'Sync / Genlock',
+      message: `${sdiCount} SDI-Signale, aber keine Genlock-/Referenz-Verteilung (Blackburst/Tri-Level) — Sync prüfen.`,
+    })
+  }
+
   // — Check 14: Kabel länger als passive Maximal-Länge (#367) ----------------
   // HDMI/USB/DP/Thunderbolt/12G-SDI haben praktische Kupfer-Längengrenzen.
   // Darüber → aktive Lösung (AOC / HDBaseT / Extender / Glasfaser).
