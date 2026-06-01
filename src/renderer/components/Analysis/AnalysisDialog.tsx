@@ -363,24 +363,40 @@ const RedundancyTab = ({ projectName }: { projectName: string }) => {
   const project = useProjectStore((s) => s.project)
 
   const flagged = useMemo(() => {
-    // Anzahl Kabel je Gerät, gruppiert nach Layer.
-    const byDevice = new Map<string, { power: number; network: number; total: number }>()
-    const bump = (id: string, key: 'power' | 'network') => {
-      const row = byDevice.get(id) ?? { power: 0, network: 0, total: 0 }
-      row[key] += 1
-      row.total += 1
-      byDevice.set(id, row)
+    // Anzahl Kabel je Gerät, gruppiert nach Layer; plus ST-2110-Touch.
+    const byDevice = new Map<string, { power: number; network: number; st2110: boolean }>()
+    const get = (id: string) => {
+      let r = byDevice.get(id)
+      if (!r) {
+        r = { power: 0, network: 0, st2110: false }
+        byDevice.set(id, r)
+      }
+      return r
     }
     for (const c of project.cables) {
       const layer = (c.layer ?? '').toLowerCase()
-      const key = layer.includes('power') || layer.includes('strom') ? 'power' : layer.includes('network') || layer.includes('netz') ? 'network' : null
-      if (!key) continue
-      bump(c.fromEquipmentId, key)
-      bump(c.toEquipmentId, key)
+      const std = c.standard ?? ''
+      const isPower = layer.includes('power') || layer.includes('strom')
+      const isNet =
+        layer.includes('network') ||
+        layer.includes('netz') ||
+        std.startsWith('ST2110') ||
+        std.startsWith('Eth') ||
+        std === 'NDI' ||
+        std === 'NDI-HX' ||
+        std === 'Dante' ||
+        std === 'AES67'
+      const isSt = std.startsWith('ST2110')
+      for (const id of [c.fromEquipmentId, c.toEquipmentId]) {
+        const r = get(id)
+        if (isPower) r.power += 1
+        if (isNet) r.network += 1
+        if (isSt) r.st2110 = true
+      }
     }
     const out: { name: string; reason: string }[] = []
     for (const e of project.equipment) {
-      const row = byDevice.get(e.id) ?? { power: 0, network: 0, total: 0 }
+      const row = byDevice.get(e.id) ?? { power: 0, network: 0, st2110: false }
       // Single PSU feed: zieht Strom, hat aber ≤1 Strom-Anbindung.
       if (effectiveWatts(e) > 0 && row.power <= 1) {
         out.push({
@@ -389,6 +405,15 @@ const RedundancyTab = ({ projectName }: { projectName: string }) => {
             row.power === 0
               ? t('analysis.redundancy.noPower', 'keine Strom-Anbindung im Plan')
               : t('analysis.redundancy.singlePower', 'nur eine Strom-Anbindung (keine Netzteil-Redundanz)'),
+        })
+      }
+      // #352 — ST 2110-7: Geräte im 2110-Pfad sollten zwei unabhängige
+      // Netzwerk-Pfade (Red/Blue) haben. Nur ein Netzwerk-Link → keine
+      // nahtlose Protection.
+      if (row.st2110 && row.network <= 1) {
+        out.push({
+          name: e.name,
+          reason: t('analysis.redundancy.st2110', 'ST 2110 ohne 2110-7-Redundanz (nur ein Netzwerk-Pfad)'),
         })
       }
     }
