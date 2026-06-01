@@ -20,6 +20,7 @@ import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { useTranslation, format } from '../../lib/i18n'
 import { checkDanteName } from '../../lib/danteNaming'
+import { subnetCidr } from '../../lib/subnet'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
 import type { EquipmentItem } from '../../types/equipment'
 
@@ -203,7 +204,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
 
-  const { rows, duplicates, vlanCounts, danteIssues } = useMemo(() => {
+  const { rows, duplicates, vlanCounts, danteIssues, subnets } = useMemo(() => {
     const rows = equipment
       .filter((e) => e.ipAddress || e.managementVlanId != null || (e.vlans?.length ?? 0) > 0)
       .map((e) => ({
@@ -229,7 +230,23 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
     const danteIssues = rows
       .map((r) => ({ name: r.name, check: checkDanteName(r.name) }))
       .filter((x) => !x.check.valid)
-    return { rows, duplicates, vlanCounts, danteIssues }
+    // #346 — IPAM: Geräte nach Subnetz gruppieren. Maske aus dem Gerät, sonst
+    // /24 annehmen (häufigster Default). Markiert, wenn Maske geraten wurde.
+    const subnetMap = new Map<string, { names: string[]; assumed: boolean }>()
+    for (const e of equipment) {
+      if (!e.ipAddress) continue
+      const hasMask = !!e.subnetMask
+      const cidr = subnetCidr(e.ipAddress, e.subnetMask || '255.255.255.0')
+      if (!cidr) continue
+      const entry = subnetMap.get(cidr) ?? { names: [], assumed: false }
+      entry.names.push(e.name)
+      if (!hasMask) entry.assumed = true
+      subnetMap.set(cidr, entry)
+    }
+    const subnets = [...subnetMap.entries()]
+      .map(([cidr, v]) => ({ cidr, names: v.names, assumed: v.assumed }))
+      .sort((a, b) => a.cidr.localeCompare(b.cidr, undefined, { numeric: true }))
+    return { rows, duplicates, vlanCounts, danteIssues, subnets }
   }, [equipment])
 
   const exportCsv = () => {
@@ -304,6 +321,33 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           {t('analysis.network.vlanSummary', 'Geräte je VLAN')}:{' '}
           {vlanCounts.map((v) => `VLAN ${v.id} (${v.count})`).join(' · ')}
         </p>
+      )}
+      {/* #346 — IPAM: Subnetz-Übersicht. */}
+      {subnets.length > 0 && (
+        <div className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2 text-cp-xs">
+          <div className="mb-1 font-semibold text-[var(--cp-text-muted)]">
+            {t('analysis.network.subnets', 'Subnetze')} ({subnets.length})
+          </div>
+          <ul className="space-y-0.5">
+            {subnets.map((s) => (
+              <li key={s.cidr} className="flex flex-wrap items-baseline gap-x-2">
+                <span className="font-mono font-semibold">{s.cidr}</span>
+                <span className="text-[var(--cp-text-muted)]">
+                  {format(t('analysis.network.subnetCount', '{n} Geräte'), { n: s.names.length })}
+                </span>
+                {s.assumed && (
+                  <span className="text-[10px] text-amber-300/80" title={t('analysis.network.subnetAssumedTitle', 'Keine Maske gesetzt — /24 angenommen')}>
+                    {t('analysis.network.subnetAssumed', '(/24 angenommen)')}
+                  </span>
+                )}
+                <span className="text-[10px] text-[var(--cp-text-faint)]">
+                  {s.names.slice(0, 6).join(', ')}
+                  {s.names.length > 6 ? ` +${s.names.length - 6}` : ''}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       <div className="flex justify-end">
         <CsvButton onClick={exportCsv} />
