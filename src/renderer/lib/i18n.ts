@@ -338,7 +338,8 @@ const en: Dict = {
   'library.add.category': '+ Category',
   'library.add.categoryTitle': 'Create new equipment category',
   'library.add.device': '+ Device',
-  'library.search.placeholder': 'Search… (Ctrl+F)',
+  'library.search.placeholder': 'Search…',
+  'library.search.shortcut': 'Ctrl+F',
   'library.search.clear': 'Clear search',
   'library.collapseAll': 'Collapse all',
   'library.expandAll': 'Expand all',
@@ -2605,6 +2606,14 @@ const en: Dict = {
 
   // LibraryPanel rentman section + netbox + create
   'library.rentman.noProjectLinked': 'No Rentman project linked.',
+  'library.rentman.linkProject': 'Link Rentman project…',
+  'library.rentman.view.imported': 'Imported',
+  'library.rentman.view.catalog': 'Catalog',
+  'library.rentman.view.sync': 'Reconcile',
+  'library.rentman.catalogRefresh': 'Refresh',
+  'library.rentman.catalogLoad': 'Load catalog',
+  'library.rentman.catalogNotLoaded':
+    'Not loaded yet. Click “Load catalog” to show your account’s entire Rentman catalog.',
   'library.rentman.imported': 'Imported Rentman devices',
   'library.rentman.noneImported': 'No Rentman devices imported yet.',
   'library.rentman.noMatches': 'No matches for "{query}".',
@@ -3058,6 +3067,8 @@ const en: Dict = {
   'annotations.placeholderEmpty': 'Annotation… (name will be asked once)',
   'annotations.add': 'Add',
   'annotations.cancel': 'Cancel',
+  'annotations.new': '+ New annotation',
+  'annotations.empty': 'No annotations yet. Click “+ New annotation” or right-click a device / cable.',
   // RackBuilderDialog placement properties dialog
   'rack.props.title': 'Properties · {name}',
   'rack.props.removeFromRack': 'Remove from rack',

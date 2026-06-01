@@ -335,7 +335,10 @@ export const LibraryPanel = () => {
   // Equipment sub-section: separates local templates from Rentman-imported ones
   // inside one shared tab, so the user always lives in "Equipment" and just
   // toggles the source.
-  const [equipmentSection, setEquipmentSection] = useState<'local' | 'rentman'>('rentman')
+  // #427/UX — Standardmäßig die lokale Bibliothek (Katalog mit Inhalt) zeigen,
+  // nicht die meist leere Rentman-Import-Ansicht. Sonst landet ein neuer Nutzer
+  // auf „Keine Rentman-Geräte importiert" statt auf den 150+ Vorlagen.
+  const [equipmentSection, setEquipmentSection] = useState<'local' | 'rentman'>('local')
   // Local-device-create dialog: same Gemini-AI / Web-search auto-fill the
   // Rentman wizard already offers (user request, parallels NewRentmanDeviceWizard).
   const [aiLoading, setAiLoading] = useState(false)
@@ -845,7 +848,7 @@ export const LibraryPanel = () => {
               title={t('library.section.localTitle', 'Eigene und importierte Vorlagen, lokal in dieser Installation')}
             >
               <span className="mr-1 rounded bg-sky-900/80 px-1 text-[9px] font-bold text-sky-100">L</span>
-              Lokal
+              {t('library.section.local', 'Lokal')}
               <span className="ml-1 text-[10px] text-slate-400">
                 ({customLibrary.filter((t) => !t.rentmanSource).length})
               </span>

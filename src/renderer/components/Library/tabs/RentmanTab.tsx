@@ -282,16 +282,16 @@ export const RentmanTab = () => {
             className="w-full rounded bg-orange-700 px-2 py-1.5 text-cp-xs font-semibold text-white hover:bg-orange-600"
             title={t('library.rentman.linkTitle', 'Rentman-Projekt auswählen und mit dieser Plan-Datei verknüpfen')}
           >
-            Rentman-Projekt verknüpfen…
+            {t('library.rentman.linkProject', 'Rentman-Projekt verknüpfen…')}
           </button>
         </div>
       )}
 
       <div className="grid grid-cols-3 rounded border border-slate-800 bg-slate-900 p-0.5 text-[11px]">
         {([
-          ['imported', 'Importiert'],
-          ['catalog', 'Katalog'],
-          ['sync', 'Abgleich'],
+          ['imported', t('library.rentman.view.imported', 'Importiert')],
+          ['catalog', t('library.rentman.view.catalog', 'Katalog')],
+          ['sync', t('library.rentman.view.sync', 'Abgleich')],
         ] as const).map(([id, label]) => (
           <button
             key={id}
@@ -559,7 +559,11 @@ export const RentmanTab = () => {
               disabled={rentmanCatalogLoading}
               className="rounded bg-orange-700 px-2 py-0.5 text-[11px] font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
             >
-              {rentmanCatalogLoading ? '…' : rentmanCatalogLoaded ? 'Aktualisieren' : 'Katalog laden'}
+              {rentmanCatalogLoading
+                ? '…'
+                : rentmanCatalogLoaded
+                  ? t('library.rentman.catalogRefresh', 'Aktualisieren')
+                  : t('library.rentman.catalogLoad', 'Katalog laden')}
             </button>
           </div>
 
@@ -570,7 +574,10 @@ export const RentmanTab = () => {
               )}
               {!rentmanCatalogLoaded && !rentmanCatalogLoading && !rentmanCatalogError && (
                 <div className="rounded border border-slate-700/60 bg-slate-900/40 p-2 text-center text-[11px] text-slate-400">
-                  Noch nicht geladen. Klick „Katalog laden", um den gesamten Rentman-Katalog deines Accounts anzuzeigen.
+                  {t(
+                    'library.rentman.catalogNotLoaded',
+                    'Noch nicht geladen. Klick „Katalog laden", um den gesamten Rentman-Katalog deines Accounts anzuzeigen.',
+                  )}
                 </div>
               )}
               {rentmanCatalogLoaded && (
