@@ -3038,6 +3038,7 @@ const en: Dict = {
   'app.menu.tools.videohub': 'Videohub routing / labels…',
   'app.menu.tools.greengo': 'GreenGo intercom…',
   'app.menu.tools.patchList': 'Patch list…',
+  'app.menu.tools.stagePlot': 'Stage plot (SVG)…',
   'app.menu.tools.rentmanImport': 'Rentman import…',
   'app.menu.tools.analysis': 'Analyses (weight/network/redundancy)…',
   'app.menu.tools.planCheck': 'Plan check…',
