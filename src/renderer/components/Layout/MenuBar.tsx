@@ -590,11 +590,58 @@ const Menu = ({ label, children }: MenuProps) => {
     }
   }, [open])
 
+  // #461 — Tastatur-Navigation im offenen Menue: beim Oeffnen ersten Eintrag
+  // fokussieren, Pfeile/Home/End bewegen den Fokus zwischen den menuitems.
+  useEffect(() => {
+    if (!open || !ref.current) return
+    ref.current.querySelector<HTMLButtonElement>('[role="menuitem"]:not([disabled])')?.focus()
+  }, [open])
+
+  const moveFocus = (dir: 1 | -1 | 'first' | 'last'): void => {
+    const items = Array.from(
+      ref.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not([disabled])') ?? [],
+    )
+    if (items.length === 0) return
+    const cur = items.findIndex((el) => el === document.activeElement)
+    const next =
+      dir === 'first'
+        ? 0
+        : dir === 'last'
+          ? items.length - 1
+          : cur < 0
+            ? dir === 1
+              ? 0
+              : items.length - 1
+            : (cur + dir + items.length) % items.length
+    items[next]?.focus()
+  }
+  const onMenuKeyDown = (event: React.KeyboardEvent): void => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      moveFocus(1)
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault()
+      moveFocus(-1)
+    } else if (event.key === 'Home') {
+      event.preventDefault()
+      moveFocus('first')
+    } else if (event.key === 'End') {
+      event.preventDefault()
+      moveFocus('last')
+    }
+  }
+
   return (
     <div ref={ref} className="relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown') {
+            e.preventDefault()
+            setOpen(true)
+          }
+        }}
         aria-haspopup="menu"
         aria-expanded={open}
         className={`rounded px-2 py-1 text-slate-200 hover:bg-slate-800 ${open ? 'bg-slate-800' : ''}`}
@@ -605,6 +652,7 @@ const Menu = ({ label, children }: MenuProps) => {
       {open && (
         <div
           onClick={() => setOpen(false)}
+          onKeyDown={onMenuKeyDown}
           className="absolute left-0 top-full z-50 mt-1 min-w-[14rem] rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] py-1 shadow-2xl"
           role="menu"
         >
