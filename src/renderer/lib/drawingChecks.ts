@@ -409,6 +409,52 @@ export const runDrawingChecks = (
     })
   }
 
+  // — Check 16: PoE-Budget überschritten (#391) ------------------------------
+  // Netzwerk-Switch mit poeBudgetW (Fachdaten) gegen die Summe der per
+  // Ethernet angeschlossenen PoE-fähigen Verbraucher (≤ 90 W = 802.3bt Typ 4;
+  // größere Geräte haben eigene Stromversorgung und zählen nicht).
+  const POE_MAX_W = 90
+  for (const sw of equipment) {
+    const budgetRaw = sw.categoryProps?.poeBudgetW
+    const budget = typeof budgetRaw === 'number' ? budgetRaw : Number(budgetRaw)
+    if (!Number.isFinite(budget) || budget <= 0) continue
+    let load = 0
+    let count = 0
+    const seen = new Set<string>()
+    for (const c of cables) {
+      let swPortId: string | undefined
+      let otherId: string | undefined
+      if (c.fromEquipmentId === sw.id) {
+        swPortId = c.fromPortId
+        otherId = c.toEquipmentId
+      } else if (c.toEquipmentId === sw.id) {
+        swPortId = c.toPortId
+        otherId = c.fromEquipmentId
+      } else continue
+      const swPort = portById.get(swPortId)
+      if (!swPort || swPort.connectorType !== 'Ethernet/RJ45') continue
+      if (!otherId || seen.has(otherId)) continue
+      const consumer = eqById.get(otherId)
+      if (!consumer) continue
+      const w =
+        consumer.powerConsumptionWatts ??
+        (consumer.voltage && consumer.currentAmps ? consumer.voltage * consumer.currentAmps : 0)
+      if (w <= 0 || w > POE_MAX_W) continue
+      seen.add(otherId)
+      load += w
+      count += 1
+    }
+    if (load > budget) {
+      findings.push({
+        id: `poe-over:${sw.id}`,
+        severity: 'warning',
+        category: 'PoE-Budget',
+        message: `${sw.name}: PoE-Last ${Math.round(load)} W an ${count} Geräten übersteigt das Budget (${budget} W)`,
+        equipmentId: sw.id,
+      })
+    }
+  }
+
   // Sortierung: error → warning → info, innerhalb stabil nach category.
   const rank: Record<CheckSeverity, number> = { error: 0, warning: 1, info: 2 }
   findings.sort((a, b) => rank[a.severity] - rank[b.severity] || a.category.localeCompare(b.category))
