@@ -10,7 +10,8 @@
 
 import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { MessageSquare } from 'lucide-react'
+import { MapPin, MessageSquare } from 'lucide-react'
+import { getViewportCenter } from '../../lib/canvasViewport'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { Icon } from '../shared/Icon'
@@ -96,6 +97,8 @@ export const AnnotationsPanel = ({
   const setFloating = useUiStore((s) => s.setAnnotationsPanelFloating)
   const floatingPos = useUiStore((s) => s.annotationsPanelFloatingPos)
   const setFloatingPos = useUiStore((s) => s.setAnnotationsPanelFloatingPos)
+  // #462 — beim Tastatur-Platzieren sicherstellen, dass die Badges sichtbar sind.
+  const setAnnotationsVisible = useUiStore((s) => s.setAnnotationsVisible)
   const [statusFilter, setStatusFilter] = useState<ProjectAnnotation['status'] | 'all'>('all')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [draftText, setDraftText] = useState('')
@@ -331,6 +334,25 @@ export const AnnotationsPanel = ({
                           <option value="built">{t('annotations.status.built', 'gebaut')}</option>
                           <option value="resolved">{t('annotations.status.resolved', 'erledigt')}</option>
                         </select>
+                        {/* #462 — Tastatur-Alternative zum Ziehen: platziert die
+                            Anmerkung in der sichtbaren Canvas-Mitte (freier
+                            Anker). Fein-Positionierung danach per Drag. */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const c = getViewportCenter()
+                            if (c) {
+                              updateAnnotation(a.id, {
+                                anchor: { type: 'free', x: Math.round(c.x), y: Math.round(c.y) },
+                              })
+                              setAnnotationsVisible(true)
+                            }
+                          }}
+                          className="inline-flex items-center gap-1 rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-200 hover:bg-slate-700"
+                          title={t('annotations.placeCenter', 'Auf Canvas-Mitte platzieren (Tastatur-Alternative zum Ziehen)')}
+                        >
+                          <Icon icon={MapPin} size="xs" />
+                        </button>
                         <button
                           type="button"
                           onClick={async () => {
