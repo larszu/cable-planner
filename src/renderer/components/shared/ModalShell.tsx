@@ -105,7 +105,7 @@ export const ModalShell = ({
       >
         <header
           {...(draggableKey ? drag.headerProps : {})}
-          className="flex items-center justify-between border-b border-[var(--cp-border)] px-4 py-3 select-none"
+          className="flex items-center justify-between border-b border-[var(--cp-border)] px-cp-4 py-cp-3 select-none"
         >
           <h2 id={titleId} className="flex items-center text-cp-xl font-semibold">
             {titleIcon && <span className="mr-2">{titleIcon}</span>}
@@ -120,11 +120,11 @@ export const ModalShell = ({
             <Icon icon={X} size="md" />
           </button>
         </header>
-        <div className={`flex-1 ${scrollBody ? 'overflow-y-auto' : 'overflow-hidden'} px-4 py-3`}>
+        <div className={`flex-1 ${scrollBody ? 'overflow-y-auto' : 'overflow-hidden'} px-cp-4 py-cp-3`}>
           {children}
         </div>
         {footer && (
-          <footer className="border-t border-[var(--cp-border)] px-4 py-3">
+          <footer className="border-t border-[var(--cp-border)] px-cp-4 py-cp-3">
             {footer}
           </footer>
         )}

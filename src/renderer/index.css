@@ -34,6 +34,19 @@
   --radius-cp-control: 0.375rem; /* 6px */
   --radius-cp-card: 0.5rem; /* 8px */
   --radius-cp-modal: 0.75rem; /* 12px */
+
+  /* ── Spacing-Rhythmus (UX audit #53/#466) ────────────────────────────────
+   * Die :root-Variablen --cp-space-x waren als Referenz gedacht, aber nicht
+   * als Tailwind-Utilities nutzbar (und damit ungenutzt). Hier als echte
+   * @theme-Spacing-Tokens definiert, was die Utilities p-cp-N, px-cp-N,
+   * gap-cp-N, m-cp-N erzeugt. Rhythmus: 1=4 · 2=8 · 3=12 · 4=16 · 6=24 px
+   * (4er-Raster, KEINE Halb-Schritte wie py-0.5). Shells nutzen sie als
+   * Referenz-Implementierung. */
+  --spacing-cp-1: 0.25rem;
+  --spacing-cp-2: 0.5rem;
+  --spacing-cp-3: 0.75rem;
+  --spacing-cp-4: 1rem;
+  --spacing-cp-6: 1.5rem;
 }
 
 :root {
