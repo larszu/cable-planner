@@ -467,9 +467,45 @@ const RedundancyTab = ({ projectName }: { projectName: string }) => {
 
 /* --------------------------------------------------------------------- RF -- */
 
+/** #344 — Freie Frequenzen in einem Band finden: ≥ Schutzabstand zu allen
+ *  belegten Frequenzen UND frei von 3.-Ordnung-Intermodulation (das Produkt
+ *  darf keine belegte Frequenz treffen, und die neue Frequenz darf mit den
+ *  belegten keine IM3 auf einer belegten erzeugen). Vorschläge sind zudem
+ *  untereinander kompatibel (jeder Treffer wird in die Arbeitsmenge gelegt). */
+const suggestFreqs = (fromMHz: number, toMHz: number, occupied: number[], count: number): number[] => {
+  const guard = RF_MIN_SPACING_MHZ
+  const step = 0.1
+  const used = [...occupied]
+  const out: number[] = []
+  for (let f = Math.ceil(fromMHz / step) * step; f <= toMHz + 1e-9; f += step) {
+    const fr = Math.round(f * 10) / 10
+    if (used.some((u) => Math.abs(u - fr) < guard)) continue
+    let bad = false
+    // fr darf nicht auf einem IM3-Produkt zweier belegter Frequenzen liegen.
+    for (let i = 0; i < used.length && !bad; i++)
+      for (let j = 0; j < used.length && !bad; j++) {
+        if (i === j) continue
+        if (Math.abs(2 * used[i] - used[j] - fr) < guard) bad = true
+      }
+    // fr neu: erzeugt 2·fr−u bzw. 2·u−fr eine Kollision mit einer belegten?
+    for (let i = 0; i < used.length && !bad; i++) {
+      const p1 = 2 * fr - used[i]
+      const p2 = 2 * used[i] - fr
+      if (used.some((u) => u !== used[i] && (Math.abs(p1 - u) < guard || Math.abs(p2 - u) < guard)))
+        bad = true
+    }
+    if (bad) continue
+    out.push(fr)
+    used.push(fr)
+    if (out.length >= count) break
+  }
+  return out
+}
+
 const RfTab = ({ projectName }: { projectName: string }) => {
   const t = useTranslation()
   const project = useProjectStore((s) => s.project)
+  const [bandIdx, setBandIdx] = useState(0)
 
   const { links, conflicts, imConflicts } = useMemo(() => {
     const nameOf = new Map(project.equipment.map((e) => [e.id, e.name]))
@@ -546,6 +582,12 @@ const RfTab = ({ projectName }: { projectName: string }) => {
     return { links, conflicts, imConflicts }
   }, [project, t])
 
+  const suggestion = useMemo(() => {
+    const band = RF_BANDS[bandIdx] ?? RF_BANDS[0]
+    const occupied = links.map((l) => l.mhz).filter((m): m is number => m != null)
+    return { band, freqs: suggestFreqs(band.fromMHz, band.toMHz, occupied, 8) }
+  }, [bandIdx, links])
+
   const exportCsv = () => {
     const rows: (string | number)[][] = [
       [
@@ -603,6 +645,42 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           </ul>
         </div>
       )}
+      {/* #344 — Freie-Frequenz-Vorschlag im gewählten Band. */}
+      <div className="rounded border border-emerald-700/60 bg-emerald-950/20 p-2 text-cp-xs">
+        <div className="mb-1.5 flex flex-wrap items-center gap-2">
+          <span className="font-semibold text-[var(--cp-text-muted)]">
+            {t('analysis.rf.suggestTitle', 'Freie Frequenzen im Band')}
+          </span>
+          <select
+            value={bandIdx}
+            onChange={(e) => setBandIdx(Number(e.target.value))}
+            className="rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-1.5 py-0.5"
+          >
+            {RF_BANDS.map((b, i) => (
+              <option key={i} value={i}>
+                {b.mfr} {b.band} ({b.fromMHz}–{b.toMHz})
+              </option>
+            ))}
+          </select>
+        </div>
+        {suggestion.freqs.length === 0 ? (
+          <span className="text-amber-300">
+            {t('analysis.rf.suggestNone', 'Keine konfliktfreie Frequenz gefunden (Band voll/überlappend).')}
+          </span>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {suggestion.freqs.map((f) => (
+              <span key={f} className="rounded bg-emerald-700/40 px-2 py-0.5 font-mono text-emerald-100">
+                {f.toFixed(1)} MHz
+              </span>
+            ))}
+          </div>
+        )}
+        <p className="mt-1.5 text-[10px] text-[var(--cp-text-faint)]">
+          {t('analysis.rf.suggestNote', 'Frei von Belegung + 3.-Ordnung-Intermodulation (0,4 MHz Schutzabstand); Vorschläge untereinander kompatibel.')}
+        </p>
+      </div>
+
       <table className="w-full text-cp-xs">
         <thead>
           <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-muted)]">
