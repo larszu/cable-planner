@@ -12,6 +12,8 @@ import './index.css'
 import App from './App'
 import { ErrorBoundary } from './ErrorBoundary'
 import { cablePlannerApi } from './lib/bridge'
+import { PopoutApp } from './components/Layout/PopoutApp'
+import { initPanelPopoutSync, popoutPanel } from './lib/panelPopout'
 
 // v7.8.2 — Emergency escape hatch: launch with ?reset (or hash #reset)
 // to wipe all cable-planner localStorage entries before any module
@@ -97,10 +99,15 @@ document.addEventListener(
   { passive: true, capture: true },
 )
 
+// #427 — Cross-Fenster-Sync (Projekt + Auswahl) in JEDEM Fenster starten,
+// damit ausgelagerte Panels live mit dem Hauptfenster zusammenarbeiten.
+initPanelPopoutSync()
+
+// #427 — Ist dies ein ausgelagertes Panel-Fenster (?popout=…), nur das Panel
+// rendern statt der vollen App.
+const popout = popoutPanel()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
+    <ErrorBoundary>{popout ? <PopoutApp panel={popout} /> : <App />}</ErrorBoundary>
   </StrictMode>,
 )

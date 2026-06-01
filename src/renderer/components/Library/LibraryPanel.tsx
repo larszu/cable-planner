@@ -27,6 +27,10 @@ import {
 } from '../../lib/netboxImport'
 import { RackBuilderDialog } from '../Rack/RackBuilderDialog'
 import { TemplateMergeDialog } from './TemplateMergeDialog'
+import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
+import { triggerCanvasFitView } from '../../lib/canvasViewport'
+import { openPanelPopout } from '../../lib/panelPopout'
+import { usePanelTearOff } from '../../lib/usePanelTearOff'
 import { TabButton } from './TabButton'
 import { GroupsTab } from './tabs/GroupsTab'
 import { RacksTab } from './tabs/RacksTab'
@@ -84,15 +88,22 @@ export const LibraryPanel = () => {
   // v7.9.4 — Rentman-Tabs ausblenden wenn die Integration deaktiviert ist.
   const rentmanEnabled = useUiStore((state) => state.rentmanEnabled)
   const toggleCollapsed = useUiStore((state) => state.toggleLibraryCollapsed)
-  // v7.9.2 — Library nicht mehr abdockbar. Falls ein User-Zustand
-  // noch `floating: true` aus alten Versionen mitbringt, wird er hier
-  // einmalig hart auf false gezwungen, damit das Canvas nicht verschwindet.
-  const floatingRaw = useUiStore((state) => state.libraryFloating)
+  // #427 — Library wie die anderen Panels frei abdockbar (FloatingPanelShell).
+  const floating = useUiStore((state) => state.libraryFloating)
   const setFloating = useUiStore((state) => state.setLibraryFloating)
-  useEffect(() => {
-    if (floatingRaw) setFloating(false)
-  }, [floatingRaw, setFloating])
-  const floating = false
+  const floatingPos = useUiStore((state) => state.libraryFloatingPos)
+  const setFloatingPos = useUiStore((state) => state.setLibraryFloatingPos)
+  const libraryWidth = useUiStore((state) => state.libraryWidth)
+  const setLibraryWidth = useUiStore((state) => state.setLibraryWidth)
+  // #427 — Header herausziehen = abdocken; folgt danach dem Cursor.
+  const tearOff = usePanelTearOff({
+    onUndock: (p) => {
+      setFloatingPos(p)
+      setFloating(true)
+    },
+    onDragMove: setFloatingPos,
+    onDrop: () => window.setTimeout(triggerCanvasFitView, 60),
+  })
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
   const groupPresets = useProjectStore((state) => state.groupPresets)
   const addGroupPreset = useProjectStore((state) => state.addGroupPreset)
@@ -677,7 +688,7 @@ export const LibraryPanel = () => {
     }
   }
 
-  if (collapsed) {
+  if (collapsed && !floating) {
     return (
       <aside className="flex h-full w-8 flex-col items-center border-r border-slate-700 bg-slate-950 transition-colors hover:bg-slate-900">
         <button
@@ -718,6 +729,26 @@ export const LibraryPanel = () => {
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-base leading-none">‹</span>
+          </button>
+        )}
+        {!floating && (
+          <button
+            type="button"
+            data-tearoff="handle"
+            onPointerDown={tearOff.onPointerDown}
+            onClick={() => {
+              // Reiner Klick = an Ort und Stelle abdocken; ein Tear-off-Drag
+              // hat das bereits erledigt und unterdrückt hier das Doppel-Float.
+              if (tearOff.draggedRef.current) return
+              setFloating(true)
+              window.setTimeout(triggerCanvasFitView, 60)
+            }}
+            title={t('library.float.title', 'Library abdocken (klicken oder herausziehen)')}
+            aria-label={t('library.float.aria', 'Library abdocken')}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            style={{ touchAction: 'none' }}
+          >
+            <span className="pointer-events-none text-[11px] leading-none">⤢</span>
           </button>
         )}
         <TabButton
@@ -1362,5 +1393,37 @@ export const LibraryPanel = () => {
   )
 
   // v7.9.2 — Floating-Modus entfernt. Library ist fest gedockt.
+  if (floating) {
+    // #427 — Die Library ist das ERSTE Grid-Kind in App.tsx. Würde sie beim
+    // Floaten ganz aus dem Fluss verschwinden (FloatingPanelShell = fixed),
+    // rutschten alle nachfolgenden Grid-Kinder eine Spalte nach links und das
+    // Canvas landete in der 0px-Splitter-Spalte (Breite 0). Darum hier ein
+    // in-flow Platzhalter, der die (auf 0px gesetzte) Library-Spalte besetzt,
+    // während das eigentliche Panel als Overlay schwebt.
+    return (
+      <>
+        <div aria-hidden className="min-h-0" />
+        <FloatingPanelShell
+          title={
+            <span className="text-sm font-semibold text-slate-100">
+              {t('library.title', 'Library')}
+            </span>
+          }
+          position={floatingPos}
+          onMove={setFloatingPos}
+          onDock={() => {
+            setFloating(false)
+            window.setTimeout(triggerCanvasFitView, 60)
+          }}
+          onPopout={() => openPanelPopout('library')}
+          dockEdge="left"
+          onResize={setLibraryWidth}
+          width={libraryWidth}
+        >
+          {inner}
+        </FloatingPanelShell>
+      </>
+    )
+  }
   return inner
 }

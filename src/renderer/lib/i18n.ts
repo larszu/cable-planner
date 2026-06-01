@@ -316,6 +316,8 @@ const en: Dict = {
   'library.title': 'Library',
   'library.show': 'Show library',
   'library.hide': 'Hide library',
+  'library.float.title': 'Undock library (free-floating)',
+  'library.float.aria': 'Undock library',
   'library.tab.groupsTitle':
     'Saved device groups (multiple devices + cables as a template)',
   'library.section.localTitle':
@@ -843,6 +845,10 @@ const en: Dict = {
   // FloatingPanelShell
   'panel.dock': 'Dock',
   'panel.dockTitle': 'Dock (back to side column)',
+  'panel.popout': 'Pop out',
+  'panel.popoutTitle': 'Open in a separate window (other monitor)',
+  'panel.dropToDock': 'Release to dock',
+  'panel.resize': 'Resize',
   'splitter.resize': 'Resize column',
 
   // Routing toggle (shared across toolbar, properties, settings)
