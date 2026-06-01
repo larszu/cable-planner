@@ -670,7 +670,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
       <div className="flex max-h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-base font-semibold"><Icon icon={SlidersHorizontal} size="sm" /> Videohub konfigurieren · Labels + Routing</h3>
+          <h3 className="flex items-center gap-2 text-cp-xl font-semibold"><Icon icon={SlidersHorizontal} size="sm" /> Videohub konfigurieren · Labels + Routing</h3>
           <button
             type="button"
             onClick={onClose}

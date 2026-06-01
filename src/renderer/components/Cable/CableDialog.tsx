@@ -257,7 +257,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
         {...dialogProps}
         className="w-full max-w-lg rounded border border-slate-700 bg-slate-900 p-4 text-slate-100 outline-none"
       >
-        <h3 id={titleId} className="mb-2 text-lg font-semibold">{t('cable.dialog.title', 'Neues Kabel')}</h3>
+        <h3 id={titleId} className="mb-2 text-cp-2xl font-semibold">{t('cable.dialog.title', 'Neues Kabel')}</h3>
 
         {fromPort && toPort && (
           <div className="mb-3 rounded bg-slate-950 p-2 text-xs">

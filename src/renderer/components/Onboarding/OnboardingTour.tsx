@@ -169,7 +169,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
       }
     >
       <div className="space-y-3">
-        <h2 className="text-base font-semibold text-slate-100">{current.title}</h2>
+        <h2 className="text-cp-xl font-semibold text-slate-100">{current.title}</h2>
         <p className="text-sm leading-relaxed text-slate-300">{current.body}</p>
         {current.hint && (
           <div className="rounded border border-slate-800 bg-slate-950/40 px-2 py-1 text-[11px] text-slate-400">
