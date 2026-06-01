@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import {
   FileText, Clapperboard, FolderOpen, Save, SaveAll, Ruler, Upload, FileDown,
   Image as ImageIcon, Calculator, Eye, MessageSquare, Paperclip, Plug, Cable,
-  Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, SlidersHorizontal, Tag,
+  Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, MonitorPlay, SlidersHorizontal, Tag,
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
   Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles,
   Maximize, Maximize2, ZoomIn, ZoomOut, Scan, BoxSelect,
@@ -305,6 +305,12 @@ export const MenuBar = ({
             icon={<Icon icon={HardDrive} size="sm" />}
           >
             {t('app.menu.tools.recStorage', 'Recording-Speicherplatz berechnen…')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().openProjectionCalc()}
+            icon={<Icon icon={MonitorPlay} size="sm" />}
+          >
+            {t('app.menu.tools.projection', 'Projektion & Display…')}
           </MenuItem>
           <MenuItem onClick={() => useUiStore.getState().openAnalysis()} icon={<Icon icon={BarChart3} size="sm" />}>
             {t('app.menu.tools.analysis', 'Analysen (Gewicht/Netzwerk/Redundanz)…')}

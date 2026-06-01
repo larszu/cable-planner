@@ -40,6 +40,7 @@ import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
 import { BandwidthCalculatorDialog, PowerCalculatorDialog } from './components/Calculators/CalculatorsDialog'
 import { RecordingStorageCalculatorDialog } from './components/Calculators/RecordingStorageCalculatorDialog'
+import { ProjectionCalculatorDialog } from './components/Calculators/ProjectionCalculatorDialog'
 import { BulkConnectDialog } from './components/Canvas/BulkConnectDialog'
 import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
 import { PlanCheckPanel } from './components/Analysis/PlanCheckPanel'
@@ -1036,6 +1037,7 @@ export default function App() {
       <BandwidthCalculatorDialog />
       <PowerCalculatorDialog />
       <RecordingStorageCalculatorDialog />
+      <ProjectionCalculatorDialog />
       <BulkConnectDialog />
       <AnalysisDialog />
       <PlanCheckPanel />
