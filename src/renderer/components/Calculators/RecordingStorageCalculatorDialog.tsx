@@ -193,6 +193,20 @@ export const RecordingStorageCalcCore = ({
             {t('recStorage.total', 'Gesamt')} ({channels}× {t('recStorage.channels', 'Kanäle')})
           </dt>
           <dd className="font-mono text-lg text-emerald-200">{formatGb(result.total)}</dd>
+          {/* Schreib-Durchsatz: kann der Datenträger das mitschreiben? */}
+          <dt className="text-slate-500">{t('recStorage.throughput', 'Schreibrate')}</dt>
+          <dd className="font-mono text-slate-200">
+            {((effectiveMbps * channels) / 8).toFixed(0)} MB/s
+            <span className="ml-2 text-[10px] text-slate-400">
+              {(effectiveMbps * channels) / 8 > 2000
+                ? t('recStorage.tpNvmeArray', '→ NVMe-RAID nötig')
+                : (effectiveMbps * channels) / 8 > 450
+                  ? t('recStorage.tpSsdArray', '→ SSD / HDD-RAID')
+                  : (effectiveMbps * channels) / 8 > 130
+                    ? t('recStorage.tpHdd', '→ einzelne HDD grenzwertig')
+                    : t('recStorage.tpOk', '→ unkritisch')}
+            </span>
+          </dd>
         </dl>
       </div>
 
