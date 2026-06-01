@@ -114,7 +114,7 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
           />
         </label>
       </div>
-      <p className="mt-2 text-[10px] text-slate-500">
+      <p className="mt-2 text-[10px] text-slate-400">
         {t(
           'power.formulaHint',
           'Wenn Spannung und Stromstärke gesetzt sind, wird die Leistung automatisch berechnet (P = U × I). Werkzeuge → Stromverbrauch summiert das Leistungs-Feld über alle Geräte.',

@@ -103,7 +103,7 @@ export const PlanCheckPanel = () => {
             </ul>
           )}
         </div>
-        <p className="border-t border-slate-800 py-1.5 text-[10px] text-slate-500">
+        <p className="border-t border-slate-800 py-1.5 text-[10px] text-slate-400">
           {t(
             'planCheck.footerHint',
             'Live-Validierung des Plans. Klick auf einen Hinweis selektiert das betroffene Element.',

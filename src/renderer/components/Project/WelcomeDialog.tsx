@@ -113,7 +113,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
 
         {recents.length > 0 && (
           <div className="pt-2">
-            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
               {t('project.welcome.recents', 'Zuletzt verwendet')}
             </div>
             <div className="max-h-32 space-y-1 overflow-auto">
@@ -128,7 +128,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
                 </div>
               ))}
             </div>
-            <p className="mt-1 text-[10px] text-slate-500">
+            <p className="mt-1 text-[10px] text-slate-400">
               {t(
                 'project.welcome.recentsHint',
                 'Klick „Projekt öffnen…“ und wähle eine der Dateien im Datei-Dialog.',

@@ -606,14 +606,14 @@ export const PatchListDialog = () => {
                   <td className="px-2 py-1 text-slate-300">
                     {r.fromPort}
                     {r.fromPortSub && (
-                      <div className="text-[10px] text-slate-500">{r.fromPortSub}</div>
+                      <div className="text-[10px] text-slate-400">{r.fromPortSub}</div>
                     )}
                   </td>
                   <td className="px-2 py-1 font-medium text-slate-100">{r.toDevice}</td>
                   <td className="px-2 py-1 text-slate-300">
                     {r.toPort}
                     {r.toPortSub && (
-                      <div className="text-[10px] text-slate-500">{r.toPortSub}</div>
+                      <div className="text-[10px] text-slate-400">{r.toPortSub}</div>
                     )}
                   </td>
                   <td className="px-2 py-1 text-slate-300">{r.type}</td>

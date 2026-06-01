@@ -139,7 +139,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
               )}
 
               {equipment.netboxPath && (
-                <div className="mt-2 text-[10px] text-slate-500">
+                <div className="mt-2 text-[10px] text-slate-400">
                   {format(t('props.rack.netboxSource', 'Quelle: NetBox device-type-library · {path}'), {
                     path: equipment.netboxPath,
                   })}

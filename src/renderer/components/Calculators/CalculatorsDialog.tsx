@@ -423,7 +423,7 @@ const PowerTab = () => {
             <div className="text-[11px] uppercase tracking-wide text-slate-300">
               {t('calc.phaseDistribution', 'Phasen-Verteilung')} ({supply.label})
             </div>
-            <div className="text-[10px] text-slate-500">
+            <div className="text-[10px] text-slate-400">
               {t('calc.imbalance', 'Unwucht')}: {maxImbalancePct}%
               {overloaded && (
                 <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-[10px] text-white">
@@ -518,7 +518,7 @@ const PowerTab = () => {
               </span>
             ))}
           </div>
-          <p className="mt-2 text-[10px] text-slate-500">
+          <p className="mt-2 text-[10px] text-slate-400">
             {t(
               'calc.greedyExplain',
               'Greedy-Verteilung: sortiert nach Leistung, jedes Gerät auf die aktuell am schwächsten belastete Phase. Bei symmetrischen Lasten zieht der Drehstrom nur {amps} A je Phase; Unwucht erhöht den höchsten Phasenstrom. Ziel: jede Phase < 85% Last + Unwucht < 20%.',

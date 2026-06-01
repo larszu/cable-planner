@@ -1056,7 +1056,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             </button>
           </div>
           {salvos.length === 0 ? (
-            <div className="text-[11px] text-slate-500">
+            <div className="text-[11px] text-slate-400">
               Noch keine Salvos. Speichere die aktuelle Crosspoint-Verteilung
               und ruf sie spaeter mit einem Klick zurueck.
             </div>

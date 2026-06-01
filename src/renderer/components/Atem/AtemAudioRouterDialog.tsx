@@ -396,7 +396,7 @@ export const AtemAudioRouterDialog = () => {
               </span>
               {draft.classicMixer && (
                 <span
-                  className="text-[10px] text-slate-500"
+                  className="text-[10px] text-slate-400"
                   title={t('atem.audio.classicReadOnly', 'Das geladene XML enthält zusätzlich eine klassische AudioMixer-Sektion. Sie wird beim Speichern unverändert mit zurück ins XML geschrieben, ist aber hier nicht editierbar.')}
                 >
                   + AudioMixer-Sektion (read-only, round-trip)
@@ -564,7 +564,7 @@ const EmptyState = ({
         <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.matrixManual', 'Matrix manuell')}
       </button>
     </div>
-    <p className="mt-3 text-[10px] text-slate-500">
+    <p className="mt-3 text-[10px] text-slate-400">
       {format(
         t(
           'atem.audio.welcomeFooter',
@@ -1065,7 +1065,10 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                               ●
                             </span>
                           ) : outputHasOtherSource ? (
-                            <span style={{ color: '#475569', fontSize: 9 }}>
+                            // #456 — Marker "Output anderweitig belegt": vorher
+                            // fontSize 9 + slate-600 (#475569) → winzig und
+                            // zu kontrastarm. Auf slate-400 + 12px angehoben.
+                            <span style={{ color: '#94a3b8', fontSize: 12 }}>
                               ·
                             </span>
                           ) : null}

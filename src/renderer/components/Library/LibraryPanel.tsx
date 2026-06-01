@@ -693,7 +693,7 @@ export const LibraryPanel = () => {
           type="button"
           onClick={toggleCollapsed}
           aria-label={t('library.show', 'Library einblenden')}
-          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:text-slate-300 focus-visible:outline-none focus-visible:text-sky-300"
+          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400 transition-colors hover:text-slate-300 focus-visible:outline-none focus-visible:text-sky-300"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
           {t('library.title', 'Library')}
@@ -904,7 +904,7 @@ export const LibraryPanel = () => {
               </div>
             )}
 
-            <div className="mb-2 text-[11px] uppercase tracking-wide text-slate-500">
+            <div className="mb-2 text-[11px] uppercase tracking-wide text-slate-400">
               Treffer {netBoxResults.length > 0 ? `(${netBoxResults.length})` : ''}
             </div>
             <div className="space-y-2">
@@ -924,7 +924,7 @@ export const LibraryPanel = () => {
                         <div className="truncate font-medium text-slate-100">
                           {item.manufacturer} {item.model}
                         </div>
-                        <div className="truncate text-[11px] text-slate-500">{item.path}</div>
+                        <div className="truncate text-[11px] text-slate-400">{item.path}</div>
                         <div className="mt-2 flex max-w-[340px] items-center gap-2">
                           <span className="text-[11px] text-slate-400">{t('library.netbox.categoryLabel', 'Kategorie:')}</span>
                           <select
@@ -1093,7 +1093,7 @@ export const LibraryPanel = () => {
                     Abbrechen
                   </button>
                 </div>
-                <div className="mt-1 text-[10px] text-slate-500">
+                <div className="mt-1 text-[10px] text-slate-400">
                   Gespeichert nur lokal in localStorage. Key bei{' '}
                   <a
                     href="https://aistudio.google.com/app/apikey"

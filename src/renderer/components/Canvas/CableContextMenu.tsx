@@ -331,7 +331,7 @@ export const CableContextMenu = () => {
       <Item onClick={toggleBumpForThisCable} icon={effectiveBumps ? <Icon icon={Check} size="xs" /> : null}>
         {t('canvas.cableMenu.bumps', 'Kabelbrücken für dieses Kabel')}
         {bumpStyle == null && (
-          <span className="ml-auto text-[10px] text-slate-500">
+          <span className="ml-auto text-[10px] text-slate-400">
             {t('canvas.cableMenu.global', 'global')}
           </span>
         )}

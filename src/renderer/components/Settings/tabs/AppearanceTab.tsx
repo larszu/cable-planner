@@ -69,7 +69,7 @@ const CustomPaletteCard = () => {
                 }
                 className="h-10 w-full cursor-pointer rounded border border-slate-700 bg-slate-900 p-1"
               />
-              <code className="mt-1 block text-[10px] text-slate-500">
+              <code className="mt-1 block text-[10px] text-slate-400">
                 {current[field.key]}
               </code>
             </label>
@@ -177,7 +177,7 @@ export const AppearanceTab = () => {
             </button>
           ))}
         </div>
-        <p className="mt-2 text-[10px] text-slate-500">
+        <p className="mt-2 text-[10px] text-slate-400">
           {t(
             'settings.appearance.coverage',
             'Aktuell übersetzt: Einstellungen, Top-Level-Menüs und gemeinsame Buttons. Properties-Panels, Bibliothek, Rentman, ATEM und Export-Dialoge bleiben einstweilen deutsch.',
@@ -410,7 +410,7 @@ export const AppearanceTab = () => {
           <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
             {t('settings.canvasBg.imageTitle', 'Eigenes Hintergrundbild')}
           </div>
-          <div className="mb-2 text-[11px] text-slate-500">
+          <div className="mb-2 text-[11px] text-slate-400">
             {t(
               'settings.canvasBg.imageDesc',
               'Lade ein eigenes Bild als Canvas-Hintergrund — getrennt für Dark- und Light-Mode. Das Rastermuster (Punkte/Linien/Kreuze) wird darüber gezeichnet.',
@@ -509,7 +509,7 @@ export const AppearanceTab = () => {
                 />
                 <span className="flex-1 truncate text-xs">
                   {name}
-                  {isCustom && <span className="ml-1 text-[9px] text-slate-500">(custom)</span>}
+                  {isCustom && <span className="ml-1 text-[9px] text-slate-400">(custom)</span>}
                 </span>
                 {override && (
                   <button
@@ -544,7 +544,7 @@ export const AppearanceTab = () => {
         )}
       >
         {allKnownCategories.length === 0 ? (
-          <div className="text-[11px] text-slate-500">
+          <div className="text-[11px] text-slate-400">
             Noch keine Kategorien bekannt. Wird gefuellt sobald Geraete im Plan oder in der Library Kategorien haben.
           </div>
         ) : (

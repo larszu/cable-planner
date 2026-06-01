@@ -58,7 +58,7 @@ export const RackBuilderHeader = ({
             </span>
           )}
         </div>
-        <p className="mt-0.5 text-[11px] text-slate-500">
+        <p className="mt-0.5 text-[11px] text-slate-400">
           {t(
             'rack.subtitle',
             '2D Rack Builder · Geräte aus Library hinzufügen, HE-Position per Drag, Verkabelung intern',

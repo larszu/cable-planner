@@ -230,21 +230,21 @@ export const ConfigsTab = () => {
         </div>
 
         {library.length === 0 ? (
-          <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-500">
+          <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-400">
             {t(
               'settings.configs.emptyHint',
               'Lade die erste Konfigurationsdatei hoch — sie wird hier gelistet und kann anschließend einem Gerät auf dem Canvas zugeordnet werden.',
             )}
           </div>
         ) : grouped.size === 0 ? (
-          <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-500">
+          <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-400">
             {t('settings.configs.noFilterMatch', 'Kein Eintrag passt zum gewählten Filter.')}
           </div>
         ) : (
           <ul className="space-y-2">
             {Array.from(grouped.entries()).map(([kind, entries]) => (
               <li key={kind}>
-                <div className="mb-1 flex items-center gap-1 text-[10px] uppercase tracking-wide text-slate-500">
+                <div className="mb-1 flex items-center gap-1 text-[10px] uppercase tracking-wide text-slate-400">
                   <Icon icon={CONFIG_KIND_ICON[kind]} size="xs" />
                   {t(`settings.configs.kind.${kind}`, CONFIG_KIND_LABEL[kind])}
                 </div>
@@ -300,7 +300,7 @@ export const ConfigsTab = () => {
                           ))}
                         </select>
                         <span
-                          className="hidden text-[10px] text-slate-500 sm:inline"
+                          className="hidden text-[10px] text-slate-400 sm:inline"
                           title={format(
                             t(
                               'settings.configs.fileMeta',

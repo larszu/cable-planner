@@ -397,7 +397,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                     <div className="font-medium text-slate-100">
                       {r.type}
                       {r.sample && (
-                        <span className="ml-1 text-[10px] text-slate-500">
+                        <span className="ml-1 text-[10px] text-slate-400">
                           ({r.sample.name})
                         </span>
                       )}
@@ -418,7 +418,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                     )}
                     {!r.rentmanName && r.rentmanId && (
                       <div
-                        className="mt-0.5 text-[10px] text-slate-600"
+                        className="mt-0.5 text-[10px] text-slate-400"
                         title={t('bom.cable.rentmanMissingTitle', 'Verknuepft, aber Rentman-Template lokal nicht gefunden')}
                       >
                         R #{r.rentmanId}
@@ -468,7 +468,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                         ))}
                         {r.paths.length > 3 && (
                           <div
-                            className="cursor-help text-[10px] text-slate-500"
+                            className="cursor-help text-[10px] text-slate-400"
                             title={r.paths.slice(3).join('\n')}
                           >
                             {format(t('bom.cable.morePaths', '+{count} weitere'), { count: r.paths.length - 3 })}

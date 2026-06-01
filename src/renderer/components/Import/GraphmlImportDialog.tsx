@@ -492,7 +492,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                           className="w-full rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-slate-100"
                         />
                         {dev.subtitle && (
-                          <div className="px-1.5 text-[10px] text-slate-500">{dev.subtitle}</div>
+                          <div className="px-1.5 text-[10px] text-slate-400">{dev.subtitle}</div>
                         )}
                       </td>
                       <td className="px-3 py-1">
@@ -512,7 +512,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                       <td className="px-3 py-1">
                         {confidenceBadge(dev.confidence)}
                         {dev.notes[0] && (
-                          <span className="ml-1 text-[10px] text-slate-500" title={dev.notes.join('\n')}>
+                          <span className="ml-1 text-[10px] text-slate-400" title={dev.notes.join('\n')}>
                             {dev.notes[0].length > 50 ? `${dev.notes[0].slice(0, 47)}…` : dev.notes[0]}
                           </span>
                         )}

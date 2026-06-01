@@ -169,7 +169,7 @@ export const RevisionsDialog = () => {
             ))}
           </ul>
         )}
-        <p className="text-[10px] text-slate-500">
+        <p className="text-[10px] text-slate-400">
           {t(
             'revisions.footerHint',
             'Eine Revision speichert einen vollständigen Snapshot des Plans. Beim Wiederherstellen bleibt die Historie erhalten.',

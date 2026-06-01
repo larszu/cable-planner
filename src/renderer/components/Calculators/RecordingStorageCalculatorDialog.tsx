@@ -150,7 +150,7 @@ export const RecordingStorageCalcCore = ({
             className="w-full rounded border border-slate-700 bg-slate-950 p-2 disabled:opacity-60"
           />
           {fixedChannels !== undefined && (
-            <span className="mt-0.5 block text-[10px] text-slate-500">
+            <span className="mt-0.5 block text-[10px] text-slate-400">
               {t('recStorage.fixedFromDevice', 'aus Gerät übernommen')}
             </span>
           )}

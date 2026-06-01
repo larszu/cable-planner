@@ -496,7 +496,7 @@ export const CableLibraryPanel = () => {
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-semibold">{t('cableLib.title', 'Kabel-Library')}</h2>
-          <span className="text-[10px] text-slate-500">{cables.length} verbaut</span>
+          <span className="text-[10px] text-slate-400">{cables.length} verbaut</span>
         </div>
         <button
           type="button"
@@ -534,7 +534,7 @@ export const CableLibraryPanel = () => {
               >
                 <span className="flex items-center gap-1.5">
                   {group}
-                  <span className="text-[10px] font-normal text-slate-500">({specs.length})</span>
+                  <span className="text-[10px] font-normal text-slate-400">({specs.length})</span>
                   {groupBuilt > 0 && (
                     <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${
                       groupPlanned > 0

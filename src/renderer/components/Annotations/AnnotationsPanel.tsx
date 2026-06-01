@@ -17,6 +17,7 @@ import { Icon } from '../shared/Icon'
 import { promptDialog } from '../../lib/promptDialog'
 import { format, useTranslation } from '../../lib/i18n'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { readableTextColor } from '../../lib/contrast'
 import type { ProjectAnnotation } from '../../types/project'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
 
@@ -221,14 +222,14 @@ export const AnnotationsPanel = ({
 
       <div className="flex-1 overflow-y-auto p-3">
         {grouped.length === 0 ? (
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[11px] text-slate-400">
             Noch keine Anmerkungen. Klicke "+ Neue Anmerkung" oder mache einen
             Rechtsklick auf ein Gerät / Kabel.
           </p>
         ) : (
           grouped.map(([authorName, items]) => (
             <div key={authorName} className="mb-3">
-              <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+              <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                 {authorName} ({items.length})
               </h4>
               <ul className="space-y-1">
@@ -280,11 +281,18 @@ export const AnnotationsPanel = ({
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <span
                           className="rounded px-1 py-0.5 text-[9px] font-semibold"
-                          style={{ background: STATUS_COLOR[a.status], color: '#0f172a' }}
+                          style={{
+                            background: STATUS_COLOR[a.status],
+                            // #451 — Textfarbe luminanzbasiert: dunkler Text auf
+                            // Amber/Emerald, heller Text auf dem grauen
+                            // "resolved"-Badge (slate-500), wo dunkler Text
+                            // unter die WCAG-Schwelle fiel.
+                            color: readableTextColor(STATUS_COLOR[a.status]),
+                          }}
                         >
                           {t(`annotations.status.${a.status}`, STATUS_LABEL[a.status])}
                         </span>
-                        <span className="truncate text-[10px] text-slate-500" title={a.createdAt}>
+                        <span className="truncate text-[10px] text-slate-400" title={a.createdAt}>
                           {new Date(a.createdAt).toLocaleString()}
                         </span>
                       </div>
@@ -306,7 +314,7 @@ export const AnnotationsPanel = ({
                           {a.text}
                         </p>
                       )}
-                      <div className="mt-1 text-[10px] text-slate-500">
+                      <div className="mt-1 text-[10px] text-slate-400">
                         {ANCHOR_LABEL(a, deviceNames, cableNames)}
                       </div>
                       <div className="mt-1 flex gap-1">
@@ -354,7 +362,7 @@ export const AnnotationsPanel = ({
         <Icon icon={MessageSquare} size="sm" /> {t('annotations.title', 'Anmerkungen')} ({annotations.length})
       </span>
       {viewerSession && (
-        <span className="text-[10px] text-slate-500">
+        <span className="text-[10px] text-slate-400">
           {format(t('annotations.reviewer', 'Reviewer: {name}'), { name: viewerSession.author })}
         </span>
       )}
@@ -385,7 +393,7 @@ export const AnnotationsPanel = ({
             <Icon icon={MessageSquare} size="sm" /> {t('annotations.title', 'Anmerkungen')} ({annotations.length})
           </h3>
           {viewerSession && (
-            <span className="text-[10px] text-slate-500">
+            <span className="text-[10px] text-slate-400">
               {format(t('annotations.reviewer', 'Reviewer: {name}'), { name: viewerSession.author })}
             </span>
           )}

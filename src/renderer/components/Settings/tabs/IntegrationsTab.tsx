@@ -145,7 +145,7 @@ const AiProvidersCard = () => {
                   </button>
                 )}
               </div>
-              <div className="mt-1 flex items-center justify-between text-[10px] text-slate-500">
+              <div className="mt-1 flex items-center justify-between text-[10px] text-slate-400">
                 <span>
                   Model: <span className="font-mono">{config.defaultModel}</span>
                 </span>
@@ -216,7 +216,7 @@ const GreenGoPresetsCard = () => {
         </button>
       </div>
       {presets.length === 0 ? (
-        <div className="mt-2 text-[11px] text-slate-500">
+        <div className="mt-2 text-[11px] text-slate-400">
           {t('settings.greengo.empty', 'Noch keine Presets gespeichert.')}
         </div>
       ) : (
@@ -371,7 +371,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           />
           <span>
             Rentman-Integration aktivieren{' '}
-            <span className="text-[10px] text-slate-500">
+            <span className="text-[10px] text-slate-400">
               ({rentmanEnabled ? 'ein' : 'aus'})
             </span>
           </span>
@@ -445,7 +445,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             {t('settings.integrations.rentman.delete', 'Token löschen')}
           </button>
         </div>
-        <div className="mt-2 text-[11px] text-slate-500">
+        <div className="mt-2 text-[11px] text-slate-400">
           {t('settings.integrations.rentman.endpoint', 'Endpunkt:')}{' '}
           <code>https://api.rentman.net</code>
         </div>

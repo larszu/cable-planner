@@ -107,7 +107,7 @@ export const NonRackAddDialog = ({
             }`}
           >
             <div className="flex items-center gap-1.5 font-semibold"><Icon icon={Ruler} size="xs" /> {t('rack.nonRack.option.rack', 'Als 19″-Gerät')}</div>
-            <div className="mt-0.5 text-[10px] text-slate-500">
+            <div className="mt-0.5 text-[10px] text-slate-400">
               {t('rack.nonRack.option.rackHint', 'Belegt N HE auf den Rack-Schienen')}
             </div>
           </button>
@@ -121,7 +121,7 @@ export const NonRackAddDialog = ({
             }`}
           >
             <div className="flex items-center gap-1.5 font-semibold"><Icon icon={Armchair} size="xs" /> {t('rack.nonRack.option.shelf', 'Auf Shelf')}</div>
-            <div className="mt-0.5 text-[10px] text-slate-500">
+            <div className="mt-0.5 text-[10px] text-slate-400">
               {t('rack.nonRack.option.shelfHint', 'Eigene Maße in mm, sitzt auf einem Rack-Shelf')}
             </div>
           </button>

@@ -198,7 +198,7 @@ export const TemplateMergeDialog = ({
             <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
               {t('templateMerge.local', 'Lokal')}
             </div>
-            <div className="mb-1 text-[11px] text-slate-500">{localTemplate.name}</div>
+            <div className="mb-1 text-[11px] text-slate-400">{localTemplate.name}</div>
             <div className="space-y-2">
               <div>
                 <div className="mb-1 text-[11px] font-semibold text-slate-300">{t('templateMerge.inputs', 'Inputs')}</div>
@@ -209,7 +209,7 @@ export const TemplateMergeDialog = ({
                       <label key={key} className="flex items-center gap-2 rounded px-1 py-0.5 text-xs hover:bg-slate-900">
                         <input type="checkbox" checked={selectedKeys.has(key)} onChange={() => toggle(key)} />
                         <span className="truncate">{port.name}</span>
-                        <span className="ml-auto text-[10px] text-slate-500">{port.connectorType}</span>
+                        <span className="ml-auto text-[10px] text-slate-400">{port.connectorType}</span>
                       </label>
                     )
                   })}
@@ -224,7 +224,7 @@ export const TemplateMergeDialog = ({
                       <label key={key} className="flex items-center gap-2 rounded px-1 py-0.5 text-xs hover:bg-slate-900">
                         <input type="checkbox" checked={selectedKeys.has(key)} onChange={() => toggle(key)} />
                         <span className="truncate">{port.name}</span>
-                        <span className="ml-auto text-[10px] text-slate-500">{port.connectorType}</span>
+                        <span className="ml-auto text-[10px] text-slate-400">{port.connectorType}</span>
                       </label>
                     )
                   })}
@@ -235,7 +235,7 @@ export const TemplateMergeDialog = ({
 
           <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
             <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{incomingLabel}</div>
-            <div className="mb-1 text-[11px] text-slate-500">{incomingTemplate.name}</div>
+            <div className="mb-1 text-[11px] text-slate-400">{incomingTemplate.name}</div>
             <div className="space-y-2">
               <div>
                 <div className="mb-1 text-[11px] font-semibold text-slate-300">{t('templateMerge.inputs', 'Inputs')}</div>
@@ -246,7 +246,7 @@ export const TemplateMergeDialog = ({
                       <label key={key} className="flex items-center gap-2 rounded px-1 py-0.5 text-xs hover:bg-slate-900">
                         <input type="checkbox" checked={selectedKeys.has(key)} onChange={() => toggle(key)} />
                         <span className="truncate">{port.name}</span>
-                        <span className="ml-auto text-[10px] text-slate-500">{port.connectorType}</span>
+                        <span className="ml-auto text-[10px] text-slate-400">{port.connectorType}</span>
                       </label>
                     )
                   })}
@@ -261,7 +261,7 @@ export const TemplateMergeDialog = ({
                       <label key={key} className="flex items-center gap-2 rounded px-1 py-0.5 text-xs hover:bg-slate-900">
                         <input type="checkbox" checked={selectedKeys.has(key)} onChange={() => toggle(key)} />
                         <span className="truncate">{port.name}</span>
-                        <span className="ml-auto text-[10px] text-slate-500">{port.connectorType}</span>
+                        <span className="ml-auto text-[10px] text-slate-400">{port.connectorType}</span>
                       </label>
                     )
                   })}

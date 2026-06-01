@@ -444,7 +444,7 @@ const RackSidePropertiesPane = () => {
     <aside className="flex h-full min-h-0 flex-col rounded border border-slate-700 bg-slate-950">
       <div className="border-b border-slate-800 px-3 py-2">
         <h3 className="truncate text-xs font-semibold text-slate-100">{title}</h3>
-        <div className="mt-0.5 text-[9px] uppercase tracking-wide text-slate-500">
+        <div className="mt-0.5 text-[9px] uppercase tracking-wide text-slate-400">
           Eigenschaften (Rack-Scope)
         </div>
       </div>
@@ -452,7 +452,7 @@ const RackSidePropertiesPane = () => {
         {selectedEquipmentId && <EquipmentProperties />}
         {selectedCableId && <CableProperties />}
         {!selectedEquipmentId && !selectedCableId && (
-          <div className="rounded border border-slate-800 bg-slate-900/40 p-3 text-[11px] text-slate-500">
+          <div className="rounded border border-slate-800 bg-slate-900/40 p-3 text-[11px] text-slate-400">
             Klick auf ein Rack-Gerät oder eine Verbindung im Canvas → die Eigenschaften erscheinen hier.
           </div>
         )}

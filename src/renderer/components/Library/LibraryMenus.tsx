@@ -180,7 +180,7 @@ export const LibraryFiltersMenu = ({
               : t('library.menus.collapseAll', 'Alle Kategorien einklappen')}
           </button>
           <div className="my-1 border-t border-slate-800" />
-          <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-slate-500">
+          <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-slate-400">
             {t('library.menus.sorting', 'Sortierung')}
           </div>
           {(

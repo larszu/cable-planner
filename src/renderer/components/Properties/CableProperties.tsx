@@ -263,7 +263,7 @@ export const CableProperties = () => {
         <div className="border-t border-slate-700 p-2">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <div className="mb-0.5 text-[10px] text-slate-500">{t('cable.fromDeviceShort', 'Von Gerät')}</div>
+              <div className="mb-0.5 text-[10px] text-slate-400">{t('cable.fromDeviceShort', 'Von Gerät')}</div>
               <select
                 aria-label={t('cable.aria.fromDevice', 'Quell-Gerät')}
                 value={cable.fromEquipmentId}
@@ -276,7 +276,7 @@ export const CableProperties = () => {
                   </option>
                 ))}
               </select>
-              <div className="mt-1 text-[10px] text-slate-500">{t('cable.portShort', 'Port')}</div>
+              <div className="mt-1 text-[10px] text-slate-400">{t('cable.portShort', 'Port')}</div>
               <select
                 aria-label={t('cable.aria.fromPort', 'Quell-Port')}
                 value={cable.fromPortId}
@@ -295,7 +295,7 @@ export const CableProperties = () => {
               </select>
             </div>
             <div>
-              <div className="mb-0.5 text-[10px] text-slate-500">{t('cable.toDeviceShort', 'Nach Gerät')}</div>
+              <div className="mb-0.5 text-[10px] text-slate-400">{t('cable.toDeviceShort', 'Nach Gerät')}</div>
               <select
                 aria-label={t('cable.aria.toDevice', 'Ziel-Gerät')}
                 value={cable.toEquipmentId}
@@ -308,7 +308,7 @@ export const CableProperties = () => {
                   </option>
                 ))}
               </select>
-              <div className="mt-1 text-[10px] text-slate-500">{t('cable.portShort', 'Port')}</div>
+              <div className="mt-1 text-[10px] text-slate-400">{t('cable.portShort', 'Port')}</div>
               <select
                 aria-label={t('cable.aria.toPort', 'Ziel-Port')}
                 value={cable.toPortId}
@@ -430,7 +430,7 @@ export const CableProperties = () => {
                 })}
               </div>
               {isHidden && (
-                <p className="mt-1 text-[10px] text-slate-500">
+                <p className="mt-1 text-[10px] text-slate-400">
                   Label ausgeblendet — Klick auf eine der drei Positionen
                   zeigt es wieder an.
                 </p>
@@ -474,7 +474,7 @@ export const CableProperties = () => {
                   <button
                     type="button"
                     onClick={() => updateCable(cable.id, { labelT: undefined })}
-                    className="rounded bg-slate-800 px-1 py-0.5 text-[10px] text-slate-500 hover:bg-slate-700"
+                    className="rounded bg-slate-800 px-1 py-0.5 text-[10px] text-slate-400 hover:bg-slate-700"
                     title={t('cable.field.labelSliderReset', 'Slider zurücksetzen — Preset wieder aktiv')}
                   >
                     reset

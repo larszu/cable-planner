@@ -188,7 +188,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
           </select>
           <div className="max-h-56 overflow-auto rounded border border-slate-800">
             {filtered.length === 0 ? (
-              <div className="px-2 py-3 text-center text-[11px] text-slate-500">
+              <div className="px-2 py-3 text-center text-[11px] text-slate-400">
                 {t('replaceDevice.noMatches', 'Keine Treffer.')}
               </div>
             ) : (
@@ -208,7 +208,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
                           <span className="block text-xs font-medium text-slate-100">
                             {tpl.name}
                           </span>
-                          <span className="block text-[10px] text-slate-500">
+                          <span className="block text-[10px] text-slate-400">
                             {categoryDisplay(tpl.category ?? '', lang, categoryTranslations)} · {tpl.inputs.length} in / {tpl.outputs.length} out
                           </span>
                         </span>

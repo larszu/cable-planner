@@ -287,9 +287,9 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
         >
           {t('graphmlViewer.reset', 'Reset')}
         </button>
-        <span className="ml-1 text-[10px] text-slate-500">{Math.round(view.zoom * 100)}%</span>
+        <span className="ml-1 text-[10px] text-slate-400">{Math.round(view.zoom * 100)}%</span>
       </div>
-      <div className="pointer-events-none absolute bottom-2 left-3 text-[10px] text-slate-500">
+      <div className="pointer-events-none absolute bottom-2 left-3 text-[10px] text-slate-400">
         {format(
           t(
             'graphmlViewer.statusBar',

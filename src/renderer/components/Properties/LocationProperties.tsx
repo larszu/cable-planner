@@ -165,7 +165,7 @@ export const LocationProperties = () => {
         </button>
       </div>
 
-      <p className="text-[10px] italic text-slate-500">
+      <p className="text-[10px] italic text-slate-400">
         {t(
           'location.tip',
           'Tipp: Der Rahmen bewegt sich standardmäßig unabhängig. Aktiviere „Geräte mitnehmen", wenn alle enthaltenen Geräte beim Verschieben des Rahmens mitwandern sollen.',

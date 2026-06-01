@@ -217,11 +217,11 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
             {/* Device checklist */}
             <div className="mb-3 max-h-[42vh] overflow-y-auto rounded border border-slate-800 bg-slate-950/40 p-1">
               {sortedEquipment.length === 0 ? (
-                <div className="px-3 py-6 text-center text-[11px] text-slate-500">
+                <div className="px-3 py-6 text-center text-[11px] text-slate-400">
                   {t('print.devices.noneInProject', 'Keine Geräte im Projekt.')}
                 </div>
               ) : filteredEquipment.length === 0 ? (
-                <div className="px-3 py-6 text-center text-[11px] text-slate-500">
+                <div className="px-3 py-6 text-center text-[11px] text-slate-400">
                   {formatStr(t('print.devices.noMatch', 'Kein Gerät passt zum Suchbegriff „{q}".'), { q: filter })}
                 </div>
               ) : (
@@ -242,11 +242,11 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                           />
                           <div className="min-w-0 flex-1">
                             <div className="truncate font-medium text-slate-100">{eq.name}</div>
-                            <div className="truncate text-[10px] text-slate-500">
+                            <div className="truncate text-[10px] text-slate-400">
                               {[eq.category, eq.subtitle].filter(Boolean).join(' · ') || '—'}
                             </div>
                           </div>
-                          <span className="shrink-0 text-[10px] text-slate-500">
+                          <span className="shrink-0 text-[10px] text-slate-400">
                             {portCount} Ports · {cableCount} Kabel
                           </span>
                         </label>

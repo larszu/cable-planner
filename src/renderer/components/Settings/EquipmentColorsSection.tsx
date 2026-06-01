@@ -61,7 +61,7 @@ export const EquipmentColorsSection = () => {
                       className="h-6 w-10 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
                       title={r.hint}
                     />
-                    <span className="font-mono text-[10px] text-slate-500">
+                    <span className="font-mono text-[10px] text-slate-400">
                       {equipmentColors[theme][r.key]}
                     </span>
                   </div>
@@ -71,7 +71,7 @@ export const EquipmentColorsSection = () => {
           </div>
         ))}
       </div>
-      <div className="mt-2 text-[10px] text-slate-500">
+      <div className="mt-2 text-[10px] text-slate-400">
         {t(
           'settings.eqColors.note',
           'Hinweis: Geräte mit eigener Farbe (Properties → Gerätefarbe) überschreiben den Body-Wert weiterhin individuell.',
@@ -83,7 +83,7 @@ export const EquipmentColorsSection = () => {
           <div className="text-xs font-semibold text-slate-200">
             {t('settings.eqColors.defaultDeviceColor', 'Standard-Gerätefarbe')}
           </div>
-          <div className="text-[10px] text-slate-500">
+          <div className="text-[10px] text-slate-400">
             {t(
               'settings.eqColors.defaultDeviceColorHint',
               'Neu hinzugefügte Geräte starten mit dieser Farbe (Properties → Gerätefarbe lässt sich danach individuell ändern). Wenn leer: nutzt die Theme-Body-Farbe.',

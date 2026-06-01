@@ -268,7 +268,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
           <div>
             <h3 className="text-base font-semibold text-emerald-300">{t('greengo.title', 'GreenGo Intercom-Planung')}</h3>
-            <p className="text-[11px] text-slate-500">{config.systemName}</p>
+            <p className="text-[11px] text-slate-400">{config.systemName}</p>
           </div>
           <button
             type="button"
@@ -324,7 +324,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   <table className="w-full border-collapse text-xs">
                     <thead>
                       <tr className="bg-slate-800">
-                        <th className="w-8 px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-500">#</th>
+                        <th className="w-8 px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">#</th>
                         <th className="min-w-[130px] px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">{t('greengo.col.station', 'Station')}</th>
                         <th className="min-w-[70px] px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">{t('greengo.col.type', 'Typ')}</th>
                         <th className="min-w-[160px] px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">{t('greengo.col.deviceCanvas', 'Gerät (Canvas)')}</th>
@@ -342,7 +342,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                         return (
                           <tr key={user.id}
                             className={`border-t border-slate-800 ${idx % 2 === 0 ? 'bg-slate-900' : 'bg-slate-800/30'} hover:bg-slate-800/70`}>
-                            <td className="px-2 py-1.5 text-center text-[10px] text-slate-500 font-mono">{user.id}</td>
+                            <td className="px-2 py-1.5 text-center text-[10px] text-slate-400 font-mono">{user.id}</td>
                             <td className="px-2 py-1">
                               <input
                                 value={user.name}
@@ -353,7 +353,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                             <td className="px-3 py-1.5 whitespace-nowrap">
                               {deviceType
                                 ? <span className="rounded bg-emerald-900/60 px-1.5 py-0.5 text-[10px] font-mono text-emerald-300">{deviceType}</span>
-                                : <span className="text-[10px] text-slate-600">—</span>}
+                                : <span className="text-[10px] text-slate-400">—</span>}
                             </td>
                             <td className="px-2 py-1">
                               {intercomEquipment.length > 0 ? (
@@ -367,7 +367,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                                   ))}
                                 </select>
                               ) : (
-                                <span className="text-[10px] text-slate-600">{t('greengo.noIntercomCanvas', 'kein Intercom auf Canvas')}</span>
+                                <span className="text-[10px] text-slate-400">{t('greengo.noIntercomCanvas', 'kein Intercom auf Canvas')}</span>
                               )}
                             </td>
                             {config.groups.map((group) => {
@@ -392,7 +392,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                             })}
                             <td className="px-1 py-1 text-center">
                               <button type="button" onClick={() => removeUser(user.id)}
-                                className="rounded px-1 py-0.5 text-[10px] text-slate-600 hover:bg-red-900/60 hover:text-red-300">×</button>
+                                className="rounded px-1 py-0.5 text-[10px] text-slate-400 hover:bg-red-900/60 hover:text-red-300">×</button>
                             </td>
                           </tr>
                         )
@@ -400,7 +400,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                     </tbody>
                     <tfoot>
                       <tr className="border-t border-slate-700 bg-slate-800/80">
-                        <td colSpan={4} className="px-3 py-1.5 text-[10px] text-slate-500">{t('greengo.members', 'Mitglieder')}</td>
+                        <td colSpan={4} className="px-3 py-1.5 text-[10px] text-slate-400">{t('greengo.members', 'Mitglieder')}</td>
                         {config.groups.map((group) => (
                           <td key={group.id} className="px-2 py-1.5 text-center text-[10px] font-bold text-emerald-400">
                             {config.users.filter((u) => u.groupIds.includes(group.id)).length}
@@ -424,7 +424,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
               {intercomEquipment.length > 0 && (
                 <div className="mt-5">
-                  <div className="mb-1.5 text-[10px] uppercase tracking-wide text-slate-500">{t('greengo.devicesOnCanvas', 'GreenGo-Geräte auf dem Canvas')}</div>
+                  <div className="mb-1.5 text-[10px] uppercase tracking-wide text-slate-400">{t('greengo.devicesOnCanvas', 'GreenGo-Geräte auf dem Canvas')}</div>
                   <div className="flex flex-wrap gap-2">
                     {intercomEquipment.map((eq) => {
                       const assignedTo = config.users.find((u) => u.equipmentId === eq.id)
@@ -438,7 +438,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                           <span className="font-medium">{eq.name}</span>
                           {assignedTo
                             ? <span className="ml-1.5 text-[10px] text-slate-400">→ {assignedTo.name}</span>
-                            : <span className="ml-1.5 text-[10px] text-slate-600">{t('greengo.unassigned', 'nicht zugewiesen')}</span>}
+                            : <span className="ml-1.5 text-[10px] text-slate-400">{t('greengo.unassigned', 'nicht zugewiesen')}</span>}
                         </div>
                       )
                     })}
@@ -478,7 +478,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                     className="rounded border border-slate-700 bg-slate-800/60 p-3"
                   >
                     <div className="mb-2 flex items-center gap-2">
-                      <span className="w-6 text-center text-[10px] font-bold text-slate-500">
+                      <span className="w-6 text-center text-[10px] font-bold text-slate-400">
                         #{user.id}
                       </span>
                       <input
@@ -568,7 +568,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                       className="rounded border border-slate-700 bg-slate-800/60 p-3"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="w-6 text-center text-[10px] font-bold text-slate-500">
+                        <span className="w-6 text-center text-[10px] font-bold text-slate-400">
                           #{group.id}
                         </span>
                         <input
@@ -577,7 +577,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                           placeholder={t('greengo.groups.namePlaceholder', 'Gruppenname (z.B. CAM)')}
                           className="flex-1 rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
                         />
-                        <span className="text-[10px] text-slate-500">
+                        <span className="text-[10px] text-slate-400">
                           {memberCount} {t('greengo.members', 'Mitglieder')}
                         </span>
                         <button
@@ -589,7 +589,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                         </button>
                       </div>
                       {memberNames && (
-                        <p className="mt-1 pl-8 text-[10px] text-slate-500">{memberNames}</p>
+                        <p className="mt-1 pl-8 text-[10px] text-slate-400">{memberNames}</p>
                       )}
                     </div>
                   )
@@ -631,7 +631,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   placeholder="239.1.160.1"
                   className="w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-sm"
                 />
-                <span className="mt-0.5 block text-[10px] text-slate-500">
+                <span className="mt-0.5 block text-[10px] text-slate-400">
                   {t('greengo.system.multicastHint', 'Standard: 239.1.160.1 — muss im Netzwerk eindeutig sein.')}
                 </span>
               </label>
@@ -655,7 +655,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-slate-700 px-4 py-3">
-          <span className="text-[11px] text-slate-500">
+          <span className="text-[11px] text-slate-400">
             {config.users.length} {t('greengo.footer.stations', 'Stationen')} · {config.groups.length} {t('greengo.footer.groups', 'Gruppen')}
             {intercomEquipment.length > 0 && (
               <span className="ml-2 text-emerald-700">· {intercomEquipment.length} {t('greengo.footer.devicesOnCanvas', 'Geräte auf Canvas')}</span>
@@ -771,7 +771,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
               {/* Groups summary */}
               {importResult.config.groups.length > 0 && (
                 <div>
-                  <div className="mb-1.5 text-[10px] uppercase tracking-wide text-slate-500">
+                  <div className="mb-1.5 text-[10px] uppercase tracking-wide text-slate-400">
                     {t('greengo.importOverlay.importedGroups', 'Importierte Gruppen')} ({importResult.config.groups.length})
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -786,10 +786,10 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
               {/* User → Equipment mapping table */}
               <div>
-                <div className="mb-1.5 text-[10px] uppercase tracking-wide text-slate-500">
+                <div className="mb-1.5 text-[10px] uppercase tracking-wide text-slate-400">
                   {t('greengo.importOverlay.linkStations', 'Stationen → Canvas-Geräte verknüpfen')} ({importResult.config.users.length})
                 </div>
-                <p className="mb-2 text-[11px] text-slate-500">
+                <p className="mb-2 text-[11px] text-slate-400">
                   {t('greengo.importOverlay.linkHint', 'Wähle für jede importierte Station das entsprechende Gerät auf dem Canvas. Automatisch erkannte Zuordnungen sind vorausgefüllt.')}
                 </p>
                 <table className="w-full border-collapse text-xs">
@@ -820,7 +820,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                           <td className="px-3 py-2">
                             {userGroups.length > 0
                               ? <span className="text-[10px] text-slate-400">{userGroups.join(', ')}</span>
-                              : <span className="text-[10px] text-slate-600">{t('greengo.importOverlay.noGroups', 'keine')}</span>}
+                              : <span className="text-[10px] text-slate-400">{t('greengo.importOverlay.noGroups', 'keine')}</span>}
                           </td>
                           <td className="px-3 py-2">
                             {intercomEquipment.length > 0 ? (
@@ -843,7 +843,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                                 ))}
                               </select>
                             ) : (
-                              <span className="text-[10px] text-slate-600">{t('greengo.importOverlay.noIntercomCanvas', 'Kein Intercom auf Canvas')}</span>
+                              <span className="text-[10px] text-slate-400">{t('greengo.importOverlay.noIntercomCanvas', 'Kein Intercom auf Canvas')}</span>
                             )}
                           </td>
                         </tr>
@@ -857,7 +857,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
             {/* Footer */}
             <div className="flex items-center justify-between border-t border-slate-700 px-4 py-3">
-              <span className="text-[11px] text-slate-500">
+              <span className="text-[11px] text-slate-400">
                 {t('greengo.importOverlay.linkedCount', '{linked} von {total} Stationen verknüpft').replace('{linked}', String(importMappings.size)).replace('{total}', String(importResult.config.users.length))}
               </span>
               <div className="flex gap-2">

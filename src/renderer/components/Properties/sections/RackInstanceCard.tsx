@@ -34,7 +34,7 @@ export const RackInstanceCard = ({ equipment }: { equipment: EquipmentItem }) =>
         <Icon icon={Server} size="xs" /> {t('rackInstance.openEditor', 'Rack-Editor öffnen')}
       </button>
       {typeof equipment.rackInstanceStartUnit === 'number' && (
-        <div className="mt-1 text-[10px] text-slate-500">
+        <div className="mt-1 text-[10px] text-slate-400">
           {format(t('rackInstance.position', 'Position: ab HU {start}'), {
             start: equipment.rackInstanceStartUnit + 1,
           })}

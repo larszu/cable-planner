@@ -199,7 +199,7 @@ export const ModeEditorDialog = ({
           </div>
 
           <div className="mt-4 flex items-center justify-between">
-            <div className="text-[10px] text-slate-500">
+            <div className="text-[10px] text-slate-400">
               {format(
                 t('modeEditor.portCount', '{count} Port(s) in diesem Modus'),
                 { count: totalPortCount },
@@ -242,7 +242,7 @@ export const ModeEditorDialog = ({
                   </button>
                 </div>
                 {list.length === 0 ? (
-                  <div className="rounded border border-dashed border-slate-700 p-3 text-center text-[10px] text-slate-500">
+                  <div className="rounded border border-dashed border-slate-700 p-3 text-center text-[10px] text-slate-400">
                     {format(t('modeEditor.emptySide', 'Keine {kind} in diesem Modus.'), { kind: label.toLowerCase() })}
                   </div>
                 ) : (
