@@ -902,16 +902,34 @@ export const AtemMvConfigDialog = () => {
 
   const handleExportPng = async () => {
     if (!mvGridRef.current) return
-    try {
-      const dataUrl = await toPng(mvGridRef.current, { backgroundColor: '#0f172a' })
-      const a = document.createElement('a')
-      a.href = dataUrl
-      const safeName = (equipment.name || 'MV').replace(/[^\w.-]+/g, '_')
-      a.download = `mv-layout_${safeName}_mv${activeMv + 1}.png`
-      a.click()
-    } catch (err) {
-      console.error('PNG export failed:', err)
+    // #249 — html-to-image schlägt beim ERSTEN Aufruf gelegentlich fehl oder
+    // liefert ein leeres/partielles Bild, weil Style-/Font-Embedding noch nicht
+    // „warm" ist (v. a. unter Electron). Robust: bis zu 3 Versuche mit kurzer
+    // Pause; Erfolg/Fehler sichtbar als Status statt nur in der Konsole.
+    const opts = { backgroundColor: '#0f172a', cacheBust: true, pixelRatio: 2 } as const
+    setStatus(t('atem.mv.status.pngBusy', 'Exportiere PNG …'))
+    let dataUrl = ''
+    let lastErr: unknown = null
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        dataUrl = await toPng(mvGridRef.current, opts)
+        if (dataUrl && dataUrl.length > 1000) break
+      } catch (e) {
+        lastErr = e
+      }
+      await new Promise((r) => setTimeout(r, 150))
     }
+    if (!dataUrl || dataUrl.length <= 1000) {
+      console.error('PNG export failed:', lastErr)
+      setStatus(t('atem.mv.status.pngFail', 'PNG-Export fehlgeschlagen — bitte erneut versuchen.'))
+      return
+    }
+    const a = document.createElement('a')
+    a.href = dataUrl
+    const safeName = (equipment.name || 'MV').replace(/[^\w.-]+/g, '_')
+    a.download = `mv-layout_${safeName}_mv${activeMv + 1}.png`
+    a.click()
+    setStatus(t('atem.mv.status.pngOk', 'MV-Layout als PNG exportiert.'))
   }
 
   const handleApply = async () => {
