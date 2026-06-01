@@ -20,6 +20,7 @@ import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { useTranslation, format } from '../../lib/i18n'
 import { checkDanteName } from '../../lib/danteNaming'
+import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
 import type { EquipmentItem } from '../../types/equipment'
 
 type Tab = 'weight' | 'network' | 'redundancy' | 'rf'
@@ -481,11 +482,19 @@ const RfTab = ({ projectName }: { projectName: string }) => {
       [
         t('analysis.rf.link', 'Funkstrecke'),
         t('analysis.rf.freq', 'Frequenz'),
+        t('analysis.rf.band', 'Band'),
         t('analysis.rf.channel', 'Kanal'),
         t('analysis.rf.from', 'Von'),
         t('analysis.rf.to', 'Nach'),
       ],
-      ...links.map((l) => [l.name, l.frequency, l.channel, l.from, l.to]),
+      ...links.map((l) => [
+        l.name,
+        l.frequency,
+        bandsForFrequency(l.mhz).filter((b) => !b.mfr.startsWith('Regulatorisch')).map(bandLabel).join(' / '),
+        l.channel,
+        l.from,
+        l.to,
+      ]),
     ]
     downloadBlob(buildExportFilenameWithSuffix(projectName, 'rf-plan', 'csv'), toCsv(rows), 'text/csv')
   }
@@ -530,30 +539,86 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-muted)]">
             <th className="py-1 pr-2">{t('analysis.rf.link', 'Funkstrecke')}</th>
             <th className="py-1 pr-2">{t('analysis.rf.freq', 'Frequenz')}</th>
+            <th className="py-1 pr-2">{t('analysis.rf.band', 'Band')}</th>
             <th className="py-1 pr-2">{t('analysis.rf.channel', 'Kanal')}</th>
             <th className="py-1 pr-2">{t('analysis.rf.from', 'Von')}</th>
             <th className="py-1">{t('analysis.rf.to', 'Nach')}</th>
           </tr>
         </thead>
         <tbody>
-          {links.map((l, i) => (
-            <tr key={`${l.name}-${i}`} className="border-b border-[var(--cp-border-muted)]">
-              <td className="py-1 pr-2">{l.name}</td>
-              <td className="py-1 pr-2 font-mono">{l.frequency}</td>
-              <td className="py-1 pr-2">{l.channel}</td>
-              <td className="py-1 pr-2">{l.from}</td>
-              <td className="py-1">{l.to}</td>
-            </tr>
-          ))}
+          {links.map((l, i) => {
+            // #344 — Band-Zuordnung: Hersteller-Bänder zuerst, Regulatorik
+            // separat als Tooltip. Kurz halten (max. 3 sichtbar).
+            const matches = bandsForFrequency(l.mhz)
+            const mfrBands = matches.filter((b) => !b.mfr.startsWith('Regulatorisch'))
+            const regBands = matches.filter((b) => b.mfr.startsWith('Regulatorisch'))
+            return (
+              <tr key={`${l.name}-${i}`} className="border-b border-[var(--cp-border-muted)]">
+                <td className="py-1 pr-2">{l.name}</td>
+                <td className="py-1 pr-2 font-mono">{l.frequency}</td>
+                <td className="py-1 pr-2" title={matches.map((b) => `${bandLabel(b)} (${b.line}, ${b.fromMHz}–${b.toMHz} MHz${b.note ? `, ${b.note}` : ''})`).join('\n')}>
+                  {mfrBands.length === 0 && regBands.length === 0 ? (
+                    <span className="text-[var(--cp-text-faint)]">—</span>
+                  ) : (
+                    <span>
+                      {mfrBands.slice(0, 3).map((b) => bandLabel(b)).join(' · ')}
+                      {mfrBands.length > 3 && ` +${mfrBands.length - 3}`}
+                      {mfrBands.length === 0 && regBands.length > 0 && (
+                        <span className="text-[var(--cp-text-muted)]">{regBands[0].band}</span>
+                      )}
+                    </span>
+                  )}
+                </td>
+                <td className="py-1 pr-2">{l.channel}</td>
+                <td className="py-1 pr-2">{l.from}</td>
+                <td className="py-1">{l.to}</td>
+              </tr>
+            )
+          })}
           {links.length === 0 && (
             <tr>
-              <td colSpan={5} className="py-2 text-[var(--cp-text-faint)]">
+              <td colSpan={6} className="py-2 text-[var(--cp-text-faint)]">
                 {t('analysis.rf.empty', 'Keine Funkstrecken im Plan.')}
               </td>
             </tr>
           )}
         </tbody>
       </table>
+
+      {/* #344 — Referenz: gängige Hersteller-Frequenzbänder. */}
+      <details className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)]">
+        <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-[var(--cp-text-muted)]">
+          {t('analysis.rf.bandRef', 'Frequenzbänder (Sennheiser / Shure / …)')} ({RF_BANDS.length})
+        </summary>
+        <div className="px-3 py-2">
+          <table className="w-full text-cp-xs">
+            <thead className="text-[var(--cp-text-faint)]">
+              <tr className="text-left">
+                <th className="py-0.5 pr-2">{t('analysis.rf.bandMfr', 'Hersteller')}</th>
+                <th className="py-0.5 pr-2">{t('analysis.rf.bandLine', 'Serie')}</th>
+                <th className="py-0.5 pr-2">{t('analysis.rf.band', 'Band')}</th>
+                <th className="py-0.5 pr-2 text-right">MHz</th>
+                <th className="py-0.5">{t('analysis.rf.bandNote', 'Hinweis')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {RF_BANDS.map((b, i) => (
+                <tr key={i} className="border-t border-[var(--cp-border-muted)]">
+                  <td className="py-0.5 pr-2">{b.mfr}</td>
+                  <td className="py-0.5 pr-2 text-[var(--cp-text-muted)]">{b.line}</td>
+                  <td className="py-0.5 pr-2 font-mono font-semibold">{b.band}</td>
+                  <td className="py-0.5 pr-2 text-right font-mono">{b.fromMHz}–{b.toMHz}</td>
+                  <td className="py-0.5 text-[10px] text-[var(--cp-text-faint)]">{b.note ?? ''}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="mt-2 text-[10px] text-[var(--cp-text-faint)]">
+            {t('analysis.rf.bandDisclaimer', 'Gängige Nominalbereiche — Band-Buchstaben sind serien-/regionsabhängig. Immer gegen das aktuelle Datenblatt und die lokale Frequenzregulierung prüfen.')}
+          </p>
+        </div>
+      </details>
+
       <div className="flex justify-end">
         <CsvButton onClick={exportCsv} />
       </div>
