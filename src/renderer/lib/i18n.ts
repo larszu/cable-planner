@@ -2433,6 +2433,7 @@ const en: Dict = {
     'Copper, ρ ≈ 0.0175 Ω·mm²/m. 1-phase ΔU = 2·L·I·ρ/A, 3-phase ΔU = √3·L·I·ρ/A. Rule of thumb: ≤ 3 % at end devices. Load current = symmetric current incl. margin.',
   'calc.generator': 'Generator (PF 0.8)',
   'calc.generatorRec': 'rec.',
+  'calc.power.cooling': 'Heat / cooling',
   'calc.neutralCurrent': 'Neutral (estimated)',
   'calc.neutralOk': 'well balanced',
   'calc.neutralHigh': 'high imbalance — rebalance phases',
