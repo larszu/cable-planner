@@ -76,6 +76,27 @@ window.addEventListener('unhandledrejection', (event) => {
   } catch { /* ignore */ }
 })
 
+// #386 — Mausrad ueber einem fokussierten <input type="number"> aendert in
+// Chromium/Electron dessen Wert. Beim Scrollen durch die Eigenschaften-Panels
+// (Dimensionen, Strom, Netzwerk, Ports) verstellt das ungewollt Zahlenfelder.
+// Capture-Listener: liegt der Fokus auf dem Zahlenfeld unter dem Cursor,
+// nehmen wir ihm den Fokus -> das Rad scrollt das Panel statt den Wert zu
+// aendern. Tippen/Klicken bleibt unberuehrt.
+document.addEventListener(
+  'wheel',
+  (e) => {
+    const el = document.activeElement
+    if (
+      el instanceof HTMLInputElement &&
+      el.type === 'number' &&
+      (e.target === el || (e.target instanceof Node && el.contains(e.target)))
+    ) {
+      el.blur()
+    }
+  },
+  { passive: true, capture: true },
+)
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
