@@ -2377,6 +2377,13 @@ const en: Dict = {
   'calc.bandwidth.exceeds':
     'Exceeds 12G-SDI — only IP transport (ST 2110, NDI, JPEG-XS …) will carry it.',
   'calc.bandwidth.signalStds': 'IP / digital signal standards',
+  'calc.bandwidth.netBudget': 'Project network budget',
+  'calc.bandwidth.netLinks': 'IP signals',
+  'calc.bandwidth.netTotal': 'Total bandwidth',
+  'calc.bandwidth.netLink': 'Smallest link',
+  'calc.bandwidth.netExceeds': '> 100 GbE — split / spine-leaf',
+  'calc.bandwidth.netNote':
+    'Sum of the gross bandwidth of all cables with an IP/network signal standard (NDI, Dante/AES67, ST 2110, Ethernet). Approximate; ST 2110-20 is highly format-dependent.',
   'calc.power.intro1': 'Sum of the consumption values in the device properties',
   'calc.power.wattsField': 'Power (W)',
   'calc.power.intro2':

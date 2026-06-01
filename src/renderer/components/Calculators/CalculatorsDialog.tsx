@@ -17,6 +17,7 @@ import { useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
+import { bandwidthMbpsForStandard } from '../../types/cableSpec'
 
 // v7.5.0 — Cable-Length tab removed. The standalone calculator
 // can't produce meaningful estimates without inter-location distances
@@ -74,8 +75,40 @@ const SAMPLING_PRESETS: { label: string; factor: number }[] = [
   { label: '4:4:4 12-bit', factor: 36 },
 ]
 
+// #346 — gängige Netzwerk-Link-Kapazitäten (Mbps) für die Budget-Bewertung.
+const LINK_TIERS: { label: string; mbps: number }[] = [
+  { label: '1 GbE', mbps: 1000 },
+  { label: '10 GbE', mbps: 10000 },
+  { label: '25 GbE', mbps: 25000 },
+  { label: '40 GbE', mbps: 40000 },
+  { label: '100 GbE', mbps: 100000 },
+]
+
 const BandwidthTab = () => {
   const t = useTranslation()
+  const cables = useProjectStore((s) => s.project.cables)
+  // #346 — Projekt-Netzwerk-Budget: Summe der IP-/Netzwerk-Signal-Bandbreiten
+  // über alle Kabel mit gesetztem Netzwerk-Standard.
+  const netBudget = useMemo(() => {
+    let totalMbps = 0
+    let count = 0
+    const byStd = new Map<string, { mbps: number; count: number }>()
+    for (const c of cables) {
+      const mbps = bandwidthMbpsForStandard(c.standard)
+      if (mbps == null) continue
+      totalMbps += mbps
+      count += 1
+      const e = byStd.get(c.standard as string) ?? { mbps: 0, count: 0 }
+      e.mbps += mbps
+      e.count += 1
+      byStd.set(c.standard as string, e)
+    }
+    const rows = [...byStd.entries()]
+      .map(([std, v]) => ({ std, ...v }))
+      .sort((a, b) => b.mbps - a.mbps)
+    const tier = LINK_TIERS.find((l) => totalMbps <= l.mbps)
+    return { totalMbps, count, rows, tier }
+  }, [cables])
   const [resolution, setResolution] = useState(RESOLUTION_PRESETS[1])
   const [fps, setFps] = useState(50)
   const [sampling, setSampling] = useState(SAMPLING_PRESETS[2])
@@ -182,6 +215,50 @@ const BandwidthTab = () => {
           ))}
         </ul>
       </details>
+
+      {/* #346 — Projekt-Netzwerk-Budget: Summe aller IP-/Netzwerk-Signale. */}
+      {netBudget.count > 0 && (
+        <div className="rounded border border-sky-700 bg-sky-950/20 p-3">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="text-[11px] uppercase tracking-wide text-slate-300">
+              {t('calc.bandwidth.netBudget', 'Projekt-Netzwerk-Budget')}
+            </div>
+            <div className="text-[10px] text-slate-400">
+              {netBudget.count} {t('calc.bandwidth.netLinks', 'IP-Signale')}
+            </div>
+          </div>
+          <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
+            <dt className="text-slate-500 font-semibold">{t('calc.bandwidth.netTotal', 'Gesamt-Bandbreite')}</dt>
+            <dd className="font-mono text-lg text-sky-200">
+              {netBudget.totalMbps >= 1000
+                ? `${(netBudget.totalMbps / 1000).toFixed(2)} Gbps`
+                : `${netBudget.totalMbps} Mbps`}
+            </dd>
+            <dt className="text-slate-500">{t('calc.bandwidth.netLink', 'Kleinster Link')}</dt>
+            <dd className="font-mono text-slate-200">
+              {netBudget.tier
+                ? netBudget.tier.label
+                : t('calc.bandwidth.netExceeds', '> 100 GbE — aufteilen / Spine-Leaf')}
+            </dd>
+          </dl>
+          <ul className="mt-2 space-y-0.5 border-t border-slate-800 pt-2 text-cp-xs">
+            {netBudget.rows.map((r) => (
+              <li key={r.std} className="flex justify-between">
+                <span className="text-slate-300">
+                  {r.std} <span className="text-slate-500">×{r.count}</span>
+                </span>
+                <span className="font-mono text-slate-400">{r.mbps} Mbps</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-[10px] text-slate-400">
+            {t(
+              'calc.bandwidth.netNote',
+              'Summe der Brutto-Bandbreiten aller Kabel mit IP-/Netzwerk-Signalstandard (NDI, Dante/AES67, ST 2110, Ethernet). Richtwerte; ST 2110-20 stark formatabhängig.',
+            )}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
