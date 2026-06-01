@@ -363,6 +363,23 @@ export const runDrawingChecks = (
         'ST 2110 im Plan, aber kein PTP-Signal — PTP-Grandmaster (IEEE 1588) als Referenz nicht vergessen.',
     })
   }
+  // #365 — ST 2110 braucht eine NMOS-Registry (IS-04 Discovery + IS-05
+  // Connection Management). Erinnerung, sofern kein Gerät erkennbar diese
+  // Rolle übernimmt (Name enthält nmos/registry/controller/broadcast control).
+  if (hasSt2110) {
+    const hasController = equipment.some((e) =>
+      /nmos|registry|registr|broadcast.?controller|\bctrl\b|orchestrat|sdn.?control/i.test(e.name),
+    )
+    if (!hasController) {
+      findings.push({
+        id: 'st2110-no-nmos',
+        severity: 'info',
+        category: 'NMOS',
+        message:
+          'ST 2110 im Plan — NMOS-Registry (IS-04 Discovery / IS-05 Connection Management) für Auffindbarkeit + Routing einplanen.',
+      })
+    }
+  }
 
   // — Check 13b: Mehrere SDI-Signale ohne Genlock-Referenz (#348) ------------
   // Mehrere SDI-Quellen sollten auf eine gemeinsame Referenz (Blackburst/
