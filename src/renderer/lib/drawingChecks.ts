@@ -12,7 +12,7 @@
 
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port, ConnectorType } from '../types/equipment'
-import { checkImpedanceMismatch, maxPassiveLengthM } from '../types/cableSpec'
+import { checkImpedanceMismatch, checkBalanceMismatch, maxPassiveLengthM } from '../types/cableSpec'
 import { networkAddress } from './subnet'
 
 export type CheckSeverity = 'error' | 'warning' | 'info'
@@ -468,6 +468,24 @@ export const runDrawingChecks = (
         category: 'PoE-Budget',
         message: `${sw.name}: PoE-Last ${Math.round(load)} W an ${count} Geräten übersteigt das Budget (${budget} W)`,
         equipmentId: sw.id,
+      })
+    }
+  }
+
+  // — Check 15b: Symmetrisch↔Unsymmetrisch (Audio) (#380) --------------------
+  for (const c of cables) {
+    if (c.wireless || c.needsConverter) continue
+    const from = portById.get(c.fromPortId)
+    const to = portById.get(c.toPortId)
+    if (!from || !to) continue
+    const bal = checkBalanceMismatch(from.connectorType, to.connectorType)
+    if (bal) {
+      findings.push({
+        id: `balance-mismatch:${c.id}`,
+        severity: 'warning',
+        category: 'Audio sym/unsym',
+        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${bal.message}`,
+        cableId: c.id,
       })
     }
   }
