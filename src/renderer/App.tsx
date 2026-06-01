@@ -99,6 +99,8 @@ export default function App() {
   const t = useTranslation()
   const project = useProjectStore((state) => state.project)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
+  const followSystemTheme = useUiStore((state) => state.followSystemTheme)
+  const setCanvasTheme = useUiStore((state) => state.setCanvasTheme)
   const language = useUiStore((state) => state.language)
   // v7.7.1 — exporters now read the live canvas-background settings so the
   // exported PDF / PNG / JPEG matches what the user sees on the canvas.
@@ -168,6 +170,17 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = pdfExportThemeOverride ?? canvasTheme
   }, [canvasTheme, pdfExportThemeOverride])
+
+  // #453 — optional dem OS-Theme folgen (prefers-color-scheme). Wenn aktiv,
+  // spiegelt canvasTheme die Systemeinstellung und reagiert live auf Wechsel.
+  useEffect(() => {
+    if (!followSystemTheme) return
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const apply = () => setCanvasTheme(mq.matches ? 'dark' : 'light')
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [followSystemTheme, setCanvasTheme])
 
   // Keep the <html lang> attribute in sync with the selected UI language so
   // screen readers pronounce content correctly (was hardcoded lang="en").

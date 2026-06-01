@@ -97,6 +97,7 @@ export const MenuBar = ({
   const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
   // #341 — View-Menü spiegelt Toolbar-Toggles; Status für Häkchen lesen.
   const canvasTheme = useUiStore((s) => s.canvasTheme)
+  const followSystemTheme = useUiStore((s) => s.followSystemTheme)
   const snapToGrid = useUiStore((s) => s.snapToGrid)
   const hideAllCableLabels = useUiStore((s) => s.hideAllCableLabels)
   const cableColorMode = useUiStore((s) => s.cableColorMode)
@@ -390,10 +391,20 @@ export const MenuBar = ({
           </MenuItem>
           <MenuSep />
           <MenuItem
-            onClick={() => useUiStore.getState().setCanvasTheme(canvasTheme === 'dark' ? 'light' : 'dark')}
+            onClick={() => {
+              // #453 — manuelle Theme-Wahl beendet das OS-Folgen.
+              useUiStore.getState().setFollowSystemTheme(false)
+              useUiStore.getState().setCanvasTheme(canvasTheme === 'dark' ? 'light' : 'dark')
+            }}
             icon={canvasTheme === 'light' ? <Icon icon={Check} size="sm" /> : null}
           >
             {t('app.menu.view.light', 'Helles Design')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().setFollowSystemTheme(!followSystemTheme)}
+            icon={followSystemTheme ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.view.followSystem', 'System-Theme folgen')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setSnapToGrid(!snapToGrid)}
