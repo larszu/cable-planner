@@ -13,6 +13,7 @@
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port, ConnectorType } from '../types/equipment'
 import { checkImpedanceMismatch, maxPassiveLengthM } from '../types/cableSpec'
+import { networkAddress } from './subnet'
 
 export type CheckSeverity = 'error' | 'warning' | 'info'
 
@@ -467,6 +468,25 @@ export const runDrawingChecks = (
         category: 'PoE-Budget',
         message: `${sw.name}: PoE-Last ${Math.round(load)} W an ${count} Geräten übersteigt das Budget (${budget} W)`,
         equipmentId: sw.id,
+      })
+    }
+  }
+
+  // — Check 17: Gateway nicht im Geräte-Subnetz (#346) -----------------------
+  // Liegt das Default-Gateway nicht im selben Subnetz wie die Geräte-IP, ist
+  // es nicht erreichbar → Fehlkonfiguration.
+  for (const e of equipment) {
+    if (!e.ipAddress || !e.gateway) continue
+    const mask = e.subnetMask || '255.255.255.0'
+    const devNet = networkAddress(e.ipAddress, mask)
+    const gwNet = networkAddress(e.gateway, mask)
+    if (devNet && gwNet && devNet !== gwNet) {
+      findings.push({
+        id: `gw-subnet:${e.id}`,
+        severity: 'warning',
+        category: 'Gateway/Subnetz',
+        message: `${e.name}: Gateway ${e.gateway} liegt nicht im Subnetz von ${e.ipAddress} (${mask}) — nicht erreichbar`,
+        equipmentId: e.id,
       })
     }
   }
