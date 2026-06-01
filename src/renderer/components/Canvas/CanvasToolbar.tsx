@@ -309,7 +309,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
 
   // v7.9.5 — Unified design tokens für die Toolbar.
   const T: ToolbarTokens = {
-    iconBtnSize: 28,
+    // #463 — groessere Touch-/Klick-Ziele (war 28px, < komfortable Zielgroesse).
+    iconBtnSize: 32,
     bg: isLight ? 'rgba(248,250,252,0.92)' : 'rgba(15,23,42,0.92)',
     border: isLight ? '#cbd5e1' : '#1f2937',
     text: isLight ? '#1e293b' : '#e2e8f0',
