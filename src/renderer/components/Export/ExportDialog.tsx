@@ -534,6 +534,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder={t('export.patch.filterPlaceholder', 'Filtern…')}
+          aria-label={t('export.patch.filterPlaceholder', 'Filtern…')}
           className="mb-2 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
         />
         <div className="max-h-64 space-y-0.5 overflow-y-auto rounded border border-slate-800 bg-slate-950/50 p-1">

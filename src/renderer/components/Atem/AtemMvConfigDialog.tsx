@@ -454,6 +454,7 @@ const SourcePicker = ({
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder={t('common.search', 'Suche…')}
+          aria-label={t('common.search', 'Suche…')}
           className="mb-1 w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs"
         />
         <div className="flex gap-1">

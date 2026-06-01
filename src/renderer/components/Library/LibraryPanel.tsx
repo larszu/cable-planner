@@ -874,6 +874,7 @@ export const LibraryPanel = () => {
                   }
                 }}
                 placeholder={t('library.netbox.searchPlaceholder', 'z.B. blackmagic atem, cisco catalyst, yamaha ql5')}
+                aria-label={t('library.netbox.searchPlaceholder', 'z.B. blackmagic atem, cisco catalyst, yamaha ql5')}
                 className="flex-1 rounded border border-slate-700 bg-slate-950 p-2 text-sm"
               />
               <button
