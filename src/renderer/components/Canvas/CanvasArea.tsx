@@ -114,7 +114,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // (#44) so the new device lands where the user pointed instead of always at
   // the viewport origin.
   const lastMousePosRef = useRef<{ x: number; y: number } | null>(null)
-  const { screenToFlowPosition, setViewport, fitView, getEdges, zoomIn, zoomOut, zoomTo } = useReactFlow()
+  const { screenToFlowPosition, setViewport, fitView, getEdges, getNodes, zoomIn, zoomOut, zoomTo } = useReactFlow()
   const updateCable = useProjectStore((state) => state.updateCable)
   const updateNodeInternals = useUpdateNodeInternals()
   const [interactionLocked, setInteractionLocked] = useState(false)
@@ -1591,6 +1591,44 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           return
         }
       }
+      // #460 — Tastatur-Pfad zum Verschieben von Geräten: Pfeiltasten
+      // nudgen die selektierten Equipment-Nodes um eine Rasterzelle
+      // (Shift = 4 Zellen für gröbere Sprünge). rfNodes besitzt die
+      // Live-Positionen (der Store-Sync überschreibt sie bewusst nie), also
+      // bewegen wir die RF-Nodes UND persistieren in den Store — exakt das
+      // Muster aus Drag-End/Align. Nur mit Selektion + ohne Modifier.
+      if (
+        !ctrl &&
+        !event.altKey &&
+        (event.key === 'ArrowUp' ||
+          event.key === 'ArrowDown' ||
+          event.key === 'ArrowLeft' ||
+          event.key === 'ArrowRight')
+      ) {
+        const ids = getSelectedEquipmentIds()
+        if (ids.length === 0) return
+        event.preventDefault()
+        const grid = EQUIPMENT_LAYOUT.GRID_SIZE
+        const step = event.shiftKey ? grid * 4 : grid
+        const dx = event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0
+        const dy = event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0
+        const idSet = new Set(ids)
+        const moved = getNodes()
+          .filter((n) => n.type === 'equipment' && idSet.has(n.id))
+          .map((n) => ({ id: n.id, x: n.position.x + dx, y: n.position.y + dy }))
+        if (moved.length === 0) return
+        const movedById = new Map(moved.map((m) => [m.id, m]))
+        setRfNodes((cur) =>
+          cur.map((n) => {
+            const m = movedById.get(n.id)
+            return m ? { ...n, position: { x: m.x, y: m.y } } : n
+          }),
+        )
+        projectHistory.transact(() => {
+          for (const m of moved) updateEquipment(m.id, { x: m.x, y: m.y })
+        })
+        return
+      }
       if (event.key !== 'Delete' && event.key !== 'Backspace') return
       // v7.9.90 — Multi-Select-Delete für ALLE selektierten Items
       // (vorher: Equipment-Loop ODER Single-Select-Pointer aus dem Store
@@ -1626,6 +1664,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     pasteFromClipboard,
     duplicateSelection,
     getSelectedEquipmentIds,
+    getNodes,
+    updateEquipment,
   ])
 
   // v7.7.1 — Custom canvas background image (Issue #71). When the user
