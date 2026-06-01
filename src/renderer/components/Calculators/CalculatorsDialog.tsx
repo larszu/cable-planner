@@ -324,6 +324,35 @@ const PowerTab = () => {
         )
       : 0
 
+  // #345 — Neutralleiterstrom-Schätzung (3-Phasen, 4-Leiter). Für lineare
+  // Lasten mit um 120° versetzten, symmetrischen Spannungen gilt
+  //   I_N = √(I1²+I2²+I3² − I1·I2 − I2·I3 − I3·I1).
+  // Bei perfekter Symmetrie (I1=I2=I3) ist I_N = 0; je größer die Schieflast,
+  // desto höher der Neutralleiterstrom — genau das, was klein bleiben soll.
+  const perPhaseAmps = distribution.perPhaseWatts.map((w) => w / supply.voltage)
+  const neutralAmps =
+    supply.phases === 3 && perPhaseAmps.length === 3
+      ? Math.sqrt(
+          Math.max(
+            0,
+            perPhaseAmps[0] ** 2 +
+              perPhaseAmps[1] ** 2 +
+              perPhaseAmps[2] ** 2 -
+              perPhaseAmps[0] * perPhaseAmps[1] -
+              perPhaseAmps[1] * perPhaseAmps[2] -
+              perPhaseAmps[2] * perPhaseAmps[0],
+          ),
+        )
+      : 0
+
+  // #345 — Generator-Sizing: Scheinleistung bei angenommenem Leistungsfaktor
+  // 0,8 (typisch für gemischte AV-Last), inkl. der Sicherheits-Reserve. Plus
+  // eine Empfehlung mit 25 % Kopffreiheit, damit der Generator nicht am Limit
+  // läuft.
+  const POWER_FACTOR = 0.8
+  const generatorKva = totalWithMargin / POWER_FACTOR / 1000
+  const generatorKvaRecommended = generatorKva * 1.25
+
   // #345 — Wärmelast + CSV-Export der Phasen-Verteilung.
   const totalBtu = Math.round(totals.totalW * 3.412)
   const exportCsv = () => {
@@ -333,8 +362,10 @@ const PowerTab = () => {
       [],
       [t('calc.phaseLabel', 'Phase'), 'W', 'A'],
       ...distribution.perPhaseWatts.map((w, i) => [`L${i + 1}`, Math.round(w), (w / supply.voltage).toFixed(1)]),
+      ...(supply.phases === 3 ? [['N', '', neutralAmps.toFixed(1)]] : []),
       [t('calc.power.total', 'Gesamt'), Math.round(totals.totalW), ''],
       [t('calc.power.heat', 'Wärme (BTU/h)'), totalBtu, ''],
+      [t('calc.generator', 'Generator (cosφ 0,8)'), '', `${generatorKvaRecommended.toFixed(1)} kVA`],
     ]
     const csv = '\u{FEFF}' + rows.map((r) => r.map((c) => String(c ?? '')).join(';')).join('\r\n')
     downloadBlob(buildExportFilenameWithSuffix(projectName, 'strom-phasen', 'csv'), csv, 'text/csv')
@@ -410,6 +441,13 @@ const PowerTab = () => {
               </dd>
             </>
           )}
+          <dt className="text-slate-500">{t('calc.generator', 'Generator (cosφ 0,8)')}</dt>
+          <dd className="font-mono text-slate-200">
+            {generatorKva.toFixed(1)} kVA ·{' '}
+            <span className="text-emerald-200">
+              {t('calc.generatorRec', 'empf.')} ≥ {generatorKvaRecommended.toFixed(1)} kVA
+            </span>
+          </dd>
         </dl>
       </div>
 
@@ -476,6 +514,24 @@ const PowerTab = () => {
                 </div>
               )
             })}
+          </div>
+          {/* #345 — Neutralleiterstrom-Schätzung: klein = gut balanciert. */}
+          <div className="mt-2 flex items-center gap-2 rounded border border-sky-800 bg-sky-950/30 px-2 py-1.5 text-[11px]">
+            <span
+              className="inline-block h-2 w-2 shrink-0 rounded-full"
+              style={{ background: PHASE_COLORS.N.dot }}
+            />
+            <span className="text-slate-300">
+              {t('calc.neutralCurrent', 'Neutralleiter (geschätzt)')}:
+            </span>
+            <span className="font-mono text-sky-200">{neutralAmps.toFixed(1)} A</span>
+            <span className="ml-auto text-[10px] text-slate-400">
+              {neutralAmps < 0.05 * supply.perPhaseAmps
+                ? t('calc.neutralOk', 'gut balanciert')
+                : neutralAmps > 0.25 * supply.perPhaseAmps
+                  ? t('calc.neutralHigh', 'hohe Schieflast — Phasen umverteilen')
+                  : t('calc.neutralMid', 'leichte Schieflast')}
+            </span>
           </div>
           <details className="mt-2">
             <summary className="cursor-pointer text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
