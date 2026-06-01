@@ -1415,6 +1415,7 @@ const en: Dict = {
     'Technical defaults for this plan, by discipline. The video format drives the default SDI cabling; the power/mains standard sets the voltage used by the power calculator (watts ↔ amps).',
   'settings.project.defaults.video': 'Video format (SDI)',
   'settings.project.defaults.power': 'Power / mains standard',
+  'settings.project.defaults.lighting': 'Lighting control (default)',
   'settings.project.numbering.title': 'Cable numbering',
   'settings.project.numbering.desc':
     'Automatic, collision-free cable IDs from a fixed scheme — shown on the canvas, in the patch list and on the labels.',

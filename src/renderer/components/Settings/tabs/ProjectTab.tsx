@@ -370,6 +370,7 @@ const PlanDefaultsSection = () => {
   const t = useTranslation()
   const videoFormat = useProjectStore((s) => s.project.metadata.defaultVideoFormat)
   const powerStandard = useProjectStore((s) => s.project.metadata.defaultPowerStandard)
+  const lightingControl = useProjectStore((s) => s.project.metadata.defaultLightingControl)
   const setDefaultVideoFormat = useProjectStore((s) => s.setDefaultVideoFormat)
   const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
   return (
@@ -413,6 +414,24 @@ const PlanDefaultsSection = () => {
                 {s.label}
               </option>
             ))}
+          </select>
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-slate-400">
+            {t('settings.project.defaults.lighting', 'Licht-Steuerung (Default)')}
+          </span>
+          <select
+            value={lightingControl ?? 'dmx512'}
+            onChange={(e) =>
+              updateProjectMetadata({
+                defaultLightingControl: e.target.value as 'dmx512' | 'artnet' | 'sacn',
+              })
+            }
+            className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+          >
+            <option value="dmx512">DMX512 / RDM (5-pin XLR)</option>
+            <option value="artnet">Art-Net (Ethernet)</option>
+            <option value="sacn">sACN — ANSI E1.31 (Ethernet)</option>
           </select>
         </label>
       </div>
