@@ -2473,6 +2473,15 @@ const en: Dict = {
   'recStorage.duration': 'Duration',
   'recStorage.perChannel': 'Per channel',
   'recStorage.total': 'Total',
+  'recStorage.sizing': 'Array sizing',
+  'recStorage.redundancy': 'Redundancy',
+  'recStorage.redNone': 'None (JBOD)',
+  'recStorage.redMirror': 'Mirror (×2)',
+  'recStorage.headroom': 'Headroom (%)',
+  'recStorage.driveTb': 'Drive (TB)',
+  'recStorage.usableNeeded': 'Usable need incl. headroom',
+  'recStorage.drivesNeeded': 'Drives needed',
+  'recStorage.rawCapacity': 'raw',
   'recStorage.formulaHeader': 'Formula',
 
   // RackAddSplitButton

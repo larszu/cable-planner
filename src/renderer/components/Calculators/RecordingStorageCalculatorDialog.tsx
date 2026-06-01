@@ -64,6 +64,10 @@ export const RecordingStorageCalcCore = ({
   const [hours, setHours] = useState<number>(2)
   const [minutes, setMinutes] = useState<number>(0)
   const [channels, setChannels] = useState<number>(fixedChannels ?? 1)
+  // Array-Dimensionierung: Redundanz + Reserve + Laufwerksgröße → Laufwerksanzahl.
+  const [redundancy, setRedundancy] = useState<'none' | 'raid5' | 'raid6' | 'mirror'>('none')
+  const [headroomPercent, setHeadroomPercent] = useState<number>(20)
+  const [driveTb, setDriveTb] = useState<number>(4)
 
   const codec = CODEC_PRESETS.find((c) => c.id === codecId) ?? CODEC_PRESETS[0]
   const effectiveMbps = codecId === 'custom' ? customMbps : codec.mbps
@@ -76,6 +80,24 @@ export const RecordingStorageCalcCore = ({
       total: channelGB * channels,
     }
   }, [effectiveMbps, totalDurationHours, channels])
+
+  // Laufwerks-Dimensionierung: Nutzbedarf inkl. Reserve, dann je nach
+  // Redundanzschema die Roh-Laufwerksanzahl (RAID-5 +1, RAID-6 +2, Mirror ×2).
+  const sizing = useMemo(() => {
+    const totalTb = result.total / 1024
+    const factor = 1 - Math.min(90, Math.max(0, headroomPercent)) / 100
+    const usableNeededTb = factor > 0 ? totalTb / factor : totalTb
+    const dataDrives = driveTb > 0 ? Math.max(1, Math.ceil(usableNeededTb / driveTb)) : 0
+    const totalDrives =
+      redundancy === 'mirror'
+        ? dataDrives * 2
+        : redundancy === 'raid5'
+          ? dataDrives + 1
+          : redundancy === 'raid6'
+            ? dataDrives + 2
+            : dataDrives
+    return { usableNeededTb, dataDrives, totalDrives, rawTb: totalDrives * driveTb }
+  }, [result.total, headroomPercent, driveTb, redundancy])
 
   return (
     <div className="space-y-3 p-4 text-sm">
@@ -171,6 +193,61 @@ export const RecordingStorageCalcCore = ({
             {t('recStorage.total', 'Gesamt')} ({channels}× {t('recStorage.channels', 'Kanäle')})
           </dt>
           <dd className="font-mono text-lg text-emerald-200">{formatGb(result.total)}</dd>
+        </dl>
+      </div>
+
+      {/* Array-Dimensionierung: wie viele Laufwerke brauche ich? */}
+      <div className="rounded border border-sky-700 bg-sky-950/20 p-3">
+        <div className="mb-2 text-[11px] uppercase tracking-wide text-slate-300">
+          {t('recStorage.sizing', 'Array-Dimensionierung')}
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <label className="block">
+            <span className="mb-1 block text-[10px] text-slate-400">{t('recStorage.redundancy', 'Redundanz')}</span>
+            <select
+              value={redundancy}
+              onChange={(e) => setRedundancy(e.target.value as typeof redundancy)}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
+            >
+              <option value="none">{t('recStorage.redNone', 'Keine (JBOD)')}</option>
+              <option value="raid5">RAID 5 (+1)</option>
+              <option value="raid6">RAID 6 (+2)</option>
+              <option value="mirror">{t('recStorage.redMirror', 'Mirror (×2)')}</option>
+            </select>
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-[10px] text-slate-400">{t('recStorage.headroom', 'Reserve (%)')}</span>
+            <input
+              type="number"
+              min={0}
+              max={90}
+              value={headroomPercent}
+              onChange={(e) => setHeadroomPercent(Math.min(90, Math.max(0, Number(e.target.value) || 0)))}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-[10px] text-slate-400">{t('recStorage.driveTb', 'Laufwerk (TB)')}</span>
+            <input
+              type="number"
+              min={0.5}
+              step={0.5}
+              value={driveTb}
+              onChange={(e) => setDriveTb(Math.max(0.5, Number(e.target.value) || 0.5))}
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
+            />
+          </label>
+        </div>
+        <dl className="mt-2 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
+          <dt className="text-slate-500">{t('recStorage.usableNeeded', 'Nutzbedarf inkl. Reserve')}</dt>
+          <dd className="font-mono text-slate-200">{sizing.usableNeededTb.toFixed(2)} TB</dd>
+          <dt className="text-slate-500 font-semibold">{t('recStorage.drivesNeeded', 'Laufwerke nötig')}</dt>
+          <dd className="font-mono text-lg text-sky-200">
+            {sizing.totalDrives} × {driveTb} TB
+            <span className="ml-2 text-[10px] text-slate-400">
+              ({t('recStorage.rawCapacity', 'roh')} {sizing.rawTb.toFixed(1)} TB)
+            </span>
+          </dd>
         </dl>
       </div>
 
