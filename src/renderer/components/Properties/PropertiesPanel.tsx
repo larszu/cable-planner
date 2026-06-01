@@ -4,8 +4,10 @@ import { CableProperties } from './CableProperties'
 import { EquipmentProperties } from './EquipmentProperties'
 import { LocationProperties } from './LocationProperties'
 import { TemplateProperties } from './TemplateProperties'
+import { ExternalLink } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
-import { openPanelPopout } from '../../lib/panelPopout'
+import { openPanelPopout, isPopout } from '../../lib/panelPopout'
 import { usePanelTearOff } from '../../lib/usePanelTearOff'
 import { triggerCanvasFitView } from '../../lib/canvasViewport'
 import { format, useTranslation } from '../../lib/i18n'
@@ -25,6 +27,9 @@ export const PropertiesPanel = () => {
   const setFloatingPos = useUiStore((state) => state.setPropertiesFloatingPos)
   const propertiesWidth = useUiStore((state) => state.propertiesWidth)
   const setPropertiesWidth = useUiStore((state) => state.setPropertiesWidth)
+  // #427 — In separates OS-Fenster ausgelagert / sind wir dieses Fenster?
+  const poppedOut = useUiStore((state) => state.propertiesPoppedOut)
+  const inPopout = isPopout()
   // #427 — Header herausziehen = abdocken; folgt danach dem Cursor.
   const tearOff = usePanelTearOff({
     onUndock: (p) => {
@@ -110,6 +115,12 @@ export const PropertiesPanel = () => {
     </div>
   )
 
+  // #427 — Ausgelagert: im Hauptfenster nicht rendern (in-flow Platzhalter
+  // besetzt die 0px-Grid-Spalte, damit nichts verrutscht).
+  if (poppedOut && !inPopout) {
+    return <div aria-hidden className="min-h-0" />
+  }
+
   if (floating) {
     return (
       <FloatingPanelShell
@@ -171,7 +182,7 @@ export const PropertiesPanel = () => {
             {t('inspector.subtitle', 'Eigenschaften')}
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-1">
+        <div className={`flex shrink-0 items-center gap-1 ${inPopout ? 'hidden' : ''}`}>
           <button
             type="button"
             data-tearoff="handle"
@@ -189,6 +200,15 @@ export const PropertiesPanel = () => {
             style={{ touchAction: 'none' }}
           >
             <span className="pointer-events-none text-[11px] leading-none">⤢</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => openPanelPopout('properties')}
+            title={t('panel.popoutTitle', 'In separates Fenster auslagern (weiterer Monitor)')}
+            aria-label={t('panel.popout', 'Auslagern')}
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          >
+            <Icon icon={ExternalLink} size="xs" />
           </button>
           <button
             type="button"

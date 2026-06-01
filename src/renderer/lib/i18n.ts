@@ -338,7 +338,8 @@ const en: Dict = {
   'library.add.category': '+ Category',
   'library.add.categoryTitle': 'Create new equipment category',
   'library.add.device': '+ Device',
-  'library.search.placeholder': 'Search… (Ctrl+F)',
+  'library.search.placeholder': 'Search…',
+  'library.search.shortcut': 'Ctrl+F',
   'library.search.clear': 'Clear search',
   'library.collapseAll': 'Collapse all',
   'library.expandAll': 'Expand all',
@@ -931,6 +932,9 @@ const en: Dict = {
   'modeEditor.removePort': 'Remove port',
   'common.name': 'Name',
   'common.hide': 'Hide',
+  'common.show': 'Show',
+  'common.on': 'on',
+  'common.off': 'off',
 
   // Rack builder dialog
   'rack.badge.edit': 'Editing',
@@ -2605,6 +2609,14 @@ const en: Dict = {
 
   // LibraryPanel rentman section + netbox + create
   'library.rentman.noProjectLinked': 'No Rentman project linked.',
+  'library.rentman.linkProject': 'Link Rentman project…',
+  'library.rentman.view.imported': 'Imported',
+  'library.rentman.view.catalog': 'Catalog',
+  'library.rentman.view.sync': 'Reconcile',
+  'library.rentman.catalogRefresh': 'Refresh',
+  'library.rentman.catalogLoad': 'Load catalog',
+  'library.rentman.catalogNotLoaded':
+    'Not loaded yet. Click “Load catalog” to show your account’s entire Rentman catalog.',
   'library.rentman.imported': 'Imported Rentman devices',
   'library.rentman.noneImported': 'No Rentman devices imported yet.',
   'library.rentman.noMatches': 'No matches for "{query}".',
@@ -2631,6 +2643,10 @@ const en: Dict = {
   'settings.integrations.rentmanToggle.title': 'Rentman integration',
   'settings.integrations.rentmanToggle.desc':
     'When active, the Library tab, menu entries and status badges for Rentman appear. When off, Cable Planner only shows local devices/cables — all Rentman features are hidden.',
+  'settings.integrations.rentmanToggle.label': 'Enable Rentman integration',
+  'settings.integrations.ai.active': 'Active',
+  'settings.integrations.ai.createKey': 'Create key',
+  'settings.integrations.ai.saved': 'saved',
 
   // Inspector lock banners + empty state
   'inspector.selectEquipment': 'Select an equipment node.',
@@ -3058,6 +3074,8 @@ const en: Dict = {
   'annotations.placeholderEmpty': 'Annotation… (name will be asked once)',
   'annotations.add': 'Add',
   'annotations.cancel': 'Cancel',
+  'annotations.new': '+ New annotation',
+  'annotations.empty': 'No annotations yet. Click “+ New annotation” or right-click a device / cable.',
   // RackBuilderDialog placement properties dialog
   'rack.props.title': 'Properties · {name}',
   'rack.props.removeFromRack': 'Remove from rack',
@@ -3128,6 +3146,7 @@ const en: Dict = {
   'app.menu.tools.patchList': 'Patch list…',
   'app.menu.tools.stagePlot': 'Stage plot (SVG)…',
   'app.menu.tools.rentmanImport': 'Rentman import…',
+  'app.menu.tools.rentmanToggle': 'Rentman integration',
   'app.menu.tools.analysis': 'Analyses (weight/network/redundancy)…',
   'app.menu.tools.planCheck': 'Plan check…',
   'app.menu.tools.revisions': 'Revisions & snapshots…',
@@ -3325,6 +3344,8 @@ const en: Dict = {
   'settings.editing.labelSwap': 'Label travels with the cable',
   'settings.editing.labelSwapDesc': 'When re-plugging a cable, the new port adopts the user name from the old port. The old port falls back to its template default. Saves copy-pasting the label.',
   'settings.editing.labelSwapLabel': 'Swap port labels on reconnect',
+  'settings.editing.labelSwapNote': 'Off by default for safety — otherwise test re-plugging would unintentionally rename labels. Only affects ports with a user-edited name (nothing to swap otherwise).',
+  'settings.editing.cableInheritNote': 'On by default: cables should usually reflect the physical connector type of their ports. Turn off if cable types are managed independently of port types.',
   'settings.greengo.apply': 'Load',
   'settings.greengo.applyBody': 'The current GreenGo configuration in the project will be replaced by the preset. Equipment assignments from the preset that do not exist in the current project are ignored.',
   'settings.greengo.applyConfirm': 'Apply',
