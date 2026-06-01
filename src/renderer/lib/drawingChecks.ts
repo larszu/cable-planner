@@ -12,6 +12,7 @@
 
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port, ConnectorType } from '../types/equipment'
+import { checkImpedanceMismatch } from '../types/cableSpec'
 
 export type CheckSeverity = 'error' | 'warning' | 'info'
 
@@ -291,6 +292,29 @@ export const runDrawingChecks = (
         category: 'Verteilverstärker',
         message: `${e.name}: als Verteilverstärker markiert, aber nur ${e.outputs.length} Ausgang/Ausgänge (1→N erwartet)`,
         equipmentId: e.id,
+      })
+    }
+  }
+
+  // — Check 11: Impedanz-Mismatch je Kabel (#390 plan-weit) ------------------
+  // Nutzt die Signal-Standards der beiden verbundenen Ports (oder den Kabel-
+  // Standard als Fallback). 75Ω↔50Ω↔110Ω-Konflikte → Reflexionen/Return-Loss.
+  for (const c of cables) {
+    if (c.wireless || c.needsConverter) continue
+    const from = portById.get(c.fromPortId)
+    const to = portById.get(c.toPortId)
+    if (!from || !to) continue
+    const mismatch = checkImpedanceMismatch(
+      from.standard ?? c.standard,
+      to.standard ?? c.standard,
+    )
+    if (mismatch) {
+      findings.push({
+        id: `impedance-mismatch:${c.id}`,
+        severity: 'warning',
+        category: 'Impedanz-Mismatch',
+        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${mismatch.message}`,
+        cableId: c.id,
       })
     }
   }
