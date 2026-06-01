@@ -226,13 +226,15 @@ const PendingCableSuggestions = ({
 
   return (
     <div
+      // #450 — vorher fest dunkle slate-Hex → im Light-Mode dunkler Kasten.
+      // Jetzt theme-aware über die --cp-*-Tokens (kippen mit dem Theme).
       style={{
         position: 'fixed',
         top: 60,
         right: 12,
-        background: 'rgba(15,23,42,0.95)',
-        color: '#e2e8f0',
-        border: '1px solid #475569',
+        background: 'var(--cp-surface-1)',
+        color: 'var(--cp-text)',
+        border: '1px solid var(--cp-border)',
         padding: 8,
         borderRadius: 6,
         fontSize: 11,
@@ -243,7 +245,7 @@ const PendingCableSuggestions = ({
       className="nodrag nopan"
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <div style={{ marginBottom: 6, fontWeight: 600, color: '#a5b4fc' }}>
+      <div style={{ marginBottom: 6, fontWeight: 600, color: 'var(--cp-accent)' }}>
         Schnelle Vorschläge ({sourcePortConnector})
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -255,10 +257,10 @@ const PendingCableSuggestions = ({
             style={{
               textAlign: 'left',
               padding: '4px 6px',
-              background: '#1e293b',
-              border: '1px solid #334155',
+              background: 'var(--cp-surface-2)',
+              border: '1px solid var(--cp-border-muted)',
               borderRadius: 3,
-              color: '#e2e8f0',
+              color: 'var(--cp-text)',
               cursor: 'pointer',
             }}
             title={`Bei Mausposition platzieren und Verbindung herstellen (${t.category})`}

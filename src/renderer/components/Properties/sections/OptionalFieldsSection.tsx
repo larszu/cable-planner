@@ -83,7 +83,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 href={equipment.manufacturerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded bg-sky-700 px-2 py-1 text-xs hover:bg-sky-600"
+                className="rounded bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
                 title={t('eq.field.manufacturerUrlOpenTitle', 'In externem Browser öffnen')}
               >
                 {t('eq.field.manufacturerUrlOpen', 'Öffnen ↗')}
@@ -131,7 +131,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 <img src={equipment.imageUrl} alt="" className="max-h-24 max-w-[120px] object-contain" />
               </a>
             ) : (
-              <div className="flex h-24 w-[120px] items-center justify-center rounded border border-dashed border-slate-700 text-[10px] text-slate-500">
+              <div className="flex h-24 w-[120px] items-center justify-center rounded border border-dashed border-slate-700 text-[10px] text-slate-400">
                 {t('eq.field.refImageNone', 'Kein Bild')}
               </div>
             )}
@@ -142,7 +142,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                   const dataUri = await pickImageAsDataUri()
                   if (dataUri) updateEquipment(equipment.id, { imageUrl: dataUri })
                 }}
-                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+                className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
               >
                 {equipment.imageUrl
                   ? t('eq.field.refImageReplace', 'Ersetzen…')
@@ -152,7 +152,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 <button
                   type="button"
                   onClick={() => updateEquipment(equipment.id, { imageUrl: undefined })}
-                  className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
+                  className="rounded bg-slate-800 px-2 py-1 text-cp-xs text-slate-400 hover:bg-red-700 hover:text-white"
                 >
                   {t('common.remove', 'Entfernen')}
                 </button>

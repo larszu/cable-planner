@@ -69,7 +69,7 @@ export const LayerVisibilityChips = () => {
   return (
     <div className="relative flex items-center gap-1">
       <span
-        className={`select-none text-[9px] uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-500'}`}
+        className={`select-none text-[9px] uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-slate-400'}`}
         title={t(
           'canvas.layerChips.layerStripTitle',
           'Layer-Sichtbarkeit (nur Kabel werden gefiltert, Geräte bleiben)',
@@ -184,7 +184,7 @@ export const LayerVisibilityChips = () => {
       {menuOpen && (
         <div
           onMouseLeave={() => setMenuOpen(false)}
-          className={`absolute right-0 top-7 z-50 w-56 overflow-hidden rounded border text-xs shadow-2xl ${
+          className={`absolute right-0 top-7 z-50 w-56 overflow-hidden rounded border text-cp-xs shadow-2xl ${
             isLight ? 'border-slate-300 bg-white text-slate-700' : 'border-slate-700 bg-slate-900 text-slate-200'
           }`}
         >

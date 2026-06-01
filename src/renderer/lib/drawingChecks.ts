@@ -12,6 +12,7 @@
 
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port, ConnectorType } from '../types/equipment'
+import { checkImpedanceMismatch, maxPassiveLengthM } from '../types/cableSpec'
 
 export type CheckSeverity = 'error' | 'warning' | 'info'
 
@@ -280,6 +281,132 @@ export const runDrawingChecks = (
         equipmentId: e.id,
       })
     }
+  }
+
+  // — Check 10: Verteilverstärker ohne Verteilung (#372) ---------------------
+  for (const e of equipment) {
+    if (e.isDistributionAmp && e.outputs.length < 2) {
+      findings.push({
+        id: `da-no-fanout:${e.id}`,
+        severity: 'info',
+        category: 'Verteilverstärker',
+        message: `${e.name}: als Verteilverstärker markiert, aber nur ${e.outputs.length} Ausgang/Ausgänge (1→N erwartet)`,
+        equipmentId: e.id,
+      })
+    }
+  }
+
+  // — Check 11: Impedanz-Mismatch je Kabel (#390 plan-weit) ------------------
+  // Nutzt die Signal-Standards der beiden verbundenen Ports (oder den Kabel-
+  // Standard als Fallback). 75Ω↔50Ω↔110Ω-Konflikte → Reflexionen/Return-Loss.
+  for (const c of cables) {
+    if (c.wireless || c.needsConverter) continue
+    const from = portById.get(c.fromPortId)
+    const to = portById.get(c.toPortId)
+    if (!from || !to) continue
+    const mismatch = checkImpedanceMismatch(
+      from.standard ?? c.standard,
+      to.standard ?? c.standard,
+    )
+    if (mismatch) {
+      findings.push({
+        id: `impedance-mismatch:${c.id}`,
+        severity: 'warning',
+        category: 'Impedanz-Mismatch',
+        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${mismatch.message}`,
+        cableId: c.id,
+      })
+    }
+  }
+
+  // — Check 12: Faserklasse Multimode↔Singlemode (#362) ----------------------
+  // OM* (Multimode) und OS* (Singlemode) sind optisch inkompatibel (andere
+  // Wellenlänge/Kerndurchmesser) — ein Link darf nicht gemischt sein.
+  const fiberKind = (fc: string | undefined): 'mm' | 'sm' | null => {
+    if (!fc) return null
+    const u = fc.toUpperCase()
+    if (u.startsWith('OM')) return 'mm'
+    if (u.startsWith('OS')) return 'sm'
+    return null
+  }
+  for (const c of cables) {
+    const from = portById.get(c.fromPortId)
+    const to = portById.get(c.toPortId)
+    const a = fiberKind(from?.fiberClass)
+    const b = fiberKind(to?.fiberClass)
+    if (a && b && a !== b) {
+      const lbl = (k: 'mm' | 'sm') => (k === 'mm' ? 'Multimode' : 'Singlemode')
+      findings.push({
+        id: `fiber-mismatch:${c.id}`,
+        severity: 'warning',
+        category: 'Faser-Mismatch',
+        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${from?.fiberClass} (${lbl(a)}) ↔ ${to?.fiberClass} (${lbl(b)}) — optisch inkompatibel`,
+        cableId: c.id,
+      })
+    }
+  }
+
+  // — Check 13: ST 2110 ohne PTP-Referenz (#347/#348) ------------------------
+  // SMPTE ST 2110 ist auf eine PTP-Grandmaster-Synchronisation (IEEE 1588)
+  // angewiesen. Wenn der Plan ST-2110-Signale, aber kein PTP-Signal enthält,
+  // erinnern wir an die Sync-Quelle (Info — PTP kommt oft aus dem Switch und
+  // ist evtl. nicht als Kabel gezeichnet).
+  const hasSt2110 = cables.some((c) => (c.standard ?? '').startsWith('ST2110'))
+  const hasPtp = cables.some((c) => c.standard === 'PTP')
+  if (hasSt2110 && !hasPtp) {
+    findings.push({
+      id: 'st2110-no-ptp',
+      severity: 'info',
+      category: 'Sync / PTP',
+      message:
+        'ST 2110 im Plan, aber kein PTP-Signal — PTP-Grandmaster (IEEE 1588) als Referenz nicht vergessen.',
+    })
+  }
+
+  // — Check 14: Kabel länger als passive Maximal-Länge (#367) ----------------
+  // HDMI/USB/DP/Thunderbolt/12G-SDI haben praktische Kupfer-Längengrenzen.
+  // Darüber → aktive Lösung (AOC / HDBaseT / Extender / Glasfaser).
+  for (const c of cables) {
+    if (c.wireless) continue
+    const limit = maxPassiveLengthM(c.standard)
+    if (limit != null && typeof c.length === 'number' && c.length > limit) {
+      findings.push({
+        id: `cable-too-long:${c.id}`,
+        severity: 'warning',
+        category: 'Kabellänge',
+        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${c.length} m überschreitet die passive ${c.standard}-Grenze (~${limit} m) — aktive Lösung (AOC/HDBaseT/Extender/LWL) nötig`,
+        cableId: c.id,
+      })
+    }
+  }
+
+  // — Check 15: Licht/DMX-Universen-Übersicht (#361) -------------------------
+  // DMX512 ist eine Linie = ein Universum (max. 512 Kanäle). Art-Net/sACN
+  // tragen mehrere Universen über Ethernet (Anzahl nicht modelliert → als
+  // Links gezählt). Info-Übersicht, kein Fehler.
+  const isDmxConn = (p: Port | undefined): boolean =>
+    !!p && (p.connectorType === 'DMX 5-pol (XLR)' || p.connectorType === 'DMX 3-pol (XLR)')
+  let dmxLines = 0
+  let artnetLinks = 0
+  for (const c of cables) {
+    const s = c.standard
+    // Expliziter Art-Net/sACN-Standard hat Vorrang vor der DMX-Connector-Heuristik.
+    if (s === 'Art-Net' || s === 'sACN') {
+      artnetLinks += 1
+    } else if (s === 'DMX512' || s === 'RDM' || isDmxConn(portById.get(c.fromPortId)) || isDmxConn(portById.get(c.toPortId))) {
+      dmxLines += 1
+    }
+  }
+  if (dmxLines > 0 || artnetLinks > 0) {
+    const parts: string[] = []
+    if (dmxLines > 0) parts.push(`${dmxLines} DMX-Linien (≈ ${dmxLines} Universen, ${dmxLines * 512} Kanäle)`)
+    if (artnetLinks > 0) parts.push(`${artnetLinks} Art-Net/sACN-Links (mehrere Universen je Link)`)
+    findings.push({
+      id: 'dmx-summary',
+      severity: 'info',
+      category: 'Licht / DMX',
+      message: parts.join(' · '),
+    })
   }
 
   // Sortierung: error → warning → info, innerhalb stabil nach category.

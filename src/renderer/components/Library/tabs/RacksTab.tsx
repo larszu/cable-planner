@@ -32,21 +32,21 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
         <div className="min-w-0">
           <h2 className="text-sm font-semibold">{t('library.tabs.racks.title', '2D Rack Builder')}</h2>
-          <div className="text-[10px] text-slate-500">
+          <div className="text-[10px] text-slate-400">
             {t('library.tabs.racks.subtitle', 'Rack-Slots in HE, als platzierbare Gruppe gespeichert')}
           </div>
         </div>
         <button
           type="button"
           onClick={onCreateRack}
-          className="rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
+          className="rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
         >
           {t('library.tabs.racks.new', '+ Neues Rack')}
         </button>
       </div>
 
       {groupPresets.filter((preset) => !!preset.rack).length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-2 text-xs text-slate-500 text-center p-4">
+        <div className="flex-1 flex flex-col items-center justify-center gap-2 text-cp-xs text-slate-500 text-center p-4">
           <span className="text-2xl">▥</span>
           <span>{t('library.tabs.racks.empty', 'Noch kein Rack-Layout gespeichert.')}</span>
         </div>
@@ -87,14 +87,14 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
                           <div className="truncate font-medium text-slate-100">{preset.name}</div>
-                          <div className="mt-0.5 text-[10px] text-slate-500">
+                          <div className="mt-0.5 text-[10px] text-slate-400">
                             {format(t('library.tabs.racks.counts', '{items} Geräte · {units} HE · {cables} Kabel'), {
                               items: preset.items.length,
                               units: totalUnits,
                               cables: preset.cables.length,
                             })}
                           </div>
-                          <div className="mt-0.5 truncate text-[10px] text-slate-600">
+                          <div className="mt-0.5 truncate text-[10px] text-slate-400">
                             {preset.items.map((i) => i.name).join(', ')}
                           </div>
                         </div>

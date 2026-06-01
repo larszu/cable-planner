@@ -149,7 +149,7 @@ export const LibraryItem = ({
           )}
           {item.name}
         </div>
-        <div className="truncate text-xs text-slate-400">
+        <div className="truncate text-cp-xs text-slate-400">
           {item.category} · {item.inputs.length} in / {item.outputs.length} out
           {isFromOtherRentman && item.rentmanProjectName && (
             <span className="ml-1 text-slate-500">· {item.rentmanProjectName}</span>

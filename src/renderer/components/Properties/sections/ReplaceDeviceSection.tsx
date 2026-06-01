@@ -148,7 +148,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="w-full rounded bg-sky-700 px-2 py-1 text-xs text-white hover:bg-sky-600"
+          className="w-full rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600"
           title={t(
             'replaceDevice.btnTitle',
             'Aktuelles Gerät durch ein anderes Library-Template tauschen — Ports werden anhand Connector-Typ + Label gemappt, Kabel bleiben (wo möglich) erhalten.',
@@ -164,7 +164,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               placeholder={t('replaceDevice.searchPlaceholder', 'Suchen (Name, Kategorie, Hersteller)…')}
-              className="flex-1 rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+              className="flex-1 rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
             />
             <button
               type="button"
@@ -177,7 +177,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+            className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
           >
             <option value="">{t('replaceDevice.allCategories', '— Alle Kategorien —')}</option>
             {categories.map((c) => (
@@ -188,7 +188,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
           </select>
           <div className="max-h-56 overflow-auto rounded border border-slate-800">
             {filtered.length === 0 ? (
-              <div className="px-2 py-3 text-center text-[11px] text-slate-500">
+              <div className="px-2 py-3 text-center text-[11px] text-slate-400">
                 {t('replaceDevice.noMatches', 'Keine Treffer.')}
               </div>
             ) : (
@@ -205,10 +205,10 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
                         className="flex w-full items-start justify-between gap-2 border-b border-slate-800 px-2 py-1.5 text-left hover:bg-slate-800/60"
                       >
                         <span>
-                          <span className="block text-xs font-medium text-slate-100">
+                          <span className="block text-cp-xs font-medium text-slate-100">
                             {tpl.name}
                           </span>
-                          <span className="block text-[10px] text-slate-500">
+                          <span className="block text-[10px] text-slate-400">
                             {categoryDisplay(tpl.category ?? '', lang, categoryTranslations)} · {tpl.inputs.length} in / {tpl.outputs.length} out
                           </span>
                         </span>

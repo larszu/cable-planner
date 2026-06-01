@@ -1045,13 +1045,13 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       {/* ── Confirmation: switch linked Rentman project ── */}
       {pendingProjectSwitch && (
         <div className="w-full max-w-md rounded border border-amber-600 bg-slate-900 p-5 text-slate-100 shadow-xl">
-          <h3 className="mb-2 text-base font-semibold text-amber-400">{t('rentman.import.switch.title', 'Rentman-Projekt wechseln?')}</h3>
+          <h3 className="mb-2 text-cp-xl font-semibold text-amber-400">{t('rentman.import.switch.title', 'Rentman-Projekt wechseln?')}</h3>
           <p className="mb-1 text-sm text-slate-300">
             {t('rentman.import.switch.alreadyLinkedPre', 'Dieses Projekt ist bereits mit dem Rentman-Projekt')}
             {linkedProjectName ? (
               <> <span className="font-medium text-white">„{linkedProjectName}"</span></>
             ) : (
-              <> <span className="font-mono text-xs text-slate-400">{linkedProjectId}</span></>
+              <> <span className="font-mono text-cp-xs text-slate-400">{linkedProjectId}</span></>
             )} {t('rentman.import.switch.alreadyLinkedPost', 'verknüpft.')}
           </p>
           <p className="mb-4 text-sm text-slate-300">
@@ -1082,7 +1082,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
 
       {!pendingProjectSwitch && conflictItems && (
         <div className="w-full max-w-2xl rounded border border-amber-600 bg-slate-900 p-5 text-slate-100 shadow-xl">
-          <h3 className="mb-2 text-base font-semibold text-amber-400">
+          <h3 className="mb-2 text-cp-xl font-semibold text-amber-400">
             {conflictItems.length === 1
               ? t('rentman.import.conflict.titleOne', 'Gerät bereits in lokaler Bibliothek')
               : format(t('rentman.import.conflict.titleMany', '{count} Geräte bereits in lokaler Bibliothek'), { count: conflictItems.length })}
@@ -1091,7 +1091,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
             {t('rentman.import.conflict.intro', 'Folgende aus Rentman ausgewählte Geräte gibt es schon in deiner lokalen Bibliothek. Standardmäßig wird die lokale Definition beibehalten – damit gehen deine eigenen Port-Konfigurationen nicht verloren. Du kannst pro Gerät entscheiden:')}
           </p>
           <div className="mb-3 max-h-[55vh] overflow-auto rounded border border-slate-800">
-            <table className="w-full text-xs">
+            <table className="w-full text-cp-xs">
               <thead className="sticky top-0 bg-slate-950 text-left text-[11px] uppercase tracking-wide text-slate-400">
                 <tr>
                   <th className="px-2 py-1">{t('rentman.import.col.device', 'Gerät')}</th>
@@ -1103,7 +1103,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                   <tr key={c.name} className="border-t border-slate-800 align-top">
                     <td className="px-2 py-1.5">
                       <div className="font-medium">{c.name}</div>
-                      <div className="text-[11px] text-slate-500">{c.category}</div>
+                      <div className="text-[11px] text-slate-400">{c.category}</div>
                     </td>
                     <td className="px-2 py-1.5">
                       <div className="flex flex-col gap-0.5">
@@ -1149,7 +1149,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                                       [c.name]: e.target.value,
                                     }))
                                   }}
-                                  className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-100"
+                                  className="rounded bg-slate-800 px-2 py-1 text-cp-xs text-slate-100"
                                 >
                                   <option value="">{t('rentman.import.link.placeholder', '-- Gerät wählen --')}</option>
                                   {customLibrary
@@ -1171,7 +1171,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               </tbody>
             </table>
           </div>
-          <div className="mb-3 flex items-center gap-2 text-[11px] text-slate-500">
+          <div className="mb-3 flex items-center gap-2 text-[11px] text-slate-400">
             <span>{t('rentman.import.setAll', 'Alle setzen:')}</span>
             {(
               [
@@ -1258,12 +1258,12 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
 
       {!pendingProjectSwitch && !conflictItems && categoryAssignments && (
         <div className="w-full max-w-2xl rounded border border-cyan-700 bg-slate-900 p-5 text-slate-100 shadow-xl">
-          <h3 className="mb-2 text-base font-semibold text-cyan-300">{t('rentman.import.catMap.title', 'Kategorie-Zuordnung vor Import')}</h3>
+          <h3 className="mb-2 text-cp-xl font-semibold text-cyan-300">{t('rentman.import.catMap.title', 'Kategorie-Zuordnung vor Import')}</h3>
           <p className="mb-3 text-sm text-slate-300">
             {t('rentman.import.catMap.intro', 'Jeder Import muss einer bestehenden Kategorie zugeordnet werden.')}
           </p>
           <div className="mb-3 max-h-[55vh] overflow-auto rounded border border-slate-800">
-            <table className="w-full text-xs">
+            <table className="w-full text-cp-xs">
               <thead className="sticky top-0 bg-slate-950 text-left text-[11px] uppercase tracking-wide text-slate-400">
                 <tr>
                   <th className="px-2 py-1">{t('rentman.import.col.device', 'Gerät')}</th>
@@ -1344,7 +1344,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
           <h3 className="text-lg font-semibold">
             {t('rentman.import.title', 'Aus Rentman importieren')}
           </h3>
-          <button type="button" onClick={onClose} className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600">
+          <button type="button" onClick={onClose} className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600">
             {t('common.close', 'Schließen')}
           </button>
         </div>
@@ -1369,12 +1369,12 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 {t('rentman.import.refresh', '↺ Rentman aktualisieren')}
               </button>
             )}
-            <span className="text-xs text-slate-500">
+            <span className="text-cp-xs text-slate-500">
               {projects.length > 0
                 ? format(t('rentman.import.projectsCount', '{visible} / {total} Projekte'), { visible: sortedProjects.length, total: projects.length })
                 : t('rentman.import.noneLoaded', 'Noch keine Projekte geladen')}
             </span>
-            <div className="ml-auto flex items-center gap-1 text-xs">
+            <div className="ml-auto flex items-center gap-1 text-cp-xs">
               <span className="text-slate-400">{t('rentman.import.sort', 'Sortierung:')}</span>
               {(
                 [
@@ -1405,13 +1405,14 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               value={projectQuery}
               onChange={(e) => setProjectQuery(e.target.value)}
               placeholder={t('rentman.import.searchPlaceholder', 'Suche nach Name, Nummer oder Status…')}
+              aria-label={t('rentman.import.searchPlaceholder', 'Suche nach Name, Nummer oder Status…')}
               className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-sm"
             />
             {projectQuery && (
               <button
                 type="button"
                 onClick={() => setProjectQuery('')}
-                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+                className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
               >
                 {t('rentman.import.clearSearch', 'Leeren')}
               </button>
@@ -1427,7 +1428,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               type="button"
               onClick={() => void fetchEquipment(selectedProjectId)}
               disabled={loading}
-              className="mt-1 w-full rounded bg-slate-700 px-2 py-1 text-xs text-slate-200 hover:bg-slate-600 disabled:opacity-50"
+              className="mt-1 w-full rounded bg-slate-700 px-2 py-1 text-cp-xs text-slate-200 hover:bg-slate-600 disabled:opacity-50"
             >
               {loading ? t('rentman.import.loadingShort', 'Lädt…') : t('rentman.import.reloadSync', '↻ Neu laden & Abgleichen')}
             </button>
@@ -1441,7 +1442,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         {items.length > 0 && (
           <>
             {allCategories.length > 1 && (
-              <div className="mb-2 flex flex-wrap items-center gap-1 text-xs">
+              <div className="mb-2 flex flex-wrap items-center gap-1 text-cp-xs">
                 <span className="mr-1 text-slate-400">{t('rentman.import.categories', 'Categories:')}</span>
                 <button
                   type="button"
@@ -1471,7 +1472,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 })}
               </div>
             )}
-            <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
+            <div className="mb-2 flex items-center justify-between text-cp-xs text-slate-400">
               <span>
                 {format(t('rentman.import.shown', '{visible} of {total} shown'), { visible: visibleItems.length, total: items.length })}
                 {setChildCount > 0 && ` ${format(t('rentman.import.inSets', '· {count} in sets (expand to view)'), { count: setChildCount })}`}
@@ -1640,7 +1641,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                     return (
                       <label
                         key={bucket.key}
-                        className="flex items-center gap-2 rounded px-1.5 py-0.5 text-xs hover:bg-slate-900"
+                        className="flex items-center gap-2 rounded px-1.5 py-0.5 text-cp-xs hover:bg-slate-900"
                       >
                         <input
                           type="checkbox"
@@ -1660,7 +1661,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                           }
                           className="w-16 rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-right"
                         />
-                        <span className="text-[10px] text-slate-500">
+                        <span className="text-[10px] text-slate-400">
                           {bucket.rows.length === 1
                             ? bucket.rows[0].name
                             : format(t('rentman.import.cablePlan.entryCount', '{count} Einträge'), { count: bucket.rows.length })}
@@ -1688,7 +1689,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                     type="button"
                     onClick={handleImportCablePlan}
                     disabled={cablePlanSelected.size === 0}
-                    className="rounded bg-orange-600 px-3 py-1 text-xs font-semibold text-white hover:bg-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded bg-orange-600 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {t('rentman.import.cablePlan.apply', 'Kabelmengen übernehmen')}
                   </button>
@@ -1702,7 +1703,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                   {format(importResult === 1 ? t('rentman.import.resultOne', '✓ {count} Gerät zur Library hinzugefügt') : t('rentman.import.resultMany', '✓ {count} Geräte zur Library hinzugefügt'), { count: importResult })}
                 </span>
               ) : (
-                <span className="text-xs text-slate-400">
+                <span className="text-cp-xs text-slate-400">
                   {t('rentman.import.resultHint', 'Geräte werden zur Equipment Library hinzugefügt, nicht direkt auf die Canvas platziert.')}
                 </span>
               )}

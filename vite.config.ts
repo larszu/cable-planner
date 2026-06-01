@@ -127,6 +127,10 @@ export default defineConfig({
         // plugged. Ship together with the desktop build so users
         // can open dist/renderer/mobile.html in any browser.
         mobile: resolve(__dirname, 'mobile.html'),
+        // #143: zero-install read-only web viewer for external reviewers.
+        // Renders the plan from a loaded .cpviewer/.json standalone in any
+        // browser — no Electron, no editor surfaces.
+        viewer: resolve(__dirname, 'viewer.html'),
       },
     },
   },

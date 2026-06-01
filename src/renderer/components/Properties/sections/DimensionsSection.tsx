@@ -26,7 +26,7 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
   }
   return (
     <SortableSection id="dimensions" title={t('dims.title', 'Dimensionen')} subtitle={summary}>
-      <div className="grid grid-cols-3 gap-2 text-xs">
+      <div className="grid grid-cols-3 gap-2 text-cp-xs">
         <label className="block">
           <span className="mb-1 block text-slate-400">{t('dims.width', 'Breite (mm)')}</span>
           <input
@@ -70,7 +70,7 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
           />
         </label>
       </div>
-      <p className="mt-2 text-[10px] text-slate-500">
+      <p className="mt-2 text-[10px] text-slate-400">
         {t(
           'dims.hint',
           'Physische Aussenmaße. 19" Rack-Gerät: 1 HE = 44.45 mm, Standard-Breite 482 mm, typische Tiefe 400-600 mm. Wird vom 3D-Rack-Renderer + Logistik-Tools genutzt.',

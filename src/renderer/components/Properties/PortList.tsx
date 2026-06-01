@@ -486,7 +486,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
             Count; PortList-Title hier ausgeblendet damit's nicht doppelt
             steht. Bei direkter Verwendung (ohne Wrapper) bleibt der
             Titel sichtbar. */}
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-300">{hideTitle ? '' : title}</span>
+        <span className="text-cp-xs font-semibold uppercase tracking-wide text-slate-300">{hideTitle ? '' : title}</span>
         <button
           type="button"
           onClick={addPort}
@@ -495,7 +495,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
           {t('ports.add', '+ Hinzufügen')}
         </button>
       </div>
-      {ports.length === 0 && <div className="text-[11px] text-slate-500">{t('ports.none', 'Keine')}</div>}
+      {ports.length === 0 && <div className="text-[11px] text-slate-400">{t('ports.none', 'Keine')}</div>}
       {duplicatePortNumbers.length > 0 && (
         <div className="mb-2 rounded border border-amber-700 bg-amber-950/40 px-2 py-1 text-[11px] text-amber-200">
           {format(t('ports.duplicateNumbers', 'Doppelte Port-Nummern: {nums} — für Beschriftung/Patchliste mehrdeutig.'), {
@@ -522,13 +522,13 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                 }}
                 placeholder={String(portIdx + 1)}
                 title={`Anzeige-Nummer (Default ${portIdx + 1}). Leer = automatisch.`}
-                className="w-12 shrink-0 rounded border border-slate-700 bg-slate-950 p-1 text-center text-xs tabular-nums"
+                className="w-12 shrink-0 rounded border border-slate-700 bg-slate-950 p-1 text-center text-cp-xs tabular-nums"
               />
               <input
                 value={port.name}
                 onChange={(event) => updatePort(port.id, { name: event.target.value })}
                 placeholder={t('ports.namePlaceholder', 'Port-Name')}
-                className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
               />
               <button
                 type="button"
@@ -559,7 +559,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       type: v,
                     })
                   }}
-                  className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                  className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                 >
                   {allConnectorTypeOptions.map((type) => (
                     <option key={type} value={type}>
@@ -588,7 +588,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       standard: v ? (v as SignalStandard) : undefined,
                     })
                   }}
-                  className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                  className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                 >
                   <option value="">-</option>
                   {allSignalStandardOptions.map((std) => (
@@ -615,7 +615,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   updatePort(port.id, { contentLabel: v ? v : undefined })
                 }}
                 placeholder={t('ports.contentLabelPlaceholder', 'Inhalt / Funktion (z.B. PGM, PVW, MV1, Cam1) — optional')}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                 title={t('ports.contentLabelTitle', "Was geht durch diesen Port? Trennt 'Inhalt' (PGM/PVW) vom Hardware-Standard (SDI 3G/12G).")}
               />
             </div>
@@ -630,7 +630,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       : undefined,
                   })
                 }
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                 title={t('ports.directionTitle', 'Richtung - bidirektional ist z.B. für Netzwerk-/RJ45-Ports sinnvoll')}
               >
                 <option value="">{t('ports.direction.auto', 'Richtung (auto)')}</option>
@@ -646,7 +646,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     side: event.target.value ? (event.target.value as 'left' | 'right') : undefined,
                   })
                 }
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                 title={t('ports.sideTitle', 'Port-Seite am Gerät: Auto nutzt Input/Output + globale Spiegelung')}
               >
                 <option value="">{t('ports.side.auto', 'Seite (auto)')}</option>
@@ -666,7 +666,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       : undefined,
                   })
                 }
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                 title={t('ports.genderTitle', 'Steckverbinder-Geschlecht (für die Kabel-Konfektion)')}
               >
                 <option value="">{t('ports.gender.none', 'Geschlecht (–)')}</option>
@@ -692,7 +692,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   }}
                   placeholder={t('ports.atemSourceIdPlaceholder', 'z.B. 8001 für AUX 1')}
                   title={t('ports.atemSourceIdTitle', 'Source-ID die im MV-Config-Dialog adressiert wird. AUX = 8001+, PGM = 10010, PVW = 10011, ME 2 PGM = 10020 …. Bei Inputs leer lassen für idx+1-Default.')}
-                  className="w-32 rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                  className="w-32 rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                 />
                 <span className="text-[10px] text-slate-400">
                   AUX 8001+ · PGM 10010 · PVW 10011
@@ -707,35 +707,35 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     value={port.sfpType ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpType: event.target.value || undefined })}
                     placeholder={t('ports.sfp.typePlaceholder', 'Formfaktor (SFP+)')}
-                    className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                    className="rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                     title={t('ports.sfp.typeTitle', 'SFP-Formfaktor: SFP, SFP+, SFP28, QSFP+')}
                   />
                   <input
                     value={port.sfpStandard ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpStandard: event.target.value || undefined })}
                     placeholder={t('ports.sfp.standardPlaceholder', 'Standard (10G-LR)')}
-                    className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                    className="rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                     title={t('ports.sfp.standardTitle', 'Transceiver-Standard: 1G-SX, 1G-LX, 10G-SR, 10G-LR, 25G-SR …')}
                   />
                   <input
                     value={port.sfpWavelength ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpWavelength: event.target.value || undefined })}
                     placeholder={t('ports.sfp.wavelengthPlaceholder', 'Wellenlänge nm (1310)')}
-                    className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                    className="rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                     title={t('ports.sfp.wavelengthTitle', 'Wellenlänge in nm: 850, 1310, 1550')}
                   />
                   <input
                     value={port.sfpVendor ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpVendor: event.target.value || undefined })}
                     placeholder={t('ports.sfp.vendorPlaceholder', 'Hersteller (Cisco)')}
-                    className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                    className="rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                     title={t('ports.sfp.vendorTitle', 'Modulhersteller: Cisco, Aruba, Ubiquiti, FS.com …')}
                   />
                   {/* #362 — Optischer Steckverbinder + Faserklasse (LWL-Detail). */}
                   <select
                     value={port.fiberConnector ?? ''}
                     onChange={(event) => updatePort(port.id, { fiberConnector: event.target.value || undefined })}
-                    className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                    className="rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                     title={t('ports.fiber.connectorTitle', 'Optischer Steckverbinder')}
                   >
                     <option value="">{t('ports.fiber.connectorPlaceholder', 'Stecker (LC/SC/…)')}</option>
@@ -746,7 +746,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   <select
                     value={port.fiberClass ?? ''}
                     onChange={(event) => updatePort(port.id, { fiberClass: event.target.value || undefined })}
-                    className="rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                    className="rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                     title={t('ports.fiber.classTitle', 'Faserklasse: OM1–OM5 (Multimode), OS1/OS2 (Singlemode)')}
                   >
                     <option value="">{t('ports.fiber.classPlaceholder', 'Faserklasse (OM/OS)')}</option>
@@ -824,7 +824,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                           },
                         })
                       }
-                      className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 p-1 text-xs"
+                      className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
                     >
                       <option value="">({t('ports.sdi.deviceDefault', 'Geräte-Default')})</option>
                       <option value="SDI-HD">SDI-HD (1.5G)</option>
@@ -834,7 +834,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     </select>
                   </label>
                 </div>
-                <div className="mt-1 text-[9px] text-slate-500">
+                <div className="mt-1 text-[9px] text-slate-400">
                   {t(
                     'ports.sdi.overrideHint',
                     'Überschreibt die Geräte-SDI-Fähigkeiten für diesen Port. Leer = Default vom Gerät.',

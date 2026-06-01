@@ -89,7 +89,7 @@ export const ProjectMetaDialog = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
           >
             {t('common.cancel', 'Abbrechen')}
           </button>
@@ -97,7 +97,7 @@ export const ProjectMetaDialog = ({
             type="button"
             disabled={!canConfirm}
             onClick={handleConfirm}
-            className="rounded bg-emerald-700 px-3 py-1 text-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {mode === 'new'
               ? t('project.meta.create', 'Projekt anlegen')
@@ -106,7 +106,7 @@ export const ProjectMetaDialog = ({
         </div>
       }
     >
-      <div className="space-y-3 text-xs">
+      <div className="space-y-3 text-cp-xs">
           <label className="block">
             {t('project.meta.name', 'Projektname')} <span className="text-red-400">*</span>
             <input
@@ -250,7 +250,7 @@ export const ProjectMetaDialog = ({
             </div>
           </div>
 
-          <p className="text-[10px] italic text-slate-500">
+          <p className="text-[10px] italic text-slate-400">
             {t(
               'project.meta.footnote',
               'Diese Daten erscheinen im Planköpfchen unten rechts beim PDF-Export. Jeder Speichervorgang aktualisiert das „zuletzt geändert"-Datum automatisch.',

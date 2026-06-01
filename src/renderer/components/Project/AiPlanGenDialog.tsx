@@ -62,7 +62,7 @@ export const AiPlanGenDialog = () => {
     >
       <div className="flex flex-col gap-3 text-sm">
         {!keyReady && (
-          <div className="rounded border border-amber-700/60 bg-amber-900/20 p-2 text-xs text-amber-200">
+          <div className="rounded border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
             {t(
               'aiPlan.noKey',
               'Kein AI-API-Key hinterlegt. Bitte in den Einstellungen → AI einen Provider-Key eintragen.',
@@ -70,7 +70,7 @@ export const AiPlanGenDialog = () => {
           </div>
         )}
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">
+          <span className="mb-1 block text-cp-xs text-slate-400">
             {t('aiPlan.promptLabel', 'System in Klartext beschreiben')}
           </span>
           <textarea
@@ -81,18 +81,18 @@ export const AiPlanGenDialog = () => {
               'aiPlan.promptPlaceholder',
               'z. B. "2 Kameras über SDI in einen Switcher, PGM-Out auf einen Recorder und einen Multiviewer-Monitor"',
             )}
-            className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-xs"
+            className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-xs"
           />
         </label>
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] text-slate-500">
+          <span className="text-[10px] text-slate-400">
             {t('aiPlan.reviewHint', 'Vorschau wird angezeigt — nichts wird ohne Bestätigung eingefügt.')}
           </span>
           <button
             type="button"
             onClick={() => void generate()}
             disabled={busy || !keyReady || prompt.trim().length === 0}
-            className="inline-flex items-center gap-1 rounded bg-purple-700 px-3 py-1.5 text-xs hover:bg-purple-600 disabled:opacity-40"
+            className="inline-flex items-center gap-1 rounded bg-purple-700 px-3 py-1.5 text-cp-xs hover:bg-purple-600 disabled:opacity-40"
           >
             <Icon icon={Sparkles} size="xs" />
             {busy ? t('aiPlan.generating', 'Generiere…') : t('aiPlan.generate', 'Generieren')}
@@ -100,7 +100,7 @@ export const AiPlanGenDialog = () => {
         </div>
 
         {error && (
-          <div className="flex items-start gap-2 rounded border border-red-700/60 bg-red-900/20 p-2 text-xs text-red-200">
+          <div className="flex items-start gap-2 rounded border border-red-700/60 bg-red-900/20 p-2 text-cp-xs text-red-200">
             <Icon icon={AlertTriangle} size="xs" className="mt-0.5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -108,7 +108,7 @@ export const AiPlanGenDialog = () => {
 
         {plan && (
           <div className="rounded border border-slate-700 bg-slate-900/40 p-2">
-            <div className="mb-1 text-xs font-semibold text-slate-200">
+            <div className="mb-1 text-cp-xs font-semibold text-slate-200">
               {format(t('aiPlan.preview', 'Vorschau: {d} Geräte, {c} Kabel'), {
                 d: plan.equipment.length,
                 c: plan.cables.length,
@@ -133,7 +133,7 @@ export const AiPlanGenDialog = () => {
                 type="button"
                 onClick={insert}
                 disabled={plan.equipment.length === 0}
-                className="rounded bg-emerald-700 px-3 py-1.5 text-xs hover:bg-emerald-600 disabled:opacity-40"
+                className="rounded bg-emerald-700 px-3 py-1.5 text-cp-xs hover:bg-emerald-600 disabled:opacity-40"
               >
                 {t('aiPlan.insert', 'In den Plan einfügen')}
               </button>

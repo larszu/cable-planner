@@ -41,7 +41,7 @@ export const PlusMenu = ({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-7 items-center gap-0.5 rounded bg-emerald-700 px-2 text-xs hover:bg-emerald-600"
+        className="flex h-7 items-center gap-0.5 rounded bg-emerald-700 px-2 text-cp-xs hover:bg-emerald-600"
         title={t('library.menus.plusTitle', 'Neues Gerät oder neue Kategorie anlegen')}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -52,7 +52,7 @@ export const PlusMenu = ({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded border border-slate-700 bg-slate-900 py-1 text-xs shadow-xl"
+          className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded border border-slate-700 bg-slate-900 py-1 text-cp-xs shadow-xl"
         >
           <button
             type="button"
@@ -163,7 +163,7 @@ export const LibraryFiltersMenu = ({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-10 mt-1 min-w-[210px] rounded border border-slate-700 bg-slate-900 py-1 text-xs shadow-xl"
+          className="absolute right-0 top-full z-10 mt-1 min-w-[210px] rounded border border-slate-700 bg-slate-900 py-1 text-cp-xs shadow-xl"
         >
           <button
             type="button"
@@ -180,7 +180,7 @@ export const LibraryFiltersMenu = ({
               : t('library.menus.collapseAll', 'Alle Kategorien einklappen')}
           </button>
           <div className="my-1 border-t border-slate-800" />
-          <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-slate-500">
+          <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-slate-400">
             {t('library.menus.sorting', 'Sortierung')}
           </div>
           {(

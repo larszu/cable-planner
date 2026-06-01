@@ -175,12 +175,13 @@ export const ConnectorPicker = ({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t('connector.picker.search', 'Stecker suchen…')}
+                aria-label={t('connector.picker.search', 'Stecker suchen…')}
                 className="w-full bg-transparent text-sm text-slate-200 outline-none placeholder:text-slate-600"
               />
             </div>
             <div className="flex-1 overflow-y-auto p-2">
               {filteredGroups.length === 0 && (
-                <div className="px-2 py-6 text-center text-xs text-slate-500">
+                <div className="px-2 py-6 text-center text-cp-xs text-slate-500">
                   {t('connector.picker.noResults', 'Kein Stecker gefunden')}
                 </div>
               )}

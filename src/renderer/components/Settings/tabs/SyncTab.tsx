@@ -21,14 +21,14 @@ export const SyncTab = () => {
     <div className="space-y-3 text-sm">
       <CollabPanel />
       {!hasDesktopBridge && (
-        <div className="rounded border border-amber-700/50 bg-amber-900/20 p-2 text-xs text-amber-300">
+        <div className="rounded border border-amber-700/50 bg-amber-900/20 p-2 text-cp-xs text-amber-300">
           {t(
             'settings.sync.desktopOnly',
             'Netzwerk-Sync ist nur in der Desktop-App verfügbar.',
           )}
         </div>
       )}
-      <p className="text-xs text-slate-400">
+      <p className="text-cp-xs text-slate-400">
         {t(
           'settings.sync.intro',
           'Gemeinsames Verzeichnis (FTP-Laufwerk, Netzwerkpfad oder lokaler Ordner), in dem Projekt, Bibliothek und Presets als JSON-Dateien geteilt werden.',
@@ -40,7 +40,7 @@ export const SyncTab = () => {
           type="text"
           value={draftSyncPath}
           onChange={(e) => setDraftSyncPath(e.target.value)}
-          className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-xs"
+          className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-cp-xs"
           placeholder={t('settings.sync.pathPlaceholder', 'Z:\\Projekte\\CablePlanner oder \\\\server\\share\\cable-planner')}
         />
       </label>
@@ -77,7 +77,7 @@ export const SyncTab = () => {
         </button>
       </div>
       <SettingsCard title={t('settings.sync.notes', 'Hinweise')}>
-        <ul className="list-inside list-disc space-y-1 text-xs text-slate-400">
+        <ul className="list-inside list-disc space-y-1 text-cp-xs text-slate-400">
           <li>
             {t(
               'settings.sync.notes.push',

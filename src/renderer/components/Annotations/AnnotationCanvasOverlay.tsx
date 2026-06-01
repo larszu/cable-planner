@@ -13,6 +13,7 @@ import { useUiStore } from '../../store/uiStore'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { useTranslation } from '../../lib/i18n'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
+import { readableTextColor } from '../../lib/contrast'
 import type { ProjectAnnotation } from '../../types/project'
 
 const STATUS_COLOR: Record<ProjectAnnotation['status'], string> = {
@@ -219,7 +220,9 @@ export const AnnotationCanvasOverlay = () => {
                 height: 22,
                 borderRadius: '50%',
                 background: STATUS_COLOR[annotation.status],
-                color: '#0f172a',
+                // #451 — luminanzbasiert: heller Text auf dem grauen
+                // "erledigt"-Badge, dunkler auf Amber/Emerald.
+                color: readableTextColor(STATUS_COLOR[annotation.status]),
                 border: isExpanded ? '2px solid #e2e8f0' : '2px solid #0f172a',
                 boxShadow: isExpanded
                   ? '0 0 0 2px rgba(56,189,248,0.4), 0 2px 4px rgba(0,0,0,0.4)'
@@ -272,7 +275,7 @@ export const AnnotationCanvasOverlay = () => {
                   <span
                     style={{
                       background: STATUS_COLOR[annotation.status],
-                      color: '#0f172a',
+                      color: readableTextColor(STATUS_COLOR[annotation.status]),
                       padding: '1px 6px',
                       borderRadius: 3,
                       fontSize: 9,

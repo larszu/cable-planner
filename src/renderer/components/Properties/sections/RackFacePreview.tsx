@@ -30,7 +30,7 @@ export const RackFacePreview = ({
             const imageUrl = side === 'front' ? equipment.frontPanelImageUrl : equipment.rearPanelImageUrl
             return (
               <div key={side} className="rounded border border-slate-600 bg-gradient-to-b from-slate-800 to-slate-900 px-4 py-3 shadow-inner">
-                <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-slate-400">
                   <span>{side === 'front' ? 'Front' : 'Rear'}</span>
                   <span>{equipment.rackUnits} HE</span>
                 </div>
@@ -45,7 +45,7 @@ export const RackFacePreview = ({
                   ) : (
                     <>
                       <div className="truncate text-sm font-semibold text-slate-100">{equipment.name}</div>
-                      <div className="truncate text-[11px] text-slate-500">{equipment.category}</div>
+                      <div className="truncate text-[11px] text-slate-400">{equipment.category}</div>
                     </>
                   )}
                 </div>

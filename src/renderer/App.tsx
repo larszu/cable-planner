@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useIsNarrow } from './hooks/useBreakpoint'
 import { CanvasArea } from './components/Canvas/CanvasArea'
 import { CableDialog } from './components/Cable/CableDialog'
 import { CUSTOM_CABLE_SPEC_ID, makeCustomCableSpec } from './components/Cable/customCableSpec'
@@ -57,6 +58,9 @@ import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
 import { exportCanvasToPdfVector } from './lib/exportPdfVector'
 import { printPdfBlob } from './lib/printPdfBlob'
 import { exportCanvasToImage } from './lib/exportImage'
+import { exportProjectToDxf } from './lib/exportDxf'
+import { downloadBlob } from './lib/downloadBlob'
+import { buildExportFilename } from './lib/exportFilename'
 import { connectorToCableType } from './lib/cableInheritance'
 import { routeCable } from './lib/canvasViewport'
 import { useProjectStore } from './store/projectStore'
@@ -96,6 +100,8 @@ export default function App() {
   const t = useTranslation()
   const project = useProjectStore((state) => state.project)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
+  const followSystemTheme = useUiStore((state) => state.followSystemTheme)
+  const setCanvasTheme = useUiStore((state) => state.setCanvasTheme)
   const language = useUiStore((state) => state.language)
   // v7.7.1 — exporters now read the live canvas-background settings so the
   // exported PDF / PNG / JPEG matches what the user sees on the canvas.
@@ -121,6 +127,8 @@ export default function App() {
   const propertiesWidth = useUiStore((state) => state.propertiesWidth)
   const setLibraryWidth = useUiStore((state) => state.setLibraryWidth)
   const setPropertiesWidth = useUiStore((state) => state.setPropertiesWidth)
+  const setLibraryCollapsed = useUiStore((state) => state.setLibraryCollapsed)
+  const setPropertiesCollapsed = useUiStore((state) => state.setPropertiesCollapsed)
   const videohubExport = useUiStore((state) => state.videohubExport)
   const closeVideohubExport = useUiStore((state) => state.closeVideohubExport)
   const greengoExport = useUiStore((state) => state.greengoExport)
@@ -165,6 +173,58 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = pdfExportThemeOverride ?? canvasTheme
   }, [canvasTheme, pdfExportThemeOverride])
+
+  // #453 — optional dem OS-Theme folgen (prefers-color-scheme). Wenn aktiv,
+  // spiegelt canvasTheme die Systemeinstellung und reagiert live auf Wechsel.
+  useEffect(() => {
+    if (!followSystemTheme) return
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const apply = () => setCanvasTheme(mq.matches ? 'dark' : 'light')
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [followSystemTheme, setCanvasTheme])
+
+  // #444 — Seiten-Panels auf schmalen Fenstern (< lg / 1024px) automatisch
+  // einklappen. Reagiert NUR auf das Überschreiten der Schwelle (nicht
+  // laufend), damit der manuelle Ein-/Ausklapp-Button im schmalen Modus
+  // weiter funktioniert. Beim Verbreitern klappen wir nur das wieder aus,
+  // was wir selbst eingeklappt haben — vom User manuell Eingeklapptes
+  // bleibt unangetastet. Floating-Panels sind nie betroffen.
+  const isNarrow = useIsNarrow()
+  const prevNarrowRef = useRef(isNarrow)
+  const autoCollapsedRef = useRef({ library: false, properties: false })
+  useEffect(() => {
+    if (isNarrow === prevNarrowRef.current) return
+    prevNarrowRef.current = isNarrow
+    if (isNarrow) {
+      if (!libraryCollapsed && !libraryFloating) {
+        autoCollapsedRef.current.library = true
+        setLibraryCollapsed(true)
+      }
+      if (!propertiesCollapsed && !propertiesFloating) {
+        autoCollapsedRef.current.properties = true
+        setPropertiesCollapsed(true)
+      }
+    } else {
+      if (autoCollapsedRef.current.library) {
+        autoCollapsedRef.current.library = false
+        setLibraryCollapsed(false)
+      }
+      if (autoCollapsedRef.current.properties) {
+        autoCollapsedRef.current.properties = false
+        setPropertiesCollapsed(false)
+      }
+    }
+  }, [
+    isNarrow,
+    libraryCollapsed,
+    propertiesCollapsed,
+    libraryFloating,
+    propertiesFloating,
+    setLibraryCollapsed,
+    setPropertiesCollapsed,
+  ])
 
   // Keep the <html lang> attribute in sync with the selected UI language so
   // screen readers pronounce content correctly (was hardcoded lang="en").
@@ -514,8 +574,18 @@ export default function App() {
   }
 
   // v7.7.1 — PNG / JPEG export (canvas only, no header / title block).
-  const handleExportImage = async (imgFormat: 'png' | 'jpeg' | 'svg') => {
+  const handleExportImage = async (imgFormat: 'png' | 'jpeg' | 'svg' | 'dxf') => {
     try {
+      if (imgFormat === 'dxf') {
+        // #355 — DXF wird strukturiert aus den Projektdaten erzeugt (nicht
+        // aus dem DOM), daher eigener Pfad statt exportCanvasToImage.
+        downloadBlob(
+          buildExportFilename(project.metadata.name, 'dxf'),
+          exportProjectToDxf(project),
+          'application/dxf',
+        )
+        return
+      }
       await exportCanvasToImage(project.metadata.name, imgFormat, {
         backgroundTheme: canvasTheme,
         bgVariant: exportBgVariant,
@@ -1063,7 +1133,7 @@ export default function App() {
                   </strong>{' '}
                   {t('app.portConflict.connected', 'belegt:')}
                 </p>
-                <ul className="mb-3 max-h-32 space-y-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-2 text-xs">
+                <ul className="mb-3 max-h-32 space-y-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-2 text-cp-xs">
                   {conflictingCables.map((c) => {
                     const srcEq = getEquipmentById(project.equipment, c.fromEquipmentId)
                     const srcPort = srcEq
@@ -1091,14 +1161,14 @@ export default function App() {
                 <button
                   type="button"
                   onClick={cancelPortConflict}
-                  className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+                  className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
                 >
                   {t('common.cancel', 'Abbrechen')}
                 </button>
                 <button
                   type="button"
                   onClick={resolvePortConflictByReplace}
-                  className="rounded bg-amber-700 px-3 py-1 text-xs font-semibold hover:bg-amber-600"
+                  className="rounded bg-amber-700 px-3 py-1 text-cp-xs font-semibold hover:bg-amber-600"
                 >
                   {t('app.portConflict.okReplace', 'Ersetzen')}
                 </button>
@@ -1117,11 +1187,11 @@ export default function App() {
             <div className="mb-3 h-1.5 w-full overflow-hidden rounded bg-slate-800">
               <div className="h-full w-full origin-left animate-pulse bg-sky-500" />
             </div>
-            <div className="text-xs text-slate-300">{pdfProgress.phase}</div>
+            <div className="text-cp-xs text-slate-300">{pdfProgress.phase}</div>
             {pdfProgress.detail && (
-              <div className="mt-1 text-[11px] text-slate-500">{pdfProgress.detail}</div>
+              <div className="mt-1 text-[11px] text-slate-400">{pdfProgress.detail}</div>
             )}
-            <div className="mt-3 text-[10px] text-slate-600">
+            <div className="mt-3 text-[10px] text-slate-400">
               {t('app.pdfProgress.hint', 'Bei großen Plänen können einige Sekunden vergehen. Bitte nicht abbrechen.')}
             </div>
           </div>
@@ -1169,7 +1239,7 @@ const PdfExportDialog = ({
             <div className="-mx-1 flex flex-wrap gap-1">
               <LayerVisibilityChips />
             </div>
-            <p className="mt-2 text-[10px] text-slate-500">
+            <p className="mt-2 text-[10px] text-slate-400">
               {t(
                 'pdfExport.layers.hint',
                 'Klick auf einen Chip schaltet die Ebene fuer Canvas UND PDF um. Beispiel: nur Video drucken ⇒ alle anderen Chips ausschalten.',
@@ -1180,7 +1250,7 @@ const PdfExportDialog = ({
             <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
               {t('pdfExport.bg.title', 'Hintergrund')}
             </legend>
-            <label className="mb-2 flex cursor-pointer items-center gap-2 text-xs text-slate-200">
+            <label className="mb-2 flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
               <input
                 type="radio"
                 name="pdf-bg-theme"
@@ -1189,7 +1259,7 @@ const PdfExportDialog = ({
               />
               {t('pdfExport.bg.light', 'Hell')}
             </label>
-            <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
+            <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
               <input
                 type="radio"
                 name="pdf-bg-theme"
@@ -1207,7 +1277,7 @@ const PdfExportDialog = ({
             <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
               {t('pdfExport.render.title', 'Render-Modus')}
             </legend>
-            <label className="mb-2 flex cursor-pointer items-start gap-2 text-xs text-slate-200">
+            <label className="mb-2 flex cursor-pointer items-start gap-2 text-cp-xs text-slate-200">
               <input
                 type="radio"
                 name="pdf-render-mode"
@@ -1216,7 +1286,7 @@ const PdfExportDialog = ({
               />
               <span>
                 {t('pdfExport.render.raster', 'Raster (klassisch)')}
-                <span className="block text-[10px] text-slate-500">
+                <span className="block text-[10px] text-slate-400">
                   {t(
                     'pdfExport.render.rasterHint',
                     'JPEG-Snapshot des Canvas. Zuverlässig, aber unscharf bei großem Zoom in der PDF.',
@@ -1224,7 +1294,7 @@ const PdfExportDialog = ({
                 </span>
               </span>
             </label>
-            <label className="flex cursor-pointer items-start gap-2 text-xs text-slate-200">
+            <label className="flex cursor-pointer items-start gap-2 text-cp-xs text-slate-200">
               <input
                 type="radio"
                 name="pdf-render-mode"
@@ -1233,7 +1303,7 @@ const PdfExportDialog = ({
               />
               <span>
                 {t('pdfExport.render.vector', 'Vektor')}
-                <span className="block text-[10px] text-slate-500">
+                <span className="block text-[10px] text-slate-400">
                   {t(
                     'pdfExport.render.vectorHint',
                     'Chromium printToPDF. Text bleibt selektierbar & scharf bei jedem Zoom. Kleinere Dateigröße.',
@@ -1247,14 +1317,14 @@ const PdfExportDialog = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-700"
+            className="rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-cp-xs text-slate-100 hover:bg-slate-700"
           >
             {t('common.cancel', 'Abbrechen')}
           </button>
           <button
             type="button"
             onClick={onExport}
-            className="rounded bg-sky-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-600"
+            className="rounded bg-sky-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-sky-600"
           >
             {t('pdfExport.exportBtn', 'PDF exportieren')}
           </button>
@@ -1603,12 +1673,12 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             <div className="border-t border-slate-700 p-2">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <div className="mb-0.5 text-[10px] text-slate-500">{t('cable.fromDeviceShort', 'Von Gerät')}</div>
+                  <div className="mb-0.5 text-[10px] text-slate-400">{t('cable.fromDeviceShort', 'Von Gerät')}</div>
                   <select
                     aria-label={t('cable.aria.fromDevice', 'Quell-Gerät')}
                     value={fromEquipmentId}
                     onChange={(e) => onSelectFromEquipment(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
                   >
                     {sortedEquipment.map((eq) => (
                       <option key={eq.id} value={eq.id}>
@@ -1616,12 +1686,12 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                       </option>
                     ))}
                   </select>
-                  <div className="mt-1 text-[10px] text-slate-500">Port</div>
+                  <div className="mt-1 text-[10px] text-slate-400">Port</div>
                   <select
                     aria-label={t('cable.aria.fromPort', 'Quell-Port')}
                     value={fromPortId}
                     onChange={(e) => setFromPortId(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
                   >
                     {portsOf(fromDev).map((p) => {
                       const inUse = !!portConflict(fromEquipmentId, p.id)
@@ -1635,12 +1705,12 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   </select>
                 </div>
                 <div>
-                  <div className="mb-0.5 text-[10px] text-slate-500">{t('cable.toDeviceShort', 'Nach Gerät')}</div>
+                  <div className="mb-0.5 text-[10px] text-slate-400">{t('cable.toDeviceShort', 'Nach Gerät')}</div>
                   <select
                     aria-label={t('cable.aria.toDevice', 'Ziel-Gerät')}
                     value={toEquipmentId}
                     onChange={(e) => onSelectToEquipment(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
                   >
                     {sortedEquipment.map((eq) => (
                       <option key={eq.id} value={eq.id}>
@@ -1648,12 +1718,12 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                       </option>
                     ))}
                   </select>
-                  <div className="mt-1 text-[10px] text-slate-500">Port</div>
+                  <div className="mt-1 text-[10px] text-slate-400">Port</div>
                   <select
                     aria-label={t('cable.aria.toPort', 'Ziel-Port')}
                     value={toPortId}
                     onChange={(e) => setToPortId(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
                   >
                     {portsOf(toDev).map((p) => {
                       const inUse = !!portConflict(toEquipmentId, p.id)
@@ -1701,7 +1771,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
         </div>
 
         {lengthWarning && (
-          <div className="mt-3 flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-xs text-amber-100">
+          <div className="mt-3 flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-cp-xs text-amber-100">
             <Icon icon={AlertTriangle} size="sm" />
             {lengthWarning}
           </div>

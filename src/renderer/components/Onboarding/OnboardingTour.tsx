@@ -107,7 +107,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
       open={open}
       onClose={finish}
       title={
-        <span className="text-[11px] uppercase tracking-wider text-slate-500">
+        <span className="text-[11px] uppercase tracking-wider text-slate-400">
           {format(t('onboarding.header', 'Erste-Schritte-Tour · Schritt {step} / {total}'), {
             step: step + 1,
             total: STEPS.length,
@@ -120,7 +120,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
           <button
             type="button"
             onClick={finish}
-            className="text-xs text-slate-500 hover:text-slate-300"
+            className="text-cp-xs text-slate-500 hover:text-slate-300"
           >
             {t('onboarding.end', 'Tour beenden')}
           </button>
@@ -143,7 +143,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
               type="button"
               onClick={() => setStep((index) => Math.max(0, index - 1))}
               disabled={step === 0}
-              className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {t('onboarding.back', 'Zurück')}
             </button>
@@ -151,7 +151,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
               <button
                 type="button"
                 onClick={finish}
-                className="rounded bg-orange-600 px-3 py-1 text-xs font-semibold text-white hover:bg-orange-500"
+                className="rounded bg-orange-600 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-orange-500"
               >
                 {t('onboarding.start', "Los geht's")}
               </button>
@@ -159,7 +159,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
               <button
                 type="button"
                 onClick={() => setStep((index) => Math.min(STEPS.length - 1, index + 1))}
-                className="rounded bg-orange-600 px-3 py-1 text-xs font-semibold text-white hover:bg-orange-500"
+                className="rounded bg-orange-600 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-orange-500"
               >
                 {t('onboarding.next', 'Weiter')}
               </button>
@@ -169,7 +169,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
       }
     >
       <div className="space-y-3">
-        <h2 className="text-base font-semibold text-slate-100">{current.title}</h2>
+        <h2 className="text-cp-xl font-semibold text-slate-100">{current.title}</h2>
         <p className="text-sm leading-relaxed text-slate-300">{current.body}</p>
         {current.hint && (
           <div className="rounded border border-slate-800 bg-slate-950/40 px-2 py-1 text-[11px] text-slate-400">

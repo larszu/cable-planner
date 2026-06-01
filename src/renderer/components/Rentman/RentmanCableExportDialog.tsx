@@ -277,7 +277,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
       scrollBody={false}
     >
       <div className="flex h-full min-h-0 flex-col -mx-4 -my-3">
-        <div className="border-b border-slate-800 px-4 py-1.5 text-[10px] text-slate-500">
+        <div className="border-b border-slate-800 px-4 py-1.5 text-[10px] text-slate-400">
           {linkedProjectName
             ? format(t('rentman.cableExport.target', 'Ziel: {name}'), { name: linkedProjectName })
             : t('rentman.cableExport.noLink', 'Kein Rentman-Projekt verknüpft.')}
@@ -346,7 +346,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
         )}
 
         <div className="min-h-0 flex-1 overflow-auto px-4">
-          <table className="w-full text-xs">
+          <table className="w-full text-cp-xs">
             <thead className="sticky top-0 bg-slate-950 text-slate-300">
               <tr>
                 <th className="px-3 py-2 text-left">{t('rentman.cableExport.col.typeLength', 'Typ / Länge')}</th>
@@ -377,7 +377,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                   <tr key={bucket.key} className="border-t border-slate-800 align-top">
                     <td className="px-3 py-1.5">
                       <div className="font-medium text-slate-100">{bucket.type}</div>
-                      <div className="text-[10px] text-slate-500">
+                      <div className="text-[10px] text-slate-400">
                         {bucket.length} m
                         {bucket.sample ? ` · ${bucket.sample.name}` : ''}
                       </div>
@@ -410,7 +410,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                             <div className="truncate text-slate-200">
                               {bucket.mappedName ?? format(t('rentman.cableExport.rentmanId', 'Rentman-ID {id}'), { id: bucket.mappedId })}
                             </div>
-                            <div className="text-[10px] text-slate-500">
+                            <div className="text-[10px] text-slate-400">
                               ID {bucket.mappedId}
                             </div>
                           </div>
@@ -448,12 +448,12 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                           />
                           <div className="max-h-40 space-y-0.5 overflow-auto">
                             {!catalogLoaded && !catalogLoading && (
-                              <div className="px-1 py-0.5 text-[10px] italic text-slate-500">
+                              <div className="px-1 py-0.5 text-[10px] italic text-slate-400">
                                 {t('rentman.cableExport.loadCatalogFirst', 'Bitte zuerst Katalog laden.')}
                               </div>
                             )}
                             {catalogLoading && (
-                              <div className="px-1 py-0.5 text-[10px] italic text-slate-500">
+                              <div className="px-1 py-0.5 text-[10px] italic text-slate-400">
                                 {t('rentman.cableExport.loading', 'Lädt…')}
                               </div>
                             )}
@@ -470,7 +470,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                                 <span className="min-w-0 flex-1 truncate text-slate-200">
                                   {item.name}
                                 </span>
-                                <span className="shrink-0 text-[10px] text-slate-500">
+                                <span className="shrink-0 text-[10px] text-slate-400">
                                   {item.category}
                                 </span>
                               </button>

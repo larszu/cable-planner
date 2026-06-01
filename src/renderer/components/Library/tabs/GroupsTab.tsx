@@ -27,12 +27,12 @@ export const GroupsTab = () => {
     <div className="flex flex-1 min-h-0 flex-col">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
         <h2 className="text-sm font-semibold">{t('library.tabs.groups.title', 'Gerätegruppen')}</h2>
-        <span className="text-[10px] text-slate-500">
+        <span className="text-[10px] text-slate-400">
           {t('library.tabs.groups.subtitle', 'Mehrere Geräte + Kabel als Vorlage')}
         </span>
       </div>
       {groupPresets.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-2 text-xs text-slate-500 text-center p-4">
+        <div className="flex-1 flex flex-col items-center justify-center gap-2 text-cp-xs text-slate-500 text-center p-4">
           <span className="text-2xl">⧉</span>
           <span>{t('library.tabs.groups.empty', 'Noch keine Gruppen gespeichert.')}</span>
           <span>
@@ -79,7 +79,7 @@ export const GroupsTab = () => {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
                           <div className="truncate font-medium text-slate-100">{preset.name}</div>
-                          <div className="mt-0.5 text-[10px] text-slate-500">
+                          <div className="mt-0.5 text-[10px] text-slate-400">
                             {format(t('library.tabs.groups.counts', '{items} Geräte · {cables} Kabel'), {
                               items: preset.items.length,
                               cables: preset.cables.length,
@@ -90,7 +90,7 @@ export const GroupsTab = () => {
                                 })
                               : ''}
                           </div>
-                          <div className="mt-0.5 truncate text-[10px] text-slate-600">
+                          <div className="mt-0.5 truncate text-[10px] text-slate-400">
                             {preset.items.map((i) => i.name).join(', ')}
                           </div>
                         </div>

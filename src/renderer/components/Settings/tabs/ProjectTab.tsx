@@ -125,7 +125,7 @@ const LibraryExportSection = () => {
         'Sichere deine eigenen Geräte-Templates, Gruppen und Rack-Presets als JSON-Datei. Beim Import werden bestehende Einträge mit gleichem Namen NICHT überschrieben (merge-by-name).',
       )}
     >
-      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-200">
+      <div className="flex flex-wrap items-center gap-2 text-cp-xs text-slate-200">
         <button
           type="button"
           onClick={handleExport}
@@ -185,7 +185,7 @@ const CableNumberingSection = () => {
         'Automatische, kollisionsfreie Kabel-IDs nach festem Schema — sichtbar auf dem Canvas, in der Patchliste und auf den Etiketten.',
       )}
     >
-      <div className="space-y-2 text-xs text-slate-200">
+      <div className="space-y-2 text-cp-xs text-slate-200">
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -301,7 +301,7 @@ const LengthEstimationSection = () => {
         'Schätzt die Kabellängen aus der Canvas-Distanz der Geräte (Luftlinie × Maßstab + Reserve). Überschreibt vorhandene Längen.',
       )}
     >
-      <div className="space-y-2 text-xs text-slate-200">
+      <div className="space-y-2 text-cp-xs text-slate-200">
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
             <span className="mb-1 block text-slate-400">
@@ -383,7 +383,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-slate-400">
+      <p className="text-cp-xs text-slate-400">
         {t(
           'settings.project.intro',
           'Projekt-Metadaten — werden mit der Cable-Planner-Datei gespeichert.',
@@ -477,14 +477,14 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
                   {current ? (
                     <img src={current} alt={label} className="max-h-16 max-w-full object-contain" />
                   ) : (
-                    <span className="text-[10px] text-slate-500">{label}</span>
+                    <span className="text-[10px] text-slate-400">{label}</span>
                   )}
                 </div>
                 <div className="flex w-full gap-1">
                   <button
                     type="button"
                     onClick={() => pickLogo(field)}
-                    className="flex-1 rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+                    className="flex-1 rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
                   >
                     {t('common.choose', 'Wählen…')}
                   </button>
@@ -494,7 +494,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
                       onClick={() => setDraftMeta((prev) => ({ ...prev, [field]: undefined }))}
                       title={t('common.remove', 'Entfernen')}
                       aria-label={t('common.remove', 'Entfernen')}
-                      className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-400 hover:bg-red-700 hover:text-white"
+                      className="rounded bg-slate-800 px-2 py-1 text-cp-xs text-slate-400 hover:bg-red-700 hover:text-white"
                     >
                       <Icon icon={X} size="sm" />
                     </button>
@@ -508,14 +508,14 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
 
       <SettingsCard title={t('settings.project.linkedRentman', 'Verknüpftes Rentman-Projekt')}>
         {metadata.rentmanProjectId ? (
-          <div className="text-xs text-slate-400">
+          <div className="text-cp-xs text-slate-400">
             <span className="text-orange-300">
               {metadata.rentmanProjectName ?? `Projekt #${metadata.rentmanProjectId}`}
             </span>
             <span className="ml-2 text-slate-500">(ID: {metadata.rentmanProjectId})</span>
           </div>
         ) : (
-          <div className="text-xs text-slate-500">
+          <div className="text-cp-xs text-slate-500">
             {t(
               'settings.project.notLinked',
               'Kein Rentman-Projekt verknüpft. Verknüpfung im Tab „Integrationen" herstellen.',

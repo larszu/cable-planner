@@ -29,7 +29,7 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
         : '–'
   return (
     <SortableSection id="power" title={t('power.title', 'Stromverbrauch')} subtitle={summary}>
-      <div className="grid grid-cols-3 gap-2 text-xs">
+      <div className="grid grid-cols-3 gap-2 text-cp-xs">
         <label className="block">
           <span className="mb-1 block text-slate-400">{t('power.voltage', 'Spannung (V)')}</span>
           <input
@@ -114,7 +114,7 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
           />
         </label>
       </div>
-      <p className="mt-2 text-[10px] text-slate-500">
+      <p className="mt-2 text-[10px] text-slate-400">
         {t(
           'power.formulaHint',
           'Wenn Spannung und Stromstärke gesetzt sind, wird die Leistung automatisch berechnet (P = U × I). Werkzeuge → Stromverbrauch summiert das Leistungs-Feld über alle Geräte.',

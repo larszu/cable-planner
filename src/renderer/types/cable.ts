@@ -107,4 +107,10 @@ export interface Cable {
    *  als eigene Spalte geführt. Freier String (z.B. "Snake-1", "FOH-Loom").
    *  Undefined = Einzelkabel. */
   multicoreName?: string
+  /** #368 — Tie-Line / Festverbindung: dauerhaft installierte Verbindung
+   *  (Haus-/Dauerleitung zwischen Anschlusskästen/Räumen), kein Show-Kabel.
+   *  Wird in der Kabel-Stückliste getrennt ausgewiesen, damit Festverbindungen
+   *  nicht mit zu konfektionierenden Kabeln vermischt werden. Undefined =
+   *  normales (Show-)Kabel. */
+  isTieLine?: boolean
 }

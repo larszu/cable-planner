@@ -290,14 +290,14 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
     <div className="flex flex-1 flex-col items-center justify-center gap-3 p-12 text-center">
       <div className="flex justify-center text-red-300"><Icon icon={AlertTriangle} size={32} /></div>
       <p className="text-sm font-medium text-red-300">{t('graphml.dialog.importFailed', 'Import fehlgeschlagen')}</p>
-      {fileName && <p className="text-xs text-slate-400">{fileName}</p>}
-      <pre className="max-w-full whitespace-pre-wrap rounded bg-slate-950 p-3 text-xs text-red-200">
+      {fileName && <p className="text-cp-xs text-slate-400">{fileName}</p>}
+      <pre className="max-w-full whitespace-pre-wrap rounded bg-slate-950 p-3 text-cp-xs text-red-200">
         {message}
       </pre>
       <button
         type="button"
         onClick={reset}
-        className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+        className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
       >
         {t('graphml.dialog.pickOther', 'Andere Datei wählen')}
       </button>
@@ -316,9 +316,9 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         <div className="border-b border-slate-700 px-4 py-2">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div>
-              <span className="text-xs uppercase tracking-wide text-slate-400">{t('graphml.dialog.file', 'Datei')}</span>{' '}
+              <span className="text-cp-xs uppercase tracking-wide text-slate-400">{t('graphml.dialog.file', 'Datei')}</span>{' '}
               <span className="font-medium text-slate-100">{s.fileName}</span>
-              <span className="ml-2 text-xs text-slate-500">
+              <span className="ml-2 text-cp-xs text-slate-500">
                 {formatBytes(preview.meta.fileSize)} • {preview.meta.nodeCount} {t('graphml.dialog.nodes', 'Nodes')} •{' '}
                 {preview.meta.edgeCount} {t('graphml.dialog.edges', 'Edges')}
               </span>
@@ -326,13 +326,13 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             <button
               type="button"
               onClick={reset}
-              className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
               title={t('graphml.dialog.pickOther', 'Andere Datei wählen')}
             >
               {t('graphml.dialog.otherFile', '↻ Andere Datei')}
             </button>
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-300">
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-cp-xs text-slate-300">
             <span>
               {t('graphml.dialog.devices', 'Geräte')}: <strong>{includedDevices}/{totalDevices}</strong>
             </span>
@@ -356,7 +356,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         </div>
 
         {/* Destination + Mode + filter row */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-slate-950/70 px-4 py-2 text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-slate-950/70 px-4 py-2 text-cp-xs">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-1">
               <span className="text-slate-400">{t('graphml.dialog.target', 'Ziel:')}</span>
@@ -403,7 +403,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}
             placeholder={t('graphml.dialog.filterPlaceholder', 'Filter: Name / IP / Kategorie / Kabeltyp')}
-            className="w-64 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100"
+            className="w-64 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs text-slate-100"
           />
         </div>
 
@@ -415,7 +415,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         )}
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-800 text-xs">
+        <div className="flex border-b border-slate-800 text-cp-xs">
           {([
             ['preview', t('graphml.dialog.tab.preview', 'yEd-Vorschau')],
             ['devices', `${t('graphml.dialog.tab.devices', 'Geräte')} (${totalDevices})`],
@@ -455,7 +455,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             </div>
           )}
           {tab === 'devices' && (
-            <table className="w-full text-xs">
+            <table className="w-full text-cp-xs">
               <thead className="sticky top-0 bg-slate-900 text-slate-400">
                 <tr>
                   <th className="px-3 py-2 text-left w-6"></th>
@@ -492,7 +492,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                           className="w-full rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-slate-100"
                         />
                         {dev.subtitle && (
-                          <div className="px-1.5 text-[10px] text-slate-500">{dev.subtitle}</div>
+                          <div className="px-1.5 text-[10px] text-slate-400">{dev.subtitle}</div>
                         )}
                       </td>
                       <td className="px-3 py-1">
@@ -512,7 +512,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                       <td className="px-3 py-1">
                         {confidenceBadge(dev.confidence)}
                         {dev.notes[0] && (
-                          <span className="ml-1 text-[10px] text-slate-500" title={dev.notes.join('\n')}>
+                          <span className="ml-1 text-[10px] text-slate-400" title={dev.notes.join('\n')}>
                             {dev.notes[0].length > 50 ? `${dev.notes[0].slice(0, 47)}…` : dev.notes[0]}
                           </span>
                         )}
@@ -525,7 +525,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
           )}
 
           {tab === 'cables' && (
-            <table className="w-full text-xs">
+            <table className="w-full text-cp-xs">
               <thead className="sticky top-0 bg-slate-900 text-slate-400">
                 <tr>
                   <th className="px-3 py-2 text-left w-6"></th>
@@ -573,7 +573,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
           )}
 
           {tab === 'skipped' && (
-            <div className="space-y-4 p-3 text-xs">
+            <div className="space-y-4 p-3 text-cp-xs">
               <div>
                 <h4 className="mb-1 font-semibold text-slate-300">
                   {t('graphml.dialog.nodesSkipped', 'Nodes übersprungen')} ({preview.skippedNodes.length})
@@ -621,7 +621,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               reset()
               onClose()
             }}
-            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
           >
             {t('graphml.dialog.cancel', 'Abbrechen')}
           </button>
@@ -629,7 +629,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             type="button"
             onClick={handleImport}
             disabled={includedDevices === 0}
-            className={`rounded px-4 py-1.5 text-xs font-medium text-white disabled:opacity-50 ${destination === 'library' ? 'bg-violet-600 hover:bg-violet-500' : 'bg-emerald-600 hover:bg-emerald-500'}`}
+            className={`rounded px-4 py-1.5 text-cp-xs font-medium text-white disabled:opacity-50 ${destination === 'library' ? 'bg-violet-600 hover:bg-violet-500' : 'bg-emerald-600 hover:bg-emerald-500'}`}
           >
             {destination === 'library'
               ? `${includedDevices} ${includedDevices === 1 ? t('graphml.dialog.deviceSingular', 'Gerät') : t('graphml.dialog.devicePlural', 'Geräte')} ${t('graphml.dialog.toLibrary', 'in Library übernehmen')}`

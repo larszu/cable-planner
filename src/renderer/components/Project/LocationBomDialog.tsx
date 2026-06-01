@@ -123,6 +123,23 @@ export const LocationBomDialog = () => {
   const internalGroups = aggregateCables(internalCables)
   const externalGroups = aggregateCables(externalCables)
 
+  // #351 — Logistik-Summen je Location: Gesamtgewicht (kg) + Leistung (W) +
+  // Wärmelast (BTU/h). Reuse der vorhandenen weightKg-/Power-Felder. So sieht
+  // der Materialwart pro Rack/Case sofort Traglast + Strombedarf + Kühlung.
+  const logistics = useMemo(() => {
+    let weightKg = 0
+    let weighed = 0
+    let watts = 0
+    for (const d of devices) {
+      if (typeof d.weightKg === 'number' && d.weightKg > 0) {
+        weightKg += d.weightKg
+        weighed += 1
+      }
+      watts += d.powerConsumptionWatts ?? (d.voltage && d.currentAmps ? d.voltage * d.currentAmps : 0)
+    }
+    return { weightKg, weighed, watts, btu: Math.round(watts * 3.412) }
+  }, [devices])
+
   if (!open || !location) return null
 
   /** Capture the canvas region covered by the current location frame as a
@@ -206,6 +223,17 @@ export const LocationBomDialog = () => {
       pdf.setFontSize(11)
       pdf.text(sanitizeForPdf(`Geräte (${devices.length})`), margin, y)
       y += 14
+      // #351 — Logistik-Zusammenfassung (Gewicht/Leistung/Wärme) als Kopfzeile.
+      if (logistics.weightKg > 0 || logistics.watts > 0) {
+        pdf.setFontSize(8)
+        pdf.setTextColor(90)
+        const parts: string[] = []
+        if (logistics.weightKg > 0) parts.push(`Gewicht: ${logistics.weightKg.toFixed(1)} kg`)
+        if (logistics.watts > 0) parts.push(`Leistung: ${logistics.watts.toFixed(0)} W (${logistics.btu} BTU/h)`)
+        pdf.text(sanitizeForPdf(parts.join('   ·   ')), margin, y)
+        y += 12
+        pdf.setTextColor(20)
+      }
       pdf.setFontSize(8)
       for (const d of devices) {
         if (y > 780) {
@@ -301,7 +329,7 @@ export const LocationBomDialog = () => {
       maxWidth="3xl"
       draggableKey="cable-planner:modal-pos:location-bom"
     >
-        <div className="text-xs">
+        <div className="text-cp-xs">
           <div className="mb-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
             <span>
               {t('locbom.devices', 'Geräte')}: <b className="text-slate-200">{devices.length}</b>
@@ -312,6 +340,18 @@ export const LocationBomDialog = () => {
             {externalCables.length > 0 && (
               <span>
                 {t('locbom.externalConnections', 'Externe Verbindungen')}: <b className="text-slate-200">{externalCables.length}</b>
+              </span>
+            )}
+            {/* #351 — Logistik: Gewicht + Strombedarf + Wärmelast je Location. */}
+            {logistics.weightKg > 0 && (
+              <span title={t('locbom.weightTitle', '{n} von {total} Geräten haben ein Gewicht hinterlegt').replace('{n}', String(logistics.weighed)).replace('{total}', String(devices.length))}>
+                {t('locbom.weight', 'Gewicht')}: <b className="text-slate-200">{logistics.weightKg.toFixed(1)} kg</b>
+              </span>
+            )}
+            {logistics.watts > 0 && (
+              <span>
+                {t('locbom.power', 'Leistung')}: <b className="text-slate-200">{logistics.watts.toFixed(0)} W</b>
+                <span className="text-slate-500"> · {logistics.btu} BTU/h</span>
               </span>
             )}
             <label
@@ -340,14 +380,14 @@ export const LocationBomDialog = () => {
               type="button"
               onClick={() => { void exportPdf() }}
               disabled={busy}
-              className="rounded bg-amber-700 px-3 py-1 text-xs hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded bg-amber-700 px-3 py-1 text-cp-xs hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {busy ? t('locbom.rendering', 'Rendere…') : t('locbom.exportPdf', 'PDF exportieren')}
             </button>
           </div>
 
           <h3 className="mb-1 text-sm font-semibold text-slate-200">{t('locbom.section.devices', 'Geräte')}</h3>
-          <table className="mb-4 w-full text-xs">
+          <table className="mb-4 w-full text-cp-xs">
             <thead className="text-slate-400">
               <tr className="border-b border-slate-700">
                 <th className="px-2 py-1 text-center w-10">{t('locbom.col.packed', 'Pack')}</th>
@@ -382,7 +422,7 @@ export const LocationBomDialog = () => {
           {internalCables.length === 0 ? (
             <div className="mb-3 text-slate-500">{t('locbom.noInternalCables', 'Keine internen Kabel.')}</div>
           ) : grouped ? (
-            <table className="mb-4 w-full text-xs">
+            <table className="mb-4 w-full text-cp-xs">
               <thead className="text-slate-400">
                 <tr className="border-b border-slate-700">
                   <th className="px-2 py-1 text-right w-12">{t('locbom.col.qty', 'Stk.')}</th>
@@ -409,7 +449,7 @@ export const LocationBomDialog = () => {
               </tbody>
             </table>
           ) : (
-            <table className="mb-4 w-full text-xs">
+            <table className="mb-4 w-full text-cp-xs">
               <thead className="text-slate-400">
                 <tr className="border-b border-slate-700">
                   <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>
@@ -439,7 +479,7 @@ export const LocationBomDialog = () => {
                 {t('locbom.section.externalConnections', 'Externe Verbindungen')}
               </h3>
               {grouped ? (
-                <table className="w-full text-xs">
+                <table className="w-full text-cp-xs">
                   <thead className="text-slate-400">
                     <tr className="border-b border-slate-700">
                       <th className="px-2 py-1 text-right w-12">{t('locbom.col.qty', 'Stk.')}</th>
@@ -466,7 +506,7 @@ export const LocationBomDialog = () => {
                   </tbody>
                 </table>
               ) : (
-                <table className="w-full text-xs">
+                <table className="w-full text-cp-xs">
                   <thead className="text-slate-400">
                     <tr className="border-b border-slate-700">
                       <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>

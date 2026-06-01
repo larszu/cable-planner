@@ -12,11 +12,12 @@ import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
-import { AlertTriangle, Download, Calculator } from 'lucide-react'
+import { AlertTriangle, Download, Calculator, BatteryCharging } from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
+import { bandwidthMbpsForStandard } from '../../types/cableSpec'
 
 // v7.5.0 — Cable-Length tab removed. The standalone calculator
 // can't produce meaningful estimates without inter-location distances
@@ -74,8 +75,40 @@ const SAMPLING_PRESETS: { label: string; factor: number }[] = [
   { label: '4:4:4 12-bit', factor: 36 },
 ]
 
+// #346 — gängige Netzwerk-Link-Kapazitäten (Mbps) für die Budget-Bewertung.
+const LINK_TIERS: { label: string; mbps: number }[] = [
+  { label: '1 GbE', mbps: 1000 },
+  { label: '10 GbE', mbps: 10000 },
+  { label: '25 GbE', mbps: 25000 },
+  { label: '40 GbE', mbps: 40000 },
+  { label: '100 GbE', mbps: 100000 },
+]
+
 const BandwidthTab = () => {
   const t = useTranslation()
+  const cables = useProjectStore((s) => s.project.cables)
+  // #346 — Projekt-Netzwerk-Budget: Summe der IP-/Netzwerk-Signal-Bandbreiten
+  // über alle Kabel mit gesetztem Netzwerk-Standard.
+  const netBudget = useMemo(() => {
+    let totalMbps = 0
+    let count = 0
+    const byStd = new Map<string, { mbps: number; count: number }>()
+    for (const c of cables) {
+      const mbps = bandwidthMbpsForStandard(c.standard)
+      if (mbps == null) continue
+      totalMbps += mbps
+      count += 1
+      const e = byStd.get(c.standard as string) ?? { mbps: 0, count: 0 }
+      e.mbps += mbps
+      e.count += 1
+      byStd.set(c.standard as string, e)
+    }
+    const rows = [...byStd.entries()]
+      .map(([std, v]) => ({ std, ...v }))
+      .sort((a, b) => b.mbps - a.mbps)
+    const tier = LINK_TIERS.find((l) => totalMbps <= l.mbps)
+    return { totalMbps, count, rows, tier }
+  }, [cables])
   const [resolution, setResolution] = useState(RESOLUTION_PRESETS[1])
   const [fps, setFps] = useState(50)
   const [sampling, setSampling] = useState(SAMPLING_PRESETS[2])
@@ -92,7 +125,7 @@ const BandwidthTab = () => {
       </p>
       <div className="grid grid-cols-3 gap-3">
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">{t('calc.resolution', 'Auflösung')}</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">{t('calc.resolution', 'Auflösung')}</span>
           <select
             value={resolution.label}
             onChange={(e) =>
@@ -110,7 +143,7 @@ const BandwidthTab = () => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">FPS</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">FPS</span>
           <select
             value={fps}
             onChange={(e) => setFps(Number(e.target.value))}
@@ -124,7 +157,7 @@ const BandwidthTab = () => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">{t('calc.sampling', 'Sampling / Tiefe')}</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">{t('calc.sampling', 'Sampling / Tiefe')}</span>
           <select
             value={sampling.label}
             onChange={(e) =>
@@ -145,7 +178,7 @@ const BandwidthTab = () => {
       <div className="rounded border border-amber-700 bg-amber-950/30 p-3">
         <div className="text-[10px] uppercase tracking-wide text-amber-300">{t('calc.dataRate', 'Datenrate')}</div>
         <div className="font-mono text-lg text-amber-100">{mbps.toLocaleString(undefined, { maximumFractionDigits: 1 })} Mbps</div>
-        <div className="mt-1 text-xs text-amber-200">
+        <div className="mt-1 text-cp-xs text-amber-200">
           {fittingTier
             ? t('calc.bandwidth.fitsIn', 'Passt in {tier} ({mbps} Mbps).')
                 .replace('{tier}', fittingTier.label)
@@ -160,7 +193,7 @@ const BandwidthTab = () => {
         <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
           SDI-Tiers
         </summary>
-        <ul className="space-y-0.5 px-3 py-2 text-xs">
+        <ul className="space-y-0.5 px-3 py-2 text-cp-xs">
           {SDI_TIERS.map((t) => (
             <li key={t.label}>
               <span className="inline-block w-28">{t.label}</span>
@@ -173,7 +206,7 @@ const BandwidthTab = () => {
         <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
           {t('calc.bandwidth.signalStds', 'IP-/Digital-Signalstandards')}
         </summary>
-        <ul className="space-y-0.5 px-3 py-2 text-xs">
+        <ul className="space-y-0.5 px-3 py-2 text-cp-xs">
           {SIGNAL_STD_BANDWIDTH.map((s) => (
             <li key={s.label}>
               <span className="inline-block w-56">{s.label}</span>
@@ -182,6 +215,50 @@ const BandwidthTab = () => {
           ))}
         </ul>
       </details>
+
+      {/* #346 — Projekt-Netzwerk-Budget: Summe aller IP-/Netzwerk-Signale. */}
+      {netBudget.count > 0 && (
+        <div className="rounded border border-sky-700 bg-sky-950/20 p-3">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="text-[11px] uppercase tracking-wide text-slate-300">
+              {t('calc.bandwidth.netBudget', 'Projekt-Netzwerk-Budget')}
+            </div>
+            <div className="text-[10px] text-slate-400">
+              {netBudget.count} {t('calc.bandwidth.netLinks', 'IP-Signale')}
+            </div>
+          </div>
+          <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
+            <dt className="text-slate-500 font-semibold">{t('calc.bandwidth.netTotal', 'Gesamt-Bandbreite')}</dt>
+            <dd className="font-mono text-lg text-sky-200">
+              {netBudget.totalMbps >= 1000
+                ? `${(netBudget.totalMbps / 1000).toFixed(2)} Gbps`
+                : `${netBudget.totalMbps} Mbps`}
+            </dd>
+            <dt className="text-slate-500">{t('calc.bandwidth.netLink', 'Kleinster Link')}</dt>
+            <dd className="font-mono text-slate-200">
+              {netBudget.tier
+                ? netBudget.tier.label
+                : t('calc.bandwidth.netExceeds', '> 100 GbE — aufteilen / Spine-Leaf')}
+            </dd>
+          </dl>
+          <ul className="mt-2 space-y-0.5 border-t border-slate-800 pt-2 text-cp-xs">
+            {netBudget.rows.map((r) => (
+              <li key={r.std} className="flex justify-between">
+                <span className="text-slate-300">
+                  {r.std} <span className="text-slate-500">×{r.count}</span>
+                </span>
+                <span className="font-mono text-slate-400">{r.mbps} Mbps</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-[10px] text-slate-400">
+            {t(
+              'calc.bandwidth.netNote',
+              'Summe der Brutto-Bandbreiten aller Kabel mit IP-/Netzwerk-Signalstandard (NDI, Dante/AES67, ST 2110, Ethernet). Richtwerte; ST 2110-20 stark formatabhängig.',
+            )}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
@@ -242,9 +319,20 @@ const PHASE_COLORS = {
 const PHASE_KEYS = ['L1', 'L2', 'L3'] as const
 
 interface DeviceAssignment {
+  id?: string
   name: string
   watts: number
   phase: number // 1-indexed; 0 = no phase yet
+  /** true wenn der User die Phase fest zugeordnet hat (nicht auto-balanciert). */
+  pinned?: boolean
+}
+
+interface PhaseDevice {
+  id?: string
+  name: string
+  watts: number
+  /** Feste Phase (1..n) oder undefined = automatisch verteilen. */
+  pinnedPhase?: number
 }
 
 /** Greedy bin-packing across N phases. Devices sorted by W desc;
@@ -253,19 +341,29 @@ interface DeviceAssignment {
  *  balancing problem — good enough for stage power planning,
  *  where the user can hand-tweak the result anyway. */
 const balancePhases = (
-  devices: { name: string; watts: number }[],
+  devices: PhaseDevice[],
   phases: number,
 ): { perPhaseWatts: number[]; assignments: DeviceAssignment[] } => {
-  const sorted = [...devices].sort((a, b) => b.watts - a.watts)
   const perPhaseWatts = Array.from({ length: phases }, () => 0)
   const assignments: DeviceAssignment[] = []
-  for (const d of sorted) {
+  // 1) Fest zugeordnete Geräte zuerst auf ihre Phase legen.
+  const pinned = devices.filter(
+    (d) => d.pinnedPhase && d.pinnedPhase >= 1 && d.pinnedPhase <= phases,
+  )
+  for (const d of pinned) {
+    const idx = (d.pinnedPhase as number) - 1
+    perPhaseWatts[idx] += d.watts
+    assignments.push({ id: d.id, name: d.name, watts: d.watts, phase: idx + 1, pinned: true })
+  }
+  // 2) Rest greedy (Best-Fit-Decreasing) auf die jeweils schwächste Phase.
+  const rest = devices.filter((d) => !pinned.includes(d)).sort((a, b) => b.watts - a.watts)
+  for (const d of rest) {
     let lightest = 0
     for (let i = 1; i < phases; i++) {
       if (perPhaseWatts[i] < perPhaseWatts[lightest]) lightest = i
     }
     perPhaseWatts[lightest] += d.watts
-    assignments.push({ name: d.name, watts: d.watts, phase: lightest + 1 })
+    assignments.push({ id: d.id, name: d.name, watts: d.watts, phase: lightest + 1 })
   }
   return { perPhaseWatts, assignments }
 }
@@ -277,21 +375,33 @@ const PowerTab = () => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
   const projectName = useProjectStore((s) => s.project.metadata.name)
+  const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const [supplyId, setSupplyId] = useState<SupplyPresetId>('cee32')
   const [marginPercent, setMarginPercent] = useState(20)
+  // #345 ff. — USV/Notstrom-Rechner. Reuse der Gesamtlast aus den Geräten.
+  const [upsVa, setUpsVa] = useState(1500)
+  const [upsPf, setUpsPf] = useState(0.9)
+  const [battV, setBattV] = useState(12)
+  const [battAh, setBattAh] = useState(9)
+  const [battCount, setBattCount] = useState(2)
+  const [usablePercent, setUsablePercent] = useState(85)
+  const [targetMinutes, setTargetMinutes] = useState(15)
+  // #345 ff. — Spannungsfall-Rechner für die Zuleitung (Distro-Strecke).
+  const [runLength, setRunLength] = useState(25)
+  const [crossSection, setCrossSection] = useState(2.5)
   const supply = SUPPLY_PRESETS.find((s) => s.id === supplyId) ?? SUPPLY_PRESETS[0]
 
   const totals = useMemo(() => {
     let totalW = 0
     let countedDevices = 0
     let missingDevices = 0
-    const devices: { name: string; watts: number }[] = []
+    const devices: PhaseDevice[] = []
     for (const e of equipment) {
-      const w = e.powerConsumptionWatts ?? 0
+      const w = e.powerConsumptionWatts ?? (e.voltage && e.currentAmps ? e.voltage * e.currentAmps : 0)
       if (w > 0) {
         totalW += w
         countedDevices += 1
-        devices.push({ name: e.name, watts: w })
+        devices.push({ id: e.id, name: e.name, watts: w, pinnedPhase: e.powerPhase })
       } else {
         missingDevices += 1
       }
@@ -324,6 +434,65 @@ const PowerTab = () => {
         )
       : 0
 
+  // #345 — Neutralleiterstrom-Schätzung (3-Phasen, 4-Leiter). Für lineare
+  // Lasten mit um 120° versetzten, symmetrischen Spannungen gilt
+  //   I_N = √(I1²+I2²+I3² − I1·I2 − I2·I3 − I3·I1).
+  // Bei perfekter Symmetrie (I1=I2=I3) ist I_N = 0; je größer die Schieflast,
+  // desto höher der Neutralleiterstrom — genau das, was klein bleiben soll.
+  const perPhaseAmps = distribution.perPhaseWatts.map((w) => w / supply.voltage)
+  const neutralAmps =
+    supply.phases === 3 && perPhaseAmps.length === 3
+      ? Math.sqrt(
+          Math.max(
+            0,
+            perPhaseAmps[0] ** 2 +
+              perPhaseAmps[1] ** 2 +
+              perPhaseAmps[2] ** 2 -
+              perPhaseAmps[0] * perPhaseAmps[1] -
+              perPhaseAmps[1] * perPhaseAmps[2] -
+              perPhaseAmps[2] * perPhaseAmps[0],
+          ),
+        )
+      : 0
+
+  // #345 — Generator-Sizing: Scheinleistung bei angenommenem Leistungsfaktor
+  // 0,8 (typisch für gemischte AV-Last), inkl. der Sicherheits-Reserve. Plus
+  // eine Empfehlung mit 25 % Kopffreiheit, damit der Generator nicht am Limit
+  // läuft.
+  const POWER_FACTOR = 0.8
+  const generatorKva = totalWithMargin / POWER_FACTOR / 1000
+  const generatorKvaRecommended = generatorKva * 1.25
+
+  // #345 ff. — USV/Notstrom-Puffer.
+  //  - USV-Kapazität (W) = Scheinleistung (VA) × Leistungsfaktor.
+  //  - Pufferzeit ≈ (nutzbare Akku-Energie) / Last × 60. Lineare Näherung
+  //    (ignoriert Peukert/Temperatur); Hersteller-Runtime-Kurven sind genauer,
+  //    aber für die Planung reicht das. "nutzbar" deckt Wechselrichter-
+  //    Wirkungsgrad + Entladetiefe ab.
+  const upsCapacityW = upsVa * upsPf
+  const upsLoadW = totals.totalW
+  const upsLoadFraction = upsCapacityW > 0 ? upsLoadW / upsCapacityW : 0
+  const upsOverloaded = upsLoadFraction > 1
+  const recommendedVa = upsPf > 0 ? Math.ceil((upsLoadW / upsPf) * 1.25) : 0
+  const batteryWh = battV * battAh * battCount
+  const usableWh = batteryWh * (usablePercent / 100)
+  const runtimeMin = upsLoadW > 0 ? (usableWh / upsLoadW) * 60 : 0
+  // Reverse: Akku-Energie, die für die Zielpufferzeit nötig wäre.
+  const requiredWhForTarget =
+    usablePercent > 0 ? (upsLoadW * (targetMinutes / 60)) / (usablePercent / 100) : 0
+
+  // #345 ff. — Spannungsfall auf der Zuleitung.
+  //  - 1-phasig: ΔU = 2 · L · I · ρ / A   (Hin- + Rückleiter)
+  //  - 3-phasig: ΔU = √3 · L · I · ρ / A
+  // ρ(Kupfer) ≈ 0.0175 Ω·mm²/m. I = symmetrischer Laststrom (mit Reserve).
+  const RHO_CU = 0.0175
+  const vdropCurrent = supply.phases === 1 ? ampsSinglePhase : ampsThreePhase
+  const vdropVolts =
+    crossSection > 0
+      ? ((supply.phases === 1 ? 2 : Math.sqrt(3)) * runLength * vdropCurrent * RHO_CU) / crossSection
+      : 0
+  const vdropPercent = supply.voltage > 0 ? (vdropVolts / supply.voltage) * 100 : 0
+
   // #345 — Wärmelast + CSV-Export der Phasen-Verteilung.
   const totalBtu = Math.round(totals.totalW * 3.412)
   const exportCsv = () => {
@@ -333,8 +502,10 @@ const PowerTab = () => {
       [],
       [t('calc.phaseLabel', 'Phase'), 'W', 'A'],
       ...distribution.perPhaseWatts.map((w, i) => [`L${i + 1}`, Math.round(w), (w / supply.voltage).toFixed(1)]),
+      ...(supply.phases === 3 ? [['N', '', neutralAmps.toFixed(1)]] : []),
       [t('calc.power.total', 'Gesamt'), Math.round(totals.totalW), ''],
       [t('calc.power.heat', 'Wärme (BTU/h)'), totalBtu, ''],
+      [t('calc.generator', 'Generator (cosφ 0,8)'), '', `${generatorKvaRecommended.toFixed(1)} kVA`],
     ]
     const csv = '\u{FEFF}' + rows.map((r) => r.map((c) => String(c ?? '')).join(';')).join('\r\n')
     downloadBlob(buildExportFilenameWithSuffix(projectName, 'strom-phasen', 'csv'), csv, 'text/csv')
@@ -355,7 +526,7 @@ const PowerTab = () => {
       </p>
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">{t('calc.connectionType', 'Anschluss-Typ')}</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">{t('calc.connectionType', 'Anschluss-Typ')}</span>
           <select
             value={supplyId}
             onChange={(e) => setSupplyId(e.target.value as SupplyPresetId)}
@@ -369,7 +540,7 @@ const PowerTab = () => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">{t('calc.safetyReserve', 'Sicherheits-Reserve (%)')}</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">{t('calc.safetyReserve', 'Sicherheits-Reserve (%)')}</span>
           <input
             type="number"
             min={0}
@@ -381,7 +552,7 @@ const PowerTab = () => {
       </div>
 
       <div className="rounded border border-emerald-700 bg-emerald-950/30 p-3">
-        <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-xs">
+        <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
           <dt className="text-slate-500">{t('calc.devicesCounted', 'Erfasste Geräte')}</dt>
           <dd className="font-mono text-slate-200">
             {totals.countedDevices} {t('calc.outOf', 'von')} {totals.countedDevices + totals.missingDevices}
@@ -410,6 +581,22 @@ const PowerTab = () => {
               </dd>
             </>
           )}
+          <dt className="text-slate-500">{t('calc.generator', 'Generator (cosφ 0,8)')}</dt>
+          <dd className="font-mono text-slate-200">
+            {generatorKva.toFixed(1)} kVA ·{' '}
+            <span className="text-emerald-200">
+              {t('calc.generatorRec', 'empf.')} ≥ {generatorKvaRecommended.toFixed(1)} kVA
+            </span>
+          </dd>
+          {/* Wärmelast → Kühlbedarf: die el. Leistung wird praktisch komplett
+              in Wärme umgesetzt. AC-Einheiten zu je 12.000 BTU/h. */}
+          <dt className="text-slate-500">{t('calc.power.cooling', 'Wärme / Kühlung')}</dt>
+          <dd className="font-mono text-slate-200">
+            {totalBtu} BTU/h
+            <span className="ml-2 text-slate-500">
+              ≈ {(totals.totalW / 1000).toFixed(1)} kW · {Math.max(1, Math.ceil(totalBtu / 12000))}× 12k-BTU-AC
+            </span>
+          </dd>
         </dl>
       </div>
 
@@ -423,7 +610,7 @@ const PowerTab = () => {
             <div className="text-[11px] uppercase tracking-wide text-slate-300">
               {t('calc.phaseDistribution', 'Phasen-Verteilung')} ({supply.label})
             </div>
-            <div className="text-[10px] text-slate-500">
+            <div className="text-[10px] text-slate-400">
               {t('calc.imbalance', 'Unwucht')}: {maxImbalancePct}%
               {overloaded && (
                 <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-[10px] text-white">
@@ -477,11 +664,32 @@ const PowerTab = () => {
               )
             })}
           </div>
+          {/* #345 — Neutralleiterstrom-Schätzung: klein = gut balanciert. */}
+          <div className="mt-2 flex items-center gap-2 rounded border border-sky-800 bg-sky-950/30 px-2 py-1.5 text-[11px]">
+            <span
+              className="inline-block h-2 w-2 shrink-0 rounded-full"
+              style={{ background: PHASE_COLORS.N.dot }}
+            />
+            <span className="text-slate-300">
+              {t('calc.neutralCurrent', 'Neutralleiter (geschätzt)')}:
+            </span>
+            <span className="font-mono text-sky-200">{neutralAmps.toFixed(1)} A</span>
+            <span className="ml-auto text-[10px] text-slate-400">
+              {neutralAmps < 0.05 * supply.perPhaseAmps
+                ? t('calc.neutralOk', 'gut balanciert')
+                : neutralAmps > 0.25 * supply.perPhaseAmps
+                  ? t('calc.neutralHigh', 'hohe Schieflast — Phasen umverteilen')
+                  : t('calc.neutralMid', 'leichte Schieflast')}
+            </span>
+          </div>
           <details className="mt-2">
             <summary className="cursor-pointer text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
               {t('calc.devicesToPhase', 'Geräte → Phase')} ({distribution.assignments.length})
             </summary>
-            <table className="mt-1 w-full text-xs">
+            <div className="mb-1 mt-1 text-[10px] text-slate-400">
+              {t('calc.phasePinHint', 'Phase wählen = fest zuordnen; „Auto" = der Balancer verteilt automatisch.')}
+            </div>
+            <table className="w-full text-cp-xs">
               <thead className="text-slate-500">
                 <tr>
                   <th className="text-left">{t('calc.col.device', 'Gerät')}</th>
@@ -491,13 +699,37 @@ const PowerTab = () => {
               </thead>
               <tbody>
                 {distribution.assignments.map((a, i) => (
-                  <tr key={`${a.name}-${i}`} className="border-t border-slate-800">
-                    <td className="truncate py-0.5">{a.name}</td>
+                  <tr key={a.id ?? `${a.name}-${i}`} className="border-t border-slate-800">
+                    <td className="truncate py-0.5">
+                      {a.name}
+                      {a.pinned && (
+                        <span className="ml-1 text-[9px] text-slate-500" title={t('calc.phasePinned', 'Fest zugeordnet')}>📌</span>
+                      )}
+                    </td>
                     <td className="text-right font-mono text-slate-400">{a.watts}</td>
-                    <td
-                      className={`pr-2 text-right font-mono font-semibold ${PHASE_COLORS[PHASE_KEYS[a.phase - 1]].text}`}
-                    >
-                      L{a.phase}
+                    <td className="pr-2 text-right">
+                      {a.id ? (
+                        <select
+                          value={a.pinned ? a.phase : 0}
+                          onChange={(e) => {
+                            const v = Number(e.target.value)
+                            updateEquipment(a.id as string, {
+                              powerPhase: v === 0 ? undefined : (v as 1 | 2 | 3),
+                            })
+                          }}
+                          className={`rounded border border-slate-700 bg-slate-950 py-0.5 pl-1 font-mono ${PHASE_COLORS[PHASE_KEYS[a.phase - 1]].text}`}
+                          title={t('calc.col.phase', 'Phase')}
+                        >
+                          <option value={0}>{t('calc.phaseAuto', 'Auto')} (L{a.phase})</option>
+                          {PHASE_KEYS.slice(0, supply.phases).map((_, idx) => (
+                            <option key={idx} value={idx + 1}>L{idx + 1}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className={`font-mono font-semibold ${PHASE_COLORS[PHASE_KEYS[a.phase - 1]].text}`}>
+                          L{a.phase}
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -518,7 +750,7 @@ const PowerTab = () => {
               </span>
             ))}
           </div>
-          <p className="mt-2 text-[10px] text-slate-500">
+          <p className="mt-2 text-[10px] text-slate-400">
             {t(
               'calc.greedyExplain',
               'Greedy-Verteilung: sortiert nach Leistung, jedes Gerät auf die aktuell am schwächsten belastete Phase. Bei symmetrischen Lasten zieht der Drehstrom nur {amps} A je Phase; Unwucht erhöht den höchsten Phasenstrom. Ziel: jede Phase < 85% Last + Unwucht < 20%.',
@@ -540,12 +772,266 @@ const PowerTab = () => {
         </div>
       )}
 
+      {/* #345 ff. — USV / Notstrom-Puffer-Rechner. Nutzt die Gesamtlast der
+          Geräte (oben) und schätzt USV-Größe + Pufferzeit. */}
+      <details className="rounded border border-slate-800 bg-slate-950/40" open={totals.totalW > 0}>
+        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
+          <Icon icon={BatteryCharging} size="xs" />
+          {t('calc.ups.title', 'USV / Notstrom-Puffer')}
+        </summary>
+        <div className="space-y-3 px-3 py-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.va', 'USV-Scheinleistung (VA)')}
+              </span>
+              <input
+                type="number"
+                min={0}
+                value={upsVa}
+                onChange={(e) => setUpsVa(Math.max(0, Number(e.target.value) || 0))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.pf', 'Leistungsfaktor')}
+              </span>
+              <select
+                value={upsPf}
+                onChange={(e) => setUpsPf(Number(e.target.value))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              >
+                {[0.6, 0.7, 0.8, 0.9, 1.0].map((pf) => (
+                  <option key={pf} value={pf}>
+                    {pf.toFixed(1)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.capacity', 'Kapazität (W)')}
+              </span>
+              <div className="rounded border border-slate-800 bg-slate-900 px-2 py-1 font-mono text-cp-xs text-slate-200">
+                {Math.round(upsCapacityW)} W
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.battV', 'Akku (V)')}
+              </span>
+              <input
+                type="number"
+                min={0}
+                value={battV}
+                onChange={(e) => setBattV(Math.max(0, Number(e.target.value) || 0))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.battAh', 'Kapazität (Ah)')}
+              </span>
+              <input
+                type="number"
+                min={0}
+                value={battAh}
+                onChange={(e) => setBattAh(Math.max(0, Number(e.target.value) || 0))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.battCount', 'Anzahl Akkus')}
+              </span>
+              <input
+                type="number"
+                min={1}
+                value={battCount}
+                onChange={(e) => setBattCount(Math.max(1, Number(e.target.value) || 1))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.usable', 'Nutzbar (%)')}
+              </span>
+              <input
+                type="number"
+                min={1}
+                max={100}
+                value={usablePercent}
+                onChange={(e) =>
+                  setUsablePercent(Math.min(100, Math.max(1, Number(e.target.value) || 1)))
+                }
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              />
+            </label>
+          </div>
+
+          <div
+            className={`rounded border p-3 ${
+              upsOverloaded ? 'border-red-700 bg-red-950/30' : 'border-sky-700 bg-sky-950/20'
+            }`}
+          >
+            <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
+              <dt className="text-slate-500">{t('calc.ups.load', 'Last (gemessen)')}</dt>
+              <dd className="font-mono text-slate-200">{upsLoadW.toFixed(0)} W</dd>
+              <dt className="text-slate-500">{t('calc.ups.utilization', 'USV-Auslastung')}</dt>
+              <dd className="font-mono">
+                <span className={upsOverloaded ? 'text-red-300' : 'text-slate-200'}>
+                  {Math.round(upsLoadFraction * 100)}%
+                </span>
+                {upsOverloaded && (
+                  <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-[10px] text-white">
+                    <Icon icon={AlertTriangle} size="xs" />
+                    {t('calc.ups.overload', 'USV überlastet')}
+                  </span>
+                )}
+              </dd>
+              <dt className="text-slate-500">{t('calc.ups.recommended', 'Empfohlene USV')}</dt>
+              <dd className="font-mono text-emerald-200">≥ {recommendedVa} VA</dd>
+              <dt className="text-slate-500">{t('calc.ups.battery', 'Akku-Energie')}</dt>
+              <dd className="font-mono text-slate-200">
+                {Math.round(batteryWh)} Wh · {Math.round(usableWh)} Wh {t('calc.ups.usableShort', 'nutzbar')}
+              </dd>
+              <dt className="text-slate-500">{t('calc.ups.runtime', 'Pufferzeit (geschätzt)')}</dt>
+              <dd className="font-mono text-lg text-emerald-200">
+                {upsLoadW <= 0
+                  ? '—'
+                  : runtimeMin >= 60
+                    ? `${Math.floor(runtimeMin / 60)} h ${Math.round(runtimeMin % 60)} min`
+                    : `${runtimeMin.toFixed(0)} min`}
+              </dd>
+            </dl>
+            <div className="mt-2 flex items-center gap-2 border-t border-slate-800 pt-2 text-[11px]">
+              <span className="text-slate-400">{t('calc.ups.target', 'Ziel-Pufferzeit')}</span>
+              <input
+                type="number"
+                min={1}
+                value={targetMinutes}
+                onChange={(e) => setTargetMinutes(Math.max(1, Number(e.target.value) || 1))}
+                className="w-16 rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-cp-xs"
+              />
+              <span className="text-slate-400">min →</span>
+              <span className="font-mono text-slate-200">
+                {Math.round(requiredWhForTarget)} Wh {t('calc.ups.needed', 'Akku nötig')}
+              </span>
+            </div>
+          </div>
+          <p className="text-[10px] text-slate-400">
+            {t(
+              'calc.ups.note',
+              'USV-Kapazität (W) = VA × Leistungsfaktor. Pufferzeit ≈ nutzbare Akku-Energie / Last. Lineare Näherung — reale Laufzeit hängt von Entladekurve, Alter und Temperatur ab; im Zweifel die Hersteller-Runtime-Tabelle prüfen.',
+            )}
+          </p>
+        </div>
+      </details>
+
+      {/* #345 ff. — Spannungsfall auf der Zuleitung (Distro-Strecke). */}
+      <details className="rounded border border-slate-800 bg-slate-950/40">
+        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
+          {t('calc.vdrop.title', 'Spannungsfall (Zuleitung)')}
+        </summary>
+        <div className="space-y-3 px-3 py-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.vdrop.length', 'Leitungslänge (m)')}
+              </span>
+              <input
+                type="number"
+                min={0}
+                value={runLength}
+                onChange={(e) => setRunLength(Math.max(0, Number(e.target.value) || 0))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.vdrop.cross', 'Querschnitt (mm²)')}
+              </span>
+              <select
+                value={crossSection}
+                onChange={(e) => setCrossSection(Number(e.target.value))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              >
+                {[1.5, 2.5, 4, 6, 10, 16, 25, 35, 50].map((mm) => (
+                  <option key={mm} value={mm}>
+                    {mm} mm²
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.vdrop.current', 'Laststrom')}
+              </span>
+              <div className="rounded border border-slate-800 bg-slate-900 px-2 py-1 font-mono text-cp-xs text-slate-200">
+                {vdropCurrent.toFixed(1)} A
+              </div>
+            </div>
+          </div>
+          <div
+            className={`rounded border p-3 ${
+              vdropPercent > 5
+                ? 'border-red-700 bg-red-950/30'
+                : vdropPercent > 3
+                  ? 'border-amber-700 bg-amber-950/30'
+                  : 'border-emerald-700 bg-emerald-950/30'
+            }`}
+          >
+            <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
+              <dt className="text-slate-500">{t('calc.vdrop.drop', 'Spannungsfall')}</dt>
+              <dd className="font-mono text-slate-200">
+                {vdropVolts.toFixed(1)} V
+              </dd>
+              <dt className="text-slate-500">{t('calc.vdrop.percent', 'Relativ')}</dt>
+              <dd className="font-mono text-lg">
+                <span
+                  className={
+                    vdropPercent > 5
+                      ? 'text-red-300'
+                      : vdropPercent > 3
+                        ? 'text-amber-200'
+                        : 'text-emerald-200'
+                  }
+                >
+                  {vdropPercent.toFixed(1)} %
+                </span>
+                <span className="ml-2 text-[10px] text-slate-400">
+                  {vdropPercent > 5
+                    ? t('calc.vdrop.bad', '> 5 % — Querschnitt erhöhen')
+                    : vdropPercent > 3
+                      ? t('calc.vdrop.warn', '> 3 % — grenzwertig')
+                      : t('calc.vdrop.ok', '≤ 3 % — ok')}
+                </span>
+              </dd>
+              <dt className="text-slate-500">{t('calc.vdrop.atLoad', 'Spannung am Ende')}</dt>
+              <dd className="font-mono text-slate-200">
+                ≈ {(supply.voltage - vdropVolts).toFixed(0)} V
+              </dd>
+            </dl>
+          </div>
+          <p className="text-[10px] text-slate-400">
+            {t(
+              'calc.vdrop.note',
+              'Kupfer, ρ ≈ 0,0175 Ω·mm²/m. 1-phasig ΔU = 2·L·I·ρ/A, 3-phasig ΔU = √3·L·I·ρ/A. Richtwert: ≤ 3 % an Endgeräten. Laststrom = symmetrischer Strom inkl. Reserve.',
+            )}
+          </p>
+        </div>
+      </details>
+
       {totals.devices.length > 0 && (
         <details className="rounded border border-slate-800 bg-slate-950/40">
           <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
             {t('calc.topConsumers', 'Top-Verbraucher')}
           </summary>
-          <ul className="px-3 py-2 text-xs">
+          <ul className="px-3 py-2 text-cp-xs">
             {totals.devices.slice(0, 12).map((d) => (
               <li key={d.name} className="flex justify-between border-b border-slate-800 py-0.5">
                 <span className="truncate">{d.name}</span>

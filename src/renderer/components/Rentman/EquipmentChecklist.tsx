@@ -105,7 +105,7 @@ export const EquipmentChecklist = ({
           max={999}
           value={item.qty}
           onChange={(event) => onQtyChange(item.id, Number(event.target.value))}
-          className="w-14 rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-right text-xs"
+          className="w-14 rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-right text-cp-xs"
           aria-label={tBadge('rentman.checklist.qtyAria', 'Quantity')}
           title={tBadge('rentman.checklist.qtyTitle', 'How many to add')}
         />
@@ -121,7 +121,7 @@ export const EquipmentChecklist = ({
   return (
     <div className="max-h-72 space-y-3 overflow-auto rounded border border-slate-700 p-2 text-sm">
       {(onSetAll || hasAnySets) && (
-        <div className="flex flex-wrap gap-2 border-b border-slate-700 pb-2 text-xs">
+        <div className="flex flex-wrap gap-2 border-b border-slate-700 pb-2 text-cp-xs">
           {onSetAll && (
             <>
               <button
@@ -162,7 +162,7 @@ export const EquipmentChecklist = ({
       )}
       {Object.entries(grouped).map(([category, categoryItems]) => (
         <div key={category}>
-          <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-300">{category}</div>
+          <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wide text-slate-300">{category}</div>
           <div className="space-y-1">
             {categoryItems.map((item) => {
               const children = childrenByParent[item.id]

@@ -107,7 +107,7 @@ export const SortablePresetCard = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group rounded border border-slate-700 bg-slate-900 p-2 pl-5 text-xs ${
+      className={`group rounded border border-slate-700 bg-slate-900 p-2 pl-5 text-cp-xs ${
         onCardClick ? 'cursor-grab hover:bg-slate-800 active:cursor-grabbing' : ''
       }`}
       draggable={!!nativeDragData}
