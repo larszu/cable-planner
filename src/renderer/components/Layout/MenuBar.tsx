@@ -5,7 +5,7 @@ import {
   Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, SlidersHorizontal, Tag,
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
   Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles,
-  Maximize, ZoomIn, ZoomOut, Scan, BoxSelect,
+  Maximize, Maximize2, ZoomIn, ZoomOut, Scan, BoxSelect,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
@@ -404,6 +404,19 @@ export const MenuBar = ({
           </MenuItem>
           <MenuItem onClick={() => triggerCanvasZoomOut()} icon={<Icon icon={ZoomOut} size="sm" />}>
             {t('app.menu.view.zoomOut', 'Verkleinern')}
+          </MenuItem>
+          {/* #427 — Vollbild: Canvas ueber den ganzen Monitor (per OS-Maximize
+              auch ueber mehrere Monitore strecken). Fullscreen-API. */}
+          <MenuItem
+            onClick={() => {
+              try {
+                if (document.fullscreenElement) void document.exitFullscreen?.()
+                else void document.documentElement.requestFullscreen?.()
+              } catch { /* ignore */ }
+            }}
+            icon={<Icon icon={Maximize2} size="sm" />}
+          >
+            {t('app.menu.view.fullscreen', 'Vollbild')}
           </MenuItem>
           <MenuSep />
           <MenuItem
