@@ -319,9 +319,20 @@ const PHASE_COLORS = {
 const PHASE_KEYS = ['L1', 'L2', 'L3'] as const
 
 interface DeviceAssignment {
+  id?: string
   name: string
   watts: number
   phase: number // 1-indexed; 0 = no phase yet
+  /** true wenn der User die Phase fest zugeordnet hat (nicht auto-balanciert). */
+  pinned?: boolean
+}
+
+interface PhaseDevice {
+  id?: string
+  name: string
+  watts: number
+  /** Feste Phase (1..n) oder undefined = automatisch verteilen. */
+  pinnedPhase?: number
 }
 
 /** Greedy bin-packing across N phases. Devices sorted by W desc;
@@ -330,19 +341,29 @@ interface DeviceAssignment {
  *  balancing problem — good enough for stage power planning,
  *  where the user can hand-tweak the result anyway. */
 const balancePhases = (
-  devices: { name: string; watts: number }[],
+  devices: PhaseDevice[],
   phases: number,
 ): { perPhaseWatts: number[]; assignments: DeviceAssignment[] } => {
-  const sorted = [...devices].sort((a, b) => b.watts - a.watts)
   const perPhaseWatts = Array.from({ length: phases }, () => 0)
   const assignments: DeviceAssignment[] = []
-  for (const d of sorted) {
+  // 1) Fest zugeordnete Geräte zuerst auf ihre Phase legen.
+  const pinned = devices.filter(
+    (d) => d.pinnedPhase && d.pinnedPhase >= 1 && d.pinnedPhase <= phases,
+  )
+  for (const d of pinned) {
+    const idx = (d.pinnedPhase as number) - 1
+    perPhaseWatts[idx] += d.watts
+    assignments.push({ id: d.id, name: d.name, watts: d.watts, phase: idx + 1, pinned: true })
+  }
+  // 2) Rest greedy (Best-Fit-Decreasing) auf die jeweils schwächste Phase.
+  const rest = devices.filter((d) => !pinned.includes(d)).sort((a, b) => b.watts - a.watts)
+  for (const d of rest) {
     let lightest = 0
     for (let i = 1; i < phases; i++) {
       if (perPhaseWatts[i] < perPhaseWatts[lightest]) lightest = i
     }
     perPhaseWatts[lightest] += d.watts
-    assignments.push({ name: d.name, watts: d.watts, phase: lightest + 1 })
+    assignments.push({ id: d.id, name: d.name, watts: d.watts, phase: lightest + 1 })
   }
   return { perPhaseWatts, assignments }
 }
@@ -354,6 +375,7 @@ const PowerTab = () => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
   const projectName = useProjectStore((s) => s.project.metadata.name)
+  const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const [supplyId, setSupplyId] = useState<SupplyPresetId>('cee32')
   const [marginPercent, setMarginPercent] = useState(20)
   // #345 ff. — USV/Notstrom-Rechner. Reuse der Gesamtlast aus den Geräten.
@@ -373,13 +395,13 @@ const PowerTab = () => {
     let totalW = 0
     let countedDevices = 0
     let missingDevices = 0
-    const devices: { name: string; watts: number }[] = []
+    const devices: PhaseDevice[] = []
     for (const e of equipment) {
-      const w = e.powerConsumptionWatts ?? 0
+      const w = e.powerConsumptionWatts ?? (e.voltage && e.currentAmps ? e.voltage * e.currentAmps : 0)
       if (w > 0) {
         totalW += w
         countedDevices += 1
-        devices.push({ name: e.name, watts: w })
+        devices.push({ id: e.id, name: e.name, watts: w, pinnedPhase: e.powerPhase })
       } else {
         missingDevices += 1
       }
@@ -664,7 +686,10 @@ const PowerTab = () => {
             <summary className="cursor-pointer text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
               {t('calc.devicesToPhase', 'Geräte → Phase')} ({distribution.assignments.length})
             </summary>
-            <table className="mt-1 w-full text-cp-xs">
+            <div className="mb-1 mt-1 text-[10px] text-slate-400">
+              {t('calc.phasePinHint', 'Phase wählen = fest zuordnen; „Auto" = der Balancer verteilt automatisch.')}
+            </div>
+            <table className="w-full text-cp-xs">
               <thead className="text-slate-500">
                 <tr>
                   <th className="text-left">{t('calc.col.device', 'Gerät')}</th>
@@ -674,13 +699,37 @@ const PowerTab = () => {
               </thead>
               <tbody>
                 {distribution.assignments.map((a, i) => (
-                  <tr key={`${a.name}-${i}`} className="border-t border-slate-800">
-                    <td className="truncate py-0.5">{a.name}</td>
+                  <tr key={a.id ?? `${a.name}-${i}`} className="border-t border-slate-800">
+                    <td className="truncate py-0.5">
+                      {a.name}
+                      {a.pinned && (
+                        <span className="ml-1 text-[9px] text-slate-500" title={t('calc.phasePinned', 'Fest zugeordnet')}>📌</span>
+                      )}
+                    </td>
                     <td className="text-right font-mono text-slate-400">{a.watts}</td>
-                    <td
-                      className={`pr-2 text-right font-mono font-semibold ${PHASE_COLORS[PHASE_KEYS[a.phase - 1]].text}`}
-                    >
-                      L{a.phase}
+                    <td className="pr-2 text-right">
+                      {a.id ? (
+                        <select
+                          value={a.pinned ? a.phase : 0}
+                          onChange={(e) => {
+                            const v = Number(e.target.value)
+                            updateEquipment(a.id as string, {
+                              powerPhase: v === 0 ? undefined : (v as 1 | 2 | 3),
+                            })
+                          }}
+                          className={`rounded border border-slate-700 bg-slate-950 py-0.5 pl-1 font-mono ${PHASE_COLORS[PHASE_KEYS[a.phase - 1]].text}`}
+                          title={t('calc.col.phase', 'Phase')}
+                        >
+                          <option value={0}>{t('calc.phaseAuto', 'Auto')} (L{a.phase})</option>
+                          {PHASE_KEYS.slice(0, supply.phases).map((_, idx) => (
+                            <option key={idx} value={idx + 1}>L{idx + 1}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className={`font-mono font-semibold ${PHASE_COLORS[PHASE_KEYS[a.phase - 1]].text}`}>
+                          L{a.phase}
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}
