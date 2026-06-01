@@ -1376,23 +1376,32 @@ export const LibraryPanel = () => {
 
   // v7.9.2 — Floating-Modus entfernt. Library ist fest gedockt.
   if (floating) {
+    // #427 — Die Library ist das ERSTE Grid-Kind in App.tsx. Würde sie beim
+    // Floaten ganz aus dem Fluss verschwinden (FloatingPanelShell = fixed),
+    // rutschten alle nachfolgenden Grid-Kinder eine Spalte nach links und das
+    // Canvas landete in der 0px-Splitter-Spalte (Breite 0). Darum hier ein
+    // in-flow Platzhalter, der die (auf 0px gesetzte) Library-Spalte besetzt,
+    // während das eigentliche Panel als Overlay schwebt.
     return (
-      <FloatingPanelShell
-        title={
-          <span className="text-sm font-semibold text-slate-100">
-            {t('library.title', 'Library')}
-          </span>
-        }
-        position={floatingPos}
-        onMove={setFloatingPos}
-        onDock={() => {
-          setFloating(false)
-          window.setTimeout(triggerCanvasFitView, 60)
-        }}
-        width={libraryWidth}
-      >
-        {inner}
-      </FloatingPanelShell>
+      <>
+        <div aria-hidden className="min-h-0" />
+        <FloatingPanelShell
+          title={
+            <span className="text-sm font-semibold text-slate-100">
+              {t('library.title', 'Library')}
+            </span>
+          }
+          position={floatingPos}
+          onMove={setFloatingPos}
+          onDock={() => {
+            setFloating(false)
+            window.setTimeout(triggerCanvasFitView, 60)
+          }}
+          width={libraryWidth}
+        >
+          {inner}
+        </FloatingPanelShell>
+      </>
     )
   }
   return inner
