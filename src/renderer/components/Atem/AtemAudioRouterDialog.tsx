@@ -715,6 +715,30 @@ const ChannelPicker = ({
 const MatrixView = ({ config, setConfig }: ViewProps) => {
   const t = useTranslation()
   const matrix = config.matrix!
+  // #450 — Theme-aware Matrix-Chrome. Neutrale Töne kippen mit dem Theme;
+  // die gesättigten Emerald-Routing-Indikatoren bleiben in beiden gleich.
+  const isLight = useUiStore((s) => s.canvasTheme) === 'light'
+  const MX = isLight
+    ? {
+        chromeBg: '#eaeff5',
+        borderSubtle: '#cbd5e1',
+        borderStrong: '#94a3b8',
+        text: '#334155',
+        textMuted: '#64748b',
+        routedBg: '#dcfce7',
+        routedText: '#15803d',
+        otherCell: '#dbeafe',
+      }
+    : {
+        chromeBg: '#0f172a',
+        borderSubtle: '#1e293b',
+        borderStrong: '#475569',
+        text: '#cbd5e1',
+        textMuted: '#94a3b8',
+        routedBg: '#0c2c1f',
+        routedText: '#86efac',
+        otherCell: '#1e3a5f',
+      }
   const [filterSources, setFilterSources] = useState('')
   const [filterOutputs, setFilterOutputs] = useState('')
   // Issue #63: per-id exclude lists so the user can hide groups of
@@ -920,7 +944,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
               borderCollapse: 'separate',
               borderSpacing: 0,
               fontSize: 10,
-              color: '#cbd5e1',
+              color: MX.text,
             }}
           >
             <thead>
@@ -934,9 +958,9 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                     top: 0,
                     left: 0,
                     zIndex: 4,
-                    background: '#0f172a',
-                    borderRight: '1px solid #1e293b',
-                    borderBottom: '2px solid #475569',
+                    background: MX.chromeBg,
+                    borderRight: `1px solid ${MX.borderSubtle}`,
+                    borderBottom: `2px solid ${MX.borderStrong}`,
                   }}
                 />
                 {visibleOutputs.map((o) => (
@@ -950,9 +974,9 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                       position: 'sticky',
                       top: 0,
                       zIndex: 3,
-                      background: o.sourceId !== 0 ? '#0c2c1f' : '#0f172a',
-                      borderBottom: '2px solid #475569',
-                      borderRight: '1px solid #1e293b',
+                      background: o.sourceId !== 0 ? MX.routedBg : MX.chromeBg,
+                      borderBottom: `2px solid ${MX.borderStrong}`,
+                      borderRight: `1px solid ${MX.borderSubtle}`,
                       padding: 0,
                       verticalAlign: 'bottom',
                     }}
@@ -968,7 +992,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                         padding: '3px 1px',
                         fontFamily: 'monospace',
                         fontSize: 9,
-                        color: o.sourceId !== 0 ? '#86efac' : '#94a3b8',
+                        color: o.sourceId !== 0 ? MX.routedText : MX.textMuted,
                       }}
                     >
                       {o.name}
@@ -993,14 +1017,14 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                         position: 'sticky',
                         left: 0,
                         zIndex: 2,
-                        background: routedToCount > 0 ? '#0c2c1f' : '#0f172a',
-                        borderRight: '2px solid #475569',
-                        borderBottom: '1px solid #1e293b',
+                        background: routedToCount > 0 ? MX.routedBg : MX.chromeBg,
+                        borderRight: `2px solid ${MX.borderStrong}`,
+                        borderBottom: `1px solid ${MX.borderSubtle}`,
                         textAlign: 'right',
                         padding: '0 6px',
                         fontFamily: 'monospace',
                         fontSize: 11,
-                        color: routedToCount > 0 ? '#86efac' : '#cbd5e1',
+                        color: routedToCount > 0 ? MX.routedText : MX.text,
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -1044,12 +1068,12 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                             height: CELL,
                             padding: 0,
                             textAlign: 'center',
-                            border: '1px solid #1e293b',
+                            border: `1px solid ${MX.borderSubtle}`,
                             background: isRouted
                               ? '#10b981'
                               : outputHasOtherSource
-                                ? '#1e3a5f'
-                                : '#0f172a',
+                                ? MX.otherCell
+                                : MX.chromeBg,
                             cursor: 'pointer',
                             userSelect: 'none',
                           }}
@@ -1068,7 +1092,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                             // #456 — Marker "Output anderweitig belegt": vorher
                             // fontSize 9 + slate-600 (#475569) → winzig und
                             // zu kontrastarm. Auf slate-400 + 12px angehoben.
-                            <span style={{ color: '#94a3b8', fontSize: 12 }}>
+                            <span style={{ color: MX.textMuted, fontSize: 12 }}>
                               ·
                             </span>
                           ) : null}
