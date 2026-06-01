@@ -79,7 +79,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
 
-  const { byCategory, totals, missingWeight, hasPrices } = useMemo(() => {
+  const { byCategory, totals, missingWeight, hasPrices, heaviest } = useMemo(() => {
     const map = new Map<string, { count: number; kg: number; watts: number; eur: number }>()
     let missing = 0
     let anyPrice = false
@@ -109,7 +109,13 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
       }),
       { count: 0, kg: 0, watts: 0, eur: 0 },
     )
-    return { byCategory, totals, missingWeight: missing, hasPrices: anyPrice }
+    // Schwerste Geräte (für Rigging/Transport-Planung).
+    const heaviest = equipment
+      .filter((e) => typeof e.weightKg === 'number' && e.weightKg > 0)
+      .map((e) => ({ name: e.name, kg: e.weightKg as number }))
+      .sort((a, b) => b.kg - a.kg)
+      .slice(0, 8)
+    return { byCategory, totals, missingWeight: missing, hasPrices: anyPrice, heaviest }
   }, [equipment, t])
 
   const exportCsv = () => {
@@ -190,6 +196,21 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
             n: missingWeight,
           })}
         </p>
+      )}
+      {heaviest.length > 0 && (
+        <div className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2 text-cp-xs">
+          <div className="mb-1 font-semibold text-[var(--cp-text-muted)]">
+            {t('analysis.weight.heaviest', 'Schwerste Geräte (Rigging/Transport)')}
+          </div>
+          <ul className="space-y-0.5">
+            {heaviest.map((d, i) => (
+              <li key={`${d.name}-${i}`} className="flex justify-between">
+                <span className="truncate">{d.name}</span>
+                <span className="font-mono text-[var(--cp-text-muted)]">{d.kg.toFixed(1)} kg</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       <div className="flex justify-end">
         <CsvButton onClick={exportCsv} />

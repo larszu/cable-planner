@@ -3193,6 +3193,7 @@ const en: Dict = {
   'analysis.weight.btu': 'Heat (BTU/h)',
   'analysis.weight.eur': 'Value (€)',
   'analysis.weight.missing': '{n} device(s) without a weight value — add it in the properties.',
+  'analysis.weight.heaviest': 'Heaviest devices (rigging/transport)',
   'analysis.network.intro': 'IP/VLAN overview of all network-capable devices with duplicate-IP detection.',
   'analysis.network.device': 'Device',
   'analysis.network.mgmtVlan': 'Mgmt VLAN',
