@@ -316,6 +316,8 @@ const en: Dict = {
   'library.title': 'Library',
   'library.show': 'Show library',
   'library.hide': 'Hide library',
+  'library.float.title': 'Undock library (free-floating)',
+  'library.float.aria': 'Undock library',
   'library.tab.groupsTitle':
     'Saved device groups (multiple devices + cables as a template)',
   'library.section.localTitle':
