@@ -21,6 +21,9 @@ import { useTranslation } from '../../lib/i18n'
 import { projectHistory } from '../../store/projectHistory'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
+import { exportStagePlotSvg } from '../../lib/exportStagePlot'
+import { downloadBlob } from '../../lib/downloadBlob'
+import { buildExportFilename } from '../../lib/exportFilename'
 import { hasDesktopBridge } from '../../lib/bridge'
 
 interface MenuBarProps {
@@ -363,6 +366,19 @@ export const MenuBar = ({
           <MenuSep />
           <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon={<Icon icon={Cable} size="sm" />}>
             {t('app.menu.tools.patchList', 'Patch-Liste…')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              const p = useProjectStore.getState().project
+              downloadBlob(
+                buildExportFilename(p.metadata.name, 'stageplot.svg'),
+                exportStagePlotSvg(p),
+                'image/svg+xml',
+              )
+            }}
+            icon={<Icon icon={ImageIcon} size="sm" />}
+          >
+            {t('app.menu.tools.stagePlot', 'Stage-Plot (SVG)…')}
           </MenuItem>
           <MenuItem onClick={() => useUiStore.getState().openCsvImport()} icon={<Icon icon={ImportIcon} size="sm" />}>
             {t('app.menu.tools.csvImport', 'Equipment aus CSV importieren…')}
