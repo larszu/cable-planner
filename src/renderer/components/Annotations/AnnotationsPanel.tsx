@@ -10,7 +10,7 @@
 
 import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { MapPin, MessageSquare } from 'lucide-react'
+import { MapPin, MessageSquare, ExternalLink } from 'lucide-react'
 import { getViewportCenter } from '../../lib/canvasViewport'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
@@ -21,7 +21,7 @@ import { confirmDialog } from '../../lib/confirmDialog'
 import { readableTextColor } from '../../lib/contrast'
 import type { ProjectAnnotation } from '../../types/project'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
-import { openPanelPopout } from '../../lib/panelPopout'
+import { openPanelPopout, isPopout } from '../../lib/panelPopout'
 import { usePanelTearOff } from '../../lib/usePanelTearOff'
 
 // Source-of-Truth für Canvas-Drag-MIMEs ist lib/dragDropMimes.ts.
@@ -99,6 +99,9 @@ export const AnnotationsPanel = ({
   const setFloating = useUiStore((s) => s.setAnnotationsPanelFloating)
   const floatingPos = useUiStore((s) => s.annotationsPanelFloatingPos)
   const setFloatingPos = useUiStore((s) => s.setAnnotationsPanelFloatingPos)
+  // #427 — ausgelagert (Hauptfenster blendet aus) / sind wir das Popout-Fenster?
+  const poppedOut = useUiStore((s) => s.annotationsPoppedOut)
+  const inPopout = isPopout()
   // #427 — Header herausziehen = abdocken; folgt danach dem Cursor.
   const tearOff = usePanelTearOff({
     onUndock: (p) => {
@@ -141,6 +144,9 @@ export const AnnotationsPanel = ({
   }, [visible])
 
   if (!open) return null
+  // #427 — In separates OS-Fenster ausgelagert: im Hauptfenster nicht rendern
+  // (sonst doppelt offen). Schließen des OS-Fensters blendet es wieder ein.
+  if (poppedOut && !inPopout) return null
 
   // v7.9.5 — KEIN Anonym-Fallback mehr. Falls beides leer ist (kein
   // Viewer-Session + kein gespeicherter Name) zeigt das Eingabefeld
@@ -228,7 +234,7 @@ export const AnnotationsPanel = ({
             onClick={() => setCreating(true)}
             className="w-full rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600"
           >
-            + Neue Anmerkung
+            {t('annotations.new', '+ Neue Anmerkung')}
           </button>
         )}
       </div>
@@ -236,8 +242,10 @@ export const AnnotationsPanel = ({
       <div className="flex-1 overflow-y-auto p-3">
         {grouped.length === 0 ? (
           <p className="text-[11px] text-slate-400">
-            Noch keine Anmerkungen. Klicke "+ Neue Anmerkung" oder mache einen
-            Rechtsklick auf ein Gerät / Kabel.
+            {t(
+              'annotations.empty',
+              'Noch keine Anmerkungen. Klicke „+ Neue Anmerkung" oder mache einen Rechtsklick auf ein Gerät / Kabel.',
+            )}
           </p>
         ) : (
           grouped.map(([authorName, items]) => (
@@ -420,8 +428,16 @@ export const AnnotationsPanel = ({
 
   // #446 — auf schmalen Fenstern als volle Sheet (w-full), ab sm wieder
   // 384px-Drawer; max-w-[95vw] lässt immer einen Tap-Out-Streifen.
+  // #427 — Im ausgelagerten OS-Fenster füllt das Panel das ganze Fenster
+  // (formatfüllend) statt als schmaler rechter Drawer zu erscheinen.
   return (
-    <div className="fixed right-0 top-0 z-40 flex h-screen w-full max-w-[95vw] flex-col border-l border-slate-700 bg-slate-900 text-slate-100 shadow-2xl sm:w-96">
+    <div
+      className={
+        inPopout
+          ? 'relative flex h-full w-full min-h-0 flex-col bg-slate-900 text-slate-100'
+          : 'fixed right-0 top-0 z-40 flex h-screen w-full max-w-[95vw] flex-col border-l border-slate-700 bg-slate-900 text-slate-100 shadow-2xl sm:w-96'
+      }
+    >
       <header className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
         <div className="flex min-w-0 flex-col">
           <h3 className="truncate text-sm font-semibold">
@@ -436,22 +452,36 @@ export const AnnotationsPanel = ({
         <div className="flex shrink-0 items-center gap-1">
           {/* #426 — Abdocken: macht das Panel zu einem freien Fenster, das
               ueberall hinzogen werden kann. Position wird in uiStore
-              persistiert (auch ueber App-Restarts). */}
-          <button
-            type="button"
-            data-tearoff="handle"
-            onPointerDown={tearOff.onPointerDown}
-            onClick={() => {
-              if (tearOff.draggedRef.current) return
-              setFloating(true)
-            }}
-            title={t('annotations.float.title', 'Abdocken (klicken oder herausziehen)')}
-            aria-label={t('annotations.float.aria', 'Anmerkungen abdocken')}
-            className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
-            style={{ touchAction: 'none' }}
-          >
-            <span className="pointer-events-none">⤢</span>
-          </button>
+              persistiert (auch ueber App-Restarts). Im Popout-Fenster
+              entfällt das (#427) — dort gibt es nur Schließen. */}
+          {!inPopout && (
+            <button
+              type="button"
+              data-tearoff="handle"
+              onPointerDown={tearOff.onPointerDown}
+              onClick={() => {
+                if (tearOff.draggedRef.current) return
+                setFloating(true)
+              }}
+              title={t('annotations.float.title', 'Abdocken (klicken oder herausziehen)')}
+              aria-label={t('annotations.float.aria', 'Anmerkungen abdocken')}
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+              style={{ touchAction: 'none' }}
+            >
+              <span className="pointer-events-none">⤢</span>
+            </button>
+          )}
+          {!inPopout && (
+            <button
+              type="button"
+              onClick={() => openPanelPopout('annotations')}
+              title={t('panel.popoutTitle', 'In separates Fenster auslagern (weiterer Monitor)')}
+              aria-label={t('panel.popout', 'Auslagern')}
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+            >
+              <Icon icon={ExternalLink} size="xs" />
+            </button>
+          )}
           <button
             type="button"
             onClick={onClose}

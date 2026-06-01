@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Settings, Ruler, Globe, Sparkles } from 'lucide-react'
+import { Settings, Ruler, Globe, Sparkles, ExternalLink } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '../shared/Icon'
 import { Spinner } from '../shared/Spinner'
@@ -29,7 +29,7 @@ import { RackBuilderDialog } from '../Rack/RackBuilderDialog'
 import { TemplateMergeDialog } from './TemplateMergeDialog'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
 import { triggerCanvasFitView } from '../../lib/canvasViewport'
-import { openPanelPopout } from '../../lib/panelPopout'
+import { openPanelPopout, isPopout } from '../../lib/panelPopout'
 import { usePanelTearOff } from '../../lib/usePanelTearOff'
 import { TabButton } from './TabButton'
 import { GroupsTab } from './tabs/GroupsTab'
@@ -88,6 +88,10 @@ export const LibraryPanel = () => {
   // v7.9.4 — Rentman-Tabs ausblenden wenn die Integration deaktiviert ist.
   const rentmanEnabled = useUiStore((state) => state.rentmanEnabled)
   const toggleCollapsed = useUiStore((state) => state.toggleLibraryCollapsed)
+  // #427 — In separates OS-Fenster ausgelagert (Hauptfenster blendet aus);
+  //  inPopout = wir SIND dieses Fenster (dann keine Ab-/Andock-Controls).
+  const poppedOut = useUiStore((state) => state.libraryPoppedOut)
+  const inPopout = isPopout()
   // #427 — Library wie die anderen Panels frei abdockbar (FloatingPanelShell).
   const floating = useUiStore((state) => state.libraryFloating)
   const setFloating = useUiStore((state) => state.setLibraryFloating)
@@ -331,7 +335,10 @@ export const LibraryPanel = () => {
   // Equipment sub-section: separates local templates from Rentman-imported ones
   // inside one shared tab, so the user always lives in "Equipment" and just
   // toggles the source.
-  const [equipmentSection, setEquipmentSection] = useState<'local' | 'rentman'>('rentman')
+  // #427/UX — Standardmäßig die lokale Bibliothek (Katalog mit Inhalt) zeigen,
+  // nicht die meist leere Rentman-Import-Ansicht. Sonst landet ein neuer Nutzer
+  // auf „Keine Rentman-Geräte importiert" statt auf den 150+ Vorlagen.
+  const [equipmentSection, setEquipmentSection] = useState<'local' | 'rentman'>('local')
   // Local-device-create dialog: same Gemini-AI / Web-search auto-fill the
   // Rentman wizard already offers (user request, parallels NewRentmanDeviceWizard).
   const [aiLoading, setAiLoading] = useState(false)
@@ -688,6 +695,13 @@ export const LibraryPanel = () => {
     }
   }
 
+  // #427 — In separates OS-Fenster ausgelagert: im Hauptfenster NICHT rendern
+  // (sonst doppelt offen). In-flow Platzhalter besetzt die (0px) Grid-Spalte,
+  // damit die nachfolgenden Grid-Kinder nicht verrutschen.
+  if (poppedOut && !inPopout) {
+    return <div aria-hidden className="min-h-0" />
+  }
+
   if (collapsed && !floating) {
     return (
       <aside className="flex h-full w-8 flex-col items-center border-r border-slate-700 bg-slate-950 transition-colors hover:bg-slate-900">
@@ -720,7 +734,7 @@ export const LibraryPanel = () => {
           Equipment-Tab ist raus, weil die Lokal/Rentman-Untertoggle
           die gleiche Info zeigt. Tab-Zeile in EINE Zeile gepackt. */}
       <div className="mb-2 flex items-center gap-1 text-cp-xs">
-        {!floating && (
+        {!floating && !inPopout && (
           <button
             type="button"
             onClick={toggleCollapsed}
@@ -731,7 +745,7 @@ export const LibraryPanel = () => {
             <span className="text-base leading-none">‹</span>
           </button>
         )}
-        {!floating && (
+        {!floating && !inPopout && (
           <button
             type="button"
             data-tearoff="handle"
@@ -749,6 +763,17 @@ export const LibraryPanel = () => {
             style={{ touchAction: 'none' }}
           >
             <span className="pointer-events-none text-[11px] leading-none">⤢</span>
+          </button>
+        )}
+        {!floating && !inPopout && (
+          <button
+            type="button"
+            onClick={() => openPanelPopout('library')}
+            title={t('panel.popoutTitle', 'In separates Fenster auslagern (weiterer Monitor)')}
+            aria-label={t('panel.popout', 'Auslagern')}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          >
+            <Icon icon={ExternalLink} size="xs" />
           </button>
         )}
         <TabButton
@@ -823,7 +848,7 @@ export const LibraryPanel = () => {
               title={t('library.section.localTitle', 'Eigene und importierte Vorlagen, lokal in dieser Installation')}
             >
               <span className="mr-1 rounded bg-sky-900/80 px-1 text-[9px] font-bold text-sky-100">L</span>
-              Lokal
+              {t('library.section.local', 'Lokal')}
               <span className="ml-1 text-[10px] text-slate-400">
                 ({customLibrary.filter((t) => !t.rentmanSource).length})
               </span>

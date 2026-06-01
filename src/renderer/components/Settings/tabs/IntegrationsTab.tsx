@@ -99,7 +99,7 @@ const AiProvidersCard = () => {
                 )}
                 {isSelected && (
                   <span className="ml-auto rounded bg-sky-900/40 px-1.5 py-0.5 text-[10px] text-sky-300">
-                    AKTIV
+                    {t('settings.integrations.ai.active', 'Aktiv')}
                   </span>
                 )}
               </label>
@@ -122,8 +122,8 @@ const AiProvidersCard = () => {
                   type="button"
                   onClick={() => setRevealed((r) => ({ ...r, [id]: !r[id] }))}
                   className="rounded bg-slate-800 px-2 py-1 text-slate-400 hover:bg-slate-700"
-                  title={revealed[id] ? 'Verbergen' : 'Anzeigen'}
-                  aria-label={revealed[id] ? 'Verbergen' : 'Anzeigen'}
+                  title={revealed[id] ? t('common.hide', 'Verbergen') : t('common.show', 'Anzeigen')}
+                  aria-label={revealed[id] ? t('common.hide', 'Verbergen') : t('common.show', 'Anzeigen')}
                 >
                   <Icon icon={revealed[id] ? Eye : EyeOff} size="sm" />
                 </button>
@@ -132,7 +132,7 @@ const AiProvidersCard = () => {
                   onClick={() => handleSave(id)}
                   className="rounded bg-sky-600 px-3 py-1 text-cp-xs hover:bg-sky-500"
                 >
-                  Speichern
+                  {t('common.save', 'Speichern')}
                 </button>
                 {hasKey && (
                   <button
@@ -155,11 +155,13 @@ const AiProvidersCard = () => {
                   rel="noopener noreferrer"
                   className="underline hover:text-slate-300"
                 >
-                  Key erstellen ↗
+                  {t('settings.integrations.ai.createKey', 'Key erstellen')} ↗
                 </a>
               </div>
               {saved[id] && (
-                <div className="mt-1 text-[10px] text-emerald-300">✓ gespeichert</div>
+                <div className="mt-1 text-[10px] text-emerald-300">
+                  ✓ {t('settings.integrations.ai.saved', 'gespeichert')}
+                </div>
               )}
             </div>
           )
@@ -370,9 +372,9 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             className="h-4 w-4 accent-sky-500"
           />
           <span>
-            Rentman-Integration aktivieren{' '}
+            {t('settings.integrations.rentmanToggle.label', 'Rentman-Integration aktivieren')}{' '}
             <span className="text-[10px] text-slate-400">
-              ({rentmanEnabled ? 'ein' : 'aus'})
+              ({rentmanEnabled ? t('common.on', 'ein') : t('common.off', 'aus')})
             </span>
           </span>
         </label>
