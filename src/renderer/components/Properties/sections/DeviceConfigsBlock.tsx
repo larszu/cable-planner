@@ -36,7 +36,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
       </summary>
       <div className="px-2 pb-2">
       {assigned.length === 0 ? (
-        <div className="text-[11px] text-slate-500">
+        <div className="text-[11px] text-slate-400">
           {t('props.deviceConfigs.none', 'Keine Konfiguration zugeordnet.')}
         </div>
       ) : (
@@ -46,7 +46,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
               <span className="flex-1 truncate" title={`${e.fileName} (${e.kind})`}>
                 {e.name}
               </span>
-              <span className="shrink-0 text-[10px] text-slate-500">{e.kind}</span>
+              <span className="shrink-0 text-[10px] text-slate-400">{e.kind}</span>
               <button
                 type="button"
                 onClick={() => updateDeviceConfig(e.id, { equipmentId: undefined })}
@@ -77,7 +77,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
           ))}
         </select>
       )}
-      <div className="mt-1 text-[10px] text-slate-500">
+      <div className="mt-1 text-[10px] text-slate-400">
         {t(
           'props.deviceConfigs.hint',
           'Neue Konfigurationen über Einstellungen → Konfigurationen hochladen.',

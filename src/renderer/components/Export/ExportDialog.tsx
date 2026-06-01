@@ -355,7 +355,7 @@ const PlanSection = ({
                 <option value="a0plus">A0+ Plotter (1682×1189 mm)</option>
                 <option value="original">{t('export.page.original', 'Original — volle Canvas-Groesse fuer Plotter')}</option>
               </select>
-              <p className="text-[10px] text-slate-500">
+              <p className="text-[10px] text-slate-400">
                 {pdfPageSize === 'original'
                   ? t('export.page.originalHint', 'Achtung: Edge / Preview zeigen Pages über A0 manchmal weiss an. Acrobat + Plotter-Software drucken trotzdem.')
                   : t('export.page.scaleHint', 'Canvas wird vektoriell auf die Page-Groesse skaliert. Text bleibt scharf.')}
@@ -373,7 +373,7 @@ const PlanSection = ({
             <div className="-mx-1 flex flex-wrap gap-1">
               <LayerVisibilityChips />
             </div>
-            <p className="text-[10px] text-slate-500">
+            <p className="text-[10px] text-slate-400">
               {t('export.layersHint', 'Klick auf einen Chip schaltet die Ebene für Canvas UND PDF um.')}
             </p>
           </fieldset>
@@ -510,7 +510,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
         <span className="text-emerald-300">→</span>
       </button>
 
-      <div className="mb-1 text-[11px] text-slate-500">
+      <div className="mb-1 text-[11px] text-slate-400">
         {t('export.patch.perDeviceHint', '— oder pro-Gerät Patch-Sheet erzeugen:')}
       </div>
 
@@ -558,12 +558,12 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
                   }}
                 />
                 <span className="flex-1 truncate">{d.name}</span>
-                <span className="text-[10px] text-slate-500">{d.category}</span>
+                <span className="text-[10px] text-slate-400">{d.category}</span>
               </label>
             )
           })}
           {filtered.length === 0 && (
-            <div className="px-2 py-3 text-center text-[11px] text-slate-500">
+            <div className="px-2 py-3 text-center text-[11px] text-slate-400">
               {t('export.patch.noDevices', 'Keine Geräte im Projekt.')}
             </div>
           )}
@@ -944,7 +944,7 @@ const BomSection = () => {
                 <td className="px-3 py-1">
                   <span className="font-medium text-slate-100">{r.type}</span>
                   {r.sample && (
-                    <span className="ml-1 text-[10px] text-slate-500">({r.sample.name})</span>
+                    <span className="ml-1 text-[10px] text-slate-400">({r.sample.name})</span>
                   )}
                 </td>
                 <td className="px-3 py-1 text-right font-mono">{r.length}</td>

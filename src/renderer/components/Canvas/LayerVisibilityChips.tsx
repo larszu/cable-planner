@@ -69,7 +69,7 @@ export const LayerVisibilityChips = () => {
   return (
     <div className="relative flex items-center gap-1">
       <span
-        className={`select-none text-[9px] uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-500'}`}
+        className={`select-none text-[9px] uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-slate-400'}`}
         title={t(
           'canvas.layerChips.layerStripTitle',
           'Layer-Sichtbarkeit (nur Kabel werden gefiltert, Geräte bleiben)',

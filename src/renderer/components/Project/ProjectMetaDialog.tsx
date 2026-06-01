@@ -250,7 +250,7 @@ export const ProjectMetaDialog = ({
             </div>
           </div>
 
-          <p className="text-[10px] italic text-slate-500">
+          <p className="text-[10px] italic text-slate-400">
             {t(
               'project.meta.footnote',
               'Diese Daten erscheinen im Planköpfchen unten rechts beim PDF-Export. Jeder Speichervorgang aktualisiert das „zuletzt geändert"-Datum automatisch.',

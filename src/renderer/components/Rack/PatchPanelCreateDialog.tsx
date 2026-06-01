@@ -245,7 +245,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
               />
               <span className="flex-1">
                 <span className="font-medium text-slate-200">{t('rack.patchPanel.adapter', 'Adapter-Patchblende')}</span>
-                <span className="ml-1 text-[10px] text-slate-500">
+                <span className="ml-1 text-[10px] text-slate-400">
                   {t('rack.patchPanel.adapterHint', '(Front ≠ Rear Stecker, mit internem Adapterkabel)')}
                 </span>
               </span>
@@ -278,7 +278,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                 </label>
               )}
             </div>
-            <span className="block text-[10px] text-slate-500">
+            <span className="block text-[10px] text-slate-400">
               {format(t('rack.patchPanel.appliesToAllPorts', 'Wirkt auf alle {count} Ports. Einzeln im Tab "Per-Port-Detail" anpassbar.'), { count: portCount })}
               {adapterMode
                 ? ` ${t('rack.patchPanel.adapterCouplingNote', 'Jeder Front-Port koppelt intern via Adapterkabel auf den gleichnamigen Rear-Port.')}`
@@ -289,7 +289,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
 
         {tab === 'ports' && (
           <div className="space-y-2">
-            <div className="text-[10px] text-slate-500">
+            <div className="text-[10px] text-slate-400">
               {t('rack.patchPanel.perPortNote', 'Pro Port Label und Connector-Typ überschreibbar. Leerlassen = Default.')}
               {adapterMode && ` ${t('rack.patchPanel.perPortAdapterNote', 'Bei Adapter-Patchblende sind Front- und Rear-Connector unabhängig wählbar.')}`}
             </div>

@@ -279,14 +279,14 @@ export const BulkConnectDialog = () => {
 
         {/* Preview */}
         <div className="rounded border border-slate-700 bg-slate-950/40 p-2">
-          <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
+          <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
             {format(t('bulk.preview', 'Vorschau ({n}/{plan} Kabel)'), {
               n: planned.length,
               plan: count,
             })}
           </div>
           {planned.length === 0 ? (
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px] text-slate-400">
               {t('bulk.previewEmpty', 'Wähle Quelle/Ziel und Port-Bereich.')}
             </p>
           ) : (

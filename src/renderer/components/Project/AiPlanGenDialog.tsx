@@ -85,7 +85,7 @@ export const AiPlanGenDialog = () => {
           />
         </label>
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] text-slate-500">
+          <span className="text-[10px] text-slate-400">
             {t('aiPlan.reviewHint', 'Vorschau wird angezeigt — nichts wird ohne Bestätigung eingefügt.')}
           </span>
           <button

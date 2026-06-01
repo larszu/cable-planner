@@ -495,7 +495,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
           {t('ports.add', '+ Hinzufügen')}
         </button>
       </div>
-      {ports.length === 0 && <div className="text-[11px] text-slate-500">{t('ports.none', 'Keine')}</div>}
+      {ports.length === 0 && <div className="text-[11px] text-slate-400">{t('ports.none', 'Keine')}</div>}
       {duplicatePortNumbers.length > 0 && (
         <div className="mb-2 rounded border border-amber-700 bg-amber-950/40 px-2 py-1 text-[11px] text-amber-200">
           {format(t('ports.duplicateNumbers', 'Doppelte Port-Nummern: {nums} — für Beschriftung/Patchliste mehrdeutig.'), {
@@ -834,7 +834,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     </select>
                   </label>
                 </div>
-                <div className="mt-1 text-[9px] text-slate-500">
+                <div className="mt-1 text-[9px] text-slate-400">
                   {t(
                     'ports.sdi.overrideHint',
                     'Überschreibt die Geräte-SDI-Fähigkeiten für diesen Port. Leer = Default vom Gerät.',

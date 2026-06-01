@@ -72,7 +72,7 @@ export const RackBuilderFooter = ({
       </div>
 
       <div
-        className="flex items-center gap-1.5 text-[10px] text-slate-500"
+        className="flex items-center gap-1.5 text-[10px] text-slate-400"
         title={
           dirty
             ? t('rack.autosaveActive', 'Autosave läuft alle paar Sekunden')

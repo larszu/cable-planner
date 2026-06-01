@@ -131,7 +131,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 <img src={equipment.imageUrl} alt="" className="max-h-24 max-w-[120px] object-contain" />
               </a>
             ) : (
-              <div className="flex h-24 w-[120px] items-center justify-center rounded border border-dashed border-slate-700 text-[10px] text-slate-500">
+              <div className="flex h-24 w-[120px] items-center justify-center rounded border border-dashed border-slate-700 text-[10px] text-slate-400">
                 {t('eq.field.refImageNone', 'Kein Bild')}
               </div>
             )}

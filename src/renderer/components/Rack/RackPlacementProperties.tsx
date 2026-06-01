@@ -160,7 +160,7 @@ export const RackPlacementProperties = ({
                 heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-slate-700'
               }`}
             />
-            <span className="mt-0.5 block text-[10px] text-slate-500">
+            <span className="mt-0.5 block text-[10px] text-slate-400">
               {format(
                 t('rack.props.maxHint', 'max {max} (Höhe {he} HE)'),
                 { max: startMax, he: selectedPlacement.rackUnits },
@@ -264,7 +264,7 @@ export const RackPlacementProperties = ({
               <StlPreview stlDataUri={selectedPlacement.stlDataUri} size={120} />
             </div>
           )}
-          <span className="mt-1 block text-[10px] text-slate-500">
+          <span className="mt-1 block text-[10px] text-slate-400">
             {selectedPlacement.stlDataUri
               ? t('rack.stl.loaded', '✓ STL geladen — wird im 3D-Tab gerendert und permanent am Gerät gespeichert (Library + Projekt).')
               : t('rack.stl.noStl', 'Ohne STL wird das Gerät als Box mit Front-/Rear-Foto dargestellt.')}
@@ -301,7 +301,7 @@ export const RackPlacementProperties = ({
                     }
                     className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
                   />
-                  <span className="text-[9px] text-slate-500">max {Math.round(maxX)} mm</span>
+                  <span className="text-[9px] text-slate-400">max {Math.round(maxX)} mm</span>
                 </label>
                 <label className="block text-[10px]">
                   <span className="mb-0.5 block text-emerald-300/80">Tiefe (mm von vorne)</span>
@@ -318,10 +318,10 @@ export const RackPlacementProperties = ({
                     }
                     className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
                   />
-                  <span className="text-[9px] text-slate-500">max {Math.round(maxZ)} mm</span>
+                  <span className="text-[9px] text-slate-400">max {Math.round(maxZ)} mm</span>
                 </label>
               </div>
-              <div className="mt-1 text-[10px] text-slate-500">
+              <div className="mt-1 text-[10px] text-slate-400">
                 Tipp: Im 2D-Tab kannst du das Gerät auch horizontal per Maus verschieben. Tiefen-Position nur hier oder im 3D-Tab editierbar.
               </div>
             </details>

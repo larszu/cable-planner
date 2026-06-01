@@ -477,7 +477,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
                   {current ? (
                     <img src={current} alt={label} className="max-h-16 max-w-full object-contain" />
                   ) : (
-                    <span className="text-[10px] text-slate-500">{label}</span>
+                    <span className="text-[10px] text-slate-400">{label}</span>
                   )}
                 </div>
                 <div className="flex w-full gap-1">

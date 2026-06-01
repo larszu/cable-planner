@@ -480,7 +480,7 @@ const SourcePicker = ({
       <div className="p-1 text-xs">
         {grouped.map(([group, items]) => (
           <div key={group} className="mb-1">
-            <div className="px-1 py-0.5 text-[10px] uppercase tracking-wider text-slate-500">
+            <div className="px-1 py-0.5 text-[10px] uppercase tracking-wider text-slate-400">
               {group}
             </div>
             {items.map((item) => (
@@ -493,7 +493,7 @@ const SourcePicker = ({
                 }`}
               >
                 <span className="truncate">{item.label}</span>
-                <span className="ml-2 text-[10px] text-slate-500">{item.id}</span>
+                <span className="ml-2 text-[10px] text-slate-400">{item.id}</span>
               </button>
             ))}
           </div>
@@ -1138,7 +1138,7 @@ export const AtemMvConfigDialog = () => {
               −
             </button>
           </div>
-          <span className="ml-auto text-[10px] text-slate-500">
+          <span className="ml-auto text-[10px] text-slate-400">
             {config.multiViewers.length} MV — Klick auf ein Fenster ändert die Quelle.
           </span>
         </div>
@@ -1161,7 +1161,7 @@ export const AtemMvConfigDialog = () => {
                 onToggleQuadrant={toggleQuadrant}
                 canvasPortNames={canvasPortNames}
               />
-              <span className="text-[10px] text-slate-500">
+              <span className="text-[10px] text-slate-400">
                 {t('atem.mv.quadrantHint1', 'Klick auf einen Quadranten:')}<br />
                 {t('atem.mv.quadrantHint2', 'groß ↔ 4 kleine')}
               </span>

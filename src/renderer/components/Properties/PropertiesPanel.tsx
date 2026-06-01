@@ -62,7 +62,7 @@ export const PropertiesPanel = () => {
               </div>
             </div>
             <div className="rounded border border-slate-800 bg-slate-900/40 p-3">
-              <div className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+              <div className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                 {t('inspector.hints.title', 'Schnelle Orientierung')}
               </div>
               <div className="space-y-1">
@@ -104,7 +104,7 @@ export const PropertiesPanel = () => {
         title={
           <span className="flex flex-col">
             <span className="text-sm font-semibold text-slate-100">{title}</span>
-            <span className="text-[10px] uppercase tracking-wide text-slate-500">
+            <span className="text-[10px] uppercase tracking-wide text-slate-400">
               {t('inspector.subtitle', 'Eigenschaften')}
             </span>
           </span>
@@ -138,7 +138,7 @@ export const PropertiesPanel = () => {
           type="button"
           onClick={toggle}
           aria-label={t('inspector.collapse.show', 'Eigenschaften einblenden')}
-          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:text-slate-300 focus-visible:outline-none focus-visible:text-sky-300"
+          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400 transition-colors hover:text-slate-300 focus-visible:outline-none focus-visible:text-sky-300"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
           {t('inspector.subtitle', 'Eigenschaften')}
@@ -152,7 +152,7 @@ export const PropertiesPanel = () => {
       <div className="flex items-start justify-between gap-2 border-b border-slate-800 px-3 py-2.5">
         <div className="min-w-0">
           <h2 className="truncate text-sm font-semibold">{title}</h2>
-          <div className="mt-0.5 text-[10px] uppercase tracking-wide text-slate-500">
+          <div className="mt-0.5 text-[10px] uppercase tracking-wide text-slate-400">
             {t('inspector.subtitle', 'Eigenschaften')}
           </div>
         </div>

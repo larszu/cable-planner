@@ -312,7 +312,7 @@ export const RentmanTab = () => {
         <div>
           <div className="mb-2 flex flex-wrap items-center justify-between gap-1">
             <h2 className="text-sm font-semibold">{t('library.rentman.imported', 'Importierte Rentman-Geräte')}</h2>
-            <div className="flex items-center gap-2 text-[10px] text-slate-500">
+            <div className="flex items-center gap-2 text-[10px] text-slate-400">
               {(() => {
                 const projectIds = new Set(projectGroups.map((group) => group.id))
                 const categoryKeys = new Set<string>()
@@ -447,12 +447,12 @@ export const RentmanTab = () => {
                           )}
                           <span className="truncate text-xs font-semibold">{group.name}</span>
                         </span>
-                        <span className="text-[10px] text-slate-500">{group.items.length} Geräte</span>
+                        <span className="text-[10px] text-slate-400">{group.items.length} Geräte</span>
                       </button>
                       {!projectCollapsed && (
                         <div className="space-y-1 border-t border-slate-800 px-1 py-1">
                           {categories.length === 0 ? (
-                            <div className="px-2 py-1 text-[11px] italic text-slate-500">{t('library.rentman.noneInCategory', 'Keine Geräte importiert.')}</div>
+                            <div className="px-2 py-1 text-[11px] italic text-slate-400">{t('library.rentman.noneInCategory', 'Keine Geräte importiert.')}</div>
                           ) : (
                             categories.map((category) => {
                               const categoryKey = `${group.id}::${category}`
@@ -569,7 +569,7 @@ export const RentmanTab = () => {
                 <div className="mb-2 rounded border border-red-700/60 bg-red-900/30 px-2 py-1 text-[11px] text-red-200">{rentmanCatalogError}</div>
               )}
               {!rentmanCatalogLoaded && !rentmanCatalogLoading && !rentmanCatalogError && (
-                <div className="rounded border border-slate-700/60 bg-slate-900/40 p-2 text-center text-[11px] text-slate-500">
+                <div className="rounded border border-slate-700/60 bg-slate-900/40 p-2 text-center text-[11px] text-slate-400">
                   Noch nicht geladen. Klick „Katalog laden", um den gesamten Rentman-Katalog deines Accounts anzuzeigen.
                 </div>
               )}
@@ -624,7 +624,7 @@ export const RentmanTab = () => {
                         >
                           <div className="min-w-0 flex-1">
                             <div className="truncate font-medium text-slate-200">{item.name}</div>
-                            <div className="truncate text-[10px] text-slate-500">{format(t('library.rentman.idLine', 'Rentman-ID {id}'), { id: item.id })}</div>
+                            <div className="truncate text-[10px] text-slate-400">{format(t('library.rentman.idLine', 'Rentman-ID {id}'), { id: item.id })}</div>
                           </div>
                           {linkedRentmanProjectId && (
                             <button
@@ -756,7 +756,7 @@ export const RentmanTab = () => {
         <div>
           <div className="mb-2 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-amber-300">{t('library.rentman.reconcile', 'Abgleich Canvas ↔ Rentman')}</h2>
-            <span className="text-[10px] text-slate-500">{untracked.length} nicht erfasst</span>
+            <span className="text-[10px] text-slate-400">{untracked.length} nicht erfasst</span>
           </div>
           {/* v7.9.128 — Auch im Sync-View ein prominenter Fetch-Knopf. */}
           {linkedRentmanProjectId && (
@@ -776,7 +776,7 @@ export const RentmanTab = () => {
                 <div key={equipment.id} className="flex items-center justify-between rounded border border-red-700/50 bg-red-900/20 px-2 py-1 text-xs">
                   <div>
                     <span className="font-medium text-slate-100">{equipment.name}</span>
-                    <span className="ml-1 text-[10px] text-slate-500">{equipment.category}</span>
+                    <span className="ml-1 text-[10px] text-slate-400">{equipment.category}</span>
                   </div>
                   <span className="text-[10px] text-red-400">entfernt</span>
                 </div>
@@ -793,7 +793,7 @@ export const RentmanTab = () => {
                 <div key={equipment.id} className="flex items-center justify-between rounded border border-amber-700/30 bg-amber-900/10 px-2 py-1 text-xs">
                   <div>
                     <span className="font-medium text-slate-100">{equipment.name}</span>
-                    <span className="ml-1 text-[10px] text-slate-500">{equipment.category}</span>
+                    <span className="ml-1 text-[10px] text-slate-400">{equipment.category}</span>
                   </div>
                   <span className="text-[10px] text-amber-500">kein Rentman-ID</span>
                 </div>

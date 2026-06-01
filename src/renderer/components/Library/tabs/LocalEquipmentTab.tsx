@@ -144,7 +144,7 @@ export const LocalEquipmentTab = ({
               <Icon icon={X} size="sm" />
             </button>
           ) : (
-            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[9px] uppercase tracking-wider text-slate-600">
+            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[9px] uppercase tracking-wider text-slate-400">
               Strg+F
             </span>
           )}
@@ -261,7 +261,7 @@ export const LocalEquipmentTab = ({
                   <div className="mb-2 font-semibold text-slate-300">
                     {t('library.empty.title', 'Keine Geräte gefunden')}
                   </div>
-                  <div className="mb-3 text-[11px] text-slate-500">
+                  <div className="mb-3 text-[11px] text-slate-400">
                     {format(
                       t(
                         'library.empty.body',
@@ -373,7 +373,7 @@ export const LocalEquipmentTab = ({
                 {!collapsed && (
                   <div className="space-y-1 px-1 pb-1">
                     {visibleItems.length === 0 ? (
-                      <div className="px-1 py-1 text-[11px] italic text-slate-600">
+                      <div className="px-1 py-1 text-[11px] italic text-slate-400">
                         {searchQuery
                           ? format(t('library.empty.search', 'Keine Treffer für "{query}"'), { query: librarySearch })
                           : t('library.empty.dragHere', 'Gerät hierher ziehen zum Verschieben')}

@@ -80,7 +80,7 @@ export const TitleBlock = () => {
                 className="max-h-10 max-w-full object-contain"
               />
             ) : (
-              <span className="text-[9px] text-slate-600">
+              <span className="text-[9px] text-slate-400">
                 {t('canvas.titleBlock.noLogo', 'kein Logo')}
               </span>
             )}
@@ -93,7 +93,7 @@ export const TitleBlock = () => {
                 className="max-h-10 max-w-full object-contain"
               />
             ) : (
-              <span className="text-[9px] text-slate-600">
+              <span className="text-[9px] text-slate-400">
                 {t('canvas.titleBlock.noLogo', 'kein Logo')}
               </span>
             )}
@@ -105,7 +105,7 @@ export const TitleBlock = () => {
           <tbody>
             {rows.map(({ label, value }) => (
               <tr key={label} className="border-b border-slate-800/60 last:border-b-0">
-                <td className="py-0.5 pr-2 align-top text-[10px] font-medium uppercase tracking-wide text-slate-500">
+                <td className="py-0.5 pr-2 align-top text-[10px] font-medium uppercase tracking-wide text-slate-400">
                   {label}
                 </td>
                 <td className="py-0.5 text-right align-top text-slate-200">

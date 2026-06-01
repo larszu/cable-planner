@@ -179,7 +179,7 @@ export const AdvancedTab = () => {
                     <td className="px-2 py-1 text-slate-100">
                       {display}
                       {showCanonical && (
-                        <span className="ml-1 text-[10px] text-slate-500">({cat})</span>
+                        <span className="ml-1 text-[10px] text-slate-400">({cat})</span>
                       )}
                     </td>
                     <td className="px-2 py-1 text-right text-slate-400">{usageCount(cat)}</td>

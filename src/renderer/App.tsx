@@ -1145,9 +1145,9 @@ export default function App() {
             </div>
             <div className="text-xs text-slate-300">{pdfProgress.phase}</div>
             {pdfProgress.detail && (
-              <div className="mt-1 text-[11px] text-slate-500">{pdfProgress.detail}</div>
+              <div className="mt-1 text-[11px] text-slate-400">{pdfProgress.detail}</div>
             )}
-            <div className="mt-3 text-[10px] text-slate-600">
+            <div className="mt-3 text-[10px] text-slate-400">
               {t('app.pdfProgress.hint', 'Bei großen Plänen können einige Sekunden vergehen. Bitte nicht abbrechen.')}
             </div>
           </div>
@@ -1195,7 +1195,7 @@ const PdfExportDialog = ({
             <div className="-mx-1 flex flex-wrap gap-1">
               <LayerVisibilityChips />
             </div>
-            <p className="mt-2 text-[10px] text-slate-500">
+            <p className="mt-2 text-[10px] text-slate-400">
               {t(
                 'pdfExport.layers.hint',
                 'Klick auf einen Chip schaltet die Ebene fuer Canvas UND PDF um. Beispiel: nur Video drucken ⇒ alle anderen Chips ausschalten.',
@@ -1242,7 +1242,7 @@ const PdfExportDialog = ({
               />
               <span>
                 {t('pdfExport.render.raster', 'Raster (klassisch)')}
-                <span className="block text-[10px] text-slate-500">
+                <span className="block text-[10px] text-slate-400">
                   {t(
                     'pdfExport.render.rasterHint',
                     'JPEG-Snapshot des Canvas. Zuverlässig, aber unscharf bei großem Zoom in der PDF.',
@@ -1259,7 +1259,7 @@ const PdfExportDialog = ({
               />
               <span>
                 {t('pdfExport.render.vector', 'Vektor')}
-                <span className="block text-[10px] text-slate-500">
+                <span className="block text-[10px] text-slate-400">
                   {t(
                     'pdfExport.render.vectorHint',
                     'Chromium printToPDF. Text bleibt selektierbar & scharf bei jedem Zoom. Kleinere Dateigröße.',
@@ -1629,7 +1629,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             <div className="border-t border-slate-700 p-2">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <div className="mb-0.5 text-[10px] text-slate-500">{t('cable.fromDeviceShort', 'Von Gerät')}</div>
+                  <div className="mb-0.5 text-[10px] text-slate-400">{t('cable.fromDeviceShort', 'Von Gerät')}</div>
                   <select
                     aria-label={t('cable.aria.fromDevice', 'Quell-Gerät')}
                     value={fromEquipmentId}
@@ -1642,7 +1642,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                       </option>
                     ))}
                   </select>
-                  <div className="mt-1 text-[10px] text-slate-500">Port</div>
+                  <div className="mt-1 text-[10px] text-slate-400">Port</div>
                   <select
                     aria-label={t('cable.aria.fromPort', 'Quell-Port')}
                     value={fromPortId}
@@ -1661,7 +1661,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   </select>
                 </div>
                 <div>
-                  <div className="mb-0.5 text-[10px] text-slate-500">{t('cable.toDeviceShort', 'Nach Gerät')}</div>
+                  <div className="mb-0.5 text-[10px] text-slate-400">{t('cable.toDeviceShort', 'Nach Gerät')}</div>
                   <select
                     aria-label={t('cable.aria.toDevice', 'Ziel-Gerät')}
                     value={toEquipmentId}
@@ -1674,7 +1674,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                       </option>
                     ))}
                   </select>
-                  <div className="mt-1 text-[10px] text-slate-500">Port</div>
+                  <div className="mt-1 text-[10px] text-slate-400">Port</div>
                   <select
                     aria-label={t('cable.aria.toPort', 'Ziel-Port')}
                     value={toPortId}

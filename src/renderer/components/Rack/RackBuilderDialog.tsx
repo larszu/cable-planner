@@ -819,7 +819,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           <div className="block text-xs font-medium text-slate-300">
             <div className="flex items-baseline justify-between">
               <span>{t('rack.zoom', 'Zoom')}</span>
-              <span className="text-[10px] font-normal text-slate-500">
+              <span className="text-[10px] font-normal text-slate-400">
                 {Math.round(zoom * 100)}% · {Math.round(rowHeight)} px/HE
               </span>
             </div>
@@ -954,7 +954,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             </label>
             <div className="max-h-[58vh] space-y-1 overflow-auto">
               {filteredTemplates.length === 0 && (
-                <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-4 text-center text-[11px] text-slate-500">
+                <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-4 text-center text-[11px] text-slate-400">
                   {query ? (
                     <>
                       {t('rack.noMatchesPre', 'Keine Treffer für')}{' '}
@@ -1023,7 +1023,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             </span>
                           )}
                         </div>
-                        <div className="truncate text-[10px] text-slate-500">{template.category}</div>
+                        <div className="truncate text-[10px] text-slate-400">{template.category}</div>
                       </div>
                       {/* v7.9.80 / #170 — Split-Button: Hauptaktion
                           "+ Hinzufügen" (Default = full-depth) + kleines
@@ -1084,7 +1084,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   </button>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+              <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
                 <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M8 2 L8 14 M5 5 L8 2 L11 5 M5 11 L8 14 L11 11" />
                 </svg>
@@ -1195,7 +1195,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: '#0ea5e9' }} />
                       Seitenansicht (Tiefe)
                     </span>
-                    <span className="text-[10px] text-slate-500">
+                    <span className="text-[10px] text-slate-400">
                       Vorne ◀ {draft.depthMm ?? 800} mm ▶ Hinten
                     </span>
                   </div>
@@ -1217,7 +1217,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                               className="absolute left-0 right-0 border-t border-slate-800/80"
                               style={{ top: idx * rowHeight, height: rowHeight }}
                             >
-                              <span className="absolute left-1 top-0.5 text-[9px] text-slate-600">U{unit}</span>
+                              <span className="absolute left-1 top-0.5 text-[9px] text-slate-400">U{unit}</span>
                             </div>
                           )
                         })}
@@ -1345,7 +1345,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           className="absolute left-0 right-0 border-t border-slate-800/80"
                           style={{ top: index * rowHeight, height: rowHeight }}
                         >
-                          <span className="absolute left-1 top-0.5 text-[9px] text-slate-600">U{unit}</span>
+                          <span className="absolute left-1 top-0.5 text-[9px] text-slate-400">U{unit}</span>
                         </div>
                       )
                     })}
@@ -1588,7 +1588,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               (PlacementPropertiesDialog am Ende der Component), das per
               Doppelklick auf ein Gerät im Rack aufgeht. Hier nur ein
               kleiner Hinweis statt der dauerhaft offenen Sidebar. */}
-          <div className="rounded border border-dashed border-slate-700 bg-slate-950/30 px-2 py-3 text-center text-[10px] text-slate-500">
+          <div className="rounded border border-dashed border-slate-700 bg-slate-950/30 px-2 py-3 text-center text-[10px] text-slate-400">
             Doppelklick auf ein Gerät im Rack → öffnet Eigenschaften-Popup
             (Höhe, Start-HE, Panel-Bilder, Entfernen).
           </div>

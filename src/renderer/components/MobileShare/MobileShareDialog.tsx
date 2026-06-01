@@ -183,7 +183,7 @@ export const MobileShareDialog = () => {
               </div>
               {status.urls.length > 1 && (
                 <div>
-                  <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
+                  <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
                     {t('mobile.dialog.altUrls', 'Alternative LAN-Adressen (falls eine nicht erreichbar ist)')}
                   </div>
                   <div className="flex flex-wrap gap-1">
@@ -240,7 +240,7 @@ export const MobileShareDialog = () => {
             </div>
           )}
 
-          <details className="text-[11px] text-slate-500">
+          <details className="text-[11px] text-slate-400">
             <summary className="cursor-pointer hover:text-slate-300">{t('mobile.dialog.securityHeading', 'Hinweise zur Sicherheit')}</summary>
             <ul className="mt-1 list-inside list-disc space-y-1">
               <li>{t('mobile.dialog.security.readOnly', 'Read-only: das Handy kann nur lesen, nichts schreiben.')}</li>

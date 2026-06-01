@@ -1103,7 +1103,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                   <tr key={c.name} className="border-t border-slate-800 align-top">
                     <td className="px-2 py-1.5">
                       <div className="font-medium">{c.name}</div>
-                      <div className="text-[11px] text-slate-500">{c.category}</div>
+                      <div className="text-[11px] text-slate-400">{c.category}</div>
                     </td>
                     <td className="px-2 py-1.5">
                       <div className="flex flex-col gap-0.5">
@@ -1171,7 +1171,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               </tbody>
             </table>
           </div>
-          <div className="mb-3 flex items-center gap-2 text-[11px] text-slate-500">
+          <div className="mb-3 flex items-center gap-2 text-[11px] text-slate-400">
             <span>{t('rentman.import.setAll', 'Alle setzen:')}</span>
             {(
               [
@@ -1661,7 +1661,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                           }
                           className="w-16 rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-right"
                         />
-                        <span className="text-[10px] text-slate-500">
+                        <span className="text-[10px] text-slate-400">
                           {bucket.rows.length === 1
                             ? bucket.rows[0].name
                             : format(t('rentman.import.cablePlan.entryCount', '{count} Einträge'), { count: bucket.rows.length })}
