@@ -551,6 +551,7 @@ export const PatchListDialog = () => {
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder={t('patchList.searchPlaceholder', 'Suchen (Gerät, Port, Typ, Farbe, Notiz …)')}
+            aria-label={t('patchList.searchPlaceholder', 'Suchen (Gerät, Port, Typ, Farbe, Notiz …)')}
             className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
           />
           {layers.length > 0 && (

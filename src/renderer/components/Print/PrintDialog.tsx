@@ -189,6 +189,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
                 placeholder={t('print.devices.searchPlaceholder', 'Suchen (Name, Kategorie, Untertitel)…')}
+                aria-label={t('print.devices.searchPlaceholder', 'Suchen (Name, Kategorie, Untertitel)…')}
                 className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100 placeholder:text-slate-500"
               />
               {(() => {

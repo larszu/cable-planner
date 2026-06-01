@@ -130,6 +130,7 @@ export const LocalEquipmentTab = ({
               if (e.key === 'Escape') setLibrarySearch('')
             }}
             placeholder={t('library.search.placeholder', 'Suchen…')}
+            aria-label={t('library.search.placeholder', 'Suchen…')}
             className="w-full rounded border border-slate-700 bg-slate-900 py-1 pl-7 pr-12 text-xs text-slate-100 placeholder-slate-500"
           />
           {librarySearch ? (
