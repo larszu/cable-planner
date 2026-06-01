@@ -287,6 +287,9 @@ const PowerTab = () => {
   const [battCount, setBattCount] = useState(2)
   const [usablePercent, setUsablePercent] = useState(85)
   const [targetMinutes, setTargetMinutes] = useState(15)
+  // #345 ff. — Spannungsfall-Rechner für die Zuleitung (Distro-Strecke).
+  const [runLength, setRunLength] = useState(25)
+  const [crossSection, setCrossSection] = useState(2.5)
   const supply = SUPPLY_PRESETS.find((s) => s.id === supplyId) ?? SUPPLY_PRESETS[0]
 
   const totals = useMemo(() => {
@@ -378,6 +381,18 @@ const PowerTab = () => {
   // Reverse: Akku-Energie, die für die Zielpufferzeit nötig wäre.
   const requiredWhForTarget =
     usablePercent > 0 ? (upsLoadW * (targetMinutes / 60)) / (usablePercent / 100) : 0
+
+  // #345 ff. — Spannungsfall auf der Zuleitung.
+  //  - 1-phasig: ΔU = 2 · L · I · ρ / A   (Hin- + Rückleiter)
+  //  - 3-phasig: ΔU = √3 · L · I · ρ / A
+  // ρ(Kupfer) ≈ 0.0175 Ω·mm²/m. I = symmetrischer Laststrom (mit Reserve).
+  const RHO_CU = 0.0175
+  const vdropCurrent = supply.phases === 1 ? ampsSinglePhase : ampsThreePhase
+  const vdropVolts =
+    crossSection > 0
+      ? ((supply.phases === 1 ? 2 : Math.sqrt(3)) * runLength * vdropCurrent * RHO_CU) / crossSection
+      : 0
+  const vdropPercent = supply.voltage > 0 ? (vdropVolts / supply.voltage) * 100 : 0
 
   // #345 — Wärmelast + CSV-Export der Phasen-Verteilung.
   const totalBtu = Math.round(totals.totalW * 3.412)
@@ -777,6 +792,100 @@ const PowerTab = () => {
             {t(
               'calc.ups.note',
               'USV-Kapazität (W) = VA × Leistungsfaktor. Pufferzeit ≈ nutzbare Akku-Energie / Last. Lineare Näherung — reale Laufzeit hängt von Entladekurve, Alter und Temperatur ab; im Zweifel die Hersteller-Runtime-Tabelle prüfen.',
+            )}
+          </p>
+        </div>
+      </details>
+
+      {/* #345 ff. — Spannungsfall auf der Zuleitung (Distro-Strecke). */}
+      <details className="rounded border border-slate-800 bg-slate-950/40">
+        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
+          {t('calc.vdrop.title', 'Spannungsfall (Zuleitung)')}
+        </summary>
+        <div className="space-y-3 px-3 py-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.vdrop.length', 'Leitungslänge (m)')}
+              </span>
+              <input
+                type="number"
+                min={0}
+                value={runLength}
+                onChange={(e) => setRunLength(Math.max(0, Number(e.target.value) || 0))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.vdrop.cross', 'Querschnitt (mm²)')}
+              </span>
+              <select
+                value={crossSection}
+                onChange={(e) => setCrossSection(Number(e.target.value))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              >
+                {[1.5, 2.5, 4, 6, 10, 16, 25, 35, 50].map((mm) => (
+                  <option key={mm} value={mm}>
+                    {mm} mm²
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.vdrop.current', 'Laststrom')}
+              </span>
+              <div className="rounded border border-slate-800 bg-slate-900 px-2 py-1 font-mono text-cp-xs text-slate-200">
+                {vdropCurrent.toFixed(1)} A
+              </div>
+            </div>
+          </div>
+          <div
+            className={`rounded border p-3 ${
+              vdropPercent > 5
+                ? 'border-red-700 bg-red-950/30'
+                : vdropPercent > 3
+                  ? 'border-amber-700 bg-amber-950/30'
+                  : 'border-emerald-700 bg-emerald-950/30'
+            }`}
+          >
+            <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
+              <dt className="text-slate-500">{t('calc.vdrop.drop', 'Spannungsfall')}</dt>
+              <dd className="font-mono text-slate-200">
+                {vdropVolts.toFixed(1)} V
+              </dd>
+              <dt className="text-slate-500">{t('calc.vdrop.percent', 'Relativ')}</dt>
+              <dd className="font-mono text-lg">
+                <span
+                  className={
+                    vdropPercent > 5
+                      ? 'text-red-300'
+                      : vdropPercent > 3
+                        ? 'text-amber-200'
+                        : 'text-emerald-200'
+                  }
+                >
+                  {vdropPercent.toFixed(1)} %
+                </span>
+                <span className="ml-2 text-[10px] text-slate-400">
+                  {vdropPercent > 5
+                    ? t('calc.vdrop.bad', '> 5 % — Querschnitt erhöhen')
+                    : vdropPercent > 3
+                      ? t('calc.vdrop.warn', '> 3 % — grenzwertig')
+                      : t('calc.vdrop.ok', '≤ 3 % — ok')}
+                </span>
+              </dd>
+              <dt className="text-slate-500">{t('calc.vdrop.atLoad', 'Spannung am Ende')}</dt>
+              <dd className="font-mono text-slate-200">
+                ≈ {(supply.voltage - vdropVolts).toFixed(0)} V
+              </dd>
+            </dl>
+          </div>
+          <p className="text-[10px] text-slate-400">
+            {t(
+              'calc.vdrop.note',
+              'Kupfer, ρ ≈ 0,0175 Ω·mm²/m. 1-phasig ΔU = 2·L·I·ρ/A, 3-phasig ΔU = √3·L·I·ρ/A. Richtwert: ≤ 3 % an Endgeräten. Laststrom = symmetrischer Strom inkl. Reserve.',
             )}
           </p>
         </div>

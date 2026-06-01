@@ -2407,6 +2407,18 @@ const en: Dict = {
   'calc.ups.needed': 'battery needed',
   'calc.ups.note':
     'UPS capacity (W) = VA × power factor. Runtime ≈ usable battery energy / load. Linear approximation — real runtime depends on the discharge curve, battery age and temperature; check the manufacturer runtime chart when in doubt.',
+  'calc.vdrop.title': 'Voltage drop (feeder)',
+  'calc.vdrop.length': 'Cable length (m)',
+  'calc.vdrop.cross': 'Cross-section (mm²)',
+  'calc.vdrop.current': 'Load current',
+  'calc.vdrop.drop': 'Voltage drop',
+  'calc.vdrop.percent': 'Relative',
+  'calc.vdrop.atLoad': 'Voltage at end',
+  'calc.vdrop.ok': '≤ 3 % — ok',
+  'calc.vdrop.warn': '> 3 % — borderline',
+  'calc.vdrop.bad': '> 5 % — increase cross-section',
+  'calc.vdrop.note':
+    'Copper, ρ ≈ 0.0175 Ω·mm²/m. 1-phase ΔU = 2·L·I·ρ/A, 3-phase ΔU = √3·L·I·ρ/A. Rule of thumb: ≤ 3 % at end devices. Load current = symmetric current incl. margin.',
   'calc.generator': 'Generator (PF 0.8)',
   'calc.generatorRec': 'rec.',
   'calc.neutralCurrent': 'Neutral (estimated)',
