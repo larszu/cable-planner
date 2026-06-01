@@ -132,7 +132,7 @@ export const ExportDialog = ({
 
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2">
-            <h2 id={titleId} className="flex items-center gap-2 text-base font-semibold">
+            <h2 id={titleId} className="flex items-center gap-2 text-cp-2xl font-semibold">
               <Icon icon={SECTION_ICON[section]} size="sm" />{' '}
               {t(`export.section.${section}`, SECTION_LABEL[section])}
             </h2>

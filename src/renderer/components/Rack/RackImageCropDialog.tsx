@@ -314,7 +314,7 @@ export const RackImageCropDialog = ({
           className="mb-3 flex items-start justify-between gap-3 select-none"
         >
           <div>
-            <h3 className="text-base font-semibold">
+            <h3 className="text-cp-xl font-semibold">
               {format(
                 side === 'front'
                   ? t('rackCrop.titleFront', 'Front Grafik zuschneiden ({units} HE)')

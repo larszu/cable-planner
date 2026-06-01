@@ -1045,7 +1045,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       {/* ── Confirmation: switch linked Rentman project ── */}
       {pendingProjectSwitch && (
         <div className="w-full max-w-md rounded border border-amber-600 bg-slate-900 p-5 text-slate-100 shadow-xl">
-          <h3 className="mb-2 text-base font-semibold text-amber-400">{t('rentman.import.switch.title', 'Rentman-Projekt wechseln?')}</h3>
+          <h3 className="mb-2 text-cp-xl font-semibold text-amber-400">{t('rentman.import.switch.title', 'Rentman-Projekt wechseln?')}</h3>
           <p className="mb-1 text-sm text-slate-300">
             {t('rentman.import.switch.alreadyLinkedPre', 'Dieses Projekt ist bereits mit dem Rentman-Projekt')}
             {linkedProjectName ? (
@@ -1082,7 +1082,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
 
       {!pendingProjectSwitch && conflictItems && (
         <div className="w-full max-w-2xl rounded border border-amber-600 bg-slate-900 p-5 text-slate-100 shadow-xl">
-          <h3 className="mb-2 text-base font-semibold text-amber-400">
+          <h3 className="mb-2 text-cp-xl font-semibold text-amber-400">
             {conflictItems.length === 1
               ? t('rentman.import.conflict.titleOne', 'Gerät bereits in lokaler Bibliothek')
               : format(t('rentman.import.conflict.titleMany', '{count} Geräte bereits in lokaler Bibliothek'), { count: conflictItems.length })}
@@ -1258,7 +1258,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
 
       {!pendingProjectSwitch && !conflictItems && categoryAssignments && (
         <div className="w-full max-w-2xl rounded border border-cyan-700 bg-slate-900 p-5 text-slate-100 shadow-xl">
-          <h3 className="mb-2 text-base font-semibold text-cyan-300">{t('rentman.import.catMap.title', 'Kategorie-Zuordnung vor Import')}</h3>
+          <h3 className="mb-2 text-cp-xl font-semibold text-cyan-300">{t('rentman.import.catMap.title', 'Kategorie-Zuordnung vor Import')}</h3>
           <p className="mb-3 text-sm text-slate-300">
             {t('rentman.import.catMap.intro', 'Jeder Import muss einer bestehenden Kategorie zugeordnet werden.')}
           </p>

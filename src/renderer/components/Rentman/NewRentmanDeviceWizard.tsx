@@ -184,7 +184,7 @@ export const NewRentmanDeviceWizard = ({
       <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <h3 className="text-base font-semibold">
+            <h3 className="text-cp-xl font-semibold">
               {format(t('rentman.wizard.title', 'New Rentman Device ({progress})'), { progress })}
             </h3>
             <p className="mt-1 text-xs text-slate-400">
