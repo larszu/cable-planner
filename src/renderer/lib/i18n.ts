@@ -1803,6 +1803,7 @@ const en: Dict = {
   'bom.cable.col.built': 'Built',
   'bom.cable.col.totalM': 'Total (m)',
   'export.bom.byLayer': 'By discipline',
+  'export.bom.connectors': 'Connectors (ends)',
   'layer.video': 'Video',
   'layer.audio': 'Audio',
   'layer.control': 'Control',
