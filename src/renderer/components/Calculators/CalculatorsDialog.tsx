@@ -669,6 +669,28 @@ const PowerTab = () => {
         </dl>
       </div>
 
+      {/* Distro-Vergleich: welcher Anschluss trägt die Last? */}
+      {totals.totalW > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+          <span className="font-semibold uppercase tracking-wide text-slate-500">
+            {t('calc.power.fitsOn', 'Passt auf')}:
+          </span>
+          {SUPPLY_PRESETS.map((p) => {
+            const amps = p.phases === 1 ? totalWithMargin / p.voltage : totalWithMargin / (p.voltage * Math.sqrt(3))
+            const fits = amps <= p.perPhaseAmps
+            return (
+              <span
+                key={p.id}
+                title={`${amps.toFixed(1)} A / ${p.perPhaseAmps} A`}
+                className={`rounded px-1.5 py-0.5 font-mono ${fits ? 'bg-emerald-900/50 text-emerald-200' : 'bg-red-950/40 text-red-300/70'}`}
+              >
+                {fits ? '✓' : '✗'} {p.id.replace('powerlock-', 'PL').replace('cee', 'CEE').replace('schuko', 'Schuko')}
+              </span>
+            )
+          })}
+        </div>
+      )}
+
       {supply.phases === 3 && totals.devices.length > 0 && (
         <div
           className={`rounded border ${

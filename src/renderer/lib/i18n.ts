@@ -2442,6 +2442,7 @@ const en: Dict = {
   'calc.generatorRec': 'rec.',
   'calc.power.cooling': 'Heat / cooling',
   'calc.power.exportPdf': 'PDF report',
+  'calc.power.fitsOn': 'Fits on',
   'calc.neutralCurrent': 'Neutral (estimated)',
   'calc.neutralOk': 'well balanced',
   'calc.neutralHigh': 'high imbalance — rebalance phases',
