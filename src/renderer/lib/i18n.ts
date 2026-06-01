@@ -1324,6 +1324,9 @@ const en: Dict = {
   'locbom.devices': 'Devices',
   'locbom.internalCables': 'Internal cables',
   'locbom.externalConnections': 'External connections',
+  'locbom.weight': 'Weight',
+  'locbom.weightTitle': '{n} of {total} devices have a weight set',
+  'locbom.power': 'Power',
   'locbom.groupTitle':
     'Groups identical cables (same type + length) on one row with a quantity — default for the parts list.',
   'locbom.groupCables': 'Group cables',
