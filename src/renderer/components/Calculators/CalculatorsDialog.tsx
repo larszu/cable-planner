@@ -566,6 +566,15 @@ const PowerTab = () => {
               {t('calc.generatorRec', 'empf.')} ≥ {generatorKvaRecommended.toFixed(1)} kVA
             </span>
           </dd>
+          {/* Wärmelast → Kühlbedarf: die el. Leistung wird praktisch komplett
+              in Wärme umgesetzt. AC-Einheiten zu je 12.000 BTU/h. */}
+          <dt className="text-slate-500">{t('calc.power.cooling', 'Wärme / Kühlung')}</dt>
+          <dd className="font-mono text-slate-200">
+            {totalBtu} BTU/h
+            <span className="ml-2 text-slate-500">
+              ≈ {(totals.totalW / 1000).toFixed(1)} kW · {Math.max(1, Math.ceil(totalBtu / 12000))}× 12k-BTU-AC
+            </span>
+          </dd>
         </dl>
       </div>
 
