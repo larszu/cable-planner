@@ -319,6 +319,33 @@ export const runDrawingChecks = (
     }
   }
 
+  // — Check 12: Faserklasse Multimode↔Singlemode (#362) ----------------------
+  // OM* (Multimode) und OS* (Singlemode) sind optisch inkompatibel (andere
+  // Wellenlänge/Kerndurchmesser) — ein Link darf nicht gemischt sein.
+  const fiberKind = (fc: string | undefined): 'mm' | 'sm' | null => {
+    if (!fc) return null
+    const u = fc.toUpperCase()
+    if (u.startsWith('OM')) return 'mm'
+    if (u.startsWith('OS')) return 'sm'
+    return null
+  }
+  for (const c of cables) {
+    const from = portById.get(c.fromPortId)
+    const to = portById.get(c.toPortId)
+    const a = fiberKind(from?.fiberClass)
+    const b = fiberKind(to?.fiberClass)
+    if (a && b && a !== b) {
+      const lbl = (k: 'mm' | 'sm') => (k === 'mm' ? 'Multimode' : 'Singlemode')
+      findings.push({
+        id: `fiber-mismatch:${c.id}`,
+        severity: 'warning',
+        category: 'Faser-Mismatch',
+        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${from?.fiberClass} (${lbl(a)}) ↔ ${to?.fiberClass} (${lbl(b)}) — optisch inkompatibel`,
+        cableId: c.id,
+      })
+    }
+  }
+
   // Sortierung: error → warning → info, innerhalb stabil nach category.
   const rank: Record<CheckSeverity, number> = { error: 0, warning: 1, info: 2 }
   findings.sort((a, b) => rank[a.severity] - rank[b.severity] || a.category.localeCompare(b.category))
