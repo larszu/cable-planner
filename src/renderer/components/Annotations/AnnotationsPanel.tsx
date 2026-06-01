@@ -21,6 +21,8 @@ import { confirmDialog } from '../../lib/confirmDialog'
 import { readableTextColor } from '../../lib/contrast'
 import type { ProjectAnnotation } from '../../types/project'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
+import { openPanelPopout } from '../../lib/panelPopout'
+import { usePanelTearOff } from '../../lib/usePanelTearOff'
 
 // Source-of-Truth für Canvas-Drag-MIMEs ist lib/dragDropMimes.ts.
 import { MIME_ANNOTATION as ANNOTATION_DRAG_MIME } from '../../lib/dragDropMimes'
@@ -97,6 +99,14 @@ export const AnnotationsPanel = ({
   const setFloating = useUiStore((s) => s.setAnnotationsPanelFloating)
   const floatingPos = useUiStore((s) => s.annotationsPanelFloatingPos)
   const setFloatingPos = useUiStore((s) => s.setAnnotationsPanelFloatingPos)
+  // #427 — Header herausziehen = abdocken; folgt danach dem Cursor.
+  const tearOff = usePanelTearOff({
+    onUndock: (p) => {
+      setFloatingPos(p)
+      setFloating(true)
+    },
+    onDragMove: setFloatingPos,
+  })
   // #462 — beim Tastatur-Platzieren sicherstellen, dass die Badges sichtbar sind.
   const setAnnotationsVisible = useUiStore((s) => s.setAnnotationsVisible)
   const [statusFilter, setStatusFilter] = useState<ProjectAnnotation['status'] | 'all'>('all')
@@ -399,6 +409,8 @@ export const AnnotationsPanel = ({
         position={floatingPos}
         onMove={setFloatingPos}
         onDock={() => setFloating(false)}
+        onPopout={() => openPanelPopout('annotations')}
+        dockEdge="right"
         width={384}
       >
         {body}
@@ -427,12 +439,18 @@ export const AnnotationsPanel = ({
               persistiert (auch ueber App-Restarts). */}
           <button
             type="button"
-            onClick={() => setFloating(true)}
-            title={t('annotations.float.title', 'Abdocken (frei verschiebbar)')}
+            data-tearoff="handle"
+            onPointerDown={tearOff.onPointerDown}
+            onClick={() => {
+              if (tearOff.draggedRef.current) return
+              setFloating(true)
+            }}
+            title={t('annotations.float.title', 'Abdocken (klicken oder herausziehen)')}
             aria-label={t('annotations.float.aria', 'Anmerkungen abdocken')}
             className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+            style={{ touchAction: 'none' }}
           >
-            ⤢
+            <span className="pointer-events-none">⤢</span>
           </button>
           <button
             type="button"
