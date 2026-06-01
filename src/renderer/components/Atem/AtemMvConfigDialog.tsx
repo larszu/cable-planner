@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { toPng } from 'html-to-image'
-import { Download, Square, SquareCheck } from 'lucide-react'
+import { Download, Square, SquareCheck, Monitor } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, type AtemInputSummary } from '../../lib/bridge'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
+import { detectDeviceKind } from '../../lib/deviceKind'
 import { useTranslation, format } from '../../lib/i18n'
 import type {
   AtemMvConfig,
@@ -631,6 +632,74 @@ const CapabilitiesPanel = ({
   )
 }
 
+/**
+ * #402 — Geräte-Picker, wenn der MV-Editor ohne vorausgewähltes Gerät
+ * geöffnet wird (Werkzeuge → ATEM Multiviewer). Listet alle ATEM-Mischer
+ * des Plans; Auswahl öffnet den Editor mit diesem Gerät. So ist der
+ * Multiviewer auch ohne Canvas-Selektion direkt erreichbar.
+ */
+const AtemMvDevicePicker = () => {
+  const t = useTranslation()
+  const close = useUiStore((s) => s.closeAtemMvConfig)
+  const openAtemMvConfig = useUiStore((s) => s.openAtemMvConfig)
+  const equipment = useProjectStore((s) => s.project.equipment)
+  const atemDevices = useMemo(
+    () => equipment.filter((e) => detectDeviceKind(e) === 'atem' || !!e.atemMvConfig),
+    [equipment],
+  )
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={close}>
+      <div
+        className="flex max-h-[80vh] w-[440px] max-w-[95vw] flex-col rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+            <Icon icon={Monitor} size="sm" />
+            {t('atemMv.picker.title', 'ATEM Multiviewer — Gerät wählen')}
+          </h2>
+          <button
+            onClick={close}
+            className="text-slate-400 hover:text-slate-200"
+            aria-label={t('common.close', 'Schließen')}
+          >
+            ×
+          </button>
+        </div>
+        <div className="overflow-auto p-4 text-sm">
+          {atemDevices.length === 0 ? (
+            <p className="text-slate-400">
+              {t(
+                'atemMv.picker.empty',
+                'Kein ATEM-Mischer im Plan. Lege zuerst einen ATEM aus der Bibliothek an — danach ist hier seine Multiviewer-Konfiguration wählbar.',
+              )}
+            </p>
+          ) : (
+            <>
+              <p className="mb-2 text-[11px] text-slate-400">
+                {t('atemMv.picker.intro', 'Welchen ATEM-Mischer-Multiviewer möchtest du konfigurieren?')}
+              </p>
+              <ul className="space-y-1">
+                {atemDevices.map((e) => (
+                  <li key={e.id}>
+                    <button
+                      onClick={() => openAtemMvConfig(e.id)}
+                      className="flex w-full items-center gap-2 rounded border border-slate-700 bg-slate-800 px-3 py-2 text-left text-slate-100 hover:bg-slate-700"
+                    >
+                      <Icon icon={Monitor} size="sm" />
+                      {e.name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export const AtemMvConfigDialog = () => {
   const t = useTranslation()
   const slot = useUiStore((s) => s.atemMvConfig)
@@ -769,7 +838,9 @@ export const AtemMvConfigDialog = () => {
     return m
   }, [equipment])
 
-  if (!slot.open || !equipment) return null
+  if (!slot.open) return null
+  // #402 — Ohne vorausgewähltes Gerät (Werkzeuge-Menü) zuerst den Picker.
+  if (!equipment) return <AtemMvDevicePicker />
 
   // v7.9.4 — Modell-Capabilities (Auto-Erkennung oder User-Override).
   const caps: AtemMvCapabilities = getMvCapabilities(
