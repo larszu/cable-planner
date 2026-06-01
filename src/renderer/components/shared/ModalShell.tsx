@@ -101,7 +101,7 @@ export const ModalShell = ({
         aria-labelledby={titleId}
         {...dialogProps}
         style={draggableKey ? drag.containerStyle : undefined}
-        className={`flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-lg border border-[var(--cp-border)] bg-[var(--cp-surface-1)] text-[var(--cp-text)] shadow-2xl outline-none`}
+        className={`flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-cp-modal border border-[var(--cp-border)] bg-[var(--cp-surface-1)] text-[var(--cp-text)] shadow-2xl outline-none`}
       >
         <header
           {...(draggableKey ? drag.headerProps : {})}

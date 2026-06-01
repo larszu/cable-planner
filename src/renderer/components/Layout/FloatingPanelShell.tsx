@@ -158,7 +158,7 @@ export const FloatingPanelShell = ({
   return (
     <aside
       ref={containerRef}
-      className="pointer-events-auto fixed z-40 flex flex-col rounded-lg border border-[var(--cp-border)] bg-slate-950/95 text-[var(--cp-text)] shadow-2xl backdrop-blur-md"
+      className="pointer-events-auto fixed z-40 flex flex-col rounded-cp-modal border border-[var(--cp-border)] bg-slate-950/95 text-[var(--cp-text)] shadow-2xl backdrop-blur-md"
       style={{
         left: pos.x,
         top: pos.y,

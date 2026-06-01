@@ -22,6 +22,18 @@
   --text-cp-2xl--line-height: 1.85rem;
   --text-cp-3xl: 1.75rem; /* 28px — display / welcome */
   --text-cp-3xl--line-height: 2.15rem;
+
+  /* ── Border-Radius-Skala (UX audit #52) ──────────────────────────────────
+   * Vorher: rounded×1031 vs rounded-lg/-md/-sm wild gemischt, kein System.
+   * Drei semantische Stufen erzeugen die Utilities rounded-cp-control /
+   * -card / -modal. Konvention:
+   *   - control: Buttons, Inputs, Chips, Toolbar-Icons (kleinflächig)
+   *   - card:    Sub-Karten, Panels, Listeneinträge
+   *   - modal:   Dialoge/Shells (ModalShell, FloatingPanelShell)
+   * Neue Komponenten nutzen diese statt bare `rounded`. */
+  --radius-cp-control: 0.375rem; /* 6px */
+  --radius-cp-card: 0.5rem; /* 8px */
+  --radius-cp-modal: 0.75rem; /* 12px */
 }
 
 :root {
@@ -522,12 +534,19 @@ textarea:focus-visible {
   outline-color: var(--cp-accent);
 }
 
-/* ── Consistent disabled affordance (UX audit #45) ──────────────────────────
+/* ── Consistent disabled affordance (UX audit #45/#464) ─────────────────────
  * Many buttons fade via disabled:opacity-* but only some also set the cursor.
- * This guarantees every disabled control shows not-allowed, app-wide. */
+ * This guarantees every disabled control shows not-allowed, app-wide.
+ *
+ * #464 — zusätzlich ein einheitlicher *visueller* Default: Buttons ohne
+ * eigene `disabled:opacity-*`-Klasse bekommen hier 0.5 Opazität. Tailwinds
+ * `.disabled\:opacity-40:disabled` (Spezifität 0,2,0) gewinnt gegen diese
+ * Element-Regel (0,1,1), d. h. explizit gesetzte Werte bleiben unberührt —
+ * es füllt nur die ~78 Stellen ohne eigenen Disabled-Stil auf. */
 button:disabled,
 [role="button"][aria-disabled="true"] {
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* ── Themed scrollbars (UX audit #54) ───────────────────────────────────────
