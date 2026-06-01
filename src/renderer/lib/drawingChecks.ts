@@ -472,6 +472,32 @@ export const runDrawingChecks = (
     }
   }
 
+  // — Check 16b: Dual-Link SDI unvollständig (#370) --------------------------
+  // Ports mit gleichem dualLinkGroup bilden ein Dual-Link-Set (Link A/B). Sind
+  // einige verbunden, andere nicht, fehlt ein Link → Bild unvollständig.
+  for (const e of equipment) {
+    const groups = new Map<string, { total: number; connected: number; names: string[] }>()
+    for (const p of [...e.inputs, ...e.outputs]) {
+      if (!p.dualLinkGroup) continue
+      const g = groups.get(p.dualLinkGroup) ?? { total: 0, connected: 0, names: [] }
+      g.total += 1
+      if (connectedPorts.has(p.id)) g.connected += 1
+      g.names.push(p.name)
+      groups.set(p.dualLinkGroup, g)
+    }
+    for (const [grp, g] of groups) {
+      if (g.total >= 2 && g.connected > 0 && g.connected < g.total) {
+        findings.push({
+          id: `dual-link:${e.id}:${grp}`,
+          severity: 'warning',
+          category: 'Dual-Link',
+          message: `${e.name}: Dual-Link-Set „${grp}" unvollständig — ${g.connected}/${g.total} Links verbunden (${g.names.join(', ')})`,
+          equipmentId: e.id,
+        })
+      }
+    }
+  }
+
   // — Check 17b: LWL-Steckertyp-Mismatch (#362) ------------------------------
   // Zwei unterschiedliche optische Stecker (z. B. LC ↔ SC) an einem Link →
   // Adapter/Hybrid-Patch nötig.
