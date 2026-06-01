@@ -237,6 +237,16 @@ export const CableProperties = () => {
         </datalist>
       </label>
 
+      {/* #368 — Tie-Line / Festverbindung (permanente Haus-/Dauerleitung). */}
+      <label className="flex items-center gap-2 text-[12px] text-slate-300">
+        <input
+          type="checkbox"
+          checked={!!cable.isTieLine}
+          onChange={(event) => updateCable(cable.id, { isTieLine: event.target.checked || undefined })}
+        />
+        {t('cable.field.tieLine', 'Tie-Line / Festverbindung (permanent)')}
+      </label>
+
       {/* Endpoint editor — inline accordion (open by default) so users can
           re-route a cable from the properties panel without opening a dialog. */}
       <details open className="rounded border border-slate-700 bg-slate-950/50">

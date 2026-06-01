@@ -810,6 +810,7 @@ const en: Dict = {
   'cable.field.layerTitle': 'Works with the layer filter in the toolbar (layer chips)',
   // #363 Multicore / snake grouping
   'cable.field.multicore': 'Multicore / snake',
+  'cable.field.tieLine': 'Tie-line / permanent link',
   'cable.field.multicorePlaceholder': 'e.g. "Snake-1", "FOH-Loom"',
   'cable.field.multicoreTitle':
     'Cables sharing a name form one physical bundle — the BOM counts it as one item.',

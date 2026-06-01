@@ -86,7 +86,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
         bundles.set(c.multicoreName, arr)
         continue
       }
-      const k = keyOf(c)
+      const k = c.isTieLine ? `${c.type} (Tie-Line)|${c.length}` : keyOf(c)
       const entry = built.get(k)
       if (entry) {
         entry.count += 1
