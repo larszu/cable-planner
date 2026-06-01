@@ -18,6 +18,8 @@ import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { bandwidthMbpsForStandard } from '../../types/cableSpec'
+import jsPDF from 'jspdf'
+import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 
 // v7.5.0 — Cable-Length tab removed. The standalone calculator
 // can't produce meaningful estimates without inter-location distances
@@ -511,6 +513,73 @@ const PowerTab = () => {
     downloadBlob(buildExportFilenameWithSuffix(projectName, 'strom-phasen', 'csv'), csv, 'text/csv')
   }
 
+  // #345 — Strom-Verteilungs-Report als PDF (für den Elektriker): alle
+  // berechneten Werte in einem Dokument — Zusammenfassung, Phasen-Balance,
+  // Neutralleiter, Generator, Spannungsfall, USV, Geräte→Phase.
+  const exportPdf = () => {
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
+    const pageW = pdf.internal.pageSize.getWidth()
+    const margin = 36
+    let y = margin
+    const line = (txt: string, size = 9, color = 40, dx = 0) => {
+      if (y > 790) {
+        pdf.addPage()
+        y = margin
+      }
+      pdf.setFontSize(size)
+      pdf.setTextColor(color)
+      pdf.text(sanitizeForPdf(txt), margin + dx, y)
+      y += size + 4
+    }
+    pdf.setFontSize(15)
+    pdf.setTextColor(20)
+    pdf.text(sanitizeForPdf(`Stromverteilung — ${projectName || 'Cable Planner'}`), margin, y)
+    y += 20
+    pdf.setFontSize(9)
+    pdf.setTextColor(90)
+    pdf.text(sanitizeForPdf(`${supply.label} · ${new Date().toLocaleString()}`), margin, y)
+    y += 16
+    pdf.setDrawColor(200)
+    pdf.line(margin, y, pageW - margin, y)
+    y += 14
+
+    line('ZUSAMMENFASSUNG', 11, 20)
+    line(`Gesamtverbrauch: ${totals.totalW.toFixed(0)} W  ·  + ${marginPercent}% Reserve = ${totalWithMargin.toFixed(0)} W (${(totalWithMargin / 1000).toFixed(2)} kW)`)
+    if (supply.phases === 1) {
+      line(`Stromstaerke (1-phasig): ${ampsSinglePhase.toFixed(1)} A  ·  Absicherung max ${supply.perPhaseAmps} A`)
+    } else {
+      line(`Symmetrisch (3-phasig): ${ampsThreePhase.toFixed(1)} A je Phase  ·  Absicherung max ${supply.perPhaseAmps} A`)
+    }
+    line(`Generator (cosphi 0,8): ${generatorKva.toFixed(1)} kVA  ·  empfohlen >= ${generatorKvaRecommended.toFixed(1)} kVA`)
+    line(`Waerme/Kuehlung: ${totalBtu} BTU/h  ~ ${(totals.totalW / 1000).toFixed(1)} kW  ·  ${Math.max(1, Math.ceil(totalBtu / 12000))}x 12k-BTU-AC`)
+    y += 6
+
+    if (supply.phases === 3 && distribution.perPhaseWatts.length === 3) {
+      line('PHASEN-BALANCE', 11, 20)
+      distribution.perPhaseWatts.forEach((w, i) => {
+        const a = w / supply.voltage
+        line(`L${i + 1}: ${Math.round(w)} W  ·  ${a.toFixed(1)} A  ·  ${Math.round((a / supply.perPhaseAmps) * 100)}% Last`, 9, 40, 8)
+      })
+      line(`Neutralleiter (geschaetzt): ${neutralAmps.toFixed(1)} A  ·  Unwucht ${maxImbalancePct}%`, 9, 40, 8)
+      y += 6
+    }
+
+    line('SPANNUNGSFALL (ZULEITUNG)', 11, 20)
+    line(`${runLength} m  ·  ${crossSection} mm2 Cu  ·  ${vdropCurrent.toFixed(1)} A  ->  ${vdropVolts.toFixed(1)} V (${vdropPercent.toFixed(1)}%)  ·  Ende ~${(supply.voltage - vdropVolts).toFixed(0)} V`, 9, 40, 8)
+    y += 6
+
+    line('USV / NOTSTROM', 11, 20)
+    line(`${upsVa} VA x PF ${upsPf} = ${Math.round(upsCapacityW)} W  ·  Last ${upsLoadW.toFixed(0)} W (${Math.round(upsLoadFraction * 100)}%)  ·  empf. >= ${recommendedVa} VA`, 9, 40, 8)
+    line(`Akku ${Math.round(batteryWh)} Wh (${Math.round(usableWh)} Wh nutzbar)  ->  Pufferzeit ~${runtimeMin <= 0 ? '-' : runtimeMin >= 60 ? `${Math.floor(runtimeMin / 60)} h ${Math.round(runtimeMin % 60)} min` : `${runtimeMin.toFixed(0)} min`}`, 9, 40, 8)
+    y += 6
+
+    line(`GERAETE -> PHASE (${distribution.assignments.length})`, 11, 20)
+    for (const a of distribution.assignments) {
+      line(`${a.pinned ? '[fix] ' : ''}${a.name}  —  ${a.watts} W  —  L${a.phase}`, 8, 60, 8)
+    }
+    pdf.save(buildExportFilenameWithSuffix(projectName || 'cable-planner', 'stromverteilung', 'pdf'))
+  }
+
   return (
     <div className="space-y-3 p-4 text-sm">
       <p className="text-[11px] text-slate-400">
@@ -767,6 +836,13 @@ const PowerTab = () => {
               className="inline-flex items-center gap-1 rounded bg-emerald-700 px-2 py-1 text-[11px] font-medium text-white hover:bg-emerald-600"
             >
               <Icon icon={Download} size="xs" /> {t('analysis.exportCsv', 'CSV exportieren')}
+            </button>
+            <button
+              type="button"
+              onClick={exportPdf}
+              className="inline-flex items-center gap-1 rounded bg-amber-700 px-2 py-1 text-[11px] font-medium text-white hover:bg-amber-600"
+            >
+              <Icon icon={Download} size="xs" /> {t('calc.power.exportPdf', 'PDF-Report')}
             </button>
           </div>
         </div>
