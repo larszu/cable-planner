@@ -401,7 +401,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
   const t = useTranslation()
   const project = useProjectStore((s) => s.project)
 
-  const { links, conflicts } = useMemo(() => {
+  const { links, conflicts, imConflicts } = useMemo(() => {
     const nameOf = new Map(project.equipment.map((e) => [e.id, e.name]))
     const links = project.cables
       .filter((c) => c.wireless || parseFreqMHz(c.frequency) != null)
@@ -437,7 +437,43 @@ const RfTab = ({ projectName }: { projectName: string }) => {
         }
       }
     }
-    return { links, conflicts }
+    // #344 — 3.-Ordnung-Intermodulation (2·fi − fj). Diese Produkte fallen
+    // typischerweise nahe an die Arbeitsfrequenzen anderer Sender und sind die
+    // häufigste Störquelle bei Funkmikros/IEM. Treffer = Produkt liegt im
+    // Schutzabstand einer ECHTEN Arbeitsfrequenz (außer den zwei Erzeugern).
+    const freqs = links
+      .map((l, idx) => ({ idx, name: l.name, mhz: l.mhz }))
+      .filter((l): l is { idx: number; name: string; mhz: number } => l.mhz != null)
+    const seen = new Set<string>()
+    const imConflicts: string[] = []
+    for (let i = 0; i < freqs.length; i++) {
+      for (let j = 0; j < freqs.length; j++) {
+        if (i === j) continue
+        const prod = 2 * freqs[i].mhz - freqs[j].mhz
+        if (prod <= 0) continue
+        for (let k = 0; k < freqs.length; k++) {
+          if (k === i || k === j) continue
+          if (Math.abs(prod - freqs[k].mhz) <= RF_MIN_SPACING_MHZ) {
+            const key = [freqs[i].idx, freqs[j].idx, freqs[k].idx].join('-')
+            if (seen.has(key)) continue
+            seen.add(key)
+            imConflicts.push(
+              format(
+                t('analysis.rf.im3', 'IM3: 2×{a} − {b} = {prod} MHz trifft {c} ({cmhz} MHz)'),
+                {
+                  a: freqs[i].name,
+                  b: freqs[j].name,
+                  prod: prod.toFixed(2),
+                  c: freqs[k].name,
+                  cmhz: freqs[k].mhz,
+                },
+              ),
+            )
+          }
+        }
+      }
+    }
+    return { links, conflicts, imConflicts }
   }, [project, t])
 
   const exportCsv = () => {
@@ -459,7 +495,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
       <p className="text-cp-xs text-[var(--cp-text-muted)]">
         {t(
           'analysis.rf.intro',
-          'Funkstrecken (Wireless-Kabel) mit Frequenz/Kanal. Konflikt-Heuristik: Frequenzabstand < 0,4 MHz oder gleicher Kanal. Volle Intermod-Koordination ist separat geplant.',
+          'Funkstrecken (Wireless-Kabel) mit Frequenz/Kanal. Konflikt-Heuristik: Frequenzabstand < 0,4 MHz oder gleicher Kanal. Zusätzlich 3.-Ordnung-Intermodulation (2·f₁−f₂) — die häufigste Störquelle bei Funkmikros/IEM.',
         )}
       </p>
       {conflicts.length > 0 && (
@@ -469,6 +505,23 @@ const RfTab = ({ projectName }: { projectName: string }) => {
             {conflicts.map((c, i) => (
               <li key={i}>{c}</li>
             ))}
+          </ul>
+        </div>
+      )}
+      {imConflicts.length > 0 && (
+        <div className="rounded border border-amber-700/60 bg-amber-900/30 p-2 text-cp-xs text-amber-200">
+          <div className="mb-1 font-semibold">
+            {t('analysis.rf.imTitle', 'Intermodulation 3. Ordnung')} ({imConflicts.length})
+          </div>
+          <ul className="list-inside list-disc">
+            {imConflicts.slice(0, 20).map((c, i) => (
+              <li key={i} className="font-mono">{c}</li>
+            ))}
+            {imConflicts.length > 20 && (
+              <li className="text-amber-300/80">
+                {format(t('analysis.rf.imMore', '+{n} weitere'), { n: imConflicts.length - 20 })}
+              </li>
+            )}
           </ul>
         </div>
       )}
