@@ -1390,6 +1390,7 @@ const en: Dict = {
     'Drag to place this annotation on the canvas or attach it to a device',
   'annotations.clickToEdit': 'Click to edit',
   'annotations.delete': 'Delete annotation',
+  'annotations.placeCenter': 'Place at canvas centre (keyboard alternative to dragging)',
   'annotations.float.title': 'Detach (free-floating window)',
   'annotations.float.aria': 'Detach annotations panel',
 
