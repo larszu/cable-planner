@@ -138,8 +138,8 @@ export const DeviceModePicker = ({
   }
 
   return (
-    <div className="space-y-2 text-xs">
-      <p className="text-[10px] text-slate-500">
+    <div className="space-y-2 text-cp-xs">
+      <p className="text-[10px] text-slate-400">
         {t(
           'modes.intro',
           'Wechselt das Port-Layout des Geräts. Bestehende Kabel an Ports, die im neuen Modus nicht existieren, bleiben im Projekt, müssen aber neu gesteckt werden.',
@@ -147,7 +147,7 @@ export const DeviceModePicker = ({
       </p>
       <div className="grid grid-cols-1 gap-1">
         {modes.length === 0 && (
-          <div className="rounded border border-dashed border-slate-700 p-3 text-center text-[11px] text-slate-500">
+          <div className="rounded border border-dashed border-slate-700 p-3 text-center text-[11px] text-slate-400">
             {t(
               'modes.emptyState',
               'Keine Modi definiert. Ports oben bearbeiten und anschließend mit "+ aus aktuellem Layout" als Modus speichern.',
@@ -174,7 +174,7 @@ export const DeviceModePicker = ({
               {m.description && (
                 <span className="text-[10px] text-slate-400">{m.description}</span>
               )}
-              <span className="mt-1 text-[10px] text-slate-500">
+              <span className="mt-1 text-[10px] text-slate-400">
                 {m.inputs.length} In · {m.outputs.length} Out
               </span>
             </button>

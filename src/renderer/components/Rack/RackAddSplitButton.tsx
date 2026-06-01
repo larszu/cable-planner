@@ -95,7 +95,7 @@ export const RackAddSplitButton = ({
             </svg>
             <div className="flex flex-col">
               <span className="font-semibold text-emerald-300">{t('rackAdd.frontOnly', 'Nur vorne')}</span>
-              <span className="text-[9px] text-slate-500">{t('rackAdd.frontMount', 'Front-Mount')}</span>
+              <span className="text-[9px] text-slate-400">{t('rackAdd.frontMount', 'Front-Mount')}</span>
             </div>
           </button>
           <button
@@ -112,7 +112,7 @@ export const RackAddSplitButton = ({
             </svg>
             <div className="flex flex-col">
               <span className="font-semibold text-slate-100">{t('rackAdd.fullDepth', 'Full-Depth')}</span>
-              <span className="text-[9px] text-slate-500">{t('rackAdd.fullDepthSub', 'vorne + hinten (Default)')}</span>
+              <span className="text-[9px] text-slate-400">{t('rackAdd.fullDepthSub', 'vorne + hinten (Default)')}</span>
             </div>
           </button>
           <button
@@ -130,7 +130,7 @@ export const RackAddSplitButton = ({
             </svg>
             <div className="flex flex-col">
               <span className="font-semibold text-purple-300">{t('rackAdd.rearOnly', 'Nur hinten')}</span>
-              <span className="text-[9px] text-slate-500">{t('rackAdd.rearMount', 'Rear-Mount (z.B. Patchblende)')}</span>
+              <span className="text-[9px] text-slate-400">{t('rackAdd.rearMount', 'Rear-Mount (z.B. Patchblende)')}</span>
             </div>
           </button>
         </div>

@@ -113,7 +113,7 @@ export const BulkConnectDialog = () => {
           <button
             type="button"
             onClick={close}
-            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
           >
             {t('common.cancel', 'Abbrechen')}
           </button>
@@ -121,7 +121,7 @@ export const BulkConnectDialog = () => {
             type="button"
             onClick={handleSubmit}
             disabled={!fromEq || !toEq || planned.length === 0}
-            className="rounded bg-emerald-600 px-3 py-1 text-xs text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded bg-emerald-600 px-3 py-1 text-cp-xs text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {format(t('bulk.create', '{n} Kabel erstellen'), { n: planned.length })}
           </button>
@@ -143,11 +143,11 @@ export const BulkConnectDialog = () => {
               {t('bulk.source', 'Quelle')}
             </legend>
             <label className="block">
-              <span className="mb-1 block text-xs text-slate-400">{t('bulk.device', 'Gerät')}</span>
+              <span className="mb-1 block text-cp-xs text-slate-400">{t('bulk.device', 'Gerät')}</span>
               <select
                 value={fromEqId}
                 onChange={(e) => setFromEqId(e.target.value)}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
               >
                 <option value="">—</option>
                 {equipment.map((e) => (
@@ -158,18 +158,18 @@ export const BulkConnectDialog = () => {
               </select>
             </label>
             <label className="mt-2 block">
-              <span className="mb-1 block text-xs text-slate-400">{t('bulk.side', 'Seite')}</span>
+              <span className="mb-1 block text-cp-xs text-slate-400">{t('bulk.side', 'Seite')}</span>
               <select
                 value={fromSide}
                 onChange={(e) => setFromSide(e.target.value as 'outputs' | 'inputs')}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
               >
                 <option value="outputs">{t('bulk.outputs', 'Outputs')}</option>
                 <option value="inputs">{t('bulk.inputs', 'Inputs')}</option>
               </select>
             </label>
             <label className="mt-2 block">
-              <span className="mb-1 block text-xs text-slate-400">
+              <span className="mb-1 block text-cp-xs text-slate-400">
                 {format(
                   t('bulk.startFrom', 'Start-{side} (1..{total})'),
                   { side: fromSide === 'outputs' ? 'Output' : 'Input', total: fromPorts.length },
@@ -181,7 +181,7 @@ export const BulkConnectDialog = () => {
                 max={Math.max(1, fromPorts.length)}
                 value={fromStart}
                 onChange={(e) => setFromStart(Math.max(1, Number(e.target.value) || 1))}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-cp-xs"
               />
             </label>
           </fieldset>
@@ -192,11 +192,11 @@ export const BulkConnectDialog = () => {
               {t('bulk.target', 'Ziel')}
             </legend>
             <label className="block">
-              <span className="mb-1 block text-xs text-slate-400">{t('bulk.device', 'Gerät')}</span>
+              <span className="mb-1 block text-cp-xs text-slate-400">{t('bulk.device', 'Gerät')}</span>
               <select
                 value={toEqId}
                 onChange={(e) => setToEqId(e.target.value)}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
               >
                 <option value="">—</option>
                 {equipment.map((e) => (
@@ -207,18 +207,18 @@ export const BulkConnectDialog = () => {
               </select>
             </label>
             <label className="mt-2 block">
-              <span className="mb-1 block text-xs text-slate-400">{t('bulk.side', 'Seite')}</span>
+              <span className="mb-1 block text-cp-xs text-slate-400">{t('bulk.side', 'Seite')}</span>
               <select
                 value={toSide}
                 onChange={(e) => setToSide(e.target.value as 'inputs' | 'outputs')}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
               >
                 <option value="inputs">{t('bulk.inputs', 'Inputs')}</option>
                 <option value="outputs">{t('bulk.outputs', 'Outputs')}</option>
               </select>
             </label>
             <label className="mt-2 block">
-              <span className="mb-1 block text-xs text-slate-400">
+              <span className="mb-1 block text-cp-xs text-slate-400">
                 {format(
                   t('bulk.startTo', 'Start-{side} (1..{total})'),
                   { side: toSide === 'inputs' ? 'Input' : 'Output', total: toPorts.length },
@@ -230,7 +230,7 @@ export const BulkConnectDialog = () => {
                 max={Math.max(1, toPorts.length)}
                 value={toStart}
                 onChange={(e) => setToStart(Math.max(1, Number(e.target.value) || 1))}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-xs"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-cp-xs"
               />
             </label>
           </fieldset>
@@ -239,22 +239,22 @@ export const BulkConnectDialog = () => {
         {/* Anzahl + Kabel-Spec + Laenge */}
         <div className="grid grid-cols-3 gap-3">
           <label className="block">
-            <span className="mb-1 block text-xs text-slate-400">{t('bulk.count', 'Anzahl Kabel')}</span>
+            <span className="mb-1 block text-cp-xs text-slate-400">{t('bulk.count', 'Anzahl Kabel')}</span>
             <input
               type="number"
               min={1}
               max={256}
               value={count}
               onChange={(e) => setCount(Math.max(1, Math.min(256, Number(e.target.value) || 1)))}
-              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-xs"
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-cp-xs"
             />
           </label>
           <label className="col-span-2 block">
-            <span className="mb-1 block text-xs text-slate-400">{t('bulk.spec', 'Kabel-Typ')}</span>
+            <span className="mb-1 block text-cp-xs text-slate-400">{t('bulk.spec', 'Kabel-Typ')}</span>
             <select
               value={cableSpecId}
               onChange={(e) => setCableSpecId(e.target.value)}
-              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-xs"
+              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
             >
               {allSpecs.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -266,27 +266,27 @@ export const BulkConnectDialog = () => {
         </div>
 
         <label className="block">
-          <span className="mb-1 block text-xs text-slate-400">{t('bulk.length', 'Länge pro Kabel (m)')}</span>
+          <span className="mb-1 block text-cp-xs text-slate-400">{t('bulk.length', 'Länge pro Kabel (m)')}</span>
           <input
             type="number"
             min={0}
             step="0.5"
             value={lengthMeters}
             onChange={(e) => setLengthMeters(Math.max(0, Number(e.target.value) || 0))}
-            className="w-32 rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-xs"
+            className="w-32 rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-cp-xs"
           />
         </label>
 
         {/* Preview */}
         <div className="rounded border border-slate-700 bg-slate-950/40 p-2">
-          <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
+          <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
             {format(t('bulk.preview', 'Vorschau ({n}/{plan} Kabel)'), {
               n: planned.length,
               plan: count,
             })}
           </div>
           {planned.length === 0 ? (
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px] text-slate-400">
               {t('bulk.previewEmpty', 'Wähle Quelle/Ziel und Port-Bereich.')}
             </p>
           ) : (

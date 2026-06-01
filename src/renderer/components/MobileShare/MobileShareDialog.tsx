@@ -140,14 +140,14 @@ export const MobileShareDialog = () => {
     >
         <div className="space-y-3 text-sm">
           {!hasDesktopBridge && (
-            <div className="rounded border border-amber-700 bg-amber-950/40 p-3 text-xs text-amber-200">
+            <div className="rounded border border-amber-700 bg-amber-950/40 p-3 text-cp-xs text-amber-200">
               {t('mobile.dialog.desktopOnly1', 'Diese Funktion benötigt die Desktop-App (Electron). Im Web-Browser ist der Mobile-Viewer als statisches HTML im')}{' '}
               <code className="rounded bg-slate-800 px-1">dist/renderer/mobile.html</code>{' '}
               {t('mobile.dialog.desktopOnly2', 'erreichbar.')}
             </div>
           )}
 
-          <p className="text-xs text-slate-400">
+          <p className="text-cp-xs text-slate-400">
             {t('mobile.dialog.description', 'Startet einen kleinen Web-Server im lokalen Netzwerk. Scanne den QR-Code mit dem Handy → der Mobile-Viewer öffnet sich im Browser und lädt das aktuelle Projekt. Der Server stoppt automatisch beim Schließen der App oder über den Stop-Button.')}
           </p>
 
@@ -183,7 +183,7 @@ export const MobileShareDialog = () => {
               </div>
               {status.urls.length > 1 && (
                 <div>
-                  <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
+                  <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
                     {t('mobile.dialog.altUrls', 'Alternative LAN-Adressen (falls eine nicht erreichbar ist)')}
                   </div>
                   <div className="flex flex-wrap gap-1">
@@ -217,7 +217,7 @@ export const MobileShareDialog = () => {
                   type="button"
                   onClick={() => void handleStop()}
                   disabled={busy}
-                  className="rounded bg-red-700 px-3 py-1 text-xs text-white hover:bg-red-600 disabled:opacity-50"
+                  className="rounded bg-red-700 px-3 py-1 text-cp-xs text-white hover:bg-red-600 disabled:opacity-50"
                 >
                   {t('mobile.dialog.stop', 'Stop')}
                 </button>
@@ -226,7 +226,7 @@ export const MobileShareDialog = () => {
           ) : (
             <div className="flex flex-col items-center gap-3 rounded border border-slate-700 bg-slate-950/40 p-6 text-center">
               <Icon icon={Radio} size={28} className="text-slate-500" />
-              <p className="text-xs text-slate-400">
+              <p className="text-cp-xs text-slate-400">
                 {t('mobile.dialog.stopped', 'Server ist gestoppt. Klicke unten, um den LAN-Server zu starten.')}
               </p>
               <button
@@ -240,7 +240,7 @@ export const MobileShareDialog = () => {
             </div>
           )}
 
-          <details className="text-[11px] text-slate-500">
+          <details className="text-[11px] text-slate-400">
             <summary className="cursor-pointer hover:text-slate-300">{t('mobile.dialog.securityHeading', 'Hinweise zur Sicherheit')}</summary>
             <ul className="mt-1 list-inside list-disc space-y-1">
               <li>{t('mobile.dialog.security.readOnly', 'Read-only: das Handy kann nur lesen, nichts schreiben.')}</li>

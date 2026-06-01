@@ -693,7 +693,7 @@ export const LibraryPanel = () => {
           type="button"
           onClick={toggleCollapsed}
           aria-label={t('library.show', 'Library einblenden')}
-          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:text-slate-300 focus-visible:outline-none focus-visible:text-sky-300"
+          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400 transition-colors hover:text-slate-300 focus-visible:outline-none focus-visible:text-sky-300"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
           {t('library.title', 'Library')}
@@ -708,7 +708,7 @@ export const LibraryPanel = () => {
           Counts NUR an der kleinsten Granularität — der R-Badge am
           Equipment-Tab ist raus, weil die Lokal/Rentman-Untertoggle
           die gleiche Info zeigt. Tab-Zeile in EINE Zeile gepackt. */}
-      <div className="mb-2 flex items-center gap-1 text-xs">
+      <div className="mb-2 flex items-center gap-1 text-cp-xs">
         {!floating && (
           <button
             type="button"
@@ -784,7 +784,7 @@ export const LibraryPanel = () => {
             <button
               type="button"
               onClick={() => setEquipmentSection('local')}
-              className={`flex-1 rounded px-2 py-1 text-xs ${
+              className={`flex-1 rounded px-2 py-1 text-cp-xs ${
                 equipmentSection === 'local'
                   ? 'bg-sky-700 text-white'
                   : 'text-slate-300 hover:bg-slate-800'
@@ -800,7 +800,7 @@ export const LibraryPanel = () => {
             <button
               type="button"
               onClick={() => setEquipmentSection('rentman')}
-              className={`flex-1 rounded px-2 py-1 text-xs ${
+              className={`flex-1 rounded px-2 py-1 text-cp-xs ${
                 equipmentSection === 'rentman'
                   ? 'bg-orange-600 text-white'
                   : 'text-slate-300 hover:bg-slate-800'
@@ -846,8 +846,8 @@ export const LibraryPanel = () => {
           <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-base font-semibold">{t('library.netbox.title', 'NetBox Import')}</h3>
-                <p className="mt-1 text-xs text-slate-400">
+                <h3 className="text-cp-xl font-semibold">{t('library.netbox.title', 'NetBox Import')}</h3>
+                <p className="mt-1 text-cp-xs text-slate-400">
                   {t(
                     'library.netbox.intro',
                     'Importiert Geräte aus der NetBox device-type-library in die lokale Library. Nicht-destruktiv: bestehende Geräte auf dem Canvas bleiben unverändert.',
@@ -857,7 +857,7 @@ export const LibraryPanel = () => {
               <button
                 type="button"
                 onClick={() => setShowNetBoxDialog(false)}
-                className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+                className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
               >
                 {t('common.close', 'Schließen')}
               </button>
@@ -874,6 +874,7 @@ export const LibraryPanel = () => {
                   }
                 }}
                 placeholder={t('library.netbox.searchPlaceholder', 'z.B. blackmagic atem, cisco catalyst, yamaha ql5')}
+                aria-label={t('library.netbox.searchPlaceholder', 'z.B. blackmagic atem, cisco catalyst, yamaha ql5')}
                 className="flex-1 rounded border border-slate-700 bg-slate-950 p-2 text-sm"
               />
               <button
@@ -898,17 +899,17 @@ export const LibraryPanel = () => {
             </div>
 
             {netBoxError && (
-              <div className="mb-3 rounded border border-red-700/60 bg-red-900/30 px-3 py-2 text-xs text-red-100">
+              <div className="mb-3 rounded border border-red-700/60 bg-red-900/30 px-3 py-2 text-cp-xs text-red-100">
                 {netBoxError}
               </div>
             )}
 
-            <div className="mb-2 text-[11px] uppercase tracking-wide text-slate-500">
+            <div className="mb-2 text-[11px] uppercase tracking-wide text-slate-400">
               Treffer {netBoxResults.length > 0 ? `(${netBoxResults.length})` : ''}
             </div>
             <div className="space-y-2">
               {netBoxResults.length === 0 ? (
-                <div className="rounded border border-slate-700 bg-slate-950/50 p-3 text-xs text-slate-400">
+                <div className="rounded border border-slate-700 bg-slate-950/50 p-3 text-cp-xs text-slate-400">
                   Hersteller + Modell suchen. Beispiel: „blackmagic atem", „yamaha ql5", „cisco catalyst 9300".
                 </div>
               ) : (
@@ -923,7 +924,7 @@ export const LibraryPanel = () => {
                         <div className="truncate font-medium text-slate-100">
                           {item.manufacturer} {item.model}
                         </div>
-                        <div className="truncate text-[11px] text-slate-500">{item.path}</div>
+                        <div className="truncate text-[11px] text-slate-400">{item.path}</div>
                         <div className="mt-2 flex max-w-[340px] items-center gap-2">
                           <span className="text-[11px] text-slate-400">{t('library.netbox.categoryLabel', 'Kategorie:')}</span>
                           <select
@@ -934,7 +935,7 @@ export const LibraryPanel = () => {
                                 [item.path]: event.target.value,
                               }))
                             }
-                            className="min-w-0 flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs"
+                            className="min-w-0 flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
                           >
                             <option value="">{t('library.netbox.pickCategory', 'Bitte auswählen...')}</option>
                             {existingCategoryOptions.map((cat) => (
@@ -949,7 +950,7 @@ export const LibraryPanel = () => {
                         type="button"
                         onClick={() => void handleImportNetBox(item)}
                         disabled={busy || !(netBoxCategoryByPath[item.path] ?? '').trim()}
-                        className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold hover:bg-emerald-600 disabled:opacity-50"
+                        className="rounded bg-emerald-700 px-3 py-1.5 text-cp-xs font-semibold hover:bg-emerald-600 disabled:opacity-50"
                       >
                         {busy ? 'Import…' : 'Importieren'}
                       </button>
@@ -965,7 +966,7 @@ export const LibraryPanel = () => {
       {showCreateDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
           <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4">
-            <h3 className="mb-3 text-base font-semibold">
+            <h3 className="mb-3 text-cp-xl font-semibold">
               {t('library.create.title', 'Eigenes Gerät anlegen')}
             </h3>
             <div className="mb-3 grid grid-cols-3 gap-2 text-sm">
@@ -987,7 +988,7 @@ export const LibraryPanel = () => {
               </label>
               <label className="block">
                 19" Rack-Gerät
-                <label className="mt-2 flex items-center gap-2 text-xs">
+                <label className="mt-2 flex items-center gap-2 text-cp-xs">
                   <input
                     type="checkbox"
                     checked={isRackDeviceDraft}
@@ -1009,7 +1010,7 @@ export const LibraryPanel = () => {
               </label>
             </div>
 
-            <div className="mb-2 rounded border border-violet-800/60 bg-violet-950/30 p-2 text-xs">
+            <div className="mb-2 rounded border border-violet-800/60 bg-violet-950/30 p-2 text-cp-xs">
               <div className="mb-1 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
                 <span className="font-semibold text-violet-200">
                   {t('library.suggest.heading', 'Auto-Vorschlag aus Geräte-Name')}
@@ -1063,7 +1064,7 @@ export const LibraryPanel = () => {
             </div>
 
             {aiSettingsOpen && (
-              <div className="mb-2 rounded border border-slate-700 bg-slate-950 p-2 text-xs">
+              <div className="mb-2 rounded border border-slate-700 bg-slate-950 p-2 text-cp-xs">
                 <div className="mb-1 font-semibold text-slate-200">{t('library.create.aiKey.label', 'Gemini API-Key')}</div>
                 <div className="flex gap-1">
                   <input
@@ -1092,7 +1093,7 @@ export const LibraryPanel = () => {
                     Abbrechen
                   </button>
                 </div>
-                <div className="mt-1 text-[10px] text-slate-500">
+                <div className="mt-1 text-[10px] text-slate-400">
                   Gespeichert nur lokal in localStorage. Key bei{' '}
                   <a
                     href="https://aistudio.google.com/app/apikey"
@@ -1111,7 +1112,7 @@ export const LibraryPanel = () => {
               <div className="text-sm font-semibold">
                 {t('library.create.portGroups', 'Port-Gruppen')}
               </div>
-              <div className="flex flex-wrap gap-2 text-xs">
+              <div className="flex flex-wrap gap-2 text-cp-xs">
                 <button
                   type="button"
                   onClick={() => addGroup('in')}
@@ -1133,7 +1134,7 @@ export const LibraryPanel = () => {
               {groups.map((group) => (
                 <div
                   key={group.id}
-                  className="grid grid-cols-[80px_70px_1fr_1fr_40px] items-center gap-2 rounded border border-slate-700 bg-slate-950 p-2 text-xs"
+                  className="grid grid-cols-[80px_70px_1fr_1fr_40px] items-center gap-2 rounded border border-slate-700 bg-slate-950 p-2 text-cp-xs"
                 >
                   <select
                     value={group.direction}
@@ -1186,7 +1187,7 @@ export const LibraryPanel = () => {
                 </div>
               ))}
               {groups.length === 0 && (
-                <div className="text-xs text-slate-400">No port groups yet. Add one above.</div>
+                <div className="text-cp-xs text-slate-400">No port groups yet. Add one above.</div>
               )}
             </div>
 
@@ -1275,14 +1276,14 @@ export const LibraryPanel = () => {
       {netBoxConflict && (
         <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/70 p-6">
           <div className="w-full max-w-xl rounded border border-amber-600 bg-slate-900 p-4 text-slate-100">
-            <h3 className="mb-2 text-base font-semibold text-amber-300">{t('library.duplicate.title', 'Gerät existiert bereits')}</h3>
+            <h3 className="mb-2 text-cp-xl font-semibold text-amber-300">{t('library.duplicate.title', 'Gerät existiert bereits')}</h3>
             <p className="mb-3 text-sm text-slate-300">
               {format(
                 t('library.netbox.duplicateIntro', '{name} ist bereits in der lokalen Library. Wahlen, wie importiert werden soll.'),
                 { name: netBoxConflict.incoming.name },
               )}
             </p>
-            <div className="mb-3 rounded border border-slate-700 bg-slate-950/40 p-2 text-xs text-slate-400">
+            <div className="mb-3 rounded border border-slate-700 bg-slate-950/40 p-2 text-cp-xs text-slate-400">
               {t('library.netbox.localCount', 'Lokal')}: {netBoxConflict.existing.inputs.length} In / {netBoxConflict.existing.outputs.length} Out
               <br />
               NetBox: {netBoxConflict.incoming.inputs.length} In / {netBoxConflict.incoming.outputs.length} Out

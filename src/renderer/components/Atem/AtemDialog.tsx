@@ -308,7 +308,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
       <div className="flex max-h-[80vh] flex-col text-slate-100">
         <div className="border-b border-slate-700 px-4 py-3">
           <div className="flex items-end gap-2">
-            <label className="flex-1 text-xs">
+            <label className="flex-1 text-cp-xs">
               <span className="mb-1 block text-slate-300">ATEM IP-Adresse</span>
               <input
                 value={ip}
@@ -365,7 +365,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
           {discoveryDone && status !== 'connected' && (
             <div className="mt-2">
               {discovered.length === 0 ? (
-                <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-2 text-[11px] text-slate-500">
+                <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-2 text-[11px] text-slate-400">
                   {t(
                     'atem.dialog.noneFound',
                     'Kein ATEM-Switcher per mDNS im lokalen Netzwerk gefunden. (Manche Modelle / Firewall-Setups blocken mDNS — dann IP manuell eingeben.)',
@@ -373,7 +373,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 </div>
               ) : (
                 <div className="space-y-1">
-                  <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                  <div className="text-[10px] uppercase tracking-wide text-slate-400">
                     {format(t('atem.dialog.foundCount', 'Gefunden ({n}) — Klick übernimmt die IP:'), {
                       n: discovered.length,
                     })}
@@ -383,7 +383,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                       key={dev.ip}
                       type="button"
                       onClick={() => setIp(dev.ip)}
-                      className="flex w-full items-center justify-between gap-2 rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-left text-xs hover:border-purple-500 hover:bg-slate-900"
+                      className="flex w-full items-center justify-between gap-2 rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-left text-cp-xs hover:border-purple-500 hover:bg-slate-900"
                     >
                       <span className="font-medium text-slate-100">
                         {dev.name}
@@ -409,26 +409,26 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
             </div>
           )}
           {error && (
-            <div className="mt-2 rounded bg-red-900/50 p-2 text-xs text-red-100">{error}</div>
+            <div className="mt-2 rounded bg-red-900/50 p-2 text-cp-xs text-red-100">{error}</div>
           )}
         </div>
 
         {status === 'connected' && state && (
           <div className="flex-1 overflow-auto px-4 py-3">
             <div className="mb-2 flex items-center justify-between">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">
+              <h3 className="text-cp-xs font-semibold uppercase tracking-wide text-slate-300">
                 Input-Namen ({rows.length})
               </h3>
               <button
                 type="button"
                 onClick={pushAll}
                 disabled={pushing || dirtyCount === 0}
-                className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600 disabled:opacity-50"
+                className="rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
               >
                 {pushing ? 'Sende…' : `${dirtyCount} Änderungen senden`}
               </button>
             </div>
-            <table className="w-full table-fixed text-xs">
+            <table className="w-full table-fixed text-cp-xs">
               <thead className="text-left text-slate-400">
                 <tr>
                   <th className="w-12 py-1">ID</th>
@@ -509,7 +509,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 ))}
               </tbody>
             </table>
-            <p className="mt-3 text-[11px] text-slate-500">
+            <p className="mt-3 text-[11px] text-slate-400">
               {t(
                 'atem.dialog.changesNote',
                 'Hinweis: Änderungen gehen direkt an den Switcher (RAM). Damit sie einen Reboot überleben, in der Blackmagic ATEM Software „Save Startup State" auslösen. Audio-Eingaenge (XLR/RJ45-Talkback), Mediaplayer und interne Quellen sind gesperrt — der ATEM verwaltet die selbst.',

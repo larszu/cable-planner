@@ -23,7 +23,7 @@ const HotkeyRow = ({
   const [capturing, setCapturing] = useState(false)
   const label = t(`hotkeys.action.${action}`, HOTKEY_ACTION_LABEL[action] ?? action)
   return (
-    <li className="flex items-center gap-2 rounded border border-slate-800 bg-slate-950 px-2 py-1.5 text-xs">
+    <li className="flex items-center gap-2 rounded border border-slate-800 bg-slate-950 px-2 py-1.5 text-cp-xs">
       <span className="flex-1 truncate text-slate-200">{label}</span>
       <button
         type="button"
@@ -72,7 +72,7 @@ export const HotkeysTab = () => {
   const actions = Object.keys(HOTKEY_ACTION_LABEL)
   return (
     <div className="space-y-3">
-      <p className="text-xs text-slate-400">
+      <p className="text-cp-xs text-slate-400">
         {t(
           'settings.hotkeys.intro',
           'Tastenkürzel können hier frei belegt werden. Klicke auf eine Combo-Zelle und drücke die gewünschten Tasten — Ctrl/Shift/Alt + Buchstabe oder Funktionstaste.',
@@ -99,7 +99,7 @@ export const HotkeysTab = () => {
           <button
             type="button"
             onClick={resetHotkeys}
-            className="rounded bg-slate-800 px-3 py-1 text-xs text-slate-300 hover:bg-slate-700"
+            className="rounded bg-slate-800 px-3 py-1 text-cp-xs text-slate-300 hover:bg-slate-700"
           >
             {t('settings.hotkeys.reset', 'Auf Standard zurücksetzen')}
           </button>

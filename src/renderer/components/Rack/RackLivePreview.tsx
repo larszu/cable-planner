@@ -183,7 +183,7 @@ export const RackLivePreview = ({
 
   if (placements.length === 0) {
     return (
-      <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-3 text-center text-[10px] text-slate-500">
+      <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-3 text-center text-[10px] text-slate-400">
         {t(
           'rackPreview.empty',
           'Keine Geräte im Rack — Preview erscheint sobald das erste Gerät zugewiesen ist.',
@@ -205,7 +205,7 @@ export const RackLivePreview = ({
         <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
           {t('rackPreview.headerLabel', 'Black-Box auf Canvas')}
         </div>
-        <div className="text-[10px] text-slate-500">
+        <div className="text-[10px] text-slate-400">
           {format(t('rackPreview.counts', '{devices} Geräte · {cables} interne Kabel'), {
             devices: placements.length,
             cables: cables.length,

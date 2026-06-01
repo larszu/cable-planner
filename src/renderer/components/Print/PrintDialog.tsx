@@ -126,7 +126,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
             <button
               type="button"
               onClick={onClose}
-              className="rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-700"
+              className="rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-cp-xs text-slate-100 hover:bg-slate-700"
             >
               {t('common.close', 'Schließen')}
             </button>
@@ -134,7 +134,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
               type="button"
               onClick={() => void handleExportDevices()}
               disabled={selectionCount === 0 || busy}
-              className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {busy
                 ? t('print.busy', 'Erzeuge PDF…')
@@ -189,7 +189,8 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
                 placeholder={t('print.devices.searchPlaceholder', 'Suchen (Name, Kategorie, Untertitel)…')}
-                className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100 placeholder:text-slate-500"
+                aria-label={t('print.devices.searchPlaceholder', 'Suchen (Name, Kategorie, Untertitel)…')}
+                className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs text-slate-100 placeholder:text-slate-500"
               />
               {(() => {
                 // v7.6.0 — one toggle button instead of two competing buttons.
@@ -216,11 +217,11 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
             {/* Device checklist */}
             <div className="mb-3 max-h-[42vh] overflow-y-auto rounded border border-slate-800 bg-slate-950/40 p-1">
               {sortedEquipment.length === 0 ? (
-                <div className="px-3 py-6 text-center text-[11px] text-slate-500">
+                <div className="px-3 py-6 text-center text-[11px] text-slate-400">
                   {t('print.devices.noneInProject', 'Keine Geräte im Projekt.')}
                 </div>
               ) : filteredEquipment.length === 0 ? (
-                <div className="px-3 py-6 text-center text-[11px] text-slate-500">
+                <div className="px-3 py-6 text-center text-[11px] text-slate-400">
                   {formatStr(t('print.devices.noMatch', 'Kein Gerät passt zum Suchbegriff „{q}".'), { q: filter })}
                 </div>
               ) : (
@@ -232,7 +233,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     ).length
                     return (
                       <li key={eq.id}>
-                        <label className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-xs text-slate-200 hover:bg-slate-800/60">
+                        <label className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-cp-xs text-slate-200 hover:bg-slate-800/60">
                           <input
                             type="checkbox"
                             checked={selectedIds.has(eq.id)}
@@ -241,11 +242,11 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                           />
                           <div className="min-w-0 flex-1">
                             <div className="truncate font-medium text-slate-100">{eq.name}</div>
-                            <div className="truncate text-[10px] text-slate-500">
+                            <div className="truncate text-[10px] text-slate-400">
                               {[eq.category, eq.subtitle].filter(Boolean).join(' · ') || '—'}
                             </div>
                           </div>
-                          <span className="shrink-0 text-[10px] text-slate-500">
+                          <span className="shrink-0 text-[10px] text-slate-400">
                             {portCount} Ports · {cableCount} Kabel
                           </span>
                         </label>
@@ -262,7 +263,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                 <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
                   Aktion
                 </div>
-                <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
+                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
                   <input
                     type="radio"
                     name="print-action"
@@ -272,7 +273,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                   <Icon icon={Printer} size="xs" className="mr-1 inline-block align-text-bottom" />
                   Auf Drucker drucken (Systemdialog)
                 </label>
-                <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
+                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
                   <input
                     type="radio"
                     name="print-action"
@@ -299,7 +300,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                 <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
                   {t('print.format.label', 'Format')}
                 </div>
-                <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
+                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
                   <input
                     type="radio"
                     name="print-format"
@@ -308,7 +309,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                   />
                   {t('print.format.a4', 'A4 (Standard)')}
                 </label>
-                <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
+                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
                   <input
                     type="radio"
                     name="print-format"
@@ -322,7 +323,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                 <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
                   {t('print.output.label', 'Ausgabe')}
                 </div>
-                <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
+                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
                   <input
                     type="radio"
                     name="print-mode"
@@ -331,7 +332,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                   />
                   {t('print.output.combined', 'Eine Sammel-PDF')}
                 </label>
-                <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-200">
+                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
                   <input
                     type="radio"
                     name="print-mode"

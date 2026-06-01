@@ -148,8 +148,11 @@ export const CableContextMenu = () => {
   if (!menu.open || !cable) return null
 
   // Clamp to viewport so the menu never opens partially off-screen.
-  const left = Math.min(menu.screenX, window.innerWidth - MENU_WIDTH - 8)
-  const top = Math.min(menu.screenY, window.innerHeight - 380)
+  // #447 — auf niedrigen/Portrait-Viewports darf `top` nie negativ werden
+  // (sonst öffnet das Menü oberhalb der Kante); ≥8 erzwingen. Die Höhe wird
+  // unten via maxHeight gedeckelt, damit das Menü statt überzulaufen scrollt.
+  const left = Math.max(8, Math.min(menu.screenX, window.innerWidth - MENU_WIDTH - 8))
+  const top = Math.max(8, Math.min(menu.screenY, window.innerHeight - 380))
 
   const doUpdate = (patch: Partial<Cable>) => {
     updateCable(cable.id, patch)
@@ -236,7 +239,15 @@ export const CableContextMenu = () => {
   return (
     <div
       ref={containerRef}
-      style={{ position: 'fixed', left, top, width: MENU_WIDTH, zIndex: 9999 }}
+      style={{
+        position: 'fixed',
+        left,
+        top,
+        width: MENU_WIDTH,
+        maxHeight: 'calc(100vh - 16px)',
+        overflowY: 'auto',
+        zIndex: 9999,
+      }}
       className={`rounded border shadow-2xl backdrop-blur-sm ${
         isLight
           ? 'border-slate-300 bg-white/98 text-slate-900'
@@ -331,7 +342,7 @@ export const CableContextMenu = () => {
       <Item onClick={toggleBumpForThisCable} icon={effectiveBumps ? <Icon icon={Check} size="xs" /> : null}>
         {t('canvas.cableMenu.bumps', 'Kabelbrücken für dieses Kabel')}
         {bumpStyle == null && (
-          <span className="ml-auto text-[10px] text-slate-500">
+          <span className="ml-auto text-[10px] text-slate-400">
             {t('canvas.cableMenu.global', 'global')}
           </span>
         )}
@@ -401,7 +412,7 @@ const Item = ({
     type="button"
     onClick={disabled ? undefined : onClick}
     disabled={disabled}
-    className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs ${
+    className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-cp-xs ${
       disabled
         ? 'text-slate-600'
         : destructive

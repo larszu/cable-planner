@@ -55,7 +55,7 @@ export const SortableSection = ({
         </span>
         <span className="flex-1">{title}</span>
         {subtitle && (
-          <span className="normal-case text-[10px] text-slate-500">{subtitle}</span>
+          <span className="normal-case text-[10px] text-slate-400">{subtitle}</span>
         )}
       </summary>
       <div className="border-t border-slate-800 p-2">{children}</div>

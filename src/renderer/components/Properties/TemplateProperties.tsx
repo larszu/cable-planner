@@ -23,7 +23,7 @@ export const TemplateProperties = () => {
 
   if (!template) {
     return (
-      <div className="text-xs text-slate-400">
+      <div className="text-cp-xs text-slate-400">
         {t('template.noneSelected', 'Keine Vorlage ausgewählt.')}
       </div>
     )
@@ -65,7 +65,7 @@ export const TemplateProperties = () => {
   }
 
   return (
-    <div className="space-y-3 text-xs">
+    <div className="space-y-3 text-cp-xs">
       <div className="flex items-center justify-between">
         <span className="text-slate-400 text-[10px] uppercase tracking-wide">
           {t('template.title', 'Vorlage')}

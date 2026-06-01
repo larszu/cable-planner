@@ -34,7 +34,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
         <button
           type="button"
           onClick={() => openGreenGoExport()}
-          className="w-full rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
+          className="w-full rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
         >
           {t('props.deviceKind.greengoExport', 'Intercom-Planung / .gg5 exportieren →')}
         </button>
@@ -57,7 +57,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           <button
             type="button"
             onClick={() => openVideohubExport(equipment.id, true)}
-            className="inline-flex w-full items-center justify-center gap-1.5 rounded bg-purple-700 px-2 py-1 text-xs font-semibold hover:bg-purple-600"
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded bg-purple-700 px-2 py-1 text-cp-xs font-semibold hover:bg-purple-600"
           >
             <Icon icon={SlidersHorizontal} size="xs" />
             {t('props.deviceKind.videohubConfigure', 'Videohub konfigurieren · Labels + Routing →')}
@@ -77,7 +77,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           <button
             type="button"
             onClick={() => openAtemDialog(equipment.id)}
-            className="w-full rounded bg-sky-700 px-2 py-1 text-xs hover:bg-sky-600"
+            className="w-full rounded bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
             title={t('props.deviceKind.atemConnectTitle', 'Verbindet per UDP mit dem ATEM und überträgt Input-Namen.')}
           >
             {t('props.deviceKind.atemConnect', 'ATEM verbinden / Setup übertragen →')}
@@ -85,7 +85,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           <button
             type="button"
             onClick={() => openAtemMvConfig(equipment.id)}
-            className="w-full rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
+            className="w-full rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
             title={t(
               'props.deviceKind.atemMvTitle',
               'Multiviewer-Layout offline konfigurieren. Wird beim nächsten Connect übertragen.',
@@ -96,7 +96,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           <button
             type="button"
             onClick={() => openAtemAudioConfig(equipment.id)}
-            className="w-full rounded bg-fuchsia-700 px-2 py-1 text-xs hover:bg-fuchsia-600"
+            className="w-full rounded bg-fuchsia-700 px-2 py-1 text-cp-xs hover:bg-fuchsia-600"
             title={t(
               'props.deviceKind.atemAudioTitle',
               'ATEM Audio-Router offline planen (Routing-Matrix oder klassischer Mixer).',
@@ -118,7 +118,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
         <button
           type="button"
           disabled
-          className="w-full cursor-not-allowed rounded bg-slate-700 px-2 py-1 text-xs opacity-60"
+          className="w-full cursor-not-allowed rounded bg-slate-700 px-2 py-1 text-cp-xs opacity-60"
           title={t('props.deviceKind.mvExportTitle', 'Multiviewer-Layout Export kommt in v0.4.0')}
         >
           {t('props.deviceKind.mvExport', 'Multiviewer Layout Export (v0.4.0)')}

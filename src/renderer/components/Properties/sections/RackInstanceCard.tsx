@@ -29,12 +29,12 @@ export const RackInstanceCard = ({ equipment }: { equipment: EquipmentItem }) =>
       <button
         type="button"
         onClick={() => openRackEditor(equipment.rackInstanceId!)}
-        className="inline-flex w-full items-center justify-center gap-1.5 rounded bg-cyan-700 px-2 py-1 text-xs text-white hover:bg-cyan-600"
+        className="inline-flex w-full items-center justify-center gap-1.5 rounded bg-cyan-700 px-2 py-1 text-cp-xs text-white hover:bg-cyan-600"
       >
         <Icon icon={Server} size="xs" /> {t('rackInstance.openEditor', 'Rack-Editor öffnen')}
       </button>
       {typeof equipment.rackInstanceStartUnit === 'number' && (
-        <div className="mt-1 text-[10px] text-slate-500">
+        <div className="mt-1 text-[10px] text-slate-400">
           {format(t('rackInstance.position', 'Position: ab HU {start}'), {
             start: equipment.rackInstanceStartUnit + 1,
           })}

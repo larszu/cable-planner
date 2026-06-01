@@ -312,7 +312,7 @@ export const AtemAudioRouterDialog = () => {
           className="flex items-center justify-between border-b border-slate-700 px-4 py-2 select-none"
         >
           <div>
-            <h2 className="text-base font-semibold">
+            <h2 className="text-cp-xl font-semibold">
               {t('atem.audio.title', 'ATEM Audio-Konfiguration')} — {equipment.name}
             </h2>
             <div className="text-[11px] text-slate-400">
@@ -322,13 +322,13 @@ export const AtemAudioRouterDialog = () => {
           <button
             type="button"
             onClick={close}
-            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
           >
             {t('common.close', 'Schließen')}
           </button>
         </header>
 
-        <div className="flex flex-wrap items-center gap-2 border-b border-slate-700 bg-slate-950/40 px-4 py-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2 border-b border-slate-700 bg-slate-950/40 px-4 py-2 text-cp-xs">
           <button
             type="button"
             onClick={handleLoadXml}
@@ -396,7 +396,7 @@ export const AtemAudioRouterDialog = () => {
               </span>
               {draft.classicMixer && (
                 <span
-                  className="text-[10px] text-slate-500"
+                  className="text-[10px] text-slate-400"
                   title={t('atem.audio.classicReadOnly', 'Das geladene XML enthält zusätzlich eine klassische AudioMixer-Sektion. Sie wird beim Speichern unverändert mit zurück ins XML geschrieben, ist aber hier nicht editierbar.')}
                 >
                   + AudioMixer-Sektion (read-only, round-trip)
@@ -407,7 +407,7 @@ export const AtemAudioRouterDialog = () => {
         </div>
 
         {errorMsg && (
-          <div className="flex items-center gap-1.5 border-b border-red-700/50 bg-red-900/30 px-4 py-2 text-xs text-red-200">
+          <div className="flex items-center gap-1.5 border-b border-red-700/50 bg-red-900/30 px-4 py-2 text-cp-xs text-red-200">
             <Icon icon={AlertTriangle} size="sm" />
             {errorMsg}
           </div>
@@ -433,7 +433,7 @@ export const AtemAudioRouterDialog = () => {
               <button
                 type="button"
                 onClick={handleCreateMatrix}
-                className="mt-3 rounded bg-sky-700 px-3 py-1 text-xs text-white hover:bg-sky-600"
+                className="mt-3 rounded bg-sky-700 px-3 py-1 text-cp-xs text-white hover:bg-sky-600"
               >
                 <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.createMatrixManual', 'Matrix manuell anlegen')}
               </button>
@@ -453,7 +453,7 @@ export const AtemAudioRouterDialog = () => {
           )}
         </main>
 
-        <footer className="flex items-center justify-end gap-2 border-t border-slate-700 px-4 py-2 text-xs">
+        <footer className="flex items-center justify-end gap-2 border-t border-slate-700 px-4 py-2 text-cp-xs">
           <span className="mr-auto text-slate-500">
             {t(
               'atem.audio.footer',
@@ -564,7 +564,7 @@ const EmptyState = ({
         <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.matrixManual', 'Matrix manuell')}
       </button>
     </div>
-    <p className="mt-3 text-[10px] text-slate-500">
+    <p className="mt-3 text-[10px] text-slate-400">
       {format(
         t(
           'atem.audio.welcomeFooter',
@@ -625,7 +625,7 @@ const ChannelPicker = ({
 
   const allExcluded = items.length > 0 && items.every((it) => excluded.has(it.id))
   return (
-    <div className="border-b border-slate-800 bg-slate-950/60 px-4 py-2 text-xs">
+    <div className="border-b border-slate-800 bg-slate-950/60 px-4 py-2 text-cp-xs">
       <div className="mb-1 flex items-center justify-between">
         <span className="text-slate-300">
           {format(
@@ -715,6 +715,30 @@ const ChannelPicker = ({
 const MatrixView = ({ config, setConfig }: ViewProps) => {
   const t = useTranslation()
   const matrix = config.matrix!
+  // #450 — Theme-aware Matrix-Chrome. Neutrale Töne kippen mit dem Theme;
+  // die gesättigten Emerald-Routing-Indikatoren bleiben in beiden gleich.
+  const isLight = useUiStore((s) => s.canvasTheme) === 'light'
+  const MX = isLight
+    ? {
+        chromeBg: '#eaeff5',
+        borderSubtle: '#cbd5e1',
+        borderStrong: '#94a3b8',
+        text: '#334155',
+        textMuted: '#64748b',
+        routedBg: '#dcfce7',
+        routedText: '#15803d',
+        otherCell: '#dbeafe',
+      }
+    : {
+        chromeBg: '#0f172a',
+        borderSubtle: '#1e293b',
+        borderStrong: '#475569',
+        text: '#cbd5e1',
+        textMuted: '#94a3b8',
+        routedBg: '#0c2c1f',
+        routedText: '#86efac',
+        otherCell: '#1e3a5f',
+      }
   const [filterSources, setFilterSources] = useState('')
   const [filterOutputs, setFilterOutputs] = useState('')
   // Issue #63: per-id exclude lists so the user can hide groups of
@@ -802,7 +826,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 bg-slate-950/30 px-4 py-2 text-xs">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 bg-slate-950/30 px-4 py-2 text-cp-xs">
         <input
           type="text"
           value={filterSources}
@@ -810,7 +834,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           placeholder={t('atem.audio.filterSourcesPlaceholder', 'Quellen filtern…')}
           title={t('atem.audio.filterSourcesTitle', 'Substring-Filter für Audio-Quellen (Zeilen)')}
           aria-label={t('atem.audio.filterSourcesAria', 'Quellen filtern')}
-          className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs"
+          className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
         />
         <input
           type="text"
@@ -819,7 +843,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           placeholder={t('atem.audio.filterOutputsPlaceholder', 'Outputs filtern…')}
           title={t('atem.audio.filterOutputsTitle', 'Substring-Filter für Audio-Outputs (Spalten)')}
           aria-label={t('atem.audio.filterOutputsAria', 'Outputs filtern')}
-          className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs"
+          className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
         />
         <button
           type="button"
@@ -908,7 +932,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           <button
             type="button"
             onClick={() => setRenderAnyway(true)}
-            className="mt-3 rounded bg-amber-700 px-3 py-1 text-xs text-amber-50 hover:bg-amber-600"
+            className="mt-3 rounded bg-amber-700 px-3 py-1 text-cp-xs text-amber-50 hover:bg-amber-600"
           >
             {t('atem.audio.renderAnyway', 'Trotzdem anzeigen')}
           </button>
@@ -920,7 +944,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
               borderCollapse: 'separate',
               borderSpacing: 0,
               fontSize: 10,
-              color: '#cbd5e1',
+              color: MX.text,
             }}
           >
             <thead>
@@ -934,9 +958,9 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                     top: 0,
                     left: 0,
                     zIndex: 4,
-                    background: '#0f172a',
-                    borderRight: '1px solid #1e293b',
-                    borderBottom: '2px solid #475569',
+                    background: MX.chromeBg,
+                    borderRight: `1px solid ${MX.borderSubtle}`,
+                    borderBottom: `2px solid ${MX.borderStrong}`,
                   }}
                 />
                 {visibleOutputs.map((o) => (
@@ -950,9 +974,9 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                       position: 'sticky',
                       top: 0,
                       zIndex: 3,
-                      background: o.sourceId !== 0 ? '#0c2c1f' : '#0f172a',
-                      borderBottom: '2px solid #475569',
-                      borderRight: '1px solid #1e293b',
+                      background: o.sourceId !== 0 ? MX.routedBg : MX.chromeBg,
+                      borderBottom: `2px solid ${MX.borderStrong}`,
+                      borderRight: `1px solid ${MX.borderSubtle}`,
                       padding: 0,
                       verticalAlign: 'bottom',
                     }}
@@ -968,7 +992,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                         padding: '3px 1px',
                         fontFamily: 'monospace',
                         fontSize: 9,
-                        color: o.sourceId !== 0 ? '#86efac' : '#94a3b8',
+                        color: o.sourceId !== 0 ? MX.routedText : MX.textMuted,
                       }}
                     >
                       {o.name}
@@ -993,14 +1017,14 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                         position: 'sticky',
                         left: 0,
                         zIndex: 2,
-                        background: routedToCount > 0 ? '#0c2c1f' : '#0f172a',
-                        borderRight: '2px solid #475569',
-                        borderBottom: '1px solid #1e293b',
+                        background: routedToCount > 0 ? MX.routedBg : MX.chromeBg,
+                        borderRight: `2px solid ${MX.borderStrong}`,
+                        borderBottom: `1px solid ${MX.borderSubtle}`,
                         textAlign: 'right',
                         padding: '0 6px',
                         fontFamily: 'monospace',
                         fontSize: 11,
-                        color: routedToCount > 0 ? '#86efac' : '#cbd5e1',
+                        color: routedToCount > 0 ? MX.routedText : MX.text,
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -1044,12 +1068,12 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                             height: CELL,
                             padding: 0,
                             textAlign: 'center',
-                            border: '1px solid #1e293b',
+                            border: `1px solid ${MX.borderSubtle}`,
                             background: isRouted
                               ? '#10b981'
                               : outputHasOtherSource
-                                ? '#1e3a5f'
-                                : '#0f172a',
+                                ? MX.otherCell
+                                : MX.chromeBg,
                             cursor: 'pointer',
                             userSelect: 'none',
                           }}
@@ -1065,7 +1089,10 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                               ●
                             </span>
                           ) : outputHasOtherSource ? (
-                            <span style={{ color: '#475569', fontSize: 9 }}>
+                            // #456 — Marker "Output anderweitig belegt": vorher
+                            // fontSize 9 + slate-600 (#475569) → winzig und
+                            // zu kontrastarm. Auf slate-400 + 12px angehoben.
+                            <span style={{ color: MX.textMuted, fontSize: 12 }}>
                               ·
                             </span>
                           ) : null}

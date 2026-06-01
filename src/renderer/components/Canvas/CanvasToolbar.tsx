@@ -10,6 +10,7 @@ import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
 import { Check, X } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
+import { Tooltip } from '../shared/Tooltip'
 
 type CanvasToolbarMode = 'main' | 'rack'
 
@@ -47,39 +48,43 @@ const IconButton = ({
   color?: string
   T: ToolbarTokens
 }) => (
-  <button
-    type="button"
-    title={title}
-    aria-label={title}
-    aria-pressed={active}
-    onClick={onClick}
-    disabled={disabled}
-    style={{
-      width: T.iconBtnSize,
-      height: T.iconBtnSize,
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 0,
-      background: active ? T.btnActiveBg : T.btnBg,
-      color: active ? T.btnActiveText : (color ?? T.text),
-      border: '1px solid transparent',
-      borderRadius: 6,
-      cursor: disabled ? 'not-allowed' : 'pointer',
-      opacity: disabled ? 0.4 : 1,
-      transition: 'background 0.12s',
-    }}
-    onMouseEnter={(e) => {
-      if (!disabled && !active)
-        (e.currentTarget as HTMLButtonElement).style.background = T.btnBgHover
-    }}
-    onMouseLeave={(e) => {
-      if (!active)
-        (e.currentTarget as HTMLButtonElement).style.background = T.btnBg
-    }}
-  >
-    {children}
-  </button>
+  // #467 — der `title` dient als ergaenzender Tooltip (mit Delay,
+  // Positionierung, Keyboard-Fokus-Reveal); `aria-label` bleibt der
+  // barrierefreie Name. Kein natives title= mehr → kein Doppel-Tooltip.
+  <Tooltip label={title}>
+    <button
+      type="button"
+      aria-label={title}
+      aria-pressed={active}
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        width: T.iconBtnSize,
+        height: T.iconBtnSize,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 0,
+        background: active ? T.btnActiveBg : T.btnBg,
+        color: active ? T.btnActiveText : (color ?? T.text),
+        border: '1px solid transparent',
+        borderRadius: 6,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.4 : 1,
+        transition: 'background 0.12s',
+      }}
+      onMouseEnter={(e) => {
+        if (!disabled && !active)
+          (e.currentTarget as HTMLButtonElement).style.background = T.btnBgHover
+      }}
+      onMouseLeave={(e) => {
+        if (!active)
+          (e.currentTarget as HTMLButtonElement).style.background = T.btnBg
+      }}
+    >
+      {children}
+    </button>
+  </Tooltip>
 )
 
 export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = {}) => {
@@ -309,7 +314,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
 
   // v7.9.5 — Unified design tokens für die Toolbar.
   const T: ToolbarTokens = {
-    iconBtnSize: 28,
+    // #463 — groessere Touch-/Klick-Ziele (war 28px, < komfortable Zielgroesse).
+    iconBtnSize: 32,
     bg: isLight ? 'rgba(248,250,252,0.92)' : 'rgba(15,23,42,0.92)',
     border: isLight ? '#cbd5e1' : '#1f2937',
     text: isLight ? '#1e293b' : '#e2e8f0',

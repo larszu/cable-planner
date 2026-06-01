@@ -107,7 +107,7 @@ export const NonRackAddDialog = ({
             }`}
           >
             <div className="flex items-center gap-1.5 font-semibold"><Icon icon={Ruler} size="xs" /> {t('rack.nonRack.option.rack', 'Als 19″-Gerät')}</div>
-            <div className="mt-0.5 text-[10px] text-slate-500">
+            <div className="mt-0.5 text-[10px] text-slate-400">
               {t('rack.nonRack.option.rackHint', 'Belegt N HE auf den Rack-Schienen')}
             </div>
           </button>
@@ -121,7 +121,7 @@ export const NonRackAddDialog = ({
             }`}
           >
             <div className="flex items-center gap-1.5 font-semibold"><Icon icon={Armchair} size="xs" /> {t('rack.nonRack.option.shelf', 'Auf Shelf')}</div>
-            <div className="mt-0.5 text-[10px] text-slate-500">
+            <div className="mt-0.5 text-[10px] text-slate-400">
               {t('rack.nonRack.option.shelfHint', 'Eigene Maße in mm, sitzt auf einem Rack-Shelf')}
             </div>
           </button>
@@ -130,7 +130,7 @@ export const NonRackAddDialog = ({
         {mode === 'rack' && (
           <div className="mb-3 space-y-2">
             <label className="block">
-              <span className="mb-1 block text-xs text-slate-400">{t('rack.nonRack.rackUnits', 'HE-Höhe')}</span>
+              <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.nonRack.rackUnits', 'HE-Höhe')}</span>
               <input
                 type="number"
                 min={1}
@@ -148,7 +148,7 @@ export const NonRackAddDialog = ({
           <div className="mb-3 space-y-2">
             <div className="grid grid-cols-3 gap-2">
               <label className="block">
-                <span className="mb-1 block text-xs text-slate-400">{t('rack.nonRack.widthMm', 'Breite (mm)')}</span>
+                <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.nonRack.widthMm', 'Breite (mm)')}</span>
                 <input
                   type="number"
                   min={20}
@@ -189,7 +189,7 @@ export const NonRackAddDialog = ({
                 </div>
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs text-slate-400">{t('rack.nonRack.heightMm', 'Höhe (mm)')}</span>
+                <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.nonRack.heightMm', 'Höhe (mm)')}</span>
                 <input
                   type="number"
                   min={10}
@@ -201,7 +201,7 @@ export const NonRackAddDialog = ({
                 />
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs text-slate-400">{t('rack.nonRack.depthMm', 'Tiefe (mm)')}</span>
+                <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.nonRack.depthMm', 'Tiefe (mm)')}</span>
                 <input
                   type="number"
                   min={20}

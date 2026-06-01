@@ -56,7 +56,7 @@ export const PlanCheckPanel = () => {
       scrollBody={false}
     >
       <div className="flex h-full flex-col">
-        <div className="flex items-center gap-3 border-b border-slate-800 py-2 text-xs">
+        <div className="flex items-center gap-3 border-b border-slate-800 py-2 text-cp-xs">
           <span className="inline-flex items-center gap-1 text-red-400">
             <Icon icon={AlertCircle} size="xs" /> {errorCount}
           </span>
@@ -87,7 +87,7 @@ export const PlanCheckPanel = () => {
                       type="button"
                       disabled={!clickable}
                       onClick={() => focusFinding(f)}
-                      className={`flex w-full items-start gap-2 px-2 py-1.5 text-left text-xs ${meta.row} ${
+                      className={`flex w-full items-start gap-2 px-2 py-1.5 text-left text-cp-xs ${meta.row} ${
                         clickable ? 'cursor-pointer' : 'cursor-default'
                       }`}
                     >
@@ -103,7 +103,7 @@ export const PlanCheckPanel = () => {
             </ul>
           )}
         </div>
-        <p className="border-t border-slate-800 py-1.5 text-[10px] text-slate-500">
+        <p className="border-t border-slate-800 py-1.5 text-[10px] text-slate-400">
           {t(
             'planCheck.footerHint',
             'Live-Validierung des Plans. Klick auf einen Hinweis selektiert das betroffene Element.',

@@ -63,13 +63,13 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
                 ? `${t('eq.field.shortNameAuto', 'Aus Namen neu generieren')} (${autoSuggestion})`
                 : t('eq.field.shortNameAutoEmpty', 'Kein Vorschlag — Name pflegen.')
             }
-            className="shrink-0 rounded border border-slate-700 bg-slate-800 px-2 text-xs text-slate-200 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+            className="shrink-0 rounded border border-slate-700 bg-slate-800 px-2 text-cp-xs text-slate-200 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {t('eq.field.shortNameAutoBtn', '↻ auto')}
           </button>
         </div>
         {!equipment.shortName?.trim() && autoSuggestion && (
-          <p className="mt-1 text-[10px] text-slate-500">
+          <p className="mt-1 text-[10px] text-slate-400">
             {t('eq.field.shortNameAutoUsed', 'Verwendet automatisch:')}{' '}
             <span className="font-mono text-slate-400">{autoSuggestion}</span>
           </p>

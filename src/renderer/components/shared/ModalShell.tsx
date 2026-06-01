@@ -90,7 +90,7 @@ export const ModalShell = ({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black/60 p-4"
+      className="cp-modal-backdrop fixed inset-0 flex items-center justify-center bg-black/60 p-4"
       style={{ zIndex }}
       onMouseDown={(e) => {
         if (closeOnBackdrop && e.target === e.currentTarget) onClose()
@@ -101,11 +101,11 @@ export const ModalShell = ({
         aria-labelledby={titleId}
         {...dialogProps}
         style={draggableKey ? drag.containerStyle : undefined}
-        className={`flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-lg border border-[var(--cp-border)] bg-[var(--cp-surface-1)] text-[var(--cp-text)] shadow-2xl outline-none`}
+        className={`cp-modal-panel flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-cp-modal border border-[var(--cp-border)] bg-[var(--cp-surface-1)] text-[var(--cp-text)] shadow-2xl outline-none`}
       >
         <header
           {...(draggableKey ? drag.headerProps : {})}
-          className="flex items-center justify-between border-b border-[var(--cp-border)] px-4 py-3 select-none"
+          className="flex items-center justify-between border-b border-[var(--cp-border)] px-cp-4 py-cp-3 select-none"
         >
           <h2 id={titleId} className="flex items-center text-cp-xl font-semibold">
             {titleIcon && <span className="mr-2">{titleIcon}</span>}
@@ -120,11 +120,11 @@ export const ModalShell = ({
             <Icon icon={X} size="md" />
           </button>
         </header>
-        <div className={`flex-1 ${scrollBody ? 'overflow-y-auto' : 'overflow-hidden'} px-4 py-3`}>
+        <div className={`flex-1 ${scrollBody ? 'overflow-y-auto' : 'overflow-hidden'} px-cp-4 py-cp-3`}>
           {children}
         </div>
         {footer && (
-          <footer className="border-t border-[var(--cp-border)] px-4 py-3">
+          <footer className="border-t border-[var(--cp-border)] px-cp-4 py-cp-3">
             {footer}
           </footer>
         )}

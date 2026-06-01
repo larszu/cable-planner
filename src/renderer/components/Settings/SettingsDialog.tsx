@@ -102,7 +102,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
         className="flex h-[85vh] min-h-0 w-full max-w-4xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl outline-none sm:flex-row"
       >
         <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-slate-800 bg-slate-950/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
-          <h3 className="mb-2 hidden px-2 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
+          <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
             {t('settings.section', 'Einstellungen')}
           </h3>
           {(Object.keys(TAB_ICONS) as SettingsSection[]).map((id) => navItem(id))}

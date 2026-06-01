@@ -103,6 +103,9 @@ interface PersistedUiState {
   cableColorMode: 'manual' | 'byLength'
   /** Canvas background theme. */
   canvasTheme: 'dark' | 'light'
+  /** #453 — Wenn true, folgt canvasTheme automatisch dem OS-Theme
+   *  (prefers-color-scheme). Manuelle Theme-Wahl schaltet das wieder ab. */
+  followSystemTheme: boolean
   /** When true, port handle dots on equipment nodes are rendered in the
    * color associated with their connector type (SDI = amber, HDMI = purple,
    * Ethernet = green, …). When false, the input/output dichotomy palette
@@ -291,6 +294,7 @@ const defaults: PersistedUiState = {
   propertiesWidth: 280,
   cableColorMode: 'manual',
   canvasTheme: 'dark',
+  followSystemTheme: false,
   colorPortsByType: false,
   language: 'en',
   overrideConnectionWarnings: false,
@@ -576,6 +580,10 @@ const persist = (state: PersistedUiState) => {
 interface UiState extends PersistedUiState {
   togglePropertiesCollapsed: () => void
   toggleLibraryCollapsed: () => void
+  // #444 — explizite Setter für die viewport-getriebene Auto-Einklappung
+  // (App.tsx klappt Seiten-Panels < lg-Breakpoint ein und wieder aus).
+  setPropertiesCollapsed: (value: boolean) => void
+  setLibraryCollapsed: (value: boolean) => void
   setSnapToGrid: (value: boolean) => void
   setGridSize: (value: number) => void
   setDefaultRouting: (value: EdgeRouting) => void
@@ -584,6 +592,7 @@ interface UiState extends PersistedUiState {
   setPropertiesWidth: (value: number) => void
   setCableColorMode: (value: 'manual' | 'byLength') => void
   setCanvasTheme: (value: 'dark' | 'light') => void
+  setFollowSystemTheme: (value: boolean) => void
   setColorPortsByType: (value: boolean) => void
   setLanguage: (value: Language) => void
   setOverrideConnectionWarnings: (value: boolean) => void
@@ -894,6 +903,8 @@ export const useUiStore = create<UiState>((set) => ({
     set((state) => applyPatch({ propertiesCollapsed: !state.propertiesCollapsed })(state)),
   toggleLibraryCollapsed: () =>
     set((state) => applyPatch({ libraryCollapsed: !state.libraryCollapsed })(state)),
+  setPropertiesCollapsed: (value) => set(applyPatch({ propertiesCollapsed: value })),
+  setLibraryCollapsed: (value) => set(applyPatch({ libraryCollapsed: value })),
   setSnapToGrid: (value) => set(applyPatch({ snapToGrid: value })),
   setGridSize: (value) => set(applyPatch({ gridSize: Math.max(PANEL_LIMITS.gridSize.MIN, Math.min(PANEL_LIMITS.gridSize.MAX, value)) })),
   setDefaultRouting: (value) => set(applyPatch({ defaultRouting: value })),
@@ -904,6 +915,7 @@ export const useUiStore = create<UiState>((set) => ({
     set(applyPatch({ propertiesWidth: Math.max(PANEL_LIMITS.properties.MIN, Math.min(PANEL_LIMITS.properties.MAX, Math.round(value))) })),
   setCableColorMode: (value) => set(applyPatch({ cableColorMode: value })),
   setCanvasTheme: (value) => set(applyPatch({ canvasTheme: value })),
+  setFollowSystemTheme: (value) => set(applyPatch({ followSystemTheme: value })),
   setColorPortsByType: (value) => set(applyPatch({ colorPortsByType: value })),
   setLanguage: (value) => set(applyPatch({ language: value })),
   setOverrideConnectionWarnings: (value) => set(applyPatch({ overrideConnectionWarnings: value })),

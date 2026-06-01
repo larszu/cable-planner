@@ -677,6 +677,78 @@ export const impedanceForStandard = (s: SignalStandard | undefined): 50 | 75 | 1
 }
 
 /**
+ * #346 — Grobe Brutto-Bandbreite (Mbps) eines IP-/Netzwerk-Mediensignals,
+ * für das Projekt-Netzwerk-Budget. Nur Standards, die sich ein Ethernet-/
+ * IP-Netz teilen, liefern einen Wert; punkt-zu-punkt-Signale (SDI/HDMI/USB)
+ * und Strom/Analog → undefined (zählen nicht ins Netzwerk-Budget).
+ * Werte sind Richtwerte (1080p50/60, 48 kHz, 64 Kanäle).
+ */
+export const bandwidthMbpsForStandard = (s: SignalStandard | undefined): number | undefined => {
+  switch (s) {
+    case 'NDI':
+      return 250 // NDI Full 1080p ~125–250
+    case 'NDI-HX':
+      return 20
+    case 'Dante':
+    case 'AES67':
+    case 'ST2110-30':
+      return 49 // 64ch @48k/24bit
+    case 'ST2110-40':
+      return 2 // ANC/Metadaten
+    case 'ST2110-20':
+      return 3000 // 1080p unkomprimiert (≈2160p → 12000)
+    case 'Eth-100':
+      return 100
+    case 'Eth-1G':
+      return 1000
+    case 'Eth-10G':
+      return 10000
+    default:
+      return undefined
+  }
+}
+
+/**
+ * #367 — Praktische passive Maximal-Länge (m) je Signalstandard auf
+ * Kupfer/Standardkabel. Darüber drohen Ausfälle → aktive Lösung (AOC,
+ * HDBaseT, Extender, Glasfaser). undefined = keine relevante Längengrenze
+ * (z. B. Netzwerk/Glasfaser/Strom/Analog-Audio). Richtwerte aus der Praxis.
+ */
+export const maxPassiveLengthM = (s: SignalStandard | undefined): number | undefined => {
+  switch (s) {
+    case 'HDMI-1.4':
+      return 15
+    case 'HDMI-2.0':
+      return 10
+    case 'HDMI-2.1':
+      return 5
+    case 'DP-1.2':
+      return 5
+    case 'DP-1.4':
+      return 3
+    case 'DP-2.0':
+      return 2
+    case 'USB-2.0':
+      return 5
+    case 'USB-3.x':
+      return 3
+    case 'Thunderbolt-3':
+    case 'Thunderbolt-4':
+      return 2 // passiv ~0,8 m, aktiv bis ~2 m
+    case 'SDI-12G':
+      return 70
+    case 'SDI-6G':
+      return 90
+    case 'SDI-3G':
+      return 120
+    case 'SDI-HD':
+      return 140
+    default:
+      return undefined
+  }
+}
+
+/**
  * #390 — Warnung bei Impedanz-Mismatch entlang einer Verbindung
  * (z. B. 50Ω-HF-Kabel an 75Ω-SDI → Reflexionen/Return-Loss).
  */

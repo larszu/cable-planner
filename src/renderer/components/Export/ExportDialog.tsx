@@ -34,7 +34,7 @@ import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { LayerVisibilityChips } from '../Canvas/LayerVisibilityChips'
 import type { Cable } from '../../types/cable'
 
-export type ExportFormat = 'pdf' | 'png' | 'jpeg' | 'svg'
+export type ExportFormat = 'pdf' | 'png' | 'jpeg' | 'svg' | 'dxf'
 type Section = 'plan' | 'patch' | 'bom'
 
 /** v7.9.103 — Page-Size-Optionen fuer den Vektor-PDF-Pfad. */
@@ -62,7 +62,7 @@ interface ExportDialogProps {
   /** Triggert OS-Druckdialog mit dem Plan-PDF. */
   onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
   /** Triggert PNG/JPEG-Download des Plans. */
-  onExportImage: (format: 'png' | 'jpeg' | 'svg') => Promise<void> | void
+  onExportImage: (format: 'png' | 'jpeg' | 'svg' | 'dxf') => Promise<void> | void
 }
 
 const SECTION_LABEL: Record<Section, string> = {
@@ -110,7 +110,7 @@ export const ExportDialog = ({
         className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl outline-none sm:flex-row"
       >
         <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-slate-800 bg-slate-950/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
-          <h3 className="mb-2 hidden px-2 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
+          <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
             {t('export.title', 'Exportieren & Drucken')}
           </h3>
           {(Object.keys(SECTION_LABEL) as Section[]).map((id) => (
@@ -132,14 +132,14 @@ export const ExportDialog = ({
 
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2">
-            <h2 id={titleId} className="flex items-center gap-2 text-base font-semibold">
+            <h2 id={titleId} className="flex items-center gap-2 text-cp-2xl font-semibold">
               <Icon icon={SECTION_ICON[section]} size="sm" />{' '}
               {t(`export.section.${section}`, SECTION_LABEL[section])}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
             >
               {t('common.close', 'Schließen')}
             </button>
@@ -151,7 +151,7 @@ export const ExportDialog = ({
               "Standard-Viewport von Kabel-Stückliste ist so groß
               dass man scrollen muss um Drucken-Button zu sehen". */}
           <div className="flex min-h-0 flex-1 flex-col p-4">
-            <p className="mb-3 shrink-0 text-xs text-slate-400">{t(`export.desc.${section}`, SECTION_DESC[section])}</p>
+            <p className="mb-3 shrink-0 text-cp-xs text-slate-400">{t(`export.desc.${section}`, SECTION_DESC[section])}</p>
             <div className="flex min-h-0 flex-1 flex-col">
               {section === 'plan' && (
                 <PlanSection
@@ -186,7 +186,7 @@ const PlanSection = ({
     pageSize?: PdfPageSizeOpt,
   ) => Promise<void> | void
   onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
-  onExportImage: (format: 'png' | 'jpeg' | 'svg') => Promise<void> | void
+  onExportImage: (format: 'png' | 'jpeg' | 'svg' | 'dxf') => Promise<void> | void
   onClose: () => void
 }) => {
   const t = useTranslation()
@@ -232,18 +232,19 @@ const PlanSection = ({
     { value: 'png' as const, icon: ImageIcon, label: 'PNG', hint: t('export.format.pngHint', 'Transparent möglich, scharf') },
     { value: 'jpeg' as const, icon: ImageIcon, label: 'JPEG', hint: t('export.format.jpegHint', 'Kleiner, gut für E-Mail') },
     { value: 'svg' as const, icon: ImageIcon, label: 'SVG', hint: t('export.format.svgHint', 'Skalierbar, für Web/Weiterverarbeitung') },
+    { value: 'dxf' as const, icon: FileText, label: 'DXF', hint: t('export.format.dxfHint', 'CAD/Plotter — Geräte, Kabel & Text auf Layern') },
   ]
 
   return (
     <div className="space-y-4">
       <fieldset className="space-y-2">
-        <legend className="mb-1 text-xs font-semibold text-slate-300">{t('export.format', 'Format')}</legend>
+        <legend className="mb-1 text-cp-xs font-semibold text-slate-300">{t('export.format', 'Format')}</legend>
         {FORMAT_OPTIONS.map((opt) => {
           const selected = format === opt.value
           return (
             <label
               key={opt.value}
-              className={`flex cursor-pointer items-start gap-2 rounded border px-3 py-2 text-xs ${
+              className={`flex cursor-pointer items-start gap-2 rounded border px-3 py-2 text-cp-xs ${
                 selected
                   ? 'border-sky-500 bg-sky-900/30'
                   : 'border-slate-700 bg-slate-950 hover:border-slate-600'
@@ -270,8 +271,8 @@ const PlanSection = ({
       {format === 'pdf' && (
         <>
           <fieldset className="space-y-1">
-            <legend className="mb-1 text-xs font-semibold text-slate-300">{t('export.pdfTheme', 'PDF-Thema')}</legend>
-            <label className="flex items-center gap-2 text-xs">
+            <legend className="mb-1 text-cp-xs font-semibold text-slate-300">{t('export.pdfTheme', 'PDF-Thema')}</legend>
+            <label className="flex items-center gap-2 text-cp-xs">
               <input
                 type="radio"
                 name="pdf-theme"
@@ -280,7 +281,7 @@ const PlanSection = ({
               />
               <span className="inline-flex items-center gap-1"><Icon icon={Moon} size="xs" /> {t('export.theme.darkLabel', 'Dunkles Thema (wie Canvas)')}</span>
             </label>
-            <label className="flex items-center gap-2 text-xs">
+            <label className="flex items-center gap-2 text-cp-xs">
               <input
                 type="radio"
                 name="pdf-theme"
@@ -295,8 +296,8 @@ const PlanSection = ({
               Text, scharf bei jedem Zoom, kleinere Dateigröße. Default
               ist Raster damit nichts am bestehenden Workflow bricht. */}
           <fieldset className="space-y-1">
-            <legend className="mb-1 text-xs font-semibold text-slate-300">{t('export.renderMode', 'Render-Modus')}</legend>
-            <label className="flex cursor-pointer items-start gap-2 text-xs">
+            <legend className="mb-1 text-cp-xs font-semibold text-slate-300">{t('export.renderMode', 'Render-Modus')}</legend>
+            <label className="flex cursor-pointer items-start gap-2 text-cp-xs">
               <input
                 type="radio"
                 name="pdf-render-mode"
@@ -314,7 +315,7 @@ const PlanSection = ({
                 </span>
               </span>
             </label>
-            <label className="flex cursor-pointer items-start gap-2 text-xs">
+            <label className="flex cursor-pointer items-start gap-2 text-cp-xs">
               <input
                 type="radio"
                 name="pdf-render-mode"
@@ -337,13 +338,13 @@ const PlanSection = ({
               Raster ist das fix-bestimmt durch die natural Canvas-Groesse. */}
           {pdfVector && (
             <fieldset className="space-y-1">
-              <legend className="mb-1 text-xs font-semibold text-slate-300">
+              <legend className="mb-1 text-cp-xs font-semibold text-slate-300">
                 {t('export.pageSize', 'Page-Size')}
               </legend>
               <select
                 value={pdfPageSize}
                 onChange={(e) => setPdfPageSize(e.target.value as PdfPageSizeOpt)}
-                className="w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100"
+                className="w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs text-slate-100"
               >
                 <option value="auto">{t('export.page.auto', 'Auto — A0 Landscape (kompatibel mit allen Viewern)')}</option>
                 <option value="a4">A4 Landscape (297×210 mm)</option>
@@ -354,7 +355,7 @@ const PlanSection = ({
                 <option value="a0plus">A0+ Plotter (1682×1189 mm)</option>
                 <option value="original">{t('export.page.original', 'Original — volle Canvas-Groesse fuer Plotter')}</option>
               </select>
-              <p className="text-[10px] text-slate-500">
+              <p className="text-[10px] text-slate-400">
                 {pdfPageSize === 'original'
                   ? t('export.page.originalHint', 'Achtung: Edge / Preview zeigen Pages über A0 manchmal weiss an. Acrobat + Plotter-Software drucken trotzdem.')
                   : t('export.page.scaleHint', 'Canvas wird vektoriell auf die Page-Groesse skaliert. Text bleibt scharf.')}
@@ -366,13 +367,13 @@ const PlanSection = ({
               Auswahl bidirektional. "Nur Video drucken" = alle anderen
               Chips ausschalten, exportieren, Chips wieder einschalten. */}
           <fieldset className="space-y-1">
-            <legend className="mb-1 text-xs font-semibold text-slate-300">
+            <legend className="mb-1 text-cp-xs font-semibold text-slate-300">
               {t('export.layersInPdf', 'Ebenen (im PDF enthalten)')}
             </legend>
             <div className="-mx-1 flex flex-wrap gap-1">
               <LayerVisibilityChips />
             </div>
-            <p className="text-[10px] text-slate-500">
+            <p className="text-[10px] text-slate-400">
               {t('export.layersHint', 'Klick auf einen Chip schaltet die Ebene für Canvas UND PDF um.')}
             </p>
           </fieldset>
@@ -399,7 +400,7 @@ const PlanSection = ({
                   'Drucken funktioniert nur mit Format PDF — bei PNG/JPEG einfach herunterladen.',
                 )
           }
-          className="rounded bg-indigo-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-40"
+          className="rounded bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-40"
         >
           <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Drucken')}</span>
         </button>
@@ -407,7 +408,7 @@ const PlanSection = ({
           type="button"
           onClick={handleExport}
           disabled={busy}
-          className="inline-flex items-center gap-1.5 rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
         >
           {busy && <Spinner size="xs" />}
           {busy
@@ -497,7 +498,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           openPatchList()
           onClose()
         }}
-        className="flex w-full items-center justify-between rounded border border-emerald-700/60 bg-emerald-950/30 px-3 py-2 text-left text-xs text-emerald-100 hover:border-emerald-500 hover:bg-emerald-900/40"
+        className="flex w-full items-center justify-between rounded border border-emerald-700/60 bg-emerald-950/30 px-3 py-2 text-left text-cp-xs text-emerald-100 hover:border-emerald-500 hover:bg-emerald-900/40"
         title={t('export.patch.compactTitle', 'Kompakte Patchliste: alle Kabel auf einer Liste, sortiert nach Quell-Gerät — zum Ausdrucken für den Techniker im Feld.')}
       >
         <span>
@@ -509,13 +510,13 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
         <span className="text-emerald-300">→</span>
       </button>
 
-      <div className="mb-1 text-[11px] text-slate-500">
+      <div className="mb-1 text-[11px] text-slate-400">
         {t('export.patch.perDeviceHint', '— oder pro-Gerät Patch-Sheet erzeugen:')}
       </div>
 
       <div>
         <div className="mb-1 flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-300">
+          <span className="text-cp-xs font-semibold text-slate-300">
             {t('export.patch.devicesCount', 'Geräte')} ({selectedIds.size} / {filtered.length})
           </span>
           <button
@@ -533,7 +534,8 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder={t('export.patch.filterPlaceholder', 'Filtern…')}
-          className="mb-2 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+          aria-label={t('export.patch.filterPlaceholder', 'Filtern…')}
+          className="mb-2 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
         />
         <div className="max-h-64 space-y-0.5 overflow-y-auto rounded border border-slate-800 bg-slate-950/50 p-1">
           {filtered.map((d) => {
@@ -541,7 +543,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             return (
               <label
                 key={d.id}
-                className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-xs hover:bg-slate-800"
+                className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-cp-xs hover:bg-slate-800"
               >
                 <input
                   type="checkbox"
@@ -556,12 +558,12 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
                   }}
                 />
                 <span className="flex-1 truncate">{d.name}</span>
-                <span className="text-[10px] text-slate-500">{d.category}</span>
+                <span className="text-[10px] text-slate-400">{d.category}</span>
               </label>
             )
           })}
           {filtered.length === 0 && (
-            <div className="px-2 py-3 text-center text-[11px] text-slate-500">
+            <div className="px-2 py-3 text-center text-[11px] text-slate-400">
               {t('export.patch.noDevices', 'Keine Geräte im Projekt.')}
             </div>
           )}
@@ -576,7 +578,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={() => setPendingAction('individual')}
             disabled={busy || selectedIds.size === 0}
-            className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600 disabled:opacity-40"
+            className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs hover:bg-slate-600 disabled:opacity-40"
             title={t('export.patch.perDevice', 'Eine PDF pro selektiertem Gerät')}
           >
             {t('export.patch.individualPdf', 'Einzel-PDF ({n})').replace('{n}', String(selectedIds.size))}
@@ -585,7 +587,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={() => setPendingAction('batch')}
             disabled={busy || selectedIds.size === 0}
-            className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600 disabled:opacity-40"
+            className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs hover:bg-slate-600 disabled:opacity-40"
             title={t('export.patch.batchPdf', 'Eine Sammel-PDF — ein Gerät pro Seite')}
           >
             {t('export.patch.combinedPdf', 'Sammel-PDF ({n})').replace('{n}', String(selectedIds.size))}
@@ -594,7 +596,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={() => setPendingAction('print')}
             disabled={busy || selectedIds.size === 0}
-            className="rounded bg-indigo-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-40"
+            className="rounded bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-40"
             title={t('export.patch.osPrint', 'Patch-Sheet(s) im OS-Druckdialog öffnen')}
           >
             <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Drucken')}</span>
@@ -602,7 +604,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
         </div>
       ) : (
         <div className="flex flex-wrap items-center justify-end gap-2 rounded border border-sky-700/60 bg-sky-950/40 px-3 py-2">
-          <span className="mr-auto text-xs text-slate-300">
+          <span className="mr-auto text-cp-xs text-slate-300">
             <span className="font-semibold text-sky-200">{actionLabel[pendingAction]}</span>
             {' '}— {t('export.patch.pickPaper', 'Papier-Format wählen:')}
           </span>
@@ -610,7 +612,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => void runAction(pendingAction, 'a4')}
-            className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+            className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
           >
             A4
           </button>
@@ -618,7 +620,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => void runAction(pendingAction, 'a3')}
-            className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+            className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
           >
             A3
           </button>
@@ -626,7 +628,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => setPendingAction(null)}
-            className="rounded bg-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-600 disabled:opacity-40"
+            className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs text-slate-200 hover:bg-slate-600 disabled:opacity-40"
           >
             Abbrechen
           </button>
@@ -739,6 +741,7 @@ const BomSection = () => {
         t('export.bom.csv.rentmanName', 'Rentman-Name'),
         t('export.bom.csv.lengthM', 'Länge (m)'),
         t('export.bom.csv.built', 'Verbaut'),
+        t('export.bom.csv.totalM', 'Gesamt (m)'),
         t('export.bom.csv.rentmanPlanned', 'Rentman geplant'),
         t('export.bom.csv.diff', 'Differenz'),
       ].join(';'),
@@ -750,11 +753,23 @@ const BomSection = () => {
           r.rentmanName ?? '',
           String(r.length),
           String(r.built),
+          String(Number((r.built * r.length).toFixed(1))),
           String(r.planned),
           fmtSignFixed(r.diff),
         ].join(';'),
       )
     }
+    lines.push(
+      [
+        t('bom.cable.total', 'Gesamt'),
+        '',
+        '',
+        String(rows.reduce((s, r) => s + r.built, 0)),
+        String(Number(rows.reduce((s, r) => s + r.built * r.length, 0).toFixed(1))),
+        '',
+        '',
+      ].join(';'),
+    )
     downloadBlob(
       // v7.9.116 — Einheitlicher Stempel.
       buildExportFilenameWithSuffix(project.metadata.name || 'cable-planner', 'kabel-bom', 'csv'),
@@ -916,12 +931,13 @@ const BomSection = () => {
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto rounded border border-slate-800 bg-slate-950/40">
-        <table className="w-full text-xs">
+        <table className="w-full text-cp-xs">
           <thead className="sticky top-0 bg-slate-950 text-slate-300">
             <tr>
               <th className="px-3 py-2 text-left">{t('export.bom.col.type', 'Typ')}</th>
               <th className="px-3 py-2 text-right">{t('export.bom.col.length', 'Länge (m)')}</th>
               <th className="px-3 py-2 text-right">{t('export.bom.col.installed', 'Verbaut')}</th>
+              <th className="px-3 py-2 text-right">{t('bom.cable.col.totalM', 'Gesamt (m)')}</th>
               <th className="px-3 py-2 text-right">{t('export.bom.col.rentmanPlanned', 'Rentman geplant')}</th>
               <th className="px-3 py-2 text-right">{t('export.bom.col.diff', 'Differenz')}</th>
             </tr>
@@ -929,7 +945,7 @@ const BomSection = () => {
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td className="px-3 py-4 text-center text-slate-500" colSpan={5}>
+                <td className="px-3 py-4 text-center text-slate-500" colSpan={6}>
                   Keine Kabel im Projekt.
                 </td>
               </tr>
@@ -942,11 +958,14 @@ const BomSection = () => {
                 <td className="px-3 py-1">
                   <span className="font-medium text-slate-100">{r.type}</span>
                   {r.sample && (
-                    <span className="ml-1 text-[10px] text-slate-500">({r.sample.name})</span>
+                    <span className="ml-1 text-[10px] text-slate-400">({r.sample.name})</span>
                   )}
                 </td>
                 <td className="px-3 py-1 text-right font-mono">{r.length}</td>
                 <td className="px-3 py-1 text-right font-mono">{r.built}</td>
+                <td className="px-3 py-1 text-right font-mono text-slate-300">
+                  {Number((r.built * r.length).toFixed(1))}
+                </td>
                 <td className="px-3 py-1 text-right">
                   <input
                     type="number"
@@ -977,6 +996,18 @@ const BomSection = () => {
               </tr>
             ))}
           </tbody>
+          {rows.length > 0 && (
+            <tfoot className="sticky bottom-0 bg-slate-950">
+              <tr className="border-t-2 border-slate-700 font-semibold text-slate-200">
+                <td className="px-3 py-2 text-left" colSpan={2}>{t('bom.cable.total', 'Gesamt')}</td>
+                <td className="px-3 py-2 text-right font-mono">{rows.reduce((s, r) => s + r.built, 0)}</td>
+                <td className="px-3 py-2 text-right font-mono text-emerald-300">
+                  {Number(rows.reduce((s, r) => s + r.built * r.length, 0).toFixed(1))} m
+                </td>
+                <td colSpan={2} />
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
 
@@ -992,7 +1023,7 @@ const BomSection = () => {
             <button
               type="button"
               onClick={discardPlan}
-              className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+              className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
             >
               {t('common.discard', 'Verwerfen')}
             </button>
@@ -1001,7 +1032,7 @@ const BomSection = () => {
             type="button"
             onClick={savePlan}
             disabled={!draftPlan}
-            className="rounded bg-emerald-700 px-3 py-1 text-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t('export.bom.savePlan', 'Rentman-Planung speichern')}
           </button>
@@ -1016,7 +1047,7 @@ const BomSection = () => {
         <button
           type="button"
           onClick={exportCsv}
-          className="rounded bg-slate-700 px-3 py-1.5 text-xs hover:bg-slate-600"
+          className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs hover:bg-slate-600"
           title={t('export.bom.csvTitle', 'Tabelle als CSV (UTF-8 mit BOM für Excel) herunterladen')}
         >
           {t('export.bom.csv', 'Als CSV herunterladen')}
@@ -1024,7 +1055,7 @@ const BomSection = () => {
         <button
           type="button"
           onClick={exportPdf}
-          className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500"
+          className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500"
           title={t('export.bom.pdfTitle', 'Tabelle als PDF herunterladen')}
         >
           {t('export.bom.pdf', 'Als PDF herunterladen')}
@@ -1032,7 +1063,7 @@ const BomSection = () => {
         <button
           type="button"
           onClick={printPdf}
-          className="rounded bg-indigo-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600"
+          className="rounded bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600"
           title={t('export.bom.osPrint', 'Kabel-Stückliste im OS-Druckdialog öffnen')}
         >
           <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Drucken')}</span>

@@ -314,7 +314,7 @@ export const RackImageCropDialog = ({
           className="mb-3 flex items-start justify-between gap-3 select-none"
         >
           <div>
-            <h3 className="text-base font-semibold">
+            <h3 className="text-cp-xl font-semibold">
               {format(
                 side === 'front'
                   ? t('rackCrop.titleFront', 'Front Grafik zuschneiden ({units} HE)')
@@ -322,7 +322,7 @@ export const RackImageCropDialog = ({
                 { units: rackUnits },
               )}
             </h3>
-            <p className="mt-0.5 text-xs text-slate-400">
+            <p className="mt-0.5 text-cp-xs text-slate-400">
               {t(
                 'rackCrop.hint',
                 'Mausrad zoomt · Ecken & Kanten ziehen zum Skalieren · Shift = Aspekt halten · Pfeiltasten nudgen · R = Reset',
@@ -332,7 +332,7 @@ export const RackImageCropDialog = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
           >
             {t('rackCrop.close', 'Schliessen')}
           </button>
@@ -340,7 +340,7 @@ export const RackImageCropDialog = ({
 
         <div className="mb-3 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_280px]">
           <div className="rounded border border-slate-700 bg-slate-950/40 p-2">
-            <div className="mb-2 flex items-center gap-2 text-xs text-slate-400">
+            <div className="mb-2 flex items-center gap-2 text-cp-xs text-slate-400">
               <span>{t('rackCrop.zoom', 'Zoom')}</span>
               <input
                 type="range"
@@ -432,9 +432,9 @@ export const RackImageCropDialog = ({
             </div>
           </div>
 
-          <div className="space-y-2 rounded border border-slate-700 bg-slate-950/40 p-2 text-xs">
+          <div className="space-y-2 rounded border border-slate-700 bg-slate-950/40 p-2 text-cp-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] uppercase tracking-wide text-slate-500">
+              <span className="text-[11px] uppercase tracking-wide text-slate-400">
                 {t('rackCrop.presets', 'Schnittvorlagen')}
               </span>
               <button
@@ -464,7 +464,7 @@ export const RackImageCropDialog = ({
             </div>
 
             <div className="mt-3 rounded border border-slate-800 bg-slate-900/60 p-2">
-              <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
+              <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
                 {t('rackCrop.manualValues', 'Manuelle Werte (0–1)')}
               </div>
               <div className="grid grid-cols-2 gap-1.5">

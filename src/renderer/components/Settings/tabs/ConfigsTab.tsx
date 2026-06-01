@@ -149,7 +149,7 @@ export const ConfigsTab = () => {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-slate-400">
+      <p className="text-cp-xs text-slate-400">
         {t(
           'settings.configs.intro',
           'Globale Bibliothek von Geräte-Konfigurationen (ATEM, Videohub, GreenGo). Lade Dateien hier hoch, lade sie als Datei wieder herunter, oder weise einer canvas-Gerät die passende Config zu (im Properties-Panel des Geräts).',
@@ -167,7 +167,7 @@ export const ConfigsTab = () => {
           <button
             type="button"
             onClick={() => void handleUpload()}
-            className="inline-flex items-center gap-1.5 rounded bg-sky-700 px-3 py-1 text-xs text-white hover:bg-sky-600"
+            className="inline-flex items-center gap-1.5 rounded bg-sky-700 px-3 py-1 text-cp-xs text-white hover:bg-sky-600"
           >
             <Icon icon={Upload} size="xs" />
             {t('settings.configs.pickFile', 'Datei wählen…')}
@@ -176,7 +176,7 @@ export const ConfigsTab = () => {
             type="button"
             onClick={handleExportBundle}
             disabled={library.length === 0}
-            className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Icon icon={Save} size="xs" />
             {t('settings.configs.exportBundle', 'Bibliothek als JSON exportieren')}
@@ -184,7 +184,7 @@ export const ConfigsTab = () => {
           <button
             type="button"
             onClick={() => void handleImportBundle()}
-            className="rounded bg-amber-700 px-3 py-1 text-xs text-white hover:bg-amber-600"
+            className="rounded bg-amber-700 px-3 py-1 text-cp-xs text-white hover:bg-amber-600"
           >
             {t('settings.configs.importBundle', '⤵ JSON-Bibliothek importieren…')}
           </button>
@@ -230,21 +230,21 @@ export const ConfigsTab = () => {
         </div>
 
         {library.length === 0 ? (
-          <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-500">
+          <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-400">
             {t(
               'settings.configs.emptyHint',
               'Lade die erste Konfigurationsdatei hoch — sie wird hier gelistet und kann anschließend einem Gerät auf dem Canvas zugeordnet werden.',
             )}
           </div>
         ) : grouped.size === 0 ? (
-          <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-500">
+          <div className="rounded border border-dashed border-slate-700 p-4 text-center text-[11px] text-slate-400">
             {t('settings.configs.noFilterMatch', 'Kein Eintrag passt zum gewählten Filter.')}
           </div>
         ) : (
           <ul className="space-y-2">
             {Array.from(grouped.entries()).map(([kind, entries]) => (
               <li key={kind}>
-                <div className="mb-1 flex items-center gap-1 text-[10px] uppercase tracking-wide text-slate-500">
+                <div className="mb-1 flex items-center gap-1 text-[10px] uppercase tracking-wide text-slate-400">
                   <Icon icon={CONFIG_KIND_ICON[kind]} size="xs" />
                   {t(`settings.configs.kind.${kind}`, CONFIG_KIND_LABEL[kind])}
                 </div>
@@ -256,7 +256,7 @@ export const ConfigsTab = () => {
                     return (
                       <li
                         key={entry.id}
-                        className="flex flex-wrap items-center gap-2 rounded border border-slate-800 bg-slate-950 px-2 py-1.5 text-xs"
+                        className="flex flex-wrap items-center gap-2 rounded border border-slate-800 bg-slate-950 px-2 py-1.5 text-cp-xs"
                       >
                         <input
                           type="text"
@@ -300,7 +300,7 @@ export const ConfigsTab = () => {
                           ))}
                         </select>
                         <span
-                          className="hidden text-[10px] text-slate-500 sm:inline"
+                          className="hidden text-[10px] text-slate-400 sm:inline"
                           title={format(
                             t(
                               'settings.configs.fileMeta',

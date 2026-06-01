@@ -123,7 +123,7 @@ const CableTypeEditor = ({
             <Icon icon={X} size="sm" />
           </button>
         </div>
-        <div className="space-y-2 text-xs">
+        <div className="space-y-2 text-cp-xs">
           <label className="block">
             <span className="text-slate-400">{t('common.name', 'Name')}</span>
             <input
@@ -286,7 +286,7 @@ const CableTypeEditor = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1 text-xs hover:bg-slate-600"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
           >
             Abbrechen
           </button>
@@ -294,7 +294,7 @@ const CableTypeEditor = ({
             type="button"
             onClick={submit}
             disabled={!canSave}
-            className="rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+            className="rounded bg-emerald-600 px-3 py-1 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
           >
             {isEditing ? 'Speichern' : 'Anlegen'}
           </button>
@@ -496,7 +496,7 @@ export const CableLibraryPanel = () => {
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-semibold">{t('cableLib.title', 'Kabel-Library')}</h2>
-          <span className="text-[10px] text-slate-500">{cables.length} verbaut</span>
+          <span className="text-[10px] text-slate-400">{cables.length} verbaut</span>
         </div>
         <button
           type="button"
@@ -530,11 +530,11 @@ export const CableLibraryPanel = () => {
               <button
                 type="button"
                 onClick={() => toggle(group)}
-                className="flex w-full items-center justify-between px-2 py-1.5 pl-5 text-left text-xs font-semibold hover:bg-slate-800"
+                className="flex w-full items-center justify-between px-2 py-1.5 pl-5 text-left text-cp-xs font-semibold hover:bg-slate-800"
               >
                 <span className="flex items-center gap-1.5">
                   {group}
-                  <span className="text-[10px] font-normal text-slate-500">({specs.length})</span>
+                  <span className="text-[10px] font-normal text-slate-400">({specs.length})</span>
                   {groupBuilt > 0 && (
                     <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${
                       groupPlanned > 0
@@ -564,7 +564,7 @@ export const CableLibraryPanel = () => {
                     return (
                       <div
                         key={cable.id}
-                        className={`rounded border px-2 py-1.5 text-xs ${
+                        className={`rounded border px-2 py-1.5 text-cp-xs ${
                           isRecommended
                             ? 'border-emerald-500 bg-emerald-950/40'
                             : isCustom
