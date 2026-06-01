@@ -63,9 +63,10 @@ export const RoutingToggle = ({
   }
 
   // Default 'pills' variant — used in property panels and settings.
+  // (Über die übersetzten `options` mappen, nicht über die deutsche Rohliste.)
   return (
     <div className={className ?? 'flex gap-1'}>
-      {ROUTING_OPTIONS.map((opt) => (
+      {options.map((opt) => (
         <button
           key={opt.value}
           type="button"

@@ -383,6 +383,15 @@ export const MenuBar = ({
           <MenuItem onClick={() => useUiStore.getState().openCsvImport()} icon={<Icon icon={ImportIcon} size="sm" />}>
             {t('app.menu.tools.csvImport', 'Equipment aus CSV importieren…')}
           </MenuItem>
+          {/* Rentman ist standardmäßig aus — hier (oder in den Einstellungen)
+              einschalten. Häkchen zeigt den aktuellen Zustand. */}
+          <MenuSep />
+          <MenuItem
+            onClick={() => useUiStore.getState().setRentmanEnabled(!rentmanEnabled)}
+            icon={rentmanEnabled ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.tools.rentmanToggle', 'Rentman-Integration')}
+          </MenuItem>
           {rentmanEnabled && (
             <MenuItem onClick={() => useUiStore.getState().openRentmanImport()} icon={<Icon icon={Users} size="sm" />}>
               {t('app.menu.tools.rentmanImport', 'Rentman-Import…')}

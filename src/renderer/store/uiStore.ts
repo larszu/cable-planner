@@ -123,7 +123,9 @@ interface PersistedUiState {
   /** v7.9.4 — Rentman-Integration ein-/ausschaltbar. Wenn `false`,
    *  werden alle Rentman-Funktionen ausgeblendet (Library-Tab,
    *  Menü-Einträge, Status-Badge, Badges am LibraryItem, BOM-
-   *  Rentman-Spalten). Persistiert. Default `true` für Kompatibilität. */
+   *  Rentman-Spalten). Persistiert. Default `false` — Rentman ist ein
+   *  optionales Feature und wird beim ersten Start im Menü (Werkzeuge →
+   *  Rentman-Integration) bzw. in den Einstellungen aktiviert. */
   rentmanEnabled: boolean
   /** v7.9.5 — Library-Liste vs. Kachel-Ansicht. Kachel zeigt Front-
    *  Panel-Thumbnails wenn vorhanden. */
@@ -298,7 +300,7 @@ const defaults: PersistedUiState = {
   colorPortsByType: false,
   language: 'en',
   overrideConnectionWarnings: false,
-  rentmanEnabled: true,
+  rentmanEnabled: false,
   libraryViewMode: 'list',
   librarySortMode: 'manual',
   annotationAuthor: '',
