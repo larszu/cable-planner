@@ -12,7 +12,7 @@ import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
-import { AlertTriangle, Download, Calculator } from 'lucide-react'
+import { AlertTriangle, Download, Calculator, BatteryCharging } from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
@@ -279,6 +279,14 @@ const PowerTab = () => {
   const projectName = useProjectStore((s) => s.project.metadata.name)
   const [supplyId, setSupplyId] = useState<SupplyPresetId>('cee32')
   const [marginPercent, setMarginPercent] = useState(20)
+  // #345 ff. — USV/Notstrom-Rechner. Reuse der Gesamtlast aus den Geräten.
+  const [upsVa, setUpsVa] = useState(1500)
+  const [upsPf, setUpsPf] = useState(0.9)
+  const [battV, setBattV] = useState(12)
+  const [battAh, setBattAh] = useState(9)
+  const [battCount, setBattCount] = useState(2)
+  const [usablePercent, setUsablePercent] = useState(85)
+  const [targetMinutes, setTargetMinutes] = useState(15)
   const supply = SUPPLY_PRESETS.find((s) => s.id === supplyId) ?? SUPPLY_PRESETS[0]
 
   const totals = useMemo(() => {
@@ -352,6 +360,24 @@ const PowerTab = () => {
   const POWER_FACTOR = 0.8
   const generatorKva = totalWithMargin / POWER_FACTOR / 1000
   const generatorKvaRecommended = generatorKva * 1.25
+
+  // #345 ff. — USV/Notstrom-Puffer.
+  //  - USV-Kapazität (W) = Scheinleistung (VA) × Leistungsfaktor.
+  //  - Pufferzeit ≈ (nutzbare Akku-Energie) / Last × 60. Lineare Näherung
+  //    (ignoriert Peukert/Temperatur); Hersteller-Runtime-Kurven sind genauer,
+  //    aber für die Planung reicht das. "nutzbar" deckt Wechselrichter-
+  //    Wirkungsgrad + Entladetiefe ab.
+  const upsCapacityW = upsVa * upsPf
+  const upsLoadW = totals.totalW
+  const upsLoadFraction = upsCapacityW > 0 ? upsLoadW / upsCapacityW : 0
+  const upsOverloaded = upsLoadFraction > 1
+  const recommendedVa = upsPf > 0 ? Math.ceil((upsLoadW / upsPf) * 1.25) : 0
+  const batteryWh = battV * battAh * battCount
+  const usableWh = batteryWh * (usablePercent / 100)
+  const runtimeMin = upsLoadW > 0 ? (usableWh / upsLoadW) * 60 : 0
+  // Reverse: Akku-Energie, die für die Zielpufferzeit nötig wäre.
+  const requiredWhForTarget =
+    usablePercent > 0 ? (upsLoadW * (targetMinutes / 60)) / (usablePercent / 100) : 0
 
   // #345 — Wärmelast + CSV-Export der Phasen-Verteilung.
   const totalBtu = Math.round(totals.totalW * 3.412)
@@ -595,6 +621,166 @@ const PowerTab = () => {
           </div>
         </div>
       )}
+
+      {/* #345 ff. — USV / Notstrom-Puffer-Rechner. Nutzt die Gesamtlast der
+          Geräte (oben) und schätzt USV-Größe + Pufferzeit. */}
+      <details className="rounded border border-slate-800 bg-slate-950/40" open={totals.totalW > 0}>
+        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
+          <Icon icon={BatteryCharging} size="xs" />
+          {t('calc.ups.title', 'USV / Notstrom-Puffer')}
+        </summary>
+        <div className="space-y-3 px-3 py-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.va', 'USV-Scheinleistung (VA)')}
+              </span>
+              <input
+                type="number"
+                min={0}
+                value={upsVa}
+                onChange={(e) => setUpsVa(Math.max(0, Number(e.target.value) || 0))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.pf', 'Leistungsfaktor')}
+              </span>
+              <select
+                value={upsPf}
+                onChange={(e) => setUpsPf(Number(e.target.value))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+              >
+                {[0.6, 0.7, 0.8, 0.9, 1.0].map((pf) => (
+                  <option key={pf} value={pf}>
+                    {pf.toFixed(1)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.capacity', 'Kapazität (W)')}
+              </span>
+              <div className="rounded border border-slate-800 bg-slate-900 px-2 py-1 font-mono text-xs text-slate-200">
+                {Math.round(upsCapacityW)} W
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.battV', 'Akku (V)')}
+              </span>
+              <input
+                type="number"
+                min={0}
+                value={battV}
+                onChange={(e) => setBattV(Math.max(0, Number(e.target.value) || 0))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.battAh', 'Kapazität (Ah)')}
+              </span>
+              <input
+                type="number"
+                min={0}
+                value={battAh}
+                onChange={(e) => setBattAh(Math.max(0, Number(e.target.value) || 0))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.battCount', 'Anzahl Akkus')}
+              </span>
+              <input
+                type="number"
+                min={1}
+                value={battCount}
+                onChange={(e) => setBattCount(Math.max(1, Number(e.target.value) || 1))}
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[10px] text-slate-400">
+                {t('calc.ups.usable', 'Nutzbar (%)')}
+              </span>
+              <input
+                type="number"
+                min={1}
+                max={100}
+                value={usablePercent}
+                onChange={(e) =>
+                  setUsablePercent(Math.min(100, Math.max(1, Number(e.target.value) || 1)))
+                }
+                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+              />
+            </label>
+          </div>
+
+          <div
+            className={`rounded border p-3 ${
+              upsOverloaded ? 'border-red-700 bg-red-950/30' : 'border-sky-700 bg-sky-950/20'
+            }`}
+          >
+            <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-xs">
+              <dt className="text-slate-500">{t('calc.ups.load', 'Last (gemessen)')}</dt>
+              <dd className="font-mono text-slate-200">{upsLoadW.toFixed(0)} W</dd>
+              <dt className="text-slate-500">{t('calc.ups.utilization', 'USV-Auslastung')}</dt>
+              <dd className="font-mono">
+                <span className={upsOverloaded ? 'text-red-300' : 'text-slate-200'}>
+                  {Math.round(upsLoadFraction * 100)}%
+                </span>
+                {upsOverloaded && (
+                  <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-[10px] text-white">
+                    <Icon icon={AlertTriangle} size="xs" />
+                    {t('calc.ups.overload', 'USV überlastet')}
+                  </span>
+                )}
+              </dd>
+              <dt className="text-slate-500">{t('calc.ups.recommended', 'Empfohlene USV')}</dt>
+              <dd className="font-mono text-emerald-200">≥ {recommendedVa} VA</dd>
+              <dt className="text-slate-500">{t('calc.ups.battery', 'Akku-Energie')}</dt>
+              <dd className="font-mono text-slate-200">
+                {Math.round(batteryWh)} Wh · {Math.round(usableWh)} Wh {t('calc.ups.usableShort', 'nutzbar')}
+              </dd>
+              <dt className="text-slate-500">{t('calc.ups.runtime', 'Pufferzeit (geschätzt)')}</dt>
+              <dd className="font-mono text-lg text-emerald-200">
+                {upsLoadW <= 0
+                  ? '—'
+                  : runtimeMin >= 60
+                    ? `${Math.floor(runtimeMin / 60)} h ${Math.round(runtimeMin % 60)} min`
+                    : `${runtimeMin.toFixed(0)} min`}
+              </dd>
+            </dl>
+            <div className="mt-2 flex items-center gap-2 border-t border-slate-800 pt-2 text-[11px]">
+              <span className="text-slate-400">{t('calc.ups.target', 'Ziel-Pufferzeit')}</span>
+              <input
+                type="number"
+                min={1}
+                value={targetMinutes}
+                onChange={(e) => setTargetMinutes(Math.max(1, Number(e.target.value) || 1))}
+                className="w-16 rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-xs"
+              />
+              <span className="text-slate-400">min →</span>
+              <span className="font-mono text-slate-200">
+                {Math.round(requiredWhForTarget)} Wh {t('calc.ups.needed', 'Akku nötig')}
+              </span>
+            </div>
+          </div>
+          <p className="text-[10px] text-slate-400">
+            {t(
+              'calc.ups.note',
+              'USV-Kapazität (W) = VA × Leistungsfaktor. Pufferzeit ≈ nutzbare Akku-Energie / Last. Lineare Näherung — reale Laufzeit hängt von Entladekurve, Alter und Temperatur ab; im Zweifel die Hersteller-Runtime-Tabelle prüfen.',
+            )}
+          </p>
+        </div>
+      </details>
 
       {totals.devices.length > 0 && (
         <details className="rounded border border-slate-800 bg-slate-950/40">
