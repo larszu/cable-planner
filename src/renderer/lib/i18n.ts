@@ -3083,6 +3083,7 @@ const en: Dict = {
   'app.menu.view.zoom100': 'Zoom 100 %',
   'app.menu.view.zoomIn': 'Zoom in',
   'app.menu.view.zoomOut': 'Zoom out',
+  'app.menu.view.followSystem': 'Follow system theme',
   'app.menu.edit': 'Edit',
   'app.menu.edit.undo': 'Undo',
   'app.menu.edit.redo': 'Redo',
