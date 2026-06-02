@@ -28,6 +28,25 @@ import { Icon } from '../renderer/components/shared/Icon'
 import { styleForLayer } from '../renderer/lib/cableLayers'
 import type { CablePlannerProject } from '../renderer/types/project'
 
+// The desktop share server gates every data/write route behind a
+// per-session token handed to the phone via the QR/URL (`?t=…`). Read it
+// once and replay it on every request (query param + header) so the
+// desktop accepts us. Without it the server returns 401.
+const SHARE_TOKEN =
+  typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('t') ?? ''
+    : ''
+
+/** fetch() wrapper that attaches the session token to same-origin API
+ *  calls. External absolute URLs are passed through untouched. */
+const apiFetch = (path: string, init?: RequestInit): Promise<Response> => {
+  if (!SHARE_TOKEN || /^https?:\/\//i.test(path)) return fetch(path, init)
+  const sep = path.includes('?') ? '&' : '?'
+  const headers = new Headers(init?.headers)
+  headers.set('X-CP-Token', SHARE_TOKEN)
+  return fetch(`${path}${sep}t=${encodeURIComponent(SHARE_TOKEN)}`, { ...init, headers })
+}
+
 const CHECK_KEY = (projectName: string) => `cable-planner-mobile:checks:${projectName}`
 // v7.9.54 — Offline-Cache des kompletten Projekts. Ein Eintrag pro
 // Hostname/Port-Origin, damit verschiedene Geräte-Sessions sich nicht
@@ -109,13 +128,13 @@ const ProjectPicker = ({
     setReloading(true)
     setReloadError(null)
     try {
-      const info = await fetch('/share-info.json', { cache: 'no-store' })
+      const info = await apiFetch('/share-info.json', { cache: 'no-store' })
       if (!info.ok) throw new Error(`share-info ${info.status}`)
       const meta = (await info.json()) as { ok: boolean; hasProject: boolean }
       if (!meta.ok || !meta.hasProject) {
         throw new Error('Desktop teilt aktuell kein Projekt.')
       }
-      const res = await fetch('/project.json', { cache: 'no-store' })
+      const res = await apiFetch('/project.json', { cache: 'no-store' })
       if (!res.ok) throw new Error(`project ${res.status}`)
       const data = (await res.json()) as CablePlannerProject
       if (!data || !Array.isArray(data.equipment)) {
@@ -590,7 +609,7 @@ const ProjectView = ({
     // POST to the desktop server so the Cable Planner Canvas shows
     // the green tick at this port immediately. Fire-and-forget; offline
     // Mobile-Sessions fallen auf localStorage zurück (siehe oben).
-    void fetch('/checks', {
+    void apiFetch('/checks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(checks),
@@ -608,7 +627,7 @@ const ProjectView = ({
     const wasOnline = wasOnlineRef.current
     wasOnlineRef.current = online ?? true
     if (online && !wasOnline) {
-      void fetch('/checks', {
+      void apiFetch('/checks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(checks),
@@ -888,14 +907,14 @@ export const MobileApp = () => {
     let cancelled = false
     void (async () => {
       try {
-        const res = await fetch('/share-info.json', { cache: 'no-store' })
+        const res = await apiFetch('/share-info.json', { cache: 'no-store' })
         if (!res.ok) throw new Error(`share-info ${res.status}`)
         const info = (await res.json()) as { ok: boolean; hasProject: boolean }
         if (!info.ok || !info.hasProject) {
           setAutoLoadAttempted(true)
           return
         }
-        const projectRes = await fetch('/project.json', { cache: 'no-store' })
+        const projectRes = await apiFetch('/project.json', { cache: 'no-store' })
         if (!projectRes.ok) throw new Error(`project ${projectRes.status}`)
         const data = (await projectRes.json()) as CablePlannerProject
         if (!cancelled && data && Array.isArray(data.equipment)) {
@@ -935,7 +954,7 @@ export const MobileApp = () => {
     if (!project) return
     const id = window.setInterval(async () => {
       try {
-        const r = await fetch('/project.json', { cache: 'no-store' })
+        const r = await apiFetch('/project.json', { cache: 'no-store' })
         if (!r.ok) throw new Error(`project ${r.status}`)
         const next = (await r.json()) as CablePlannerProject
         if (next && Array.isArray(next.equipment)) {
@@ -1080,7 +1099,7 @@ const AddCableModal = ({
     setBusy(true)
     setErr(null)
     try {
-      const res = await fetch('/cables', {
+      const res = await apiFetch('/cables', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
