@@ -657,7 +657,7 @@ const AtemMvDevicePicker = () => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
-          <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+          <h2 className="flex items-center gap-2 text-cp-base font-semibold text-slate-200">
             <Icon icon={Monitor} size="sm" />
             {t('atemMv.picker.title', 'ATEM Multiviewer — Gerät wählen')}
           </h2>
@@ -669,7 +669,7 @@ const AtemMvDevicePicker = () => {
             ×
           </button>
         </div>
-        <div className="overflow-auto p-4 text-sm">
+        <div className="overflow-auto p-4 text-cp-base">
           {atemDevices.length === 0 ? (
             <p className="text-slate-400">
               {t(
@@ -1111,7 +1111,7 @@ export const AtemMvConfigDialog = () => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
-          <h2 className="text-sm font-semibold text-slate-100">
+          <h2 className="text-cp-base font-semibold text-slate-100">
             {format(t('atem.mv.dialogTitle', 'Multiviewer-Layout · {name}'), { name: equipment.name })}
           </h2>
           <button

@@ -31,7 +31,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
     <div className="flex flex-1 min-h-0 flex-col">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
         <div className="min-w-0">
-          <h2 className="text-sm font-semibold">{t('library.tabs.racks.title', '2D Rack Builder')}</h2>
+          <h2 className="text-cp-base font-semibold">{t('library.tabs.racks.title', '2D Rack Builder')}</h2>
           <div className="text-[10px] text-slate-400">
             {t('library.tabs.racks.subtitle', 'Rack-Slots in HE, als platzierbare Gruppe gespeichert')}
           </div>

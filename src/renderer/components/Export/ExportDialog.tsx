@@ -128,7 +128,7 @@ export const ExportDialog = ({
               key={id}
               type="button"
               onClick={() => setSection(id)}
-              className={`flex items-center gap-2 rounded px-3 py-2 text-left text-sm ${
+              className={`flex items-center gap-2 rounded px-3 py-2 text-left text-cp-base ${
                 section === id
                   ? 'bg-sky-700 text-white'
                   : 'text-slate-300 hover:bg-slate-800'

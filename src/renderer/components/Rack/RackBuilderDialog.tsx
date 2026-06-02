@@ -779,7 +779,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               aria-required="true"
               aria-invalid={!draft.rackName.trim() && !!saveError}
               placeholder={t('rack.field.namePlaceholder', 'z.B. "Power Rack A" oder "Main Video Rack"')}
-              className={`mt-1 w-full rounded border bg-slate-950 px-2.5 py-1.5 text-sm font-normal text-slate-100 placeholder-slate-600 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 ${
+              className={`mt-1 w-full rounded border bg-slate-950 px-2.5 py-1.5 text-cp-base font-normal text-slate-100 placeholder-slate-600 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 ${
                 !draft.rackName.trim() && saveError
                   ? 'border-red-600 ring-1 ring-red-600/40'
                   : 'border-slate-700'
@@ -799,7 +799,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   totalUnits: Math.max(1, Math.min(LIMITS.MAX_RACK_HEIGHT_HE, Number(event.target.value) || 1)),
                 }))
               }
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-sm font-normal text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-cp-base font-normal text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
             />
           </label>
           {/* v7.9.73 / #170 — Rack-Tiefe in mm. Wird vom 3D-Builder genutzt
@@ -818,7 +818,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   depthMm: Math.max(200, Math.min(1500, Number(event.target.value) || 800)),
                 }))
               }
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-sm font-normal text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-cp-base font-normal text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
               title={t('rack.depthTitle', 'Rack-Tiefe in mm. Standard: 800 mm. Gängige Werte: 350/450/600/800/1000/1200.')}
             />
           </label>
@@ -837,7 +837,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               <button
                 type="button"
                 onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700 bg-slate-900 text-sm text-slate-300 hover:bg-slate-800"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700 bg-slate-900 text-cp-base text-slate-300 hover:bg-slate-800"
                 title={t('rack.zoomOut', 'Verkleinern')}
               >
                 −
@@ -855,7 +855,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               <button
                 type="button"
                 onClick={() => setZoom((z) => Math.min(2, +(z + 0.1).toFixed(2)))}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700 bg-slate-900 text-sm text-slate-300 hover:bg-slate-800"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700 bg-slate-900 text-cp-base text-slate-300 hover:bg-slate-800"
                 title={t('rack.zoomIn', 'Vergrößern')}
               >
                 +

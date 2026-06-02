@@ -380,7 +380,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                                     title={active
                                       ? t('greengo.toggle.removeTitle', '{user} aus „{group}" entfernen').replace('{user}', user.name).replace('{group}', group.name)
                                       : t('greengo.toggle.addTitle', '{user} zu „{group}" hinzufügen').replace('{user}', user.name).replace('{group}', group.name)}
-                                    className={`h-7 w-7 rounded text-sm transition-colors ${
+                                    className={`h-7 w-7 rounded text-cp-base transition-colors ${
                                       active
                                         ? 'bg-emerald-600 text-white hover:bg-emerald-500'
                                         : 'bg-slate-800 text-slate-600 hover:bg-slate-700 hover:text-slate-300'
@@ -600,14 +600,14 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
           {/* ── SYSTEM ── */}
           {activeTab === 'system' && (
-            <div className="max-w-md space-y-3 text-sm">
+            <div className="max-w-md space-y-3 text-cp-base">
               <label className="block">
                 <span className="mb-1 block text-cp-xs text-slate-400">{t('greengo.system.systemName', 'System-Name')}</span>
                 <input
                   value={config.systemName}
                   onChange={(e) => setField('systemName', e.target.value)}
                   placeholder={t('greengo.system.systemNamePlaceholder', 'Produktion')}
-                  className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+                  className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
                 />
               </label>
 
@@ -617,7 +617,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   value={config.description ?? ''}
                   onChange={(e) => setField('description', e.target.value)}
                   placeholder={t('greengo.system.descriptionPlaceholder', 'optional')}
-                  className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+                  className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
                 />
               </label>
 
@@ -629,7 +629,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   value={config.multicastAddress}
                   onChange={(e) => setField('multicastAddress', e.target.value)}
                   placeholder="239.1.160.1"
-                  className="w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-sm"
+                  className="w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-cp-base"
                 />
                 <span className="mt-0.5 block text-[10px] text-slate-400">
                   {t('greengo.system.multicastHint', 'Standard: 239.1.160.1 — muss im Netzwerk eindeutig sein.')}
@@ -643,7 +643,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   onChange={(e) =>
                     setField('sampleRate', Number(e.target.value) as 32000 | 48000)
                   }
-                  className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+                  className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
                 >
                   <option value={32000}>{t('greengo.system.sampleRate32', '32000 Hz (Standard GreenGo)')}</option>
                   <option value={48000}>{t('greengo.system.sampleRate48', '48000 Hz')}</option>
@@ -751,7 +751,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
               <div>
-                <h3 className="text-sm font-semibold text-emerald-300">
+                <h3 className="text-cp-base font-semibold text-emerald-300">
                   {t('greengo.importOverlay.title', '.gg5 importieren — Geräte verknüpfen')}
                 </h3>
                 <p className="text-[11px] text-slate-400">

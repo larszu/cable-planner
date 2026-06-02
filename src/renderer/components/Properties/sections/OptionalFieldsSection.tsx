@@ -176,7 +176,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 const v = event.target.value
                 updateEquipment(equipment.id, { icon: v.length === 0 ? undefined : v.slice(0, 2) })
               }}
-              className="w-20 rounded border border-slate-700 bg-slate-900 p-2 text-center text-base"
+              className="w-20 rounded border border-slate-700 bg-slate-900 p-2 text-center text-cp-lg"
               maxLength={2}
             />
             {ICON_GLYPHS.map((g) => (
@@ -184,7 +184,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 key={g}
                 type="button"
                 onClick={() => updateEquipment(equipment.id, { icon: g })}
-                className={`rounded border px-1.5 py-1 text-base ${
+                className={`rounded border px-1.5 py-1 text-cp-lg ${
                   equipment.icon === g
                     ? 'border-sky-500 bg-sky-700/30'
                     : 'border-slate-700 bg-slate-900 hover:bg-slate-800'

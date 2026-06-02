@@ -215,7 +215,7 @@ export const VideohubRoutingMatrix = ({
         </div>
         <div className="space-y-0.5">
           {outputLabels.map((outLabel, oi) => (
-            <div key={oi} className="flex items-center gap-2 text-sm">
+            <div key={oi} className="flex items-center gap-2 text-cp-base">
               <span className="w-10 shrink-0 font-mono text-right text-slate-500">{oi + 1}</span>
               <span className="w-40 shrink-0 truncate text-right font-medium text-slate-200">
                 {outLabel}
@@ -224,7 +224,7 @@ export const VideohubRoutingMatrix = ({
               <select
                 value={routing[oi] ?? 0}
                 onChange={(e) => onRoute(oi, parseInt(e.target.value, 10))}
-                className="flex-1 rounded border border-slate-700 bg-slate-900 p-1 text-sm text-sky-200"
+                className="flex-1 rounded border border-slate-700 bg-slate-900 p-1 text-cp-base text-sky-200"
               >
                 {inputLabels.map((inLabel, ii) => (
                   <option key={ii} value={ii}>

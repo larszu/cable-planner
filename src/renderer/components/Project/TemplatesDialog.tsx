@@ -115,7 +115,7 @@ export const TemplatesDialog = () => {
       <div className="flex items-start gap-2">
         <Icon icon={LayoutTemplate} size="md" className="mt-0.5 text-violet-400" />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-semibold">{label(tpl)}</div>
+          <div className="truncate text-cp-base font-semibold">{label(tpl)}</div>
           <div className="text-cp-xs text-[var(--cp-text-muted)]">{desc(tpl)}</div>
         </div>
       </div>
@@ -147,7 +147,7 @@ export const TemplatesDialog = () => {
       titleIcon={<Icon icon={LayoutTemplate} size="md" />}
       title={t('templates.title', 'Neu aus Vorlage')}
     >
-      <div className="space-y-4 p-1 text-sm">
+      <div className="space-y-4 p-1 text-cp-base">
         <div className="flex items-center justify-between gap-2">
           <p className="text-cp-xs text-[var(--cp-text-muted)]">
             {t(
