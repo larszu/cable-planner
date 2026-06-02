@@ -350,7 +350,7 @@ export const VideohubRoutingMatrix = ({
         )}
       </div>
       <div
-        className="overflow-auto rounded-md border border-slate-700 bg-slate-950"
+        className="overflow-auto rounded-cp-control border border-slate-700 bg-slate-950"
         style={{ maxHeight }}
         onMouseLeave={() => setHover(null)}
         onMouseUp={() => setDragging(false)}

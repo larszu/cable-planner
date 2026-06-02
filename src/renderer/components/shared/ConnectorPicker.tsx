@@ -165,7 +165,7 @@ export const ConnectorPicker = ({
           <div
             ref={popRef}
             role="dialog"
-            className="fixed z-[300] flex max-h-[360px] flex-col overflow-hidden rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
+            className="fixed z-[300] flex max-h-[360px] flex-col overflow-hidden rounded-cp-card border border-slate-700 bg-slate-900 shadow-2xl"
             style={{ left: pos.left, top: pos.top, width: pos.width }}
           >
             <div className="flex items-center gap-2 border-b border-slate-800 px-2 py-1.5">

@@ -1186,7 +1186,7 @@ export default function App() {
       })()}
       {pdfProgress.active && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-[420px] max-w-[90vw] rounded-lg border border-slate-700 bg-slate-900 p-5 text-slate-100 shadow-2xl">
+          <div className="w-[420px] max-w-[90vw] rounded-cp-card border border-slate-700 bg-slate-900 p-5 text-slate-100 shadow-2xl">
             <div className="mb-3 flex items-center gap-3">
               <div className="h-3 w-3 animate-pulse rounded-full bg-sky-400" />
               <h2 className="text-sm font-semibold">{t('app.pdfProgress.title', 'PDF wird erstellt…')}</h2>
@@ -1231,7 +1231,7 @@ const PdfExportDialog = ({
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4">
-      <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-4 shadow-2xl">
+      <div className="w-full max-w-md rounded-cp-card border border-slate-700 bg-slate-900 p-4 shadow-2xl">
         <h2 className="mb-3 text-sm font-semibold text-slate-100">{t('pdfExport.title', 'Plan als PDF exportieren')}</h2>
         <div className="space-y-3">
           {/* Layer-Sichtbarkeit — uebernimmt die Chip-Komponente aus
