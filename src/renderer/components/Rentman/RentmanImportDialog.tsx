@@ -15,6 +15,7 @@ import { matchGreenGoTemplate } from '../../lib/greengoCatalog'
 import { getCachedRentmanTemplate } from '../../lib/rentmanTemplateCache'
 import type { EquipmentTemplate, Port } from '../../types/equipment'
 import type { CableType } from '../../types/cable'
+import { buildRackPresetFromCombination } from '../../lib/rentmanRack'
 import { EquipmentChecklist } from './EquipmentChecklist'
 import { NewRentmanDeviceWizard, type UnknownCandidate } from './NewRentmanDeviceWizard'
 import { ProjectSelector } from './ProjectSelector'
@@ -276,6 +277,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   }
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const addCustomTemplate = useProjectStore((state) => state.addCustomTemplate)
+  const addGroupPreset = useProjectStore((state) => state.addGroupPreset)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
   const knownCategories = useProjectStore((state) => state.knownCategories)
   const updateProjectMetadata = useProjectStore((state) => state.updateProjectMetadata)
@@ -286,6 +288,8 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const [projectQuery, setProjectQuery] = useState('')
   const [selectedProjectId, setSelectedProjectId] = useState('')
   const [items, setItems] = useState<RentmanEquipment[]>([])
+  // #335 — Kombinationen (Sets), die als Rack importiert werden sollen.
+  const [rackSetIds, setRackSetIds] = useState<Set<string>>(new Set())
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set())
   const [error, setError] = useState('')
   const [warning, setWarning] = useState('')
@@ -736,7 +740,32 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     // One library template per unique device name — quantity is irrelevant for the template.
     const seen = new Set<string>()
     let addedCount = 0
+
+    // #335 — Sets, die als Rack markiert sind, werden zu einem GroupPreset
+    // (Rack) statt zu einzelnen Templates. Das Rack trägt die Kombi-ID, die
+    // Inhalte behalten ihre eigenen Rentman-IDs. Konsumierte Rows (Parent +
+    // Children) werden unten in der Template-Schleife übersprungen.
+    const rackConsumedIds = new Set<string>()
+    if (rackSetIds.size > 0) {
+      for (const parent of selected) {
+        if (!rackSetIds.has(parent.id)) continue
+        const children = selected.filter((c) => c.parentId === parent.id)
+        if (children.length === 0) continue
+        const rackChildren = children.map((child) => ({
+          template: buildImportedBaseTemplate(child, templatesByEquipmentId, categoryByName),
+          rentmanId: child.equipmentId,
+        }))
+        addGroupPreset(buildRackPresetFromCombination(parent.name, parent.equipmentId, rackChildren))
+        rackConsumedIds.add(parent.id)
+        for (const c of children) rackConsumedIds.add(c.id)
+        addedCount++
+      }
+    }
+
     selected.forEach((item) => {
+      // #335 — Rows, die schon in einem Rack-GroupPreset gelandet sind, nicht
+      // zusätzlich als Einzel-Template importieren.
+      if (rackConsumedIds.has(item.id)) return
       if (seen.has(item.name)) return
       seen.add(item.name)
 
@@ -1596,6 +1625,23 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 children.forEach((child) => {
                   if (child.checked !== checked) toggleItem(child.id)
                 })
+              }}
+              rackSetIds={rackSetIds}
+              onSetAsRack={(parentId, asRack) => {
+                setRackSetIds((prev) => {
+                  const next = new Set(prev)
+                  if (asRack) next.add(parentId)
+                  else next.delete(parentId)
+                  return next
+                })
+                // #335 — Beim Markieren als Rack die Kinder gleich mitselektieren,
+                // damit der Rack-Inhalt vollständig importiert wird.
+                if (asRack) {
+                  const children = items.filter((i) => i.parentId === parentId)
+                  children.forEach((child) => {
+                    if (!child.checked) toggleItem(child.id)
+                  })
+                }
               }}
               linkableEquipment={projectEquipment
                 .filter((e) => !e.rentmanId)

@@ -182,6 +182,8 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
       isRackShelf: item.isRackShelf,
       shelfOffsetX: shelfOffsetByIndex.get(index)?.x,
       shelfOffsetZ: shelfOffsetByIndex.get(index)?.z,
+      // #335 — Rentman-ID des Inhalts über Reload erhalten.
+      rentmanId: item.rentmanId,
     }
   })
   // Hydrate internal cables: cables in the stored preset reference items
@@ -214,6 +216,8 @@ const draftFromPreset = (preset: GroupPreset): RackDraft => {
     rackName: preset.name,
     totalUnits: preset.rack?.totalUnits ?? 42,
     depthMm: preset.rack?.depthMm,
+    // #335 — Kombi-ID des Racks über Reload erhalten.
+    rentmanId: preset.rack?.rentmanId,
     viewMode: 'front',
     placements,
     internalCables,
@@ -641,6 +645,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       // v7.9.75 / #170 — Patchblende-/Shelf-Marker persistieren.
       isPatchPanel: placement.isPatchPanel,
       isRackShelf: placement.isRackShelf,
+      // #335 — Rentman-ID des Inhalts erhalten (nur wenn gesetzt).
+      ...(placement.rentmanId ? { rentmanId: placement.rentmanId } : {}),
       width: 240,
       height: 80 + Math.max(placement.inputs.length, placement.outputs.length, 3) * 22,
       offsetX: 0,
@@ -704,6 +710,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       name: draft.rackName.trim(),
       rack: {
         totalUnits: draft.totalUnits,
+        // #335 — Kombi-ID des Racks erhalten (nur wenn aus Rentman-Import).
+        ...(draft.rentmanId ? { rentmanId: draft.rentmanId } : {}),
         // v7.9.73 / #170 — Rack-Tiefe nur persistieren wenn vom User gesetzt.
         ...(draft.depthMm ? { depthMm: draft.depthMm } : {}),
         placements: rackPlacements,
