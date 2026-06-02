@@ -33,6 +33,14 @@ interface EquipmentChecklistProps {
   onQtyChange?: (id: string, qty: number) => void
   onSetAllChildren?: (parentId: string, checked: boolean) => void
   /**
+   * #335: Per-Kombination "Als Rack importieren". Markierte Sets werden beim
+   * Import zu einem Cable-Planner-Rack (Kombi-Name = Rack-Name, Kombi-ID am
+   * Rack, Inhalte als Rack-Geräte mit eigenen Rentman-IDs) statt zu einzelnen
+   * Templates.
+   */
+  rackSetIds?: Set<string>
+  onSetAsRack?: (parentId: string, asRack: boolean) => void
+  /**
    * Issue #33: Per-row "link to existing local device" mapping. When
    * provided, each row gets a dropdown of local equipment (without a
    * Rentman ID yet). Selecting one writes that Rentman id onto the
@@ -51,6 +59,8 @@ export const EquipmentChecklist = ({
   onSetAll,
   onQtyChange,
   onSetAllChildren,
+  rackSetIds,
+  onSetAsRack,
   linkableEquipment,
   onLinkExisting,
   linkedMap,
@@ -195,6 +205,29 @@ export const EquipmentChecklist = ({
                         {item.name}
                         {isSet && (
                           <span className="ml-1 text-[10px] text-slate-400">[set · {children!.length}]</span>
+                        )}
+                        {isSet && onSetAsRack && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              onSetAsRack(item.id, !rackSetIds?.has(item.id))
+                            }}
+                            className={`ml-2 rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                              rackSetIds?.has(item.id)
+                                ? 'bg-sky-700/70 text-sky-100'
+                                : 'bg-slate-700/60 text-slate-300 hover:bg-slate-600/60'
+                            }`}
+                            title={t(
+                              'rentman.checklist.asRackTitle',
+                              'Diese Kombination beim Import als Rack übernehmen (Inhalte behalten ihre Rentman-IDs).',
+                            )}
+                          >
+                            {rackSetIds?.has(item.id)
+                              ? t('rentman.checklist.asRackOn', '✓ als Rack')
+                              : t('rentman.checklist.asRackOff', '+ als Rack')}
+                          </button>
                         )}
                         {item.templateMatch && (() => {
                           // v7.9.128 — Drei verschiedene Badge-Styles

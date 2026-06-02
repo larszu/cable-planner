@@ -269,7 +269,9 @@ export interface EquipmentItem {
    *  GroupPreset-Strukturen. Read-only — die echte Quelle ist nach wie
    *  vor der GroupPreset im projectStore. */
   rackInternalSnapshot?: {
-    items: Array<{ name: string; startUnit: number; rackUnits: number }>
+    /** #335 — `rentmanId` pro Inhalt: ein als Rack importiertes Black-Box-Rack
+     *  behält die individuellen Rentman-IDs seiner Geräte im Snapshot. */
+    items: Array<{ name: string; startUnit: number; rackUnits: number; rentmanId?: string }>
     cables: Array<{
       fromItemIndex: number
       fromPortName: string
@@ -677,6 +679,10 @@ export interface GroupPreset {
   /** Optional rack metadata when this group was authored in the 2D rack builder. */
   rack?: {
     totalUnits: number
+    /** #335 — Rentman-Equipment-ID der physischen Kombination, aus der dieses
+     *  Rack importiert wurde. Das Rack als Einheit trägt die Kombi-ID; die
+     *  einzelnen Inhalte behalten ihre eigene `rentmanId` (siehe items). */
+    rentmanId?: string
     /** v7.9.73 / #170 — Rack-Tiefe in mm (Default 800 mm beim Rendering).
      *  Wird vom 3D/Split-Builder genutzt um zu prüfen ob Patchblenden hinter
      *  full-depth-Geräten passen. */
@@ -708,6 +714,10 @@ export interface GroupPreset {
     EquipmentTemplate & {
       offsetX: number
       offsetY: number
+      /** #335 — Rentman-ID dieses Rack-Inhalts. Beim Platzieren (placeGroupPreset)
+       *  per Spread auf das EquipmentItem übernommen, sodass jedes Gerät im Rack
+       *  seine individuelle Rentman-ID behält. */
+      rentmanId?: string
     }
   >
   cables: Array<{
