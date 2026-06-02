@@ -1633,6 +1633,11 @@ const en: Dict = {
   'rentman.checklist.deselectChildren': 'Deselect all children',
   'rentman.checklist.childrenAllOff': 'all',
   'rentman.checklist.childrenAllOn': 'all',
+  // #335 — import a Rentman combination as a rack
+  'rentman.checklist.asRackOn': '✓ as rack',
+  'rentman.checklist.asRackOff': '+ as rack',
+  'rentman.checklist.asRackTitle':
+    'Import this combination as a rack (contents keep their Rentman IDs).',
 
   // Rentman — RentmanImportDialog body
   'rentman.import.busyTitle': 'Import operations still running',

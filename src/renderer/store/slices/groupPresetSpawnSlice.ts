@@ -87,6 +87,8 @@ const buildRackInternalSnapshot = (preset: import('../../types/equipment').Group
         preset.rack?.placements?.find((pl) => pl.itemIndex === idx)?.heightUnits ??
         item.rackUnits ??
         1,
+      // #335 — Rentman-ID des Inhalts mitschnappen (für späteren Sync/Export).
+      ...(item.rentmanId ? { rentmanId: item.rentmanId } : {}),
     })),
     cables: preset.cables.map((c) => ({
       fromItemIndex: c.fromItemIndex,
@@ -221,6 +223,10 @@ export const createGroupPresetSpawnSlice: StateCreator<
         height: 0,
         icon: '🗄',
         notes: `Black-Box-Rack: ${preset.items.length} Geräte, ${preset.cables.length} interne Verbindungen.`,
+        // #335 — Wenn das Rack aus einer Rentman-Kombination stammt, trägt das
+        // Rack als Einheit die Kombi-ID; die Inhalte behalten ihre eigenen IDs
+        // im Snapshot.
+        ...(preset.rack?.rentmanId ? { rentmanId: preset.rack.rentmanId } : {}),
         rackInternalSnapshot: buildRackInternalSnapshot(preset),
       }
       const updated = touchProject({

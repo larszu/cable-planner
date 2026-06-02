@@ -41,6 +41,10 @@ export interface RackPlacementDraft {
   shelfOffsetX?: number
   /** v7.9.82 / #170 — Shelf-Device depth-Offset (mm von vorne). */
   shelfOffsetZ?: number
+  /** #335 — Rentman-ID dieses Geräts (wenn es aus einer Rentman-Kombination
+   *  als Rack-Inhalt importiert wurde). Bleibt über Save/Reload erhalten und
+   *  landet beim Platzieren auf dem EquipmentItem. */
+  rentmanId?: string
 }
 
 export interface InternalCableDraft {
@@ -61,6 +65,10 @@ export interface InternalCableDraft {
 export interface RackDraft {
   rackName: string
   totalUnits: number
+  /** #335 — Rentman-Equipment-ID der Kombination, falls dieses Rack aus einer
+   *  Rentman-Kombination importiert wurde. Round-trips über das GroupPreset
+   *  (preset.rack.rentmanId). */
+  rentmanId?: string
   viewMode: 'front' | 'rear' | 'both' | 'side'
   /** v7.9.73 / #170 — Rack-Tiefe in mm. Default 800 mm. */
   depthMm?: number
