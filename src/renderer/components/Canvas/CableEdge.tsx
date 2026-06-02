@@ -204,6 +204,12 @@ const midlineJitter = (cableId: string): number => {
   return lanes[Math.abs(hash) % lanes.length]
 }
 
+/** #221 — Mindest-Abstand (Flow-Einheiten) zwischen den beiden Enden, ab
+ *  dem ein Off-Page-Kabel wirklich als zwei Symbole gezeichnet wird. Liegen
+ *  die Ports näher zusammen, würden sich die ~190px breiten Symbole
+ *  überlappen → Fallback auf die normale durchgehende Linie. */
+const OFF_PAGE_MIN_SPAN = 220
+
 const buildPath = (
   cable: Cable,
   args: {
@@ -650,7 +656,10 @@ export const CableEdge = ({
   // Symbol (Pfeil + Netzname + Gegenstück). Die Verbindung bleibt logisch
   // dieselbe; nur die Darstellung ändert sich. Selektion/Netz-Highlight/
   // Navigation laufen über die Symbole (kein klickbarer Pfad nötig).
-  if (cable && cable.offPage) {
+  // Overlap-Fallback: bei zu kurzer Distanz wird unten die normale Linie
+  // gezeichnet (die zwei Symbole würden sonst übereinander liegen).
+  const offPageSpan = Math.hypot(targetX - sourceX, targetY - sourceY)
+  if (cable && cable.offPage && offPageSpan >= OFF_PAGE_MIN_SPAN) {
     const key = netKeyOf(cable)
     const netLabel = key ?? cable.name
     const netHighlighted = key != null && key === highlightedNetKey
