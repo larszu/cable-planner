@@ -444,6 +444,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                             value={pickerQuery}
                             onChange={(event) => setPickerQuery(event.target.value)}
                             placeholder={t('rentman.cableExport.searchPlaceholder', 'Suchen…')}
+                            aria-label={t('rentman.cableExport.searchPlaceholder', 'Suchen…')}
                             className="mb-1 w-full rounded border border-slate-700 bg-slate-900 px-2 py-0.5 text-[11px]"
                           />
                           <div className="max-h-40 space-y-0.5 overflow-auto">

@@ -22,6 +22,8 @@ export const defaultProject = (): CablePlannerProject => ({
     createdAt: nowIso(),
     updatedAt: nowIso(),
     defaultVideoFormat: '1080p50',
+    defaultPowerStandard: 'eu-230-1ph',
+    defaultLightingControl: 'dmx512',
   },
   equipment: [],
   cables: [],

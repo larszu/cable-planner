@@ -369,6 +369,7 @@ export const RentmanTab = () => {
                   if (e.key === 'Escape') setRentmanSearch('')
                 }}
                 placeholder={t('library.rentmanSearchPlaceholder', 'In Rentman-Geraeten suchen…')}
+                aria-label={t('library.rentmanSearchPlaceholder', 'In Rentman-Geraeten suchen…')}
                 className="w-full rounded border border-slate-700 bg-slate-900 py-1 pl-7 pr-7 text-cp-xs text-slate-100 placeholder-slate-500"
               />
               {rentmanSearch && (
@@ -587,6 +588,7 @@ export const RentmanTab = () => {
                     value={rentmanCatalogQuery}
                     onChange={(event) => setRentmanCatalogQuery(event.target.value)}
                     placeholder={t('common.search', 'Suchen…')}
+                    aria-label={t('common.search', 'Suchen…')}
                     className="mb-2 w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs text-slate-100 placeholder-slate-500"
                   />
                   {(() => {

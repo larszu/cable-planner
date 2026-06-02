@@ -9,9 +9,11 @@ import { SettingsBody } from './SettingsBody'
 interface SettingsDialogProps {
   open: boolean
   onClose: () => void
+  /** Tab, der beim Öffnen aktiv ist (z. B. 'sync' von der StatusBar aus). */
+  initialSection?: string
 }
 
-export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
+export const SettingsDialog = ({ open, onClose, initialSection }: SettingsDialogProps) => {
   const drag = useDraggablePosition('cable-planner:modal-pos:settings', open)
   const t = useTranslation()
   const { panelRef, titleId, dialogProps } = useDialogA11y(open, onClose, {
@@ -33,6 +35,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
       >
         <SettingsBody
           onClose={onClose}
+          initialSection={initialSection}
           headerProps={drag.headerProps}
           titleId={titleId}
           headerAction={

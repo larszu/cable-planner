@@ -1,6 +1,7 @@
 import { Check, AlertCircle, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { APP_VERSION } from '../../lib/appInfo'
 import { useUiStore } from '../../store/uiStore'
+import { useCollabStore } from '../../store/collabStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
 import { runDrawingChecks } from '../../lib/drawingChecks'
@@ -31,6 +32,26 @@ const complexityFor = (
   if (score >= 30) return { label: t('statusbar.complexity.medium', 'Mittel'), tone: 'bg-sky-700 text-sky-50' }
   if (score >= 8) return { label: t('statusbar.complexity.small', 'Klein'), tone: 'bg-emerald-700 text-emerald-50' }
   return { label: t('statusbar.complexity.new', 'Neu'), tone: 'bg-slate-700 text-slate-200' }
+}
+
+/** #471 — Macht eine laufende Live-Session im Haupt-UI sichtbar. Klick öffnet
+ *  die Einstellungen direkt auf dem Netzwerk-Sync-Tab. */
+const CollabStatusBadge = () => {
+  const t = useTranslation()
+  const status = useCollabStore((s) => s.status)
+  const peers = useCollabStore((s) => s.peers)
+  if (status !== 'on' && status !== 'connecting') return null
+  return (
+    <button
+      type="button"
+      onClick={() => useUiStore.getState().openSettings('sync')}
+      title={t('statusbar.collab.title', 'Live-Kollaboration aktiv — Klick für Teilnehmer & Einladung')}
+      className="flex items-center gap-1 whitespace-nowrap rounded bg-emerald-700/80 px-1.5 py-0.5 text-cp-xs font-medium text-emerald-50 hover:bg-emerald-600"
+    >
+      <span className="inline-block h-2 w-2 rounded-full bg-emerald-300" />
+      {t('statusbar.collab.live', 'Live')} · {Math.max(peers.length, 1)}
+    </button>
+  )
 }
 
 export const StatusBar = ({
@@ -108,6 +129,7 @@ export const StatusBar = ({
       <div className="flex shrink-0 items-center gap-3">
         {/* v7.9.4 — Rentman-Badge nur sichtbar wenn die Integration
             in den Einstellungen aktiviert ist. */}
+        <CollabStatusBadge />
         {useUiStore((s) => s.rentmanEnabled) && (
           <span className={`hidden whitespace-nowrap lg:inline ${rentmanProjectName ? 'text-orange-300' : hasToken ? 'text-[var(--cp-text-muted)]' : 'text-[var(--cp-text-faint)]'}`}>
             {t('statusbar.rentman.label', 'Rentman:')}{' '}

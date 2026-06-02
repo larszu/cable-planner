@@ -40,6 +40,7 @@ import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
 import { BandwidthCalculatorDialog, PowerCalculatorDialog } from './components/Calculators/CalculatorsDialog'
 import { RecordingStorageCalculatorDialog } from './components/Calculators/RecordingStorageCalculatorDialog'
+import { ProjectionCalculatorDialog } from './components/Calculators/ProjectionCalculatorDialog'
 import { BulkConnectDialog } from './components/Canvas/BulkConnectDialog'
 import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
 import { PlanCheckPanel } from './components/Analysis/PlanCheckPanel'
@@ -88,7 +89,6 @@ import {
   type CableSpec,
   type SignalStandard,
 } from './types/cableSpec'
-import { DEFAULT_VIDEO_FORMAT } from './types/videoFormat'
 import { confirmDialog } from './lib/confirmDialog'
 import { promptDialog } from './lib/promptDialog'
 import { infoDialog } from './lib/infoDialog'
@@ -146,7 +146,10 @@ export default function App() {
   const atemMvLayout = useUiStore((state) => state.atemMvLayout)
   const closeAtemMvLayout = useUiStore((state) => state.closeAtemMvLayout)
   const { newProject, openProject, saveProject, saveProjectAs, refreshRecent } = useProject()
-  const [settingsOpen, setSettingsOpen] = useState(false)
+  const settingsOpen = useUiStore((s) => s.settingsOpen)
+  const settingsSection = useUiStore((s) => s.settingsSection)
+  const setSettingsOpen = (open: boolean) =>
+    open ? useUiStore.getState().openSettings() : useUiStore.getState().closeSettings()
   const rentmanImport = useUiStore((state) => state.rentmanImport)
   const closeRentmanImport = useUiStore((state) => state.closeRentmanImport)
   const rentmanCableExport = useUiStore((state) => state.rentmanCableExport)
@@ -949,8 +952,6 @@ export default function App() {
         onEditProjectMeta={() => setMetaDialog({ mode: 'edit' })}
         onOpenCableBom={() => setCableBomOpen(true)}
         onOpenTour={() => setTourOpen(true)}
-        videoFormat={project.metadata.defaultVideoFormat ?? DEFAULT_VIDEO_FORMAT}
-        onChangeVideoFormat={(id) => useProjectStore.getState().setDefaultVideoFormat(id)}
         projectName={project.metadata.name}
       />
 
@@ -1001,7 +1002,11 @@ export default function App() {
         rentmanProjectName={project.metadata.rentmanProjectName}
       />
 
-      <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsDialog
+        open={settingsOpen}
+        onClose={() => useUiStore.getState().closeSettings()}
+        initialSection={settingsSection}
+      />
       <RentmanImportDialog open={rentmanImport.open} onClose={closeRentmanImport} />
       <GraphmlImportDialog open={graphmlImportOpen} onClose={() => setGraphmlImportOpen(false)} />
       <RentmanCableExportDialog
@@ -1039,6 +1044,7 @@ export default function App() {
       <BandwidthCalculatorDialog />
       <PowerCalculatorDialog />
       <RecordingStorageCalculatorDialog />
+      <ProjectionCalculatorDialog />
       <BulkConnectDialog />
       <AnalysisDialog />
       <PlanCheckPanel />

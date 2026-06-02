@@ -18,6 +18,7 @@
 // eigener Signaling-Server (y-webrtc/bin/server.js) gesetzt werden.
 
 import type { ProjectCrdt } from './projectCrdt'
+import type { AwarenessLike } from './presence'
 
 export interface WebrtcOptions {
   /** Signaling-Server. Default: öffentliche y-webrtc-Server. Für LAN-only
@@ -30,6 +31,8 @@ export interface WebrtcOptions {
 export interface WebrtcHandle {
   /** Trennt die Verbindung und gibt den Provider frei. Das Doc bleibt. */
   disconnect: () => void
+  /** Awareness des Providers (Presence). */
+  awareness: AwarenessLike
 }
 
 /**
@@ -50,6 +53,7 @@ export const attachWebrtcProvider = async (
     password: opts.password,
   })
   return {
+    awareness: provider.awareness as unknown as AwarenessLike,
     disconnect: () => {
       provider.disconnect()
       provider.destroy()
