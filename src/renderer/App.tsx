@@ -1120,11 +1120,11 @@ export default function App() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
             <div className="w-full max-w-md rounded border border-amber-700 bg-slate-900 text-slate-100 shadow-2xl">
               <header className="border-b border-slate-700 px-4 py-2">
-                <h2 className="text-sm font-semibold text-amber-300">
+                <h2 className="text-cp-base font-semibold text-amber-300">
                   {t('app.portConflict.title', 'Port bereits belegt')}
                 </h2>
               </header>
-              <div className="px-4 py-3 text-sm">
+              <div className="px-4 py-3 text-cp-base">
                 <p className="mb-2">
                   {t('app.portConflict.targetPortLabel', 'Der Ziel-Port')}{' '}
                   <span className="font-mono text-amber-200">
@@ -1186,10 +1186,10 @@ export default function App() {
       })()}
       {pdfProgress.active && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-[420px] max-w-[90vw] rounded-lg border border-slate-700 bg-slate-900 p-5 text-slate-100 shadow-2xl">
+          <div className="w-[420px] max-w-[90vw] rounded-cp-card border border-slate-700 bg-slate-900 p-5 text-slate-100 shadow-2xl">
             <div className="mb-3 flex items-center gap-3">
               <div className="h-3 w-3 animate-pulse rounded-full bg-sky-400" />
-              <h2 className="text-sm font-semibold">{t('app.pdfProgress.title', 'PDF wird erstellt…')}</h2>
+              <h2 className="text-cp-base font-semibold">{t('app.pdfProgress.title', 'PDF wird erstellt…')}</h2>
             </div>
             <div className="mb-3 h-1.5 w-full overflow-hidden rounded bg-slate-800">
               <div className="h-full w-full origin-left animate-pulse bg-sky-500" />
@@ -1231,8 +1231,8 @@ const PdfExportDialog = ({
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4">
-      <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-4 shadow-2xl">
-        <h2 className="mb-3 text-sm font-semibold text-slate-100">{t('pdfExport.title', 'Plan als PDF exportieren')}</h2>
+      <div className="w-full max-w-md rounded-cp-card border border-slate-700 bg-slate-900 p-4 shadow-2xl">
+        <h2 className="mb-3 text-cp-base font-semibold text-slate-100">{t('pdfExport.title', 'Plan als PDF exportieren')}</h2>
         <div className="space-y-3">
           {/* Layer-Sichtbarkeit — uebernimmt die Chip-Komponente aus
               der Canvas-Toolbar. Same store, daher synchronisiert sich
@@ -1519,9 +1519,9 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="w-full max-w-lg rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
-        <h3 className="mb-2 text-lg font-semibold">Kabel bearbeiten</h3>
+        <h3 className="mb-2 text-cp-xl font-semibold">Kabel bearbeiten</h3>
 
-        <div className="space-y-2 text-sm">
+        <div className="space-y-2 text-cp-base">
           <label className="block">
             Kabeltyp
             <select
@@ -1784,7 +1784,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
           </div>
         )}
 
-        <div className="mt-3 flex justify-end gap-2 text-sm">
+        <div className="mt-3 flex justify-end gap-2 text-cp-base">
           <button
             type="button"
             onClick={onClose}

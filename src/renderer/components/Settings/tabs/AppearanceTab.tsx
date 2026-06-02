@@ -42,7 +42,7 @@ const CustomPaletteCard = () => {
         'Eigene Farben für Canvas-Hintergrund, Raster und Akzent — überschreibt die Theme-Defaults (dark/light). Wirkt nur auf den Canvas; Dialoge bleiben themed.',
       )}
     >
-      <label className="mb-2 flex items-center gap-2 text-sm text-slate-200">
+      <label className="mb-2 flex items-center gap-2 text-cp-base text-slate-200">
         <input
           type="checkbox"
           checked={enabled}
@@ -245,7 +245,7 @@ export const AppearanceTab = () => {
             type="button"
             onClick={() => setPortLabelFontSize(11)}
             disabled={portLabelFontSize === 11}
-            className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700 disabled:opacity-40"
+            className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700 disabled:opacity-50"
             title={t('settings.fontSize.reset', 'Auf Default 11 px zurücksetzen')}
           >
             ↺
@@ -334,7 +334,7 @@ export const AppearanceTab = () => {
           'Standard für neu gezeichnete Kabel. Per Kabel im Properties-Panel überschreibbar.',
         )}
       >
-        <label className="flex items-center gap-2 text-sm text-slate-200">
+        <label className="flex items-center gap-2 text-cp-base text-slate-200">
           <input
             type="checkbox"
             checked={defaultArrow}
@@ -354,7 +354,7 @@ export const AppearanceTab = () => {
           'Steckertyp-Konflikt erzeugt normalerweise eine Bestätigungs-Abfrage. Mit Override wird die Verbindung trotzdem ohne Rückfrage angelegt (als Adapter/Konverter markiert).',
         )}
       >
-        <label className="flex items-center gap-2 text-sm text-slate-200">
+        <label className="flex items-center gap-2 text-cp-base text-slate-200">
           <input
             type="checkbox"
             checked={overrideConnectionWarnings}
@@ -374,7 +374,7 @@ export const AppearanceTab = () => {
           'Muster + Deckkraft des Canvas-Rasters. Bei großen Plänen reduziert eine niedrige Deckkraft die visuelle Unruhe. Rastergröße kommt aus dem Canvas-Toolbar oben.',
         )}
       >
-        <div className="flex flex-wrap items-center gap-3 text-sm text-slate-200">
+        <div className="flex flex-wrap items-center gap-3 text-cp-base text-slate-200">
           <label className="flex items-center gap-2">
             <span className="text-cp-xs text-slate-400">{t('settings.canvasBg.variant', 'Muster')}</span>
             <select
@@ -491,7 +491,7 @@ export const AppearanceTab = () => {
           'Eigene Farbe pro Stecker-Typ — nur sichtbar wenn "Ports nach Typ" oben aktiv ist. Leeres Feld setzt zurück auf Standard.',
         )}
       >
-        <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm md:grid-cols-3">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-cp-base md:grid-cols-3">
           {allConnectorTypeEntries.map(({ name, isCustom, defaultColor }) => {
             const override = connectorTypeColors[name] ?? ''
             const effective = override || defaultColor
@@ -548,7 +548,7 @@ export const AppearanceTab = () => {
             Noch keine Kategorien bekannt. Wird gefuellt sobald Geraete im Plan oder in der Library Kategorien haben.
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-cp-base md:grid-cols-3">
             {allKnownCategories.map((cat) => {
               const override = categoryColors[cat] ?? ''
               const effective = override || '#94a3b8'

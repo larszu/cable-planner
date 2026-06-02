@@ -653,11 +653,11 @@ const AtemMvDevicePicker = () => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={close}>
       <div
-        className="flex max-h-[80vh] w-[440px] max-w-[95vw] flex-col rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
+        className="flex max-h-[80vh] w-[440px] max-w-[95vw] flex-col rounded-cp-card border border-slate-700 bg-slate-900 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
-          <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+          <h2 className="flex items-center gap-2 text-cp-base font-semibold text-slate-200">
             <Icon icon={Monitor} size="sm" />
             {t('atemMv.picker.title', 'ATEM Multiviewer — Gerät wählen')}
           </h2>
@@ -669,7 +669,7 @@ const AtemMvDevicePicker = () => {
             ×
           </button>
         </div>
-        <div className="overflow-auto p-4 text-sm">
+        <div className="overflow-auto p-4 text-cp-base">
           {atemDevices.length === 0 ? (
             <p className="text-slate-400">
               {t(
@@ -1107,11 +1107,11 @@ export const AtemMvConfigDialog = () => {
       onClick={close}
     >
       <div
-        className="flex max-h-[95vh] w-[960px] max-w-[95vw] flex-col rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
+        className="flex max-h-[95vh] w-[960px] max-w-[95vw] flex-col rounded-cp-card border border-slate-700 bg-slate-900 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
-          <h2 className="text-sm font-semibold text-slate-100">
+          <h2 className="text-cp-base font-semibold text-slate-100">
             {format(t('atem.mv.dialogTitle', 'Multiviewer-Layout · {name}'), { name: equipment.name })}
           </h2>
           <button
@@ -1143,7 +1143,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={addMv}
               disabled={config.multiViewers.length >= 4}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600 disabled:opacity-40"
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600 disabled:opacity-50"
               title={t('atem.mv.addMv', 'Multiviewer hinzufügen')}
             >
               +
@@ -1152,7 +1152,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={removeMv}
               disabled={config.multiViewers.length <= 1}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600 disabled:opacity-40"
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600 disabled:opacity-50"
               title={t('atem.mv.removeMv', 'Letzten Multiviewer entfernen')}
             >
               −

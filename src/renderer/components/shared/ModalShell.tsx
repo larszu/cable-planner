@@ -114,7 +114,7 @@ export const ModalShell = ({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center rounded px-2 py-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-[var(--cp-text)]"
+            className="inline-flex items-center justify-center rounded-cp-control px-2 py-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-[var(--cp-text)]"
             aria-label={t('common.close', 'Schließen')}
           >
             <Icon icon={X} size="md" />

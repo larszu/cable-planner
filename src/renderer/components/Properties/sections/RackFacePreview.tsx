@@ -44,7 +44,7 @@ export const RackFacePreview = ({
                     />
                   ) : (
                     <>
-                      <div className="truncate text-sm font-semibold text-slate-100">{equipment.name}</div>
+                      <div className="truncate text-cp-base font-semibold text-slate-100">{equipment.name}</div>
                       <div className="truncate text-[11px] text-slate-400">{equipment.category}</div>
                     </>
                   )}

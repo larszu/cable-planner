@@ -551,10 +551,10 @@ export const RackImageCropDialog = ({
         </div>
 
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onCancel} className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600">
+          <button type="button" onClick={onCancel} className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600">
             {t('common.cancel', 'Abbrechen')}
           </button>
-          <button type="button" onClick={finalizeCrop} className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500">
+          <button type="button" onClick={finalizeCrop} className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500">
             {t('rackCrop.confirm', 'Zuschnitt übernehmen')}
           </button>
         </div>

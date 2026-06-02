@@ -39,7 +39,7 @@ export const VideohubRoutingList = ({
 }: Props) => {
   const t = useTranslation()
   return (
-    <div className="rounded-md border border-slate-700 bg-slate-950">
+    <div className="rounded-cp-control border border-slate-700 bg-slate-950">
       <div className="border-b border-slate-800 bg-slate-900 px-3 py-2 text-[11px] uppercase tracking-wide text-slate-400">
         Routing-Liste · {totalOutputs} Outputs · {totalInputs} Inputs verfuegbar
       </div>

@@ -259,7 +259,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
   const renderEmpty = () => (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 p-12 text-center text-slate-300">
       <Icon icon={Ruler} size={40} className="text-slate-400" />
-      <div className="max-w-md text-sm">
+      <div className="max-w-md text-cp-base">
         <p className="mb-2 font-semibold text-slate-100">{t('graphml.dialog.importerTitle', 'yEd / GraphML Importer')}</p>
         <p>
           {t('graphml.dialog.empty.intro1', 'Wähle eine')} <code className="text-slate-200">.graphml</code> {t('graphml.dialog.empty.intro2', 'Datei. Cable Planner erkennt Geräte, Ports und Kabel automatisch — du bekommst eine Vorschau und kannst einzelne Einträge ein- oder ausschließen, bevor sie ins Projekt übernommen werden.')}
@@ -269,7 +269,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         type="button"
         disabled={busy}
         onClick={handlePickFile}
-        className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-60"
+        className="rounded bg-emerald-600 px-4 py-2 text-cp-base font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
       >
         {t('graphml.dialog.pickFile', 'Datei auswählen…')}
       </button>
@@ -279,7 +279,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
   const renderParsing = (fileName: string) => (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 p-12 text-center text-slate-300">
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-600 border-t-sky-400" />
-      <div className="text-sm">
+      <div className="text-cp-base">
         <p className="font-medium">{fileName}</p>
         <p className="text-slate-500">{t('graphml.dialog.parsing', 'Parser läuft (~ 250 ms pro MB)…')}</p>
       </div>
@@ -289,7 +289,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
   const renderError = (fileName: string | null, message: string) => (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 p-12 text-center">
       <div className="flex justify-center text-red-300"><Icon icon={AlertTriangle} size={32} /></div>
-      <p className="text-sm font-medium text-red-300">{t('graphml.dialog.importFailed', 'Import fehlgeschlagen')}</p>
+      <p className="text-cp-base font-medium text-red-300">{t('graphml.dialog.importFailed', 'Import fehlgeschlagen')}</p>
       {fileName && <p className="text-cp-xs text-slate-400">{fileName}</p>}
       <pre className="max-w-full whitespace-pre-wrap rounded bg-slate-950 p-3 text-cp-xs text-red-200">
         {message}
@@ -644,7 +644,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
       <div className="flex h-[80vh] w-[min(1100px,95vw)] flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100">
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
-          <h3 className="text-sm font-semibold">{t('graphml.dialog.heading', 'yEd / GraphML importieren')}</h3>
+          <h3 className="text-cp-base font-semibold">{t('graphml.dialog.heading', 'yEd / GraphML importieren')}</h3>
           <button
             type="button"
             onClick={() => {
