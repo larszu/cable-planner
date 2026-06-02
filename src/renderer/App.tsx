@@ -658,25 +658,21 @@ export default function App() {
     }
     const result = await cablePlannerApi.project.importAnnotations()
     if (!result) return
-    const incoming = result.annotations as Array<{ id?: string } & Record<string, unknown>>
-    const current = project.annotations ?? []
-    const existingIds = new Set(current.map((a) => a.id))
-    const addAnnotation = useProjectStore.getState().addAnnotation
-    let imported = 0
-    for (const a of incoming) {
-      if (!a.id || typeof a.id !== 'string') continue
-      if (existingIds.has(a.id)) continue
-      addAnnotation(a as unknown as import('./types/project').ProjectAnnotation)
-      imported++
-    }
+    // #143 — Merge by id: neue Annotationen hinzufügen UND vom Reviewer
+    // geänderte (Status/Text) aktualisieren. Vorher add-only — geänderte
+    // Bestands-Annotationen gingen beim Re-Import verloren.
+    const incoming = (result.annotations ?? []) as Array<
+      import('./types/project').ProjectAnnotation
+    >
+    const { added, updated } = useProjectStore.getState().mergeAnnotationsFromViewerFile(incoming)
     await infoDialog(t('app.annotationsImport.okTitle', 'Annotations importiert'), {
       body:
         format(t('app.annotationsImport.okBodyImported', '{n} new annotation(s) imported.'), {
-          n: imported,
+          n: added,
         }) +
         '\n' +
-        format(t('app.annotationsImport.okBodySkipped', '{n} already present — skipped.'), {
-          n: incoming.length - imported,
+        format(t('app.annotationsImport.okBodyUpdated', '{n} updated from reviewer changes.'), {
+          n: updated,
         }),
       tone: 'success',
     })

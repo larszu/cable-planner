@@ -17,10 +17,14 @@ export type AnnotationSlice = Pick<
   | 'addAnnotation'
   | 'updateAnnotation'
   | 'removeAnnotation'
+  | 'mergeAnnotationsFromViewerFile'
   | 'setViewerSession'
 >
 
-export const createAnnotationSlice: StateCreator<ProjectState, [], [], AnnotationSlice> = (set) => ({
+export const createAnnotationSlice: StateCreator<ProjectState, [], [], AnnotationSlice> = (
+  set,
+  get,
+) => ({
   setProjectMode: (mode) =>
     set((state) => {
       const updated = { ...state.project, mode }
@@ -52,6 +56,27 @@ export const createAnnotationSlice: StateCreator<ProjectState, [], [], Annotatio
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
+  mergeAnnotationsFromViewerFile: (incoming) => {
+    const existing = get().project.annotations ?? []
+    const byId = new Map(existing.map((a) => [a.id, a]))
+    let added = 0
+    let updated = 0
+    for (const a of incoming) {
+      if (!a || typeof a.id !== 'string') continue
+      const prev = byId.get(a.id)
+      if (!prev) added += 1
+      else if (JSON.stringify(prev) !== JSON.stringify(a)) updated += 1
+      byId.set(a.id, a)
+    }
+    if (added > 0 || updated > 0) {
+      set((state) => {
+        const next = { ...state.project, annotations: [...byId.values()] }
+        scheduleProjectAutosave(next)
+        return { project: next }
+      })
+    }
+    return { added, updated }
+  },
   setViewerSession: (session) =>
     set((state) => {
       const updated = { ...state.project, viewerSession: session }

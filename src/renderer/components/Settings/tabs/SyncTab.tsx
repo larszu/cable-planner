@@ -1,9 +1,99 @@
+import { useState } from 'react'
 import { useSyncedState } from '../../../hooks/useSyncedState'
 import { useSettingsStore } from '../../../store/settingsStore'
-import { useTranslation } from '../../../lib/i18n'
+import { useTranslation, format } from '../../../lib/i18n'
 import { CollabPanel } from '../../Sync/CollabPanel'
 import { hasDesktopBridge } from '../../../lib/bridge'
 import { SettingsCard } from '../SettingsCard'
+import { syncSharedLibrary, type LibrarySyncResult } from '../../../lib/sharedLibrarySync'
+
+/**
+ * #434 — Workgroup-/Shared-Library: ein „Bibliothek jetzt synchronisieren"-
+ * Button, der die lokale Library merge-by-name mit der geteilten Datei im
+ * Sync-Ordner abgleicht (Pull fehlende Items, Push Vereinigung zurück).
+ */
+const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
+  const t = useTranslation()
+  const [busy, setBusy] = useState(false)
+  const [res, setRes] = useState<LibrarySyncResult | null>(null)
+  const disabled = busy || !hasDesktopBridge || !syncPath.trim()
+
+  const run = async () => {
+    setBusy(true)
+    setRes(null)
+    try {
+      setRes(await syncSharedLibrary())
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const errorText = (r: LibrarySyncResult): string => {
+    if (r.error === 'no-path') return t('settings.sharedLib.errNoPath', 'Kein Sync-Verzeichnis gesetzt.')
+    if (r.error === 'desktop-only') return t('settings.sync.desktopOnly', 'Netzwerk-Sync ist nur in der Desktop-App verfügbar.')
+    if (r.error === 'locked')
+      return format(t('settings.sharedLib.errLocked', 'Gesperrt von {who} — später erneut versuchen.'), { who: r.lockedBy ?? '?' })
+    return `${t('collab.error.prefix', 'Fehler:')} ${r.error}`
+  }
+
+  return (
+    <SettingsCard
+      title={t('settings.sharedLib.title', 'Gemeinsame Bibliothek (Workgroup)')}
+      description={t(
+        'settings.sharedLib.desc',
+        'Gleicht Geräte-Templates, Gruppen und Kategorien mit der Datei cable-planner.library.json im Sync-Verzeichnis ab. Merge nach Name — lokale Templates werden nie überschrieben.',
+      )}
+    >
+      <div className="flex flex-wrap items-center gap-2 text-cp-xs text-slate-300">
+        <button
+          type="button"
+          onClick={run}
+          disabled={disabled}
+          className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-40"
+        >
+          {busy
+            ? t('settings.sharedLib.syncing', 'Synchronisiere…')
+            : t('settings.sharedLib.syncNow', 'Bibliothek jetzt synchronisieren')}
+        </button>
+        {!syncPath.trim() && (
+          <span className="text-[11px] text-slate-500">
+            {t('settings.sharedLib.needPath', 'Erst oben ein Sync-Verzeichnis setzen.')}
+          </span>
+        )}
+      </div>
+      {res && (
+        <div className="mt-2 text-[11px]">
+          {res.ok ? (
+            <div className="space-y-0.5">
+              <p className="text-emerald-400">
+                {format(
+                  t('settings.sharedLib.okPull', 'Geladen: {d} Geräte, {g} Gruppen, {c} Kategorien.'),
+                  { d: res.pulledDevices, g: res.pulledGroups, c: res.pulledCategories },
+                )}
+              </p>
+              <p className="text-emerald-400">
+                {format(t('settings.sharedLib.okPush', 'Geteilt: {d} Geräte, {g} Gruppen.'), {
+                  d: res.pushedDevices,
+                  g: res.pushedGroups,
+                })}
+              </p>
+              {res.conflicts.length > 0 && (
+                <p className="text-amber-300">
+                  {format(
+                    t('settings.sharedLib.conflicts', '{n} Namens-Konflikt(e) — lokale Version behalten: {names}'),
+                    { n: res.conflicts.length, names: res.conflicts.slice(0, 6).join(', ') },
+                  )}
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-red-300">{errorText(res)}</p>
+          )}
+        </div>
+      )}
+    </SettingsCard>
+  )
+}
 
 /**
  * #307 — Sync-Tab aus SettingsDialog ausgelagert.
@@ -76,6 +166,8 @@ export const SyncTab = () => {
           {t('common.save', 'Speichern')}
         </button>
       </div>
+      <SharedLibrarySyncSection syncPath={sharedSyncPath} />
+
       <SettingsCard title={t('settings.sync.notes', 'Hinweise')}>
         <ul className="list-inside list-disc space-y-1 text-cp-xs text-slate-400">
           <li>

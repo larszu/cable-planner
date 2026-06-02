@@ -25,6 +25,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, X } from 'lucide-react'
 import { Icon } from '../renderer/components/shared/Icon'
+import { styleForLayer } from '../renderer/lib/cableLayers'
 import type { CablePlannerProject } from '../renderer/types/project'
 
 const CHECK_KEY = (projectName: string) => `cable-planner-mobile:checks:${projectName}`
@@ -245,6 +246,55 @@ const ProjectPicker = ({
   )
 }
 
+/** Inputs/Outputs-Detail eines Geräts — wiederverwendet von der Karten-Liste
+ *  (DeviceCard) UND von der Planansicht (#180, getipptes Gerät). */
+const DevicePortDetail = ({
+  device,
+  cables,
+  checks,
+  onTogglePort,
+  allEquipment,
+}: {
+  device: CablePlannerProject['equipment'][number]
+  cables: CablePlannerProject['cables']
+  checks: CheckState
+  onTogglePort: (deviceId: string, portId: string) => void
+  allEquipment: CablePlannerProject['equipment']
+}) => {
+  const inputCables = useMemo(
+    () => cables.filter((c) => c.toEquipmentId === device.id),
+    [cables, device.id],
+  )
+  const outputCables = useMemo(
+    () => cables.filter((c) => c.fromEquipmentId === device.id),
+    [cables, device.id],
+  )
+  return (
+    <div className="p-2 text-xs">
+      <PortList
+        label="Inputs"
+        deviceId={device.id}
+        ports={device.inputs ?? []}
+        cables={inputCables}
+        mode="in"
+        checks={checks}
+        onTogglePort={onTogglePort}
+        allEquipment={allEquipment}
+      />
+      <PortList
+        label="Outputs"
+        deviceId={device.id}
+        ports={device.outputs ?? []}
+        cables={outputCables}
+        mode="out"
+        checks={checks}
+        onTogglePort={onTogglePort}
+        allEquipment={allEquipment}
+      />
+    </div>
+  )
+}
+
 const DeviceCard = ({
   device,
   cables,
@@ -263,14 +313,6 @@ const DeviceCard = ({
   onOpenChange?: (deviceId: string, open: boolean) => void
   allEquipment: CablePlannerProject['equipment']
 }) => {
-  const inputCables = useMemo(
-    () => cables.filter((c) => c.toEquipmentId === device.id),
-    [cables, device.id],
-  )
-  const outputCables = useMemo(
-    () => cables.filter((c) => c.fromEquipmentId === device.id),
-    [cables, device.id],
-  )
   const totalPorts = (device.inputs?.length ?? 0) + (device.outputs?.length ?? 0)
   const checkedPorts = [...(device.inputs ?? []), ...(device.outputs ?? [])].filter(
     (p) => checks.ports[portKey(device.id, p.id)],
@@ -296,29 +338,74 @@ const DeviceCard = ({
           {checkedPorts}/{totalPorts}
         </span>
       </summary>
-      <div className="border-t border-slate-800 p-2 text-xs">
-        <PortList
-          label="Inputs"
-          deviceId={device.id}
-          ports={device.inputs ?? []}
-          cables={inputCables}
-          mode="in"
-          checks={checks}
-          onTogglePort={onTogglePort}
-          allEquipment={allEquipment}
-        />
-        <PortList
-          label="Outputs"
-          deviceId={device.id}
-          ports={device.outputs ?? []}
-          cables={outputCables}
-          mode="out"
+      <div className="border-t border-slate-800">
+        <DevicePortDetail
+          device={device}
+          cables={cables}
           checks={checks}
           onTogglePort={onTogglePort}
           allEquipment={allEquipment}
         />
       </div>
     </details>
+  )
+}
+
+/** #180 — Selbst-enthaltene Plan-SVG für die Mobile-Planansicht. Tippbare
+ *  Geräte (Highlight des gewählten); kein ReactFlow/Store. */
+const MobilePlanSvg = ({
+  project,
+  selectedId,
+  onTapDevice,
+}: {
+  project: CablePlannerProject
+  selectedId: string | null
+  onTapDevice: (id: string) => void
+}) => {
+  const bbox = useMemo(() => {
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    const add = (x: number, y: number, w: number, h: number): void => {
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return
+      minX = Math.min(minX, x); minY = Math.min(minY, y)
+      maxX = Math.max(maxX, x + w); maxY = Math.max(maxY, y + h)
+    }
+    for (const e of project.equipment) add(e.x, e.y, e.width ?? 240, e.height ?? 80)
+    for (const l of project.locations ?? []) add(l.x, l.y, l.width, l.height)
+    if (!Number.isFinite(minX)) return { x: 0, y: 0, w: 1000, h: 700 }
+    const pad = 50
+    return { x: minX - pad, y: minY - pad, w: maxX - minX + 2 * pad, h: maxY - minY + 2 * pad }
+  }, [project])
+  const centerById = useMemo(() => {
+    const m = new Map<string, { x: number; y: number }>()
+    for (const e of project.equipment) m.set(e.id, { x: e.x + (e.width ?? 240) / 2, y: e.y + (e.height ?? 80) / 2 })
+    return m
+  }, [project])
+
+  return (
+    <svg viewBox={`${bbox.x} ${bbox.y} ${bbox.w} ${bbox.h}`} className="h-full w-full" preserveAspectRatio="xMidYMid meet" style={{ background: '#0f172a' }}>
+      {(project.locations ?? []).map((l) => (
+        <rect key={l.id} x={l.x} y={l.y} width={l.width} height={l.height} rx={10} fill={l.color} fillOpacity={0.06} stroke={l.color} strokeWidth={2} />
+      ))}
+      {project.cables.map((c) => {
+        const a = centerById.get(c.fromEquipmentId); const b = centerById.get(c.toEquipmentId)
+        if (!a || !b) return null
+        const pts = [a, ...(c.waypoints ?? []).map((wp) => ({ x: wp.x, y: wp.y })), b].map((p) => `${p.x},${p.y}`).join(' ')
+        return <polyline key={c.id} points={pts} fill="none" stroke={styleForLayer(c.layer).color} strokeWidth={2.5} opacity={0.8} />
+      })}
+      {project.equipment.map((e) => {
+        const w = e.width ?? 240; const h = e.height ?? 80
+        const sel = e.id === selectedId
+        const accent = sel ? '#38bdf8' : (e.nodeColor ?? '#334155')
+        return (
+          <g key={e.id} style={{ cursor: 'pointer' }} onClick={() => onTapDevice(e.id)}>
+            <rect x={e.x} y={e.y} width={w} height={h} rx={6} fill="#1e293b" stroke={accent} strokeWidth={sel ? 4 : 2} />
+            <rect x={e.x} y={e.y} width={w} height={22} rx={6} fill={accent} />
+            <text x={e.x + 8} y={e.y + 16} fill="#ffffff" fontSize={12} fontFamily="sans-serif" fontWeight={600}>{e.name}</text>
+            {e.subtitle && <text x={e.x + 8} y={e.y + 40} fill="#94a3b8" fontSize={11} fontFamily="sans-serif">{e.subtitle}</text>}
+          </g>
+        )
+      })}
+    </svg>
   )
 }
 
@@ -529,6 +616,9 @@ const ProjectView = ({
     }
   }, [online, checks])
 
+  // #180 — Zwei Betriebsmodi: Patchliste (Default) + Planansicht.
+  const [viewMode, setViewMode] = useState<'list' | 'plan'>('list')
+  const [planSelectedId, setPlanSelectedId] = useState<string | null>(null)
   const [showAddCable, setShowAddCable] = useState(false)
   // User-Request: wenn schon eine Geraete-Karte aufgeklappt ist, soll
   // "+Von Geraet" beim Oeffnen von "+Kabel" auf das offene Geraet
@@ -627,6 +717,22 @@ const ProjectView = ({
             </div>
           </div>
         </div>
+        {/* #180 — Modus-Umschalter: Patchliste ↔ Plan */}
+        <div className="mt-2 grid grid-cols-2 gap-1 rounded bg-slate-900 p-0.5">
+          {(['list', 'plan'] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setViewMode(m)}
+              className={`rounded px-2 py-1 text-[11px] font-medium ${
+                viewMode === m ? 'bg-sky-700 text-white' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              {m === 'list' ? 'Patchliste' : 'Plan'}
+            </button>
+          ))}
+        </div>
+        {viewMode === 'list' && (
         <div className="mt-2 flex items-center gap-2">
           <input
             value={filter}
@@ -651,6 +757,7 @@ const ProjectView = ({
             + Kabel
           </button>
         </div>
+        )}
         {/* v7.9.54 — Offline-Banner. Erscheint sobald der Poll fehlschlägt
             oder der initiale Load aus dem Cache kam. Klar erkennbar in
             Amber, damit der User weiß dass seine Checks gerade nur
@@ -672,32 +779,91 @@ const ProjectView = ({
           onClose={() => setShowAddCable(false)}
         />
       )}
-      <div className="space-y-2 pb-8">
-        {filteredDevices.length === 0 ? (
-          <div className="rounded border border-dashed border-slate-700 bg-slate-900 p-6 text-center text-xs text-slate-500">
-            Keine Geräte passen zum Filter.
+      {viewMode === 'list' ? (
+        <div className="space-y-2 pb-8">
+          {filteredDevices.length === 0 ? (
+            <div className="rounded border border-dashed border-slate-700 bg-slate-900 p-6 text-center text-xs text-slate-500">
+              Keine Geräte passen zum Filter.
+            </div>
+          ) : (
+            filteredDevices.map((d) => (
+              <DeviceCard
+                key={d.id}
+                device={d}
+                cables={project.cables}
+                checks={checks}
+                onTogglePort={togglePort}
+                onOpenChange={(deviceId, open) => {
+                  setLastOpenedDeviceId((prev) => {
+                    if (open) return deviceId
+                    // Beim Schliessen nur die ID raeumen wenn es genau die
+                    // war die als letzte offen markiert wurde — sonst koennte
+                    // ein gerade-geschlossenes Geraet das gerade-geoeffnete
+                    // ueberschreiben (Reihenfolge der onToggle-Events).
+                    return prev === deviceId ? null : prev
+                  })
+                }}
+                allEquipment={project.equipment}
+              />
+            ))
+          )}
+        </div>
+      ) : (
+        // #180 — Planansicht: Plan oben (bleibt stehen), getipptes Gerät
+        // öffnet darunter seine Patchliste (scrollbar) ohne den Plan
+        // wegzuscrollen.
+        <PlanModeView
+          project={project}
+          checks={checks}
+          onTogglePort={togglePort}
+          selectedId={planSelectedId}
+          onSelect={(id) => setPlanSelectedId((prev) => (prev === id ? null : id))}
+        />
+      )}
+    </div>
+  )
+}
+
+/** #180 — Planansicht-Layout: fixierter Plan oben + scrollbares Geräte-Detail
+ *  darunter. */
+const PlanModeView = ({
+  project,
+  checks,
+  onTogglePort,
+  selectedId,
+  onSelect,
+}: {
+  project: CablePlannerProject
+  checks: CheckState
+  onTogglePort: (deviceId: string, portId: string) => void
+  selectedId: string | null
+  onSelect: (id: string) => void
+}) => {
+  const selected = project.equipment.find((e) => e.id === selectedId) ?? null
+  return (
+    <div className="-mx-3 flex flex-col" style={{ height: 'calc(100vh - 132px)' }}>
+      <div className="h-[42vh] shrink-0 border-y border-slate-800 bg-slate-950">
+        <MobilePlanSvg project={project} selectedId={selectedId} onTapDevice={onSelect} />
+      </div>
+      <div className="min-h-0 flex-1 overflow-auto px-3 pb-8 pt-2">
+        {!selected ? (
+          <div className="rounded border border-dashed border-slate-700 bg-slate-900 p-5 text-center text-xs text-slate-500">
+            Tippe ein Gerät im Plan an, um seine Patchliste zu sehen.
           </div>
         ) : (
-          filteredDevices.map((d) => (
-            <DeviceCard
-              key={d.id}
-              device={d}
+          <div className="rounded border border-slate-700 bg-slate-900">
+            <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
+              <span className="truncate text-sm font-medium text-slate-100">{selected.name}</span>
+              <span className="shrink-0 text-[10px] text-slate-400">{selected.category}</span>
+            </div>
+            <DevicePortDetail
+              device={selected}
               cables={project.cables}
               checks={checks}
-              onTogglePort={togglePort}
-              onOpenChange={(deviceId, open) => {
-                setLastOpenedDeviceId((prev) => {
-                  if (open) return deviceId
-                  // Beim Schliessen nur die ID raeumen wenn es genau die
-                  // war die als letzte offen markiert wurde — sonst koennte
-                  // ein gerade-geschlossenes Geraet das gerade-geoeffnete
-                  // ueberschreiben (Reihenfolge der onToggle-Events).
-                  return prev === deviceId ? null : prev
-                })
-              }}
+              onTogglePort={onTogglePort}
               allEquipment={project.equipment}
             />
-          ))
+          </div>
         )}
       </div>
     </div>
