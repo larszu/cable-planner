@@ -401,7 +401,21 @@ export const RackPlacementProperties = ({
                     >
                       {dir}
                     </span>
-                    <span className="truncate text-slate-300">{port.name}</span>
+                    {/* #472 — Patchblende/Ports auch im Rack umbenennbar. */}
+                    <input
+                      value={port.name}
+                      onChange={(e) => {
+                        const name = e.target.value
+                        const key = dir === 'in' ? 'inputs' : 'outputs'
+                        onUpdate(selectedPlacement.id, {
+                          [key]: selectedPlacement[key].map((p) =>
+                            p.id === port.id ? { ...p, name } : p,
+                          ),
+                        })
+                      }}
+                      title={t('rack.portRename', 'Port-Name bearbeiten')}
+                      className="min-w-0 flex-1 rounded border border-transparent bg-transparent px-1 text-slate-300 hover:border-slate-700 focus:border-sky-600 focus:bg-slate-950 focus:outline-none"
+                    />
                     <span className="shrink-0 text-slate-500">· {port.connectorType}</span>
                   </span>
                   <button

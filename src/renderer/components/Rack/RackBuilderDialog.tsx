@@ -245,6 +245,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   // Rack-Gerät markiert sind, damit man sie aus dem Builder
   // suchen + nachträglich umflaggen kann.
   const [showNonRack, setShowNonRack] = useState(false)
+  // #472 — Steckverbinder-Symbole statt einfacher Farb-Dots im 2D-Rack.
+  const [showConnectorSymbols, setShowConnectorSymbols] = useState(false)
   const [selectedPlacementId, setSelectedPlacementId] = useState<string | null>(null)
   // v7.9.49 — Eigenschaften-Panel ist jetzt ein Popup, das per Doppelklick
   // auf ein Gerät im Rack aufgeht. Vorher war es immer als rechte Spalte
@@ -1112,6 +1114,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 templates={templates}
                 selectedPlacementId={selectedPlacementId}
                 renderMode={renderMode}
+                showSymbols={showConnectorSymbols}
                 onSelectPlacement={setSelectedPlacementId}
                 onSetRenderMode={setRenderMode}
                 onCanvasRefsReady={(refs) => {
@@ -1174,6 +1177,17 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   </button>
                 ))}
               </div>
+            )}
+            {/* #472 — Steckverbinder-Symbole im 2D- UND 3D-Rack ein-/ausblenden. */}
+            {(viewTab === '2d' || viewTab === '3d') && (
+              <label className="mb-2 flex cursor-pointer items-center gap-1.5 text-[11px] text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={showConnectorSymbols}
+                  onChange={(e) => setShowConnectorSymbols(e.target.checked)}
+                />
+                {t('rack.showConnectorSymbols', 'Stecker-Symbole zeigen')}
+              </label>
             )}
             {/* v7.9.10 — max-h begrenzt den Rack-Canvas auf die
                 Viewport-Höhe minus Header/Footer; in Kombi mit dem
@@ -1540,6 +1554,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             placementHeight={height}
                             updatePlacement={updatePlacement}
                             side={side as 'front' | 'rear'}
+                            showSymbols={showConnectorSymbols}
                           />
                           <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5 text-[9px] text-white">
                             {item.inputs.length} In · {item.outputs.length} Out
