@@ -278,6 +278,19 @@ const en: Dict = {
   'settings.sync.notes.lock':
     'A lock file (.cable-planner-sync.lock) prevents simultaneous overwrites (2 h TTL).',
 
+  // #434 — Shared library (workgroup)
+  'settings.sharedLib.title': 'Shared library (workgroup)',
+  'settings.sharedLib.desc':
+    'Syncs device templates, groups and categories with cable-planner.library.json in the sync directory. Merge by name — local templates are never overwritten.',
+  'settings.sharedLib.syncNow': 'Sync library now',
+  'settings.sharedLib.syncing': 'Syncing…',
+  'settings.sharedLib.needPath': 'Set a sync directory above first.',
+  'settings.sharedLib.okPull': 'Pulled: {d} devices, {g} groups, {c} categories.',
+  'settings.sharedLib.okPush': 'Shared: {d} devices, {g} groups.',
+  'settings.sharedLib.conflicts': '{n} name conflict(s) — kept local version: {names}',
+  'settings.sharedLib.errNoPath': 'No sync directory set.',
+  'settings.sharedLib.errLocked': 'Locked by {who} — try again later.',
+
   // Settings → Advanced
   'settings.advanced.autosave': 'Autosave',
   'settings.advanced.autosaveDesc':
