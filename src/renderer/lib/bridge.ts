@@ -72,6 +72,16 @@ export interface AtemConnectResult {
   summary: AtemStateSummary | null
 }
 
+/** #413/#471 — eine im LAN per mDNS gefundene, offene Live-Session. */
+export interface DiscoveredCollabSession {
+  name: string
+  room: string
+  project: string
+  host: string
+  signaling: string
+  address: string
+}
+
 type CablePlannerApi = {
   credentials: {
     getToken: () => Promise<string | null>
@@ -208,6 +218,20 @@ type CablePlannerApi = {
     discover: (params?: { timeoutMs?: number }) => Promise<
       Array<{ name: string; ip: string; port: number; model?: string }>
     >
+  }
+  /** #413/#471 — LAN-Auffindbarkeit offener Live-Kollaborations-Sessions. */
+  collabDiscovery: {
+    /** Bewirbt die laufende Session per mDNS, damit andere sie finden. */
+    advertise: (info: {
+      room: string
+      project: string
+      host: string
+      signaling: string
+    }) => Promise<{ ok: boolean }>
+    /** Nimmt die Bewerbung zurück (Session beendet/Raum gewechselt). */
+    unadvertise: () => Promise<{ ok: boolean }>
+    /** Durchsucht das LAN für `timeoutMs` nach offenen Sessions. */
+    browse: (params?: { timeoutMs?: number }) => Promise<DiscoveredCollabSession[]>
   }
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) => void
@@ -662,6 +686,12 @@ const webFallbackApi: CablePlannerApi = {
       state: null,
     }),
     discover: async () => [],
+  },
+  collabDiscovery: {
+    // Web-Fallback: mDNS braucht den Main-Prozess (UDP-Multicast).
+    advertise: async () => ({ ok: false }),
+    unadvertise: async () => ({ ok: false }),
+    browse: async () => [],
   },
   logs: {
     rendererError: () => {},
