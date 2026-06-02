@@ -164,6 +164,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               placeholder={t('replaceDevice.searchPlaceholder', 'Suchen (Name, Kategorie, Hersteller)…')}
+              aria-label={t('replaceDevice.searchPlaceholder', 'Suchen (Name, Kategorie, Hersteller)…')}
               className="flex-1 rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
             />
             <button

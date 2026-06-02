@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import {
   FileText, Clapperboard, FolderOpen, Save, SaveAll, Ruler, Upload, FileDown,
   Image as ImageIcon, Calculator, Eye, MessageSquare, Paperclip, Plug, Cable,
-  Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, SlidersHorizontal, Tag,
+  Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, MonitorPlay, SlidersHorizontal, Tag,
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
   Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles,
   Maximize, Maximize2, ZoomIn, ZoomOut, Scan, BoxSelect,
@@ -59,8 +59,6 @@ interface MenuBarProps {
   hasRentmanLink?: boolean
   /** Open the onboarding tour (also reachable from a help icon). */
   onOpenTour?: () => void
-  videoFormat?: string
-  onChangeVideoFormat?: (id: string) => void
   projectName?: string
 }
 
@@ -92,8 +90,6 @@ export const MenuBar = ({
   onOpenRentmanCableExport,
   hasRentmanLink = false,
   onOpenTour,
-  videoFormat,
-  onChangeVideoFormat,
   projectName,
 }: MenuBarProps) => {
   const t = useTranslation()
@@ -288,10 +284,10 @@ export const MenuBar = ({
         </Menu>
 
         <Menu label={t('app.menu.tools', 'Werkzeuge')}>
-          {/* v7.9.126 — Patchliste-Eintrag entfernt — ist jetzt unter
-              Datei → Exportieren & Drucken → Patch-Sheets erreichbar
-              (User-Request: passt thematisch besser zu den
-              Export-/Druck-Funktionen). */}
+          {/* Gruppiert in vier thematische Abschnitte (Findbarkeit bei ~18
+              Einträgen). Patchliste-Export liegt zusätzlich unter Datei →
+              Exportieren & Drucken. */}
+          <MenuSectionHeader>{t('app.menu.tools.group.calc', 'Berechnen & analysieren')}</MenuSectionHeader>
           <MenuItem
             onClick={() => useUiStore.getState().openBandwidthCalc()}
             icon={<Icon icon={Radio} size="sm" />}
@@ -310,20 +306,11 @@ export const MenuBar = ({
           >
             {t('app.menu.tools.recStorage', 'Recording-Speicherplatz berechnen…')}
           </MenuItem>
-          {/* #378 — Bulk-Cable-Connect-Dialog. */}
           <MenuItem
-            onClick={() => useUiStore.getState().openBulkConnect()}
-            icon={<Icon icon={Cable} size="sm" />}
+            onClick={() => useUiStore.getState().openProjectionCalc()}
+            icon={<Icon icon={MonitorPlay} size="sm" />}
           >
-            {t('app.menu.tools.bulkConnect', 'Mehrere Kabel verbinden…')}
-          </MenuItem>
-          {/* #401 — Rack Builder im Werkzeuge-Menü. Triggert einen leeren
-              Builder; LibraryPanel switched auf Racks-Tab + öffnet Dialog. */}
-          <MenuItem
-            onClick={() => useUiStore.getState().triggerNewRackBuilder()}
-            icon={<Icon icon={Server} size="sm" />}
-          >
-            {t('app.menu.tools.newRack', 'Neues Rack erstellen…')}
+            {t('app.menu.tools.projection', 'Projektion & Display…')}
           </MenuItem>
           <MenuItem onClick={() => useUiStore.getState().openAnalysis()} icon={<Icon icon={BarChart3} size="sm" />}>
             {t('app.menu.tools.analysis', 'Analysen (Gewicht/Netzwerk/Redundanz)…')}
@@ -331,23 +318,34 @@ export const MenuBar = ({
           <MenuItem onClick={() => useUiStore.getState().openPlanCheck()} icon={<Icon icon={ClipboardCheck} size="sm" />}>
             {t('app.menu.tools.planCheck', 'Plan-Check…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openRevisions()} icon={<Icon icon={History} size="sm" />}>
-            {t('app.menu.tools.revisions', 'Revisionen & Snapshots…')}
+
+          <MenuSectionHeader>{t('app.menu.tools.group.build', 'Erstellen & verwalten')}</MenuSectionHeader>
+          <MenuItem
+            onClick={() => useUiStore.getState().openBulkConnect()}
+            icon={<Icon icon={Cable} size="sm" />}
+          >
+            {t('app.menu.tools.bulkConnect', 'Mehrere Kabel verbinden…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openAiPlanGen()} icon={<Icon icon={Sparkles} size="sm" />}>
-            {t('app.menu.tools.aiPlanGen', 'KI-Plan generieren…')}
+          <MenuItem
+            onClick={() => useUiStore.getState().triggerNewRackBuilder()}
+            icon={<Icon icon={Server} size="sm" />}
+          >
+            {t('app.menu.tools.newRack', 'Neues Rack erstellen…')}
           </MenuItem>
-          <MenuSep />
-          {/* #342 — Editoren direkt aus dem Werkzeuge-Menü erreichbar machen
-              (vorher nur über Toolbar bzw. verknüpftes Gerät in den
-              Properties). Dialoge öffnen geräteneutral und bieten ggf.
-              eigene Geräteauswahl. */}
           <MenuItem
             onClick={() => useUiStore.getState().triggerRackBuilderFromSelection([])}
             icon={<Icon icon={Server} size="sm" />}
           >
             {t('app.menu.tools.rackBuilder', 'Rack-Builder…')}
           </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openAiPlanGen()} icon={<Icon icon={Sparkles} size="sm" />}>
+            {t('app.menu.tools.aiPlanGen', 'KI-Plan generieren…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openRevisions()} icon={<Icon icon={History} size="sm" />}>
+            {t('app.menu.tools.revisions', 'Revisionen & Snapshots…')}
+          </MenuItem>
+
+          <MenuSectionHeader>{t('app.menu.tools.group.deviceConfig', 'Geräte-Konfiguration')}</MenuSectionHeader>
           <MenuItem onClick={() => useUiStore.getState().openAtemMvConfig()} icon={<Icon icon={Monitor} size="sm" />}>
             {t('app.menu.tools.atemMv', 'ATEM Multiviewer-Layout…')}
           </MenuItem>
@@ -363,7 +361,8 @@ export const MenuBar = ({
           <MenuItem onClick={() => useUiStore.getState().openGreenGoExport()} icon={<Icon icon={Headphones} size="sm" />}>
             {t('app.menu.tools.greengo', 'GreenGo-Intercom…')}
           </MenuItem>
-          <MenuSep />
+
+          <MenuSectionHeader>{t('app.menu.tools.group.io', 'Import & Export')}</MenuSectionHeader>
           <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon={<Icon icon={Cable} size="sm" />}>
             {t('app.menu.tools.patchList', 'Patch-Liste…')}
           </MenuItem>
@@ -383,15 +382,8 @@ export const MenuBar = ({
           <MenuItem onClick={() => useUiStore.getState().openCsvImport()} icon={<Icon icon={ImportIcon} size="sm" />}>
             {t('app.menu.tools.csvImport', 'Equipment aus CSV importieren…')}
           </MenuItem>
-          {/* Rentman ist standardmäßig aus — hier (oder in den Einstellungen)
-              einschalten. Häkchen zeigt den aktuellen Zustand. */}
-          <MenuSep />
-          <MenuItem
-            onClick={() => useUiStore.getState().setRentmanEnabled(!rentmanEnabled)}
-            icon={rentmanEnabled ? <Icon icon={Check} size="sm" /> : null}
-          >
-            {t('app.menu.tools.rentmanToggle', 'Rentman-Integration')}
-          </MenuItem>
+          {/* Rentman-Import nur wenn die Integration aktiv ist (standardmäßig
+              aus; Aktivierung in den Einstellungen → Integrationen). */}
           {rentmanEnabled && (
             <MenuItem onClick={() => useUiStore.getState().openRentmanImport()} icon={<Icon icon={Users} size="sm" />}>
               {t('app.menu.tools.rentmanImport', 'Rentman-Import…')}
@@ -533,26 +525,6 @@ export const MenuBar = ({
           </button>
         </div>
         <SharedSyncPanel />
-        {onChangeVideoFormat && (
-          <label className="hidden items-center gap-1 text-cp-xs text-[var(--cp-text-muted)] xl:flex">
-            <span>{t('app.videoFormat', 'Format:')}</span>
-            <select
-              value={videoFormat ?? '1080p50'}
-              onChange={(event) => onChangeVideoFormat(event.target.value)}
-              className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-cp-xs text-slate-100"
-              title={t('app.videoFormatTitle', 'Projekt-Standard-Videoformat (SDI)')}
-            >
-              <option value="1080i50">1080i50</option>
-              <option value="1080p25">1080p25</option>
-              <option value="1080p50">1080p50 (3G)</option>
-              <option value="1080p60">1080p60 (3G)</option>
-              <option value="2160p25">2160p25 (6G)</option>
-              <option value="2160p30">2160p30 (6G)</option>
-              <option value="2160p50">2160p50 (12G)</option>
-              <option value="2160p60">2160p60 (12G)</option>
-            </select>
-          </label>
-        )}
         {hasDesktopBridge && (
           <button
             type="button"
@@ -714,3 +686,11 @@ const MenuItem = ({ onClick, icon, shortcut, disabled, children }: MenuItemProps
 }
 
 const MenuSep = () => <div className="my-1 border-t border-slate-700" />
+
+/** Kleiner, nicht-interaktiver Gruppen-Titel innerhalb eines Menüs. Gliedert
+ *  lange Menüs (z. B. Werkzeuge) optisch, ohne echte Flyout-Submenüs. */
+const MenuSectionHeader = ({ children }: { children: React.ReactNode }) => (
+  <div className="px-3 pb-0.5 pt-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-[var(--cp-text-faint)] select-none">
+    {children}
+  </div>
+)

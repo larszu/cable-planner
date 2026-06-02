@@ -3,6 +3,7 @@ import type { EquipmentItem } from './equipment'
 import type { GreenGoConfig } from './greengo'
 import type { LocationFrame } from './location'
 import type { VideoFormatId } from './videoFormat'
+import type { PowerStandardId } from './powerStandard'
 
 /**
  * Auto-Kabelnummerierung — Schema fuer automatisch vergebene Kabel-IDs.
@@ -38,6 +39,13 @@ export interface ProjectMetadata {
   updatedAt: string
   /** Default SDI video format for the project (e.g. 1080p50). */
   defaultVideoFormat?: VideoFormatId
+  /** Default mains/power standard for the project (drives the power calculator
+   *  voltage — 230 V EU, 120 V North America, …). Default: EU 230 V. */
+  defaultPowerStandard?: PowerStandardId
+  /** Default lighting-control transport for the project (DMX512 over 5-pin XLR,
+   *  Art-Net or sACN over Ethernet). Used as the suggested protocol for new
+   *  lighting/control links. Default: DMX512. */
+  defaultLightingControl?: 'dmx512' | 'artnet' | 'sacn'
   /** Planner / author of the project file. */
   author?: string
   /** Client name (end customer). */

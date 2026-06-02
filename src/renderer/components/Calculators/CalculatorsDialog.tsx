@@ -8,7 +8,7 @@
  * with three more menu items.
  */
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
@@ -18,6 +18,7 @@ import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { bandwidthMbpsForStandard } from '../../types/cableSpec'
+import { powerStandardById, POWER_SUPPLY_PRESETS } from '../../types/powerStandard'
 import jsPDF from 'jspdf'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 
@@ -267,20 +268,10 @@ const BandwidthTab = () => {
 
 // ─── Power Consumption (+ 3-phase distribution) ────────────────────────────
 
-/** Standard German/EU mains supply presets the user picks the cabling
- *  from. Phase column count drives the bin-packer below: 1 for Schuko,
- *  3 for CEE / Powerlock. */
-const SUPPLY_PRESETS = [
-  { id: 'schuko' as const, label: 'Schuko / Einphasig (16A)', voltage: 230, phases: 1, perPhaseAmps: 16 },
-  { id: 'cee16' as const, label: 'CEE 16A (3-Phasen, rot)', voltage: 230, phases: 3, perPhaseAmps: 16 },
-  { id: 'cee32' as const, label: 'CEE 32A (3-Phasen, rot)', voltage: 230, phases: 3, perPhaseAmps: 32 },
-  { id: 'cee63' as const, label: 'CEE 63A (3-Phasen, rot)', voltage: 230, phases: 3, perPhaseAmps: 63 },
-  { id: 'cee125' as const, label: 'CEE 125A (3-Phasen)', voltage: 230, phases: 3, perPhaseAmps: 125 },
-  { id: 'powerlock-200' as const, label: 'Powerlock 200A (3-Phasen)', voltage: 230, phases: 3, perPhaseAmps: 200 },
-  { id: 'powerlock-400' as const, label: 'Powerlock 400A (3-Phasen)', voltage: 230, phases: 3, perPhaseAmps: 400 },
-  { id: 'powerlock-660' as const, label: 'Powerlock 660A (3-Phasen)', voltage: 230, phases: 3, perPhaseAmps: 660 },
-]
-type SupplyPresetId = (typeof SUPPLY_PRESETS)[number]['id']
+// Netzanschluss-Presets kommen jetzt regional aus POWER_SUPPLY_PRESETS
+// (gesteuert vom Projekt-Strom-Standard, Einstellungen → Projekt). Die
+// Spannung wird zur Laufzeit aus dem Standard gesetzt.
+type SupplyPresetId = string
 
 /** DIN VDE 0293-308 phase identification colour code (EU harmonised):
  *  L1 brown, L2 black, L3 grey, N blue, PE green-yellow. We render the
@@ -391,7 +382,21 @@ const PowerTab = () => {
   // #345 ff. — Spannungsfall-Rechner für die Zuleitung (Distro-Strecke).
   const [runLength, setRunLength] = useState(25)
   const [crossSection, setCrossSection] = useState(2.5)
-  const supply = SUPPLY_PRESETS.find((s) => s.id === supplyId) ?? SUPPLY_PRESETS[0]
+  // Netzspannung + Anschluss-Katalog aus dem projektweiten Strom-/Netz-
+  // Standard (Einstellungen → Projekt → Plan-Standards). EU 230 V / Schuko,
+  // Nordamerika 120 V / Edison, UK / BS 1363 usw. Steuert alle
+  // Watt↔Ampere-Rechnungen unten (statt fix 230 V / EU-Stecker).
+  const powerStandardId = useProjectStore((s) => s.project.metadata.defaultPowerStandard)
+  const std = powerStandardById(powerStandardId)
+  const mainsVoltage = std?.voltage ?? 230
+  const supplies = POWER_SUPPLY_PRESETS[std?.region ?? 'eu']
+  // Beim Regionswechsel auf ein gültiges Preset zurückfallen.
+  useEffect(() => {
+    if (!supplies.some((s) => s.id === supplyId)) setSupplyId(supplies[0].id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supplies])
+  const rawSupply = supplies.find((s) => s.id === supplyId) ?? supplies[0]
+  const supply = { ...rawSupply, voltage: mainsVoltage }
 
   const totals = useMemo(() => {
     let totalW = 0
@@ -601,7 +606,7 @@ const PowerTab = () => {
             onChange={(e) => setSupplyId(e.target.value as SupplyPresetId)}
             className="w-full rounded border border-slate-700 bg-slate-950 p-2"
           >
-            {SUPPLY_PRESETS.map((p) => (
+            {supplies.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.label}
               </option>
@@ -675,8 +680,8 @@ const PowerTab = () => {
           <span className="font-semibold uppercase tracking-wide text-slate-500">
             {t('calc.power.fitsOn', 'Passt auf')}:
           </span>
-          {SUPPLY_PRESETS.map((p) => {
-            const amps = p.phases === 1 ? totalWithMargin / p.voltage : totalWithMargin / (p.voltage * Math.sqrt(3))
+          {supplies.map((p) => {
+            const amps = p.phases === 1 ? totalWithMargin / mainsVoltage : totalWithMargin / (mainsVoltage * Math.sqrt(3))
             const fits = amps <= p.perPhaseAmps
             return (
               <span

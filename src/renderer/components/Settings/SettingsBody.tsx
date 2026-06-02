@@ -62,8 +62,14 @@ const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
   advanced: 'Erweitert',
 }
 
+const isSection = (v: unknown): v is SettingsSection =>
+  typeof v === 'string' &&
+  ['project', 'appearance', 'editing', 'hotkeys', 'integrations', 'configs', 'sync', 'advanced'].includes(v)
+
 interface SettingsBodyProps {
   onClose: () => void
+  /** Tab, der initial aktiv ist (z. B. 'sync'). */
+  initialSection?: string
   /** Drag-Handler für die Kopfzeile (nur im Modal genutzt). */
   headerProps?: HTMLAttributes<HTMLElement>
   /** a11y-Titel-Id (nur im Modal genutzt). */
@@ -72,8 +78,8 @@ interface SettingsBodyProps {
   headerAction?: ReactNode
 }
 
-export const SettingsBody = ({ onClose, headerProps, titleId, headerAction }: SettingsBodyProps) => {
-  const [section, setSection] = useState<SettingsSection>('project')
+export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, headerAction }: SettingsBodyProps) => {
+  const [section, setSection] = useState<SettingsSection>(isSection(initialSection) ? initialSection : 'project')
   const t = useTranslation()
 
   const navItem = (id: SettingsSection) => (

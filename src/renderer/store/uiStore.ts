@@ -823,6 +823,17 @@ interface UiState extends PersistedUiState {
   recordingStorageCalc: { open: boolean }
   openRecordingStorageCalc: () => void
   closeRecordingStorageCalc: () => void
+  /** #480/#481 — Projektion & Display: Beamer-Throw-Distance + Bildgrößen-/
+   *  LED-Wall-Rechner. Eigenständiger Dialog im Werkzeuge-Menü. */
+  projectionCalc: { open: boolean }
+  openProjectionCalc: () => void
+  closeProjectionCalc: () => void
+  /** Einstellungen-Dialog (zentral, damit auch StatusBar/Tools es zu einem
+   *  bestimmten Tab öffnen können). `settingsSection` = initialer Tab. */
+  settingsOpen: boolean
+  settingsSection?: string
+  openSettings: (section?: string) => void
+  closeSettings: () => void
   /** #378 — Bulk-Cable-Connect-Dialog (mehrere Kabel auf einmal). */
   bulkConnect: { open: boolean }
   openBulkConnect: () => void
@@ -1247,6 +1258,13 @@ export const useUiStore = create<UiState>((set) => ({
   recordingStorageCalc: { open: false },
   openRecordingStorageCalc: () => set({ recordingStorageCalc: { open: true } }),
   closeRecordingStorageCalc: () => set({ recordingStorageCalc: { open: false } }),
+  projectionCalc: { open: false },
+  openProjectionCalc: () => set({ projectionCalc: { open: true } }),
+  closeProjectionCalc: () => set({ projectionCalc: { open: false } }),
+  settingsOpen: false,
+  settingsSection: undefined,
+  openSettings: (section) => set({ settingsOpen: true, settingsSection: section }),
+  closeSettings: () => set({ settingsOpen: false }),
   bulkConnect: { open: false },
   openBulkConnect: () => set({ bulkConnect: { open: true } }),
   closeBulkConnect: () => set({ bulkConnect: { open: false } }),
