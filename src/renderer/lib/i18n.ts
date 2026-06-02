@@ -989,6 +989,7 @@ const en: Dict = {
   'rack.view.free': 'Free ports',
   'rack.view.released': 'Released',
   'rack.showConnectorSymbols': 'Show connector symbols',
+  'rack.portRename': 'Edit port name',
   'rack.viewMode.front': 'Front only',
   'rack.viewMode.both': 'Both',
   'rack.viewMode.rear': 'Rear only',
