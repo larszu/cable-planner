@@ -179,7 +179,7 @@ const ProjectionCalcCore = () => {
             <Result label={t('calc.projection.viewThx', 'Min. Sitzabstand (THX 36°)')} value={`${screen.thx.toFixed(2)} m`} />
             <Result label={t('calc.projection.viewSmpte', 'Optimaler Sitzabstand (SMPTE 30°)')} value={`${screen.smpte.toFixed(2)} m`} />
           </div>
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[11px] text-slate-400">
             {t('calc.projection.screen.note', 'Sitzabstände nach horizontalem Blickwinkel: THX empfiehlt max. 36°, SMPTE EG-18 ca. 30°.')}
           </p>
         </div>
@@ -199,7 +199,7 @@ const ProjectionCalcCore = () => {
             <Result label={t('calc.projection.resolution', 'Auflösung')} value={`${led.pxW} × ${led.pxH} px`} />
             <Result label={t('calc.projection.totalPixels', 'Pixel gesamt')} value={`${led.total.toLocaleString()} (${led.mp.toFixed(1)} MP)`} />
           </div>
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[11px] text-slate-400">
             {t('calc.projection.led.note', 'Faustregel Mindest-Betrachtungsabstand (m) ≈ Pixel-Pitch (mm). Bei 2.6 mm also ab ~2.6 m ohne sichtbares Pixelraster.')}
           </p>
         </div>
