@@ -199,7 +199,7 @@ export const EditingTab = () => {
               if (c.routing !== defaultRouting) updateCable(c.id, { routing: defaultRouting })
             })
           }}
-          className="mt-2 w-full rounded bg-slate-800 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-700 disabled:opacity-40"
+          className="mt-2 w-full rounded bg-slate-800 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-700 disabled:opacity-50"
         >
           {format(
             t('settings.editing.routing.applyAll', 'Auf alle bestehenden Kabel anwenden ({count})'),

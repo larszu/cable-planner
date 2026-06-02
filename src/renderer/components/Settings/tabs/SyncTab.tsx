@@ -49,7 +49,7 @@ const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
           type="button"
           onClick={run}
           disabled={disabled}
-          className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-40"
+          className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
         >
           {busy
             ? t('settings.sharedLib.syncing', 'Synchronisiere…')

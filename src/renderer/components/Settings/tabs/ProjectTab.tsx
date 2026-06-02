@@ -258,7 +258,7 @@ const CableNumberingSection = () => {
             type="button"
             onClick={handleRenumber}
             disabled={cableCount === 0}
-            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-40"
+            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
           >
             {t('settings.project.numbering.renumber', 'Alle Kabel neu nummerieren')} ({cableCount})
           </button>
@@ -346,7 +346,7 @@ const LengthEstimationSection = () => {
             type="button"
             onClick={handleEstimate}
             disabled={cableCount === 0}
-            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-40"
+            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
           >
             {t('settings.project.lengthEst.run', 'Längen jetzt schätzen')} ({cableCount})
           </button>

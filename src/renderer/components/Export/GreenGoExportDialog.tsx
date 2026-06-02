@@ -459,7 +459,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   type="button"
                   onClick={addUser}
                   disabled={config.users.length >= MAX_USERS}
-                  className="rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-40"
+                  className="rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
                 >
                   {t('greengo.addStation', '+ Station')}
                 </button>
@@ -541,7 +541,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   type="button"
                   onClick={addGroup}
                   disabled={config.groups.length >= MAX_GROUPS}
-                  className="rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-40"
+                  className="rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
                 >
                   {t('greengo.addGroup', '+ Gruppe')}
                 </button>

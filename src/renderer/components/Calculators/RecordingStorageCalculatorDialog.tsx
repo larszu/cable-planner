@@ -169,7 +169,7 @@ export const RecordingStorageCalcCore = ({
             value={channels}
             disabled={fixedChannels !== undefined}
             onChange={(e) => setChannels(Math.max(1, Math.min(256, Number(e.target.value) || 1)))}
-            className="w-full rounded border border-slate-700 bg-slate-950 p-2 disabled:opacity-60"
+            className="w-full rounded border border-slate-700 bg-slate-950 p-2 disabled:opacity-50"
           />
           {fixedChannels !== undefined && (
             <span className="mt-0.5 block text-[10px] text-slate-400">
