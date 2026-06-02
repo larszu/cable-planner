@@ -67,12 +67,9 @@ const wrapRentmanError = (err: unknown, context: string): Error => {
     // Console-Log fuer Debugging — sichtbar in den DevTools des
     // Main-Prozesses (Electron-Dev-Mode console). Hilft zu unter-
     // scheiden zwischen 'Endpoint existiert nicht / falsche URL'
-    // und 'echtes Permission-Problem'.
-    console.error('[rentman]', reqMethod, reqUrl, '->', status, {
-      serverMsg,
-      data,
-      requestBody: ax.config?.data,
-    })
+    // und 'echtes Permission-Problem'. Body + Response-Data werden NICHT
+    // geloggt — sie koennen projekt-/account-Daten enthalten.
+    console.error('[rentman]', reqMethod, reqUrl, '->', status, serverMsg)
 
     const hint =
       status === 401
@@ -137,12 +134,10 @@ export const createRentmanApiClient = (token: string) => {
   const cleanToken = rawToken
     .replace(/[^!-~]/g, '')
     .replace(/^Bearer\s*/i, '')
-  // Debug-Log fuer Diagnose: zeigt ob Sanitization etwas wegnimmt.
-  // Token selbst wird NICHT geloggt, nur Laenge und 4-char Prefix/Suffix.
+  // Diagnose ohne Token-Material: nur melden DASS sanitisiert wurde, keine
+  // Prefix/Suffix/Length-Details (die das Brute-Force-Fenster verengen).
   if (rawToken.length !== cleanToken.length || rawToken !== cleanToken.trim()) {
-    console.warn('[rentman:auth] Token sanitized: len ' + rawToken.length + ' -> ' + cleanToken.length + ' (prefix=' + cleanToken.slice(0, 4) + '... suffix=...' + cleanToken.slice(-4) + ')')
-  } else {
-    console.log('[rentman:auth] Token clean: len ' + cleanToken.length + ' (prefix=' + cleanToken.slice(0, 4) + '... suffix=...' + cleanToken.slice(-4) + ')')
+    console.warn('[rentman:auth] Token wurde vor dem Senden bereinigt (unsichtbare Zeichen entfernt).')
   }
   const client = axios.create({
     baseURL: BASE_URL,
