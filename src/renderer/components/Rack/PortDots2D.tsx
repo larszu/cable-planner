@@ -16,6 +16,8 @@
  */
 import { useRef, useState } from 'react'
 import type { Port } from '../../types/equipment'
+import { ConnectorSymbol } from '../shared/ConnectorSymbol'
+import { findConnectorEntry, connectorGender } from '../../lib/connectorCatalog'
 
 interface Props {
   /** Ports die auf dieser Face gerendert werden sollen (bereits gefiltert
@@ -32,6 +34,8 @@ interface Props {
   placementHeight: number
   updatePlacement: (id: string, patch: Partial<{ inputs: Port[]; outputs: Port[] }>) => void
   side: 'front' | 'rear'
+  /** #472 — statt einfachem Farb-Dot das echte Steckverbinder-Symbol zeigen. */
+  showSymbols?: boolean
 }
 
 const PORT_DOT_COLORS: Record<string, string> = {
@@ -60,11 +64,13 @@ export const PortDots2D = ({
   placementWidth,
   placementHeight,
   updatePlacement,
+  showSymbols,
 }: Props) => {
   const [dragOverride, setDragOverride] = useState<{ id: string; x: number; y: number } | null>(null)
   const draggingRef = useRef<{ id: string; pointerId: number } | null>(null)
 
   const dotPx = Math.min(14, Math.max(8, placementHeight * 0.15))
+  const symPx = Math.min(30, Math.max(16, placementHeight * 0.32))
 
   return (
     <div className="pointer-events-none absolute inset-0">
@@ -73,6 +79,8 @@ export const PortDots2D = ({
         const px = override?.x ?? port.panelPosX ?? computeDefault(idx, ports.length).x
         const py = override?.y ?? port.panelPosY ?? computeDefault(idx, ports.length).y
         const color = PORT_DOT_COLORS[port.connectorType] ?? '#94a3b8'
+        // #472 — Steckverbinder-Symbol statt Dot, wenn aktiviert + bekannt.
+        const symEntry = showSymbols ? findConnectorEntry(port.connectorType) : undefined
         return (
           <div
             key={port.id}
@@ -125,15 +133,25 @@ export const PortDots2D = ({
             }}
             onClick={(e) => e.stopPropagation()}
             title={`${port.name} · ${port.connectorType}\n(ziehen zum Verschieben auf das Panel-Foto)`}
-            className="pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-white/80 shadow-md active:cursor-grabbing"
+            className={`pointer-events-auto absolute flex -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center active:cursor-grabbing ${
+              symEntry ? '' : 'rounded-full border-2 border-white/80 shadow-md'
+            }`}
             style={{
               left: `${px * placementWidth}px`,
               top: `${py * placementHeight}px`,
-              width: dotPx,
-              height: dotPx,
-              background: color,
+              width: symEntry ? symPx : dotPx,
+              height: symEntry ? symPx : dotPx,
+              background: symEntry ? undefined : color,
             }}
-          />
+          >
+            {symEntry && (
+              <ConnectorSymbol
+                symbol={symEntry.symbol}
+                gender={connectorGender(port.connectorType)}
+                size={symPx}
+              />
+            )}
+          </div>
         )
       })}
     </div>
