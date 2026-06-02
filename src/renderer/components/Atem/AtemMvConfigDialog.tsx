@@ -1143,7 +1143,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={addMv}
               disabled={config.multiViewers.length >= 4}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600 disabled:opacity-40"
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600 disabled:opacity-50"
               title={t('atem.mv.addMv', 'Multiviewer hinzufügen')}
             >
               +
@@ -1152,7 +1152,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={removeMv}
               disabled={config.multiViewers.length <= 1}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600 disabled:opacity-40"
+              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600 disabled:opacity-50"
               title={t('atem.mv.removeMv', 'Letzten Multiviewer entfernen')}
             >
               −

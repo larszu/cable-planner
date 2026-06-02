@@ -294,7 +294,7 @@ const CableTypeEditor = ({
             type="button"
             onClick={submit}
             disabled={!canSave}
-            className="rounded bg-emerald-600 px-3 py-1 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+            className="rounded bg-emerald-600 px-3 py-1 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
           >
             {isEditing ? 'Speichern' : 'Anlegen'}
           </button>

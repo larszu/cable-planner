@@ -245,7 +245,7 @@ export const AppearanceTab = () => {
             type="button"
             onClick={() => setPortLabelFontSize(11)}
             disabled={portLabelFontSize === 11}
-            className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700 disabled:opacity-40"
+            className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700 disabled:opacity-50"
             title={t('settings.fontSize.reset', 'Auf Default 11 px zurücksetzen')}
           >
             ↺

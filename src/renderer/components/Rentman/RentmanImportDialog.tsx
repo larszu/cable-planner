@@ -1757,7 +1757,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 type="button"
                 onClick={handleImport}
                 disabled={importResult !== null}
-                className="rounded bg-emerald-600 px-3 py-1 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded bg-emerald-600 px-3 py-1 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {t('rentman.import.addToLibrary', 'Zur Library hinzufügen')}
               </button>

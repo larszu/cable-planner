@@ -109,7 +109,7 @@ export const EquipmentProperties = () => {
     <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
     <fieldset
       disabled={projectIsLocked}
-      className="flex flex-col gap-3 text-cp-xs disabled:cursor-default disabled:opacity-60"
+      className="flex flex-col gap-3 text-cp-xs disabled:cursor-default disabled:opacity-50"
       style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}
     >
       {projectIsLocked && (

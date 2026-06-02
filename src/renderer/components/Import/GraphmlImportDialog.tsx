@@ -269,7 +269,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         type="button"
         disabled={busy}
         onClick={handlePickFile}
-        className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-60"
+        className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
       >
         {t('graphml.dialog.pickFile', 'Datei auswählen…')}
       </button>
