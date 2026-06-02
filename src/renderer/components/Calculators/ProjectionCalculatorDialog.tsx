@@ -61,7 +61,7 @@ const NumField = ({
         min={min}
         step={step}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-sm"
+        className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-base"
       />
       {suffix && <span className="text-cp-xs text-slate-500">{suffix}</span>}
     </div>
@@ -71,7 +71,7 @@ const NumField = ({
 const Result = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-baseline justify-between rounded border border-slate-800 bg-slate-900/50 px-3 py-1.5">
     <span className="text-cp-xs text-slate-400">{label}</span>
-    <span className="font-mono text-sm text-sky-300">{value}</span>
+    <span className="font-mono text-cp-base text-sky-300">{value}</span>
   </div>
 )
 
@@ -165,7 +165,7 @@ const ProjectionCalcCore = () => {
               <select
                 value={aspectId}
                 onChange={(e) => setAspectId(e.target.value)}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-sm"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-base"
               >
                 {ASPECTS.map((a) => (
                   <option key={a.id} value={a.id}>{a.label}</option>

@@ -60,7 +60,7 @@ export const AiPlanGenDialog = () => {
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:aiplan"
     >
-      <div className="flex flex-col gap-3 text-sm">
+      <div className="flex flex-col gap-3 text-cp-base">
         {!keyReady && (
           <div className="rounded border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
             {t(

@@ -110,7 +110,7 @@ export const RackBuilderFooter = ({
         <button
           type="button"
           onClick={onSave}
-          className="inline-flex items-center gap-1.5 rounded bg-emerald-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 active:bg-emerald-700"
+          className="inline-flex items-center gap-1.5 rounded bg-emerald-600 px-4 py-1.5 text-cp-base font-semibold text-white shadow-sm hover:bg-emerald-500 active:bg-emerald-700"
           title={
             editingId
               ? t('rack.saveEditTitle', 'Änderungen am Rack speichern')

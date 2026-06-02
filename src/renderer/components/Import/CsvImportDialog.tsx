@@ -169,7 +169,7 @@ export const CsvImportDialog = () => {
       titleIcon={<Icon icon={FileUp} size="md" />}
       title={t('csvImport.title', 'Equipment aus CSV importieren')}
     >
-      <div className="space-y-3 p-1 text-sm">
+      <div className="space-y-3 p-1 text-cp-base">
         <p className="text-cp-xs text-[var(--cp-text-muted)]">
           {t(
             'csvImport.intro',

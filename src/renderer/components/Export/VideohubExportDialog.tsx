@@ -681,7 +681,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           </button>
         </div>
 
-        <div className="mb-3 grid grid-cols-2 gap-3 text-sm">
+        <div className="mb-3 grid grid-cols-2 gap-3 text-cp-base">
           <label className="block">
             {t('videohub.deviceOnCanvas', 'Gerät auf dem Canvas')}
             <select
@@ -1325,7 +1325,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             type="button"
             onClick={handleCopy}
             disabled={!device}
-            className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600 disabled:opacity-50"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600 disabled:opacity-50"
           >
             In Zwischenablage
           </button>
@@ -1333,7 +1333,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             type="button"
             onClick={handleExport}
             disabled={!device}
-            className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500 disabled:opacity-50"
+            className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500 disabled:opacity-50"
           >
             Als Datei speichern
           </button>
@@ -1344,7 +1344,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <button
               type="button"
               onClick={() => void handleImportLabels()}
-              className="rounded bg-sky-700 px-3 py-1 text-sm hover:bg-sky-600"
+              className="rounded bg-sky-700 px-3 py-1 text-cp-base hover:bg-sky-600"
               title="Labels.txt importieren — Port-Namen aus einer Datei (z.B. von Videohub Setup) auf dieses Gerät schreiben."
             >
               ⬆ Labels.txt importieren

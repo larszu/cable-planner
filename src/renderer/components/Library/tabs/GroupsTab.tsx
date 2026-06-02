@@ -26,7 +26,7 @@ export const GroupsTab = () => {
   return (
     <div className="flex flex-1 min-h-0 flex-col">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
-        <h2 className="text-sm font-semibold">{t('library.tabs.groups.title', 'Gerätegruppen')}</h2>
+        <h2 className="text-cp-base font-semibold">{t('library.tabs.groups.title', 'Gerätegruppen')}</h2>
         <span className="text-[10px] text-slate-400">
           {t('library.tabs.groups.subtitle', 'Mehrere Geräte + Kabel als Vorlage')}
         </span>

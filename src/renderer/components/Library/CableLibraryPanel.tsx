@@ -111,7 +111,7 @@ const CableTypeEditor = ({
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-4">
       <div className="w-full max-w-md rounded border border-slate-700 bg-slate-900 p-4 text-slate-100 shadow-2xl">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold">
+          <h3 className="text-cp-base font-semibold">
             {isEditing ? 'Kabeltyp bearbeiten' : 'Neuer Kabeltyp'}
           </h3>
           <button
@@ -495,7 +495,7 @@ export const CableLibraryPanel = () => {
     <div className="flex h-full min-h-0 flex-col">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold">{t('cableLib.title', 'Kabel-Library')}</h2>
+          <h2 className="text-cp-base font-semibold">{t('cableLib.title', 'Kabel-Library')}</h2>
           <span className="text-[10px] text-slate-400">{cables.length} verbaut</span>
         </div>
         <button

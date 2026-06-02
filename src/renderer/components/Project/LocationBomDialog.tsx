@@ -386,7 +386,7 @@ export const LocationBomDialog = () => {
             </button>
           </div>
 
-          <h3 className="mb-1 text-sm font-semibold text-slate-200">{t('locbom.section.devices', 'Geräte')}</h3>
+          <h3 className="mb-1 text-cp-base font-semibold text-slate-200">{t('locbom.section.devices', 'Geräte')}</h3>
           <table className="mb-4 w-full text-cp-xs">
             <thead className="text-slate-400">
               <tr className="border-b border-slate-700">
@@ -418,7 +418,7 @@ export const LocationBomDialog = () => {
             </tbody>
           </table>
 
-          <h3 className="mb-1 text-sm font-semibold text-slate-200">{t('locbom.section.internalCables', 'Interne Kabel')}</h3>
+          <h3 className="mb-1 text-cp-base font-semibold text-slate-200">{t('locbom.section.internalCables', 'Interne Kabel')}</h3>
           {internalCables.length === 0 ? (
             <div className="mb-3 text-slate-500">{t('locbom.noInternalCables', 'Keine internen Kabel.')}</div>
           ) : grouped ? (
@@ -475,7 +475,7 @@ export const LocationBomDialog = () => {
 
           {externalCables.length > 0 && (
             <>
-              <h3 className="mb-1 text-sm font-semibold text-amber-200">
+              <h3 className="mb-1 text-cp-base font-semibold text-amber-200">
                 {t('locbom.section.externalConnections', 'Externe Verbindungen')}
               </h3>
               {grouped ? (

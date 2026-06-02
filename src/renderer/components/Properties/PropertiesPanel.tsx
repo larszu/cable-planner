@@ -126,7 +126,7 @@ export const PropertiesPanel = () => {
       <FloatingPanelShell
         title={
           <span className="flex flex-col">
-            <span className="text-sm font-semibold text-slate-100">{title}</span>
+            <span className="text-cp-base font-semibold text-slate-100">{title}</span>
             <span className="text-[10px] uppercase tracking-wide text-slate-400">
               {t('inspector.subtitle', 'Eigenschaften')}
             </span>
@@ -158,7 +158,7 @@ export const PropertiesPanel = () => {
           aria-label={t('inspector.collapse.show', 'Eigenschaften einblenden')}
           className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
-          <span className="text-base leading-none">‹</span>
+          <span className="text-cp-lg leading-none">‹</span>
         </button>
         <button
           type="button"
@@ -177,7 +177,7 @@ export const PropertiesPanel = () => {
     <aside className="flex h-full min-h-0 flex-col border-l border-slate-700 bg-slate-950 text-slate-100">
       <div className="flex items-start justify-between gap-2 border-b border-slate-800 px-3 py-2.5">
         <div className="min-w-0">
-          <h2 className="truncate text-sm font-semibold">{title}</h2>
+          <h2 className="truncate text-cp-base font-semibold">{title}</h2>
           <div className="mt-0.5 text-[10px] uppercase tracking-wide text-slate-400">
             {t('inspector.subtitle', 'Eigenschaften')}
           </div>
@@ -217,7 +217,7 @@ export const PropertiesPanel = () => {
             aria-label={t('inspector.collapse.hide', 'Eigenschaften ausblenden')}
             className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
-            <span className="text-base leading-none">›</span>
+            <span className="text-cp-lg leading-none">›</span>
           </button>
         </div>
       </div>

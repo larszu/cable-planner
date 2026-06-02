@@ -41,7 +41,7 @@ export const AboutDialog = () => {
       maxWidth="md"
       draggableKey="cable-planner:modal-pos:about"
     >
-      <div className="space-y-3 text-sm">
+      <div className="space-y-3 text-cp-base">
         <div className="flex items-center gap-3 rounded border border-slate-800 bg-slate-950/40 p-3">
           <Icon icon={Cable} size={28} className="text-sky-400" />
           <div className="min-w-0">

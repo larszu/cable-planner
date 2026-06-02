@@ -100,7 +100,7 @@ export const RecordingStorageCalcCore = ({
   }, [result.total, headroomPercent, driveTb, redundancy])
 
   return (
-    <div className="space-y-3 p-4 text-sm">
+    <div className="space-y-3 p-4 text-cp-base">
       <p className="text-[11px] text-slate-400">
         {t(
           'recStorage.intro',
@@ -192,7 +192,7 @@ export const RecordingStorageCalcCore = ({
           <dt className="text-slate-500 font-semibold">
             {t('recStorage.total', 'Gesamt')} ({channels}× {t('recStorage.channels', 'Kanäle')})
           </dt>
-          <dd className="font-mono text-lg text-emerald-200">{formatGb(result.total)}</dd>
+          <dd className="font-mono text-cp-xl text-emerald-200">{formatGb(result.total)}</dd>
           {/* Schreib-Durchsatz: kann der Datenträger das mitschreiben? */}
           <dt className="text-slate-500">{t('recStorage.throughput', 'Schreibrate')}</dt>
           <dd className="font-mono text-slate-200">
@@ -256,7 +256,7 @@ export const RecordingStorageCalcCore = ({
           <dt className="text-slate-500">{t('recStorage.usableNeeded', 'Nutzbedarf inkl. Reserve')}</dt>
           <dd className="font-mono text-slate-200">{sizing.usableNeededTb.toFixed(2)} TB</dd>
           <dt className="text-slate-500 font-semibold">{t('recStorage.drivesNeeded', 'Laufwerke nötig')}</dt>
-          <dd className="font-mono text-lg text-sky-200">
+          <dd className="font-mono text-cp-xl text-sky-200">
             {sizing.totalDrives} × {driveTb} TB
             <span className="ml-2 text-[10px] text-slate-400">
               ({t('recStorage.rawCapacity', 'roh')} {sizing.rawTb.toFixed(1)} TB)

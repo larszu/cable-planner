@@ -364,7 +364,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           'Wenn aktiv: Library-Tab, Menü-Einträge und Status-Anzeigen für Rentman erscheinen. Ausgeschaltet zeigt der Cable Planner nur lokale Geräte/Kabel — alle Rentman-Funktionen werden ausgeblendet.',
         )}
       >
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-cp-base">
           <input
             type="checkbox"
             checked={rentmanEnabled}
@@ -389,7 +389,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           'Bearer-Token aus deinem Rentman-Account. Wird mit dem Betriebssystem-Schlüsselbund verschlüsselt gespeichert (nie im Projektfile).',
         )}
       >
-        <label className="block text-sm">
+        <label className="block text-cp-base">
           {t('settings.integrations.rentman.token', 'API-Token')}
           <input
             type="password"
@@ -426,7 +426,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy || !token}
             onClick={saveToken}
-            className="rounded bg-sky-600 px-3 py-1 text-sm hover:bg-sky-500 disabled:opacity-50"
+            className="rounded bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
           >
             {t('settings.integrations.rentman.save', 'Token speichern')}
           </button>
@@ -434,7 +434,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy || !hasToken}
             onClick={testToken}
-            className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500 disabled:opacity-50"
+            className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500 disabled:opacity-50"
           >
             {t('settings.integrations.rentman.test', 'Verbindung testen')}
           </button>
@@ -442,7 +442,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy || !hasToken}
             onClick={removeToken}
-            className="rounded bg-red-600 px-3 py-1 text-sm hover:bg-red-500 disabled:opacity-50"
+            className="rounded bg-red-600 px-3 py-1 text-cp-base hover:bg-red-500 disabled:opacity-50"
           >
             {t('settings.integrations.rentman.delete', 'Token löschen')}
           </button>
@@ -472,7 +472,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
                 openRentmanImport()
                 onClose()
               }}
-              className="rounded bg-orange-700 px-3 py-1 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+              className="rounded bg-orange-700 px-3 py-1 text-cp-base font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
             >
               {t(
                 'settings.integrations.linkedRentman.choose',
@@ -495,7 +495,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
                 openRentmanImport()
                 onClose()
               }}
-              className="rounded bg-orange-700 px-3 py-1 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+              className="rounded bg-orange-700 px-3 py-1 text-cp-base font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
               title={
                 hasToken
                   ? t('settings.integrations.linkedRentman.titleSelect', 'Rentman-Projekt auswählen')

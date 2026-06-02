@@ -226,7 +226,7 @@ export const RentmanTab = () => {
           <div className="text-[10px] uppercase tracking-wider text-orange-300/80">
             {t('library.rentman.currentLinkedProject', 'Aktuell verknüpftes Rentman-Projekt')}
           </div>
-          <div className="mt-0.5 truncate text-sm font-semibold text-orange-200">
+          <div className="mt-0.5 truncate text-cp-base font-semibold text-orange-200">
             {linkedRentmanProjectName ?? `Projekt #${linkedRentmanProjectId}`}
           </div>
           <div className="mt-1 flex flex-wrap gap-1 text-[10px] text-orange-100/80">
@@ -311,7 +311,7 @@ export const RentmanTab = () => {
       {rentmanView === 'imported' && (
         <div>
           <div className="mb-2 flex flex-wrap items-center justify-between gap-1">
-            <h2 className="text-sm font-semibold">{t('library.rentman.imported', 'Importierte Rentman-Geräte')}</h2>
+            <h2 className="text-cp-base font-semibold">{t('library.rentman.imported', 'Importierte Rentman-Geräte')}</h2>
             <div className="flex items-center gap-2 text-[10px] text-slate-400">
               {(() => {
                 const projectIds = new Set(projectGroups.map((group) => group.id))
@@ -545,7 +545,7 @@ export const RentmanTab = () => {
             <button
               type="button"
               onClick={() => setRentmanCatalogCollapsed((value) => !value)}
-              className="flex flex-1 items-center gap-1 text-left text-sm font-semibold text-slate-200 hover:text-white"
+              className="flex flex-1 items-center gap-1 text-left text-cp-base font-semibold text-slate-200 hover:text-white"
               title={t('library.rentman.accountTitle', 'Alle in deinem Rentman-Account angelegten Equipments (Account-Katalog), gegliedert nach der Rentman-Ordnerstruktur')}
             >
               <span className="text-cp-xs">{rentmanCatalogCollapsed ? '▶' : '▼'}</span>
@@ -764,7 +764,7 @@ export const RentmanTab = () => {
       {rentmanView === 'sync' && (
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-amber-300">{t('library.rentman.reconcile', 'Abgleich Canvas ↔ Rentman')}</h2>
+            <h2 className="text-cp-base font-semibold text-amber-300">{t('library.rentman.reconcile', 'Abgleich Canvas ↔ Rentman')}</h2>
             <span className="text-[10px] text-slate-400">{untracked.length} nicht erfasst</span>
           </div>
           {/* v7.9.128 — Auch im Sync-View ein prominenter Fetch-Knopf. */}
