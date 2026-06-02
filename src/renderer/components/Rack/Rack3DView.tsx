@@ -30,6 +30,7 @@ import { Mouse, Keyboard, Armchair } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
+import { buildPanelSymbolDataUri, panelSymbolKey } from '../../lib/panelSymbolImage'
 
 const HE_HEIGHT_MM = 44.45
 const RACK_OUTER_WIDTH_MM = 482.6
@@ -118,6 +119,8 @@ interface Rack3DViewProps {
   placements: Rack3DPlacement[]
   selectedPlacementId: string | null
   onSelectPlacement: (id: string | null) => void
+  /** #472 — Steckverbinder-Symbole als Panel-Textur (statt Foto) zeigen. */
+  showSymbols?: boolean
   /** v7.9.77 / #170 — Drag-Callback wenn der User einen Port-Dot
    *  verschoben hat. Übergibt placement-id, port-id, side und die neue
    *  normalisierte Position. Lokales State-Tracking während des Drags
@@ -263,6 +266,7 @@ const DeviceBox = ({
   rackDepthMm,
   totalUnits,
   selected,
+  showSymbols,
   onClick,
   onPortMoved,
   onShelfDeviceMoved,
@@ -272,6 +276,7 @@ const DeviceBox = ({
   rackDepthMm: number
   totalUnits: number
   selected: boolean
+  showSymbols?: boolean
   onClick: () => void
   onPortMoved?: Rack3DViewProps['onPortMoved']
   onShelfDeviceMoved?: Rack3DViewProps['onShelfDeviceMoved']
@@ -331,8 +336,23 @@ const DeviceBox = ({
           ? '#22c55e'
           : '#64748b'
 
-  const frontTex = useImageTexture(placement.frontPanelImageUrl)
-  const rearTex = useImageTexture(placement.rearPanelImageUrl)
+  // #472 — Steckverbinder-Symbole als Panel-Bild (Frontblende) statt Foto,
+  // wenn aktiviert. Memoisiert über Port-Position/-Typ, damit nicht jedes
+  // Re-Render neu gerastert wird.
+  const frontKey = panelSymbolKey(placement.frontPorts ?? [])
+  const rearKey = panelSymbolKey(placement.rearPorts ?? [])
+  const frontSymUri = useMemo(
+    () => (showSymbols ? buildPanelSymbolDataUri(placement.frontPorts ?? [], widthMm / heightMm) : undefined),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [showSymbols, frontKey, widthMm, heightMm],
+  )
+  const rearSymUri = useMemo(
+    () => (showSymbols ? buildPanelSymbolDataUri(placement.rearPorts ?? [], widthMm / heightMm) : undefined),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [showSymbols, rearKey, widthMm, heightMm],
+  )
+  const frontTex = useImageTexture(frontSymUri ?? placement.frontPanelImageUrl)
+  const rearTex = useImageTexture(rearSymUri ?? placement.rearPanelImageUrl)
 
   // BoxGeometry materials order: [+x, -x, +y, -y, +z, -z]
   // Front face (sichtbar von -Z aus → Kamera vor dem Rack) = face index 5.
@@ -977,6 +997,7 @@ export const Rack3DView = ({
   onShelfDeviceMoved,
   onCanvasRefsReady,
   internalCables,
+  showSymbols,
 }: Rack3DViewProps) => {
   const t = useTranslation()
   // v7.9.81 — Theme-Awareness: 3D-Hintergrund + Help-Overlay-Farben
@@ -1054,6 +1075,7 @@ export const Rack3DView = ({
                 rackDepthMm={depthMm}
                 totalUnits={totalUnits}
                 selected={selectedPlacementId === p.id}
+                showSymbols={showSymbols}
                 onClick={() => onSelectPlacement(p.id)}
                 onPortMoved={onPortMoved}
                 onShelfDeviceMoved={onShelfDeviceMoved}
