@@ -17,6 +17,13 @@ import { bindStoreToCrdt, type StoreBindingHandle } from './storeBinding'
 import { SyncManager } from './syncManager'
 import { BroadcastTransport } from './broadcastTransport'
 import { attachWebrtcProvider, type WebrtcOptions, type WebrtcHandle } from './webrtcProvider'
+import {
+  startBroadcastPresence,
+  startAwarenessPresence,
+  type PresenceHandle,
+  type PresencePeer,
+  type SelfInfo,
+} from './presence'
 
 export type CollabMode = 'broadcast' | 'webrtc'
 
@@ -26,6 +33,10 @@ export interface CollabOptions {
   room: string
   /** Nur für mode='webrtc'. */
   webrtc?: WebrtcOptions
+  /** Eigene Presence-Identität (Name/Farbe/Id). */
+  self: SelfInfo
+  /** Wird mit der aktuellen Teilnehmerliste aufgerufen (Presence). */
+  onPeers?: (peers: PresencePeer[]) => void
 }
 
 export interface CollabSession {
@@ -52,17 +63,22 @@ export const startCollaboration = async (opts: CollabOptions): Promise<CollabSes
   let manager: SyncManager | null = null
   let transport: BroadcastTransport | null = null
   let webrtc: WebrtcHandle | null = null
+  let presence: PresenceHandle | null = null
+  const onPeers = opts.onPeers ?? (() => {})
 
   try {
     if (opts.mode === 'broadcast') {
       transport = new BroadcastTransport(room)
       manager = new SyncManager(crdt, transport)
       manager.start() // sendet Initial-State + verdrahtet Resync + connect()
+      presence = startBroadcastPresence(room, opts.self, onPeers)
     } else {
       webrtc = await attachWebrtcProvider(crdt, room, opts.webrtc)
+      presence = startAwarenessPresence(webrtc.awareness, opts.self, onPeers)
     }
   } catch (err) {
     // Aufräumen, damit kein halb-initialisierter Zustand zurückbleibt.
+    presence?.stop()
     binding.stop()
     crdt.destroy()
     throw err
@@ -72,6 +88,7 @@ export const startCollaboration = async (opts: CollabOptions): Promise<CollabSes
     mode: opts.mode,
     room,
     stop: () => {
+      presence?.stop()
       manager?.stop()
       transport?.dispose()
       webrtc?.disconnect()
