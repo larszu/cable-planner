@@ -1,9 +1,11 @@
-// #413 — Stufe 3+4: UI für die Live-Kollaboration im SyncTab.
+// #413/#471 — Stufe 3+4+5: UI für die Live-Kollaboration im SyncTab.
 //
-// Schlankes Bedien-Panel: Modus (BroadcastChannel / WebRTC), Raumname,
-// Start/Stop, Status. Die eigentliche Logik liegt im collabStore +
-// lib/crdt/* — diese Komponente ist nur Anzeige + Steuerung.
+// Bedien-Panel: Modus (BroadcastChannel / WebRTC), Anzeigename, Raumname,
+// LAN-Signaling, Start/Stop, Status — plus Presence (wer ist im Raum) und
+// eine klare „so treten andere bei"-Anleitung (#471). Logik liegt im
+// collabStore + lib/crdt/*; diese Komponente ist Anzeige + Steuerung.
 
+import { useState } from 'react'
 import { useCollabStore, type CollabMode } from '../../store/collabStore'
 import { useTranslation } from '../../lib/i18n'
 
@@ -30,18 +32,53 @@ const statusColor = (status: string): string => {
   return 'var(--cp-text-muted, #94a3b8)'
 }
 
+const initials = (name: string): string =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('') || '?'
+
 export const CollabPanel = () => {
   const t = useTranslation()
   const status = useCollabStore((s) => s.status)
   const mode = useCollabStore((s) => s.mode)
   const room = useCollabStore((s) => s.room)
+  const name = useCollabStore((s) => s.name)
+  const signaling = useCollabStore((s) => s.signaling)
   const error = useCollabStore((s) => s.error)
+  const peers = useCollabStore((s) => s.peers)
   const setMode = useCollabStore((s) => s.setMode)
   const setRoom = useCollabStore((s) => s.setRoom)
+  const setName = useCollabStore((s) => s.setName)
+  const setSignaling = useCollabStore((s) => s.setSignaling)
   const start = useCollabStore((s) => s.start)
   const stop = useCollabStore((s) => s.stop)
 
+  const [copied, setCopied] = useState(false)
   const active = status === 'on' || status === 'connecting'
+
+  const copyInvite = () => {
+    const lines = [
+      t('collab.invite.head', 'Cable-Planner Live-Session — gemeinsam denselben Plan bearbeiten.'),
+      `${t('collab.room', 'Raumname')}: ${room}`,
+      mode === 'webrtc' && signaling.trim()
+        ? `${t('collab.signaling', 'Signaling-Server')}: ${signaling.trim()}`
+        : '',
+      t(
+        'collab.invite.how',
+        'Beitreten: Einstellungen → Netzwerk-Sync → Live-Kollaboration → gleichen Raumnamen eintragen → „Session starten".',
+      ),
+    ].filter(Boolean)
+    void navigator.clipboard?.writeText(lines.join('\n')).then(
+      () => {
+        setCopied(true)
+        window.setTimeout(() => setCopied(false), 1800)
+      },
+      () => {},
+    )
+  }
 
   return (
     <section className="space-y-3 rounded-md border border-[var(--cp-border)] bg-[var(--cp-surface-2)] p-4">
@@ -66,6 +103,19 @@ export const CollabPanel = () => {
       </p>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <label className="space-y-1">
+          <span className="block text-cp-xs text-[var(--cp-text-muted)]">
+            {t('collab.name', 'Dein Anzeigename')}
+          </span>
+          <input
+            type="text"
+            className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={t('collab.name.placeholder', 'z. B. Lars')}
+          />
+        </label>
+
         <label className="space-y-1">
           <span className="block text-cp-xs text-[var(--cp-text-muted)]">
             {t('collab.mode', 'Modus')}
@@ -98,13 +148,70 @@ export const CollabPanel = () => {
             placeholder={t('collab.room.placeholder', 'z. B. show-2026')}
           />
         </label>
+
+        {mode === 'webrtc' && (
+          <label className="space-y-1">
+            <span className="block text-cp-xs text-[var(--cp-text-muted)]">
+              {t('collab.signaling', 'Signaling-Server')}
+            </span>
+            <input
+              type="text"
+              className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs disabled:opacity-50"
+              value={signaling}
+              disabled={active}
+              onChange={(e) => setSignaling(e.target.value)}
+              placeholder="ws://192.168.1.10:4444"
+            />
+          </label>
+        )}
       </div>
 
-      {mode === 'webrtc' && (
+      {/* #471 — wer ist im Raum + wie treten andere bei */}
+      {active && (
+        <div className="space-y-2 rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-cp-xs font-medium text-[var(--cp-text)]">
+              {peers.length === 1
+                ? t('collab.peers.aloneTitle', 'Nur du im Raum')
+                : `${peers.length} ${t('collab.peers.inRoom', 'im Raum')}`}
+            </span>
+            <div className="flex -space-x-1.5">
+              {peers.slice(0, 8).map((p) => (
+                <span
+                  key={p.id}
+                  title={p.self ? `${p.name} (${t('collab.peers.you', 'du')})` : p.name}
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[var(--cp-surface-3)] text-[9px] font-bold text-white"
+                  style={{ backgroundColor: p.color }}
+                >
+                  {initials(p.name)}
+                </span>
+              ))}
+            </div>
+          </div>
+          {peers.length === 1 && (
+            <p className="text-[11px] text-[var(--cp-text-muted)]">
+              {t(
+                'collab.peers.aloneHint',
+                'Andere treten bei, indem sie denselben Raumnamen verwenden:',
+              )}{' '}
+              <code className="rounded bg-[var(--cp-surface-1)] px-1 font-mono text-[var(--cp-text)]">{room}</code>
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={copyInvite}
+            className="rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-1 text-cp-xs text-[var(--cp-text-secondary)] hover:border-sky-500 hover:text-sky-300"
+          >
+            {copied ? t('collab.invite.copied', 'Kopiert ✓') : t('collab.invite.copy', 'Einladung kopieren')}
+          </button>
+        </div>
+      )}
+
+      {mode === 'webrtc' && !active && (
         <p className="text-cp-xs text-[var(--cp-warning,#f59e0b)]">
           {t(
             'collab.webrtc.hint',
-            'Netzwerk-Modus nutzt WebRTC + einen Signaling-Server zum Finden der Peers. Im reinen LAN ggf. eigenen Server konfigurieren.',
+            'Netzwerk-Modus nutzt WebRTC + einen Signaling-Server zum Finden der Peers. Im reinen LAN einen eigenen Server eintragen (sonst öffentliche y-webrtc-Server).',
           )}
         </p>
       )}
