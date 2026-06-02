@@ -6,15 +6,21 @@ import {
   getBezierPath,
   getSmoothStepPath,
   getStraightPath,
+  useReactFlow,
   type EdgeProps,
 } from 'reactflow'
 import type { Cable } from '../../types/cable'
-import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
+import {
+  useCanvasProjectStore as useProjectStore,
+  useCanvasProjectStoreInstance,
+} from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { CableWaypoints } from './CableWaypoints'
 import { computeObstacleAwareWaypoints, type Rect } from '../../lib/cableRouting'
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
 import { isCableVisibleByLayer } from '../../lib/cableLayers'
+import { netKeyOf, netEndpoints } from '../../lib/offPageNet'
+import { OffPageConnectorSymbol } from './OffPageConnectorSymbol'
 import { effectiveShortName } from '../../lib/shortName'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { useTranslation } from '../../lib/i18n'
@@ -358,6 +364,12 @@ export const CableEdge = ({
   const cable = data?.cable
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const equipment = useProjectStore((state) => state.project.equipment)
+  // #221 — Off-Page-Connector: Selektion, Netz-Highlight & RF-Navigation.
+  const setSelection = useProjectStore((state) => state.setSelection)
+  const selectedCableId = useProjectStore((state) => state.selectedCableId)
+  const highlightedNetKey = useUiStore((s) => s.highlightedNetKey)
+  const rf = useReactFlow()
+  const storeApi = useCanvasProjectStoreInstance()
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   // Issue #68: when hovered, draw the cable thicker + with a sky glow.
   // EquipmentNode reads the same store value to highlight the matching
@@ -424,6 +436,9 @@ export const CableEdge = ({
   const hadWaypointsRef = useRef(false)
   useEffect(() => {
     if (!cable) return
+    // #221 — Off-Page-Kabel zeichnen keinen Pfad → keine Auto-Waypoints
+    // persistieren (sonst sinnlose Undo-Einträge beim Umschalten).
+    if (cable.offPage) return
     const hasWaypoints = !!(cable.waypoints && cable.waypoints.length > 0)
     // v7.9.90 — Wenn cable.waypoints von gesetzt → undefined wechselt
     // (typisch nach einem Undo das einen früheren waypoint-losen Zustand
@@ -628,6 +643,120 @@ export const CableEdge = ({
   // sichtbar.
   if (cable && !isCableVisibleByLayer(cable, layerVisibility)) {
     return null
+  }
+
+  // #221 — OFF-PAGE-MODUS: keine durchgehende Linie quer über den Plan,
+  // stattdessen an jedem echten Port ein kompaktes benanntes Connector-
+  // Symbol (Pfeil + Netzname + Gegenstück). Die Verbindung bleibt logisch
+  // dieselbe; nur die Darstellung ändert sich. Selektion/Netz-Highlight/
+  // Navigation laufen über die Symbole (kein klickbarer Pfad nötig).
+  if (cable && cable.offPage) {
+    const key = netKeyOf(cable)
+    const netLabel = key ?? cable.name
+    const netHighlighted = key != null && key === highlightedNetKey
+    const stroke = (style?.stroke as string) || cable.color || '#64748b'
+    const isSelected = selectedCableId === id
+
+    const fromEq = getEquipmentById(equipment, cable.fromEquipmentId)
+    const toEq = getEquipmentById(equipment, cable.toEquipmentId)
+    const fromPort =
+      fromEq?.outputs.find((p) => p.id === cable.fromPortId) ??
+      fromEq?.inputs.find((p) => p.id === cable.fromPortId)
+    const toPort =
+      toEq?.outputs.find((p) => p.id === cable.toPortId) ??
+      toEq?.inputs.find((p) => p.id === cable.toPortId)
+    // Jedes Symbol nennt das GEGENSTÜCK (wohin die Leitung weiterläuft).
+    const fromCounterpart = `${toEq ? effectiveShortName(toEq) : '?'} · ${toPort?.name ?? ''}`
+    const toCounterpart = `${fromEq ? effectiveShortName(fromEq) : '?'} · ${fromPort?.name ?? ''}`
+
+    const selectNet = () => setSelection(undefined, id, undefined)
+    const resolve = () => updateCable(id, { offPage: false })
+
+    // Zentrums-Position eines Netz-Endpunkts (Flow-Koordinaten) — Node-
+    // Position bevorzugt (aktuell beim Draggen), sonst Equipment-Fallback.
+    const endpointCenter = (equipmentId: string): { x: number; y: number } => {
+      const node = rf.getNode(equipmentId)
+      const eq = getEquipmentById(storeApi.getState().project.equipment, equipmentId)
+      const px = node?.position.x ?? eq?.x ?? 0
+      const py = node?.position.y ?? eq?.y ?? 0
+      return { x: px + (node?.width ?? 90) / 2, y: py + (node?.height ?? 30) / 2 }
+    }
+    const jumpTo = (tx: number, ty: number) =>
+      rf.setCenter(tx, ty, { zoom: rf.getZoom(), duration: 450 })
+
+    // Lazy bei Rechtsklick: alle Endpunkte des Netzes mit Position + Label.
+    const buildNetInfo = (selfEnd: 'from' | 'to') => () => {
+      const cables = storeApi.getState().project.cables
+      const rows = netEndpoints(cables, key).map((ep) => {
+        const eq = getEquipmentById(storeApi.getState().project.equipment, ep.equipmentId)
+        const port =
+          eq?.outputs.find((p) => p.id === ep.portId) ??
+          eq?.inputs.find((p) => p.id === ep.portId)
+        const c = endpointCenter(ep.equipmentId)
+        return {
+          label: `${eq ? effectiveShortName(eq) : '?'} · ${port?.name ?? ep.portId}`,
+          x: c.x,
+          y: c.y,
+          isSelf: ep.cableId === id && ep.end === selfEnd,
+        }
+      })
+      return { key: netLabel, rows }
+    }
+
+    // Sprung zum nächstgelegenen ANDEREN Endpunkt im Netz. Der eigene
+    // Endpunkt wird per Identität (cableId + end) übersprungen, nicht per
+    // Distanz — das geklickte Handle liegt nicht im eigenen Node-Zentrum.
+    const navigateNearest =
+      (selfX: number, selfY: number, selfEnd: 'from' | 'to') => () => {
+        const cables = storeApi.getState().project.cables
+        let best: { x: number; y: number; d: number } | null = null
+        for (const ep of netEndpoints(cables, key)) {
+          if (ep.cableId === id && ep.end === selfEnd) continue
+          const c = endpointCenter(ep.equipmentId)
+          const d = (c.x - selfX) ** 2 + (c.y - selfY) ** 2
+          if (!best || d < best.d) best = { ...c, d }
+        }
+        if (best) jumpTo(best.x, best.y)
+      }
+
+    return (
+      <EdgeLabelRenderer>
+        <OffPageConnectorSymbol
+          x={sourceX}
+          y={sourceY}
+          position={sourcePosition}
+          direction="out"
+          netName={netLabel}
+          counterpart={fromCounterpart}
+          color={stroke}
+          highlighted={netHighlighted}
+          selected={isSelected}
+          isLight={isLight}
+          onSelect={selectNet}
+          onNavigate={navigateNearest(sourceX, sourceY, 'from')}
+          getNetInfo={buildNetInfo('from')}
+          onNavigateTo={jumpTo}
+          onResolve={resolve}
+        />
+        <OffPageConnectorSymbol
+          x={targetX}
+          y={targetY}
+          position={targetPosition}
+          direction="in"
+          netName={netLabel}
+          counterpart={toCounterpart}
+          color={stroke}
+          highlighted={netHighlighted}
+          selected={isSelected}
+          isLight={isLight}
+          onSelect={selectNet}
+          onNavigate={navigateNearest(targetX, targetY, 'to')}
+          getNetInfo={buildNetInfo('to')}
+          onNavigateTo={jumpTo}
+          onResolve={resolve}
+        />
+      </EdgeLabelRenderer>
+    )
   }
 
   return (

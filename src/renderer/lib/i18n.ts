@@ -846,6 +846,11 @@ const en: Dict = {
   // #363 Multicore / snake grouping
   'cable.field.multicore': 'Multicore / snake',
   'cable.field.tieLine': 'Tie-line / permanent link',
+  // #221 — Off-page connector
+  'cable.field.offPage': 'Off-page connection (arrow connector)',
+  'cable.field.netName': 'Net / signal name',
+  'cable.offPage.netPeers': '{n} more segment(s) in net “{net}” — linked logically.',
+  'cable.offPage.netSolo': 'First segment. A second one with the same net name links automatically.',
   'cable.field.multicorePlaceholder': 'e.g. "Snake-1", "FOH-Loom"',
   'cable.field.multicoreTitle':
     'Cables sharing a name form one physical bundle — the BOM counts it as one item.',
@@ -2302,6 +2307,13 @@ const en: Dict = {
   'canvas.cableMenu.on': 'turn on',
   'canvas.cableMenu.off': 'turn off',
   'canvas.cableMenu.delete': 'Delete cable',
+  // #221 — Off-page connector
+  'canvas.cableMenu.makeOffPage': 'Create off-page connection…',
+  'canvas.cableMenu.offPageNamePrompt': 'Net / signal name for the off-page connection:',
+  'offPage.symbolTitle': 'Net “{net}” → {to} · Click: select · Arrow: jump to counterpart · Right-click: net info',
+  'offPage.jumpTitle': 'Jump to counterpart',
+  'offPage.endpointCount': '{n} endpoints in net',
+  'offPage.resolve': 'Resolve off-page (show line)',
 
   // Canvas — CableEdge
   'canvas.cableEdge.deleteTitle': 'Delete cable',
