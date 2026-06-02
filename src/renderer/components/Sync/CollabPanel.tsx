@@ -48,12 +48,14 @@ export const CollabPanel = () => {
   const room = useCollabStore((s) => s.room)
   const name = useCollabStore((s) => s.name)
   const signaling = useCollabStore((s) => s.signaling)
+  const password = useCollabStore((s) => s.password)
   const error = useCollabStore((s) => s.error)
   const peers = useCollabStore((s) => s.peers)
   const setMode = useCollabStore((s) => s.setMode)
   const setRoom = useCollabStore((s) => s.setRoom)
   const setName = useCollabStore((s) => s.setName)
   const setSignaling = useCollabStore((s) => s.setSignaling)
+  const setPassword = useCollabStore((s) => s.setPassword)
   const start = useCollabStore((s) => s.start)
   const stop = useCollabStore((s) => s.stop)
   const discovered = useCollabStore((s) => s.discovered)
@@ -71,9 +73,12 @@ export const CollabPanel = () => {
       mode === 'webrtc' && signaling.trim()
         ? `${t('collab.signaling', 'Signaling-Server')}: ${signaling.trim()}`
         : '',
+      mode === 'webrtc' && password.trim()
+        ? `${t('collab.password', 'Raum-Passwort')}: ${password.trim()}`
+        : '',
       t(
         'collab.invite.how',
-        'Beitreten: Einstellungen → Netzwerk-Sync → Live-Kollaboration → gleichen Raumnamen eintragen → „Session starten".',
+        'Beitreten: Einstellungen → Netzwerk-Sync → Live-Kollaboration → gleichen Raumnamen (und ggf. Passwort) eintragen → „Session starten".',
       ),
     ].filter(Boolean)
     void navigator.clipboard?.writeText(lines.join('\n')).then(
@@ -166,6 +171,24 @@ export const CollabPanel = () => {
               disabled={active}
               onChange={(e) => setSignaling(e.target.value)}
               placeholder="ws://192.168.1.10:4444"
+            />
+          </label>
+        )}
+
+        {mode === 'webrtc' && (
+          <label className="space-y-1">
+            <span className="block text-cp-xs text-[var(--cp-text-muted)]">
+              {t('collab.password', 'Raum-Passwort')}
+              <span className="text-[var(--cp-text-faint)]"> ({t('collab.optional', 'optional')})</span>
+            </span>
+            <input
+              type="password"
+              autoComplete="off"
+              className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs disabled:opacity-50"
+              value={password}
+              disabled={active}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={t('collab.password.placeholder', 'verschlüsselt den Raum')}
             />
           </label>
         )}
@@ -271,6 +294,15 @@ export const CollabPanel = () => {
           {t(
             'collab.webrtc.hint',
             'Netzwerk-Modus nutzt WebRTC + einen Signaling-Server zum Finden der Peers. Im reinen LAN einen eigenen Server eintragen (sonst öffentliche y-webrtc-Server).',
+          )}
+        </p>
+      )}
+
+      {mode === 'webrtc' && !active && !password.trim() && (
+        <p className="rounded-cp-control border border-[var(--cp-danger,#ef4444)] bg-[color-mix(in_srgb,var(--cp-danger,#ef4444)_12%,transparent)] px-2 py-1.5 text-cp-xs text-[var(--cp-danger,#ef4444)]">
+          {t(
+            'collab.webrtc.noPassword',
+            'Ohne Raum-Passwort ist der Raum unverschlüsselt: jeder, der Raumname und Signaling-Server kennt (oder die Session im LAN findet), kann das gesamte Projekt mitlesen. Setze ein Passwort und teile es nur mit deinem Team.',
           )}
         </p>
       )}
