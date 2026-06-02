@@ -2614,6 +2614,7 @@ const en: Dict = {
   'eqNode.packed': 'Packed — ready to ship',
   'eqNode.mobileChecked':
     'Checked on site (mobile viewer) — click removes the check',
+  'eqNode.portConnectHint': 'Enter to connect',
 
   // Library rentman add to project (info dialogs)
   'library.rentman.groupCreated': '(new "CablePlanner" group created)',
