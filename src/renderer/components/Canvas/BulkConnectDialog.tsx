@@ -128,7 +128,7 @@ export const BulkConnectDialog = () => {
         </div>
       }
     >
-      <div className="space-y-3 p-4 text-sm">
+      <div className="space-y-3 p-4 text-cp-base">
         <p className="text-[11px] text-slate-400">
           {t(
             'bulk.intro',

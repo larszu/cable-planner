@@ -198,11 +198,11 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
    * Waypoints between the two clicks are added from pane clicks in
    * CanvasArea.
    */
-  const handlePortClick = (
-    portId: string,
-    side: 'input' | 'output',
-  ) => (event: React.MouseEvent) => {
-    event.stopPropagation()
+  // #460 — Kern der Click-to-Connect-Logik ohne Event, damit sie sowohl per
+  // Maus-Klick als auch per Tastatur (Enter/Space) ausgeloest werden kann.
+  // Der Canvas war vorher reine Maus-Bedienung (kein Tastatur-Pfad zum
+  // Kabel-Anlegen).
+  const activatePort = (portId: string, side: 'input' | 'output') => {
     // #295 — Bei abgeschlossenem Plan oder im Viewer ist Click-to-Connect
     // komplett blockiert. Vorher konnte der User trotz "Plan abgeschlossen"
     // ein pendingCable starten + Open-End-Waypoints klicken — wurde zwar
@@ -272,6 +272,23 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
     clearPendingCable()
     queueConnection(connection, waypoints)
   }
+
+  const handlePortClick =
+    (portId: string, side: 'input' | 'output') => (event: React.MouseEvent) => {
+      event.stopPropagation()
+      activatePort(portId, side)
+    }
+
+  // #460 — Tastatur-Pfad: Enter/Space auf einem fokussierten Port startet
+  // bzw. schliesst eine Verbindung (analog zum Klick). Escape-zum-Abbrechen
+  // haengt bereits am globalen CanvasArea-Keydown (clearPendingCable).
+  const handlePortKeyDown =
+    (portId: string, side: 'input' | 'output') => (event: React.KeyboardEvent) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return
+      event.preventDefault()
+      event.stopPropagation()
+      activatePort(portId, side)
+    }
 
   const isPendingStart = (portId: string, side: 'input' | 'output'): boolean => {
     if (!pendingCable) return false
@@ -708,6 +725,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             onClick={handlePortClick(port.id, 'input')}
             onMouseEnter={() => setHoveredPort(`in-${port.id}`)}
             onMouseLeave={() => setHoveredPort(null)}
+            role="button"
+            tabIndex={isProjectLocked || isRackInternal ? -1 : 0}
+            onKeyDown={handlePortKeyDown(port.id, 'input')}
+            aria-label={`${port.name} · ${port.connectorType} — ${t('eqNode.portConnectHint', 'Enter verbindet')}`}
             style={{
               position: 'absolute',
               top,
@@ -858,6 +879,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             onClick={handlePortClick(port.id, 'output')}
             onMouseEnter={() => setHoveredPort(`out-${port.id}`)}
             onMouseLeave={() => setHoveredPort(null)}
+            role="button"
+            tabIndex={isProjectLocked || isRackInternal ? -1 : 0}
+            onKeyDown={handlePortKeyDown(port.id, 'output')}
+            aria-label={`${port.name} · ${port.connectorType} — ${t('eqNode.portConnectHint', 'Enter verbindet')}`}
             style={{
               position: 'absolute',
               top,

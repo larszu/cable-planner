@@ -39,7 +39,7 @@ export const ProjectSelector = ({ projects, selectedProjectId, onSelect }: Proje
   return (
     <select
       aria-label={t('rentman.projectSelector.aria', 'Rentman project')}
-      className="w-full rounded border border-slate-700 bg-slate-900 p-2 text-sm"
+      className="w-full rounded border border-slate-700 bg-slate-900 p-2 text-cp-base"
       value={selectedProjectId}
       onChange={(event) => onSelect(event.target.value)}
     >

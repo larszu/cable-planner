@@ -180,11 +180,11 @@ export const TemplateMergeDialog = ({
           </label>
           <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
             <div className="text-slate-400">{t('templateMerge.selectedPorts', 'Gewählte Ports')}</div>
-            <div className="mt-1 text-sm font-semibold text-slate-100">{selectedCount}</div>
+            <div className="mt-1 text-cp-base font-semibold text-slate-100">{selectedCount}</div>
           </div>
           <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
             <div className="text-slate-400">{t('templateMerge.preview', 'Vorschau')}</div>
-            <div className="mt-1 text-sm font-semibold text-slate-100">
+            <div className="mt-1 text-cp-base font-semibold text-slate-100">
               {format(t('templateMerge.previewCounts', '{in} In / {out} Out'), {
                 in: selectedTemplatePreview.inputs,
                 out: selectedTemplatePreview.outputs,

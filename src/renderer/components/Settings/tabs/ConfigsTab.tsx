@@ -176,7 +176,7 @@ export const ConfigsTab = () => {
             type="button"
             onClick={handleExportBundle}
             disabled={library.length === 0}
-            className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon icon={Save} size="xs" />
             {t('settings.configs.exportBundle', 'Bibliothek als JSON exportieren')}

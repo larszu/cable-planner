@@ -681,7 +681,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           </button>
         </div>
 
-        <div className="mb-3 grid grid-cols-2 gap-3 text-sm">
+        <div className="mb-3 grid grid-cols-2 gap-3 text-cp-base">
           <label className="block">
             {t('videohub.deviceOnCanvas', 'Gerät auf dem Canvas')}
             <select
@@ -1161,7 +1161,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               onClick={() => { void handleDiscover() }}
               disabled={!hasDesktopBridge || discovering}
               title={t('videohub.mdnsTitle', 'Videohubs im lokalen Netz via mDNS/Bonjour suchen (3 s Scan).')}
-              className="rounded bg-teal-700 px-3 py-1.5 text-cp-xs hover:bg-teal-600 disabled:opacity-40"
+              className="rounded bg-teal-700 px-3 py-1.5 text-cp-xs hover:bg-teal-600 disabled:opacity-50"
             >
               <Icon icon={Search} size="xs" className="mr-1 inline-block align-text-bottom" />{discovering ? 'Suche…' : 'Suchen'}
             </button>
@@ -1170,7 +1170,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               onClick={() => { void handleReadState() }}
               disabled={!device || !hasDesktopBridge || readingState}
               title={t('videohub.loadStatus', 'Aktuellen Hub-Status holen: Labels + Routing + Locks. Routing wird in die Matrix übernommen, Labels in den Spalten/Zeilen angezeigt.')}
-              className="rounded bg-sky-700 px-3 py-1.5 text-cp-xs hover:bg-sky-600 disabled:opacity-40"
+              className="rounded bg-sky-700 px-3 py-1.5 text-cp-xs hover:bg-sky-600 disabled:opacity-50"
             >
               <Icon icon={readingState ? Loader2 : Download} size="xs" className={`mr-1 inline-block align-text-bottom ${readingState ? 'animate-spin' : ''}`} />{readingState ? 'Laden…' : 'Status laden'}
             </button>
@@ -1225,7 +1225,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               onClick={() => { void handleSendLabels() }}
               disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
               title={t('videohub.sendLabelsTitle', 'Nur INPUT LABELS + OUTPUT LABELS senden. Routing bleibt am Hub unangetastet.')}
-              className="rounded bg-purple-600 px-3 py-1.5 text-cp-xs hover:bg-purple-500 disabled:opacity-40"
+              className="rounded bg-purple-600 px-3 py-1.5 text-cp-xs hover:bg-purple-500 disabled:opacity-50"
             >
               <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Labels senden'}
             </button>
@@ -1234,7 +1234,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               onClick={() => { void handleSendRouting() }}
               disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
               title={t('videohub.sendRoutingTitle', 'Nur VIDEO OUTPUT ROUTING senden. Labels am Hub unverändert.')}
-              className="rounded bg-purple-600 px-3 py-1.5 text-cp-xs hover:bg-purple-500 disabled:opacity-40"
+              className="rounded bg-purple-600 px-3 py-1.5 text-cp-xs hover:bg-purple-500 disabled:opacity-50"
             >
               <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Routing senden'}
             </button>
@@ -1243,7 +1243,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               onClick={() => { void handleSendBoth() }}
               disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
               title={t('videohub.sendBothTitle', 'Labels + Routing in EINEM Push (drei Blöcke hintereinander).')}
-              className="rounded bg-purple-800 px-3 py-1.5 text-cp-xs font-semibold hover:bg-purple-700 disabled:opacity-40"
+              className="rounded bg-purple-800 px-3 py-1.5 text-cp-xs font-semibold hover:bg-purple-700 disabled:opacity-50"
             >
               <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : 'Labels + Routing senden'}
             </button>
@@ -1325,7 +1325,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             type="button"
             onClick={handleCopy}
             disabled={!device}
-            className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600 disabled:opacity-40"
+            className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600 disabled:opacity-50"
           >
             In Zwischenablage
           </button>
@@ -1333,7 +1333,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             type="button"
             onClick={handleExport}
             disabled={!device}
-            className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500 disabled:opacity-40"
+            className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500 disabled:opacity-50"
           >
             Als Datei speichern
           </button>
@@ -1344,7 +1344,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <button
               type="button"
               onClick={() => void handleImportLabels()}
-              className="rounded bg-sky-700 px-3 py-1 text-sm hover:bg-sky-600"
+              className="rounded bg-sky-700 px-3 py-1 text-cp-base hover:bg-sky-600"
               title="Labels.txt importieren — Port-Namen aus einer Datei (z.B. von Videohub Setup) auf dieses Gerät schreiben."
             >
               ⬆ Labels.txt importieren

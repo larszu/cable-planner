@@ -423,7 +423,7 @@ export const AtemAudioRouterDialog = () => {
           ) : draft.matrix ? (
             <MatrixView config={draft} setConfig={setDraft} />
           ) : draft.classicMixer && !draft.matrix ? (
-            <div className="m-auto max-w-md text-center text-sm text-slate-400">
+            <div className="m-auto max-w-md text-center text-cp-base text-slate-400">
               <p>
                 {t(
                   'atem.audio.classicOnly',
@@ -439,7 +439,7 @@ export const AtemAudioRouterDialog = () => {
               </button>
             </div>
           ) : (
-            <div className="m-auto text-sm text-slate-400">
+            <div className="m-auto text-cp-base text-slate-400">
               {format(
                 t('atem.audio.noSection', 'Kein {section} im geladenen Profil. Wechsel den Tab oder lade ein Profil mit dieser Sektion.'),
                 {
@@ -536,9 +536,9 @@ const EmptyState = ({
 }) => {
   const t = useTranslation()
   return (
-  <div className="m-auto max-w-md text-center text-sm text-slate-400">
+  <div className="m-auto max-w-md text-center text-cp-base text-slate-400">
     <div className="mb-2 flex justify-center"><Icon icon={SlidersHorizontal} size={28} /></div>
-    <div className="mb-3 text-base font-semibold text-slate-200">
+    <div className="mb-3 text-cp-lg font-semibold text-slate-200">
       {t('atem.audio.welcomeTitle', 'ATEM Audio-Routing')}
     </div>
     <p className="mb-3">
@@ -551,7 +551,7 @@ const EmptyState = ({
       <button
         type="button"
         onClick={onLoad}
-        className="rounded bg-sky-700 px-4 py-2 text-sm hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+        className="rounded bg-sky-700 px-4 py-2 text-cp-base hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
         <Icon icon={FolderOpen} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.loadProfileXml', 'Profile-XML laden')}
       </button>
@@ -559,7 +559,7 @@ const EmptyState = ({
         type="button"
         onClick={onCreateMatrix}
         title={t('atem.audio.freshMatrix', 'Frische Crosspoint-Matrix mit den ATEM-Standard-Eingängen + 8 Output-Bussen.')}
-        className="rounded border border-slate-700 bg-slate-800 px-4 py-2 text-sm text-slate-100 hover:border-sky-600 hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+        className="rounded border border-slate-700 bg-slate-800 px-4 py-2 text-cp-base text-slate-100 hover:border-sky-600 hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
         <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.matrixManual', 'Matrix manuell')}
       </button>
@@ -918,7 +918,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
       )}
 
       {tooLarge ? (
-        <div className="m-auto max-w-md text-center text-sm text-amber-200">
+        <div className="m-auto max-w-md text-center text-cp-base text-amber-200">
           <div className="mb-2 flex justify-center"><Icon icon={AlertTriangle} size={28} /></div>
           <p>
             {format(

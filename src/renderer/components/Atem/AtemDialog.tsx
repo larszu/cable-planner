@@ -315,7 +315,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 onChange={(event) => setIp(event.target.value)}
                 placeholder="192.168.10.240"
                 disabled={status === 'connected' || status === 'connecting'}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-sm"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-cp-base"
               />
             </label>
             {status !== 'connected' && (
@@ -323,7 +323,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 type="button"
                 onClick={discover}
                 disabled={discovering || status === 'connecting'}
-                className="rounded bg-purple-700 px-3 py-2 text-sm hover:bg-purple-600 disabled:opacity-50"
+                className="rounded bg-purple-700 px-3 py-2 text-cp-base hover:bg-purple-600 disabled:opacity-50"
                 title={t('atem.dialog.discoverTitle', 'ATEM-Switcher per mDNS (Bonjour) im lokalen Netzwerk suchen')}
               >
                 <Icon icon={Search} size="xs" className="mr-1 inline-block align-text-bottom" />
@@ -335,7 +335,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 type="button"
                 onClick={connect}
                 disabled={status === 'connecting' || !ip.trim()}
-                className="rounded bg-sky-700 px-3 py-2 text-sm hover:bg-sky-600 disabled:opacity-50"
+                className="rounded bg-sky-700 px-3 py-2 text-cp-base hover:bg-sky-600 disabled:opacity-50"
               >
                 {status === 'connecting' ? 'Verbinde…' : 'Verbinden'}
               </button>
@@ -344,7 +344,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               <button
                 type="button"
                 onClick={disconnect}
-                className="rounded bg-slate-700 px-3 py-2 text-sm hover:bg-slate-600"
+                className="rounded bg-slate-700 px-3 py-2 text-cp-base hover:bg-slate-600"
               >
                 Trennen
               </button>
@@ -353,7 +353,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               <button
                 type="button"
                 onClick={openAtemMvLayout}
-                className="rounded bg-emerald-700 px-3 py-2 text-sm hover:bg-emerald-600"
+                className="rounded bg-emerald-700 px-3 py-2 text-cp-base hover:bg-emerald-600"
                 title={t('atem.dialog.mvLive', 'Multiviewer-Layout live anzeigen')}
               >
                 MV Layout →

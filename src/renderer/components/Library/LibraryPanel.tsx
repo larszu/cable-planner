@@ -712,7 +712,7 @@ export const LibraryPanel = () => {
           aria-label={t('library.show', 'Library einblenden')}
           className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
-          <span className="text-base leading-none">›</span>
+          <span className="text-cp-lg leading-none">›</span>
         </button>
         <button
           type="button"
@@ -742,7 +742,7 @@ export const LibraryPanel = () => {
             aria-label={t('library.hide', 'Library ausblenden')}
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
-            <span className="text-base leading-none">‹</span>
+            <span className="text-cp-lg leading-none">‹</span>
           </button>
         )}
         {!floating && !inPopout && (
@@ -931,13 +931,13 @@ export const LibraryPanel = () => {
                 }}
                 placeholder={t('library.netbox.searchPlaceholder', 'z.B. blackmagic atem, cisco catalyst, yamaha ql5')}
                 aria-label={t('library.netbox.searchPlaceholder', 'z.B. blackmagic atem, cisco catalyst, yamaha ql5')}
-                className="flex-1 rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+                className="flex-1 rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
               />
               <button
                 type="button"
                 onClick={() => void handleSearchNetBox()}
                 disabled={netBoxBusy || netBoxQuery.trim().length < 2}
-                className="rounded bg-cyan-700 px-3 py-2 text-sm font-semibold hover:bg-cyan-600 disabled:opacity-50"
+                className="rounded bg-cyan-700 px-3 py-2 text-cp-base font-semibold hover:bg-cyan-600 disabled:opacity-50"
               >
                 {netBoxBusy ? 'Suche…' : 'Suchen'}
               </button>
@@ -947,7 +947,7 @@ export const LibraryPanel = () => {
                   clearNetBoxIndexCache()
                   setNetBoxResults([])
                 }}
-                className="rounded bg-slate-700 px-3 py-2 text-sm hover:bg-slate-600"
+                className="rounded bg-slate-700 px-3 py-2 text-cp-base hover:bg-slate-600"
                 title={t('library.netbox.refreshTitle', 'GitHub-Index neu laden')}
               >
                 Cache leeren
@@ -974,7 +974,7 @@ export const LibraryPanel = () => {
                   return (
                     <div
                       key={item.path}
-                      className="flex items-center justify-between gap-3 rounded border border-slate-700 bg-slate-950/50 p-3 text-sm"
+                      className="flex items-center justify-between gap-3 rounded border border-slate-700 bg-slate-950/50 p-3 text-cp-base"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="truncate font-medium text-slate-100">
@@ -1025,7 +1025,7 @@ export const LibraryPanel = () => {
             <h3 className="mb-3 text-cp-xl font-semibold">
               {t('library.create.title', 'Eigenes Gerät anlegen')}
             </h3>
-            <div className="mb-3 grid grid-cols-3 gap-2 text-sm">
+            <div className="mb-3 grid grid-cols-3 gap-2 text-cp-base">
               <label className="block">
                 Name
                 <input
@@ -1165,7 +1165,7 @@ export const LibraryPanel = () => {
             )}
 
             <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
-              <div className="text-sm font-semibold">
+              <div className="text-cp-base font-semibold">
                 {t('library.create.portGroups', 'Port-Gruppen')}
               </div>
               <div className="flex flex-wrap gap-2 text-cp-xs">
@@ -1258,14 +1258,14 @@ export const LibraryPanel = () => {
                   setPendingDropOnSave(null)
                   resetDialog()
                 }}
-                className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
+                className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600"
               >
                 {t('common.cancel', 'Abbrechen')}
               </button>
               <button
                 type="button"
                 onClick={saveCustomToLibrary}
-                className="rounded bg-sky-600 px-3 py-1 text-sm hover:bg-sky-500"
+                className="rounded bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500"
                 title={t(
                   'library.create.saveTitle',
                   'In die Bibliothek speichern (zur Wiederverwendung)',
@@ -1276,7 +1276,7 @@ export const LibraryPanel = () => {
               <button
                 type="button"
                 onClick={saveCustomAndPlace}
-                className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500"
+                className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500"
                 title={t(
                   'library.create.savePlaceTitle',
                   'Speichern und gleich auf dem Canvas platzieren',
@@ -1333,7 +1333,7 @@ export const LibraryPanel = () => {
         <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/70 p-6">
           <div className="w-full max-w-xl rounded border border-amber-600 bg-slate-900 p-4 text-slate-100">
             <h3 className="mb-2 text-cp-xl font-semibold text-amber-300">{t('library.duplicate.title', 'Gerät existiert bereits')}</h3>
-            <p className="mb-3 text-sm text-slate-300">
+            <p className="mb-3 text-cp-base text-slate-300">
               {format(
                 t('library.netbox.duplicateIntro', '{name} ist bereits in der lokalen Library. Wahlen, wie importiert werden soll.'),
                 { name: netBoxConflict.incoming.name },
@@ -1348,7 +1348,7 @@ export const LibraryPanel = () => {
               <button
                 type="button"
                 onClick={() => setNetBoxConflict(null)}
-                className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
+                className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600"
               >
                 {t('common.cancel', 'Abbrechen')}
               </button>
@@ -1361,7 +1361,7 @@ export const LibraryPanel = () => {
                     tone: 'info',
                   })
                 }}
-                className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
+                className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600"
               >
                 {t('library.netbox.keepLocalBtn', 'Lokal behalten')}
               </button>
@@ -1375,7 +1375,7 @@ export const LibraryPanel = () => {
                     tone: 'success',
                   })
                 }}
-                className="rounded bg-amber-700 px-3 py-1 text-sm hover:bg-amber-600"
+                className="rounded bg-amber-700 px-3 py-1 text-cp-base hover:bg-amber-600"
               >
                 {t('common.overwrite', 'Überschreiben')}
               </button>
@@ -1385,7 +1385,7 @@ export const LibraryPanel = () => {
                   setNetBoxMergePair(netBoxConflict)
                   setNetBoxConflict(null)
                 }}
-                className="rounded bg-emerald-700 px-3 py-1 text-sm hover:bg-emerald-600"
+                className="rounded bg-emerald-700 px-3 py-1 text-cp-base hover:bg-emerald-600"
               >
                 {t('library.netbox.mergePortsBtn', 'Merge Ports')}
               </button>
@@ -1430,7 +1430,7 @@ export const LibraryPanel = () => {
         <div aria-hidden className="min-h-0" />
         <FloatingPanelShell
           title={
-            <span className="text-sm font-semibold text-slate-100">
+            <span className="text-cp-base font-semibold text-slate-100">
               {t('library.title', 'Library')}
             </span>
           }

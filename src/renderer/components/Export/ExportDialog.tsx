@@ -128,7 +128,7 @@ export const ExportDialog = ({
               key={id}
               type="button"
               onClick={() => setSection(id)}
-              className={`flex items-center gap-2 rounded px-3 py-2 text-left text-sm ${
+              className={`flex items-center gap-2 rounded px-3 py-2 text-left text-cp-base ${
                 section === id
                   ? 'bg-sky-700 text-white'
                   : 'text-slate-300 hover:bg-slate-800'
@@ -410,7 +410,7 @@ const PlanSection = ({
                   'Drucken funktioniert nur mit Format PDF — bei PNG/JPEG einfach herunterladen.',
                 )
           }
-          className="rounded bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-40"
+          className="rounded bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
         >
           <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Drucken')}</span>
         </button>
@@ -588,7 +588,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={() => setPendingAction('individual')}
             disabled={busy || selectedIds.size === 0}
-            className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs hover:bg-slate-600 disabled:opacity-40"
+            className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs hover:bg-slate-600 disabled:opacity-50"
             title={t('export.patch.perDevice', 'Eine PDF pro selektiertem Gerät')}
           >
             {t('export.patch.individualPdf', 'Einzel-PDF ({n})').replace('{n}', String(selectedIds.size))}
@@ -597,7 +597,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={() => setPendingAction('batch')}
             disabled={busy || selectedIds.size === 0}
-            className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs hover:bg-slate-600 disabled:opacity-40"
+            className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs hover:bg-slate-600 disabled:opacity-50"
             title={t('export.patch.batchPdf', 'Eine Sammel-PDF — ein Gerät pro Seite')}
           >
             {t('export.patch.combinedPdf', 'Sammel-PDF ({n})').replace('{n}', String(selectedIds.size))}
@@ -606,7 +606,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={() => setPendingAction('print')}
             disabled={busy || selectedIds.size === 0}
-            className="rounded bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-40"
+            className="rounded bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
             title={t('export.patch.osPrint', 'Patch-Sheet(s) im OS-Druckdialog öffnen')}
           >
             <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Drucken')}</span>
@@ -622,7 +622,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => void runAction(pendingAction, 'a4')}
-            className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+            className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
           >
             A4
           </button>
@@ -630,7 +630,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => void runAction(pendingAction, 'a3')}
-            className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+            className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
           >
             A3
           </button>
@@ -638,7 +638,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => setPendingAction(null)}
-            className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs text-slate-200 hover:bg-slate-600 disabled:opacity-40"
+            className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs text-slate-200 hover:bg-slate-600 disabled:opacity-50"
           >
             Abbrechen
           </button>

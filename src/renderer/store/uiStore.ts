@@ -879,6 +879,12 @@ interface UiState extends PersistedUiState {
    *  leave. */
   hoveredCableId: string | null
   setHoveredCableId: (id: string | null) => void
+  /** #221 — Netz-Schlüssel des aktuell hervorgehobenen Off-Page-Netzes.
+   *  Wird beim Selektieren eines Off-Page-Kabels gesetzt (CanvasArea-Effekt);
+   *  jedes CableEdge mit passendem Netz-Schlüssel leuchtet dann mit. So
+   *  werden „alle verbundenen Segmente" auf einen Klick sichtbar. */
+  highlightedNetKey: string | null
+  setHighlightedNetKey: (key: string | null) => void
   /**
    * When the user is drawing a cable by clicking (draw.io-style), this holds
    * the start handle and the list of waypoints the user has placed on the
@@ -1295,6 +1301,8 @@ export const useUiStore = create<UiState>((set) => ({
   closeRentmanCableExport: () => set({ rentmanCableExport: { open: false } }),
   hoveredCableId: null,
   setHoveredCableId: (id) => set({ hoveredCableId: id }),
+  highlightedNetKey: null,
+  setHighlightedNetKey: (key) => set({ highlightedNetKey: key }),
   pendingCable: null,
   startPendingCable: (start) =>
     set({ pendingCable: { ...start, waypoints: [] } }),

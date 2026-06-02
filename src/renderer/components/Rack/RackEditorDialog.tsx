@@ -229,7 +229,7 @@ export const RackEditorDialog = () => {
           className="flex items-center justify-between border-b border-slate-700 px-4 py-2 select-none"
         >
           <div>
-            <h2 className="text-sm font-semibold">{t('rackEditor.title', 'Rack-Editor')}</h2>
+            <h2 className="text-cp-base font-semibold">{t('rackEditor.title', 'Rack-Editor')}</h2>
             <p className="text-[10px] text-slate-400">
               {t(
                 'rackEditor.intro',
