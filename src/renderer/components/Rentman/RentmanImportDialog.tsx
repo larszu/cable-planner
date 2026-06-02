@@ -1370,7 +1370,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         <>
       <div className="w-full max-w-3xl rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-semibold">
+          <h3 className="text-cp-xl font-semibold">
             {t('rentman.import.title', 'Aus Rentman importieren')}
           </h3>
           <button type="button" onClick={onClose} className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600">

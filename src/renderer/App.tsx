@@ -1519,7 +1519,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="w-full max-w-lg rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
-        <h3 className="mb-2 text-lg font-semibold">Kabel bearbeiten</h3>
+        <h3 className="mb-2 text-cp-xl font-semibold">Kabel bearbeiten</h3>
 
         <div className="space-y-2 text-sm">
           <label className="block">
