@@ -113,4 +113,14 @@ export interface Cable {
    *  nicht mit zu konfektionierenden Kabeln vermischt werden. Undefined =
    *  normales (Show-)Kabel. */
   isTieLine?: boolean
+  /** #221 — Off-Page-/Pfeil-Connector (EAGLE/ECAD-Stil). Wenn true wird das
+   *  Kabel NICHT als durchgehende Linie gezeichnet, sondern an jedem Ende als
+   *  kompaktes benanntes Connector-Symbol (Pfeil + Netzname + Gegenstück).
+   *  Die Verbindung bleibt logisch/datentechnisch dieselbe (from/to-Ports
+   *  unverändert) — nur die Darstellung quer über den Plan entfällt. */
+  offPage?: boolean
+  /** #221 — Netz-/Signalname. Alle Off-Page-Kabel mit identischem `netName`
+   *  bilden ein gemeinsames Netz (Highlight, Endpunkt-Zählung, Navigation
+   *  zum Gegenstück). Fallback wenn leer: der Kabel-`name`. */
+  netName?: string
 }
