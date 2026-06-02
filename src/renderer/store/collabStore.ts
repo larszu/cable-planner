@@ -8,10 +8,13 @@
 import { create } from 'zustand'
 import { startCollaboration, type CollabMode, type CollabSession } from '../lib/crdt/collab'
 import { colorForId, type PresencePeer } from '../lib/crdt/presence'
+import { cablePlannerApi, type DiscoveredCollabSession } from '../lib/bridge'
 import { useUiStore } from './uiStore'
+import { useProjectStore } from './projectStore'
 
 export type { CollabMode } from '../lib/crdt/collab'
 export type { PresencePeer } from '../lib/crdt/presence'
+export type { DiscoveredCollabSession } from '../lib/bridge'
 export type CollabStatus = 'off' | 'connecting' | 'on' | 'error'
 
 interface PersistedCollab {
@@ -76,6 +79,20 @@ const effectiveName = (name: string): string => {
   return author || 'Planner'
 }
 
+/** Bewirbt die laufende WebRTC-Session per mDNS, damit andere Instanzen im
+ *  LAN sie über „Im Netzwerk suchen" finden. Fire-and-forget; im Web-Build
+ *  (kein Desktop-Bridge) ein No-op. */
+const advertiseSession = (room: string, name: string, signaling: string): void => {
+  const project = useProjectStore.getState().project.metadata.name?.trim() || ''
+  void cablePlannerApi.collabDiscovery
+    .advertise({ room: room.trim(), project, host: effectiveName(name), signaling: signaling.trim() })
+    .catch(() => {})
+}
+
+const unadvertiseSession = (): void => {
+  void cablePlannerApi.collabDiscovery.unadvertise().catch(() => {})
+}
+
 interface CollabState {
   status: CollabStatus
   mode: CollabMode
@@ -86,12 +103,20 @@ interface CollabState {
   peers: PresencePeer[]
   selfId: string
   session: CollabSession | null
+  /** Im LAN gefundene offene Sessions (nach `discover()`). */
+  discovered: DiscoveredCollabSession[]
+  /** Läuft gerade eine Netzwerk-Suche? */
+  discovering: boolean
   setMode: (mode: CollabMode) => void
   setRoom: (room: string) => void
   setName: (name: string) => void
   setSignaling: (signaling: string) => void
   start: () => Promise<void>
   stop: () => void
+  /** Durchsucht das LAN nach offenen Sessions und füllt `discovered`. */
+  discover: () => Promise<void>
+  /** Tritt einer gefundenen Session bei (Modus/Raum/Signaling übernehmen). */
+  joinDiscovered: (s: DiscoveredCollabSession) => Promise<void>
 }
 
 const initial = load()
@@ -106,6 +131,8 @@ export const useCollabStore = create<CollabState>((set, get) => ({
   peers: [],
   selfId,
   session: null,
+  discovered: [],
+  discovering: false,
 
   setMode: (mode) => {
     persist({ mode, room: get().room, name: get().name, signaling: get().signaling })
@@ -148,6 +175,8 @@ export const useCollabStore = create<CollabState>((set, get) => ({
         return
       }
       set({ session: s, status: 'on' })
+      // Nur Netzwerk-Sessions im LAN bewerben (broadcast = nur dieses Gerät).
+      if (mode === 'webrtc') advertiseSession(room, name, signaling)
     } catch (err) {
       set({
         status: 'error',
@@ -161,6 +190,36 @@ export const useCollabStore = create<CollabState>((set, get) => ({
   stop: () => {
     const { session } = get()
     session?.stop()
+    unadvertiseSession()
     set({ session: null, status: 'off', error: undefined, peers: [] })
+  },
+
+  discover: async () => {
+    if (get().discovering) return
+    set({ discovering: true })
+    try {
+      const found = await cablePlannerApi.collabDiscovery.browse({ timeoutMs: 3000 })
+      // Eigene, gerade beworbene Session aus der Liste filtern (gleicher Raum
+      // + WebRTC läuft schon) — man tritt sich nicht selbst bei.
+      const self = get()
+      const list =
+        self.status === 'on' && self.mode === 'webrtc'
+          ? found.filter((f) => f.room !== self.room)
+          : found
+      set({ discovered: list })
+    } catch {
+      set({ discovered: [] })
+    } finally {
+      set({ discovering: false })
+    }
+  },
+
+  joinDiscovered: async (s) => {
+    if (get().status === 'on' || get().status === 'connecting') get().stop()
+    get().setMode('webrtc')
+    get().setRoom(s.room)
+    get().setSignaling(s.signaling)
+    set({ discovered: [] })
+    await get().start()
   },
 }))
