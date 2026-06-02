@@ -86,7 +86,7 @@ export const CollabPanel = () => {
   }
 
   return (
-    <section className="space-y-3 rounded-md border border-[var(--cp-border)] bg-[var(--cp-surface-2)] p-4">
+    <section className="space-y-3 rounded-cp-control border border-[var(--cp-border)] bg-[var(--cp-surface-2)] p-4">
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-cp-sm font-semibold text-[var(--cp-text)]">
           {t('collab.title', 'Live-Kollaboration (Beta)')}

@@ -1159,7 +1159,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             {/* v7.9.80 / #170 — Front/Rear/Both-Toggle ist jetzt Teil der
                 2D-Rack-Spalte (war vorher als Select im Header). */}
             {viewTab === '2d' && (
-              <div className="mb-2 flex overflow-hidden rounded-md border border-slate-700 text-[11px]">
+              <div className="mb-2 flex overflow-hidden rounded-cp-control border border-slate-700 text-[11px]">
                 {([
                   ['front', t('rack.viewMode.front', 'Nur vorne'), '#22c55e'],
                   ['both', t('rack.viewMode.both', 'Beide'), '#64748b'],

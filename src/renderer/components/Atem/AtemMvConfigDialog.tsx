@@ -653,7 +653,7 @@ const AtemMvDevicePicker = () => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={close}>
       <div
-        className="flex max-h-[80vh] w-[440px] max-w-[95vw] flex-col rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
+        className="flex max-h-[80vh] w-[440px] max-w-[95vw] flex-col rounded-cp-card border border-slate-700 bg-slate-900 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
@@ -1107,7 +1107,7 @@ export const AtemMvConfigDialog = () => {
       onClick={close}
     >
       <div
-        className="flex max-h-[95vh] w-[960px] max-w-[95vw] flex-col rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
+        className="flex max-h-[95vh] w-[960px] max-w-[95vw] flex-col rounded-cp-card border border-slate-700 bg-slate-900 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
