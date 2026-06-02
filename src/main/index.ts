@@ -11,6 +11,7 @@ import { registerLogIpc } from './ipc/logIpc.js'
 import { registerSyncIpc } from './ipc/syncIpc.js'
 import { registerGraphmlIpc } from './ipc/graphmlIpc.js'
 import { registerMobileShareIpc } from './ipc/mobileShareIpc.js'
+import { registerCollabDiscoveryIpc } from './ipc/collabDiscoveryIpc.js'
 import { registerPrintIpc } from './ipc/printIpc.js'
 import { registerLibraryIpc } from './ipc/libraryIpc.js'
 
@@ -214,6 +215,7 @@ app.whenReady().then(async () => {
   registerSyncIpc()
   registerGraphmlIpc()
   registerMobileShareIpc()
+  registerCollabDiscoveryIpc()
   registerPrintIpc()
   registerLibraryIpc()
 

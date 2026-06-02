@@ -90,6 +90,13 @@ const en: Dict = {
   'collab.error.prefix': 'Error:',
   'collab.webrtc.hint':
     'Network mode uses WebRTC + a signaling server to find peers. On a pure LAN, configure your own server if needed.',
+  'collab.discover.title': 'Sessions on the network',
+  'collab.discover.search': 'Search the network',
+  'collab.discover.searching': 'Searching…',
+  'collab.discover.join': 'Join',
+  'collab.discover.empty':
+    'No open session found yet. "Search the network" scans the local network for running Cable Planner sessions.',
+  'collab.discover.desktopOnly': 'Network search is only available in the desktop app.',
   'common.delete': 'Delete',
   'common.reset': 'Reset',
   'common.apply': 'Apply',

@@ -150,6 +150,24 @@ contextBridge.exposeInMainWorld('cablePlanner', {
         Array<{ name: string; ip: string; port: number; model?: string }>
       >,
   },
+  // #413/#471 — mDNS-Auffindbarkeit offener Live-Kollaborations-Sessions im LAN.
+  collabDiscovery: {
+    advertise: (info: { room: string; project: string; host: string; signaling: string }) =>
+      ipcRenderer.invoke('collabDiscovery:advertise', info) as Promise<{ ok: boolean }>,
+    unadvertise: () =>
+      ipcRenderer.invoke('collabDiscovery:unadvertise') as Promise<{ ok: boolean }>,
+    browse: (params?: { timeoutMs?: number }) =>
+      ipcRenderer.invoke('collabDiscovery:browse', params) as Promise<
+        Array<{
+          name: string
+          room: string
+          project: string
+          host: string
+          signaling: string
+          address: string
+        }>
+      >,
+  },
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) =>
       ipcRenderer.send('logs:renderer-error', payload),

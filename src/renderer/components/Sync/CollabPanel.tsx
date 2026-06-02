@@ -7,6 +7,7 @@
 
 import { useState } from 'react'
 import { useCollabStore, type CollabMode } from '../../store/collabStore'
+import { hasDesktopBridge } from '../../lib/bridge'
 import { useTranslation } from '../../lib/i18n'
 
 const statusLabel = (
@@ -55,6 +56,10 @@ export const CollabPanel = () => {
   const setSignaling = useCollabStore((s) => s.setSignaling)
   const start = useCollabStore((s) => s.start)
   const stop = useCollabStore((s) => s.stop)
+  const discovered = useCollabStore((s) => s.discovered)
+  const discovering = useCollabStore((s) => s.discovering)
+  const discover = useCollabStore((s) => s.discover)
+  const joinDiscovered = useCollabStore((s) => s.joinDiscovered)
 
   const [copied, setCopied] = useState(false)
   const active = status === 'on' || status === 'connecting'
@@ -165,6 +170,60 @@ export const CollabPanel = () => {
           </label>
         )}
       </div>
+
+      {/* #413/#471 — offene Sessions im LAN finden + per Klick beitreten */}
+      {!active && (
+        <div className="space-y-2 rounded-cp-card border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-cp-xs font-medium text-[var(--cp-text)]">
+              {t('collab.discover.title', 'Sessions im Netzwerk')}
+            </span>
+            <button
+              type="button"
+              onClick={() => void discover()}
+              disabled={discovering || !hasDesktopBridge}
+              className="rounded-cp-control border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-1 text-cp-xs text-[var(--cp-text-secondary)] hover:border-sky-500 hover:text-sky-300 disabled:opacity-50"
+            >
+              {discovering
+                ? t('collab.discover.searching', 'Suche läuft…')
+                : t('collab.discover.search', 'Im Netzwerk suchen')}
+            </button>
+          </div>
+
+          {discovered.length > 0 ? (
+            <ul className="space-y-1">
+              {discovered.map((s) => (
+                <li
+                  key={`${s.room}@${s.address}`}
+                  className="flex items-center justify-between gap-2 rounded-cp-control bg-[var(--cp-surface-1)] px-2 py-1"
+                >
+                  <span className="min-w-0 flex-1 truncate text-cp-xs text-[var(--cp-text)]">
+                    <span className="font-medium">{s.project || s.room}</span>
+                    {s.host && <span className="text-[var(--cp-text-muted)]"> · {s.host}</span>}
+                    <span className="text-[var(--cp-text-faint)]"> · {s.room}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => void joinDiscovered(s)}
+                    className="shrink-0 rounded-cp-control bg-[var(--cp-accent,#3b82f6)] px-2 py-1 text-cp-xs font-medium text-white hover:opacity-90"
+                  >
+                    {t('collab.discover.join', 'Beitreten')}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-cp-xs text-[var(--cp-text-muted)]">
+              {hasDesktopBridge
+                ? t(
+                    'collab.discover.empty',
+                    'Noch keine offene Session gefunden. „Im Netzwerk suchen" durchsucht das lokale Netz nach laufenden Cable-Planner-Sessions.',
+                  )
+                : t('collab.discover.desktopOnly', 'Netzwerk-Suche ist nur in der Desktop-App verfügbar.')}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* #471 — wer ist im Raum + wie treten andere bei */}
       {active && (
