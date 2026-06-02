@@ -1114,6 +1114,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 templates={templates}
                 selectedPlacementId={selectedPlacementId}
                 renderMode={renderMode}
+                showSymbols={showConnectorSymbols}
                 onSelectPlacement={setSelectedPlacementId}
                 onSetRenderMode={setRenderMode}
                 onCanvasRefsReady={(refs) => {
@@ -1177,8 +1178,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 ))}
               </div>
             )}
-            {/* #472 — Steckverbinder-Symbole im 2D-Rack ein-/ausblenden. */}
-            {viewTab === '2d' && (
+            {/* #472 — Steckverbinder-Symbole im 2D- UND 3D-Rack ein-/ausblenden. */}
+            {(viewTab === '2d' || viewTab === '3d') && (
               <label className="mb-2 flex cursor-pointer items-center gap-1.5 text-[11px] text-slate-300">
                 <input
                   type="checkbox"

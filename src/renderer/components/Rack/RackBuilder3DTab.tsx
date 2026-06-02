@@ -23,6 +23,8 @@ export interface RackBuilder3DTabProps {
   templates: EquipmentTemplate[]
   selectedPlacementId: string | null
   renderMode: Rack3DRenderMode
+  /** #472 — Steckverbinder-Symbole als Panel-Textur zeigen. */
+  showSymbols?: boolean
   onSelectPlacement: (id: string | null) => void
   onSetRenderMode: (mode: Rack3DRenderMode) => void
   onCanvasRefsReady: (refs: {
@@ -48,6 +50,7 @@ export const RackBuilder3DTab = ({
   templates,
   selectedPlacementId,
   renderMode,
+  showSymbols,
   onSelectPlacement,
   onSetRenderMode,
   onCanvasRefsReady,
@@ -131,6 +134,7 @@ export const RackBuilder3DTab = ({
           <Rack3DView
             totalUnits={totalUnits}
             rackDepthMm={rackDepthMm}
+            showSymbols={showSymbols}
             placements={(() => {
               // Berechne pro Placement wie viele Ports schon intern verkabelt
               // sind. Patchblenden sind immer sichtbar (sie ZEIGEN die freien
