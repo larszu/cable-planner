@@ -300,7 +300,7 @@ export const CableProperties = () => {
               const peers = netPeerCount(cables, cable)
               const key = netKeyOf(cable)
               return (
-                <p className={`text-[10px] ${peers > 0 ? 'text-amber-300' : 'text-slate-500'}`}>
+                <p className={`text-[10px] ${peers > 0 ? 'text-amber-300' : 'text-slate-400'}`}>
                   {peers > 0
                     ? format(
                         t(

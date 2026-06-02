@@ -56,7 +56,7 @@ const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
             : t('settings.sharedLib.syncNow', 'Bibliothek jetzt synchronisieren')}
         </button>
         {!syncPath.trim() && (
-          <span className="text-[11px] text-slate-500">
+          <span className="text-[11px] text-slate-400">
             {t('settings.sharedLib.needPath', 'Erst oben ein Sync-Verzeichnis setzen.')}
           </span>
         )}
