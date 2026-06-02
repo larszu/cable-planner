@@ -2838,6 +2838,7 @@ const en: Dict = {
   'app.annotationsImport.okTitle': 'Annotations imported',
   'app.annotationsImport.okBodyImported': '{n} new annotation(s) imported.',
   'app.annotationsImport.okBodySkipped': '{n} already present — skipped.',
+  'app.annotationsImport.okBodyUpdated': '{n} updated from reviewer changes.',
   // App.tsx Port-conflict confirmDialog + modal
   'app.portConflict.title': 'Port already in use',
   'app.portConflict.intro': 'At least one of the ports already has a cable connected:',

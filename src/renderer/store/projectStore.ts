@@ -404,6 +404,12 @@ export interface ProjectState {
   addAnnotation: (annotation: import('../types/project').ProjectAnnotation) => void
   updateAnnotation: (id: string, patch: Partial<import('../types/project').ProjectAnnotation>) => void
   removeAnnotation: (id: string) => void
+  /** #143 — Annotationen aus einer zurückgelesenen Viewer-Datei mergen
+   *  (by id: neue hinzufügen, geänderte aktualisieren, vorhandene behalten).
+   *  Gibt die Anzahl hinzugefügter/aktualisierter Annotationen zurück. */
+  mergeAnnotationsFromViewerFile: (
+    incoming: ReadonlyArray<import('../types/project').ProjectAnnotation>,
+  ) => { added: number; updated: number }
   /** v7.9.3 — Setzt Viewer-Session-Author (beim ersten Öffnen einer
    *  .cpviewer-Datei). */
   setViewerSession: (session: { author: string; startedAt: string } | undefined) => void
