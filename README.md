@@ -1,7 +1,8 @@
 <h1 align="center">⚡ CablePlanner</h1>
 
 <p align="center">
-  Visual cable planning for broadcast workflows
+  <b>Broadcast cable planning software</b> — a node-based editor for SDI signal flow,<br />
+  ATEM multiviewer layouts and Blackmagic Videohub routing.
 </p>
 
 <p align="center">
@@ -14,24 +15,42 @@
 </p>
 
 <p align="center">
-  Plan, visualize, and manage complex broadcast cabling systems with real-world production integrations.
+  Plan, visualize, and document complex broadcast cabling systems — from camera to switcher to encoder — with real-world production integrations.
+</p>
+
+<!-- DOWNLOAD CTA — always points at the newest GitHub release (installers auto-built in CI) -->
+<p align="center">
+  <a href="https://github.com/larszu/cable-planner/releases/latest">
+    <img src="https://img.shields.io/badge/⬇%20Download%20for%20macOS%20%26%20Windows-863bff?style=for-the-badge&logo=github&logoColor=white" alt="Download CablePlanner for macOS and Windows" height="42" />
+  </a>
+  &nbsp;
+  <a href="https://larszu.github.io/cable-planner/">
+    <img src="https://img.shields.io/badge/🌐%20Website%20%26%20Live%20Demo-1e293b?style=for-the-badge&logoColor=white" alt="CablePlanner website and live demo" height="42" />
+  </a>
+  <br />
+  <sub>Free &amp; MIT-licensed · <code>.dmg</code> (Apple Silicon + Intel) and <code>.exe</code> installers attached to every release</sub>
 </p>
 
 <!-- HERO IMAGE — see docs/screenshots/README.md for capture + redaction guide -->
 <p align="center">
-  <img src="docs/screenshots/hero.png" alt="CablePlanner — node-based broadcast cabling canvas" width="860" />
+  <img src="docs/screenshots/hero.png" alt="CablePlanner — node-based broadcast cabling canvas for SDI signal flow, ATEM and Videohub" width="860" />
   <br />
   <sub><i>The node-based canvas — equipment nodes, ports and routed signal cabling.</i></sub>
+</p>
+
+<!-- DEMO GIF placeholder — record docs/screenshots/canvas.gif (6–10 s) and swap the line below. -->
+<p align="center">
+  <!-- Once captured: <img src="docs/screenshots/canvas.gif" alt="CablePlanner demo — placing a device and routing a cable" width="860" /> -->
+  <sub><i>🎬 Demo GIF coming soon — see the <a href="docs/screenshots/README.md">capture guide</a>. An interactive, draggable canvas demo is live on the <a href="https://larszu.github.io/cable-planner/">website</a>.</i></sub>
 </p>
 
 ---
 
 ## ✨ Overview
 
-**CablePlanner** is a desktop application for designing, visualizing, and managing broadcast signal infrastructure.  
-Built with **Electron, React, and TypeScript**, it provides a node-based canvas for mapping complex audio, video, and data signal flows.
+**CablePlanner** is free, open-source **broadcast cable planning software** for designing and visualizing **SDI signal flow**, **ATEM multiviewer** layouts and **Blackmagic Videohub routing** on a node-based canvas. It runs **fully offline** on macOS and Windows, so every audio, video and data run is documented before you ever pull cable on site.
 
-It is designed for real-world production environments such as studios, OB vans, and live event setups.
+Built with **Electron, React, and TypeScript**, it is designed for real-world production environments such as studios, OB vans, and live event setups — a modern, open alternative to legacy AV/broadcast wiring tools.
 
 ✔ Fully offline desktop application  
 ✔ macOS & Windows support  
@@ -174,6 +193,37 @@ state lives on-device, and integrations (Rentman, ATEM, Videohub) are opt-in.
 
 ---
 
+## 🆚 CablePlanner vs. the alternatives
+
+Looking for a **WireCAD alternative**, a **D-Tools** or **Microsoft Visio**
+replacement for AV/broadcast wiring, or something more domain-specific than
+**draw.io**? Here is where CablePlanner fits:
+
+| | **CablePlanner** | WireCAD | D-Tools SI | Visio / draw.io |
+| --- | --- | --- | --- | --- |
+| Price | **Free · MIT** | ~$1,500–4,500 | $1,000s / yr | Subscription / free |
+| Platforms | **macOS + Windows** | Windows only | Windows + SQL Server | Windows / web |
+| File format | **Open JSON (git-diffable)** | Proprietary | Proprietary | VSDX / XML |
+| Broadcast-smart defaults | **Yes** (connector→layer, BOM, patch sheets) | Yes | Partial | No |
+| ATEM / Videohub live control | **Yes** | No | No | No |
+| 3D rack view | **Yes** *(in progress)* | No | No | No |
+
+- **vs. WireCAD** — CablePlanner wins on platform support, open file format,
+  modern UX and live hardware control; WireCAD has the deeper symbol library and
+  a longer-established workflow.
+- **vs. D-Tools System Integrator** — different league: D-Tools covers the full
+  quote → invoice business lifecycle, while CablePlanner is a focused planning
+  tool (complementary, not competing).
+- **vs. EPlan / WSCAD** — those target industrial-electrical and control-cabinet
+  design; CablePlanner is purpose-built for AV/broadcast signal flow.
+- **vs. draw.io / Visio** — general diagramming tools are a workaround for AV;
+  CablePlanner adds connector-aware layers, a cable bill of materials and
+  patch-sheet logic out of the box.
+
+📊 Full structural comparison: [`docs/comparison.html`](docs/comparison.html).
+
+---
+
 ## 🚀 Getting Started
 
 **Prerequisites:** [Node.js](https://nodejs.org/) 20+ and npm.
@@ -204,6 +254,8 @@ npm run dist
 
 ## 📚 Documentation
 
+- 🌐 [**Website & live demo**](https://larszu.github.io/cable-planner/) — product
+  landing page with an interactive canvas demo and download links.
 - [`docs/architecture.md`](docs/architecture.md) — Process model, IPC, store
   architecture, build & release workflow, non-negotiable invariants.
 - [`docs/app-structure.html`](docs/app-structure.html) — interactive module
