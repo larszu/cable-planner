@@ -638,6 +638,8 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 borderRadius: 3,
                 padding: '0 4px',
                 lineHeight: '14px',
+                display: 'inline-flex',
+                alignItems: 'center',
               }}
               title={t('eqNode.packed', 'Gepackt — bereit zum Versand')}
             >
