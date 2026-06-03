@@ -6,7 +6,7 @@ import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { LayerVisibilityChips } from './LayerVisibilityChips'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { confirmDialog } from '../../lib/confirmDialog'
-import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { Check, X } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
@@ -148,6 +148,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   const canvasState = useProjectStore((state) => state.project.canvasState)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const equipmentList = useProjectStore((state) => state.project.equipment)
+  const greengoConfig = useProjectStore((state) => state.project.greengoConfig)
   // v7.9.3 — Plan-Lock-Status: 'editing' | 'finalized' | 'viewer'.
   // Toolbar-Button toggelt editing↔finalized; viewer-Modus wird nur
   // durch .cpviewer-Import gesetzt und kann nicht zurück.
@@ -191,16 +192,13 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
    *  - 3+ Selection → zusätzlich Distribute (gleiche Lücken)
    *  - Wenn Snap-to-Grid aktiv ist, snappt jedes Ergebnis auf
    *    `gridSize` (Default 11) — bleibt damit auf Dot-Reihen. */
-  const measuredSize = (item: { width?: number; height?: number; inputs?: ReadonlyArray<unknown>; outputs?: ReadonlyArray<unknown>; ipAddress?: string }) => {
-    const w = item.width && item.width > 0 ? item.width : EQUIPMENT_LAYOUT.DEFAULT_WIDTH
-    if (item.height && item.height > 0) return { w, h: item.height }
-    const HEADER = item.ipAddress
-      ? EQUIPMENT_LAYOUT.HEADER_HEIGHT_WITH_IP
-      : EQUIPMENT_LAYOUT.HEADER_HEIGHT
-    const inLen = item.inputs?.length ?? 0
-    const outLen = item.outputs?.length ?? 0
-    const portRows = Math.max(inLen, outLen, 1)
-    return { w, h: HEADER + portRows * EQUIPMENT_LAYOUT.PORT_ROW + EQUIPMENT_LAYOUT.PADDING }
+  // #501-Folgefix — dieselbe Geometrie-Quelle wie der Renderer, damit
+  // Ausrichten/Verteilen mit den tatsächlich gerenderten Maßen rechnet
+  // (snapUp-Breite + Header inkl. Subtitle/Beltpack). Vorher: ungesnappte
+  // Store-Breite + vereinfachter Header → Versatz bei breiten Geräten.
+  const measuredSize = (item: (typeof equipmentList)[number]) => {
+    const { width, height } = computeEquipmentLayout(item, greengoConfig)
+    return { w: width, h: height }
   }
 
   type AlignMode = 'left' | 'right' | 'center-h' | 'top' | 'bottom' | 'center-v' | 'distribute-h' | 'distribute-v'

@@ -26,6 +26,7 @@ import {
 import { projectHistory } from '../../store/projectHistory'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { useUiStore } from '../../store/uiStore'
 import { netKeyOf } from '../../lib/offPageNet'
 import {
@@ -203,55 +204,21 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     // bounding rect plus precomputed port positions so we can place
     // the cable's source/target on the exact handle centres.
     const layoutOf = (eq: typeof project.equipment[number]) => {
-      const HEADER = eq.ipAddress ? 62 : 48
-      const ROW = 22
-      const PADDING = 8
-      const inputs = eq.inputs ?? []
-      const outputs = eq.outputs ?? []
-      const rows = Math.max(inputs.length, outputs.length, 1)
-      const width = Math.max(eq.width ?? EQUIPMENT_LAYOUT.DEFAULT_WIDTH, 200)
-      const height = Math.max(eq.height ?? HEADER + rows * ROW + PADDING, HEADER + rows * ROW + PADDING)
-      const portsFlipped = !!eq.portsFlipped
-      const defaultInputSide: HandleSide = portsFlipped ? 'right' : 'left'
-      const defaultOutputSide: HandleSide = portsFlipped ? 'left' : 'right'
-      const handleAt = (portId: string, type: 'source' | 'target'): {
-        side: HandleSide
-        pos: { x: number; y: number }
-      } | null => {
-        const isOutput = type === 'source'
-        const list = isOutput ? outputs : inputs
-        const idx = list.findIndex((p) => p.id === portId)
-        if (idx < 0) {
-          // Fallback: try the other list — handles can be 'bidirectional'
-          // and live in either array depending on how ReactFlow attached.
-          const altList = isOutput ? inputs : outputs
-          const altIdx = altList.findIndex((p) => p.id === portId)
-          if (altIdx < 0) return null
-          const port = altList[altIdx]
-          const sideRaw = (port?.side as HandleSide | undefined) ??
-            (isOutput ? defaultInputSide : defaultOutputSide)
-          const y = eq.y + HEADER + altIdx * ROW + ROW / 2
-          const x =
-            sideRaw === 'left'
-              ? eq.x
-              : sideRaw === 'right'
-                ? eq.x + width
-                : eq.x + width / 2
-          return { side: sideRaw, pos: { x, y } }
-        }
-        const port = list[idx]
-        const sideRaw = (port?.side as HandleSide | undefined) ??
-          (isOutput ? defaultOutputSide : defaultInputSide)
-        const y = eq.y + HEADER + idx * ROW + ROW / 2
-        const x =
-          sideRaw === 'left'
-            ? eq.x
-            : sideRaw === 'right'
-              ? eq.x + width
-              : eq.x + width / 2
-        return { side: sideRaw, pos: { x, y } }
+      // #501-Folgefix — EINE Geometrie-Quelle: an den geteilten Helper
+      // computeEquipmentLayout delegieren (Header inkl. IP/Subtitle/Beltpack,
+      // Port-Side-Bucketing, snapUp-Breite). Vorher stand hier eine veraltete
+      // Kopie (HEADER 62/48, PADDING 8, Port-Y über Array-Index statt Slot),
+      // wodurch A*-geroutete Kabel von den echten Handles abwichen.
+      const greengoConfig = projectStoreInstance.getState().project.greengoConfig
+      const layout = computeEquipmentLayout(eq, greengoConfig)
+      const handleAt = (
+        portId: string,
+        type: 'source' | 'target',
+      ): { side: HandleSide; pos: { x: number; y: number } } | null => {
+        const p = layout.portPos(portId, type)
+        return p ? { side: p.side, pos: { x: p.x, y: p.y } } : null
       }
-      return { width, height, handleAt }
+      return { width: layout.width, height: layout.height, handleAt }
     }
 
     const routeOne = (cableId: string): boolean => {
