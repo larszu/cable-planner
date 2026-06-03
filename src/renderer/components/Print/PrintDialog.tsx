@@ -204,7 +204,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     type="button"
                     onClick={() => (allChecked ? selectNone() : selectAll())}
                     disabled={filteredEquipment.length === 0}
-                    className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {allChecked
                       ? t('print.devices.deselectAll', 'Alle abwählen')

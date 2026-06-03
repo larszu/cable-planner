@@ -489,7 +489,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={exportCsv}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
             >
               <Icon icon={Download} size="xs" />
               {t('patchList.exportCsv', 'CSV exportieren')}
@@ -498,7 +498,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => void exportXlsx()}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
             >
               <Icon icon={Download} size="xs" />
               {t('patchList.exportXlsx', 'XLSX exportieren')}
@@ -507,7 +507,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => void exportLabels()}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1.5 rounded bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-50"
             >
               <Icon icon={Tag} size="xs" />
               {t('patchList.exportLabels', 'Etiketten + QR (PDF)')}
@@ -527,7 +527,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => exportLabelCsv(labelCsvFormat)}
               disabled={filtered.length === 0}
-              className="rounded bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-40"
+              className="rounded bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-50"
             >
               {t('patchList.exportLabelCsv', '🏷 Etiketten-CSV')}
             </button>

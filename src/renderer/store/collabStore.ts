@@ -22,6 +22,11 @@ interface PersistedCollab {
   room: string
   name: string
   signaling: string
+  /** Optionales Raum-Passwort. Leitet in y-webrtc die E2E-Verschlüsselung
+   *  der Sync-/Awareness-Updates ab: nur Peers mit demselben Passwort können
+   *  das Projekt lesen. Ohne Passwort kann jeder, der Raumname+Signaling
+   *  kennt, das gesamte Projekt mitlesen. */
+  password: string
 }
 
 const COLLAB_KEY = 'cable-planner.collab'
@@ -32,7 +37,7 @@ const COLLAB_KEY = 'cable-planner.collab'
  *  Discovery weiter, während im LAN der lokale Server gewinnt. */
 const PUBLIC_SIGNALING_FALLBACK = 'wss://y-webrtc-eu.fly.dev'
 
-const defaults: PersistedCollab = { mode: 'broadcast', room: 'cable-planner', name: '', signaling: '' }
+const defaults: PersistedCollab = { mode: 'broadcast', room: 'cable-planner', name: '', signaling: '', password: '' }
 
 /** Stabile Peer-Id pro Fenster/Tab. Bewusst sessionStorage (NICHT
  *  localStorage): mehrere Fenster derselben Maschine teilen sich
@@ -63,6 +68,7 @@ const load = (): PersistedCollab => {
       room: typeof p.room === 'string' && p.room.trim() ? p.room : defaults.room,
       name: typeof p.name === 'string' ? p.name : defaults.name,
       signaling: typeof p.signaling === 'string' ? p.signaling : defaults.signaling,
+      password: typeof p.password === 'string' ? p.password : defaults.password,
     }
   } catch {
     return defaults
@@ -105,6 +111,7 @@ interface CollabState {
   room: string
   name: string
   signaling: string
+  password: string
   error?: string
   peers: PresencePeer[]
   selfId: string
@@ -120,6 +127,7 @@ interface CollabState {
   setRoom: (room: string) => void
   setName: (name: string) => void
   setSignaling: (signaling: string) => void
+  setPassword: (password: string) => void
   /** Startet eine Session. `adopt` (Beitreten): eigenen Plan NICHT seeden, den
    *  Plan des Hosts übernehmen, und keinen eigenen Signaling-Server starten. */
   start: (opts?: { adopt?: boolean }) => Promise<void>
@@ -138,6 +146,7 @@ export const useCollabStore = create<CollabState>((set, get) => ({
   room: initial.room,
   name: initial.name,
   signaling: initial.signaling,
+  password: initial.password,
   error: undefined,
   peers: [],
   selfId,
@@ -147,25 +156,29 @@ export const useCollabStore = create<CollabState>((set, get) => ({
   discovering: false,
 
   setMode: (mode) => {
-    persist({ mode, room: get().room, name: get().name, signaling: get().signaling })
+    persist({ mode, room: get().room, name: get().name, signaling: get().signaling, password: get().password })
     set({ mode })
   },
   setRoom: (room) => {
-    persist({ mode: get().mode, room, name: get().name, signaling: get().signaling })
+    persist({ mode: get().mode, room, name: get().name, signaling: get().signaling, password: get().password })
     set({ room })
   },
   setName: (name) => {
-    persist({ mode: get().mode, room: get().room, name, signaling: get().signaling })
+    persist({ mode: get().mode, room: get().room, name, signaling: get().signaling, password: get().password })
     set({ name })
   },
   setSignaling: (signaling) => {
-    persist({ mode: get().mode, room: get().room, name: get().name, signaling })
+    persist({ mode: get().mode, room: get().room, name: get().name, signaling, password: get().password })
     set({ signaling })
+  },
+  setPassword: (password) => {
+    persist({ mode: get().mode, room: get().room, name: get().name, signaling: get().signaling, password })
+    set({ password })
   },
 
   start: async (opts) => {
     const adopt = opts?.adopt === true
-    const { status, mode, room, name, signaling, session } = get()
+    const { status, mode, room, name, signaling, password, session } = get()
     if (status === 'connecting' || status === 'on') return
     if (session) session.stop()
     set({ status: 'connecting', error: undefined, session: null, peers: [] })
@@ -174,7 +187,6 @@ export const useCollabStore = create<CollabState>((set, get) => ({
       .split(/[\s,]+/)
       .map((s) => s.trim())
       .filter(Boolean)
-
     // #413 — Host ohne eigenen Signaling-Server: lokalen LAN-Server starten und
     // dessen Adresse bewerben, damit Beitretende sich OHNE den (oft toten)
     // öffentlichen y-webrtc-Default-Server finden. Beim Beitreten (adopt)
@@ -191,6 +203,14 @@ export const useCollabStore = create<CollabState>((set, get) => ({
       }
     }
 
+    const pw = password.trim()
+    // Nur ein WebRTC-Options-Objekt bauen, wenn es etwas zu setzen gibt
+    // (Signaling und/oder Passwort). Das Passwort verschlüsselt den Raum E2E —
+    // nur Peers mit demselben Passwort können das Projekt lesen.
+    const webrtcOpts =
+      signalingList.length > 0 || pw
+        ? { ...(signalingList.length > 0 ? { signaling: signalingList } : {}), ...(pw ? { password: pw } : {}) }
+        : undefined
     try {
       const s = await startCollaboration({
         mode,
@@ -199,7 +219,7 @@ export const useCollabStore = create<CollabState>((set, get) => ({
         // Beitreten: eigenen Plan nicht ins Doc seeden → Host-Plan wird übernommen.
         seedDoc: !adopt,
         onPeers: (peers) => set({ peers }),
-        webrtc: signalingList.length > 0 ? { signaling: signalingList } : undefined,
+        webrtc: webrtcOpts,
       })
       // Falls der User zwischenzeitlich gestoppt/gewechselt hat: verwerfen.
       if (get().status !== 'connecting') {

@@ -258,7 +258,7 @@ const CableNumberingSection = () => {
             type="button"
             onClick={handleRenumber}
             disabled={cableCount === 0}
-            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-40"
+            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
           >
             {t('settings.project.numbering.renumber', 'Alle Kabel neu nummerieren')} ({cableCount})
           </button>
@@ -346,7 +346,7 @@ const LengthEstimationSection = () => {
             type="button"
             onClick={handleEstimate}
             disabled={cableCount === 0}
-            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-40"
+            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
           >
             {t('settings.project.lengthEst.run', 'Längen jetzt schätzen')} ({cableCount})
           </button>
@@ -470,23 +470,23 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           'Projekt-Metadaten — werden mit der Cable-Planner-Datei gespeichert.',
         )}
       </p>
-      <label className="block text-sm">
+      <label className="block text-cp-base">
         {t('settings.project.name', 'Projektname')}
         <input
           type="text"
           value={draftMeta.name}
           onChange={(e) => setDraftMeta({ ...draftMeta, name: e.target.value })}
-          className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+          className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
           placeholder={t('settings.project.name', 'Projektname')}
         />
       </label>
-      <label className="block text-sm">
+      <label className="block text-cp-base">
         {t('settings.project.description', 'Beschreibung')}
         <textarea
           value={draftMeta.description ?? ''}
           onChange={(e) => setDraftMeta({ ...draftMeta, description: e.target.value })}
           rows={3}
-          className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+          className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
           placeholder={t(
             'settings.project.descriptionPlaceholder',
             'Optionale Projektbeschreibung',
@@ -494,45 +494,45 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
         />
       </label>
       <div className="grid grid-cols-2 gap-2">
-        <label className="block text-sm">
+        <label className="block text-cp-base">
           {t('settings.project.client', 'Auftraggeber (Kunde)')}
           <input
             type="text"
             value={draftMeta.client ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, client: e.target.value })}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
             placeholder={t('settings.project.clientPlaceholder', 'Endkunde')}
           />
         </label>
-        <label className="block text-sm">
+        <label className="block text-cp-base">
           {t('settings.project.contractor', 'Auftragnehmer')}
           <input
             type="text"
             value={draftMeta.contractor ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, contractor: e.target.value })}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
             placeholder={t('settings.project.contractorPlaceholder', 'Ausführende Firma')}
           />
         </label>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <label className="block text-sm">
+        <label className="block text-cp-base">
           {t('settings.project.author', 'Autor')}
           <input
             type="text"
             value={draftMeta.author ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, author: e.target.value })}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
             placeholder={t('settings.project.authorPlaceholder', 'Dein Name')}
           />
         </label>
-        <label className="block text-sm">
+        <label className="block text-cp-base">
           {t('settings.project.number', 'Projekt-Nr.')}
           <input
             type="text"
             value={draftMeta.projectNumber ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, projectNumber: e.target.value })}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
             placeholder={t('settings.project.numberPlaceholder', 'z. B. 2026-042')}
           />
         </label>
@@ -616,14 +616,14 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
         <button
           type="button"
           onClick={() => setDraftMeta(metadata)}
-          className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
+          className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600"
         >
           {t('common.reset', 'Zurücksetzen')}
         </button>
         <button
           type="button"
           onClick={persistMeta}
-          className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500"
+          className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500"
         >
           {t('common.save', 'Speichern')}
         </button>

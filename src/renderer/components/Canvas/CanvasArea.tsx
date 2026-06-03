@@ -27,6 +27,7 @@ import { projectHistory } from '../../store/projectHistory'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
 import { useUiStore } from '../../store/uiStore'
+import { netKeyOf } from '../../lib/offPageNet'
 import {
   MIME_ANNOTATION as ANNOTATION_DRAG_MIME,
   MIME_EQUIPMENT,
@@ -75,6 +76,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const queueConnection = useProjectStore((state) => state.queueConnection)
   const setSelection = useProjectStore((state) => state.setSelection)
+  const selectedCableId = useProjectStore((state) => state.selectedCableId)
   const setCanvasState = useProjectStore((state) => state.setCanvasState)
   const deleteSelected = useProjectStore((state) => state.deleteSelected)
   const reconnectCable = useProjectStore((state) => state.reconnectCable)
@@ -99,6 +101,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const clearPendingCable = useUiStore((state) => state.clearPendingCable)
   const openCableEdit = useUiStore((state) => state.openCableEdit)
   const setHoveredCableId = useUiStore((state) => state.setHoveredCableId)
+  const setHighlightedNetKey = useUiStore((state) => state.setHighlightedNetKey)
   // v7.8.7 — cable right-click context menu trigger.
   const openCableContextMenu = useUiStore((state) => state.openCableContextMenu)
   // v7.9.3 — Projekt-Lock: 'finalized' und 'viewer' Modus blockieren
@@ -415,6 +418,15 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     })
     return () => setCanvasSelectionClearer(null)
   }, [setSelection])
+
+  // #221 — Netz-Highlight: wenn ein Off-Page-Kabel selektiert ist, dessen
+  // Netz-Schlüssel global setzen, sodass alle CableEdges desselben Netzes
+  // mitleuchten ("alle verbundenen Segmente hervorheben"). Nicht-Off-Page
+  // oder keine Auswahl → null (kein Highlight).
+  useEffect(() => {
+    const c = project.cables.find((x) => x.id === selectedCableId)
+    setHighlightedNetKey(c && c.offPage ? netKeyOf(c) : null)
+  }, [selectedCableId, project.cables, setHighlightedNetKey])
 
   // Briefly flash a node red when its drag is rejected due to overlap, so the
   // user understands why the device snapped back (not a glitch).

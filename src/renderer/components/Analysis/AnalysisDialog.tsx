@@ -151,7 +151,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
   }
 
   return (
-    <div className="space-y-3 p-4 text-sm">
+    <div className="space-y-3 p-4 text-cp-base">
       <p className="text-cp-xs text-[var(--cp-text-muted)]">
         {t(
           'analysis.weight.intro',
@@ -279,7 +279,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
   }
 
   return (
-    <div className="space-y-3 p-4 text-sm">
+    <div className="space-y-3 p-4 text-cp-base">
       <p className="text-cp-xs text-[var(--cp-text-muted)]">
         {t('analysis.network.intro', 'IP-/VLAN-Übersicht aller netzwerkfähigen Geräte mit Doppel-IP-Prüfung.')}
       </p>
@@ -450,7 +450,7 @@ const RedundancyTab = ({ projectName }: { projectName: string }) => {
   }
 
   return (
-    <div className="space-y-3 p-4 text-sm">
+    <div className="space-y-3 p-4 text-cp-base">
       <p className="text-cp-xs text-[var(--cp-text-muted)]">
         {t(
           'analysis.redundancy.intro',
@@ -632,7 +632,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
   }
 
   return (
-    <div className="space-y-3 p-4 text-sm">
+    <div className="space-y-3 p-4 text-cp-base">
       <p className="text-cp-xs text-[var(--cp-text-muted)]">
         {t(
           'analysis.rf.intro',

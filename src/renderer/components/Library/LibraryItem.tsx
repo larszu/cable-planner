@@ -85,7 +85,7 @@ export const LibraryItem = ({
           addFromClick()
         }
       }}
-      className={`group flex w-full cursor-grab items-start justify-between gap-2 rounded border ${accentClass} px-2 py-2 text-left text-sm active:cursor-grabbing ${
+      className={`group flex w-full cursor-grab items-start justify-between gap-2 rounded border ${accentClass} px-2 py-2 text-left text-cp-base active:cursor-grabbing ${
         item.hidden
           ? 'border-slate-800 bg-slate-950 opacity-60 hover:opacity-100'
           : 'border-slate-700 bg-slate-900 hover:bg-slate-800'

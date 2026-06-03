@@ -136,7 +136,7 @@ export const AdvancedTab = () => {
           'Wie oft das aktuelle Projekt automatisch in localStorage gespeichert wird. Standard: 400 ms.',
         )}
       >
-        <label className="block text-sm text-slate-300">
+        <label className="block text-cp-base text-slate-300">
           {t('settings.advanced.autosaveInterval', 'Autosave-Intervall (ms)')}
           <input
             type="number"

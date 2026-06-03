@@ -129,7 +129,7 @@ export const EquipmentChecklist = ({
   }
 
   return (
-    <div className="max-h-72 space-y-3 overflow-auto rounded border border-slate-700 p-2 text-sm">
+    <div className="max-h-72 space-y-3 overflow-auto rounded border border-slate-700 p-2 text-cp-base">
       {(onSetAll || hasAnySets) && (
         <div className="flex flex-wrap gap-2 border-b border-slate-700 pb-2 text-cp-xs">
           {onSetAll && (

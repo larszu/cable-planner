@@ -22,7 +22,7 @@
 //   • Kabel löschen
 
 import { useEffect, useRef, useState } from 'react'
-import { Pencil, Pin, X, Plus, Minus, RotateCcw, Navigation, CornerDownRight, Check } from 'lucide-react'
+import { Pencil, Pin, X, Plus, Minus, RotateCcw, Navigation, CornerDownRight, Check, Milestone } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
@@ -215,6 +215,20 @@ export const CableContextMenu = () => {
   const toggleArrowStart = () => doUpdate({ arrowStart: !cable.arrowStart })
   const toggleBidirectional = () => doUpdate({ bidirectional: !cable.bidirectional })
 
+  // #221 — Bestehende Verbindung in eine Off-Page-/Pfeil-Verbindung
+  // umwandeln. Der User vergibt einen Netznamen (Default = Kabelname);
+  // alle Off-Page-Kabel mit gleichem Namen bilden ein Netz. Danach wird
+  // statt der Linie an jedem Ende ein Connector-Symbol gezeichnet.
+  const makeOffPage = async () => {
+    const next = await promptDialog(
+      t('canvas.cableMenu.offPageNamePrompt', 'Netzname / Signalname für die Off-Page-Verbindung:'),
+      cable.netName ?? cable.name,
+    )
+    if (next == null) return close()
+    const netName = next.trim()
+    doUpdate({ offPage: true, netName: netName || undefined })
+  }
+
   const removeCable = async () => {
     if (
       await confirmDialog(
@@ -380,6 +394,11 @@ export const CableContextMenu = () => {
           : t('canvas.cableMenu.on', 'einschalten')}
       </Item>
       <Separator />
+      {!cable.offPage && (
+        <Item onClick={makeOffPage} icon={<Icon icon={Milestone} size="xs" />}>
+          {t('canvas.cableMenu.makeOffPage', 'Off-Page-Verbindung erstellen…')}
+        </Item>
+      )}
       <Item onClick={removeCable} icon={<Icon icon={X} size="xs" />} destructive>
         {t('canvas.cableMenu.delete', 'Kabel löschen')}
       </Item>

@@ -153,7 +153,7 @@ export const ConnectorPicker = ({
             <ConnectorSymbol symbol="generic" size={size === 'sm' ? 22 : 28} />
           )}
         </span>
-        <span className={`flex-1 truncate ${size === 'sm' ? 'text-[11px]' : 'text-sm'}`}>
+        <span className={`flex-1 truncate ${size === 'sm' ? 'text-[11px]' : 'text-cp-base'}`}>
           {connectorLabel(value)}
         </span>
         <ChevronDown size={14} className="shrink-0 text-slate-500" />
@@ -165,7 +165,7 @@ export const ConnectorPicker = ({
           <div
             ref={popRef}
             role="dialog"
-            className="fixed z-[300] flex max-h-[360px] flex-col overflow-hidden rounded-lg border border-slate-700 bg-slate-900 shadow-2xl"
+            className="fixed z-[300] flex max-h-[360px] flex-col overflow-hidden rounded-cp-card border border-slate-700 bg-slate-900 shadow-2xl"
             style={{ left: pos.left, top: pos.top, width: pos.width }}
           >
             <div className="flex items-center gap-2 border-b border-slate-800 px-2 py-1.5">
@@ -176,7 +176,7 @@ export const ConnectorPicker = ({
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t('connector.picker.search', 'Stecker suchen…')}
                 aria-label={t('connector.picker.search', 'Stecker suchen…')}
-                className="w-full bg-transparent text-sm text-slate-200 outline-none placeholder:text-slate-600"
+                className="w-full bg-transparent text-cp-base text-slate-200 outline-none placeholder:text-slate-600"
               />
             </div>
             <div className="flex-1 overflow-y-auto p-2">

@@ -61,7 +61,7 @@ const NumField = ({
         min={min}
         step={step}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-sm"
+        className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-base"
       />
       {suffix && <span className="text-cp-xs text-slate-500">{suffix}</span>}
     </div>
@@ -71,7 +71,7 @@ const NumField = ({
 const Result = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-baseline justify-between rounded border border-slate-800 bg-slate-900/50 px-3 py-1.5">
     <span className="text-cp-xs text-slate-400">{label}</span>
-    <span className="font-mono text-sm text-sky-300">{value}</span>
+    <span className="font-mono text-cp-base text-sky-300">{value}</span>
   </div>
 )
 
@@ -165,7 +165,7 @@ const ProjectionCalcCore = () => {
               <select
                 value={aspectId}
                 onChange={(e) => setAspectId(e.target.value)}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-sm"
+                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-base"
               >
                 {ASPECTS.map((a) => (
                   <option key={a.id} value={a.id}>{a.label}</option>
@@ -179,7 +179,7 @@ const ProjectionCalcCore = () => {
             <Result label={t('calc.projection.viewThx', 'Min. Sitzabstand (THX 36°)')} value={`${screen.thx.toFixed(2)} m`} />
             <Result label={t('calc.projection.viewSmpte', 'Optimaler Sitzabstand (SMPTE 30°)')} value={`${screen.smpte.toFixed(2)} m`} />
           </div>
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[11px] text-slate-400">
             {t('calc.projection.screen.note', 'Sitzabstände nach horizontalem Blickwinkel: THX empfiehlt max. 36°, SMPTE EG-18 ca. 30°.')}
           </p>
         </div>
@@ -199,7 +199,7 @@ const ProjectionCalcCore = () => {
             <Result label={t('calc.projection.resolution', 'Auflösung')} value={`${led.pxW} × ${led.pxH} px`} />
             <Result label={t('calc.projection.totalPixels', 'Pixel gesamt')} value={`${led.total.toLocaleString()} (${led.mp.toFixed(1)} MP)`} />
           </div>
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[11px] text-slate-400">
             {t('calc.projection.led.note', 'Faustregel Mindest-Betrachtungsabstand (m) ≈ Pixel-Pitch (mm). Bei 2.6 mm also ab ~2.6 m ohne sichtbares Pixelraster.')}
           </p>
         </div>

@@ -138,7 +138,7 @@ export const MobileShareDialog = () => {
       maxWidth="md"
       draggableKey="cable-planner:modal-pos:mobile-share"
     >
-        <div className="space-y-3 text-sm">
+        <div className="space-y-3 text-cp-base">
           {!hasDesktopBridge && (
             <div className="rounded border border-amber-700 bg-amber-950/40 p-3 text-cp-xs text-amber-200">
               {t('mobile.dialog.desktopOnly1', 'Diese Funktion benötigt die Desktop-App (Electron). Im Web-Browser ist der Mobile-Viewer als statisches HTML im')}{' '}
@@ -233,7 +233,7 @@ export const MobileShareDialog = () => {
                 type="button"
                 onClick={() => void handleStart()}
                 disabled={busy || !hasDesktopBridge}
-                className="rounded bg-sky-700 px-4 py-2 text-sm text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded bg-sky-700 px-4 py-2 text-cp-base text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {busy ? t('mobile.dialog.starting', 'Starte…') : t('mobile.dialog.startServer', 'LAN-Server starten')}
               </button>

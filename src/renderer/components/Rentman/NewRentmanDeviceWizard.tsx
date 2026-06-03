@@ -202,7 +202,7 @@ export const NewRentmanDeviceWizard = ({
           </button>
         </div>
 
-        <div className="mb-3 grid grid-cols-2 gap-2 text-sm">
+        <div className="mb-3 grid grid-cols-2 gap-2 text-cp-base">
           <label className="block">
             {t('rentman.wizard.name', 'Name')}
             <input
@@ -235,7 +235,7 @@ export const NewRentmanDeviceWizard = ({
         </div>
 
         <div className="mb-2 flex items-center justify-between">
-          <div className="text-sm font-semibold">{t('rentman.wizard.suggestedPortGroups', 'Suggested Port Groups')}</div>
+          <div className="text-cp-base font-semibold">{t('rentman.wizard.suggestedPortGroups', 'Suggested Port Groups')}</div>
           <div className="flex flex-wrap gap-2 text-cp-xs">
             <button
               type="button"
@@ -388,7 +388,7 @@ export const NewRentmanDeviceWizard = ({
           )}
         </div>
 
-        <div className="flex justify-end gap-2 text-sm">
+        <div className="flex justify-end gap-2 text-cp-base">
           <button
             type="button"
             onClick={handleExclude}
