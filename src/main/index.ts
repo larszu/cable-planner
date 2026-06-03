@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from 'electron'
+import { app, BrowserWindow, Menu, shell } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
@@ -161,6 +161,44 @@ const createWindow = async () => {
     try {
       fs.appendFileSync(path.join(app.getPath('userData'), 'renderer-error.log'), msg)
     } catch { /* ignore */ }
+  })
+
+  // #427 — Panel-Popouts (`window.open(... ?popout=<panel>)`) sind eigene
+  // OS-Fenster. Electron gibt per `window.open` erzeugten Child-Windows NICHT
+  // automatisch das preload-Script mit — ohne preload ist `window.cablePlanner`
+  // im Popout `undefined`, die Renderer-Bridge fällt auf den Web-Fallback
+  // zurück und IPC-gestützte Panels brechen (leere Library, Settings/ATEM/
+  // Videohub als No-op). Darum hier dasselbe preload + dieselben sicheren
+  // webPreferences wie im Hauptfenster injizieren. Alle anderen window.open-
+  // bzw. target="_blank"-Links (PayPal, GitHub, Docs) öffnen wir im echten
+  // Standard-Browser statt in einem Electron-Fenster.
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    let isPopout = false
+    try {
+      isPopout = new URL(url).searchParams.has('popout')
+    } catch {
+      /* about:blank o. Ä. — kein Popout */
+    }
+    if (isPopout) {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          backgroundColor: '#0f172a',
+          autoHideMenuBar: true,
+          minWidth: 360,
+          minHeight: 480,
+          webPreferences: {
+            contextIsolation: true,
+            nodeIntegration: false,
+            preload: path.join(__dirname, 'preload.cjs'),
+          },
+        },
+      }
+    }
+    if (/^(https?:|mailto:)/i.test(url)) {
+      void shell.openExternal(url)
+    }
+    return { action: 'deny' }
   })
 
   if (isDev && process.env.VITE_DEV_SERVER_URL) {
