@@ -263,6 +263,7 @@ const useImageTexture = (url?: string): THREE.Texture | null => {
  *  Overhead und ohne extra Dateien. STL-Upload bleibt als Override. */
 const DeviceBox = ({
   placement,
+  siblings,
   rackDepthMm,
   totalUnits,
   selected,
@@ -273,6 +274,8 @@ const DeviceBox = ({
   orbitRef,
 }: {
   placement: Rack3DPlacement
+  /** #506 — alle Placements (für Soft-Snap an Geschwister-Geräte im 3D-Drag). */
+  siblings?: Rack3DPlacement[]
   rackDepthMm: number
   totalUnits: number
   selected: boolean
@@ -430,7 +433,31 @@ const DeviceBox = ({
             Math.min(RACK_MOUNT_WIDTH_MM - widthMm, newLeftX - railInnerOffset),
           )
           const newOffsetZ = Math.max(0, Math.min(rackDepthMm - depthMm, newZ))
-          setShelfDragOverride({ x: newOffsetX, z: newOffsetZ })
+          // #506 — Soft edge-snap an andere Shelf-Devices mit überlappendem
+          // HE-Bereich (wie im 2D-Builder, Threshold ~5 mm): Kanten bündig /
+          // direkt aneinander andocken.
+          let snappedX = newOffsetX
+          const SNAP_MM = 5
+          const myStart = placement.startUnit
+          const myEnd = placement.startUnit + placement.rackUnits
+          const candidates = [0, RACK_MOUNT_WIDTH_MM - widthMm]
+          for (const other of siblings ?? []) {
+            if (other.id === placement.id || !other.widthMm) continue
+            if (myEnd <= other.startUnit || other.startUnit + other.rackUnits <= myStart) continue
+            const oLeft = other.shelfOffsetX ?? 0
+            const oRight = oLeft + other.widthMm
+            candidates.push(oLeft, oRight, oLeft - widthMm, oRight - widthMm)
+          }
+          let bestDelta = SNAP_MM
+          for (const target of candidates) {
+            const clamped = Math.max(0, Math.min(RACK_MOUNT_WIDTH_MM - widthMm, target))
+            const d = Math.abs(newOffsetX - clamped)
+            if (d < bestDelta) {
+              bestDelta = d
+              snappedX = clamped
+            }
+          }
+          setShelfDragOverride({ x: snappedX, z: newOffsetZ })
         }}
         onPointerUp={(e) => {
           const drag = shelfDragRef.current
@@ -1019,10 +1046,13 @@ export const Rack3DView = ({
   const orbitRef = useRef<{ target: THREE.Vector3; update: () => void; enabled: boolean } | null>(null)
   const rackHeightMm = totalUnits * HE_HEIGHT_MM
   // Set initial camera so the rack is fully visible.
+  // #506 — Kamera VOR das Rack (−Z): die Frontblenden zeigen nach −Z. Vorher
+  // stand sie auf +Z (hinter dem Rack) → man sah die Rückseite und die
+  // Frontansicht war links/rechts spiegelverkehrt zur 2D-Front-Ansicht.
   const cameraPos: [number, number, number] = [
     RACK_OUTER_WIDTH_MM * 1.8,
     rackHeightMm * 0.7,
-    depthMm * 2.2,
+    -depthMm * 2.2,
   ]
   return (
     <div
@@ -1072,6 +1102,7 @@ export const Rack3DView = ({
               <DeviceBox
                 key={p.id}
                 placement={p}
+                siblings={placements}
                 rackDepthMm={depthMm}
                 totalUnits={totalUnits}
                 selected={selectedPlacementId === p.id}

@@ -17,7 +17,7 @@ import {
 import { useUiStore } from '../../store/uiStore'
 import { CableWaypoints } from './CableWaypoints'
 import { computeObstacleAwareWaypoints, type Rect } from '../../lib/cableRouting'
-import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { isCableVisibleByLayer } from '../../lib/cableLayers'
 import { netKeyOf, netEndpoints } from '../../lib/offPageNet'
 import { OffPageConnectorSymbol } from './OffPageConnectorSymbol'
@@ -370,6 +370,7 @@ export const CableEdge = ({
   const cable = data?.cable
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const equipment = useProjectStore((state) => state.project.equipment)
+  const greengoConfig = useProjectStore((state) => state.project.greengoConfig)
   // #221 — Off-Page-Connector: Selektion, Netz-Highlight & RF-Navigation.
   const setSelection = useProjectStore((state) => state.setSelection)
   const selectedCableId = useProjectStore((state) => state.selectedCableId)
@@ -405,12 +406,10 @@ export const CableEdge = ({
     const rects: Rect[] = []
     const ids: string[] = []
     for (const item of equipment) {
-      const HEADER = item.ipAddress ? 62 : 48
-      const ROW = 22
-      const PADDING = 8
-      const width = Math.max(item.width ?? EQUIPMENT_LAYOUT.DEFAULT_WIDTH, 200)
-      const portRows = Math.max(item.inputs.length, item.outputs.length, 1)
-      const height = Math.max(item.height ?? HEADER + portRows * ROW + PADDING, HEADER + portRows * ROW + PADDING)
+      // #501-Folgefix — gleiche Geometrie-Quelle wie der Renderer, damit die
+      // Obstacle-Boxen fürs Kabel-Umfahren exakt den gerenderten Geräten
+      // entsprechen (vorher veraltete 62/48/8-Kopie ohne snapUp-Breite).
+      const { width, height } = computeEquipmentLayout(item, greengoConfig)
       rects.push({ x: item.x, y: item.y, width, height })
       ids.push(item.id)
     }

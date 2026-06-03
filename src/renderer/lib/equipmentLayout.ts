@@ -97,12 +97,19 @@ export const computeEquipmentLayout = (
     0,
   )
   const labelWidth = longestPortText * 7 + 32
-  const intrinsicWidth = Math.max(220, labelWidth * 2)
-  const width = Math.max(eq.width ?? intrinsicWidth, intrinsicWidth)
+  // #501 — Breite/Höhe müssen BYTE-genau wie im Renderer (EquipmentNode,
+  // v7.9.26 snapUp) aufs Grid einrasten. Sonst startet die Pending-Kabel-
+  // Linie an einer UN-gesnappten Außenkante, während der echte Port-Handle
+  // an der gesnappten Kante sitzt → rechtsseitiger Versatz von bis zu 10px
+  // (sichtbar v.a. am breiten Videohub mit vielen Output-Ports).
+  const GRID = EQUIPMENT_LAYOUT.GRID_SIZE
+  const snapUp = (n: number): number => Math.ceil(n / GRID) * GRID
+  const intrinsicWidth = snapUp(Math.max(EQUIPMENT_LAYOUT.DEFAULT_WIDTH, labelWidth * 2))
+  const width = Math.max(snapUp(eq.width ?? intrinsicWidth), intrinsicWidth)
 
   const portRows = Math.max(sideCounts.left, sideCounts.right, 1)
   const computedHeight = headerHeight + portRows * PORT_ROW + PADDING
-  const height = Math.max(eq.height ?? computedHeight, computedHeight)
+  const height = Math.max(snapUp(eq.height ?? computedHeight), computedHeight)
 
   const rowCenter = (slot: number): number => headerHeight + slot * PORT_ROW + PORT_ROW / 2
 
