@@ -6,7 +6,12 @@
 // collabStore + lib/crdt/*; diese Komponente ist Anzeige + Steuerung.
 
 import { useState } from 'react'
-import { useCollabStore, type CollabMode } from '../../store/collabStore'
+import {
+  useCollabStore,
+  type CollabMode,
+  type DiscoveredCollabSession,
+} from '../../store/collabStore'
+import { useProjectStore } from '../../store/projectStore'
 import { hasDesktopBridge } from '../../lib/bridge'
 import { useTranslation } from '../../lib/i18n'
 
@@ -88,6 +93,28 @@ export const CollabPanel = () => {
       },
       () => {},
     )
+  }
+
+  // Beitreten übernimmt den Plan des Hosts und ersetzt den lokalen — bei
+  // vorhandenem lokalem Plan vorher rückfragen, damit keine Arbeit verloren geht.
+  const onJoin = (s: DiscoveredCollabSession): void => {
+    const p = useProjectStore.getState().project
+    const hasLocalPlan =
+      (p.equipment?.length ?? 0) > 0 ||
+      (p.cables?.length ?? 0) > 0 ||
+      (p.locations?.length ?? 0) > 0
+    if (
+      hasLocalPlan &&
+      !window.confirm(
+        t(
+          'collab.join.replaceConfirm',
+          'Beitreten lädt den Plan des Hosts und ersetzt deinen aktuellen Plan. Fortfahren?',
+        ),
+      )
+    ) {
+      return
+    }
+    void joinDiscovered(s)
   }
 
   return (
@@ -213,6 +240,13 @@ export const CollabPanel = () => {
             </button>
           </div>
 
+          <p className="text-[11px] text-[var(--cp-text-muted)]">
+            {t(
+              'collab.discover.adoptHint',
+              'Beitreten übernimmt den Plan des Hosts (ersetzt deinen aktuellen Plan).',
+            )}
+          </p>
+
           {discovered.length > 0 ? (
             <ul className="space-y-1">
               {discovered.map((s) => (
@@ -227,7 +261,7 @@ export const CollabPanel = () => {
                   </span>
                   <button
                     type="button"
-                    onClick={() => void joinDiscovered(s)}
+                    onClick={() => onJoin(s)}
                     className="shrink-0 rounded-cp-control bg-[var(--cp-accent,#3b82f6)] px-2 py-1 text-cp-xs font-medium text-white hover:opacity-90"
                   >
                     {t('collab.discover.join', 'Beitreten')}

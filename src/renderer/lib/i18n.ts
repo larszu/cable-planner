@@ -102,6 +102,9 @@ const en: Dict = {
   'collab.discover.empty':
     'No open session found yet. "Search the network" scans the local network for running Cable Planner sessions.',
   'collab.discover.desktopOnly': 'Network search is only available in the desktop app.',
+  'collab.discover.adoptHint': 'Joining adopts the host’s plan (replaces your current plan).',
+  'collab.join.replaceConfirm':
+    'Joining loads the host’s plan and replaces your current plan. Continue?',
   'common.delete': 'Delete',
   'common.reset': 'Reset',
   'common.apply': 'Apply',

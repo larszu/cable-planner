@@ -168,6 +168,13 @@ contextBridge.exposeInMainWorld('cablePlanner', {
         }>
       >,
   },
+  // #413 — Lokaler LAN-Signaling-Server: der WebRTC-Host startet ihn, wenn
+  // kein eigener Signaling-Server konfiguriert ist, und bewirbt die Adresse.
+  signaling: {
+    start: () =>
+      ipcRenderer.invoke('signaling:start') as Promise<{ url: string; port: number }>,
+    stop: () => ipcRenderer.invoke('signaling:stop') as Promise<{ ok: boolean }>,
+  },
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) =>
       ipcRenderer.send('logs:renderer-error', payload),
