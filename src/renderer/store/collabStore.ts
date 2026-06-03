@@ -8,7 +8,7 @@
 import { create } from 'zustand'
 import { startCollaboration, type CollabMode, type CollabSession } from '../lib/crdt/collab'
 import { colorForId, type PresencePeer } from '../lib/crdt/presence'
-import { cablePlannerApi, type DiscoveredCollabSession } from '../lib/bridge'
+import { cablePlannerApi, hasDesktopBridge, type DiscoveredCollabSession } from '../lib/bridge'
 import { useUiStore } from './uiStore'
 import { useProjectStore } from './projectStore'
 
@@ -30,6 +30,12 @@ interface PersistedCollab {
 }
 
 const COLLAB_KEY = 'cable-planner.collab'
+
+/** Öffentlicher y-webrtc-Default-Server. Wir nutzen ihn nur noch als FALLBACK
+ *  hinter dem lokalen LAN-Server (y-webrtc verbindet sich mit allen Servern der
+ *  Liste) — so funktioniert auch der manuelle „gleicher Raumname"-Workflow ohne
+ *  Discovery weiter, während im LAN der lokale Server gewinnt. */
+const PUBLIC_SIGNALING_FALLBACK = 'wss://y-webrtc-eu.fly.dev'
 
 const defaults: PersistedCollab = { mode: 'broadcast', room: 'cable-planner', name: '', signaling: '', password: '' }
 
@@ -110,6 +116,9 @@ interface CollabState {
   peers: PresencePeer[]
   selfId: string
   session: CollabSession | null
+  /** true, wenn DIESE Instanz den lokalen LAN-Signaling-Server gestartet hat
+   *  (Host ohne eigenen Server) — dann muss `stop()` ihn wieder schließen. */
+  localSignaling: boolean
   /** Im LAN gefundene offene Sessions (nach `discover()`). */
   discovered: DiscoveredCollabSession[]
   /** Läuft gerade eine Netzwerk-Suche? */
@@ -119,7 +128,9 @@ interface CollabState {
   setName: (name: string) => void
   setSignaling: (signaling: string) => void
   setPassword: (password: string) => void
-  start: () => Promise<void>
+  /** Startet eine Session. `adopt` (Beitreten): eigenen Plan NICHT seeden, den
+   *  Plan des Hosts übernehmen, und keinen eigenen Signaling-Server starten. */
+  start: (opts?: { adopt?: boolean }) => Promise<void>
   stop: () => void
   /** Durchsucht das LAN nach offenen Sessions und füllt `discovered`. */
   discover: () => Promise<void>
@@ -140,6 +151,7 @@ export const useCollabStore = create<CollabState>((set, get) => ({
   peers: [],
   selfId,
   session: null,
+  localSignaling: false,
   discovered: [],
   discovering: false,
 
@@ -164,20 +176,37 @@ export const useCollabStore = create<CollabState>((set, get) => ({
     set({ password })
   },
 
-  start: async () => {
+  start: async (opts) => {
+    const adopt = opts?.adopt === true
     const { status, mode, room, name, signaling, password, session } = get()
     if (status === 'connecting' || status === 'on') return
     if (session) session.stop()
     set({ status: 'connecting', error: undefined, session: null, peers: [] })
     const self = { id: selfId, name: effectiveName(name), color: colorForId(selfId) }
-    const signalingList = signaling
+    let signalingList = signaling
       .split(/[\s,]+/)
       .map((s) => s.trim())
       .filter(Boolean)
+    // #413 — Host ohne eigenen Signaling-Server: lokalen LAN-Server starten und
+    // dessen Adresse bewerben, damit Beitretende sich OHNE den (oft toten)
+    // öffentlichen y-webrtc-Default-Server finden. Beim Beitreten (adopt)
+    // NICHT — dort kommt die Signaling-Adresse des Hosts aus der mDNS-Discovery.
+    let localSignaling = false
+    if (mode === 'webrtc' && !adopt && signalingList.length === 0 && hasDesktopBridge) {
+      try {
+        const { url } = await cablePlannerApi.signaling.start()
+        // Lokaler Server zuerst (LAN), öffentlicher Default als Reserve.
+        signalingList = [url, PUBLIC_SIGNALING_FALLBACK]
+        localSignaling = true
+      } catch {
+        /* Kein lokaler Server möglich → öffentlicher y-webrtc-Default greift. */
+      }
+    }
+
     const pw = password.trim()
     // Nur ein WebRTC-Options-Objekt bauen, wenn es etwas zu setzen gibt
-    // (Signaling und/oder Passwort). Das Passwort verschlüsselt den Raum
-    // E2E — nur Peers mit demselben Passwort können das Projekt lesen.
+    // (Signaling und/oder Passwort). Das Passwort verschlüsselt den Raum E2E —
+    // nur Peers mit demselben Passwort können das Projekt lesen.
     const webrtcOpts =
       signalingList.length > 0 || pw
         ? { ...(signalingList.length > 0 ? { signaling: signalingList } : {}), ...(pw ? { password: pw } : {}) }
@@ -187,32 +216,41 @@ export const useCollabStore = create<CollabState>((set, get) => ({
         mode,
         room,
         self,
+        // Beitreten: eigenen Plan nicht ins Doc seeden → Host-Plan wird übernommen.
+        seedDoc: !adopt,
         onPeers: (peers) => set({ peers }),
         webrtc: webrtcOpts,
       })
       // Falls der User zwischenzeitlich gestoppt/gewechselt hat: verwerfen.
       if (get().status !== 'connecting') {
         s.stop()
+        if (localSignaling) void cablePlannerApi.signaling.stop().catch(() => {})
         return
       }
-      set({ session: s, status: 'on' })
-      // Nur Netzwerk-Sessions im LAN bewerben (broadcast = nur dieses Gerät).
-      if (mode === 'webrtc') advertiseSession(room, name, signaling)
+      set({ session: s, status: 'on', localSignaling })
+      // Nur der Host bewirbt die Session — mit der effektiven Signaling-Adresse
+      // (lokaler Server-URL falls gestartet, sonst die manuelle Eingabe).
+      if (mode === 'webrtc' && !adopt) {
+        advertiseSession(room, name, localSignaling ? signalingList.join(',') : signaling)
+      }
     } catch (err) {
+      if (localSignaling) void cablePlannerApi.signaling.stop().catch(() => {})
       set({
         status: 'error',
         error: err instanceof Error ? err.message : String(err),
         session: null,
         peers: [],
+        localSignaling: false,
       })
     }
   },
 
   stop: () => {
-    const { session } = get()
+    const { session, localSignaling } = get()
     session?.stop()
     unadvertiseSession()
-    set({ session: null, status: 'off', error: undefined, peers: [] })
+    if (localSignaling) void cablePlannerApi.signaling.stop().catch(() => {})
+    set({ session: null, status: 'off', error: undefined, peers: [], localSignaling: false })
   },
 
   discover: async () => {
@@ -241,6 +279,8 @@ export const useCollabStore = create<CollabState>((set, get) => ({
     get().setRoom(s.room)
     get().setSignaling(s.signaling)
     set({ discovered: [] })
-    await get().start()
+    // Beitreten = Plan des Hosts übernehmen (eigenen Plan nicht ins Doc seeden;
+    // der eingehende Host-Stand ersetzt den lokalen Plan).
+    await get().start({ adopt: true })
   },
 }))

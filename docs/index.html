@@ -8,6 +8,40 @@
 <meta property="og:title" content="CablePlanner — Visual cable planning for broadcast workflows" />
 <meta property="og:description" content="Drag-and-drop node canvas for studios, OB vans and live events. ATEM, Videohub, Rentman. macOS & Windows." />
 <meta property="og:type" content="website" />
+<meta property="og:url" content="https://larszu.github.io/cable-planner/" />
+<meta property="og:site_name" content="CablePlanner" />
+<meta property="og:image" content="https://larszu.github.io/cable-planner/screenshots/hero.png" />
+<meta property="og:image:alt" content="CablePlanner — node-based broadcast cabling canvas for SDI signal flow, ATEM and Videohub" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="CablePlanner — Visual cable planning for broadcast workflows" />
+<meta name="twitter:description" content="Free, MIT-licensed broadcast cable planning software. Node-based SDI signal-flow canvas, ATEM multiviewer editor, Videohub routing, PDF export. macOS & Windows." />
+<meta name="twitter:image" content="https://larszu.github.io/cable-planner/screenshots/hero.png" />
+<link rel="canonical" href="https://larszu.github.io/cable-planner/" />
+<meta name="author" content="Lars Zumpe" />
+<meta name="theme-color" content="#863bff" />
+<meta name="keywords" content="broadcast cable planning, cable planner, SDI signal flow, ATEM multiviewer editor, Blackmagic Videohub routing, AV cable management, OB van, live production, signal flow diagram, WireCAD alternative, Electron, React, offline-first" />
+<!-- Structured data: helps Google show a rich software result -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "CablePlanner",
+  "applicationCategory": "DesignApplication",
+  "applicationSubCategory": "Broadcast & AV cable planning",
+  "operatingSystem": "macOS, Windows",
+  "url": "https://larszu.github.io/cable-planner/",
+  "downloadUrl": "https://github.com/larszu/cable-planner/releases/latest",
+  "softwareHelp": "https://github.com/larszu/cable-planner#readme",
+  "description": "Free, open-source broadcast cable planning software with a node-based canvas for SDI signal flow, ATEM multiviewer layouts, Blackmagic Videohub routing, Rentman import and PDF export. Offline-first desktop app for macOS and Windows.",
+  "image": "https://larszu.github.io/cable-planner/screenshots/hero.png",
+  "screenshot": "https://larszu.github.io/cable-planner/screenshots/hero.png",
+  "license": "https://opensource.org/licenses/MIT",
+  "isAccessibleForFree": true,
+  "author": { "@type": "Person", "name": "Lars Zumpe" },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "codeRepository": "https://github.com/larszu/cable-planner"
+}
+</script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <style>
   :root {
@@ -588,10 +622,11 @@
     <div class="links">
       <a href="#features">Features</a>
       <a href="#showcase">Showcase</a>
+      <a href="#screenshots">Screenshots</a>
       <a href="#download">Download</a>
       <a href="./architecture.md" target="_blank" rel="noopener">Architecture</a>
       <a href="https://github.com/larszu/cable-planner" target="_blank" rel="noopener">GitHub</a>
-      <a href="#download" class="cta">Get v8.1.0</a>
+      <a href="#download" class="cta">Download</a>
     </div>
   </div>
 </nav>
@@ -602,7 +637,7 @@
     <div class="hero-grid">
       <div>
         <div class="badge-row">
-          <span class="pill"><span class="dot"></span> v7.9.5 just released</span>
+          <span class="pill" id="pill-latest"><span class="dot"></span> Latest release on GitHub</span>
           <span class="pill" style="background:rgba(71,191,255,.1);border-color:rgba(71,191,255,.3);color:#a8e1ff;">macOS · Windows</span>
           <span class="pill" style="background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:#86efac;">100% offline</span>
         </div>
@@ -627,8 +662,8 @@
         </div>
         <div class="release-tag">
           Latest release
-          <span class="v">v7.9.5</span>
-          · published <span id="rel-date">May 17, 2026</span>
+          <span class="v" id="rel-tag">latest</span>
+          <span id="rel-date-wrap"></span>
         </div>
       </div>
 
@@ -867,22 +902,55 @@
   </div>
 </section>
 
+<!-- ─── Screenshots ─────────────────────────────────── -->
+<section id="screenshots">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">Screenshots</div>
+      <h2>See it in action</h2>
+      <p>Real screens from the desktop app — the canvas, the ATEM multiviewer editor, exports and the cable bill of materials.</p>
+    </div>
+    <div class="reveal" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;">
+      <figure class="card" style="margin:0;">
+        <img src="screenshots/properties.png" alt="CablePlanner device and location properties panel with ports, colour and ATEM tools" loading="lazy" style="width:100%;display:block;" />
+        <figcaption style="padding:12px 16px;color:var(--text-dim);font-size:.9rem;">Device &amp; location properties</figcaption>
+      </figure>
+      <figure class="card" style="margin:0;">
+        <img src="screenshots/atem-multiview.png" alt="ATEM multiviewer layout editor with program and preview windows" loading="lazy" style="width:100%;display:block;" />
+        <figcaption style="padding:12px 16px;color:var(--text-dim);font-size:.9rem;">ATEM multiviewer editor</figcaption>
+      </figure>
+      <figure class="card" style="margin:0;">
+        <img src="screenshots/export.png" alt="CablePlanner export and print hub with PDF, PNG, JPEG and SVG options" loading="lazy" style="width:100%;display:block;" />
+        <figcaption style="padding:12px 16px;color:var(--text-dim);font-size:.9rem;">Export &amp; print hub</figcaption>
+      </figure>
+      <figure class="card" style="margin:0;">
+        <img src="screenshots/bom.png" alt="Cable bill of materials aggregated by connector type and length" loading="lazy" style="width:100%;display:block;" />
+        <figcaption style="padding:12px 16px;color:var(--text-dim);font-size:.9rem;">Cable bill of materials</figcaption>
+      </figure>
+      <figure class="card" style="margin:0;grid-column:1/-1;">
+        <img src="screenshots/patch-sheets.png" alt="Per-device patch sheet generator with device selection" loading="lazy" style="width:100%;display:block;" />
+        <figcaption style="padding:12px 16px;color:var(--text-dim);font-size:.9rem;">Per-device patch sheets</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
 <!-- ─── Download ────────────────────────────────────── -->
 <section id="download">
   <div class="container">
     <div class="section-head reveal">
       <div class="eyebrow">Latest release</div>
-      <h2>Download CablePlanner v7.9.5</h2>
+      <h2>Download CablePlanner</h2>
       <p>Free, open source, MIT-licensed. Pick the build for your machine — no account required.</p>
     </div>
 
     <div class="card release-card reveal">
       <div class="release-head">
         <div>
-          <h3>v8.1.0 — Latest release</h3>
+          <h3>Latest release</h3>
           <div class="meta">
-            tag <code>v8.1.0</code> ·
-            <a href="https://github.com/larszu/cable-planner/releases/tag/v8.1.0" target="_blank" rel="noopener">view on GitHub →</a>
+            tag <code id="rel-tag-2">latest</code> ·
+            <a href="https://github.com/larszu/cable-planner/releases/latest" target="_blank" rel="noopener">view on GitHub →</a>
           </div>
         </div>
         <a class="btn btn-primary" href="https://github.com/larszu/cable-planner/releases/latest" target="_blank" rel="noopener">
@@ -1119,6 +1187,30 @@
         grid.appendChild(c);
       });
     });
+  })();
+</script>
+
+<script>
+  // ── Keep the displayed release version fresh: pull the latest tag from
+  //    GitHub at view time. Pure client-side, fails silently when offline.
+  (function () {
+    fetch('https://api.github.com/repos/larszu/cable-planner/releases/latest', { headers: { Accept: 'application/vnd.github+json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (rel) {
+        if (!rel || !rel.tag_name) return;
+        var tag = rel.tag_name;
+        var setText = function (id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; };
+        setText('rel-tag', tag);
+        setText('rel-tag-2', tag);
+        var pill = document.getElementById('pill-latest');
+        if (pill) pill.innerHTML = '<span class="dot"></span> ' + tag + ' available';
+        if (rel.published_at) {
+          var d = new Date(rel.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+          var wrap = document.getElementById('rel-date-wrap');
+          if (wrap) wrap.textContent = ' · published ' + d;
+        }
+      })
+      .catch(function () {});
   })();
 </script>
 

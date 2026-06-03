@@ -37,6 +37,11 @@ export interface CollabOptions {
   self: SelfInfo
   /** Wird mit der aktuellen Teilnehmerliste aufgerufen (Presence). */
   onPeers?: (peers: PresencePeer[]) => void
+  /** Default true (Host): lokalen Stand ins Doc seeden. Auf false setzen beim
+   *  Beitreten, wenn der Plan des Hosts übernommen werden soll — dann wird der
+   *  eigene Stand NICHT ins gemeinsame Doc geschoben und der eingehende
+   *  Host-Stand ersetzt den lokalen Plan (applyRemoteProject). */
+  seedDoc?: boolean
 }
 
 export interface CollabSession {
@@ -57,8 +62,10 @@ export const startCollaboration = async (opts: CollabOptions): Promise<CollabSes
 
   const crdt = new ProjectCrdt()
   // Store→Doc seeden: der lokale Stand ist die Ausgangsbasis; eingehende
-  // Remote-Stände mergen idempotent dazu (CRDT-Union by id).
-  const binding: StoreBindingHandle = bindStoreToCrdt(crdt, { seedDoc: true })
+  // Remote-Stände mergen idempotent dazu (CRDT-Union by id). Beim Beitreten
+  // mit seedDoc=false bleibt der eigene Plan außen vor und der Host-Stand wird
+  // übernommen.
+  const binding: StoreBindingHandle = bindStoreToCrdt(crdt, { seedDoc: opts.seedDoc !== false })
 
   let manager: SyncManager | null = null
   let transport: BroadcastTransport | null = null

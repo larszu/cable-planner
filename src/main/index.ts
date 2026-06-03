@@ -14,6 +14,8 @@ import { registerMobileShareIpc } from './ipc/mobileShareIpc.js'
 import { registerCollabDiscoveryIpc } from './ipc/collabDiscoveryIpc.js'
 import { registerPrintIpc } from './ipc/printIpc.js'
 import { registerLibraryIpc } from './ipc/libraryIpc.js'
+import { registerSignalingIpc } from './ipc/signalingIpc.js'
+import { stopSignalingServer } from './signalingServer.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -137,10 +139,8 @@ const createWindow = async () => {
       if (/^https?:/.test(navUrl)) void shell.openExternal(navUrl)
     }
   })
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (/^https?:/.test(url)) void shell.openExternal(url)
-    return { action: 'deny' }
-  })
+  // Popout-/Link-Verhalten wird weiter unten in EINEM setWindowOpenHandler
+  // geregelt (Popout-Fenster zulassen + Preload, externe Links in den Browser).
   if (geometry.maximized) mainWindow.maximize()
   // Persist on user-initiated resize/move/maximize so even crashes
   // don't lose the user's window placement.
@@ -197,6 +197,45 @@ const createWindow = async () => {
     if (!isSerious) return
     const msg = `[renderer][${e.level}] ${e.message ?? ''} (${e.sourceId ?? '?'}:${e.lineNumber ?? '?'})\n`
     appendLogCapped('renderer-error.log', msg)
+  })
+
+  // #427 — Panel-Popouts (`window.open(... ?popout=<panel>)`) sind eigene
+  // OS-Fenster. Electron gibt per `window.open` erzeugten Child-Windows NICHT
+  // automatisch das preload-Script mit — ohne preload ist `window.cablePlanner`
+  // im Popout `undefined`, die Renderer-Bridge fällt auf den Web-Fallback
+  // zurück und IPC-gestützte Panels brechen (leere Library, Settings/ATEM/
+  // Videohub als No-op). Darum hier dasselbe preload + dieselben sicheren
+  // webPreferences wie im Hauptfenster injizieren. Alle anderen window.open-
+  // bzw. target="_blank"-Links (PayPal, GitHub, Docs) öffnen wir im echten
+  // Standard-Browser statt in einem Electron-Fenster.
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    let isPopout = false
+    try {
+      isPopout = new URL(url).searchParams.has('popout')
+    } catch {
+      /* about:blank o. Ä. — kein Popout */
+    }
+    if (isPopout) {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          backgroundColor: '#0f172a',
+          autoHideMenuBar: true,
+          minWidth: 360,
+          minHeight: 480,
+          webPreferences: {
+            contextIsolation: true,
+            nodeIntegration: false,
+            sandbox: true,
+            preload: path.join(__dirname, 'preload.cjs'),
+          },
+        },
+      }
+    }
+    if (/^(https?:|mailto:)/i.test(url)) {
+      void shell.openExternal(url)
+    }
+    return { action: 'deny' }
   })
 
   if (isDev && process.env.VITE_DEV_SERVER_URL) {
@@ -260,7 +299,10 @@ app.whenReady().then(async () => {
               "style-src 'self' 'unsafe-inline'; " +
               "img-src 'self' data: blob:; " +
               "font-src 'self' data:; " +
-              "connect-src 'self' https://api.rentman.net https://generativelanguage.googleapis.com; " +
+              // ws:/wss: für die Live-Kollaboration (y-webrtc-Signaling: lokaler
+              // LAN-Server + öffentlicher Fallback) — sonst blockt die CSP den
+              // Signaling-WebSocket und keine Session verbindet sich.
+              "connect-src 'self' https://api.rentman.net https://generativelanguage.googleapis.com ws: wss:; " +
               "object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
           ],
           'X-Content-Type-Options': ['nosniff'],
@@ -281,6 +323,7 @@ app.whenReady().then(async () => {
   registerCollabDiscoveryIpc()
   registerPrintIpc()
   registerLibraryIpc()
+  registerSignalingIpc()
 
   await createWindow()
 
@@ -295,4 +338,10 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+// #413 — Lokalen Signaling-Server (falls ein WebRTC-Host einen gestartet hat)
+// beim Beenden sauber schließen.
+app.on('will-quit', () => {
+  stopSignalingServer()
 })
