@@ -14,6 +14,8 @@ import { registerMobileShareIpc } from './ipc/mobileShareIpc.js'
 import { registerCollabDiscoveryIpc } from './ipc/collabDiscoveryIpc.js'
 import { registerPrintIpc } from './ipc/printIpc.js'
 import { registerLibraryIpc } from './ipc/libraryIpc.js'
+import { registerSignalingIpc } from './ipc/signalingIpc.js'
+import { stopSignalingServer } from './signalingServer.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -256,6 +258,7 @@ app.whenReady().then(async () => {
   registerCollabDiscoveryIpc()
   registerPrintIpc()
   registerLibraryIpc()
+  registerSignalingIpc()
 
   await createWindow()
 
@@ -270,4 +273,10 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+// #413 — Lokalen Signaling-Server (falls ein WebRTC-Host einen gestartet hat)
+// beim Beenden sauber schließen.
+app.on('will-quit', () => {
+  stopSignalingServer()
 })

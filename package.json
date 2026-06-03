@@ -51,6 +51,7 @@
         "lint": "eslint .",
         "preview": "vite preview",
         "test:crdt": "node scripts/crdt-convergence-check.mjs",
+        "test:signaling": "npm run build:main && node scripts/signaling-relay-check.mjs",
         "dist": "npm run build && electron-builder"
     },
     "dependencies": {
