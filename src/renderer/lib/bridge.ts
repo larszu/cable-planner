@@ -233,6 +233,13 @@ type CablePlannerApi = {
     /** Durchsucht das LAN für `timeoutMs` nach offenen Sessions. */
     browse: (params?: { timeoutMs?: number }) => Promise<DiscoveredCollabSession[]>
   }
+  /** #413 — Lokaler LAN-Signaling-Server für WebRTC-Hosts (siehe
+   *  signalingServer.ts). Liefert die `ws://<lan-ip>:<port>`-Adresse, die der
+   *  Host via mDNS bewirbt und Beitretende automatisch übernehmen. */
+  signaling: {
+    start: () => Promise<{ url: string; port: number }>
+    stop: () => Promise<{ ok: boolean }>
+  }
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) => void
   }
@@ -692,6 +699,13 @@ const webFallbackApi: CablePlannerApi = {
     advertise: async () => ({ ok: false }),
     unadvertise: async () => ({ ok: false }),
     browse: async () => [],
+  },
+  signaling: {
+    // Web-Fallback: ein Signaling-Server braucht den Main-Prozess (TCP-Listen).
+    start: async () => {
+      throw new Error('Lokaler Signaling-Server erfordert die Desktop-App.')
+    },
+    stop: async () => ({ ok: true }),
   },
   logs: {
     rendererError: () => {},
