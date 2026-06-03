@@ -1399,10 +1399,14 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       const renderedOffsetX = side === 'rear'
                         ? maxOffsetX - effectiveOffsetX
                         : effectiveOffsetX
+                      // #506 — Shelf-Device unten-bündig rendern (wie im 3D: das
+                      // Gerät ruht auf dem Boden seiner HE-Reihe). Vorher war es
+                      // oben-bündig, was nicht zur 3D-Ansicht passte.
+                      const shelfBoxHeight = Math.min(rackTpl!.heightMm! * mmToPx, height)
                       const shelfStyle = isShelfDevice
                         ? {
-                            top,
-                            height: Math.min(rackTpl!.heightMm! * mmToPx, height),
+                            top: top + (height - shelfBoxHeight),
+                            height: shelfBoxHeight,
                             left: railInsetPx + renderedOffsetX * mmToPx,
                             width: rackTpl!.widthMm! * mmToPx,
                           }
@@ -1441,6 +1445,32 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             if (!placement) return
                             const nextStart = Math.max(1, Math.min(draft.totalUnits - placement.rackUnits + 1, unitAtPointer - dragState.offsetUnits))
                             const patch: Partial<RackPlacementDraft> = { startUnit: nextStart }
+                            // #506 — Vertikales Stapeln-Snap: an die Ober-/Unter-
+                            // kante anderer Geräte andocken (Tops bündig, direkt
+                            // unter deren Unterkante, oder direkt über ihnen).
+                            // Schwelle 1 HE — analog zum horizontalen Edge-Snap.
+                            {
+                              let bestVDelta = 2
+                              for (const other of draft.placements) {
+                                if (other.id === placement.id) continue
+                                const vTargets = [
+                                  other.startUnit,
+                                  other.startUnit + other.rackUnits,
+                                  other.startUnit - placement.rackUnits,
+                                ]
+                                for (const target of vTargets) {
+                                  const clampedT = Math.max(
+                                    1,
+                                    Math.min(draft.totalUnits - placement.rackUnits + 1, target),
+                                  )
+                                  const d = Math.abs(nextStart - clampedT)
+                                  if (d < bestVDelta) {
+                                    bestVDelta = d
+                                    patch.startUnit = clampedT
+                                  }
+                                }
+                              }
+                            }
                             // v7.9.82 / #170 — Shelf-Devices auch horizontal
                             // verschiebbar machen: Drop-X-Position relativ zum
                             // Panel in mm umrechnen, in [0..(RACK_MOUNT_WIDTH_MM
