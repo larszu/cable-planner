@@ -779,6 +779,12 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                     fontWeight: 700,
                     cursor: 'pointer',
                     pointerEvents: 'auto',
+                    // #503 — Wrapper als inline-flex (wie Lock/Headphones), sonst
+                    // sitzt das lucide-Check-SVG auf der Baseline und macht das
+                    // Port-Label 2-zeilig (Sprung). align-middle hält es 1-zeilig.
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    verticalAlign: 'middle',
                   }}
                   title={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
                   aria-label={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
@@ -933,6 +939,12 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                     fontWeight: 700,
                     cursor: 'pointer',
                     pointerEvents: 'auto',
+                    // #503 — Wrapper als inline-flex (wie Lock/Headphones), sonst
+                    // sitzt das lucide-Check-SVG auf der Baseline und macht das
+                    // Port-Label 2-zeilig (Sprung). align-middle hält es 1-zeilig.
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    verticalAlign: 'middle',
                   }}
                   title={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
                   aria-label={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
