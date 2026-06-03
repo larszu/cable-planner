@@ -7,6 +7,35 @@
         "name": "Lars Zumpe",
         "email": "lars@zumpe.dev"
     },
+    "license": "MIT",
+    "homepage": "https://larszu.github.io/cable-planner/",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/larszu/cable-planner.git"
+    },
+    "bugs": {
+        "url": "https://github.com/larszu/cable-planner/issues"
+    },
+    "keywords": [
+        "broadcast",
+        "cable-management",
+        "cable-planner",
+        "signal-flow",
+        "sdi",
+        "atem",
+        "blackmagic",
+        "videohub",
+        "multiviewer",
+        "live-production",
+        "ob-van",
+        "video-engineering",
+        "rentman",
+        "electron",
+        "react",
+        "react-flow",
+        "typescript",
+        "offline-first"
+    ],
     "type": "module",
     "main": "dist/main/index.js",
     "scripts": {
