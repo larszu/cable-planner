@@ -272,7 +272,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
           </div>
         )}
 
-        <div className="space-y-2 text-sm">
+        <div className="space-y-2 text-cp-base">
           <label className="block">
             Cable
             <select
@@ -505,7 +505,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
           )}
         </div>
 
-        <div className="mt-3 flex justify-end gap-2 text-sm">
+        <div className="mt-3 flex justify-end gap-2 text-cp-base">
           <button
             type="button"
             onClick={onCancel}

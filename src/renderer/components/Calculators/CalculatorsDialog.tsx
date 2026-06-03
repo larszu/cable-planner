@@ -119,7 +119,7 @@ const BandwidthTab = () => {
   const mbps = bpsRaw / 1_000_000
   const fittingTier = SDI_TIERS.find((t) => mbps <= t.mbps)
   return (
-    <div className="space-y-3 p-4 text-sm">
+    <div className="space-y-3 p-4 text-cp-base">
       <p className="text-[11px] text-slate-400">
         {t(
           'calc.bandwidth.intro',
@@ -180,7 +180,7 @@ const BandwidthTab = () => {
       </div>
       <div className="rounded border border-amber-700 bg-amber-950/30 p-3">
         <div className="text-[10px] uppercase tracking-wide text-amber-300">{t('calc.dataRate', 'Datenrate')}</div>
-        <div className="font-mono text-lg text-amber-100">{mbps.toLocaleString(undefined, { maximumFractionDigits: 1 })} Mbps</div>
+        <div className="font-mono text-cp-xl text-amber-100">{mbps.toLocaleString(undefined, { maximumFractionDigits: 1 })} Mbps</div>
         <div className="mt-1 text-cp-xs text-amber-200">
           {fittingTier
             ? t('calc.bandwidth.fitsIn', 'Passt in {tier} ({mbps} Mbps).')
@@ -232,7 +232,7 @@ const BandwidthTab = () => {
           </div>
           <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
             <dt className="text-slate-500 font-semibold">{t('calc.bandwidth.netTotal', 'Gesamt-Bandbreite')}</dt>
-            <dd className="font-mono text-lg text-sky-200">
+            <dd className="font-mono text-cp-xl text-sky-200">
               {netBudget.totalMbps >= 1000
                 ? `${(netBudget.totalMbps / 1000).toFixed(2)} Gbps`
                 : `${netBudget.totalMbps} Mbps`}
@@ -586,7 +586,7 @@ const PowerTab = () => {
   }
 
   return (
-    <div className="space-y-3 p-4 text-sm">
+    <div className="space-y-3 p-4 text-cp-base">
       <p className="text-[11px] text-slate-400">
         {t(
           'calc.power.intro1',
@@ -637,7 +637,7 @@ const PowerTab = () => {
           <dt className="text-slate-500">{t('calc.totalUsage', 'Gesamtverbrauch')}</dt>
           <dd className="font-mono text-slate-200">{totals.totalW.toFixed(0)} W</dd>
           <dt className="text-slate-500">+ {t('calc.reserve', 'Reserve')} ({marginPercent}%)</dt>
-          <dd className="font-mono text-emerald-200 text-lg">
+          <dd className="font-mono text-emerald-200 text-cp-xl">
             {totalWithMargin.toFixed(0)} W · {(totalWithMargin / 1000).toFixed(2)} kW
           </dd>
           {supply.phases === 1 ? (
@@ -735,7 +735,7 @@ const PowerTab = () => {
                     />
                     {t('calc.phaseLabel', 'Phase')} L{idx + 1}
                   </div>
-                  <div className="font-mono text-base text-slate-100">
+                  <div className="font-mono text-cp-lg text-slate-100">
                     {watts.toFixed(0)} W
                   </div>
                   <div className="font-mono text-[11px] text-slate-300">
@@ -799,7 +799,7 @@ const PowerTab = () => {
                     <td className="truncate py-0.5">
                       {a.name}
                       {a.pinned && (
-                        <span className="ml-1 text-[9px] text-slate-500" title={t('calc.phasePinned', 'Fest zugeordnet')}>📌</span>
+                        <span className="ml-1 text-[9px] text-slate-400" title={t('calc.phasePinned', 'Fest zugeordnet')}>📌</span>
                       )}
                     </td>
                     <td className="text-right font-mono text-slate-400">{a.watts}</td>
@@ -1003,7 +1003,7 @@ const PowerTab = () => {
                 {Math.round(batteryWh)} Wh · {Math.round(usableWh)} Wh {t('calc.ups.usableShort', 'nutzbar')}
               </dd>
               <dt className="text-slate-500">{t('calc.ups.runtime', 'Pufferzeit (geschätzt)')}</dt>
-              <dd className="font-mono text-lg text-emerald-200">
+              <dd className="font-mono text-cp-xl text-emerald-200">
                 {upsLoadW <= 0
                   ? '—'
                   : runtimeMin >= 60
@@ -1094,7 +1094,7 @@ const PowerTab = () => {
                 {vdropVolts.toFixed(1)} V
               </dd>
               <dt className="text-slate-500">{t('calc.vdrop.percent', 'Relativ')}</dt>
-              <dd className="font-mono text-lg">
+              <dd className="font-mono text-cp-xl">
                 <span
                   className={
                     vdropPercent > 5

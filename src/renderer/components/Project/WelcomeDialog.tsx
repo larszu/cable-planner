@@ -81,7 +81,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
         >
           <Icon icon={FileText} size="lg" className="mt-0.5 text-emerald-400" />
           <span className="flex-1">
-            <span className="block text-sm font-semibold">
+            <span className="block text-cp-base font-semibold">
               {t('project.welcome.newTitle', 'Neues Projekt')}
             </span>
             <span className="block text-[11px] text-slate-400">
@@ -100,7 +100,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
         >
           <Icon icon={FolderOpen} size="lg" className="mt-0.5 text-sky-400" />
           <span className="flex-1">
-            <span className="block text-sm font-semibold">
+            <span className="block text-cp-base font-semibold">
               {t('project.welcome.openTitle', 'Projekt öffnen…')}
             </span>
             <span className="block text-[11px] text-slate-400">

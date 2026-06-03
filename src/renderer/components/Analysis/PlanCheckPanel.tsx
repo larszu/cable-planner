@@ -74,7 +74,7 @@ export const PlanCheckPanel = () => {
           {findings.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-10 text-emerald-400">
               <Icon icon={CheckCircle2} size="lg" />
-              <span className="text-sm">{t('planCheck.allClear', 'Keine Auffälligkeiten gefunden.')}</span>
+              <span className="text-cp-base">{t('planCheck.allClear', 'Keine Auffälligkeiten gefunden.')}</span>
             </div>
           ) : (
             <ul className="divide-y divide-slate-800/60">

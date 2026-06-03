@@ -49,14 +49,14 @@ const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
           type="button"
           onClick={run}
           disabled={disabled}
-          className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-40"
+          className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
         >
           {busy
             ? t('settings.sharedLib.syncing', 'Synchronisiere…')
             : t('settings.sharedLib.syncNow', 'Bibliothek jetzt synchronisieren')}
         </button>
         {!syncPath.trim() && (
-          <span className="text-[11px] text-slate-500">
+          <span className="text-[11px] text-slate-400">
             {t('settings.sharedLib.needPath', 'Erst oben ein Sync-Verzeichnis setzen.')}
           </span>
         )}
@@ -108,7 +108,7 @@ export const SyncTab = () => {
   const t = useTranslation()
 
   return (
-    <div className="space-y-3 text-sm">
+    <div className="space-y-3 text-cp-base">
       <CollabPanel />
       {!hasDesktopBridge && (
         <div className="rounded border border-amber-700/50 bg-amber-900/20 p-2 text-cp-xs text-amber-300">
@@ -124,7 +124,7 @@ export const SyncTab = () => {
           'Gemeinsames Verzeichnis (FTP-Laufwerk, Netzwerkpfad oder lokaler Ordner), in dem Projekt, Bibliothek und Presets als JSON-Dateien geteilt werden.',
         )}
       </p>
-      <label className="block text-sm text-slate-300">
+      <label className="block text-cp-base text-slate-300">
         {t('settings.sync.path', 'Sync-Verzeichnis')}
         <input
           type="text"
@@ -134,13 +134,13 @@ export const SyncTab = () => {
           placeholder={t('settings.sync.pathPlaceholder', 'Z:\\Projekte\\CablePlanner oder \\\\server\\share\\cable-planner')}
         />
       </label>
-      <label className="block text-sm text-slate-300">
+      <label className="block text-cp-base text-slate-300">
         {t('settings.sync.user', 'Benutzername (für Lock-Anzeige)')}
         <input
           type="text"
           value={draftSyncUser}
           onChange={(e) => setDraftSyncUser(e.target.value)}
-          className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm"
+          className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
           placeholder={t('settings.sync.userPlaceholder', 'z. B. Max Mustermann')}
         />
       </label>
@@ -151,7 +151,7 @@ export const SyncTab = () => {
             setDraftSyncPath(sharedSyncPath)
             setDraftSyncUser(sharedSyncUser)
           }}
-          className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
+          className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600"
         >
           {t('common.reset', 'Zurücksetzen')}
         </button>
@@ -161,7 +161,7 @@ export const SyncTab = () => {
             setSyncPath(draftSyncPath)
             setSyncUser(draftSyncUser)
           }}
-          className="rounded bg-emerald-600 px-3 py-1 text-sm hover:bg-emerald-500"
+          className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500"
         >
           {t('common.save', 'Speichern')}
         </button>

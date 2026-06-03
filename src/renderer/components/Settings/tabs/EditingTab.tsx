@@ -27,7 +27,7 @@ const CableEndpointLabelsCard = () => {
         'Zeigt an jedem Kabelende ein kleines Label das anzeigt, wohin das andere Ende geht — am Source-Ende "→ Ziel-Geraet · Ziel-Port", am Target-Ende "← Quell-Geraet · Quell-Port". Hilft beim Verfolgen von Kabeln ohne ihnen visuell folgen zu muessen.',
       )}
     >
-      <label className="flex items-center gap-2 text-sm text-slate-200">
+      <label className="flex items-center gap-2 text-cp-base text-slate-200">
         <input
           type="checkbox"
           checked={showCableEndpointLabels}
@@ -61,7 +61,7 @@ const CableInheritTypeCard = () => {
         'Wenn ein Port-Connector geaendert wird (z.B. BNC -> XLR), uebernehmen verbundene Kabel automatisch den neuen Typ. Gilt auch beim Umstecken auf einen Port mit anderem Connector. Kabel mit Konverter-Hinweis (needsConverter) bleiben unberuehrt.',
       )}
     >
-      <label className="flex items-center gap-2 text-sm text-slate-200">
+      <label className="flex items-center gap-2 text-cp-base text-slate-200">
         <input
           type="checkbox"
           checked={inheritCableTypeFromPort}
@@ -95,7 +95,7 @@ const CableReconnectOptionsCard = () => {
         'Beim Umstecken eines Kabels uebernimmt der neue Port den User-Namen vom alten Port. Der alte Port faellt auf seinen Template-default zurueck. Spart Copy-Paste vom Label.',
       )}
     >
-      <label className="flex items-center gap-2 text-sm text-slate-200">
+      <label className="flex items-center gap-2 text-cp-base text-slate-200">
         <input
           type="checkbox"
           checked={swapLabelsOnReconnect}
@@ -131,7 +131,7 @@ const CableVisualOptionsCard = () => {
         'Visuelle Hilfen für orthogonal verlegte Kabel (yEd-ähnliche Brücken bei Kreuzungen und automatische Versetzung sich überlagernder Mittellinien).',
       )}
     >
-      <label className="mb-2 flex items-center gap-2 text-sm text-slate-200">
+      <label className="mb-2 flex items-center gap-2 text-cp-base text-slate-200">
         <input
           type="checkbox"
           checked={cableBumps}
@@ -142,7 +142,7 @@ const CableVisualOptionsCard = () => {
           'Kreuzungs-Brücken auf orthogonalen Kabeln',
         )}
       </label>
-      <label className="flex items-center gap-2 text-sm text-slate-200">
+      <label className="flex items-center gap-2 text-cp-base text-slate-200">
         <input
           type="checkbox"
           checked={orthogonalCollisionShift}
@@ -199,7 +199,7 @@ export const EditingTab = () => {
               if (c.routing !== defaultRouting) updateCable(c.id, { routing: defaultRouting })
             })
           }}
-          className="mt-2 w-full rounded bg-slate-800 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-700 disabled:opacity-40"
+          className="mt-2 w-full rounded bg-slate-800 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-700 disabled:opacity-50"
         >
           {format(
             t('settings.editing.routing.applyAll', 'Auf alle bestehenden Kabel anwenden ({count})'),
@@ -212,7 +212,7 @@ export const EditingTab = () => {
         title={t('settings.editing.grid', 'Raster (Grid)')}
         description={t('settings.editing.gridDesc', 'Snap-to-Grid und Rastergröße in Pixeln.')}
       >
-        <label className="flex items-center gap-2 text-sm text-slate-200">
+        <label className="flex items-center gap-2 text-cp-base text-slate-200">
           <input
             type="checkbox"
             checked={snapToGrid}
@@ -220,7 +220,7 @@ export const EditingTab = () => {
           />
           {t('settings.editing.snapLabel', 'Geräte am Raster einrasten')}
         </label>
-        <label className="mt-2 block text-sm text-slate-300">
+        <label className="mt-2 block text-cp-base text-slate-300">
           {t('settings.editing.gridSize', 'Rastergröße (Pixel)')}
           <input
             type="number"

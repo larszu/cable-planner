@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { RoutingToggle } from '../shared/RoutingToggle'
 import { format, useTranslation } from '../../lib/i18n'
 import { STANDARD_LAYERS, LAYER_STYLES } from '../../lib/cableLayers'
+import { netKeyOf, netPeerCount } from '../../lib/offPageNet'
 
 export const CableProperties = () => {
   const t = useTranslation()
@@ -246,6 +247,78 @@ export const CableProperties = () => {
         />
         {t('cable.field.tieLine', 'Tie-Line / Festverbindung (permanent)')}
       </label>
+
+      {/* #221 — Off-Page-/Pfeil-Connector. Statt einer Linie quer über den
+          Plan wird an jedem Ende ein benanntes Connector-Symbol gezeichnet.
+          Segmente mit gleichem Netznamen bilden ein gemeinsames Netz. */}
+      <div className="rounded border border-slate-700 bg-slate-950/50 p-2 space-y-2">
+        <label className="flex items-center gap-2 text-[11px] text-slate-300 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={!!cable.offPage}
+            onChange={(event) => {
+              const on = event.target.checked
+              updateCable(cable.id, {
+                offPage: on || undefined,
+                ...(on && !cable.netName ? { netName: cable.name } : {}),
+              })
+            }}
+          />
+          <span className="font-semibold">
+            {t('cable.field.offPage', 'Off-Page-Verbindung (Pfeil-Connector)')}
+          </span>
+        </label>
+        {cable.offPage && (
+          <div className="pl-5 space-y-1">
+            <label className="block">
+              <span className="mb-0.5 block text-[10px] text-slate-400">
+                {t('cable.field.netName', 'Netzname / Signalname')}
+              </span>
+              <input
+                list="cp-offpage-nets"
+                value={cable.netName ?? ''}
+                placeholder={cable.name}
+                onChange={(event) =>
+                  updateCable(cable.id, { netName: event.target.value.trim() || undefined })
+                }
+                className="w-full rounded border border-slate-700 bg-slate-900 p-1.5 text-cp-xs"
+              />
+              <datalist id="cp-offpage-nets">
+                {[
+                  ...new Set(
+                    cables
+                      .filter((c) => c.offPage)
+                      .map((c) => netKeyOf(c))
+                      .filter((n): n is string => !!n),
+                  ),
+                ].map((n) => (
+                  <option key={n} value={n} />
+                ))}
+              </datalist>
+            </label>
+            {(() => {
+              const peers = netPeerCount(cables, cable)
+              const key = netKeyOf(cable)
+              return (
+                <p className={`text-[10px] ${peers > 0 ? 'text-amber-300' : 'text-slate-400'}`}>
+                  {peers > 0
+                    ? format(
+                        t(
+                          'cable.offPage.netPeers',
+                          '{n} weitere(s) Segment(e) im Netz „{net}" — werden logisch verbunden.',
+                        ),
+                        { n: peers, net: key ?? '' },
+                      )
+                    : t(
+                        'cable.offPage.netSolo',
+                        'Erstes Segment. Ein zweites mit gleichem Netznamen verbindet sich automatisch.',
+                      )}
+                </p>
+              )
+            })()}
+          </div>
+        )}
+      </div>
 
       {/* Endpoint editor — inline accordion (open by default) so users can
           re-route a cable from the properties panel without opening a dialog. */}

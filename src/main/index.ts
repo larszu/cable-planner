@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, shell } from 'electron'
+import { app, BrowserWindow, Menu, session, shell } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
@@ -22,6 +22,25 @@ const __dirname = path.dirname(__filename)
 
 const isDev = Boolean(process.env.VITE_DEV_SERVER_URL)
 const shouldOpenDevTools = process.env.ELECTRON_OPEN_DEVTOOLS === '1'
+
+// Append to a log file with a hard size cap so a crash-loop can't fill
+// the user's disk. When the file passes the cap it is rotated to `.1`.
+const LOG_MAX_BYTES = 2 * 1024 * 1024 // 2 MB
+const appendLogCapped = (fileName: string, msg: string): void => {
+  try {
+    const file = path.join(app.getPath('userData'), fileName)
+    try {
+      if (fs.statSync(file).size > LOG_MAX_BYTES) {
+        fs.renameSync(file, `${file}.1`)
+      }
+    } catch {
+      /* no existing file → fine */
+    }
+    fs.appendFileSync(file, msg)
+  } catch {
+    /* ignore */
+  }
+}
 
 // Prevents black-screen rendering issues seen on some Windows GPU drivers.
 if (process.platform === 'win32') {
@@ -100,9 +119,28 @@ const createWindow = async () => {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
       preload: path.join(__dirname, 'preload.cjs'),
     },
   })
+
+  // Harden the renderer trust boundary:
+  //  - deny in-app navigation to foreign origins (a malicious link/redirect
+  //    must not be able to load attacker content into the privileged frame),
+  //  - route window.open / target=_blank to the OS browser instead of a new
+  //    Electron window that would inherit the preload bridge.
+  const appOrigin = isDev && process.env.VITE_DEV_SERVER_URL
+    ? new URL(process.env.VITE_DEV_SERVER_URL).origin
+    : 'file://'
+  mainWindow.webContents.on('will-navigate', (event, navUrl) => {
+    const ok = isDev ? navUrl.startsWith(appOrigin) : navUrl.startsWith('file://')
+    if (!ok) {
+      event.preventDefault()
+      if (/^https?:/.test(navUrl)) void shell.openExternal(navUrl)
+    }
+  })
+  // Popout-/Link-Verhalten wird weiter unten in EINEM setWindowOpenHandler
+  // geregelt (Popout-Fenster zulassen + Preload, externe Links in den Browser).
   if (geometry.maximized) mainWindow.maximize()
   // Persist on user-initiated resize/move/maximize so even crashes
   // don't lose the user's window placement.
@@ -120,9 +158,7 @@ const createWindow = async () => {
   mainWindow.webContents.on('did-fail-load', (_event, code, description, url) => {
     const msg = `[did-fail-load] code=${code} desc=${description} url=${url}\n`
     console.error(msg)
-    try {
-      fs.appendFileSync(path.join(app.getPath('userData'), 'renderer-error.log'), msg)
-    } catch { /* ignore */ }
+    appendLogCapped('renderer-error.log', msg)
   })
 
   // v7.9.4 — `show: false` + ready-to-show MUSS vor loadURL registriert
@@ -160,9 +196,7 @@ const createWindow = async () => {
       (typeof e.level === 'number' && e.level >= 2)
     if (!isSerious) return
     const msg = `[renderer][${e.level}] ${e.message ?? ''} (${e.sourceId ?? '?'}:${e.lineNumber ?? '?'})\n`
-    try {
-      fs.appendFileSync(path.join(app.getPath('userData'), 'renderer-error.log'), msg)
-    } catch { /* ignore */ }
+    appendLogCapped('renderer-error.log', msg)
   })
 
   // #427 — Panel-Popouts (`window.open(... ?popout=<panel>)`) sind eigene
@@ -192,6 +226,7 @@ const createWindow = async () => {
           webPreferences: {
             contextIsolation: true,
             nodeIntegration: false,
+            sandbox: true,
             preload: path.join(__dirname, 'preload.cjs'),
           },
         },
@@ -231,20 +266,50 @@ const createWindow = async () => {
     await mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 
-  // F12 opens DevTools for debugging in production
-  mainWindow.webContents.on('before-input-event', (_event, input) => {
-    if (input.key === 'F12' && input.type === 'keyDown') {
-      if (mainWindow.webContents.isDevToolsOpened()) {
-        mainWindow.webContents.closeDevTools()
-      } else {
-        mainWindow.webContents.openDevTools({ mode: 'detach' })
+  // F12 toggles DevTools — only in dev / when explicitly opted in. Shipping
+  // a Node-backed console into production hands an attacker (or a curious
+  // user with a malicious project file) the full IPC surface.
+  if (isDev || shouldOpenDevTools) {
+    mainWindow.webContents.on('before-input-event', (_event, input) => {
+      if (input.key === 'F12' && input.type === 'keyDown') {
+        if (mainWindow.webContents.isDevToolsOpened()) {
+          mainWindow.webContents.closeDevTools()
+        } else {
+          mainWindow.webContents.openDevTools({ mode: 'detach' })
+        }
       }
-    }
-  })
+    })
+  }
 }
 
 app.whenReady().then(async () => {
   Menu.setApplicationMenu(null)
+
+  // Content-Security-Policy for the packaged renderer. Skipped in dev
+  // because Vite's HMR needs inline/eval scripts and a ws: connection;
+  // the threat model is the shipped app, not the local dev server.
+  if (!isDev) {
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': [
+            "default-src 'self'; " +
+              "script-src 'self'; " +
+              "style-src 'self' 'unsafe-inline'; " +
+              "img-src 'self' data: blob:; " +
+              "font-src 'self' data:; " +
+              // ws:/wss: für die Live-Kollaboration (y-webrtc-Signaling: lokaler
+              // LAN-Server + öffentlicher Fallback) — sonst blockt die CSP den
+              // Signaling-WebSocket und keine Session verbindet sich.
+              "connect-src 'self' https://api.rentman.net https://generativelanguage.googleapis.com ws: wss:; " +
+              "object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
+          ],
+          'X-Content-Type-Options': ['nosniff'],
+        },
+      })
+    })
+  }
 
   registerCredentialsIpc()
   registerRentmanIpc()
