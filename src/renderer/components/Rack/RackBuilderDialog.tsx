@@ -19,6 +19,8 @@ import { RackConflictBadges } from './RackConflictBadges'
 import { RackInternalWireOverlay } from './RackInternalWireOverlay'
 import { RackPlacementProperties } from './RackPlacementProperties'
 import { Splitter } from '../Layout/Splitter'
+import { Icon } from '../shared/Icon'
+import { Box, Columns2, FlipHorizontal2, GalleryVerticalEnd, Maximize2, Minus, Plus, RectangleVertical, Square } from 'lucide-react'
 import type {
   InternalCableDraft,
   RackDraft,
@@ -848,54 +850,6 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               title={t('rack.depthTitle', 'Rack-Tiefe in mm. Standard: 800 mm. Gängige Werte: 350/450/600/800/1000/1200.')}
             />
           </label>
-          {/* v7.9.80 / #170 — "Ansicht" (Front/Rear/Both) ist nach
-              unten in die 2D-Rack-Spalte gewandert (als Tab-Bar dort);
-              Grid hier ist auf 4 Spalten reduziert (Name=2fr, Höhe,
-              Tiefe, Zoom). */}
-          <div className="block text-cp-xs font-medium text-slate-300">
-            <div className="flex items-baseline justify-between">
-              <span>{t('rack.zoom', 'Zoom')}</span>
-              <span className="text-[10px] font-normal text-slate-400">
-                {Math.round(zoom * 100)}% · {Math.round(rowHeight)} px/HE
-              </span>
-            </div>
-            <div className="mt-1 flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700 bg-slate-900 text-cp-base text-slate-300 hover:bg-slate-800"
-                title={t('rack.zoomOut', 'Verkleinern')}
-              >
-                −
-              </button>
-              <input
-                type="range"
-                min={0.5}
-                max={2}
-                step={0.05}
-                value={zoom}
-                onChange={(event) => setZoom(Number(event.target.value) || 1)}
-                className="flex-1 accent-sky-500"
-                title={t('rack.zoomSliderTitle', 'Skaliert die HE-Höhe. Auto-Fit passt das Rack in den sichtbaren Bereich.')}
-              />
-              <button
-                type="button"
-                onClick={() => setZoom((z) => Math.min(2, +(z + 0.1).toFixed(2)))}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700 bg-slate-900 text-cp-base text-slate-300 hover:bg-slate-800"
-                title={t('rack.zoomIn', 'Vergrößern')}
-              >
-                +
-              </button>
-              <button
-                type="button"
-                onClick={() => setZoom(1)}
-                className="flex h-7 shrink-0 items-center justify-center rounded border border-slate-700 bg-slate-900 px-2 text-[10px] text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-                title={t('rack.zoomFitTitle', 'Auf 100 % zurück (Auto-Fit)')}
-              >
-                {t('rack.zoomFit', 'Fit')}
-              </button>
-            </div>
-          </div>
         </div>
 
         <RackConflictBadges
@@ -1108,38 +1062,82 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 {/* v7.9.73 / #170 — 2D/3D Tab-Toggle. 2D ist der bestehende
                     Front/Rear-Panel-Editor; 3D ist die neue Orbit-Ansicht
                     auf Basis von react-three-fiber. */}
-                <div className="ml-2 flex overflow-hidden rounded border border-slate-700 text-[10px]">
+                <div className="ml-2 inline-flex overflow-hidden rounded-cp-control border border-slate-700 text-[11px] font-medium">
                   <button
                     type="button"
                     onClick={() => setViewTab('2d')}
-                    className={`px-2 py-0.5 ${
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 ${
                       viewTab === '2d'
-                        ? 'bg-sky-700 text-white'
-                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                        ? 'bg-sky-600 text-white'
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                     }`}
                     title={t('rack.tab2dTitle', '2D-Editor: Vorderseite/Rückseite als Panel-Ansichten')}
                   >
-                    2D
+                    <Icon icon={Square} size="xs" /> 2D
                   </button>
                   <button
                     type="button"
                     onClick={() => setViewTab('3d')}
-                    className={`px-2 py-0.5 ${
+                    className={`inline-flex items-center gap-1 border-l border-slate-700 px-2.5 py-1 ${
                       viewTab === '3d'
-                        ? 'bg-purple-700 text-white'
-                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                     }`}
                     title={t('rack.tab3dTitle', '3D-Visualisierung mit Front/Rear-Tiefe und Rotation. Nur-Lesen — bearbeitet wird im 2D-Tab.')}
                   >
-                    3D
+                    <Icon icon={Box} size="xs" /> 3D
                   </button>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-                <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M8 2 L8 14 M5 5 L8 2 L11 5 M5 11 L8 14 L11 11" />
-                </svg>
-                <span>Drag &amp; Drop</span>
+              <div className="flex items-center gap-2">
+                {/* Zoom — direkt an der Rack-Ansicht statt im Kopf-Grid; intuitiver
+                    Stepper (−/Prozent/+/Einpassen) statt Slider. Nur im 2D-Tab,
+                    weil 3D per Orbit/Scroll zoomt. Klick aufs Prozent = Auto-Fit. */}
+                {viewTab === '2d' && (
+                  <div className="flex items-center gap-0.5 rounded-cp-control border border-slate-700 bg-slate-900/60 p-0.5 text-slate-300">
+                    <button
+                      type="button"
+                      onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))}
+                      className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-800"
+                      title={t('rack.zoomOut', 'Verkleinern')}
+                      aria-label={t('rack.zoomOut', 'Verkleinern')}
+                    >
+                      <Icon icon={Minus} size="xs" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setZoom(1)}
+                      className="min-w-[2.75rem] rounded px-1 text-center text-[11px] tabular-nums hover:bg-slate-800"
+                      title={t('rack.zoomFitTitle', 'Auf 100 % zurück (Auto-Fit)')}
+                    >
+                      {Math.round(zoom * 100)}%
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setZoom((z) => Math.min(2, +(z + 0.1).toFixed(2)))}
+                      className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-800"
+                      title={t('rack.zoomIn', 'Vergrößern')}
+                      aria-label={t('rack.zoomIn', 'Vergrößern')}
+                    >
+                      <Icon icon={Plus} size="xs" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setZoom(1)}
+                      className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-800"
+                      title={t('rack.zoomFit', 'Einpassen (Auto-Fit)')}
+                      aria-label={t('rack.zoomFit', 'Einpassen')}
+                    >
+                      <Icon icon={Maximize2} size="xs" />
+                    </button>
+                  </div>
+                )}
+                <div className="hidden items-center gap-1.5 text-[10px] text-slate-400 sm:flex">
+                  <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M8 2 L8 14 M5 5 L8 2 L11 5 M5 11 L8 14 L11 11" />
+                  </svg>
+                  <span>Drag &amp; Drop</span>
+                </div>
               </div>
             </div>
             {draft.placements.length === 0 && (
@@ -1202,27 +1200,25 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             {viewTab === '2d' && (
               <div className="mb-2 flex overflow-hidden rounded-cp-control border border-slate-700 text-[11px]">
                 {([
-                  ['front', t('rack.viewMode.front', 'Nur vorne'), '#22c55e'],
-                  ['both', t('rack.viewMode.both', 'Beide'), '#64748b'],
-                  ['rear', t('rack.viewMode.rear', 'Nur hinten'), '#a855f7'],
-                  ['side', t('rack.viewMode.side', 'Seite (Tiefe)'), '#0ea5e9'],
-                ] as const).map(([mode, label, color]) => (
+                  ['front', t('rack.viewMode.front', 'Vorne'), RectangleVertical],
+                  ['rear', t('rack.viewMode.rear', 'Hinten'), FlipHorizontal2],
+                  ['both', t('rack.viewMode.both', 'Beide'), Columns2],
+                  ['side', t('rack.viewMode.side', 'Seite'), GalleryVerticalEnd],
+                ] as const).map(([mode, label, icon]) => (
                   <button
                     key={mode}
                     type="button"
                     onClick={() => setDraft((cur) => ({ ...cur, viewMode: mode }))}
-                    className={`flex flex-1 items-center justify-center gap-1.5 px-2 py-1 font-medium transition ${
+                    className={`flex flex-1 items-center justify-center gap-1.5 px-2 py-1.5 font-medium transition ${
                       draft.viewMode === mode
-                        ? 'bg-slate-800 text-white'
+                        ? 'bg-sky-600 text-white'
                         : 'bg-slate-900/50 text-slate-400 hover:bg-slate-800/60'
                     }`}
                     aria-pressed={draft.viewMode === mode}
+                    title={label}
                   >
-                    <span
-                      className="inline-block h-1.5 w-1.5 rounded-full"
-                      style={{ background: color }}
-                    />
-                    {label}
+                    <Icon icon={icon} size="xs" />
+                    <span>{label}</span>
                   </button>
                 ))}
               </div>
