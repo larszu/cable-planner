@@ -30,6 +30,28 @@ interface RentmanProject {
   periodEnd?: string
 }
 
+type RentmanKind = 'device' | 'virtual' | 'physical' | 'comment'
+
+const isTruthy = (v: unknown): boolean =>
+  v === true || v === 1 || v === '1' || v === 'true' || v === 'yes'
+
+/** Defensiv (Rentman-Feldnamen variieren je API-Version/Sprache): erkennt eine
+ *  Kommentar-/Text-Zeile, die KEIN Gerät ist und nicht importiert werden soll. */
+const isRentmanCommentRow = (r: Record<string, unknown>): boolean => {
+  const t = String(r.type ?? r.itemtype ?? r.linetype ?? r.line_type ?? r.rowtype ?? '').toLowerCase()
+  if (/remark|comment|text|note|opmerking|spacer|header|titel|title/.test(t)) return true
+  return (
+    isTruthy(r.isremark) || isTruthy(r.is_remark) || isTruthy(r.iscomment) ||
+    isTruthy(r.is_comment) || isTruthy(r.istext) || isTruthy(r.is_text)
+  )
+}
+
+/** Defensiv: physische Kombination (eine Bestandseinheit) vs. virtuelle. */
+const isRentmanPhysicalFlag = (r: Record<string, unknown>): boolean =>
+  isTruthy(r.is_physical) || isTruthy(r.isphysical) || isTruthy(r.isphysicalcombi) ||
+  isTruthy(r.is_physical_combination) || isTruthy(r.physical) ||
+  /physical/.test(String(r.type ?? '').toLowerCase())
+
 interface RentmanEquipment {
   id: string
   equipmentId: string
@@ -39,6 +61,11 @@ interface RentmanEquipment {
   qty: number
   isSetChild: boolean
   parentId: string | null
+  /** Rentman-Art der Zeile: Einzelgerät, virtuelle/physische Kombination
+   *  oder Kommentar (Text-Zeile, kein Gerät). Defensiv geparst. */
+  kind: RentmanKind
+  /** Anzahl Inhalte einer Kombination (nur bei virtual/physical gesetzt). */
+  contentsCount?: number
   /** v7.9.70 / #167 — Engineering-Daten aus dem Rentman /equipment Endpoint.
    *  Werden beim Import auf das EquipmentTemplate gespiegelt. */
   powerWatts?: number
@@ -107,12 +134,19 @@ const mapEquipment = (
   equipment: unknown[],
   foldersById: Record<string, string>,
   equipmentNamesById: Record<string, string>,
+  masterMetaById: Record<string, { physical: boolean }> = {},
 ): RentmanEquipment[] => {
+  // Defensiv erfasste Roh-Flags pro Zeile (Art-Bestimmung in der 2. Phase).
+  const flagsByRow = new Map<string, { physical: boolean; comment: boolean }>()
   // First pass: build all rows.
   const rows = equipment.map((item) => {
     const record = item as Record<string, unknown>
     const rowId = extractId(record.id ?? record._id) || uuidv4()
     const equipmentId = extractId(record.equipment) || rowId
+    flagsByRow.set(rowId, {
+      physical: isRentmanPhysicalFlag(record) || !!masterMetaById[equipmentId]?.physical,
+      comment: isRentmanCommentRow(record),
+    })
     const folderKey = String(
       record.equipmentfolder ??
         record.folder ??
@@ -167,6 +201,7 @@ const mapEquipment = (
       qty,
       isSetChild: hasParent,
       parentId: hasParent ? parentId : null,
+      kind: 'device',
       powerWatts,
       weightKg,
       depthMm,
@@ -176,14 +211,32 @@ const mapEquipment = (
     } satisfies RentmanEquipment
   })
 
-  // Second pass: drop dangling parentIds (points to an id that doesn't exist in this list)
-  // so those rows behave as top-level items instead of being hidden children.
+  // Second pass: dangling parentIds bereinigen + Art (kind) bestimmen.
   const knownIds = new Set(rows.map((r) => r.id))
-  return rows.map((r) =>
-    r.parentId && !knownIds.has(r.parentId)
-      ? { ...r, parentId: null, isSetChild: false }
-      : r,
+  // Eltern = Zeilen, die von ≥1 anderen Zeile als parent referenziert werden
+  // → das sind die Kombinationen (physisch oder virtuell).
+  const parentIds = new Set(
+    rows.map((r) => r.parentId).filter((p): p is string => !!p && knownIds.has(p)),
   )
+  return rows.map((r) => {
+    const base =
+      r.parentId && !knownIds.has(r.parentId)
+        ? { ...r, parentId: null, isSetChild: false }
+        : r
+    const flags = flagsByRow.get(r.id) ?? { physical: false, comment: false }
+    const isCombination = parentIds.has(r.id)
+    const kind: RentmanKind = flags.comment
+      ? 'comment'
+      : isCombination
+        ? flags.physical
+          ? 'physical'
+          : 'virtual'
+        : 'device'
+    const contentsCount = isCombination
+      ? rows.filter((x) => x.parentId === r.id).length
+      : undefined
+    return { ...base, kind, contentsCount }
+  })
 }
 
 /**
@@ -562,7 +615,15 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         {},
       )
 
-      const mapped = mapEquipment(equipmentData, folders, equipmentNamesById)
+      const masterMetaById = (equipmentMasterData as Record<string, unknown>[]).reduce<
+        Record<string, { physical: boolean }>
+      >((acc, equipment) => {
+        const key = String(equipment.id ?? equipment._id ?? '')
+        if (key) acc[key] = { physical: isRentmanPhysicalFlag(equipment) }
+        return acc
+      }, {})
+
+      const mapped = mapEquipment(equipmentData, folders, equipmentNamesById, masterMetaById)
       setItems(mapped)
 
       // Compare against canvas equipment: flag items no longer in the project.
@@ -618,7 +679,9 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const setAllVisible = (checked: boolean) => {
     const visibleIds = new Set(visibleItems.map((i) => i.id))
     setItems((current) =>
-      current.map((item) => (visibleIds.has(item.id) ? { ...item, checked } : item)),
+      current.map((item) =>
+        visibleIds.has(item.id) && item.kind !== 'comment' ? { ...item, checked } : item,
+      ),
     )
   }
 

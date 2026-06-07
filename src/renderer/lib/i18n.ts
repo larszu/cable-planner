@@ -1641,6 +1641,12 @@ const en: Dict = {
   'rentman.checklist.badge.nameOnlyTitle':
     'Local template "{name}" has the same name but no Rentman ID. On import a conflict dialog appears — default is to keep the local version (with ports) and only attach the Rentman ID.',
   'rentman.checklist.badge.nameOnly': 'Already in library: {name}',
+  'rentman.checklist.kind.comment': 'Comment',
+  'rentman.checklist.kind.physical': 'Physical combi · {n}',
+  'rentman.checklist.kind.physicalTitle': 'Physical combination — one stock unit. Default: as 1 device (or rack).',
+  'rentman.checklist.kind.virtual': 'Virtual combi · {n}',
+  'rentman.checklist.kind.virtualTitle': 'Virtual combination — loose bundle; usually only the main device matters.',
+  'rentman.checklist.kind.set': 'Set · {n}',
   'rentman.checklist.badge.catalogTitle':
     'Match from built-in catalog ("{name}"). Will be adopted as a template automatically on import.',
   'rentman.checklist.badge.catalog': '⊕ Catalog: {name}',
