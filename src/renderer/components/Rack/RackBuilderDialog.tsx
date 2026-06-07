@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import { useSettingsStore } from '../../store/settingsStore'
@@ -18,6 +18,9 @@ import { RackBuilderHeader } from './RackBuilderHeader'
 import { RackConflictBadges } from './RackConflictBadges'
 import { RackInternalWireOverlay } from './RackInternalWireOverlay'
 import { RackPlacementProperties } from './RackPlacementProperties'
+import { Splitter } from '../Layout/Splitter'
+import { Icon } from '../shared/Icon'
+import { Box, Columns2, FlipHorizontal2, GalleryVerticalEnd, Maximize2, Minus, Plus, RectangleVertical, Square } from 'lucide-react'
 import type {
   InternalCableDraft,
   RackDraft,
@@ -314,6 +317,24 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   // sichtbaren Bereich passt.
   const [paneWidth, setPaneWidth] = useState(0)
   const [paneHeight, setPaneHeight] = useState(0)
+  // #509 / Layout — Breite der Bibliotheks-Spalte (per Splitter ziehbar,
+  // persistiert). Wirkt erst ab md; darunter ist das Layout gestapelt.
+  const [libraryColWidth, setLibraryColWidth] = useState<number>(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.rackBuilderLibColV1)
+      const n = raw ? parseInt(raw, 10) : NaN
+      return Number.isFinite(n) ? clamp(n, 200, 520) : 260
+    } catch {
+      return 260
+    }
+  })
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.rackBuilderLibColV1, String(libraryColWidth))
+    } catch {
+      /* localStorage nicht verfügbar — Breite bleibt nur für diese Session */
+    }
+  }, [libraryColWidth])
   useEffect(() => {
     if (!open) return
     const el = rackCanvasRef.current
@@ -742,7 +763,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         style={containerStyle}
         // v7.9.2 — responsive: kein fixes 1400px max-width, sondern
         // 100vw mit Padding. Verhindert horizontal-Scroll auf Laptops.
-        className="max-h-[96vh] w-[min(1400px,calc(100vw-1rem))] overflow-auto rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl sm:p-4"
+        className="flex max-h-[96vh] w-[min(1400px,calc(100vw-1rem))] flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl sm:p-4"
       >
         <RackBuilderHeader
           editingId={editingId}
@@ -762,6 +783,13 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             />
           }
         />
+
+        {/* Layout-Shell — fixer Header (oben) + fixer Footer mit Speichern
+            (unten), NUR dieser Body scrollt. Vorher steckte alles in einem
+            overflow-auto → auf kurzen Fenstern scrollte der ganze Dialog und
+            der Speichern-Button lag unter der Falz. -mx/px hebt das p-3/sm:p-4
+            des Containers auf, damit der Scrollbalken am Rand sitzt. */}
+        <div className="-mx-3 min-h-0 flex-1 overflow-auto px-3 sm:-mx-4 sm:px-4">
 
         {/* v7.9.11 — Control-Bar mit gewichteten Spalten. Name (Pflichtfeld
             + längster Inhalt) bekommt 2 Spalten, Höhe + Ansicht + Zoom je 1.
@@ -822,54 +850,6 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               title={t('rack.depthTitle', 'Rack-Tiefe in mm. Standard: 800 mm. Gängige Werte: 350/450/600/800/1000/1200.')}
             />
           </label>
-          {/* v7.9.80 / #170 — "Ansicht" (Front/Rear/Both) ist nach
-              unten in die 2D-Rack-Spalte gewandert (als Tab-Bar dort);
-              Grid hier ist auf 4 Spalten reduziert (Name=2fr, Höhe,
-              Tiefe, Zoom). */}
-          <div className="block text-cp-xs font-medium text-slate-300">
-            <div className="flex items-baseline justify-between">
-              <span>{t('rack.zoom', 'Zoom')}</span>
-              <span className="text-[10px] font-normal text-slate-400">
-                {Math.round(zoom * 100)}% · {Math.round(rowHeight)} px/HE
-              </span>
-            </div>
-            <div className="mt-1 flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700 bg-slate-900 text-cp-base text-slate-300 hover:bg-slate-800"
-                title={t('rack.zoomOut', 'Verkleinern')}
-              >
-                −
-              </button>
-              <input
-                type="range"
-                min={0.5}
-                max={2}
-                step={0.05}
-                value={zoom}
-                onChange={(event) => setZoom(Number(event.target.value) || 1)}
-                className="flex-1 accent-sky-500"
-                title={t('rack.zoomSliderTitle', 'Skaliert die HE-Höhe. Auto-Fit passt das Rack in den sichtbaren Bereich.')}
-              />
-              <button
-                type="button"
-                onClick={() => setZoom((z) => Math.min(2, +(z + 0.1).toFixed(2)))}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-slate-700 bg-slate-900 text-cp-base text-slate-300 hover:bg-slate-800"
-                title={t('rack.zoomIn', 'Vergrößern')}
-              >
-                +
-              </button>
-              <button
-                type="button"
-                onClick={() => setZoom(1)}
-                className="flex h-7 shrink-0 items-center justify-center rounded border border-slate-700 bg-slate-900 px-2 text-[10px] text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-                title={t('rack.zoomFitTitle', 'Auf 100 % zurück (Auto-Fit)')}
-              >
-                {t('rack.zoomFit', 'Fit')}
-              </button>
-            </div>
-          </div>
         </div>
 
         <RackConflictBadges
@@ -880,8 +860,15 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
 
         {/* v7.9.2 — responsiver: 1-Spalter bis md, 2-Spalter md (Library
             + Rack), 3-Spalter ab xl. Verhindert horizontal-Overflow. */}
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-[240px_1fr] xl:grid-cols-[260px_1fr_300px]">
-          <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
+        {/* Layout — responsives 3-Spalten-Grid (Bibliothek | Rack | Properties).
+            Bibliotheks-Spalte ist per Splitter ziehbar (--lib-col). minmax(0,1fr)
+            lässt die Rack-Spalte echt schrumpfen (sonst Overflow bei schmal).
+            3 Spalten schon ab lg (statt xl), damit Laptops alle Panels sehen. */}
+        <div
+          style={{ '--lib-col': `${libraryColWidth}px` } as CSSProperties}
+          className="grid grid-cols-1 gap-3 md:grid-cols-[var(--lib-col)_minmax(0,1fr)] lg:grid-cols-[var(--lib-col)_minmax(0,1fr)_300px]"
+        >
+          <div className="relative rounded border border-slate-700 bg-slate-950/50 p-2">
             {/* v7.9.11 — Library-Header mit Counter, dann Search-Input
                 mit Magnifier-Icon + Clear-Button für bessere Affordance. */}
             <div className="mb-2 flex items-center justify-between">
@@ -1014,8 +1001,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1">
-                          <span className="truncate font-medium text-slate-100">{template.name}</span>
+                        <div className="flex flex-wrap items-start gap-x-1 gap-y-0.5">
+                          {/* #509 — Name bricht in weitere Zeilen um statt mit
+                              … abzuschneiden (min-w-0 + break-words lassen den
+                              Flex-Text wirklich umbrechen). */}
+                          <span className="min-w-0 break-words font-medium leading-snug text-slate-100">{template.name}</span>
                           {placedCount > 0 && (
                             <span
                               className="shrink-0 rounded bg-emerald-800/70 px-1 text-[8px] font-semibold uppercase text-emerald-200"
@@ -1033,7 +1023,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             </span>
                           )}
                         </div>
-                        <div className="truncate text-[10px] text-slate-400">{template.category}</div>
+                        <div className="break-words text-[10px] text-slate-400">{template.category}</div>
                       </div>
                       {/* v7.9.80 / #170 — Split-Button: Hauptaktion
                           "+ Hinzufügen" (Default = full-depth) + kleines
@@ -1055,6 +1045,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 )
               })}
             </div>
+            {/* Layout — Splitter zum Verbreitern/Verschmälern der Bibliotheks-
+                Spalte. Nur ab md sichtbar (darunter ist alles gestapelt). */}
+            <div className="absolute inset-y-0 right-0 hidden md:block">
+              <Splitter side="left" onResize={(d) => setLibraryColWidth((w) => clamp(w + d, 200, 520))} />
+            </div>
           </div>
 
           <div className="min-w-0 rounded border border-slate-700 bg-slate-950/50 p-2">
@@ -1067,38 +1062,82 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 {/* v7.9.73 / #170 — 2D/3D Tab-Toggle. 2D ist der bestehende
                     Front/Rear-Panel-Editor; 3D ist die neue Orbit-Ansicht
                     auf Basis von react-three-fiber. */}
-                <div className="ml-2 flex overflow-hidden rounded border border-slate-700 text-[10px]">
+                <div className="ml-2 inline-flex overflow-hidden rounded-cp-control border border-slate-700 text-[11px] font-medium">
                   <button
                     type="button"
                     onClick={() => setViewTab('2d')}
-                    className={`px-2 py-0.5 ${
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 ${
                       viewTab === '2d'
-                        ? 'bg-sky-700 text-white'
-                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                        ? 'bg-sky-600 text-white'
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                     }`}
                     title={t('rack.tab2dTitle', '2D-Editor: Vorderseite/Rückseite als Panel-Ansichten')}
                   >
-                    2D
+                    <Icon icon={Square} size="xs" /> 2D
                   </button>
                   <button
                     type="button"
                     onClick={() => setViewTab('3d')}
-                    className={`px-2 py-0.5 ${
+                    className={`inline-flex items-center gap-1 border-l border-slate-700 px-2.5 py-1 ${
                       viewTab === '3d'
-                        ? 'bg-purple-700 text-white'
-                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                     }`}
                     title={t('rack.tab3dTitle', '3D-Visualisierung mit Front/Rear-Tiefe und Rotation. Nur-Lesen — bearbeitet wird im 2D-Tab.')}
                   >
-                    3D
+                    <Icon icon={Box} size="xs" /> 3D
                   </button>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-                <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M8 2 L8 14 M5 5 L8 2 L11 5 M5 11 L8 14 L11 11" />
-                </svg>
-                <span>Drag &amp; Drop</span>
+              <div className="flex items-center gap-2">
+                {/* Zoom — direkt an der Rack-Ansicht statt im Kopf-Grid; intuitiver
+                    Stepper (−/Prozent/+/Einpassen) statt Slider. Nur im 2D-Tab,
+                    weil 3D per Orbit/Scroll zoomt. Klick aufs Prozent = Auto-Fit. */}
+                {viewTab === '2d' && (
+                  <div className="flex items-center gap-0.5 rounded-cp-control border border-slate-700 bg-slate-900/60 p-0.5 text-slate-300">
+                    <button
+                      type="button"
+                      onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))}
+                      className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-800"
+                      title={t('rack.zoomOut', 'Verkleinern')}
+                      aria-label={t('rack.zoomOut', 'Verkleinern')}
+                    >
+                      <Icon icon={Minus} size="xs" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setZoom(1)}
+                      className="min-w-[2.75rem] rounded px-1 text-center text-[11px] tabular-nums hover:bg-slate-800"
+                      title={t('rack.zoomFitTitle', 'Auf 100 % zurück (Auto-Fit)')}
+                    >
+                      {Math.round(zoom * 100)}%
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setZoom((z) => Math.min(2, +(z + 0.1).toFixed(2)))}
+                      className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-800"
+                      title={t('rack.zoomIn', 'Vergrößern')}
+                      aria-label={t('rack.zoomIn', 'Vergrößern')}
+                    >
+                      <Icon icon={Plus} size="xs" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setZoom(1)}
+                      className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-800"
+                      title={t('rack.zoomFit', 'Einpassen (Auto-Fit)')}
+                      aria-label={t('rack.zoomFit', 'Einpassen')}
+                    >
+                      <Icon icon={Maximize2} size="xs" />
+                    </button>
+                  </div>
+                )}
+                <div className="hidden items-center gap-1.5 text-[10px] text-slate-400 sm:flex">
+                  <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M8 2 L8 14 M5 5 L8 2 L11 5 M5 11 L8 14 L11 11" />
+                  </svg>
+                  <span>Drag &amp; Drop</span>
+                </div>
               </div>
             </div>
             {draft.placements.length === 0 && (
@@ -1161,27 +1200,25 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             {viewTab === '2d' && (
               <div className="mb-2 flex overflow-hidden rounded-cp-control border border-slate-700 text-[11px]">
                 {([
-                  ['front', t('rack.viewMode.front', 'Nur vorne'), '#22c55e'],
-                  ['both', t('rack.viewMode.both', 'Beide'), '#64748b'],
-                  ['rear', t('rack.viewMode.rear', 'Nur hinten'), '#a855f7'],
-                  ['side', t('rack.viewMode.side', 'Seite (Tiefe)'), '#0ea5e9'],
-                ] as const).map(([mode, label, color]) => (
+                  ['front', t('rack.viewMode.front', 'Vorne'), RectangleVertical],
+                  ['rear', t('rack.viewMode.rear', 'Hinten'), FlipHorizontal2],
+                  ['both', t('rack.viewMode.both', 'Beide'), Columns2],
+                  ['side', t('rack.viewMode.side', 'Seite'), GalleryVerticalEnd],
+                ] as const).map(([mode, label, icon]) => (
                   <button
                     key={mode}
                     type="button"
                     onClick={() => setDraft((cur) => ({ ...cur, viewMode: mode }))}
-                    className={`flex flex-1 items-center justify-center gap-1.5 px-2 py-1 font-medium transition ${
+                    className={`flex flex-1 items-center justify-center gap-1.5 px-2 py-1.5 font-medium transition ${
                       draft.viewMode === mode
-                        ? 'bg-slate-800 text-white'
+                        ? 'bg-sky-600 text-white'
                         : 'bg-slate-900/50 text-slate-400 hover:bg-slate-800/60'
                     }`}
                     aria-pressed={draft.viewMode === mode}
+                    title={label}
                   >
-                    <span
-                      className="inline-block h-1.5 w-1.5 rounded-full"
-                      style={{ background: color }}
-                    />
-                    {label}
+                    <Icon icon={icon} size="xs" />
+                    <span>{label}</span>
                   </button>
                 ))}
               </div>
@@ -1618,7 +1655,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           {/* v7.9.2 — Auf md-Bildschirmen (2 Spalten) spannen sich die
               Geräte-Properties über die volle Breite unterhalb der
               Library/Rack-Spalten. Ab xl sind sie wieder die 3. Spalte. */}
-          <div className="space-y-3 md:col-span-2 xl:col-span-1">
+          <div className="space-y-3 md:col-span-2 lg:col-span-1">
           {/* v7.9.9 — Live-Preview-Pane: Black-Box auf Canvas + interne
               Verkabelung — Updates live mit jeder Draft-Änderung. */}
           <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
@@ -1657,6 +1694,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
 
           </div>
         </div>
+        </div>{/* /Layout-Shell-Body */}
 
         {selectedPlacement && (
           <RackPlacementProperties
