@@ -761,7 +761,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         style={containerStyle}
         // v7.9.2 — responsive: kein fixes 1400px max-width, sondern
         // 100vw mit Padding. Verhindert horizontal-Scroll auf Laptops.
-        className="max-h-[96vh] w-[min(1400px,calc(100vw-1rem))] overflow-auto rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl sm:p-4"
+        className="flex max-h-[96vh] w-[min(1400px,calc(100vw-1rem))] flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl sm:p-4"
       >
         <RackBuilderHeader
           editingId={editingId}
@@ -781,6 +781,13 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             />
           }
         />
+
+        {/* Layout-Shell — fixer Header (oben) + fixer Footer mit Speichern
+            (unten), NUR dieser Body scrollt. Vorher steckte alles in einem
+            overflow-auto → auf kurzen Fenstern scrollte der ganze Dialog und
+            der Speichern-Button lag unter der Falz. -mx/px hebt das p-3/sm:p-4
+            des Containers auf, damit der Scrollbalken am Rand sitzt. */}
+        <div className="-mx-3 min-h-0 flex-1 overflow-auto px-3 sm:-mx-4 sm:px-4">
 
         {/* v7.9.11 — Control-Bar mit gewichteten Spalten. Name (Pflichtfeld
             + längster Inhalt) bekommt 2 Spalten, Höhe + Ansicht + Zoom je 1.
@@ -1691,6 +1698,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
 
           </div>
         </div>
+        </div>{/* /Layout-Shell-Body */}
 
         {selectedPlacement && (
           <RackPlacementProperties
