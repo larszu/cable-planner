@@ -401,6 +401,9 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const [cablePlanSelected, setCablePlanSelected] = useState<Set<string>>(new Set())
   const [cablePlanQty, setCablePlanQty] = useState<Record<string, number>>({})
   const [cablePlanResult, setCablePlanResult] = useState<{ kind: 'ok' | 'warn'; text: string } | null>(null)
+  // Entschlackung: Kabelmengen-Sektion standardmäßig eingeklappt (eigener
+  // Schritt), damit sie nicht unter der Geräteliste mit aufquillt.
+  const [cablePlanOpen, setCablePlanOpen] = useState(false)
 
   const allCategories = useMemo(() => {
     const set = new Set<string>()
@@ -1769,12 +1772,21 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
 
             {cableBuckets.length > 0 && (
               <div className="mt-4 rounded border border-orange-800/60 bg-orange-950/20 p-3">
-                <div className="mb-2 flex items-center justify-between">
-                  <div>
-                    <div className="text-cp-base font-semibold text-orange-200">
-                      {t('rentman.import.cablePlan.heading', 'Kabelmengen aus Rentman übernehmen')}
-                    </div>
-                  </div>
+                <button
+                  type="button"
+                  onClick={() => setCablePlanOpen((o) => !o)}
+                  className="flex w-full items-center justify-between text-left"
+                >
+                  <span className="text-cp-base font-semibold text-orange-200">
+                    {cablePlanOpen ? '▾ ' : '▸ '}
+                    {format(t('rentman.import.cablePlan.headingN', 'Kabelmengen aus Rentman ({count})'), { count: cableBuckets.length })}
+                  </span>
+                  <span className="text-[11px] text-orange-300/70">
+                    {cablePlanOpen ? t('rentman.import.cablePlan.collapse', 'einklappen') : t('rentman.import.cablePlan.expand', 'öffnen')}
+                  </span>
+                </button>
+                {cablePlanOpen && (<>
+                <div className="mb-2 mt-2 flex items-center justify-end">
                   <div className="flex gap-1 text-[11px]">
                     {(() => {
                       const allSelected =
@@ -1855,6 +1867,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                     {t('rentman.import.cablePlan.apply', 'Kabelmengen übernehmen')}
                   </button>
                 </div>
+                </>)}
               </div>
             )}
 
