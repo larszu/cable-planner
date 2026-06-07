@@ -694,6 +694,33 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
 
 
 
+  // Stufe 3 — "Nur Hauptgerät": meist ist in einer Kombination nur EIN Teil
+  // signal-relevant (Kamera/Switcher), Zubehör (Kabel/Akku/Stativ/Case) ist
+  // auf dem Canvas Rauschen. Setzt die Auswahl so, dass nur das Hauptgerät
+  // importiert wird (Parent + restliche Kinder abgewählt; nutzt die bestehende
+  // checked-Import-Pipeline, keine neue Logik). Heuristik: erstes Kind, das
+  // kein Zubehör ist; sonst das erste.
+  const setMainDeviceOnly = (parentId: string) => {
+    const children = items.filter((i) => i.parentId === parentId)
+    if (children.length === 0) return
+    const accessory = /kabel|cable|case|flightcase|stativ|tripod|akku|battery|netzteil|psu|tasche|bag|zubeh|adapter|clamp|halter|strap|riemen/i
+    const main =
+      children.find((c) => !accessory.test(c.name) && !accessory.test(c.category)) ?? children[0]
+    setItems((cur) =>
+      cur.map((it) => {
+        if (it.id === parentId) return { ...it, checked: false }
+        if (it.parentId === parentId) return { ...it, checked: it.id === main.id }
+        return it
+      }),
+    )
+    setRackSetIds((prev) => {
+      if (!prev.has(parentId)) return prev
+      const n = new Set(prev)
+      n.delete(parentId)
+      return n
+    })
+  }
+
   const toggleCableBucket = (key: string) => {
     setCablePlanSelected((current) => {
       const next = new Set(current)
@@ -1745,6 +1772,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 })
               }}
               rackSetIds={rackSetIds}
+              onSetMainOnly={setMainDeviceOnly}
               onSetAsRack={(parentId, asRack) => {
                 setRackSetIds((prev) => {
                   const next = new Set(prev)
