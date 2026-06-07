@@ -1746,6 +1746,9 @@ const en: Dict = {
   'rentman.import.addToLibraryN': 'Add to library ({count})',
   'rentman.import.addNoneTitle': 'Select devices in the list first',
   'rentman.import.linkedBadge': 'Linked to this plan',
+  'rentman.import.linkedShort': 'linked',
+  'rentman.import.projectLabel': 'Project:',
+  'rentman.import.changeProject': 'change',
 
   // Rentman — RentmanCableExportDialog
   'rentman.cableExport.title': 'Send cables to Rentman',
