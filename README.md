@@ -38,11 +38,6 @@
   <sub><i>The node-based canvas — equipment nodes, ports and routed signal cabling.</i></sub>
 </p>
 
-<!-- DEMO GIF placeholder — record docs/screenshots/canvas.gif (6–10 s) and swap the line below. -->
-<p align="center">
-  <!-- Once captured: <img src="docs/screenshots/canvas.gif" alt="CablePlanner demo — placing a device and routing a cable" width="860" /> -->
-  <sub><i>🎬 Demo GIF coming soon — see the <a href="docs/screenshots/README.md">capture guide</a>. An interactive, draggable canvas demo is live on the <a href="https://larszu.github.io/cable-planner/">website</a>.</i></sub>
-</p>
 
 ---
 
