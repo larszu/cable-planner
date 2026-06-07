@@ -36,19 +36,50 @@ const formatLabel = (project: RentmanProject): string => {
 
 export const ProjectSelector = ({ projects, selectedProjectId, onSelect }: ProjectSelectorProps) => {
   const t = useTranslation()
+  if (projects.length === 0) return null
+  // Scrollbare, durchsuchbare Liste statt nativem <select>: Nummer/Name/Status
+  // pro Zeile auf einen Blick scanbar, und die Such-/Sortier-Controls darüber
+  // wirken jetzt sichtbar auf die Liste (beim Dropdown war beides unsichtbar).
   return (
-    <select
+    <div
+      role="listbox"
       aria-label={t('rentman.projectSelector.aria', 'Rentman project')}
-      className="w-full rounded border border-slate-700 bg-slate-900 p-2 text-cp-base"
-      value={selectedProjectId}
-      onChange={(event) => onSelect(event.target.value)}
+      className="max-h-64 overflow-auto rounded border border-slate-700 bg-slate-900"
     >
-      <option value="">{t('rentman.projectSelector.placeholder', 'Projekt wählen')}</option>
-      {projects.map((project) => (
-        <option key={project.id} value={project.id}>
-          {formatLabel(project)}
-        </option>
-      ))}
-    </select>
+      {projects.map((project) => {
+        const active = project.id === selectedProjectId
+        return (
+          <button
+            key={project.id}
+            type="button"
+            role="option"
+            aria-selected={active}
+            onClick={() => onSelect(project.id)}
+            title={formatLabel(project)}
+            className={`flex w-full items-center justify-between gap-2 border-b border-slate-800 px-2.5 py-1.5 text-left text-cp-xs last:border-b-0 ${
+              active ? 'bg-sky-600 text-white' : 'text-slate-200 hover:bg-slate-800'
+            }`}
+          >
+            <span className="min-w-0 flex-1 truncate">
+              {project.number !== undefined && project.number !== '' && (
+                <span className={active ? 'text-sky-100' : 'text-slate-400'}>#{project.number} </span>
+              )}
+              {project.name}
+              {(() => {
+                const from = formatDate(project.periodStart)
+                const to = formatDate(project.periodEnd)
+                const span = from && to ? `${from} → ${to}` : from
+                return span ? <span className={`ml-1 ${active ? 'text-sky-100' : 'text-slate-500'}`}>· {span}</span> : null
+              })()}
+            </span>
+            {project.status && (
+              <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] ${active ? 'bg-sky-700 text-sky-50' : 'bg-slate-800 text-slate-400'}`}>
+                {project.status}
+              </span>
+            )}
+          </button>
+        )
+      })}
+    </div>
   )
 }
