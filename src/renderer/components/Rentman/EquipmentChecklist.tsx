@@ -281,7 +281,7 @@ export const EquipmentChecklist = ({
                                 className="ml-2 rounded bg-emerald-800/60 px-1.5 py-0.5 text-[10px] font-medium text-emerald-200"
                                 title={format(t('rentman.checklist.badge.linkedTitle', 'Bereits in lokaler Bibliothek per Rentman-ID verknuepft mit "{name}". Re-Import aktualisiert nur Metadaten (Kategorie, Projekt-Link) — die lokale Port-Konfiguration bleibt erhalten.'), { name: item.templateMatch })}
                               >
-                                {format(t('rentman.checklist.badge.linked', '✓ Bereits verknuepft: {name}'), { name: item.templateMatch })}
+                                {t('rentman.checklist.badge.linked', '✓ verknüpft')}
                               </span>
                             )
                           }
@@ -291,7 +291,7 @@ export const EquipmentChecklist = ({
                                 className="ml-2 rounded bg-amber-800/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-100"
                                 title={format(t('rentman.checklist.badge.nameOnlyTitle', 'Lokales Template "{name}" hat denselben Namen aber keinen Rentman-ID. Beim Import erscheint ein Konflikt-Dialog — Default ist die lokale Version (mit Ports) zu behalten und nur die Rentman-ID anzuhaengen.'), { name: item.templateMatch })}
                               >
-                                <><Icon icon={Zap} size="xs" className="mr-1 inline-block align-text-bottom" />{format(t('rentman.checklist.badge.nameOnly', 'Schon in Bibliothek: {name}'), { name: item.templateMatch })}</>
+                                <><Icon icon={Zap} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rentman.checklist.badge.nameOnly', 'schon in Lib')}</>
                               </span>
                             )
                           }
@@ -301,7 +301,7 @@ export const EquipmentChecklist = ({
                                 className="ml-2 rounded bg-slate-700/60 px-1.5 py-0.5 text-[10px] font-medium text-slate-200"
                                 title={format(t('rentman.checklist.badge.catalogTitle', 'Match aus eingebautem Katalog ("{name}"). Wird beim Import automatisch als Template uebernommen.'), { name: item.templateMatch })}
                               >
-                                {format(t('rentman.checklist.badge.catalog', '⊕ Katalog: {name}'), { name: item.templateMatch })}
+                                {t('rentman.checklist.badge.catalog', '⊕ Katalog')}
                               </span>
                             )
                           }

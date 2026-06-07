@@ -1637,10 +1637,10 @@ const en: Dict = {
   'rentman.checklist.setCollapse': 'Collapse set',
   'rentman.checklist.badge.linkedTitle':
     'Already linked in the local library via Rentman ID to "{name}". Re-import only refreshes metadata (category, project link) — the local port configuration is preserved.',
-  'rentman.checklist.badge.linked': '✓ Already linked: {name}',
+  'rentman.checklist.badge.linked': '✓ linked',
   'rentman.checklist.badge.nameOnlyTitle':
     'Local template "{name}" has the same name but no Rentman ID. On import a conflict dialog appears — default is to keep the local version (with ports) and only attach the Rentman ID.',
-  'rentman.checklist.badge.nameOnly': 'Already in library: {name}',
+  'rentman.checklist.badge.nameOnly': 'in library',
   'rentman.checklist.kind.comment': 'Comment',
   'rentman.checklist.kind.physical': 'Physical combi · {n}',
   'rentman.checklist.kind.physicalTitle': 'Physical combination — one stock unit. Default: as 1 device (or rack).',
@@ -1649,7 +1649,7 @@ const en: Dict = {
   'rentman.checklist.kind.set': 'Set · {n}',
   'rentman.checklist.badge.catalogTitle':
     'Match from built-in catalog ("{name}"). Will be adopted as a template automatically on import.',
-  'rentman.checklist.badge.catalog': '⊕ Catalog: {name}',
+  'rentman.checklist.badge.catalog': '⊕ catalog',
   'rentman.checklist.badge.fallbackTitle': 'Auto-filled with template "{name}"',
   'rentman.checklist.linkedTitle':
     'Linked to a local device — will not be created as a duplicate on import',
