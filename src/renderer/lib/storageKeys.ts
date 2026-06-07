@@ -46,6 +46,8 @@ export const STORAGE_KEYS = {
   welcomed: 'cable-planner:welcomed',
   /** Rack-Builder Draft (Auto-Save während Bearbeitung). */
   rackBuilderDraftV2: 'cable-planner:rack-builder:draft:v2',
+  /** Rack-Builder: Breite der Bibliotheks-Spalte (resizable, px). */
+  rackBuilderLibColV1: 'cable-planner:rack-builder:libcol:v1',
   /** Letzte Boot-Crash Zeit (für ErrorBoundary Loop-Detection). */
   bootErrorTs: 'cable-planner:boot-error-ts',
   /** Dialog-Position-Persistenz (per-storageKey-Suffix). */
