@@ -1640,7 +1640,7 @@ const en: Dict = {
   'rentman.checklist.badge.linked': '✓ Already linked: {name}',
   'rentman.checklist.badge.nameOnlyTitle':
     'Local template "{name}" has the same name but no Rentman ID. On import a conflict dialog appears — default is to keep the local version (with ports) and only attach the Rentman ID.',
-  'rentman.checklist.badge.nameOnly': 'Local exists: {name} — conflict dialog',
+  'rentman.checklist.badge.nameOnly': 'Already in library: {name}',
   'rentman.checklist.badge.catalogTitle':
     'Match from built-in catalog ("{name}"). Will be adopted as a template automatically on import.',
   'rentman.checklist.badge.catalog': '⊕ Catalog: {name}',
@@ -1718,8 +1718,7 @@ const en: Dict = {
   'rentman.import.status.linked': '✓ {count} already linked',
   'rentman.import.status.conflictsTitle':
     'Items with the same name as a local template but without a Rentman ID. On import a conflict dialog appears per item (default: keep local version + attach Rentman ID).',
-  'rentman.import.status.conflicts':
-    '{count} conflict dialog (same name, not linked)',
+  'rentman.import.status.conflicts': '{count}× already in library (same name)',
   'rentman.import.status.freshTitle':
     'Items without a match in the local library — imported fresh as templates.',
   'rentman.import.status.fresh': '+ {count} new',
@@ -1738,6 +1737,9 @@ const en: Dict = {
   'rentman.import.resultHint':
     'Devices are added to the equipment library, not placed directly on the canvas.',
   'rentman.import.addToLibrary': 'Add to library',
+  'rentman.import.addToLibraryN': 'Add to library ({count})',
+  'rentman.import.addNoneTitle': 'Select devices in the list first',
+  'rentman.import.linkedBadge': 'Linked to this plan',
 
   // Rentman — RentmanCableExportDialog
   'rentman.cableExport.title': 'Send cables to Rentman',

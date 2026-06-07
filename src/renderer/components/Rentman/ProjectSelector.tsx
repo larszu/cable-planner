@@ -43,7 +43,7 @@ export const ProjectSelector = ({ projects, selectedProjectId, onSelect }: Proje
       value={selectedProjectId}
       onChange={(event) => onSelect(event.target.value)}
     >
-      <option value="">{t('rentman.projectSelector.placeholder', 'Select project')}</option>
+      <option value="">{t('rentman.projectSelector.placeholder', 'Projekt wählen')}</option>
       {projects.map((project) => (
         <option key={project.id} value={project.id}>
           {formatLabel(project)}

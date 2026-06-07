@@ -115,12 +115,12 @@ export const NewRentmanDeviceWizard = ({
     try {
       const hints = await suggestFromAI(name, category)
       if (hints.length === 0) {
-        setAiError(t('rentman.wizard.aiNoPorts', 'AI returned no ports. Try refining the name.'))
+        setAiError(t('rentman.wizard.aiNoPorts', 'KI lieferte keine Ports. Namen präzisieren.'))
         return
       }
       setGroups(hintsToDrafts(hints))
     } catch (err) {
-      setAiError(err instanceof Error ? err.message : t('rentman.wizard.aiFailed', 'AI request failed'))
+      setAiError(err instanceof Error ? err.message : t('rentman.wizard.aiFailed', 'KI-Anfrage fehlgeschlagen'))
     } finally {
       setAiLoading(false)
     }
@@ -143,7 +143,7 @@ export const NewRentmanDeviceWizard = ({
       setGroups(hintsToDrafts(hints))
       setWebInfo(format(t('rentman.wizard.webHints', '{count} Port-Gruppe(n) aus {source} übernommen.'), { count: hints.length, source }))
     } catch (err) {
-      setAiError(err instanceof Error ? err.message : t('rentman.wizard.webFailed', 'Web search failed'))
+      setAiError(err instanceof Error ? err.message : t('rentman.wizard.webFailed', 'Web-Suche fehlgeschlagen'))
     } finally {
       setWebLoading(false)
     }
@@ -185,12 +185,12 @@ export const NewRentmanDeviceWizard = ({
         <div className="mb-3 flex items-center justify-between">
           <div>
             <h3 className="text-cp-xl font-semibold">
-              {format(t('rentman.wizard.title', 'New Rentman Device ({progress})'), { progress })}
+              {format(t('rentman.wizard.title', 'Neues Rentman-Gerät ({progress})'), { progress })}
             </h3>
             <p className="mt-1 text-cp-xs text-slate-400">
-              {t('rentman.wizard.introPre', 'First time we see')}{' '}
+              {t('rentman.wizard.introPre', 'Zum ersten Mal gesehen:')}{' '}
               <span className="text-slate-200">{current.name}</span>
-              {t('rentman.wizard.introPost', '. Confirm inputs/outputs — they’ll be remembered in your custom library.')}
+              {t('rentman.wizard.introPost', ' — Ein-/Ausgänge bestätigen, sie werden in deiner Bibliothek gespeichert.')}
             </p>
           </div>
           <button
@@ -225,17 +225,17 @@ export const NewRentmanDeviceWizard = ({
                   const cat = category.trim()
                   if (cat) addKnownCategories([cat])
                 }}
-                title={t('rentman.wizard.saveAsCategoryTitle', 'Save as new category')}
+                title={t('rentman.wizard.saveAsCategoryTitle', 'Als neue Kategorie speichern')}
                 className="rounded bg-slate-700 px-2 text-cp-xs hover:bg-slate-600"
               >
-                {t('rentman.wizard.addCategory', '+ Add')}
+                {t('rentman.wizard.addCategory', '+ Neu')}
               </button>
             </div>
           </label>
         </div>
 
         <div className="mb-2 flex items-center justify-between">
-          <div className="text-cp-base font-semibold">{t('rentman.wizard.suggestedPortGroups', 'Suggested Port Groups')}</div>
+          <div className="text-cp-base font-semibold">{t('rentman.wizard.suggestedPortGroups', 'Vorgeschlagene Port-Gruppen')}</div>
           <div className="flex flex-wrap gap-2 text-cp-xs">
             <button
               type="button"
@@ -253,7 +253,7 @@ export const NewRentmanDeviceWizard = ({
               className="rounded bg-purple-700 px-2 py-1 hover:bg-purple-600 disabled:opacity-50"
               title={t('rentman.wizard.aiTitle', 'Gemini AI (benötigt API-Key)')}
             >
-              {aiLoading ? t('rentman.wizard.aiBusy', 'Asking AI…') : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('rentman.wizard.aiButton', 'AI (Gemini)')}</span>}
+              {aiLoading ? t('rentman.wizard.aiBusy', 'KI wird gefragt…') : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('rentman.wizard.aiButton', 'AI (Gemini)')}</span>}
             </button>
             <button
               type="button"
@@ -261,21 +261,21 @@ export const NewRentmanDeviceWizard = ({
               className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
               title={t('rentman.wizard.aiSettingsTitle', 'Gemini API-Key konfigurieren')}
             >
-              {t('rentman.wizard.aiSettings', 'AI settings')}
+              {t('rentman.wizard.aiSettings', 'KI-Einstellungen')}
             </button>
             <button
               type="button"
               onClick={() => addGroup('in')}
               className="rounded bg-sky-700 px-2 py-1 hover:bg-sky-600"
             >
-              {t('rentman.wizard.addInputGroup', '+ Input Group')}
+              {t('rentman.wizard.addInputGroup', '+ Eingangs-Gruppe')}
             </button>
             <button
               type="button"
               onClick={() => addGroup('out')}
               className="rounded bg-green-700 px-2 py-1 hover:bg-green-600"
             >
-              {t('rentman.wizard.addOutputGroup', '+ Output Group')}
+              {t('rentman.wizard.addOutputGroup', '+ Ausgangs-Gruppe')}
             </button>
           </div>
         </div>
@@ -339,16 +339,16 @@ export const NewRentmanDeviceWizard = ({
               className="grid grid-cols-[80px_70px_1fr_1fr_40px] items-center gap-2 rounded border border-slate-700 bg-slate-950 p-2 text-cp-xs"
             >
               <select
-                aria-label={t('rentman.wizard.directionAria', 'Direction')}
+                aria-label={t('rentman.wizard.directionAria', 'Richtung')}
                 value={group.direction}
                 onChange={(event) => updateGroup(group.id, { direction: event.target.value as 'in' | 'out' })}
                 className="rounded border border-slate-700 bg-slate-900 p-1"
               >
-                <option value="in">{t('rentman.wizard.directionIn', 'Input')}</option>
-                <option value="out">{t('rentman.wizard.directionOut', 'Output')}</option>
+                <option value="in">{t('rentman.wizard.directionIn', 'Eingang')}</option>
+                <option value="out">{t('rentman.wizard.directionOut', 'Ausgang')}</option>
               </select>
               <input
-                aria-label={t('rentman.wizard.countAria', 'Count')}
+                aria-label={t('rentman.wizard.countAria', 'Anzahl')}
                 type="number"
                 min={1}
                 value={group.count}
@@ -356,7 +356,7 @@ export const NewRentmanDeviceWizard = ({
                 className="rounded border border-slate-700 bg-slate-900 p-1"
               />
               <select
-                aria-label={t('rentman.wizard.connectorTypeAria', 'Connector type')}
+                aria-label={t('rentman.wizard.connectorTypeAria', 'Steckertyp')}
                 value={group.connectorType}
                 onChange={(event) => updateGroup(group.id, { connectorType: event.target.value as ConnectorType })}
                 className="rounded border border-slate-700 bg-slate-900 p-1"
@@ -370,21 +370,21 @@ export const NewRentmanDeviceWizard = ({
               <input
                 value={group.label}
                 onChange={(event) => updateGroup(group.id, { label: event.target.value })}
-                placeholder={t('rentman.wizard.labelPrefixPlaceholder', 'Label prefix')}
+                placeholder={t('rentman.wizard.labelPrefixPlaceholder', 'Label-Präfix')}
                 className="rounded border border-slate-700 bg-slate-900 p-1"
               />
               <button
                 type="button"
                 onClick={() => removeGroup(group.id)}
                 className="rounded bg-red-700 px-2 py-1 hover:bg-red-600"
-                title={t('rentman.wizard.removeGroupTitle', 'Remove group')}
+                title={t('rentman.wizard.removeGroupTitle', 'Gruppe entfernen')}
               >
                 ×
               </button>
             </div>
           ))}
           {groups.length === 0 && (
-            <div className="text-cp-xs text-slate-400">{t('rentman.wizard.noGroups', 'No port groups. Add one above, or skip this device.')}</div>
+            <div className="text-cp-xs text-slate-400">{t('rentman.wizard.noGroups', 'Keine Port-Gruppen. Oben hinzufügen oder Gerät überspringen.')}</div>
           )}
         </div>
 
@@ -401,16 +401,16 @@ export const NewRentmanDeviceWizard = ({
             type="button"
             onClick={handleSkip}
             className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
-            title={t('rentman.wizard.skipTitle', 'Import without creating a library entry (1 generic input + output)')}
+            title={t('rentman.wizard.skipTitle', 'Importieren ohne Bibliothekseintrag (1 generischer Ein-/Ausgang)')}
           >
-            {t('rentman.wizard.skip', 'Skip (generic)')}
+            {t('rentman.wizard.skip', 'Überspringen (generisch)')}
           </button>
           <button
             type="button"
             onClick={handleSave}
             className="rounded bg-emerald-600 px-3 py-1 hover:bg-emerald-500"
           >
-            {isLast ? t('rentman.wizard.saveFinish', 'Save & Finish') : t('rentman.wizard.saveNext', 'Save & Next')}
+            {isLast ? t('rentman.wizard.saveFinish', 'Speichern & Fertig') : t('rentman.wizard.saveNext', 'Speichern & Weiter')}
           </button>
         </div>
       </div>
