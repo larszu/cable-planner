@@ -339,6 +339,10 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const [projects, setProjects] = useState<RentmanProject[]>([])
   const [projectSort, setProjectSort] = useState<'number-asc' | 'number-desc' | 'date-asc' | 'date-desc'>('number-desc')
   const [projectQuery, setProjectQuery] = useState('')
+  // Entschlackung: nach Projektwahl kollabiert die Projekt-Auswahl auf eine
+  // Zeile (Projekt + verknüpft + "ändern"), damit die lange Liste die UI nicht
+  // mehr dominiert. "ändern" klappt sie wieder auf.
+  const [pickerOpen, setPickerOpen] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState('')
   const [items, setItems] = useState<RentmanEquipment[]>([])
   // #335 — Kombinationen (Sets), die als Rack importiert werden sollen.
@@ -1441,6 +1445,45 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
           </button>
         </div>
 
+        {selectedProjectId && items.length > 0 && !pickerOpen && (() => {
+          const sel = projects.find((p) => p.id === selectedProjectId)
+          const label = sel
+            ? [
+                sel.number !== undefined && sel.number !== '' ? `#${sel.number}` : '',
+                sel.name,
+                sel.status ? `(${sel.status})` : '',
+              ].filter(Boolean).join(' · ')
+            : selectedProjectId
+          return (
+            <div className="mb-3 flex flex-wrap items-center gap-2 rounded border border-slate-800 bg-slate-950/40 px-2 py-1.5 text-cp-xs">
+              <span className="text-slate-400">{t('rentman.import.projectLabel', 'Projekt:')}</span>
+              <span className="font-medium text-slate-100">{label}</span>
+              {selectedProjectId === linkedProjectId && (
+                <span className="inline-flex items-center gap-1 font-medium text-emerald-400">
+                  <Icon icon={Check} size="xs" /> {t('rentman.import.linkedShort', 'verknüpft')}
+                </span>
+              )}
+              <span className="ml-auto flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => void fetchEquipment(selectedProjectId)}
+                  disabled={loading}
+                  className="rounded px-2 py-0.5 text-slate-300 hover:bg-slate-800 disabled:opacity-50"
+                >
+                  {loading ? t('rentman.import.loadingShort', 'Lädt…') : t('rentman.import.reloadSync', '↻ Neu laden & Abgleichen')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPickerOpen(true)}
+                  className="rounded px-2 py-0.5 font-medium text-sky-300 hover:bg-slate-800"
+                >
+                  {t('rentman.import.changeProject', 'ändern')}
+                </button>
+              </span>
+            </div>
+          )
+        })()}
+        {(!selectedProjectId || items.length === 0 || pickerOpen) && (
         <div className="mb-3 space-y-2 rounded border border-slate-800 bg-slate-950/40 p-2">
           <div className="flex flex-wrap items-center gap-2">
             <button
@@ -1513,7 +1556,10 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
           <ProjectSelector
             projects={sortedProjects}
             selectedProjectId={selectedProjectId}
-            onSelect={fetchEquipment}
+            onSelect={(id) => {
+              setPickerOpen(false)
+              void fetchEquipment(id)
+            }}
           />
           {selectedProjectId && selectedProjectId === linkedProjectId && (
             <div className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400">
@@ -1531,6 +1577,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
             </button>
           )}
         </div>
+        )}
 
         {loading && <div className="mb-2 text-cp-base text-slate-300">{t('rentman.import.loading', 'Loading…')}</div>}
         {error && <div className="mb-2 rounded bg-red-900/50 p-2 text-cp-base text-red-100">{error}</div>}
