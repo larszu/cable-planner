@@ -88,33 +88,49 @@ export const exportRack3DPerspective = async (
   const origPos = camera.position.clone()
   const origQuat = camera.quaternion.clone()
 
-  const targetX = opts.rackWidthMm / 2
-  const targetY = opts.rackHeightMm / 2
-  const targetZ = opts.rackDepthMm / 2
+  // #export — Kamera so weit zurücksetzen, dass das KOMPLETTE Rack ins Bild
+  // passt. Vorher standen feste Vielfache der Tiefe (z.B. depth*1.5) ohne
+  // Bezug zur Rack-Höhe/-Breite oder zum Canvas-FOV → hohe Racks wurden
+  // oben/unten abgeschnitten. Jetzt fitten wir die Bounding-Sphere des Racks
+  // an das limitierende FOV (vertikal ODER horizontal, je nach Canvas-Seiten-
+  // verhältnis), plus etwas Rand — so ist das Rack aus jeder Perspektive
+  // vollständig sichtbar.
+  const center = new THREE.Vector3(
+    opts.rackWidthMm / 2,
+    opts.rackHeightMm / 2,
+    opts.rackDepthMm / 2,
+  )
+  const radius = 0.5 * Math.hypot(opts.rackWidthMm, opts.rackHeightMm, opts.rackDepthMm)
+  const aspect = camera.aspect || gl.domElement.width / Math.max(1, gl.domElement.height)
+  const vHalf = (camera.fov * Math.PI) / 360 // halbes vertikales FOV in rad
+  const hHalf = Math.atan(Math.tan(vHalf) * aspect) // halbes horizontales FOV
+  const fitDist = (radius / Math.sin(Math.min(vHalf, hHalf))) * 1.08 // +8 % Rand
 
+  const origUp = camera.up.clone()
+  const origNear = camera.near
+  const origFar = camera.far
+
+  const dir = new THREE.Vector3()
   switch (perspective) {
     case 'front':
-      camera.position.set(targetX, targetY, -opts.rackDepthMm * 1.5)
-      camera.lookAt(targetX, targetY, targetZ)
+      dir.set(0, 0, -1)
       break
     case 'rear':
-      camera.position.set(targetX, targetY, opts.rackDepthMm * 2.5)
-      camera.lookAt(targetX, targetY, targetZ)
+      dir.set(0, 0, 1)
       break
     case 'top':
-      camera.position.set(targetX, opts.rackHeightMm + opts.rackDepthMm * 1.5, targetZ)
-      camera.lookAt(targetX, 0, targetZ)
+      dir.set(0, 1, 0)
+      camera.up.set(0, 0, -1) // Blickrichtung sonst parallel zu up → degeneriert
       break
     case 'iso':
     default:
-      camera.position.set(
-        opts.rackWidthMm * 1.8,
-        opts.rackHeightMm * 0.7,
-        -opts.rackDepthMm * 1.8,
-      )
-      camera.lookAt(targetX, targetY, targetZ)
+      dir.set(1, 0.6, -1).normalize()
       break
   }
+  camera.position.copy(center).addScaledVector(dir, fitDist)
+  camera.near = Math.max(1, fitDist - radius * 2)
+  camera.far = fitDist + radius * 2 + 1000
+  camera.lookAt(center)
   camera.updateProjectionMatrix()
 
   // Render und canvas.toBlob() — wir warten einen Frame damit r3f das
@@ -127,9 +143,12 @@ export const exportRack3DPerspective = async (
     gl.domElement.toBlob(resolve, 'image/png'),
   )
 
-  // Kamera zurück.
+  // Kamera zurück (inkl. up/near/far, die wir oben angepasst haben).
   camera.position.copy(origPos)
   camera.quaternion.copy(origQuat)
+  camera.up.copy(origUp)
+  camera.near = origNear
+  camera.far = origFar
   camera.updateProjectionMatrix()
   gl.render(scene, camera)
 
