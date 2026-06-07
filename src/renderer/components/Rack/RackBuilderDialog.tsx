@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import { useSettingsStore } from '../../store/settingsStore'
@@ -18,6 +18,7 @@ import { RackBuilderHeader } from './RackBuilderHeader'
 import { RackConflictBadges } from './RackConflictBadges'
 import { RackInternalWireOverlay } from './RackInternalWireOverlay'
 import { RackPlacementProperties } from './RackPlacementProperties'
+import { Splitter } from '../Layout/Splitter'
 import type {
   InternalCableDraft,
   RackDraft,
@@ -314,6 +315,24 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   // sichtbaren Bereich passt.
   const [paneWidth, setPaneWidth] = useState(0)
   const [paneHeight, setPaneHeight] = useState(0)
+  // #509 / Layout — Breite der Bibliotheks-Spalte (per Splitter ziehbar,
+  // persistiert). Wirkt erst ab md; darunter ist das Layout gestapelt.
+  const [libraryColWidth, setLibraryColWidth] = useState<number>(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.rackBuilderLibColV1)
+      const n = raw ? parseInt(raw, 10) : NaN
+      return Number.isFinite(n) ? clamp(n, 200, 520) : 260
+    } catch {
+      return 260
+    }
+  })
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.rackBuilderLibColV1, String(libraryColWidth))
+    } catch {
+      /* localStorage nicht verfügbar — Breite bleibt nur für diese Session */
+    }
+  }, [libraryColWidth])
   useEffect(() => {
     if (!open) return
     const el = rackCanvasRef.current
@@ -880,8 +899,15 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
 
         {/* v7.9.2 — responsiver: 1-Spalter bis md, 2-Spalter md (Library
             + Rack), 3-Spalter ab xl. Verhindert horizontal-Overflow. */}
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-[240px_1fr] xl:grid-cols-[260px_1fr_300px]">
-          <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
+        {/* Layout — responsives 3-Spalten-Grid (Bibliothek | Rack | Properties).
+            Bibliotheks-Spalte ist per Splitter ziehbar (--lib-col). minmax(0,1fr)
+            lässt die Rack-Spalte echt schrumpfen (sonst Overflow bei schmal).
+            3 Spalten schon ab lg (statt xl), damit Laptops alle Panels sehen. */}
+        <div
+          style={{ '--lib-col': `${libraryColWidth}px` } as CSSProperties}
+          className="grid grid-cols-1 gap-3 md:grid-cols-[var(--lib-col)_minmax(0,1fr)] lg:grid-cols-[var(--lib-col)_minmax(0,1fr)_300px]"
+        >
+          <div className="relative rounded border border-slate-700 bg-slate-950/50 p-2">
             {/* v7.9.11 — Library-Header mit Counter, dann Search-Input
                 mit Magnifier-Icon + Clear-Button für bessere Affordance. */}
             <div className="mb-2 flex items-center justify-between">
@@ -1014,8 +1040,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1">
-                          <span className="truncate font-medium text-slate-100">{template.name}</span>
+                        <div className="flex flex-wrap items-start gap-x-1 gap-y-0.5">
+                          {/* #509 — Name bricht in weitere Zeilen um statt mit
+                              … abzuschneiden (min-w-0 + break-words lassen den
+                              Flex-Text wirklich umbrechen). */}
+                          <span className="min-w-0 break-words font-medium leading-snug text-slate-100">{template.name}</span>
                           {placedCount > 0 && (
                             <span
                               className="shrink-0 rounded bg-emerald-800/70 px-1 text-[8px] font-semibold uppercase text-emerald-200"
@@ -1033,7 +1062,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             </span>
                           )}
                         </div>
-                        <div className="truncate text-[10px] text-slate-400">{template.category}</div>
+                        <div className="break-words text-[10px] text-slate-400">{template.category}</div>
                       </div>
                       {/* v7.9.80 / #170 — Split-Button: Hauptaktion
                           "+ Hinzufügen" (Default = full-depth) + kleines
@@ -1054,6 +1083,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   </div>
                 )
               })}
+            </div>
+            {/* Layout — Splitter zum Verbreitern/Verschmälern der Bibliotheks-
+                Spalte. Nur ab md sichtbar (darunter ist alles gestapelt). */}
+            <div className="absolute inset-y-0 right-0 hidden md:block">
+              <Splitter side="left" onResize={(d) => setLibraryColWidth((w) => clamp(w + d, 200, 520))} />
             </div>
           </div>
 
@@ -1618,7 +1652,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           {/* v7.9.2 — Auf md-Bildschirmen (2 Spalten) spannen sich die
               Geräte-Properties über die volle Breite unterhalb der
               Library/Rack-Spalten. Ab xl sind sie wieder die 3. Spalte. */}
-          <div className="space-y-3 md:col-span-2 xl:col-span-1">
+          <div className="space-y-3 md:col-span-2 lg:col-span-1">
           {/* v7.9.9 — Live-Preview-Pane: Black-Box auf Canvas + interne
               Verkabelung — Updates live mit jeder Draft-Änderung. */}
           <div className="rounded border border-slate-700 bg-slate-950/50 p-2">
