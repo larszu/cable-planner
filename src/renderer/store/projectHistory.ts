@@ -147,9 +147,13 @@ export const projectHistory = {
     if (past.length === 0) return
     const prev = past.pop()!
     future.push(lastProject)
+    // #505 — Undo nimmt nur DATEN zurück, nicht den Viewport: den aktuellen
+    // canvasState (Pan/Zoom) behalten, damit die Ansicht beim Undo nicht
+    // springt. (Reine Viewport-Änderungen erzeugen ohnehin keinen Entry, s.o.)
+    const viewport = useProjectStore.getState().project.canvasState
     suppress = true
     try {
-      useProjectStore.getState().loadProject(prev, useProjectStore.getState().filePath)
+      useProjectStore.getState().loadProject({ ...prev, canvasState: viewport }, useProjectStore.getState().filePath)
     } finally {
       suppress = false
     }
@@ -170,9 +174,11 @@ export const projectHistory = {
     if (future.length === 0) return
     const next = future.pop()!
     past.push(lastProject)
+    // #505 — Redo ebenfalls ohne Viewport-Sprung: aktuellen canvasState behalten.
+    const viewport = useProjectStore.getState().project.canvasState
     suppress = true
     try {
-      useProjectStore.getState().loadProject(next, useProjectStore.getState().filePath)
+      useProjectStore.getState().loadProject({ ...next, canvasState: viewport }, useProjectStore.getState().filePath)
     } finally {
       suppress = false
     }
