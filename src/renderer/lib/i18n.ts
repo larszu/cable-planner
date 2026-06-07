@@ -1647,6 +1647,8 @@ const en: Dict = {
   'rentman.checklist.kind.virtual': 'Virtual combi · {n}',
   'rentman.checklist.kind.virtualTitle': 'Virtual combination — loose bundle; usually only the main device matters.',
   'rentman.checklist.kind.set': 'Set · {n}',
+  'rentman.checklist.mainOnly': '+ main device only',
+  'rentman.checklist.mainOnlyTitle': 'Import only the main device of this combination — accessories (cables/battery/tripod …) are skipped.',
   'rentman.checklist.badge.catalogTitle':
     'Match from built-in catalog ("{name}"). Will be adopted as a template automatically on import.',
   'rentman.checklist.badge.catalog': '⊕ catalog',

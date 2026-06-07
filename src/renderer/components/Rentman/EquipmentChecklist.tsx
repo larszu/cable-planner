@@ -43,6 +43,9 @@ interface EquipmentChecklistProps {
    */
   rackSetIds?: Set<string>
   onSetAsRack?: (parentId: string, asRack: boolean) => void
+  /** Stufe 3 — "Nur Hauptgerät": Auswahl auf das eine signal-relevante Teil
+   *  der Kombination setzen (Zubehör überspringen). */
+  onSetMainOnly?: (parentId: string) => void
   /**
    * Issue #33: Per-row "link to existing local device" mapping. When
    * provided, each row gets a dropdown of local equipment (without a
@@ -64,6 +67,7 @@ export const EquipmentChecklist = ({
   onSetAllChildren,
   rackSetIds,
   onSetAsRack,
+  onSetMainOnly,
   linkableEquipment,
   onLinkExisting,
   linkedMap,
@@ -239,6 +243,20 @@ export const EquipmentChecklist = ({
                             </span>
                           )
                         })()}
+                        {isSet && onSetMainOnly && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              onSetMainOnly(item.id)
+                            }}
+                            className="ml-2 rounded bg-sky-700/60 px-1.5 py-0.5 text-[10px] font-medium text-sky-100 hover:bg-sky-600/60"
+                            title={t('rentman.checklist.mainOnlyTitle', 'Nur das Hauptgerät dieser Kombination importieren — Zubehör (Kabel/Akku/Stativ …) wird übersprungen.')}
+                          >
+                            {t('rentman.checklist.mainOnly', '+ nur Hauptgerät')}
+                          </button>
+                        )}
                         {isSet && onSetAsRack && (
                           <button
                             type="button"
