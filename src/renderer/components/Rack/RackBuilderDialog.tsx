@@ -1402,7 +1402,16 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       // #506 — Shelf-Device unten-bündig rendern (wie im 3D: das
                       // Gerät ruht auf dem Boden seiner HE-Reihe). Vorher war es
                       // oben-bündig, was nicht zur 3D-Ansicht passte.
-                      const shelfBoxHeight = Math.min(rackTpl!.heightMm! * mmToPx, height)
+                      // #510 — NUR dereferenzieren wenn isShelfDevice (dann ist
+                      // rackTpl garantiert gesetzt, s. Definition oben). Sonst ist
+                      // rackTpl ggf. undefined (Placement referenziert ein Template
+                      // das NICHT in `templates` liegt: frisch erstelltes Rack-Shelf,
+                      // nicht-persistiertes Shelf-Device, oder veralteter Draft) —
+                      // ein unbedingter `rackTpl!.heightMm!` warf dann
+                      // "Cannot read properties of undefined (reading 'heightMm')".
+                      const shelfBoxHeight = isShelfDevice
+                        ? Math.min(rackTpl!.heightMm! * mmToPx, height)
+                        : height
                       const shelfStyle = isShelfDevice
                         ? {
                             top: top + (height - shelfBoxHeight),
