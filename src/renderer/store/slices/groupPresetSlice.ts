@@ -40,9 +40,13 @@ export const createGroupPresetSlice: StateCreator<ProjectState, [], [], GroupPre
       const minX = Math.min(...items.map((e) => e.x))
       const minY = Math.min(...items.map((e) => e.y))
       const idToIndex = new Map(items.map((e, i) => [e.id, i]))
-      const idSet = new Set(equipmentIds)
+      // Auf idToIndex filtern (nicht auf die rohen equipmentIds): idToIndex
+      // enthält nur Geräte die tatsächlich in state.project.equipment
+      // existieren. Sonst könnte ein Kabel auf eine Phantom-ID zeigen, die
+      // zwar in equipmentIds steht aber kein Gerät hat → idToIndex.get(...)!
+      // wäre undefined → items[undefined].outputs crasht die Aktion.
       const internalCables = state.project.cables.filter(
-        (c) => idSet.has(c.fromEquipmentId) && idSet.has(c.toEquipmentId),
+        (c) => idToIndex.has(c.fromEquipmentId) && idToIndex.has(c.toEquipmentId),
       )
       const cableStubs = internalCables.map((c) => {
         const fromIdx = idToIndex.get(c.fromEquipmentId)!
