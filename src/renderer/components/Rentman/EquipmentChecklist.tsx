@@ -24,6 +24,9 @@ interface ChecklistItem {
    *    Ubiquiti, Monitor, Camera, Misc, GreenGo).
    *  - undefined: kein Match. */
   templateMatchKind?: 'rentmanId' | 'nameOnly' | 'catalog'
+  /** Rentman-Art der Zeile (defensiv geparst). Kommentar = kein Gerät. */
+  kind?: 'device' | 'virtual' | 'physical' | 'comment'
+  contentsCount?: number
 }
 
 interface EquipmentChecklistProps {
@@ -179,6 +182,19 @@ export const EquipmentChecklist = ({
               const isSet = Boolean(children && children.length > 0)
               const isOpen = expanded.has(item.id)
               const allChildrenChecked = isSet && children!.every((c) => c.checked)
+              // Kommentar-/Text-Zeile aus Rentman → kein Gerät, nicht
+              // importierbar (kein Häkchen), nur als Notiz anzeigen.
+              if (item.kind === 'comment') {
+                return (
+                  <div key={item.id} className="flex items-center gap-2 rounded bg-slate-900/30 px-2 py-1 text-cp-xs">
+                    <span className="w-5" />
+                    <span className="shrink-0 rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                      {t('rentman.checklist.kind.comment', 'Kommentar')}
+                    </span>
+                    <span className="flex-1 italic text-slate-400">{item.name}</span>
+                  </div>
+                )
+              }
               return (
                 <div key={item.id}>
                   <div className="flex items-center gap-2">
@@ -203,9 +219,26 @@ export const EquipmentChecklist = ({
                       />
                       <span className="flex-1">
                         {item.name}
-                        {isSet && (
-                          <span className="ml-1 text-[10px] text-slate-400">[set · {children!.length}]</span>
-                        )}
+                        {isSet && (() => {
+                          const n = children!.length
+                          if (item.kind === 'physical')
+                            return (
+                              <span className="ml-2 rounded bg-amber-900/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-200" title={t('rentman.checklist.kind.physicalTitle', 'Physische Kombination — eine Bestandseinheit. Default: als 1 Gerät (oder Rack).')}>
+                                {format(t('rentman.checklist.kind.physical', 'Physische Kombi · {n}'), { n })}
+                              </span>
+                            )
+                          if (item.kind === 'virtual')
+                            return (
+                              <span className="ml-2 rounded bg-violet-900/60 px-1.5 py-0.5 text-[10px] font-medium text-violet-200" title={t('rentman.checklist.kind.virtualTitle', 'Virtuelle Kombination — loses Bündel; meist ist nur das Hauptgerät relevant.')}>
+                                {format(t('rentman.checklist.kind.virtual', 'Virtuelle Kombi · {n}'), { n })}
+                              </span>
+                            )
+                          return (
+                            <span className="ml-2 rounded bg-slate-700/60 px-1.5 py-0.5 text-[10px] text-slate-300">
+                              {format(t('rentman.checklist.kind.set', 'Set · {n}'), { n })}
+                            </span>
+                          )
+                        })()}
                         {isSet && onSetAsRack && (
                           <button
                             type="button"
