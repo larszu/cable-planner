@@ -472,7 +472,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   // Equipment direkt gefetched. User sieht sofort den aktuellen Stand
   // und kann importieren / neue Geraete uebernehmen.
   useEffect(() => {
-    if (!open || !linkedProjectId) return
+    if (!open) return
     if (loading) return
     // Projekte noch nicht geladen? -> laden, dann auto-select.
     if (projects.length === 0) {
@@ -1452,6 +1452,11 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
             selectedProjectId={selectedProjectId}
             onSelect={fetchEquipment}
           />
+          {selectedProjectId && selectedProjectId === linkedProjectId && (
+            <div className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400">
+              <Icon icon={Check} size="xs" /> {t('rentman.import.linkedBadge', 'Mit diesem Plan verknüpft')}
+            </div>
+          )}
           {items.length > 0 && selectedProjectId && (
             <button
               type="button"
@@ -1482,7 +1487,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                       : 'bg-slate-700 hover:bg-slate-600'
                   }`}
                 >
-                  {t('rentman.import.categoriesAll', 'All')}
+                  {t('rentman.import.categoriesAll', 'Alle')}
                 </button>
                 {allCategories.map((cat) => {
                   const active = selectedCategories.has(cat)
@@ -1554,7 +1559,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                       className="rounded bg-amber-900/40 px-1.5 py-0.5 text-amber-100"
                       title={t('rentman.import.status.conflictsTitle', 'Items mit gleichem Namen wie ein lokales Template, aber ohne Rentman-ID. Beim Import faellt pro Item der Konflikt-Dialog (Default: lokale Version behalten + Rentman-ID anhaengen).')}
                     >
-                      <><Icon icon={Zap} size="xs" className="mr-1 inline-block align-text-bottom" />{format(t('rentman.import.status.conflicts', '{count} Konflikt-Dialog (gleicher Name, nicht verknuepft)'), { count: conflicts })}</>
+                      <><Icon icon={Zap} size="xs" className="mr-1 inline-block align-text-bottom" />{format(t('rentman.import.status.conflicts', '{count}× schon in Bibliothek (gleicher Name)'), { count: conflicts })}</>
                     </span>
                   )}
                   {fresh > 0 && (
@@ -1756,10 +1761,13 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               <button
                 type="button"
                 onClick={handleImport}
-                disabled={importResult !== null}
+                disabled={importResult !== null || checkedCount === 0}
+                title={checkedCount === 0 ? t('rentman.import.addNoneTitle', 'Erst Geräte in der Liste auswählen') : undefined}
                 className="rounded bg-emerald-600 px-3 py-1 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {t('rentman.import.addToLibrary', 'Zur Library hinzufügen')}
+                {checkedCount > 0
+                  ? format(t('rentman.import.addToLibraryN', 'Zur Library hinzufügen ({count})'), { count: checkedCount })
+                  : t('rentman.import.addToLibrary', 'Zur Library hinzufügen')}
               </button>
             </div>
           </>
