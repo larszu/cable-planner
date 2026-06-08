@@ -99,6 +99,7 @@ export const MenuBar = ({
   const followSystemTheme = useUiStore((s) => s.followSystemTheme)
   const snapToGrid = useUiStore((s) => s.snapToGrid)
   const hideAllCableLabels = useUiStore((s) => s.hideAllCableLabels)
+  const offPageShowNames = useUiStore((s) => s.offPageShowNames)
   const cableColorMode = useUiStore((s) => s.cableColorMode)
   const annotationsPanelOpen = useUiStore((s) => s.annotationsPanelOpen)
   // Re-render whenever the projectHistory store changes so the undo/redo
@@ -447,6 +448,12 @@ export const MenuBar = ({
             icon={hideAllCableLabels ? <Icon icon={Check} size="sm" /> : null}
           >
             {t('app.menu.view.hideLabels', 'Kabel-Labels ausblenden')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().setOffPageShowNames(!offPageShowNames)}
+            icon={offPageShowNames ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.view.offPageNames', 'Off-Page-Namen anzeigen')}
           </MenuItem>
           <MenuItem
             onClick={() =>

@@ -3299,6 +3299,7 @@ const en: Dict = {
   'app.menu.view.light': 'Light theme',
   'app.menu.view.snap': 'Snap to grid',
   'app.menu.view.hideLabels': 'Hide cable labels',
+  'app.menu.view.offPageNames': 'Show off-page names',
   'app.menu.view.colorByLength': 'Color cables by length',
   'app.menu.view.annotations': 'Annotations panel',
   'app.menu.view.fit': 'Fit to view',
