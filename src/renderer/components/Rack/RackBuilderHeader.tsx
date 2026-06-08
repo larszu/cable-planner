@@ -40,7 +40,7 @@ export const RackBuilderHeader = ({
             {editingId ? rackName || '(unbenanntes Rack)' : 'Neues Rack'}
           </h3>
           <span
-            className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${
+            className={`shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
               editingId
                 ? 'bg-sky-900/60 text-sky-200'
                 : 'bg-emerald-900/60 text-emerald-200'
@@ -50,7 +50,7 @@ export const RackBuilderHeader = ({
           </span>
           {dirty && (
             <span
-              className="flex shrink-0 items-center gap-1 rounded bg-amber-900/40 px-1.5 py-0.5 text-[9px] font-semibold text-amber-200"
+              className="flex shrink-0 items-center gap-1 rounded bg-amber-900/40 px-1.5 py-0.5 text-[11px] font-semibold text-amber-200"
               title={t('rack.unsavedTitle', 'Ungespeicherte Änderungen')}
             >
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" />
