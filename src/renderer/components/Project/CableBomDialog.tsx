@@ -424,7 +424,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                     {r.rentmanName && (
                       <div className="mt-0.5 text-[10px] text-orange-300/80">
                         <span
-                          className="rounded bg-orange-700/30 px-1 py-0 font-mono text-[9px] text-orange-200"
+                          className="rounded bg-orange-700/30 px-1 py-0 font-mono text-[11px] text-orange-200"
                           title={t('bom.cable.rentmanLinkedTitle', 'Verknuepfter Rentman-Equipment-Name')}
                         >
                           R

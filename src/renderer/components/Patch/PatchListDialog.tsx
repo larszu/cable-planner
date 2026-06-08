@@ -593,7 +593,7 @@ export const PatchListDialog = () => {
                     onClick={() => setSortKey(col.k)}
                   >
                     {col.label}
-                    {sortKey === col.k && <span className="ml-1 text-[9px]">▲</span>}
+                    {sortKey === col.k && <span className="ml-1 text-[11px]">▲</span>}
                   </th>
                 ))}
               </tr>

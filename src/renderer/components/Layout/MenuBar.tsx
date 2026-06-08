@@ -99,6 +99,7 @@ export const MenuBar = ({
   const followSystemTheme = useUiStore((s) => s.followSystemTheme)
   const snapToGrid = useUiStore((s) => s.snapToGrid)
   const hideAllCableLabels = useUiStore((s) => s.hideAllCableLabels)
+  const offPageShowNames = useUiStore((s) => s.offPageShowNames)
   const cableColorMode = useUiStore((s) => s.cableColorMode)
   const annotationsPanelOpen = useUiStore((s) => s.annotationsPanelOpen)
   // Re-render whenever the projectHistory store changes so the undo/redo
@@ -449,6 +450,12 @@ export const MenuBar = ({
             {t('app.menu.view.hideLabels', 'Kabel-Labels ausblenden')}
           </MenuItem>
           <MenuItem
+            onClick={() => useUiStore.getState().setOffPageShowNames(!offPageShowNames)}
+            icon={offPageShowNames ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.view.offPageNames', 'Off-Page-Namen anzeigen')}
+          </MenuItem>
+          <MenuItem
             onClick={() =>
               useUiStore.getState().setCableColorMode(cableColorMode === 'byLength' ? 'manual' : 'byLength')
             }
@@ -641,7 +648,7 @@ const Menu = ({ label, children }: MenuProps) => {
         className={`rounded px-2 py-1 text-slate-200 hover:bg-slate-800 ${open ? 'bg-slate-800' : ''}`}
       >
         {label}
-        <span className="ml-1 text-[9px] text-slate-400" aria-hidden="true">▾</span>
+        <span className="ml-1 text-[11px] text-slate-400" aria-hidden="true">▾</span>
       </button>
       {open && (
         <div
@@ -690,7 +697,7 @@ const MenuSep = () => <div className="my-1 border-t border-slate-700" />
 /** Kleiner, nicht-interaktiver Gruppen-Titel innerhalb eines Menüs. Gliedert
  *  lange Menüs (z. B. Werkzeuge) optisch, ohne echte Flyout-Submenüs. */
 const MenuSectionHeader = ({ children }: { children: React.ReactNode }) => (
-  <div className="px-3 pb-0.5 pt-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-[var(--cp-text-faint)] select-none">
+  <div className="px-3 pb-0.5 pt-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--cp-text-faint)] select-none">
     {children}
   </div>
 )

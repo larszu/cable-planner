@@ -1147,6 +1147,11 @@ const en: Dict = {
     'Send INPUT LABELS + OUTPUT LABELS only. Routing on the hub stays untouched.',
   'videohub.sendRoutingTitle': 'Send VIDEO OUTPUT ROUTING only. Labels on the hub unchanged.',
   'videohub.sendBothTitle': 'Labels + routing in ONE push (three blocks back-to-back).',
+  'videohub.labelsPdf': '🏷 Labels PDF',
+  'videohub.labelsPdfTitle':
+    'Generate printable label strips (Smart Control grid) as PDF — to print and cut out.',
+  'videohub.labelsPdf.inputs': 'Inputs / Sources',
+  'videohub.labelsPdf.outputs': 'Outputs',
   'videohub.hubStatus': 'Hub status:',
   'videohub.preview': 'Preview',
 
@@ -1637,13 +1642,21 @@ const en: Dict = {
   'rentman.checklist.setCollapse': 'Collapse set',
   'rentman.checklist.badge.linkedTitle':
     'Already linked in the local library via Rentman ID to "{name}". Re-import only refreshes metadata (category, project link) — the local port configuration is preserved.',
-  'rentman.checklist.badge.linked': '✓ Already linked: {name}',
+  'rentman.checklist.badge.linked': '✓ linked',
   'rentman.checklist.badge.nameOnlyTitle':
     'Local template "{name}" has the same name but no Rentman ID. On import a conflict dialog appears — default is to keep the local version (with ports) and only attach the Rentman ID.',
-  'rentman.checklist.badge.nameOnly': 'Local exists: {name} — conflict dialog',
+  'rentman.checklist.badge.nameOnly': 'in library',
+  'rentman.checklist.kind.comment': 'Comment',
+  'rentman.checklist.kind.physical': 'Physical combi · {n}',
+  'rentman.checklist.kind.physicalTitle': 'Physical combination — one stock unit. Default: as 1 device (or rack).',
+  'rentman.checklist.kind.virtual': 'Virtual combi · {n}',
+  'rentman.checklist.kind.virtualTitle': 'Virtual combination — loose bundle; usually only the main device matters.',
+  'rentman.checklist.kind.set': 'Set · {n}',
+  'rentman.checklist.mainOnly': '+ main device only',
+  'rentman.checklist.mainOnlyTitle': 'Import only the main device of this combination — accessories (cables/battery/tripod …) are skipped.',
   'rentman.checklist.badge.catalogTitle':
     'Match from built-in catalog ("{name}"). Will be adopted as a template automatically on import.',
-  'rentman.checklist.badge.catalog': '⊕ Catalog: {name}',
+  'rentman.checklist.badge.catalog': '⊕ catalog',
   'rentman.checklist.badge.fallbackTitle': 'Auto-filled with template "{name}"',
   'rentman.checklist.linkedTitle':
     'Linked to a local device — will not be created as a duplicate on import',
@@ -1694,11 +1707,14 @@ const en: Dict = {
   'rentman.import.next': 'Next',
   'rentman.import.catMap.title': 'Category mapping before import',
   'rentman.import.catMap.intro':
-    'Every import must be mapped to an existing category.',
+    'Map every device to a local category. Matches are detected and remembered automatically — missing ones can be created right here with “+ New”. “Back” keeps your selection.',
   'rentman.import.catMap.pickPlaceholder': 'Please select…',
   'rentman.import.catMap.missingTitle': 'Category missing',
   'rentman.import.catMap.missingBody':
-    'Please pick an existing category for every device.',
+    'Please pick a category for every device or create one with “+ New”.',
+  'rentman.import.catMap.newCategory': 'Create new category',
+  'rentman.import.catMap.newCategoryShort': '+ New',
+  'rentman.import.catMap.back': 'Back',
   'rentman.import.loadProjects': 'Load projects',
   'rentman.import.refresh': '↺ Refresh Rentman',
   'rentman.import.refreshTitle': 'Reload quantities and devices for "{name}"',
@@ -1718,12 +1734,14 @@ const en: Dict = {
   'rentman.import.status.linked': '✓ {count} already linked',
   'rentman.import.status.conflictsTitle':
     'Items with the same name as a local template but without a Rentman ID. On import a conflict dialog appears per item (default: keep local version + attach Rentman ID).',
-  'rentman.import.status.conflicts':
-    '{count} conflict dialog (same name, not linked)',
+  'rentman.import.status.conflicts': '{count}× already in library (same name)',
   'rentman.import.status.freshTitle':
     'Items without a match in the local library — imported fresh as templates.',
   'rentman.import.status.fresh': '+ {count} new',
   'rentman.import.cablePlan.heading': 'Adopt cable quantities from Rentman',
+  'rentman.import.cablePlan.headingN': 'Cable quantities from Rentman ({count})',
+  'rentman.import.cablePlan.collapse': 'collapse',
+  'rentman.import.cablePlan.expand': 'open',
   'rentman.import.cablePlan.selectAll': 'Select all',
   'rentman.import.cablePlan.deselectAll': 'Deselect all',
   'rentman.import.cablePlan.entryCount': '{count} entries',
@@ -1738,6 +1756,12 @@ const en: Dict = {
   'rentman.import.resultHint':
     'Devices are added to the equipment library, not placed directly on the canvas.',
   'rentman.import.addToLibrary': 'Add to library',
+  'rentman.import.addToLibraryN': 'Add to library ({count})',
+  'rentman.import.addNoneTitle': 'Select devices in the list first',
+  'rentman.import.linkedBadge': 'Linked to this plan',
+  'rentman.import.linkedShort': 'linked',
+  'rentman.import.projectLabel': 'Project:',
+  'rentman.import.changeProject': 'change',
 
   // Rentman — RentmanCableExportDialog
   'rentman.cableExport.title': 'Send cables to Rentman',
@@ -2318,7 +2342,7 @@ const en: Dict = {
   // #221 — Off-page connector
   'canvas.cableMenu.makeOffPage': 'Create off-page connection…',
   'canvas.cableMenu.offPageNamePrompt': 'Net / signal name for the off-page connection:',
-  'offPage.symbolTitle': 'Net “{net}” → {to} · Click: select · Arrow: jump to counterpart · Right-click: net info',
+  'offPage.symbolTitle': 'Net “{net}” → {to} · Click: select · Arrow: jump to counterpart · Drag: move · Right-click: net info',
   'offPage.jumpTitle': 'Jump to counterpart',
   'offPage.endpointCount': '{n} endpoints in net',
   'offPage.resolve': 'Resolve off-page (show line)',
@@ -3280,6 +3304,7 @@ const en: Dict = {
   'app.menu.view.light': 'Light theme',
   'app.menu.view.snap': 'Snap to grid',
   'app.menu.view.hideLabels': 'Hide cable labels',
+  'app.menu.view.offPageNames': 'Show off-page names',
   'app.menu.view.colorByLength': 'Color cables by length',
   'app.menu.view.annotations': 'Annotations panel',
   'app.menu.view.fit': 'Fit to view',
