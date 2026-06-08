@@ -60,7 +60,7 @@ export const RackPlacementProperties = ({
       onClose={onClose}
       title={format(t('rack.props.title', 'Eigenschaften · {name}'), { name: selectedPlacement.name })}
       titleIcon={
-        <span className="rounded bg-amber-900/60 px-1.5 py-0.5 text-[9px] font-semibold text-amber-200">
+        <span className="rounded bg-amber-900/60 px-1.5 py-0.5 text-[11px] font-semibold text-amber-200">
           {heRange}
         </span>
       }
@@ -301,7 +301,7 @@ export const RackPlacementProperties = ({
                     }
                     className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
                   />
-                  <span className="text-[9px] text-slate-400">max {Math.round(maxX)} mm</span>
+                  <span className="text-[11px] text-slate-400">max {Math.round(maxX)} mm</span>
                 </label>
                 <label className="block text-[10px]">
                   <span className="mb-0.5 block text-emerald-300/80">Tiefe (mm von vorne)</span>
@@ -318,7 +318,7 @@ export const RackPlacementProperties = ({
                     }
                     className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
                   />
-                  <span className="text-[9px] text-slate-400">max {Math.round(maxZ)} mm</span>
+                  <span className="text-[11px] text-slate-400">max {Math.round(maxZ)} mm</span>
                 </label>
               </div>
               <div className="mt-1 text-[10px] text-slate-400">
