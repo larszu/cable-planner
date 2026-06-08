@@ -79,5 +79,13 @@ wichtig ist.
 - i18n: Deutsche Strings = Quell-Sprache, immer als Fallback in
   `t(key, 'Deutsche Form')`. EN-Übersetzung im `en`-Dict in
   `src/renderer/lib/i18n.ts`.
+- Theming (#449): neue Komponenten nutzen die semantischen Farb-Utilities
+  `bg-cp-surface-1/2/3` · `bg-cp-bg` · `border-cp-border(-muted)` ·
+  `text-cp-text/-secondary/-muted/-faint` · `(bg|text|border)-cp-accent/-warn/
+  -danger`. Die sind in `index.css` via `@theme inline` an die `--cp-*`-Tokens
+  gebunden und flippen automatisch im Light-Theme — rohe `slate-*`-Klassen
+  brauchen dagegen den manuellen 340-Zeilen-Remap und bleiben sonst dunkel.
+  Rohes `slate-*`/Inline-Hex nur noch in Canvas-/Print-Komponenten, die über
+  einen `isLight`-Prop themen (EquipmentNode, Rack3DView …).
 - Architektur-Invarianten + Wo-was-hingehört siehe
   [`docs/architecture.md`](docs/architecture.md).
