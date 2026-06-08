@@ -1,6 +1,7 @@
 import type { EquipmentTemplate } from '../../types/equipment'
 import { Star, Link, Eye, EyeOff, Download } from 'lucide-react'
 import { Icon } from '../shared/Icon'
+import { Tooltip } from '../shared/Tooltip'
 import { useProjectStore } from '../../store/projectStore'
 import { clearCanvasSelection } from '../../lib/canvasViewport'
 import { stampDeviceLibraryRef } from '../../lib/librarySync'
@@ -158,83 +159,86 @@ export const LibraryItem = ({
       </div>
       <div className="flex gap-0.5 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
         {onToggleFavorite && (
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation()
-              onToggleFavorite()
-            }}
-            className={`rounded px-1 text-[11px] ${
-              item.favorite
-                ? 'bg-amber-700 text-amber-100 hover:bg-amber-600'
-                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-            }`}
-            title={
-              item.favorite
-                ? t('library.item.unfavorite', 'Favorit entfernen')
-                : t('library.item.favorite', 'Als Favorit markieren')
-            }
-            aria-label={
+          <Tooltip
+            label={
               item.favorite
                 ? t('library.item.unfavorite', 'Favorit entfernen')
                 : t('library.item.favorite', 'Als Favorit markieren')
             }
           >
-            <Icon icon={Star} size="xs" className={item.favorite ? 'fill-current' : ''} />
-          </button>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation()
+                onToggleFavorite()
+              }}
+              className={`rounded px-1 text-[11px] ${
+                item.favorite
+                  ? 'bg-amber-700 text-amber-100 hover:bg-amber-600'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              }`}
+              aria-label={
+                item.favorite
+                  ? t('library.item.unfavorite', 'Favorit entfernen')
+                  : t('library.item.favorite', 'Als Favorit markieren')
+              }
+            >
+              <Icon icon={Star} size="xs" className={item.favorite ? 'fill-current' : ''} />
+            </button>
+          </Tooltip>
         )}
         {onToggleHidden && (
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation()
-              onToggleHidden()
-            }}
-            className={`rounded px-1 text-[11px] ${
-              item.hidden
-                ? 'bg-slate-600 text-slate-200 hover:bg-slate-500'
-                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-            }`}
-            title={
-              item.hidden
-                ? t('library.item.show', 'Wieder anzeigen')
-                : t('library.item.hide', 'Ausblenden')
-            }
-            aria-label={
+          <Tooltip
+            label={
               item.hidden
                 ? t('library.item.show', 'Wieder anzeigen')
                 : t('library.item.hide', 'Ausblenden')
             }
           >
-            <Icon icon={item.hidden ? Eye : EyeOff} size="xs" />
-          </button>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation()
+                onToggleHidden()
+              }}
+              className={`rounded px-1 text-[11px] ${
+                item.hidden
+                  ? 'bg-slate-600 text-slate-200 hover:bg-slate-500'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              }`}
+              aria-label={
+                item.hidden
+                  ? t('library.item.show', 'Wieder anzeigen')
+                  : t('library.item.hide', 'Ausblenden')
+              }
+            >
+              <Icon icon={item.hidden ? Eye : EyeOff} size="xs" />
+            </button>
+          </Tooltip>
         )}
         {onExport && (
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation()
-              onExport()
-            }}
-            className="rounded bg-slate-700 px-1 text-[11px] text-slate-300 hover:bg-slate-600"
-            title={t(
+          <Tooltip
+            label={t(
               'library.item.exportTitle',
               'Als Datei exportieren (Kopie in den Downloads-Ordner)',
             )}
-            aria-label={t('library.item.exportAria', 'Exportieren')}
           >
-            <Icon icon={Download} size="xs" />
-          </button>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation()
+                onExport()
+              }}
+              className="rounded bg-slate-700 px-1 text-[11px] text-slate-300 hover:bg-slate-600"
+              aria-label={t('library.item.exportAria', 'Exportieren')}
+            >
+              <Icon icon={Download} size="xs" />
+            </button>
+          </Tooltip>
         )}
         {onLinkPorts && (
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation()
-              onLinkPorts()
-            }}
-            className="rounded bg-emerald-700 px-1 text-[11px] text-emerald-100 hover:bg-emerald-600"
-            title={
+          <Tooltip
+            label={
               linkTargetName
                 ? format(
                     t(
@@ -248,23 +252,34 @@ export const LibraryItem = ({
                     'Mit gleichnamigem lokalem Geraet verknuepfen (Ports uebernehmen)',
                   )
             }
-            aria-label={t('library.item.linkAria', 'Verknuepfen')}
           >
-            <Icon icon={Link} size="xs" />
-          </button>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation()
+                onLinkPorts()
+              }}
+              className="rounded bg-emerald-700 px-1 text-[11px] text-emerald-100 hover:bg-emerald-600"
+              aria-label={t('library.item.linkAria', 'Verknuepfen')}
+            >
+              <Icon icon={Link} size="xs" />
+            </button>
+          </Tooltip>
         )}
         {onRemove && (
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation()
-              onRemove()
-            }}
-            className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
-            title={t('library.item.removeTitle', 'Remove from library')}
-          >
-            ×
-          </button>
+          <Tooltip label={t('library.item.removeTitle', 'Remove from library')}>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation()
+                onRemove()
+              }}
+              className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
+              aria-label={t('library.item.removeTitle', 'Remove from library')}
+            >
+              ×
+            </button>
+          </Tooltip>
         )}
       </div>
     </div>
