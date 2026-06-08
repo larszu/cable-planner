@@ -444,7 +444,7 @@ export const RentmanTab = () => {
                         <span className="flex min-w-0 items-center gap-1.5">
                           <span className="text-cp-xs">{projectCollapsed ? '▶' : '▼'}</span>
                           {isLinked && (
-                            <span className="rounded bg-orange-700 px-1 text-[9px] font-bold text-white">AKTIV</span>
+                            <span className="rounded bg-orange-700 px-1 text-[11px] font-bold text-white">AKTIV</span>
                           )}
                           <span className="truncate text-cp-xs font-semibold">{group.name}</span>
                         </span>

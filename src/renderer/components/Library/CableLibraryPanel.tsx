@@ -154,7 +154,7 @@ const CableTypeEditor = ({
                       setConnectorType(n as ConnectorType)
                     }
                   }}
-                  className="rounded bg-emerald-700 px-1.5 text-[9px] text-emerald-100 hover:bg-emerald-600"
+                  className="rounded bg-emerald-700 px-1.5 text-[11px] text-emerald-100 hover:bg-emerald-600"
                   title={t('cableLib.addConnectorTitle', 'Neuen Stecker-Typ anlegen')}
                 >
                   +
@@ -221,7 +221,7 @@ const CableTypeEditor = ({
                     setStandards((prev) => [...prev, n as SignalStandard])
                   }
                 }}
-                className="rounded bg-sky-700 px-1.5 text-[9px] text-sky-100 hover:bg-sky-600"
+                className="rounded bg-sky-700 px-1.5 text-[11px] text-sky-100 hover:bg-sky-600"
                 title={t('cableLib.addSignalStandardTitle', 'Neuen Signal-Standard anlegen')}
               >
                 + Standard
@@ -536,7 +536,7 @@ export const CableLibraryPanel = () => {
                   {group}
                   <span className="text-[10px] font-normal text-slate-400">({specs.length})</span>
                   {groupBuilt > 0 && (
-                    <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${
+                    <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold ${
                       groupPlanned > 0
                         ? groupBuilt >= groupPlanned
                           ? 'bg-emerald-900/60 text-emerald-300'
@@ -581,7 +581,7 @@ export const CableLibraryPanel = () => {
                           <span className="font-medium flex-1">{cable.name}</span>
                           {isCustom && (
                             <span
-                              className="rounded bg-violet-700/80 px-1 text-[9px] font-semibold uppercase text-violet-100"
+                              className="rounded bg-violet-700/80 px-1 text-[11px] font-semibold uppercase text-violet-100"
                               title={t('cableLib.customBadge', 'Eigener Kabeltyp (lokal angelegt)')}
                             >
                               Eigen
@@ -589,19 +589,19 @@ export const CableLibraryPanel = () => {
                           )}
                           {!isCustom && cableSpecOverrides[cable.id] && (
                             <span
-                              className="rounded bg-amber-700/70 px-1 text-[9px] font-semibold uppercase text-amber-100"
+                              className="rounded bg-amber-700/70 px-1 text-[11px] font-semibold uppercase text-amber-100"
                               title={t('cableLib.overrideBadge', 'Built-in Spec mit lokalem Override (Reset über Bearbeiten-Dialog)')}
                             >
                               Angepasst
                             </span>
                           )}
                           {isRecommended && (
-                            <span className="rounded bg-emerald-600 px-1 text-[9px] font-semibold uppercase text-white">
+                            <span className="rounded bg-emerald-600 px-1 text-[11px] font-semibold uppercase text-white">
                               ✓
                             </span>
                           )}
                           {hasCount && (
-                            <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold tabular-nums ${
+                            <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
                               planned > 0
                                 ? built >= planned
                                   ? 'bg-emerald-900/60 text-emerald-300'

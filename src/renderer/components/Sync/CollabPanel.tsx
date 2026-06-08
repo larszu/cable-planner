@@ -296,7 +296,7 @@ export const CollabPanel = () => {
                 <span
                   key={p.id}
                   title={p.self ? `${p.name} (${t('collab.peers.you', 'du')})` : p.name}
-                  className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[var(--cp-surface-3)] text-[9px] font-bold text-white"
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[var(--cp-surface-3)] text-[11px] font-bold text-white"
                   style={{ backgroundColor: p.color }}
                 >
                   {initials(p.name)}

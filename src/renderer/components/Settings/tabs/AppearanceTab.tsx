@@ -509,7 +509,7 @@ export const AppearanceTab = () => {
                 />
                 <span className="flex-1 truncate text-cp-xs">
                   {name}
-                  {isCustom && <span className="ml-1 text-[9px] text-slate-400">(custom)</span>}
+                  {isCustom && <span className="ml-1 text-[11px] text-slate-400">(custom)</span>}
                 </span>
                 {override && (
                   <button

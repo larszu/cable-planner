@@ -47,7 +47,7 @@ export const PlusMenu = ({
         aria-expanded={open}
       >
         <span className="text-cp-base leading-none">+</span>
-        <span className="text-[9px] leading-none">▾</span>
+        <span className="text-[11px] leading-none">▾</span>
       </button>
       {open && (
         <div

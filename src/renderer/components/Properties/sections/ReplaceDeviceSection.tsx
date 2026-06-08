@@ -215,13 +215,13 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
                         </span>
                         {lost > 0 ? (
                           <span
-                            className="rounded bg-amber-900/60 px-1.5 py-0.5 text-[9px] font-bold text-amber-200"
+                            className="rounded bg-amber-900/60 px-1.5 py-0.5 text-[11px] font-bold text-amber-200"
                             title={format(t('replaceDevice.lostBadgeTitle', '{n} Verbindung(en) würden verloren gehen'), { n: lost })}
                           >
                             -{lost}
                           </span>
                         ) : (
-                          <span className="rounded bg-emerald-900/60 px-1.5 py-0.5 text-[9px] font-bold text-emerald-200">
+                          <span className="rounded bg-emerald-900/60 px-1.5 py-0.5 text-[11px] font-bold text-emerald-200">
                             ✓
                           </span>
                         )}
