@@ -177,7 +177,13 @@ export const EquipmentChecklist = ({
           )}
         </div>
       )}
-      {Object.entries(grouped).map(([category, categoryItems]) => (
+      {/* #498 — Kategorie-Gruppen alphabetisch (konsistent mit den
+          Filter-Chips & der lokalen Library); innerhalb einer Kategorie bleibt
+          die Rentman-Reihenfolge erhalten, Kombinationen mit ihren Teilen
+          eingerückt. */}
+      {Object.entries(grouped)
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([category, categoryItems]) => (
         <div key={category}>
           <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wide text-slate-300">{category}</div>
           <div className="space-y-1">
