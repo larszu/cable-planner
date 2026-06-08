@@ -2348,6 +2348,8 @@ const en: Dict = {
   'offPage.jumpTitle': 'Jump to counterpart',
   'offPage.endpointCount': '{n} endpoints in net',
   'offPage.resolve': 'Resolve off-page (show line)',
+  'offPage.waypoint.hint': 'Drag: move · Double-click: delete',
+  'offPage.waypoint.add': 'Add waypoint',
 
   // Canvas — CableEdge
   'canvas.cableEdge.deleteTitle': 'Delete cable',
