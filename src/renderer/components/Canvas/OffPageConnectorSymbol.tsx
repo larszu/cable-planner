@@ -38,6 +38,10 @@ interface Props {
   highlighted: boolean
   selected: boolean
   isLight: boolean
+  /** #507 — Netzname/Gegenstück dauerhaft zeigen (Druckansicht). Sonst nur
+   *  beim Hover; eingeklappt ist das Symbol flach (nur Pfeil) und überlappt
+   *  nicht. */
+  showName: boolean
   /** Body-Klick → Kabel selektieren + Netz hervorheben. */
   onSelect: () => void
   /** Chevron-Klick → zum nächstgelegenen Gegenstück springen. */
@@ -101,6 +105,7 @@ export const OffPageConnectorSymbol = ({
   highlighted,
   selected,
   isLight,
+  showName,
   onSelect,
   onNavigate,
   getNetInfo,
@@ -108,6 +113,10 @@ export const OffPageConnectorSymbol = ({
   onResolve,
 }: Props) => {
   const t = useTranslation()
+  // #507 — eingeklappt = nur Pfeil; Name/Gegenstück erst bei Hover (oder
+  // dauerhaft via showName für die Druckansicht).
+  const [hovered, setHovered] = useState(false)
+  const expanded = showName || hovered
   const [popover, setPopover] = useState<{
     screenX: number
     screenY: number
@@ -167,6 +176,8 @@ export const OffPageConnectorSymbol = ({
           e.stopPropagation()
           openNetInfo(e.clientX, e.clientY)
         }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         title={format(
           t(
             'offPage.symbolTitle',
@@ -211,38 +222,40 @@ export const OffPageConnectorSymbol = ({
             color,
             background: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.05)',
             border: 'none',
-            borderRight: `1px solid ${isLight ? '#e2e8f0' : '#334155'}`,
+            borderRight: expanded ? `1px solid ${isLight ? '#e2e8f0' : '#334155'}` : 'none',
             cursor: 'pointer',
           }}
         >
           {chevronChar(position, direction)}
         </button>
-        <div style={{ minWidth: 0, padding: '2px 6px' }}>
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              lineHeight: 1.15,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {netName}
+        {expanded && (
+          <div style={{ minWidth: 0, padding: '2px 6px' }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                lineHeight: 1.15,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {netName}
+            </div>
+            <div
+              style={{
+                fontSize: 9,
+                lineHeight: 1.2,
+                color: isLight ? '#64748b' : '#94a3b8',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              → {counterpart}
+            </div>
           </div>
-          <div
-            style={{
-              fontSize: 9,
-              lineHeight: 1.2,
-              color: isLight ? '#64748b' : '#94a3b8',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            → {counterpart}
-          </div>
-        </div>
+        )}
       </div>
 
       {popover &&

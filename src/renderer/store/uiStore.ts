@@ -216,6 +216,11 @@ interface PersistedUiState {
    *  fuer aufgeraeumte Plan-Ansicht beim Praesentieren ohne dass jedes
    *  Kabel einzeln umgestellt werden muss. */
   hideAllCableLabels: boolean
+  /** #507 — Off-Page-Connector: Netzname/Gegenstück werden standardmäßig
+   *  ausgeblendet (flacher, überlappt nicht), nur per Hover eingeblendet.
+   *  Wenn true, sind sie dauerhaft sichtbar — praktisch für die Druck-
+   *  ansicht. Default off. */
+  offPageShowNames: boolean
   /** v7.9.127 — Endpoint-Labels: an jedem Kabelende ein kleines Label
    *  das zeigt zu welchem Geraet/Port das ANDERE Ende des Kabels geht.
    *  Am Source-Ende steht "→ Target-Device · Target-Port", am Target-
@@ -322,6 +327,7 @@ const defaults: PersistedUiState = {
   deviceConfigLibrary: [],
   cableBumps: false,
   hideAllCableLabels: false,
+  offPageShowNames: false,
   showCableEndpointLabels: false,
   swapLabelsOnReconnect: false,
   inheritCableTypeFromPort: true,
@@ -647,6 +653,7 @@ interface UiState extends PersistedUiState {
   replaceDeviceConfigLibrary: (entries: DeviceConfigEntry[]) => void
   setCableBumps: (value: boolean) => void
   setHideAllCableLabels: (value: boolean) => void
+  setOffPageShowNames: (value: boolean) => void
   setShowCableEndpointLabels: (value: boolean) => void
   setSwapLabelsOnReconnect: (value: boolean) => void
   setInheritCableTypeFromPort: (value: boolean) => void
@@ -1105,6 +1112,7 @@ export const useUiStore = create<UiState>((set) => ({
     set((state) => applyPatch({ deviceConfigLibrary: entries })(state)),
   setCableBumps: (value) => set(applyPatch({ cableBumps: value })),
   setHideAllCableLabels: (value) => set(applyPatch({ hideAllCableLabels: value })),
+  setOffPageShowNames: (value) => set(applyPatch({ offPageShowNames: value })),
   setShowCableEndpointLabels: (value) => set(applyPatch({ showCableEndpointLabels: value })),
   setSwapLabelsOnReconnect: (value) => set(applyPatch({ swapLabelsOnReconnect: value })),
   setInheritCableTypeFromPort: (value) => set(applyPatch({ inheritCableTypeFromPort: value })),

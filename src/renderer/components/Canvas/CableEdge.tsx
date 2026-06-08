@@ -6,6 +6,7 @@ import {
   getBezierPath,
   getSmoothStepPath,
   getStraightPath,
+  internalsSymbol,
   useReactFlow,
   type EdgeProps,
 } from 'reactflow'
@@ -386,6 +387,7 @@ export const CableEdge = ({
   // aus. Wirkt zusammen mit dem per-Kabel labelPosition='none' / legacy
   // labelHidden=true (zwei Wege zum gleichen Ziel waehrend der Migration).
   const hideAllCableLabels = useUiStore((s) => s.hideAllCableLabels)
+  const offPageShowNames = useUiStore((s) => s.offPageShowNames)
   const showCableEndpointLabels = useUiStore((s) => s.showCableEndpointLabels)
   const collisionShiftOn = useUiStore((s) => s.orthogonalCollisionShift)
   // v7.9.85 / #123 — Layer-Filter. Wenn das Kabel einen Layer hat
@@ -689,6 +691,28 @@ export const CableEdge = ({
       const py = node?.position.y ?? eq?.y ?? 0
       return { x: px + (node?.width ?? 90) / 2, y: py + (node?.height ?? 30) / 2 }
     }
+    // #507 — Position des GEGENSTÜCK-Connectors (= Port-Handle) in Flow-
+    // Koordinaten, damit der Pfeil-Sprung auf dem anderen Off-Page-Verbinder
+    // landet statt nur im Geräte-Zentrum. Fallback auf das Zentrum, falls die
+    // Handle-Bounds (noch) nicht gemessen sind (z.B. Node außerhalb Viewport).
+    const endpointConnectorCenter = (
+      equipmentId: string,
+      portId: string,
+    ): { x: number; y: number } => {
+      const node = rf.getNode(equipmentId)
+      const bounds = node?.[internalsSymbol]?.handleBounds
+      const handle =
+        bounds?.source?.find((h) => h.id === portId) ??
+        bounds?.target?.find((h) => h.id === portId)
+      if (node && handle) {
+        const base = node.positionAbsolute ?? node.position
+        return {
+          x: base.x + handle.x + handle.width / 2,
+          y: base.y + handle.y + handle.height / 2,
+        }
+      }
+      return endpointCenter(equipmentId)
+    }
     const jumpTo = (tx: number, ty: number) =>
       rf.setCenter(tx, ty, { zoom: rf.getZoom(), duration: 450 })
 
@@ -700,7 +724,7 @@ export const CableEdge = ({
         const port =
           eq?.outputs.find((p) => p.id === ep.portId) ??
           eq?.inputs.find((p) => p.id === ep.portId)
-        const c = endpointCenter(ep.equipmentId)
+        const c = endpointConnectorCenter(ep.equipmentId, ep.portId)
         return {
           label: `${eq ? effectiveShortName(eq) : '?'} · ${port?.name ?? ep.portId}`,
           x: c.x,
@@ -720,7 +744,7 @@ export const CableEdge = ({
         let best: { x: number; y: number; d: number } | null = null
         for (const ep of netEndpoints(cables, key)) {
           if (ep.cableId === id && ep.end === selfEnd) continue
-          const c = endpointCenter(ep.equipmentId)
+          const c = endpointConnectorCenter(ep.equipmentId, ep.portId)
           const d = (c.x - selfX) ** 2 + (c.y - selfY) ** 2
           if (!best || d < best.d) best = { ...c, d }
         }
@@ -740,6 +764,7 @@ export const CableEdge = ({
           highlighted={netHighlighted}
           selected={isSelected}
           isLight={isLight}
+          showName={offPageShowNames}
           onSelect={selectNet}
           onNavigate={navigateNearest(sourceX, sourceY, 'from')}
           getNetInfo={buildNetInfo('from')}
@@ -757,6 +782,7 @@ export const CableEdge = ({
           highlighted={netHighlighted}
           selected={isSelected}
           isLight={isLight}
+          showName={offPageShowNames}
           onSelect={selectNet}
           onNavigate={navigateNearest(targetX, targetY, 'to')}
           getNetInfo={buildNetInfo('to')}
