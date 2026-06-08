@@ -400,8 +400,150 @@ const MobilePlanSvg = ({
     return m
   }, [project])
 
+  // #504 — Pinch-/Wheel-Zoom + Pan NUR für den Plan, ohne dass die ganze
+  // Seite (Browser) zoomt. Umsetzung als CSS-Transform auf dem (fit-)SVG;
+  // Gesten laufen in Screen-Pixeln im Container. `touch-action: none` +
+  // Safari-gesture*-preventDefault verhindern den Seiten-Zoom.
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [view, setView] = useState({ s: 1, x: 0, y: 0 })
+  const viewRef = useRef(view)
+  viewRef.current = view
+  type Gesture =
+    | { mode: 'pan'; startX: number; startY: number; baseX: number; baseY: number }
+    | { mode: 'pinch'; d0: number; mx: number; my: number; s0: number; bx: number; by: number }
+  const gestureRef = useRef<Gesture | null>(null)
+  const movedRef = useRef(false)
+  const lastTapRef = useRef(0)
+  const MIN_S = 1
+  const MAX_S = 8
+  const clampS = (s: number): number => Math.min(MAX_S, Math.max(MIN_S, s))
+  const rel = (clientX: number, clientY: number): { x: number; y: number } => {
+    const r = containerRef.current?.getBoundingClientRect()
+    return { x: clientX - (r?.left ?? 0), y: clientY - (r?.top ?? 0) }
+  }
+  // Zoom auf einen Container-Punkt (px,py): der darunterliegende Plan-Punkt
+  // bleibt fix.
+  const zoomAt = (px: number, py: number, nextS: number): void => {
+    const v = viewRef.current
+    const ns = clampS(nextS)
+    const wx = (px - v.x) / v.s
+    const wy = (py - v.y) / v.s
+    setView({ s: ns, x: px - ns * wx, y: py - ns * wy })
+  }
+  const dist2 = (a: React.Touch, b: React.Touch): number => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
+
+  // Native, nicht-passive Listener: Wheel (Desktop) + Safari-Gesten
+  // unterdrücken den Seiten-Zoom zuverlässig (touch-action allein reicht in
+  // Safari nicht).
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const onWheel = (e: WheelEvent): void => {
+      e.preventDefault()
+      const p = rel(e.clientX, e.clientY)
+      const v = viewRef.current
+      const ns = clampS(v.s * Math.exp(-e.deltaY * 0.0015))
+      const wx = (p.x - v.x) / v.s
+      const wy = (p.y - v.y) / v.s
+      setView({ s: ns, x: p.x - ns * wx, y: p.y - ns * wy })
+    }
+    const prevent = (e: Event): void => e.preventDefault()
+    el.addEventListener('wheel', onWheel, { passive: false })
+    el.addEventListener('gesturestart', prevent)
+    el.addEventListener('gesturechange', prevent)
+    el.addEventListener('gestureend', prevent)
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      el.removeEventListener('gesturestart', prevent)
+      el.removeEventListener('gesturechange', prevent)
+      el.removeEventListener('gestureend', prevent)
+    }
+  }, [])
+
+  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>): void => {
+    movedRef.current = false
+    if (e.touches.length >= 2) {
+      const a = e.touches[0]
+      const b = e.touches[1]
+      const m = rel((a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2)
+      const v = viewRef.current
+      gestureRef.current = { mode: 'pinch', d0: dist2(a, b), mx: m.x, my: m.y, s0: v.s, bx: v.x, by: v.y }
+    } else if (e.touches.length === 1) {
+      const p = rel(e.touches[0].clientX, e.touches[0].clientY)
+      const v = viewRef.current
+      gestureRef.current = { mode: 'pan', startX: p.x, startY: p.y, baseX: v.x, baseY: v.y }
+    }
+  }
+  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>): void => {
+    const g = gestureRef.current
+    if (!g) return
+    if (g.mode === 'pinch' && e.touches.length >= 2) {
+      const a = e.touches[0]
+      const b = e.touches[1]
+      if (g.d0 <= 0) return
+      const ns = clampS(g.s0 * (dist2(a, b) / g.d0))
+      const m = rel((a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2)
+      const wx = (g.mx - g.bx) / g.s0
+      const wy = (g.my - g.by) / g.s0
+      setView({ s: ns, x: m.x - ns * wx, y: m.y - ns * wy })
+      movedRef.current = true
+    } else if (g.mode === 'pan' && e.touches.length === 1) {
+      const p = rel(e.touches[0].clientX, e.touches[0].clientY)
+      const dx = p.x - g.startX
+      const dy = p.y - g.startY
+      if (Math.hypot(dx, dy) > 6) movedRef.current = true
+      setView({ s: viewRef.current.s, x: g.baseX + dx, y: g.baseY + dy })
+    }
+  }
+  const onTouchEnd = (e: React.TouchEvent<HTMLDivElement>): void => {
+    if (e.touches.length === 0) {
+      if (!movedRef.current) {
+        const now = Date.now()
+        if (now - lastTapRef.current < 300) {
+          setView({ s: 1, x: 0, y: 0 }) // Doppeltipp = zurück auf Fit
+          movedRef.current = true // den folgenden Geräte-Klick schlucken
+        }
+        lastTapRef.current = now
+      }
+      gestureRef.current = null
+    } else if (e.touches.length === 1 && gestureRef.current?.mode === 'pinch') {
+      const p = rel(e.touches[0].clientX, e.touches[0].clientY)
+      const v = viewRef.current
+      gestureRef.current = { mode: 'pan', startX: p.x, startY: p.y, baseX: v.x, baseY: v.y }
+    }
+  }
+  const handleTap = (id: string): void => {
+    // Nach Pan/Pinch keinen Geräte-Tap auslösen.
+    if (movedRef.current) {
+      movedRef.current = false
+      return
+    }
+    onTapDevice(id)
+  }
+  const zoomButton = (factor: number | 'fit'): void => {
+    const r = containerRef.current?.getBoundingClientRect()
+    if (factor === 'fit') {
+      setView({ s: 1, x: 0, y: 0 })
+      return
+    }
+    zoomAt((r?.width ?? 0) / 2, (r?.height ?? 0) / 2, viewRef.current.s * factor)
+  }
+
   return (
-    <svg viewBox={`${bbox.x} ${bbox.y} ${bbox.w} ${bbox.h}`} className="h-full w-full" preserveAspectRatio="xMidYMid meet" style={{ background: '#0f172a' }}>
+    <div
+      ref={containerRef}
+      className="relative h-full w-full overflow-hidden"
+      style={{ touchAction: 'none', background: '#0f172a' }}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      <svg
+        viewBox={`${bbox.x} ${bbox.y} ${bbox.w} ${bbox.h}`}
+        className="h-full w-full"
+        preserveAspectRatio="xMidYMid meet"
+        style={{ background: '#0f172a', transform: `translate(${view.x}px, ${view.y}px) scale(${view.s})`, transformOrigin: '0 0' }}
+      >
       {(project.locations ?? []).map((l) => (
         <rect key={l.id} x={l.x} y={l.y} width={l.width} height={l.height} rx={10} fill={l.color} fillOpacity={0.06} stroke={l.color} strokeWidth={2} />
       ))}
@@ -416,7 +558,7 @@ const MobilePlanSvg = ({
         const sel = e.id === selectedId
         const accent = sel ? '#38bdf8' : (e.nodeColor ?? '#334155')
         return (
-          <g key={e.id} style={{ cursor: 'pointer' }} onClick={() => onTapDevice(e.id)}>
+          <g key={e.id} style={{ cursor: 'pointer' }} onClick={() => handleTap(e.id)}>
             <rect x={e.x} y={e.y} width={w} height={h} rx={6} fill="#1e293b" stroke={accent} strokeWidth={sel ? 4 : 2} />
             <rect x={e.x} y={e.y} width={w} height={22} rx={6} fill={accent} />
             <text x={e.x + 8} y={e.y + 16} fill="#ffffff" fontSize={12} fontFamily="sans-serif" fontWeight={600}>{e.name}</text>
@@ -424,7 +566,14 @@ const MobilePlanSvg = ({
           </g>
         )
       })}
-    </svg>
+      </svg>
+      {/* #504 — Zoom-Buttons (für Geräte ohne Pinch und als sichtbarer Hinweis). */}
+      <div className="absolute bottom-2 right-2 flex flex-col gap-1">
+        <button type="button" aria-label="Vergrößern" onClick={() => zoomButton(1.4)} className="h-9 w-9 rounded-full bg-slate-800/90 text-lg font-bold text-slate-100 shadow ring-1 ring-slate-600 active:bg-slate-700">+</button>
+        <button type="button" aria-label="Verkleinern" onClick={() => zoomButton(1 / 1.4)} className="h-9 w-9 rounded-full bg-slate-800/90 text-lg font-bold text-slate-100 shadow ring-1 ring-slate-600 active:bg-slate-700">−</button>
+        <button type="button" aria-label="Einpassen" onClick={() => zoomButton('fit')} className="h-9 w-9 rounded-full bg-slate-800/90 text-base text-slate-100 shadow ring-1 ring-slate-600 active:bg-slate-700">⤢</button>
+      </div>
+    </div>
   )
 }
 
