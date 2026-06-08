@@ -1702,11 +1702,14 @@ const en: Dict = {
   'rentman.import.next': 'Next',
   'rentman.import.catMap.title': 'Category mapping before import',
   'rentman.import.catMap.intro':
-    'Every import must be mapped to an existing category.',
+    'Map every device to a local category. Matches are detected and remembered automatically — missing ones can be created right here with “+ New”. “Back” keeps your selection.',
   'rentman.import.catMap.pickPlaceholder': 'Please select…',
   'rentman.import.catMap.missingTitle': 'Category missing',
   'rentman.import.catMap.missingBody':
-    'Please pick an existing category for every device.',
+    'Please pick a category for every device or create one with “+ New”.',
+  'rentman.import.catMap.newCategory': 'Create new category',
+  'rentman.import.catMap.newCategoryShort': '+ New',
+  'rentman.import.catMap.back': 'Back',
   'rentman.import.loadProjects': 'Load projects',
   'rentman.import.refresh': '↺ Refresh Rentman',
   'rentman.import.refreshTitle': 'Reload quantities and devices for "{name}"',
