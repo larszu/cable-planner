@@ -799,7 +799,7 @@ const PowerTab = () => {
                     <td className="truncate py-0.5">
                       {a.name}
                       {a.pinned && (
-                        <span className="ml-1 text-[9px] text-slate-400" title={t('calc.phasePinned', 'Fest zugeordnet')}>📌</span>
+                        <span className="ml-1 text-[11px] text-slate-400" title={t('calc.phasePinned', 'Fest zugeordnet')}>📌</span>
                       )}
                     </td>
                     <td className="text-right font-mono text-slate-400">{a.watts}</td>

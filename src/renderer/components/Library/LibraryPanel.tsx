@@ -847,7 +847,7 @@ export const LibraryPanel = () => {
               }`}
               title={t('library.section.localTitle', 'Eigene und importierte Vorlagen, lokal in dieser Installation')}
             >
-              <span className="mr-1 rounded bg-sky-900/80 px-1 text-[9px] font-bold text-sky-100">L</span>
+              <span className="mr-1 rounded bg-sky-900/80 px-1 text-[11px] font-bold text-sky-100">L</span>
               {t('library.section.local', 'Lokal')}
               <span className="ml-1 text-[10px] text-slate-400">
                 ({customLibrary.filter((t) => !t.rentmanSource).length})
@@ -863,7 +863,7 @@ export const LibraryPanel = () => {
               }`}
               title={t('library.section.rentmanTitle', 'Aus Rentman importierte Geräte und Account-Katalog')}
             >
-              <span className="mr-1 rounded bg-orange-900/80 px-1 text-[9px] font-bold text-orange-100">R</span>
+              <span className="mr-1 rounded bg-orange-900/80 px-1 text-[11px] font-bold text-orange-100">R</span>
               Rentman
               <span className="ml-1 text-[10px] text-slate-400">
                 ({customLibrary.filter((t) => t.rentmanSource).length})

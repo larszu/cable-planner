@@ -168,13 +168,13 @@ const SourceTile = ({ long, short, category, highlight }: TileProps) => {
       className="flex h-full w-full flex-col items-center justify-center overflow-hidden px-1 text-center"
     >
       {highlight && (
-        <div className="text-[9px] font-semibold uppercase tracking-widest opacity-70">
+        <div className="text-[11px] font-semibold uppercase tracking-widest opacity-70">
           {highlight === 'pgm' ? 'PGM' : 'PRV'}
         </div>
       )}
       <div className="truncate text-[11px] font-medium leading-tight">{long}</div>
       {short && long !== short && (
-        <div className="truncate text-[9px] opacity-60">{short}</div>
+        <div className="truncate text-[11px] opacity-60">{short}</div>
       )}
     </div>
   )

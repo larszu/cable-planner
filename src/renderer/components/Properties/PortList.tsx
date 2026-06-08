@@ -140,7 +140,7 @@ const CollapsibleSdiCaps = ({
         <span className="text-amber-400/70">{open ? '▾' : '▸'}</span>
         <span className="flex-1">{t('ports.sdi.caps', 'SDI-Fähigkeiten (port-spezifisch)')}</span>
         {!open && badge && (
-          <span className="rounded bg-amber-900/50 px-1 text-[9px] normal-case text-amber-200">
+          <span className="rounded bg-amber-900/50 px-1 text-[11px] normal-case text-amber-200">
             {badge}
           </span>
         )}
@@ -834,7 +834,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     </select>
                   </label>
                 </div>
-                <div className="mt-1 text-[9px] text-slate-400">
+                <div className="mt-1 text-[11px] text-slate-400">
                   {t(
                     'ports.sdi.overrideHint',
                     'Überschreibt die Geräte-SDI-Fähigkeiten für diesen Port. Leer = Default vom Gerät.',
@@ -861,7 +861,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       {g && (
                         <>
                           <span
-                            className={`rounded px-1 py-0.5 text-[9px] font-bold ${
+                            className={`rounded px-1 py-0.5 text-[11px] font-bold ${
                               ok
                                 ? 'bg-emerald-900/60 text-emerald-300'
                                 : 'bg-amber-900/60 text-amber-300'
@@ -876,7 +876,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                             <button
                               type="button"
                               onClick={() => void autoFillQuadGroup(g, port.id)}
-                              className="rounded bg-sky-800 px-1 py-0.5 text-[9px] text-sky-100 hover:bg-sky-700"
+                              className="rounded bg-sky-800 px-1 py-0.5 text-[11px] text-sky-100 hover:bg-sky-700"
                               title={t('ports.quadAuto', 'Freie BNC-Ports automatisch dem Set zuweisen')}
                             >
                               auto-fill
@@ -908,7 +908,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       {g && (
                         <>
                           <span
-                            className={`rounded px-1 py-0.5 text-[9px] font-bold ${
+                            className={`rounded px-1 py-0.5 text-[11px] font-bold ${
                               ok
                                 ? 'bg-emerald-900/60 text-emerald-300'
                                 : 'bg-amber-900/60 text-amber-300'
@@ -923,7 +923,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                             <button
                               type="button"
                               onClick={() => void autoFillDualGroup(g, port.id)}
-                              className="rounded bg-sky-800 px-1 py-0.5 text-[9px] text-sky-100 hover:bg-sky-700"
+                              className="rounded bg-sky-800 px-1 py-0.5 text-[11px] text-sky-100 hover:bg-sky-700"
                               title={t('ports.dualAuto', 'Freie BNC-Ports automatisch dem Set zuweisen')}
                             >
                               auto-fill
