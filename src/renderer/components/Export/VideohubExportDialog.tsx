@@ -6,6 +6,7 @@ import { useTranslation } from '../../lib/i18n'
 import { guessVideohubPresetKey } from '../../lib/deviceKind'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
+import { buildVideohubControlLabelsPdf } from '../../lib/exportVideohubLabels'
 import {
   buildVideohubLabelTxt,
   buildVideohubRoutingDump,
@@ -549,6 +550,22 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
       'txt',
     )
     downloadTextFile(fileName, preview)
+  }
+
+  // #502 — Druckbare Beschriftungs-Labels (Smart-Control-Raster) als PDF,
+  // gefüllt mit den effektiven Eingangs-/Ausgangs-Namen des Geräts.
+  const handleExportLabelsPdf = () => {
+    if (!device) return
+    const pdf = buildVideohubControlLabelsPdf(device.name || 'Videohub', [
+      { heading: t('videohub.labelsPdf.inputs', 'Eingänge / Quellen'), labels: computeEffectiveInputLabels() },
+      { heading: t('videohub.labelsPdf.outputs', 'Ausgänge'), labels: computeEffectiveOutputLabels() },
+    ])
+    const fileName = buildExportFilenameWithSuffix(
+      device.name || 'Videohub',
+      `${preset.key}_control-labels`,
+      'pdf',
+    )
+    downloadBlob(fileName, pdf.output('blob') as Blob, 'application/pdf')
   }
 
   const handleCopy = () => {
@@ -1348,6 +1365,18 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               title="Labels.txt importieren — Port-Namen aus einer Datei (z.B. von Videohub Setup) auf dieses Gerät schreiben."
             >
               ⬆ Labels.txt importieren
+            </button>
+          )}
+          {/* #502 — Druckbare Beschriftungs-Labels (Smart-Control-Raster) als
+              PDF, gefüllt mit den Quell-/Output-Namen. */}
+          {device && (
+            <button
+              type="button"
+              onClick={handleExportLabelsPdf}
+              className="rounded bg-indigo-700 px-3 py-1 text-cp-base hover:bg-indigo-600"
+              title={t('videohub.labelsPdfTitle', 'Beschriftungs-Labels als PDF generieren (Smart-Control-Raster, zum Ausdrucken und Ausschneiden).')}
+            >
+              {t('videohub.labelsPdf', '🏷 Labels-PDF')}
             </button>
           )}
         </div>
