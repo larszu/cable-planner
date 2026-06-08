@@ -1147,6 +1147,11 @@ const en: Dict = {
     'Send INPUT LABELS + OUTPUT LABELS only. Routing on the hub stays untouched.',
   'videohub.sendRoutingTitle': 'Send VIDEO OUTPUT ROUTING only. Labels on the hub unchanged.',
   'videohub.sendBothTitle': 'Labels + routing in ONE push (three blocks back-to-back).',
+  'videohub.labelsPdf': '🏷 Labels PDF',
+  'videohub.labelsPdfTitle':
+    'Generate printable label strips (Smart Control grid) as PDF — to print and cut out.',
+  'videohub.labelsPdf.inputs': 'Inputs / Sources',
+  'videohub.labelsPdf.outputs': 'Outputs',
   'videohub.hubStatus': 'Hub status:',
   'videohub.preview': 'Preview',
 
