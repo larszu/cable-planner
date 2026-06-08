@@ -123,4 +123,10 @@ export interface Cable {
    *  bilden ein gemeinsames Netz (Highlight, Endpunkt-Zählung, Navigation
    *  zum Gegenstück). Fallback wenn leer: der Kabel-`name`. */
   netName?: string
+  /** #507 — Verschiebe-Offset (Flow-Koordinaten) des Off-Page-Symbols
+   *  gegenüber seinem Port-Handle, je Kabelende. Erlaubt, den Connector vom
+   *  Port wegzuziehen; eine dünne Linie verbindet Port und Symbol. Undefined
+   *  = Symbol klebt am Port (Default). */
+  offPageFromOffset?: { x: number; y: number }
+  offPageToOffset?: { x: number; y: number }
 }

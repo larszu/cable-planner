@@ -2337,7 +2337,7 @@ const en: Dict = {
   // #221 — Off-page connector
   'canvas.cableMenu.makeOffPage': 'Create off-page connection…',
   'canvas.cableMenu.offPageNamePrompt': 'Net / signal name for the off-page connection:',
-  'offPage.symbolTitle': 'Net “{net}” → {to} · Click: select · Arrow: jump to counterpart · Right-click: net info',
+  'offPage.symbolTitle': 'Net “{net}” → {to} · Click: select · Arrow: jump to counterpart · Drag: move · Right-click: net info',
   'offPage.jumpTitle': 'Jump to counterpart',
   'offPage.endpointCount': '{n} endpoints in net',
   'offPage.resolve': 'Resolve off-page (show line)',
