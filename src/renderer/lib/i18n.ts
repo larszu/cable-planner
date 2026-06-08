@@ -86,6 +86,8 @@ const en: Dict = {
   'collab.invite.copied': 'Copied ✓',
   'collab.invite.head': 'Cable Planner live session — edit the same plan together.',
   'collab.invite.how': 'To join: Settings → Network sync → Live collaboration → enter the same room name (and password if set) → "Start session".',
+  'collab.invite.linkHead': 'Join the Cable Planner live session:',
+  'collab.invite.joinConfirm': 'Join live session “{room}”? Your current plan will be replaced by the host’s.',
   'collab.start': 'Start session',
   'collab.stop': 'Leave',
   'collab.status.off': 'Off',
