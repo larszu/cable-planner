@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Zap, Check, AlertTriangle } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '../shared/Icon'
 import { format, useTranslation } from '../../lib/i18n'
 import { infoDialog } from '../../lib/infoDialog'
+import { bilingualCategoryDialog } from '../../lib/bilingualCategoryDialog'
+import { STORAGE_KEYS } from '../../lib/storageKeys'
 import { useRentman } from '../../hooks/useRentman'
 import { useProjectStore } from '../../store/projectStore'
 import { matchBlackmagicTemplate } from '../../lib/blackmagicCatalog'
@@ -284,6 +286,84 @@ export interface DetectedCableRow {
 const isCableCategory = (category: string): boolean =>
   /(kabel|cable)/i.test(category)
 
+/**
+ * #499 — Normalisiert einen Kategorie-Namen für den Fuzzy-Vergleich:
+ * lowercase, Diakritika weg, alles Nicht-Alphanumerische raus. So matchen
+ * "Kabel & Adapter" ↔ "kabel-adapter" und "Audio/DI" ↔ "Audio DI".
+ */
+const normalizeCat = (s: string): string =>
+  s
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '')
+
+/** #499 — Tokens (≥3 Zeichen) eines Kategorie-Namens für den Wort-Vergleich. */
+const catTokens = (s: string): string[] =>
+  s
+    .toLowerCase()
+    .split(/[^a-z0-9äöüß]+/)
+    .map((w) => w.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, ''))
+    .filter((w) => w.length >= 3)
+
+/**
+ * #499 — Automatische Kategorie-Erkennung: bildet eine Rentman-Quell-
+ * Kategorie auf eine vorhandene lokale Kategorie ab. In Stufen, von streng
+ * nach locker:
+ *   1. exakte (normalisierte) Übereinstimmung
+ *   2. beidseitiger Teilstring-Treffer ("Kabel HDMI" → "Kabel")
+ *   3. gemeinsames Wort ≥4 Zeichen ("Wireless Mics" → "Funk/Wireless")
+ * Liefert '' wenn nichts passt. */
+const autoDetectCategory = (source: string, options: string[]): string => {
+  const ns = normalizeCat(source)
+  if (!ns) return ''
+  for (const opt of options) {
+    if (normalizeCat(opt) === ns) return opt
+  }
+  for (const opt of options) {
+    const no = normalizeCat(opt)
+    if (no.length >= 3 && (no.includes(ns) || ns.includes(no))) return opt
+  }
+  // Stufe 3 — gemeinsames signifikantes Wort. Bestes (längstes) gemeinsames
+  // Token gewinnt, damit aussagekräftige Treffer Vorrang haben.
+  const srcTokens = new Set(catTokens(source))
+  let best = ''
+  let bestScore = 0
+  for (const opt of options) {
+    let score = 0
+    for (const tok of catTokens(opt)) {
+      if (tok.length >= 4 && srcTokens.has(tok) && tok.length > score) score = tok.length
+    }
+    if (score > bestScore) {
+      bestScore = score
+      best = opt
+    }
+  }
+  return best
+}
+
+/** #499 — Gelernte Quell→Ziel-Kategorie-Map aus localStorage laden. */
+const loadRentmanCatMap = (): Record<string, string> => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.rentmanCategoryMap)
+    if (!raw) return {}
+    const parsed: unknown = JSON.parse(raw)
+    if (parsed && typeof parsed === 'object') return parsed as Record<string, string>
+  } catch {
+    /* ignore corrupt cache */
+  }
+  return {}
+}
+
+/** #499 — Gelernte Quell→Ziel-Kategorie-Map nach localStorage schreiben. */
+const saveRentmanCatMap = (map: Record<string, string>): void => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.rentmanCategoryMap, JSON.stringify(map))
+  } catch {
+    /* quota / private mode — Persistenz ist best-effort */
+  }
+}
+
 const detectCableRows = (items: RentmanEquipment[]): DetectedCableRow[] => {
   const rows: DetectedCableRow[] = []
   for (const item of items) {
@@ -332,6 +412,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const addCustomTemplate = useProjectStore((state) => state.addCustomTemplate)
   const addGroupPreset = useProjectStore((state) => state.addGroupPreset)
   const addKnownCategories = useProjectStore((state) => state.addKnownCategories)
+  const setCategoryTranslation = useProjectStore((state) => state.setCategoryTranslation)
   const knownCategories = useProjectStore((state) => state.knownCategories)
   const updateProjectMetadata = useProjectStore((state) => state.updateProjectMetadata)
   const linkedProjectId = useProjectStore((state) => state.project.metadata.rentmanProjectId)
@@ -387,6 +468,12 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     incomingTemplate: EquipmentTemplate
   }
   const [categoryAssignments, setCategoryAssignments] = useState<CategoryAssignment[] | null>(null)
+  // #499 — Gelernte Quell→Ziel-Kategorie-Map (persistiert) + in-Session
+  // gemerkte Zielkategorie je Geräte-Name. Beides sorgt dafür, dass man im
+  // Kategorie-Mapping „zurück“ kann ohne die Auswahl zu verlieren, und dass
+  // bekannte Zuordnungen beim nächsten Import automatisch vorbelegt werden.
+  const rentmanCatMapRef = useRef<Record<string, string>>(loadRentmanCatMap())
+  const prevTargetByNameRef = useRef<Record<string, string>>({})
   const [pendingCategoryByName, setPendingCategoryByName] = useState<Record<string, string>>({})
   const [conflictItems, setConflictItems] = useState<ConflictItem[] | null>(null)
   const [pendingDecisions, setPendingDecisions] = useState<Record<string, ConflictDecision>>({})
@@ -976,10 +1063,8 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     const selected = visibleItems.filter((item) => item.checked)
     if (selected.length === 0) return
 
-    if (importCategoryOptions.length === 0) {
-      setError(t('rentman.import.noCategories', 'Keine Kategorien verfügbar. Bitte zuerst lokale Kategorien anlegen.'))
-      return
-    }
+    // #499 — Kein Hard-Stop mehr bei 0 Kategorien: im Mapping-Schritt kann
+    // der User jetzt direkt neue Kategorien anlegen, statt erst woanders.
 
     // Issue #33: apply linked-existing mappings *before* the normal import
     // pipeline. For each linked Rentman item, stamp its rentmanId onto the
@@ -1005,9 +1090,72 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     const assignments = Array.from(uniqueByName.values()).map((item) => ({
       name: item.name,
       sourceCategory: item.category,
-      targetCategory: importCategoryOptions.includes(item.category) ? item.category : '',
+      targetCategory: resolveInitialTarget(item),
     }))
     setCategoryAssignments(assignments)
+  }
+
+  /**
+   * #499 — Zielkategorie für eine Zeile vorbelegen. Reihenfolge:
+   *   1. in dieser Session schon getroffene Wahl (Name) — „zurück“ ohne Verlust
+   *   2. gelernte Quell→Ziel-Map (persistiert, „Zwischenspeichern“)
+   *   3. exakte Übereinstimmung Quell-Kategorie ↔ lokale Kategorie
+   *   4. automatische (Fuzzy-)Erkennung
+   */
+  const resolveInitialTarget = (item: RentmanEquipment): string => {
+    const byName = prevTargetByNameRef.current[item.name]
+    if (byName && importCategoryOptions.includes(byName)) return byName
+    const remembered = rentmanCatMapRef.current[item.category]
+    if (remembered && importCategoryOptions.includes(remembered)) return remembered
+    if (importCategoryOptions.includes(item.category)) return item.category
+    return autoDetectCategory(item.category, importCategoryOptions)
+  }
+
+  /**
+   * #499 — Aktuelle Zuordnung „zwischenspeichern“: je Name (Session) und je
+   * Quell-Kategorie (persistiert). Wird beim „Zurück“ wie beim „Weiter“
+   * aufgerufen, damit nichts verloren geht.
+   */
+  const persistAssignments = (assignments: CategoryAssignment[]): void => {
+    const byName = { ...prevTargetByNameRef.current }
+    const remembered = { ...rentmanCatMapRef.current }
+    for (const row of assignments) {
+      const target = row.targetCategory.trim()
+      if (!target) continue
+      byName[row.name] = target
+      if (row.sourceCategory) remembered[row.sourceCategory] = target
+    }
+    prevTargetByNameRef.current = byName
+    rentmanCatMapRef.current = remembered
+    saveRentmanCatMap(remembered)
+  }
+
+  /**
+   * #499 — Im Mapping-Schritt eine neue lokale Kategorie anlegen und der Zeile
+   * (sowie noch leeren Zeilen gleicher Quell-Kategorie) zuweisen.
+   */
+  const handleCreateCategory = async (rowIndex: number): Promise<void> => {
+    const sourceCat = categoryAssignments?.[rowIndex]?.sourceCategory ?? ''
+    const result = await bilingualCategoryDialog(
+      t('rentman.import.catMap.newCategory', 'Neue Kategorie anlegen'),
+    )
+    if (!result || !result.canonical) return
+    addKnownCategories([result.canonical])
+    if (result.de || result.en) {
+      setCategoryTranslation(result.canonical, { de: result.de, en: result.en })
+    }
+    setCategoryAssignments((prev) =>
+      prev
+        ? prev.map((it, i) => {
+            if (i === rowIndex) return { ...it, targetCategory: result.canonical }
+            // Komfort: leere Zeilen derselben Quell-Kategorie gleich mit-belegen.
+            if (sourceCat && it.sourceCategory === sourceCat && !it.targetCategory.trim()) {
+              return { ...it, targetCategory: result.canonical }
+            }
+            return it
+          })
+        : prev,
+    )
   }
 
   const startConflictResolution = (categoryByName: Record<string, string>) => {
@@ -1386,7 +1534,10 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         <div className="w-full max-w-2xl rounded border border-cyan-700 bg-slate-900 p-5 text-slate-100 shadow-xl">
           <h3 className="mb-2 text-cp-xl font-semibold text-cyan-300">{t('rentman.import.catMap.title', 'Kategorie-Zuordnung vor Import')}</h3>
           <p className="mb-3 text-cp-base text-slate-300">
-            {t('rentman.import.catMap.intro', 'Jeder Import muss einer bestehenden Kategorie zugeordnet werden.')}
+            {t(
+              'rentman.import.catMap.intro',
+              'Jedes Gerät einer lokalen Kategorie zuordnen. Passende werden automatisch erkannt und gemerkt — fehlende kannst du mit „+ Neu“ direkt anlegen. „Zurück“ behält deine Auswahl.',
+            )}
           </p>
           <div className="mb-3 max-h-[55vh] overflow-auto rounded border border-slate-800">
             <table className="w-full text-cp-xs">
@@ -1403,26 +1554,36 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                     <td className="px-2 py-1.5 font-medium text-slate-100">{row.name}</td>
                     <td className="px-2 py-1.5 text-slate-500">{row.sourceCategory}</td>
                     <td className="px-2 py-1.5">
-                      <select
-                        value={row.targetCategory}
-                        onChange={(event) =>
-                          setCategoryAssignments((prev) =>
-                            prev
-                              ? prev.map((item, i) =>
-                                  i === index ? { ...item, targetCategory: event.target.value } : item,
-                                )
-                              : prev,
-                          )
-                        }
-                        className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
-                      >
-                        <option value="">{t('rentman.import.catMap.pickPlaceholder', 'Bitte auswählen...')}</option>
-                        {importCategoryOptions.map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="flex items-center gap-1.5">
+                        <select
+                          value={row.targetCategory}
+                          onChange={(event) =>
+                            setCategoryAssignments((prev) =>
+                              prev
+                                ? prev.map((item, i) =>
+                                    i === index ? { ...item, targetCategory: event.target.value } : item,
+                                  )
+                                : prev,
+                            )
+                          }
+                          className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
+                        >
+                          <option value="">{t('rentman.import.catMap.pickPlaceholder', 'Bitte auswählen...')}</option>
+                          {importCategoryOptions.map((cat) => (
+                            <option key={cat} value={cat}>
+                              {cat}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => void handleCreateCategory(index)}
+                          title={t('rentman.import.catMap.newCategory', 'Neue Kategorie anlegen')}
+                          className="shrink-0 rounded border border-emerald-700 bg-emerald-800/40 px-2 py-1 text-cp-xs font-medium text-emerald-200 hover:bg-emerald-700/50"
+                        >
+                          {t('rentman.import.catMap.newCategoryShort', '+ Neu')}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -1432,10 +1593,16 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
           <div className="flex justify-end gap-2">
             <button
               type="button"
-              onClick={() => setCategoryAssignments(null)}
+              onClick={() => {
+                // #499 — „Zurück“ speichert die bisherige Auswahl zwischen
+                // (Session + persistiert), damit beim erneuten Öffnen nichts
+                // verloren geht.
+                persistAssignments(categoryAssignments)
+                setCategoryAssignments(null)
+              }}
               className="rounded bg-slate-700 px-3 py-1.5 text-cp-base hover:bg-slate-600"
             >
-              {t('common.cancel', 'Abbrechen')}
+              {t('rentman.import.catMap.back', 'Zurück')}
             </button>
             <button
               type="button"
@@ -1443,11 +1610,13 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 const hasMissing = categoryAssignments.some((row) => !row.targetCategory.trim())
                 if (hasMissing) {
                   void infoDialog(t('rentman.import.catMap.missingTitle', 'Kategorie fehlt'), {
-                    body: t('rentman.import.catMap.missingBody', 'Bitte für jedes Gerät eine bestehende Kategorie wählen.'),
+                    body: t('rentman.import.catMap.missingBody', 'Bitte für jedes Gerät eine Kategorie wählen oder mit „+ Neu“ anlegen.'),
                     tone: 'warning',
                   })
                   return
                 }
+                // #499 — Zuordnung merken, bevor es weitergeht.
+                persistAssignments(categoryAssignments)
                 const categoryByName: Record<string, string> = {}
                 for (const row of categoryAssignments) {
                   categoryByName[row.name] = row.targetCategory

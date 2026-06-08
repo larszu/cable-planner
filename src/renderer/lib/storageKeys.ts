@@ -58,6 +58,8 @@ export const STORAGE_KEYS = {
   windowGeometry: 'cable-planner:window-geometry',
   /** #309 — Bilinguale Kategorie-Anzeigenamen (de/en Map). */
   categoryTranslations: 'cable-planner:categoryTranslations',
+  /** #499 — Gelernte Zuordnung Rentman-Kategorie → lokale Kategorie. */
+  rentmanCategoryMap: 'cable-planner:rentman:category-map:v1',
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]
