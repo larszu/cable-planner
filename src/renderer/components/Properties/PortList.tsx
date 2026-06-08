@@ -17,6 +17,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { Tooltip } from '../shared/Tooltip'
 import { useUiStore } from '../../store/uiStore'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, Port } from '../../types/equipment'
@@ -530,14 +531,16 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                 placeholder={t('ports.namePlaceholder', 'Port-Name')}
                 className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
               />
-              <button
-                type="button"
-                onClick={() => removePort(port.id)}
-                title={t('ports.remove', 'Port entfernen')}
-                className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
-              >
-                ×
-              </button>
+              <Tooltip label={t('ports.remove', 'Port entfernen')}>
+                <button
+                  type="button"
+                  onClick={() => removePort(port.id)}
+                  aria-label={t('ports.remove', 'Port entfernen')}
+                  className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
+                >
+                  ×
+                </button>
+              </Tooltip>
             </div>
             <div className="mt-1 grid grid-cols-2 gap-1">
               <div className="flex items-stretch gap-0.5">
