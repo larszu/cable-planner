@@ -119,7 +119,7 @@ export const LibraryItem = ({
           )}
           {isFromActiveRentman && (
             <span
-              className="mr-1 rounded bg-orange-600 px-1 text-[9px] font-bold text-white"
+              className="mr-1 rounded bg-orange-600 px-1 text-[11px] font-bold text-white"
               title={format(
                 t('library.item.badgeActiveRentman', 'Aus aktivem Rentman-Projekt{suffix}'),
                 { suffix: item.rentmanProjectName ? `: ${item.rentmanProjectName}` : '' },
@@ -130,7 +130,7 @@ export const LibraryItem = ({
           )}
           {isFromOtherRentman && (
             <span
-              className="mr-1 rounded bg-slate-600 px-1 text-[9px] font-bold text-slate-200"
+              className="mr-1 rounded bg-slate-600 px-1 text-[11px] font-bold text-slate-200"
               title={format(
                 t('library.item.badgeOtherRentman', 'Aus Rentman-Projekt{suffix}'),
                 { suffix: item.rentmanProjectName ? `: ${item.rentmanProjectName}` : '' },
@@ -141,7 +141,7 @@ export const LibraryItem = ({
           )}
           {!item.rentmanSource && (
             <span
-              className="mr-1 rounded bg-sky-800/80 px-1 text-[9px] font-bold text-sky-100"
+              className="mr-1 rounded bg-sky-800/80 px-1 text-[11px] font-bold text-sky-100"
               title={t('library.item.badgeLocal', 'Lokales Gerät (nicht aus Rentman)')}
             >
               L

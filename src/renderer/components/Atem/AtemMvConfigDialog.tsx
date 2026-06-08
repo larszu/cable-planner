@@ -1054,12 +1054,12 @@ export const AtemMvConfigDialog = () => {
         title={`${quad.name} groß: ${label} (ID ${sid}) — klicken zum Ändern`}
       >
         {role !== 'other' && (
-          <div className="absolute left-1 top-0 text-[9px] font-semibold uppercase tracking-wider opacity-70">
+          <div className="absolute left-1 top-0 text-[11px] font-semibold uppercase tracking-wider opacity-70">
             {role.toUpperCase()}
           </div>
         )}
         <div className="truncate px-1 text-[11px] font-medium leading-tight">{label}</div>
-        <div className="truncate px-1 text-[9px] opacity-60">ID {sid}</div>
+        <div className="truncate px-1 text-[11px] opacity-60">ID {sid}</div>
       </button>
     )
   }

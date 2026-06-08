@@ -213,7 +213,7 @@ export const ConnectorPicker = ({
                           }`}
                         >
                           <span style={{ color: connectorColor(e) }}>{tileSymbolFor(e)}</span>
-                          <span className="w-full truncate text-[9px] leading-tight text-slate-300">
+                          <span className="w-full truncate text-[11px] leading-tight text-slate-300">
                             {e.label}
                           </span>
                         </button>

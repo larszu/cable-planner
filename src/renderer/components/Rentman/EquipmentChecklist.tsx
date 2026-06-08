@@ -24,6 +24,9 @@ interface ChecklistItem {
    *    Ubiquiti, Monitor, Camera, Misc, GreenGo).
    *  - undefined: kein Match. */
   templateMatchKind?: 'rentmanId' | 'nameOnly' | 'catalog'
+  /** Rentman-Art der Zeile (defensiv geparst). Kommentar = kein Gerät. */
+  kind?: 'device' | 'virtual' | 'physical' | 'comment'
+  contentsCount?: number
 }
 
 interface EquipmentChecklistProps {
@@ -40,6 +43,9 @@ interface EquipmentChecklistProps {
    */
   rackSetIds?: Set<string>
   onSetAsRack?: (parentId: string, asRack: boolean) => void
+  /** Stufe 3 — "Nur Hauptgerät": Auswahl auf das eine signal-relevante Teil
+   *  der Kombination setzen (Zubehör überspringen). */
+  onSetMainOnly?: (parentId: string) => void
   /**
    * Issue #33: Per-row "link to existing local device" mapping. When
    * provided, each row gets a dropdown of local equipment (without a
@@ -61,6 +67,7 @@ export const EquipmentChecklist = ({
   onSetAllChildren,
   rackSetIds,
   onSetAsRack,
+  onSetMainOnly,
   linkableEquipment,
   onLinkExisting,
   linkedMap,
@@ -170,7 +177,13 @@ export const EquipmentChecklist = ({
           )}
         </div>
       )}
-      {Object.entries(grouped).map(([category, categoryItems]) => (
+      {/* #498 — Kategorie-Gruppen alphabetisch (konsistent mit den
+          Filter-Chips & der lokalen Library); innerhalb einer Kategorie bleibt
+          die Rentman-Reihenfolge erhalten, Kombinationen mit ihren Teilen
+          eingerückt. */}
+      {Object.entries(grouped)
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([category, categoryItems]) => (
         <div key={category}>
           <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wide text-slate-300">{category}</div>
           <div className="space-y-1">
@@ -179,6 +192,19 @@ export const EquipmentChecklist = ({
               const isSet = Boolean(children && children.length > 0)
               const isOpen = expanded.has(item.id)
               const allChildrenChecked = isSet && children!.every((c) => c.checked)
+              // Kommentar-/Text-Zeile aus Rentman → kein Gerät, nicht
+              // importierbar (kein Häkchen), nur als Notiz anzeigen.
+              if (item.kind === 'comment') {
+                return (
+                  <div key={item.id} className="flex items-center gap-2 rounded bg-slate-900/30 px-2 py-1 text-cp-xs">
+                    <span className="w-5" />
+                    <span className="shrink-0 rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                      {t('rentman.checklist.kind.comment', 'Kommentar')}
+                    </span>
+                    <span className="flex-1 italic text-slate-400">{item.name}</span>
+                  </div>
+                )
+              }
               return (
                 <div key={item.id}>
                   <div className="flex items-center gap-2">
@@ -203,8 +229,39 @@ export const EquipmentChecklist = ({
                       />
                       <span className="flex-1">
                         {item.name}
-                        {isSet && (
-                          <span className="ml-1 text-[10px] text-slate-400">[set · {children!.length}]</span>
+                        {isSet && (() => {
+                          const n = children!.length
+                          if (item.kind === 'physical')
+                            return (
+                              <span className="ml-2 rounded bg-amber-900/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-200" title={t('rentman.checklist.kind.physicalTitle', 'Physische Kombination — eine Bestandseinheit. Default: als 1 Gerät (oder Rack).')}>
+                                {format(t('rentman.checklist.kind.physical', 'Physische Kombi · {n}'), { n })}
+                              </span>
+                            )
+                          if (item.kind === 'virtual')
+                            return (
+                              <span className="ml-2 rounded bg-violet-900/60 px-1.5 py-0.5 text-[10px] font-medium text-violet-200" title={t('rentman.checklist.kind.virtualTitle', 'Virtuelle Kombination — loses Bündel; meist ist nur das Hauptgerät relevant.')}>
+                                {format(t('rentman.checklist.kind.virtual', 'Virtuelle Kombi · {n}'), { n })}
+                              </span>
+                            )
+                          return (
+                            <span className="ml-2 rounded bg-slate-700/60 px-1.5 py-0.5 text-[10px] text-slate-300">
+                              {format(t('rentman.checklist.kind.set', 'Set · {n}'), { n })}
+                            </span>
+                          )
+                        })()}
+                        {isSet && onSetMainOnly && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              onSetMainOnly(item.id)
+                            }}
+                            className="ml-2 rounded bg-sky-700/60 px-1.5 py-0.5 text-[10px] font-medium text-sky-100 hover:bg-sky-600/60"
+                            title={t('rentman.checklist.mainOnlyTitle', 'Nur das Hauptgerät dieser Kombination importieren — Zubehör (Kabel/Akku/Stativ …) wird übersprungen.')}
+                          >
+                            {t('rentman.checklist.mainOnly', '+ nur Hauptgerät')}
+                          </button>
                         )}
                         {isSet && onSetAsRack && (
                           <button
@@ -248,7 +305,7 @@ export const EquipmentChecklist = ({
                                 className="ml-2 rounded bg-emerald-800/60 px-1.5 py-0.5 text-[10px] font-medium text-emerald-200"
                                 title={format(t('rentman.checklist.badge.linkedTitle', 'Bereits in lokaler Bibliothek per Rentman-ID verknuepft mit "{name}". Re-Import aktualisiert nur Metadaten (Kategorie, Projekt-Link) — die lokale Port-Konfiguration bleibt erhalten.'), { name: item.templateMatch })}
                               >
-                                {format(t('rentman.checklist.badge.linked', '✓ Bereits verknuepft: {name}'), { name: item.templateMatch })}
+                                {t('rentman.checklist.badge.linked', '✓ verknüpft')}
                               </span>
                             )
                           }
@@ -258,7 +315,7 @@ export const EquipmentChecklist = ({
                                 className="ml-2 rounded bg-amber-800/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-100"
                                 title={format(t('rentman.checklist.badge.nameOnlyTitle', 'Lokales Template "{name}" hat denselben Namen aber keinen Rentman-ID. Beim Import erscheint ein Konflikt-Dialog — Default ist die lokale Version (mit Ports) zu behalten und nur die Rentman-ID anzuhaengen.'), { name: item.templateMatch })}
                               >
-                                <><Icon icon={Zap} size="xs" className="mr-1 inline-block align-text-bottom" />{format(t('rentman.checklist.badge.nameOnly', 'Lokal vorhanden: {name} — Konflikt-Dialog'), { name: item.templateMatch })}</>
+                                <><Icon icon={Zap} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rentman.checklist.badge.nameOnly', 'schon in Lib')}</>
                               </span>
                             )
                           }
@@ -268,7 +325,7 @@ export const EquipmentChecklist = ({
                                 className="ml-2 rounded bg-slate-700/60 px-1.5 py-0.5 text-[10px] font-medium text-slate-200"
                                 title={format(t('rentman.checklist.badge.catalogTitle', 'Match aus eingebautem Katalog ("{name}"). Wird beim Import automatisch als Template uebernommen.'), { name: item.templateMatch })}
                               >
-                                {format(t('rentman.checklist.badge.catalog', '⊕ Katalog: {name}'), { name: item.templateMatch })}
+                                {t('rentman.checklist.badge.catalog', '⊕ Katalog')}
                               </span>
                             )
                           }

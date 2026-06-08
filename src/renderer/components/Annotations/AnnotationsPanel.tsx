@@ -301,7 +301,7 @@ export const AnnotationsPanel = ({
                     >
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <span
-                          className="rounded px-1 py-0.5 text-[9px] font-semibold"
+                          className="rounded px-1 py-0.5 text-[11px] font-semibold"
                           style={{
                             background: STATUS_COLOR[a.status],
                             // #451 — Textfarbe luminanzbasiert: dunkler Text auf

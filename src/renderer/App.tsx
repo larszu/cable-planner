@@ -573,9 +573,15 @@ export default function App() {
       useProjectStore.getState().clear()
       // Best-effort: also notify the main process and refresh recents, but
       // don't block the dialog on it.
-      void newProject().catch(() => {
-        /* ignore — clear() already did the local reset */
-      })
+      // #496 — `newProject()` ruft intern (nach seinem await) erneut `clear()`
+      // auf und würde damit die unten gesetzten Metadaten (v.a. den Projekt-
+      // Namen aus diesem Dialog) wieder verwerfen. Deshalb den Patch nach
+      // Abschluss von newProject() erneut anwenden, damit der Name bleibt.
+      void newProject()
+        .catch(() => {
+          /* ignore — clear() already did the local reset */
+        })
+        .then(() => useProjectStore.getState().updateProjectMetadata(patch))
     }
     useProjectStore.getState().updateProjectMetadata(patch)
     setMetaDialog(null)

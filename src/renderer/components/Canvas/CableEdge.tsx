@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   BaseEdge,
   EdgeLabelRenderer,
@@ -6,6 +6,7 @@ import {
   getBezierPath,
   getSmoothStepPath,
   getStraightPath,
+  internalsSymbol,
   useReactFlow,
   type EdgeProps,
 } from 'reactflow'
@@ -386,6 +387,7 @@ export const CableEdge = ({
   // aus. Wirkt zusammen mit dem per-Kabel labelPosition='none' / legacy
   // labelHidden=true (zwei Wege zum gleichen Ziel waehrend der Migration).
   const hideAllCableLabels = useUiStore((s) => s.hideAllCableLabels)
+  const offPageShowNames = useUiStore((s) => s.offPageShowNames)
   const showCableEndpointLabels = useUiStore((s) => s.showCableEndpointLabels)
   const collisionShiftOn = useUiStore((s) => s.orthogonalCollisionShift)
   // v7.9.85 / #123 — Layer-Filter. Wenn das Kabel einen Layer hat
@@ -437,6 +439,13 @@ export const CableEdge = ({
   // Waypoints — danach bleibt der Pfad stabil bis der User explizit
   // "automatisch neu routen" wählt.
   const updateCable = useProjectStore((s) => s.updateCable)
+  // #507 — Aktive Drag-Overrides der Off-Page-Symbol-Offsets (während des
+  // Ziehens). Außerhalb eines Drags wird der persistierte Wert vom Kabel
+  // verwendet, damit Undo/Redo greift.
+  const [dragOff, setDragOff] = useState<{
+    from?: { x: number; y: number }
+    to?: { x: number; y: number }
+  }>({})
   const persistTriedRef = useRef(false)
   const hadWaypointsRef = useRef(false)
   useEffect(() => {
@@ -689,6 +698,28 @@ export const CableEdge = ({
       const py = node?.position.y ?? eq?.y ?? 0
       return { x: px + (node?.width ?? 90) / 2, y: py + (node?.height ?? 30) / 2 }
     }
+    // #507 — Position des GEGENSTÜCK-Connectors (= Port-Handle) in Flow-
+    // Koordinaten, damit der Pfeil-Sprung auf dem anderen Off-Page-Verbinder
+    // landet statt nur im Geräte-Zentrum. Fallback auf das Zentrum, falls die
+    // Handle-Bounds (noch) nicht gemessen sind (z.B. Node außerhalb Viewport).
+    const endpointConnectorCenter = (
+      equipmentId: string,
+      portId: string,
+    ): { x: number; y: number } => {
+      const node = rf.getNode(equipmentId)
+      const bounds = node?.[internalsSymbol]?.handleBounds
+      const handle =
+        bounds?.source?.find((h) => h.id === portId) ??
+        bounds?.target?.find((h) => h.id === portId)
+      if (node && handle) {
+        const base = node.positionAbsolute ?? node.position
+        return {
+          x: base.x + handle.x + handle.width / 2,
+          y: base.y + handle.y + handle.height / 2,
+        }
+      }
+      return endpointCenter(equipmentId)
+    }
     const jumpTo = (tx: number, ty: number) =>
       rf.setCenter(tx, ty, { zoom: rf.getZoom(), duration: 450 })
 
@@ -700,7 +731,7 @@ export const CableEdge = ({
         const port =
           eq?.outputs.find((p) => p.id === ep.portId) ??
           eq?.inputs.find((p) => p.id === ep.portId)
-        const c = endpointCenter(ep.equipmentId)
+        const c = endpointConnectorCenter(ep.equipmentId, ep.portId)
         return {
           label: `${eq ? effectiveShortName(eq) : '?'} · ${port?.name ?? ep.portId}`,
           x: c.x,
@@ -720,50 +751,103 @@ export const CableEdge = ({
         let best: { x: number; y: number; d: number } | null = null
         for (const ep of netEndpoints(cables, key)) {
           if (ep.cableId === id && ep.end === selfEnd) continue
-          const c = endpointCenter(ep.equipmentId)
+          const c = endpointConnectorCenter(ep.equipmentId, ep.portId)
           const d = (c.x - selfX) ** 2 + (c.y - selfY) ** 2
           if (!best || d < best.d) best = { ...c, d }
         }
         if (best) jumpTo(best.x, best.y)
       }
 
+    // #507 — Verschiebe-Offsets: aktiver Drag hat Vorrang, sonst persistiert.
+    const ZERO = { x: 0, y: 0 }
+    const fromOffset = dragOff.from ?? cable.offPageFromOffset ?? ZERO
+    const toOffset = dragOff.to ?? cable.offPageToOffset ?? ZERO
+    const zoom = rf.getZoom()
+    const hasFromOff = fromOffset.x !== 0 || fromOffset.y !== 0
+    const hasToOff = toOffset.x !== 0 || toOffset.y !== 0
+    // Dünne Hilfslinie Port → verschobenes Symbol, damit der Bezug sichtbar
+    // bleibt (nur wenn das Symbol weggezogen wurde).
+    const leaderStyle = {
+      stroke,
+      strokeWidth: 1.5,
+      strokeDasharray: '4 3',
+      opacity: 0.7,
+      style: { pointerEvents: 'none' as const },
+    }
+
     return (
-      <EdgeLabelRenderer>
-        <OffPageConnectorSymbol
-          x={sourceX}
-          y={sourceY}
-          position={sourcePosition}
-          direction="out"
-          netName={netLabel}
-          counterpart={fromCounterpart}
-          color={stroke}
-          highlighted={netHighlighted}
-          selected={isSelected}
-          isLight={isLight}
-          onSelect={selectNet}
-          onNavigate={navigateNearest(sourceX, sourceY, 'from')}
-          getNetInfo={buildNetInfo('from')}
-          onNavigateTo={jumpTo}
-          onResolve={resolve}
-        />
-        <OffPageConnectorSymbol
-          x={targetX}
-          y={targetY}
-          position={targetPosition}
-          direction="in"
-          netName={netLabel}
-          counterpart={toCounterpart}
-          color={stroke}
-          highlighted={netHighlighted}
-          selected={isSelected}
-          isLight={isLight}
-          onSelect={selectNet}
-          onNavigate={navigateNearest(targetX, targetY, 'to')}
-          getNetInfo={buildNetInfo('to')}
-          onNavigateTo={jumpTo}
-          onResolve={resolve}
-        />
-      </EdgeLabelRenderer>
+      <>
+        {hasFromOff && (
+          <line
+            x1={sourceX}
+            y1={sourceY}
+            x2={sourceX + fromOffset.x}
+            y2={sourceY + fromOffset.y}
+            {...leaderStyle}
+          />
+        )}
+        {hasToOff && (
+          <line
+            x1={targetX}
+            y1={targetY}
+            x2={targetX + toOffset.x}
+            y2={targetY + toOffset.y}
+            {...leaderStyle}
+          />
+        )}
+        <EdgeLabelRenderer>
+          <OffPageConnectorSymbol
+            x={sourceX}
+            y={sourceY}
+            position={sourcePosition}
+            direction="out"
+            netName={netLabel}
+            counterpart={fromCounterpart}
+            color={stroke}
+            highlighted={netHighlighted}
+            selected={isSelected}
+            isLight={isLight}
+            showName={offPageShowNames}
+            offset={fromOffset}
+            zoom={zoom}
+            onDragMove={(o) => setDragOff((s) => ({ ...s, from: o }))}
+            onDragEnd={(o) => {
+              updateCable(id, { offPageFromOffset: o })
+              setDragOff((s) => ({ ...s, from: undefined }))
+            }}
+            onSelect={selectNet}
+            onNavigate={navigateNearest(sourceX, sourceY, 'from')}
+            getNetInfo={buildNetInfo('from')}
+            onNavigateTo={jumpTo}
+            onResolve={resolve}
+          />
+          <OffPageConnectorSymbol
+            x={targetX}
+            y={targetY}
+            position={targetPosition}
+            direction="in"
+            netName={netLabel}
+            counterpart={toCounterpart}
+            color={stroke}
+            highlighted={netHighlighted}
+            selected={isSelected}
+            isLight={isLight}
+            showName={offPageShowNames}
+            offset={toOffset}
+            zoom={zoom}
+            onDragMove={(o) => setDragOff((s) => ({ ...s, to: o }))}
+            onDragEnd={(o) => {
+              updateCable(id, { offPageToOffset: o })
+              setDragOff((s) => ({ ...s, to: undefined }))
+            }}
+            onSelect={selectNet}
+            onNavigate={navigateNearest(targetX, targetY, 'to')}
+            getNetInfo={buildNetInfo('to')}
+            onNavigateTo={jumpTo}
+            onResolve={resolve}
+          />
+        </EdgeLabelRenderer>
+      </>
     )
   }
 

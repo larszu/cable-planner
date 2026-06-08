@@ -38,6 +38,18 @@ interface Props {
   highlighted: boolean
   selected: boolean
   isLight: boolean
+  /** #507 — Netzname/Gegenstück dauerhaft zeigen (Druckansicht). Sonst nur
+   *  beim Hover; eingeklappt ist das Symbol flach (nur Pfeil) und überlappt
+   *  nicht. */
+  showName: boolean
+  /** #507 — Verschiebe-Offset (Flow-Koordinaten) gegenüber dem Port-Handle. */
+  offset: { x: number; y: number }
+  /** Aktueller Canvas-Zoom — Screen-Delta → Flow-Delta beim Draggen. */
+  zoom: number
+  /** Live-Update während des Ziehens (für flüssige Linie + Symbol). */
+  onDragMove: (offset: { x: number; y: number }) => void
+  /** Drag-Ende → Offset persistieren. */
+  onDragEnd: (offset: { x: number; y: number }) => void
   /** Body-Klick → Kabel selektieren + Netz hervorheben. */
   onSelect: () => void
   /** Chevron-Klick → zum nächstgelegenen Gegenstück springen. */
@@ -101,6 +113,11 @@ export const OffPageConnectorSymbol = ({
   highlighted,
   selected,
   isLight,
+  showName,
+  offset,
+  zoom,
+  onDragMove,
+  onDragEnd,
   onSelect,
   onNavigate,
   getNetInfo,
@@ -108,6 +125,20 @@ export const OffPageConnectorSymbol = ({
   onResolve,
 }: Props) => {
   const t = useTranslation()
+  // #507 — eingeklappt = nur Pfeil; Name/Gegenstück erst bei Hover (oder
+  // dauerhaft via showName für die Druckansicht).
+  const [hovered, setHovered] = useState(false)
+  const expanded = showName || hovered
+  // #507 — Drag-State: Start-Screen-Position + Start-Offset; `moved` trennt
+  // Klick (auswählen) von Ziehen (verschieben).
+  const dragRef = useRef<{
+    sx: number
+    sy: number
+    ox: number
+    oy: number
+    moved: boolean
+    onChevron: boolean
+  } | null>(null)
   const [popover, setPopover] = useState<{
     screenX: number
     screenY: number
@@ -151,10 +182,6 @@ export const OffPageConnectorSymbol = ({
         role="button"
         tabIndex={0}
         className="nodrag nopan"
-        onClick={(e) => {
-          e.stopPropagation()
-          onSelect()
-        }}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
@@ -167,16 +194,53 @@ export const OffPageConnectorSymbol = ({
           e.stopPropagation()
           openNetInfo(e.clientX, e.clientY)
         }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onPointerDown={(e) => {
+          if (e.button !== 0) return
+          e.stopPropagation()
+          // Merkt sich, ob der Druck auf dem Pfeil begann: ohne Bewegung =
+          // „springen", sonst (egal wo) = verschieben.
+          const onChevron = !!(e.target as HTMLElement).closest('[data-chevron]')
+          dragRef.current = { sx: e.clientX, sy: e.clientY, ox: offset.x, oy: offset.y, moved: false, onChevron }
+          e.currentTarget.setPointerCapture(e.pointerId)
+        }}
+        onPointerMove={(e) => {
+          const d = dragRef.current
+          if (!d) return
+          const sdx = e.clientX - d.sx
+          const sdy = e.clientY - d.sy
+          if (!d.moved && Math.hypot(sdx, sdy) < 3) return
+          d.moved = true
+          const z = zoom || 1
+          onDragMove({ x: d.ox + sdx / z, y: d.oy + sdy / z })
+        }}
+        onPointerUp={(e) => {
+          const d = dragRef.current
+          dragRef.current = null
+          if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+            e.currentTarget.releasePointerCapture(e.pointerId)
+          }
+          if (!d) return
+          if (d.moved) {
+            const z = zoom || 1
+            onDragEnd({ x: d.ox + (e.clientX - d.sx) / z, y: d.oy + (e.clientY - d.sy) / z })
+          } else if (d.onChevron) {
+            onNavigate()
+          } else {
+            onSelect()
+          }
+        }}
         title={format(
           t(
             'offPage.symbolTitle',
-            'Netz „{net}" → {to} · Klick: auswählen · Pfeil: zum Gegenstück springen · Rechtsklick: Netz-Info',
+            'Netz „{net}" → {to} · Klick: auswählen · Pfeil: zum Gegenstück springen · Ziehen: verschieben · Rechtsklick: Netz-Info',
           ),
           { net: netName, to: counterpart },
         )}
         style={{
           position: 'absolute',
-          transform: transformFor(x, y, position),
+          transform: transformFor(x + offset.x, y + offset.y, position),
           display: 'flex',
           alignItems: 'stretch',
           gap: 0,
@@ -189,18 +253,13 @@ export const OffPageConnectorSymbol = ({
           boxShadow: ring !== 'transparent' ? `0 0 0 2px ${ring}` : '0 1px 3px rgba(0,0,0,0.3)',
           overflow: 'hidden',
           pointerEvents: 'all',
-          cursor: 'pointer',
+          cursor: 'grab',
+          touchAction: 'none',
         }}
       >
-        <button
-          type="button"
-          className="nodrag nopan"
-          onClick={(e) => {
-            e.stopPropagation()
-            onNavigate()
-          }}
-          title={t('offPage.jumpTitle', 'Zum Gegenstück springen')}
-          aria-label={t('offPage.jumpTitle', 'Zum Gegenstück springen')}
+        <span
+          data-chevron
+          aria-hidden="true"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -210,39 +269,39 @@ export const OffPageConnectorSymbol = ({
             lineHeight: 1,
             color,
             background: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.05)',
-            border: 'none',
-            borderRight: `1px solid ${isLight ? '#e2e8f0' : '#334155'}`,
-            cursor: 'pointer',
+            borderRight: expanded ? `1px solid ${isLight ? '#e2e8f0' : '#334155'}` : 'none',
           }}
         >
           {chevronChar(position, direction)}
-        </button>
-        <div style={{ minWidth: 0, padding: '2px 6px' }}>
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              lineHeight: 1.15,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {netName}
+        </span>
+        {expanded && (
+          <div style={{ minWidth: 0, padding: '2px 6px' }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                lineHeight: 1.15,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {netName}
+            </div>
+            <div
+              style={{
+                fontSize: 9,
+                lineHeight: 1.2,
+                color: isLight ? '#64748b' : '#94a3b8',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              → {counterpart}
+            </div>
           </div>
-          <div
-            style={{
-              fontSize: 9,
-              lineHeight: 1.2,
-              color: isLight ? '#64748b' : '#94a3b8',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            → {counterpart}
-          </div>
-        </div>
+        )}
       </div>
 
       {popover &&

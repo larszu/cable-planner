@@ -144,7 +144,7 @@ export const LocalEquipmentTab = ({
               <Icon icon={X} size="sm" />
             </button>
           ) : (
-            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[9px] uppercase tracking-wider text-slate-400">
+            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[11px] uppercase tracking-wider text-slate-400">
               {t('library.search.shortcut', 'Strg+F')}
             </span>
           )}

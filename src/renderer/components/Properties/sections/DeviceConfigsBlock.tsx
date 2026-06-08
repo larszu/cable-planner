@@ -29,7 +29,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
         <span className="text-slate-500">{open ? '▾' : '▸'}</span>
         <span className="flex-1">{t('props.deviceConfigs.title', 'Konfigurationen')}</span>
         {!open && assigned.length > 0 && (
-          <span className="rounded bg-slate-700/60 px-1 text-[9px] normal-case text-slate-200">
+          <span className="rounded bg-slate-700/60 px-1 text-[11px] normal-case text-slate-200">
             {assigned.length}
           </span>
         )}
