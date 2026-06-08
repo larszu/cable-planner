@@ -13,6 +13,7 @@ import {
 } from '../../store/collabStore'
 import { useProjectStore } from '../../store/projectStore'
 import { hasDesktopBridge } from '../../lib/bridge'
+import { buildInviteLink } from '../../lib/collabInvite'
 import { useTranslation } from '../../lib/i18n'
 
 const statusLabel = (
@@ -71,22 +72,14 @@ export const CollabPanel = () => {
   const [copied, setCopied] = useState(false)
   const active = status === 'on' || status === 'connecting'
 
+  // #516 — Einladungs-Link statt Text-Block: ein klickbarer Link (wie
+  // Zoom/Teams), der die App öffnet und Raum/Modus/Signaling/Passwort
+  // vorbefüllt + nach Rückfrage beitritt. Raum/Passwort stecken kodiert im
+  // Link, eine kurze Kopfzeile gibt Kontext.
   const copyInvite = () => {
-    const lines = [
-      t('collab.invite.head', 'Cable-Planner Live-Session — gemeinsam denselben Plan bearbeiten.'),
-      `${t('collab.room', 'Raumname')}: ${room}`,
-      mode === 'webrtc' && signaling.trim()
-        ? `${t('collab.signaling', 'Signaling-Server')}: ${signaling.trim()}`
-        : '',
-      mode === 'webrtc' && password.trim()
-        ? `${t('collab.password', 'Raum-Passwort')}: ${password.trim()}`
-        : '',
-      t(
-        'collab.invite.how',
-        'Beitreten: Einstellungen → Netzwerk-Sync → Live-Kollaboration → gleichen Raumnamen (und ggf. Passwort) eintragen → „Session starten".',
-      ),
-    ].filter(Boolean)
-    void navigator.clipboard?.writeText(lines.join('\n')).then(
+    const link = buildInviteLink({ mode, room, signaling, password, host: name })
+    const text = `${t('collab.invite.linkHead', 'Cable-Planner Live-Session beitreten:')}\n${link}`
+    void navigator.clipboard?.writeText(text).then(
       () => {
         setCopied(true)
         window.setTimeout(() => setCopied(false), 1800)
