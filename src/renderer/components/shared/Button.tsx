@@ -20,13 +20,13 @@ const VARIANT_CLASS: Record<ButtonVariant, string> = {
   primary: 'bg-sky-600 text-white hover:bg-sky-500',
   // Neutral / cancel.
   secondary:
-    'bg-[var(--cp-surface-2)] text-[var(--cp-text)] hover:bg-[var(--cp-surface-3)] border border-[var(--cp-border)]',
+    'bg-cp-surface-2 text-cp-text hover:bg-cp-surface-3 border border-cp-border',
   // Positive confirm (save / export / apply).
   success: 'bg-emerald-600 text-white hover:bg-emerald-500',
   // Destructive.
   danger: 'bg-red-600 text-white hover:bg-red-500',
   // Low-emphasis, transparent until hover.
-  ghost: 'bg-transparent text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-[var(--cp-text)]',
+  ghost: 'bg-transparent text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text',
 }
 
 const SIZE_CLASS: Record<ButtonSize, string> = {

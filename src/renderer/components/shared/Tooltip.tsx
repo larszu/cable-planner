@@ -143,7 +143,7 @@ export const Tooltip = ({ label, children, side = 'top', delay = 400 }: TooltipP
             ref={tipRef}
             id={id}
             role="tooltip"
-            className="pointer-events-none fixed z-[var(--cp-z-popover)] max-w-xs rounded-cp-control border border-[var(--cp-border)] bg-[var(--cp-surface-2)] px-2 py-1 text-cp-xs text-[var(--cp-text)] shadow-xl"
+            className="pointer-events-none fixed z-[var(--cp-z-popover)] max-w-xs rounded-cp-control border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text shadow-xl"
             style={{ left: pos?.left ?? -9999, top: pos?.top ?? -9999 }}
           >
             {label}
