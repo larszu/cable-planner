@@ -1,8 +1,9 @@
 // #221 — Off-Page-/Pfeil-Connector-Symbol.
 //
 // Ersetzt ein Kabelende durch ein kompaktes Symbol statt einer langen
-// Linie quer über den Plan. Zweizeilig: Netzname (fett) + Gegenstück
-// (Gerät · Port, wohin die Leitung weiterläuft). Ein Richtungs-Chevron
+// Linie quer über den Plan. Standard: einzeilig die Verbindung (Gegenstück
+// Gerät · Port, woher/wohin); bei Hover bzw. Druck-Toggle zusätzlich der
+// Netzname (fett). Ein Richtungs-Chevron
 // zeigt die Signalflussrichtung und ist klickbar → springt zum
 // nächstgelegenen Gegenstück. Rechtsklick öffnet eine kleine Netz-Info
 // (Anzahl Endpunkte + Sprungliste + „Off-Page auflösen").
@@ -38,9 +39,9 @@ interface Props {
   highlighted: boolean
   selected: boolean
   isLight: boolean
-  /** #507 — Netzname/Gegenstück dauerhaft zeigen (Druckansicht). Sonst nur
-   *  beim Hover; eingeklappt ist das Symbol flach (nur Pfeil) und überlappt
-   *  nicht. */
+  /** #507 — Netzname-Zeile dauerhaft zeigen (Druckansicht). Die Verbindungs-
+   *  zeile (Gegenstück) ist immer sichtbar; ohne showName erscheint der
+   *  Netzname zusätzlich beim Hover. */
   showName: boolean
   /** #507 — Verschiebe-Offset (Flow-Koordinaten) gegenüber dem Port-Handle. */
   offset: { x: number; y: number }
@@ -125,10 +126,10 @@ export const OffPageConnectorSymbol = ({
   onResolve,
 }: Props) => {
   const t = useTranslation()
-  // #507 — eingeklappt = nur Pfeil; Name/Gegenstück erst bei Hover (oder
-  // dauerhaft via showName für die Druckansicht).
+  // #507 — Verbindungszeile (Gegenstück) ist immer sichtbar (auch im Ausdruck);
+  // die Netzname-Zeile zusätzlich bei Hover oder dauerhaft via showName.
   const [hovered, setHovered] = useState(false)
-  const expanded = showName || hovered
+  const showNet = showName || hovered
   // #507 — Drag-State: Start-Screen-Position + Start-Offset; `moved` trennt
   // Klick (auswählen) von Ziehen (verschieben).
   const dragRef = useRef<{
@@ -269,13 +270,13 @@ export const OffPageConnectorSymbol = ({
             lineHeight: 1,
             color,
             background: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.05)',
-            borderRight: expanded ? `1px solid ${isLight ? '#e2e8f0' : '#334155'}` : 'none',
+            borderRight: `1px solid ${isLight ? '#e2e8f0' : '#334155'}`,
           }}
         >
           {chevronChar(position, direction)}
         </span>
-        {expanded && (
-          <div style={{ minWidth: 0, padding: '2px 6px' }}>
+        <div style={{ minWidth: 0, padding: '2px 6px' }}>
+          {showNet && (
             <div
               style={{
                 fontSize: 11,
@@ -288,20 +289,19 @@ export const OffPageConnectorSymbol = ({
             >
               {netName}
             </div>
-            <div
-              style={{
-                fontSize: 9,
-                lineHeight: 1.2,
-                color: isLight ? '#64748b' : '#94a3b8',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              → {counterpart}
-            </div>
+          )}
+          <div
+            style={{
+              fontSize: 10,
+              lineHeight: 1.2,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {direction === 'out' ? '→' : '←'} {counterpart}
           </div>
-        )}
+        </div>
       </div>
 
       {popover &&
