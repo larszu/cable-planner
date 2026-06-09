@@ -129,4 +129,10 @@ export interface Cable {
    *  = Symbol klebt am Port (Default). */
   offPageFromOffset?: { x: number; y: number }
   offPageToOffset?: { x: number; y: number }
+  /** #507 — Optionale Wegpunkte (relativ zum Port-Handle, wie der Offset) für
+   *  die Tether-Linie Port → Symbol, je Kabelende. Erlauben, die Off-Page-
+   *  Verbindung wie ein Standardkabel zu routen (Punkte ziehen/hinzufügen/
+   *  löschen). Undefined/leer = gerade Linie Port → Symbol. */
+  offPageFromWaypoints?: { x: number; y: number }[]
+  offPageToWaypoints?: { x: number; y: number }[]
 }

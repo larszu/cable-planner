@@ -77,6 +77,7 @@ import {
 import { useUndoRedoShortcuts, projectHistory } from './store/projectHistory'
 import { useSettingsStore } from './store/settingsStore'
 import { useUiStore } from './store/uiStore'
+import { useCollabStore } from './store/collabStore'
 import { useHotkeys } from './lib/hotkeys'
 import type { Cable } from './types/cable'
 import { ALL_CONNECTOR_TYPES } from './types/equipment'
@@ -90,6 +91,7 @@ import {
   type SignalStandard,
 } from './types/cableSpec'
 import { confirmDialog } from './lib/confirmDialog'
+import { consumeInviteFromUrl } from './lib/collabInvite'
 import { promptDialog } from './lib/promptDialog'
 import { infoDialog } from './lib/infoDialog'
 import { AlertTriangle } from 'lucide-react'
@@ -181,6 +183,34 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = pdfExportThemeOverride ?? canvasTheme
   }, [canvasTheme, pdfExportThemeOverride])
+
+  // #516 — Per Einladungs-Link geöffnet (…#join=…)? Raum/Modus/Signaling/
+  // Passwort vorbefüllen und nach Rückfrage der Session beitreten (Host-Plan
+  // übernehmen). Läuft genau einmal (consumeInviteFromUrl ist idempotent).
+  useEffect(() => {
+    const invite = consumeInviteFromUrl()
+    if (!invite) return
+    void (async () => {
+      const c = useCollabStore.getState()
+      c.setMode(invite.mode)
+      c.setRoom(invite.room)
+      if (invite.signaling !== undefined) c.setSignaling(invite.signaling)
+      if (invite.password !== undefined) c.setPassword(invite.password)
+      const ok = await confirmDialog(
+        format(
+          t(
+            'collab.invite.joinConfirm',
+            'Zur Live-Session „{room}" beitreten? Dein aktueller Plan wird durch den des Hosts ersetzt.',
+          ),
+          { room: invite.host ? `${invite.room} · ${invite.host}` : invite.room },
+        ),
+        { okLabel: t('collab.discover.join', 'Beitreten') },
+      )
+      if (!ok) return
+      await useCollabStore.getState().start({ adopt: true })
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // #453 — optional dem OS-Theme folgen (prefers-color-scheme). Wenn aktiv,
   // spiegelt canvasTheme die Systemeinstellung und reagiert live auf Wechsel.

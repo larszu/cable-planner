@@ -101,11 +101,11 @@ export const ModalShell = ({
         aria-labelledby={titleId}
         {...dialogProps}
         style={draggableKey ? drag.containerStyle : undefined}
-        className={`cp-modal-panel flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-cp-modal border border-[var(--cp-border)] bg-[var(--cp-surface-1)] text-[var(--cp-text)] shadow-2xl outline-none`}
+        className={`cp-modal-panel flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-cp-modal border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl outline-none`}
       >
         <header
           {...(draggableKey ? drag.headerProps : {})}
-          className="flex items-center justify-between border-b border-[var(--cp-border)] px-cp-4 py-cp-3 select-none"
+          className="flex items-center justify-between border-b border-cp-border px-cp-4 py-cp-3 select-none"
         >
           <h2 id={titleId} className="flex items-center text-cp-xl font-semibold">
             {titleIcon && <span className="mr-2">{titleIcon}</span>}
@@ -114,7 +114,7 @@ export const ModalShell = ({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center rounded-cp-control px-2 py-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-[var(--cp-text)]"
+            className="inline-flex items-center justify-center rounded-cp-control px-2 py-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text"
             aria-label={t('common.close', 'Schließen')}
           >
             <Icon icon={X} size="md" />
@@ -124,7 +124,7 @@ export const ModalShell = ({
           {children}
         </div>
         {footer && (
-          <footer className="border-t border-[var(--cp-border)] px-cp-4 py-cp-3">
+          <footer className="border-t border-cp-border px-cp-4 py-cp-3">
             {footer}
           </footer>
         )}

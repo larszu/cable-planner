@@ -15,6 +15,7 @@ import { getViewportCenter } from '../../lib/canvasViewport'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { Icon } from '../shared/Icon'
+import { Tooltip } from '../shared/Tooltip'
 import { promptDialog } from '../../lib/promptDialog'
 import { format, useTranslation } from '../../lib/i18n'
 import { confirmDialog } from '../../lib/confirmDialog'
@@ -355,35 +356,39 @@ export const AnnotationsPanel = ({
                         {/* #462 — Tastatur-Alternative zum Ziehen: platziert die
                             Anmerkung in der sichtbaren Canvas-Mitte (freier
                             Anker). Fein-Positionierung danach per Drag. */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const c = getViewportCenter()
-                            if (c) {
-                              updateAnnotation(a.id, {
-                                anchor: { type: 'free', x: Math.round(c.x), y: Math.round(c.y) },
-                              })
-                              setAnnotationsVisible(true)
-                            }
-                          }}
-                          className="inline-flex items-center gap-1 rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-200 hover:bg-slate-700"
-                          title={t('annotations.placeCenter', 'Auf Canvas-Mitte platzieren (Tastatur-Alternative zum Ziehen)')}
-                        >
-                          <Icon icon={MapPin} size="xs" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            if (await confirmDialog(t('annotations.deleteConfirm', 'Anmerkung löschen?'), {
-                              okLabel: t('common.delete', 'Löschen'),
-                              destructive: true,
-                            })) removeAnnotation(a.id)
-                          }}
-                          className="rounded bg-red-900/60 px-1 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
-                          title={t('annotations.delete', 'Anmerkung löschen')}
-                        >
-                          ×
-                        </button>
+                        <Tooltip label={t('annotations.placeCenter', 'Auf Canvas-Mitte platzieren (Tastatur-Alternative zum Ziehen)')}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const c = getViewportCenter()
+                              if (c) {
+                                updateAnnotation(a.id, {
+                                  anchor: { type: 'free', x: Math.round(c.x), y: Math.round(c.y) },
+                                })
+                                setAnnotationsVisible(true)
+                              }
+                            }}
+                            className="inline-flex items-center gap-1 rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-200 hover:bg-slate-700"
+                            aria-label={t('annotations.placeCenter', 'Auf Canvas-Mitte platzieren (Tastatur-Alternative zum Ziehen)')}
+                          >
+                            <Icon icon={MapPin} size="xs" />
+                          </button>
+                        </Tooltip>
+                        <Tooltip label={t('annotations.delete', 'Anmerkung löschen')}>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (await confirmDialog(t('annotations.deleteConfirm', 'Anmerkung löschen?'), {
+                                okLabel: t('common.delete', 'Löschen'),
+                                destructive: true,
+                              })) removeAnnotation(a.id)
+                            }}
+                            className="rounded bg-red-900/60 px-1 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
+                            aria-label={t('annotations.delete', 'Anmerkung löschen')}
+                          >
+                            ×
+                          </button>
+                        </Tooltip>
                       </div>
                     </li>
                   )
