@@ -49,6 +49,35 @@
   --spacing-cp-6: 1.5rem;
 }
 
+/* ── Semantische Farb-Tokens (UX audit #449 — token-first theming) ───────────
+ * Erzeugen Utilities bg-cp-* / text-cp-* / border-cp-* / ring-cp-*, die direkt
+ * an die --cp-* Variablen gebunden sind. Da die --cp-* im
+ * [data-theme="light"]-Block weiter unten kippen, flippen diese Utilities
+ * AUTOMATISCH mit dem Theme. Neue Komponenten sind damit per Default
+ * theme-korrekt — statt roher slate-*-Klassen, die nur hell werden, wenn sie
+ * im 340-Zeilen-Remap manuell nachgezogen sind. `inline` sorgt dafür, dass die
+ * Utilities var(--cp-*) direkt referenzieren (Laufzeit-Flip, kein Build-Wert).
+ *
+ * Konvention: Flächen → bg-cp-surface-1/2/3 + bg-cp-bg; Rahmen → border-cp-
+ * border(-muted); Text → text-cp-text / -secondary / -muted / -faint; Status →
+ * (bg|text|border)-cp-accent / -warn / -danger. Bestehende slate-* werden
+ * schrittweise migriert; der Remap bleibt bis dahin als Sicherheitsnetz. */
+@theme inline {
+  --color-cp-bg: var(--cp-bg);
+  --color-cp-surface-1: var(--cp-surface-1);
+  --color-cp-surface-2: var(--cp-surface-2);
+  --color-cp-surface-3: var(--cp-surface-3);
+  --color-cp-border: var(--cp-border);
+  --color-cp-border-muted: var(--cp-border-muted);
+  --color-cp-text: var(--cp-text);
+  --color-cp-text-secondary: var(--cp-text-secondary);
+  --color-cp-text-muted: var(--cp-text-muted);
+  --color-cp-text-faint: var(--cp-text-faint);
+  --color-cp-accent: var(--cp-accent);
+  --color-cp-warn: var(--cp-warn);
+  --color-cp-danger: var(--cp-danger);
+}
+
 :root {
   color-scheme: dark;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;

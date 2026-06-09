@@ -22,6 +22,7 @@ import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { isCableVisibleByLayer } from '../../lib/cableLayers'
 import { netKeyOf, netEndpoints } from '../../lib/offPageNet'
 import { OffPageConnectorSymbol } from './OffPageConnectorSymbol'
+import { OffPageLeaderHandles } from './OffPageLeaderHandles'
 import { effectiveShortName } from '../../lib/shortName'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { useTranslation } from '../../lib/i18n'
@@ -765,35 +766,43 @@ export const CableEdge = ({
     const zoom = rf.getZoom()
     const hasFromOff = fromOffset.x !== 0 || fromOffset.y !== 0
     const hasToOff = toOffset.x !== 0 || toOffset.y !== 0
-    // Dünne Hilfslinie Port → verschobenes Symbol, damit der Bezug sichtbar
-    // bleibt (nur wenn das Symbol weggezogen wurde).
+    // #507 — Wegpunkte (relativ zum Port) der Tether-Linie, je Ende.
+    const fromWaypoints = cable.offPageFromWaypoints ?? []
+    const toWaypoints = cable.offPageToWaypoints ?? []
+    const hasFromLeader = hasFromOff || fromWaypoints.length > 0
+    const hasToLeader = hasToOff || toWaypoints.length > 0
+    // Dünne Hilfslinie Port → (Wegpunkte) → verschobenes Symbol, damit der
+    // Bezug sichtbar bleibt. Als Pfad, weil die Linie über Wegpunkte knicken
+    // kann (wie ein Standardkabel).
+    const leaderPath = (
+      px: number,
+      py: number,
+      wps: { x: number; y: number }[],
+      off: { x: number; y: number },
+    ): string => {
+      const pts = [
+        { x: px, y: py },
+        ...wps.map((w) => ({ x: px + w.x, y: py + w.y })),
+        { x: px + off.x, y: py + off.y },
+      ]
+      return `M ${pts.map((p) => `${p.x} ${p.y}`).join(' L ')}`
+    }
     const leaderStyle = {
       stroke,
       strokeWidth: 1.5,
       strokeDasharray: '4 3',
+      fill: 'none' as const,
       opacity: 0.7,
       style: { pointerEvents: 'none' as const },
     }
 
     return (
       <>
-        {hasFromOff && (
-          <line
-            x1={sourceX}
-            y1={sourceY}
-            x2={sourceX + fromOffset.x}
-            y2={sourceY + fromOffset.y}
-            {...leaderStyle}
-          />
+        {hasFromLeader && (
+          <path d={leaderPath(sourceX, sourceY, fromWaypoints, fromOffset)} {...leaderStyle} />
         )}
-        {hasToOff && (
-          <line
-            x1={targetX}
-            y1={targetY}
-            x2={targetX + toOffset.x}
-            y2={targetY + toOffset.y}
-            {...leaderStyle}
-          />
+        {hasToLeader && (
+          <path d={leaderPath(targetX, targetY, toWaypoints, toOffset)} {...leaderStyle} />
         )}
         <EdgeLabelRenderer>
           <OffPageConnectorSymbol
@@ -846,6 +855,33 @@ export const CableEdge = ({
             onNavigateTo={jumpTo}
             onResolve={resolve}
           />
+          {/* #507 — Wegpunkt-Editor je Tether, nur bei selektiertem Kabel. */}
+          {isSelected && (
+            <>
+              <OffPageLeaderHandles
+                port={{ x: sourceX, y: sourceY }}
+                offset={fromOffset}
+                waypoints={fromWaypoints}
+                color={stroke}
+                isLight={isLight}
+                zoom={zoom}
+                onChange={(wps) =>
+                  updateCable(id, { offPageFromWaypoints: wps.length ? wps : undefined })
+                }
+              />
+              <OffPageLeaderHandles
+                port={{ x: targetX, y: targetY }}
+                offset={toOffset}
+                waypoints={toWaypoints}
+                color={stroke}
+                isLight={isLight}
+                zoom={zoom}
+                onChange={(wps) =>
+                  updateCable(id, { offPageToWaypoints: wps.length ? wps : undefined })
+                }
+              />
+            </>
+          )}
         </EdgeLabelRenderer>
       </>
     )

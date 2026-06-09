@@ -26,3 +26,7 @@ export const APP_BUILD_DATE = tryGet(
 )
 
 export const APP_REPO_URL = 'https://github.com/larszu/cable-planner'
+
+/** Öffentliche Web-App (GitHub Pages) — Basis für teilbare Links wie den
+ *  Live-Kollaborations-Einladungslink (#516). */
+export const APP_WEB_URL = 'https://larszu.github.io/cable-planner/'

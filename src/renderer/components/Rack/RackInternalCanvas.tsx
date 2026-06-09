@@ -264,6 +264,10 @@ export const RackInternalCanvas = ({
   // Live propagation: scratch → parent draft. Verwendet die scratch-
   // store-eigene subscribe (nicht die globale).
   const lastEmittedCablesRef = useRef<string>('')
+  // #515 — Letzter bekannter HE-Stand je Placement, damit der Placement-Sync
+  // eine echte HE-Änderung (Properties) von einem bloßen Re-Render (z.B. nach
+  // dem Verkabeln) unterscheiden kann.
+  const prevStartUnit = useRef<Map<string, number>>(new Map())
   useEffect(() => {
     const unsub = scratchStore.subscribe((state, prev) => {
       if (state.project === prev.project) return
@@ -357,14 +361,21 @@ export const RackInternalCanvas = ({
   useEffect(() => {
     const current = scratchStore.getState().project.equipment
     const nextById = new Map(placements.map((p) => [p.id, p]))
+    const prevSU = prevStartUnit.current
     const patched: EquipmentItem[] = current.map((eq) => {
       const incoming = nextById.get(eq.id)
       if (!incoming) return eq
+      // #515 — y NUR neu aus startUnit ableiten, wenn sich die HE-Position
+      // wirklich geändert hat (z.B. via Properties). Beim Verkabeln/Umbenennen
+      // die aktuelle (ggf. gezogene) Position behalten — sonst „verspringen"
+      // Geräte, sobald ein Kabel gesetzt wird, und das frisch geroutete Kabel
+      // sieht falsch aus.
+      const heChanged = prevSU.has(eq.id) && prevSU.get(eq.id) !== incoming.startUnit
       return {
         ...eq,
         name: incoming.name,
         category: incoming.category,
-        y: Y_OFFSET + (incoming.startUnit - 1) * HE_TO_PX,
+        y: heChanged ? Y_OFFSET + (incoming.startUnit - 1) * HE_TO_PX : eq.y,
         rackUnits: incoming.rackUnits,
         isRackDevice: incoming.isRackDevice,
         // Ports nicht überschreiben — der User darf sie hier im
@@ -395,6 +406,8 @@ export const RackInternalCanvas = ({
         cables: filteredCables,
       },
     }))
+    // #515 — HE-Stände für den nächsten Sync merken (Änderungserkennung).
+    prevStartUnit.current = new Map(placements.map((p) => [p.id, p.startUnit]))
   }, [placements, scratchStore])
 
   return (
