@@ -80,7 +80,7 @@ const AiProvidersCard = () => {
               className={`rounded border p-3 transition ${
                 isSelected
                   ? 'border-sky-500 bg-sky-950/30'
-                  : 'border-slate-700 bg-slate-950/40'
+                  : 'border-cp-border bg-cp-surface-3/40'
               }`}
             >
               <label className="flex items-center gap-2">
@@ -115,13 +115,13 @@ const AiProvidersCard = () => {
                         ? 'sk-ant-…'
                         : 'sk-proj-…'
                   }
-                  className="flex-1 rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-cp-xs"
+                  className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
                   autoComplete="off"
                 />
                 <button
                   type="button"
                   onClick={() => setRevealed((r) => ({ ...r, [id]: !r[id] }))}
-                  className="rounded bg-slate-800 px-2 py-1 text-slate-400 hover:bg-slate-700"
+                  className="rounded bg-cp-surface-2 px-2 py-1 text-cp-text-muted hover:bg-slate-700"
                   title={revealed[id] ? t('common.hide', 'Verbergen') : t('common.show', 'Anzeigen')}
                   aria-label={revealed[id] ? t('common.hide', 'Verbergen') : t('common.show', 'Anzeigen')}
                 >
@@ -138,14 +138,14 @@ const AiProvidersCard = () => {
                   <button
                     type="button"
                     onClick={() => handleClear(id)}
-                    className="rounded bg-slate-800 px-2 py-1 text-cp-xs text-slate-400 hover:bg-red-700 hover:text-white"
+                    className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
                     title={t('settings.integrations.gemini.deleteTitle', 'Key löschen')}
                   >
                     <Icon icon={X} size="sm" />
                   </button>
                 )}
               </div>
-              <div className="mt-1 flex items-center justify-between text-[10px] text-slate-400">
+              <div className="mt-1 flex items-center justify-between text-[10px] text-cp-text-muted">
                 <span>
                   Model: <span className="font-mono">{config.defaultModel}</span>
                 </span>
@@ -153,7 +153,7 @@ const AiProvidersCard = () => {
                   href={config.consoleUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline hover:text-slate-300"
+                  className="underline hover:text-cp-text-secondary"
                 >
                   {t('settings.integrations.ai.createKey', 'Key erstellen')} ↗
                 </a>
@@ -218,7 +218,7 @@ const GreenGoPresetsCard = () => {
         </button>
       </div>
       {presets.length === 0 ? (
-        <div className="mt-2 text-[11px] text-slate-400">
+        <div className="mt-2 text-[11px] text-cp-text-muted">
           {t('settings.greengo.empty', 'Noch keine Presets gespeichert.')}
         </div>
       ) : (
@@ -274,7 +274,7 @@ const GreenGoPresetsCard = () => {
                     deleteGreenGoPreset(p.id)
                     refreshPresets()
                   }}
-                  className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-red-700 hover:text-white"
+                  className="rounded bg-cp-surface-2 px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-red-700 hover:text-white"
                 >
                   {t('settings.greengo.delete', 'Löschen')}
                 </button>
@@ -373,7 +373,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           />
           <span>
             {t('settings.integrations.rentmanToggle.label', 'Rentman-Integration aktivieren')}{' '}
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-cp-text-muted">
               ({rentmanEnabled ? t('common.on', 'ein') : t('common.off', 'aus')})
             </span>
           </span>
@@ -395,7 +395,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             type="password"
             value={token}
             onChange={(e) => setToken(e.target.value)}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-cp-xs"
+            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
             placeholder={t(
               'settings.integrations.rentman.tokenPlaceholder',
               'Bearer-Token einfügen',
@@ -407,7 +407,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           className={`mt-2 rounded border p-2 text-cp-xs ${
             hasToken
               ? 'border-emerald-700/50 bg-emerald-900/20 text-emerald-300'
-              : 'border-slate-700 bg-slate-950/40 text-slate-400'
+              : 'border-cp-border bg-cp-surface-3/40 text-cp-text-muted'
           }`}
         >
           <div>
@@ -416,7 +416,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             </span>{' '}
             {tokenStatus}
           </div>
-          <div className="text-slate-500">
+          <div className="text-cp-text-faint">
             {t('settings.integrations.rentman.tokenStored', 'Token gespeichert:')}{' '}
             {hasToken ? t('common.yes', 'Ja') : t('common.no', 'Nein')}
           </div>
@@ -447,7 +447,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             {t('settings.integrations.rentman.delete', 'Token löschen')}
           </button>
         </div>
-        <div className="mt-2 text-[11px] text-slate-400">
+        <div className="mt-2 text-[11px] text-cp-text-muted">
           {t('settings.integrations.rentman.endpoint', 'Endpunkt:')}{' '}
           <code>https://api.rentman.net</code>
         </div>
@@ -458,12 +458,12 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
       >
         {metadata.rentmanProjectId ? (
           <div className="space-y-2">
-            <div className="text-cp-xs text-slate-400">
+            <div className="text-cp-xs text-cp-text-muted">
               {t('settings.integrations.linkedRentman.current', 'Aktuell verknüpft mit ')}
               <span className="text-orange-300">
                 {metadata.rentmanProjectName ?? `Projekt #${metadata.rentmanProjectId}`}
               </span>
-              <span className="ml-2 text-slate-500">(ID {metadata.rentmanProjectId})</span>
+              <span className="ml-2 text-cp-text-faint">(ID {metadata.rentmanProjectId})</span>
             </div>
             <button
               type="button"
@@ -482,7 +482,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           </div>
         ) : (
           <div className="space-y-2">
-            <div className="text-cp-xs text-slate-500">
+            <div className="text-cp-xs text-cp-text-faint">
               {t(
                 'settings.integrations.linkedRentman.none',
                 'Noch kein Rentman-Projekt mit diesem Cable-Planner-Projekt verknüpft.',
