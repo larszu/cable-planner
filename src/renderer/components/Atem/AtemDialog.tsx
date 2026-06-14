@@ -305,17 +305,17 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
       maxWidth="3xl"
       scrollBody={false}
     >
-      <div className="flex max-h-[80vh] flex-col text-slate-100">
-        <div className="border-b border-slate-700 px-4 py-3">
+      <div className="flex max-h-[80vh] flex-col text-cp-text">
+        <div className="border-b border-cp-border px-4 py-3">
           <div className="flex items-end gap-2">
             <label className="flex-1 text-cp-xs">
-              <span className="mb-1 block text-slate-300">ATEM IP-Adresse</span>
+              <span className="mb-1 block text-cp-text-secondary">ATEM IP-Adresse</span>
               <input
                 value={ip}
                 onChange={(event) => setIp(event.target.value)}
                 placeholder="192.168.10.240"
                 disabled={status === 'connected' || status === 'connecting'}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-cp-base"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-base"
               />
             </label>
             {status !== 'connected' && (
@@ -344,7 +344,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               <button
                 type="button"
                 onClick={disconnect}
-                className="rounded bg-slate-700 px-3 py-2 text-cp-base hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-3 py-2 text-cp-base hover:bg-cp-surface-5"
               >
                 Trennen
               </button>
@@ -365,7 +365,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
           {discoveryDone && status !== 'connected' && (
             <div className="mt-2">
               {discovered.length === 0 ? (
-                <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-2 text-[11px] text-slate-400">
+                <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/40 p-2 text-[11px] text-cp-text-muted">
                   {t(
                     'atem.dialog.noneFound',
                     'Kein ATEM-Switcher per mDNS im lokalen Netzwerk gefunden. (Manche Modelle / Firewall-Setups blocken mDNS — dann IP manuell eingeben.)',
@@ -373,7 +373,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 </div>
               ) : (
                 <div className="space-y-1">
-                  <div className="text-[10px] uppercase tracking-wide text-slate-400">
+                  <div className="text-[10px] uppercase tracking-wide text-cp-text-muted">
                     {format(t('atem.dialog.foundCount', 'Gefunden ({n}) — Klick übernimmt die IP:'), {
                       n: discovered.length,
                     })}
@@ -383,12 +383,12 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                       key={dev.ip}
                       type="button"
                       onClick={() => setIp(dev.ip)}
-                      className="flex w-full items-center justify-between gap-2 rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-left text-cp-xs hover:border-purple-500 hover:bg-slate-900"
+                      className="flex w-full items-center justify-between gap-2 rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5 text-left text-cp-xs hover:border-purple-500 hover:bg-cp-surface-1"
                     >
-                      <span className="font-medium text-slate-100">
+                      <span className="font-medium text-cp-text">
                         {dev.name}
                         {dev.model && (
-                          <span className="ml-2 text-[10px] text-slate-400">
+                          <span className="ml-2 text-[10px] text-cp-text-muted">
                             ({dev.model})
                           </span>
                         )}
@@ -401,7 +401,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
             </div>
           )}
           {status === 'connected' && state && (
-            <div className="mt-2 text-[11px] text-slate-400">
+            <div className="mt-2 text-[11px] text-cp-text-muted">
               {state.productIdentifier}
               {state.apiVersion ? ` · API ${state.apiVersion.major}.${state.apiVersion.minor}` : ''}
               {state.mixEffects ? ` · ${state.mixEffects} M/E` : ''}
@@ -416,7 +416,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
         {status === 'connected' && state && (
           <div className="flex-1 overflow-auto px-4 py-3">
             <div className="mb-2 flex items-center justify-between">
-              <h3 className="text-cp-xs font-semibold uppercase tracking-wide text-slate-300">
+              <h3 className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">
                 Input-Namen ({rows.length})
               </h3>
               <button
@@ -429,7 +429,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               </button>
             </div>
             <table className="w-full table-fixed text-cp-xs">
-              <thead className="text-left text-slate-400">
+              <thead className="text-left text-cp-text-muted">
                 <tr>
                   <th className="w-12 py-1">ID</th>
                   <th className="w-20 py-1">{t('atem.col.type', 'Typ')}</th>
@@ -443,11 +443,11 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                   <tr
                     key={row.inputId}
                     title={row.lockReason}
-                    className={`border-t border-slate-800 ${
+                    className={`border-t border-cp-border-muted ${
                       row.locked ? 'opacity-60' : row.changed ? 'bg-amber-950/30' : ''
                     }`}
                   >
-                    <td className="py-1 font-mono text-slate-400">{row.inputId}</td>
+                    <td className="py-1 font-mono text-cp-text-muted">{row.inputId}</td>
                     <td className="py-1 text-[10px] uppercase tracking-wide">
                       <span
                         className={
@@ -463,7 +463,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                                     ? 'text-amber-400'
                                     : row.category === 'mediaplayer'
                                       ? 'text-pink-400'
-                                      : 'text-slate-500'
+                                      : 'text-cp-text-faint'
                         }
                       >
                         {row.category === 'video-input'
@@ -481,9 +481,9 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                                     : 'int.'}
                       </span>
                     </td>
-                    <td className="py-1 text-slate-300">
+                    <td className="py-1 text-cp-text-secondary">
                       <span className="font-mono">{row.liveLong}</span>{' '}
-                      <span className="text-slate-500">({row.liveShort})</span>
+                      <span className="text-cp-text-faint">({row.liveShort})</span>
                     </td>
                     <td className="py-1 pr-1">
                       <input
@@ -491,7 +491,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                         maxLength={20}
                         disabled={row.locked}
                         onChange={(event) => setDraft(row.inputId, { long: event.target.value })}
-                        className="w-full rounded border border-slate-700 bg-slate-950 p-1 font-mono disabled:cursor-not-allowed disabled:bg-slate-900 disabled:text-slate-500"
+                        className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 font-mono disabled:cursor-not-allowed disabled:bg-cp-surface-1 disabled:text-cp-text-faint"
                       />
                     </td>
                     <td className="py-1">
@@ -502,14 +502,14 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                         onChange={(event) =>
                           setDraft(row.inputId, { short: event.target.value.toUpperCase() })
                         }
-                        className="w-full rounded border border-slate-700 bg-slate-950 p-1 font-mono uppercase disabled:cursor-not-allowed disabled:bg-slate-900 disabled:text-slate-500"
+                        className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 font-mono uppercase disabled:cursor-not-allowed disabled:bg-cp-surface-1 disabled:text-cp-text-faint"
                       />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <p className="mt-3 text-[11px] text-slate-400">
+            <p className="mt-3 text-[11px] text-cp-text-muted">
               {t(
                 'atem.dialog.changesNote',
                 'Hinweis: Änderungen gehen direkt an den Switcher (RAM). Damit sie einen Reboot überleben, in der Blackmagic ATEM Software „Save Startup State" auslösen. Audio-Eingaenge (XLR/RJ45-Talkback), Mediaplayer und interne Quellen sind gesperrt — der ATEM verwaltet die selbst.',
@@ -518,9 +518,9 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
           </div>
         )}
 
-        <details className="border-t border-slate-700 px-4 py-2 text-[11px]">
-          <summary className="cursor-pointer text-slate-400">{t('atem.eventLog', 'Event-Log')} ({events.length})</summary>
-          <pre className="mt-2 max-h-40 overflow-auto rounded bg-slate-950 p-2 font-mono text-[10px] text-slate-300">
+        <details className="border-t border-cp-border px-4 py-2 text-[11px]">
+          <summary className="cursor-pointer text-cp-text-muted">{t('atem.eventLog', 'Event-Log')} ({events.length})</summary>
+          <pre className="mt-2 max-h-40 overflow-auto rounded bg-cp-surface-3 p-2 font-mono text-[10px] text-cp-text-secondary">
             {events.join('\n') || '(noch keine Events)'}
           </pre>
         </details>

@@ -23,7 +23,7 @@ export const TemplateProperties = () => {
 
   if (!template) {
     return (
-      <div className="text-cp-xs text-slate-400">
+      <div className="text-cp-xs text-cp-text-muted">
         {t('template.noneSelected', 'Keine Vorlage ausgewählt.')}
       </div>
     )
@@ -67,7 +67,7 @@ export const TemplateProperties = () => {
   return (
     <div className="space-y-3 text-cp-xs">
       <div className="flex items-center justify-between">
-        <span className="text-slate-400 text-[10px] uppercase tracking-wide">
+        <span className="text-cp-text-muted text-[10px] uppercase tracking-wide">
           {t('template.title', 'Vorlage')}
         </span>
         {template.rentmanSource && (
@@ -81,34 +81,34 @@ export const TemplateProperties = () => {
       </div>
 
       <label className="block">
-        <span className="mb-1 block text-slate-300">{t('template.field.name', 'Name')}</span>
+        <span className="mb-1 block text-cp-text-secondary">{t('template.field.name', 'Name')}</span>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+          className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
         />
       </label>
 
       <label className="block">
-        <span className="mb-1 block text-slate-300">
+        <span className="mb-1 block text-cp-text-secondary">
           {t('template.field.category', 'Kategorie')}
         </span>
         <CategorySelect value={category} onChange={setCategory} />
       </label>
 
-      <div className="rounded bg-slate-900 p-2 space-y-1">
+      <div className="rounded bg-cp-surface-1 p-2 space-y-1">
         <div className="flex justify-between">
-          <span className="text-slate-400">{t('template.field.inputs', 'Eingänge')}</span>
-          <span className="text-slate-200">{template.inputs.length}</span>
+          <span className="text-cp-text-muted">{t('template.field.inputs', 'Eingänge')}</span>
+          <span className="text-cp-text-bright">{template.inputs.length}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-slate-400">{t('template.field.outputs', 'Ausgänge')}</span>
-          <span className="text-slate-200">{template.outputs.length}</span>
+          <span className="text-cp-text-muted">{t('template.field.outputs', 'Ausgänge')}</span>
+          <span className="text-cp-text-bright">{template.outputs.length}</span>
         </div>
         {template.rentmanId && (
           <div className="flex justify-between">
-            <span className="text-slate-400">{t('template.rentmanIdLabel', 'Rentman-ID')}</span>
-            <span className="text-slate-400 truncate max-w-[120px]" title={template.rentmanId}>
+            <span className="text-cp-text-muted">{t('template.rentmanIdLabel', 'Rentman-ID')}</span>
+            <span className="text-cp-text-muted truncate max-w-[120px]" title={template.rentmanId}>
               {template.rentmanId}
             </span>
           </div>

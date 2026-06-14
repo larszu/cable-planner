@@ -29,7 +29,7 @@ export const SortableSection = ({
     <details
       ref={setNodeRef}
       open={defaultOpen}
-      className={`rounded border border-slate-700 bg-slate-900/40 [&_summary]:cursor-pointer ${
+      className={`rounded border border-cp-border bg-cp-surface-1/40 [&_summary]:cursor-pointer ${
         isDragging ? 'opacity-60 shadow-xl shadow-slate-950/50' : ''
       }`}
       style={{
@@ -38,7 +38,7 @@ export const SortableSection = ({
         transition,
       }}
     >
-      <summary className="flex items-center gap-2 px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
+      <summary className="flex items-center gap-2 px-2 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright">
         {/* #421 — Drag-Handle deutlicher: groesseres ⠿-Glyph, hellere Farbe,
             breitere Klickflaeche; sichtbar auf jeder Sektion damit klar ist,
             dass die Reihenfolge per Drag&Drop am Handle aenderbar ist. */}
@@ -46,7 +46,7 @@ export const SortableSection = ({
           {...attributes}
           {...listeners}
           title={t('props.section.dragTitle', 'Sektion ziehen, um Reihenfolge zu ändern (geräteübergreifend persistiert).')}
-          className="-my-1 inline-flex h-5 w-5 cursor-grab items-center justify-center rounded text-cp-lg leading-none text-slate-400 hover:bg-slate-700/40 hover:text-slate-200 active:cursor-grabbing"
+          className="-my-1 inline-flex h-5 w-5 cursor-grab items-center justify-center rounded text-cp-lg leading-none text-cp-text-muted hover:bg-cp-surface-4/40 hover:text-cp-text-bright active:cursor-grabbing"
           aria-label={t('props.section.dragAria', 'Sektion verschieben')}
           role="button"
           onClick={(e) => e.preventDefault()}
@@ -55,10 +55,10 @@ export const SortableSection = ({
         </span>
         <span className="flex-1">{title}</span>
         {subtitle && (
-          <span className="normal-case text-[10px] text-slate-400">{subtitle}</span>
+          <span className="normal-case text-[10px] text-cp-text-muted">{subtitle}</span>
         )}
       </summary>
-      <div className="border-t border-slate-800 p-2">{children}</div>
+      <div className="border-t border-cp-border-muted p-2">{children}</div>
     </details>
   )
 }

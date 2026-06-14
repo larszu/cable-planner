@@ -200,7 +200,7 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
-        className="h-full w-full select-none bg-slate-950"
+        className="h-full w-full select-none bg-cp-surface-3"
         style={{ touchAction: 'none', cursor: isDragging ? 'grabbing' : 'grab' }}
       >
         {/* Edges first so node rects render on top of them where they
@@ -262,11 +262,11 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
           })}
         </g>
       </svg>
-      <div className="absolute right-3 top-3 flex items-center gap-1 rounded bg-slate-900/85 px-2 py-1 text-cp-xs text-slate-300 backdrop-blur">
+      <div className="absolute right-3 top-3 flex items-center gap-1 rounded bg-cp-surface-1/85 px-2 py-1 text-cp-xs text-cp-text-secondary backdrop-blur">
         <button
           type="button"
           onClick={() => setView((v) => ({ ...v, zoom: Math.min(20, v.zoom * 1.4) }))}
-          className="rounded px-1.5 hover:bg-slate-700"
+          className="rounded px-1.5 hover:bg-cp-surface-4"
           aria-label={t('graphmlViewer.zoomIn', 'Zoom in')}
         >
           ＋
@@ -274,7 +274,7 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
         <button
           type="button"
           onClick={() => setView((v) => ({ ...v, zoom: Math.max(0.05, v.zoom / 1.4) }))}
-          className="rounded px-1.5 hover:bg-slate-700"
+          className="rounded px-1.5 hover:bg-cp-surface-4"
           aria-label={t('graphmlViewer.zoomOut', 'Zoom out')}
         >
           −
@@ -282,14 +282,14 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
         <button
           type="button"
           onClick={resetView}
-          className="rounded px-1.5 text-[10px] hover:bg-slate-700"
+          className="rounded px-1.5 text-[10px] hover:bg-cp-surface-4"
           aria-label={t('graphmlViewer.reset', 'Reset')}
         >
           {t('graphmlViewer.reset', 'Reset')}
         </button>
-        <span className="ml-1 text-[10px] text-slate-400">{Math.round(view.zoom * 100)}%</span>
+        <span className="ml-1 text-[10px] text-cp-text-muted">{Math.round(view.zoom * 100)}%</span>
       </div>
-      <div className="pointer-events-none absolute bottom-2 left-3 text-[10px] text-slate-400">
+      <div className="pointer-events-none absolute bottom-2 left-3 text-[10px] text-cp-text-muted">
         {format(
           t(
             'graphmlViewer.statusBar',

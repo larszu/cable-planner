@@ -34,7 +34,7 @@ export const PopoutApp = ({ panel }: { panel: PopoutPanel }) => {
   // schließt das OS-Fenster. Layout entspricht dem Modal-Panel.
   if (panel === 'settings') {
     return (
-      <div className="flex h-full w-full min-h-0 flex-col overflow-hidden bg-slate-900 text-slate-100 sm:flex-row">
+      <div className="flex h-full w-full min-h-0 flex-col overflow-hidden bg-cp-surface-1 text-cp-text sm:flex-row">
         <SettingsBody onClose={() => window.close()} />
       </div>
     )

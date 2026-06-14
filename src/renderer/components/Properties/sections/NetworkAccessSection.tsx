@@ -108,7 +108,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
                   ? t('eq.field.passwordHide', 'Passwort verbergen')
                   : t('eq.field.passwordShow', 'Passwort anzeigen')
               }
-              className="absolute inset-y-0 right-0 flex items-center px-2 text-cp-text-muted hover:text-slate-200"
+              className="absolute inset-y-0 right-0 flex items-center px-2 text-cp-text-muted hover:text-cp-text-bright"
             >
               <Icon icon={showPassword ? EyeOff : Eye} size="sm" />
             </button>

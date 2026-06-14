@@ -279,7 +279,7 @@ export const FloatingPanelShell = ({
       )}
       <aside
         ref={containerRef}
-        className="pointer-events-auto fixed z-40 flex flex-col rounded-cp-modal border border-[var(--cp-border)] bg-slate-950/95 text-[var(--cp-text)] shadow-2xl backdrop-blur-md"
+        className="pointer-events-auto fixed z-40 flex flex-col rounded-cp-modal border border-[var(--cp-border)] bg-cp-surface-3/95 text-[var(--cp-text)] shadow-2xl backdrop-blur-md"
         style={{
           left: pos.x,
           top: pos.y,
@@ -290,7 +290,7 @@ export const FloatingPanelShell = ({
         }}
       >
         <header
-          className="flex shrink-0 items-center justify-between border-b border-[var(--cp-border-muted)] bg-slate-900/80 px-2 py-1.5 text-cp-xs"
+          className="flex shrink-0 items-center justify-between border-b border-[var(--cp-border-muted)] bg-cp-surface-1/80 px-2 py-1.5 text-cp-xs"
           style={{ cursor: 'move', touchAction: 'none' }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -299,7 +299,7 @@ export const FloatingPanelShell = ({
         >
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <Icon icon={GripVertical} size="sm" className="shrink-0 text-[var(--cp-text-faint)]" />
-            <span className="truncate font-medium text-slate-200">{title}</span>
+            <span className="truncate font-medium text-cp-text-bright">{title}</span>
           </div>
           <div className="flex shrink-0 items-center gap-1">
             {onPopout && (

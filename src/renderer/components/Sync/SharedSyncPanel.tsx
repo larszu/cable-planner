@@ -169,7 +169,7 @@ export function SharedSyncPanel() {
       ? 'text-emerald-400'
       : status.kind === 'error' || status.kind === 'locked'
         ? 'text-red-400'
-        : 'text-slate-500'
+        : 'text-cp-text-faint'
 
   return (
     <div className="flex items-center gap-1">
@@ -188,7 +188,7 @@ export function SharedSyncPanel() {
         title={format(t('sync.pullTitle', 'Pull von: {path}'), { path: syncPath })}
         disabled={busy}
         onClick={() => { void handlePull() }}
-        className="flex items-center gap-1 rounded bg-slate-700 px-2 py-1 text-cp-xs text-white hover:bg-slate-600 disabled:opacity-50"
+        className="flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs text-white hover:bg-cp-surface-5 disabled:opacity-50"
       >
         <Icon icon={Download} size="xs" />
         <span>{t('sync.pull', 'Pull')}</span>

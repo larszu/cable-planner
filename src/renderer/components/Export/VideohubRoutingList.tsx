@@ -39,8 +39,8 @@ export const VideohubRoutingList = ({
 }: Props) => {
   const t = useTranslation()
   return (
-    <div className="rounded-cp-control border border-slate-700 bg-slate-950">
-      <div className="border-b border-slate-800 bg-slate-900 px-3 py-2 text-[11px] uppercase tracking-wide text-slate-400">
+    <div className="rounded-cp-control border border-cp-border bg-cp-surface-3">
+      <div className="border-b border-cp-border-muted bg-cp-surface-1 px-3 py-2 text-[11px] uppercase tracking-wide text-cp-text-muted">
         Routing-Liste · {totalOutputs} Outputs · {totalInputs} Inputs verfuegbar
       </div>
       <div
@@ -53,35 +53,35 @@ export const VideohubRoutingList = ({
           return (
             <div
               key={oi}
-              className="flex items-center gap-2 rounded border border-slate-800 bg-slate-900/40 px-2 py-1.5 hover:bg-slate-800/50"
+              className="flex items-center gap-2 rounded border border-cp-border-muted bg-cp-surface-1/40 px-2 py-1.5 hover:bg-cp-surface-2/50"
             >
               {/* Output-Nummer (mono, neutral) */}
               <span
-                className="w-9 shrink-0 text-right font-mono text-[12px] font-semibold text-slate-400"
+                className="w-9 shrink-0 text-right font-mono text-[12px] font-semibold text-cp-text-muted"
                 title={`Output ${oi + 1}`}
               >
                 {oi + 1}
               </span>
               {/* Output-Label */}
               <span
-                className="w-48 shrink-0 truncate text-[13px] font-semibold text-slate-200"
+                className="w-48 shrink-0 truncate text-[13px] font-semibold text-cp-text-bright"
                 title={outLabel}
               >
                 {outLabel}
               </span>
               {/* Lese-Richtung */}
-              <span className="text-slate-500" aria-hidden>
+              <span className="text-cp-text-faint" aria-hidden>
                 ←
               </span>
               {/* Input-Dropdown */}
               <select
                 value={routedIdx}
                 onChange={(e) => onRoute(oi, parseInt(e.target.value, 10))}
-                className="flex-1 min-w-0 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-[13px] text-slate-200 focus:border-sky-500 focus:outline-none"
+                className="flex-1 min-w-0 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-[13px] text-cp-text-bright focus:border-sky-500 focus:outline-none"
                 title={`Input fuer Output ${oi + 1} (${outLabel}) waehlen — aktuell: ${routedIdx + 1} ${routedLabel}`}
               >
                 {inputLabels.map((inLabel, ii) => (
-                  <option key={ii} value={ii} className="bg-slate-950 text-slate-100">
+                  <option key={ii} value={ii} className="bg-cp-surface-3 text-cp-text">
                     {ii + 1}: {inLabel}
                   </option>
                 ))}

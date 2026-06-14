@@ -90,7 +90,7 @@ export const EquipmentProperties = () => {
   const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
 
   if (!equipment) {
-    return <div className="text-cp-xs text-slate-400">{t('inspector.selectEquipment', 'Wähle ein Gerät auf dem Canvas.')}</div>
+    return <div className="text-cp-xs text-cp-text-muted">{t('inspector.selectEquipment', 'Wähle ein Gerät auf dem Canvas.')}</div>
   }
 
   const handleSectionDragEnd = (event: DragEndEvent) => {
@@ -129,7 +129,7 @@ export const EquipmentProperties = () => {
 
       <RentmanSyncBadge equipment={equipment} />
       <label className="block">
-        <span className="mb-1 block text-slate-300">{t('eq.field.category', 'Kategorie')}</span>
+        <span className="mb-1 block text-cp-text-secondary">{t('eq.field.category', 'Kategorie')}</span>
         <CategorySelect
           value={equipment.category}
           onChange={(category) => updateEquipment(equipment.id, { category })}

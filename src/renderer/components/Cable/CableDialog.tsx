@@ -255,12 +255,12 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="w-full max-w-lg rounded border border-slate-700 bg-slate-900 p-4 text-slate-100 outline-none"
+        className="w-full max-w-lg rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text outline-none"
       >
         <h3 id={titleId} className="mb-2 text-cp-2xl font-semibold">{t('cable.dialog.title', 'Neues Kabel')}</h3>
 
         {fromPort && toPort && (
-          <div className="mb-3 rounded bg-slate-950 p-2 text-cp-xs">
+          <div className="mb-3 rounded bg-cp-surface-3 p-2 text-cp-xs">
             <div>
               {t('cable.dialog.from', 'Von:')} <span className="font-medium">{fromPort.name}</span> ({fromPort.connectorType}
               {fromPort.standard ? `, ${fromPort.standard}` : ''})
@@ -278,7 +278,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
             <select
               value={specId}
               onChange={(e) => onSelectSpec(e.target.value)}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
             >
               <option value={CUSTOM_CABLE_SPEC_ID}>★ Custom Cable…</option>
               {ranked.map(({ cable, level }) => {
@@ -293,8 +293,8 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
           </label>
 
           {specId === CUSTOM_CABLE_SPEC_ID && (
-            <div className="rounded border border-slate-700 bg-slate-950/60 p-2">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+            <div className="rounded border border-cp-border bg-cp-surface-3/60 p-2">
+              <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted">
                 Custom Cable Definition
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -314,7 +314,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                       }
                       setCustomConnectorType(v as ConnectorType)
                     }}
-                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                    className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
                   >
                     {allConnectorOptions.map((type) => (
                       <option key={type} value={type}>
@@ -344,7 +344,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                       setCustomStandard(next)
                       setStandard(next)
                     }}
-                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                    className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
                   >
                     {allStandardOptions.map((item) => (
                       <option key={item} value={item}>
@@ -364,7 +364,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                   value={customMaxLength}
                   onChange={(e) => setCustomMaxLength(e.target.value ? Number(e.target.value) : '')}
                   placeholder={t('common.optional', 'Optional')}
-                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
                 />
               </label>
               <button
@@ -406,7 +406,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
               <select
                 value={standard ?? ''}
                 onChange={(e) => setStandard(e.target.value as SignalStandard)}
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
               >
                 {selected.standards.map((s) => (
                   <option key={s} value={s}>
@@ -422,7 +422,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
             />
           </label>
 
@@ -434,7 +434,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                 min={0}
                 value={length}
                 onChange={(e) => setLength(Number(e.target.value))}
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
               />
             </label>
             <label className="block">
@@ -443,7 +443,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                 type="color"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="mt-1 h-10 w-full rounded border border-slate-700 bg-slate-950 p-1"
+                className="mt-1 h-10 w-full rounded border border-cp-border bg-cp-surface-3 p-1"
               />
             </label>
           </div>
@@ -453,7 +453,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
               rows={2}
             />
           </label>
@@ -509,7 +509,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5"
           >
             {t('common.cancel', 'Abbrechen')}
           </button>

@@ -185,8 +185,8 @@ const MultiviewerPanel = ({ mv }: { mv: AtemMultiviewer }) => {
   const pgmIndex = mv.programPreviewSwapped ? 0 : 1
   const prvIndex = mv.programPreviewSwapped ? 1 : 0
   return (
-    <div className="rounded border border-slate-600 bg-slate-950 p-2">
-      <div className="mb-1 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-300">
+    <div className="rounded border border-cp-surface-5 bg-cp-surface-3 p-2">
+      <div className="mb-1 text-center text-[11px] font-semibold uppercase tracking-wider text-cp-text-secondary">
         MV {mv.index + 1}
       </div>
       <div
@@ -281,14 +281,14 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="flex max-h-[95vh] w-full max-w-6xl flex-col rounded border border-slate-600 bg-slate-900 text-slate-100">
-        <header className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
+      <div className="flex max-h-[95vh] w-full max-w-6xl flex-col rounded border border-cp-surface-5 bg-cp-surface-1 text-cp-text">
+        <header className="flex items-center justify-between border-b border-cp-border px-4 py-2">
           <div>
             <h2 className="text-cp-xl font-semibold text-sky-300">
               {t('atem.mvLayout.title', 'Multiviewer Layout (Live)')}
             </h2>
             {state && (
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-cp-text-muted">
                 {state.productIdentifier} · {mvs.length} MV
                 {mvs.length === 1 ? '' : 's'}
               </p>
@@ -298,14 +298,14 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
             <button
               type="button"
               onClick={() => void refresh()}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('atem.mvLayout.refresh', '↻ Aktualisieren')}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('atem.mvLayout.close', '✕ Schließen')}
             </button>
@@ -326,7 +326,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
           )}
 
           {connected && mvs.length === 0 && (
-            <div className="text-cp-xs text-slate-400">
+            <div className="text-cp-xs text-cp-text-muted">
               {t('atem.mvLayout.noMv', 'Der verbundene ATEM meldet keine Multiviewer.')}
             </div>
           )}
@@ -345,8 +345,8 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
           )}
         </div>
 
-        <footer className="flex flex-wrap items-center gap-4 border-t border-slate-700 px-4 py-2 text-[11px] text-slate-300">
-          <span className="font-semibold uppercase tracking-wider text-slate-400">
+        <footer className="flex flex-wrap items-center gap-4 border-t border-cp-border px-4 py-2 text-[11px] text-cp-text-secondary">
+          <span className="font-semibold uppercase tracking-wider text-cp-text-muted">
             {t('atem.mvLayout.legend', 'Legende')}
           </span>
           <LegendSwatch label={t('atem.mvLayout.camera', 'Kamera')} category="camera" />

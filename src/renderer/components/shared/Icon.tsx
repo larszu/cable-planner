@@ -5,7 +5,7 @@
 // einheitlichen Größen-, Stroke- und Farb-Defaults.
 //
 // Farbe kommt per `currentColor` aus der umgebenden Text-Klasse
-// (z. B. text-slate-400) — dadurch sind Icons automatisch theme-aware,
+// (z. B. text-cp-text-muted) — dadurch sind Icons automatisch theme-aware,
 // ohne dass eine eigene Farb-Prop nötig ist.
 
 import type { LucideIcon, LucideProps } from 'lucide-react'

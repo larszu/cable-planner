@@ -6,7 +6,7 @@ import type { EquipmentItem } from '../../../types/equipment'
 import { schemaForCategory, type CategoryFieldDef } from '../../../lib/categorySchemas'
 import type { Lang } from '../../../lib/categoryTranslations'
 
-const inputCls = 'w-full rounded border border-slate-700 bg-slate-900 p-2'
+const inputCls = 'w-full rounded border border-cp-border bg-cp-surface-1 p-2'
 
 const Field = ({
   field,
@@ -29,15 +29,15 @@ const Field = ({
           checked={value === true}
           onChange={(e) => onChange(e.target.checked ? true : undefined)}
         />
-        <span className="text-slate-300">{label}</span>
+        <span className="text-cp-text-secondary">{label}</span>
       </label>
     )
   }
 
   const labelEl = (
-    <span className="mb-1 block text-slate-300">
+    <span className="mb-1 block text-cp-text-secondary">
       {label}
-      {field.unit ? <span className="text-slate-500"> ({field.unit})</span> : null}
+      {field.unit ? <span className="text-cp-text-faint"> ({field.unit})</span> : null}
     </span>
   )
 
@@ -126,10 +126,10 @@ export const CategoryPropsSection = ({ equipment }: { equipment: EquipmentItem }
     <details
       open={open}
       onToggle={(e) => setOpen(e.currentTarget.open)}
-      className="rounded border border-slate-700 [&_summary]:cursor-pointer"
+      className="rounded border border-cp-border [&_summary]:cursor-pointer"
     >
-      <summary className="flex items-center gap-1 px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200 [&::-webkit-details-marker]:hidden">
-        <span className="text-slate-500">{open ? '▾' : '▸'}</span>
+      <summary className="flex items-center gap-1 px-2 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
+        <span className="text-cp-text-faint">{open ? '▾' : '▸'}</span>
         <span className="flex-1">
           {t('catprops.title', 'Fachdaten')} — {equipment.category}
         </span>
