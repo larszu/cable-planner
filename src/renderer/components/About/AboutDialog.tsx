@@ -41,12 +41,16 @@ export const AboutDialog = () => {
       maxWidth="md"
       draggableKey="cable-planner:modal-pos:about"
     >
+      {/* #449 — Demo-Migration roher slate-* → cp-Token-Utilities. Alle
+          ersetzten Paare sind headless als pixelgleich (dark+light) verifiziert.
+          bg-emerald-700 (Versions-Badge) + hover:text-sky-300 bleiben: dafür
+          gibt es (noch) keinen exakten Token. */}
       <div className="space-y-3 text-cp-base">
-        <div className="flex items-center gap-3 rounded border border-slate-800 bg-slate-950/40 p-3">
-          <Icon icon={Cable} size={28} className="text-sky-400" />
+        <div className="flex items-center gap-3 rounded border border-cp-border-muted bg-cp-surface-3/40 p-3">
+          <Icon icon={Cable} size={28} className="text-cp-accent" />
           <div className="min-w-0">
-            <div className="font-semibold text-slate-100">{t('app.title', 'Cable Planner')}</div>
-            <div className="text-[11px] text-slate-400">{APP_DESCRIPTION}</div>
+            <div className="font-semibold text-cp-text">{t('app.title', 'Cable Planner')}</div>
+            <div className="text-[11px] text-cp-text-muted">{APP_DESCRIPTION}</div>
           </div>
           <div className="ml-auto shrink-0 rounded bg-emerald-700 px-2 py-1 font-mono text-cp-xs text-white">
             v{APP_VERSION}
@@ -54,34 +58,34 @@ export const AboutDialog = () => {
         </div>
 
         <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
-          <dt className="text-slate-500">{t('about.version', 'Version')}</dt>
-          <dd className="font-mono text-slate-100">{APP_VERSION}</dd>
-          <dt className="text-slate-500">{t('about.build', 'Build')}</dt>
-          <dd className="font-mono text-slate-100">{buildDateLocal}</dd>
+          <dt className="text-cp-text-faint">{t('about.version', 'Version')}</dt>
+          <dd className="font-mono text-cp-text">{APP_VERSION}</dd>
+          <dt className="text-cp-text-faint">{t('about.build', 'Build')}</dt>
+          <dd className="font-mono text-cp-text">{buildDateLocal}</dd>
           {APP_AUTHOR && (
             <>
-              <dt className="text-slate-500">{t('about.author', 'Autor')}</dt>
-              <dd className="text-slate-100">{APP_AUTHOR}</dd>
+              <dt className="text-cp-text-faint">{t('about.author', 'Autor')}</dt>
+              <dd className="text-cp-text">{APP_AUTHOR}</dd>
             </>
           )}
-          <dt className="text-slate-500">{t('about.repository', 'Repository')}</dt>
+          <dt className="text-cp-text-faint">{t('about.repository', 'Repository')}</dt>
           <dd>
             <a
               href={APP_REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sky-400 underline hover:text-sky-300"
+              className="text-cp-accent underline hover:text-sky-300"
             >
               {APP_REPO_URL.replace(/^https?:\/\//, '')}
             </a>
           </dd>
-          <dt className="text-slate-500">{t('about.platform', 'Plattform')}</dt>
-          <dd className="text-slate-100">
+          <dt className="text-cp-text-faint">{t('about.platform', 'Plattform')}</dt>
+          <dd className="text-cp-text">
             Electron + React + ReactFlow + Vite + Tailwind
           </dd>
         </dl>
 
-        <div className="rounded border border-slate-800 bg-slate-950/40 p-3 text-[11px] text-slate-400">
+        <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-3 text-[11px] text-cp-text-muted">
           {t('about.issueHint', 'Issues + Feature-Wünsche bitte direkt auf GitHub melden.')}
         </div>
       </div>
