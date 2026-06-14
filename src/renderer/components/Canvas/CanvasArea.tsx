@@ -1910,7 +1910,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         onMoveEnd={(_event, viewport) => setCanvasState(viewport.x, viewport.y, viewport.zoom)}
       >
         <MiniMap pannable zoomable
-          className={effectiveCanvasTheme === 'light' ? '!bg-slate-100' : '!bg-slate-800'}
+          className={effectiveCanvasTheme === 'light' ? '!bg-slate-100' : '!bg-cp-surface-2'}
           maskColor={effectiveCanvasTheme === 'light' ? 'rgba(226,232,240,0.7)' : 'rgba(15,23,42,0.7)'}
         />
         <Controls />

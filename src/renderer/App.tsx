@@ -964,7 +964,7 @@ export default function App() {
   }, [pendingConnection, project.equipment])
 
   return (
-    <div className="flex h-screen flex-col bg-slate-900 text-slate-100">
+    <div className="flex h-screen flex-col bg-cp-surface-1 text-cp-text">
       <MenuBar
         onNewProject={handleNewProject}
         onOpenProject={() => void openProject()}
@@ -1154,8 +1154,8 @@ export default function App() {
           : undefined
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-            <div className="w-full max-w-md rounded border border-amber-700 bg-slate-900 text-slate-100 shadow-2xl">
-              <header className="border-b border-slate-700 px-4 py-2">
+            <div className="w-full max-w-md rounded border border-amber-700 bg-cp-surface-1 text-cp-text shadow-2xl">
+              <header className="border-b border-cp-border px-4 py-2">
                 <h2 className="text-cp-base font-semibold text-amber-300">
                   {t('app.portConflict.title', 'Port bereits belegt')}
                 </h2>
@@ -1176,35 +1176,35 @@ export default function App() {
                   </strong>{' '}
                   {t('app.portConflict.connected', 'belegt:')}
                 </p>
-                <ul className="mb-3 max-h-32 space-y-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-2 text-cp-xs">
+                <ul className="mb-3 max-h-32 space-y-1 overflow-auto rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-xs">
                   {conflictingCables.map((c) => {
                     const srcEq = getEquipmentById(project.equipment, c.fromEquipmentId)
                     const srcPort = srcEq
                       ? [...srcEq.inputs, ...srcEq.outputs].find((p) => p.id === c.fromPortId)
                       : undefined
                     return (
-                      <li key={c.id} className="font-mono text-slate-300">
+                      <li key={c.id} className="font-mono text-cp-text-secondary">
                         {srcEq?.name ?? '?'} · {srcPort?.name ?? '?'} →{' '}
                         {targetEq?.name ?? '?'} · {targetPort?.name ?? '?'}
                         {c.name ? (
-                          <span className="ml-1 text-slate-500">({c.name})</span>
+                          <span className="ml-1 text-cp-text-faint">({c.name})</span>
                         ) : null}
                       </li>
                     )
                   })}
                 </ul>
-                <p className="text-[12px] text-slate-400">
+                <p className="text-[12px] text-cp-text-muted">
                   {t(
                     'app.portConflict.hint',
                     '„Ersetzen" entfernt die obige(n) Verbindung(en) und legt das neue Kabel an. „Abbrechen" verwirft den Connect-Versuch.',
                   )}
                 </p>
               </div>
-              <footer className="flex justify-end gap-2 border-t border-slate-700 px-4 py-2">
+              <footer className="flex justify-end gap-2 border-t border-cp-border px-4 py-2">
                 <button
                   type="button"
                   onClick={cancelPortConflict}
-                  className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
+                  className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
                 >
                   {t('common.cancel', 'Abbrechen')}
                 </button>
@@ -1222,19 +1222,19 @@ export default function App() {
       })()}
       {pdfProgress.active && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-[420px] max-w-[90vw] rounded-cp-card border border-slate-700 bg-slate-900 p-5 text-slate-100 shadow-2xl">
+          <div className="w-[420px] max-w-[90vw] rounded-cp-card border border-cp-border bg-cp-surface-1 p-5 text-cp-text shadow-2xl">
             <div className="mb-3 flex items-center gap-3">
               <div className="h-3 w-3 animate-pulse rounded-full bg-sky-400" />
               <h2 className="text-cp-base font-semibold">{t('app.pdfProgress.title', 'PDF wird erstellt…')}</h2>
             </div>
-            <div className="mb-3 h-1.5 w-full overflow-hidden rounded bg-slate-800">
+            <div className="mb-3 h-1.5 w-full overflow-hidden rounded bg-cp-surface-2">
               <div className="h-full w-full origin-left animate-pulse bg-sky-500" />
             </div>
-            <div className="text-cp-xs text-slate-300">{pdfProgress.phase}</div>
+            <div className="text-cp-xs text-cp-text-secondary">{pdfProgress.phase}</div>
             {pdfProgress.detail && (
-              <div className="mt-1 text-[11px] text-slate-400">{pdfProgress.detail}</div>
+              <div className="mt-1 text-[11px] text-cp-text-muted">{pdfProgress.detail}</div>
             )}
-            <div className="mt-3 text-[10px] text-slate-400">
+            <div className="mt-3 text-[10px] text-cp-text-muted">
               {t('app.pdfProgress.hint', 'Bei großen Plänen können einige Sekunden vergehen. Bitte nicht abbrechen.')}
             </div>
           </div>
@@ -1267,33 +1267,33 @@ const PdfExportDialog = ({
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4">
-      <div className="w-full max-w-md rounded-cp-card border border-slate-700 bg-slate-900 p-4 shadow-2xl">
-        <h2 className="mb-3 text-cp-base font-semibold text-slate-100">{t('pdfExport.title', 'Plan als PDF exportieren')}</h2>
+      <div className="w-full max-w-md rounded-cp-card border border-cp-border bg-cp-surface-1 p-4 shadow-2xl">
+        <h2 className="mb-3 text-cp-base font-semibold text-cp-text">{t('pdfExport.title', 'Plan als PDF exportieren')}</h2>
         <div className="space-y-3">
           {/* Layer-Sichtbarkeit — uebernimmt die Chip-Komponente aus
               der Canvas-Toolbar. Same store, daher synchronisiert sich
               die Auswahl bidirektional mit dem Canvas. Damit kann der
               User z.B. nur die Video-Ebene drucken indem er alle
               anderen Chips deaktiviert. */}
-          <fieldset className="rounded border border-slate-700 p-3">
-            <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
+          <fieldset className="rounded border border-cp-border p-3">
+            <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
               {t('pdfExport.layers.title', 'Ebenen (im PDF enthalten)')}
             </legend>
             <div className="-mx-1 flex flex-wrap gap-1">
               <LayerVisibilityChips />
             </div>
-            <p className="mt-2 text-[10px] text-slate-400">
+            <p className="mt-2 text-[10px] text-cp-text-muted">
               {t(
                 'pdfExport.layers.hint',
                 'Klick auf einen Chip schaltet die Ebene fuer Canvas UND PDF um. Beispiel: nur Video drucken ⇒ alle anderen Chips ausschalten.',
               )}
             </p>
           </fieldset>
-          <fieldset className="rounded border border-slate-700 p-3">
-            <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
+          <fieldset className="rounded border border-cp-border p-3">
+            <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
               {t('pdfExport.bg.title', 'Hintergrund')}
             </legend>
-            <label className="mb-2 flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
+            <label className="mb-2 flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
               <input
                 type="radio"
                 name="pdf-bg-theme"
@@ -1302,7 +1302,7 @@ const PdfExportDialog = ({
               />
               {t('pdfExport.bg.light', 'Hell')}
             </label>
-            <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
+            <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
               <input
                 type="radio"
                 name="pdf-bg-theme"
@@ -1316,11 +1316,11 @@ const PdfExportDialog = ({
               bestehenden Workflows die bekannte Raster-Pipeline
               nutzen. Wenn an: Text bleibt im PDF als echter Text,
               keine Pixelung beim Zoom. */}
-          <fieldset className="rounded border border-slate-700 p-3">
-            <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
+          <fieldset className="rounded border border-cp-border p-3">
+            <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
               {t('pdfExport.render.title', 'Render-Modus')}
             </legend>
-            <label className="mb-2 flex cursor-pointer items-start gap-2 text-cp-xs text-slate-200">
+            <label className="mb-2 flex cursor-pointer items-start gap-2 text-cp-xs text-cp-text-bright">
               <input
                 type="radio"
                 name="pdf-render-mode"
@@ -1329,7 +1329,7 @@ const PdfExportDialog = ({
               />
               <span>
                 {t('pdfExport.render.raster', 'Raster (klassisch)')}
-                <span className="block text-[10px] text-slate-400">
+                <span className="block text-[10px] text-cp-text-muted">
                   {t(
                     'pdfExport.render.rasterHint',
                     'JPEG-Snapshot des Canvas. Zuverlässig, aber unscharf bei großem Zoom in der PDF.',
@@ -1337,7 +1337,7 @@ const PdfExportDialog = ({
                 </span>
               </span>
             </label>
-            <label className="flex cursor-pointer items-start gap-2 text-cp-xs text-slate-200">
+            <label className="flex cursor-pointer items-start gap-2 text-cp-xs text-cp-text-bright">
               <input
                 type="radio"
                 name="pdf-render-mode"
@@ -1346,7 +1346,7 @@ const PdfExportDialog = ({
               />
               <span>
                 {t('pdfExport.render.vector', 'Vektor')}
-                <span className="block text-[10px] text-slate-400">
+                <span className="block text-[10px] text-cp-text-muted">
                   {t(
                     'pdfExport.render.vectorHint',
                     'Chromium printToPDF. Text bleibt selektierbar & scharf bei jedem Zoom. Kleinere Dateigröße.',
@@ -1360,7 +1360,7 @@ const PdfExportDialog = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-cp-xs text-slate-100 hover:bg-slate-700"
+            className="rounded border border-cp-border bg-cp-surface-2 px-3 py-1.5 text-cp-xs text-cp-text hover:bg-cp-surface-4"
           >
             {t('common.cancel', 'Abbrechen')}
           </button>
@@ -1554,7 +1554,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-lg rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
+      <div className="w-full max-w-lg rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text">
         <h3 className="mb-2 text-cp-xl font-semibold">Kabel bearbeiten</h3>
 
         <div className="space-y-2 text-cp-base">
@@ -1563,7 +1563,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             <select
               value={specId}
               onChange={(e) => onSelectSpec(e.target.value)}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
             >
               <option value={CUSTOM_CABLE_SPEC_ID}>★ Custom Cable…</option>
               {fullCableCatalog.map((c) => (
@@ -1575,7 +1575,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
           </label>
 
           {specId === CUSTOM_CABLE_SPEC_ID && (
-            <div className="grid grid-cols-2 gap-2 rounded border border-slate-700 bg-slate-950/60 p-2">
+            <div className="grid grid-cols-2 gap-2 rounded border border-cp-border bg-cp-surface-3/60 p-2">
               <label className="block">
                 Connector Type
                 <select
@@ -1592,7 +1592,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     }
                     setCustomConnectorType(v as ConnectorType)
                   }}
-                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
                 >
                   {allConnectorOptions.map((type) => (
                     <option key={type} value={type}>
@@ -1622,7 +1622,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     setCustomStandard(next)
                     setStandard(next)
                   }}
-                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
                 >
                   {allStandardOptions.map((item) => (
                     <option key={item} value={item}>
@@ -1642,7 +1642,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               <select
                 value={standard ?? ''}
                 onChange={(e) => setStandard(e.target.value as SignalStandard)}
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
               >
                 {selected.standards.map((s) => (
                   <option key={s} value={s}>
@@ -1658,7 +1658,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
             />
           </label>
 
@@ -1675,7 +1675,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     const v = e.target.value
                     setMaxRange(v === '' ? undefined : Number(v))
                   }}
-                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
                 />
               </label>
             ) : (
@@ -1686,7 +1686,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   min={0}
                   value={length}
                   onChange={(e) => setLength(Number(e.target.value))}
-                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
                 />
               </label>
             )}
@@ -1696,7 +1696,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                 type="color"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="mt-1 h-10 w-full rounded border border-slate-700 bg-slate-950 p-1"
+                className="mt-1 h-10 w-full rounded border border-cp-border bg-cp-surface-3 p-1"
               />
             </label>
           </div>
@@ -1704,24 +1704,24 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
           {/* Endpoint editor as collapsible accordion below color. Compact
               summary always visible (current routing); expand to change
               device/port on either side. */}
-          <details open className="rounded border border-slate-700 bg-slate-950/50">
-            <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] text-slate-300 hover:bg-slate-800/40">
-              <span className="font-semibold uppercase tracking-wide text-slate-400">Verbindung</span>
-              <span className="ml-2 text-slate-300">
+          <details open className="rounded border border-cp-border bg-cp-surface-3/50">
+            <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-2/40">
+              <span className="font-semibold uppercase tracking-wide text-cp-text-muted">Verbindung</span>
+              <span className="ml-2 text-cp-text-secondary">
                 {fromDev?.name ?? '?'} · {fromPort?.name ?? cable.fromPortId}
-                <span className="mx-1 text-slate-500">→</span>
+                <span className="mx-1 text-cp-text-faint">→</span>
                 {toDev?.name ?? '?'} · {toPort?.name ?? cable.toPortId}
               </span>
             </summary>
-            <div className="border-t border-slate-700 p-2">
+            <div className="border-t border-cp-border p-2">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <div className="mb-0.5 text-[10px] text-slate-400">{t('cable.fromDeviceShort', 'Von Gerät')}</div>
+                  <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.fromDeviceShort', 'Von Gerät')}</div>
                   <select
                     aria-label={t('cable.aria.fromDevice', 'Quell-Gerät')}
                     value={fromEquipmentId}
                     onChange={(e) => onSelectFromEquipment(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
+                    className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
                   >
                     {sortedEquipment.map((eq) => (
                       <option key={eq.id} value={eq.id}>
@@ -1729,12 +1729,12 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                       </option>
                     ))}
                   </select>
-                  <div className="mt-1 text-[10px] text-slate-400">Port</div>
+                  <div className="mt-1 text-[10px] text-cp-text-muted">Port</div>
                   <select
                     aria-label={t('cable.aria.fromPort', 'Quell-Port')}
                     value={fromPortId}
                     onChange={(e) => setFromPortId(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
+                    className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
                   >
                     {portsOf(fromDev).map((p) => {
                       const inUse = !!portConflict(fromEquipmentId, p.id)
@@ -1748,12 +1748,12 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   </select>
                 </div>
                 <div>
-                  <div className="mb-0.5 text-[10px] text-slate-400">{t('cable.toDeviceShort', 'Nach Gerät')}</div>
+                  <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.toDeviceShort', 'Nach Gerät')}</div>
                   <select
                     aria-label={t('cable.aria.toDevice', 'Ziel-Gerät')}
                     value={toEquipmentId}
                     onChange={(e) => onSelectToEquipment(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
+                    className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
                   >
                     {sortedEquipment.map((eq) => (
                       <option key={eq.id} value={eq.id}>
@@ -1761,12 +1761,12 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                       </option>
                     ))}
                   </select>
-                  <div className="mt-1 text-[10px] text-slate-400">Port</div>
+                  <div className="mt-1 text-[10px] text-cp-text-muted">Port</div>
                   <select
                     aria-label={t('cable.aria.toPort', 'Ziel-Port')}
                     value={toPortId}
                     onChange={(e) => setToPortId(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
+                    className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
                   >
                     {portsOf(toDev).map((p) => {
                       const inUse = !!portConflict(toEquipmentId, p.id)
@@ -1807,7 +1807,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
               rows={2}
             />
           </label>
@@ -1824,7 +1824,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5"
           >
             Abbrechen
           </button>
