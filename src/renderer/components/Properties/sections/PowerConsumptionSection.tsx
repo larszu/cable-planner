@@ -31,7 +31,7 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
     <SortableSection id="power" title={t('power.title', 'Stromverbrauch')} subtitle={summary}>
       <div className="grid grid-cols-3 gap-2 text-cp-xs">
         <label className="block">
-          <span className="mb-1 block text-slate-400">{t('power.voltage', 'Spannung (V)')}</span>
+          <span className="mb-1 block text-cp-text-muted">{t('power.voltage', 'Spannung (V)')}</span>
           <input
             type="number"
             min={0}
@@ -56,11 +56,11 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
                 powerConsumptionWatts: wAutoMatched ? newProduct : w,
               })
             }}
-            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-slate-400">{t('power.current', 'Stromstärke (A)')}</span>
+          <span className="mb-1 block text-cp-text-muted">{t('power.current', 'Stromstärke (A)')}</span>
           <input
             type="number"
             min={0}
@@ -80,11 +80,11 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
                 powerConsumptionWatts: wAutoMatched ? newProduct : w,
               })
             }}
-            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-slate-400">
+          <span className="mb-1 block text-cp-text-muted">
             {t('power.watts', 'Leistung (W)')}
             {computedW !== undefined && (
               <span className="ml-1 inline-flex text-emerald-400/70" title={t('power.wattsComputed', 'Aus V × A berechnet')}>
@@ -109,12 +109,12 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
                   : undefined,
               })
             }
-            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
             title={t('power.wattsTitle', 'Datenblatt-Wert. V × A wird vorgeschlagen, kann hier überschrieben werden.')}
           />
         </label>
       </div>
-      <p className="mt-2 text-[10px] text-slate-400">
+      <p className="mt-2 text-[10px] text-cp-text-muted">
         {t(
           'power.formulaHint',
           'Wenn Spannung und Stromstärke gesetzt sind, wird die Leistung automatisch berechnet (P = U × I). Werkzeuge → Stromverbrauch summiert das Leistungs-Feld über alle Geräte.',

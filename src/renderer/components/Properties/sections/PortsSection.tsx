@@ -38,7 +38,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
             mehr zu "Darstellung & Flags"), weil es die Seiten-Zuordnung der
             Inputs/Outputs am Canvas-Knoten umdreht. */}
         <label
-          className="flex items-center gap-2 px-1 text-[11px] text-slate-300"
+          className="flex items-center gap-2 px-1 text-[11px] text-cp-text-secondary"
           title={t(
             'ports.flipTitle',
             'Inputs werden rechts, Outputs werden links am Geräte-Knoten gerendert.',
@@ -53,10 +53,10 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
           />
           {t('ports.flip', 'Ports spiegeln (Inputs rechts, Outputs links)')}
         </label>
-        <details open className="rounded border border-slate-800 bg-slate-950/30">
-          <summary className="cursor-pointer select-none px-2 py-1 text-cp-xs font-semibold text-slate-300 hover:text-slate-100">
+        <details open className="rounded border border-cp-border-muted bg-cp-surface-3/30">
+          <summary className="cursor-pointer select-none px-2 py-1 text-cp-xs font-semibold text-cp-text-secondary hover:text-cp-text">
             {t('ports.title.inputs', 'Inputs')}{' '}
-            <span className="text-slate-500">({equipment.inputs.length})</span>
+            <span className="text-cp-text-faint">({equipment.inputs.length})</span>
           </summary>
           <div className="px-2 pb-2">
             <PortList
@@ -68,10 +68,10 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
             />
           </div>
         </details>
-        <details open className="rounded border border-slate-800 bg-slate-950/30">
-          <summary className="cursor-pointer select-none px-2 py-1 text-cp-xs font-semibold text-slate-300 hover:text-slate-100">
+        <details open className="rounded border border-cp-border-muted bg-cp-surface-3/30">
+          <summary className="cursor-pointer select-none px-2 py-1 text-cp-xs font-semibold text-cp-text-secondary hover:text-cp-text">
             {t('ports.title.outputs', 'Outputs')}{' '}
-            <span className="text-slate-500">({equipment.outputs.length})</span>
+            <span className="text-cp-text-faint">({equipment.outputs.length})</span>
           </summary>
           <div className="px-2 pb-2">
             <PortList
