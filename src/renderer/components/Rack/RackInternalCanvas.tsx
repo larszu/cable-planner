@@ -29,6 +29,7 @@ import { useCanvasProjectStore } from '../../store/projectStoreContext'
 import { ProjectStoreProvider } from '../../store/ProjectStoreProvider'
 import { createProjectStoreInstance } from '../../store/projectStore'
 import { routeCable } from '../../lib/canvasViewport'
+import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import type {
   EquipmentItem,
   EquipmentTemplate,
@@ -112,16 +113,7 @@ const buildScratchEquipment = (
   placements: RackPlacementForCanvas[],
 ): EquipmentItem[] =>
   placements.map((p) => {
-    // v7.9.84 / #206 — Sinnvolle Default-Höhe statt 0. Vorher konnte
-    // hasOverlap mit eq.height=0 vor dem ersten ReactFlow-Measure
-    // false-positive "Ghost-Blocking" liefern (Bug 2 in #206). Wir
-    // schätzen die Höhe aus header + max(inputs, outputs) Port-Rows;
-    // beim ersten Measure überschreibt onNodesChange den Wert exakt.
-    const HEADER = 48
-    const ROW = 22
-    const PADDING = 8
-    const portRows = Math.max(p.inputs.length, p.outputs.length, 1)
-    return {
+    const eq: EquipmentItem = {
       id: p.id,
       name: p.name,
       category: p.category,
@@ -132,10 +124,25 @@ const buildScratchEquipment = (
       x: p.canvasX ?? X_OFFSET,
       y: p.canvasY ?? Y_OFFSET + (p.startUnit - 1) * HE_TO_PX,
       width: NODE_WIDTH,
-      height: HEADER + portRows * ROW + PADDING,
+      height: 0,
       isRackDevice: p.isRackDevice,
       rackUnits: p.rackUnits,
     }
+    // #528 / #206 — Initiale Node-Dimensionen EXAKT so berechnen wie der
+    // spätere ReactFlow-Measure: über computeEquipmentLayout, dieselbe Quelle
+    // aus der auch EquipmentNode rendert. Vorher stand hier eine grobe
+    // HEADER/ROW/PADDING-Schätzung, die vom gemessenen Wert abwich — beim
+    // ersten Measure (onNodesChange dimensions) sprangen Node- und damit
+    // Handle-Positionen dann einen Frame weit. Das war der "Display-Bug beim
+    // ersten Kabel" während des Verkabelns: die in-progress-Connection-Line
+    // (und die frisch gemessenen Handles) verschoben sich kurz, ehe sich der
+    // Wert stabilisierte. Mit exakter Vorab-Größe ist estimate == measured →
+    // der onNodesChange-Diff bleibt unter der 2px-Schwelle, kein Sprung. Hält
+    // auch den hasOverlap-Check (#206) von Anfang an stabil.
+    const layout = computeEquipmentLayout(eq)
+    eq.width = layout.width
+    eq.height = layout.height
+    return eq
   })
 
 /** Map GroupPreset.cables → Cable[]. Port-Refs werden von Index+Name
