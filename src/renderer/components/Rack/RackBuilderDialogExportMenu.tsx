@@ -179,8 +179,10 @@ export const RackBuilderDialogExportMenu = ({
                 startUnit: p.startUnit,
                 heightUnits: p.rackUnits,
                 ...(p.mountSide ? { mountSide: p.mountSide } : {}),
-                ...(p.shelfOffsetX ? { shelfOffsetX: p.shelfOffsetX } : {}),
-                ...(p.shelfOffsetZ ? { shelfOffsetZ: p.shelfOffsetZ } : {}),
+                // #521 — auch 0 persistieren (linke Kante/Front); `!= null`
+                // statt truthy, sonst geht Position 0 beim Export verloren.
+                ...(p.shelfOffsetX != null ? { shelfOffsetX: p.shelfOffsetX } : {}),
+                ...(p.shelfOffsetZ != null ? { shelfOffsetZ: p.shelfOffsetZ } : {}),
               }))
               const preset: GroupPreset = {
                 id: editingId ?? uuidv4(),
