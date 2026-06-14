@@ -410,7 +410,12 @@ const DeviceBox = ({
           // v7.9.82 — OrbitControls aus, damit der gleiche Pointer-Drag
           // nicht zusätzlich die Kamera dreht.
           if (orbitRef?.current) orbitRef.current.enabled = false
-          const hitX = e.point.x
+          // #517 — Die Rack-Szene wird per <group scale-x=−1> gespiegelt.
+          // e.point ist WORLD-Space; xCenter/zCenter sind LOCAL. Die X-Achse
+          // muss daher von world→local zurückgerechnet werden (world_x =
+          // RACK_OUTER_WIDTH_MM − local_x), sonst läuft der Drag invertiert
+          // zum Cursor. Z ist von der X-Spiegelung unberührt.
+          const hitX = RACK_OUTER_WIDTH_MM - e.point.x
           const hitZ = e.point.z
           shelfDragRef.current = {
             pointerId: e.pointerId,
@@ -422,7 +427,8 @@ const DeviceBox = ({
           const drag = shelfDragRef.current
           if (!drag || drag.pointerId !== e.pointerId) return
           if (!isShelfDevice) return
-          const newCenterX = e.point.x - drag.offsetX
+          // #517 — world→local für X (siehe onPointerDown), Z unverändert.
+          const newCenterX = (RACK_OUTER_WIDTH_MM - e.point.x) - drag.offsetX
           const newCenterZ = e.point.z - drag.offsetZ
           // Center → linke Vorderkante zurück
           const newLeftX = newCenterX - widthMm / 2
@@ -639,7 +645,11 @@ const PortDots = ({
     raycaster.setFromCamera(pointer, camera)
     const hit = raycaster.ray.intersectPlane(facePlane, hitPoint)
     if (!hit) return null
-    return { x: hit.x - faceCenter[0], y: hit.y - faceCenter[1] }
+    // #517 — Szene per <group scale-x=−1> gespiegelt: hit.x ist WORLD,
+    // faceCenter LOCAL. X von world→local zurückrechnen, sonst läuft der
+    // Port-Dot-Drag horizontal invertiert. Y/Z sind unberührt.
+    const localHitX = RACK_OUTER_WIDTH_MM - hit.x
+    return { x: localHitX - faceCenter[0], y: hit.y - faceCenter[1] }
   }
 
   // Sichere Höhe für Dot-Geometrie: ~6mm Radius, aber max 1/3 der HE-Höhe
@@ -1071,6 +1081,18 @@ export const Rack3DView = ({
         <ambientLight intensity={0.55} />
         <directionalLight position={[600, 1200, 800]} intensity={0.9} />
         <directionalLight position={[-800, 600, -400]} intensity={0.4} />
+        {/* #517 — Die Frontblenden zeigen nach −Z; mit der #506-Kamera (vor
+            dem Rack) bildete world+X auf Bildschirm-LINKS ab → die 3D-Front
+            war links/rechts gespiegelt gegenüber der 2D-Front-Ansicht
+            (deterministisch über die Projektionsmatrix nachgewiesen). Statt
+            an jeder X-Koordinate einzeln zu spiegeln, spiegeln wir die GESAMTE
+            Rack-Szene an der vertikalen Mittelachse: group bei x=W + scale-x=−1
+            ⇒ jedes world-x wird zu (W − x). Geräte, Port-Dots, Hitboxen und
+            interne Kabel bleiben dadurch zueinander konsistent. Labels sind
+            <Html> (DOM-Overlay) und bleiben aufrecht/lesbar. Kamera +
+            OrbitControls liegen bewusst AUSSERHALB dieser Gruppe, damit die
+            Steuerung nicht mitspiegelt. */}
+        <group scale={[-1, 1, 1]} position={[RACK_OUTER_WIDTH_MM, 0, 0]}>
         <Chassis totalUnits={totalUnits} depthMm={depthMm} isLight={isLight} />
         <Suspense fallback={null}>
           {placements.map((p) => {
@@ -1125,6 +1147,7 @@ export const Rack3DView = ({
             cables={internalCables ?? []}
           />
         </Suspense>
+        </group>
         <OrbitControls
           ref={orbitRef as never}
           target={[RACK_OUTER_WIDTH_MM / 2, rackHeightMm / 2, depthMm / 2]}

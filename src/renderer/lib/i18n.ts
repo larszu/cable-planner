@@ -2366,6 +2366,13 @@ const en: Dict = {
   'canvas.area.renameLocation': 'Rename location:',
   'canvas.area.lockPosition': 'Lock position',
   'canvas.area.unlockPosition': 'Unlock position',
+  // #519 — Delete from the node right-click menu
+  'canvas.nodeMenu.deleteEquipment': 'Delete device',
+  'canvas.nodeMenu.deleteLocation': 'Delete frame',
+  'canvas.nodeMenu.confirmDeleteEquipment': 'Delete device "{name}"?',
+  'canvas.nodeMenu.confirmDeleteEquipmentBody': 'The device and all cables connected to it will be deleted.',
+  'canvas.nodeMenu.confirmDeleteLocation': 'Delete frame "{name}"?',
+  'canvas.nodeMenu.confirmDeleteLocationBody': 'Only the frame is deleted. The devices inside stay on the canvas.',
 
   // Atem — MultiviewerLayoutView
   'atem.mvLayout.title': 'Multiviewer layout (live)',
