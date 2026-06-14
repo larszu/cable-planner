@@ -479,7 +479,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                       als Tooltip ("+N weitere"). */}
                   <td className="px-3 py-1 align-top text-[11px] text-cp-text-secondary">
                     {r.paths.length === 0 ? (
-                      <span className="text-slate-600">—</span>
+                      <span className="text-cp-text-dim">—</span>
                     ) : (
                       <div className="flex flex-col gap-0.5">
                         {r.paths.slice(0, 3).map((p, i) => (

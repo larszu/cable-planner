@@ -125,7 +125,7 @@ export const MenuBar = ({
         <span className="hidden select-none font-semibold tracking-wide text-cp-text-secondary lg:inline">
           {t('app.title', 'Cable Planner')}
         </span>
-        <span className="hidden text-slate-700 lg:inline">│</span>
+        <span className="hidden text-cp-text-dimmer lg:inline">│</span>
 
         <Menu label={t('app.menu.file', 'Datei')}>
           <MenuItem onClick={onNewProject} icon={<Icon icon={FileText} size="sm" />} shortcut={t('shortcut.ctrlN', 'Strg+N')}>
@@ -515,7 +515,7 @@ export const MenuBar = ({
             disabled={!canUndo}
             title={t('app.undo', 'Rückgängig (Strg+Z)')}
             aria-label={t('app.undo', 'Rückgängig (Strg+Z)')}
-            className="px-2 py-1 text-cp-text-bright hover:bg-cp-surface-2 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
+            className="px-2 py-1 text-cp-text-bright hover:bg-cp-surface-2 disabled:cursor-not-allowed disabled:text-cp-text-dim disabled:hover:bg-transparent"
           >
             <Icon icon={Undo2} size="sm" />
           </button>
@@ -526,7 +526,7 @@ export const MenuBar = ({
             disabled={!canRedo}
             title={t('app.redo', 'Wiederherstellen (Strg+Y)')}
             aria-label={t('app.redo', 'Wiederherstellen (Strg+Y)')}
-            className="px-2 py-1 text-cp-text-bright hover:bg-cp-surface-2 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
+            className="px-2 py-1 text-cp-text-bright hover:bg-cp-surface-2 disabled:cursor-not-allowed disabled:text-cp-text-dim disabled:hover:bg-transparent"
           >
             <Icon icon={Redo2} size="sm" />
           </button>

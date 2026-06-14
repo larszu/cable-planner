@@ -62,7 +62,7 @@ export const RackFacePreview = ({
                               <span className="text-cp-text-faint"> · {input.connectorType}</span>
                             </span>
                           ) : (
-                            <span className="text-slate-600">—</span>
+                            <span className="text-cp-text-dim">—</span>
                           )}
                         </div>
                         <div className="flex items-center gap-2">
@@ -78,7 +78,7 @@ export const RackFacePreview = ({
                               <span className="text-cp-text-faint"> · {output.connectorType}</span>
                             </span>
                           ) : (
-                            <span className="text-slate-600">—</span>
+                            <span className="text-cp-text-dim">—</span>
                           )}
                         </div>
                       </div>

@@ -88,7 +88,7 @@ export const VideohubRoutingList = ({
               </select>
               {/* Platzhalter fuer kuenftiges Lock-Icon */}
               <span
-                className="w-7 shrink-0 text-center text-slate-700"
+                className="w-7 shrink-0 text-center text-cp-text-dimmer"
                 aria-hidden
                 title={t('videohub.lockSoon', 'Lock (folgt in spaeterer Iteration)')}
               >
