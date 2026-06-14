@@ -39,12 +39,47 @@ export class ProjectCrdt {
   private readonly equipment: Y.Map<EquipmentItem>
   private readonly cables: Y.Map<Cable>
   private readonly locations: Y.Map<LocationFrame>
+  /** #413 — Undo-Manager über die drei Collections. Lazy erzeugt (erst beim
+   *  ersten getUndoManager-Aufruf), damit er NUR Edits ab Session-Start
+   *  erfasst und nicht den Initial-Seed. */
+  private undoManager: Y.UndoManager | null = null
 
   constructor(doc: Y.Doc = new Y.Doc()) {
     this.doc = doc
     this.equipment = doc.getMap<EquipmentItem>(EQUIPMENT_MAP)
     this.cables = doc.getMap<Cable>(CABLES_MAP)
     this.locations = doc.getMap<LocationFrame>(LOCATIONS_MAP)
+  }
+
+  // ── Undo/Redo (Stufe: #413-Akzeptanzkriterium) ───────────────────────
+
+  /** Liefert (und erzeugt bei Bedarf) einen Y.UndoManager, der NUR die
+   *  lokalen Edits dieses Peers erfasst — `trackedOrigins` ist auf
+   *  LOCAL_ORIGIN beschränkt, also die Origin, mit der die Store-Bindung
+   *  via `transactLocal` schreibt. Dadurch nimmt Undo ausschließlich die
+   *  EIGENEN Änderungen zurück und lässt die Edits anderer Teilnehmer
+   *  unangetastet — genau das Verhalten, das kollaboratives Undo braucht. */
+  getUndoManager(): Y.UndoManager {
+    if (!this.undoManager) {
+      this.undoManager = new Y.UndoManager(
+        [this.equipment, this.cables, this.locations],
+        { trackedOrigins: new Set([LOCAL_ORIGIN]) },
+      )
+    }
+    return this.undoManager
+  }
+
+  undo(): void {
+    this.getUndoManager().undo()
+  }
+  redo(): void {
+    this.getUndoManager().redo()
+  }
+  canUndo(): boolean {
+    return this.getUndoManager().undoStack.length > 0
+  }
+  canRedo(): boolean {
+    return this.getUndoManager().redoStack.length > 0
   }
 
   // ── Voll-Projekt-Sync ────────────────────────────────────────────────
@@ -161,6 +196,8 @@ export class ProjectCrdt {
   }
 
   destroy(): void {
+    this.undoManager?.destroy()
+    this.undoManager = null
     this.doc.destroy()
   }
 }

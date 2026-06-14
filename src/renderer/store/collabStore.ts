@@ -11,6 +11,7 @@ import { colorForId, type PresencePeer } from '../lib/crdt/presence'
 import { cablePlannerApi, hasDesktopBridge, type DiscoveredCollabSession } from '../lib/bridge'
 import { useUiStore } from './uiStore'
 import { useProjectStore } from './projectStore'
+import { setUndoDelegate } from './projectHistory'
 
 export type { CollabMode } from '../lib/crdt/collab'
 export type { PresencePeer } from '../lib/crdt/presence'
@@ -228,6 +229,14 @@ export const useCollabStore = create<CollabState>((set, get) => ({
         return
       }
       set({ session: s, status: 'on', localSignaling })
+      // #413 — Undo/Redo im Collab-Modus an den Session-UndoManager delegieren
+      // (nimmt nur die eigenen Edits zurück). Wird in stop() wieder gelöst.
+      setUndoDelegate({
+        undo: s.undo,
+        redo: s.redo,
+        canUndo: s.canUndo,
+        canRedo: s.canRedo,
+      })
       // Nur der Host bewirbt die Session — mit der effektiven Signaling-Adresse
       // (lokaler Server-URL falls gestartet, sonst die manuelle Eingabe).
       if (mode === 'webrtc' && !adopt) {
@@ -247,6 +256,7 @@ export const useCollabStore = create<CollabState>((set, get) => ({
 
   stop: () => {
     const { session, localSignaling } = get()
+    setUndoDelegate(null) // #413 — zurück auf lokale History
     session?.stop()
     unadvertiseSession()
     if (localSignaling) void cablePlannerApi.signaling.stop().catch(() => {})

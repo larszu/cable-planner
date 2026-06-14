@@ -107,9 +107,26 @@ useProjectStore.subscribe((state) => {
   notify()
 })
 
+/** #413 — Optionaler Undo/Redo-Delegat für den Kollaborations-Modus. Solange
+ *  eine Live-Session aktiv ist, registriert der collabStore hier den
+ *  Y.UndoManager der Session; projectHistory leitet Undo/Redo/canUndo/canRedo
+ *  dann dorthin um, damit nur die EIGENEN CRDT-Edits zurückgenommen werden
+ *  (nicht die der anderen Teilnehmer). Bei null gilt die lokale History. */
+interface UndoDelegate {
+  undo: () => void
+  redo: () => void
+  canUndo: () => boolean
+  canRedo: () => boolean
+}
+let undoDelegate: UndoDelegate | null = null
+export const setUndoDelegate = (d: UndoDelegate | null): void => {
+  undoDelegate = d
+  notify()
+}
+
 export const projectHistory = {
-  canUndo: () => past.length > 0,
-  canRedo: () => future.length > 0,
+  canUndo: () => (undoDelegate ? undoDelegate.canUndo() : past.length > 0),
+  canRedo: () => (undoDelegate ? undoDelegate.canRedo() : future.length > 0),
 
   /** v7.9.92 — Start einer expliziten Transaktion. Bis zum
    *  endTransaction() werden alle Project-Mutationen NICHT als
@@ -144,6 +161,11 @@ export const projectHistory = {
   },
 
   undo: () => {
+    if (undoDelegate) {
+      undoDelegate.undo()
+      notify()
+      return
+    }
     if (past.length === 0) return
     const prev = past.pop()!
     future.push(lastProject)
@@ -171,6 +193,11 @@ export const projectHistory = {
     notify()
   },
   redo: () => {
+    if (undoDelegate) {
+      undoDelegate.redo()
+      notify()
+      return
+    }
     if (future.length === 0) return
     const next = future.pop()!
     past.push(lastProject)
