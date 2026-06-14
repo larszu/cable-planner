@@ -239,6 +239,18 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   const isOverlapping = (aStart: number, aEnd: number, bStart: number, bEnd: number): boolean =>
     aStart <= bEnd && bStart <= aEnd
 
+  // #521(d) — Zwei Geräte auf überlappenden HE-Bereichen kollidieren nur dann
+  // TATSÄCHLICH, wenn sie sich auch in der TIEFE überschneiden. Ein 'front'-
+  // und ein 'rear'-Gerät auf derselben HE sind benachbart (verschiedene Rail-
+  // Tiefen, #170), KEINE Überdeckung. Default 'full' belegt beide Tiefen und
+  // überlappt daher mit allem. Entschärft den Konflikt-Fehlalarm bei gültiger
+  // Front/Rear-Doppelbelegung (z. B. Patchblende hinter einem Frontgerät).
+  const mountsOverlapInDepth = (a: RackPlacementDraft, b: RackPlacementDraft): boolean => {
+    const ma = a.mountSide ?? 'full'
+    const mb = b.mountSide ?? 'full'
+    return !((ma === 'front' && mb === 'rear') || (ma === 'rear' && mb === 'front'))
+  }
+
   const conflicts = useMemo(() => {
     const issues: string[] = []
     for (const placement of draft.placements) {
@@ -276,7 +288,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             a.startUnit + a.rackUnits - 1,
             b.startUnit,
             b.startUnit + b.rackUnits - 1,
-          )
+          ) &&
+          mountsOverlapInDepth(a, b)
         ) {
           issues.push(
             format(t('rack.conflict.overlaps', '{a} überlappt mit {b}.'), { a: a.name, b: b.name }),
