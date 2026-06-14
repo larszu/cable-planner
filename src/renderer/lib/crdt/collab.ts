@@ -47,6 +47,14 @@ export interface CollabOptions {
 export interface CollabSession {
   readonly mode: CollabMode
   readonly room: string
+  /** #413 — Kollaboratives Undo/Redo: nimmt NUR die eigenen Edits zurück
+   *  (Y.UndoManager auf LOCAL_ORIGIN beschränkt), ohne fremde Änderungen
+   *  anzutasten. projectHistory delegiert hierher, solange eine Session
+   *  aktiv ist. */
+  undo: () => void
+  redo: () => void
+  canUndo: () => boolean
+  canRedo: () => boolean
   /** Beendet die Session: Transport/Provider trennen, Bindung lösen, Doc
    *  freigeben. Der Store behält den zuletzt synchronisierten Stand. */
   stop: () => void
@@ -91,9 +99,18 @@ export const startCollaboration = async (opts: CollabOptions): Promise<CollabSes
     throw err
   }
 
+  // #413 — Undo-Manager NACH dem Seed/Connect erzeugen, damit der initiale
+  // Seed (und eingehende Remote-Stände) nicht auf dem Undo-Stack landen —
+  // nur ab jetzt getätigte EIGENE Edits sind undobar.
+  crdt.getUndoManager()
+
   return {
     mode: opts.mode,
     room,
+    undo: () => crdt.undo(),
+    redo: () => crdt.redo(),
+    canUndo: () => crdt.canUndo(),
+    canRedo: () => crdt.canRedo(),
     stop: () => {
       presence?.stop()
       manager?.stop()

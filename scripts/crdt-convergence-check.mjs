@@ -405,6 +405,41 @@ const scenario7 = async () => {
   tb.dispose()
 }
 
+// Szenario 8: Kollaboratives Undo (#413) — Y.UndoManager auf LOCAL_ORIGIN
+// beschränkt. Spiegelt projectCrdt.getUndoManager(): Undo nimmt NUR die
+// eigenen Edits zurück, fremde (remote) Änderungen bleiben unangetastet.
+const scenario8 = () => {
+  console.log('Szenario 8: kollaboratives Undo — nur eigene Edits zurücknehmen')
+  const a = new Y.Doc()
+  const b = new Y.Doc()
+  // Kopplung wie SyncManager: lokale Updates beim Peer als remote anwenden.
+  const link = (src, dst) =>
+    src.on('update', (u, origin) => {
+      if (origin !== REMOTE) Y.applyUpdate(dst, u, REMOTE)
+    })
+  link(a, b)
+  link(b, a)
+  const eqA = a.getMap('equipment')
+  const eqB = b.getMap('equipment')
+  // UndoManager von A: nur LOCAL_ORIGIN (wie ProjectCrdt.getUndoManager).
+  const um = new Y.UndoManager([eqA, a.getMap('cables'), a.getMap('locations')], {
+    trackedOrigins: new Set([LOCAL]),
+  })
+
+  a.transact(() => eqA.set('a1', { id: 'a1', name: 'A' }), LOCAL)
+  b.transact(() => eqB.set('b1', { id: 'b1', name: 'B' }), LOCAL)
+  assert(eqA.has('a1') && eqA.has('b1'), 'A sieht eigenes a1 + fremdes b1')
+  assert(um.undoStack.length === 1, `A-Undo-Stack hat nur den eigenen Edit (len=${um.undoStack.length})`)
+
+  um.undo()
+  assert(!eqA.has('a1'), 'A.undo(): eigenes a1 entfernt')
+  assert(eqA.has('b1'), 'A.undo(): fremdes b1 bleibt (kein Clobbering der Peer-Edits)')
+  assert(eqB.has('b1') && !eqB.has('a1'), 'B konvergiert nach A.undo()')
+
+  um.redo()
+  assert(eqA.has('a1') && eqA.has('b1'), 'A.redo(): a1 zurück, b1 unberührt')
+}
+
 // ── Runner ──────────────────────────────────────────────────────────────────
 const run = async () => {
   scenario1()
@@ -414,6 +449,7 @@ const run = async () => {
   scenario5()
   scenario6()
   await scenario7()
+  scenario8()
 
   console.log('')
   if (failures === 0) {
