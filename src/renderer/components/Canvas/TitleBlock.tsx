@@ -45,7 +45,7 @@ export const TitleBlock = () => {
         type="button"
         onClick={() => setCollapsed(false)}
         title={t('canvas.titleBlock.showTitle', 'Bauplan-Signatur einblenden')}
-        className="nodrag nopan absolute bottom-2 right-2 z-10 rounded border border-slate-700 bg-slate-900/90 px-2 py-1 text-[11px] font-semibold text-slate-200 shadow hover:bg-slate-800"
+        className="nodrag nopan absolute bottom-2 right-2 z-10 rounded border border-cp-border bg-cp-surface-1/90 px-2 py-1 text-[11px] font-semibold text-cp-text-bright shadow hover:bg-cp-surface-2"
       >
         {t('canvas.titleBlock.signatureBtn', 'Signatur')}
       </button>
@@ -54,24 +54,24 @@ export const TitleBlock = () => {
 
   return (
     <div
-      className="nodrag nopan absolute bottom-2 right-2 z-10 select-none rounded border border-slate-700 bg-slate-900/95 text-[11px] text-slate-200 shadow-lg"
+      className="nodrag nopan absolute bottom-2 right-2 z-10 select-none rounded border border-cp-border bg-cp-surface-1/95 text-[11px] text-cp-text-bright shadow-lg"
       style={{ width: 280, fontFamily: 'system-ui, sans-serif' }}
     >
-      <div className="flex items-center justify-between border-b border-slate-700 px-2 py-1">
-        <span className="truncate font-semibold text-slate-100" title={projectName}>
+      <div className="flex items-center justify-between border-b border-cp-border px-2 py-1">
+        <span className="truncate font-semibold text-cp-text" title={projectName}>
           {projectName}
         </span>
         <button
           type="button"
           onClick={() => setCollapsed(true)}
           title={t('canvas.titleBlock.collapseTitle', 'Signatur einklappen')}
-          className="ml-2 rounded px-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+          className="ml-2 rounded px-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text-bright"
         >
           –
         </button>
       </div>
       {hasLogo && (
-        <div className="flex items-center justify-between gap-2 border-b border-slate-800 bg-slate-950/50 p-1.5">
+        <div className="flex items-center justify-between gap-2 border-b border-cp-border-muted bg-cp-surface-3/50 p-1.5">
           <div className="flex h-10 flex-1 items-center justify-center overflow-hidden rounded bg-white/5">
             {metadata.companyLogo ? (
               <img
@@ -80,7 +80,7 @@ export const TitleBlock = () => {
                 className="max-h-10 max-w-full object-contain"
               />
             ) : (
-              <span className="text-[9px] text-slate-400">
+              <span className="text-[9px] text-cp-text-muted">
                 {t('canvas.titleBlock.noLogo', 'kein Logo')}
               </span>
             )}
@@ -93,7 +93,7 @@ export const TitleBlock = () => {
                 className="max-h-10 max-w-full object-contain"
               />
             ) : (
-              <span className="text-[9px] text-slate-400">
+              <span className="text-[9px] text-cp-text-muted">
                 {t('canvas.titleBlock.noLogo', 'kein Logo')}
               </span>
             )}
@@ -104,11 +104,11 @@ export const TitleBlock = () => {
         <table className="w-full border-collapse">
           <tbody>
             {rows.map(({ label, value }) => (
-              <tr key={label} className="border-b border-slate-800/60 last:border-b-0">
-                <td className="py-0.5 pr-2 align-top text-[10px] font-medium uppercase tracking-wide text-slate-400">
+              <tr key={label} className="border-b border-cp-border-muted/60 last:border-b-0">
+                <td className="py-0.5 pr-2 align-top text-[10px] font-medium uppercase tracking-wide text-cp-text-muted">
                   {label}
                 </td>
-                <td className="py-0.5 text-right align-top text-slate-200">
+                <td className="py-0.5 text-right align-top text-cp-text-bright">
                   {value && value !== '—' ? value : <span className="text-slate-600">—</span>}
                 </td>
               </tr>

@@ -145,12 +145,12 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
         </div>
       }
     >
-        <div className="mb-3 flex overflow-hidden rounded border border-slate-700 text-cp-xs">
+        <div className="mb-3 flex overflow-hidden rounded border border-cp-border text-cp-xs">
           <button
             type="button"
             onClick={() => setTab('basics')}
             className={`flex-1 px-3 py-1.5 ${
-              tab === 'basics' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              tab === 'basics' ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
           >
             {t('rack.patchPanel.tab.basics', 'Basics')}
@@ -159,7 +159,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
             type="button"
             onClick={() => setTab('ports')}
             className={`flex-1 px-3 py-1.5 ${
-              tab === 'ports' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              tab === 'ports' ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
           >
             {format(t('rack.patchPanel.tab.perPort', 'Per-Port-Detail ({count})'), { count: portCount })}
@@ -169,31 +169,31 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
         {tab === 'basics' && (
           <div className="space-y-3">
             <label className="block">
-              <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.patchPanel.name', 'Name')}</span>
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.patchPanel.name', 'Name')}</span>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
               />
             </label>
             <div className="grid grid-cols-2 gap-2">
               <label className="block">
-                <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.patchPanel.heightUnits', 'Höhe (HE)')}</span>
+                <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.patchPanel.heightUnits', 'Höhe (HE)')}</span>
                 <input
                   type="number"
                   min={1}
                   max={6}
                   value={heightUnits}
                   onChange={(e) => setHeightUnits(Math.max(1, Math.min(6, Number(e.target.value) || 1)))}
-                  className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5"
+                  className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
                 />
               </label>
               <label className="block">
-                <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.patchPanel.mount', 'Montage')}</span>
+                <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.patchPanel.mount', 'Montage')}</span>
                 <select
                   value={mountSide}
                   onChange={(e) => setMountSide(e.target.value as 'front' | 'rear' | 'full')}
-                  className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5"
+                  className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
                   title={t('rack.patchPanel.mountTitle', 'Patchblenden sind häufig rear-mounted hinter vorderen Geräten.')}
                 >
                   <option value="full">{t('rack.patchPanel.mount.full', 'Full-Depth (vorne)')}</option>
@@ -203,7 +203,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
               </label>
             </div>
             <label className="block">
-              <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.patchPanel.portCount', 'Anzahl Ports')}</span>
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.patchPanel.portCount', 'Anzahl Ports')}</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -211,7 +211,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                   max={128}
                   value={portCount}
                   onChange={(e) => setPortCount(Math.max(1, Math.min(128, Number(e.target.value) || 1)))}
-                  className="w-24 rounded border border-slate-700 bg-slate-950 px-2 py-1.5"
+                  className="w-24 rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
                 />
                 <div className="flex gap-1">
                   {COMMON_PORT_COUNTS.map((n) => (
@@ -222,7 +222,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                       className={`rounded px-2 py-0.5 text-[10px] ${
                         portCount === n
                           ? 'bg-sky-700 text-white'
-                          : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                          : 'bg-cp-surface-2 text-cp-text-muted hover:bg-cp-surface-4'
                       }`}
                     >
                       {n}
@@ -236,7 +236,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                 Selects (Front + Rear). Ohne Adapter-Mode wird der Rear-
                 Connector automatisch dem Front gleichgesetzt — klassische
                 Patchblende. */}
-            <label className="flex items-center gap-2 rounded border border-slate-700 bg-slate-950/40 px-2 py-1.5 text-cp-xs">
+            <label className="flex items-center gap-2 rounded border border-cp-border bg-cp-surface-3/40 px-2 py-1.5 text-cp-xs">
               <input
                 type="checkbox"
                 checked={adapterMode}
@@ -244,15 +244,15 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                 className="accent-sky-500"
               />
               <span className="flex-1">
-                <span className="font-medium text-slate-200">{t('rack.patchPanel.adapter', 'Adapter-Patchblende')}</span>
-                <span className="ml-1 text-[10px] text-slate-400">
+                <span className="font-medium text-cp-text-bright">{t('rack.patchPanel.adapter', 'Adapter-Patchblende')}</span>
+                <span className="ml-1 text-[10px] text-cp-text-muted">
                   {t('rack.patchPanel.adapterHint', '(Front ≠ Rear Stecker, mit internem Adapterkabel)')}
                 </span>
               </span>
             </label>
             <div className={`grid gap-2 ${adapterMode ? 'grid-cols-2' : 'grid-cols-1'}`}>
               <label className="block">
-                <span className="mb-1 block text-cp-xs text-slate-400">
+                <span className="mb-1 block text-cp-xs text-cp-text-muted">
                   {adapterMode ? t('rack.patchPanel.frontConnector', 'Front-Connector') : t('rack.patchPanel.bothConnector', 'Connector-Typ (beide Seiten)')}
                 </span>
                 <ConnectorPicker
@@ -268,7 +268,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
               </label>
               {adapterMode && (
                 <label className="block">
-                  <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.patchPanel.rearConnector', 'Rear-Connector')}</span>
+                  <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.patchPanel.rearConnector', 'Rear-Connector')}</span>
                   <ConnectorPicker
                     value={rearConnector}
                     onChange={(id) => setRearConnector(id as ConnectorType)}
@@ -278,7 +278,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                 </label>
               )}
             </div>
-            <span className="block text-[10px] text-slate-400">
+            <span className="block text-[10px] text-cp-text-muted">
               {format(t('rack.patchPanel.appliesToAllPorts', 'Wirkt auf alle {count} Ports. Einzeln im Tab "Per-Port-Detail" anpassbar.'), { count: portCount })}
               {adapterMode
                 ? ` ${t('rack.patchPanel.adapterCouplingNote', 'Jeder Front-Port koppelt intern via Adapterkabel auf den gleichnamigen Rear-Port.')}`
@@ -289,13 +289,13 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
 
         {tab === 'ports' && (
           <div className="space-y-2">
-            <div className="text-[10px] text-slate-400">
+            <div className="text-[10px] text-cp-text-muted">
               {t('rack.patchPanel.perPortNote', 'Pro Port Label und Connector-Typ überschreibbar. Leerlassen = Default.')}
               {adapterMode && ` ${t('rack.patchPanel.perPortAdapterNote', 'Bei Adapter-Patchblende sind Front- und Rear-Connector unabhängig wählbar.')}`}
             </div>
-            <div className="max-h-[40vh] overflow-y-auto rounded border border-slate-800">
+            <div className="max-h-[40vh] overflow-y-auto rounded border border-cp-border-muted">
               <table className="w-full text-cp-xs">
-                <thead className="sticky top-0 bg-slate-800 text-slate-400">
+                <thead className="sticky top-0 bg-cp-surface-2 text-cp-text-muted">
                   <tr>
                     <th className="px-2 py-1 text-left">#</th>
                     <th className="px-2 py-1 text-left">{t('rack.patchPanel.col.label', 'Label')}</th>
@@ -305,14 +305,14 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                 </thead>
                 <tbody>
                   {ports.map((p, idx) => (
-                    <tr key={p.id} className="border-t border-slate-800">
-                      <td className="px-2 py-0.5 text-slate-500">{idx + 1}</td>
+                    <tr key={p.id} className="border-t border-cp-border-muted">
+                      <td className="px-2 py-0.5 text-cp-text-faint">{idx + 1}</td>
                       <td className="px-2 py-0.5">
                         <input
                           value={perPortOverrides[idx]?.label ?? ''}
                           placeholder={`P${idx + 1}`}
                           onChange={(e) => setOverride(idx, { label: e.target.value || undefined })}
-                          className="w-full rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5"
+                          className="w-full rounded border border-cp-border bg-cp-surface-3 px-1.5 py-0.5"
                         />
                       </td>
                       <td className="px-2 py-0.5">
