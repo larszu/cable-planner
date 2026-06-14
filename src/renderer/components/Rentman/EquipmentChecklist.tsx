@@ -122,36 +122,36 @@ export const EquipmentChecklist = ({
           max={999}
           value={item.qty}
           onChange={(event) => onQtyChange(item.id, Number(event.target.value))}
-          className="w-14 rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-right text-cp-xs"
+          className="w-14 rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-right text-cp-xs"
           aria-label={tBadge('rentman.checklist.qtyAria', 'Quantity')}
           title={tBadge('rentman.checklist.qtyTitle', 'How many to add')}
         />
       )
     }
     return (
-      <span className="rounded bg-slate-700/60 px-1.5 py-0.5 text-[10px] text-slate-400" title={tBadge('rentman.checklist.qtyInProject', 'Stückzahl im Rentman-Projekt')}>
+      <span className="rounded bg-cp-surface-4/60 px-1.5 py-0.5 text-[10px] text-cp-text-muted" title={tBadge('rentman.checklist.qtyInProject', 'Stückzahl im Rentman-Projekt')}>
         ×{item.qty}
       </span>
     )
   }
 
   return (
-    <div className="max-h-72 space-y-3 overflow-auto rounded border border-slate-700 p-2 text-cp-base">
+    <div className="max-h-72 space-y-3 overflow-auto rounded border border-cp-border p-2 text-cp-base">
       {(onSetAll || hasAnySets) && (
-        <div className="flex flex-wrap gap-2 border-b border-slate-700 pb-2 text-cp-xs">
+        <div className="flex flex-wrap gap-2 border-b border-cp-border pb-2 text-cp-xs">
           {onSetAll && (
             <>
               <button
                 type="button"
                 onClick={() => onSetAll(true)}
-                className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               >
                 {t('rentman.checklist.selectAll', 'Alle auswählen')}
               </button>
               <button
                 type="button"
                 onClick={() => onSetAll(false)}
-                className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               >
                 {t('rentman.checklist.deselectAll', 'Alle abwählen')}
               </button>
@@ -162,14 +162,14 @@ export const EquipmentChecklist = ({
               <button
                 type="button"
                 onClick={expandAll}
-                className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               >
                 {t('rentman.checklist.expandAll', 'Alle Sets ausklappen')}
               </button>
               <button
                 type="button"
                 onClick={collapseAll}
-                className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               >
                 {t('rentman.checklist.collapseAll', 'Alle Sets einklappen')}
               </button>
@@ -185,7 +185,7 @@ export const EquipmentChecklist = ({
         .sort((a, b) => a[0].localeCompare(b[0]))
         .map(([category, categoryItems]) => (
         <div key={category}>
-          <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wide text-slate-300">{category}</div>
+          <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">{category}</div>
           <div className="space-y-1">
             {categoryItems.map((item) => {
               const children = childrenByParent[item.id]
@@ -196,12 +196,12 @@ export const EquipmentChecklist = ({
               // importierbar (kein Häkchen), nur als Notiz anzeigen.
               if (item.kind === 'comment') {
                 return (
-                  <div key={item.id} className="flex items-center gap-2 rounded bg-slate-900/30 px-2 py-1 text-cp-xs">
+                  <div key={item.id} className="flex items-center gap-2 rounded bg-cp-surface-1/30 px-2 py-1 text-cp-xs">
                     <span className="w-5" />
-                    <span className="shrink-0 rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                    <span className="shrink-0 rounded bg-cp-surface-2 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-cp-text-muted">
                       {t('rentman.checklist.kind.comment', 'Kommentar')}
                     </span>
-                    <span className="flex-1 italic text-slate-400">{item.name}</span>
+                    <span className="flex-1 italic text-cp-text-muted">{item.name}</span>
                   </div>
                 )
               }
@@ -212,7 +212,7 @@ export const EquipmentChecklist = ({
                       <button
                         type="button"
                         onClick={() => toggleExpand(item.id)}
-                        className="w-5 rounded bg-slate-800 text-[10px] leading-none hover:bg-slate-700"
+                        className="w-5 rounded bg-cp-surface-2 text-[10px] leading-none hover:bg-cp-surface-4"
                         aria-label={isOpen ? t('rentman.checklist.setCollapse', 'Set einklappen') : t('rentman.checklist.setExpand', 'Set ausklappen')}
                         title={isOpen ? t('rentman.checklist.setCollapse', 'Set einklappen') : t('rentman.checklist.setExpand', 'Set ausklappen')}
                       >
@@ -244,7 +244,7 @@ export const EquipmentChecklist = ({
                               </span>
                             )
                           return (
-                            <span className="ml-2 rounded bg-slate-700/60 px-1.5 py-0.5 text-[10px] text-slate-300">
+                            <span className="ml-2 rounded bg-cp-surface-4/60 px-1.5 py-0.5 text-[10px] text-cp-text-secondary">
                               {format(t('rentman.checklist.kind.set', 'Set · {n}'), { n })}
                             </span>
                           )
@@ -274,7 +274,7 @@ export const EquipmentChecklist = ({
                             className={`ml-2 rounded px-1.5 py-0.5 text-[10px] font-medium ${
                               rackSetIds?.has(item.id)
                                 ? 'bg-sky-700/70 text-sky-100'
-                                : 'bg-slate-700/60 text-slate-300 hover:bg-slate-600/60'
+                                : 'bg-cp-surface-4/60 text-cp-text-secondary hover:bg-cp-surface-5/60'
                             }`}
                             title={t(
                               'rentman.checklist.asRackTitle',
@@ -322,7 +322,7 @@ export const EquipmentChecklist = ({
                           if (kind === 'catalog') {
                             return (
                               <span
-                                className="ml-2 rounded bg-slate-700/60 px-1.5 py-0.5 text-[10px] font-medium text-slate-200"
+                                className="ml-2 rounded bg-cp-surface-4/60 px-1.5 py-0.5 text-[10px] font-medium text-cp-text-bright"
                                 title={format(t('rentman.checklist.badge.catalogTitle', 'Match aus eingebautem Katalog ("{name}"). Wird beim Import automatisch als Template uebernommen.'), { name: item.templateMatch })}
                               >
                                 {t('rentman.checklist.badge.catalog', '⊕ Katalog')}
@@ -364,7 +364,7 @@ export const EquipmentChecklist = ({
                             onChange={(e) => {
                               if (e.target.value) onLinkExisting(item.id, e.target.value)
                             }}
-                            className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[10px] text-slate-300"
+                            className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-[10px] text-cp-text-secondary"
                             title={t('rentman.checklist.linkSelectTitle', 'Mit existierendem Gerät verknüpfen')}
                           >
                             <option value="">{t('rentman.checklist.linkPlaceholder', 'Verknüpfen…')}</option>
@@ -379,7 +379,7 @@ export const EquipmentChecklist = ({
                       <button
                         type="button"
                         onClick={() => onSetAllChildren(item.id, !allChildrenChecked)}
-                        className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
+                        className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-[10px] hover:bg-cp-surface-5"
                         title={allChildrenChecked ? t('rentman.checklist.deselectChildren', 'Alle Kinder abwählen') : t('rentman.checklist.selectChildren', 'Alle Kinder auswählen')}
                       >
                         <span className="inline-flex items-center gap-1"><Icon icon={allChildrenChecked ? Square : SquareCheck} size="xs" />{allChildrenChecked ? t('rentman.checklist.childrenAllOff', 'alle') : t('rentman.checklist.childrenAllOn', 'alle')}</span>
@@ -387,9 +387,9 @@ export const EquipmentChecklist = ({
                     )}
                   </div>
                   {isSet && isOpen && (
-                    <div className="ml-6 mt-1 space-y-1 border-l border-slate-800 pl-2">
+                    <div className="ml-6 mt-1 space-y-1 border-l border-cp-border-muted pl-2">
                       {children!.map((child) => (
-                        <label key={child.id} className="flex items-center gap-2 text-slate-300">
+                        <label key={child.id} className="flex items-center gap-2 text-cp-text-secondary">
                           <input
                             type="checkbox"
                             checked={child.checked}

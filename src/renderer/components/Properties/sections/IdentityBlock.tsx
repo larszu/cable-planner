@@ -17,11 +17,11 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
   return (
     <>
       <label className="block">
-        <span className="mb-1 block text-slate-300">{t('eq.field.name', 'Name')}</span>
+        <span className="mb-1 block text-cp-text-secondary">{t('eq.field.name', 'Name')}</span>
         <input
           value={equipment.name}
           onChange={(event) => updateEquipment(equipment.id, { name: event.target.value })}
-          className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+          className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
         />
       </label>
 
@@ -30,9 +30,9 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
           auto-generiert aus name (Placeholder zeigt den Vorschlag).
           Refresh-Button setzt den Override auf den Auto-Vorschlag. */}
       <label className="block">
-        <span className="mb-1 block text-slate-300">
+        <span className="mb-1 block text-cp-text-secondary">
           {t('eq.field.shortName', 'Short-Name')}{' '}
-          <span className="text-slate-500">
+          <span className="text-cp-text-faint">
             ({t('common.optional', 'optional')},{' '}
             {t(
               'eq.field.shortNameHint',
@@ -50,7 +50,7 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
                 shortName: event.target.value || undefined,
               })
             }
-            className="flex-1 rounded border border-slate-700 bg-slate-900 p-2"
+            className="flex-1 rounded border border-cp-border bg-cp-surface-1 p-2"
           />
           <button
             type="button"
@@ -63,23 +63,23 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
                 ? `${t('eq.field.shortNameAuto', 'Aus Namen neu generieren')} (${autoSuggestion})`
                 : t('eq.field.shortNameAutoEmpty', 'Kein Vorschlag — Name pflegen.')
             }
-            className="shrink-0 rounded border border-slate-700 bg-slate-800 px-2 text-cp-xs text-slate-200 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="shrink-0 rounded border border-cp-border bg-cp-surface-2 px-2 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t('eq.field.shortNameAutoBtn', '↻ auto')}
           </button>
         </div>
         {!equipment.shortName?.trim() && autoSuggestion && (
-          <p className="mt-1 text-[10px] text-slate-400">
+          <p className="mt-1 text-[10px] text-cp-text-muted">
             {t('eq.field.shortNameAutoUsed', 'Verwendet automatisch:')}{' '}
-            <span className="font-mono text-slate-400">{autoSuggestion}</span>
+            <span className="font-mono text-cp-text-muted">{autoSuggestion}</span>
           </p>
         )}
       </label>
 
       <label className="block">
-        <span className="mb-1 block text-slate-300">
+        <span className="mb-1 block text-cp-text-secondary">
           {t('eq.field.subtitle', 'Untertitel')}{' '}
-          <span className="text-slate-500">
+          <span className="text-cp-text-faint">
             ({t('common.optional', 'optional')}, {t('eq.field.subtitleHint', 'z.B. "PGM Monitor"')})
           </span>
         </span>
@@ -87,7 +87,7 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
           value={equipment.subtitle ?? ''}
           placeholder={t('eq.field.subtitlePlaceholder', 'Untertitel…')}
           onChange={(event) => updateEquipment(equipment.id, { subtitle: event.target.value || undefined })}
-          className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+          className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
         />
       </label>
     </>

@@ -144,7 +144,7 @@ const MvLayoutPicker = ({
   return (
     <div className="relative" style={{ width: 'min(240px, 70vw)', aspectRatio: '16 / 9' }}>
       <div
-        className="absolute inset-0 grid gap-[2px] rounded border border-slate-700 bg-slate-950 p-[2px]"
+        className="absolute inset-0 grid gap-[2px] rounded border border-cp-border bg-cp-surface-3 p-[2px]"
         style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(4, 1fr)' }}
       >
         {QUADRANTS.map((q) => (
@@ -444,20 +444,20 @@ const SourcePicker = ({
     <div
       ref={ref}
       onClick={(e) => e.stopPropagation()}
-      className="fixed z-[60] max-h-[60vh] w-64 overflow-auto rounded border border-slate-600 bg-slate-900 shadow-2xl"
+      className="fixed z-[60] max-h-[60vh] w-64 overflow-auto rounded border border-cp-surface-5 bg-cp-surface-1 shadow-2xl"
       style={{
         left: Math.min(anchor.x, window.innerWidth - 280),
         top: Math.min(anchor.y, window.innerHeight - 400),
       }}
     >
-      <div className="sticky top-0 z-10 border-b border-slate-700 bg-slate-900 p-2">
+      <div className="sticky top-0 z-10 border-b border-cp-border bg-cp-surface-1 p-2">
         <input
           autoFocus
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder={t('common.search', 'Suche…')}
           aria-label={t('common.search', 'Suche…')}
-          className="mb-1 w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-cp-xs"
+          className="mb-1 w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs"
         />
         <div className="flex gap-1">
           <input
@@ -465,7 +465,7 @@ const SourcePicker = ({
             value={custom}
             onChange={(e) => setCustom(e.target.value)}
             placeholder={t('atem.mv.idPlaceholder', 'ID')}
-            className="w-20 rounded border border-slate-700 bg-slate-800 px-2 py-1 text-cp-xs"
+            className="w-20 rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs"
           />
           <button
             type="button"
@@ -482,7 +482,7 @@ const SourcePicker = ({
       <div className="p-1 text-cp-xs">
         {grouped.map(([group, items]) => (
           <div key={group} className="mb-1">
-            <div className="px-1 py-0.5 text-[10px] uppercase tracking-wider text-slate-400">
+            <div className="px-1 py-0.5 text-[10px] uppercase tracking-wider text-cp-text-muted">
               {group}
             </div>
             {items.map((item) => (
@@ -490,12 +490,12 @@ const SourcePicker = ({
                 key={`${group}-${item.id}`}
                 type="button"
                 onClick={() => onPick(item.id)}
-                className={`flex w-full items-center justify-between rounded px-2 py-1 text-left hover:bg-slate-800 ${
-                  item.id === currentId ? 'bg-slate-700 text-emerald-300' : 'text-slate-200'
+                className={`flex w-full items-center justify-between rounded px-2 py-1 text-left hover:bg-cp-surface-2 ${
+                  item.id === currentId ? 'bg-cp-surface-4 text-emerald-300' : 'text-cp-text-bright'
                 }`}
               >
                 <span className="truncate">{item.label}</span>
-                <span className="ml-2 text-[10px] text-slate-400">{item.id}</span>
+                <span className="ml-2 text-[10px] text-cp-text-muted">{item.id}</span>
               </button>
             ))}
           </div>
@@ -541,15 +541,15 @@ const CapabilitiesPanel = ({
     onOverride({ ...caps, supportedLayouts: Array.from(set).sort((a, b) => a - b) })
   }
   return (
-    <div className="border-t border-slate-800 bg-slate-950/40 px-3 py-1.5 text-[10px] text-slate-400">
+    <div className="border-t border-cp-border-muted bg-cp-surface-3/40 px-3 py-1.5 text-[10px] text-cp-text-muted">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-2 text-left hover:text-slate-200"
+        className="flex w-full items-center gap-2 text-left hover:text-cp-text-bright"
       >
         <span>{open ? '▾' : '▸'}</span>
         <span>
-          Modell-Capabilities: <span className="text-slate-300">{equipmentName}</span> ·{' '}
+          Modell-Capabilities: <span className="text-cp-text-secondary">{equipmentName}</span> ·{' '}
           {caps.mvCount} MV{caps.mvCount === 1 ? '' : 's'} ·{' '}
           {caps.supportedLayouts.length} Layouts{' '}
           {hasOverride && (
@@ -559,7 +559,7 @@ const CapabilitiesPanel = ({
       </button>
       {open && (
         <div className="mt-1 space-y-1.5 pl-4">
-          <p className="text-slate-500">
+          <p className="text-cp-text-faint">
             {t(
               'atem.mv.layoutsHint',
               'Heuristik basierend auf dem Geräte-Namen. Falls dein Modell ein Layout unterstützt das die Heuristik nicht erkennt (oder umgekehrt), Häkchen hier setzen — die Auswahl überschreibt das Default und bleibt beim Projekt.',
@@ -576,7 +576,7 @@ const CapabilitiesPanel = ({
                   className={`rounded px-2 py-0.5 text-[10px] ${
                     on
                       ? 'bg-sky-900 text-sky-200'
-                      : 'bg-slate-800 text-slate-500 hover:bg-slate-700'
+                      : 'bg-cp-surface-2 text-cp-text-faint hover:bg-cp-surface-4'
                   }`}
                   title={`${l.label} (${l.value})`}
                 >
@@ -599,7 +599,7 @@ const CapabilitiesPanel = ({
                     mvCount: Math.max(0, Math.min(4, Number(e.target.value) || 0)),
                   })
                 }
-                className="w-12 rounded border border-slate-700 bg-slate-900 px-1 py-0.5"
+                className="w-12 rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5"
               />
             </label>
             <label className="flex items-center gap-1">
@@ -615,7 +615,7 @@ const CapabilitiesPanel = ({
                     maxWindowsPerMv: Math.max(0, Math.min(32, Number(e.target.value) || 0)),
                   })
                 }
-                className="w-14 rounded border border-slate-700 bg-slate-900 px-1 py-0.5"
+                className="w-14 rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5"
               />
             </label>
             {hasOverride && (
@@ -653,17 +653,17 @@ const AtemMvDevicePicker = () => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={close}>
       <div
-        className="flex max-h-[80vh] w-[440px] max-w-[95vw] flex-col rounded-cp-card border border-slate-700 bg-slate-900 shadow-2xl"
+        className="flex max-h-[80vh] w-[440px] max-w-[95vw] flex-col rounded-cp-card border border-cp-border bg-cp-surface-1 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
-          <h2 className="flex items-center gap-2 text-cp-base font-semibold text-slate-200">
+        <div className="flex items-center justify-between border-b border-cp-border px-4 py-2">
+          <h2 className="flex items-center gap-2 text-cp-base font-semibold text-cp-text-bright">
             <Icon icon={Monitor} size="sm" />
             {t('atemMv.picker.title', 'ATEM Multiviewer — Gerät wählen')}
           </h2>
           <button
             onClick={close}
-            className="text-slate-400 hover:text-slate-200"
+            className="text-cp-text-muted hover:text-cp-text-bright"
             aria-label={t('common.close', 'Schließen')}
           >
             ×
@@ -671,7 +671,7 @@ const AtemMvDevicePicker = () => {
         </div>
         <div className="overflow-auto p-4 text-cp-base">
           {atemDevices.length === 0 ? (
-            <p className="text-slate-400">
+            <p className="text-cp-text-muted">
               {t(
                 'atemMv.picker.empty',
                 'Kein ATEM-Mischer im Plan. Lege zuerst einen ATEM aus der Bibliothek an — danach ist hier seine Multiviewer-Konfiguration wählbar.',
@@ -679,7 +679,7 @@ const AtemMvDevicePicker = () => {
             </p>
           ) : (
             <>
-              <p className="mb-2 text-[11px] text-slate-400">
+              <p className="mb-2 text-[11px] text-cp-text-muted">
                 {t('atemMv.picker.intro', 'Welchen ATEM-Mischer-Multiviewer möchtest du konfigurieren?')}
               </p>
               <ul className="space-y-1">
@@ -687,7 +687,7 @@ const AtemMvDevicePicker = () => {
                   <li key={e.id}>
                     <button
                       onClick={() => openAtemMvConfig(e.id)}
-                      className="flex w-full items-center gap-2 rounded border border-slate-700 bg-slate-800 px-3 py-2 text-left text-slate-100 hover:bg-slate-700"
+                      className="flex w-full items-center gap-2 rounded border border-cp-border bg-cp-surface-2 px-3 py-2 text-left text-cp-text hover:bg-cp-surface-4"
                     >
                       <Icon icon={Monitor} size="sm" />
                       {e.name}
@@ -1050,7 +1050,7 @@ export const AtemMvConfigDialog = () => {
           boxShadow: highlight ? `inset 0 0 0 3px ${highlight}` : undefined,
           color: sid === 0 ? '#cbd5e1' : '#0f172a',
         }}
-        className="group relative flex flex-col items-center justify-center overflow-hidden border border-slate-900/40 text-center hover:brightness-95"
+        className="group relative flex flex-col items-center justify-center overflow-hidden border border-cp-surface-1/40 text-center hover:brightness-95"
         title={`${quad.name} groß: ${label} (ID ${sid}) — klicken zum Ändern`}
       >
         {role !== 'other' && (
@@ -1092,7 +1092,7 @@ export const AtemMvConfigDialog = () => {
           boxShadow: highlight ? `inset 0 0 0 2px ${highlight}` : undefined,
           color: sid === 0 ? '#cbd5e1' : '#0f172a',
         }}
-        className="group relative flex flex-col items-center justify-center overflow-hidden border border-slate-900/40 text-center hover:brightness-95"
+        className="group relative flex flex-col items-center justify-center overflow-hidden border border-cp-surface-1/40 text-center hover:brightness-95"
         title={`${quad.name} klein #${cellIdx + 1}: ${label} (ID ${sid}) — klicken zum Ändern`}
       >
         <div className="truncate px-1 text-[10px] font-medium leading-tight">{label}</div>
@@ -1107,23 +1107,23 @@ export const AtemMvConfigDialog = () => {
       onClick={close}
     >
       <div
-        className="flex max-h-[95vh] w-[960px] max-w-[95vw] flex-col rounded-cp-card border border-slate-700 bg-slate-900 shadow-2xl"
+        className="flex max-h-[95vh] w-[960px] max-w-[95vw] flex-col rounded-cp-card border border-cp-border bg-cp-surface-1 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
-          <h2 className="text-cp-base font-semibold text-slate-100">
+        <div className="flex items-center justify-between border-b border-cp-border px-4 py-2">
+          <h2 className="text-cp-base font-semibold text-cp-text">
             {format(t('atem.mv.dialogTitle', 'Multiviewer-Layout · {name}'), { name: equipment.name })}
           </h2>
           <button
             type="button"
             onClick={close}
-            className="rounded bg-slate-800 px-2 py-1 text-cp-xs hover:bg-slate-700"
+            className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
           >
             {t('common.close', 'Schließen')}
           </button>
         </div>
 
-        <div className="flex items-center gap-1 border-b border-slate-800 px-3 py-2">
+        <div className="flex items-center gap-1 border-b border-cp-border-muted px-3 py-2">
           {config.multiViewers.map((mvItem, i) => (
             <button
               key={mvItem.index}
@@ -1132,7 +1132,7 @@ export const AtemMvConfigDialog = () => {
               className={`rounded px-3 py-1 text-cp-xs ${
                 i === activeMv
                   ? 'bg-sky-700 text-white'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
               }`}
             >
               MV {i + 1}
@@ -1143,7 +1143,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={addMv}
               disabled={config.multiViewers.length >= 4}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600 disabled:opacity-50"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
               title={t('atem.mv.addMv', 'Multiviewer hinzufügen')}
             >
               +
@@ -1152,13 +1152,13 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={removeMv}
               disabled={config.multiViewers.length <= 1}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600 disabled:opacity-50"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
               title={t('atem.mv.removeMv', 'Letzten Multiviewer entfernen')}
             >
               −
             </button>
           </div>
-          <span className="ml-auto text-[10px] text-slate-400">
+          <span className="ml-auto text-[10px] text-cp-text-muted">
             {config.multiViewers.length} MV — Klick auf ein Fenster ändert die Quelle.
           </span>
         </div>
@@ -1171,9 +1171,9 @@ export const AtemMvConfigDialog = () => {
 
             Steht außerhalb von mvGridRef → PNG-Export bleibt clean. */}
         {mv && (
-          <div className="flex flex-wrap items-center gap-4 border-b border-slate-800 px-3 py-2">
+          <div className="flex flex-wrap items-center gap-4 border-b border-cp-border-muted px-3 py-2">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-slate-300">{t('atem.mv.layoutLabel', 'Layout')}</span>
+              <span className="text-[11px] text-cp-text-secondary">{t('atem.mv.layoutLabel', 'Layout')}</span>
               <MvLayoutPicker
                 quadrants={quadrants}
                 windows={Array.isArray(mv.windows) ? mv.windows : []}
@@ -1181,7 +1181,7 @@ export const AtemMvConfigDialog = () => {
                 onToggleQuadrant={toggleQuadrant}
                 canvasPortNames={canvasPortNames}
               />
-              <span className="text-[10px] text-slate-400">
+              <span className="text-[10px] text-cp-text-muted">
                 {t('atem.mv.quadrantHint1', 'Klick auf einen Quadranten:')}<br />
                 {t('atem.mv.quadrantHint2', 'groß ↔ 4 kleine')}
               </span>
@@ -1198,7 +1198,7 @@ export const AtemMvConfigDialog = () => {
           {mv && (
             <div className="relative w-full" style={{ aspectRatio: '16 / 9' }}>
               <div
-                className="absolute inset-0 grid gap-[2px] rounded border border-slate-700 bg-slate-950 p-1"
+                className="absolute inset-0 grid gap-[2px] rounded border border-cp-border bg-cp-surface-3 p-1"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
                   gridTemplateRows: 'repeat(4, 1fr)',
@@ -1225,8 +1225,8 @@ export const AtemMvConfigDialog = () => {
           }
         />
 
-        <div className="flex items-center justify-between border-t border-slate-700 px-4 py-2">
-          <span className="text-[11px] text-slate-400">
+        <div className="flex items-center justify-between border-t border-cp-border px-4 py-2">
+          <span className="text-[11px] text-cp-text-muted">
             {savedFlash ? (
               <span className="font-semibold text-emerald-400">✓ {t('atem.mv.saved', 'Gespeichert')}</span>
             ) : (
@@ -1248,7 +1248,7 @@ export const AtemMvConfigDialog = () => {
             <button
               type="button"
               onClick={handleSave}
-              className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('atem.mv.saveDraft', 'Zwischenspeichern')}
             </button>

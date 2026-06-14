@@ -122,7 +122,7 @@ export const MenuBar = ({
   return (
     <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1.5 text-cp-xs shadow-sm">
       <div className="flex shrink-0 items-center gap-2">
-        <span className="hidden select-none font-semibold tracking-wide text-slate-300 lg:inline">
+        <span className="hidden select-none font-semibold tracking-wide text-cp-text-secondary lg:inline">
           {t('app.title', 'Cable Planner')}
         </span>
         <span className="hidden text-slate-700 lg:inline">│</span>
@@ -493,12 +493,12 @@ export const MenuBar = ({
             type="button"
             onClick={onEditProjectMeta}
             disabled={!onEditProjectMeta}
-            className="group flex max-w-[42ch] items-center gap-1 truncate rounded px-2 py-0.5 text-slate-200 hover:bg-slate-800 hover:text-white disabled:cursor-default disabled:hover:bg-transparent"
+            className="group flex max-w-[42ch] items-center gap-1 truncate rounded px-2 py-0.5 text-cp-text-bright hover:bg-cp-surface-2 hover:text-white disabled:cursor-default disabled:hover:bg-transparent"
             title={onEditProjectMeta ? t('app.editProjectMeta', 'Projektdaten bearbeiten') : projectName}
           >
             <span className="truncate font-medium">{projectName}</span>
             {onEditProjectMeta && (
-              <span className="text-slate-500 opacity-0 transition-opacity group-hover:opacity-100">
+              <span className="text-cp-text-faint opacity-0 transition-opacity group-hover:opacity-100">
                 <Icon icon={Pencil} size="xs" />
               </span>
             )}
@@ -508,25 +508,25 @@ export const MenuBar = ({
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <div className="flex items-center rounded border border-slate-700 bg-slate-900">
+        <div className="flex items-center rounded border border-cp-border bg-cp-surface-1">
           <button
             type="button"
             onClick={() => projectHistory.undo()}
             disabled={!canUndo}
             title={t('app.undo', 'Rückgängig (Strg+Z)')}
             aria-label={t('app.undo', 'Rückgängig (Strg+Z)')}
-            className="px-2 py-1 text-slate-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
+            className="px-2 py-1 text-cp-text-bright hover:bg-cp-surface-2 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
           >
             <Icon icon={Undo2} size="sm" />
           </button>
-          <span className="h-4 w-px bg-slate-700" aria-hidden="true" />
+          <span className="h-4 w-px bg-cp-surface-4" aria-hidden="true" />
           <button
             type="button"
             onClick={() => projectHistory.redo()}
             disabled={!canRedo}
             title={t('app.redo', 'Wiederherstellen (Strg+Y)')}
             aria-label={t('app.redo', 'Wiederherstellen (Strg+Y)')}
-            className="px-2 py-1 text-slate-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
+            className="px-2 py-1 text-cp-text-bright hover:bg-cp-surface-2 disabled:cursor-not-allowed disabled:text-slate-600 disabled:hover:bg-transparent"
           >
             <Icon icon={Redo2} size="sm" />
           </button>
@@ -536,7 +536,7 @@ export const MenuBar = ({
           <button
             type="button"
             onClick={() => useUiStore.getState().openMobileShare()}
-            className="rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
+            className="rounded bg-cp-surface-2 px-2 py-1 text-cp-text hover:bg-cp-surface-4"
             aria-label={t('app.mobileShare.ariaLabel', 'Handy-Zugriff')}
             title={t(
               'app.mobileShare.title',
@@ -549,7 +549,7 @@ export const MenuBar = ({
         <button
           type="button"
           onClick={onOpenSettings}
-          className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-1 text-slate-100 hover:bg-slate-700"
+          className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-2 py-1 text-cp-text hover:bg-cp-surface-4"
           title={t('settings.title', 'Einstellungen')}
         >
           <Icon icon={Settings} size="sm" />
@@ -645,10 +645,10 @@ const Menu = ({ label, children }: MenuProps) => {
         }}
         aria-haspopup="menu"
         aria-expanded={open}
-        className={`rounded px-2 py-1 text-slate-200 hover:bg-slate-800 ${open ? 'bg-slate-800' : ''}`}
+        className={`rounded px-2 py-1 text-cp-text-bright hover:bg-cp-surface-2 ${open ? 'bg-cp-surface-2' : ''}`}
       >
         {label}
-        <span className="ml-1 text-[11px] text-slate-400" aria-hidden="true">▾</span>
+        <span className="ml-1 text-[11px] text-cp-text-muted" aria-hidden="true">▾</span>
       </button>
       {open && (
         <div
@@ -678,7 +678,7 @@ const MenuItem = ({ onClick, icon, shortcut, disabled, children }: MenuItemProps
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-cp-xs text-slate-200 hover:bg-slate-700/70 disabled:cursor-not-allowed disabled:text-[var(--cp-text-faint)] disabled:hover:bg-transparent"
+      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-cp-xs text-cp-text-bright hover:bg-cp-surface-4/70 disabled:cursor-not-allowed disabled:text-[var(--cp-text-faint)] disabled:hover:bg-transparent"
       role="menuitem"
     >
       <span className="inline-flex w-4 shrink-0 items-center justify-center text-[var(--cp-text-muted)]">{icon}</span>
@@ -692,7 +692,7 @@ const MenuItem = ({ onClick, icon, shortcut, disabled, children }: MenuItemProps
   )
 }
 
-const MenuSep = () => <div className="my-1 border-t border-slate-700" />
+const MenuSep = () => <div className="my-1 border-t border-cp-border" />
 
 /** Kleiner, nicht-interaktiver Gruppen-Titel innerhalb eines Menüs. Gliedert
  *  lange Menüs (z. B. Werkzeuge) optisch, ohne echte Flyout-Submenüs. */

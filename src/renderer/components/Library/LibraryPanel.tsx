@@ -704,13 +704,13 @@ export const LibraryPanel = () => {
 
   if (collapsed && !floating) {
     return (
-      <aside className="flex h-full w-8 flex-col items-center border-r border-slate-700 bg-slate-950 transition-colors hover:bg-slate-900">
+      <aside className="flex h-full w-8 flex-col items-center border-r border-cp-border bg-cp-surface-3 transition-colors hover:bg-cp-surface-1">
         <button
           type="button"
           onClick={toggleCollapsed}
           title={t('library.show', 'Library einblenden')}
           aria-label={t('library.show', 'Library einblenden')}
-          className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary shadow-sm transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
           <span className="text-cp-lg leading-none">›</span>
         </button>
@@ -718,7 +718,7 @@ export const LibraryPanel = () => {
           type="button"
           onClick={toggleCollapsed}
           aria-label={t('library.show', 'Library einblenden')}
-          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400 transition-colors hover:text-slate-300 focus-visible:outline-none focus-visible:text-sky-300"
+          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-cp-text-muted transition-colors hover:text-cp-text-secondary focus-visible:outline-none focus-visible:text-sky-300"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
           {t('library.title', 'Library')}
@@ -727,7 +727,7 @@ export const LibraryPanel = () => {
     )
   }
   const inner = (
-    <aside className={`flex h-full min-h-0 flex-col ${floating ? 'bg-transparent p-3' : 'border-r border-slate-700 bg-slate-950 p-3'} text-slate-100`}>
+    <aside className={`flex h-full min-h-0 flex-col ${floating ? 'bg-transparent p-3' : 'border-r border-cp-border bg-cp-surface-3 p-3'} text-cp-text`}>
       {/* v7.9.5 — Kompakte Tab-Strip mit SVG-Icons (keine Emojis) und
           konsistent deutschen Labels (Geräte/Kabel/Gruppen/Racks).
           Counts NUR an der kleinsten Granularität — der R-Badge am
@@ -740,7 +740,7 @@ export const LibraryPanel = () => {
             onClick={toggleCollapsed}
             title={t('library.hide', 'Library ausblenden')}
             aria-label={t('library.hide', 'Library ausblenden')}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-cp-lg leading-none">‹</span>
           </button>
@@ -759,7 +759,7 @@ export const LibraryPanel = () => {
             }}
             title={t('library.float.title', 'Library abdocken (klicken oder herausziehen)')}
             aria-label={t('library.float.aria', 'Library abdocken')}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
             style={{ touchAction: 'none' }}
           >
             <span className="pointer-events-none text-[11px] leading-none">⤢</span>
@@ -771,7 +771,7 @@ export const LibraryPanel = () => {
             onClick={() => openPanelPopout('library')}
             title={t('panel.popoutTitle', 'In separates Fenster auslagern (weiterer Monitor)')}
             aria-label={t('panel.popout', 'Auslagern')}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <Icon icon={ExternalLink} size="xs" />
           </button>
@@ -836,20 +836,20 @@ export const LibraryPanel = () => {
         <>
           {/* Sub-section toggle: Lokal vs. Rentman, both inside the Equipment tab.
               v7.9.4: nur sichtbar wenn rentmanEnabled — sonst gibt's nur Lokal. */}
-          <div className="mb-2 flex gap-1 rounded bg-slate-950/40 p-1">
+          <div className="mb-2 flex gap-1 rounded bg-cp-surface-3/40 p-1">
             <button
               type="button"
               onClick={() => setEquipmentSection('local')}
               className={`flex-1 rounded px-2 py-1 text-cp-xs ${
                 equipmentSection === 'local'
                   ? 'bg-sky-700 text-white'
-                  : 'text-slate-300 hover:bg-slate-800'
+                  : 'text-cp-text-secondary hover:bg-cp-surface-2'
               }`}
               title={t('library.section.localTitle', 'Eigene und importierte Vorlagen, lokal in dieser Installation')}
             >
               <span className="mr-1 rounded bg-sky-900/80 px-1 text-[11px] font-bold text-sky-100">L</span>
               {t('library.section.local', 'Lokal')}
-              <span className="ml-1 text-[10px] text-slate-400">
+              <span className="ml-1 text-[10px] text-cp-text-muted">
                 ({customLibrary.filter((t) => !t.rentmanSource).length})
               </span>
             </button>
@@ -859,13 +859,13 @@ export const LibraryPanel = () => {
               className={`flex-1 rounded px-2 py-1 text-cp-xs ${
                 equipmentSection === 'rentman'
                   ? 'bg-orange-600 text-white'
-                  : 'text-slate-300 hover:bg-slate-800'
+                  : 'text-cp-text-secondary hover:bg-cp-surface-2'
               }`}
               title={t('library.section.rentmanTitle', 'Aus Rentman importierte Geräte und Account-Katalog')}
             >
               <span className="mr-1 rounded bg-orange-900/80 px-1 text-[11px] font-bold text-orange-100">R</span>
               Rentman
-              <span className="ml-1 text-[10px] text-slate-400">
+              <span className="ml-1 text-[10px] text-cp-text-muted">
                 ({customLibrary.filter((t) => t.rentmanSource).length})
               </span>
             </button>
@@ -899,11 +899,11 @@ export const LibraryPanel = () => {
 
       {showNetBoxDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-          <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4">
+          <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-cp-border bg-cp-surface-1 p-4">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
                 <h3 className="text-cp-xl font-semibold">{t('library.netbox.title', 'NetBox Import')}</h3>
-                <p className="mt-1 text-cp-xs text-slate-400">
+                <p className="mt-1 text-cp-xs text-cp-text-muted">
                   {t(
                     'library.netbox.intro',
                     'Importiert Geräte aus der NetBox device-type-library in die lokale Library. Nicht-destruktiv: bestehende Geräte auf dem Canvas bleiben unverändert.',
@@ -913,7 +913,7 @@ export const LibraryPanel = () => {
               <button
                 type="button"
                 onClick={() => setShowNetBoxDialog(false)}
-                className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('common.close', 'Schließen')}
               </button>
@@ -931,7 +931,7 @@ export const LibraryPanel = () => {
                 }}
                 placeholder={t('library.netbox.searchPlaceholder', 'z.B. blackmagic atem, cisco catalyst, yamaha ql5')}
                 aria-label={t('library.netbox.searchPlaceholder', 'z.B. blackmagic atem, cisco catalyst, yamaha ql5')}
-                className="flex-1 rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
+                className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
               />
               <button
                 type="button"
@@ -947,7 +947,7 @@ export const LibraryPanel = () => {
                   clearNetBoxIndexCache()
                   setNetBoxResults([])
                 }}
-                className="rounded bg-slate-700 px-3 py-2 text-cp-base hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-3 py-2 text-cp-base hover:bg-cp-surface-5"
                 title={t('library.netbox.refreshTitle', 'GitHub-Index neu laden')}
               >
                 Cache leeren
@@ -960,12 +960,12 @@ export const LibraryPanel = () => {
               </div>
             )}
 
-            <div className="mb-2 text-[11px] uppercase tracking-wide text-slate-400">
+            <div className="mb-2 text-[11px] uppercase tracking-wide text-cp-text-muted">
               Treffer {netBoxResults.length > 0 ? `(${netBoxResults.length})` : ''}
             </div>
             <div className="space-y-2">
               {netBoxResults.length === 0 ? (
-                <div className="rounded border border-slate-700 bg-slate-950/50 p-3 text-cp-xs text-slate-400">
+                <div className="rounded border border-cp-border bg-cp-surface-3/50 p-3 text-cp-xs text-cp-text-muted">
                   Hersteller + Modell suchen. Beispiel: „blackmagic atem", „yamaha ql5", „cisco catalyst 9300".
                 </div>
               ) : (
@@ -974,15 +974,15 @@ export const LibraryPanel = () => {
                   return (
                     <div
                       key={item.path}
-                      className="flex items-center justify-between gap-3 rounded border border-slate-700 bg-slate-950/50 p-3 text-cp-base"
+                      className="flex items-center justify-between gap-3 rounded border border-cp-border bg-cp-surface-3/50 p-3 text-cp-base"
                     >
                       <div className="min-w-0 flex-1">
-                        <div className="truncate font-medium text-slate-100">
+                        <div className="truncate font-medium text-cp-text">
                           {item.manufacturer} {item.model}
                         </div>
-                        <div className="truncate text-[11px] text-slate-400">{item.path}</div>
+                        <div className="truncate text-[11px] text-cp-text-muted">{item.path}</div>
                         <div className="mt-2 flex max-w-[340px] items-center gap-2">
-                          <span className="text-[11px] text-slate-400">{t('library.netbox.categoryLabel', 'Kategorie:')}</span>
+                          <span className="text-[11px] text-cp-text-muted">{t('library.netbox.categoryLabel', 'Kategorie:')}</span>
                           <select
                             value={netBoxCategoryByPath[item.path] ?? ''}
                             onChange={(event) =>
@@ -991,7 +991,7 @@ export const LibraryPanel = () => {
                                 [item.path]: event.target.value,
                               }))
                             }
-                            className="min-w-0 flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
+                            className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-xs"
                           >
                             <option value="">{t('library.netbox.pickCategory', 'Bitte auswählen...')}</option>
                             {existingCategoryOptions.map((cat) => (
@@ -1021,7 +1021,7 @@ export const LibraryPanel = () => {
 
       {showCreateDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded border border-cp-border bg-cp-surface-1 p-4">
             <h3 className="mb-3 text-cp-xl font-semibold">
               {t('library.create.title', 'Eigenes Gerät anlegen')}
             </h3>
@@ -1031,7 +1031,7 @@ export const LibraryPanel = () => {
                 <input
                   value={name}
                   onChange={(event) => setName(event.target.value)}
-                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
                 />
               </label>
               <label className="block">
@@ -1039,7 +1039,7 @@ export const LibraryPanel = () => {
                 <CategorySelect
                   value={category}
                   onChange={setCategory}
-                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
                 />
               </label>
               <label className="block">
@@ -1060,7 +1060,7 @@ export const LibraryPanel = () => {
                     value={rackUnitsDraft}
                     onChange={(event) => setRackUnitsDraft(event.target.value ? Number(event.target.value) : '')}
                     placeholder={t('library.create.hePlaceholder', 'HE')}
-                    className="mt-2 w-full rounded border border-slate-700 bg-slate-950 p-2"
+                    className="mt-2 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
                   />
                 )}
               </label>
@@ -1087,7 +1087,7 @@ export const LibraryPanel = () => {
                 <button
                   type="button"
                   onClick={handleHeuristicSuggest}
-                  className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
+                  className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
                   title={t('library.create.suggest.heuristicTitle', 'Aus eingebauten Heuristik-Mustern (Camera, ATEM, Konverter, ...)')}
                 >
                   <Icon icon={Ruler} size="xs" className="mr-1 inline-block align-text-bottom" />Heuristik
@@ -1120,15 +1120,15 @@ export const LibraryPanel = () => {
             </div>
 
             {aiSettingsOpen && (
-              <div className="mb-2 rounded border border-slate-700 bg-slate-950 p-2 text-cp-xs">
-                <div className="mb-1 font-semibold text-slate-200">{t('library.create.aiKey.label', 'Gemini API-Key')}</div>
+              <div className="mb-2 rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-xs">
+                <div className="mb-1 font-semibold text-cp-text-bright">{t('library.create.aiKey.label', 'Gemini API-Key')}</div>
                 <div className="flex gap-1">
                   <input
                     type="password"
                     value={aiKeyDraft}
                     onChange={(e) => setAiKeyDraft(e.target.value)}
                     placeholder={t('library.create.aiKey.placeholder', 'AIza…')}
-                    className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 font-mono"
+                    className="flex-1 rounded border border-cp-border bg-cp-surface-1 px-2 py-1 font-mono"
                   />
                   <button
                     type="button"
@@ -1144,12 +1144,12 @@ export const LibraryPanel = () => {
                   <button
                     type="button"
                     onClick={() => setAiSettingsOpen(false)}
-                    className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
+                    className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
                   >
                     Abbrechen
                   </button>
                 </div>
-                <div className="mt-1 text-[10px] text-slate-400">
+                <div className="mt-1 text-[10px] text-cp-text-muted">
                   Gespeichert nur lokal in localStorage. Key bei{' '}
                   <a
                     href="https://aistudio.google.com/app/apikey"
@@ -1190,14 +1190,14 @@ export const LibraryPanel = () => {
               {groups.map((group) => (
                 <div
                   key={group.id}
-                  className="grid grid-cols-[80px_70px_1fr_1fr_40px] items-center gap-2 rounded border border-slate-700 bg-slate-950 p-2 text-cp-xs"
+                  className="grid grid-cols-[80px_70px_1fr_1fr_40px] items-center gap-2 rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-xs"
                 >
                   <select
                     value={group.direction}
                     onChange={(event) =>
                       updateGroup(group.id, { direction: event.target.value as 'in' | 'out' })
                     }
-                    className="rounded border border-slate-700 bg-slate-900 p-1"
+                    className="rounded border border-cp-border bg-cp-surface-1 p-1"
                   >
                     <option value="in">Input</option>
                     <option value="out">Output</option>
@@ -1209,7 +1209,7 @@ export const LibraryPanel = () => {
                     onChange={(event) =>
                       updateGroup(group.id, { count: Number(event.target.value) })
                     }
-                    className="rounded border border-slate-700 bg-slate-900 p-1"
+                    className="rounded border border-cp-border bg-cp-surface-1 p-1"
                   />
                   <select
                     value={group.connectorType}
@@ -1218,7 +1218,7 @@ export const LibraryPanel = () => {
                         connectorType: event.target.value as ConnectorType,
                       })
                     }
-                    className="rounded border border-slate-700 bg-slate-900 p-1"
+                    className="rounded border border-cp-border bg-cp-surface-1 p-1"
                   >
                     {connectorOptions.map((item) => (
                       <option key={item} value={item}>
@@ -1230,7 +1230,7 @@ export const LibraryPanel = () => {
                     value={group.label}
                     onChange={(event) => updateGroup(group.id, { label: event.target.value })}
                     placeholder={t('library.create.groupLabelPrefix', 'Label prefix')}
-                    className="rounded border border-slate-700 bg-slate-900 p-1"
+                    className="rounded border border-cp-border bg-cp-surface-1 p-1"
                   />
                   <button
                     type="button"
@@ -1243,7 +1243,7 @@ export const LibraryPanel = () => {
                 </div>
               ))}
               {groups.length === 0 && (
-                <div className="text-cp-xs text-slate-400">No port groups yet. Add one above.</div>
+                <div className="text-cp-xs text-cp-text-muted">No port groups yet. Add one above.</div>
               )}
             </div>
 
@@ -1258,7 +1258,7 @@ export const LibraryPanel = () => {
                   setPendingDropOnSave(null)
                   resetDialog()
                 }}
-                className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
               >
                 {t('common.cancel', 'Abbrechen')}
               </button>
@@ -1331,15 +1331,15 @@ export const LibraryPanel = () => {
 
       {netBoxConflict && (
         <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/70 p-6">
-          <div className="w-full max-w-xl rounded border border-amber-600 bg-slate-900 p-4 text-slate-100">
+          <div className="w-full max-w-xl rounded border border-amber-600 bg-cp-surface-1 p-4 text-cp-text">
             <h3 className="mb-2 text-cp-xl font-semibold text-amber-300">{t('library.duplicate.title', 'Gerät existiert bereits')}</h3>
-            <p className="mb-3 text-cp-base text-slate-300">
+            <p className="mb-3 text-cp-base text-cp-text-secondary">
               {format(
                 t('library.netbox.duplicateIntro', '{name} ist bereits in der lokalen Library. Wahlen, wie importiert werden soll.'),
                 { name: netBoxConflict.incoming.name },
               )}
             </p>
-            <div className="mb-3 rounded border border-slate-700 bg-slate-950/40 p-2 text-cp-xs text-slate-400">
+            <div className="mb-3 rounded border border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs text-cp-text-muted">
               {t('library.netbox.localCount', 'Lokal')}: {netBoxConflict.existing.inputs.length} In / {netBoxConflict.existing.outputs.length} Out
               <br />
               NetBox: {netBoxConflict.incoming.inputs.length} In / {netBoxConflict.incoming.outputs.length} Out
@@ -1348,7 +1348,7 @@ export const LibraryPanel = () => {
               <button
                 type="button"
                 onClick={() => setNetBoxConflict(null)}
-                className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
               >
                 {t('common.cancel', 'Abbrechen')}
               </button>
@@ -1361,7 +1361,7 @@ export const LibraryPanel = () => {
                     tone: 'info',
                   })
                 }}
-                className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
               >
                 {t('library.netbox.keepLocalBtn', 'Lokal behalten')}
               </button>
@@ -1430,7 +1430,7 @@ export const LibraryPanel = () => {
         <div aria-hidden className="min-h-0" />
         <FloatingPanelShell
           title={
-            <span className="text-cp-base font-semibold text-slate-100">
+            <span className="text-cp-base font-semibold text-cp-text">
               {t('library.title', 'Library')}
             </span>
           }

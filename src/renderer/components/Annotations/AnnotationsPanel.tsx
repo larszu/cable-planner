@@ -160,7 +160,7 @@ export const AnnotationsPanel = ({
 
   const body = (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="border-b border-slate-800 bg-slate-950/40 px-3 py-2">
+      <div className="border-b border-cp-border-muted bg-cp-surface-3/40 px-3 py-2">
         <div className="mb-2 flex gap-1">
           {(['all', 'open', 'built', 'resolved'] as const).map((s) => (
             <button
@@ -170,7 +170,7 @@ export const AnnotationsPanel = ({
               className={`rounded px-2 py-0.5 text-[10px] ${
                 statusFilter === s
                   ? 'bg-sky-700 text-white'
-                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                  : 'bg-cp-surface-2 text-cp-text-muted hover:bg-cp-surface-4'
               }`}
             >
               {s === 'all'
@@ -191,7 +191,7 @@ export const AnnotationsPanel = ({
                   ? format(t('annotations.placeholderAs', 'Anmerkung als {name}…'), { name: currentAuthor })
                   : t('annotations.placeholderEmpty', 'Anmerkung… (Name wird einmalig abgefragt)')
               }
-              className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
             />
             <div className="flex gap-1">
               <button
@@ -223,7 +223,7 @@ export const AnnotationsPanel = ({
                   setDraftText('')
                   setCreating(false)
                 }}
-                className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('annotations.cancel', 'Abbruch')}
               </button>
@@ -242,7 +242,7 @@ export const AnnotationsPanel = ({
 
       <div className="flex-1 overflow-y-auto p-3">
         {grouped.length === 0 ? (
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[11px] text-cp-text-muted">
             {t(
               'annotations.empty',
               'Noch keine Anmerkungen. Klicke „+ Neue Anmerkung" oder mache einen Rechtsklick auf ein Gerät / Kabel.',
@@ -251,7 +251,7 @@ export const AnnotationsPanel = ({
         ) : (
           grouped.map(([authorName, items]) => (
             <div key={authorName} className="mb-3">
-              <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-cp-text-muted">
                 {authorName} ({items.length})
               </h4>
               <ul className="space-y-1">
@@ -297,7 +297,7 @@ export const AnnotationsPanel = ({
                           /* setDragImage nicht supported — egal, Drop funktioniert trotzdem */
                         }
                       }}
-                      className="cursor-grab rounded border border-slate-700 bg-slate-950/40 p-2 text-cp-xs active:cursor-grabbing"
+                      className="cursor-grab rounded border border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs active:cursor-grabbing"
                       title={t('annotations.dragTitle', 'Ziehen, um diese Anmerkung auf dem Canvas zu platzieren oder einem Gerät zuzuweisen')}
                     >
                       <div className="mb-1 flex items-center justify-between gap-2">
@@ -314,7 +314,7 @@ export const AnnotationsPanel = ({
                         >
                           {t(`annotations.status.${a.status}`, STATUS_LABEL[a.status])}
                         </span>
-                        <span className="truncate text-[10px] text-slate-400" title={a.createdAt}>
+                        <span className="truncate text-[10px] text-cp-text-muted" title={a.createdAt}>
                           {new Date(a.createdAt).toLocaleString()}
                         </span>
                       </div>
@@ -323,7 +323,7 @@ export const AnnotationsPanel = ({
                           value={a.text}
                           onChange={(e) => updateAnnotation(a.id, { text: e.target.value })}
                           rows={3}
-                          className="w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
+                          className="w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-xs"
                           onBlur={() => setEditingId(null)}
                           autoFocus
                         />
@@ -336,7 +336,7 @@ export const AnnotationsPanel = ({
                           {a.text}
                         </p>
                       )}
-                      <div className="mt-1 text-[10px] text-slate-400">
+                      <div className="mt-1 text-[10px] text-cp-text-muted">
                         {ANCHOR_LABEL(a, deviceNames, cableNames)}
                       </div>
                       <div className="mt-1 flex gap-1">
@@ -347,7 +347,7 @@ export const AnnotationsPanel = ({
                               status: e.target.value as ProjectAnnotation['status'],
                             })
                           }
-                          className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[10px]"
+                          className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-[10px]"
                         >
                           <option value="open">{t('annotations.status.open', 'offen')}</option>
                           <option value="built">{t('annotations.status.built', 'gebaut')}</option>
@@ -368,7 +368,7 @@ export const AnnotationsPanel = ({
                                 setAnnotationsVisible(true)
                               }
                             }}
-                            className="inline-flex items-center gap-1 rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-200 hover:bg-slate-700"
+                            className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-1.5 py-0.5 text-[10px] text-cp-text-bright hover:bg-cp-surface-4"
                             aria-label={t('annotations.placeCenter', 'Auf Canvas-Mitte platzieren (Tastatur-Alternative zum Ziehen)')}
                           >
                             <Icon icon={MapPin} size="xs" />
@@ -403,11 +403,11 @@ export const AnnotationsPanel = ({
 
   const headerTitle = (
     <span className="flex flex-col">
-      <span className="text-cp-base font-semibold text-slate-100">
+      <span className="text-cp-base font-semibold text-cp-text">
         <Icon icon={MessageSquare} size="sm" /> {t('annotations.title', 'Anmerkungen')} ({annotations.length})
       </span>
       {viewerSession && (
-        <span className="text-[10px] text-slate-400">
+        <span className="text-[10px] text-cp-text-muted">
           {format(t('annotations.reviewer', 'Reviewer: {name}'), { name: viewerSession.author })}
         </span>
       )}
@@ -439,17 +439,17 @@ export const AnnotationsPanel = ({
     <div
       className={
         inPopout
-          ? 'relative flex h-full w-full min-h-0 flex-col bg-slate-900 text-slate-100'
-          : 'fixed right-0 top-0 z-40 flex h-screen w-full max-w-[95vw] flex-col border-l border-slate-700 bg-slate-900 text-slate-100 shadow-2xl sm:w-96'
+          ? 'relative flex h-full w-full min-h-0 flex-col bg-cp-surface-1 text-cp-text'
+          : 'fixed right-0 top-0 z-40 flex h-screen w-full max-w-[95vw] flex-col border-l border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl sm:w-96'
       }
     >
-      <header className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
+      <header className="flex items-center justify-between gap-2 border-b border-cp-border-muted px-3 py-2">
         <div className="flex min-w-0 flex-col">
           <h3 className="truncate text-cp-base font-semibold">
             <Icon icon={MessageSquare} size="sm" /> {t('annotations.title', 'Anmerkungen')} ({annotations.length})
           </h3>
           {viewerSession && (
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-cp-text-muted">
               {format(t('annotations.reviewer', 'Reviewer: {name}'), { name: viewerSession.author })}
             </span>
           )}
@@ -470,7 +470,7 @@ export const AnnotationsPanel = ({
               }}
               title={t('annotations.float.title', 'Abdocken (klicken oder herausziehen)')}
               aria-label={t('annotations.float.aria', 'Anmerkungen abdocken')}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               style={{ touchAction: 'none' }}
             >
               <span className="pointer-events-none">⤢</span>
@@ -482,7 +482,7 @@ export const AnnotationsPanel = ({
               onClick={() => openPanelPopout('annotations')}
               title={t('panel.popoutTitle', 'In separates Fenster auslagern (weiterer Monitor)')}
               aria-label={t('panel.popout', 'Auslagern')}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               <Icon icon={ExternalLink} size="xs" />
             </button>
@@ -490,7 +490,7 @@ export const AnnotationsPanel = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('common.close', 'Schließen')}
           </button>

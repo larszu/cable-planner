@@ -31,7 +31,7 @@ const complexityFor = (
   if (score >= 80) return { label: t('statusbar.complexity.large', 'Groß'), tone: 'bg-amber-600 text-amber-50' }
   if (score >= 30) return { label: t('statusbar.complexity.medium', 'Mittel'), tone: 'bg-sky-700 text-sky-50' }
   if (score >= 8) return { label: t('statusbar.complexity.small', 'Klein'), tone: 'bg-emerald-700 text-emerald-50' }
-  return { label: t('statusbar.complexity.new', 'Neu'), tone: 'bg-slate-700 text-slate-200' }
+  return { label: t('statusbar.complexity.new', 'Neu'), tone: 'bg-cp-surface-4 text-cp-text-bright' }
 }
 
 /** #471 — Macht eine laufende Live-Session im Haupt-UI sichtbar. Klick öffnet
@@ -94,7 +94,7 @@ export const StatusBar = ({
                 ? 'text-emerald-300'
                 : packedCount > 0
                   ? 'text-amber-300'
-                  : 'text-slate-500'
+                  : 'text-cp-text-faint'
             }`}
             title={t('statusbar.packedTitle', "Geräte, die in den Eigenschaften als 'gepackt' markiert sind")}
           >

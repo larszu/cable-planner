@@ -478,7 +478,7 @@ export const PatchListDialog = () => {
       scrollBody={false}
       footer={
         <div className="flex items-center justify-between">
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[10px] text-cp-text-muted">
             {t(
               'patchList.footerHint',
               'Jedes Kabel als eigene Zeile, sortiert für die Patch-Reihenfolge auf dem Set. CSV-Export für Excel/Druck enthält die aktuell gefilterten Zeilen.',
@@ -517,7 +517,7 @@ export const PatchListDialog = () => {
               value={labelCsvFormat}
               onChange={(e) => setLabelCsvFormat(e.target.value as LabelCsvFormat)}
               title={t('patchList.labelCsvFormat', 'Etiketten-Drucker-Format')}
-              className="rounded border border-slate-700 bg-slate-950 px-1 py-1 text-cp-xs"
+              className="rounded border border-cp-border bg-cp-surface-3 px-1 py-1 text-cp-xs"
             >
               <option value="generic">{t('patchList.labelCsv.generic', 'Generisch (CSV)')}</option>
               <option value="brother">{t('patchList.labelCsv.brother', 'Brother P-touch (TXT)')}</option>
@@ -546,20 +546,20 @@ export const PatchListDialog = () => {
       }
     >
       <div className="flex h-full flex-col">
-        <div className="flex items-center gap-2 border-b border-slate-800 py-2">
+        <div className="flex items-center gap-2 border-b border-cp-border-muted py-2">
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder={t('patchList.searchPlaceholder', 'Suchen (Gerät, Port, Typ, Farbe, Notiz …)')}
             aria-label={t('patchList.searchPlaceholder', 'Suchen (Gerät, Port, Typ, Farbe, Notiz …)')}
-            className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+            className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
           />
           {layers.length > 0 && (
             <select
               value={layerFilter}
               onChange={(e) => setLayerFilter(e.target.value)}
               title={t('patchList.layerFilter', 'Nach Layer/Gewerk filtern')}
-              className="rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              className="rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
             >
               <option value="">{t('patchList.allLayers', 'Alle Layer')}</option>
               {layers.map((l) => (
@@ -569,13 +569,13 @@ export const PatchListDialog = () => {
               ))}
             </select>
           )}
-          <span className="text-[11px] text-slate-400">
+          <span className="text-[11px] text-cp-text-muted">
             {filtered.length} / {rows.length}
           </span>
         </div>
         <div className="flex-1 overflow-auto">
           <table className="w-full text-cp-xs">
-            <thead className="sticky top-0 bg-slate-950 text-slate-400">
+            <thead className="sticky top-0 bg-cp-surface-3 text-cp-text-muted">
               <tr>
                 {[
                   { k: 'number' as const, label: t('patchList.col.number', 'Nr.') },
@@ -589,7 +589,7 @@ export const PatchListDialog = () => {
                 ].map((col, i) => (
                   <th
                     key={`${col.k}-${i}`}
-                    className="cursor-pointer px-2 py-1 text-left hover:text-slate-200"
+                    className="cursor-pointer px-2 py-1 text-left hover:text-cp-text-bright"
                     onClick={() => setSortKey(col.k)}
                   >
                     {col.label}
@@ -600,24 +600,24 @@ export const PatchListDialog = () => {
             </thead>
             <tbody>
               {filtered.map((r) => (
-                <tr key={r.cableId} className="border-t border-slate-800 hover:bg-slate-900">
+                <tr key={r.cableId} className="border-t border-cp-border-muted hover:bg-cp-surface-1">
                   <td className="px-2 py-1 font-mono text-[11px] text-sky-300">{r.cableNumber}</td>
-                  <td className="px-2 py-1 font-medium text-slate-100">{r.fromDevice}</td>
-                  <td className="px-2 py-1 text-slate-300">
+                  <td className="px-2 py-1 font-medium text-cp-text">{r.fromDevice}</td>
+                  <td className="px-2 py-1 text-cp-text-secondary">
                     {r.fromPort}
                     {r.fromPortSub && (
-                      <div className="text-[10px] text-slate-400">{r.fromPortSub}</div>
+                      <div className="text-[10px] text-cp-text-muted">{r.fromPortSub}</div>
                     )}
                   </td>
-                  <td className="px-2 py-1 font-medium text-slate-100">{r.toDevice}</td>
-                  <td className="px-2 py-1 text-slate-300">
+                  <td className="px-2 py-1 font-medium text-cp-text">{r.toDevice}</td>
+                  <td className="px-2 py-1 text-cp-text-secondary">
                     {r.toPort}
                     {r.toPortSub && (
-                      <div className="text-[10px] text-slate-400">{r.toPortSub}</div>
+                      <div className="text-[10px] text-cp-text-muted">{r.toPortSub}</div>
                     )}
                   </td>
-                  <td className="px-2 py-1 text-slate-300">{r.type}</td>
-                  <td className="px-2 py-1 text-right text-slate-300">{r.length}</td>
+                  <td className="px-2 py-1 text-cp-text-secondary">{r.type}</td>
+                  <td className="px-2 py-1 text-right text-cp-text-secondary">{r.length}</td>
                   <td className="px-2 py-1">
                     <span
                       className="inline-block h-3 w-8 rounded"

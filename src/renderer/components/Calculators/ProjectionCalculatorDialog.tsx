@@ -53,7 +53,7 @@ const NumField = ({
   suffix?: string
 }) => (
   <label className="block">
-    <span className="mb-1 block text-cp-xs text-slate-400">{label}</span>
+    <span className="mb-1 block text-cp-xs text-cp-text-muted">{label}</span>
     <div className="flex items-center gap-1">
       <input
         type="number"
@@ -61,16 +61,16 @@ const NumField = ({
         min={min}
         step={step}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-base"
+        className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-base"
       />
-      {suffix && <span className="text-cp-xs text-slate-500">{suffix}</span>}
+      {suffix && <span className="text-cp-xs text-cp-text-faint">{suffix}</span>}
     </div>
   </label>
 )
 
 const Result = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex items-baseline justify-between rounded border border-slate-800 bg-slate-900/50 px-3 py-1.5">
-    <span className="text-cp-xs text-slate-400">{label}</span>
+  <div className="flex items-baseline justify-between rounded border border-cp-border-muted bg-cp-surface-1/50 px-3 py-1.5">
+    <span className="text-cp-xs text-cp-text-muted">{label}</span>
     <span className="font-mono text-cp-base text-sky-300">{value}</span>
   </div>
 )
@@ -121,7 +121,7 @@ const ProjectionCalcCore = () => {
       type="button"
       onClick={() => setTab(id)}
       className={`flex-1 rounded px-2 py-1 text-cp-xs ${
-        tab === id ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+        tab === id ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
       }`}
     >
       {label}
@@ -129,7 +129,7 @@ const ProjectionCalcCore = () => {
   )
 
   return (
-    <div className="space-y-3 text-slate-200">
+    <div className="space-y-3 text-cp-text-bright">
       <div className="flex gap-1">
         {tabBtn('throw', t('calc.projection.tab.throw', 'Projektionsabstand'))}
         {tabBtn('screen', t('calc.projection.tab.screen', 'Bildgröße & Sitzabstand'))}
@@ -138,7 +138,7 @@ const ProjectionCalcCore = () => {
 
       {tab === 'throw' && (
         <div className="space-y-3">
-          <p className="text-cp-xs text-slate-400">
+          <p className="text-cp-xs text-cp-text-muted">
             {t(
               'calc.projection.throw.intro',
               'Projektionsabstand = Throw-Ratio × Bildbreite. Die Throw-Ratio steht im Datenblatt des Objektivs (z. B. 1.2–1.8).',
@@ -161,11 +161,11 @@ const ProjectionCalcCore = () => {
           <div className="grid grid-cols-2 gap-3">
             <NumField label={t('calc.projection.diagonal', 'Diagonale')} value={diagonalIn} onChange={setDiagonalIn} step={1} suffix="″" />
             <label className="block">
-              <span className="mb-1 block text-cp-xs text-slate-400">{t('calc.projection.aspect', 'Seitenverhältnis')}</span>
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('calc.projection.aspect', 'Seitenverhältnis')}</span>
               <select
                 value={aspectId}
                 onChange={(e) => setAspectId(e.target.value)}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-base"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-base"
               >
                 {ASPECTS.map((a) => (
                   <option key={a.id} value={a.id}>{a.label}</option>
@@ -179,7 +179,7 @@ const ProjectionCalcCore = () => {
             <Result label={t('calc.projection.viewThx', 'Min. Sitzabstand (THX 36°)')} value={`${screen.thx.toFixed(2)} m`} />
             <Result label={t('calc.projection.viewSmpte', 'Optimaler Sitzabstand (SMPTE 30°)')} value={`${screen.smpte.toFixed(2)} m`} />
           </div>
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[11px] text-cp-text-muted">
             {t('calc.projection.screen.note', 'Sitzabstände nach horizontalem Blickwinkel: THX empfiehlt max. 36°, SMPTE EG-18 ca. 30°.')}
           </p>
         </div>
@@ -187,7 +187,7 @@ const ProjectionCalcCore = () => {
 
       {tab === 'led' && (
         <div className="space-y-3">
-          <p className="text-cp-xs text-slate-400">
+          <p className="text-cp-xs text-cp-text-muted">
             {t('calc.projection.led.intro', 'Auflösung einer LED-Wand aus Pixel-Pitch und physischer Größe.')}
           </p>
           <div className="grid grid-cols-3 gap-3">
@@ -199,7 +199,7 @@ const ProjectionCalcCore = () => {
             <Result label={t('calc.projection.resolution', 'Auflösung')} value={`${led.pxW} × ${led.pxH} px`} />
             <Result label={t('calc.projection.totalPixels', 'Pixel gesamt')} value={`${led.total.toLocaleString()} (${led.mp.toFixed(1)} MP)`} />
           </div>
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[11px] text-cp-text-muted">
             {t('calc.projection.led.note', 'Faustregel Mindest-Betrachtungsabstand (m) ≈ Pixel-Pitch (mm). Bei 2.6 mm also ab ~2.6 m ohne sichtbares Pixelraster.')}
           </p>
         </div>

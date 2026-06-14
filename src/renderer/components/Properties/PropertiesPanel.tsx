@@ -66,9 +66,9 @@ export const PropertiesPanel = () => {
         {selectedLocationId && <LocationProperties />}
         {selectedTemplateName && <TemplateProperties />}
         {!selectedEquipmentId && !selectedCableId && !selectedLocationId && !selectedTemplateName && (
-          <div className="space-y-3 text-cp-xs text-slate-400">
-            <div className="rounded border border-slate-800 bg-slate-900/50 p-3">
-              <div className="mb-1 font-semibold text-slate-200">
+          <div className="space-y-3 text-cp-xs text-cp-text-muted">
+            <div className="rounded border border-cp-border-muted bg-cp-surface-1/50 p-3">
+              <div className="mb-1 font-semibold text-cp-text-bright">
                 {t('inspector.nothingSelected', 'Nichts ausgewählt')}
               </div>
               <div>
@@ -78,8 +78,8 @@ export const PropertiesPanel = () => {
                 )}
               </div>
             </div>
-            <div className="rounded border border-slate-800 bg-slate-900/40 p-3">
-              <div className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+            <div className="rounded border border-cp-border-muted bg-cp-surface-1/40 p-3">
+              <div className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-cp-text-muted">
                 {t('inspector.hints.title', 'Schnelle Orientierung')}
               </div>
               <div className="space-y-1">
@@ -126,8 +126,8 @@ export const PropertiesPanel = () => {
       <FloatingPanelShell
         title={
           <span className="flex flex-col">
-            <span className="text-cp-base font-semibold text-slate-100">{title}</span>
-            <span className="text-[10px] uppercase tracking-wide text-slate-400">
+            <span className="text-cp-base font-semibold text-cp-text">{title}</span>
+            <span className="text-[10px] uppercase tracking-wide text-cp-text-muted">
               {t('inspector.subtitle', 'Eigenschaften')}
             </span>
           </span>
@@ -150,13 +150,13 @@ export const PropertiesPanel = () => {
 
   if (collapsed) {
     return (
-      <aside className="group flex h-full w-8 flex-col items-center border-l border-slate-700 bg-slate-950 transition-colors hover:bg-slate-900">
+      <aside className="group flex h-full w-8 flex-col items-center border-l border-cp-border bg-cp-surface-3 transition-colors hover:bg-cp-surface-1">
         <button
           type="button"
           onClick={toggle}
           title={t('inspector.collapse.show', 'Eigenschaften einblenden')}
           aria-label={t('inspector.collapse.show', 'Eigenschaften einblenden')}
-          className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary shadow-sm transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
           <span className="text-cp-lg leading-none">‹</span>
         </button>
@@ -164,7 +164,7 @@ export const PropertiesPanel = () => {
           type="button"
           onClick={toggle}
           aria-label={t('inspector.collapse.show', 'Eigenschaften einblenden')}
-          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400 transition-colors hover:text-slate-300 focus-visible:outline-none focus-visible:text-sky-300"
+          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-cp-text-muted transition-colors hover:text-cp-text-secondary focus-visible:outline-none focus-visible:text-sky-300"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
           {t('inspector.subtitle', 'Eigenschaften')}
@@ -174,11 +174,11 @@ export const PropertiesPanel = () => {
   }
 
   return (
-    <aside className="flex h-full min-h-0 flex-col border-l border-slate-700 bg-slate-950 text-slate-100">
-      <div className="flex items-start justify-between gap-2 border-b border-slate-800 px-3 py-2.5">
+    <aside className="flex h-full min-h-0 flex-col border-l border-cp-border bg-cp-surface-3 text-cp-text">
+      <div className="flex items-start justify-between gap-2 border-b border-cp-border-muted px-3 py-2.5">
         <div className="min-w-0">
           <h2 className="truncate text-cp-base font-semibold">{title}</h2>
-          <div className="mt-0.5 text-[10px] uppercase tracking-wide text-slate-400">
+          <div className="mt-0.5 text-[10px] uppercase tracking-wide text-cp-text-muted">
             {t('inspector.subtitle', 'Eigenschaften')}
           </div>
         </div>
@@ -196,7 +196,7 @@ export const PropertiesPanel = () => {
             }}
             title={t('inspector.float.title', 'Eigenschaften abdocken (klicken oder herausziehen)')}
             aria-label={t('inspector.float.aria', 'Eigenschaften abdocken')}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
             style={{ touchAction: 'none' }}
           >
             <span className="pointer-events-none text-[11px] leading-none">⤢</span>
@@ -206,7 +206,7 @@ export const PropertiesPanel = () => {
             onClick={() => openPanelPopout('properties')}
             title={t('panel.popoutTitle', 'In separates Fenster auslagern (weiterer Monitor)')}
             aria-label={t('panel.popout', 'Auslagern')}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <Icon icon={ExternalLink} size="xs" />
           </button>
@@ -215,7 +215,7 @@ export const PropertiesPanel = () => {
             onClick={toggle}
             title={t('inspector.collapse.hide', 'Eigenschaften ausblenden')}
             aria-label={t('inspector.collapse.hide', 'Eigenschaften ausblenden')}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition-all hover:border-sky-500 hover:bg-slate-800 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-cp-lg leading-none">›</span>
           </button>

@@ -90,8 +90,8 @@ export const RevisionsDialog = () => {
     >
       <div className="flex flex-col gap-3">
         {/* Festschreiben */}
-        <div className="rounded border border-slate-700 bg-slate-900/40 p-2">
-          <div className="mb-1.5 text-cp-xs font-semibold text-slate-300">
+        <div className="rounded border border-cp-border bg-cp-surface-1/40 p-2">
+          <div className="mb-1.5 text-cp-xs font-semibold text-cp-text-secondary">
             {t('revisions.commitTitle', 'Aktuellen Stand festschreiben')}
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -99,15 +99,15 @@ export const RevisionsDialog = () => {
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               placeholder={t('revisions.labelPlaceholder', 'Label (z.B. "A", "Rev 2")')}
-              className="w-32 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              className="w-32 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
             />
             <input
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder={t('revisions.notePlaceholder', 'Notiz: was hat sich geändert?')}
-              className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+              className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
             />
-            <label className="flex items-center gap-1 text-cp-xs text-slate-300">
+            <label className="flex items-center gap-1 text-cp-xs text-cp-text-secondary">
               <input
                 type="checkbox"
                 checked={asBuilt}
@@ -128,23 +128,23 @@ export const RevisionsDialog = () => {
 
         {/* Liste */}
         {sorted.length === 0 ? (
-          <p className="py-6 text-center text-cp-xs text-slate-500">
+          <p className="py-6 text-center text-cp-xs text-cp-text-faint">
             {t('revisions.empty', 'Noch keine Revisionen festgeschrieben.')}
           </p>
         ) : (
-          <ul className="divide-y divide-slate-800/60">
+          <ul className="divide-y divide-cp-surface-2/60">
             {sorted.map((rev) => (
               <li key={rev.id} className="flex items-center gap-2 py-1.5 text-cp-xs">
                 <span
                   className={`rounded px-1.5 py-0.5 font-bold ${
-                    rev.asBuilt ? 'bg-amber-600 text-amber-50' : 'bg-slate-700 text-slate-200'
+                    rev.asBuilt ? 'bg-amber-600 text-amber-50' : 'bg-cp-surface-4 text-cp-text-bright'
                   }`}
                 >
                   {rev.label}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="text-slate-300">{rev.note || '—'}</span>
-                  <span className="ml-2 text-slate-500">{fmtDate(rev.createdAt)}</span>
+                  <span className="text-cp-text-secondary">{rev.note || '—'}</span>
+                  <span className="ml-2 text-cp-text-faint">{fmtDate(rev.createdAt)}</span>
                   {rev.asBuilt && (
                     <span className="ml-1 text-amber-400">· {t('revisions.asBuiltTag', 'As-Built')}</span>
                   )}
@@ -169,7 +169,7 @@ export const RevisionsDialog = () => {
             ))}
           </ul>
         )}
-        <p className="text-[10px] text-slate-400">
+        <p className="text-[10px] text-cp-text-muted">
           {t(
             'revisions.footerHint',
             'Eine Revision speichert einen vollständigen Snapshot des Plans. Beim Wiederherstellen bleibt die Historie erhalten.',

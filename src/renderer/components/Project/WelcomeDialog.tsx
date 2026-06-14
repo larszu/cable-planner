@@ -52,7 +52,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-cp-surface-2 px-3 py-1 text-cp-xs text-cp-text-muted hover:bg-slate-700 hover:text-slate-200"
+            className="rounded bg-cp-surface-2 px-3 py-1 text-cp-xs text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text-bright"
             title={t(
               'project.welcome.laterTitle',
               'Ohne Auswahl fortfahren — bitte denke daran, manuell zu speichern.',
@@ -77,7 +77,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
             onNew()
             onClose()
           }}
-          className="flex w-full items-start gap-3 rounded border border-cp-border bg-cp-surface-2 px-3 py-2.5 text-left hover:border-emerald-500 hover:bg-slate-700"
+          className="flex w-full items-start gap-3 rounded border border-cp-border bg-cp-surface-2 px-3 py-2.5 text-left hover:border-emerald-500 hover:bg-cp-surface-4"
         >
           <Icon icon={FileText} size="lg" className="mt-0.5 text-emerald-400" />
           <span className="flex-1">
@@ -96,7 +96,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
             onOpen()
             onClose()
           }}
-          className="flex w-full items-start gap-3 rounded border border-cp-border bg-cp-surface-2 px-3 py-2.5 text-left hover:border-sky-500 hover:bg-slate-700"
+          className="flex w-full items-start gap-3 rounded border border-cp-border bg-cp-surface-2 px-3 py-2.5 text-left hover:border-sky-500 hover:bg-cp-surface-4"
         >
           <Icon icon={FolderOpen} size="lg" className="mt-0.5 text-sky-400" />
           <span className="flex-1">

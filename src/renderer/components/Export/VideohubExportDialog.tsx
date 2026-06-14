@@ -685,13 +685,13 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-      <div className="flex max-h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
+      <div className="flex max-h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-cp-xl font-semibold"><Icon icon={SlidersHorizontal} size="sm" /> Videohub konfigurieren · Labels + Routing</h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             aria-label={t('common.close', 'Schließen')}
           >
             <Icon icon={X} size="sm" />
@@ -704,7 +704,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <select
               value={deviceId}
               onChange={(e) => setDeviceId(e.target.value)}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
             >
               <option value="">— {t('videohub.pickDevice', 'Gerät wählen')} —</option>
               {equipment.map((e) => (
@@ -729,7 +729,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   setRouting(buildDefaultRouting(p.inputs, p.outputs))
                 }
               }}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
             >
               {videohubPresets.map((p) => (
                 <option key={p.key} value={p.key}>
@@ -742,7 +742,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           {/* #387 — Custom-Mode: User-spezifische Inputs/Outputs Anzahl. */}
           {presetKey === 'custom' && (
             <div className="col-span-2 grid grid-cols-2 gap-2 rounded border border-sky-700/40 bg-sky-950/20 p-2">
-              <label className="block text-cp-xs text-slate-300">
+              <label className="block text-cp-xs text-cp-text-secondary">
                 Inputs
                 <input
                   type="number"
@@ -754,10 +754,10 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                     setCustomInputs(v)
                     setRouting(buildDefaultRouting(v, customOutputs))
                   }}
-                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
                 />
               </label>
-              <label className="block text-cp-xs text-slate-300">
+              <label className="block text-cp-xs text-cp-text-secondary">
                 Outputs
                 <input
                   type="number"
@@ -769,7 +769,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                     setCustomOutputs(v)
                     setRouting(buildDefaultRouting(customInputs, v))
                   }}
-                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
                 />
               </label>
             </div>
@@ -780,7 +780,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <select
               value={format}
               onChange={(e) => setFormat(e.target.value as Format)}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
               title={t('videohub.formatTitle', 'Bestimmt nur das Format der Vorschau-/Datei-Ausgabe unten. Der direkte TCP-Push (Labels/Routing-Buttons) ist davon unabhängig.')}
             >
               <option value="routing">{t('videohub.optFullRouting', 'Voller Routing-Dump (Protokoll 2.5)')}</option>
@@ -789,12 +789,12 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           </label>
 
           <label className="block">
-            Friendly Name {format === 'labels' && <span className="text-slate-500">(ignoriert)</span>}
+            Friendly Name {format === 'labels' && <span className="text-cp-text-faint">(ignoriert)</span>}
             <input
               value={friendlyName}
               placeholder={device?.name ?? ''}
               onChange={(e) => setFriendlyName(e.target.value)}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
             />
           </label>
         </div>
@@ -816,20 +816,20 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <button
               type="button"
               onClick={() => setShowMatrix((m) => !m)}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {showMatrix ? '▼' : '▶'} Routing-Ansicht
             </button>
             {/* v7.9.129 — View-Mode-Switch: Matrix oder Liste */}
             {showMatrix && (
-              <div className="flex overflow-hidden rounded border border-slate-700 text-cp-xs">
+              <div className="flex overflow-hidden rounded border border-cp-border text-cp-xs">
                 <button
                   type="button"
                   onClick={() => setAndPersistRoutingView('matrix')}
                   className={`px-2 py-1 ${
                     routingView === 'matrix'
                       ? 'bg-sky-700 text-white'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
                   }`}
                   title={t('videohub.matrixView', 'Crosspoint-Matrix')}
                 >
@@ -841,7 +841,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   className={`px-2 py-1 ${
                     routingView === 'list'
                       ? 'bg-sky-700 text-white'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
                   }`}
                   title={t('videohub.listView', 'Listen-Ansicht mit Dropdown pro Output')}
                 >
@@ -849,7 +849,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 </button>
               </div>
             )}
-            <span className="text-cp-xs text-slate-500">
+            <span className="text-cp-xs text-cp-text-faint">
               {preset.inputs} Eing. × {preset.outputs} Ausg.
             </span>
             {/* v7.9.131 — Achsen-Swap. Toggle zwischen "Outputs links/
@@ -863,7 +863,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   ? 'Achsen tauschen: Inputs links, Outputs oben/als Picker'
                   : 'Achsen tauschen: Outputs links, Inputs oben/als Picker'
               }
-              className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-cp-xs text-slate-200 hover:bg-slate-700"
+              className="rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4"
             >
               {axisOrientation === 'outputs-rows'
                 ? '⇅ Out·In tauschen'
@@ -882,7 +882,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               className={`rounded border px-2 py-1 text-cp-xs ${
                 showConnections
                   ? 'border-sky-700 bg-sky-900/40 text-sky-200'
-                  : 'border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800'
+                  : 'border-cp-border bg-cp-surface-1 text-cp-text-muted hover:bg-cp-surface-2'
               }`}
             >
               <Icon icon={Link} size="xs" className="mr-1 inline-block align-text-bottom" />{showConnections ? 'Verkabelung an' : 'Verkabelung aus'}
@@ -904,7 +904,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 className={`rounded border px-2 py-1 text-cp-xs ${
                   showConnectionPorts
                     ? 'border-emerald-700 bg-emerald-900/40 text-emerald-200'
-                    : 'border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800'
+                    : 'border-cp-border bg-cp-surface-1 text-cp-text-muted hover:bg-cp-surface-2'
                 }`}
               >
                 {showConnectionPorts ? '· Input-Label an' : '· Input-Label aus'}
@@ -924,7 +924,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <button
               type="button"
               onClick={() => setRouting(buildDefaultRouting(preset.inputs, preset.outputs))}
-              className="rounded bg-slate-800 px-2 py-1 text-cp-xs hover:bg-slate-700"
+              className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
               title={t('videohub.resetDiag', 'Diagonal-Routing zurücksetzen (Ausgang N → Eingang N)')}
             >
               ↺ Reset
@@ -1073,7 +1073,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             </button>
           </div>
           {salvos.length === 0 ? (
-            <div className="text-[11px] text-slate-400">
+            <div className="text-[11px] text-cp-text-muted">
               Noch keine Salvos. Speichere die aktuelle Crosspoint-Verteilung
               und ruf sie spaeter mit einem Klick zurueck.
             </div>
@@ -1095,7 +1095,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   <button
                     type="button"
                     onClick={() => deleteSalvo(s.id)}
-                    className="text-slate-500 hover:text-red-400"
+                    className="text-cp-text-faint hover:text-red-400"
                     title={t('videohub.deleteSalvo', 'Salvo löschen')}
                   >
                     ×
@@ -1112,8 +1112,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             pusht das ans Hub wenn er im richtigen Netz ist — ggf. nur
             Teilmengen (z.B. nur Labels nach Re-Labelling, ohne Routing
             zu touchen). */}
-        <div className="mb-3 rounded border border-slate-600 bg-slate-800/60 p-2">
-          <div className="mb-2 text-[10px] uppercase tracking-wide text-slate-400">
+        <div className="mb-3 rounded border border-cp-surface-5 bg-cp-surface-2/60 p-2">
+          <div className="mb-2 text-[10px] uppercase tracking-wide text-cp-text-muted">
             An Videohub senden (TCP) — offline editieren, hier pushen wenn online
             {!hasDesktopBridge && (
               <span className="ml-2 text-amber-400">· nur in Desktop-App verfügbar</span>
@@ -1130,7 +1130,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                     setSendStatus('idle')
                   }}
                   placeholder="192.168.1.1"
-                  className="flex-1 rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-cp-xs"
+                  className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
                 />
                 {/* v7.9.128 — Connection-History: zuletzt benutzte
                     IP/Port-Kombinationen. Wird beim erfolgreichen Send
@@ -1149,7 +1149,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                       }
                     }}
                     title={t('videohub.recentConns', 'Zuletzt benutzte Verbindungen')}
-                    className="w-10 rounded border border-slate-700 bg-slate-950 px-1 text-cp-xs"
+                    className="w-10 rounded border border-cp-border bg-cp-surface-3 px-1 text-cp-xs"
                   >
                     <option value="">▼</option>
                     {connHistory.map((c, i) => (
@@ -1170,7 +1170,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   setSendStatus('idle')
                 }}
                 placeholder="9990"
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5 font-mono text-cp-xs"
+                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
               />
             </label>
             <button
@@ -1197,7 +1197,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           {discovered !== null && (
             <div className="mt-2 rounded border border-teal-800 bg-teal-950/30 p-2 text-cp-xs">
               {discovered.length === 0 ? (
-                <div className="text-slate-400">
+                <div className="text-cp-text-muted">
                   Kein Videohub per mDNS gefunden. (Firewalls oder andere Subnetze
                   blocken Bonjour — dann IP manuell eintragen.)
                 </div>
@@ -1215,17 +1215,17 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                         setVhPort(String(d.port))
                         setSendStatus('idle')
                       }}
-                      className="flex items-center justify-between gap-2 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-left hover:border-teal-500 hover:bg-slate-800"
+                      className="flex items-center justify-between gap-2 rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-left hover:border-teal-500 hover:bg-cp-surface-2"
                     >
-                      <span className="truncate font-semibold text-slate-100">
+                      <span className="truncate font-semibold text-cp-text">
                         {d.name}
                         {d.model && (
-                          <span className="ml-1 text-[10px] font-normal text-slate-400">
+                          <span className="ml-1 text-[10px] font-normal text-cp-text-muted">
                             · {d.model}
                           </span>
                         )}
                       </span>
-                      <span className="shrink-0 font-mono text-slate-300">
+                      <span className="shrink-0 font-mono text-cp-text-secondary">
                         {d.ip}:{d.port}
                       </span>
                     </button>
@@ -1294,7 +1294,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   ? 'bg-emerald-950 text-emerald-300'
                   : sendStatus === 'error'
                     ? 'bg-red-950 text-red-300'
-                    : 'bg-slate-700 text-slate-300'
+                    : 'bg-cp-surface-4 text-cp-text-secondary'
               }`}
             >
               {sendStatus === 'ok' && '✓ '}
@@ -1308,18 +1308,18 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               NAK"). Wird beim Dialog-Close vergessen. */}
           {activityLog.length > 0 && (
             <details className="mt-2 text-[11px]">
-              <summary className="cursor-pointer text-slate-400 hover:text-slate-200">
+              <summary className="cursor-pointer text-cp-text-muted hover:text-cp-text-bright">
                 Activity-Log ({activityLog.length})
               </summary>
-              <div className="mt-1 max-h-32 space-y-0.5 overflow-auto rounded border border-slate-800 bg-slate-950/60 p-1.5 font-mono">
+              <div className="mt-1 max-h-32 space-y-0.5 overflow-auto rounded border border-cp-border-muted bg-cp-surface-3/60 p-1.5 font-mono">
                 {activityLog.map((e, i) => (
                   <div
                     key={`${e.ts}-${i}`}
                     className={`whitespace-nowrap ${
-                      e.ok ? 'text-slate-300' : 'text-red-300'
+                      e.ok ? 'text-cp-text-secondary' : 'text-red-300'
                     }`}
                   >
-                    <span className="text-slate-500">
+                    <span className="text-cp-text-faint">
                       {new Date(e.ts).toLocaleTimeString('de-DE')}
                     </span>{' '}
                     {e.text}
@@ -1330,11 +1330,11 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           )}
         </div>
 
-        <div className="mb-2 text-cp-xs text-slate-400">{t('videohub.preview', 'Vorschau')}</div>
+        <div className="mb-2 text-cp-xs text-cp-text-muted">{t('videohub.preview', 'Vorschau')}</div>
         <textarea
           readOnly
           value={preview}
-          className="flex-1 min-h-[150px] rounded border border-slate-700 bg-slate-950 p-2 font-mono text-[11px] text-slate-200"
+          className="flex-1 min-h-[150px] rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-[11px] text-cp-text-bright"
         />
 
         <div className="mt-3 flex justify-end gap-2">
@@ -1342,7 +1342,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             type="button"
             onClick={handleCopy}
             disabled={!device}
-            className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600 disabled:opacity-50"
+            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5 disabled:opacity-50"
           >
             In Zwischenablage
           </button>

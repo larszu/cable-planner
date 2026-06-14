@@ -88,8 +88,8 @@ export const LibraryItem = ({
       }}
       className={`group flex w-full cursor-grab items-start justify-between gap-2 rounded border ${accentClass} px-2 py-2 text-left text-cp-base active:cursor-grabbing ${
         item.hidden
-          ? 'border-slate-800 bg-slate-950 opacity-60 hover:opacity-100'
-          : 'border-slate-700 bg-slate-900 hover:bg-slate-800'
+          ? 'border-cp-border-muted bg-cp-surface-3 opacity-60 hover:opacity-100'
+          : 'border-cp-border bg-cp-surface-1 hover:bg-cp-surface-2'
       }`}
       title={
         isFromActiveRentman
@@ -131,7 +131,7 @@ export const LibraryItem = ({
           )}
           {isFromOtherRentman && (
             <span
-              className="mr-1 rounded bg-slate-600 px-1 text-[11px] font-bold text-slate-200"
+              className="mr-1 rounded bg-cp-surface-5 px-1 text-[11px] font-bold text-cp-text-bright"
               title={format(
                 t('library.item.badgeOtherRentman', 'Aus Rentman-Projekt{suffix}'),
                 { suffix: item.rentmanProjectName ? `: ${item.rentmanProjectName}` : '' },
@@ -150,10 +150,10 @@ export const LibraryItem = ({
           )}
           {item.name}
         </div>
-        <div className="truncate text-cp-xs text-slate-400">
+        <div className="truncate text-cp-xs text-cp-text-muted">
           {item.category} · {item.inputs.length} in / {item.outputs.length} out
           {isFromOtherRentman && item.rentmanProjectName && (
-            <span className="ml-1 text-slate-500">· {item.rentmanProjectName}</span>
+            <span className="ml-1 text-cp-text-faint">· {item.rentmanProjectName}</span>
           )}
         </div>
       </div>
@@ -175,7 +175,7 @@ export const LibraryItem = ({
               className={`rounded px-1 text-[11px] ${
                 item.favorite
                   ? 'bg-amber-700 text-amber-100 hover:bg-amber-600'
-                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  : 'bg-cp-surface-4 text-cp-text-secondary hover:bg-cp-surface-5'
               }`}
               aria-label={
                 item.favorite
@@ -203,8 +203,8 @@ export const LibraryItem = ({
               }}
               className={`rounded px-1 text-[11px] ${
                 item.hidden
-                  ? 'bg-slate-600 text-slate-200 hover:bg-slate-500'
-                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  ? 'bg-cp-surface-5 text-cp-text-bright hover:bg-slate-500'
+                  : 'bg-cp-surface-4 text-cp-text-secondary hover:bg-cp-surface-5'
               }`}
               aria-label={
                 item.hidden
@@ -229,7 +229,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onExport()
               }}
-              className="rounded bg-slate-700 px-1 text-[11px] text-slate-300 hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-1 text-[11px] text-cp-text-secondary hover:bg-cp-surface-5"
               aria-label={t('library.item.exportAria', 'Exportieren')}
             >
               <Icon icon={Download} size="xs" />

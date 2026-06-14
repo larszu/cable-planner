@@ -138,7 +138,7 @@ export const PortAiSuggestButton = ({
             <button
               type="button"
               onClick={() => setHints(null)}
-              className="rounded bg-slate-700 px-2 py-0.5 text-[10px] text-slate-200 hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-0.5 text-[10px] text-cp-text-bright hover:bg-cp-surface-5"
             >
               {t('props.aiPorts.discard', 'Verwerfen')}
             </button>

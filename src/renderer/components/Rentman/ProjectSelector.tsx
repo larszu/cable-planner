@@ -44,7 +44,7 @@ export const ProjectSelector = ({ projects, selectedProjectId, onSelect }: Proje
     <div
       role="listbox"
       aria-label={t('rentman.projectSelector.aria', 'Rentman project')}
-      className="max-h-64 overflow-auto rounded border border-slate-700 bg-slate-900"
+      className="max-h-64 overflow-auto rounded border border-cp-border bg-cp-surface-1"
     >
       {projects.map((project) => {
         const active = project.id === selectedProjectId
@@ -56,24 +56,24 @@ export const ProjectSelector = ({ projects, selectedProjectId, onSelect }: Proje
             aria-selected={active}
             onClick={() => onSelect(project.id)}
             title={formatLabel(project)}
-            className={`flex w-full items-center justify-between gap-2 border-b border-slate-800 px-2.5 py-1.5 text-left text-cp-xs last:border-b-0 ${
-              active ? 'bg-sky-600 text-white' : 'text-slate-200 hover:bg-slate-800'
+            className={`flex w-full items-center justify-between gap-2 border-b border-cp-border-muted px-2.5 py-1.5 text-left text-cp-xs last:border-b-0 ${
+              active ? 'bg-sky-600 text-white' : 'text-cp-text-bright hover:bg-cp-surface-2'
             }`}
           >
             <span className="min-w-0 flex-1 truncate">
               {project.number !== undefined && project.number !== '' && (
-                <span className={active ? 'text-sky-100' : 'text-slate-400'}>#{project.number} </span>
+                <span className={active ? 'text-sky-100' : 'text-cp-text-muted'}>#{project.number} </span>
               )}
               {project.name}
               {(() => {
                 const from = formatDate(project.periodStart)
                 const to = formatDate(project.periodEnd)
                 const span = from && to ? `${from} → ${to}` : from
-                return span ? <span className={`ml-1 ${active ? 'text-sky-100' : 'text-slate-500'}`}>· {span}</span> : null
+                return span ? <span className={`ml-1 ${active ? 'text-sky-100' : 'text-cp-text-faint'}`}>· {span}</span> : null
               })()}
             </span>
             {project.status && (
-              <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] ${active ? 'bg-sky-700 text-sky-50' : 'bg-slate-800 text-slate-400'}`}>
+              <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] ${active ? 'bg-sky-700 text-sky-50' : 'bg-cp-surface-2 text-cp-text-muted'}`}>
                 {project.status}
               </span>
             )}

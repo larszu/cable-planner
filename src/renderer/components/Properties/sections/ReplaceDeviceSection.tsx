@@ -165,12 +165,12 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
               onChange={(e) => setFilter(e.target.value)}
               placeholder={t('replaceDevice.searchPlaceholder', 'Suchen (Name, Kategorie, Hersteller)…')}
               aria-label={t('replaceDevice.searchPlaceholder', 'Suchen (Name, Kategorie, Hersteller)…')}
-              className="flex-1 rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
+              className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
             />
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5"
             >
               ✕
             </button>
@@ -178,7 +178,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full rounded border border-slate-700 bg-slate-950 p-1.5 text-cp-xs"
+            className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
           >
             <option value="">{t('replaceDevice.allCategories', '— Alle Kategorien —')}</option>
             {categories.map((c) => (
@@ -187,9 +187,9 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
               </option>
             ))}
           </select>
-          <div className="max-h-56 overflow-auto rounded border border-slate-800">
+          <div className="max-h-56 overflow-auto rounded border border-cp-border-muted">
             {filtered.length === 0 ? (
-              <div className="px-2 py-3 text-center text-[11px] text-slate-400">
+              <div className="px-2 py-3 text-center text-[11px] text-cp-text-muted">
                 {t('replaceDevice.noMatches', 'Keine Treffer.')}
               </div>
             ) : (
@@ -203,13 +203,13 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
                       <button
                         type="button"
                         onClick={() => void handlePick(tpl)}
-                        className="flex w-full items-start justify-between gap-2 border-b border-slate-800 px-2 py-1.5 text-left hover:bg-slate-800/60"
+                        className="flex w-full items-start justify-between gap-2 border-b border-cp-border-muted px-2 py-1.5 text-left hover:bg-cp-surface-2/60"
                       >
                         <span>
-                          <span className="block text-cp-xs font-medium text-slate-100">
+                          <span className="block text-cp-xs font-medium text-cp-text">
                             {tpl.name}
                           </span>
-                          <span className="block text-[10px] text-slate-400">
+                          <span className="block text-[10px] text-cp-text-muted">
                             {categoryDisplay(tpl.category ?? '', lang, categoryTranslations)} · {tpl.inputs.length} in / {tpl.outputs.length} out
                           </span>
                         </span>

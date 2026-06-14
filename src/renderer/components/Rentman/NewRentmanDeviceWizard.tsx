@@ -181,22 +181,22 @@ export const NewRentmanDeviceWizard = ({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-6">
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-slate-700 bg-slate-900 p-4 text-slate-100">
+      <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text">
         <div className="mb-3 flex items-center justify-between">
           <div>
             <h3 className="text-cp-xl font-semibold">
               {format(t('rentman.wizard.title', 'Neues Rentman-Gerät ({progress})'), { progress })}
             </h3>
-            <p className="mt-1 text-cp-xs text-slate-400">
+            <p className="mt-1 text-cp-xs text-cp-text-muted">
               {t('rentman.wizard.introPre', 'Zum ersten Mal gesehen:')}{' '}
-              <span className="text-slate-200">{current.name}</span>
+              <span className="text-cp-text-bright">{current.name}</span>
               {t('rentman.wizard.introPost', ' — Ein-/Ausgänge bestätigen, sie werden in deiner Bibliothek gespeichert.')}
             </p>
           </div>
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('rentman.wizard.cancelImport', 'Import abbrechen')}
           </button>
@@ -208,7 +208,7 @@ export const NewRentmanDeviceWizard = ({
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
             />
           </label>
           <label className="block">
@@ -217,7 +217,7 @@ export const NewRentmanDeviceWizard = ({
               <CategorySelect
                 value={category}
                 onChange={setCategory}
-                className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
               />
               <button
                 type="button"
@@ -226,7 +226,7 @@ export const NewRentmanDeviceWizard = ({
                   if (cat) addKnownCategories([cat])
                 }}
                 title={t('rentman.wizard.saveAsCategoryTitle', 'Als neue Kategorie speichern')}
-                className="rounded bg-slate-700 px-2 text-cp-xs hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-2 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('rentman.wizard.addCategory', '+ Neu')}
               </button>
@@ -258,7 +258,7 @@ export const NewRentmanDeviceWizard = ({
             <button
               type="button"
               onClick={handleOpenAiSettings}
-              className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               title={t('rentman.wizard.aiSettingsTitle', 'Gemini API-Key konfigurieren')}
             >
               {t('rentman.wizard.aiSettings', 'KI-Einstellungen')}
@@ -289,9 +289,9 @@ export const NewRentmanDeviceWizard = ({
         {aiSettingsOpen && (
           <div className="mb-3 rounded border border-purple-700 bg-purple-950/40 p-3">
             <div className="mb-2 text-cp-xs font-semibold text-purple-200">{t('rentman.wizard.geminiKeyHeading', 'Gemini API-Key')}</div>
-            <p className="mb-2 text-[11px] text-slate-300">
+            <p className="mb-2 text-[11px] text-cp-text-secondary">
               {t('rentman.wizard.geminiKeyHintPre', 'Kostenlos unter')}{' '}
-              <span className="font-mono text-slate-200">aistudio.google.com/apikey</span>{' '}
+              <span className="font-mono text-cp-text-bright">aistudio.google.com/apikey</span>{' '}
               {t('rentman.wizard.geminiKeyHintPost', '(15 Anfragen/Min). Wird lokal im Browser-Storage gespeichert.')}
             </p>
             <input
@@ -299,14 +299,14 @@ export const NewRentmanDeviceWizard = ({
               value={apiKeyDraft}
               onChange={(event) => setApiKeyDraft(event.target.value)}
               placeholder={t('rentman.wizard.aiKeyPlaceholder', 'AIzaSy...')}
-              className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-xs"
+              className="w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-xs"
               autoFocus
             />
             <div className="mt-2 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setAiSettingsOpen(false)}
-                className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('common.cancel', 'Abbrechen')}
               </button>
@@ -336,13 +336,13 @@ export const NewRentmanDeviceWizard = ({
           {groups.map((group) => (
             <div
               key={group.id}
-              className="grid grid-cols-[80px_70px_1fr_1fr_40px] items-center gap-2 rounded border border-slate-700 bg-slate-950 p-2 text-cp-xs"
+              className="grid grid-cols-[80px_70px_1fr_1fr_40px] items-center gap-2 rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-xs"
             >
               <select
                 aria-label={t('rentman.wizard.directionAria', 'Richtung')}
                 value={group.direction}
                 onChange={(event) => updateGroup(group.id, { direction: event.target.value as 'in' | 'out' })}
-                className="rounded border border-slate-700 bg-slate-900 p-1"
+                className="rounded border border-cp-border bg-cp-surface-1 p-1"
               >
                 <option value="in">{t('rentman.wizard.directionIn', 'Eingang')}</option>
                 <option value="out">{t('rentman.wizard.directionOut', 'Ausgang')}</option>
@@ -353,13 +353,13 @@ export const NewRentmanDeviceWizard = ({
                 min={1}
                 value={group.count}
                 onChange={(event) => updateGroup(group.id, { count: Number(event.target.value) })}
-                className="rounded border border-slate-700 bg-slate-900 p-1"
+                className="rounded border border-cp-border bg-cp-surface-1 p-1"
               />
               <select
                 aria-label={t('rentman.wizard.connectorTypeAria', 'Steckertyp')}
                 value={group.connectorType}
                 onChange={(event) => updateGroup(group.id, { connectorType: event.target.value as ConnectorType })}
-                className="rounded border border-slate-700 bg-slate-900 p-1"
+                className="rounded border border-cp-border bg-cp-surface-1 p-1"
               >
                 {connectorOptions.map((item) => (
                   <option key={item} value={item}>
@@ -371,7 +371,7 @@ export const NewRentmanDeviceWizard = ({
                 value={group.label}
                 onChange={(event) => updateGroup(group.id, { label: event.target.value })}
                 placeholder={t('rentman.wizard.labelPrefixPlaceholder', 'Label-Präfix')}
-                className="rounded border border-slate-700 bg-slate-900 p-1"
+                className="rounded border border-cp-border bg-cp-surface-1 p-1"
               />
               <button
                 type="button"
@@ -384,7 +384,7 @@ export const NewRentmanDeviceWizard = ({
             </div>
           ))}
           {groups.length === 0 && (
-            <div className="text-cp-xs text-slate-400">{t('rentman.wizard.noGroups', 'Keine Port-Gruppen. Oben hinzufügen oder Gerät überspringen.')}</div>
+            <div className="text-cp-xs text-cp-text-muted">{t('rentman.wizard.noGroups', 'Keine Port-Gruppen. Oben hinzufügen oder Gerät überspringen.')}</div>
           )}
         </div>
 
@@ -400,7 +400,7 @@ export const NewRentmanDeviceWizard = ({
           <button
             type="button"
             onClick={handleSkip}
-            className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5"
             title={t('rentman.wizard.skipTitle', 'Importieren ohne Bibliothekseintrag (1 generischer Ein-/Ausgang)')}
           >
             {t('rentman.wizard.skip', 'Überspringen (generisch)')}

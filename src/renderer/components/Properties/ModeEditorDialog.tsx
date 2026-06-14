@@ -151,7 +151,7 @@ export const ModeEditorDialog = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('common.cancel', 'Abbrechen')}
           </button>
@@ -170,14 +170,14 @@ export const ModeEditorDialog = ({
         {/* Name & description */}
         <div className="space-y-2">
           <label className="block">
-            <span className="text-slate-400">{t('common.name', 'Name')}</span>
+            <span className="text-cp-text-muted">{t('common.name', 'Name')}</span>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t('modeEditor.namePlaceholder', 'z.B. "12G Single-Link", "4K-Modus", "Workshop-Layout"')}
                 autoFocus
-                className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-slate-100"
+                className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-text"
               />
               {nameConflict && (
                 <span className="mt-0.5 flex items-center gap-1 text-[10px] text-amber-400">
@@ -187,19 +187,19 @@ export const ModeEditorDialog = ({
               )}
             </label>
             <label className="block">
-              <span className="text-slate-400">{t('modeEditor.descLabel', 'Beschreibung (optional)')}</span>
+              <span className="text-cp-text-muted">{t('modeEditor.descLabel', 'Beschreibung (optional)')}</span>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
                 placeholder={t('modeEditor.descPlaceholder', 'z.B. Begrenzt Outputs auf 2 für 4K-Modus (weniger Ressourcen)')}
-                className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-slate-100"
+                className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-text"
               />
             </label>
           </div>
 
           <div className="mt-4 flex items-center justify-between">
-            <div className="text-[10px] text-slate-400">
+            <div className="text-[10px] text-cp-text-muted">
               {format(
                 t('modeEditor.portCount', '{count} Port(s) in diesem Modus'),
                 { count: totalPortCount },
@@ -208,7 +208,7 @@ export const ModeEditorDialog = ({
             <button
               type="button"
               onClick={seedFromCurrent}
-              className="rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5"
               title={t('modeEditor.seedTitle', 'Übernimmt das AKTUELLE Port-Layout des Geräts als Startpunkt.')}
             >
               <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('modeEditor.seedBtn', 'Aus aktuellem Geräte-Layout übernehmen')}
@@ -225,7 +225,7 @@ export const ModeEditorDialog = ({
             ).map(({ side, label, list, accent }) => (
               <div
                 key={side}
-                className="rounded border border-slate-800 bg-slate-950/40 p-2"
+                className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-2"
               >
                 <div className="mb-2 flex items-center justify-between">
                   <span className={`text-[11px] font-semibold ${
@@ -236,13 +236,13 @@ export const ModeEditorDialog = ({
                   <button
                     type="button"
                     onClick={() => addPort(side)}
-                    className="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-slate-300 hover:bg-slate-700"
+                    className="rounded bg-cp-surface-2 px-2 py-0.5 text-[10px] text-cp-text-secondary hover:bg-cp-surface-4"
                   >
                     + Port
                   </button>
                 </div>
                 {list.length === 0 ? (
-                  <div className="rounded border border-dashed border-slate-700 p-3 text-center text-[10px] text-slate-400">
+                  <div className="rounded border border-dashed border-cp-border p-3 text-center text-[10px] text-cp-text-muted">
                     {format(t('modeEditor.emptySide', 'Keine {kind} in diesem Modus.'), { kind: label.toLowerCase() })}
                   </div>
                 ) : (
@@ -250,14 +250,14 @@ export const ModeEditorDialog = ({
                     {list.map((p) => (
                       <li
                         key={p.id}
-                        className="flex items-center gap-1 rounded border border-slate-800 bg-slate-900/60 p-1"
+                        className="flex items-center gap-1 rounded border border-cp-border-muted bg-cp-surface-1/60 p-1"
                       >
                         <input
                           type="text"
                           value={p.name}
                           onChange={(e) => updatePort(side, p.id, { name: e.target.value })}
                           placeholder={t('ports.namePlaceholder', 'Port-Name')}
-                          className="flex-1 rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-[11px]"
+                          className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-[11px]"
                         />
                         <select
                           value={p.connectorType}
@@ -266,7 +266,7 @@ export const ModeEditorDialog = ({
                               connectorType: e.target.value as ConnectorType,
                             })
                           }
-                          className="w-28 rounded border border-slate-700 bg-slate-950 px-1 py-0.5 text-[10px]"
+                          className="w-28 rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-[10px]"
                         >
                           {ALL_CONNECTOR_TYPES.map((c) => (
                             <option key={c} value={c}>

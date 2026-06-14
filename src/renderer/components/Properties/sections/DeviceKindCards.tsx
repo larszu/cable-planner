@@ -118,7 +118,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
         <button
           type="button"
           disabled
-          className="w-full cursor-not-allowed rounded bg-slate-700 px-2 py-1 text-cp-xs opacity-60"
+          className="w-full cursor-not-allowed rounded bg-cp-surface-4 px-2 py-1 text-cp-xs opacity-60"
           title={t('props.deviceKind.mvExportTitle', 'Multiviewer-Layout Export kommt in v0.4.0')}
         >
           {t('props.deviceKind.mvExport', 'Multiviewer Layout Export (v0.4.0)')}

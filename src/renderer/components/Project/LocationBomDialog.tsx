@@ -330,32 +330,32 @@ export const LocationBomDialog = () => {
       draggableKey="cable-planner:modal-pos:location-bom"
     >
         <div className="text-cp-xs">
-          <div className="mb-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+          <div className="mb-3 flex flex-wrap items-center gap-2 text-[11px] text-cp-text-muted">
             <span>
-              {t('locbom.devices', 'Geräte')}: <b className="text-slate-200">{devices.length}</b>
+              {t('locbom.devices', 'Geräte')}: <b className="text-cp-text-bright">{devices.length}</b>
             </span>
             <span>
-              {t('locbom.internalCables', 'Interne Kabel')}: <b className="text-slate-200">{internalCables.length}</b>
+              {t('locbom.internalCables', 'Interne Kabel')}: <b className="text-cp-text-bright">{internalCables.length}</b>
             </span>
             {externalCables.length > 0 && (
               <span>
-                {t('locbom.externalConnections', 'Externe Verbindungen')}: <b className="text-slate-200">{externalCables.length}</b>
+                {t('locbom.externalConnections', 'Externe Verbindungen')}: <b className="text-cp-text-bright">{externalCables.length}</b>
               </span>
             )}
             {/* #351 — Logistik: Gewicht + Strombedarf + Wärmelast je Location. */}
             {logistics.weightKg > 0 && (
               <span title={t('locbom.weightTitle', '{n} von {total} Geräten haben ein Gewicht hinterlegt').replace('{n}', String(logistics.weighed)).replace('{total}', String(devices.length))}>
-                {t('locbom.weight', 'Gewicht')}: <b className="text-slate-200">{logistics.weightKg.toFixed(1)} kg</b>
+                {t('locbom.weight', 'Gewicht')}: <b className="text-cp-text-bright">{logistics.weightKg.toFixed(1)} kg</b>
               </span>
             )}
             {logistics.watts > 0 && (
               <span>
-                {t('locbom.power', 'Leistung')}: <b className="text-slate-200">{logistics.watts.toFixed(0)} W</b>
-                <span className="text-slate-500"> · {logistics.btu} BTU/h</span>
+                {t('locbom.power', 'Leistung')}: <b className="text-cp-text-bright">{logistics.watts.toFixed(0)} W</b>
+                <span className="text-cp-text-faint"> · {logistics.btu} BTU/h</span>
               </span>
             )}
             <label
-              className="ml-auto flex items-center gap-1.5 text-[11px] text-slate-300"
+              className="ml-auto flex items-center gap-1.5 text-[11px] text-cp-text-secondary"
               title={t('locbom.groupTitle', 'Gruppiert gleiche Kabel (selber Typ + Länge) in einer Zeile mit Stückzahl — Standard für Stückliste.')}
             >
               <input
@@ -366,7 +366,7 @@ export const LocationBomDialog = () => {
               {t('locbom.groupCables', 'Kabel zusammenfassen')}
             </label>
             <label
-              className="flex items-center gap-1.5 text-[11px] text-slate-300"
+              className="flex items-center gap-1.5 text-[11px] text-cp-text-secondary"
               title={t('locbom.includePlanTitle', 'Hängt einen Plan-Ausschnitt der Location als JPEG vor die Geräteliste — die Empfänger bekommen Stückliste + Plan in einem Dokument.')}
             >
               <input
@@ -386,10 +386,10 @@ export const LocationBomDialog = () => {
             </button>
           </div>
 
-          <h3 className="mb-1 text-cp-base font-semibold text-slate-200">{t('locbom.section.devices', 'Geräte')}</h3>
+          <h3 className="mb-1 text-cp-base font-semibold text-cp-text-bright">{t('locbom.section.devices', 'Geräte')}</h3>
           <table className="mb-4 w-full text-cp-xs">
-            <thead className="text-slate-400">
-              <tr className="border-b border-slate-700">
+            <thead className="text-cp-text-muted">
+              <tr className="border-b border-cp-border">
                 <th className="px-2 py-1 text-center w-10">{t('locbom.col.packed', 'Pack')}</th>
                 <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>
                 <th className="px-2 py-1 text-left">{t('locbom.col.category', 'Kategorie')}</th>
@@ -400,17 +400,17 @@ export const LocationBomDialog = () => {
             </thead>
             <tbody>
               {devices.map((d) => (
-                <tr key={d.id} className="border-b border-slate-800">
+                <tr key={d.id} className="border-b border-cp-border-muted">
                   <td className="px-2 py-1 text-center">{d.packed ? '☑' : '☐'}</td>
-                  <td className="px-2 py-1 text-slate-100">{d.name}</td>
-                  <td className="px-2 py-1 text-slate-400">{d.category}</td>
-                  <td className="px-2 py-1 font-mono text-slate-400">
+                  <td className="px-2 py-1 text-cp-text">{d.name}</td>
+                  <td className="px-2 py-1 text-cp-text-muted">{d.category}</td>
+                  <td className="px-2 py-1 font-mono text-cp-text-muted">
                     {d.serialNumber ?? '—'}
                   </td>
-                  <td className="px-2 py-1 font-mono text-slate-400">
+                  <td className="px-2 py-1 font-mono text-cp-text-muted">
                     {d.ipAddress ?? '—'}
                   </td>
-                  <td className="px-2 py-1 text-slate-400">
+                  <td className="px-2 py-1 text-cp-text-muted">
                     {formatCategoryProps(d.category, d.categoryProps, lang) || '—'}
                   </td>
                 </tr>
@@ -418,13 +418,13 @@ export const LocationBomDialog = () => {
             </tbody>
           </table>
 
-          <h3 className="mb-1 text-cp-base font-semibold text-slate-200">{t('locbom.section.internalCables', 'Interne Kabel')}</h3>
+          <h3 className="mb-1 text-cp-base font-semibold text-cp-text-bright">{t('locbom.section.internalCables', 'Interne Kabel')}</h3>
           {internalCables.length === 0 ? (
-            <div className="mb-3 text-slate-500">{t('locbom.noInternalCables', 'Keine internen Kabel.')}</div>
+            <div className="mb-3 text-cp-text-faint">{t('locbom.noInternalCables', 'Keine internen Kabel.')}</div>
           ) : grouped ? (
             <table className="mb-4 w-full text-cp-xs">
-              <thead className="text-slate-400">
-                <tr className="border-b border-slate-700">
+              <thead className="text-cp-text-muted">
+                <tr className="border-b border-cp-border">
                   <th className="px-2 py-1 text-right w-12">{t('locbom.col.qty', 'Stk.')}</th>
                   <th className="px-2 py-1 text-left">{t('locbom.col.type', 'Typ')}</th>
                   <th className="px-2 py-1 text-right">{t('locbom.col.lengthM', 'Länge (m)')}</th>
@@ -434,14 +434,14 @@ export const LocationBomDialog = () => {
                 {internalGroups.map((g) => (
                   <tr
                     key={g.key}
-                    className="border-b border-slate-800"
+                    className="border-b border-cp-border-muted"
                     title={g.examples.length > 0 ? `${t('locbom.examples', 'Beispiele:')} ${g.examples.join(', ')}` : undefined}
                   >
                     <td className="px-2 py-1 text-right font-mono font-semibold text-emerald-300">
                       {g.count}×
                     </td>
-                    <td className="px-2 py-1 text-slate-200">{g.type}</td>
-                    <td className="px-2 py-1 text-right font-mono text-slate-400">
+                    <td className="px-2 py-1 text-cp-text-bright">{g.type}</td>
+                    <td className="px-2 py-1 text-right font-mono text-cp-text-muted">
                       {g.length}
                     </td>
                   </tr>
@@ -450,8 +450,8 @@ export const LocationBomDialog = () => {
             </table>
           ) : (
             <table className="mb-4 w-full text-cp-xs">
-              <thead className="text-slate-400">
-                <tr className="border-b border-slate-700">
+              <thead className="text-cp-text-muted">
+                <tr className="border-b border-cp-border">
                   <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>
                   <th className="px-2 py-1 text-left">{t('locbom.col.type', 'Typ')}</th>
                   <th className="px-2 py-1 text-left">{t('locbom.col.connection', 'Verbindung')}</th>
@@ -460,11 +460,11 @@ export const LocationBomDialog = () => {
               </thead>
               <tbody>
                 {internalCables.map((c) => (
-                  <tr key={c.id} className="border-b border-slate-800">
+                  <tr key={c.id} className="border-b border-cp-border-muted">
                     <td className="px-2 py-1">{c.name ?? '—'}</td>
-                    <td className="px-2 py-1 text-slate-400">{c.type ?? '—'}</td>
-                    <td className="px-2 py-1 text-slate-300">{connectionDesc(c)}</td>
-                    <td className="px-2 py-1 text-right font-mono text-slate-400">
+                    <td className="px-2 py-1 text-cp-text-muted">{c.type ?? '—'}</td>
+                    <td className="px-2 py-1 text-cp-text-secondary">{connectionDesc(c)}</td>
+                    <td className="px-2 py-1 text-right font-mono text-cp-text-muted">
                       {c.length ?? '—'}
                     </td>
                   </tr>
@@ -480,8 +480,8 @@ export const LocationBomDialog = () => {
               </h3>
               {grouped ? (
                 <table className="w-full text-cp-xs">
-                  <thead className="text-slate-400">
-                    <tr className="border-b border-slate-700">
+                  <thead className="text-cp-text-muted">
+                    <tr className="border-b border-cp-border">
                       <th className="px-2 py-1 text-right w-12">{t('locbom.col.qty', 'Stk.')}</th>
                       <th className="px-2 py-1 text-left">{t('locbom.col.type', 'Typ')}</th>
                       <th className="px-2 py-1 text-right">{t('locbom.col.lengthM', 'Länge (m)')}</th>
@@ -491,14 +491,14 @@ export const LocationBomDialog = () => {
                     {externalGroups.map((g) => (
                       <tr
                         key={g.key}
-                        className="border-b border-slate-800"
+                        className="border-b border-cp-border-muted"
                         title={g.examples.length > 0 ? `${t('locbom.examples', 'Beispiele:')} ${g.examples.join(', ')}` : undefined}
                       >
                         <td className="px-2 py-1 text-right font-mono font-semibold text-amber-300">
                           {g.count}×
                         </td>
-                        <td className="px-2 py-1 text-slate-200">{g.type}</td>
-                        <td className="px-2 py-1 text-right font-mono text-slate-400">
+                        <td className="px-2 py-1 text-cp-text-bright">{g.type}</td>
+                        <td className="px-2 py-1 text-right font-mono text-cp-text-muted">
                           {g.length}
                         </td>
                       </tr>
@@ -507,8 +507,8 @@ export const LocationBomDialog = () => {
                 </table>
               ) : (
                 <table className="w-full text-cp-xs">
-                  <thead className="text-slate-400">
-                    <tr className="border-b border-slate-700">
+                  <thead className="text-cp-text-muted">
+                    <tr className="border-b border-cp-border">
                       <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>
                       <th className="px-2 py-1 text-left">{t('locbom.col.type', 'Typ')}</th>
                       <th className="px-2 py-1 text-left">{t('locbom.col.connection', 'Verbindung')}</th>
@@ -517,11 +517,11 @@ export const LocationBomDialog = () => {
                   </thead>
                   <tbody>
                     {externalCables.map((c) => (
-                      <tr key={c.id} className="border-b border-slate-800">
+                      <tr key={c.id} className="border-b border-cp-border-muted">
                         <td className="px-2 py-1">{c.name ?? '—'}</td>
-                        <td className="px-2 py-1 text-slate-400">{c.type ?? '—'}</td>
-                        <td className="px-2 py-1 text-slate-300">{connectionDesc(c)}</td>
-                        <td className="px-2 py-1 text-right font-mono text-slate-400">
+                        <td className="px-2 py-1 text-cp-text-muted">{c.type ?? '—'}</td>
+                        <td className="px-2 py-1 text-cp-text-secondary">{connectionDesc(c)}</td>
+                        <td className="px-2 py-1 text-right font-mono text-cp-text-muted">
                           {/* v7.9.93 — Wireless zeigt maxRange statt length (#182). */}
                           {c.wireless
                             ? c.maxRange

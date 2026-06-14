@@ -306,7 +306,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
       scrollBody={false}
       footer={
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-slate-400">
+          <span className="text-cp-text-muted">
             {draftPlan
               ? t('bom.cable.draftPending', 'Nicht gespeicherte Änderungen an der Rentman-Planung.')
               : t('bom.cable.draftSaved', 'Rentman-Planung wird im Projekt gespeichert.')}
@@ -316,7 +316,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
               <button
                 type="button"
                 onClick={discardPlan}
-                className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('bom.cable.discard', 'Verwerfen')}
               </button>
@@ -350,10 +350,10 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
       }
     >
       <div className="flex h-full min-h-0 flex-col -mx-4 -my-3">
-        <div className="flex items-center gap-2 border-b border-slate-800 px-4 py-2 text-[11px] text-slate-400">
+        <div className="flex items-center gap-2 border-b border-cp-border-muted px-4 py-2 text-[11px] text-cp-text-muted">
           <span>{t('bom.cable.groupedNote', 'Gruppiert nach Typ & Länge.')}</span>
           <span>
-            {t('bom.cable.builtCables', 'Verbaute Kabel:')} <b className="text-slate-200">{project.cables.length}</b>
+            {t('bom.cable.builtCables', 'Verbaute Kabel:')} <b className="text-cp-text-bright">{project.cables.length}</b>
           </span>
           {rows.some((r) => r.diff < 0) && (
             <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-900/50 px-2 py-0.5 font-semibold text-red-300">
@@ -371,7 +371,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
             <button
               type="button"
               onClick={exportCsv}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('bom.cable.csv', 'CSV')}
             </button>
@@ -387,7 +387,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
 
         <div className="min-h-0 flex-1 overflow-auto px-4">
           <table className="w-full text-cp-xs">
-            <thead className="sticky top-0 bg-slate-950 text-slate-300">
+            <thead className="sticky top-0 bg-cp-surface-3 text-cp-text-secondary">
               <tr>
                 <th className="px-3 py-2 text-left">{t('bom.cable.col.type', 'Typ')}</th>
                 <th className="px-3 py-2 text-right">{t('bom.cable.col.length', 'Länge (m)')}</th>
@@ -402,18 +402,18 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
             <tbody>
               {rows.length === 0 && (
                 <tr>
-                  <td className="px-3 py-4 text-center text-slate-500" colSpan={7}>
+                  <td className="px-3 py-4 text-center text-cp-text-faint" colSpan={7}>
                     {t('bom.cable.noCables', 'Keine Kabel im Projekt.')}
                   </td>
                 </tr>
               )}
               {rows.map((r) => (
-                <tr key={r.key} className={`border-t border-slate-800 ${r.diff < 0 ? 'bg-red-950/30' : ''}`}>
+                <tr key={r.key} className={`border-t border-cp-border-muted ${r.diff < 0 ? 'bg-red-950/30' : ''}`}>
                   <td className="px-3 py-1 align-top">
-                    <div className="font-medium text-slate-100">
+                    <div className="font-medium text-cp-text">
                       {r.type}
                       {r.sample && (
-                        <span className="ml-1 text-[10px] text-slate-400">
+                        <span className="ml-1 text-[10px] text-cp-text-muted">
                           ({r.sample.name})
                         </span>
                       )}
@@ -434,7 +434,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                     )}
                     {!r.rentmanName && r.rentmanId && (
                       <div
-                        className="mt-0.5 text-[10px] text-slate-400"
+                        className="mt-0.5 text-[10px] text-cp-text-muted"
                         title={t('bom.cable.rentmanMissingTitle', 'Verknuepft, aber Rentman-Template lokal nicht gefunden')}
                       >
                         R #{r.rentmanId}
@@ -445,7 +445,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                   <td className="px-3 py-1 text-right align-top font-mono">{r.built}</td>
                   {/* Gesamtlänge dieses Bucket = Stückzahl × Einzellänge — fürs
                       Bestellen nach Meter. */}
-                  <td className="px-3 py-1 text-right align-top font-mono text-slate-300">
+                  <td className="px-3 py-1 text-right align-top font-mono text-cp-text-secondary">
                     {Number((r.built * r.length).toFixed(1))}
                   </td>
                   <td className="px-3 py-1 text-right align-top">
@@ -454,7 +454,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                       min={0}
                       value={r.planned}
                       onChange={(e) => setPlanned(r.key, Number(e.target.value))}
-                      className="w-16 rounded border border-slate-700 bg-slate-950 px-1 py-0.5 text-right font-mono"
+                      className="w-16 rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-right font-mono"
                     />
                   </td>
                   <td
@@ -477,7 +477,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                   </td>
                   {/* #292 — Wege-Spalte: max 3 Pfade sichtbar, alle weiteren
                       als Tooltip ("+N weitere"). */}
-                  <td className="px-3 py-1 align-top text-[11px] text-slate-300">
+                  <td className="px-3 py-1 align-top text-[11px] text-cp-text-secondary">
                     {r.paths.length === 0 ? (
                       <span className="text-slate-600">—</span>
                     ) : (
@@ -489,7 +489,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                         ))}
                         {r.paths.length > 3 && (
                           <div
-                            className="cursor-help text-[10px] text-slate-400"
+                            className="cursor-help text-[10px] text-cp-text-muted"
                             title={r.paths.slice(3).join('\n')}
                           >
                             {format(t('bom.cable.morePaths', '+{count} weitere'), { count: r.paths.length - 3 })}
@@ -502,8 +502,8 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
               ))}
             </tbody>
             {rows.length > 0 && (
-              <tfoot className="sticky bottom-0 bg-slate-950">
-                <tr className="border-t-2 border-slate-700 font-semibold text-slate-200">
+              <tfoot className="sticky bottom-0 bg-cp-surface-3">
+                <tr className="border-t-2 border-cp-border font-semibold text-cp-text-bright">
                   <td className="px-3 py-2 text-left" colSpan={2}>
                     {t('bom.cable.total', 'Gesamt')}
                   </td>

@@ -63,7 +63,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
         </legend>
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
-            <span className="mb-1 block text-slate-300">{t('net.mgmtVlan', 'Management VLAN')}</span>
+            <span className="mb-1 block text-cp-text-secondary">{t('net.mgmtVlan', 'Management VLAN')}</span>
             <input
               type="number"
               value={item.managementVlanId ?? ''}
@@ -73,46 +73,46 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
                 })
               }
               placeholder="1"
-              className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-slate-300">{t('net.gateway', 'Gateway')}</span>
+            <span className="mb-1 block text-cp-text-secondary">{t('net.gateway', 'Gateway')}</span>
             <input
               value={item.gateway ?? ''}
               onChange={(event) => updateEquipment(equipmentId, { gateway: event.target.value })}
               placeholder="192.168.1.1"
-              className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-slate-300">DNS</span>
+            <span className="mb-1 block text-cp-text-secondary">DNS</span>
             <input
               value={item.dnsServers ?? ''}
               onChange={(event) =>
                 updateEquipment(equipmentId, { dnsServers: event.target.value })
               }
               placeholder="1.1.1.1, 8.8.8.8"
-              className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-slate-300">{t('net.firmware', 'Firmware')}</span>
+            <span className="mb-1 block text-cp-text-secondary">{t('net.firmware', 'Firmware')}</span>
             <input
               value={item.firmware ?? ''}
               onChange={(event) => updateEquipment(equipmentId, { firmware: event.target.value })}
               placeholder="v2.8.4"
-              className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
             />
           </label>
         </div>
         <label className="mt-2 block">
-          <span className="mb-1 block text-slate-300">{t('net.mgmtUrl', 'Management URL')}</span>
+          <span className="mb-1 block text-cp-text-secondary">{t('net.mgmtUrl', 'Management URL')}</span>
           <input
             value={item.mgmtUrl ?? ''}
             onChange={(event) => updateEquipment(equipmentId, { mgmtUrl: event.target.value })}
             placeholder="https://192.168.1.1/"
-            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
       </fieldset>
@@ -129,7 +129,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
           </button>
         </div>
         {vlans.length === 0 && (
-          <div className="text-[11px] text-slate-400">{t('net.noVlans', 'Keine VLANs definiert.')}</div>
+          <div className="text-[11px] text-cp-text-muted">{t('net.noVlans', 'Keine VLANs definiert.')}</div>
         )}
         <ul className="space-y-1">
           {vlans.map((v, i) => (
@@ -138,19 +138,19 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
                 type="number"
                 value={v.id}
                 onChange={(event) => updateVlan(i, { id: Number(event.target.value) })}
-                className="w-16 rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs font-mono"
+                className="w-16 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs font-mono"
                 placeholder="ID"
               />
               <input
                 value={v.name}
                 onChange={(event) => updateVlan(i, { name: event.target.value })}
-                className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
+                className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                 placeholder={t('net.vlanNamePlaceholder', 'Name (z.B. Production)')}
               />
               <input
                 value={v.notes ?? ''}
                 onChange={(event) => updateVlan(i, { notes: event.target.value })}
-                className="flex-1 rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs"
+                className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                 placeholder={t('net.vlanNotePlaceholder', 'Notiz')}
               />
               <button
@@ -170,7 +170,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
           <legend className="px-1 text-[11px] uppercase tracking-wide text-cyan-300">
             {t('net.portToVlan', 'Port → VLAN')}
           </legend>
-          <div className="mb-1 grid grid-cols-[1fr_70px_120px] gap-1 text-[10px] text-slate-400">
+          <div className="mb-1 grid grid-cols-[1fr_70px_120px] gap-1 text-[10px] text-cp-text-muted">
             <span>{t('net.col.port', 'Port')}</span>
             <span>{t('net.col.untagged', 'Untagged')}</span>
             <span>{t('net.col.tagged', 'Tagged')}</span>
@@ -180,7 +180,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
               const assign = portVlans[p.id] ?? {}
               return (
                 <li key={p.id} className="grid grid-cols-[1fr_70px_120px] items-center gap-1">
-                  <span className="truncate text-[11px] text-slate-300" title={p.name}>
+                  <span className="truncate text-[11px] text-cp-text-secondary" title={p.name}>
                     {p.name}
                   </span>
                   <input
@@ -191,13 +191,13 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
                         untagged: event.target.value ? Number(event.target.value) : undefined,
                       })
                     }
-                    className="rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs font-mono"
+                    className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs font-mono"
                     placeholder="—"
                   />
                   <input
                     value={assign.tagged ?? ''}
                     onChange={(event) => setPortVlan(p.id, { tagged: event.target.value })}
-                    className="rounded border border-slate-700 bg-slate-950 p-1 text-cp-xs font-mono"
+                    className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs font-mono"
                     placeholder="10,20,30"
                   />
                 </li>

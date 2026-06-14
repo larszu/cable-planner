@@ -139,7 +139,7 @@ export const ConnectorPicker = ({
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={ariaLabel}
-        className={`flex w-full items-center gap-2 rounded border border-slate-700 bg-slate-950 text-left text-slate-200 hover:border-slate-500 ${
+        className={`flex w-full items-center gap-2 rounded border border-cp-border bg-cp-surface-3 text-left text-cp-text-bright hover:border-slate-500 ${
           size === 'sm' ? 'px-1.5 py-1' : 'px-2 py-1.5'
         }`}
       >
@@ -156,7 +156,7 @@ export const ConnectorPicker = ({
         <span className={`flex-1 truncate ${size === 'sm' ? 'text-[11px]' : 'text-cp-base'}`}>
           {connectorLabel(value)}
         </span>
-        <ChevronDown size={14} className="shrink-0 text-slate-500" />
+        <ChevronDown size={14} className="shrink-0 text-cp-text-faint" />
       </button>
 
       {open &&
@@ -165,23 +165,23 @@ export const ConnectorPicker = ({
           <div
             ref={popRef}
             role="dialog"
-            className="fixed z-[300] flex max-h-[360px] flex-col overflow-hidden rounded-cp-card border border-slate-700 bg-slate-900 shadow-2xl"
+            className="fixed z-[300] flex max-h-[360px] flex-col overflow-hidden rounded-cp-card border border-cp-border bg-cp-surface-1 shadow-2xl"
             style={{ left: pos.left, top: pos.top, width: pos.width }}
           >
-            <div className="flex items-center gap-2 border-b border-slate-800 px-2 py-1.5">
-              <Search size={14} className="shrink-0 text-slate-500" />
+            <div className="flex items-center gap-2 border-b border-cp-border-muted px-2 py-1.5">
+              <Search size={14} className="shrink-0 text-cp-text-faint" />
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t('connector.picker.search', 'Stecker suchen…')}
                 aria-label={t('connector.picker.search', 'Stecker suchen…')}
-                className="w-full bg-transparent text-cp-base text-slate-200 outline-none placeholder:text-slate-600"
+                className="w-full bg-transparent text-cp-base text-cp-text-bright outline-none placeholder:text-slate-600"
               />
             </div>
             <div className="flex-1 overflow-y-auto p-2">
               {filteredGroups.length === 0 && (
-                <div className="px-2 py-6 text-center text-cp-xs text-slate-500">
+                <div className="px-2 py-6 text-center text-cp-xs text-cp-text-faint">
                   {t('connector.picker.noResults', 'Kein Stecker gefunden')}
                 </div>
               )}
@@ -209,11 +209,11 @@ export const ConnectorPicker = ({
                           className={`flex flex-col items-center gap-1 rounded border px-1 py-1.5 text-center transition ${
                             active
                               ? 'border-sky-500 bg-sky-500/10'
-                              : 'border-slate-800 bg-slate-950/40 hover:border-slate-600 hover:bg-slate-800/60'
+                              : 'border-cp-border-muted bg-cp-surface-3/40 hover:border-cp-surface-5 hover:bg-cp-surface-2/60'
                           }`}
                         >
                           <span style={{ color: connectorColor(e) }}>{tileSymbolFor(e)}</span>
-                          <span className="w-full truncate text-[11px] leading-tight text-slate-300">
+                          <span className="w-full truncate text-[11px] leading-tight text-cp-text-secondary">
                             {e.label}
                           </span>
                         </button>

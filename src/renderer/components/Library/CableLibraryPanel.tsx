@@ -109,7 +109,7 @@ const CableTypeEditor = ({
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-md rounded border border-slate-700 bg-slate-900 p-4 text-slate-100 shadow-2xl">
+      <div className="w-full max-w-md rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text shadow-2xl">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-cp-base font-semibold">
             {isEditing ? 'Kabeltyp bearbeiten' : 'Neuer Kabeltyp'}
@@ -117,7 +117,7 @@ const CableTypeEditor = ({
           <button
             type="button"
             onClick={onCancel}
-            className="text-slate-500 hover:text-slate-200"
+            className="text-cp-text-faint hover:text-cp-text-bright"
             aria-label={t('common.close', 'Schließen')}
           >
             <Icon icon={X} size="sm" />
@@ -125,14 +125,14 @@ const CableTypeEditor = ({
         </div>
         <div className="space-y-2 text-cp-xs">
           <label className="block">
-            <span className="text-slate-400">{t('common.name', 'Name')}</span>
+            <span className="text-cp-text-muted">{t('common.name', 'Name')}</span>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('cableLib.namePlaceholder', 'z.B. CAT6a Patch 5m')}
               autoFocus
-              className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-slate-100"
+              className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-text"
             />
             {conflictsWithExisting && (
               <span className="mt-0.5 flex items-center gap-1 text-[10px] text-amber-400">
@@ -143,7 +143,7 @@ const CableTypeEditor = ({
           </label>
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
-              <span className="flex items-center justify-between text-slate-400">
+              <span className="flex items-center justify-between text-cp-text-muted">
                 <span>{t('cableLib.connectorType', 'Stecker-Typ')}</span>
                 <button
                   type="button"
@@ -163,7 +163,7 @@ const CableTypeEditor = ({
               <select
                 value={connectorType}
                 onChange={(e) => setConnectorType(e.target.value as ConnectorType)}
-                className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
+                className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1"
               >
                 {allConnectorTypeOptions.map((c) => (
                   <option key={c} value={c}>
@@ -174,18 +174,18 @@ const CableTypeEditor = ({
               </select>
             </label>
             <label className="block">
-              <span className="text-slate-400">{t('cableLib.color', 'Kabel-Farbe')}</span>
+              <span className="text-cp-text-muted">{t('cableLib.color', 'Kabel-Farbe')}</span>
               <input
                 type="color"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="mt-0.5 h-7 w-full cursor-pointer rounded border border-slate-700 bg-slate-950 p-0.5"
+                className="mt-0.5 h-7 w-full cursor-pointer rounded border border-cp-border bg-cp-surface-3 p-0.5"
               />
             </label>
           </div>
           <div>
-            <span className="text-slate-400">{t('cableLib.compatibleWith', 'Auch kompatibel mit (optional)')}</span>
-            <div className="mt-1 flex max-h-24 flex-wrap gap-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-1.5">
+            <span className="text-cp-text-muted">{t('cableLib.compatibleWith', 'Auch kompatibel mit (optional)')}</span>
+            <div className="mt-1 flex max-h-24 flex-wrap gap-1 overflow-auto rounded border border-cp-border bg-cp-surface-3 p-1.5">
               {allConnectorTypeOptions.filter((c) => c !== connectorType).map((c) => {
                 const on = compatible.includes(c)
                 return (
@@ -200,7 +200,7 @@ const CableTypeEditor = ({
                     className={`rounded px-1.5 py-0.5 text-[10px] ${
                       on
                         ? 'bg-emerald-700 text-white'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
                     }`}
                   >
                     {c}
@@ -210,7 +210,7 @@ const CableTypeEditor = ({
             </div>
           </div>
           <div>
-            <span className="flex items-center justify-between text-slate-400">
+            <span className="flex items-center justify-between text-cp-text-muted">
               <span>{t('cableLib.signalStandards', 'Signal-Standards')}</span>
               <button
                 type="button"
@@ -227,7 +227,7 @@ const CableTypeEditor = ({
                 + Standard
               </button>
             </span>
-            <div className="mt-1 flex max-h-32 flex-wrap gap-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-1.5">
+            <div className="mt-1 flex max-h-32 flex-wrap gap-1 overflow-auto rounded border border-cp-border bg-cp-surface-3 p-1.5">
               {allSignalStandardOptions.map((s) => {
                 const on = standards.includes(s)
                 return (
@@ -242,7 +242,7 @@ const CableTypeEditor = ({
                     className={`rounded px-1.5 py-0.5 text-[10px] ${
                       on
                         ? 'bg-sky-700 text-white'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
                     } ${customSignalStandards.includes(s as string) ? 'italic' : ''}`}
                   >
                     {s}
@@ -257,7 +257,7 @@ const CableTypeEditor = ({
             )}
           </div>
           <label className="block">
-            <span className="text-slate-400">{t('cableLib.maxLength', 'Max. Länge (m) – optional')}</span>
+            <span className="text-cp-text-muted">{t('cableLib.maxLength', 'Max. Länge (m) – optional')}</span>
             <input
               type="number"
               min={0}
@@ -268,17 +268,17 @@ const CableTypeEditor = ({
                 setMaxLength(v === '' ? '' : Math.max(0, Number(v)))
               }}
               placeholder={t('cable.field.maxReachPlaceholder', 'z.B. 100')}
-              className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
+              className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1"
             />
           </label>
           <label className="block">
-            <span className="text-slate-400">{t('cableLib.note', 'Notiz (optional)')}</span>
+            <span className="text-cp-text-muted">{t('cableLib.note', 'Notiz (optional)')}</span>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
               placeholder={t('cableLib.notePlaceholder', 'z.B. nur für indoor, geschirmt, …')}
-              className="mt-0.5 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
+              className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1"
             />
           </label>
         </div>
@@ -286,7 +286,7 @@ const CableTypeEditor = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             Abbrechen
           </button>
@@ -348,7 +348,7 @@ const SortableCableGroup = ({
     position: 'relative',
   }
   return (
-    <div ref={setNodeRef} style={style} className="rounded border border-slate-700 bg-slate-900">
+    <div ref={setNodeRef} style={style} className="rounded border border-cp-border bg-cp-surface-1">
       <span
         {...attributes}
         {...listeners}
@@ -356,7 +356,7 @@ const SortableCableGroup = ({
         title={t('cableLib.groupReorderTitle', 'Per Drag&Drop verschieben')}
         role="button"
         tabIndex={0}
-        className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-slate-500 hover:text-slate-200 active:cursor-grabbing"
+        className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-cp-text-faint hover:text-cp-text-bright active:cursor-grabbing"
       >
         <svg width="6" height="12" viewBox="0 0 6 12" fill="currentColor">
           <circle cx="1.5" cy="2" r="1" />
@@ -496,7 +496,7 @@ export const CableLibraryPanel = () => {
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
         <div className="flex items-center gap-2">
           <h2 className="text-cp-base font-semibold">{t('cableLib.title', 'Kabel-Library')}</h2>
-          <span className="text-[10px] text-slate-400">{cables.length} verbaut</span>
+          <span className="text-[10px] text-cp-text-muted">{cables.length} verbaut</span>
         </div>
         <button
           type="button"
@@ -507,7 +507,7 @@ export const CableLibraryPanel = () => {
           + Neuer Kabeltyp
         </button>
       </div>
-      <p className="mb-2 text-[11px] text-slate-400">
+      <p className="mb-2 text-[11px] text-cp-text-muted">
         Presets mit Stecker- und Signalinfos.
         {customCableSpecs.length > 0 && (
           <> {customCableSpecs.length} eigene{customCableSpecs.length === 1 ? 'r' : ''} Kabeltyp{customCableSpecs.length === 1 ? '' : 'en'}.</>
@@ -530,27 +530,27 @@ export const CableLibraryPanel = () => {
               <button
                 type="button"
                 onClick={() => toggle(group)}
-                className="flex w-full items-center justify-between px-2 py-1.5 pl-5 text-left text-cp-xs font-semibold hover:bg-slate-800"
+                className="flex w-full items-center justify-between px-2 py-1.5 pl-5 text-left text-cp-xs font-semibold hover:bg-cp-surface-2"
               >
                 <span className="flex items-center gap-1.5">
                   {group}
-                  <span className="text-[10px] font-normal text-slate-400">({specs.length})</span>
+                  <span className="text-[10px] font-normal text-cp-text-muted">({specs.length})</span>
                   {groupBuilt > 0 && (
                     <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold ${
                       groupPlanned > 0
                         ? groupBuilt >= groupPlanned
                           ? 'bg-emerald-900/60 text-emerald-300'
                           : 'bg-red-900/60 text-red-300'
-                        : 'bg-slate-700 text-slate-300'
+                        : 'bg-cp-surface-4 text-cp-text-secondary'
                     }`}>
                       {groupBuilt}{groupPlanned > 0 ? `/${groupPlanned}` : ''}
                     </span>
                   )}
                 </span>
-                <span className="text-slate-500">{isOpen ? '▾' : '▸'}</span>
+                <span className="text-cp-text-faint">{isOpen ? '▾' : '▸'}</span>
               </button>
               {isOpen && (
-                <div className="space-y-1 border-t border-slate-800 p-1.5">
+                <div className="space-y-1 border-t border-cp-border-muted p-1.5">
                   {specs.map((cable) => {
                     const isRecommended =
                       preferredSdi !== undefined &&
@@ -569,7 +569,7 @@ export const CableLibraryPanel = () => {
                             ? 'border-emerald-500 bg-emerald-950/40'
                             : isCustom
                               ? 'border-violet-700/60 bg-violet-950/30'
-                              : 'border-slate-700 bg-slate-950'
+                              : 'border-cp-border bg-cp-surface-3'
                         }`}
                         title={cable.notes ?? ''}
                       >
@@ -606,7 +606,7 @@ export const CableLibraryPanel = () => {
                                 ? built >= planned
                                   ? 'bg-emerald-900/60 text-emerald-300'
                                   : 'bg-red-900/60 text-red-300'
-                                : 'bg-slate-700/80 text-slate-300'
+                                : 'bg-cp-surface-4/80 text-cp-text-secondary'
                             }`}
                               title={planned > 0 ? `${built} verbaut / ${planned} Rentman geplant` : `${built} verbaut`}
                             >
@@ -616,7 +616,7 @@ export const CableLibraryPanel = () => {
                           <button
                             type="button"
                             onClick={() => setEditing(cable)}
-                            className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] text-slate-200 hover:bg-slate-600"
+                            className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-[10px] text-cp-text-bright hover:bg-cp-surface-5"
                             title={isCustom
                               ? t('cableLib.edit', 'Kabeltyp bearbeiten')
                               : t('cableLib.editOverride', 'Kabeltyp lokal anpassen (Override)')}
@@ -687,18 +687,18 @@ export const CableLibraryPanel = () => {
                             </button>
                           )}
                         </div>
-                        <div className="mt-0.5 text-[11px] text-slate-400">
+                        <div className="mt-0.5 text-[11px] text-cp-text-muted">
                           {cable.connectorType}
                           {cable.compatibleConnectors?.length
                             ? ` (+ ${cable.compatibleConnectors.join(', ')})`
                             : ''}
                           {cable.maxLengthMeters ? ` · max ${cable.maxLengthMeters} m` : ''}
                         </div>
-                        <div className="text-[11px] text-slate-400">
+                        <div className="text-[11px] text-cp-text-muted">
                           {cable.standards.join(' · ')}
                         </div>
                         {cable.notes && (
-                          <div className="mt-1 rounded bg-slate-900 p-1 text-[10px] italic text-slate-300">
+                          <div className="mt-1 rounded bg-cp-surface-1 p-1 text-[10px] italic text-cp-text-secondary">
                             {cable.notes}
                           </div>
                         )}
