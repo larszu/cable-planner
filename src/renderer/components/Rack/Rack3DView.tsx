@@ -1071,6 +1071,18 @@ export const Rack3DView = ({
         <ambientLight intensity={0.55} />
         <directionalLight position={[600, 1200, 800]} intensity={0.9} />
         <directionalLight position={[-800, 600, -400]} intensity={0.4} />
+        {/* #517 — Die Frontblenden zeigen nach −Z; mit der #506-Kamera (vor
+            dem Rack) bildete world+X auf Bildschirm-LINKS ab → die 3D-Front
+            war links/rechts gespiegelt gegenüber der 2D-Front-Ansicht
+            (deterministisch über die Projektionsmatrix nachgewiesen). Statt
+            an jeder X-Koordinate einzeln zu spiegeln, spiegeln wir die GESAMTE
+            Rack-Szene an der vertikalen Mittelachse: group bei x=W + scale-x=−1
+            ⇒ jedes world-x wird zu (W − x). Geräte, Port-Dots, Hitboxen und
+            interne Kabel bleiben dadurch zueinander konsistent. Labels sind
+            <Html> (DOM-Overlay) und bleiben aufrecht/lesbar. Kamera +
+            OrbitControls liegen bewusst AUSSERHALB dieser Gruppe, damit die
+            Steuerung nicht mitspiegelt. */}
+        <group scale={[-1, 1, 1]} position={[RACK_OUTER_WIDTH_MM, 0, 0]}>
         <Chassis totalUnits={totalUnits} depthMm={depthMm} isLight={isLight} />
         <Suspense fallback={null}>
           {placements.map((p) => {
@@ -1125,6 +1137,7 @@ export const Rack3DView = ({
             cables={internalCables ?? []}
           />
         </Suspense>
+        </group>
         <OrbitControls
           ref={orbitRef as never}
           target={[RACK_OUTER_WIDTH_MM / 2, rackHeightMm / 2, depthMm / 2]}
