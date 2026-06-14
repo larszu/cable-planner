@@ -136,7 +136,7 @@ export const AdvancedTab = () => {
           'Wie oft das aktuelle Projekt automatisch in localStorage gespeichert wird. Standard: 400 ms.',
         )}
       >
-        <label className="block text-cp-base text-slate-300">
+        <label className="block text-cp-base text-cp-text-secondary">
           {t('settings.advanced.autosaveInterval', 'Autosave-Intervall (ms)')}
           <input
             type="number"
@@ -145,7 +145,7 @@ export const AdvancedTab = () => {
             step={100}
             value={autosaveIntervalMs}
             onChange={(e) => setAutosaveIntervalMs(Number(e.target.value) || 400)}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2"
+            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
           />
         </label>
       </SettingsCard>
@@ -157,9 +157,9 @@ export const AdvancedTab = () => {
           'Bibliothek-Kategorien umbenennen oder neue anlegen. Beim Umbenennen wandern alle zugeordneten Vorlagen mit.',
         )}
       >
-        <div className="max-h-56 overflow-auto rounded border border-slate-800 bg-slate-950/50">
+        <div className="max-h-56 overflow-auto rounded border border-cp-border-muted bg-cp-surface-3/50">
           <table className="w-full text-cp-xs">
-            <thead className="sticky top-0 bg-slate-900 text-slate-400">
+            <thead className="sticky top-0 bg-cp-surface-1 text-cp-text-muted">
               <tr>
                 <th className="px-2 py-1 text-left">
                   {t('settings.advanced.categories.col.name', 'Kategorie')}
@@ -175,19 +175,19 @@ export const AdvancedTab = () => {
                 const display = categoryDisplay(cat, lang, categoryTranslations)
                 const showCanonical = display !== cat
                 return (
-                  <tr key={cat} className="border-t border-slate-800">
-                    <td className="px-2 py-1 text-slate-100">
+                  <tr key={cat} className="border-t border-cp-border-muted">
+                    <td className="px-2 py-1 text-cp-text">
                       {display}
                       {showCanonical && (
-                        <span className="ml-1 text-[10px] text-slate-400">({cat})</span>
+                        <span className="ml-1 text-[10px] text-cp-text-muted">({cat})</span>
                       )}
                     </td>
-                    <td className="px-2 py-1 text-right text-slate-400">{usageCount(cat)}</td>
+                    <td className="px-2 py-1 text-right text-cp-text-muted">{usageCount(cat)}</td>
                     <td className="px-2 py-1 text-right">
                       <button
                         type="button"
                         onClick={() => handleRename(cat)}
-                        className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
+                        className="rounded bg-cp-surface-4 px-2 py-0.5 text-[10px] hover:bg-cp-surface-5"
                       >
                         {t('common.rename', 'Umbenennen')}
                       </button>
@@ -197,7 +197,7 @@ export const AdvancedTab = () => {
               })}
               {allCategories.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="px-2 py-3 text-center text-slate-500">
+                  <td colSpan={3} className="px-2 py-3 text-center text-cp-text-faint">
                     {t('settings.advanced.categories.empty', 'Noch keine Kategorien.')}
                   </td>
                 </tr>
@@ -227,7 +227,7 @@ export const AdvancedTab = () => {
             onClick={() =>
               clearCache('cable-planner:rentmanTemplateCache:v1', 'Rentman-Template-Cache')
             }
-            className="rounded bg-slate-700 px-3 py-1 text-cp-xs text-left hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
           >
             {t('settings.advanced.caches.rentman', 'Rentman-Template-Cache leeren')}
           </button>
@@ -235,14 +235,14 @@ export const AdvancedTab = () => {
           <button
             type="button"
             onClick={() => clearCache('cable-planner:web:recents', 'Web-Suchverlauf')}
-            className="rounded bg-slate-700 px-3 py-1 text-cp-xs text-left hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
           >
             {t('settings.advanced.caches.web', 'Web-Suchverlauf leeren')}
           </button>
           <button
             type="button"
             onClick={resetWelcome}
-            className="rounded bg-slate-700 px-3 py-1 text-cp-xs text-left hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
           >
             {t('settings.advanced.caches.welcome', 'Willkommens-Dialog beim nächsten Start zeigen')}
           </button>

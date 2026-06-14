@@ -88,7 +88,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
       type="button"
       onClick={() => setSection(id)}
       className={`flex w-full items-center gap-2 rounded px-3 py-2 text-left text-cp-base ${
-        section === id ? 'bg-sky-700 text-white' : 'text-slate-300 hover:bg-slate-800'
+        section === id ? 'bg-sky-700 text-white' : 'text-cp-text-secondary hover:bg-cp-surface-2'
       }`}
     >
       <Icon icon={TAB_ICONS[id]} size="sm" />
@@ -98,8 +98,8 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
 
   return (
     <>
-      <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-slate-800 bg-slate-950/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
-        <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
+      <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-cp-border-muted bg-cp-surface-3/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
+        <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold uppercase tracking-wider text-cp-text-faint sm:block">
           {t('settings.section', 'Einstellungen')}
         </h3>
         {(Object.keys(TAB_ICONS) as SettingsSection[]).map((id) => navItem(id))}
@@ -108,7 +108,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
       <main className="flex min-w-0 min-h-0 flex-1 flex-col">
         <header
           {...headerProps}
-          className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2 select-none"
+          className="flex shrink-0 items-center justify-between border-b border-cp-border-muted px-4 py-2 select-none"
         >
           <h2 id={titleId} className="text-cp-xl font-semibold">
             {t(`settings.tabTitle.${section}`, TAB_FALLBACK_TITLE[section])}

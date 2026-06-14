@@ -121,7 +121,7 @@ const AiProvidersCard = () => {
                 <button
                   type="button"
                   onClick={() => setRevealed((r) => ({ ...r, [id]: !r[id] }))}
-                  className="rounded bg-cp-surface-2 px-2 py-1 text-cp-text-muted hover:bg-slate-700"
+                  className="rounded bg-cp-surface-2 px-2 py-1 text-cp-text-muted hover:bg-cp-surface-4"
                   title={revealed[id] ? t('common.hide', 'Verbergen') : t('common.show', 'Anzeigen')}
                   aria-label={revealed[id] ? t('common.hide', 'Verbergen') : t('common.show', 'Anzeigen')}
                 >

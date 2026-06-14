@@ -31,7 +31,7 @@ export const SettingsDialog = ({ open, onClose, initialSection }: SettingsDialog
         style={drag.containerStyle}
         // v7.9.2 — Fix-große Höhe statt max-h, damit der Viewport nicht
         // pro Tab variabel groß ist. Inner-Scroll greift immer.
-        className="flex h-[85vh] min-h-0 w-full max-w-4xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl outline-none sm:flex-row"
+        className="flex h-[85vh] min-h-0 w-full max-w-4xl flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl outline-none sm:flex-row"
       >
         <SettingsBody
           onClose={onClose}

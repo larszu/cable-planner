@@ -44,7 +44,7 @@ const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
         'Gleicht Geräte-Templates, Gruppen und Kategorien mit der Datei cable-planner.library.json im Sync-Verzeichnis ab. Merge nach Name — lokale Templates werden nie überschrieben.',
       )}
     >
-      <div className="flex flex-wrap items-center gap-2 text-cp-xs text-slate-300">
+      <div className="flex flex-wrap items-center gap-2 text-cp-xs text-cp-text-secondary">
         <button
           type="button"
           onClick={run}
@@ -56,7 +56,7 @@ const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
             : t('settings.sharedLib.syncNow', 'Bibliothek jetzt synchronisieren')}
         </button>
         {!syncPath.trim() && (
-          <span className="text-[11px] text-slate-400">
+          <span className="text-[11px] text-cp-text-muted">
             {t('settings.sharedLib.needPath', 'Erst oben ein Sync-Verzeichnis setzen.')}
           </span>
         )}
@@ -118,29 +118,29 @@ export const SyncTab = () => {
           )}
         </div>
       )}
-      <p className="text-cp-xs text-slate-400">
+      <p className="text-cp-xs text-cp-text-muted">
         {t(
           'settings.sync.intro',
           'Gemeinsames Verzeichnis (FTP-Laufwerk, Netzwerkpfad oder lokaler Ordner), in dem Projekt, Bibliothek und Presets als JSON-Dateien geteilt werden.',
         )}
       </p>
-      <label className="block text-cp-base text-slate-300">
+      <label className="block text-cp-base text-cp-text-secondary">
         {t('settings.sync.path', 'Sync-Verzeichnis')}
         <input
           type="text"
           value={draftSyncPath}
           onChange={(e) => setDraftSyncPath(e.target.value)}
-          className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-cp-xs"
+          className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
           placeholder={t('settings.sync.pathPlaceholder', 'Z:\\Projekte\\CablePlanner oder \\\\server\\share\\cable-planner')}
         />
       </label>
-      <label className="block text-cp-base text-slate-300">
+      <label className="block text-cp-base text-cp-text-secondary">
         {t('settings.sync.user', 'Benutzername (für Lock-Anzeige)')}
         <input
           type="text"
           value={draftSyncUser}
           onChange={(e) => setDraftSyncUser(e.target.value)}
-          className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
+          className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
           placeholder={t('settings.sync.userPlaceholder', 'z. B. Max Mustermann')}
         />
       </label>
@@ -151,7 +151,7 @@ export const SyncTab = () => {
             setDraftSyncPath(sharedSyncPath)
             setDraftSyncUser(sharedSyncUser)
           }}
-          className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600"
+          className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
         >
           {t('common.reset', 'Zurücksetzen')}
         </button>
@@ -169,7 +169,7 @@ export const SyncTab = () => {
       <SharedLibrarySyncSection syncPath={sharedSyncPath} />
 
       <SettingsCard title={t('settings.sync.notes', 'Hinweise')}>
-        <ul className="list-inside list-disc space-y-1 text-cp-xs text-slate-400">
+        <ul className="list-inside list-disc space-y-1 text-cp-xs text-cp-text-muted">
           <li>
             {t(
               'settings.sync.notes.push',
