@@ -32,9 +32,9 @@ export const EquipmentColorsSection = () => {
     >
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {(['light', 'dark'] as const).map((theme) => (
-          <div key={theme} className="rounded border border-slate-700 bg-slate-950/40 p-2">
+          <div key={theme} className="rounded border border-cp-border bg-cp-surface-3/40 p-2">
             <div className="mb-2 flex items-center justify-between">
-              <h4 className="flex items-center gap-1 text-cp-xs font-semibold text-slate-200">
+              <h4 className="flex items-center gap-1 text-cp-xs font-semibold text-cp-text-bright">
                 <Icon icon={theme === 'light' ? Sun : Moon} size="xs" />
                 {theme === 'light'
                   ? t('settings.eqColors.themeLight', 'Hell')
@@ -43,7 +43,7 @@ export const EquipmentColorsSection = () => {
               <button
                 type="button"
                 onClick={() => resetEquipmentColors(theme)}
-                className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-2 py-0.5 text-[10px] hover:bg-cp-surface-5"
                 title={t('settings.eqColors.resetTitle', 'Auf Default zurücksetzen')}
               >
                 {t('settings.eqColors.reset', '↺ Reset')}
@@ -52,16 +52,16 @@ export const EquipmentColorsSection = () => {
             <div className="space-y-1.5">
               {roles.map((r) => (
                 <label key={r.key} className="flex items-center justify-between gap-2 text-cp-xs">
-                  <span className="text-slate-300" title={r.hint}>{r.label}</span>
+                  <span className="text-cp-text-secondary" title={r.hint}>{r.label}</span>
                   <div className="flex items-center gap-1">
                     <input
                       type="color"
                       value={equipmentColors[theme][r.key]}
                       onChange={(e) => setEquipmentColors(theme, { [r.key]: e.target.value })}
-                      className="h-6 w-10 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
+                      className="h-6 w-10 cursor-pointer rounded border border-cp-border bg-cp-surface-1 p-0.5"
                       title={r.hint}
                     />
-                    <span className="font-mono text-[10px] text-slate-400">
+                    <span className="font-mono text-[10px] text-cp-text-muted">
                       {equipmentColors[theme][r.key]}
                     </span>
                   </div>
@@ -71,19 +71,19 @@ export const EquipmentColorsSection = () => {
           </div>
         ))}
       </div>
-      <div className="mt-2 text-[10px] text-slate-400">
+      <div className="mt-2 text-[10px] text-cp-text-muted">
         {t(
           'settings.eqColors.note',
           'Hinweis: Geräte mit eigener Farbe (Properties → Gerätefarbe) überschreiben den Body-Wert weiterhin individuell.',
         )}
       </div>
       {/* v7.9.63 / #172 — Default-Farbe für NEU hinzugefügte Geräte. */}
-      <div className="mt-3 flex items-center justify-between gap-2 rounded border border-slate-700 bg-slate-950/40 p-2">
+      <div className="mt-3 flex items-center justify-between gap-2 rounded border border-cp-border bg-cp-surface-3/40 p-2">
         <div>
-          <div className="text-cp-xs font-semibold text-slate-200">
+          <div className="text-cp-xs font-semibold text-cp-text-bright">
             {t('settings.eqColors.defaultDeviceColor', 'Standard-Gerätefarbe')}
           </div>
-          <div className="text-[10px] text-slate-400">
+          <div className="text-[10px] text-cp-text-muted">
             {t(
               'settings.eqColors.defaultDeviceColorHint',
               'Neu hinzugefügte Geräte starten mit dieser Farbe (Properties → Gerätefarbe lässt sich danach individuell ändern). Wenn leer: nutzt die Theme-Body-Farbe.',
@@ -95,13 +95,13 @@ export const EquipmentColorsSection = () => {
             type="color"
             value={defaultDeviceColor ?? '#475569'}
             onChange={(e) => setDefaultDeviceColor(e.target.value)}
-            className="h-7 w-12 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
+            className="h-7 w-12 cursor-pointer rounded border border-cp-border bg-cp-surface-1 p-0.5"
           />
           {defaultDeviceColor && (
             <button
               type="button"
               onClick={() => setDefaultDeviceColor(undefined)}
-              className="rounded bg-slate-700 px-2 py-0.5 text-[10px] hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-0.5 text-[10px] hover:bg-cp-surface-5"
             >
               {t('settings.eqColors.resetX', '✕ Reset')}
             </button>

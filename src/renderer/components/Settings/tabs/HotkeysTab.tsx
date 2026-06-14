@@ -23,8 +23,8 @@ const HotkeyRow = ({
   const [capturing, setCapturing] = useState(false)
   const label = t(`hotkeys.action.${action}`, HOTKEY_ACTION_LABEL[action] ?? action)
   return (
-    <li className="flex items-center gap-2 rounded border border-slate-800 bg-slate-950 px-2 py-1.5 text-cp-xs">
-      <span className="flex-1 truncate text-slate-200">{label}</span>
+    <li className="flex items-center gap-2 rounded border border-cp-border-muted bg-cp-surface-3 px-2 py-1.5 text-cp-xs">
+      <span className="flex-1 truncate text-cp-text-bright">{label}</span>
       <button
         type="button"
         onClick={() => setCapturing(true)}
@@ -41,7 +41,7 @@ const HotkeyRow = ({
         className={`min-w-[120px] rounded border px-2 py-1 text-center font-mono text-[11px] ${
           capturing
             ? 'border-sky-500 bg-sky-950/60 text-sky-200'
-            : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-600'
+            : 'border-cp-border bg-cp-surface-1 text-cp-text-secondary hover:border-cp-surface-5'
         }`}
         title={
           capturing
@@ -54,7 +54,7 @@ const HotkeyRow = ({
       <button
         type="button"
         onClick={() => onChange('')}
-        className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-400 hover:bg-red-700 hover:text-white"
+        className="rounded bg-cp-surface-2 px-1.5 py-0.5 text-[10px] text-cp-text-muted hover:bg-red-700 hover:text-white"
         title={t('settings.hotkeys.clear', 'Hotkey leeren')}
         aria-label={t('settings.hotkeys.clear', 'Hotkey leeren')}
       >
@@ -72,7 +72,7 @@ export const HotkeysTab = () => {
   const actions = Object.keys(HOTKEY_ACTION_LABEL)
   return (
     <div className="space-y-3">
-      <p className="text-cp-xs text-slate-400">
+      <p className="text-cp-xs text-cp-text-muted">
         {t(
           'settings.hotkeys.intro',
           'Tastenkürzel können hier frei belegt werden. Klicke auf eine Combo-Zelle und drücke die gewünschten Tasten — Ctrl/Shift/Alt + Buchstabe oder Funktionstaste.',
@@ -99,7 +99,7 @@ export const HotkeysTab = () => {
           <button
             type="button"
             onClick={resetHotkeys}
-            className="rounded bg-slate-800 px-3 py-1 text-cp-xs text-slate-300 hover:bg-slate-700"
+            className="rounded bg-cp-surface-2 px-3 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
           >
             {t('settings.hotkeys.reset', 'Auf Standard zurücksetzen')}
           </button>
