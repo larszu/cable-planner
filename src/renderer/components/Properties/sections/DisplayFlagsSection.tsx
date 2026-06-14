@@ -20,7 +20,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
   return (
     <SortableSection id="flags" title={t('flags.title', 'Darstellung & Flags')} subtitle={t('flags.subtitle', 'kompakt · Farbe · gepackt')}>
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-[12px] text-slate-300">
+        <label className="flex items-center gap-2 text-[12px] text-cp-text-secondary">
           <input
             type="checkbox"
             checked={!!equipment.collapsed}
@@ -29,7 +29,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
             }
           />
           {t('eq.field.compact', 'Kompakte Darstellung')}{' '}
-          <span className="text-slate-500">({t('eq.field.compactHint', 'nur Icon + Name, Ports als Punkte')})</span>
+          <span className="text-cp-text-faint">({t('eq.field.compactHint', 'nur Icon + Name, Ports als Punkte')})</span>
         </label>
 
         <ColorField
@@ -44,7 +44,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
         {/* #419 — "Ports spiegeln" gehoert zur Inputs-&-Outputs-Sektion
             (siehe PortsSection); nicht mehr hier. */}
         <label
-          className="flex items-center gap-2 text-[11px] text-slate-300"
+          className="flex items-center gap-2 text-[11px] text-cp-text-secondary"
           title={t('flags.packedTitle', 'Markiert das Gerät als gepackt. Erscheint als ✓ auf dem Canvas und als eigene Spalte in der Geräte-BOM.')}
         >
           <input
@@ -60,7 +60,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
             eindeutige 1-In/1-Out-Wandler relevant; bei mehrdeutigen
             Geraeten wird trotzdem ohne Pass-Through angezeigt. */}
         <label
-          className="flex items-center gap-2 text-[11px] text-slate-300"
+          className="flex items-center gap-2 text-[11px] text-cp-text-secondary"
           title={t('flags.converterTitle', 'Wandler-Marker: in der Patchliste wird dieses Gerät übersprungen und das nächste echte Ziel direkt angezeigt. Sinnvoll für SDI-HDMI-Konverter, Format-Wandler, Embedder/De-Embedder etc.')}
         >
           <input
@@ -75,7 +75,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
           Wandler (Patchliste folgt Durchgangskabel)
         </label>
         <label
-          className="flex items-center gap-2 text-[11px] text-slate-300"
+          className="flex items-center gap-2 text-[11px] text-cp-text-secondary"
           title={t('flags.daTitle', 'Verteilverstärker: 1 Eingang wird aktiv auf mehrere Ausgänge derselben Quelle verteilt (1→N).')}
         >
           <input
@@ -90,9 +90,9 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
           {t('flags.da', 'Verteilverstärker (1→N)')}
         </label>
         {/* #359/#360/#366 — Signal-Flow-Rollen (Timecode / Tally / Embedding). */}
-        <div className="grid grid-cols-3 gap-1 border-t border-slate-800 pt-2">
+        <div className="grid grid-cols-3 gap-1 border-t border-cp-border-muted pt-2">
           <label className="block text-[10px]">
-            <span className="mb-0.5 block text-slate-400">{t('roles.tc', 'Timecode')}</span>
+            <span className="mb-0.5 block text-cp-text-muted">{t('roles.tc', 'Timecode')}</span>
             <select
               value={equipment.tcRole ?? ''}
               onChange={(event) =>
@@ -100,7 +100,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
                   tcRole: (event.target.value || undefined) as 'source' | 'sink' | undefined,
                 })
               }
-              className="w-full rounded border border-slate-700 bg-slate-950 p-1"
+              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1"
             >
               <option value="">—</option>
               <option value="source">{t('roles.source', 'Quelle')}</option>
@@ -108,7 +108,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
             </select>
           </label>
           <label className="block text-[10px]">
-            <span className="mb-0.5 block text-slate-400">{t('roles.tally', 'Tally')}</span>
+            <span className="mb-0.5 block text-cp-text-muted">{t('roles.tally', 'Tally')}</span>
             <select
               value={equipment.tallyRole ?? ''}
               onChange={(event) =>
@@ -116,7 +116,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
                   tallyRole: (event.target.value || undefined) as 'source' | 'sink' | undefined,
                 })
               }
-              className="w-full rounded border border-slate-700 bg-slate-950 p-1"
+              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1"
             >
               <option value="">—</option>
               <option value="source">{t('roles.source', 'Quelle')}</option>
@@ -124,7 +124,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
             </select>
           </label>
           <label className="block text-[10px]">
-            <span className="mb-0.5 block text-slate-400">{t('roles.embed', 'Embedding')}</span>
+            <span className="mb-0.5 block text-cp-text-muted">{t('roles.embed', 'Embedding')}</span>
             <select
               value={equipment.embedderRole ?? ''}
               onChange={(event) =>
@@ -135,7 +135,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
                     | undefined,
                 })
               }
-              className="w-full rounded border border-slate-700 bg-slate-950 p-1"
+              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1"
             >
               <option value="">—</option>
               <option value="embedder">{t('roles.embedder', 'Embedder')}</option>
