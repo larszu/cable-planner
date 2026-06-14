@@ -176,7 +176,7 @@ export const ConnectorPicker = ({
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t('connector.picker.search', 'Stecker suchen…')}
                 aria-label={t('connector.picker.search', 'Stecker suchen…')}
-                className="w-full bg-transparent text-cp-base text-cp-text-bright outline-none placeholder:text-slate-600"
+                className="w-full bg-transparent text-cp-base text-cp-text-bright outline-none placeholder:text-cp-text-dim"
               />
             </div>
             <div className="flex-1 overflow-y-auto p-2">

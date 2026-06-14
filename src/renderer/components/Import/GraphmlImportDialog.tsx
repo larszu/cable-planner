@@ -598,7 +598,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                     <li key={e.id}>
                       <code className="text-cp-text-faint">{e.id}</code>: {e.sourceId} → {e.targetId}
                       {Object.keys(e.data).length > 0 && (
-                        <span className="ml-1 text-slate-600">
+                        <span className="ml-1 text-cp-text-dim">
                           [{Object.entries(e.data).map(([k, v]) => `${k}=${v}`).join(', ')}]
                         </span>
                       )}
