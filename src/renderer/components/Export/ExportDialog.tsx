@@ -117,10 +117,10 @@ export const ExportDialog = ({
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl outline-none sm:flex-row"
+        className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl outline-none sm:flex-row"
       >
-        <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-slate-800 bg-slate-950/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
-          <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
+        <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-cp-border-muted bg-cp-surface-3/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
+          <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold uppercase tracking-wider text-cp-text-faint sm:block">
             {t('export.title', 'Exportieren & Drucken')}
           </h3>
           {(Object.keys(SECTION_LABEL) as Section[]).map((id) => (
@@ -131,7 +131,7 @@ export const ExportDialog = ({
               className={`flex items-center gap-2 rounded px-3 py-2 text-left text-cp-base ${
                 section === id
                   ? 'bg-sky-700 text-white'
-                  : 'text-slate-300 hover:bg-slate-800'
+                  : 'text-cp-text-secondary hover:bg-cp-surface-2'
               }`}
             >
               <Icon icon={SECTION_ICON[id]} size="sm" />
@@ -141,7 +141,7 @@ export const ExportDialog = ({
         </aside>
 
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <header className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2">
+          <header className="flex shrink-0 items-center justify-between border-b border-cp-border-muted px-4 py-2">
             <h2 id={titleId} className="flex items-center gap-2 text-cp-2xl font-semibold">
               <Icon icon={SECTION_ICON[section]} size="sm" />{' '}
               {t(`export.section.${section}`, SECTION_LABEL[section])}
@@ -149,7 +149,7 @@ export const ExportDialog = ({
             <button
               type="button"
               onClick={onClose}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('common.close', 'Schließen')}
             </button>
@@ -161,7 +161,7 @@ export const ExportDialog = ({
               "Standard-Viewport von Kabel-Stückliste ist so groß
               dass man scrollen muss um Drucken-Button zu sehen". */}
           <div className="flex min-h-0 flex-1 flex-col p-4">
-            <p className="mb-3 shrink-0 text-cp-xs text-slate-400">{t(`export.desc.${section}`, SECTION_DESC[section])}</p>
+            <p className="mb-3 shrink-0 text-cp-xs text-cp-text-muted">{t(`export.desc.${section}`, SECTION_DESC[section])}</p>
             <div className="flex min-h-0 flex-1 flex-col">
               {section === 'plan' && (
                 <PlanSection
@@ -248,7 +248,7 @@ const PlanSection = ({
   return (
     <div className="space-y-4">
       <fieldset className="space-y-2">
-        <legend className="mb-1 text-cp-xs font-semibold text-slate-300">{t('export.format', 'Format')}</legend>
+        <legend className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">{t('export.format', 'Format')}</legend>
         {FORMAT_OPTIONS.map((opt) => {
           const selected = format === opt.value
           return (
@@ -257,7 +257,7 @@ const PlanSection = ({
               className={`flex cursor-pointer items-start gap-2 rounded border px-3 py-2 text-cp-xs ${
                 selected
                   ? 'border-sky-500 bg-sky-900/30'
-                  : 'border-slate-700 bg-slate-950 hover:border-slate-600'
+                  : 'border-cp-border bg-cp-surface-3 hover:border-cp-surface-5'
               }`}
             >
               <input
@@ -270,8 +270,8 @@ const PlanSection = ({
               />
               <Icon icon={opt.icon} size="sm" />
               <span className="flex-1">
-                <span className="block font-semibold text-slate-100">{opt.label}</span>
-                <span className="block text-[10px] text-slate-400">{opt.hint}</span>
+                <span className="block font-semibold text-cp-text">{opt.label}</span>
+                <span className="block text-[10px] text-cp-text-muted">{opt.hint}</span>
               </span>
             </label>
           )
@@ -281,7 +281,7 @@ const PlanSection = ({
       {format === 'pdf' && (
         <>
           <fieldset className="space-y-1">
-            <legend className="mb-1 text-cp-xs font-semibold text-slate-300">{t('export.pdfTheme', 'PDF-Thema')}</legend>
+            <legend className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">{t('export.pdfTheme', 'PDF-Thema')}</legend>
             <label className="flex items-center gap-2 text-cp-xs">
               <input
                 type="radio"
@@ -306,7 +306,7 @@ const PlanSection = ({
               Text, scharf bei jedem Zoom, kleinere Dateigröße. Default
               ist Raster damit nichts am bestehenden Workflow bricht. */}
           <fieldset className="space-y-1">
-            <legend className="mb-1 text-cp-xs font-semibold text-slate-300">{t('export.renderMode', 'Render-Modus')}</legend>
+            <legend className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">{t('export.renderMode', 'Render-Modus')}</legend>
             <label className="flex cursor-pointer items-start gap-2 text-cp-xs">
               <input
                 type="radio"
@@ -317,7 +317,7 @@ const PlanSection = ({
               />
               <span>
                 <span className="flex items-center gap-1"><Icon icon={Camera} size="xs" /> {t('export.render.raster', 'Raster (klassisch)')}</span>
-                <span className="block text-[10px] text-slate-400">
+                <span className="block text-[10px] text-cp-text-muted">
                   {t(
                     'export.render.rasterHint',
                     'JPEG-Snapshot. Zuverlässig, aber Text wird unscharf bei großem Zoom in der PDF.',
@@ -335,7 +335,7 @@ const PlanSection = ({
               />
               <span>
                 <span className="flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('export.render.vector', 'Vektor')}</span>
-                <span className="block text-[10px] text-slate-400">
+                <span className="block text-[10px] text-cp-text-muted">
                   {t(
                     'export.render.vectorHint',
                     'Chromium printToPDF. Text bleibt selektierbar & scharf bei jedem Zoom. Kleinere Dateigröße.',
@@ -348,13 +348,13 @@ const PlanSection = ({
               Raster ist das fix-bestimmt durch die natural Canvas-Groesse. */}
           {pdfVector && (
             <fieldset className="space-y-1">
-              <legend className="mb-1 text-cp-xs font-semibold text-slate-300">
+              <legend className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">
                 {t('export.pageSize', 'Page-Size')}
               </legend>
               <select
                 value={pdfPageSize}
                 onChange={(e) => setPdfPageSize(e.target.value as PdfPageSizeOpt)}
-                className="w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs text-slate-100"
+                className="w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-xs text-cp-text"
               >
                 <option value="auto">{t('export.page.auto', 'Auto — A0 Landscape (kompatibel mit allen Viewern)')}</option>
                 <option value="a4">A4 Landscape (297×210 mm)</option>
@@ -365,7 +365,7 @@ const PlanSection = ({
                 <option value="a0plus">A0+ Plotter (1682×1189 mm)</option>
                 <option value="original">{t('export.page.original', 'Original — volle Canvas-Groesse fuer Plotter')}</option>
               </select>
-              <p className="text-[10px] text-slate-400">
+              <p className="text-[10px] text-cp-text-muted">
                 {pdfPageSize === 'original'
                   ? t('export.page.originalHint', 'Achtung: Edge / Preview zeigen Pages über A0 manchmal weiss an. Acrobat + Plotter-Software drucken trotzdem.')
                   : t('export.page.scaleHint', 'Canvas wird vektoriell auf die Page-Groesse skaliert. Text bleibt scharf.')}
@@ -377,21 +377,21 @@ const PlanSection = ({
               Auswahl bidirektional. "Nur Video drucken" = alle anderen
               Chips ausschalten, exportieren, Chips wieder einschalten. */}
           <fieldset className="space-y-1">
-            <legend className="mb-1 text-cp-xs font-semibold text-slate-300">
+            <legend className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">
               {t('export.layersInPdf', 'Ebenen (im PDF enthalten)')}
             </legend>
             <div className="-mx-1 flex flex-wrap gap-1">
               <LayerVisibilityChips />
             </div>
-            <p className="text-[10px] text-slate-400">
+            <p className="text-[10px] text-cp-text-muted">
               {t('export.layersHint', 'Klick auf einen Chip schaltet die Ebene für Canvas UND PDF um.')}
             </p>
           </fieldset>
         </>
       )}
 
-      <div className="rounded border border-slate-800 bg-slate-950/40 p-2 text-[11px] text-slate-400">
-        {t('export.savedAs', 'Wird gespeichert als')} <code className="rounded bg-slate-800 px-1 py-0.5">{projectName || 'cable-planner'}</code>
+      <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-2 text-[11px] text-cp-text-muted">
+        {t('export.savedAs', 'Wird gespeichert als')} <code className="rounded bg-cp-surface-2 px-1 py-0.5">{projectName || 'cable-planner'}</code>
       </div>
 
       <div className="flex justify-end gap-2">
@@ -520,19 +520,19 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
         <span className="text-emerald-300">→</span>
       </button>
 
-      <div className="mb-1 text-[11px] text-slate-400">
+      <div className="mb-1 text-[11px] text-cp-text-muted">
         {t('export.patch.perDeviceHint', '— oder pro-Gerät Patch-Sheet erzeugen:')}
       </div>
 
       <div>
         <div className="mb-1 flex items-center justify-between">
-          <span className="text-cp-xs font-semibold text-slate-300">
+          <span className="text-cp-xs font-semibold text-cp-text-secondary">
             {t('export.patch.devicesCount', 'Geräte')} ({selectedIds.size} / {filtered.length})
           </span>
           <button
             type="button"
             onClick={toggleAll}
-            className="rounded bg-slate-800 px-2 py-0.5 text-[10px] hover:bg-slate-700"
+            className="rounded bg-cp-surface-2 px-2 py-0.5 text-[10px] hover:bg-cp-surface-4"
           >
             {selectedIds.size === filtered.length
               ? t('export.patch.deselectAll', 'Alle abwählen')
@@ -545,15 +545,15 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           onChange={(e) => setFilter(e.target.value)}
           placeholder={t('export.patch.filterPlaceholder', 'Filtern…')}
           aria-label={t('export.patch.filterPlaceholder', 'Filtern…')}
-          className="mb-2 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+          className="mb-2 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
         />
-        <div className="max-h-64 space-y-0.5 overflow-y-auto rounded border border-slate-800 bg-slate-950/50 p-1">
+        <div className="max-h-64 space-y-0.5 overflow-y-auto rounded border border-cp-border-muted bg-cp-surface-3/50 p-1">
           {filtered.map((d) => {
             const on = selectedIds.has(d.id)
             return (
               <label
                 key={d.id}
-                className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-cp-xs hover:bg-slate-800"
+                className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-cp-xs hover:bg-cp-surface-2"
               >
                 <input
                   type="checkbox"
@@ -568,12 +568,12 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
                   }}
                 />
                 <span className="flex-1 truncate">{d.name}</span>
-                <span className="text-[10px] text-slate-400">{d.category}</span>
+                <span className="text-[10px] text-cp-text-muted">{d.category}</span>
               </label>
             )
           })}
           {filtered.length === 0 && (
-            <div className="px-2 py-3 text-center text-[11px] text-slate-400">
+            <div className="px-2 py-3 text-center text-[11px] text-cp-text-muted">
               {t('export.patch.noDevices', 'Keine Geräte im Projekt.')}
             </div>
           )}
@@ -588,7 +588,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={() => setPendingAction('individual')}
             disabled={busy || selectedIds.size === 0}
-            className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs hover:bg-slate-600 disabled:opacity-50"
+            className="rounded bg-cp-surface-4 px-3 py-1.5 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
             title={t('export.patch.perDevice', 'Eine PDF pro selektiertem Gerät')}
           >
             {t('export.patch.individualPdf', 'Einzel-PDF ({n})').replace('{n}', String(selectedIds.size))}
@@ -597,7 +597,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={() => setPendingAction('batch')}
             disabled={busy || selectedIds.size === 0}
-            className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs hover:bg-slate-600 disabled:opacity-50"
+            className="rounded bg-cp-surface-4 px-3 py-1.5 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
             title={t('export.patch.batchPdf', 'Eine Sammel-PDF — ein Gerät pro Seite')}
           >
             {t('export.patch.combinedPdf', 'Sammel-PDF ({n})').replace('{n}', String(selectedIds.size))}
@@ -614,7 +614,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
         </div>
       ) : (
         <div className="flex flex-wrap items-center justify-end gap-2 rounded border border-sky-700/60 bg-sky-950/40 px-3 py-2">
-          <span className="mr-auto text-cp-xs text-slate-300">
+          <span className="mr-auto text-cp-xs text-cp-text-secondary">
             <span className="font-semibold text-sky-200">{actionLabel[pendingAction]}</span>
             {' '}— {t('export.patch.pickPaper', 'Papier-Format wählen:')}
           </span>
@@ -638,7 +638,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => setPendingAction(null)}
-            className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs text-slate-200 hover:bg-slate-600 disabled:opacity-50"
+            className="rounded bg-cp-surface-4 px-3 py-1.5 text-cp-xs text-cp-text-bright hover:bg-cp-surface-5 disabled:opacity-50"
           >
             Abbrechen
           </button>
@@ -947,10 +947,10 @@ const BomSection = () => {
       {/* v7.9.4 — Status-Zeile oben (shrink-0), Tabelle nimmt flex-1 mit
           eigenem overflow-auto, Footer + Action-Buttons sind shrink-0
           → bleiben IMMER sichtbar, egal wie groß der Dialog ist. */}
-      <div className="flex shrink-0 flex-wrap items-center gap-2 text-[11px] text-slate-400">
+      <div className="flex shrink-0 flex-wrap items-center gap-2 text-[11px] text-cp-text-muted">
         <span>
           {t('export.installedCables', 'Verbaute Kabel:')}{' '}
-          <b className="text-slate-200">{project.cables.length}</b>
+          <b className="text-cp-text-bright">{project.cables.length}</b>
         </span>
         {rows.some((r) => r.diff < 0) && (
           <span className="inline-flex items-center gap-1 rounded bg-red-900/50 px-2 py-0.5 font-semibold text-red-300">
@@ -968,9 +968,9 @@ const BomSection = () => {
         )}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-auto rounded border border-slate-800 bg-slate-950/40">
+      <div className="min-h-0 flex-1 overflow-auto rounded border border-cp-border-muted bg-cp-surface-3/40">
         <table className="w-full text-cp-xs">
-          <thead className="sticky top-0 bg-slate-950 text-slate-300">
+          <thead className="sticky top-0 bg-cp-surface-3 text-cp-text-secondary">
             <tr>
               <th className="px-3 py-2 text-left">{t('export.bom.col.type', 'Typ')}</th>
               <th className="px-3 py-2 text-right">{t('export.bom.col.length', 'Länge (m)')}</th>
@@ -983,7 +983,7 @@ const BomSection = () => {
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td className="px-3 py-4 text-center text-slate-500" colSpan={6}>
+                <td className="px-3 py-4 text-center text-cp-text-faint" colSpan={6}>
                   Keine Kabel im Projekt.
                 </td>
               </tr>
@@ -991,17 +991,17 @@ const BomSection = () => {
             {rows.map((r) => (
               <tr
                 key={r.key}
-                className={`border-t border-slate-800 ${r.diff < 0 ? 'bg-red-950/30' : ''}`}
+                className={`border-t border-cp-border-muted ${r.diff < 0 ? 'bg-red-950/30' : ''}`}
               >
                 <td className="px-3 py-1">
-                  <span className="font-medium text-slate-100">{r.type}</span>
+                  <span className="font-medium text-cp-text">{r.type}</span>
                   {r.sample && (
-                    <span className="ml-1 text-[10px] text-slate-400">({r.sample.name})</span>
+                    <span className="ml-1 text-[10px] text-cp-text-muted">({r.sample.name})</span>
                   )}
                 </td>
                 <td className="px-3 py-1 text-right font-mono">{r.length}</td>
                 <td className="px-3 py-1 text-right font-mono">{r.built}</td>
-                <td className="px-3 py-1 text-right font-mono text-slate-300">
+                <td className="px-3 py-1 text-right font-mono text-cp-text-secondary">
                   {Number((r.built * r.length).toFixed(1))}
                 </td>
                 <td className="px-3 py-1 text-right">
@@ -1010,7 +1010,7 @@ const BomSection = () => {
                     min={0}
                     value={r.planned}
                     onChange={(e) => setPlanned(r.key, Number(e.target.value))}
-                    className="w-16 rounded border border-slate-700 bg-slate-950 px-1 py-0.5 text-right font-mono"
+                    className="w-16 rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-right font-mono"
                   />
                 </td>
                 <td
@@ -1035,8 +1035,8 @@ const BomSection = () => {
             ))}
           </tbody>
           {rows.length > 0 && (
-            <tfoot className="sticky bottom-0 bg-slate-950">
-              <tr className="border-t-2 border-slate-700 font-semibold text-slate-200">
+            <tfoot className="sticky bottom-0 bg-cp-surface-3">
+              <tr className="border-t-2 border-cp-border font-semibold text-cp-text-bright">
                 <td className="px-3 py-2 text-left" colSpan={2}>{t('bom.cable.total', 'Gesamt')}</td>
                 <td className="px-3 py-2 text-right font-mono">{rows.reduce((s, r) => s + r.built, 0)}</td>
                 <td className="px-3 py-2 text-right font-mono text-emerald-300">
@@ -1051,27 +1051,27 @@ const BomSection = () => {
 
       {/* Per-Gewerk-Zusammenfassung (Anzahl + Meter je Layer). */}
       {layerSummary.length > 0 && (
-        <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
-          <span className="font-semibold uppercase tracking-wide text-slate-500">
+        <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-cp-text-muted">
+          <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
             {t('export.bom.byLayer', 'Je Gewerk')}:
           </span>
           {layerSummary.map((l) => (
             <span key={l.layer}>
               {t(`layer.${l.layer}`, LAYER_LABEL_DE[l.layer] ?? l.layer)}:{' '}
-              <b className="text-slate-200">{l.count}×</b>{' '}
+              <b className="text-cp-text-bright">{l.count}×</b>{' '}
               <span className="font-mono">{Number(l.meters.toFixed(1))} m</span>
             </span>
           ))}
         </div>
       )}
       {connectorSummary.length > 0 && (
-        <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
-          <span className="font-semibold uppercase tracking-wide text-slate-500">
+        <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-cp-text-muted">
+          <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
             {t('export.bom.connectors', 'Steckverbinder (Enden)')}:
           </span>
           {connectorSummary.map((c) => (
             <span key={c.type}>
-              {c.type} <b className="text-slate-200">×{c.count}</b>
+              {c.type} <b className="text-cp-text-bright">×{c.count}</b>
             </span>
           ))}
         </div>
@@ -1079,7 +1079,7 @@ const BomSection = () => {
 
       {/* Rentman-Planung-Save (shrink-0, pinned). */}
       <div className="flex shrink-0 items-center justify-between text-[11px]">
-        <span className="text-slate-400">
+        <span className="text-cp-text-muted">
           {draftPlan
             ? t('export.bom.rentmanDirty', 'Nicht gespeicherte Änderungen an der Rentman-Planung.')
             : t('export.bom.rentmanClean', 'Rentman-Planung wird im Projekt gespeichert.')}
@@ -1089,7 +1089,7 @@ const BomSection = () => {
             <button
               type="button"
               onClick={discardPlan}
-              className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('common.discard', 'Verwerfen')}
             </button>
@@ -1109,11 +1109,11 @@ const BomSection = () => {
           Patch-Sheets. CSV / PDF / Drucken sind die Export-Outputs der
           Sektion. Tabelle nimmt flex-1, diese Zeile shrink-0 → immer
           sichtbar ohne scrollen. */}
-      <div className="flex shrink-0 justify-end gap-2 border-t border-slate-800 pt-2">
+      <div className="flex shrink-0 justify-end gap-2 border-t border-cp-border-muted pt-2">
         <button
           type="button"
           onClick={exportCsv}
-          className="rounded bg-slate-700 px-3 py-1.5 text-cp-xs hover:bg-slate-600"
+          className="rounded bg-cp-surface-4 px-3 py-1.5 text-cp-xs hover:bg-cp-surface-5"
           title={t('export.bom.csvTitle', 'Tabelle als CSV (UTF-8 mit BOM für Excel) herunterladen')}
         >
           {t('export.bom.csv', 'Als CSV herunterladen')}

@@ -120,7 +120,7 @@ const BandwidthTab = () => {
   const fittingTier = SDI_TIERS.find((t) => mbps <= t.mbps)
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <p className="text-[11px] text-slate-400">
+      <p className="text-[11px] text-cp-text-muted">
         {t(
           'calc.bandwidth.intro',
           'Brutto-Datenrate eines Video-Streams (vor Kompression) und der kleinste SDI-Tier der sie tragen kann. Pixel × Zeilen × fps × Bits-pro-Pixel.',
@@ -128,7 +128,7 @@ const BandwidthTab = () => {
       </p>
       <div className="grid grid-cols-3 gap-3">
         <label className="block">
-          <span className="mb-1 block text-cp-xs text-slate-400">{t('calc.resolution', 'Auflösung')}</span>
+          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('calc.resolution', 'Auflösung')}</span>
           <select
             value={resolution.label}
             onChange={(e) =>
@@ -136,7 +136,7 @@ const BandwidthTab = () => {
                 RESOLUTION_PRESETS.find((r) => r.label === e.target.value) ?? RESOLUTION_PRESETS[1],
               )
             }
-            className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
           >
             {RESOLUTION_PRESETS.map((r) => (
               <option key={r.label} value={r.label}>
@@ -146,11 +146,11 @@ const BandwidthTab = () => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-cp-xs text-slate-400">FPS</span>
+          <span className="mb-1 block text-cp-xs text-cp-text-muted">FPS</span>
           <select
             value={fps}
             onChange={(e) => setFps(Number(e.target.value))}
-            className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
           >
             {FPS_PRESETS.map((f) => (
               <option key={f} value={f}>
@@ -160,7 +160,7 @@ const BandwidthTab = () => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-cp-xs text-slate-400">{t('calc.sampling', 'Sampling / Tiefe')}</span>
+          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('calc.sampling', 'Sampling / Tiefe')}</span>
           <select
             value={sampling.label}
             onChange={(e) =>
@@ -168,7 +168,7 @@ const BandwidthTab = () => {
                 SAMPLING_PRESETS.find((s) => s.label === e.target.value) ?? SAMPLING_PRESETS[2],
               )
             }
-            className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
           >
             {SAMPLING_PRESETS.map((s) => (
               <option key={s.label} value={s.label}>
@@ -192,28 +192,28 @@ const BandwidthTab = () => {
               )}
         </div>
       </div>
-      <details className="rounded border border-slate-800 bg-slate-950/40">
-        <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
+      <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
+        <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted">
           SDI-Tiers
         </summary>
         <ul className="space-y-0.5 px-3 py-2 text-cp-xs">
           {SDI_TIERS.map((t) => (
             <li key={t.label}>
               <span className="inline-block w-28">{t.label}</span>
-              <span className="font-mono text-slate-400">≤ {t.mbps} Mbps</span>
+              <span className="font-mono text-cp-text-muted">≤ {t.mbps} Mbps</span>
             </li>
           ))}
         </ul>
       </details>
-      <details className="rounded border border-slate-800 bg-slate-950/40">
-        <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
+      <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
+        <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted">
           {t('calc.bandwidth.signalStds', 'IP-/Digital-Signalstandards')}
         </summary>
         <ul className="space-y-0.5 px-3 py-2 text-cp-xs">
           {SIGNAL_STD_BANDWIDTH.map((s) => (
             <li key={s.label}>
               <span className="inline-block w-56">{s.label}</span>
-              <span className="font-mono text-slate-400">{s.mbps} Mbps</span>
+              <span className="font-mono text-cp-text-muted">{s.mbps} Mbps</span>
             </li>
           ))}
         </ul>
@@ -223,38 +223,38 @@ const BandwidthTab = () => {
       {netBudget.count > 0 && (
         <div className="rounded border border-sky-700 bg-sky-950/20 p-3">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] uppercase tracking-wide text-slate-300">
+            <div className="text-[11px] uppercase tracking-wide text-cp-text-secondary">
               {t('calc.bandwidth.netBudget', 'Projekt-Netzwerk-Budget')}
             </div>
-            <div className="text-[10px] text-slate-400">
+            <div className="text-[10px] text-cp-text-muted">
               {netBudget.count} {t('calc.bandwidth.netLinks', 'IP-Signale')}
             </div>
           </div>
           <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
-            <dt className="text-slate-500 font-semibold">{t('calc.bandwidth.netTotal', 'Gesamt-Bandbreite')}</dt>
+            <dt className="text-cp-text-faint font-semibold">{t('calc.bandwidth.netTotal', 'Gesamt-Bandbreite')}</dt>
             <dd className="font-mono text-cp-xl text-sky-200">
               {netBudget.totalMbps >= 1000
                 ? `${(netBudget.totalMbps / 1000).toFixed(2)} Gbps`
                 : `${netBudget.totalMbps} Mbps`}
             </dd>
-            <dt className="text-slate-500">{t('calc.bandwidth.netLink', 'Kleinster Link')}</dt>
-            <dd className="font-mono text-slate-200">
+            <dt className="text-cp-text-faint">{t('calc.bandwidth.netLink', 'Kleinster Link')}</dt>
+            <dd className="font-mono text-cp-text-bright">
               {netBudget.tier
                 ? netBudget.tier.label
                 : t('calc.bandwidth.netExceeds', '> 100 GbE — aufteilen / Spine-Leaf')}
             </dd>
           </dl>
-          <ul className="mt-2 space-y-0.5 border-t border-slate-800 pt-2 text-cp-xs">
+          <ul className="mt-2 space-y-0.5 border-t border-cp-border-muted pt-2 text-cp-xs">
             {netBudget.rows.map((r) => (
               <li key={r.std} className="flex justify-between">
-                <span className="text-slate-300">
-                  {r.std} <span className="text-slate-500">×{r.count}</span>
+                <span className="text-cp-text-secondary">
+                  {r.std} <span className="text-cp-text-faint">×{r.count}</span>
                 </span>
-                <span className="font-mono text-slate-400">{r.mbps} Mbps</span>
+                <span className="font-mono text-cp-text-muted">{r.mbps} Mbps</span>
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-[10px] text-slate-400">
+          <p className="mt-2 text-[10px] text-cp-text-muted">
             {t(
               'calc.bandwidth.netNote',
               'Summe der Brutto-Bandbreiten aller Kabel mit IP-/Netzwerk-Signalstandard (NDI, Dante/AES67, ST 2110, Ethernet). Richtwerte; ST 2110-20 stark formatabhängig.',
@@ -285,15 +285,15 @@ const PHASE_COLORS = {
     dot: '#92400e' /* brown */,
   },
   L2: {
-    bg: 'bg-slate-800/80',
+    bg: 'bg-cp-surface-2/80',
     border: 'border-slate-500',
-    text: 'text-slate-200',
+    text: 'text-cp-text-bright',
     dot: '#0f172a' /* black */,
   },
   L3: {
-    bg: 'bg-slate-700/60',
+    bg: 'bg-cp-surface-4/60',
     border: 'border-slate-400',
-    text: 'text-slate-100',
+    text: 'text-cp-text',
     dot: '#94a3b8' /* grey */,
   },
   N: {
@@ -587,12 +587,12 @@ const PowerTab = () => {
 
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <p className="text-[11px] text-slate-400">
+      <p className="text-[11px] text-cp-text-muted">
         {t(
           'calc.power.intro1',
           'Summe der Verbrauchsangaben aus den Geräte-Eigenschaften',
         )}{' '}
-        (<code className="rounded bg-slate-800 px-1">{t('calc.power.wattsField', 'Leistung (W)')}</code>).{' '}
+        (<code className="rounded bg-cp-surface-2 px-1">{t('calc.power.wattsField', 'Leistung (W)')}</code>).{' '}
         {t(
           'calc.power.intro2',
           'Geräte ohne Wert zählen nicht mit; in den Properties nachtragen damit die Verteilung stimmt.',
@@ -600,11 +600,11 @@ const PowerTab = () => {
       </p>
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
-          <span className="mb-1 block text-cp-xs text-slate-400">{t('calc.connectionType', 'Anschluss-Typ')}</span>
+          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('calc.connectionType', 'Anschluss-Typ')}</span>
           <select
             value={supplyId}
             onChange={(e) => setSupplyId(e.target.value as SupplyPresetId)}
-            className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
           >
             {supplies.map((p) => (
               <option key={p.id} value={p.id}>
@@ -614,49 +614,49 @@ const PowerTab = () => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-cp-xs text-slate-400">{t('calc.safetyReserve', 'Sicherheits-Reserve (%)')}</span>
+          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('calc.safetyReserve', 'Sicherheits-Reserve (%)')}</span>
           <input
             type="number"
             min={0}
             value={marginPercent}
             onChange={(e) => setMarginPercent(Math.max(0, Number(e.target.value) || 0))}
-            className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
           />
         </label>
       </div>
 
       <div className="rounded border border-emerald-700 bg-emerald-950/30 p-3">
         <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
-          <dt className="text-slate-500">{t('calc.devicesCounted', 'Erfasste Geräte')}</dt>
-          <dd className="font-mono text-slate-200">
+          <dt className="text-cp-text-faint">{t('calc.devicesCounted', 'Erfasste Geräte')}</dt>
+          <dd className="font-mono text-cp-text-bright">
             {totals.countedDevices} {t('calc.outOf', 'von')} {totals.countedDevices + totals.missingDevices}
             {totals.missingDevices > 0 && (
               <span className="ml-2 text-amber-300">({totals.missingDevices} {t('calc.withoutValue', 'ohne Wert')})</span>
             )}
           </dd>
-          <dt className="text-slate-500">{t('calc.totalUsage', 'Gesamtverbrauch')}</dt>
-          <dd className="font-mono text-slate-200">{totals.totalW.toFixed(0)} W</dd>
-          <dt className="text-slate-500">+ {t('calc.reserve', 'Reserve')} ({marginPercent}%)</dt>
+          <dt className="text-cp-text-faint">{t('calc.totalUsage', 'Gesamtverbrauch')}</dt>
+          <dd className="font-mono text-cp-text-bright">{totals.totalW.toFixed(0)} W</dd>
+          <dt className="text-cp-text-faint">+ {t('calc.reserve', 'Reserve')} ({marginPercent}%)</dt>
           <dd className="font-mono text-emerald-200 text-cp-xl">
             {totalWithMargin.toFixed(0)} W · {(totalWithMargin / 1000).toFixed(2)} kW
           </dd>
           {supply.phases === 1 ? (
             <>
-              <dt className="text-slate-500">{t('calc.current1phase', 'Stromstärke (1-phasig)')}</dt>
-              <dd className="font-mono text-slate-200">
+              <dt className="text-cp-text-faint">{t('calc.current1phase', 'Stromstärke (1-phasig)')}</dt>
+              <dd className="font-mono text-cp-text-bright">
                 {ampsSinglePhase.toFixed(1)} A · max {supply.perPhaseAmps} A
               </dd>
             </>
           ) : (
             <>
-              <dt className="text-slate-500">{t('calc.current3phase', 'Symmetrisch (3-phasig)')}</dt>
-              <dd className="font-mono text-slate-200">
+              <dt className="text-cp-text-faint">{t('calc.current3phase', 'Symmetrisch (3-phasig)')}</dt>
+              <dd className="font-mono text-cp-text-bright">
                 {ampsThreePhase.toFixed(1)} A · max {supply.perPhaseAmps} A {t('calc.perPhase', 'je Phase')}
               </dd>
             </>
           )}
-          <dt className="text-slate-500">{t('calc.generator', 'Generator (cosφ 0,8)')}</dt>
-          <dd className="font-mono text-slate-200">
+          <dt className="text-cp-text-faint">{t('calc.generator', 'Generator (cosφ 0,8)')}</dt>
+          <dd className="font-mono text-cp-text-bright">
             {generatorKva.toFixed(1)} kVA ·{' '}
             <span className="text-emerald-200">
               {t('calc.generatorRec', 'empf.')} ≥ {generatorKvaRecommended.toFixed(1)} kVA
@@ -664,10 +664,10 @@ const PowerTab = () => {
           </dd>
           {/* Wärmelast → Kühlbedarf: die el. Leistung wird praktisch komplett
               in Wärme umgesetzt. AC-Einheiten zu je 12.000 BTU/h. */}
-          <dt className="text-slate-500">{t('calc.power.cooling', 'Wärme / Kühlung')}</dt>
-          <dd className="font-mono text-slate-200">
+          <dt className="text-cp-text-faint">{t('calc.power.cooling', 'Wärme / Kühlung')}</dt>
+          <dd className="font-mono text-cp-text-bright">
             {totalBtu} BTU/h
-            <span className="ml-2 text-slate-500">
+            <span className="ml-2 text-cp-text-faint">
               ≈ {(totals.totalW / 1000).toFixed(1)} kW · {Math.max(1, Math.ceil(totalBtu / 12000))}× 12k-BTU-AC
             </span>
           </dd>
@@ -677,7 +677,7 @@ const PowerTab = () => {
       {/* Distro-Vergleich: welcher Anschluss trägt die Last? */}
       {totals.totalW > 0 && (
         <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-          <span className="font-semibold uppercase tracking-wide text-slate-500">
+          <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
             {t('calc.power.fitsOn', 'Passt auf')}:
           </span>
           {supplies.map((p) => {
@@ -703,10 +703,10 @@ const PowerTab = () => {
           } p-3`}
         >
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] uppercase tracking-wide text-slate-300">
+            <div className="text-[11px] uppercase tracking-wide text-cp-text-secondary">
               {t('calc.phaseDistribution', 'Phasen-Verteilung')} ({supply.label})
             </div>
-            <div className="text-[10px] text-slate-400">
+            <div className="text-[10px] text-cp-text-muted">
               {t('calc.imbalance', 'Unwucht')}: {maxImbalancePct}%
               {overloaded && (
                 <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-[10px] text-white">
@@ -735,13 +735,13 @@ const PowerTab = () => {
                     />
                     {t('calc.phaseLabel', 'Phase')} L{idx + 1}
                   </div>
-                  <div className="font-mono text-cp-lg text-slate-100">
+                  <div className="font-mono text-cp-lg text-cp-text">
                     {watts.toFixed(0)} W
                   </div>
-                  <div className="font-mono text-[11px] text-slate-300">
+                  <div className="font-mono text-[11px] text-cp-text-secondary">
                     {amps.toFixed(1)} A / {supply.perPhaseAmps} A
                   </div>
-                  <div className="mt-1 h-1.5 overflow-hidden rounded bg-slate-800">
+                  <div className="mt-1 h-1.5 overflow-hidden rounded bg-cp-surface-2">
                     <div
                       className={`h-full ${
                         fraction > 1
@@ -753,7 +753,7 @@ const PowerTab = () => {
                       style={{ width: `${Math.min(100, fraction * 100)}%` }}
                     />
                   </div>
-                  <div className="mt-0.5 text-[10px] text-slate-400">
+                  <div className="mt-0.5 text-[10px] text-cp-text-muted">
                     {Math.round(fraction * 100)}% {t('calc.load', 'Last')}
                   </div>
                 </div>
@@ -766,11 +766,11 @@ const PowerTab = () => {
               className="inline-block h-2 w-2 shrink-0 rounded-full"
               style={{ background: PHASE_COLORS.N.dot }}
             />
-            <span className="text-slate-300">
+            <span className="text-cp-text-secondary">
               {t('calc.neutralCurrent', 'Neutralleiter (geschätzt)')}:
             </span>
             <span className="font-mono text-sky-200">{neutralAmps.toFixed(1)} A</span>
-            <span className="ml-auto text-[10px] text-slate-400">
+            <span className="ml-auto text-[10px] text-cp-text-muted">
               {neutralAmps < 0.05 * supply.perPhaseAmps
                 ? t('calc.neutralOk', 'gut balanciert')
                 : neutralAmps > 0.25 * supply.perPhaseAmps
@@ -779,14 +779,14 @@ const PowerTab = () => {
             </span>
           </div>
           <details className="mt-2">
-            <summary className="cursor-pointer text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200">
+            <summary className="cursor-pointer text-[11px] uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright">
               {t('calc.devicesToPhase', 'Geräte → Phase')} ({distribution.assignments.length})
             </summary>
-            <div className="mb-1 mt-1 text-[10px] text-slate-400">
+            <div className="mb-1 mt-1 text-[10px] text-cp-text-muted">
               {t('calc.phasePinHint', 'Phase wählen = fest zuordnen; „Auto" = der Balancer verteilt automatisch.')}
             </div>
             <table className="w-full text-cp-xs">
-              <thead className="text-slate-500">
+              <thead className="text-cp-text-faint">
                 <tr>
                   <th className="text-left">{t('calc.col.device', 'Gerät')}</th>
                   <th className="text-right">W</th>
@@ -795,14 +795,14 @@ const PowerTab = () => {
               </thead>
               <tbody>
                 {distribution.assignments.map((a, i) => (
-                  <tr key={a.id ?? `${a.name}-${i}`} className="border-t border-slate-800">
+                  <tr key={a.id ?? `${a.name}-${i}`} className="border-t border-cp-border-muted">
                     <td className="truncate py-0.5">
                       {a.name}
                       {a.pinned && (
-                        <span className="ml-1 text-[11px] text-slate-400" title={t('calc.phasePinned', 'Fest zugeordnet')}>📌</span>
+                        <span className="ml-1 text-[11px] text-cp-text-muted" title={t('calc.phasePinned', 'Fest zugeordnet')}>📌</span>
                       )}
                     </td>
-                    <td className="text-right font-mono text-slate-400">{a.watts}</td>
+                    <td className="text-right font-mono text-cp-text-muted">{a.watts}</td>
                     <td className="pr-2 text-right">
                       {a.id ? (
                         <select
@@ -813,7 +813,7 @@ const PowerTab = () => {
                               powerPhase: v === 0 ? undefined : (v as 1 | 2 | 3),
                             })
                           }}
-                          className={`rounded border border-slate-700 bg-slate-950 py-0.5 pl-1 font-mono ${PHASE_COLORS[PHASE_KEYS[a.phase - 1]].text}`}
+                          className={`rounded border border-cp-border bg-cp-surface-3 py-0.5 pl-1 font-mono ${PHASE_COLORS[PHASE_KEYS[a.phase - 1]].text}`}
                           title={t('calc.col.phase', 'Phase')}
                         >
                           <option value={0}>{t('calc.phaseAuto', 'Auto')} (L{a.phase})</option>
@@ -832,8 +832,8 @@ const PowerTab = () => {
               </tbody>
             </table>
           </details>
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-slate-400">
-            <span className="font-semibold uppercase tracking-wide text-slate-500">
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-cp-text-muted">
+            <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
               {t('calc.euColorTitle', 'EU-Farbcode (DIN VDE 0293-308)')}:
             </span>
             {(['L1', 'L2', 'L3', 'N', 'PE'] as const).map((key) => (
@@ -846,16 +846,16 @@ const PowerTab = () => {
               </span>
             ))}
           </div>
-          <p className="mt-2 text-[10px] text-slate-400">
+          <p className="mt-2 text-[10px] text-cp-text-muted">
             {t(
               'calc.greedyExplain',
               'Greedy-Verteilung: sortiert nach Leistung, jedes Gerät auf die aktuell am schwächsten belastete Phase. Bei symmetrischen Lasten zieht der Drehstrom nur {amps} A je Phase; Unwucht erhöht den höchsten Phasenstrom. Ziel: jede Phase < 85% Last + Unwucht < 20%.',
             ).replace('{amps}', ampsThreePhase.toFixed(1))}
           </p>
           <div className="mt-3 flex items-center justify-between text-[11px]">
-            <span className="text-slate-400">
+            <span className="text-cp-text-muted">
               {t('calc.power.heat', 'Wärme (BTU/h)')}:{' '}
-              <span className="font-mono text-slate-200">{totalBtu}</span>
+              <span className="font-mono text-cp-text-bright">{totalBtu}</span>
             </span>
             <button
               type="button"
@@ -877,15 +877,15 @@ const PowerTab = () => {
 
       {/* #345 ff. — USV / Notstrom-Puffer-Rechner. Nutzt die Gesamtlast der
           Geräte (oben) und schätzt USV-Größe + Pufferzeit. */}
-      <details className="rounded border border-slate-800 bg-slate-950/40" open={totals.totalW > 0}>
-        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
+      <details className="rounded border border-cp-border-muted bg-cp-surface-3/40" open={totals.totalW > 0}>
+        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted">
           <Icon icon={BatteryCharging} size="xs" />
           {t('calc.ups.title', 'USV / Notstrom-Puffer')}
         </summary>
         <div className="space-y-3 px-3 py-2">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             <label className="block">
-              <span className="mb-1 block text-[10px] text-slate-400">
+              <span className="mb-1 block text-[10px] text-cp-text-muted">
                 {t('calc.ups.va', 'USV-Scheinleistung (VA)')}
               </span>
               <input
@@ -893,17 +893,17 @@ const PowerTab = () => {
                 min={0}
                 value={upsVa}
                 onChange={(e) => setUpsVa(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-[10px] text-slate-400">
+              <span className="mb-1 block text-[10px] text-cp-text-muted">
                 {t('calc.ups.pf', 'Leistungsfaktor')}
               </span>
               <select
                 value={upsPf}
                 onChange={(e) => setUpsPf(Number(e.target.value))}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               >
                 {[0.6, 0.7, 0.8, 0.9, 1.0].map((pf) => (
                   <option key={pf} value={pf}>
@@ -913,10 +913,10 @@ const PowerTab = () => {
               </select>
             </label>
             <div className="block">
-              <span className="mb-1 block text-[10px] text-slate-400">
+              <span className="mb-1 block text-[10px] text-cp-text-muted">
                 {t('calc.ups.capacity', 'Kapazität (W)')}
               </span>
-              <div className="rounded border border-slate-800 bg-slate-900 px-2 py-1 font-mono text-cp-xs text-slate-200">
+              <div className="rounded border border-cp-border-muted bg-cp-surface-1 px-2 py-1 font-mono text-cp-xs text-cp-text-bright">
                 {Math.round(upsCapacityW)} W
               </div>
             </div>
@@ -924,7 +924,7 @@ const PowerTab = () => {
 
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <label className="block">
-              <span className="mb-1 block text-[10px] text-slate-400">
+              <span className="mb-1 block text-[10px] text-cp-text-muted">
                 {t('calc.ups.battV', 'Akku (V)')}
               </span>
               <input
@@ -932,11 +932,11 @@ const PowerTab = () => {
                 min={0}
                 value={battV}
                 onChange={(e) => setBattV(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-[10px] text-slate-400">
+              <span className="mb-1 block text-[10px] text-cp-text-muted">
                 {t('calc.ups.battAh', 'Kapazität (Ah)')}
               </span>
               <input
@@ -944,11 +944,11 @@ const PowerTab = () => {
                 min={0}
                 value={battAh}
                 onChange={(e) => setBattAh(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-[10px] text-slate-400">
+              <span className="mb-1 block text-[10px] text-cp-text-muted">
                 {t('calc.ups.battCount', 'Anzahl Akkus')}
               </span>
               <input
@@ -956,11 +956,11 @@ const PowerTab = () => {
                 min={1}
                 value={battCount}
                 onChange={(e) => setBattCount(Math.max(1, Number(e.target.value) || 1))}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-[10px] text-slate-400">
+              <span className="mb-1 block text-[10px] text-cp-text-muted">
                 {t('calc.ups.usable', 'Nutzbar (%)')}
               </span>
               <input
@@ -971,7 +971,7 @@ const PowerTab = () => {
                 onChange={(e) =>
                   setUsablePercent(Math.min(100, Math.max(1, Number(e.target.value) || 1)))
                 }
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
           </div>
@@ -982,11 +982,11 @@ const PowerTab = () => {
             }`}
           >
             <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
-              <dt className="text-slate-500">{t('calc.ups.load', 'Last (gemessen)')}</dt>
-              <dd className="font-mono text-slate-200">{upsLoadW.toFixed(0)} W</dd>
-              <dt className="text-slate-500">{t('calc.ups.utilization', 'USV-Auslastung')}</dt>
+              <dt className="text-cp-text-faint">{t('calc.ups.load', 'Last (gemessen)')}</dt>
+              <dd className="font-mono text-cp-text-bright">{upsLoadW.toFixed(0)} W</dd>
+              <dt className="text-cp-text-faint">{t('calc.ups.utilization', 'USV-Auslastung')}</dt>
               <dd className="font-mono">
-                <span className={upsOverloaded ? 'text-red-300' : 'text-slate-200'}>
+                <span className={upsOverloaded ? 'text-red-300' : 'text-cp-text-bright'}>
                   {Math.round(upsLoadFraction * 100)}%
                 </span>
                 {upsOverloaded && (
@@ -996,13 +996,13 @@ const PowerTab = () => {
                   </span>
                 )}
               </dd>
-              <dt className="text-slate-500">{t('calc.ups.recommended', 'Empfohlene USV')}</dt>
+              <dt className="text-cp-text-faint">{t('calc.ups.recommended', 'Empfohlene USV')}</dt>
               <dd className="font-mono text-emerald-200">≥ {recommendedVa} VA</dd>
-              <dt className="text-slate-500">{t('calc.ups.battery', 'Akku-Energie')}</dt>
-              <dd className="font-mono text-slate-200">
+              <dt className="text-cp-text-faint">{t('calc.ups.battery', 'Akku-Energie')}</dt>
+              <dd className="font-mono text-cp-text-bright">
                 {Math.round(batteryWh)} Wh · {Math.round(usableWh)} Wh {t('calc.ups.usableShort', 'nutzbar')}
               </dd>
-              <dt className="text-slate-500">{t('calc.ups.runtime', 'Pufferzeit (geschätzt)')}</dt>
+              <dt className="text-cp-text-faint">{t('calc.ups.runtime', 'Pufferzeit (geschätzt)')}</dt>
               <dd className="font-mono text-cp-xl text-emerald-200">
                 {upsLoadW <= 0
                   ? '—'
@@ -1011,22 +1011,22 @@ const PowerTab = () => {
                     : `${runtimeMin.toFixed(0)} min`}
               </dd>
             </dl>
-            <div className="mt-2 flex items-center gap-2 border-t border-slate-800 pt-2 text-[11px]">
-              <span className="text-slate-400">{t('calc.ups.target', 'Ziel-Pufferzeit')}</span>
+            <div className="mt-2 flex items-center gap-2 border-t border-cp-border-muted pt-2 text-[11px]">
+              <span className="text-cp-text-muted">{t('calc.ups.target', 'Ziel-Pufferzeit')}</span>
               <input
                 type="number"
                 min={1}
                 value={targetMinutes}
                 onChange={(e) => setTargetMinutes(Math.max(1, Number(e.target.value) || 1))}
-                className="w-16 rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-cp-xs"
+                className="w-16 rounded border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs"
               />
-              <span className="text-slate-400">min →</span>
-              <span className="font-mono text-slate-200">
+              <span className="text-cp-text-muted">min →</span>
+              <span className="font-mono text-cp-text-bright">
                 {Math.round(requiredWhForTarget)} Wh {t('calc.ups.needed', 'Akku nötig')}
               </span>
             </div>
           </div>
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[10px] text-cp-text-muted">
             {t(
               'calc.ups.note',
               'USV-Kapazität (W) = VA × Leistungsfaktor. Pufferzeit ≈ nutzbare Akku-Energie / Last. Lineare Näherung — reale Laufzeit hängt von Entladekurve, Alter und Temperatur ab; im Zweifel die Hersteller-Runtime-Tabelle prüfen.',
@@ -1036,14 +1036,14 @@ const PowerTab = () => {
       </details>
 
       {/* #345 ff. — Spannungsfall auf der Zuleitung (Distro-Strecke). */}
-      <details className="rounded border border-slate-800 bg-slate-950/40">
-        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
+      <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
+        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted">
           {t('calc.vdrop.title', 'Spannungsfall (Zuleitung)')}
         </summary>
         <div className="space-y-3 px-3 py-2">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             <label className="block">
-              <span className="mb-1 block text-[10px] text-slate-400">
+              <span className="mb-1 block text-[10px] text-cp-text-muted">
                 {t('calc.vdrop.length', 'Leitungslänge (m)')}
               </span>
               <input
@@ -1051,17 +1051,17 @@ const PowerTab = () => {
                 min={0}
                 value={runLength}
                 onChange={(e) => setRunLength(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-[10px] text-slate-400">
+              <span className="mb-1 block text-[10px] text-cp-text-muted">
                 {t('calc.vdrop.cross', 'Querschnitt (mm²)')}
               </span>
               <select
                 value={crossSection}
                 onChange={(e) => setCrossSection(Number(e.target.value))}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               >
                 {[1.5, 2.5, 4, 6, 10, 16, 25, 35, 50].map((mm) => (
                   <option key={mm} value={mm}>
@@ -1071,10 +1071,10 @@ const PowerTab = () => {
               </select>
             </label>
             <div className="block">
-              <span className="mb-1 block text-[10px] text-slate-400">
+              <span className="mb-1 block text-[10px] text-cp-text-muted">
                 {t('calc.vdrop.current', 'Laststrom')}
               </span>
-              <div className="rounded border border-slate-800 bg-slate-900 px-2 py-1 font-mono text-cp-xs text-slate-200">
+              <div className="rounded border border-cp-border-muted bg-cp-surface-1 px-2 py-1 font-mono text-cp-xs text-cp-text-bright">
                 {vdropCurrent.toFixed(1)} A
               </div>
             </div>
@@ -1089,11 +1089,11 @@ const PowerTab = () => {
             }`}
           >
             <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
-              <dt className="text-slate-500">{t('calc.vdrop.drop', 'Spannungsfall')}</dt>
-              <dd className="font-mono text-slate-200">
+              <dt className="text-cp-text-faint">{t('calc.vdrop.drop', 'Spannungsfall')}</dt>
+              <dd className="font-mono text-cp-text-bright">
                 {vdropVolts.toFixed(1)} V
               </dd>
-              <dt className="text-slate-500">{t('calc.vdrop.percent', 'Relativ')}</dt>
+              <dt className="text-cp-text-faint">{t('calc.vdrop.percent', 'Relativ')}</dt>
               <dd className="font-mono text-cp-xl">
                 <span
                   className={
@@ -1106,7 +1106,7 @@ const PowerTab = () => {
                 >
                   {vdropPercent.toFixed(1)} %
                 </span>
-                <span className="ml-2 text-[10px] text-slate-400">
+                <span className="ml-2 text-[10px] text-cp-text-muted">
                   {vdropPercent > 5
                     ? t('calc.vdrop.bad', '> 5 % — Querschnitt erhöhen')
                     : vdropPercent > 3
@@ -1114,13 +1114,13 @@ const PowerTab = () => {
                       : t('calc.vdrop.ok', '≤ 3 % — ok')}
                 </span>
               </dd>
-              <dt className="text-slate-500">{t('calc.vdrop.atLoad', 'Spannung am Ende')}</dt>
-              <dd className="font-mono text-slate-200">
+              <dt className="text-cp-text-faint">{t('calc.vdrop.atLoad', 'Spannung am Ende')}</dt>
+              <dd className="font-mono text-cp-text-bright">
                 ≈ {(supply.voltage - vdropVolts).toFixed(0)} V
               </dd>
             </dl>
           </div>
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[10px] text-cp-text-muted">
             {t(
               'calc.vdrop.note',
               'Kupfer, ρ ≈ 0,0175 Ω·mm²/m. 1-phasig ΔU = 2·L·I·ρ/A, 3-phasig ΔU = √3·L·I·ρ/A. Richtwert: ≤ 3 % an Endgeräten. Laststrom = symmetrischer Strom inkl. Reserve.',
@@ -1130,15 +1130,15 @@ const PowerTab = () => {
       </details>
 
       {totals.devices.length > 0 && (
-        <details className="rounded border border-slate-800 bg-slate-950/40">
-          <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-slate-400">
+        <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
+          <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted">
             {t('calc.topConsumers', 'Top-Verbraucher')}
           </summary>
           <ul className="px-3 py-2 text-cp-xs">
             {totals.devices.slice(0, 12).map((d) => (
-              <li key={d.name} className="flex justify-between border-b border-slate-800 py-0.5">
+              <li key={d.name} className="flex justify-between border-b border-cp-border-muted py-0.5">
                 <span className="truncate">{d.name}</span>
-                <span className="font-mono text-slate-400">{d.watts} W</span>
+                <span className="font-mono text-cp-text-muted">{d.watts} W</span>
               </li>
             ))}
           </ul>

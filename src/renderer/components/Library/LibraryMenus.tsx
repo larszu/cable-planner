@@ -52,7 +52,7 @@ export const PlusMenu = ({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded border border-slate-700 bg-slate-900 py-1 text-cp-xs shadow-xl"
+          className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded border border-cp-border bg-cp-surface-1 py-1 text-cp-xs shadow-xl"
         >
           <button
             type="button"
@@ -61,7 +61,7 @@ export const PlusMenu = ({
               setOpen(false)
               onNewDevice()
             }}
-            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+            className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
           >
             {t('library.menus.newDevice', 'Neues Gerät…')}
           </button>
@@ -72,11 +72,11 @@ export const PlusMenu = ({
               setOpen(false)
               onNewCategory()
             }}
-            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+            className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
           >
             {t('library.menus.newCategory', 'Neue Kategorie…')}
           </button>
-          <div className="my-1 border-t border-slate-800" />
+          <div className="my-1 border-t border-cp-border-muted" />
           <button
             type="button"
             role="menuitem"
@@ -84,7 +84,7 @@ export const PlusMenu = ({
               setOpen(false)
               onImportFile()
             }}
-            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+            className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
             title={t('library.menus.importFileTitle', '.cpdevice oder .cpgroup-Datei importieren')}
           >
             {t('library.menus.importFile', 'Datei importieren…')}
@@ -97,7 +97,7 @@ export const PlusMenu = ({
                 setOpen(false)
                 onOpenFolder()
               }}
-              className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+              className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
               title={t('library.menus.openFolderTitle', 'Library-Ordner im Datei-Manager öffnen')}
             >
               {t('library.menus.openFolder', 'Bibliotheks-Ordner öffnen…')}
@@ -152,7 +152,7 @@ export const LibraryFiltersMenu = ({
         title={t('library.menus.filterTitle', 'Filter und Ansichtsoptionen')}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex h-7 w-7 items-center justify-center rounded border border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+        className="flex h-7 w-7 items-center justify-center rounded border border-cp-border bg-cp-surface-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text-bright"
       >
         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
           <circle cx="3" cy="8" r="1.4" />
@@ -163,24 +163,24 @@ export const LibraryFiltersMenu = ({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-10 mt-1 min-w-[210px] rounded border border-slate-700 bg-slate-900 py-1 text-cp-xs shadow-xl"
+          className="absolute right-0 top-full z-10 mt-1 min-w-[210px] rounded border border-cp-border bg-cp-surface-1 py-1 text-cp-xs shadow-xl"
         >
           <button
             type="button"
             role="menuitemcheckbox"
             aria-checked={!allCollapsed}
             onClick={() => onToggleAllCats(allCollapsed)}
-            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+            className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
           >
-            <span className="mr-2 inline-block w-4 text-center text-slate-400">
+            <span className="mr-2 inline-block w-4 text-center text-cp-text-muted">
               {allCollapsed ? '▸' : '▾'}
             </span>
             {allCollapsed
               ? t('library.menus.expandAll', 'Alle Kategorien ausklappen')
               : t('library.menus.collapseAll', 'Alle Kategorien einklappen')}
           </button>
-          <div className="my-1 border-t border-slate-800" />
-          <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-slate-400">
+          <div className="my-1 border-t border-cp-border-muted" />
+          <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-cp-text-muted">
             {t('library.menus.sorting', 'Sortierung')}
           </div>
           {(
@@ -196,7 +196,7 @@ export const LibraryFiltersMenu = ({
               role="menuitemradio"
               aria-checked={sortMode === opt.value}
               onClick={() => setSortMode(opt.value)}
-              className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+              className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
             >
               <span className="mr-2 inline-block w-4 text-center">
                 {sortMode === opt.value ? '●' : '○'}
@@ -204,13 +204,13 @@ export const LibraryFiltersMenu = ({
               {opt.label}
             </button>
           ))}
-          <div className="my-1 border-t border-slate-800" />
+          <div className="my-1 border-t border-cp-border-muted" />
           <button
             type="button"
             role="menuitemcheckbox"
             aria-checked={showHidden}
             onClick={() => setShowHidden(!showHidden)}
-            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+            className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
           >
             <span className="mr-2 inline-flex w-4 justify-center"><Icon icon={showHidden ? SquareCheck : Square} size="xs" /></span>
             {t('library.menus.showHidden', 'Versteckte zeigen')}
@@ -221,7 +221,7 @@ export const LibraryFiltersMenu = ({
             role="menuitemcheckbox"
             aria-checked={showEmpty}
             onClick={() => setShowEmpty(!showEmpty)}
-            className="block w-full px-3 py-1.5 text-left hover:bg-slate-800"
+            className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
           >
             <span className="mr-2 inline-flex w-4 justify-center"><Icon icon={showEmpty ? SquareCheck : Square} size="xs" /></span>
             {t('library.menus.showEmpty', 'Leere Kategorien zeigen')}

@@ -25,15 +25,15 @@ export const TabButton = ({
     onClick={onClick}
     title={title}
     className={`flex items-center gap-1 rounded px-2 py-1 ${
-      active ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+      active ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
     }`}
   >
-    <span className={active ? 'text-white' : 'text-slate-400'}>{icon}</span>
+    <span className={active ? 'text-white' : 'text-cp-text-muted'}>{icon}</span>
     <span>{label}</span>
     {count != null && count > 0 && (
       <span
         className={`ml-1 rounded-full px-1 text-[10px] ${
-          active ? 'bg-sky-900/70 text-sky-100' : 'bg-slate-900 text-slate-400'
+          active ? 'bg-sky-900/70 text-sky-100' : 'bg-cp-surface-1 text-cp-text-muted'
         }`}
       >
         {count}

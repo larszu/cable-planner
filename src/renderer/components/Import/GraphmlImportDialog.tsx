@@ -257,12 +257,12 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
   }
 
   const renderEmpty = () => (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4 p-12 text-center text-slate-300">
-      <Icon icon={Ruler} size={40} className="text-slate-400" />
+    <div className="flex flex-1 flex-col items-center justify-center gap-4 p-12 text-center text-cp-text-secondary">
+      <Icon icon={Ruler} size={40} className="text-cp-text-muted" />
       <div className="max-w-md text-cp-base">
-        <p className="mb-2 font-semibold text-slate-100">{t('graphml.dialog.importerTitle', 'yEd / GraphML Importer')}</p>
+        <p className="mb-2 font-semibold text-cp-text">{t('graphml.dialog.importerTitle', 'yEd / GraphML Importer')}</p>
         <p>
-          {t('graphml.dialog.empty.intro1', 'Wähle eine')} <code className="text-slate-200">.graphml</code> {t('graphml.dialog.empty.intro2', 'Datei. Cable Planner erkennt Geräte, Ports und Kabel automatisch — du bekommst eine Vorschau und kannst einzelne Einträge ein- oder ausschließen, bevor sie ins Projekt übernommen werden.')}
+          {t('graphml.dialog.empty.intro1', 'Wähle eine')} <code className="text-cp-text-bright">.graphml</code> {t('graphml.dialog.empty.intro2', 'Datei. Cable Planner erkennt Geräte, Ports und Kabel automatisch — du bekommst eine Vorschau und kannst einzelne Einträge ein- oder ausschließen, bevor sie ins Projekt übernommen werden.')}
         </p>
       </div>
       <button
@@ -277,11 +277,11 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
   )
 
   const renderParsing = (fileName: string) => (
-    <div className="flex flex-1 flex-col items-center justify-center gap-3 p-12 text-center text-slate-300">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-600 border-t-sky-400" />
+    <div className="flex flex-1 flex-col items-center justify-center gap-3 p-12 text-center text-cp-text-secondary">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-cp-surface-5 border-t-sky-400" />
       <div className="text-cp-base">
         <p className="font-medium">{fileName}</p>
-        <p className="text-slate-500">{t('graphml.dialog.parsing', 'Parser läuft (~ 250 ms pro MB)…')}</p>
+        <p className="text-cp-text-faint">{t('graphml.dialog.parsing', 'Parser läuft (~ 250 ms pro MB)…')}</p>
       </div>
     </div>
   )
@@ -290,14 +290,14 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
     <div className="flex flex-1 flex-col items-center justify-center gap-3 p-12 text-center">
       <div className="flex justify-center text-red-300"><Icon icon={AlertTriangle} size={32} /></div>
       <p className="text-cp-base font-medium text-red-300">{t('graphml.dialog.importFailed', 'Import fehlgeschlagen')}</p>
-      {fileName && <p className="text-cp-xs text-slate-400">{fileName}</p>}
-      <pre className="max-w-full whitespace-pre-wrap rounded bg-slate-950 p-3 text-cp-xs text-red-200">
+      {fileName && <p className="text-cp-xs text-cp-text-muted">{fileName}</p>}
+      <pre className="max-w-full whitespace-pre-wrap rounded bg-cp-surface-3 p-3 text-cp-xs text-red-200">
         {message}
       </pre>
       <button
         type="button"
         onClick={reset}
-        className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
+        className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
       >
         {t('graphml.dialog.pickOther', 'Andere Datei wählen')}
       </button>
@@ -313,12 +313,12 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
     return (
       <div className="flex min-h-0 flex-1 flex-col">
         {/* Header summary */}
-        <div className="border-b border-slate-700 px-4 py-2">
+        <div className="border-b border-cp-border px-4 py-2">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div>
-              <span className="text-cp-xs uppercase tracking-wide text-slate-400">{t('graphml.dialog.file', 'Datei')}</span>{' '}
-              <span className="font-medium text-slate-100">{s.fileName}</span>
-              <span className="ml-2 text-cp-xs text-slate-500">
+              <span className="text-cp-xs uppercase tracking-wide text-cp-text-muted">{t('graphml.dialog.file', 'Datei')}</span>{' '}
+              <span className="font-medium text-cp-text">{s.fileName}</span>
+              <span className="ml-2 text-cp-xs text-cp-text-faint">
                 {formatBytes(preview.meta.fileSize)} • {preview.meta.nodeCount} {t('graphml.dialog.nodes', 'Nodes')} •{' '}
                 {preview.meta.edgeCount} {t('graphml.dialog.edges', 'Edges')}
               </span>
@@ -326,13 +326,13 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             <button
               type="button"
               onClick={reset}
-              className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               title={t('graphml.dialog.pickOther', 'Andere Datei wählen')}
             >
               {t('graphml.dialog.otherFile', '↻ Andere Datei')}
             </button>
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-cp-xs text-slate-300">
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-cp-xs text-cp-text-secondary">
             <span>
               {t('graphml.dialog.devices', 'Geräte')}: <strong>{includedDevices}/{totalDevices}</strong>
             </span>
@@ -340,7 +340,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               {t('graphml.dialog.cables', 'Kabel')}: <strong>{includedCables}/{totalCables}</strong>
             </span>
             {preview.skippedNodes.length > 0 && (
-              <span className="text-slate-500">
+              <span className="text-cp-text-faint">
                 {t('graphml.dialog.skipped', 'Übersprungen')}: {preview.skippedNodes.length}
               </span>
             )}
@@ -356,14 +356,14 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         </div>
 
         {/* Destination + Mode + filter row */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-slate-950/70 px-4 py-2 text-cp-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-cp-border-muted bg-cp-surface-3/70 px-4 py-2 text-cp-xs">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-1">
-              <span className="text-slate-400">{t('graphml.dialog.target', 'Ziel:')}</span>
+              <span className="text-cp-text-muted">{t('graphml.dialog.target', 'Ziel:')}</span>
               <button
                 type="button"
                 onClick={() => setDestination('canvas')}
-                className={`rounded px-2 py-0.5 ${destination === 'canvas' ? 'bg-emerald-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+                className={`rounded px-2 py-0.5 ${destination === 'canvas' ? 'bg-emerald-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
                 title={t('graphml.dialog.canvasTitle', 'Geräte direkt auf dem Canvas platzieren (inkl. Kabel).')}
               >
                 <Icon icon={Map} size="xs" className="mr-1 inline-block align-text-bottom" />{t('graphml.dialog.canvas', 'Canvas')}
@@ -371,7 +371,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               <button
                 type="button"
                 onClick={() => setDestination('library')}
-                className={`rounded px-2 py-0.5 ${destination === 'library' ? 'bg-violet-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+                className={`rounded px-2 py-0.5 ${destination === 'library' ? 'bg-violet-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
                 title={t('graphml.dialog.libraryTitle', 'Nur als wiederverwendbare Geräte-Vorlagen in die Library übernehmen (ohne Kabel, ohne Canvas-Platzierung).')}
               >
                 <Icon icon={Library} size="xs" className="mr-1 inline-block align-text-bottom" />{t('graphml.dialog.library', 'Library')}
@@ -379,18 +379,18 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             </div>
             {destination === 'canvas' && (
               <div className="flex items-center gap-1">
-                <span className="text-slate-400">{t('graphml.dialog.mode', 'Modus:')}</span>
+                <span className="text-cp-text-muted">{t('graphml.dialog.mode', 'Modus:')}</span>
                 <button
                   type="button"
                   onClick={() => setMode('append')}
-                  className={`rounded px-2 py-0.5 ${mode === 'append' ? 'bg-sky-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+                  className={`rounded px-2 py-0.5 ${mode === 'append' ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
                 >
                   {t('graphml.dialog.appendProject', 'An Projekt anhängen')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setMode('replace')}
-                  className={`rounded px-2 py-0.5 ${mode === 'replace' ? 'bg-amber-700 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+                  className={`rounded px-2 py-0.5 ${mode === 'replace' ? 'bg-amber-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
                   title={t('graphml.dialog.replaceTitle', 'Ersetzt nur GraphML-importierte Geräte; manuell hinzugefügte bleiben unangetastet.')}
                 >
                   {t('graphml.dialog.replaceImport', 'GraphML-Import ersetzen')}
@@ -403,7 +403,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}
             placeholder={t('graphml.dialog.filterPlaceholder', 'Filter: Name / IP / Kategorie / Kabeltyp')}
-            className="w-64 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs text-slate-100"
+            className="w-64 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text"
           />
         </div>
 
@@ -415,7 +415,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         )}
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-800 text-cp-xs">
+        <div className="flex border-b border-cp-border-muted text-cp-xs">
           {([
             ['preview', t('graphml.dialog.tab.preview', 'yEd-Vorschau')],
             ['devices', `${t('graphml.dialog.tab.devices', 'Geräte')} (${totalDevices})`],
@@ -428,8 +428,8 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               onClick={() => setTab(key)}
               className={`px-4 py-2 ${
                 tab === key
-                  ? 'border-b-2 border-sky-500 bg-slate-900 text-slate-100'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'border-b-2 border-sky-500 bg-cp-surface-1 text-cp-text'
+                  : 'text-cp-text-muted hover:text-cp-text-bright'
               }`}
             >
               {label}
@@ -456,7 +456,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
           )}
           {tab === 'devices' && (
             <table className="w-full text-cp-xs">
-              <thead className="sticky top-0 bg-slate-900 text-slate-400">
+              <thead className="sticky top-0 bg-cp-surface-1 text-cp-text-muted">
                 <tr>
                   <th className="px-3 py-2 text-left w-6"></th>
                   <th className="px-3 py-2 text-left">{t('graphml.dialog.col.name', 'Name')}</th>
@@ -472,7 +472,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                   return (
                     <tr
                       key={dev.importKey}
-                      className={`border-t border-slate-800 ${skipped ? 'opacity-40' : ''}`}
+                      className={`border-t border-cp-border-muted ${skipped ? 'opacity-40' : ''}`}
                     >
                       <td className="px-3 py-1">
                         <input
@@ -489,10 +489,10 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                           onChange={(e) =>
                             setNameOverrides((p) => ({ ...p, [dev.importKey]: e.target.value }))
                           }
-                          className="w-full rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-slate-100"
+                          className="w-full rounded border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-cp-text"
                         />
                         {dev.subtitle && (
-                          <div className="px-1.5 text-[10px] text-slate-400">{dev.subtitle}</div>
+                          <div className="px-1.5 text-[10px] text-cp-text-muted">{dev.subtitle}</div>
                         )}
                       </td>
                       <td className="px-3 py-1">
@@ -502,17 +502,17 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                           onChange={(e) =>
                             setCategoryOverrides((p) => ({ ...p, [dev.importKey]: e.target.value }))
                           }
-                          className="w-32 rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-slate-100"
+                          className="w-32 rounded border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-cp-text"
                         />
                       </td>
-                      <td className="px-3 py-1 text-slate-400">{dev.ipAddress ?? '—'}</td>
-                      <td className="px-3 py-1 text-right text-slate-300">
+                      <td className="px-3 py-1 text-cp-text-muted">{dev.ipAddress ?? '—'}</td>
+                      <td className="px-3 py-1 text-right text-cp-text-secondary">
                         {dev.inputs.length}/{dev.outputs.length}
                       </td>
                       <td className="px-3 py-1">
                         {confidenceBadge(dev.confidence)}
                         {dev.notes[0] && (
-                          <span className="ml-1 text-[10px] text-slate-400" title={dev.notes.join('\n')}>
+                          <span className="ml-1 text-[10px] text-cp-text-muted" title={dev.notes.join('\n')}>
                             {dev.notes[0].length > 50 ? `${dev.notes[0].slice(0, 47)}…` : dev.notes[0]}
                           </span>
                         )}
@@ -526,7 +526,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
 
           {tab === 'cables' && (
             <table className="w-full text-cp-xs">
-              <thead className="sticky top-0 bg-slate-900 text-slate-400">
+              <thead className="sticky top-0 bg-cp-surface-1 text-cp-text-muted">
                 <tr>
                   <th className="px-3 py-2 text-left w-6"></th>
                   <th className="px-3 py-2 text-left">{t('graphml.dialog.col.source', 'Quelle')}</th>
@@ -548,7 +548,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                   return (
                     <tr
                       key={c.importKey}
-                      className={`border-t border-slate-800 ${skipped ? 'opacity-40' : ''}`}
+                      className={`border-t border-cp-border-muted ${skipped ? 'opacity-40' : ''}`}
                     >
                       <td className="px-3 py-1">
                         <input
@@ -558,11 +558,11 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                           aria-label={t('graphml.dialog.toggleCableAria', 'Toggle cable')}
                         />
                       </td>
-                      <td className="px-3 py-1 text-slate-300">{src?.name ?? c.sourceDeviceImportKey}</td>
-                      <td className="px-3 py-1 text-slate-300">{tgt?.name ?? c.targetDeviceImportKey}</td>
-                      <td className="px-3 py-1 text-slate-100">{c.inferredCableType}</td>
-                      <td className="px-3 py-1 text-slate-400">{c.videoStandard ?? '—'}</td>
-                      <td className="px-3 py-1 text-right text-slate-400">
+                      <td className="px-3 py-1 text-cp-text-secondary">{src?.name ?? c.sourceDeviceImportKey}</td>
+                      <td className="px-3 py-1 text-cp-text-secondary">{tgt?.name ?? c.targetDeviceImportKey}</td>
+                      <td className="px-3 py-1 text-cp-text">{c.inferredCableType}</td>
+                      <td className="px-3 py-1 text-cp-text-muted">{c.videoStandard ?? '—'}</td>
+                      <td className="px-3 py-1 text-right text-cp-text-muted">
                         {c.cableLengthMeters != null ? `${c.cableLengthMeters} m` : '—'}
                       </td>
                     </tr>
@@ -575,28 +575,28 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
           {tab === 'skipped' && (
             <div className="space-y-4 p-3 text-cp-xs">
               <div>
-                <h4 className="mb-1 font-semibold text-slate-300">
+                <h4 className="mb-1 font-semibold text-cp-text-secondary">
                   {t('graphml.dialog.nodesSkipped', 'Nodes übersprungen')} ({preview.skippedNodes.length})
                 </h4>
-                <ul className="space-y-0.5 text-slate-400">
+                <ul className="space-y-0.5 text-cp-text-muted">
                   {preview.skippedNodes.slice(0, 50).map((s) => (
                     <li key={s.id}>
-                      <code className="text-slate-500">{s.id}</code> — {s.reason}
+                      <code className="text-cp-text-faint">{s.id}</code> — {s.reason}
                     </li>
                   ))}
                   {preview.skippedNodes.length > 50 && (
-                    <li className="text-slate-500">{t('graphml.dialog.moreEllipsis', '… ({count} weitere)').replace('{count}', String(preview.skippedNodes.length - 50))}</li>
+                    <li className="text-cp-text-faint">{t('graphml.dialog.moreEllipsis', '… ({count} weitere)').replace('{count}', String(preview.skippedNodes.length - 50))}</li>
                   )}
                 </ul>
               </div>
               <div>
-                <h4 className="mb-1 font-semibold text-slate-300">
+                <h4 className="mb-1 font-semibold text-cp-text-secondary">
                   {t('graphml.dialog.unresolvedEdges', 'Edges ohne aufgelöste Ports')} ({preview.unresolvedEdges.length})
                 </h4>
-                <ul className="space-y-0.5 text-slate-400">
+                <ul className="space-y-0.5 text-cp-text-muted">
                   {preview.unresolvedEdges.slice(0, 50).map((e) => (
                     <li key={e.id}>
-                      <code className="text-slate-500">{e.id}</code>: {e.sourceId} → {e.targetId}
+                      <code className="text-cp-text-faint">{e.id}</code>: {e.sourceId} → {e.targetId}
                       {Object.keys(e.data).length > 0 && (
                         <span className="ml-1 text-slate-600">
                           [{Object.entries(e.data).map(([k, v]) => `${k}=${v}`).join(', ')}]
@@ -605,7 +605,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                     </li>
                   ))}
                   {preview.unresolvedEdges.length > 50 && (
-                    <li className="text-slate-500">{t('graphml.dialog.moreEllipsis', '… ({count} weitere)').replace('{count}', String(preview.unresolvedEdges.length - 50))}</li>
+                    <li className="text-cp-text-faint">{t('graphml.dialog.moreEllipsis', '… ({count} weitere)').replace('{count}', String(preview.unresolvedEdges.length - 50))}</li>
                   )}
                 </ul>
               </div>
@@ -614,14 +614,14 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         </div>
 
         {/* Footer actions */}
-        <div className="flex items-center justify-end gap-2 border-t border-slate-700 px-4 py-3">
+        <div className="flex items-center justify-end gap-2 border-t border-cp-border px-4 py-3">
           <button
             type="button"
             onClick={() => {
               reset()
               onClose()
             }}
-            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('graphml.dialog.cancel', 'Abbrechen')}
           </button>
@@ -642,8 +642,8 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-      <div className="flex h-[80vh] w-[min(1100px,95vw)] flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100">
-        <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
+      <div className="flex h-[80vh] w-[min(1100px,95vw)] flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 text-cp-text">
+        <div className="flex items-center justify-between border-b border-cp-border px-4 py-2">
           <h3 className="text-cp-base font-semibold">{t('graphml.dialog.heading', 'yEd / GraphML importieren')}</h3>
           <button
             type="button"
@@ -651,7 +651,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               reset()
               onClose()
             }}
-            className="text-slate-500 hover:text-slate-200"
+            className="text-cp-text-faint hover:text-cp-text-bright"
             aria-label={t('graphml.dialog.closeAria', 'Schließen')}
           >
             <Icon icon={X} size="sm" />

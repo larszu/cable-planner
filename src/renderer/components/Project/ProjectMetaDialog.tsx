@@ -89,7 +89,7 @@ export const ProjectMetaDialog = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('common.cancel', 'Abbrechen')}
           </button>
@@ -114,7 +114,7 @@ export const ProjectMetaDialog = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('project.meta.namePh', 'z.B. ProSieben Studio Umbau')}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
 
@@ -125,7 +125,7 @@ export const ProjectMetaDialog = ({
                 value={contractor}
                 onChange={(e) => setContractor(e.target.value)}
                 placeholder={t('project.meta.contractorPh', 'Deine Firma GmbH')}
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
               />
             </label>
             <label className="block">
@@ -134,7 +134,7 @@ export const ProjectMetaDialog = ({
                 value={client}
                 onChange={(e) => setClient(e.target.value)}
                 placeholder={t('project.meta.clientPh', 'Endkunde')}
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
               />
             </label>
             <label className="block">
@@ -143,7 +143,7 @@ export const ProjectMetaDialog = ({
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
                 placeholder={t('project.meta.authorPh', 'Vorname Nachname')}
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
               />
             </label>
             <label className="block">
@@ -152,7 +152,7 @@ export const ProjectMetaDialog = ({
                 value={projectNumber}
                 onChange={(e) => setProjectNumber(e.target.value)}
                 placeholder={t('project.meta.projectNumberPh', 'z.B. 2026-042')}
-                className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
               />
             </label>
           </div>
@@ -163,13 +163,13 @@ export const ProjectMetaDialog = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
-              className="mt-1 w-full resize-y rounded border border-slate-700 bg-slate-950 p-1.5"
+              className="mt-1 w-full resize-y rounded border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <div className="mb-1 text-[11px] text-slate-400">
+              <div className="mb-1 text-[11px] text-cp-text-muted">
                 {t('project.meta.companyLogo', 'Firmenlogo')}
               </div>
               {companyLogo ? (
@@ -177,7 +177,7 @@ export const ProjectMetaDialog = ({
                   <img
                     src={companyLogo}
                     alt={t('project.meta.companyLogo', 'Firmenlogo')}
-                    className="h-12 w-auto rounded border border-slate-700 bg-white p-1"
+                    className="h-12 w-auto rounded border border-cp-border bg-white p-1"
                   />
                   <button
                     type="button"
@@ -203,13 +203,13 @@ export const ProjectMetaDialog = ({
               <button
                 type="button"
                 onClick={() => companyInputRef.current?.click()}
-                className="mt-1 rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
+                className="mt-1 rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5"
               >
                 {t('project.meta.chooseLogo', 'Logo auswählen…')}
               </button>
             </div>
             <div>
-              <div className="mb-1 text-[11px] text-slate-400">
+              <div className="mb-1 text-[11px] text-cp-text-muted">
                 {t('project.meta.clientLogo', 'Kundenlogo')}
               </div>
               {clientLogo ? (
@@ -217,7 +217,7 @@ export const ProjectMetaDialog = ({
                   <img
                     src={clientLogo}
                     alt={t('project.meta.clientLogo', 'Kundenlogo')}
-                    className="h-12 w-auto rounded border border-slate-700 bg-white p-1"
+                    className="h-12 w-auto rounded border border-cp-border bg-white p-1"
                   />
                   <button
                     type="button"
@@ -243,14 +243,14 @@ export const ProjectMetaDialog = ({
               <button
                 type="button"
                 onClick={() => clientInputRef.current?.click()}
-                className="mt-1 rounded bg-slate-700 px-2 py-1 text-[11px] hover:bg-slate-600"
+                className="mt-1 rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5"
               >
                 {t('project.meta.chooseLogo', 'Logo auswählen…')}
               </button>
             </div>
           </div>
 
-          <p className="text-[10px] italic text-slate-400">
+          <p className="text-[10px] italic text-cp-text-muted">
             {t(
               'project.meta.footnote',
               'Diese Daten erscheinen im Planköpfchen unten rechts beim PDF-Export. Jeder Speichervorgang aktualisiert das „zuletzt geändert"-Datum automatisch.',

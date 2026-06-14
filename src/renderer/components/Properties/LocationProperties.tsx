@@ -24,7 +24,7 @@ export const LocationProperties = () => {
   return (
     <div className="space-y-3 text-cp-xs">
       <div>
-        <div className="mb-1 text-[11px] uppercase tracking-wide text-slate-400">
+        <div className="mb-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
           {t('location.title', 'Location')}
         </div>
         <label className="block">
@@ -32,7 +32,7 @@ export const LocationProperties = () => {
           <input
             value={location.name}
             onChange={(e) => updateLocation(location.id, { name: e.target.value })}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
       </div>
@@ -46,7 +46,7 @@ export const LocationProperties = () => {
             onChange={(e) =>
               updateLocation(location.id, { width: Math.max(40, Number(e.target.value) || 0) })
             }
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
         <label className="block">
@@ -57,7 +57,7 @@ export const LocationProperties = () => {
             onChange={(e) =>
               updateLocation(location.id, { height: Math.max(40, Number(e.target.value) || 0) })
             }
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
       </div>
@@ -69,7 +69,7 @@ export const LocationProperties = () => {
             value={location.floor ?? ''}
             placeholder={t('location.field.floorPlaceholder', 'z.B. EG, 1.OG')}
             onChange={(e) => updateLocation(location.id, { floor: e.target.value })}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
         <ColorField
@@ -86,7 +86,7 @@ export const LocationProperties = () => {
             value={location.notes ?? ''}
             onChange={(e) => updateLocation(location.id, { notes: e.target.value })}
             rows={2}
-            className="mt-1 w-full resize-y rounded border border-slate-700 bg-slate-950 p-1.5"
+            className="mt-1 w-full resize-y rounded border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
       </div>
@@ -129,7 +129,7 @@ export const LocationProperties = () => {
               deleteLocation(location.id)
             }
           }}
-          className="w-full rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+          className="w-full rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           title={t(
             'location.action.deleteFrameTitle',
             'Entfernt nur den Rahmen — Geräte darin bleiben auf dem Canvas.',
@@ -165,7 +165,7 @@ export const LocationProperties = () => {
         </button>
       </div>
 
-      <p className="text-[10px] italic text-slate-400">
+      <p className="text-[10px] italic text-cp-text-muted">
         {t(
           'location.tip',
           'Tipp: Der Rahmen bewegt sich standardmäßig unabhängig. Aktiviere „Geräte mitnehmen", wenn alle enthaltenen Geräte beim Verschieben des Rahmens mitwandern sollen.',

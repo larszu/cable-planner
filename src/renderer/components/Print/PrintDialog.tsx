@@ -117,7 +117,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
       draggableKey="cable-planner:modal-pos:print"
       footer={
         <div className="flex items-center justify-between gap-2">
-          <div className="text-[11px] text-slate-400">
+          <div className="text-[11px] text-cp-text-muted">
             {selectionCount === 0
               ? t('print.noneSelected', 'Kein Gerät ausgewählt')
               : formatStr(t('print.selectionCount', '{count} Geräte ausgewählt'), { count: selectionCount })}
@@ -126,7 +126,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
             <button
               type="button"
               onClick={onClose}
-              className="rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-cp-xs text-slate-100 hover:bg-slate-700"
+              className="rounded border border-cp-border bg-cp-surface-2 px-3 py-1.5 text-cp-xs text-cp-text hover:bg-cp-surface-4"
             >
               {t('common.close', 'Schließen')}
             </button>
@@ -157,11 +157,11 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
               below generates the PDF in memory and pushes it into a
               hidden iframe whose `contentWindow.print()` opens the
               native dialog — matches what you'd get from any browser. */}
-          <fieldset className="mb-4 rounded border border-slate-700 p-3">
-            <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
+          <fieldset className="mb-4 rounded border border-cp-border p-3">
+            <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
               {t('print.osHint.title', 'Drucker-Hinweis')}
             </legend>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-cp-text-muted">
               {t(
                 'print.osHint.body',
                 'Beim Drucken öffnet sich der Drucker-Dialog deines Betriebssystems — dort kannst du Drucker, Papierformat (A4 / A3 / Letter), Ausrichtung und Kopienzahl einstellen.',
@@ -172,11 +172,11 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
           </fieldset>
 
           {/* Per-device section */}
-          <fieldset className="rounded border border-slate-700 p-3">
-            <legend className="px-1 text-[11px] uppercase tracking-wide text-slate-400">
+          <fieldset className="rounded border border-cp-border p-3">
+            <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
               {t('print.devices.title', 'Einzelgeräte (Patch-Sheet)')}
             </legend>
-            <p className="mb-2 text-[11px] text-slate-400">
+            <p className="mb-2 text-[11px] text-cp-text-muted">
               {t(
                 'print.devices.body',
                 'Wählt einzelne Geräte aus und erzeugt eine A4/A3-Patch-Liste mit allen Ports + verbundenen Kabeln — zum Aufkleben am Gerät.',
@@ -190,7 +190,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                 onChange={(e) => setFilter(e.target.value)}
                 placeholder={t('print.devices.searchPlaceholder', 'Suchen (Name, Kategorie, Untertitel)…')}
                 aria-label={t('print.devices.searchPlaceholder', 'Suchen (Name, Kategorie, Untertitel)…')}
-                className="flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-cp-xs text-slate-100 placeholder:text-slate-500"
+                className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text placeholder:text-cp-text-faint"
               />
               {(() => {
                 // v7.6.0 — one toggle button instead of two competing buttons.
@@ -204,7 +204,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     type="button"
                     onClick={() => (allChecked ? selectNone() : selectAll())}
                     disabled={filteredEquipment.length === 0}
-                    className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-[11px] text-cp-text-bright hover:bg-cp-surface-4 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {allChecked
                       ? t('print.devices.deselectAll', 'Alle abwählen')
@@ -215,13 +215,13 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
             </div>
 
             {/* Device checklist */}
-            <div className="mb-3 max-h-[42vh] overflow-y-auto rounded border border-slate-800 bg-slate-950/40 p-1">
+            <div className="mb-3 max-h-[42vh] overflow-y-auto rounded border border-cp-border-muted bg-cp-surface-3/40 p-1">
               {sortedEquipment.length === 0 ? (
-                <div className="px-3 py-6 text-center text-[11px] text-slate-400">
+                <div className="px-3 py-6 text-center text-[11px] text-cp-text-muted">
                   {t('print.devices.noneInProject', 'Keine Geräte im Projekt.')}
                 </div>
               ) : filteredEquipment.length === 0 ? (
-                <div className="px-3 py-6 text-center text-[11px] text-slate-400">
+                <div className="px-3 py-6 text-center text-[11px] text-cp-text-muted">
                   {formatStr(t('print.devices.noMatch', 'Kein Gerät passt zum Suchbegriff „{q}".'), { q: filter })}
                 </div>
               ) : (
@@ -233,7 +233,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     ).length
                     return (
                       <li key={eq.id}>
-                        <label className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-cp-xs text-slate-200 hover:bg-slate-800/60">
+                        <label className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-cp-xs text-cp-text-bright hover:bg-cp-surface-2/60">
                           <input
                             type="checkbox"
                             checked={selectedIds.has(eq.id)}
@@ -241,12 +241,12 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                             className="h-3.5 w-3.5"
                           />
                           <div className="min-w-0 flex-1">
-                            <div className="truncate font-medium text-slate-100">{eq.name}</div>
-                            <div className="truncate text-[10px] text-slate-400">
+                            <div className="truncate font-medium text-cp-text">{eq.name}</div>
+                            <div className="truncate text-[10px] text-cp-text-muted">
                               {[eq.category, eq.subtitle].filter(Boolean).join(' · ') || '—'}
                             </div>
                           </div>
-                          <span className="shrink-0 text-[10px] text-slate-400">
+                          <span className="shrink-0 text-[10px] text-cp-text-muted">
                             {portCount} Ports · {cableCount} Kabel
                           </span>
                         </label>
@@ -259,11 +259,11 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
 
             {/* Action toggle — print via OS dialog vs. download a PDF */}
             <div className="mb-3 grid grid-cols-2 gap-3">
-              <div className="rounded border border-slate-700 p-2">
-                <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
+              <div className="rounded border border-cp-border p-2">
+                <div className="mb-1 text-[10px] uppercase tracking-wide text-cp-text-muted">
                   Aktion
                 </div>
-                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
+                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
                   <input
                     type="radio"
                     name="print-action"
@@ -273,7 +273,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                   <Icon icon={Printer} size="xs" className="mr-1 inline-block align-text-bottom" />
                   Auf Drucker drucken (Systemdialog)
                 </label>
-                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
+                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
                   <input
                     type="radio"
                     name="print-action"
@@ -283,8 +283,8 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                   Als PDF herunterladen
                 </label>
               </div>
-              <div className="rounded border border-slate-700 p-2 text-[10px] text-slate-400">
-                <div className="mb-1 uppercase tracking-wide text-slate-400">
+              <div className="rounded border border-cp-border p-2 text-[10px] text-cp-text-muted">
+                <div className="mb-1 uppercase tracking-wide text-cp-text-muted">
                   {t('print.dialogHint.tag', 'Hinweis')}
                 </div>
                 {t(
@@ -296,11 +296,11 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
 
             {/* Options: paper format + output mode */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded border border-slate-700 p-2">
-                <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
+              <div className="rounded border border-cp-border p-2">
+                <div className="mb-1 text-[10px] uppercase tracking-wide text-cp-text-muted">
                   {t('print.format.label', 'Format')}
                 </div>
-                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
+                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
                   <input
                     type="radio"
                     name="print-format"
@@ -309,7 +309,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                   />
                   {t('print.format.a4', 'A4 (Standard)')}
                 </label>
-                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
+                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
                   <input
                     type="radio"
                     name="print-format"
@@ -319,11 +319,11 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                   {t('print.format.a3', 'A3 (mehr Ports / Seite)')}
                 </label>
               </div>
-              <div className="rounded border border-slate-700 p-2">
-                <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-400">
+              <div className="rounded border border-cp-border p-2">
+                <div className="mb-1 text-[10px] uppercase tracking-wide text-cp-text-muted">
                   {t('print.output.label', 'Ausgabe')}
                 </div>
-                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
+                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
                   <input
                     type="radio"
                     name="print-mode"
@@ -332,7 +332,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                   />
                   {t('print.output.combined', 'Eine Sammel-PDF')}
                 </label>
-                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-slate-200">
+                <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
                   <input
                     type="radio"
                     name="print-mode"

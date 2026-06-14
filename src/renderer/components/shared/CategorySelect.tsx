@@ -41,7 +41,7 @@ export const CategorySelect = ({
   value,
   onChange,
   extraOptions,
-  className = 'w-full rounded border border-slate-700 bg-slate-900 p-2',
+  className = 'w-full rounded border border-cp-border bg-cp-surface-1 p-2',
   noCreate = false,
   promptTitle,
 }: CategorySelectProps) => {

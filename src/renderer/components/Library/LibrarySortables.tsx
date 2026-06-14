@@ -44,7 +44,7 @@ export const SortableCategorySection = ({
       style={style}
       onDragOver={onDragOverTemplate}
       onDrop={onDropTemplate}
-      className="rounded border border-slate-800"
+      className="rounded border border-cp-border-muted"
     >
       {manualSort && (
         <span
@@ -54,7 +54,7 @@ export const SortableCategorySection = ({
           title={t('library.sortables.dragTitle', 'Per Drag&Drop verschieben')}
           role="button"
           tabIndex={0}
-          className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-slate-500 hover:text-slate-200 active:cursor-grabbing"
+          className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-cp-text-faint hover:text-cp-text-bright active:cursor-grabbing"
         >
           <svg width="6" height="12" viewBox="0 0 6 12" fill="currentColor">
             <circle cx="1.5" cy="2" r="1" />
@@ -107,8 +107,8 @@ export const SortablePresetCard = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group rounded border border-slate-700 bg-slate-900 p-2 pl-5 text-cp-xs ${
-        onCardClick ? 'cursor-grab hover:bg-slate-800 active:cursor-grabbing' : ''
+      className={`group rounded border border-cp-border bg-cp-surface-1 p-2 pl-5 text-cp-xs ${
+        onCardClick ? 'cursor-grab hover:bg-cp-surface-2 active:cursor-grabbing' : ''
       }`}
       draggable={!!nativeDragData}
       onDragStart={(event) => {
@@ -148,7 +148,7 @@ export const SortablePresetCard = ({
         title={t('library.sortables.dragTitle', 'Per Drag&Drop verschieben')}
         role="button"
         tabIndex={0}
-        className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-slate-500 hover:text-slate-200 active:cursor-grabbing"
+        className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-cp-text-faint hover:text-cp-text-bright active:cursor-grabbing"
       >
         <svg width="6" height="12" viewBox="0 0 6 12" fill="currentColor">
           <circle cx="1.5" cy="2" r="1" />

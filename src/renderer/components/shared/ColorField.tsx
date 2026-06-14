@@ -39,13 +39,13 @@ export const ColorField = ({
   if (layout === 'inline') {
     return (
       <label className="flex items-center justify-between gap-2">
-        <span className="text-slate-300">{label}</span>
+        <span className="text-cp-text-secondary">{label}</span>
         <div className="flex items-center gap-2">
           <input
             type="color"
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            className="h-7 w-12 cursor-pointer rounded border border-slate-700 bg-slate-900 p-0.5"
+            className="h-7 w-12 cursor-pointer rounded border border-cp-border bg-cp-surface-1 p-0.5"
             title={title}
             aria-label={label}
           />
@@ -53,7 +53,7 @@ export const ColorField = ({
             <button
               type="button"
               onClick={onReset}
-              className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-[10px] hover:bg-cp-surface-5"
               title={t('colorField.resetTitle', 'Farbe zurücksetzen')}
             >
               {t('colorField.resetBtn', '✕ Reset')}
@@ -65,12 +65,12 @@ export const ColorField = ({
   }
   return (
     <label className="block">
-      <span className="mb-1 block text-slate-300">{label}</span>
+      <span className="mb-1 block text-cp-text-secondary">{label}</span>
       <input
         type="color"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-9 w-full cursor-pointer rounded border border-slate-700 bg-slate-900 p-1"
+        className="h-9 w-full cursor-pointer rounded border border-cp-border bg-cp-surface-1 p-1"
         title={title}
         aria-label={label}
       />

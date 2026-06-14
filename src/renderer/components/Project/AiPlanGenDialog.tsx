@@ -70,7 +70,7 @@ export const AiPlanGenDialog = () => {
           </div>
         )}
         <label className="block">
-          <span className="mb-1 block text-cp-xs text-slate-400">
+          <span className="mb-1 block text-cp-xs text-cp-text-muted">
             {t('aiPlan.promptLabel', 'System in Klartext beschreiben')}
           </span>
           <textarea
@@ -81,11 +81,11 @@ export const AiPlanGenDialog = () => {
               'aiPlan.promptPlaceholder',
               'z. B. "2 Kameras über SDI in einen Switcher, PGM-Out auf einen Recorder und einen Multiviewer-Monitor"',
             )}
-            className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-xs"
+            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-xs"
           />
         </label>
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] text-cp-text-muted">
             {t('aiPlan.reviewHint', 'Vorschau wird angezeigt — nichts wird ohne Bestätigung eingefügt.')}
           </span>
           <button
@@ -107,17 +107,17 @@ export const AiPlanGenDialog = () => {
         )}
 
         {plan && (
-          <div className="rounded border border-slate-700 bg-slate-900/40 p-2">
-            <div className="mb-1 text-cp-xs font-semibold text-slate-200">
+          <div className="rounded border border-cp-border bg-cp-surface-1/40 p-2">
+            <div className="mb-1 text-cp-xs font-semibold text-cp-text-bright">
               {format(t('aiPlan.preview', 'Vorschau: {d} Geräte, {c} Kabel'), {
                 d: plan.equipment.length,
                 c: plan.cables.length,
               })}
             </div>
-            <ul className="max-h-40 overflow-auto text-[11px] text-slate-300">
+            <ul className="max-h-40 overflow-auto text-[11px] text-cp-text-secondary">
               {plan.equipment.map((e) => (
                 <li key={e.id}>
-                  • {e.name} <span className="text-slate-500">[{e.category}]</span>
+                  • {e.name} <span className="text-cp-text-faint">[{e.category}]</span>
                 </li>
               ))}
             </ul>

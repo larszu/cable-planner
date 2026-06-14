@@ -32,7 +32,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
         <div className="min-w-0">
           <h2 className="text-cp-base font-semibold">{t('library.tabs.racks.title', '2D Rack Builder')}</h2>
-          <div className="text-[10px] text-slate-400">
+          <div className="text-[10px] text-cp-text-muted">
             {t('library.tabs.racks.subtitle', 'Rack-Slots in HE, als platzierbare Gruppe gespeichert')}
           </div>
         </div>
@@ -46,7 +46,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
       </div>
 
       {groupPresets.filter((preset) => !!preset.rack).length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-2 text-cp-xs text-slate-500 text-center p-4">
+        <div className="flex-1 flex flex-col items-center justify-center gap-2 text-cp-xs text-cp-text-faint text-center p-4">
           <span className="text-2xl">▥</span>
           <span>{t('library.tabs.racks.empty', 'Noch kein Rack-Layout gespeichert.')}</span>
         </div>
@@ -86,15 +86,15 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
-                          <div className="truncate font-medium text-slate-100">{preset.name}</div>
-                          <div className="mt-0.5 text-[10px] text-slate-400">
+                          <div className="truncate font-medium text-cp-text">{preset.name}</div>
+                          <div className="mt-0.5 text-[10px] text-cp-text-muted">
                             {format(t('library.tabs.racks.counts', '{items} Geräte · {units} HE · {cables} Kabel'), {
                               items: preset.items.length,
                               units: totalUnits,
                               cables: preset.cables.length,
                             })}
                           </div>
-                          <div className="mt-0.5 truncate text-[10px] text-slate-400">
+                          <div className="mt-0.5 truncate text-[10px] text-cp-text-muted">
                             {preset.items.map((i) => i.name).join(', ')}
                           </div>
                         </div>
@@ -109,7 +109,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                               event.stopPropagation()
                               onEditRack(preset.id)
                             }}
-                            className="rounded bg-slate-700 px-1 py-0.5 text-[11px] hover:bg-slate-600"
+                            className="rounded bg-cp-surface-4 px-1 py-0.5 text-[11px] hover:bg-cp-surface-5"
                             title={t('library.tabs.racks.editTitle', 'Im 2D-Rack-Builder bearbeiten')}
                             aria-label={t('library.tabs.racks.editAria', 'Bearbeiten')}
                           >
@@ -121,7 +121,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                               event.stopPropagation()
                               exportPresetToFile(preset)
                             }}
-                            className="rounded bg-slate-700 px-1 py-0.5 text-[11px] text-slate-300 hover:bg-slate-600"
+                            className="rounded bg-cp-surface-4 px-1 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-5"
                             title={t(
                               'library.tabs.racks.exportTitle',
                               'Als Datei exportieren (Kopie in den Downloads-Ordner)',

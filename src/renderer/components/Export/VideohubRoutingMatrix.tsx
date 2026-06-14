@@ -207,7 +207,7 @@ export const VideohubRoutingMatrix = ({
 
   if (!useGrid) {
     return (
-      <div className="overflow-auto max-h-64 rounded border border-slate-700 bg-slate-950 p-2">
+      <div className="overflow-auto max-h-64 rounded border border-cp-border bg-cp-surface-3 p-2">
         <div className="mb-2 text-[10px] text-amber-300">
           {totalInputs}×{totalOutputs} ({cellCount.toLocaleString()} Crosspoints) —
           Listen-Modus, da die Crosspoint-Matrix bei dieser Groesse das
@@ -216,15 +216,15 @@ export const VideohubRoutingMatrix = ({
         <div className="space-y-0.5">
           {outputLabels.map((outLabel, oi) => (
             <div key={oi} className="flex items-center gap-2 text-cp-base">
-              <span className="w-10 shrink-0 font-mono text-right text-slate-500">{oi + 1}</span>
-              <span className="w-40 shrink-0 truncate text-right font-medium text-slate-200">
+              <span className="w-10 shrink-0 font-mono text-right text-cp-text-faint">{oi + 1}</span>
+              <span className="w-40 shrink-0 truncate text-right font-medium text-cp-text-bright">
                 {outLabel}
               </span>
-              <span className="text-slate-500">←</span>
+              <span className="text-cp-text-faint">←</span>
               <select
                 value={routing[oi] ?? 0}
                 onChange={(e) => onRoute(oi, parseInt(e.target.value, 10))}
-                className="flex-1 rounded border border-slate-700 bg-slate-900 p-1 text-cp-base text-sky-200"
+                className="flex-1 rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-base text-sky-200"
               >
                 {inputLabels.map((inLabel, ii) => (
                   <option key={ii} value={ii}>
@@ -333,7 +333,7 @@ export const VideohubRoutingMatrix = ({
 
   return (
     <div className="space-y-1">
-      <div className="flex items-center justify-between text-[11px] text-slate-400">
+      <div className="flex items-center justify-between text-[11px] text-cp-text-muted">
         <span>
           Tipp: rechte Kante einer Spalte / untere Kante einer Zeile ziehen wie in Excel.
         </span>
@@ -343,14 +343,14 @@ export const VideohubRoutingMatrix = ({
           <button
             type="button"
             onClick={resetLayout}
-            className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700"
+            className="rounded bg-cp-surface-2 px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-4"
           >
             ↺ Layout zuruecksetzen
           </button>
         )}
       </div>
       <div
-        className="overflow-auto rounded-cp-control border border-slate-700 bg-slate-950"
+        className="overflow-auto rounded-cp-control border border-cp-border bg-cp-surface-3"
         style={{ maxHeight }}
         onMouseLeave={() => setHover(null)}
         onMouseUp={() => setDragging(false)}
@@ -360,7 +360,7 @@ export const VideohubRoutingMatrix = ({
             {/* Achsenbeschriftungs-Bar */}
             <tr style={{ height: 32 }}>
               <th
-                className="sticky left-0 top-0 z-30 border-b border-r border-slate-700 bg-slate-900 px-3 text-left uppercase tracking-wide text-slate-400"
+                className="sticky left-0 top-0 z-30 border-b border-r border-cp-border bg-cp-surface-1 px-3 text-left uppercase tracking-wide text-cp-text-muted"
                 style={{ width: labelColW, minWidth: labelColW, fontSize: 12, fontWeight: 600, position: 'relative' }}
               >
                 {rowAxisLabel}
@@ -372,7 +372,7 @@ export const VideohubRoutingMatrix = ({
                 />
               </th>
               <th
-                className="sticky top-0 z-20 border-b border-r border-slate-700 bg-slate-900 text-center font-mono text-slate-500"
+                className="sticky top-0 z-20 border-b border-r border-cp-border bg-cp-surface-1 text-center font-mono text-cp-text-faint"
                 style={{
                   left: labelColW,
                   width: indexColPx,
@@ -383,7 +383,7 @@ export const VideohubRoutingMatrix = ({
                 #
               </th>
               <th
-                className="sticky top-0 z-20 border-b border-slate-700 bg-slate-800/80 px-3 text-left uppercase tracking-wide text-slate-300"
+                className="sticky top-0 z-20 border-b border-cp-border bg-cp-surface-2/80 px-3 text-left uppercase tracking-wide text-cp-text-secondary"
                 colSpan={totalInputs}
                 style={{ fontSize: 12, fontWeight: 600 }}
               >
@@ -394,11 +394,11 @@ export const VideohubRoutingMatrix = ({
             {/* Input-Label-Reihe — horizontal bei kleinen Hubs, rotiert sonst */}
             <tr style={{ height: labelRowHeightPx }}>
               <th
-                className="sticky left-0 z-30 border-r border-slate-700 bg-slate-900"
+                className="sticky left-0 z-30 border-r border-cp-border bg-cp-surface-1"
                 style={{ top: 32, width: labelColW, minWidth: labelColW }}
               />
               <th
-                className="sticky z-20 border-r border-slate-700 bg-slate-900"
+                className="sticky z-20 border-r border-cp-border bg-cp-surface-1"
                 style={{
                   top: 32,
                   left: labelColW,
@@ -411,8 +411,8 @@ export const VideohubRoutingMatrix = ({
                 return (
                   <th
                     key={`lbl-${i}`}
-                    className={`sticky z-10 bg-slate-900 ${
-                      isGroupBreak(i) ? 'border-l border-slate-700' : ''
+                    className={`sticky z-10 bg-cp-surface-1 ${
+                      isGroupBreak(i) ? 'border-l border-cp-border' : ''
                     } ${colHighlight === i ? 'bg-sky-900/40' : ''}`}
                     style={{
                       top: 32,
@@ -426,7 +426,7 @@ export const VideohubRoutingMatrix = ({
                       {useHorizontalLabels ? (
                         <div
                           className={`flex h-full items-center justify-center px-2 text-center ${
-                            colHighlight === i ? 'text-slate-100' : 'text-slate-300'
+                            colHighlight === i ? 'text-cp-text' : 'text-cp-text-secondary'
                           }`}
                           style={{
                             fontSize: labelFontPx,
@@ -448,7 +448,7 @@ export const VideohubRoutingMatrix = ({
                       ) : (
                         <div
                           className={`overflow-hidden text-center ${
-                            colHighlight === i ? 'text-slate-100' : 'text-slate-300'
+                            colHighlight === i ? 'text-cp-text' : 'text-cp-text-secondary'
                           }`}
                           style={{
                             writingMode: 'vertical-lr',
@@ -483,7 +483,7 @@ export const VideohubRoutingMatrix = ({
             {/* Input-Index-Reihe */}
             <tr style={{ height: 24 }}>
               <th
-                className="sticky left-0 z-30 border-b border-r border-slate-700 bg-slate-900 px-3 text-left uppercase text-slate-500"
+                className="sticky left-0 z-30 border-b border-r border-cp-border bg-cp-surface-1 px-3 text-left uppercase text-cp-text-faint"
                 style={{
                   top: 32 + labelRowHeightPx,
                   width: labelColW,
@@ -494,7 +494,7 @@ export const VideohubRoutingMatrix = ({
                 Label
               </th>
               <th
-                className="sticky z-20 border-b border-r border-slate-700 bg-slate-900 text-center font-mono text-slate-500"
+                className="sticky z-20 border-b border-r border-cp-border bg-cp-surface-1 text-center font-mono text-cp-text-faint"
                 style={{
                   top: 32 + labelRowHeightPx,
                   left: labelColW,
@@ -510,8 +510,8 @@ export const VideohubRoutingMatrix = ({
                 return (
                   <th
                     key={`idx-${i}`}
-                    className={`sticky z-10 border-b border-slate-700 bg-slate-900 font-mono text-slate-400 ${
-                      isGroupBreak(i) ? 'border-l border-slate-700' : ''
+                    className={`sticky z-10 border-b border-cp-border bg-cp-surface-1 font-mono text-cp-text-muted ${
+                      isGroupBreak(i) ? 'border-l border-cp-border' : ''
                     } ${colHighlight === i ? 'bg-sky-900/40 text-sky-200' : ''}`}
                     style={{
                       top: 32 + labelRowHeightPx,
@@ -540,14 +540,14 @@ export const VideohubRoutingMatrix = ({
                 <tr
                   key={oi}
                   ref={(el) => { rowRefs.current[oi] = el }}
-                  className={`${rowOn ? 'bg-slate-800/50' : 'hover:bg-slate-800/40'} ${
-                    groupRowBreak ? 'border-t border-slate-700' : ''
+                  className={`${rowOn ? 'bg-cp-surface-2/50' : 'hover:bg-cp-surface-2/40'} ${
+                    groupRowBreak ? 'border-t border-cp-border' : ''
                   }`}
                   style={{ height: rh }}
                 >
                   <td
-                    className={`sticky left-0 z-10 truncate border-r border-slate-800 px-3 text-left ${
-                      rowOn ? 'bg-slate-800/80 text-slate-100' : 'bg-slate-950 text-slate-200'
+                    className={`sticky left-0 z-10 truncate border-r border-cp-border-muted px-3 text-left ${
+                      rowOn ? 'bg-cp-surface-2/80 text-cp-text' : 'bg-cp-surface-3 text-cp-text-bright'
                     }`}
                     style={{
                       width: labelColW,
@@ -569,8 +569,8 @@ export const VideohubRoutingMatrix = ({
                     </div>
                   </td>
                   <td
-                    className={`sticky z-10 border-r border-slate-800 text-center font-mono ${
-                      rowOn ? 'bg-slate-800/80 text-slate-200' : 'bg-slate-900 text-slate-500'
+                    className={`sticky z-10 border-r border-cp-border-muted text-center font-mono ${
+                      rowOn ? 'bg-cp-surface-2/80 text-cp-text-bright' : 'bg-cp-surface-1 text-cp-text-faint'
                     }`}
                     style={{
                       left: labelColW,
@@ -584,7 +584,7 @@ export const VideohubRoutingMatrix = ({
                       <button
                         type="button"
                         onClick={() => focusRow(oi)}
-                        className="block w-full hover:text-slate-300"
+                        className="block w-full hover:text-cp-text-secondary"
                         title={`Output ${oi + 1} fokussieren`}
                       >
                         {oi + 1}
@@ -608,7 +608,7 @@ export const VideohubRoutingMatrix = ({
                     return (
                       <td
                         key={ii}
-                        className={`p-0 text-center ${groupBreak ? 'border-l border-slate-800' : ''} ${tdBg}`}
+                        className={`p-0 text-center ${groupBreak ? 'border-l border-cp-border-muted' : ''} ${tdBg}`}
                         style={{ width: cw, minWidth: cw, maxWidth: cw }}
                         onMouseEnter={() => {
                           setHover({ row: oi, col: ii })
@@ -633,7 +633,7 @@ export const VideohubRoutingMatrix = ({
                                   ? 'mx-auto block rounded-sm bg-slate-400/50 hover:bg-slate-300'
                                   : inCol
                                     ? 'mx-auto block rounded-sm bg-sky-500/50 hover:bg-sky-400'
-                                    : 'mx-auto block rounded-sm bg-slate-700/80 hover:bg-slate-500'
+                                    : 'mx-auto block rounded-sm bg-cp-surface-4/80 hover:bg-slate-500'
                           }
                           style={{
                             width: Math.min(cw - 8, rh - 10),

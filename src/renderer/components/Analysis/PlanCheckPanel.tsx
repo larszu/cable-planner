@@ -56,7 +56,7 @@ export const PlanCheckPanel = () => {
       scrollBody={false}
     >
       <div className="flex h-full flex-col">
-        <div className="flex items-center gap-3 border-b border-slate-800 py-2 text-cp-xs">
+        <div className="flex items-center gap-3 border-b border-cp-border-muted py-2 text-cp-xs">
           <span className="inline-flex items-center gap-1 text-red-400">
             <Icon icon={AlertCircle} size="xs" /> {errorCount}
           </span>
@@ -66,7 +66,7 @@ export const PlanCheckPanel = () => {
           <span className="inline-flex items-center gap-1 text-sky-400">
             <Icon icon={Info} size="xs" /> {infoCount}
           </span>
-          <span className="ml-auto text-slate-500">
+          <span className="ml-auto text-cp-text-faint">
             {format(t('planCheck.summary', '{count} Hinweise'), { count: findings.length })}
           </span>
         </div>
@@ -77,7 +77,7 @@ export const PlanCheckPanel = () => {
               <span className="text-cp-base">{t('planCheck.allClear', 'Keine Auffälligkeiten gefunden.')}</span>
             </div>
           ) : (
-            <ul className="divide-y divide-slate-800/60">
+            <ul className="divide-y divide-cp-surface-2/60">
               {findings.map((f) => {
                 const meta = SEVERITY_META[f.severity]
                 const clickable = !!(f.cableId || f.equipmentId)
@@ -94,7 +94,7 @@ export const PlanCheckPanel = () => {
                       <Icon icon={meta.icon} size="xs" className={`mt-0.5 shrink-0 ${meta.tone}`} />
                       <span className="min-w-0">
                         <span className={`mr-1 font-semibold ${meta.tone}`}>{f.category}:</span>
-                        <span className="text-slate-300">{f.message}</span>
+                        <span className="text-cp-text-secondary">{f.message}</span>
                       </span>
                     </button>
                   </li>
@@ -103,7 +103,7 @@ export const PlanCheckPanel = () => {
             </ul>
           )}
         </div>
-        <p className="border-t border-slate-800 py-1.5 text-[10px] text-slate-400">
+        <p className="border-t border-cp-border-muted py-1.5 text-[10px] text-cp-text-muted">
           {t(
             'planCheck.footerHint',
             'Live-Validierung des Plans. Klick auf einen Hinweis selektiert das betroffene Element.',

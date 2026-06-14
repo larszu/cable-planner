@@ -53,7 +53,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
           </label>
 
           {!equipment.isRackDevice && (
-            <div className="rounded border border-slate-800 bg-slate-900/50 p-2 text-[11px] text-slate-400">
+            <div className="rounded border border-cp-border-muted bg-cp-surface-1/50 p-2 text-[11px] text-cp-text-muted">
               {t(
                 'props.rack.disabledHint',
                 'Rack-Felder erscheinen nur, wenn das Gerät als 19" Rack-Gerät markiert ist.',
@@ -65,7 +65,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
             <>
               <div className="grid grid-cols-2 gap-2">
                 <label className="block">
-                  <span className="mb-1 block text-slate-300">{t('props.rack.height', 'Hohe (HE)')}</span>
+                  <span className="mb-1 block text-cp-text-secondary">{t('props.rack.height', 'Hohe (HE)')}</span>
                   <input
                     type="number"
                     min={1}
@@ -76,15 +76,15 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
                         rackUnits: Math.max(1, Number(event.target.value) || 1),
                       })
                     }
-                    className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+                    className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-1 block text-slate-300">{t('props.rack.view', 'Ansicht')}</span>
+                  <span className="mb-1 block text-cp-text-secondary">{t('props.rack.view', 'Ansicht')}</span>
                   <select
                     value={rackViewMode}
                     onChange={(event) => setRackViewMode(event.target.value as 'front' | 'rear' | 'both')}
-                    className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+                    className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
                   >
                     <option value="front">{t('props.rack.frontOnly', 'Nur vorne')}</option>
                     <option value="rear">{t('props.rack.rearOnly', 'Nur hinten')}</option>
@@ -131,7 +131,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
                       rearPanelCrop: equipment.frontPanelCrop,
                     })
                   }
-                  className="mt-2 w-full rounded border border-slate-600 bg-slate-800 px-2 py-1 text-cp-xs text-slate-200 hover:bg-slate-700"
+                  className="mt-2 w-full rounded border border-cp-surface-5 bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4"
                   title={t('props.rack.swapTitle', 'Front- und Rear-Foto vertauschen (samt Crop-Meta)')}
                 >
                   {t('props.rack.swap', '↔ Front-/Rear-Foto vertauschen')}
@@ -139,7 +139,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
               )}
 
               {equipment.netboxPath && (
-                <div className="mt-2 text-[10px] text-slate-400">
+                <div className="mt-2 text-[10px] text-cp-text-muted">
                   {format(t('props.rack.netboxSource', 'Quelle: NetBox device-type-library · {path}'), {
                     path: equipment.netboxPath,
                   })}

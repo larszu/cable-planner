@@ -107,7 +107,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
       open={open}
       onClose={finish}
       title={
-        <span className="text-[11px] uppercase tracking-wider text-slate-400">
+        <span className="text-[11px] uppercase tracking-wider text-cp-text-muted">
           {format(t('onboarding.header', 'Erste-Schritte-Tour · Schritt {step} / {total}'), {
             step: step + 1,
             total: STEPS.length,
@@ -120,7 +120,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
           <button
             type="button"
             onClick={finish}
-            className="text-cp-xs text-slate-500 hover:text-slate-300"
+            className="text-cp-xs text-cp-text-faint hover:text-cp-text-secondary"
           >
             {t('onboarding.end', 'Tour beenden')}
           </button>
@@ -134,7 +134,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
                       ? 'bg-orange-500'
                       : index < step
                         ? 'bg-orange-700/60'
-                        : 'bg-slate-700'
+                        : 'bg-cp-surface-4'
                   }`}
                 />
               ))}
@@ -143,7 +143,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
               type="button"
               onClick={() => setStep((index) => Math.max(0, index - 1))}
               disabled={step === 0}
-              className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {t('onboarding.back', 'Zurück')}
             </button>
@@ -169,10 +169,10 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
       }
     >
       <div className="space-y-3">
-        <h2 className="text-cp-xl font-semibold text-slate-100">{current.title}</h2>
-        <p className="text-cp-base leading-relaxed text-slate-300">{current.body}</p>
+        <h2 className="text-cp-xl font-semibold text-cp-text">{current.title}</h2>
+        <p className="text-cp-base leading-relaxed text-cp-text-secondary">{current.body}</p>
         {current.hint && (
-          <div className="rounded border border-slate-800 bg-slate-950/40 px-2 py-1 text-[11px] text-slate-400">
+          <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 px-2 py-1 text-[11px] text-cp-text-muted">
             {t('onboarding.tip', 'Tipp:')} {current.hint}
           </div>
         )}

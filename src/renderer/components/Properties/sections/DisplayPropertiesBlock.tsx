@@ -43,16 +43,16 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
     <details
       open={open}
       onToggle={(e) => setOpen(e.currentTarget.open)}
-      className="rounded border border-slate-700 [&_summary]:cursor-pointer"
+      className="rounded border border-cp-border [&_summary]:cursor-pointer"
     >
-      <summary className="flex items-center gap-1 px-2 py-1.5 text-[11px] uppercase tracking-wide text-slate-400 hover:text-slate-200 [&::-webkit-details-marker]:hidden">
-        <span className="text-slate-500">{open ? '▾' : '▸'}</span>
+      <summary className="flex items-center gap-1 px-2 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
+        <span className="text-cp-text-faint">{open ? '▾' : '▸'}</span>
         <span className="flex-1">{t('display.title', 'Display')}</span>
       </summary>
       <div className="px-2 pb-2">
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
-          <span className="mb-1 block text-slate-300">{t('display.resolution', 'Auflösung')}</span>
+          <span className="mb-1 block text-cp-text-secondary">{t('display.resolution', 'Auflösung')}</span>
           <input
             list="display-resolution-options"
             value={equipment.resolution ?? ''}
@@ -60,7 +60,7 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
               updateEquipment(equipment.id, { resolution: event.target.value || undefined })
             }
             placeholder="1920x1080"
-            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
           <datalist id="display-resolution-options">
             {RESOLUTION_PRESETS.map((r) => (
@@ -69,7 +69,7 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
           </datalist>
         </label>
         <label className="block">
-          <span className="mb-1 block text-slate-300">{t('display.diagonal', 'Diagonale (Zoll)')}</span>
+          <span className="mb-1 block text-cp-text-secondary">{t('display.diagonal', 'Diagonale (Zoll)')}</span>
           <input
             type="number"
             min={1}
@@ -82,7 +82,7 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
               })
             }}
             placeholder="27"
-            className="w-full rounded border border-slate-700 bg-slate-900 p-2"
+            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
           />
         </label>
       </div>
