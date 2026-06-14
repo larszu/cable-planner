@@ -151,10 +151,36 @@ export const triggerCanvasResetZoom = () => {
 // CanvasArea owns the live data (rfNodes for actual rendered handle
 // positions, full obstacle list, all cables for soft-obstacle
 // avoidance) and turns the request into the actual write.
-let cableRouter: ((cableId: string) => boolean) | null = null
-let allCablesRouter: (() => number) | null = null
+// #515 — Router-Registry als ID-gekeyter Stack statt einzelner Globals.
+// Grund: Die Rack-Verkabelung (RackInternalCanvas) rendert DIESELBE
+// <CanvasArea>-Komponente ein zweites Mal (mode='rack'), nur mit einem
+// eigenen Scratch-Store. Beide Instanzen registrierten ihren A*-Router
+// über EIN globales Slot — wer zuletzt seinen Effect laufen ließ, gewann.
+// Lief der Effect der Haupt-Canvas erneut (deps: project.equipment /
+// updateCable), während das Rack-Overlay offen war, zeigte das Slot
+// wieder auf die HAUPT-Canvas. routeCable(scratchCableId) suchte das
+// Kabel dann im Haupt-Projekt, fand es nicht und gab still `false`
+// zurück → "Auto-Routing beim Verkabeln defekt" (Issue #515).
+//
+// Fix: jede CanvasArea-Instanz registriert mit stabiler ID. Aktiv ist
+// die ZULETZT gemountete (oben auf dem Stack = das Rack-Overlay, solange
+// es offen ist). Re-Registrierung einer bekannten ID aktualisiert
+// in-place, OHNE die Stack-Position zu ändern — ein Re-Run des Haupt-
+// Effects kann das offene Rack-Overlay also nicht mehr verdrängen.
+// Schließt das Overlay (Cleanup → setCableRouter(id, null)), fällt der
+// Stack auf die Haupt-Canvas zurück.
+interface CableRouterEntry {
+  id: string
+  routeOne: (cableId: string) => boolean
+  routeAll: () => number
+}
+const cableRouterStack: CableRouterEntry[] = []
+
+const activeCableRouter = (): CableRouterEntry | null =>
+  cableRouterStack.length > 0 ? cableRouterStack[cableRouterStack.length - 1] : null
 
 export const setCableRouter = (
+  id: string,
   fns:
     | {
         routeOne: (cableId: string) => boolean
@@ -162,15 +188,26 @@ export const setCableRouter = (
       }
     | null,
 ) => {
-  cableRouter = fns?.routeOne ?? null
-  allCablesRouter = fns?.routeAll ?? null
+  const idx = cableRouterStack.findIndex((e) => e.id === id)
+  if (!fns) {
+    if (idx >= 0) cableRouterStack.splice(idx, 1)
+    return
+  }
+  if (idx >= 0) {
+    // In-place aktualisieren — Stack-Position (= "wer ist aktiv") bleibt.
+    cableRouterStack[idx] = { id, routeOne: fns.routeOne, routeAll: fns.routeAll }
+  } else {
+    cableRouterStack.push({ id, routeOne: fns.routeOne, routeAll: fns.routeAll })
+  }
 }
 
 /** Reroute a single cable using A*. Returns true if a path was found
- *  and written to the cable. */
+ *  and written to the cable. Nutzt den aktiven (zuletzt gemounteten)
+ *  Canvas-Router — im Rack-Overlay also dessen Scratch-Store-Router. */
 export const routeCable = (cableId: string): boolean => {
   try {
-    return cableRouter ? cableRouter(cableId) : false
+    const r = activeCableRouter()
+    return r ? r.routeOne(cableId) : false
   } catch {
     return false
   }
@@ -180,7 +217,8 @@ export const routeCable = (cableId: string): boolean => {
  *  successfully found a path. */
 export const routeAllCables = (): number => {
   try {
-    return allCablesRouter ? allCablesRouter() : 0
+    const r = activeCableRouter()
+    return r ? r.routeAll() : 0
   } catch {
     return 0
   }
