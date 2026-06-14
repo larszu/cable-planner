@@ -56,7 +56,7 @@ import {
   setCanvasSelectAllHandler,
 } from '../../lib/canvasViewport'
 import { routeCableWithAStar, type HandleSide, type PixelRect } from '../../lib/routeCableWithAStar'
-import { useTranslation } from '../../lib/i18n'
+import { format, useTranslation } from '../../lib/i18n'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
 const edgeTypes = { cable: CableEdge }
@@ -74,6 +74,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const addEquipment = useProjectStore((state) => state.addEquipment)
   const pasteEquipment = useProjectStore((state) => state.pasteEquipment)
   const deleteEquipment = useProjectStore((state) => state.deleteEquipment)
+  const deleteLocation = useProjectStore((state) => state.deleteLocation)
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const queueConnection = useProjectStore((state) => state.queueConnection)
   const setSelection = useProjectStore((state) => state.setSelection)
@@ -1966,6 +1967,48 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           }
           setNodeContextMenu(null)
         }
+        // #519 — Löschen aus dem Rechtsklick-Menü. Equipment: löscht das Gerät
+        // + kaskadiert angeschlossene Kabel (deleteEquipment). Location: löscht
+        // nur den Rahmen, die enthaltenen Geräte bleiben (deleteLocation) —
+        // das ist die nicht-destruktive Variante. Beides hinter einer
+        // Bestätigung (destructive), analog zu LocationProperties.
+        const remove = async () => {
+          const okLabel = t('confirm.delete', 'Löschen')
+          const ok = isLocation
+            ? await confirmDialog(
+                format(t('canvas.nodeMenu.confirmDeleteLocation', 'Rahmen "{name}" löschen?'), {
+                  name: target.name,
+                }),
+                {
+                  body: t(
+                    'canvas.nodeMenu.confirmDeleteLocationBody',
+                    'Nur der Rahmen wird gelöscht. Die enthaltenen Geräte bleiben auf dem Canvas.',
+                  ),
+                  destructive: true,
+                  okLabel,
+                },
+              )
+            : await confirmDialog(
+                format(t('canvas.nodeMenu.confirmDeleteEquipment', 'Gerät "{name}" löschen?'), {
+                  name: target.name,
+                }),
+                {
+                  body: t(
+                    'canvas.nodeMenu.confirmDeleteEquipmentBody',
+                    'Das Gerät und alle daran angeschlossenen Kabel werden gelöscht.',
+                  ),
+                  destructive: true,
+                  okLabel,
+                },
+              )
+          if (!ok) {
+            setNodeContextMenu(null)
+            return
+          }
+          if (isLocation) deleteLocation(nodeContextMenu.nodeId)
+          else deleteEquipment(nodeContextMenu.nodeId)
+          setNodeContextMenu(null)
+        }
         return (
           <div
             onClick={(e) => e.stopPropagation()}
@@ -2011,6 +2054,35 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                 {isLocked
                   ? t('canvas.area.unlockPosition', 'Position entsperren')
                   : t('canvas.area.lockPosition', 'Position sperren')}
+              </span>
+            </button>
+            <div style={{ height: 1, background: '#334155', margin: '4px 0' }} />
+            <button
+              type="button"
+              onClick={() => void remove()}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                width: '100%',
+                padding: '6px 10px',
+                background: 'transparent',
+                color: '#f87171',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#334155')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+            >
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M2.5 4h11M6 4V2.5h4V4M5 4l.5 9a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1L11 4" />
+              </svg>
+              <span>
+                {isLocation
+                  ? t('canvas.nodeMenu.deleteLocation', 'Rahmen löschen')
+                  : t('canvas.nodeMenu.deleteEquipment', 'Gerät löschen')}
               </span>
             </button>
           </div>
