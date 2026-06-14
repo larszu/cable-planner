@@ -680,9 +680,12 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       heightUnits: placement.rackUnits,
       // v7.9.73 / #170 — mountSide nur persistieren wenn explizit gesetzt.
       ...(placement.mountSide ? { mountSide: placement.mountSide } : {}),
-      // v7.9.82 / #170 — Shelf-Offsets nur wenn != 0.
-      ...(placement.shelfOffsetX ? { shelfOffsetX: placement.shelfOffsetX } : {}),
-      ...(placement.shelfOffsetZ ? { shelfOffsetZ: placement.shelfOffsetZ } : {}),
+      // #521 — Shelf-Offsets persistieren wenn GESETZT (auch 0!). Vorher ein
+      // truthy-Check (`shelfOffsetX ? …`), der den gültigen Wert 0 (linke Kante
+      // / Front) verwarf → X/Z-Position ging beim Speichern verloren. `!= null`
+      // unterscheidet korrekt zwischen 0 (valide Position) und undefined.
+      ...(placement.shelfOffsetX != null ? { shelfOffsetX: placement.shelfOffsetX } : {}),
+      ...(placement.shelfOffsetZ != null ? { shelfOffsetZ: placement.shelfOffsetZ } : {}),
     }))
 
     // v7.8.5 — Map internal cables (referenced by placement id) onto the
