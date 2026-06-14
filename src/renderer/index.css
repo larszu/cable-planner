@@ -88,19 +88,26 @@
    * Töne (bzw. deren Light-Remap), damit die Migration der zentralen
    * Shells auf var(--cp-*) appearance-neutral ist. Neue Komponenten
    * sollten diese Tokens statt roher slate-Klassen verwenden. */
-  --cp-bg: #0f172a; /* App-Hintergrund */
-  --cp-surface-1: #0f172a; /* slate-900 — Panels/Modals */
-  --cp-surface-2: #1e293b; /* slate-800 — raised/hover */
-  --cp-surface-3: #020617; /* slate-950 — sunken/Leisten/Inputs */
-  --cp-border: #334155; /* slate-700 */
-  --cp-border-muted: #1e293b; /* slate-800 */
-  --cp-text: #f1f5f9; /* slate-100 */
-  --cp-text-secondary: #cbd5e1; /* slate-300 */
-  --cp-text-muted: #94a3b8; /* slate-400 */
-  --cp-text-faint: #64748b; /* slate-500 */
-  --cp-accent: #38bdf8; /* sky-400 */
-  --cp-warn: #f59e0b; /* amber-500 */
-  --cp-danger: #ef4444; /* red-500 */
+  /* #449 — Dark-Tokens an Tailwinds eigene Palette-Variablen gebunden
+   * (statt hartcodierter Hex-Werte). Tailwind v4 rendert slate-* in oklch;
+   * die früheren Hex-Werte wichen davon um 1–2 RGB-Stufen ab, wodurch eine
+   * slate-*→cp-*-Migration NICHT pixelgleich war. Über var(--color-slate-N)
+   * sind die Tokens jetzt per Definition deckungsgleich mit den rohen
+   * slate-/sky-/amber-/red-Utilities — die Migration ist damit beweisbar
+   * appearance-neutral, und es gibt nur noch EINE Farbquelle. */
+  --cp-bg: var(--color-slate-900); /* App-Hintergrund */
+  --cp-surface-1: var(--color-slate-900); /* Panels/Modals */
+  --cp-surface-2: var(--color-slate-800); /* raised/hover */
+  --cp-surface-3: var(--color-slate-950); /* sunken/Leisten/Inputs */
+  --cp-border: var(--color-slate-700);
+  --cp-border-muted: var(--color-slate-800);
+  --cp-text: var(--color-slate-100);
+  --cp-text-secondary: var(--color-slate-300);
+  --cp-text-muted: var(--color-slate-400);
+  --cp-text-faint: var(--color-slate-500);
+  --cp-accent: var(--color-sky-400);
+  --cp-warn: var(--color-amber-500);
+  --cp-danger: var(--color-red-500);
 
   /* Spacing-Skala (Referenz; schrittweise Migration der Shells) */
   --cp-space-1: 0.25rem;
@@ -209,6 +216,10 @@ body,
   --cp-border: #94a3b8; /* = .border-slate-700 */
   --cp-border-muted: #b8c4d0; /* = .border-slate-800 */
   --cp-text: #0f172a; /* = .text-slate-100 */
+  /* #449 — fehlte im Light-Remap: --cp-text-secondary fiel auf den Dark-Wert
+   * zurück (heller Grauton auf hellem Grund → unlesbar). Jetzt = light
+   * .text-slate-300 (#1e293b), passt in die Ramp text(#0f172a) → muted(#334155). */
+  --cp-text-secondary: #1e293b; /* = .text-slate-300 (light) */
   --cp-text-muted: #334155; /* = .text-slate-400 */
   --cp-text-faint: #475569; /* = .text-slate-500 */
   --cp-accent: #0284c7; /* sky-600 */
