@@ -128,7 +128,7 @@ const LibraryExportSection = () => {
         'Sichere deine eigenen Geräte-Templates, Gruppen und Rack-Presets als JSON-Datei. Beim Import werden bestehende Einträge mit gleichem Namen NICHT überschrieben (merge-by-name).',
       )}
     >
-      <div className="flex flex-wrap items-center gap-2 text-cp-xs text-slate-200">
+      <div className="flex flex-wrap items-center gap-2 text-cp-xs text-cp-text-bright">
         <button
           type="button"
           onClick={handleExport}
@@ -188,7 +188,7 @@ const CableNumberingSection = () => {
         'Automatische, kollisionsfreie Kabel-IDs nach festem Schema — sichtbar auf dem Canvas, in der Patchliste und auf den Etiketten.',
       )}
     >
-      <div className="space-y-2 text-cp-xs text-slate-200">
+      <div className="space-y-2 text-cp-xs text-cp-text-bright">
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -199,45 +199,45 @@ const CableNumberingSection = () => {
         </label>
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
-            <span className="mb-1 block text-slate-400">{t('settings.project.numbering.prefix', 'Präfix')}</span>
+            <span className="mb-1 block text-cp-text-muted">{t('settings.project.numbering.prefix', 'Präfix')}</span>
             <input
               type="text"
               value={eff.prefix}
               onChange={(e) => patch({ prefix: e.target.value })}
-              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
               placeholder="C"
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-slate-400">{t('settings.project.numbering.separator', 'Trennzeichen')}</span>
+            <span className="mb-1 block text-cp-text-muted">{t('settings.project.numbering.separator', 'Trennzeichen')}</span>
             <input
               type="text"
               value={eff.separator}
               maxLength={2}
               onChange={(e) => patch({ separator: e.target.value })}
-              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
               placeholder="-"
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-slate-400">{t('settings.project.numbering.padding', 'Stellen')}</span>
+            <span className="mb-1 block text-cp-text-muted">{t('settings.project.numbering.padding', 'Stellen')}</span>
             <input
               type="number"
               min={1}
               max={6}
               value={eff.padding}
               onChange={(e) => patch({ padding: Math.max(1, Math.min(6, Number(e.target.value) || 1)) })}
-              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-slate-400">{t('settings.project.numbering.start', 'Start-Nummer')}</span>
+            <span className="mb-1 block text-cp-text-muted">{t('settings.project.numbering.start', 'Start-Nummer')}</span>
             <input
               type="number"
               min={0}
               value={eff.start}
               onChange={(e) => patch({ start: Math.max(0, Number(e.target.value) || 0) })}
-              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
         </div>
@@ -250,7 +250,7 @@ const CableNumberingSection = () => {
           {t('settings.project.numbering.perLayer', 'Eigener Zähler je Layer (V/A/N/P …)')}
         </label>
         <div className="flex items-center justify-between gap-2 pt-1">
-          <span className="text-slate-400">
+          <span className="text-cp-text-muted">
             {t('settings.project.numbering.example', 'Beispiel')}:{' '}
             <span className="font-mono text-sky-300">{cableNumberExample(eff)}</span>
           </span>
@@ -304,10 +304,10 @@ const LengthEstimationSection = () => {
         'Schätzt die Kabellängen aus der Canvas-Distanz der Geräte (Luftlinie × Maßstab + Reserve). Überschreibt vorhandene Längen.',
       )}
     >
-      <div className="space-y-2 text-cp-xs text-slate-200">
+      <div className="space-y-2 text-cp-xs text-cp-text-bright">
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
-            <span className="mb-1 block text-slate-400">
+            <span className="mb-1 block text-cp-text-muted">
               {t('settings.project.lengthEst.scale', 'Meter pro 100 px')}
             </span>
             <input
@@ -316,11 +316,11 @@ const LengthEstimationSection = () => {
               step={0.1}
               value={eff.metersPer100px}
               onChange={(e) => patch({ metersPer100px: Math.max(0.1, Number(e.target.value) || 0.1) })}
-              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-slate-400">
+            <span className="mb-1 block text-cp-text-muted">
               {t('settings.project.lengthEst.slack', 'Reserve (%)')}
             </span>
             <input
@@ -329,7 +329,7 @@ const LengthEstimationSection = () => {
               max={200}
               value={eff.slackPercent}
               onChange={(e) => patch({ slackPercent: Math.max(0, Number(e.target.value) || 0) })}
-              className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
         </div>
@@ -381,15 +381,15 @@ const PlanDefaultsSection = () => {
         'Technische Vorgaben für diesen Plan, je nach Gewerk. Das Video-Format steuert die SDI-Standardverkabelung, der Strom-/Netz-Standard die Spannung im Stromrechner (Watt ↔ Ampere).',
       )}
     >
-      <div className="grid grid-cols-1 gap-3 text-cp-xs text-slate-200 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 text-cp-xs text-cp-text-bright sm:grid-cols-2">
         <label className="block">
-          <span className="mb-1 block text-slate-400">
+          <span className="mb-1 block text-cp-text-muted">
             {t('settings.project.defaults.video', 'Video-Format (SDI)')}
           </span>
           <select
             value={videoFormat ?? DEFAULT_VIDEO_FORMAT}
             onChange={(e) => setDefaultVideoFormat(e.target.value)}
-            className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
           >
             {VIDEO_FORMATS.map((f) => (
               <option key={f.id} value={f.id}>
@@ -399,7 +399,7 @@ const PlanDefaultsSection = () => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-slate-400">
+          <span className="mb-1 block text-cp-text-muted">
             {t('settings.project.defaults.power', 'Strom-/Netz-Standard')}
           </span>
           <select
@@ -407,7 +407,7 @@ const PlanDefaultsSection = () => {
             onChange={(e) =>
               updateProjectMetadata({ defaultPowerStandard: e.target.value as PowerStandardId })
             }
-            className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
           >
             {POWER_STANDARDS.map((s) => (
               <option key={s.id} value={s.id}>
@@ -417,7 +417,7 @@ const PlanDefaultsSection = () => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-slate-400">
+          <span className="mb-1 block text-cp-text-muted">
             {t('settings.project.defaults.lighting', 'Licht-Steuerung (Default)')}
           </span>
           <select
@@ -427,7 +427,7 @@ const PlanDefaultsSection = () => {
                 defaultLightingControl: e.target.value as 'dmx512' | 'artnet' | 'sacn',
               })
             }
-            className="w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
           >
             <option value="dmx512">DMX512 / RDM (5-pin XLR)</option>
             <option value="artnet">Art-Net (Ethernet)</option>
@@ -464,7 +464,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
 
   return (
     <div className="space-y-3">
-      <p className="text-cp-xs text-slate-400">
+      <p className="text-cp-xs text-cp-text-muted">
         {t(
           'settings.project.intro',
           'Projekt-Metadaten — werden mit der Cable-Planner-Datei gespeichert.',
@@ -476,7 +476,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           type="text"
           value={draftMeta.name}
           onChange={(e) => setDraftMeta({ ...draftMeta, name: e.target.value })}
-          className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
+          className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
           placeholder={t('settings.project.name', 'Projektname')}
         />
       </label>
@@ -486,7 +486,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           value={draftMeta.description ?? ''}
           onChange={(e) => setDraftMeta({ ...draftMeta, description: e.target.value })}
           rows={3}
-          className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
+          className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
           placeholder={t(
             'settings.project.descriptionPlaceholder',
             'Optionale Projektbeschreibung',
@@ -500,7 +500,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
             type="text"
             value={draftMeta.client ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, client: e.target.value })}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
+            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
             placeholder={t('settings.project.clientPlaceholder', 'Endkunde')}
           />
         </label>
@@ -510,7 +510,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
             type="text"
             value={draftMeta.contractor ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, contractor: e.target.value })}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
+            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
             placeholder={t('settings.project.contractorPlaceholder', 'Ausführende Firma')}
           />
         </label>
@@ -522,7 +522,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
             type="text"
             value={draftMeta.author ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, author: e.target.value })}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
+            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
             placeholder={t('settings.project.authorPlaceholder', 'Dein Name')}
           />
         </label>
@@ -532,7 +532,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
             type="text"
             value={draftMeta.projectNumber ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, projectNumber: e.target.value })}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-2 text-cp-base"
+            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
             placeholder={t('settings.project.numberPlaceholder', 'z. B. 2026-042')}
           />
         </label>
@@ -556,18 +556,18 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
             const current = draftMeta[field]
             return (
               <div key={field} className="flex flex-col items-center gap-2">
-                <div className="flex h-16 w-full items-center justify-center overflow-hidden rounded border border-slate-700 bg-white/5">
+                <div className="flex h-16 w-full items-center justify-center overflow-hidden rounded border border-cp-border bg-white/5">
                   {current ? (
                     <img src={current} alt={label} className="max-h-16 max-w-full object-contain" />
                   ) : (
-                    <span className="text-[10px] text-slate-400">{label}</span>
+                    <span className="text-[10px] text-cp-text-muted">{label}</span>
                   )}
                 </div>
                 <div className="flex w-full gap-1">
                   <button
                     type="button"
                     onClick={() => pickLogo(field)}
-                    className="flex-1 rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+                    className="flex-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
                   >
                     {t('common.choose', 'Wählen…')}
                   </button>
@@ -577,7 +577,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
                       onClick={() => setDraftMeta((prev) => ({ ...prev, [field]: undefined }))}
                       title={t('common.remove', 'Entfernen')}
                       aria-label={t('common.remove', 'Entfernen')}
-                      className="rounded bg-slate-800 px-2 py-1 text-cp-xs text-slate-400 hover:bg-red-700 hover:text-white"
+                      className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
                     >
                       <Icon icon={X} size="sm" />
                     </button>
@@ -591,14 +591,14 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
 
       <SettingsCard title={t('settings.project.linkedRentman', 'Verknüpftes Rentman-Projekt')}>
         {metadata.rentmanProjectId ? (
-          <div className="text-cp-xs text-slate-400">
+          <div className="text-cp-xs text-cp-text-muted">
             <span className="text-orange-300">
               {metadata.rentmanProjectName ?? `Projekt #${metadata.rentmanProjectId}`}
             </span>
-            <span className="ml-2 text-slate-500">(ID: {metadata.rentmanProjectId})</span>
+            <span className="ml-2 text-cp-text-faint">(ID: {metadata.rentmanProjectId})</span>
           </div>
         ) : (
-          <div className="text-cp-xs text-slate-500">
+          <div className="text-cp-xs text-cp-text-faint">
             {t(
               'settings.project.notLinked',
               'Kein Rentman-Projekt verknüpft. Verknüpfung im Tab „Integrationen" herstellen.',
@@ -616,7 +616,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
         <button
           type="button"
           onClick={() => setDraftMeta(metadata)}
-          className="rounded bg-slate-700 px-3 py-1 text-cp-base hover:bg-slate-600"
+          className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
         >
           {t('common.reset', 'Zurücksetzen')}
         </button>

@@ -67,9 +67,12 @@
   --color-cp-surface-1: var(--cp-surface-1);
   --color-cp-surface-2: var(--cp-surface-2);
   --color-cp-surface-3: var(--cp-surface-3);
+  --color-cp-surface-4: var(--cp-surface-4);
+  --color-cp-surface-5: var(--cp-surface-5);
   --color-cp-border: var(--cp-border);
   --color-cp-border-muted: var(--cp-border-muted);
   --color-cp-text: var(--cp-text);
+  --color-cp-text-bright: var(--cp-text-bright);
   --color-cp-text-secondary: var(--cp-text-secondary);
   --color-cp-text-muted: var(--cp-text-muted);
   --color-cp-text-faint: var(--cp-text-faint);
@@ -99,9 +102,15 @@
   --cp-surface-1: var(--color-slate-900); /* Panels/Modals */
   --cp-surface-2: var(--color-slate-800); /* raised/hover */
   --cp-surface-3: var(--color-slate-950); /* sunken/Leisten/Inputs */
+  /* #449 — interaktive Button-Surfaces (heller als border). Erlauben die
+   * Migration der schweren Settings-Tabs, die slate-700/600 als Knopf-BG +
+   * slate-200 als helleren Text nutzen — wofür es bisher keinen Token gab. */
+  --cp-surface-4: var(--color-slate-700); /* Button-/Chip-Surface */
+  --cp-surface-5: var(--color-slate-600); /* heller, z.B. surface-4-Hover */
   --cp-border: var(--color-slate-700);
   --cp-border-muted: var(--color-slate-800);
   --cp-text: var(--color-slate-100);
+  --cp-text-bright: var(--color-slate-200); /* zwischen text und secondary */
   --cp-text-secondary: var(--color-slate-300);
   --cp-text-muted: var(--color-slate-400);
   --cp-text-faint: var(--color-slate-500);
@@ -213,9 +222,14 @@ body,
   --cp-surface-1: #eaeff5; /* = .bg-slate-900 light remap */
   --cp-surface-2: #dde4ee; /* = .bg-slate-800 */
   --cp-surface-3: #f0f4f8; /* = .bg-slate-950 */
+  /* #449 — Light-Werte = exakt der bestehende 340-Zeilen-Remap der rohen
+   * Klassen, damit bg-cp-surface-4/5 pixelgleich zu .bg-slate-700/600 bleiben. */
+  --cp-surface-4: #cbd5e1; /* = .bg-slate-700 (light) */
+  --cp-surface-5: #b8c4d0; /* = .bg-slate-600 (light) */
   --cp-border: #94a3b8; /* = .border-slate-700 */
   --cp-border-muted: #b8c4d0; /* = .border-slate-800 */
   --cp-text: #0f172a; /* = .text-slate-100 */
+  --cp-text-bright: #1e293b; /* = .text-slate-200 (light) */
   /* #449 — fehlte im Light-Remap: --cp-text-secondary fiel auf den Dark-Wert
    * zurück (heller Grauton auf hellem Grund → unlesbar). Jetzt = light
    * .text-slate-300 (#1e293b), passt in die Ramp text(#0f172a) → muted(#334155). */
