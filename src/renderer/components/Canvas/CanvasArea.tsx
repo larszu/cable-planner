@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import ReactFlow, {
   Background,
   Controls,
@@ -65,6 +65,10 @@ type CanvasMode = 'main' | 'rack'
 
 const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const t = useTranslation()
+  // #515 — stabile ID dieser CanvasArea-Instanz für die A*-Router-Registry.
+  // Haupt- und Rack-Canvas teilen die Komponente, aber nicht die Instanz;
+  // die ID hält ihre Router im Stack auseinander (siehe setCableRouter).
+  const routerId = useId()
   // v7.9.9 — context-aware project store instance. Default = main store,
   // override = scratch store (z.B. RackInternalCanvas).
   const projectStoreInstance = useCanvasProjectStoreInstance()
@@ -279,9 +283,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       return ok
     }
 
-    setCableRouter({ routeOne, routeAll })
-    return () => setCableRouter(null)
-  }, [project.equipment, updateCable])
+    setCableRouter(routerId, { routeOne, routeAll })
+    return () => setCableRouter(routerId, null)
+  }, [routerId, project.equipment, updateCable])
 
   // Restore saved viewport whenever a new project is loaded (projectVersion changes).
   // The initial render uses defaultViewport below; this effect handles
