@@ -80,7 +80,7 @@ export const RackBuilderDialogExportMenu = ({
         type="button"
         onClick={() => setOpen((v) => !v)}
         title={t('rack.exportTitle', 'Rack exportieren (PNG / STL / .cpgroup)')}
-        className="flex h-8 items-center gap-1 rounded border border-slate-700 bg-slate-800 px-3 text-cp-xs text-slate-300 hover:border-sky-500/50 hover:bg-sky-900/30 hover:text-sky-200"
+        className="flex h-8 items-center gap-1 rounded border border-cp-border bg-cp-surface-2 px-3 text-cp-xs text-cp-text-secondary hover:border-sky-500/50 hover:bg-sky-900/30 hover:text-sky-200"
       >
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M8 1 L8 10 M4 7 L8 11 L12 7 M2 13 L14 13" />
@@ -90,7 +90,7 @@ export const RackBuilderDialogExportMenu = ({
       {open && (
         <div
           onMouseLeave={() => setOpen(false)}
-          className="absolute right-0 top-9 z-50 w-64 overflow-hidden rounded border border-slate-700 bg-slate-900 text-cp-xs shadow-2xl"
+          className="absolute right-0 top-9 z-50 w-64 overflow-hidden rounded border border-cp-border bg-cp-surface-1 text-cp-xs shadow-2xl"
         >
           <button
             type="button"
@@ -100,10 +100,10 @@ export const RackBuilderDialogExportMenu = ({
               if (!rackCanvasEl) return
               void exportRack2DAsPng(rackCanvasEl, rackName || 'rack')
             }}
-            className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
+            className="flex w-full flex-col items-start gap-0.5 border-b border-cp-border-muted px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
             <span className="font-semibold"><Icon icon={Camera} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.png2d', '2D als PNG')}</span>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-cp-text-muted">
               {t('rack.export.png2dDesc', 'Aktuelle Front/Rear/Both-Ansicht als Bild')}
             </span>
           </button>
@@ -123,10 +123,10 @@ export const RackBuilderDialogExportMenu = ({
                 rackDepthMm: depthMm ?? 800,
               })
             }}
-            className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
+            className="flex w-full flex-col items-start gap-0.5 border-b border-cp-border-muted px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
             <span className="font-semibold"><Icon icon={Camera} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.png3d', '3D aus 4 Perspektiven')}</span>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-cp-text-muted">
               {t('rack.export.png3dDesc', 'PNG: Front · Rear · Iso · Top (1× pro Datei)')}
             </span>
           </button>
@@ -141,10 +141,10 @@ export const RackBuilderDialogExportMenu = ({
               }
               exportRackAsStl(refs.scene, rackName || 'rack')
             }}
-            className="flex w-full flex-col items-start gap-0.5 border-b border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
+            className="flex w-full flex-col items-start gap-0.5 border-b border-cp-border-muted px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
             <span className="font-semibold"><Icon icon={Box} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.stl', '3D als STL')}</span>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-cp-text-muted">
               {t('rack.export.stlDesc', 'Komplettes Rack als binäres STL (3D-Druck, CAD)')}
             </span>
           </button>
@@ -197,10 +197,10 @@ export const RackBuilderDialogExportMenu = ({
               }
               exportRackAsCpgroup(preset)
             }}
-            className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-slate-200 hover:bg-slate-800"
+            className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
             <span className="font-semibold"><Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.cpgroup', '.cpgroup herunterladen')}</span>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-cp-text-muted">
               {t('rack.export.cpgroupDesc', 'Komplettes Rack inkl. STL + Fotos zum Cross-PC-Transfer')}
             </span>
           </button>

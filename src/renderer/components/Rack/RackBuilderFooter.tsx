@@ -39,16 +39,16 @@ export const RackBuilderFooter = ({
 }: RackBuilderFooterProps) => {
   const t = useTranslation()
   return (
-    <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-3">
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-cp-border-muted pt-3">
       <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-        <span className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-0.5 text-slate-300">
-          <span className="text-slate-500">{t('rack.devicesLabel', 'Geräte:')}</span>
-          <strong className="text-slate-100">{devicesCount}</strong>
+        <span className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-2 py-0.5 text-cp-text-secondary">
+          <span className="text-cp-text-faint">{t('rack.devicesLabel', 'Geräte:')}</span>
+          <strong className="text-cp-text">{devicesCount}</strong>
         </span>
-        <span className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-0.5 text-slate-300">
-          <span className="text-slate-500">{t('rack.heOccupied', 'HE belegt:')}</span>
-          <strong className="text-slate-100">{occupiedUnits}</strong>
-          <span className="text-slate-500">/ {totalUnits}</span>
+        <span className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-2 py-0.5 text-cp-text-secondary">
+          <span className="text-cp-text-faint">{t('rack.heOccupied', 'HE belegt:')}</span>
+          <strong className="text-cp-text">{occupiedUnits}</strong>
+          <span className="text-cp-text-faint">/ {totalUnits}</span>
         </span>
         {internalCablesCount > 0 && (
           <span
@@ -72,7 +72,7 @@ export const RackBuilderFooter = ({
       </div>
 
       <div
-        className="flex items-center gap-1.5 text-[10px] text-slate-400"
+        className="flex items-center gap-1.5 text-[10px] text-cp-text-muted"
         title={
           dirty
             ? t('rack.autosaveActive', 'Autosave läuft alle paar Sekunden')
@@ -103,7 +103,7 @@ export const RackBuilderFooter = ({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded px-3 py-1.5 text-cp-xs text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+          className="rounded px-3 py-1.5 text-cp-xs text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text-bright"
         >
           {t('common.cancel', 'Abbrechen')}
         </button>

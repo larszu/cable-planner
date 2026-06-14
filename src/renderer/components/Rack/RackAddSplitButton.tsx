@@ -78,7 +78,7 @@ export const RackAddSplitButton = ({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 z-30 mt-1 w-44 overflow-hidden rounded-cp-control border border-slate-700 bg-slate-900 text-[11px] shadow-2xl"
+          className="absolute right-0 z-30 mt-1 w-44 overflow-hidden rounded-cp-control border border-cp-border bg-cp-surface-1 text-[11px] shadow-2xl"
         >
           <button
             type="button"
@@ -87,7 +87,7 @@ export const RackAddSplitButton = ({
               setOpen(false)
               onAddFront()
             }}
-            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-slate-200 hover:bg-slate-800"
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
               <rect x="2" y="3" width="12" height="10" rx="1" stroke="#475569" strokeWidth="1" />
@@ -95,7 +95,7 @@ export const RackAddSplitButton = ({
             </svg>
             <div className="flex flex-col">
               <span className="font-semibold text-emerald-300">{t('rackAdd.frontOnly', 'Nur vorne')}</span>
-              <span className="text-[11px] text-slate-400">{t('rackAdd.frontMount', 'Front-Mount')}</span>
+              <span className="text-[11px] text-cp-text-muted">{t('rackAdd.frontMount', 'Front-Mount')}</span>
             </div>
           </button>
           <button
@@ -105,14 +105,14 @@ export const RackAddSplitButton = ({
               setOpen(false)
               onAddFull()
             }}
-            className="flex w-full items-center gap-2 border-t border-slate-800 bg-slate-800/50 px-3 py-1.5 text-left text-slate-200 hover:bg-slate-800"
+            className="flex w-full items-center gap-2 border-t border-cp-border-muted bg-cp-surface-2/50 px-3 py-1.5 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
               <rect x="2" y="3" width="12" height="10" rx="1" fill="#64748b" />
             </svg>
             <div className="flex flex-col">
-              <span className="font-semibold text-slate-100">{t('rackAdd.fullDepth', 'Full-Depth')}</span>
-              <span className="text-[11px] text-slate-400">{t('rackAdd.fullDepthSub', 'vorne + hinten (Default)')}</span>
+              <span className="font-semibold text-cp-text">{t('rackAdd.fullDepth', 'Full-Depth')}</span>
+              <span className="text-[11px] text-cp-text-muted">{t('rackAdd.fullDepthSub', 'vorne + hinten (Default)')}</span>
             </div>
           </button>
           <button
@@ -122,7 +122,7 @@ export const RackAddSplitButton = ({
               setOpen(false)
               onAddRear()
             }}
-            className="flex w-full items-center gap-2 border-t border-slate-800 px-3 py-1.5 text-left text-slate-200 hover:bg-slate-800"
+            className="flex w-full items-center gap-2 border-t border-cp-border-muted px-3 py-1.5 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
               <rect x="2" y="3" width="12" height="10" rx="1" stroke="#475569" strokeWidth="1" />
@@ -130,7 +130,7 @@ export const RackAddSplitButton = ({
             </svg>
             <div className="flex flex-col">
               <span className="font-semibold text-purple-300">{t('rackAdd.rearOnly', 'Nur hinten')}</span>
-              <span className="text-[11px] text-slate-400">{t('rackAdd.rearMount', 'Rear-Mount (z.B. Patchblende)')}</span>
+              <span className="text-[11px] text-cp-text-muted">{t('rackAdd.rearMount', 'Rear-Mount (z.B. Patchblende)')}</span>
             </div>
           </button>
         </div>

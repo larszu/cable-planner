@@ -65,27 +65,27 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
     >
         <div className="space-y-3">
           <label className="block">
-            <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.shelf.name', 'Name')}</span>
+            <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.shelf.name', 'Name')}</span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5"
+              className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
             />
           </label>
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
-              <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.shelf.heightUnits', 'Höhe (HE)')}</span>
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.shelf.heightUnits', 'Höhe (HE)')}</span>
               <input
                 type="number"
                 min={1}
                 max={6}
                 value={heightUnits}
                 onChange={(e) => setHeightUnits(Math.max(1, Math.min(6, Number(e.target.value) || 1)))}
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-cp-xs text-slate-400">{t('rack.shelf.depth', 'Tiefe (mm)')}</span>
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.shelf.depth', 'Tiefe (mm)')}</span>
               <input
                 type="number"
                 min={150}
@@ -95,11 +95,11 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
                 onChange={(e) =>
                   setDepthMm(Math.max(150, Math.min(1200, Number(e.target.value) || 450)))
                 }
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5"
+                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
               />
             </label>
           </div>
-          <div className="rounded border border-slate-800 bg-slate-950/50 p-2 text-[11px] text-slate-400">
+          <div className="rounded border border-cp-border-muted bg-cp-surface-3/50 p-2 text-[11px] text-cp-text-muted">
             {t('rack.shelf.tip', 'Tipp: Lege das Shelf auf den gewünschten HE-Slot, danach platziere beliebige Non-19"-Items mit demselben Start-HE — sie erscheinen optisch auf dem Shelf.')}
           </div>
         </div>

@@ -63,11 +63,11 @@ export const RackInternalWireOverlay = ({
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-2 sm:p-6">
-      <div className="flex h-[92vh] w-[min(1500px,calc(100vw-1rem))] flex-col rounded border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl">
+      <div className="flex h-[92vh] w-[min(1500px,calc(100vw-1rem))] flex-col rounded border border-cp-border bg-cp-surface-1 p-3 text-cp-text shadow-2xl">
         <div className="mb-2 flex items-center justify-between gap-3">
           <div>
             <h3 className="text-cp-xl font-semibold">{t('rack.wire.title', 'Rack-Verkabelung')}: {rackName || t('rack.unnamed', '(unbenannt)')}</h3>
-            <p className="mt-1 text-cp-xs text-slate-400">
+            <p className="mt-1 text-cp-xs text-cp-text-muted">
               {t(
                 'rack.wire.intro',
                 'Ziehe Linien Output → Input. Rechtsklick auf Kabel = Menü, Doppelklick = Eigenschaften, Entf = Löschen. Verwendet jetzt die echte Canvas-Komponente — Toolbar, Routing, Waypoints, A*-Routing alles wie im Hauptcanvas.',
@@ -82,7 +82,7 @@ export const RackInternalWireOverlay = ({
             {t('common.done', 'Fertig')}
           </button>
         </div>
-        <div className="min-h-0 flex-1 overflow-hidden rounded border border-slate-700">
+        <div className="min-h-0 flex-1 overflow-hidden rounded border border-cp-border">
           <RackInternalCanvas
             rackName={rackName}
             placements={placements.map((p) => ({

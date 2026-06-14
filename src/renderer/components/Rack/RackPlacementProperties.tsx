@@ -81,7 +81,7 @@ export const RackPlacementProperties = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('common.close', 'Schließen')}
           </button>
@@ -94,7 +94,7 @@ export const RackPlacementProperties = ({
           <input
             value={selectedPlacement.name}
             onChange={(event) => onUpdate(selectedPlacement.id, { name: event.target.value })}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
         <label className="block">
@@ -103,7 +103,7 @@ export const RackPlacementProperties = ({
             value={selectedPlacement.category}
             onChange={(category) => onUpdate(selectedPlacement.id, { category })}
             extraOptions={[...categoryOptions, selectedPlacement.category]}
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
         <label className="flex items-center gap-2 opacity-60" title={t('rack.readonlyInBuilder', 'Im Builder schreibgeschützt — wurde beim Hinzufügen gesetzt.')}>
@@ -127,8 +127,8 @@ export const RackPlacementProperties = ({
                 )
                 onUpdate(selectedPlacement.id, { rackUnits: clamped })
               }}
-              className={`mt-1 w-full rounded border bg-slate-950 p-1.5 ${
-                heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-slate-700'
+              className={`mt-1 w-full rounded border bg-cp-surface-3 p-1.5 ${
+                heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-cp-border'
               }`}
             />
             {heightInvalid && (
@@ -156,11 +156,11 @@ export const RackPlacementProperties = ({
                 const clamped = Math.min(raw, startMax)
                 onUpdate(selectedPlacement.id, { startUnit: clamped })
               }}
-              className={`mt-1 w-full rounded border bg-slate-950 p-1.5 ${
-                heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-slate-700'
+              className={`mt-1 w-full rounded border bg-cp-surface-3 p-1.5 ${
+                heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-cp-border'
               }`}
             />
-            <span className="mt-0.5 block text-[10px] text-slate-400">
+            <span className="mt-0.5 block text-[10px] text-cp-text-muted">
               {format(
                 t('rack.props.maxHint', 'max {max} (Höhe {he} HE)'),
                 { max: startMax, he: selectedPlacement.rackUnits },
@@ -185,7 +185,7 @@ export const RackPlacementProperties = ({
                   depthMm: v === '' ? undefined : Math.max(20, Math.min(1500, Number(v))),
                 })
               }}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
               title={t('rack.deviceDepthTitle', 'Geräte-Tiefe in mm. Leer = 400 mm Standard. Wird vom 3D-Tab visualisiert.')}
             />
           </label>
@@ -198,7 +198,7 @@ export const RackPlacementProperties = ({
                   mountSide: event.target.value as 'front' | 'rear' | 'full',
                 })
               }
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 p-1.5"
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
               title={t('rack.mountTitle', 'full = volle Rack-Tiefe. front = nur vorne. rear = nur hinten (z.B. Patchblende).')}
             >
               <option value="full">{t('rack.mount.full', 'Full-Depth')}</option>
@@ -209,10 +209,10 @@ export const RackPlacementProperties = ({
         </div>
         {/* STL-Upload für 3D-Modell. */}
         <div className="block">
-          <div className="mb-1 text-cp-xs text-slate-300">{t('rack.stl.header', '3D-Modell (STL, optional)')}</div>
+          <div className="mb-1 text-cp-xs text-cp-text-secondary">{t('rack.stl.header', '3D-Modell (STL, optional)')}</div>
           <div className="mt-1 flex items-center gap-2">
             <label
-              className="inline-flex cursor-pointer items-center gap-1 rounded border border-slate-600 bg-sky-700 px-3 py-1 text-[11px] font-semibold text-white hover:bg-sky-600"
+              className="inline-flex cursor-pointer items-center gap-1 rounded border border-cp-surface-5 bg-sky-700 px-3 py-1 text-[11px] font-semibold text-white hover:bg-sky-600"
               title={t('rack.stlUploadTitle', 'STL-Datei (.stl, max 5 MB) zum Gerät hochladen')}
             >
               <span>📁</span>
@@ -252,7 +252,7 @@ export const RackPlacementProperties = ({
                   const tpl = templates.find((tt) => tt.name === selectedPlacement.templateName)
                   if (tpl && tpl.stlDataUri) onSyncStlToTemplate(selectedPlacement.templateName, undefined)
                 }}
-                className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-600"
+                className="rounded border border-cp-surface-5 bg-cp-surface-4 px-2 py-1 text-[11px] text-cp-text-bright hover:bg-cp-surface-5"
                 title={t('rack.stlRemoveTitle', 'STL entfernen — Gerät wird wieder als Box gerendert')}
               >
                 ✕ {t('common.remove', 'Entfernen')}
@@ -264,7 +264,7 @@ export const RackPlacementProperties = ({
               <StlPreview stlDataUri={selectedPlacement.stlDataUri} size={120} />
             </div>
           )}
-          <span className="mt-1 block text-[10px] text-slate-400">
+          <span className="mt-1 block text-[10px] text-cp-text-muted">
             {selectedPlacement.stlDataUri
               ? t('rack.stl.loaded', '✓ STL geladen — wird im 3D-Tab gerendert und permanent am Gerät gespeichert (Library + Projekt).')
               : t('rack.stl.noStl', 'Ohne STL wird das Gerät als Box mit Front-/Rear-Foto dargestellt.')}
@@ -299,9 +299,9 @@ export const RackPlacementProperties = ({
                         shelfOffsetX: Math.max(0, Math.min(maxX, Number(e.target.value) || 0)),
                       })
                     }
-                    className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
+                    className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1"
                   />
-                  <span className="text-[11px] text-slate-400">max {Math.round(maxX)} mm</span>
+                  <span className="text-[11px] text-cp-text-muted">max {Math.round(maxX)} mm</span>
                 </label>
                 <label className="block text-[10px]">
                   <span className="mb-0.5 block text-emerald-300/80">Tiefe (mm von vorne)</span>
@@ -316,21 +316,21 @@ export const RackPlacementProperties = ({
                         shelfOffsetZ: Math.max(0, Math.min(maxZ, Number(e.target.value) || 0)),
                       })
                     }
-                    className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1"
+                    className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1"
                   />
-                  <span className="text-[11px] text-slate-400">max {Math.round(maxZ)} mm</span>
+                  <span className="text-[11px] text-cp-text-muted">max {Math.round(maxZ)} mm</span>
                 </label>
               </div>
-              <div className="mt-1 text-[10px] text-slate-400">
+              <div className="mt-1 text-[10px] text-cp-text-muted">
                 Tipp: Im 2D-Tab kannst du das Gerät auch horizontal per Maus verschieben. Tiefen-Position nur hier oder im 3D-Tab editierbar.
               </div>
             </details>
           )
         })()}
-        <details className="rounded border border-slate-800 bg-slate-900/40 p-2" open>
-          <summary className="cursor-pointer text-[11px] font-semibold text-slate-300">
+        <details className="rounded border border-cp-border-muted bg-cp-surface-1/40 p-2" open>
+          <summary className="cursor-pointer text-[11px] font-semibold text-cp-text-secondary">
             Port-Seite (Front/Rear)
-            <span className="ml-1 text-slate-500">
+            <span className="ml-1 text-cp-text-faint">
               ({selectedPlacement.inputs.length} Inputs / {selectedPlacement.outputs.length} Outputs)
             </span>
           </summary>
@@ -362,7 +362,7 @@ export const RackPlacementProperties = ({
                   })),
                 })
               }
-              className="rounded bg-slate-700 px-2 py-1 text-slate-100 hover:bg-slate-600"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-text hover:bg-cp-surface-5"
               title={t('rack.portsSwap', 'Front-Ports werden zu Rear-Ports und umgekehrt')}
             >
               ↔ spiegeln
@@ -381,7 +381,7 @@ export const RackPlacementProperties = ({
               ⏫ alle nach vorne
             </button>
           </div>
-          <div className="mt-2 max-h-48 overflow-y-auto rounded border border-slate-800">
+          <div className="mt-2 max-h-48 overflow-y-auto rounded border border-cp-border-muted">
             {[
               ...selectedPlacement.inputs.map((p) => ({ port: p, dir: 'in' as const })),
               ...selectedPlacement.outputs.map((p) => ({ port: p, dir: 'out' as const })),
@@ -390,7 +390,7 @@ export const RackPlacementProperties = ({
               return (
                 <div
                   key={port.id}
-                  className="flex items-center justify-between gap-2 border-t border-slate-800/60 px-2 py-0.5 text-[10px] first:border-t-0"
+                  className="flex items-center justify-between gap-2 border-t border-cp-border-muted/60 px-2 py-0.5 text-[10px] first:border-t-0"
                 >
                   <span className="flex min-w-0 items-center gap-1">
                     <span
@@ -414,9 +414,9 @@ export const RackPlacementProperties = ({
                         })
                       }}
                       title={t('rack.portRename', 'Port-Name bearbeiten')}
-                      className="min-w-0 flex-1 rounded border border-transparent bg-transparent px-1 text-slate-300 hover:border-slate-700 focus:border-sky-600 focus:bg-slate-950 focus:outline-none"
+                      className="min-w-0 flex-1 rounded border border-transparent bg-transparent px-1 text-cp-text-secondary hover:border-cp-border focus:border-sky-600 focus:bg-cp-surface-3 focus:outline-none"
                     />
-                    <span className="shrink-0 text-slate-500">· {port.connectorType}</span>
+                    <span className="shrink-0 text-cp-text-faint">· {port.connectorType}</span>
                   </span>
                   <button
                     type="button"
@@ -457,7 +457,7 @@ export const RackPlacementProperties = ({
         </details>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="text-[11px] font-semibold text-slate-400">{t('rack.panelImages.header', 'Panel-Bilder (Import + Zuschneiden)')}</div>
+            <div className="text-[11px] font-semibold text-cp-text-muted">{t('rack.panelImages.header', 'Panel-Bilder (Import + Zuschneiden)')}</div>
             {(selectedPlacement.frontPanelImageUrl || selectedPlacement.rearPanelImageUrl) && (
               <button
                 type="button"
@@ -469,7 +469,7 @@ export const RackPlacementProperties = ({
                     rearPanelCrop: selectedPlacement.frontPanelCrop,
                   })
                 }
-                className="rounded bg-slate-700 px-2 py-0.5 text-[10px] text-slate-200 hover:bg-slate-600"
+                className="rounded bg-cp-surface-4 px-2 py-0.5 text-[10px] text-cp-text-bright hover:bg-cp-surface-5"
                 title={t('rack.swapPhotos', 'Front- und Rear-Foto vertauschen (falls die Zuordnung falsch ist)')}
               >
                 ↔ Front/Rear tauschen
@@ -496,7 +496,7 @@ export const RackPlacementProperties = ({
                   </button>
                   {currentUrl && (
                     <div className="flex items-center gap-1">
-                      <img src={currentUrl} alt={`${side} panel`} className="h-7 flex-1 rounded border border-slate-700 object-contain" />
+                      <img src={currentUrl} alt={`${side} panel`} className="h-7 flex-1 rounded border border-cp-border object-contain" />
                       <button
                         type="button"
                         onClick={() => onUpdate(selectedPlacement.id, { [urlKey]: undefined, [side === 'front' ? 'frontPanelCrop' : 'rearPanelCrop']: undefined })}

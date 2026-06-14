@@ -222,15 +222,15 @@ export const RackEditorDialog = () => {
       <div
         ref={containerRef}
         style={containerStyle}
-        className="flex h-[80vh] w-full max-w-5xl flex-col overflow-hidden rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
+        className="flex h-[80vh] w-full max-w-5xl flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl"
       >
         <header
           {...headerProps}
-          className="flex items-center justify-between border-b border-slate-700 px-4 py-2 select-none"
+          className="flex items-center justify-between border-b border-cp-border px-4 py-2 select-none"
         >
           <div>
             <h2 className="text-cp-base font-semibold">{t('rackEditor.title', 'Rack-Editor')}</h2>
-            <p className="text-[10px] text-slate-400">
+            <p className="text-[10px] text-cp-text-muted">
               {t(
                 'rackEditor.intro',
                 'Sub-Canvas pro Rack — Geräte sind im Hauptprojekt gespeichert, der Editor zeigt nur diese Rack-Instanz. Vertikal ziehen rastet auf HU-Linien ein.',
@@ -240,17 +240,17 @@ export const RackEditorDialog = () => {
           <button
             type="button"
             onClick={close}
-            className="rounded bg-slate-700 px-2 py-1 text-cp-xs hover:bg-slate-600"
+            className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('common.close', 'Schließen')}
           </button>
         </header>
-        <div className="flex-1 min-h-0 bg-slate-950">
+        <div className="flex-1 min-h-0 bg-cp-surface-3">
           <ReactFlowProvider>
             <RackEditorContent rackInstanceId={slot.rackInstanceId} />
           </ReactFlowProvider>
         </div>
-        <footer className="border-t border-slate-700 px-4 py-2 text-[11px] text-slate-400">
+        <footer className="border-t border-cp-border px-4 py-2 text-[11px] text-cp-text-muted">
           {t(
             'rackEditor.footer',
             'Tipp: HU-Position wird beim Loslassen automatisch auf die nächste ganze HU gerundet. Änderungen wirken sofort auf die Haupt-Canvas.',
