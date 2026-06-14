@@ -383,7 +383,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                                     className={`h-7 w-7 rounded text-cp-base transition-colors ${
                                       active
                                         ? 'bg-emerald-600 text-white hover:bg-emerald-500'
-                                        : 'bg-cp-surface-2 text-slate-600 hover:bg-cp-surface-4 hover:text-cp-text-secondary'
+                                        : 'bg-cp-surface-2 text-cp-text-dim hover:bg-cp-surface-4 hover:text-cp-text-secondary'
                                     }`}>
                                     {active ? '●' : '○'}
                                   </button>
@@ -815,7 +815,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                           <td className="px-3 py-2">
                             {typeHint
                               ? <span className="rounded bg-emerald-900/60 px-1.5 py-0.5 text-[10px] font-mono text-emerald-300">{typeHint}</span>
-                              : <span className="text-slate-600">—</span>}
+                              : <span className="text-cp-text-dim">—</span>}
                           </td>
                           <td className="px-3 py-2">
                             {userGroups.length > 0

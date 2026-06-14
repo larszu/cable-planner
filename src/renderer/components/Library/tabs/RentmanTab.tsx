@@ -470,7 +470,7 @@ export const RentmanTab = () => {
                                       <span>{categoryCollapsed ? '▶' : '▼'}</span>
                                       <span>{category}</span>
                                     </span>
-                                    <span className="font-normal text-slate-600">({categoryItems.length})</span>
+                                    <span className="font-normal text-cp-text-dim">({categoryItems.length})</span>
                                   </button>
                                   {!categoryCollapsed && (
                                     <div className="space-y-1 px-1 pb-1">
@@ -746,7 +746,7 @@ export const RentmanTab = () => {
                         {orphans.length > 0 && (
                           <div className="rounded border border-cp-border-muted/80">
                             <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted">
-                              Ohne Ordner <span className="font-normal text-slate-600">({orphans.length})</span>
+                              Ohne Ordner <span className="font-normal text-cp-text-dim">({orphans.length})</span>
                             </div>
                             <div className="space-y-1 px-2 pb-1">{orphans.map(renderItem)}</div>
                           </div>

@@ -73,6 +73,8 @@
   --color-cp-border-muted: var(--cp-border-muted);
   --color-cp-text: var(--cp-text);
   --color-cp-text-bright: var(--cp-text-bright);
+  --color-cp-text-dim: var(--cp-text-dim);
+  --color-cp-text-dimmer: var(--cp-text-dimmer);
   --color-cp-text-secondary: var(--cp-text-secondary);
   --color-cp-text-muted: var(--cp-text-muted);
   --color-cp-text-faint: var(--cp-text-faint);
@@ -114,6 +116,8 @@
   --cp-text-secondary: var(--color-slate-300);
   --cp-text-muted: var(--color-slate-400);
   --cp-text-faint: var(--color-slate-500);
+  --cp-text-dim: var(--color-slate-600);
+  --cp-text-dimmer: var(--color-slate-700);
   --cp-accent: var(--color-sky-400);
   --cp-warn: var(--color-amber-500);
   --cp-danger: var(--color-red-500);
@@ -201,10 +205,18 @@ body,
  *
  * GLOBAL THEMING SYSTEM
  * ───────────────────────────────────────────────────────────
- * Any new component that uses standard Tailwind slate / sky / emerald / amber
- * / red / orange / purple / cyan utility classes is automatically theme
- * aware — the [data-theme="light"] block below remaps the entire ramp
- * (including common opacity steps).
+ * #449 — Token-first ist jetzt das PRIMÄRE Modell: neue Komponenten nutzen
+ * die semantischen `*-cp-*`-Utilities (bg-cp-surface-1/2/3/4/5, text-cp-*,
+ * border-cp-*), die über @theme inline an die `--cp-*`-Tokens gebunden sind
+ * und automatisch pro Theme kippen — ohne jeden Remap-Eintrag.
+ *
+ * Der slate-Remap unten ist auf ein LEGACY-Sicherheitsnetz geschrumpft
+ * (~30 statt vormals ~70 Regeln): er deckt nur noch die rohen slate-Klassen
+ * ab, die in den isLight-Canvas-/Print-Komponenten (EquipmentNode,
+ * Rack3DView, CableContextMenu, AtemAudioRouterDialog …) verbleiben, welche
+ * pro Theme MANUELL unterschiedliche slate-Shades wählen und sich daher
+ * nicht auf einen einzelnen auto-kippenden Token abbilden lassen. Tote
+ * Regeln für inzwischen vollständig migrierte Klassen wurden entfernt.
  *
  * The data-theme attribute is set on <html> from App.tsx based on the
  * `canvasTheme` setting in the UI store.
@@ -236,6 +248,8 @@ body,
   --cp-text-secondary: #1e293b; /* = .text-slate-300 (light) */
   --cp-text-muted: #334155; /* = .text-slate-400 */
   --cp-text-faint: #475569; /* = .text-slate-500 */
+  --cp-text-dim: #334155; /* = .text-slate-600 (light) */
+  --cp-text-dimmer: #94a3b8; /* = .text-slate-700 (light) */
   --cp-accent: #0284c7; /* sky-600 */
   --cp-warn: #d97706; /* amber-600 */
   --cp-danger: #dc2626; /* red-600 */
@@ -244,13 +258,10 @@ body,
 }
 
 /* ── Slate ramp: dark variants invert to light, light variants slightly darken ── */
-[data-theme="light"] .bg-slate-50       { background-color: #ffffff; }
 [data-theme="light"] .bg-slate-100      { background-color: #f8fafc; }
 [data-theme="light"] .bg-slate-200      { background-color: #f1f5f9; }
 [data-theme="light"] .bg-slate-300      { background-color: #e2e8f0; }
-[data-theme="light"] .bg-slate-400      { background-color: #cbd5e1; }
 [data-theme="light"] .bg-slate-500      { background-color: #b8c4d0; }
-[data-theme="light"] .bg-slate-950      { background-color: #f0f4f8; }
 [data-theme="light"] .bg-slate-900      { background-color: #eaeff5; }
 [data-theme="light"] .bg-slate-800      { background-color: #dde4ee; }
 [data-theme="light"] .bg-slate-700      { background-color: #cbd5e1; }
@@ -266,15 +277,7 @@ body,
 [data-theme="light"] .bg-slate-950\/40   { background-color: rgba(240,244,248,0.7); }
 [data-theme="light"] .bg-slate-950\/50   { background-color: rgba(240,244,248,0.75); }
 [data-theme="light"] .bg-slate-950\/60   { background-color: rgba(240,244,248,0.8); }
-[data-theme="light"] .bg-slate-950\/70   { background-color: rgba(240,244,248,0.85); }
-[data-theme="light"] .bg-slate-900\/40   { background-color: rgba(234,239,245,0.7); }
-[data-theme="light"] .bg-slate-900\/50   { background-color: rgba(234,239,245,0.75); }
-[data-theme="light"] .bg-slate-900\/60   { background-color: rgba(234,239,245,0.8); }
-[data-theme="light"] .bg-slate-900\/70   { background-color: rgba(234,239,245,0.85); }
 [data-theme="light"] .bg-slate-900\/98   { background-color: rgba(234,239,245,0.98); }
-[data-theme="light"] .bg-slate-800\/40   { background-color: rgba(221,228,238,0.7); }
-[data-theme="light"] .bg-slate-800\/50   { background-color: rgba(221,228,238,0.75); }
-[data-theme="light"] .bg-slate-800\/60   { background-color: rgba(221,228,238,0.8); }
 /* Modal-Backdrop: im Light-Mode statt schwarz ein helles Grau mit
  * Transparenz, damit Modals "weiches Glas" auf hellem Hintergrund sind. */
 [data-theme="light"] .bg-black\/40       { background-color: rgba(15,23,42,0.15); }
@@ -282,19 +285,13 @@ body,
 [data-theme="light"] .bg-black\/60       { background-color: rgba(15,23,42,0.25); }
 [data-theme="light"] .bg-black\/70       { background-color: rgba(15,23,42,0.30); }
 
-[data-theme="light"] .border-slate-50   { border-color: #e2e8f0; }
-[data-theme="light"] .border-slate-100  { border-color: #cbd5e1; }
 [data-theme="light"] .border-slate-200  { border-color: #cbd5e1; }
 [data-theme="light"] .border-slate-300  { border-color: #94a3b8; }
 [data-theme="light"] .border-slate-400  { border-color: #64748b; }
 [data-theme="light"] .border-slate-500  { border-color: #475569; }
 [data-theme="light"] .border-slate-700  { border-color: #94a3b8; }
 [data-theme="light"] .border-slate-800  { border-color: #b8c4d0; }
-[data-theme="light"] .border-slate-600  { border-color: #64748b; }
-[data-theme="light"] .border-slate-900  { border-color: #cbd5e1; }
-[data-theme="light"] .border-slate-950  { border-color: #cbd5e1; }
 
-[data-theme="light"] .text-slate-50     { color: #1e293b; }
 [data-theme="light"] .text-slate-100    { color: #0f172a; }
 [data-theme="light"] .text-slate-200    { color: #1e293b; }
 [data-theme="light"] .text-slate-300    { color: #1e293b; }
@@ -302,7 +299,6 @@ body,
 [data-theme="light"] .text-slate-500    { color: #475569; }
 [data-theme="light"] .text-slate-600    { color: #334155; }
 [data-theme="light"] .text-slate-700    { color: #94a3b8; }
-[data-theme="light"] .text-slate-800    { color: #cbd5e1; }
 [data-theme="light"] .text-slate-900    { color: #cbd5e1; }
 
 /* ── Light theme: colored accent remapping ──────────────────────────────── */
@@ -420,41 +416,16 @@ body,
 [data-theme="light"] .hover\:bg-slate-800:hover     { background-color: #dde4ee; }
 [data-theme="light"] .hover\:bg-slate-700:hover     { background-color: #cbd5e1; }
 [data-theme="light"] .hover\:bg-slate-600:hover     { background-color: #b8c4d0; }
-[data-theme="light"] .hover\:text-slate-200:hover   { color: #1e293b; }
-[data-theme="light"] .hover\:border-slate-700:hover { border-color: #94a3b8; }
 
 /* Focus variants */
-[data-theme="light"] .focus\:border-slate-600:focus { border-color: #64748b; }
-[data-theme="light"] .focus\:bg-slate-950:focus     { background-color: #f0f4f8; }
 
 /* Opacity variants */
 [data-theme="light"] .bg-slate-950\/30  { background-color: rgba(240,244,248,0.3); }
 [data-theme="light"] .bg-slate-950\/40  { background-color: rgba(240,244,248,0.4); }
 [data-theme="light"] .bg-slate-950\/50  { background-color: rgba(240,244,248,0.5); }
 [data-theme="light"] .bg-slate-950\/60  { background-color: rgba(240,244,248,0.6); }
-[data-theme="light"] .bg-slate-950\/70  { background-color: rgba(240,244,248,0.7); }
-[data-theme="light"] .bg-slate-900\/40  { background-color: rgba(234,239,245,0.4); }
-[data-theme="light"] .bg-slate-900\/50  { background-color: rgba(234,239,245,0.5); }
-[data-theme="light"] .bg-slate-900\/60  { background-color: rgba(234,239,245,0.6); }
-[data-theme="light"] .bg-slate-900\/70  { background-color: rgba(234,239,245,0.7); }
-[data-theme="light"] .bg-slate-900\/90  { background-color: rgba(234,239,245,0.9); }
-[data-theme="light"] .bg-slate-900\/95  { background-color: rgba(234,239,245,0.95); }
-[data-theme="light"] .bg-slate-800\/30  { background-color: rgba(221,228,238,0.3); }
-[data-theme="light"] .bg-slate-800\/40  { background-color: rgba(221,228,238,0.4); }
-[data-theme="light"] .bg-slate-800\/60  { background-color: rgba(221,228,238,0.6); }
-[data-theme="light"] .bg-slate-800\/70  { background-color: rgba(221,228,238,0.7); }
-[data-theme="light"] .bg-slate-800\/80  { background-color: rgba(221,228,238,0.8); }
-[data-theme="light"] .bg-slate-700\/60  { background-color: rgba(203,213,225,0.6); }
-[data-theme="light"] .bg-slate-700\/70  { background-color: rgba(203,213,225,0.7); }
-[data-theme="light"] .bg-slate-700\/80  { background-color: rgba(203,213,225,0.8); }
-[data-theme="light"] .hover\:bg-slate-800\/40:hover { background-color: rgba(221,228,238,0.4); }
-[data-theme="light"] .hover\:bg-slate-800\/70:hover { background-color: rgba(221,228,238,0.7); }
 
 /* Opacity border variants */
-[data-theme="light"] .border-slate-700\/60 { border-color: rgba(148,163,184,0.6); }
-[data-theme="light"] .border-slate-800\/60 { border-color: rgba(184,196,208,0.6); }
-[data-theme="light"] .border-slate-800\/80 { border-color: rgba(184,196,208,0.8); }
-[data-theme="light"] .border-slate-900\/40 { border-color: rgba(234,239,245,0.4); }
 
 /* ── v7.7.0 — Light-mode audit fill-in ──────────────────────────────────────
  * Comprehensive coverage of color classes still missing from the light
@@ -462,9 +433,6 @@ body,
  * existing mappings. Keep alphabetical-ish for easy maintenance. */
 
 /* Slate opacity fills missing above */
-[data-theme="light"] .bg-slate-900\/80   { background-color: rgba(234,239,245,0.8); }
-[data-theme="light"] .bg-slate-900\/85   { background-color: rgba(234,239,245,0.85); }
-[data-theme="light"] .bg-slate-950\/95   { background-color: rgba(240,244,248,0.95); }
 
 /* Amber — alert / warning surfaces */
 [data-theme="light"] .bg-amber-500       { background-color: #f59e0b; }

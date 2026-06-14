@@ -109,7 +109,7 @@ export const TitleBlock = () => {
                   {label}
                 </td>
                 <td className="py-0.5 text-right align-top text-cp-text-bright">
-                  {value && value !== '—' ? value : <span className="text-slate-600">—</span>}
+                  {value && value !== '—' ? value : <span className="text-cp-text-dim">—</span>}
                 </td>
               </tr>
             ))}
