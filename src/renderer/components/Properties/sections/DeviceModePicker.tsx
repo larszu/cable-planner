@@ -139,7 +139,7 @@ export const DeviceModePicker = ({
 
   return (
     <div className="space-y-2 text-cp-xs">
-      <p className="text-[10px] text-slate-400">
+      <p className="text-[10px] text-cp-text-muted">
         {t(
           'modes.intro',
           'Wechselt das Port-Layout des Geräts. Bestehende Kabel an Ports, die im neuen Modus nicht existieren, bleiben im Projekt, müssen aber neu gesteckt werden.',
@@ -147,7 +147,7 @@ export const DeviceModePicker = ({
       </p>
       <div className="grid grid-cols-1 gap-1">
         {modes.length === 0 && (
-          <div className="rounded border border-dashed border-slate-700 p-3 text-center text-[11px] text-slate-400">
+          <div className="rounded border border-dashed border-cp-border p-3 text-center text-[11px] text-cp-text-muted">
             {t(
               'modes.emptyState',
               'Keine Modi definiert. Ports oben bearbeiten und anschließend mit "+ aus aktuellem Layout" als Modus speichern.',
@@ -158,13 +158,13 @@ export const DeviceModePicker = ({
           <div
             key={m.id}
             className={`rounded border ${
-              active === m.id ? 'border-sky-500 bg-sky-900/40' : 'border-slate-700 bg-slate-900'
+              active === m.id ? 'border-sky-500 bg-sky-900/40' : 'border-cp-border bg-cp-surface-1'
             }`}
           >
             <button
               type="button"
               onClick={() => setActiveDeviceMode(equipment.id, m.id)}
-              className="flex w-full flex-col items-start px-2 py-1.5 text-left text-slate-100"
+              className="flex w-full flex-col items-start px-2 py-1.5 text-left text-cp-text"
               title={active === m.id ? t('modes.active', 'Aktiv') : t('modes.activate', 'Aktivieren')}
             >
               <span className="font-medium">
@@ -172,13 +172,13 @@ export const DeviceModePicker = ({
                 {m.name}
               </span>
               {m.description && (
-                <span className="text-[10px] text-slate-400">{m.description}</span>
+                <span className="text-[10px] text-cp-text-muted">{m.description}</span>
               )}
-              <span className="mt-1 text-[10px] text-slate-400">
+              <span className="mt-1 text-[10px] text-cp-text-muted">
                 {m.inputs.length} In · {m.outputs.length} Out
               </span>
             </button>
-            <div className="flex gap-1 border-t border-slate-800 bg-slate-950/40 px-1 py-1 text-[10px]">
+            <div className="flex gap-1 border-t border-cp-border-muted bg-cp-surface-3/40 px-1 py-1 text-[10px]">
               <button
                 type="button"
                 onClick={() => setEditorState({ mode: 'edit', modeId: m.id })}
@@ -190,7 +190,7 @@ export const DeviceModePicker = ({
               <button
                 type="button"
                 onClick={() => renameMode(m.id)}
-                className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-slate-300 hover:bg-slate-800"
+                className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-cp-text-secondary hover:bg-cp-surface-2"
                 title={t('modes.renameTitle', 'Namen ändern')}
               >
                 <Icon icon={Pencil} size="xs" /> {t('modes.name', 'Name')}
@@ -198,7 +198,7 @@ export const DeviceModePicker = ({
               <button
                 type="button"
                 onClick={() => editDescription(m.id)}
-                className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-slate-300 hover:bg-slate-800"
+                className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-cp-text-secondary hover:bg-cp-surface-2"
                 title={t('modes.descTitle', 'Beschreibung ändern')}
               >
                 <Icon icon={Pencil} size="xs" /> {t('modes.desc', 'Beschreibung')}
@@ -216,7 +216,7 @@ export const DeviceModePicker = ({
               <button
                 type="button"
                 onClick={() => deleteMode(m.id)}
-                className="ml-auto rounded px-1.5 py-0.5 text-slate-400 hover:bg-red-700 hover:text-white"
+                className="ml-auto rounded px-1.5 py-0.5 text-cp-text-muted hover:bg-red-700 hover:text-white"
                 title={t('modes.deleteTitle', 'Modus löschen')}
                 aria-label={t('modes.deleteTitle', 'Modus löschen')}
               >

@@ -28,7 +28,7 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
     <SortableSection id="dimensions" title={t('dims.title', 'Dimensionen')} subtitle={summary}>
       <div className="grid grid-cols-3 gap-2 text-cp-xs">
         <label className="block">
-          <span className="mb-1 block text-slate-400">{t('dims.width', 'Breite (mm)')}</span>
+          <span className="mb-1 block text-cp-text-muted">{t('dims.width', 'Breite (mm)')}</span>
           <input
             type="number"
             min={0}
@@ -38,11 +38,11 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
             onChange={(e) =>
               updateEquipment(equipment.id, { widthMm: parseMm(e.target.value) })
             }
-            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-slate-400">{t('dims.height', 'Höhe (mm)')}</span>
+          <span className="mb-1 block text-cp-text-muted">{t('dims.height', 'Höhe (mm)')}</span>
           <input
             type="number"
             min={0}
@@ -52,11 +52,11 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
             onChange={(e) =>
               updateEquipment(equipment.id, { heightMm: parseMm(e.target.value) })
             }
-            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-slate-400">{t('dims.depth', 'Tiefe (mm)')}</span>
+          <span className="mb-1 block text-cp-text-muted">{t('dims.depth', 'Tiefe (mm)')}</span>
           <input
             type="number"
             min={0}
@@ -66,11 +66,11 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
             onChange={(e) =>
               updateEquipment(equipment.id, { depthMm: parseMm(e.target.value) })
             }
-            className="w-full rounded border border-slate-700 bg-slate-900 p-2 font-mono"
+            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
       </div>
-      <p className="mt-2 text-[10px] text-slate-400">
+      <p className="mt-2 text-[10px] text-cp-text-muted">
         {t(
           'dims.hint',
           'Physische Aussenmaße. 19" Rack-Gerät: 1 HE = 44.45 mm, Standard-Breite 482 mm, typische Tiefe 400-600 mm. Wird vom 3D-Rack-Renderer + Logistik-Tools genutzt.',
