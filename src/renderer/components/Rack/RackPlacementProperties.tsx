@@ -272,11 +272,38 @@ export const RackPlacementProperties = ({
         </div>
         {(() => {
           const tpl = templates.find((tt) => tt.name === selectedPlacement.templateName)
-          if (!tpl?.widthMm || !tpl?.heightMm) return null
-          const maxX = Math.max(0, RACK_MOUNT_WIDTH_MM - tpl.widthMm)
           const rackDepthRender = rackDepthMm ?? 800
-          const devDepth = tpl.depthMm ?? 400
+          const devDepth = tpl?.depthMm ?? selectedPlacement.depthMm ?? 400
           const maxZ = Math.max(0, rackDepthRender - devDepth)
+          // #521(c2) — Tiefen-(Z-)Position für ALLE Rack-Geräte editierbar.
+          // Klassische Geräte (ohne Shelf-Maße) bekamen vorher 'return null' →
+          // keine Z-Editierung, Gerät klebte an Front/Rückwand. Jetzt eigenes
+          // Tiefen-Feld; Shelf-Devices behalten ihr X+Z-Panel unverändert.
+          if (!(tpl?.widthMm && tpl?.heightMm)) {
+            return (
+              <details className="rounded border border-cp-border-muted bg-cp-surface-1/40 p-2" open>
+                <summary className="cursor-pointer text-[11px] font-semibold text-cp-text-secondary">Tiefen-Position (Z)</summary>
+                <label className="mt-2 block text-[10px]">
+                  <span className="mb-0.5 block text-cp-text-muted">Tiefe (mm von vorne)</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={maxZ}
+                    step={10}
+                    value={Math.round(selectedPlacement.shelfOffsetZ ?? 0)}
+                    onChange={(e) =>
+                      onUpdate(selectedPlacement.id, {
+                        shelfOffsetZ: Math.max(0, Math.min(maxZ, Number(e.target.value) || 0)),
+                      })
+                    }
+                    className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1"
+                  />
+                  <span className="text-[11px] text-cp-text-muted">max {Math.round(maxZ)} mm · 0 = Front</span>
+                </label>
+              </details>
+            )
+          }
+          const maxX = Math.max(0, RACK_MOUNT_WIDTH_MM - tpl.widthMm)
           return (
             <details className="rounded border border-emerald-800 bg-emerald-900/20 p-2" open>
               <summary className="cursor-pointer text-[11px] font-semibold text-emerald-200">
