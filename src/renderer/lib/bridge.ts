@@ -596,7 +596,7 @@ const webFallbackApi: CablePlannerApi = {
     openProject: async () => {
       const input = document.createElement('input')
       input.type = 'file'
-      input.accept = '.json,application/json'
+      input.accept = '.cableplan,.json,application/json'
 
       return await new Promise<OpenProjectResponse | null>((resolve) => {
         input.onchange = async () => {
@@ -619,13 +619,13 @@ const webFallbackApi: CablePlannerApi = {
       })
     },
     saveProject: async (project: CablePlannerProject, currentPath?: string) => {
-      const fileName = currentPath || `${project.metadata.name || 'project'}.json`
+      const fileName = currentPath || `${project.metadata.name || 'project'}.cableplan`
       downloadJson(project, fileName)
       pushRecent(fileName)
       return fileName
     },
     saveProjectAs: async (project: CablePlannerProject) => {
-      const fileName = `${project.metadata.name || 'project'}.json`
+      const fileName = `${project.metadata.name || 'project'}.cableplan`
       downloadJson(project, fileName)
       pushRecent(fileName)
       return fileName

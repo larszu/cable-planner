@@ -18,6 +18,25 @@ export default {
     buildResources: 'build',
     output: 'release',
   },
+  // #pre-sale — OS-Dateiverknüpfung: Doppelklick auf eine .cableplan-/.cpviewer-
+  // Datei startet die App (Handling in main: open-file/argv → project:open-external).
+  // Ohne explizites `icon` nutzt electron-builder das App-Icon (build/icon.*) —
+  // wir haben (noch) kein eigenes Dokument-Icon und vermeiden so ein fehlendes
+  // .icns auf macOS, das den Build sonst abbrechen ließe.
+  fileAssociations: [
+    {
+      ext: 'cableplan',
+      name: 'Cable Planner Project',
+      description: 'Cable Planner Projekt',
+      role: 'Editor',
+    },
+    {
+      ext: 'cpviewer',
+      name: 'Cable Planner Viewer',
+      description: 'Cable Planner Viewer (read-only)',
+      role: 'Viewer',
+    },
+  ],
   // npmRebuild defaults to true. We explicitly do NOT set it to false here:
   // skipping the rebuild leaves native modules (keytar, @julusian/freetype2)
   // built against Node's ABI rather than Electron's, which on Windows caused

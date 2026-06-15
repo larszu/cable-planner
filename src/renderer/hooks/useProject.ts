@@ -16,7 +16,9 @@ interface OpenProjectResponse {
 /** Derive a human-readable project name from a file path (drops extension). */
 const nameFromPath = (filePath: string): string => {
   const base = filePath.split(/[\\/]/).pop() ?? filePath
-  return base.replace(/\.json$/i, '')
+  // #pre-sale — .cableplan ist die neue Projekt-Endung; .json/.cpviewer
+  // bleiben abwärtskompatibel.
+  return base.replace(/\.(cableplan|json|cpviewer)$/i, '')
 }
 
 export const useProject = () => {

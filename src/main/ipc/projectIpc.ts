@@ -59,7 +59,9 @@ const defaultSavePath = (project: unknown): string => {
     project && typeof project === 'object' && 'metadata' in project
       ? String(((project as { metadata?: { name?: unknown } }).metadata?.name ?? '')).trim()
       : ''
-  return `${sanitizeFileName(name || 'cable-project')}.json`
+  // #pre-sale — Eigene Projekt-Endung .cableplan (statt generischem .json),
+  // damit Datei-Verknüpfung + eigenes Icon möglich sind. Inhalt bleibt JSON.
+  return `${sanitizeFileName(name || 'cable-project')}.cableplan`
 }
 
 const defaultViewerPath = (project: unknown): string => {
@@ -70,10 +72,15 @@ const defaultViewerPath = (project: unknown): string => {
   return `${sanitizeFileName(name || 'cable-project')}.cpviewer`
 }
 
-const ensureJsonExtension = (filePath: string): string =>
-  filePath.toLowerCase().endsWith('.json') || filePath.toLowerCase().endsWith('.cpviewer')
+// #pre-sale — neue Projekte bekommen .cableplan; bereits als .json/.cpviewer
+// gespeicherte Dateien behalten ihre Endung (Abwärtskompatibilität beim
+// Re-Save eines alten Projekts).
+const ensureProjectExtension = (filePath: string): string => {
+  const lower = filePath.toLowerCase()
+  return lower.endsWith('.cableplan') || lower.endsWith('.json') || lower.endsWith('.cpviewer')
     ? filePath
-    : `${filePath}.json`
+    : `${filePath}.cableplan`
+}
 
 const ensureViewerExtension = (filePath: string): string =>
   filePath.toLowerCase().endsWith('.cpviewer') ? filePath : `${filePath}.cpviewer`
@@ -87,7 +94,7 @@ export const registerProjectIpc = () => {
       filters: [
         // v7.9.3 — .cpviewer ist eine Read-only Variante der normalen
         // JSON-Datei (gleicher Inhalt + project.mode='viewer').
-        { name: 'Cable Planner Project / Viewer', extensions: ['json', 'cpviewer'] },
+        { name: 'Cable Planner Project / Viewer', extensions: ['cableplan', 'json', 'cpviewer'] },
         { name: 'JSON', extensions: ['json'] },
         { name: 'Viewer (read-only)', extensions: ['cpviewer'] },
       ],
@@ -160,16 +167,16 @@ export const registerProjectIpc = () => {
       const { canceled, filePath } = await dialog.showSaveDialog({
         title: 'Save Cable Planner Project',
         defaultPath: defaultSavePath(project),
-        filters: [{ name: 'Cable Planner Project', extensions: ['json'] }],
+        filters: [{ name: 'Cable Planner Project', extensions: ['cableplan', 'json'] }],
       })
 
       if (canceled || !filePath) {
         return null
       }
 
-      targetPath = ensureJsonExtension(filePath)
+      targetPath = ensureProjectExtension(filePath)
     } else {
-      targetPath = ensureJsonExtension(targetPath)
+      targetPath = ensureProjectExtension(targetPath)
     }
 
     await atomicWriteFile(targetPath, JSON.stringify(project, null, 2))
@@ -181,14 +188,14 @@ export const registerProjectIpc = () => {
     const { canceled, filePath } = await dialog.showSaveDialog({
       title: 'Save Cable Planner Project As',
       defaultPath: defaultSavePath(project),
-      filters: [{ name: 'Cable Planner Project', extensions: ['json'] }],
+      filters: [{ name: 'Cable Planner Project', extensions: ['cableplan', 'json'] }],
     })
 
     if (canceled || !filePath) {
       return null
     }
 
-    const target = ensureJsonExtension(filePath)
+    const target = ensureProjectExtension(filePath)
     await atomicWriteFile(target, JSON.stringify(project, null, 2))
     await writeRecent(target)
     return target
