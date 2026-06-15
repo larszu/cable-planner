@@ -290,6 +290,21 @@ interface PersistedUiState {
   portLabelFontSize: number
 }
 
+/**
+ * #ux — Default-Sprache anhand der OS-/Browser-Locale wählen statt fix Englisch.
+ * Greift NUR beim ersten Start (kein persistierter Wert in localStorage) — eine
+ * vom User gespeicherte Sprache gewinnt weiter, weil load() sie über die Defaults
+ * merged. Electron setzt navigator.language auf die System-Locale.
+ */
+const detectDefaultLanguage = (): Language => {
+  try {
+    const lang = (typeof navigator !== 'undefined' && navigator.language) || ''
+    return lang.toLowerCase().startsWith('de') ? 'de' : 'en'
+  } catch {
+    return 'en'
+  }
+}
+
 const defaults: PersistedUiState = {
   propertiesCollapsed: false,
   libraryCollapsed: false,
@@ -303,7 +318,7 @@ const defaults: PersistedUiState = {
   canvasTheme: 'dark',
   followSystemTheme: false,
   colorPortsByType: false,
-  language: 'en',
+  language: detectDefaultLanguage(),
   overrideConnectionWarnings: false,
   rentmanEnabled: false,
   libraryViewMode: 'list',
