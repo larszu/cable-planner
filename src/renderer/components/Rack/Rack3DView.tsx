@@ -320,9 +320,19 @@ const DeviceBox = ({
   const xLeftBase = isShelfDevice
     ? railInnerOffset + effectiveShelfX
     : (RACK_OUTER_WIDTH_MM - widthMm) / 2
+  // #521(c2) — Tiefen-Positionierung (shelfOffsetZ) auch für KLASSISCHE Rack-
+  // Geräte respektieren, nicht nur Shelf-Devices. Vorher war ein klassisches
+  // Gerät in Z auf Front (z=0) bzw. Rückwand (mountSide='rear') festgenagelt —
+  // freie Zwischen-Tiefen waren nicht möglich ("Z nur auf der 1-RU-Ebene").
+  // Ohne gesetzten Offset bleibt das Default-Verhalten exakt erhalten.
+  const hasZOffset = shelfDragOverride?.z != null || placement.shelfOffsetZ != null
   const zStart = isShelfDevice
     ? effectiveShelfZ
-    : (mountSide === 'rear' ? rackDepthMm - depthMm : 0)
+    : hasZOffset
+      ? Math.max(0, Math.min(effectiveShelfZ, rackDepthMm - depthMm))
+      : mountSide === 'rear'
+        ? rackDepthMm - depthMm
+        : 0
   const xCenter = xLeftBase + widthMm / 2
   const yCenter = yBottom + heightMm / 2
   const zCenter = zStart + depthMm / 2
