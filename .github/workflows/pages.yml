@@ -1,0 +1,59 @@
+name: Deploy Web (GitHub Pages)
+
+# Veröffentlicht den Renderer-Build als statische Web-App auf GitHub Pages:
+#   index.html  = voller Editor (Web-Variante)
+#   viewer.html = Zero-Install-Reviewer für .cpviewer-Dateien
+#   mobile.html = Build-Day-Mobile-Viewer
+# Damit gibt es eine echte URL für externe Reviewer + funktionierende
+# Kollaborations-Einladungslinks. Desktop-only Features (Datei-IPC, ATEM/LAN,
+# Auto-Update, Keychain) fallen im Browser sauber auf den Web-Fallback
+# (src/renderer/lib/bridge.ts) zurück.
+#
+# EINMALIG manuell nötig: Repo → Settings → Pages → "Build and deployment"
+# → Source = "GitHub Actions". Ohne diese Einstellung schlägt nur der
+# Deploy-Step fehl — es wird nichts überschrieben.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Immer nur ein Deploy gleichzeitig; laufende abbrechen wenn ein neuer kommt.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'npm'
+      # keytar (native) braucht beim Kompilieren libsecret; Prebuilds decken
+      # nicht jede Node-ABI ab. Insurance, damit `npm ci` nicht an keytar
+      # scheitert — der Renderer-Build selbst nutzt keytar nicht.
+      - run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev
+      - run: npm ci
+      - run: npm run build:renderer
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/renderer
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
