@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
 import { registerCredentialsIpc } from './ipc/credentialsIpc.js'
 import { registerRentmanIpc } from './ipc/rentmanIpc.js'
-import { registerProjectIpc } from './ipc/projectIpc.js'
+import { openExternalProject, registerProjectIpc } from './ipc/projectIpc.js'
+import { findProjectPathInArgv, setPendingLaunchPath } from './services/fileOpenService.js'
 import { registerAtemIpc } from './ipc/atemIpc.js'
 import { registerVideohubIpc } from './ipc/videohubIpc.js'
 import { registerLogIpc } from './ipc/logIpc.js'
@@ -22,6 +23,39 @@ const __dirname = path.dirname(__filename)
 
 const isDev = Boolean(process.env.VITE_DEV_SERVER_URL)
 const shouldOpenDevTools = process.env.ELECTRON_OPEN_DEVTOOLS === '1'
+
+const firstReadyWindow = (): BrowserWindow | null =>
+  BrowserWindow.getAllWindows().find((w) => !w.isDestroyed()) ?? null
+
+// #pre-sale — Single-Instance-Lock: ein Doppelklick auf eine .cableplan-Datei
+// während die App schon läuft soll keine zweite Instanz starten, sondern den
+// Pfad an die laufende reichen (second-instance). Ohne Lock öffnet jede Datei
+// ein eigenes App-Fenster mit leerem zweiten Prozess.
+const gotInstanceLock = app.requestSingleInstanceLock()
+if (!gotInstanceLock) {
+  app.quit()
+} else {
+  // macOS reicht das Öffnen über open-file rein — das kann VOR app.whenReady
+  // feuern (OS startet die App mit der Datei). Existiert noch kein Fenster,
+  // puffern wir den Pfad; der Renderer holt ihn beim Mounten ab.
+  app.on('open-file', (event, filePath) => {
+    event.preventDefault()
+    const win = firstReadyWindow()
+    if (win) void openExternalProject(win, filePath)
+    else setPendingLaunchPath(filePath)
+  })
+
+  // Windows/Linux: die zweite Instanz (Doppelklick bei laufender App) bekommt
+  // den Pfad in ihrem argv; an das vorhandene Fenster weiterreichen + fokussieren.
+  app.on('second-instance', (_event, argv) => {
+    const win = firstReadyWindow()
+    if (!win) return
+    if (win.isMinimized()) win.restore()
+    win.focus()
+    const filePath = findProjectPathInArgv(argv)
+    if (filePath) void openExternalProject(win, filePath)
+  })
+}
 
 // Append to a log file with a hard size cap so a crash-loop can't fill
 // the user's disk. When the file passes the cap it is rotated to `.1`.
@@ -284,6 +318,10 @@ const createWindow = async () => {
 }
 
 app.whenReady().then(async () => {
+  // Zweite Instanz hat den Lock nicht bekommen → wir haben oben bereits
+  // app.quit() gerufen; hier nichts mehr aufbauen (kein zweites Fenster).
+  if (!gotInstanceLock) return
+
   Menu.setApplicationMenu(null)
 
   // Content-Security-Policy for the packaged renderer. Skipped in dev
@@ -328,11 +366,17 @@ app.whenReady().then(async () => {
 
   const mainWindow = await createWindow()
 
+  // #pre-sale — Kaltstart per Doppelklick (Windows/Linux): der Datei-Pfad
+  // steht in process.argv. Puffern, damit der Renderer ihn beim Mounten über
+  // project:get-launch-file abholt. macOS liefert ihn stattdessen via open-file
+  // (oben), das null hier nicht überschreibt.
+  setPendingLaunchPath(findProjectPathInArgv(process.argv))
+
   // #pre-sale — Update-IPC IMMER registrieren, damit der Menüpunkt "Auf
   // Updates prüfen…" auch in Dev funktioniert (liefert dort sauber ok:false).
   try {
     const { registerUpdaterIpc, initAutoUpdater } = await import('./services/updaterService.js')
-    registerUpdaterIpc(() => BrowserWindow.getAllWindows().find((w) => !w.isDestroyed()) ?? null)
+    registerUpdaterIpc(firstReadyWindow)
     // Auto-Check beim Start nur im paketierten Build (in Dev gibt es keine
     // app-update.yml → checkForUpdates würde werfen).
     if (!isDev) initAutoUpdater(mainWindow)
