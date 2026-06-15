@@ -75,7 +75,12 @@ export const toPlacement = (template: EquipmentTemplate, startUnit: number): Rac
 export const normalizeDraft = (draft: RackDraft): RackDraft => {
   const normalizedPlacements = draft.placements.map((p) => ({
     ...p,
-    startUnit: Math.max(1, Math.round(p.startUnit) || 1),
+    // #521(b) — startUnit darf fraktional sein (Off-Grid-/Zwischen-HE-Position).
+    // Kein Math.round mehr: nur NaN/≤0-Guard + Untergrenze 1. Ganzzahlige Werte
+    // bleiben damit unverändert (Round war für sie ein No-op → Backward-Compat).
+    // Die Höhe (rackUnits) bleibt ganzzahlig; 2D- und 3D-Rendering nutzen bereits
+    // lineare (startUnit-1)·rowHeight- bzw. ·HE_HEIGHT_MM-Mathe → fraktional ok.
+    startUnit: Math.max(1, Number.isFinite(p.startUnit) && p.startUnit > 0 ? p.startUnit : 1),
     rackUnits: Math.max(1, Math.round(p.rackUnits) || 1),
   }))
   // Drop internal cables that point at placements that no longer exist
