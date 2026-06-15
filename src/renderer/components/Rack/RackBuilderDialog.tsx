@@ -1228,10 +1228,15 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       if (!dragState || dragState.pointerId !== event.pointerId) return
                       const host = event.currentTarget.getBoundingClientRect()
                       const y = clamp(event.clientY - host.top, 0, host.height)
-                      const unitAtPointer = Math.max(1, Math.min(draft.totalUnits, Math.floor(y / rowHeight) + 1))
+                      // #521(b) — Alt gedrückt = freie (Off-Grid-)Höhe; sonst rastet
+                      // die HE-Position ganzzahlig ein (Backward-Compat, unverändert).
+                      const unitAtPointer = event.altKey
+                        ? Math.max(1, Math.min(draft.totalUnits, y / rowHeight + 1))
+                        : Math.max(1, Math.min(draft.totalUnits, Math.floor(y / rowHeight) + 1))
                       const placement = draft.placements.find((p) => p.id === dragState.placementId)
                       if (!placement) return
-                      const nextStart = Math.max(1, Math.min(draft.totalUnits - placement.rackUnits + 1, unitAtPointer - dragState.offsetUnits))
+                      const rawStart = Math.max(1, Math.min(draft.totalUnits - placement.rackUnits + 1, unitAtPointer - dragState.offsetUnits))
+                      const nextStart = event.altKey ? Math.round(rawStart * 100) / 100 : rawStart
                       updatePlacement(placement.id, { startUnit: nextStart })
                     }}
                     onPointerUp={() => setDragState(null)}
@@ -1326,10 +1331,14 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             const host = event.currentTarget.parentElement?.getBoundingClientRect()
                             if (!host) return
                             const y = clamp(event.clientY - host.top, 0, host.height)
-                            const unitAtPointer = Math.max(1, Math.min(draft.totalUnits, Math.floor(y / rowHeight) + 1))
+                            // #521(b) — Alt = freie (Off-Grid-)Höhe; sonst ganzzahlig (unverändert).
+                            const unitAtPointer = event.altKey
+                              ? Math.max(1, Math.min(draft.totalUnits, y / rowHeight + 1))
+                              : Math.max(1, Math.min(draft.totalUnits, Math.floor(y / rowHeight) + 1))
                             const placement = draft.placements.find((p) => p.id === dragState.placementId)
                             if (!placement) return
-                            const nextStart = Math.max(1, Math.min(draft.totalUnits - placement.rackUnits + 1, unitAtPointer - dragState.offsetUnits))
+                            const rawStart = Math.max(1, Math.min(draft.totalUnits - placement.rackUnits + 1, unitAtPointer - dragState.offsetUnits))
+                            const nextStart = event.altKey ? Math.round(rawStart * 100) / 100 : rawStart
                             const patch: Partial<RackPlacementDraft> = { startUnit: nextStart }
                             // #506 — Vertikales Stapeln-Snap: an die Ober-/Unter-
                             // kante anderer Geräte andocken (Tops bündig, direkt
