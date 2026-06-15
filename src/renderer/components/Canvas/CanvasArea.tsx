@@ -1518,6 +1518,23 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         lastMousePosRef.current = { x: event.clientX, y: event.clientY }
       }}
     >
+      {/* #ux — Empty-State: leere Haupt-Canvas erklärte sich bisher nicht
+          (schwarze Fläche). Hinweis weist auf die Bibliothek; pointer-events-
+          none, damit Drag&Drop + Pan/Zoom darunter ungestört funktionieren.
+          Nur Haupt-Canvas (im Rack-Overlay irrelevant). */}
+      {mode === 'main' && project.equipment.length === 0 && (
+        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-6 text-center">
+          <div className="text-cp-lg font-medium text-cp-text-secondary">
+            {t('canvas.empty.title', 'Noch keine Geräte im Plan')}
+          </div>
+          <div className="max-w-sm text-cp-sm text-cp-text-muted">
+            {t(
+              'canvas.empty.hint',
+              'Zieh ein Gerät aus der Bibliothek (links) auf die Fläche, um zu starten.',
+            )}
+          </div>
+        </div>
+      )}
       {/* v7.9.12 — Toolbar wird auch im Rack-Mode gerendert, allerdings
           mit reduziertem Feature-Set (Frame/Group/Lock/Annotations
           ausgeblendet). Snap/Grid/Routing-Defaults/Align bleiben

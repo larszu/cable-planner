@@ -754,6 +754,8 @@ export const en: Dict = {
   'graphml.dialog.unresolved': '{count} edges could not be resolved and will be dropped.',
 
   // Status bar (right side of canvas footer)
+  'canvas.empty.title': 'No devices yet',
+  'canvas.empty.hint': 'Drag a device from the library on the left onto the canvas to get started.',
   'statusbar.equipment': '{count} devices',
   'statusbar.cables': '{count} cables',
   'statusbar.locations': '{count} frames',
