@@ -12,6 +12,13 @@ import { RoutingToggle } from '../shared/RoutingToggle'
 import { format, useTranslation } from '../../lib/i18n'
 import { STANDARD_LAYERS, LAYER_STYLES } from '../../lib/cableLayers'
 import { netKeyOf, netPeerCount } from '../../lib/offPageNet'
+import { sourceDestLabel } from '../../lib/cableLabel'
+import {
+  INSTALL_STATUSES,
+  INSTALL_STATUS_LABEL,
+  type InstallStatus,
+  type CableTestResult,
+} from '../../types/lifecycle'
 
 export const CableProperties = () => {
   const t = useTranslation()
@@ -21,6 +28,8 @@ export const CableProperties = () => {
   const cables = useProjectStore((state) => state.project.cables)
   const updateCable = useProjectStore((state) => state.updateCable)
   const deleteCable = useProjectStore((state) => state.deleteCable)
+  const setCableInstallStatus = useProjectStore((state) => state.setCableInstallStatus)
+  const setCableTestResult = useProjectStore((state) => state.setCableTestResult)
   const openCableEdit = useUiStore((state) => state.openCableEdit)
   const cableLayersFromStore = useUiStore((state) => state.customLayers)
 
@@ -142,6 +151,18 @@ export const CableProperties = () => {
           onChange={(event) => updateCable(cable.id, { name: event.target.value })}
           className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
         />
+        <button
+          type="button"
+          onClick={() =>
+            updateCable(cable.id, {
+              name: sourceDestLabel(cable, new Map(equipment.map((e) => [e.id, e]))),
+            })
+          }
+          className="mt-1 text-[10px] text-cp-accent hover:underline"
+          title={t('cable.field.sourceDestTitle', 'Name aus Quelle → Ziel erzeugen (AVIXA F501.01)')}
+        >
+          ↳ {t('cable.field.sourceDest', 'aus Quelle → Ziel')}
+        </button>
       </label>
       {/* v7.9.68 / #182 — Bei Wireless-Links macht "Länge" keinen Sinn;
           stattdessen "Max. Reichweite" eintragen. */}
@@ -208,6 +229,152 @@ export const CableProperties = () => {
           )}
         </select>
       </label>
+
+      {/* Festinstallation — Lebenszyklus: Status, Trasse, Mantel,
+          Terminierung und Mess-/Test-Ergebnis. */}
+      <details className="rounded border border-cp-border bg-cp-surface-3/40">
+        <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
+          {t('lifecycle.cableSection', 'Festinstallation / Lebenszyklus')}
+        </summary>
+        <div className="space-y-2 border-t border-cp-border p-2">
+          <label className="block">
+            <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.status', 'Status')}</span>
+            <select
+              value={cable.installStatus ?? ''}
+              onChange={(e) =>
+                setCableInstallStatus(
+                  cable.id,
+                  (e.target.value || undefined) as InstallStatus | undefined,
+                )
+              }
+              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+            >
+              <option value="">{t('lifecycle.statusNone', '— kein Status —')}</option>
+              {INSTALL_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {INSTALL_STATUS_LABEL[s]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="block">
+              <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.pathway', 'Trasse / Pfad')}</span>
+              <input
+                value={cable.pathway ?? ''}
+                onChange={(e) => updateCable(cable.id, { pathway: e.target.value || undefined })}
+                className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.jacket', 'Mantel/Brandklasse')}</span>
+              <input
+                value={cable.jacketRating ?? ''}
+                placeholder="CM / CMR / CMP / LSZH"
+                onChange={(e) => updateCable(cable.id, { jacketRating: e.target.value || undefined })}
+                className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.termFrom', 'Term. A')}</span>
+              <input
+                value={cable.terminationFrom ?? ''}
+                placeholder="T568B / LC / …"
+                onChange={(e) => updateCable(cable.id, { terminationFrom: e.target.value || undefined })}
+                className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.termTo', 'Term. B')}</span>
+              <input
+                value={cable.terminationTo ?? ''}
+                placeholder="T568B / LC / …"
+                onChange={(e) => updateCable(cable.id, { terminationTo: e.target.value || undefined })}
+                className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+              />
+            </label>
+          </div>
+          {/* Mess-/Test-Ergebnis */}
+          <div className="rounded border border-cp-border-muted bg-cp-surface-1/40 p-1.5">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-[11px] text-cp-text-secondary">{t('lifecycle.test', 'Mess-/Test-Ergebnis')}</span>
+              {cable.testResult && (
+                <button
+                  type="button"
+                  onClick={() => setCableTestResult(cable.id, undefined)}
+                  className="rounded px-1 py-0.5 text-[10px] text-cp-text-muted hover:bg-cp-surface-3"
+                >
+                  {t('common.clear', 'Löschen')}
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <select
+                value={cable.testResult?.result ?? ''}
+                onChange={(e) => {
+                  const v = e.target.value
+                  if (!v) {
+                    setCableTestResult(cable.id, undefined)
+                    return
+                  }
+                  const next: CableTestResult = {
+                    ...(cable.testResult ?? {}),
+                    result: v as 'pass' | 'fail',
+                    testedAt: cable.testResult?.testedAt ?? new Date().toISOString(),
+                  }
+                  setCableTestResult(cable.id, next)
+                }}
+                className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-[11px]"
+              >
+                <option value="">{t('lifecycle.testNone', '— nicht getestet —')}</option>
+                <option value="pass">PASS</option>
+                <option value="fail">FAIL</option>
+              </select>
+              <input
+                type="number"
+                step="0.1"
+                value={cable.testResult?.marginDb ?? ''}
+                placeholder={t('lifecycle.margin', 'Marge dB')}
+                disabled={!cable.testResult}
+                onChange={(e) =>
+                  cable.testResult &&
+                  setCableTestResult(cable.id, {
+                    ...cable.testResult,
+                    marginDb: e.target.value === '' ? undefined : Number(e.target.value),
+                  })
+                }
+                className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-[11px] disabled:opacity-40"
+              />
+              <input
+                value={cable.testResult?.standard ?? ''}
+                placeholder={t('lifecycle.testStd', 'Standard/Limit')}
+                disabled={!cable.testResult}
+                onChange={(e) =>
+                  cable.testResult &&
+                  setCableTestResult(cable.id, {
+                    ...cable.testResult,
+                    standard: e.target.value || undefined,
+                  })
+                }
+                className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-[11px] disabled:opacity-40"
+              />
+              <input
+                value={cable.testResult?.reportRef ?? ''}
+                placeholder={t('lifecycle.reportRef', 'Report-Datei')}
+                disabled={!cable.testResult}
+                onChange={(e) =>
+                  cable.testResult &&
+                  setCableTestResult(cable.id, {
+                    ...cable.testResult,
+                    reportRef: e.target.value || undefined,
+                  })
+                }
+                className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-[11px] disabled:opacity-40"
+              />
+            </div>
+          </div>
+        </div>
+      </details>
 
       {/* #363 — Multicore/Snake-Zuordnung: Kabel mit gleichem Namen bilden
           ein Bündel. Datalist schlägt bereits vergebene Namen vor. */}

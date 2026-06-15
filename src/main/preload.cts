@@ -334,5 +334,29 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.on('mobileShare:cableAdded', listener)
       return () => ipcRenderer.removeListener('mobileShare:cableAdded', listener)
     },
+    // Feld-Rückkanal — Mobile-User hat eine Korrektur/ein Problem gemeldet.
+    // Renderer legt sie in die Review-Queue (project.pendingChanges).
+    onPendingChange: (
+      cb: (change: {
+        author?: string
+        kind: string
+        target?: { type: 'cable' | 'equipment'; id?: string; name?: string }
+        summary: string
+        patch?: Record<string, unknown>
+      }) => void,
+    ) => {
+      const listener = (
+        _event: unknown,
+        change: {
+          author?: string
+          kind: string
+          target?: { type: 'cable' | 'equipment'; id?: string; name?: string }
+          summary: string
+          patch?: Record<string, unknown>
+        },
+      ) => cb(change)
+      ipcRenderer.on('mobileShare:pendingChange', listener)
+      return () => ipcRenderer.removeListener('mobileShare:pendingChange', listener)
+    },
   },
 })

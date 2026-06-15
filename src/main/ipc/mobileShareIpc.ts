@@ -7,6 +7,7 @@ import {
   setMobileShareProject,
   setMobileShareChecksHandler,
   setMobileShareCableAddedHandler,
+  setMobileSharePendingChangeHandler,
   startMobileShareServer,
   stopMobileShareServer,
 } from '../services/mobileShareServer.js'
@@ -70,6 +71,15 @@ export const registerMobileShareIpc = () => {
     for (const win of BrowserWindow.getAllWindows()) {
       if (win.isDestroyed()) continue
       win.webContents.send('mobileShare:cableAdded', cable)
+    }
+  })
+
+  // Feld-Rückkanal — Mobile-User hat eine Korrektur/ein Problem gemeldet.
+  // Broadcast an alle Renderer; ProjectStore legt sie in die Review-Queue.
+  setMobileSharePendingChangeHandler((change) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (win.isDestroyed()) continue
+      win.webContents.send('mobileShare:pendingChange', change)
     }
   })
 

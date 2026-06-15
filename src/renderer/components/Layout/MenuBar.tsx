@@ -5,7 +5,7 @@ import {
   Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, MonitorPlay, SlidersHorizontal, Tag,
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
   Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles,
-  Maximize, Maximize2, ZoomIn, ZoomOut, Scan, BoxSelect, RefreshCw,
+  Maximize, Maximize2, ZoomIn, ZoomOut, Scan, BoxSelect, RefreshCw, PackageCheck,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
@@ -429,6 +429,9 @@ export const MenuBar = ({
           <MenuSectionHeader>{t('app.menu.tools.group.io', 'Import & Export')}</MenuSectionHeader>
           <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon={<Icon icon={Cable} size="sm" />}>
             {t('app.menu.tools.patchList', 'Patch-Liste…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openInstallDocs()} icon={<Icon icon={PackageCheck} size="sm" />}>
+            {t('app.menu.tools.installDocs', 'Festinstallation: Doku & Übergabe…')}
           </MenuItem>
           <MenuItem
             onClick={() => {
