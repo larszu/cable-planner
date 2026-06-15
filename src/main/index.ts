@@ -280,6 +280,7 @@ const createWindow = async () => {
       }
     })
   }
+  return mainWindow
 }
 
 app.whenReady().then(async () => {
@@ -325,7 +326,19 @@ app.whenReady().then(async () => {
   registerLibraryIpc()
   registerSignalingIpc()
 
-  await createWindow()
+  const mainWindow = await createWindow()
+
+  // #pre-sale — In-App-Auto-Update nur im paketierten Build (in Dev gibt es
+  // keine app-update.yml). Dynamischer Import, damit electron-updater nicht
+  // in den Dev-Pfad gezogen wird.
+  if (!isDev) {
+    try {
+      const { initAutoUpdater } = await import('./services/updaterService.js')
+      initAutoUpdater(mainWindow)
+    } catch (err) {
+      console.error('[updater] init failed:', (err as Error)?.message ?? err)
+    }
+  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
