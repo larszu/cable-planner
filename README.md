@@ -9,7 +9,6 @@
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows-blue" />
   <img src="https://img.shields.io/badge/offline-ready-success" />
   <img src="https://img.shields.io/badge/built%20with-Electron%20%2B%20React-9cf" />
-  <img src="https://img.shields.io/badge/typescript-strongly%20typed-blue" />
   <img src="https://img.shields.io/badge/status-active%20development-orange" />
   <img src="https://img.shields.io/badge/license-MIT-lightgrey" />
 </p>
@@ -25,7 +24,7 @@
   </a>
   &nbsp;
   <a href="https://larszu.github.io/cable-planner/">
-    <img src="https://img.shields.io/badge/🌐%20Website%20%26%20Live%20Demo-1e293b?style=for-the-badge&logoColor=white" alt="CablePlanner website and live demo" height="42" />
+ 
   </a>
   <br />
   <sub>Free &amp; MIT-licensed · <code>.dmg</code> (Apple Silicon + Intel) and <code>.exe</code> installers attached to every release</sub>
@@ -248,9 +247,6 @@ npm run dist
 ---
 
 ## 📚 Documentation
-
-- 🌐 [**Website & live demo**](https://larszu.github.io/cable-planner/) — product
-  landing page with an interactive canvas demo and download links.
 - [`docs/architecture.md`](docs/architecture.md) — Process model, IPC, store
   architecture, build & release workflow, non-negotiable invariants.
 - [`docs/app-structure.html`](docs/app-structure.html) — interactive module
