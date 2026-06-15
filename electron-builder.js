@@ -7,6 +7,12 @@ export default {
   appId: 'net.cableplanner.app',
   productName: 'Cable Planner',
   copyright: `Copyright © ${year} Lars Zumpe`,
+  // #pre-sale — Auto-Update-Quelle. electron-builder bettet daraus die
+  // app-update.yml ins Paket ein; electron-updater (siehe updaterService.ts)
+  // prüft damit die GitHub-Releases dieses Repos. release.yml lädt latest*.yml
+  // + Blockmaps bereits ans Release; `--publish never` dort heißt nur "nicht
+  // doppelt hochladen" — die publish-CONFIG bleibt im Paket eingebettet.
+  publish: [{ provider: 'github', owner: 'larszu', repo: 'cable-planner', releaseType: 'release' }],
   files: ['dist/**/*', 'package.json'],
   directories: {
     buildResources: 'build',
