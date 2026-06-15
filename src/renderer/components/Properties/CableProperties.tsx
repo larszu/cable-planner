@@ -12,6 +12,7 @@ import { RoutingToggle } from '../shared/RoutingToggle'
 import { format, useTranslation } from '../../lib/i18n'
 import { STANDARD_LAYERS, LAYER_STYLES } from '../../lib/cableLayers'
 import { netKeyOf, netPeerCount } from '../../lib/offPageNet'
+import { sourceDestLabel } from '../../lib/cableLabel'
 import {
   INSTALL_STATUSES,
   INSTALL_STATUS_LABEL,
@@ -150,6 +151,18 @@ export const CableProperties = () => {
           onChange={(event) => updateCable(cable.id, { name: event.target.value })}
           className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
         />
+        <button
+          type="button"
+          onClick={() =>
+            updateCable(cable.id, {
+              name: sourceDestLabel(cable, new Map(equipment.map((e) => [e.id, e]))),
+            })
+          }
+          className="mt-1 text-[10px] text-cp-accent hover:underline"
+          title={t('cable.field.sourceDestTitle', 'Name aus Quelle → Ziel erzeugen (AVIXA F501.01)')}
+        >
+          ↳ {t('cable.field.sourceDest', 'aus Quelle → Ziel')}
+        </button>
       </label>
       {/* v7.9.68 / #182 — Bei Wireless-Links macht "Länge" keinen Sinn;
           stattdessen "Max. Reichweite" eintragen. */}
