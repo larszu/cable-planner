@@ -70,6 +70,7 @@ export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
 
 import type { SignalStandard } from './cableSpec'
 import type { SdiCapabilities } from './videoFormat'
+import type { InstallStatus, ServiceRecord } from './lifecycle'
 
 export interface Port {
   id: string
@@ -526,6 +527,19 @@ export interface EquipmentItem {
    * (verteilt dann faktisch nichts).
    */
   isDistributionAmp?: boolean
+  /** Festinstallation — Betriebs-Status des Geräts (geplant…außer Betrieb). */
+  installStatus?: InstallStatus
+  /** Festinstallation — Inventar-/Asset-Nummer für das Asset-Register. */
+  assetTag?: string
+  /** Festinstallation — kurze stabile QR-/Lookup-ID (Etikett → Datensatz). */
+  qrId?: string
+  /** Festinstallation — Garantie-Ablauf (ISO-Datum) für die Betreiber-Doku. */
+  warrantyUntil?: string
+  /** Festinstallation — Wartungsintervall in Tagen (preventive maintenance). */
+  maintenanceIntervalDays?: number
+  /** Festinstallation — zeitgestempelte Service-/Wartungs-Historie. Macht aus
+   *  der Doku ein CMMS-artiges Asset-Register. Undefined/[] = keine Einträge. */
+  serviceHistory?: ServiceRecord[]
 }
 
 /**

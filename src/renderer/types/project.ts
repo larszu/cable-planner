@@ -4,6 +4,7 @@ import type { GreenGoConfig } from './greengo'
 import type { LocationFrame } from './location'
 import type { VideoFormatId } from './videoFormat'
 import type { PowerStandardId } from './powerStandard'
+import type { ChangeLogEntry } from './lifecycle'
 
 /**
  * Auto-Kabelnummerierung — Schema fuer automatisch vergebene Kabel-IDs.
@@ -84,6 +85,14 @@ export interface ProjectMetadata {
   revision?: string
   /** #350 — Längen-Schätzung aus Canvas-Geometrie. */
   lengthEstimation?: LengthEstimationScheme
+  /** Festinstallation — Standort/Adresse der Anlage (Übergabe-Doku). */
+  siteAddress?: string
+  /** Festinstallation — Übergabe-/Abnahme-Datum (ISO). */
+  handoverDate?: string
+  /** Festinstallation — wartender Dienstleister / Servicekontakt. */
+  serviceProvider?: string
+  /** Festinstallation — Notfall-/Servicekontakt (Telefon/E-Mail). */
+  emergencyContact?: string
 }
 
 /** #350 — Konfiguration für die geometrische Kabellängen-Schätzung. */
@@ -141,6 +150,11 @@ export interface CablePlannerProject {
    *  hält einen vollständigen Snapshot des Plans, sodass ein früherer Stand
    *  wiederhergestellt werden kann. Optional → alte Projekte laden sauber. */
   revisions?: ProjectRevision[]
+  /** Festinstallation — attribuiertes Änderungsprotokoll (MAC/IMACD). Jede
+   *  Move/Add/Change/Service-Aktion landet hier mit wer/was/wann, sodass der
+   *  Plan ein nachvollziehbares lebendes Dokument bleibt. Optional → alte
+   *  Projekte heilen zu []. */
+  changelog?: ChangeLogEntry[]
 }
 
 /** #412 — Ein festgeschriebener Projekt-Stand. */

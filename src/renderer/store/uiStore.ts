@@ -825,6 +825,11 @@ interface UiState extends PersistedUiState {
   patchList: { open: boolean }
   openPatchList: () => void
   closePatchList: () => void
+  /** Festinstallation — Doku-/Übergabe-Dialog (Installateur-Listen,
+   *  Asset-Register, QR-IDs, Übergabe-Paket, Änderungsprotokoll). */
+  installDocs: { open: boolean }
+  openInstallDocs: () => void
+  closeInstallDocs: () => void
   calculators: { open: boolean; tab?: 'bandwidth' | 'power' }
   openCalculators: (tab?: 'bandwidth' | 'power') => void
   closeCalculators: () => void
@@ -1275,6 +1280,9 @@ export const useUiStore = create<UiState>((set) => ({
   patchList: { open: false },
   openPatchList: () => set({ patchList: { open: true } }),
   closePatchList: () => set({ patchList: { open: false } }),
+  installDocs: { open: false },
+  openInstallDocs: () => set({ installDocs: { open: true } }),
+  closeInstallDocs: () => set({ installDocs: { open: false } }),
   calculators: { open: false },
   openCalculators: (tab) => set({ calculators: { open: true, tab } }),
   closeCalculators: () => set({ calculators: { open: false } }),
