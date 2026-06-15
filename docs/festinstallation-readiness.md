@@ -447,3 +447,113 @@ Nummer ist als eigener, kleiner PR schneidbar; keine großen Sprünge.
 > geprüft. Einige Norm-Volltexte (AVIXA/ANSI/TIA) sind kostenpflichtig; die
 > Detail-Feldlisten stammen aus den offiziellen Beschreibungen plus
 > Sekundärquellen, nicht aus dem Norm-Volltext.
+
+---
+
+## 9 · Markt-Validierung — gelobte Features & unbesetzte Lücken
+
+Ergänzende Recherche (Review-Portale, Vendor-Feature-Request-Boards, Fachpresse,
+Foren): *Was loben Nutzer an anderer Software, und welche Wünsche erfüllt kaum
+jemand?* Methoden-Hinweis: Capterra/G2/TrustRadius und die Canny-Boards
+blockieren automatisches Abrufen (403); Zitate stammen aus Such-Index-Snippets
+derselben Seiten plus Hersteller-/Help-Dokus. NetBox-GitHub-Issues sind direkt
+verifiziert. **Reddit war hart blockiert** — verifizierte Reddit-Zitate fehlen.
+
+### 9.1 · Top-5 Features, die Nutzer loben
+
+1. **„Die Zeichnung ist die Datenbank"** — Schedule/Etiketten/BOM/Rack aus dem
+   Plan generiert + auto-Kabelnummerierung mit Fehlerprüfung (WireCAD,
+   ConnectCAD, XTEN-AV „~80 % Block-Diagramme automatisch", D-Tools).
+   *CP heute: teilweise (Nummerierung, Patch-Liste, BOM, Installateur-Listen).*
+2. **Riesige Hersteller-Bibliothek** mit echten Port-Daten/Preisen (Stardraw
+   140k, D-Tools 2 Mio., XTEN-AV 1,5 Mio., SketchUp 3D-Warehouse).
+   *CP heute: ~500 Templates + NetBox-Import.*
+3. **Echtzeit-Multi-User-Kollaboration** (Lucidchart, Bluebeam Studio Sessions,
+   Jetbuilt). *CP heute: nur CRDT-Fundament (#413).*
+4. **Reaktiver Support + mitwachsende Bibliothek + niedrige Lernkurve**
+   (XTEN-AV „Parts in 48 h", SketchUp, Jetbuilt-Onboarding, Q-SYS).
+5. **Vor dem Bau validieren** (Q-SYS Emulate Mode; ConnectCAD/WireCAD
+   Error-Checking; XTEN AI Connection Checker). *CP heute: stark —
+   `drawingChecks.ts` (#411) mit ~20 Regeln.*
+
+Sekundär oft gelobt: daten-verknüpfte Diagramme (Visio/Lucid), Maß-/Takeoff +
+Dokument-Vergleich (Bluebeam), 3D-Client-Visualisierung (SketchUp),
+Back-Office/QuickBooks + Mobile-Install mit Barcode (D-Tools), Auto-Kabellänge
+aus skaliertem Grundriss (D-Tools Wirepath / ConnectCAD), Source-of-Truth +
+Audit-Log + API (NetBox).
+
+### 9.2 · Wünsche, die kaum/niemand erfüllt (Rang nach „wie offen")
+
+| # | Wunsch | Verdikt | Bestes Tool heute |
+|---|---|---|---|
+| ① | Daten-Eigentum/Kontrolle, kein Vendor-Lock-in/still ablaufende Lizenzen | **offen** (im AV-Doku-Bereich) | — (alle Cloud-Abo) |
+| ② | Bestehende „chaotische" Doku importieren (PDF/Scans/Alt-Bestand) | **offen** | Cable Pilot (nur CSV) |
+| ③ | Lebendes As-built mit **Feld-Rückkanal** (Vor-Ort → kanonischer Datensatz) | **teilweise** (Design-Time ja, Feld-Loop nein) | WireCAD |
+| ④ | Kabel-natives QR-Lookup (Scan → Kabel-Datensatz im selben Modell) | **teilweise** (generisch ja, kabel-nativ nein) | GoCodes u. a. (generisch) |
+| ⑤ | Foto vom Rack → editierbare Doku (KI) | **offen** | RackScan (Startup, Android-only) |
+| – | Auto-Kabellänge aus skaliertem Grundriss | **gelöst** (nicht Lücke) | D-Tools Wirepath, ConnectCAD |
+| – | Doku **für Betreiber** statt Ingenieure (Laien-Sicht) | **offen** | — |
+| – | Konfig-/Intent- & Steuerungs-Code-Übergabe („BOM ≠ working room") | **offen** | — |
+
+**Wichtige Korrektur:** „Offline / kein Abo" ist als *Wunsch* schwächer belegt,
+als zunächst angenommen. Der einzige unabhängige Artikel (Commercial Integrator,
+„How AV Integrators Are Misreading Subscription Sales") rahmt den Widerstand als
+**Kontrolle/Risiko, nicht Abo-Hass**; D-Tools hat den Offline-Mobile-Wunsch
+inzwischen *bedient*. Daher ① als **Daten-Eigentum/Kontrolle** positionieren,
+nicht als „kein Abo".
+
+### 9.3 · Board-verifizierte, konkrete Wünsche (mit Quelle)
+
+- **Auto-Kabel-ID = Quelle→Ziel nach AVIXA F501.01** — D-Tools-Request
+  „Cable ID Format to include source and destination" („ohne jedes Kabel manuell
+  zu labeln"). → *CP-Quick-Win: Geräte-/Port-Namen + `cableLabelId` sind da.*
+  <https://d-tools.canny.io/feature-requests/p/cable-id-format-to-include-source-and-destination>
+- **Living/Lifecycle-As-built nach Übergabe** — D-Tools „Client Sites" (Items
+  „become assets, drawings continuously updated over the life of the system")
+  + „end user portal". → *deckt sich mit unserem Lebenszyklus-/Asset-Pfad.*
+  <https://d-tools.canny.io/feature-requests/p/client-sites>
+- **Auto-Revisions-/Versionshistorie auf der Zeichnung** — D-Tools „Drawings
+  Version/Revision History". → *deckt sich mit Revisionen (#412) + changelog.*
+  <https://d-tools.canny.io/feature-requests/p/drawings-version-revision-history-visio>
+- **„Drawing-Package"-Lücke** (Schedule + Floor-plan-Markup + Line-Drawings als
+  *ein* Paket) — mehrfach von Tool-Wechslern gevotet.
+  <https://dt.canny.io/drawings/p/cable-schedule>
+- **BOM ↔ Items ↔ Label live in Sync** — XTEN-AV-Reviewer: „wish the initial BOM
+  and Areas & Items were linked and updated simultaneously"; „no way to assign
+  unique device names → extra time for cable labels".
+  <https://www.softwareadvice.com/project-management/xten-av-profile/>
+- **NetBox (voll verifiziert):** `cable_id`-Feld (#2271), Serien-Nr./Länge/Typ
+  (#619), „cable groups" für strukturierte Verkabelung (#7976) — bestätigt die
+  Kabel-Metadaten, die wir ergänzt haben (`qrId`, `jacketRating`, Termination …).
+  <https://github.com/netbox-community/netbox/issues/7976>
+
+### 9.4 · Schlussfolgerung
+
+Die Schnittmenge ist günstig: **drei der größten offenen Lücken (①, ③, ④) liegen
+dort, wo Cable-Planner bereits ein Fundament hat** — lokales Datei-/Daten-Modell
+(①), Lebenszyklus/Änderungsprotokoll (③), QR-IDs (④). Empfohlene Reihenfolge:
+
+1. **Positionierung „eigene Daten / kein Lock-in"** aktiv ausspielen (①, kostet
+   fast nichts).
+2. **Feld-Rückkanal** (Mobile-Light-Editor → pending changes ins
+   Änderungsprotokoll) — schließt ③.
+3. **QR-Scan-Lookup** im Viewer/Mobile (④, baut auf den neuen qrIds auf).
+4. **Auto-Kabel-ID Quelle→Ziel (F501.01)** — kleiner, board-gevoteter Quick-Win.
+5. **KI-Import von Alt-Doku (PDF/CSV)** (②) — größter „das-hat-keiner"-Effekt,
+   höherer Aufwand.
+
+Von den **gelobten** Features am ehesten ausbauen: „Auto-Doku/Etiketten aus einer
+Quelle" (9.1-1) und die schon starke Plan-Validierung (9.1-5) sichtbarer machen.
+
+### 9.5 · Zusätzliche Quellen (Markt-Validierung)
+
+- D-Tools Canny (Boards) — <https://d-tools.canny.io/feature-requests> · <https://dt.canny.io/drawings>
+- XTEN-AV Reviews — <https://www.capterra.com/p/10008832/XTEN-AV/reviews/> · <https://www.softwareadvice.com/project-management/xten-av-profile/>
+- NetBox Issues — #2271, #619, #7976, #11019 (<https://github.com/netbox-community/netbox/issues>)
+- As-built-Drift / Handover — <https://www.cablinginstall.com/design-install/article/16467178/turning-cabling-documentation-into-a-strategic-asset> · <https://www.avixa.org/explore/articles/multi-vendor-av-stack-ownership> · <https://integrio.app/seamless-handovers-creating-professional-av-project-documentation-that-wows-clients-and-saves-you-time/>
+- Betreiber-Sicht / Commissioning — <https://www.avixa.org/pro-av-trends/articles/what-do-facility-managers-wish-av-specialists-knew> · <https://www.appa.org/facilities-manager/finishing-av-projects-ten-commissioning-tips-for-facilities-managers/>
+- BOM ≠ Working Room / Code-Ownership — <https://www.ravepubs.com/the-av-bill-of-materials-bom/> · <https://www.ravepubs.com/who-owns-the-code/>
+- Subscription-Nuance — <https://www.commercialintegrator.com/insights/how-av-integrators-are-misreading-subscription-sales/146404/>
+- Foto→Doku (Startup) — <https://rackscan.app/>
+- Lob-Quellen — <https://www.g2.com/products/lucid-software-inc-lucid-visual-collaboration-suite/reviews> · <https://www.trustradius.com/products/bluebeam-revu/reviews> · <https://help.qsys.com/Content/Q-SYS_Designer/003_Emulate_Mode.htm> · <https://www.capterra.com/p/149371/Jetbuilt/reviews/>
+
