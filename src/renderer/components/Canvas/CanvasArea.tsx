@@ -8,6 +8,7 @@ import ReactFlow, {
   applyNodeChanges,
   updateEdge,
   useReactFlow,
+  useViewport,
   useUpdateNodeInternals,
   ConnectionMode,
   SelectionMode,
@@ -60,6 +61,32 @@ const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
 const edgeTypes = { cable: CableEdge }
 
 type CanvasMode = 'main' | 'rack'
+
+/**
+ * #zoomfix — Spiegelt JEDE Viewport-Änderung (inkl. PROGRAMMATISCHEM Zoom über
+ * das Ansicht-Menü / die Toolbar-Buttons) in den Store, damit die StatusBar-
+ * Zoom-Anzeige stimmt. ReactFlows `onMoveEnd` feuert nur bei Maus-/Wheel-Gesten,
+ * NICHT bei `zoomIn/zoomOut/zoomTo({duration})` — daher zeigte die Anzeige nach
+ * Menü-Zoom weiter „100 %", obwohl die Canvas tatsächlich zoomte. `useViewport()`
+ * reflektiert dagegen den echten Viewport. Debounced geschrieben; setCanvasState
+ * ist #382-history-gefiltert, erzeugt also keine Undo-Schritte.
+ */
+const ViewportStateSync = ({
+  onChange,
+}: {
+  onChange: (x: number, y: number, zoom: number) => void
+}) => {
+  const { x, y, zoom } = useViewport()
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    if (timer.current) clearTimeout(timer.current)
+    timer.current = setTimeout(() => onChange(x, y, zoom), 150)
+    return () => {
+      if (timer.current) clearTimeout(timer.current)
+    }
+  }, [x, y, zoom, onChange])
+  return null
+}
 
 const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const t = useTranslation()
@@ -1702,8 +1729,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         // port handles. The store value is read by both components.
         onEdgeMouseEnter={(_event, edge) => setHoveredCableId(edge.id)}
         onEdgeMouseLeave={() => setHoveredCableId(null)}
-        onMoveEnd={(_event, viewport) => setCanvasState(viewport.x, viewport.y, viewport.zoom)}
       >
+        {/* #zoomfix — Viewport→Store-Sync (auch bei Menü-/Toolbar-Zoom), ersetzt
+            das frühere onMoveEnd, das programmatischen Zoom nicht erfasste. */}
+        <ViewportStateSync onChange={setCanvasState} />
         <MiniMap pannable zoomable
           className={effectiveCanvasTheme === 'light' ? '!bg-slate-100' : '!bg-cp-surface-2'}
           maskColor={effectiveCanvasTheme === 'light' ? 'rgba(226,232,240,0.7)' : 'rgba(15,23,42,0.7)'}
