@@ -9,9 +9,9 @@ name: Deploy Web (GitHub Pages)
 # Auto-Update, Keychain) fallen im Browser sauber auf den Web-Fallback
 # (src/renderer/lib/bridge.ts) zurück.
 #
-# EINMALIG manuell nötig: Repo → Settings → Pages → "Build and deployment"
-# → Source = "GitHub Actions". Ohne diese Einstellung schlägt nur der
-# Deploy-Step fehl — es wird nichts überschrieben.
+# Pages wird per `enablement: true` automatisch aktiviert (build_type=workflow)
+# — kein manueller Settings-Schritt nötig. Falls das durch eine Org-/Account-
+# Policy verboten ist, einmalig: Settings → Pages → Source = "GitHub Actions".
 
 on:
   push:
@@ -22,6 +22,11 @@ permissions:
   contents: read
   pages: write
   id-token: write
+
+# Node-20-Actions (configure/upload/deploy-pages) auf Node 24 zwingen, solange
+# sie noch keine v-Bump-Releases haben (analog release.yml). Nur Warnung sonst.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 # Immer nur ein Deploy gleichzeitig; laufende abbrechen wenn ein neuer kommt.
 concurrency:
@@ -44,6 +49,10 @@ jobs:
       - run: npm ci
       - run: npm run build:renderer
       - uses: actions/configure-pages@v5
+        with:
+          # Pages automatisch aktivieren, falls noch nicht geschehen — spart
+          # den manuellen Settings-Schritt. Braucht pages:write (oben gesetzt).
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/renderer
