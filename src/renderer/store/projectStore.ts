@@ -19,6 +19,7 @@ import { createCategorySlice } from './slices/categorySlice'
 import { createEquipmentSlice } from './slices/equipmentSlice'
 import { createGroupPresetSpawnSlice } from './slices/groupPresetSpawnSlice'
 import { createSelectionLifecycleSlice } from './slices/selectionLifecycleSlice'
+import { createLifecycleSlice } from './slices/lifecycleSlice'
 import {
   loadCustomLibrary,
   persistCustomLibrary,
@@ -421,6 +422,34 @@ export interface ProjectState {
    *  schreibt sie in `cable.length`. Liefert die Anzahl aktualisierter
    *  Kabel. */
   estimateCableLengths: () => number
+  /** Festinstallation — mitwachsende Doku / Lebenszyklus (siehe
+   *  lifecycleSlice). */
+  addChangeLogEntry: (
+    kind: import('../types/lifecycle').ChangeLogKind,
+    summary: string,
+    target?: import('../types/lifecycle').ChangeLogEntry['target'],
+  ) => void
+  clearChangelog: () => void
+  setCableInstallStatus: (
+    id: string,
+    status: import('../types/lifecycle').InstallStatus | undefined,
+  ) => void
+  setEquipmentInstallStatus: (
+    id: string,
+    status: import('../types/lifecycle').InstallStatus | undefined,
+  ) => void
+  setCableTestResult: (
+    id: string,
+    result: import('../types/lifecycle').CableTestResult | undefined,
+  ) => void
+  addServiceRecord: (
+    equipmentId: string,
+    record: Omit<import('../types/lifecycle').ServiceRecord, 'id'>,
+  ) => void
+  removeServiceRecord: (equipmentId: string, recordId: string) => void
+  /** Vergibt allen Kabeln/Geräten ohne QR-/Asset-ID eine stabile ID.
+   *  Liefert die Anzahl neu vergebener IDs je Sorte. */
+  assignDocIds: () => { cables: number; equipment: number }
 }
 
 
@@ -548,6 +577,9 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
     })),
     // #412 — Revisionen sind optional; alte Projekte heilen zu [].
     revisions: project.revisions ?? [],
+    // Festinstallation — Änderungsprotokoll ist optional; alte Projekte
+    // heilen zu [].
+    changelog: project.changelog ?? [],
   }
 }
 
@@ -694,6 +726,7 @@ const buildProjectStore = (
   ...createEquipmentSlice(set, get, store),
   ...createGroupPresetSpawnSlice(set, get, store),
   ...createSelectionLifecycleSlice(set, get, store),
+  ...createLifecycleSlice(set, get, store),
   project:
     opts.initialProject ??
     (() => {
