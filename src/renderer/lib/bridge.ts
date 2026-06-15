@@ -128,6 +128,10 @@ type CablePlannerApi = {
     exportViewer: (project: CablePlannerProject) => Promise<string | null>
     /** v7.9.3 — Annotations aus einer Viewer-Datei zurück-importieren. */
     importAnnotations: () => Promise<{ filePath: string; annotations: unknown[] } | null>
+    /** #pre-sale — beim Kaltstart per OS-Doppelklick übergebene Datei abholen. */
+    getLaunchFile: () => Promise<OpenProjectResponse | null>
+    /** #pre-sale — bei laufender App geöffnete Datei (second-instance/open-file). */
+    onOpenExternal: (cb: (payload: OpenProjectResponse) => void) => () => void
   }
   graphml: {
     openFile: () => Promise<{ filePath: string; fileName: string; xml: string } | null>
@@ -639,6 +643,10 @@ const webFallbackApi: CablePlannerApi = {
       return fileName
     },
     importAnnotations: async () => null,
+    // #pre-sale — Datei-Verknüpfung ist Desktop-only; im Browser gibt es
+    // keine OS-Übergabe → kein Launch-File, kein External-Open.
+    getLaunchFile: async () => null,
+    onOpenExternal: () => () => {},
   },
   graphml: {
     // Browser fallback for dev / non-Electron contexts: use a hidden

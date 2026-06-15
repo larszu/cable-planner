@@ -147,7 +147,15 @@ export default function App() {
   const closeAtemDialog = useUiStore((state) => state.closeAtemDialog)
   const atemMvLayout = useUiStore((state) => state.atemMvLayout)
   const closeAtemMvLayout = useUiStore((state) => state.closeAtemMvLayout)
-  const { newProject, openProject, saveProject, saveProjectAs, refreshRecent } = useProject()
+  const {
+    newProject,
+    openProject,
+    openLaunchFile,
+    applyOpenedProject,
+    saveProject,
+    saveProjectAs,
+    refreshRecent,
+  } = useProject()
   const settingsOpen = useUiStore((s) => s.settingsOpen)
   const settingsSection = useUiStore((s) => s.settingsSection)
   const setSettingsOpen = (open: boolean) =>
@@ -454,6 +462,17 @@ export default function App() {
       setHasToken(Boolean(token))
     })
   }, [refreshRecent, setHasToken])
+
+  // #pre-sale — OS-Dateiverknüpfung: beim Kaltstart die per Doppelklick
+  // übergebene Datei abholen (einmalig) und auf später geöffnete Dateien
+  // (zweite Instanz / macOS open-file bei laufender App) hören.
+  useEffect(() => {
+    void openLaunchFile()
+    const off = cablePlannerApi.project.onOpenExternal((payload) => {
+      void applyOpenedProject(payload)
+    })
+    return off
+  }, [openLaunchFile, applyOpenedProject])
 
   useUndoRedoShortcuts()
 
