@@ -48,11 +48,12 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev
       - run: npm ci
       - run: npm run build:renderer
+      # Auto-Aktivierung via `enablement: true` ist hier NICHT möglich: der
+      # GITHUB_TOKEN darf keine Pages-Site anlegen ("Resource not accessible by
+      # integration"). Daher EINMALIG manuell aktivieren:
+      #   Settings → Pages → Build and deployment → Source = "GitHub Actions".
+      # Danach deployt dieser Workflow bei jedem Push auf main automatisch.
       - uses: actions/configure-pages@v5
-        with:
-          # Pages automatisch aktivieren, falls noch nicht geschehen — spart
-          # den manuellen Settings-Schritt. Braucht pages:write (oben gesetzt).
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/renderer
