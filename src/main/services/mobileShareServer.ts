@@ -107,6 +107,19 @@ interface MobileShareState {
         notes?: string
       }) => void)
     | null
+  /** Feld-Rückkanal: vom Mobile-Companion gemeldete, noch nicht angewandte
+   *  Änderung (Längen-Korrektur, Problem-Meldung …). Renderer legt sie in
+   *  die Review-Queue (project.pendingChanges); der Planer übernimmt/verwirft
+   *  sie am Desktop. */
+  onPendingChange:
+    | ((change: {
+        author?: string
+        kind: string
+        target?: { type: 'cable' | 'equipment'; id?: string; name?: string }
+        summary: string
+        patch?: Record<string, unknown>
+      }) => void)
+    | null
 }
 
 const state: MobileShareState = {
@@ -119,6 +132,7 @@ const state: MobileShareState = {
   devProxyUrl: undefined,
   onChecksUpdate: null,
   onCableAdded: null,
+  onPendingChange: null,
 }
 
 /** Loopback or RFC-1918 / link-local / unique-local address? Used to
@@ -396,6 +410,74 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
     return
   }
 
+  // Feld-Rückkanal — POST /pending-changes: der Mobile-Companion meldet eine
+  // Korrektur/ein Problem. Minimal validiert (summary + kind), Rest reicht der
+  // Renderer-Callback in die Review-Queue.
+  if (pathname === '/pending-changes' && req.method === 'POST') {
+    if (!authed(req, url)) return denyUnauthorized(req, res)
+    let body = ''
+    let aborted = false
+    req.on('data', (chunk) => {
+      if (aborted) return
+      body += chunk
+      if (body.length > 200_000) {
+        aborted = true
+        res.statusCode = 413
+        res.end('Payload too large')
+        req.destroy()
+      }
+    })
+    req.on('end', () => {
+      if (aborted) return
+      try {
+        const parsed = JSON.parse(body) as Record<string, unknown>
+        const summary = String(parsed.summary ?? '').trim()
+        const kind = String(parsed.kind ?? '').trim()
+        if (!summary || !kind) {
+          res.statusCode = 400
+          applyCors(req, res)
+          res.end('{"error":"missing summary or kind"}')
+          return
+        }
+        const rawTarget = parsed.target as Record<string, unknown> | undefined
+        const target =
+          rawTarget && (rawTarget.type === 'cable' || rawTarget.type === 'equipment')
+            ? {
+                type: rawTarget.type as 'cable' | 'equipment',
+                id: typeof rawTarget.id === 'string' ? rawTarget.id : undefined,
+                name: typeof rawTarget.name === 'string' ? rawTarget.name : undefined,
+              }
+            : undefined
+        state.onPendingChange?.({
+          author: typeof parsed.author === 'string' ? parsed.author : undefined,
+          kind,
+          summary,
+          target,
+          patch:
+            parsed.patch && typeof parsed.patch === 'object'
+              ? (parsed.patch as Record<string, unknown>)
+              : undefined,
+        })
+        res.statusCode = 200
+        applyCors(req, res)
+        res.end('{"ok":true}')
+      } catch {
+        res.statusCode = 400
+        applyCors(req, res)
+        res.end('{"error":"invalid json"}')
+      }
+    })
+    return
+  }
+  if (pathname === '/pending-changes' && req.method === 'OPTIONS') {
+    res.statusCode = 204
+    applyCors(req, res)
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-CP-Token')
+    res.end()
+    return
+  }
+
   // Health/info endpoint — useful for the renderer to verify
   // the server is alive without round-tripping the whole project.
   if (pathname === '/share-info.json') {
@@ -568,6 +650,21 @@ export const setMobileShareCableAddedHandler = (
     | null,
 ): void => {
   state.onCableAdded = handler
+}
+
+/** Feld-Rückkanal — Registrierung des Callbacks für POST /pending-changes. */
+export const setMobileSharePendingChangeHandler = (
+  handler:
+    | ((change: {
+        author?: string
+        kind: string
+        target?: { type: 'cable' | 'equipment'; id?: string; name?: string }
+        summary: string
+        patch?: Record<string, unknown>
+      }) => void)
+    | null,
+): void => {
+  state.onPendingChange = handler
 }
 
 export const getMobileShareStatus = (): MobileShareInfo & { running: boolean } => ({

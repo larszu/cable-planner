@@ -38,6 +38,7 @@ const AnnotationsPanelHost = () => {
 import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
 import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
+import { InstallationDocsDialog } from './components/Export/InstallationDocsDialog'
 import { BandwidthCalculatorDialog, PowerCalculatorDialog } from './components/Calculators/CalculatorsDialog'
 import { RecordingStorageCalculatorDialog } from './components/Calculators/RecordingStorageCalculatorDialog'
 import { ProjectionCalculatorDialog } from './components/Calculators/ProjectionCalculatorDialog'
@@ -553,6 +554,24 @@ export default function App() {
       addCableFromMobile(cable)
     })
   }, [addCableFromMobile])
+
+  // Feld-Rückkanal — Mobile-User hat eine Korrektur/ein Problem gemeldet.
+  // ProjectStore legt es in die Review-Queue (project.pendingChanges); der
+  // Planer übernimmt/verwirft es im Festinstallations-Doku-Dialog.
+  const addPendingChange = useProjectStore((s) => s.addPendingChange)
+  useEffect(() => {
+    if (!hasDesktopBridge) return
+    return cablePlannerApi.mobileShare.onPendingChange((change) => {
+      addPendingChange({
+        author: change.author,
+        source: 'mobile',
+        kind: change.kind as import('./types/lifecycle').PendingChangeKind,
+        summary: change.summary,
+        target: change.target,
+        patch: change.patch,
+      })
+    })
+  }, [addPendingChange])
 
   // Issue #69: dispatch user-customizable hotkeys defined in
   // Settings → Hotkeys. The undo/redo entries below intentionally
@@ -1092,6 +1111,7 @@ export default function App() {
       <MobileShareDialog />
       <AboutDialog />
       <PatchListDialog />
+      <InstallationDocsDialog />
       <BandwidthCalculatorDialog />
       <PowerCalculatorDialog />
       <RecordingStorageCalculatorDialog />

@@ -1,5 +1,6 @@
 import type { ConnectorType } from './equipment'
 import type { SignalStandard } from './cableSpec'
+import type { InstallStatus, CableTestResult } from './lifecycle'
 
 export type CableType = Exclude<ConnectorType, 'DIN' | 'DisplayPort' | 'USB'> | 'Custom'
 
@@ -135,4 +136,23 @@ export interface Cable {
    *  löschen). Undefined/leer = gerade Linie Port → Symbol. */
   offPageFromWaypoints?: { x: number; y: number }[]
   offPageToWaypoints?: { x: number; y: number }[]
+  /** Festinstallation — Betriebs-Status der Verbindung (geplant…außer Betrieb).
+   *  Geht über den binären Mobile-`checkState` hinaus und überlebt im
+   *  As-built als lebender Status. Undefined = nicht gesetzt. */
+  installStatus?: InstallStatus
+  /** Festinstallation — Mantel-/Brandklasse für Pull-/Schedule-Listen
+   *  (CM/CMR/CMP/LSZH). Frei editierbar. */
+  jacketRating?: string
+  /** Festinstallation — Trassen-/Pfad-Bezeichnung (Conduit-/Tray-ID), in der
+   *  das Kabel verläuft. Erscheint in der Pull-Liste. */
+  pathway?: string
+  /** Festinstallation — Terminierung je Ende (T568A/B, LC/SC/MPO …). */
+  terminationFrom?: string
+  terminationTo?: string
+  /** Festinstallation — Mess-/Zertifikats-Ergebnis (TIA-568/1152, OLTS/OTDR). */
+  testResult?: CableTestResult
+  /** Festinstallation — kurze stabile QR-/Lookup-ID (druckbar, ≥ 1,6 cm).
+   *  Verknüpft das physische Etikett mit dem digitalen Datensatz
+   *  ("Was ist dieses Kabel? Wo geht es hin?"). */
+  qrId?: string
 }

@@ -314,6 +314,16 @@ type CablePlannerApi = {
         notes?: string
       }) => void,
     ) => () => void
+    /** Feld-Rückkanal — Listener für Mobile-Pending-Change-Meldungen. */
+    onPendingChange: (
+      cb: (change: {
+        author?: string
+        kind: string
+        target?: { type: 'cable' | 'equipment'; id?: string; name?: string }
+        summary: string
+        patch?: Record<string, unknown>
+      }) => void,
+    ) => () => void
   }
 }
 
@@ -765,6 +775,7 @@ const webFallbackApi: CablePlannerApi = {
     setProject: async () => ({ ok: true }),
     onChecksUpdate: () => () => {},
     onCableAdded: () => () => {},
+    onPendingChange: () => () => {},
   },
 }
 
