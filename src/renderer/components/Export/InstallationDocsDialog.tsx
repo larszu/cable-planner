@@ -52,6 +52,7 @@ export const InstallationDocsDialog = () => {
   const close = useUiStore((s) => s.closeInstallDocs)
   const project = useProjectStore((s) => s.project)
   const assignDocIds = useProjectStore((s) => s.assignDocIds)
+  const applySourceDestLabels = useProjectStore((s) => s.applySourceDestLabels)
   const clearChangelog = useProjectStore((s) => s.clearChangelog)
   const editorName = useSettingsStore((s) => s.editorName)
   const setEditorName = useSettingsStore((s) => s.setEditorName)
@@ -59,6 +60,7 @@ export const InstallationDocsDialog = () => {
   const [reserve, setReserve] = useState(10)
   const [busy, setBusy] = useState(false)
   const [info, setInfo] = useState('')
+  const [overwriteLabels, setOverwriteLabels] = useState(false)
 
   const baseName = project.metadata.name || 'anlage'
 
@@ -280,6 +282,31 @@ export const InstallationDocsDialog = () => {
             >
               <Icon icon={QrCode} size="sm" /> {t('docs.qr.pdf', 'QR-Etiketten (PDF)')}
             </button>
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-cp-border pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                const n = applySourceDestLabels({ overwrite: overwriteLabels })
+                setInfo(
+                  n === 0
+                    ? t('docs.label.none', 'Keine Labels geändert (alle benannt — ggf. „überschreiben" aktivieren).')
+                    : `${n} Kabel-Labels aus Quelle→Ziel erzeugt.`,
+                )
+              }}
+              className="inline-flex items-center gap-1.5 rounded bg-cp-surface-4 px-3 py-1.5 hover:bg-cp-surface-5"
+            >
+              <Icon icon={Tag} size="sm" />{' '}
+              {t('docs.label.sourceDest', 'Kabel-Labels „Quelle → Ziel" (AVIXA F501.01)')}
+            </button>
+            <label className="flex items-center gap-1.5 text-cp-xs text-cp-text-secondary">
+              <input
+                type="checkbox"
+                checked={overwriteLabels}
+                onChange={(e) => setOverwriteLabels(e.target.checked)}
+              />
+              {t('docs.label.overwrite', 'vorhandene Namen überschreiben')}
+            </label>
           </div>
         </section>
 

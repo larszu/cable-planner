@@ -10,6 +10,7 @@ import type {
 } from '../../types/lifecycle'
 import { INSTALL_STATUS_LABEL } from '../../types/lifecycle'
 import { cableLabelId, makeDocId } from '../../lib/docIds'
+import { sourceDestLabel } from '../../lib/cableLabel'
 import { touchProject } from '../projectStoreHelpers'
 import { useSettingsStore } from '../settingsStore'
 import type { ProjectState } from '../projectStore'
@@ -39,6 +40,7 @@ export type LifecycleSlice = Pick<
   | 'addServiceRecord'
   | 'removeServiceRecord'
   | 'assignDocIds'
+  | 'applySourceDestLabels'
 >
 
 const currentAuthor = (): string =>
@@ -238,6 +240,36 @@ export const createLifecycleSlice: StateCreator<ProjectState, [], [], LifecycleS
       }
     })
     return { cables: cableCount, equipment: equipmentCount }
+  },
+
+  applySourceDestLabels: (opts) => {
+    const overwrite = opts?.overwrite ?? false
+    let count = 0
+    set((state) => {
+      const eqById = new Map(state.project.equipment.map((e) => [e.id, e]))
+      const cables = state.project.cables.map((c) => {
+        // Ohne Overwrite nur leere Namen füllen — vorhandene (oft vom User
+        // vergebene) Namen werden nicht überschrieben.
+        if (!overwrite && c.name?.trim()) return c
+        const label = sourceDestLabel(c, eqById)
+        if (!label || label === c.name) return c
+        count += 1
+        return { ...c, name: label }
+      })
+      if (count === 0) return state
+      const next = { ...state.project, cables }
+      return {
+        project: touchProject(
+          appendLog(
+            next,
+            'change',
+            `Kabel-Labels aus Quelle→Ziel erzeugt (${count}${overwrite ? ', überschrieben' : ''})`,
+            { type: 'project' },
+          ),
+        ),
+      }
+    })
+    return count
   },
 })
 

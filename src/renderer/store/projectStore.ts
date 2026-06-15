@@ -450,6 +450,10 @@ export interface ProjectState {
   /** Vergibt allen Kabeln/Geräten ohne QR-/Asset-ID eine stabile ID.
    *  Liefert die Anzahl neu vergebener IDs je Sorte. */
   assignDocIds: () => { cables: number; equipment: number }
+  /** Setzt den Kabel-Namen auf das AVIXA-F501.01-Label „Quelle → Ziel".
+   *  Ohne `overwrite` werden nur leere Namen gefüllt. Liefert die Anzahl
+   *  geänderter Kabel. */
+  applySourceDestLabels: (opts?: { overwrite?: boolean }) => number
 }
 
 

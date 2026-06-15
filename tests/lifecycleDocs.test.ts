@@ -8,6 +8,7 @@ import {
 } from '../src/renderer/lib/installerLists'
 import { buildAssetRows } from '../src/renderer/lib/assetRegister'
 import { buildHandoverManifest } from '../src/renderer/lib/handoverPackage'
+import { sourceDestLabel } from '../src/renderer/lib/cableLabel'
 import type { CablePlannerProject } from '../src/renderer/types/project'
 import type { Cable } from '../src/renderer/types/cable'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
@@ -173,6 +174,22 @@ describe('buildAssetRows', () => {
   })
 })
 
+describe('sourceDestLabel (F501.01)', () => {
+  it('baut „Quelle Port → Ziel Port" aus den Endpunkten', () => {
+    const p = project()
+    const eqById = new Map(p.equipment.map((e) => [e.id, e]))
+    const label = sourceDestLabel(p.cables[0], eqById)
+    expect(label).toContain('OUT 1')
+    expect(label).toContain('IN 1')
+    expect(label).toContain('→')
+  })
+  it('respektiert einen eigenen Separator', () => {
+    const p = project()
+    const eqById = new Map(p.equipment.map((e) => [e.id, e]))
+    expect(sourceDestLabel(p.cables[0], eqById, { separator: 'to' })).toContain(' to ')
+  })
+})
+
 describe('buildHandoverManifest', () => {
   it('enthält die Pflicht-Abschnitte des Übergabe-Dokuments', () => {
     const md = buildHandoverManifest(project())
@@ -222,6 +239,22 @@ describe('lifecycleSlice (store)', () => {
     // Idempotent: zweiter Lauf vergibt nichts mehr.
     const again = useProjectStore.getState().assignDocIds()
     expect(again.cables + again.equipment).toBe(0)
+  })
+
+  it('erzeugt Quelle→Ziel-Labels (nur leere Namen ohne overwrite)', async () => {
+    const { useProjectStore } = await import('../src/renderer/store/projectStore')
+    const cid = useProjectStore.getState().project.cables[0].id
+    // Leerer Name → Default-Lauf füllt ihn.
+    useProjectStore.getState().updateCable(cid, { name: '' })
+    expect(useProjectStore.getState().applySourceDestLabels()).toBe(1)
+    expect(useProjectStore.getState().project.cables[0].name).toContain('→')
+    // Identischer Lauf ist idempotent (Label unverändert).
+    expect(useProjectStore.getState().applySourceDestLabels({ overwrite: true })).toBe(0)
+    // Eigener Name bleibt ohne overwrite stehen, mit overwrite wird er ersetzt.
+    useProjectStore.getState().updateCable(cid, { name: 'Mein Kabel' })
+    expect(useProjectStore.getState().applySourceDestLabels()).toBe(0)
+    expect(useProjectStore.getState().applySourceDestLabels({ overwrite: true })).toBe(1)
+    expect(useProjectStore.getState().project.cables[0].name).toContain('→')
   })
 
   it('fügt Service-Records hinzu und entfernt sie wieder', async () => {
