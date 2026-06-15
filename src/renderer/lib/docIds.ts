@@ -7,6 +7,7 @@
  */
 import type { Cable } from '../types/cable'
 import type { EquipmentItem } from '../types/equipment'
+import { buildQrPayload } from './qrPayload'
 
 /** Baut eine Doc-ID `PREFIX-NNNN` (nullgepolstert). */
 export const makeDocId = (prefix: string, n: number, pad = 4): string =>
@@ -26,8 +27,4 @@ export const equipmentAssetTag = (e: EquipmentItem): string =>
  * `cableplanner:`-URI, die ein Scan-Lookup (Mobile/Viewer) auf den
  * Datensatz auflösen kann — plus Klartext-Fallback für jede QR-App.
  */
-export const qrPayload = (
-  kind: 'cable' | 'equipment',
-  id: string,
-  label: string,
-): string => `cableplanner://${kind}/${encodeURIComponent(id)}?l=${encodeURIComponent(label)}`
+export const qrPayload = buildQrPayload
