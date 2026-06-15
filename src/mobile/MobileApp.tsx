@@ -986,6 +986,7 @@ const ProjectView = ({
   // Port, mit Nonce damit erneutes Scannen desselben Geräts neu „blitzt") und
   // eine kurze Status-Meldung.
   const [findOpen, setFindOpen] = useState(false)
+  const [showReport, setShowReport] = useState(false)
   const [focus, setFocus] = useState<{ deviceId: string; portId?: string; nonce: number } | null>(
     null,
   )
@@ -1159,6 +1160,14 @@ const ProjectView = ({
           </button>
           <button
             type="button"
+            onClick={() => setShowReport(true)}
+            className="rounded bg-slate-800 px-2 py-1 text-[11px] text-amber-300 hover:bg-slate-700"
+            title="Korrektur/Problem melden (Feld-Rückkanal)"
+          >
+            Meldung
+          </button>
+          <button
+            type="button"
             onClick={() => setShowAddCable(true)}
             className="rounded bg-sky-700 px-2 py-1 text-[11px] text-white hover:bg-sky-600"
             title="Kabel vor Ort hinzufügen (Dropdowns)"
@@ -1202,6 +1211,9 @@ const ProjectView = ({
       )}
       {findOpen && (
         <QrFindOverlay onSubmit={handleLookup} onClose={() => setFindOpen(false)} />
+      )}
+      {showReport && (
+        <MobileReportModal project={project} onClose={() => setShowReport(false)} />
       )}
       {viewMode === 'list' ? (
         <div className="space-y-2 pb-8">
@@ -1718,6 +1730,270 @@ const AddCableModal = ({
                   className="rounded bg-sky-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {busy ? 'Sende…' : '📤 An Desktop senden'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Feld-Rückkanal — Light-Editor für Korrekturen/Problem-Meldungen.
+//
+// Use-Case: Techniker bemerkt vor Ort eine Abweichung (z.B. Kabel ist
+// kürzer/länger als geplant) oder einen Defekt. Statt direkt den Plan zu
+// ändern (das darf nur der Planer), meldet er es: POST /pending-changes →
+// Review-Queue am Desktop. Beim Übernehmen mergt der Planer den Patch und
+// es wird ins Änderungsprotokoll geschrieben.
+type ReportKind = 'cable-edit' | 'issue' | 'note'
+const REPORTER_KEY = 'cable-planner-mobile:reporter'
+
+const MobileReportModal = ({
+  project,
+  onClose,
+}: {
+  project: CablePlannerProject
+  onClose: () => void
+}) => {
+  const [kind, setKind] = useState<ReportKind>('cable-edit')
+  const [deviceId, setDeviceId] = useState('')
+  const [cableId, setCableId] = useState('')
+  const [lengthVal, setLengthVal] = useState('')
+  const [note, setNote] = useState('')
+  const [reporter, setReporter] = useState(() => {
+    try {
+      return localStorage.getItem(REPORTER_KEY) ?? ''
+    } catch {
+      return ''
+    }
+  })
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+  const [done, setDone] = useState(false)
+
+  const cablesForDevice = useMemo(
+    () =>
+      deviceId
+        ? project.cables.filter(
+            (c) => c.fromEquipmentId === deviceId || c.toEquipmentId === deviceId,
+          )
+        : project.cables,
+    [project.cables, deviceId],
+  )
+  const selCable = project.cables.find((c) => c.id === cableId)
+
+  const canSubmit =
+    !busy &&
+    (kind === 'cable-edit' ? !!cableId && (!!lengthVal || !!note.trim()) : !!note.trim())
+
+  const submit = async () => {
+    if (!canSubmit) return
+    setBusy(true)
+    setErr(null)
+    try {
+      let target: { type: 'cable' | 'equipment'; id?: string; name?: string } | undefined
+      let patch: Record<string, unknown> | undefined
+      let summary = note.trim()
+
+      if (kind === 'cable-edit' && selCable) {
+        target = { type: 'cable', id: selCable.id, name: cableLabelId(selCable) }
+        const parts: string[] = []
+        if (lengthVal) {
+          patch = { length: Number(lengthVal) }
+          parts.push(`Länge → ${Number(lengthVal)} m`)
+        }
+        if (note.trim()) parts.push(note.trim())
+        summary = parts.join(' · ') || 'Kabel-Korrektur'
+      } else {
+        const dev = project.equipment.find((e) => e.id === deviceId)
+        if (dev) target = { type: 'equipment', id: dev.id, name: dev.name }
+      }
+
+      const res = await apiFetch('/pending-changes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          author: reporter.trim() || undefined,
+          kind,
+          summary,
+          target,
+          patch,
+        }),
+      })
+      if (!res.ok) throw new Error(`Server ${res.status}`)
+      try {
+        if (reporter.trim()) localStorage.setItem(REPORTER_KEY, reporter.trim())
+      } catch {
+        /* localStorage evtl. gesperrt — egal */
+      }
+      setDone(true)
+      window.setTimeout(onClose, 1300)
+    } catch (e) {
+      setErr(
+        e instanceof Error
+          ? `Konnte Meldung nicht senden: ${e.message}. Verbindung zum Desktop prüfen.`
+          : 'Konnte Meldung nicht senden.',
+      )
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-20 flex items-end justify-center bg-black/60 p-2"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div className="w-full max-w-md rounded-t-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
+        <header className="flex items-center justify-between border-b border-slate-700 px-3 py-2">
+          <h2 className="text-sm font-semibold">⚠ Meldung an Planer</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded px-2 py-0.5 text-xs text-slate-400 hover:bg-slate-800"
+          >
+            <Icon icon={X} size="sm" />
+          </button>
+        </header>
+        <div className="space-y-3 p-3 text-xs">
+          {done ? (
+            <div className="rounded border border-emerald-700 bg-emerald-900/30 p-3 text-center text-emerald-200">
+              ✓ Meldung gesendet — erscheint am Desktop unter „Feld-Rückmeldungen"
+            </div>
+          ) : (
+            <>
+              <p className="text-[10px] italic text-slate-400">
+                Wird NICHT direkt geändert — der Planer übernimmt oder verwirft deine
+                Meldung am Desktop (landet dann im Änderungsprotokoll).
+              </p>
+
+              <div className="grid grid-cols-3 gap-1 rounded bg-slate-950 p-0.5">
+                {(
+                  [
+                    ['cable-edit', 'Kabel-Korrektur'],
+                    ['issue', 'Problem'],
+                    ['note', 'Notiz'],
+                  ] as const
+                ).map(([k, label]) => (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => setKind(k)}
+                    className={`rounded px-2 py-1 text-[11px] font-medium ${
+                      kind === k ? 'bg-sky-700 text-white' : 'text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <label className="block">
+                <span className="mb-1 block text-slate-300">Gerät (Kontext)</span>
+                <select
+                  value={deviceId}
+                  onChange={(e) => {
+                    setDeviceId(e.target.value)
+                    setCableId('')
+                  }}
+                  className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-2 text-slate-100"
+                >
+                  <option value="">— wählen —</option>
+                  {project.equipment.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {kind === 'cable-edit' && (
+                <>
+                  <label className="block">
+                    <span className="mb-1 block text-slate-300">Kabel</span>
+                    <select
+                      value={cableId}
+                      onChange={(e) => setCableId(e.target.value)}
+                      className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-2 text-slate-100"
+                    >
+                      <option value="">— wählen —</option>
+                      {cablesForDevice.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {cableLabelId(c)} · {c.name || c.type}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-slate-300">
+                      Korrigierte Länge (m){selCable ? ` · aktuell ${selCable.length} m` : ''}
+                    </span>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      value={lengthVal}
+                      onChange={(e) => setLengthVal(e.target.value)}
+                      placeholder="z.B. 7.5"
+                      className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-2 text-slate-100"
+                    />
+                  </label>
+                </>
+              )}
+
+              <label className="block">
+                <span className="mb-1 block text-slate-300">
+                  {kind === 'cable-edit' ? 'Bemerkung (optional)' : 'Beschreibung'}
+                </span>
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  rows={3}
+                  placeholder={
+                    kind === 'issue'
+                      ? 'Was ist das Problem?'
+                      : kind === 'note'
+                        ? 'Notiz für den Planer…'
+                        : 'optional…'
+                  }
+                  className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-2 text-slate-100"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-slate-300">Dein Name (optional)</span>
+                <input
+                  value={reporter}
+                  onChange={(e) => setReporter(e.target.value)}
+                  placeholder="für die Protokoll-Zuordnung"
+                  className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-2 text-slate-100"
+                />
+              </label>
+
+              {err && (
+                <div className="rounded border border-rose-700 bg-rose-900/30 p-2 text-rose-200">
+                  {err}
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded bg-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-600"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  type="button"
+                  onClick={submit}
+                  disabled={!canSubmit}
+                  className="rounded bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {busy ? 'Sende…' : '📤 Meldung senden'}
                 </button>
               </div>
             </>

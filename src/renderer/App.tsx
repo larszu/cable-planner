@@ -555,6 +555,24 @@ export default function App() {
     })
   }, [addCableFromMobile])
 
+  // Feld-Rückkanal — Mobile-User hat eine Korrektur/ein Problem gemeldet.
+  // ProjectStore legt es in die Review-Queue (project.pendingChanges); der
+  // Planer übernimmt/verwirft es im Festinstallations-Doku-Dialog.
+  const addPendingChange = useProjectStore((s) => s.addPendingChange)
+  useEffect(() => {
+    if (!hasDesktopBridge) return
+    return cablePlannerApi.mobileShare.onPendingChange((change) => {
+      addPendingChange({
+        author: change.author,
+        source: 'mobile',
+        kind: change.kind as import('./types/lifecycle').PendingChangeKind,
+        summary: change.summary,
+        target: change.target,
+        patch: change.patch,
+      })
+    })
+  }, [addPendingChange])
+
   // Issue #69: dispatch user-customizable hotkeys defined in
   // Settings → Hotkeys. The undo/redo entries below intentionally
   // overlap with useUndoRedoShortcuts() — only the first matching
