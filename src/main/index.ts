@@ -328,16 +328,16 @@ app.whenReady().then(async () => {
 
   const mainWindow = await createWindow()
 
-  // #pre-sale — In-App-Auto-Update nur im paketierten Build (in Dev gibt es
-  // keine app-update.yml). Dynamischer Import, damit electron-updater nicht
-  // in den Dev-Pfad gezogen wird.
-  if (!isDev) {
-    try {
-      const { initAutoUpdater } = await import('./services/updaterService.js')
-      initAutoUpdater(mainWindow)
-    } catch (err) {
-      console.error('[updater] init failed:', (err as Error)?.message ?? err)
-    }
+  // #pre-sale — Update-IPC IMMER registrieren, damit der Menüpunkt "Auf
+  // Updates prüfen…" auch in Dev funktioniert (liefert dort sauber ok:false).
+  try {
+    const { registerUpdaterIpc, initAutoUpdater } = await import('./services/updaterService.js')
+    registerUpdaterIpc(() => BrowserWindow.getAllWindows().find((w) => !w.isDestroyed()) ?? null)
+    // Auto-Check beim Start nur im paketierten Build (in Dev gibt es keine
+    // app-update.yml → checkForUpdates würde werfen).
+    if (!isDev) initAutoUpdater(mainWindow)
+  } catch (err) {
+    console.error('[updater] init failed:', (err as Error)?.message ?? err)
   }
 
   app.on('activate', () => {
