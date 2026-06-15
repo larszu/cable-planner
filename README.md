@@ -1,7 +1,7 @@
 <h1 align="center">⚡ CablePlanner</h1>
 
 <p align="center">
-  <b>Broadcast cable planning software</b> — a node-based editor for SDI signal flow,<br />
+  <b>Broadcast cable planning software</b> — a node-based editor for AV, Network and Power Signal flow,<br />
   ATEM multiviewer layouts and Blackmagic Videohub routing.
 </p>
 
