@@ -26,7 +26,6 @@ import {
 import { projectHistory } from '../../store/projectHistory'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
-import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { useUiStore } from '../../store/uiStore'
 import { netKeyOf } from '../../lib/offPageNet'
 import {
@@ -39,6 +38,7 @@ import { AnnotationCanvasOverlay } from '../Annotations/AnnotationCanvasOverlay'
 import type { EquipmentItem, EquipmentTemplate } from '../../types/equipment'
 import type { Cable } from '../../types/cable'
 import { EquipmentNode } from './EquipmentNode'
+import { useCanvasCableRouter } from './useCanvasCableRouter'
 import { CableEdge } from './CableEdge'
 import { CanvasToolbar } from './CanvasToolbar'
 import { LocationFrameNode } from './LocationFrameNode'
@@ -49,13 +49,11 @@ import {
   setViewportCenterGetter,
   setCanvasSelectionClearer,
   setCanvasInteractionLockHandlers,
-  setCableRouter,
   setCanvasFitViewHandler,
   setCanvasDuplicateHandler,
   setCanvasZoomHandlers,
   setCanvasSelectAllHandler,
 } from '../../lib/canvasViewport'
-import { routeCableWithAStar, type HandleSide, type PixelRect } from '../../lib/routeCableWithAStar'
 import { format, useTranslation } from '../../lib/i18n'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
@@ -198,94 +196,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     return () => setCanvasZoomHandlers(null)
   }, [zoomIn, zoomOut, zoomTo])
 
-  // v7.8.8 — Register the A*-based cable router. Caller is the cable
-  // context menu (and a future Settings toggle for auto-route). We
-  // capture the current scene state via the project store for each
-  // invocation so the registered callbacks always reroute against the
-  // latest positions.
-  useEffect(() => {
-    // Compute the layout geometry of one equipment item, matching the
-    // visual rendering in EquipmentNode. Returns the equipment's
-    // bounding rect plus precomputed port positions so we can place
-    // the cable's source/target on the exact handle centres.
-    const layoutOf = (eq: typeof project.equipment[number]) => {
-      // #501-Folgefix — EINE Geometrie-Quelle: an den geteilten Helper
-      // computeEquipmentLayout delegieren (Header inkl. IP/Subtitle/Beltpack,
-      // Port-Side-Bucketing, snapUp-Breite). Vorher stand hier eine veraltete
-      // Kopie (HEADER 62/48, PADDING 8, Port-Y über Array-Index statt Slot),
-      // wodurch A*-geroutete Kabel von den echten Handles abwichen.
-      const greengoConfig = projectStoreInstance.getState().project.greengoConfig
-      const layout = computeEquipmentLayout(eq, greengoConfig)
-      const handleAt = (
-        portId: string,
-        type: 'source' | 'target',
-      ): { side: HandleSide; pos: { x: number; y: number } } | null => {
-        const p = layout.portPos(portId, type)
-        return p ? { side: p.side, pos: { x: p.x, y: p.y } } : null
-      }
-      return { width: layout.width, height: layout.height, handleAt }
-    }
-
-    const routeOne = (cableId: string): boolean => {
-      const proj = projectStoreInstance.getState().project
-      const cable = proj.cables.find((c) => c.id === cableId)
-      if (!cable) return false
-      const srcEq = proj.equipment.find((e) => e.id === cable.fromEquipmentId)
-      const tgtEq = proj.equipment.find((e) => e.id === cable.toEquipmentId)
-      if (!srcEq || !tgtEq) return false
-      const srcLayout = layoutOf(srcEq)
-      const tgtLayout = layoutOf(tgtEq)
-      const srcHandle = srcLayout.handleAt(cable.fromPortId, 'source')
-      const tgtHandle = tgtLayout.handleAt(cable.toPortId, 'target')
-      if (!srcHandle || !tgtHandle) return false
-      const obstacles: PixelRect[] = proj.equipment.map((eq) => {
-        const l = layoutOf(eq)
-        return { x: eq.x, y: eq.y, width: l.width, height: l.height, id: eq.id }
-      })
-      const waypoints = routeCableWithAStar({
-        source: srcHandle.pos,
-        target: tgtHandle.pos,
-        sourceSide: srcHandle.side,
-        targetSide: tgtHandle.side,
-        obstacles,
-        sourceEquipmentId: cable.fromEquipmentId,
-        targetEquipmentId: cable.toEquipmentId,
-        // v7.9.118 / Issue #223 — Im Rack-Mode kleineres Obstacle-
-        // Padding, weil Rack-Geraete in 1HE-Schritten direkt aneinander
-        // stehen. Default 2 (= 40 px) wuerde den Korridor zwischen
-        // benachbarten Geraeten komplett sperren → A* loopt ums Rack.
-        // 0 Padding ist akzeptabel hier — die Geraete-Aussenkanten
-        // sind Snap-Grid-aligned, ein Kabel direkt an der Kante stoert
-        // visuell weniger als ein Riesen-Umweg.
-        ...(mode === 'rack' ? { obstaclePadCells: 0 } : {}),
-      })
-      // v7.9.115 / Issue #223 — Wenn A* keinen Pfad findet (dichtes
-      // Rack, blockierter Korridor), schweigend zurueck auf
-      // ReactFlow's Standard-Orthogonal-Routing fallen. Vorher gab's
-      // ein 'A*-Routing fehlgeschlagen'-Modal das den User blockierte.
-      // Mit waypoints=undefined nutzt CableEdge den buildPath-Pfad
-      // (orthogonalWaypoints aus pathfinding.ts) der immer eine Linie
-      // zwischen den Handles findet, selbst wenn nicht optimal.
-      if (!waypoints) {
-        updateCable(cable.id, { waypoints: undefined })
-        return true
-      }
-      updateCable(cable.id, { waypoints: waypoints.length > 0 ? waypoints : undefined })
-      return true
-    }
-
-    const routeAll = (): number => {
-      const proj = projectStoreInstance.getState().project
-      let ok = 0
-      for (const c of proj.cables) {
-        if (routeOne(c.id)) ok += 1
-      }
-      return ok
-    }
-
-    setCableRouter(routerId, { routeOne, routeAll })
-    return () => setCableRouter(routerId, null)
-  }, [routerId, project.equipment, updateCable])
+  // v7.8.8 / #468 — A*-Router-Registrierung (siehe useCanvasCableRouter).
+  // Caller ist das Cable-Kontextmenü (und ein künftiger Settings-Toggle).
+  useCanvasCableRouter(routerId, projectStoreInstance, updateCable, mode, project.equipment)
 
   // Restore saved viewport whenever a new project is loaded (projectVersion changes).
   // The initial render uses defaultViewport below; this effect handles
