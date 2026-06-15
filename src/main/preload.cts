@@ -179,6 +179,24 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     rendererError: (payload: { message: string; stack?: string; source?: string }) =>
       ipcRenderer.send('logs:renderer-error', payload),
   },
+  updater: {
+    check: () =>
+      ipcRenderer.invoke('updater:check') as Promise<{
+        ok: boolean
+        current: string
+        latest?: string
+        available?: boolean
+        message?: string
+      }>,
+    quitAndInstall: () => ipcRenderer.invoke('updater:quit-and-install') as Promise<boolean>,
+    onStatus: (
+      cb: (s: { state: string; version?: string; percent?: number; message?: string }) => void,
+    ) => {
+      const listener = (_e: unknown, s: { state: string; version?: string; percent?: number; message?: string }) => cb(s)
+      ipcRenderer.on('updater:status', listener)
+      return () => ipcRenderer.removeListener('updater:status', listener)
+    },
+  },
   sync: {
     readFile: (filePath: string) =>
       ipcRenderer.invoke('sync:read-file', filePath) as Promise<string>,
