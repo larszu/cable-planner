@@ -108,11 +108,23 @@ export const Tooltip = ({ label, children, side = 'top', delay = 400 }: TooltipP
   const childProps = children.props as Record<string, unknown>
   const describedBy = [childProps['aria-describedby'], open ? id : null].filter(Boolean).join(' ') || undefined
 
+  // Ref-Merge für das umschlossene Kind: unser triggerRef (für Positionierung)
+  // UND der evtl. vom Aufrufer am Kind gesetzte Original-Ref. Der Callback läuft
+  // im COMMIT (nicht im Render); das Ziel-Ref-Objekt gehört dem Aufrufer und ist
+  // genau dafür da, mutiert zu werden. Die react-hooks/refs- bzw. /immutability-
+  // Regeln können diesen Forwarding-Fall nicht von echtem Render-Ref-Zugriff
+  // unterscheiden → hier bewusst lokal unterdrückt.
+  // eslint-disable-next-line react-hooks/refs
   const trigger = cloneElement(children, {
     ref: (node: HTMLElement | null) => {
       triggerRef.current = node
-      const r = (children as unknown as { ref?: unknown }).ref
+      // React 19: ref ist ein normales Prop → vom Kind über props.ref lesen
+      // (children.ref ist entfernt/deprecated und lieferte hier nichts mehr,
+      // wodurch der Original-Ref des Kindes still NICHT mehr weitergereicht
+      // wurde). Forward an Funktions- wie Objekt-Refs.
+      const r = (children.props as { ref?: unknown }).ref
       if (typeof r === 'function') (r as (n: HTMLElement | null) => void)(node)
+      // eslint-disable-next-line react-hooks/immutability
       else if (r && typeof r === 'object') (r as { current: HTMLElement | null }).current = node
     },
     'aria-describedby': describedBy,

@@ -8,7 +8,7 @@
  * with three more menu items.
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
@@ -390,11 +390,12 @@ const PowerTab = () => {
   const std = powerStandardById(powerStandardId)
   const mainsVoltage = std?.voltage ?? 230
   const supplies = POWER_SUPPLY_PRESETS[std?.region ?? 'eu']
-  // Beim Regionswechsel auf ein gültiges Preset zurückfallen.
-  useEffect(() => {
-    if (!supplies.some((s) => s.id === supplyId)) setSupplyId(supplies[0].id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [supplies])
+  // Beim Regionswechsel auf ein gültiges Preset zurückfallen — OHNE setState-
+  // im-Effect (vermeidet kaskadierende Re-Renders, react-hooks/set-state-in-
+  // effect). rawSupply löst per Fallback immer ein gültiges Preset auf; das
+  // <select> ist an rawSupply.id gebunden, zeigt also nach Regionswechsel
+  // automatisch das erste gültige Preset. supplyId-State wird nur durch
+  // User-Auswahl gesetzt; ein stale Wert ist hier folgenlos.
   const rawSupply = supplies.find((s) => s.id === supplyId) ?? supplies[0]
   const supply = { ...rawSupply, voltage: mainsVoltage }
 
@@ -602,7 +603,7 @@ const PowerTab = () => {
         <label className="block">
           <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('calc.connectionType', 'Anschluss-Typ')}</span>
           <select
-            value={supplyId}
+            value={rawSupply.id}
             onChange={(e) => setSupplyId(e.target.value as SupplyPresetId)}
             className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
           >
