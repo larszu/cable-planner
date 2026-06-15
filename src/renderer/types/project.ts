@@ -4,7 +4,7 @@ import type { GreenGoConfig } from './greengo'
 import type { LocationFrame } from './location'
 import type { VideoFormatId } from './videoFormat'
 import type { PowerStandardId } from './powerStandard'
-import type { ChangeLogEntry } from './lifecycle'
+import type { ChangeLogEntry, PendingChange } from './lifecycle'
 
 /**
  * Auto-Kabelnummerierung — Schema fuer automatisch vergebene Kabel-IDs.
@@ -155,6 +155,11 @@ export interface CablePlannerProject {
    *  Plan ein nachvollziehbares lebendes Dokument bleibt. Optional → alte
    *  Projekte heilen zu []. */
   changelog?: ChangeLogEntry[]
+  /** Feld-Rückkanal — vom Mobile-Companion/Viewer gemeldete, noch nicht
+   *  übernommene Änderungen (Längen-Korrektur, Problem-Meldung …). Der
+   *  Planer übernimmt/verwirft sie am Desktop; beim Übernehmen wandert die
+   *  Änderung ins `changelog`. Optional → alte Projekte heilen zu []. */
+  pendingChanges?: PendingChange[]
 }
 
 /** #412 — Ein festgeschriebener Projekt-Stand. */

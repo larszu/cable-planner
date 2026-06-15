@@ -20,6 +20,9 @@ import {
   History,
   Trash2,
   Tag,
+  Inbox,
+  Check,
+  X,
 } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
@@ -54,6 +57,8 @@ export const InstallationDocsDialog = () => {
   const assignDocIds = useProjectStore((s) => s.assignDocIds)
   const applySourceDestLabels = useProjectStore((s) => s.applySourceDestLabels)
   const clearChangelog = useProjectStore((s) => s.clearChangelog)
+  const applyPendingChange = useProjectStore((s) => s.applyPendingChange)
+  const rejectPendingChange = useProjectStore((s) => s.rejectPendingChange)
   const editorName = useSettingsStore((s) => s.editorName)
   const setEditorName = useSettingsStore((s) => s.setEditorName)
 
@@ -190,6 +195,10 @@ export const InstallationDocsDialog = () => {
     () => [...(project.changelog ?? [])].reverse().slice(0, 30),
     [project.changelog],
   )
+  const pending = useMemo(
+    () => [...(project.pendingChanges ?? [])].reverse(),
+    [project.pendingChanges],
+  )
 
   return (
     <ModalShell
@@ -313,6 +322,71 @@ export const InstallationDocsDialog = () => {
         {info && (
           <p className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary">{info}</p>
         )}
+
+        {/* Feld-Rückkanal — vom Mobile-Companion gemeldete, noch offene Änderungen */}
+        <section className="rounded border border-cp-border bg-cp-surface-2/40 p-3">
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="flex items-center gap-1.5 font-semibold text-cp-text-bright">
+              <Icon icon={Inbox} size="sm" />
+              {t('docs.pending', 'Feld-Rückmeldungen')}{' '}
+              <span className={pending.length > 0 ? 'text-cp-accent' : 'text-cp-text-muted'}>
+                ({pending.length})
+              </span>
+            </h3>
+          </div>
+          {pending.length === 0 ? (
+            <p className="text-cp-xs text-cp-text-muted">
+              {t(
+                'docs.pending.empty',
+                'Keine offenen Meldungen. Korrekturen/Probleme aus dem Mobile-Companion landen hier zum Übernehmen.',
+              )}
+            </p>
+          ) : (
+            <ul className="max-h-56 space-y-1.5 overflow-y-auto text-cp-xs">
+              {pending.map((p) => (
+                <li
+                  key={p.id}
+                  className="flex items-start gap-2 rounded border border-cp-border-muted bg-cp-surface-1 px-2 py-1.5"
+                >
+                  <span className="mt-0.5 shrink-0 rounded bg-cp-surface-3 px-1.5 py-0.5 text-[10px] uppercase text-cp-text-secondary">
+                    {p.target?.type === 'cable'
+                      ? t('docs.pending.cable', 'Kabel')
+                      : p.target?.type === 'equipment'
+                        ? t('docs.pending.equipment', 'Gerät')
+                        : t('docs.pending.note', 'Notiz')}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block break-words text-cp-text">{p.summary}</span>
+                    <span className="text-cp-text-faint">
+                      {p.target?.name ? `${p.target.name} · ` : ''}
+                      {p.author} ·{' '}
+                      {new Date(p.ts).toLocaleString('de-DE', {
+                        dateStyle: 'short',
+                        timeStyle: 'short',
+                      })}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => applyPendingChange(p.id)}
+                    title={t('docs.pending.apply', 'Übernehmen (mergt + protokolliert)')}
+                    className="shrink-0 rounded p-1 text-cp-accent hover:bg-cp-surface-2"
+                  >
+                    <Icon icon={Check} size="xs" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => rejectPendingChange(p.id)}
+                    title={t('docs.pending.reject', 'Verwerfen')}
+                    className="shrink-0 rounded p-1 text-cp-danger hover:bg-cp-surface-2"
+                  >
+                    <Icon icon={X} size="xs" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
         {/* Änderungsprotokoll */}
         <section>

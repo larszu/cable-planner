@@ -96,3 +96,36 @@ export interface ChangeLogEntry {
   /** Kurze, menschenlesbare Zusammenfassung. */
   summary: string
 }
+
+/** Art einer Feld-Rückmeldung (vom Mobile-/Viewer-Light-Editor). */
+export type PendingChangeKind = 'cable-edit' | 'equipment-edit' | 'issue' | 'note'
+
+/**
+ * Feld-Rückkanal: eine vom Mobile-Companion (oder Viewer) gemeldete, noch
+ * NICHT angewandte Änderung. Der Techniker vor Ort korrigiert z.B. eine
+ * Kabellänge oder meldet ein Problem; das landet als „pending" im Plan und
+ * der Planer am Desktop übernimmt oder verwirft es. Beim Übernehmen wird der
+ * `patch` auf das Ziel gemerged und ein `ChangeLogEntry` geschrieben — so
+ * fließt Feldwissen kontrolliert ins lebende Dokument.
+ */
+export interface PendingChange {
+  id: string
+  /** ISO-Zeitstempel der Meldung. */
+  ts: string
+  /** Name des Melders (vor Ort), Fallback „Feld". */
+  author: string
+  /** Woher die Meldung kam. */
+  source: 'mobile' | 'viewer' | 'desktop'
+  kind: PendingChangeKind
+  /** Worauf sich die Meldung bezieht (zum Anwenden + Navigieren). */
+  target?: {
+    type: 'cable' | 'equipment'
+    id?: string
+    name?: string
+  }
+  /** Menschenlesbare Zusammenfassung (wird im Review angezeigt). */
+  summary: string
+  /** Optionaler Feld-Patch, der beim Übernehmen auf das Ziel gemerged wird
+   *  (nur whitelistete Felder werden tatsächlich angewandt). */
+  patch?: Record<string, unknown>
+}

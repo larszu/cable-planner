@@ -20,6 +20,7 @@ import { createEquipmentSlice } from './slices/equipmentSlice'
 import { createGroupPresetSpawnSlice } from './slices/groupPresetSpawnSlice'
 import { createSelectionLifecycleSlice } from './slices/selectionLifecycleSlice'
 import { createLifecycleSlice } from './slices/lifecycleSlice'
+import { createPendingChangesSlice } from './slices/pendingChangesSlice'
 import {
   loadCustomLibrary,
   persistCustomLibrary,
@@ -454,6 +455,18 @@ export interface ProjectState {
    *  Ohne `overwrite` werden nur leere Namen gefüllt. Liefert die Anzahl
    *  geänderter Kabel. */
   applySourceDestLabels: (opts?: { overwrite?: boolean }) => number
+  /** Feld-Rückkanal — eine vom Mobile-Companion/Viewer gemeldete, noch nicht
+   *  angewandte Änderung in die Review-Queue legen. */
+  addPendingChange: (
+    input: Omit<import('../types/lifecycle').PendingChange, 'id' | 'ts' | 'author'> &
+      Partial<Pick<import('../types/lifecycle').PendingChange, 'id' | 'ts' | 'author'>>,
+  ) => void
+  /** Übernimmt eine Feld-Meldung: mergt den (whitelisteten) Patch aufs Ziel,
+   *  schreibt einen Änderungsprotokoll-Eintrag und entfernt die Meldung.
+   *  Liefert true bei Erfolg. */
+  applyPendingChange: (id: string) => boolean
+  /** Verwirft eine Feld-Meldung (mit Protokoll-Eintrag) und entfernt sie. */
+  rejectPendingChange: (id: string) => void
 }
 
 
@@ -731,6 +744,7 @@ const buildProjectStore = (
   ...createGroupPresetSpawnSlice(set, get, store),
   ...createSelectionLifecycleSlice(set, get, store),
   ...createLifecycleSlice(set, get, store),
+  ...createPendingChangesSlice(set, get, store),
   project:
     opts.initialProject ??
     (() => {

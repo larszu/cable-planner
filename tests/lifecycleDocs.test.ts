@@ -273,4 +273,48 @@ describe('lifecycleSlice (store)', () => {
     item = useProjectStore.getState().project.equipment.find((e) => e.id === eqId)!
     expect(item.serviceHistory).toHaveLength(0)
   })
+
+  it('Feld-Rückkanal: pending change übernehmen mergt Patch + protokolliert', async () => {
+    const { useProjectStore } = await import('../src/renderer/store/projectStore')
+    const cid = useProjectStore.getState().project.cables[0].id
+    const logBefore = useProjectStore.getState().project.changelog?.length ?? 0
+    useProjectStore.getState().addPendingChange({
+      author: 'Field-Tech',
+      source: 'mobile',
+      kind: 'cable-edit',
+      target: { type: 'cable', id: cid, name: 'Cable c1' },
+      summary: 'Länge korrigiert auf 7 m',
+      patch: { length: 7, evilField: 'nope' },
+    })
+    expect(useProjectStore.getState().project.pendingChanges).toHaveLength(1)
+    const pcId = useProjectStore.getState().project.pendingChanges![0].id
+
+    expect(useProjectStore.getState().applyPendingChange(pcId)).toBe(true)
+    const st = useProjectStore.getState().project
+    // Patch angewandt (whitelisted), Müll-Feld ignoriert.
+    const c = st.cables.find((x) => x.id === cid)!
+    expect(c.length).toBe(7)
+    expect((c as unknown as Record<string, unknown>).evilField).toBeUndefined()
+    // Queue geleert + Änderungsprotokoll-Eintrag geschrieben.
+    expect(st.pendingChanges).toHaveLength(0)
+    expect((st.changelog?.length ?? 0)).toBe(logBefore + 1)
+  })
+
+  it('Feld-Rückkanal: pending change verwerfen entfernt + protokolliert', async () => {
+    const { useProjectStore } = await import('../src/renderer/store/projectStore')
+    useProjectStore.getState().addPendingChange({
+      source: 'mobile',
+      kind: 'issue',
+      target: { type: 'equipment', id: 'A' },
+      summary: 'Gerät defekt?',
+    })
+    const pcId = useProjectStore
+      .getState()
+      .project.pendingChanges!.find((p) => p.summary === 'Gerät defekt?')!.id
+    const logBefore = useProjectStore.getState().project.changelog?.length ?? 0
+    useProjectStore.getState().rejectPendingChange(pcId)
+    const st = useProjectStore.getState().project
+    expect(st.pendingChanges!.some((p) => p.id === pcId)).toBe(false)
+    expect((st.changelog?.length ?? 0)).toBe(logBefore + 1)
+  })
 })
