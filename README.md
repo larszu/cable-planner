@@ -8,7 +8,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows-blue" />
   <img src="https://img.shields.io/badge/offline-ready-success" />
-  <img src="https://img.shields.io/badge/built%20with-Electron%20%2B%20React-9cf" />
   <img src="https://img.shields.io/badge/status-active%20development-orange" />
   <img src="https://img.shields.io/badge/license-MIT-lightgrey" />
 </p>
