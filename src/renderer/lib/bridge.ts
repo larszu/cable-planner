@@ -128,6 +128,10 @@ type CablePlannerApi = {
     exportViewer: (project: CablePlannerProject) => Promise<string | null>
     /** v7.9.3 — Annotations aus einer Viewer-Datei zurück-importieren. */
     importAnnotations: () => Promise<{ filePath: string; annotations: unknown[] } | null>
+    /** #pre-sale — beim Kaltstart per OS-Doppelklick übergebene Datei abholen. */
+    getLaunchFile: () => Promise<OpenProjectResponse | null>
+    /** #pre-sale — bei laufender App geöffnete Datei (second-instance/open-file). */
+    onOpenExternal: (cb: (payload: OpenProjectResponse) => void) => () => void
   }
   graphml: {
     openFile: () => Promise<{ filePath: string; fileName: string; xml: string } | null>
@@ -596,7 +600,7 @@ const webFallbackApi: CablePlannerApi = {
     openProject: async () => {
       const input = document.createElement('input')
       input.type = 'file'
-      input.accept = '.json,application/json'
+      input.accept = '.cableplan,.json,application/json'
 
       return await new Promise<OpenProjectResponse | null>((resolve) => {
         input.onchange = async () => {
@@ -619,13 +623,13 @@ const webFallbackApi: CablePlannerApi = {
       })
     },
     saveProject: async (project: CablePlannerProject, currentPath?: string) => {
-      const fileName = currentPath || `${project.metadata.name || 'project'}.json`
+      const fileName = currentPath || `${project.metadata.name || 'project'}.cableplan`
       downloadJson(project, fileName)
       pushRecent(fileName)
       return fileName
     },
     saveProjectAs: async (project: CablePlannerProject) => {
-      const fileName = `${project.metadata.name || 'project'}.json`
+      const fileName = `${project.metadata.name || 'project'}.cableplan`
       downloadJson(project, fileName)
       pushRecent(fileName)
       return fileName
@@ -639,6 +643,10 @@ const webFallbackApi: CablePlannerApi = {
       return fileName
     },
     importAnnotations: async () => null,
+    // #pre-sale — Datei-Verknüpfung ist Desktop-only; im Browser gibt es
+    // keine OS-Übergabe → kein Launch-File, kein External-Open.
+    getLaunchFile: async () => null,
+    onOpenExternal: () => () => {},
   },
   graphml: {
     // Browser fallback for dev / non-Electron contexts: use a hidden

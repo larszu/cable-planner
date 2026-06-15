@@ -69,6 +69,18 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.invoke('project:import-annotations') as Promise<
         { filePath: string; annotations: unknown[] } | null
       >,
+    // #pre-sale — Datei-Verknüpfung: beim Kaltstart per OS-Doppelklick
+    // übergebene Datei abholen (null wenn ohne Datei gestartet).
+    getLaunchFile: () =>
+      ipcRenderer.invoke('project:get-launch-file') as Promise<
+        { filePath: string; data: unknown } | null
+      >,
+    // #pre-sale — bei laufender App geöffnete Datei (second-instance/open-file).
+    onOpenExternal: (cb: (payload: { filePath: string; data: unknown }) => void) => {
+      const listener = (_e: unknown, payload: { filePath: string; data: unknown }) => cb(payload)
+      ipcRenderer.on('project:open-external', listener)
+      return () => ipcRenderer.removeListener('project:open-external', listener)
+    },
   },
   atem: {
     connect: (ip: string) => ipcRenderer.invoke('atem:connect', ip) as Promise<unknown>,

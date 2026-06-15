@@ -1,7 +1,8 @@
-import { app, dialog, ipcMain } from 'electron'
+import { app, dialog, ipcMain, type BrowserWindow } from 'electron'
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { atomicWriteFile } from '../util/atomicWrite.js'
+import { takePendingLaunchPath } from '../services/fileOpenService.js'
 
 const RECENT_PATH = path.join(app.getPath('userData'), 'recent-projects.json')
 
@@ -59,7 +60,9 @@ const defaultSavePath = (project: unknown): string => {
     project && typeof project === 'object' && 'metadata' in project
       ? String(((project as { metadata?: { name?: unknown } }).metadata?.name ?? '')).trim()
       : ''
-  return `${sanitizeFileName(name || 'cable-project')}.json`
+  // #pre-sale — Eigene Projekt-Endung .cableplan (statt generischem .json),
+  // damit Datei-Verknüpfung + eigenes Icon möglich sind. Inhalt bleibt JSON.
+  return `${sanitizeFileName(name || 'cable-project')}.cableplan`
 }
 
 const defaultViewerPath = (project: unknown): string => {
@@ -70,13 +73,48 @@ const defaultViewerPath = (project: unknown): string => {
   return `${sanitizeFileName(name || 'cable-project')}.cpviewer`
 }
 
-const ensureJsonExtension = (filePath: string): string =>
-  filePath.toLowerCase().endsWith('.json') || filePath.toLowerCase().endsWith('.cpviewer')
+// #pre-sale — neue Projekte bekommen .cableplan; bereits als .json/.cpviewer
+// gespeicherte Dateien behalten ihre Endung (Abwärtskompatibilität beim
+// Re-Save eines alten Projekts).
+const ensureProjectExtension = (filePath: string): string => {
+  const lower = filePath.toLowerCase()
+  return lower.endsWith('.cableplan') || lower.endsWith('.json') || lower.endsWith('.cpviewer')
     ? filePath
-    : `${filePath}.json`
+    : `${filePath}.cableplan`
+}
 
 const ensureViewerExtension = (filePath: string): string =>
   filePath.toLowerCase().endsWith('.cpviewer') ? filePath : `${filePath}.cpviewer`
+
+// #pre-sale — Liest eine extern (Doppelklick/Argv) geöffnete Projektdatei und
+// liefert das gleiche { filePath, data }-Format wie project:open zurück, damit
+// der Renderer-Loader (useProject) wiederverwendet werden kann. Aktualisiert
+// die Recent-Liste. Bei Lese-/Parse-Fehler: null (kein Crash).
+const loadExternalPayload = async (
+  filePath: string,
+): Promise<{ filePath: string; data: unknown } | null> => {
+  try {
+    const content = await readFile(filePath, 'utf-8')
+    const data = JSON.parse(content)
+    await writeRecent(filePath)
+    return { filePath, data }
+  } catch (err) {
+    console.error('[project] open-external failed:', (err as Error)?.message ?? err)
+    return null
+  }
+}
+
+// #pre-sale — Schiebt eine extern geöffnete Datei in einen bereits laufenden
+// Renderer (zweite Instanz auf Win/Linux, open-file auf macOS). Cold-Start
+// läuft stattdessen über project:get-launch-file (Renderer holt ab).
+export const openExternalProject = async (
+  win: BrowserWindow | null,
+  filePath: string,
+): Promise<void> => {
+  if (!win || win.isDestroyed()) return
+  const payload = await loadExternalPayload(filePath)
+  if (payload) win.webContents.send('project:open-external', payload)
+}
 
 export const registerProjectIpc = () => {
   ipcMain.handle('project:new', async () => null)
@@ -87,7 +125,7 @@ export const registerProjectIpc = () => {
       filters: [
         // v7.9.3 — .cpviewer ist eine Read-only Variante der normalen
         // JSON-Datei (gleicher Inhalt + project.mode='viewer').
-        { name: 'Cable Planner Project / Viewer', extensions: ['json', 'cpviewer'] },
+        { name: 'Cable Planner Project / Viewer', extensions: ['cableplan', 'json', 'cpviewer'] },
         { name: 'JSON', extensions: ['json'] },
         { name: 'Viewer (read-only)', extensions: ['cpviewer'] },
       ],
@@ -160,16 +198,16 @@ export const registerProjectIpc = () => {
       const { canceled, filePath } = await dialog.showSaveDialog({
         title: 'Save Cable Planner Project',
         defaultPath: defaultSavePath(project),
-        filters: [{ name: 'Cable Planner Project', extensions: ['json'] }],
+        filters: [{ name: 'Cable Planner Project', extensions: ['cableplan', 'json'] }],
       })
 
       if (canceled || !filePath) {
         return null
       }
 
-      targetPath = ensureJsonExtension(filePath)
+      targetPath = ensureProjectExtension(filePath)
     } else {
-      targetPath = ensureJsonExtension(targetPath)
+      targetPath = ensureProjectExtension(targetPath)
     }
 
     await atomicWriteFile(targetPath, JSON.stringify(project, null, 2))
@@ -181,18 +219,27 @@ export const registerProjectIpc = () => {
     const { canceled, filePath } = await dialog.showSaveDialog({
       title: 'Save Cable Planner Project As',
       defaultPath: defaultSavePath(project),
-      filters: [{ name: 'Cable Planner Project', extensions: ['json'] }],
+      filters: [{ name: 'Cable Planner Project', extensions: ['cableplan', 'json'] }],
     })
 
     if (canceled || !filePath) {
       return null
     }
 
-    const target = ensureJsonExtension(filePath)
+    const target = ensureProjectExtension(filePath)
     await atomicWriteFile(target, JSON.stringify(project, null, 2))
     await writeRecent(target)
     return target
   })
 
   ipcMain.handle('project:get-recent', () => readRecentValid())
+
+  // #pre-sale — Kaltstart-Öffnen: der Renderer holt beim Mounten die per
+  // OS-Doppelklick übergebene Datei ab (über process.argv / open-file vor
+  // whenReady gepuffert). takePendingLaunchPath leert den Puffer → genau
+  // einmal laden. Null wenn ohne Datei gestartet wurde.
+  ipcMain.handle('project:get-launch-file', async () => {
+    const pending = takePendingLaunchPath()
+    return pending ? loadExternalPayload(pending) : null
+  })
 }

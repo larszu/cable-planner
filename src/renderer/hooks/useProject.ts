@@ -16,7 +16,9 @@ interface OpenProjectResponse {
 /** Derive a human-readable project name from a file path (drops extension). */
 const nameFromPath = (filePath: string): string => {
   const base = filePath.split(/[\\/]/).pop() ?? filePath
-  return base.replace(/\.json$/i, '')
+  // #pre-sale — .cableplan ist die neue Projekt-Endung; .json/.cpviewer
+  // bleiben abwärtskompatibel.
+  return base.replace(/\.(cableplan|json|cpviewer)$/i, '')
 }
 
 export const useProject = () => {
@@ -37,10 +39,12 @@ export const useProject = () => {
     await refreshRecent()
   }, [clear, refreshRecent])
 
-  const openProject = useCallback(async () => {
-    const result = (await cablePlannerApi.project.openProject()) as OpenProjectResponse | null
-    if (result) {
-      console.log('[openProject] from disk', {
+  // Gemeinsamer Loader für alle Öffnen-Pfade (Dialog, OS-Doppelklick beim
+  // Kaltstart, Doppelklick bei laufender App). Synct den Namen, fragt bei
+  // Viewer-Dateien den Reviewer-Namen ab und lädt das Projekt in den Store.
+  const applyOpenedProject = useCallback(
+    async (result: OpenProjectResponse) => {
+      console.log('[openProject] load', {
         filePath: result.filePath,
         equipmentCount: result.data?.equipment?.length,
         firstThreePositions: result.data?.equipment?.slice(0, 3).map((e) => ({
@@ -103,8 +107,20 @@ export const useProject = () => {
       loadProject(incoming, result.filePath)
       projectHistory.reset()
       await refreshRecent()
-    }
-  }, [loadProject, refreshRecent])
+    },
+    [loadProject, refreshRecent],
+  )
+
+  const openProject = useCallback(async () => {
+    const result = (await cablePlannerApi.project.openProject()) as OpenProjectResponse | null
+    if (result) await applyOpenedProject(result)
+  }, [applyOpenedProject])
+
+  // #pre-sale — beim Kaltstart per OS-Doppelklick übergebene Datei laden.
+  const openLaunchFile = useCallback(async () => {
+    const result = await cablePlannerApi.project.getLaunchFile()
+    if (result) await applyOpenedProject(result as OpenProjectResponse)
+  }, [applyOpenedProject])
 
   const saveProject = useCallback(async () => {
     const { project, filePath } = useProjectStore.getState()
@@ -142,6 +158,8 @@ export const useProject = () => {
   return {
     newProject,
     openProject,
+    openLaunchFile,
+    applyOpenedProject,
     saveProject,
     saveProjectAs,
     refreshRecent,
