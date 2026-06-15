@@ -5,7 +5,7 @@ import {
   Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, MonitorPlay, SlidersHorizontal, Tag,
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
   Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles,
-  Maximize, Maximize2, ZoomIn, ZoomOut, Scan, BoxSelect,
+  Maximize, Maximize2, ZoomIn, ZoomOut, Scan, BoxSelect, RefreshCw,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
@@ -17,14 +17,16 @@ import {
   triggerCanvasResetZoom,
 } from '../../lib/canvasViewport'
 import { SharedSyncPanel } from '../Sync/SharedSyncPanel'
-import { useTranslation } from '../../lib/i18n'
+import { useTranslation, format } from '../../lib/i18n'
 import { projectHistory } from '../../store/projectHistory'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { exportStagePlotSvg } from '../../lib/exportStagePlot'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilename } from '../../lib/exportFilename'
-import { hasDesktopBridge } from '../../lib/bridge'
+import { hasDesktopBridge, cablePlannerApi } from '../../lib/bridge'
+import { infoDialog } from '../../lib/infoDialog'
+import { confirmDialog } from '../../lib/confirmDialog'
 
 interface MenuBarProps {
   onNewProject: () => void
@@ -93,6 +95,67 @@ export const MenuBar = ({
   projectName,
 }: MenuBarProps) => {
   const t = useTranslation()
+
+  // #pre-sale — Manueller "Auf Updates prüfen…"-Flow (Auto-Update beim Quit
+  // läuft separat). Zeigt Resultat als Dialog; bei verfügbarem Update bietet
+  // es nach Download-Abschluss "Jetzt neu starten" an (electron-updater).
+  const handleCheckUpdates = async () => {
+    try {
+      const r = await cablePlannerApi.updater.check()
+      if (!r.ok) {
+        await infoDialog(t('app.menu.help.updateUnavailable', 'Update-Prüfung nicht möglich'), {
+          tone: 'warning',
+          body: t(
+            'app.menu.help.updateUnavailableBody',
+            'Updates sind nur in der installierten Desktop-Version verfügbar.',
+          ),
+        })
+        return
+      }
+      if (r.available) {
+        await infoDialog(t('app.menu.help.updateAvailable', 'Update verfügbar'), {
+          tone: 'success',
+          body: format(
+            t(
+              'app.menu.help.updateAvailableBody',
+              'Version {latest} wird im Hintergrund geladen und beim Beenden installiert. Sobald der Download fertig ist, fragt die App nach einem Neustart.',
+            ),
+            { latest: r.latest ?? '' },
+          ),
+        })
+      } else {
+        await infoDialog(t('app.menu.help.updateCurrent', 'Aktuelle Version'), {
+          tone: 'info',
+          body: format(
+            t('app.menu.help.updateCurrentBody', 'Du verwendest bereits die neueste Version ({current}).'),
+            { current: r.current },
+          ),
+        })
+      }
+    } catch {
+      await infoDialog(t('app.menu.help.updateError', 'Update-Prüfung fehlgeschlagen'), { tone: 'error' })
+    }
+  }
+
+  // #pre-sale — Download-fertig → Neustart anbieten (gilt für Auto- UND
+  // manuellen Check). Auto-Install beim Quit greift sonst trotzdem.
+  useEffect(() => {
+    if (!hasDesktopBridge) return
+    return cablePlannerApi.updater.onStatus((s) => {
+      if (s.state === 'downloaded') {
+        void confirmDialog(t('app.menu.help.updateReady', 'Update bereit'), {
+          body: format(
+            t('app.menu.help.updateReadyBody', 'Version {version} ist geladen. Jetzt neu starten und aktualisieren?'),
+            { version: s.version ?? '' },
+          ),
+          okLabel: t('app.menu.help.updateRestart', 'Jetzt neu starten'),
+          cancelLabel: t('common.later', 'Später'),
+        }).then((yes) => {
+          if (yes) void cablePlannerApi.updater.quitAndInstall()
+        })
+      }
+    })
+  }, [t])
   const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
   // #341 — View-Menü spiegelt Toolbar-Toggles; Status für Häkchen lesen.
   const canvasTheme = useUiStore((s) => s.canvasTheme)
@@ -476,6 +539,11 @@ export const MenuBar = ({
           {onOpenTour && (
             <MenuItem onClick={onOpenTour} icon={<Icon icon={Lightbulb} size="sm" />}>
               {t('app.menu.help.tour', 'Erste-Schritte-Tour…')}
+            </MenuItem>
+          )}
+          {hasDesktopBridge && (
+            <MenuItem onClick={handleCheckUpdates} icon={<Icon icon={RefreshCw} size="sm" />}>
+              {t('app.menu.help.checkUpdates', 'Auf Updates prüfen…')}
             </MenuItem>
           )}
           <MenuItem

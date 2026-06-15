@@ -243,6 +243,13 @@ type CablePlannerApi = {
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) => void
   }
+  updater: {
+    check: () => Promise<{ ok: boolean; current: string; latest?: string; available?: boolean; message?: string }>
+    quitAndInstall: () => Promise<boolean>
+    onStatus: (
+      cb: (s: { state: string; version?: string; percent?: number; message?: string }) => void,
+    ) => () => void
+  }
   sync: {
     readFile: (filePath: string) => Promise<string>
     writeFile: (filePath: string, data: string) => Promise<void>
@@ -709,6 +716,11 @@ const webFallbackApi: CablePlannerApi = {
   },
   logs: {
     rendererError: () => {},
+  },
+  updater: {
+    check: async () => ({ ok: false, current: '', message: 'Updates erfordern die Desktop-App.' }),
+    quitAndInstall: async () => false,
+    onStatus: () => () => {},
   },
   sync: {
     readFile: async () => {
