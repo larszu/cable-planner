@@ -17,7 +17,7 @@ import {
 } from '../../lib/aiSuggestions'
 import { suggestFromWeb } from '../../lib/webPortSuggestions'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
-import type { ConnectorType, EquipmentTemplate, Port } from '../../types/equipment'
+import type { ConnectorType, EquipmentTemplate } from '../../types/equipment'
 import { nextPlacementPosition } from '../../lib/library'
 import {
   clearNetBoxIndexCache,
@@ -42,33 +42,8 @@ import { CableLibraryPanel } from './CableLibraryPanel'
 
 const connectorOptions = ALL_CONNECTOR_TYPES
 
-interface PortGroupDraft {
-  id: string
-  direction: 'in' | 'out'
-  count: number
-  connectorType: ConnectorType
-  label: string
-}
-
-const defaultGroup = (direction: 'in' | 'out'): PortGroupDraft => ({
-  id: uuidv4(),
-  direction,
-  count: 1,
-  connectorType: 'Custom',
-  label: direction === 'in' ? 'Input' : 'Output',
-})
-
-const buildPorts = (groups: PortGroupDraft[], direction: 'in' | 'out'): Port[] => {
-  const filtered = groups.filter((group) => group.direction === direction)
-  return filtered.flatMap((group) =>
-    Array.from({ length: Math.max(0, group.count) }, (_item, index) => ({
-      id: uuidv4(),
-      name: `${group.label} ${index + 1}`,
-      type: group.connectorType,
-      connectorType: group.connectorType,
-    })),
-  )
-}
+import { defaultGroup, buildPorts } from './libraryPanelHelpers'
+import type { PortGroupDraft } from './libraryPanelHelpers'
 
 
 
@@ -1452,3 +1427,4 @@ export const LibraryPanel = () => {
   }
   return inner
 }
+
