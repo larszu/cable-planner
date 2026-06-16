@@ -46,6 +46,7 @@ import { ProjectionCalculatorDialog } from './components/Calculators/ProjectionC
 import { BulkConnectDialog } from './components/Canvas/BulkConnectDialog'
 import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
 import { PlanCheckPanel } from './components/Analysis/PlanCheckPanel'
+import { ShortcutsHelp } from './components/Layout/ShortcutsHelp'
 import { RevisionsDialog } from './components/Project/RevisionsDialog'
 import { AiPlanGenDialog } from './components/Project/AiPlanGenDialog'
 import { CsvImportDialog } from './components/Import/CsvImportDialog'
@@ -1121,6 +1122,7 @@ export default function App() {
       <BulkConnectDialog />
       <AnalysisDialog />
       <PlanCheckPanel />
+      <ShortcutsHelp />
       <RevisionsDialog />
       <AiPlanGenDialog />
       <CsvImportDialog />
