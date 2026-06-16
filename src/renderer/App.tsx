@@ -39,6 +39,7 @@ import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
 import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
 import { InstallationDocsDialog } from './components/Export/InstallationDocsDialog'
+import { ModuleOnboardingDialog } from './components/Onboarding/ModuleOnboardingDialog'
 import { BandwidthCalculatorDialog, PowerCalculatorDialog } from './components/Calculators/CalculatorsDialog'
 import { RecordingStorageCalculatorDialog } from './components/Calculators/RecordingStorageCalculatorDialog'
 import { ProjectionCalculatorDialog } from './components/Calculators/ProjectionCalculatorDialog'
@@ -1112,6 +1113,7 @@ export default function App() {
       <AboutDialog />
       <PatchListDialog />
       <InstallationDocsDialog />
+      <ModuleOnboardingDialog />
       <BandwidthCalculatorDialog />
       <PowerCalculatorDialog />
       <RecordingStorageCalculatorDialog />

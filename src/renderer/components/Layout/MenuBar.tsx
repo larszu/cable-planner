@@ -21,6 +21,7 @@ import { useTranslation, format } from '../../lib/i18n'
 import { projectHistory } from '../../store/projectHistory'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
+import { useModule } from '../../store/settingsStore'
 import { exportStagePlotSvg } from '../../lib/exportStagePlot'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilename } from '../../lib/exportFilename'
@@ -157,6 +158,8 @@ export const MenuBar = ({
     })
   }, [t])
   const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
+  // Modulares UI — Festinstallations-Doku nur zeigen, wenn das Modul an ist.
+  const festinstallationModule = useModule('festinstallation')
   // #341 — View-Menü spiegelt Toolbar-Toggles; Status für Häkchen lesen.
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const followSystemTheme = useUiStore((s) => s.followSystemTheme)
@@ -430,9 +433,11 @@ export const MenuBar = ({
           <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon={<Icon icon={Cable} size="sm" />}>
             {t('app.menu.tools.patchList', 'Patch-Liste…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openInstallDocs()} icon={<Icon icon={PackageCheck} size="sm" />}>
-            {t('app.menu.tools.installDocs', 'Festinstallation: Doku & Übergabe…')}
-          </MenuItem>
+          {festinstallationModule && (
+            <MenuItem onClick={() => useUiStore.getState().openInstallDocs()} icon={<Icon icon={PackageCheck} size="sm" />}>
+              {t('app.menu.tools.installDocs', 'Festinstallation: Doku & Übergabe…')}
+            </MenuItem>
+          )}
           <MenuItem
             onClick={() => {
               const p = useProjectStore.getState().project
