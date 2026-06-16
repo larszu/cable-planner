@@ -1,5 +1,6 @@
 import electronUpdater from 'electron-updater'
 import { app, ipcMain, type BrowserWindow } from 'electron'
+import { isNewerVersion } from '../util/versionCompare.js'
 
 const { autoUpdater } = electronUpdater
 
@@ -60,8 +61,10 @@ export function registerUpdaterIpc(getWin: () => BrowserWindow | null): void {
       autoUpdater.autoInstallOnAppQuit = true
       const result = await autoUpdater.checkForUpdates()
       const latest = result?.updateInfo?.version
-      // electron-updater meldet nur die neueste Release-Version; gleich ⇒ aktuell.
-      const available = !!latest && latest !== current
+      // electron-updater meldet nur die neueste Release-Version. Update nur, wenn
+      // sie ECHT neuer ist (SemVer) — nicht bei bloßer Abweichung (kein Downgrade,
+      // korrekt bei 8.10 > 8.9). Siehe util/versionCompare.
+      const available = !!latest && isNewerVersion(latest, current)
       return { ok: true, current, latest: latest ?? current, available }
     } catch (err) {
       // Dev/unpackaged (keine app-update.yml), offline, kein Release → sauber melden.
