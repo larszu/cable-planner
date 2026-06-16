@@ -1,0 +1,89 @@
+name: Doku-Sync (Claude)
+
+# Prüft regelmäßig (wöchentlich + manuell), ob README, Doku und Anleitungen noch
+# zum tatsächlichen Code passen — und öffnet bei Differenzen automatisch einen
+# Pull Request, der die Doku angleicht. Arbeitet bewusst über einen PR (statt
+# Direkt-Push), damit die KI-Änderungen reviewbar bleiben; auf Wunsch lässt sich
+# Auto-Merge aktivieren.
+#
+# ──────────────────────────────────────────────────────────────────────────────
+# EINMALIGE VORAUSSETZUNG (sonst schlägt nur der Claude-Step fehl, nichts wird
+# überschrieben):
+#   1. Repo-Secret ANTHROPIC_API_KEY setzen:
+#      Settings → Secrets and variables → Actions → New repository secret
+#      (Key aus https://console.anthropic.com). Alternativ subscription-basiert:
+#      Secret CLAUDE_CODE_OAUTH_TOKEN + unten anthropic_api_key durch
+#      claude_code_oauth_token ersetzen.
+#   2. Claude GitHub App installieren (öffnet/committet PRs) — am einfachsten via
+#      `/install-github-app` in Claude Code.
+#   Doku: https://code.claude.com/docs/en/github-actions
+# ──────────────────────────────────────────────────────────────────────────────
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # jeden Montag 06:00 UTC
+  workflow_dispatch:
+
+# Claude darf Dateien ändern, committen und einen PR öffnen.
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+# Nicht zwei Doku-Syncs gleichzeitig; einen laufenden NICHT abbrechen.
+concurrency:
+  group: docs-sync
+  cancel-in-progress: false
+
+jobs:
+  docs-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Doku gegen Code prüfen und bei Bedarf aktualisieren
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: '--max-turns 30'
+          prompt: |
+            Du bist ein sorgfältiger Dokumentations-Auditor für dieses Repository
+            (Electron + React + TypeScript Broadcast-Kabelplaner "Cable Planner").
+            Aufgabe: prüfe, ob die Dokumentation noch zum AKTUELLEN CODE passt, und
+            aktualisiere NUR die Stellen, die nachweislich veraltet oder falsch sind.
+
+            Vorgehen:
+            1. Lies die Doku: README.md, CONTRIBUTING.md, TESTING.md, SECURITY.md
+               und alle docs/**/*.md (u. a. docs/architecture.md, die *-readiness.md
+               und *-audit.md). Das sind die "Anleitungen".
+            2. Vergleiche mit dem tatsächlichen Stand des Repos: src/** (Features,
+               Komponenten, Stores), package.json (npm-Scripts, version, dependencies),
+               .github/workflows/** (CI/Build/Release/Pages) und reale Pfade/Befehle.
+               Achte besonders auf: npm-Scripts, Versions-/Tool-Angaben, Feature-Listen,
+               Build-/Test-/Setup-Anweisungen, Ordnerstruktur und interne Links/Anker.
+            3. Korrigiere konkrete Differenzen: veraltete oder umbenannte Befehle,
+               entfernte/umbenannte Features, falsche Pfade, kaputte interne Links,
+               nicht mehr stimmende Architektur- oder Setup-Aussagen.
+
+            Strikte Regeln:
+            - KEINE Halluzinationen: ändere nur, was du direkt im Code/der Config
+              belegen kannst. Im Zweifel NICHT ändern.
+            - Sprache pro Datei beibehalten (das Repo ist deutsch-first; viele Docs
+              sind deutsch) — NICHT übersetzen.
+            - NICHT anfassen: THIRD-PARTY-LICENSES.md, CLAUDE.md, LICENSE, alles unter
+              docs/screenshots/, *.html, generierte Dateien, node_modules, dist.
+            - Minimaler Diff: keine reine Stil-/Umformulierungs-Politur ohne sachlichen
+              Grund.
+            - Commit-/PR-Konventionen aus CONTRIBUTING.md und CLAUDE.md einhalten
+              (Conventional Commits, deutsch ok; KEIN "Generated with"-Footer, KEIN
+              Session-Trailer, KEIN Co-authored-by-Trailer).
+
+            Ergebnis:
+            - Ist alles aktuell: KEINE Änderungen vornehmen und KEINEN PR öffnen — gib
+              nur eine kurze Zusammenfassung aus ("Doku ist aktuell").
+            - Gibt es Differenzen: nimm die Korrekturen vor und öffne EINEN Pull Request
+              gegen main. PR-Titel nach Repo-Konvention, z. B.
+              "docs: Doku an aktuellen Code angleichen". PR-Body: Liste der geänderten
+              Dateien + je ein Satz was/warum.
