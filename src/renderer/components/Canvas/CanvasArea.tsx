@@ -54,7 +54,9 @@ import {
   setCanvasDuplicateHandler,
   setCanvasZoomHandlers,
   setCanvasSelectAllHandler,
+  triggerCanvasFitView,
 } from '../../lib/canvasViewport'
+import { createDemoProject } from '../../lib/demoProject'
 import { format, useTranslation } from '../../lib/i18n'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
@@ -101,6 +103,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const projectVersion = useProjectStore((state) => state.projectVersion)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const addEquipment = useProjectStore((state) => state.addEquipment)
+  const loadProjectIntoStore = useProjectStore((state) => state.loadProject)
   const pasteEquipment = useProjectStore((state) => state.pasteEquipment)
   const deleteEquipment = useProjectStore((state) => state.deleteEquipment)
   const deleteLocation = useProjectStore((state) => state.deleteLocation)
@@ -1533,6 +1536,21 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
               'Zieh ein Gerät aus der Bibliothek (links) auf die Fläche, um zu starten.',
             )}
           </div>
+          <div className="mt-1 text-cp-xs text-cp-text-faint">
+            {t('canvas.empty.or', '— oder —')}
+          </div>
+          <button
+            type="button"
+            className="pointer-events-auto rounded-cp-control border border-cp-border bg-cp-surface-2 px-cp-4 py-cp-2 text-cp-sm font-medium text-cp-text hover:bg-cp-surface-3"
+            onClick={() => {
+              // Demo nur laden wenn wirklich leer (Empty-State) — kein Überschreiben.
+              loadProjectIntoStore(createDemoProject())
+              // Nach dem Neu-Mount der Nodes auf den Inhalt zoomen.
+              setTimeout(() => triggerCanvasFitView(), 80)
+            }}
+          >
+            {t('canvas.empty.loadDemo', 'Beispielprojekt laden')}
+          </button>
         </div>
       )}
       {/* v7.9.12 — Toolbar wird auch im Rack-Mode gerendert, allerdings
