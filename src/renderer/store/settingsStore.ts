@@ -1,6 +1,13 @@
 import { create } from 'zustand'
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import { LIMITS } from '../lib/layoutConstants'
+import {
+  type ModuleId,
+  DEFAULT_ENABLED,
+  healEnabledModules,
+  enabledFromPresets,
+  type PresetId,
+} from '../lib/modules'
 
 const SETTINGS_KEY = STORAGE_KEYS.settings
 
@@ -12,6 +19,11 @@ interface PersistedSettings {
    *  protokoll- und Service-Einträgen als Autor zugeordnet. App-weit
    *  (pro Maschine) persistiert, nicht pro Projekt. */
   editorName: string
+  /** Modulares UI — welche Funktionsmodule sichtbar sind (pro Installation). */
+  enabledModules: Record<ModuleId, boolean>
+  /** Modulares UI — true, sobald der Erststart-Modul-Dialog beantwortet/
+   *  übersprungen wurde (steuert, ob er nochmal erscheint). */
+  onboardingDone: boolean
 }
 
 const defaults: PersistedSettings = {
@@ -19,6 +31,8 @@ const defaults: PersistedSettings = {
   sharedSyncPath: '',
   sharedSyncUser: '',
   editorName: '',
+  enabledModules: { ...DEFAULT_ENABLED },
+  onboardingDone: false,
 }
 
 const load = (): PersistedSettings => {
@@ -34,6 +48,11 @@ const load = (): PersistedSettings => {
       sharedSyncPath: typeof parsed.sharedSyncPath === 'string' ? parsed.sharedSyncPath : defaults.sharedSyncPath,
       sharedSyncUser: typeof parsed.sharedSyncUser === 'string' ? parsed.sharedSyncUser : defaults.sharedSyncUser,
       editorName: typeof parsed.editorName === 'string' ? parsed.editorName : defaults.editorName,
+      enabledModules: healEnabledModules(parsed.enabledModules),
+      // Bestehende Installationen (Settings vorhanden, aber noch ohne dieses
+      // Feld) gelten als „onboarded" → kein nachträglicher Dialog für sie.
+      onboardingDone:
+        typeof parsed.onboardingDone === 'boolean' ? parsed.onboardingDone : true,
     }
   } catch {
     return defaults
@@ -48,6 +67,17 @@ const persist = (state: PersistedSettings) => {
   }
 }
 
+/** Pickt die persistierten Felder aus dem Store-State (gegen Persist-Drift,
+ *  wenn neue Felder dazukommen). */
+const snapshot = (s: PersistedSettings): PersistedSettings => ({
+  autosaveIntervalMs: s.autosaveIntervalMs,
+  sharedSyncPath: s.sharedSyncPath,
+  sharedSyncUser: s.sharedSyncUser,
+  editorName: s.editorName,
+  enabledModules: s.enabledModules,
+  onboardingDone: s.onboardingDone,
+})
+
 interface SettingsState {
   // NOTE: the actual token string is intentionally NOT stored here to avoid
   // leaking it into global React state. Use the IPC credentials API directly.
@@ -57,12 +87,20 @@ interface SettingsState {
   sharedSyncPath: string
   sharedSyncUser: string
   editorName: string
+  enabledModules: Record<ModuleId, boolean>
+  onboardingDone: boolean
   setHasToken: (value: boolean) => void
   setTokenStatus: (value: string) => void
   setAutosaveIntervalMs: (value: number) => void
   setSyncPath: (value: string) => void
   setSyncUser: (value: string) => void
   setEditorName: (value: string) => void
+  /** Ein einzelnes Modul ein-/ausschalten. */
+  setModuleEnabled: (id: ModuleId, value: boolean) => void
+  /** Module aus einer Preset-Auswahl setzen (Erststart-Onboarding). */
+  applyModulePreset: (presetIds: PresetId[]) => void
+  /** Erststart-Modul-Dialog als erledigt markieren. */
+  setOnboardingDone: (value: boolean) => void
 }
 
 const initial = load()
@@ -74,27 +112,50 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   sharedSyncPath: initial.sharedSyncPath,
   sharedSyncUser: initial.sharedSyncUser,
   editorName: initial.editorName,
+  enabledModules: initial.enabledModules,
+  onboardingDone: initial.onboardingDone,
   setHasToken: (value) => set({ hasToken: value }),
   setTokenStatus: (value) => set({ tokenStatus: value }),
   setAutosaveIntervalMs: (value) =>
     set((state) => {
       const next = Math.max(LIMITS.AUTOSAVE_INTERVAL.MIN_MS, Math.min(LIMITS.AUTOSAVE_INTERVAL.MAX_MS, Math.round(value || defaults.autosaveIntervalMs)))
-      persist({ autosaveIntervalMs: next, sharedSyncPath: state.sharedSyncPath, sharedSyncUser: state.sharedSyncUser, editorName: state.editorName })
+      persist(snapshot({ ...state, autosaveIntervalMs: next }))
       return { autosaveIntervalMs: next }
     }),
   setSyncPath: (value) =>
     set((state) => {
-      persist({ autosaveIntervalMs: state.autosaveIntervalMs, sharedSyncPath: value, sharedSyncUser: state.sharedSyncUser, editorName: state.editorName })
+      persist(snapshot({ ...state, sharedSyncPath: value }))
       return { sharedSyncPath: value }
     }),
   setSyncUser: (value) =>
     set((state) => {
-      persist({ autosaveIntervalMs: state.autosaveIntervalMs, sharedSyncPath: state.sharedSyncPath, sharedSyncUser: value, editorName: state.editorName })
+      persist(snapshot({ ...state, sharedSyncUser: value }))
       return { sharedSyncUser: value }
     }),
   setEditorName: (value) =>
     set((state) => {
-      persist({ autosaveIntervalMs: state.autosaveIntervalMs, sharedSyncPath: state.sharedSyncPath, sharedSyncUser: state.sharedSyncUser, editorName: value })
+      persist(snapshot({ ...state, editorName: value }))
       return { editorName: value }
     }),
+  setModuleEnabled: (id, value) =>
+    set((state) => {
+      const enabledModules = { ...state.enabledModules, [id]: value }
+      persist(snapshot({ ...state, enabledModules }))
+      return { enabledModules }
+    }),
+  applyModulePreset: (presetIds) =>
+    set((state) => {
+      const enabledModules = enabledFromPresets(presetIds)
+      persist(snapshot({ ...state, enabledModules }))
+      return { enabledModules }
+    }),
+  setOnboardingDone: (value) =>
+    set((state) => {
+      persist(snapshot({ ...state, onboardingDone: value }))
+      return { onboardingDone: value }
+    }),
 }))
+
+/** Hook für konditionales Rendern: ist dieses Modul aktiv? */
+export const useModule = (id: ModuleId): boolean =>
+  useSettingsStore((s) => s.enabledModules[id])
