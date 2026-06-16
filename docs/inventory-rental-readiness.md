@@ -92,10 +92,23 @@ Lebenszyklus-Section; im Asset-Register-CSV als Spalten.
 `metadata.eventStart/eventEnd` + UI im Projektdaten-Dialog. Voraussetzung für
 jede Verfügbarkeits-Rechnung. Trivial, aber Türöffner.
 
-**Phase 2 — Zentraler Bestand (Lager-Modul, MVP).**
-Neuer `inventoryStore` + `inventory:*` IPC + lokale JSON-DB. CRUD für
-`items[]` (Modell + Menge + Mietpreis + Lagerort). Eigene „Lager"-Ansicht,
-unabhängig vom Plan. Import-Seed aus Rentman-Katalog wiederverwendbar.
+**Phase 2 — Zentraler Bestand (Lager-Modul, MVP). ✅ umgesetzt (MVP).**
+Neuer `inventoryStore` mit `items[]`-CRUD (Modell/Hersteller/Kategorie/Menge/
+Mietpreis/Lagerort/Lieferant/Eigentum). Eigene plan-unabhängige „Lager"-Ansicht
+(`components/Inventory/InventoryDialog.tsx`), erreichbar über *Werkzeuge → Lager
+/ Bestand…* (gated durchs `rental`-Modul). Seed-Button übernimmt das Equipment
+des aktuellen Plans gruppiert (Name+Kategorie → Menge), ohne vorhandene Artikel
+zu duplizieren.
+
+Bewusste MVP-Abgrenzung (Folge-Arbeit):
+- **Persistenz:** localStorage (`cable-planner:inventory`) statt `inventory:*`
+  IPC + JSON-DB — gleiche Strategie wie ui/settings/library, funktioniert in
+  Web *und* Desktop. Migration auf eine IPC-DB ist möglich, ohne die Consumer
+  zu ändern (sie reden nur mit dem Store).
+- **Seed-Quelle:** aktueller Plan statt Rentman-Katalog. Plan-Seed ist immer
+  verfügbar; ein Rentman-Katalog-Seed kann denselben `seedFromEquipment`-Pfad
+  später wiederverwenden.
+- `units[]`/`allocations[]`/`movements[]` bleiben Phase 3+.
 
 **Phase 3 — Verknüpfung Plan ↔ Bestand + Verfügbarkeit.**
 `equipment[].inventoryItemId`; beim Platzieren aus dem Lager wählen.
