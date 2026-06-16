@@ -6,6 +6,7 @@ import {
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
   Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles,
   Maximize, Maximize2, ZoomIn, ZoomOut, Scan, BoxSelect, RefreshCw, PackageCheck,
+  Keyboard,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
@@ -546,6 +547,13 @@ export const MenuBar = ({
         </Menu>
 
         <Menu label={t('app.menu.help', 'Hilfe')}>
+          <MenuItem
+            onClick={() => window.dispatchEvent(new CustomEvent('cp:open-shortcuts-help'))}
+            icon={<Icon icon={Keyboard} size="sm" />}
+            shortcut="?"
+          >
+            {t('app.menu.help.shortcuts', 'Tastaturkürzel…')}
+          </MenuItem>
           {onOpenTour && (
             <MenuItem onClick={onOpenTour} icon={<Icon icon={Lightbulb} size="sm" />}>
               {t('app.menu.help.tour', 'Erste-Schritte-Tour…')}
