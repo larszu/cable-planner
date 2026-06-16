@@ -5,6 +5,7 @@ import { Icon } from '../shared/Icon'
 import { Spinner } from '../shared/Spinner'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
+import { useModule } from '../../store/settingsStore'
 import { CategorySelect } from '../shared/CategorySelect'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
@@ -61,7 +62,7 @@ export const LibraryPanel = () => {
   const addCustomTemplate = useProjectStore((state) => state.addCustomTemplate)
   const collapsed = useUiStore((state) => state.libraryCollapsed)
   // v7.9.4 — Rentman-Tabs ausblenden wenn die Integration deaktiviert ist.
-  const rentmanEnabled = useUiStore((state) => state.rentmanEnabled)
+  const rentmanEnabled = useModule('rentman')
   const toggleCollapsed = useUiStore((state) => state.toggleLibraryCollapsed)
   // #427 — In separates OS-Fenster ausgelagert (Hauptfenster blendet aus);
   //  inPopout = wir SIND dieses Fenster (dann keine Ab-/Andock-Controls).

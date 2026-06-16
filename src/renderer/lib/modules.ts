@@ -48,13 +48,14 @@ export const MODULE_IDS: ModuleId[] = MODULES.map((m) => m.id)
 
 /**
  * Default-Aktivierung. Bewusst so, dass bestehende Installationen nichts
- * verlieren: alles bisher Sichtbare bleibt an; nur das neue `rental` startet
- * aus und wird über Onboarding/Settings angeboten.
+ * verlieren: alles bisher Sichtbare bleibt an; `rental` startet aus (neu) und
+ * `rentman` startet aus (war schon immer opt-in — der Alt-Wert wird beim Laden
+ * aus dem uiStore migriert, siehe settingsStore).
  */
 export const DEFAULT_ENABLED: Record<ModuleId, boolean> = {
   festinstallation: true,
   mobile: true,
-  rentman: true,
+  rentman: false,
   rental: false,
 }
 

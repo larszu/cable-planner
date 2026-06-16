@@ -9,7 +9,7 @@
 import { useState } from 'react'
 import { Wrench, Trash2, Plus } from 'lucide-react'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
-import { useSettingsStore } from '../../../store/settingsStore'
+import { useSettingsStore, useModule } from '../../../store/settingsStore'
 import { useTranslation } from '../../../lib/i18n'
 import { Icon } from '../../shared/Icon'
 import {
@@ -47,11 +47,17 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
   const addServiceRecord = useProjectStore((s) => s.addServiceRecord)
   const removeServiceRecord = useProjectStore((s) => s.removeServiceRecord)
   const editorName = useSettingsStore((s) => s.editorName)
+  // Modulares UI — Festinstallations-Felder bzw. Lager-Felder je nach Modul.
+  const festinstallationModule = useModule('festinstallation')
+  const rentalModule = useModule('rental')
 
   const [kind, setKind] = useState<ServiceRecord['kind']>('inspection')
   const [summary, setSummary] = useState('')
 
   const history = equipment.serviceHistory ?? []
+
+  // Ist kein relevantes Modul aktiv, die ganze Section ausblenden.
+  if (!festinstallationModule && !rentalModule) return null
 
   const onAdd = () => {
     const text = summary.trim()
@@ -72,6 +78,8 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
         {t('lifecycle.section', 'Lebenszyklus / Wartung')}
       </summary>
       <div className="space-y-2 border-t border-cp-border p-2">
+        {festinstallationModule && (
+        <>
         <label className="block">
           <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.status', 'Status')}</span>
           <select
@@ -126,8 +134,12 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
             className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
           />
         </label>
+        </>
+        )}
 
-        {/* Lager (Phase 0) — Eigentum, Lagerort, Lieferant, Anschaffung */}
+        {/* Lager (Phase 0) — Eigentum, Lagerort, Lieferant, Anschaffung. Nur
+            bei aktivem Rental-/Lager-Modul. */}
+        {rentalModule && (
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
             <span className="mb-1 block text-cp-text-secondary">
@@ -189,8 +201,10 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
             />
           </label>
         </div>
+        )}
 
-        {/* Service-Historie */}
+        {/* Service-Historie — nur bei aktivem Festinstallations-Modul. */}
+        {festinstallationModule && (
         <div>
           <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted">
             {t('lifecycle.history', 'Service-Historie')} ({history.length})
@@ -250,6 +264,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
             </button>
           </div>
         </div>
+        )}
       </div>
     </details>
   )

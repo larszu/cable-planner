@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { X, Eye, EyeOff } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { cablePlannerApi } from '../../../lib/bridge'
-import { useSettingsStore } from '../../../store/settingsStore'
+import { useSettingsStore, useModule } from '../../../store/settingsStore'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
 import { useTranslation, format } from '../../../lib/i18n'
@@ -295,9 +295,9 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
   const setTokenStatus = useSettingsStore((s) => s.setTokenStatus)
   const metadata = useProjectStore((s) => s.project.metadata)
   const openRentmanImport = useUiStore((s) => s.openRentmanImport)
-  // v7.9.4 — Rentman komplett ein-/ausschaltbar.
-  const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
-  const setRentmanEnabled = useUiStore((s) => s.setRentmanEnabled)
+  // Modulares UI — Rentman ist jetzt ein Modul (settingsStore).
+  const rentmanEnabled = useModule('rentman')
+  const setModuleEnabled = useSettingsStore((s) => s.setModuleEnabled)
   const [busy, setBusy] = useState(false)
   const t = useTranslation()
 
@@ -368,7 +368,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           <input
             type="checkbox"
             checked={rentmanEnabled}
-            onChange={(e) => setRentmanEnabled(e.target.checked)}
+            onChange={(e) => setModuleEnabled('rentman', e.target.checked)}
             className="h-4 w-4 accent-sky-500"
           />
           <span>

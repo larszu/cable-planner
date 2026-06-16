@@ -74,12 +74,19 @@ leeren Stellen — kein Dauer-Nag.)
 |---|---|---|---|
 | `festinstallation` | Festinstallation | Lebenszyklus/Service, Asset-Register/QR, Übergabe-Doku, Feld-Rückkanal | an |
 | `mobile` | Mobile-Companion | Handy-Patchliste, Check-off, QR-Scan, Feld-Meldungen | an |
-| `rentman` | Rentman | Import/Export-Kopplung | an |
+| `rentman` | Rentman | Import/Export-Kopplung | aus¹ |
 | `rental` | Rental / Lager | Bestand, Eigentum/Verfügbarkeit, Mietkalkulation (Phase 2+) | aus |
 
 Defaults sind so gewählt, dass **bestehende Installationen nichts verlieren**
 (alles bisher Sichtbare bleibt an; nur das neue `rental` startet aus und wird
 über Onboarding/Settings angeboten).
+
+¹ `rentman` war schon vorher opt-in über ein eigenes uiStore-Flag
+(`rentmanEnabled`, Default aus). Dieses Flag wurde **vollständig ins
+Modul-System migriert** (`useModule('rentman')`); der frühere Wert wird beim
+ersten Laden einmalig aus dem uiStore übernommen, sodass niemand seine
+Rentman-Einstellung verliert. Der Integrations-Tab schreibt jetzt dasselbe
+Modul-Flag.
 
 ## Umsetzung in der Architektur
 

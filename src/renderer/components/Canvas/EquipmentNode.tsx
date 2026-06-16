@@ -3,6 +3,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { Headphones, Lock, Check } from 'lucide-react'
 import type { EquipmentItem } from '../../types/equipment'
 import { useUiStore } from '../../store/uiStore'
+import { useModule } from '../../store/settingsStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { AlertTriangle } from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
@@ -68,7 +69,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // Per-Geraet-`nodeColor` gewinnt weiter — der User kann immer einzeln
   // ueberschreiben.
   const categoryColors = useUiStore((s) => s.categoryColors)
-  const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
+  const rentmanEnabled = useModule('rentman')
   // #291 — User-konfigurierbare Port-Label-Schriftgroesse. Skaliert
   // beide Port-Spalten + die Collapsed-View. Header bleibt fix damit
   // headerHeight nicht recomputet werden muss.

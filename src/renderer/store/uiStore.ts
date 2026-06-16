@@ -120,13 +120,9 @@ interface PersistedUiState {
    *  The cable is still flagged needsConverter for downstream warnings,
    *  it just doesn't interrupt the user mid-flow. */
   overrideConnectionWarnings: boolean
-  /** v7.9.4 — Rentman-Integration ein-/ausschaltbar. Wenn `false`,
-   *  werden alle Rentman-Funktionen ausgeblendet (Library-Tab,
-   *  Menü-Einträge, Status-Badge, Badges am LibraryItem, BOM-
-   *  Rentman-Spalten). Persistiert. Default `false` — Rentman ist ein
-   *  optionales Feature und wird beim ersten Start im Menü (Werkzeuge →
-   *  Rentman-Integration) bzw. in den Einstellungen aktiviert. */
-  rentmanEnabled: boolean
+  // Modulares UI — Rentman ist jetzt ein Modul (settingsStore.enabledModules
+  // .rentman, via useModule('rentman')). Das frühere uiStore-Flag
+  // `rentmanEnabled` wurde dorthin migriert (siehe settingsStore).
   /** v7.9.5 — Library-Liste vs. Kachel-Ansicht. Kachel zeigt Front-
    *  Panel-Thumbnails wenn vorhanden. */
   libraryViewMode: 'list' | 'grid'
@@ -320,7 +316,6 @@ const defaults: PersistedUiState = {
   colorPortsByType: false,
   language: detectDefaultLanguage(),
   overrideConnectionWarnings: false,
-  rentmanEnabled: false,
   libraryViewMode: 'list',
   librarySortMode: 'manual',
   annotationAuthor: '',
@@ -422,7 +417,6 @@ const load = (): PersistedUiState => {
     if (!Array.isArray(merged.customSignalStandards)) merged.customSignalStandards = []
     if (!Array.isArray(merged.deviceConfigLibrary)) merged.deviceConfigLibrary = []
     if (typeof merged.cableBumps !== 'boolean') merged.cableBumps = defaults.cableBumps
-    if (typeof merged.rentmanEnabled !== 'boolean') merged.rentmanEnabled = defaults.rentmanEnabled
     if (merged.libraryViewMode !== 'list' && merged.libraryViewMode !== 'grid')
       merged.libraryViewMode = defaults.libraryViewMode
     if (
@@ -619,7 +613,6 @@ interface UiState extends PersistedUiState {
   setColorPortsByType: (value: boolean) => void
   setLanguage: (value: Language) => void
   setOverrideConnectionWarnings: (value: boolean) => void
-  setRentmanEnabled: (value: boolean) => void
   setLibraryViewMode: (mode: 'list' | 'grid') => void
   setLibrarySortMode: (mode: 'manual' | 'asc' | 'desc') => void
   setAnnotationAuthor: (name: string) => void
@@ -974,7 +967,6 @@ export const useUiStore = create<UiState>((set) => ({
   setColorPortsByType: (value) => set(applyPatch({ colorPortsByType: value })),
   setLanguage: (value) => set(applyPatch({ language: value })),
   setOverrideConnectionWarnings: (value) => set(applyPatch({ overrideConnectionWarnings: value })),
-  setRentmanEnabled: (value) => set(applyPatch({ rentmanEnabled: value })),
   setLibraryViewMode: (mode) => set(applyPatch({ libraryViewMode: mode })),
   setLibrarySortMode: (mode) => set(applyPatch({ librarySortMode: mode })),
   setAnnotationAuthor: (name) => set(applyPatch({ annotationAuthor: name })),
