@@ -55,8 +55,10 @@ import {
   setCanvasZoomHandlers,
   setCanvasSelectAllHandler,
   triggerCanvasFitView,
+  setCanvasCenterOnHandler,
 } from '../../lib/canvasViewport'
 import { createDemoProject } from '../../lib/demoProject'
+import { CanvasSearch } from './CanvasSearch'
 import { format, useTranslation } from '../../lib/i18n'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
@@ -151,7 +153,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // (#44) so the new device lands where the user pointed instead of always at
   // the viewport origin.
   const lastMousePosRef = useRef<{ x: number; y: number } | null>(null)
-  const { screenToFlowPosition, setViewport, fitView, getEdges, getNodes, zoomIn, zoomOut, zoomTo } = useReactFlow()
+  const { screenToFlowPosition, setViewport, fitView, getEdges, getNodes, zoomIn, zoomOut, zoomTo, setCenter } = useReactFlow()
   const updateCable = useProjectStore((state) => state.updateCable)
   const updateNodeInternals = useUpdateNodeInternals()
   const [interactionLocked, setInteractionLocked] = useState(false)
@@ -215,6 +217,12 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     setCanvasFitViewHandler(() => fitView({ padding: 0.1, duration: 250 }))
     return () => setCanvasFitViewHandler(null)
   }, [fitView])
+
+  // #ux — Canvas-Suche: auf ein Gerät zentrieren (Bridge wie fitView).
+  useEffect(() => {
+    setCanvasCenterOnHandler((x, y, zoom) => setCenter(x, y, { zoom: zoom ?? 1.2, duration: 400 }))
+    return () => setCanvasCenterOnHandler(null)
+  }, [setCenter])
 
   // #341 — Zoom rein/raus/100% aus dem Ansicht-Menü (Bridge wie fitView).
   useEffect(() => {
@@ -1553,6 +1561,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           </button>
         </div>
       )}
+      {/* #ux — Geräte-Suche (oben mittig), sobald Geräte existieren. */}
+      {mode === 'main' && project.equipment.length > 0 && <CanvasSearch />}
       {/* v7.9.12 — Toolbar wird auch im Rack-Mode gerendert, allerdings
           mit reduziertem Feature-Set (Frame/Group/Lock/Annotations
           ausgeblendet). Snap/Grid/Routing-Defaults/Align bleiben
