@@ -32,6 +32,8 @@ export const ProjectMetaDialog = ({
   const [client, setClient] = useState('')
   const [contractor, setContractor] = useState('')
   const [projectNumber, setProjectNumber] = useState('')
+  const [eventStart, setEventStart] = useState('')
+  const [eventEnd, setEventEnd] = useState('')
   const [companyLogo, setCompanyLogo] = useState<string | undefined>(undefined)
   const [clientLogo, setClientLogo] = useState<string | undefined>(undefined)
   const companyInputRef = useRef<HTMLInputElement>(null)
@@ -54,6 +56,8 @@ export const ProjectMetaDialog = ({
     setClient(src.client ?? '')
     setContractor(src.contractor ?? '')
     setProjectNumber(src.projectNumber ?? '')
+    setEventStart((src.eventStart ?? '').slice(0, 10))
+    setEventEnd((src.eventEnd ?? '').slice(0, 10))
     setCompanyLogo(src.companyLogo)
     setClientLogo(src.clientLogo)
   }, [open, mode])
@@ -69,6 +73,8 @@ export const ProjectMetaDialog = ({
       client: client.trim() || undefined,
       contractor: contractor.trim() || undefined,
       projectNumber: projectNumber.trim() || undefined,
+      eventStart: eventStart || undefined,
+      eventEnd: eventEnd || undefined,
       companyLogo,
       clientLogo,
     })
@@ -152,6 +158,28 @@ export const ProjectMetaDialog = ({
                 value={projectNumber}
                 onChange={(e) => setProjectNumber(e.target.value)}
                 placeholder={t('project.meta.projectNumberPh', 'z.B. 2026-042')}
+                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+              />
+            </label>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <label className="block">
+              {t('project.meta.eventStart', 'Einsatz-/Mietbeginn')}
+              <input
+                type="date"
+                value={eventStart}
+                onChange={(e) => setEventStart(e.target.value)}
+                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+              />
+            </label>
+            <label className="block">
+              {t('project.meta.eventEnd', 'Einsatz-/Mietende')}
+              <input
+                type="date"
+                value={eventEnd}
+                min={eventStart || undefined}
+                onChange={(e) => setEventEnd(e.target.value)}
                 className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
               />
             </label>

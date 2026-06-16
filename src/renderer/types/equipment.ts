@@ -540,6 +540,27 @@ export interface EquipmentItem {
   /** Festinstallation — zeitgestempelte Service-/Wartungs-Historie. Macht aus
    *  der Doku ein CMMS-artiges Asset-Register. Undefined/[] = keine Einträge. */
   serviceHistory?: ServiceRecord[]
+  /** Lager (Phase 0) — Eigentumsverhältnis: eigenes Gerät, angemietet oder
+   *  Sub-Hire (von Dritten weitervermietet). Steuert später die
+   *  Verfügbarkeits-/Mietkalkulation; schon jetzt für Asset-Register/BOM. */
+  ownership?: 'owned' | 'rented' | 'subhire'
+  /** Lager (Phase 0) — Lagerort/Stellplatz (z.B. „Lager A · Regal 3.2"). */
+  stockLocation?: string
+  /** Lager (Phase 0) — Anschaffungsdatum (ISO) für Inventar/Abschreibung. */
+  purchaseDate?: string
+  /** Lager (Phase 0) — Lieferant/Bezugsquelle (Inventar-Herkunft). */
+  supplier?: string
+}
+
+/** Lager (Phase 0) — Eigentumsverhältnis eines Geräts. */
+export type EquipmentOwnership = 'owned' | 'rented' | 'subhire'
+
+/** Anzeige-Reihenfolge + deutsche Default-Labels (UI heilt EN via i18n). */
+export const EQUIPMENT_OWNERSHIPS: EquipmentOwnership[] = ['owned', 'rented', 'subhire']
+export const EQUIPMENT_OWNERSHIP_LABEL: Record<EquipmentOwnership, string> = {
+  owned: 'Eigenbestand',
+  rented: 'Angemietet',
+  subhire: 'Sub-Hire',
 }
 
 /**
