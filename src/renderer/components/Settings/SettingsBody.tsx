@@ -5,10 +5,11 @@
  */
 import { useState, type HTMLAttributes, type ReactNode } from 'react'
 import {
-  ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings, X,
+  ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings, Blocks, X,
   type LucideIcon,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
+import { ModulesTab } from './tabs/ModulesTab'
 import { HotkeysTab } from './tabs/HotkeysTab'
 import { SyncTab } from './tabs/SyncTab'
 import { AdvancedTab } from './tabs/AdvancedTab'
@@ -21,6 +22,7 @@ import { useTranslation } from '../../lib/i18n'
 
 export type SettingsSection =
   | 'project'
+  | 'modules'
   | 'appearance'
   | 'editing'
   | 'hotkeys'
@@ -31,6 +33,7 @@ export type SettingsSection =
 
 const TAB_ICONS: Record<SettingsSection, LucideIcon> = {
   project: ClipboardList,
+  modules: Blocks,
   appearance: Palette,
   editing: Pencil,
   hotkeys: Keyboard,
@@ -42,6 +45,7 @@ const TAB_ICONS: Record<SettingsSection, LucideIcon> = {
 
 const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
   project: 'Projekt',
+  modules: 'Module',
   appearance: 'Darstellung',
   editing: 'Bearbeiten',
   hotkeys: 'Hotkeys',
@@ -53,6 +57,7 @@ const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
 
 const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
   project: 'Projekt-Einstellungen',
+  modules: 'Module',
   appearance: 'Darstellung',
   editing: 'Bearbeiten',
   hotkeys: 'Tastenkürzel',
@@ -64,7 +69,7 @@ const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
 
 const isSection = (v: unknown): v is SettingsSection =>
   typeof v === 'string' &&
-  ['project', 'appearance', 'editing', 'hotkeys', 'integrations', 'configs', 'sync', 'advanced'].includes(v)
+  ['project', 'modules', 'appearance', 'editing', 'hotkeys', 'integrations', 'configs', 'sync', 'advanced'].includes(v)
 
 interface SettingsBodyProps {
   onClose: () => void
@@ -131,6 +136,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
             im langen Erweitert-Tab). */}
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
           {section === 'project' && <ProjectTab onClose={onClose} />}
+          {section === 'modules' && <ModulesTab />}
           {section === 'appearance' && <AppearanceTab />}
           {section === 'editing' && <EditingTab />}
           {section === 'hotkeys' && <HotkeysTab />}

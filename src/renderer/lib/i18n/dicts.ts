@@ -108,6 +108,7 @@ export const en: Dict = {
   'settings.title': 'Settings',
   'settings.section': 'Settings',
   'settings.tab.project': 'Project',
+  'settings.tab.modules': 'Modules',
   'settings.tab.appearance': 'Appearance',
   'settings.tab.editing': 'Editing',
   'settings.tab.hotkeys': 'Hotkeys',
@@ -116,6 +117,7 @@ export const en: Dict = {
   'settings.tab.sync': 'Network sync',
   'settings.tab.advanced': 'Advanced',
   'settings.tabTitle.project': 'Project settings',
+  'settings.tabTitle.modules': 'Modules',
   'settings.tabTitle.appearance': 'Appearance',
   'settings.tabTitle.editing': 'Editing',
   'settings.tabTitle.hotkeys': 'Keyboard shortcuts',
@@ -123,6 +125,36 @@ export const en: Dict = {
   'settings.tabTitle.configs': 'Device configurations',
   'settings.tabTitle.sync': 'Network sync',
   'settings.tabTitle.advanced': 'Advanced',
+
+  // Settings → Modules (modular UI)
+  'settings.modules.intro':
+    'Turn feature areas on or off to tailor the interface to your use case. This only affects visibility — saved project data is always kept in full.',
+  'settings.modules.enable': 'Module enabled',
+  'settings.modules.festinstallation.label': 'Permanent install',
+  'settings.modules.festinstallation.desc':
+    'Lifecycle/service, asset register & QR labels, handover docs and field feedback.',
+  'settings.modules.mobile.label': 'Mobile companion',
+  'settings.modules.mobile.desc':
+    'Phone patch list, plug-in check-off, QR scan lookup and field reports.',
+  'settings.modules.rentman.label': 'Rentman',
+  'settings.modules.rentman.desc': 'Import/export link to Rentman (catalogue + cable quantities).',
+  'settings.modules.rental.label': 'Rental / inventory',
+  'settings.modules.rental.desc':
+    'Stock, ownership & availability, rental costing (work in progress, phase 2+).',
+
+  // First-run module onboarding
+  'onboarding.title': 'Welcome — what do you use Cable Planner for?',
+  'onboarding.intro':
+    'Pick one or more use cases — matching feature modules get enabled. You can change everything later under Settings → Modules.',
+  'onboarding.skip': 'Decide later',
+  'onboarding.confirm': 'Get started',
+  'onboarding.preset.show.label': 'Show / Event',
+  'onboarding.preset.show.desc': 'Temporary productions — plan fast, check off on site.',
+  'onboarding.preset.festinstallation.label': 'Permanent install',
+  'onboarding.preset.festinstallation.desc':
+    'Permanent systems — living docs, service, handover.',
+  'onboarding.preset.rental.label': 'Rental',
+  'onboarding.preset.rental.desc': 'Stock & availability across projects.',
 
   // Settings → Project
   'settings.project.intro': 'Project metadata — saved with the Cable Planner file.',
