@@ -6,7 +6,7 @@ import {
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
   Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles,
   Maximize, Maximize2, ZoomIn, ZoomOut, Scan, BoxSelect, RefreshCw, PackageCheck,
-  Keyboard, Command,
+  Keyboard, Command, Boxes,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
@@ -163,6 +163,7 @@ export const MenuBar = ({
   const festinstallationModule = useModule('festinstallation')
   // Modulares UI — Handy-Zugriff nur zeigen, wenn das Mobile-Modul an ist.
   const mobileModule = useModule('mobile')
+  const rentalModule = useModule('rental')
   // #341 — View-Menü spiegelt Toolbar-Toggles; Status für Häkchen lesen.
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const followSystemTheme = useUiStore((s) => s.followSystemTheme)
@@ -414,6 +415,11 @@ export const MenuBar = ({
           <MenuItem onClick={() => useUiStore.getState().openRevisions()} icon={<Icon icon={History} size="sm" />}>
             {t('app.menu.tools.revisions', 'Revisionen & Snapshots…')}
           </MenuItem>
+          {rentalModule && (
+            <MenuItem onClick={() => useUiStore.getState().openInventory()} icon={<Icon icon={Boxes} size="sm" />}>
+              {t('app.menu.tools.inventory', 'Lager / Bestand…')}
+            </MenuItem>
+          )}
 
           <MenuSectionHeader>{t('app.menu.tools.group.deviceConfig', 'Geräte-Konfiguration')}</MenuSectionHeader>
           <MenuItem onClick={() => useUiStore.getState().openAtemMvConfig()} icon={<Icon icon={Monitor} size="sm" />}>
