@@ -13,6 +13,7 @@ import { ModalShell } from '../shared/ModalShell'
 import { Icon } from '../shared/Icon'
 import { useTranslation, format } from '../../lib/i18n'
 import { runDrawingChecks, type CheckFinding, type CheckSeverity } from '../../lib/drawingChecks'
+import { triggerCanvasCenterOn } from '../../lib/canvasViewport'
 
 const SEVERITY_META: Record<
   CheckSeverity,
@@ -38,9 +39,32 @@ export const PlanCheckPanel = () => {
 
   if (!open) return null
 
+  // Fund anklicken → betroffenes Element selektieren UND die Canvas darauf
+  // zentrieren (centerOn-Bridge), damit man es auch sieht wenn es außerhalb des
+  // Viewports liegt. Bei Kabeln auf die Mitte zwischen den beiden Geräten.
+  const centerOnEquipment = (id: string | undefined) => {
+    const e = id ? equipment.find((x) => x.id === id) : undefined
+    if (e) triggerCanvasCenterOn(e.x + e.width / 2, e.y + e.height / 2)
+    return e
+  }
   const focusFinding = (f: CheckFinding) => {
-    if (f.cableId) setSelection(undefined, f.cableId, undefined)
-    else if (f.equipmentId) setSelection(f.equipmentId, undefined, undefined)
+    if (f.cableId) {
+      setSelection(undefined, f.cableId, undefined)
+      const c = cables.find((x) => x.id === f.cableId)
+      const a = c ? equipment.find((e) => e.id === c.fromEquipmentId) : undefined
+      const b = c ? equipment.find((e) => e.id === c.toEquipmentId) : undefined
+      if (a && b) {
+        triggerCanvasCenterOn(
+          (a.x + a.width / 2 + b.x + b.width / 2) / 2,
+          (a.y + a.height / 2 + b.y + b.height / 2) / 2,
+        )
+      } else {
+        centerOnEquipment(a?.id ?? b?.id)
+      }
+    } else if (f.equipmentId) {
+      setSelection(f.equipmentId, undefined, undefined)
+      centerOnEquipment(f.equipmentId)
+    }
   }
 
   const { findings, errorCount, warningCount, infoCount } = result
