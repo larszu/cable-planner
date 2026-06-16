@@ -64,6 +64,7 @@ export const ShortcutsHelp = () => {
     {
       title: t('shortcutsHelp.canvas', 'Canvas & Navigation'),
       items: [
+        [`${mod}+K`, t('shortcutsHelp.palette', 'Befehlspalette')],
         [`${mod}+F`, t('shortcutsHelp.find', 'Gerät suchen')],
         [`${mod}++`, t('shortcutsHelp.quickAdd', 'Neues Gerät an Mausposition')],
         ['↑ ↓ ← →', t('shortcutsHelp.nudge', 'Gerät verschieben (Umsch = große Schritte)')],
