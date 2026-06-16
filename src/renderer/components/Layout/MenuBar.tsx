@@ -157,9 +157,11 @@ export const MenuBar = ({
       }
     })
   }, [t])
-  const rentmanEnabled = useUiStore((s) => s.rentmanEnabled)
+  const rentmanEnabled = useModule('rentman')
   // Modulares UI — Festinstallations-Doku nur zeigen, wenn das Modul an ist.
   const festinstallationModule = useModule('festinstallation')
+  // Modulares UI — Handy-Zugriff nur zeigen, wenn das Mobile-Modul an ist.
+  const mobileModule = useModule('mobile')
   // #341 — View-Menü spiegelt Toolbar-Toggles; Status für Häkchen lesen.
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const followSystemTheme = useUiStore((s) => s.followSystemTheme)
@@ -608,7 +610,7 @@ export const MenuBar = ({
           </button>
         </div>
         <SharedSyncPanel />
-        {hasDesktopBridge && (
+        {hasDesktopBridge && mobileModule && (
           <button
             type="button"
             onClick={() => useUiStore.getState().openMobileShare()}
