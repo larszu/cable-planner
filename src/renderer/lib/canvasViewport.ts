@@ -145,6 +145,23 @@ export const triggerCanvasResetZoom = () => {
   }
 }
 
+// #ux — Canvas-Suche: auf ein bestimmtes Gerät zentrieren. CanvasArea bindet
+// ReactFlows setCenter; die Suchleiste ruft triggerCanvasCenterOn mit dem
+// Mittelpunkt des Treffers.
+let centerOnHandler: ((x: number, y: number, zoom?: number) => void) | null = null
+export const setCanvasCenterOnHandler = (
+  fn: ((x: number, y: number, zoom?: number) => void) | null,
+) => {
+  centerOnHandler = fn
+}
+export const triggerCanvasCenterOn = (x: number, y: number, zoom?: number) => {
+  try {
+    centerOnHandler?.(x, y, zoom)
+  } catch {
+    /* no-op */
+  }
+}
+
 // v7.8.8 — A*-router callback registered by CanvasArea. The context
 // menu and any other non-canvas caller can ask "please re-route cable
 // X using A*" without needing to live inside the React Flow context.
