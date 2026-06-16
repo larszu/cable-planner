@@ -1,6 +1,7 @@
 import { Check, AlertCircle, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { APP_VERSION } from '../../lib/appInfo'
 import { useUiStore } from '../../store/uiStore'
+import { useModule } from '../../store/settingsStore'
 import { useCollabStore } from '../../store/collabStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
@@ -130,7 +131,7 @@ export const StatusBar = ({
         {/* v7.9.4 — Rentman-Badge nur sichtbar wenn die Integration
             in den Einstellungen aktiviert ist. */}
         <CollabStatusBadge />
-        {useUiStore((s) => s.rentmanEnabled) && (
+        {useModule('rentman') && (
           <span className={`hidden whitespace-nowrap lg:inline ${rentmanProjectName ? 'text-orange-300' : hasToken ? 'text-[var(--cp-text-muted)]' : 'text-[var(--cp-text-faint)]'}`}>
             {t('statusbar.rentman.label', 'Rentman:')}{' '}
             {rentmanProjectName ??

@@ -3,6 +3,7 @@ import { useCanvasProjectStore as useProjectStore } from '../../store/projectSto
 import { Icon } from '../shared/Icon'
 import { cableCatalog } from '../../types/cableSpec'
 import { useUiStore } from '../../store/uiStore'
+import { useModule } from '../../store/settingsStore'
 import { cableTypePatchFromPorts } from '../../lib/cableInheritance'
 import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
@@ -32,6 +33,8 @@ export const CableProperties = () => {
   const setCableTestResult = useProjectStore((state) => state.setCableTestResult)
   const openCableEdit = useUiStore((state) => state.openCableEdit)
   const cableLayersFromStore = useUiStore((state) => state.customLayers)
+  // Modulares UI — Kabel-Lebenszyklus nur bei aktivem Festinstallations-Modul.
+  const festinstallationModule = useModule('festinstallation')
 
   if (!cable) {
     return (
@@ -231,7 +234,8 @@ export const CableProperties = () => {
       </label>
 
       {/* Festinstallation — Lebenszyklus: Status, Trasse, Mantel,
-          Terminierung und Mess-/Test-Ergebnis. */}
+          Terminierung und Mess-/Test-Ergebnis. Nur bei aktivem Modul. */}
+      {festinstallationModule && (
       <details className="rounded border border-cp-border bg-cp-surface-3/40">
         <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
           {t('lifecycle.cableSection', 'Festinstallation / Lebenszyklus')}
@@ -375,6 +379,7 @@ export const CableProperties = () => {
           </div>
         </div>
       </details>
+      )}
 
       {/* #363 — Multicore/Snake-Zuordnung: Kabel mit gleichem Namen bilden
           ein Bündel. Datalist schlägt bereits vergebene Namen vor. */}
