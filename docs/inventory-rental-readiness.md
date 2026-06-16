@@ -82,13 +82,14 @@ Optional später: NetBox-/Rentman-Sync als Quelle des Bestands.
 
 ## 4. Vorgeschlagene Phasen (inkrementell, je eigener PR)
 
-**Phase 0 — Datenmodell-Felder am Gerät (klein, sofort nützlich).**
-Felder ergänzen, die schon innerhalb *eines* Plans Wert haben:
+**Phase 0 — Datenmodell-Felder am Gerät (klein, sofort nützlich). ✅ umgesetzt.**
+Felder ergänzt, die schon innerhalb *eines* Plans Wert haben:
 `ownership` (`owned`/`rented`/`subhire`), `stockLocation`, `purchaseDate`,
-`supplier`. Reines Additiv, kein neuer Store. Speist Asset-Register + BOM.
+`supplier`. Reines Additiv, kein neuer Store. Editierbar in der Geräte-
+Lebenszyklus-Section; im Asset-Register-CSV als Spalten.
 
-**Phase 1 — Projekt-Zeitraum.**
-`metadata.eventStart/eventEnd` + UI im Metadaten-Dialog. Voraussetzung für
+**Phase 1 — Projekt-Zeitraum. ✅ umgesetzt.**
+`metadata.eventStart/eventEnd` + UI im Projektdaten-Dialog. Voraussetzung für
 jede Verfügbarkeits-Rechnung. Trivial, aber Türöffner.
 
 **Phase 2 — Zentraler Bestand (Lager-Modul, MVP).**

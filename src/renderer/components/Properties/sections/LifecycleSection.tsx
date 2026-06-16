@@ -18,7 +18,12 @@ import {
   type InstallStatus,
   type ServiceRecord,
 } from '../../../types/lifecycle'
-import type { EquipmentItem } from '../../../types/equipment'
+import {
+  EQUIPMENT_OWNERSHIPS,
+  EQUIPMENT_OWNERSHIP_LABEL,
+  type EquipmentItem,
+  type EquipmentOwnership,
+} from '../../../types/equipment'
 
 const SERVICE_KINDS: ServiceRecord['kind'][] = [
   'install',
@@ -121,6 +126,69 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
             className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
           />
         </label>
+
+        {/* Lager (Phase 0) — Eigentum, Lagerort, Lieferant, Anschaffung */}
+        <div className="grid grid-cols-2 gap-2">
+          <label className="block">
+            <span className="mb-1 block text-cp-text-secondary">
+              {t('lifecycle.ownership', 'Eigentum')}
+            </span>
+            <select
+              value={equipment.ownership ?? ''}
+              onChange={(e) =>
+                updateEquipment(equipment.id, {
+                  ownership: (e.target.value || undefined) as EquipmentOwnership | undefined,
+                })
+              }
+              className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+            >
+              <option value="">{t('lifecycle.ownershipNone', '— k.A. —')}</option>
+              {EQUIPMENT_OWNERSHIPS.map((o) => (
+                <option key={o} value={o}>
+                  {EQUIPMENT_OWNERSHIP_LABEL[o]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-cp-text-secondary">
+              {t('lifecycle.purchaseDate', 'Anschaffung')}
+            </span>
+            <input
+              type="date"
+              value={(equipment.purchaseDate ?? '').slice(0, 10)}
+              onChange={(e) =>
+                updateEquipment(equipment.id, { purchaseDate: e.target.value || undefined })
+              }
+              className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-cp-text-secondary">
+              {t('lifecycle.stockLocation', 'Lagerort')}
+            </span>
+            <input
+              value={equipment.stockLocation ?? ''}
+              onChange={(e) =>
+                updateEquipment(equipment.id, { stockLocation: e.target.value || undefined })
+              }
+              placeholder={t('lifecycle.stockLocationPh', 'z.B. Lager A · Regal 3.2')}
+              className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-cp-text-secondary">
+              {t('lifecycle.supplier', 'Lieferant')}
+            </span>
+            <input
+              value={equipment.supplier ?? ''}
+              onChange={(e) =>
+                updateEquipment(equipment.id, { supplier: e.target.value || undefined })
+              }
+              className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+            />
+          </label>
+        </div>
 
         {/* Service-Historie */}
         <div>

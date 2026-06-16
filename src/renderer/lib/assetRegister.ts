@@ -8,6 +8,7 @@
 import type { CablePlannerProject } from '../types/project'
 import type { EquipmentItem } from '../types/equipment'
 import { INSTALL_STATUS_LABEL } from '../types/lifecycle'
+import { EQUIPMENT_OWNERSHIP_LABEL } from '../types/equipment'
 import { equipmentAssetTag } from './docIds'
 import { toCsv, type CsvCell } from './csv'
 
@@ -20,6 +21,10 @@ export interface AssetRow {
   ip: string
   firmware: string
   status: string
+  ownership: string
+  stockLocation: string
+  supplier: string
+  purchaseDate: string
   warrantyUntil: string
   maintenanceIntervalDays: string
   lastService: string
@@ -52,6 +57,10 @@ export const buildAssetRows = (project: CablePlannerProject): AssetRow[] =>
       ip: e.ipAddress ?? '',
       firmware: e.firmware ?? '',
       status: e.installStatus ? INSTALL_STATUS_LABEL[e.installStatus] : '',
+      ownership: e.ownership ? EQUIPMENT_OWNERSHIP_LABEL[e.ownership] : '',
+      stockLocation: e.stockLocation ?? '',
+      supplier: e.supplier ?? '',
+      purchaseDate: e.purchaseDate ?? '',
       warrantyUntil: e.warrantyUntil ?? '',
       maintenanceIntervalDays:
         typeof e.maintenanceIntervalDays === 'number'
@@ -73,6 +82,10 @@ export const assetRegisterCsv = (project: CablePlannerProject): string => {
     'IP',
     'Firmware',
     'Status',
+    'Eigentum',
+    'Lagerort',
+    'Lieferant',
+    'Anschaffung',
     'Garantie bis',
     'Wartungsintervall (Tage)',
     'Letzter Service',
@@ -87,6 +100,10 @@ export const assetRegisterCsv = (project: CablePlannerProject): string => {
     r.ip,
     r.firmware,
     r.status,
+    r.ownership,
+    r.stockLocation,
+    r.supplier,
+    r.purchaseDate,
     r.warrantyUntil,
     r.maintenanceIntervalDays,
     r.lastService,
