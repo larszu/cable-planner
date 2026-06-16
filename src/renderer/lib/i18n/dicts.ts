@@ -3370,6 +3370,16 @@ export const en: Dict = {
   'shortcutsHelp.quickAdd': 'New device at cursor',
   'shortcutsHelp.nudge': 'Move device (Shift = larger steps)',
   'shortcutsHelp.help': 'Show this overview',
+  'shortcutsHelp.palette': 'Command palette',
+  // Befehlspalette (Strg/Cmd+K)
+  'shortcut.ctrlK': 'Ctrl+K',
+  'app.menu.help.commandPalette': 'Command palette…',
+  'palette.placeholder': 'Search command…',
+  'palette.empty': 'No commands found',
+  'palette.zoomIn': 'Zoom in',
+  'palette.zoomOut': 'Zoom out',
+  'palette.zoomReset': 'Reset zoom (100%)',
+  'palette.settings': 'Settings…',
   // Analysen-Dialog (#346/#351/#352)
   'analysis.title': 'Analyses',
   'analysis.exportCsv': 'Export CSV',
