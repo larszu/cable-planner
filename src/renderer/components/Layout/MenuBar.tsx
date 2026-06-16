@@ -6,7 +6,7 @@ import {
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
   Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles,
   Maximize, Maximize2, ZoomIn, ZoomOut, Scan, BoxSelect, RefreshCw, PackageCheck,
-  Keyboard,
+  Keyboard, Command,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
@@ -547,6 +547,13 @@ export const MenuBar = ({
         </Menu>
 
         <Menu label={t('app.menu.help', 'Hilfe')}>
+          <MenuItem
+            onClick={() => window.dispatchEvent(new CustomEvent('cp:open-command-palette'))}
+            icon={<Icon icon={Command} size="sm" />}
+            shortcut={t('shortcut.ctrlK', 'Strg+K')}
+          >
+            {t('app.menu.help.commandPalette', 'Befehlspalette…')}
+          </MenuItem>
           <MenuItem
             onClick={() => window.dispatchEvent(new CustomEvent('cp:open-shortcuts-help'))}
             icon={<Icon icon={Keyboard} size="sm" />}

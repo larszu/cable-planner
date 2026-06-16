@@ -47,6 +47,7 @@ import { BulkConnectDialog } from './components/Canvas/BulkConnectDialog'
 import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
 import { PlanCheckPanel } from './components/Analysis/PlanCheckPanel'
 import { ShortcutsHelp } from './components/Layout/ShortcutsHelp'
+import { CommandPalette } from './components/Layout/CommandPalette'
 import { RevisionsDialog } from './components/Project/RevisionsDialog'
 import { AiPlanGenDialog } from './components/Project/AiPlanGenDialog'
 import { CsvImportDialog } from './components/Import/CsvImportDialog'
@@ -1123,6 +1124,7 @@ export default function App() {
       <AnalysisDialog />
       <PlanCheckPanel />
       <ShortcutsHelp />
+      <CommandPalette />
       <RevisionsDialog />
       <AiPlanGenDialog />
       <CsvImportDialog />
