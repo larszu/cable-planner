@@ -93,6 +93,11 @@ export interface ProjectMetadata {
   serviceProvider?: string
   /** Festinstallation — Notfall-/Servicekontakt (Telefon/E-Mail). */
   emergencyContact?: string
+  /** Lager (Phase 1) — Beginn des Einsatz-/Miet-Zeitraums (ISO-Datum). Basis
+   *  für die spätere projektübergreifende Verfügbarkeits-/Konflikt-Rechnung. */
+  eventStart?: string
+  /** Lager (Phase 1) — Ende des Einsatz-/Miet-Zeitraums (ISO-Datum). */
+  eventEnd?: string
 }
 
 /** #350 — Konfiguration für die geometrische Kabellängen-Schätzung. */

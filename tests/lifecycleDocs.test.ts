@@ -172,6 +172,24 @@ describe('buildAssetRows', () => {
     expect(rows[0].status).toBe('In Betrieb')
     expect(rows[0].serviceCount).toBe(1)
   })
+
+  it('mappt die Lager-Felder (Eigentum/Lagerort/Lieferant/Anschaffung)', () => {
+    const p = project({
+      equipment: [
+        eq('A', 'Kamera 1', {
+          ownership: 'rented',
+          stockLocation: 'Lager A · Regal 3.2',
+          supplier: 'Rentcorp',
+          purchaseDate: '2025-11-02',
+        }),
+      ],
+    })
+    const r = buildAssetRows(p)[0]
+    expect(r.ownership).toBe('Angemietet')
+    expect(r.stockLocation).toBe('Lager A · Regal 3.2')
+    expect(r.supplier).toBe('Rentcorp')
+    expect(r.purchaseDate).toBe('2025-11-02')
+  })
 })
 
 describe('sourceDestLabel (F501.01)', () => {
