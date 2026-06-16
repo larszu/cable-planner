@@ -1,5 +1,5 @@
 import { AlertTriangle } from 'lucide-react'
-import { useUiStore } from '../../../store/uiStore'
+import { useModule } from '../../../store/settingsStore'
 import type { EquipmentItem } from '../../../types/equipment'
 import { format, useTranslation } from '../../../lib/i18n'
 import { Icon } from '../../shared/Icon'
@@ -16,7 +16,7 @@ import { Icon } from '../../shared/Icon'
  */
 export const RentmanSyncBadge = ({ equipment }: { equipment: EquipmentItem }) => {
   const t = useTranslation()
-  const rentmanEnabled = useUiStore((state) => state.rentmanEnabled)
+  const rentmanEnabled = useModule('rentman')
   if (!rentmanEnabled) return null
 
   if (equipment.rentmanRemoved) {

@@ -11,6 +11,23 @@ import {
 
 const SETTINGS_KEY = STORAGE_KEYS.settings
 
+/**
+ * Einmalige Rentman-Migration: `rentmanEnabled` lebte früher im uiStore
+ * (`cable-planner:ui`). Beim Übergang aufs Modul-System lesen wir den Alt-Wert
+ * einmal aus, damit bestehende Nutzer ihre Rentman-Einstellung behalten.
+ * Liefert null, wenn kein Alt-Wert existiert.
+ */
+const readLegacyRentmanEnabled = (): boolean | null => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.ui)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as { rentmanEnabled?: unknown }
+    return typeof parsed.rentmanEnabled === 'boolean' ? parsed.rentmanEnabled : null
+  } catch {
+    return null
+  }
+}
+
 interface PersistedSettings {
   autosaveIntervalMs: number
   sharedSyncPath: string
@@ -48,7 +65,15 @@ const load = (): PersistedSettings => {
       sharedSyncPath: typeof parsed.sharedSyncPath === 'string' ? parsed.sharedSyncPath : defaults.sharedSyncPath,
       sharedSyncUser: typeof parsed.sharedSyncUser === 'string' ? parsed.sharedSyncUser : defaults.sharedSyncUser,
       editorName: typeof parsed.editorName === 'string' ? parsed.editorName : defaults.editorName,
-      enabledModules: healEnabledModules(parsed.enabledModules),
+      enabledModules: (() => {
+        const e = healEnabledModules(parsed.enabledModules)
+        // Rentman noch nicht im Modul-System gespeichert → Alt-Wert übernehmen.
+        if (parsed.enabledModules?.rentman === undefined) {
+          const legacy = readLegacyRentmanEnabled()
+          if (legacy !== null) e.rentman = legacy
+        }
+        return e
+      })(),
       // Bestehende Installationen (Settings vorhanden, aber noch ohne dieses
       // Feld) gelten als „onboarded" → kein nachträglicher Dialog für sie.
       onboardingDone:

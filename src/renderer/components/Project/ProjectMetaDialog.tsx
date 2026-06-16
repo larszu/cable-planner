@@ -3,6 +3,7 @@ import type { ProjectMetadata } from '../../types/project'
 import { readImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { ModalShell } from '../shared/ModalShell'
 import { useTranslation } from '../../lib/i18n'
+import { useModule } from '../../store/settingsStore'
 
 /**
  * Dialog used both when starting a new project and when editing metadata
@@ -26,6 +27,8 @@ export const ProjectMetaDialog = ({
   onConfirm,
 }: ProjectMetaDialogProps) => {
   const t = useTranslation()
+  // Modulares UI — Einsatz-/Mietzeitraum nur bei aktivem Rental-/Lager-Modul.
+  const rentalModule = useModule('rental')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [author, setAuthor] = useState('')
@@ -163,6 +166,7 @@ export const ProjectMetaDialog = ({
             </label>
           </div>
 
+          {rentalModule && (
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
               {t('project.meta.eventStart', 'Einsatz-/Mietbeginn')}
@@ -184,6 +188,7 @@ export const ProjectMetaDialog = ({
               />
             </label>
           </div>
+          )}
 
           <label className="block">
             {t('project.meta.description', 'Beschreibung')}
