@@ -756,6 +756,8 @@ export const en: Dict = {
   // Status bar (right side of canvas footer)
   'canvas.empty.title': 'No devices yet',
   'canvas.empty.hint': 'Drag a device from the library on the left onto the canvas to get started.',
+  'canvas.empty.or': '— or —',
+  'canvas.empty.loadDemo': 'Load example project',
   'statusbar.equipment': '{count} devices',
   'statusbar.cables': '{count} cables',
   'statusbar.locations': '{count} frames',
