@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v8.1.0 · ~235 TS/TSX-Module · ~73.5k LOC
+Stand: v8.2.0 · ~339 TS/TSX-Module · ~97.7k LOC
 
 ---
 
@@ -434,18 +434,22 @@ Erweiterung auf `equipment`/`locations`, Undo-Integration.
 
 ### 9.5 · Tests
 
-Heute: kein Test-Skript in `package.json`. Bei 73k LOC ist das ein
-Regressions-Risiko. Empfohlene Erst-Suite:
-- `vitest` + Snapshot-Tests auf `healProjectPositions` mit echten
+`vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
+gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`) und ein
+UI-Smoke-Skript (`npm run ui:smoke`). Bei ~97.7k LOC bleibt der Ausbau der
+Abdeckung wichtig — empfohlene Schwerpunkte:
+- Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.
 - Property-Tests auf `projectHistory` (Undo-Redo-Invarianten).
 - Smoke-Tests auf IPC-Channels (Mock-`fs`).
 
-### 9.6 · Web-Viewer (Issue #143)
+### 9.6 · Web-Viewer (Issue #143) — **umgesetzt** ✓
 
-Read-only Web-Renderer (separate Vite-Entry `viewer.html`) für
-Reviewer ohne Desktop-App. Annotations-only, keine Edits. Phase 1
-geplant ~2-3 Tage.
+Read-only Web-Renderer als eigener Vite-Entry `viewer.html`
+(`src/viewer/ViewerApp.tsx`, in `vite.config.ts` als `viewer`-Input) für
+Reviewer ohne Desktop-App — rendert ein geladenes `.cpviewer`/`.json`
+standalone, keine Edits. Wird über `.github/workflows/pages.yml`
+(`npm run build:renderer` → `dist/renderer`) auf GitHub Pages deployt.
 
 ---
 
