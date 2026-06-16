@@ -65,6 +65,89 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     placements: [],
     internalCables: [],
   })
+  // #558 — Lokale Undo/Redo-History fuer den Rack-Builder. Die globale
+  // projectHistory in store/projectHistory kennt nur den projectStore;
+  // der Builder-Draft ist React-Komponenten-State und wuerde sonst
+  // Strg+Z komplett ignorieren. Halten zwei Stacks past/future und einen
+  // Suspend-Flag fuer programmatische Restores (sonst wuerde das Restore
+  // selbst wieder einen History-Eintrag erzeugen).
+  const draftHistoryRef = useRef<{ past: RackDraft[]; future: RackDraft[]; suspend: boolean }>({
+    past: [],
+    future: [],
+    suspend: false,
+  })
+  const lastDraftRef = useRef<RackDraft>(draft)
+  useEffect(() => {
+    if (!open) return
+    const hist = draftHistoryRef.current
+    if (hist.suspend) {
+      hist.suspend = false
+      lastDraftRef.current = draft
+      return
+    }
+    // Erster Snapshot beim Open: nichts pushen, nur Start-Punkt setzen.
+    if (lastDraftRef.current === draft) return
+    hist.past.push(lastDraftRef.current)
+    if (hist.past.length > 100) hist.past.shift()
+    hist.future = []
+    lastDraftRef.current = draft
+  }, [draft, open])
+  useEffect(() => {
+    if (!open) {
+      // Beim Schliessen History komplett zuruecksetzen.
+      draftHistoryRef.current = { past: [], future: [], suspend: false }
+      lastDraftRef.current = draft
+    }
+    // Beim Open: lastDraftRef auf den initialen Draft setzen damit der
+    // erste Effekt-Lauf nichts in past speichert.
+    else if (lastDraftRef.current !== draft && draftHistoryRef.current.past.length === 0) {
+      lastDraftRef.current = draft
+    }
+  }, [open])
+  // #558 — Strg+Z / Strg+Umsch+Z / Strg+Y im Rack-Builder. Window-level
+  // mit Capture-Phase damit der globale useUndoRedoShortcuts-Handler in
+  // store/projectHistory.ts NICHT gleichzeitig die projectHistory zurueck-
+  // popt — sonst macht jedes Strg+Z gleichzeitig den letzten Canvas-Step
+  // UND den letzten Rack-Builder-Step rueckgaengig. Nur aktiv solange der
+  // Dialog offen ist.
+  useEffect(() => {
+    if (!open) return
+    const handler = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey)) return
+      const target = event.target as HTMLElement | null
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable)
+      ) {
+        return
+      }
+      const key = event.key.toLowerCase()
+      const isUndo = key === 'z' && !event.shiftKey
+      const isRedo = (key === 'z' && event.shiftKey) || key === 'y'
+      if (!isUndo && !isRedo) return
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      const hist = draftHistoryRef.current
+      if (isUndo) {
+        const prev = hist.past.pop()
+        if (!prev) return
+        hist.future.push(lastDraftRef.current)
+        hist.suspend = true
+        setDraft(prev)
+      } else {
+        const next = hist.future.pop()
+        if (!next) return
+        hist.past.push(lastDraftRef.current)
+        hist.suspend = true
+        setDraft(next)
+      }
+    }
+    window.addEventListener('keydown', handler, true)
+    return () => window.removeEventListener('keydown', handler, true)
+  }, [open])
   const [wireDialogOpen, setWireDialogOpen] = useState(false)
   const [query, setQuery] = useState('')
   // v7.9.9 — Inline-Validation: Statt window.alert blockiert

@@ -140,6 +140,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const setHighlightedNetKey = useUiStore((state) => state.setHighlightedNetKey)
   // v7.8.7 — cable right-click context menu trigger.
   const openCableContextMenu = useUiStore((state) => state.openCableContextMenu)
+  // #557 — Kontextmenüs schliessen sobald Canvas verschoben/gezoomt wird.
+  const closeCableContextMenu = useUiStore((state) => state.closeCableContextMenu)
   // v7.9.3 — Projekt-Lock: 'finalized' und 'viewer' Modus blockieren
   // alle Bearbeitungs-Interaktionen am Canvas. Viewer kann zusätzlich
   // Annotations setzen (UI in CanvasToolbar + AnnotationsPanel).
@@ -1774,6 +1776,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         // port handles. The store value is read by both components.
         onEdgeMouseEnter={(_event, edge) => setHoveredCableId(edge.id)}
         onEdgeMouseLeave={() => setHoveredCableId(null)}
+        // #557 — Beim Pan/Zoom-Start beide Rechts-Klick-Menues schliessen.
+        // Sonst klebt das Menue an der alten Bildschirm-Position, waehrend
+        // der referenzierte Knoten unter dem Cursor wegrutscht.
+        onMoveStart={() => {
+          setNodeContextMenu(null)
+          closeCableContextMenu()
+        }}
       >
         {/* #zoomfix — Viewport→Store-Sync (auch bei Menü-/Toolbar-Zoom), ersetzt
             das frühere onMoveEnd, das programmatischen Zoom nicht erfasste. */}
