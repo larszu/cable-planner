@@ -46,6 +46,7 @@ import { ProjectionCalculatorDialog } from './components/Calculators/ProjectionC
 import { BulkConnectDialog } from './components/Canvas/BulkConnectDialog'
 import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
 import { PlanCheckPanel } from './components/Analysis/PlanCheckPanel'
+import { InventoryDialog } from './components/Inventory/InventoryDialog'
 import { ShortcutsHelp } from './components/Layout/ShortcutsHelp'
 import { CommandPalette } from './components/Layout/CommandPalette'
 import { RevisionsDialog } from './components/Project/RevisionsDialog'
@@ -105,6 +106,7 @@ import { Icon } from './components/shared/Icon'
 export default function App() {
   const t = useTranslation()
   const project = useProjectStore((state) => state.project)
+  const inventoryOpen = useUiStore((state) => state.inventory.open)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
   const followSystemTheme = useUiStore((state) => state.followSystemTheme)
   const setCanvasTheme = useUiStore((state) => state.setCanvasTheme)
@@ -1139,6 +1141,11 @@ export default function App() {
         }
         onPrintPdf={(theme) => handlePrintPdf(theme)}
         onExportImage={(format) => handleExportImage(format)}
+      />
+
+      <InventoryDialog
+        open={inventoryOpen}
+        onClose={() => useUiStore.getState().closeInventory()}
       />
 
       <ProjectMetaDialog

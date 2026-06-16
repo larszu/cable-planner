@@ -28,6 +28,8 @@ export const STORAGE_KEYS = {
   ui: 'cable-planner:ui',
   /** Settings-Store (App-weite Settings, Autosave-Intervall etc.). */
   settings: 'cable-planner:settings',
+  /** Inventory-Store (Phase 2 — zentraler, planübergreifender Bestand). */
+  inventory: 'cable-planner:inventory',
   /** ATEM-Switcher Discovery-Cache. */
   rentmanTemplateCacheV1: 'cable-planner:rentmanTemplateCache:v1',
   /** NetBox device-type-library Index-Cache. */

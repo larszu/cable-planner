@@ -868,6 +868,10 @@ interface UiState extends PersistedUiState {
   openPlanCheck: () => void
   closePlanCheck: () => void
   togglePlanCheck: () => void
+  /** Zentraler Lager-/Bestands-Dialog (Phase 2 — gated durch `rental`-Modul). */
+  inventory: { open: boolean }
+  openInventory: () => void
+  closeInventory: () => void
   /** Revisionen/Snapshots-Verwaltung (#412). */
   revisions: { open: boolean }
   openRevisions: () => void
@@ -1304,6 +1308,9 @@ export const useUiStore = create<UiState>((set) => ({
   openPlanCheck: () => set({ planCheck: { open: true } }),
   closePlanCheck: () => set({ planCheck: { open: false } }),
   togglePlanCheck: () => set((s) => ({ planCheck: { open: !s.planCheck.open } })),
+  inventory: { open: false },
+  openInventory: () => set({ inventory: { open: true } }),
+  closeInventory: () => set({ inventory: { open: false } }),
   revisions: { open: false },
   openRevisions: () => set({ revisions: { open: true } }),
   closeRevisions: () => set({ revisions: { open: false } }),
