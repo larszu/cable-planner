@@ -37,7 +37,7 @@ export const RackBuilderHeader = ({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <h3 className="truncate text-cp-xl font-semibold text-cp-text">
-            {editingId ? rackName || '(unbenanntes Rack)' : 'Neues Rack'}
+            {editingId ? rackName || t('rack.unnamedRack', '(unbenanntes Rack)') : t('rack.newRack', 'Neues Rack')}
           </h3>
           <span
             className={`shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${

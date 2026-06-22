@@ -22,6 +22,7 @@ interface CodecPreset {
   mbps: number
 }
 
+// 'custom'-Label wird zur Laufzeit uebersetzt (siehe codecOptionLabel).
 const CODEC_PRESETS: CodecPreset[] = [
   { id: 'prores-422-hq', label: 'ProRes 422 HQ (1080p25)', mbps: 220 },
   { id: 'prores-422', label: 'ProRes 422 (1080p25)', mbps: 147 },
@@ -117,7 +118,8 @@ export const RecordingStorageCalcCore = ({
         >
           {CODEC_PRESETS.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.label}{c.id === 'custom' ? '' : ` — ${c.mbps} Mbps`}
+              {c.id === 'custom' ? t('recStorage.codecCustom', 'Custom (eigene Bitrate)') : c.label}
+              {c.id === 'custom' ? '' : ` — ${c.mbps} Mbps`}
             </option>
           ))}
         </select>
@@ -270,9 +272,9 @@ export const RecordingStorageCalcCore = ({
           {t('recStorage.formulaHeader', 'Formel')}
         </summary>
         <code className="block px-3 py-2 text-[11px] text-cp-text-secondary">
-          (Mbps × 3600 s × Stunden) ÷ 8 ÷ 1024 = GB pro Kanal
+          {t('recStorage.formulaLine1', '(Mbps × 3600 s × Stunden) ÷ 8 ÷ 1024 = GB pro Kanal')}
           <br />
-          GB pro Kanal × Kanäle = Gesamt
+          {t('recStorage.formulaLine2', 'GB pro Kanal × Kanäle = Gesamt')}
         </code>
       </details>
     </div>

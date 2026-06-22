@@ -18,6 +18,7 @@ import { useRef, useState } from 'react'
 import type { Port } from '../../types/equipment'
 import { ConnectorSymbol } from '../shared/ConnectorSymbol'
 import { findConnectorEntry, connectorGender } from '../../lib/connectorCatalog'
+import { useTranslation } from '../../lib/i18n'
 
 interface Props {
   /** Ports die auf dieser Face gerendert werden sollen (bereits gefiltert
@@ -66,6 +67,7 @@ export const PortDots2D = ({
   updatePlacement,
   showSymbols,
 }: Props) => {
+  const t = useTranslation()
   const [dragOverride, setDragOverride] = useState<{ id: string; x: number; y: number } | null>(null)
   const draggingRef = useRef<{ id: string; pointerId: number } | null>(null)
 
@@ -132,7 +134,7 @@ export const PortDots2D = ({
               setDragOverride(null)
             }}
             onClick={(e) => e.stopPropagation()}
-            title={`${port.name} · ${port.connectorType}\n(ziehen zum Verschieben auf das Panel-Foto)`}
+            title={`${port.name} · ${port.connectorType}\n${t('rack.portDots.dragHint', '(ziehen zum Verschieben auf das Panel-Foto)')}`}
             className={`pointer-events-auto absolute flex -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center active:cursor-grabbing ${
               symEntry ? '' : 'rounded-full border-2 border-white/80 shadow-md'
             }`}

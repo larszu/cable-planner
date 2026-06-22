@@ -59,7 +59,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   const autosaveIntervalMs = useSettingsStore((state) => state.autosaveIntervalMs)
   const editingId = initialPreset?.id
   const [draft, setDraft] = useState<RackDraft>({
-    rackName: 'Neues Rack',
+    rackName: t('rack.newRack', 'Neues Rack'),
     totalUnits: 42,
     viewMode: 'front',
     placements: [],
@@ -932,7 +932,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           {placedCount > 0 && (
                             <span
                               className="shrink-0 rounded bg-emerald-800/70 px-1 text-[8px] font-semibold uppercase text-emerald-200"
-                              title={`${placedCount}× im Rack platziert`}
+                              title={format(t('rack.placedCountTitle', '{count}× im Rack platziert'), { count: placedCount })}
                             >
                               ✓ {placedCount}×
                             </span>
@@ -957,7 +957,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         onAddFull={() => void addTemplate(template, { mountSide: 'full' })}
                         onAddFront={() => void addTemplate(template, { mountSide: 'front' })}
                         onAddRear={() => void addTemplate(template, { mountSide: 'rear' })}
-                        primaryLabel={placedCount > 0 ? '+ Weitere' : '+ Ins Rack'}
+                        primaryLabel={placedCount > 0 ? t('rack.addMore', '+ Weitere') : t('rack.addToRack', '+ Ins Rack')}
                       />
                     </div>
                     <div className="mt-1 text-[10px] text-cp-text-muted">
@@ -1258,7 +1258,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         className="inline-block h-1.5 w-1.5 rounded-full"
                         style={{ background: side === 'front' ? '#38bdf8' : '#a855f7' }}
                       />
-                      {side === 'front' ? 'Vorne' : 'Hinten'}
+                      {side === 'front' ? t('rack.viewMode.front', 'Vorne') : t('rack.viewMode.rear', 'Hinten')}
                     </span>
                   </div>
                   <div

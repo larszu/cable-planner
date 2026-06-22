@@ -241,11 +241,11 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
         category === 'internal'
       const lockReason =
         category === 'mediaplayer'
-          ? 'Mediaplayer-Slot — Default-Label vom ATEM (zeigt Clip-/Still-Name)'
+          ? t('atem.dialog.lockReason.mediaplayer', 'Mediaplayer-Slot — Default-Label vom ATEM (zeigt Clip-/Still-Name)')
           : category === 'audio-input'
-            ? 'Audio-Input — wird nicht aus Canvas-Port-Namen ueberschrieben'
+            ? t('atem.dialog.lockReason.audioInput', 'Audio-Input — wird nicht aus Canvas-Port-Namen ueberschrieben')
             : category === 'internal'
-              ? 'Interne Quelle (Black/Bars/Color/SuperSource) — Default-Label behalten'
+              ? t('atem.dialog.lockReason.internal', 'Interne Quelle (Black/Bars/Color/SuperSource) — Default-Label behalten')
               : undefined
       return {
         inputId: input.inputId,
@@ -259,7 +259,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
         lockReason,
       }
     })
-  }, [state, drafts])
+  }, [state, drafts, t])
 
   const dirtyCount = rows.filter((r) => r.changed && !r.locked).length
 
@@ -309,7 +309,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
         <div className="border-b border-cp-border px-4 py-3">
           <div className="flex items-end gap-2">
             <label className="flex-1 text-cp-xs">
-              <span className="mb-1 block text-cp-text-secondary">ATEM IP-Adresse</span>
+              <span className="mb-1 block text-cp-text-secondary">{t('atem.dialog.ipLabel', 'ATEM IP-Adresse')}</span>
               <input
                 value={ip}
                 onChange={(event) => setIp(event.target.value)}
@@ -327,7 +327,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 title={t('atem.dialog.discoverTitle', 'ATEM-Switcher per mDNS (Bonjour) im lokalen Netzwerk suchen')}
               >
                 <Icon icon={Search} size="xs" className="mr-1 inline-block align-text-bottom" />
-                {discovering ? 'Suche…' : 'Suchen'}
+                {discovering ? t('atem.dialog.searching', 'Suche…') : t('atem.dialog.search', 'Suchen')}
               </button>
             )}
             {status !== 'connected' && (
@@ -337,7 +337,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 disabled={status === 'connecting' || !ip.trim()}
                 className="rounded bg-sky-700 px-3 py-2 text-cp-base hover:bg-sky-600 disabled:opacity-50"
               >
-                {status === 'connecting' ? 'Verbinde…' : 'Verbinden'}
+                {status === 'connecting' ? t('atem.dialog.connecting', 'Verbinde…') : t('atem.dialog.connect', 'Verbinden')}
               </button>
             )}
             {status === 'connected' && (
@@ -346,7 +346,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 onClick={disconnect}
                 className="rounded bg-cp-surface-4 px-3 py-2 text-cp-base hover:bg-cp-surface-5"
               >
-                Trennen
+                {t('atem.dialog.disconnect', 'Trennen')}
               </button>
             )}
             {status === 'connected' && (
@@ -417,7 +417,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
           <div className="flex-1 overflow-auto px-4 py-3">
             <div className="mb-2 flex items-center justify-between">
               <h3 className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">
-                Input-Namen ({rows.length})
+                {t('atem.dialog.inputNames', 'Input-Namen')} ({rows.length})
               </h3>
               <button
                 type="button"
@@ -425,7 +425,9 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 disabled={pushing || dirtyCount === 0}
                 className="rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
               >
-                {pushing ? 'Sende…' : `${dirtyCount} Änderungen senden`}
+                {pushing
+                  ? t('atem.dialog.sending', 'Sende…')
+                  : format(t('atem.dialog.sendChanges', '{n} Änderungen senden'), { n: dirtyCount })}
               </button>
             </div>
             <table className="w-full table-fixed text-cp-xs">
@@ -521,7 +523,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
         <details className="border-t border-cp-border px-4 py-2 text-[11px]">
           <summary className="cursor-pointer text-cp-text-muted">{t('atem.eventLog', 'Event-Log')} ({events.length})</summary>
           <pre className="mt-2 max-h-40 overflow-auto rounded bg-cp-surface-3 p-2 font-mono text-[10px] text-cp-text-secondary">
-            {events.join('\n') || '(noch keine Events)'}
+            {events.join('\n') || t('atem.dialog.noEvents', '(noch keine Events)')}
           </pre>
         </details>
       </div>

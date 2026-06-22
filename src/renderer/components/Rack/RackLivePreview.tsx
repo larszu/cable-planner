@@ -228,7 +228,7 @@ export const RackLivePreview = ({
             }}
             title={rackName}
           >
-            {(rackName || '(unbenannt)').slice(0, 32)}
+            {(rackName || t('rack.unnamed', '(unbenannt)')).slice(0, 32)}
             {(rackName || '').length > 32 ? '…' : ''}
           </div>
 

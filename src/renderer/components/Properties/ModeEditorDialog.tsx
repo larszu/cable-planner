@@ -277,7 +277,7 @@ export const ModeEditorDialog = ({
                     onClick={() => addPort(side)}
                     className="rounded bg-cp-surface-2 px-2 py-0.5 text-[10px] text-cp-text-secondary hover:bg-cp-surface-4"
                   >
-                    + Port
+                    + {t('modeEditor.addPort', 'Port')}
                   </button>
                 </div>
                 {list.length === 0 ? (

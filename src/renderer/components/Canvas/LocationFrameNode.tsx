@@ -3,6 +3,7 @@ import { NodeResizer, type NodeProps } from 'reactflow'
 import type { LocationFrame } from '../../types/location'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
+import { useTranslation, format } from '../../lib/i18n'
 
 type LocationFrameNodeData = LocationFrame & {
   exportThemeOverride?: 'dark' | 'light'
@@ -23,6 +24,7 @@ type LocationFrameNodeData = LocationFrame & {
  * klickbar damit der User entsperren / Settings aufrufen kann.
  */
 export const LocationFrameNode = memo(({ id, data, selected }: NodeProps<LocationFrameNodeData>) => {
+  const t = useTranslation()
   const color = data.color || '#38bdf8'
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const isLight = (data.exportThemeOverride ?? canvasTheme) === 'light'
@@ -90,7 +92,7 @@ export const LocationFrameNode = memo(({ id, data, selected }: NodeProps<Locatio
           setSelection(undefined, undefined, id)
         }}
         title={locked
-          ? `${data.name} (gesperrt — Klick auf Schloss zum Entsperren)`
+          ? format(t('locationFrame.lockedTitle', '{name} (gesperrt — Klick auf Schloss zum Entsperren)'), { name: data.name })
           : data.name}
       >
         <button
@@ -101,7 +103,7 @@ export const LocationFrameNode = memo(({ id, data, selected }: NodeProps<Locatio
             e.stopPropagation()
             updateLocation(id, { positionLocked: !locked })
           }}
-          title={locked ? 'Location entsperren' : 'Location sperren (kein Verschieben/Resizen, aber Settings noch erreichbar)'}
+          title={locked ? t('locationFrame.unlock', 'Location entsperren') : t('locationFrame.lock', 'Location sperren (kein Verschieben/Resizen, aber Settings noch erreichbar)')}
           style={{
             background: 'transparent',
             border: 'none',

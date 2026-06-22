@@ -294,7 +294,7 @@ export const PatchListDialog = () => {
       if (cell) cell.s = { font: { bold: true } }
     }
     const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, sheet, 'Patchliste')
+    XLSX.utils.book_append_sheet(wb, sheet, t('patchList.sheetName', 'Patchliste'))
     const buf = XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer
     downloadBlob(
       buildExportFilenameWithSuffix(projectName || 'cable-planner', 'patchliste', 'xlsx'),

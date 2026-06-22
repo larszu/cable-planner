@@ -120,7 +120,9 @@ export const InstallationDocsDialog = () => {
     setInfo(
       res.cables + res.equipment === 0
         ? t('docs.ids.none', 'Alle Elemente haben bereits eine ID.')
-        : `${res.cables} Kabel-IDs, ${res.equipment} Geräte-IDs vergeben.`,
+        : t('export.docs.idsAssigned', '{cables} Kabel-IDs, {equipment} Geräte-IDs vergeben.')
+            .replace('{cables}', String(res.cables))
+            .replace('{equipment}', String(res.equipment)),
     )
   }
 
@@ -183,9 +185,14 @@ export const InstallationDocsDialog = () => {
         blob,
         'application/pdf',
       )
-      setInfo(`${items.length} Etiketten erzeugt.`)
+      setInfo(t('export.docs.labelsCreated', '{n} Etiketten erzeugt.').replace('{n}', String(items.length)))
     } catch (err) {
-      setInfo(`Fehler: ${err instanceof Error ? err.message : String(err)}`)
+      setInfo(
+        t('export.docs.error', 'Fehler: {msg}').replace(
+          '{msg}',
+          err instanceof Error ? err.message : String(err),
+        ),
+      )
     } finally {
       setBusy(false)
     }
@@ -300,7 +307,7 @@ export const InstallationDocsDialog = () => {
                 setInfo(
                   n === 0
                     ? t('docs.label.none', 'Keine Labels geändert (alle benannt — ggf. „überschreiben" aktivieren).')
-                    : `${n} Kabel-Labels aus Quelle→Ziel erzeugt.`,
+                    : t('export.docs.labelsFromSourceDest', '{n} Kabel-Labels aus Quelle→Ziel erzeugt.').replace('{n}', String(n)),
                 )
               }}
               className="inline-flex items-center gap-1.5 rounded bg-cp-surface-4 px-3 py-1.5 hover:bg-cp-surface-5"

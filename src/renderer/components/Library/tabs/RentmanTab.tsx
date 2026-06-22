@@ -110,7 +110,7 @@ export const RentmanTab = () => {
       setRentmanCatalog(mapped)
       setRentmanCatalogLoaded(true)
     } catch (err) {
-      setRentmanCatalogError(err instanceof Error ? err.message : 'Laden fehlgeschlagen')
+      setRentmanCatalogError(err instanceof Error ? err.message : t('library.rentman.loadFailed', 'Laden fehlgeschlagen'))
     } finally {
       setRentmanCatalogLoading(false)
     }
@@ -146,8 +146,12 @@ export const RentmanTab = () => {
       ])
       if (result.failed.length > 0) {
         const msg = result.failed.map((f) => `- ${f.error}`).join('\n')
-        await infoDialog('Hinzufuegen teilweise fehlgeschlagen', {
-          body: `${result.added} OK, ${result.failed.length} Fehler:\n${msg}`,
+        await infoDialog(t('library.rentman.partialFailTitle', 'Hinzufügen teilweise fehlgeschlagen'), {
+          body: format(t('library.rentman.partialFailBody', '{ok} OK, {fail} Fehler:\n{msg}'), {
+            ok: result.added,
+            fail: result.failed.length,
+            msg,
+          }),
           tone: 'warning',
         })
       } else {
@@ -182,14 +186,14 @@ export const RentmanTab = () => {
   >()
   for (const template of rentmanItems) {
     const id = template.rentmanSource ?? '__unknown__'
-    const name = template.rentmanProjectName ?? `Projekt #${id}`
+    const name = template.rentmanProjectName ?? format(t('library.rentman.projectFallback', 'Projekt #{id}'), { id })
     if (!projectMap.has(id)) projectMap.set(id, { id, name, items: [] })
     projectMap.get(id)!.items.push(template)
   }
   if (linkedRentmanProjectId && !projectMap.has(linkedRentmanProjectId)) {
     projectMap.set(linkedRentmanProjectId, {
       id: linkedRentmanProjectId,
-      name: linkedRentmanProjectName ?? `Projekt #${linkedRentmanProjectId}`,
+      name: linkedRentmanProjectName ?? format(t('library.rentman.projectFallback', 'Projekt #{id}'), { id: linkedRentmanProjectId }),
       items: [],
     })
   }
@@ -227,13 +231,13 @@ export const RentmanTab = () => {
             {t('library.rentman.currentLinkedProject', 'Aktuell verknüpftes Rentman-Projekt')}
           </div>
           <div className="mt-0.5 truncate text-cp-base font-semibold text-orange-200">
-            {linkedRentmanProjectName ?? `Projekt #${linkedRentmanProjectId}`}
+            {linkedRentmanProjectName ?? format(t('library.rentman.projectFallback', 'Projekt #{id}'), { id: linkedRentmanProjectId })}
           </div>
           <div className="mt-1 flex flex-wrap gap-1 text-[10px] text-orange-100/80">
-            <span className="rounded bg-orange-950/50 px-1.5 py-0.5">{linkedImportedCount} importiert</span>
-            <span className="rounded bg-orange-950/50 px-1.5 py-0.5">{untracked.length} ohne Rentman-ID</span>
+            <span className="rounded bg-orange-950/50 px-1.5 py-0.5">{format(t('library.rentman.statImported', '{n} importiert'), { n: linkedImportedCount })}</span>
+            <span className="rounded bg-orange-950/50 px-1.5 py-0.5">{format(t('library.rentman.statNoId', '{n} ohne Rentman-ID'), { n: untracked.length })}</span>
             {removed.length > 0 && (
-              <span className="rounded bg-red-950/50 px-1.5 py-0.5 text-red-200">{removed.length} entfernt</span>
+              <span className="rounded bg-red-950/50 px-1.5 py-0.5 text-red-200">{format(t('library.rentman.statRemoved', '{n} entfernt'), { n: removed.length })}</span>
             )}
           </div>
           {/* v7.9.128 — Prominente "Aus Rentman aktualisieren"-Action. */}
@@ -243,7 +247,7 @@ export const RentmanTab = () => {
             className="mt-2 w-full rounded bg-orange-600 px-2 py-1.5 text-cp-xs font-semibold text-white hover:bg-orange-500"
             title={t('library.rentman.refreshTitle', 'Aktuelle Equipment-Liste aus dem verknüpften Rentman-Projekt holen — neue oder geänderte Items werden im Dialog angezeigt.')}
           >
-            🔄 Aus Rentman aktualisieren / neue Items importieren
+            🔄 {t('library.rentman.refreshAction', 'Aus Rentman aktualisieren / neue Items importieren')}
           </button>
           {(() => {
             // v7.9.70 / #171 — Re-Sync Button: zeigt nur wenn Canvas-Equipment
@@ -260,15 +264,20 @@ export const RentmanTab = () => {
                   const n = resyncRentmanLibraryFromCanvas()
                   if (n > 0) {
                     void confirmDialog(
-                      `${n} Library-Eintrag${n === 1 ? '' : 'e'} aus Canvas wiederhergestellt.`,
-                      { okLabel: 'OK' },
+                      format(
+                        n === 1
+                          ? t('library.rentman.resyncDoneOne', '{n} Library-Eintrag aus Canvas wiederhergestellt.')
+                          : t('library.rentman.resyncDoneMany', '{n} Library-Einträge aus Canvas wiederhergestellt.'),
+                        { n },
+                      ),
+                      { okLabel: t('common.ok', 'OK') },
                     )
                   }
                 }}
                 className="mt-2 w-full rounded bg-orange-700/60 px-2 py-1 text-[11px] text-orange-100 hover:bg-orange-700"
-                title={`${missing} Rentman-Geräte auf dem Canvas sind nicht mit Library-Templates verknüpft. Klick rekonstruiert die fehlenden Templates aus den Canvas-Daten.`}
+                title={format(t('library.rentman.resyncTitle', '{n} Rentman-Geräte auf dem Canvas sind nicht mit Library-Templates verknüpft. Klick rekonstruiert die fehlenden Templates aus den Canvas-Daten.'), { n: missing })}
               >
-                🔄 {missing} fehlende Library-Einträge nachbauen
+                🔄 {format(t('library.rentman.resyncAction', '{n} fehlende Library-Einträge nachbauen'), { n: missing })}
               </button>
             )
           })()}
@@ -448,7 +457,7 @@ export const RentmanTab = () => {
                           )}
                           <span className="truncate text-cp-xs font-semibold">{group.name}</span>
                         </span>
-                        <span className="text-[10px] text-cp-text-muted">{group.items.length} Geräte</span>
+                        <span className="text-[10px] text-cp-text-muted">{format(t('library.rentman.devicesCount', '{n} Geräte'), { n: group.items.length })}</span>
                       </button>
                       {!projectCollapsed && (
                         <div className="space-y-1 border-t border-cp-border-muted px-1 py-1">
@@ -606,7 +615,7 @@ export const RentmanTab = () => {
                     if (filtered.length === 0) {
                       return (
                         <div className="rounded border border-emerald-700/40 bg-emerald-900/10 p-2 text-center text-[11px] text-emerald-300">
-                          ✓ Alle verfügbaren Rentman-Geräte sind bereits importiert.
+                          {t('library.rentman.allImported', '✓ Alle verfügbaren Rentman-Geräte sind bereits importiert.')}
                         </div>
                       )
                     }
@@ -642,7 +651,7 @@ export const RentmanTab = () => {
                               disabled={busy}
                               className="rounded bg-orange-700 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
                             >
-                              {busy ? '…' : '+ Projekt'}
+                              {busy ? '…' : t('library.rentman.addToProject', '+ Projekt')}
                             </button>
                           )}
                         </div>
@@ -746,7 +755,7 @@ export const RentmanTab = () => {
                         {orphans.length > 0 && (
                           <div className="rounded border border-cp-border-muted/80">
                             <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted">
-                              Ohne Ordner <span className="font-normal text-cp-text-dim">({orphans.length})</span>
+                              {t('library.rentman.noFolder', 'Ohne Ordner')} <span className="font-normal text-cp-text-dim">({orphans.length})</span>
                             </div>
                             <div className="space-y-1 px-2 pb-1">{orphans.map(renderItem)}</div>
                           </div>
@@ -765,7 +774,7 @@ export const RentmanTab = () => {
         <div>
           <div className="mb-2 flex items-center justify-between">
             <h2 className="text-cp-base font-semibold text-amber-300">{t('library.rentman.reconcile', 'Abgleich Canvas ↔ Rentman')}</h2>
-            <span className="text-[10px] text-cp-text-muted">{untracked.length} nicht erfasst</span>
+            <span className="text-[10px] text-cp-text-muted">{format(t('library.rentman.notTracked', '{n} nicht erfasst'), { n: untracked.length })}</span>
           </div>
           {/* v7.9.128 — Auch im Sync-View ein prominenter Fetch-Knopf. */}
           {linkedRentmanProjectId && (
@@ -775,7 +784,7 @@ export const RentmanTab = () => {
               className="mb-3 w-full rounded bg-orange-600 px-2 py-1.5 text-cp-xs font-semibold text-white hover:bg-orange-500"
               title={t('library.rentman.loadProjectTitle', 'Equipment-Liste aus dem verknüpften Rentman-Projekt jetzt laden. Neue Items können direkt importiert werden.')}
             >
-              🔄 Aus Rentman aktualisieren / neue Items importieren
+              🔄 {t('library.rentman.refreshAction', 'Aus Rentman aktualisieren / neue Items importieren')}
             </button>
           )}
           {removed.length > 0 && (
@@ -787,14 +796,14 @@ export const RentmanTab = () => {
                     <span className="font-medium text-cp-text">{equipment.name}</span>
                     <span className="ml-1 text-[10px] text-cp-text-muted">{equipment.category}</span>
                   </div>
-                  <span className="text-[10px] text-red-400">entfernt</span>
+                  <span className="text-[10px] text-red-400">{t('library.rentman.removedTag', 'entfernt')}</span>
                 </div>
               ))}
             </div>
           )}
           {untracked.length === 0 ? (
             <div className="rounded border border-emerald-700/40 bg-emerald-900/10 p-2 text-center text-cp-xs text-emerald-400">
-              ✓ Alle Canvas-Geräte haben eine Rentman-ID.
+              {t('library.rentman.allHaveId', '✓ Alle Canvas-Geräte haben eine Rentman-ID.')}
             </div>
           ) : (
             <div className="space-y-1">
@@ -804,7 +813,7 @@ export const RentmanTab = () => {
                     <span className="font-medium text-cp-text">{equipment.name}</span>
                     <span className="ml-1 text-[10px] text-cp-text-muted">{equipment.category}</span>
                   </div>
-                  <span className="text-[10px] text-amber-500">kein Rentman-ID</span>
+                  <span className="text-[10px] text-amber-500">{t('library.rentman.noIdTag', 'kein Rentman-ID')}</span>
                 </div>
               ))}
             </div>

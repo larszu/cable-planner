@@ -17,7 +17,7 @@ export const NetworkConfigSection = ({ equipment }: { equipment: EquipmentItem }
   return (
     <SortableSection
       id="network-config"
-      title={networkKind === 'router' ? 'Router Config' : 'Switch Config'}
+      title={networkKind === 'router' ? t('net.routerConfig', 'Router Config') : t('net.switchConfig', 'Switch Config')}
       subtitle={t('netCfg.subtitle', 'VLAN · Port-Map · Gateway')}
     >
       <NetworkConfig

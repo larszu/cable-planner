@@ -11,7 +11,7 @@ import { useReactFlow, useViewport } from 'reactflow'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
-import { useTranslation } from '../../lib/i18n'
+import { format, useTranslation } from '../../lib/i18n'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { readableTextColor } from '../../lib/contrast'
 import type { ProjectAnnotation } from '../../types/project'
@@ -150,8 +150,8 @@ export const AnnotationCanvasOverlay = () => {
             <div
               title={
                 isFree
-                  ? 'Klick = Text anzeigen · Ziehen = Position'
-                  : 'Klick = Text anzeigen'
+                  ? t('annotations.overlay.titleFree', 'Klick = Text anzeigen · Ziehen = Position')
+                  : t('annotations.overlay.titleAnchored', 'Klick = Text anzeigen')
               }
               onPointerDown={(e) => {
                 e.stopPropagation()
@@ -244,7 +244,7 @@ export const AnnotationCanvasOverlay = () => {
             {isExpanded && (
               <div
                 role="dialog"
-                aria-label={`Anmerkung von ${annotation.author}`}
+                aria-label={format(t('annotations.overlay.cardAria', 'Anmerkung von {name}'), { name: annotation.author })}
                 style={{
                   position: 'absolute',
                   left: cardOnRight ? screen.x + 18 : screen.x - 258,
@@ -314,7 +314,7 @@ export const AnnotationCanvasOverlay = () => {
                     overflowY: 'auto',
                   }}
                 >
-                  {annotation.text || <em style={{ color: '#64748b' }}>(leer)</em>}
+                  {annotation.text || <em style={{ color: '#64748b' }}>{t('annotations.overlay.empty', '(leer)')}</em>}
                 </div>
                 <div
                   style={{

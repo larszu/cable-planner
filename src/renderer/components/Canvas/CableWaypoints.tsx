@@ -381,9 +381,9 @@ export const CableWaypoints = ({
               onPointerDown={dragSegment(i)}
             >
               <title>
-                {axis === 'horizontal' ? 'Segment vertikal verschieben' :
-                 axis === 'vertical'   ? 'Segment horizontal verschieben' :
-                 'Segment verschieben'}
+                {axis === 'horizontal' ? t('cable.segment.moveVertical', 'Segment vertikal verschieben') :
+                 axis === 'vertical'   ? t('cable.segment.moveHorizontal', 'Segment horizontal verschieben') :
+                 t('cable.segment.move', 'Segment verschieben')}
               </title>
             </line>
           </g>
