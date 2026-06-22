@@ -53,6 +53,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "ui:smoke": "node scripts/ui-smoke.mjs",
+    "test:drag": "node scripts/drag-test.mjs",
     "test:crdt": "node scripts/crdt-convergence-check.mjs",
     "test:signaling": "npm run build:main && node scripts/signaling-relay-check.mjs",
     "dist": "npm run build && electron-builder",
