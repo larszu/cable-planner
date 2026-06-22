@@ -210,6 +210,10 @@ interface PersistedUiState {
   /** #118 — Schwebende Inline-Selektions-Toolbar (Schnellaktionen direkt
    *  neben der Auswahl). Default an; abschaltbar in den Einstellungen. */
   inlineToolbarEnabled: boolean
+  /** Position der schwebenden Canvas-Geräte-Suche (px, relativ zur
+   *  Canvas-Fläche). `null` = Default oben mittig. Wird beim Verschieben
+   *  per Grip gesetzt und merkt sich die Lage. */
+  canvasSearchPos: { x: number; y: number } | null
   /** v7.9.112 / Issue #234 — Global Toggle der ALLE Kabel-Labels
    *  ausblendet, unabhaengig vom per-Kabel labelPosition. Praktisch
    *  fuer aufgeraeumte Plan-Ansicht beim Praesentieren ohne dass jedes
@@ -340,6 +344,7 @@ const defaults: PersistedUiState = {
   deviceConfigLibrary: [],
   cableBumps: false,
   inlineToolbarEnabled: true,
+  canvasSearchPos: null,
   hideAllCableLabels: false,
   offPageShowNames: false,
   showCableEndpointLabels: false,
@@ -422,6 +427,16 @@ const load = (): PersistedUiState => {
     if (!Array.isArray(merged.deviceConfigLibrary)) merged.deviceConfigLibrary = []
     if (typeof merged.cableBumps !== 'boolean') merged.cableBumps = defaults.cableBumps
     if (typeof merged.inlineToolbarEnabled !== 'boolean') merged.inlineToolbarEnabled = defaults.inlineToolbarEnabled
+    if (
+      merged.canvasSearchPos != null &&
+      !(
+        typeof merged.canvasSearchPos === 'object' &&
+        typeof merged.canvasSearchPos.x === 'number' &&
+        typeof merged.canvasSearchPos.y === 'number'
+      )
+    ) {
+      merged.canvasSearchPos = defaults.canvasSearchPos
+    }
     if (merged.libraryViewMode !== 'list' && merged.libraryViewMode !== 'grid')
       merged.libraryViewMode = defaults.libraryViewMode
     if (
@@ -666,6 +681,7 @@ interface UiState extends PersistedUiState {
   replaceDeviceConfigLibrary: (entries: DeviceConfigEntry[]) => void
   setCableBumps: (value: boolean) => void
   setInlineToolbarEnabled: (value: boolean) => void
+  setCanvasSearchPos: (value: { x: number; y: number } | null) => void
   setHideAllCableLabels: (value: boolean) => void
   setOffPageShowNames: (value: boolean) => void
   setShowCableEndpointLabels: (value: boolean) => void
@@ -1134,6 +1150,7 @@ export const useUiStore = create<UiState>((set) => ({
     set((state) => applyPatch({ deviceConfigLibrary: entries })(state)),
   setCableBumps: (value) => set(applyPatch({ cableBumps: value })),
   setInlineToolbarEnabled: (value) => set(applyPatch({ inlineToolbarEnabled: value })),
+  setCanvasSearchPos: (value) => set(applyPatch({ canvasSearchPos: value })),
   setHideAllCableLabels: (value) => set(applyPatch({ hideAllCableLabels: value })),
   setOffPageShowNames: (value) => set(applyPatch({ offPageShowNames: value })),
   setShowCableEndpointLabels: (value) => set(applyPatch({ showCableEndpointLabels: value })),

@@ -811,6 +811,7 @@ export const en: Dict = {
   'canvas.empty.loadDemo': 'Load example project',
   'canvas.search.open': 'Find device (Ctrl+F)',
   'canvas.search.placeholder': 'Find device…',
+  'canvas.search.move': 'Move search bar',
   'canvas.search.none': 'No matches',
   'statusbar.equipment': '{count} devices',
   'statusbar.cables': '{count} cables',

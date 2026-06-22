@@ -1,12 +1,16 @@
 // #ux — Geräte-Suche auf der Canvas.
 //
 // Bei großen Plänen war ein bestimmtes Gerät kaum zu finden. Diese
-// schwebende Suchleiste (oben mittig) filtert die Geräte nach Name /
+// schwebende Suchleiste (Default oben mittig) filtert die Geräte nach Name /
 // Kurzname / Kategorie / Notiz, springt per Klick zum Treffer (Auswahl +
 // Zentrieren) und öffnet sich mit Strg/Cmd+F.
+//
+// Verschiebbar: am Grip-Griff (links) lässt sich die Leiste frei
+// positionieren; die Lage wird im uiStore gemerkt (canvasSearchPos).
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search, X, GripVertical } from 'lucide-react'
 import { useCanvasProjectStore } from '../../store/projectStoreContext'
+import { useUiStore } from '../../store/uiStore'
 import { triggerCanvasCenterOn } from '../../lib/canvasViewport'
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
@@ -15,9 +19,12 @@ export const CanvasSearch = () => {
   const t = useTranslation()
   const equipment = useCanvasProjectStore((s) => s.project.equipment)
   const setSelection = useCanvasProjectStore((s) => s.setSelection)
+  const pos = useUiStore((s) => s.canvasSearchPos)
+  const setPos = useUiStore((s) => s.setCanvasSearchPos)
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // Strg/Cmd+F öffnet + fokussiert die Suche (nicht beim Tippen in Feldern,
   // damit man weiterhin in Eingaben suchen/markieren kann); Esc schließt.
@@ -61,26 +68,87 @@ export const CanvasSearch = () => {
     setQuery('')
   }
 
+  // Verschieben per Grip-Griff. Beim ersten Greifen wird die aktuell
+  // gerenderte Lage (auch die Default-Zentrierung) in px übernommen, danach
+  // dem Cursor gefolgt und auf die Canvas-Fläche geclampt.
+  const startDrag = (e: React.PointerEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const el = containerRef.current
+    const parent = el?.offsetParent as HTMLElement | null
+    if (!el || !parent) return
+    const rect = el.getBoundingClientRect()
+    const prect = parent.getBoundingClientRect()
+    const startX = rect.left - prect.left
+    const startY = rect.top - prect.top
+    const w = rect.width
+    const h = rect.height
+    const startMouseX = e.clientX
+    const startMouseY = e.clientY
+    const onMove = (ev: PointerEvent) => {
+      const maxX = Math.max(0, prect.width - w)
+      const maxY = Math.max(0, prect.height - h)
+      const nx = Math.min(Math.max(0, startX + (ev.clientX - startMouseX)), maxX)
+      const ny = Math.min(Math.max(0, startY + (ev.clientY - startMouseY)), maxY)
+      setPos({ x: nx, y: ny })
+    }
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+    }
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+  }
+
+  // Positionierung: Default oben mittig (pos === null), sonst freie px-Lage.
+  const posClass = pos ? '' : 'top-3 left-1/2 -translate-x-1/2'
+  const posStyle = pos ? { left: pos.x, top: pos.y } : undefined
+
+  const Grip = (
+    <button
+      type="button"
+      onPointerDown={startDrag}
+      onClick={(e) => e.stopPropagation()}
+      className="cursor-grab text-cp-text-faint hover:text-cp-text active:cursor-grabbing"
+      title={t('canvas.search.move', 'Suchleiste verschieben')}
+      aria-label={t('canvas.search.move', 'Suchleiste verschieben')}
+    >
+      <Icon icon={GripVertical} size="sm" />
+    </button>
+  )
+
   if (!open) {
     return (
-      <button
-        type="button"
-        onClick={() => {
-          setOpen(true)
-          requestAnimationFrame(() => inputRef.current?.focus())
-        }}
-        className="pointer-events-auto absolute top-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-cp-control border border-cp-border bg-cp-surface-1 px-cp-3 py-cp-2 text-cp-xs text-cp-text-muted shadow-lg hover:text-cp-text"
-        title={t('canvas.search.open', 'Gerät suchen (Strg+F)')}
+      <div
+        ref={containerRef}
+        className={`pointer-events-auto absolute z-20 flex items-center gap-1 rounded-cp-control border border-cp-border bg-cp-surface-1 px-cp-2 py-cp-2 shadow-lg ${posClass}`}
+        style={posStyle}
       >
-        <Icon icon={Search} size="sm" />
-        {t('canvas.search.placeholder', 'Gerät suchen…')}
-      </button>
+        {Grip}
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(true)
+            requestAnimationFrame(() => inputRef.current?.focus())
+          }}
+          className="flex items-center gap-2 text-cp-xs text-cp-text-muted hover:text-cp-text"
+          title={t('canvas.search.open', 'Gerät suchen (Strg+F)')}
+        >
+          <Icon icon={Search} size="sm" />
+          {t('canvas.search.placeholder', 'Gerät suchen…')}
+        </button>
+      </div>
     )
   }
 
   return (
-    <div className="pointer-events-auto absolute top-3 left-1/2 z-20 w-80 -translate-x-1/2 rounded-cp-modal border border-cp-border bg-cp-surface-1 shadow-2xl">
+    <div
+      ref={containerRef}
+      className={`pointer-events-auto absolute z-20 w-80 rounded-cp-modal border border-cp-border bg-cp-surface-1 shadow-2xl ${posClass}`}
+      style={posStyle}
+    >
       <div className="flex items-center gap-2 border-b border-cp-border px-cp-3 py-cp-2">
+        {Grip}
         <Icon icon={Search} size="sm" />
         <input
           ref={inputRef}
