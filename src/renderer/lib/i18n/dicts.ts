@@ -236,6 +236,10 @@ export const en: Dict = {
   'settings.editing.grid': 'Grid',
   'settings.editing.gridDesc': 'Snap-to-grid and grid size in pixels.',
   'settings.editing.snapLabel': 'Snap equipment to grid',
+  'settings.editing.inlineToolbar': 'Inline selection toolbar',
+  'settings.editing.inlineToolbarDesc':
+    'Floating quick actions (align, duplicate, frame, delete) right next to the selection on the canvas.',
+  'settings.editing.inlineToolbarLabel': 'Show inline toolbar on selection',
   'settings.editing.gridSize': 'Grid size (pixels)',
 
   // Settings → Integrations
@@ -730,6 +734,20 @@ export const en: Dict = {
 
   // Cable / CableDialog
   'cable.dialog.title': 'New cable',
+  'cable.dialog.pickTypeHint':
+    'No matching cable type in the catalog. Please deliberately choose a connector/standard below or create a new cable type — otherwise only a generic custom cable is created.',
+  'inlineToolbar.label': 'Selection tools',
+  'inlineToolbar.alignLeft': 'Align left',
+  'inlineToolbar.alignCenterH': 'Align horizontal centers',
+  'inlineToolbar.alignRight': 'Align right',
+  'inlineToolbar.alignTop': 'Align top',
+  'inlineToolbar.alignCenterV': 'Align vertical centers',
+  'inlineToolbar.alignBottom': 'Align bottom',
+  'inlineToolbar.distributeH': 'Distribute horizontally',
+  'inlineToolbar.distributeV': 'Distribute vertically',
+  'inlineToolbar.duplicate': 'Duplicate',
+  'inlineToolbar.frame': 'Frame around selection',
+  'inlineToolbar.delete': 'Delete',
   'cable.dialog.from': 'From:',
   'cable.dialog.to': 'To:',
   'cable.dialog.cancel': 'Cancel',
@@ -967,6 +985,9 @@ export const en: Dict = {
   'modeEditor.namePlaceholder': 'e.g. "12G Single-Link", "4K mode", "Workshop layout"',
   'modeEditor.nameConflict': 'A mode with this name already exists.',
   'modeEditor.descLabel': 'Description (optional)',
+  'modeEditor.powerWatts': 'Power (W) in this mode',
+  'modeEditor.weightKg': 'Weight (kg) in this mode',
+  'modeEditor.resourcePlaceholder': 'optional — overrides device value',
   'modeEditor.descPlaceholder': 'e.g. limits outputs to 2 in 4K mode (lower resource use)',
   'modeEditor.portCount': '{count} port(s) in this mode',
   'modeEditor.seedTitle': "Adopt the device's CURRENT port layout as a starting point.",
@@ -1222,6 +1243,18 @@ export const en: Dict = {
   'export.section.plan': 'Plan',
   'export.section.patch': 'Patch sheets',
   'export.section.bom': 'Cable BOM',
+  'export.section.rack': 'Racks & groups',
+  'export.desc.rack':
+    'Export or print saved racks and groups individually — one patch page per contained device with internal cabling.',
+  'export.rack.filterPlaceholder': 'Filter racks/groups…',
+  'export.rack.paper': 'Format',
+  'export.rack.empty':
+    'No saved racks or groups yet. Select devices on the canvas and use "Save as rack" / "Save group".',
+  'export.rack.rackBadge': 'Rack · {n} U',
+  'export.rack.groupBadge': 'Group',
+  'export.rack.itemCount': '{n} devices',
+  'export.rack.pdf': 'PDF',
+  'export.rack.print': 'Print',
   'export.patch.compactTitle':
     'Compact patch list: all cables on one list, sorted by source device — to print for the on-site technician.',
   'export.patch.perDevice': 'One PDF per selected device',

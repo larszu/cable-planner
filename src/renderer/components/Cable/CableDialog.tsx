@@ -221,6 +221,12 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
       ? `Length exceeds recommended maximum of ${effectiveMaxLength} m for ${selected.name}.`
       : null
 
+  // #62 — Kein passender Kabeltyp im Katalog: statt still auf einen
+  // generischen Custom-Fallback (früher 3-pin-XLR) zu landen, den User
+  // sichtbar auffordern, bewusst einen Typ zu wählen oder neu anzulegen.
+  const noCompatibleSpec = ranked.length === 0 || ranked.every((r) => r.level === 'error')
+  const promptPickCableType = specId === CUSTOM_CABLE_SPEC_ID && noCompatibleSpec
+
   const submit = async () => {
     if (connectorMismatch === 'error' && !overrideWarnings) {
       const proceed = await confirmDialog(t('cable.connector.compatTitle', 'Stecker-Kompatibilität'), {
@@ -291,6 +297,15 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
               })}
             </select>
           </label>
+
+          {promptPickCableType && (
+            <div className="rounded border border-amber-500/50 bg-amber-500/10 p-2 text-cp-xs text-amber-300">
+              {t(
+                'cable.dialog.pickTypeHint',
+                'Kein passender Kabeltyp im Katalog. Bitte unten bewusst einen Steckertyp/Standard wählen oder einen neuen Kabeltyp anlegen — es wird sonst nur ein generisches Custom-Kabel erzeugt.',
+              )}
+            </div>
+          )}
 
           {specId === CUSTOM_CABLE_SPEC_ID && (
             <div className="rounded border border-cp-border bg-cp-surface-3/60 p-2">

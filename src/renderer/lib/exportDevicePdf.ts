@@ -318,7 +318,7 @@ export const exportDevicePatchSheet = async (
   options?: { format?: 'a4' | 'a3' },
 ): Promise<void> => {
   const format = options?.format ?? 'a4'
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format })
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format, compress: true })
   drawDevicePage(pdf, device, allEquipment, allCables)
   // v7.9.116 — Einheitlicher Stempel: YYYYMMDD_<device>_NNN_patch.pdf
   pdf.save(buildExportFilenameWithSuffix(device.name || 'device', 'patch', 'pdf'))
@@ -334,7 +334,7 @@ export const buildDevicePatchSheetBlob = (
   options?: { format?: 'a4' | 'a3' },
 ): Blob => {
   const format = options?.format ?? 'a4'
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format })
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format, compress: true })
   drawDevicePage(pdf, device, allEquipment, allCables)
   return pdf.output('blob')
 }
@@ -352,7 +352,7 @@ export const exportDevicesPatchSheetsBatch = async (
 ): Promise<void> => {
   if (devices.length === 0) return
   const format = options?.format ?? 'a4'
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format })
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format, compress: true })
   devices.forEach((device, idx) => {
     if (idx > 0) pdf.addPage()
     drawDevicePage(pdf, device, allEquipment, allCables)
@@ -375,7 +375,7 @@ export const buildDevicesPatchSheetsBatchBlob = (
 ): Blob | null => {
   if (devices.length === 0) return null
   const format = options?.format ?? 'a4'
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format })
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format, compress: true })
   devices.forEach((device, idx) => {
     if (idx > 0) pdf.addPage()
     drawDevicePage(pdf, device, allEquipment, allCables)
