@@ -62,6 +62,8 @@ export const ModeEditorDialog = ({
   const isEditing = !!editingMode
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [powerWatts, setPowerWatts] = useState('')
+  const [weightKg, setWeightKg] = useState('')
   const [inputs, setInputs] = useState<PortDraft[]>([])
   const [outputs, setOutputs] = useState<PortDraft[]>([])
 
@@ -73,11 +75,15 @@ export const ModeEditorDialog = ({
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Draft beim Dialog-Öffnen seeden (keyed sync)
       setName(editingMode.name)
       setDescription(editingMode.description ?? '')
+      setPowerWatts(editingMode.powerWatts != null ? String(editingMode.powerWatts) : '')
+      setWeightKg(editingMode.weightKg != null ? String(editingMode.weightKg) : '')
       setInputs(editingMode.inputs.map(toDraft))
       setOutputs(editingMode.outputs.map(toDraft))
     } else {
       setName(`Modus ${(equipment.modes ?? []).length + 1}`)
       setDescription('')
+      setPowerWatts('')
+      setWeightKg('')
       setInputs([])
       setOutputs([])
     }
@@ -121,10 +127,16 @@ export const ModeEditorDialog = ({
 
   const handleSave = () => {
     if (!canSave) return
+    const parseNum = (s: string): number | undefined => {
+      const v = Number(s.replace(',', '.'))
+      return s.trim() !== '' && Number.isFinite(v) && v >= 0 ? v : undefined
+    }
     const mode: DeviceMode = {
       id: editingMode?.id ?? `mode:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 5)}`,
       name: name.trim(),
       description: description.trim() || undefined,
+      powerWatts: parseNum(powerWatts),
+      weightKg: parseNum(weightKg),
       inputs: inputs.map(toPort),
       outputs: outputs.map(toPort),
     }
@@ -196,6 +208,33 @@ export const ModeEditorDialog = ({
                 className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-text"
               />
             </label>
+            {/* #124 — optionale Ressourcen-Werte pro Modus */}
+            <div className="grid grid-cols-2 gap-2">
+              <label className="block">
+                <span className="text-cp-text-muted">{t('modeEditor.powerWatts', 'Leistung (W) in diesem Modus')}</span>
+                <input
+                  type="number"
+                  min={0}
+                  step={1}
+                  value={powerWatts}
+                  onChange={(e) => setPowerWatts(e.target.value)}
+                  placeholder={t('modeEditor.resourcePlaceholder', 'optional — überschreibt Gerätewert')}
+                  className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 font-mono text-cp-text"
+                />
+              </label>
+              <label className="block">
+                <span className="text-cp-text-muted">{t('modeEditor.weightKg', 'Gewicht (kg) in diesem Modus')}</span>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.1"
+                  value={weightKg}
+                  onChange={(e) => setWeightKg(e.target.value)}
+                  placeholder={t('modeEditor.resourcePlaceholder', 'optional — überschreibt Gerätewert')}
+                  className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 font-mono text-cp-text"
+                />
+              </label>
+            </div>
           </div>
 
           <div className="mt-4 flex items-center justify-between">

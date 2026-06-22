@@ -44,6 +44,7 @@ import { CableEdge } from './CableEdge'
 import { CanvasToolbar } from './CanvasToolbar'
 import { LocationFrameNode } from './LocationFrameNode'
 import { PendingCableOverlay } from './PendingCableOverlay'
+import { InlineSelectionToolbar } from './InlineSelectionToolbar'
 import { colorByLength } from '../../lib/cableColors'
 import { promptDialog } from '../../lib/promptDialog'
 import {
@@ -1834,6 +1835,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         })()}
       </ReactFlow>
       <PendingCableOverlay />
+      {mode === 'main' && <InlineSelectionToolbar />}
       {nodeContextMenu && (() => {
         const isLocation = nodeContextMenu.nodeType === 'location'
         const target = isLocation
