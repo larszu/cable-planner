@@ -141,8 +141,8 @@ export const VideohubRoutingMatrix = ({
   // Logic) folgt in einem Folge-Commit — die Infrastruktur ist hier
   // bereits gestellt.
   const isSwapped = axisOrientation === 'inputs-rows'
-  const rowAxisLabel = isSwapped ? 'Inputs ↓' : 'Outputs ↓'
-  const colAxisLabel = isSwapped ? 'Outputs →' : 'Inputs →'
+  const rowAxisLabel = isSwapped ? `${t('export.inputsAxis', 'Inputs')} ↓` : `${t('export.outputsAxis', 'Outputs')} ↓`
+  const colAxisLabel = isSwapped ? `${t('export.outputsAxis', 'Outputs')} →` : `${t('export.inputsAxis', 'Inputs')} →`
   const cellCount = totalInputs * totalOutputs
   const useGrid = cellCount <= 100_000
 
@@ -209,9 +209,8 @@ export const VideohubRoutingMatrix = ({
     return (
       <div className="overflow-auto max-h-64 rounded border border-cp-border bg-cp-surface-3 p-2">
         <div className="mb-2 text-[10px] text-amber-300">
-          {totalInputs}×{totalOutputs} ({cellCount.toLocaleString()} Crosspoints) —
-          Listen-Modus, da die Crosspoint-Matrix bei dieser Groesse das
-          Browser-Rendering ueberlastet.
+          {totalInputs}×{totalOutputs} ({cellCount.toLocaleString()} Crosspoints) —{' '}
+          {t('export.listModeOverload', 'Listen-Modus, da die Crosspoint-Matrix bei dieser Groesse das Browser-Rendering ueberlastet.')}
         </div>
         <div className="space-y-0.5">
           {outputLabels.map((outLabel, oi) => (
@@ -335,7 +334,7 @@ export const VideohubRoutingMatrix = ({
     <div className="space-y-1">
       <div className="flex items-center justify-between text-[11px] text-cp-text-muted">
         <span>
-          Tipp: rechte Kante einer Spalte / untere Kante einer Zeile ziehen wie in Excel.
+          {t('export.resizeTip', 'Tipp: rechte Kante einer Spalte / untere Kante einer Zeile ziehen wie in Excel.')}
         </span>
         {(Object.keys(layout.colWidths).length > 0 ||
           Object.keys(layout.rowHeights).length > 0 ||
@@ -345,7 +344,7 @@ export const VideohubRoutingMatrix = ({
             onClick={resetLayout}
             className="rounded bg-cp-surface-2 px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-4"
           >
-            ↺ Layout zuruecksetzen
+            ↺ {t('export.resetLayout', 'Layout zuruecksetzen')}
           </button>
         )}
       </div>
@@ -471,7 +470,7 @@ export const VideohubRoutingMatrix = ({
                       <div
                         onMouseDown={startColResize(i)}
                         className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize hover:bg-sky-400/60"
-                        title={`Spalte ${i + 1} breiter/schmaler ziehen`}
+                        title={`${t('export.column', 'Spalte')} ${i + 1} ${t('export.resizeColHint', 'breiter/schmaler ziehen')}`}
                         style={{ zIndex: 5 }}
                       />
                     </div>
@@ -491,7 +490,7 @@ export const VideohubRoutingMatrix = ({
                   fontSize: 11,
                 }}
               >
-                Label
+                {t('export.labelHeader', 'Label')}
               </th>
               <th
                 className="sticky z-20 border-b border-r border-cp-border bg-cp-surface-1 text-center font-mono text-cp-text-faint"
@@ -585,7 +584,7 @@ export const VideohubRoutingMatrix = ({
                         type="button"
                         onClick={() => focusRow(oi)}
                         className="block w-full hover:text-cp-text-secondary"
-                        title={`Output ${oi + 1} fokussieren`}
+                        title={`Output ${oi + 1} ${t('export.focusVerb', 'fokussieren')}`}
                       >
                         {oi + 1}
                       </button>
@@ -593,7 +592,7 @@ export const VideohubRoutingMatrix = ({
                       <div
                         onMouseDown={startRowResize(oi)}
                         className="absolute bottom-0 left-0 h-1.5 w-full cursor-row-resize hover:bg-sky-400/60"
-                        title={`Zeile ${oi + 1} hoeher/niedriger ziehen`}
+                        title={`${t('export.row', 'Zeile')} ${oi + 1} ${t('export.resizeRowHint', 'hoeher/niedriger ziehen')}`}
                       />
                     </div>
                   </td>
@@ -622,7 +621,7 @@ export const VideohubRoutingMatrix = ({
                             setDragging(true)
                             onRoute(oi, ii)
                           }}
-                          title={`${outLabelTip[oi]} ← ${inLabelTip[ii]} (klick + ziehen fuer 1:1-Routing)`}
+                          title={`${outLabelTip[oi]} ← ${inLabelTip[ii]} (${t('export.clickDragRouting', 'klick + ziehen fuer 1:1-Routing')})`}
                           aria-label={`Set Output ${oi + 1} (${outLabel}) to Input ${ii + 1} (${inLabel})`}
                           className={
                             active

@@ -41,7 +41,7 @@ export const VideohubRoutingList = ({
   return (
     <div className="rounded-cp-control border border-cp-border bg-cp-surface-3">
       <div className="border-b border-cp-border-muted bg-cp-surface-1 px-3 py-2 text-[11px] uppercase tracking-wide text-cp-text-muted">
-        Routing-Liste · {totalOutputs} Outputs · {totalInputs} Inputs verfuegbar
+        {t('export.routingListHeader', 'Routing-Liste')} · {totalOutputs} Outputs · {totalInputs} {t('export.inputsAvailable', 'Inputs verfuegbar')}
       </div>
       <div
         className="space-y-1 overflow-auto p-2"
@@ -78,7 +78,7 @@ export const VideohubRoutingList = ({
                 value={routedIdx}
                 onChange={(e) => onRoute(oi, parseInt(e.target.value, 10))}
                 className="flex-1 min-w-0 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-[13px] text-cp-text-bright focus:border-sky-500 focus:outline-none"
-                title={`Input fuer Output ${oi + 1} (${outLabel}) waehlen — aktuell: ${routedIdx + 1} ${routedLabel}`}
+                title={`${t('export.selectInputForOutput', 'Input fuer Output')} ${oi + 1} (${outLabel}) ${t('export.selectVerb', 'waehlen')} — ${t('export.currentLabel', 'aktuell')}: ${routedIdx + 1} ${routedLabel}`}
               >
                 {inputLabels.map((inLabel, ii) => (
                   <option key={ii} value={ii} className="bg-cp-surface-3 text-cp-text">

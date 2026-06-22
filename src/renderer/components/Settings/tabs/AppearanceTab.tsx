@@ -545,7 +545,7 @@ export const AppearanceTab = () => {
       >
         {allKnownCategories.length === 0 ? (
           <div className="text-[11px] text-cp-text-muted">
-            Noch keine Kategorien bekannt. Wird gefuellt sobald Geraete im Plan oder in der Library Kategorien haben.
+            {t('settings.categoryColors.empty', 'Noch keine Kategorien bekannt. Wird gefuellt sobald Geraete im Plan oder in der Library Kategorien haben.')}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-cp-base md:grid-cols-3">

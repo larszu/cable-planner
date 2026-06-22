@@ -5,6 +5,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
+import { useTranslation, format } from '../../lib/i18n'
 
 /**
  * Visual overlay that renders the in-progress cable while the user is
@@ -12,6 +13,7 @@ import { getEquipmentById } from '../../lib/equipmentSelectors'
  * source port through all placed waypoints to the current mouse position.
  */
 export const PendingCableOverlay = () => {
+  const t = useTranslation()
   const pendingCable = useUiStore((s) => s.pendingCable)
   const project = useProjectStore((s) => s.project)
   const { flowToScreenPosition, screenToFlowPosition } = useReactFlow()
@@ -106,7 +108,7 @@ export const PendingCableOverlay = () => {
           pointerEvents: 'none',
         }}
       >
-        Kabel zeichnen: Klick auf Canvas für Knick, Klick auf Port zum Beenden, Esc zum Abbrechen.
+        {t('pendingCable.banner', 'Kabel zeichnen: Klick auf Canvas für Knick, Klick auf Port zum Beenden, Esc zum Abbrechen.')}
       </div>
       <PendingCableSuggestions
         sourcePortConnector={port.connectorType}
@@ -137,6 +139,7 @@ const PendingCableSuggestions = ({
   sourcePortId: string
   sourceIsOutput: boolean
 }) => {
+  const tr = useTranslation()
   const customLibrary = useProjectStore((s) => s.customLibrary)
   const cables = useProjectStore((s) => s.project.cables)
   const equipment = useProjectStore((s) => s.project.equipment)
@@ -246,7 +249,7 @@ const PendingCableSuggestions = ({
       onMouseDown={(e) => e.stopPropagation()}
     >
       <div style={{ marginBottom: 6, fontWeight: 600, color: 'var(--cp-accent)' }}>
-        Schnelle Vorschläge ({sourcePortConnector})
+        {format(tr('pendingCable.suggestionsTitle', 'Schnelle Vorschläge ({connector})'), { connector: sourcePortConnector })}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {suggestions.map((t) => (
@@ -263,7 +266,7 @@ const PendingCableSuggestions = ({
               color: 'var(--cp-text)',
               cursor: 'pointer',
             }}
-            title={`Bei Mausposition platzieren und Verbindung herstellen (${t.category})`}
+            title={format(tr('pendingCable.suggestionItemTitle', 'Bei Mausposition platzieren und Verbindung herstellen ({category})'), { category: t.category })}
           >
             {t.name}
           </button>

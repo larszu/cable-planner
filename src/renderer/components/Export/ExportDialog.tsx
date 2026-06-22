@@ -496,9 +496,9 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
   }
 
   const actionLabel: Record<PatchAction, string> = {
-    individual: 'Einzel-PDFs',
-    batch: 'Sammel-PDF',
-    print: 'Drucken',
+    individual: t('export.patch.actionIndividual', 'Einzel-PDFs'),
+    batch: t('export.patch.actionBatch', 'Sammel-PDF'),
+    print: t('export.printBtn', 'Drucken'),
   }
 
   return (
@@ -645,7 +645,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             onClick={() => setPendingAction(null)}
             className="rounded bg-cp-surface-4 px-3 py-1.5 text-cp-xs text-cp-text-bright hover:bg-cp-surface-5 disabled:opacity-50"
           >
-            Abbrechen
+            {t('export.patch.cancel', 'Abbrechen')}
           </button>
         </div>
       )}
@@ -1089,7 +1089,7 @@ const BomSection = () => {
             {rows.length === 0 && (
               <tr>
                 <td className="px-3 py-4 text-center text-cp-text-faint" colSpan={6}>
-                  Keine Kabel im Projekt.
+                  {t('export.bom.noCables', 'Keine Kabel im Projekt.')}
                 </td>
               </tr>
             )}
@@ -1128,10 +1128,10 @@ const BomSection = () => {
                   }`}
                   title={
                     r.diff === 0
-                      ? 'Verbaut = geplant'
+                      ? t('export.bom.diffEqual', 'Verbaut = geplant')
                       : r.diff > 0
-                        ? 'Mehr verbaut als geplant'
-                        : 'Weniger verbaut als geplant'
+                        ? t('export.bom.diffMore', 'Mehr verbaut als geplant')
+                        : t('export.bom.diffLess', 'Weniger verbaut als geplant')
                   }
                 >
                   {fmtSignFixed(r.diff)}

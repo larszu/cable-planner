@@ -1,4 +1,5 @@
 import type { EquipmentItem } from '../../../types/equipment'
+import { format, useTranslation } from '../../../lib/i18n'
 
 /**
  * #306 — Rack-Face-Vorschau (2D-Front/Rear) aus EquipmentProperties
@@ -12,6 +13,7 @@ export const RackFacePreview = ({
   equipment: EquipmentItem
   viewMode: 'front' | 'rear' | 'both'
 }) => {
+  const t = useTranslation()
   if (!equipment.isRackDevice || !equipment.rackUnits || equipment.rackUnits <= 0) return null
 
   const rows = Math.max(equipment.inputs.length, equipment.outputs.length, 1)
@@ -21,9 +23,9 @@ export const RackFacePreview = ({
   return (
     <fieldset className="rounded border border-cp-border p-2">
       <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
-        2D Rack-Vorschau
+        {t('rackFace.title', '2D Rack-Vorschau')}
       </legend>
-      <div className="mb-2 text-[11px] text-cp-text-muted">19" Rack · {equipment.rackUnits} HE · Front/Rear mit Port-Marker</div>
+      <div className="mb-2 text-[11px] text-cp-text-muted">{format(t('rackFace.subtitle', '19" Rack · {he} HE · Front/Rear mit Port-Marker'), { he: equipment.rackUnits })}</div>
       <div className="rounded border border-cp-border bg-cp-surface-3 p-3">
         <div className={`mx-auto grid w-full max-w-[760px] gap-2 ${viewMode === 'both' ? 'grid-cols-2' : 'grid-cols-1'}`}>
           {(viewMode === 'both' ? ['front', 'rear'] : [viewMode]).map((side) => {
@@ -31,7 +33,7 @@ export const RackFacePreview = ({
             return (
               <div key={side} className="rounded border border-cp-surface-5 bg-gradient-to-b from-cp-surface-2 to-cp-surface-1 px-4 py-3 shadow-inner">
                 <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-cp-text-muted">
-                  <span>{side === 'front' ? 'Front' : 'Rear'}</span>
+                  <span>{side === 'front' ? t('rackFace.front', 'Front') : t('rackFace.rear', 'Rear')}</span>
                   <span>{equipment.rackUnits} HE</span>
                 </div>
                 <div className="relative mb-3 rounded border border-cp-border bg-cp-surface-3/70 px-3 py-2 text-center">

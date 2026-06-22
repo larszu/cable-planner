@@ -189,7 +189,7 @@ export const CsvImportDialog = () => {
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={6}
-          placeholder={'Name;Kategorie;Leistung;Gewicht;Seriennummer\nATEM Mini;Mischer;30;1.1;SN123'}
+          placeholder={t('csvImport.placeholder', 'Name;Kategorie;Leistung;Gewicht;Seriennummer\nATEM Mini;Mischer;30;1.1;SN123')}
           className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] p-2 font-mono text-cp-xs"
         />
         {parsed.length > 1 && (

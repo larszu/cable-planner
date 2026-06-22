@@ -225,7 +225,7 @@ export const AdvancedTab = () => {
           <button
             type="button"
             onClick={() =>
-              clearCache('cable-planner:rentmanTemplateCache:v1', 'Rentman-Template-Cache')
+              clearCache('cable-planner:rentmanTemplateCache:v1', t('settings.advanced.caches.rentmanLabel', 'Rentman-Template-Cache'))
             }
             className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
           >
@@ -234,7 +234,7 @@ export const AdvancedTab = () => {
           {/* v7.6.0 — NetBox import removed; cache entry will not be populated. */}
           <button
             type="button"
-            onClick={() => clearCache('cable-planner:web:recents', 'Web-Suchverlauf')}
+            onClick={() => clearCache('cable-planner:web:recents', t('settings.advanced.caches.webLabel', 'Web-Suchverlauf'))}
             className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
           >
             {t('settings.advanced.caches.web', 'Web-Suchverlauf leeren')}

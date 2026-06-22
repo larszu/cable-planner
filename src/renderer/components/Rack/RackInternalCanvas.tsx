@@ -26,6 +26,7 @@ import { CableContextMenu } from '../Canvas/CableContextMenu'
 import { CableProperties } from '../Properties/CableProperties'
 import { EquipmentProperties } from '../Properties/EquipmentProperties'
 import { useCanvasProjectStore } from '../../store/projectStoreContext'
+import { format, useTranslation } from '../../lib/i18n'
 import { ProjectStoreProvider } from '../../store/ProjectStoreProvider'
 import { createProjectStoreInstance } from '../../store/projectStore'
 import { routeCable } from '../../lib/canvasViewport'
@@ -447,6 +448,7 @@ export const RackInternalCanvas = ({
 }
 
 const RackSidePropertiesPane = () => {
+  const t = useTranslation()
   const selectedEquipmentId = useCanvasProjectStore((s) => s.selectedEquipmentId)
   const selectedCableId = useCanvasProjectStore((s) => s.selectedCableId)
   const selectedEquipment = useCanvasProjectStore((s) =>
@@ -456,16 +458,16 @@ const RackSidePropertiesPane = () => {
     selectedCableId ? s.project.cables.find((c) => c.id === selectedCableId) : undefined,
   )
   const title = selectedEquipment
-    ? `Gerät: ${selectedEquipment.name}`
+    ? format(t('rack.inspector.deviceTitle', 'Gerät: {name}'), { name: selectedEquipment.name })
     : selectedCable
-      ? `Kabel: ${selectedCable.name}`
-      : 'Inspector'
+      ? format(t('rack.inspector.cableTitle', 'Kabel: {name}'), { name: selectedCable.name })
+      : t('rack.inspector.title', 'Inspector')
   return (
     <aside className="flex h-full min-h-0 flex-col rounded border border-cp-border bg-cp-surface-3">
       <div className="border-b border-cp-border-muted px-3 py-2">
         <h3 className="truncate text-cp-xs font-semibold text-cp-text">{title}</h3>
         <div className="mt-0.5 text-[9px] uppercase tracking-wide text-cp-text-muted">
-          Eigenschaften (Rack-Scope)
+          {t('rack.inspector.scope', 'Eigenschaften (Rack-Scope)')}
         </div>
       </div>
       <div className="flex-1 min-h-0 overflow-auto p-2 text-cp-xs">
@@ -473,7 +475,7 @@ const RackSidePropertiesPane = () => {
         {selectedCableId && <CableProperties />}
         {!selectedEquipmentId && !selectedCableId && (
           <div className="rounded border border-cp-border-muted bg-cp-surface-1/40 p-3 text-[11px] text-cp-text-muted">
-            Klick auf ein Rack-Gerät oder eine Verbindung im Canvas → die Eigenschaften erscheinen hier.
+            {t('rack.inspector.empty', 'Klick auf ein Rack-Gerät oder eine Verbindung im Canvas → die Eigenschaften erscheinen hier.')}
           </div>
         )}
       </div>
