@@ -11,7 +11,7 @@
 import { useMemo, useState } from 'react'
 import {
   FileText, Cable as CableIcon, Calculator, Image as ImageIcon, Printer,
-  Moon, Sun, Camera, Sparkles, type LucideIcon,
+  Moon, Sun, Camera, Sparkles, Server, type LucideIcon,
 } from 'lucide-react'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import jsPDF from 'jspdf'
@@ -40,12 +40,13 @@ import {
 import { printPdfBlob } from '../../lib/printPdfBlob'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { exportGroupAsPatchPdf, buildGroupPatchPdfBlob } from '../../lib/exportGroupPdf'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { LayerVisibilityChips } from '../Canvas/LayerVisibilityChips'
 import type { Cable } from '../../types/cable'
 
 export type ExportFormat = 'pdf' | 'png' | 'jpeg' | 'svg' | 'dxf'
-type Section = 'plan' | 'patch' | 'bom'
+type Section = 'plan' | 'patch' | 'bom' | 'rack'
 
 /** v7.9.103 — Page-Size-Optionen fuer den Vektor-PDF-Pfad. */
 export type PdfPageSizeOpt =
@@ -79,18 +80,21 @@ const SECTION_LABEL: Record<Section, string> = {
   plan: 'Plan',
   patch: 'Patch-Sheets',
   bom: 'Kabel-Stückliste',
+  rack: 'Racks & Gruppen',
 }
 
 const SECTION_ICON: Record<Section, LucideIcon> = {
   plan: FileText,
   patch: CableIcon,
   bom: Calculator,
+  rack: Server,
 }
 
 const SECTION_DESC: Record<Section, string> = {
   plan: 'Den Canvas-Plan als PDF herunterladen oder direkt drucken. PDF mit Titelblock — druckfertig. Auch PNG/JPEG für E-Mail/Slack.',
   patch: 'Pro Gerät eine Port-Belegungs-Liste — ideal zum Aufkleben am Gerät. Auswahl an Geräten, dann Einzel-PDF, Sammel-PDF oder direkt drucken. Papier-Format wird nach Klick abgefragt. Alternativ: kompakte Patchliste (eine Zeile pro Kabel, sortiert nach Quell-Gerät) für den Techniker im Feld.',
   bom: 'Stückliste aller Kabel im Projekt (Typ + Länge zusammengefasst). Editierbare Rentman-Planung daneben. Export als CSV oder PDF.',
+  rack: 'Gespeicherte Racks und Gruppen einzeln als PDF exportieren oder drucken — eine Patch-Seite pro enthaltenem Gerät mit interner Verkabelung.',
 }
 
 export const ExportDialog = ({
@@ -173,6 +177,7 @@ export const ExportDialog = ({
               )}
               {section === 'patch' && <PatchSheetSection onClose={onClose} />}
               {section === 'bom' && <BomSection />}
+              {section === 'rack' && <RackGroupSection onClose={onClose} />}
             </div>
           </div>
         </main>
@@ -674,6 +679,106 @@ const parseBomKey = (key: string): { type: string; length: number } => {
 }
 const fmtSignFixed = (n: number): string => (n > 0 ? `+${n}` : String(n))
 
+/* ----------------------------------------------------------- Racks & Gruppen -- */
+/* #151 — gespeicherte Racks/Gruppen (GroupPresets) einzeln exportieren. */
+const RackGroupSection = ({ onClose }: { onClose: () => void }) => {
+  const t = useTranslation()
+  const groupPresets = useProjectStore((s) => s.groupPresets)
+  const [busy, setBusy] = useState(false)
+  const [filter, setFilter] = useState('')
+  const [paper, setPaper] = useState<PaperFormat>('a4')
+
+  const filtered = useMemo(() => {
+    const q = filter.trim().toLowerCase()
+    return groupPresets.filter((p) => !q || p.name.toLowerCase().includes(q))
+  }, [groupPresets, filter])
+
+  const run = async (preset: (typeof groupPresets)[number], action: 'pdf' | 'print') => {
+    setBusy(true)
+    try {
+      if (action === 'pdf') {
+        await exportGroupAsPatchPdf(preset, { format: paper })
+      } else {
+        const blob = buildGroupPatchPdfBlob(preset, { format: paper })
+        if (blob) void printPdfBlob(blob)
+      }
+      onClose()
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col space-y-3">
+      <div className="flex shrink-0 items-center gap-3">
+        <input
+          type="text"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder={t('export.rack.filterPlaceholder', 'Racks/Gruppen filtern…')}
+          aria-label={t('export.rack.filterPlaceholder', 'Racks/Gruppen filtern…')}
+          className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+        />
+        <label className="flex items-center gap-1 text-cp-xs text-cp-text-secondary">
+          {t('export.rack.paper', 'Format')}
+          <select
+            value={paper}
+            onChange={(e) => setPaper(e.target.value as PaperFormat)}
+            className="rounded border border-cp-border bg-cp-surface-3 px-1.5 py-1 text-cp-xs"
+          >
+            <option value="a4">A4</option>
+            <option value="a3">A3</option>
+          </select>
+        </label>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="rounded border border-dashed border-cp-border p-6 text-center text-cp-xs text-cp-text-muted">
+          {t('export.rack.empty', 'Keine gespeicherten Racks oder Gruppen vorhanden. Wähle Geräte auf dem Canvas aus und nutze „Als Rack speichern" / „Gruppe speichern".')}
+        </div>
+      ) : (
+        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto rounded border border-cp-border-muted bg-cp-surface-3/50 p-1">
+          {filtered.map((p) => (
+            <div
+              key={p.id}
+              className="flex items-center gap-2 rounded px-2 py-1.5 text-cp-xs hover:bg-cp-surface-2"
+            >
+              <Icon icon={Server} size="xs" className="text-cp-text-faint" />
+              <span className="min-w-0 flex-1 truncate">
+                <span className="font-medium">{p.name}</span>
+                <span className="ml-2 text-cp-text-faint">
+                  {p.rack
+                    ? t('export.rack.rackBadge', 'Rack · {n} HE').replace('{n}', String(p.rack.totalUnits))
+                    : t('export.rack.groupBadge', 'Gruppe')}
+                  {' · '}
+                  {t('export.rack.itemCount', '{n} Geräte').replace('{n}', String(p.items.length))}
+                </span>
+              </span>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void run(p, 'pdf')}
+                className="rounded bg-sky-700 px-2 py-1 text-[11px] font-medium text-white hover:bg-sky-600 disabled:opacity-50"
+              >
+                {t('export.rack.pdf', 'PDF')}
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void run(p, 'print')}
+                className="rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5 disabled:opacity-50"
+              >
+                <Icon icon={Printer} size="xs" className="mr-1 inline-block align-text-bottom" />
+                {t('export.rack.print', 'Drucken')}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 const BomSection = () => {
   const t = useTranslation()
   const project = useProjectStore((s) => s.project)
@@ -817,7 +922,7 @@ const BomSection = () => {
   }
 
   const exportPdf = () => {
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4', compress: true })
     const pageWidth = pdf.internal.pageSize.getWidth()
     const margin = 32
     pdf.setFontSize(14)
@@ -881,7 +986,7 @@ const BomSection = () => {
 
   const printPdf = () => {
     // Gleiches Layout wie exportPdf, aber als Blob in den OS-Druckdialog.
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4', compress: true })
     const pageWidth = pdf.internal.pageSize.getWidth()
     const margin = 32
     pdf.setFontSize(14)

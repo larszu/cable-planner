@@ -46,6 +46,27 @@ export const useEquipmentMap = (): Map<string, EquipmentItem> => {
 }
 
 /**
+ * #124 — Loest die effektiven Ressourcen-Werte eines Geraets unter
+ * Beruecksichtigung des aktiven Betriebsmodus auf. Ein Modus kann
+ * `powerWatts`/`weightKg` ueberschreiben (z. B. hoehere Leistung im
+ * 4K-Modus); ist der Modus-Wert `undefined`, gilt der Geraete-Wert.
+ *
+ * Bewusst nicht-destruktiv: der Geraete-Wert bleibt die Basis, sodass
+ * ein Moduswechsel den Originalwert nie verliert.
+ */
+export const effectiveDeviceResources = (
+  item: EquipmentItem,
+): { powerWatts?: number; weightKg?: number } => {
+  const mode = item.activeModeId
+    ? item.modes?.find((m) => m.id === item.activeModeId)
+    : undefined
+  return {
+    powerWatts: mode?.powerWatts ?? item.powerWatts,
+    weightKg: mode?.weightKg ?? item.weightKg,
+  }
+}
+
+/**
  * Helper fuer den haeufigen Pattern "Port aus dem Equipment ueber Port-ID
  * suchen", der sonst zweimal `find()` braucht.
  */

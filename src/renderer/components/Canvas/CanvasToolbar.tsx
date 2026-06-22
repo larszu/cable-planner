@@ -7,6 +7,7 @@ import { LayerVisibilityChips } from './LayerVisibilityChips'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
+import { computeAlignedPositions, type AlignMode, type AlignItem } from '../../lib/alignEquipment'
 import { Check, X } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
@@ -201,8 +202,6 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     return { w: width, h: height }
   }
 
-  type AlignMode = 'left' | 'right' | 'center-h' | 'top' | 'bottom' | 'center-v' | 'distribute-h' | 'distribute-v'
-
   const snap = (val: number) => {
     if (!snapToGrid || gridSize <= 0) return Math.round(val)
     return Math.round(val / gridSize) * gridSize
@@ -240,73 +239,14 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     if (ids.length === 0) return
     const items = equipmentList.filter((e) => ids.includes(e.id))
     if (items.length === 0) return
-    const sized = items.map((item) => ({ item, ...measuredSize(item) }))
-
-    // Distribute braucht 3+ Items — sonst no-op.
-    if ((mode === 'distribute-h' || mode === 'distribute-v') && sized.length < 3) return
-
-    const newPositionById = new Map<string, { x: number; y: number }>()
-
-    if (mode === 'distribute-h') {
-      const sorted = [...sized].sort((a, b) => a.item.x - b.item.x)
-      const first = sorted[0]
-      const last = sorted[sorted.length - 1]
-      const span = last.item.x + last.w - first.item.x
-      const totalWidths = sorted.reduce((sum, s) => sum + s.w, 0)
-      const gapEach = (span - totalWidths) / (sorted.length - 1)
-      let cursor = first.item.x
-      for (const s of sorted) {
-        const nx = snap(cursor)
-        if (nx !== s.item.x) newPositionById.set(s.item.id, { x: nx, y: s.item.y })
-        cursor += s.w + gapEach
-      }
-    } else if (mode === 'distribute-v') {
-      const sorted = [...sized].sort((a, b) => a.item.y - b.item.y)
-      const first = sorted[0]
-      const last = sorted[sorted.length - 1]
-      const span = last.item.y + last.h - first.item.y
-      const totalHeights = sorted.reduce((sum, s) => sum + s.h, 0)
-      const gapEach = (span - totalHeights) / (sorted.length - 1)
-      let cursor = first.item.y
-      for (const s of sorted) {
-        const ny = snap(cursor)
-        if (ny !== s.item.y) newPositionById.set(s.item.id, { x: s.item.x, y: ny })
-        cursor += s.h + gapEach
-      }
-    } else {
-      // Single Selection → Bounding-Box ist der sichtbare Viewport.
-      // Multi → Selection-Bounding-Box (Figma-Standard).
-      let minX: number, maxX: number, minY: number, maxY: number
-      if (sized.length === 1) {
-        const vp = viewportBoundsInFlow()
-        if (!vp) return
-        minX = vp.minX; maxX = vp.maxX; minY = vp.minY; maxY = vp.maxY
-      } else {
-        minX = Math.min(...sized.map((s) => s.item.x))
-        maxX = Math.max(...sized.map((s) => s.item.x + s.w))
-        minY = Math.min(...sized.map((s) => s.item.y))
-        maxY = Math.max(...sized.map((s) => s.item.y + s.h))
-      }
-      const centerX = (minX + maxX) / 2
-      const centerY = (minY + maxY) / 2
-      for (const { item, w, h } of sized) {
-        let nx = item.x
-        let ny = item.y
-        switch (mode) {
-          case 'left':     nx = minX; break
-          case 'right':    nx = maxX - w; break
-          case 'center-h': nx = centerX - w / 2; break
-          case 'top':      ny = minY; break
-          case 'bottom':   ny = maxY - h; break
-          case 'center-v': ny = centerY - h / 2; break
-        }
-        nx = snap(nx); ny = snap(ny)
-        if (nx !== item.x || ny !== item.y) {
-          newPositionById.set(item.id, { x: nx, y: ny })
-        }
-      }
-    }
-
+    const alignItems: AlignItem[] = items.map((item) => {
+      const { w, h } = measuredSize(item)
+      return { id: item.id, x: item.x, y: item.y, w, h }
+    })
+    const newPositionById = computeAlignedPositions(alignItems, mode, {
+      snap,
+      singleSelectionBounds: alignItems.length === 1 ? viewportBoundsInFlow() : null,
+    })
     commitPositions(newPositionById)
   }
 

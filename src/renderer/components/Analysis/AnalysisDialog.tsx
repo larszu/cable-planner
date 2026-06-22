@@ -19,6 +19,7 @@ import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { useTranslation, format } from '../../lib/i18n'
+import { effectiveDeviceResources } from '../../lib/equipmentSelectors'
 import { checkDanteName } from '../../lib/danteNaming'
 import { subnetCidr } from '../../lib/subnet'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
@@ -26,9 +27,17 @@ import type { EquipmentItem } from '../../types/equipment'
 
 type Tab = 'weight' | 'network' | 'redundancy' | 'rf'
 
-/** Effektive Leistung eines Geräts: explizite Watt, sonst V×A. */
-const effectiveWatts = (e: EquipmentItem): number =>
-  e.powerConsumptionWatts ?? (e.voltage && e.currentAmps ? e.voltage * e.currentAmps : 0)
+/** Effektive Leistung eines Geräts: aktiver Modus (#124) > explizite Watt > V×A. */
+const effectiveWatts = (e: EquipmentItem): number => {
+  const modePower = e.activeModeId
+    ? e.modes?.find((m) => m.id === e.activeModeId)?.powerWatts
+    : undefined
+  return (
+    modePower ??
+    e.powerConsumptionWatts ??
+    (e.voltage && e.currentAmps ? e.voltage * e.currentAmps : 0)
+  )
+}
 
 const WATT_TO_BTU = 3.412
 
@@ -87,7 +96,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
       const cat = e.category || t('analysis.uncategorized', 'Ohne Kategorie')
       const row = map.get(cat) ?? { count: 0, kg: 0, watts: 0, eur: 0 }
       row.count += 1
-      row.kg += e.weightKg ?? 0
+      row.kg += effectiveDeviceResources(e).weightKg ?? 0
       row.watts += effectiveWatts(e)
       // #354 — Wert/Angebots-Summe: Stückpreis × 1 (pro Gerät).
       if (typeof e.priceEUR === 'number') {
@@ -95,7 +104,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
         anyPrice = true
       }
       map.set(cat, row)
-      if (e.weightKg == null) missing += 1
+      if (effectiveDeviceResources(e).weightKg == null) missing += 1
     }
     const byCategory = [...map.entries()]
       .map(([category, v]) => ({ category, ...v }))
@@ -111,8 +120,8 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
     )
     // Schwerste Geräte (für Rigging/Transport-Planung).
     const heaviest = equipment
-      .filter((e) => typeof e.weightKg === 'number' && e.weightKg > 0)
-      .map((e) => ({ name: e.name, kg: e.weightKg as number }))
+      .map((e) => ({ name: e.name, kg: effectiveDeviceResources(e).weightKg ?? 0 }))
+      .filter((e) => e.kg > 0)
       .sort((a, b) => b.kg - a.kg)
       .slice(0, 8)
     return { byCategory, totals, missingWeight: missing, hasPrices: anyPrice, heaviest }

@@ -207,6 +207,9 @@ interface PersistedUiState {
    *  top. The lower-id cable gets the bump. Off by default to preserve
    *  the existing visual baseline. */
   cableBumps: boolean
+  /** #118 — Schwebende Inline-Selektions-Toolbar (Schnellaktionen direkt
+   *  neben der Auswahl). Default an; abschaltbar in den Einstellungen. */
+  inlineToolbarEnabled: boolean
   /** v7.9.112 / Issue #234 — Global Toggle der ALLE Kabel-Labels
    *  ausblendet, unabhaengig vom per-Kabel labelPosition. Praktisch
    *  fuer aufgeraeumte Plan-Ansicht beim Praesentieren ohne dass jedes
@@ -336,6 +339,7 @@ const defaults: PersistedUiState = {
   cableSpecOverrides: {},
   deviceConfigLibrary: [],
   cableBumps: false,
+  inlineToolbarEnabled: true,
   hideAllCableLabels: false,
   offPageShowNames: false,
   showCableEndpointLabels: false,
@@ -417,6 +421,7 @@ const load = (): PersistedUiState => {
     if (!Array.isArray(merged.customSignalStandards)) merged.customSignalStandards = []
     if (!Array.isArray(merged.deviceConfigLibrary)) merged.deviceConfigLibrary = []
     if (typeof merged.cableBumps !== 'boolean') merged.cableBumps = defaults.cableBumps
+    if (typeof merged.inlineToolbarEnabled !== 'boolean') merged.inlineToolbarEnabled = defaults.inlineToolbarEnabled
     if (merged.libraryViewMode !== 'list' && merged.libraryViewMode !== 'grid')
       merged.libraryViewMode = defaults.libraryViewMode
     if (
@@ -660,6 +665,7 @@ interface UiState extends PersistedUiState {
   /** Bulk-replace the entire library. Used by the JSON-bundle importer. */
   replaceDeviceConfigLibrary: (entries: DeviceConfigEntry[]) => void
   setCableBumps: (value: boolean) => void
+  setInlineToolbarEnabled: (value: boolean) => void
   setHideAllCableLabels: (value: boolean) => void
   setOffPageShowNames: (value: boolean) => void
   setShowCableEndpointLabels: (value: boolean) => void
@@ -1127,6 +1133,7 @@ export const useUiStore = create<UiState>((set) => ({
   replaceDeviceConfigLibrary: (entries) =>
     set((state) => applyPatch({ deviceConfigLibrary: entries })(state)),
   setCableBumps: (value) => set(applyPatch({ cableBumps: value })),
+  setInlineToolbarEnabled: (value) => set(applyPatch({ inlineToolbarEnabled: value })),
   setHideAllCableLabels: (value) => set(applyPatch({ hideAllCableLabels: value })),
   setOffPageShowNames: (value) => set(applyPatch({ offPageShowNames: value })),
   setShowCableEndpointLabels: (value) => set(applyPatch({ showCableEndpointLabels: value })),
