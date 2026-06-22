@@ -226,6 +226,12 @@ export interface DeviceMode {
   description?: string
   inputs: Port[]
   outputs: Port[]
+  /** #124 — Optionale Ressourcen-Werte pro Modus. Wenn gesetzt,
+   *  überschreiben sie beim Aktivieren des Modus die gleichnamigen
+   *  Geräte-Felder (z. B. höhere Leistung im 4K-Modus). `undefined`
+   *  lässt den Geräte-Wert unverändert. */
+  powerWatts?: number
+  weightKg?: number
 }
 
 export interface EquipmentItem {

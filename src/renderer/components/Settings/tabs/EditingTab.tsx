@@ -160,6 +160,8 @@ const CableVisualOptionsCard = () => {
 export const EditingTab = () => {
   const snapToGrid = useUiStore((s) => s.snapToGrid)
   const setSnapToGrid = useUiStore((s) => s.setSnapToGrid)
+  const inlineToolbarEnabled = useUiStore((s) => s.inlineToolbarEnabled)
+  const setInlineToolbarEnabled = useUiStore((s) => s.setInlineToolbarEnabled)
   const gridSize = useUiStore((s) => s.gridSize)
   const setGridSize = useUiStore((s) => s.setGridSize)
   const defaultRouting = useUiStore((s) => s.defaultRouting)
@@ -230,6 +232,23 @@ export const EditingTab = () => {
             onChange={(e) => setGridSize(Number(e.target.value) || 10)}
             className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
           />
+        </label>
+      </SettingsCard>
+
+      <SettingsCard
+        title={t('settings.editing.inlineToolbar', 'Inline-Auswahl-Toolbar')}
+        description={t(
+          'settings.editing.inlineToolbarDesc',
+          'Schwebende Schnellaktionen (Ausrichten, Duplizieren, Rahmen, Löschen) direkt neben der Auswahl auf dem Canvas.',
+        )}
+      >
+        <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
+          <input
+            type="checkbox"
+            checked={inlineToolbarEnabled}
+            onChange={(e) => setInlineToolbarEnabled(e.target.checked)}
+          />
+          {t('settings.editing.inlineToolbarLabel', 'Inline-Toolbar bei Auswahl anzeigen')}
         </label>
       </SettingsCard>
 
