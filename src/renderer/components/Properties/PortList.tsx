@@ -92,7 +92,7 @@ const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
           type="button"
           className="mt-1 cursor-grab rounded border border-cp-border bg-cp-surface-3 px-1.5 py-1 text-[11px] text-cp-text-muted hover:bg-cp-surface-1 active:cursor-grabbing"
           title={t('ports.dragHandle', 'Port-Reihenfolge ändern')}
-          aria-label={`Reorder ${port.name}`}
+          aria-label={format(t('ports.reorderAria', 'Reihenfolge ändern: {name}'), { name: port.name })}
           {...attributes}
           {...listeners}
         >
@@ -522,7 +522,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   })
                 }}
                 placeholder={String(portIdx + 1)}
-                title={`Anzeige-Nummer (Default ${portIdx + 1}). Leer = automatisch.`}
+                title={format(t('ports.numberTitle', 'Anzeige-Nummer (Default {n}). Leer = automatisch.'), { n: portIdx + 1 })}
                 className="w-12 shrink-0 rounded border border-cp-border bg-cp-surface-3 p-1 text-center text-cp-xs tabular-nums"
               />
               <input
@@ -567,7 +567,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   {allConnectorTypeOptions.map((type) => (
                     <option key={type} value={type}>
                       {type}
-                      {customConnectorTypes.includes(type as string) ? ' (custom)' : ''}
+                      {customConnectorTypes.includes(type as string) ? ' (' + t('ports.customSuffix', 'custom') + ')' : ''}
                     </option>
                   ))}
                   <option value="__new__">+ {t('ports.newConnectorType', 'Neuer Stecker-Typ…')}</option>
@@ -597,7 +597,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   {allSignalStandardOptions.map((std) => (
                     <option key={std} value={std}>
                       {std}
-                      {customSignalStandards.includes(std as string) ? ' (custom)' : ''}
+                      {customSignalStandards.includes(std as string) ? ' (' + t('ports.customSuffix', 'custom') + ')' : ''}
                     </option>
                   ))}
                   <option value="__new__">+ {t('ports.newStandard', 'Neuer Standard…')}</option>
@@ -855,11 +855,11 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                         onChange={(e) => void assignQuadGroup(port.id, e.target.value)}
                         className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-[10px]"
                       >
-                        <option value="">— Kein —</option>
+                        <option value="">{t('ports.set.none', '— Kein —')}</option>
                         {existingQuadGroups.map((gid) => (
                           <option key={gid} value={gid}>{gid}</option>
                         ))}
-                        <option value="__new__">+ Neues Set…</option>
+                        <option value="__new__">{t('ports.set.new', '+ Neues Set…')}</option>
                       </select>
                       {g && (
                         <>
@@ -902,11 +902,11 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                         onChange={(e) => void assignDualGroup(port.id, e.target.value)}
                         className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-[10px]"
                       >
-                        <option value="">— Kein —</option>
+                        <option value="">{t('ports.set.none', '— Kein —')}</option>
                         {existingDualGroups.map((gid) => (
                           <option key={gid} value={gid}>{gid}</option>
                         ))}
-                        <option value="__new__">+ Neues Set…</option>
+                        <option value="__new__">{t('ports.set.new', '+ Neues Set…')}</option>
                       </select>
                       {g && (
                         <>

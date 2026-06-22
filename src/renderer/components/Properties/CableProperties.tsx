@@ -118,7 +118,7 @@ export const CableProperties = () => {
           onClick={() => openCableEdit(cable.id)}
           className="inline-flex w-full items-center justify-center gap-1.5 rounded border border-dashed border-cp-surface-5 px-2 py-1 text-cp-text-muted hover:border-slate-400 hover:text-cp-text-bright"
         >
-          <Icon icon={Pencil} size="xs" /> Kabeltyp / Standard festlegen
+          <Icon icon={Pencil} size="xs" /> {t('cable.action.setTypeStandard', 'Kabeltyp / Standard festlegen')}
         </button>
       )}
       {(() => {
@@ -133,14 +133,14 @@ export const CableProperties = () => {
         return (
           <div className="flex items-center gap-2 rounded border border-amber-700/50 bg-amber-950/30 px-2 py-1 text-[11px] text-amber-200">
             <span className="flex-1 leading-snug">
-              Kabel-Typ <strong>{cable.type}</strong> passt nicht zu den Ports
+              {t('cable.typeMismatch.prefix', 'Kabel-Typ')} <strong>{cable.type}</strong> {t('cable.typeMismatch.suffix', 'passt nicht zu den Ports')}
               ({fromPort.connectorType} ↔ {toPort.connectorType}).
             </span>
             <button
               type="button"
               onClick={() => updateCable(cable.id, typePatch)}
               className="shrink-0 rounded bg-amber-700/40 px-1.5 py-0.5 font-medium hover:bg-amber-600/60"
-              title={`Kabel-Typ auf ${typePatch.type} setzen`}
+              title={format(t('cable.typeMismatch.setTitle', 'Kabel-Typ auf {type} setzen'), { type: typePatch.type })}
             >
               → {typePatch.type}
             </button>
@@ -256,7 +256,7 @@ export const CableProperties = () => {
               <option value="">{t('lifecycle.statusNone', '— kein Status —')}</option>
               {INSTALL_STATUSES.map((s) => (
                 <option key={s} value={s}>
-                  {INSTALL_STATUS_LABEL[s]}
+                  {t(`lifecycle.status.${s}`, INSTALL_STATUS_LABEL[s])}
                 </option>
               ))}
             </select>
@@ -533,7 +533,7 @@ export const CableProperties = () => {
                   return (
                     <option key={p.id} value={p.id}>
                       {p._side === 'out' ? '⇢ ' : '⇠ '}
-                      {p.name} ({p.connectorType}){inUse ? ' • belegt' : ''}
+                      {p.name} ({p.connectorType}){inUse ? ' • ' + t('cable.port.busy', 'belegt') : ''}
                     </option>
                   )
                 })}
@@ -565,7 +565,7 @@ export const CableProperties = () => {
                   return (
                     <option key={p.id} value={p.id}>
                       {p._side === 'out' ? '⇢ ' : '⇠ '}
-                      {p.name} ({p.connectorType}){inUse ? ' • belegt' : ''}
+                      {p.name} ({p.connectorType}){inUse ? ' • ' + t('cable.port.busy', 'belegt') : ''}
                     </option>
                   )
                 })}
@@ -635,9 +635,9 @@ export const CableProperties = () => {
           const isHidden = cable.labelPosition === 'none'
           const activePos = cable.labelPosition ?? 'center'
           const positions = [
-            { id: 'source' as const, label: '← Start' },
-            { id: 'center' as const, label: 'Mitte' },
-            { id: 'target' as const, label: 'End →' },
+            { id: 'source' as const, label: '← ' + t('cable.label.start', 'Start') },
+            { id: 'center' as const, label: t('cable.label.center', 'Mitte') },
+            { id: 'target' as const, label: t('cable.label.end', 'End') + ' →' },
           ]
           return (
             <>
@@ -660,7 +660,7 @@ export const CableProperties = () => {
                       }
                       title={
                         isActive
-                          ? `${p.label} — Klick zum Ausblenden des Labels`
+                          ? `${p.label} — ${t('cable.label.clickToHide', 'Klick zum Ausblenden des Labels')}`
                           : `${p.label}`
                       }
                       className={`flex-1 rounded border px-2 py-1 text-cp-xs ${
@@ -676,8 +676,7 @@ export const CableProperties = () => {
               </div>
               {isHidden && (
                 <p className="mt-1 text-[10px] text-cp-text-muted">
-                  Label ausgeblendet — Klick auf eine der drei Positionen
-                  zeigt es wieder an.
+                  {t('cable.label.hiddenHint', 'Label ausgeblendet — Klick auf eine der drei Positionen zeigt es wieder an.')}
                 </p>
               )}
               <div className={`mt-2 flex items-center gap-2 text-[11px] ${isHidden ? 'opacity-40' : ''}`}>
@@ -740,9 +739,9 @@ export const CableProperties = () => {
         </div>
         <div className="flex gap-1">
           {[
-            { id: undefined, label: 'Auto', title: 'Folgt Settings → Editing → Endpoint-Labels einblenden' },
-            { id: 'show' as const, label: '✓ Anzeigen', title: 'Immer anzeigen, unabhaengig vom Settings-Toggle' },
-            { id: 'hide' as const, label: '✕ Ausblenden', title: 'Immer ausblenden, unabhaengig vom Settings-Toggle' },
+            { id: undefined, label: t('cable.endpointLabels.auto', 'Auto'), title: t('cable.endpointLabels.autoTitle', 'Folgt Settings → Editing → Endpoint-Labels einblenden') },
+            { id: 'show' as const, label: '✓ ' + t('cable.endpointLabels.show', 'Anzeigen'), title: t('cable.endpointLabels.showTitle', 'Immer anzeigen, unabhängig vom Settings-Toggle') },
+            { id: 'hide' as const, label: '✕ ' + t('cable.endpointLabels.hide', 'Ausblenden'), title: t('cable.endpointLabels.hideTitle', 'Immer ausblenden, unabhängig vom Settings-Toggle') },
           ].map((opt) => {
             const active = (cable.endpointLabels ?? undefined) === opt.id
             return (
@@ -771,7 +770,7 @@ export const CableProperties = () => {
             checked={cable.dashed ?? false}
             onChange={(event) => updateCable(cable.id, { dashed: event.target.checked })}
           />
-          Dashed
+          {t('cable.field.dashed', 'Dashed')}
         </label>
         <label className="flex items-center gap-1">
           <input
@@ -779,7 +778,7 @@ export const CableProperties = () => {
             checked={cable.arrowStart ?? false}
             onChange={(event) => updateCable(cable.id, { arrowStart: event.target.checked })}
           />
-          Arrow ◄
+          {t('cable.field.arrowStart', 'Arrow')} ◄
         </label>
         <label className="flex items-center gap-1">
           <input
@@ -787,7 +786,7 @@ export const CableProperties = () => {
             checked={cable.arrowEnd ?? true}
             onChange={(event) => updateCable(cable.id, { arrowEnd: event.target.checked })}
           />
-          Arrow ►
+          {t('cable.field.arrowEnd', 'Arrow')} ►
         </label>
         <label
           className="flex items-center gap-1"
@@ -798,7 +797,7 @@ export const CableProperties = () => {
             checked={cable.bidirectional ?? false}
             onChange={(event) => updateCable(cable.id, { bidirectional: event.target.checked })}
           />
-          Bidirektional ⇌
+          {t('cable.field.bidirectional', 'Bidirektional')} ⇌
         </label>
       </div>
 

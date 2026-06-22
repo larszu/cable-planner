@@ -915,7 +915,7 @@ export const LibraryPanel = () => {
                 disabled={netBoxBusy || netBoxQuery.trim().length < 2}
                 className="rounded bg-cyan-700 px-3 py-2 text-cp-base font-semibold hover:bg-cyan-600 disabled:opacity-50"
               >
-                {netBoxBusy ? 'Suche…' : 'Suchen'}
+                {netBoxBusy ? t('library.netbox.searching', 'Suche…') : t('library.netbox.search', 'Suchen')}
               </button>
               <button
                 type="button"
@@ -926,7 +926,7 @@ export const LibraryPanel = () => {
                 className="rounded bg-cp-surface-4 px-3 py-2 text-cp-base hover:bg-cp-surface-5"
                 title={t('library.netbox.refreshTitle', 'GitHub-Index neu laden')}
               >
-                Cache leeren
+                {t('library.netbox.clearCache', 'Cache leeren')}
               </button>
             </div>
 
@@ -937,12 +937,12 @@ export const LibraryPanel = () => {
             )}
 
             <div className="mb-2 text-[11px] uppercase tracking-wide text-cp-text-muted">
-              Treffer {netBoxResults.length > 0 ? `(${netBoxResults.length})` : ''}
+              {t('library.netbox.hits', 'Treffer')} {netBoxResults.length > 0 ? `(${netBoxResults.length})` : ''}
             </div>
             <div className="space-y-2">
               {netBoxResults.length === 0 ? (
                 <div className="rounded border border-cp-border bg-cp-surface-3/50 p-3 text-cp-xs text-cp-text-muted">
-                  Hersteller + Modell suchen. Beispiel: „blackmagic atem", „yamaha ql5", „cisco catalyst 9300".
+                  {t('library.netbox.emptyHint', 'Hersteller + Modell suchen. Beispiel: „blackmagic atem", „yamaha ql5", „cisco catalyst 9300".')}
                 </div>
               ) : (
                 netBoxResults.map((item) => {
@@ -984,7 +984,7 @@ export const LibraryPanel = () => {
                         disabled={busy || !(netBoxCategoryByPath[item.path] ?? '').trim()}
                         className="rounded bg-emerald-700 px-3 py-1.5 text-cp-xs font-semibold hover:bg-emerald-600 disabled:opacity-50"
                       >
-                        {busy ? 'Import…' : 'Importieren'}
+                        {busy ? t('library.netbox.importing', 'Import…') : t('library.netbox.import', 'Importieren')}
                       </button>
                     </div>
                   )
@@ -1003,7 +1003,7 @@ export const LibraryPanel = () => {
             </h3>
             <div className="mb-3 grid grid-cols-3 gap-2 text-cp-base">
               <label className="block">
-                Name
+                {t('common.name', 'Name')}
                 <input
                   value={name}
                   onChange={(event) => setName(event.target.value)}
@@ -1011,7 +1011,7 @@ export const LibraryPanel = () => {
                 />
               </label>
               <label className="block">
-                Kategorie
+                {t('library.create.category', 'Kategorie')}
                 <CategorySelect
                   value={category}
                   onChange={setCategory}
@@ -1019,7 +1019,7 @@ export const LibraryPanel = () => {
                 />
               </label>
               <label className="block">
-                19" Rack-Gerät
+                {t('library.create.rackDevice', '19" Rack-Gerät')}
                 <label className="mt-2 flex items-center gap-2 text-cp-xs">
                   <input
                     type="checkbox"
@@ -1056,7 +1056,7 @@ export const LibraryPanel = () => {
                   className="text-[10px] text-violet-300 hover:underline"
                   title={t('library.create.aiSettings', 'Gemini-API-Key konfigurieren')}
                 >
-                  <Icon icon={Settings} size="xs" className="mr-1 inline-block align-text-bottom" />AI-Settings
+                  <Icon icon={Settings} size="xs" className="mr-1 inline-block align-text-bottom" />{t('library.create.aiSettingsLabel', 'AI-Settings')}
                 </button>
               </div>
               <div className="flex flex-wrap gap-1">
@@ -1066,7 +1066,7 @@ export const LibraryPanel = () => {
                   className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
                   title={t('library.create.suggest.heuristicTitle', 'Aus eingebauten Heuristik-Mustern (Camera, ATEM, Konverter, ...)')}
                 >
-                  <Icon icon={Ruler} size="xs" className="mr-1 inline-block align-text-bottom" />Heuristik
+                  <Icon icon={Ruler} size="xs" className="mr-1 inline-block align-text-bottom" />{t('library.create.suggest.heuristic', 'Heuristik')}
                 </button>
                 <button
                   type="button"
@@ -1075,7 +1075,7 @@ export const LibraryPanel = () => {
                   className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
                   title={t('library.create.suggest.webTitle', 'Wikipedia + DuckDuckGo Snippet (kein API-Key nötig)')}
                 >
-                  {webLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> Suche…</span> : <span className="inline-flex items-center gap-1"><Icon icon={Globe} size="xs" /> Web</span>}
+                  {webLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> {t('library.netbox.searching', 'Suche…')}</span> : <span className="inline-flex items-center gap-1"><Icon icon={Globe} size="xs" /> {t('library.create.suggest.web', 'Web')}</span>}
                 </button>
                 <button
                   type="button"
@@ -1084,7 +1084,7 @@ export const LibraryPanel = () => {
                   className="rounded bg-violet-700 px-2 py-1 hover:bg-violet-600 disabled:opacity-50"
                   title={t('library.create.suggest.geminiTitle', 'Gemini AI — braucht einen API-Key')}
                 >
-                  {aiLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> Frage…</span> : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> Gemini</span>}
+                  {aiLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> {t('library.create.suggest.asking', 'Frage…')}</span> : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('library.create.suggest.gemini', 'Gemini')}</span>}
                 </button>
               </div>
               {suggestError && (
@@ -1115,18 +1115,18 @@ export const LibraryPanel = () => {
                     }}
                     className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600"
                   >
-                    Speichern
+                    {t('common.save', 'Speichern')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setAiSettingsOpen(false)}
                     className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
                   >
-                    Abbrechen
+                    {t('common.cancel', 'Abbrechen')}
                   </button>
                 </div>
                 <div className="mt-1 text-[10px] text-cp-text-muted">
-                  Gespeichert nur lokal in localStorage. Key bei{' '}
+                  {t('library.create.aiKey.hintPrefix', 'Gespeichert nur lokal in localStorage. Key bei')}{' '}
                   <a
                     href="https://aistudio.google.com/app/apikey"
                     target="_blank"
@@ -1135,7 +1135,7 @@ export const LibraryPanel = () => {
                   >
                     aistudio.google.com
                   </a>{' '}
-                  erstellen.
+                  {t('library.create.aiKey.hintSuffix', 'erstellen.')}
                 </div>
               </div>
             )}
@@ -1175,8 +1175,8 @@ export const LibraryPanel = () => {
                     }
                     className="rounded border border-cp-border bg-cp-surface-1 p-1"
                   >
-                    <option value="in">Input</option>
-                    <option value="out">Output</option>
+                    <option value="in">{t('library.create.directionInput', 'Input')}</option>
+                    <option value="out">{t('library.create.directionOutput', 'Output')}</option>
                   </select>
                   <input
                     type="number"
@@ -1219,7 +1219,7 @@ export const LibraryPanel = () => {
                 </div>
               ))}
               {groups.length === 0 && (
-                <div className="text-cp-xs text-cp-text-muted">No port groups yet. Add one above.</div>
+                <div className="text-cp-xs text-cp-text-muted">{t('library.create.noPortGroups', 'Noch keine Port-Gruppen. Oben eine hinzufügen.')}</div>
               )}
             </div>
 

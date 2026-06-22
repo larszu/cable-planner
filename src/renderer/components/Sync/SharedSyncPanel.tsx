@@ -58,14 +58,14 @@ export function SharedSyncPanel() {
   if (!hasDesktopBridge) return null
   if (!syncPath) return null
 
-  const user = syncUser || 'Unbekannt'
+  const user = syncUser || t('sync.unknownUser', 'Unbekannt')
 
   const withLock = async (action: () => Promise<void>) => {
     const lockResult = await cablePlannerApi.sync.acquireLock(syncPath, user)
     if (!lockResult.ok) {
       setStatus({
         kind: 'locked',
-        message: `Verzeichnis ist gesperrt von: ${lockResult.lockedBy ?? 'Unbekannt'}`,
+        message: format(t('sync.lockedBy', 'Verzeichnis ist gesperrt von: {who}'), { who: lockResult.lockedBy ?? t('sync.unknownUser', 'Unbekannt') }),
         lockedBy: lockResult.lockedBy,
       })
       return
@@ -96,7 +96,7 @@ export function SharedSyncPanel() {
         )
         setStatus({
           kind: 'ok',
-          message: `Push erfolgreich (${user})`,
+          message: format(t('sync.pushOk', 'Push erfolgreich ({user})'), { user }),
           lastAction: 'Push',
           lastAt: new Date().toLocaleTimeString(),
         })
@@ -104,7 +104,7 @@ export function SharedSyncPanel() {
     } catch (err) {
       setStatus({
         kind: 'error',
-        message: err instanceof Error ? err.message : 'Push fehlgeschlagen',
+        message: err instanceof Error ? err.message : t('sync.pushFailed', 'Push fehlgeschlagen'),
       })
     } finally {
       setBusy(false)
@@ -128,7 +128,7 @@ export function SharedSyncPanel() {
       ])
 
       if (!projectRaw && !libraryRaw && !presetsRaw) {
-        setStatus({ kind: 'error', message: 'Keine Sync-Dateien im Verzeichnis gefunden.' })
+        setStatus({ kind: 'error', message: t('sync.noFiles', 'Keine Sync-Dateien im Verzeichnis gefunden.') })
         return
       }
 
@@ -145,19 +145,23 @@ export function SharedSyncPanel() {
         setGroupPresets(data)
       }
 
-      const loaded = [projectRaw && 'Projekt', libraryRaw && 'Library', presetsRaw && 'Presets']
+      const loaded = [
+        projectRaw && t('sync.part.project', 'Projekt'),
+        libraryRaw && t('sync.part.library', 'Library'),
+        presetsRaw && t('sync.part.presets', 'Presets'),
+      ]
         .filter(Boolean)
         .join(', ')
       setStatus({
         kind: 'ok',
-        message: `Pull erfolgreich: ${loaded}`,
+        message: format(t('sync.pullOk', 'Pull erfolgreich: {loaded}'), { loaded }),
         lastAction: 'Pull',
         lastAt: new Date().toLocaleTimeString(),
       })
     } catch (err) {
       setStatus({
         kind: 'error',
-        message: err instanceof Error ? err.message : 'Pull fehlgeschlagen',
+        message: err instanceof Error ? err.message : t('sync.pullFailed', 'Pull fehlgeschlagen'),
       })
     } finally {
       setBusy(false)

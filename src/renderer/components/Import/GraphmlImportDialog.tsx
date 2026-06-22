@@ -28,7 +28,7 @@ import {
 } from '../../lib/graphml/semantics'
 import { useProjectStore } from '../../store/projectStore'
 import { projectHistory } from '../../store/projectHistory'
-import { useTranslation } from '../../lib/i18n'
+import { useTranslation, format } from '../../lib/i18n'
 
 export interface GraphmlImportDialogProps {
   open: boolean
@@ -479,7 +479,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                           type="checkbox"
                           checked={!skipped}
                           onChange={() => toggleDevice(dev.importKey)}
-                          aria-label={`Toggle ${dev.name}`}
+                          aria-label={format(t('graphml.dialog.toggleDeviceAria', 'Gerät {name} umschalten'), { name: dev.name })}
                         />
                       </td>
                       <td className="px-3 py-1">

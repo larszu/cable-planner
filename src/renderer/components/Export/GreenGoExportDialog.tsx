@@ -179,7 +179,11 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
   const addUser = () => {
     if (config.users.length >= MAX_USERS) return
     const nextId = Math.max(0, ...config.users.map((u) => u.id)) + 1
-    const newUser: GreenGoUser = { id: nextId, name: `Benutzer ${nextId}`, groupIds: [] }
+    const newUser: GreenGoUser = {
+      id: nextId,
+      name: t('greengo.defaultUserName', 'Benutzer {n}').replace('{n}', String(nextId)),
+      groupIds: [],
+    }
     setConfig((c) => ({ ...c, users: [...c.users, newUser] }))
   }
 
@@ -206,7 +210,10 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
   const addGroup = () => {
     if (config.groups.length >= MAX_GROUPS) return
     const nextId = Math.max(0, ...config.groups.map((g) => g.id)) + 1
-    const newGroup: GreenGoGroup = { id: nextId, name: `Gruppe ${nextId}` }
+    const newGroup: GreenGoGroup = {
+      id: nextId,
+      name: t('greengo.defaultGroupName', 'Gruppe {n}').replace('{n}', String(nextId)),
+    }
     setConfig((c) => ({ ...c, groups: [...c.groups, newGroup] }))
   }
 

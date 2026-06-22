@@ -5,7 +5,7 @@ import { useUiStore } from '../../store/uiStore'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { AlertTriangle, Check, XCircle } from 'lucide-react'
-import { useTranslation } from '../../lib/i18n'
+import { format, useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { connectorToCableType } from '../../lib/cableInheritance'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
@@ -201,7 +201,13 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
     ) {
       return {
         level: 'warn' as const,
-        message: `Long unbalanced analog audio run (${length} m). Hum/interference risk — prefer balanced (XLR) or keep under ~10 m.`,
+        message: format(
+          t(
+            'cable.balance.longUnbalanced',
+            'Lange unsymmetrische Analog-Audio-Strecke ({length} m). Brumm-/Störungsrisiko — symmetrisch (XLR) bevorzugen oder unter ~10 m halten.',
+          ),
+          { length },
+        ),
       }
     }
     return null
@@ -218,7 +224,13 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
 
   const lengthWarning =
     effectiveMaxLength && length > effectiveMaxLength
-      ? `Length exceeds recommended maximum of ${effectiveMaxLength} m for ${selected.name}.`
+      ? format(
+          t(
+            'cable.lengthWarning',
+            'Länge überschreitet die empfohlene Maximallänge von {max} m für {name}.',
+          ),
+          { max: effectiveMaxLength, name: selected.name },
+        )
       : null
 
   // #62 — Kein passender Kabeltyp im Katalog: statt still auf einen
@@ -280,13 +292,13 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
 
         <div className="space-y-2 text-cp-base">
           <label className="block">
-            Cable
+            {t('cable.field.cable', 'Kabel')}
             <select
               value={specId}
               onChange={(e) => onSelectSpec(e.target.value)}
               className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
             >
-              <option value={CUSTOM_CABLE_SPEC_ID}>★ Custom Cable…</option>
+              <option value={CUSTOM_CABLE_SPEC_ID}>★ {t('cable.customCable', 'Custom-Kabel')}…</option>
               {ranked.map(({ cable, level }) => {
                 const icon = level === 'ok' ? '✓' : level === 'warn' ? '⚠' : '✕'
                 return (
@@ -310,17 +322,17 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
           {specId === CUSTOM_CABLE_SPEC_ID && (
             <div className="rounded border border-cp-border bg-cp-surface-3/60 p-2">
               <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted">
-                Custom Cable Definition
+                {t('cable.customDefinition', 'Custom-Kabel-Definition')}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <label className="block">
-                  Connector Type
+                  {t('cable.field.connectorType', 'Stecker-Typ')}
                   <select
                     value={customConnectorType}
                     onChange={async (e) => {
                       const v = e.target.value
                       if (v === '__new__') {
-                        const name = (await promptDialog('Neuer Stecker-Typ (z.B. "Speakon NL4"):'))?.trim()
+                        const name = (await promptDialog(t('cable.prompt.newConnectorType', 'Neuer Stecker-Typ (z.B. "Speakon NL4"):')))?.trim()
                         if (name) {
                           useUiStore.getState().addCustomConnectorType(name)
                           setCustomConnectorType(name as ConnectorType)
@@ -334,20 +346,20 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                     {allConnectorOptions.map((type) => (
                       <option key={type} value={type}>
                         {type}
-                        {customConnectorTypes.includes(type as string) ? ' (custom)' : ''}
+                        {customConnectorTypes.includes(type as string) ? ` (${t('cable.customSuffix', 'custom')})` : ''}
                       </option>
                     ))}
-                    <option value="__new__">+ Neuer Stecker-Typ…</option>
+                    <option value="__new__">+ {t('cable.newConnectorTypeOption', 'Neuer Stecker-Typ')}…</option>
                   </select>
                 </label>
                 <label className="block">
-                  Signal Standard
+                  {t('cable.field.signalStandard', 'Signal-Standard')}
                   <select
                     value={customStandard}
                     onChange={async (e) => {
                       const v = e.target.value
                       if (v === '__new__') {
-                        const name = (await promptDialog('Neuer Signal-Standard (z.B. "Madi 64ch"):'))?.trim()
+                        const name = (await promptDialog(t('cable.prompt.newSignalStandard', 'Neuer Signal-Standard (z.B. "Madi 64ch"):')))?.trim()
                         if (name) {
                           useUiStore.getState().addCustomSignalStandard(name)
                           setCustomStandard(name as SignalStandard)
@@ -364,15 +376,15 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                     {allStandardOptions.map((item) => (
                       <option key={item} value={item}>
                         {item}
-                        {customSignalStandards.includes(item as string) ? ' (custom)' : ''}
+                        {customSignalStandards.includes(item as string) ? ` (${t('cable.customSuffix', 'custom')})` : ''}
                       </option>
                     ))}
-                    <option value="__new__">+ Neuer Signal-Standard…</option>
+                    <option value="__new__">+ {t('cable.newSignalStandardOption', 'Neuer Signal-Standard')}…</option>
                   </select>
                 </label>
               </div>
               <label className="mt-2 block">
-                Recommended Max Length (m)
+                {t('cable.field.maxLength', 'Empfohlene Maximallänge (m)')}
                 <input
                   type="number"
                   min={0}
@@ -410,14 +422,14 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                 className="mt-2 w-full rounded bg-sky-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-sky-600"
                 title={t('cable.dialog.saveCustomTitle', 'Speichert diese Custom-Definition als wiederverwendbaren Kabeltyp in der Bibliothek.')}
               >
-                <Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />Als Kabel-Typ speichern…
+                <Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />{t('cable.saveAsType', 'Als Kabel-Typ speichern')}…
               </button>
             </div>
           )}
 
           {selected.standards.length > 1 && (
             <label className="block">
-              Signal Standard
+              {t('cable.field.signalStandard', 'Signal-Standard')}
               <select
                 value={standard ?? ''}
                 onChange={(e) => setStandard(e.target.value as SignalStandard)}
@@ -433,7 +445,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
           )}
 
           <label className="block">
-            Name
+            {t('cable.field.name', 'Name')}
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -443,7 +455,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
 
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
-              Length (m)
+              {t('cable.field.length', 'Länge (m)')}
               <input
                 type="number"
                 min={0}
@@ -453,7 +465,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
               />
             </label>
             <label className="block">
-              Color
+              {t('cable.field.color', 'Farbe')}
               <input
                 type="color"
                 value={color}
@@ -464,7 +476,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
           </div>
 
           <label className="block">
-            Notes
+            {t('cable.field.notes', 'Notizen')}
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}

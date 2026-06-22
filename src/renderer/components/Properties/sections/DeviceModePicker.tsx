@@ -120,7 +120,7 @@ export const DeviceModePicker = ({
     if (!mode) return
     if (
       !(await confirmDialog(format(t('modes.captureConfirm', 'Aktuelles Port-Layout als Definition für "{name}" speichern?'), { name: mode.name }), {
-        body: `${equipment.inputs.length} Inputs · ${equipment.outputs.length} Outputs`,
+        body: format(t('modes.captureBody', '{ins} Inputs · {outs} Outputs'), { ins: equipment.inputs.length, outs: equipment.outputs.length }),
       }))
     )
       return
@@ -175,7 +175,7 @@ export const DeviceModePicker = ({
                 <span className="text-[10px] text-cp-text-muted">{m.description}</span>
               )}
               <span className="mt-1 text-[10px] text-cp-text-muted">
-                {m.inputs.length} In · {m.outputs.length} Out
+                {m.inputs.length} {t('modes.inShort', 'In')} · {m.outputs.length} {t('modes.outShort', 'Out')}
               </span>
             </button>
             <div className="flex gap-1 border-t border-cp-border-muted bg-cp-surface-3/40 px-1 py-1 text-[10px]">

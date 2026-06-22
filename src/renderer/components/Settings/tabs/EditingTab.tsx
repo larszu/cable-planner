@@ -36,9 +36,7 @@ const CableEndpointLabelsCard = () => {
         {t('settings.editing.endpointLabelsLabel', 'Endpoint-Labels einblenden')}
       </label>
       <p className="mt-2 text-[11px] text-cp-text-muted">
-        Default aus — gibt zusaetzlichen Visual-Noise. Wirkt
-        zusammen mit dem globalen "Alle Labels ausblenden"-Toggle
-        und respektiert per-Kabel labelPosition='none'.
+        {t('settings.editing.endpointLabelsNote', 'Default aus — gibt zusaetzlichen Visual-Noise. Wirkt zusammen mit dem globalen "Alle Labels ausblenden"-Toggle und respektiert per-Kabel labelPosition=\'none\'.')}
       </p>
     </SettingsCard>
   )

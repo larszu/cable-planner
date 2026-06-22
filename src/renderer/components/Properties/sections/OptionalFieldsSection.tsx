@@ -1,5 +1,5 @@
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
-import { useTranslation } from '../../../lib/i18n'
+import { format, useTranslation } from '../../../lib/i18n'
 import { pickImageAsDataUri } from '../../../lib/readImageAsDataUri'
 import { SortableSection } from '../SortableSection'
 import type { EquipmentItem } from '../../../types/equipment'
@@ -189,7 +189,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                     ? 'border-sky-500 bg-sky-700/30'
                     : 'border-cp-border bg-cp-surface-1 hover:bg-cp-surface-2'
                 }`}
-                title={`Icon ${g}`}
+                title={format(t('opt.iconGlyphTitle', 'Icon {glyph}'), { glyph: g })}
               >
                 {g}
               </button>

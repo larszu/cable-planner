@@ -167,7 +167,13 @@ const computeNaturalBbox = (viewportEl: HTMLElement): BoundingBox => {
     if (ly + h > maxY) maxY = ly + h
   }
   if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
-    throw new Error('Konnte den Inhalt des Canvas nicht vermessen')
+    throw new Error(
+      translate(
+        useUiStore.getState().language,
+        'export.errMeasureCanvas',
+        'Konnte den Inhalt des Canvas nicht vermessen',
+      ),
+    )
   }
   const padding = 200
   return {
@@ -445,9 +451,19 @@ export const exportCanvasToPdfVector = async (
   const onProgress = options?.onProgress ?? (() => {})
 
   const canvasEl = document.getElementById('cable-planner-canvas') as HTMLElement | null
-  if (!canvasEl) throw new Error('Canvas nicht gefunden')
+  if (!canvasEl)
+    throw new Error(
+      translate(useUiStore.getState().language, 'export.errCanvasNotFound', 'Canvas nicht gefunden'),
+    )
   const viewportEl = canvasEl.querySelector('.react-flow__viewport') as HTMLElement | null
-  if (!viewportEl) throw new Error('ReactFlow-Viewport nicht gefunden')
+  if (!viewportEl)
+    throw new Error(
+      translate(
+        useUiStore.getState().language,
+        'export.errViewportNotFound',
+        'ReactFlow-Viewport nicht gefunden',
+      ),
+    )
 
   onProgress('measure', 'Inhalt vermessen…')
   const bbox = computeNaturalBbox(viewportEl)
