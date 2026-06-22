@@ -52,7 +52,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
             checked={!!equipment.packed}
             onChange={(event) => updateEquipment(equipment.id, { packed: event.target.checked || undefined })}
           />
-          Gepackt / Pack-Status
+          {t('flags.packed', 'Gepackt / Pack-Status')}
         </label>
         {/* #285 — Wandler-Flag. Wenn aktiv, "ueberspringt" die
             Patchliste dieses Geraet und zeigt direkt das naechste
@@ -72,7 +72,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
               })
             }
           />
-          Wandler (Patchliste folgt Durchgangskabel)
+          {t('flags.converter', 'Wandler (Patchliste folgt Durchgangskabel)')}
         </label>
         <label
           className="flex items-center gap-2 text-[11px] text-cp-text-secondary"

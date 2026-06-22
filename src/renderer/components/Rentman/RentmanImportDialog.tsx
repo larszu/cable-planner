@@ -298,11 +298,11 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     try {
       const projectData = await loadProjects()
       if (!projectData.length) {
-        setError('No projects found for this token/account.')
+        setError(t('rentman.import.error.noProjects', 'Keine Projekte für dieses Token/Konto gefunden.'))
       }
       setProjects(mapProjects(projectData))
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load Rentman projects')
+      setError(err instanceof Error ? err.message : t('rentman.import.error.loadProjectsFailed', 'Laden der Rentman-Projekte fehlgeschlagen'))
     } finally {
       setLoading(false)
     }
@@ -387,10 +387,10 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         )
       }
       if (!mapped.length) {
-        setError('No equipment found in this project.')
+        setError(t('rentman.import.error.noEquipment', 'Kein Equipment in diesem Projekt gefunden.'))
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load project equipment')
+      setError(err instanceof Error ? err.message : t('rentman.import.error.loadEquipmentFailed', 'Laden des Projekt-Equipments fehlgeschlagen'))
     } finally {
       setLoading(false)
     }

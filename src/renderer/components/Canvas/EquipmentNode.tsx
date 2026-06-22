@@ -6,7 +6,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useModule } from '../../store/settingsStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { AlertTriangle } from 'lucide-react'
-import { useTranslation } from '../../lib/i18n'
+import { useTranslation, format } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { colorForConnector } from '../../lib/cableColors'
 import { defaultIconForEquipment } from '../../lib/deviceKind'
@@ -661,7 +661,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               fontWeight: 600,
               marginTop: 1,
             }}
-            title={`GreenGo Beltpack #${greengoUser.user.id}${greengoUser.groupNames.length > 0 ? ` · Gruppen: ${greengoUser.groupNames.join(', ')}` : ''}`}
+            title={`GreenGo Beltpack #${greengoUser.user.id}${greengoUser.groupNames.length > 0 ? ` · ${t('eqNode.greengoGroups', 'Gruppen')}: ${greengoUser.groupNames.join(', ')}` : ''}`}
           >
             <Icon icon={Headphones} size="xs" className="mr-1 inline-block align-text-bottom" />{greengoUser.user.name}
           </div>
@@ -760,9 +760,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             <span
               title={
                 isRackInternal
-                  ? `${port.name} · ${port.connectorType} — Rack-intern verkabelt`
+                  ? format(t('eqNode.portRackInternal', '{port} · {type} — Rack-intern verkabelt'), { port: port.name, type: port.connectorType })
                   : isPlugged
-                    ? `${port.name} · ${port.connectorType} — vor Ort gesteckt`
+                    ? format(t('eqNode.portPluggedOnSite', '{port} · {type} — vor Ort gesteckt'), { port: port.name, type: port.connectorType })
                     : `${port.name} · ${port.connectorType}`
               }
               style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}
@@ -920,9 +920,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             <span
               title={
                 isRackInternal
-                  ? `${port.name} · ${port.connectorType} — Rack-intern verkabelt`
+                  ? format(t('eqNode.portRackInternal', '{port} · {type} — Rack-intern verkabelt'), { port: port.name, type: port.connectorType })
                   : isPlugged
-                    ? `${port.name} · ${port.connectorType} — vor Ort gesteckt`
+                    ? format(t('eqNode.portPluggedOnSite', '{port} · {type} — vor Ort gesteckt'), { port: port.name, type: port.connectorType })
                     : `${port.name} · ${port.connectorType}`
               }
               style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}
@@ -1086,7 +1086,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               by: headerHeight + bPl.slot * PORT_ROW + PORT_ROW / 2,
               bSide: bPl.side,
               color: c.color ?? '#94a3b8',
-              label: `Intern: ${snap.items[c.fromItemIndex]?.name ?? '?'}:${c.fromPortName} ↔ ${snap.items[c.toItemIndex]?.name ?? '?'}:${c.toPortName}`,
+              label: `${t('eqNode.internalPrefix', 'Intern')}: ${snap.items[c.fromItemIndex]?.name ?? '?'}:${c.fromPortName} ↔ ${snap.items[c.toItemIndex]?.name ?? '?'}:${c.toPortName}`,
             })
           }
           return (

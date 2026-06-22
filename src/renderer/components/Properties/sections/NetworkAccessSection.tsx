@@ -29,7 +29,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
     >
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
-          <span className="mb-1 block text-cp-text-secondary">IP Address</span>
+          <span className="mb-1 block text-cp-text-secondary">{t('eq.field.ipAddress', 'IP Address')}</span>
           <input
             value={equipment.ipAddress ?? ''}
             onChange={(event) =>

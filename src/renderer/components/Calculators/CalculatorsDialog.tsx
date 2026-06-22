@@ -539,7 +539,7 @@ const PowerTab = () => {
     }
     pdf.setFontSize(15)
     pdf.setTextColor(20)
-    pdf.text(sanitizeForPdf(`Stromverteilung — ${projectName || 'Cable Planner'}`), margin, y)
+    pdf.text(sanitizeForPdf(`${t('calc.pdf.title', 'Stromverteilung')} — ${projectName || 'Cable Planner'}`), margin, y)
     y += 20
     pdf.setFontSize(9)
     pdf.setTextColor(90)
@@ -549,39 +549,39 @@ const PowerTab = () => {
     pdf.line(margin, y, pageW - margin, y)
     y += 14
 
-    line('ZUSAMMENFASSUNG', 11, 20)
-    line(`Gesamtverbrauch: ${totals.totalW.toFixed(0)} W  ·  + ${marginPercent}% Reserve = ${totalWithMargin.toFixed(0)} W (${(totalWithMargin / 1000).toFixed(2)} kW)`)
+    line(t('calc.pdf.summary', 'ZUSAMMENFASSUNG'), 11, 20)
+    line(`${t('calc.pdf.totalUsage', 'Gesamtverbrauch')}: ${totals.totalW.toFixed(0)} W  ·  + ${marginPercent}% ${t('calc.pdf.reserve', 'Reserve')} = ${totalWithMargin.toFixed(0)} W (${(totalWithMargin / 1000).toFixed(2)} kW)`)
     if (supply.phases === 1) {
-      line(`Stromstaerke (1-phasig): ${ampsSinglePhase.toFixed(1)} A  ·  Absicherung max ${supply.perPhaseAmps} A`)
+      line(`${t('calc.pdf.current1phase', 'Stromstaerke (1-phasig)')}: ${ampsSinglePhase.toFixed(1)} A  ·  ${t('calc.pdf.breakerMax', 'Absicherung max')} ${supply.perPhaseAmps} A`)
     } else {
-      line(`Symmetrisch (3-phasig): ${ampsThreePhase.toFixed(1)} A je Phase  ·  Absicherung max ${supply.perPhaseAmps} A`)
+      line(`${t('calc.pdf.current3phase', 'Symmetrisch (3-phasig)')}: ${ampsThreePhase.toFixed(1)} A ${t('calc.pdf.perPhase', 'je Phase')}  ·  ${t('calc.pdf.breakerMax', 'Absicherung max')} ${supply.perPhaseAmps} A`)
     }
-    line(`Generator (cosphi 0,8): ${generatorKva.toFixed(1)} kVA  ·  empfohlen >= ${generatorKvaRecommended.toFixed(1)} kVA`)
-    line(`Waerme/Kuehlung: ${totalBtu} BTU/h  ~ ${(totals.totalW / 1000).toFixed(1)} kW  ·  ${Math.max(1, Math.ceil(totalBtu / 12000))}x 12k-BTU-AC`)
+    line(`${t('calc.pdf.generator', 'Generator (cosphi 0,8)')}: ${generatorKva.toFixed(1)} kVA  ·  ${t('calc.pdf.recommended', 'empfohlen')} >= ${generatorKvaRecommended.toFixed(1)} kVA`)
+    line(`${t('calc.pdf.heatCooling', 'Waerme/Kuehlung')}: ${totalBtu} BTU/h  ~ ${(totals.totalW / 1000).toFixed(1)} kW  ·  ${Math.max(1, Math.ceil(totalBtu / 12000))}x 12k-BTU-AC`)
     y += 6
 
     if (supply.phases === 3 && distribution.perPhaseWatts.length === 3) {
-      line('PHASEN-BALANCE', 11, 20)
+      line(t('calc.pdf.phaseBalance', 'PHASEN-BALANCE'), 11, 20)
       distribution.perPhaseWatts.forEach((w, i) => {
         const a = w / supply.voltage
-        line(`L${i + 1}: ${Math.round(w)} W  ·  ${a.toFixed(1)} A  ·  ${Math.round((a / supply.perPhaseAmps) * 100)}% Last`, 9, 40, 8)
+        line(`L${i + 1}: ${Math.round(w)} W  ·  ${a.toFixed(1)} A  ·  ${Math.round((a / supply.perPhaseAmps) * 100)}% ${t('calc.pdf.load', 'Last')}`, 9, 40, 8)
       })
-      line(`Neutralleiter (geschaetzt): ${neutralAmps.toFixed(1)} A  ·  Unwucht ${maxImbalancePct}%`, 9, 40, 8)
+      line(`${t('calc.pdf.neutral', 'Neutralleiter (geschaetzt)')}: ${neutralAmps.toFixed(1)} A  ·  ${t('calc.pdf.imbalance', 'Unwucht')} ${maxImbalancePct}%`, 9, 40, 8)
       y += 6
     }
 
-    line('SPANNUNGSFALL (ZULEITUNG)', 11, 20)
-    line(`${runLength} m  ·  ${crossSection} mm2 Cu  ·  ${vdropCurrent.toFixed(1)} A  ->  ${vdropVolts.toFixed(1)} V (${vdropPercent.toFixed(1)}%)  ·  Ende ~${(supply.voltage - vdropVolts).toFixed(0)} V`, 9, 40, 8)
+    line(t('calc.pdf.vdrop', 'SPANNUNGSFALL (ZULEITUNG)'), 11, 20)
+    line(`${runLength} m  ·  ${crossSection} mm2 Cu  ·  ${vdropCurrent.toFixed(1)} A  ->  ${vdropVolts.toFixed(1)} V (${vdropPercent.toFixed(1)}%)  ·  ${t('calc.pdf.end', 'Ende')} ~${(supply.voltage - vdropVolts).toFixed(0)} V`, 9, 40, 8)
     y += 6
 
-    line('USV / NOTSTROM', 11, 20)
-    line(`${upsVa} VA x PF ${upsPf} = ${Math.round(upsCapacityW)} W  ·  Last ${upsLoadW.toFixed(0)} W (${Math.round(upsLoadFraction * 100)}%)  ·  empf. >= ${recommendedVa} VA`, 9, 40, 8)
-    line(`Akku ${Math.round(batteryWh)} Wh (${Math.round(usableWh)} Wh nutzbar)  ->  Pufferzeit ~${runtimeMin <= 0 ? '-' : runtimeMin >= 60 ? `${Math.floor(runtimeMin / 60)} h ${Math.round(runtimeMin % 60)} min` : `${runtimeMin.toFixed(0)} min`}`, 9, 40, 8)
+    line(t('calc.pdf.ups', 'USV / NOTSTROM'), 11, 20)
+    line(`${upsVa} VA x PF ${upsPf} = ${Math.round(upsCapacityW)} W  ·  ${t('calc.pdf.load', 'Last')} ${upsLoadW.toFixed(0)} W (${Math.round(upsLoadFraction * 100)}%)  ·  ${t('calc.pdf.recShort', 'empf.')} >= ${recommendedVa} VA`, 9, 40, 8)
+    line(`${t('calc.pdf.battery', 'Akku')} ${Math.round(batteryWh)} Wh (${Math.round(usableWh)} Wh ${t('calc.pdf.usable', 'nutzbar')})  ->  ${t('calc.pdf.runtime', 'Pufferzeit')} ~${runtimeMin <= 0 ? '-' : runtimeMin >= 60 ? `${Math.floor(runtimeMin / 60)} h ${Math.round(runtimeMin % 60)} min` : `${runtimeMin.toFixed(0)} min`}`, 9, 40, 8)
     y += 6
 
-    line(`GERAETE -> PHASE (${distribution.assignments.length})`, 11, 20)
+    line(`${t('calc.pdf.devicesToPhase', 'GERAETE -> PHASE')} (${distribution.assignments.length})`, 11, 20)
     for (const a of distribution.assignments) {
-      line(`${a.pinned ? '[fix] ' : ''}${a.name}  —  ${a.watts} W  —  L${a.phase}`, 8, 60, 8)
+      line(`${a.pinned ? `[${t('calc.pdf.fixed', 'fix')}] ` : ''}${a.name}  —  ${a.watts} W  —  L${a.phase}`, 8, 60, 8)
     }
     pdf.save(buildExportFilenameWithSuffix(projectName || 'cable-planner', 'stromverteilung', 'pdf'))
   }

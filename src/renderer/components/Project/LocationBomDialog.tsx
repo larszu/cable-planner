@@ -194,11 +194,11 @@ export const LocationBomDialog = () => {
       const margin = 32
       let y = margin + 4
       pdf.setFontSize(14)
-      pdf.text(sanitizeForPdf(`Stückliste - ${location.name}`), margin, y)
+      pdf.text(sanitizeForPdf(`${t('project.locbom.pdfTitle', 'Stückliste')} - ${location.name}`), margin, y)
       y += 18
       pdf.setFontSize(9)
       pdf.setTextColor(80)
-      if (location.floor) pdf.text(sanitizeForPdf(`Stockwerk: ${location.floor}`), margin, y)
+      if (location.floor) pdf.text(sanitizeForPdf(`${t('project.locbom.pdfFloor', 'Stockwerk')}: ${location.floor}`), margin, y)
       pdf.text(sanitizeForPdf(new Date().toLocaleString()), pageW - margin, y, { align: 'right' })
       y += 18
 
@@ -227,15 +227,15 @@ export const LocationBomDialog = () => {
 
       pdf.setTextColor(20)
       pdf.setFontSize(11)
-      pdf.text(sanitizeForPdf(`Geräte (${devices.length})`), margin, y)
+      pdf.text(sanitizeForPdf(`${t('project.locbom.pdfDevices', 'Geräte')} (${devices.length})`), margin, y)
       y += 14
       // #351 — Logistik-Zusammenfassung (Gewicht/Leistung/Wärme) als Kopfzeile.
       if (logistics.weightKg > 0 || logistics.watts > 0) {
         pdf.setFontSize(8)
         pdf.setTextColor(90)
         const parts: string[] = []
-        if (logistics.weightKg > 0) parts.push(`Gewicht: ${logistics.weightKg.toFixed(1)} kg`)
-        if (logistics.watts > 0) parts.push(`Leistung: ${logistics.watts.toFixed(0)} W (${logistics.btu} BTU/h)`)
+        if (logistics.weightKg > 0) parts.push(`${t('project.locbom.pdfWeight', 'Gewicht')}: ${logistics.weightKg.toFixed(1)} kg`)
+        if (logistics.watts > 0) parts.push(`${t('project.locbom.pdfPower', 'Leistung')}: ${logistics.watts.toFixed(0)} W (${logistics.btu} BTU/h)`)
         pdf.text(sanitizeForPdf(parts.join('   ·   ')), margin, y)
         y += 12
         pdf.setTextColor(20)
@@ -269,7 +269,7 @@ export const LocationBomDialog = () => {
 
       y += 8
       pdf.setFontSize(11)
-      pdf.text(sanitizeForPdf(`Interne Kabel (${internalCables.length})`), margin, y)
+      pdf.text(sanitizeForPdf(`${t('project.locbom.pdfInternalCables', 'Interne Kabel')} (${internalCables.length})`), margin, y)
       y += 14
       pdf.setFontSize(8)
       for (const c of internalCables) {
@@ -280,7 +280,7 @@ export const LocationBomDialog = () => {
         const conn = connectionDesc(c)
         pdf.text(
           sanitizeForPdf(
-            `* ${c.name ?? c.type ?? 'Kabel'}  ${c.length ? `(${c.length} m)  ` : ''}${conn}`,
+            `* ${c.name ?? c.type ?? t('project.locbom.pdfCableFallback', 'Kabel')}  ${c.length ? `(${c.length} m)  ` : ''}${conn}`,
           ),
           margin,
           y,
@@ -291,7 +291,7 @@ export const LocationBomDialog = () => {
       if (externalCables.length > 0) {
         y += 8
         pdf.setFontSize(11)
-        pdf.text(sanitizeForPdf(`Externe Verbindungen (${externalCables.length})`), margin, y)
+        pdf.text(sanitizeForPdf(`${t('project.locbom.pdfExternalConnections', 'Externe Verbindungen')} (${externalCables.length})`), margin, y)
         y += 14
         pdf.setFontSize(8)
         for (const c of externalCables) {
@@ -312,7 +312,7 @@ export const LocationBomDialog = () => {
           const typeLabel = c.type ? ` [${c.type}]` : ''
           const conn = connectionDesc(c)
           pdf.text(
-            sanitizeForPdf(`* ${c.name ?? c.type ?? 'Kabel'}${typeLabel}${lengthLabel}  ${conn}`),
+            sanitizeForPdf(`* ${c.name ?? c.type ?? t('project.locbom.pdfCableFallback', 'Kabel')}${typeLabel}${lengthLabel}  ${conn}`),
             margin,
             y,
           )

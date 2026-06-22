@@ -231,7 +231,7 @@ const GreenGoPresetsCard = () => {
               <div className="min-w-0 flex-1 truncate">
                 <span className="font-medium text-emerald-100">{p.name}</span>
                 <span className="ml-2 text-[10px] text-emerald-400/60">
-                  {p.config.users.length} User · {p.config.groups.length} Gruppen ·{' '}
+                  {p.config.users.length} {t('settings.greengo.usersWord', 'User')} · {p.config.groups.length} {t('settings.greengo.groupsWord', 'Gruppen')} ·{' '}
                   {new Date(p.savedAt).toLocaleDateString()}
                 </span>
               </div>
@@ -323,7 +323,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
         t('settings.integrations.rentman.statusSaved', 'Token sicher gespeichert.'),
       )
     } catch (error) {
-      setTokenStatus(error instanceof Error ? error.message : 'Konnte Token nicht speichern')
+      setTokenStatus(error instanceof Error ? error.message : t('settings.integrations.rentman.saveFailed', 'Konnte Token nicht speichern'))
     } finally {
       setBusy(false)
     }

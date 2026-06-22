@@ -11,24 +11,26 @@ import { LibraryPanel } from '../Library/LibraryPanel'
 import { PropertiesPanel } from '../Properties/PropertiesPanel'
 import { AnnotationsPanel } from '../Annotations/AnnotationsPanel'
 import { SettingsBody } from '../Settings/SettingsBody'
+import { useTranslation } from '../../lib/i18n'
 import type { PopoutPanel } from '../../lib/panelPopout'
 
-const TITLES: Record<PopoutPanel, string> = {
-  library: 'Library',
-  properties: 'Eigenschaften',
-  annotations: 'Anmerkungen',
-  settings: 'Einstellungen',
+const TITLE_KEYS: Record<PopoutPanel, { key: string; fallback: string }> = {
+  library: { key: 'panel.title.library', fallback: 'Library' },
+  properties: { key: 'panel.title.properties', fallback: 'Eigenschaften' },
+  annotations: { key: 'panel.title.annotations', fallback: 'Anmerkungen' },
+  settings: { key: 'panel.title.settings', fallback: 'Einstellungen' },
 }
 
 export const PopoutApp = ({ panel }: { panel: PopoutPanel }) => {
+  const t = useTranslation()
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   // Theme + Titel des Popout-Fensters setzen.
   useEffect(() => {
     document.documentElement.dataset.theme = canvasTheme
   }, [canvasTheme])
   useEffect(() => {
-    document.title = `Cable Planner — ${TITLES[panel]}`
-  }, [panel])
+    document.title = `Cable Planner — ${t(TITLE_KEYS[panel].key, TITLE_KEYS[panel].fallback)}`
+  }, [panel, t])
 
   // #427 — Einstellungen füllen das Fenster (Sidebar + Tab), Schließen
   // schließt das OS-Fenster. Layout entspricht dem Modal-Panel.

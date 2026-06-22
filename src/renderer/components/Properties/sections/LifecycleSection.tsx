@@ -32,16 +32,15 @@ const SERVICE_KINDS: ServiceRecord['kind'][] = [
   'replacement',
   'note',
 ]
-const SERVICE_KIND_LABEL: Record<ServiceRecord['kind'], string> = {
-  install: 'Installation',
-  inspection: 'Inspektion',
-  repair: 'Reparatur',
-  replacement: 'Austausch',
-  note: 'Notiz',
-}
-
 export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) => {
   const t = useTranslation()
+  const SERVICE_KIND_LABEL: Record<ServiceRecord['kind'], string> = {
+    install: t('lifecycle.kind.install', 'Installation'),
+    inspection: t('lifecycle.kind.inspection', 'Inspektion'),
+    repair: t('lifecycle.kind.repair', 'Reparatur'),
+    replacement: t('lifecycle.kind.replacement', 'Austausch'),
+    note: t('lifecycle.kind.note', 'Notiz'),
+  }
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const setStatus = useProjectStore((s) => s.setEquipmentInstallStatus)
   const addServiceRecord = useProjectStore((s) => s.addServiceRecord)
@@ -64,7 +63,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
     if (!text) return
     addServiceRecord(equipment.id, {
       date: new Date().toISOString(),
-      author: editorName.trim() || 'Unbekannt',
+      author: editorName.trim() || t('lifecycle.unknownAuthor', 'Unbekannt'),
       kind,
       summary: text,
     })
@@ -92,7 +91,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
             <option value="">{t('lifecycle.statusNone', '— kein Status —')}</option>
             {INSTALL_STATUSES.map((s) => (
               <option key={s} value={s}>
-                {INSTALL_STATUS_LABEL[s]}
+                {t(`lifecycle.status.${s}`, INSTALL_STATUS_LABEL[s])}
               </option>
             ))}
           </select>
@@ -157,7 +156,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
               <option value="">{t('lifecycle.ownershipNone', '— k.A. —')}</option>
               {EQUIPMENT_OWNERSHIPS.map((o) => (
                 <option key={o} value={o}>
-                  {EQUIPMENT_OWNERSHIP_LABEL[o]}
+                  {t(`lifecycle.ownership.${o}`, EQUIPMENT_OWNERSHIP_LABEL[o])}
                 </option>
               ))}
             </select>

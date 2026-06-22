@@ -73,7 +73,7 @@ export const TemplateProperties = () => {
         {template.rentmanSource && (
           <span
             className="rounded bg-orange-700 px-1.5 py-0.5 text-[10px] font-bold text-white"
-            title={`Importiert aus Rentman-Projekt ${template.rentmanSource}`}
+            title={format(t('template.rentmanSourceTitle', 'Importiert aus Rentman-Projekt {source}'), { source: template.rentmanSource })}
           >
             R
           </span>

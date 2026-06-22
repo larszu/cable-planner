@@ -139,6 +139,7 @@ const MvLayoutPicker = ({
   onToggleQuadrant: (quadIdx: 0 | 1 | 2 | 3) => void
   canvasPortNames?: Map<number, string>
 }) => {
+  const t = useTranslation()
   // #448 — feste 240px waren bei 320px Viewport 75% der Breite; jetzt
   // flexibel (min aus 240px und 70vw), Seitenverhältnis bleibt 16:9.
   return (
@@ -171,10 +172,10 @@ const MvLayoutPicker = ({
           onClick={() => onToggleQuadrant(q.idx)}
           title={
             quadrants[q.idx] === 'big'
-              ? `${q.name}: aktuell 1 großes Fenster — Klick: in 4 kleine teilen`
-              : `${q.name}: aktuell 4 kleine Fenster — Klick: zu 1 großem zusammenfassen`
+              ? format(t('atem.mv.quadBigTitle', '{name}: aktuell 1 großes Fenster — Klick: in 4 kleine teilen'), { name: q.name })
+              : format(t('atem.mv.quadSmallTitle', '{name}: aktuell 4 kleine Fenster — Klick: zu 1 großem zusammenfassen'), { name: q.name })
           }
-          aria-label={`Quadrant ${q.name} umschalten`}
+          aria-label={format(t('atem.mv.quadToggleAria', 'Quadrant {name} umschalten'), { name: q.name })}
           className="group absolute cursor-pointer outline-none transition-all hover:bg-sky-500/25 hover:ring-2 hover:ring-sky-400 focus-visible:bg-sky-500/30 focus-visible:ring-2 focus-visible:ring-sky-400"
           style={{
             width: '50%',
@@ -475,7 +476,7 @@ const SourcePicker = ({
             }}
             className="flex-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
           >
-            Übernehmen
+            {t('common.apply', 'Übernehmen')}
           </button>
         </div>
       </div>
@@ -549,11 +550,11 @@ const CapabilitiesPanel = ({
       >
         <span>{open ? '▾' : '▸'}</span>
         <span>
-          Modell-Capabilities: <span className="text-cp-text-secondary">{equipmentName}</span> ·{' '}
+          {t('atem.mv.capabilities', 'Modell-Capabilities:')} <span className="text-cp-text-secondary">{equipmentName}</span> ·{' '}
           {caps.mvCount} MV{caps.mvCount === 1 ? '' : 's'} ·{' '}
-          {caps.supportedLayouts.length} Layouts{' '}
+          {format(t('atem.mv.layoutsCount', '{n} Layouts'), { n: caps.supportedLayouts.length })}{' '}
           {hasOverride && (
-            <span className="rounded bg-amber-900/60 px-1 text-amber-200">manuell</span>
+            <span className="rounded bg-amber-900/60 px-1 text-amber-200">{t('atem.mv.manual', 'manuell')}</span>
           )}
         </span>
       </button>
@@ -587,7 +588,7 @@ const CapabilitiesPanel = ({
           </div>
           <div className="flex items-center gap-2">
             <label className="flex items-center gap-1">
-              <span>MV-Anzahl:</span>
+              <span>{t('atem.mv.mvCount', 'MV-Anzahl:')}</span>
               <input
                 type="number"
                 min={0}
@@ -1000,9 +1001,16 @@ export const AtemMvConfigDialog = () => {
           windows: mv.windows,
         })),
       })
-      setStatus(`Vom ATEM geladen: ${incoming.length} MV, ${totalWindows} Fenster.`)
+      setStatus(
+        format(t('atem.mv.status.loaded', 'Vom ATEM geladen: {mv} MV, {windows} Fenster.'), {
+          mv: incoming.length,
+          windows: totalWindows,
+        }),
+      )
     } catch (err) {
-      setStatus(`Fehler: ${(err as Error).message}`)
+      setStatus(
+        format(t('atem.mv.status.error', 'Fehler: {msg}'), { msg: (err as Error).message }),
+      )
     }
   }
 
@@ -1159,7 +1167,7 @@ export const AtemMvConfigDialog = () => {
             </button>
           </div>
           <span className="ml-auto text-[10px] text-cp-text-muted">
-            {config.multiViewers.length} MV — Klick auf ein Fenster ändert die Quelle.
+            {format(t('atem.mv.windowHint', '{n} MV — Klick auf ein Fenster ändert die Quelle.'), { n: config.multiViewers.length })}
           </span>
         </div>
 

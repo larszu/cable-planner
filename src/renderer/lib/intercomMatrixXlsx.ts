@@ -38,7 +38,7 @@
 // "stream has been externalized"-Dev-Warnung.
 import type * as XLSXNs from 'xlsx-js-style'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../types/greengo'
-import { translate } from './i18n'
+import { translate, format } from './i18n'
 import { useUiStore } from '../store/uiStore'
 
 const tr = (key: string, fallback: string) =>
@@ -125,7 +125,7 @@ const detectLayout = (rows: Cell[][]): MatrixLayout | { error: string } => {
   const headerCells = rows[sectionHeaderRow] ?? []
   const sections = findSectionsInRow(headerCells)
   if (sections.length === 0) {
-    return { error: 'Keine Spalten-Sektionen unterhalb der Header gefunden.' }
+    return { error: tr('intercomXlsx.noSections', 'Keine Spalten-Sektionen unterhalb der Header gefunden.') }
   }
   // ID row sits immediately below the header row; label row directly
   // after it. Some templates may have one extra spacer row between
@@ -182,10 +182,14 @@ export const parseIntercomMatrixXlsx = async (
   try {
     workbook = XLSX.read(data, { type: 'array' })
   } catch (err) {
-    return { error: `XLSX konnte nicht gelesen werden: ${(err as Error).message}` }
+    return {
+      error: format(tr('intercomXlsx.readError', 'XLSX konnte nicht gelesen werden: {msg}'), {
+        msg: (err as Error).message,
+      }),
+    }
   }
   const sheetName = workbook.SheetNames[0]
-  if (!sheetName) return { error: 'Keine Tabelle in der Datei gefunden.' }
+  if (!sheetName) return { error: tr('intercomXlsx.noSheet', 'Keine Tabelle in der Datei gefunden.') }
   const sheet = workbook.Sheets[sheetName]
   // Get raw cell values as strings; XLSX returns a 2D array.
   const rows: Cell[][] = XLSX.utils.sheet_to_json(sheet, {
@@ -193,7 +197,7 @@ export const parseIntercomMatrixXlsx = async (
     raw: false,
     defval: '',
   }) as Cell[][]
-  if (rows.length === 0) return { error: 'Die erste Tabelle ist leer.' }
+  if (rows.length === 0) return { error: tr('intercomXlsx.emptySheet', 'Die erste Tabelle ist leer.') }
 
   const layoutOrError = detectLayout(rows)
   if ('error' in layoutOrError) return layoutOrError

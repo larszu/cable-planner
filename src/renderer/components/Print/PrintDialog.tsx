@@ -247,7 +247,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                             </div>
                           </div>
                           <span className="shrink-0 text-[10px] text-cp-text-muted">
-                            {portCount} Ports · {cableCount} Kabel
+                            {formatStr(t('print.devices.portCableCount', '{ports} Ports · {cables} Kabel'), { ports: portCount, cables: cableCount })}
                           </span>
                         </label>
                       </li>
@@ -261,7 +261,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
             <div className="mb-3 grid grid-cols-2 gap-3">
               <div className="rounded border border-cp-border p-2">
                 <div className="mb-1 text-[10px] uppercase tracking-wide text-cp-text-muted">
-                  Aktion
+                  {t('print.action.label', 'Aktion')}
                 </div>
                 <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
                   <input
@@ -271,7 +271,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     onChange={() => setAction('print')}
                   />
                   <Icon icon={Printer} size="xs" className="mr-1 inline-block align-text-bottom" />
-                  Auf Drucker drucken (Systemdialog)
+                  {t('print.action.print', 'Auf Drucker drucken (Systemdialog)')}
                 </label>
                 <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
                   <input
@@ -280,7 +280,7 @@ export const PrintDialog = ({ open, onClose }: PrintDialogProps) => {
                     checked={action === 'download'}
                     onChange={() => setAction('download')}
                   />
-                  Als PDF herunterladen
+                  {t('print.action.download', 'Als PDF herunterladen')}
                 </label>
               </div>
               <div className="rounded border border-cp-border p-2 text-[10px] text-cp-text-muted">

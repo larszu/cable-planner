@@ -84,7 +84,7 @@ export const RackBuilderFooter = ({
             dirty ? 'animate-pulse bg-amber-400' : 'bg-emerald-500'
           }`}
         />
-        <span>{dirty ? 'Autosave aktiv' : 'Gespeichert'}</span>
+        <span>{dirty ? t('rack.autosaveActiveLabel', 'Autosave aktiv') : t('rack.savedLabel', 'Gespeichert')}</span>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -98,7 +98,7 @@ export const RackBuilderFooter = ({
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 8 H13 M3 8 L6 5 M3 8 L6 11 M13 8 L10 5 M13 8 L10 11" />
           </svg>
-          Intern verkabeln
+          {t('rack.internalWireBtn', 'Intern verkabeln')}
         </button>
         <button
           type="button"

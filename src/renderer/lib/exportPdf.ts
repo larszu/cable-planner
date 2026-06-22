@@ -258,7 +258,13 @@ const buildCanvasPdf = async (
   }
 
   if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
-    throw new Error('Konnte den Inhalt des Canvas nicht vermessen')
+    throw new Error(
+      translate(
+        useUiStore.getState().language,
+        'export.errMeasureCanvas',
+        'Konnte den Inhalt des Canvas nicht vermessen',
+      ),
+    )
   }
 
   // v7.7.1 — padding bumped to 200 px so the exported file shows
