@@ -240,7 +240,7 @@
   <aside>
     <h1>Cable-Planner</h1>
     <div class="subtitle">
-      App-Struktur · v8.1.0 · ~235 Module · ~73.5k LOC<br>
+      App-Struktur · v8.2.1 · ~346 TS/TSX-Module · ~99.7k LOC<br>
       <small style="color:#64748b">Diese Übersicht zeigt nur die ~62 wichtigsten Module. Für die vollständige Architektur siehe <a href="./architecture.md" style="color:#94a3b8">architecture.md</a>.</small>
     </div>
 
@@ -353,12 +353,12 @@ const DATA = {
     { "id": "atem-dialog",       "label": "ATEM Dialog",     "layer": "renderer", "group": "Atem",       "purpose": "Connect to ATEM, browse Inputs/MV", "file": "src/renderer/components/Atem/AtemDialog.tsx" },
 
     // ── Renderer: Settings + Export + Annotations ─────────
-    { "id": "settings-dialog",   "label": "Settings Dialog", "layer": "renderer", "group": "Settings",   "purpose": "v8.x #307: Hauptdatei nur noch ~140 LOC (war 2392), Inhalt aufgeteilt in 8 Tab-Komponenten unter Settings/tabs/ (ProjectTab, AppearanceTab, EditingTab, HotkeysTab, IntegrationsTab, ConfigsTab, SyncTab, AdvancedTab). Sprache + bilinguale Kategorien (#309) via uiStore.language.", "file": "src/renderer/components/Settings/SettingsDialog.tsx" },
+    { "id": "settings-dialog",   "label": "Settings Dialog", "layer": "renderer", "group": "Settings",   "purpose": "v8.x #307: Hauptdatei nur noch ~60 LOC (war 2392), Inhalt aufgeteilt in 9 Tab-Komponenten unter Settings/tabs/ (ProjectTab, AppearanceTab, EditingTab, HotkeysTab, IntegrationsTab, ConfigsTab, ModulesTab, SyncTab, AdvancedTab). Sprache + bilinguale Kategorien (#309) via uiStore.language.", "file": "src/renderer/components/Settings/SettingsDialog.tsx" },
     { "id": "export-dialog",     "label": "Export Dialog",   "layer": "renderer", "group": "Export",     "purpose": "PDF/PNG/JSON/XLSX Export", "file": "src/renderer/components/Export/ExportDialog.tsx" },
     { "id": "annotations",       "label": "Annotations",     "layer": "renderer", "group": "Annotations","purpose": "Reviewer-Kommentare, Overlay auf Canvas", "file": "src/renderer/components/Annotations/AnnotationsPanel.tsx" },
 
     // ── Renderer: Stores (zustand) ─────────────────────────
-    { "id": "project-store",     "label": "Project Store",   "layer": "renderer", "group": "Store",      "purpose": "v8.x #308: aufgeteilt in 11 Slices unter store/slices/. Hauptdatei nur noch ~985 LOC (war 2589). Slices: equipment, cable, location, annotation, template, groupPreset, groupPresetSpawn, meta, category, mobileSync, selectionLifecycle.", "file": "src/renderer/store/projectStore.ts" },
+    { "id": "project-store",     "label": "Project Store",   "layer": "renderer", "group": "Store",      "purpose": "v8.x #308: aufgeteilt in 14 Slices unter store/slices/. Hauptdatei nur noch ~1146 LOC (war 2589). Slices: equipment, cable, location, annotation, template, groupPreset, groupPresetSpawn, meta, category, mobileSync, selectionLifecycle, lifecycle, revision, pendingChanges.", "file": "src/renderer/store/projectStore.ts" },
     { "id": "ui-store",          "label": "UI Store",        "layer": "renderer", "group": "Store",      "purpose": "zustand: Selection, Panels, Layers, Theme, persistent settings", "file": "src/renderer/store/uiStore.ts" },
     { "id": "settings-store",    "label": "Settings Store",  "layer": "renderer", "group": "Store",      "purpose": "zustand: Persisted Window-Settings (Position, Size)", "file": "src/renderer/store/settingsStore.ts" },
     { "id": "project-history",   "label": "Project History", "layer": "renderer", "group": "Store",      "purpose": "Undo/Redo. v7.9.92: Transactions + 200ms Coalesce-Window (draw.io-style)", "file": "src/renderer/store/projectHistory.ts" },
