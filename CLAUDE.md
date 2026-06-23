@@ -30,7 +30,15 @@ npm run test:crdt                        # CRDT-Konvergenz (scripts/crdt-converg
 npm run test:signaling                   # Signaling-Relay (baut main vorher)
 npm run ui:smoke                         # UI-Smoke (scripts/ui-smoke.mjs)
 npm run test:drag                        # Headless Drag-/Interaktions-Test (scripts/drag-test.mjs, braucht laufenden dev:renderer)
+npm run docs:stats                       # Doku-Kennzahlen (Version/Module/LOC/Slices/Subdomänen) neu berechnen + in Doku schreiben
 ```
+
+**Doku-Kennzahlen-Automatik:** `scripts/update-doc-stats.mjs` hält die
+maschinell zählbaren Zahlen in `CLAUDE.md`, `docs/architecture.md`,
+`docs/app-structure.html`, `docs/comparison.html` aktuell. Der Workflow
+`.github/workflows/docs-stats.yml` führt es bei **jedem Merge auf main** aus und
+committet Differenzen zurück. Prosa/Feature-Drift prüft zusätzlich der
+wöchentliche KI-Auditor `docs-sync.yml`.
 
 Es gibt **fünf tsconfigs** — pro Prozess eine: `tsconfig.main.json` (main, ESM
 node16), `tsconfig.preload.json` (preload, **CommonJS**), `tsconfig.app.json`
