@@ -29,6 +29,7 @@ npx vitest run -t "Teil des Test-Namens"      # einzelner Test per Name
 npm run test:crdt                        # CRDT-Konvergenz (scripts/crdt-convergence-check.mjs)
 npm run test:signaling                   # Signaling-Relay (baut main vorher)
 npm run ui:smoke                         # UI-Smoke (scripts/ui-smoke.mjs)
+npm run test:drag                        # Headless Drag-/Interaktions-Test (scripts/drag-test.mjs, braucht laufenden dev:renderer)
 ```
 
 Es gibt **fünf tsconfigs** — pro Prozess eine: `tsconfig.main.json` (main, ESM
@@ -56,13 +57,13 @@ strukturellen Änderungen.** Hier nur das Nötigste zum schnellen Einstieg:
 
 **IPC:** Alle Channels sind domain-präfixiert (`project:*`, `library:*`,
 `atem:*`, `videohub:*`, `sync:*`, `mobileShare:*`, `credentials:*`, `rentman:*`,
-`graphml:*`, `print:*`, `logs:*`). Definition in `src/main/ipc/<domain>Ipc.ts`,
+`graphml:*`, `print:*`, `logs:*`, `signaling:*`, `collabDiscovery:*`). Definition in `src/main/ipc/<domain>Ipc.ts`,
 Aufruf via `window.cablePlanner.<domain>.<action>`. Ein Channel = eine Domäne.
 Pfad-Validierung passiert **immer in main**, nie im Renderer.
 
 **State (Zustand, `src/renderer/store/`):**
 - `projectStore.ts` — **Single Source of Truth** für alle Projekt-Daten. Intern
-  in 11 Slices unter `store/slices/` komponiert. Komponenten dürfen Projekt-Daten
+  in 14 Slices unter `store/slices/` komponiert. Komponenten dürfen Projekt-Daten
   nicht lokal duplizieren/cachen.
 - `uiStore.ts` — Viewport, Panels, Editor-Defaults, Geräte-Farben. **Keine**
   Projekt-Daten.
