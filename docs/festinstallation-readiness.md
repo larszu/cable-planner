@@ -8,7 +8,7 @@
 > Adressaten der Features: **Betreiber/Endkunden**, **Elektro-/AV-Installateure**,
 > **Architekten/Planer** und der **wartende Dienstleister**.
 >
-> Stand: 2026-06 · Basis: Codebase v8.1.0 + Branchen-/Standard-Recherche
+> Stand: 2026-06 · Basis: Codebase v8.2.1 + Branchen-/Standard-Recherche
 > (Quellen am Ende).
 
 ---

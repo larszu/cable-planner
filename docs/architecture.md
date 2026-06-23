@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v8.2.0 · ~339 TS/TSX-Module · ~97.7k LOC
+Stand: v8.2.1 · ~346 TS/TSX-Module · ~99.7k LOC
 
 ---
 
@@ -61,7 +61,9 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `credentials:*` | `credentialsIpc.ts` | `get-token`, `save-token`, `delete-token`, `test-token` (via `keytar`) |
 | `graphml:*` | `graphmlIpc.ts` | `open-file` |
 | `print:*` | `printIpc.ts` | `pdf-bytes` |
-| `logs:*` | `loggingIpc.ts` | `renderer-error` (Renderer → Main, one-way) |
+| `logs:*` | `logIpc.ts` | `renderer-error` (Renderer → Main, one-way) |
+| `signaling:*` | `signalingIpc.ts` | LAN-Signaling-Relay für die Yjs/WebRTC-Kollaboration (#413) |
+| `collabDiscovery:*` | `collabDiscoveryIpc.ts` | Bonjour/mDNS-Discovery von Kollaborations-Peers im LAN |
 
 **Invarianten**:
 1. **Ein Channel = eine Domäne**. Niemals einen Channel quer durch Domänen
@@ -81,26 +83,27 @@ Vier Stores in `src/renderer/store/`. Jeder hat einen klar abgegrenzten Concern.
 
 | Store | LOC | Concern | Persist |
 |---|---|---|---|
-| `projectStore.ts` | ~985 | Projekt-Daten + composeite slices (siehe §3.1.1), Autosave, Healing, Rentman-Sync | `localStorage[STORAGE_KEYS.projectAutosave]` + Disk via `project:save` |
-| `uiStore.ts` | ~1150 | Canvas-Viewport, Panel-Breiten, Edge-Routing-Defaults, Grid/Snap, Geräte-Farben, Device-Config-Library | `localStorage[STORAGE_KEYS.ui]` |
+| `projectStore.ts` | ~1146 | Projekt-Daten + composeite slices (siehe §3.1.1), Autosave, Healing, Rentman-Sync | `localStorage[STORAGE_KEYS.projectAutosave]` + Disk via `project:save` |
+| `uiStore.ts` | ~1370 | Canvas-Viewport, Panel-Breiten, Edge-Routing-Defaults, Grid/Snap, Geräte-Farben, Device-Config-Library | `localStorage[STORAGE_KEYS.ui]` |
 | `projectHistory.ts` | ~200 | Undo/Redo-Stack (max 100), Transactions, 200ms-Coalesce | **Nicht persistiert** — geht beim Reload verloren |
 | `settingsStore.ts` | ~90 | Autosave-Intervall, Sync-Pfad/User, Token-Status | `localStorage[STORAGE_KEYS.settings]` |
 
 #### 3.1.1 · Slice-Komposition (#308)
 
-`projectStore.ts` ist intern in **11 Slices** unter `src/renderer/store/slices/`
+`projectStore.ts` ist intern in **14 Slices** unter `src/renderer/store/slices/`
 zerlegt, die alle in den Haupt-Store komponiert werden:
 
 ```
 annotationSlice          cableSlice          categorySlice
 equipmentSlice           groupPresetSlice    groupPresetSpawnSlice
-locationSlice            metaSlice           mobileSyncSlice
+lifecycleSlice           locationSlice       metaSlice
+mobileSyncSlice          pendingChangesSlice revisionSlice
 selectionLifecycleSlice  templateSlice
 ```
 
 Jeder Slice ist ein `StateCreator<ProjectState, [], [], Slice>` und bekommt
 das `set`/`get`/`store`-Tripel vom Haupt-Store. So bleibt `projectStore.ts`
-selbst klein (~985 LOC, war 2178), während die Domain-spezifische Logik
+selbst klein (~1146 LOC, war 2178), während die Domain-spezifische Logik
 isoliert testbar ist.
 
 **Invarianten**:
@@ -118,13 +121,14 @@ isoliert testbar ist.
 
 ### 3.2 · Komponenten
 
-`src/renderer/components/` ist in 19 Subdomänen aufgeteilt:
+`src/renderer/components/` ist in 23 Subdomänen aufgeteilt:
 
 ```
-About/         Annotations/   Atem/          Calculators/   Canvas/
-Export/        Import/        Layout/        Library/       MobileShare/
-Onboarding/    Patch/         Print/         Project/       Properties/
-Rack/          Rentman/       Settings/      Sync/          shared/
+About/         Analysis/      Annotations/   Atem/          Cable/
+Calculators/   Canvas/        Export/        Import/        Inventory/
+Layout/        Library/       MobileShare/   Onboarding/    Patch/
+Print/         Project/       Properties/    Rack/          Rentman/
+Settings/      Sync/          shared/
 ```
 
 Jede Subdomäne ist ein Feature-Cluster. **Cross-Subdomain-Imports sind
@@ -132,17 +136,18 @@ erlaubt, aber bewusst halten** — bevor ein neuer Cross-Import kommt, kurz
 prüfen, ob das gemeinsame Konzept nach `shared/` gehört.
 
 **Komponenten-Splits abgeschlossen** (#306/#307):
-- `EquipmentProperties.tsx` (2314 → 164 LOC) zerlegt in 22 Sub-Sections
+- `EquipmentProperties.tsx` (2314 → ~178 LOC) zerlegt in 25 Sub-Sections
   unter `Properties/sections/` — DragSortable, jede Section eigen-
   ständig persisited Reihenfolge.
-- `SettingsDialog.tsx` (2392 → 140 LOC) zerlegt in 8 Tab-Komponenten
+- `SettingsDialog.tsx` (2392 → ~60 LOC) zerlegt in 9 Tab-Komponenten
   unter `Settings/tabs/` — ProjectTab, AppearanceTab, EditingTab,
-  HotkeysTab, IntegrationsTab, ConfigsTab, SyncTab, AdvancedTab.
+  HotkeysTab, IntegrationsTab, ConfigsTab, ModulesTab, SyncTab, AdvancedTab.
 
 **Top-Files heute (>1500 LOC, weitere Refactor-Kandidaten)**:
-- `RackBuilderDialog.tsx` (~2850), `LibraryPanel.tsx` (~2550),
-  `CanvasArea.tsx` (~1970), `RentmanImportDialog.tsx` (~1730),
-  `App.tsx` (~1690)
+- `CanvasArea.tsx` (~1980), `RackBuilderDialog.tsx` (~1800),
+  `RentmanImportDialog.tsx` (~1780). Knapp darunter:
+  `LibraryPanel.tsx` (~1430), `VideohubExportDialog.tsx` (~1390),
+  `AtemMvConfigDialog.tsx` (~1320), `CanvasToolbar.tsx` (~1270).
 
 ### 3.3 · Canvas
 
@@ -390,12 +395,12 @@ Diese Themen sind diskutiert, aber noch nicht entschieden / umgesetzt.
 
 ### 9.1 · Store-Slicing — **erledigt** ✓ (#308)
 
-Implementiert. `projectStore.ts` von 2178 LOC auf ~985 reduziert durch
-11 Slices unter `store/slices/`. Siehe §3.1.1.
+Implementiert. `projectStore.ts` von 2178 LOC auf ~1146 reduziert durch
+14 Slices unter `store/slices/`. Siehe §3.1.1.
 
 ### 9.2 · Komponenten-Splits — **teilweise** ✓ (#306, #307)
 
-- `EquipmentProperties` → 22 Sub-Sections ✓
+- `EquipmentProperties` → 25 Sub-Sections ✓
 - `SettingsDialog` → 8 Tabs ✓
 - **Noch offen**: `LibraryPanel`, `RackBuilderDialog`, `CanvasArea`,
   `RentmanImportDialog`.
@@ -420,24 +425,32 @@ Drei Optionen mit sehr unterschiedlichem Aufwand:
 Slice-Architektur (#308) ist die Vorbereitung — jeder Slice macht
 immutable Updates, Yjs-Mapping wäre ein Adapter.
 
-**Stand (#413, erste Stufe):** Das CRDT-*Fundament* steht — `yjs` ist
-Dependency, `src/renderer/lib/crdt/projectCrdt.ts` spiegelt die
-`cables`-Collection als `Y.Doc` (`Y.Map<Cable>`) und bietet
-`loadFromCables`/`toCables`/`encodeState`/`encodeDiff`/`applyUpdate`/
-`onUpdate`. Konvergenz ist bewiesen (`npm run test:crdt`,
-`scripts/crdt-convergence-check.mjs`): konkurrierende Edits an
-verschiedenen Kabeln mergen, Konflikte am selben Kabel lösen
-deterministisch auf (kein Split-Brain), Updates sind idempotent +
-reihenfolge-unabhängig. **Noch offen:** Transport (`y-webrtc`/
-`y-websocket`), Store-⇄-Y.Doc-Bindung im Live-Betrieb, Presence/Cursor,
-Erweiterung auf `equipment`/`locations`, Undo-Integration.
+**Stand (#413, #471 — weitgehend umgesetzt):** Die Yjs-CRDT-P2P-Variante
+ist real implementiert, nicht mehr nur Fundament. Vorhanden unter
+`src/renderer/lib/crdt/`:
+- `projectCrdt.ts` — Projekt-Collections als `Y.Doc`, Konvergenz bewiesen
+  (`npm run test:crdt`, `scripts/crdt-convergence-check.mjs`).
+- `storeBinding.ts` — Live-Bindung projectStore ⇄ `Y.Doc`.
+- `webrtcProvider.ts` + `broadcastTransport.ts` + `syncTransport.ts` /
+  `syncManager.ts` — Transport (`y-webrtc`, dep `^10.3.0`) inkl.
+  Broadcast-Fallback.
+- `presence.ts` — Presence/Awareness; `collab.ts` + `collabStore.ts` +
+  `components/Sync/CollabPanel.tsx` + `lib/collabInvite.ts` — Session,
+  UI, Einladungs-Code.
+- Main-Seite: `src/main/signalingServer.ts`, `ipc/signalingIpc.ts`
+  (LAN-Signaling-Relay), `ipc/collabDiscoveryIpc.ts` (mDNS-Peer-Discovery).
+
+**Noch offen / Reifegrad:** vollständige CRDT-Abdeckung aller Collections
+im Live-Betrieb, robuste Undo-Integration über mehrere Clients und ein
+optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 
 ### 9.5 · Tests
 
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
-gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`) und ein
-UI-Smoke-Skript (`npm run ui:smoke`). Bei ~97.7k LOC bleibt der Ausbau der
-Abdeckung wichtig — empfohlene Schwerpunkte:
+gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
+UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~99.7k LOC
+bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.
 - Property-Tests auf `projectHistory` (Undo-Redo-Invarianten).

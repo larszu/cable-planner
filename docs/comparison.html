@@ -61,7 +61,7 @@
 <header>
   <h1>Cable-Planner — Strukturvergleich mit ähnlichen Tools</h1>
   <div class="subtitle">Architektur, Tech-Stack und Domänen-Tiefe im Vergleich zu kommerziellen und Open-Source-Alternativen</div>
-  <div class="meta">Stand: 2026-05 · v7.9.94 · ~166 TS/TSX-Module · ~61.5k LOC · ~2.7 MB src/</div>
+  <div class="meta">Stand: 2026-06 · v8.2.1 · ~346 TS/TSX-Module · ~99.7k LOC · ~4.9 MB src/</div>
 </header>
 
 <h2>1 · Cable-Planner — Architektur-Kennzahlen</h2>
@@ -83,9 +83,9 @@
   <tr><td>Import/Export</td><td>GraphML · XLSX · PDF (jsPDF) · PNG (html-to-image) · STL (three-stdlib)</td></tr>
   <tr><td>Hardware-Integration</td><td>ATEM-UDP (atem-connection) · Bonjour-Discovery · Future: NDI/Dante-Discovery</td></tr>
   <tr><td>Domäne</td><td>AV/Broadcast-Verkabelung mit Layer (Video/Audio/Stromnetz), Patchfeldern, Racks, Locations</td></tr>
-  <tr><td>Modul-Layout</td><td>main/ipc · main/services · renderer/components (19 Subdomänen) · renderer/store · renderer/lib</td></tr>
+  <tr><td>Modul-Layout</td><td>main/ipc · main/services · renderer/components (23 Subdomänen) · renderer/store · renderer/lib</td></tr>
   <tr><td>IPC-Modell</td><td>contextBridge + typed preload · ipcMain.handle pro Domäne (project, library, atem, ...)</td></tr>
-  <tr><td>Update-Modell</td><td>Patch-Versionen (7.9.x), ~1-3 Releases/Woche, manueller Build</td></tr>
+  <tr><td>Update-Modell</td><td>Patch-Versionen (8.2.x), ~1-3 Releases/Woche, manueller Build</td></tr>
 </table>
 
 <h2>2 · Vergleichsmatrix</h2>
@@ -443,7 +443,7 @@
 <h3>4.2 · Wo strukturelle Risiken liegen</h3>
 <ul>
   <li><strong>Renderer-Größe</strong> (2.6 MB src/, 19 Komponenten-Subdomänen): ohne klare Schnittstellen-Verträge zwischen Subdomänen können Imports kreuz und quer wachsen. Empfehlung: eine ESLint-Regel für allowed-imports pro Subdomäne (z. B. <code>eslint-plugin-boundaries</code>) oder ein explizites <code>renderer/api</code>-Layer als Single Source of Truth.</li>
-  <li><strong>Store-Monolith</strong> <em>(adressiert ✓ #308)</em>: <code>projectStore.ts</code> wurde inzwischen via Slice-Pattern auf 11 Slices unter <code>store/slices/</code> aufgeteilt — der Haupt-Store ist von 2178 auf ~985 LOC geschrumpft.</li>
+  <li><strong>Store-Monolith</strong> <em>(adressiert ✓ #308)</em>: <code>projectStore.ts</code> wurde inzwischen via Slice-Pattern auf 14 Slices unter <code>store/slices/</code> aufgeteilt — der Haupt-Store ist von 2178 auf ~1146 LOC geschrumpft.</li>
   <li><strong>Bus-Faktor 1</strong> <em>(adressiert ✓)</em>: <a href="./architecture.md"><code>docs/architecture.md</code></a> hält die nicht-verhandelbaren Invarianten (Schema-Migration, IPC-Channels, Heal-Logic, Atomic Writes, Slice-Komposition, i18n-Konventionen).</li>
   <li><strong>Keine Plugin-API</strong>: Erweiterungen brauchen Code-Forks. Wenn Drittnutzer eigene Connector-Typen, Reports oder Hardware-Integrationen brauchen, müssten sie patchen. Eine schmale Plugin-API (z. B. nur Reports und Library-Loader) wäre eine günstige Investition.</li>
   <li><strong>Keine kollaborative Bearbeitung</strong>: Single-File-Modell. Wenn zwei Teams parallel am Plan arbeiten wollen, brauchen sie Merge per Hand. CRDT (z. B. Yjs) wäre architektonisch addable, aber nicht trivial.</li>
