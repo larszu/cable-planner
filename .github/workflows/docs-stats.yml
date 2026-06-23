@@ -1,0 +1,55 @@
+name: Doku-Kennzahlen aktualisieren
+
+# Hält die maschinell zählbaren Doku-Kennzahlen bei JEDEM Merge auf main
+# automatisch aktuell: Version, Modul-Anzahl, LOC, Store-Slices,
+# Komponenten-Subdomänen und src/-Größe in CLAUDE.md, docs/architecture.md,
+# docs/app-structure.html und docs/comparison.html.
+#
+# Deterministisch (reines Node-Skript, kein API-Key) und committet das
+# Ergebnis direkt zurück. Pushes mit GITHUB_TOKEN lösen KEINEN weiteren
+# Workflow-Lauf aus → keine Endlosschleife.
+#
+# Für die *inhaltliche* Doku-Prüfung (Prosa, Feature-Listen, Links) gibt es
+# zusätzlich den wöchentlichen KI-Auditor in docs-sync.yml.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'scripts/update-doc-stats.mjs'
+      - '.github/workflows/docs-stats.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Nicht zwei Läufe gleichzeitig; laufenden NICHT abbrechen (sonst halber Commit).
+concurrency:
+  group: docs-stats
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Kennzahlen berechnen und Doku aktualisieren
+        run: node scripts/update-doc-stats.mjs
+
+      - name: Änderungen committen (falls vorhanden)
+        run: |
+          if git diff --quiet -- CLAUDE.md docs/architecture.md docs/app-structure.html docs/comparison.html; then
+            echo "Doku-Kennzahlen bereits aktuell — nichts zu committen."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CLAUDE.md docs/architecture.md docs/app-structure.html docs/comparison.html
+          git commit -m "docs: Kennzahlen automatisch aktualisieren"
+          git push
