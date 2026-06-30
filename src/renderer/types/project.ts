@@ -165,6 +165,11 @@ export interface CablePlannerProject {
    *  Planer übernimmt/verwirft sie am Desktop; beim Übernehmen wandert die
    *  Änderung ins `changelog`. Optional → alte Projekte heilen zu []. */
   pendingChanges?: PendingChange[]
+  /** .avplan-Passthrough — fremde Domaenen (geteilter Raum + Kamera- + Licht-
+   *  Planung), die der Cable-Planner nicht bearbeitet, aber verlustfrei sowohl
+   *  in der gemeinsamen .avplan als auch im eigenen Projektfile aufbewahrt,
+   *  damit beim App-uebergreifenden Austausch nichts verloren geht. Optional. */
+  avForeign?: { venue?: unknown; cameras?: unknown; lighting?: unknown }
 }
 
 /** #412 — Ein festgeschriebener Projekt-Stand. */
