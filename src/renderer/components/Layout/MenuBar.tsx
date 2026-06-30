@@ -26,6 +26,8 @@ import { useModule } from '../../store/settingsStore'
 import { exportStagePlotSvg } from '../../lib/exportStagePlot'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { parseCameraList, cameraListToEquipment } from '../../lib/multicamCameraImport'
+import { cableToAvPlan, parseAvPlan } from '../../lib/avplan'
+import type { CablePlannerProject } from '../../types/project'
 import { buildExportFilename } from '../../lib/exportFilename'
 import { hasDesktopBridge, cablePlannerApi } from '../../lib/bridge'
 import { infoDialog } from '../../lib/infoDialog'
@@ -118,6 +120,36 @@ export const MenuBar = ({
       }
     }
     if (cameraImportRef.current) cameraImportRef.current.value = ''
+  }
+
+  // ── Gesamtprojekt (.avplan): verlustfrei. Cable bearbeitet den cabling-Slot
+  // nativ und bewahrt geteilten Raum + Kamera-/Licht-Domaenen 1:1 (in der
+  // .avplan UND im eigenen Projektfile via project.avForeign).
+  const avplanImportRef = useRef<HTMLInputElement | null>(null)
+  const handleExportAvplan = () => {
+    const project = useProjectStore.getState().project
+    const avplan = cableToAvPlan(project, { appVersion: __APP_VERSION__, exportedAt: new Date().toISOString() })
+    const safe = (project.metadata?.name || 'projekt').replace(/[^a-zA-Z0-9_-]+/g, '_')
+    downloadBlob(`${safe}.avplan`, JSON.stringify(avplan, null, 2), 'application/json')
+  }
+  const handleImportAvplan = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      try {
+        const avplan = parseAvPlan(await file.text())
+        const base = (avplan.domains.cabling as CablePlannerProject | undefined) ?? useProjectStore.getState().project
+        useProjectStore.getState().loadProject({
+          ...base,
+          avForeign: { venue: avplan.venue, cameras: avplan.domains.cameras, lighting: avplan.domains.lighting },
+        })
+      } catch {
+        await infoDialog(
+          t('app.menu.file.importAvplanError', 'Import fehlgeschlagen — keine gültige .avplan-Datei.'),
+          { tone: 'error' },
+        )
+      }
+    }
+    if (avplanImportRef.current) avplanImportRef.current.value = ''
   }
 
   // #pre-sale — Manueller "Auf Updates prüfen…"-Flow (Auto-Update beim Quit
@@ -214,6 +246,7 @@ export const MenuBar = ({
   return (
     <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1.5 text-cp-xs shadow-sm">
       <input ref={cameraImportRef} type="file" accept=".cameras.json,.json" className="hidden" onChange={handleImportCameras} />
+      <input ref={avplanImportRef} type="file" accept=".avplan,.json" className="hidden" onChange={handleImportAvplan} />
       <div className="flex shrink-0 items-center gap-2">
         <span className="hidden select-none font-semibold tracking-wide text-cp-text-secondary lg:inline">
           {t('app.title', 'Cable Planner')}
@@ -247,6 +280,13 @@ export const MenuBar = ({
           )}
           <MenuItem onClick={() => cameraImportRef.current?.click()} icon={<Icon icon={ImportIcon} size="sm" />}>
             {t('app.menu.file.importCameras', 'MultiCam-Kameras importieren…')}
+          </MenuItem>
+          <MenuSep />
+          <MenuItem onClick={handleExportAvplan} icon={<Icon icon={Upload} size="sm" />}>
+            {t('app.menu.file.exportAvplan', 'Gesamtprojekt exportieren (.avplan)…')}
+          </MenuItem>
+          <MenuItem onClick={() => avplanImportRef.current?.click()} icon={<Icon icon={ImportIcon} size="sm" />}>
+            {t('app.menu.file.importAvplan', 'Gesamtprojekt importieren (.avplan)…')}
           </MenuItem>
           <MenuSep />
           {/* v7.9.2 — Vereinheitlichter Export-Hub. Statt 5 separater
