@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type ChangeEvent } from 'react'
 import {
   FileText, Clapperboard, FolderOpen, Save, SaveAll, Ruler, Upload, FileDown,
   Image as ImageIcon, Calculator, Eye, MessageSquare, Paperclip, Plug, Cable,
@@ -25,6 +25,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { useModule } from '../../store/settingsStore'
 import { exportStagePlotSvg } from '../../lib/exportStagePlot'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { parseCameraList, cameraListToEquipment } from '../../lib/multicamCameraImport'
 import { buildExportFilename } from '../../lib/exportFilename'
 import { hasDesktopBridge, cablePlannerApi } from '../../lib/bridge'
 import { infoDialog } from '../../lib/infoDialog'
@@ -97,6 +98,27 @@ export const MenuBar = ({
   projectName,
 }: MenuBarProps) => {
   const t = useTranslation()
+
+  // MultiCam-Planner-Kameras (.cameras.json) als Equipment-Nodes importieren.
+  const cameraImportRef = useRef<HTMLInputElement | null>(null)
+  const handleImportCameras = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      try {
+        const items = cameraListToEquipment(parseCameraList(await file.text()))
+        useProjectStore.getState().importEquipment(items)
+        await infoDialog(
+          `${items.length} ${t('app.menu.file.importCamerasDone', 'MultiCam-Kamera(s) als Equipment importiert.')}`,
+        )
+      } catch {
+        await infoDialog(
+          t('app.menu.file.importCamerasError', 'Kamera-Import fehlgeschlagen — keine gültige MultiCam-Kameraliste.'),
+          { tone: 'error' },
+        )
+      }
+    }
+    if (cameraImportRef.current) cameraImportRef.current.value = ''
+  }
 
   // #pre-sale — Manueller "Auf Updates prüfen…"-Flow (Auto-Update beim Quit
   // läuft separat). Zeigt Resultat als Dialog; bei verfügbarem Update bietet
@@ -191,6 +213,7 @@ export const MenuBar = ({
   )
   return (
     <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1.5 text-cp-xs shadow-sm">
+      <input ref={cameraImportRef} type="file" accept=".cameras.json,.json" className="hidden" onChange={handleImportCameras} />
       <div className="flex shrink-0 items-center gap-2">
         <span className="hidden select-none font-semibold tracking-wide text-cp-text-secondary lg:inline">
           {t('app.title', 'Cable Planner')}
@@ -222,6 +245,9 @@ export const MenuBar = ({
               </MenuItem>
             </>
           )}
+          <MenuItem onClick={() => cameraImportRef.current?.click()} icon={<Icon icon={ImportIcon} size="sm" />}>
+            {t('app.menu.file.importCameras', 'MultiCam-Kameras importieren…')}
+          </MenuItem>
           <MenuSep />
           {/* v7.9.2 — Vereinheitlichter Export-Hub. Statt 5 separater
               Menü-Einträge (Plan PDF/PNG/JPEG, Kabel-BOM, Drucken)
