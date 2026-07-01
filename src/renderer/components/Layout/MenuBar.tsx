@@ -27,6 +27,7 @@ import { exportStagePlotSvg } from '../../lib/exportStagePlot'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { parseCameraList, cameraListToEquipment } from '../../lib/multicamCameraImport'
 import { cableToAvPlan, parseAvPlan } from '../../lib/avplan'
+import { summarizeForeign, hasForeign } from '../../lib/foreignView'
 import type { CablePlannerProject } from '../../types/project'
 import { buildExportFilename } from '../../lib/exportFilename'
 import { hasDesktopBridge, cablePlannerApi } from '../../lib/bridge'
@@ -150,6 +151,40 @@ export const MenuBar = ({
       }
     }
     if (avplanImportRef.current) avplanImportRef.current.value = ''
+  }
+  const avForeign = useProjectStore((s) => s.project.avForeign)
+  const handleViewForeign = async () => {
+    const sum = summarizeForeign(avForeign)
+    await infoDialog(t('app.menu.file.viewForeignTitle', 'Verknüpfte Venue-Planung (nur Ansicht)'), {
+      bodyNode: (
+        <div className="flex flex-col gap-2 text-cp-xs text-cp-text-secondary">
+          <div>
+            {t('app.menu.file.viewForeignRoom', 'Raum')}:{' '}
+            <b className="text-cp-text">{sum.venueName || '—'}</b> · {sum.counts.walls} Wände ·{' '}
+            {sum.counts.persons} Personen · {sum.counts.stage} Bühne
+          </div>
+          <div>
+            <div className="font-semibold text-cp-text">Kameras ({sum.cameras.length})</div>
+            {sum.cameras.length ? (
+              <ul className="list-disc pl-4">{sum.cameras.map((c) => <li key={c.id}>{c.label}</li>)}</ul>
+            ) : <div>—</div>}
+          </div>
+          <div>
+            <div className="font-semibold text-cp-text">Lampen ({sum.fixtures.length})</div>
+            {sum.fixtures.length ? (
+              <ul className="list-disc pl-4">{sum.fixtures.map((f) => (
+                <li key={f.id}>
+                  {f.name || 'Fixture'}
+                  {f.purpose ? ` · ${f.purpose}` : ''}
+                  {f.colorTemp ? ` · ${f.colorTemp}K` : ''}
+                  {f.dimming != null ? ` · ${Math.round(f.dimming * 100)}%` : ''}
+                </li>
+              ))}</ul>
+            ) : <div>—</div>}
+          </div>
+        </div>
+      ),
+    })
   }
 
   // #pre-sale — Manueller "Auf Updates prüfen…"-Flow (Auto-Update beim Quit
@@ -288,6 +323,11 @@ export const MenuBar = ({
           <MenuItem onClick={() => avplanImportRef.current?.click()} icon={<Icon icon={ImportIcon} size="sm" />}>
             {t('app.menu.file.importAvplan', 'Gesamtprojekt importieren (.avplan)…')}
           </MenuItem>
+          {hasForeign(avForeign) && (
+            <MenuItem onClick={handleViewForeign} icon={<Icon icon={Eye} size="sm" />}>
+              {t('app.menu.file.viewForeign', 'Verknüpfte Venue-Planung ansehen…')}
+            </MenuItem>
+          )}
           <MenuSep />
           {/* v7.9.2 — Vereinheitlichter Export-Hub. Statt 5 separater
               Menü-Einträge (Plan PDF/PNG/JPEG, Kabel-BOM, Drucken)
