@@ -552,6 +552,23 @@ export const runDrawingChecks = (
     }
   }
 
+  // — Check 18: Port-Belegung unbekannt (Datenblatt fehlt) -------------------
+  // Geräte, die aus einer fremden Domäne (z. B. MultiCam-Kamera-Import)
+  // übernommen wurden, aber kein Datenblatt-Match hatten, tragen
+  // `portsUnknown`. Wir haben ihre I/O NICHT erfunden — der User muss die
+  // realen Ports aus dem Datenblatt ergänzen, sonst sind sie unverkabelbar.
+  for (const e of equipment) {
+    if (e.portsUnknown && e.inputs.length === 0 && e.outputs.length === 0) {
+      findings.push({
+        id: `ports-unknown:${e.id}`,
+        severity: 'warning',
+        category: 'Ports unbekannt',
+        message: `${e.name}: Port-Belegung unbekannt (kein Datenblatt-Match) — reale Anschlüsse aus dem Datenblatt ergänzen`,
+        equipmentId: e.id,
+      })
+    }
+  }
+
   // — Check 17: Gateway nicht im Geräte-Subnetz (#346) -----------------------
   // Liegt das Default-Gateway nicht im selben Subnetz wie die Geräte-IP, ist
   // es nicht erreichbar → Fehlkonfiguration.

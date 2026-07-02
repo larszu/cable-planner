@@ -688,6 +688,8 @@ export const en: Dict = {
   'ports.title.inputs': 'Inputs',
   'ports.title.outputs': 'Outputs',
   'ports.flip': 'Flip ports (inputs on right, outputs on left)',
+  'ports.unknown':
+    'Port layout unknown (no datasheet match on import). Add the real connectors below — none were fabricated.',
   'ports.flipTitle':
     'Inputs render on the right, outputs on the left of the device node.',
   'ports.add': '+ Port',

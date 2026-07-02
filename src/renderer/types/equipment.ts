@@ -252,6 +252,14 @@ export interface EquipmentItem {
   category: string
   inputs: Port[]
   outputs: Port[]
+  /** Explizit-Unbekannt-Marker fuer die Port-Belegung. Wird gesetzt, wenn ein
+   *  Geraet aus einer fremden Domaene (z.B. MultiCam-Kamera-Import) uebernommen
+   *  wurde, dessen reale I/O wir NICHT aus einem Datenblatt kennen. Statt eine
+   *  plausible-aber-falsche Belegung zu erfinden (die still in BOM/Patchliste/
+   *  Verkabelung eingeht), fuehren wir die Ports als leer + markiert und der
+   *  Plan-Check fordert die Datenblatt-Ergaenzung ein. Sobald der User Ports
+   *  ergaenzt, entfernt die Properties-Sektion das Flag. */
+  portsUnknown?: boolean
   /** v7.5.0 — operating-mode-dependent port layouts (media servers,
    *  modular processors like Pixelhue P20 / Parco S3 / Brompton Tessera).
    *  Each mode carries its own `inputs` + `outputs`. When `activeModeId`

@@ -18,6 +18,19 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
   const deviceKind = detectDeviceKind(equipment)
   const isAtem = deviceKind === 'atem'
 
+  // Ports ändern → sobald reale Anschlüsse existieren, ist das Gerät nicht mehr
+  // "unbekannt": den explizit-Unbekannt-Marker (aus dem Import ohne Datenblatt-
+  // Match) mit entfernen, damit der Plan-Check-Hinweis verschwindet.
+  const applyPorts = (patch: Partial<Pick<EquipmentItem, 'inputs' | 'outputs'>>) => {
+    const inputs = patch.inputs ?? equipment.inputs
+    const outputs = patch.outputs ?? equipment.outputs
+    const clearMarker = equipment.portsUnknown && (inputs.length > 0 || outputs.length > 0)
+    updateEquipment(equipment.id, {
+      ...patch,
+      ...(clearMarker ? { portsUnknown: undefined } : {}),
+    })
+  }
+
   return (
     <SortableSection
       id="ports"
@@ -26,6 +39,14 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
       defaultOpen
     >
       <div className="space-y-2">
+        {equipment.portsUnknown && equipment.inputs.length === 0 && equipment.outputs.length === 0 && (
+          <div className="rounded border border-cp-warn/40 bg-cp-warn/10 px-2 py-1.5 text-[11px] text-cp-text-secondary">
+            {t(
+              'ports.unknown',
+              'Port-Belegung unbekannt (kein Datenblatt-Match beim Import). Reale Anschlüsse unten ergänzen — es wurden bewusst keine erfunden.',
+            )}
+          </div>
+        )}
         {/* #317 — Wenn das Gerät bereits Ports hat (was bei Canvas-
             platzierten Geräten der Normalfall ist), brauchen wir den
             AI-Vorschlag-Button hier nicht. Er bleibt für den
@@ -62,7 +83,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
             <PortList
               title={t('ports.title.inputs', 'Inputs')}
               ports={equipment.inputs}
-              onChange={(inputs) => updateEquipment(equipment.id, { inputs })}
+              onChange={(inputs) => applyPorts({ inputs })}
               hideTitle
               showAtemSourceId={isAtem}
             />
@@ -77,7 +98,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
             <PortList
               title={t('ports.title.outputs', 'Outputs')}
               ports={equipment.outputs}
-              onChange={(outputs) => updateEquipment(equipment.id, { outputs })}
+              onChange={(outputs) => applyPorts({ outputs })}
               hideTitle
               showAtemSourceId={isAtem}
             />
