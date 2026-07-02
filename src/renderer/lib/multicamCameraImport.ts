@@ -15,7 +15,7 @@
 // src/utils/cameraExport.ts.
 // ───────────────────────────────────────────────────────────────────────────
 import type { EquipmentItem, Port } from '../types/equipment'
-import { matchCameraTemplate } from './cameraCatalog'
+import { matchCameraTemplate, matchCameraTemplateById } from './cameraCatalog'
 
 export const CAMERA_LIST_KIND = 'camera-list' as const
 export const CAMERA_LIST_VERSION = 1 as const
@@ -25,6 +25,12 @@ export interface CameraListEntry {
   label: string
   manufacturer?: string
   model?: string
+  /** Stabile Geraetetyp-Identitaet (GUID, GDTF-analog). Wenn gesetzt, wird die
+   *  Kamera hier AUTORITATIV auf ihr Datenblatt aufgeloest (echte Ports), statt
+   *  ueber Hersteller/Modell-Namen zu raten. Der MultiCam-Exporter setzt sie aus
+   *  seiner Kamera-Bibliothek; fehlt sie (Altdaten), greift die Namens-Heuristik
+   *  als Fallback. */
+  deviceTypeId?: string
   x?: number // Meter im Venue
   y?: number
 }
@@ -55,13 +61,15 @@ const PX_PER_METER = 120
 const clonePort = (p: Port): Port => ({ ...p, id: '' })
 
 /**
- * Eindeutiges Datenblatt-Match fuer einen Kamera-Eintrag oder null.
- * Nutzt `matchCameraTemplate` (exakter Name zuerst, sonst bekannte Marke +
- * ALLE Modell-Needles) — bewusst konservativ: lieber kein Match als ein
- * falsches. Ein loses Teilstring-Match ("enthaelt sony") wuerde einem
- * unbekannten Modell die Ports eines anderen Modells andichten.
+ * Datenblatt-Match fuer einen Kamera-Eintrag oder null, in Vertrauens-Reihenfolge:
+ *   1. Geraetetyp-ID (GUID) — autoritativ, kein Raten.
+ *   2. Name (exakt, sonst Marke + ALLE Modell-Needles) — konservativer Fallback
+ *      fuer Altdaten ohne ID. Ein loses Teilstring-Match ("enthaelt sony")
+ *      wuerde einem unbekannten Modell fremde Ports andichten — daher nicht.
  */
 function matchTemplate(entry: CameraListEntry) {
+  const byId = matchCameraTemplateById(entry.deviceTypeId)
+  if (byId) return byId
   const name = `${entry.manufacturer ?? ''} ${entry.model ?? ''}`.trim()
   return matchCameraTemplate(name) ?? undefined
 }
@@ -74,6 +82,10 @@ export function cameraListToEquipment(ex: CameraListExchange): EquipmentItem[] {
       id: c.id || '',
       name: c.label || tmpl?.name || 'Kamera',
       category: 'Kameras',
+      // Stabile Geraetetyp-ID durchreichen: bevorzugt die des aufgeloesten
+      // Templates, sonst die vom Exporter mitgegebene (auch wenn unser Katalog
+      // sie noch nicht kennt — Identitaet bekannt, Ports evtl. nicht).
+      deviceTypeId: tmpl?.deviceTypeId ?? c.deviceTypeId,
       x: Math.round((c.x ?? i * 2) * PX_PER_METER),
       y: Math.round((c.y ?? 0) * PX_PER_METER),
     }

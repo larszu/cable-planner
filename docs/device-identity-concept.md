@@ -55,12 +55,18 @@ werden — sie sind explizit-unbekannt bis Datenblatt oder User sie liefert.
 
 Übernommene Prinzipien:
 
-1. **Identität über GUID, nicht über Namen.** GDTF adressiert einen Gerätetyp
-   über `FixtureTypeID` (GUID) + `RefFT`, nicht über den Modellnamen. Unser
-   Namens-Substring-Matching ist die Ursache des ganzen Fabrikations-Problems.
-   Roadmap: Katalog-Einträge bekommen eine stabile `deviceTypeId` (GUID); der
-   Import matcht darüber, Namens-Heuristik nur noch als letzter, **als solcher
-   markierter** Vorschlag (`portsUnknown` bleibt gesetzt bis bestätigt).
+1. **Identität über GUID, nicht über Namen** — *umgesetzt*. GDTF adressiert einen
+   Gerätetyp über `FixtureTypeID` (GUID) + `RefFT`, nicht über den Modellnamen.
+   Unser Namens-Substring-Matching war die Ursache des ganzen Fabrikations-
+   Problems. Jetzt trägt jeder `CAMERA_CATALOG`-Eintrag eine stabile,
+   versionsstabile `deviceTypeId` (GUID). Der Import (`matchTemplate`) löst in
+   Vertrauens-Reihenfolge auf: **(1) GUID = autoritativ**, (2) exakter Name,
+   (3) Marke + alle Needles, (4) sonst `portsUnknown`. Die **gleichen GUIDs**
+   stehen in `multicam-planner/src/data/cameras.ts`; der MultiCam-Exporter gibt
+   die `deviceTypeId` in die camera-list, sodass eine über App-Grenzen
+   übergebene Kamera hier ohne Namensraten auf ihr echtes Datenblatt aufgelöst
+   wird. Eine unbekannte GUID wird als Identität behalten (nicht verworfen),
+   ohne Ports zu erfinden — Identität bekannt, Ports `portsUnknown`.
 2. **Typ vs. Instanz trennen** (MVR). Der Typ (Modell, Ports, Datenblatt) ist
    die geteilte Quelle; die Instanz (Position, Patch, Seriennummer) ist
    projektspezifisch. Deckt sich mit unserer Template↔EquipmentItem-Trennung.
@@ -105,8 +111,11 @@ Device-Type-Library und GDTF. **✓ vorhanden**, **+ sinnvoll ergänzen**,
 
 ### Fazit
 Das Datenmodell ist bei den kaufmännischen und Engineering-Feldern bereits
-konkurrenzfähig. Die echte Lücke ist **nicht** ein fehlendes Feld, sondern die
-**Identität**: solange Geräte über Namens-Substrings statt GUID gematcht werden,
-entstehen Fabrikations-Fehler. Dieser Schritt beseitigt die Fabrikation; der
-GUID-Katalog (Abschnitt 4.1) ist der nächste, größere Schritt und wird separat
-abgestimmt.
+konkurrenzfähig. Die echte Lücke war **nicht** ein fehlendes Feld, sondern die
+**Identität**: solange Geräte über Namens-Substrings statt GUID gematcht wurden,
+entstanden Fabrikations-Fehler. Umgesetzt (Abschnitt 4.1): stabile `deviceTypeId`
+(GUID) auf dem Kamera-Katalog, cross-App identisch mit dem MultiCam-Planner,
+autoritativer Import über die ID. **Offen** als nächster Schritt: die gleiche
+GUID-Identität auf die übrigen Geräte-Kategorien (Mischer, Videohub, Konverter,
+Monitore) ausdehnen und die Namens-Heuristiken in `deviceKind.ts` schrittweise
+durch ID-Auflösung ersetzen.

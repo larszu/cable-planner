@@ -237,6 +237,14 @@ export interface DeviceMode {
 export interface EquipmentItem {
   id: string
   name: string
+  /** Stabile Geraetetyp-Identitaet (GDTF/DIN-SPEC-15800-analog: FixtureTypeID)
+   *  — opake, versionsstabile GUID des Geraete-MODELLS (nicht dieser Instanz;
+   *  die Instanz-Identitaet ist `id`). Erlaubt es, ein Geraet ueber App-Grenzen
+   *  (`.avplan`/camera-list) autoritativ auf sein Datenblatt/Ports aufzuloesen,
+   *  statt ueber Namens-Substrings zu raten. Optional — manuell angelegte oder
+   *  aus Rentman/GraphML importierte Geraete ohne Katalog-Zuordnung haben es
+   *  nicht. */
+  deviceTypeId?: string
   /** v7.9.127 — Optional Short-Form-Name fuer platzbegrenzte Kontexte
    *  wie Cable-Endpoint-Labels und Patchlisten. Wenn nicht gesetzt,
    *  wird er bei Bedarf aus `name` per `generateShortName()` abgeleitet.
