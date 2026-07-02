@@ -35,10 +35,24 @@ describe('multicamCameraImport (Cable ← MultiCam)', () => {
     expect(f55.outputs.some((p) => p.connectorType === 'BNC')).toBe(true)
   })
 
-  it('gibt unbekannten Modellen einen generischen SDI-Ausgang', () => {
+  it('erfindet unbekannten Modellen KEINE Ports, sondern markiert sie explizit', () => {
     const mystery = cameraListToEquipment(sample)[1]
-    expect(mystery.outputs).toHaveLength(1)
-    expect(mystery.outputs[0]).toMatchObject({ name: 'SDI Out', connectorType: 'BNC' })
+    // Kein Datenblatt-Match → keine erfundene Belegung.
+    expect(mystery.inputs).toHaveLength(0)
+    expect(mystery.outputs).toHaveLength(0)
+    // Stattdessen explizit als unbekannt geführt (Plan-Check fordert Ergänzung).
+    expect(mystery.portsUnknown).toBe(true)
+  })
+
+  it('matcht konservativ: ein bloßer Hersteller-Treffer erbt keine fremde Belegung', () => {
+    // "Sony PXW-Z750" ist unbekannt; ein loses "enthält sony"-Match hätte ihm
+    // früher die Ports der Sony FX6 angedichtet. Jetzt: unbekannt.
+    const [z750] = cameraListToEquipment({
+      ...sample,
+      cameras: [{ id: 'z', label: 'Z750', manufacturer: 'Sony', model: 'PXW-Z750' }],
+    })
+    expect(z750.portsUnknown).toBe(true)
+    expect(z750.outputs).toHaveLength(0)
   })
 
   it('parseCameraList lehnt fremde Dateien ab', () => {
