@@ -238,6 +238,7 @@ export const videohubPresets: {
   { key: 'smart-12g-12x12', model: 'Blackmagic Smart Videohub 12G 12x12', inputs: 12, outputs: 12 },
   { key: 'smart-20x20', model: 'Blackmagic Smart Videohub 20x20', inputs: 20, outputs: 20 },
   { key: 'compact-40x40', model: 'Blackmagic Compact Videohub 40x40', inputs: 40, outputs: 40 },
+  { key: 'smart-40x40', model: 'Blackmagic Smart Videohub 40x40', inputs: 40, outputs: 40 },
   { key: 'smart-40x40-12g', model: 'Blackmagic Smart Videohub 40x40 12G', inputs: 40, outputs: 40 },
   { key: 'cleanswitch-12x12', model: 'Blackmagic CleanSwitch 12x12', inputs: 12, outputs: 12 },
   { key: 'universal-72x72', model: 'Blackmagic Videohub 72x72', inputs: 72, outputs: 72 },

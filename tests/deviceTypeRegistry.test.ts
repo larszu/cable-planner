@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { resolveDeviceType } from '../src/renderer/lib/deviceTypeRegistry'
-import { detectDeviceKind, detectNetworkDevice } from '../src/renderer/lib/deviceKind'
+import {
+  detectDeviceKind,
+  detectNetworkDevice,
+  videohubPresetForDevice,
+} from '../src/renderer/lib/deviceKind'
+import { videohubPresets } from '../src/renderer/lib/exportVideohub'
 import { CAMERA_CATALOG } from '../src/renderer/lib/cameraCatalog'
 import { BLACKMAGIC_CATALOG } from '../src/renderer/lib/blackmagicCatalog'
 import { GREENGO_CATALOG } from '../src/renderer/lib/greengoCatalog'
@@ -93,5 +98,41 @@ describe('detectDeviceKind / detectNetworkDevice — ID vor Heuristik', () => {
   it('ohne ID greift weiter die Namens-Heuristik (Fallback unveraendert)', () => {
     expect(detectDeviceKind(eq({ name: 'ATEM Constellation 8K' }))).toBe('atem')
     expect(detectNetworkDevice(eq({ name: 'EdgeRouter 4', category: 'Netzwerk' }))).toBe('router')
+  })
+})
+
+describe('videohubPresetForDevice — kein Raten', () => {
+  const presetKeys = new Set(videohubPresets.map((p) => p.key))
+
+  it('jeder Katalog-Videohub verweist auf einen EXISTIERENDEN Preset-Key', () => {
+    // Der alte guessVideohubPresetKey lieferte Keys, die es nicht gab
+    // ('smart-40x40', 'universal-288x288') → stiller 16x16-Fallback.
+    for (const e of BLACKMAGIC_CATALOG.filter((x) => x.kind === 'videohub')) {
+      expect(e.videohubPresetKey, e.template.name).toBeTruthy()
+      expect(presetKeys.has(e.videohubPresetKey!), `${e.template.name} → ${e.videohubPresetKey}`).toBe(true)
+    }
+  })
+
+  it('ID → expliziter Katalog-Preset-Key (Datenblatt-Fakt)', () => {
+    const vh288 = BLACKMAGIC_CATALOG.find((e) => e.template.name.includes('288'))!
+    const r = videohubPresetForDevice(eq({ name: 'irgendwas', deviceTypeId: vh288.deviceTypeId }))
+    expect(r.key).toBe('universal-master-288x288')
+  })
+
+  it('ohne ID → custom mit den ECHTEN BNC-Port-Zahlen (keine Schaetzung)', () => {
+    const bnc = (n: string) => ({ id: n, name: n, type: 'BNC', connectorType: 'BNC' as const })
+    const r = videohubPresetForDevice(
+      eq({
+        name: 'Fremder Video Router 40x40', // Regex haette frueher smart-40x40 geraten
+        inputs: Array.from({ length: 34 }, (_, i) => bnc(`in${i}`)),
+        outputs: Array.from({ length: 34 }, (_, i) => bnc(`out${i}`)),
+      }),
+    )
+    expect(r).toEqual({ key: 'custom', customInputs: 34, customOutputs: 34 })
+  })
+
+  it('ohne ID und ohne BNC-Ports → custom 16/16 (klar editierbare Eigen-Groesse)', () => {
+    const r = videohubPresetForDevice(eq({ name: 'Leergeraet' }))
+    expect(r).toEqual({ key: 'custom', customInputs: 16, customOutputs: 16 })
   })
 })

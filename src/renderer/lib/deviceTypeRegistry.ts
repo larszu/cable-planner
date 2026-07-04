@@ -25,6 +25,8 @@ export interface DeviceTypeInfo {
   kind?: 'videohub' | 'atem' | 'multiviewer' | 'greengo'
   /** Autoritative Netzwerk-Rolle (Datenblatt). */
   networkKind?: 'switch' | 'router'
+  /** Videohubs: expliziter Export-Preset-Key (Datenblatt-Fakt). */
+  videohubPresetKey?: string
 }
 
 /** Lazy aufgebaut, damit der Modul-Import billig bleibt. */
@@ -47,6 +49,7 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
     put(e.deviceTypeId, {
       template: { ...e.template, deviceTypeId: e.deviceTypeId },
       kind: e.kind,
+      videohubPresetKey: e.videohubPresetKey,
     })
   }
   for (const e of GREENGO_CATALOG) {

@@ -24,6 +24,10 @@ interface BlackmagicEntry {
   /** Autoritative Geraete-Rolle laut Datenblatt (ATEM/Videohub) — ersetzt
    *  fuer Katalog-Geraete die Namens-Heuristik in detectDeviceKind. */
   kind?: 'videohub' | 'atem'
+  /** Videohubs: expliziter Preset-Key fuer den Export-Dialog (siehe
+   *  exportVideohub.ts → videohubPresets). Datenblatt-Fakt statt
+   *  Port-Zaehl-Schaetzung. */
+  videohubPresetKey?: string
   /** Name patterns (lowercased) that must ALL appear in the source name. */
   match: string[]
   template: EquipmentTemplate
@@ -41,6 +45,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     match: ['smart videohub', '40x40', '12g'],
     deviceTypeId: 'bb1964f5-f2e2-44b7-8cb4-8d8ea3a7a742',
     kind: 'videohub',
+    videohubPresetKey: 'smart-40x40-12g',
     template: {
       name: 'Blackmagic Smart Videohub 40x40 12G',
       category: 'Video Router',
@@ -54,6 +59,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     match: ['smart videohub', '40x40'],
     deviceTypeId: '556a23a4-3565-457a-afad-556592ddd74a',
     kind: 'videohub',
+    videohubPresetKey: 'smart-40x40',
     template: {
       name: 'Blackmagic Smart Videohub 40x40',
       category: 'Video Router',
@@ -67,6 +73,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     match: ['smart videohub', '20x20'],
     deviceTypeId: 'a5aa8476-ae3a-4dc3-a854-d95d9634557b',
     kind: 'videohub',
+    videohubPresetKey: 'smart-20x20',
     template: {
       name: 'Blackmagic Smart Videohub 20x20',
       category: 'Video Router',
@@ -80,6 +87,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     match: ['smart videohub', '12x12'],
     deviceTypeId: 'b5ec1c47-6d5d-4f53-811e-16c67d62cc54',
     kind: 'videohub',
+    videohubPresetKey: 'smart-12x12',
     template: {
       name: 'Blackmagic Smart Videohub 12x12',
       category: 'Video Router',
@@ -93,6 +101,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     match: ['universal videohub', '72'],
     deviceTypeId: '83750064-f7ee-4d86-b47e-704b170c552e',
     kind: 'videohub',
+    videohubPresetKey: 'universal-72x72',
     template: {
       name: 'Blackmagic Universal Videohub 72',
       category: 'Video Router',
@@ -106,6 +115,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     match: ['universal videohub', '288'],
     deviceTypeId: '42fd5858-df56-46c6-a3cc-e3dd155ede23',
     kind: 'videohub',
+    videohubPresetKey: 'universal-master-288x288',
     template: {
       name: 'Blackmagic Universal Videohub 288',
       category: 'Video Router',
