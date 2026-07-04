@@ -106,17 +106,32 @@ export const detectDeviceKind = (device: EquipmentItem): DeviceKind => {
 }
 
 /**
- * Given an equipment item, guess the Videohub preset key (see
- * `exportVideohub.ts` → `videohubPresets`) that best matches the port count.
+ * Videohub-Preset fuer den Export-Dialog — OHNE Schaetzung:
+ *
+ * 1. Stabile Geraetetyp-ID → expliziter Preset-Key aus dem Katalog
+ *    (Datenblatt-Fakt).
+ * 2. Sonst 'custom' mit den ECHTEN BNC-Port-Zahlen des Geraets aus dem
+ *    Projekt (abgeleitet aus vorhandenen Daten, nicht erfunden).
+ * 3. Geraet ohne BNC-Ports → 'custom' 16/16 als klar gekennzeichnete,
+ *    frei editierbare Eigen-Groesse.
+ *
+ * Ersetzt das fruehere `guessVideohubPresetKey`, dessen Port-Zaehl-Raten
+ * u.a. Keys lieferte, die es in `videohubPresets` gar nicht gab
+ * ('smart-40x40', 'universal-288x288') — der Dialog fiel dann still auf
+ * eine falsche 16x16-Matrix zurueck.
  */
-export const guessVideohubPresetKey = (device: EquipmentItem): string => {
-  const ins = device.inputs.filter((p) => p.connectorType === 'BNC').length
-  const name = device.name.toLowerCase()
-  if (/12g/.test(name) && ins >= 40) return 'smart-40x40-12g'
-  if (ins >= 288) return 'universal-288x288'
-  if (ins >= 72) return 'universal-72x72'
-  if (ins >= 40) return 'smart-40x40'
-  if (ins >= 20) return 'smart-20x20'
-  if (ins >= 12) return 'smart-12x12'
-  return 'smart-40x40-12g'
+export const videohubPresetForDevice = (
+  device: EquipmentItem,
+): { key: string; customInputs: number; customOutputs: number } => {
+  const resolved = resolveDeviceType(device.deviceTypeId)
+  const bncIns = device.inputs.filter((p) => p.connectorType === 'BNC').length
+  const bncOuts = device.outputs.filter((p) => p.connectorType === 'BNC').length
+  if (resolved?.videohubPresetKey) {
+    return { key: resolved.videohubPresetKey, customInputs: bncIns || 16, customOutputs: bncOuts || 16 }
+  }
+  return {
+    key: 'custom',
+    customInputs: bncIns || 16,
+    customOutputs: bncOuts || 16,
+  }
 }

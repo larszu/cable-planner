@@ -130,7 +130,19 @@ entstanden Fabrikations-Fehler.
   die Struktur-Heuristik z. B. eine Kamera mit vielen BNCs zum Videohub erklärt).
   Namens-Heuristik bleibt nur Fallback für Geräte ohne ID.
 
-**Offen** (nächste Schritte): `guessVideohubPresetKey` über eine explizite
-Preset-Referenz am Katalog-Eintrag statt Port-Zählung; GUID-Identität für
-Light-Planner-Fixtures (dort via GDTF `FixtureTypeID` direkt); User-eigene
-Templates optional mit selbst geminteter GUID.
+- **Videohub-Export ohne Schätzung**: `guessVideohubPresetKey` (Port-Zähl-Raten)
+  ist entfernt — es lieferte u. a. Keys, die es in `videohubPresets` gar nicht
+  gab (`smart-40x40`, `universal-288x288`), worauf der Dialog still auf eine
+  falsche 16x16-Matrix zurückfiel. Jetzt: expliziter `videohubPresetKey` am
+  Katalog-Eintrag (Datenblatt-Fakt) → via ID aufgelöst; ohne ID wählt der
+  Dialog `custom` mit den **echten** BNC-Port-Zahlen des Geräts (abgeleitet aus
+  Projektdaten, nicht erfunden). Ein Test sichert ab, dass jeder Katalog-
+  Videohub auf einen existierenden Preset-Key zeigt.
+- Geprüft: `graphml/connectorInference.ts` ist KEIN Fabrikations-Fall — es
+  übersetzt die eigenen Beschriftungen des Users ("SDI" → BNC), und der
+  Nicht-Treffer-Fallback ist `Custom` mit niedriger Konfidenz (explizit
+  unbekannt), kein erfundener Stecker.
+
+**Offen** (nächste Schritte): GUID-Identität für Light-Planner-Fixtures (dort
+via GDTF `FixtureTypeID` direkt); User-eigene Templates optional mit selbst
+geminteter GUID.

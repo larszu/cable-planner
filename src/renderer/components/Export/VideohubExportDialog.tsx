@@ -3,7 +3,7 @@ import { X, SlidersHorizontal, List, Link, Wand2, ClipboardList, Search, Lock, D
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation } from '../../lib/i18n'
-import { guessVideohubPresetKey } from '../../lib/deviceKind'
+import { videohubPresetForDevice } from '../../lib/deviceKind'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { buildVideohubControlLabelsPdf } from '../../lib/exportVideohubLabels'
@@ -85,13 +85,16 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   })
   const [format, setFormat] = useState<Format>('routing')
   const initialDevice = equipment.find((e) => e.id === deviceId)
-  const [presetKey, setPresetKey] = useState<string>(() =>
-    initialDevice ? guessVideohubPresetKey(initialDevice) : 'smart-40x40-12g',
-  )
+  // Kein Raten: Geraetetyp-ID → expliziter Katalog-Preset-Key; sonst 'custom'
+  // mit den echten BNC-Port-Zahlen des Geraets (siehe videohubPresetForDevice).
+  const initialPreset = initialDevice
+    ? videohubPresetForDevice(initialDevice)
+    : { key: 'custom', customInputs: 16, customOutputs: 16 }
+  const [presetKey, setPresetKey] = useState<string>(initialPreset.key)
   // #387 — Wenn presetKey === 'custom', steuern customInputs/customOutputs
   // die Routing-Matrix-Groesse statt den Preset-Werten.
-  const [customInputs, setCustomInputs] = useState<number>(16)
-  const [customOutputs, setCustomOutputs] = useState<number>(16)
+  const [customInputs, setCustomInputs] = useState<number>(initialPreset.customInputs)
+  const [customOutputs, setCustomOutputs] = useState<number>(initialPreset.customOutputs)
   const [friendlyName, setFriendlyName] = useState<string>('')
   // v7.9.128 — Default: Matrix offen. Vorher war's default zu — User
   // musste extra klicken, deshalb hat er die Salvos/Activity-Log-
@@ -193,8 +196,10 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     }
   }
   const [routing, setRouting] = useState<Record<number, number>>(() => {
-    const key = initialDevice ? guessVideohubPresetKey(initialDevice) : 'smart-40x40-12g'
-    const p = videohubPresets.find((x) => x.key === key) ?? videohubPresets[0]
+    if (initialPreset.key === 'custom') {
+      return buildDefaultRouting(initialPreset.customInputs, initialPreset.customOutputs)
+    }
+    const p = videohubPresets.find((x) => x.key === initialPreset.key) ?? videohubPresets[0]
     return buildDefaultRouting(p.inputs, p.outputs)
   })
 
