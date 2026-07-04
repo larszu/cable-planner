@@ -113,9 +113,24 @@ Device-Type-Library und GDTF. **✓ vorhanden**, **+ sinnvoll ergänzen**,
 Das Datenmodell ist bei den kaufmännischen und Engineering-Feldern bereits
 konkurrenzfähig. Die echte Lücke war **nicht** ein fehlendes Feld, sondern die
 **Identität**: solange Geräte über Namens-Substrings statt GUID gematcht wurden,
-entstanden Fabrikations-Fehler. Umgesetzt (Abschnitt 4.1): stabile `deviceTypeId`
-(GUID) auf dem Kamera-Katalog, cross-App identisch mit dem MultiCam-Planner,
-autoritativer Import über die ID. **Offen** als nächster Schritt: die gleiche
-GUID-Identität auf die übrigen Geräte-Kategorien (Mischer, Videohub, Konverter,
-Monitore) ausdehnen und die Namens-Heuristiken in `deviceKind.ts` schrittweise
-durch ID-Auflösung ersetzen.
+entstanden Fabrikations-Fehler.
+
+**Umgesetzt:**
+- Stabile `deviceTypeId` (GUID) auf **allen sechs** Katalogen (159 Einträge:
+  Kameras, Blackmagic, GreenGo, Monitore, Ubiquiti, Misc); die `match*Template`-
+  Funktionen stempeln die ID auf jedes gelieferte Template, Platzierung/Rentman-
+  Match reichen sie automatisch auf das `EquipmentItem` durch.
+- Kamera-GUIDs cross-App identisch mit dem MultiCam-Planner; autoritativer
+  Import über die ID.
+- `deviceTypeRegistry.ts`: zentrales GUID→(Template, Rolle)-Register.
+  `detectDeviceKind`/`detectNetworkDevice` lösen **zuerst über die ID** auf —
+  ATEM/Videohub-Rolle (Blackmagic-Katalog, per-Eintrag `kind`), Switch/Router
+  (Ubiquiti-Katalog, per-Eintrag `networkKind`), GreenGo katalogweit. Eine
+  bekannte ID ohne Spezial-Rolle liefert autoritativ „keine" (verhindert, dass
+  die Struktur-Heuristik z. B. eine Kamera mit vielen BNCs zum Videohub erklärt).
+  Namens-Heuristik bleibt nur Fallback für Geräte ohne ID.
+
+**Offen** (nächste Schritte): `guessVideohubPresetKey` über eine explizite
+Preset-Referenz am Katalog-Eintrag statt Port-Zählung; GUID-Identität für
+Light-Planner-Fixtures (dort via GDTF `FixtureTypeID` direkt); User-eigene
+Templates optional mit selbst geminteter GUID.

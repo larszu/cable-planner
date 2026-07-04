@@ -18,10 +18,20 @@ const eth   = (name: string) => port(name, 'Ethernet/RJ45')
 const INTERCOM = 'Intercom'
 
 interface GreenGoEntry {
+  /** Stabile Geraetetyp-Identitaet (GUID, GDTF/DIN-SPEC-15800-analog:
+   *  FixtureTypeID). Autoritativer Schluessel fuer Import/Aufloesung —
+   *  versionsstabil, unabhaengig vom Modellnamen. */
+  deviceTypeId: string
   /** Lowercase substrings that must ALL appear in the source name. */
   match: string[]
   template: EquipmentTemplate
 }
+
+/** Katalog-Template inkl. seiner stabilen Geraetetyp-ID. */
+const withTypeId = (e: GreenGoEntry): EquipmentTemplate => ({
+  ...e.template,
+  deviceTypeId: e.deviceTypeId,
+})
 
 export const GREENGO_CATALOG: GreenGoEntry[] = [
 
@@ -32,6 +42,7 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   // Rentman names: "GreenGo MCXD"
   {
     match: ['greengo', 'mcxd'],
+    deviceTypeId: '45db5d78-2270-4e5f-8b5e-da2212d15c33',
     template: {
       name: 'GreenGo MCXD',
       category: INTERCOM,
@@ -56,6 +67,7 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   // Rentman names: "GreenGo MCX", "GreenGo Multi-Channel Extension"
   {
     match: ['greengo', 'mcx'],
+    deviceTypeId: '3f91811f-8b35-498c-8abe-9b7dcacd9658',
     template: {
       name: 'GreenGo MCX',
       category: INTERCOM,
@@ -79,6 +91,7 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   // Rentman names: "GreenGo BPX", "GreenGo Beltpack X"
   {
     match: ['greengo', 'bpx'],
+    deviceTypeId: '6438a81a-49b3-48da-a1f2-476b71b040cc',
     template: {
       name: 'GreenGo BPX',
       category: INTERCOM,
@@ -97,6 +110,7 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   // Rentman: "GreenGo BPXSP"
   {
     match: ['greengo', 'bpxsp'],
+    deviceTypeId: '278c8bd0-77d7-4ab2-80cf-c66b8440beb4',
     template: {
       name: 'GreenGo BPXSP',
       category: INTERCOM,
@@ -119,6 +133,7 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   // Rentman: "GreenGo WBPX", "GreenGo Wireless Beltpack"
   {
     match: ['greengo', 'wbpx'],
+    deviceTypeId: '3a3159c7-713a-4e9c-9441-3b6b62655f10',
     template: {
       name: 'GreenGo WBPX',
       category: INTERCOM,
@@ -131,6 +146,7 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   },
   {
     match: ['greengo', 'wireless beltpack'],
+    deviceTypeId: '18772c9b-8d92-4e80-a7b2-d51ad09dc727',
     template: {
       name: 'GreenGo Wireless Beltpack X',
       category: INTERCOM,
@@ -147,6 +163,7 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   // Rentman: "GreenGo XTBB", "GreenGo XTBD"
   {
     match: ['greengo', 'xtbb'],
+    deviceTypeId: '44b2c619-ff85-43bf-aef5-4b7e246c1b1d',
     template: {
       name: 'GreenGo XTBB',
       category: INTERCOM,
@@ -161,6 +178,7 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   },
   {
     match: ['greengo', 'xtbd'],
+    deviceTypeId: 'da0967cd-057c-415f-95fd-5d353b072a8f',
     template: {
       name: 'GreenGo XTBD',
       category: INTERCOM,
@@ -180,6 +198,7 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   // Rentman: "GreenGo Antenna", "GreenGo Antenna X"
   {
     match: ['greengo', 'antenna'],
+    deviceTypeId: '63bec60d-8447-4062-9ea0-1cf79b5bb493',
     template: {
       name: 'GreenGo Antenna X',
       category: INTERCOM,
@@ -195,7 +214,7 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
 ]
 
 /** Flat list of EquipmentTemplate objects, suitable for library seeding. */
-export const greengoTemplates: EquipmentTemplate[] = GREENGO_CATALOG.map((e) => e.template)
+export const greengoTemplates: EquipmentTemplate[] = GREENGO_CATALOG.map(withTypeId)
 
 /**
  * Try to match an equipment name against the GreenGo catalog.
@@ -203,7 +222,8 @@ export const greengoTemplates: EquipmentTemplate[] = GREENGO_CATALOG.map((e) => 
  */
 export const matchGreenGoTemplate = (name: string): EquipmentTemplate | undefined => {
   const lower = name.toLowerCase()
-  return GREENGO_CATALOG.find((entry) =>
-    entry.match.every((fragment) => lower.includes(fragment)),
-  )?.template
+  const entry = GREENGO_CATALOG.find((e) =>
+    e.match.every((fragment) => lower.includes(fragment)),
+  )
+  return entry ? withTypeId(entry) : undefined
 }
