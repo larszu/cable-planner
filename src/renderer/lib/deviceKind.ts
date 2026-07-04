@@ -1,4 +1,5 @@
 import type { EquipmentItem } from '../types/equipment'
+import { resolveDeviceType } from './deviceTypeRegistry'
 
 /**
  * Derive a default icon glyph for an equipment item from its category, name,
@@ -31,10 +32,18 @@ export type DeviceKind = 'videohub' | 'atem' | 'multiviewer' | 'greengo' | null
 export type NetworkDeviceKind = 'switch' | 'router' | null
 
 /**
- * Guess whether the given device is a managed network switch or router.
+ * Detect whether the given device is a managed network switch or router.
  * Used to show VLAN / management config fields in the properties panel.
+ *
+ * Aufloesungs-Reihenfolge: (1) stabile Geraetetyp-ID → autoritative Rolle aus
+ * dem Katalog (Datenblatt-Tatsache, kein Raten); (2) Namens-/Struktur-Heuristik
+ * als Fallback fuer Geraete ohne ID. Die Heuristik schreibt keine Daten ins
+ * Modell — sie blendet nur optionale UI ein.
  */
 export const detectNetworkDevice = (device: EquipmentItem): NetworkDeviceKind => {
+  const resolved = resolveDeviceType(device.deviceTypeId)
+  if (resolved) return resolved.networkKind ?? null
+
   const name = device.name.toLowerCase()
   if (/edgerouter|er-\d|dream machine|udm\b|udm-|mikrotik.*router|router\b.*(cisco|juniper|mikrotik|ubnt|ubiquiti)/.test(name)) {
     return 'router'
@@ -54,11 +63,18 @@ export const detectNetworkDevice = (device: EquipmentItem): NetworkDeviceKind =>
 }
 
 /**
- * Guess whether the given device is a Videohub / ATEM / multiviewer, based on
- * its name and port layout. Used to surface specialised export buttons in the
- * properties panel.
+ * Detect whether the given device is a Videohub / ATEM / multiviewer / GreenGo.
+ * Used to surface specialised export buttons in the properties panel.
+ *
+ * Aufloesungs-Reihenfolge: (1) stabile Geraetetyp-ID → autoritative Rolle aus
+ * dem Katalog (Datenblatt-Tatsache — auch das autoritative "keine Spezial-
+ * Rolle", z.B. Kamera/Monitor/Konverter); (2) Namens-/Struktur-Heuristik als
+ * Fallback fuer Geraete ohne ID.
  */
 export const detectDeviceKind = (device: EquipmentItem): DeviceKind => {
+  const resolved = resolveDeviceType(device.deviceTypeId)
+  if (resolved) return resolved.kind ?? null
+
   const name = device.name.toLowerCase()
 
   // Don't mis-detect IP routers / switches as video routers.
