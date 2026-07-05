@@ -17,6 +17,7 @@ import { ROSS_CATALOG } from '../src/renderer/lib/rossCatalog'
 import { LYNX_CATALOG, matchLynxTemplate } from '../src/renderer/lib/lynxCatalog'
 import { SWITCHER_CATALOG } from '../src/renderer/lib/switcherCatalog'
 import { AVNETWORK_CATALOG } from '../src/renderer/lib/avNetworkCatalog'
+import { BROADCAST_TOOLS_CATALOG } from '../src/renderer/lib/broadcastToolsCatalog'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 
 const eq = (over: Partial<EquipmentItem>): EquipmentItem => ({
@@ -44,6 +45,7 @@ const ALL_CATALOGS = [
   ...LYNX_CATALOG,
   ...SWITCHER_CATALOG,
   ...AVNETWORK_CATALOG,
+  ...BROADCAST_TOOLS_CATALOG,
 ]
 
 describe('deviceTypeRegistry (stabile GUID-Identitaet, GDTF-analog)', () => {

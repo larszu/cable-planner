@@ -35,6 +35,7 @@ const withTypeId = (e: AjaEntry): EquipmentTemplate => ({
 })
 
 export const AJA_CATALOG: AjaEntry[] = [
+  // AJA KUMO 1616-12G (2019) — 12G-SDI, 4K auf einem BNC
   // Quelle: https://www.aja.com/products/kumo-1616-12g
   {
     match: ['kumo 1616', '12g'],
@@ -56,6 +57,7 @@ export const AJA_CATALOG: AjaEntry[] = [
     },
   },
 
+  // AJA KUMO 3232-12G (2019) — 12G-SDI, 2 HE
   // Quelle: https://www.aja.com/products/kumo-3232-12g
   {
     match: ['kumo 3232', '12g'],
@@ -77,6 +79,7 @@ export const AJA_CATALOG: AjaEntry[] = [
     },
   },
 
+  // AJA KUMO 6464-12G (2020) — 12G-SDI 64x64
   // Quelle: https://www.aja.com/products/kumo-6464-12g
   {
     match: ['kumo 6464', '12g'],
@@ -98,6 +101,7 @@ export const AJA_CATALOG: AjaEntry[] = [
     },
   },
 
+  // AJA Ki Pro Ultra 12G (2019) — 4K/UHD-Recorder/Player, Multi-Channel-HD; optionale SFP-Cages
   // Quelle: https://www.aja.com/products/ki-pro-ultra-12g
   {
     match: ['ki pro', 'ultra', '12g'],
@@ -194,9 +198,6 @@ export const AJA_CATALOG: AjaEntry[] = [
     },
   },
 
-  // AJA KUMO 1616-12G (2019) — 12G-SDI, 4K auf einem BNC
-  // AJA KUMO 3232-12G (2019) — 12G-SDI, 2 HE
-  // AJA KUMO 6464-12G (2020) — 12G-SDI 64x64
   // AJA FS-HDR (2017) — HDR/WCG-Prozessor (Colorfront), 1 HE; optionale 12G/6G-SDI-SFP-Slots (HD-BNC/LC-Fiber)
   // Quelle: https://www.aja.com/products/fs-hdr
   {
@@ -218,7 +219,6 @@ export const AJA_CATALOG: AjaEntry[] = [
     },
   },
 
-  // AJA Ki Pro Ultra 12G (2019) — 4K/UHD-Recorder/Player, Multi-Channel-HD; optionale SFP-Cages
   // AJA HELO Plus (2022) — H.264-Streamer/Recorder bis 1080p60, SD-Karte + USB-Medien
   // Quelle: https://www.aja.com/products/helo-plus
   {

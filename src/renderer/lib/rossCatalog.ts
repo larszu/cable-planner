@@ -37,6 +37,26 @@ const withTypeId = (e: RossEntry): EquipmentTemplate => ({
 })
 
 export const ROSS_CATALOG: RossEntry[] = [
+  // Ross Video Carbonite Ultra 60 (2022) — Modulares 3-HE-Frame, BIS ZU 60x25 (I/O-Boards nachruestbar), 3 M/E, HD/12G-UHD, RAVE-Audio-Engine — dargestellt ist die Vollbestueckung
+  // Quelle: https://www.rossvideo.com/live-production/production-switchers/carbonite-ultra-60/
+  {
+    match: ['carbonite', 'ultra', '60'],
+    deviceTypeId: '279f9af4-2f91-469e-87a3-3911f321f45a',
+    template: {
+      name: 'Ross Video Carbonite Ultra 60',
+      category: 'Video Mixer',
+      inputs: [
+        ...num('SDI In', 60, 'BNC'),
+        { id: '', name: 'Ref In', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+      ],
+      outputs: [
+        ...num('SDI Out', 25, 'BNC'),
+      ],
+      width: 260, height: 1000,
+    },
+  },
+
   // Ross Video Carbonite Black Plus 2 M/E (2017) — 2 M/E Produktionsmischer, 36x25-Chassis; 12G-Variante verfuegbar; GPI/Tally via DB-Anschluesse
   // Quelle: https://www.rossvideo.com/products/production-switchers/carbonite-black/carbonite-black-specifications/
   {
@@ -57,25 +77,6 @@ export const ROSS_CATALOG: RossEntry[] = [
     },
   },
 
-  // Ross Video Carbonite Ultra 60 (2022) — Modulares 3-HE-Frame, BIS ZU 60x25 (I/O-Boards nachruestbar), 3 M/E, HD/12G-UHD, RAVE-Audio-Engine — dargestellt ist die Vollbestueckung
-  // Quelle: https://www.rossvideo.com/live-production/production-switchers/carbonite-ultra-60/
-  {
-    match: ['carbonite', 'ultra', '60'],
-    deviceTypeId: '279f9af4-2f91-469e-87a3-3911f321f45a',
-    template: {
-      name: 'Ross Video Carbonite Ultra 60',
-      category: 'Video Mixer',
-      inputs: [
-        ...num('SDI In', 60, 'BNC'),
-        { id: '', name: 'Ref In', type: 'BNC', connectorType: 'BNC' },
-        { id: '', name: 'LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
-      ],
-      outputs: [
-        ...num('SDI Out', 25, 'BNC'),
-      ],
-      width: 260, height: 1000,
-    },
-  },
   // Ross Video Carbonite Ultra (2018) — Ultra Engine 24x14, 4K/HD, 1 HE; Frame Syncs + Format-Konverter onboard
   // Quelle: https://www.rossvideo.com/live-production/production-switchers/carbonite-ultra/specifications/
   {
@@ -95,7 +96,6 @@ export const ROSS_CATALOG: RossEntry[] = [
       width: 260, height: 476,
     },
   },
-
 
   // Ross Video Graphite (2017) — All-in-One 4 HE: Carbonite-Mischer + RAVE-48ch-Audiomischer (XLR-Analog-I/O) + XPression-Grafik + Clip-Player; 24 GPI, 16 Tally
   // Quelle: https://www.rossvideo.com/products/production-switchers/graphite/graphite-specifications/

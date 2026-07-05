@@ -160,7 +160,17 @@ entstanden Fabrikations-Fehler.
   erfundene Ports („Input 1"/„Output 1") — jetzt leere Ports + `portsUnknown`
   (PortsSection bietet den Port-Vorschlag-Flow, Plan-Check mahnt Datenblatt an).
 
+- **Katalog-Runde 2 (2026-07)**: +9 Geräte. Neu `broadcastToolsCatalog`
+  (Decimator DMON-6S/DMON-12S/MD-HX, Teradek Bolt 4K 750 TX/RX mit
+  `Wireless/RF`-Link-Port, Riedel MediorNet MicroN mit 8× 10G-SFP+ und
+  optischen MADI-Ports); `switcherCatalog` += Barco E2 Gen 2
+  (Standardbestückung 12×HDMI/12×DP/4×SDI → 13×HDMI/1×DP/4×SDI, als modular
+  markiert); `avNetworkCatalog` += Luminex GigaCore 10t + 26i. Kuratierte
+  Match-Needles + GUIDs leben jetzt versionsstabil in den Recherche-JSONs
+  (Regenerieren mintet nur für NEUE Einträge).
+
 **Offen** (nächste Schritte): GUID-Identität für Light-Planner-Fixtures (dort
 via GDTF `FixtureTypeID` direkt); User-eigene Templates optional mit selbst
 geminteter GUID; Katalog-Nachzügler mit geklärter I/O (TriCaster Mini 4K,
-greenMachine titan, AJA FS4/FS2, weitere GigaCore-Modelle).
+greenMachine titan, AJA FS4/FS2, Analog Way Aquilon, Clear-Com FreeSpeak,
+Riedel Bolero, Grass Valley, Datavideo).

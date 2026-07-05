@@ -45,6 +45,7 @@ import { rossTemplates } from '../lib/rossCatalog'
 import { lynxTemplates } from '../lib/lynxCatalog'
 import { switcherTemplates } from '../lib/switcherCatalog'
 import { avNetworkTemplates } from '../lib/avNetworkCatalog'
+import { broadcastToolsTemplates } from '../lib/broadcastToolsCatalog'
 import { upsertCachedRentmanTemplate } from '../lib/rentmanTemplateCache'
 import type { GreenGoConfig } from '../types/greengo'
 
@@ -77,7 +78,7 @@ const runLibraryMigration = () => {
     const existing: EquipmentTemplate[] = raw ? JSON.parse(raw) : []
     const byName = new Map(existing.map((t) => [t.name, t]))
     let added = false
-    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates]) {
+    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates]) {
       if (!byName.has(t.name)) {
         byName.set(t.name, t)
         added = true
