@@ -22,6 +22,7 @@ import { ROSS_CATALOG } from './rossCatalog'
 import { LYNX_CATALOG } from './lynxCatalog'
 import { SWITCHER_CATALOG } from './switcherCatalog'
 import { AVNETWORK_CATALOG } from './avNetworkCatalog'
+import { BROADCAST_TOOLS_CATALOG } from './broadcastToolsCatalog'
 
 export interface DeviceTypeInfo {
   /** Datenblatt-Template (inkl. deviceTypeId). */
@@ -89,6 +90,9 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
   }
   for (const e of SWITCHER_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of BROADCAST_TOOLS_CATALOG) {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
   }
   for (const e of AVNETWORK_CATALOG) {

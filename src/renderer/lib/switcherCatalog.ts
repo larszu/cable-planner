@@ -192,6 +192,31 @@ export const SWITCHER_CATALOG: SwitcherEntry[] = [
       width: 260, height: 204,
     },
   },
+
+  // Barco E2 Gen 2 (2019) — Screen-Management/Praesentations-Switcher, 4 HE; Standardbestueckung (kartenbasiert, BTO abweichend); bis 4K60 4:4:4, verlinkbar mit S3-4K/Ex
+  // Quelle: https://assets.barco.com/m/1da1a218bfbbede6/original/E2-Gen-2-en-Spec-sheet.pdf
+  {
+    match: ['barco', 'e2'],
+    deviceTypeId: '3c49815f-6ce9-4792-8818-a1e70d2c3f97',
+    template: {
+      name: 'Barco E2 Gen 2',
+      category: 'Video Mixer',
+      inputs: [
+        ...num('HDMI In', 12, 'HDMI'),
+        ...num('DisplayPort In', 12, 'DisplayPort'),
+        ...num('SDI In', 4, 'BNC'),
+        { id: '', name: 'Genlock In', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'Genlock Loop', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+      ],
+      outputs: [
+        ...num('HDMI Out', 13, 'HDMI'),
+        { id: '', name: 'DisplayPort Out', type: 'DisplayPort', connectorType: 'DisplayPort' },
+        ...num('SDI Out', 4, 'BNC'),
+      ],
+      width: 260, height: 556,
+    },
+  },
 ]
 
 /** Flat list of all built-in templates (seeded into the library). */

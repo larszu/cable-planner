@@ -160,6 +160,46 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
       width: 260, height: 140,
     },
   },
+
+  // Luminex GigaCore 10t (2022) — Touring-Switch, PoE++ (802.3af/at/bt) auf jedem Kupfer-Port, Dante/AES67/sACN/Art-Net-Profile
+  // Quelle: https://www.luminex.be/products/gigacore/gigacore-10t/
+  {
+    match: ['gigacore', '10t'],
+    deviceTypeId: '605c86c2-344b-4652-92e6-7eceeb2b26ab',
+    networkKind: 'switch',
+    template: {
+      name: 'Luminex GigaCore 10t',
+      category: 'Netzwerk',
+      inputs: [
+        // keine
+      ],
+      outputs: [
+        ...num('etherCON', 8, 'Ethernet/RJ45', true),
+        ...num('SFP', 2, 'SFP', true),
+      ],
+      width: 260, height: 220,
+    },
+  },
+
+  // Luminex GigaCore 26i (2019) — Install-AV-Switch 24x RJ45 + 6x SFP, PoE-Variante verfuegbar, Dante/AES67-Profile
+  // Quelle: https://www.luminex.be/products/gigacore/
+  {
+    match: ['gigacore', '26i'],
+    deviceTypeId: 'b70cec7b-17f9-4a60-b417-a4052ef6ee48',
+    networkKind: 'switch',
+    template: {
+      name: 'Luminex GigaCore 26i',
+      category: 'Netzwerk',
+      inputs: [
+        // keine
+      ],
+      outputs: [
+        ...num('RJ45', 24, 'Ethernet/RJ45', true),
+        ...num('SFP', 6, 'SFP', true),
+      ],
+      width: 260, height: 540,
+    },
+  },
 ]
 
 /** Flat list of all built-in templates (seeded into the library). */
