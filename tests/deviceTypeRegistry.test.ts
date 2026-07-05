@@ -12,6 +12,11 @@ import { GREENGO_CATALOG } from '../src/renderer/lib/greengoCatalog'
 import { MONITOR_CATALOG } from '../src/renderer/lib/monitorCatalog'
 import { UBIQUITI_CATALOG } from '../src/renderer/lib/ubiquitiCatalog'
 import { MISC_CATALOG } from '../src/renderer/lib/miscCatalog'
+import { AJA_CATALOG, matchAjaTemplate } from '../src/renderer/lib/ajaCatalog'
+import { ROSS_CATALOG } from '../src/renderer/lib/rossCatalog'
+import { LYNX_CATALOG, matchLynxTemplate } from '../src/renderer/lib/lynxCatalog'
+import { SWITCHER_CATALOG } from '../src/renderer/lib/switcherCatalog'
+import { AVNETWORK_CATALOG } from '../src/renderer/lib/avNetworkCatalog'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 
 const eq = (over: Partial<EquipmentItem>): EquipmentItem => ({
@@ -34,6 +39,11 @@ const ALL_CATALOGS = [
   ...MONITOR_CATALOG,
   ...UBIQUITI_CATALOG,
   ...MISC_CATALOG,
+  ...AJA_CATALOG,
+  ...ROSS_CATALOG,
+  ...LYNX_CATALOG,
+  ...SWITCHER_CATALOG,
+  ...AVNETWORK_CATALOG,
 ]
 
 describe('deviceTypeRegistry (stabile GUID-Identitaet, GDTF-analog)', () => {
@@ -98,6 +108,31 @@ describe('detectDeviceKind / detectNetworkDevice — ID vor Heuristik', () => {
   it('ohne ID greift weiter die Namens-Heuristik (Fallback unveraendert)', () => {
     expect(detectDeviceKind(eq({ name: 'ATEM Constellation 8K' }))).toBe('atem')
     expect(detectNetworkDevice(eq({ name: 'EdgeRouter 4', category: 'Netzwerk' }))).toBe('router')
+  })
+
+  it('AJA-KUMO-/Ross-Router bekommen KEINE videohub-Rolle (BMD-Protokoll)', () => {
+    // Der Videohub-Export spricht das Blackmagic-Protokoll (Port 9990).
+    // KUMO/Ultrix/NK sprechen es nicht — Rolle muss autoritativ null sein,
+    // obwohl der Name/die Port-Struktur nach Router aussieht.
+    const kumo = AJA_CATALOG.find((e) => e.template.name.includes('KUMO 3232-12G'))!
+    const device = eq({
+      name: 'AJA KUMO 3232-12G',
+      deviceTypeId: kumo.deviceTypeId,
+      inputs: kumo.template.inputs,
+      outputs: kumo.template.outputs,
+    })
+    expect(detectDeviceKind(device)).toBeNull()
+  })
+
+  it('neue Kataloge matchen konservativ ueber Marken-Guard + Needles', () => {
+    expect(matchAjaTemplate('AJA KUMO 1616-12G')?.name).toBe('AJA KUMO 1616-12G')
+    // 12G-Variante darf NICHT auf das 3G-Basismodell fallen und umgekehrt.
+    expect(matchAjaTemplate('AJA KUMO 1616')?.name).toBe('AJA KUMO 1616')
+    // Lynx: CHD vs ORX teilen die Nummer 1802 — Kuerzel entscheidet.
+    expect(matchLynxTemplate('LYNX yellobrik CHD 1802')?.name).toContain('CHD 1802')
+    expect(matchLynxTemplate('LYNX yellobrik ORX 1802')?.name).toContain('ORX 1802')
+    // Generische Namen ohne Marken-Keyword matchen nicht.
+    expect(matchAjaTemplate('Irgendein 12G Router 3232')).toBeNull()
   })
 })
 
