@@ -18,6 +18,8 @@ import { LYNX_CATALOG, matchLynxTemplate } from '../src/renderer/lib/lynxCatalog
 import { SWITCHER_CATALOG } from '../src/renderer/lib/switcherCatalog'
 import { AVNETWORK_CATALOG } from '../src/renderer/lib/avNetworkCatalog'
 import { BROADCAST_TOOLS_CATALOG } from '../src/renderer/lib/broadcastToolsCatalog'
+import { AUDIO_CATALOG, matchAudioTemplate } from '../src/renderer/lib/audioCatalog'
+import { WIRELESS_AUDIO_CATALOG } from '../src/renderer/lib/wirelessAudioCatalog'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 
 const eq = (over: Partial<EquipmentItem>): EquipmentItem => ({
@@ -46,6 +48,8 @@ const ALL_CATALOGS = [
   ...SWITCHER_CATALOG,
   ...AVNETWORK_CATALOG,
   ...BROADCAST_TOOLS_CATALOG,
+  ...AUDIO_CATALOG,
+  ...WIRELESS_AUDIO_CATALOG,
 ]
 
 describe('deviceTypeRegistry (stabile GUID-Identitaet, GDTF-analog)', () => {
@@ -135,6 +139,15 @@ describe('detectDeviceKind / detectNetworkDevice — ID vor Heuristik', () => {
     expect(matchLynxTemplate('LYNX yellobrik ORX 1802')?.name).toContain('ORX 1802')
     // Generische Namen ohne Marken-Keyword matchen nicht.
     expect(matchAjaTemplate('Irgendein 12G Router 3232')).toBeNull()
+  })
+
+  it('Audio-Needles: "m32"-Substring-Falle (Midas M32 vs dLive CDM32)', () => {
+    // "CDM32" enthaelt "m32" — ein loses Match haette dem dLive-MixRack die
+    // Midas-M32-Belegung angedichtet. Die Needles verlangen die Marke.
+    expect(matchAudioTemplate('Midas M32 Live')?.name).toBe('Midas M32 Live')
+    expect(matchAudioTemplate('Allen & Heath dLive CDM32 MixRack')?.name).toContain('CDM32')
+    // Behringer S16 darf nicht auf EdgeSwitch-artige Namen matchen.
+    expect(matchAudioTemplate('EdgeSwitch ES-16-150W')).toBeNull()
   })
 })
 
