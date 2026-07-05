@@ -143,6 +143,24 @@ entstanden Fabrikations-Fehler.
   Nicht-Treffer-Fallback ist `Custom` mit niedriger Konfidenz (explizit
   unbekannt), kein erfundener Stecker.
 
+- **Katalog-Ausbau Broadcast/AV-Netzwerk (2026-07)**: fünf neue Kataloge mit
+  38 datenblatt-recherchierten Geräten (Quellen-URL je Eintrag im Code):
+  `ajaCatalog` (KUMO-Router 3G+12G, FS-HDR, Ki Pro Ultra 12G, HELO Plus,
+  U-TAP SDI), `rossCatalog` (Carbonite Black Plus/Ultra/Ultra 60, Graphite,
+  Ultrix FR1/FR2/FR5, NK-3G72/16), `lynxCatalog` (yellobrik CDH/CHD/OTX/ORX/
+  SPG/DVD, greenMachine callisto+), `switcherCatalog` (Panasonic AV-UHS500,
+  For-A HVS-490, Roland V-8HD/V-60HD/V-160HD, Sony MCX-500, TriCaster 2 Elite),
+  `avNetworkCatalog` (Netgear M4250, Luminex GigaCore 16Xt, BirdDog Flex 4K,
+  Magewell Pro Convert; PoE-Budget als `categoryProps.poeBudgetW` → Plan-Check).
+  Geräte mit nicht eindeutig belegbarer I/O wurden bewusst NICHT aufgenommen
+  (z. B. TriCaster Mini 4K, greenMachine titan, Dante AVIO). Fremde Router
+  (KUMO/Ultrix/NK) bekommen absichtlich KEINE `videohub`-Rolle — der Videohub-
+  Export spricht das Blackmagic-Protokoll, das diese Geräte nicht verstehen.
+- **Rentman-Fallback entschärft**: unbekannte Rentman-Geräte bekamen bisher
+  erfundene Ports („Input 1"/„Output 1") — jetzt leere Ports + `portsUnknown`
+  (PortsSection bietet den Port-Vorschlag-Flow, Plan-Check mahnt Datenblatt an).
+
 **Offen** (nächste Schritte): GUID-Identität für Light-Planner-Fixtures (dort
 via GDTF `FixtureTypeID` direkt); User-eigene Templates optional mit selbst
-geminteter GUID.
+geminteter GUID; Katalog-Nachzügler mit geklärter I/O (TriCaster Mini 4K,
+greenMachine titan, AJA FS4/FS2, weitere GigaCore-Modelle).

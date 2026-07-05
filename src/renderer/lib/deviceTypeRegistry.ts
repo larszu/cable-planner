@@ -17,6 +17,11 @@ import { GREENGO_CATALOG } from './greengoCatalog'
 import { MONITOR_CATALOG } from './monitorCatalog'
 import { UBIQUITI_CATALOG } from './ubiquitiCatalog'
 import { MISC_CATALOG } from './miscCatalog'
+import { AJA_CATALOG } from './ajaCatalog'
+import { ROSS_CATALOG } from './rossCatalog'
+import { LYNX_CATALOG } from './lynxCatalog'
+import { SWITCHER_CATALOG } from './switcherCatalog'
+import { AVNETWORK_CATALOG } from './avNetworkCatalog'
 
 export interface DeviceTypeInfo {
   /** Datenblatt-Template (inkl. deviceTypeId). */
@@ -70,6 +75,27 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
   }
   for (const e of MISC_CATALOG) {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  // AJA/Ross/Lynx/Switcher: KEIN kind 'videohub' fuer fremde Router (KUMO,
+  // Ultrix, NK) — der Videohub-Export spricht das Blackmagic-Protokoll
+  // (Port 9990), das diese Geraete nicht verstehen. Rolle bleibt null.
+  for (const e of AJA_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of ROSS_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of LYNX_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of SWITCHER_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of AVNETWORK_CATALOG) {
+    put(e.deviceTypeId, {
+      template: { ...e.template, deviceTypeId: e.deviceTypeId },
+      networkKind: e.networkKind,
+    })
   }
   return map
 }

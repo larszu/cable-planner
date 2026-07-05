@@ -12,6 +12,11 @@ import { matchMonitorTemplate } from '../../lib/monitorCatalog'
 import { matchCameraTemplate } from '../../lib/cameraCatalog'
 import { matchMiscTemplate } from '../../lib/miscCatalog'
 import { matchGreenGoTemplate } from '../../lib/greengoCatalog'
+import { matchAjaTemplate } from '../../lib/ajaCatalog'
+import { matchRossTemplate } from '../../lib/rossCatalog'
+import { matchLynxTemplate } from '../../lib/lynxCatalog'
+import { matchSwitcherTemplate } from '../../lib/switcherCatalog'
+import { matchAvNetworkTemplate } from '../../lib/avNetworkCatalog'
 import { getCachedRentmanTemplate } from '../../lib/rentmanTemplateCache'
 import type { EquipmentTemplate } from '../../types/equipment'
 import type { CableType } from '../../types/cable'
@@ -22,7 +27,7 @@ import { ProjectSelector } from './ProjectSelector'
 import { TemplateMergeDialog } from '../Library/TemplateMergeDialog'
 
 import {
-  mapProjects, mapPort, mapEquipment, isRentmanPhysicalFlag,
+  mapProjects, mapEquipment, isRentmanPhysicalFlag,
   autoDetectCategory, loadRentmanCatMap, saveRentmanCatMap, detectCableRows,
 } from './rentmanImportHelpers'
 import type {
@@ -533,11 +538,21 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       matchMonitorTemplate(item.name) ||
       matchCameraTemplate(item.name) ||
       matchMiscTemplate(item.name) ||
-      matchGreenGoTemplate(item.name) || {
+      matchGreenGoTemplate(item.name) ||
+      matchAjaTemplate(item.name) ||
+      matchRossTemplate(item.name) ||
+      matchLynxTemplate(item.name) ||
+      matchSwitcherTemplate(item.name) ||
+      matchAvNetworkTemplate(item.name) || {
+        // Kein Katalog-Match → KEINE erfundenen Ports ("Input 1"/"Output 1"
+        // waren erfundene Belegung). Explizit als unbekannt fuehren; die
+        // PortsSection bietet dafuer den Port-Vorschlag-Flow an und der
+        // Plan-Check fordert die Datenblatt-Ergaenzung ein.
         name: item.name,
         category: assignedCategory,
-        inputs: [mapPort('Input 1')],
-        outputs: [mapPort('Output 1')],
+        inputs: [],
+        outputs: [],
+        portsUnknown: true,
         width: 220,
         height: 140,
       }
@@ -865,6 +880,11 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       if (matchCameraTemplate(item.name)) return
       if (matchMiscTemplate(item.name)) return
       if (matchGreenGoTemplate(item.name)) return
+      if (matchAjaTemplate(item.name)) return
+      if (matchRossTemplate(item.name)) return
+      if (matchLynxTemplate(item.name)) return
+      if (matchSwitcherTemplate(item.name)) return
+      if (matchAvNetworkTemplate(item.name)) return
       if (unknownMap.has(item.equipmentId)) return
       unknownMap.set(item.equipmentId, {
         rentmanId: item.equipmentId,
@@ -1565,7 +1585,12 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                   matchMonitorTemplate(item.name) ||
                   matchCameraTemplate(item.name) ||
                   matchMiscTemplate(item.name) ||
-                  matchGreenGoTemplate(item.name)
+                  matchGreenGoTemplate(item.name) ||
+                  matchAjaTemplate(item.name) ||
+                  matchRossTemplate(item.name) ||
+                  matchLynxTemplate(item.name) ||
+                  matchSwitcherTemplate(item.name) ||
+                  matchAvNetworkTemplate(item.name)
                 if (catalogMatch) {
                   return {
                     ...item,
