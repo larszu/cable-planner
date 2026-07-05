@@ -18,6 +18,8 @@ import { matchLynxTemplate } from '../../lib/lynxCatalog'
 import { matchSwitcherTemplate } from '../../lib/switcherCatalog'
 import { matchAvNetworkTemplate } from '../../lib/avNetworkCatalog'
 import { matchBroadcastToolsTemplate } from '../../lib/broadcastToolsCatalog'
+import { matchAudioTemplate } from '../../lib/audioCatalog'
+import { matchWirelessAudioTemplate } from '../../lib/wirelessAudioCatalog'
 import { getCachedRentmanTemplate } from '../../lib/rentmanTemplateCache'
 import type { EquipmentTemplate } from '../../types/equipment'
 import type { CableType } from '../../types/cable'
@@ -545,7 +547,9 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       matchLynxTemplate(item.name) ||
       matchSwitcherTemplate(item.name) ||
       matchAvNetworkTemplate(item.name) ||
-      matchBroadcastToolsTemplate(item.name) || {
+      matchBroadcastToolsTemplate(item.name) ||
+      matchAudioTemplate(item.name) ||
+      matchWirelessAudioTemplate(item.name) || {
         // Kein Katalog-Match → KEINE erfundenen Ports ("Input 1"/"Output 1"
         // waren erfundene Belegung). Explizit als unbekannt fuehren; die
         // PortsSection bietet dafuer den Port-Vorschlag-Flow an und der
@@ -888,6 +892,8 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       if (matchSwitcherTemplate(item.name)) return
       if (matchAvNetworkTemplate(item.name)) return
       if (matchBroadcastToolsTemplate(item.name)) return
+      if (matchAudioTemplate(item.name)) return
+      if (matchWirelessAudioTemplate(item.name)) return
       if (unknownMap.has(item.equipmentId)) return
       unknownMap.set(item.equipmentId, {
         rentmanId: item.equipmentId,
@@ -1594,7 +1600,9 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                   matchLynxTemplate(item.name) ||
                   matchSwitcherTemplate(item.name) ||
                   matchAvNetworkTemplate(item.name) ||
-                  matchBroadcastToolsTemplate(item.name)
+                  matchBroadcastToolsTemplate(item.name) ||
+                  matchAudioTemplate(item.name) ||
+                  matchWirelessAudioTemplate(item.name)
                 if (catalogMatch) {
                   return {
                     ...item,

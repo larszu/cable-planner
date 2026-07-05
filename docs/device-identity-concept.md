@@ -169,8 +169,20 @@ entstanden Fabrikations-Fehler.
   Match-Needles + GUIDs leben jetzt versionsstabil in den Recherche-JSONs
   (Regenerieren mintet nur für NEUE Einträge).
 
+- **Katalog-Runde 3 (2026-07) — Audio-Domäne**: +22 Geräte in zwei neuen
+  Katalogen. `audioCatalog` (15): Digitalpulte Behringer X32/Wing, Midas M32
+  Live, A&H SQ-5/Avantis/dLive CDM32, Yamaha CL5/QL5/DM3-D, DiGiCo S21 +
+  Stageboxen Behringer S16/S32, Midas DL32, Yamaha Rio3224-D2, A&H DX168 —
+  AES50/Dante/SLink/DX-Links als bidirektionale RJ45-Ports modelliert.
+  `wirelessAudioCatalog` (7, Kategorie „Funkstrecke"): Sennheiser EW IEM G4,
+  EW 500 G4, EW-DX EM 2 Dante, Digital 6000 (EM 6000); Shure QLXD4, ULXD4Q,
+  PSM 1000 (P10T) — Antennen als BNC-Ports, IEM-Sender mit Loop-Outs.
+  Needle-Präzisionstest für die "m32"-Substring-Falle (Midas M32 ↔ dLive
+  CDM32).
+
 **Offen** (nächste Schritte): GUID-Identität für Light-Planner-Fixtures (dort
 via GDTF `FixtureTypeID` direkt); User-eigene Templates optional mit selbst
 geminteter GUID; Katalog-Nachzügler mit geklärter I/O (TriCaster Mini 4K,
 greenMachine titan, AJA FS4/FS2, Analog Way Aquilon, Clear-Com FreeSpeak,
-Riedel Bolero, Grass Valley, Datavideo).
+Riedel Bolero, Grass Valley, Datavideo, Antennen-Splitter Shure UA844+/
+Sennheiser ASA 214, Shure AD4D/Axient).
