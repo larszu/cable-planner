@@ -230,6 +230,20 @@ Rechnungswesen/CRM, Accounting-Integrationen, Angebots-/Buchungs-Workflow —
 Cable-Planner ist ein Verkabelungs-/Signalfluss-Planer, kein ERP. MHD/Ablauf
 ebenfalls bewusst nicht (nicht benötigt).
 
+### Druck — Packlisten + QR-Etiketten (Stand 2026-07)
+
+- **Packlisten-Druck** pro Case: Button am Container-Knoten druckt die rekursive
+  Packliste als A4-HTML (`lib/inventoryPrint.ts` → `printHtml.ts` per iframe,
+  funktioniert in Browser + Electron; der native Druckdialog übernimmt die
+  `@page`-Größe).
+- **QR-Etiketten-Druck** (Labels-Tab): Quelle wählen (Artikel/Lagerorte/Einheiten
+  mit Code **oder** rekursiver Case-Inhalt), Format wählen und drucken —
+  **A4-Bögen** in gängigen Avery/Zweckform-Rastern (3667/L7651 65×, 3489/L7160
+  21×, 3425/L7159 24×, 3652/L7163 14×) **und Endlos-Rollen** für Labeldrucker
+  (Brother DK-11209 62×29, Dymo 99012 89×36, u. a.). QR-Codes via `qrcode`;
+  `lib/labelSheets.ts` liefert die mm-genaue Geometrie (mit Start-Offset für
+  angebrochene Bögen), rein + getestet.
+
 **Offen (mögliche nächste Schritte):** Scan-Kaskade beim Ein-/Ausbuchen eines
-Transport-Cases, Etiketten-/Packlisten-Druck (PDF), Verfügbarkeits-/Buchungs-
-Zeiträume (Allocations).
+Transport-Cases, echte Barcode-Symbologie (Code128, aktuell QR für alle Codes),
+Verfügbarkeits-/Buchungs-Zeiträume (Allocations).
