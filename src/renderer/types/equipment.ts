@@ -237,6 +237,14 @@ export interface DeviceMode {
 export interface EquipmentItem {
   id: string
   name: string
+  /** Stabile Geraetetyp-Identitaet (GDTF/DIN-SPEC-15800-analog: FixtureTypeID)
+   *  — opake, versionsstabile GUID des Geraete-MODELLS (nicht dieser Instanz;
+   *  die Instanz-Identitaet ist `id`). Erlaubt es, ein Geraet ueber App-Grenzen
+   *  (`.avplan`/camera-list) autoritativ auf sein Datenblatt/Ports aufzuloesen,
+   *  statt ueber Namens-Substrings zu raten. Optional — manuell angelegte oder
+   *  aus Rentman/GraphML importierte Geraete ohne Katalog-Zuordnung haben es
+   *  nicht. */
+  deviceTypeId?: string
   /** v7.9.127 — Optional Short-Form-Name fuer platzbegrenzte Kontexte
    *  wie Cable-Endpoint-Labels und Patchlisten. Wenn nicht gesetzt,
    *  wird er bei Bedarf aus `name` per `generateShortName()` abgeleitet.
@@ -252,6 +260,14 @@ export interface EquipmentItem {
   category: string
   inputs: Port[]
   outputs: Port[]
+  /** Explizit-Unbekannt-Marker fuer die Port-Belegung. Wird gesetzt, wenn ein
+   *  Geraet aus einer fremden Domaene (z.B. MultiCam-Kamera-Import) uebernommen
+   *  wurde, dessen reale I/O wir NICHT aus einem Datenblatt kennen. Statt eine
+   *  plausible-aber-falsche Belegung zu erfinden (die still in BOM/Patchliste/
+   *  Verkabelung eingeht), fuehren wir die Ports als leer + markiert und der
+   *  Plan-Check fordert die Datenblatt-Ergaenzung ein. Sobald der User Ports
+   *  ergaenzt, entfernt die Properties-Sektion das Flag. */
+  portsUnknown?: boolean
   /** v7.5.0 — operating-mode-dependent port layouts (media servers,
    *  modular processors like Pixelhue P20 / Parco S3 / Brompton Tessera).
    *  Each mode carries its own `inputs` + `outputs`. When `activeModeId`

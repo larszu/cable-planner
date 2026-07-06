@@ -29,6 +29,7 @@ export type MetaSlice = Pick<
   | 'setSelection'
   | 'setSelectedTemplateName'
   | 'updateGreenGoConfig'
+  | 'setDrumKit'
 >
 
 export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (set) => ({
@@ -89,6 +90,12 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
   updateGreenGoConfig: (config) =>
     set((state) => {
       const updated = { ...state.project, greengoConfig: config }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  setDrumKit: (plan) =>
+    set((state) => {
+      const updated = { ...state.project, drumKit: plan }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

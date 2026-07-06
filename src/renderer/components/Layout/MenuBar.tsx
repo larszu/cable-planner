@@ -4,7 +4,7 @@ import {
   Image as ImageIcon, Calculator, Eye, MessageSquare, Paperclip, Plug, Cable,
   Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, MonitorPlay, SlidersHorizontal, Tag,
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
-  Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles,
+  Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles, Drum,
   Maximize, Maximize2, ZoomIn, ZoomOut, Scan, BoxSelect, RefreshCw, PackageCheck,
   Keyboard, Command, Boxes,
 } from 'lucide-react'
@@ -494,6 +494,9 @@ export const MenuBar = ({
           </MenuItem>
           <MenuItem onClick={() => useUiStore.getState().openPlanCheck()} icon={<Icon icon={ClipboardCheck} size="sm" />}>
             {t('app.menu.tools.planCheck', 'Plan-Check…')}
+          </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().setDrumMicingOpen(true)} icon={<Icon icon={Drum} size="sm" />}>
+            {t('app.menu.tools.drumMicing', 'Drum-Mikrofonierung…')}
           </MenuItem>
 
           <MenuSectionHeader>{t('app.menu.tools.group.build', 'Erstellen & verwalten')}</MenuSectionHeader>

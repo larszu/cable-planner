@@ -71,8 +71,9 @@ export const StatusBar = ({
   // Cables); ein Klick oeffnet/schliesst die Plan-Check-Palette.
   const equipment = useProjectStore((s) => s.project.equipment)
   const cables = useProjectStore((s) => s.project.cables)
+  const drumKit = useProjectStore((s) => s.project.drumKit)
   const togglePlanCheck = useUiStore((s) => s.togglePlanCheck)
-  const { errorCount, warningCount } = runDrawingChecks({ equipment, cables })
+  const { errorCount, warningCount } = runDrawingChecks({ equipment, cables, drumKit })
   const checkTone =
     errorCount > 0
       ? 'bg-red-700 text-red-50'

@@ -33,12 +33,59 @@ describe('multicamCameraImport (Cable ← MultiCam)', () => {
     // Sony PMW-F55 hat im Katalog mehrere SDI-/HDMI-Ausgaenge.
     expect(f55.outputs.length).toBeGreaterThan(1)
     expect(f55.outputs.some((p) => p.connectorType === 'BNC')).toBe(true)
+    // Namens-Match stempelt die stabile Geraetetyp-ID mit.
+    expect(f55.deviceTypeId).toBe('eb02ca7e-856c-40ab-9a73-d1e98110f003')
   })
 
-  it('gibt unbekannten Modellen einen generischen SDI-Ausgang', () => {
+  it('loest autoritativ ueber die Geraetetyp-ID auf — auch bei unbrauchbarem Namen', () => {
+    // Label/Model sind Muell, aber die GUID zeigt eindeutig auf die Sony FX3.
+    const [cam] = cameraListToEquipment({
+      ...sample,
+      cameras: [
+        {
+          id: 'x',
+          label: 'Kamera 7',
+          manufacturer: '???',
+          model: 'unbekannt',
+          deviceTypeId: '3cd5dd2d-7d51-4af9-ad59-25860aa4baa2',
+        },
+      ],
+    })
+    expect(cam.deviceTypeId).toBe('3cd5dd2d-7d51-4af9-ad59-25860aa4baa2')
+    expect(cam.portsUnknown).toBeUndefined()
+    // FX3: HDMI-Ausgang aus echtem Datenblatt.
+    expect(cam.outputs.some((p) => p.connectorType === 'HDMI')).toBe(true)
+  })
+
+  it('behaelt eine unbekannte Geraetetyp-ID als Identitaet, ohne Ports zu erfinden', () => {
+    const [cam] = cameraListToEquipment({
+      ...sample,
+      cameras: [{ id: 'y', label: 'Neu', deviceTypeId: 'ffffffff-0000-0000-0000-000000000000' }],
+    })
+    // Identitaet bekannt, Ports nicht → durchreichen + portsUnknown.
+    expect(cam.deviceTypeId).toBe('ffffffff-0000-0000-0000-000000000000')
+    expect(cam.portsUnknown).toBe(true)
+    expect(cam.outputs).toHaveLength(0)
+  })
+
+  it('erfindet unbekannten Modellen KEINE Ports, sondern markiert sie explizit', () => {
     const mystery = cameraListToEquipment(sample)[1]
-    expect(mystery.outputs).toHaveLength(1)
-    expect(mystery.outputs[0]).toMatchObject({ name: 'SDI Out', connectorType: 'BNC' })
+    // Kein Datenblatt-Match → keine erfundene Belegung.
+    expect(mystery.inputs).toHaveLength(0)
+    expect(mystery.outputs).toHaveLength(0)
+    // Stattdessen explizit als unbekannt geführt (Plan-Check fordert Ergänzung).
+    expect(mystery.portsUnknown).toBe(true)
+  })
+
+  it('matcht konservativ: ein bloßer Hersteller-Treffer erbt keine fremde Belegung', () => {
+    // "Sony PXW-Z750" ist unbekannt; ein loses "enthält sony"-Match hätte ihm
+    // früher die Ports der Sony FX6 angedichtet. Jetzt: unbekannt.
+    const [z750] = cameraListToEquipment({
+      ...sample,
+      cameras: [{ id: 'z', label: 'Z750', manufacturer: 'Sony', model: 'PXW-Z750' }],
+    })
+    expect(z750.portsUnknown).toBe(true)
+    expect(z750.outputs).toHaveLength(0)
   })
 
   it('parseCameraList lehnt fremde Dateien ab', () => {

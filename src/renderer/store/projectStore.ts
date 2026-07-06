@@ -40,6 +40,15 @@ import { monitorTemplates } from '../lib/monitorCatalog'
 import { cameraTemplates } from '../lib/cameraCatalog'
 import { miscTemplates } from '../lib/miscCatalog'
 import { greengoTemplates } from '../lib/greengoCatalog'
+import { ajaTemplates } from '../lib/ajaCatalog'
+import { rossTemplates } from '../lib/rossCatalog'
+import { lynxTemplates } from '../lib/lynxCatalog'
+import { switcherTemplates } from '../lib/switcherCatalog'
+import { avNetworkTemplates } from '../lib/avNetworkCatalog'
+import { broadcastToolsTemplates } from '../lib/broadcastToolsCatalog'
+import { audioTemplates } from '../lib/audioCatalog'
+import { wirelessAudioTemplates } from '../lib/wirelessAudioCatalog'
+import { micTemplates } from '../lib/micCatalog'
 import { upsertCachedRentmanTemplate } from '../lib/rentmanTemplateCache'
 import type { GreenGoConfig } from '../types/greengo'
 
@@ -72,7 +81,7 @@ const runLibraryMigration = () => {
     const existing: EquipmentTemplate[] = raw ? JSON.parse(raw) : []
     const byName = new Map(existing.map((t) => [t.name, t]))
     let added = false
-    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates]) {
+    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates]) {
       if (!byName.has(t.name)) {
         byName.set(t.name, t)
         added = true
@@ -373,6 +382,8 @@ export interface ProjectState {
   renameGroupPreset: (id: string, newName: string) => void
   /** Save or replace the GreenGo intercom planning config in the project. */
   updateGreenGoConfig: (config: GreenGoConfig) => void
+  /** Drum-Mikrofonierung — den Drum-Kit-Plan setzen (undefined = entfernen). */
+  setDrumKit: (plan: import('../types/drumKit').DrumKitPlan | undefined) => void
   /** v7.9.3 — Mobile-Viewer Check-State setzen (vom POST /checks-IPC).
    *  Komplettes Objekt-Replace damit gelöschte Checks (false → kein
    *  key) auch übernommen werden. */

@@ -122,6 +122,9 @@ export const LibraryFiltersMenu = ({
   onToggleAllCats,
   sortMode,
   setSortMode,
+  onlyOwned,
+  setOnlyOwned,
+  ownedAvailable,
 }: {
   showHidden: boolean
   setShowHidden: (v: boolean) => void
@@ -132,6 +135,11 @@ export const LibraryFiltersMenu = ({
   onToggleAllCats: (allCollapsed: boolean) => void
   sortMode: 'manual' | 'asc' | 'desc'
   setSortMode: (m: 'manual' | 'asc' | 'desc') => void
+  /** Lager-Modul: nur Vorlagen zeigen, die eigenem Material entsprechen. */
+  onlyOwned: boolean
+  setOnlyOwned: (v: boolean) => void
+  /** Anzahl eigener Lager-Artikel (ownership=owned) — 0 → Toggle disabled. */
+  ownedAvailable: number
 }) => {
   const t = useTranslation()
   const [open, setOpen] = useState(false)
@@ -225,6 +233,20 @@ export const LibraryFiltersMenu = ({
           >
             <span className="mr-2 inline-flex w-4 justify-center"><Icon icon={showEmpty ? SquareCheck : Square} size="xs" /></span>
             {t('library.menus.showEmpty', 'Leere Kategorien zeigen')}
+          </button>
+          <div className="my-1 border-t border-cp-border-muted" />
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            aria-checked={onlyOwned}
+            disabled={ownedAvailable === 0 && !onlyOwned}
+            onClick={() => setOnlyOwned(!onlyOwned)}
+            title={t('inventory.onlyOwnedHint', 'Nur Geräte zeigen, die eigenem Lager-Material entsprechen (nach Modell)')}
+            className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <span className="mr-2 inline-flex w-4 justify-center"><Icon icon={onlyOwned ? SquareCheck : Square} size="xs" /></span>
+            {t('inventory.onlyOwned', 'Nur eigenes Material')}
+            {ownedAvailable > 0 ? ` (${ownedAvailable})` : ''}
           </button>
         </div>
       )}

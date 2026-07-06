@@ -170,6 +170,9 @@ export interface CablePlannerProject {
    *  in der gemeinsamen .avplan als auch im eigenen Projektfile aufbewahrt,
    *  damit beim App-uebergreifenden Austausch nichts verloren geht. Optional. */
   avForeign?: { venue?: unknown; cameras?: unknown; lighting?: unknown }
+  /** Drum-Mikrofonierung — visuelles Schlagzeug mit platzierten Mikrofonen.
+   *  Optional → alte Projekte laden sauber. Verlustfrei in der .avplan. */
+  drumKit?: import('./drumKit').DrumKitPlan
 }
 
 /** #412 — Ein festgeschriebener Projekt-Stand. */
