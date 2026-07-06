@@ -167,6 +167,18 @@ describe('detectDeviceKind / detectNetworkDevice — ID vor Heuristik', () => {
     // Generischer Name ohne Marke matcht nicht.
     expect(matchMicTemplate('Irgendein Mikrofon 57')).toBeNull()
   })
+
+  it('Mic-Katalog ist umfangreich + fuehrt Naheffekt/Klangfelder', () => {
+    expect(MIC_CATALOG.length).toBeGreaterThan(130)
+    // Naheffekt ist aus dem Polar-Muster abgeleitet (DPA-Physik): Kugel = keiner.
+    const dpa4006 = matchMicTemplate('DPA 4006A') // omni
+    expect(dpa4006?.categoryProps?.proximityEffect).toBe('none')
+    const beta52 = matchMicTemplate('Shure Beta 52A') // super = strong
+    expect(beta52?.categoryProps?.proximityEffect).toBe('strong')
+    // Vocal-Klangfarbe gesetzt, wo etabliert.
+    expect(matchMicTemplate('Shure SM7B')?.categoryProps?.tonalCharacter).toBe('warm')
+    expect(matchMicTemplate('Neumann U 87 Ai')?.categoryProps?.tonalCharacter).toBe('neutral')
+  })
 })
 
 describe('videohubPresetForDevice — kein Raten', () => {
