@@ -160,11 +160,13 @@ export const CATEGORY_SCHEMAS: Record<string, CategoryFieldDef[]> = {
       options: [opt('condenser', 'Kondensator', 'Condenser'), opt('dynamic', 'Dynamisch', 'Dynamic'), opt('ribbon', 'Bändchen', 'Ribbon'), opt('electret', 'Elektret', 'Electret')],
     },
     {
+      // DPA-Taxonomie (mic-university/technology/facts-about-polar-patterns).
       key: 'polarPattern',
       label: L('Richtcharakteristik', 'Polar pattern'),
       type: 'select',
       options: [
         opt('omni', 'Kugel', 'Omni'),
+        opt('sub', 'Breite Niere (Sub-/Wide)', 'Subcardioid / wide'),
         opt('cardioid', 'Niere', 'Cardioid'),
         opt('super', 'Superniere', 'Supercardioid'),
         opt('hyper', 'Hyperniere', 'Hypercardioid'),
@@ -217,7 +219,52 @@ export const CATEGORY_SCHEMAS: Record<string, CategoryFieldDef[]> = {
     { key: 'freqResponse', label: L('Frequenzgang', 'Frequency response'), type: 'text', unit: 'Hz', placeholder: '20-20000 / 40-16000' },
     { key: 'sensitivity', label: L('Empfindlichkeit', 'Sensitivity'), type: 'text', unit: 'mV/Pa', placeholder: '2.0 / -54 dBV' },
     { key: 'selfNoiseDb', label: L('Eigenrauschen (A)', 'Self-noise (A)'), type: 'number', unit: 'dB-A' },
+    { key: 'dynamicRangeDb', label: L('Dynamikumfang', 'Dynamic range'), type: 'number', unit: 'dB' },
     { key: 'impedanceOhm', label: L('Impedanz', 'Impedance'), type: 'number', unit: 'Ω' },
+    // ── Klang & Charakter (v.a. Gesang) — DPA Mic-University ──────────────────
+    {
+      // Klangfarbe/Timbre-Signatur. Subjektiv, aber Standard-Vokabular der
+      // Mic-Auswahl (warm/hell/präsent …). Quelle: DPA + Broadcast-Praxis.
+      key: 'tonalCharacter',
+      label: L('Klangfarbe / Timbre', 'Tonal character'),
+      type: 'select',
+      options: [
+        opt('neutral', 'neutral / linear', 'Neutral / flat'),
+        opt('warm', 'warm', 'Warm'),
+        opt('dark', 'dunkel', 'Dark'),
+        opt('bright', 'hell / offen', 'Bright / open'),
+        opt('present', 'präsent (Präsenz-Anhebung)', 'Present (presence boost)'),
+        opt('scooped', 'gescoopt (Mitten zurück)', 'Scooped mids'),
+        opt('vintage', 'vintage / seidig', 'Vintage / silky'),
+      ],
+    },
+    {
+      // Off-Axis-Verfärbung ("curtain effect", DPA). Wie sauber klingt Schall
+      // von der Seite/hinten — entscheidend für Live-Rückkopplungsfestigkeit.
+      key: 'offAxisResponse',
+      label: L('Off-Axis-Klang', 'Off-axis response'),
+      type: 'select',
+      options: [
+        opt('smooth', 'sauber / gleichmäßig', 'Smooth / natural'),
+        opt('slightColor', 'leicht verfärbt', 'Slightly coloured'),
+        opt('colored', 'verfärbt (Curtain-Effekt)', 'Coloured (curtain effect)'),
+      ],
+    },
+    {
+      // Naheffekt (Proximity). Nur Druckgradienten-Mics; Acht > Hyper > Super >
+      // Niere > breite Niere; Kugel keiner. Quelle: DPA proximity-effect.
+      key: 'proximityEffect',
+      label: L('Naheffekt (Proximity)', 'Proximity effect'),
+      type: 'select',
+      options: [
+        opt('none', 'keiner (Kugel)', 'None (omni)'),
+        opt('low', 'gering', 'Low'),
+        opt('moderate', 'mittel', 'Moderate'),
+        opt('strong', 'stark', 'Strong'),
+      ],
+    },
+    { key: 'presenceBoost', label: L('Präsenz-Anhebung', 'Presence boost'), type: 'text', unit: 'kHz', placeholder: '5 kHz +4 dB' },
+    { key: 'sonicSignature', label: L('Klang-Notiz', 'Sonic notes'), type: 'text', placeholder: 'z. B. seidige Höhen, straffer Bass' },
     { key: 'switchPad', label: L('Pad-Schalter', 'Pad switch'), type: 'boolean' },
     { key: 'switchLowcut', label: L('Low-Cut-Schalter', 'Low-cut switch'), type: 'boolean' },
     {
