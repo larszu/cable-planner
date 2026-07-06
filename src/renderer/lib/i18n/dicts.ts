@@ -3473,6 +3473,10 @@ export const en: Dict = {
   'inventory.labelBusy': 'Generating…',
   'inventory.labelsNoneTitle': 'No codes',
   'inventory.labelsNone': 'The selected source contains no items/objects with a stored code.',
+  'inventory.labelSymbology': 'Code type',
+  'inventory.symAuto': 'Per code type (auto)',
+  'inventory.symQr': 'QR code',
+  'inventory.symBarcode': 'Barcode (Code128)',
   // #414 AI plan generation
   'aiPlan.title': 'AI plan generation',
   'aiPlan.noKey': 'No AI API key set. Add a provider key under Settings → AI.',
