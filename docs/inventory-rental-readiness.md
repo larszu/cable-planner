@@ -142,3 +142,42 @@ Drei gangbare Wege:
 **Pragmatischer Start:** Phase 0 + 1 sind klein, additiv und sofort
 nützlich (auch ohne den großen Umbau). Sie sind die risikoarme Brücke zu
 Phase 2.
+
+---
+
+## 6. Lager-Modul — umgesetzt (Stand 2026-07)
+
+Aufbauend auf Phase 2 (`inventoryStore`, `InventoryItem`) ist das Lager-Modul
+projektübergreifend nutzbar. Anders als die projektgebundenen QR-Codes auf
+Kabeln/Geräten (`lib/qrPayload.ts`) trägt ein **Lager-Artikel** einen festen
+Code, der über alle Projekte hinweg denselben Artikel meint (touring-tauglich).
+
+**Datenmodell (`types/inventory.ts`):**
+- `InventoryItem` erweitert um `code` + `codeType` (`qr` | `barcode`),
+  `dimensions` (`PhysicalDimensions`: B/H/T in mm + Gewicht kg) und
+  `materialKinds` (`rental` und/oder `consumable` — Vermiet-/Verbrauchsmaterial,
+  bewusst als Menge, weil ein Artikel beides sein darf).
+- `InventoryCase` — ein Flightcase mit eigenen Außenmaßen + Code, das Artikel
+  über `contents: CasePackedItem[]` referenziert (Artikelmaße bleiben am
+  Artikel, nicht dupliziert).
+
+**Store (`store/inventoryStore.ts`):** Cases werden zusammen mit den Artikeln
+in `cable-planner:inventory` persistiert. Neue Aktionen: `addCase`,
+`updateCase`, `removeCase`, `packItem` (addiert Stückzahl), `unpackItem`.
+`removeItem` räumt gelöschte Artikel aus allen Cases (keine toten Referenzen).
+Die Persistenz-Heilung akzeptiert nur positive Maße und bekannte Codearten
+(Grundsatz „nichts erfinden").
+
+**UI (`components/Inventory/InventoryDialog.tsx`):** Zwei Tabs — *Artikel*
+(mit Code-, Maß- und Material-Art-Feldern) und *Cases* (Case-CRUD + Packen von
+Artikeln; das Packgewicht wird aus Leergewicht + Σ Artikelgewichte abgeleitet).
+
+**Planer-Filter „nur eigenes Material" (`LocalEquipmentTab` +
+`LibraryFiltersMenu`):** Ein Toggle im Filter-Menü der Equipment-Library zeigt
+wahlweise nur Vorlagen, deren Modell als Eigentum (`ownership=owned`) im Lager
+steht, oder — Toggle aus — die gesamte Datenbank. Der Abgleich läuft über den
+Modellnamen (case-insensitive).
+
+**Offen (spätere Phasen):** Scan-Auflösung eines Lager-Codes zum Artikel
+(analog `lookupQrRef`, aber gegen den `inventoryStore`), MHD/Ablauf-Tracking
+für Verbrauchsmaterial, Case-Etikettendruck.
