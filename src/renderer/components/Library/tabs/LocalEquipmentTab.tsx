@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { ChevronDown, ChevronRight, Pencil, X } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
+import { useInventoryStore } from '../../../store/inventoryStore'
 import { bilingualCategoryDialog } from '../../../lib/bilingualCategoryDialog'
 import { categoryDisplay } from '../../../lib/categoryTranslations'
 import { format, useTranslation } from '../../../lib/i18n'
@@ -56,11 +57,22 @@ export const LocalEquipmentTab = ({
   const lang = useUiStore((s) => s.language)
   const librarySortMode = useUiStore((s) => s.librarySortMode)
   const setLibrarySortMode = useUiStore((s) => s.setLibrarySortMode)
+  // Lager-Modul (#Task 13): „nur eigenes Material" — Menge der Modelle, die als
+  // Eigentum (ownership=owned) im projektübergreifenden Lager stehen.
+  const inventoryItems = useInventoryStore((s) => s.items)
+  const ownedModels = useMemo(() => {
+    const set = new Set<string>()
+    for (const it of inventoryItems) {
+      if (it.ownership === 'owned') set.add(it.model.trim().toLowerCase())
+    }
+    return set
+  }, [inventoryItems])
 
   // Tab-interner State (war vorher im LibraryPanel).
   const [librarySearch, setLibrarySearch] = useState('')
   const [showEmpty, setShowEmpty] = useState(false)
   const [showHidden, setShowHidden] = useState(false)
+  const [onlyOwned, setOnlyOwned] = useState(false)
   const [newGroupName, setNewGroupName] = useState('')
   const [showNewGroup, setShowNewGroup] = useState(false)
   // v7.9.5 — Standard: ALLES eingeklappt. Initial-Set wird beim ersten
@@ -183,6 +195,9 @@ export const LocalEquipmentTab = ({
             const allCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
             return allCats.length > 0 && allCats.every((cat) => collapsedCats.has(cat))
           })()}
+          onlyOwned={onlyOwned}
+          setOnlyOwned={setOnlyOwned}
+          ownedAvailable={ownedModels.size}
         />
       </div>
 
@@ -287,6 +302,8 @@ export const LocalEquipmentTab = ({
             )
             const visibleItems = items
               .filter((t) => showHidden || !t.hidden)
+              // Lager-Filter: nur Vorlagen, deren Modell im Eigentum steht.
+              .filter((t) => !onlyOwned || ownedModels.has(t.name.trim().toLowerCase()))
               .filter((t) =>
                 !searchQuery
                   ? true
