@@ -152,32 +152,56 @@ projektübergreifend nutzbar. Anders als die projektgebundenen QR-Codes auf
 Kabeln/Geräten (`lib/qrPayload.ts`) trägt ein **Lager-Artikel** einen festen
 Code, der über alle Projekte hinweg denselben Artikel meint (touring-tauglich).
 
-**Datenmodell (`types/inventory.ts`):**
+**Artikel (`types/inventory.ts`):**
 - `InventoryItem` erweitert um `code` + `codeType` (`qr` | `barcode`),
-  `dimensions` (`PhysicalDimensions`: B/H/T in mm + Gewicht kg) und
-  `materialKinds` (`rental` und/oder `consumable` — Vermiet-/Verbrauchsmaterial,
-  bewusst als Menge, weil ein Artikel beides sein darf).
-- `InventoryCase` — ein Flightcase mit eigenen Außenmaßen + Code, das Artikel
-  über `contents: CasePackedItem[]` referenziert (Artikelmaße bleiben am
-  Artikel, nicht dupliziert).
+  `dimensions` (`PhysicalDimensions`: B/H/T in mm + Gewicht kg), `materialKinds`
+  (`rental` und/oder `consumable` — bewusst als Menge, weil ein Artikel beides
+  sein darf) und `locationId` (Referenz auf einen Lager-Knoten).
 
-**Store (`store/inventoryStore.ts`):** Cases werden zusammen mit den Artikeln
-in `cable-planner:inventory` persistiert. Neue Aktionen: `addCase`,
-`updateCase`, `removeCase`, `packItem` (addiert Stückzahl), `unpackItem`.
-`removeItem` räumt gelöschte Artikel aus allen Cases (keine toten Referenzen).
-Die Persistenz-Heilung akzeptiert nur positive Maße und bekannte Codearten
-(Grundsatz „nichts erfinden").
+### LPN-Modell (License Plate Number) — Lagerorte + Container vereint
 
-**UI (`components/Inventory/InventoryDialog.tsx`):** Zwei Tabs — *Artikel*
-(mit Code-, Maß- und Material-Art-Feldern) und *Cases* (Case-CRUD + Packen von
-Artikeln; das Packgewicht wird aus Leergewicht + Σ Artikelgewichte abgeleitet).
+Recherche (Rentman Containers, Cheqroom Kits, HireHop Virtual Stock, Flex
+Content Builder, Warehouse-LPN/Nested-LPN, Sortly „Ordner = Lagerort") zeigte
+das professionelle Muster: **jede scanbare Einheit ist derselbe Knotentyp im
+selben Baum** — Lagerplatz (Depot/Raum/Regal/Fach) UND Container
+(Case/Transport-Case). Alles Weitere leitet sich aus dem Baum ab.
+
+- `StorageNode { id, name, kind, parentId?, code?, codeType?, dimensions? }` —
+  `kind ∈ depot|room|shelf|bin|case|transportCase`. Lagerplatz-Baum
+  (Depot → Raum → Regal → Fach) und Container-Verschachtelung (Case in Case in
+  Transport-Case) nutzen **dasselbe** `parentId`. Lagerplätze **und** Cases sind
+  scanbar (Code).
+- `InventoryItem.locationId` zeigt auf einen Knoten. Ist das ein Container, gilt
+  der Artikel als **dort eingepackt** — „Case als Lagerort zuweisen" = einpacken.
+  Kein separater Pack-Zustand: die Zugehörigkeit ergibt sich allein aus dem Baum.
+- `InventorySet { components: {itemId, quantity}[] }` — logisches Kit; die
+  Verfügbarkeit ergibt sich aus der knappsten Komponente (HireHop-Prinzip).
+
+**Reine Resolver (`lib/storageTree.ts`, „nichts erfinden"):** `nodePath` /
+`nodePathLabel` (Wurzel→Knoten), `rootLocation` (physischer Lagerort =
+oberster Vorfahr → Kaskade beim Bewegen eines Transport-Cases), `descendantNodeIds`,
+`itemsInNode(recursive)` (alle Artikel über alle Ebenen eines Cases),
+`wouldCreateCycle` (Zyklus-Schutz), `availabilityOfSet`.
+
+**Store (`store/inventoryStore.ts`):** persistiert `items` + `nodes` + `sets` in
+`cable-planner:inventory`. Aktionen: `addNode/updateNode/moveNode` (mit
+Zyklus-Schutz) `/removeNode` (Kinder rücken zum Parent hoch, betroffene Artikel
+verlieren den Lagerort), `setItemLocation` (= ein-/auspacken), `addSet/updateSet/
+removeSet`. **Migration** vom Alt-Format (`cases[]` mit `contents`) → Case-Knoten
++ `item.locationId` läuft automatisch beim Laden (idempotent). `removeItem` räumt
+Set-Komponenten. Heilung akzeptiert nur positive Maße, bekannte Codearten/Kinds.
+
+**UI (`components/Inventory/InventoryDialog.tsx`):** drei Tabs — *Artikel*
+(Bestand + Code/Maße/Material-Art + **Lagerort-Dropdown** = Lagerplatz oder Case
+zuweisen), *Lagerorte* (rekursiver LPN-Baum mit Codes; Unterknoten anlegen,
+verschieben, löschen — Case in Case in Transport-Case), *Sets* (Kit-CRUD mit
+live abgeleiteter „N× baubar"-Verfügbarkeit).
 
 **Planer-Filter „nur eigenes Material" (`LocalEquipmentTab` +
-`LibraryFiltersMenu`):** Ein Toggle im Filter-Menü der Equipment-Library zeigt
-wahlweise nur Vorlagen, deren Modell als Eigentum (`ownership=owned`) im Lager
-steht, oder — Toggle aus — die gesamte Datenbank. Der Abgleich läuft über den
-Modellnamen (case-insensitive).
+`LibraryFiltersMenu`):** Toggle in der Equipment-Library — nur Eigentum
+(`ownership=owned`, Modell-Abgleich) vs. gesamte Datenbank.
 
-**Offen (spätere Phasen):** Scan-Auflösung eines Lager-Codes zum Artikel
-(analog `lookupQrRef`, aber gegen den `inventoryStore`), MHD/Ablauf-Tracking
-für Verbrauchsmaterial, Case-Etikettendruck.
+**Offen (spätere Phasen):** Scan-Auflösung eines Lager-Codes (Artikel/Node)
+gegen den `inventoryStore` analog `lookupQrRef`, Scan-Kaskade beim Ein-/Ausbuchen
+eines Transport-Cases, Serialisierung (Einzel-Units mit eigener Historie),
+Case-Etikettendruck. MHD/Ablauf bewusst **nicht** umgesetzt (nicht benötigt).

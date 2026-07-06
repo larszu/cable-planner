@@ -56,6 +56,13 @@ export interface InventoryItem {
   code?: string
   /** Codeart des Etiketts (QR oder Barcode). */
   codeType?: InventoryCodeType
+  /**
+   * Aktueller Lagerort (Referenz auf `StorageNode.id`). Zeigt er auf einen
+   * Container (case/transportCase), gilt der Artikel als DORT eingepackt —
+   * „Case als Lagerort zuweisen" = einpacken. Kein separater Pack-Zustand:
+   * die Zugehörigkeit ergibt sich allein aus dem Lager-Baum (LPN-Prinzip).
+   */
+  locationId?: string
   /** Physische Artikelmaße (für Case-Packing). */
   dimensions?: PhysicalDimensions
   /** Material-Art(en): Vermiet- und/oder Verbrauchsmaterial. */
@@ -94,6 +101,63 @@ export interface InventoryCase {
   /** Verpackte Artikel. */
   contents: CasePackedItem[]
   /** Freie Notiz. */
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
+
+// ── LPN-Modell (License Plate Number) ────────────────────────────────────────
+// Warehouse-Best-Practice: JEDE scanbare Einheit — Lagerplatz (Depot/Raum/
+// Regal/Fach) UND Container (Case/Transport-Case) — ist derselbe Knotentyp im
+// selben Baum. So löst sich alles aus dem Baum ab: „Case in Case in
+// Transport-Case", „Artikel in Case einpacken" (= locationId auf Case-Knoten)
+// und „effektiver Lagerort" (oberster Vorfahr). Quelle: LPN/Nested-LPN (WMS).
+
+/** Art eines Lager-Knotens. `case`/`transportCase` sind Container. */
+export type StorageNodeKind = 'depot' | 'room' | 'shelf' | 'bin' | 'case' | 'transportCase'
+
+/** Container-Arten (können bewegt werden + Inhalt tragen). */
+export const CONTAINER_KINDS: readonly StorageNodeKind[] = ['case', 'transportCase']
+
+/** Ein Knoten im Lager-Baum: Lagerplatz ODER Container. */
+export interface StorageNode {
+  id: string
+  /** Anzeigename (z. B. "Regal A3", "Transport-Case 1"). */
+  name: string
+  kind: StorageNodeKind
+  /**
+   * Übergeordneter Knoten. Lagerplatz-Baum (Depot → Raum → Regal → Fach) und
+   * Container-Verschachtelung (Case in Case in Transport-Case) nutzen dasselbe
+   * Feld. Wurzelknoten haben keinen Parent.
+   */
+  parentId?: string
+  /** Fester Etiketten-Code — Lagerplätze UND Cases sind scanbar. */
+  code?: string
+  codeType?: InventoryCodeType
+  /** Außenmaße + Leergewicht (v. a. für Container). */
+  dimensions?: PhysicalDimensions
+  /** Freie Notiz. */
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
+
+/** Eine Komponente eines logischen Sets (Artikel + Stückzahl). */
+export interface SetComponent {
+  itemId: string
+  quantity: number
+}
+
+/**
+ * Logisches Set/Kit (Vorlage) — „diese Artikel gehören zusammen". Anders als
+ * ein Container (physische Kiste) ist ein Set eine Zusammenstellung; seine
+ * Verfügbarkeit ergibt sich aus der knappsten Komponente (HireHop Virtual
+ * Stock / Cheqroom Kits).
+ */
+export interface InventorySet {
+  id: string
+  name: string
+  components: SetComponent[]
   notes?: string
   createdAt: string
   updatedAt: string

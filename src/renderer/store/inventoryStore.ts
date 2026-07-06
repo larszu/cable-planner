@@ -4,10 +4,14 @@ import { STORAGE_KEYS } from '../lib/storageKeys'
 import type {
   InventoryItem,
   InventoryCase,
-  CasePackedItem,
+  StorageNode,
+  StorageNodeKind,
+  InventorySet,
+  SetComponent,
   PhysicalDimensions,
   InventoryMaterialKind,
 } from '../types/inventory'
+import { wouldCreateCycle } from '../lib/storageTree'
 import type { EquipmentItem } from '../types/equipment'
 
 /**
@@ -25,10 +29,13 @@ const KEY = STORAGE_KEYS.inventory
 
 interface PersistedInventory {
   items: InventoryItem[]
-  cases: InventoryCase[]
+  /** Lager-Baum (Lagerplätze + Container) — LPN-Modell. */
+  nodes: StorageNode[]
+  /** Logische Sets/Kits. */
+  sets: InventorySet[]
 }
 
-const defaults: PersistedInventory = { items: [], cases: [] }
+const defaults: PersistedInventory = { items: [], nodes: [], sets: [] }
 
 /** Heilt optionale Maße (nur positive Zahlen; sonst weglassen — nichts erfinden). */
 const healDimensions = (raw: unknown): PhysicalDimensions | undefined => {
@@ -76,6 +83,7 @@ const healItem = (raw: unknown): InventoryItem | null => {
         : undefined,
     code: typeof r.code === 'string' && r.code.trim() ? r.code.trim() : undefined,
     codeType: healCodeType(r.codeType),
+    locationId: typeof r.locationId === 'string' && r.locationId ? r.locationId : undefined,
     dimensions: healDimensions(r.dimensions),
     materialKinds: healMaterialKinds(r.materialKinds),
     notes: typeof r.notes === 'string' ? r.notes : undefined,
@@ -84,57 +92,130 @@ const healItem = (raw: unknown): InventoryItem | null => {
   }
 }
 
-/** Heilt ein geladenes Case. */
-const healCase = (raw: unknown): InventoryCase | null => {
+const NODE_KINDS = new Set<StorageNodeKind>(['depot', 'room', 'shelf', 'bin', 'case', 'transportCase'])
+
+/** Heilt einen geladenen Lager-Knoten. */
+const healNode = (raw: unknown): StorageNode | null => {
   if (!raw || typeof raw !== 'object') return null
-  const r = raw as Partial<InventoryCase>
+  const r = raw as Partial<StorageNode>
   if (typeof r.name !== 'string' || r.name.trim() === '') return null
+  if (!r.kind || !NODE_KINDS.has(r.kind)) return null
   const now = new Date().toISOString()
-  const contents: CasePackedItem[] = Array.isArray(r.contents)
-    ? r.contents
-        .map((c): CasePackedItem | null => {
-          if (!c || typeof c !== 'object') return null
-          const cc = c as Partial<CasePackedItem>
-          if (typeof cc.itemId !== 'string' || !cc.itemId) return null
-          const qty = typeof cc.quantity === 'number' && cc.quantity > 0 ? Math.round(cc.quantity) : 1
-          return { itemId: cc.itemId, quantity: qty }
-        })
-        .filter((c): c is CasePackedItem => c !== null)
-    : []
   return {
     id: typeof r.id === 'string' && r.id ? r.id : uuidv4(),
     name: r.name,
-    dimensions: healDimensions(r.dimensions),
+    kind: r.kind,
+    parentId: typeof r.parentId === 'string' && r.parentId ? r.parentId : undefined,
     code: typeof r.code === 'string' && r.code.trim() ? r.code.trim() : undefined,
     codeType: healCodeType(r.codeType),
-    stockLocation: typeof r.stockLocation === 'string' ? r.stockLocation : undefined,
-    contents,
+    dimensions: healDimensions(r.dimensions),
     notes: typeof r.notes === 'string' ? r.notes : undefined,
     createdAt: typeof r.createdAt === 'string' ? r.createdAt : now,
     updatedAt: typeof r.updatedAt === 'string' ? r.updatedAt : now,
   }
 }
 
+/** Heilt ein geladenes Set. */
+const healSet = (raw: unknown): InventorySet | null => {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Partial<InventorySet>
+  if (typeof r.name !== 'string' || r.name.trim() === '') return null
+  const now = new Date().toISOString()
+  const components: SetComponent[] = Array.isArray(r.components)
+    ? r.components
+        .map((c): SetComponent | null => {
+          if (!c || typeof c !== 'object') return null
+          const cc = c as Partial<SetComponent>
+          if (typeof cc.itemId !== 'string' || !cc.itemId) return null
+          const qty = typeof cc.quantity === 'number' && cc.quantity > 0 ? Math.round(cc.quantity) : 1
+          return { itemId: cc.itemId, quantity: qty }
+        })
+        .filter((c): c is SetComponent => c !== null)
+    : []
+  return {
+    id: typeof r.id === 'string' && r.id ? r.id : uuidv4(),
+    name: r.name,
+    components,
+    notes: typeof r.notes === 'string' ? r.notes : undefined,
+    createdAt: typeof r.createdAt === 'string' ? r.createdAt : now,
+    updatedAt: typeof r.updatedAt === 'string' ? r.updatedAt : now,
+  }
+}
+
+/**
+ * Migriert das Alt-Format (`cases: InventoryCase[]` mit `contents`) auf das
+ * LPN-Modell: jedes Case → StorageNode(kind 'case'), jeder Inhalt → das
+ * `locationId` des Artikels zeigt auf diesen Case-Knoten (letztes Case gewinnt,
+ * da ein Artikel im Bulk-Modell einen aktuellen Ort hat). Idempotent: läuft nur,
+ * wenn noch keine `nodes` vorhanden sind.
+ */
+const migrateLegacyCases = (
+  parsed: { cases?: unknown },
+  items: InventoryItem[],
+): { nodes: StorageNode[]; items: InventoryItem[] } => {
+  const rawCases = Array.isArray(parsed.cases) ? parsed.cases : []
+  if (rawCases.length === 0) return { nodes: [], items }
+  const nodes: StorageNode[] = []
+  const locByItem = new Map<string, string>()
+  for (const rc of rawCases) {
+    if (!rc || typeof rc !== 'object') continue
+    const c = rc as Partial<InventoryCase>
+    if (typeof c.name !== 'string' || !c.name.trim()) continue
+    const id = typeof c.id === 'string' && c.id ? c.id : uuidv4()
+    const now = new Date().toISOString()
+    nodes.push({
+      id,
+      name: c.name,
+      kind: 'case',
+      code: typeof c.code === 'string' && c.code.trim() ? c.code.trim() : undefined,
+      codeType: healCodeType(c.codeType),
+      dimensions: healDimensions(c.dimensions),
+      notes: typeof c.notes === 'string' ? c.notes : undefined,
+      createdAt: typeof c.createdAt === 'string' ? c.createdAt : now,
+      updatedAt: typeof c.updatedAt === 'string' ? c.updatedAt : now,
+    })
+    if (Array.isArray(c.contents)) {
+      for (const p of c.contents) {
+        const pc = p as Partial<{ itemId: string }>
+        if (typeof pc?.itemId === 'string' && pc.itemId) locByItem.set(pc.itemId, id)
+      }
+    }
+  }
+  const migratedItems = items.map((it) =>
+    locByItem.has(it.id) ? { ...it, locationId: locByItem.get(it.id) } : it,
+  )
+  return { nodes, items: migratedItems }
+}
+
 const load = (): PersistedInventory => {
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return defaults
-    const parsed = JSON.parse(raw) as Partial<PersistedInventory>
-    const items = Array.isArray(parsed.items)
+    const parsed = JSON.parse(raw) as Partial<PersistedInventory> & { cases?: unknown }
+    let items = Array.isArray(parsed.items)
       ? parsed.items.map(healItem).filter((i): i is InventoryItem => i !== null)
       : []
-    const cases = Array.isArray(parsed.cases)
-      ? parsed.cases.map(healCase).filter((c): c is InventoryCase => c !== null)
+    let nodes = Array.isArray(parsed.nodes)
+      ? parsed.nodes.map(healNode).filter((n): n is StorageNode => n !== null)
       : []
-    return { items, cases }
+    // Alt-Format-Migration: nur, wenn noch keine nodes existieren.
+    if (nodes.length === 0 && Array.isArray(parsed.cases) && parsed.cases.length > 0) {
+      const migrated = migrateLegacyCases(parsed, items)
+      nodes = migrated.nodes
+      items = migrated.items
+    }
+    const sets = Array.isArray(parsed.sets)
+      ? parsed.sets.map(healSet).filter((s): s is InventorySet => s !== null)
+      : []
+    return { items, nodes, sets }
   } catch {
     return defaults
   }
 }
 
-const persist = (items: InventoryItem[], cases: InventoryCase[]) => {
+const persist = (items: InventoryItem[], nodes: StorageNode[], sets: InventorySet[]) => {
   try {
-    localStorage.setItem(KEY, JSON.stringify({ items, cases }))
+    localStorage.setItem(KEY, JSON.stringify({ items, nodes, sets }))
   } catch {
     /* ignore */
   }
@@ -143,17 +224,22 @@ const persist = (items: InventoryItem[], cases: InventoryCase[]) => {
 /** Felder, die ein neues Item übergeben darf (alles außer den vom Store
  *  verwalteten id/createdAt/updatedAt). */
 export type InventoryItemInput = Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>
-/** Felder, die ein neues Case übergeben darf (Store verwaltet id/Zeitstempel). */
-export type InventoryCaseInput = Omit<InventoryCase, 'id' | 'createdAt' | 'updatedAt'>
+/** Felder, die ein neuer Lager-Knoten übergeben darf. */
+export type StorageNodeInput = Omit<StorageNode, 'id' | 'createdAt' | 'updatedAt'>
+/** Felder, die ein neues Set übergeben darf. */
+export type InventorySetInput = Omit<InventorySet, 'id' | 'createdAt' | 'updatedAt'>
 
 interface InventoryState {
   items: InventoryItem[]
-  cases: InventoryCase[]
+  /** Lager-Baum: Lagerplätze + Container (LPN-Modell). */
+  nodes: StorageNode[]
+  /** Logische Sets/Kits. */
+  sets: InventorySet[]
   /** Legt einen neuen Artikel an, liefert die erzeugte id. */
   addItem: (input: InventoryItemInput) => string
   /** Aktualisiert Felder eines Artikels (id/createdAt bleiben unangetastet). */
   updateItem: (id: string, patch: Partial<InventoryItemInput>) => void
-  /** Entfernt einen Artikel (und aus allen Cases, in denen er verpackt ist). */
+  /** Entfernt einen Artikel (und aus allen Set-Komponenten). */
   removeItem: (id: string) => void
   /**
    * Seed aus dem aktuellen Plan: gruppiert Equipment nach Name (+ Kategorie)
@@ -163,19 +249,33 @@ interface InventoryState {
    * angehoben. Liefert die Anzahl neu angelegter Artikel.
    */
   seedFromEquipment: (equipment: EquipmentItem[]) => number
-  /** Legt ein neues Case an, liefert die erzeugte id. */
-  addCase: (input: InventoryCaseInput) => string
-  /** Aktualisiert Felder eines Cases. */
-  updateCase: (id: string, patch: Partial<InventoryCaseInput>) => void
-  /** Entfernt ein Case (Artikel bleiben im Bestand). */
-  removeCase: (id: string) => void
+  /** Legt einen Lager-Knoten (Lagerplatz oder Container) an, liefert die id. */
+  addNode: (input: StorageNodeInput) => string
+  /** Aktualisiert Felder eines Knotens (parentId via moveNode). */
+  updateNode: (id: string, patch: Partial<Omit<StorageNodeInput, 'parentId'>>) => void
   /**
-   * Verpackt `quantity` Stück eines Artikels in ein Case (addiert, wenn bereits
-   * enthalten). Kein Bestands-Abzug — Cases sind eine Sicht, kein Buchungskonto.
+   * Hängt einen Knoten unter einen neuen Parent (Verschieben im Baum /
+   * Case-in-Case). Zyklen (Knoten in sich/seinen Nachfahren) werden abgewiesen.
    */
-  packItem: (caseId: string, itemId: string, quantity: number) => void
-  /** Entfernt einen Artikel komplett aus einem Case. */
-  unpackItem: (caseId: string, itemId: string) => void
+  moveNode: (id: string, newParentId: string | undefined) => void
+  /**
+   * Entfernt einen Knoten. Direkte Kinder werden zum Parent des gelöschten
+   * Knotens hochgezogen (kein Waisen-Subtree); Artikel, die dort lagen,
+   * verlieren ihren Lagerort (locationId → undefined).
+   */
+  removeNode: (id: string) => void
+  /**
+   * Weist einem Artikel einen Lagerort zu (Lagerplatz ODER Container). Zeigt
+   * `nodeId` auf einen Container, ist der Artikel damit eingepackt. `undefined`
+   * = kein Lagerort. Kein Pack-Zustand außerhalb des Baums — LPN-Prinzip.
+   */
+  setItemLocation: (itemId: string, nodeId: string | undefined) => void
+  /** Legt ein Set an, liefert die id. */
+  addSet: (input: InventorySetInput) => string
+  /** Aktualisiert Felder eines Sets. */
+  updateSet: (id: string, patch: Partial<InventorySetInput>) => void
+  /** Entfernt ein Set (Artikel bleiben im Bestand). */
+  removeSet: (id: string) => void
 }
 
 const initial = load()
@@ -186,13 +286,14 @@ const dedupeKey = (model: string, category?: string) =>
 
 export const useInventoryStore = create<InventoryState>((set, get) => ({
   items: initial.items,
-  cases: initial.cases,
+  nodes: initial.nodes,
+  sets: initial.sets,
   addItem: (input) => {
     const now = new Date().toISOString()
     const item: InventoryItem = { ...input, id: uuidv4(), createdAt: now, updatedAt: now }
     set((state) => {
       const items = [...state.items, item]
-      persist(items, state.cases)
+      persist(items, state.nodes, state.sets)
       return { items }
     })
     return item.id
@@ -202,20 +303,20 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       const items = state.items.map((it) =>
         it.id === id ? { ...it, ...patch, updatedAt: new Date().toISOString() } : it,
       )
-      persist(items, state.cases)
+      persist(items, state.nodes, state.sets)
       return { items }
     }),
   removeItem: (id) =>
     set((state) => {
       const items = state.items.filter((it) => it.id !== id)
-      // Aus allen Cases entfernen, damit keine toten Referenzen bleiben.
-      const cases = state.cases.map((c) =>
-        c.contents.some((p) => p.itemId === id)
-          ? { ...c, contents: c.contents.filter((p) => p.itemId !== id), updatedAt: new Date().toISOString() }
-          : c,
+      // Aus allen Set-Komponenten entfernen, damit keine toten Referenzen bleiben.
+      const sets = state.sets.map((s) =>
+        s.components.some((c) => c.itemId === id)
+          ? { ...s, components: s.components.filter((c) => c.itemId !== id), updatedAt: new Date().toISOString() }
+          : s,
       )
-      persist(items, cases)
-      return { items, cases }
+      persist(items, state.nodes, sets)
+      return { items, sets }
     }),
   seedFromEquipment: (equipment) => {
     // Gruppieren nach Modell+Kategorie → gezählte Menge.
@@ -262,62 +363,85 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     }
 
     // Persistieren deckt sowohl neue Artikel als auch reine Mengen-Anhebungen ab.
-    persist(next, get().cases)
+    persist(next, get().nodes, get().sets)
     set({ items: next })
     return created
   },
-  addCase: (input) => {
+  addNode: (input) => {
     const now = new Date().toISOString()
-    const box: InventoryCase = {
-      ...input,
-      contents: input.contents ?? [],
-      id: uuidv4(),
-      createdAt: now,
-      updatedAt: now,
-    }
+    const node: StorageNode = { ...input, id: uuidv4(), createdAt: now, updatedAt: now }
     set((state) => {
-      const cases = [...state.cases, box]
-      persist(state.items, cases)
-      return { cases }
+      const nodes = [...state.nodes, node]
+      persist(state.items, nodes, state.sets)
+      return { nodes }
     })
-    return box.id
+    return node.id
   },
-  updateCase: (id, patch) =>
+  updateNode: (id, patch) =>
     set((state) => {
-      const cases = state.cases.map((c) =>
-        c.id === id ? { ...c, ...patch, updatedAt: new Date().toISOString() } : c,
+      const nodes = state.nodes.map((n) =>
+        n.id === id ? { ...n, ...patch, updatedAt: new Date().toISOString() } : n,
       )
-      persist(state.items, cases)
-      return { cases }
+      persist(state.items, nodes, state.sets)
+      return { nodes }
     }),
-  removeCase: (id) =>
+  moveNode: (id, newParentId) =>
     set((state) => {
-      const cases = state.cases.filter((c) => c.id !== id)
-      persist(state.items, cases)
-      return { cases }
-    }),
-  packItem: (caseId, itemId, quantity) =>
-    set((state) => {
-      const qty = quantity > 0 ? Math.round(quantity) : 1
-      const cases = state.cases.map((c) => {
-        if (c.id !== caseId) return c
-        const existing = c.contents.find((p) => p.itemId === itemId)
-        const contents = existing
-          ? c.contents.map((p) => (p.itemId === itemId ? { ...p, quantity: p.quantity + qty } : p))
-          : [...c.contents, { itemId, quantity: qty }]
-        return { ...c, contents, updatedAt: new Date().toISOString() }
-      })
-      persist(state.items, cases)
-      return { cases }
-    }),
-  unpackItem: (caseId, itemId) =>
-    set((state) => {
-      const cases = state.cases.map((c) =>
-        c.id === caseId
-          ? { ...c, contents: c.contents.filter((p) => p.itemId !== itemId), updatedAt: new Date().toISOString() }
-          : c,
+      // Zyklus-Schutz: ein Knoten darf nicht in sich/seinen Nachfahren landen.
+      if (wouldCreateCycle(state.nodes, id, newParentId)) return {}
+      const nodes = state.nodes.map((n) =>
+        n.id === id ? { ...n, parentId: newParentId, updatedAt: new Date().toISOString() } : n,
       )
-      persist(state.items, cases)
-      return { cases }
+      persist(state.items, nodes, state.sets)
+      return { nodes }
+    }),
+  removeNode: (id) =>
+    set((state) => {
+      const removed = state.nodes.find((n) => n.id === id)
+      const parentId = removed?.parentId
+      // Kinder zum Parent des gelöschten Knotens hochziehen (kein Waisen-Subtree).
+      const nodes = state.nodes
+        .filter((n) => n.id !== id)
+        .map((n) =>
+          n.parentId === id ? { ...n, parentId, updatedAt: new Date().toISOString() } : n,
+        )
+      // Artikel, die hier lagen, verlieren ihren Lagerort.
+      const items = state.items.map((it) =>
+        it.locationId === id ? { ...it, locationId: undefined, updatedAt: new Date().toISOString() } : it,
+      )
+      persist(items, nodes, state.sets)
+      return { items, nodes }
+    }),
+  setItemLocation: (itemId, nodeId) =>
+    set((state) => {
+      const items = state.items.map((it) =>
+        it.id === itemId ? { ...it, locationId: nodeId, updatedAt: new Date().toISOString() } : it,
+      )
+      persist(items, state.nodes, state.sets)
+      return { items }
+    }),
+  addSet: (input) => {
+    const now = new Date().toISOString()
+    const s: InventorySet = { ...input, components: input.components ?? [], id: uuidv4(), createdAt: now, updatedAt: now }
+    set((state) => {
+      const sets = [...state.sets, s]
+      persist(state.items, state.nodes, sets)
+      return { sets }
+    })
+    return s.id
+  },
+  updateSet: (id, patch) =>
+    set((state) => {
+      const sets = state.sets.map((s) =>
+        s.id === id ? { ...s, ...patch, updatedAt: new Date().toISOString() } : s,
+      )
+      persist(state.items, state.nodes, sets)
+      return { sets }
+    }),
+  removeSet: (id) =>
+    set((state) => {
+      const sets = state.sets.filter((s) => s.id !== id)
+      persist(state.items, state.nodes, sets)
+      return { sets }
     }),
 }))
