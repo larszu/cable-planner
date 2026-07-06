@@ -8,6 +8,9 @@ import type {
   StorageNodeKind,
   InventorySet,
   SetComponent,
+  InventoryUnit,
+  UnitEvent,
+  UnitCondition,
   PhysicalDimensions,
   InventoryMaterialKind,
 } from '../types/inventory'
@@ -33,9 +36,11 @@ interface PersistedInventory {
   nodes: StorageNode[]
   /** Logische Sets/Kits. */
   sets: InventorySet[]
+  /** Serialisierte Einzel-Einheiten. */
+  units: InventoryUnit[]
 }
 
-const defaults: PersistedInventory = { items: [], nodes: [], sets: [] }
+const defaults: PersistedInventory = { items: [], nodes: [], sets: [], units: [] }
 
 /** Heilt optionale Maße (nur positive Zahlen; sonst weglassen — nichts erfinden). */
 const healDimensions = (raw: unknown): PhysicalDimensions | undefined => {
@@ -187,6 +192,43 @@ const migrateLegacyCases = (
   return { nodes, items: migratedItems }
 }
 
+const UNIT_CONDITIONS = new Set<UnitCondition>(['ok', 'defect', 'inRepair', 'retired'])
+
+/** Heilt eine geladene Einheit. */
+const healUnit = (raw: unknown): InventoryUnit | null => {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Partial<InventoryUnit>
+  if (typeof r.itemId !== 'string' || !r.itemId) return null
+  const now = new Date().toISOString()
+  const history: UnitEvent[] = Array.isArray(r.history)
+    ? r.history
+        .map((e): UnitEvent | null => {
+          if (!e || typeof e !== 'object') return null
+          const ev = e as Partial<UnitEvent>
+          if (typeof ev.at !== 'string' || typeof ev.detail !== 'string') return null
+          const kind =
+            ev.kind === 'created' || ev.kind === 'moved' || ev.kind === 'condition' || ev.kind === 'note'
+              ? ev.kind
+              : 'note'
+          return { at: ev.at, kind, detail: ev.detail }
+        })
+        .filter((e): e is UnitEvent => e !== null)
+    : []
+  return {
+    id: typeof r.id === 'string' && r.id ? r.id : uuidv4(),
+    itemId: r.itemId,
+    serial: typeof r.serial === 'string' && r.serial.trim() ? r.serial.trim() : undefined,
+    code: typeof r.code === 'string' && r.code.trim() ? r.code.trim() : undefined,
+    codeType: healCodeType(r.codeType),
+    locationId: typeof r.locationId === 'string' && r.locationId ? r.locationId : undefined,
+    condition: r.condition && UNIT_CONDITIONS.has(r.condition) ? r.condition : 'ok',
+    notes: typeof r.notes === 'string' ? r.notes : undefined,
+    history,
+    createdAt: typeof r.createdAt === 'string' ? r.createdAt : now,
+    updatedAt: typeof r.updatedAt === 'string' ? r.updatedAt : now,
+  }
+}
+
 const load = (): PersistedInventory => {
   try {
     const raw = localStorage.getItem(KEY)
@@ -207,15 +249,23 @@ const load = (): PersistedInventory => {
     const sets = Array.isArray(parsed.sets)
       ? parsed.sets.map(healSet).filter((s): s is InventorySet => s !== null)
       : []
-    return { items, nodes, sets }
+    const units = Array.isArray(parsed.units)
+      ? parsed.units.map(healUnit).filter((u): u is InventoryUnit => u !== null)
+      : []
+    return { items, nodes, sets, units }
   } catch {
     return defaults
   }
 }
 
-const persist = (items: InventoryItem[], nodes: StorageNode[], sets: InventorySet[]) => {
+const persist = (
+  items: InventoryItem[],
+  nodes: StorageNode[],
+  sets: InventorySet[],
+  units: InventoryUnit[],
+) => {
   try {
-    localStorage.setItem(KEY, JSON.stringify({ items, nodes, sets }))
+    localStorage.setItem(KEY, JSON.stringify({ items, nodes, sets, units }))
   } catch {
     /* ignore */
   }
@@ -228,6 +278,8 @@ export type InventoryItemInput = Omit<InventoryItem, 'id' | 'createdAt' | 'updat
 export type StorageNodeInput = Omit<StorageNode, 'id' | 'createdAt' | 'updatedAt'>
 /** Felder, die ein neues Set übergeben darf. */
 export type InventorySetInput = Omit<InventorySet, 'id' | 'createdAt' | 'updatedAt'>
+/** Felder, die eine neue Einheit übergeben darf (Store verwaltet id/history/Zeit). */
+export type InventoryUnitInput = Omit<InventoryUnit, 'id' | 'history' | 'createdAt' | 'updatedAt'>
 
 interface InventoryState {
   items: InventoryItem[]
@@ -235,6 +287,8 @@ interface InventoryState {
   nodes: StorageNode[]
   /** Logische Sets/Kits. */
   sets: InventorySet[]
+  /** Serialisierte Einzel-Einheiten. */
+  units: InventoryUnit[]
   /** Legt einen neuen Artikel an, liefert die erzeugte id. */
   addItem: (input: InventoryItemInput) => string
   /** Aktualisiert Felder eines Artikels (id/createdAt bleiben unangetastet). */
@@ -276,6 +330,16 @@ interface InventoryState {
   updateSet: (id: string, patch: Partial<InventorySetInput>) => void
   /** Entfernt ein Set (Artikel bleiben im Bestand). */
   removeSet: (id: string) => void
+  /** Legt eine serialisierte Einheit an (mit „created"-Historieneintrag). */
+  addUnit: (input: InventoryUnitInput) => string
+  /** Aktualisiert Stammfelder einer Einheit (Ort/Zustand via move/condition). */
+  updateUnit: (id: string, patch: Partial<Pick<InventoryUnit, 'serial' | 'code' | 'codeType' | 'notes'>>) => void
+  /** Entfernt eine Einheit. */
+  removeUnit: (id: string) => void
+  /** Verschiebt eine Einheit an einen Lagerort (hängt „moved" an die Historie). */
+  moveUnit: (id: string, nodeId: string | undefined, locationLabel: string) => void
+  /** Ändert den Zustand einer Einheit (hängt „condition" an die Historie). */
+  setUnitCondition: (id: string, condition: UnitCondition) => void
 }
 
 const initial = load()
@@ -288,12 +352,13 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
   items: initial.items,
   nodes: initial.nodes,
   sets: initial.sets,
+  units: initial.units,
   addItem: (input) => {
     const now = new Date().toISOString()
     const item: InventoryItem = { ...input, id: uuidv4(), createdAt: now, updatedAt: now }
     set((state) => {
       const items = [...state.items, item]
-      persist(items, state.nodes, state.sets)
+      persist(items, state.nodes, state.sets, state.units)
       return { items }
     })
     return item.id
@@ -303,7 +368,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       const items = state.items.map((it) =>
         it.id === id ? { ...it, ...patch, updatedAt: new Date().toISOString() } : it,
       )
-      persist(items, state.nodes, state.sets)
+      persist(items, state.nodes, state.sets, state.units)
       return { items }
     }),
   removeItem: (id) =>
@@ -315,8 +380,10 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
           ? { ...s, components: s.components.filter((c) => c.itemId !== id), updatedAt: new Date().toISOString() }
           : s,
       )
-      persist(items, state.nodes, sets)
-      return { items, sets }
+      // Serialisierte Einheiten dieses Modells mit-entfernen (keine Waisen-Units).
+      const units = state.units.filter((u) => u.itemId !== id)
+      persist(items, state.nodes, sets, units)
+      return { items, sets, units }
     }),
   seedFromEquipment: (equipment) => {
     // Gruppieren nach Modell+Kategorie → gezählte Menge.
@@ -363,7 +430,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     }
 
     // Persistieren deckt sowohl neue Artikel als auch reine Mengen-Anhebungen ab.
-    persist(next, get().nodes, get().sets)
+    persist(next, get().nodes, get().sets, get().units)
     set({ items: next })
     return created
   },
@@ -372,7 +439,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     const node: StorageNode = { ...input, id: uuidv4(), createdAt: now, updatedAt: now }
     set((state) => {
       const nodes = [...state.nodes, node]
-      persist(state.items, nodes, state.sets)
+      persist(state.items, nodes, state.sets, state.units)
       return { nodes }
     })
     return node.id
@@ -382,7 +449,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       const nodes = state.nodes.map((n) =>
         n.id === id ? { ...n, ...patch, updatedAt: new Date().toISOString() } : n,
       )
-      persist(state.items, nodes, state.sets)
+      persist(state.items, nodes, state.sets, state.units)
       return { nodes }
     }),
   moveNode: (id, newParentId) =>
@@ -392,7 +459,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       const nodes = state.nodes.map((n) =>
         n.id === id ? { ...n, parentId: newParentId, updatedAt: new Date().toISOString() } : n,
       )
-      persist(state.items, nodes, state.sets)
+      persist(state.items, nodes, state.sets, state.units)
       return { nodes }
     }),
   removeNode: (id) =>
@@ -409,15 +476,27 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       const items = state.items.map((it) =>
         it.locationId === id ? { ...it, locationId: undefined, updatedAt: new Date().toISOString() } : it,
       )
-      persist(items, nodes, state.sets)
-      return { items, nodes }
+      // Einheiten, die hier lagen, ebenso (mit Historieneintrag).
+      const nowIso = new Date().toISOString()
+      const units = state.units.map((u) =>
+        u.locationId === id
+          ? {
+              ...u,
+              locationId: undefined,
+              history: [...u.history, { at: nowIso, kind: 'moved' as const, detail: 'Lagerort gelöscht' }],
+              updatedAt: nowIso,
+            }
+          : u,
+      )
+      persist(items, nodes, state.sets, units)
+      return { items, nodes, units }
     }),
   setItemLocation: (itemId, nodeId) =>
     set((state) => {
       const items = state.items.map((it) =>
         it.id === itemId ? { ...it, locationId: nodeId, updatedAt: new Date().toISOString() } : it,
       )
-      persist(items, state.nodes, state.sets)
+      persist(items, state.nodes, state.sets, state.units)
       return { items }
     }),
   addSet: (input) => {
@@ -425,7 +504,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     const s: InventorySet = { ...input, components: input.components ?? [], id: uuidv4(), createdAt: now, updatedAt: now }
     set((state) => {
       const sets = [...state.sets, s]
-      persist(state.items, state.nodes, sets)
+      persist(state.items, state.nodes, sets, state.units)
       return { sets }
     })
     return s.id
@@ -435,13 +514,75 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       const sets = state.sets.map((s) =>
         s.id === id ? { ...s, ...patch, updatedAt: new Date().toISOString() } : s,
       )
-      persist(state.items, state.nodes, sets)
+      persist(state.items, state.nodes, sets, state.units)
       return { sets }
     }),
   removeSet: (id) =>
     set((state) => {
       const sets = state.sets.filter((s) => s.id !== id)
-      persist(state.items, state.nodes, sets)
+      persist(state.items, state.nodes, sets, state.units)
       return { sets }
+    }),
+  addUnit: (input) => {
+    const now = new Date().toISOString()
+    const unit: InventoryUnit = {
+      ...input,
+      id: uuidv4(),
+      history: [{ at: now, kind: 'created', detail: 'angelegt' }],
+      createdAt: now,
+      updatedAt: now,
+    }
+    set((state) => {
+      const units = [...state.units, unit]
+      persist(state.items, state.nodes, state.sets, units)
+      return { units }
+    })
+    return unit.id
+  },
+  updateUnit: (id, patch) =>
+    set((state) => {
+      const units = state.units.map((u) =>
+        u.id === id ? { ...u, ...patch, updatedAt: new Date().toISOString() } : u,
+      )
+      persist(state.items, state.nodes, state.sets, units)
+      return { units }
+    }),
+  removeUnit: (id) =>
+    set((state) => {
+      const units = state.units.filter((u) => u.id !== id)
+      persist(state.items, state.nodes, state.sets, units)
+      return { units }
+    }),
+  moveUnit: (id, nodeId, locationLabel) =>
+    set((state) => {
+      const now = new Date().toISOString()
+      const units = state.units.map((u) =>
+        u.id === id
+          ? {
+              ...u,
+              locationId: nodeId,
+              history: [...u.history, { at: now, kind: 'moved' as const, detail: nodeId ? `nach ${locationLabel}` : 'aus Lagerort entfernt' }],
+              updatedAt: now,
+            }
+          : u,
+      )
+      persist(state.items, state.nodes, state.sets, units)
+      return { units }
+    }),
+  setUnitCondition: (id, condition) =>
+    set((state) => {
+      const now = new Date().toISOString()
+      const units = state.units.map((u) =>
+        u.id === id
+          ? {
+              ...u,
+              condition,
+              history: [...u.history, { at: now, kind: 'condition' as const, detail: `Zustand → ${condition}` }],
+              updatedAt: now,
+            }
+          : u,
+      )
+      persist(state.items, state.nodes, state.sets, units)
+      return { units }
     }),
 }))

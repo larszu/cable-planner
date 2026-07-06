@@ -162,3 +162,46 @@ export interface InventorySet {
   createdAt: string
   updatedAt: string
 }
+
+// ── Serialisierung (Einzel-Units mit Historie) ───────────────────────────────
+// Rentmans meistgewünschter Fix: neben dem Bulk-Modell (Artikel mit Menge N)
+// die EINZELNE physische Einheit — eigene Seriennr./Code, eigener Lagerort,
+// eigener Zustand + Historie (wo war sie, wann repariert). Ein Unit gehört zu
+// genau einem `InventoryItem` (Modell).
+
+/** Zustand einer Einzel-Einheit. */
+export type UnitCondition = 'ok' | 'defect' | 'inRepair' | 'retired'
+
+/** Ereignis-Typ in der Unit-Historie. */
+export type UnitEventKind = 'created' | 'moved' | 'condition' | 'note'
+
+/** Ein Eintrag in der Historie einer Einheit (append-only). */
+export interface UnitEvent {
+  /** ISO-Zeitstempel. */
+  at: string
+  kind: UnitEventKind
+  /** Menschlich lesbare Beschreibung (z. B. „nach Case 2", „defekt → Reparatur"). */
+  detail: string
+}
+
+/** Eine serialisierte Einzel-Einheit eines Artikel-Modells. */
+export interface InventoryUnit {
+  id: string
+  /** Referenz auf das Artikel-Modell (`InventoryItem.id`). */
+  itemId: string
+  /** Seriennummer (Hersteller oder intern). */
+  serial?: string
+  /** Fester Etiketten-Code der Einheit. */
+  code?: string
+  codeType?: InventoryCodeType
+  /** Aktueller Lagerort (Referenz auf `StorageNode.id`) — wie beim Artikel. */
+  locationId?: string
+  /** Zustand (Wartung/Reparatur). */
+  condition: UnitCondition
+  /** Freie Notiz. */
+  notes?: string
+  /** Append-only Historie (Bewegungen, Zustandswechsel). */
+  history: UnitEvent[]
+  createdAt: string
+  updatedAt: string
+}

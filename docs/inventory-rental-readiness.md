@@ -201,7 +201,35 @@ live abgeleiteter „N× baubar"-Verfügbarkeit).
 `LibraryFiltersMenu`):** Toggle in der Equipment-Library — nur Eigentum
 (`ownership=owned`, Modell-Abgleich) vs. gesamte Datenbank.
 
-**Offen (spätere Phasen):** Scan-Auflösung eines Lager-Codes (Artikel/Node)
-gegen den `inventoryStore` analog `lookupQrRef`, Scan-Kaskade beim Ein-/Ausbuchen
-eines Transport-Cases, Serialisierung (Einzel-Units mit eigener Historie),
-Case-Etikettendruck. MHD/Ablauf bewusst **nicht** umgesetzt (nicht benötigt).
+### Serialisierung, Scan, Packliste, Reporting (Stand 2026-07)
+
+Umgesetzt nach Recherche der Kundenwünsche/-kritik an Rentman + protonic easyjob
+(„Seriennr.-Tracking limitiert", „Reporting zu flach", Warehouse-Scan/Packlisten
+als meistgelobter Nutzen):
+
+- **Serialisierung** (`InventoryUnit`): neben dem Bulk-Modell (Artikel mit Menge)
+  die einzelne physische Einheit — eigene Seriennr./Code, eigener Lagerort,
+  **Zustand** (`ok`/`defect`/`inRepair`/`retired`) und **append-only Historie**
+  (angelegt/bewegt/Zustandswechsel). Store-Aktionen `addUnit/updateUnit/removeUnit/
+  moveUnit/setUnitCondition`; `removeItem` entfernt zugehörige Units mit.
+- **Scan-Auflösung** (`lib/inventoryScan.ts`): `resolveInventoryCode` matcht einen
+  Code gegen Einheit (Code **oder** Seriennr.), Lager-Knoten und Artikel — analog
+  `qrPayload.ts`, aber gegen den projektübergreifenden Bestand. UI: Scan-Zeile im
+  Dialog, springt zum Treffer.
+- **Digitale Packliste** (`lib/packList.ts`): `derivePackList` sammelt den
+  rekursiven Inhalt eines Containers (Sub-Cases + Bulk-Artikel + Einheiten,
+  Tiefen-zuerst), `packListToText` als kopierbarer Text. UI: Packlisten-Button an
+  Container-Knoten.
+- **Reporting** (`lib/inventoryReport.ts`): `buildInventoryReport` — Summen
+  (Positionen/Bulk/serialisiert/Tages-Mietvolumen) + Aufschlüsselung nach
+  Kategorie/Eigentum/Material/Wurzel-Lagerort und Einheiten nach Zustand. UI:
+  Auswertungs-Tab.
+
+**Bewusst ausgelassen (gehört in andere Produkte):** Crew-Scheduling,
+Rechnungswesen/CRM, Accounting-Integrationen, Angebots-/Buchungs-Workflow —
+Cable-Planner ist ein Verkabelungs-/Signalfluss-Planer, kein ERP. MHD/Ablauf
+ebenfalls bewusst nicht (nicht benötigt).
+
+**Offen (mögliche nächste Schritte):** Scan-Kaskade beim Ein-/Ausbuchen eines
+Transport-Cases, Etiketten-/Packlisten-Druck (PDF), Verfügbarkeits-/Buchungs-
+Zeiträume (Allocations).
