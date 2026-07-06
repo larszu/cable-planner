@@ -58,6 +58,8 @@ const BUILTIN_DE_TO_EN: Record<string, string> = {
   Stative: 'Tripods',
   Licht: 'Lighting',
   Audio: 'Audio',
+  Mikrofone: 'Microphones',
+  Mischpult: 'Mixing console',
   Video: 'Video',
   Monitore: 'Monitors',
   PC: 'PC',

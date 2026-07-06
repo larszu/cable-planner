@@ -3,13 +3,19 @@
 //
 // Der MultiCam-Planner exportiert seine platzierten Kameras als neutrale
 // Kamera-Liste (Modell, Hersteller, Venue-Position). Hier werden sie zu
-// EquipmentItems der Kategorie "Kameras": passt ein Modell zum CAMERA_CATALOG,
-// erbt es dessen echte Port-Belegung (SDI/HDMI/XLR…), sonst bekommt es einen
-// generischen SDI-Ausgang. So kann man in MultiCam platzierte Kameras hier
-// direkt verkabeln. Gegenstueck: multicam-planner src/utils/cameraExport.ts.
+// EquipmentItems der Kategorie "Kameras".
+//
+// GRUNDSATZ (kein Raten von Fakten): passt ein Modell EINDEUTIG zum
+// CAMERA_CATALOG (Datenblatt-basiert), erbt es dessen echte Port-Belegung
+// (SDI/HDMI/XLR…). Passt es NICHT eindeutig, erfinden wir KEINE generische
+// Belegung — ein erfundener "SDI Out" waere eine plausible-aber-falsche
+// Tatsache, die still in BOM/Patchliste/Verkabelung eingeht. Stattdessen bleibt
+// die Kamera ohne Ports und traegt `portsUnknown: true`; der Plan-Check fordert
+// die Datenblatt-Ergaenzung ein. Gegenstueck: multicam-planner
+// src/utils/cameraExport.ts.
 // ───────────────────────────────────────────────────────────────────────────
 import type { EquipmentItem, Port } from '../types/equipment'
-import { CAMERA_CATALOG } from './cameraCatalog'
+import { matchCameraTemplate, matchCameraTemplateById } from './cameraCatalog'
 
 export const CAMERA_LIST_KIND = 'camera-list' as const
 export const CAMERA_LIST_VERSION = 1 as const
@@ -19,6 +25,12 @@ export interface CameraListEntry {
   label: string
   manufacturer?: string
   model?: string
+  /** Stabile Geraetetyp-Identitaet (GUID, GDTF-analog). Wenn gesetzt, wird die
+   *  Kamera hier AUTORITATIV auf ihr Datenblatt aufgeloest (echte Ports), statt
+   *  ueber Hersteller/Modell-Namen zu raten. Der MultiCam-Exporter setzt sie aus
+   *  seiner Kamera-Bibliothek; fehlt sie (Altdaten), greift die Namens-Heuristik
+   *  als Fallback. */
+  deviceTypeId?: string
   x?: number // Meter im Venue
   y?: number
 }
@@ -48,32 +60,53 @@ const PX_PER_METER = 120
 
 const clonePort = (p: Port): Port => ({ ...p, id: '' })
 
+/**
+ * Datenblatt-Match fuer einen Kamera-Eintrag oder null, in Vertrauens-Reihenfolge:
+ *   1. Geraetetyp-ID (GUID) — autoritativ, kein Raten.
+ *   2. Name (exakt, sonst Marke + ALLE Modell-Needles) — konservativer Fallback
+ *      fuer Altdaten ohne ID. Ein loses Teilstring-Match ("enthaelt sony")
+ *      wuerde einem unbekannten Modell fremde Ports andichten — daher nicht.
+ */
 function matchTemplate(entry: CameraListEntry) {
-  const hay = `${entry.manufacturer ?? ''} ${entry.model ?? ''}`.toLowerCase().trim()
-  if (!hay) return undefined
-  for (const c of CAMERA_CATALOG) {
-    if (c.match.some((m) => hay.includes(m.toLowerCase()))) return c.template
-  }
-  return undefined
+  const byId = matchCameraTemplateById(entry.deviceTypeId)
+  if (byId) return byId
+  const name = `${entry.manufacturer ?? ''} ${entry.model ?? ''}`.trim()
+  return matchCameraTemplate(name) ?? undefined
 }
 
 /** Neutrale Kamera-Liste → Equipment-Nodes (Kategorie "Kameras"). */
 export function cameraListToEquipment(ex: CameraListExchange): EquipmentItem[] {
-  const fallbackOut: Port[] = [{ id: '', name: 'SDI Out', type: 'BNC', connectorType: 'BNC' }]
   return ex.cameras.map((c, i) => {
     const tmpl = matchTemplate(c)
-    const outputs: Port[] = (tmpl?.outputs ?? fallbackOut).map(clonePort)
-    const inputs: Port[] = (tmpl?.inputs ?? []).map(clonePort)
-    return {
+    const base = {
       id: c.id || '',
       name: c.label || tmpl?.name || 'Kamera',
       category: 'Kameras',
-      inputs,
-      outputs,
-      width: tmpl?.width ?? 240,
-      height: tmpl?.height ?? 200,
+      // Stabile Geraetetyp-ID durchreichen: bevorzugt die des aufgeloesten
+      // Templates, sonst die vom Exporter mitgegebene (auch wenn unser Katalog
+      // sie noch nicht kennt — Identitaet bekannt, Ports evtl. nicht).
+      deviceTypeId: tmpl?.deviceTypeId ?? c.deviceTypeId,
       x: Math.round((c.x ?? i * 2) * PX_PER_METER),
       y: Math.round((c.y ?? 0) * PX_PER_METER),
+    }
+    if (!tmpl) {
+      // Kein Datenblatt-Match → Ports NICHT erfinden. Explizit als unbekannt
+      // fuehren; der Plan-Check (drawingChecks) fordert die Ergaenzung ein.
+      return {
+        ...base,
+        inputs: [],
+        outputs: [],
+        width: 240,
+        height: 200,
+        portsUnknown: true,
+      }
+    }
+    return {
+      ...base,
+      inputs: tmpl.inputs.map(clonePort),
+      outputs: tmpl.outputs.map(clonePort),
+      width: tmpl.width ?? 240,
+      height: tmpl.height ?? 200,
     }
   })
 }

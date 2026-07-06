@@ -22,6 +22,8 @@ export const DEFAULT_CATEGORIES = [
   'Stative',
   'Licht',
   'Audio',
+  'Mikrofone',
+  'Mischpult',
   'Video',
   'Monitore',
   'PC',

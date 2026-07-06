@@ -12,8 +12,10 @@
 
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port, ConnectorType } from '../types/equipment'
+import type { DrumKitPlan } from '../types/drumKit'
 import { checkImpedanceMismatch, checkBalanceMismatch, maxPassiveLengthM } from '../types/cableSpec'
 import { networkAddress } from './subnet'
+import { deriveDrumChannels } from './drumMicing'
 
 export type CheckSeverity = 'error' | 'warning' | 'info'
 
@@ -72,6 +74,8 @@ const isPowerCable = (
 export interface DrawingCheckInput {
   equipment: EquipmentItem[]
   cables: Cable[]
+  /** Optionaler Drum-Mikrofonierungs-Plan — speist den Phantom/Mic-Input-Check. */
+  drumKit?: DrumKitPlan
 }
 
 export interface DrawingCheckResult {
@@ -86,7 +90,7 @@ export interface DrawingCheckResult {
  * (errors zuerst). Pure function — leicht testbar, kein Store-Zugriff.
  */
 export const runDrawingChecks = (
-  { equipment, cables }: DrawingCheckInput,
+  { equipment, cables, drumKit }: DrawingCheckInput,
 ): DrawingCheckResult => {
   const findings: CheckFinding[] = []
   const eqById = new Map(equipment.map((e) => [e.id, e]))
@@ -552,6 +556,23 @@ export const runDrawingChecks = (
     }
   }
 
+  // — Check 18: Port-Belegung unbekannt (Datenblatt fehlt) -------------------
+  // Geräte, die aus einer fremden Domäne (z. B. MultiCam-Kamera-Import)
+  // übernommen wurden, aber kein Datenblatt-Match hatten, tragen
+  // `portsUnknown`. Wir haben ihre I/O NICHT erfunden — der User muss die
+  // realen Ports aus dem Datenblatt ergänzen, sonst sind sie unverkabelbar.
+  for (const e of equipment) {
+    if (e.portsUnknown && e.inputs.length === 0 && e.outputs.length === 0) {
+      findings.push({
+        id: `ports-unknown:${e.id}`,
+        severity: 'warning',
+        category: 'Ports unbekannt',
+        message: `${e.name}: Port-Belegung unbekannt (kein Datenblatt-Match) — reale Anschlüsse aus dem Datenblatt ergänzen`,
+        equipmentId: e.id,
+      })
+    }
+  }
+
   // — Check 17: Gateway nicht im Geräte-Subnetz (#346) -----------------------
   // Liegt das Default-Gateway nicht im selben Subnetz wie die Geräte-IP, ist
   // es nicht erreichbar → Fehlkonfiguration.
@@ -567,6 +588,54 @@ export const runDrawingChecks = (
         category: 'Gateway/Subnetz',
         message: `${e.name}: Gateway ${e.gateway} liegt nicht im Subnetz von ${e.ipAddress} (${mask}) — nicht erreichbar`,
         equipmentId: e.id,
+      })
+    }
+  }
+
+  // — Check 19: Drum-Mikrofonierung — Mic-Inputs & Phantom-Bedarf ------------
+  // Der Drum-Plan braucht je Kanal einen Mic-Input (XLR/Mini-XLR) und je
+  // Phantom-Mic 48V. Wir zählen die REALEN XLR-Eingangsports im Plan (kein
+  // Raten) und melden Unterdeckung. Unbekannte Mics werden ehrlich als solche
+  // markiert — ihr Phantom-/SPL-Bedarf ist nicht prüfbar.
+  if (drumKit && drumKit.mics.length > 0) {
+    const d = deriveDrumChannels(drumKit)
+    // Verfügbare Mic-Inputs = symmetrische XLR-Eingänge im Plan (physische I/O).
+    let micInputs = 0
+    for (const e of equipment) {
+      for (const p of e.inputs) {
+        if (p.connectorType === 'XLR' || p.connectorType === 'Mini-XLR') micInputs += 1
+      }
+    }
+    if (d.channelCount > micInputs) {
+      findings.push({
+        id: 'drum-mic-inputs',
+        severity: 'warning',
+        category: 'Drum-Mikrofonierung',
+        message: `Drum-Kit braucht ${d.channelCount} Mic-Inputs, aber nur ${micInputs} XLR-Eingänge im Plan — fehlende ${d.channelCount - micInputs} Kanäle einplanen (Stagebox/Preamps).`,
+      })
+    }
+    if (d.phantomCount > 0) {
+      findings.push({
+        id: 'drum-phantom',
+        severity: 'info',
+        category: 'Drum-Mikrofonierung',
+        message: `${d.phantomCount} Drum-Mic(s) brauchen 48V-Phantom — Preamps/Pult mit schaltbarer Phantomspeisung sicherstellen.`,
+      })
+    }
+    if (d.unknownCount > 0) {
+      findings.push({
+        id: 'drum-unknown-mics',
+        severity: 'warning',
+        category: 'Drum-Mikrofonierung',
+        message: `${d.unknownCount} Drum-Kanal/Kanäle ohne zugeordnetes Mic-Modell — Phantom-/SPL-Bedarf nicht prüfbar, Modell zuweisen.`,
+      })
+    }
+    if (d.splRiskCount > 0) {
+      findings.push({
+        id: 'drum-spl-risk',
+        severity: 'warning',
+        category: 'Drum-Mikrofonierung',
+        message: `${d.splRiskCount} Mic(s) an lauter Zone (Kick/Snare) mit grenzwertigem Max SPL (< ${140} dB) — Verzerrungsrisiko, Pad/robusteres Mic prüfen.`,
       })
     }
   }

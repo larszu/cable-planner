@@ -5,7 +5,7 @@
  */
 import { useState, type HTMLAttributes, type ReactNode } from 'react'
 import {
-  ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings, Blocks, X,
+  ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings, Blocks, X, ListPlus,
   type LucideIcon,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
@@ -18,6 +18,7 @@ import { ConfigsTab } from './tabs/ConfigsTab'
 import { EditingTab } from './tabs/EditingTab'
 import { AppearanceTab } from './tabs/AppearanceTab'
 import { IntegrationsTab } from './tabs/IntegrationsTab'
+import { SchemaBuilderTab } from './tabs/SchemaBuilderTab'
 import { useTranslation } from '../../lib/i18n'
 
 export type SettingsSection =
@@ -28,6 +29,7 @@ export type SettingsSection =
   | 'hotkeys'
   | 'integrations'
   | 'configs'
+  | 'schema'
   | 'sync'
   | 'advanced'
 
@@ -39,6 +41,7 @@ const TAB_ICONS: Record<SettingsSection, LucideIcon> = {
   hotkeys: Keyboard,
   integrations: Plug,
   configs: Database,
+  schema: ListPlus,
   sync: RefreshCw,
   advanced: Settings,
 }
@@ -51,6 +54,7 @@ const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
   hotkeys: 'Hotkeys',
   integrations: 'Integrationen',
   configs: 'Konfigurationen',
+  schema: 'Kategorien & Felder',
   sync: 'Netzwerk-Sync',
   advanced: 'Erweitert',
 }
@@ -63,13 +67,14 @@ const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
   hotkeys: 'Tastenkürzel',
   integrations: 'Integrationen',
   configs: 'Geräte-Konfigurationen',
+  schema: 'Kategorien & Felder (Feld-Builder)',
   sync: 'Netzwerk-Sync',
   advanced: 'Erweitert',
 }
 
 const isSection = (v: unknown): v is SettingsSection =>
   typeof v === 'string' &&
-  ['project', 'modules', 'appearance', 'editing', 'hotkeys', 'integrations', 'configs', 'sync', 'advanced'].includes(v)
+  ['project', 'modules', 'appearance', 'editing', 'hotkeys', 'integrations', 'configs', 'schema', 'sync', 'advanced'].includes(v)
 
 interface SettingsBodyProps {
   onClose: () => void
@@ -142,6 +147,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
           {section === 'hotkeys' && <HotkeysTab />}
           {section === 'integrations' && <IntegrationsTab onClose={onClose} />}
           {section === 'configs' && <ConfigsTab />}
+          {section === 'schema' && <SchemaBuilderTab />}
           {section === 'sync' && <SyncTab />}
           {section === 'advanced' && <AdvancedTab />}
         </div>

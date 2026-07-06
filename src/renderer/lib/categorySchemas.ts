@@ -21,7 +21,8 @@
  */
 import type { Lang } from './categoryTranslations'
 
-export type CategoryFieldType = 'text' | 'number' | 'select' | 'boolean'
+// 'polar-pattern' = Select mit zusätzlichem Polardiagramm-Preview (Mikrofone).
+export type CategoryFieldType = 'text' | 'number' | 'select' | 'boolean' | 'polar-pattern'
 
 export interface CategoryFieldOption {
   value: string
@@ -38,6 +39,9 @@ export interface CategoryFieldDef {
   /** Auswahl-Optionen für `type: 'select'`. */
   options?: CategoryFieldOption[]
   placeholder?: string
+  /** Vom User im Feld-Builder angelegt (nicht Built-in). Nur UI-Markierung —
+   *  die Werte liegen wie bei Built-ins in `equipment.categoryProps`. */
+  userDefined?: boolean
 }
 
 const L = (de: string, en: string): Record<Lang, string> => ({ de, en })
@@ -118,7 +122,16 @@ export const CATEGORY_SCHEMAS: Record<string, CategoryFieldDef[]> = {
       key: 'polarPattern',
       label: L('Richtcharakteristik', 'Polar pattern'),
       type: 'select',
-      options: [opt('omni', 'Kugel', 'Omni'), opt('cardioid', 'Niere', 'Cardioid'), opt('super', 'Superniere', 'Supercardioid'), opt('fig8', 'Acht', 'Figure-8')],
+      options: [
+        opt('omni', 'Kugel', 'Omni'),
+        opt('cardioid', 'Niere', 'Cardioid'),
+        opt('super', 'Superniere', 'Supercardioid'),
+        opt('hyper', 'Hyperniere', 'Hypercardioid'),
+        opt('fig8', 'Acht', 'Figure-8'),
+        opt('shotgun', 'Keule (Shotgun)', 'Shotgun/lobar'),
+        opt('boundary', 'Grenzfläche', 'Boundary/half-omni'),
+        opt('multi', 'umschaltbar (Multipattern)', 'Switchable (multi-pattern)'),
+      ],
     },
     {
       key: 'transducer',
@@ -135,6 +148,153 @@ export const CATEGORY_SCHEMAS: Record<string, CategoryFieldDef[]> = {
     { key: 'channels', label: L('Kanäle', 'Channels'), type: 'number' },
     { key: 'impedanceOhm', label: L('Impedanz', 'Impedance'), type: 'number', unit: 'Ω' },
     { key: 'sampleRate', label: L('Abtastrate', 'Sample rate'), type: 'text', unit: 'kHz', placeholder: '48 / 96' },
+  ],
+  // #Mikrofonierung — vollständiges Mic-Datenblatt-Schema (eigene Kategorie, damit
+  // die Detailfelder nicht an Lautsprechern/DI-Boxen erscheinen). Max SPL + Speisung
+  // sind die zwei Werte, die im Drum-Kontext echte Fehler verhindern (Kondensator
+  // ohne Phantom = tot; zu niedriger Max SPL an der Kick = Verzerrung).
+  Mikrofone: [
+    {
+      key: 'transducer',
+      label: L('Wandlerprinzip', 'Transducer'),
+      type: 'select',
+      options: [opt('condenser', 'Kondensator', 'Condenser'), opt('dynamic', 'Dynamisch', 'Dynamic'), opt('ribbon', 'Bändchen', 'Ribbon'), opt('electret', 'Elektret', 'Electret')],
+    },
+    {
+      // DPA-Taxonomie (mic-university/technology/facts-about-polar-patterns).
+      key: 'polarPattern',
+      label: L('Richtcharakteristik', 'Polar pattern'),
+      type: 'polar-pattern',
+      options: [
+        opt('omni', 'Kugel', 'Omni'),
+        opt('sub', 'Breite Niere (Sub-/Wide)', 'Subcardioid / wide'),
+        opt('cardioid', 'Niere', 'Cardioid'),
+        opt('super', 'Superniere', 'Supercardioid'),
+        opt('hyper', 'Hyperniere', 'Hypercardioid'),
+        opt('fig8', 'Acht', 'Figure-8'),
+        opt('shotgun', 'Keule (Shotgun)', 'Shotgun/lobar'),
+        opt('boundary', 'Grenzfläche', 'Boundary/half-omni'),
+        opt('multi', 'umschaltbar (Multipattern)', 'Switchable (multi-pattern)'),
+      ],
+    },
+    {
+      key: 'powering',
+      label: L('Speisung', 'Powering'),
+      type: 'select',
+      options: [opt('p48', '48V Phantom', '48V phantom'), opt('tpower', 'T-Power (12V)', 'T-power (12V)'), opt('plugin', 'Plug-in-Power', 'Plug-in power'), opt('battery', 'Batterie', 'Battery'), opt('none', 'keine (dynamisch)', 'none (dynamic)')],
+    },
+    {
+      key: 'capsule',
+      label: L('Kapsel / Bauform', 'Capsule / form factor'),
+      type: 'select',
+      options: [
+        opt('largeDiaphragm', 'Großmembran', 'Large-diaphragm'),
+        opt('smallDiaphragm', 'Kleinmembran', 'Small-diaphragm'),
+        opt('clip', 'Clip-/Instrumenten-Mic', 'Clip-on / instrument'),
+        opt('boundary', 'Grenzfläche (PZM)', 'Boundary (PZM)'),
+        opt('shotgun', 'Richtrohr (Shotgun)', 'Shotgun'),
+        opt('lavalier', 'Lavalier / Ansteck', 'Lavalier'),
+        opt('handheld', 'Handmikrofon', 'Handheld'),
+      ],
+    },
+    {
+      key: 'micApplication',
+      label: L('typ. Einsatz', 'Typical use'),
+      type: 'select',
+      options: [
+        opt('kick', 'Kick / Bassdrum', 'Kick / bass drum'),
+        opt('snare', 'Snare', 'Snare'),
+        opt('tom', 'Tom', 'Tom'),
+        opt('overhead', 'Overhead / Becken', 'Overhead / cymbals'),
+        opt('hihat', 'HiHat', 'Hi-hat'),
+        opt('room', 'Raum', 'Room'),
+        opt('percussion', 'Percussion', 'Percussion'),
+        opt('bass', 'Bass / Bassamp', 'Bass / bass amp'),
+        opt('guitar', 'Gitarre / Amp', 'Guitar / amp'),
+        opt('vocal', 'Gesang / Sprache', 'Vocal / speech'),
+        opt('instrument', 'Instrument (allg.)', 'Instrument (general)'),
+        opt('broadcast', 'Broadcast / Reportage', 'Broadcast / field'),
+      ],
+    },
+    { key: 'maxSplDb', label: L('max. Schalldruck (Max SPL)', 'Max SPL'), type: 'number', unit: 'dB SPL' },
+    { key: 'freqResponse', label: L('Frequenzgang', 'Frequency response'), type: 'text', unit: 'Hz', placeholder: '20-20000 / 40-16000' },
+    { key: 'sensitivity', label: L('Empfindlichkeit', 'Sensitivity'), type: 'text', unit: 'mV/Pa', placeholder: '2.0 / -54 dBV' },
+    { key: 'selfNoiseDb', label: L('Eigenrauschen (A)', 'Self-noise (A)'), type: 'number', unit: 'dB-A' },
+    { key: 'dynamicRangeDb', label: L('Dynamikumfang', 'Dynamic range'), type: 'number', unit: 'dB' },
+    { key: 'impedanceOhm', label: L('Impedanz', 'Impedance'), type: 'number', unit: 'Ω' },
+    // ── Klang & Charakter (v.a. Gesang) — DPA Mic-University ──────────────────
+    {
+      // Klangfarbe/Timbre-Signatur. Subjektiv, aber Standard-Vokabular der
+      // Mic-Auswahl (warm/hell/präsent …). Quelle: DPA + Broadcast-Praxis.
+      key: 'tonalCharacter',
+      label: L('Klangfarbe / Timbre', 'Tonal character'),
+      type: 'select',
+      options: [
+        opt('neutral', 'neutral / linear', 'Neutral / flat'),
+        opt('warm', 'warm', 'Warm'),
+        opt('dark', 'dunkel', 'Dark'),
+        opt('bright', 'hell / offen', 'Bright / open'),
+        opt('present', 'präsent (Präsenz-Anhebung)', 'Present (presence boost)'),
+        opt('scooped', 'gescoopt (Mitten zurück)', 'Scooped mids'),
+        opt('vintage', 'vintage / seidig', 'Vintage / silky'),
+      ],
+    },
+    {
+      // Off-Axis-Verfärbung ("curtain effect", DPA). Wie sauber klingt Schall
+      // von der Seite/hinten — entscheidend für Live-Rückkopplungsfestigkeit.
+      key: 'offAxisResponse',
+      label: L('Off-Axis-Klang', 'Off-axis response'),
+      type: 'select',
+      options: [
+        opt('smooth', 'sauber / gleichmäßig', 'Smooth / natural'),
+        opt('slightColor', 'leicht verfärbt', 'Slightly coloured'),
+        opt('colored', 'verfärbt (Curtain-Effekt)', 'Coloured (curtain effect)'),
+      ],
+    },
+    {
+      // Naheffekt (Proximity). Nur Druckgradienten-Mics; Acht > Hyper > Super >
+      // Niere > breite Niere; Kugel keiner. Quelle: DPA proximity-effect.
+      key: 'proximityEffect',
+      label: L('Naheffekt (Proximity)', 'Proximity effect'),
+      type: 'select',
+      options: [
+        opt('none', 'keiner (Kugel)', 'None (omni)'),
+        opt('low', 'gering', 'Low'),
+        opt('moderate', 'mittel', 'Moderate'),
+        opt('strong', 'stark', 'Strong'),
+      ],
+    },
+    { key: 'presenceBoost', label: L('Präsenz-Anhebung', 'Presence boost'), type: 'text', unit: 'kHz', placeholder: '5 kHz +4 dB' },
+    { key: 'sonicSignature', label: L('Klang-Notiz', 'Sonic notes'), type: 'text', placeholder: 'z. B. seidige Höhen, straffer Bass' },
+    { key: 'switchPad', label: L('Pad-Schalter', 'Pad switch'), type: 'boolean' },
+    { key: 'switchLowcut', label: L('Low-Cut-Schalter', 'Low-cut switch'), type: 'boolean' },
+    {
+      key: 'connectorOut',
+      label: L('Anschluss', 'Connector'),
+      type: 'select',
+      options: [opt('xlr', 'XLR-3', 'XLR-3'), opt('miniXlr', 'Mini-XLR (TA3)', 'Mini-XLR (TA3)'), opt('ta4', 'TA4 (Mini-XLR 4-pol)', 'TA4'), opt('jack', '6,3 mm Klinke', '1/4" jack'), opt('fixed', 'fest verkabelt', 'hardwired')],
+    },
+  ],
+  // #Mischpult — Fachfelder jenseits der Port-Liste (Kapazität ≠ physische I/O).
+  // Recherche: Sweetwater/ProSoundWeb Digital-Console-Vergleiche. Eigene
+  // Kategorie, damit diese Felder NICHT an jedem Mikrofon erscheinen.
+  Mischpult: [
+    { key: 'mixChannels', label: L('Verarbeitungs-Kanäle', 'Processing channels'), type: 'number' },
+    { key: 'mixBuses', label: L('Busse', 'Mix buses'), type: 'number' },
+    { key: 'auxSends', label: L('Aux / Sends', 'Aux / sends'), type: 'number' },
+    { key: 'matrix', label: L('Matrix', 'Matrix'), type: 'text', placeholder: '6x8' },
+    { key: 'dcaGroups', label: L('DCA/VCA-Gruppen', 'DCA/VCA groups'), type: 'number' },
+    { key: 'motorFaders', label: L('Motor-Fader', 'Motorised faders'), type: 'number' },
+    { key: 'sceneMemory', label: L('Szenen-/Snapshot-Speicher', 'Scene/snapshot memory'), type: 'number' },
+    {
+      key: 'autoMix',
+      label: L('Automix', 'Automix'),
+      type: 'select',
+      options: [opt('none', 'keiner', 'none'), opt('dugan', 'Dan Dugan', 'Dan Dugan'), opt('gain', 'Gain-Sharing', 'Gain-sharing'), opt('gate', 'Gate-basiert', 'Gate-based')],
+    },
+    { key: 'sampleRate', label: L('Abtastrate', 'Sample rate'), type: 'text', unit: 'kHz', placeholder: '48 / 96' },
+    { key: 'latencyMs', label: L('Latenz', 'Latency'), type: 'number', unit: 'ms' },
+    { key: 'ioCardSlots', label: L('I/O-Karten-Slots', 'I/O card slots'), type: 'number' },
   ],
   Netzwerk: [
     {
@@ -231,17 +391,65 @@ const EN_ALIAS: Record<string, string> = {
   lenses: 'objektive',
   lighting: 'licht',
   audio: 'audio',
+  microphones: 'mikrofone',
+  'mixing console': 'mischpult',
   networking: 'netzwerk',
   power: 'strom',
   monitors: 'monitore',
   tripods: 'stative',
 }
 
-/** Feld-Schema für eine Kategorie (case-insensitiv, DE + EN). Leeres Array = keine Fachfelder. */
-export const schemaForCategory = (category: string | undefined): CategoryFieldDef[] => {
+// ── User-Feld-Overlay (EAV-/Dynamic-Schema-Pattern) ─────────────────────────
+// Der Feld-Builder (Settings-Tab) macht aus dem hartkodierten Schema
+// erweiterbare Daten: pro Kategorie kann der User eigene `CategoryFieldDef`
+// hinzufügen. Diese Overlay-Map wird vom settingsStore beim Laden/Ändern
+// gesetzt; `schemaForCategory` mischt Built-in + User-Felder. Die Werte selbst
+// liegen unverändert in `equipment.categoryProps` (offener Beutel), sodass beim
+// Löschen eines User-Felds keine Daten verloren gehen (MVR-Grundsatz).
+export type UserSchemaMap = Record<string, CategoryFieldDef[]>
+
+let userOverlay: UserSchemaMap = {}
+
+/** Vom settingsStore aufgerufen. Schlüssel = kanonische (lowercase) Kategorie. */
+export const setUserSchemaOverlay = (map: UserSchemaMap): void => {
+  const normed: UserSchemaMap = {}
+  for (const [k, v] of Object.entries(map ?? {})) normed[norm(k)] = v
+  userOverlay = normed
+}
+
+/** Kanonischer (lowercase) Schlüssel einer Kategorie — für Overlay-Zugriff. */
+export const canonicalCategoryKey = (category: string): string => {
+  const lc = norm(category)
+  return EN_ALIAS[lc] ?? lc
+}
+
+/** Nur die Built-in-Felder einer Kategorie (ohne User-Overlay). */
+export const builtInSchemaForCategory = (category: string | undefined): CategoryFieldDef[] => {
   if (!category) return []
   const lc = norm(category)
   return BY_LC[lc] ?? BY_LC[EN_ALIAS[lc] ?? ''] ?? []
+}
+
+/**
+ * Feld-Schema für eine Kategorie (case-insensitiv, DE + EN) inkl. User-Felder.
+ * Built-in-Felder zuerst, dann User-Felder deren Key NICHT mit einem Built-in
+ * kollidiert (Built-in gewinnt — der Builder validiert das zusätzlich).
+ * Leeres Array = keine Fachfelder.
+ */
+export const schemaForCategory = (category: string | undefined): CategoryFieldDef[] => {
+  if (!category) return []
+  const builtIn = builtInSchemaForCategory(category)
+  const extra = userOverlay[canonicalCategoryKey(category)] ?? []
+  if (extra.length === 0) return builtIn
+  const seen = new Set(builtIn.map((f) => f.key))
+  const merged = [...builtIn]
+  for (const f of extra) {
+    if (!seen.has(f.key)) {
+      seen.add(f.key)
+      merged.push({ ...f, userDefined: true })
+    }
+  }
+  return merged
 }
 
 /**
@@ -264,7 +472,7 @@ export const formatCategoryProps = (
     if (v === undefined || v === '' || v === false) continue
     let val: string
     if (f.type === 'boolean') val = lang === 'de' ? 'ja' : 'yes'
-    else if (f.type === 'select' && f.options) {
+    else if ((f.type === 'select' || f.type === 'polar-pattern') && f.options) {
       val = f.options.find((o) => o.value === String(v))?.label[lang] ?? String(v)
     } else {
       val = String(v)

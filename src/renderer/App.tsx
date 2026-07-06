@@ -20,6 +20,7 @@ import { AtemDialog } from './components/Atem/AtemDialog'
 import { MultiviewerLayoutView } from './components/Atem/MultiviewerLayoutView'
 import { AtemMvConfigDialog } from './components/Atem/AtemMvConfigDialog'
 import { AtemAudioRouterDialog } from './components/Atem/AtemAudioRouterDialog'
+import { DrumMicingDialog } from './components/DrumMicing/DrumMicingDialog'
 import { LocationBomDialog } from './components/Project/LocationBomDialog'
 import { RackEditorDialog } from './components/Rack/RackEditorDialog'
 import { CableContextMenu } from './components/Canvas/CableContextMenu'
@@ -1111,6 +1112,7 @@ export default function App() {
       {atemMvLayout.open && <MultiviewerLayoutView onClose={closeAtemMvLayout} />}
       <AtemMvConfigDialog />
       <AtemAudioRouterDialog />
+      <DrumMicingDialog />
       <LocationBomDialog />
       <RackEditorDialog />
       <MobileShareDialog />
