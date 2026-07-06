@@ -118,7 +118,16 @@ export const CATEGORY_SCHEMAS: Record<string, CategoryFieldDef[]> = {
       key: 'polarPattern',
       label: L('Richtcharakteristik', 'Polar pattern'),
       type: 'select',
-      options: [opt('omni', 'Kugel', 'Omni'), opt('cardioid', 'Niere', 'Cardioid'), opt('super', 'Superniere', 'Supercardioid'), opt('fig8', 'Acht', 'Figure-8')],
+      options: [
+        opt('omni', 'Kugel', 'Omni'),
+        opt('cardioid', 'Niere', 'Cardioid'),
+        opt('super', 'Superniere', 'Supercardioid'),
+        opt('hyper', 'Hyperniere', 'Hypercardioid'),
+        opt('fig8', 'Acht', 'Figure-8'),
+        opt('shotgun', 'Keule (Shotgun)', 'Shotgun/lobar'),
+        opt('boundary', 'Grenzfläche', 'Boundary/half-omni'),
+        opt('multi', 'umschaltbar (Multipattern)', 'Switchable (multi-pattern)'),
+      ],
     },
     {
       key: 'transducer',
@@ -135,6 +144,106 @@ export const CATEGORY_SCHEMAS: Record<string, CategoryFieldDef[]> = {
     { key: 'channels', label: L('Kanäle', 'Channels'), type: 'number' },
     { key: 'impedanceOhm', label: L('Impedanz', 'Impedance'), type: 'number', unit: 'Ω' },
     { key: 'sampleRate', label: L('Abtastrate', 'Sample rate'), type: 'text', unit: 'kHz', placeholder: '48 / 96' },
+  ],
+  // #Mikrofonierung — vollständiges Mic-Datenblatt-Schema (eigene Kategorie, damit
+  // die Detailfelder nicht an Lautsprechern/DI-Boxen erscheinen). Max SPL + Speisung
+  // sind die zwei Werte, die im Drum-Kontext echte Fehler verhindern (Kondensator
+  // ohne Phantom = tot; zu niedriger Max SPL an der Kick = Verzerrung).
+  Mikrofone: [
+    {
+      key: 'transducer',
+      label: L('Wandlerprinzip', 'Transducer'),
+      type: 'select',
+      options: [opt('condenser', 'Kondensator', 'Condenser'), opt('dynamic', 'Dynamisch', 'Dynamic'), opt('ribbon', 'Bändchen', 'Ribbon'), opt('electret', 'Elektret', 'Electret')],
+    },
+    {
+      key: 'polarPattern',
+      label: L('Richtcharakteristik', 'Polar pattern'),
+      type: 'select',
+      options: [
+        opt('omni', 'Kugel', 'Omni'),
+        opt('cardioid', 'Niere', 'Cardioid'),
+        opt('super', 'Superniere', 'Supercardioid'),
+        opt('hyper', 'Hyperniere', 'Hypercardioid'),
+        opt('fig8', 'Acht', 'Figure-8'),
+        opt('shotgun', 'Keule (Shotgun)', 'Shotgun/lobar'),
+        opt('boundary', 'Grenzfläche', 'Boundary/half-omni'),
+        opt('multi', 'umschaltbar (Multipattern)', 'Switchable (multi-pattern)'),
+      ],
+    },
+    {
+      key: 'powering',
+      label: L('Speisung', 'Powering'),
+      type: 'select',
+      options: [opt('p48', '48V Phantom', '48V phantom'), opt('tpower', 'T-Power (12V)', 'T-power (12V)'), opt('plugin', 'Plug-in-Power', 'Plug-in power'), opt('battery', 'Batterie', 'Battery'), opt('none', 'keine (dynamisch)', 'none (dynamic)')],
+    },
+    {
+      key: 'capsule',
+      label: L('Kapsel / Bauform', 'Capsule / form factor'),
+      type: 'select',
+      options: [
+        opt('largeDiaphragm', 'Großmembran', 'Large-diaphragm'),
+        opt('smallDiaphragm', 'Kleinmembran', 'Small-diaphragm'),
+        opt('clip', 'Clip-/Instrumenten-Mic', 'Clip-on / instrument'),
+        opt('boundary', 'Grenzfläche (PZM)', 'Boundary (PZM)'),
+        opt('shotgun', 'Richtrohr (Shotgun)', 'Shotgun'),
+        opt('lavalier', 'Lavalier / Ansteck', 'Lavalier'),
+        opt('handheld', 'Handmikrofon', 'Handheld'),
+      ],
+    },
+    {
+      key: 'micApplication',
+      label: L('typ. Einsatz', 'Typical use'),
+      type: 'select',
+      options: [
+        opt('kick', 'Kick / Bassdrum', 'Kick / bass drum'),
+        opt('snare', 'Snare', 'Snare'),
+        opt('tom', 'Tom', 'Tom'),
+        opt('overhead', 'Overhead / Becken', 'Overhead / cymbals'),
+        opt('hihat', 'HiHat', 'Hi-hat'),
+        opt('room', 'Raum', 'Room'),
+        opt('percussion', 'Percussion', 'Percussion'),
+        opt('bass', 'Bass / Bassamp', 'Bass / bass amp'),
+        opt('guitar', 'Gitarre / Amp', 'Guitar / amp'),
+        opt('vocal', 'Gesang / Sprache', 'Vocal / speech'),
+        opt('instrument', 'Instrument (allg.)', 'Instrument (general)'),
+        opt('broadcast', 'Broadcast / Reportage', 'Broadcast / field'),
+      ],
+    },
+    { key: 'maxSplDb', label: L('max. Schalldruck (Max SPL)', 'Max SPL'), type: 'number', unit: 'dB SPL' },
+    { key: 'freqResponse', label: L('Frequenzgang', 'Frequency response'), type: 'text', unit: 'Hz', placeholder: '20-20000 / 40-16000' },
+    { key: 'sensitivity', label: L('Empfindlichkeit', 'Sensitivity'), type: 'text', unit: 'mV/Pa', placeholder: '2.0 / -54 dBV' },
+    { key: 'selfNoiseDb', label: L('Eigenrauschen (A)', 'Self-noise (A)'), type: 'number', unit: 'dB-A' },
+    { key: 'impedanceOhm', label: L('Impedanz', 'Impedance'), type: 'number', unit: 'Ω' },
+    { key: 'switchPad', label: L('Pad-Schalter', 'Pad switch'), type: 'boolean' },
+    { key: 'switchLowcut', label: L('Low-Cut-Schalter', 'Low-cut switch'), type: 'boolean' },
+    {
+      key: 'connectorOut',
+      label: L('Anschluss', 'Connector'),
+      type: 'select',
+      options: [opt('xlr', 'XLR-3', 'XLR-3'), opt('miniXlr', 'Mini-XLR (TA3)', 'Mini-XLR (TA3)'), opt('ta4', 'TA4 (Mini-XLR 4-pol)', 'TA4'), opt('jack', '6,3 mm Klinke', '1/4" jack'), opt('fixed', 'fest verkabelt', 'hardwired')],
+    },
+  ],
+  // #Mischpult — Fachfelder jenseits der Port-Liste (Kapazität ≠ physische I/O).
+  // Recherche: Sweetwater/ProSoundWeb Digital-Console-Vergleiche. Eigene
+  // Kategorie, damit diese Felder NICHT an jedem Mikrofon erscheinen.
+  Mischpult: [
+    { key: 'mixChannels', label: L('Verarbeitungs-Kanäle', 'Processing channels'), type: 'number' },
+    { key: 'mixBuses', label: L('Busse', 'Mix buses'), type: 'number' },
+    { key: 'auxSends', label: L('Aux / Sends', 'Aux / sends'), type: 'number' },
+    { key: 'matrix', label: L('Matrix', 'Matrix'), type: 'text', placeholder: '6x8' },
+    { key: 'dcaGroups', label: L('DCA/VCA-Gruppen', 'DCA/VCA groups'), type: 'number' },
+    { key: 'motorFaders', label: L('Motor-Fader', 'Motorised faders'), type: 'number' },
+    { key: 'sceneMemory', label: L('Szenen-/Snapshot-Speicher', 'Scene/snapshot memory'), type: 'number' },
+    {
+      key: 'autoMix',
+      label: L('Automix', 'Automix'),
+      type: 'select',
+      options: [opt('none', 'keiner', 'none'), opt('dugan', 'Dan Dugan', 'Dan Dugan'), opt('gain', 'Gain-Sharing', 'Gain-sharing'), opt('gate', 'Gate-basiert', 'Gate-based')],
+    },
+    { key: 'sampleRate', label: L('Abtastrate', 'Sample rate'), type: 'text', unit: 'kHz', placeholder: '48 / 96' },
+    { key: 'latencyMs', label: L('Latenz', 'Latency'), type: 'number', unit: 'ms' },
+    { key: 'ioCardSlots', label: L('I/O-Karten-Slots', 'I/O card slots'), type: 'number' },
   ],
   Netzwerk: [
     {
@@ -231,6 +340,8 @@ const EN_ALIAS: Record<string, string> = {
   lenses: 'objektive',
   lighting: 'licht',
   audio: 'audio',
+  microphones: 'mikrofone',
+  'mixing console': 'mischpult',
   networking: 'netzwerk',
   power: 'strom',
   monitors: 'monitore',

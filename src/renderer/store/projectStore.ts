@@ -48,6 +48,7 @@ import { avNetworkTemplates } from '../lib/avNetworkCatalog'
 import { broadcastToolsTemplates } from '../lib/broadcastToolsCatalog'
 import { audioTemplates } from '../lib/audioCatalog'
 import { wirelessAudioTemplates } from '../lib/wirelessAudioCatalog'
+import { micTemplates } from '../lib/micCatalog'
 import { upsertCachedRentmanTemplate } from '../lib/rentmanTemplateCache'
 import type { GreenGoConfig } from '../types/greengo'
 
@@ -80,7 +81,7 @@ const runLibraryMigration = () => {
     const existing: EquipmentTemplate[] = raw ? JSON.parse(raw) : []
     const byName = new Map(existing.map((t) => [t.name, t]))
     let added = false
-    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates]) {
+    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates]) {
       if (!byName.has(t.name)) {
         byName.set(t.name, t)
         added = true

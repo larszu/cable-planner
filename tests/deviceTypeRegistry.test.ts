@@ -20,6 +20,7 @@ import { AVNETWORK_CATALOG } from '../src/renderer/lib/avNetworkCatalog'
 import { BROADCAST_TOOLS_CATALOG } from '../src/renderer/lib/broadcastToolsCatalog'
 import { AUDIO_CATALOG, matchAudioTemplate } from '../src/renderer/lib/audioCatalog'
 import { WIRELESS_AUDIO_CATALOG } from '../src/renderer/lib/wirelessAudioCatalog'
+import { MIC_CATALOG, matchMicTemplate } from '../src/renderer/lib/micCatalog'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 
 const eq = (over: Partial<EquipmentItem>): EquipmentItem => ({
@@ -50,6 +51,7 @@ const ALL_CATALOGS = [
   ...BROADCAST_TOOLS_CATALOG,
   ...AUDIO_CATALOG,
   ...WIRELESS_AUDIO_CATALOG,
+  ...MIC_CATALOG,
 ]
 
 describe('deviceTypeRegistry (stabile GUID-Identitaet, GDTF-analog)', () => {
@@ -148,6 +150,22 @@ describe('detectDeviceKind / detectNetworkDevice — ID vor Heuristik', () => {
     expect(matchAudioTemplate('Allen & Heath dLive CDM32 MixRack')?.name).toContain('CDM32')
     // Behringer S16 darf nicht auf EdgeSwitch-artige Namen matchen.
     expect(matchAudioTemplate('EdgeSwitch ES-16-150W')).toBeNull()
+  })
+
+  it('Mikrofone tragen Fachdaten (Phantom/Richtcharakteristik) in categoryProps', () => {
+    // Kondensator MUSS Phantomspeisung fuehren, Dynamiker keine.
+    const km184 = matchMicTemplate('Neumann KM 184')
+    expect(km184?.category).toBe('Mikrofone')
+    expect(km184?.categoryProps?.powering).toBe('p48')
+    expect(km184?.categoryProps?.polarPattern).toBe('cardioid')
+    const sm57 = matchMicTemplate('Shure SM57')
+    expect(sm57?.categoryProps?.powering).toBe('none')
+    expect(sm57?.categoryProps?.transducer).toBe('dynamic')
+    // Mic hat genau einen Ausgang (kein erfundener Input).
+    expect(sm57?.inputs).toHaveLength(0)
+    expect(sm57?.outputs).toHaveLength(1)
+    // Generischer Name ohne Marke matcht nicht.
+    expect(matchMicTemplate('Irgendein Mikrofon 57')).toBeNull()
   })
 })
 
