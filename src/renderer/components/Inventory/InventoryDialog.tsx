@@ -11,6 +11,10 @@ import {
   Warehouse,
   Layers,
   ChevronRight,
+  ScanLine,
+  Tags,
+  BarChart3,
+  ClipboardList,
 } from 'lucide-react'
 import { ModalShell } from '../shared/ModalShell'
 import { useTranslation, format } from '../../lib/i18n'
@@ -19,6 +23,7 @@ import {
   type InventoryItemInput,
   type StorageNodeInput,
   type InventorySetInput,
+  type InventoryUnitInput,
 } from '../../store/inventoryStore'
 import { useProjectStore } from '../../store/projectStore'
 import type {
@@ -26,6 +31,8 @@ import type {
   StorageNode,
   StorageNodeKind,
   InventorySet,
+  InventoryUnit,
+  UnitCondition,
   InventoryOwnership,
   InventoryCodeType,
   InventoryMaterialKind,
@@ -38,6 +45,9 @@ import {
   availabilityOfSet,
   isContainerKind,
 } from '../../lib/storageTree'
+import { resolveInventoryCode } from '../../lib/inventoryScan'
+import { derivePackList, packListToText, packListTotalCount } from '../../lib/packList'
+import { buildInventoryReport } from '../../lib/inventoryReport'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
 
@@ -56,7 +66,7 @@ export interface InventoryDialogProps {
   onClose: () => void
 }
 
-type Tab = 'items' | 'locations' | 'sets'
+type Tab = 'items' | 'locations' | 'units' | 'sets' | 'reports'
 type ItemFormState = InventoryItemInput & { id?: string }
 
 const inputCls = 'mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5'
@@ -78,6 +88,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
   const items = useInventoryStore((s) => s.items)
   const nodes = useInventoryStore((s) => s.nodes)
   const sets = useInventoryStore((s) => s.sets)
+  const units = useInventoryStore((s) => s.units)
   const addItem = useInventoryStore((s) => s.addItem)
   const updateItem = useInventoryStore((s) => s.updateItem)
   const removeItem = useInventoryStore((s) => s.removeItem)
@@ -87,6 +98,8 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
   const [tab, setTab] = useState<Tab>('items')
   const [form, setForm] = useState<ItemFormState | null>(null)
   const [query, setQuery] = useState('')
+  const [scan, setScan] = useState('')
+  const [scanResult, setScanResult] = useState<string | null>(null)
 
   const nodeById = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes])
   const nodeOptions = useMemo(
@@ -162,6 +175,28 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
         { count: created },
       ),
     })
+  }
+
+  const handleScan = () => {
+    const code = scan.trim()
+    if (!code) return
+    const match = resolveInventoryCode(code, { items, nodes, units })
+    if (!match) {
+      setScanResult(format(t('inventory.scanNone', 'Kein Treffer für „{code}".'), { code }))
+      return
+    }
+    if (match.kind === 'item') {
+      setScanResult(format(t('inventory.scanItem', 'Artikel: {name}'), { name: match.item.model }))
+      setForm({ ...match.item })
+    } else if (match.kind === 'node') {
+      setTab('locations')
+      setScanResult(format(t('inventory.scanNode', 'Lagerort: {name}'), { name: nodePathLabel(nodes, match.node.id) }))
+    } else {
+      const model = items.find((it) => it.id === match.unit.itemId)?.model ?? '?'
+      setTab('units')
+      setScanResult(format(t('inventory.scanUnit', 'Einheit: {model} · {serial}'), { model, serial: match.unit.serial || match.unit.code || match.unit.id.slice(0, 6) }))
+    }
+    setScan('')
   }
 
   const ownershipLabel = (o?: InventoryOwnership) => {
@@ -258,12 +293,37 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
       }
     >
       <div className="space-y-3 text-cp-xs">
+        {/* Scan-Zeile — Code (QR/Barcode/Seriennr.) auflösen */}
+        <div className="flex items-center gap-1.5">
+          <div className="relative flex-1">
+            <ScanLine size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-cp-text-faint" />
+            <input
+              value={scan}
+              onChange={(e) => setScan(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleScan()
+              }}
+              placeholder={t('inventory.scanPh', 'Code scannen / eingeben (Artikel, Lagerort, Einheit)…')}
+              className="w-full rounded border border-cp-border bg-cp-surface-3 py-1.5 pl-7 pr-2"
+            />
+          </div>
+          <button type="button" onClick={handleScan} className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1.5 hover:bg-cp-surface-5">
+            <ScanLine size={13} />
+            {t('inventory.scan', 'Auflösen')}
+          </button>
+        </div>
+        {scanResult && (
+          <div className="rounded border border-cp-border-muted bg-cp-surface-2 px-2 py-1 text-cp-text-secondary">{scanResult}</div>
+        )}
+
         {/* Tabs */}
         <div className="flex gap-1 border-b border-cp-border">
           {([
             { id: 'items' as Tab, icon: Boxes, label: t('inventory.tabItems', 'Artikel') },
             { id: 'locations' as Tab, icon: Warehouse, label: format(t('inventory.tabLocations', 'Lagerorte ({n})'), { n: nodes.length }) },
+            { id: 'units' as Tab, icon: Tags, label: format(t('inventory.tabUnits', 'Einheiten ({n})'), { n: units.length }) },
             { id: 'sets' as Tab, icon: Layers, label: format(t('inventory.tabSets', 'Sets ({n})'), { n: sets.length }) },
+            { id: 'reports' as Tab, icon: BarChart3, label: t('inventory.tabReports', 'Auswertung') },
           ]).map((tb) => (
             <button
               key={tb.id}
@@ -473,7 +533,9 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
         )}
 
         {tab === 'locations' && <LocationsTab dimsEditor={dimsEditor} formatDims={formatDims} codeCell={codeCell} />}
+        {tab === 'units' && <UnitsTab codeCell={codeCell} />}
         {tab === 'sets' && <SetsTab />}
+        {tab === 'reports' && <ReportsTab />}
       </div>
     </ModalShell>
   )
@@ -494,10 +556,26 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
   const t = useTranslation()
   const nodes = useInventoryStore((s) => s.nodes)
   const items = useInventoryStore((s) => s.items)
+  const units = useInventoryStore((s) => s.units)
   const addNode = useInventoryStore((s) => s.addNode)
   const updateNode = useInventoryStore((s) => s.updateNode)
   const moveNode = useInventoryStore((s) => s.moveNode)
   const removeNode = useInventoryStore((s) => s.removeNode)
+
+  const handlePackList = async (node: StorageNode) => {
+    const list = derivePackList(node.id, { items, nodes, units })
+    const text = packListToText(list)
+    const count = packListTotalCount(list)
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      /* Clipboard evtl. nicht verfügbar — Info zeigt den Inhalt trotzdem. */
+    }
+    await infoDialog(format(t('inventory.packListTitle', 'Packliste „{name}"'), { name: node.name }), {
+      tone: 'success',
+      body: `${format(t('inventory.packListDone', '{n} Positionen — in die Zwischenablage kopiert.'), { n: count })}\n\n${text}`,
+    })
+  }
   const [form, setForm] = useState<NodeFormState | null>(null)
 
   const kindLabel = (k: StorageNodeKind): string =>
@@ -579,6 +657,16 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
           )}
           {node.dimensions && <span className="text-cp-text-faint">· {formatDims(node.dimensions)}</span>}
           <div className="ml-auto flex gap-1">
+            {container && (
+              <button
+                type="button"
+                onClick={() => handlePackList(node)}
+                className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
+                title={t('inventory.packList', 'Packliste (rekursiv) kopieren')}
+              >
+                <ClipboardList size={13} />
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setForm({ name: '', kind: container ? 'case' : 'shelf', parentId: node.id })}
@@ -862,5 +950,263 @@ const SetsTab = () => {
         </div>
       )}
     </>
+  )
+}
+
+// ── Einheiten-Tab (Serialisierung + Zustand + Historie) ──────────────────────
+type UnitFormState = InventoryUnitInput & { id?: string }
+
+interface UnitsTabProps {
+  codeCell: (code?: string, codeType?: InventoryCodeType) => React.ReactNode
+}
+
+const CONDITION_TONE: Record<UnitCondition, string> = {
+  ok: 'bg-emerald-700/30 text-emerald-400',
+  defect: 'bg-red-700/30 text-red-400',
+  inRepair: 'bg-amber-600/30 text-amber-400',
+  retired: 'bg-cp-surface-4 text-cp-text-muted',
+}
+
+const UnitsTab = ({ codeCell }: UnitsTabProps) => {
+  const t = useTranslation()
+  const items = useInventoryStore((s) => s.items)
+  const nodes = useInventoryStore((s) => s.nodes)
+  const units = useInventoryStore((s) => s.units)
+  const addUnit = useInventoryStore((s) => s.addUnit)
+  const updateUnit = useInventoryStore((s) => s.updateUnit)
+  const removeUnit = useInventoryStore((s) => s.removeUnit)
+  const moveUnit = useInventoryStore((s) => s.moveUnit)
+  const setUnitCondition = useInventoryStore((s) => s.setUnitCondition)
+  const [form, setForm] = useState<UnitFormState | null>(null)
+  const [openHistory, setOpenHistory] = useState<string | null>(null)
+
+  const itemById = useMemo(() => new Map(items.map((it) => [it.id, it])), [items])
+  const nodeOptions = useMemo(
+    () => [...nodes].map((n) => ({ id: n.id, label: nodePathLabel(nodes, n.id) })).sort((a, b) => a.label.localeCompare(b.label)),
+    [nodes],
+  )
+
+  const conditionLabel = (c: UnitCondition): string =>
+    ({ ok: t('inventory.condOk', 'OK'), defect: t('inventory.condDefect', 'defekt'), inRepair: t('inventory.condRepair', 'in Reparatur'), retired: t('inventory.condRetired', 'ausgemustert') })[c]
+
+  const handleSave = () => {
+    if (!form || !form.itemId) return
+    const payload: InventoryUnitInput = {
+      itemId: form.itemId,
+      serial: form.serial?.trim() || undefined,
+      code: form.code?.trim() || undefined,
+      codeType: form.code?.trim() ? form.codeType ?? 'qr' : undefined,
+      locationId: form.locationId || undefined,
+      condition: form.condition ?? 'ok',
+      notes: form.notes?.trim() || undefined,
+    }
+    if (form.id) updateUnit(form.id, { serial: payload.serial, code: payload.code, codeType: payload.codeType, notes: payload.notes })
+    else addUnit(payload)
+    setForm(null)
+  }
+
+  const handleDelete = async (u: InventoryUnit) => {
+    const ok = await confirmDialog(t('inventory.unitDeleteTitle', 'Einheit löschen?'), {
+      okLabel: t('common.delete', 'Löschen'),
+      cancelLabel: t('common.cancel', 'Abbrechen'),
+      destructive: true,
+    })
+    if (ok) removeUnit(u.id)
+  }
+
+  return (
+    <>
+      <div className="flex items-center justify-between">
+        <span className="text-cp-text-muted">
+          {t('inventory.unitsHint', 'Serialisierte Einzel-Einheiten — eigene Seriennr./Code, Zustand und Historie (Bewegungen, Reparaturen).')}
+        </span>
+        <button
+          type="button"
+          disabled={items.length === 0}
+          onClick={() => setForm({ itemId: items[0]?.id ?? '', condition: 'ok' })}
+          className="flex items-center gap-1 rounded bg-emerald-700 px-2.5 py-1.5 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Plus size={14} />
+          {t('inventory.addUnit', 'Einheit')}
+        </button>
+      </div>
+
+      {form && (
+        <div className="rounded border border-cp-accent/40 bg-cp-surface-2 p-3">
+          <div className="mb-2 font-medium">{form.id ? t('inventory.editUnit', 'Einheit bearbeiten') : t('inventory.newUnit', 'Neue Einheit')}</div>
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+            <label className="block">
+              {t('inventory.unitItem', 'Artikel-Modell')} <span className="text-red-400">*</span>
+              <select value={form.itemId} disabled={!!form.id} onChange={(e) => setForm({ ...form, itemId: e.target.value })} className={inputCls}>
+                {items.map((it) => (
+                  <option key={it.id} value={it.id}>
+                    {it.model}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              {t('inventory.serial', 'Seriennummer')}
+              <input value={form.serial ?? ''} onChange={(e) => setForm({ ...form, serial: e.target.value })} className={inputCls} />
+            </label>
+            <label className="block">
+              {t('inventory.code', 'Code (QR/Barcode)')}
+              <input value={form.code ?? ''} onChange={(e) => setForm({ ...form, code: e.target.value })} className={inputCls} />
+            </label>
+            <label className="block">
+              {t('inventory.codeType', 'Code-Art')}
+              <select value={form.codeType ?? 'qr'} onChange={(e) => setForm({ ...form, codeType: e.target.value as InventoryCodeType })} className={inputCls}>
+                <option value="qr">{t('inventory.qr', 'QR-Code')}</option>
+                <option value="barcode">{t('inventory.barcode', 'Barcode')}</option>
+              </select>
+            </label>
+            <label className="block md:col-span-2">
+              {t('inventory.notes', 'Notiz')}
+              <input value={form.notes ?? ''} onChange={(e) => setForm({ ...form, notes: e.target.value })} className={inputCls} />
+            </label>
+          </div>
+          <div className="mt-3 flex justify-end gap-2">
+            <button type="button" onClick={() => setForm(null)} className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5">
+              {t('common.cancel', 'Abbrechen')}
+            </button>
+            <button type="button" disabled={!form.itemId} onClick={handleSave} className="rounded bg-emerald-700 px-3 py-1 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50">
+              {t('common.save', 'Speichern')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {units.length === 0 ? (
+        <div className="rounded border border-dashed border-cp-border py-10 text-center text-cp-text-muted">
+          {items.length === 0
+            ? t('inventory.unitsNoItems', 'Lege zuerst Artikel an, dann kannst du einzelne Einheiten serialisieren.')
+            : t('inventory.unitsEmpty', 'Noch keine Einheiten. Serialisiere einzelne Exemplare eines Artikels.')}
+        </div>
+      ) : (
+        <div className="space-y-1">
+          {units.map((u) => (
+            <div key={u.id} className="rounded border border-cp-border-muted bg-cp-surface-2">
+              <div className="flex flex-wrap items-center gap-2 px-2 py-1.5">
+                <Tags size={13} className="shrink-0 text-cp-text-muted" />
+                <span className="font-medium">{itemById.get(u.itemId)?.model ?? t('inventory.unknownItem', '(gelöschter Artikel)')}</span>
+                {u.serial && <span className="text-cp-text-secondary">SN {u.serial}</span>}
+                {u.code && codeCell(u.code, u.codeType)}
+                <span className={`rounded px-1.5 py-0.5 text-[10px] ${CONDITION_TONE[u.condition]}`}>{conditionLabel(u.condition)}</span>
+                {/* Zustand ändern */}
+                <select
+                  value={u.condition}
+                  onChange={(e) => setUnitCondition(u.id, e.target.value as UnitCondition)}
+                  className="rounded border border-cp-border bg-cp-surface-3 p-0.5 text-[10px]"
+                  title={t('inventory.setCondition', 'Zustand ändern')}
+                >
+                  {(['ok', 'defect', 'inRepair', 'retired'] as UnitCondition[]).map((c) => (
+                    <option key={c} value={c}>
+                      {conditionLabel(c)}
+                    </option>
+                  ))}
+                </select>
+                {/* Lagerort verschieben */}
+                <select
+                  value={u.locationId ?? ''}
+                  onChange={(e) => {
+                    const id = e.target.value || undefined
+                    moveUnit(u.id, id, id ? nodePathLabel(nodes, id) : '')
+                  }}
+                  className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-3 p-0.5 text-[10px]"
+                  title={t('inventory.moveUnit', 'Lagerort ändern')}
+                >
+                  <option value="">{t('inventory.noLocation', '— kein Lagerort —')}</option>
+                  {nodeOptions.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="ml-auto flex gap-1">
+                  <button type="button" onClick={() => setOpenHistory(openHistory === u.id ? null : u.id)} className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('inventory.history', 'Historie')}>
+                    <ClipboardList size={13} />
+                  </button>
+                  <button type="button" onClick={() => setForm({ ...u })} className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('common.edit', 'Bearbeiten')}>
+                    <Pencil size={13} />
+                  </button>
+                  <button type="button" onClick={() => handleDelete(u)} className="rounded p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300" title={t('common.delete', 'Löschen')}>
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              </div>
+              {openHistory === u.id && (
+                <ul className="border-t border-cp-border-muted px-3 py-1.5 text-[10px] text-cp-text-secondary">
+                  {u.history.map((e, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="tabular-nums text-cp-text-faint">{e.at.slice(0, 10)}</span>
+                      <span>{e.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  )
+}
+
+// ── Reports-Tab ──────────────────────────────────────────────────────────────
+const ReportsTab = () => {
+  const t = useTranslation()
+  const items = useInventoryStore((s) => s.items)
+  const nodes = useInventoryStore((s) => s.nodes)
+  const units = useInventoryStore((s) => s.units)
+  const report = useMemo(() => buildInventoryReport(items, nodes, units), [items, nodes, units])
+
+  const kpi = (label: string, value: string | number) => (
+    <div className="rounded border border-cp-border-muted bg-cp-surface-2 px-3 py-2">
+      <div className="text-[10px] uppercase tracking-wide text-cp-text-muted">{label}</div>
+      <div className="text-cp-sm font-semibold tabular-nums text-cp-text">{value}</div>
+    </div>
+  )
+
+  const breakdown = (title: string, rows: { key: string; items: number; units: number }[]) => (
+    <div className="rounded border border-cp-border">
+      <div className="border-b border-cp-border-muted bg-cp-surface-2 px-2 py-1 font-medium">{title}</div>
+      {rows.length === 0 ? (
+        <div className="px-2 py-1.5 text-cp-text-muted">—</div>
+      ) : (
+        <table className="w-full text-left">
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.key} className="border-t border-cp-border-muted">
+                <td className="px-2 py-1">{r.key}</td>
+                <td className="px-2 py-1 text-right tabular-nums text-cp-text-secondary">{format(t('inventory.reportRow', '{units} Stk · {items} Pos.'), { units: r.units, items: r.items })}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  )
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+        {kpi(t('inventory.kpiItems', 'Artikel-Positionen'), report.itemCount)}
+        {kpi(t('inventory.kpiUnits', 'Einheiten (Bulk)'), report.totalUnits)}
+        {kpi(t('inventory.kpiSerialized', 'Serialisiert'), report.serializedCount)}
+        {kpi(t('inventory.kpiValue', 'Miet-Vol./Tag (€)'), report.dailyRentalValue.toFixed(2))}
+      </div>
+      {report.itemsWithoutPrice > 0 && (
+        <div className="rounded border border-amber-600/40 bg-amber-600/10 px-2 py-1 text-amber-500">
+          {format(t('inventory.reportNoPrice', '{n} Artikel ohne Mietpreis — Miet-Volumen unvollständig.'), { n: report.itemsWithoutPrice })}
+        </div>
+      )}
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+        {breakdown(t('inventory.byCategory', 'Nach Kategorie'), report.byCategory)}
+        {breakdown(t('inventory.byLocation', 'Nach Lagerort (Wurzel)'), report.byLocation)}
+        {breakdown(t('inventory.byOwnership', 'Nach Eigentum'), report.byOwnership)}
+        {breakdown(t('inventory.byMaterial', 'Nach Material-Art'), report.byMaterial)}
+      </div>
+      {report.serializedCount > 0 && breakdown(t('inventory.byCondition', 'Einheiten nach Zustand'), report.unitsByCondition)}
+    </div>
   )
 }
