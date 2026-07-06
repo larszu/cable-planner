@@ -162,12 +162,14 @@ export const labelPageCount = (count: number, sheet: LabelSheet, startOffset = 0
 }
 
 export interface LabelSpec {
-  /** QR-Code als data-URI (vom Aufrufer via `qrcode` gerendert). */
+  /** Code-Grafik als data-URI (QR oder Barcode, vom Aufrufer gerendert). */
   qrDataUrl: string
-  /** Menschlich lesbarer Code (unter/neben dem QR). */
+  /** Menschlich lesbarer Code (unter/neben der Grafik). */
   code: string
   /** Optionaler Titel (z. B. Modell-/Case-Name). */
   title?: string
+  /** Symbologie — steuert das Zell-Layout (QR quadratisch, Barcode quer). */
+  symbology?: 'qr' | 'barcode'
 }
 
 const esc = (s: string): string =>
@@ -188,18 +190,31 @@ export const buildLabelSheetHtml = (
   // QR-Kantenlänge: Etiketthöhe minus Padding, aber nicht breiter als ~40% der
   // Etikettbreite, damit Text Platz hat.
   const qrMm = Math.max(8, Math.min(sheet.labelHeightMm - 3, sheet.labelWidthMm * 0.42))
+  // Barcode: quer über die Etikettbreite, Höhe ~ halbe Etiketthöhe (Text darunter).
+  const barWmm = sheet.labelWidthMm - 3
+  const barHmm = Math.max(6, Math.min(sheet.labelHeightMm * 0.55, sheet.labelHeightMm - 5))
+  const cell = (label: LabelSpec, slot: LabelSlot): string => {
+    const box = `left:${slot.leftMm}mm;top:${slot.topMm}mm;width:${sheet.labelWidthMm}mm;height:${sheet.labelHeightMm}mm`
+    const title = label.title ? `<div class="t">${esc(label.title)}</div>` : ''
+    if (label.symbology === 'barcode') {
+      // Gestapelt: Barcode oben (quer), Titel + Code darunter.
+      return `<div class="lbl bc" style="${box}">
+  <img class="bar" src="${label.qrDataUrl}" style="width:${barWmm}mm;height:${barHmm}mm" alt="" />
+  <div class="txt">${title}<div class="c">${esc(label.code)}</div></div>
+</div>`
+    }
+    // QR: quadratisch links, Text rechts.
+    return `<div class="lbl" style="${box}">
+  <img class="qr" src="${label.qrDataUrl}" style="width:${qrMm}mm;height:${qrMm}mm" alt="" />
+  <div class="txt">${title}<div class="c">${esc(label.code)}</div></div>
+</div>`
+  }
   const pageDivs: string[] = []
   for (let p = 0; p < pages; p++) {
     const cells = labels
       .map((label, i) => ({ label, slot: slots[i] }))
       .filter((x) => x.slot.page === p)
-      .map(({ label, slot }) => {
-        const title = label.title ? `<div class="t">${esc(label.title)}</div>` : ''
-        return `<div class="lbl" style="left:${slot.leftMm}mm;top:${slot.topMm}mm;width:${sheet.labelWidthMm}mm;height:${sheet.labelHeightMm}mm">
-  <img class="qr" src="${label.qrDataUrl}" style="width:${qrMm}mm;height:${qrMm}mm" alt="" />
-  <div class="txt">${title}<div class="c">${esc(label.code)}</div></div>
-</div>`
-      })
+      .map(({ label, slot }) => cell(label, slot))
       .join('\n')
     pageDivs.push(`<div class="page">${cells}</div>`)
   }
@@ -211,7 +226,10 @@ export const buildLabelSheetHtml = (
   .page { position: relative; width: ${sheet.pageWidthMm}mm; height: ${sheet.pageHeightMm}mm; page-break-after: always; overflow: hidden; }
   .page:last-child { page-break-after: auto; }
   .lbl { position: absolute; display: flex; align-items: center; gap: 1.5mm; padding: 1.5mm; overflow: hidden; }
+  .lbl.bc { flex-direction: column; align-items: stretch; justify-content: center; gap: 0.5mm; }
   .qr { flex: 0 0 auto; object-fit: contain; }
+  .bar { display: block; object-fit: fill; }
+  .lbl.bc .txt { text-align: center; }
   .txt { min-width: 0; font-family: Arial, sans-serif; line-height: 1.15; }
   .t { font-size: 7pt; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .c { font-size: 8pt; font-family: 'Courier New', monospace; word-break: break-all; }

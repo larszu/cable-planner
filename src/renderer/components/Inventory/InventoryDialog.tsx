@@ -61,6 +61,7 @@ import {
   buildLabelSheetHtml,
   type LabelSpec,
 } from '../../lib/labelSheets'
+import { renderBarcodeDataUrl } from '../../lib/barcode'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
 
@@ -1195,34 +1196,40 @@ const LabelsTab = () => {
   const [caseId, setCaseId] = useState('')
   const [formatId, setFormatId] = useState(ALL_LABEL_FORMATS[0].id)
   const [offset, setOffset] = useState(0)
+  const [symbology, setSymbology] = useState<'auto' | 'qr' | 'barcode'>('auto')
   const [busy, setBusy] = useState(false)
 
   const sheet = labelSheetById(formatId) ?? ALL_LABEL_FORMATS[0]
   const containers = useMemo(() => nodes.filter((n) => isContainerKind(n.kind)), [nodes])
   const itemById = useMemo(() => new Map(items.map((it) => [it.id, it])), [items])
 
+  type Entry = { code: string; title?: string; codeType?: InventoryCodeType }
   // Sammelt die zu druckenden Codes (nur Entitäten MIT Code — kein Raten).
-  const collect = (): { code: string; title?: string }[] => {
+  const collect = (): Entry[] => {
     if (source === 'items') {
-      return items.filter((it) => it.code).map((it) => ({ code: it.code!, title: it.model }))
+      return items.filter((it) => it.code).map((it) => ({ code: it.code!, title: it.model, codeType: it.codeType }))
     }
     if (source === 'nodes') {
-      return nodes.filter((n) => n.code).map((n) => ({ code: n.code!, title: n.name }))
+      return nodes.filter((n) => n.code).map((n) => ({ code: n.code!, title: n.name, codeType: n.codeType }))
     }
     if (source === 'units') {
       return units
         .filter((u) => u.code)
-        .map((u) => ({ code: u.code!, title: itemById.get(u.itemId)?.model }))
+        .map((u) => ({ code: u.code!, title: itemById.get(u.itemId)?.model, codeType: u.codeType }))
     }
     // 'case' — Codes aller Artikel + Einheiten (rekursiv) im gewählten Container.
     if (!caseId) return []
     const ids = new Set([caseId, ...descendantNodeIds(nodes, caseId)])
-    const out: { code: string; title?: string }[] = []
-    for (const it of items) if (it.code && it.locationId && ids.has(it.locationId)) out.push({ code: it.code, title: it.model })
+    const out: Entry[] = []
+    for (const it of items) if (it.code && it.locationId && ids.has(it.locationId)) out.push({ code: it.code, title: it.model, codeType: it.codeType })
     for (const u of units)
-      if (u.code && u.locationId && ids.has(u.locationId)) out.push({ code: u.code, title: itemById.get(u.itemId)?.model })
+      if (u.code && u.locationId && ids.has(u.locationId)) out.push({ code: u.code, title: itemById.get(u.itemId)?.model, codeType: u.codeType })
     return out
   }
+
+  // Symbologie je Eintrag: 'auto' folgt der Code-Art des Objekts (Default QR).
+  const symbologyFor = (e: Entry): 'qr' | 'barcode' =>
+    symbology === 'auto' ? (e.codeType === 'barcode' ? 'barcode' : 'qr') : symbology
 
   const specsCount = useMemo(() => collect().length, [source, caseId, items, nodes, units]) // eslint-disable-line react-hooks/exhaustive-deps
   const pages = labelPageCount(specsCount, sheet, offset)
@@ -1240,13 +1247,17 @@ const LabelsTab = () => {
     try {
       const labels: LabelSpec[] = []
       for (const e of entries) {
-        let qrDataUrl = ''
+        const sym = symbologyFor(e)
+        let dataUrl = ''
         try {
-          qrDataUrl = await QRCode.toDataURL(e.code, { width: 240, margin: 0, color: { dark: '#000000', light: '#ffffff' } })
+          dataUrl =
+            sym === 'barcode'
+              ? renderBarcodeDataUrl(e.code)
+              : await QRCode.toDataURL(e.code, { width: 240, margin: 0, color: { dark: '#000000', light: '#ffffff' } })
         } catch {
-          /* QR-Render fehlgeschlagen → Etikett trägt nur den Code-Text. */
+          /* Render fehlgeschlagen → Etikett trägt nur den Code-Text. */
         }
-        labels.push({ qrDataUrl, code: e.code, title: e.title })
+        labels.push({ qrDataUrl: dataUrl, code: e.code, title: e.title, symbology: sym })
       }
       printHtmlDocument(buildLabelSheetHtml(labels, sheet, offset))
     } finally {
@@ -1288,6 +1299,14 @@ const LabelsTab = () => {
             </select>
           </label>
         )}
+        <label className="block">
+          {t('inventory.labelSymbology', 'Code-Typ')}
+          <select value={symbology} onChange={(e) => setSymbology(e.target.value as 'auto' | 'qr' | 'barcode')} className={sel}>
+            <option value="auto">{t('inventory.symAuto', 'Je Code-Art (Auto)')}</option>
+            <option value="qr">{t('inventory.symQr', 'QR-Code')}</option>
+            <option value="barcode">{t('inventory.symBarcode', 'Barcode (Code128)')}</option>
+          </select>
+        </label>
         <label className="block">
           {t('inventory.labelFormat', 'Format')}
           <select value={formatId} onChange={(e) => setFormatId(e.target.value)} className={sel}>
