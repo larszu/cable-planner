@@ -183,6 +183,50 @@ export const deriveDrumChannels = (plan: DrumKitPlan): DrumDerivation => {
   }
 }
 
+export interface DrumBomRow {
+  qty: number
+  item: string
+  kind: 'mic' | 'cable' | 'stand'
+}
+
+/**
+ * Leitet eine Materialliste (BOM) aus dem Kit ab: Mikrofone nach Modell
+ * gruppiert, ein XLR-Kabel je Kanal, sowie Stative/Clamps je Zonenart
+ * (Clip-Mics/Grenzflächen brauchen kein Stativ). Kein Raten: unbekannte Mics
+ * werden als „Mikrofon (offen)" gezählt.
+ */
+export const deriveDrumBom = (plan: DrumKitPlan): DrumBomRow[] => {
+  const zonesById = new Map(plan.zones.map((z) => [z.id, z]))
+  const micCounts = new Map<string, number>()
+  let stands = 0
+  let clamps = 0
+  for (const m of plan.mics) {
+    const resolved = resolveDeviceType(m.micDeviceTypeId)
+    const name = resolved?.template.name ?? m.micName ?? 'Mikrofon (offen)'
+    micCounts.set(name, (micCounts.get(name) ?? 0) + 1)
+    // Stativ-Bedarf: Clip-Mics an Kessel = Clamp; Grenzfläche = keins; sonst Stativ.
+    const capsule = resolved?.template.categoryProps?.capsule
+    const zone = zonesById.get(m.zoneId)
+    if (capsule === 'boundary') continue
+    if (capsule === 'clip' || (zone && (zone.kind === 'tom' || zone.kind === 'snare'))) clamps += 1
+    else stands += 1
+  }
+  const rows: DrumBomRow[] = []
+  for (const [item, qty] of [...micCounts.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+    rows.push({ qty, item, kind: 'mic' })
+  }
+  if (plan.mics.length > 0) rows.push({ qty: plan.mics.length, item: 'XLR-Kabel (Mic → Stagebox)', kind: 'cable' })
+  if (stands > 0) rows.push({ qty: stands, item: 'Mikrofonstativ', kind: 'stand' })
+  if (clamps > 0) rows.push({ qty: clamps, item: 'Kessel-Clamp / Rim-Halter', kind: 'stand' })
+  return rows
+}
+
+/** BOM als kopierbarer Text (eine Zeile je Position). */
+export const drumBomToText = (plan: DrumKitPlan): string =>
+  deriveDrumBom(plan)
+    .map((r) => `${r.qty}x ${r.item}`)
+    .join('\n')
+
 /** Frischer, leerer Plan mit Default-Zonen. */
 export const emptyDrumKit = (): DrumKitPlan => ({
   zones: defaultDrumZones(),
