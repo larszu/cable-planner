@@ -15,7 +15,10 @@ import {
   Tags,
   BarChart3,
   ClipboardList,
+  Printer,
+  QrCode as QrCodeIcon,
 } from 'lucide-react'
+import QRCode from 'qrcode'
 import { ModalShell } from '../shared/ModalShell'
 import { useTranslation, format } from '../../lib/i18n'
 import {
@@ -44,10 +47,20 @@ import {
   itemsInNode,
   availabilityOfSet,
   isContainerKind,
+  descendantNodeIds,
 } from '../../lib/storageTree'
 import { resolveInventoryCode } from '../../lib/inventoryScan'
 import { derivePackList, packListToText, packListTotalCount } from '../../lib/packList'
 import { buildInventoryReport } from '../../lib/inventoryReport'
+import { buildPackListHtml } from '../../lib/inventoryPrint'
+import { printHtmlDocument } from '../../lib/printHtml'
+import {
+  ALL_LABEL_FORMATS,
+  labelSheetById,
+  labelPageCount,
+  buildLabelSheetHtml,
+  type LabelSpec,
+} from '../../lib/labelSheets'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
 
@@ -66,7 +79,7 @@ export interface InventoryDialogProps {
   onClose: () => void
 }
 
-type Tab = 'items' | 'locations' | 'units' | 'sets' | 'reports'
+type Tab = 'items' | 'locations' | 'units' | 'sets' | 'labels' | 'reports'
 type ItemFormState = InventoryItemInput & { id?: string }
 
 const inputCls = 'mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5'
@@ -323,6 +336,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
             { id: 'locations' as Tab, icon: Warehouse, label: format(t('inventory.tabLocations', 'Lagerorte ({n})'), { n: nodes.length }) },
             { id: 'units' as Tab, icon: Tags, label: format(t('inventory.tabUnits', 'Einheiten ({n})'), { n: units.length }) },
             { id: 'sets' as Tab, icon: Layers, label: format(t('inventory.tabSets', 'Sets ({n})'), { n: sets.length }) },
+            { id: 'labels' as Tab, icon: QrCodeIcon, label: t('inventory.tabLabels', 'Labels') },
             { id: 'reports' as Tab, icon: BarChart3, label: t('inventory.tabReports', 'Auswertung') },
           ]).map((tb) => (
             <button
@@ -535,6 +549,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
         {tab === 'locations' && <LocationsTab dimsEditor={dimsEditor} formatDims={formatDims} codeCell={codeCell} />}
         {tab === 'units' && <UnitsTab codeCell={codeCell} />}
         {tab === 'sets' && <SetsTab />}
+        {tab === 'labels' && <LabelsTab />}
         {tab === 'reports' && <ReportsTab />}
       </div>
     </ModalShell>
@@ -575,6 +590,11 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
       tone: 'success',
       body: `${format(t('inventory.packListDone', '{n} Positionen — in die Zwischenablage kopiert.'), { n: count })}\n\n${text}`,
     })
+  }
+
+  const handlePackListPrint = (node: StorageNode) => {
+    const list = derivePackList(node.id, { items, nodes, units })
+    printHtmlDocument(buildPackListHtml(node.name, node.code, list))
   }
   const [form, setForm] = useState<NodeFormState | null>(null)
 
@@ -658,14 +678,24 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
           {node.dimensions && <span className="text-cp-text-faint">· {formatDims(node.dimensions)}</span>}
           <div className="ml-auto flex gap-1">
             {container && (
-              <button
-                type="button"
-                onClick={() => handlePackList(node)}
-                className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
-                title={t('inventory.packList', 'Packliste (rekursiv) kopieren')}
-              >
-                <ClipboardList size={13} />
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => handlePackListPrint(node)}
+                  className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
+                  title={t('inventory.packListPrint', 'Packliste drucken')}
+                >
+                  <Printer size={13} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handlePackList(node)}
+                  className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
+                  title={t('inventory.packList', 'Packliste (rekursiv) kopieren')}
+                >
+                  <ClipboardList size={13} />
+                </button>
+              </>
             )}
             <button
               type="button"
@@ -1149,6 +1179,164 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
         </div>
       )}
     </>
+  )
+}
+
+// ── Labels-Tab (QR-Etiketten drucken: A4 Avery/Zweckform + Labeldrucker) ─────
+type LabelSource = 'items' | 'nodes' | 'units' | 'case'
+
+const LabelsTab = () => {
+  const t = useTranslation()
+  const items = useInventoryStore((s) => s.items)
+  const nodes = useInventoryStore((s) => s.nodes)
+  const units = useInventoryStore((s) => s.units)
+
+  const [source, setSource] = useState<LabelSource>('items')
+  const [caseId, setCaseId] = useState('')
+  const [formatId, setFormatId] = useState(ALL_LABEL_FORMATS[0].id)
+  const [offset, setOffset] = useState(0)
+  const [busy, setBusy] = useState(false)
+
+  const sheet = labelSheetById(formatId) ?? ALL_LABEL_FORMATS[0]
+  const containers = useMemo(() => nodes.filter((n) => isContainerKind(n.kind)), [nodes])
+  const itemById = useMemo(() => new Map(items.map((it) => [it.id, it])), [items])
+
+  // Sammelt die zu druckenden Codes (nur Entitäten MIT Code — kein Raten).
+  const collect = (): { code: string; title?: string }[] => {
+    if (source === 'items') {
+      return items.filter((it) => it.code).map((it) => ({ code: it.code!, title: it.model }))
+    }
+    if (source === 'nodes') {
+      return nodes.filter((n) => n.code).map((n) => ({ code: n.code!, title: n.name }))
+    }
+    if (source === 'units') {
+      return units
+        .filter((u) => u.code)
+        .map((u) => ({ code: u.code!, title: itemById.get(u.itemId)?.model }))
+    }
+    // 'case' — Codes aller Artikel + Einheiten (rekursiv) im gewählten Container.
+    if (!caseId) return []
+    const ids = new Set([caseId, ...descendantNodeIds(nodes, caseId)])
+    const out: { code: string; title?: string }[] = []
+    for (const it of items) if (it.code && it.locationId && ids.has(it.locationId)) out.push({ code: it.code, title: it.model })
+    for (const u of units)
+      if (u.code && u.locationId && ids.has(u.locationId)) out.push({ code: u.code, title: itemById.get(u.itemId)?.model })
+    return out
+  }
+
+  const specsCount = useMemo(() => collect().length, [source, caseId, items, nodes, units]) // eslint-disable-line react-hooks/exhaustive-deps
+  const pages = labelPageCount(specsCount, sheet, offset)
+
+  const handlePrint = async () => {
+    const entries = collect()
+    if (entries.length === 0) {
+      await infoDialog(t('inventory.labelsNoneTitle', 'Keine Codes'), {
+        tone: 'info',
+        body: t('inventory.labelsNone', 'Die gewählte Quelle enthält keine Artikel/Objekte mit hinterlegtem Code.'),
+      })
+      return
+    }
+    setBusy(true)
+    try {
+      const labels: LabelSpec[] = []
+      for (const e of entries) {
+        let qrDataUrl = ''
+        try {
+          qrDataUrl = await QRCode.toDataURL(e.code, { width: 240, margin: 0, color: { dark: '#000000', light: '#ffffff' } })
+        } catch {
+          /* QR-Render fehlgeschlagen → Etikett trägt nur den Code-Text. */
+        }
+        labels.push({ qrDataUrl, code: e.code, title: e.title })
+      }
+      printHtmlDocument(buildLabelSheetHtml(labels, sheet, offset))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const sel = 'mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5'
+
+  return (
+    <div className="space-y-3">
+      <span className="text-cp-text-muted">
+        {t('inventory.labelsHint', 'QR-Etiketten drucken — auf A4-Bögen (Avery/Zweckform) oder Endlos-Labeldrucker. Nur Objekte mit hinterlegtem Code.')}
+      </span>
+
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+        <label className="block">
+          {t('inventory.labelSource', 'Quelle')}
+          <select value={source} onChange={(e) => setSource(e.target.value as LabelSource)} className={sel}>
+            <option value="items">{t('inventory.labelSrcItems', 'Artikel mit Code')}</option>
+            <option value="nodes">{t('inventory.labelSrcNodes', 'Lagerorte / Cases mit Code')}</option>
+            <option value="units">{t('inventory.labelSrcUnits', 'Einheiten mit Code')}</option>
+            <option value="case">{t('inventory.labelSrcCase', 'Inhalt eines Cases (rekursiv)')}</option>
+          </select>
+        </label>
+        {source === 'case' && (
+          <label className="block">
+            {t('inventory.labelCase', 'Case / Container')}
+            <select value={caseId} onChange={(e) => setCaseId(e.target.value)} className={sel}>
+              <option value="">{t('inventory.pickItem', 'Artikel wählen…')}</option>
+              {containers
+                .map((n) => ({ id: n.id, label: nodePathLabel(nodes, n.id) }))
+                .sort((a, b) => a.label.localeCompare(b.label))
+                .map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.label}
+                  </option>
+                ))}
+            </select>
+          </label>
+        )}
+        <label className="block">
+          {t('inventory.labelFormat', 'Format')}
+          <select value={formatId} onChange={(e) => setFormatId(e.target.value)} className={sel}>
+            <optgroup label={t('inventory.labelSheetsGroup', 'A4-Bögen (Avery / Zweckform)')}>
+              {ALL_LABEL_FORMATS.filter((s) => !s.roll).map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label={t('inventory.labelRollsGroup', 'Endlos-Labeldrucker')}>
+              {ALL_LABEL_FORMATS.filter((s) => s.roll).map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        </label>
+        {!sheet.roll && (
+          <label className="block">
+            {t('inventory.labelOffset', 'Erste Etikett-Position (angebrochener Bogen)')}
+            <input
+              type="number"
+              min={0}
+              max={sheet.cols * sheet.rows - 1}
+              value={offset}
+              onChange={(e) => setOffset(Math.max(0, Math.min(sheet.cols * sheet.rows - 1, Number(e.target.value) || 0)))}
+              className={sel}
+            />
+          </label>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between rounded border border-cp-border-muted bg-cp-surface-2 px-3 py-2">
+        <span className="text-cp-text-secondary">
+          {format(t('inventory.labelSummary', '{n} Etiketten · {p} Seite(n)'), { n: specsCount, p: pages })}
+        </span>
+        <button
+          type="button"
+          disabled={busy || specsCount === 0}
+          onClick={handlePrint}
+          className="flex items-center gap-1 rounded bg-emerald-700 px-3 py-1.5 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Printer size={14} />
+          {busy ? t('inventory.labelBusy', 'Erzeuge…') : t('inventory.labelPrint', 'Drucken')}
+        </button>
+      </div>
+    </div>
   )
 }
 
