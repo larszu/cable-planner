@@ -38,6 +38,9 @@ export interface CategoryFieldDef {
   /** Auswahl-Optionen für `type: 'select'`. */
   options?: CategoryFieldOption[]
   placeholder?: string
+  /** Vom User im Feld-Builder angelegt (nicht Built-in). Nur UI-Markierung —
+   *  die Werte liegen wie bei Built-ins in `equipment.categoryProps`. */
+  userDefined?: boolean
 }
 
 const L = (de: string, en: string): Record<Lang, string> => ({ de, en })
@@ -348,11 +351,57 @@ const EN_ALIAS: Record<string, string> = {
   tripods: 'stative',
 }
 
-/** Feld-Schema für eine Kategorie (case-insensitiv, DE + EN). Leeres Array = keine Fachfelder. */
-export const schemaForCategory = (category: string | undefined): CategoryFieldDef[] => {
+// ── User-Feld-Overlay (EAV-/Dynamic-Schema-Pattern) ─────────────────────────
+// Der Feld-Builder (Settings-Tab) macht aus dem hartkodierten Schema
+// erweiterbare Daten: pro Kategorie kann der User eigene `CategoryFieldDef`
+// hinzufügen. Diese Overlay-Map wird vom settingsStore beim Laden/Ändern
+// gesetzt; `schemaForCategory` mischt Built-in + User-Felder. Die Werte selbst
+// liegen unverändert in `equipment.categoryProps` (offener Beutel), sodass beim
+// Löschen eines User-Felds keine Daten verloren gehen (MVR-Grundsatz).
+export type UserSchemaMap = Record<string, CategoryFieldDef[]>
+
+let userOverlay: UserSchemaMap = {}
+
+/** Vom settingsStore aufgerufen. Schlüssel = kanonische (lowercase) Kategorie. */
+export const setUserSchemaOverlay = (map: UserSchemaMap): void => {
+  const normed: UserSchemaMap = {}
+  for (const [k, v] of Object.entries(map ?? {})) normed[norm(k)] = v
+  userOverlay = normed
+}
+
+/** Kanonischer (lowercase) Schlüssel einer Kategorie — für Overlay-Zugriff. */
+export const canonicalCategoryKey = (category: string): string => {
+  const lc = norm(category)
+  return EN_ALIAS[lc] ?? lc
+}
+
+/** Nur die Built-in-Felder einer Kategorie (ohne User-Overlay). */
+export const builtInSchemaForCategory = (category: string | undefined): CategoryFieldDef[] => {
   if (!category) return []
   const lc = norm(category)
   return BY_LC[lc] ?? BY_LC[EN_ALIAS[lc] ?? ''] ?? []
+}
+
+/**
+ * Feld-Schema für eine Kategorie (case-insensitiv, DE + EN) inkl. User-Felder.
+ * Built-in-Felder zuerst, dann User-Felder deren Key NICHT mit einem Built-in
+ * kollidiert (Built-in gewinnt — der Builder validiert das zusätzlich).
+ * Leeres Array = keine Fachfelder.
+ */
+export const schemaForCategory = (category: string | undefined): CategoryFieldDef[] => {
+  if (!category) return []
+  const builtIn = builtInSchemaForCategory(category)
+  const extra = userOverlay[canonicalCategoryKey(category)] ?? []
+  if (extra.length === 0) return builtIn
+  const seen = new Set(builtIn.map((f) => f.key))
+  const merged = [...builtIn]
+  for (const f of extra) {
+    if (!seen.has(f.key)) {
+      seen.add(f.key)
+      merged.push({ ...f, userDefined: true })
+    }
+  }
+  return merged
 }
 
 /**

@@ -8,8 +8,45 @@ import {
   enabledFromPresets,
   type PresetId,
 } from '../lib/modules'
+import {
+  setUserSchemaOverlay,
+  type UserSchemaMap,
+  type CategoryFieldDef,
+} from '../lib/categorySchemas'
 
 const SETTINGS_KEY = STORAGE_KEYS.settings
+
+/** Defensive Validierung einer geladenen User-Schema-Map (localStorage ist
+ *  unvertrauenswürdig). Wirft nie — filtert nur Unbrauchbares raus. */
+const sanitizeUserSchema = (raw: unknown): UserSchemaMap => {
+  const out: UserSchemaMap = {}
+  if (!raw || typeof raw !== 'object') return out
+  for (const [cat, fields] of Object.entries(raw as Record<string, unknown>)) {
+    if (!Array.isArray(fields)) continue
+    const clean: CategoryFieldDef[] = []
+    for (const f of fields) {
+      const fd = f as Partial<CategoryFieldDef>
+      if (typeof fd?.key !== 'string' || !fd.key) continue
+      if (!fd.label || typeof fd.label !== 'object') continue
+      if (!['text', 'number', 'select', 'boolean'].includes(fd.type as string)) continue
+      clean.push({
+        key: fd.key,
+        label: { de: String(fd.label.de ?? fd.key), en: String(fd.label.en ?? fd.label.de ?? fd.key) },
+        type: fd.type as CategoryFieldDef['type'],
+        unit: typeof fd.unit === 'string' ? fd.unit : undefined,
+        placeholder: typeof fd.placeholder === 'string' ? fd.placeholder : undefined,
+        options: Array.isArray(fd.options)
+          ? fd.options
+              .filter((o): o is { value: string; label: Record<string, string> } => !!o && typeof (o as { value?: unknown }).value === 'string')
+              .map((o) => ({ value: o.value, label: { de: String(o.label?.de ?? o.value), en: String(o.label?.en ?? o.label?.de ?? o.value) } }))
+          : undefined,
+        userDefined: true,
+      })
+    }
+    if (clean.length) out[cat] = clean
+  }
+  return out
+}
 
 /**
  * Einmalige Rentman-Migration: `rentmanEnabled` lebte früher im uiStore
@@ -41,6 +78,9 @@ interface PersistedSettings {
   /** Modulares UI — true, sobald der Erststart-Modul-Dialog beantwortet/
    *  übersprungen wurde (steuert, ob er nochmal erscheint). */
   onboardingDone: boolean
+  /** Feld-Builder — user-definierte Fachfelder je Kategorie (kanonischer
+   *  lowercase-Key). Overlay über die Built-in-`CATEGORY_SCHEMAS`. */
+  userSchema: UserSchemaMap
 }
 
 const defaults: PersistedSettings = {
@@ -50,6 +90,7 @@ const defaults: PersistedSettings = {
   editorName: '',
   enabledModules: { ...DEFAULT_ENABLED },
   onboardingDone: false,
+  userSchema: {},
 }
 
 const load = (): PersistedSettings => {
@@ -78,6 +119,7 @@ const load = (): PersistedSettings => {
       // Feld) gelten als „onboarded" → kein nachträglicher Dialog für sie.
       onboardingDone:
         typeof parsed.onboardingDone === 'boolean' ? parsed.onboardingDone : true,
+      userSchema: sanitizeUserSchema(parsed.userSchema),
     }
   } catch {
     return defaults
@@ -101,6 +143,7 @@ const snapshot = (s: PersistedSettings): PersistedSettings => ({
   editorName: s.editorName,
   enabledModules: s.enabledModules,
   onboardingDone: s.onboardingDone,
+  userSchema: s.userSchema,
 })
 
 interface SettingsState {
@@ -114,6 +157,7 @@ interface SettingsState {
   editorName: string
   enabledModules: Record<ModuleId, boolean>
   onboardingDone: boolean
+  userSchema: UserSchemaMap
   setHasToken: (value: boolean) => void
   setTokenStatus: (value: string) => void
   setAutosaveIntervalMs: (value: number) => void
@@ -126,9 +170,14 @@ interface SettingsState {
   applyModulePreset: (presetIds: PresetId[]) => void
   /** Erststart-Modul-Dialog als erledigt markieren. */
   setOnboardingDone: (value: boolean) => void
+  /** Feld-Builder — die komplette User-Schema-Map ersetzen. */
+  setUserSchema: (map: UserSchemaMap) => void
 }
 
 const initial = load()
+// Overlay sofort aktivieren, damit schemaForCategory die User-Felder kennt,
+// bevor die erste Property-Section rendert.
+setUserSchemaOverlay(initial.userSchema)
 
 export const useSettingsStore = create<SettingsState>((set) => ({
   tokenStatus: 'No token configured',
@@ -139,6 +188,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   editorName: initial.editorName,
   enabledModules: initial.enabledModules,
   onboardingDone: initial.onboardingDone,
+  userSchema: initial.userSchema,
   setHasToken: (value) => set({ hasToken: value }),
   setTokenStatus: (value) => set({ tokenStatus: value }),
   setAutosaveIntervalMs: (value) =>
@@ -178,6 +228,13 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set((state) => {
       persist(snapshot({ ...state, onboardingDone: value }))
       return { onboardingDone: value }
+    }),
+  setUserSchema: (map) =>
+    set((state) => {
+      const userSchema = sanitizeUserSchema(map)
+      persist(snapshot({ ...state, userSchema }))
+      setUserSchemaOverlay(userSchema) // Overlay live nachziehen.
+      return { userSchema }
     }),
 }))
 
