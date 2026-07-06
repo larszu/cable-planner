@@ -382,6 +382,8 @@ export interface ProjectState {
   renameGroupPreset: (id: string, newName: string) => void
   /** Save or replace the GreenGo intercom planning config in the project. */
   updateGreenGoConfig: (config: GreenGoConfig) => void
+  /** Drum-Mikrofonierung — den Drum-Kit-Plan setzen (undefined = entfernen). */
+  setDrumKit: (plan: import('../types/drumKit').DrumKitPlan | undefined) => void
   /** v7.9.3 — Mobile-Viewer Check-State setzen (vom POST /checks-IPC).
    *  Komplettes Objekt-Replace damit gelöschte Checks (false → kein
    *  key) auch übernommen werden. */
