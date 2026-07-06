@@ -1,7 +1,27 @@
 # Drum-Mikrofonierung, Mikrofon-Datenmodell & User-Feld-Builder
 
-Status: Konzept + Recherche (Design vor Implementierung).
+Status: **umgesetzt** (alle vier Bausteine live) — Konzept + Recherche unten dokumentiert.
 Bezug: Audio-Domäne der Suite; baut auf `categorySchemas.ts` + `categoryProps` auf.
+
+## Umsetzungs-Stand (2026-07)
+
+Alle vier Konzept-Bausteine sind implementiert und getestet:
+
+1. **Schema** — Kategorien `Mikrofone` + `Mischpult`; Mikrofon-Schema mit
+   Wandlerprinzip, Richtcharakteristik (Kugel…Shotgun/Boundary/Multi), Speisung
+   (48V/T-Power/Plug-in/Batterie), Kapsel, typ. Einsatz, Max SPL, Frequenzgang,
+   Empfindlichkeit, Eigenrauschen, Pad/Low-Cut, Anschluss; Mischpult-Schema
+   (Kanäle/Busse/Aux/Matrix/DCA/Motor-Fader/Szenen/Automix/Latenz/I/O-Slots).
+2. **Mikrofon-Katalog** — `micCatalog.ts`, 36 datenblatt-recherchierte Mics mit
+   GUID-Identität, Fachdaten in `categoryProps`, 1× XLR-Out.
+3. **Feld-Builder** — Settings-Tab „Kategorien & Felder": EAV-Overlay in
+   `settingsStore.userSchema`, `schemaForCategory` mischt Built-in + User-Felder,
+   Feld-Editor + Key-Kollisions-Schutz; neue Kategorien über das echte
+   Kategorie-System. `categoryProps` bleibt offener Beutel → kein Datenverlust.
+4. **Drum-Kit** — `DrumMicingDialog` (Werkzeuge-Menü): SVG-Kit, Zonen, Mic-
+   Platzierung, Technik-Presets (Minimal/Glyn Johns/Recorderman/Full Close),
+   Live-Ableitung Kanalliste + Phantom-Bedarf (aus echten Katalog-Daten) +
+   Stereo-Paare; `drumKit`-Facette verlustfrei im Projekt + `.avplan`.
 
 ---
 

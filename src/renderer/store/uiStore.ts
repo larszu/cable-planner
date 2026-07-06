@@ -756,6 +756,9 @@ interface UiState extends PersistedUiState {
   atemDialog: { open: boolean; deviceId?: string }
   openAtemDialog: (deviceId?: string) => void
   closeAtemDialog: () => void
+  /** Drum-Mikrofonierungs-Dialog. */
+  drumMicingOpen: boolean
+  setDrumMicingOpen: (open: boolean) => void
   atemMvLayout: { open: boolean }
   openAtemMvLayout: () => void
   closeAtemMvLayout: () => void
@@ -1258,6 +1261,8 @@ export const useUiStore = create<UiState>((set) => ({
   atemDialog: { open: false },
   openAtemDialog: (deviceId) => set({ atemDialog: { open: true, deviceId } }),
   closeAtemDialog: () => set({ atemDialog: { open: false } }),
+  drumMicingOpen: false,
+  setDrumMicingOpen: (open) => set({ drumMicingOpen: open }),
   atemMvLayout: { open: false },
   openAtemMvLayout: () => set({ atemMvLayout: { open: true } }),
   closeAtemMvLayout: () => set({ atemMvLayout: { open: false } }),
