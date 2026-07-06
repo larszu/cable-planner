@@ -107,8 +107,17 @@ export interface DrumChannelRow {
   needsPhantom: boolean
   /** true, wenn dem Placement (noch) kein Katalog-Mic zugeordnet ist. */
   micUnknown: boolean
+  /** true, wenn Max SPL des Mics für die laute Zone (Kick/Snare) grenzwertig
+   *  ist — DPA: ein Snare-Schlag kann 156 dB SPL überschreiten. Nur gesetzt,
+   *  wenn der Max-SPL-Wert bekannt ist (kein Raten). */
+  splRisk: boolean
   stereoGroup?: string
 }
+
+/** Zonen, an denen extreme Pegel auftreten (DPA how-to-mic-a-snare/kick). */
+const LOUD_ZONE_KINDS = new Set(['kick', 'snare'])
+/** Unter diesem Max SPL gilt ein Mic an einer lauten Zone als grenzwertig. */
+const LOUD_ZONE_MIN_SPL = 140
 
 export interface DrumDerivation {
   channels: DrumChannelRow[]
@@ -118,6 +127,8 @@ export interface DrumDerivation {
   phantomCount: number
   /** Anzahl Placements ohne zugeordnetes Mic (Datenblatt fehlt → nicht geraten). */
   unknownCount: number
+  /** Anzahl Kanäle mit grenzwertigem Max SPL an lauter Zone. */
+  splRiskCount: number
   /** Stereo-Paare (Gruppen-Ids). */
   stereoGroups: string[]
 }
@@ -131,6 +142,7 @@ export const deriveDrumChannels = (plan: DrumKitPlan): DrumDerivation => {
   const channels: DrumChannelRow[] = []
   let phantomCount = 0
   let unknownCount = 0
+  let splRiskCount = 0
   const groups = new Set<string>()
 
   plan.mics.forEach((m, i) => {
@@ -139,8 +151,16 @@ export const deriveDrumChannels = (plan: DrumKitPlan): DrumDerivation => {
     const powering = resolved?.template.categoryProps?.powering
     const micUnknown = !resolved && !m.micName
     const needsPhantom = powering === 'p48'
+    // Max-SPL-Risiko: nur wenn Zone laut UND der Wert bekannt ist (kein Raten).
+    const maxSpl = resolved?.template.categoryProps?.maxSplDb
+    const splRisk =
+      !!zone &&
+      LOUD_ZONE_KINDS.has(zone.kind) &&
+      typeof maxSpl === 'number' &&
+      maxSpl < LOUD_ZONE_MIN_SPL
     if (needsPhantom) phantomCount += 1
     if (micUnknown) unknownCount += 1
+    if (splRisk) splRiskCount += 1
     if (m.stereoGroup) groups.add(m.stereoGroup)
     channels.push({
       channel: i + 1,
@@ -148,6 +168,7 @@ export const deriveDrumChannels = (plan: DrumKitPlan): DrumDerivation => {
       micName: resolved?.template.name ?? m.micName ?? '—',
       needsPhantom,
       micUnknown,
+      splRisk,
       stereoGroup: m.stereoGroup,
     })
   })
@@ -157,6 +178,7 @@ export const deriveDrumChannels = (plan: DrumKitPlan): DrumDerivation => {
     channelCount: channels.length,
     phantomCount,
     unknownCount,
+    splRiskCount,
     stereoGroups: [...groups],
   }
 }

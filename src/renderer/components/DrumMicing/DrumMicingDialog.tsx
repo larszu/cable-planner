@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { X, Plus, Trash2, Zap, AlertTriangle } from 'lucide-react'
+import { useMemo, useRef, useState } from 'react'
+import { X, Plus, Trash2, Zap, AlertTriangle, Wrench, Check } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useTranslation } from '../../lib/i18n'
@@ -42,6 +42,24 @@ const ZONE_R: Record<DrumZone['kind'], number> = {
 let idCounter = 0
 const nextId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${idCounter++}`
 
+const ZONE_KIND_LABEL: Record<DrumZone['kind'], string> = {
+  kick: 'Kick',
+  snare: 'Snare',
+  tom: 'Tom',
+  hihat: 'HiHat',
+  ride: 'Ride',
+  crash: 'Crash',
+  overhead: 'Overhead',
+  room: 'Room',
+}
+
+/** Default-Label für eine neue Zone (nummeriert, wenn die Art schon existiert). */
+const defaultZoneLabel = (kind: DrumZone['kind'], zones: DrumZone[]): string => {
+  const same = zones.filter((z) => z.kind === kind).length
+  const base = ZONE_KIND_LABEL[kind]
+  return same === 0 ? base : `${base} ${same + 1}`
+}
+
 export const DrumMicingDialog = () => {
   const t = useTranslation()
   const open = useUiStore((s) => s.drumMicingOpen)
@@ -51,6 +69,11 @@ export const DrumMicingDialog = () => {
 
   const plan: DrumKitPlan = drumKit ?? emptyDrumKit()
   const [selectedZone, setSelectedZone] = useState<string | null>(null)
+  const [editKit, setEditKit] = useState(false)
+  const [newZoneKind, setNewZoneKind] = useState<DrumZone['kind']>('tom')
+  const [newZoneLabel, setNewZoneLabel] = useState('')
+  const svgRef = useRef<SVGSVGElement | null>(null)
+  const dragId = useRef<string | null>(null)
 
   const derivation = useMemo(() => deriveDrumChannels(plan), [plan])
   const micById = useMemo(() => new Map(micTemplates.map((m) => [m.deviceTypeId!, m])), [])
@@ -97,6 +120,47 @@ export const DrumMicingDialog = () => {
 
   const zoneMicCount = (zoneId: string) => micsForZone(zoneId).length
 
+  // ── Kit-Bau: Zonen hinzufügen/umbenennen/löschen/verschieben ───────────────
+  const addZone = () => {
+    const label = newZoneLabel.trim() || defaultZoneLabel(newZoneKind, plan.zones)
+    const zone: DrumZone = { id: nextId('zone'), label, kind: newZoneKind, x: 0.5, y: 0.5 }
+    commit({ ...plan, zones: [...plan.zones, zone] })
+    setNewZoneLabel('')
+    setSelectedZone(zone.id)
+  }
+  const removeZone = (zoneId: string) => {
+    commit({
+      ...plan,
+      zones: plan.zones.filter((z) => z.id !== zoneId),
+      mics: plan.mics.filter((m) => m.zoneId !== zoneId), // Mics der Zone mit entfernen.
+    })
+    if (selectedZone === zoneId) setSelectedZone(null)
+  }
+  const renameZone = (zoneId: string, label: string) =>
+    commit({ ...plan, zones: plan.zones.map((z) => (z.id === zoneId ? { ...z, label } : z)) })
+
+  const moveZoneTo = (zoneId: string, clientX: number, clientY: number) => {
+    const svg = svgRef.current
+    if (!svg) return
+    const r = svg.getBoundingClientRect()
+    const x = Math.min(1, Math.max(0, (clientX - r.left) / r.width))
+    const y = Math.min(1, Math.max(0, (clientY - r.top) / r.height))
+    commit({ ...plan, zones: plan.zones.map((z) => (z.id === zoneId ? { ...z, x, y } : z)) })
+  }
+  const onZonePointerDown = (zoneId: string) => (e: React.PointerEvent) => {
+    if (!editKit) return
+    e.preventDefault()
+    dragId.current = zoneId
+    ;(e.target as Element).setPointerCapture?.(e.pointerId)
+  }
+  const onSvgPointerMove = (e: React.PointerEvent) => {
+    if (!editKit || !dragId.current) return
+    moveZoneTo(dragId.current, e.clientX, e.clientY)
+  }
+  const onSvgPointerUp = () => {
+    dragId.current = null
+  }
+
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4">
       <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-bg shadow-2xl">
@@ -133,8 +197,20 @@ export const DrumMicingDialog = () => {
           ))}
           <button
             type="button"
+            onClick={() => setEditKit((v) => !v)}
+            className={`ml-auto flex items-center gap-1 rounded border px-2 py-1 text-cp-xs ${
+              editKit
+                ? 'border-cp-accent bg-cp-accent/15 text-cp-text'
+                : 'border-cp-border-muted text-cp-text-secondary hover:bg-cp-surface-2'
+            }`}
+          >
+            {editKit ? <Check size={12} /> : <Wrench size={12} />}
+            {editKit ? t('drum.editDone', 'Kit fertig') : t('drum.editKit', 'Kit bearbeiten')}
+          </button>
+          <button
+            type="button"
             onClick={clearAll}
-            className="ml-auto rounded border border-cp-border-muted px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2"
+            className="rounded border border-cp-border-muted px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2"
           >
             {t('drum.clear', 'Alle Mics entfernen')}
           </button>
@@ -143,7 +219,13 @@ export const DrumMicingDialog = () => {
         <div className="grid min-h-0 flex-1 grid-cols-1 gap-0 overflow-hidden md:grid-cols-[1fr_320px]">
           {/* SVG-Kit */}
           <div className="min-h-0 overflow-auto bg-cp-surface-1/40 p-4">
-            <svg viewBox="0 0 400 340" className="mx-auto h-auto w-full max-w-lg select-none">
+            <svg
+              ref={svgRef}
+              viewBox="0 0 400 340"
+              onPointerMove={onSvgPointerMove}
+              onPointerUp={onSvgPointerUp}
+              className="mx-auto h-auto w-full max-w-lg select-none"
+            >
               {plan.zones.map((z) => {
                 const cx = z.x * 400
                 const cy = z.y * 340
@@ -151,7 +233,12 @@ export const DrumMicingDialog = () => {
                 const count = zoneMicCount(z.id)
                 const selected = selectedZone === z.id
                 return (
-                  <g key={z.id} onClick={() => setSelectedZone(z.id)} className="cursor-pointer">
+                  <g
+                    key={z.id}
+                    onClick={() => setSelectedZone(z.id)}
+                    onPointerDown={onZonePointerDown(z.id)}
+                    className={editKit ? 'cursor-move' : 'cursor-pointer'}
+                  >
                     <circle
                       cx={cx}
                       cy={cy}
@@ -181,6 +268,55 @@ export const DrumMicingDialog = () => {
 
           {/* Rechte Spalte: gewählte Zone + Ableitungen */}
           <div className="flex min-h-0 flex-col overflow-y-auto border-t border-cp-border-muted md:border-l md:border-t-0">
+            {/* Kit-Bau-Editor (nur im Bearbeiten-Modus) */}
+            {editKit && (
+              <div className="border-b border-cp-border-muted p-3">
+                <h3 className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+                  {t('drum.kitEdit', 'Kit zusammenstellen')}
+                </h3>
+                <p className="mb-2 text-cp-xs text-cp-text-faint">
+                  {t('drum.kitEditHint', 'Zonen im Bild per Drag verschieben. Unten hinzufügen/umbenennen/löschen.')}
+                </p>
+                <div className="mb-2 space-y-1">
+                  {plan.zones.map((z) => (
+                    <div key={z.id} className="flex items-center gap-1">
+                      <span className="w-14 shrink-0 text-[10px] text-cp-text-faint">{ZONE_KIND_LABEL[z.kind]}</span>
+                      <input
+                        value={z.label}
+                        onChange={(e) => renameZone(z.id, e.target.value)}
+                        className="w-full rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
+                      />
+                      <button type="button" onClick={() => removeZone(z.id)} className="shrink-0 text-cp-danger" title={t('common.delete', 'Löschen')}>
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-end gap-1">
+                  <select
+                    value={newZoneKind}
+                    onChange={(e) => setNewZoneKind(e.target.value as DrumZone['kind'])}
+                    className="rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
+                  >
+                    {(Object.keys(ZONE_KIND_LABEL) as DrumZone['kind'][]).map((k) => (
+                      <option key={k} value={k}>
+                        {ZONE_KIND_LABEL[k]}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    value={newZoneLabel}
+                    onChange={(e) => setNewZoneLabel(e.target.value)}
+                    placeholder={defaultZoneLabel(newZoneKind, plan.zones)}
+                    className="w-full rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
+                  />
+                  <button type="button" onClick={addZone} className="flex shrink-0 items-center gap-1 rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600">
+                    <Plus size={12} /> {t('drum.addZone', 'Zone')}
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Zone-Editor */}
             <div className="border-b border-cp-border-muted p-3">
               {selectedZone ? (
@@ -253,6 +389,14 @@ export const DrumMicingDialog = () => {
                     <AlertTriangle size={11} /> {derivation.unknownCount} {t('drum.unknown', 'ohne Mic')}
                   </span>
                 )}
+                {derivation.splRiskCount > 0 && (
+                  <span
+                    className="flex items-center gap-1 rounded bg-cp-danger/15 px-2 py-0.5 text-cp-danger"
+                    title={t('drum.splHint', 'Max SPL < 140 dB an Kick/Snare — ein Snare-Schlag kann 156 dB überschreiten (DPA).')}
+                  >
+                    <AlertTriangle size={11} /> {derivation.splRiskCount}× {t('drum.spl', 'SPL grenzwertig')}
+                  </span>
+                )}
               </div>
               <table className="w-full text-cp-xs">
                 <tbody>
@@ -264,7 +408,8 @@ export const DrumMicingDialog = () => {
                         {c.micUnknown ? <span className="text-cp-warn">{t('drum.pending', '(Mic offen)')}</span> : c.micName}
                       </td>
                       <td className="py-0.5 text-right">
-                        {c.needsPhantom && <Zap size={11} className="inline text-amber-500" />}
+                        {c.splRisk && <AlertTriangle size={11} className="inline text-cp-danger" />}
+                        {c.needsPhantom && <Zap size={11} className="ml-1 inline text-amber-500" />}
                         {c.stereoGroup && <span className="ml-1 text-cp-text-faint">⚭</span>}
                       </td>
                     </tr>
