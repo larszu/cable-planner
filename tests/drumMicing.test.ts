@@ -60,6 +60,24 @@ describe('drumMicing — Technik-Presets + Ableitungen', () => {
     expect(ohL?.micDeviceTypeId).toBe(km184.deviceTypeId) // Zuordnung erhalten
   })
 
+  it('warnt bei grenzwertigem Max SPL an lauter Zone — nur mit bekanntem Wert', () => {
+    // Kondensator KM 184 (138 dB) an der Snare → grenzwertig (<140).
+    const km184 = matchMicTemplate('Neumann KM 184')!
+    const beta52 = matchMicTemplate('Shure Beta 52A')! // 174 dB an Kick → ok
+    const kit = emptyDrumKit()
+    kit.mics = [
+      { id: 'a', zoneId: 'snareTop', micDeviceTypeId: km184.deviceTypeId },
+      { id: 'b', zoneId: 'kick', micDeviceTypeId: beta52.deviceTypeId },
+    ]
+    const d = deriveDrumChannels(kit)
+    expect(d.splRiskCount).toBe(1)
+    expect(d.channels.find((c) => c.label.includes('SN'))?.splRisk).toBe(true)
+    // Mic ohne bekannten Max SPL → kein Risiko-Flag (kein Raten).
+    const sm7b = matchMicTemplate('Shure SM7B')! // maxSpl nicht gesetzt
+    kit.mics = [{ id: 'c', zoneId: 'snareTop', micDeviceTypeId: sm7b.deviceTypeId }]
+    expect(deriveDrumChannels(kit).splRiskCount).toBe(0)
+  })
+
   it('alle Presets referenzieren nur existierende Zonen', () => {
     const kit = emptyDrumKit()
     const zoneIds = new Set(kit.zones.map((z) => z.id))

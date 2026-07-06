@@ -22,6 +22,21 @@ Alle vier Konzept-Bausteine sind implementiert und getestet:
    Platzierung, Technik-Presets (Minimal/Glyn Johns/Recorderman/Full Close),
    Live-Ableitung Kanalliste + Phantom-Bedarf (aus echten Katalog-Daten) +
    Stereo-Paare; `drumKit`-Facette verlustfrei im Projekt + `.avplan`.
+   **Individuell zusammenstellbar** („Kit bearbeiten"): Zonen per Drag
+   verschieben, hinzufügen/umbenennen/löschen, beliebige Kessel/Becken/Perc.
+
+### Runde 2 (2026-07) — DPA-Wissen + Katalog-Ausbau
+
+- **DPA Mic-University** ausgewertet (Polar-Muster, Proximity/Naheffekt,
+  Off-Axis-„curtain effect", Specs-Lesehilfe, How-to-mic-Guides). Umgesetzt als
+  Schema-Felder: breite Niere (sub/wide), **Klangfarbe/Timbre**, **Off-Axis-Klang**,
+  **Naheffekt**, Präsenz-Anhebung, Dynamikumfang, Klang-Notiz. Der Naheffekt wird
+  aus dem Polar-Muster abgeleitet (DPA-Physik: Acht > Hyper/Super > Niere >
+  breite Niere; Kugel keiner) — Fakt, kein Raten.
+- **Mic-Katalog 36 → 184** (148 neu). Bestehende GUIDs unverändert.
+- **Max-SPL-Warnung** im Drum-Kit: Kick/Snare mit bekanntem Max SPL < 140 dB
+  werden markiert (DPA: ein Snare-Schlag kann 156 dB SPL überschreiten). Nur bei
+  bekanntem Wert — kein Raten.
 
 ---
 
