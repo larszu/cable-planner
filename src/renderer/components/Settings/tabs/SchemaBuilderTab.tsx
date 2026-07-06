@@ -28,6 +28,7 @@ const FIELD_TYPES: { value: CategoryFieldType; de: string; en: string }[] = [
   { value: 'number', de: 'Zahl', en: 'Number' },
   { value: 'select', de: 'Auswahl', en: 'Select' },
   { value: 'boolean', de: 'Ja/Nein', en: 'Yes/No' },
+  { value: 'polar-pattern', de: 'Richtcharakteristik (Diagramm)', en: 'Polar pattern (diagram)' },
 ]
 
 /** Label → stabiler camelCase-Key. */
@@ -110,7 +111,7 @@ export const SchemaBuilderTab = () => {
       setError(t('schemaBuilder.err.dupe', 'Dieser Schlüssel existiert in der Kategorie bereits.'))
       return
     }
-    if (draft.type === 'select' && draft.options.filter((o) => o.value.trim()).length === 0) {
+    if ((draft.type === 'select' || draft.type === 'polar-pattern') && draft.options.filter((o) => o.value.trim()).length === 0) {
       setError(t('schemaBuilder.err.opts', 'Auswahl-Felder brauchen mindestens eine Option.'))
       return
     }
@@ -121,7 +122,7 @@ export const SchemaBuilderTab = () => {
       userDefined: true,
       ...(draft.unit.trim() ? { unit: draft.unit.trim() } : {}),
       ...(draft.placeholder.trim() ? { placeholder: draft.placeholder.trim() } : {}),
-      ...(draft.type === 'select'
+      ...(draft.type === 'select' || draft.type === 'polar-pattern'
         ? {
             options: draft.options
               .filter((o) => o.value.trim())
@@ -274,7 +275,7 @@ export const SchemaBuilderTab = () => {
                   ))}
                 </select>
               </label>
-              {draft.type !== 'boolean' && (
+              {draft.type !== 'boolean' && draft.type !== 'polar-pattern' && (
                 <>
                   <label className="block">
                     <span className="mb-1 block text-cp-xs text-cp-text-secondary">{t('schemaBuilder.unit', 'Einheit (optional)')}</span>
@@ -288,7 +289,7 @@ export const SchemaBuilderTab = () => {
               )}
             </div>
 
-            {draft.type === 'select' && (
+            {(draft.type === 'select' || draft.type === 'polar-pattern') && (
               <div className="rounded border border-cp-border-muted bg-cp-surface-2/40 p-2">
                 <div className="mb-1 flex items-center justify-between text-cp-xs text-cp-text-secondary">
                   <span>{t('schemaBuilder.options', 'Auswahl-Optionen')}</span>

@@ -21,7 +21,8 @@
  */
 import type { Lang } from './categoryTranslations'
 
-export type CategoryFieldType = 'text' | 'number' | 'select' | 'boolean'
+// 'polar-pattern' = Select mit zusätzlichem Polardiagramm-Preview (Mikrofone).
+export type CategoryFieldType = 'text' | 'number' | 'select' | 'boolean' | 'polar-pattern'
 
 export interface CategoryFieldOption {
   value: string
@@ -163,7 +164,7 @@ export const CATEGORY_SCHEMAS: Record<string, CategoryFieldDef[]> = {
       // DPA-Taxonomie (mic-university/technology/facts-about-polar-patterns).
       key: 'polarPattern',
       label: L('Richtcharakteristik', 'Polar pattern'),
-      type: 'select',
+      type: 'polar-pattern',
       options: [
         opt('omni', 'Kugel', 'Omni'),
         opt('sub', 'Breite Niere (Sub-/Wide)', 'Subcardioid / wide'),
@@ -471,7 +472,7 @@ export const formatCategoryProps = (
     if (v === undefined || v === '' || v === false) continue
     let val: string
     if (f.type === 'boolean') val = lang === 'de' ? 'ja' : 'yes'
-    else if (f.type === 'select' && f.options) {
+    else if ((f.type === 'select' || f.type === 'polar-pattern') && f.options) {
       val = f.options.find((o) => o.value === String(v))?.label[lang] ?? String(v)
     } else {
       val = String(v)

@@ -5,6 +5,7 @@ import { useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
 import { schemaForCategory, type CategoryFieldDef } from '../../../lib/categorySchemas'
 import type { Lang } from '../../../lib/categoryTranslations'
+import { PolarPatternDiagram } from '../../shared/PolarPatternDiagram'
 
 const inputCls = 'w-full rounded border border-cp-border bg-cp-surface-1 p-2'
 
@@ -41,22 +42,40 @@ const Field = ({
     </span>
   )
 
-  if (field.type === 'select') {
+  if (field.type === 'select' || field.type === 'polar-pattern') {
+    const selectEl = (
+      <select
+        value={typeof value === 'string' ? value : ''}
+        onChange={(e) => onChange(e.target.value || undefined)}
+        className={inputCls}
+      >
+        <option value="">—</option>
+        {field.options?.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label[lang] ?? o.label.de}
+          </option>
+        ))}
+      </select>
+    )
+    if (field.type === 'polar-pattern') {
+      return (
+        <label className="block">
+          {labelEl}
+          <div className="flex items-center gap-2">
+            <div className="flex-1">{selectEl}</div>
+            <PolarPatternDiagram
+              pattern={typeof value === 'string' ? value : undefined}
+              size={52}
+              className="shrink-0 text-cp-accent"
+            />
+          </div>
+        </label>
+      )
+    }
     return (
       <label className="block">
         {labelEl}
-        <select
-          value={typeof value === 'string' ? value : ''}
-          onChange={(e) => onChange(e.target.value || undefined)}
-          className={inputCls}
-        >
-          <option value="">—</option>
-          {field.options?.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label[lang] ?? o.label.de}
-            </option>
-          ))}
-        </select>
+        {selectEl}
       </label>
     )
   }

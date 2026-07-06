@@ -8,6 +8,8 @@ import {
   emptyDrumKit,
   applyTechnique,
   deriveDrumChannels,
+  deriveDrumBom,
+  drumBomToText,
   DRUM_TECHNIQUES,
 } from '../../lib/drumMicing'
 import type { DrumKitPlan, DrumMicPlacement, DrumTechnique, DrumZone } from '../../types/drumKit'
@@ -76,7 +78,15 @@ export const DrumMicingDialog = () => {
   const dragId = useRef<string | null>(null)
 
   const derivation = useMemo(() => deriveDrumChannels(plan), [plan])
+  const bom = useMemo(() => deriveDrumBom(plan), [plan])
   const micById = useMemo(() => new Map(micTemplates.map((m) => [m.deviceTypeId!, m])), [])
+  const [copied, setCopied] = useState(false)
+  const copyBom = () => {
+    void navigator.clipboard?.writeText(drumBomToText(plan)).then(() => {
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1500)
+    })
+  }
 
   if (!open) return null
 
@@ -423,6 +433,34 @@ export const DrumMicingDialog = () => {
                   )}
                 </tbody>
               </table>
+
+              {/* Materialliste (BOM) */}
+              {bom.length > 0 && (
+                <div className="mt-3">
+                  <div className="mb-1 flex items-center justify-between">
+                    <h3 className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+                      {t('drum.bom', 'Materialliste')}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={copyBom}
+                      className="rounded border border-cp-border-muted px-2 py-0.5 text-[10px] text-cp-text-secondary hover:bg-cp-surface-2"
+                    >
+                      {copied ? t('drum.copied', 'kopiert ✓') : t('drum.copy', 'kopieren')}
+                    </button>
+                  </div>
+                  <table className="w-full text-cp-xs">
+                    <tbody>
+                      {bom.map((r) => (
+                        <tr key={r.item} className="border-b border-cp-border-muted/50">
+                          <td className="w-8 py-0.5 text-cp-text-faint">{r.qty}×</td>
+                          <td className="py-0.5 text-cp-text-secondary">{r.item}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         </div>

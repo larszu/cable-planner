@@ -28,7 +28,7 @@ const sanitizeUserSchema = (raw: unknown): UserSchemaMap => {
       const fd = f as Partial<CategoryFieldDef>
       if (typeof fd?.key !== 'string' || !fd.key) continue
       if (!fd.label || typeof fd.label !== 'object') continue
-      if (!['text', 'number', 'select', 'boolean'].includes(fd.type as string)) continue
+      if (!['text', 'number', 'select', 'boolean', 'polar-pattern'].includes(fd.type as string)) continue
       clean.push({
         key: fd.key,
         label: { de: String(fd.label.de ?? fd.key), en: String(fd.label.en ?? fd.label.de ?? fd.key) },
