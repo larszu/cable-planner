@@ -49,14 +49,75 @@ const SHARE_TOKEN =
     ? new URLSearchParams(window.location.search).get('t') ?? ''
     : ''
 
-/** fetch() wrapper that attaches the session token to same-origin API
- *  calls. External absolute URLs are passed through untouched. */
+// ── Verbindungs-Modus: Lokal (LAN, same-origin) ODER Remote (Mobilfunk) ──────
+// „Umschaltbar": Lokal fetcht relativ zur ausliefernden LAN-Adresse; Remote
+// gegen eine vom User hinterlegte öffentliche URL (der eigene Tunnel/Relay auf
+// den Desktop — siehe docs/self-hosted-relay.md). Token kommt aus der URL (?t=)
+// oder aus der Remote-URL. Persistiert, sofort per Reload wirksam.
+const CONN_KEY = 'cable-planner-mobile:conn'
+type ConnMode = 'local' | 'remote'
+interface ConnConfig {
+  mode: ConnMode
+  remoteUrl: string
+}
+
+const loadConn = (): ConnConfig => {
+  try {
+    const raw = localStorage.getItem(CONN_KEY)
+    if (raw) {
+      const p = JSON.parse(raw) as Partial<ConnConfig>
+      if (p.mode === 'local' || p.mode === 'remote') {
+        return { mode: p.mode, remoteUrl: typeof p.remoteUrl === 'string' ? p.remoteUrl : '' }
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return { mode: 'local', remoteUrl: '' }
+}
+
+const saveConn = (c: ConnConfig): void => {
+  try {
+    localStorage.setItem(CONN_KEY, JSON.stringify(c))
+  } catch {
+    /* ignore */
+  }
+}
+
+// Aktive Basis + Token — modulweit, aus der gespeicherten Config abgeleitet.
+let activeBase = ''
+let activeToken = SHARE_TOKEN
+
+const applyConn = (c: ConnConfig): void => {
+  if (c.mode === 'remote' && c.remoteUrl.trim()) {
+    try {
+      const u = new URL(c.remoteUrl.trim())
+      const t = u.searchParams.get('t')
+      if (t) activeToken = t
+      u.search = ''
+      u.hash = ''
+      activeBase = u.toString().replace(/\/$/, '')
+      return
+    } catch {
+      /* ungültige URL → lokal */
+    }
+  }
+  activeBase = ''
+  activeToken = SHARE_TOKEN
+}
+applyConn(loadConn())
+
+/** fetch() wrapper: hängt den Session-Token an und leitet je nach Verbindungs-
+ *  Modus auf die lokale (same-origin) oder die Remote-Basis. Absolute URLs
+ *  bleiben unangetastet. */
 const apiFetch = (path: string, init?: RequestInit): Promise<Response> => {
-  if (!SHARE_TOKEN || /^https?:\/\//i.test(path)) return fetch(path, init)
-  const sep = path.includes('?') ? '&' : '?'
+  if (/^https?:\/\//i.test(path)) return fetch(path, init)
+  const url = activeBase ? `${activeBase}${path.startsWith('/') ? '' : '/'}${path}` : path
+  if (!activeToken) return fetch(url, init)
+  const sep = url.includes('?') ? '&' : '?'
   const headers = new Headers(init?.headers)
-  headers.set('X-CP-Token', SHARE_TOKEN)
-  return fetch(`${path}${sep}t=${encodeURIComponent(SHARE_TOKEN)}`, { ...init, headers })
+  headers.set('X-CP-Token', activeToken)
+  return fetch(`${url}${sep}t=${encodeURIComponent(activeToken)}`, { ...init, headers })
 }
 
 const CHECK_KEY = (projectName: string) => `cable-planner-mobile:checks:${projectName}`
@@ -1308,6 +1369,79 @@ const PlanModeView = ({
   )
 }
 
+// Verbindungs-Umschalter: Lokal (LAN) ↔ Remote (Mobilfunk, eigener Tunnel/Relay).
+// Persistiert; „Übernehmen" lädt die App mit der neuen Verbindung neu.
+const ConnectionSettings = () => {
+  const [open, setOpen] = useState(false)
+  const [cfg, setCfg] = useState<ConnConfig>(() => loadConn())
+
+  const apply = () => {
+    const next: ConnConfig = { mode: cfg.mode, remoteUrl: cfg.remoteUrl.trim() }
+    saveConn(next)
+    applyConn(next)
+    window.location.reload()
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="fixed right-3 top-3 z-[300] flex items-center gap-1 rounded-full border border-slate-600 bg-slate-800/90 px-2.5 py-1 text-[11px] text-slate-200 shadow-lg backdrop-blur"
+        title="Verbindung"
+      >
+        {cfg.mode === 'remote' ? '📶 Remote' : '🏠 Lokal'}
+      </button>
+      {open && (
+        <div className="fixed inset-0 z-[301] flex items-end justify-center bg-black/60 p-3" onClick={() => setOpen(false)}>
+          <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-2 text-sm font-semibold">Verbindung</div>
+            <div className="mb-3 grid grid-cols-2 gap-1 rounded bg-slate-950 p-0.5">
+              <button
+                type="button"
+                onClick={() => setCfg({ ...cfg, mode: 'local' })}
+                className={`rounded px-2 py-1.5 text-xs ${cfg.mode === 'local' ? 'bg-slate-700 font-medium' : 'text-slate-400'}`}
+              >
+                🏠 Lokal (LAN)
+              </button>
+              <button
+                type="button"
+                onClick={() => setCfg({ ...cfg, mode: 'remote' })}
+                className={`rounded px-2 py-1.5 text-xs ${cfg.mode === 'remote' ? 'bg-slate-700 font-medium' : 'text-slate-400'}`}
+              >
+                📶 Remote (Mobilfunk)
+              </button>
+            </div>
+            {cfg.mode === 'remote' && (
+              <label className="block text-xs text-slate-300">
+                Server-URL (dein Tunnel/Relay auf den Desktop, inkl. ?t=Token)
+                <input
+                  value={cfg.remoteUrl}
+                  onChange={(e) => setCfg({ ...cfg, remoteUrl: e.target.value })}
+                  placeholder="https://mein-desktop.example.com/?t=…"
+                  className="mt-1 w-full rounded border border-slate-600 bg-slate-950 p-2 text-xs"
+                />
+              </label>
+            )}
+            <p className="mt-2 text-[11px] text-slate-500">
+              Lokal: nur im selben WLAN. Remote: über mobile Daten via eigenem Tunnel/Relay
+              (siehe docs/self-hosted-relay.md). Nichts läuft über fremde Server.
+            </p>
+            <div className="mt-3 flex justify-end gap-2">
+              <button type="button" onClick={() => setOpen(false)} className="rounded bg-slate-800 px-3 py-1 text-xs hover:bg-slate-700">
+                Abbrechen
+              </button>
+              <button type="button" onClick={apply} className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600">
+                Übernehmen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 export const MobileApp = () => {
   const [project, setProject] = useState<CablePlannerProject | null>(null)
   const [autoLoadAttempted, setAutoLoadAttempted] = useState(false)
@@ -1391,6 +1525,7 @@ export const MobileApp = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
+      <ConnectionSettings />
       {!autoLoadAttempted ? (
         <div className="grid min-h-screen place-items-center p-4 text-xs text-slate-400">
           <div className="animate-pulse">Lade Projekt vom Desktop…</div>

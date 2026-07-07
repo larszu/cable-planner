@@ -171,6 +171,52 @@ export const ViewerApp = () => {
     try { localStorage.setItem(annKey(project), JSON.stringify(annotations)) } catch { /* ignore */ }
   }, [annotations, project])
 
+  // Umschaltbar: statt einer Datei den Plan LIVE vom Desktop laden — lokal (LAN)
+  // oder über Mobilfunk (eigener Tunnel/Relay auf den Desktop). Persistiert.
+  const REMOTE_KEY = 'cable-planner-viewer:remote'
+  const [remoteUrl, setRemoteUrl] = useState<string>(() => localStorage.getItem(REMOTE_KEY) ?? '')
+  const [loadingRemote, setLoadingRemote] = useState(false)
+
+  const loadRemote = async (): Promise<void> => {
+    const raw = remoteUrl.trim()
+    if (!raw) return
+    setLoadingRemote(true)
+    setError(null)
+    try {
+      let base = raw
+      let token = ''
+      try {
+        const u = new URL(raw)
+        token = u.searchParams.get('t') ?? ''
+        u.search = ''
+        u.hash = ''
+        base = u.toString().replace(/\/$/, '')
+      } catch {
+        throw new Error('Ungültige URL.')
+      }
+      try { localStorage.setItem(REMOTE_KEY, raw) } catch { /* ignore */ }
+      const sep = '?'
+      const url = `${base}/project.json${token ? `${sep}t=${encodeURIComponent(token)}` : ''}`
+      const res = await fetch(url, { cache: 'no-store', headers: token ? { 'X-CP-Token': token } : undefined })
+      if (!res.ok) throw new Error(`Server antwortete ${res.status}.`)
+      const parsed = (await res.json()) as CablePlannerProject
+      if (!parsed || !Array.isArray(parsed.equipment) || !Array.isArray(parsed.cables)) {
+        throw new Error('Keine gültigen Plandaten empfangen.')
+      }
+      let stored: ProjectAnnotation[] = []
+      try {
+        const rawAnn = localStorage.getItem(annKey(parsed))
+        if (rawAnn) stored = JSON.parse(rawAnn) as ProjectAnnotation[]
+      } catch { /* ignore */ }
+      setProject(parsed)
+      setAnnotations(mergeAnn(parsed.annotations ?? [], stored))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Remote-Laden fehlgeschlagen.')
+    } finally {
+      setLoadingRemote(false)
+    }
+  }
+
   const loadFile = async (file: File): Promise<void> => {
     try {
       const text = await file.text()
@@ -242,6 +288,30 @@ export const ViewerApp = () => {
             <span className="text-xs">.cpviewer oder .json</span>
             <input type="file" accept=".cpviewer,.json,application/json" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void loadFile(f) }} />
           </label>
+
+          {/* Umschaltbar: Live vom Desktop laden (lokal ODER über Mobilfunk) */}
+          <div className="mt-4 border-t border-slate-800 pt-3">
+            <div className="mb-1 text-xs font-medium text-slate-300">— oder live vom Desktop —</div>
+            <input
+              value={remoteUrl}
+              onChange={(e) => setRemoteUrl(e.target.value)}
+              placeholder="http://192.168.1.10:PORT/?t=…  (LAN)  ·  https://…  (Mobilfunk-Tunnel)"
+              className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-xs"
+            />
+            <button
+              type="button"
+              disabled={loadingRemote || !remoteUrl.trim()}
+              onClick={() => void loadRemote()}
+              className="mt-2 w-full rounded bg-sky-700 px-3 py-1.5 text-xs font-medium text-white enabled:hover:bg-sky-600 disabled:opacity-50"
+            >
+              {loadingRemote ? 'Lade…' : 'Live laden'}
+            </button>
+            <p className="mt-1 text-[11px] text-slate-500">
+              LAN: die vom Desktop angezeigte Adresse. Mobilfunk: deine öffentliche Tunnel-/Relay-URL
+              (siehe docs/self-hosted-relay.md). Nichts läuft über fremde Server.
+            </p>
+          </div>
+
           {error && <p className="mt-3 rounded bg-red-900/40 p-2 text-xs text-red-200">{error}</p>}
         </div>
       </div>
