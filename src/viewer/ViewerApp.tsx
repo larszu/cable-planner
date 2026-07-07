@@ -98,7 +98,7 @@ const PlanSvg = ({
       ref={svgRef}
       viewBox={`${bbox.x} ${bbox.y} ${bbox.w} ${bbox.h}`}
       className="h-full w-full"
-      style={{ background: '#0f172a', cursor: addMode ? 'crosshair' : 'default' }}
+      style={{ background: 'var(--cp-bg)', cursor: addMode ? 'crosshair' : 'default' }}
       preserveAspectRatio="xMidYMid meet"
       onClick={handleClick}
     >
@@ -277,61 +277,61 @@ export const ViewerApp = () => {
 
   if (!project) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4 text-slate-200">
-        <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-6 shadow-2xl" onDragOver={(e) => e.preventDefault()} onDrop={onDrop}>
+      <div className="flex min-h-screen items-center justify-center bg-cp-bg p-4 text-cp-text">
+        <div className="w-full max-w-md rounded-lg border border-cp-border bg-cp-surface-1 p-6 shadow-2xl" onDragOver={(e) => e.preventDefault()} onDrop={onDrop}>
           <h1 className="mb-1 text-lg font-semibold">Cable Planner — Viewer</h1>
-          <p className="mb-4 text-sm text-slate-400">Read-only-Ansicht eines Plans. Keine Installation nötig — Datei laden, prüfen und Anmerkungen setzen.</p>
-          <label className="mb-1 block text-xs text-slate-400">Dein Name (für Anmerkungen)</label>
-          <input value={reviewer} onChange={(e) => setReviewerPersisted(e.target.value)} placeholder="z. B. Jan (Freelance-Cam)" className="mb-4 w-full rounded border border-slate-700 bg-slate-950 p-2 text-sm" />
-          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded border border-dashed border-slate-600 bg-slate-950/50 p-6 text-center text-sm text-slate-400 hover:border-sky-600 hover:text-slate-200">
+          <p className="mb-4 text-sm text-cp-text-muted">Read-only-Ansicht eines Plans. Keine Installation nötig — Datei laden, prüfen und Anmerkungen setzen.</p>
+          <label className="mb-1 block text-xs text-cp-text-muted">Dein Name (für Anmerkungen)</label>
+          <input value={reviewer} onChange={(e) => setReviewerPersisted(e.target.value)} placeholder="z. B. Jan (Freelance-Cam)" className="mb-4 w-full rounded border border-cp-border bg-cp-surface-2 p-2 text-sm" />
+          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded border border-dashed border-cp-border bg-cp-surface-2/40 p-6 text-center text-sm text-cp-text-muted hover:border-cp-accent hover:text-cp-text">
             <span className="font-medium">Plan-Datei hierher ziehen oder klicken</span>
             <span className="text-xs">.cpviewer oder .json</span>
             <input type="file" accept=".cpviewer,.json,application/json" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void loadFile(f) }} />
           </label>
 
           {/* Umschaltbar: Live vom Desktop laden (lokal ODER über Mobilfunk) */}
-          <div className="mt-4 border-t border-slate-800 pt-3">
-            <div className="mb-1 text-xs font-medium text-slate-300">— oder live vom Desktop —</div>
+          <div className="mt-4 border-t border-cp-border-muted pt-3">
+            <div className="mb-1 text-xs font-medium text-cp-text-secondary">— oder live vom Desktop —</div>
             <input
               value={remoteUrl}
               onChange={(e) => setRemoteUrl(e.target.value)}
               placeholder="http://192.168.1.10:PORT/?t=…  (LAN)  ·  https://…  (Mobilfunk-Tunnel)"
-              className="w-full rounded border border-slate-700 bg-slate-950 p-2 text-xs"
+              className="w-full rounded border border-cp-border bg-cp-surface-2 p-2 text-xs"
             />
             <button
               type="button"
               disabled={loadingRemote || !remoteUrl.trim()}
               onClick={() => void loadRemote()}
-              className="mt-2 w-full rounded bg-sky-700 px-3 py-1.5 text-xs font-medium text-white enabled:hover:bg-sky-600 disabled:opacity-50"
+              className="mt-2 w-full rounded bg-cp-accent px-3 py-1.5 text-xs font-medium text-white enabled:hover:opacity-90 disabled:opacity-50"
             >
               {loadingRemote ? 'Lade…' : 'Live laden'}
             </button>
-            <p className="mt-1 text-[11px] text-slate-500">
+            <p className="mt-1 text-[11px] text-cp-text-faint">
               LAN: die vom Desktop angezeigte Adresse. Mobilfunk: deine öffentliche Tunnel-/Relay-URL
               (siehe docs/self-hosted-relay.md). Nichts läuft über fremde Server.
             </p>
           </div>
 
-          {error && <p className="mt-3 rounded bg-red-900/40 p-2 text-xs text-red-200">{error}</p>}
+          {error && <p className="mt-3 rounded border border-cp-danger/40 bg-cp-danger/10 p-2 text-xs text-cp-danger">{error}</p>}
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen flex-col bg-slate-950 text-slate-200">
-      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-700 bg-slate-900 px-4 py-2">
+    <div className="flex h-screen flex-col bg-cp-bg text-cp-text">
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-cp-border bg-cp-surface-1 px-4 py-2">
         <div className="min-w-0">
           <h1 className="truncate text-sm font-semibold">{project.metadata?.name ?? 'Plan'}</h1>
-          {project.metadata?.description && <p className="truncate text-xs text-slate-400">{project.metadata.description}</p>}
+          {project.metadata?.description && <p className="truncate text-xs text-cp-text-muted">{project.metadata.description}</p>}
         </div>
-        <div className="flex shrink-0 items-center gap-2 text-xs text-slate-400">
-          <span className="rounded bg-slate-800 px-2 py-1">Plan read-only</span>
+        <div className="flex shrink-0 items-center gap-2 text-xs text-cp-text-muted">
+          <span className="rounded bg-cp-surface-3 px-2 py-1">Plan read-only</span>
           {reviewer && <span className="hidden sm:inline">👤 {reviewer}</span>}
-          <button onClick={() => downloadAnnotated()} className="rounded bg-emerald-700 px-2 py-1 font-medium text-white hover:bg-emerald-600" title="Annotierte Datei (.cpviewer) herunterladen — im Hauptprogramm über „Annotierte Viewer-Datei zurücklesen…“ einlesen">
+          <button onClick={() => downloadAnnotated()} className="rounded bg-cp-accent px-2 py-1 font-medium text-white hover:opacity-90" title="Annotierte Datei (.cpviewer) herunterladen — im Hauptprogramm über „Annotierte Viewer-Datei zurücklesen…“ einlesen">
             Annotierte Datei ↓
           </button>
-          <button onClick={() => setProject(null)} className="rounded border border-slate-700 px-2 py-1 hover:bg-slate-800">Andere Datei…</button>
+          <button onClick={() => setProject(null)} className="rounded border border-cp-border px-2 py-1 hover:bg-cp-surface-3">Andere Datei…</button>
         </div>
       </header>
       <div className="flex min-h-0 flex-1">
@@ -339,34 +339,34 @@ export const ViewerApp = () => {
           <PlanSvg project={project} annotations={annotations} centerById={centerById} addMode={addMode} onCanvasClick={addAnnotationAt} onMarkerClick={(id) => setSelectedId(id)} selectedId={selectedId} svgRef={svgRef} />
           <button
             onClick={() => setAddMode((v) => !v)}
-            className={`absolute left-3 top-3 rounded px-3 py-1.5 text-xs font-medium shadow-lg ${addMode ? 'bg-sky-600 text-white ring-2 ring-sky-300' : 'bg-slate-800 text-slate-200 hover:bg-slate-700'}`}
+            className={`absolute left-3 top-3 rounded px-3 py-1.5 text-xs font-medium shadow-lg ${addMode ? 'bg-cp-accent text-white ring-2 ring-cp-accent/50' : 'bg-cp-surface-3 text-cp-text hover:bg-cp-surface-4'}`}
           >
             {addMode ? 'Klicke in den Plan…' : '+ Anmerkung'}
           </button>
         </div>
-        <aside className="flex w-80 shrink-0 flex-col border-l border-slate-700 bg-slate-900">
-          <div className="flex items-center justify-between border-b border-slate-700 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <aside className="flex w-80 shrink-0 flex-col border-l border-cp-border bg-cp-surface-1">
+          <div className="flex items-center justify-between border-b border-cp-border px-3 py-2 text-xs font-semibold uppercase tracking-wide text-cp-text-muted">
             <span>Anmerkungen ({annotations.length})</span>
           </div>
           <div className="flex-1 overflow-auto p-2">
             {annotations.length === 0 ? (
-              <p className="p-2 text-xs text-slate-500">Noch keine Anmerkungen. Klicke „+ Anmerkung" und dann in den Plan.</p>
+              <p className="p-2 text-xs text-cp-text-faint">Noch keine Anmerkungen. Klicke „+ Anmerkung" und dann in den Plan.</p>
             ) : (
               <ul className="space-y-2">
                 {annotations.map((a, i) => {
                   const mine = a.author === (reviewer.trim() || 'Reviewer')
                   const sel = a.id === selectedId
                   return (
-                    <li key={a.id} className={`rounded border p-2 text-xs ${sel ? 'border-sky-600 bg-slate-950' : 'border-slate-800 bg-slate-950/50'}`} onClick={() => setSelectedId(a.id)}>
+                    <li key={a.id} className={`rounded border p-2 text-xs ${sel ? 'border-cp-accent bg-cp-surface-2' : 'border-cp-border-muted bg-cp-surface-2/40'}`} onClick={() => setSelectedId(a.id)}>
                       <div className="mb-1 flex items-center justify-between gap-2">
-                        <span className="flex items-center gap-1.5 font-medium text-slate-300">
+                        <span className="flex items-center gap-1.5 font-medium text-cp-text-secondary">
                           <span className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-slate-900" style={{ backgroundColor: STATUS_COLOR[a.status] ?? '#64748b' }}>{i + 1}</span>
                           {a.author || '—'}
                         </span>
                         <select
                           value={a.status}
                           onChange={(e) => patchAnnotation(a.id, { status: e.target.value as ProjectAnnotation['status'] })}
-                          className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[10px]"
+                          className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-[10px]"
                           onClick={(e) => e.stopPropagation()}
                         >
                           {STATUS_ORDER.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
@@ -377,12 +377,12 @@ export const ViewerApp = () => {
                         onChange={(e) => patchAnnotation(a.id, { text: e.target.value })}
                         placeholder="Anmerkung…"
                         rows={2}
-                        className="w-full resize-y rounded border border-slate-800 bg-slate-900 p-1.5 text-xs text-slate-100"
+                        className="w-full resize-y rounded border border-cp-border-muted bg-cp-surface-1 p-1.5 text-xs text-cp-text"
                         onClick={(e) => e.stopPropagation()}
                       />
                       {mine && (
                         <div className="mt-1 flex justify-end">
-                          <button onClick={(e) => { e.stopPropagation(); removeAnnotation(a.id) }} className="rounded px-1.5 py-0.5 text-[10px] text-red-300 hover:bg-red-900/40">Löschen</button>
+                          <button onClick={(e) => { e.stopPropagation(); removeAnnotation(a.id) }} className="rounded px-1.5 py-0.5 text-[10px] text-cp-danger hover:bg-cp-danger/20">Löschen</button>
                         </div>
                       )}
                     </li>
@@ -391,7 +391,7 @@ export const ViewerApp = () => {
               </ul>
             )}
           </div>
-          <div className="border-t border-slate-700 p-2 text-[10px] text-slate-500">
+          <div className="border-t border-cp-border p-2 text-[10px] text-cp-text-faint">
             {project.equipment.length} Geräte · {project.cables.length} Kabel · {(project.locations ?? []).length} Standorte
           </div>
         </aside>
