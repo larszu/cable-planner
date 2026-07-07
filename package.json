@@ -57,6 +57,7 @@
     "docs:stats": "node scripts/update-doc-stats.mjs",
     "test:crdt": "node scripts/crdt-convergence-check.mjs",
     "test:signaling": "npm run build:main && node scripts/signaling-relay-check.mjs",
+    "relay": "node scripts/signaling-server.mjs",
     "dist": "npm run build && electron-builder",
     "notices": "node scripts/generate-notices.mjs"
   },

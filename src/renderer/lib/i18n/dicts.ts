@@ -29,6 +29,7 @@ export const en: Dict = {
   'collab.name': 'Your display name',
   'collab.name.placeholder': 'e.g. Lars',
   'collab.signaling': 'Signaling server',
+  'collab.localOnly': 'Local only (no remote relay, nothing leaves the LAN)',
   'collab.password': 'Room password',
   'collab.optional': 'optional',
   'collab.password.placeholder': 'encrypts the room',
