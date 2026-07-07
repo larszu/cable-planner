@@ -258,10 +258,10 @@ const ProjectPicker = ({
     <div className="mx-auto max-w-md space-y-4 p-4">
       <header className="text-center">
         <div className="text-2xl">🔌</div>
-        <h1 className="mt-1 text-lg font-semibold text-slate-100">
+        <h1 className="mt-1 text-lg font-semibold text-cp-text">
           Cable Planner — Mobile
         </h1>
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs text-cp-text-muted">
           Hak Ports und Kabel ab während du sie steckst, oder trage fehlende
           Patches direkt vor Ort nach. Alles syncht live zum Desktop. Offline
           funktioniert auch — Häkchen werden beim Re-Connect übertragen.
@@ -290,10 +290,10 @@ const ProjectPicker = ({
           {reloadError}
         </div>
       )}
-      <div className="text-center text-[10px] uppercase tracking-wider text-slate-600">
+      <div className="text-center text-[10px] uppercase tracking-wider text-cp-text-faint">
         oder
       </div>
-      <label className="block rounded border border-dashed border-slate-700 bg-slate-900 p-4 text-center text-sm text-slate-300">
+      <label className="block rounded border border-dashed border-cp-border bg-cp-surface-1 p-4 text-center text-sm text-cp-text-secondary">
         <input
           type="file"
           accept=".json,application/json"
@@ -306,7 +306,7 @@ const ProjectPicker = ({
         <button
           type="button"
           onClick={() => setPasteOpen((v) => !v)}
-          className="text-xs text-slate-400 underline hover:text-slate-200"
+          className="text-xs text-cp-text-muted underline hover:text-cp-text"
         >
           {pasteOpen ? 'Einfügen abbrechen' : 'Oder JSON einfügen…'}
         </button>
@@ -317,13 +317,13 @@ const ProjectPicker = ({
             value={pasted}
             onChange={(e) => setPasted(e.target.value)}
             rows={8}
-            className="w-full rounded border border-slate-700 bg-slate-950 p-2 font-mono text-xs text-slate-100"
+            className="w-full rounded border border-cp-border bg-cp-bg p-2 font-mono text-xs text-cp-text"
             placeholder="{ ... cable-planner project json ... }"
           />
           <button
             type="button"
             onClick={() => tryParse(pasted)}
-            className="w-full rounded bg-sky-700 px-3 py-2 text-sm text-white hover:bg-sky-600"
+            className="w-full rounded bg-cp-accent px-3 py-2 text-sm text-white hover:opacity-90"
           >
             Projekt laden
           </button>
@@ -439,27 +439,27 @@ const DeviceCard = ({
   return (
     <details
       ref={detailsRef}
-      className={`rounded border bg-slate-900 open:bg-slate-900/80 ${
-        flash ? 'border-sky-400 ring-2 ring-sky-400/70' : 'border-slate-800'
+      className={`rounded border bg-cp-surface-1 open:bg-cp-surface-1/80 ${
+        flash ? 'border-cp-accent ring-2 ring-cp-accent/70' : 'border-cp-border-muted'
       }`}
       onToggle={(e) => onOpenChange?.(device.id, (e.target as HTMLDetailsElement).open)}
     >
       <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm">
-        <span className="flex-1 truncate font-medium text-slate-100">{device.name}</span>
-        <span className="text-[10px] text-slate-400">
+        <span className="flex-1 truncate font-medium text-cp-text">{device.name}</span>
+        <span className="text-[10px] text-cp-text-muted">
           {device.category}
         </span>
         <span
           className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] ${
             checkedPorts === totalPorts && totalPorts > 0
               ? 'bg-emerald-700 text-emerald-50'
-              : 'bg-slate-700 text-slate-200'
+              : 'bg-cp-surface-4 text-cp-text'
           }`}
         >
           {checkedPorts}/{totalPorts}
         </span>
       </summary>
-      <div className="border-t border-slate-800">
+      <div className="border-t border-cp-border-muted">
         <DevicePortDetail
           device={device}
           cables={cables}
@@ -672,9 +672,9 @@ const MobilePlanSvg = ({
       </svg>
       {/* #504 — Zoom-Buttons (für Geräte ohne Pinch und als sichtbarer Hinweis). */}
       <div className="absolute bottom-2 right-2 flex flex-col gap-1">
-        <button type="button" aria-label="Vergrößern" onClick={() => zoomButton(1.4)} className="h-9 w-9 rounded-full bg-slate-800/90 text-lg font-bold text-slate-100 shadow ring-1 ring-slate-600 active:bg-slate-700">+</button>
-        <button type="button" aria-label="Verkleinern" onClick={() => zoomButton(1 / 1.4)} className="h-9 w-9 rounded-full bg-slate-800/90 text-lg font-bold text-slate-100 shadow ring-1 ring-slate-600 active:bg-slate-700">−</button>
-        <button type="button" aria-label="Einpassen" onClick={() => zoomButton('fit')} className="h-9 w-9 rounded-full bg-slate-800/90 text-base text-slate-100 shadow ring-1 ring-slate-600 active:bg-slate-700">⤢</button>
+        <button type="button" aria-label="Vergrößern" onClick={() => zoomButton(1.4)} className="h-9 w-9 rounded-full bg-cp-surface-3/90 text-lg font-bold text-cp-text shadow ring-1 ring-cp-border active:bg-cp-surface-4">+</button>
+        <button type="button" aria-label="Verkleinern" onClick={() => zoomButton(1 / 1.4)} className="h-9 w-9 rounded-full bg-cp-surface-3/90 text-lg font-bold text-cp-text shadow ring-1 ring-cp-border active:bg-cp-surface-4">−</button>
+        <button type="button" aria-label="Einpassen" onClick={() => zoomButton('fit')} className="h-9 w-9 rounded-full bg-cp-surface-3/90 text-base text-cp-text shadow ring-1 ring-cp-border active:bg-cp-surface-4">⤢</button>
       </div>
     </div>
   )
@@ -705,7 +705,7 @@ const PortList = ({
   if (ports.length === 0) return null
   return (
     <div className="mb-2 last:mb-0">
-      <div className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">{label}</div>
+      <div className="mb-1 text-[10px] uppercase tracking-wide text-cp-text-faint">{label}</div>
       <ul className="space-y-1">
         {ports.map((p) => {
           const cable = cables.find(
@@ -764,12 +764,12 @@ const PortList = ({
                 className={`flex w-full items-start gap-2 rounded border px-2 py-2 text-left ${
                   checked
                     ? 'border-emerald-700 bg-emerald-900/30 text-emerald-100'
-                    : 'border-slate-800 bg-slate-950 text-slate-200 hover:border-slate-700'
-                } ${highlighted ? 'ring-2 ring-sky-400' : ''}`}
+                    : 'border-cp-border-muted bg-cp-bg text-cp-text hover:border-cp-border'
+                } ${highlighted ? 'ring-2 ring-cp-accent' : ''}`}
               >
                 <span
                   className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded ${
-                    checked ? 'bg-emerald-600 text-white' : 'border border-slate-600 bg-slate-900'
+                    checked ? 'bg-emerald-600 text-white' : 'border border-cp-border bg-cp-surface-1'
                   }`}
                 >
                   {checked ? '✓' : ''}
@@ -777,11 +777,11 @@ const PortList = ({
                 <span className="flex-1 min-w-0 break-words">
                   <span className="flex flex-wrap items-baseline gap-x-2">
                     <span className="font-medium">{p.name}</span>
-                    <span className="text-[10px] text-slate-500">
+                    <span className="text-[10px] text-cp-text-faint">
                       {p.connectorType}
                     </span>
                     {cable && (
-                      <span className="text-[10px] text-slate-400">
+                      <span className="text-[10px] text-cp-text-muted">
                         {cable.type} · {cable.length} m
                       </span>
                     )}
@@ -791,33 +791,33 @@ const PortList = ({
                       end of THIS cable goes to. Was previously truncated
                       and too small to be useful on a phone. */}
                   {cable && otherDevice && (
-                    <span className="mt-1 block rounded bg-sky-950/60 px-2 py-1 text-xs text-sky-200">
-                      <span className="text-[10px] uppercase tracking-wide text-sky-400/80">
+                    <span className="mt-1 block rounded bg-cp-accent/60 px-2 py-1 text-xs text-cp-accent">
+                      <span className="text-[10px] uppercase tracking-wide text-cp-accent/80">
                         → geht zu
                       </span>
-                      <span className="ml-1 font-semibold text-sky-100">
+                      <span className="ml-1 font-semibold text-white">
                         {otherDevice.name}
                       </span>
                       {otherPort && (
                         <>
-                          <span className="mx-1 text-sky-500">·</span>
+                          <span className="mx-1 text-cp-accent">·</span>
                           <span>{otherPort.name}</span>
                           {otherPort.connectorType && (
-                            <span className="ml-1 text-[10px] text-sky-400/80">
+                            <span className="ml-1 text-[10px] text-cp-accent/80">
                               ({otherPort.connectorType})
                             </span>
                           )}
                         </>
                       )}
                       {bridgeNames.length > 0 && (
-                        <span className="mt-0.5 block text-[10px] text-sky-400/80">
+                        <span className="mt-0.5 block text-[10px] text-cp-accent/80">
                           via {bridgeNames.join(' → ')}
                         </span>
                       )}
                     </span>
                   )}
                   {cable && !otherDevice && (
-                    <span className="mt-1 block text-[11px] italic text-slate-500">
+                    <span className="mt-1 block text-[11px] italic text-cp-text-faint">
                       Offenes Ende
                     </span>
                   )}
@@ -915,15 +915,15 @@ const QrFindOverlay = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-slate-950/95 p-4">
+    <div className="fixed inset-0 z-50 flex flex-col bg-cp-bg/95 p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-100">
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-cp-text">
           <Icon icon={QrCode} size="sm" /> QR / ID finden
         </h2>
         <button
           type="button"
           onClick={onClose}
-          className="rounded bg-slate-800 p-1.5 text-slate-300 hover:bg-slate-700"
+          className="rounded bg-cp-surface-3 p-1.5 text-cp-text-secondary hover:bg-cp-surface-4"
           aria-label="Schließen"
         >
           <Icon icon={X} size="sm" />
@@ -931,9 +931,9 @@ const QrFindOverlay = ({
       </div>
 
       {canScan ? (
-        <div className="relative mb-3 overflow-hidden rounded-lg border border-slate-700 bg-black">
+        <div className="relative mb-3 overflow-hidden rounded-lg border border-cp-border bg-black">
           <video ref={videoRef} className="h-56 w-full object-cover" muted playsInline />
-          <div className="pointer-events-none absolute inset-0 m-auto h-40 w-40 rounded-lg border-2 border-sky-400/80" />
+          <div className="pointer-events-none absolute inset-0 m-auto h-40 w-40 rounded-lg border-2 border-cp-accent/80" />
           {camError && (
             <div className="absolute inset-x-0 bottom-0 bg-amber-900/80 px-2 py-1 text-[11px] text-amber-100">
               {camError}
@@ -941,14 +941,14 @@ const QrFindOverlay = ({
           )}
         </div>
       ) : (
-        <div className="mb-3 rounded border border-slate-700 bg-slate-900 px-3 py-2 text-[11px] text-slate-400">
+        <div className="mb-3 rounded border border-cp-border bg-cp-surface-1 px-3 py-2 text-[11px] text-cp-text-muted">
           Kamera-Scan hier nicht verfügbar (kein HTTPS/Secure-Context). Scanne das
           Etikett mit der Kamera-App deines Geräts und füge den Code unten ein —
           oder tippe die Kabel-/Asset-ID.
         </div>
       )}
 
-      <label className="mb-1 block text-[11px] text-slate-400">Code / ID</label>
+      <label className="mb-1 block text-[11px] text-cp-text-muted">Code / ID</label>
       <div className="flex items-center gap-2">
         <input
           value={text}
@@ -958,12 +958,12 @@ const QrFindOverlay = ({
           }}
           autoFocus={!canScan}
           placeholder="z.B. C-0001, A-0007 oder cableplanner://…"
-          className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-2 text-sm text-slate-100"
+          className="flex-1 rounded border border-cp-border bg-cp-surface-1 px-2 py-2 text-sm text-cp-text"
         />
         <button
           type="button"
           onClick={submitText}
-          className="flex items-center gap-1 rounded bg-sky-700 px-3 py-2 text-xs text-white hover:bg-sky-600"
+          className="flex items-center gap-1 rounded bg-cp-accent px-3 py-2 text-xs text-white hover:opacity-90"
         >
           <Icon icon={Search} size="sm" /> Finden
         </button>
@@ -1152,19 +1152,19 @@ const ProjectView = ({
 
   return (
     <div className="mx-auto max-w-md p-3">
-      <header className="sticky top-0 z-10 -mx-3 mb-3 border-b border-slate-800 bg-slate-950/95 px-3 py-2 backdrop-blur">
+      <header className="sticky top-0 z-10 -mx-3 mb-3 border-b border-cp-border-muted bg-cp-bg/95 px-3 py-2 backdrop-blur">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onUnload}
-            className="rounded bg-slate-800 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-700"
+            className="rounded bg-cp-surface-3 px-2 py-1 text-[11px] text-cp-text-secondary hover:bg-cp-surface-4"
             title="Anderes Projekt laden"
           >
             ◀
           </button>
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-sm font-semibold text-slate-100">{projectName}</h1>
-            <div className="text-[10px] text-slate-400">
+            <h1 className="truncate text-sm font-semibold text-cp-text">{projectName}</h1>
+            <div className="text-[10px] text-cp-text-muted">
               {project.equipment.length} Geräte · {project.cables.length} Kabel ·{' '}
               <span
                 className={
@@ -1172,7 +1172,7 @@ const ProjectView = ({
                     ? 'text-emerald-300'
                     : checkedPorts > 0
                       ? 'text-amber-300'
-                      : 'text-slate-500'
+                      : 'text-cp-text-faint'
                 }
               >
                 {checkedPorts}/{totalPorts} Ports gesteckt
@@ -1181,14 +1181,14 @@ const ProjectView = ({
           </div>
         </div>
         {/* #180 — Modus-Umschalter: Patchliste ↔ Plan */}
-        <div className="mt-2 grid grid-cols-2 gap-1 rounded bg-slate-900 p-0.5">
+        <div className="mt-2 grid grid-cols-2 gap-1 rounded bg-cp-surface-1 p-0.5">
           {(['list', 'plan'] as const).map((m) => (
             <button
               key={m}
               type="button"
               onClick={() => setViewMode(m)}
               className={`rounded px-2 py-1 text-[11px] font-medium ${
-                viewMode === m ? 'bg-sky-700 text-white' : 'text-slate-300 hover:bg-slate-800'
+                viewMode === m ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'
               }`}
             >
               {m === 'list' ? 'Patchliste' : 'Plan'}
@@ -1201,9 +1201,9 @@ const ProjectView = ({
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Suchen…"
-            className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100"
+            className="flex-1 rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-xs text-cp-text"
           />
-          <label className="flex items-center gap-1 text-[11px] text-slate-300">
+          <label className="flex items-center gap-1 text-[11px] text-cp-text-secondary">
             <input
               type="checkbox"
               checked={onlyOpen}
@@ -1214,7 +1214,7 @@ const ProjectView = ({
           <button
             type="button"
             onClick={() => setFindOpen(true)}
-            className="flex items-center rounded bg-slate-800 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-700"
+            className="flex items-center rounded bg-cp-surface-3 px-2 py-1 text-[11px] text-cp-text hover:bg-cp-surface-4"
             title="Per QR-Scan oder ID zu Kabel/Gerät springen"
           >
             <Icon icon={QrCode} size="xs" />
@@ -1222,7 +1222,7 @@ const ProjectView = ({
           <button
             type="button"
             onClick={() => setShowReport(true)}
-            className="rounded bg-slate-800 px-2 py-1 text-[11px] text-amber-300 hover:bg-slate-700"
+            className="rounded bg-cp-surface-3 px-2 py-1 text-[11px] text-amber-300 hover:bg-cp-surface-4"
             title="Korrektur/Problem melden (Feld-Rückkanal)"
           >
             Meldung
@@ -1230,7 +1230,7 @@ const ProjectView = ({
           <button
             type="button"
             onClick={() => setShowAddCable(true)}
-            className="rounded bg-sky-700 px-2 py-1 text-[11px] text-white hover:bg-sky-600"
+            className="rounded bg-cp-accent px-2 py-1 text-[11px] text-white hover:opacity-90"
             title="Kabel vor Ort hinzufügen (Dropdowns)"
           >
             + Kabel
@@ -1241,7 +1241,7 @@ const ProjectView = ({
           <div
             className={`mt-2 rounded px-2 py-1 text-[11px] ${
               lookupMsg.ok
-                ? 'border border-sky-700/60 bg-sky-900/30 text-sky-200'
+                ? 'border border-cp-accent/60 bg-cp-accent/30 text-cp-accent'
                 : 'border border-amber-700/60 bg-amber-900/30 text-amber-200'
             }`}
           >
@@ -1279,7 +1279,7 @@ const ProjectView = ({
       {viewMode === 'list' ? (
         <div className="space-y-2 pb-8">
           {filteredDevices.length === 0 ? (
-            <div className="rounded border border-dashed border-slate-700 bg-slate-900 p-6 text-center text-xs text-slate-500">
+            <div className="rounded border border-dashed border-cp-border bg-cp-surface-1 p-6 text-center text-xs text-cp-text-faint">
               Keine Geräte passen zum Filter.
             </div>
           ) : (
@@ -1341,19 +1341,19 @@ const PlanModeView = ({
   const selected = project.equipment.find((e) => e.id === selectedId) ?? null
   return (
     <div className="-mx-3 flex flex-col" style={{ height: 'calc(100vh - 132px)' }}>
-      <div className="h-[42vh] shrink-0 border-y border-slate-800 bg-slate-950">
+      <div className="h-[42vh] shrink-0 border-y border-cp-border-muted bg-cp-bg">
         <MobilePlanSvg project={project} selectedId={selectedId} onTapDevice={onSelect} />
       </div>
       <div className="min-h-0 flex-1 overflow-auto px-3 pb-8 pt-2">
         {!selected ? (
-          <div className="rounded border border-dashed border-slate-700 bg-slate-900 p-5 text-center text-xs text-slate-500">
+          <div className="rounded border border-dashed border-cp-border bg-cp-surface-1 p-5 text-center text-xs text-cp-text-faint">
             Tippe ein Gerät im Plan an, um seine Patchliste zu sehen.
           </div>
         ) : (
-          <div className="rounded border border-slate-700 bg-slate-900">
-            <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
-              <span className="truncate text-sm font-medium text-slate-100">{selected.name}</span>
-              <span className="shrink-0 text-[10px] text-slate-400">{selected.category}</span>
+          <div className="rounded border border-cp-border bg-cp-surface-1">
+            <div className="flex items-center justify-between gap-2 border-b border-cp-border-muted px-3 py-2">
+              <span className="truncate text-sm font-medium text-cp-text">{selected.name}</span>
+              <span className="shrink-0 text-[10px] text-cp-text-muted">{selected.category}</span>
             </div>
             <DevicePortDetail
               device={selected}
@@ -1387,48 +1387,48 @@ const ConnectionSettings = () => {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed right-3 top-3 z-[300] flex items-center gap-1 rounded-full border border-slate-600 bg-slate-800/90 px-2.5 py-1 text-[11px] text-slate-200 shadow-lg backdrop-blur"
+        className="fixed right-3 top-3 z-[300] flex items-center gap-1 rounded-full border border-cp-border bg-cp-surface-3/90 px-2.5 py-1 text-[11px] text-cp-text shadow-lg backdrop-blur"
         title="Verbindung"
       >
         {cfg.mode === 'remote' ? '📶 Remote' : '🏠 Lokal'}
       </button>
       {open && (
         <div className="fixed inset-0 z-[301] flex items-end justify-center bg-black/60 p-3" onClick={() => setOpen(false)}>
-          <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-md rounded-lg border border-cp-border bg-cp-surface-1 p-3 text-cp-text shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="mb-2 text-sm font-semibold">Verbindung</div>
-            <div className="mb-3 grid grid-cols-2 gap-1 rounded bg-slate-950 p-0.5">
+            <div className="mb-3 grid grid-cols-2 gap-1 rounded bg-cp-bg p-0.5">
               <button
                 type="button"
                 onClick={() => setCfg({ ...cfg, mode: 'local' })}
-                className={`rounded px-2 py-1.5 text-xs ${cfg.mode === 'local' ? 'bg-slate-700 font-medium' : 'text-slate-400'}`}
+                className={`rounded px-2 py-1.5 text-xs font-medium ${cfg.mode === 'local' ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'}`}
               >
                 🏠 Lokal (LAN)
               </button>
               <button
                 type="button"
                 onClick={() => setCfg({ ...cfg, mode: 'remote' })}
-                className={`rounded px-2 py-1.5 text-xs ${cfg.mode === 'remote' ? 'bg-slate-700 font-medium' : 'text-slate-400'}`}
+                className={`rounded px-2 py-1.5 text-xs font-medium ${cfg.mode === 'remote' ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'}`}
               >
                 📶 Remote (Mobilfunk)
               </button>
             </div>
             {cfg.mode === 'remote' && (
-              <label className="block text-xs text-slate-300">
+              <label className="block text-xs text-cp-text-secondary">
                 Server-URL (dein Tunnel/Relay auf den Desktop, inkl. ?t=Token)
                 <input
                   value={cfg.remoteUrl}
                   onChange={(e) => setCfg({ ...cfg, remoteUrl: e.target.value })}
                   placeholder="https://mein-desktop.example.com/?t=…"
-                  className="mt-1 w-full rounded border border-slate-600 bg-slate-950 p-2 text-xs"
+                  className="mt-1 w-full rounded border border-cp-border bg-cp-bg p-2 text-xs"
                 />
               </label>
             )}
-            <p className="mt-2 text-[11px] text-slate-500">
+            <p className="mt-2 text-[11px] text-cp-text-faint">
               Lokal: nur im selben WLAN. Remote: über mobile Daten via eigenem Tunnel/Relay
               (siehe docs/self-hosted-relay.md). Nichts läuft über fremde Server.
             </p>
             <div className="mt-3 flex justify-end gap-2">
-              <button type="button" onClick={() => setOpen(false)} className="rounded bg-slate-800 px-3 py-1 text-xs hover:bg-slate-700">
+              <button type="button" onClick={() => setOpen(false)} className="rounded bg-cp-surface-3 px-3 py-1 text-xs hover:bg-cp-surface-4">
                 Abbrechen
               </button>
               <button type="button" onClick={apply} className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600">
@@ -1524,10 +1524,10 @@ export const MobileApp = () => {
   }, [project !== null])
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="min-h-screen bg-cp-bg text-cp-text">
       <ConnectionSettings />
       {!autoLoadAttempted ? (
-        <div className="grid min-h-screen place-items-center p-4 text-xs text-slate-400">
+        <div className="grid min-h-screen place-items-center p-4 text-xs text-cp-text-muted">
           <div className="animate-pulse">Lade Projekt vom Desktop…</div>
         </div>
       ) : project ? (
@@ -1688,13 +1688,13 @@ const AddCableModal = ({
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div className="w-full max-w-md rounded-t-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
-        <header className="flex items-center justify-between border-b border-slate-700 px-3 py-2">
+      <div className="w-full max-w-md rounded-t-lg border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl">
+        <header className="flex items-center justify-between border-b border-cp-border px-3 py-2">
           <h2 className="text-sm font-semibold">📱 Kabel hinzufügen</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded px-2 py-0.5 text-xs text-slate-400 hover:bg-slate-800"
+            className="rounded px-2 py-0.5 text-xs text-cp-text-muted hover:bg-cp-surface-3"
           >
             <Icon icon={X} size="sm" />
           </button>
@@ -1706,19 +1706,19 @@ const AddCableModal = ({
             </div>
           ) : (
             <>
-              <p className="text-[10px] italic text-slate-400">
+              <p className="text-[10px] italic text-cp-text-muted">
                 Wird im Plan mit 📱-Badge markiert, damit der Planer sieht dass das
                 Kabel vor Ort nachgepflegt wurde.
               </p>
               <label className="block">
-                <span className="mb-1 block text-slate-300">Von Gerät</span>
+                <span className="mb-1 block text-cp-text-secondary">Von Gerät</span>
                 <select
                   value={fromEqId}
                   onChange={(e) => {
                     setFromEqId(e.target.value)
                     setFromPortId('')
                   }}
-                  className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  className="w-full rounded border border-cp-border bg-cp-bg p-2"
                 >
                   <option value="">— wählen —</option>
                   {sortedEquipment.map((eq) => (
@@ -1729,12 +1729,12 @@ const AddCableModal = ({
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-slate-300">Von Port</span>
+                <span className="mb-1 block text-cp-text-secondary">Von Port</span>
                 <select
                   value={fromPortId}
                   onChange={(e) => setFromPortId(e.target.value)}
                   disabled={!fromEq}
-                  className="w-full rounded border border-slate-700 bg-slate-950 p-2 disabled:opacity-40"
+                  className="w-full rounded border border-cp-border bg-cp-bg p-2 disabled:opacity-40"
                 >
                   <option value="">— wählen —</option>
                   {fromPorts.map((p) => (
@@ -1745,14 +1745,14 @@ const AddCableModal = ({
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-slate-300">Zu Gerät</span>
+                <span className="mb-1 block text-cp-text-secondary">Zu Gerät</span>
                 <select
                   value={toEqId}
                   onChange={(e) => {
                     setToEqId(e.target.value)
                     setToPortId('')
                   }}
-                  className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  className="w-full rounded border border-cp-border bg-cp-bg p-2"
                 >
                   <option value="">— wählen —</option>
                   {sortedEquipment.map((eq) => (
@@ -1763,12 +1763,12 @@ const AddCableModal = ({
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-slate-300">Zu Port</span>
+                <span className="mb-1 block text-cp-text-secondary">Zu Port</span>
                 <select
                   value={toPortId}
                   onChange={(e) => setToPortId(e.target.value)}
                   disabled={!toEq}
-                  className="w-full rounded border border-slate-700 bg-slate-950 p-2 disabled:opacity-40"
+                  className="w-full rounded border border-cp-border bg-cp-bg p-2 disabled:opacity-40"
                 >
                   <option value="">— wählen —</option>
                   {toPorts.map((p) => (
@@ -1780,11 +1780,11 @@ const AddCableModal = ({
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <label className="block">
-                  <span className="mb-1 block text-slate-300">Typ</span>
+                  <span className="mb-1 block text-cp-text-secondary">Typ</span>
                   <select
                     value={cableType}
                     onChange={(e) => setCableType(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+                    className="w-full rounded border border-cp-border bg-cp-bg p-2"
                   >
                     <option value="">— wählen —</option>
                     {cableTypeOptions.map((t) => (
@@ -1795,11 +1795,11 @@ const AddCableModal = ({
                   </select>
                 </label>
                 <label className="block">
-                  <span className="mb-1 block text-slate-300">Länge (m)</span>
+                  <span className="mb-1 block text-cp-text-secondary">Länge (m)</span>
                   <select
                     value={length}
                     onChange={(e) => setLength(e.target.value)}
-                    className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+                    className="w-full rounded border border-cp-border bg-cp-bg p-2"
                   >
                     <option value="">— wählen —</option>
                     {lengthOptions.map((l) => (
@@ -1811,7 +1811,7 @@ const AddCableModal = ({
                 </label>
               </div>
               <label className="block">
-                <span className="mb-1 block text-slate-300">Name</span>
+                <span className="mb-1 block text-cp-text-secondary">Name</span>
                 <input
                   value={name}
                   onChange={(e) => {
@@ -1819,7 +1819,7 @@ const AddCableModal = ({
                     setNameDirty(true)
                   }}
                   placeholder="Auto: '<Typ> Gerät A → Gerät B'"
-                  className="w-full rounded border border-slate-700 bg-slate-950 p-2"
+                  className="w-full rounded border border-cp-border bg-cp-bg p-2"
                 />
                 {nameDirty && (
                   <button
@@ -1827,7 +1827,7 @@ const AddCableModal = ({
                     onClick={() => {
                       setNameDirty(false)
                     }}
-                    className="mt-1 text-[10px] text-sky-400 hover:underline"
+                    className="mt-1 text-[10px] text-cp-accent hover:underline"
                     title="Wieder automatisch aus Typ + Geräten generieren"
                   >
                     ↺ Auto-Name zurücksetzen
@@ -1835,13 +1835,13 @@ const AddCableModal = ({
                 )}
               </label>
               <label className="block">
-                <span className="mb-1 block text-slate-300">Notizen (opt.)</span>
+                <span className="mb-1 block text-cp-text-secondary">Notizen (opt.)</span>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
                   placeholder="Z.B. 'Notfall-Patch — bitte später ordentlich verlegen'"
-                  className="w-full resize-none rounded border border-slate-700 bg-slate-950 p-2"
+                  className="w-full resize-none rounded border border-cp-border bg-cp-bg p-2"
                 />
               </label>
               {err && (
@@ -1854,7 +1854,7 @@ const AddCableModal = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded bg-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-600"
+                  className="rounded bg-cp-surface-4 px-3 py-1.5 text-xs text-cp-text hover:bg-cp-surface-5"
                 >
                   Abbrechen
                 </button>
@@ -1862,7 +1862,7 @@ const AddCableModal = ({
                   type="button"
                   onClick={submit}
                   disabled={!canSubmit}
-                  className="rounded bg-sky-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded bg-cp-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {busy ? 'Sende…' : '📤 An Desktop senden'}
                 </button>
@@ -1983,13 +1983,13 @@ const MobileReportModal = ({
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div className="w-full max-w-md rounded-t-lg border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
-        <header className="flex items-center justify-between border-b border-slate-700 px-3 py-2">
+      <div className="w-full max-w-md rounded-t-lg border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl">
+        <header className="flex items-center justify-between border-b border-cp-border px-3 py-2">
           <h2 className="text-sm font-semibold">⚠ Meldung an Planer</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded px-2 py-0.5 text-xs text-slate-400 hover:bg-slate-800"
+            className="rounded px-2 py-0.5 text-xs text-cp-text-muted hover:bg-cp-surface-3"
           >
             <Icon icon={X} size="sm" />
           </button>
@@ -2001,12 +2001,12 @@ const MobileReportModal = ({
             </div>
           ) : (
             <>
-              <p className="text-[10px] italic text-slate-400">
+              <p className="text-[10px] italic text-cp-text-muted">
                 Wird NICHT direkt geändert — der Planer übernimmt oder verwirft deine
                 Meldung am Desktop (landet dann im Änderungsprotokoll).
               </p>
 
-              <div className="grid grid-cols-3 gap-1 rounded bg-slate-950 p-0.5">
+              <div className="grid grid-cols-3 gap-1 rounded bg-cp-bg p-0.5">
                 {(
                   [
                     ['cable-edit', 'Kabel-Korrektur'],
@@ -2019,7 +2019,7 @@ const MobileReportModal = ({
                     type="button"
                     onClick={() => setKind(k)}
                     className={`rounded px-2 py-1 text-[11px] font-medium ${
-                      kind === k ? 'bg-sky-700 text-white' : 'text-slate-300 hover:bg-slate-800'
+                      kind === k ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'
                     }`}
                   >
                     {label}
@@ -2028,14 +2028,14 @@ const MobileReportModal = ({
               </div>
 
               <label className="block">
-                <span className="mb-1 block text-slate-300">Gerät (Kontext)</span>
+                <span className="mb-1 block text-cp-text-secondary">Gerät (Kontext)</span>
                 <select
                   value={deviceId}
                   onChange={(e) => {
                     setDeviceId(e.target.value)
                     setCableId('')
                   }}
-                  className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-2 text-slate-100"
+                  className="w-full rounded border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
                 >
                   <option value="">— wählen —</option>
                   {project.equipment.map((d) => (
@@ -2049,11 +2049,11 @@ const MobileReportModal = ({
               {kind === 'cable-edit' && (
                 <>
                   <label className="block">
-                    <span className="mb-1 block text-slate-300">Kabel</span>
+                    <span className="mb-1 block text-cp-text-secondary">Kabel</span>
                     <select
                       value={cableId}
                       onChange={(e) => setCableId(e.target.value)}
-                      className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-2 text-slate-100"
+                      className="w-full rounded border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
                     >
                       <option value="">— wählen —</option>
                       {cablesForDevice.map((c) => (
@@ -2064,7 +2064,7 @@ const MobileReportModal = ({
                     </select>
                   </label>
                   <label className="block">
-                    <span className="mb-1 block text-slate-300">
+                    <span className="mb-1 block text-cp-text-secondary">
                       Korrigierte Länge (m){selCable ? ` · aktuell ${selCable.length} m` : ''}
                     </span>
                     <input
@@ -2073,14 +2073,14 @@ const MobileReportModal = ({
                       value={lengthVal}
                       onChange={(e) => setLengthVal(e.target.value)}
                       placeholder="z.B. 7.5"
-                      className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-2 text-slate-100"
+                      className="w-full rounded border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
                     />
                   </label>
                 </>
               )}
 
               <label className="block">
-                <span className="mb-1 block text-slate-300">
+                <span className="mb-1 block text-cp-text-secondary">
                   {kind === 'cable-edit' ? 'Bemerkung (optional)' : 'Beschreibung'}
                 </span>
                 <textarea
@@ -2094,17 +2094,17 @@ const MobileReportModal = ({
                         ? 'Notiz für den Planer…'
                         : 'optional…'
                   }
-                  className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-2 text-slate-100"
+                  className="w-full rounded border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
                 />
               </label>
 
               <label className="block">
-                <span className="mb-1 block text-slate-300">Dein Name (optional)</span>
+                <span className="mb-1 block text-cp-text-secondary">Dein Name (optional)</span>
                 <input
                   value={reporter}
                   onChange={(e) => setReporter(e.target.value)}
                   placeholder="für die Protokoll-Zuordnung"
-                  className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-2 text-slate-100"
+                  className="w-full rounded border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
                 />
               </label>
 
@@ -2118,7 +2118,7 @@ const MobileReportModal = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded bg-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-600"
+                  className="rounded bg-cp-surface-4 px-3 py-1.5 text-xs text-cp-text hover:bg-cp-surface-5"
                 >
                   Abbrechen
                 </button>
