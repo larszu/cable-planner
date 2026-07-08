@@ -32,13 +32,3 @@ export const compatibleCapsules = (body: WirelessDevice, catalog: WirelessDevice
 /** Alle Headsets/Lavaliere/Instrumentenkabel, die an den Taschensender passen. */
 export const compatibleBodypackMics = (body: WirelessDevice, catalog: WirelessDevice[]): WirelessDevice[] =>
   catalog.filter((m) => isBodypackMicCompatible(body, m))
-
-/**
- * Generische Kompatibilität zweier Bausteine (egal welche Reihenfolge). Nützlich
- * für die UI-Validierung einer freien Zuordnung.
- */
-export const areCompatible = (a: WirelessDevice, b: WirelessDevice): boolean =>
-  isCapsuleCompatible(a, b) ||
-  isCapsuleCompatible(b, a) ||
-  isBodypackMicCompatible(a, b) ||
-  isBodypackMicCompatible(b, a)

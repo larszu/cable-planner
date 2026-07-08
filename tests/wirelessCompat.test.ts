@@ -4,7 +4,6 @@ import {
   isBodypackMicCompatible,
   compatibleCapsules,
   compatibleBodypackMics,
-  areCompatible,
 } from '../src/renderer/lib/wirelessCompat'
 import { WIRELESS_CATALOG, wirelessById } from '../src/renderer/lib/wirelessCatalog'
 import type { WirelessDevice } from '../src/renderer/types/wireless'
@@ -61,13 +60,5 @@ describe('wirelessCompat — Taschensender ⇄ Headset/Lavalier', () => {
     const mics = compatibleBodypackMics(byName('Sennheiser SK 500 G4'), WIRELESS_CATALOG)
     expect(mics.length).toBeGreaterThanOrEqual(3)
     expect(mics.every((m) => m.bodypackConnector === 'sennheiser-3.5-lock')).toBe(true)
-  })
-})
-
-describe('wirelessCompat — areCompatible (reihenfolgefrei)', () => {
-  it('erkennt Kapsel- und Bodypack-Paare in beliebiger Reihenfolge', () => {
-    expect(areCompatible(byName('Shure Beta 58A (Kapsel)'), byName('Shure ULXD2'))).toBe(true)
-    expect(areCompatible(byName('Shure MX150 · TA4F (Lavalier)'), byName('Shure QLXD1'))).toBe(true)
-    expect(areCompatible(byName('Shure SM58 (Kapsel)'), byName('Sennheiser SKM 500 G4'))).toBe(false)
   })
 })

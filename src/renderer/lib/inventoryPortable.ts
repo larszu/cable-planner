@@ -3,8 +3,9 @@
 //
 // Ein Lager, das in einem Planer angelegt wurde, soll in den anderen
 // importierbar sein. Das Format ist bewusst schlank + versioniert und enthält
-// nur die reinen Daten (items/nodes/sets/units) — keine App-Interna. Geräte-
-// bezüge laufen über die GUID (`deviceTypeId`), die alle drei Apps teilen.
+// nur die reinen Daten (items/nodes/sets/units) — keine App-Interna. Artikel
+// werden per Freitext (manufacturer/model) + Label-`code` identifiziert; ein
+// Katalog-GUID-Bezug ist bewusst nicht Teil des Formats.
 // ───────────────────────────────────────────────────────────────────────────
 import type { InventoryItem, StorageNode, InventorySet, InventoryUnit } from '../types/inventory'
 
