@@ -61,6 +61,8 @@ export const CollabPanel = () => {
   const setRoom = useCollabStore((s) => s.setRoom)
   const setName = useCollabStore((s) => s.setName)
   const setSignaling = useCollabStore((s) => s.setSignaling)
+  const localOnly = useCollabStore((s) => s.localOnly)
+  const setLocalOnly = useCollabStore((s) => s.setLocalOnly)
   const setPassword = useCollabStore((s) => s.setPassword)
   const start = useCollabStore((s) => s.start)
   const stop = useCollabStore((s) => s.stop)
@@ -188,10 +190,19 @@ export const CollabPanel = () => {
               type="text"
               className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs disabled:opacity-50"
               value={signaling}
-              disabled={active}
+              disabled={active || localOnly}
               onChange={(e) => setSignaling(e.target.value)}
-              placeholder="ws://192.168.1.10:4444"
+              placeholder="wss://relay.example.com"
             />
+            <label className="mt-1 flex items-center gap-2 text-cp-xs text-[var(--cp-text-secondary)]">
+              <input
+                type="checkbox"
+                checked={localOnly}
+                disabled={active}
+                onChange={(e) => setLocalOnly(e.target.checked)}
+              />
+              {t('collab.localOnly', 'Nur lokal (kein Remote-Relay, nichts verlässt das LAN)')}
+            </label>
           </label>
         )}
 

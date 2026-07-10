@@ -173,6 +173,9 @@ export interface CablePlannerProject {
   /** Drum-Mikrofonierung — visuelles Schlagzeug mit platzierten Mikrofonen.
    *  Optional → alte Projekte laden sauber. Verlustfrei in der .avplan. */
   drumKit?: import('./drumKit').DrumKitPlan
+  /** Wireless-Rig — Funkstrecken-Kanalplan (Body + Kapsel/Headset + Frequenz).
+   *  Optional → alte Projekte laden sauber. Verlustfrei in der .avplan. */
+  wirelessRig?: import('./wirelessRig').WirelessRigPlan
 }
 
 /** #412 — Ein festgeschriebener Projekt-Stand. */
