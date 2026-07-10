@@ -21,7 +21,7 @@ const CONTAINER_SET = new Set<StorageNodeKind>(CONTAINER_KINDS)
 export const isContainerKind = (kind: StorageNodeKind): boolean => CONTAINER_SET.has(kind)
 
 /** Baut eine id→Node-Map für schnelle Lookups. */
-export const nodeMap = (nodes: StorageNode[]): Map<string, StorageNode> =>
+const nodeMap = (nodes: StorageNode[]): Map<string, StorageNode> =>
   new Map(nodes.map((n) => [n.id, n]))
 
 /**

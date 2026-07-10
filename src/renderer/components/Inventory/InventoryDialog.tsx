@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   Plus,
   Pencil,
@@ -17,6 +17,9 @@ import {
   ClipboardList,
   Printer,
   QrCode as QrCodeIcon,
+  Camera,
+  Download,
+  Upload,
 } from 'lucide-react'
 import QRCode from 'qrcode'
 import { ModalShell } from '../shared/ModalShell'
@@ -50,6 +53,9 @@ import {
   descendantNodeIds,
 } from '../../lib/storageTree'
 import { resolveInventoryCode } from '../../lib/inventoryScan'
+import { serializeInventory, parseInventory } from '../../lib/inventoryPortable'
+import { isBarcodeScannerSupported } from '../../lib/barcodeScanner'
+import { ScannerModal } from './ScannerModal'
 import { derivePackList, packListToText, packListTotalCount } from '../../lib/packList'
 import { buildInventoryReport } from '../../lib/inventoryReport'
 import { buildPackListHtml } from '../../lib/inventoryPrint'
@@ -107,6 +113,8 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
   const updateItem = useInventoryStore((s) => s.updateItem)
   const removeItem = useInventoryStore((s) => s.removeItem)
   const seedFromEquipment = useInventoryStore((s) => s.seedFromEquipment)
+  const exportSnapshot = useInventoryStore((s) => s.exportSnapshot)
+  const importSnapshot = useInventoryStore((s) => s.importSnapshot)
   const equipment = useProjectStore((s) => s.project.equipment)
 
   const [tab, setTab] = useState<Tab>('items')
@@ -114,6 +122,9 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
   const [query, setQuery] = useState('')
   const [scan, setScan] = useState('')
   const [scanResult, setScanResult] = useState<string | null>(null)
+  const [cameraOpen, setCameraOpen] = useState(false)
+  const importInputRef = useRef<HTMLInputElement>(null)
+  const cameraSupported = useMemo(() => isBarcodeScannerSupported(), [])
 
   const nodeById = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes])
   const nodeOptions = useMemo(
@@ -191,8 +202,8 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
     })
   }
 
-  const handleScan = () => {
-    const code = scan.trim()
+  const handleScan = (raw?: string) => {
+    const code = (raw ?? scan).trim()
     if (!code) return
     const match = resolveInventoryCode(code, { items, nodes, units })
     if (!match) {
@@ -211,6 +222,41 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
       setScanResult(format(t('inventory.scanUnit', 'Einheit: {model} · {serial}'), { model, serial: match.unit.serial || match.unit.code || match.unit.id.slice(0, 6) }))
     }
     setScan('')
+  }
+
+  const handleExport = () => {
+    const json = serializeInventory(exportSnapshot(), { app: 'cable-planner' })
+    const blob = new Blob([json], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'lager.avinv.json'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleImportFile = async (file: File) => {
+    const text = await file.text()
+    const snap = parseInventory(text)
+    if (!snap) {
+      await infoDialog(t('inventory.importErrTitle', 'Import fehlgeschlagen'), {
+        tone: 'error',
+        body: t('inventory.importErr', 'Keine gültige Lager-Datei (avplan-inventory).'),
+      })
+      return
+    }
+    const replace = await confirmDialog(t('inventory.importTitle', 'Lager importieren'), {
+      body: t('inventory.importBody', 'Bestehenden Bestand ERSETZEN? „Abbrechen" fügt stattdessen zusammen (merge).'),
+      okLabel: t('inventory.importReplace', 'Ersetzen'),
+      cancelLabel: t('inventory.importMerge', 'Zusammenführen'),
+    })
+    const n = importSnapshot(snap, replace ? 'replace' : 'merge')
+    await infoDialog(t('inventory.importDoneTitle', 'Import abgeschlossen'), {
+      tone: 'success',
+      body: format(t('inventory.importDone', '{n} Objekte importiert.'), { n }),
+    })
   }
 
   const ownershipLabel = (o?: InventoryOwnership) => {
@@ -296,13 +342,31 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
               sets: sets.length,
             })}
           </span>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
-          >
-            {t('common.close', 'Schließen')}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleExport}
+              className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1 text-cp-xs hover:bg-cp-surface-5"
+              title={t('inventory.exportHint', 'Lager als portable Datei exportieren (App-übergreifend)')}
+            >
+              <Download size={13} /> {t('inventory.export', 'Export')}
+            </button>
+            <button
+              type="button"
+              onClick={() => importInputRef.current?.click()}
+              className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1 text-cp-xs hover:bg-cp-surface-5"
+              title={t('inventory.importHint', 'Lager aus einer portablen Datei importieren')}
+            >
+              <Upload size={13} /> {t('inventory.import', 'Import')}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+            >
+              {t('common.close', 'Schließen')}
+            </button>
+          </div>
         </div>
       }
     >
@@ -321,10 +385,20 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
               className="w-full rounded border border-cp-border bg-cp-surface-3 py-1.5 pl-7 pr-2"
             />
           </div>
-          <button type="button" onClick={handleScan} className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1.5 hover:bg-cp-surface-5">
+          <button type="button" onClick={() => handleScan()} className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1.5 hover:bg-cp-surface-5">
             <ScanLine size={13} />
             {t('inventory.scan', 'Auflösen')}
           </button>
+          {cameraSupported && (
+            <button
+              type="button"
+              onClick={() => setCameraOpen(true)}
+              className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1.5 hover:bg-cp-surface-5"
+              title={t('inventory.scanCamera', 'Mit Kamera scannen')}
+            >
+              <Camera size={13} />
+            </button>
+          )}
         </div>
         {scanResult && (
           <div className="rounded border border-cp-border-muted bg-cp-surface-2 px-2 py-1 text-cp-text-secondary">{scanResult}</div>
@@ -552,6 +626,26 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
         {tab === 'sets' && <SetsTab />}
         {tab === 'labels' && <LabelsTab />}
         {tab === 'reports' && <ReportsTab />}
+
+        {/* Verstecktes File-Input für Import + Kamera-Scanner-Overlay */}
+        <input
+          ref={importInputRef}
+          type="file"
+          accept="application/json,.json"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0]
+            if (f) void handleImportFile(f)
+            e.target.value = ''
+          }}
+        />
+        {cameraOpen && (
+          <ScannerModal
+            open={cameraOpen}
+            onClose={() => setCameraOpen(false)}
+            onDetect={(code) => handleScan(code)}
+          />
+        )}
       </div>
     </ModalShell>
   )

@@ -498,6 +498,9 @@ export const MenuBar = ({
           <MenuItem onClick={() => useUiStore.getState().setDrumMicingOpen(true)} icon={<Icon icon={Drum} size="sm" />}>
             {t('app.menu.tools.drumMicing', 'Drum-Mikrofonierung…')}
           </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().setWirelessRigOpen(true)} icon={<Icon icon={Radio} size="sm" />}>
+            {t('app.menu.tools.wirelessRig', 'Funkstrecken / Gesang…')}
+          </MenuItem>
 
           <MenuSectionHeader>{t('app.menu.tools.group.build', 'Erstellen & verwalten')}</MenuSectionHeader>
           <MenuItem

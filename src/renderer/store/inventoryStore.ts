@@ -340,6 +340,18 @@ interface InventoryState {
   moveUnit: (id: string, nodeId: string | undefined, locationLabel: string) => void
   /** Ändert den Zustand einer Einheit (hängt „condition" an die Historie). */
   setUnitCondition: (id: string, condition: UnitCondition) => void
+  /** Aktueller Bestand als portabler Snapshot (für App-übergreifenden Export). */
+  exportSnapshot: () => { items: InventoryItem[]; nodes: StorageNode[]; sets: InventorySet[]; units: InventoryUnit[] }
+  /**
+   * Importiert einen Snapshot. `replace` ersetzt den gesamten Bestand,
+   * `merge` fügt per id zusammen (Import gewinnt bei Kollision). Alle Felder
+   * werden geheilt (gleiche Regeln wie beim Laden). Liefert die Anzahl
+   * importierter Objekte.
+   */
+  importSnapshot: (
+    snap: { items?: unknown[]; nodes?: unknown[]; sets?: unknown[]; units?: unknown[] },
+    mode: 'replace' | 'merge',
+  ) => number
 }
 
 const initial = load()
@@ -585,4 +597,29 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       persist(state.items, state.nodes, state.sets, units)
       return { units }
     }),
+  exportSnapshot: () => {
+    const s = get()
+    return { items: s.items, nodes: s.nodes, sets: s.sets, units: s.units }
+  },
+  importSnapshot: (snap, mode) => {
+    const inItems = (snap.items ?? []).map(healItem).filter((x): x is InventoryItem => x !== null)
+    const inNodes = (snap.nodes ?? []).map(healNode).filter((x): x is StorageNode => x !== null)
+    const inSets = (snap.sets ?? []).map(healSet).filter((x): x is InventorySet => x !== null)
+    const inUnits = (snap.units ?? []).map(healUnit).filter((x): x is InventoryUnit => x !== null)
+    const total = inItems.length + inNodes.length + inSets.length + inUnits.length
+    set((state) => {
+      const mergeById = <T extends { id: string }>(base: T[], add: T[]): T[] => {
+        const byId = new Map(base.map((x) => [x.id, x]))
+        for (const x of add) byId.set(x.id, x)
+        return [...byId.values()]
+      }
+      const items = mode === 'replace' ? inItems : mergeById(state.items, inItems)
+      const nodes = mode === 'replace' ? inNodes : mergeById(state.nodes, inNodes)
+      const sets = mode === 'replace' ? inSets : mergeById(state.sets, inSets)
+      const units = mode === 'replace' ? inUnits : mergeById(state.units, inUnits)
+      persist(items, nodes, sets, units)
+      return { items, nodes, sets, units }
+    })
+    return total
+  },
 }))

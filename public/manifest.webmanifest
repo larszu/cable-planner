@@ -1,0 +1,19 @@
+{
+  "name": "Cable Planner — Mobile",
+  "short_name": "Planner",
+  "description": "Plan + Lager ansehen und Codes scannen (QR/Barcode).",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
