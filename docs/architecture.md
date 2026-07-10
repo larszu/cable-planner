@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v8.2.1 · ~372 TS/TSX-Module · ~109.5k LOC
+Stand: v8.3.1 · ~382 TS/TSX-Module · ~110.9k LOC
 
 ---
 
@@ -121,7 +121,7 @@ isoliert testbar ist.
 
 ### 3.2 · Komponenten
 
-`src/renderer/components/` ist in 24 Subdomänen aufgeteilt:
+`src/renderer/components/` ist in 25 Subdomänen aufgeteilt:
 
 ```
 About/         Analysis/      Annotations/   Atem/          Cable/
@@ -449,7 +449,7 @@ optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
 gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
 UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
-(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~109.5k LOC
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~110.9k LOC
 bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.
