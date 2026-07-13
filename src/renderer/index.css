@@ -542,6 +542,19 @@ body,
 [data-theme="light"] .border-yellow-600  { border-color: #ca8a04; }
 
 
+/* #587 — Native <select> auf macOS hat per Default `min-width: auto`
+   (= min-content der laengsten Option) und laesst sich in Flex-/Grid-
+   Containern nicht schmaler ziehen → die Dropdowns in den Geraete-
+   Eigenschaften laufen ueber die Panel-Breite. `min-width: 0` erlaubt das
+   Schrumpfen (Text wird bei Bedarf abgeschnitten), `max-width: 100%`
+   verhindert Ueberlauf auch bei breitenlosen Selects. Betrifft nur
+   eingeschraenkte Container; frei stehende Selects behalten ihre Auto-
+   Breite. */
+select {
+  min-width: 0;
+  max-width: 100%;
+}
+
 /* v7.3.0 — Global focus-visible rings so keyboard navigation works on
    every button/link/input without per-component edits. Per-component
    focus styles still override via more-specific selectors. */

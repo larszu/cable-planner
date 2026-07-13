@@ -4396,4 +4396,13 @@ export const de: Dict = {
   "lifecycle.ownership.owned": "Owned",
   "lifecycle.ownership.rented": "Rented",
   "lifecycle.ownership.subhire": "Sub-hire",
+  "canvas.nodeMenu.openRackEditor": "Open rack editor",
+  "verify.namePrompt": "Your name (for device verification):",
+  "verify.byTitle": "Verified by: {names}",
+  "verify.count": "{n}\u00d7 verified",
+  "verify.none": "Not verified yet",
+  "verify.buttonTitle": "Confirm that this device's ports/data are correct",
+  "verify.button": "Verify as correct",
+  "verify.hint": "Confirms the ports are correct. When sharing libraries, confirmations from multiple users add up.",
+  "eqNode.verified": "Verified by {n}: {names}",
 }
