@@ -97,6 +97,9 @@ export const computeEquipmentLayout = (
     0,
   )
   const labelWidth = longestPortText * 7 + 32
+  // #588 — Geräte-Name muss ebenfalls auf eine Zeile passen (siehe
+  // EquipmentNode); identische Formel für konsistente Breite.
+  const nameWidth = (eq.name?.length ?? 0) * 7 + 44
   // #501 — Breite/Höhe müssen BYTE-genau wie im Renderer (EquipmentNode,
   // v7.9.26 snapUp) aufs Grid einrasten. Sonst startet die Pending-Kabel-
   // Linie an einer UN-gesnappten Außenkante, während der echte Port-Handle
@@ -104,7 +107,7 @@ export const computeEquipmentLayout = (
   // (sichtbar v.a. am breiten Videohub mit vielen Output-Ports).
   const GRID = EQUIPMENT_LAYOUT.GRID_SIZE
   const snapUp = (n: number): number => Math.ceil(n / GRID) * GRID
-  const intrinsicWidth = snapUp(Math.max(EQUIPMENT_LAYOUT.DEFAULT_WIDTH, labelWidth * 2))
+  const intrinsicWidth = snapUp(Math.max(EQUIPMENT_LAYOUT.DEFAULT_WIDTH, labelWidth * 2, nameWidth))
   const width = Math.max(snapUp(eq.width ?? intrinsicWidth), intrinsicWidth)
 
   const portRows = Math.max(sideCounts.left, sideCounts.right, 1)

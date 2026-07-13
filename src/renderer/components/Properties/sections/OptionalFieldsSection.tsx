@@ -1,6 +1,7 @@
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { format, useTranslation } from '../../../lib/i18n'
 import { pickImageAsDataUri } from '../../../lib/readImageAsDataUri'
+import { promptDialog } from '../../../lib/promptDialog'
 import { SortableSection } from '../SortableSection'
 import type { EquipmentItem } from '../../../types/equipment'
 
@@ -14,10 +15,63 @@ const ICON_GLYPHS = ['📷', '🖥', '💻', '📺', '🎙', '💡', '🌐', '�
 export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem }) => {
   const t = useTranslation()
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
+  const projectAuthor = useProjectStore((state) => state.project.metadata.author)
+
+  // #580 — Verifizierung: eine Person bestätigt, dass die Ports/Daten des
+  // Geräts korrekt sind. Name kommt aus dem Projekt-Autor (Einstellungen);
+  // sonst wird einmalig gefragt. Wiederholtes Klicken toggelt die eigene
+  // Bestätigung.
+  const verifiedBy = equipment.verifiedBy ?? []
+  const toggleVerify = async () => {
+    const name =
+      (projectAuthor ?? '').trim() ||
+      (await promptDialog(t('verify.namePrompt', 'Dein Name (für die Geräte-Verifizierung):')))?.trim()
+    if (!name) return
+    const next = verifiedBy.includes(name)
+      ? verifiedBy.filter((n) => n !== name)
+      : [...verifiedBy, name]
+    updateEquipment(equipment.id, { verifiedBy: next.length > 0 ? next : undefined })
+  }
 
   return (
-    <SortableSection id="optional" title={t('opt.title', 'Optionale Felder')} subtitle={t('opt.subtitle', 'Hersteller-Link, Referenzbild, Icon, Mietpreis')}>
+    <SortableSection id="optional" title={t('opt.title', 'Optionale Felder')} subtitle={t('opt.subtitle', 'Hersteller-Link, Referenzbild, Icon, Mietpreis, Verifizierung')}>
       <div className="space-y-3">
+        {/* #580 — Geräte-Verifizierung: bestätigen, dass die eingetragenen
+            Ports/Daten korrekt sind. Zeigt die Zahl der Bestätigungen. */}
+        <div className="rounded border border-cp-border-muted bg-cp-surface-1 p-2">
+          <div className="mb-1 flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-cp-text-secondary">
+              {verifiedBy.length > 0 && (
+                <span
+                  className="inline-flex items-center gap-1 rounded bg-emerald-900/60 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-200"
+                  title={format(
+                    t('verify.byTitle', 'Verifiziert von: {names}'),
+                    { names: verifiedBy.join(', ') },
+                  )}
+                >
+                  ✓ {format(t('verify.count', '{n}× verifiziert'), { n: verifiedBy.length })}
+                </span>
+              )}
+              {verifiedBy.length === 0 && (
+                <span className="text-[11px] text-cp-text-muted">
+                  {t('verify.none', 'Noch nicht verifiziert')}
+                </span>
+              )}
+            </span>
+            <button
+              type="button"
+              onClick={() => void toggleVerify()}
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+              title={t('verify.buttonTitle', 'Bestätigen, dass die Ports/Daten dieses Geräts korrekt sind')}
+            >
+              {t('verify.button', 'Als korrekt verifizieren')}
+            </button>
+          </div>
+          <p className="text-[10px] text-cp-text-faint">
+            {t('verify.hint', 'Bestätigt, dass die Ports stimmen. Beim Teilen von Bibliotheken summieren sich die Bestätigungen mehrerer Nutzer.')}
+          </p>
+        </div>
+
         {/* #420 — Mietpreis pro Tag. Beim Rentman-Import automatisch
             befuellt; manuell ueberschreibbar. */}
         <div className="grid grid-cols-[1fr_70px] gap-2">
