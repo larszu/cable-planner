@@ -549,6 +549,12 @@ export interface EquipmentItem {
    * (verteilt dann faktisch nichts).
    */
   isDistributionAmp?: boolean
+  /** #580 — Namen der Personen, die bestätigt haben, dass die eingetragenen
+   *  Ports/Daten dieses Geräts korrekt sind (Community-Verifizierung). Beim
+   *  Zusammenführen geteilter Bibliotheken werden die Listen vereinigt, sodass
+   *  sich "von N Personen verifiziert" über mehrere Nutzer aufbaut. Ein
+   *  nicht-leeres Array zeigt auf dem Canvas ein Verifiziert-Badge. */
+  verifiedBy?: string[]
   /** Festinstallation — Betriebs-Status des Geräts (geplant…außer Betrieb). */
   installStatus?: InstallStatus
   /** Festinstallation — Inventar-/Asset-Nummer für das Asset-Register. */

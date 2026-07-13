@@ -523,12 +523,17 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
     0,
   )
   const labelWidth = longestPortText * 7 + 32
+  // #588 — Auch der Geräte-Name (Header) muss auf EINE Zeile passen, sonst
+  // umbricht der Titel und schiebt die Port-Positionen (die aus der fixen
+  // headerHeight berechnet werden) gegen die gerenderten Handles. Reserve
+  // ~44 px für führendes Icon/R-Badge + Padding.
+  const nameWidth = (data.name?.length ?? 0) * 7 + 44
   // v7.9.26 — Width rastet auf gridSize-Vielfache (11 px) ein, sodass
   // die Außenkanten der Karte mit Dot-Spalten zusammenfallen. Auto-
   // Expand für lange Port-Labels rundet entsprechend AUF.
   const GRID = EQUIPMENT_LAYOUT.GRID_SIZE
   const snapUp = (n: number) => Math.ceil(n / GRID) * GRID
-  const intrinsicWidth = snapUp(Math.max(EQUIPMENT_LAYOUT.DEFAULT_WIDTH, labelWidth * 2))
+  const intrinsicWidth = snapUp(Math.max(EQUIPMENT_LAYOUT.DEFAULT_WIDTH, labelWidth * 2, nameWidth))
   const width = Math.max(snapUp(data.width ?? intrinsicWidth), intrinsicWidth)
   // computedHeight ist per Konstruktion bereits Vielfaches von GRID
   // (headerHeight, PORT_ROW, PADDING sind alle Vielfache); data.height
@@ -566,7 +571,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           : tokens.header,
         borderRadius: '5px 5px 0 0',
       }}>
-        <div style={{ fontWeight: 600, lineHeight: '16px', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ fontWeight: 600, lineHeight: '16px', display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
           {rentmanEnabled && (
             data.rentmanId && !data.rentmanRemoved ? (
               <span
@@ -627,7 +632,36 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               </span>
             )
           })()}
-          <span>{data.name}</span>
+          <span
+            style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}
+            title={data.name}
+          >
+            {data.name}
+          </span>
+          {/* #580 — Verifiziert-Badge (von N Personen bestätigt) */}
+          {(data.verifiedBy?.length ?? 0) > 0 && (
+            <span
+              style={{
+                flexShrink: 0,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 2,
+                background: '#065f46',
+                color: '#d1fae5',
+                fontSize: 9,
+                fontWeight: 700,
+                borderRadius: 3,
+                padding: '0 3px',
+                lineHeight: '13px',
+              }}
+              title={format(
+                t('eqNode.verified', 'Verifiziert von {n}: {names}'),
+                { n: data.verifiedBy!.length, names: data.verifiedBy!.join(', ') },
+              )}
+            >
+              ✓{data.verifiedBy!.length > 1 ? ` ${data.verifiedBy!.length}` : ''}
+            </span>
+          )}
           {data.packed && (
             <span
               style={{
