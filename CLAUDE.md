@@ -135,6 +135,14 @@ Pfad-Validierung passiert **immer in main**, nie im Renderer.
 - **PR-Body:** kurze Übersicht der Sub-Änderungen + Liste geschlossener Issues
   (`Closes #X, #Y`).
 
+### Merge-Berechtigung (Standing Directive)
+- **Der Nutzer (larszu) hat dauerhaft erlaubt, PRs selbst zu mergen** — in allen
+  vier Repos (av-planner-suite, cable-planner, multicam-planner, light-planner).
+  Nicht jedes Mal nachfragen.
+- Merge-Regel: **nur mergen, wenn CI grün ist.** Bei rotem CI erst fixen. Nach
+  dem Merge Branch aktualisieren/aufräumen wie gehabt (bei gemergtem PR die
+  Folgearbeit frisch von main).
+
 ### Author-Identität
 Bot-Commits sind unter `Claude <noreply@anthropic.com>` authored (Harness setzt
 das global). Änderbar nur via `git config user.name/email` im Container, nicht
