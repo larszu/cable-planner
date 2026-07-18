@@ -46,7 +46,7 @@ jobs:
         # reject the binary with "is damaged" on Apple Silicon. Users
         # still see the standard "unidentified developer" prompt and
         # need to right-click → Open the first time.
-        run: npx electron-builder --mac dmg --x64 --arm64 --publish never
+        run: npx electron-builder --mac dmg --universal --publish never
 
       - name: List artifacts
         run: ls -lh release/*.dmg || true
