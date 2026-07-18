@@ -33,7 +33,7 @@ jobs:
             build_args: --win
           - os: macos-latest
             name: macos
-            build_args: --mac --x64 --arm64
+            build_args: --mac --universal
 
     runs-on: ${{ matrix.os }}
 

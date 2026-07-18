@@ -44,9 +44,12 @@ export default {
   // succeeded but the upload step found no *.exe to attach to the release).
   mac: {
     category: 'public.app-category.productivity',
+    // Universal-Build (arm64 + x64 in einer .app): läuft auf Apple Silicon
+    // nativ — kein Rosetta, keine „Intel-App"-Warnung auf neuen macOS-Versionen
+    // — und weiterhin auf Intel-Macs. Ein Download statt getrennter DMGs, damit
+    // niemand versehentlich den Intel-Build lädt.
     target: [
-      { target: 'dmg', arch: 'x64' },
-      { target: 'dmg', arch: 'arm64' },
+      { target: 'dmg', arch: 'universal' },
     ],
     artifactName: '${productName}-${version}-${arch}.${ext}',
     icon: 'build/icon.png',
