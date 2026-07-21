@@ -180,9 +180,18 @@ entstanden Fabrikations-Fehler.
   Needle-Präzisionstest für die "m32"-Substring-Falle (Midas M32 ↔ dLive
   CDM32).
 
-**Offen** (nächste Schritte): GUID-Identität für Light-Planner-Fixtures (dort
-via GDTF `FixtureTypeID` direkt); User-eigene Templates optional mit selbst
-geminteter GUID; Katalog-Nachzügler mit geklärter I/O (TriCaster Mini 4K,
+**Umgesetzt (2026-07):** Der Light-Planner-MVR-Export gibt jetzt pro
+Fixture-*Typ* eine stabile, 1-basierte `<FixtureTypeId>` aus (Schlüssel = Library-`id`,
+z. B. `etc-s4-26`), statt der alten konstanten `0`, die das ganze Rig auf einen
+anonymen Typ zusammenfallen ließ. Instanzen desselben Typs teilen die Id,
+verschiedene Typen unterscheiden sich — so falten grandMA3/Capture/Vectorworks
+identische Fixtures korrekt zu einem Patch-Typ. Headless verifiziert per
+`npm run mvr:check` (light-planner). Jede Fixture-Instanz trägt weiterhin ein
+eindeutiges `uuid`.
+
+**Offen** (nächste Schritte): echte GDTF-`FixtureTypeID`-GUIDs, sobald
+Light-Planner GDTF-Profile einbettet (heute per Name relinked); User-eigene
+Templates optional mit selbst geminteter GUID; Katalog-Nachzügler mit geklärter I/O (TriCaster Mini 4K,
 greenMachine titan, AJA FS4/FS2, Analog Way Aquilon, Clear-Com FreeSpeak,
 Riedel Bolero, Grass Valley, Datavideo, Antennen-Splitter Shure UA844+/
 Sennheiser ASA 214, Shure AD4D/Axient).
