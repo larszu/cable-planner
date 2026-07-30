@@ -5,8 +5,10 @@
 // CanvasArea registers callbacks on mount.
 
 type Point = { x: number; y: number }
+type Size = { width: number; height: number }
 
 let viewportGetter: (() => Point | null) | null = null
+let canvasSizeGetter: (() => Size | null) | null = null
 let selectionClearer: (() => void) | null = null
 let interactionLockRequester: ((durationMs?: number) => void) | null = null
 let interactionUnlocker: (() => void) | null = null
@@ -18,6 +20,33 @@ export const setViewportCenterGetter = (fn: (() => Point | null) | null) => {
 export const getViewportCenter = (): Point | null => {
   try {
     return viewportGetter ? viewportGetter() : null
+  } catch {
+    return null
+  }
+}
+
+// Gemessene Groesse der sichtbaren Canvas-Flaeche in CSS-Pixeln. Nur die
+// HAUPT-Canvas registriert sich (mode='main') — das Rack-Overlay rendert
+// dieselbe Komponente ein zweites Mal und wuerde die Messung sonst
+// ueberschreiben (siehe #515 weiter unten).
+//
+// Zweck: Zoom-to-fit nach einem Import muss auf die TATSAECHLICHE
+// Canvas-Breite/-Hoehe zentrieren. Vorher lief das gegen einen festen
+// Fallback (1200x700), sodass ein Import auf breiten Screens in der linken
+// Bildschirmhaelfte landete statt mittig.
+export const setCanvasSizeGetter = (fn: (() => Size | null) | null) => {
+  canvasSizeGetter = fn
+}
+
+/** Gemessene Canvas-Groesse oder null, wenn (noch) keine Canvas gemountet
+ *  ist — dann muss der Aufrufer seinen eigenen Fallback nutzen. Null-Werte
+ *  (0-Breite waehrend des ersten Renders) werden ebenfalls als null
+ *  gemeldet, damit niemand durch 0 teilt. */
+export const getCanvasSize = (): Size | null => {
+  try {
+    const s = canvasSizeGetter ? canvasSizeGetter() : null
+    if (!s || s.width <= 0 || s.height <= 0) return null
+    return s
   } catch {
     return null
   }
