@@ -49,6 +49,7 @@ import { colorByLength } from '../../lib/cableColors'
 import { promptDialog } from '../../lib/promptDialog'
 import {
   setViewportCenterGetter,
+  setCanvasSizeGetter,
   setCanvasSelectionClearer,
   setCanvasInteractionLockHandlers,
   setCanvasFitViewHandler,
@@ -204,6 +205,23 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     })
     return () => setViewportCenterGetter(null)
   }, [screenToFlowPosition])
+
+  // Gemessene Canvas-Groesse fuer Zoom-to-fit nach Importen bereitstellen.
+  // Lazy Getter statt ResizeObserver: der Wert wird nur beim Import gebraucht
+  // und ist so garantiert frisch (inkl. aktueller Panel-Breiten), ohne bei
+  // jedem Resize State zu schreiben.
+  // Nur die Haupt-Canvas registriert sich — das Rack-Overlay rendert dieselbe
+  // Komponente und wuerde die Messung sonst verdraengen (vgl. #515).
+  useEffect(() => {
+    if (mode !== 'main') return
+    setCanvasSizeGetter(() => {
+      const el = wrapperRef.current
+      if (!el) return null
+      const r = el.getBoundingClientRect()
+      return { width: r.width, height: r.height }
+    })
+    return () => setCanvasSizeGetter(null)
+  }, [mode])
 
   useEffect(() => {
     setCanvasInteractionLockHandlers({
