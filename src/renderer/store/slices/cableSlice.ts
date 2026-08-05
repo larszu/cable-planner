@@ -8,6 +8,7 @@ import {
   isBidirectionalCableType,
 } from '../../lib/cableInheritance'
 import { detectLayerForConnector } from '../../lib/cableLayers'
+import { cablesEndingAt, targetKey } from '../../lib/portOccupancy'
 import { computeCableNumbers, nextCableNumber } from '../../lib/cableNumbering'
 import { estimateAllCableLengths, DEFAULT_LENGTH_ESTIMATION } from '../../lib/cableLengthEstimate'
 import { isProjectLocked, touchProject } from '../projectStoreHelpers'
@@ -45,15 +46,20 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
   queueConnection: (connection, waypoints) =>
     set((state) => {
       if (isProjectLocked(state)) return state
-      // #294 — Port-Konflikt-Check. Wenn der ZIEL-Port (targetHandle)
-      // bereits in einem anderen Kabel als toPortId verwendet wird, oeffnen
-      // wir den PortConflictDialog statt direkt den CableDialog. Source-
-      // Ports werden bewusst NICHT geprueft — Outputs koennen sinnvoll
-      // mehrere parallel Kabel speisen (1-to-many Distribution).
-      const targetHandle = connection.targetHandle
-      const conflictingCables = targetHandle
-        ? state.project.cables.filter((c) => c.toPortId === targetHandle)
-        : []
+      // #294 — Port-Konflikt-Check. Wenn am ZIEL-Port bereits ein Kabel
+      // steckt, oeffnen wir den PortConflictDialog statt direkt den
+      // CableDialog. Source-Ports werden bewusst NICHT geprueft — Outputs
+      // koennen sinnvoll mehrere parallele Kabel speisen (1-zu-n).
+      //
+      // #595 — Geprueft wird das Paar aus Geraet UND Port. Vorher zaehlte nur
+      // die Port-ID; die ist aber lediglich innerhalb eines Geraets eindeutig.
+      // Zwei Geraete aus derselben Vorlage teilen sich ihre Port-IDs, deshalb
+      // galt der Eingang des zweiten Geraets als belegt, sobald am ersten ein
+      // Kabel hing.
+      const conflictingCables = cablesEndingAt(state.project.cables, {
+        equipmentId: connection.target ?? '',
+        portId: connection.targetHandle ?? '',
+      })
       if (conflictingCables.length > 0) {
         return {
           portConflict: {
@@ -161,11 +167,15 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
         return state
       }
       const ui = useUiStore.getState()
-      // Aktueller Port-Belegungs-Snapshot: alle bestehenden toPortIds. Wir
-      // muessen das innerhalb der Schleife inkrementell aktualisieren, weil
-      // ein und derselbe Bulk-Aufruf zwei Kabel auf den gleichen Ziel-Port
-      // setzen koennte — das soll als 'skipped' gelten.
-      const occupiedTargets = new Set(state.project.cables.map((c) => c.toPortId))
+      // Aktueller Belegungs-Snapshot der Ziel-Ports. Wir muessen ihn
+      // innerhalb der Schleife inkrementell aktualisieren, weil ein und
+      // derselbe Bulk-Aufruf zwei Kabel auf den gleichen Ziel-Port setzen
+      // koennte — das soll als 'skipped' gelten.
+      //
+      // #595 — Der Schluessel ist Geraet + Port. Vorher stand nur die Port-ID
+      // darin; zwei Geraete aus derselben Vorlage teilen die aber, wodurch das
+      // zweite Kabel faelschlich als 'Ziel-Port belegt' uebersprungen wurde.
+      const occupiedTargets = new Set(state.project.cables.map(targetKey))
       const newCables: Cable[] = []
       for (const draft of drafts) {
         if (!draft.fromPortId || !draft.toPortId) {
@@ -173,7 +183,7 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
           result.skippedReasons.push('Port-IDs fehlen.')
           continue
         }
-        if (occupiedTargets.has(draft.toPortId)) {
+        if (occupiedTargets.has(targetKey(draft))) {
           result.skipped++
           result.skippedReasons.push(`Ziel-Port ${draft.toPortId} bereits belegt.`)
           continue
@@ -200,7 +210,7 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
           layer: autoLayer,
         }
         newCables.push(cable)
-        occupiedTargets.add(draft.toPortId)
+        occupiedTargets.add(targetKey(draft))
         result.created++
       }
       if (newCables.length === 0) return state
