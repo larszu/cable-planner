@@ -14,6 +14,7 @@ import { format, useTranslation } from '../../lib/i18n'
 import { STANDARD_LAYERS, LAYER_STYLES } from '../../lib/cableLayers'
 import { netKeyOf, netPeerCount } from '../../lib/offPageNet'
 import { sourceDestLabel } from '../../lib/cableLabel'
+import { cableTouches } from '../../lib/portOccupancy'
 import {
   INSTALL_STATUSES,
   INSTALL_STATUS_LABEL,
@@ -60,11 +61,9 @@ export const CableProperties = () => {
   }
   const portConflict = (eqId: string, portId: string): Cable | undefined => {
     if (!eqId || !portId) return undefined
+    // #595 — Geraet UND Port (lib/portOccupancy).
     return cables.find(
-      (c) =>
-        c.id !== cable.id &&
-        ((c.fromEquipmentId === eqId && c.fromPortId === portId) ||
-          (c.toEquipmentId === eqId && c.toPortId === portId)),
+      (c) => c.id !== cable.id && cableTouches(c, { equipmentId: eqId, portId }),
     )
   }
   const fromDev = equipment.find((e) => e.id === cable.fromEquipmentId)
