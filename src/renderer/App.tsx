@@ -104,6 +104,7 @@ import { infoDialog } from './lib/infoDialog'
 import { AlertTriangle } from 'lucide-react'
 import { useTranslation, format } from './lib/i18n'
 import { Icon } from './components/shared/Icon'
+import { cableTouches } from './lib/portOccupancy'
 
 export default function App() {
   const t = useTranslation()
@@ -919,11 +920,11 @@ export default function App() {
       const fromPortId = pending.sourceHandle
       const toEqId = pending.target
       const toPortId = pending.targetHandle
-      const usesPort = (cable: Cable, eqId: string, portId: string) =>
-        (cable.fromEquipmentId === eqId && cable.fromPortId === portId) ||
-        (cable.toEquipmentId === eqId && cable.toPortId === portId)
+      // #595 — Geraet UND Port, nie die Port-ID allein (lib/portOccupancy).
       const conflicts = stateBefore.project.cables.filter(
-        (c) => usesPort(c, fromEqId, fromPortId) || usesPort(c, toEqId, toPortId),
+        (c) =>
+          cableTouches(c, { equipmentId: fromEqId, portId: fromPortId }) ||
+          cableTouches(c, { equipmentId: toEqId, portId: toPortId }),
       )
       if (conflicts.length > 0) {
         const list = conflicts
@@ -1525,11 +1526,9 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
   // its own existing endpoint, so we exclude this cable's id.
   const portConflict = (eqId: string, portId: string): Cable | undefined => {
     if (!eqId || !portId) return undefined
+    // #595 — Geraet UND Port (lib/portOccupancy).
     return cables.find(
-      (c) =>
-        c.id !== cable.id &&
-        ((c.fromEquipmentId === eqId && c.fromPortId === portId) ||
-          (c.toEquipmentId === eqId && c.toPortId === portId)),
+      (c) => c.id !== cable.id && cableTouches(c, { equipmentId: eqId, portId }),
     )
   }
   const fromConflict = portConflict(fromEquipmentId, fromPortId)
