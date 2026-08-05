@@ -5,6 +5,7 @@ import { useUiStore } from '../uiStore'
 import { cableCatalog } from '../../types/cableSpec'
 import { detectLayerForConnector } from '../../lib/cableLayers'
 import { inheritedCableType } from '../../lib/cableInheritance'
+import { connectionExists } from '../../lib/portOccupancy'
 import { isProjectLocked, touchProject } from '../projectStoreHelpers'
 import { scheduleProjectAutosave } from '../projectAutosave'
 import type { ProjectState } from '../projectStore'
@@ -98,11 +99,14 @@ export const createMobileSyncSlice: StateCreator<ProjectState, [], [], MobileSyn
       const toPort =
         [...toEq.inputs, ...toEq.outputs].find((p) => p.id === input.toPortId) ?? null
       if (!fromPort || !toPort) return {}
-      // Doppelte verhindern: gleiche Port-Combo schon mal verbunden? skip.
-      const dupe = state.project.cables.some(
-        (c) =>
-          (c.fromPortId === input.fromPortId && c.toPortId === input.toPortId) ||
-          (c.fromPortId === input.toPortId && c.toPortId === input.fromPortId),
+      // Doppelte verhindern: dieselbe Verbindung schon vorhanden? skip.
+      // #595 — verglichen wird Geraet UND Port. Der reine Port-ID-Vergleich
+      // hielt ein Kabel zum zweiten Geraet derselben Vorlage faelschlich fuer
+      // eine Dublette und verwarf es kommentarlos.
+      const dupe = connectionExists(
+        state.project.cables,
+        { equipmentId: input.fromEquipmentId, portId: input.fromPortId },
+        { equipmentId: input.toEquipmentId, portId: input.toPortId },
       )
       if (dupe) return {}
       // v7.9.88 / #210 — Cable-Type-String → cableSpecId Lookup. Vorher
