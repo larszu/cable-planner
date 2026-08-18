@@ -8,7 +8,7 @@
  * Framework-frei und damit testbar; UI (Settings-Tab, Onboarding) liest hier.
  */
 
-export type ModuleId = 'festinstallation' | 'mobile' | 'rentman' | 'rental'
+export type ModuleId = 'festinstallation' | 'mobile' | 'rentman' | 'rental' | 'netbox'
 
 export interface ModuleMeta {
   id: ModuleId
@@ -42,6 +42,12 @@ export const MODULES: ModuleMeta[] = [
     description:
       'Lagerbestand, Eigentum & Verfügbarkeit, Mietkalkulation (im Aufbau, Phase 2+).',
   },
+  {
+    id: 'netbox',
+    label: 'NetBox',
+    description:
+      'Site oder Rack aus einer NetBox-Instanz als Kabelplan importieren und später nur um neue Geräte/Verbindungen ergänzen.',
+  },
 ]
 
 export const MODULE_IDS: ModuleId[] = MODULES.map((m) => m.id)
@@ -57,6 +63,9 @@ export const DEFAULT_ENABLED: Record<ModuleId, boolean> = {
   mobile: true,
   rentman: false,
   rental: false,
+  // #597 — wie rentman opt-in: ohne eigene NetBox-Instanz ist das Modul
+  // wertlos und würde nur Menüeinträge zustellen.
+  netbox: false,
 }
 
 export type PresetId = 'show' | 'festinstallation' | 'rental'
@@ -81,7 +90,8 @@ export const PRESETS: PresetMeta[] = [
     id: 'festinstallation',
     label: 'Festinstallation',
     description: 'Dauerhafte Anlagen — mitwachsende Doku, Service, Übergabe.',
-    modules: ['festinstallation', 'mobile'],
+    // NetBox ist die typische Dokumentationsquelle für Festinstallationen.
+    modules: ['festinstallation', 'mobile', 'netbox'],
   },
   {
     id: 'rental',

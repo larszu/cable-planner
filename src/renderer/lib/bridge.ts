@@ -1,4 +1,5 @@
 import type { CablePlannerProject } from '../types/project'
+import type { NetboxRack, NetboxSite, NetboxSnapshot } from '../types/netbox'
 import { downloadBlob } from './downloadBlob'
 
 type OpenProjectResponse = {
@@ -132,6 +133,23 @@ type CablePlannerApi = {
     getLaunchFile: () => Promise<OpenProjectResponse | null>
     /** #pre-sale — bei laufender App geöffnete Datei (second-instance/open-file). */
     onOpenExternal: (cb: (payload: OpenProjectResponse) => void) => () => void
+  }
+  /** #597 — self-hosted NetBox-Instanz. baseUrl kommt aus den Settings und
+   *  wird im Main-Prozess validiert; das Token bleibt im Schlüsselbund und
+   *  wird nie an den Renderer zurückgegeben (daher nur `hasToken`). */
+  netbox: {
+    saveToken: (token: string) => Promise<boolean>
+    hasToken: () => Promise<boolean>
+    deleteToken: () => Promise<boolean>
+    normalizeUrl: (url: string) => Promise<{ ok: true; url: string } | { ok: false; message: string }>
+    testConnection: (baseUrl: string) => Promise<{ ok: boolean; message: string; version?: string }>
+    getSites: (baseUrl: string) => Promise<NetboxSite[]>
+    getRacks: (baseUrl: string, siteId?: number) => Promise<NetboxRack[]>
+    fetchSnapshot: (
+      baseUrl: string,
+      scope: 'site' | 'rack',
+      scopeId: number,
+    ) => Promise<NetboxSnapshot>
   }
   graphml: {
     openFile: () => Promise<{ filePath: string; fileName: string; xml: string } | null>
@@ -657,6 +675,34 @@ const webFallbackApi: CablePlannerApi = {
     // keine OS-Übergabe → kein Launch-File, kein External-Open.
     getLaunchFile: async () => null,
     onOpenExternal: () => () => {},
+  },
+  netbox: {
+    // Web-Fallback: eine NetBox-Instanz steht praktisch immer im internen
+    // Netz und schickt keine CORS-Header für unseren Origin — ein Fetch aus
+    // dem Browser scheitert unabhängig vom Token. Der Import braucht daher
+    // den Main-Prozess.
+    saveToken: async () => {
+      throw new Error('NetBox-Integration erfordert die Desktop-App.')
+    },
+    hasToken: async () => false,
+    deleteToken: async () => false,
+    normalizeUrl: async () => ({
+      ok: false as const,
+      message: 'NetBox-Integration erfordert die Desktop-App.',
+    }),
+    testConnection: async () => ({
+      ok: false,
+      message: 'NetBox-Integration erfordert die Desktop-App.',
+    }),
+    getSites: async () => {
+      throw new Error('NetBox-Integration erfordert die Desktop-App.')
+    },
+    getRacks: async () => {
+      throw new Error('NetBox-Integration erfordert die Desktop-App.')
+    },
+    fetchSnapshot: async () => {
+      throw new Error('NetBox-Integration erfordert die Desktop-App.')
+    },
   },
   graphml: {
     // Browser fallback for dev / non-Electron contexts: use a hidden

@@ -920,6 +920,10 @@ interface UiState extends PersistedUiState {
   rentmanImport: { open: boolean }
   openRentmanImport: () => void
   closeRentmanImport: () => void
+  /** #597 — NetBox-Import-Dialog (Site/Rack aus der eigenen Instanz). */
+  netboxImport: { open: boolean }
+  openNetboxImport: () => void
+  closeNetboxImport: () => void
   /** Rentman cable export dialog (push canvas cable BOM to Rentman). */
   rentmanCableExport: { open: boolean }
   openRentmanCableExport: () => void
@@ -1360,6 +1364,9 @@ export const useUiStore = create<UiState>((set) => ({
   rentmanImport: { open: false },
   openRentmanImport: () => set({ rentmanImport: { open: true } }),
   closeRentmanImport: () => set({ rentmanImport: { open: false } }),
+  netboxImport: { open: false },
+  openNetboxImport: () => set({ netboxImport: { open: true } }),
+  closeNetboxImport: () => set({ netboxImport: { open: false } }),
   rentmanCableExport: { open: false },
   openRentmanCableExport: () => set({ rentmanCableExport: { open: true } }),
   closeRentmanCableExport: () => set({ rentmanCableExport: { open: false } }),
