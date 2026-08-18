@@ -76,21 +76,24 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
     try {
       const result = await cablePlannerApi.netbox.getSites(netboxUrl)
       setSites(result)
-      if (result.length > 0 && siteId === null) {
-        setSiteId(numberOr(result[0].id, 0) || null)
-      }
+      // Funktionales Update statt `siteId`-Closure: der Reset-Effect kann
+      // im selben Commit eine gespeicherte Site vorbelegt haben, die diese
+      // Closure noch als null sieht — die dürfen wir nicht überschreiben.
+      setSiteId((current) =>
+        current === null && result.length > 0 ? numberOr(result[0].id, 0) || null : current,
+      )
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
       setBusy(false)
     }
-  }, [configured, netboxUrl, siteId])
+  }, [configured, netboxUrl])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Site-Liste beim Öffnen aus der Instanz nachladen (externes System)
     if (open && configured && sites.length === 0) void loadSites()
-    // Absichtlich nur `open`/`configured` als Deps: `loadSites` haengt an
-    // `siteId`, ein Re-Run bei jeder Auswahl waere ein unnoetiger Refetch.
+    // Absichtlich nur `open`/`configured` als Deps: `sites.length` mit
+    // aufzunehmen wuerde den Effect direkt nach dem Laden erneut ausloesen.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, configured])
 
