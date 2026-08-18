@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v8.3.2 · ~383 TS/TSX-Module · ~111.2k LOC
+Stand: v8.3.2 · ~389 TS/TSX-Module · ~113.7k LOC
 
 ---
 
@@ -91,7 +91,7 @@ Vier Stores in `src/renderer/store/`. Jeder hat einen klar abgegrenzten Concern.
 
 #### 3.1.1 · Slice-Komposition (#308)
 
-`projectStore.ts` ist intern in **14 Slices** unter `src/renderer/store/slices/`
+`projectStore.ts` ist intern in **15 Slices** unter `src/renderer/store/slices/`
 zerlegt, die alle in den Haupt-Store komponiert werden:
 
 ```
@@ -122,7 +122,7 @@ isoliert testbar ist.
 
 ### 3.2 · Komponenten
 
-`src/renderer/components/` ist in 25 Subdomänen aufgeteilt:
+`src/renderer/components/` ist in 26 Subdomänen aufgeteilt:
 
 ```
 About/         Analysis/      Annotations/   Atem/          Cable/
@@ -440,7 +440,7 @@ Diese Themen sind diskutiert, aber noch nicht entschieden / umgesetzt.
 ### 9.1 · Store-Slicing — **erledigt** ✓ (#308)
 
 Implementiert. `projectStore.ts` von 2178 LOC auf ~1146 reduziert durch
-14 Slices unter `store/slices/`. Siehe §3.1.1.
+15 Slices unter `store/slices/`. Siehe §3.1.1.
 
 ### 9.2 · Komponenten-Splits — **teilweise** ✓ (#306, #307)
 
@@ -493,7 +493,7 @@ optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
 gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
 UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
-(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~111.2k LOC
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~113.7k LOC
 bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.
