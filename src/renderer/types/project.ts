@@ -77,6 +77,15 @@ export interface ProjectMetadata {
   rentmanProjectId?: string
   /** Human-readable name of the linked Rentman project. */
   rentmanProjectName?: string
+  /** #597 — Verknüpfte NetBox-Quelle. Wird beim Import gesetzt und vom
+   *  „Aktualisieren"-Button wiederverwendet, damit der Nutzer Instanz und
+   *  Site/Rack nicht erneut auswählen muss. */
+  netboxSourceUrl?: string
+  netboxScope?: 'site' | 'rack'
+  netboxScopeId?: number
+  netboxScopeName?: string
+  /** ISO-Zeitpunkt des letzten NetBox-Imports/Abgleichs. */
+  netboxLastSyncAt?: string
   /** Auto-Kabelnummerierungs-Schema. Undefined = noch nie konfiguriert
    *  (Defaults siehe `DEFAULT_CABLE_NUMBERING` in `lib/cableNumbering`). */
   cableNumbering?: CableNumberingScheme

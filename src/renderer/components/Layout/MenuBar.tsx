@@ -248,6 +248,7 @@ export const MenuBar = ({
     })
   }, [t])
   const rentmanEnabled = useModule('rentman')
+  const netboxEnabled = useModule('netbox')
   // Modulares UI — Festinstallations-Doku nur zeigen, wenn das Modul an ist.
   const festinstallationModule = useModule('festinstallation')
   // Modulares UI — Handy-Zugriff nur zeigen, wenn das Mobile-Modul an ist.
@@ -580,6 +581,12 @@ export const MenuBar = ({
           {rentmanEnabled && (
             <MenuItem onClick={() => useUiStore.getState().openRentmanImport()} icon={<Icon icon={Users} size="sm" />}>
               {t('app.menu.tools.rentmanImport', 'Rentman-Import…')}
+            </MenuItem>
+          )}
+          {/* #597 — NetBox-Import, ebenfalls nur bei aktivem Modul. */}
+          {netboxEnabled && (
+            <MenuItem onClick={() => useUiStore.getState().openNetboxImport()} icon={<Icon icon={Server} size="sm" />}>
+              {t('app.menu.tools.netboxImport', 'NetBox-Import…')}
             </MenuItem>
           )}
         </Menu>

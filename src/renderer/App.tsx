@@ -9,6 +9,7 @@ import { MenuBar } from './components/Layout/MenuBar'
 import { StatusBar } from './components/Layout/StatusBar'
 import { PropertiesPanel } from './components/Properties/PropertiesPanel'
 import { RentmanImportDialog } from './components/Rentman/RentmanImportDialog'
+import { NetboxImportDialog } from './components/Netbox/NetboxImportDialog'
 import { GraphmlImportDialog } from './components/Import/GraphmlImportDialog'
 import { RentmanCableExportDialog } from './components/Rentman/RentmanCableExportDialog'
 import { OnboardingTour } from './components/Onboarding/OnboardingTour'
@@ -171,6 +172,8 @@ export default function App() {
     open ? useUiStore.getState().openSettings() : useUiStore.getState().closeSettings()
   const rentmanImport = useUiStore((state) => state.rentmanImport)
   const closeRentmanImport = useUiStore((state) => state.closeRentmanImport)
+  const netboxImport = useUiStore((state) => state.netboxImport)
+  const closeNetboxImport = useUiStore((state) => state.closeNetboxImport)
   const rentmanCableExport = useUiStore((state) => state.rentmanCableExport)
   const openRentmanCableExport = useUiStore((state) => state.openRentmanCableExport)
   const closeRentmanCableExport = useUiStore((state) => state.closeRentmanCableExport)
@@ -1086,6 +1089,7 @@ export default function App() {
         initialSection={settingsSection}
       />
       <RentmanImportDialog open={rentmanImport.open} onClose={closeRentmanImport} />
+      <NetboxImportDialog open={netboxImport.open} onClose={closeNetboxImport} />
       <GraphmlImportDialog open={graphmlImportOpen} onClose={() => setGraphmlImportOpen(false)} />
       <RentmanCableExportDialog
         open={rentmanCableExport.open}
