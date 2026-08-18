@@ -287,6 +287,236 @@ const GreenGoPresetsCard = () => {
   )
 }
 
+/**
+ * #597 — NetBox-Instanz konfigurieren.
+ *
+ * Zwei Dinge gehören hierher: die Basis-URL der (selbst gehosteten)
+ * Instanz — die lebt in den App-Settings, weil dieselbe Instanz alle
+ * Projekte bedient — und das API-Token, das wie der Rentman-Token im
+ * OS-Schlüsselbund landet. Anders als bei Rentman holt der Renderer das
+ * Token nie zurück: er fragt nur, ob eines hinterlegt ist.
+ */
+const NetboxCard = ({ onClose }: { onClose: () => void }) => {
+  const t = useTranslation()
+  const netboxEnabled = useModule('netbox')
+  const setModuleEnabled = useSettingsStore((s) => s.setModuleEnabled)
+  const netboxUrl = useSettingsStore((s) => s.netboxUrl)
+  const setNetboxUrl = useSettingsStore((s) => s.setNetboxUrl)
+  const openNetboxImport = useUiStore((s) => s.openNetboxImport)
+
+  const [url, setUrl] = useState(netboxUrl)
+  const [token, setToken] = useState('')
+  const [hasToken, setHasToken] = useState(false)
+  const [status, setStatus] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    if (!netboxEnabled) return
+    void cablePlannerApi.netbox.hasToken().then(setHasToken)
+  }, [netboxEnabled])
+
+  const saveUrl = async () => {
+    setBusy(true)
+    try {
+      // Normalisierung passiert im Main-Prozess (dort liegt die
+      // Validierung) — ein getipptes "netbox.firma.de/api/" wird so
+      // automatisch zur brauchbaren Basis-URL.
+      const result = await cablePlannerApi.netbox.normalizeUrl(url)
+      if (!result.ok) {
+        setStatus(result.message)
+        return
+      }
+      setUrl(result.url)
+      setNetboxUrl(result.url)
+      setStatus(t('settings.integrations.netbox.urlSaved', 'URL gespeichert.'))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const saveToken = async () => {
+    setBusy(true)
+    try {
+      const stored = await cablePlannerApi.netbox.saveToken(token)
+      setHasToken(stored)
+      setToken('')
+      setStatus(
+        stored
+          ? t('settings.integrations.netbox.tokenSaved', 'Token sicher im Schlüsselbund gespeichert.')
+          : t('settings.integrations.netbox.tokenCleared', 'Token gelöscht.'),
+      )
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : String(error))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const removeToken = async () => {
+    setBusy(true)
+    try {
+      await cablePlannerApi.netbox.deleteToken()
+      setHasToken(false)
+      setToken('')
+      setStatus(t('settings.integrations.netbox.tokenCleared', 'Token gelöscht.'))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const testConnection = async () => {
+    setBusy(true)
+    try {
+      const result = await cablePlannerApi.netbox.testConnection(netboxUrl || url)
+      setStatus(result.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <>
+      <SettingsCard
+        title={t('settings.integrations.netboxToggle.title', 'NetBox-Integration')}
+        description={t(
+          'settings.integrations.netboxToggle.desc',
+          'Wenn aktiv: Menüeintrag und Import-Dialog für die eigene NetBox-Instanz erscheinen. Aus NetBox geplante Sites und Racks lassen sich damit als Kabelplan übernehmen.',
+        )}
+      >
+        <label className="flex items-center gap-2 text-cp-base">
+          <input
+            type="checkbox"
+            checked={netboxEnabled}
+            onChange={(e) => setModuleEnabled('netbox', e.target.checked)}
+            className="h-4 w-4 accent-sky-500"
+          />
+          <span>
+            {t('settings.integrations.netboxToggle.label', 'NetBox-Integration aktivieren')}{' '}
+            <span className="text-[10px] text-cp-text-muted">
+              ({netboxEnabled ? t('common.on', 'ein') : t('common.off', 'aus')})
+            </span>
+          </span>
+        </label>
+      </SettingsCard>
+
+      {netboxEnabled && (
+        <SettingsCard
+          title={t('settings.integrations.netbox', 'NetBox API')}
+          description={t(
+            'settings.integrations.netboxDesc',
+            'Basis-URL deiner NetBox-Instanz plus ein API-Token mit Leserechten. Das Token wird im Betriebssystem-Schlüsselbund verschlüsselt gespeichert (nie im Projektfile) und verlässt den Hauptprozess nicht.',
+          )}
+        >
+          <label className="block text-cp-base">
+            {t('settings.integrations.netbox.url', 'Instanz-URL')}
+            <div className="mt-1 flex gap-2">
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
+                placeholder="https://netbox.firma.de"
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <button
+                type="button"
+                disabled={busy || !url.trim()}
+                onClick={() => void saveUrl()}
+                className="rounded bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
+              >
+                {t('common.save', 'Speichern')}
+              </button>
+            </div>
+          </label>
+
+          <label className="mt-2 block text-cp-base">
+            {t('settings.integrations.netbox.token', 'API-Token')}
+            <input
+              type="password"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
+              placeholder={
+                hasToken
+                  ? t('settings.integrations.netbox.tokenStoredPlaceholder', 'Token hinterlegt — zum Ersetzen neues einfügen')
+                  : t('settings.integrations.netbox.tokenPlaceholder', 'API-Token einfügen')
+              }
+              autoComplete="off"
+            />
+          </label>
+
+          <div
+            className={`mt-2 rounded border p-2 text-cp-xs ${
+              hasToken
+                ? 'border-emerald-700/50 bg-emerald-900/20 text-emerald-300'
+                : 'border-cp-border bg-cp-surface-3/40 text-cp-text-muted'
+            }`}
+          >
+            <div>
+              <span className="font-semibold">
+                {t('settings.integrations.netbox.status', 'Status:')}
+              </span>{' '}
+              {status || t('settings.integrations.netbox.statusIdle', 'Noch nicht getestet.')}
+            </div>
+            <div className="text-cp-text-faint">
+              {t('settings.integrations.netbox.tokenStored', 'Token gespeichert:')}{' '}
+              {hasToken ? t('common.yes', 'Ja') : t('common.no', 'Nein')}
+            </div>
+          </div>
+
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={busy || !token}
+              onClick={() => void saveToken()}
+              className="rounded bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
+            >
+              {t('settings.integrations.netbox.saveToken', 'Token speichern')}
+            </button>
+            <button
+              type="button"
+              disabled={busy || !hasToken || !(netboxUrl || url).trim()}
+              onClick={() => void testConnection()}
+              className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500 disabled:opacity-50"
+            >
+              {t('settings.integrations.netbox.test', 'Verbindung testen')}
+            </button>
+            <button
+              type="button"
+              disabled={busy || !hasToken}
+              onClick={() => void removeToken()}
+              className="rounded bg-red-600 px-3 py-1 text-cp-base hover:bg-red-500 disabled:opacity-50"
+            >
+              {t('settings.integrations.netbox.deleteToken', 'Token löschen')}
+            </button>
+            <button
+              type="button"
+              disabled={!hasToken || !netboxUrl}
+              onClick={() => {
+                openNetboxImport()
+                onClose()
+              }}
+              className="rounded bg-orange-700 px-3 py-1 text-cp-base font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+            >
+              {t('settings.integrations.netbox.import', 'Site/Rack importieren…')}
+            </button>
+          </div>
+
+          <div className="mt-2 text-[11px] text-cp-text-muted">
+            {t('settings.integrations.netbox.apiHint', 'Genutzte API:')}{' '}
+            <code>/api/dcim/…</code>{' '}
+            {t(
+              'settings.integrations.netbox.apiHint2',
+              '— nur lesend. Die Endpunkt-Referenz deiner Instanz liegt unter /api/schema/swagger-ui/.',
+            )}
+          </div>
+        </SettingsCard>
+      )}
+    </>
+  )
+}
+
 export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
   const [token, setToken] = useState('')
   const hasToken = useSettingsStore((s) => s.hasToken)
@@ -512,6 +742,9 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
       </SettingsCard>
       </>
       )}
+
+      {/* #597 — NetBox-Instanz (Toggle + URL + Token). */}
+      <NetboxCard onClose={onClose} />
 
       {/* v7.9.86 / #197 — Multi-AI-Provider Card (Gemini / Claude / OpenAI). */}
       <AiProvidersCard />

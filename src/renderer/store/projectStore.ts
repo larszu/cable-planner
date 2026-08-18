@@ -21,6 +21,7 @@ import { createGroupPresetSpawnSlice } from './slices/groupPresetSpawnSlice'
 import { createSelectionLifecycleSlice } from './slices/selectionLifecycleSlice'
 import { createLifecycleSlice } from './slices/lifecycleSlice'
 import { createPendingChangesSlice } from './slices/pendingChangesSlice'
+import { createNetboxImportSlice } from './slices/netboxImportSlice'
 import {
   loadCustomLibrary,
   persistCustomLibrary,
@@ -194,6 +195,23 @@ export interface ProjectState {
   /** #414 — Fügt KI-generierte Geräte + Kabel atomar ein, ohne IDs neu zu
    *  vergeben (die Kabel referenzieren die mitgelieferten IDs). */
   insertGeneratedPlan: (equipment: EquipmentItem[], cables: import('../types/cable').Cable[]) => void
+  /**
+   * #597 — Ergebnis eines NetBox-Abgleichs anwenden (Erstimport wie
+   * „Aktualisieren"). Rein additiv: neue Geräte/Kabel/Rack-Rahmen kommen
+   * dazu, an bestehenden Geräten werden nur neu hinzugekommene Ports
+   * ergänzt. Nichts wird ersetzt oder gelöscht — der Plan gibt in
+   * `staleDeviceIds`/`staleCableIds` nur Hinweise auf in NetBox
+   * verschwundene Elemente, das Aufräumen bleibt beim Planer.
+   *
+   * Der Plan kommt aus `lib/netboxMapping.ts#buildNetboxImportPlan`.
+   */
+  applyNetboxImport: (payload: {
+    newEquipment: EquipmentItem[]
+    newCables: Cable[]
+    portAdditions: Array<{ equipmentId: string; deviceName: string; inputs: Port[]; outputs: Port[] }>
+    newLocations: LocationFrame[]
+    source: { baseUrl: string; scope: 'site' | 'rack'; scopeId: number; scopeName: string }
+  }) => void
   /**
    * Insert devices and cables coming from a yEd / GraphML import. Each
    * device carries an optional `graphmlId` so a re-import (`mode:
@@ -758,6 +776,7 @@ const buildProjectStore = (
   ...createSelectionLifecycleSlice(set, get, store),
   ...createLifecycleSlice(set, get, store),
   ...createPendingChangesSlice(set, get, store),
+  ...createNetboxImportSlice(set, get, store),
   project:
     opts.initialProject ??
     (() => {
