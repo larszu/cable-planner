@@ -54,6 +54,7 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `project:*` | `projectIpc.ts` | `new`, `open`, `save`, `save-as`, `get-recent`, `export-viewer`, `import-annotations` |
 | `library:*` | `libraryIpc.ts` | `get-folder-path`, `reveal-folder`, `scan`, `write`, `delete` |
 | `rentman:*` | `rentmanIpc.ts` | `get-projects`, `get-project-equipment`, `get-equipment`, `add-project-equipment`, `add-project-file` |
+| `netbox:*` | `netboxIpc.ts` | `save-token`, `has-token`, `delete-token`, `normalize-url`, `test-connection`, `get-sites`, `get-racks`, `fetch-snapshot` |
 | `atem:*` | `atemIpc.ts` | `connect`, `disconnect`, `state`, `get-status`, `get-events`, `set-input-name`, `bulk-set-input-names`, `apply-mv-config`, `read-mv-config`, `apply-audio-config`, `discover`, plus `atem:event` (broadcast) |
 | `videohub:*` | `videohubIpc.ts` | `send` (TCP zu Blackmagic Videohub) |
 | `sync:*` | `syncIpc.ts` | `read-file`, `write-file`, `exists`, `acquire-lock`, `release-lock` |
@@ -302,24 +303,67 @@ verbundenen Switcher, `apply-mv-config` schreibt zurück.
 HTTP-API in `services/rentmanApiClient.ts`. Token im OS-Credential-Store.
 **Niemals Token loggen oder ins Projekt-File schreiben.**
 
-### 6.3 · GraphML-Import (yEd)
+### 6.3 · NetBox (DCIM, selbst gehostet, #597)
+
+Lesende REST-Anbindung an eine **eigene** NetBox-Instanz, um eine dort
+geplante Site oder ein Rack als Kabelplan zu übernehmen
+(`services/netboxApiClient.ts`, Referenz unter
+`<instanz>/api/schema/swagger-ui/`).
+
+Anders als bei Rentman gibt es keine feste Cloud-URL. Die Basis-URL lebt
+deshalb in den App-Settings (`settingsStore.netboxUrl`) und wird bei jedem
+IPC-Aufruf mitgegeben; **validiert wird sie immer in main**
+(`normalizeNetboxBaseUrl`: nur http/https, `/api…`-Suffix und Query werden
+abgeschnitten). Der Main-Prozess bleibt damit zustandslos. Das API-Token
+liegt via `keytar` unter dem Account `netbox-api-token` und wird — anders
+als der Rentman-Token — **nie an den Renderer zurückgegeben**; der fragt
+nur `has-token`.
+
+Genutzte Endpoints (alle nur lesend): `/api/status/`, `/api/dcim/sites/`,
+`/api/dcim/racks/`, `/api/dcim/devices/`, die sieben Komponenten-Endpoints
+(`interfaces`, `front-ports`, `rear-ports`, `console-ports`,
+`console-server-ports`, `power-ports`, `power-outlets`) und
+`/api/dcim/cables/`. Paginiert wird über `limit`/`offset` statt über die
+`next`-URL — hinter einem Reverse-Proxy zeigt die auf interne Hostnamen.
+
+**Mapping** (`lib/netboxMapping.ts`, rein und unit-getestet):
+- NetBox-Komponente → Cable-Planner-Port. Richtungslose Interfaces werden
+  als **gespiegeltes In/Out-Paar** angelegt (beide Ports tragen dieselbe
+  `netboxId`), damit jedes Kabel als Ausgang→Eingang zeichenbar bleibt.
+  Strom/Konsole/Patchfeld haben in NetBox eine echte Richtung und bekommen
+  genau einen Port.
+- Default `onlyConnectedPorts: true` — ein 48-Port-Switch brächte sonst 96
+  Handles auf den Knoten, von denen im Rack eine Handvoll gepatcht ist.
+- Layout: eine Spalte je Rack, innerhalb der Spalte nach Höheneinheit
+  absteigend gestapelt, optional ein `LocationFrame` je Rack. Der Block
+  landet rechts vom Bestand, überdeckt also nie einen vorhandenen Plan.
+
+**Der Abgleich ist per Konstruktion additiv.** NetBox ist die Wahrheit über
+die Verkabelung, der Cable Planner über die Darstellung (Positionen,
+Farben, Wegpunkte, Labels, Multicore-Bündel). Ein erneuter Lauf legt nur
+an, was über `netboxId` noch nicht im Plan ist, und ergänzt an bestehenden
+Geräten ausschliesslich neu hinzugekommene Ports. In NetBox gelöschte
+Elemente werden als `staleDeviceIds`/`staleCableIds` **gemeldet, nicht
+entfernt** — das Aufräumen bleibt beim Planer. Angewendet wird der Plan
+atomar über `applyNetboxImport` (`slices/netboxImportSlice.ts`), damit der
+Undo-Stack einen Import als einen Schritt sieht.
+
+Nicht zu verwechseln mit `lib/netboxImport.ts` — das ist der ältere
+Import einzelner Gerätetypen aus der öffentlichen
+`netbox-community/devicetype-library` auf GitHub (statische YAML), ohne
+eigene Instanz.
+
+### 6.4 · GraphML-Import (yEd)
 
 `fast-xml-parser` parst yEd-XML. **Sicher gegen XXE** —
 fast-xml-parser ignoriert DTDs/external entities per default.
 
-### 6.4 · Videohub (Blackmagic Router)
+### 6.5 · Videohub (Blackmagic Router)
 
 `videohubIpc.ts` öffnet eine TCP-Verbindung zum Videohub und sendet
 plain-text Routing-/Label-Blöcke. Smart-Routing erkennt Quellen anhand
 ihrer Namen (Fuzzy-Match mit AI-Provider-Fallback bei niedriger
 Score-Schwelle).
-
-### 6.5 · NetBox / DCIM
-
-`library.netbox.*`-Endpunkte importieren Device-Types aus einer NetBox-
-Instanz (oder dem öffentlichen device-type-library-Repo). Konflikt-
-Resolution bei vorhandenen Library-Einträgen über einen merge/replace/
-keep-local Dialog.
 
 ### 6.6 · Mobile-Share
 

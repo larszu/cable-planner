@@ -47,6 +47,30 @@ contextBridge.exposeInMainWorld('cablePlanner', {
         mimeType,
       ) as Promise<unknown>,
   },
+  // #597 — NetBox-Instanz (self-hosted). Die Basis-URL kommt aus den
+  // Renderer-Settings und wird bei jedem Aufruf mitgegeben; das Token
+  // liegt im OS-Schlüsselbund und verlässt den Main-Prozess nie.
+  netbox: {
+    saveToken: (token: string) => ipcRenderer.invoke('netbox:save-token', token) as Promise<boolean>,
+    hasToken: () => ipcRenderer.invoke('netbox:has-token') as Promise<boolean>,
+    deleteToken: () => ipcRenderer.invoke('netbox:delete-token') as Promise<boolean>,
+    normalizeUrl: (url: string) =>
+      ipcRenderer.invoke('netbox:normalize-url', url) as Promise<
+        { ok: true; url: string } | { ok: false; message: string }
+      >,
+    testConnection: (baseUrl: string) =>
+      ipcRenderer.invoke('netbox:test-connection', baseUrl) as Promise<{
+        ok: boolean
+        message: string
+        version?: string
+      }>,
+    getSites: (baseUrl: string) =>
+      ipcRenderer.invoke('netbox:get-sites', baseUrl) as Promise<Record<string, unknown>[]>,
+    getRacks: (baseUrl: string, siteId?: number) =>
+      ipcRenderer.invoke('netbox:get-racks', baseUrl, siteId) as Promise<Record<string, unknown>[]>,
+    fetchSnapshot: (baseUrl: string, scope: 'site' | 'rack', scopeId: number) =>
+      ipcRenderer.invoke('netbox:fetch-snapshot', baseUrl, scope, scopeId) as Promise<unknown>,
+  },
   graphml: {
     openFile: () =>
       ipcRenderer.invoke('graphml:open-file') as Promise<{

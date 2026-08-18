@@ -72,6 +72,11 @@ export interface Cable {
    *  re-import correlate the same cable across runs. Set by the GraphML
    *  import flow only. */
   graphmlEdgeId?: string
+  /** #597 — `dcim.cable`-ID aus der importierten NetBox-Instanz. Der
+   *  Aktualisieren-Lauf legt nur Kabel an, deren ID noch nicht im Plan
+   *  ist — bestehende Kabel (inkl. manueller Nacharbeit an Farbe, Route
+   *  oder Länge) bleiben unangetastet. */
+  netboxId?: number
   /** v7.9.127 — per-cable Override fuer den globalen Endpoint-Labels-
    *  Toggle (Settings -> Editing -> "Endpoint-Labels einblenden").
    *  undefined = global folgen, 'show' = immer zeigen,

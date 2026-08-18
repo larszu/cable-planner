@@ -81,6 +81,11 @@ interface PersistedSettings {
   /** Feld-Builder — user-definierte Fachfelder je Kategorie (kanonischer
    *  lowercase-Key). Overlay über die Built-in-`CATEGORY_SCHEMAS`. */
   userSchema: UserSchemaMap
+  /** #597 — Basis-URL der NetBox-Instanz (z. B. https://netbox.firma.de).
+   *  Pro Installation, nicht pro Projekt: dieselbe Instanz bedient alle
+   *  Projekte. Das zugehörige Token liegt im OS-Schlüsselbund, niemals
+   *  hier. Leerer String = NetBox nicht konfiguriert. */
+  netboxUrl: string
 }
 
 const defaults: PersistedSettings = {
@@ -91,6 +96,7 @@ const defaults: PersistedSettings = {
   enabledModules: { ...DEFAULT_ENABLED },
   onboardingDone: false,
   userSchema: {},
+  netboxUrl: '',
 }
 
 const load = (): PersistedSettings => {
@@ -120,6 +126,7 @@ const load = (): PersistedSettings => {
       onboardingDone:
         typeof parsed.onboardingDone === 'boolean' ? parsed.onboardingDone : true,
       userSchema: sanitizeUserSchema(parsed.userSchema),
+      netboxUrl: typeof parsed.netboxUrl === 'string' ? parsed.netboxUrl : defaults.netboxUrl,
     }
   } catch {
     return defaults
@@ -144,6 +151,7 @@ const snapshot = (s: PersistedSettings): PersistedSettings => ({
   enabledModules: s.enabledModules,
   onboardingDone: s.onboardingDone,
   userSchema: s.userSchema,
+  netboxUrl: s.netboxUrl,
 })
 
 interface SettingsState {
@@ -158,6 +166,7 @@ interface SettingsState {
   enabledModules: Record<ModuleId, boolean>
   onboardingDone: boolean
   userSchema: UserSchemaMap
+  netboxUrl: string
   setHasToken: (value: boolean) => void
   setTokenStatus: (value: string) => void
   setAutosaveIntervalMs: (value: number) => void
@@ -172,6 +181,8 @@ interface SettingsState {
   setOnboardingDone: (value: boolean) => void
   /** Feld-Builder — die komplette User-Schema-Map ersetzen. */
   setUserSchema: (map: UserSchemaMap) => void
+  /** #597 — Basis-URL der NetBox-Instanz setzen (leer = nicht konfiguriert). */
+  setNetboxUrl: (value: string) => void
 }
 
 const initial = load()
@@ -189,6 +200,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   enabledModules: initial.enabledModules,
   onboardingDone: initial.onboardingDone,
   userSchema: initial.userSchema,
+  netboxUrl: initial.netboxUrl,
   setHasToken: (value) => set({ hasToken: value }),
   setTokenStatus: (value) => set({ tokenStatus: value }),
   setAutosaveIntervalMs: (value) =>
@@ -235,6 +247,12 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       persist(snapshot({ ...state, userSchema }))
       setUserSchemaOverlay(userSchema) // Overlay live nachziehen.
       return { userSchema }
+    }),
+  setNetboxUrl: (value) =>
+    set((state) => {
+      const netboxUrl = value.trim()
+      persist(snapshot({ ...state, netboxUrl }))
+      return { netboxUrl }
     }),
 }))
 

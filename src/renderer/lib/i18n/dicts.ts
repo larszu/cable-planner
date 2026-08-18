@@ -74,6 +74,7 @@ export const en: Dict = {
   'common.rename': 'Rename',
   'common.search': 'Search…',
   'common.yes': 'Yes',
+  'common.back': 'Back',
   'common.no': 'No',
   'common.optional': 'optional',
   'common.loading': 'Loading…',
@@ -259,6 +260,72 @@ export const en: Dict = {
   'settings.integrations.rentman.test': 'Test connection',
   'settings.integrations.rentman.delete': 'Delete token',
   'settings.integrations.rentman.endpoint': 'Endpoint:',
+
+  // #597 — Settings → Integrations → NetBox
+  'settings.integrations.netboxToggle.title': 'NetBox integration',
+  'settings.integrations.netboxToggle.desc':
+    'When enabled: menu entry and import dialog for your own NetBox instance appear. Sites and racks planned in NetBox can then be pulled in as a cable plan.',
+  'settings.integrations.netboxToggle.label': 'Enable NetBox integration',
+  'settings.integrations.netbox': 'NetBox API',
+  'settings.integrations.netboxDesc':
+    'Base URL of your NetBox instance plus an API token with read access. The token is stored encrypted in the OS keychain (never in the project file) and never leaves the main process.',
+  'settings.integrations.netbox.url': 'Instance URL',
+  'settings.integrations.netbox.token': 'API token',
+  'settings.integrations.netbox.tokenPlaceholder': 'Paste API token',
+  'settings.integrations.netbox.tokenStoredPlaceholder': 'Token stored — paste a new one to replace it',
+  'settings.integrations.netbox.status': 'Status:',
+  'settings.integrations.netbox.statusIdle': 'Not tested yet.',
+  'settings.integrations.netbox.tokenStored': 'Token stored:',
+  'settings.integrations.netbox.urlSaved': 'URL saved.',
+  'settings.integrations.netbox.tokenSaved': 'Token stored securely in the keychain.',
+  'settings.integrations.netbox.tokenCleared': 'Token deleted.',
+  'settings.integrations.netbox.saveToken': 'Save token',
+  'settings.integrations.netbox.test': 'Test connection',
+  'settings.integrations.netbox.deleteToken': 'Delete token',
+  'settings.integrations.netbox.import': 'Import site/rack…',
+  'settings.integrations.netbox.apiHint': 'API used:',
+  'settings.integrations.netbox.apiHint2':
+    '— read only. The endpoint reference for your instance lives at /api/schema/swagger-ui/.',
+
+  // #597 — NetBox import dialog
+  'app.menu.tools.netboxImport': 'NetBox import…',
+  'netbox.import.title': 'NetBox import',
+  'netbox.notConfigured': 'No NetBox URL configured',
+  'netbox.import.needsConfig':
+    'Please configure the instance URL and an API token first under Settings → Integrations → NetBox.',
+  'netbox.import.intro':
+    'Pick a site or a single rack. Devices, ports and connections are read and laid out as a cable plan. The sync only ever adds — devices and cables already in the plan keep all their edits.',
+  'netbox.import.site': 'Site',
+  'netbox.import.sitePlaceholder': '— pick a site —',
+  'netbox.import.rack': 'Rack (optional)',
+  'netbox.import.wholeSite': '— import the whole site —',
+  'netbox.import.reload': 'Reload',
+  'netbox.import.options': 'Options',
+  'netbox.import.onlyConnected': 'Only import cabled ports',
+  'netbox.import.onlyConnectedHint':
+    'Recommended: otherwise a 48-port switch drags 48 unused ports onto the plan.',
+  'netbox.import.includeCables': 'Import connections',
+  'netbox.import.rackFrames': 'Create a frame per rack',
+  'netbox.import.linked': 'This project is linked to {scope} "{name}". Last sync: {when}.',
+  'netbox.import.loading': 'Loading from NetBox…',
+  'netbox.import.preview': 'Build preview',
+  'netbox.import.apply': 'Add to project',
+  'netbox.preview.newDevices': 'New devices',
+  'netbox.preview.newCables': 'New connections',
+  'netbox.preview.newPorts': 'New ports on existing devices',
+  'netbox.preview.unchanged': 'Unchanged',
+  'netbox.preview.source':
+    'In NetBox: {devices} devices, {cables} connections, {ports} ports — {imported} of them imported.',
+  'netbox.preview.upToDate': 'The plan already matches NetBox — there is nothing to add.',
+  'netbox.preview.stale':
+    '{devices} devices and {cables} connections in the plan no longer exist in NetBox. They are left untouched — please review manually.',
+  'netbox.preview.skipped': '{count} skipped objects',
+  'netbox.preview.deviceList': 'Devices that will be created',
+
+  // #597 — Modules tab entry
+  'settings.modules.netbox.label': 'NetBox',
+  'settings.modules.netbox.desc':
+    'Import a site or rack from a NetBox instance as a cable plan, and later top it up with new devices/connections only.',
   'settings.integrations.linkedRentman': 'Linked Rentman project',
   'settings.integrations.linkedRentman.current': 'Currently linked to ',
   'settings.integrations.linkedRentman.choose': 'Choose another Rentman project…',
