@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Check, AlertCircle, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { APP_VERSION } from '../../lib/appInfo'
 import { useUiStore } from '../../store/uiStore'
@@ -73,7 +74,14 @@ export const StatusBar = ({
   const cables = useProjectStore((s) => s.project.cables)
   const drumKit = useProjectStore((s) => s.project.drumKit)
   const togglePlanCheck = useUiStore((s) => s.togglePlanCheck)
-  const { errorCount, warningCount } = runDrawingChecks({ equipment, cables, drumKit })
+  // Memoisiert, weil die StatusBar bei jeder Viewport-Aenderung rendert, die
+  // Check-Engine aber ueber den ganzen Plan laeuft (seit ADR-001 auch ueber
+  // den Kabelgraph). Abhaengigkeiten sind Store-Referenzen, wechseln also nur
+  // bei echter Projekt-Aenderung.
+  const { errorCount, warningCount } = useMemo(
+    () => runDrawingChecks({ equipment, cables, drumKit }),
+    [equipment, cables, drumKit],
+  )
   const checkTone =
     errorCount > 0
       ? 'bg-red-700 text-red-50'
