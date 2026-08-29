@@ -9,7 +9,7 @@
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows-blue" />
   <img src="https://img.shields.io/badge/offline-ready-success" />
   <img src="https://img.shields.io/badge/status-active%20development-orange" />
-  <img src="https://img.shields.io/badge/license-MIT-lightgrey" />
+  <img src="https://img.shields.io/badge/license-proprietär-critical" />
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
  
   </a>
   <br />
-  <sub>Free &amp; MIT-licensed · <code>.dmg</code> (Apple Silicon + Intel) and <code>.exe</code> installers attached to every release</sub>
+  <sub>Kostenlos nutzbar, proprietär lizenziert · <code>.dmg</code> (Apple Silicon + Intel) and <code>.exe</code> installers attached to every release</sub>
 </p>
 
 <!-- HERO IMAGE — see docs/screenshots/README.md for capture + redaction guide -->
@@ -194,7 +194,7 @@ replacement for AV/broadcast wiring, or something more domain-specific than
 
 | | **CablePlanner** | WireCAD | D-Tools SI | Visio / draw.io |
 | --- | --- | --- | --- | --- |
-| Price | **Free · MIT** | ~$1,500–4,500 | $1,000s / yr | Subscription / free |
+| Price | **Kostenlos · proprietär** | ~$1,500–4,500 | $1,000s / yr | Subscription / free |
 | Platforms | **macOS + Windows** | Windows only | Windows + SQL Server | Windows / web |
 | File format | **Open JSON (git-diffable)** | Proprietary | Proprietary | VSDX / XML |
 | Broadcast-smart defaults | **Yes** (connector→layer, BOM, patch sheets) | Yes | Partial | No |
@@ -270,10 +270,10 @@ If CablePlanner saves you time on your next show, consider buying me a coffee:
   </a>
 </p>
 
-Donations are completely optional — the app stays MIT-licensed and free either way. 🙌
+Donations are completely optional — the app stays free to use. It is proprietary software, not open source. 🙌
 
 ---
 
 ## 📄 License
 
-MIT
+Proprietär — © 2026 Lars Zumpe, alle Rechte vorbehalten. Nutzung der veröffentlichten Builds ist kostenlos; Weiterverbreitung und abgeleitete Werke sind es nicht. Siehe [LICENSE](LICENSE).
