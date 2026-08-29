@@ -2148,6 +2148,20 @@ export const en: Dict = {
   'cable.aria.toDevice': 'Target device',
   'cable.aria.toPort': 'Target port',
 
+  // ADR-001 — Identitaets-Karte (.avsourcemap)
+  'app.menu.file.exportSourceMap': 'Export identity map (.avsourcemap)…',
+  'app.menu.file.importSourceMap': 'Import identity map (.avsourcemap)…',
+  'sourceMap.report.title': 'Identity map imported',
+  'sourceMap.report.added': 'Newly created: {names}',
+  'sourceMap.report.filled': 'Filled in: {fields}',
+  'sourceMap.report.conflict':
+    'Not applied — {name} · {field}: here "{mine}", in the file "{theirs}".',
+  'sourceMap.report.rejected': 'Discarded — {name} · {field} = {value}: {reason}.',
+  'sourceMap.report.unrepresented':
+    'No field for this in this app — stays in the file only: {fields}',
+  'sourceMap.report.nothing': 'Nothing to do — the map says what the plan already says.',
+  'sourceMap.importError': 'Import failed: {message}',
+
   // ADR-001 — Signalquellen-Rolle (SourceIdentitySection)
   'sourceIdentity.title': 'Signal source (role)',
   'sourceIdentity.unbound': 'not assigned',
