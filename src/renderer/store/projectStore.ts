@@ -60,6 +60,7 @@ import { STORAGE_KEYS } from '../lib/storageKeys'
 import { VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
 import { getCanvasSize } from '../lib/canvasViewport'
 import { seedLibrarySyncCache } from '../lib/librarySync'
+import { normaliseVideohubRouting } from '../lib/videohubRouting'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -536,6 +537,17 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
   return {
     ...project,
     equipment: project.equipment.map((item) => {
+      // ADR-001 / Inkrement 0 — Videohub-Routing-Migration: der Kreuzpunkt-
+      // Zustand lag frueher nur im Komponenten-State des Export-Dialogs.
+      // Vorhandene Bloecke werden normalisiert (String-Keys aus JSON,
+      // Fliesskomma, negative Werte fliegen raus), fehlende bleiben
+      // undefined — nur Videohub-Geraete bekommen das Feld ueberhaupt, und
+      // erst wenn der Nutzer routet. Ein leerer Block auf jedem Geraet waere
+      // Ballast in jedem Projektfile.
+      if (item.videohubRouting !== undefined) {
+        item = { ...item, videohubRouting: normaliseVideohubRouting(item.videohubRouting) }
+      }
+
       // #422 — Legacy-Dimensions-Migration: dimensionHmm/Wmm/Dmm waren das
       // erste Schema (v7.9.131 / #216), wurden aber spaeter durch
       // heightMm/widthMm/depthMm ersetzt. Beide Felder gleichzeitig zu
