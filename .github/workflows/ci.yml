@@ -1,0 +1,52 @@
+name: CI
+
+# Der Merge-Gate. Die Standing Directive erlaubt Selbst-Merge nur bei gruenem
+# CI — bis hierher gab es auf Pull Requests aber gar keinen Lauf, der gruen
+# oder rot werden konnte. Dieser Workflow prueft genau das, was in CLAUDE.md
+# als Pflicht vor jedem Push steht:
+#
+#   npx tsc -p tsconfig.app.json --noEmit   MUSS 0 Errors zeigen
+#   npm run lint                            0 Errors (Warnungen sind geduldet)
+#   npm test                                vitest
+#   npm run build                           main + preload + renderer
+#
+# Bewusst NICHT hier: electron-builder (`npm run dist`) — das gehoert zu
+# release.yml und braucht Signatur-Material, und die gezielten Node-Checks
+# (test:crdt, test:signaling, ui:smoke, test:drag), die einen laufenden
+# Renderer bzw. Netzwerk erwarten.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Ein zweiter Push auf denselben Branch bricht den vorigen Lauf ab.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'npm'
+      # keytar (native) braucht beim Kompilieren libsecret; Prebuilds decken
+      # nicht jede Node-ABI ab. Gleiche Absicherung wie in pages.yml.
+      - run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev
+      - run: npm ci
+      - name: Type-Check (Renderer)
+        run: npx tsc -p tsconfig.app.json --noEmit
+      - name: Lint
+        run: npm run lint
+      - name: Tests
+        run: npm test
+      - name: Build
+        run: npm run build
