@@ -2148,6 +2148,26 @@ export const en: Dict = {
   'cable.aria.toDevice': 'Target device',
   'cable.aria.toPort': 'Target port',
 
+  // ADR-001 — Signalquellen-Rolle (SourceIdentitySection)
+  'sourceIdentity.title': 'Signal source (role)',
+  'sourceIdentity.unbound': 'not assigned',
+  'sourceIdentity.hint':
+    'The role outlives the device swap: "Camera 1" stays "Camera 1" even when the spare camera steps in. The tally/UMD address hangs on it.',
+  'sourceIdentity.role': 'Role',
+  'sourceIdentity.none': '— none —',
+  'sourceIdentity.create': 'Create new role from device name…',
+  'sourceIdentity.name': 'Editorial name',
+  'sourceIdentity.number': 'Number',
+  'sourceIdentity.umd': 'TSL UMD address ({min}–{max})',
+  'sourceIdentity.umdPlaceholder': 'e.g. 1',
+  'sourceIdentity.umdRejected':
+    'Not applied: TSL UMD v3.1 only knows whole addresses from {min} to {max}.',
+  'sourceIdentity.umdClash':
+    'Address {address} is already taken by {names} — both displays show the same text.',
+  'sourceIdentity.siblings':
+    'The same role is also carried by: {names}. That is intended for main/backup pairs.',
+  'sourceIdentity.remove': 'Delete role (releases all bindings)',
+
   // Section labels (NetworkAccess, Flags, Optional)
   'netAccess.title': 'Network & access',
   'netAccess.subtitle': 'IP · MAC · S/N · login',

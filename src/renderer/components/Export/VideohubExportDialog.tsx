@@ -450,9 +450,6 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   //   outputConn[i] → was haengt am Output i (Destination-Device + Port)
   // Wird in den Matrix-Labels angezeigt damit der User sieht 'aha
   // Output 12 versorgt Monitor Buhne' beim Routing setzen.
-  // Korrekte, aber vom React-Compiler nicht statisch preservierbare
-  // Memoisierung (komplexer Body, abgeleitete `device`-Dependency).
-  /* eslint-disable react-hooks/preserve-manual-memoization */
   const connections = useMemo(() => {
     const inputConn = new Map<number, { sourceName: string; portName: string }>()
     const outputConn = new Map<number, { destName: string; portName: string }>()
@@ -488,7 +485,6 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     }
     return { inputConn, outputConn }
   }, [device, cables, equipment])
-  /* eslint-enable react-hooks/preserve-manual-memoization */
 
   /** v7.9.119 / Issue #237 — Erzeugt einen Routing-Vorschlag basierend
    *  auf den Canvas-Verbindungen. Heuristik:
@@ -571,7 +567,6 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     setRouting(next)
   }
 
-  /* eslint-disable react-hooks/preserve-manual-memoization */
   const preview = useMemo(() => {
     if (!device) return ''
     if (format === 'labels') {
@@ -588,7 +583,6 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
       routing,
     })
   }, [device, format, preset, friendlyName, routing])
-  /* eslint-enable react-hooks/preserve-manual-memoization */
 
   const handleExport = () => {
     if (!device) return

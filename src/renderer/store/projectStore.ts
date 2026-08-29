@@ -10,6 +10,7 @@ import { defaultProject, isProjectLocked, sanitizePort, touchProject } from './p
 import { createLocationSlice } from './slices/locationSlice'
 import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
+import { createSourceIdentitySlice } from './slices/sourceIdentitySlice'
 import { createRevisionSlice } from './slices/revisionSlice'
 import { createMobileSyncSlice } from './slices/mobileSyncSlice'
 import { createTemplateSlice } from './slices/templateSlice'
@@ -61,6 +62,11 @@ import { VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
 import { getCanvasSize } from '../lib/canvasViewport'
 import { seedLibrarySyncCache } from '../lib/librarySync'
 import { normaliseVideohubRouting } from '../lib/videohubRouting'
+import {
+  clearDanglingIdentity,
+  normaliseSourceIdentities,
+  sourceIdentityIdSet,
+} from '../lib/sourceIdentity'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -438,6 +444,18 @@ export interface ProjectState {
   addAnnotation: (annotation: import('../types/project').ProjectAnnotation) => void
   updateAnnotation: (id: string, patch: Partial<import('../types/project').ProjectAnnotation>) => void
   removeAnnotation: (id: string) => void
+  /** ADR-001 — Signalquellen-Rolle anlegen; liefert die (ggf. erzeugte) Id,
+   *  oder undefined wenn nichts angelegt wurde (leerer Name). */
+  addSourceIdentity: (
+    identity: Omit<import('../types/sourceIdentity').SourceIdentity, 'id'> & { id?: string },
+  ) => string | undefined
+  updateSourceIdentity: (
+    id: string,
+    patch: Partial<Omit<import('../types/sourceIdentity').SourceIdentity, 'id'>>,
+  ) => void
+  removeSourceIdentity: (id: string) => void
+  /** Geraet an eine Rolle binden; `undefined` loest die Bindung. */
+  bindEquipmentToSourceIdentity: (equipmentId: string, identityId: string | undefined) => void
   /** #143 — Annotationen aus einer zurückgelesenen Viewer-Datei mergen
    *  (by id: neue hinzufügen, geänderte aktualisieren, vorhandene behalten).
    *  Gibt die Anzahl hinzugefügter/aktualisierter Annotationen zurück. */
@@ -534,9 +552,17 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
     return Math.round(v)
   }
   const r = (v: unknown): number => snapVal(v, 0)
+  // ADR-001 / Inkrement 2 — Signalquellen-Rollen zuerst normalisieren: die
+  // Geraete-Schleife braucht die gueltigen Ids, um Fehlzeiger zu entsorgen.
+  // Eine Bindung auf eine geloeschte Rolle ist schlimmer als keine — sie
+  // sieht im Plan aus wie eine zugewiesene Tally-Adresse.
+  const sourceIdentities = normaliseSourceIdentities(project.sourceIdentities)
+  const identityIds = sourceIdentityIdSet(sourceIdentities)
   return {
     ...project,
     equipment: project.equipment.map((item) => {
+      item = clearDanglingIdentity(item, identityIds)
+
       // ADR-001 / Inkrement 0 — Videohub-Routing-Migration: der Kreuzpunkt-
       // Zustand lag frueher nur im Komponenten-State des Export-Dialogs.
       // Vorhandene Bloecke werden normalisiert (String-Keys aus JSON,
@@ -640,6 +666,8 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
     // Festinstallation — Änderungsprotokoll ist optional; alte Projekte
     // heilen zu [].
     changelog: project.changelog ?? [],
+    // ADR-001 — Rollen sind optional; alte Projekte heilen zu [].
+    sourceIdentities,
   }
 }
 
@@ -777,6 +805,7 @@ const buildProjectStore = (
   ...createLocationSlice(set, get, store),
   ...createCableSlice(set, get, store),
   ...createAnnotationSlice(set, get, store),
+  ...createSourceIdentitySlice(set, get, store),
   ...createRevisionSlice(set, get, store),
   ...createMobileSyncSlice(set, get, store),
   ...createTemplateSlice(set, get, store),
@@ -1047,6 +1076,11 @@ const buildProjectStore = (
         portVlans: undefined,
         favorite: undefined,
         hidden: undefined,
+        // ADR-001 — die Rolle wandert NICHT mit. Eine eingefuegte Kopie ist
+        // ein neues Geraet; die Rolle stillschweigend zu erben hiesse, ein
+        // Haupt-/Backup-Paar zu behaupten, das niemand erklaert hat — und
+        // zwei Geraete auf dieselbe Tally-Adresse zu setzen.
+        sourceIdentityId: undefined,
       }
     })
     const newCables: Cable[] = []

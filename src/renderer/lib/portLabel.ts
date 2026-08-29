@@ -69,10 +69,15 @@ export const shortenForAtem = (raw: string): string => {
   const tokens = out.split(/\s+/)
   if (tokens.length > 1) {
     const stripKeywords = /^(SDI|HDMI|BNC|XLR|RJ45|Fiber|SFP\+?|DIN|USB|USB-C|3G|6G|12G)$/i
-    while (tokens.length > 1 && stripKeywords.test(tokens[0])) {
-      tokens.shift()
+    const stripped = [...tokens]
+    while (stripped.length > 1 && stripKeywords.test(stripped[0])) {
+      stripped.shift()
     }
-    out = tokens.join(' ').trim()
+    // Das Ergebnis nur uebernehmen, wenn danach noch etwas BENENNENDES
+    // uebrig ist. Vorher lief die Schleife bedingungslos und machte aus
+    // "SDI 1" die nackte "1" — genau der Fall, den der Kommentar oben
+    // ausschliesst. Bei "SDI 3G PGM" bleibt "PGM" und wird uebernommen.
+    if (stripped.some((t) => !/^\d+$/.test(t))) out = stripped.join(' ').trim()
   }
   return out || raw.trim()
 }

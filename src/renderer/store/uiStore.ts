@@ -379,6 +379,7 @@ const defaults: PersistedUiState = {
   canvasBgImageFit: 'cover',
   portLabelFontSize: 11,
   equipmentSectionOrder: [
+    'source-identity',
     'modes',
     'ports',
     'network',

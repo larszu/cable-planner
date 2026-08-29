@@ -454,6 +454,10 @@ export interface EquipmentItem {
   atemAudioConfig?: AtemAudioConfig
   /** Geplantes Videohub-Routing (ADR-001). Nur bei Videohub-Geraeten gesetzt. */
   videohubRouting?: VideohubRouting
+  /** ADR-001 — Rolle, die dieses Geraet realisiert („Kamera 1"). Zeigt auf
+   *  `CablePlannerProject.sourceIdentities`. Mehrere Geraete duerfen dieselbe
+   *  Rolle tragen: das Haupt-/Backup-Paar ist EINE Rolle, nicht zwei. */
+  sourceIdentityId?: string
   /** Mark equipment as favorite in the library (sorted to the top). */
   favorite?: boolean
   /** Hide from the library unless "Ausgeblendete zeigen" is active. */
