@@ -77,6 +77,8 @@ export interface DrawingCheckInput {
   cables: Cable[]
   /** Optionaler Drum-Mikrofonierungs-Plan — speist den Phantom/Mic-Input-Check. */
   drumKit?: DrumKitPlan
+  /** ADR-001 — Signalquellen-Rollen; speisen die Label-/UMD-Checks. */
+  sourceIdentities?: import('../types/sourceIdentity').SourceIdentity[]
 }
 
 export interface DrawingCheckResult {
@@ -91,7 +93,7 @@ export interface DrawingCheckResult {
  * (errors zuerst). Pure function — leicht testbar, kein Store-Zugriff.
  */
 export const runDrawingChecks = (
-  { equipment, cables, drumKit }: DrawingCheckInput,
+  { equipment, cables, drumKit, sourceIdentities }: DrawingCheckInput,
 ): DrawingCheckResult => {
   const findings: CheckFinding[] = []
   const eqById = new Map(equipment.map((e) => [e.id, e]))
@@ -646,7 +648,7 @@ export const runDrawingChecks = (
   // Feldlaengen zugeschnitten. Zwei Namen, die danach gleich sind, faellt
   // sonst erst auf dem Multiviewer auf. Die Ableitung liegt in
   // `labelDerivation.ts` und ist ohne Store/React testbar.
-  findings.push(...labelTargetIssues({ equipment, cables }))
+  findings.push(...labelTargetIssues({ equipment, cables, sourceIdentities }))
 
   // Sortierung: error → warning → info, innerhalb stabil nach category.
   const rank: Record<CheckSeverity, number> = { error: 0, warning: 1, info: 2 }

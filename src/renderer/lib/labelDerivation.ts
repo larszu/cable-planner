@@ -30,11 +30,13 @@
 
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
+import type { SourceIdentity } from '../types/sourceIdentity'
 import type { CheckFinding } from './drawingChecks'
 import { detectDeviceKind } from './deviceKind'
 import { portDisplayLabel, shortenForAtem } from './portLabel'
 import { effectiveShortName } from './shortName'
 import { suggestDanteName } from './danteNaming'
+import { umdAddressClashes } from './sourceIdentity'
 import {
   LABEL_TARGETS,
   collisionsForTarget,
@@ -49,6 +51,7 @@ export type LabelProvenance =
   | 'port-name'
   | 'device-short-name'
   | 'device-name'
+  | 'source-identity'
 
 export interface LabelCandidate {
   targetId: LabelTargetId
@@ -92,11 +95,17 @@ export interface UnansweredAnchor {
   where: string
   /** Warum der Graph das nicht beantworten kann. */
   reason: string
+  /** Rolle, die den Anker tragen wuerde — fehlt, solange keine gebunden ist. */
+  sourceIdentityId?: string
 }
 
 export interface LabelDerivationInput {
   equipment: EquipmentItem[]
   cables: Cable[]
+  /** ADR-001, Inkrement 2 — die persistierten Rollen. Fehlen sie, verhaelt
+   *  sich die Ableitung wie in Inkrement 1: sie leitet ab, was sie kann, und
+   *  meldet den Rest als offen. */
+  sourceIdentities?: SourceIdentity[]
 }
 
 export interface LabelDerivation {
@@ -248,8 +257,10 @@ export const atemShortSource = (raw: string): string =>
 export const deriveLabels = ({
   equipment,
   cables,
+  sourceIdentities = [],
 }: LabelDerivationInput): LabelDerivation => {
   const ctx = buildGraphContext(equipment, cables)
+  const identityById = new Map(sourceIdentities.map((s) => [s.id, s]))
   const { eqById } = ctx
   const candidates: LabelCandidate[] = []
   const sources: SignalSourceLink[] = []
@@ -270,22 +281,33 @@ export const deriveLabels = ({
     if (!source || umdSeen.has(source.id)) return
     if (detectDeviceKind(sink) !== 'atem') return
     umdSeen.add(source.id)
+
+    // Die Rolle gewinnt gegen den Geraetenamen: „Kamera 1" bleibt „Kamera 1",
+    // auch wenn die Havarie-Kamera einspringt. Genau dafuer gibt es sie.
+    const identity = source.sourceIdentityId
+      ? identityById.get(source.sourceIdentityId)
+      : undefined
     candidates.push({
       targetId: 'tsl-umd-v31',
       key: `umd:${source.id}`,
       equipmentId: source.id,
       where: source.name,
-      raw: effectiveShortName(source),
-      sourceText: source.name,
-      provenance: 'device-short-name',
+      raw: identity ? identity.name : effectiveShortName(source),
+      sourceText: identity ? identity.name : source.name,
+      provenance: identity ? 'source-identity' : 'device-short-name',
     })
+
+    if (identity?.umdAddress !== undefined) return
     unanswered.push({
       field: 'umd-address',
       equipmentId: source.id,
       where: source.name,
-      reason:
-        `speist ${sink.name} auf Eingang ${inputIdx + 1} — die UMD-Adresse ` +
-        'des zugehoerigen Displays steht in keinem Plan-Feld',
+      sourceIdentityId: identity?.id,
+      reason: identity
+        ? `Rolle "${identity.name}" speist ${sink.name} auf Eingang ` +
+          `${inputIdx + 1}, traegt aber keine UMD-Adresse`
+        : `speist ${sink.name} auf Eingang ${inputIdx + 1} — ohne gebundene ` +
+          'Rolle gibt es keinen Ort fuer die UMD-Adresse',
     })
   }
 
@@ -405,6 +427,24 @@ export const deriveLabels = ({
 export const labelTargetIssues = (input: LabelDerivationInput): CheckFinding[] => {
   const { candidates } = deriveLabels(input)
   const issues: CheckFinding[] = []
+
+  // Zwei Rollen auf derselben UMD-Adresse: Beide Displays zeigen denselben
+  // Text, und welches Paket zuletzt ankommt, entscheidet. Das ist kein
+  // Schoenheitsfehler, sondern ein falsches Tally auf Sendung — deshalb
+  // Fehler, nicht Warnung. Geprueft wird der Anker selbst, nicht sein
+  // Zeichenbudget; er kommt aus dem Projekt, nicht aus dem Graph.
+  for (const clash of umdAddressClashes(input.sourceIdentities ?? [])) {
+    issues.push({
+      id: `umd-address-clash:${clash.address}`,
+      severity: 'error',
+      category: 'UMD-Adresse doppelt',
+      message:
+        `${clash.identities.map((i) => `"${i.name}"`).join(' und ')} liegen ` +
+        `beide auf UMD-Adresse ${clash.address} — die Displays zeigen ` +
+        'denselben Text, welcher gewinnt entscheidet die Paketreihenfolge.',
+    })
+  }
+
   const byTarget = new Map<LabelTargetId, LabelCandidate[]>()
   for (const c of candidates) {
     const list = byTarget.get(c.targetId)
