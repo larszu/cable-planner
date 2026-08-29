@@ -71,7 +71,7 @@ Pfad-Validierung passiert **immer in main**, nie im Renderer.
 
 **State (Zustand, `src/renderer/store/`):**
 - `projectStore.ts` — **Single Source of Truth** für alle Projekt-Daten. Intern
-  in 15 Slices unter `store/slices/` komponiert. Komponenten dürfen Projekt-Daten
+  in 16 Slices unter `store/slices/` komponiert. Komponenten dürfen Projekt-Daten
   nicht lokal duplizieren/cachen.
 - `uiStore.ts` — Viewport, Panels, Editor-Defaults, Geräte-Farben. **Keine**
   Projekt-Daten.
