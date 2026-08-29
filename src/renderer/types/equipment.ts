@@ -245,6 +245,46 @@ export interface DeviceMode {
   weightKg?: number
 }
 
+// ───────────────────────────────────────────────────────────────────────────
+// Videohub-Routing (ADR-001, Inkrement 0)
+//
+// Der Kreuzpunkt-Zustand lag bisher nur im Komponenten-State des Export-
+// Dialogs und ging beim Schliessen verloren; benannte Salvos lagen in
+// localStorage pro Geraet, also ausserhalb des Projektfiles — nicht
+// versioniert, nicht mit dem Projekt teilbar, nicht exportierbar.
+//
+// exportVideohub.ts sagt es im eigenen Kommentar: "the canvas has no routing
+// data yet". Damit ist die Kette Kamera -> Router -> Mischer-Input nicht
+// ableitbar, und genau die verlangt die Recherche (Tally-Segment, woertlich:
+// "camera-to-input-to-tally-address-to-lamp map"). Deshalb wandert der
+// GEPLANTE Routing-Zustand ins Projekt.
+//
+// Eigentumsregel aus ADR-001: der Videohub besitzt seine echten Kreuzpunkte,
+// wir besitzen den PLAN. Deshalb heisst das Feld `planned` und nicht `state` —
+// ein spaeter gelesener Ist-Zustand bekommt ein eigenes Feld mit eigener
+// Provenienz und ueberschreibt den Plan nicht.
+// ───────────────────────────────────────────────────────────────────────────
+
+/** Ein Kreuzpunkt-Satz: `routing[outputIndex] = inputIndex`, beide 0-basiert. */
+export type VideohubCrosspoints = Record<number, number>
+
+/** Benannter Routing-Schnappschuss ("Salvo"). */
+export interface VideohubSalvo {
+  id: string
+  name: string
+  routing: VideohubCrosspoints
+  /** ISO-Zeitstempel. */
+  createdAt: string
+}
+
+/** Geplantes Routing eines Videohub-Geraets, Teil des Projekts. */
+export interface VideohubRouting {
+  /** Aktuell geplante Kreuzpunkte. */
+  planned: VideohubCrosspoints
+  /** Benannte Schnappschuesse, z. B. pro Sendungsteil. */
+  salvos: VideohubSalvo[]
+}
+
 export interface EquipmentItem {
   id: string
   name: string
@@ -412,6 +452,8 @@ export interface EquipmentItem {
    * the user can plan audio routing offline (Fairlight-style).
    */
   atemAudioConfig?: AtemAudioConfig
+  /** Geplantes Videohub-Routing (ADR-001). Nur bei Videohub-Geraeten gesetzt. */
+  videohubRouting?: VideohubRouting
   /** Mark equipment as favorite in the library (sorted to the top). */
   favorite?: boolean
   /** Hide from the library unless "Ausgeblendete zeigen" is active. */
