@@ -351,6 +351,90 @@ describe('labelTargetIssues — Dante', () => {
   })
 })
 
+describe('Signalquellen-Rollen (Inkrement 2)', () => {
+  const scene = (over: Partial<EquipmentItem> = {}) => {
+    const equipment = [
+      atem([port('in1', 'In 1')]),
+      camera('cam1', 'Kamera 1 (Blech)', over),
+    ]
+    const cables = [cable(['cam1', 'cam1-out'], ['atem', 'in1'])]
+    return { equipment, cables }
+  }
+
+  it('laesst die Rolle gegen den Geraetenamen gewinnen', () => {
+    // Genau dafuer gibt es die Rolle: "Kamera 1" bleibt "Kamera 1", auch
+    // wenn das Geraet dahinter die Havarie-Kamera ist.
+    const { equipment, cables } = scene({ sourceIdentityId: 'r1' })
+    const { candidates } = deriveLabels({
+      equipment,
+      cables,
+      sourceIdentities: [{ id: 'r1', name: 'Kamera 1', umdAddress: 1 }],
+    })
+    const umd = candidates.find((c) => c.targetId === 'tsl-umd-v31')
+    expect(umd).toMatchObject({ raw: 'Kamera 1', provenance: 'source-identity' })
+  })
+
+  it('meldet nichts mehr als offen, sobald die Adresse steht', () => {
+    const { equipment, cables } = scene({ sourceIdentityId: 'r1' })
+    const { unanswered } = deriveLabels({
+      equipment,
+      cables,
+      sourceIdentities: [{ id: 'r1', name: 'Kamera 1', umdAddress: 1 }],
+    })
+    expect(unanswered).toEqual([])
+  })
+
+  it('unterscheidet "keine Rolle" von "Rolle ohne Adresse"', () => {
+    const ohneRolle = deriveLabels(scene()).unanswered
+    expect(ohneRolle[0].sourceIdentityId).toBeUndefined()
+    expect(ohneRolle[0].reason).toContain('ohne gebundene Rolle')
+
+    const { equipment, cables } = scene({ sourceIdentityId: 'r1' })
+    const ohneAdresse = deriveLabels({
+      equipment,
+      cables,
+      sourceIdentities: [{ id: 'r1', name: 'Kamera 1' }],
+    }).unanswered
+    expect(ohneAdresse[0]).toMatchObject({ sourceIdentityId: 'r1' })
+    expect(ohneAdresse[0].reason).toContain('keine UMD-Adresse')
+  })
+
+  it('ignoriert eine Bindung auf eine Rolle, die es nicht gibt', () => {
+    const { candidates } = deriveLabels({ ...scene({ sourceIdentityId: 'weg' }) })
+    const umd = candidates.find((c) => c.targetId === 'tsl-umd-v31')
+    expect(umd?.provenance).toBe('device-short-name')
+  })
+
+  it('meldet zwei Rollen auf derselben UMD-Adresse als Fehler', () => {
+    const issues = labelTargetIssues({
+      equipment: [],
+      cables: [],
+      sourceIdentities: [
+        { id: 'a', name: 'Kamera 1', umdAddress: 3 },
+        { id: 'b', name: 'Kamera 2', umdAddress: 3 },
+      ],
+    })
+    const clash = issues.find((i) => i.category === 'UMD-Adresse doppelt')
+    expect(clash?.severity).toBe('error')
+    expect(clash?.message).toContain('"Kamera 1"')
+    expect(clash?.message).toContain('"Kamera 2"')
+  })
+
+  it('meldet Rollen-Kollisionen auch ohne jedes Geraet im Plan', () => {
+    // Die Rolle ist ein Projekt-Objekt, kein Geraete-Feld. Eine doppelte
+    // Adresse ist auch dann falsch, wenn noch nichts verkabelt ist.
+    const { errorCount } = runDrawingChecks({
+      equipment: [],
+      cables: [],
+      sourceIdentities: [
+        { id: 'a', name: 'Kamera 1', umdAddress: 3 },
+        { id: 'b', name: 'Kamera 2', umdAddress: 3 },
+      ],
+    })
+    expect(errorCount).toBe(1)
+  })
+})
+
 describe('runDrawingChecks — Verdrahtung', () => {
   it('traegt die Label-Befunde in die Plan-Check-Liste', () => {
     const equipment = [

@@ -185,6 +185,11 @@ export interface CablePlannerProject {
   /** Wireless-Rig — Funkstrecken-Kanalplan (Body + Kapsel/Headset + Frequenz).
    *  Optional → alte Projekte laden sauber. Verlustfrei in der .avplan. */
   wirelessRig?: import('./wirelessRig').WirelessRigPlan
+  /** ADR-001 — Signalquellen als Rollen („Kamera 1"), an denen die Anker
+   *  haengen, die keine Runtime besitzt (heute: die TSL-UMD-Adresse). Geraete
+   *  verweisen ueber `EquipmentItem.sourceIdentityId` darauf. Optional → alte
+   *  Projekte heilen zu []. */
+  sourceIdentities?: import('./sourceIdentity').SourceIdentity[]
 }
 
 /** #412 — Ein festgeschriebener Projekt-Stand. */

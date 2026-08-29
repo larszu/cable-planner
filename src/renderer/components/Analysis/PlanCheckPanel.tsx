@@ -31,11 +31,12 @@ export const PlanCheckPanel = () => {
   const equipment = useProjectStore((s) => s.project.equipment)
   const cables = useProjectStore((s) => s.project.cables)
   const drumKit = useProjectStore((s) => s.project.drumKit)
+  const sourceIdentities = useProjectStore((s) => s.project.sourceIdentities)
   const setSelection = useProjectStore((s) => s.setSelection)
 
   const result = useMemo(
-    () => runDrawingChecks({ equipment, cables, drumKit }),
-    [equipment, cables, drumKit],
+    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities }),
+    [equipment, cables, drumKit, sourceIdentities],
   )
 
   if (!open) return null
