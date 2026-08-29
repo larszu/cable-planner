@@ -1,6 +1,7 @@
 # Third-Party Licenses
 
-Cable Planner (eigener Code: MIT) bündelt die folgenden Open-Source-Pakete.
+Cable Planner (eigener Code: proprietär, © Lars Zumpe — siehe LICENSE) bündelt die folgenden Open-Source-Pakete.
+Die unten gelisteten Lizenzen gelten für die Fremdpakete und bleiben davon unberührt.
 Diese Datei reproduziert deren Lizenz-/Copyright-Notices wie von den
 jeweiligen Lizenzen gefordert. Automatisch generiert via
 `scripts/generate-notices.mjs` aus dem Produktions-Dependency-Baum.
