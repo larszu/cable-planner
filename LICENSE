@@ -1,21 +1,104 @@
-MIT License
+PROPRIETARY SOFTWARE LICENCE / PROPRIETÄRE SOFTWARE-LIZENZ
 
-Copyright (c) 2026 cable-planner contributors
+Copyright (c) 2026 Lars Zumpe. Alle Rechte vorbehalten. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+--------------------------------------------------------------------------
+DEUTSCH
+--------------------------------------------------------------------------
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. EIGENTUM
+   Diese Software, ihr Quellcode, ihre Dokumentation und alle zugehörigen
+   Materialien sind urheberrechtlich geschütztes Eigentum von Lars Zumpe.
+   Die Veröffentlichung des Quellcodes begründet keine Übertragung von
+   Rechten und macht die Software nicht zu Open Source.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. NUTZUNGSRECHT FÜR ENDANWENDER
+   Lars Zumpe gewährt jeder natürlichen oder juristischen Person das
+   nicht-ausschliessliche, nicht übertragbare, jederzeit widerrufliche
+   Recht, die offiziell veröffentlichten Programmfassungen (Installer und
+   Binärdateien) unentgeltlich zu eigenen Zwecken zu installieren und zu
+   nutzen — auch geschäftlich, etwa zur Planung eigener Produktionen.
+
+3. NICHT GESTATTET
+   Ohne vorherige schriftliche Zustimmung von Lars Zumpe ist untersagt:
+   a) Weiterverbreitung, Weiterverkauf, Vermietung, Unterlizenzierung oder
+      öffentliches Zugänglichmachen der Software oder von Teilen davon;
+   b) Bearbeitung, Übersetzung, Portierung oder Erstellung abgeleiteter
+      Werke, einschliesslich der Verwendung des Quellcodes oder von Teilen
+      davon in anderen Projekten;
+   c) Entfernen oder Verändern von Urheberrechts- und Lizenzhinweisen;
+   d) Anbieten der Software oder ihrer Funktionen als Dienstleistung
+      gegenüber Dritten.
+
+4. QUELLCODE-EINSICHT
+   Der Quellcode wird zur Einsicht, zur Prüfung und zur Fehlermeldung
+   veröffentlicht. Punkt 3 bleibt davon unberührt.
+
+5. BEITRÄGE
+   Wer Änderungsvorschläge einreicht, überträgt Lars Zumpe damit ein
+   unbefristetes, weltweites, unentgeltliches und unterlizenzierbares Recht
+   zur uneingeschränkten Nutzung des Beitrags.
+
+6. DRITTANBIETER-KOMPONENTEN
+   Die Software nutzt Bibliotheken Dritter, die weiterhin ihren eigenen
+   Lizenzen unterliegen. Diese Lizenz gilt ausschliesslich für die von
+   Lars Zumpe verfassten Bestandteile.
+
+7. KEINE GEWÄHRLEISTUNG
+   DIE SOFTWARE WIRD OHNE JEDE GEWÄHRLEISTUNG BEREITGESTELLT, WEDER
+   AUSDRÜCKLICH NOCH STILLSCHWEIGEND, EINSCHLIESSLICH DER GEWÄHRLEISTUNG
+   DER MARKTGÄNGIGKEIT ODER DER EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+
+8. HAFTUNGSBESCHRÄNKUNG
+   Lars Zumpe haftet nicht für Schäden, die aus der Nutzung oder der
+   Unmöglichkeit der Nutzung der Software entstehen, soweit gesetzlich
+   zulässig. Die Haftung für Vorsatz und grobe Fahrlässigkeit sowie nach
+   dem Produkthaftungsgesetz bleibt unberührt.
+
+9. ANWENDBARES RECHT
+   Es gilt das Recht der Bundesrepublik Deutschland.
+
+--------------------------------------------------------------------------
+ENGLISH (convenience translation; the German text prevails)
+--------------------------------------------------------------------------
+
+1. OWNERSHIP. This software, its source code, documentation and all related
+   materials are the copyrighted property of Lars Zumpe. Publication of the
+   source code transfers no rights and does not make the software open
+   source.
+
+2. END-USER RIGHT. Lars Zumpe grants any person or entity a non-exclusive,
+   non-transferable, revocable right to install and use the officially
+   released builds (installers and binaries) free of charge for their own
+   purposes, including commercial use such as planning their own
+   productions.
+
+3. NOT PERMITTED without prior written consent: (a) redistribution, resale,
+   rental, sublicensing or making available to the public; (b) modification,
+   translation, porting or creation of derivative works, including reuse of
+   the source code or parts of it in other projects; (c) removal or
+   alteration of copyright and licence notices; (d) offering the software or
+   its functionality as a service to third parties.
+
+4. SOURCE AVAILABILITY. The source is published for inspection, review and
+   bug reporting. Section 3 remains unaffected.
+
+5. CONTRIBUTIONS. Anyone submitting a change grants Lars Zumpe a perpetual,
+   worldwide, royalty-free, sublicensable right to use it without
+   restriction.
+
+6. THIRD-PARTY COMPONENTS remain under their own licences. This licence
+   covers only the parts authored by Lars Zumpe.
+
+7. NO WARRANTY. THE SOFTWARE IS PROVIDED WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY OR FITNESS FOR A PARTICULAR
+   PURPOSE.
+
+8. LIMITATION OF LIABILITY to the extent permitted by law. Liability for
+   intent, gross negligence and under the German Product Liability Act
+   remains unaffected.
+
+9. GOVERNING LAW is the law of the Federal Republic of Germany.
+
+--------------------------------------------------------------------------
+Kontakt / Contact: Lars Zumpe — lars@zumpe.dev
