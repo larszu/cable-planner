@@ -27,6 +27,7 @@ import { exportStagePlotSvg } from '../../lib/exportStagePlot'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { parseCameraList, cameraListToEquipment } from '../../lib/multicamCameraImport'
 import { cableToAvPlan, parseAvPlan } from '../../lib/avplan'
+import { buildSourceMap, mergeSourceMap, parseSourceMap } from '../../lib/sourceMap'
 import { summarizeForeign, hasForeign } from '../../lib/foreignView'
 import type { CablePlannerProject } from '../../types/project'
 import { buildExportFilename } from '../../lib/exportFilename'
@@ -152,6 +153,86 @@ export const MenuBar = ({
     }
     if (avplanImportRef.current) avplanImportRef.current.value = ''
   }
+  // ── Identitaets-Karte (.avsourcemap): das kleine Format fuer Runtimes.
+  // Eine Tally-Maschine soll nicht ein ganzes Kabelprojekt parsen muessen, um
+  // zu erfahren, dass "Kamera 1" auf ATEM-Eingang 3 liegt.
+  const sourceMapImportRef = useRef<HTMLInputElement | null>(null)
+  const handleExportSourceMap = () => {
+    const project = useProjectStore.getState().project
+    const map = buildSourceMap(project, {
+      appVersion: __APP_VERSION__,
+      exportedAt: new Date().toISOString(),
+    })
+    const safe = (project.metadata?.name || 'projekt').replace(/[^a-zA-Z0-9_-]+/g, '_')
+    downloadBlob(`${safe}.avsourcemap`, JSON.stringify(map, null, 2), 'application/json')
+  }
+  const handleImportSourceMap = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      try {
+        const map = parseSourceMap(await file.text())
+        const store = useProjectStore.getState()
+        const result = mergeSourceMap(store.project.sourceIdentities ?? [], map)
+        store.loadProject({ ...store.project, sourceIdentities: result.identities })
+        // Der Bericht ist der eigentliche Ertrag: der Import fuellt nur
+        // Luecken, und alles andere muss der Mensch sehen statt es zu ahnen.
+        const lines: string[] = []
+        if (result.added.length > 0) {
+          lines.push(format(t('sourceMap.report.added', 'Neu angelegt: {names}'), { names: result.added.join(', ') }))
+        }
+        if (result.filled.length > 0) {
+          lines.push(format(t('sourceMap.report.filled', 'Ergänzt: {fields}'), { fields: result.filled.join(', ') }))
+        }
+        for (const c of result.conflicts) {
+          lines.push(
+            format(
+              t('sourceMap.report.conflict', 'Nicht übernommen — {name} · {field}: hier „{mine}“, in der Datei „{theirs}“.'),
+              { name: c.name, field: c.field, mine: c.mine, theirs: c.theirs },
+            ),
+          )
+        }
+        for (const r of result.rejected) {
+          lines.push(
+            format(t('sourceMap.report.rejected', 'Verworfen — {name} · {field} = {value}: {reason}.'), {
+              name: r.name,
+              field: r.field,
+              value: r.value,
+              reason: r.reason,
+            }),
+          )
+        }
+        if (result.unrepresented.length > 0) {
+          lines.push(
+            format(
+              t('sourceMap.report.unrepresented', 'Kein Feld dafür in dieser App — bleibt nur in der Datei: {fields}'),
+              { fields: result.unrepresented.join(', ') },
+            ),
+          )
+        }
+        if (lines.length === 0) {
+          lines.push(t('sourceMap.report.nothing', 'Nichts zu tun — die Karte sagt dasselbe wie der Plan.'))
+        }
+        await infoDialog(t('sourceMap.report.title', 'Identitäts-Karte importiert'), {
+          bodyNode: (
+            <ul className="flex list-disc flex-col gap-1 pl-4 text-cp-xs text-cp-text-secondary">
+              {lines.map((line, idx) => (
+                <li key={idx}>{line}</li>
+              ))}
+            </ul>
+          ),
+        })
+      } catch (err) {
+        await infoDialog(
+          format(t('sourceMap.importError', 'Import fehlgeschlagen: {message}'), {
+            message: err instanceof Error ? err.message : String(err),
+          }),
+          { tone: 'error' },
+        )
+      }
+    }
+    if (sourceMapImportRef.current) sourceMapImportRef.current.value = ''
+  }
+
   const avForeign = useProjectStore((s) => s.project.avForeign)
   const handleViewForeign = async () => {
     const sum = summarizeForeign(avForeign)
@@ -283,6 +364,7 @@ export const MenuBar = ({
     <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1.5 text-cp-xs shadow-sm">
       <input ref={cameraImportRef} type="file" accept=".cameras.json,.json" className="hidden" onChange={handleImportCameras} />
       <input ref={avplanImportRef} type="file" accept=".avplan,.json" className="hidden" onChange={handleImportAvplan} />
+      <input ref={sourceMapImportRef} type="file" accept=".avsourcemap,.json" className="hidden" onChange={handleImportSourceMap} />
       <div className="flex shrink-0 items-center gap-2">
         <span className="hidden select-none font-semibold tracking-wide text-cp-text-secondary lg:inline">
           {t('app.title', 'Cable Planner')}
@@ -323,6 +405,12 @@ export const MenuBar = ({
           </MenuItem>
           <MenuItem onClick={() => avplanImportRef.current?.click()} icon={<Icon icon={ImportIcon} size="sm" />}>
             {t('app.menu.file.importAvplan', 'Gesamtprojekt importieren (.avplan)…')}
+          </MenuItem>
+          <MenuItem onClick={handleExportSourceMap} icon={<Icon icon={Upload} size="sm" />}>
+            {t('app.menu.file.exportSourceMap', 'Identitäts-Karte exportieren (.avsourcemap)…')}
+          </MenuItem>
+          <MenuItem onClick={() => sourceMapImportRef.current?.click()} icon={<Icon icon={ImportIcon} size="sm" />}>
+            {t('app.menu.file.importSourceMap', 'Identitäts-Karte importieren (.avsourcemap)…')}
           </MenuItem>
           {hasForeign(avForeign) && (
             <MenuItem onClick={handleViewForeign} icon={<Icon icon={Eye} size="sm" />}>

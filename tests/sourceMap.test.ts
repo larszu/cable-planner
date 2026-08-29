@@ -1,0 +1,235 @@
+import { describe, expect, it } from 'vitest'
+import {
+  SOURCE_MAP_KIND,
+  SOURCE_MAP_VERSION,
+  buildSourceMap,
+  mergeSourceMap,
+  parseSourceMap,
+} from '../src/renderer/lib/sourceMap'
+import type { Cable } from '../src/renderer/types/cable'
+import type { EquipmentItem, Port } from '../src/renderer/types/equipment'
+
+const port = (id: string, name: string, over: Partial<Port> = {}): Port => ({
+  id,
+  name,
+  type: 'BNC',
+  connectorType: 'BNC',
+  ...over,
+})
+
+const eq = (over: Partial<EquipmentItem>): EquipmentItem => ({
+  id: 'e1',
+  name: 'Gerät',
+  category: 'Video',
+  inputs: [],
+  outputs: [],
+  x: 0,
+  y: 0,
+  width: 200,
+  height: 160,
+  ...over,
+})
+
+const cable = (from: [string, string], to: [string, string]): Cable => ({
+  id: `${from[1]}->${to[1]}`,
+  name: `${from[1]}->${to[1]}`,
+  type: 'BNC',
+  length: 10,
+  color: '#fff',
+  fromEquipmentId: from[0],
+  fromPortId: from[1],
+  toEquipmentId: to[0],
+  toPortId: to[1],
+  notes: '',
+})
+
+const META = { appVersion: '1.2.3', exportedAt: '2026-01-01T00:00:00.000Z' }
+
+const scene = () => ({
+  equipment: [
+    eq({
+      id: 'atem',
+      name: 'ATEM Mini Extreme',
+      inputs: [port('in1', 'In 1', { contentLabel: 'Kamera 1' })],
+    }),
+    eq({
+      id: 'cam1',
+      name: 'Blackmagic URSA',
+      category: 'Kameras',
+      outputs: [port('cam1-out', 'SDI Out')],
+      sourceIdentityId: 'r1',
+    }),
+  ],
+  cables: [cable(['cam1', 'cam1-out'], ['atem', 'in1'])],
+  sourceIdentities: [{ id: 'r1', name: 'Kamera 1', number: 1, umdAddress: 3 }],
+})
+
+describe('buildSourceMap', () => {
+  it('schreibt die Rolle mit Anker, Bindung und Eingangsnummer', () => {
+    const map = buildSourceMap(scene(), META)
+    expect(map).toMatchObject({ kind: SOURCE_MAP_KIND, formatVersion: SOURCE_MAP_VERSION })
+    expect(map.sources).toHaveLength(1)
+    expect(map.sources[0]).toMatchObject({
+      id: 'r1',
+      name: 'Kamera 1',
+      number: 1,
+      umdAddress: 3,
+    })
+    expect(map.sources[0].bindings[0]).toMatchObject({
+      equipmentId: 'cam1',
+      equipmentName: 'Blackmagic URSA',
+      sinkEquipmentId: 'atem',
+      input: 1,
+      hops: 0,
+    })
+  })
+
+  it('markiert jeden Wert als geplant — der Planer misst nicht', () => {
+    const map = buildSourceMap(scene(), META)
+    expect(map.sources[0].provenance).toEqual({
+      name: 'planned',
+      number: 'planned',
+      umdAddress: 'planned',
+    })
+  })
+
+  it('schreibt die Labels so, wie das Zielsystem sie wirklich zeigt', () => {
+    const map = buildSourceMap(scene(), META)
+    // ATEM-Kurzname ist 4 Byte: aus "Kamera 1" wird "KAME".
+    expect(map.sources[0].labels['atem-input-short']).toBe('KAME')
+    expect(map.sources[0].labels['atem-input-long']).toBe('Kamera 1')
+    expect(map.sources[0].labels['tsl-umd-v31']).toBe('Kamera 1')
+  })
+
+  it('nennt, was der Plan nicht beantwortet, statt es wegzulassen', () => {
+    const s = scene()
+    s.equipment[1].sourceIdentityId = undefined
+    s.sourceIdentities = []
+    const map = buildSourceMap(s, META)
+    expect(map.sources).toEqual([])
+    expect(map.unresolved).toHaveLength(1)
+    expect(map.unresolved[0]).toMatchObject({ field: 'umd-address', equipmentId: 'cam1' })
+  })
+
+  it('liefert eine leere Rollenliste, wenn es keine Rollen gibt', () => {
+    // Das ist die richtige Antwort, kein Fehler: das Format transportiert
+    // Identität, und ohne Rolle gibt es keine.
+    const map = buildSourceMap({ equipment: [], cables: [], sourceIdentities: [] }, META)
+    expect(map.sources).toEqual([])
+    expect(map.unresolved).toEqual([])
+  })
+
+  it('kommt mit einer Rolle ohne verkabeltes Gerät klar', () => {
+    const map = buildSourceMap(
+      { equipment: [], cables: [], sourceIdentities: [{ id: 'r1', name: 'Kamera 1' }] },
+      META,
+    )
+    expect(map.sources[0].bindings).toEqual([])
+    expect(map.sources[0].provenance).toEqual({ name: 'planned' })
+  })
+})
+
+describe('parseSourceMap', () => {
+  it('liest, was buildSourceMap geschrieben hat', () => {
+    const map = buildSourceMap(scene(), META)
+    const back = parseSourceMap(JSON.stringify(map))
+    expect(back.sources[0]).toMatchObject({ id: 'r1', name: 'Kamera 1', umdAddress: 3 })
+  })
+
+  it('weist an, was gar keine Karte ist', () => {
+    expect(() => parseSourceMap('{"kind":"avplan"}')).toThrow(/av-source-map/)
+    expect(() => parseSourceMap('nope')).toThrow()
+  })
+
+  it('weist eine neuere Formatversion ab, statt sie halb zu lesen', () => {
+    const text = JSON.stringify({ kind: SOURCE_MAP_KIND, formatVersion: 99, sources: [] })
+    expect(() => parseSourceMap(text)).toThrow(/neuer als unterstuetzt/)
+  })
+
+  it('hebt unbekannte Felder nach extra, statt sie zu verlieren', () => {
+    const text = JSON.stringify({
+      kind: SOURCE_MAP_KIND,
+      formatVersion: 1,
+      zukunft: { irgendwas: true },
+      sources: [{ id: 'r1', name: 'Kamera 1', isoPrefix: 'CAM1_' }],
+    })
+    const map = parseSourceMap(text)
+    expect(map.extra).toEqual({ zukunft: { irgendwas: true } })
+    expect(map.sources[0].extra).toEqual({ isoPrefix: 'CAM1_' })
+  })
+
+  it('überspringt einen namenlosen Eintrag, statt den ganzen Import zu kippen', () => {
+    const text = JSON.stringify({
+      kind: SOURCE_MAP_KIND,
+      formatVersion: 1,
+      sources: [{ id: 'r1' }, { id: 'r2', name: 'Kamera 2' }],
+    })
+    expect(parseSourceMap(text).sources.map((s) => s.id)).toEqual(['r2'])
+  })
+})
+
+describe('mergeSourceMap', () => {
+  const mapWith = (entry: Record<string, unknown>) =>
+    parseSourceMap(
+      JSON.stringify({ kind: SOURCE_MAP_KIND, formatVersion: 1, sources: [entry] }),
+    )
+
+  it('legt eine unbekannte Rolle an', () => {
+    const out = mergeSourceMap([], mapWith({ id: 'r1', name: 'Kamera 1', umdAddress: 3 }))
+    expect(out.added).toEqual(['Kamera 1'])
+    expect(out.identities).toEqual([{ id: 'r1', name: 'Kamera 1', umdAddress: 3 }])
+  })
+
+  it('füllt eine Lücke, überschreibt aber nichts', () => {
+    const out = mergeSourceMap(
+      [{ id: 'r1', name: 'Kamera 1' }],
+      mapWith({ id: 'r1', name: 'Kamera 1', umdAddress: 3 }),
+    )
+    expect(out.filled).toEqual(['Kamera 1 · umdAddress'])
+    expect(out.identities[0].umdAddress).toBe(3)
+    expect(out.conflicts).toEqual([])
+  })
+
+  it('meldet einen abweichenden Wert als Konflikt, statt ihn zu übernehmen', () => {
+    // Ein Import, der stillschweigend die Tally-Adresse ändert, ist im
+    // Betrieb nicht zurückzuverfolgen.
+    const out = mergeSourceMap(
+      [{ id: 'r1', name: 'Kamera 1', umdAddress: 3 }],
+      mapWith({ id: 'r1', name: 'Kamera 1', umdAddress: 7 }),
+    )
+    expect(out.identities[0].umdAddress).toBe(3)
+    expect(out.conflicts).toEqual([
+      { name: 'Kamera 1', field: 'umdAddress', mine: '3', theirs: '7' },
+    ])
+  })
+
+  it('übernimmt keine Adresse, die das Protokoll nicht kennt', () => {
+    const out = mergeSourceMap([], mapWith({ id: 'r1', name: 'Kamera 1', umdAddress: 999 }))
+    expect(out.identities[0].umdAddress).toBeUndefined()
+    expect(out.rejected[0]).toMatchObject({ name: 'Kamera 1', field: 'umdAddress', value: '999' })
+  })
+
+  it('nennt Felder beim Namen, für die es hier keinen Platz gibt', () => {
+    const out = mergeSourceMap([], mapWith({ id: 'r1', name: 'Kamera 1', isoPrefix: 'CAM1_' }))
+    expect(out.unrepresented).toEqual(['Kamera 1.isoPrefix'])
+  })
+
+  it('lässt die vorhandene Liste unangetastet', () => {
+    const existing = [{ id: 'r1', name: 'Kamera 1' }]
+    mergeSourceMap(existing, mapWith({ id: 'r1', name: 'Kamera 1', umdAddress: 3 }))
+    expect(existing[0].umdAddress).toBeUndefined()
+  })
+})
+
+describe('Rundreise', () => {
+  it('überlebt build → parse → merge ohne Verlust', () => {
+    const s = scene()
+    const map = buildSourceMap(s, META)
+    const back = parseSourceMap(JSON.stringify(map))
+    const merged = mergeSourceMap([], back)
+    expect(merged.identities).toEqual(s.sourceIdentities)
+    expect(merged.conflicts).toEqual([])
+    expect(merged.rejected).toEqual([])
+    expect(merged.unrepresented).toEqual([])
+  })
+})
