@@ -2,6 +2,12 @@
 import { X, SlidersHorizontal, List, Link, Wand2, ClipboardList, Search, Lock, Download, Loader2, Upload } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
+import {
+  emptyVideohubRouting,
+  legacySalvoKey,
+  mergeLegacySalvos,
+} from '../../lib/videohubRouting'
+import type { VideohubSalvo } from '../../types/equipment'
 import { useTranslation } from '../../lib/i18n'
 import { videohubPresetForDevice } from '../../lib/deviceKind'
 import { downloadBlob } from '../../lib/downloadBlob'
@@ -75,6 +81,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
   const cables = useProjectStore((s) => s.project.cables)
+  const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const [deviceId, setDeviceId] = useState<string>(() => {
     if (preselectedDeviceId && equipment.some((e) => e.id === preselectedDeviceId)) {
       return preselectedDeviceId
@@ -85,6 +92,10 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   })
   const [format, setFormat] = useState<Format>('routing')
   const initialDevice = equipment.find((e) => e.id === deviceId)
+  // Gleicher Ausdruck wie initialDevice, nur unter dem Namen, den der Rest der
+  // Datei nutzt. Frueher doppelt weiter unten definiert — was verhinderte, dass
+  // Code oberhalb davon auf das Geraet zugreifen kann.
+  const device = initialDevice
   // Kein Raten: Geraetetyp-ID → expliziter Katalog-Preset-Key; sonst 'custom'
   // mit den echten BNC-Port-Zahlen des Geraets (siehe videohubPresetForDevice).
   const initialPreset = initialDevice
@@ -195,7 +206,14 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
       /* ignore */
     }
   }
+  // ADR-001 / Inkrement 0 — das geplante Routing lebt im Projekt, nicht im
+  // Dialog. Frueher war es reiner Komponenten-State und beim Schliessen weg,
+  // weshalb exportVideohub.ts jeden Ausgang auf Eingang 0 setzen musste
+  // ("the canvas has no routing data yet"). Gespeichertes gewinnt; ohne
+  // gespeicherten Stand bleibt der Preset-Default.
   const [routing, setRouting] = useState<Record<number, number>>(() => {
+    const stored = initialDevice?.videohubRouting?.planned
+    if (stored && Object.keys(stored).length > 0) return { ...stored }
     if (initialPreset.key === 'custom') {
       return buildDefaultRouting(initialPreset.customInputs, initialPreset.customOutputs)
     }
@@ -274,41 +292,69 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   }
 
   // 3) Salvos: benannte Routing-Snapshots zum spaeteren Wiederherstellen.
-  //    Pro Device gespeichert (key: deviceId), in localStorage.
-  type Salvo = { id: string; name: string; routing: Record<number, number>; createdAt: number }
-  const salvoKey = `cable-planner.videohub.salvos.${deviceId || '_'}`
-  const loadSalvos = (key: string): Salvo[] => {
-    try {
-      const raw = localStorage.getItem(key)
-      const parsed = raw ? (JSON.parse(raw) as Salvo[]) : []
-      return Array.isArray(parsed) ? parsed : []
-    } catch {
-      return []
-    }
-  }
-  // Lazy-Init + Render-Adjust statt Hydrations-Effect: lädt die Salvos direkt
-  // und neu, sobald sich salvoKey (= Device) ändert — kein setState im Effect,
-  // keine Kaskaden-Renders. (React-Doku: "storing info from previous renders".)
-  const [salvos, setSalvos] = useState<Salvo[]>(() => loadSalvos(salvoKey))
-  const [loadedSalvoKey, setLoadedSalvoKey] = useState(salvoKey)
-  if (loadedSalvoKey !== salvoKey) {
-    setLoadedSalvoKey(salvoKey)
-    setSalvos(loadSalvos(salvoKey))
-  }
+  //    ADR-001 / Inkrement 0 — liegen jetzt im Projekt statt in localStorage.
+  //    Damit sind sie versioniert, mit dem Projekt teilbar und exportierbar.
+  //    Altdaten aus localStorage werden beim ersten Oeffnen uebernommen, nicht
+  //    destruktiv und nicht stillschweigend: Projekt-Salvos gewinnen bei
+  //    Namensgleichheit, und die Anzahl wandert ins Log.
+  type Salvo = VideohubSalvo
+  const salvos: Salvo[] = device?.videohubRouting?.salvos ?? []
   const persistSalvos = (list: Salvo[]) => {
-    try {
-      localStorage.setItem(salvoKey, JSON.stringify(list))
-    } catch {
-      /* ignore quota */
-    }
+    if (!deviceId) return
+    const current = device?.videohubRouting ?? emptyVideohubRouting()
+    updateEquipment(deviceId, { videohubRouting: { ...current, salvos: list } })
   }
+  const setSalvos = persistSalvos
+
+  // Geplantes Routing ins Projekt schreiben — aber nur, wenn es sich vom
+  // gespeicherten Stand unterscheidet. Ohne diesen Vergleich wuerde schon das
+  // blosse Oeffnen des Dialogs das Projekt als geaendert markieren.
+  const storedPlanned = device?.videohubRouting?.planned
+  useEffect(() => {
+    if (!deviceId || !device) return
+    const stored = device.videohubRouting?.planned ?? {}
+    const same =
+      Object.keys(stored).length === Object.keys(routing).length &&
+      Object.entries(routing).every(([o, i]) => stored[Number(o)] === i)
+    if (same) return
+    const current = device.videohubRouting ?? emptyVideohubRouting()
+    updateEquipment(deviceId, { videohubRouting: { ...current, planned: { ...routing } } })
+    // device absichtlich nicht in den Deps: der Effekt schreibt es selbst und
+    // wuerde sich sonst erneut ausloesen.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routing, deviceId, storedPlanned])
+
+  // Einmalige Uebernahme der Salvos aus dem alten localStorage-Schluessel.
+  // Nicht destruktiv, und die Anzahl wandert ins Log statt still zu
+  // verschwinden — stiller Datenverlust beim Import ist laut Recherche der
+  // schaedlichste Integrationsfehler ueberhaupt.
+  const migratedRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (!deviceId || !device || migratedRef.current === deviceId) return
+    migratedRef.current = deviceId
+    const legacy = ((): unknown => {
+      try {
+        const raw = localStorage.getItem(legacySalvoKey(deviceId))
+        return raw ? JSON.parse(raw) : null
+      } catch {
+        return null
+      }
+    })()
+    if (!Array.isArray(legacy) || legacy.length === 0) return
+    const current = device.videohubRouting ?? emptyVideohubRouting()
+    const { routing: merged, imported } = mergeLegacySalvos(current, legacy)
+    if (imported > 0) {
+      updateEquipment(deviceId, { videohubRouting: merged })
+      logEvent(`${imported} Salvo(s) aus lokalem Speicher ins Projekt uebernommen`)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deviceId, device])
   const saveSalvo = async () => {
     const name = (await promptDialog(t('export.salvoNamePrompt', 'Salvo-Name (= Routing-Snapshot speichern):')))?.trim()
     if (!name) return
     const next: Salvo[] = [
-      // Läuft im saveSalvo-Click-Handler, nicht im Render — randomUUID/now sind hier korrekt.
-      // eslint-disable-next-line react-hooks/purity
-      { id: crypto.randomUUID(), name, routing: { ...routing }, createdAt: Date.now() },
+      // Läuft im saveSalvo-Click-Handler, nicht im Render — randomUUID ist hier korrekt.
+      { id: crypto.randomUUID(), name, routing: { ...routing }, createdAt: new Date().toISOString() },
       ...salvos.filter((s) => s.name !== name),
     ]
     setSalvos(next)
@@ -373,7 +419,6 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     }
   }
 
-  const device = equipment.find((e) => e.id === deviceId)
   const rawPreset = videohubPresets.find((p) => p.key === presetKey) ?? videohubPresets[0]
   // #387 — Custom-Mode: User-spezifische Inputs/Outputs Anzahl ueberschreibt
   // die Preset-Defaults; das spaeter abgeleitete preset-Objekt wird so
