@@ -17,7 +17,7 @@ import { useDialogA11y } from '../../hooks/useDialogA11y'
 import jsPDF from 'jspdf'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
-import { AlertTriangle, Check } from 'lucide-react'
+import { AlertTriangle, Check, Lightbulb } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
 import { detectLayerForConnector, type StandardLayer } from '../../lib/cableLayers'
 
@@ -40,13 +40,14 @@ import {
 import { printPdfBlob } from '../../lib/printPdfBlob'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { buildTallyMap, tallyMapCsv, toTallyPiDevices } from '../../lib/tallyMap'
 import { exportGroupAsPatchPdf, buildGroupPatchPdfBlob } from '../../lib/exportGroupPdf'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { LayerVisibilityChips } from '../Canvas/LayerVisibilityChips'
 import type { Cable } from '../../types/cable'
 
 export type ExportFormat = 'pdf' | 'png' | 'jpeg' | 'svg' | 'dxf'
-type Section = 'plan' | 'patch' | 'bom' | 'rack'
+type Section = 'plan' | 'patch' | 'bom' | 'rack' | 'tally'
 
 /** v7.9.103 — Page-Size-Optionen fuer den Vektor-PDF-Pfad. */
 export type PdfPageSizeOpt =
@@ -81,6 +82,7 @@ const SECTION_LABEL: Record<Section, string> = {
   patch: 'Patch-Sheets',
   bom: 'Kabel-Stückliste',
   rack: 'Racks & Gruppen',
+  tally: 'Tally-Karte',
 }
 
 const SECTION_ICON: Record<Section, LucideIcon> = {
@@ -88,6 +90,7 @@ const SECTION_ICON: Record<Section, LucideIcon> = {
   patch: CableIcon,
   bom: Calculator,
   rack: Server,
+  tally: Lightbulb,
 }
 
 const SECTION_DESC: Record<Section, string> = {
@@ -95,6 +98,7 @@ const SECTION_DESC: Record<Section, string> = {
   patch: 'Pro Gerät eine Port-Belegungs-Liste — ideal zum Aufkleben am Gerät. Auswahl an Geräten, dann Einzel-PDF, Sammel-PDF oder direkt drucken. Papier-Format wird nach Klick abgefragt. Alternativ: kompakte Patchliste (eine Zeile pro Kabel, sortiert nach Quell-Gerät) für den Techniker im Feld.',
   bom: 'Stückliste aller Kabel im Projekt (Typ + Länge zusammengefasst). Editierbare Rentman-Planung daneben. Export als CSV oder PDF.',
   rack: 'Gespeicherte Racks und Gruppen einzeln als PDF exportieren oder drucken — eine Patch-Seite pro enthaltenem Gerät mit interner Verkabelung.',
+  tally: 'Die Kette Rolle → Gerät → Mischer-Eingang → UMD-Adresse, aus dem Plan abgeleitet und geprüft. Als CSV zum Gegenlesen, als JSON für die tally-pi-Konfiguration. Die Lampe selbst — welcher GPIO-Pin welcher Box — gehört der Hardware und steht bewusst nicht drin.',
 }
 
 export const ExportDialog = ({
@@ -178,6 +182,7 @@ export const ExportDialog = ({
               {section === 'patch' && <PatchSheetSection onClose={onClose} />}
               {section === 'bom' && <BomSection />}
               {section === 'rack' && <RackGroupSection onClose={onClose} />}
+              {section === 'tally' && <TallySection />}
             </div>
           </div>
         </main>
@@ -1238,6 +1243,139 @@ const BomSection = () => {
           title={t('export.bom.osPrint', 'Kabel-Stückliste im OS-Druckdialog öffnen')}
         >
           <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Drucken')}</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// --------------------------------------------------------------------
+// Tally section (Roadmap-Initiative 2)
+//
+// Der Markt plant Tally nicht, er faehrt es nur — die Adress-Zuordnung ist
+// ueberall Handarbeit. Hier steht sie als abgeleitete, pruefbare Tabelle:
+// Rolle → Geraet → Mischer-Eingang → UMD-Adresse. Drei der vier Glieder
+// beantwortet der Plan; das vierte, die Lampe, gehoert der Hardware und wird
+// ausdruecklich NICHT erfunden.
+
+const TallySection = () => {
+  const t = useTranslation()
+  const project = useProjectStore((s) => s.project)
+  const map = useMemo(
+    () =>
+      buildTallyMap({
+        equipment: project.equipment,
+        cables: project.cables,
+        sourceIdentities: project.sourceIdentities,
+      }),
+    [project.equipment, project.cables, project.sourceIdentities],
+  )
+
+  const errors = map.issues.filter((i) => i.severity === 'error')
+  const warnings = map.issues.filter((i) => i.severity === 'warning')
+
+  const downloadCsv = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(project.metadata?.name, 'tally', 'csv'),
+      tallyMapCsv(map),
+      'text/csv;charset=utf-8',
+    )
+  }
+  const downloadTallyPi = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(project.metadata?.name, 'tally-devices', 'json'),
+      JSON.stringify({ devices: toTallyPiDevices(map) }, null, 2),
+      'application/json',
+    )
+  }
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      {map.rows.length === 0 ? (
+        <p className="rounded border border-cp-border bg-cp-surface-2 p-3 text-cp-xs text-cp-text-secondary">
+          {t(
+            'export.tally.empty',
+            'Noch keine Signalquellen-Rollen im Plan. Eine Rolle wird am Gerät in den Eigenschaften unter „Signalquelle (Rolle)" vergeben — sie trägt Name, Nummer und UMD-Adresse und überlebt den Gerätetausch.',
+          )}
+        </p>
+      ) : (
+        <div className="min-h-0 flex-1 overflow-auto rounded border border-cp-border">
+          <table className="w-full border-collapse text-cp-xs">
+            <thead className="sticky top-0 bg-cp-surface-3">
+              <tr className="text-left text-cp-text-secondary">
+                <th className="px-2 py-1.5">{t('export.tally.col.no', 'Nr.')}</th>
+                <th className="px-2 py-1.5">{t('export.tally.col.role', 'Rolle')}</th>
+                <th className="px-2 py-1.5">{t('export.tally.col.devices', 'Gerät(e)')}</th>
+                <th className="px-2 py-1.5">{t('export.tally.col.switcher', 'Mischer')}</th>
+                <th className="px-2 py-1.5">{t('export.tally.col.input', 'Eingang')}</th>
+                <th className="px-2 py-1.5">{t('export.tally.col.umd', 'UMD')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {map.rows.map((row) => (
+                <tr key={row.identityId} className="border-t border-cp-border-muted">
+                  <td className="px-2 py-1 font-mono">{row.number ?? ''}</td>
+                  <td className="px-2 py-1">{row.name}</td>
+                  <td className="px-2 py-1 text-cp-text-secondary">
+                    {row.devices.map((d) => d.name).join(' + ') || '—'}
+                  </td>
+                  <td className="px-2 py-1 text-cp-text-secondary">{row.switcher?.name ?? '—'}</td>
+                  <td className="px-2 py-1 font-mono">{row.switcher?.input ?? '—'}</td>
+                  <td
+                    className={`px-2 py-1 font-mono ${
+                      row.umdAddress === undefined ? 'text-cp-warn' : ''
+                    }`}
+                  >
+                    {row.umdAddress ?? '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {map.issues.length > 0 && (
+        <div className="max-h-40 shrink-0 overflow-auto rounded border border-cp-border bg-cp-surface-2 p-2">
+          <p className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">
+            {format(
+              t('export.tally.issues', 'Prüfung: {errors} Fehler, {warnings} Hinweise'),
+              { errors: errors.length, warnings: warnings.length },
+            )}
+          </p>
+          <ul className="flex flex-col gap-0.5 text-cp-xs">
+            {[...errors, ...warnings].map((issue, idx) => (
+              <li
+                key={`${issue.kind}:${issue.subject}:${idx}`}
+                className={issue.severity === 'error' ? 'text-cp-danger' : 'text-cp-warn'}
+              >
+                {issue.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={downloadCsv}
+          disabled={map.rows.length === 0}
+          className="rounded bg-sky-700 px-3 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
+        >
+          {t('export.tally.csv', 'Tally-Karte als CSV')}
+        </button>
+        <button
+          type="button"
+          onClick={downloadTallyPi}
+          disabled={map.rows.length === 0}
+          className="rounded border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
+          title={t(
+            'export.tally.piTitle',
+            'Der Teil der tally.json, den der Plan besitzt: id, name, input. ATEM-IP und GPIO-Pins bleiben an der Box.',
+          )}
+        >
+          {t('export.tally.pi', 'tally-pi-Geräte (JSON)')}
         </button>
       </div>
     </div>
