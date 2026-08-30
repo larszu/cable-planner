@@ -17,7 +17,7 @@ import { useDialogA11y } from '../../hooks/useDialogA11y'
 import jsPDF from 'jspdf'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
-import { AlertTriangle, Check, Lightbulb } from 'lucide-react'
+import { AlertTriangle, Check, Lightbulb, Package as PackageIcon } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
 import { detectLayerForConnector, type StandardLayer } from '../../lib/cableLayers'
 
@@ -41,13 +41,15 @@ import { printPdfBlob } from '../../lib/printPdfBlob'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildTallyMap, tallyMapCsv, toTallyPiDevices } from '../../lib/tallyMap'
+import { buildPlanBom, outcomeLabel, pickListCsv, planBomCsv } from '../../lib/planBom'
+import { useInventoryStore } from '../../store/inventoryStore'
 import { exportGroupAsPatchPdf, buildGroupPatchPdfBlob } from '../../lib/exportGroupPdf'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { LayerVisibilityChips } from '../Canvas/LayerVisibilityChips'
 import type { Cable } from '../../types/cable'
 
 export type ExportFormat = 'pdf' | 'png' | 'jpeg' | 'svg' | 'dxf'
-type Section = 'plan' | 'patch' | 'bom' | 'rack' | 'tally'
+type Section = 'plan' | 'patch' | 'bom' | 'devicebom' | 'rack' | 'tally'
 
 /** v7.9.103 — Page-Size-Optionen fuer den Vektor-PDF-Pfad. */
 export type PdfPageSizeOpt =
@@ -81,6 +83,7 @@ const SECTION_LABEL: Record<Section, string> = {
   plan: 'Plan',
   patch: 'Patch-Sheets',
   bom: 'Kabel-Stückliste',
+  devicebom: 'Geräte-Stückliste',
   rack: 'Racks & Gruppen',
   tally: 'Tally-Karte',
 }
@@ -89,6 +92,7 @@ const SECTION_ICON: Record<Section, LucideIcon> = {
   plan: FileText,
   patch: CableIcon,
   bom: Calculator,
+  devicebom: PackageIcon,
   rack: Server,
   tally: Lightbulb,
 }
@@ -97,6 +101,7 @@ const SECTION_DESC: Record<Section, string> = {
   plan: 'Den Canvas-Plan als PDF herunterladen oder direkt drucken. PDF mit Titelblock — druckfertig. Auch PNG/JPEG für E-Mail/Slack.',
   patch: 'Pro Gerät eine Port-Belegungs-Liste — ideal zum Aufkleben am Gerät. Auswahl an Geräten, dann Einzel-PDF, Sammel-PDF oder direkt drucken. Papier-Format wird nach Klick abgefragt. Alternativ: kompakte Patchliste (eine Zeile pro Kabel, sortiert nach Quell-Gerät) für den Techniker im Feld.',
   bom: 'Stückliste aller Kabel im Projekt (Typ + Länge zusammengefasst). Editierbare Rentman-Planung daneben. Export als CSV oder PDF.',
+  devicebom: 'Was der Plan an Geräten braucht, gezählt nach Modell und gegen das Lager gedeckt. Drei Zustände, die unterscheidbar bleiben: gedeckt (über die Katalog-Identität), VORSCHLAG (Namenstreffer, wartet auf Bestätigung) und nicht im Lager. Dazu die Kommissionier-Liste — nur sicher Gedecktes, nach Lagerort sortiert.',
   rack: 'Gespeicherte Racks und Gruppen einzeln als PDF exportieren oder drucken — eine Patch-Seite pro enthaltenem Gerät mit interner Verkabelung.',
   tally: 'Die Kette Rolle → Gerät → Mischer-Eingang → UMD-Adresse, aus dem Plan abgeleitet und geprüft. Als CSV zum Gegenlesen, als JSON für die tally-pi-Konfiguration. Die Lampe selbst — welcher GPIO-Pin welcher Box — gehört der Hardware und steht bewusst nicht drin.',
 }
@@ -181,6 +186,7 @@ export const ExportDialog = ({
               )}
               {section === 'patch' && <PatchSheetSection onClose={onClose} />}
               {section === 'bom' && <BomSection />}
+              {section === 'devicebom' && <DeviceBomSection />}
               {section === 'rack' && <RackGroupSection onClose={onClose} />}
               {section === 'tally' && <TallySection />}
             </div>
@@ -1376,6 +1382,136 @@ const TallySection = () => {
           )}
         >
           {t('export.tally.pi', 'tally-pi-Geräte (JSON)')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// --------------------------------------------------------------------
+// Device BOM section (ADR-002, Inkrement 4)
+//
+// Das groesste unbesetzte Feld der Feature-Matrix: der technische Plan
+// erzeugt die kaufmaennische Stueckliste, statt dass sie abgetippt wird —
+// und ihre andere Haelfte, die Kommissionier-Liste fuers Lager.
+//
+// Die Darstellung hat eine Pflicht: Ein VORSCHLAG muss als Vorschlag
+// erkennbar bleiben. Eine Liste, die Vorschlag und Deckung gleich aussehen
+// laesst, wird geglaubt statt gelesen, und der erste Irrtum kommt als
+// fehlendes Geraet am Aufbautag heraus.
+
+const OUTCOME_STYLE: Record<string, string> = {
+  'matched-by-type': 'text-cp-text',
+  'proposed-by-name': 'text-cp-warn font-semibold',
+  unmatched: 'text-cp-danger',
+}
+
+const DeviceBomSection = () => {
+  const t = useTranslation()
+  const equipment = useProjectStore((s) => s.project.equipment)
+  const projectName = useProjectStore((s) => s.project.metadata?.name)
+  const items = useInventoryStore((s) => s.items)
+  const nodes = useInventoryStore((s) => s.nodes)
+
+  const bom = useMemo(
+    () => buildPlanBom(equipment, items, nodes),
+    [equipment, items, nodes],
+  )
+
+  const download = (suffix: string, content: string) =>
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, suffix, 'csv'),
+      content,
+      'text/csv;charset=utf-8',
+    )
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      {bom.rows.length === 0 ? (
+        <p className="rounded border border-cp-border bg-cp-surface-2 p-3 text-cp-xs text-cp-text-secondary">
+          {t('export.devicebom.empty', 'Noch keine Geräte im Plan.')}
+        </p>
+      ) : (
+        <>
+          <div className="flex shrink-0 flex-wrap gap-3 text-cp-xs">
+            <span className="text-cp-text-secondary">
+              {format(t('export.devicebom.matched', '{n} gedeckt'), { n: bom.matched })}
+            </span>
+            <span className={bom.proposed > 0 ? 'text-cp-warn' : 'text-cp-text-muted'}>
+              {format(t('export.devicebom.proposed', '{n} Vorschläge'), { n: bom.proposed })}
+            </span>
+            <span className={bom.unmatched > 0 ? 'text-cp-danger' : 'text-cp-text-muted'}>
+              {format(t('export.devicebom.unmatched', '{n} nicht im Lager'), { n: bom.unmatched })}
+            </span>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-auto rounded border border-cp-border">
+            <table className="w-full border-collapse text-cp-xs">
+              <thead className="sticky top-0 bg-cp-surface-3">
+                <tr className="text-left text-cp-text-secondary">
+                  <th className="px-2 py-1.5">{t('export.devicebom.col.qty', 'Menge')}</th>
+                  <th className="px-2 py-1.5">{t('export.devicebom.col.model', 'Modell')}</th>
+                  <th className="px-2 py-1.5">{t('export.devicebom.col.state', 'Deckung')}</th>
+                  <th className="px-2 py-1.5">{t('export.devicebom.col.stock', 'Bestand')}</th>
+                  <th className="px-2 py-1.5">{t('export.devicebom.col.location', 'Lagerort')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bom.rows.map((row, idx) => (
+                  <tr key={`${row.model}:${idx}`} className="border-t border-cp-border-muted">
+                    <td className="px-2 py-1 font-mono">{row.quantity}</td>
+                    <td className="px-2 py-1">
+                      {row.model}
+                      {row.modelIsDeviceName && (
+                        <span
+                          className="ml-1 text-cp-text-muted"
+                          title={t(
+                            'export.devicebom.noTypeTitle',
+                            'Ohne Katalog-Typ — der Modellname ist hier nur der Gerätename. Einen Katalog-Typ zuweisen macht die Deckung zur Tatsache.',
+                          )}
+                        >
+                          {t('export.devicebom.noType', '(ohne Katalog-Typ)')}
+                        </span>
+                      )}
+                    </td>
+                    <td className={`px-2 py-1 ${OUTCOME_STYLE[row.outcome] ?? ''}`} title={row.reason}>
+                      {outcomeLabel(row.outcome)}
+                      {row.short !== undefined && row.short > 0 && (
+                        <span className="ml-1 text-cp-danger">
+                          {format(t('export.devicebom.short', '— {n} fehlen'), { n: row.short })}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-2 py-1 font-mono">{row.available ?? '—'}</td>
+                    <td className="px-2 py-1 text-cp-text-secondary">{row.location || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => download('geraete-bom', planBomCsv(bom))}
+          disabled={bom.rows.length === 0}
+          className="rounded bg-sky-700 px-3 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
+        >
+          {t('export.devicebom.csv', 'Stückliste als CSV')}
+        </button>
+        <button
+          type="button"
+          onClick={() => download('kommissionierliste', pickListCsv(bom))}
+          disabled={bom.matched === 0}
+          className="rounded border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
+          title={t(
+            'export.devicebom.pickTitle',
+            'Nur sicher Gedecktes, nach Lagerort sortiert. Vorschläge stehen bewusst nicht drin — wer kommissioniert, soll nicht unterwegs entscheiden müssen.',
+          )}
+        >
+          {t('export.devicebom.pick', 'Kommissionier-Liste (CSV)')}
         </button>
       </div>
     </div>
