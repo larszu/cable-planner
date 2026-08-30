@@ -15,6 +15,7 @@ import type {
   InventoryMaterialKind,
 } from '../types/inventory'
 import { wouldCreateCycle } from '../lib/storageTree'
+import { deriveDemand } from '../lib/inventoryCoverage'
 import type { EquipmentItem } from '../types/equipment'
 
 /**
@@ -402,43 +403,90 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       return { items, sets, units }
     }),
   seedFromEquipment: (equipment) => {
-    // Gruppieren nach Modell+Kategorie → gezählte Menge.
-    const counts = new Map<string, { model: string; category?: string; qty: number; sample: EquipmentItem }>()
-    for (const eq of equipment) {
-      const model = (eq.name ?? '').trim()
-      if (!model) continue
-      const key = dedupeKey(model, eq.category)
-      const existing = counts.get(key)
-      if (existing) existing.qty += 1
-      else counts.set(key, { model, category: eq.category, qty: 1, sample: eq })
-    }
+    // ADR-002, Inkrement 3 — der Bedarf kommt jetzt aus `deriveDemand`, nicht
+    // mehr aus dem Geraetenamen.
+    //
+    // Vorher gruppierte diese Funktion ueber `dedupeKey(eq.name, category)`.
+    // Der Geraetename ist aber der INSTANZname: „Kamera 1" und „Kamera 2"
+    // waren zwei Schluessel, also entstanden zwei Lagerpositionen a 1 Stueck
+    // fuer ein Modell mit Menge 2 — und der Name landete im `model`-Feld,
+    // wo eine Modellbezeichnung hingehoert.
+    //
+    // Jetzt gilt: Wo der Plan eine Katalog-Identitaet kennt, wird ueber sie
+    // gruppiert, der Modellname kommt aus dem Katalog, und die Identitaet
+    // wandert mit in die Lagerposition. Wo sie fehlt, bleibt es beim Namen —
+    // besser weiss es dann niemand.
+    const demands = deriveDemand(equipment)
+    const sampleById = new Map(equipment.map((e) => [e.id, e]))
 
     let created = 0
     const now = new Date().toISOString()
     const current = get().items
-    const byKey = new Map(current.map((it) => [dedupeKey(it.model, it.category), it] as const))
     const next = [...current]
+    const byType = new Map<string, InventoryItem>()
+    for (const it of current) if (it.deviceTypeId) byType.set(it.deviceTypeId, it)
+    const byName = new Map(current.map((it) => [dedupeKey(it.model, it.category), it] as const))
+    // Fuer TYPISIERTE Bedarfe reicht der Modellname allein: Der Katalogname
+    // identifiziert das Modell, und Lagerpositionen tragen oft gar keine
+    // Kategorie. Nur wenn er EINDEUTIG ist — bei zwei gleichnamigen
+    // Positionen waere jede Wahl geraten, und dann lieber keine.
+    const byModelOnly = new Map<string, InventoryItem | null>()
+    for (const it of current) {
+      const key = it.model.trim().toLowerCase()
+      if (!key) continue
+      byModelOnly.set(key, byModelOnly.has(key) ? null : it)
+    }
 
-    for (const { model, category, qty, sample } of counts.values()) {
-      const key = dedupeKey(model, category)
-      const hit = byKey.get(key)
+    for (const demand of demands) {
+      // Erst ueber die Identitaet, dann ueber den Modellnamen. Der
+      // Namens-Fallback gilt AUCH fuer typisierte Bedarfe: Traegt eine
+      // vorhandene Position denselben Modellnamen, aber noch keine
+      // Identitaet, waere ein zweiter Artikel gleichen Namens schlimmer als
+      // die Verknuepfung — und die Identitaet wird unten nachgetragen, sodass
+      // sie nie wieder ueber den Namen gefunden werden muss.
+      //
+      // Das ist kein Widerspruch zur Regel „Namenstreffer sind nur
+      // Vorschlaege": Die gilt fuer die Deckungs-ANZEIGE, die der Nutzer
+      // liest. Hier hat er gerade selbst „aus dem Plan uebernehmen" geklickt,
+      // und das Ergebnis ist sichtbar und wieder loesbar.
+      const named = byModelOnly.get(demand.label.trim().toLowerCase())
+      const hit = demand.deviceTypeId
+        ? (byType.get(demand.deviceTypeId) ??
+          // Ein Namenstreffer, der bereits eine ANDERE Identitaet traegt, ist
+          // kein Treffer, sondern ein Widerspruch: gleicher Name, anderer Typ.
+          // Ihn als Treffer zu nehmen wuerde den Bedarf verschlucken — die
+          // Position bliebe unveraendert und es entstuende auch keine neue.
+          (named && !named.deviceTypeId ? named : undefined))
+        : byName.get(dedupeKey(demand.label, demand.category))
       if (hit) {
-        // Vorhandenen Artikel nicht duplizieren — nur Menge ggf. anheben.
-        if (qty > hit.quantity) {
-          const idx = next.findIndex((it) => it.id === hit.id)
-          if (idx >= 0) next[idx] = { ...hit, quantity: qty, updatedAt: now }
+        // Vorhandenen Artikel nicht duplizieren — nur Menge ggf. anheben und,
+        // wenn er noch keine trug, die Typ-Identitaet nachtragen.
+        const idx = next.findIndex((it) => it.id === hit.id)
+        if (idx >= 0) {
+          const raise = demand.quantity > hit.quantity
+          const addType = demand.deviceTypeId != null && hit.deviceTypeId == null
+          if (raise || addType) {
+            next[idx] = {
+              ...hit,
+              ...(raise ? { quantity: demand.quantity } : {}),
+              ...(addType ? { deviceTypeId: demand.deviceTypeId } : {}),
+              updatedAt: now,
+            }
+          }
         }
         continue
       }
+      const sample = sampleById.get(demand.equipmentIds[0])
       next.push({
         id: uuidv4(),
-        model,
-        category,
-        quantity: qty,
-        rentPricePerDay: sample.rentPricePerDay,
-        stockLocation: sample.stockLocation,
-        supplier: sample.supplier,
-        ownership: sample.ownership,
+        model: demand.label,
+        category: demand.category,
+        ...(demand.deviceTypeId ? { deviceTypeId: demand.deviceTypeId } : {}),
+        quantity: demand.quantity,
+        rentPricePerDay: sample?.rentPricePerDay,
+        stockLocation: sample?.stockLocation,
+        supplier: sample?.supplier,
+        ownership: sample?.ownership,
         createdAt: now,
         updatedAt: now,
       })

@@ -97,3 +97,125 @@ describe('inventoryStore — Typ-Identität (ADR-002)', () => {
     expect(useInventoryStore.getState().items[0].deviceTypeId).toBeUndefined()
   })
 })
+
+describe('inventoryStore — seedFromEquipment (ADR-002, Inkrement 3)', () => {
+  beforeEach(reset)
+
+  const F55_ID = 'eb02ca7e-856c-40ab-9a73-d1e98110f003'
+  const F55_MODEL = 'Sony PMW-F55'
+  const dev = (over: Record<string, unknown>) =>
+    ({
+      id: 'e1',
+      name: 'Gerät',
+      category: 'Kameras',
+      inputs: [],
+      outputs: [],
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 160,
+      ...over,
+    }) as never
+
+  it('macht aus zwei Geräten EINES Typs eine Position mit Menge 2', () => {
+    // Der Fehler, den diese Funktion vorher hatte: Sie gruppierte über den
+    // Instanznamen, also wurden "Kamera 1" und "Kamera 2" zu zwei
+    // Positionen à 1 Stück — und der Instanzname landete im model-Feld.
+    const st = useInventoryStore.getState()
+    const created = st.seedFromEquipment([
+      dev({ id: 'a', name: 'Kamera 1', deviceTypeId: F55_ID }),
+      dev({ id: 'b', name: 'Kamera 2', deviceTypeId: F55_ID }),
+    ])
+    expect(created).toBe(1)
+    const items = useInventoryStore.getState().items
+    expect(items).toHaveLength(1)
+    expect(items[0]).toMatchObject({
+      model: F55_MODEL,
+      quantity: 2,
+      deviceTypeId: F55_ID,
+    })
+  })
+
+  it('nimmt für Geräte ohne Katalog-Typ weiter den Namen', () => {
+    const st = useInventoryStore.getState()
+    st.seedFromEquipment([dev({ id: 'a', name: 'Sonderbau XY' })])
+    const items = useInventoryStore.getState().items
+    expect(items[0]).toMatchObject({ model: 'Sonderbau XY', quantity: 1 })
+    expect(items[0].deviceTypeId).toBeUndefined()
+  })
+
+  it('legt eine vorhandene Position nicht doppelt an, sondern hebt die Menge', () => {
+    const st = useInventoryStore.getState()
+    st.addItem({ model: F55_MODEL, quantity: 1, deviceTypeId: F55_ID })
+    st.seedFromEquipment([
+      dev({ id: 'a', deviceTypeId: F55_ID }),
+      dev({ id: 'b', deviceTypeId: F55_ID }),
+    ])
+    const items = useInventoryStore.getState().items
+    expect(items).toHaveLength(1)
+    expect(items[0].quantity).toBe(2)
+  })
+
+  it('trägt die Typ-Identität an einer namensgleichen Position nach', () => {
+    // Ein zweiter Artikel gleichen Namens wäre schlimmer als die
+    // Verknüpfung — und danach muss sie nie wieder über den Namen gefunden
+    // werden.
+    const st = useInventoryStore.getState()
+    st.addItem({ model: F55_MODEL, quantity: 5 })
+    st.seedFromEquipment([dev({ id: 'a', deviceTypeId: F55_ID })])
+    const items = useInventoryStore.getState().items
+    expect(items).toHaveLength(1)
+    expect(items[0]).toMatchObject({ deviceTypeId: F55_ID, quantity: 5 })
+  })
+
+  it('senkt eine vorhandene Menge nicht ab', () => {
+    const st = useInventoryStore.getState()
+    st.addItem({ model: F55_MODEL, quantity: 9, deviceTypeId: F55_ID })
+    st.seedFromEquipment([dev({ id: 'a', deviceTypeId: F55_ID })])
+    expect(useInventoryStore.getState().items[0].quantity).toBe(9)
+  })
+})
+
+describe('inventoryStore — seedFromEquipment, Grenzfälle des Namens-Fallbacks', () => {
+  beforeEach(reset)
+
+  const F55_ID = 'eb02ca7e-856c-40ab-9a73-d1e98110f003'
+  const F55_MODEL = 'Sony PMW-F55'
+  const dev = (over: Record<string, unknown>) =>
+    ({
+      id: 'e1',
+      name: 'Gerät',
+      category: 'Kameras',
+      inputs: [],
+      outputs: [],
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 160,
+      ...over,
+    }) as never
+
+  it('verknüpft NICHT, wenn der Modellname mehrdeutig ist', () => {
+    // Zwei gleichnamige Positionen: jede Wahl wäre geraten, also lieber keine.
+    const st = useInventoryStore.getState()
+    st.addItem({ model: F55_MODEL, quantity: 2, category: 'Kameras' })
+    st.addItem({ model: F55_MODEL, quantity: 3, category: 'Miete' })
+    st.seedFromEquipment([dev({ id: 'a', deviceTypeId: F55_ID })])
+    const items = useInventoryStore.getState().items
+    expect(items).toHaveLength(3)
+    expect(items.filter((i) => i.deviceTypeId === F55_ID)).toHaveLength(1)
+  })
+
+  it('verschluckt den Bedarf nicht an einer fremd-typisierten Namensgleichheit', () => {
+    // Gleicher Name, andere Identität ist ein Widerspruch, kein Treffer.
+    // Würde er als Treffer zählen, bliebe die fremde Position unverändert
+    // UND es entstünde keine neue — der Bedarf wäre spurlos verschwunden.
+    const st = useInventoryStore.getState()
+    st.addItem({ model: F55_MODEL, quantity: 4, deviceTypeId: 'dt-fremd' })
+    const created = st.seedFromEquipment([dev({ id: 'a', deviceTypeId: F55_ID })])
+    expect(created).toBe(1)
+    const items = useInventoryStore.getState().items
+    expect(items.find((i) => i.deviceTypeId === 'dt-fremd')?.quantity).toBe(4)
+    expect(items.find((i) => i.deviceTypeId === F55_ID)?.quantity).toBe(1)
+  })
+})
