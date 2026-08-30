@@ -77,6 +77,10 @@ const healItem = (raw: unknown): InventoryItem | null => {
     model: r.model,
     manufacturer: typeof r.manufacturer === 'string' ? r.manufacturer : undefined,
     category: typeof r.category === 'string' ? r.category : undefined,
+    // ADR-002 — die Typ-Identitaet muss die Heilung ueberleben; genau hier
+    // ginge sie sonst still verloren.
+    deviceTypeId:
+      typeof r.deviceTypeId === 'string' && r.deviceTypeId.trim() ? r.deviceTypeId : undefined,
     quantity: typeof r.quantity === 'number' && r.quantity >= 0 ? Math.round(r.quantity) : 0,
     rentPricePerDay:
       typeof r.rentPricePerDay === 'number' && r.rentPricePerDay >= 0 ? r.rentPricePerDay : undefined,
