@@ -42,6 +42,18 @@ export interface InventoryItem {
   manufacturer?: string
   /** Kategorie (gleiche Taxonomie wie `EquipmentItem.category`). */
   category?: string
+  /**
+   * ADR-002 — stabile Geraetetyp-Identitaet, dieselbe GUID wie
+   * `EquipmentItem.deviceTypeId` (Katalog-Register). Ist sie gesetzt, ist die
+   * Zuordnung Plan-Geraet -> Lager-Position eine Tatsache statt eines
+   * Namensvergleichs.
+   *
+   * Optional, weil ein Lager mehr enthaelt als der Katalog kennt. Fehlt sie,
+   * darf der Bedarfs-Resolver einen Vorschlag machen — aber nur als
+   * Vorschlag, den ein Mensch bestaetigt; die Bestaetigung wird dann hier
+   * festgeschrieben und muss nie wieder geraten werden.
+   */
+  deviceTypeId?: string
   /** Gesamtmenge im Bestand. */
   quantity: number
   /** Mietpreis pro Tag (Kalkulation, Phase 5). */

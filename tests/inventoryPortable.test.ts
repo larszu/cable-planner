@@ -1,5 +1,10 @@
 import { describe, expect, it, beforeEach } from 'vitest'
-import { serializeInventory, parseInventory, INVENTORY_FORMAT } from '../src/renderer/lib/inventoryPortable'
+import {
+  serializeInventory,
+  parseInventory,
+  INVENTORY_FORMAT,
+  INVENTORY_FORMAT_VERSION,
+} from '../src/renderer/lib/inventoryPortable'
 import { useInventoryStore } from '../src/renderer/store/inventoryStore'
 
 const reset = () => {
@@ -73,5 +78,56 @@ describe('inventoryStore — Import/Export', () => {
     const st = useInventoryStore.getState()
     const n = st.importSnapshot({ items: [{ id: 'x', quantity: 1 } as unknown] }, 'replace')
     expect(n).toBe(0) // model fehlt → geheilt-verworfen
+  })
+})
+
+describe('avplan-inventory — Versionsverhalten (ADR-002)', () => {
+  const file = (version: number, extra: Record<string, unknown> = {}) =>
+    JSON.stringify({
+      format: 'avplan-inventory',
+      version,
+      app: 'cable-planner',
+      exportedAt: 't',
+      items: [{ id: 'i1', model: 'ULXD2', quantity: 1, ...extra }],
+      nodes: [],
+      sets: [],
+      units: [],
+    })
+
+  it('liest ältere Dateien unverändert weiter', () => {
+    const snap = parseInventory(file(1))
+    expect(snap?.items).toHaveLength(1)
+    expect(snap?.items[0].model).toBe('ULXD2')
+  })
+
+  it('weigert sich bei einer neueren Version, statt Felder zu verlieren', () => {
+    // Der Kern der Versionserhöhung: ein Stand, der deviceTypeId nicht kennt,
+    // würde es beim Re-Export still wegwerfen (healItem baut Feld für Feld
+    // neu auf). Eine Weigerung ist der ehrlichere Fehler.
+    expect(parseInventory(file(INVENTORY_FORMAT_VERSION + 1))).toBeNull()
+  })
+
+  it('trägt deviceTypeId durch den Roundtrip', () => {
+    const snap = parseInventory(
+      serializeInventory(
+        {
+          items: [
+            {
+              id: 'i1',
+              model: 'ULXD2',
+              quantity: 1,
+              deviceTypeId: 'dt-0001',
+              createdAt: 't',
+              updatedAt: 't',
+            },
+          ],
+          nodes: [],
+          sets: [],
+          units: [],
+        },
+        'cable-planner',
+      ),
+    )
+    expect(snap?.items[0].deviceTypeId).toBe('dt-0001')
   })
 })
