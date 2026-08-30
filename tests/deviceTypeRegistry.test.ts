@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolveDeviceType } from '../src/renderer/lib/deviceTypeRegistry'
+import { listDeviceTypes, resolveDeviceType } from '../src/renderer/lib/deviceTypeRegistry'
 import {
   detectDeviceKind,
   detectNetworkDevice,
@@ -214,5 +214,33 @@ describe('videohubPresetForDevice — kein Raten', () => {
   it('ohne ID und ohne BNC-Ports → custom 16/16 (klar editierbare Eigen-Groesse)', () => {
     const r = videohubPresetForDevice(eq({ name: 'Leergeraet' }))
     expect(r).toEqual({ key: 'custom', customInputs: 16, customOutputs: 16 })
+  })
+})
+
+describe('listDeviceTypes (ADR-002)', () => {
+  it('liefert jeden Registry-Eintrag mit Id und Modellnamen', () => {
+    const all = listDeviceTypes()
+    expect(all.length).toBeGreaterThan(100)
+    for (const c of all) {
+      expect(c.id).toBeTruthy()
+      expect(c.name.trim()).not.toBe('')
+    }
+  })
+
+  it('vergibt keine Id doppelt', () => {
+    const all = listDeviceTypes()
+    expect(new Set(all.map((c) => c.id)).size).toBe(all.length)
+  })
+
+  it('ist nach Modellname sortiert', () => {
+    const names = listDeviceTypes().map((c) => c.name)
+    expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, 'de')))
+  })
+
+  it('jeder gelistete Eintrag ist auch auflösbar', () => {
+    // Sonst böte die Auswahl Typen an, die danach ins Leere zeigen.
+    for (const c of listDeviceTypes()) {
+      expect(resolveDeviceType(c.id)?.template.name).toBe(c.name)
+    }
   })
 })
