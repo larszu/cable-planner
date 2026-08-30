@@ -42,6 +42,11 @@ export interface PlanBomRow {
   reason?: string
   /** true, wenn `model` nur der Instanzname eines Geräts ist. */
   modelIsDeviceName: boolean
+  /** Lager-Position, die deckt bzw. vorgeschlagen ist — Ziel der Bestätigung. */
+  itemId?: string
+  /** Katalog-Identität des Bedarfs. Zusammen mit `itemId` ist das alles, was
+   *  eine Bestätigung braucht: die Identität auf die Position schreiben. */
+  deviceTypeId?: string
 }
 
 export interface PlanBom {
@@ -84,6 +89,8 @@ const rowOf = (
         : '',
     ...(line.reason ? { reason: line.reason } : {}),
     modelIsDeviceName: line.demand.labelIsDeviceName,
+    ...(line.itemId ? { itemId: line.itemId } : {}),
+    ...(line.demand.deviceTypeId ? { deviceTypeId: line.demand.deviceTypeId } : {}),
   }
 }
 

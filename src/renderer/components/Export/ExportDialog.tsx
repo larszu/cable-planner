@@ -1412,6 +1412,7 @@ const DeviceBomSection = () => {
   const projectName = useProjectStore((s) => s.project.metadata?.name)
   const items = useInventoryStore((s) => s.items)
   const nodes = useInventoryStore((s) => s.nodes)
+  const updateItem = useInventoryStore((s) => s.updateItem)
 
   const bom = useMemo(
     () => buildPlanBom(equipment, items, nodes),
@@ -1480,6 +1481,25 @@ const DeviceBomSection = () => {
                         <span className="ml-1 text-cp-danger">
                           {format(t('export.devicebom.short', '— {n} fehlen'), { n: row.short })}
                         </span>
+                      )}
+                      {/* Der Ausweg aus dem Vorschlag: ein Klick schreibt die
+                          Katalog-Identitaet auf die Lager-Position, und die
+                          Zeile ist ab dann eine Tatsache — dauerhaft, nicht
+                          nur in dieser Ansicht. */}
+                      {row.outcome === 'proposed-by-name' && row.itemId && row.deviceTypeId && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateItem(row.itemId!, { deviceTypeId: row.deviceTypeId })
+                          }
+                          className="ml-2 rounded border border-cp-border px-1.5 py-0.5 text-[10px] font-normal text-cp-text-secondary hover:bg-cp-surface-3"
+                          title={t(
+                            'export.devicebom.confirmTitle',
+                            'Schreibt die Katalog-Identität dauerhaft auf diese Lager-Position. Danach ist die Deckung eine Tatsache und muss nie wieder über den Namen geraten werden.',
+                          )}
+                        >
+                          {t('export.devicebom.confirm', 'Bestätigen')}
+                        </button>
                       )}
                     </td>
                     <td className="px-2 py-1 font-mono">{row.available ?? '—'}</td>
