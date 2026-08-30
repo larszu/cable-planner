@@ -2148,6 +2148,28 @@ export const en: Dict = {
   'cable.aria.toDevice': 'Target device',
   'cable.aria.toPort': 'Target port',
 
+  // ADR-002, Inkrement 4 — Geraete-Stueckliste + Kommissionier-Liste
+  'export.section.devicebom': 'Device BOM',
+  'export.desc.devicebom':
+    'What the plan needs in devices, counted by model and checked against the inventory. Three states that stay distinguishable: covered (via the catalogue identity), PROPOSAL (name match, awaiting confirmation) and not in stock. Plus the pick list — only what is certainly covered, sorted by storage location.',
+  'export.devicebom.empty': 'No devices in the plan yet.',
+  'export.devicebom.matched': '{n} covered',
+  'export.devicebom.proposed': '{n} proposals',
+  'export.devicebom.unmatched': '{n} not in stock',
+  'export.devicebom.col.qty': 'Qty',
+  'export.devicebom.col.model': 'Model',
+  'export.devicebom.col.state': 'Coverage',
+  'export.devicebom.col.stock': 'Stock',
+  'export.devicebom.col.location': 'Location',
+  'export.devicebom.noType': '(no catalogue type)',
+  'export.devicebom.noTypeTitle':
+    'No catalogue type — the model name here is only the device name. Assigning a catalogue type turns the coverage into a fact.',
+  'export.devicebom.short': '— {n} missing',
+  'export.devicebom.csv': 'Device BOM as CSV',
+  'export.devicebom.pick': 'Pick list (CSV)',
+  'export.devicebom.pickTitle':
+    'Only what is certainly covered, sorted by storage location. Proposals are deliberately left out — whoever picks should not have to decide on the way.',
+
   // Roadmap-Initiative 2 — Tally-Karte (Export-Hub)
   'export.section.tally': 'Tally map',
   'export.desc.tally':
