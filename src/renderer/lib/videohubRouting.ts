@@ -114,3 +114,46 @@ export const danglingCrosspoints = (
     .map(([o, i]) => ({ output: Number(o), input: i }))
     .filter(({ output, input }) => output >= outputCount || input >= inputCount)
     .sort((a, b) => a.output - b.output)
+
+export interface CrosspointDifference {
+  /** 0-basierter Ausgang. */
+  output: number
+  /** Geplanter Eingang, oder undefined wenn der Plan dazu nichts sagt. */
+  planned?: number
+  /** Eingang laut Geraet, oder undefined wenn das Geraet ihn nicht meldet. */
+  live?: number
+}
+
+/**
+ * Initiative 10 — Unterschied zwischen Plan und Geraet, Kreuzpunkt fuer
+ * Kreuzpunkt.
+ *
+ * Ein Status-Read darf den Plan NICHT ueberschreiben: Was der Hub gerade tut,
+ * ist eine Beobachtung, was im Plan steht, eine Absicht. Beides in dieselbe
+ * Variable zu schreiben macht die Absicht unauffindbar — und wenn die Variable
+ * persistiert wird, ist sie weg. Diese Funktion macht aus dem stillen
+ * Ueberschreiben eine sichtbare Differenz, ueber die ein Mensch entscheidet.
+ *
+ * Beruecksichtigt Ausgaenge, die nur eine der beiden Seiten kennt: Fehlen ist
+ * ein Unterschied, kein Gleichstand.
+ */
+export const routingDifferences = (
+  planned: VideohubCrosspoints,
+  live: VideohubCrosspoints,
+): CrosspointDifference[] => {
+  const outputs = new Set<number>()
+  for (const key of Object.keys(planned)) outputs.add(Number(key))
+  for (const key of Object.keys(live)) outputs.add(Number(key))
+  const out: CrosspointDifference[] = []
+  for (const output of [...outputs].filter((o) => Number.isInteger(o)).sort((a, b) => a - b)) {
+    const p = planned[output]
+    const l = live[output]
+    if (p === l) continue
+    out.push({
+      output,
+      ...(p !== undefined ? { planned: p } : {}),
+      ...(l !== undefined ? { live: l } : {}),
+    })
+  }
+  return out
+}

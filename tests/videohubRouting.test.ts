@@ -7,6 +7,7 @@ import {
   mergeLegacySalvos,
   legacySalvoKey,
   danglingCrosspoints,
+  routingDifferences,
 } from '../src/renderer/lib/videohubRouting'
 
 describe('normaliseCrosspoints', () => {
@@ -102,5 +103,29 @@ describe('danglingCrosspoints', () => {
 
   it('meldet nichts bei sauberem Routing', () => {
     expect(danglingCrosspoints({ 0: 1, 1: 0 }, 2, 2)).toEqual([])
+  })
+})
+
+describe('routingDifferences (Initiative 10)', () => {
+  it('meldet nur die Kreuzpunkte, die sich unterscheiden', () => {
+    expect(routingDifferences({ 0: 1, 1: 2, 2: 3 }, { 0: 1, 1: 9, 2: 3 })).toEqual([
+      { output: 1, planned: 2, live: 9 },
+    ])
+  })
+
+  it('wertet Fehlen als Unterschied, nicht als Gleichstand', () => {
+    // Ein Ausgang, zu dem der Plan nichts sagt, ist nicht 'wie das Gerät'.
+    expect(routingDifferences({ 0: 1 }, { 0: 1, 5: 7 })).toEqual([{ output: 5, live: 7 }])
+    expect(routingDifferences({ 3: 4 }, {})).toEqual([{ output: 3, planned: 4 }])
+  })
+
+  it('ist leer, wenn Plan und Gerät übereinstimmen', () => {
+    expect(routingDifferences({ 0: 1, 1: 2 }, { 1: 2, 0: 1 })).toEqual([])
+    expect(routingDifferences({}, {})).toEqual([])
+  })
+
+  it('sortiert nach Ausgang, damit die Liste lesbar bleibt', () => {
+    const diff = routingDifferences({ 5: 1, 0: 1, 2: 1 }, { 5: 2, 0: 2, 2: 2 })
+    expect(diff.map((d) => d.output)).toEqual([0, 2, 5])
   })
 })
