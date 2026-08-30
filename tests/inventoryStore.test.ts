@@ -73,3 +73,27 @@ describe('inventoryStore — LPN-Baum', () => {
     expect(raw.items.find((i: { id: string }) => i.id === itemId).locationId).toBe(caseId)
   })
 })
+
+describe('inventoryStore — Typ-Identität (ADR-002)', () => {
+  beforeEach(reset)
+
+  it('trägt deviceTypeId durch die Heilung', () => {
+    // Genau hier ginge das Feld sonst verloren: healItem baut den Artikel
+    // Feld für Feld neu auf, unbekannte Schlüssel fallen weg.
+    const st = useInventoryStore.getState()
+    st.importSnapshot(
+      { items: [{ id: 'i1', model: 'ULXD2', quantity: 2, deviceTypeId: 'dt-0001' } as never] },
+      'replace',
+    )
+    expect(useInventoryStore.getState().items[0].deviceTypeId).toBe('dt-0001')
+  })
+
+  it('verwirft eine leere Typ-Identität, statt sie als Schlüssel zu führen', () => {
+    const st = useInventoryStore.getState()
+    st.importSnapshot(
+      { items: [{ id: 'i1', model: 'ULXD2', quantity: 1, deviceTypeId: '  ' } as never] },
+      'replace',
+    )
+    expect(useInventoryStore.getState().items[0].deviceTypeId).toBeUndefined()
+  })
+})

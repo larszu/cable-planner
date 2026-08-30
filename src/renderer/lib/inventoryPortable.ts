@@ -10,7 +10,12 @@
 import type { InventoryItem, StorageNode, InventorySet, InventoryUnit } from '../types/inventory'
 
 export const INVENTORY_FORMAT = 'avplan-inventory'
-export const INVENTORY_FORMAT_VERSION = 1
+// Version 2 (ADR-002): `InventoryItem.deviceTypeId`. Die Erhoehung ist kein
+// Formalismus — `inventoryStore.healItem` baut jeden Artikel Feld fuer Feld
+// neu auf, ein Stand ohne dieses Feld wuerde es beim Re-Export also STILL
+// verlieren. Mit der Version weigert er sich stattdessen (siehe unten:
+// `f.version > INVENTORY_FORMAT_VERSION`). Aeltere Dateien lesen wir weiter.
+export const INVENTORY_FORMAT_VERSION = 2
 
 export interface InventorySnapshot {
   items: InventoryItem[]
