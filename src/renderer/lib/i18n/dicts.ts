@@ -2148,6 +2148,24 @@ export const en: Dict = {
   'cable.aria.toDevice': 'Target device',
   'cable.aria.toPort': 'Target port',
 
+  // Roadmap-Initiative 2 — Tally-Karte (Export-Hub)
+  'export.section.tally': 'Tally map',
+  'export.desc.tally':
+    'The chain role → device → switcher input → UMD address, derived from the plan and validated. CSV to read over, JSON for the tally-pi configuration. The lamp itself — which GPIO pin on which box — belongs to the hardware and is deliberately not in there.',
+  'export.tally.empty':
+    'No signal-source roles in the plan yet. A role is assigned on the device under "Signal source (role)" in the properties — it carries name, number and UMD address, and outlives the device swap.',
+  'export.tally.col.no': 'No.',
+  'export.tally.col.role': 'Role',
+  'export.tally.col.devices': 'Device(s)',
+  'export.tally.col.switcher': 'Switcher',
+  'export.tally.col.input': 'Input',
+  'export.tally.col.umd': 'UMD',
+  'export.tally.issues': 'Validation: {errors} errors, {warnings} notes',
+  'export.tally.csv': 'Tally map as CSV',
+  'export.tally.pi': 'tally-pi devices (JSON)',
+  'export.tally.piTitle':
+    'The part of tally.json the plan owns: id, name, input. ATEM IP and GPIO pins stay with the box.',
+
   // ADR-001 — Identitaets-Karte (.avsourcemap)
   'app.menu.file.exportSourceMap': 'Export identity map (.avsourcemap)…',
   'app.menu.file.importSourceMap': 'Import identity map (.avsourcemap)…',
