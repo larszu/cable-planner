@@ -6,9 +6,10 @@ import {
   emptyVideohubRouting,
   legacySalvoKey,
   mergeLegacySalvos,
+  routingDifferences,
 } from '../../lib/videohubRouting'
 import type { VideohubSalvo } from '../../types/equipment'
-import { useTranslation } from '../../lib/i18n'
+import { useTranslation, format as fmt } from '../../lib/i18n'
 import { videohubPresetForDevice } from '../../lib/deviceKind'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
@@ -393,10 +394,16 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
       })
       if (result.ok && result.state) {
         setHubState(result.state)
-        // Aktuelles Routing vom Hub uebernehmen
-        if (Object.keys(result.state.routing).length > 0) {
-          setRouting({ ...result.state.routing })
-        }
+        // Initiative 10 — der Status-Read ueberschreibt den Plan NICHT mehr.
+        //
+        // Vorher stand hier `setRouting({ ...result.state.routing })`. Da das
+        // geplante Routing seit ADR-001 ins Projekt persistiert wird, hat ein
+        // Klick auf "Status lesen" die geplante Kreuzschiene still durch das
+        // ersetzt, was der Hub im Moment gerade tut — und mitgespeichert. Was
+        // der Hub tut, ist eine Beobachtung; was im Plan steht, eine Absicht.
+        // Beide in dieselbe Variable zu schreiben macht die Absicht
+        // unauffindbar. Die Differenz steht jetzt im Hub-Status und wird auf
+        // Wunsch uebernommen.
         const labels = Object.keys(result.state.inputLabels).length
         const locks = Object.values(result.state.outputLocks).filter(
           (v) => v !== 'unlocked',
@@ -1327,6 +1334,44 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                     <Icon icon={Lock} size="xs" className="mr-1 inline-block align-text-bottom" />{lockedCount} Output{lockedCount !== 1 ? 's' : ''} {t('export.locked', 'gesperrt')}
                   </span>
                 ) : null
+              })()}
+              {/* Plan gegen Geraet: die Differenz sichtbar machen, statt sie
+                  still aufzuloesen. Uebernehmen ist eine Entscheidung. */}
+              {(() => {
+                const diff = routingDifferences(routing, hubState.routing)
+                if (diff.length === 0) {
+                  return (
+                    <span className="ml-2 text-emerald-300">
+                      {t('videohub.routingMatches', 'Routing stimmt mit dem Plan überein.')}
+                    </span>
+                  )
+                }
+                return (
+                  <span className="ml-2">
+                    <span className="rounded bg-amber-900/40 px-1 py-0.5 text-amber-200">
+                      {fmt(
+                        t('videohub.routingDiffers', '{n} Kreuzpunkt(e) weichen vom Plan ab'),
+                        { n: diff.length },
+                      )}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRouting({ ...hubState.routing })
+                        logEvent(
+                          `Hub-Routing in den Plan uebernommen (${diff.length} Kreuzpunkte geaendert).`,
+                        )
+                      }}
+                      className="ml-1.5 rounded border border-sky-600/60 px-1.5 py-0.5 text-sky-100 hover:bg-sky-900/40"
+                      title={t(
+                        'videohub.adoptTitle',
+                        'Ersetzt das geplante Routing durch den gelesenen Hub-Zustand. Bis dahin bleibt der Plan unverändert — ein Status-Read ist eine Beobachtung, keine Planänderung.',
+                      )}
+                    >
+                      {t('videohub.adopt', 'in den Plan übernehmen')}
+                    </button>
+                  </span>
+                )
               })()}
             </div>
           )}
