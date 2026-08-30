@@ -2148,6 +2148,13 @@ export const en: Dict = {
   'cable.aria.toDevice': 'Target device',
   'cable.aria.toPort': 'Target port',
 
+  // Initiative 10 — Plan gegen Geraet (Videohub-Status-Read)
+  'videohub.routingMatches': 'Routing matches the plan.',
+  'videohub.routingDiffers': '{n} crosspoint(s) differ from the plan',
+  'videohub.adopt': 'adopt into the plan',
+  'videohub.adoptTitle':
+    'Replaces the planned routing with the hub state that was read. Until then the plan stays unchanged — a status read is an observation, not a plan change.',
+
   // ADR-002 — Katalog-Typ am Geraet (IdentityBlock)
   'eq.field.deviceType': 'Catalogue type',
   'eq.field.deviceTypeClear': 'clear',
