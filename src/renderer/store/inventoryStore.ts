@@ -301,11 +301,15 @@ interface InventoryState {
   /** Entfernt einen Artikel (und aus allen Set-Komponenten). */
   removeItem: (id: string) => void
   /**
-   * Seed aus dem aktuellen Plan: gruppiert Equipment nach Name (+ Kategorie)
-   * und legt je Gruppe einen Artikel mit Menge = Anzahl der Instanzen an.
-   * Bereits vorhandene Artikel (gleiches Modell+Kategorie, case-insensitive)
-   * werden NICHT dupliziert — ihre Menge wird auf max(bestehend, gezählt)
-   * angehoben. Liefert die Anzahl neu angelegter Artikel.
+   * Seed aus dem aktuellen Plan (ADR-002): gruppiert Equipment ueber die
+   * Katalog-Identitaet `deviceTypeId`, sonst ueber Name + Kategorie, und legt
+   * je Gruppe einen Artikel mit Menge = Anzahl der Instanzen an. Der
+   * Modellname kommt bei typisierten Geraeten aus dem Katalog, nicht vom
+   * Geraet.
+   *
+   * Vorhandene Artikel werden NICHT dupliziert: Ihre Menge wird auf
+   * max(bestehend, gezaehlt) angehoben, und eine fehlende Typ-Identitaet wird
+   * nachgetragen. Liefert die Anzahl neu angelegter Artikel.
    */
   seedFromEquipment: (equipment: EquipmentItem[]) => number
   /** Legt einen Lager-Knoten (Lagerplatz oder Container) an, liefert die id. */

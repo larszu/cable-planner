@@ -184,3 +184,31 @@ describe('outcomeLabel', () => {
     expect(outcomeLabel('unmatched')).toBe('nicht im Lager')
   })
 })
+
+describe('PlanBomRow — was eine Bestätigung braucht', () => {
+  it('trägt bei einem Vorschlag Position UND Katalog-Identität mit', () => {
+    // Beides zusammen ist alles, was die Bestätigung braucht: die Identität
+    // auf die Position schreiben, dann ist die Deckung eine Tatsache.
+    const bom = buildPlanBom(
+      [eq({ deviceTypeId: F55_ID })],
+      [item({ id: 'i1', model: F55_MODEL, quantity: 2 })],
+      NODES,
+    )
+    expect(bom.rows[0]).toMatchObject({
+      outcome: 'proposed-by-name',
+      itemId: 'i1',
+      deviceTypeId: F55_ID,
+    })
+  })
+
+  it('lässt die Identität weg, wo der Bedarf keine hat', () => {
+    // Ohne Katalog-Typ im Plan gibt es nichts zu bestätigen — die Zeile darf
+    // dann auch keinen Knopf anbieten.
+    const bom = buildPlanBom(
+      [eq({ name: 'Sonderbau XY' })],
+      [item({ id: 'i1', model: 'Sonderbau XY', quantity: 1 })],
+      NODES,
+    )
+    expect(bom.rows[0].deviceTypeId).toBeUndefined()
+  })
+})
