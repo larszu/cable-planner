@@ -2148,6 +2148,17 @@ export const en: Dict = {
   'cable.aria.toDevice': 'Target device',
   'cable.aria.toPort': 'Target port',
 
+  // ADR-002 — Katalog-Typ am Geraet (IdentityBlock)
+  'eq.field.deviceType': 'Catalogue type',
+  'eq.field.deviceTypeClear': 'clear',
+  'eq.field.deviceTypeNone':
+    'No catalogue type — inventory coverage and the BOM can only guess this device from its name.',
+  'eq.field.deviceTypeFilter': 'Search the catalogue…',
+  'eq.field.deviceTypeUnset': '— none —',
+  'eq.field.deviceTypeCount': '{n} of {total} types',
+  'eq.field.deviceTypeScope':
+    'sets the identity only; ports, dimensions and power stay unchanged.',
+
   // ADR-002, Inkrement 4 — Geraete-Stueckliste + Kommissionier-Liste
   'export.section.devicebom': 'Device BOM',
   'export.desc.devicebom':
