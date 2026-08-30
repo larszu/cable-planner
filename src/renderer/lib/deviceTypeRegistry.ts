@@ -120,6 +120,33 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
  * Loest eine stabile Geraetetyp-ID autoritativ auf — oder null, wenn die ID
  * (noch) nicht in unseren Katalogen liegt. Kein Raten: null heisst unbekannt.
  */
+export interface DeviceTypeChoice {
+  id: string
+  /** Modellname aus dem Datenblatt-Template. */
+  name: string
+  category?: string
+}
+
+/**
+ * ADR-002 — alle Katalog-Typen zur Auswahl.
+ *
+ * Bis hierher konnte eine `deviceTypeId` NUR ueber ein Katalog-Template in ein
+ * Geraet gelangen: Wer eines von Hand anlegt oder importiert, bekam nie eine
+ * Identitaet — und ohne sie bleibt die Lager-Deckung fuer immer ein
+ * Namensvergleich. Diese Liste ist die Voraussetzung dafuer, sie nachtraeglich
+ * zuzuweisen.
+ */
+export const listDeviceTypes = (): DeviceTypeChoice[] => {
+  registry ??= buildRegistry()
+  return [...registry.entries()]
+    .map(([id, info]) => ({
+      id,
+      name: info.template.name,
+      ...(info.template.category ? { category: info.template.category } : {}),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'de'))
+}
+
 export const resolveDeviceType = (deviceTypeId: string | undefined): DeviceTypeInfo | null => {
   if (!deviceTypeId) return null
   registry ??= buildRegistry()
