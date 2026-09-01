@@ -64,6 +64,7 @@ import { useProject } from './hooks/useProject'
 import { useRentman } from './hooks/useRentman'
 import { cablePlannerApi, hasDesktopBridge } from './lib/bridge'
 import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
+import { stampForPlan } from './lib/documentStamp'
 import { exportCanvasToPdfVector } from './lib/exportPdfVector'
 import { printPdfBlob } from './lib/printPdfBlob'
 import { exportCanvasToImage } from './lib/exportImage'
@@ -795,6 +796,9 @@ export default function App() {
           gridSize: exportGridSize,
           bgOpacity: exportBgOpacity,
           customPalette: exportCustomPalette,
+          // Initiative 4 — der Titelblock soll sagen koennen, ob dieser
+          // Ausdruck noch der festgeschriebene Stand ist.
+          stamp: stampForPlan(project, new Date()),
           onProgress: (phase, detail) =>
             setPdfProgress({ active: true, phase, detail }),
         })

@@ -7,8 +7,10 @@
  * eine Datei-Liste, die der Dialog einzeln als Download anbietet.
  */
 import type { CablePlannerProject } from '../types/project'
-import { buildAssetRows } from './assetRegister'
-import { buildCableBomRows } from './installerLists'
+import type { CsvTable } from './csv'
+import { buildAssetRows, assetRegisterTable } from './assetRegister'
+import { buildCableBomRows, cableBomTable } from './installerLists'
+import { stampLine, type DocumentStamp } from './documentStamp'
 import { INSTALL_STATUS_LABEL, type InstallStatus } from './../types/lifecycle'
 
 const fmtDate = (iso?: string): string => {
@@ -27,7 +29,25 @@ const cableStatusCounts = (project: CablePlannerProject): Record<string, number>
   return counts
 }
 
-export const buildHandoverManifest = (project: CablePlannerProject): string => {
+/**
+ * Der Inhalt, den das Uebergabe-Dokument zeigt — als Tabelle, damit `stampForRows`
+ * denselben Aufbau auf den Revisions-Snapshot anwenden kann. Fingerabdruck ueber
+ * das, was auf dem Blatt steht: Assets und Kabel-Stueckliste. Der Kopf mit
+ * Adressen und Kontakten aendert sich zwischen Revisionen nicht.
+ */
+export const handoverTable = (project: CablePlannerProject): CsvTable => {
+  const assets = assetRegisterTable(project)
+  const bom = cableBomTable(project)
+  return {
+    headers: [...assets.headers, ...bom.headers],
+    rows: [...assets.rows, ...bom.rows],
+  }
+}
+
+export const buildHandoverManifest = (
+  project: CablePlannerProject,
+  stamp?: DocumentStamp,
+): string => {
   const m = project.metadata
   const assets = buildAssetRows(project)
   const bom = buildCableBomRows(project)
@@ -52,7 +72,14 @@ export const buildHandoverManifest = (project: CablePlannerProject): string => {
   lines.push(`- **Übergabe-Datum:** ${fmtDate(m.handoverDate)}`)
   lines.push(`- **Wartender Dienstleister:** ${m.serviceProvider || '—'}`)
   lines.push(`- **Notfall-/Servicekontakt:** ${m.emergencyContact || '—'}`)
-  lines.push(`- **Aktuelle Revision:** ${m.revision || '—'}`)
+  // Initiative 4 — „Rev 2" alleine behauptet, dieses Dokument sei Rev 2. Der
+  // Stempel wird beim Festschreiben gesetzt und bleibt stehen, waehrend der
+  // Plan weiterlaeuft.
+  lines.push(
+    `- **Aktuelle Revision:** ${
+      m.revision ? (stamp?.drifted ? `${m.revision} + Änderungen` : m.revision) : '—'
+    }`,
+  )
   lines.push('')
   lines.push('## 2 · Umfang (Überblick)')
   lines.push('')
@@ -106,6 +133,10 @@ export const buildHandoverManifest = (project: CablePlannerProject): string => {
   lines.push('')
   lines.push('_Erzeugt mit Cable-Planner. Diese Doku ist vendor-neutral —')
   lines.push('jeder qualifizierte Dienstleister kann die Anlage übernehmen._')
+  if (stamp) {
+    lines.push('')
+    lines.push(`_${stampLine(stamp)}_`)
+  }
   return lines.join('\n')
 }
 
