@@ -668,7 +668,42 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
     changelog: project.changelog ?? [],
     // ADR-001 — Rollen sind optional; alte Projekte heilen zu [].
     sourceIdentities,
+    // ADR-003 — Rentman-Zaehler: gesendet ist nicht bestaetigt.
+    metadata: healRentmanCableMap(project.metadata),
   }
+}
+
+/**
+ * ADR-003 / Inkrement 1 — `lastSyncedQty` hiess nach dem, was es nicht ist.
+ *
+ * Der Wert kommt aus dem, was der Export-Dialog gesendet hat; von Rentman
+ * zurueckgelesen wird er nie. Der Name behauptete eine Bestaetigung, die es
+ * nicht gibt — deshalb `lastSentQty`. Alte Projektfiles tragen den alten
+ * Schluessel; hier wird er uebernommen und entsorgt. Steht schon ein neuer
+ * Wert da, gewinnt der (ein Projekt, das beide traegt, wurde bereits mit der
+ * neuen Version geschrieben).
+ */
+const healRentmanCableMap = (
+  metadata: CablePlannerProject['metadata'],
+): CablePlannerProject['metadata'] => {
+  const map = metadata.rentmanCableMap
+  if (!map) return metadata
+  let changed = false
+  const healed: NonNullable<CablePlannerProject['metadata']['rentmanCableMap']> = {}
+  for (const [key, entry] of Object.entries(map)) {
+    if (!entry || typeof entry !== 'object') {
+      changed = true
+      continue
+    }
+    const legacy = entry as { lastSentQty?: number; lastSyncedQty?: number }
+    const sent = typeof legacy.lastSentQty === 'number' ? legacy.lastSentQty : legacy.lastSyncedQty
+    if ('lastSyncedQty' in legacy) changed = true
+    healed[key] = {
+      rentmanEquipmentId: entry.rentmanEquipmentId,
+      ...(typeof sent === 'number' && Number.isFinite(sent) ? { lastSentQty: sent } : {}),
+    }
+  }
+  return changed ? { ...metadata, rentmanCableMap: healed } : metadata
 }
 
 /**
