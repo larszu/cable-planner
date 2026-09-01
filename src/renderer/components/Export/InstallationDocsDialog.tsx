@@ -34,12 +34,17 @@ import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import {
   pullListCsv,
+  pullListTable,
   terminationListCsv,
+  terminationListTable,
   cableScheduleCsv,
+  cableScheduleTable,
   cableBomCsv,
+  cableBomTable,
 } from '../../lib/installerLists'
-import { assetRegisterCsv } from '../../lib/assetRegister'
-import { buildHandoverManifest } from '../../lib/handoverPackage'
+import { assetRegisterCsv, assetRegisterTable } from '../../lib/assetRegister'
+import { stampForRows } from '../../lib/documentStamp'
+import { buildHandoverManifest, handoverTable } from '../../lib/handoverPackage'
 import { cableLabelId, equipmentAssetTag, qrPayload } from '../../lib/docIds'
 
 type ExportRow = {
@@ -79,37 +84,83 @@ export const InstallationDocsDialog = () => {
         key: 'pull',
         label: t('docs.pullList', 'Pull-/Verlege-Liste'),
         hint: t('docs.pullList.hint', 'Je Kabel: Von→Nach, Länge, Trasse, Status (CSV)'),
-        build: () => ({ content: pullListCsv(project), suffix: 'pull-liste', ext: 'csv', mime: 'text/csv' }),
+        build: () => ({
+          content: pullListCsv(project, stampForRows(project, pullListTable, new Date())),
+          suffix: 'pull-liste',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
       },
       {
         key: 'term',
         label: t('docs.terminationList', 'Termination-Liste'),
         hint: t('docs.terminationList.hint', 'Je Kabelende: Gerät, Port, Steckverbinder (CSV)'),
-        build: () => ({ content: terminationListCsv(project), suffix: 'termination-liste', ext: 'csv', mime: 'text/csv' }),
+        build: () => ({
+          content: terminationListCsv(
+            project,
+            stampForRows(project, terminationListTable, new Date()),
+          ),
+          suffix: 'termination-liste',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
       },
       {
         key: 'sched',
         label: t('docs.cableSchedule', 'Kabel-Schedule (Register)'),
         hint: t('docs.cableSchedule.hint', 'Master-Register aller Kabel (CSV)'),
-        build: () => ({ content: cableScheduleCsv(project), suffix: 'kabel-schedule', ext: 'csv', mime: 'text/csv' }),
+        build: () => ({
+          content: cableScheduleCsv(
+            project,
+            stampForRows(project, cableScheduleTable, new Date()),
+          ),
+          suffix: 'kabel-schedule',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
       },
       {
         key: 'bom',
         label: t('docs.cableBom', 'Kabel-Stückliste + Reserve'),
         hint: t('docs.cableBom.hint', 'Aggregiert nach Typ/Länge inkl. Reserve-Aufschlag (CSV)'),
-        build: () => ({ content: cableBomCsv(project, reserve), suffix: 'kabel-bom', ext: 'csv', mime: 'text/csv' }),
+        build: () => ({
+          content: cableBomCsv(
+            project,
+            reserve,
+            stampForRows(project, (src) => cableBomTable(src, reserve), new Date()),
+          ),
+          suffix: 'kabel-bom',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
       },
       {
         key: 'asset',
         label: t('docs.assetRegister', 'Asset-Register'),
         hint: t('docs.assetRegister.hint', 'Geräte: Asset-Tag, Standort, Serie, Garantie, Service (CSV)'),
-        build: () => ({ content: assetRegisterCsv(project), suffix: 'asset-register', ext: 'csv', mime: 'text/csv' }),
+        build: () => ({
+          content: assetRegisterCsv(
+            project,
+            stampForRows(project, assetRegisterTable, new Date()),
+          ),
+          suffix: 'asset-register',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
       },
       {
         key: 'handover',
         label: t('docs.handover', 'Übergabe-Dokument'),
         hint: t('docs.handover.hint', 'Betreiber-Übersicht: Umfang, Status, BOM, Assets (Markdown)'),
-        build: () => ({ content: buildHandoverManifest(project), suffix: 'uebergabe', ext: 'md', mime: 'text/markdown' }),
+        build: () => ({
+          content: buildHandoverManifest(
+            project,
+            stampForRows(project, handoverTable, new Date()),
+          ),
+          suffix: 'uebergabe',
+          ext: 'md',
+          mime: 'text/markdown',
+        }),
       },
     ],
     [project, reserve, t],

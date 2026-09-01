@@ -10,7 +10,8 @@ import type { EquipmentItem } from '../types/equipment'
 import { INSTALL_STATUS_LABEL } from '../types/lifecycle'
 import { EQUIPMENT_OWNERSHIP_LABEL } from '../types/equipment'
 import { equipmentAssetTag } from './docIds'
-import { toCsv, type CsvCell } from './csv'
+import type { CsvCell, CsvTable } from './csv'
+import { csvFromTable, type DocumentStamp } from './documentStamp'
 
 export interface AssetRow {
   assetTag: string
@@ -71,7 +72,7 @@ export const buildAssetRows = (project: CablePlannerProject): AssetRow[] =>
     }
   })
 
-export const assetRegisterCsv = (project: CablePlannerProject): string => {
+export const assetRegisterTable = (project: CablePlannerProject): CsvTable => {
   const rows = buildAssetRows(project)
   const headers = [
     'Asset-Tag',
@@ -109,5 +110,10 @@ export const assetRegisterCsv = (project: CablePlannerProject): string => {
     r.lastService,
     r.serviceCount,
   ])
-  return toCsv(headers, body)
+  return { headers, rows: body }
 }
+
+export const assetRegisterCsv = (
+  project: CablePlannerProject,
+  stamp?: DocumentStamp,
+): string => csvFromTable(assetRegisterTable(project), stamp)

@@ -17,7 +17,8 @@ import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
 import { INSTALL_STATUS_LABEL } from '../types/lifecycle'
 import { cableLabelId } from './docIds'
-import { toCsv, type CsvCell } from './csv'
+import type { CsvCell, CsvTable } from './csv'
+import { csvFromTable, type DocumentStamp } from './documentStamp'
 
 const portName = (eq: EquipmentItem | undefined, portId: string): string => {
   if (!eq) return ''
@@ -95,7 +96,7 @@ export const buildPullListRows = (project: CablePlannerProject): PullListRow[] =
   })
 }
 
-export const pullListCsv = (project: CablePlannerProject): string => {
+export const pullListTable = (project: CablePlannerProject): CsvTable => {
   const rows = buildPullListRows(project)
   const headers = [
     'Label-ID',
@@ -135,8 +136,11 @@ export const pullListCsv = (project: CablePlannerProject): string => {
     r.test,
     r.notes,
   ])
-  return toCsv(headers, body)
+  return { headers, rows: body }
 }
+
+export const pullListCsv = (project: CablePlannerProject, stamp?: DocumentStamp): string =>
+  csvFromTable(pullListTable(project), stamp)
 
 // --- Termination-Liste ----------------------------------------------------
 
@@ -183,7 +187,7 @@ export const buildTerminationRows = (
   return rows
 }
 
-export const terminationListCsv = (project: CablePlannerProject): string => {
+export const terminationListTable = (project: CablePlannerProject): CsvTable => {
   const rows = buildTerminationRows(project)
   const headers = ['Label-ID', 'Ende', 'Gerät', 'Port', 'Steckverbinder', 'Geschlecht', 'Terminierung']
   const body: CsvCell[][] = rows.map((r) => [
@@ -195,12 +199,17 @@ export const terminationListCsv = (project: CablePlannerProject): string => {
     r.gender,
     r.termination,
   ])
-  return toCsv(headers, body)
+  return { headers, rows: body }
 }
+
+export const terminationListCsv = (
+  project: CablePlannerProject,
+  stamp?: DocumentStamp,
+): string => csvFromTable(terminationListTable(project), stamp)
 
 // --- Kabel-Schedule (Design-Register) -------------------------------------
 
-export const cableScheduleCsv = (project: CablePlannerProject): string => {
+export const cableScheduleTable = (project: CablePlannerProject): CsvTable => {
   const byId = indexEquipment(project)
   const headers = [
     'Label-ID',
@@ -236,8 +245,13 @@ export const cableScheduleCsv = (project: CablePlannerProject): string => {
       statusLabel(c),
     ]
   })
-  return toCsv(headers, body)
+  return { headers, rows: body }
 }
+
+export const cableScheduleCsv = (
+  project: CablePlannerProject,
+  stamp?: DocumentStamp,
+): string => csvFromTable(cableScheduleTable(project), stamp)
 
 // --- Kabel-BOM mit Reserve ------------------------------------------------
 
@@ -294,10 +308,10 @@ export const buildCableBomRows = (
   )
 }
 
-export const cableBomCsv = (
+export const cableBomTable = (
   project: CablePlannerProject,
   reservePercent = 10,
-): string => {
+): CsvTable => {
   const rows = buildCableBomRows(project, reservePercent)
   const headers = [
     'Typ',
@@ -315,5 +329,11 @@ export const cableBomCsv = (
     r.totalLengthM,
     r.tieLine ? 'ja' : '',
   ])
-  return toCsv(headers, body)
+  return { headers, rows: body }
 }
+
+export const cableBomCsv = (
+  project: CablePlannerProject,
+  reservePercent = 10,
+  stamp?: DocumentStamp,
+): string => csvFromTable(cableBomTable(project, reservePercent), stamp)
