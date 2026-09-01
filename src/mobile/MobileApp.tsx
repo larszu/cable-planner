@@ -26,7 +26,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, X, QrCode, Search } from 'lucide-react'
 import { Icon } from '../renderer/components/shared/Icon'
 import { styleForLayer } from '../renderer/lib/cableLayers'
-import { parseQrPayload, lookupQrRef } from '../renderer/lib/qrPayload'
+import {
+  parseQrPayload,
+  lookupQrRef,
+  parseDocQrPayload,
+  docStandStatus,
+} from '../renderer/lib/qrPayload'
+import { currentStand, findByStand, DOCUMENT_LABELS } from '../renderer/lib/documentRegistry'
 import { cableLabelId } from '../renderer/lib/docIds'
 import type { CablePlannerProject } from '../renderer/types/project'
 
@@ -1055,6 +1061,40 @@ const ProjectView = ({
 
   const handleLookup = (raw: string) => {
     setFindOpen(false)
+
+    // ADR-004 — Rueckweg vom Papier. Ein Dokument-Code (oder die acht Zeichen
+    // aus der Fussnote, abgetippt) beantwortet eine andere Frage als ein
+    // Etikett: nicht "welcher Datensatz", sondern "ist dieses Blatt noch
+    // aktuell". Deshalb vor dem Datensatz-Lookup und nicht darin.
+    const doc = parseDocQrPayload(raw)
+    if (doc) {
+      const now = currentStand(doc.docId, project)
+      const label = DOCUMENT_LABELS[doc.docId] ?? doc.docId
+      const status = docStandStatus(doc, now)
+      setFocus(null)
+      setLookupMsg(
+        status === 'current'
+          ? { ok: true, text: `${label}: aktueller Stand` }
+          : status === 'stale'
+            ? { ok: false, text: `${label}: VERALTET — aktueller Stand #${now}` }
+            : { ok: false, text: `${label}: Stand nicht pruefbar` },
+      )
+      return
+    }
+    const typed = findByStand(raw, project)
+    if (typed) {
+      setFocus(null)
+      setLookupMsg({ ok: true, text: `${typed.label}: aktueller Stand` })
+      return
+    }
+    if (/^#?[0-9a-f]{8}$/i.test(raw.trim())) {
+      // Acht Hex-Zeichen, aber kein Dokument passt: das Blatt ist veraltet.
+      // Das ist eine Aussage und kein "nicht gefunden" — deshalb eigener Fall.
+      setFocus(null)
+      setLookupMsg({ ok: false, text: `Stand ${raw.trim()} gehoert zu keinem aktuellen Blatt` })
+      return
+    }
+
     const ref = parseQrPayload(raw)
     const match = ref ? lookupQrRef(ref, project.cables, project.equipment) : null
     if (!match) {

@@ -58,9 +58,18 @@ export const parseQrPayload = (raw: string): QrRef | null => {
     return { kind: KIND_FROM_PREFIX[prefix[1].toUpperCase()], id: text }
   }
 
+  // ADR-004 — Eine Dokument-URI ist kein Datensatz. Ohne diesen Riegel fiele
+  // sie in Fall (4) und der Lookup suchte nach der URI als Kabelnummer: er
+  // faende nichts und sagte "unbekannter Code" statt "das ist ein
+  // Dokument-Code". `parseDocQrPayload` ist dafuer zustaendig.
+  if (DOC_URI.test(text)) return null
+
   // (4) — irgendein Klartext (z.B. eine vergebene Kabelnummer): als ID ohne Sorte.
   return { id: text }
 }
+
+/** Erkennt eine Dokument-URI, in voller oder Deep-Link-Form. */
+const DOC_URI = /(?:cableplanner:\/\/|[#?](?:lookup=)?)doc\//i
 
 const safeDecode = (s: string): string => {
   try {
@@ -118,4 +127,68 @@ export const lookupQrRef = (
     if (e) return { kind: 'equipment', item: e }
   }
   return null
+}
+
+// ─── Dokument-Codes (ADR-004) ──────────────────────────────────────────────
+//
+// Ein Etikett zeigt auf einen Datensatz; ein Dokument-Code zeigt auf ein Blatt
+// und seinen Stand. Beide leben hier, weil diese Datei die eine Quelle fuer das
+// URI-Format ist — die *Aufloesung* ist eine andere: ein Datensatz wird gesucht,
+// ein Dokument wird verglichen.
+
+/** Was auf einem Blatt steht: welches Dokument, welcher Stand. */
+export interface DocRef {
+  /** Dokument-Art, wie im Dateinamen: `pull-liste`, `kabel-bom`, `plan` … */
+  docId: string
+  /** Fingerabdruck des Inhalts zum Druckzeitpunkt (8 Hex-Zeichen). */
+  stand: string
+  /** Revisions-Label zum Druckzeitpunkt, falls eines festgeschrieben war. */
+  revision?: string
+}
+
+/**
+ * Baut den Dokument-Code: `cableplanner://doc/<docId>?s=<stand>[&r=<revision>]`.
+ *
+ * Der Stand steht im Code selbst und nicht in einer Datenbank: das Blatt muss
+ * ohne Netz aussagefaehig sein, sonst nimmt man ihm genau die Eigenschaft, wegen
+ * der es gedruckt wurde.
+ */
+export const buildDocQrPayload = (docId: string, stand: string, revision?: string): string =>
+  `cableplanner://doc/${encodeURIComponent(docId)}?s=${encodeURIComponent(stand)}` +
+  (revision ? `&r=${encodeURIComponent(revision)}` : '')
+
+/**
+ * Parst einen Dokument-Code. Tolerant wie `parseQrPayload`: volle URI, Hash-
+ * oder `?lookup=`-Deep-Link. Ohne `s=` gibt es keinen Stand und damit nichts zu
+ * vergleichen — dann `null`, statt einen leeren Stand zu behaupten.
+ */
+export const parseDocQrPayload = (raw: string): DocRef | null => {
+  const text = raw?.trim()
+  if (!text) return null
+  const m = text.match(/(?:cableplanner:\/\/|[#?](?:lookup=)?|^)doc\/([^?&#\s]+)/i)
+  if (!m) return null
+  const stand = text.match(/[?&]s=([^&#\s]+)/)
+  if (!stand) return null
+  const revision = text.match(/[?&]r=([^&#\s]+)/)
+  return {
+    docId: safeDecode(m[1]),
+    stand: safeDecode(stand[1]),
+    ...(revision ? { revision: safeDecode(revision[1]) } : {}),
+  }
+}
+
+/** Ergebnis des Standvergleichs. */
+export type DocStandStatus = 'current' | 'stale' | 'unknown'
+
+/**
+ * Vergleicht den Stand auf dem Blatt mit dem Stand, den dasselbe Dokument
+ * heute haette.
+ *
+ * `unknown` ist kein Fehlerfall, sondern die ehrliche dritte Antwort: wer den
+ * aktuellen Stand nicht berechnen kann (fremdes Projekt, anderes Dokument),
+ * darf ein Blatt weder fuer aktuell noch fuer veraltet erklaeren.
+ */
+export const docStandStatus = (ref: DocRef, currentStand: string | undefined): DocStandStatus => {
+  if (!currentStand) return 'unknown'
+  return ref.stand.toLowerCase() === currentStand.toLowerCase() ? 'current' : 'stale'
 }

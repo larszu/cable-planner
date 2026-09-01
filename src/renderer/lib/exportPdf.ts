@@ -2,6 +2,8 @@ import { toJpeg, toPng } from 'html-to-image'
 import jsPDF from 'jspdf'
 import type { ProjectMetadata } from '../types/project'
 import type { DocumentStamp } from './documentStamp'
+import QRCode from 'qrcode'
+import { buildDocQrPayload } from './qrPayload'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { pdfText } from './pdfHelpers'
 import { hexToRgb, drawVectorBackground } from './pdfBackground'
@@ -67,6 +69,7 @@ const drawTitleBlock = (
   pageHeight: number,
   margin: number,
   stamp?: DocumentStamp,
+  standQr?: string,
 ): number => {
   const boxW = 300
   const rowH = 14
@@ -92,13 +95,26 @@ const drawTitleBlock = (
   const visibleRows = rows.filter(([, v]) => !!v || true) // keep all rows, show "—" when missing
   const logoH = 36
   const hasLogos = !!(meta.companyLogo || meta.clientLogo)
-  const boxH = visibleRows.length * rowH + 8 + (hasLogos ? logoH + 6 : 0)
+  // ADR-004 — der Stand-Code sitzt im Titelblock, weil er zum Blatt gehoert
+  // und nicht zur Zeichnung. Quadratisch, so hoch wie die Zeilen daneben.
+  const qrSize = standQr ? 54 : 0
+  const boxH =
+    Math.max(visibleRows.length * rowH, qrSize) + 8 + (hasLogos ? logoH + 6 : 0)
   const x = pageWidth - margin - boxW
   const y = pageHeight - margin - boxH
 
   pdf.setDrawColor(40)
   pdf.setLineWidth(0.6)
   pdf.rect(x, y, boxW, boxH)
+
+  if (standQr) {
+    try {
+      pdf.addImage(standQr, 'PNG', x + boxW - qrSize - 4, y + boxH - qrSize - 4, qrSize, qrSize)
+    } catch {
+      // Ein fehlgeschlagener QR darf den Plan-Export nicht kosten; die
+      // Stand-Zeile im Block traegt dieselbe Information als Text.
+    }
+  }
 
   // Logos row at the top of the box.
   let rowY = y + 4
@@ -137,7 +153,7 @@ const drawTitleBlock = (
     pdf.setTextColor(100)
     pdfText(pdf, label, x + 4, rowY + 10)
     pdf.setTextColor(15)
-    pdfText(pdf, value ?? '-', x + 85, rowY + 10, { maxWidth: boxW - 90 })
+    pdfText(pdf, value ?? '-', x + 85, rowY + 10, { maxWidth: boxW - 90 - qrSize })
     pdf.line(x, rowY + rowH, x + boxW, rowY + rowH)
     rowY += rowH
   }
@@ -540,8 +556,24 @@ const buildCanvasPdf = async (
   onProgress('serialize', `PDF-Stream serialisieren…`)
   await yieldToBrowser()
 
+  // ADR-004, Inkrement 2 — Stand-Code fuer den Rueckweg vom Blatt. Der Stand
+  // steht im Code selbst, nicht in einer Datenbank: das Blatt muss ohne Netz
+  // aussagefaehig sein, sonst nimmt man ihm die Eigenschaft, wegen der es
+  // gedruckt wurde.
+  let standQr: string | undefined
+  if (options?.stamp) {
+    try {
+      standQr = await QRCode.toDataURL(
+        buildDocQrPayload('plan', options.stamp.fingerprint, options.stamp.revision),
+        { margin: 0, width: 128 },
+      )
+    } catch {
+      // Kein QR ist besser als kein PDF; die Stand-Zeile bleibt als Text.
+    }
+  }
+
   if (metadata) {
-    drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin, options?.stamp)
+    drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin, options?.stamp, standQr)
   }
 
   return pdf
