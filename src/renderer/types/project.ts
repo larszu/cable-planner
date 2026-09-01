@@ -71,8 +71,12 @@ export interface ProjectMetadata {
    * and manually when a bucket is mapped via the Rentman cable export dialog.
    * Also remembers the last quantity that was pushed to Rentman so the export
    * can compute deltas.
+   *
+   * ADR-003 — `lastSentQty` heisst so, weil es genau das ist: die Menge, die
+   * abgeschickt wurde. Rentman bestaetigt sie nicht zurueck. Wer hier einen
+   * geplanten Wert hineinschreibt, verrechnet jede folgende Differenz.
    */
-  rentmanCableMap?: Record<string, { rentmanEquipmentId: string; lastSyncedQty?: number }>
+  rentmanCableMap?: Record<string, { rentmanEquipmentId: string; lastSentQty?: number }>
   /** Rentman project ID currently linked to this cable planner project. */
   rentmanProjectId?: string
   /** Human-readable name of the linked Rentman project. */

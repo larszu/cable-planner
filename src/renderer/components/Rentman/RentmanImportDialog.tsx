@@ -504,10 +504,14 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       // lets them re-pick if needed.
       const firstRow = bucket.rows[0]
       const existingMap = mapPatch[bucket.key]
+      // ADR-003 — Startwert ist bucket.totalQty (was Rentman fuehrt), nicht
+      // qty (die im Dialog editierbare Planmenge). Sonst zaehlt der Export
+      // eine geplante Korrektur als bereits gesendet und jede folgende
+      // Differenz ist um genau diesen Betrag zu klein.
       mapPatch[bucket.key] = {
         rentmanEquipmentId:
           existingMap?.rentmanEquipmentId ?? firstRow.rentmanEquipmentId,
-        lastSyncedQty: existingMap?.lastSyncedQty ?? qty,
+        lastSentQty: existingMap?.lastSentQty ?? bucket.totalQty,
       }
     }
     const projectName =

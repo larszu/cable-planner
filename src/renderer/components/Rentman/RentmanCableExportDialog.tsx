@@ -22,8 +22,9 @@ interface CableBucket {
   /** Rentman equipment id this bucket is mapped to (if any). */
   mappedId?: string
   mappedName?: string
-  /** Quantity that has already been pushed to Rentman (lastSyncedQty). */
-  syncedQty: number
+  /** Quantity that has already been pushed to Rentman (lastSentQty).
+   *  ADR-003: gesendet, nicht von Rentman bestaetigt. */
+  sentQty: number
   delta: number
   /** Sample cable name for display. */
   sample?: Cable
@@ -42,7 +43,7 @@ const keyOf = (c: Pick<Cable, 'type' | 'length'>): string => `${c.type}|${c.leng
  *
  * For every (cable-type, length) bucket the user maps the bucket to a Rentman
  * master-catalogue equipment id once. The dialog then computes the delta
- * between the current built quantity and the last synced quantity, and POSTs
+ * between the current built quantity and the last sent quantity, and POSTs
  * `addProjectEquipment(projectId, equipmentId, delta)` to extend the Rentman
  * project plan. Negative deltas are surfaced as warnings rather than silently
  * removing equipment, because the Rentman REST API has no project-equipment
@@ -143,7 +144,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
       const mappedName = mappedId
         ? catalog.find((item) => item.id === mappedId)?.name
         : undefined
-      const synced = map?.lastSyncedQty ?? 0
+      const sent = map?.lastSentQty ?? 0
       list.push({
         key,
         type,
@@ -152,8 +153,8 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
         planned: plannedCount,
         mappedId,
         mappedName,
-        syncedQty: synced,
-        delta: builtCount - synced,
+        sentQty: sent,
+        delta: builtCount - sent,
         sample: built.get(key)?.sample,
       })
     }
@@ -173,9 +174,9 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
       ...current,
       [key]: {
         rentmanEquipmentId,
-        lastSyncedQty: options.resetSync
+        lastSentQty: options.resetSync
           ? 0
-          : current[key]?.lastSyncedQty ?? 0,
+          : current[key]?.lastSentQty ?? 0,
       },
     }
     updateMeta({ rentmanCableMap: next })
@@ -215,7 +216,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
           ...current,
           [bucket.key]: {
             rentmanEquipmentId: bucket.mappedId,
-            lastSyncedQty: bucket.built,
+            lastSentQty: bucket.built,
           },
         },
       })
@@ -250,7 +251,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
     for (const bucket of sendable) {
       // sendBucket guards on busyKey === bucket.key inside its own state,
       // and updates project metadata after each push so the next iteration
-      // sees the fresh syncedQty value.
+      // sees the fresh sentQty value.
       await sendBucket(bucket)
     }
   }
@@ -285,7 +286,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
         <div className="flex flex-wrap items-center gap-2 border-b border-cp-border-muted px-4 py-2 text-[11px] text-cp-text-muted">
           {(() => {
             const totalBuilt = buckets.reduce((sum, b) => sum + b.built, 0)
-            const totalSynced = buckets.reduce((sum, b) => sum + b.syncedQty, 0)
+            const totalSent = buckets.reduce((sum, b) => sum + b.sentQty, 0)
             const positiveDeltas = buckets.filter((b) => b.delta > 0)
             const sendableCount = positiveDeltas
               .filter((b) => b.mappedId)
@@ -295,7 +296,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
               <>
                 <span>
                   <span className="font-mono text-cp-text-bright">{totalBuilt}</span> {t('rentman.cableExport.cablesBuilt', 'Kabel verbaut')} ·{' '}
-                  <span className="font-mono text-cp-text-bright">{totalSynced}</span> {t('rentman.cableExport.alreadySent', 'bereits gesendet')}
+                  <span className="font-mono text-cp-text-bright">{totalSent}</span> {t('rentman.cableExport.alreadySent', 'bereits gesendet')}
                 </span>
                 {sendableCount > 0 && (
                   <span className="text-amber-300">
@@ -384,7 +385,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                     </td>
                     <td className="px-3 py-1.5 text-right font-mono">{bucket.built}</td>
                     <td className="px-3 py-1.5 text-right font-mono">{bucket.planned}</td>
-                    <td className="px-3 py-1.5 text-right font-mono">{bucket.syncedQty}</td>
+                    <td className="px-3 py-1.5 text-right font-mono">{bucket.sentQty}</td>
                     <td
                       className={`px-3 py-1.5 text-right font-mono ${
                         bucket.delta > 0
