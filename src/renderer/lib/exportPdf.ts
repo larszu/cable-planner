@@ -1,6 +1,7 @@
 import { toJpeg, toPng } from 'html-to-image'
 import jsPDF from 'jspdf'
 import type { ProjectMetadata } from '../types/project'
+import type { DocumentStamp } from './documentStamp'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { pdfText } from './pdfHelpers'
 import { hexToRgb, drawVectorBackground } from './pdfBackground'
@@ -36,6 +37,14 @@ export interface ExportPdfOptions {
    *  'tile'|'render'|'done', detail?) gerufen damit das UI Fortschritts-
    *  Indikatoren zeigen kann. */
   onProgress?: (phase: string, detail?: string) => void
+  /**
+   * Initiative 4 — Dokument-Stempel fuer den Titelblock. Ohne ihn zeigt der
+   * Block nur `metadata.revision`, und das ist eine Behauptung: der Stempel
+   * wird beim Festschreiben gesetzt und bleibt stehen, waehrend der Plan
+   * weiterlaeuft. Mit Stempel steht dort, ob der Ausdruck noch dieser Stand
+   * ist.
+   */
+  stamp?: DocumentStamp
 }
 
 const fmtDate = (iso?: string): string => {
@@ -57,6 +66,7 @@ const drawTitleBlock = (
   pageWidth: number,
   pageHeight: number,
   margin: number,
+  stamp?: DocumentStamp,
 ): number => {
   const boxW = 300
   const rowH = 14
@@ -69,7 +79,15 @@ const drawTitleBlock = (
     ['Erstellt', fmtDate(meta.createdAt)],
     ['Geändert', fmtDate(meta.updatedAt)],
     // #412 — Revisions-Stempel (nur wenn eine Revision festgeschrieben ist).
-    ...(meta.revision ? ([['Revision', meta.revision]] as [string, string][]) : []),
+    // Initiative 4 — mit Dokument-Stempel sagt die Zeile dazu, ob der Plan seit
+    // dem Festschreiben weitergelaufen ist. „Rev 2" alleine liest sich auf
+    // Papier als *dieser Ausdruck ist Rev 2*, und das stimmt dann nicht mehr.
+    ...(meta.revision
+      ? ([
+          ['Revision', stamp?.drifted ? `${meta.revision} + Änderungen` : meta.revision],
+        ] as [string, string][])
+      : []),
+    ...(stamp ? ([['Stand', `#${stamp.fingerprint}`]] as [string, string][]) : []),
   ]
   const visibleRows = rows.filter(([, v]) => !!v || true) // keep all rows, show "—" when missing
   const logoH = 36
@@ -523,7 +541,7 @@ const buildCanvasPdf = async (
   await yieldToBrowser()
 
   if (metadata) {
-    drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin)
+    drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin, options?.stamp)
   }
 
   return pdf
