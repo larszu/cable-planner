@@ -25,6 +25,17 @@ export interface Gg5ImportResult {
    * Derived from the user's Name in the .gg5 file.
    */
   userTypeHints: Map<number, string>
+  /**
+   * ADR-005 — Sektionen, die in der Datei stehen und die dieses Modul NICHT
+   * liest (Devices, Rooms, Templates …).
+   *
+   * Das ist keine Kosmetik: der Exporter schreibt eine vollstaendige .gg5 und
+   * fuellt genau diese Sektionen aus hartkodierten Defaults. Wer eine echte
+   * Anlagen-Konfiguration importiert, etwas aendert und wieder exportiert,
+   * bekommt sie leer zurueck. Bis der Round-Trip sie bewahrt, muss er wenigstens
+   * sagen, was er nicht gelesen hat — schweigen ist der Schaden.
+   */
+  unreadSections: string[]
 }
 
 export interface Gg5ParseError {
@@ -258,5 +269,21 @@ export const parseGg5File = (jsonText: string): Gg5ParseOutcome => {
       groups,
     },
     userTypeHints,
+    unreadSections: unreadTopLevelSections(raw),
   }
 }
+
+/** Von diesem Modul gelesene Sektionen einer .gg5. Alles andere ist ungelesen. */
+const READ_SECTIONS = new Set(['Settings', 'Users', 'Groups'])
+
+/**
+ * ADR-005 — Welche Sektionen die Datei mitbringt, die hier niemand anfasst.
+ *
+ * Bewusst aus dem Rohdokument abgeleitet und nicht aus einer gepflegten Liste:
+ * eine zweite Liste wuerde von READ_SECTIONS auseinanderlaufen, sobald der
+ * Parser eine Sektion dazubekommt.
+ */
+const unreadTopLevelSections = (raw: Record<string, unknown>): string[] =>
+  Object.keys(raw)
+    .filter((k) => !READ_SECTIONS.has(k))
+    .sort()

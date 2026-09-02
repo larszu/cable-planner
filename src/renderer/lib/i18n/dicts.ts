@@ -1410,6 +1410,8 @@ export const en: Dict = {
   'greengo.export.gg5': 'Export as .gg5',
   'greengo.importOverlay.title': 'Import .gg5 — link devices',
   'greengo.importOverlay.system': 'System:',
+  'greengo.importOverlay.unreadTitle': 'This file contains sections the import does not read',
+  'greengo.importOverlay.unreadHint': 'An export from Cable Planner creates a new .gg5 and fills those sections with defaults. It does not replace the original file — keep it.',
   'greengo.importOverlay.importedGroups': 'Imported groups',
   'greengo.importOverlay.linkStations': 'Link stations → canvas devices',
   'greengo.importOverlay.linkHint':
