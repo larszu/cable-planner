@@ -22,6 +22,11 @@ interface CableBucket {
   /** Rentman equipment id this bucket is mapped to (if any). */
   mappedId?: string
   mappedName?: string
+  /** ADR-005 — Wie viele Rentman-Stammartikel in diesem Eimer zusammenfallen.
+   *  1 (oder undefined) heisst: genau einer, nichts zu sagen. Groesser als 1
+   *  heisst: gebucht wird auf einen davon, und das gehoert hier gesagt, weil
+   *  hier gebucht wird. */
+  mergedCount?: number
   /** Quantity that has already been pushed to Rentman (lastSentQty).
    *  ADR-003: gesendet, nicht von Rentman bestaetigt. */
   sentQty: number
@@ -153,6 +158,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
         planned: plannedCount,
         mappedId,
         mappedName,
+        mergedCount: map?.mergedEquipmentIds?.length,
         sentQty: sent,
         delta: builtCount - sent,
         sample: built.get(key)?.sample,
@@ -173,6 +179,11 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
     const next = {
       ...current,
       [key]: {
+        // ADR-005 — Eintrag fortschreiben, nicht neu bauen. Wer hier die
+        // bekannten Schluessel auflistet, loescht `mergedEquipmentIds` beim
+        // ersten Umzuordnen — also genau dann, wenn der Hinweis auf die
+        // Zusammenfassung am noetigsten ist.
+        ...current[key],
         rentmanEquipmentId,
         lastSentQty: options.resetSync
           ? 0
@@ -215,6 +226,8 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
         rentmanCableMap: {
           ...current,
           [bucket.key]: {
+            // ADR-005 — siehe setMapping: fortschreiben, nicht neu bauen.
+            ...current[bucket.key],
             rentmanEquipmentId: bucket.mappedId,
             lastSentQty: bucket.built,
           },
@@ -414,6 +427,28 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                             <div className="text-[10px] text-cp-text-muted">
                               ID {bucket.mappedId}
                             </div>
+                            {/* ADR-005 — Der Import hat mehrere Rentman-
+                                Stammartikel in diesen Eimer gelegt; gebucht
+                                wird auf den einen oben. Ohne diesen Satz sieht
+                                der Nutzer hier nur einen Namen und haelt ihn
+                                fuer den ganzen Bestand. */}
+                            {(bucket.mergedCount ?? 0) > 1 && (
+                              <div
+                                className="text-[10px] text-cp-warn"
+                                title={t(
+                                  'rentman.cableExport.mergedTitle',
+                                  'Import und Export fassen Kabel nach Typ und Länge zusammen. Gebucht wird auf den oben zugeordneten Artikel; die Menge auf mehrere Artikel aufzuteilen geht nur in Rentman.',
+                                )}
+                              >
+                                {format(
+                                  t(
+                                    'rentman.cableExport.mergedFrom',
+                                    'aus {count} Rentman-Positionen zusammengefasst',
+                                  ),
+                                  { count: bucket.mergedCount ?? 0 },
+                                )}
+                              </div>
+                            )}
                           </div>
                           <button
                             type="button"
