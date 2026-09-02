@@ -68,6 +68,35 @@ const healMaterialKinds = (v: unknown): InventoryMaterialKind[] | undefined => {
 }
 
 /** Heilt ein geladenes Item: erzwingt Pflichtfelder, kappt Unsinn. */
+/**
+ * ADR-005 — Was ein Import nicht bewahren konnte.
+ *
+ * Die Heilung weist Eintraege ohne Pflichtfelder ab; das ist richtig, denn ein
+ * Lagerort ohne Namen ist kein Lagerort. Falsch war nur, es zu verschweigen.
+ * `label` ist der beste menschenlesbare Griff, den der Rohsatz noch hergibt —
+ * damit jemand die Zeile in seiner Quelldatei wiederfindet.
+ */
+export interface ImportRejection {
+  kind: 'item' | 'node' | 'set' | 'unit'
+  label: string
+}
+
+export interface ImportReport {
+  imported: number
+  rejected: ImportRejection[]
+}
+
+/** Bester Griff auf einen Rohsatz, der die Heilung nicht bestanden hat. */
+const rawLabel = (raw: unknown): string => {
+  if (!raw || typeof raw !== 'object') return 'ohne Inhalt'
+  const r = raw as Record<string, unknown>
+  for (const key of ['model', 'name', 'id', 'itemId', 'code']) {
+    const v = r[key]
+    if (typeof v === 'string' && v.trim()) return v.trim()
+  }
+  return 'ohne Kennung'
+}
+
 const healItem = (raw: unknown): InventoryItem | null => {
   if (!raw || typeof raw !== 'object') return null
   const r = raw as Partial<InventoryItem>
@@ -354,13 +383,18 @@ interface InventoryState {
   /**
    * Importiert einen Snapshot. `replace` ersetzt den gesamten Bestand,
    * `merge` fügt per id zusammen (Import gewinnt bei Kollision). Alle Felder
-   * werden geheilt (gleiche Regeln wie beim Laden). Liefert die Anzahl
-   * importierter Objekte.
+   * werden geheilt (gleiche Regeln wie beim Laden).
+   *
+   * ADR-005 — liefert einen Bericht, keine blosse Zahl. Vorher wurden
+   * Eintraege, die die Heilung nicht ueberstehen, still weggefiltert und nur
+   * die Ueberlebenden gezaehlt: eine Datei, deren Haelfte abgewiesen wurde,
+   * meldete einen gruenen Erfolg mit kleinerer Zahl. Wer nicht bewahren kann,
+   * sagt es an der Stelle, an der es passiert.
    */
   importSnapshot: (
     snap: { items?: unknown[]; nodes?: unknown[]; sets?: unknown[]; units?: unknown[] },
     mode: 'replace' | 'merge',
-  ) => number
+  ) => ImportReport
 }
 
 const initial = load()
@@ -658,10 +692,27 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     return { items: s.items, nodes: s.nodes, sets: s.sets, units: s.units }
   },
   importSnapshot: (snap, mode) => {
-    const inItems = (snap.items ?? []).map(healItem).filter((x): x is InventoryItem => x !== null)
-    const inNodes = (snap.nodes ?? []).map(healNode).filter((x): x is StorageNode => x !== null)
-    const inSets = (snap.sets ?? []).map(healSet).filter((x): x is InventorySet => x !== null)
-    const inUnits = (snap.units ?? []).map(healUnit).filter((x): x is InventoryUnit => x !== null)
+    // ADR-005 — die Abweisungen werden mitgeschrieben, statt weggefiltert zu
+    // werden. Der Grund kommt aus derselben Heilung, die abweist; es gibt also
+    // keine zweite Bedingungsliste, die auseinanderlaufen koennte.
+    const rejected: ImportRejection[] = []
+    const keep = <T>(
+      kind: ImportRejection['kind'],
+      raws: unknown[],
+      heal: (raw: unknown) => T | null,
+    ): T[] => {
+      const out: T[] = []
+      for (const raw of raws) {
+        const healed = heal(raw)
+        if (healed === null) rejected.push({ kind, label: rawLabel(raw) })
+        else out.push(healed)
+      }
+      return out
+    }
+    const inItems = keep('item', snap.items ?? [], healItem)
+    const inNodes = keep('node', snap.nodes ?? [], healNode)
+    const inSets = keep('set', snap.sets ?? [], healSet)
+    const inUnits = keep('unit', snap.units ?? [], healUnit)
     const total = inItems.length + inNodes.length + inSets.length + inUnits.length
     set((state) => {
       const mergeById = <T extends { id: string }>(base: T[], add: T[]): T[] => {
@@ -676,6 +727,6 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       persist(items, nodes, sets, units)
       return { items, nodes, sets, units }
     })
-    return total
+    return { imported: total, rejected }
   },
 }))

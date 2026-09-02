@@ -103,6 +103,15 @@ const formatDims = (d: PhysicalDimensions | undefined): string => {
   return parts.length ? parts.join(' · ') : '—'
 }
 
+
+/** ADR-005 — Sorte einer abgewiesenen Zeile, lesbar fuer den Import-Bericht. */
+const REJECT_KIND_LABEL: Record<'item' | 'node' | 'set' | 'unit', string> = {
+  item: 'Position',
+  node: 'Lagerort',
+  set: 'Set',
+  unit: 'Einheit',
+}
+
 export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
   const t = useTranslation()
   const items = useInventoryStore((s) => s.items)
@@ -252,10 +261,36 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
       okLabel: t('inventory.importReplace', 'Ersetzen'),
       cancelLabel: t('inventory.importMerge', 'Zusammenführen'),
     })
-    const n = importSnapshot(snap, replace ? 'replace' : 'merge')
+    const report = importSnapshot(snap, replace ? 'replace' : 'merge')
+    // ADR-005 — was nicht bewahrt werden konnte, wird gesagt. Ein gruener
+    // Erfolg ueber einer Datei, deren Haelfte abgewiesen wurde, waere die
+    // falsche Gewissheit, gegen die diese Regel geschrieben ist.
+    const lines = [
+      format(t('inventory.importDone', '{n} Objekte importiert.'), { n: report.imported }),
+    ]
+    if (report.rejected.length > 0) {
+      lines.push(
+        '',
+        format(
+          t(
+            'inventory.importRejected',
+            '{n} Eintrag/Einträge wurden abgewiesen, weil Pflichtfelder fehlen:',
+          ),
+          { n: report.rejected.length },
+        ),
+        ...report.rejected.slice(0, 12).map((r) => `- ${REJECT_KIND_LABEL[r.kind]}: ${r.label}`),
+      )
+      if (report.rejected.length > 12) {
+        lines.push(
+          format(t('inventory.importRejectedMore', '… und {n} weitere.'), {
+            n: report.rejected.length - 12,
+          }),
+        )
+      }
+    }
     await infoDialog(t('inventory.importDoneTitle', 'Import abgeschlossen'), {
-      tone: 'success',
-      body: format(t('inventory.importDone', '{n} Objekte importiert.'), { n }),
+      tone: report.rejected.length > 0 ? 'warning' : 'success',
+      body: lines.join('\n'),
     })
   }
 

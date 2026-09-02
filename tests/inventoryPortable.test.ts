@@ -54,7 +54,8 @@ describe('inventoryStore — Import/Export', () => {
       { items: [{ id: 'imp1', model: 'Importiert', quantity: 5, createdAt: 'x', updatedAt: 'x' }] },
       'replace',
     )
-    expect(n).toBe(1)
+    expect(n.imported).toBe(1)
+    expect(n.rejected).toEqual([])
     let items = useInventoryStore.getState().items
     expect(items).toHaveLength(1)
     expect(items[0].model).toBe('Importiert')
@@ -74,10 +75,37 @@ describe('inventoryStore — Import/Export', () => {
     expect(items.find((i) => i.id === 'imp1')?.model).toBe('Importiert v2')
   })
 
-  it('Import heilt kaputte Einträge (Pflichtfelder fehlen → verworfen)', () => {
+  it('Import weist kaputte Einträge ab UND meldet sie (ADR-005)', () => {
+    // Vorher stand hier nur `expect(n).toBe(0)` — der Test schrieb damit genau
+    // das Schweigen fest, das ADR-005 als Verstoß führt: die Zeile verschwand,
+    // und der Nutzer sah einen grünen Erfolg mit kleinerer Zahl.
     const st = useInventoryStore.getState()
-    const n = st.importSnapshot({ items: [{ id: 'x', quantity: 1 } as unknown] }, 'replace')
-    expect(n).toBe(0) // model fehlt → geheilt-verworfen
+    const report = st.importSnapshot({ items: [{ id: 'x', quantity: 1 } as unknown] }, 'replace')
+    expect(report.imported).toBe(0) // model fehlt → geheilt-verworfen
+    expect(report.rejected).toHaveLength(1)
+    expect(report.rejected[0].kind).toBe('item')
+    expect(report.rejected[0].label).toBe('x') // wiederauffindbar in der Quelldatei
+  })
+
+  it('meldet je Sorte, was abgewiesen wurde', () => {
+    const st = useInventoryStore.getState()
+    const report = st.importSnapshot(
+      {
+        items: [{ model: 'Gut', quantity: 1 } as unknown, { model: '  ' } as unknown],
+        nodes: [{ name: 'Ohne Sorte' } as unknown],
+        units: [{ id: 'u1' } as unknown],
+      },
+      'replace',
+    )
+    expect(report.imported).toBe(1)
+    expect(report.rejected.map((r) => r.kind).sort()).toEqual(['item', 'node', 'unit'])
+  })
+
+  it('meldet nichts, wenn nichts abzuweisen war', () => {
+    const st = useInventoryStore.getState()
+    const report = st.importSnapshot({ items: [{ model: 'Gut', quantity: 2 } as unknown] }, 'replace')
+    expect(report.imported).toBe(1)
+    expect(report.rejected).toEqual([])
   })
 })
 
