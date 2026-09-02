@@ -3680,6 +3680,8 @@ export const en: Dict = {
   'inventory.importErr': 'Not a valid inventory file (avplan-inventory).',
   'inventory.importDoneTitle': 'Import complete',
   'inventory.importDone': '{n} objects imported.',
+  'inventory.importRejected': '{n} entry/entries were rejected because required fields are missing:',
+  'inventory.importRejectedMore': '… and {n} more.',
   // #414 AI plan generation
   'aiPlan.title': 'AI plan generation',
   'aiPlan.noKey': 'No AI API key set. Add a provider key under Settings → AI.',
