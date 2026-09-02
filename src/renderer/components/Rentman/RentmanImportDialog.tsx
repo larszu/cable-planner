@@ -502,16 +502,31 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       // bucket. If the user has multiple Rentman line items for the same
       // bucket they'll all be aggregated under one mapping; the export dialog
       // lets them re-pick if needed.
+      //
+      // ADR-005 — Das Re-Picken gab es schon, die Grundlage dafuer nicht:
+      // gebucht wird auf eine Id, und die uebrigen Ids dieses Eimers wurden
+      // hier weggeworfen. Der Export-Dialog baut seine Eimer aus dem
+      // Projektfile, nicht aus einem Rentman-Abruf — er konnte also gar nicht
+      // wissen, dass er auf einen von mehreren Stammartikeln bucht, und der
+      // Nutzer sah dort nur den einen Namen. Der Hinweis "2 Eintraege" steht
+      // im Import-Dialog, also Wochen vor der Buchung. Die uebrigen Ids
+      // werden deshalb aufgehoben.
       const firstRow = bucket.rows[0]
+      const mergedIds = bucket.rows.map((r) => r.rentmanEquipmentId).filter(Boolean)
       const existingMap = mapPatch[bucket.key]
       // ADR-003 — Startwert ist bucket.totalQty (was Rentman fuehrt), nicht
       // qty (die im Dialog editierbare Planmenge). Sonst zaehlt der Export
       // eine geplante Korrektur als bereits gesendet und jede folgende
       // Differenz ist um genau diesen Betrag zu klein.
       mapPatch[bucket.key] = {
+        ...existingMap,
         rentmanEquipmentId:
           existingMap?.rentmanEquipmentId ?? firstRow.rentmanEquipmentId,
         lastSentQty: existingMap?.lastSentQty ?? bucket.totalQty,
+        // Nur schreiben, wenn wirklich mehrere Stammartikel zusammenfallen —
+        // ein einelementiges Feld in jedem Eintrag waere Ballast und wuerde
+        // eine Zusammenlegung behaupten, die es nicht gab.
+        ...(mergedIds.length > 1 ? { mergedEquipmentIds: mergedIds } : {}),
       }
     }
     const projectName =

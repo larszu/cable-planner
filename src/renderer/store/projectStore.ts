@@ -719,7 +719,20 @@ const healRentmanCableMap = (
     const legacy = entry as { lastSentQty?: number; lastSyncedQty?: number }
     const sent = typeof legacy.lastSentQty === 'number' ? legacy.lastSentQty : legacy.lastSyncedQty
     if ('lastSyncedQty' in legacy) changed = true
+    // ADR-005 — Uebernehmen statt neu bauen. Diese Funktion listete frueher
+    // die beiden Schluessel auf, die sie kennt, und verwarf damit jeden
+    // dritten. Das war so lange folgenlos, wie es keinen dritten gab; mit
+    // `mergedEquipmentIds` gibt es einen, und ein alter Schluessel im File
+    // haette ihn beim naechsten Laden mitgenommen. Ein Migrationsschritt, der
+    // nur die Felder ueberleben laesst, die er beim Schreiben kannte, ist
+    // genau die Falle, gegen die dieser ADR geschrieben ist.
+    // Beide Mengen-Schluessel fallen hier raus und werden unten kontrolliert
+    // wieder gesetzt; alles andere bleibt unangetastet.
+    const { lastSyncedQty, lastSentQty, ...rest } = legacy as Record<string, unknown>
+    void lastSyncedQty
+    void lastSentQty
     healed[key] = {
+      ...(rest as (typeof healed)[string]),
       rentmanEquipmentId: entry.rentmanEquipmentId,
       ...(typeof sent === 'number' && Number.isFinite(sent) ? { lastSentQty: sent } : {}),
     }

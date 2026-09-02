@@ -76,7 +76,26 @@ export interface ProjectMetadata {
    * abgeschickt wurde. Rentman bestaetigt sie nicht zurueck. Wer hier einen
    * geplanten Wert hineinschreibt, verrechnet jede folgende Differenz.
    */
-  rentmanCableMap?: Record<string, { rentmanEquipmentId: string; lastSentQty?: number }>
+  rentmanCableMap?: Record<
+    string,
+    {
+      rentmanEquipmentId: string
+      lastSentQty?: number
+      /**
+       * ADR-005 — Die uebrigen Rentman-Positionen, die in denselben Eimer
+       * gefallen sind. Ein Eimer ist `typ|laenge`; zwei Marken desselben
+       * BNC-10m sind zwei Rentman-Stammartikel, aber ein Eimer. Gebucht wird
+       * auf genau eine Id, und das bleibt so — die Menge auf mehrere Artikel
+       * aufzuteilen ist eine Entscheidung, die der Nutzer treffen muss, nicht
+       * der Import. Bisher wurden die anderen Ids beim Import aber schlicht
+       * weggeworfen: `bucket.rows[0]` gewann, der Rest verschwand. Der
+       * Export-Dialog konnte deshalb gar nicht sagen, dass er auf einen von
+       * mehreren Artikeln bucht — die Information war zu diesem Zeitpunkt
+       * nicht mehr da. Sie wird jetzt aufgehoben.
+       */
+      mergedEquipmentIds?: string[]
+    }
+  >
   /** Rentman project ID currently linked to this cable planner project. */
   rentmanProjectId?: string
   /** Human-readable name of the linked Rentman project. */

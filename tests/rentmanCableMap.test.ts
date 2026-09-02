@@ -78,3 +78,60 @@ describe('rentmanCableMap — Migration lastSyncedQty -> lastSentQty (ADR-003)',
     expect(await loadAndRead(undefined)).toBeUndefined()
   })
 })
+
+describe('rentmanCableMap — die Migration verwirft nichts Fremdes (ADR-005)', () => {
+  // Die Migration baute jeden Eintrag aus den zwei Schluesseln neu auf, die sie
+  // kennt. Solange es nur diese zwei gab, war das folgenlos — deshalb stand der
+  // Befund im Audit als "kosmetisch". Mit `mergedEquipmentIds` gibt es einen
+  // dritten, und damit wird aus der Kosmetik ein Datenverlust: es genuegt EIN
+  // altes Projektfile mit `lastSyncedQty`, damit `changed` greift und der
+  // Neuaufbau die Zusammenfassung mitnimmt.
+
+  it('haelt mergedEquipmentIds, waehrend es den alten Mengen-Schluessel migriert', async () => {
+    const healed = await loadAndRead({
+      'BNC|10': {
+        rentmanEquipmentId: 'r1',
+        lastSyncedQty: 12,
+        mergedEquipmentIds: ['r1', 'r2'],
+      },
+    })
+    expect(healed?.['BNC|10']).toEqual({
+      rentmanEquipmentId: 'r1',
+      lastSentQty: 12,
+      mergedEquipmentIds: ['r1', 'r2'],
+    })
+  })
+
+  it('haelt auch einen Schluessel, den diese Version noch gar nicht kennt', async () => {
+    // Der eigentliche Punkt: die Regel gilt nicht nur fuer das Feld, das wir
+    // gerade hinzufuegen. Ein aelterer Build, der eine neuere Datei laedt,
+    // darf sie nicht beschneiden.
+    const healed = await loadAndRead({
+      'BNC|10': { rentmanEquipmentId: 'r1', lastSyncedQty: 3, zukunftsFeld: { tief: [1] } },
+    })
+    expect(healed?.['BNC|10']).toEqual({
+      rentmanEquipmentId: 'r1',
+      lastSentQty: 3,
+      zukunftsFeld: { tief: [1] },
+    })
+  })
+
+  it('entsorgt den alten Mengen-Schluessel trotzdem', async () => {
+    // Bewahren heisst nicht alles behalten: der migrierte Schluessel muss weg,
+    // sonst traegt die Datei zwei Wahrheiten ueber dieselbe Menge.
+    const healed = await loadAndRead({
+      'BNC|10': { rentmanEquipmentId: 'r1', lastSyncedQty: 12, mergedEquipmentIds: ['r1', 'r2'] },
+    })
+    expect('lastSyncedQty' in (healed?.['BNC|10'] ?? {})).toBe(false)
+  })
+
+  it('haelt mergedEquipmentIds auch dann, wenn gar keine Menge da ist', async () => {
+    const healed = await loadAndRead({
+      'BNC|10': { rentmanEquipmentId: 'r1', mergedEquipmentIds: ['r1', 'r2'], lastSyncedQty: 'kaputt' },
+    })
+    expect(healed?.['BNC|10']).toEqual({
+      rentmanEquipmentId: 'r1',
+      mergedEquipmentIds: ['r1', 'r2'],
+    })
+  })
+})

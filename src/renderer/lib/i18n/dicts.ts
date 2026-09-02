@@ -1904,6 +1904,9 @@ export const en: Dict = {
   'rentman.cableExport.deltaZeroTitle': 'Built = already sent to Rentman.',
   'rentman.cableExport.rentmanId': 'Rentman ID {id}',
   'rentman.cableExport.removeMapping': 'Remove mapping',
+  'rentman.cableExport.mergedFrom': 'merged from {count} Rentman items',
+  'rentman.cableExport.mergedTitle':
+    'Import and export group cables by type and length. The quantity is booked onto the item mapped above; splitting it across several items is only possible in Rentman.',
   'rentman.cableExport.pickEquipment': 'Pick Rentman equipment…',
   'rentman.cableExport.searchPlaceholder': 'Search…',
   'rentman.cableExport.loadCatalogFirst': 'Please load the catalog first.',
