@@ -90,10 +90,31 @@ export const buildVideohubLabelTxt = (
  * Build a full Videohub protocol dump matching Blackmagic's telnet protocol 2.5.
  * This format is accepted by most Videohub control software via "Import routing".
  * Consists of sections: PROTOCOL PREAMBLE, VIDEOHUB DEVICE, INPUT LABELS,
- * OUTPUT LABELS, VIDEO OUTPUT LOCKS, VIDEO OUTPUT ROUTING.
+ * OUTPUT LABELS, VIDEO OUTPUT ROUTING.
  *
- * All outputs default to input 0 (slot 1) because the canvas has no routing
- * data yet; the user adjusts routes inside the hub after import.
+ * Outputs ohne Eintrag in `opts.routing` fallen auf Input 0 (Slot 1) zurueck.
+ *
+ * ADR-005 — Warum hier KEIN "VIDEO OUTPUT LOCKS"-Block mehr steht.
+ *
+ * Bis v7.9 schrieb dieser Dump `<n> U` fuer jeden Output, unbedingt. Das ist
+ * kein neutraler Platzhalter: `U` ist im Protokoll die Anweisung ZU ENTSPERREN.
+ * Der Dump landet per Zwischenablage in Fremdsoftware oder einer
+ * Telnet-Sitzung — ein Lock schuetzt aber typischerweise einen Live-Ausgang.
+ *
+ * Der naheliegende Fix waere gewesen, den echten Sperrzustand einzusetzen: der
+ * Hub-Status-Read liest ihn (`videohubIpc`, `outputLocks`), der Export-Dialog
+ * haelt ihn in `hubState` und zeigt sogar dessen Anzahl an. Genau das waere
+ * aber falsch. Das Routing in diesem Dokument ist der PLAN — Initiative 10 hat
+ * den Status-Read ausdruecklich davon getrennt: „Was der Hub tut, ist eine
+ * Beobachtung; was im Plan steht, eine Absicht." Beobachtete Sperren neben
+ * geplantes Routing zu schreiben ergaebe ein Dokument mit zwei Herkuenften in
+ * einem Atemzug — der Verstoss, den ADR-003 Regel 1 benennt.
+ *
+ * Der Plan modelliert keine Sperr-Absicht. Also sagt er dazu nichts. Bloecke
+ * sind im Protokoll unabhaengig und einzeln optional — der Parser dieses
+ * Repos ueberliest fehlende wie unbekannte Bloecke (`videohubIpc`).
+ *
+ * Sollte der Plan eines Tages eine Sperr-Absicht kennen, gehoert sie hierher.
  */
 export const buildVideohubRoutingDump = (
   device: Pick<EquipmentItem, 'name' | 'inputs' | 'outputs'>,
@@ -151,9 +172,6 @@ export const buildVideohubRoutingDump = (
     const label = display ? `${i + 1} ${display}`.trim() : `${i + 1}`
     out.push(`${i} ${label}`)
   }
-  out.push('')
-  out.push('VIDEO OUTPUT LOCKS:')
-  for (let i = 0; i < totalOut; i++) out.push(`${i} U`)
   out.push('')
   out.push('VIDEO OUTPUT ROUTING:')
   for (let i = 0; i < totalOut; i++) out.push(`${i} ${opts.routing?.[i] ?? 0}`)
