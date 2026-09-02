@@ -775,6 +775,30 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
 
+              {/* ADR-005 — was die Datei mitbringt und dieser Import nicht liest.
+                  Der Export schreibt diese Sektionen aus Defaults; wer eine echte
+                  Anlagen-Konfiguration hier durchreicht, bekommt sie leer zurueck.
+                  Bis der Round-Trip sie bewahrt, sagt er es wenigstens. */}
+              {importResult.unreadSections.length > 0 && (
+                <div className="rounded border border-cp-warn/50 bg-cp-warn/10 p-3">
+                  <div className="mb-1 text-cp-xs font-semibold text-cp-warn">
+                    {t(
+                      'greengo.importOverlay.unreadTitle',
+                      'Diese Datei enthält Abschnitte, die der Import nicht liest',
+                    )}
+                  </div>
+                  <div className="font-mono text-[11px] text-cp-text-secondary">
+                    {importResult.unreadSections.join(', ')}
+                  </div>
+                  <div className="mt-1.5 text-[11px] text-cp-text-muted">
+                    {t(
+                      'greengo.importOverlay.unreadHint',
+                      'Ein Export aus dem Cable-Planner erzeugt eine neue .gg5 und füllt diese Abschnitte mit Standardwerten. Er ersetzt die Original-Datei nicht — bewahre sie auf.',
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Groups summary */}
               {importResult.config.groups.length > 0 && (
                 <div>
