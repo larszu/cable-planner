@@ -80,7 +80,26 @@ export const upsertCachedRentmanTemplate = (template: EquipmentTemplate) => {
   const id = template.rentmanId?.trim()
   if (!id) return
   const cache = readCache()
+  // ADR-005 — Fortschreiben statt Ersetzen.
+  //
+  // Drei Funktionen bauen in dieser Codebase ein Template aus einem
+  // EquipmentItem, und sie sind sich nicht einig, was dazugehoert:
+  // `toTemplateFromEquipment` hier nennt 37 Felder, `templateFromEquipment`
+  // im templateSlice 23, der Synthese-Zweig in `healRentmanLibraryFromProject`
+  // 15. Die Feldmengen der beiden kleineren sind echte Teilmengen dieser hier
+  // — keine von ihnen weiss etwas, das diese nicht auch weiss.
+  //
+  // Ein Ersetzen liess deshalb immer die aermste Rekonstruktion gewinnen, die
+  // zuletzt vorbeikam: Rentman-Import schreibt Rack-Hoehe, Leistung, Gewicht
+  // und Tiefe in den Eintrag, der Nutzer klickt auf einem so importierten
+  // Geraet "Als Template speichern", und der 23-Feld-Nachbau ueberschrieb
+  // alle vier — in einem Cache, der ausdruecklich projektuebergreifend ist.
+  //
+  // Ein Feld, ueber das die neue Fassung nichts sagt, ist keine Anweisung, den
+  // alten Wert zu loeschen. Wer wirklich leeren will, schreibt den Schluessel
+  // mit `undefined` — das ueberschreibt weiterhin, weil der Spread ihn traegt.
   cache[id] = {
+    ...cache[id],
     ...template,
     rentmanId: id,
   }
