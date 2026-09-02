@@ -361,6 +361,18 @@ export const mergeSourceMap = (
     if (entry.extra) {
       for (const key of Object.keys(entry.extra)) unrepresented.push(`${entry.name}.${key}`)
     }
+    // ADR-005 — Blindstelle des extra-Fachs: `provenance` ist ein BEKANNTER
+    // Schluessel, also hebt `collectExtra` ihn nicht auf, und der Plan hat kein
+    // Feld dafuer (SourceIdentity ist bewusst minimal, siehe ADR-001). Ein von
+    // einer Runtime als `confirmed` gemeldeter Wert kommt damit als `planned`
+    // wieder heraus. Ein Schluessel, dessen Namen wir kennen und den wir
+    // trotzdem nicht halten koennen, ist schlimmer als ein unbekannter — der
+    // Mechanismus geht ueber ihn hinweg, statt ihn aufzufangen. Also melden.
+    for (const [field, prov] of Object.entries(entry.provenance ?? {})) {
+      if (prov && prov !== 'planned') {
+        unrepresented.push(`${entry.name}.provenance.${field} (${prov})`)
+      }
+    }
     const mine = byId.get(entry.id)
     if (!mine) {
       const next: SourceIdentity = { id: entry.id, name: entry.name }
