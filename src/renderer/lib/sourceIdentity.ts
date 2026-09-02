@@ -6,6 +6,7 @@
 // halb gueltige Adresse ist schlimmer als keine: Sie sieht auf dem Papier
 // aus wie eine Zusage, und das Display bleibt trotzdem leer.
 
+import type { LoadDrop } from '../types/loadReport'
 import type { SourceIdentity } from '../types/sourceIdentity'
 
 /**
@@ -59,18 +60,46 @@ export const normaliseSourceIdentity = (
   return identity
 }
 
-/** Normalisiert die Liste und wirft Duplikat-Ids weg (erste gewinnt). */
-export const normaliseSourceIdentities = (raw: unknown): SourceIdentity[] => {
+/**
+ * Normalisiert die Liste und wirft Duplikat-Ids weg (erste gewinnt).
+ *
+ * ADR-005 — `onDrop` ist der Kanal, den es vorher nicht gab. Eine verworfene
+ * Rolle nimmt ueber `clearDanglingIdentity` die Bindung der Geraete mit; eine
+ * Kamera verliert dann ihre TSL-Adresse. Das darf nicht wortlos passieren.
+ * Der Grund ist ein Code, kein Satz — der Store kennt keine Sprache.
+ */
+export const normaliseSourceIdentities = (
+  raw: unknown,
+  onDrop?: (drop: LoadDrop) => void,
+): SourceIdentity[] => {
   if (!Array.isArray(raw)) return []
   const out: SourceIdentity[] = []
   const seen = new Set<string>()
   raw.forEach((entry, idx) => {
     const identity = normaliseSourceIdentity(entry, `source-${idx + 1}`)
-    if (!identity || seen.has(identity.id)) return
+    if (!identity) {
+      onDrop?.({ kind: 'source-identity', reason: 'missing-required', label: rawLabel(entry) })
+      return
+    }
+    if (seen.has(identity.id)) {
+      onDrop?.({ kind: 'source-identity', reason: 'duplicate-id', label: identity.name })
+      return
+    }
     seen.add(identity.id)
     out.push(identity)
   })
   return out
+}
+
+/** Bester Griff auf einen Rohsatz, der die Normalisierung nicht bestanden hat. */
+const rawLabel = (raw: unknown): string => {
+  if (!raw || typeof raw !== 'object') return ''
+  const r = raw as Record<string, unknown>
+  for (const key of ['name', 'id']) {
+    const v = r[key]
+    if (typeof v === 'string' && v.trim()) return v.trim()
+  }
+  return ''
 }
 
 /** Ids der gueltigen Rollen — Eingabe fuer `clearDanglingIdentity`. */

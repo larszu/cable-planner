@@ -1,3 +1,4 @@
+import { hasDrops } from './types/loadReport'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useIsNarrow } from './hooks/useBreakpoint'
 import { CanvasArea } from './components/Canvas/CanvasArea'
@@ -111,6 +112,9 @@ import { cableTouches } from './lib/portOccupancy'
 export default function App() {
   const t = useTranslation()
   const project = useProjectStore((state) => state.project)
+  // ADR-005 — Bericht ueber den letzten Ladevorgang (was nicht mitkam).
+  const lastLoadReport = useProjectStore((s) => s.lastLoadReport)
+  const dismissLoadReport = useProjectStore((s) => s.dismissLoadReport)
   const inventoryOpen = useUiStore((state) => state.inventory.open)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
   const followSystemTheme = useUiStore((state) => state.followSystemTheme)
@@ -1285,6 +1289,51 @@ export default function App() {
           </div>
         )
       })()}
+      {/* ADR-005, Regel 3 — was die Heilung beim Laden verworfen hat, wird
+          gesagt. Vorher war das strukturell unmoeglich: healProjectPositions
+          ist eine reine Funktion ohne Weg zur Oberflaeche, also verschwand
+          alles Verworfene definitionsgemaess still. Eine verworfene
+          Signalquellen-Rolle nimmt die Tally-Adresse der Kamera mit. */}
+      {hasDrops(lastLoadReport) && lastLoadReport && (
+        <div
+          role="status"
+          className="fixed bottom-4 left-1/2 z-[210] w-[560px] max-w-[92vw] -translate-x-1/2 rounded-cp-card border border-cp-warn/60 bg-cp-surface-1 p-4 shadow-2xl"
+        >
+          <div className="mb-1 flex items-start justify-between gap-3">
+            <div className="text-cp-sm font-semibold text-cp-warn">
+              {t(
+                'app.loadReport.title',
+                'Beim Laden konnten nicht alle Datensätze übernommen werden',
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={dismissLoadReport}
+              className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+            >
+              {t('common.ok', 'OK')}
+            </button>
+          </div>
+          <ul className="max-h-40 space-y-0.5 overflow-y-auto text-[11px] text-cp-text-secondary">
+            {lastLoadReport.drops.slice(0, 20).map((d, i) => (
+              <li key={`${d.kind}-${d.label}-${i}`}>
+                {t('app.loadReport.sourceIdentity', 'Signalquelle')}
+                {d.label ? ` „${d.label}"` : ''}
+                {' — '}
+                {d.reason === 'duplicate-id'
+                  ? t('app.loadReport.duplicateId', 'doppelte Id, der erste Eintrag gilt')
+                  : t('app.loadReport.missingRequired', 'Pflichtfeld fehlt (Name)')}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-2 text-[11px] text-cp-text-muted">
+            {t(
+              'app.loadReport.hint',
+              'Geräte, die auf diese Rollen zeigten, haben ihre Zuordnung verloren — darunter die TSL-Adresse für Tally. Speichern überschreibt die Datei mit diesem Stand.',
+            )}
+          </div>
+        </div>
+      )}
       {pdfProgress.active && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="w-[420px] max-w-[90vw] rounded-cp-card border border-cp-border bg-cp-surface-1 p-5 text-cp-text shadow-2xl">

@@ -1,3 +1,4 @@
+import type { LoadDrop, LoadReport } from '../types/loadReport'
 import { v4 as uuidv4 } from 'uuid'
 import { create, type StateCreator } from 'zustand'
 import type { Connection } from 'reactflow'
@@ -158,6 +159,15 @@ export interface ProjectState {
   /** Incremented each time loadProject or clear() is called. Canvas uses this
    *  to detect a project-load event and restore the saved viewport. */
   projectVersion: number
+  /**
+   * ADR-005 — Was beim letzten Laden nicht uebernommen werden konnte. `null`,
+   * wenn alles mitkam. Die Oberflaeche zeigt es und raeumt es weg; es gehoert
+   * nicht ins Projektfile, weil es eine Aussage ueber den LADEVORGANG ist und
+   * nicht ueber den Plan.
+   */
+  lastLoadReport: LoadReport | null
+  /** Bericht weggeraeumt — der Nutzer hat ihn gesehen. */
+  dismissLoadReport: () => void
   selectedEquipmentId?: string
   selectedCableId?: string
   selectedLocationId?: string
@@ -533,7 +543,18 @@ export interface ProjectState {
  * rounding is enough to remove the visible drift and is reversible (the
  * shift is in the order of fractions of a pixel, never more).
  */
-const healProjectPositions = (project: CablePlannerProject): CablePlannerProject => {
+/**
+ * ADR-005 — Sammelt, was der Autoload verwirft. Der laeuft beim Aufbau des
+ * Stores, also bevor es einen Store gibt, in den er berichten koennte; das
+ * Array ueberbrueckt genau diese eine Luecke und wird danach nicht mehr
+ * beschrieben.
+ */
+const initialDrops: LoadDrop[] = []
+
+const healProjectPositions = (
+  project: CablePlannerProject,
+  onDrop?: (drop: LoadDrop) => void,
+): CablePlannerProject => {
   // v7.9.100 — Snap-to-Grid-Heal: alle Equipment-/Location-/Waypoint-
   // Koordinaten + Maße auf gridSize-Vielfache runden. Alte Projekte
   // (vor snapToGrid-Default) haben x=137, width=215 usw. → liegen
@@ -556,7 +577,7 @@ const healProjectPositions = (project: CablePlannerProject): CablePlannerProject
   // Geraete-Schleife braucht die gueltigen Ids, um Fehlzeiger zu entsorgen.
   // Eine Bindung auf eine geloeschte Rolle ist schlimmer als keine — sie
   // sieht im Plan aus wie eine zugewiesene Tally-Adresse.
-  const sourceIdentities = normaliseSourceIdentities(project.sourceIdentities)
+  const sourceIdentities = normaliseSourceIdentities(project.sourceIdentities, onDrop)
   const identityIds = sourceIdentityIdSet(sourceIdentities)
   return {
     ...project,
@@ -857,9 +878,13 @@ const buildProjectStore = (
     opts.initialProject ??
     (() => {
       const auto = loadAutosavedProject()
-      return auto ? healProjectPositions(auto) : defaultProject()
+      // ADR-005 — der Autoload laeuft vor dem ersten Render; sein Bericht
+      // landet im Store und wird gezeigt, sobald die Oberflaeche steht.
+      return auto ? healProjectPositions(auto, (d) => initialDrops.push(d)) : defaultProject()
     })(),
   projectVersion: 0,
+  lastLoadReport: initialDrops.length > 0 ? { drops: initialDrops } : null,
+  dismissLoadReport: () => set({ lastLoadReport: null }),
   showCableDialog: false,
   recentProjects: [],
   customLibrary: loadCustomLibrary(),
@@ -901,8 +926,12 @@ const buildProjectStore = (
       // "Importierte Rentman-Geräte"-Liste auf, ohne dass der User alles
       // neu anlegen muss.
       const healedLibrary = healRentmanLibraryFromProject(project, state.customLibrary)
+      // ADR-005 — was die Heilung verwirft, wird gemeldet statt verschwiegen.
+      const drops: LoadDrop[] = []
+      const healed = healProjectPositions(project, (d) => drops.push(d))
       return {
-        project: healProjectPositions(project),
+        project: healed,
+        lastLoadReport: drops.length > 0 ? { drops } : null,
         filePath,
         projectVersion: state.projectVersion + 1,
         selectedEquipmentId: undefined,

@@ -3076,6 +3076,11 @@ export const en: Dict = {
   // Cable dialog – save-as-custom prompt
   'cable.dialog.newTypeNamePrompt': 'Name for the new cable type:',
   // App.tsx PDF progress overlay
+  'app.loadReport.title': 'Some records could not be loaded',
+  'app.loadReport.sourceIdentity': 'Source',
+  'app.loadReport.duplicateId': 'duplicate id, the first entry wins',
+  'app.loadReport.missingRequired': 'required field missing (name)',
+  'app.loadReport.hint': 'Devices that pointed at these roles lost their assignment — including the TSL address used for tally. Saving overwrites the file with this state.',
   'app.pdfProgress.title': 'PDF is being created…',
   'app.pdfProgress.hint':
     'Large plans may take a few seconds. Please do not cancel.',
