@@ -233,3 +233,53 @@ describe('Rundreise', () => {
     expect(merged.unrepresented).toEqual([])
   })
 })
+
+describe('mergeSourceMap — Provenienz, die der Plan nicht halten kann (ADR-005)', () => {
+  // Die Blindstelle des extra-Fachs: `provenance` ist ein BEKANNTER Schluessel,
+  // also hebt collectExtra ihn nicht auf — und `SourceIdentity` hat kein Feld
+  // dafuer (bewusst minimal, ADR-001). Ein von einer Runtime als `confirmed`
+  // gemeldeter Wert kommt deshalb als `planned` wieder heraus. Bis der Plan
+  // Provenienz halten kann, muss der Import es wenigstens sagen.
+  const mapWith = (provenance: Record<string, string>) =>
+    ({
+      kind: 'av-source-map',
+      formatVersion: 1,
+      app: 'tally-pi',
+      appVersion: '1.0.0',
+      exportedAt: 't',
+      sources: [
+        {
+          id: 's1',
+          name: 'Kamera 1',
+          umdAddress: 4,
+          provenance,
+          bindings: [],
+          labels: {},
+        },
+      ],
+      unresolved: [],
+    }) as never
+
+  it('meldet einen bestaetigten Wert als nicht darstellbar', () => {
+    const r = mergeSourceMap([], mapWith({ name: 'planned', umdAddress: 'confirmed' }))
+    expect(r.unrepresented).toContain('Kamera 1.provenance.umdAddress (confirmed)')
+  })
+
+  it('meldet auch `commanded` — alles ausser planned ist Wissen, das verloren geht', () => {
+    const r = mergeSourceMap([], mapWith({ umdAddress: 'commanded' }))
+    expect(r.unrepresented).toContain('Kamera 1.provenance.umdAddress (commanded)')
+  })
+
+  it('meldet `planned` NICHT — das ist genau das, was der Plan ohnehin ausdrueckt', () => {
+    const r = mergeSourceMap([], mapWith({ name: 'planned', umdAddress: 'planned' }))
+    expect(r.unrepresented.filter((u) => u.includes('provenance'))).toEqual([])
+  })
+
+  it('uebernimmt den Wert trotzdem — Melden heisst nicht Verweigern', () => {
+    // ADR-005 unterscheidet: bewahren, verweigern, melden. Hier ist melden
+    // richtig — eine Adresse abzulehnen, nur weil ihre Herkunft nicht mitkann,
+    // waere eigener Schaden.
+    const r = mergeSourceMap([], mapWith({ umdAddress: 'confirmed' }))
+    expect(r.identities[0].umdAddress).toBe(4)
+  })
+})
