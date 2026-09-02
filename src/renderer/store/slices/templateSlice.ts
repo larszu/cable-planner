@@ -45,6 +45,10 @@ const templateFromEquipment = (
 ): EquipmentTemplate => ({
   name: override.name ?? item.name,
   category: (override.category || item.category || 'Sonstiges').trim() || 'Sonstiges',
+  // ADR-002/ADR-005 — ein Template IST ein Geraetetyp; die stabile
+  // Typ-Identitaet gehoert also zwingend mit. Sie hier fallenzulassen machte
+  // aus einem Katalog-Geraet ein namentlich geratenes.
+  deviceTypeId: item.deviceTypeId,
   inputs: item.inputs,
   outputs: item.outputs,
   width: item.width,
