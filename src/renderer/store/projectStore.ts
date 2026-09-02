@@ -817,6 +817,30 @@ const healRentmanLibraryFromProject = (
         rearPanelCrop: eq.rearPanelCrop,
         netboxPath: eq.netboxPath,
         notes: eq.notes,
+        // ADR-005 — Bis hierhin nannte dieser Zweig 15 Felder. Der
+        // Rentman-Template-Cache baut dasselbe aus 37, und diese 15 sind eine
+        // echte Teilmenge davon: der Synthese-Zweig weiss nichts, was der
+        // Cache nicht auch weiss. Er ist also nicht anders gemeint, sondern
+        // aermer — und wer danach eine zweite Kopie aus der Library zieht,
+        // bekommt ein Geraet ohne Leistungsaufnahme, ohne Tiefe und ohne
+        // Katalog-Identitaet.
+        //
+        // Ergaenzt werden hier die Modell-Eigenschaften: was ein Geraet WIEGT,
+        // WIE TIEF es ist und WAS es kann, haengt am Typ, nicht am Exemplar.
+        deviceTypeId: eq.deviceTypeId,
+        powerWatts: eq.powerWatts,
+        weightKg: eq.weightKg,
+        depthMm: eq.depthMm,
+        resolution: eq.resolution,
+        displaySizeInch: eq.displaySizeInch,
+        sdiCaps: eq.sdiCaps,
+        atemMvConfig: eq.atemMvConfig,
+        // Bewusst NICHT uebernommen: ipAddress, macAddress, username,
+        // password, gateway, vlans und die uebrige Netz-Identitaet. Die beiden
+        // anderen Rekonstruktionen tragen sie, aber eine Library-Vorlage mit
+        // fest eingebauter IP erzeugt beim zweiten Herausziehen einen
+        // Adresskonflikt. Ob das dort richtig ist, ist eine eigene Frage —
+        // sie hier nebenbei mitzuentscheiden waere falsch.
         rentmanId: rid,
         rentmanSource: projectRentmanId,
         rentmanProjectName: projectRentmanName,
