@@ -10,6 +10,7 @@ import {
   detectDeviceType,
   isParseError,
   parseGg5File,
+  type EquipmentMatchReport,
   type Gg5ImportResult,
 } from '../../lib/importGreengo'
 import {
@@ -51,6 +52,8 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
   const [xlsxImportNotice, setXlsxImportNotice] = useState<string | null>(null)
   /** userId → canvas equipmentId mapping chosen by the user in the import overlay */
   const [importMappings, setImportMappings] = useState<Map<number, string>>(new Map())
+  /** ADR-005 — was der Abgleich behalten und was er neu geraten hat. */
+  const [matchReport, setMatchReport] = useState<EquipmentMatchReport | null>(null)
 
   const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -63,9 +66,12 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
         setImportError(result.error)
         setImportResult(null)
       } else {
-        // Auto-match imported users to canvas equipment
-        const autoMap = autoMatchEquipment(result.config.users, intercomEquipment)
-        setImportMappings(autoMap)
+        // ADR-005, Regel 2 — die .gg5 sagt nichts ueber Canvas-Geraete, also
+        // darf sie die von Hand gesetzten Zuordnungen nicht loeschen. Der
+        // vorhandene Stand geht mit hinein.
+        const match = autoMatchEquipment(result.config.users, intercomEquipment, config.users)
+        setImportMappings(match.mapping)
+        setMatchReport(match)
         setImportResult(result)
         setImportError(null)
       }
@@ -86,11 +92,13 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
     setActiveTab('matrix')
     setImportResult(null)
     setImportError(null)
+    setMatchReport(null)
   }
 
   const cancelImport = () => {
     setImportResult(null)
     setImportError(null)
+    setMatchReport(null)
   }
 
   // ── XLSX intercom-matrix round-trip ───────────────────────────────────────
@@ -821,6 +829,65 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   </div>
                 </div>
               )}
+
+              {/* ADR-005, Regel 2 und 3 — die Zuordnung Station → Canvas-Geraet
+                  steht NICHT in der .gg5; sie ist Wissen dieses Projekts. Der
+                  Import hat sie frueher jedes Mal neu geraten und die von Hand
+                  gesetzten Verknuepfungen ueberschrieben. Jetzt bleiben sie,
+                  wo Slot und Name gleich sind — und der Nutzer sieht, was
+                  uebernommen und was geraten wurde. */}
+              {matchReport &&
+                (matchReport.kept.length > 0 ||
+                  matchReport.renamed.length > 0 ||
+                  matchReport.stale.length > 0) && (
+                  <div className="rounded border border-cp-border bg-cp-surface-2 p-3">
+                    <div className="mb-1 text-cp-xs font-semibold text-cp-text-bright">
+                      {t(
+                        'greengo.importOverlay.matchTitle',
+                        'Zuordnung zu Canvas-Geräten',
+                      )}
+                    </div>
+                    {matchReport.kept.length > 0 && (
+                      <div className="text-[11px] text-cp-text-secondary">
+                        {format(
+                          t(
+                            'greengo.importOverlay.matchKept',
+                            '{count} von Hand gesetzte Zuordnungen bleiben erhalten (Slot {slots}).',
+                          ),
+                          { count: matchReport.kept.length, slots: matchReport.kept.join(', ') },
+                        )}
+                      </div>
+                    )}
+                    {matchReport.renamed.length > 0 && (
+                      <div className="mt-1 text-[11px] text-cp-warn">
+                        {format(
+                          t(
+                            'greengo.importOverlay.matchRenamed',
+                            'Slot {slots}: die Station heißt in der Datei anders als bisher — die Zuordnung wurde neu geraten.',
+                          ),
+                          { slots: matchReport.renamed.join(', ') },
+                        )}
+                      </div>
+                    )}
+                    {matchReport.stale.length > 0 && (
+                      <div className="mt-1 text-[11px] text-cp-warn">
+                        {format(
+                          t(
+                            'greengo.importOverlay.matchStale',
+                            'Slot {slots}: das bisher zugeordnete Gerät liegt nicht mehr im Plan — neu geraten.',
+                          ),
+                          { slots: matchReport.stale.join(', ') },
+                        )}
+                      </div>
+                    )}
+                    <div className="mt-1.5 text-[11px] text-cp-text-muted">
+                      {t(
+                        'greengo.importOverlay.matchHint',
+                        'Geratene Zuordnungen lassen sich unten je Station korrigieren, bevor der Import übernommen wird.',
+                      )}
+                    </div>
+                  </div>
+                )}
 
               {/* Groups summary */}
               {importResult.config.groups.length > 0 && (
