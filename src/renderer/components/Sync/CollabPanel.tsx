@@ -15,6 +15,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { hasDesktopBridge } from '../../lib/bridge'
 import { buildInviteLink } from '../../lib/collabInvite'
 import { useTranslation } from '../../lib/i18n'
+import { confirmDialog } from '../../lib/confirmDialog'
 
 const statusLabel = (
   status: ReturnType<typeof useCollabStore.getState>['status'],
@@ -92,7 +93,14 @@ export const CollabPanel = () => {
 
   // Beitreten übernimmt den Plan des Hosts und ersetzt den lokalen — bei
   // vorhandenem lokalem Plan vorher rückfragen, damit keine Arbeit verloren geht.
-  const onJoin = (s: DiscoveredCollabSession): void => {
+  //
+  // Die Rückfrage lief über `window.confirm`. Der UX-Audit führte Punkt 41
+  // („keine nativen Dialoge mehr in Komponenten") als erledigt — für diese
+  // Stelle stimmte das nicht. Sie ist die einzige, die übrig war, und
+  // ausgerechnet die mit dem grössten Schaden: das OK ersetzt den lokalen Plan.
+  // `confirmDialog` ist deshalb hier nicht nur konsistenter, sondern trägt das,
+  // was `window.confirm` nicht kann — `destructive`, also der rote Knopf.
+  const onJoin = async (s: DiscoveredCollabSession): Promise<void> => {
     const p = useProjectStore.getState().project
     const hasLocalPlan =
       (p.equipment?.length ?? 0) > 0 ||
@@ -100,12 +108,17 @@ export const CollabPanel = () => {
       (p.locations?.length ?? 0) > 0
     if (
       hasLocalPlan &&
-      !window.confirm(
-        t(
-          'collab.join.replaceConfirm',
-          'Beitreten lädt den Plan des Hosts und ersetzt deinen aktuellen Plan. Fortfahren?',
-        ),
-      )
+      !(await confirmDialog(
+        t('collab.join.replaceTitle', 'Lokalen Plan durch den Plan des Hosts ersetzen?'),
+        {
+          body: t(
+            'collab.join.replaceConfirm',
+            'Beitreten lädt den Plan des Hosts und ersetzt deinen aktuellen Plan. Fortfahren?',
+          ),
+          okLabel: t('collab.join.replaceOk', 'Beitreten und ersetzen'),
+          destructive: true,
+        },
+      ))
     ) {
       return
     }
@@ -265,7 +278,7 @@ export const CollabPanel = () => {
                   </span>
                   <button
                     type="button"
-                    onClick={() => onJoin(s)}
+                    onClick={() => void onJoin(s)}
                     className="shrink-0 rounded-cp-control bg-[var(--cp-accent,#3b82f6)] px-2 py-1 text-cp-xs font-medium text-white hover:opacity-90"
                   >
                     {t('collab.discover.join', 'Beitreten')}
