@@ -72,6 +72,13 @@ export const fingerprint = (input: string): string => {
  */
 const SEP = '\u001F'
 const ROW_SEP = '\u001E'
+/**
+ * Trenner zwischen den Bloecken eines Plan-Fingerabdrucks (Geraete, Kabel,
+ * Orte, Haken). Stand bisher als rohes Steuerzeichen im Aufruf; als Konstante
+ * ist im Quelltext sichtbar, dass es drei verschiedene Ebenen von Trennern
+ * gibt. Der Wert ist unveraendert — bestehende Fingerabdruecke bleiben gueltig.
+ */
+const BLOCK_SEP = '\u001D'
 
 const joinRows = (headers: string[], rows: CsvCell[][]): string =>
   [headers, ...rows]
@@ -83,10 +90,49 @@ export const documentFingerprint = (headers: string[], rows: CsvCell[][]): strin
   fingerprint(joinRows(headers, rows))
 
 /**
+ * Die Haken, die wirklich auf dem Blatt stehen.
+ *
+ * Der Mobile-Viewer schickt gesteckte Ports zurueck (`checkState.ports`,
+ * Schluessel `geraet|port`), und `EquipmentNode` zeichnet dafuer ein gruenes
+ * Haekchen an den Port. Beide Plan-Export-Wege nehmen das mit: der Raster-Weg
+ * fotografiert das Viewport-DOM, der Vektor-Weg klont es. Ein gesetzter Haken
+ * ist damit eine sichtbar andere Zeichnung — und stand bisher trotzdem nicht im
+ * Fingerabdruck. Ein Blatt, das den Aufbaustand von gestern zeigt, meldete sich
+ * im Dokument-Register als aktueller Stand.
+ *
+ * Gefiltert wird auf das, was wirklich gezeichnet wird:
+ *
+ *  - **Nur `ports`.** Kabel-Haken (`checkState.cables`) stehen ausschliesslich
+ *    im Kontextmenue, nicht auf der Zeichnung. Sie mitzuzaehlen hiesse, eine
+ *    Abweichung zu behaupten, die auf dem Papier niemand sehen kann — derselbe
+ *    Fehler wie eine verschwiegene, nur andersherum.
+ *  - **Nur Haken, zu denen es Geraet UND Port gibt.** `EquipmentNode` laeuft
+ *    ueber die Port-Listen und schlaegt den Haken nach; ein Schluessel ohne
+ *    Port zeichnet nichts. Solche Leichen bleiben liegen (beim Loeschen eines
+ *    Geraets raeumt niemand `checkState` auf) und duerfen den Stand nicht
+ *    bewegen.
+ */
+const visiblePortChecks = (project: CablePlannerProject | RevisionSnapshot): string[] => {
+  const checks = project.checkState?.ports
+  if (!checks) return []
+  const out: string[] = []
+  for (const item of project.equipment ?? []) {
+    for (const port of [...(item.inputs ?? []), ...(item.outputs ?? [])]) {
+      if (checks[`${item.id}|${port.id}`]) out.push([item.id, port.id].join(SEP))
+    }
+  }
+  return out.sort()
+}
+
+/**
  * Fingerabdruck über den *Zeichnungs*-Inhalt eines Plans — für Ausdrucke, die
  * das Bild zeigen (PDF/PNG). Hier zählen Positionen mit: ein verschobenes Gerät
  * ist auf dem Blatt sichtbar anders. Viewport/Zoom zählen nicht, die stehen
  * nicht auf dem Papier.
+ *
+ * Ebenfalls auf dem Papier: die Häkchen der bereits gesteckten Ports — siehe
+ * `visiblePortChecks` für die Abgrenzung, welche davon wirklich gezeichnet
+ * werden.
  */
 export const planFingerprint = (project: CablePlannerProject | RevisionSnapshot): string => {
   const equipment = (project.equipment ?? [])
@@ -109,8 +155,19 @@ export const planFingerprint = (project: CablePlannerProject | RevisionSnapshot)
   const locations = (project.locations ?? [])
     .map((l) => [l.id, l.name, l.x, l.y, l.width, l.height].join(SEP))
     .sort()
+  const checks = visiblePortChecks(project)
+  // Der Haken-Block wird nur angehaengt, wenn es Haken gibt. Sonst waere der
+  // Fingerabdruck JEDES bestehenden Ausdrucks ein anderer (ein Trenner mehr)
+  // — und jedes Blatt an jeder Wand meldete sich schlagartig als veraltet,
+  // obwohl sich an der Zeichnung nichts geaendert hat. Neu ist der Wert genau
+  // dort, wo der alte falsch war: in Plaenen mit Aufbaustand.
   return fingerprint(
-    [equipment.join(ROW_SEP), cables.join(ROW_SEP), locations.join(ROW_SEP)].join(''),
+    [
+      equipment.join(ROW_SEP),
+      cables.join(ROW_SEP),
+      locations.join(ROW_SEP),
+      ...(checks.length > 0 ? [checks.join(ROW_SEP)] : []),
+    ].join(BLOCK_SEP),
   )
 }
 

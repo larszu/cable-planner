@@ -112,6 +112,18 @@ describe('documentFingerprint', () => {
   })
 })
 
+/** Projekt mit Aufbaustand — Port-Schluessel sind `${geraet}|${port}`. */
+const checked = (ports: Record<string, boolean>): CablePlannerProject =>
+  project({ checkState: { ports, cables: {} } })
+
+/**
+ * Der Plan-Fingerabdruck des Test-Projekts OHNE Haken, so wie ihn die Fassung
+ * vor dem Aufbaustand berechnet hat. Fest verdrahtet als Regressionsanker:
+ * schlaegt er an, hat jemand die Blockbildung so geaendert, dass bestehende
+ * Ausdrucke ihren Stand verlieren.
+ */
+const FINGERPRINT_OHNE_HAKEN = 'a712d27f'
+
 describe('planFingerprint', () => {
   it('reagiert auf eine verschobene Position — die steht auf dem Blatt', () => {
     const before = planFingerprint(project())
@@ -131,6 +143,65 @@ describe('planFingerprint', () => {
     const a = project({ equipment: [eq('A', 'Kamera 1'), eq('B', 'Switcher')] })
     const b = project({ equipment: [eq('B', 'Switcher'), eq('A', 'Kamera 1')] })
     expect(planFingerprint(a)).toBe(planFingerprint(b))
+  })
+
+  // Der Aufbaustand steht auf dem Blatt: `EquipmentNode` zeichnet fuer jeden
+  // gesteckt gemeldeten Port ein Haekchen, und beide PDF-Wege nehmen das DOM
+  // mit. Bis hierher fehlte er im Fingerabdruck — ein Ausdruck von gestern
+  // Abend meldete sich als aktueller Stand, obwohl seitdem zwoelf Ports
+  // abgehakt wurden.
+  it('reagiert auf einen gesetzten Port-Haken — der steht auf dem Blatt', () => {
+    const before = planFingerprint(project())
+    const after = planFingerprint(checked({ 'A|A-out': true }))
+    expect(before).not.toBe(after)
+  })
+
+  it('unterscheidet, WELCHER Port abgehakt ist', () => {
+    expect(planFingerprint(checked({ 'A|A-out': true }))).not.toBe(
+      planFingerprint(checked({ 'B|B-in': true })),
+    )
+  })
+
+  it('ist unabhaengig von der Reihenfolge, in der die Haken zusammenkommen', () => {
+    // Zwei Quellen von Unordnung, und nur eine davon ist die gefaehrliche: die
+    // Schluessel-Reihenfolge im Haken-Objekt spielt ohnehin keine Rolle, weil
+    // ueber die Geraete gelaufen wird. Die Geraete-Reihenfolge dagegen schlaegt
+    // durch — ohne Sortierung haetten dieselben Haken zwei Fingerabdruecke.
+    const ports = { 'A|A-out': true, 'B|B-in': true }
+    const a = project({ equipment: [eq('A', 'Kamera 1'), eq('B', 'Switcher')],
+      checkState: { ports, cables: {} } })
+    const b = project({ equipment: [eq('B', 'Switcher'), eq('A', 'Kamera 1')],
+      checkState: { ports: { 'B|B-in': true, 'A|A-out': true }, cables: {} } })
+    expect(planFingerprint(a)).toBe(planFingerprint(b))
+  })
+
+  it('zaehlt einen abgeraeumten Haken (false) nicht mit', () => {
+    expect(planFingerprint(checked({ 'A|A-out': false }))).toBe(planFingerprint(project()))
+  })
+
+  // Die andere Richtung derselben Regel: keine Abweichung behaupten, die auf
+  // dem Papier niemand sehen kann.
+  it('ignoriert Kabel-Haken — die stehen nur im Kontextmenue', () => {
+    const withCableCheck = project({ checkState: { ports: {}, cables: { c1: true } } })
+    expect(planFingerprint(withCableCheck)).toBe(planFingerprint(project()))
+  })
+
+  it('ignoriert Haken auf Geraeten und Ports, die es nicht gibt', () => {
+    // Beim Loeschen eines Geraets raeumt niemand `checkState` auf. Solche
+    // Leichen zeichnen nichts und duerfen den Stand nicht bewegen.
+    const leichen = checked({ 'geloescht|port-1': true, 'A|gibt-es-nicht': true })
+    expect(planFingerprint(leichen)).toBe(planFingerprint(project()))
+  })
+
+  it('laesst den Fingerabdruck ohne Haken unveraendert — Ausdrucke bleiben gueltig', () => {
+    // Der Haken-Block wird nur angehaengt, wenn es Haken gibt. Ohne diese
+    // Bedingung haette die Aenderung jedes bereits gedruckte Blatt auf einen
+    // Schlag als veraltet gemeldet. Der Wert ist hier fest verdrahtet, damit
+    // genau das nicht unbemerkt passieren kann.
+    expect(planFingerprint(project())).toBe(FINGERPRINT_OHNE_HAKEN)
+    expect(planFingerprint(project({ checkState: { ports: {}, cables: {} } }))).toBe(
+      FINGERPRINT_OHNE_HAKEN,
+    )
   })
 })
 
