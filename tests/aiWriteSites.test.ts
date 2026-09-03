@@ -69,14 +69,15 @@ const CLASSIFIED: Site[] = [
   },
   {
     file: 'components/Library/LibraryPanel.tsx',
-    verdict: 'ungedeckt',
+    verdict: 'markiert',
     reason:
-      'Bietet KI, Web und Heuristik als Quelle fuer Port-Gruppen. Der Nutzer ' +
-      'bearbeitet die Entwuerfe, bevor eine Library-Vorlage entsteht — aber ' +
-      '`suggestFromWeb` liefert `source` UND `snippet`, aus dem die Ports ' +
-      'gezaehlt wurden, und beides endet in einer Statusmeldung. Derselbe ' +
-      'Befund wie im light-planner vor #53: der Beleg ist da und wird ' +
-      'weggeworfen. Noch nicht behoben.',
+      'Bietet KI, Web und Heuristik als Quelle fuer Port-Gruppen — keine davon ' +
+      'ist ein Datenblatt. Alle drei setzen jetzt `groupsOrigin`, und ' +
+      '`buildTemplate` traegt es als `specSource` in die Vorlage. Der Web-Weg ' +
+      'bewahrt zusaetzlich Fundstelle und Textschnipsel: er hatte sie als ' +
+      'einziger und warf sie vorher in eine Statusmeldung. Bei einer Vorlage ' +
+      'wiegt das schwerer als bei einem Geraet — jedes daraus erzeugte erbt ' +
+      'die geratenen Ports.',
   },
   {
     file: 'components/Rentman/NewRentmanDeviceWizard.tsx',
@@ -110,14 +111,43 @@ describe('jede Stelle, an der eine Maschine Plan-Werte erfindet, ist eingeordnet
   })
 
   it('benennt die offenen Luecken, statt sie zu verschweigen', () => {
-    // ADR-005 Regel 3 — melden, wo es passiert. Solange `LibraryPanel` seinen
-    // Beleg wegwirft, steht das hier und ist nicht „vergessen".
+    // ADR-005 Regel 3 — melden, wo es passiert. Die Liste war nicht leer:
+    // `LibraryPanel` stand hier, bis der Beleg dort aufbewahrt wurde. Sie
+    // bleibt der Ort, an dem die naechste Luecke sichtbar wird.
     const offen = CLASSIFIED.filter((s) => s.verdict === 'ungedeckt').map((s) => s.file)
-    expect(offen).toEqual(['components/Library/LibraryPanel.tsx'])
+    expect(offen).toEqual([])
   })
 
   it('gibt zu jeder Einordnung eine Begruendung, die etwas behauptet', () => {
     for (const s of CLASSIFIED) expect(s.reason.length, s.file).toBeGreaterThan(80)
+  })
+})
+
+describe('die Library-Vorlage traegt ihre Herkunft', () => {
+  it('alle drei Vorschlagswege setzen eine Herkunft', async () => {
+    const src = (await import('../src/renderer/components/Library/LibraryPanel.tsx?raw')).default
+    for (const key of ['library.origin.ai', 'library.origin.web', 'library.origin.heuristic']) {
+      expect(src, key).toContain(key)
+    }
+  })
+
+  it('der Web-Weg bewahrt Fundstelle UND Schnipsel', async () => {
+    // Der Punkt: er hatte beides als einziger und warf es weg. Ein blosses
+    // „aus dem Web" waere kein Beleg, sondern nur ein Etikett.
+    const src = (await import('../src/renderer/components/Library/LibraryPanel.tsx?raw')).default
+    expect(src).toMatch(/\{ source, snippet: snippet/)
+  })
+
+  it('die Vorlage bekommt die Herkunft, nicht nur der Dialog', async () => {
+    const src = (await import('../src/renderer/components/Library/LibraryPanel.tsx?raw')).default
+    expect(src).toContain('groupsOrigin && (inputs.length > 0 || outputs.length > 0)')
+  })
+
+  it('ein Zuruecksetzen loescht die Herkunft mit', async () => {
+    // Sonst truege die naechste, von Hand gebaute Vorlage den Beleg der
+    // vorherigen — eine Herkunft, die nie stattgefunden hat.
+    const src = (await import('../src/renderer/components/Library/LibraryPanel.tsx?raw')).default
+    expect(src).toContain('setGroupsOrigin(null)')
   })
 })
 
