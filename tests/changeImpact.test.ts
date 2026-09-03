@@ -167,6 +167,57 @@ describe('der Guard: das Register ist die einzige Liste', () => {
     expect(bom!.label).toBe('Kabel-Stückliste')
   })
 
+  // Der Revisions-Vergleich im PlanCompareDialog spannt einen `RevisionSnapshot`
+  // mit `revisions: []` zu einem Projekt auf — der Snapshot fuehrt das Feld per
+  // Typ nicht. Das ist nur so lange harmlos, wie keine Dokument-Ableitung die
+  // Revisionsliste liest. Heute liest keine sie; `buildHandoverManifest` tut es
+  // (As-Built-Zeilen), steht aber bewusst nicht in DOCUMENT_STANDS.
+  //
+  // Ohne diesen Test waere das eine stille Annahme: wer eine revisions-
+  // abhaengige Ableitung eintraegt, brauchte nichts davon zu wissen, und jeder
+  // Revisions-Vergleich meldete danach ein Blatt als ueberholt, das sich nur
+  // deshalb unterscheidet, weil die Liste leer ist. Eine erfundene Abweichung
+  // ist derselbe Schaden wie ein erfundener Zustand (ADR-003).
+  it('keine Dokument-Ableitung haengt an der Revisionsliste', () => {
+    const withRevisions = project({
+      revisions: [
+        {
+          id: 'r1',
+          label: 'Rev 1',
+          note: '',
+          createdAt: '2026-01-01T00:00:00.000Z',
+          asBuilt: true,
+          snapshot: project(),
+        },
+      ],
+    } as Partial<CablePlannerProject>)
+    const ohne = { ...withRevisions, revisions: [] } as CablePlannerProject
+    for (const [docId, derive] of Object.entries(DOCUMENT_STANDS)) {
+      expect(derive(ohne), `${docId} haengt an project.revisions`).toBe(derive(withRevisions))
+    }
+  })
+
+  it('ein Revisions-Snapshot meldet gegen sich selbst nichts als ueberholt', () => {
+    // Die Probe auf dieselbe Annahme, aber von der Nutzerseite: derselbe Stand,
+    // einmal als Projekt und einmal als aufgespannter Snapshot.
+    const base = project()
+    const alsSnapshot = { ...base, revisions: [] } as CablePlannerProject
+    const mitRevisionen = {
+      ...base,
+      revisions: [
+        {
+          id: 'r1',
+          label: 'Rev 1',
+          note: '',
+          createdAt: '2026-01-01T00:00:00.000Z',
+          asBuilt: false,
+          snapshot: base,
+        },
+      ],
+    } as unknown as CablePlannerProject
+    expect(changeImpact(alsSnapshot, mitRevisionen).invalidated).toBe(0)
+  })
+
   it('der Grund steht als Daten da, nicht nur als Prosa', () => {
     expect(registrySrc).toContain('UNJUDGEABLE_DOCUMENTS')
     for (const [id, reason] of Object.entries(UNJUDGEABLE_DOCUMENTS)) {
