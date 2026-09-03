@@ -205,8 +205,123 @@ const buildGroup = (group: GreenGoGroup, users: GreenGoUser[]): Record<string, u
 // ── Main export ───────────────────────────────────────────────────────────────
 
 /**
+ * Die Felder in `Settings`, die aus dem Plan kommen — und NUR die.
+ *
+ * Alles andere in `Settings` gehoert der Anlage: `configId` identifiziert die
+ * Konfiguration, `ConfigPassword`/`AdminPassword` sind die Zugaenge zum
+ * System. Sie beim Export neu zu wuerfeln haette dem Nutzer die eigene Anlage
+ * ausgesperrt — das ist der Grund, warum die Liste hier steht und nicht als
+ * Spread irgendwo im Code.
+ */
+const SETTINGS_FROM_PLAN = ['Name', 'Description', 'SampleRate', 'MulticastAddress'] as const
+
+/**
+ * EDITOR-Weg: in ein geladenes Roh-Dokument hineinschreiben.
+ *
+ * Ueberschrieben wird genau das, was der Plan besitzt — Stationen, Gruppen und
+ * die vier Settings-Felder aus `SETTINGS_FROM_PLAN`. Raeume, Templates,
+ * Geraete-Registrierungen, Tastenbelegungen, Netz-Einstellungen und die
+ * Passwoerter bleiben unangetastet.
+ *
+ * Das ist die Antwort auf den Kommentar in `importGreengo`: „Bis der
+ * Round-Trip sie bewahrt, muss er wenigstens sagen, was er nicht gelesen hat."
+ */
+/**
+ * Die Felder EINER Station, die aus dem Plan kommen. Alles andere gehoert der
+ * Anlage: `devices` ist die Hardware-Registrierung, `Channels` /
+ * `SpecialChannels` sind die Tastenbelegungen, `Security.Pincode` der Zugang,
+ * `AudioProfile` das Einmessen. Der Generator schreibt sie aus Konstanten —
+ * auf einer echten Anlage ist das der halbe Einmessvorgang.
+ *
+ * Spiegelbild von `READ_USER_FIELDS` in `importGreengo`: was der Parser liest,
+ * darf der Export zurueckschreiben. Der Guard in tests/greengoPreset.test.ts
+ * haelt die beiden Listen deckungsgleich.
+ */
+const USER_FIELDS_FROM_PLAN = ['myId', 'Name', 'DisplayName', 'Color', 'ButtonFunctions'] as const
+
+/** Dasselbe fuer eine Gruppe. */
+const GROUP_FIELDS_FROM_PLAN = ['myId', 'Name', 'Color', 'members'] as const
+
+/**
+ * Eine keys-indizierte Sektion fortschreiben statt ersetzen.
+ *
+ * Der erste Anlauf dieser Funktion hat `Users` komplett durch die
+ * plan-gebaute Sektion ersetzt — und damit genau den Verlust wieder
+ * eingebaut, gegen den der Editor-Weg gedacht ist. Aufgefallen ist es nur,
+ * weil ein Test den Pincode einer importierten Station geprueft hat.
+ *
+ * Jetzt: eine Station, die es im Preset gibt, behaelt ihr Objekt und bekommt
+ * nur die Plan-Felder ueberschrieben. Eine neue Station kommt vollstaendig
+ * aus dem Generator — sie hat kein Vorbild, aus dem sich etwas bewahren
+ * liesse. Eine geloeschte faellt weg.
+ */
+const mergeKeyedSection = (
+  presetSection: unknown,
+  built: Record<string, unknown>,
+  fieldsFromPlan: readonly string[],
+): Record<string, unknown> => {
+  const previous =
+    presetSection && typeof presetSection === 'object'
+      ? (presetSection as Record<string, unknown>)
+      : {}
+  const keys = Array.isArray(built.keys) ? (built.keys as string[]) : []
+  const out: Record<string, unknown> = { keys, badge: previous.badge ?? 0 }
+  for (const key of keys) {
+    const fresh = built[key]
+    const old = previous[key]
+    if (!old || typeof old !== 'object' || !fresh || typeof fresh !== 'object') {
+      out[key] = fresh
+      continue
+    }
+    const merged = { ...(old as Record<string, unknown>) }
+    for (const field of fieldsFromPlan) {
+      merged[field] = (fresh as Record<string, unknown>)[field]
+    }
+    out[key] = merged
+  }
+  return out
+}
+
+const mergeIntoPreset = (
+  preset: Record<string, unknown>,
+  config: GreenGoConfig,
+  usersSection: Record<string, unknown>,
+  groupsSection: Record<string, unknown>,
+): Record<string, unknown> => {
+  // Tiefe Kopie: das Preset im Projekt darf der Export nicht veraendern.
+  const out = JSON.parse(JSON.stringify(preset)) as Record<string, unknown>
+  const settings =
+    out.Settings && typeof out.Settings === 'object'
+      ? (out.Settings as Record<string, unknown>)
+      : {}
+  const fromPlan: Record<string, unknown> = {
+    Name: config.systemName,
+    Description: config.description ?? '',
+    SampleRate: config.sampleRate,
+    MulticastAddress: config.multicastAddress,
+  }
+  for (const key of SETTINGS_FROM_PLAN) settings[key] = fromPlan[key]
+  // Zeitstempel des Speicherns fortschreiben, falls das Preset einen fuehrt —
+  // aber keinen erfinden, wo keiner stand.
+  if ('savedAtTimestamp' in settings) settings.savedAtTimestamp = timestamp()
+  out.Settings = settings
+  // Fortschreiben, nicht ersetzen — sonst waeren Tastenbelegungen, Pincodes
+  // und Geraete-Registrierungen der Stationen trotz Preset wieder weg.
+  out.Users = mergeKeyedSection(out.Users, usersSection, USER_FIELDS_FROM_PLAN)
+  out.Groups = mergeKeyedSection(out.Groups, groupsSection, GROUP_FIELDS_FROM_PLAN)
+  return out
+}
+
+/**
  * Build a .gg5 JSON string from a GreenGoConfig.
  * Returns a UTF-8 string that can be saved as `<name>.gg5`.
+ *
+ * ZWEI WEGE, und der Nutzer hat sie entschieden: liegt ein `basePreset` vor
+ * (der Nutzer hat eine echte Anlagen-Konfiguration geladen), wird
+ * HINEINGESCHRIEBEN; sonst wie bisher aus dem Plan ERZEUGT. Der Unterschied
+ * ist kein Detail — der Generator-Weg fuellt Raeume, Templates, Geraete und
+ * Netz aus Konstanten, und wer eine echte Anlage importiert und wieder
+ * exportiert hat, bekam sie leer zurueck.
  */
 export const buildGg5File = (config: GreenGoConfig): string => {
   const ts = timestamp()
@@ -286,5 +401,11 @@ export const buildGg5File = (config: GreenGoConfig): string => {
     },
   }
 
-  return JSON.stringify(gg5, null, 1)
+  // EDITOR-Weg: das geladene Roh-Dokument gewinnt, der Plan schreibt nur
+  // seine eigenen Teile hinein. Steht kein Preset da, bleibt es beim eben
+  // gebauten `gg5` — dem GENERATOR-Weg.
+  const out = config.basePreset
+    ? mergeIntoPreset(config.basePreset, config, usersSection, groupsSection)
+    : gg5
+  return JSON.stringify(out, null, 1)
 }
