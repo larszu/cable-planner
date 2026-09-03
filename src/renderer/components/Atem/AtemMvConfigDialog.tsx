@@ -8,6 +8,12 @@ import { cablePlannerApi, type AtemInputSummary } from '../../lib/bridge'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { detectDeviceKind } from '../../lib/deviceKind'
+import {
+  allDeltas,
+  compareAssignments,
+  hasDifference,
+  mvAssignments,
+} from '../../lib/atemLiveCompare'
 import { useTranslation, format } from '../../lib/i18n'
 import type {
   AtemMvConfig,
@@ -727,6 +733,16 @@ export const AtemMvConfigDialog = () => {
     | null
   >(null)
   const [savedFlash, setSavedFlash] = useState(false)
+  // Initiative 10 — der abgelesene Stand liegt NEBEN dem Plan.
+  //
+  // Vorher ersetzte `handleReadFromAtem` die geplante Aufteilung per
+  // `setConfig(...)`. Die Rueckfrage davor griff nur, wenn irgendein Fenster
+  // `sourceId !== 0` trug — ein bewusst schwarz geplanter Multiviewer ging
+  // still verloren, und danach war die Absicht nicht mehr auffindbar. Das
+  // ist derselbe Fehler, den der Videohub-Dialog bei sich bereits benannt
+  // und geheilt hat.
+  const [live, setLive] = useState<AtemMvDefinition[] | null>(null)
+  const [liveReadAt, setLiveReadAt] = useState('')
   const mvGridRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -734,6 +750,10 @@ export const AtemMvConfigDialog = () => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Draft beim Dialog-Öffnen seeden/zurücksetzen (keyed sync)
     setStatus('')
     setPicker(null)
+    // Ein abgelesener Stand altert; ueber das Schliessen hinweg stehen zu
+    // lassen hiesse, gegen einen Befund von vorgestern zu vergleichen.
+    setLive(null)
+    setLiveReadAt('')
     // v7.9.4 — Migration auf Quadranten-Modell. Falls ein MV noch das
     // legacy windowIndex-Schema (0..9 in ATEM-Reihenfolge) hat, wird
     // er per migrateMvToQuadrants in das neue Schema (0/1/2/3 + 10-13/
@@ -841,6 +861,15 @@ export const AtemMvConfigDialog = () => {
     }
     return m
   }, [equipment])
+
+  // Initiative 10 — was tut die Maschine anders als geplant?
+  const comparison = useMemo(
+    () =>
+      live
+        ? compareAssignments(mvAssignments(config.multiViewers), mvAssignments(live))
+        : null,
+    [config.multiViewers, live],
+  )
 
   if (!slot.open) return null
   // #402 — Ohne vorausgewähltes Gerät (Werkzeuge-Menü) zuerst den Picker.
@@ -966,43 +995,30 @@ export const AtemMvConfigDialog = () => {
         return
       }
       const totalWindows = incoming.reduce((s, m) => s + m.windows.length, 0)
-      // Confirm bei nicht-leerer Bestands-Config damit der User nicht
-      // versehentlich seine offline geplante MV-Anordnung verliert.
-      const hasLocalData = config.multiViewers.some((mv) => (mv.windows ?? []).some((w) => w.sourceId !== 0))
-      if (hasLocalData) {
-        const ok = await confirmDialog(
-          format(
-            t(
-              'atem.mv.confirmOverwrite',
-              'Aktuelle MV-Konfiguration ({local} MV) mit ATEM-Live-Stand überschreiben? Vom ATEM: {incoming} MV mit {windows} Fenster-Zuweisungen.',
-            ),
-            {
-              local: config.multiViewers.length,
-              incoming: incoming.length,
-              windows: totalWindows,
-            },
-          ),
-        )
-        if (!ok) {
-          setStatus(t('atem.mv.status.cancelled', 'Übernahme abgebrochen.'))
-          return
-        }
-      }
-      // Lokale Quadranten-Defaults sicherstellen wenn der ATEM nur Layout +
-      // Windows liefert (kein quadrants-Field aus Hardware). `closestAtemLayout`
-      // wird beim Senden zurueck berechnet — fuer die Anzeige reicht ein
-      // Standard-Quadranten-Tupel das zum Layout passt; wir lassen das aktuell
-      // weg und vertrauen dem getMvQuadrants()-Helper.
-      setConfig({
-        multiViewers: incoming.map((mv) => ({
+      // Initiative 10 — hier stand `setConfig(...)` samt Rueckfrage.
+      //
+      // Die Rueckfrage war das Eingestaendnis, dass hier etwas verloren geht;
+      // ihre Bedingung (`sourceId !== 0` an irgendeinem Fenster) liess einen
+      // bewusst schwarz geplanten Multiviewer trotzdem still fallen. Jetzt
+      // geht nichts verloren: der Befund wird abgelegt, die Differenz
+      // angezeigt, und die Uebernahme ist ein eigener Klick. Damit ist auch
+      // die Rueckfrage an der richtigen Stelle — an der Uebernahme, nicht am
+      // Hinschauen.
+      //
+      // Lokale Quadranten-Defaults muss der Befund nicht mitbringen: die
+      // ATEM liefert nur Layout + Windows, und `getMvQuadrants()` leitet den
+      // Rest bei der Uebernahme ab.
+      setLive(
+        incoming.map((mv) => ({
           index: mv.index,
           layout: mv.layout,
           programPreviewSwapped: mv.programPreviewSwapped,
           windows: mv.windows,
         })),
-      })
+      )
+      setLiveReadAt(new Date().toISOString())
       setStatus(
-        format(t('atem.mv.status.loaded', 'Vom ATEM geladen: {mv} MV, {windows} Fenster.'), {
+        format(t('atem.mv.status.loaded', 'Vom ATEM gelesen: {mv} MV, {windows} Fenster.'), {
           mv: incoming.length,
           windows: totalWindows,
         }),
@@ -1012,6 +1028,37 @@ export const AtemMvConfigDialog = () => {
         format(t('atem.mv.status.error', 'Fehler: {msg}'), { msg: (err as Error).message }),
       )
     }
+  }
+
+  /**
+   * Die Uebernahme — das, was der Lese-Knopf frueher als Nebenwirkung tat.
+   *
+   * Die Rueckfrage steht jetzt hier und nicht mehr am Lesen, und sie stellt
+   * sich immer: auch ein Plan, in dem alle Fenster auf 0 stehen, ist ein
+   * Plan. Genau den hat die alte Bedingung `sourceId !== 0` uebergangen.
+   */
+  const adoptLive = async () => {
+    if (!live) return
+    const changed = comparison ? allDeltas(comparison).length : 0
+    const ok = await confirmDialog(
+      format(
+        t(
+          'atem.mv.live.adoptConfirm',
+          'Gelesenen Stand übernehmen? {changed} von {total} Fenster-Zuweisungen weichen ab. Danach steht im Plan, was der Switcher gerade tut.',
+        ),
+        { changed, total: mvAssignments(live).length },
+      ),
+      { okLabel: t('atem.mv.live.adoptOk', 'Übernehmen') },
+    )
+    if (!ok) {
+      setStatus(t('atem.mv.status.cancelled', 'Übernahme abgebrochen.'))
+      return
+    }
+    setConfig({ multiViewers: live })
+    setActiveMv((prev) => Math.max(0, Math.min(prev, live.length - 1)))
+    setLive(null)
+    setLiveReadAt('')
+    setStatus(t('atem.mv.live.adopted', 'Gelesener Stand in den Plan übernommen.'))
   }
 
   const mv = config.multiViewers[activeMv]
@@ -1170,6 +1217,66 @@ export const AtemMvConfigDialog = () => {
             {format(t('atem.mv.windowHint', '{n} MV — Klick auf ein Fenster ändert die Quelle.'), { n: config.multiViewers.length })}
           </span>
         </div>
+
+        {/* Initiative 10 — Befund und Absicht nebeneinander statt vermischt. */}
+        {live && comparison && (
+          <div className="border-b border-cp-border-muted bg-cp-surface-2 px-3 py-2 text-cp-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <Icon icon={Monitor} size="sm" className="text-cp-accent" />
+              <span className="font-medium text-cp-text">
+                {t('atem.mv.live.title', 'Vom Switcher gelesen')}
+              </span>
+              <span className="text-cp-text-muted">
+                {liveReadAt ? new Date(liveReadAt).toLocaleTimeString() : ''}
+              </span>
+              <span className={hasDifference(comparison) ? 'text-cp-warn' : 'text-cp-text-muted'}>
+                {hasDifference(comparison)
+                  ? format(t('atem.mv.live.differs', '{n} Fenster weichen vom Plan ab'), {
+                      n: allDeltas(comparison).length,
+                    })
+                  : t('atem.mv.live.matches', 'Plan und Gerät stimmen überein')}
+              </span>
+              <button
+                type="button"
+                onClick={() => void adoptLive()}
+                className="ml-auto rounded bg-cp-accent px-3 py-1 text-white hover:opacity-90"
+                title={t(
+                  'atem.mv.live.adoptTitle',
+                  'Den gelesenen Stand als neuen Plan übernehmen — ersetzt die bisherige Absicht.',
+                )}
+              >
+                {t('atem.mv.live.adopt', 'In den Plan übernehmen')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLive(null)
+                  setLiveReadAt('')
+                }}
+                className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5"
+                title={t('atem.mv.live.discardTitle', 'Den gelesenen Stand verwerfen — der Plan bleibt, wie er ist.')}
+              >
+                {t('atem.mv.live.discard', 'Befund verwerfen')}
+              </button>
+            </div>
+            {hasDifference(comparison) && (
+              <ul className="mt-1.5 max-h-20 space-y-0.5 overflow-y-auto font-mono text-[10px] text-cp-text-secondary">
+                {allDeltas(comparison).map((d) => (
+                  <li key={d.key}>
+                    <span className="text-cp-text-muted">{d.label}:</span>{' '}
+                    {d.planned === undefined
+                      ? t('atem.mv.live.notPlanned', 'nicht geplant')
+                      : `#${d.planned}`}
+                    {' -> '}
+                    {d.confirmed === undefined
+                      ? t('atem.mv.live.notReported', 'nicht gemeldet')
+                      : `#${d.confirmed}`}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
 
         {/* v7.9.4 — Ein einziger Layout-Picker. User-Request:
             "Es soll von dem kleinen Layout-Picker oben nur einen

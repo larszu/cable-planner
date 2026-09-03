@@ -18,6 +18,13 @@ import {
 } from '../../lib/atemAudioMappingXml'
 import { confirmDialog } from '../../lib/confirmDialog'
 import {
+  allDeltas,
+  audioMatrixAssignments,
+  compareAssignments,
+  hasDifference,
+  type LiveComparison,
+} from '../../lib/atemLiveCompare'
+import {
   AlertTriangle, FolderOpen, Save, Plug, Upload, SlidersHorizontal,
   Square, SquareCheck, SquareMinus,
 } from 'lucide-react'
@@ -55,6 +62,16 @@ export const AtemAudioRouterDialog = () => {
   )
 
   const [draft, setDraft] = useState<AtemAudioConfig | null>(null)
+  // Initiative 10 — die Beobachtung liegt NEBEN dem Entwurf, nicht darin.
+  //
+  // Vorher mischte `handleReadFromAtem` den Live-Stand per
+  // `live.matrix ?? draft?.matrix` in `draft`. Danach war nicht mehr
+  // feststellbar, welche Kreuzung geplant und welche abgelesen war — und
+  // „Im Projekt speichern" schrieb die Beobachtung als Absicht ins Projekt.
+  // Der Videohub-Dialog hat dieselbe Stelle bereits geheilt und begruendet
+  // sie dort ausfuehrlich.
+  const [live, setLive] = useState<AtemAudioConfig | null>(null)
+  const [liveReadAt, setLiveReadAt] = useState('')
   // v7.5.0 — the classic-mixer view was removed. The router now
   // edits only the routing matrix (AudioMapping section). Imported
   // XMLs that also contain a classic-mixer (AudioMixer) section keep
@@ -71,6 +88,11 @@ export const AtemAudioRouterDialog = () => {
     if (!open) return
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Draft beim Dialog-Öffnen aus equipment seeden (keyed sync)
     setErrorMsg('')
+    // Ein abgelesener Stand altert. Ihn ueber das Schliessen hinweg
+    // stehenzulassen hiesse, spaeter eine Differenz gegen einen Befund von
+    // vorgestern anzuzeigen — dieselbe erfundene Bestaetigung, nur langsamer.
+    setLive(null)
+    setLiveReadAt('')
     const stored = equipment?.atemAudioConfig
     if (!stored) {
       setDraft(null)
@@ -108,6 +130,68 @@ export const AtemAudioRouterDialog = () => {
       window.clearInterval(id)
     }
   }, [open])
+
+  // Initiative 10 — die Differenz, nicht die Vermischung.
+  const comparison: LiveComparison | null = useMemo(
+    () =>
+      live
+        ? compareAssignments(
+            audioMatrixAssignments(draft?.matrix),
+            audioMatrixAssignments(live.matrix),
+          )
+        : null,
+    [draft?.matrix, live],
+  )
+
+  /**
+   * id → Name, aus beiden Seiten: das Geraet kennt oft die besseren Labels.
+   *
+   * `undefined` hat je nach Seite zwei verschiedene Bedeutungen und darf
+   * nicht mit einem Wort abgetan werden: auf der Plan-Seite heisst es „dafuer
+   * gibt es keine Absicht", auf der Geraete-Seite „dazu hat es nichts
+   * gesagt". Deshalb nimmt die Funktion das fehlende Wort als Argument.
+   */
+  const sourceName = (id: number | undefined, missing: string): string => {
+    if (id === undefined) return missing
+    if (id === 0) return t('atem.audio.noAudio', 'No Audio')
+    const found =
+      live?.matrix?.sources.find((x) => x.id === id) ??
+      draft?.matrix?.sources.find((x) => x.id === id)
+    return found?.name ?? String(id)
+  }
+
+  /**
+   * Die Uebernahme — das, was der Lese-Knopf frueher stillschweigend tat.
+   *
+   * Sie bleibt vollstaendig moeglich; sie ist nur nicht mehr die Nebenwirkung
+   * des Hinschauens. `rawXml` und die uebrigen Entwurfs-Felder bleiben, damit
+   * der XML-Round-Trip weiter Byte fuer Byte traegt.
+   */
+  const handleAdoptLive = async () => {
+    if (!live) return
+    const changed = comparison ? allDeltas(comparison).length : 0
+    if (
+      !(await confirmDialog(t('atem.audio.live.adoptConfirm', 'Gelesenen Stand in den Plan übernehmen?'), {
+        body: format(
+          t(
+            'atem.audio.live.adoptBody',
+            'Der Plan übernimmt {n} abweichende Zuweisungen vom Switcher. Danach steht im Plan, was das Gerät gerade tut — die bisherige Absicht ist damit ersetzt.',
+          ),
+          { n: changed },
+        ),
+        okLabel: t('atem.audio.live.adoptOk', 'Übernehmen'),
+      }))
+    )
+      return
+    setDraft({
+      ...(draft ?? {}),
+      matrix: live.matrix ?? draft?.matrix,
+      classicMixer: live.classicMixer ?? draft?.classicMixer,
+      inputLabels: live.inputLabels ?? draft?.inputLabels,
+    })
+    setLive(null)
+    setLiveReadAt('')
+  }
 
   if (!open || !equipment) return null
 
@@ -177,8 +261,8 @@ export const AtemAudioRouterDialog = () => {
     setBusy(true)
     setErrorMsg('')
     try {
-      const live = await cablePlannerApi.atem.readAudioConfig()
-      if (!live || (!live.matrix && !live.classicMixer)) {
+      const reading = await cablePlannerApi.atem.readAudioConfig()
+      if (!reading || (!reading.matrix && !reading.classicMixer)) {
         await infoDialog(t('atem.audio.noAudioDataTitle', 'Keine Audio-Daten'), {
           body: t(
             'atem.audio.noAudioDataBody',
@@ -188,32 +272,31 @@ export const AtemAudioRouterDialog = () => {
         })
         return
       }
-      // raws aus Draft beibehalten (XML-Round-Trip kompatibilität), nur
-      // matrix/classicMixer/inputLabels überschreiben.
-      const merged: AtemAudioConfig = {
-        ...(draft ?? {}),
-        matrix: live.matrix ?? draft?.matrix,
-        classicMixer: live.classicMixer ?? draft?.classicMixer,
-        inputLabels: live.inputLabels ?? draft?.inputLabels,
-      }
-      setDraft(merged)
+      // Initiative 10 — hier stand `setDraft(merged)`.
+      //
+      // Der Befund wird abgelegt, nicht eingemischt. Was der Switcher gerade
+      // tut, ist eine Beobachtung; was im Entwurf steht, eine Absicht. Die
+      // Uebernahme gibt es weiter — als eigenen Klick, mit der Differenz
+      // davor.
+      setLive(reading)
+      setLiveReadAt(new Date().toISOString())
       setActiveTab('matrix')
-      await infoDialog(t('atem.audio.loadedTitle', 'Audio-Config vom ATEM geladen'), {
+      await infoDialog(t('atem.audio.loadedTitle', 'Audio-Config vom ATEM gelesen'), {
         body: [
-          live.matrix
+          reading.matrix
             ? format(
                 t('atem.audio.loadedMatrix', 'Matrix: {outputs} Outputs × {sources} Sources'),
-                { outputs: live.matrix.outputs.length, sources: live.matrix.sources.length },
+                { outputs: reading.matrix.outputs.length, sources: reading.matrix.sources.length },
               )
             : null,
-          live.classicMixer
+          reading.classicMixer
             ? format(t('atem.audio.loadedClassic', 'Classic-Mixer: {inputs} Inputs'), {
-                inputs: live.classicMixer.inputs.length,
+                inputs: reading.classicMixer.inputs.length,
               })
             : null,
-          live.inputLabels
+          reading.inputLabels
             ? format(t('atem.audio.loadedLabels', 'Input-Labels: {count}'), {
-                count: Object.keys(live.inputLabels).length,
+                count: Object.keys(reading.inputLabels).length,
               })
             : null,
         ].filter(Boolean).join('\n'),
@@ -439,6 +522,76 @@ export const AtemAudioRouterDialog = () => {
           <div className="flex items-center gap-1.5 border-b border-red-700/50 bg-red-900/30 px-4 py-2 text-cp-xs text-red-200">
             <Icon icon={AlertTriangle} size="sm" />
             {errorMsg}
+          </div>
+        )}
+
+        {/* Initiative 10 — der abgelesene Stand, sichtbar getrennt vom Plan.
+            Nur so ist die Frage „was tut die Maschine anders als geplant?"
+            ueberhaupt stellbar; vorher war sie nach dem Lesen unbeantwortbar,
+            weil beides in derselben Variable stand. */}
+        {live && comparison && (
+          <div className="border-b border-purple-700/50 bg-purple-950/30 px-4 py-2 text-cp-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <Icon icon={Plug} size="sm" className="text-purple-300" />
+              <span className="font-medium text-purple-200">
+                {t('atem.audio.live.title', 'Vom Switcher gelesen')}
+              </span>
+              <span className="text-slate-400">
+                {liveReadAt ? new Date(liveReadAt).toLocaleTimeString() : ''}
+              </span>
+              <span className="text-slate-400">·</span>
+              <span className={hasDifference(comparison) ? 'text-amber-300' : 'text-emerald-300'}>
+                {hasDifference(comparison)
+                  ? format(
+                      t('atem.audio.live.differs', '{n} Abweichungen zum Plan'),
+                      { n: allDeltas(comparison).length },
+                    )
+                  : t('atem.audio.live.matches', 'Plan und Gerät stimmen überein')}
+              </span>
+              <span className="text-slate-500">
+                {format(t('atem.audio.live.agreeing', '{n} gleich'), {
+                  n: comparison.agreeing,
+                })}
+              </span>
+              <button
+                type="button"
+                onClick={() => void handleAdoptLive()}
+                className="ml-auto rounded bg-purple-700 px-3 py-1 hover:bg-purple-600"
+                title={t(
+                  'atem.audio.live.adoptTitle',
+                  'Den gelesenen Stand als neuen Plan übernehmen — ersetzt die bisherige Absicht.',
+                )}
+              >
+                {t('atem.audio.live.adopt', 'In den Plan übernehmen')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLive(null)
+                  setLiveReadAt('')
+                }}
+                className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
+                title={t('atem.audio.live.discardTitle', 'Den gelesenen Stand verwerfen — der Plan bleibt, wie er ist.')}
+              >
+                {t('atem.audio.live.discard', 'Befund verwerfen')}
+              </button>
+            </div>
+            {hasDifference(comparison) && (
+              <ul className="mt-1.5 max-h-24 space-y-0.5 overflow-y-auto font-mono text-[10px] text-slate-300">
+                {allDeltas(comparison).map((d) => (
+                  <li key={d.key}>
+                    <span className="text-slate-400">{d.label}:</span>{' '}
+                    <span className="text-sky-300">
+                      {sourceName(d.planned, t('atem.audio.live.notPlanned', 'nicht geplant'))}
+                    </span>
+                    {' -> '}
+                    <span className="text-amber-300">
+                      {sourceName(d.confirmed, t('atem.audio.live.notMentioned', 'nicht gemeldet'))}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         )}
 
