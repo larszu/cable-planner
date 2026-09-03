@@ -779,7 +779,8 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   Der Export schreibt diese Sektionen aus Defaults; wer eine echte
                   Anlagen-Konfiguration hier durchreicht, bekommt sie leer zurueck.
                   Bis der Round-Trip sie bewahrt, sagt er es wenigstens. */}
-              {importResult.unreadSections.length > 0 && (
+              {(importResult.unreadSections.length > 0 ||
+                importResult.unreadFields.length > 0) && (
                 <div className="rounded border border-cp-warn/50 bg-cp-warn/10 p-3">
                   <div className="mb-1 text-cp-xs font-semibold text-cp-warn">
                     {t(
@@ -787,13 +788,35 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                       'Diese Datei enthält Abschnitte, die der Import nicht liest',
                     )}
                   </div>
-                  <div className="font-mono text-[11px] text-cp-text-secondary">
-                    {importResult.unreadSections.join(', ')}
-                  </div>
+                  {importResult.unreadSections.length > 0 && (
+                    <div className="font-mono text-[11px] text-cp-text-secondary">
+                      {importResult.unreadSections.join(', ')}
+                    </div>
+                  )}
+                  {/* ADR-005, Inkrement 4 — die Zeile darueber nannte nur
+                      TOP-LEVEL-Sektionen. Weil Settings/Users/Groups als
+                      „gelesen" gelten, konnte sie nie sagen, dass INNERHALB
+                      davon das meiste liegen bleibt: die Hardware-Registrierung
+                      der Beltpacks, die Tastenbelegungen, Pincodes, die
+                      eingemessenen Gains. Der Nutzer las „Devices, Rooms,
+                      Templates" und schloss, seine Stationen seien uebernommen. */}
+                  {importResult.unreadFields.map((u) => (
+                    <div key={u.section} className="mt-1 text-[11px] text-cp-text-secondary">
+                      <span className="font-semibold">{u.section}</span>
+                      {u.section === 'Settings'
+                        ? ''
+                        : format(
+                            t('greengo.importOverlay.unreadEntries', ' ({count} Einträge)'),
+                            { count: u.entries },
+                          )}
+                      {': '}
+                      <span className="font-mono">{u.fields.join(', ')}</span>
+                    </div>
+                  ))}
                   <div className="mt-1.5 text-[11px] text-cp-text-muted">
                     {t(
                       'greengo.importOverlay.unreadHint',
-                      'Ein Export aus dem Cable-Planner erzeugt eine neue .gg5 und füllt diese Abschnitte mit Standardwerten. Er ersetzt die Original-Datei nicht — bewahre sie auf.',
+                      'Ein Export aus dem Cable-Planner erzeugt eine neue .gg5 und füllt diese Abschnitte und Felder mit Standardwerten. Er ersetzt die Original-Datei nicht — bewahre sie auf.',
                     )}
                   </div>
                 </div>
