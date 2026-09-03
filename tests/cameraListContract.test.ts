@@ -24,6 +24,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 import { describe, it, expect } from 'vitest'
 import { interfaceKeys } from './support/interfaceKeys'
+import importerSrc from '../src/renderer/lib/multicamCameraImport.ts?raw'
 import {
   CAMERA_LIST_KIND,
   CAMERA_LIST_VERSION,
@@ -32,8 +33,6 @@ import {
   type CameraListEntry,
   type CameraListExchange,
 } from '../src/renderer/lib/multicamCameraImport'
-
-const SRC = 'src/renderer/lib/multicamCameraImport.ts'
 
 // Eingefrorener Contract — MUSS in beiden Repos identisch sein.
 const CONTRACT = {
@@ -85,8 +84,8 @@ describe('camera-list Wire-Contract (Drift-Guard)', () => {
     // Feld laesst sie unveraendert kompilieren. Deshalb hier gegen den
     // Interface-Rumpf im Quelltext — die einzige Pruefung, die unter
     // `npm test` tatsaechlich laeuft (tests/ liegt ausserhalb der tsconfigs).
-    expect(interfaceKeys(SRC, 'CameraListEntry')).toEqual(CONTRACT.entryKeys)
-    expect(interfaceKeys(SRC, 'CameraListExchange')).toEqual(CONTRACT.envelopeKeys)
+    expect(interfaceKeys(importerSrc, 'CameraListEntry')).toEqual(CONTRACT.entryKeys)
+    expect(interfaceKeys(importerSrc, 'CameraListExchange')).toEqual(CONTRACT.envelopeKeys)
   })
 
   it('parse akzeptiert den eingefrorenen Envelope', () => {

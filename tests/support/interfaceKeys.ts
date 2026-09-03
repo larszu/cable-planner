@@ -1,34 +1,38 @@
 // ───────────────────────────────────────────────────────────────────────────
-// Feld-Namen eines TS-Interface zur LAUFZEIT aus der Quelle lesen.
+// Feld-Namen eines TS-Interface zur LAUFZEIT aus dem Quelltext lesen.
 //
-// WARUM NICHT AUF TYP-EBENE. Der naheliegende Weg waere
+// Zeichengleich zu multicam-planner src/__tests__/support/interfaceKeys.ts
+// (bis auf die Semikolon-Konvention), damit die Contract-Guards beider Repos
+// dieselbe Pruefung machen und „wortgleich“ nachpruefbar bleibt. Der Aufrufer
+// laedt die Quelle per `?raw`-Import — die Funktion selbst fasst kein
+// Dateisystem an und braucht darum weder @types/node noch eine gemeinsame
+// Pfad-Konvention.
+//
+// WARUM ZUR LAUFZEIT. Der naheliegende Weg waere
 // `const _x: Record<keyof T, true> = { ... }` — ein tsc-Fehler, sobald jemand
-// ein Feld hinzufuegt. Der greift hier aber nicht: `tests/` liegt bewusst
-// ausserhalb aller Emit-tsconfigs (siehe vitest.config.ts: kein Test-File in
-// dist/), `npx tsc -p tsconfig.app.json` sieht die Testdateien also nie, und
-// vitest streift Typen ueber esbuild ohne sie zu pruefen. Nachgemessen an
-// einem eingebauten Zusatzfeld: beide Wege blieben gruen.
+// ein Feld hinzufuegt. HIER greift das nicht: tests/ liegt bewusst ausserhalb
+// aller Emit-tsconfigs (siehe vitest.config.ts: kein Test-File in dist/),
+// `npx tsc -p tsconfig.app.json` sieht die Testdateien also nie, und vitest
+// streift Typen ueber esbuild ohne sie zu pruefen. Nachgemessen an einem
+// eingebauten Zusatzfeld: beide Wege blieben gruen.
 //
-// Ein Contract-Guard, der eine nie ausgefuehrte Pruefung enthaelt, ist
-// schlimmer als keiner — er behauptet Sicherheit, die es nicht gibt. Also
-// wird der Interface-Rumpf aus dem Quelltext gelesen. Das laeuft unter
-// `npm test` und damit in CI.
+// Im multicam-planner WUERDE der Typ-Weg greifen (tsconfig `include: ["src"]`,
+// Tests unter src/__tests__). Eine Pruefung, die nur auf EINER Seite eines
+// zweiseitigen Vertrags laeuft, taugt aber nicht — deshalb dort wie hier
+// derselbe Laufzeit-Weg.
 //
 // GRENZEN, ausdruecklich: bewusst simpel gehalten — ein Interface ohne
 // Vererbung (`extends`) und ohne verschachtelte Objekt-Literale im Rumpf.
-// Genau so sind die Austauschformat-Interfaces geschnitten. Trifft das
-// nicht mehr zu, faellt `interfaceKeys` mit einer klaren Meldung, statt
-// still eine falsche Menge zu liefern.
+// Genau so sind die Austauschformat-Interfaces geschnitten. Trifft das nicht
+// mehr zu, faellt `interfaceKeys` mit einer klaren Meldung, statt still eine
+// falsche Menge zu liefern.
 // ───────────────────────────────────────────────────────────────────────────
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 
-/** Feld-Namen des Interface `name` aus der Datei `relPath` (repo-relativ). */
-export const interfaceKeys = (relPath: string, name: string): string[] => {
-  const src = readFileSync(resolve(__dirname, '..', '..', relPath), 'utf8')
+/** Feld-Namen des Interface `name` im Quelltext `src` (via `?raw` geladen). */
+export const interfaceKeys = (src: string, name: string): string[] => {
   const head = new RegExp(`\\binterface\\s+${name}\\b([^{]*)\\{`)
   const m = head.exec(src)
-  if (!m) throw new Error(`Interface ${name} nicht in ${relPath} gefunden`)
+  if (!m) throw new Error(`Interface ${name} nicht im Quelltext gefunden`)
   if (m[1].includes('extends')) {
     throw new Error(`${name} benutzt extends — interfaceKeys kann das nicht aufloesen`)
   }
@@ -41,20 +45,15 @@ export const interfaceKeys = (relPath: string, name: string): string[] => {
     if (src[i] === '{') depth++
     else if (src[i] === '}') depth--
   }
-  if (depth !== 0) throw new Error(`Rumpf von ${name} in ${relPath} nicht geschlossen`)
+  if (depth !== 0) throw new Error(`Rumpf von ${name} nicht geschlossen`)
   const body = src.slice(start, i - 1)
 
-  if (/\{/.test(body.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, ''))) {
+  const stripped = body.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
+  if (/\{/.test(stripped)) {
     throw new Error(`${name} hat verschachtelte Objekt-Literale — interfaceKeys ist dafuer zu simpel`)
   }
 
-  return [
-    ...body
-      // Kommentare raus, sonst zaehlen Doku-Zeilen als Felder.
-      .replace(/\/\*[\s\S]*?\*\//g, '')
-      .replace(/\/\/.*$/gm, '')
-      .matchAll(/^\s*(?:readonly\s+)?([A-Za-z_$][\w$]*)\??\s*:/gm),
-  ]
+  return [...stripped.matchAll(/^\s*(?:readonly\s+)?([A-Za-z_$][\w$]*)\??\s*:/gm)]
     .map((k) => k[1])
     .sort()
 }

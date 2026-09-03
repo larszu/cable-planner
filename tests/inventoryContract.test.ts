@@ -15,6 +15,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 import { describe, it, expect } from 'vitest'
 import { interfaceKeys } from './support/interfaceKeys'
+import inventoryTypesSrc from '../src/renderer/types/inventory.ts?raw'
 import {
   INVENTORY_FORMAT,
   INVENTORY_FORMAT_VERSION,
@@ -91,11 +92,10 @@ describe('avplan-inventory Wire-Contract (Drift-Guard)', () => {
 
   it('faengt auch ein neu hinzugefuegtes OPTIONALES Feld', () => {
     // Die Muster-Entitaeten oben wuerden das nicht tun (siehe Kommentar dort).
-    const T = 'src/renderer/types/inventory.ts'
-    expect(interfaceKeys(T, 'InventoryItem')).toEqual(CONTRACT.itemKeys)
-    expect(interfaceKeys(T, 'StorageNode')).toEqual(CONTRACT.nodeKeys)
-    expect(interfaceKeys(T, 'InventorySet')).toEqual(CONTRACT.setKeys)
-    expect(interfaceKeys(T, 'InventoryUnit')).toEqual(CONTRACT.unitKeys)
+    expect(interfaceKeys(inventoryTypesSrc, 'InventoryItem')).toEqual(CONTRACT.itemKeys)
+    expect(interfaceKeys(inventoryTypesSrc, 'StorageNode')).toEqual(CONTRACT.nodeKeys)
+    expect(interfaceKeys(inventoryTypesSrc, 'InventorySet')).toEqual(CONTRACT.setKeys)
+    expect(interfaceKeys(inventoryTypesSrc, 'InventoryUnit')).toEqual(CONTRACT.unitKeys)
   })
 
   it('Round-Trip serialize -> parse ist verlustfrei', () => {
