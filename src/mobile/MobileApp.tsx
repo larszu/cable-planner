@@ -1742,7 +1742,18 @@ const AddCableModal = ({
         <div className="space-y-3 p-3 text-xs">
           {done ? (
             <div className="rounded border border-emerald-700 bg-emerald-900/30 p-3 text-center text-emerald-200">
-              ✓ Kabel gesendet — wird am Desktop mit 📱-Marker eingefügt
+              {/* ADR-005, Regel 4 — hier stand „wird am Desktop mit
+                  📱-Marker eingefügt". Das konnte diese Seite nicht wissen:
+                  der Server bestätigt den Empfang des JSON, der Desktop
+                  entscheidet erst danach und lehnt in vier Fällen ab
+                  (Plan gesperrt, Gerät oder Port weg, Dublette). Ein
+                  Versprechen im Futur von der Seite, die es nicht einlösen
+                  kann. Jetzt steht hier nur, was tatsächlich passiert ist. */}
+              ✓ An den Desktop gesendet
+              <div className="mt-1 text-[10px] font-normal text-emerald-300/80">
+                Ob es im Plan landet, entscheidet der Desktop — dort steht es
+                dann mit 📱-Marker.
+              </div>
             </div>
           ) : (
             <>

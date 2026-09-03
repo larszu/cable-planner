@@ -1,4 +1,5 @@
 import type { LoadDrop, LoadReport } from '../types/loadReport'
+import type { MobileDropReport } from '../types/mobileReport'
 import { v4 as uuidv4 } from 'uuid'
 import { create, type StateCreator } from 'zustand'
 import type { Connection } from 'reactflow'
@@ -168,6 +169,14 @@ export interface ProjectState {
   lastLoadReport: LoadReport | null
   /** Bericht weggeraeumt — der Nutzer hat ihn gesehen. */
   dismissLoadReport: () => void
+  /**
+   * ADR-005 — Was der Desktop von einem Handy nicht uebernommen hat. `null`,
+   * wenn nichts abgelehnt wurde. Gehoert wie der Ladebericht NICHT ins
+   * Projektfile: es ist eine Aussage ueber einen Vorgang, nicht ueber den Plan.
+   */
+  lastMobileDrop: MobileDropReport | null
+  /** Bericht weggeraeumt — der Nutzer hat ihn gesehen. */
+  dismissMobileDrop: () => void
   selectedEquipmentId?: string
   selectedCableId?: string
   selectedLocationId?: string
@@ -922,6 +931,8 @@ const buildProjectStore = (
   projectVersion: 0,
   lastLoadReport: initialDrops.length > 0 ? { drops: initialDrops } : null,
   dismissLoadReport: () => set({ lastLoadReport: null }),
+  lastMobileDrop: null,
+  dismissMobileDrop: () => set({ lastMobileDrop: null }),
   showCableDialog: false,
   recentProjects: [],
   customLibrary: loadCustomLibrary(),
