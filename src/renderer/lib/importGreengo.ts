@@ -42,6 +42,15 @@ export interface Gg5ImportResult {
    * und liess den Nutzer glauben, der Rest sei uebernommen.
    */
   unreadFields: UnreadFieldReport[]
+  /**
+   * Das unveraenderte Roh-Dokument. Wandert als `GreenGoConfig.basePreset` in
+   * den Plan, damit der Export hineinschreiben kann statt neu zu bauen.
+   *
+   * Es ist ausdruecklich das GANZE Dokument, nicht „die ungelesenen Teile":
+   * welche Teile ungelesen sind, weiss diese Datei — welche der Nutzer
+   * spaeter braucht, weiss sie nicht.
+   */
+  raw: Record<string, unknown>
 }
 
 export interface Gg5ParseError {
@@ -335,6 +344,7 @@ export const parseGg5File = (jsonText: string): Gg5ParseOutcome => {
     userTypeHints,
     unreadSections: unreadTopLevelSections(raw),
     unreadFields: unreadFieldsInReadSections(raw),
+    raw,
   }
 }
 
