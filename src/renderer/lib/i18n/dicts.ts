@@ -1417,6 +1417,7 @@ export const en: Dict = {
   'greengo.importOverlay.matchRenamed': 'Slot {slots}: the station has a different name in the file — the mapping was guessed again.',
   'greengo.importOverlay.matchStale': 'Slot {slots}: the previously mapped device is no longer in the plan — guessed again.',
   'greengo.importOverlay.matchHint': 'Guessed mappings can be corrected per station below before the import is applied.',
+  'greengo.export.blocked': 'Without at least one station or group there is no valid .gg5 — create one first.',
   'greengo.importOverlay.unreadEntries': ' ({count} entries)',
   'greengo.importOverlay.importedGroups': 'Imported groups',
   'greengo.importOverlay.linkStations': 'Link stations → canvas devices',
