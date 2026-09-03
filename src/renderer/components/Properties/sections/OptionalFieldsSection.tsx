@@ -3,6 +3,7 @@ import { format, useTranslation } from '../../../lib/i18n'
 import { pickImageAsDataUri } from '../../../lib/readImageAsDataUri'
 import { promptDialog } from '../../../lib/promptDialog'
 import { SortableSection } from '../SortableSection'
+import { resolveDeviceType } from '../../../lib/deviceTypeRegistry'
 import type { EquipmentItem } from '../../../types/equipment'
 
 const ICON_GLYPHS = ['📷', '🖥', '💻', '📺', '🎙', '💡', '🌐', '⚡', '🔌', '🔧', '⇄'] as const
@@ -16,6 +17,11 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
   const t = useTranslation()
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const projectAuthor = useProjectStore((state) => state.project.metadata.author)
+
+  // Initiative 11 — der Katalog-Typ als Quelle des Datenblatt-Links.
+  const catalogType = resolveDeviceType(equipment.deviceTypeId)
+  const inheritedUrl = catalogType?.template.manufacturerUrl
+  const inheritedName = catalogType?.template.name
 
   // #580 — Verifizierung: eine Person bestätigt, dass die Ports/Daten des
   // Geräts korrekt sind. Name kommt aus dem Projekt-Autor (Einstellungen);
@@ -144,6 +150,34 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
               </a>
             )}
           </div>
+          {/* Initiative 11 — der geerbte Beleg, mit genannter Herkunft.
+              `manufacturerUrl` ist eine MODELL-Eigenschaft (siehe
+              `modelFields.ts`): ein Geraet, das einen Katalog-Typ
+              referenziert, erbt sie. Ohne diese Zeile lagen die 253
+              Datenblatt-Links zwar im Katalog, aber der Nutzer sah am Geraet
+              weiterhin ein leeres Feld — der Beleg waere aus dem Kommentar in
+              ein ebenso unerreichbares Feld gewandert. Das eigene Feld
+              gewinnt, wenn es gesetzt ist: es ist die Ausnahme, die jemand
+              bewusst eingetragen hat. */}
+          {!equipment.manufacturerUrl && inheritedUrl && (
+            <div className="mt-1 flex items-center gap-1 text-cp-xs">
+              <span className="text-cp-text-muted">
+                {format(
+                  t('eq.field.manufacturerUrlInherited', 'Aus Katalog-Typ {name}:'),
+                  { name: inheritedName ?? '' },
+                )}
+              </span>
+              <a
+                href={inheritedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="truncate text-cp-accent hover:underline"
+                title={t('eq.field.manufacturerUrlOpenTitle', 'In externem Browser öffnen')}
+              >
+                {t('eq.field.manufacturerUrlOpen', 'Öffnen ↗')}
+              </a>
+            </div>
+          )}
         </label>
 
         <label className="block">

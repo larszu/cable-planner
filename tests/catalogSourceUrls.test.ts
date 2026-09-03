@@ -108,6 +108,37 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
   })
 })
 
+describe('der Beleg kommt wirklich beim Geraet an', () => {
+  it('loest ueber die Geraetetyp-ID auf den Datenblatt-Link auf', async () => {
+    // Der Punkt der ganzen Uebernahme. Ohne diese Pruefung waere der Beleg
+    // nur aus einem unerreichbaren Kommentar in ein unerreichbares Feld
+    // gewandert: `OptionalFieldsSection` rendert `equipment.manufacturerUrl`,
+    // und ein Geraet, das bloss einen Katalog-Typ REFERENZIERT, hat dort
+    // nichts stehen. Gemessen, nicht angenommen — der DeviceTypePicker setzt
+    // nur `deviceTypeId` und kopiert keine Template-Felder.
+    const { resolveDeviceType } = await import('../src/renderer/lib/deviceTypeRegistry')
+    const { MIC_CATALOG } = await import('../src/renderer/lib/micCatalog')
+    const sm57 = MIC_CATALOG.find((e) => e.template.name === 'Shure SM57')
+    expect(sm57).toBeDefined()
+    const resolved = resolveDeviceType(sm57!.deviceTypeId)
+    expect(resolved?.template.manufacturerUrl).toBe(
+      'https://www.shure.com/en-US/microphones/sm57',
+    )
+  })
+
+  it('zeigt den geerbten Link in der Eigenschaften-Leiste an', async () => {
+    // Die zweite Haelfte: die Aufloesung nuetzt nichts, wenn sie niemand
+    // anzeigt. Der Quelltext-Guard haelt fest, dass die Leiste auf den
+    // Katalog-Typ zurueckfaellt — und dass ein eigener Eintrag am Geraet
+    // weiter gewinnt, denn der ist die bewusste Ausnahme.
+    const src = (
+      await import('../src/renderer/components/Properties/sections/OptionalFieldsSection.tsx?raw')
+    ).default
+    expect(src).toContain('resolveDeviceType(equipment.deviceTypeId)')
+    expect(src).toContain('!equipment.manufacturerUrl && inheritedUrl')
+  })
+})
+
 describe('was der Test NICHT behauptet', () => {
   it('sagt, wie viele Kataloge weiterhin ohne Beleg dastehen', () => {
     // ADR-005 Regel 3 — melden, wo es passiert. Acht Kataloge fuehren keine
