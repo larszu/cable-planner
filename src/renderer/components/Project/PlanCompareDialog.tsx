@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertTriangle, FileDown, FolderOpen, GitCompare } from 'lucide-react'
+import { AlertTriangle, FileDown, FolderOpen, GitCompare, History } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { ModalShell } from '../shared/ModalShell'
 import { useProjectStore } from '../../store/projectStore'
@@ -10,7 +10,7 @@ import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { planDiff, planDiffCsv, planDiffSummary, type PlanDiff } from '../../lib/planDiff'
 import { changeImpact, changeImpactSummary, type ChangeImpact } from '../../lib/changeImpact'
 import { planFingerprint } from '../../lib/documentStamp'
-import type { CablePlannerProject } from '../../types/project'
+import type { CablePlannerProject, ProjectRevision } from '../../types/project'
 
 // Roadmap-Initiative 5 — hier laufen beide Ableitungen zusammen.
 //
@@ -24,14 +24,35 @@ import type { CablePlannerProject } from '../../types/project'
 // hat sich seit der anderen Datei geaendert", also `planDiff(fremd, meiner)`.
 // Steht es andersherum, drehen sich Zu- und Abgang um — deshalb steht die
 // Richtung auch im Dialog und nicht nur im Kommentar.
+//
+// ZWEI QUELLEN, EINE ABLEITUNG. Der frühere Stand kann aus einer Datei kommen
+// — oder aus einer festgeschriebenen Revision, die ohnehin schon im Projekt
+// liegt. Der zweite Fall ist der häufigere und der einzige, der ohne Umweg
+// über eine zweite Datei auskommt: `ProjectRevision.snapshot` ist ein
+// vollständiger Plan-Stand, `changeImpact` und `planDiff` nehmen ihn wie
+// jeden anderen. Ohne diesen Weg musste jemand den alten Stand als Datei
+// aufgehoben haben — genau der Medienbruch, den die Revisionen abschaffen.
+//
+// `revisions: []` beim Aufspannen ist kein Trick, sondern die Definition:
+// `RevisionSnapshot = Omit<CablePlannerProject, 'revisions'>`. Dass keine der
+// sechs Dokument-Ableitungen davon abhängt, hält `tests/changeImpact.test.ts`
+// fest — sonst meldete jeder Revisions-Vergleich ein Blatt als überholt, das
+// sich nur deshalb unterscheidet, weil die Liste der Revisionen leer ist.
 
 export interface PlanCompareDialogProps {
   open: boolean
   onClose: () => void
 }
 
+/**
+ * Der frühere Stand — woher er kommt, steht in `origin`. Der Vergleich selbst
+ * kennt den Unterschied nicht; er braucht ihn nur für die Beschriftung, damit
+ * im Dialog nicht „Datei" steht, wo eine Revision gemeint ist.
+ */
 type Loaded = {
-  filePath: string
+  origin: 'file' | 'revision'
+  /** Dateipfad oder Revisions-Label — was im Dialog neben der Auswahl steht. */
+  label: string
   project: CablePlannerProject
 }
 
@@ -79,13 +100,30 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
         )
         return
       }
-      setOther({ filePath: picked.filePath, project: picked.data })
+      setOther({ origin: 'file', label: picked.filePath, project: picked.data })
     } finally {
       setBusy(false)
     }
   }
 
-  // Reihenfolge: die geladene Datei ist der frühere Stand, der offene Plan der
+  const revisions = project.revisions ?? []
+
+  /**
+   * Eine festgeschriebene Revision als früheren Stand nehmen.
+   *
+   * Der Snapshot ist per Typ ein Projekt ohne `revisions`; die leere Liste
+   * ergänzt genau das fehlende Feld und erfindet nichts dazu.
+   */
+  const pickRevision = (rev: ProjectRevision) => {
+    setError(null)
+    setOther({
+      origin: 'revision',
+      label: rev.asBuilt ? `${rev.label} (As-Built)` : rev.label,
+      project: { ...rev.snapshot, revisions: [] },
+    })
+  }
+
+  // Reihenfolge: der gewählte Stand ist der frühere, der offene Plan der
   // spätere. Siehe Kopf-Kommentar.
   const diff: PlanDiff | null = other ? planDiff(other.project, project) : null
   const impact: ChangeImpact | null = other ? changeImpact(other.project, project) : null
@@ -148,12 +186,42 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
             <Icon icon={FolderOpen} size="sm" />
             {t('compare.pick', 'Vergleichs-Datei wählen…')}
           </button>
-          {other && (
-            <span className="truncate text-cp-xs text-cp-text-secondary" title={other.filePath}>
-              {other.filePath}
-            </span>
+          {revisions.length > 0 && (
+            <label className="flex items-center gap-2 text-cp-xs text-cp-text-secondary">
+              <Icon icon={History} size="sm" />
+              <span>{t('compare.orRevision', 'oder festgeschriebene Revision:')}</span>
+              <select
+                value={other?.origin === 'revision' ? other.label : ''}
+                onChange={(e) => {
+                  const rev = revisions.find(
+                    (r) => (r.asBuilt ? `${r.label} (As-Built)` : r.label) === e.target.value,
+                  )
+                  if (rev) pickRevision(rev)
+                }}
+                className="rounded border border-cp-border-muted bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text"
+              >
+                <option value="">{t('compare.chooseRevision', '— wählen —')}</option>
+                {[...revisions].reverse().map((r) => (
+                  <option
+                    key={r.id}
+                    value={r.asBuilt ? `${r.label} (As-Built)` : r.label}
+                  >
+                    {r.asBuilt ? `${r.label} (As-Built)` : r.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           )}
         </div>
+
+        {other && (
+          <p className="truncate text-cp-xs text-cp-text-secondary" title={other.label}>
+            {other.origin === 'revision'
+              ? t('compare.fromRevision', 'Früherer Stand: Revision')
+              : t('compare.fromFile', 'Früherer Stand: Datei')}{' '}
+            <span className="font-mono">{other.label}</span>
+          </p>
+        )}
 
         {error && (
           <p className="flex items-start gap-2 rounded border border-cp-danger/40 bg-cp-surface-2 p-2 text-cp-xs text-cp-danger">
@@ -166,7 +234,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
           <p className="text-cp-xs text-cp-text-muted">
             {t(
               'compare.hint',
-              'Wähle eine zweite Projektdatei — etwa den Stand, den ein Kollege zurückgeschickt hat. Sie wird nur gelesen und nicht geöffnet.',
+              'Wähle eine zweite Projektdatei — etwa den Stand, den ein Kollege zurückgeschickt hat — oder eine festgeschriebene Revision aus diesem Projekt. Beides wird nur gelesen und nicht geöffnet.',
             )}
           </p>
         )}
@@ -176,7 +244,9 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
             <div className="grid gap-2 rounded border border-cp-border-muted bg-cp-surface-2 p-3 text-cp-xs sm:grid-cols-2">
               <div>
                 <div className="text-cp-text-muted">
-                  {t('compare.standBefore', 'Stand der gewählten Datei')}
+                  {other.origin === 'revision'
+                    ? t('compare.standBeforeRevision', 'Stand der gewählten Revision')
+                    : t('compare.standBefore', 'Stand der gewählten Datei')}
                 </div>
                 <div className="font-mono">#{planFingerprint(other.project)}</div>
               </div>
