@@ -36,6 +36,12 @@ export interface Gg5ImportResult {
    * sagen, was er nicht gelesen hat — schweigen ist der Schaden.
    */
   unreadSections: string[]
+  /**
+   * ADR-005 — was INNERHALB von Settings/Users/Groups ungelesen bleibt.
+   * `unreadSections` allein sagte nur, welche Top-Level-Sektionen fehlen,
+   * und liess den Nutzer glauben, der Rest sei uebernommen.
+   */
+  unreadFields: UnreadFieldReport[]
 }
 
 export interface Gg5ParseError {
@@ -270,11 +276,95 @@ export const parseGg5File = (jsonText: string): Gg5ParseOutcome => {
     },
     userTypeHints,
     unreadSections: unreadTopLevelSections(raw),
+    unreadFields: unreadFieldsInReadSections(raw),
   }
 }
 
 /** Von diesem Modul gelesene Sektionen einer .gg5. Alles andere ist ungelesen. */
 const READ_SECTIONS = new Set(['Settings', 'Users', 'Groups'])
+
+/**
+ * ADR-005, Inkrement 4 — die Felder, die dieses Modul INNERHALB der gelesenen
+ * Sektionen anfasst.
+ *
+ * Warum das eine eigene Ebene braucht: `unreadTopLevelSections` konnte per
+ * Konstruktion nie etwas melden, was unter Settings/Users/Groups liegt — die
+ * drei stehen ja in READ_SECTIONS. Der Nutzer las im Hinweis „Devices, Rooms,
+ * Templates" und schloss daraus, seine Stationen seien gelesen worden.
+ *
+ * Waren sie nicht. Pro Station liest der Parser fuenf Felder; der Exporter
+ * schreibt den Rest aus Konstanten zurueck (exportGreengo.buildUser):
+ * `devices: []` (die Hardware-Registrierung), `Channels`/`SpecialChannels`
+ * leer (die Tastenbelegungen), `Security.Pincode` leer, `AudioProfile` auf
+ * Standard-Gain. Auf einer Intercom-Anlage ist das der halbe Einmessvorgang.
+ *
+ * Wie oben gilt: aus dem Rohdokument ableiten, nicht aus einer zweiten
+ * gepflegten Liste — sonst laeuft sie von den Lesemengen auseinander, sobald
+ * der Parser ein Feld dazubekommt.
+ */
+const READ_SETTINGS_FIELDS = new Set(['Name', 'Description', 'MulticastAddress', 'SampleRate'])
+const READ_USER_FIELDS = new Set(['myId', 'Name', 'DisplayName', 'Color', 'ButtonFunctions'])
+const READ_GROUP_FIELDS = new Set(['myId', 'Name', 'Color', 'members'])
+
+/** Ungelesene Felder einer Sektion, plus wie viele Eintraege betroffen sind. */
+export interface UnreadFieldReport {
+  section: 'Settings' | 'Users' | 'Groups'
+  /** Feldnamen, die in der Datei stehen und hier niemand liest. */
+  fields: string[]
+  /** Betroffene Eintraege — bei Settings immer 1. */
+  entries: number
+}
+
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  !!v && typeof v === 'object' && !Array.isArray(v)
+
+/** Vereinigung der ungelesenen Feldnamen ueber alle Eintraege einer Sektion. */
+const unreadFieldsOf = (
+  section: UnreadFieldReport['section'],
+  entries: Record<string, unknown>[],
+  read: Set<string>,
+): UnreadFieldReport | null => {
+  const fields = new Set<string>()
+  let affected = 0
+  for (const entry of entries) {
+    const own = Object.keys(entry).filter((k) => !read.has(k))
+    if (own.length === 0) continue
+    affected++
+    for (const k of own) fields.add(k)
+  }
+  if (fields.size === 0) return null
+  return { section, fields: [...fields].sort(), entries: affected }
+}
+
+/** Eintraege einer keys-indizierten Sektion (Users/Groups) als Objekte. */
+const keyedEntries = (raw: Record<string, unknown>): Record<string, unknown>[] => {
+  const keys = Array.isArray(raw['keys']) ? (raw['keys'] as string[]) : []
+  return keys.map((k) => raw[k]).filter(isRecord)
+}
+
+/**
+ * Der Verlust EINE EBENE TIEFER als `unreadTopLevelSections`. Zusammen decken
+ * die beiden ab, was der Import fallen laesst; einzeln taeuscht die obere.
+ */
+const unreadFieldsInReadSections = (raw: Record<string, unknown>): UnreadFieldReport[] => {
+  const out: UnreadFieldReport[] = []
+  const settings = raw['Settings']
+  if (isRecord(settings)) {
+    const r = unreadFieldsOf('Settings', [settings], READ_SETTINGS_FIELDS)
+    if (r) out.push(r)
+  }
+  const users = raw['Users']
+  if (isRecord(users)) {
+    const r = unreadFieldsOf('Users', keyedEntries(users), READ_USER_FIELDS)
+    if (r) out.push(r)
+  }
+  const groups = raw['Groups']
+  if (isRecord(groups)) {
+    const r = unreadFieldsOf('Groups', keyedEntries(groups), READ_GROUP_FIELDS)
+    if (r) out.push(r)
+  }
+  return out
+}
 
 /**
  * ADR-005 — Welche Sektionen die Datei mitbringt, die hier niemand anfasst.
