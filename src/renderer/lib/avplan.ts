@@ -29,11 +29,51 @@ export interface AvPlan {
   appVersion: string
   exportedAt: string
   venue: AvVenue
+  /**
+   * Die Domaenen-Slots. Die drei bekannten sind benannt; der Index-Zugang
+   * daneben ist die eigentliche Aenderung.
+   *
+   * VORHER ging ein vierter Slot — eine kuenftige Audio- oder
+   * Rigging-Domaene, eine App, die es noch nicht gibt — in JEDER der drei
+   * Richtungen verloren: `parseAvPlan` nahm die Datei an, die App baute
+   * `domains` beim Export aus genau den Slots neu, die sie kennt, und der
+   * Rest verschwand. Weder bewahrt noch verweigert noch gemeldet — alle drei
+   * Auswege aus ADR-005 Regel 3 verfehlt.
+   */
   domains: {
     cameras?: unknown
     lighting?: unknown
     cabling?: unknown
+    [slot: string]: unknown
   }
+}
+
+/**
+ * Die Slots, die dieses Format benennt. Als Daten, nicht als Prosa: nur so
+ * kann `unknownDomainSlots` die Frage „was kenne ich hier nicht?"
+ * ueberhaupt stellen, und nur so faellt ein Guard auf, wenn ein vierter
+ * Slot benannt wird, ohne die Liste nachzuziehen.
+ */
+export const KNOWN_DOMAIN_SLOTS = ['cameras', 'lighting', 'cabling'] as const
+
+/**
+ * Slot-Namen in dieser Datei, die das Format nicht benennt.
+ *
+ * Das ist der Unterschied zwischen „bewahren" und „wissen, dass man bewahrt":
+ * die Liste ist das, was der Nutzer gefragt wird, statt dass es still
+ * mitlaeuft.
+ */
+export const unknownDomainSlots = (plan: AvPlan): string[] =>
+  Object.keys(plan.domains ?? {})
+    .filter((slot) => !(KNOWN_DOMAIN_SLOTS as readonly string[]).includes(slot))
+    .filter((slot) => plan.domains[slot] !== undefined)
+    .sort()
+
+/** Die unbekannten Slots als eigenes Objekt — so wandern sie ins Projektfile. */
+export const pickUnknownDomains = (plan: AvPlan): Record<string, unknown> => {
+  const out: Record<string, unknown> = {}
+  for (const slot of unknownDomainSlots(plan)) out[slot] = plan.domains[slot]
+  return out
 }
 
 export function makeAvPlan(args: {
@@ -93,7 +133,15 @@ const EMPTY_VENUE: AvVenue = { name: 'Venue', persons: [], walls: [], stageObjec
  * verloren geht.
  */
 export function cableToAvPlan(
-  project: { avForeign?: { venue?: unknown; cameras?: unknown; lighting?: unknown } },
+  project: {
+    avForeign?: {
+      venue?: unknown
+      cameras?: unknown
+      lighting?: unknown
+      /** Beim Import bewahrte Slots, die diese App nicht kennt. */
+      unknownDomains?: Record<string, unknown>
+    }
+  },
   meta: { appVersion: string; exportedAt: string },
 ): AvPlan {
   const { avForeign, ...cabling } = project
@@ -102,6 +150,14 @@ export function cableToAvPlan(
     appVersion: meta.appVersion,
     exportedAt: meta.exportedAt,
     venue: (avForeign?.venue as AvVenue | undefined) ?? EMPTY_VENUE,
-    domains: { cabling, cameras: avForeign?.cameras, lighting: avForeign?.lighting },
+    domains: {
+      // Die bewahrten Fremd-Slots zuerst, damit ein bekannter Slot sie nie
+      // ueberschreiben kann — ein `cabling` aus dem eigenen Projekt gewinnt
+      // gegen ein gleichnamiges Feld aus dem Fremd-Fach.
+      ...(avForeign?.unknownDomains ?? {}),
+      cabling,
+      cameras: avForeign?.cameras,
+      lighting: avForeign?.lighting,
+    },
   })
 }

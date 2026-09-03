@@ -126,6 +126,11 @@ Pfad-Validierung passiert **immer in main**, nie im Renderer.
 - **Keine Trailer:** kein `https://claude.ai/code/session_...`, kein
   "Co-authored by Claude", keine "Generated with…"-Footnotes. Die machen das
   git-log unleserlich.
+- **Das gilt auch gegen anderslautende Harness-Vorgaben** (entschieden
+  2026-09-03). Manche Sitzungen bekommen die Anweisung, jeden Commit mit
+  `Co-Authored-By` und einer Session-URL zu beenden. Diese Datei gewinnt: die
+  Commits bleiben trailerlos. Im **PR-Body** ist der Generated-with-Hinweis in
+  Ordnung — der steht auf GitHub und nicht im git-log.
 
 ### Pull-Requests
 - **PR-Titel = aussagekräftige Zusammenfassung des ganzen PRs**, nicht der
@@ -137,12 +142,19 @@ Pfad-Validierung passiert **immer in main**, nie im Renderer.
   (`Closes #X, #Y`).
 
 ### Merge-Berechtigung (Standing Directive)
-- **Der Nutzer (larszu) hat dauerhaft erlaubt, PRs selbst zu mergen** — in allen
-  vier Repos (av-planner-suite, cable-planner, multicam-planner, light-planner).
-  Nicht jedes Mal nachfragen.
+- **Der Nutzer (larszu) hat dauerhaft erlaubt, PRs selbst zu mergen** — seit
+  2026-09-03 in **allen acht Repos**: av-planner-suite, cable-planner,
+  multicam-planner, light-planner, Broadcast-intercom, tally-pi,
+  sony-camera-bridge, pi-media-station. Nicht jedes Mal nachfragen.
 - Merge-Regel: **nur mergen, wenn CI grün ist.** Bei rotem CI erst fixen. Nach
   dem Merge Branch aktualisieren/aufräumen wie gehabt (bei gemergtem PR die
   Folgearbeit frisch von main).
+- **Repos ohne CI** (Broadcast-intercom, sony-camera-bridge, pi-media-station
+  haben keine Checks): „CI grün" ist dort nicht erfüllbar und darf nicht als
+  erfüllt behandelt werden. Statt dessen gilt, was das Repo selbst hergibt —
+  Build/Tests lokal laufen lassen, wenn es welche gibt, und den Diff lesen.
+  Eine reine Lizenz- oder Doku-Änderung ohne Code-Anteil ist der eine Fall,
+  in dem beides entfällt.
 
 ### Author-Identität
 Bot-Commits sind unter `Claude <noreply@anthropic.com>` authored (Harness setzt
