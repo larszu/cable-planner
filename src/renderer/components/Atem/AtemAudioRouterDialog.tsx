@@ -143,9 +143,16 @@ export const AtemAudioRouterDialog = () => {
     [draft?.matrix, live],
   )
 
-  /** id → Name, aus beiden Seiten: das Geraet kennt oft die besseren Labels. */
-  const sourceName = (id: number | undefined): string => {
-    if (id === undefined) return t('atem.audio.live.notMentioned', 'nicht gemeldet')
+  /**
+   * id → Name, aus beiden Seiten: das Geraet kennt oft die besseren Labels.
+   *
+   * `undefined` hat je nach Seite zwei verschiedene Bedeutungen und darf
+   * nicht mit einem Wort abgetan werden: auf der Plan-Seite heisst es „dafuer
+   * gibt es keine Absicht", auf der Geraete-Seite „dazu hat es nichts
+   * gesagt". Deshalb nimmt die Funktion das fehlende Wort als Argument.
+   */
+  const sourceName = (id: number | undefined, missing: string): string => {
+    if (id === undefined) return missing
     if (id === 0) return t('atem.audio.noAudio', 'No Audio')
     const found =
       live?.matrix?.sources.find((x) => x.id === id) ??
@@ -574,9 +581,13 @@ export const AtemAudioRouterDialog = () => {
                 {allDeltas(comparison).map((d) => (
                   <li key={d.key}>
                     <span className="text-slate-400">{d.label}:</span>{' '}
-                    <span className="text-sky-300">{sourceName(d.planned)}</span>
+                    <span className="text-sky-300">
+                      {sourceName(d.planned, t('atem.audio.live.notPlanned', 'nicht geplant'))}
+                    </span>
                     {' -> '}
-                    <span className="text-amber-300">{sourceName(d.confirmed)}</span>
+                    <span className="text-amber-300">
+                      {sourceName(d.confirmed, t('atem.audio.live.notMentioned', 'nicht gemeldet'))}
+                    </span>
                   </li>
                 ))}
               </ul>

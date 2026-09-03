@@ -4251,6 +4251,7 @@ export const de: Dict = {
   "atem.audio.live.matches": "Plan and device agree",
   "atem.audio.live.agreeing": "{n} identical",
   "atem.audio.live.notMentioned": "not reported",
+  "atem.audio.live.notPlanned": "not planned",
   "atem.audio.live.adopt": "Adopt into the plan",
   "atem.audio.live.adoptTitle": "Adopt the reading as the new plan — this replaces the previous intent.",
   "atem.audio.live.adoptConfirm": "Adopt the reading into the plan?",
