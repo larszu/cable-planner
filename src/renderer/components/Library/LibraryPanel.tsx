@@ -313,6 +313,20 @@ export const LibraryPanel = () => {
    * port-direction × connector-type group, which is exactly what the local
    * dialog stores — only the field names differ.
    */
+  /**
+   * Woher die aktuellen Port-Gruppen stammen — und der Beleg dazu.
+   *
+   * Drei Wege fuellen sie: KI, Web-Ableitung und Heuristik. Keiner davon ist
+   * ein Datenblatt. Der Web-Weg liefert sogar die Fundstelle UND den
+   * Textschnipsel, aus dem die Stecker gezaehlt wurden — beides endete
+   * bisher in einer Statusmeldung und war weg, sobald die Vorlage entstand.
+   *
+   * Bei einer LIBRARY-Vorlage wiegt das schwerer als bei einem einzelnen
+   * Geraet: jedes Geraet, das spaeter daraus entsteht, erbt die geratenen
+   * Ports.
+   */
+  const [groupsOrigin, setGroupsOrigin] = useState<string | null>(null)
+
   const hintsToLocalDrafts = (hints: PortGroupHint[]): PortGroupDraft[] =>
     hints.map((h) => ({
       id: uuidv4(),
@@ -331,6 +345,9 @@ export const LibraryPanel = () => {
       return
     }
     setGroups(hintsToLocalDrafts(hints))
+    setGroupsOrigin(
+      t('library.origin.heuristic', 'Heuristik aus Name und Kategorie — kein Datenblatt'),
+    )
     setSuggestInfo(
       format(t('library.suggest.heuristic.ok', '{n} Port-Gruppe(n) per Heuristik vorgeschlagen.'), {
         n: hints.length,
@@ -355,6 +372,7 @@ export const LibraryPanel = () => {
         return
       }
       setGroups(hintsToLocalDrafts(hints))
+      setGroupsOrigin(t('library.origin.ai', 'KI-Vorschlag aus Name und Kategorie — kein Datenblatt'))
       setSuggestInfo(
         format(t('library.suggest.ai.ok', '{n} Port-Gruppe(n) von Gemini übernommen.'), {
           n: hints.length,
@@ -388,6 +406,17 @@ export const LibraryPanel = () => {
         return
       }
       setGroups(hintsToLocalDrafts(hints))
+      // Der Web-Weg ist der einzige, der eine echte Fundstelle mitbringt —
+      // und den Schnipsel, in dem die Stecker gezaehlt wurden. Genau der
+      // gehoert aufbewahrt: er macht die Angabe nachpruefbar, statt sie nur
+      // als „aus dem Web" zu kennzeichnen. Der Schnipsel wird gekuerzt, damit
+      // die Vorlage nicht einen halben Wikipedia-Artikel mitschleppt.
+      setGroupsOrigin(
+        format(
+          t('library.origin.web', 'Aus {source} abgeleitet (Stecker im Text gezählt): „{snippet}"'),
+          { source, snippet: snippet.replace(/\s+/g, ' ').trim().slice(0, 160) },
+        ),
+      )
       setSuggestInfo(
         format(t('library.suggest.web.ok', '{n} Port-Gruppe(n) aus {source} übernommen.'), {
           n: hints.length,
@@ -419,6 +448,7 @@ export const LibraryPanel = () => {
     setIsRackDeviceDraft(false)
     setRackUnitsDraft('')
     setGroups([defaultGroup('in'), defaultGroup('out')])
+    setGroupsOrigin(null)
   }
 
   const buildTemplate = (): EquipmentTemplate => {
@@ -434,6 +464,27 @@ export const LibraryPanel = () => {
       rackUnits: isRackDeviceDraft ? (rackUnitsDraft === '' ? 1 : rackUnitsDraft) : undefined,
       width: 240,
       height: 80 + maxPorts * 22,
+      // Die Herkunft wandert in die Vorlage mit. Ohne das waere sie beim
+      // Anlegen weg — und jedes Geraet, das spaeter aus dieser Vorlage
+      // entsteht, truege geratene Ports als Tatsache.
+      //
+      // Der festgehaltene Wert ist die Port-Zahl, wie beim AI-Port-Vorschlag:
+      // aendert der Nutzer die Gruppen danach, faellt sie auseinander und der
+      // Beleg gilt als ueberholt. Eine Aenderung, die die ZAHL nicht
+      // beruehrt (nur der Steckertyp), erkennt das nicht — dieselbe Grenze
+      // wie an den anderen Stellen, hier benannt statt verschwiegen.
+      ...(groupsOrigin && (inputs.length > 0 || outputs.length > 0)
+        ? {
+            specSource: {
+              ...(inputs.length > 0
+                ? { inputs: { value: `${inputs.length} In`, source: groupsOrigin } }
+                : {}),
+              ...(outputs.length > 0
+                ? { outputs: { value: `${outputs.length} Out`, source: groupsOrigin } }
+                : {}),
+            },
+          }
+        : {}),
     }
   }
 
