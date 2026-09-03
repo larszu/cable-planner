@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand'
 import type { EquipmentItem, EquipmentTemplate } from '../../types/equipment'
+import { pickModelFields } from '../../lib/modelFields'
 import { LIMITS } from '../../lib/layoutConstants'
 import { upsertCachedRentmanTemplate } from '../../lib/rentmanTemplateCache'
 // Dieselbe Regel wie beim Lager-Import (#628): was die neue Fassung nicht
@@ -42,10 +43,29 @@ export type TemplateSlice = Pick<
   | 'setCustomLibrary'
 >
 
+/**
+ * ADR-005 Design-Frage 2, entschieden: *„Alle Modell-Eigenschaften sollten in
+ * allen Plaenen immer den Geraeten zugeordnet sein — egal ob in der Anwendung
+ * abgefragt oder nicht."*
+ *
+ * Ein Template IST ein Geraetetyp (ADR-002), also gehoert jede
+ * Modell-Eigenschaft hinein — auch die, die keine Maske heute zeigt. Vorher
+ * trug diese Funktion 22 der 97 Felder; die uebrigen Modell-Eigenschaften
+ * (Masse, Gewicht, Leistung, Preise, Rollen im Signalfluss, Bilder) fielen
+ * beim Anlegen einer Vorlage weg und mussten von Hand nachgetragen werden.
+ *
+ * `pickModelFields` kommt ZUERST, die ausdruecklichen Felder danach: so
+ * gewinnt eine bewusste Angabe (der `override`-Name, die normalisierte
+ * Kategorie) gegen die Rohuebernahme, und der Rest kommt vollstaendig mit.
+ * Welches Feld Modell und welches Instanz ist, steht als Daten in
+ * `lib/modelFields.ts` — mit Laufzeit-Guard, damit ein neues Feld nicht
+ * stillschweigend unklassifiziert bleibt.
+ */
 const templateFromEquipment = (
   item: EquipmentItem,
   override: { name?: string; category?: string; preserveFlags?: EquipmentTemplate } = {},
 ): EquipmentTemplate => ({
+  ...(pickModelFields(item as unknown as Record<string, unknown>) as Partial<EquipmentTemplate>),
   name: override.name ?? item.name,
   category: (override.category || item.category || 'Sonstiges').trim() || 'Sonstiges',
   // ADR-002/ADR-005 — ein Template IST ein Geraetetyp; die stabile
