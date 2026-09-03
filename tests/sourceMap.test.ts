@@ -66,7 +66,7 @@ const scene = () => ({
 
 describe('buildSourceMap', () => {
   it('schreibt die Rolle mit Anker, Bindung und Eingangsnummer', () => {
-    const map = buildSourceMap(scene(), META)
+    const { map } = buildSourceMap(scene(), META)
     expect(map).toMatchObject({ kind: SOURCE_MAP_KIND, formatVersion: SOURCE_MAP_VERSION })
     expect(map.sources).toHaveLength(1)
     expect(map.sources[0]).toMatchObject({
@@ -85,7 +85,7 @@ describe('buildSourceMap', () => {
   })
 
   it('markiert jeden Wert als geplant — der Planer misst nicht', () => {
-    const map = buildSourceMap(scene(), META)
+    const { map } = buildSourceMap(scene(), META)
     expect(map.sources[0].provenance).toEqual({
       name: 'planned',
       number: 'planned',
@@ -94,7 +94,7 @@ describe('buildSourceMap', () => {
   })
 
   it('schreibt die Labels so, wie das Zielsystem sie wirklich zeigt', () => {
-    const map = buildSourceMap(scene(), META)
+    const { map } = buildSourceMap(scene(), META)
     // ATEM-Kurzname ist 4 Byte: aus "Kamera 1" wird "KAME".
     expect(map.sources[0].labels['atem-input-short']).toBe('KAME')
     expect(map.sources[0].labels['atem-input-long']).toBe('Kamera 1')
@@ -105,7 +105,7 @@ describe('buildSourceMap', () => {
     const s = scene()
     s.equipment[1].sourceIdentityId = undefined
     s.sourceIdentities = []
-    const map = buildSourceMap(s, META)
+    const { map } = buildSourceMap(s, META)
     expect(map.sources).toEqual([])
     expect(map.unresolved).toHaveLength(1)
     expect(map.unresolved[0]).toMatchObject({ field: 'umd-address', equipmentId: 'cam1' })
@@ -114,13 +114,13 @@ describe('buildSourceMap', () => {
   it('liefert eine leere Rollenliste, wenn es keine Rollen gibt', () => {
     // Das ist die richtige Antwort, kein Fehler: das Format transportiert
     // Identität, und ohne Rolle gibt es keine.
-    const map = buildSourceMap({ equipment: [], cables: [], sourceIdentities: [] }, META)
+    const { map } = buildSourceMap({ equipment: [], cables: [], sourceIdentities: [] }, META)
     expect(map.sources).toEqual([])
     expect(map.unresolved).toEqual([])
   })
 
   it('kommt mit einer Rolle ohne verkabeltes Gerät klar', () => {
-    const map = buildSourceMap(
+    const { map } = buildSourceMap(
       { equipment: [], cables: [], sourceIdentities: [{ id: 'r1', name: 'Kamera 1' }] },
       META,
     )
@@ -131,7 +131,7 @@ describe('buildSourceMap', () => {
 
 describe('parseSourceMap', () => {
   it('liest, was buildSourceMap geschrieben hat', () => {
-    const map = buildSourceMap(scene(), META)
+    const { map } = buildSourceMap(scene(), META)
     const back = parseSourceMap(JSON.stringify(map))
     expect(back.sources[0]).toMatchObject({ id: 'r1', name: 'Kamera 1', umdAddress: 3 })
   })
@@ -224,7 +224,7 @@ describe('mergeSourceMap', () => {
 describe('Rundreise', () => {
   it('überlebt build → parse → merge ohne Verlust', () => {
     const s = scene()
-    const map = buildSourceMap(s, META)
+    const { map } = buildSourceMap(s, META)
     const back = parseSourceMap(JSON.stringify(map))
     const merged = mergeSourceMap([], back)
     expect(merged.identities).toEqual(s.sourceIdentities)
@@ -281,5 +281,89 @@ describe('mergeSourceMap — Provenienz, die der Plan nicht halten kann (ADR-005
     // waere eigener Schaden.
     const r = mergeSourceMap([], mapWith({ umdAddress: 'confirmed' }))
     expect(r.identities[0].umdAddress).toBe(4)
+  })
+})
+
+// ───────────────────────────────────────────────────────────────────────────
+// ADR-005, Inkrement 4 — eine Rolle mit zwei Geraeten.
+//
+// `labels` steht EINMAL je Rolle, wird aber in der Schleife ueber die Geraete
+// beschrieben. Bei Haupt- und Backup-Kamera auf zwei ATEM-Eingaengen ueberlebt
+// nur das zuletzt gelesene Geraet — und welches das ist, entscheidet die
+// Reihenfolge in `project.equipment`.
+//
+// Der Typ verspricht „was das jeweilige Zielsystem nach seinem Zeichenbudget
+// wirklich zeigt". Es zeigt zwei verschiedene Beschriftungen; in der Datei
+// steht eine, ohne Hinweis darauf, welche.
+//
+// Die Datei RICHTIG zu machen hiesse, `labels` in die `bindings` zu ziehen —
+// das aendert das Draht-Format und ist deshalb nicht Sache dieses Fixes. Was
+// hier geht und Regel 3 verlangt: es sagen.
+describe('buildSourceMap — Rolle mit mehreren Geraeten', () => {
+  const zweiGeraete = () => ({
+    equipment: [
+      eq({
+        id: 'atem',
+        name: 'ATEM Mini Extreme',
+        inputs: [
+          port('in1', 'In 1', { contentLabel: 'Kamera 1 Haupt' }),
+          port('in2', 'In 2', { contentLabel: 'Kamera 1 Backup' }),
+        ],
+      }),
+      eq({
+        id: 'cam-haupt',
+        name: 'URSA Haupt',
+        category: 'Kameras',
+        outputs: [port('haupt-out', 'SDI Out')],
+        sourceIdentityId: 'r1',
+      }),
+      eq({
+        id: 'cam-backup',
+        name: 'URSA Backup',
+        category: 'Kameras',
+        outputs: [port('backup-out', 'SDI Out')],
+        sourceIdentityId: 'r1',
+      }),
+    ],
+    cables: [
+      cable(['cam-haupt', 'haupt-out'], ['atem', 'in1']),
+      cable(['cam-backup', 'backup-out'], ['atem', 'in2']),
+    ],
+    sourceIdentities: [{ id: 'r1', name: 'Kamera 1', number: 1, umdAddress: 3 }],
+  })
+
+  it('meldet die Rolle, statt still eine der beiden Beschriftungen zu behaupten', () => {
+    const { ambiguousLabels } = buildSourceMap(zweiGeraete(), META)
+    expect(ambiguousLabels).toEqual([
+      { name: 'Kamera 1', devices: ['URSA Haupt', 'URSA Backup'] },
+    ])
+  })
+
+  it('schreibt trotzdem beide Bindungen — die Datei verliert die Geraete nicht', () => {
+    // Wichtig fuer die Einordnung: NUR `labels` ist flach. `bindings` traegt
+    // beide Geraete samt Eingang. Deshalb waere die Datei auch reparabel,
+    // ohne etwas dazuzuerfinden.
+    const { map } = buildSourceMap(zweiGeraete(), META)
+    expect(map.sources[0].bindings.map((b) => b.equipmentId)).toEqual([
+      'cam-haupt',
+      'cam-backup',
+    ])
+    expect(map.sources[0].bindings.map((b) => b.input)).toEqual([1, 2])
+  })
+
+  it('haelt fest, WAS verloren geht: nur eine Beschriftung steht in der Datei', () => {
+    // Dieser Test beschreibt den heutigen, falschen Zustand — bewusst. Wer
+    // `labels` in die `bindings` zieht, bringt ihn zu Fall und muss ihn
+    // anfassen, statt die Aenderung unbemerkt vorbeizuschieben.
+    const { map } = buildSourceMap(zweiGeraete(), META)
+    const labels = map.sources[0].labels
+    // Zwei Eingaenge, zwei Beschriftungen — in der Datei steht die des
+    // ZULETZT gelesenen Geraets, hier also die des Backups.
+    expect(labels['atem-input-long']).toBe('Kamera 1 Backup')
+    expect(Object.keys(labels).filter((k) => k.startsWith('atem-input'))).toHaveLength(2)
+  })
+
+  it('meldet nichts, wenn die Rolle nur ein Geraet hat', () => {
+    expect(buildSourceMap(scene(), META).ambiguousLabels).toEqual([])
   })
 })
