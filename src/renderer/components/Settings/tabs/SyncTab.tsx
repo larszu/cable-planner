@@ -6,6 +6,9 @@ import { CollabPanel } from '../../Sync/CollabPanel'
 import { hasDesktopBridge } from '../../../lib/bridge'
 import { SettingsCard } from '../SettingsCard'
 import { syncSharedLibrary, type LibrarySyncResult } from '../../../lib/sharedLibrarySync'
+import { countCredentialBearers } from '../../../lib/credentialKeys'
+import { credentialChoiceDialog, type CredentialChoice } from '../../../lib/credentialChoiceDialog'
+import { useProjectStore } from '../../../store/projectStore'
 
 /**
  * #434 — Workgroup-/Shared-Library: ein „Bibliothek jetzt synchronisieren"-
@@ -19,10 +22,27 @@ const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
   const disabled = busy || !hasDesktopBridge || !syncPath.trim()
 
   const run = async () => {
+    // Design-Frage 5 — gefragt wird nur, wenn es etwas zu entscheiden gibt.
+    // Der Erklaertext dieses Tabs nennt „Geraete-Vorlagen, Gruppen und
+    // Kategorien"; von Zugangsdaten stand dort nie etwas, und sie gingen
+    // trotzdem in den geteilten Ordner.
+    const withCredentials = countCredentialBearers(useProjectStore.getState().customLibrary)
+    let choice: CredentialChoice = 'strip'
+    if (withCredentials > 0) {
+      const answer = await credentialChoiceDialog(
+        withCredentials,
+        t(
+          'cred.dest.sharedLib',
+          'Sie würden in den geteilten Ordner geschrieben und wären für das ganze Team lesbar.',
+        ),
+      )
+      if (answer === null) return // abgebrochen: gar nicht synchronisieren
+      choice = answer
+    }
     setBusy(true)
     setRes(null)
     try {
-      setRes(await syncSharedLibrary())
+      setRes(await syncSharedLibrary(choice))
     } finally {
       setBusy(false)
     }

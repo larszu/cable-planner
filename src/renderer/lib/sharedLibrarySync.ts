@@ -16,6 +16,8 @@
 // Name, anderer Inhalt) werden gezählt + gemeldet, nie still überschrieben.
 
 import { cablePlannerApi, hasDesktopBridge } from './bridge'
+import { stripCredentials } from './credentialKeys'
+import type { CredentialChoice } from './credentialChoiceDialog'
 import { useSettingsStore } from '../store/settingsStore'
 import { useProjectStore } from '../store/projectStore'
 import {
@@ -58,7 +60,16 @@ const empty = (error?: string, lockedBy?: string): LibrarySyncResult => ({
  * Lock holen → geteilte Datei lesen → fehlende Items lokal ergänzen (Pull) →
  * Vereinigung zurückschreiben (Push) → Lock freigeben.
  */
-export const syncSharedLibrary = async (): Promise<LibrarySyncResult> => {
+export const syncSharedLibrary = async (
+  /**
+   * Design-Frage 5 — was mit Geraete-Zugangsdaten passiert, die in den
+   * Vorlagen stehen. BEWUSST ein Pflicht-Parameter ohne Default: der alte
+   * Zustand war „geht stillschweigend mit", und ein Default haette genau den
+   * wiederhergestellt, sobald ein Aufrufer ihn weglaesst. Wer diese Funktion
+   * ruft, muss die Frage beantwortet haben.
+   */
+  credentials: CredentialChoice,
+): Promise<LibrarySyncResult> => {
   if (!hasDesktopBridge) return empty('desktop-only')
   const dir = useSettingsStore.getState().sharedSyncPath?.trim()
   if (!dir) return empty('no-path')
@@ -98,7 +109,11 @@ export const syncSharedLibrary = async (): Promise<LibrarySyncResult> => {
 
     // ── Push: Vereinigung (lokal gewinnt) zurückschreiben ──
     const after = useProjectStore.getState()
-    const writeDevices = unionByName(after.customLibrary, sDevices)
+    const merged = unionByName(after.customLibrary, sDevices)
+    // Gestrippt wird NUR, was hinausgeht. Die lokale Bibliothek behaelt ihre
+    // Zugangsdaten — sonst kostete ein einziger Sync sie dem Nutzer dauerhaft.
+    const writeDevices =
+      credentials === 'strip' ? stripCredentials(merged) : merged
     const writeGroups = unionByName(after.groupPresets, sGroups)
     const writeCats = [...new Set([...after.knownCategories, ...sCats])]
     const out: SharedLibraryFile = {
