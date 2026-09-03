@@ -201,7 +201,22 @@ export interface CablePlannerProject {
    *  Planung), die der Cable-Planner nicht bearbeitet, aber verlustfrei sowohl
    *  in der gemeinsamen .avplan als auch im eigenen Projektfile aufbewahrt,
    *  damit beim App-uebergreifenden Austausch nichts verloren geht. Optional. */
-  avForeign?: { venue?: unknown; cameras?: unknown; lighting?: unknown }
+  /**
+   * Fremde `.avplan`-Domaenen, die diese App nicht selbst bearbeitet, hier
+   * aber aufbewahrt, damit sie ein natives `.cp`-Speichern ueberleben.
+   *
+   * `unknownDomains` sind Slots, die das FORMAT nicht benennt — eine
+   * kuenftige Audio- oder Rigging-Domaene, eine App, die es noch nicht gibt.
+   * Sie werden beim Import ausdruecklich abgefragt (siehe
+   * `lib/unknownDomainsDialog`) und standardmaessig unveraendert
+   * mitgefuehrt; vorher gingen sie in jeder Richtung still verloren.
+   */
+  avForeign?: {
+    venue?: unknown
+    cameras?: unknown
+    lighting?: unknown
+    unknownDomains?: Record<string, unknown>
+  }
   /** Drum-Mikrofonierung — visuelles Schlagzeug mit platzierten Mikrofonen.
    *  Optional → alte Projekte laden sauber. Verlustfrei in der .avplan. */
   drumKit?: import('./drumKit').DrumKitPlan
