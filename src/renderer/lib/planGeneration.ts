@@ -82,6 +82,13 @@ const coerceConnector = (v: unknown): ConnectorType => {
   return 'Custom'
 }
 
+/**
+ * Der Beleg, den ein generiertes Geraet traegt. Wortlaut bewusst nah an dem
+ * des Port-Vorschlags: der Nutzer soll beide als dieselbe Sorte Angabe lesen.
+ */
+const AI_PLAN_SOURCE =
+  'AI-Plangenerierung aus einer Beschreibung — nicht aus einem Datenblatt'
+
 const makePort = (name: string, connector: ConnectorType): Port => ({
   id: uuid(),
   name,
@@ -122,6 +129,30 @@ export const generatePlanFromPrompt = async (description: string): Promise<Gener
       y: Math.floor(i / COLS) * ROW_H + 80,
       width: 220,
       height: 60,
+      // Dieselbe Kennzeichnung wie beim AI-Port-Vorschlag (#650): diese Ports
+      // hat ein Modell aus einer Beschreibung abgeleitet, nicht aus einem
+      // Datenblatt. Ohne sie stuenden sie ununterscheidbar neben geplanten,
+      // und Pruefung 18 bliebe still — hier sogar fuer einen ganzen Plan auf
+      // einmal.
+      //
+      // Nur die GERAETE tragen die Kennzeichnung. Ob und wie ein vom Modell
+      // erfundenes KABEL sie tragen soll, ist eine eigene Frage: `Cable` hat
+      // kein `specSource`, und eine erfundene Verbindung ist womoeglich mehr
+      // als eine Markierung wert. Sie hier nebenbei zu beantworten waere die
+      // Sorte Nebenbei-Entscheidung, die dieses Repo an mehreren Stellen
+      // ausdruecklich zurueckweist.
+      ...(inputs.length > 0 || outputs.length > 0
+        ? {
+            specSource: {
+              ...(inputs.length > 0
+                ? { inputs: { value: `${inputs.length} In`, source: AI_PLAN_SOURCE } }
+                : {}),
+              ...(outputs.length > 0
+                ? { outputs: { value: `${outputs.length} Out`, source: AI_PLAN_SOURCE } }
+                : {}),
+            },
+          }
+        : {}),
     }
     equipment.push(item)
     // Erstes Vorkommen eines Namens gewinnt.
